@@ -245,7 +245,7 @@ const Staff = () => {
                     02-XXX-XXXX
                   </a>
                   <a
-                    href="mailto:hr@wittayakom.ac.th"
+                    href="mailto:hr@bankamphai.ac.th"
                     className="inline-flex items-center gap-3 bg-primary-foreground/10 text-primary-foreground px-6 py-3 rounded-xl font-semibold hover:bg-primary-foreground/20 transition-colors border border-primary-foreground/20"
                   >
                     <Mail className="w-5 h-5" />

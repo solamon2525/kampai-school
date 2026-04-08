@@ -45,7 +45,7 @@ const AdminLogin = () => {
       <Card className="w-full max-w-md relative z-10 shadow-2xl border-0">
         <CardHeader className="text-center pb-2">
           <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-primary flex items-center justify-center">
-            <span className="text-accent font-bold text-2xl">วค</span>
+            <span className="text-accent font-bold text-2xl">คผ</span>
           </div>
           <CardTitle className="text-2xl text-primary">ระบบจัดการโรงเรียน</CardTitle>
           <CardDescription>กรุณาเข้าสู่ระบบเพื่อจัดการข้อมูล</CardDescription>

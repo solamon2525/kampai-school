@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { MapPin, Phone, Mail, Clock, Send, Facebook, Youtube, Instagram, MessageCircle, Link as LinkIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,11 +35,19 @@ const ContactSection = () => {
     },
   ];
 
-  const socialLinks = [
-    { icon: Facebook, href: settings.social_facebook || '#', label: 'Facebook', show: !!settings.social_facebook },
-    { icon: Youtube, href: settings.social_youtube || '#', label: 'Youtube', show: !!settings.social_youtube },
-    { icon: Instagram, href: settings.social_instagram || '#', label: 'Instagram', show: !!settings.social_instagram },
-  ];
+  const platformIcons: Record<string, React.ElementType> = {
+    facebook: Facebook,
+    youtube: Youtube,
+    instagram: Instagram,
+    line: MessageCircle,
+  };
+
+  const socialLinks = (settings.social_links || []).map(link => ({
+    icon: platformIcons[link.platform] || LinkIcon,
+    href: link.url,
+    label: link.platform,
+    show: !!link.url,
+  }));
   const [formData, setFormData] = useState({
     name: '',
     email: '',

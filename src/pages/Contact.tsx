@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { MapPin, Phone, Mail, Clock, Send, Facebook, Youtube, Instagram, MessageCircle, Link as LinkIcon } from 'lucide-react';
@@ -36,13 +36,22 @@ const Contact = () => {
     { icon: Clock, title: 'เวลาทำการ', content: settings.contact_hours || 'จันทร์ - ศุกร์ 07:30 - 16:30 น.' },
   ];
 
-  // Build social links from settings
-  const socialLinks = [
-    { icon: Facebook, href: settings.social_facebook || '#', label: 'Facebook', color: 'hover:bg-blue-600' },
-    { icon: Youtube, href: settings.social_youtube || '#', label: 'Youtube', color: 'hover:bg-red-600' },
-    { icon: Instagram, href: settings.social_instagram || '#', label: 'Instagram', color: 'hover:bg-pink-600' },
-    { icon: MessageCircle, href: settings.social_line || '#', label: 'Line', color: 'hover:bg-green-500' },
-  ].filter(link => link.href && link.href !== '#');
+  // Build social links from settings.social_links (single source of truth)
+  const platformIcons: Record<string, React.ElementType> = {
+    facebook: Facebook, youtube: Youtube, instagram: Instagram, line: MessageCircle,
+  };
+  const platformColors: Record<string, string> = {
+    facebook: 'hover:bg-blue-600', youtube: 'hover:bg-red-600',
+    instagram: 'hover:bg-pink-600', line: 'hover:bg-green-500',
+  };
+  const socialLinks = (settings.social_links || [])
+    .filter(link => !!link.url)
+    .map(link => ({
+      icon: platformIcons[link.platform] || LinkIcon,
+      href: link.url,
+      label: link.platform,
+      color: platformColors[link.platform] || 'hover:bg-primary',
+    }));
 
   useEffect(() => {
     fetchFaq();

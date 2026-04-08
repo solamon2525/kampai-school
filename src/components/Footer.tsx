@@ -33,7 +33,7 @@ const Footer = () => {
           <div className="lg:col-span-1">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center">
-                <span className="text-accent-foreground font-bold text-xl">วค</span>
+                <span className="text-accent-foreground font-bold text-xl">คผ</span>
               </div>
               <div>
                 <h3 className="text-lg font-bold">{settings.school_name}</h3>

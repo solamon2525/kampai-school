@@ -65,7 +65,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
                 <div className="p-4 border-b border-border">
                     <Link to="/" className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-                            <span className="text-accent font-bold">วค</span>
+                            <span className="text-accent font-bold">คผ</span>
                         </div>
                         <div>
                             <h1 className="font-bold text-primary text-sm">{settings.school_name}</h1>

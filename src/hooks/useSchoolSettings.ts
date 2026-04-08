@@ -59,11 +59,7 @@ export interface SchoolSettings {
     contact_map_url: string;
     google_maps_embed: string;
 
-    // Social Media
-    social_facebook: string;
-    social_youtube: string;
-    social_instagram: string;
-    social_line: string;
+    // Social Media (ใช้ social_links เป็นระบบเดียว)
     social_links: SocialLink[];
 
     // Footer Services
@@ -80,7 +76,7 @@ export interface SchoolSettings {
 }
 
 const defaultSettings: SchoolSettings = {
-    school_name: 'โรงเรียนห้องสื่อครูคอมวิทยาคม',
+    school_name: 'โรงเรียนบ้านคำไผ่',
     school_tagline: 'ก้าวสู่อนาคตด้วยปัญญา',
     school_description: 'สถาบันการศึกษาชั้นนำระดับมัธยมศึกษา มุ่งมั่นพัฒนาผู้เรียนให้มีความเป็นเลิศทางวิชาการ',
     school_vision: 'มุ่งมั่นพัฒนาผู้เรียนให้มีความเป็นเลิศทางวิชาการ มีคุณธรรม จริยธรรม',
@@ -115,15 +111,11 @@ const defaultSettings: SchoolSettings = {
     about_stat_4_label: 'ศิษย์เก่าทั่วประเทศ',
     contact_address: '123 ถนนการศึกษา แขวงวิทยาคม เขตพัฒนา กรุงเทพฯ 10XXX',
     contact_phone: '02-XXX-XXXX',
-    contact_email: 'info@wittayakom.ac.th',
+    contact_email: 'info@bankamphai.ac.th',
     contact_fax: '',
     contact_hours: 'จันทร์ - ศุกร์ 07:30 - 16:30 น.',
     contact_map_url: '',
     google_maps_embed: '',
-    social_facebook: '',
-    social_youtube: '',
-    social_instagram: '',
-    social_line: '',
     footer_service_1_name: 'ระบบรับสมัคร',
     footer_service_1_url: '#',
     footer_service_2_name: 'ตรวจสอบผลการเรียน',
@@ -182,71 +174,29 @@ export const useSchoolSettings = () => {
             if (error) throw error;
 
             if (data) {
+                // แปลง array เป็น map { key: value }
                 const settingsMap: Record<string, string> = {};
                 data.forEach((setting: any) => {
                     settingsMap[setting.key] = setting.value || '';
                 });
 
-                const newSettings: SchoolSettings = {
-                    school_name: settingsMap.school_name || defaultSettings.school_name,
-                    school_tagline: settingsMap.school_tagline || defaultSettings.school_tagline,
-                    school_description: settingsMap.school_description || defaultSettings.school_description,
-                    school_vision: settingsMap.school_vision || defaultSettings.school_vision,
-                    school_mission: settingsMap.school_mission || defaultSettings.school_mission,
-                    school_values: settingsMap.school_values || defaultSettings.school_values,
-                    school_history: settingsMap.school_history || defaultSettings.school_history,
-                    hero_badge: settingsMap.hero_badge || defaultSettings.hero_badge,
-                    hero_title_1: settingsMap.hero_title_1 || defaultSettings.hero_title_1,
-                    hero_title_2: settingsMap.hero_title_2 || defaultSettings.hero_title_2,
-                    stat_students: settingsMap.stat_students || defaultSettings.stat_students,
-                    stat_students_label: settingsMap.stat_students_label || defaultSettings.stat_students_label,
-                    stat_university: settingsMap.stat_university || defaultSettings.stat_university,
-                    stat_university_label: settingsMap.stat_university_label || defaultSettings.stat_university_label,
-                    stat_years: settingsMap.stat_years || defaultSettings.stat_years,
-                    stat_years_label: settingsMap.stat_years_label || defaultSettings.stat_years_label,
-                    about_title_1: settingsMap.about_title_1 || defaultSettings.about_title_1,
-                    about_title_2: settingsMap.about_title_2 || defaultSettings.about_title_2,
-                    curriculum_title_1: settingsMap.curriculum_title_1 || defaultSettings.curriculum_title_1,
-                    curriculum_title_2: settingsMap.curriculum_title_2 || defaultSettings.curriculum_title_2,
-                    curriculum_description: settingsMap.curriculum_description || defaultSettings.curriculum_description,
-                    curriculum_study_time: settingsMap.curriculum_study_time || defaultSettings.curriculum_study_time,
-                    curriculum_class_size: settingsMap.curriculum_class_size || defaultSettings.curriculum_class_size,
-                    curriculum_duration: settingsMap.curriculum_duration || defaultSettings.curriculum_duration,
-                    curriculum_duration_label: settingsMap.curriculum_duration_label || defaultSettings.curriculum_duration_label,
-                    about_stat_1: settingsMap.about_stat_1 || defaultSettings.about_stat_1,
-                    about_stat_1_label: settingsMap.about_stat_1_label || defaultSettings.about_stat_1_label,
-                    about_stat_2: settingsMap.about_stat_2 || defaultSettings.about_stat_2,
-                    about_stat_2_label: settingsMap.about_stat_2_label || defaultSettings.about_stat_2_label,
-                    about_stat_3: settingsMap.about_stat_3 || defaultSettings.about_stat_3,
-                    about_stat_3_label: settingsMap.about_stat_3_label || defaultSettings.about_stat_3_label,
-                    about_stat_4: settingsMap.about_stat_4 || defaultSettings.about_stat_4,
-                    about_stat_4_label: settingsMap.about_stat_4_label || defaultSettings.about_stat_4_label,
-                    contact_address: settingsMap.contact_address || defaultSettings.contact_address,
-                    contact_phone: settingsMap.contact_phone || defaultSettings.contact_phone,
-                    contact_email: settingsMap.contact_email || defaultSettings.contact_email,
-                    contact_fax: settingsMap.contact_fax || '',
-                    contact_hours: settingsMap.contact_hours || defaultSettings.contact_hours,
-                    contact_map_url: settingsMap.contact_map_url || '',
-                    google_maps_embed: settingsMap.google_maps_embed || '',
-                    social_facebook: settingsMap.social_facebook || '',
-                    social_youtube: settingsMap.social_youtube || '',
-                    social_instagram: settingsMap.social_instagram || '',
-                    social_line: settingsMap.social_line || '',
-                    footer_service_1_name: settingsMap.footer_service_1_name || defaultSettings.footer_service_1_name,
-                    footer_service_1_url: settingsMap.footer_service_1_url || defaultSettings.footer_service_1_url,
-                    footer_service_2_name: settingsMap.footer_service_2_name || defaultSettings.footer_service_2_name,
-                    footer_service_2_url: settingsMap.footer_service_2_url || defaultSettings.footer_service_2_url,
-                    footer_service_3_name: settingsMap.footer_service_3_name || defaultSettings.footer_service_3_name,
-                    footer_service_3_url: settingsMap.footer_service_3_url || defaultSettings.footer_service_3_url,
-                    footer_service_4_name: settingsMap.footer_service_4_name || defaultSettings.footer_service_4_name,
-                    footer_service_4_url: settingsMap.footer_service_4_url || defaultSettings.footer_service_4_url,
-                    academic_calendar_url: settingsMap.academic_calendar_url || defaultSettings.academic_calendar_url,
-                    academic_year: settingsMap.academic_year || defaultSettings.academic_year,
-                    social_links: settingsMap.social_links ? JSON.parse(settingsMap.social_links) : defaultSettings.social_links,
-                };
+                // Map ทุก key อัตโนมัติจาก defaultSettings โดยไม่ต้องเขียนซ้ำทีละบรรทัด
+                const newSettings = (Object.keys(defaultSettings) as Array<keyof SchoolSettings>).reduce(
+                    (acc, key) => {
+                        if (key === 'social_links') {
+                            // social_links เก็บเป็น JSON string ต้อง parse พิเศษ
+                            acc[key] = settingsMap.social_links
+                                ? JSON.parse(settingsMap.social_links)
+                                : defaultSettings.social_links;
+                        } else {
+                            (acc[key] as string) = settingsMap[key] || (defaultSettings[key] as string);
+                        }
+                        return acc;
+                    },
+                    {} as SchoolSettings
+                );
 
                 setSettings(newSettings);
-                // Cache the new settings
                 saveCacheSettings(newSettings);
             }
         } catch (error) {
