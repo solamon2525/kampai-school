@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
+import { supabase } from '@/integrations/supabase/client';
 
 
 
@@ -63,19 +64,35 @@ const ContactSection = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: 'ส่งข้อความสำเร็จ',
-      description: 'เราได้รับข้อความของคุณแล้ว จะติดต่อกลับโดยเร็วที่สุด',
-    });
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      subject: '',
-      message: '',
-    });
+    setSubmitting(true);
+    try {
+      const { error } = await supabase.from('contact_messages').insert({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        subject: formData.subject,
+        message: formData.message,
+        is_read: false,
+      });
+      if (error) throw error;
+      toast({
+        title: 'ส่งข้อความสำเร็จ',
+        description: 'เราได้รับข้อความของคุณแล้ว จะติดต่อกลับโดยเร็วที่สุด',
+      });
+      setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'เกิดข้อผิดพลาด',
+        description: 'ไม่สามารถส่งข้อความได้ กรุณาลองใหม่อีกครั้ง',
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -265,9 +282,10 @@ const ContactSection = () => {
                 type="submit"
                 size="lg"
                 className="w-full bg-accent text-accent-foreground font-semibold hover:bg-accent/90 h-14 gap-2"
+                disabled={submitting}
               >
                 <Send className="w-5 h-5" />
-                ส่งข้อความ
+                {submitting ? 'กำลังส่ง...' : 'ส่งข้อความ'}
               </Button>
             </form>
           </div>

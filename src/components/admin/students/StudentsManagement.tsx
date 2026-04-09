@@ -41,7 +41,7 @@ export const StudentsManagement = () => {
     const [formData, setFormData] = useState({
         title: '',
         description: '',
-        year: new Date().getFullYear().toString().replace('20', '25'),
+        year: (new Date().getFullYear() + 543).toString(),
         category: 'รางวัล',
         name: '',
         members: 0,
@@ -90,7 +90,7 @@ export const StudentsManagement = () => {
         setFormData({
             title: '',
             description: '',
-            year: new Date().getFullYear().toString().replace('20', '25'),
+            year: (new Date().getFullYear() + 543).toString(),
             category: 'รางวัล',
             name: '',
             members: 0,

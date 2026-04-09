@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import DOMPurify from 'dompurify';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Calendar, Eye, Search, Filter, X, ExternalLink } from 'lucide-react';
@@ -180,7 +181,7 @@ const News = () => {
 
             <div
               className="prose prose-lg max-w-none text-foreground mb-8"
-              dangerouslySetInnerHTML={{ __html: selectedNews.content }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedNews.content) }}
             />
 
             {/* External Links */}
