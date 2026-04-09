@@ -11,11 +11,10 @@ import { th } from 'date-fns/locale';
 
 interface Album {
   id: string;
-  title: string;
+  name: string;
   category: string | null;
   date: string;
-  location: string | null;
-  cover_photo_url: string | null;
+  cover_image_url: string | null;
   description: string | null;
   photos: Photo[];
 }
@@ -53,7 +52,7 @@ const Gallery = () => {
         .from('gallery_albums' as any)
         .select('*')
         .eq('is_published', true)
-        .order('event_date', { ascending: false });
+        .order('created_at', { ascending: false });
 
       if (albumsError) throw albumsError;
 
@@ -67,13 +66,10 @@ const Gallery = () => {
 
           return {
             id: album.id,
-            title: album.title,
+            name: album.name,
             category: album.category,
-            date: album.event_date
-              ? format(new Date(album.event_date), 'dd MMMM yyyy', { locale: th })
-              : format(new Date(album.created_at), 'dd MMMM yyyy', { locale: th }),
-            location: album.location,
-            cover_photo_url: album.cover_photo_url || ((photos as any)?.[0]?.photo_url) || null,
+            date: format(new Date(album.created_at), 'dd MMMM yyyy', { locale: th }),
+            cover_image_url: album.cover_image_url || ((photos as any)?.[0]?.image_url) || null,
             description: album.description,
             photos: (photos as any[]) || [],
           };
@@ -167,10 +163,10 @@ const Gallery = () => {
                 onClick={() => handleAlbumClick(album)}
               >
                 <div className="relative w-full h-48 overflow-hidden">
-                  {album.cover_photo_url ? (
+                  {album.cover_image_url ? (
                     <img
-                      src={album.cover_photo_url}
-                      alt={album.title}
+                      src={album.cover_image_url}
+                      alt={album.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (
@@ -179,11 +175,11 @@ const Gallery = () => {
                     </div>
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                    <h3 className="text-lg font-semibold text-white">{album.title}</h3>
+                    <h3 className="text-lg font-semibold text-white">{album.name}</h3>
                   </div>
                 </div>
                 <div className="p-4">
-                  <h3 className="text-lg font-semibold mb-2">{album.title}</h3>
+                  <h3 className="text-lg font-semibold mb-2">{album.name}</h3>
                   {album.category && (
                     <Badge className={`mb-2 ${categoryColors[album.category] || 'bg-gray-500'}`}>
                       {album.category}
@@ -193,12 +189,6 @@ const Gallery = () => {
                     <Calendar className="w-4 h-4 mr-1" />
                     <span>{album.date}</span>
                   </div>
-                  {album.location && (
-                    <div className="flex items-center text-sm text-muted-foreground mt-1">
-                      <MapPin className="w-4 h-4 mr-1" />
-                      <span>{album.location}</span>
-                    </div>
-                  )}
                 </div>
               </div>
             ))}
@@ -213,7 +203,7 @@ const Gallery = () => {
               {/* Header - Floating Glass Strip */}
               <div className="absolute top-0 left-0 right-0 p-4 z-50 flex items-center justify-between pointer-events-none">
                 <div className="flex-1 min-w-0 pointer-events-auto bg-black/40 backdrop-blur-md px-6 py-2 rounded-full inline-block mr-auto border border-white/10 shadow-lg animate-in slide-in-from-top-4 duration-500">
-                  <h3 className="font-bold text-lg truncate text-white">{selectedAlbum.title}</h3>
+                  <h3 className="font-bold text-lg truncate text-white">{selectedAlbum.name}</h3>
                   <p className="text-xs text-white/70 uppercase tracking-wider">
                     PHOTO {currentPhotoIndex + 1} OF {selectedAlbum.photos.length}
                   </p>
