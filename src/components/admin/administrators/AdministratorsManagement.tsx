@@ -207,7 +207,7 @@ export const AdministratorsManagement = () => {
                             เพิ่มผู้บริหาร
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-md">
+                    <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
                             <DialogTitle>
                                 {editingAdmin ? 'แก้ไขผู้บริหาร' : 'เพิ่มผู้บริหารใหม่'}

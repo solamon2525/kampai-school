@@ -89,12 +89,12 @@ export const StudentCouncilManagement = () => {
             const filePath = `student-council/${fileName}`;
 
             const { error: uploadError } = await supabase.storage
-                .from('images')
+                .from('school-images')
                 .upload(filePath, compressedBlob, { cacheControl: '3600', upsert: false, contentType: 'image/webp' });
 
             if (uploadError) throw uploadError;
 
-            const { data: urlData } = supabase.storage.from('images').getPublicUrl(filePath);
+            const { data: urlData } = supabase.storage.from('school-images').getPublicUrl(filePath);
             setFormData({ ...formData, image_url: urlData.publicUrl });
             toast({ title: 'สำเร็จ', description: 'อัปโหลดรูปเรียบร้อยแล้ว' });
         } catch (error: any) {

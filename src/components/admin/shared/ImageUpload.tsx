@@ -17,7 +17,7 @@ interface ImageUploadProps {
 export const ImageUpload = ({
     onUploadComplete,
     currentImage,
-    bucket = 'images',
+    bucket = 'school-images',
     folder = 'uploads',
     maxSizeMB = 5,
     compressionPreset = 'profile',
@@ -112,6 +112,8 @@ export const ImageUpload = ({
         }
     };
 
+    const isProfile = compressionPreset === 'profile' || compressionPreset === 'avatar';
+
     return (
         <div className="space-y-4">
             <input
@@ -123,40 +125,89 @@ export const ImageUpload = ({
             />
 
             {preview ? (
-                <div className="relative">
-                    <img
-                        src={preview}
-                        alt="Preview"
-                        className="w-full h-64 object-cover rounded-lg border-2 border-border"
-                    />
-                    <Button
-                        variant="destructive"
-                        size="icon"
-                        className="absolute top-2 right-2"
-                        onClick={handleRemove}
-                        disabled={isUploading}
-                    >
-                        <X className="h-4 w-4" />
-                    </Button>
-                </div>
+                isProfile ? (
+                    <div className="flex flex-col items-center gap-3">
+                        <div className="relative">
+                            <img
+                                src={preview}
+                                alt="Preview"
+                                className="w-32 h-32 object-cover rounded-full border-4 border-border shadow-md"
+                            />
+                            <Button
+                                variant="destructive"
+                                size="icon"
+                                className="absolute -top-1 -right-1 w-6 h-6"
+                                onClick={handleRemove}
+                                disabled={isUploading}
+                            >
+                                <X className="h-3 w-3" />
+                            </Button>
+                        </div>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={isUploading}
+                        >
+                            เปลี่ยนรูป
+                        </Button>
+                    </div>
+                ) : (
+                    <div className="relative">
+                        <img
+                            src={preview}
+                            alt="Preview"
+                            className="w-full h-48 object-cover rounded-lg border-2 border-border"
+                        />
+                        <Button
+                            variant="destructive"
+                            size="icon"
+                            className="absolute top-2 right-2"
+                            onClick={handleRemove}
+                            disabled={isUploading}
+                        >
+                            <X className="h-4 w-4" />
+                        </Button>
+                    </div>
+                )
             ) : (
-                <div
-                    onClick={() => fileInputRef.current?.click()}
-                    className="w-full h-64 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors bg-secondary/50"
-                >
-                    {isUploading ? (
-                        <>
-                            <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
-                            <p className="text-sm text-muted-foreground">กำลังอัปโหลด...</p>
-                        </>
-                    ) : (
-                        <>
-                            <Upload className="h-12 w-12 text-muted-foreground mb-4" />
-                            <p className="text-sm font-medium text-foreground">คลิกเพื่ออัปโหลดรูปภาพ</p>
-                            <p className="text-xs text-muted-foreground mt-2">JPG, PNG หรือ GIF (สูงสุด {maxSizeMB}MB)</p>
-                        </>
-                    )}
-                </div>
+                isProfile ? (
+                    <div className="flex flex-col items-center gap-3">
+                        <div
+                            onClick={() => !isUploading && fileInputRef.current?.click()}
+                            className="w-32 h-32 border-2 border-dashed border-border rounded-full flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors bg-secondary/50"
+                        >
+                            {isUploading ? (
+                                <Loader2 className="h-8 w-8 text-primary animate-spin" />
+                            ) : (
+                                <>
+                                    <Upload className="h-8 w-8 text-muted-foreground mb-1" />
+                                    <p className="text-xs text-muted-foreground text-center px-2">คลิกอัปโหลด</p>
+                                </>
+                            )}
+                        </div>
+                        <p className="text-xs text-muted-foreground">JPG, PNG (สูงสุด {maxSizeMB}MB)</p>
+                    </div>
+                ) : (
+                    <div
+                        onClick={() => fileInputRef.current?.click()}
+                        className="w-full h-48 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors bg-secondary/50"
+                    >
+                        {isUploading ? (
+                            <>
+                                <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
+                                <p className="text-sm text-muted-foreground">กำลังอัปโหลด...</p>
+                            </>
+                        ) : (
+                            <>
+                                <Upload className="h-12 w-12 text-muted-foreground mb-4" />
+                                <p className="text-sm font-medium text-foreground">คลิกเพื่ออัปโหลดรูปภาพ</p>
+                                <p className="text-xs text-muted-foreground mt-2">JPG, PNG หรือ GIF (สูงสุด {maxSizeMB}MB)</p>
+                            </>
+                        )}
+                    </div>
+                )
             )}
         </div>
     );
