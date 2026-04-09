@@ -1,41 +1,46 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Lock, User, ArrowLeft } from 'lucide-react';
+import { Lock, Mail, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const AdminLogin = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) navigate('/admin/dashboard');
+    });
+  }, [navigate]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Demo login - ในระบบจริงต้องเชื่อมต่อกับ Backend
-    setTimeout(() => {
-      if (username === 'admin' && password === 'admin123') {
-        sessionStorage.setItem('adminLoggedIn', 'true');
-        toast({
-          title: 'เข้าสู่ระบบสำเร็จ',
-          description: 'ยินดีต้อนรับเข้าสู่ระบบจัดการ',
-        });
-        navigate('/admin/dashboard');
-      } else {
-        toast({
-          title: 'เข้าสู่ระบบไม่สำเร็จ',
-          description: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง',
-          variant: 'destructive',
-        });
-      }
-      setIsLoading(false);
-    }, 1000);
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      toast({
+        title: 'เข้าสู่ระบบไม่สำเร็จ',
+        description: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง',
+        variant: 'destructive',
+      });
+    } else {
+      toast({
+        title: 'เข้าสู่ระบบสำเร็จ',
+        description: 'ยินดีต้อนรับเข้าสู่ระบบจัดการ',
+      });
+      navigate('/admin/dashboard');
+    }
+    setIsLoading(false);
   };
 
   return (
@@ -53,15 +58,15 @@ const AdminLogin = () => {
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">ชื่อผู้ใช้</Label>
+              <Label htmlFor="email">อีเมล</Label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  id="username"
-                  type="text"
-                  placeholder="กรอกชื่อผู้ใช้"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  id="email"
+                  type="email"
+                  placeholder="กรอกอีเมล"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="pl-10"
                   required
                 />
@@ -97,11 +102,6 @@ const AdminLogin = () => {
             </button>
           </div>
 
-          <div className="mt-4 p-3 bg-secondary rounded-lg">
-            <p className="text-xs text-center text-muted-foreground">
-              <strong>Demo:</strong> ชื่อผู้ใช้: admin | รหัสผ่าน: admin123
-            </p>
-          </div>
         </CardContent>
       </Card>
     </div>

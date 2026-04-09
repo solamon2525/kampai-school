@@ -35,10 +35,13 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const isLoggedIn = sessionStorage.getItem('adminLoggedIn');
-    if (!isLoggedIn) {
-      navigate('/admin');
-    }
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) navigate('/admin');
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) navigate('/admin');
+    });
+    return () => subscription.unsubscribe();
   }, [navigate]);
 
   useEffect(() => {

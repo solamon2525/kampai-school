@@ -22,6 +22,9 @@ dist-ssr
 # Vercel
 .vercel
 
+# Claude Code (contains API tokens)
+.claude/settings.local.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

@@ -1,5 +1,6 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import {
     LayoutDashboard,
@@ -52,9 +53,16 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const activeTab = searchParams.get('tab') || 'dashboard';
+    const [userEmail, setUserEmail] = useState('');
 
-    const handleLogout = () => {
-        sessionStorage.removeItem('adminLoggedIn');
+    useEffect(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setUserEmail(session?.user?.email ?? '');
+        });
+    }, []);
+
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
         navigate('/admin');
     };
 
@@ -100,7 +108,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
                         </div>
                         <div>
                             <p className="font-medium text-sm">ผู้ดูแลระบบ</p>
-                            <p className="text-xs text-muted-foreground">admin@kkschool.ac.th</p>
+                            <p className="text-xs text-muted-foreground">{userEmail}</p>
                         </div>
                     </div>
                     <div className="flex gap-2">
