@@ -12,10 +12,9 @@ import type { Album } from './GalleryManagement';
 
 interface Photo {
     id: string;
-    photo_url: string;
-    thumbnail_url: string | null;
+    image_url: string;
     caption: string | null;
-    order_position: number;
+    sort_order: number;
 }
 
 interface PhotoManagerProps {
@@ -39,7 +38,7 @@ export const PhotoManager = ({ album, onBack }: PhotoManagerProps) => {
                 .from('gallery_photos')
                 .select('*')
                 .eq('album_id', album.id)
-                .order('order_position');
+                .order('sort_order');
 
             if (error) throw error;
             setPhotos(data || []);
@@ -57,11 +56,9 @@ export const PhotoManager = ({ album, onBack }: PhotoManagerProps) => {
     const handleBulkUpload = async (urls: string[]) => {
         const inserts = urls.map((url, i) => ({
             album_id: album.id,
-            photo_url: url,
-            thumbnail_url: url,
+            image_url: url,
             caption: '',
-            order_position: photos.length + i,
-            is_active: true,
+            sort_order: photos.length + i,
         }));
         const { error } = await supabase.from('gallery_photos').insert(inserts);
         if (!error) fetchPhotos();
@@ -85,7 +82,7 @@ export const PhotoManager = ({ album, onBack }: PhotoManagerProps) => {
             if (dbError) throw dbError;
 
             // Delete from storage
-            await deleteStorageImage(photo.photo_url);
+            await deleteStorageImage(photo.image_url);
 
             toast({
                 title: 'ลบสำเร็จ',
@@ -163,7 +160,7 @@ export const PhotoManager = ({ album, onBack }: PhotoManagerProps) => {
                                 >
                                     <div className="aspect-square overflow-hidden">
                                         <img
-                                            src={photo.photo_url}
+                                            src={photo.image_url}
                                             alt={photo.caption || ''}
                                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                                         />

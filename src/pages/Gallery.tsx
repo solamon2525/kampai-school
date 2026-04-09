@@ -28,9 +28,9 @@ interface Album {
 
 interface Photo {
   id: string;
-  photo_url: string;
+  image_url: string;
   caption: string | null;
-  order_position: number;
+  sort_order: number;
 }
 
 const categoryColors: Record<string, string> = {
@@ -69,14 +69,14 @@ const Gallery = () => {
             .from('gallery_photos' as any)
             .select('*')
             .eq('album_id', album.id)
-            .order('order_position');
+            .order('sort_order');
 
           return {
             id: album.id,
             name: album.name,
             category: album.category,
             date: format(new Date(album.created_at), 'dd MMMM yyyy', { locale: th }),
-            cover_image_url: album.cover_image_url || ((photos as any)?.[0]?.photo_url) || null,
+            cover_image_url: album.cover_image_url || ((photos as any)?.[0]?.image_url) || null,
             description: album.description,
             photos: (photos as any[]) || [],
           };
@@ -110,14 +110,14 @@ const Gallery = () => {
   // Album view
   if (selectedAlbum) {
     const albumPhotos = selectedAlbum.photos.map((p) => ({
-      src: p.photo_url,
+      src: p.image_url,
       width: 4,
       height: 3,
       alt: p.caption || '',
     }));
 
     const slides = selectedAlbum.photos.map((p) => ({
-      src: p.photo_url,
+      src: p.image_url,
       title: selectedAlbum.name,
       description: p.caption || '',
     }));
