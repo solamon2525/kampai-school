@@ -86,6 +86,9 @@ export const compressionPresets = {
 
     // Event images
     event: { maxWidth: 1000, maxHeight: 700, quality: 0.8 },
+
+    // Hero/Banner background images (full-width, high res)
+    banner: { maxWidth: 1920, maxHeight: 1080, quality: 0.85 },
 };
 
 /**

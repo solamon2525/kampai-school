@@ -1,7 +1,7 @@
 import { ChevronRight, Play, Users, Award, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
-import heroImage from '@/assets/hero-school.jpg';
+import heroImageFallback from '@/assets/hero-school.jpg';
 import { useNavigate } from 'react-router-dom';
 
 const HeroSection = () => {
@@ -26,7 +26,7 @@ const HeroSection = () => {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <img
-          src={heroImage}
+          src={settings.hero_image_url || heroImageFallback}
           alt={settings.school_name}
           className="w-full h-full object-cover"
         />

@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Settings, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { ImageUpload } from '../shared/ImageUpload';
 
 interface Setting {
     key: string;
@@ -175,6 +176,17 @@ export const SettingsManagement = () => {
                         <CardTitle>ส่วน Hero (หน้าแรก)</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <Label>ภาพพื้นหลัง Hero Section</Label>
+                            <ImageUpload
+                                currentImage={settings.hero_image_url || ''}
+                                onUploadComplete={(url) => handleChange('hero_image_url', url)}
+                                folder="hero"
+                                compressionPreset="banner"
+                                bucket="school-images"
+                            />
+                            <p className="text-xs text-muted-foreground">แนะนำขนาด 1920×1080px ขึ้นไป — ถ้าไม่อัปโหลดจะใช้รูป default</p>
+                        </div>
                         <div className="space-y-2">
                             <Label htmlFor="hero_badge">ข้อความ Badge (เช่น เปิดรับสมัครนักเรียนใหม่)</Label>
                             <Input

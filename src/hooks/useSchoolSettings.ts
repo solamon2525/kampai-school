@@ -17,6 +17,7 @@ export interface SchoolSettings {
     school_history: string;
 
     // Hero Section
+    hero_image_url: string;
     hero_badge: string;
     hero_title_1: string;
     hero_title_2: string;
@@ -83,6 +84,7 @@ const defaultSettings: SchoolSettings = {
     school_mission: 'จัดการศึกษาที่มีคุณภาพ พัฒนาครูและบุคลากร',
     school_values: 'ซื่อสัตย์ วินัย ใฝ่เรียนรู้',
     school_history: 'ก่อตั้งเมื่อปี พ.ศ. 2517',
+    hero_image_url: '',
     hero_badge: 'เปิดรับสมัครนักเรียนใหม่ ปีการศึกษา 2568',
     hero_title_1: 'ก้าวสู่อนาคต',
     hero_title_2: 'ด้วยปัญญา',
