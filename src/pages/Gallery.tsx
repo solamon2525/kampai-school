@@ -1,13 +1,20 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { X, ChevronLeft, ChevronRight, Image as ImageIcon, Calendar, MapPin } from 'lucide-react';
+import { Image as ImageIcon, Calendar, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { th } from 'date-fns/locale';
+import { MasonryPhotoAlbum } from 'react-photo-album';
+import 'react-photo-album/masonry.css';
+import Lightbox from 'yet-another-react-lightbox';
+import 'yet-another-react-lightbox/styles.css';
+import Thumbnails from 'yet-another-react-lightbox/plugins/thumbnails';
+import Captions from 'yet-another-react-lightbox/plugins/captions';
+import Fullscreen from 'yet-another-react-lightbox/plugins/fullscreen';
+import 'yet-another-react-lightbox/plugins/thumbnails.css';
+import 'yet-another-react-lightbox/plugins/captions.css';
 
 interface Album {
   id: string;
@@ -39,7 +46,7 @@ const Gallery = () => {
   const [albums, setAlbums] = useState<Album[]>([]);
   const [categories, setCategories] = useState<string[]>(['ทั้งหมด']);
   const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
-  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [lightboxIndex, setLightboxIndex] = useState(-1);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -69,7 +76,7 @@ const Gallery = () => {
             name: album.name,
             category: album.category,
             date: format(new Date(album.created_at), 'dd MMMM yyyy', { locale: th }),
-            cover_image_url: album.cover_image_url || ((photos as any)?.[0]?.image_url) || null,
+            cover_image_url: album.cover_image_url || ((photos as any)?.[0]?.photo_url) || null,
             description: album.description,
             photos: (photos as any[]) || [],
           };
@@ -97,36 +104,61 @@ const Gallery = () => {
   const handleAlbumClick = (album: Album) => {
     if (album.photos.length > 0) {
       setSelectedAlbum(album);
-      setCurrentPhotoIndex(0);
     }
   };
 
-  const thumbnailContainerRef = useRef<HTMLDivElement>(null);
+  // Album view
+  if (selectedAlbum) {
+    const albumPhotos = selectedAlbum.photos.map((p) => ({
+      src: p.photo_url,
+      width: 4,
+      height: 3,
+      alt: p.caption || '',
+    }));
 
-  const scrollThumbnails = (direction: 'left' | 'right') => {
-    if (thumbnailContainerRef.current) {
-      const scrollAmount = 300;
-      thumbnailContainerRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      });
-    }
-  };
+    const slides = selectedAlbum.photos.map((p) => ({
+      src: p.photo_url,
+      title: selectedAlbum.name,
+      description: p.caption || '',
+    }));
 
-  const handleNext = () => {
-    if (selectedAlbum) {
-      setCurrentPhotoIndex((prev) => (prev + 1) % selectedAlbum.photos.length);
-      // Optional: Auto scroll thumbnail to active
-    }
-  };
+    return (
+      <div className="min-h-screen flex flex-col">
+        <SiteHeader />
+        <main className="flex-grow container mx-auto px-4 py-8">
+          {/* Back button + album title */}
+          <div className="flex items-center gap-4 mb-6">
+            <button
+              onClick={() => setSelectedAlbum(null)}
+              className="flex items-center gap-2 text-primary font-semibold hover:opacity-80 transition-opacity"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              กลับรายการอัลบั้ม
+            </button>
+          </div>
+          <h2 className="text-3xl font-bold text-primary mb-6">{selectedAlbum.name}</h2>
 
-  const handlePrev = () => {
-    if (selectedAlbum) {
-      setCurrentPhotoIndex((prev) => (prev - 1 + selectedAlbum.photos.length) % selectedAlbum.photos.length);
-      // Optional: Auto scroll thumbnail to active
-    }
-  };
+          {/* Masonry photo grid */}
+          <MasonryPhotoAlbum
+            photos={albumPhotos}
+            onClick={({ index }) => setLightboxIndex(index)}
+          />
 
+          {/* Lightbox */}
+          <Lightbox
+            open={lightboxIndex >= 0}
+            index={lightboxIndex}
+            close={() => setLightboxIndex(-1)}
+            slides={slides}
+            plugins={[Thumbnails, Captions, Fullscreen]}
+          />
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Album list view
   return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
@@ -195,134 +227,6 @@ const Gallery = () => {
           </div>
         )}
       </main>
-
-      <Dialog open={!!selectedAlbum} onOpenChange={() => setSelectedAlbum(null)}>
-        <DialogContent className="max-w-7xl w-[95vw] h-[90vh] p-0 flex flex-col bg-black/50 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-2xl overflow-hidden [&>button]:hidden focus:outline-none">
-          {selectedAlbum && selectedAlbum.photos.length > 0 && (
-            <div className="flex flex-col h-full relative">
-              {/* Header - Floating Glass Strip */}
-              <div className="absolute top-0 left-0 right-0 p-4 z-50 flex items-center justify-between pointer-events-none">
-                <div className="flex-1 min-w-0 pointer-events-auto bg-black/40 backdrop-blur-md px-6 py-2 rounded-full inline-block mr-auto border border-white/10 shadow-lg animate-in slide-in-from-top-4 duration-500">
-                  <h3 className="font-bold text-lg truncate text-white">{selectedAlbum.name}</h3>
-                  <p className="text-xs text-white/70 uppercase tracking-wider">
-                    PHOTO {currentPhotoIndex + 1} OF {selectedAlbum.photos.length}
-                  </p>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md pointer-events-auto shadow-lg border border-white/10 w-10 h-10 transition-transform hover:rotate-90 duration-300"
-                  onClick={() => setSelectedAlbum(null)}
-                >
-                  <X className="w-5 h-5" />
-                </Button>
-              </div>
-
-              {/* Main Stage - Image Area */}
-              <div className="flex-1 relative flex items-center justify-center overflow-hidden bg-gradient-to-b from-black/50 via-transparent to-black/50">
-                <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 pointer-events-none mix-blend-overlay"></div>
-                <img
-                  key={currentPhotoIndex}
-                  src={selectedAlbum.photos[currentPhotoIndex].photo_url}
-                  alt={selectedAlbum.photos[currentPhotoIndex].caption || `รูปที่ ${currentPhotoIndex + 1}`}
-                  className="max-w-full max-h-full object-contain p-4 sm:p-12 transition-all duration-500 animate-in zoom-in-95"
-                />
-
-                {/* Navigation Arrows - Big & Floating */}
-                {selectedAlbum.photos.length > 1 && (
-                  <>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full z-10 w-14 h-14 bg-black/20 hover:bg-white/10 text-white/80 hover:text-white backdrop-blur-md border border-white/5 transition-all duration-300 hover:scale-110 active:scale-95 group"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handlePrev();
-                      }}
-                    >
-                      <ChevronLeft className="w-8 h-8 group-hover:-translate-x-1 transition-transform" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full z-10 w-14 h-14 bg-black/20 hover:bg-white/10 text-white/80 hover:text-white backdrop-blur-md border border-white/5 transition-all duration-300 hover:scale-110 active:scale-95 group"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleNext();
-                      }}
-                    >
-                      <ChevronRight className="w-8 h-8 group-hover:translate-x-1 transition-transform" />
-                    </Button>
-                  </>
-                )}
-              </div>
-
-              {/* Footer - Caption & Thumbnails */}
-              <div className="shrink-0 bg-black/60 backdrop-blur-xl border-t border-white/5 pb-6 pt-4 px-6">
-
-                {/* Caption - Elegant Typography */}
-                {selectedAlbum.photos[currentPhotoIndex].caption && (
-                  <div className="mb-4 text-center max-w-4xl mx-auto">
-                    <p className="text-base text-white/90 font-light tracking-wide leading-relaxed">
-                      "{selectedAlbum.photos[currentPhotoIndex].caption}"
-                    </p>
-                  </div>
-                )}
-
-                {/* Thumbnails - Glass Strip */}
-                {selectedAlbum.photos.length > 1 && (
-                  <div className="relative group max-w-4xl mx-auto flex items-center justify-center gap-4">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-10 w-10 text-white/50 hover:text-white transition-colors"
-                      onClick={() => scrollThumbnails('left')}
-                    >
-                      <ChevronLeft className="w-6 h-6" />
-                    </Button>
-
-                    <div
-                      ref={thumbnailContainerRef}
-                      className="overflow-x-auto scroll-smooth scrollbar-hide py-2 px-4 rounded-xl bg-white/5 border border-white/5"
-                      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                    >
-                      <div className="flex gap-3 min-w-max">
-                        {selectedAlbum.photos.map((photo, idx) => (
-                          <button
-                            key={photo.id}
-                            onClick={() => setCurrentPhotoIndex(idx)}
-                            className={`flex-shrink-0 w-20 h-14 rounded-md overflow-hidden transition-all duration-300 relative ${idx === currentPhotoIndex
-                              ? 'ring-2 ring-white scale-105 shadow-lg opacity-100'
-                              : 'opacity-40 hover:opacity-80 hover:scale-105 grayscale hover:grayscale-0'
-                              }`}
-                          >
-                            <img
-                              src={photo.photo_url}
-                              alt={`รูปที่ ${idx + 1}`}
-                              className="w-full h-full object-cover"
-                            />
-                            {/* Overlay for inactive */}
-                            {idx !== currentPhotoIndex && <div className="absolute inset-0 bg-black/20" />}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-10 w-10 text-white/50 hover:text-white transition-colors"
-                      onClick={() => scrollThumbnails('right')}
-                    >
-                      <ChevronRight className="w-6 h-6" />
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
       <Footer />
     </div>
   );
