@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import Navbar from '@/components/Navbar';
+import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
 import { Users, GraduationCap, Trophy, BookOpen, TrendingUp, Star, LucideIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -111,8 +111,8 @@ const Students = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
-      <main className="pt-20">
+      <SiteHeader />
+      <main>
         {/* Hero Section */}
         <section className="bg-gradient-to-br from-primary via-primary/90 to-primary/80 py-16 md:py-24">
           <div className="container mx-auto px-4">
@@ -184,10 +184,10 @@ const Students = () => {
                   ))}
                   <tr className="bg-secondary/50 font-bold">
                     <td className="px-6 py-4 text-foreground">รวมทั้งหมด</td>
-                    <td className="px-6 py-4 text-center text-muted-foreground">36</td>
-                    <td className="px-6 py-4 text-center text-blue-500">623</td>
-                    <td className="px-6 py-4 text-center text-pink-500">627</td>
-                    <td className="px-6 py-4 text-center text-primary">1,250</td>
+                    <td className="px-6 py-4 text-center text-muted-foreground">{gradeData.reduce((sum, g) => sum + (g.rooms || 0), 0)}</td>
+                    <td className="px-6 py-4 text-center text-blue-500">{gradeData.reduce((sum, g) => sum + (g.boys || 0), 0)}</td>
+                    <td className="px-6 py-4 text-center text-pink-500">{gradeData.reduce((sum, g) => sum + (g.girls || 0), 0)}</td>
+                    <td className="px-6 py-4 text-center text-primary">{gradeData.reduce((sum, g) => sum + (g.students || 0), 0)}</td>
                   </tr>
                 </tbody>
               </table>

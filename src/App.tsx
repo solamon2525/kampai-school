@@ -23,6 +23,8 @@ const AcademicCalendar = lazy(() => import("./pages/AcademicCalendar"));
 const Enrollment = lazy(() => import("./pages/Enrollment"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const Documents = lazy(() => import("./pages/Documents"));
+const WasteBank = lazy(() => import("./pages/WasteBank"));
 
 // Loading spinner ขณะรอโหลด page
 const PageLoader = () => (
@@ -55,6 +57,8 @@ const App = () => (
             <Route path="/events" element={<Events />} />
             <Route path="/calendar" element={<AcademicCalendar />} />
             <Route path="/enrollment" element={<Enrollment />} />
+            <Route path="/documents" element={<Documents />} />
+            <Route path="/waste-bank" element={<WasteBank />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>

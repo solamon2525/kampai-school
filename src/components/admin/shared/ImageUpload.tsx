@@ -24,8 +24,25 @@ export const ImageUpload = ({
 }: ImageUploadProps) => {
     const [preview, setPreview] = useState<string | null>(currentImage || null);
     const [isUploading, setIsUploading] = useState(false);
+    const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = () => {
+        setIsDragging(false);
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+        const file = e.dataTransfer.files[0];
+        if (file) handleFileSelect({ target: { files: [file] } } as any);
+    };
 
     // Update preview when currentImage changes
     useEffect(() => {
@@ -192,7 +209,10 @@ export const ImageUpload = ({
                 ) : (
                     <div
                         onClick={() => fileInputRef.current?.click()}
-                        className="w-full h-48 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors bg-secondary/50"
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                        className={`w-full h-48 border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer transition-colors ${isDragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary bg-secondary/50'}`}
                     >
                         {isUploading ? (
                             <>

@@ -22,6 +22,9 @@ import {
     HelpCircle,
     History,
     Building2,
+    Recycle,
+    ClipboardCheck,
+    FolderOpen,
 } from 'lucide-react';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 
@@ -29,22 +32,33 @@ interface AdminLayoutProps {
     children: ReactNode;
 }
 
-const menuItems = [
-    { id: 'dashboard', label: 'แดชบอร์ด', icon: LayoutDashboard, path: '/admin/dashboard' },
-    { id: 'settings', label: 'ตั้งค่า', icon: Settings, path: '/admin/dashboard?tab=settings' },
-    { id: 'milestones', label: 'ประวัติโรงเรียน', icon: History, path: '/admin/dashboard?tab=milestones' },
-    { id: 'facilities', label: 'สิ่งอำนวยความสะดวก', icon: Building2, path: '/admin/dashboard?tab=facilities' },
-    { id: 'news', label: 'ข่าวสาร', icon: Newspaper, path: '/admin/dashboard?tab=news' },
-    { id: 'gallery', label: 'แกลเลอรี่', icon: Image, path: '/admin/dashboard?tab=gallery' },
-    { id: 'events', label: 'ปฏิทิน', icon: Calendar, path: '/admin/dashboard?tab=events' },
-    { id: 'students', label: 'นักเรียน', icon: GraduationCap, path: '/admin/dashboard?tab=students' },
-    { id: 'staff', label: 'ครู/บุคลากร', icon: Briefcase, path: '/admin/dashboard?tab=staff' },
-    { id: 'administrators', label: 'ผู้บริหาร', icon: UserCog, path: '/admin/dashboard?tab=administrators' },
-    { id: 'admissions', label: 'ใบสมัคร', icon: FileText, path: '/admin/dashboard?tab=admissions' },
-    { id: 'messages', label: 'กล่องข้อความ', icon: Mail, path: '/admin/dashboard?tab=messages' },
-    { id: 'curriculum', label: 'หลักสูตร', icon: BookOpen, path: '/admin/dashboard?tab=curriculum' },
-    { id: 'activities', label: 'กิจกรรมเสริม', icon: Palette, path: '/admin/dashboard?tab=activities' },
-    { id: 'faq', label: 'FAQ', icon: HelpCircle, path: '/admin/dashboard?tab=faq' },
+type MenuItem =
+    | { type: 'item'; id: string; label: string; icon: React.ElementType; path: string }
+    | { type: 'section'; label: string };
+
+const menuItems: MenuItem[] = [
+    { type: 'item', id: 'dashboard', label: 'แดชบอร์ด', icon: LayoutDashboard, path: '/admin/dashboard' },
+    { type: 'section', label: 'เว็บไซต์' },
+    { type: 'item', id: 'settings', label: 'ตั้งค่า', icon: Settings, path: '/admin/dashboard?tab=settings' },
+    { type: 'item', id: 'news', label: 'ข่าวสาร', icon: Newspaper, path: '/admin/dashboard?tab=news' },
+    { type: 'item', id: 'gallery', label: 'แกลเลอรี่', icon: Image, path: '/admin/dashboard?tab=gallery' },
+    { type: 'item', id: 'events', label: 'ปฏิทิน', icon: Calendar, path: '/admin/dashboard?tab=events' },
+    { type: 'section', label: 'ข้อมูลโรงเรียน' },
+    { type: 'item', id: 'milestones', label: 'ประวัติโรงเรียน', icon: History, path: '/admin/dashboard?tab=milestones' },
+    { type: 'item', id: 'facilities', label: 'สิ่งอำนวยความสะดวก', icon: Building2, path: '/admin/dashboard?tab=facilities' },
+    { type: 'item', id: 'staff', label: 'ครู/บุคลากร', icon: Briefcase, path: '/admin/dashboard?tab=staff' },
+    { type: 'item', id: 'administrators', label: 'ผู้บริหาร', icon: UserCog, path: '/admin/dashboard?tab=administrators' },
+    { type: 'item', id: 'students', label: 'นักเรียน', icon: GraduationCap, path: '/admin/dashboard?tab=students' },
+    { type: 'item', id: 'curriculum', label: 'หลักสูตร', icon: BookOpen, path: '/admin/dashboard?tab=curriculum' },
+    { type: 'item', id: 'activities', label: 'กิจกรรมเสริม', icon: Palette, path: '/admin/dashboard?tab=activities' },
+    { type: 'section', label: 'ระบบบริการ' },
+    { type: 'item', id: 'waste-bank', label: 'ธนาคารขยะ', icon: Recycle, path: '/admin/dashboard?tab=waste-bank' },
+    { type: 'item', id: 'attendance', label: 'เช็คชื่อนักเรียน', icon: ClipboardCheck, path: '/admin/dashboard?tab=attendance' },
+    { type: 'item', id: 'documents', label: 'จัดการเอกสาร', icon: FolderOpen, path: '/admin/dashboard?tab=documents' },
+    { type: 'section', label: 'อื่นๆ' },
+    { type: 'item', id: 'admissions', label: 'ใบสมัคร', icon: FileText, path: '/admin/dashboard?tab=admissions' },
+    { type: 'item', id: 'messages', label: 'กล่องข้อความ', icon: Mail, path: '/admin/dashboard?tab=messages' },
+    { type: 'item', id: 'faq', label: 'FAQ', icon: HelpCircle, path: '/admin/dashboard?tab=faq' },
 ];
 
 export const AdminLayout = ({ children }: AdminLayoutProps) => {
@@ -82,19 +96,26 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
                     </Link>
                 </div>
 
-                <nav className="p-4 space-y-2 overflow-y-auto h-[calc(100vh-200px)]">
-                    {menuItems.map((item) => {
+                <nav className="p-4 space-y-1 overflow-y-auto h-[calc(100vh-200px)]">
+                    {menuItems.map((item, idx) => {
+                        if (item.type === 'section') {
+                            return (
+                                <p key={`section-${idx}`} className="px-2 pt-3 pb-1 text-xs font-semibold text-muted-foreground/60 uppercase tracking-wider">
+                                    {item.label}
+                                </p>
+                            );
+                        }
                         const isActive = activeTab === item.id;
                         return (
                             <Link
                                 key={item.id}
                                 to={item.path}
-                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${isActive
+                                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all ${isActive
                                     ? 'bg-primary text-primary-foreground'
                                     : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
                                     }`}
                             >
-                                <item.icon className="w-5 h-5" />
+                                <item.icon className="w-4 h-4" />
                                 <span className="text-sm">{item.label}</span>
                             </Link>
                         );

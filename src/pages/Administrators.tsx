@@ -1,17 +1,6 @@
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import AdministratorsSection from '@/components/AdministratorsSection';
+import { Navigate } from 'react-router-dom';
 
-const Administrators = () => {
-  return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <main className="pt-20">
-        <AdministratorsSection />
-      </main>
-      <Footer />
-    </div>
-  );
-};
+// หน้าผู้บริหารถูกรวมเข้ากับหน้าบุคลากร
+const Administrators = () => <Navigate to="/staff" replace />;
 
 export default Administrators;

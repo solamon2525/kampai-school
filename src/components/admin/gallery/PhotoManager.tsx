@@ -1,14 +1,13 @@
-import { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Upload, Trash2, X, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowLeft, Trash2, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
 import { deleteStorageImage } from '@/utils/storageUtils';
-import { compressImage, compressionPresets } from '@/utils/imageUtils';
+import MultiImageUpload from '@/components/admin/shared/MultiImageUpload';
 import type { Album } from './GalleryManagement';
 
 interface Photo {
@@ -27,9 +26,7 @@ interface PhotoManagerProps {
 export const PhotoManager = ({ album, onBack }: PhotoManagerProps) => {
     const [photos, setPhotos] = useState<Photo[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [isUploading, setIsUploading] = useState(false);
     const [deleteId, setDeleteId] = useState<string | null>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
 
     useEffect(() => {
@@ -57,93 +54,23 @@ export const PhotoManager = ({ album, onBack }: PhotoManagerProps) => {
         }
     };
 
-    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = Array.from(e.target.files || []);
-        if (files.length === 0) return;
-
-        setIsUploading(true);
-        const uploadedPhotos: any[] = [];
-
-        try {
-            for (const file of files) {
-                // Validate file
-                if (!file.type.startsWith('image/')) {
-                    toast({
-                        title: 'ไฟล์ไม่ถูกต้อง',
-                        description: `${file.name} ไม่ใช่ไฟล์รูปภาพ`,
-                        variant: 'destructive',
-                    });
-                    continue;
-                }
-
-                if (file.size > 5 * 1024 * 1024) {
-                    toast({
-                        title: 'ไฟล์ใหญ่เกินไป',
-                        description: `${file.name} มีขนาดเกิน 5MB`,
-                        variant: 'destructive',
-                    });
-                    continue;
-                }
-
-                // Compress image before upload
-                const compressedBlob = await compressImage(file, compressionPresets.gallery);
-                const fileName = `gallery/${album.id}/${Date.now()}_${Math.random().toString(36).substring(7)}.webp`;
-
-                const { data: uploadData, error: uploadError } = await supabase.storage
-                    .from('images')
-                    .upload(fileName, compressedBlob, {
-                        cacheControl: '3600',
-                        upsert: false,
-                        contentType: 'image/webp',
-                    });
-
-                if (uploadError) throw uploadError;
-
-                // Get public URL
-                const { data: { publicUrl } } = supabase.storage
-                    .from('images')
-                    .getPublicUrl(uploadData.path);
-
-                uploadedPhotos.push({
-                    photo_url: publicUrl,
-                    thumbnail_url: publicUrl,
-                });
-            }
-
-            // Insert photos into database
-            if (uploadedPhotos.length > 0) {
-                const nextPosition = photos.length;
-                const photosToInsert = uploadedPhotos.map((photo, index) => ({
-                    album_id: album.id,
-                    photo_url: photo.photo_url,
-                    thumbnail_url: photo.thumbnail_url,
-                    order_position: nextPosition + index,
-                }));
-
-                const { error: insertError } = await supabase
-                    .from('gallery_photos')
-                    .insert(photosToInsert);
-
-                if (insertError) throw insertError;
-
-                toast({
-                    title: 'อัปโหลดสำเร็จ',
-                    description: `อัปโหลดรูปภาพ ${uploadedPhotos.length} รูปเรียบร้อยแล้ว`,
-                });
-
-                fetchPhotos();
-            }
-        } catch (error: any) {
+    const handleBulkUpload = async (urls: string[]) => {
+        const inserts = urls.map((url, i) => ({
+            album_id: album.id,
+            photo_url: url,
+            thumbnail_url: url,
+            caption: '',
+            order_position: photos.length + i,
+            is_active: true,
+        }));
+        const { error } = await supabase.from('gallery_photos').insert(inserts);
+        if (!error) fetchPhotos();
+        else {
             toast({
                 title: 'เกิดข้อผิดพลาด',
                 description: error.message,
                 variant: 'destructive',
             });
-        } finally {
-            setIsUploading(false);
-            if (fileInputRef.current) {
-                fileInputRef.current.value = '';
-            }
         }
     };
 
@@ -203,51 +130,29 @@ export const PhotoManager = ({ album, onBack }: PhotoManagerProps) => {
                             <CardTitle className="text-2xl">จัดการรูปภาพ</CardTitle>
                             <CardDescription>อัลบั้ม: {album.title}</CardDescription>
                         </div>
-                        <div className="flex gap-2">
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                accept="image/*"
-                                multiple
-                                onChange={handleFileSelect}
-                                className="hidden"
-                            />
-                            <Button
-                                onClick={() => fileInputRef.current?.click()}
-                                disabled={isUploading}
-                            >
-                                {isUploading ? (
-                                    <>
-                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                        กำลังอัปโหลด...
-                                    </>
-                                ) : (
-                                    <>
-                                        <Upload className="w-4 h-4 mr-2" />
-                                        อัปโหลดรูป
-                                    </>
-                                )}
-                            </Button>
-                            <Button variant="outline" onClick={onBack}>
-                                <ArrowLeft className="w-4 h-4 mr-2" />
-                                ย้อนกลับ
-                            </Button>
-                        </div>
+                        <Button variant="outline" onClick={onBack}>
+                            <ArrowLeft className="w-4 h-4 mr-2" />
+                            ย้อนกลับ
+                        </Button>
                     </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-6">
+                    {/* Multi-image upload */}
+                    <MultiImageUpload
+                        bucket="images"
+                        folder={`gallery/${album.id}`}
+                        onUploadComplete={handleBulkUpload}
+                    />
+
+                    {/* Photo grid */}
                     {isLoading ? (
                         <div className="text-center py-12">
                             <p className="text-muted-foreground">กำลังโหลด...</p>
                         </div>
                     ) : photos.length === 0 ? (
-                        <div className="text-center py-12">
-                            <Upload className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-                            <p className="text-muted-foreground mb-4">ยังไม่มีรูปภาพในอัลบั้มนี้</p>
-                            <Button onClick={() => fileInputRef.current?.click()}>
-                                <Upload className="w-4 h-4 mr-2" />
-                                อัปโหลดรูปแรก
-                            </Button>
+                        <div className="text-center py-8">
+                            <Upload className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
+                            <p className="text-muted-foreground">ยังไม่มีรูปภาพในอัลบั้มนี้ อัปโหลดรูปแรกด้านบนได้เลย</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -290,7 +195,7 @@ export const PhotoManager = ({ album, onBack }: PhotoManagerProps) => {
                     )}
 
                     {photos.length > 0 && (
-                        <div className="mt-6 text-sm text-muted-foreground text-center">
+                        <div className="text-sm text-muted-foreground text-center">
                             รูปภาพทั้งหมด: {photos.length} รูป
                         </div>
                     )}

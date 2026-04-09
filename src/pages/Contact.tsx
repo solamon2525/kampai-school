@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Navbar from '@/components/Navbar';
+import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
 import { MapPin, Phone, Mail, Clock, Send, Facebook, Youtube, Instagram, MessageCircle, Link as LinkIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -125,8 +125,8 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
-      <main className="pt-20">
+      <SiteHeader />
+      <main>
         {/* Hero Section */}
         <section className="bg-primary py-20">
           <div className="container mx-auto px-4 text-center">

@@ -11,15 +11,13 @@ import { PhotoManager } from './PhotoManager';
 
 export interface Album {
     id: string;
-    title: string;
+    name: string;
     description: string | null;
     category: string | null;
-    cover_photo_url: string | null;
-    event_date: string | null;
-    location: string | null;
-    views: number;
+    cover_image_url: string | null;
     is_published: boolean;
     created_at: string;
+    updated_at: string;
     photo_count?: number;
 }
 

@@ -1,13 +1,27 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Settings, Save } from 'lucide-react';
+import { Settings, Save, AlignLeft, AlignCenter, AlignRight, AlignJustify, X, Plus, Images } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ImageUpload } from '../shared/ImageUpload';
+
+interface HeroSlide {
+    id: string;
+    image_url: string;
+    title: string | null;
+    order_position: number;
+}
+
+interface GalleryPhoto {
+    id: string;
+    image_url: string;
+    caption: string | null;
+    gallery_albums: { title: string } | null;
+}
 
 interface Setting {
     key: string;
@@ -22,9 +36,90 @@ export const SettingsManagement = () => {
     const [saving, setSaving] = useState(false);
     const { toast } = useToast();
 
+    // Hero Slideshow state
+    const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([]);
+    const [slidesLoading, setSlidesLoading] = useState(false);
+    const [showGalleryPicker, setShowGalleryPicker] = useState(false);
+    const [galleryPhotos, setGalleryPhotos] = useState<GalleryPhoto[]>([]);
+    const [selectedPhotos, setSelectedPhotos] = useState<Set<string>>(new Set());
+    const [galleryLoading, setGalleryLoading] = useState(false);
+
+    const MAX_SLIDES = 10;
+
+    const fetchHeroSlides = useCallback(async () => {
+        setSlidesLoading(true);
+        const { data } = await supabase
+            .from('hero_slides')
+            .select('id, image_url, title, order_position')
+            .eq('is_active', true)
+            .order('order_position', { ascending: true });
+        if (data) setHeroSlides(data as HeroSlide[]);
+        setSlidesLoading(false);
+    }, []);
+
+    const deleteHeroSlide = async (id: string) => {
+        await supabase.from('hero_slides').delete().eq('id', id);
+        setHeroSlides(prev => prev.filter(s => s.id !== id));
+        toast({ title: 'ลบสไลด์แล้ว' });
+    };
+
+    const fetchGalleryPhotos = async () => {
+        setGalleryLoading(true);
+        const { data } = await supabase
+            .from('gallery_photos')
+            .select('id, image_url, caption, gallery_albums(title)')
+            .order('created_at', { ascending: false })
+            .limit(60);
+        if (data) setGalleryPhotos(data as any);
+        setGalleryLoading(false);
+    };
+
+    const openGalleryPicker = () => {
+        setShowGalleryPicker(true);
+        setSelectedPhotos(new Set());
+        fetchGalleryPhotos();
+    };
+
+    const togglePhotoSelection = (id: string) => {
+        setSelectedPhotos(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) {
+                next.delete(id);
+            } else if (next.size < MAX_SLIDES - heroSlides.length) {
+                next.add(id);
+            }
+            return next;
+        });
+    };
+
+    const addSelectedToSlides = async () => {
+        const photos = galleryPhotos.filter(p => selectedPhotos.has(p.id));
+        const baseOrder = heroSlides.length;
+        const inserts = photos.map((p, i) => ({
+            image_url: p.image_url,
+            title: p.caption || (p.gallery_albums?.title ?? null),
+            order_position: baseOrder + i,
+            is_active: true,
+        }));
+        const { data } = await supabase.from('hero_slides').insert(inserts).select();
+        if (data) {
+            setHeroSlides(prev => [...prev, ...(data as HeroSlide[])]);
+            toast({ title: `เพิ่ม ${data.length} ภาพแล้ว` });
+        }
+        setShowGalleryPicker(false);
+        setSelectedPhotos(new Set());
+    };
+
+    const saveSlideInterval = async (val: string) => {
+        handleChange('hero_slide_interval', val);
+        await supabase.from('school_settings').upsert({ key: 'hero_slide_interval', value: val } as any, { onConflict: 'key' });
+        toast({ title: 'บันทึกช่วงเวลาแล้ว' });
+    };
+
     useEffect(() => {
         fetchSettings();
-    }, []);
+        fetchHeroSlides();
+    }, [fetchHeroSlides]);
 
     const fetchSettings = async () => {
         try {
@@ -184,6 +279,141 @@ export const SettingsManagement = () => {
                     </CardContent>
                 </Card>
 
+                {/* Hero Slideshow Manager */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Images className="w-5 h-5" />
+                            Hero Slideshow Manager
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        {/* Interval */}
+                        <div className="flex items-center gap-3">
+                            <Label className="whitespace-nowrap">ช่วงเวลาสไลด์</Label>
+                            <select
+                                className="flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                value={settings.hero_slide_interval || '5'}
+                                onChange={(e) => saveSlideInterval(e.target.value)}
+                            >
+                                {[2, 3, 4, 5, 6, 7, 8, 10].map(n => (
+                                    <option key={n} value={String(n)}>{n} วินาที</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Current Slides Grid */}
+                        <div>
+                            <div className="flex items-center justify-between mb-2">
+                                <Label>{heroSlides.length}/{MAX_SLIDES} ภาพ</Label>
+                            </div>
+                            {slidesLoading ? (
+                                <p className="text-sm text-muted-foreground">กำลังโหลด...</p>
+                            ) : heroSlides.length === 0 ? (
+                                <p className="text-sm text-muted-foreground">ยังไม่มีสไลด์ (จะใช้ hero_image_url เป็น fallback)</p>
+                            ) : (
+                                <div className="grid grid-cols-5 gap-2">
+                                    {heroSlides.map(slide => (
+                                        <div key={slide.id} className="relative group rounded overflow-hidden border border-border aspect-video bg-gray-100">
+                                            <img src={slide.image_url} alt={slide.title || ''} className="w-full h-full object-cover" />
+                                            <button
+                                                onClick={() => deleteHeroSlide(slide.id)}
+                                                className="absolute top-1 right-1 w-5 h-5 bg-black/70 hover:bg-red-600 text-white rounded-full items-center justify-center hidden group-hover:flex transition-colors"
+                                                aria-label="ลบ"
+                                            >
+                                                <X className="w-3 h-3" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Add buttons */}
+                        {heroSlides.length < MAX_SLIDES && (
+                            <div className="flex flex-wrap gap-2">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={openGalleryPicker}
+                                    className="gap-2"
+                                >
+                                    <Images className="w-4 h-4" />
+                                    เพิ่มจากอัลบั้ม
+                                </Button>
+                                <div className="flex items-center gap-2">
+                                    <Label className="text-xs text-muted-foreground">หรืออัปโหลดโดยตรง:</Label>
+                                    <ImageUpload
+                                        currentImage=""
+                                        onUploadComplete={async (url) => {
+                                            const { data } = await supabase.from('hero_slides').insert({
+                                                image_url: url,
+                                                title: null,
+                                                order_position: heroSlides.length,
+                                                is_active: true,
+                                            } as any).select().single();
+                                            if (data) {
+                                                setHeroSlides(prev => [...prev, data as HeroSlide]);
+                                                toast({ title: 'เพิ่มสไลด์แล้ว' });
+                                            }
+                                        }}
+                                        folder="hero-slides"
+                                        compressionPreset="banner"
+                                        bucket="school-images"
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Gallery Picker */}
+                        {showGalleryPicker && (
+                            <div className="border border-border rounded-lg p-4 bg-secondary/30 space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <p className="font-semibold text-sm">เลือกภาพจากอัลบั้ม (เลือกได้อีก {MAX_SLIDES - heroSlides.length} ภาพ)</p>
+                                    <button onClick={() => setShowGalleryPicker(false)} className="text-muted-foreground hover:text-foreground">
+                                        <X className="w-4 h-4" />
+                                    </button>
+                                </div>
+                                {galleryLoading ? (
+                                    <p className="text-sm text-muted-foreground">กำลังโหลดอัลบั้ม...</p>
+                                ) : galleryPhotos.length === 0 ? (
+                                    <p className="text-sm text-muted-foreground">ไม่มีภาพในอัลบั้ม</p>
+                                ) : (
+                                    <div className="grid grid-cols-6 gap-1.5 max-h-64 overflow-y-auto">
+                                        {galleryPhotos.map(photo => {
+                                            const selected = selectedPhotos.has(photo.id);
+                                            return (
+                                                <button
+                                                    key={photo.id}
+                                                    type="button"
+                                                    onClick={() => togglePhotoSelection(photo.id)}
+                                                    className={`relative aspect-square rounded overflow-hidden border-2 transition-all ${selected ? 'border-primary' : 'border-transparent'}`}
+                                                >
+                                                    <img src={photo.image_url} alt={photo.caption || ''} className="w-full h-full object-cover" />
+                                                    {selected && (
+                                                        <div className="absolute inset-0 bg-primary/30 flex items-center justify-center">
+                                                            <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center">
+                                                                <span className="text-white text-xs font-bold">✓</span>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                                {selectedPhotos.size > 0 && (
+                                    <Button type="button" size="sm" onClick={addSelectedToSlides} className="gap-2">
+                                        <Plus className="w-4 h-4" />
+                                        เพิ่มที่เลือก ({selectedPhotos.size} ภาพ)
+                                    </Button>
+                                )}
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
                 {/* Hero Section */}
                 <Card>
                     <CardHeader>
@@ -191,7 +421,7 @@ export const SettingsManagement = () => {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
-                            <Label>ภาพพื้นหลัง Hero Section</Label>
+                            <Label>ภาพพื้นหลัง Hero (Fallback — ใช้เมื่อไม่มีสไลด์)</Label>
                             <ImageUpload
                                 currentImage={settings.hero_image_url || ''}
                                 onUploadComplete={(url) => handleChange('hero_image_url', url)}
@@ -199,7 +429,7 @@ export const SettingsManagement = () => {
                                 compressionPreset="banner"
                                 bucket="school-images"
                             />
-                            <p className="text-xs text-muted-foreground">แนะนำขนาด 1920×1080px ขึ้นไป — ถ้าไม่อัปโหลดจะใช้รูป default</p>
+                            <p className="text-xs text-muted-foreground">รูปนี้จะแสดงเมื่อไม่มีสไลด์ใน Hero Slideshow</p>
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="hero_badge">ข้อความ Badge (เช่น เปิดรับสมัครนักเรียนใหม่)</Label>
@@ -342,6 +572,108 @@ export const SettingsManagement = () => {
                                 className="w-full min-h-[80px] px-3 py-2 border rounded-md text-sm"
                             />
                         </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="school_excellence">ความเป็นเลิศ</Label>
+                            <textarea
+                                id="school_excellence"
+                                value={settings.school_excellence || ''}
+                                onChange={(e) => handleChange('school_excellence', e.target.value)}
+                                placeholder="มุ่งมั่นสู่ความเป็นเลิศในทุกด้าน..."
+                                className="w-full min-h-[80px] px-3 py-2 border rounded-md text-sm"
+                            />
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* About Cards Style */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>ตั้งค่าการ์ด 4 ใบ (หน้าเกี่ยวกับเรา)</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        {[
+                            { key: 'vision', label: 'วิสัยทัศน์' },
+                            { key: 'mission', label: 'พันธกิจ' },
+                            { key: 'values', label: 'ค่านิยม' },
+                            { key: 'excellence', label: 'ความเป็นเลิศ' },
+                        ].map((card) => (
+                            <div key={card.key} className="border rounded-xl p-4 space-y-4">
+                                <p className="font-semibold text-sm text-foreground">{card.label}</p>
+
+                                {/* Image Upload */}
+                                <div className="space-y-1">
+                                    <Label className="text-xs text-muted-foreground">รูปภาพประจำการ์ด (แทน icon)</Label>
+                                    <ImageUpload
+                                        currentImage={settings[`${card.key}_image_url`] || ''}
+                                        onUploadComplete={(url) => handleChange(`${card.key}_image_url`, url)}
+                                        folder="about-cards"
+                                        compressionPreset="avatar"
+                                        bucket="school-images"
+                                    />
+                                    {settings[`${card.key}_image_url`] && (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleChange(`${card.key}_image_url`, '')}
+                                            className="text-xs text-destructive hover:underline mt-1"
+                                        >
+                                            ลบรูปภาพ (ใช้ icon แทน)
+                                        </button>
+                                    )}
+                                </div>
+
+                                {/* Text Alignment */}
+                                <div className="space-y-1">
+                                    <Label className="text-xs text-muted-foreground">การจัดวางข้อความ</Label>
+                                    <div className="flex gap-1">
+                                        {[
+                                            { value: 'left', icon: AlignLeft, label: 'ชิดซ้าย' },
+                                            { value: 'center', icon: AlignCenter, label: 'กึ่งกลาง' },
+                                            { value: 'right', icon: AlignRight, label: 'ชิดขวา' },
+                                            { value: 'justify', icon: AlignJustify, label: 'เกลี่ยเต็ม' },
+                                        ].map((opt) => {
+                                            const isActive = (settings[`${card.key}_text_align`] || 'left') === opt.value;
+                                            return (
+                                                <button
+                                                    key={opt.value}
+                                                    type="button"
+                                                    title={opt.label}
+                                                    onClick={() => handleChange(`${card.key}_text_align`, opt.value)}
+                                                    className={`p-2 rounded-md border transition-colors ${isActive ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-muted-foreground border-border hover:bg-secondary'}`}
+                                                >
+                                                    <opt.icon className="w-4 h-4" />
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                {/* Background Color */}
+                                <div className="space-y-1">
+                                    <Label className="text-xs text-muted-foreground">สีพื้นหลังการ์ด</Label>
+                                    <div className="flex items-center gap-3">
+                                        <input
+                                            type="color"
+                                            value={settings[`${card.key}_bg_color`] || '#ffffff'}
+                                            onChange={(e) => handleChange(`${card.key}_bg_color`, e.target.value)}
+                                            className="w-10 h-10 rounded cursor-pointer border border-border"
+                                        />
+                                        <span className="text-sm text-muted-foreground">
+                                            {settings[`${card.key}_bg_color`] || 'ค่าเริ่มต้น (bg-card)'}
+                                        </span>
+                                        {settings[`${card.key}_bg_color`] && (
+                                            <button
+                                                type="button"
+                                                onClick={() => handleChange(`${card.key}_bg_color`, '')}
+                                                className="text-xs text-destructive hover:underline"
+                                            >
+                                                ล้างสี
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
                     </CardContent>
                 </Card>
 

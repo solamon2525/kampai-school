@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import Navbar from '@/components/Navbar';
+import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
 import { Target, Eye, Heart, Star, Users, Award, BookOpen, GraduationCap, Building2, History, LucideIcon, Dumbbell, Monitor, FlaskConical } from 'lucide-react';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
+import type { SchoolSettings } from '@/hooks/useSchoolSettings';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Milestone {
@@ -63,34 +64,24 @@ const About = () => {
     }
   };
 
-  // Build features from settings
-  const features = [
-    {
-      icon: Target,
-      title: 'วิสัยทัศน์',
-      description: settings.school_vision,
-    },
-    {
-      icon: Eye,
-      title: 'พันธกิจ',
-      description: settings.school_mission,
-    },
-    {
-      icon: Heart,
-      title: 'ค่านิยม',
-      description: settings.school_values,
-    },
-    {
-      icon: Star,
-      title: 'ความเป็นเลิศ',
-      description: 'มุ่งมั่นสู่ความเป็นเลิศในทุกด้าน ทั้งวิชาการ กีฬา ศิลปะ และการพัฒนาบุคลิกภาพของผู้เรียน',
-    },
+  const alignMap: Record<string, string> = {
+    left: 'text-left',
+    center: 'text-center',
+    right: 'text-right',
+    justify: 'text-justify',
+  };
+
+  const cardConfigs = [
+    { key: 'vision',     icon: Target, title: 'วิสัยทัศน์',   text: settings.school_vision },
+    { key: 'mission',    icon: Eye,    title: 'พันธกิจ',       text: settings.school_mission },
+    { key: 'values',     icon: Heart,  title: 'ค่านิยม',       text: settings.school_values },
+    { key: 'excellence', icon: Star,   title: 'ความเป็นเลิศ',  text: settings.school_excellence },
   ];
 
   return (
     <div className="min-h-screen">
-      <Navbar />
-      <main className="pt-20">
+      <SiteHeader />
+      <main>
         {/* Hero Section */}
         <section className="bg-primary py-20">
           <div className="container mx-auto px-4 text-center">
@@ -108,18 +99,29 @@ const About = () => {
         <section className="section-padding bg-background">
           <div className="container mx-auto px-4">
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {features.map((feature, index) => (
-                <div
-                  key={index}
-                  className="group bg-card rounded-2xl p-8 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-border"
-                >
-                  <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
-                    <feature.icon className="w-7 h-7 text-primary group-hover:text-primary-foreground transition-colors" />
+              {cardConfigs.map((c) => {
+                const img = settings[`${c.key}_image_url` as keyof SchoolSettings] as string;
+                const align = (settings[`${c.key}_text_align` as keyof SchoolSettings] as string) || 'left';
+                const bg = (settings[`${c.key}_bg_color` as keyof SchoolSettings] as string) || '';
+                const alignClass = alignMap[align] || 'text-left';
+                return (
+                  <div
+                    key={c.key}
+                    style={bg ? { backgroundColor: bg } : {}}
+                    className={`group ${!bg ? 'bg-card' : ''} rounded-2xl p-8 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-border`}
+                  >
+                    {img ? (
+                      <img src={img} alt={c.title} className="w-14 h-14 rounded-xl object-cover mb-6" />
+                    ) : (
+                      <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
+                        <c.icon className="w-7 h-7 text-primary group-hover:text-primary-foreground transition-colors" />
+                      </div>
+                    )}
+                    <h3 className={`text-xl font-bold text-foreground mb-3 ${alignClass}`}>{c.title}</h3>
+                    <p className={`text-muted-foreground leading-relaxed ${alignClass}`}>{c.text}</p>
                   </div>
-                  <h3 className="text-xl font-bold text-foreground mb-3">{feature.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>

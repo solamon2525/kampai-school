@@ -1,0 +1,974 @@
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  ClipboardList,
+  BarChart3,
+  Users,
+  Plus,
+  Edit,
+  Trash2,
+  Save,
+  Search,
+  RefreshCw,
+} from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+type AttendanceStatus = 'present' | 'absent' | 'late' | 'leave';
+
+interface Student {
+  id: string;
+  student_code: string;
+  name: string;
+  class: string;
+  class_number: number;
+  gender: string;
+  parent_name: string;
+  parent_phone: string;
+  is_active: boolean;
+}
+
+interface AttendanceRecord {
+  id: string;
+  student_id: string;
+  attendance_date: string;
+  status: AttendanceStatus;
+  notes: string | null;
+  recorded_by: string | null;
+}
+
+interface ReportRow {
+  student_id: string;
+  name: string;
+  student_code: string;
+  class_number: number;
+  present: number;
+  absent: number;
+  late: number;
+  leave: number;
+  total: number;
+}
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
+
+const STATUS_CONFIG: Record<
+  AttendanceStatus,
+  { label: string; color: string; bg: string; activeBg: string; activeText: string }
+> = {
+  present: {
+    label: 'มา',
+    color: 'text-green-700',
+    bg: 'bg-white border-green-300 text-green-700 hover:bg-green-50',
+    activeBg: 'bg-green-500 border-green-500 text-white',
+    activeText: 'มาเรียน',
+  },
+  absent: {
+    label: 'ขาด',
+    color: 'text-red-700',
+    bg: 'bg-white border-red-300 text-red-700 hover:bg-red-50',
+    activeBg: 'bg-red-500 border-red-500 text-white',
+    activeText: 'ขาด',
+  },
+  late: {
+    label: 'สาย',
+    color: 'text-yellow-700',
+    bg: 'bg-white border-yellow-300 text-yellow-700 hover:bg-yellow-50',
+    activeBg: 'bg-yellow-500 border-yellow-500 text-white',
+    activeText: 'มาสาย',
+  },
+  leave: {
+    label: 'ลา',
+    color: 'text-blue-700',
+    bg: 'bg-white border-blue-300 text-blue-700 hover:bg-blue-50',
+    activeBg: 'bg-blue-500 border-blue-500 text-white',
+    activeText: 'ลา',
+  },
+};
+
+const THAI_MONTHS = [
+  'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+  'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม',
+];
+
+function todayISO(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function ceYearToBE(ce: number): number {
+  return ce + 543;
+}
+
+function beYearToCE(be: number): number {
+  return be - 543;
+}
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+interface StatusButtonProps {
+  status: AttendanceStatus;
+  active: boolean;
+  onClick: () => void;
+}
+
+function StatusButton({ status, active, onClick }: StatusButtonProps) {
+  const cfg = STATUS_CONFIG[status];
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`px-3 py-1 text-sm font-medium rounded border transition-colors ${
+        active ? cfg.activeBg : cfg.bg
+      }`}
+    >
+      {cfg.label}
+    </button>
+  );
+}
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+
+export const AttendanceManagement = () => {
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState<'checkin' | 'report' | 'students'>('checkin');
+
+  // ── Tab 1: เช็คชื่อ ──────────────────────────────────────────────────────
+  const [checkinDate, setCheckinDate] = useState(todayISO());
+  const [checkinClass, setCheckinClass] = useState('');
+  const [checkinStudents, setCheckinStudents] = useState<Student[]>([]);
+  const [attendanceMap, setAttendanceMap] = useState<Record<string, AttendanceStatus>>({});
+  const [checkinLoading, setCheckinLoading] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [dataLoaded, setDataLoaded] = useState(false);
+
+  const loadCheckin = async () => {
+    if (!checkinClass) {
+      toast({ title: 'กรุณาเลือกชั้นเรียน', variant: 'destructive' });
+      return;
+    }
+    setCheckinLoading(true);
+    setDataLoaded(false);
+    try {
+      const { data: students, error: sErr } = await supabase
+        .from('students')
+        .select('*')
+        .eq('class', checkinClass)
+        .eq('is_active', true)
+        .order('class_number');
+      if (sErr) throw sErr;
+
+      const { data: records, error: rErr } = await supabase
+        .from('attendance_records')
+        .select('*')
+        .eq('attendance_date', checkinDate)
+        .in('student_id', (students ?? []).map((s) => s.id));
+      if (rErr) throw rErr;
+
+      const map: Record<string, AttendanceStatus> = {};
+      (records ?? []).forEach((r) => {
+        map[r.student_id] = r.status as AttendanceStatus;
+      });
+
+      setCheckinStudents(students ?? []);
+      setAttendanceMap(map);
+      setDataLoaded(true);
+    } catch (err: any) {
+      toast({ title: 'เกิดข้อผิดพลาด', description: err.message, variant: 'destructive' });
+    } finally {
+      setCheckinLoading(false);
+    }
+  };
+
+  const setStatus = (studentId: string, status: AttendanceStatus) => {
+    setAttendanceMap((prev) => ({ ...prev, [studentId]: status }));
+  };
+
+  const saveAll = async () => {
+    if (!dataLoaded || checkinStudents.length === 0) return;
+    setSaveLoading(true);
+    try {
+      const upserts = checkinStudents
+        .filter((s) => attendanceMap[s.id])
+        .map((s) => ({
+          student_id: s.id,
+          attendance_date: checkinDate,
+          status: attendanceMap[s.id],
+          notes: null,
+          recorded_by: null,
+        }));
+
+      if (upserts.length === 0) {
+        toast({ title: 'ยังไม่ได้เช็คชื่อนักเรียนคนไหน', variant: 'destructive' });
+        return;
+      }
+
+      const { error } = await supabase
+        .from('attendance_records')
+        .upsert(upserts, { onConflict: 'student_id,attendance_date' });
+      if (error) throw error;
+
+      toast({ title: 'บันทึกการเช็คชื่อสำเร็จ', description: `บันทึก ${upserts.length} คน` });
+    } catch (err: any) {
+      toast({ title: 'เกิดข้อผิดพลาด', description: err.message, variant: 'destructive' });
+    } finally {
+      setSaveLoading(false);
+    }
+  };
+
+  const summary = {
+    present: Object.values(attendanceMap).filter((s) => s === 'present').length,
+    absent: Object.values(attendanceMap).filter((s) => s === 'absent').length,
+    late: Object.values(attendanceMap).filter((s) => s === 'late').length,
+    leave: Object.values(attendanceMap).filter((s) => s === 'leave').length,
+  };
+
+  // ── Tab 2: รายงาน ─────────────────────────────────────────────────────────
+  const currentCEYear = new Date().getFullYear();
+  const [reportMonth, setReportMonth] = useState(String(new Date().getMonth() + 1));
+  const [reportYearBE, setReportYearBE] = useState(String(ceYearToBE(currentCEYear)));
+  const [reportClass, setReportClass] = useState('');
+  const [reportRows, setReportRows] = useState<ReportRow[]>([]);
+  const [reportLoading, setReportLoading] = useState(false);
+  const [reportLoaded, setReportLoaded] = useState(false);
+
+  const loadReport = async () => {
+    if (!reportClass) {
+      toast({ title: 'กรุณาเลือกชั้นเรียน', variant: 'destructive' });
+      return;
+    }
+    setReportLoading(true);
+    setReportLoaded(false);
+    try {
+      const ceYear = beYearToCE(Number(reportYearBE));
+      const month = Number(reportMonth);
+      const startDate = `${ceYear}-${String(month).padStart(2, '0')}-01`;
+      const endDay = new Date(ceYear, month, 0).getDate();
+      const endDate = `${ceYear}-${String(month).padStart(2, '0')}-${endDay}`;
+
+      const { data: students, error: sErr } = await supabase
+        .from('students')
+        .select('*')
+        .eq('class', reportClass)
+        .eq('is_active', true)
+        .order('class_number');
+      if (sErr) throw sErr;
+
+      const studentIds = (students ?? []).map((s) => s.id);
+      if (studentIds.length === 0) {
+        setReportRows([]);
+        setReportLoaded(true);
+        return;
+      }
+
+      const { data: records, error: rErr } = await supabase
+        .from('attendance_records')
+        .select('student_id, status, attendance_date')
+        .in('student_id', studentIds)
+        .gte('attendance_date', startDate)
+        .lte('attendance_date', endDate);
+      if (rErr) throw rErr;
+
+      const schoolDays = new Set((records ?? []).map((r) => r.attendance_date)).size;
+
+      const rows: ReportRow[] = (students ?? []).map((s) => {
+        const recs = (records ?? []).filter((r) => r.student_id === s.id);
+        const count = (status: string) => recs.filter((r) => r.status === status).length;
+        return {
+          student_id: s.id,
+          name: s.name,
+          student_code: s.student_code,
+          class_number: s.class_number,
+          present: count('present'),
+          absent: count('absent'),
+          late: count('late'),
+          leave: count('leave'),
+          total: schoolDays,
+        };
+      });
+
+      setReportRows(rows);
+      setReportLoaded(true);
+    } catch (err: any) {
+      toast({ title: 'เกิดข้อผิดพลาด', description: err.message, variant: 'destructive' });
+    } finally {
+      setReportLoading(false);
+    }
+  };
+
+  // ── Tab 3: รายชื่อนักเรียน ────────────────────────────────────────────────
+  const [allStudents, setAllStudents] = useState<Student[]>([]);
+  const [studentsLoading, setStudentsLoading] = useState(false);
+  const [filterClass, setFilterClass] = useState('');
+  const [searchName, setSearchName] = useState('');
+  const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+  const [studentForm, setStudentForm] = useState<Omit<Student, 'id'>>({
+    student_code: '',
+    name: '',
+    class: '',
+    class_number: 1,
+    gender: 'male',
+    parent_name: '',
+    parent_phone: '',
+    is_active: true,
+  });
+  const [studentSaving, setStudentSaving] = useState(false);
+
+  const fetchStudents = async () => {
+    setStudentsLoading(true);
+    try {
+      let query = supabase.from('students').select('*').order('class').order('class_number');
+      const { data, error } = await query;
+      if (error) throw error;
+      setAllStudents(data ?? []);
+    } catch (err: any) {
+      toast({ title: 'เกิดข้อผิดพลาด', description: err.message, variant: 'destructive' });
+    } finally {
+      setStudentsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'students') fetchStudents();
+  }, [activeTab]);
+
+  const filteredStudents = allStudents.filter((s) => {
+    const matchClass = filterClass ? s.class === filterClass : true;
+    const matchName = searchName ? s.name.includes(searchName) : true;
+    return matchClass && matchName;
+  });
+
+  const openAddDialog = () => {
+    setEditingStudent(null);
+    setStudentForm({
+      student_code: '',
+      name: '',
+      class: '',
+      class_number: 1,
+      gender: 'male',
+      parent_name: '',
+      parent_phone: '',
+      is_active: true,
+    });
+    setIsStudentDialogOpen(true);
+  };
+
+  const openEditDialog = (s: Student) => {
+    setEditingStudent(s);
+    setStudentForm({
+      student_code: s.student_code,
+      name: s.name,
+      class: s.class,
+      class_number: s.class_number,
+      gender: s.gender,
+      parent_name: s.parent_name,
+      parent_phone: s.parent_phone,
+      is_active: s.is_active,
+    });
+    setIsStudentDialogOpen(true);
+  };
+
+  const saveStudent = async () => {
+    if (!studentForm.name || !studentForm.class || !studentForm.student_code) {
+      toast({ title: 'กรุณากรอกข้อมูลที่จำเป็น', variant: 'destructive' });
+      return;
+    }
+    setStudentSaving(true);
+    try {
+      if (editingStudent) {
+        const { error } = await supabase
+          .from('students')
+          .update(studentForm)
+          .eq('id', editingStudent.id);
+        if (error) throw error;
+        toast({ title: 'แก้ไขข้อมูลนักเรียนสำเร็จ' });
+      } else {
+        const { error } = await supabase.from('students').insert(studentForm);
+        if (error) throw error;
+        toast({ title: 'เพิ่มนักเรียนสำเร็จ' });
+      }
+      setIsStudentDialogOpen(false);
+      fetchStudents();
+    } catch (err: any) {
+      toast({ title: 'เกิดข้อผิดพลาด', description: err.message, variant: 'destructive' });
+    } finally {
+      setStudentSaving(false);
+    }
+  };
+
+  const deleteStudent = async (s: Student) => {
+    if (!confirm(`ต้องการลบ "${s.name}" ออกจากระบบ?`)) return;
+    try {
+      const { error } = await supabase.from('students').delete().eq('id', s.id);
+      if (error) throw error;
+      toast({ title: 'ลบนักเรียนสำเร็จ' });
+      fetchStudents();
+    } catch (err: any) {
+      toast({ title: 'เกิดข้อผิดพลาด', description: err.message, variant: 'destructive' });
+    }
+  };
+
+  // ─── Render ──────────────────────────────────────────────────────────────────
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold text-gray-800">ระบบเช็คชื่อนักเรียน</h2>
+        <p className="text-gray-500 text-sm mt-1">จัดการการเช็คชื่อ รายงานการมาเรียน และรายชื่อนักเรียน</p>
+      </div>
+
+      {/* Tab Bar */}
+      <div className="flex gap-1 bg-gray-100 p-1 rounded-lg w-fit">
+        {([
+          { key: 'checkin', label: 'เช็คชื่อ', icon: ClipboardList },
+          { key: 'report', label: 'รายงาน', icon: BarChart3 },
+          { key: 'students', label: 'รายชื่อนักเรียน', icon: Users },
+        ] as const).map(({ key, label, icon: Icon }) => (
+          <button
+            key={key}
+            type="button"
+            onClick={() => setActiveTab(key)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              activeTab === key
+                ? 'bg-white text-blue-700 shadow-sm'
+                : 'text-gray-600 hover:text-gray-800'
+            }`}
+          >
+            <Icon className="w-4 h-4" />
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* ───────────── Tab 1: เช็คชื่อ ───────────── */}
+      {activeTab === 'checkin' && (
+        <div className="space-y-4">
+          {/* Controls */}
+          <Card>
+            <CardContent className="pt-4">
+              <div className="flex flex-wrap items-end gap-3">
+                <div className="flex flex-col gap-1">
+                  <Label>วันที่</Label>
+                  <Input
+                    type="date"
+                    value={checkinDate}
+                    onChange={(e) => {
+                      setCheckinDate(e.target.value);
+                      setDataLoaded(false);
+                    }}
+                    className="w-44"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <Label>ชั้นเรียน</Label>
+                  <Select
+                    value={checkinClass}
+                    onValueChange={(v) => {
+                      setCheckinClass(v);
+                      setDataLoaded(false);
+                    }}
+                  >
+                    <SelectTrigger className="w-36">
+                      <SelectValue placeholder="เลือกชั้น" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CLASSES.map((c) => (
+                        <SelectItem key={c} value={c}>
+                          {c}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button onClick={loadCheckin} disabled={checkinLoading}>
+                  {checkinLoading ? (
+                    <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+                  ) : (
+                    <ClipboardList className="w-4 h-4 mr-2" />
+                  )}
+                  โหลดรายชื่อ
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Summary bar */}
+          {dataLoaded && (
+            <div className="flex flex-wrap gap-3">
+              {(Object.entries(STATUS_CONFIG) as [AttendanceStatus, typeof STATUS_CONFIG[AttendanceStatus]][]).map(
+                ([status, cfg]) => (
+                  <div
+                    key={status}
+                    className="flex items-center gap-2 bg-white border rounded-lg px-4 py-2 shadow-sm"
+                  >
+                    <span className={`text-sm font-medium ${cfg.color}`}>{cfg.activeText}</span>
+                    <span className="text-lg font-bold text-gray-800">{summary[status]}</span>
+                    <span className="text-xs text-gray-400">คน</span>
+                  </div>
+                )
+              )}
+              <div className="flex items-center gap-2 bg-gray-50 border rounded-lg px-4 py-2 shadow-sm">
+                <span className="text-sm font-medium text-gray-600">ยังไม่ได้เช็ค</span>
+                <span className="text-lg font-bold text-gray-800">
+                  {checkinStudents.length - Object.keys(attendanceMap).length}
+                </span>
+                <span className="text-xs text-gray-400">คน</span>
+              </div>
+            </div>
+          )}
+
+          {/* Student grid */}
+          {dataLoaded && checkinStudents.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">
+                  รายชื่อนักเรียน ชั้น {checkinClass} — {checkinStudents.length} คน
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {checkinStudents.map((s) => {
+                    const currentStatus = attendanceMap[s.id];
+                    return (
+                      <div
+                        key={s.id}
+                        className="flex items-center gap-3 py-2 border-b last:border-b-0"
+                      >
+                        <span className="w-8 text-center text-sm font-semibold text-gray-500">
+                          {s.class_number}
+                        </span>
+                        <span className="flex-1 text-sm font-medium text-gray-800">{s.name}</span>
+                        <div className="flex gap-1">
+                          {(Object.keys(STATUS_CONFIG) as AttendanceStatus[]).map((st) => (
+                            <StatusButton
+                              key={st}
+                              status={st}
+                              active={currentStatus === st}
+                              onClick={() => setStatus(s.id, st)}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="mt-4 flex justify-end">
+                  <Button onClick={saveAll} disabled={saveLoading} className="bg-blue-600 hover:bg-blue-700">
+                    {saveLoading ? (
+                      <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+                    ) : (
+                      <Save className="w-4 h-4 mr-2" />
+                    )}
+                    บันทึกทั้งหมด
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {dataLoaded && checkinStudents.length === 0 && (
+            <div className="text-center py-12 text-gray-400">ไม่พบนักเรียนในชั้น {checkinClass}</div>
+          )}
+        </div>
+      )}
+
+      {/* ───────────── Tab 2: รายงาน ───────────── */}
+      {activeTab === 'report' && (
+        <div className="space-y-4">
+          <Card>
+            <CardContent className="pt-4">
+              <div className="flex flex-wrap items-end gap-3">
+                <div className="flex flex-col gap-1">
+                  <Label>เดือน</Label>
+                  <Select value={reportMonth} onValueChange={setReportMonth}>
+                    <SelectTrigger className="w-40">
+                      <SelectValue placeholder="เลือกเดือน" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {THAI_MONTHS.map((m, i) => (
+                        <SelectItem key={i + 1} value={String(i + 1)}>
+                          {m}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <Label>ปี (พ.ศ.)</Label>
+                  <Input
+                    type="number"
+                    value={reportYearBE}
+                    onChange={(e) => setReportYearBE(e.target.value)}
+                    className="w-28"
+                    min="2560"
+                    max="2600"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <Label>ชั้นเรียน</Label>
+                  <Select value={reportClass} onValueChange={setReportClass}>
+                    <SelectTrigger className="w-36">
+                      <SelectValue placeholder="เลือกชั้น" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CLASSES.map((c) => (
+                        <SelectItem key={c} value={c}>
+                          {c}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button onClick={loadReport} disabled={reportLoading}>
+                  {reportLoading ? (
+                    <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+                  ) : (
+                    <BarChart3 className="w-4 h-4 mr-2" />
+                  )}
+                  ดูรายงาน
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {reportLoaded && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">
+                  รายงานการมาเรียน — ชั้น {reportClass} เดือน{' '}
+                  {THAI_MONTHS[Number(reportMonth) - 1]} พ.ศ. {reportYearBE}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {reportRows.length === 0 ? (
+                  <div className="text-center py-8 text-gray-400">ไม่พบข้อมูลในช่วงเวลาที่เลือก</div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b bg-gray-50">
+                          <th className="text-left py-2 px-3 font-semibold text-gray-600">เลขที่</th>
+                          <th className="text-left py-2 px-3 font-semibold text-gray-600">ชื่อ-สกุล</th>
+                          <th className="text-center py-2 px-3 font-semibold text-green-700">มาเรียน</th>
+                          <th className="text-center py-2 px-3 font-semibold text-red-700">ขาด</th>
+                          <th className="text-center py-2 px-3 font-semibold text-yellow-700">สาย</th>
+                          <th className="text-center py-2 px-3 font-semibold text-blue-700">ลา</th>
+                          <th className="text-center py-2 px-3 font-semibold text-gray-600">วันเรียน</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {reportRows.map((row) => (
+                          <tr
+                            key={row.student_id}
+                            className={`border-b last:border-b-0 ${
+                              row.absent > 3 ? 'bg-red-50' : 'hover:bg-gray-50'
+                            }`}
+                          >
+                            <td className="py-2 px-3 text-gray-500">{row.class_number}</td>
+                            <td className="py-2 px-3 font-medium text-gray-800">
+                              {row.name}
+                              {row.absent > 3 && (
+                                <Badge className="ml-2 bg-red-100 text-red-700 text-xs">
+                                  ขาดเกิน 3 วัน
+                                </Badge>
+                              )}
+                            </td>
+                            <td className="py-2 px-3 text-center font-semibold text-green-700">
+                              {row.present}
+                            </td>
+                            <td
+                              className={`py-2 px-3 text-center font-semibold ${
+                                row.absent > 3 ? 'text-red-700' : 'text-red-500'
+                              }`}
+                            >
+                              {row.absent}
+                            </td>
+                            <td className="py-2 px-3 text-center font-semibold text-yellow-600">
+                              {row.late}
+                            </td>
+                            <td className="py-2 px-3 text-center font-semibold text-blue-600">
+                              {row.leave}
+                            </td>
+                            <td className="py-2 px-3 text-center text-gray-600">{row.total}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
+
+      {/* ───────────── Tab 3: รายชื่อนักเรียน ───────────── */}
+      {activeTab === 'students' && (
+        <div className="space-y-4">
+          {/* Filters + Add */}
+          <Card>
+            <CardContent className="pt-4">
+              <div className="flex flex-wrap items-end gap-3">
+                <div className="flex flex-col gap-1">
+                  <Label>ชั้นเรียน</Label>
+                  <Select value={filterClass} onValueChange={setFilterClass}>
+                    <SelectTrigger className="w-36">
+                      <SelectValue placeholder="ทุกชั้น" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">ทุกชั้น</SelectItem>
+                      {CLASSES.map((c) => (
+                        <SelectItem key={c} value={c}>
+                          {c}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <Label>ค้นหาชื่อ</Label>
+                  <div className="relative">
+                    <Search className="w-4 h-4 absolute left-2.5 top-2.5 text-gray-400" />
+                    <Input
+                      value={searchName}
+                      onChange={(e) => setSearchName(e.target.value)}
+                      placeholder="ค้นหา..."
+                      className="pl-8 w-48"
+                    />
+                  </div>
+                </div>
+                <div className="ml-auto flex gap-2">
+                  <Button variant="outline" onClick={fetchStudents} disabled={studentsLoading}>
+                    <RefreshCw className={`w-4 h-4 mr-1 ${studentsLoading ? 'animate-spin' : ''}`} />
+                    รีเฟรช
+                  </Button>
+                  <Button onClick={openAddDialog} className="bg-blue-600 hover:bg-blue-700">
+                    <Plus className="w-4 h-4 mr-1" />
+                    เพิ่มนักเรียน
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-4">
+              {studentsLoading ? (
+                <div className="text-center py-8 text-gray-400">กำลังโหลด...</div>
+              ) : filteredStudents.length === 0 ? (
+                <div className="text-center py-8 text-gray-400">ไม่พบนักเรียน</div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b bg-gray-50">
+                        <th className="text-left py-2 px-3 font-semibold text-gray-600">รหัสนักเรียน</th>
+                        <th className="text-left py-2 px-3 font-semibold text-gray-600">ชื่อ-สกุล</th>
+                        <th className="text-center py-2 px-3 font-semibold text-gray-600">ชั้น</th>
+                        <th className="text-center py-2 px-3 font-semibold text-gray-600">เลขที่</th>
+                        <th className="text-center py-2 px-3 font-semibold text-gray-600">เพศ</th>
+                        <th className="text-left py-2 px-3 font-semibold text-gray-600">ผู้ปกครอง</th>
+                        <th className="text-left py-2 px-3 font-semibold text-gray-600">โทรศัพท์</th>
+                        <th className="text-center py-2 px-3 font-semibold text-gray-600">สถานะ</th>
+                        <th className="text-center py-2 px-3 font-semibold text-gray-600">จัดการ</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredStudents.map((s) => (
+                        <tr key={s.id} className="border-b last:border-b-0 hover:bg-gray-50">
+                          <td className="py-2 px-3 font-mono text-xs text-gray-600">{s.student_code}</td>
+                          <td className="py-2 px-3 font-medium text-gray-800">{s.name}</td>
+                          <td className="py-2 px-3 text-center text-gray-600">{s.class}</td>
+                          <td className="py-2 px-3 text-center text-gray-600">{s.class_number}</td>
+                          <td className="py-2 px-3 text-center text-gray-600">
+                            {s.gender === 'male' ? 'ชาย' : 'หญิง'}
+                          </td>
+                          <td className="py-2 px-3 text-gray-600">{s.parent_name || '-'}</td>
+                          <td className="py-2 px-3 text-gray-600">{s.parent_phone || '-'}</td>
+                          <td className="py-2 px-3 text-center">
+                            <Badge
+                              className={
+                                s.is_active
+                                  ? 'bg-green-100 text-green-700'
+                                  : 'bg-gray-100 text-gray-500'
+                              }
+                            >
+                              {s.is_active ? 'กำลังเรียน' : 'ไม่ใช้งาน'}
+                            </Badge>
+                          </td>
+                          <td className="py-2 px-3 text-center">
+                            <div className="flex justify-center gap-1">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 w-7 p-0"
+                                onClick={() => openEditDialog(s)}
+                              >
+                                <Edit className="w-3 h-3" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                onClick={() => deleteStudent(s)}
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <div className="mt-3 text-xs text-gray-400 text-right">
+                    แสดง {filteredStudents.length} จาก {allStudents.length} คน
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* ───────────── Student Dialog ───────────── */}
+      <Dialog open={isStudentDialogOpen} onOpenChange={setIsStudentDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{editingStudent ? 'แก้ไขข้อมูลนักเรียน' : 'เพิ่มนักเรียนใหม่'}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 pt-2">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1">
+                <Label>รหัสนักเรียน *</Label>
+                <Input
+                  value={studentForm.student_code}
+                  onChange={(e) => setStudentForm((p) => ({ ...p, student_code: e.target.value }))}
+                  placeholder="เช่น 12345"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <Label>เลขที่</Label>
+                <Input
+                  type="number"
+                  min={1}
+                  value={studentForm.class_number}
+                  onChange={(e) =>
+                    setStudentForm((p) => ({ ...p, class_number: Number(e.target.value) }))
+                  }
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-1">
+              <Label>ชื่อ-สกุล *</Label>
+              <Input
+                value={studentForm.name}
+                onChange={(e) => setStudentForm((p) => ({ ...p, name: e.target.value }))}
+                placeholder="เด็กชาย/เด็กหญิง..."
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1">
+                <Label>ชั้นเรียน *</Label>
+                <Select
+                  value={studentForm.class}
+                  onValueChange={(v) => setStudentForm((p) => ({ ...p, class: v }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="เลือกชั้น" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CLASSES.map((c) => (
+                      <SelectItem key={c} value={c}>
+                        {c}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-col gap-1">
+                <Label>เพศ</Label>
+                <Select
+                  value={studentForm.gender}
+                  onValueChange={(v) => setStudentForm((p) => ({ ...p, gender: v }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">ชาย</SelectItem>
+                    <SelectItem value="female">หญิง</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="flex flex-col gap-1">
+              <Label>ชื่อผู้ปกครอง</Label>
+              <Input
+                value={studentForm.parent_name}
+                onChange={(e) => setStudentForm((p) => ({ ...p, parent_name: e.target.value }))}
+                placeholder="ชื่อผู้ปกครอง"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <Label>เบอร์โทรผู้ปกครอง</Label>
+              <Input
+                value={studentForm.parent_phone}
+                onChange={(e) => setStudentForm((p) => ({ ...p, parent_phone: e.target.value }))}
+                placeholder="0XX-XXX-XXXX"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                id="is_active"
+                type="checkbox"
+                checked={studentForm.is_active}
+                onChange={(e) => setStudentForm((p) => ({ ...p, is_active: e.target.checked }))}
+                className="rounded"
+              />
+              <Label htmlFor="is_active" className="cursor-pointer">
+                กำลังเรียนอยู่ (นักเรียนที่ไม่ใช้งานจะไม่ปรากฏในการเช็คชื่อ)
+              </Label>
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="outline" onClick={() => setIsStudentDialogOpen(false)}>
+                ยกเลิก
+              </Button>
+              <Button
+                onClick={saveStudent}
+                disabled={studentSaving}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                {studentSaving ? (
+                  <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+                ) : (
+                  <Save className="w-4 h-4 mr-2" />
+                )}
+                บันทึก
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};

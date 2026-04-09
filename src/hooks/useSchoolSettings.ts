@@ -75,6 +75,24 @@ export interface SchoolSettings {
     footer_service_4_url: string;
     academic_calendar_url: string;
     academic_year: string;
+
+    // Hero Slideshow
+    hero_slide_interval: string;
+
+    // About page cards
+    school_excellence: string;
+    vision_image_url: string;
+    vision_text_align: string;
+    vision_bg_color: string;
+    mission_image_url: string;
+    mission_text_align: string;
+    mission_bg_color: string;
+    values_image_url: string;
+    values_text_align: string;
+    values_bg_color: string;
+    excellence_image_url: string;
+    excellence_text_align: string;
+    excellence_bg_color: string;
 }
 
 const defaultSettings: SchoolSettings = {
@@ -131,6 +149,24 @@ const defaultSettings: SchoolSettings = {
     academic_calendar_url: '',
     academic_year: '2568',
     social_links: [],
+
+    // About page cards
+    school_excellence: 'มุ่งมั่นสู่ความเป็นเลิศในทุกด้าน ทั้งวิชาการ กีฬา ศิลปะ และการพัฒนาบุคลิกภาพของผู้เรียน',
+    vision_image_url: '',
+    vision_text_align: 'left',
+    vision_bg_color: '',
+    mission_image_url: '',
+    mission_text_align: 'left',
+    mission_bg_color: '',
+    values_image_url: '',
+    values_text_align: 'left',
+    values_bg_color: '',
+    excellence_image_url: '',
+    excellence_text_align: 'left',
+    excellence_bg_color: '',
+
+    // Hero Slideshow
+    hero_slide_interval: '5',
 };
 
 const CACHE_KEY = 'school_settings_cache';

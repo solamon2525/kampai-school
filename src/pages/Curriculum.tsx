@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import Navbar from '@/components/Navbar';
+import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
 import { BookOpen, FlaskConical, Languages, Calculator, Monitor, Palette, Music, Dumbbell, Clock, Users, Award, LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -94,8 +94,8 @@ const Curriculum = () => {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
-      <main className="pt-20">
+      <SiteHeader />
+      <main>
         {/* Hero Section */}
         <section className="bg-primary py-20">
           <div className="container mx-auto px-4 text-center">

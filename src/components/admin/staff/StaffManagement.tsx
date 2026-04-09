@@ -3,11 +3,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Edit, Trash2, Users, Briefcase } from 'lucide-react';
+import { Plus, Edit, Trash2, Users, Briefcase, LayoutGrid, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ImageUpload } from '../shared/ImageUpload';
 import { deleteStorageImage } from '@/utils/storageUtils';
@@ -41,11 +41,50 @@ export const StaffManagement = () => {
         photo_url: '',
         staff_type: 'teaching' as 'teaching' | 'support',
     });
+    // Column settings
+    const [adminCols, setAdminCols] = useState('1');
+    const [teachingCols, setTeachingCols] = useState('4');
+    const [supportCols, setSupportCols] = useState('4');
+    const [savingCols, setSavingCols] = useState(false);
     const { toast } = useToast();
 
     useEffect(() => {
         fetchStaff();
+        fetchColumnSettings();
     }, []);
+
+    const fetchColumnSettings = async () => {
+        const { data } = await supabase
+            .from('school_settings')
+            .select('key, value')
+            .in('key', ['staff_admin_columns', 'staff_teaching_columns', 'staff_support_columns']);
+        if (data) {
+            data.forEach((s: any) => {
+                if (s.key === 'staff_admin_columns') setAdminCols(s.value || '1');
+                if (s.key === 'staff_teaching_columns') setTeachingCols(s.value || '4');
+                if (s.key === 'staff_support_columns') setSupportCols(s.value || '4');
+            });
+        }
+    };
+
+    const handleSaveColumnSettings = async () => {
+        setSavingCols(true);
+        try {
+            const updates = [
+                { key: 'staff_admin_columns', value: adminCols },
+                { key: 'staff_teaching_columns', value: teachingCols },
+                { key: 'staff_support_columns', value: supportCols },
+            ];
+            for (const u of updates) {
+                await supabase.from('school_settings').upsert(u as any, { onConflict: 'key' });
+            }
+            toast({ title: 'บันทึกแล้ว', description: 'ตั้งค่าจำนวนคอลัมน์เรียบร้อย' });
+        } catch {
+            toast({ variant: 'destructive', title: 'เกิดข้อผิดพลาด', description: 'บันทึกไม่สำเร็จ' });
+        } finally {
+            setSavingCols(false);
+        }
+    };
 
     const fetchStaff = async () => {
         try {
@@ -371,6 +410,57 @@ export const StaffManagement = () => {
                     </DialogContent>
                 </Dialog>
             </div>
+
+            {/* Column Settings Card */}
+            <Card className="mb-6">
+                <CardHeader className="pb-3">
+                    <CardTitle className="text-base flex items-center gap-2">
+                        <LayoutGrid className="w-4 h-4" />
+                        ตั้งค่าการแสดงผลหน้าเว็บ (จำนวนคอลัมน์)
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                        <div className="space-y-1">
+                            <Label className="text-xs text-muted-foreground">ผู้บริหาร</Label>
+                            <Select value={adminCols} onValueChange={setAdminCols}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    {['1','2','3','4','5'].map(n => (
+                                        <SelectItem key={n} value={n}>{n} คอลัมน์</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-1">
+                            <Label className="text-xs text-muted-foreground">ครูผู้สอน</Label>
+                            <Select value={teachingCols} onValueChange={setTeachingCols}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    {['1','2','3','4','5'].map(n => (
+                                        <SelectItem key={n} value={n}>{n} คอลัมน์</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-1">
+                            <Label className="text-xs text-muted-foreground">บุคลากรสนับสนุน</Label>
+                            <Select value={supportCols} onValueChange={setSupportCols}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    {['1','2','3','4','5'].map(n => (
+                                        <SelectItem key={n} value={n}>{n} คอลัมน์</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                    <Button size="sm" onClick={handleSaveColumnSettings} disabled={savingCols} className="gap-2">
+                        <Save className="w-4 h-4" />
+                        {savingCols ? 'กำลังบันทึก...' : 'บันทึกการตั้งค่า'}
+                    </Button>
+                </CardContent>
+            </Card>
 
             <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList className="mb-6">

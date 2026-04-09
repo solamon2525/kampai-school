@@ -22,12 +22,10 @@ export const AlbumForm = ({ album, onSuccess, onCancel }: AlbumFormProps) => {
     const { toast } = useToast();
 
     const [formData, setFormData] = useState({
-        title: album?.title || '',
+        name: album?.name || '',
         description: album?.description || '',
         category: album?.category || '',
-        cover_photo_url: album?.cover_photo_url || '',
-        event_date: album?.event_date || '',
-        location: album?.location || '',
+        cover_image_url: album?.cover_image_url || '',
         is_published: album?.is_published ?? true,
     });
 
@@ -58,7 +56,6 @@ export const AlbumForm = ({ album, onSuccess, onCancel }: AlbumFormProps) => {
                 // Create new album
                 const { error } = await supabase.from('gallery_albums').insert({
                     ...dataToSave,
-                    views: 0,
                 });
 
                 if (error) throw error;
@@ -100,15 +97,15 @@ export const AlbumForm = ({ album, onSuccess, onCancel }: AlbumFormProps) => {
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-6">
-                        {/* Title */}
+                        {/* Name */}
                         <div className="space-y-2">
-                            <Label htmlFor="title">
+                            <Label htmlFor="name">
                                 ชื่ออัลบั้ม <span className="text-destructive">*</span>
                             </Label>
                             <Input
-                                id="title"
-                                value={formData.title}
-                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                id="name"
+                                value={formData.name}
+                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 placeholder="ระบุชื่ออัลบั้ม"
                                 required
                             />
@@ -126,38 +123,14 @@ export const AlbumForm = ({ album, onSuccess, onCancel }: AlbumFormProps) => {
                             />
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Category */}
-                            <div className="space-y-2">
-                                <Label htmlFor="category">หมวดหมู่</Label>
-                                <Input
-                                    id="category"
-                                    value={formData.category}
-                                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                    placeholder="เช่น กีฬาสี, วันสำคัญ, ศึกษาดูงาน"
-                                />
-                            </div>
-
-                            {/* Location */}
-                            <div className="space-y-2">
-                                <Label htmlFor="location">สถานที่</Label>
-                                <Input
-                                    id="location"
-                                    value={formData.location}
-                                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                                    placeholder="สถานที่จัดงาน"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Event Date */}
+                        {/* Category */}
                         <div className="space-y-2">
-                            <Label htmlFor="event_date">วันที่จัดงาน</Label>
+                            <Label htmlFor="category">หมวดหมู่</Label>
                             <Input
-                                id="event_date"
-                                type="date"
-                                value={formData.event_date}
-                                onChange={(e) => setFormData({ ...formData, event_date: e.target.value })}
+                                id="category"
+                                value={formData.category}
+                                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                placeholder="เช่น กีฬาสี, วันสำคัญ, ศึกษาดูงาน"
                             />
                         </div>
 
@@ -165,8 +138,8 @@ export const AlbumForm = ({ album, onSuccess, onCancel }: AlbumFormProps) => {
                         <div className="space-y-2">
                             <Label>รูปปก</Label>
                             <ImageUpload
-                                currentImage={formData.cover_photo_url}
-                                onUploadComplete={(url) => setFormData({ ...formData, cover_photo_url: url })}
+                                currentImage={formData.cover_image_url}
+                                onUploadComplete={(url) => setFormData({ ...formData, cover_image_url: url })}
                                 bucket="images"
                                 folder="gallery/covers"
                                 compressionPreset="cover"

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import Navbar from '@/components/Navbar';
+import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar, Clock, MapPin } from 'lucide-react';
@@ -71,7 +71,7 @@ const Events = () => {
 
     return (
         <div className="min-h-screen bg-background">
-            <Navbar />
+            <SiteHeader />
 
             {/* Hero Section */}
             <section className="bg-primary py-20">

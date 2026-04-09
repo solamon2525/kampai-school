@@ -1,11 +1,9 @@
 import { useState } from 'react';
-import { Image, Edit, Trash2, Eye, CheckCircle, XCircle, Calendar, MapPin } from 'lucide-react';
+import { Image, Edit, Trash2, Eye, CheckCircle, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
 import type { Album } from './GalleryManagement';
-import { format } from 'date-fns';
-import { th } from 'date-fns/locale';
 
 interface AlbumListProps {
     albums: Album[];
@@ -40,11 +38,11 @@ export const AlbumList = ({
                         className="group bg-card rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 border border-border"
                     >
                         {/* Cover Photo */}
-                        {album.cover_photo_url ? (
+                        {album.cover_image_url ? (
                             <div className="h-48 overflow-hidden">
                                 <img
-                                    src={album.cover_photo_url}
-                                    alt={album.title}
+                                    src={album.cover_image_url}
+                                    alt={album.name}
                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                                 />
                             </div>
@@ -58,7 +56,7 @@ export const AlbumList = ({
                         <div className="p-4">
                             <div className="flex items-start justify-between mb-3">
                                 <h3 className="font-semibold text-lg text-foreground line-clamp-2 flex-1">
-                                    {album.title}
+                                    {album.name}
                                 </h3>
                                 {album.is_published ? (
                                     <Badge className="bg-green-500 ml-2">
@@ -84,20 +82,6 @@ export const AlbumList = ({
                                     <Badge variant="outline" className="text-xs">
                                         {album.category}
                                     </Badge>
-                                )}
-
-                                {album.event_date && (
-                                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                        <Calendar className="w-3 h-3" />
-                                        {format(new Date(album.event_date), 'dd MMM yyyy', { locale: th })}
-                                    </div>
-                                )}
-
-                                {album.location && (
-                                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                        <MapPin className="w-3 h-3" />
-                                        {album.location}
-                                    </div>
                                 )}
 
                                 <div className="flex items-center gap-1 text-xs text-muted-foreground">

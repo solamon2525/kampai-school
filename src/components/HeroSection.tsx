@@ -1,18 +1,76 @@
-import { ChevronRight, Play, Users, Award, BookOpen } from 'lucide-react';
+import { useEffect, useState, useRef, useCallback } from 'react';
+import { ChevronRight, ChevronLeft, Play, Users, Award, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
+import { supabase } from '@/integrations/supabase/client';
 import heroImageFallback from '@/assets/hero-school.jpg';
 import { useNavigate } from 'react-router-dom';
+
+interface HeroSlide {
+  id: string;
+  image_url: string;
+  title: string | null;
+  order_position: number;
+}
 
 const HeroSection = () => {
   const { settings } = useSchoolSettings();
   const navigate = useNavigate();
+  const [slides, setSlides] = useState<{ url: string; title: string }[]>([]);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const stats = [
     { icon: Users, value: settings.stat_students, label: settings.stat_students_label },
     { icon: Award, value: settings.stat_university, label: settings.stat_university_label },
     { icon: BookOpen, value: settings.stat_years, label: settings.stat_years_label },
   ];
+
+  // Fetch hero_slides from DB
+  useEffect(() => {
+    supabase
+      .from('hero_slides')
+      .select('id, image_url, title, order_position')
+      .eq('is_active', true)
+      .order('order_position', { ascending: true })
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          setSlides((data as HeroSlide[]).map(s => ({ url: s.image_url, title: s.title || '' })));
+        } else {
+          // fallback to single hero image
+          const fallbackUrl = settings.hero_image_url || heroImageFallback;
+          setSlides([{ url: fallbackUrl, title: settings.school_name }]);
+        }
+      });
+  }, [settings.hero_image_url, settings.school_name]);
+
+  const interval = Number(settings.hero_slide_interval || 5) * 1000;
+
+  const startTimer = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    if (slides.length < 2) return;
+    timerRef.current = setInterval(() => {
+      setCurrentSlide(p => (p + 1) % slides.length);
+    }, interval);
+  }, [slides.length, interval]);
+
+  useEffect(() => {
+    if (!paused) startTimer();
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [paused, startTimer]);
+
+  const prevSlide = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    setCurrentSlide(p => (p - 1 + slides.length) % slides.length);
+    if (!paused) startTimer();
+  };
+
+  const nextSlide = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    setCurrentSlide(p => (p + 1) % slides.length);
+    if (!paused) startTimer();
+  };
 
   const scrollToSection = (href: string) => {
     const element = document.querySelector(href);
@@ -22,16 +80,44 @@ const HeroSection = () => {
   };
 
   return (
-    <section id="home" className="relative min-h-screen flex items-center">
-      {/* Background Image */}
+    <section
+      id="home"
+      className="relative min-h-screen flex items-center"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      {/* Slides */}
       <div className="absolute inset-0 z-0">
-        <img
-          src={settings.hero_image_url || heroImageFallback}
-          alt={settings.school_name}
-          className="w-full h-full object-cover"
-        />
+        {slides.map((slide, i) => (
+          <img
+            key={i}
+            src={slide.url}
+            alt={slide.title}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === currentSlide ? 'opacity-100' : 'opacity-0'}`}
+          />
+        ))}
         <div className="absolute inset-0 bg-gradient-to-r from-navy-dark/95 via-navy/80 to-navy/60" />
       </div>
+
+      {/* Prev/Next Buttons */}
+      {slides.length > 1 && (
+        <>
+          <button
+            onClick={prevSlide}
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center transition-colors"
+            aria-label="ภาพก่อนหน้า"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <button
+            onClick={nextSlide}
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center transition-colors"
+            aria-label="ภาพถัดไป"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+        </>
+      )}
 
       {/* Content */}
       <div className="relative z-10 container-school py-32">
@@ -88,6 +174,20 @@ const HeroSection = () => {
         </div>
       </div>
 
+      {/* Dot Indicators */}
+      {slides.length > 1 && (
+        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+          {slides.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentSlide(i)}
+              className={`rounded-full transition-all duration-300 ${i === currentSlide ? 'bg-white w-6 h-2.5' : 'bg-white/50 w-2.5 h-2.5'}`}
+              aria-label={`ไปยังภาพที่ ${i + 1}`}
+            />
+          ))}
+        </div>
+      )}
+
       {/* Scroll Indicator */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce">
         <div className="w-8 h-12 border-2 border-card/30 rounded-full flex items-start justify-center pt-2">
@@ -99,4 +199,3 @@ const HeroSection = () => {
 };
 
 export default HeroSection;
-

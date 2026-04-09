@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import DOMPurify from 'dompurify';
-import Navbar from '@/components/Navbar';
+import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
 import { Calendar, Eye, Search, Filter, X, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -138,7 +138,7 @@ const News = () => {
   if (selectedNews) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar />
+        <SiteHeader />
         <div className="container-school section-padding">
           <Button
             variant="outline"
@@ -218,7 +218,7 @@ const News = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      <SiteHeader />
 
       {/* Hero Section */}
       <section className="bg-primary pt-28 pb-16">

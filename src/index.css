@@ -16,17 +16,17 @@
     --popover: 0 0% 100%;
     --popover-foreground: 220 30% 15%;
 
-    /* Primary - Navy Blue */
-    --primary: 220 60% 25%;
+    /* Primary - Purple (school theme) */
+    --primary: 272 70% 35%;
     --primary-foreground: 45 100% 96%;
 
-    /* Secondary - Light Blue */
-    --secondary: 210 40% 94%;
-    --secondary-foreground: 220 60% 25%;
+    /* Secondary - Light Purple */
+    --secondary: 270 30% 94%;
+    --secondary-foreground: 272 70% 30%;
 
-    /* Accent - Gold */
+    /* Accent - Gold/Yellow */
     --accent: 45 90% 55%;
-    --accent-foreground: 220 60% 15%;
+    --accent-foreground: 272 70% 15%;
 
     --muted: 210 25% 92%;
     --muted-foreground: 220 15% 45%;
@@ -44,12 +44,12 @@
     --gold: 45 90% 55%;
     --gold-light: 45 85% 70%;
     --gold-dark: 45 90% 40%;
-    --navy: 220 60% 25%;
-    --navy-light: 220 45% 40%;
-    --navy-dark: 220 70% 15%;
-    
+    --navy: 272 70% 35%;
+    --navy-light: 272 55% 50%;
+    --navy-dark: 272 80% 20%;
+
     /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(220 60% 20%) 0%, hsl(220 50% 35%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(272 80% 18%) 0%, hsl(272 60% 38%) 50%, hsl(250 60% 40%) 100%);
     --gradient-gold: linear-gradient(135deg, hsl(45 90% 55%) 0%, hsl(45 85% 65%) 100%);
     --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(210 25% 98%) 100%);
     

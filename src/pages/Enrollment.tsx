@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import Navbar from '@/components/Navbar';
+import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -299,7 +299,7 @@ const Enrollment = () => {
         `}</style>
 
         <div className="min-h-screen bg-background print:hidden">
-          <Navbar />
+          <SiteHeader />
           <section className="pt-32 pb-16">
             <div className="container-school">
               <Card className="max-w-2xl mx-auto text-center">
@@ -467,7 +467,7 @@ const Enrollment = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      <SiteHeader />
 
       {/* Hero Section */}
       <section className="pt-32 pb-8 bg-gradient-to-br from-primary via-primary/90 to-primary/80">
