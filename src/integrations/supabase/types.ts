@@ -677,6 +677,41 @@ export type Database = {
                 }
                 Relationships: []
             }
+            students: {
+                Row: {
+                    id: string
+                    student_code: string | null
+                    name: string
+                    class: string
+                    class_number: number | null
+                    gender: string | null
+                    is_active: boolean
+                    created_at: string
+                    updated_at: string
+                }
+                Insert: {
+                    id?: string
+                    student_code?: string | null
+                    name: string
+                    class: string
+                    class_number?: number | null
+                    gender?: string | null
+                    is_active?: boolean
+                    created_at?: string
+                    updated_at?: string
+                }
+                Update: {
+                    id?: string
+                    student_code?: string | null
+                    name?: string
+                    class?: string
+                    class_number?: number | null
+                    gender?: string | null
+                    is_active?: boolean
+                    updated_at?: string
+                }
+                Relationships: []
+            }
         }
         Views: {
             [_ in never]: never

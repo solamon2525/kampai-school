@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { StudentStatsManagement } from './StudentStatsManagement';
 import { GradeDataManagement } from './GradeDataManagement';
 import { StudentCouncilManagement } from './StudentCouncilManagement';
+import { StudentListManagement } from './StudentListManagement';
 
 interface StudentAchievement {
     id: string;
@@ -34,7 +35,7 @@ export const StudentsManagement = () => {
     const [achievements, setAchievements] = useState<StudentAchievement[]>([]);
     const [activities, setActivities] = useState<StudentActivity[]>([]);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('achievements');
+    const [activeTab, setActiveTab] = useState('list');
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<StudentAchievement | StudentActivity | null>(null);
     const [formType, setFormType] = useState<'achievement' | 'activity'>('achievement');
@@ -249,6 +250,10 @@ export const StudentsManagement = () => {
 
             <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList className="mb-6">
+                    <TabsTrigger value="list" className="gap-2">
+                        <Users className="w-4 h-4" />
+                        รายชื่อนักเรียน
+                    </TabsTrigger>
                     <TabsTrigger value="stats" className="gap-2">
                         <BarChart3 className="w-4 h-4" />
                         สถิติภาพรวม
@@ -270,6 +275,10 @@ export const StudentsManagement = () => {
                         สภานักเรียน
                     </TabsTrigger>
                 </TabsList>
+
+                <TabsContent value="list">
+                    <StudentListManagement />
+                </TabsContent>
 
                 <TabsContent value="stats">
                     <StudentStatsManagement />
