@@ -42,15 +42,19 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <nav className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
-              <span className="text-accent font-bold text-xl">คผ</span>
+          <Link to="/" className="flex items-center gap-2 sm:gap-3">
+            <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center overflow-hidden flex-shrink-0">
+              {settings.school_logo_url ? (
+                <img src={settings.school_logo_url} alt={settings.school_name} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-accent font-bold text-xl">คผ</span>
+              )}
             </div>
-            <div className="hidden sm:block">
-              <h1 className={`text-lg font-bold transition-colors ${scrolled || !isHomePage ? 'text-primary' : 'text-card'}`}>
+            <div>
+              <h1 className={`text-sm sm:text-lg font-bold leading-tight transition-colors ${scrolled || !isHomePage ? 'text-primary' : 'text-card'}`}>
                 {settings.school_name}
               </h1>
-              <p className={`text-xs transition-colors ${scrolled || !isHomePage ? 'text-muted-foreground' : 'text-card/80'}`}>
+              <p className={`text-xs transition-colors hidden sm:block ${scrolled || !isHomePage ? 'text-muted-foreground' : 'text-card/80'}`}>
                 {settings.school_tagline}
               </p>
             </div>

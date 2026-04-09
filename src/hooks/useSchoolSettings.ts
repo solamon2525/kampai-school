@@ -8,6 +8,7 @@ export interface SocialLink {
 
 export interface SchoolSettings {
     // ข้อมูลทั่วไป
+    school_logo_url: string;
     school_name: string;
     school_tagline: string;
     school_description: string;
@@ -77,6 +78,7 @@ export interface SchoolSettings {
 }
 
 const defaultSettings: SchoolSettings = {
+    school_logo_url: '',
     school_name: 'โรงเรียนบ้านคำไผ่',
     school_tagline: 'ก้าวสู่อนาคตด้วยปัญญา',
     school_description: 'สถาบันการศึกษาชั้นนำระดับมัธยมศึกษา มุ่งมั่นพัฒนาผู้เรียนให้มีความเป็นเลิศทางวิชาการ',

@@ -128,6 +128,20 @@ export const SettingsManagement = () => {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
+                            <Label>Logo โรงเรียน</Label>
+                            <div className="flex items-start gap-4">
+                                <ImageUpload
+                                    currentImage={settings.school_logo_url || ''}
+                                    onUploadComplete={(url) => handleChange('school_logo_url', url)}
+                                    folder="logo"
+                                    compressionPreset="avatar"
+                                    bucket="school-images"
+                                />
+                                <p className="text-xs text-muted-foreground pt-2">แนะนำรูปสี่เหลี่ยมจัตุรัส<br/>PNG พื้นใส จะแสดงในวงกลมที่ Navbar<br/>ถ้าไม่อัปโหลดจะใช้ตัวอักษรย่อ</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
                             <Label htmlFor="school_name">ชื่อโรงเรียน</Label>
                             <Input
                                 id="school_name"
