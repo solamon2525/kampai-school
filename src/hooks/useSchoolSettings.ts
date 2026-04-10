@@ -79,6 +79,10 @@ export interface SchoolSettings {
     // Hero Slideshow
     hero_slide_interval: string;
 
+    // Homepage Layout
+    homepage_main_sections: string;
+    homepage_right_widgets: string;
+
     // About page cards
     school_excellence: string;
     vision_image_url: string;
@@ -167,6 +171,10 @@ const defaultSettings: SchoolSettings = {
 
     // Hero Slideshow
     hero_slide_interval: '5',
+
+    // Homepage Layout
+    homepage_main_sections: '["hero","news","about"]',
+    homepage_right_widgets: '["categories","gallery","services","social","stats"]',
 };
 
 const CACHE_KEY = 'school_settings_cache';
