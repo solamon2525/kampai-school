@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -167,9 +167,9 @@ export const StudentListManagement = () => {
         setDeleteId(null);
     };
 
-    const uniqueClasses = Array.from(new Set(students.map(s => s.class))).sort();
+    const uniqueClasses = useMemo(() => Array.from(new Set(students.map(s => s.class))).sort(), [students]);
 
-    const columns: ColumnDef<Student>[] = [
+    const columns: ColumnDef<Student>[] = useMemo(() => [
         {
             id: 'avatar',
             header: 'รูป',
@@ -214,11 +214,17 @@ export const StudentListManagement = () => {
             ),
             enableSorting: false,
         },
-    ];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    ], [setCardStudent, handleOpenDialog, setDeleteId]);
+
+    const filteredData = useMemo(
+        () => students.filter(s => filterClass === 'all' || s.class === filterClass),
+        [students, filterClass]
+    );
 
     const globalFilter = searchTerm;
     const table = useReactTable({
-        data: students.filter(s => filterClass === 'all' || s.class === filterClass),
+        data: filteredData,
         columns,
         state: { sorting, globalFilter },
         onSortingChange: setSorting,
