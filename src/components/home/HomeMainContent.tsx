@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { ChevronLeft, ChevronRight, Eye, Calendar, ArrowRight, FileText } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Eye, Calendar, ArrowRight, FileText, ChevronDown } from 'lucide-react';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 
 interface NewsItem {
@@ -34,6 +34,9 @@ const HomeMainContent = () => {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [events, setEvents] = useState<{ id: string; title: string; start_date: string; location: string | null }[]>([]);
   const [documents, setDocuments] = useState<{ id: string; title: string; category: string | null; file_url: string }[]>([]);
+  const [blogNews, setBlogNews] = useState<NewsItem[]>([]);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     supabase
@@ -43,9 +46,12 @@ const HomeMainContent = () => {
       .order('is_pinned', { ascending: false })
       .order('sort_order', { ascending: true })
       .order('created_at', { ascending: false })
-      .limit(6)
+      .limit(12)
       .then(({ data }) => {
-        if (data) setNews(data as NewsItem[]);
+        if (data) {
+          setNews((data as NewsItem[]).slice(0, 6));
+          setBlogNews(data as NewsItem[]);
+        }
       });
 
     // Fetch events
@@ -108,7 +114,6 @@ const HomeMainContent = () => {
 
   // Parse section order from layout or legacy key
   const getSectionOrder = (): string[] => {
-    // Try new homepage_layout format first (parsed by settings hook)
     const rawLayout = settings.homepage_main_sections;
     if (rawLayout) {
       try { return JSON.parse(rawLayout); } catch { /* fallback */ }
@@ -323,6 +328,240 @@ const HomeMainContent = () => {
     </div>
   );
 
+  // ─── NEW: Blog Grid ─────────────────────────────────────
+  const blogGridSection = blogNews.length > 0 ? (
+    <div key="blog_grid" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-purple-800 text-white px-4 py-2 flex items-center justify-between">
+        <span className="font-semibold text-sm flex items-center gap-2">
+          <span className="w-1 h-4 bg-yellow-400 rounded-full inline-block" />
+          📝 บทความล่าสุด
+        </span>
+        <Link to="/news" className="text-xs text-yellow-300 hover:text-yellow-100 flex items-center gap-1">
+          ดูทั้งหมด <ArrowRight className="w-3 h-3" />
+        </Link>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+        {blogNews.slice(0, 6).map((item) => (
+          <Link key={item.id} to="/news" className="group block bg-gray-50 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+            <div className="aspect-[16/10] bg-gray-200 overflow-hidden">
+              {item.cover_image_url ? (
+                <img src={item.cover_image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center">
+                  <span className="text-purple-300 text-3xl">📝</span>
+                </div>
+              )}
+            </div>
+            <div className="p-3">
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium text-white ${categoryColor[item.category] || 'bg-gray-600'}`}>{item.category}</span>
+              <h4 className="text-sm font-semibold text-gray-800 mt-2 line-clamp-2 group-hover:text-purple-700 transition-colors">{item.title}</h4>
+              {item.summary && <p className="text-xs text-gray-500 mt-1 line-clamp-2">{item.summary}</p>}
+              <div className="flex items-center gap-2 mt-2 text-[10px] text-gray-400">
+                <span>{formatDate(item.created_at)}</span>
+                <span>•</span>
+                <span className="flex items-center gap-0.5"><Eye className="w-3 h-3" />{item.view_count}</span>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  ) : null;
+
+  // ─── NEW: Blog Carousel ─────────────────────────────────
+  const blogCarouselSection = blogNews.length > 0 ? (
+    <div key="blog_carousel" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-purple-800 text-white px-4 py-2 flex items-center justify-between">
+        <span className="font-semibold text-sm">🎠 บทความแนะนำ</span>
+        <Link to="/news" className="text-xs text-yellow-300 hover:text-yellow-100">ดูทั้งหมด →</Link>
+      </div>
+      <div className="relative">
+        <div ref={carouselRef} className="flex gap-4 p-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory">
+          {blogNews.slice(0, 8).map((item) => (
+            <Link key={item.id} to="/news" className="flex-shrink-0 w-52 sm:w-60 snap-start group">
+              <div className="aspect-[16/10] bg-gray-200 rounded-lg overflow-hidden">
+                {item.cover_image_url ? (
+                  <img src={item.cover_image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center">
+                    <span className="text-purple-300 text-2xl">🎠</span>
+                  </div>
+                )}
+              </div>
+              <h4 className="text-xs font-semibold mt-2 line-clamp-2 group-hover:text-purple-700">{item.title}</h4>
+              <p className="text-[10px] text-gray-400 mt-0.5">{formatDate(item.created_at)}</p>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  ) : null;
+
+  // ─── NEW: Blog List ─────────────────────────────────────
+  const blogListSection = blogNews.length > 0 ? (
+    <div key="blog_list" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-purple-800 text-white px-4 py-2 flex items-center justify-between">
+        <span className="font-semibold text-sm">📋 บทความทั้งหมด</span>
+        <Link to="/news" className="text-xs text-yellow-300 hover:text-yellow-100">ดูทั้งหมด →</Link>
+      </div>
+      <div className="divide-y divide-gray-100">
+        {blogNews.slice(0, 6).map((item) => (
+          <Link key={item.id} to="/news" className="flex items-start gap-3 p-3 hover:bg-gray-50 transition-colors group">
+            {item.cover_image_url && (
+              <div className="w-20 h-14 flex-shrink-0 rounded-md overflow-hidden bg-gray-200">
+                <img src={item.cover_image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium text-white ${categoryColor[item.category] || 'bg-gray-600'}`}>{item.category}</span>
+              <h4 className="text-sm font-medium text-gray-800 line-clamp-1 mt-1 group-hover:text-purple-700">{item.title}</h4>
+              {item.summary && <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{item.summary}</p>}
+              <div className="flex items-center gap-2 mt-1 text-[10px] text-gray-400">
+                <span>{formatDate(item.created_at)}</span>
+                <span className="flex items-center gap-0.5"><Eye className="w-3 h-3" />{item.view_count}</span>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  ) : null;
+
+  // ─── NEW: Testimonials ──────────────────────────────────
+  const testimonialsSection = (
+    <div key="testimonials" className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+      <h3 className="text-sm font-bold text-center mb-4">💬 เสียงจากนักเรียนและผู้ปกครอง</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {[
+          { name: 'ผู้ปกครอง', text: 'โรงเรียนมีคุณภาพ ดูแลนักเรียนดีมาก', rating: 5 },
+          { name: 'นักเรียน', text: 'ชอบกิจกรรมที่หลากหลาย ทำให้ได้เรียนรู้นอกห้องเรียน', rating: 5 },
+        ].map((t, i) => (
+          <div key={i} className="bg-gray-50 rounded-xl p-4 text-center">
+            <div className="text-yellow-400 text-sm mb-2">{'⭐'.repeat(t.rating)}</div>
+            <p className="text-xs text-gray-600 italic mb-2">"{t.text}"</p>
+            <p className="text-xs font-semibold text-gray-700">— {t.name}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  // ─── NEW: FAQ Accordion ─────────────────────────────────
+  const faqAccordionSection = (
+    <div key="faq_accordion" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-purple-800 text-white px-4 py-2">
+        <span className="font-semibold text-sm">❓ คำถามที่พบบ่อย</span>
+      </div>
+      <div className="divide-y divide-gray-100">
+        {[
+          { q: 'สมัครเรียนต้องทำอย่างไร?', a: 'สามารถสมัครผ่านทางเว็บไซต์หรือติดต่อสำนักงานโรงเรียนโดยตรง' },
+          { q: 'ค่าเทอมเท่าไหร่?', a: 'ดูรายละเอียดค่าเทอมได้ที่หน้าสมัครเรียน' },
+          { q: 'มีรถรับ-ส่งนักเรียนหรือไม่?', a: 'โรงเรียนมีบริการรถรับส่งในเขตพื้นที่ใกล้เคียง' },
+        ].map((faq, i) => (
+          <div key={i}>
+            <button
+              onClick={() => setOpenFaq(openFaq === i ? null : i)}
+              className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+            >
+              <span className="text-sm font-medium text-gray-700">{faq.q}</span>
+              <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${openFaq === i ? 'rotate-180' : ''}`} />
+            </button>
+            {openFaq === i && (
+              <div className="px-4 pb-3 text-xs text-gray-600 leading-relaxed">{faq.a}</div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  // ─── NEW: Countdown ─────────────────────────────────────
+  const countdownSection = (
+    <div key="countdown" className="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg p-6 text-center shadow-md">
+      <h3 className="text-sm font-bold mb-1 opacity-90">⏳ นับถอยหลังสู่วันเปิดเทอม</h3>
+      <p className="text-xs opacity-70 mb-4">ปีการศึกษา 2568</p>
+      <div className="flex justify-center gap-4">
+        {[
+          { value: '--', label: 'วัน' },
+          { value: '--', label: 'ชม.' },
+          { value: '--', label: 'นาที' },
+          { value: '--', label: 'วินาที' },
+        ].map((item, i) => (
+          <div key={i} className="bg-white/20 rounded-lg px-4 py-2">
+            <div className="text-2xl font-bold">{item.value}</div>
+            <div className="text-xs opacity-70">{item.label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  // ─── NEW: Partner Logos ─────────────────────────────────
+  const partnerLogosSection = (
+    <div key="partner_logos" className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+      <h3 className="text-sm font-bold text-center mb-4">🤝 หน่วยงานที่เกี่ยวข้อง</h3>
+      <div className="flex flex-wrap justify-center gap-4 opacity-60">
+        {['กระทรวงศึกษาธิการ', 'สพฐ.', 'สพท.', 'ท้องถิ่น'].map((name, i) => (
+          <div key={i} className="w-20 h-20 rounded-lg bg-gray-100 flex items-center justify-center text-center p-2">
+            <span className="text-[10px] text-gray-500 leading-tight">{name}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  // ─── NEW: Photo Album ───────────────────────────────────
+  const photoAlbumSection = (
+    <div key="photo_album" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-purple-800 text-white px-4 py-2 flex items-center justify-between">
+        <span className="font-semibold text-sm">📸 ภาพกิจกรรมล่าสุด</span>
+        <Link to="/gallery" className="text-xs text-yellow-300 hover:text-yellow-100 flex items-center gap-1">
+          ดูทั้งหมด <ArrowRight className="w-3 h-3" />
+        </Link>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 p-2">
+        {blogNews.filter(n => n.cover_image_url).slice(0, 8).map((item, i) => (
+          <Link key={item.id} to="/gallery" className="aspect-square overflow-hidden rounded-lg group">
+            <img src={item.cover_image_url!} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+
+  // ─── NEW: Map Embed ─────────────────────────────────────
+  const mapEmbedSection = settings.contact_map_url ? (
+    <div key="map_embed" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-purple-800 text-white px-4 py-2">
+        <span className="font-semibold text-sm">🗺️ แผนที่โรงเรียน</span>
+      </div>
+      <div className="aspect-[2/1]">
+        <iframe
+          src={settings.contact_map_url}
+          className="w-full h-full border-0"
+          allowFullScreen
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+        />
+      </div>
+    </div>
+  ) : null;
+
+  // ─── NEW: Contact Form ──────────────────────────────────
+  const contactFormSection = (
+    <div key="contact_form" className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+      <h3 className="text-sm font-bold mb-3">✉️ ส่งข้อความถึงโรงเรียน</h3>
+      <div className="space-y-3">
+        <input type="text" placeholder="ชื่อ-นามสกุล" className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-transparent" />
+        <input type="email" placeholder="อีเมล" className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-transparent" />
+        <textarea placeholder="ข้อความ" rows={3} className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-transparent resize-none" />
+        <button className="px-4 py-2 bg-purple-700 hover:bg-purple-800 text-white text-sm font-medium rounded-lg transition-colors">
+          ส่งข้อความ
+        </button>
+      </div>
+    </div>
+  );
+
   const sectionMap: Record<string, JSX.Element | null> = {
     hero: heroSection,
     news: newsSection,
@@ -332,6 +571,16 @@ const HomeMainContent = () => {
     statistics: statisticsSection,
     quicklinks: quicklinksSection,
     announcement: announcementSection,
+    blog_grid: blogGridSection,
+    blog_carousel: blogCarouselSection,
+    blog_list: blogListSection,
+    testimonials: testimonialsSection,
+    faq_accordion: faqAccordionSection,
+    countdown: countdownSection,
+    partner_logos: partnerLogosSection,
+    photo_album: photoAlbumSection,
+    map_embed: mapEmbedSection,
+    contact_form: contactFormSection,
   };
 
   return (

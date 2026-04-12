@@ -82,6 +82,7 @@ export interface SchoolSettings {
     // Homepage Layout
     homepage_main_sections: string;
     homepage_right_widgets: string;
+    homepage_layout_raw: string;
 
     // About page cards
     school_excellence: string;
@@ -175,6 +176,7 @@ const defaultSettings: SchoolSettings = {
     // Homepage Layout
     homepage_main_sections: '["hero","news","about"]',
     homepage_right_widgets: '["categories","gallery","services","social","stats"]',
+    homepage_layout_raw: '',
 };
 
 const CACHE_KEY = 'school_settings_cache';
@@ -223,6 +225,9 @@ const fetchSettings = async (): Promise<SchoolSettings> => {
                     acc[key] = settingsMap.social_links
                         ? JSON.parse(settingsMap.social_links)
                         : defaultSettings.social_links;
+                } else if (key === 'homepage_layout_raw') {
+                    // homepage_layout_raw maps from the 'homepage_layout' key in DB
+                    (acc[key] as string) = settingsMap['homepage_layout'] || '';
                 } else {
                     (acc[key] as string) = settingsMap[key] || (defaultSettings[key] as string);
                 }

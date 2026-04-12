@@ -2,40 +2,82 @@ import { useState } from 'react';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Switch } from '@/components/ui/switch';
-import { GripVertical, Eye, EyeOff } from 'lucide-react';
+import { GripVertical, Eye, EyeOff, ChevronDown, ChevronRight } from 'lucide-react';
 
 export interface BlockDef {
     id: string;
     label: string;
     icon: string;
     description: string;
+    category: string;
 }
 
+// ─── Categories ───────────────────────────────────────────
+export const BLOCK_CATEGORIES: { id: string; label: string; icon: string }[] = [
+    { id: 'basic', label: 'พื้นฐาน', icon: '🏠' },
+    { id: 'blog', label: 'บล็อก/เนื้อหา', icon: '📝' },
+    { id: 'data', label: 'ข้อมูล/สถิติ', icon: '📊' },
+    { id: 'media', label: 'มีเดีย', icon: '🎬' },
+    { id: 'service', label: 'บริการ/ลิงก์', icon: '🔗' },
+    { id: 'footer', label: 'ส่วนท้าย', icon: '📋' },
+];
+
+// ─── Block definitions per zone ───────────────────────────
+
+export const HEADER_BLOCKS: BlockDef[] = [
+    { id: 'news_ticker', label: 'ข่าวด่วน (Ticker)', icon: '📰', description: 'แถบข่าววิ่งด้านบน', category: 'basic' },
+    { id: 'top_banner', label: 'แบนเนอร์ด้านบน', icon: '🖼️', description: 'รูปภาพ/ข้อความโปรโมท', category: 'basic' },
+];
+
 export const MAIN_BLOCKS: BlockDef[] = [
-    { id: 'hero', label: 'Hero Slideshow', icon: '🖼️', description: 'สไลด์โชว์ภาพหลัก' },
-    { id: 'news', label: 'ข่าวสาร', icon: '📰', description: 'ข่าวล่าสุด 5 รายการ' },
-    { id: 'about', label: 'เกี่ยวกับโรงเรียน', icon: '🏫', description: 'คำอธิบาย + ลิงก์อ่านเพิ่ม' },
-    { id: 'calendar', label: 'ปฏิทินกิจกรรม', icon: '📅', description: 'กิจกรรมที่กำลังจะมา' },
-    { id: 'video', label: 'วิดีโอแนะนำ', icon: '🎬', description: 'YouTube embed' },
-    { id: 'statistics', label: 'ตัวเลขสถิติ', icon: '📊', description: 'สถิติโรงเรียน 4 ตัว' },
-    { id: 'quicklinks', label: 'ลิงก์ด่วน', icon: '🔗', description: 'ปุ่ม shortcut 4 ปุ่ม' },
-    { id: 'announcement', label: 'ประกาศ', icon: '📢', description: 'แบนเนอร์ประกาศ' },
+    // พื้นฐาน
+    { id: 'hero', label: 'Hero Slideshow', icon: '🖼️', description: 'สไลด์โชว์ภาพหลัก', category: 'basic' },
+    { id: 'news', label: 'ข่าวสาร', icon: '📰', description: 'ข่าวล่าสุด 5 รายการ', category: 'basic' },
+    { id: 'about', label: 'เกี่ยวกับโรงเรียน', icon: '🏫', description: 'คำอธิบาย + ลิงก์อ่านเพิ่ม', category: 'basic' },
+    { id: 'announcement', label: 'ประกาศ', icon: '📢', description: 'แบนเนอร์ประกาศ', category: 'basic' },
+    { id: 'quicklinks', label: 'ลิงก์ด่วน', icon: '🔗', description: 'ปุ่ม shortcut 4 ปุ่ม', category: 'basic' },
+    // บล็อก/เนื้อหา
+    { id: 'blog_grid', label: 'บล็อก (Grid)', icon: '📝', description: 'แสดงบทความเป็นตารางกริด', category: 'blog' },
+    { id: 'blog_carousel', label: 'บล็อก (Carousel)', icon: '🎠', description: 'แสดงบทความเลื่อนอัตโนมัติ', category: 'blog' },
+    { id: 'blog_list', label: 'บล็อก (List)', icon: '📋', description: 'แสดงบทความเป็นรายการ', category: 'blog' },
+    { id: 'testimonials', label: 'รีวิว/คำนิยม', icon: '💬', description: 'ความคิดเห็นจากนักเรียน/ผู้ปกครอง', category: 'blog' },
+    { id: 'faq_accordion', label: 'คำถามที่พบบ่อย', icon: '❓', description: 'FAQ แบบ Accordion', category: 'blog' },
+    // ข้อมูล/สถิติ
+    { id: 'statistics', label: 'ตัวเลขสถิติ', icon: '📊', description: 'สถิติโรงเรียน 4 ตัว', category: 'data' },
+    { id: 'calendar', label: 'ปฏิทินกิจกรรม', icon: '📅', description: 'กิจกรรมที่กำลังจะมา', category: 'data' },
+    { id: 'countdown', label: 'นับถอยหลัง', icon: '⏳', description: 'นับเวลาถอยหลังสู่เหตุการณ์', category: 'data' },
+    { id: 'partner_logos', label: 'พันธมิตร/หน่วยงาน', icon: '🤝', description: 'โลโก้หน่วยงานที่เกี่ยวข้อง', category: 'data' },
+    // มีเดีย
+    { id: 'video', label: 'วิดีโอแนะนำ', icon: '🎬', description: 'YouTube embed', category: 'media' },
+    { id: 'photo_album', label: 'อัลบั้มรูปภาพ', icon: '📸', description: 'แกลเลอรี่รูปภาพขนาดใหญ่', category: 'media' },
+    { id: 'map_embed', label: 'แผนที่', icon: '🗺️', description: 'Google Maps แสดงที่ตั้ง', category: 'media' },
+    // บริการ
+    { id: 'contact_form', label: 'ฟอร์มติดต่อ', icon: '✉️', description: 'ฟอร์มส่งข้อความ', category: 'service' },
 ];
 
 export const RIGHT_BLOCKS: BlockDef[] = [
-    { id: 'categories', label: 'หมวดหมู่ข่าว', icon: '📂', description: 'รายการหมวดหมู่' },
-    { id: 'gallery', label: 'แกลเลอรี่', icon: '🖼️', description: 'รูปภาพล่าสุด 6 รูป' },
-    { id: 'services', label: 'บริการออนไลน์', icon: '🎒', description: 'ปุ่ม E-service' },
-    { id: 'social', label: 'โซเชียลมีเดีย', icon: '💬', description: 'ลิงก์ Facebook, LINE' },
-    { id: 'stats', label: 'สถิติผู้เข้าชม', icon: '📊', description: 'ตัวเลขเยี่ยมชม' },
-    { id: 'documents', label: 'เอกสารดาวน์โหลด', icon: '📄', description: 'เอกสารล่าสุด' },
+    { id: 'categories', label: 'หมวดหมู่ข่าว', icon: '📂', description: 'รายการหมวดหมู่', category: 'service' },
+    { id: 'gallery', label: 'แกลเลอรี่', icon: '🖼️', description: 'รูปภาพล่าสุด 6 รูป', category: 'media' },
+    { id: 'services', label: 'บริการออนไลน์', icon: '🎒', description: 'ปุ่ม E-service', category: 'service' },
+    { id: 'social', label: 'โซเชียลมีเดีย', icon: '💬', description: 'ลิงก์ Facebook, LINE', category: 'service' },
+    { id: 'stats', label: 'สถิติผู้เข้าชม', icon: '📊', description: 'ตัวเลขเยี่ยมชม', category: 'data' },
+    { id: 'documents', label: 'เอกสารดาวน์โหลด', icon: '📄', description: 'เอกสารล่าสุด', category: 'service' },
 ];
 
 export const LEFT_BLOCKS: BlockDef[] = [
-    { id: 'principal', label: 'ผู้อำนวยการ', icon: '👤', description: 'รูป + ชื่อ ผอ.' },
-    { id: 'menu', label: 'เมนูทาง', icon: '📋', description: 'เมนูลิงก์ sidebar' },
+    { id: 'principal', label: 'ผู้อำนวยการ', icon: '👤', description: 'รูป + ชื่อ ผอ.', category: 'basic' },
+    { id: 'menu', label: 'เมนูทาง', icon: '📋', description: 'เมนูลิงก์ sidebar', category: 'service' },
 ];
+
+export const FOOTER_BLOCKS: BlockDef[] = [
+    { id: 'footer_info', label: 'ข้อมูลโรงเรียน', icon: '🏫', description: 'ชื่อ/คำอธิบาย/โลโก้', category: 'footer' },
+    { id: 'footer_links', label: 'ลิงก์ด่วน', icon: '🔗', description: 'เมนูลิงก์ท้ายหน้า', category: 'footer' },
+    { id: 'footer_social', label: 'โซเชียลมีเดีย', icon: '💬', description: 'ไอคอน Facebook, LINE', category: 'footer' },
+    { id: 'footer_contact', label: 'ข้อมูลติดต่อ', icon: '📞', description: 'ที่อยู่/โทร/อีเมล', category: 'footer' },
+    { id: 'footer_services', label: 'บริการออนไลน์', icon: '🎒', description: 'ลิงก์บริการ', category: 'footer' },
+];
+
+// ─── Sortable Block Item ──────────────────────────────────
 
 function SortableBlock({
     id,
@@ -54,6 +96,8 @@ function SortableBlock({
 }) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
     const style = { transform: CSS.Transform.toString(transform), transition };
+
+    const cat = BLOCK_CATEGORIES.find((c) => c.id === block.category);
 
     return (
         <div
@@ -80,6 +124,11 @@ function SortableBlock({
                 </p>
                 <p className="text-xs text-muted-foreground truncate">{block.description}</p>
             </div>
+            {cat && (
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-secondary text-muted-foreground flex-shrink-0 hidden sm:inline">
+                    {cat.icon}
+                </span>
+            )}
             <button
                 onClick={(e) => { e.stopPropagation(); onToggle(); }}
                 className={`p-1.5 rounded-md transition-colors flex-shrink-0 ${
@@ -95,7 +144,9 @@ function SortableBlock({
     );
 }
 
-type ZoneKey = 'left' | 'main' | 'right';
+// ─── Zone types ───────────────────────────────────────────
+
+export type ZoneKey = 'header' | 'left' | 'main' | 'right' | 'footer';
 
 interface BlockPaletteProps {
     layout: Record<ZoneKey, { blocks: string[]; hidden: string[] }>;
@@ -106,11 +157,59 @@ interface BlockPaletteProps {
     onSelectBlock: (id: string | null) => void;
 }
 
-const ZONE_INFO: Record<ZoneKey, { label: string; emoji: string; blockDefs: BlockDef[] }> = {
+export const ZONE_INFO: Record<ZoneKey, { label: string; emoji: string; blockDefs: BlockDef[] }> = {
+    header: { label: 'Header', emoji: '⬆️', blockDefs: HEADER_BLOCKS },
     left: { label: 'ซ้าย', emoji: '◀️', blockDefs: LEFT_BLOCKS },
     main: { label: 'กลาง', emoji: '⬛', blockDefs: MAIN_BLOCKS },
     right: { label: 'ขวา', emoji: '▶️', blockDefs: RIGHT_BLOCKS },
+    footer: { label: 'Footer', emoji: '⬇️', blockDefs: FOOTER_BLOCKS },
 };
+
+// ─── Category filter for long block lists ─────────────────
+
+function CategoryFilter({
+    blockDefs,
+    filterCategory,
+    onFilterChange,
+}: {
+    blockDefs: BlockDef[];
+    filterCategory: string | null;
+    onFilterChange: (cat: string | null) => void;
+}) {
+    // Get unique categories in this block list
+    const cats = Array.from(new Set(blockDefs.map((b) => b.category)));
+    const relevantCats = BLOCK_CATEGORIES.filter((c) => cats.includes(c.id));
+
+    if (relevantCats.length <= 1) return null;
+
+    return (
+        <div className="flex gap-1 flex-wrap">
+            <button
+                onClick={() => onFilterChange(null)}
+                className={`text-[10px] px-2 py-1 rounded-full transition-colors ${
+                    !filterCategory ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
+                }`}
+            >
+                ทั้งหมด
+            </button>
+            {relevantCats.map((cat) => (
+                <button
+                    key={cat.id}
+                    onClick={() => onFilterChange(filterCategory === cat.id ? null : cat.id)}
+                    className={`text-[10px] px-2 py-1 rounded-full transition-colors ${
+                        filterCategory === cat.id
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
+                    }`}
+                >
+                    {cat.icon} {cat.label}
+                </button>
+            ))}
+        </div>
+    );
+}
+
+// ─── Main BlockPalette ────────────────────────────────────
 
 export const BlockPalette = ({
     layout,
@@ -123,6 +222,7 @@ export const BlockPalette = ({
     const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
     const zone = layout[activeZone];
     const blockDefs = ZONE_INFO[activeZone].blockDefs;
+    const [filterCategory, setFilterCategory] = useState<string | null>(null);
 
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
@@ -150,21 +250,32 @@ export const BlockPalette = ({
         });
     };
 
+    // Filter blocks by category
+    const visibleBlockIds = filterCategory
+        ? zone.blocks.filter((id) => {
+            const block = blockDefs.find((b) => b.id === id);
+            return block && block.category === filterCategory;
+        })
+        : zone.blocks;
+
     return (
         <div className="flex flex-col h-full">
             {/* Zone Tabs */}
-            <div className="flex border-b border-border">
+            <div className="flex border-b border-border overflow-x-auto">
                 {(Object.keys(ZONE_INFO) as ZoneKey[]).map((key) => (
                     <button
                         key={key}
-                        onClick={() => onZoneChange(key)}
-                        className={`flex-1 py-3 text-sm font-medium transition-colors relative ${
+                        onClick={() => { onZoneChange(key); setFilterCategory(null); }}
+                        className={`flex-1 min-w-0 py-2.5 text-xs font-medium transition-colors relative ${
                             activeZone === key
                                 ? 'text-primary'
                                 : 'text-muted-foreground hover:text-foreground'
                         }`}
                     >
-                        <span>{ZONE_INFO[key].emoji} {ZONE_INFO[key].label}</span>
+                        <span className="flex flex-col items-center gap-0.5">
+                            <span>{ZONE_INFO[key].emoji}</span>
+                            <span className="truncate">{ZONE_INFO[key].label}</span>
+                        </span>
                         {activeZone === key && (
                             <div className="absolute bottom-0 left-2 right-2 h-0.5 bg-primary rounded-full" />
                         )}
@@ -172,8 +283,8 @@ export const BlockPalette = ({
                 ))}
             </div>
 
-            {/* Block Count */}
-            <div className="px-4 py-3 border-b border-border bg-secondary/30">
+            {/* Block Count + Category Filter */}
+            <div className="px-4 py-3 border-b border-border bg-secondary/30 space-y-2">
                 <div className="flex items-center justify-between">
                     <p className="text-xs text-muted-foreground">
                         แสดง {zone.blocks.length - zone.hidden.length} / {zone.blocks.length} blocks
@@ -185,14 +296,19 @@ export const BlockPalette = ({
                         <span className="text-xs text-muted-foreground">ซ่อน</span>
                     </div>
                 </div>
+                <CategoryFilter
+                    blockDefs={blockDefs}
+                    filterCategory={filterCategory}
+                    onFilterChange={setFilterCategory}
+                />
             </div>
 
             {/* Sortable Blocks */}
             <div className="flex-1 overflow-y-auto p-4">
                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                    <SortableContext items={zone.blocks} strategy={verticalListSortingStrategy}>
+                    <SortableContext items={visibleBlockIds} strategy={verticalListSortingStrategy}>
                         <div className="space-y-2">
-                            {zone.blocks.map((id) => {
+                            {visibleBlockIds.map((id) => {
                                 const block = blockDefs.find((b) => b.id === id);
                                 if (!block) return null;
                                 return (

@@ -1,20 +1,32 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Save, RotateCcw, ExternalLink, LayoutTemplate, Eye } from 'lucide-react';
-import { BlockPalette, MAIN_BLOCKS, RIGHT_BLOCKS, LEFT_BLOCKS } from './BlockPalette';
+import { Save, RotateCcw, ExternalLink, LayoutTemplate } from 'lucide-react';
+import {
+    BlockPalette,
+    MAIN_BLOCKS,
+    RIGHT_BLOCKS,
+    LEFT_BLOCKS,
+    HEADER_BLOCKS,
+    FOOTER_BLOCKS,
+    type ZoneKey,
+} from './BlockPalette';
 import { HomepagePreview } from './HomepagePreview';
 
-type ZoneKey = 'left' | 'main' | 'right';
-
 interface HomepageLayout {
+    header: { blocks: string[]; hidden: string[] };
     left: { blocks: string[]; hidden: string[] };
     main: { blocks: string[]; hidden: string[] };
     right: { blocks: string[]; hidden: string[] };
+    footer: { blocks: string[]; hidden: string[] };
 }
 
 const DEFAULT_LAYOUT: HomepageLayout = {
+    header: {
+        blocks: HEADER_BLOCKS.map((b) => b.id),
+        hidden: [],
+    },
     left: {
         blocks: LEFT_BLOCKS.map((b) => b.id),
         hidden: [],
@@ -27,6 +39,18 @@ const DEFAULT_LAYOUT: HomepageLayout = {
         blocks: ['categories', 'gallery', 'services', 'social', 'stats'],
         hidden: [],
     },
+    footer: {
+        blocks: FOOTER_BLOCKS.map((b) => b.id),
+        hidden: [],
+    },
+};
+
+const ZONE_BLOCK_MAP: Record<ZoneKey, { id: string }[]> = {
+    header: HEADER_BLOCKS,
+    left: LEFT_BLOCKS,
+    main: MAIN_BLOCKS,
+    right: RIGHT_BLOCKS,
+    footer: FOOTER_BLOCKS,
 };
 
 // Backward compat: build from old keys if homepage_layout doesn't exist
@@ -42,9 +66,11 @@ const buildFromLegacy = (mainSections?: string, rightWidgets?: string): Homepage
     } catch { /* use default */ }
 
     return {
+        header: { blocks: HEADER_BLOCKS.map((b) => b.id), hidden: [] },
         left: { blocks: LEFT_BLOCKS.map((b) => b.id), hidden: [] },
         main: { blocks: main, hidden: [] },
         right: { blocks: right, hidden: [] },
+        footer: { blocks: FOOTER_BLOCKS.map((b) => b.id), hidden: [] },
     };
 };
 
@@ -77,8 +103,18 @@ export const HomepageManager = () => {
             if (map.homepage_layout) {
                 try {
                     loaded = JSON.parse(map.homepage_layout);
-                    // Ensure all block IDs exist
+
+                    // Ensure new zones exist (migration from 3-zone to 5-zone)
+                    if (!loaded.header) loaded.header = { blocks: HEADER_BLOCKS.map((b) => b.id), hidden: [] };
+                    if (!loaded.footer) loaded.footer = { blocks: FOOTER_BLOCKS.map((b) => b.id), hidden: [] };
+                    if (!loaded.left) loaded.left = { blocks: LEFT_BLOCKS.map((b) => b.id), hidden: [] };
+
+                    // Ensure all block IDs exist in each zone
                     const ensureBlocks = (zone: ZoneKey, defs: { id: string }[]) => {
+                        if (!loaded[zone]) {
+                            loaded[zone] = { blocks: defs.map((d) => d.id), hidden: [] };
+                            return;
+                        }
                         const allIds = defs.map((d) => d.id);
                         allIds.forEach((id) => {
                             if (!loaded[zone].blocks.includes(id)) {
@@ -87,9 +123,12 @@ export const HomepageManager = () => {
                         });
                         loaded[zone].blocks = loaded[zone].blocks.filter((id) => allIds.includes(id));
                     };
+
+                    ensureBlocks('header', HEADER_BLOCKS);
                     ensureBlocks('main', MAIN_BLOCKS);
                     ensureBlocks('right', RIGHT_BLOCKS);
                     ensureBlocks('left', LEFT_BLOCKS);
+                    ensureBlocks('footer', FOOTER_BLOCKS);
                 } catch {
                     loaded = DEFAULT_LAYOUT;
                 }
@@ -167,7 +206,7 @@ export const HomepageManager = () => {
                     </div>
                     <div>
                         <h1 className="text-lg font-bold text-foreground">จัดการหน้าแรก</h1>
-                        <p className="text-xs text-muted-foreground">ลากเรียงลำดับ เปิด/ปิด blocks ดู preview แบบ real-time</p>
+                        <p className="text-xs text-muted-foreground">ลากเรียงลำดับ เปิด/ปิด blocks — 5 โซน พร้อม blog components</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -211,7 +250,7 @@ export const HomepageManager = () => {
                 <div className="w-80 flex-shrink-0 border-r border-border bg-card overflow-hidden flex flex-col">
                     <BlockPalette
                         layout={layout}
-                        onLayoutChange={setLayout}
+                        onLayoutChange={setLayout as any}
                         activeZone={activeZone}
                         onZoneChange={(zone) => {
                             setActiveZone(zone);

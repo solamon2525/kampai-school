@@ -1,7 +1,11 @@
-import { useMemo } from 'react';
-import { MAIN_BLOCKS, RIGHT_BLOCKS, LEFT_BLOCKS } from './BlockPalette';
-
-type ZoneKey = 'left' | 'main' | 'right';
+import {
+    MAIN_BLOCKS,
+    RIGHT_BLOCKS,
+    LEFT_BLOCKS,
+    HEADER_BLOCKS,
+    FOOTER_BLOCKS,
+    type ZoneKey,
+} from './BlockPalette';
 
 interface HomepagePreviewProps {
     layout: Record<ZoneKey, { blocks: string[]; hidden: string[] }>;
@@ -10,7 +14,30 @@ interface HomepagePreviewProps {
     activeZone: ZoneKey;
 }
 
-// Mini block renderers — lightweight previews (not actual components to keep it fast)
+// ─── Mini block renderers ─────────────────────────────────
+// Lightweight previews (not actual components to keep it fast)
+
+const HeaderBlockPreview: Record<string, () => JSX.Element> = {
+    news_ticker: () => (
+        <div className="bg-yellow-50 border border-yellow-200 rounded flex items-center overflow-hidden">
+            <div className="flex-shrink-0 bg-red-600 text-white text-[6px] font-bold px-2 py-1 flex items-center gap-1">
+                <span className="w-1 h-1 bg-white rounded-full animate-pulse" />
+                ข่าวด่วน
+            </div>
+            <div className="flex-1 px-2">
+                <div className="h-1 bg-gray-300 rounded w-full" />
+            </div>
+        </div>
+    ),
+    top_banner: () => (
+        <div className="bg-gradient-to-r from-primary/20 to-primary/10 rounded p-2 text-center">
+            <div className="h-5 bg-primary/10 rounded flex items-center justify-center">
+                <span className="text-[6px] text-primary font-medium">🖼️ แบนเนอร์โปรโมท</span>
+            </div>
+        </div>
+    ),
+};
+
 const MainBlockPreview: Record<string, () => JSX.Element> = {
     hero: () => (
         <div className="relative bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg overflow-hidden aspect-[16/7]">
@@ -127,6 +154,144 @@ const MainBlockPreview: Record<string, () => JSX.Element> = {
             </div>
         </div>
     ),
+    // ─── New blog/content blocks ──────────────────────────
+    blog_grid: () => (
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <div className="bg-purple-800 text-white px-2 py-1">
+                <span className="text-[8px] font-semibold">📝 บล็อก (Grid)</span>
+            </div>
+            <div className="grid grid-cols-3 gap-1 p-1.5">
+                {[0, 1, 2].map((i) => (
+                    <div key={i} className="bg-gray-100 rounded overflow-hidden">
+                        <div className="aspect-[4/3] bg-gray-200" />
+                        <div className="p-1">
+                            <div className="h-1 bg-gray-300 rounded w-full mb-0.5" />
+                            <div className="h-1 bg-gray-200 rounded w-2/3" />
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    ),
+    blog_carousel: () => (
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <div className="bg-purple-800 text-white px-2 py-1">
+                <span className="text-[8px] font-semibold">🎠 บล็อก (Carousel)</span>
+            </div>
+            <div className="p-1.5 flex gap-1 overflow-hidden">
+                {[0, 1, 2, 3].map((i) => (
+                    <div key={i} className="flex-shrink-0 w-1/3 bg-gray-100 rounded overflow-hidden">
+                        <div className="aspect-[3/2] bg-gray-200" />
+                        <div className="p-0.5">
+                            <div className="h-1 bg-gray-300 rounded w-full" />
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    ),
+    blog_list: () => (
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <div className="bg-purple-800 text-white px-2 py-1">
+                <span className="text-[8px] font-semibold">📋 บล็อก (List)</span>
+            </div>
+            <div className="divide-y divide-gray-100">
+                {[0, 1, 2].map((i) => (
+                    <div key={i} className="flex items-center gap-1.5 p-1.5">
+                        <div className="w-8 h-6 bg-gray-200 rounded flex-shrink-0" />
+                        <div className="flex-1">
+                            <div className="h-1.5 bg-gray-200 rounded w-3/4" />
+                            <div className="h-1 bg-gray-100 rounded w-1/2 mt-0.5" />
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    ),
+    testimonials: () => (
+        <div className="bg-white border border-gray-200 rounded-lg p-2">
+            <span className="text-[8px] font-bold text-center block mb-1">💬 รีวิว/คำนิยม</span>
+            <div className="bg-gray-50 rounded p-1.5 text-center">
+                <div className="text-[10px]">⭐⭐⭐⭐⭐</div>
+                <div className="h-1 bg-gray-200 rounded w-3/4 mx-auto mt-1" />
+                <div className="h-1 bg-gray-200 rounded w-1/2 mx-auto mt-0.5" />
+                <div className="w-4 h-4 rounded-full bg-gray-300 mx-auto mt-1" />
+            </div>
+        </div>
+    ),
+    faq_accordion: () => (
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <div className="bg-purple-800 text-white px-2 py-1">
+                <span className="text-[8px] font-semibold">❓ คำถามที่พบบ่อย</span>
+            </div>
+            <div className="divide-y divide-gray-100">
+                {['สมัครเรียนอย่างไร?', 'เปิดเรียนวันไหน?'].map((q, i) => (
+                    <div key={i} className="px-2 py-1.5 flex items-center justify-between">
+                        <span className="text-[6px] text-gray-700">{q}</span>
+                        <span className="text-[8px] text-gray-400">▼</span>
+                    </div>
+                ))}
+            </div>
+        </div>
+    ),
+    countdown: () => (
+        <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg p-3 text-center">
+            <span className="text-[8px] font-bold block mb-1">⏳ นับถอยหลัง</span>
+            <div className="flex justify-center gap-2">
+                {['30', '12', '45', '08'].map((v, i) => (
+                    <div key={i}>
+                        <div className="text-[12px] font-bold">{v}</div>
+                        <div className="text-[5px] opacity-70">{['วัน', 'ชม.', 'นาที', 'วินาที'][i]}</div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    ),
+    partner_logos: () => (
+        <div className="bg-white border border-gray-200 rounded-lg p-2">
+            <span className="text-[8px] font-bold text-center block mb-1">🤝 พันธมิตร</span>
+            <div className="flex justify-center gap-2">
+                {[0, 1, 2, 3].map((i) => (
+                    <div key={i} className="w-8 h-8 rounded bg-gray-100 flex items-center justify-center">
+                        <span className="text-[8px] text-gray-400">🏢</span>
+                    </div>
+                ))}
+            </div>
+        </div>
+    ),
+    photo_album: () => (
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <div className="bg-purple-800 text-white px-2 py-1">
+                <span className="text-[8px] font-semibold">📸 อัลบั้มรูปภาพ</span>
+            </div>
+            <div className="grid grid-cols-4 gap-0.5 p-1">
+                {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
+                    <div key={i} className="aspect-square bg-gray-200 rounded-sm" />
+                ))}
+            </div>
+        </div>
+    ),
+    map_embed: () => (
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <div className="aspect-[2/1] bg-green-100 flex items-center justify-center">
+                <span className="text-lg">🗺️</span>
+            </div>
+            <div className="px-2 py-1">
+                <span className="text-[6px] text-gray-600">📍 Google Maps — ที่ตั้งโรงเรียน</span>
+            </div>
+        </div>
+    ),
+    contact_form: () => (
+        <div className="bg-white border border-gray-200 rounded-lg p-2">
+            <span className="text-[8px] font-bold block mb-1.5">✉️ ฟอร์มติดต่อ</span>
+            <div className="space-y-1">
+                <div className="h-3 bg-gray-100 rounded border border-gray-200" />
+                <div className="h-3 bg-gray-100 rounded border border-gray-200" />
+                <div className="h-6 bg-gray-100 rounded border border-gray-200" />
+                <div className="h-3 bg-primary/20 rounded w-1/4 ml-auto" />
+            </div>
+        </div>
+    ),
 };
 
 const RightBlockPreview: Record<string, () => JSX.Element> = {
@@ -136,7 +301,7 @@ const RightBlockPreview: Record<string, () => JSX.Element> = {
             <div className="divide-y divide-gray-100">
                 {['ข่าวประชาสัมพันธ์', 'กิจกรรม', 'ผลงาน'].map((c, i) => (
                     <div key={i} className="flex items-center gap-1.5 px-2 py-1">
-                        <div className={`w-1. h-1.5 rounded-full ${['bg-blue-500', 'bg-green-500', 'bg-purple-500'][i]}`} />
+                        <div className={`w-1.5 h-1.5 rounded-full ${['bg-blue-500', 'bg-green-500', 'bg-purple-500'][i]}`} />
                         <span className="text-[6px] text-gray-700">{c}</span>
                     </div>
                 ))}
@@ -228,11 +393,69 @@ const LeftBlockPreview: Record<string, () => JSX.Element> = {
     ),
 };
 
+const FooterBlockPreview: Record<string, () => JSX.Element> = {
+    footer_info: () => (
+        <div className="flex items-center gap-1.5 p-1">
+            <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                <span className="text-[6px] text-white font-bold">คผ</span>
+            </div>
+            <div>
+                <div className="h-1.5 bg-white/30 rounded w-14" />
+                <div className="h-1 bg-white/15 rounded w-10 mt-0.5" />
+            </div>
+        </div>
+    ),
+    footer_links: () => (
+        <div className="p-1">
+            <div className="text-[6px] text-white/70 font-semibold mb-1">ลิงก์ด่วน</div>
+            <div className="space-y-0.5">
+                {['หน้าแรก', 'เกี่ยวกับเรา', 'ข่าวสาร'].map((l, i) => (
+                    <div key={i} className="h-1 bg-white/15 rounded w-10" />
+                ))}
+            </div>
+        </div>
+    ),
+    footer_social: () => (
+        <div className="p-1">
+            <div className="text-[6px] text-white/70 font-semibold mb-1">โซเชียล</div>
+            <div className="flex gap-1">
+                {['🔵', '🔴', '🟢'].map((icon, i) => (
+                    <div key={i} className="w-3 h-3 rounded bg-white/15 flex items-center justify-center">
+                        <span className="text-[5px]">{icon}</span>
+                    </div>
+                ))}
+            </div>
+        </div>
+    ),
+    footer_contact: () => (
+        <div className="p-1">
+            <div className="text-[6px] text-white/70 font-semibold mb-1">ติดต่อเรา</div>
+            <div className="space-y-0.5">
+                <div className="h-1 bg-white/15 rounded w-16" />
+                <div className="h-1 bg-white/15 rounded w-12" />
+            </div>
+        </div>
+    ),
+    footer_services: () => (
+        <div className="p-1">
+            <div className="text-[6px] text-white/70 font-semibold mb-1">บริการ</div>
+            <div className="space-y-0.5">
+                <div className="h-1 bg-white/15 rounded w-14" />
+                <div className="h-1 bg-white/15 rounded w-10" />
+            </div>
+        </div>
+    ),
+};
+
 const PREVIEW_MAP: Record<ZoneKey, Record<string, () => JSX.Element>> = {
+    header: HeaderBlockPreview,
     main: MainBlockPreview,
     right: RightBlockPreview,
     left: LeftBlockPreview,
+    footer: FooterBlockPreview,
 };
+
+const ALL_BLOCKS_FLAT = [...HEADER_BLOCKS, ...MAIN_BLOCKS, ...RIGHT_BLOCKS, ...LEFT_BLOCKS, ...FOOTER_BLOCKS];
 
 export const HomepagePreview = ({
     layout,
@@ -260,20 +483,15 @@ export const HomepagePreview = ({
                                     e.stopPropagation();
                                     onSelectBlock(isSelected ? null : id);
                                 }}
-                                className={`relative transition-all cursor-pointer ${
-                                    isSelected
+                                className={`relative transition-all cursor-pointer ${isSelected
                                         ? 'ring-2 ring-primary ring-offset-1 rounded-lg'
                                         : 'hover:ring-1 hover:ring-primary/30 rounded-lg'
-                                }`}
+                                    }`}
                             >
                                 <Preview />
                                 {isSelected && (
                                     <div className="absolute -top-2 -right-1 bg-primary text-primary-foreground text-[6px] px-1.5 py-0.5 rounded-full font-bold shadow-md z-10">
-                                        ✏️ {
-                                            [...MAIN_BLOCKS, ...RIGHT_BLOCKS, ...LEFT_BLOCKS].find(
-                                                (b) => b.id === id
-                                            )?.label
-                                        }
+                                        ✏️ {ALL_BLOCKS_FLAT.find((b) => b.id === id)?.label}
                                     </div>
                                 )}
                             </div>
@@ -282,6 +500,9 @@ export const HomepagePreview = ({
             </div>
         );
     };
+
+    const hasVisibleHeader = layout.header.blocks.some((id) => !layout.header.hidden.includes(id));
+    const hasVisibleFooter = layout.footer.blocks.some((id) => !layout.footer.hidden.includes(id));
 
     return (
         <div className="flex flex-col h-full">
@@ -304,7 +525,7 @@ export const HomepagePreview = ({
                     className="mx-auto origin-top-left"
                     style={{ width: '100%', maxWidth: '720px' }}
                 >
-                    {/* Fake Header */}
+                    {/* Fake Site Header */}
                     <div className="bg-white border-b border-gray-200 rounded-t-lg px-3 py-2 flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
@@ -322,11 +543,12 @@ export const HomepagePreview = ({
                         </div>
                     </div>
 
-                    {/* Fake News Ticker */}
-                    <div className="bg-purple-800 px-3 py-1 flex items-center gap-2">
-                        <span className="text-[6px] text-yellow-400 font-bold flex-shrink-0">ข่าวด่วน</span>
-                        <div className="h-1 bg-white/20 rounded flex-1" />
-                    </div>
+                    {/* Header Zone — news ticker, banners */}
+                    {hasVisibleHeader && (
+                        <div className={`bg-white ${activeZone === 'header' ? 'ring-2 ring-primary/20' : ''}`}>
+                            {renderZone('header', 'flex flex-col gap-0')}
+                        </div>
+                    )}
 
                     {/* 3-Column Layout */}
                     <div className="bg-gray-100 p-2">
@@ -342,18 +564,24 @@ export const HomepagePreview = ({
                         </div>
                     </div>
 
-                    {/* Fake Footer */}
-                    <div className="bg-gray-800 text-white rounded-b-lg px-3 py-2">
-                        <div className="flex justify-between">
-                            <div className="space-y-0.5">
-                                <div className="h-1.5 bg-white/30 rounded w-20" />
-                                <div className="h-1 bg-white/15 rounded w-14" />
+                    {/* Footer Zone */}
+                    <div className={`bg-gray-800 text-white rounded-b-lg px-3 py-2 ${activeZone === 'footer' ? 'ring-2 ring-primary/40' : ''}`}>
+                        {hasVisibleFooter ? (
+                            <div className="grid grid-cols-4 gap-2">
+                                {renderZone('footer', 'contents')}
                             </div>
-                            <div className="space-y-0.5 text-right">
-                                <div className="h-1.5 bg-white/30 rounded w-16 ml-auto" />
-                                <div className="h-1 bg-white/15 rounded w-10 ml-auto" />
+                        ) : (
+                            <div className="flex justify-between">
+                                <div className="space-y-0.5">
+                                    <div className="h-1.5 bg-white/30 rounded w-20" />
+                                    <div className="h-1 bg-white/15 rounded w-14" />
+                                </div>
+                                <div className="space-y-0.5 text-right">
+                                    <div className="h-1.5 bg-white/30 rounded w-16 ml-auto" />
+                                    <div className="h-1 bg-white/15 rounded w-10 ml-auto" />
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                 </div>
             </div>
