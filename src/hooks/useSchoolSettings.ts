@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface SocialLink {
@@ -201,58 +201,57 @@ const saveCacheSettings = (settings: SchoolSettings) => {
     }
 };
 
+const fetchSettings = async (): Promise<SchoolSettings> => {
+    const { data, error } = await supabase
+        .from('school_settings')
+        .select('key, value');
+
+    if (error) throw error;
+
+    if (data) {
+        // แปลง array เป็น map { key: value }
+        const settingsMap: Record<string, string> = {};
+        data.forEach((setting: any) => {
+            settingsMap[setting.key] = setting.value || '';
+        });
+
+        // Map ทุก key อัตโนมัติจาก defaultSettings โดยไม่ต้องเขียนซ้ำทีละบรรทัด
+        const newSettings = (Object.keys(defaultSettings) as Array<keyof SchoolSettings>).reduce(
+            (acc, key) => {
+                if (key === 'social_links') {
+                    // social_links เก็บเป็น JSON string ต้อง parse พิเศษ
+                    acc[key] = settingsMap.social_links
+                        ? JSON.parse(settingsMap.social_links)
+                        : defaultSettings.social_links;
+                } else {
+                    (acc[key] as string) = settingsMap[key] || (defaultSettings[key] as string);
+                }
+                return acc;
+            },
+            {} as SchoolSettings
+        );
+
+        saveCacheSettings(newSettings);
+        return newSettings;
+    }
+
+    return defaultSettings;
+};
+
 export const useSchoolSettings = () => {
-    // Initialize with cached settings or defaults
-    const [settings, setSettings] = useState<SchoolSettings>(() => {
-        const cached = getCachedSettings();
-        return cached || defaultSettings;
+    const queryClient = useQueryClient();
+
+    const { data: settings = getCachedSettings() || defaultSettings, isLoading: loading } = useQuery({
+        queryKey: ['school-settings'],
+        queryFn: fetchSettings,
+        staleTime: 5 * 60 * 1000, // 5 minutes — settings ไม่เปลี่ยนบ่อย
+        gcTime: 30 * 60 * 1000,   // 30 minutes cache
+        placeholderData: getCachedSettings() || defaultSettings,
     });
-    const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchSettings();
-    }, []);
-
-    const fetchSettings = async () => {
-        try {
-            const { data, error } = await supabase
-                .from('school_settings')
-                .select('key, value');
-
-            if (error) throw error;
-
-            if (data) {
-                // แปลง array เป็น map { key: value }
-                const settingsMap: Record<string, string> = {};
-                data.forEach((setting: any) => {
-                    settingsMap[setting.key] = setting.value || '';
-                });
-
-                // Map ทุก key อัตโนมัติจาก defaultSettings โดยไม่ต้องเขียนซ้ำทีละบรรทัด
-                const newSettings = (Object.keys(defaultSettings) as Array<keyof SchoolSettings>).reduce(
-                    (acc, key) => {
-                        if (key === 'social_links') {
-                            // social_links เก็บเป็น JSON string ต้อง parse พิเศษ
-                            acc[key] = settingsMap.social_links
-                                ? JSON.parse(settingsMap.social_links)
-                                : defaultSettings.social_links;
-                        } else {
-                            (acc[key] as string) = settingsMap[key] || (defaultSettings[key] as string);
-                        }
-                        return acc;
-                    },
-                    {} as SchoolSettings
-                );
-
-                setSettings(newSettings);
-                saveCacheSettings(newSettings);
-            }
-        } catch (error) {
-            console.error('Error fetching settings:', error);
-        } finally {
-            setLoading(false);
-        }
+    const refetch = () => {
+        queryClient.invalidateQueries({ queryKey: ['school-settings'] });
     };
 
-    return { settings, loading, refetch: fetchSettings };
+    return { settings, loading, refetch };
 };

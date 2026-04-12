@@ -89,7 +89,7 @@ export const SarabanDashboard = () => {
                     <Card
                         key={c.label}
                         className="cursor-pointer hover:shadow-lg transition-shadow"
-                        onClick={() => navigate(`/admin/dashboard?tab=${c.tab}`)}
+                        onClick={() => navigate(`/admin/dashboard/${c.tab}`)}
                     >
                         <CardContent className="p-4 flex items-center gap-3">
                             <c.icon className={`w-8 h-8 flex-shrink-0 ${c.color}`} />
@@ -135,7 +135,7 @@ export const SarabanDashboard = () => {
                 ].map(item => (
                     <button
                         key={item.tab}
-                        onClick={() => navigate(`/admin/dashboard?tab=${item.tab}`)}
+                        onClick={() => navigate(`/admin/dashboard/${item.tab}`)}
                         className="flex flex-col items-center gap-2 p-4 border border-border rounded-xl hover:bg-secondary transition-colors text-center"
                     >
                         <item.icon className="w-8 h-8 text-primary" />

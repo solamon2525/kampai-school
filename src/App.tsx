@@ -60,7 +60,8 @@ const App = () => (
             <Route path="/news" element={<News />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/admin" element={<AdminLogin />} />
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            {/* Admin dashboard with nested route support */}
+            <Route path="/admin/dashboard/*" element={<AdminDashboard />} />
             <Route path="/admin/page-builder" element={<PageBuilder />} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/events" element={<Events />} />

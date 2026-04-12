@@ -1,7 +1,8 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthProvider';
 import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import {
     LayoutDashboard,
     Newspaper,
@@ -37,9 +38,9 @@ import {
     BookMarked,
     Award,
     Info,
+    Menu,
 } from 'lucide-react';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
-import { useUserRole } from '@/hooks/useUserRole';
 
 interface AdminLayoutProps {
     children: ReactNode;
@@ -52,130 +53,185 @@ type MenuItem =
 const menuItems: MenuItem[] = [
     { type: 'item', id: 'dashboard', label: 'แดชบอร์ด', icon: LayoutDashboard, path: '/admin/dashboard' },
     { type: 'section', label: 'เว็บไซต์' },
-    { type: 'item', id: 'settings', label: 'ตั้งค่า', icon: Settings, path: '/admin/dashboard?tab=settings', adminOnly: true },
-    { type: 'item', id: 'hero-slides', label: 'Hero Slides', icon: SlidersHorizontal, path: '/admin/dashboard?tab=hero-slides', adminOnly: true },
-    { type: 'item', id: 'news', label: 'ข่าวสาร', icon: Newspaper, path: '/admin/dashboard?tab=news' },
-    { type: 'item', id: 'gallery', label: 'แกลเลอรี่', icon: Image, path: '/admin/dashboard?tab=gallery', adminOnly: true },
-    { type: 'item', id: 'events', label: 'ปฏิทิน', icon: Calendar, path: '/admin/dashboard?tab=events' },
+    { type: 'item', id: 'settings', label: 'ตั้งค่า', icon: Settings, path: '/admin/dashboard/settings', adminOnly: true },
+    { type: 'item', id: 'hero-slides', label: 'Hero Slides', icon: SlidersHorizontal, path: '/admin/dashboard/hero-slides', adminOnly: true },
+    { type: 'item', id: 'news', label: 'ข่าวสาร', icon: Newspaper, path: '/admin/dashboard/news' },
+    { type: 'item', id: 'gallery', label: 'แกลเลอรี่', icon: Image, path: '/admin/dashboard/gallery', adminOnly: true },
+    { type: 'item', id: 'events', label: 'ปฏิทิน', icon: Calendar, path: '/admin/dashboard/events' },
     { type: 'section', label: 'งานสารบรรณ' },
-    { type: 'item', id: 'saraban', label: 'ภาพรวม', icon: ClipboardList, path: '/admin/dashboard?tab=saraban', adminOnly: true },
-    { type: 'item', id: 'incoming-letters', label: 'หนังสือรับ', icon: MailOpen, path: '/admin/dashboard?tab=incoming-letters', adminOnly: true },
-    { type: 'item', id: 'outgoing-letters', label: 'หนังสือส่ง', icon: SendHorizontal, path: '/admin/dashboard?tab=outgoing-letters', adminOnly: true },
-    { type: 'item', id: 'orders', label: 'คำสั่ง/ประกาศ', icon: Stamp, path: '/admin/dashboard?tab=orders', adminOnly: true },
-    { type: 'item', id: 'meetings', label: 'การประชุม', icon: CalendarCheck, path: '/admin/dashboard?tab=meetings', adminOnly: true },
+    { type: 'item', id: 'saraban', label: 'ภาพรวม', icon: ClipboardList, path: '/admin/dashboard/saraban', adminOnly: true },
+    { type: 'item', id: 'incoming-letters', label: 'หนังสือรับ', icon: MailOpen, path: '/admin/dashboard/incoming-letters', adminOnly: true },
+    { type: 'item', id: 'outgoing-letters', label: 'หนังสือส่ง', icon: SendHorizontal, path: '/admin/dashboard/outgoing-letters', adminOnly: true },
+    { type: 'item', id: 'orders', label: 'คำสั่ง/ประกาศ', icon: Stamp, path: '/admin/dashboard/orders', adminOnly: true },
+    { type: 'item', id: 'meetings', label: 'การประชุม', icon: CalendarCheck, path: '/admin/dashboard/meetings', adminOnly: true },
     { type: 'section', label: 'บุคลากร (HR)' },
-    { type: 'item', id: 'leave', label: 'การลา', icon: UserX, path: '/admin/dashboard?tab=leave', adminOnly: true },
-    { type: 'item', id: 'training', label: 'การอบรม', icon: BookMarked, path: '/admin/dashboard?tab=training', adminOnly: true },
-    { type: 'item', id: 'pa', label: 'PA Assessment', icon: Award, path: '/admin/dashboard?tab=pa', adminOnly: true },
+    { type: 'item', id: 'leave', label: 'การลา', icon: UserX, path: '/admin/dashboard/leave', adminOnly: true },
+    { type: 'item', id: 'training', label: 'การอบรม', icon: BookMarked, path: '/admin/dashboard/training', adminOnly: true },
+    { type: 'item', id: 'pa', label: 'PA Assessment', icon: Award, path: '/admin/dashboard/pa', adminOnly: true },
     { type: 'section', label: 'ข้อมูลโรงเรียน' },
-    { type: 'item', id: 'milestones', label: 'ประวัติโรงเรียน', icon: History, path: '/admin/dashboard?tab=milestones', adminOnly: true },
-    { type: 'item', id: 'facilities', label: 'สิ่งอำนวยความสะดวก', icon: Building2, path: '/admin/dashboard?tab=facilities', adminOnly: true },
-    { type: 'item', id: 'staff', label: 'ครู/บุคลากร', icon: Briefcase, path: '/admin/dashboard?tab=staff' },
-    { type: 'item', id: 'administrators', label: 'ผู้บริหาร', icon: UserCog, path: '/admin/dashboard?tab=administrators', adminOnly: true },
-    { type: 'item', id: 'students', label: 'นักเรียน', icon: GraduationCap, path: '/admin/dashboard?tab=students' },
-    { type: 'item', id: 'curriculum', label: 'หลักสูตร', icon: BookOpen, path: '/admin/dashboard?tab=curriculum', adminOnly: true },
-    { type: 'item', id: 'activities', label: 'กิจกรรมเสริม', icon: Palette, path: '/admin/dashboard?tab=activities', adminOnly: true },
+    { type: 'item', id: 'milestones', label: 'ประวัติโรงเรียน', icon: History, path: '/admin/dashboard/milestones', adminOnly: true },
+    { type: 'item', id: 'facilities', label: 'สิ่งอำนวยความสะดวก', icon: Building2, path: '/admin/dashboard/facilities', adminOnly: true },
+    { type: 'item', id: 'staff', label: 'ครู/บุคลากร', icon: Briefcase, path: '/admin/dashboard/staff' },
+    { type: 'item', id: 'administrators', label: 'ผู้บริหาร', icon: UserCog, path: '/admin/dashboard/administrators', adminOnly: true },
+    { type: 'item', id: 'students', label: 'นักเรียน', icon: GraduationCap, path: '/admin/dashboard/students' },
+    { type: 'item', id: 'curriculum', label: 'หลักสูตร', icon: BookOpen, path: '/admin/dashboard/curriculum', adminOnly: true },
+    { type: 'item', id: 'activities', label: 'กิจกรรมเสริม', icon: Palette, path: '/admin/dashboard/activities', adminOnly: true },
     { type: 'section', label: 'ระบบบริการ' },
-    { type: 'item', id: 'waste-bank', label: 'ธนาคารขยะ', icon: Recycle, path: '/admin/dashboard?tab=waste-bank', adminOnly: true },
-    { type: 'item', id: 'attendance', label: 'เช็คชื่อนักเรียน', icon: ClipboardCheck, path: '/admin/dashboard?tab=attendance' },
-    { type: 'item', id: 'documents', label: 'จัดการเอกสาร', icon: FolderOpen, path: '/admin/dashboard?tab=documents', adminOnly: true },
-    { type: 'item', id: 'analytics', label: 'Analytics', icon: BarChart2, path: '/admin/dashboard?tab=analytics', adminOnly: true },
+    { type: 'item', id: 'waste-bank', label: 'ธนาคารขยะ', icon: Recycle, path: '/admin/dashboard/waste-bank', adminOnly: true },
+    { type: 'item', id: 'attendance', label: 'เช็คชื่อนักเรียน', icon: ClipboardCheck, path: '/admin/dashboard/attendance' },
+    { type: 'item', id: 'documents', label: 'จัดการเอกสาร', icon: FolderOpen, path: '/admin/dashboard/documents', adminOnly: true },
+    { type: 'item', id: 'analytics', label: 'Analytics', icon: BarChart2, path: '/admin/dashboard/analytics', adminOnly: true },
     { type: 'item', id: 'page-builder', label: 'Page Builder', icon: Blocks, path: '/admin/page-builder', adminOnly: true },
     { type: 'section', label: 'อื่นๆ' },
-    { type: 'item', id: 'admissions', label: 'ใบสมัคร', icon: FileText, path: '/admin/dashboard?tab=admissions' },
-    { type: 'item', id: 'messages', label: 'กล่องข้อความ', icon: Mail, path: '/admin/dashboard?tab=messages' },
-    { type: 'item', id: 'faq', label: 'FAQ', icon: HelpCircle, path: '/admin/dashboard?tab=faq', adminOnly: true },
+    { type: 'item', id: 'admissions', label: 'ใบสมัคร', icon: FileText, path: '/admin/dashboard/admissions' },
+    { type: 'item', id: 'messages', label: 'กล่องข้อความ', icon: Mail, path: '/admin/dashboard/messages' },
+    { type: 'item', id: 'faq', label: 'FAQ', icon: HelpCircle, path: '/admin/dashboard/faq', adminOnly: true },
     { type: 'section', label: 'ระบบ' },
-    { type: 'item', id: 'system-overview', label: 'ภาพรวมระบบ', icon: Info, path: '/admin/dashboard?tab=system-overview', adminOnly: true },
+    { type: 'item', id: 'system-overview', label: 'ภาพรวมระบบ', icon: Info, path: '/admin/dashboard/system-overview', adminOnly: true },
 ];
+
+// Extract active tab from pathname
+const getActiveId = (pathname: string): string => {
+    // /admin/dashboard/news → news
+    const segments = pathname.replace('/admin/dashboard', '').split('/').filter(Boolean);
+    return segments[0] || 'dashboard';
+};
+
+const SidebarContent = ({
+    settings,
+    isAdmin,
+    userEmail,
+    activeId,
+    onNavigate,
+    onLogout,
+}: {
+    settings: any;
+    isAdmin: boolean;
+    userEmail: string;
+    activeId: string;
+    onNavigate: (path: string) => void;
+    onLogout: () => void;
+}) => (
+    <div className="flex flex-col h-full">
+        <div className="p-4 border-b border-border">
+            <Link to="/" className="flex items-center gap-3" onClick={() => onNavigate('/')}>
+                <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                    <span className="text-accent font-bold">คผ</span>
+                </div>
+                <div>
+                    <h1 className="font-bold text-primary text-sm">{settings.school_name}</h1>
+                    <p className="text-xs text-muted-foreground">ระบบจัดการ</p>
+                </div>
+            </Link>
+        </div>
+
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+            {menuItems.map((item, idx) => {
+                if (item.type === 'section') {
+                    return (
+                        <p key={`section-${idx}`} className="px-2 pt-3 pb-1 text-xs font-semibold text-muted-foreground/60 uppercase tracking-wider">
+                            {item.label}
+                        </p>
+                    );
+                }
+                if (item.adminOnly && !isAdmin) return null;
+                const isActive = activeId === item.id;
+                return (
+                    <button
+                        key={item.id}
+                        onClick={() => onNavigate(item.path)}
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all text-left ${isActive
+                            ? 'bg-primary text-primary-foreground'
+                            : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                            }`}
+                    >
+                        <item.icon className="w-4 h-4" />
+                        <span className="text-sm">{item.label}</span>
+                    </button>
+                );
+            })}
+        </nav>
+
+        <div className="p-4 border-t border-border">
+            <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                    <UserCheck className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                    <p className="font-medium text-sm">ผู้ดูแลระบบ</p>
+                    <p className="text-xs text-muted-foreground">{userEmail}</p>
+                </div>
+            </div>
+            <div className="flex gap-2">
+                <Button variant="outline" size="sm" className="flex-1" onClick={() => onNavigate('/')}>
+                    <Home className="w-4 h-4 mr-1" />
+                    หน้าเว็บ
+                </Button>
+                <Button variant="outline" size="sm" onClick={onLogout}>
+                    <LogOut className="w-4 h-4" />
+                </Button>
+            </div>
+        </div>
+    </div>
+);
 
 export const AdminLayout = ({ children }: AdminLayoutProps) => {
     const navigate = useNavigate();
+    const { isAdmin, userEmail } = useAuth();
     const { settings } = useSchoolSettings();
-    const { isAdmin } = useUserRole();
     const location = useLocation();
-    const searchParams = new URLSearchParams(location.search);
-    const activeTab = searchParams.get('tab') || 'dashboard';
-    const [userEmail, setUserEmail] = useState('');
+    const activeId = getActiveId(location.pathname);
+    const [mobileOpen, setMobileOpen] = useState(false);
 
-    useEffect(() => {
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setUserEmail(session?.user?.email ?? '');
-        });
-    }, []);
+    const handleNavigate = (path: string) => {
+        navigate(path);
+        setMobileOpen(false);
+    };
 
     const handleLogout = async () => {
+        const { supabase } = await import('@/integrations/supabase/client');
         await supabase.auth.signOut();
         navigate('/admin');
     };
 
     return (
         <div className="min-h-screen bg-secondary">
-            {/* Sidebar */}
-            <aside className="fixed left-0 top-0 h-full w-64 bg-card border-r border-border shadow-lg z-40">
-                <div className="p-4 border-b border-border">
-                    <Link to="/" className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-                            <span className="text-accent font-bold">คผ</span>
-                        </div>
-                        <div>
-                            <h1 className="font-bold text-primary text-sm">{settings.school_name}</h1>
-                            <p className="text-xs text-muted-foreground">ระบบจัดการ</p>
-                        </div>
-                    </Link>
-                </div>
-
-                <nav className="p-4 space-y-1 overflow-y-auto h-[calc(100vh-200px)]">
-                    {menuItems.map((item, idx) => {
-                        if (item.type === 'section') {
-                            return (
-                                <p key={`section-${idx}`} className="px-2 pt-3 pb-1 text-xs font-semibold text-muted-foreground/60 uppercase tracking-wider">
-                                    {item.label}
-                                </p>
-                            );
-                        }
-                        if (item.adminOnly && !isAdmin) return null;
-                        const isActive = activeTab === item.id;
-                        return (
-                            <Link
-                                key={item.id}
-                                to={item.path}
-                                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all ${isActive
-                                    ? 'bg-primary text-primary-foreground'
-                                    : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
-                                    }`}
-                            >
-                                <item.icon className="w-4 h-4" />
-                                <span className="text-sm">{item.label}</span>
-                            </Link>
-                        );
-                    })}
-                </nav>
-
-                <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border bg-card">
-                    <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                            <UserCheck className="w-5 h-5 text-primary" />
-                        </div>
-                        <div>
-                            <p className="font-medium text-sm">ผู้ดูแลระบบ</p>
-                            <p className="text-xs text-muted-foreground">{userEmail}</p>
-                        </div>
-                    </div>
-                    <div className="flex gap-2">
-                        <Button variant="outline" size="sm" className="flex-1" onClick={() => navigate('/')}>
-                            <Home className="w-4 h-4 mr-1" />
-                            หน้าเว็บ
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={handleLogout}>
-                            <LogOut className="w-4 h-4" />
-                        </Button>
-                    </div>
-                </div>
+            {/* Desktop Sidebar */}
+            <aside className="fixed left-0 top-0 h-full w-64 bg-card border-r border-border shadow-lg z-40 hidden lg:block">
+                <SidebarContent
+                    settings={settings}
+                    isAdmin={isAdmin}
+                    userEmail={userEmail}
+                    activeId={activeId}
+                    onNavigate={handleNavigate}
+                    onLogout={handleLogout}
+                />
             </aside>
 
+            {/* Mobile Header + Sheet Sidebar */}
+            <div className="lg:hidden sticky top-0 z-40 flex items-center gap-3 px-4 py-3 bg-card border-b border-border">
+                <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+                    <SheetTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                            <Menu className="w-5 h-5" />
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent side="left" className="p-0 w-72">
+                        <SidebarContent
+                            settings={settings}
+                            isAdmin={isAdmin}
+                            userEmail={userEmail}
+                            activeId={activeId}
+                            onNavigate={handleNavigate}
+                            onLogout={handleLogout}
+                        />
+                    </SheetContent>
+                </Sheet>
+                <h1 className="font-bold text-primary text-sm truncate">{settings.school_name}</h1>
+            </div>
+
             {/* Main Content */}
-            <main className="ml-64 min-h-screen">
+            <main className="lg:ml-64 min-h-screen">
                 {children}
             </main>
         </div>
