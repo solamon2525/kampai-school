@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Trash2, Plus, Edit2, Save, X, Scale, Users, List } from 'lucide-react';
+import { Trash2, Plus, Edit2, Save, X, Scale, Users, List, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -31,6 +31,7 @@ interface WasteTransaction {
   id: string;
   student_name: string;
   student_class: string;
+  student_id: string | null;
   category_id: string;
   weight_kg: number;
   amount: number;
@@ -38,6 +39,7 @@ interface WasteTransaction {
   notes: string | null;
   recorded_by: string | null;
   waste_categories?: { name: string; icon: string | null; color: string | null } | null;
+  students?: { photo_url: string | null } | null;
 }
 
 interface StudentSummary {
@@ -46,6 +48,13 @@ interface StudentSummary {
   total_transactions: number;
   total_weight: number;
   total_amount: number;
+}
+
+interface StudentOption {
+  id: string;
+  name: string;
+  class: string;
+  photo_url: string | null;
 }
 
 type ActiveTab = 'record' | 'summary' | 'categories';
@@ -59,6 +68,10 @@ export const WasteBankManagement = () => {
   const [transactions, setTransactions] = useState<WasteTransaction[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [calculatedAmount, setCalculatedAmount] = useState<number | null>(null);
+
+  // Student selector
+  const [studentOptions, setStudentOptions] = useState<StudentOption[]>([]);
+  const [selectedStudentId, setSelectedStudentId] = useState<string>('');
 
   const today = new Date().toISOString().split('T')[0];
 
@@ -108,6 +121,26 @@ export const WasteBankManagement = () => {
     }
   }, [form.category_id, form.weight_kg, categories]);
 
+  // Fetch students when class changes
+  useEffect(() => {
+    if (form.student_class) {
+      (async () => {
+        const { data } = await (supabase as any)
+          .from('students')
+          .select('id, name, class, photo_url')
+          .eq('class', form.student_class)
+          .eq('is_active', true)
+          .order('class_number', { ascending: true });
+        setStudentOptions(data || []);
+      })();
+    } else {
+      setStudentOptions([]);
+    }
+    // Reset selected student when class changes
+    setSelectedStudentId('');
+    setForm(prev => ({ ...prev, student_name: '' }));
+  }, [form.student_class]);
+
   const fetchCategories = async () => {
     const { data, error } = await (supabase as any)
       .from('waste_categories')
@@ -120,7 +153,7 @@ export const WasteBankManagement = () => {
   const fetchTransactions = async () => {
     const { data, error } = await (supabase as any)
       .from('waste_transactions')
-      .select('*, waste_categories(name, icon, color)')
+      .select('*, waste_categories(name, icon, color), students(photo_url)')
       .order('transaction_date', { ascending: false })
       .order('created_at', { ascending: false })
       .limit(50);
@@ -157,6 +190,7 @@ export const WasteBankManagement = () => {
     const { error } = await (supabase as any).from('waste_transactions').insert({
       student_name: form.student_name.trim(),
       student_class: form.student_class,
+      student_id: selectedStudentId || null,
       category_id: form.category_id,
       weight_kg: weight,
       amount,
@@ -171,6 +205,8 @@ export const WasteBankManagement = () => {
     } else {
       toast({ title: 'บันทึกรายการสำเร็จ', description: `${form.student_name} — ${weight} กก. = ${amount.toFixed(2)} บาท` });
       setForm({ student_name: '', student_class: '', category_id: '', weight_kg: '', transaction_date: today, notes: '', recorded_by: '' });
+      setSelectedStudentId('');
+      setStudentOptions([]);
       setCalculatedAmount(null);
       fetchTransactions();
       fetchSummaries();
@@ -303,17 +339,7 @@ export const WasteBankManagement = () => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {/* Student Name */}
-                <div className="space-y-1">
-                  <Label>ชื่อนักเรียน <span className="text-destructive">*</span></Label>
-                  <Input
-                    placeholder="ชื่อ-นามสกุล"
-                    value={form.student_name}
-                    onChange={(e) => handleFormChange('student_name', e.target.value)}
-                  />
-                </div>
-
-                {/* Class */}
+                {/* Class selector first */}
                 <div className="space-y-1">
                   <Label>ชั้น <span className="text-destructive">*</span></Label>
                   <Select value={form.student_class} onValueChange={(v) => handleFormChange('student_class', v)}>
@@ -326,6 +352,50 @@ export const WasteBankManagement = () => {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+
+                {/* Student selector — loads after class selected */}
+                <div className="space-y-1">
+                  <Label>นักเรียน <span className="text-destructive">*</span></Label>
+                  {form.student_class && studentOptions.length > 0 ? (
+                    <Select
+                      value={selectedStudentId}
+                      onValueChange={(id) => {
+                        const s = studentOptions.find(x => x.id === id);
+                        if (s) {
+                          setSelectedStudentId(s.id);
+                          setForm(prev => ({ ...prev, student_name: s.name }));
+                        }
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="เลือกนักเรียน" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {studentOptions.map((s) => (
+                          <SelectItem key={s.id} value={s.id}>
+                            <div className="flex items-center gap-2">
+                              {s.photo_url ? (
+                                <img src={s.photo_url} alt={s.name} className="w-6 h-6 rounded-full object-cover" />
+                              ) : (
+                                <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary">
+                                  {s.name.slice(0, 1)}
+                                </div>
+                              )}
+                              <span>{s.name}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Input
+                      placeholder={form.student_class ? 'ไม่พบนักเรียนในชั้นนี้' : 'เลือกชั้นก่อน'}
+                      value={form.student_name}
+                      onChange={(e) => handleFormChange('student_name', e.target.value)}
+                      disabled={!!form.student_class && studentOptions.length === 0 && !form.student_name}
+                    />
+                  )}
                 </div>
 
                 {/* Category */}
@@ -436,7 +506,18 @@ export const WasteBankManagement = () => {
                       transactions.map((tx) => (
                         <tr key={tx.id} className="border-b border-border hover:bg-muted/30 transition-colors">
                           <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{tx.transaction_date}</td>
-                          <td className="px-4 py-3 font-medium">{tx.student_name}</td>
+                          <td className="px-4 py-3 font-medium">
+                            <div className="flex items-center gap-2">
+                              {tx.students?.photo_url ? (
+                                <img src={tx.students.photo_url} alt={tx.student_name} className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
+                              ) : (
+                                <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center text-[11px] font-bold text-primary flex-shrink-0">
+                                  {tx.student_name.slice(0, 1)}
+                                </div>
+                              )}
+                              {tx.student_name}
+                            </div>
+                          </td>
                           <td className="px-4 py-3">
                             <Badge variant="outline">{tx.student_class}</Badge>
                           </td>
