@@ -33,6 +33,7 @@ const LeaveManagement = lazy(() => import('@/components/admin/hr/LeaveManagement
 const TrainingManagement = lazy(() => import('@/components/admin/hr/TrainingManagement'));
 const PAManagement = lazy(() => import('@/components/admin/hr/PAManagement'));
 const SystemOverview = lazy(() => import('@/components/admin/system/SystemOverview').then(m => ({ default: m.SystemOverview })));
+const HomepageManager = lazy(() => import('@/components/admin/homepage/HomepageManager').then(m => ({ default: m.HomepageManager })));
 
 // Loading spinner สำหรับ lazy-loaded admin pages
 const AdminPageLoader = () => (
@@ -69,6 +70,7 @@ const AdminDashboard = () => {
               </>
             } />
             {/* เว็บไซต์ */}
+            <Route path="homepage-layout" element={<HomepageManager />} />
             <Route path="settings" element={<SettingsManagement />} />
             <Route path="hero-slides" element={<HeroSlidesManagement />} />
             <Route path="news" element={<NewsManagement />} />

@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { ChevronLeft, ChevronRight, Eye, Calendar, ArrowRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Eye, Calendar, ArrowRight, FileText } from 'lucide-react';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 
 interface NewsItem {
@@ -32,6 +32,8 @@ const HomeMainContent = () => {
   const [slides, setSlides] = useState<{ url: string; title: string }[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [events, setEvents] = useState<{ id: string; title: string; start_date: string; location: string | null }[]>([]);
+  const [documents, setDocuments] = useState<{ id: string; title: string; category: string | null; file_url: string }[]>([]);
 
   useEffect(() => {
     supabase
@@ -45,6 +47,24 @@ const HomeMainContent = () => {
       .then(({ data }) => {
         if (data) setNews(data as NewsItem[]);
       });
+
+    // Fetch events
+    supabase
+      .from('events')
+      .select('id, title, start_date, location')
+      .gte('start_date', new Date().toISOString().slice(0, 10))
+      .order('start_date')
+      .limit(4)
+      .then(({ data }) => { if (data) setEvents(data); });
+
+    // Fetch documents
+    supabase
+      .from('documents')
+      .select('id, title, category, file_url')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(4)
+      .then(({ data }) => { if (data) setDocuments(data); });
   }, []);
 
   // Fetch hero_slides from DB; fallback to news cover images
@@ -86,10 +106,18 @@ const HomeMainContent = () => {
   const featured = news[0];
   const rest = news.slice(1, 5);
 
-  const rawOrder = settings.homepage_main_sections;
-  const sectionOrder: string[] = rawOrder
-    ? (() => { try { return JSON.parse(rawOrder); } catch { return ['hero','news','about']; } })()
-    : ['hero','news','about'];
+  // Parse section order from layout or legacy key
+  const getSectionOrder = (): string[] => {
+    // Try new homepage_layout format first (parsed by settings hook)
+    const rawLayout = settings.homepage_main_sections;
+    if (rawLayout) {
+      try { return JSON.parse(rawLayout); } catch { /* fallback */ }
+    }
+    return ['hero', 'news', 'about'];
+  };
+  const sectionOrder = getSectionOrder();
+
+  // === SECTIONS ===
 
   const heroSection = (
     <div key="hero" className="relative bg-gray-900 rounded-lg overflow-hidden aspect-[16/7] shadow-md">
@@ -204,7 +232,107 @@ const HomeMainContent = () => {
     </div>
   );
 
-  const sectionMap: Record<string, JSX.Element | null> = { hero: heroSection, news: newsSection, about: aboutSection };
+  const calendarSection = events.length > 0 ? (
+    <div key="calendar" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-purple-800 text-white px-4 py-2 flex items-center justify-between">
+        <span className="font-semibold text-sm flex items-center gap-2">
+          <span className="w-1 h-4 bg-yellow-400 rounded-full inline-block" />
+          📅 ปฏิทินกิจกรรม
+        </span>
+        <Link to="/calendar" className="text-xs text-yellow-300 hover:text-yellow-100 flex items-center gap-1">
+          ดูทั้งหมด <ArrowRight className="w-3 h-3" />
+        </Link>
+      </div>
+      <div className="divide-y divide-gray-100">
+        {events.map((ev) => (
+          <div key={ev.id} className="flex items-start gap-3 p-3 hover:bg-gray-50 transition-colors">
+            <div className="text-center bg-purple-100 text-purple-700 rounded-lg px-3 py-1.5 flex-shrink-0">
+              <div className="text-lg font-bold leading-none">{new Date(ev.start_date).getDate()}</div>
+              <div className="text-[10px] uppercase">{new Date(ev.start_date).toLocaleDateString('th-TH', { month: 'short' })}</div>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-800 line-clamp-1">{ev.title}</p>
+              {ev.location && <p className="text-xs text-gray-500 mt-0.5">📍 {ev.location}</p>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  ) : null;
+
+  const videoSection = (
+    <div key="video" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-purple-800 text-white px-4 py-2">
+        <span className="font-semibold text-sm">🎬 แนะนำโรงเรียน</span>
+      </div>
+      <div className="p-3">
+        <div className="aspect-video bg-gray-900 rounded-lg flex items-center justify-center">
+          <span className="text-gray-500 text-sm">วิดีโอแนะนำ (ตั้งค่าใน Page Builder)</span>
+        </div>
+      </div>
+    </div>
+  );
+
+  const statisticsSection = (
+    <div key="statistics" className="bg-gradient-to-r from-purple-700 to-indigo-700 text-white rounded-lg p-6 text-center shadow-md">
+      <h3 className="text-lg font-bold mb-4 opacity-90">โรงเรียนของเราในตัวเลข</h3>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {[
+          { value: settings.stat_students || '500+', label: settings.stat_students_label || 'นักเรียน' },
+          { value: settings.stat_university || '98%', label: settings.stat_university_label || 'ผ่านเข้ามหาวิทยาลัย' },
+          { value: settings.stat_years || '50+', label: settings.stat_years_label || 'ปีแห่งความเป็นเลิศ' },
+          { value: settings.about_stat_3 || '200+', label: settings.about_stat_3_label || 'บุคลากร' },
+        ].map((s, i) => (
+          <div key={i}>
+            <div className="text-2xl sm:text-3xl font-bold">{s.value}</div>
+            <div className="text-xs opacity-75 mt-1">{s.label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const quicklinksSection = (
+    <div key="quicklinks" className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+      <h3 className="text-sm font-bold text-center mb-3">🔗 เมนูด่วน</h3>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        {[
+          { icon: '📰', label: 'ข่าวสาร', href: '/news' },
+          { icon: '🖼️', label: 'แกลเลอรี่', href: '/gallery' },
+          { icon: '📄', label: 'เอกสาร', href: '/documents' },
+          { icon: '📝', label: 'สมัครเรียน', href: '/enrollment' },
+        ].map((link, i) => (
+          <Link key={i} to={link.href} className="flex flex-col items-center gap-1.5 p-3 bg-gray-50 hover:bg-purple-50 rounded-xl transition-colors text-center">
+            <span className="text-2xl">{link.icon}</span>
+            <span className="text-xs font-medium text-gray-700">{link.label}</span>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+
+  const announcementSection = (
+    <div key="announcement" className="flex items-center gap-3 px-4 py-3 rounded-lg border border-blue-300 bg-blue-50 shadow-sm">
+      <span className="text-2xl flex-shrink-0">📢</span>
+      <div className="flex-1">
+        <p className="text-sm font-medium text-blue-800">{settings.hero_badge || 'เปิดรับสมัครนักเรียนใหม่ ปีการศึกษา 2568'}</p>
+        <Link to="/enrollment" className="text-xs text-blue-600 hover:text-blue-800 underline mt-0.5 inline-block">
+          ดูรายละเอียด →
+        </Link>
+      </div>
+    </div>
+  );
+
+  const sectionMap: Record<string, JSX.Element | null> = {
+    hero: heroSection,
+    news: newsSection,
+    about: aboutSection,
+    calendar: calendarSection,
+    video: videoSection,
+    statistics: statisticsSection,
+    quicklinks: quicklinksSection,
+    announcement: announcementSection,
+  };
 
   return (
     <div className="flex flex-col gap-4">

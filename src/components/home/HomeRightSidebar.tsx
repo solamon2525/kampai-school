@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
-import { Facebook, Youtube, Instagram, MessageCircle, Link as LinkIcon, Image, Users, Monitor } from 'lucide-react';
+import { Facebook, Youtube, Instagram, MessageCircle, Link as LinkIcon, Image, Users, Monitor, FileText, ArrowRight } from 'lucide-react';
 
 const categoryLinks = [
   { label: 'ข่าวประชาสัมพันธ์', href: '/news', color: 'text-blue-700', dot: 'bg-blue-500' },
@@ -42,6 +42,7 @@ const HomeRightSidebar = () => {
   const { settings } = useSchoolSettings();
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [visitorStats] = useState(() => getVisitorStats());
+  const [documents, setDocuments] = useState<{ id: string; title: string; category: string | null; file_url: string }[]>([]);
 
   useEffect(() => {
     // Try to fetch some gallery/news images for the photo box
@@ -55,6 +56,15 @@ const HomeRightSidebar = () => {
       .then(({ data }) => {
         if (data) setGalleryImages(data.map((n: any) => n.cover_image_url).filter(Boolean));
       });
+
+    // Fetch documents
+    supabase
+      .from('documents')
+      .select('id, title, category, file_url')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(5)
+      .then(({ data }) => { if (data) setDocuments(data); });
   }, []);
 
   const getSocialIcon = (platform: string) => {
@@ -171,12 +181,38 @@ const HomeRightSidebar = () => {
     </div>
   );
 
+  const documentsWidget = documents.length > 0 ? (
+    <div key="documents" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-purple-800 text-white text-xs font-semibold px-3 py-2 flex items-center gap-1.5">
+        <FileText className="w-3.5 h-3.5" /> เอกสารล่าสุด
+      </div>
+      <div className="divide-y divide-gray-100">
+        {documents.map((doc) => (
+          <a key={doc.id} href={doc.file_url} target="_blank" rel="noreferrer"
+            className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 transition-colors">
+            <span className="text-sm flex-shrink-0">📄</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-gray-800 truncate">{doc.title}</p>
+              {doc.category && <p className="text-[10px] text-gray-500">{doc.category}</p>}
+            </div>
+          </a>
+        ))}
+      </div>
+      <div className="px-3 py-2 border-t border-gray-100">
+        <Link to="/documents" className="text-xs text-purple-700 hover:underline flex items-center gap-1">
+          ดูเอกสารทั้งหมด <ArrowRight className="w-3 h-3" />
+        </Link>
+      </div>
+    </div>
+  ) : null;
+
   const widgetMap: Record<string, JSX.Element | null> = {
     categories: categoriesWidget,
     gallery: galleryWidget,
     services: servicesWidget,
     social: socialWidget,
     stats: statsWidget,
+    documents: documentsWidget,
   };
 
   return (
