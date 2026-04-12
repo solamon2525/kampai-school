@@ -12,7 +12,6 @@ import { Plus, Edit, Trash2, Search, Users, Camera, Upload, CreditCard, Printer 
 import { useToast } from '@/hooks/use-toast';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
 import { ImageUpload } from '../shared/ImageUpload';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
     useReactTable, getCoreRowModel, getFilteredRowModel,
     getPaginationRowModel, getSortedRowModel, flexRender,
@@ -298,22 +297,15 @@ export const StudentListManagement = () => {
                                     ))}
                                 </thead>
                                 <tbody>
-                                    <AnimatePresence>
-                                        {table.getRowModel().rows.map((row, i) => (
-                                            <motion.tr key={row.id}
-                                                initial={{ opacity: 0, y: 4 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                transition={{ delay: i * 0.02, duration: 0.2 }}
-                                                className={i % 2 === 0 ? '' : 'bg-muted/20'}
-                                            >
-                                                {row.getVisibleCells().map(cell => (
-                                                    <td key={cell.id} className="px-3 py-2">
-                                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                                    </td>
-                                                ))}
-                                            </motion.tr>
-                                        ))}
-                                    </AnimatePresence>
+                                    {table.getRowModel().rows.map((row, i) => (
+                                        <tr key={row.id} className={i % 2 === 0 ? '' : 'bg-muted/20'}>
+                                            {row.getVisibleCells().map(cell => (
+                                                <td key={cell.id} className="px-3 py-2">
+                                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                                </td>
+                                            ))}
+                                        </tr>
+                                    ))}
                                 </tbody>
                             </table>
                         </div>
