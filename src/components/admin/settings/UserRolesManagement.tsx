@@ -33,15 +33,20 @@ export const UserRolesManagement = () => {
 
     const fetchRoles = async () => {
         setLoading(true);
-        const { data, error } = await supabase
-            .from('user_roles' as any)
-            .select('*')
-            .order('created_at', { ascending: true });
+        try {
+            const { data, error } = await supabase
+                .from('user_roles' as any)
+                .select('*')
+                .order('created_at', { ascending: true });
 
-        if (error) {
-            toast({ title: 'โหลดข้อมูลล้มเหลว', variant: 'destructive' });
-        } else {
-            setRows((data as UserRoleRow[]) || []);
+            if (error) {
+                // Table might not exist — don't show destructive toast, just log
+                console.warn('user_roles table not available:', error.message);
+            } else {
+                setRows((data as UserRoleRow[]) || []);
+            }
+        } catch {
+            // Network error — silently handle
         }
         setLoading(false);
     };

@@ -32,13 +32,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const fetchRole = async (userId: string) => {
-    const { data } = await supabase
-      .from('user_roles' as any)
-      .select('role')
-      .eq('user_id', userId)
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('user_roles' as any)
+        .select('role')
+        .eq('user_id', userId)
+        .single();
 
-    setRole((data as any)?.role ?? 'admin'); // Default to admin (backwards-compat)
+      if (error) {
+        // Table might not exist — silently default to admin
+        console.warn('user_roles query failed (table may not exist):', error.message);
+        setRole('admin');
+        return;
+      }
+
+      setRole((data as any)?.role ?? 'admin');
+    } catch {
+      // Network or other error — default to admin
+      setRole('admin');
+    }
   };
 
   useEffect(() => {
