@@ -28,7 +28,9 @@ import {
   Save,
   Search,
   RefreshCw,
+  UserRound,
 } from 'lucide-react';
+import { RadialBarChart, RadialBar, PolarAngleAxis, ResponsiveContainer } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -45,6 +47,7 @@ interface Student {
   parent_name: string;
   parent_phone: string;
   is_active: boolean;
+  photo_url?: string | null;
 }
 
 interface AttendanceRecord {
@@ -150,7 +153,7 @@ function StatusButton({ status, active, onClick }: StatusButtonProps) {
 
 export const AttendanceManagement = () => {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<'checkin' | 'report' | 'students'>('checkin');
+  const [activeTab, setActiveTab] = useState<'checkin' | 'report' | 'individual' | 'students'>('checkin');
 
   // ── Tab 1: เช็คชื่อ ──────────────────────────────────────────────────────
   const [checkinDate, setCheckinDate] = useState(todayISO());
@@ -315,7 +318,42 @@ export const AttendanceManagement = () => {
     }
   };
 
-  // ── Tab 3: รายชื่อนักเรียน ────────────────────────────────────────────────
+  // ── Tab 3: รายงานรายบุคคล ─────────────────────────────────────────────────
+  const [indivClass, setIndivClass] = useState('');
+  const [indivStudents, setIndivStudents] = useState<Student[]>([]);
+  const [indivStudentId, setIndivStudentId] = useState('');
+  const [indivRecords, setIndivRecords] = useState<{ attendance_date: string; status: AttendanceStatus }[]>([]);
+  const [indivLoading, setIndivLoading] = useState(false);
+
+  useEffect(() => {
+    if (!indivClass) { setIndivStudents([]); setIndivStudentId(''); return; }
+    (async () => {
+      const { data } = await supabase.from('students').select('id, name, class, class_number, photo_url, student_code, gender, parent_name, parent_phone, is_active').eq('class', indivClass).eq('is_active', true).order('class_number');
+      setIndivStudents(data || []);
+      setIndivStudentId('');
+    })();
+  }, [indivClass]);
+
+  useEffect(() => {
+    if (!indivStudentId) { setIndivRecords([]); return; }
+    setIndivLoading(true);
+    const end = new Date();
+    const start = new Date(); start.setDate(end.getDate() - 29);
+    const fmt = (d: Date) => d.toISOString().slice(0, 10);
+    (async () => {
+      const { data } = await supabase.from('attendance_records').select('attendance_date, status').eq('student_id', indivStudentId).gte('attendance_date', fmt(start)).lte('attendance_date', fmt(end)).order('attendance_date', { ascending: false });
+      setIndivRecords((data || []) as any);
+      setIndivLoading(false);
+    })();
+  }, [indivStudentId]);
+
+  const indivStudent = indivStudents.find(s => s.id === indivStudentId);
+  const indivPresent = indivRecords.filter(r => r.status === 'present').length;
+  const indivTotal = indivRecords.length;
+  const indivPct = indivTotal > 0 ? Math.round((indivPresent / indivTotal) * 100) : 0;
+  const chartColor = indivPct >= 80 ? '#22c55e' : indivPct >= 60 ? '#eab308' : '#ef4444';
+
+  // ── Tab 4: รายชื่อนักเรียน ────────────────────────────────────────────────
   const [allStudents, setAllStudents] = useState<Student[]>([]);
   const [studentsLoading, setStudentsLoading] = useState(false);
   const [filterClass, setFilterClass] = useState('');
@@ -441,7 +479,8 @@ export const AttendanceManagement = () => {
       <div className="flex gap-1 bg-gray-100 p-1 rounded-lg w-fit">
         {([
           { key: 'checkin', label: 'เช็คชื่อ', icon: ClipboardList },
-          { key: 'report', label: 'รายงาน', icon: BarChart3 },
+          { key: 'report', label: 'รายงานชั้นเรียน', icon: BarChart3 },
+          { key: 'individual', label: 'รายงานรายบุคคล', icon: UserRound },
           { key: 'students', label: 'รายชื่อนักเรียน', icon: Users },
         ] as const).map(({ key, label, icon: Icon }) => (
           <button
@@ -557,6 +596,13 @@ export const AttendanceManagement = () => {
                         <span className="w-8 text-center text-sm font-semibold text-gray-500">
                           {s.class_number}
                         </span>
+                        {s.photo_url ? (
+                          <img src={s.photo_url} alt={s.name} className="w-9 h-9 rounded-full object-cover flex-shrink-0 border border-gray-200" />
+                        ) : (
+                          <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-sm font-bold text-blue-600 flex-shrink-0">
+                            {s.name.slice(0, 1)}
+                          </div>
+                        )}
                         <span className="flex-1 text-sm font-medium text-gray-800">{s.name}</span>
                         <div className="flex gap-1">
                           {(Object.keys(STATUS_CONFIG) as AttendanceStatus[]).map((st) => (
@@ -722,7 +768,146 @@ export const AttendanceManagement = () => {
         </div>
       )}
 
-      {/* ───────────── Tab 3: รายชื่อนักเรียน ───────────── */}
+      {/* ───────────── Tab 3: รายงานรายบุคคล ───────────── */}
+      {activeTab === 'individual' && (
+        <div className="space-y-4">
+          {/* Selectors */}
+          <Card>
+            <CardContent className="pt-4">
+              <div className="flex flex-wrap items-end gap-3">
+                <div className="flex flex-col gap-1">
+                  <Label>ชั้นเรียน</Label>
+                  <Select value={indivClass} onValueChange={setIndivClass}>
+                    <SelectTrigger className="w-36"><SelectValue placeholder="เลือกชั้น" /></SelectTrigger>
+                    <SelectContent>
+                      {CLASSES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {indivStudents.length > 0 && (
+                  <div className="flex flex-col gap-1">
+                    <Label>นักเรียน</Label>
+                    <Select value={indivStudentId} onValueChange={setIndivStudentId}>
+                      <SelectTrigger className="w-56"><SelectValue placeholder="เลือกนักเรียน" /></SelectTrigger>
+                      <SelectContent>
+                        {indivStudents.map(s => (
+                          <SelectItem key={s.id} value={s.id}>
+                            <div className="flex items-center gap-2">
+                              {s.photo_url ? (
+                                <img src={s.photo_url} alt={s.name} className="w-6 h-6 rounded-full object-cover" />
+                              ) : (
+                                <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-[10px] font-bold text-blue-600">{s.name.slice(0,1)}</div>
+                              )}
+                              <span>{s.name}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Report */}
+          {indivStudent && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Profile card */}
+              <Card>
+                <CardContent className="pt-6 flex flex-col items-center text-center gap-3">
+                  {indivStudent.photo_url ? (
+                    <img src={indivStudent.photo_url} alt={indivStudent.name} className="w-24 h-24 rounded-full object-cover border-4 border-blue-100" />
+                  ) : (
+                    <div className="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center text-3xl font-bold text-blue-600">
+                      {indivStudent.name.slice(0,1)}
+                    </div>
+                  )}
+                  <div>
+                    <div className="font-semibold text-gray-800">{indivStudent.name}</div>
+                    <div className="text-sm text-gray-500">ชั้น {indivStudent.class} เลขที่ {indivStudent.class_number}</div>
+                    {indivStudent.student_code && <div className="text-xs text-gray-400 mt-1">รหัส {indivStudent.student_code}</div>}
+                  </div>
+                  {/* mini stats */}
+                  <div className="grid grid-cols-2 gap-2 w-full text-sm mt-1">
+                    <div className="bg-green-50 rounded-lg p-2">
+                      <div className="font-bold text-green-700 text-lg">{indivPresent}</div>
+                      <div className="text-green-600 text-xs">มาเรียน</div>
+                    </div>
+                    <div className="bg-red-50 rounded-lg p-2">
+                      <div className="font-bold text-red-700 text-lg">{indivRecords.filter(r=>r.status==='absent').length}</div>
+                      <div className="text-red-600 text-xs">ขาด</div>
+                    </div>
+                    <div className="bg-yellow-50 rounded-lg p-2">
+                      <div className="font-bold text-yellow-700 text-lg">{indivRecords.filter(r=>r.status==='late').length}</div>
+                      <div className="text-yellow-600 text-xs">สาย</div>
+                    </div>
+                    <div className="bg-blue-50 rounded-lg p-2">
+                      <div className="font-bold text-blue-700 text-lg">{indivRecords.filter(r=>r.status==='leave').length}</div>
+                      <div className="text-blue-600 text-xs">ลา</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Radial chart */}
+              <Card>
+                <CardHeader><CardTitle className="text-sm text-center">อัตราการมาเรียน (30 วัน)</CardTitle></CardHeader>
+                <CardContent>
+                  {indivLoading ? (
+                    <div className="flex justify-center py-8 text-gray-400">กำลังโหลด...</div>
+                  ) : indivTotal === 0 ? (
+                    <div className="flex flex-col items-center justify-center h-40 text-gray-400 text-sm">ยังไม่มีข้อมูล</div>
+                  ) : (
+                    <div className="flex flex-col items-center">
+                      <ResponsiveContainer width="100%" height={160}>
+                        <RadialBarChart cx="50%" cy="50%" innerRadius="60%" outerRadius="100%" data={[{ value: indivPct, fill: chartColor }]} startAngle={90} endAngle={-270}>
+                          <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
+                          <RadialBar dataKey="value" cornerRadius={8} background={{ fill: '#f3f4f6' }} />
+                        </RadialBarChart>
+                      </ResponsiveContainer>
+                      <div className="text-center -mt-4">
+                        <div className="text-3xl font-bold" style={{ color: chartColor }}>{indivPct}%</div>
+                        <div className="text-xs text-gray-500 mt-1">{indivPresent} จาก {indivTotal} วัน</div>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* 30-day table */}
+              <Card>
+                <CardHeader><CardTitle className="text-sm">ประวัติ 30 วันล่าสุด</CardTitle></CardHeader>
+                <CardContent className="p-0 max-h-72 overflow-y-auto">
+                  {indivRecords.length === 0 ? (
+                    <div className="text-center py-8 text-gray-400 text-sm">ไม่มีข้อมูล</div>
+                  ) : (
+                    <table className="w-full text-sm">
+                      <tbody>
+                        {indivRecords.map(r => {
+                          const cfg = STATUS_CONFIG[r.status];
+                          return (
+                            <tr key={r.attendance_date} className="border-b last:border-b-0">
+                              <td className="px-4 py-2 text-gray-500">{r.attendance_date}</td>
+                              <td className="px-4 py-2">
+                                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${cfg.activeBg}`}>
+                                  {cfg.activeText}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ───────────── Tab 4: รายชื่อนักเรียน ───────────── */}
       {activeTab === 'students' && (
         <div className="space-y-4">
           {/* Filters + Add */}
