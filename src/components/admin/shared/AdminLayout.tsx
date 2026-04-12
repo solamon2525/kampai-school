@@ -36,6 +36,7 @@ import {
     UserX,
     BookMarked,
     Award,
+    Info,
 } from 'lucide-react';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -84,6 +85,8 @@ const menuItems: MenuItem[] = [
     { type: 'item', id: 'admissions', label: 'ใบสมัคร', icon: FileText, path: '/admin/dashboard?tab=admissions' },
     { type: 'item', id: 'messages', label: 'กล่องข้อความ', icon: Mail, path: '/admin/dashboard?tab=messages' },
     { type: 'item', id: 'faq', label: 'FAQ', icon: HelpCircle, path: '/admin/dashboard?tab=faq', adminOnly: true },
+    { type: 'section', label: 'ระบบ' },
+    { type: 'item', id: 'system-overview', label: 'ภาพรวมระบบ', icon: Info, path: '/admin/dashboard?tab=system-overview', adminOnly: true },
 ];
 
 export const AdminLayout = ({ children }: AdminLayoutProps) => {

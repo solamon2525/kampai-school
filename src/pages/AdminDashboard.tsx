@@ -28,6 +28,7 @@ import MeetingsManagement from '@/components/admin/saraban/MeetingsManagement';
 import LeaveManagement from '@/components/admin/hr/LeaveManagement';
 import TrainingManagement from '@/components/admin/hr/TrainingManagement';
 import PAManagement from '@/components/admin/hr/PAManagement';
+import { SystemOverview } from '@/components/admin/system/SystemOverview';
 import { Card, CardContent } from '@/components/ui/card';
 import { Settings, Newspaper, Image, Calendar, Users, UserCog, Briefcase, FileText, GraduationCap, HardDrive, Database } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -202,6 +203,9 @@ const AdminDashboard = () => {
 
       case 'settings':
         return <SettingsManagement />;
+
+      case 'system-overview':
+        return <SystemOverview />;
 
       case 'dashboard':
         return (

@@ -1,0 +1,448 @@
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import {
+    Info,
+    Server,
+    Database,
+    Cloud,
+    Layers,
+    CheckCircle2,
+    Lightbulb,
+    Clock,
+    Code2,
+    Globe,
+    HardDrive,
+    Zap,
+    GitBranch,
+    Package,
+    Shield,
+} from 'lucide-react';
+
+const techStack = {
+    frontend: [
+        { name: 'React 18', desc: 'UI Framework' },
+        { name: 'TypeScript 5.8', desc: 'ภาษาหลัก' },
+        { name: 'Vite', desc: 'Build Tool' },
+        { name: 'TailwindCSS 3', desc: 'Styling' },
+        { name: 'shadcn/ui', desc: 'UI Components (Radix UI)' },
+        { name: 'React Router v6', desc: 'Routing + Lazy Loading' },
+        { name: 'TanStack Query v5', desc: 'Data Fetching & Cache' },
+        { name: 'TanStack Table v8', desc: 'Data Tables' },
+        { name: 'React Hook Form + Zod', desc: 'Form & Validation' },
+        { name: 'Recharts', desc: 'Charts & Analytics' },
+        { name: 'Framer Motion', desc: 'Animations' },
+        { name: 'Puck v0.20', desc: 'Visual Page Builder' },
+        { name: 'dnd-kit', desc: 'Drag & Drop' },
+        { name: 'Uppy', desc: 'File Upload UI' },
+        { name: 'React Quill', desc: 'Rich Text Editor' },
+        { name: 'react-photo-album', desc: 'Photo Gallery' },
+        { name: 'yet-another-react-lightbox', desc: 'Lightbox Viewer' },
+        { name: 'Lucide React', desc: 'Icons' },
+    ],
+    backend: [
+        { name: 'Supabase', desc: 'PostgreSQL + Auth + Storage + Edge Functions' },
+        { name: 'PostgreSQL', desc: 'Relational Database (via Supabase)' },
+        { name: 'Row Level Security', desc: 'Database Access Control' },
+        { name: 'Deno (Edge Functions)', desc: 'Serverless Functions Runtime' },
+        { name: 'Resend API', desc: 'Email Notification Service' },
+    ],
+    deployment: [
+        { name: 'Vercel', desc: 'Frontend Hosting + Cron Jobs' },
+        { name: 'Supabase Free Plan', desc: '500 MB DB / 1 GB Storage' },
+        { name: 'GitHub', desc: 'Source Code Repository' },
+    ],
+};
+
+const featureGroups = [
+    {
+        label: 'เนื้อหาเว็บไซต์',
+        color: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800',
+        features: ['จัดการข่าวสาร + ปักหมุด', 'แกลเลอรี่อัลบั้มรูปภาพ', 'ปฏิทินกิจกรรม', 'จัดการเอกสารดาวน์โหลด', 'FAQ', 'Hero Slides หน้าหลัก'],
+    },
+    {
+        label: 'บุคลากรและนักเรียน',
+        color: 'bg-teal-500/10 text-teal-700 dark:text-teal-400 border-teal-200 dark:border-teal-800',
+        features: ['ข้อมูลผู้บริหาร', 'ครูและบุคลากร', 'ฐานข้อมูลนักเรียน', 'ความสำเร็จนักเรียน', 'กิจกรรมชุมนุม', 'สภานักเรียน'],
+    },
+    {
+        label: 'การศึกษา',
+        color: 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800',
+        features: ['หลักสูตรการเรียน (4 สาย)', 'กิจกรรมเสริมหลักสูตร', 'ระบบเช็คชื่อนักเรียน + รายงาน', 'ระบบรับสมัครนักเรียนออนไลน์'],
+    },
+    {
+        label: 'งานสารบรรณ',
+        color: 'bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800',
+        features: ['หนังสือรับ', 'หนังสือส่ง', 'คำสั่ง/ประกาศ', 'บันทึกการประชุม', 'Dashboard ภาพรวม'],
+    },
+    {
+        label: 'งานบุคคล (HR)',
+        color: 'bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-800',
+        features: ['ระบบการลา', 'บันทึกการอบรม/พัฒนาตนเอง', 'ประเมินผลงาน PA Assessment'],
+    },
+    {
+        label: 'ระบบบริการ',
+        color: 'bg-pink-500/10 text-pink-700 dark:text-pink-400 border-pink-200 dark:border-pink-800',
+        features: ['ธนาคารขยะ (Waste Bank)', 'กล่องข้อความจากผู้ติดต่อ', 'Email Subscribers'],
+    },
+    {
+        label: 'ระบบ/เครื่องมือ',
+        color: 'bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-200 dark:border-gray-800',
+        features: ['Visual Page Builder (Puck)', 'Analytics ดูสถิติผู้เข้าชม', 'ตั้งค่าโรงเรียน (100+ fields)', 'User Roles & Permissions', 'จัดการเว็บไซต์ผ่าน Admin'],
+    },
+];
+
+const dbGroups = [
+    { label: 'เนื้อหา', tables: ['news', 'news_categories', 'gallery_albums', 'gallery_photos', 'events', 'documents', 'document_categories'] },
+    { label: 'บุคลากร', tables: ['administrators', 'staff', 'students', 'attendance_records', 'student_council', 'student_achievements', 'student_activities', 'student_stats', 'grade_data'] },
+    { label: 'บริการ', tables: ['admissions', 'contact_messages', 'waste_categories', 'waste_transactions', 'curriculum_programs', 'curriculum_activities', 'faq', 'email_subscribers'] },
+    { label: 'สารบรรณ', tables: ['incoming_letters', 'outgoing_letters', 'orders_announcements', 'meetings'] },
+    { label: 'HR', tables: ['leave_records', 'training_records', 'staff_assessments'] },
+    { label: 'ระบบ', tables: ['school_settings', 'page_views', 'milestones', 'facilities'] },
+];
+
+const roadmap = [
+    { icon: '🔔', title: 'Notification Center', desc: 'ระบบแจ้งเตือนในหน้า Admin เมื่อมีใบสมัคร/ข้อความใหม่' },
+    { icon: '👨‍👩‍👧', title: 'Portal ผู้ปกครอง', desc: 'ระบบล็อกอินสำหรับผู้ปกครองดูผล/ข้อมูลนักเรียน' },
+    { icon: '📱', title: 'LINE Notify', desc: 'แจ้งเตือนผ่าน LINE เมื่อมีข่าวสาร/กิจกรรมใหม่' },
+    { icon: '📧', title: 'Newsletter อัตโนมัติ', desc: 'ส่ง email ผ่าน Resend เมื่อมีข่าวใหม่' },
+    { icon: '📊', title: 'Analytics ขั้นสูง', desc: 'User behavior tracking, heatmaps, conversion funnels' },
+    { icon: '🌐', title: 'Multi-language', desc: 'รองรับภาษาอังกฤษ/ไทยแบบ toggle' },
+    { icon: '📅', title: 'Google Calendar Sync', desc: 'ซิงค์กิจกรรมกับ Google Calendar อัตโนมัติ' },
+    { icon: '📲', title: 'PWA / Offline Mode', desc: 'ติดตั้งเป็นแอปบนมือถือ ใช้งานแบบ offline ได้' },
+    { icon: '💬', title: 'Chat/Inbox', desc: 'ระบบสื่อสารระหว่างโรงเรียนกับผู้ปกครอง' },
+    { icon: '🔑', title: 'API สำหรับแอปมือถือ', desc: 'REST API สำหรับ mobile app ในอนาคต' },
+];
+
+const versionHistory = [
+    {
+        version: 'Page Builder v2',
+        date: 'ล่าสุด',
+        badge: 'bg-blue-500',
+        items: [
+            'เพิ่ม 8 blocks ใหม่: HeadingBlock, SpacerBlock, AnnouncementBlock',
+            'StatisticsBlock, VideoBlock, QuickLinksBlock, EventsBlock, DocumentsBlock',
+        ],
+    },
+    {
+        version: 'Attendance Sprint 3',
+        date: '',
+        badge: 'bg-teal-500',
+        items: [
+            'เพิ่มรูปภาพนักเรียนในระบบเช็คชื่อ',
+            'Tab รายงานรายบุคคล (Individual Report)',
+        ],
+    },
+    {
+        version: 'Waste Bank Sprint 2',
+        date: '',
+        badge: 'bg-green-500',
+        items: [
+            'เชื่อมต่อ Waste Bank กับฐานข้อมูลนักเรียน',
+            'Student selector + Photo avatar + student_id FK',
+        ],
+    },
+    {
+        version: 'HR System',
+        date: '',
+        badge: 'bg-orange-500',
+        items: [
+            'ระบบงานบุคคล: การลา, การอบรม',
+            'PA Assessment (ประเมินผลงาน)',
+        ],
+    },
+    {
+        version: 'Saraban System',
+        date: '',
+        badge: 'bg-purple-500',
+        items: [
+            'ระบบสารบรรณ Phase 1+2',
+            'หนังสือรับ-ส่ง, คำสั่ง/ประกาศ, บันทึกการประชุม',
+        ],
+    },
+    {
+        version: 'Student Management',
+        date: '',
+        badge: 'bg-pink-500',
+        items: [
+            'ฐานข้อมูลนักเรียนรายบุคคล',
+            'ระบบเช็คชื่อนักเรียน',
+        ],
+    },
+    {
+        version: 'Page Builder v1',
+        date: '',
+        badge: 'bg-indigo-500',
+        items: [
+            'Visual Page Editor ด้วย Puck',
+            'HeroBlock, NewsGridBlock, GalleryBlock, ContactBlock',
+        ],
+    },
+    {
+        version: 'Gallery & Media',
+        date: '',
+        badge: 'bg-yellow-500',
+        items: [
+            'เปลี่ยนเป็น react-photo-album + lightbox',
+            'อัพโหลดโลโก้โรงเรียน + ภาพ Hero',
+        ],
+    },
+    {
+        version: 'Initial Launch',
+        date: 'เริ่มต้น',
+        badge: 'bg-gray-500',
+        items: [
+            'โครงสร้างหลัก: ข่าว, กิจกรรม, แกลเลอรี่, บุคลากร, หลักสูตร, ติดต่อ',
+            'Admin Dashboard + Supabase + Vercel deployment',
+        ],
+    },
+];
+
+export const SystemOverview = () => {
+    return (
+        <div className="p-8 space-y-8">
+            {/* Header */}
+            <div>
+                <h1 className="text-3xl font-bold text-foreground mb-2">ภาพรวมระบบ</h1>
+                <p className="text-muted-foreground">ข้อมูลเทคโนโลยี โครงสร้าง และฟีเจอร์ทั้งหมดของเว็บไซต์โรงเรียน</p>
+            </div>
+
+            {/* Section A: Project Info */}
+            <Card>
+                <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                        <Info className="w-5 h-5 text-primary" />
+                        ข้อมูลโปรเจค
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {[
+                        { icon: Package, label: 'ชื่อโปรเจค', value: 'kampai-school' },
+                        { icon: GitBranch, label: 'Repository', value: 'github.com/solamon2525/kampai-school' },
+                        { icon: Globe, label: 'Hosting', value: 'Vercel (SPA)' },
+                        { icon: Database, label: 'Database', value: 'Supabase (PostgreSQL)' },
+                        { icon: Code2, label: 'ภาษาหลัก', value: 'TypeScript + PLpgSQL' },
+                        { icon: Layers, label: 'Frontend Framework', value: 'React 18 + Vite' },
+                        { icon: Shield, label: 'Auth & Security', value: 'Supabase Auth + RLS' },
+                        { icon: Zap, label: 'Edge Functions', value: 'Deno (Supabase)' },
+                    ].map((item) => (
+                        <div key={item.label} className="flex items-start gap-3 p-3 rounded-lg bg-secondary/50">
+                            <item.icon className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                            <div>
+                                <p className="text-xs text-muted-foreground">{item.label}</p>
+                                <p className="text-sm font-medium text-foreground">{item.value}</p>
+                            </div>
+                        </div>
+                    ))}
+                </CardContent>
+            </Card>
+
+            {/* Section B: Tech Stack */}
+            <Card>
+                <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                        <Code2 className="w-5 h-5 text-primary" />
+                        เทคโนโลยีที่ใช้
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid md:grid-cols-3 gap-6">
+                        {/* Frontend */}
+                        <div>
+                            <div className="flex items-center gap-2 mb-3">
+                                <Globe className="w-4 h-4 text-blue-500" />
+                                <h4 className="font-semibold text-sm text-blue-600 dark:text-blue-400">Frontend</h4>
+                            </div>
+                            <div className="space-y-2">
+                                {techStack.frontend.map((t) => (
+                                    <div key={t.name} className="flex items-start gap-2">
+                                        <CheckCircle2 className="w-3.5 h-3.5 text-blue-400 mt-0.5 flex-shrink-0" />
+                                        <div>
+                                            <span className="text-sm font-medium text-foreground">{t.name}</span>
+                                            <span className="text-xs text-muted-foreground ml-1.5">— {t.desc}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Backend */}
+                        <div>
+                            <div className="flex items-center gap-2 mb-3">
+                                <Server className="w-4 h-4 text-green-500" />
+                                <h4 className="font-semibold text-sm text-green-600 dark:text-green-400">Backend & Database</h4>
+                            </div>
+                            <div className="space-y-2">
+                                {techStack.backend.map((t) => (
+                                    <div key={t.name} className="flex items-start gap-2">
+                                        <CheckCircle2 className="w-3.5 h-3.5 text-green-400 mt-0.5 flex-shrink-0" />
+                                        <div>
+                                            <span className="text-sm font-medium text-foreground">{t.name}</span>
+                                            <span className="text-xs text-muted-foreground ml-1.5">— {t.desc}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Deployment */}
+                        <div>
+                            <div className="flex items-center gap-2 mb-3">
+                                <Cloud className="w-4 h-4 text-purple-500" />
+                                <h4 className="font-semibold text-sm text-purple-600 dark:text-purple-400">Deployment & Hosting</h4>
+                            </div>
+                            <div className="space-y-2 mb-6">
+                                {techStack.deployment.map((t) => (
+                                    <div key={t.name} className="flex items-start gap-2">
+                                        <CheckCircle2 className="w-3.5 h-3.5 text-purple-400 mt-0.5 flex-shrink-0" />
+                                        <div>
+                                            <span className="text-sm font-medium text-foreground">{t.name}</span>
+                                            <span className="text-xs text-muted-foreground ml-1.5">— {t.desc}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <Separator className="my-4" />
+
+                            {/* Infra Details */}
+                            <div className="flex items-center gap-2 mb-3">
+                                <HardDrive className="w-4 h-4 text-orange-500" />
+                                <h4 className="font-semibold text-sm text-orange-600 dark:text-orange-400">Infrastructure</h4>
+                            </div>
+                            <div className="space-y-1.5 text-xs text-muted-foreground">
+                                <p>• Vercel: SPA + catch-all rewrite, cron <code className="bg-secondary px-1 rounded">/api/ping</code> ทุก 3 วัน</p>
+                                <p>• Security headers: X-Frame-Options, XSRF, Referrer-Policy</p>
+                                <p>• Asset cache: 1 ปี (immutable)</p>
+                                <p>• Storage bucket <code className="bg-secondary px-1 rounded">school-images</code>: รูปภาพ (1 GB)</p>
+                                <p>• Storage bucket <code className="bg-secondary px-1 rounded">school-documents</code>: เอกสาร (50 MB/file)</p>
+                                <p>• Env vars: <code className="bg-secondary px-1 rounded">VITE_SUPABASE_URL</code>, <code className="bg-secondary px-1 rounded">VITE_SUPABASE_ANON_KEY</code></p>
+                            </div>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Section D: Features Inventory */}
+            <Card>
+                <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                        <CheckCircle2 className="w-5 h-5 text-primary" />
+                        ฟีเจอร์ที่มีอยู่แล้ว
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+                        {featureGroups.map((group) => (
+                            <div key={group.label}>
+                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">{group.label}</p>
+                                <div className="flex flex-wrap gap-1.5">
+                                    {group.features.map((f) => (
+                                        <Badge key={f} variant="outline" className={`text-xs ${group.color}`}>
+                                            {f}
+                                        </Badge>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Section E: Database */}
+            <Card>
+                <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                        <Database className="w-5 h-5 text-primary" />
+                        ฐานข้อมูล (Database Schema)
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex gap-3 mb-4">
+                        <div className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">24+ Tables</div>
+                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">13 Migrations</div>
+                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">PostgreSQL via Supabase</div>
+                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">RLS enabled</div>
+                    </div>
+                    <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4">
+                        {dbGroups.map((group) => (
+                            <div key={group.label}>
+                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">{group.label}</p>
+                                <div className="space-y-1">
+                                    {group.tables.map((t) => (
+                                        <p key={t} className="text-xs font-mono text-foreground bg-secondary/50 px-2 py-0.5 rounded">{t}</p>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Section F: Roadmap */}
+            <Card>
+                <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                        <Lightbulb className="w-5 h-5 text-primary" />
+                        สิ่งที่ยังสามารถทำต่อได้ (Roadmap)
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
+                        {roadmap.map((item) => (
+                            <div key={item.title} className="flex items-start gap-3 p-3 rounded-lg border border-dashed border-border bg-secondary/30 hover:bg-secondary/60 transition-colors">
+                                <span className="text-xl flex-shrink-0">{item.icon}</span>
+                                <div>
+                                    <p className="text-sm font-medium text-foreground">{item.title}</p>
+                                    <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Section G: Version History */}
+            <Card>
+                <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                        <Clock className="w-5 h-5 text-primary" />
+                        ประวัติการอัพเดท (Version History)
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="relative">
+                        {/* Timeline line */}
+                        <div className="absolute left-3 top-0 bottom-0 w-0.5 bg-border" />
+
+                        <div className="space-y-5">
+                            {versionHistory.map((v, i) => (
+                                <div key={i} className="relative pl-10">
+                                    {/* Dot */}
+                                    <div className={`absolute left-0 w-6 h-6 rounded-full ${v.badge} flex items-center justify-center`}>
+                                        <div className="w-2 h-2 rounded-full bg-white" />
+                                    </div>
+
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <h4 className="text-sm font-semibold text-foreground">{v.version}</h4>
+                                        {v.date && (
+                                            <Badge variant="outline" className="text-xs px-1.5 py-0">{v.date}</Badge>
+                                        )}
+                                    </div>
+                                    <ul className="space-y-0.5">
+                                        {v.items.map((item, j) => (
+                                            <li key={j} className="text-xs text-muted-foreground flex items-start gap-1.5">
+                                                <span className="text-muted-foreground/50 mt-0.5">•</span>
+                                                {item}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    );
+};
