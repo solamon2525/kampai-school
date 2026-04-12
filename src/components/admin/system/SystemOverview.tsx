@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
 import {
     Info,
     Server,
@@ -17,7 +18,14 @@ import {
     GitBranch,
     Package,
     Shield,
+    Download,
+    FileJson,
+    FileText,
+    Printer,
+    Copy,
+    Check,
 } from 'lucide-react';
+import { useState } from 'react';
 
 const techStack = {
     frontend: [
@@ -198,13 +206,139 @@ const versionHistory = [
     },
 ];
 
+const exportData = {
+    project: {
+        name: 'kampai-school',
+        repository: 'github.com/solamon2525/kampai-school',
+        hosting: 'Vercel (SPA)',
+        database: 'Supabase (PostgreSQL)',
+        primaryLanguage: 'TypeScript + PLpgSQL',
+        frontend: 'React 18 + Vite',
+        auth: 'Supabase Auth + RLS',
+        edgeFunctions: 'Deno (Supabase)',
+    },
+    techStack,
+    featureGroups: featureGroups.map(g => ({ category: g.label, features: g.features })),
+    database: {
+        totalTables: '24+',
+        migrations: 13,
+        engine: 'PostgreSQL via Supabase',
+        security: 'RLS enabled',
+        groups: dbGroups,
+    },
+    roadmap: roadmap.map(r => ({ title: r.title, description: r.desc })),
+    versionHistory: versionHistory.map(v => ({ version: v.version, date: v.date, changes: v.items })),
+    exportedAt: new Date().toISOString(),
+};
+
+const generateMarkdown = () => {
+    const lines: string[] = [];
+    lines.push('# ภาพรวมระบบ — kampai-school');
+    lines.push(`\n> Generated: ${new Date().toLocaleString('th-TH')}\n`);
+
+    lines.push('## ข้อมูลโปรเจค');
+    Object.entries(exportData.project).forEach(([k, v]) => lines.push(`- **${k}**: ${v}`));
+
+    lines.push('\n## เทคโนโลยีที่ใช้');
+    lines.push('\n### Frontend');
+    techStack.frontend.forEach(t => lines.push(`- **${t.name}** — ${t.desc}`));
+    lines.push('\n### Backend & Database');
+    techStack.backend.forEach(t => lines.push(`- **${t.name}** — ${t.desc}`));
+    lines.push('\n### Deployment');
+    techStack.deployment.forEach(t => lines.push(`- **${t.name}** — ${t.desc}`));
+
+    lines.push('\n## ฟีเจอร์ที่มีอยู่แล้ว');
+    featureGroups.forEach(g => {
+        lines.push(`\n### ${g.label}`);
+        g.features.forEach(f => lines.push(`- ${f}`));
+    });
+
+    lines.push('\n## ฐานข้อมูล');
+    lines.push(`- **Tables**: 24+`);
+    lines.push(`- **Migrations**: 13`);
+    lines.push(`- **Engine**: PostgreSQL via Supabase`);
+    lines.push(`- **Security**: RLS enabled`);
+    dbGroups.forEach(g => {
+        lines.push(`\n### ${g.label}`);
+        g.tables.forEach(t => lines.push(`- \`${t}\``));
+    });
+
+    lines.push('\n## Roadmap — สิ่งที่ยังทำต่อได้');
+    roadmap.forEach(r => lines.push(`- **${r.title}**: ${r.desc}`));
+
+    lines.push('\n## ประวัติการอัพเดท');
+    versionHistory.forEach(v => {
+        lines.push(`\n### ${v.version}${v.date ? ` (${v.date})` : ''}`);
+        v.items.forEach(i => lines.push(`- ${i}`));
+    });
+
+    return lines.join('\n');
+};
+
+const downloadFile = (content: string, filename: string, mime: string) => {
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+};
+
 export const SystemOverview = () => {
+    const [copied, setCopied] = useState(false);
+
+    const handleExportJSON = () => {
+        downloadFile(JSON.stringify(exportData, null, 2), 'system-overview.json', 'application/json');
+    };
+
+    const handleExportMD = () => {
+        downloadFile(generateMarkdown(), 'system-overview.md', 'text/markdown');
+    };
+
+    const handleExportTXT = () => {
+        const txt = generateMarkdown().replace(/[#*`]/g, '').replace(/\n{3,}/g, '\n\n');
+        downloadFile(txt, 'system-overview.txt', 'text/plain');
+    };
+
+    const handlePrint = () => window.print();
+
+    const handleCopy = async () => {
+        await navigator.clipboard.writeText(generateMarkdown());
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
     return (
         <div className="p-8 space-y-8">
             {/* Header */}
-            <div>
-                <h1 className="text-3xl font-bold text-foreground mb-2">ภาพรวมระบบ</h1>
-                <p className="text-muted-foreground">ข้อมูลเทคโนโลยี โครงสร้าง และฟีเจอร์ทั้งหมดของเว็บไซต์โรงเรียน</p>
+            <div className="flex items-start justify-between gap-4 flex-wrap">
+                <div>
+                    <h1 className="text-3xl font-bold text-foreground mb-2">ภาพรวมระบบ</h1>
+                    <p className="text-muted-foreground">ข้อมูลเทคโนโลยี โครงสร้าง และฟีเจอร์ทั้งหมดของเว็บไซต์โรงเรียน</p>
+                </div>
+                <div className="flex items-center gap-2 flex-wrap">
+                    <Button variant="outline" size="sm" onClick={handleExportJSON} className="gap-1.5">
+                        <FileJson className="w-4 h-4 text-yellow-500" />
+                        JSON
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={handleExportMD} className="gap-1.5">
+                        <FileText className="w-4 h-4 text-blue-500" />
+                        Markdown
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={handleExportTXT} className="gap-1.5">
+                        <Download className="w-4 h-4 text-green-500" />
+                        TXT
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={handlePrint} className="gap-1.5">
+                        <Printer className="w-4 h-4 text-purple-500" />
+                        PDF
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={handleCopy} className="gap-1.5">
+                        {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                        {copied ? 'Copied!' : 'Copy MD'}
+                    </Button>
+                </div>
             </div>
 
             {/* Section A: Project Info */}
