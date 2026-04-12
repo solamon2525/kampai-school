@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { Plus, Search, Edit, Trash2, Download, Eye, EyeOff, FileText, Upload } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, Search, Edit, Trash2, Download, Eye, EyeOff, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { UppyUpload } from '@/components/admin/shared/UppyUpload';
 
 interface DocumentCategory {
   id: string;
@@ -72,9 +73,6 @@ export const DocumentsManagement = () => {
   const [showDocDialog, setShowDocDialog] = useState(false);
   const [editingDoc, setEditingDoc] = useState<Document | null>(null);
   const [docForm, setDocForm] = useState<typeof emptyDoc>({ ...emptyDoc });
-  const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   // Category dialog state
   const [showCatDialog, setShowCatDialog] = useState(false);
   const [editingCat, setEditingCat] = useState<DocumentCategory | null>(null);
@@ -133,35 +131,6 @@ export const DocumentsManagement = () => {
       is_published: doc.is_published,
     });
     setShowDocDialog(true);
-  };
-
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    try {
-      const { data, error } = await supabase.storage
-        .from('school-documents')
-        .upload(`documents/${Date.now()}_${file.name}`, file, { upsert: true });
-      if (error) throw error;
-      if (data) {
-        const { data: { publicUrl } } = supabase.storage
-          .from('school-documents')
-          .getPublicUrl(data.path);
-        setDocForm((prev) => ({
-          ...prev,
-          file_url: publicUrl,
-          file_name: file.name,
-          file_type: file.name.split('.').pop()?.toLowerCase() || null,
-          file_size: file.size,
-        }));
-        toast({ title: 'อัพโหลดสำเร็จ', description: `ไฟล์ ${file.name} อัพโหลดเรียบร้อยแล้ว` });
-      }
-    } catch (error: any) {
-      toast({ title: 'อัพโหลดล้มเหลว', description: error.message, variant: 'destructive' });
-    } finally {
-      setUploading(false);
-    }
   };
 
   const saveDocument = async () => {
@@ -562,35 +531,39 @@ export const DocumentsManagement = () => {
             </div>
             <div>
               <Label>ไฟล์เอกสาร</Label>
-              <div
-                className="mt-1 border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer hover:border-primary transition-colors"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                {docForm.file_name ? (
-                  <div className="space-y-1">
-                    <FileText className="h-8 w-8 mx-auto text-primary" />
-                    <p className="text-sm font-medium">{docForm.file_name}</p>
+              {docForm.file_name ? (
+                <div className="mt-1 flex items-center gap-3 p-3 border rounded-lg bg-secondary/50">
+                  <FileText className="h-6 w-6 text-primary flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{docForm.file_name}</p>
                     <p className="text-xs text-muted-foreground">{formatFileSize(docForm.file_size)}</p>
-                    <p className="text-xs text-primary">คลิกเพื่อเปลี่ยนไฟล์</p>
                   </div>
-                ) : (
-                  <div className="space-y-2">
-                    <Upload className="h-8 w-8 mx-auto text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">คลิกเพื่ออัพโหลดไฟล์</p>
-                    <p className="text-xs text-muted-foreground">.pdf, .doc, .docx, .xls, .xlsx, .ppt, .pptx</p>
-                  </div>
-                )}
-                {uploading && (
-                  <p className="mt-2 text-xs text-primary animate-pulse">กำลังอัพโหลด...</p>
-                )}
-              </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
-                className="hidden"
-                onChange={handleFileUpload}
-              />
+                  <Button variant="outline" size="sm" onClick={() => setDocForm(p => ({ ...p, file_url: null, file_name: null, file_type: null, file_size: null }))}>
+                    เปลี่ยนไฟล์
+                  </Button>
+                </div>
+              ) : (
+                <div className="mt-1">
+                  <UppyUpload
+                    bucket="school-documents"
+                    folder="documents"
+                    accept={['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']}
+                    maxFiles={1}
+                    maxFileSizeMB={50}
+                    onUploadComplete={(files) => {
+                      if (files[0]) {
+                        setDocForm(p => ({
+                          ...p,
+                          file_url: files[0].url,
+                          file_name: files[0].name,
+                          file_type: files[0].type,
+                          file_size: files[0].size,
+                        }));
+                      }
+                    }}
+                  />
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-3">
               <input

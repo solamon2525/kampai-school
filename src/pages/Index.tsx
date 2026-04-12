@@ -1,3 +1,4 @@
+import { SEOHead } from '@/components/SEOHead';
 import SiteHeader from '@/components/SiteHeader';
 import NewsTicker from '@/components/home/NewsTicker';
 import HomeLeftSidebar from '@/components/home/HomeLeftSidebar';
@@ -8,6 +9,7 @@ import Footer from '@/components/Footer';
 const Index = () => {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
+      <SEOHead />
       {/* Unified Header + Nav */}
       <SiteHeader />
 

@@ -5,7 +5,7 @@
       "name": "dev",
       "runtimeExecutable": "npx",
       "runtimeArgs": ["vite", "--host"],
-      "port": 5173,
+      "port": 8080,
       "cwd": "C:\\Users\\Admin\\My Drive\\เว็บโรงเรียน\\school-website-template"
     }
   ]

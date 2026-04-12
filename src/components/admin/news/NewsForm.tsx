@@ -22,6 +22,7 @@ interface NewsFormProps {
 export const NewsForm = ({ news, onSuccess, onCancel }: NewsFormProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [categories, setCategories] = useState<string[]>([]);
+    const [sendEmail, setSendEmail] = useState(false);
     const { toast } = useToast();
 
     const [formData, setFormData] = useState({
@@ -91,6 +92,21 @@ export const NewsForm = ({ news, onSuccess, onCancel }: NewsFormProps) => {
                     title: 'สร้างสำเร็จ',
                     description: 'เพิ่มข่าวสารใหม่เรียบร้อยแล้ว',
                 });
+            }
+
+            // Send email notification if checked and published
+            if (sendEmail && formData.published) {
+                try {
+                    await supabase.functions.invoke('send-notification', {
+                        body: {
+                            newsTitle: formData.title,
+                            subject: `ข่าวสารใหม่: ${formData.title}`,
+                            html: `<h2>${formData.title}</h2><p>${formData.excerpt || ''}</p>`,
+                        },
+                    });
+                } catch (emailErr) {
+                    console.warn('Email notification failed:', emailErr);
+                }
             }
 
             onSuccess();
@@ -300,6 +316,19 @@ export const NewsForm = ({ news, onSuccess, onCancel }: NewsFormProps) => {
                                 <Switch
                                     checked={formData.is_pinned}
                                     onCheckedChange={(checked) => setFormData({ ...formData, is_pinned: checked })}
+                                />
+                            </div>
+
+                            <div className="flex items-center justify-between">
+                                <div className="space-y-0.5">
+                                    <Label>ส่ง Email แจ้งเตือน</Label>
+                                    <p className="text-sm text-muted-foreground">
+                                        ส่งอีเมลแจ้งผู้ติดตามเมื่อเผยแพร่
+                                    </p>
+                                </div>
+                                <Switch
+                                    checked={sendEmail}
+                                    onCheckedChange={setSendEmail}
                                 />
                             </div>
                         </div>

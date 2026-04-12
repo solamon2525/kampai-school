@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import { supabase } from '@/integrations/supabase/client';
+import { SEOHead } from '@/components/SEOHead';
 
 interface FaqItem {
   id: string;
@@ -125,6 +126,7 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen">
+      <SEOHead title="ติดต่อเรา" description="ข้อมูลการติดต่อโรงเรียน" />
       <SiteHeader />
       <main>
         {/* Hero Section */}

@@ -9,6 +9,9 @@ import { Switch } from '@/components/ui/switch';
 import { Settings, Save, AlignLeft, AlignCenter, AlignRight, AlignJustify, X, Plus, Images, GripVertical, LayoutDashboard } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ImageUpload } from '../shared/ImageUpload';
+import { RichTextEditor } from '../shared/RichTextEditor';
+import { UserRolesManagement } from './UserRolesManagement';
+import { EmailSubscribersManagement } from './EmailSubscribersManagement';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -599,46 +602,38 @@ export const SettingsManagement = () => {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="school_vision">วิสัยทัศน์</Label>
-                            <textarea
-                                id="school_vision"
+                            <Label>วิสัยทัศน์</Label>
+                            <RichTextEditor
                                 value={settings.school_vision || ''}
-                                onChange={(e) => handleChange('school_vision', e.target.value)}
+                                onChange={(val) => handleChange('school_vision', val)}
                                 placeholder="เป็นสถานศึกษาชั้นนำที่พัฒนาผู้เรียนให้มีความเป็นเลิศ..."
-                                className="w-full min-h-[80px] px-3 py-2 border rounded-md text-sm"
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="school_mission">พันธกิจ</Label>
-                            <textarea
-                                id="school_mission"
+                            <Label>พันธกิจ</Label>
+                            <RichTextEditor
                                 value={settings.school_mission || ''}
-                                onChange={(e) => handleChange('school_mission', e.target.value)}
+                                onChange={(val) => handleChange('school_mission', val)}
                                 placeholder="จัดการศึกษาที่มีคุณภาพ พัฒนาหลักสูตรที่ทันสมัย..."
-                                className="w-full min-h-[80px] px-3 py-2 border rounded-md text-sm"
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="school_values">ค่านิยม</Label>
-                            <textarea
-                                id="school_values"
+                            <Label>ค่านิยม</Label>
+                            <RichTextEditor
                                 value={settings.school_values || ''}
-                                onChange={(e) => handleChange('school_values', e.target.value)}
+                                onChange={(val) => handleChange('school_values', val)}
                                 placeholder="ความซื่อสัตย์ ความรับผิดชอบ ความเคารพ..."
-                                className="w-full min-h-[80px] px-3 py-2 border rounded-md text-sm"
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="school_excellence">ความเป็นเลิศ</Label>
-                            <textarea
-                                id="school_excellence"
+                            <Label>ความเป็นเลิศ</Label>
+                            <RichTextEditor
                                 value={settings.school_excellence || ''}
-                                onChange={(e) => handleChange('school_excellence', e.target.value)}
+                                onChange={(val) => handleChange('school_excellence', val)}
                                 placeholder="มุ่งมั่นสู่ความเป็นเลิศในทุกด้าน..."
-                                className="w-full min-h-[80px] px-3 py-2 border rounded-md text-sm"
                             />
                         </div>
                     </CardContent>
@@ -1167,6 +1162,12 @@ export const SettingsManagement = () => {
                         </div>
                     </CardContent>
                 </Card>
+
+                {/* User Roles */}
+                <UserRolesManagement />
+
+                {/* Email Subscribers */}
+                <EmailSubscribersManagement />
 
                 <div className="flex justify-end">
                     <Button onClick={handleSave} disabled={saving} className="gap-2">

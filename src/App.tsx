@@ -1,4 +1,5 @@
 import { lazy, Suspense } from "react";
+import { usePageView } from "@/hooks/usePageView";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -23,6 +24,7 @@ const AcademicCalendar = lazy(() => import("./pages/AcademicCalendar"));
 const Enrollment = lazy(() => import("./pages/Enrollment"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const PageBuilder = lazy(() => import("./pages/admin/PageBuilder"));
 const Documents = lazy(() => import("./pages/Documents"));
 const WasteBank = lazy(() => import("./pages/WasteBank"));
 
@@ -35,12 +37,18 @@ const PageLoader = () => (
 
 const queryClient = new QueryClient();
 
+const PageViewTracker = () => {
+  usePageView();
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <PageViewTracker />
         <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<Index />} />
@@ -53,6 +61,7 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/admin" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/page-builder" element={<PageBuilder />} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/events" element={<Events />} />
             <Route path="/calendar" element={<AcademicCalendar />} />

@@ -15,6 +15,7 @@ import Captions from 'yet-another-react-lightbox/plugins/captions';
 import Fullscreen from 'yet-another-react-lightbox/plugins/fullscreen';
 import 'yet-another-react-lightbox/plugins/thumbnails.css';
 import 'yet-another-react-lightbox/plugins/captions.css';
+import { SEOHead } from '@/components/SEOHead';
 
 interface Album {
   id: string;
@@ -161,6 +162,7 @@ const Gallery = () => {
   // Album list view
   return (
     <div className="min-h-screen flex flex-col">
+      <SEOHead title="แกลเลอรี่" description="ภาพกิจกรรมและบรรยากาศโรงเรียน" />
       <SiteHeader />
       <main className="flex-grow container mx-auto px-4 py-8">
         <h1 className="text-4xl font-bold text-center mb-8 text-primary">คลังภาพกิจกรรม</h1>

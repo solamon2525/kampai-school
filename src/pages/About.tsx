@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import DOMPurify from 'dompurify';
 import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
 import { Target, Eye, Heart, Star, Users, Award, BookOpen, GraduationCap, Building2, History, LucideIcon, Dumbbell, Monitor, FlaskConical } from 'lucide-react';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import type { SchoolSettings } from '@/hooks/useSchoolSettings';
 import { supabase } from '@/integrations/supabase/client';
+import { SEOHead } from '@/components/SEOHead';
 
 interface Milestone {
   id: string;
@@ -80,6 +82,7 @@ const About = () => {
 
   return (
     <div className="min-h-screen">
+      <SEOHead title="เกี่ยวกับเรา" description="ประวัติและข้อมูลโรงเรียน" />
       <SiteHeader />
       <main>
         {/* Hero Section */}
@@ -118,7 +121,10 @@ const About = () => {
                       </div>
                     )}
                     <h3 className={`text-xl font-bold text-foreground mb-3 ${alignClass}`}>{c.title}</h3>
-                    <p className={`text-muted-foreground leading-relaxed ${alignClass}`}>{c.text}</p>
+                    <div
+                      className={`text-muted-foreground leading-relaxed ${alignClass} prose prose-sm max-w-none`}
+                      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(c.text || '') }}
+                    />
                   </div>
                 );
               })}

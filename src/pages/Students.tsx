@@ -3,6 +3,7 @@ import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
 import { Users, GraduationCap, Trophy, BookOpen, TrendingUp, Star, LucideIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { SEOHead } from '@/components/SEOHead';
 
 interface StudentStat {
   id: string;
@@ -111,6 +112,7 @@ const Students = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead title="นักเรียน" description="ข้อมูลนักเรียนของโรงเรียน" />
       <SiteHeader />
       <main>
         {/* Hero Section */}

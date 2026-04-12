@@ -25,45 +25,71 @@ import {
     Recycle,
     ClipboardCheck,
     FolderOpen,
+    SlidersHorizontal,
+    BarChart2,
+    Blocks,
+    MailOpen,
+    SendHorizontal,
+    Stamp,
+    CalendarCheck,
+    ClipboardList,
+    UserX,
+    BookMarked,
+    Award,
 } from 'lucide-react';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
+import { useUserRole } from '@/hooks/useUserRole';
 
 interface AdminLayoutProps {
     children: ReactNode;
 }
 
 type MenuItem =
-    | { type: 'item'; id: string; label: string; icon: React.ElementType; path: string }
+    | { type: 'item'; id: string; label: string; icon: React.ElementType; path: string; adminOnly?: boolean }
     | { type: 'section'; label: string };
 
 const menuItems: MenuItem[] = [
     { type: 'item', id: 'dashboard', label: 'แดชบอร์ด', icon: LayoutDashboard, path: '/admin/dashboard' },
     { type: 'section', label: 'เว็บไซต์' },
-    { type: 'item', id: 'settings', label: 'ตั้งค่า', icon: Settings, path: '/admin/dashboard?tab=settings' },
+    { type: 'item', id: 'settings', label: 'ตั้งค่า', icon: Settings, path: '/admin/dashboard?tab=settings', adminOnly: true },
+    { type: 'item', id: 'hero-slides', label: 'Hero Slides', icon: SlidersHorizontal, path: '/admin/dashboard?tab=hero-slides', adminOnly: true },
     { type: 'item', id: 'news', label: 'ข่าวสาร', icon: Newspaper, path: '/admin/dashboard?tab=news' },
-    { type: 'item', id: 'gallery', label: 'แกลเลอรี่', icon: Image, path: '/admin/dashboard?tab=gallery' },
+    { type: 'item', id: 'gallery', label: 'แกลเลอรี่', icon: Image, path: '/admin/dashboard?tab=gallery', adminOnly: true },
     { type: 'item', id: 'events', label: 'ปฏิทิน', icon: Calendar, path: '/admin/dashboard?tab=events' },
+    { type: 'section', label: 'งานสารบรรณ' },
+    { type: 'item', id: 'saraban', label: 'ภาพรวม', icon: ClipboardList, path: '/admin/dashboard?tab=saraban', adminOnly: true },
+    { type: 'item', id: 'incoming-letters', label: 'หนังสือรับ', icon: MailOpen, path: '/admin/dashboard?tab=incoming-letters', adminOnly: true },
+    { type: 'item', id: 'outgoing-letters', label: 'หนังสือส่ง', icon: SendHorizontal, path: '/admin/dashboard?tab=outgoing-letters', adminOnly: true },
+    { type: 'item', id: 'orders', label: 'คำสั่ง/ประกาศ', icon: Stamp, path: '/admin/dashboard?tab=orders', adminOnly: true },
+    { type: 'item', id: 'meetings', label: 'การประชุม', icon: CalendarCheck, path: '/admin/dashboard?tab=meetings', adminOnly: true },
+    { type: 'section', label: 'บุคลากร (HR)' },
+    { type: 'item', id: 'leave', label: 'การลา', icon: UserX, path: '/admin/dashboard?tab=leave', adminOnly: true },
+    { type: 'item', id: 'training', label: 'การอบรม', icon: BookMarked, path: '/admin/dashboard?tab=training', adminOnly: true },
+    { type: 'item', id: 'pa', label: 'PA Assessment', icon: Award, path: '/admin/dashboard?tab=pa', adminOnly: true },
     { type: 'section', label: 'ข้อมูลโรงเรียน' },
-    { type: 'item', id: 'milestones', label: 'ประวัติโรงเรียน', icon: History, path: '/admin/dashboard?tab=milestones' },
-    { type: 'item', id: 'facilities', label: 'สิ่งอำนวยความสะดวก', icon: Building2, path: '/admin/dashboard?tab=facilities' },
+    { type: 'item', id: 'milestones', label: 'ประวัติโรงเรียน', icon: History, path: '/admin/dashboard?tab=milestones', adminOnly: true },
+    { type: 'item', id: 'facilities', label: 'สิ่งอำนวยความสะดวก', icon: Building2, path: '/admin/dashboard?tab=facilities', adminOnly: true },
     { type: 'item', id: 'staff', label: 'ครู/บุคลากร', icon: Briefcase, path: '/admin/dashboard?tab=staff' },
-    { type: 'item', id: 'administrators', label: 'ผู้บริหาร', icon: UserCog, path: '/admin/dashboard?tab=administrators' },
+    { type: 'item', id: 'administrators', label: 'ผู้บริหาร', icon: UserCog, path: '/admin/dashboard?tab=administrators', adminOnly: true },
     { type: 'item', id: 'students', label: 'นักเรียน', icon: GraduationCap, path: '/admin/dashboard?tab=students' },
-    { type: 'item', id: 'curriculum', label: 'หลักสูตร', icon: BookOpen, path: '/admin/dashboard?tab=curriculum' },
-    { type: 'item', id: 'activities', label: 'กิจกรรมเสริม', icon: Palette, path: '/admin/dashboard?tab=activities' },
+    { type: 'item', id: 'curriculum', label: 'หลักสูตร', icon: BookOpen, path: '/admin/dashboard?tab=curriculum', adminOnly: true },
+    { type: 'item', id: 'activities', label: 'กิจกรรมเสริม', icon: Palette, path: '/admin/dashboard?tab=activities', adminOnly: true },
     { type: 'section', label: 'ระบบบริการ' },
-    { type: 'item', id: 'waste-bank', label: 'ธนาคารขยะ', icon: Recycle, path: '/admin/dashboard?tab=waste-bank' },
+    { type: 'item', id: 'waste-bank', label: 'ธนาคารขยะ', icon: Recycle, path: '/admin/dashboard?tab=waste-bank', adminOnly: true },
     { type: 'item', id: 'attendance', label: 'เช็คชื่อนักเรียน', icon: ClipboardCheck, path: '/admin/dashboard?tab=attendance' },
-    { type: 'item', id: 'documents', label: 'จัดการเอกสาร', icon: FolderOpen, path: '/admin/dashboard?tab=documents' },
+    { type: 'item', id: 'documents', label: 'จัดการเอกสาร', icon: FolderOpen, path: '/admin/dashboard?tab=documents', adminOnly: true },
+    { type: 'item', id: 'analytics', label: 'Analytics', icon: BarChart2, path: '/admin/dashboard?tab=analytics', adminOnly: true },
+    { type: 'item', id: 'page-builder', label: 'Page Builder', icon: Blocks, path: '/admin/page-builder', adminOnly: true },
     { type: 'section', label: 'อื่นๆ' },
     { type: 'item', id: 'admissions', label: 'ใบสมัคร', icon: FileText, path: '/admin/dashboard?tab=admissions' },
     { type: 'item', id: 'messages', label: 'กล่องข้อความ', icon: Mail, path: '/admin/dashboard?tab=messages' },
-    { type: 'item', id: 'faq', label: 'FAQ', icon: HelpCircle, path: '/admin/dashboard?tab=faq' },
+    { type: 'item', id: 'faq', label: 'FAQ', icon: HelpCircle, path: '/admin/dashboard?tab=faq', adminOnly: true },
 ];
 
 export const AdminLayout = ({ children }: AdminLayoutProps) => {
     const navigate = useNavigate();
     const { settings } = useSchoolSettings();
+    const { isAdmin } = useUserRole();
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const activeTab = searchParams.get('tab') || 'dashboard';
@@ -105,6 +131,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
                                 </p>
                             );
                         }
+                        if (item.adminOnly && !isAdmin) return null;
                         const isActive = activeTab === item.id;
                         return (
                             <Link

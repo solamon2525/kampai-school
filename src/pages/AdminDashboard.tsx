@@ -18,6 +18,16 @@ import { MessagesManagement } from '@/components/admin/messages/MessagesManageme
 import { DocumentsManagement } from '@/components/admin/documents/DocumentsManagement';
 import { WasteBankManagement } from '@/components/admin/waste-bank/WasteBankManagement';
 import { AttendanceManagement } from '@/components/admin/attendance/AttendanceManagement';
+import { HeroSlidesManagement } from '@/components/admin/slides/HeroSlidesManagement';
+import { AnalyticsManagement } from '@/components/admin/analytics/AnalyticsManagement';
+import { SarabanDashboard } from '@/components/admin/saraban/SarabanDashboard';
+import { IncomingLetters } from '@/components/admin/saraban/IncomingLetters';
+import { OutgoingLetters } from '@/components/admin/saraban/OutgoingLetters';
+import OrdersManagement from '@/components/admin/saraban/OrdersManagement';
+import MeetingsManagement from '@/components/admin/saraban/MeetingsManagement';
+import LeaveManagement from '@/components/admin/hr/LeaveManagement';
+import TrainingManagement from '@/components/admin/hr/TrainingManagement';
+import PAManagement from '@/components/admin/hr/PAManagement';
 import { Card, CardContent } from '@/components/ui/card';
 import { Settings, Newspaper, Image, Calendar, Users, UserCog, Briefcase, FileText, GraduationCap, HardDrive, Database } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -159,6 +169,36 @@ const AdminDashboard = () => {
 
       case 'attendance':
         return <AttendanceManagement />;
+
+      case 'hero-slides':
+        return <HeroSlidesManagement />;
+
+      case 'analytics':
+        return <AnalyticsManagement />;
+
+      case 'saraban':
+        return <SarabanDashboard />;
+
+      case 'incoming-letters':
+        return <IncomingLetters />;
+
+      case 'outgoing-letters':
+        return <OutgoingLetters />;
+
+      case 'orders':
+        return <OrdersManagement />;
+
+      case 'meetings':
+        return <MeetingsManagement />;
+
+      case 'leave':
+        return <LeaveManagement />;
+
+      case 'training':
+        return <TrainingManagement />;
+
+      case 'pa':
+        return <PAManagement />;
 
       case 'settings':
         return <SettingsManagement />;

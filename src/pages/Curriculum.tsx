@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Link, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
+import { SEOHead } from '@/components/SEOHead';
 
 interface CurriculumProgram {
   id: string;
@@ -94,6 +95,7 @@ const Curriculum = () => {
 
   return (
     <div className="min-h-screen">
+      <SEOHead title="หลักสูตร" description="หลักสูตรการเรียนการสอนของโรงเรียน" />
       <SiteHeader />
       <main>
         {/* Hero Section */}

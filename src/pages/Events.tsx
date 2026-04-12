@@ -4,6 +4,7 @@ import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar, Clock, MapPin } from 'lucide-react';
+import { SEOHead } from '@/components/SEOHead';
 
 interface Event {
     id: string;
@@ -71,6 +72,7 @@ const Events = () => {
 
     return (
         <div className="min-h-screen bg-background">
+            <SEOHead title="ปฏิทินกิจกรรม" description="ปฏิทินกิจกรรมและงานสำคัญของโรงเรียน" />
             <SiteHeader />
 
             {/* Hero Section */}

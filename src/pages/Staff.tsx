@@ -5,6 +5,7 @@ import Footer from '@/components/Footer';
 import { supabase } from '@/integrations/supabase/client';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import { Mail, Phone } from 'lucide-react';
+import { SEOHead } from '@/components/SEOHead';
 
 interface Administrator {
   id: string;
@@ -96,6 +97,7 @@ const Staff = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead title="บุคลากร" description="คณะครูและบุคลากรของโรงเรียน" />
       <SiteHeader />
       <main>
 

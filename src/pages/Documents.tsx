@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { SEOHead } from '@/components/SEOHead';
 
 interface DocumentCategory {
   id: string;
@@ -116,6 +117,7 @@ const Documents = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <SEOHead title="เอกสาร" description="เอกสารและแบบฟอร์มสำหรับดาวน์โหลด" />
       <SiteHeader />
 
       {/* Hero Section */}

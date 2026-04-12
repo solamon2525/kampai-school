@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
+import { SEOHead } from '@/components/SEOHead';
 
 const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 
@@ -117,6 +118,7 @@ const WasteBank = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <SEOHead title="ธนาคารขยะ" description="ระบบธนาคารขยะโรงเรียน" />
       <SiteHeader />
 
       {/* Hero */}

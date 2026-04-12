@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { th } from 'date-fns/locale';
+import { SEOHead } from '@/components/SEOHead';
 
 interface NewsItem {
   id: string;
@@ -218,6 +219,7 @@ const News = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead title="ข่าวสาร" description="ข่าวสารและประกาศจากโรงเรียน" />
       <SiteHeader />
 
       {/* Hero Section */}
