@@ -1,9 +1,9 @@
 import { SEOHead } from '@/components/SEOHead';
 import SiteHeader from '@/components/SiteHeader';
 import HomeHeaderZone from '@/components/home/HomeHeaderZone';
-import HomeLeftSidebar from '@/components/home/HomeLeftSidebar';
-import HomeMainContent from '@/components/home/HomeMainContent';
-import HomeRightSidebar from '@/components/home/HomeRightSidebar';
+import { useHomeLeftBlocks } from '@/components/home/HomeLeftSidebar';
+import { useHomeMainBlocks } from '@/components/home/HomeMainContent';
+import { useHomeRightBlocks } from '@/components/home/HomeRightSidebar';
 import HomeFooterZone from '@/components/home/HomeFooterZone';
 import Footer from '@/components/Footer';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
@@ -24,6 +24,12 @@ const getVisibleBlocks = (zone?: { blocks: string[]; hidden: string[] }): string
 const Index = () => {
   const { settings } = useSchoolSettings();
 
+  const leftBlocksMap = useHomeLeftBlocks();
+  const mainBlocksMap = useHomeMainBlocks();
+  const rightBlocksMap = useHomeRightBlocks();
+
+  const allBlocksMap = { ...leftBlocksMap, ...mainBlocksMap, ...rightBlocksMap };
+
   // Parse homepage layout from settings
   let layout: HomepageLayout | null = null;
   if (settings.homepage_layout_raw) {
@@ -35,6 +41,18 @@ const Index = () => {
   // Footer zone blocks
   const footerBlocks = layout ? getVisibleBlocks(layout.footer) : [];
   const useCustomFooter = footerBlocks.length > 0;
+
+  const renderZone = (zoneData?: { blocks: string[]; hidden: string[] }, defaultBlocks: string[] = [], className: string = "flex flex-col gap-4 w-full") => {
+      const ids = zoneData ? getVisibleBlocks(zoneData) : defaultBlocks;
+      return (
+          <div className={className}>
+              {ids.map(id => {
+                  const block = allBlocksMap[id as keyof typeof allBlocksMap];
+                  return block ? <div key={id}>{block}</div> : null;
+              })}
+          </div>
+      );
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
@@ -49,17 +67,17 @@ const Index = () => {
       <main className="flex-1 max-w-7xl mx-auto w-full px-3 py-4">
         {/* Desktop: 3 columns */}
         <div className="hidden lg:grid grid-cols-[200px_1fr_240px] gap-4 items-start">
-          <HomeLeftSidebar />
-          <HomeMainContent />
-          <HomeRightSidebar />
+          <aside>{renderZone(layout?.left, ['principal', 'menu'], 'flex flex-col gap-3 w-full')}</aside>
+          <main>{renderZone(layout?.main, ['hero', 'news', 'about'], 'flex flex-col gap-4 w-full')}</main>
+          <aside>{renderZone(layout?.right, ['categories', 'gallery', 'services', 'social', 'stats'], 'flex flex-col gap-3 w-full')}</aside>
         </div>
 
         {/* Mobile: stack main content + sidebars */}
         <div className="lg:hidden flex flex-col gap-4">
-          <HomeMainContent />
+          <main>{renderZone(layout?.main, ['hero', 'news', 'about'], 'flex flex-col gap-4 w-full')}</main>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <HomeLeftSidebar />
-            <HomeRightSidebar />
+            <aside>{renderZone(layout?.left, ['principal', 'menu'], 'flex flex-col gap-3 w-full')}</aside>
+            <aside>{renderZone(layout?.right, ['categories', 'gallery', 'services', 'social', 'stats'], 'flex flex-col gap-3 w-full')}</aside>
           </div>
         </div>
       </main>

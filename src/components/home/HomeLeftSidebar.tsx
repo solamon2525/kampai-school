@@ -27,7 +27,7 @@ const sidebarMenu = [
   { label: 'ติดต่อโรงเรียน', href: '/contact', icon: Phone },
 ];
 
-const HomeLeftSidebar = () => {
+export const useHomeLeftBlocks = () => {
   const [principal, setPrincipal] = useState<Admin | null>(null);
 
   useEffect(() => {
@@ -99,14 +99,5 @@ const HomeLeftSidebar = () => {
     menu: menuBlock,
   };
 
-  // Default order — can be overridden by homepage_layout
-  const blockOrder = ['principal', 'menu'];
-
-  return (
-    <aside className="flex flex-col gap-3">
-      {blockOrder.map(key => blockMap[key] ?? null)}
-    </aside>
-  );
+  return blockMap;
 };
-
-export default HomeLeftSidebar;

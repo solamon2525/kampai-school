@@ -26,7 +26,7 @@ const categoryColor: Record<string, string> = {
 const formatDate = (d: string) =>
   new Date(d).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
 
-const HomeMainContent = () => {
+export const useHomeMainBlocks = () => {
   const { settings } = useSchoolSettings();
   const [news, setNews] = useState<NewsItem[]>([]);
   const [slides, setSlides] = useState<{ url: string; title: string }[]>([]);
@@ -583,11 +583,5 @@ const HomeMainContent = () => {
     contact_form: contactFormSection,
   };
 
-  return (
-    <div className="flex flex-col gap-4">
-      {sectionOrder.map(key => sectionMap[key] ?? null)}
-    </div>
-  );
+  return sectionMap;
 };
-
-export default HomeMainContent;

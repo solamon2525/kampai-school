@@ -38,7 +38,7 @@ const getVisitorStats = () => {
   };
 };
 
-const HomeRightSidebar = () => {
+export const useHomeRightBlocks = () => {
   const { settings } = useSchoolSettings();
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [visitorStats] = useState(() => getVisitorStats());
@@ -215,11 +215,5 @@ const HomeRightSidebar = () => {
     documents: documentsWidget,
   };
 
-  return (
-    <aside className="flex flex-col gap-3">
-      {widgetOrder.map(key => widgetMap[key] ?? null)}
-    </aside>
-  );
+  return widgetMap;
 };
-
-export default HomeRightSidebar;
