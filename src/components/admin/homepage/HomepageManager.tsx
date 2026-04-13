@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Save, RotateCcw, ExternalLink, LayoutTemplate } from 'lucide-react';
-import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { DndContext, pointerWithin, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 import {
     BlockPalette,
@@ -301,7 +301,7 @@ export const HomepageManager = () => {
             </div>
 
             {/* Main Content: Palette + Preview */}
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <DndContext sensors={sensors} collisionDetection={pointerWithin} onDragEnd={handleDragEnd}>
                 <div className="flex-1 flex overflow-hidden">
                     {/* Block Palette (Left Panel) */}
                     <div className="w-80 flex-shrink-0 border-r border-border bg-card overflow-hidden flex flex-col">

@@ -162,7 +162,7 @@ function SortableBlock({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                     {(Object.keys(ZONE_INFO) as ZoneKey[]).map(k => (
-                        <DropdownMenuItem key={k} onSelect={() => onMoveZone(k)}>
+                        <DropdownMenuItem key={k} onSelect={(e) => { e.preventDefault(); setTimeout(() => onMoveZone(k), 0); }}>
                             ย้ายไป {ZONE_INFO[k].label}
                         </DropdownMenuItem>
                     ))}

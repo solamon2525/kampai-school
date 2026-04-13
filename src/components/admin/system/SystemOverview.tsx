@@ -130,6 +130,8 @@ const versionHistory = [
         items: [
             'Frontend Engine Refactor: แกะโค้ดหน้าเว็บจริงที่เคยถูกล็อคตำแหน่งตายตัว ทำให้ตอนนี้ย้ายบล็อคได้อย่างอิสระ 100%',
             'Preview State Fix: แก้ไขบั๊กตัวจำลองหลังบ้านดึงบล็อคกลับไปที่เดิม ให้แสดงค่าหลังจากการย้ายได้อย่างแม่นยำ',
+            'Drag-and-Drop Accuracy: แก้ไขปัญหาลากวางไม่ตรงจุด ด้วยการปรับระบบตรวจจับชน (Collision) เป็นระดับ Pointer แทน Center',
+            'Dropdown Menu Stability: แก้ปัญหาปุ่มเมนู "ย้ายโซน" ไม่รับคำสั่งในบางครั้ง (Event bubbling fix)',
         ],
     },
     {
