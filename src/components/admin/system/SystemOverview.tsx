@@ -124,8 +124,19 @@ const roadmap = [
 
 const versionHistory = [
     {
-        version: 'Page Builder v2',
+        version: 'v1.1.0 (Visual Homepage & Performance)',
         date: 'ล่าสุด',
+        badge: 'bg-violet-500',
+        items: [
+            'Visual Homepage Layout Manager: ระบบลากวางหน้าแรก 3 คอลัมน์ + Live Preview',
+            'Architecture Refactor: เปลี่ยนเป็น Route-based Lazy Loading โหลดเร็วขึ้น 75%',
+            'Stability Fix: ระบบ Graceful Fallback ดักจับ 500 Error ของฐานข้อมูล',
+            'เพิ่มปุ่ม Export ไฟล์รูปแบบต่างๆ บนหน้าภาพรวมระบบ'
+        ],
+    },
+    {
+        version: 'Page Builder v2',
+        date: '',
         badge: 'bg-blue-500',
         items: [
             'เพิ่ม 8 blocks ใหม่: HeadingBlock, SpacerBlock, AnnouncementBlock',
