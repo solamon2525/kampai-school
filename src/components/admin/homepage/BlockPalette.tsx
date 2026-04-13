@@ -95,6 +95,8 @@ function SortableBlock({
     onToggle,
     isSelected,
     onSelect,
+    isHovered,
+    onHover,
 }: {
     id: string;
     block: BlockDef;
@@ -102,6 +104,8 @@ function SortableBlock({
     onToggle: () => void;
     isSelected: boolean;
     onSelect: () => void;
+    isHovered: boolean;
+    onHover: (hovered: boolean) => void;
     onMoveZone: (zone: ZoneKey) => void;
 }) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
@@ -114,9 +118,11 @@ function SortableBlock({
             ref={setNodeRef}
             style={style}
             onClick={onSelect}
+            onMouseEnter={() => onHover(true)}
+            onMouseLeave={() => onHover(false)}
             className={`flex items-center gap-3 p-3 border rounded-xl transition-all cursor-pointer ${
                 isDragging ? 'shadow-lg ring-2 ring-primary/50 z-10' : ''
-            } ${isSelected ? 'border-primary bg-primary/5 shadow-sm' : 'border-border bg-background hover:bg-secondary/30'} ${
+            } ${isSelected || isHovered ? 'border-primary bg-primary/5 shadow-sm' : 'border-border bg-background hover:bg-secondary/30'} ${
                 isHidden ? 'opacity-50' : ''
             }`}
         >
@@ -162,7 +168,7 @@ function SortableBlock({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                     {(Object.keys(ZONE_INFO) as ZoneKey[]).map(k => (
-                        <DropdownMenuItem key={k} onSelect={(e) => { e.preventDefault(); setTimeout(() => onMoveZone(k), 0); }}>
+                        <DropdownMenuItem key={k} onSelect={() => onMoveZone(k)}>
                             ย้ายไป {ZONE_INFO[k].label}
                         </DropdownMenuItem>
                     ))}
@@ -183,6 +189,8 @@ interface BlockPaletteProps {
     onZoneChange: (zone: ZoneKey) => void;
     selectedBlock: string | null;
     onSelectBlock: (id: string | null) => void;
+    hoveredBlock: string | null;
+    onHoverBlock: (id: string | null) => void;
 }
 
 export const ZONE_INFO: Record<ZoneKey, { label: string; emoji: string; blockDefs: BlockDef[] }> = {
@@ -246,6 +254,8 @@ export const BlockPalette = ({
     onZoneChange,
     selectedBlock,
     onSelectBlock,
+    hoveredBlock,
+    onHoverBlock,
 }: BlockPaletteProps) => {
     const zone = layout[activeZone];
     const blockDefs = ALL_BLOCKS;
@@ -352,6 +362,8 @@ export const BlockPalette = ({
                                         onToggle={() => toggleVisibility(id)}
                                         isSelected={selectedBlock === id}
                                         onSelect={() => onSelectBlock(selectedBlock === id ? null : id)}
+                                        isHovered={hoveredBlock === id}
+                                        onHover={(hovered) => onHoverBlock(hovered ? id : null)}
                                         onMoveZone={(targetZone) => handleMoveZone(id, targetZone)}
                                     />
                                 );

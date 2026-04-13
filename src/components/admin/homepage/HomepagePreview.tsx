@@ -7,12 +7,16 @@ import {
     type ZoneKey,
 } from './BlockPalette';
 import { useDroppable } from '@dnd-kit/core';
+import { useEffect } from 'react';
 
 interface HomepagePreviewProps {
     layout: Record<ZoneKey, { blocks: string[]; hidden: string[] }>;
     selectedBlock: string | null;
     onSelectBlock: (id: string | null) => void;
     activeZone: ZoneKey;
+    hoveredBlock?: string | null;
+    hoverSource?: 'palette' | 'preview' | null;
+    onHoverPreviewBlock?: (id: string | null, zone?: ZoneKey) => void;
 }
 
 // ─── Mini block renderers ─────────────────────────────────
@@ -473,7 +477,19 @@ export const HomepagePreview = ({
     selectedBlock,
     onSelectBlock,
     activeZone,
+    hoveredBlock,
+    hoverSource,
+    onHoverPreviewBlock,
 }: HomepagePreviewProps) => {
+
+    useEffect(() => {
+        if (hoveredBlock && hoverSource === 'palette') {
+            const el = document.getElementById(`preview-block-${hoveredBlock}`);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+    }, [hoveredBlock, hoverSource]);
 
     const renderZone = (zone: ZoneKey, className: string) => {
         const { blocks, hidden } = layout[zone];
@@ -486,14 +502,18 @@ export const HomepagePreview = ({
                         const Preview = ALL_PREVIEW_MAP[id];
                         if (!Preview) return null;
                         const isSelected = selectedBlock === id && activeZone === zone;
+                        const isHoveredLocal = hoveredBlock === id;
                         return (
                             <div
+                                id={`preview-block-${id}`}
                                 key={id}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     onSelectBlock(isSelected ? null : id);
                                 }}
-                                className={`relative transition-all cursor-pointer ${isSelected
+                                onMouseEnter={() => onHoverPreviewBlock?.(id, zone)}
+                                onMouseLeave={() => onHoverPreviewBlock?.(null)}
+                                className={`relative transition-all cursor-pointer ${isSelected || isHoveredLocal
                                         ? 'ring-2 ring-primary ring-offset-1 rounded-lg'
                                         : 'hover:ring-1 hover:ring-primary/30 rounded-lg'
                                     }`}

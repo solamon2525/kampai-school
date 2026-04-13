@@ -124,8 +124,17 @@ const roadmap = [
 
 const versionHistory = [
     {
-        version: 'v1.2.1 (Layout Sync & Hotfix)',
+        version: 'v1.2.2 (Hover Sync & Two-way Binding)',
         date: 'ล่าสุด',
+        badge: 'bg-indigo-500',
+        items: [
+            'Two-way Hover Sync: เลื่อนเมาส์ที่พรีวิวด้านขวา เมนูด้านซ้ายจะสลับโซนตามอัตโนมัติ',
+            'Auto Scroll: ชี้เมาส์เมนูด้านซ้าย พรีวิวด้านขวาจะเลื่อน (scroll) ไปหาบล็อคทันที',
+        ],
+    },
+    {
+        version: 'v1.2.1 (Layout Sync & Hotfix)',
+        date: '',
         badge: 'bg-green-500',
         items: [
             'Cross-Zone Render Sync: ปรับลอจิกหน้าเว็บหลักให้รองรับการสลับบล็อคข้ามคอลัมน์ 100% ไม่ล็อคตำแหน่งเดิมอีกต่อไป',
