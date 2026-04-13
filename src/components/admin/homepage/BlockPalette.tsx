@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Eye, EyeOff, ChevronDown, ChevronRight, ArrowRightLeft } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { GripVertical, Eye, EyeOff, ChevronDown, ChevronRight, ArrowRightLeft, ArrowUp, ArrowDown, ArrowUpToLine, ArrowDownToLine } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
 
 export interface BlockDef {
     id: string;
@@ -107,6 +107,10 @@ function SortableBlock({
     isHovered: boolean;
     onHover: (hovered: boolean) => void;
     onMoveZone: (zone: ZoneKey) => void;
+    onReorder: (direction: 'up' | 'down' | 'top' | 'bottom') => void;
+    isFirst: boolean;
+    isLast: boolean;
+    activeZone: ZoneKey;
 }) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
     const style = { transform: CSS.Transform.toString(transform), transition };
@@ -168,8 +172,25 @@ function SortableBlock({
                     </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                    <DropdownMenuLabel className="text-xs text-muted-foreground font-semibold">จัดเรียงลำดับ</DropdownMenuLabel>
+                    <DropdownMenuItem disabled={isFirst} onSelect={() => onReorder('top')}>
+                        <ArrowUpToLine className="w-4 h-4 mr-2" /> เลื่อนขึ้นบนสุด
+                    </DropdownMenuItem>
+                    <DropdownMenuItem disabled={isFirst} onSelect={() => onReorder('up')}>
+                        <ArrowUp className="w-4 h-4 mr-2" /> เลื่อนขึ้น 1 ขั้น
+                    </DropdownMenuItem>
+                    <DropdownMenuItem disabled={isLast} onSelect={() => onReorder('down')}>
+                        <ArrowDown className="w-4 h-4 mr-2" /> เลื่อนลง 1 ขั้น
+                    </DropdownMenuItem>
+                    <DropdownMenuItem disabled={isLast} onSelect={() => onReorder('bottom')}>
+                        <ArrowDownToLine className="w-4 h-4 mr-2" /> เลื่อนลงล่างสุด
+                    </DropdownMenuItem>
+                    
+                    <DropdownMenuSeparator />
+                    
+                    <DropdownMenuLabel className="text-xs text-muted-foreground font-semibold">ย้ายข้ามโซน</DropdownMenuLabel>
                     {(Object.keys(ZONE_INFO) as ZoneKey[]).map(k => (
-                        <DropdownMenuItem key={k} onSelect={() => onMoveZone(k)}>
+                        <DropdownMenuItem disabled={activeZone === k} key={k} onSelect={() => onMoveZone(k)}>
                             ย้ายไป {ZONE_INFO[k].label}
                         </DropdownMenuItem>
                     ))}
@@ -273,6 +294,29 @@ export const BlockPalette = ({
         }
     }, [hoveredBlock, hoverSource]);
 
+    const handleReorder = (blockId: string, direction: 'up' | 'down' | 'top' | 'bottom') => {
+        const blocks = [...zone.blocks];
+        const index = blocks.indexOf(blockId);
+        if (index === -1) return;
+
+        if (direction === 'up' && index > 0) {
+            [blocks[index - 1], blocks[index]] = [blocks[index], blocks[index - 1]];
+        } else if (direction === 'down' && index < blocks.length - 1) {
+            [blocks[index], blocks[index + 1]] = [blocks[index + 1], blocks[index]];
+        } else if (direction === 'top' && index > 0) {
+            blocks.splice(index, 1);
+            blocks.unshift(blockId);
+        } else if (direction === 'bottom' && index < blocks.length - 1) {
+            blocks.splice(index, 1);
+            blocks.push(blockId);
+        }
+
+        onLayoutChange({
+            ...layout,
+            [activeZone]: { ...zone, blocks }
+        });
+    };
+
     const handleMoveZone = (blockId: string, targetZone: ZoneKey) => {
         if (targetZone === activeZone) return;
 
@@ -362,7 +406,7 @@ export const BlockPalette = ({
             <div className="flex-1 overflow-y-auto p-4">
                 <SortableContext items={visibleBlockIds} strategy={verticalListSortingStrategy}>
                     <div className="space-y-2">
-                            {visibleBlockIds.map((id) => {
+                            {visibleBlockIds.map((id, index) => {
                                 const block = blockDefs.find((b) => b.id === id);
                                 if (!block) return null;
                                 return (
@@ -377,6 +421,10 @@ export const BlockPalette = ({
                                         isHovered={hoveredBlock === id}
                                         onHover={(hovered) => onHoverBlock(hovered ? id : null)}
                                         onMoveZone={(targetZone) => handleMoveZone(id, targetZone)}
+                                        onReorder={(direction) => handleReorder(id, direction)}
+                                        isFirst={index === 0}
+                                        isLast={index === visibleBlockIds.length - 1}
+                                        activeZone={activeZone}
                                     />
                                 );
                             })}
