@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Eye, EyeOff, ChevronDown, ChevronRight } from 'lucide-react';
+import { GripVertical, Eye, EyeOff, ChevronDown, ChevronRight, ArrowRightLeft } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 export interface BlockDef {
     id: string;
@@ -77,6 +78,14 @@ export const FOOTER_BLOCKS: BlockDef[] = [
     { id: 'footer_services', label: 'บริการออนไลน์', icon: '🎒', description: 'ลิงก์บริการ', category: 'footer' },
 ];
 
+export const ALL_BLOCKS: BlockDef[] = [
+    ...HEADER_BLOCKS,
+    ...MAIN_BLOCKS,
+    ...RIGHT_BLOCKS,
+    ...LEFT_BLOCKS,
+    ...FOOTER_BLOCKS,
+];
+
 // ─── Sortable Block Item ──────────────────────────────────
 
 function SortableBlock({
@@ -93,6 +102,7 @@ function SortableBlock({
     onToggle: () => void;
     isSelected: boolean;
     onSelect: () => void;
+    onMoveZone: (zone: ZoneKey) => void;
 }) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
     const style = { transform: CSS.Transform.toString(transform), transition };
@@ -140,6 +150,24 @@ function SortableBlock({
             >
                 {isHidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <button
+                        onClick={(e) => e.stopPropagation()}
+                        className="p-1.5 rounded-md transition-colors text-muted-foreground hover:text-foreground hover:bg-secondary flex-shrink-0"
+                        title="ย้ายโซน"
+                    >
+                        <ArrowRightLeft className="w-4 h-4" />
+                    </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent onClick={(e) => e.stopPropagation()} align="end">
+                    {(Object.keys(ZONE_INFO) as ZoneKey[]).map(k => (
+                        <DropdownMenuItem key={k} onClick={() => onMoveZone(k)}>
+                            ย้ายไป {ZONE_INFO[k].label}
+                        </DropdownMenuItem>
+                    ))}
+                </DropdownMenuContent>
+            </DropdownMenu>
         </div>
     );
 }
@@ -221,8 +249,28 @@ export const BlockPalette = ({
 }: BlockPaletteProps) => {
     const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
     const zone = layout[activeZone];
-    const blockDefs = ZONE_INFO[activeZone].blockDefs;
+    const blockDefs = ALL_BLOCKS;
     const [filterCategory, setFilterCategory] = useState<string | null>(null);
+
+    const handleMoveZone = (blockId: string, targetZone: ZoneKey) => {
+        if (targetZone === activeZone) return;
+
+        const sourceZoneData = layout[activeZone];
+        const targetZoneData = layout[targetZone];
+
+        onLayoutChange({
+            ...layout,
+            [activeZone]: {
+                ...sourceZoneData,
+                blocks: sourceZoneData.blocks.filter(id => id !== blockId),
+                hidden: sourceZoneData.hidden.filter(id => id !== blockId)
+            },
+            [targetZone]: {
+                ...targetZoneData,
+                blocks: [...targetZoneData.blocks, blockId],
+            }
+        });
+    };
 
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
@@ -320,6 +368,7 @@ export const BlockPalette = ({
                                         onToggle={() => toggleVisibility(id)}
                                         isSelected={selectedBlock === id}
                                         onSelect={() => onSelectBlock(selectedBlock === id ? null : id)}
+                                        onMoveZone={(targetZone) => handleMoveZone(id, targetZone)}
                                     />
                                 );
                             })}

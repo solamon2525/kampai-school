@@ -447,12 +447,12 @@ const FooterBlockPreview: Record<string, () => JSX.Element> = {
     ),
 };
 
-const PREVIEW_MAP: Record<ZoneKey, Record<string, () => JSX.Element>> = {
-    header: HeaderBlockPreview,
-    main: MainBlockPreview,
-    right: RightBlockPreview,
-    left: LeftBlockPreview,
-    footer: FooterBlockPreview,
+const ALL_PREVIEW_MAP: Record<string, () => JSX.Element> = {
+    ...HeaderBlockPreview,
+    ...MainBlockPreview,
+    ...RightBlockPreview,
+    ...LeftBlockPreview,
+    ...FooterBlockPreview,
 };
 
 const ALL_BLOCKS_FLAT = [...HEADER_BLOCKS, ...MAIN_BLOCKS, ...RIGHT_BLOCKS, ...LEFT_BLOCKS, ...FOOTER_BLOCKS];
@@ -466,14 +466,13 @@ export const HomepagePreview = ({
 
     const renderZone = (zone: ZoneKey, className: string) => {
         const { blocks, hidden } = layout[zone];
-        const previews = PREVIEW_MAP[zone];
 
         return (
             <div className={className}>
                 {blocks
                     .filter((id) => !hidden.includes(id))
                     .map((id) => {
-                        const Preview = previews[id];
+                        const Preview = ALL_PREVIEW_MAP[id];
                         if (!Preview) return null;
                         const isSelected = selectedBlock === id && activeZone === zone;
                         return (
