@@ -124,8 +124,17 @@ const roadmap = [
 
 const versionHistory = [
     {
-        version: 'v1.1.0 (Visual Homepage & Performance)',
+        version: 'v1.2.0 (Interactive Layout)',
         date: 'ล่าสุด',
+        badge: 'bg-green-500',
+        items: [
+            'Cross-Zone Movement: ทะลุข้อจำกัดด้วยเมนู "ย้ายโซน" ย้ายบล็อคระหว่างคอลัมน์ได้อย่างอิสระ',
+            'Interactive Live Preview: ระบบใช้เมาส์ลากบล็อคจากเครืองมือ ไปวางในจอพรีวิว (Drag to Drop) ได้เลย',
+        ],
+    },
+    {
+        version: 'v1.1.0 (Visual Homepage & Performance)',
+        date: '',
         badge: 'bg-violet-500',
         items: [
             'Visual Homepage Layout Manager: ระบบลากวางหน้าแรก 3 คอลัมน์ + Live Preview',
