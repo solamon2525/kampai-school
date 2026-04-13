@@ -320,6 +320,7 @@ export const HomepageManager = () => {
                         activeZone={activeZone}
                     />
                 </div>
+                </div>
             </DndContext>
         </div>
     );
