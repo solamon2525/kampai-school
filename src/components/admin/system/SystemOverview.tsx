@@ -124,8 +124,17 @@ const roadmap = [
 
 const versionHistory = [
     {
-        version: 'v1.2.0 (Interactive Layout)',
+        version: 'v1.2.1 (Cross-Zone Engine Fix)',
         date: 'ล่าสุด',
+        badge: 'bg-blue-600',
+        items: [
+            'Frontend Engine Refactor: แกะโค้ดหน้าเว็บจริงที่เคยถูกล็อคตำแหน่งตายตัว ทำให้ตอนนี้ย้ายบล็อคได้อย่างอิสระ 100%',
+            'Preview State Fix: แก้ไขบั๊กตัวจำลองหลังบ้านดึงบล็อคกลับไปที่เดิม ให้แสดงค่าหลังจากการย้ายได้อย่างแม่นยำ',
+        ],
+    },
+    {
+        version: 'v1.2.0 (Interactive Layout)',
+        date: '',
         badge: 'bg-green-500',
         items: [
             'Cross-Zone Movement: ทะลุข้อจำกัดด้วยเมนู "ย้ายโซน" ย้ายบล็อคระหว่างคอลัมน์ได้อย่างอิสระ',
