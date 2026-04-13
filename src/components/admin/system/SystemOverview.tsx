@@ -124,20 +124,18 @@ const roadmap = [
 
 const versionHistory = [
     {
-        version: 'v1.2.1 (Cross-Zone Engine Fix)',
+        version: 'v1.2.1 (Layout Sync & Hotfix)',
         date: 'ล่าสุด',
-        badge: 'bg-blue-600',
+        badge: 'bg-green-500',
         items: [
-            'Frontend Engine Refactor: แกะโค้ดหน้าเว็บจริงที่เคยถูกล็อคตำแหน่งตายตัว ทำให้ตอนนี้ย้ายบล็อคได้อย่างอิสระ 100%',
-            'Preview State Fix: แก้ไขบั๊กตัวจำลองหลังบ้านดึงบล็อคกลับไปที่เดิม ให้แสดงค่าหลังจากการย้ายได้อย่างแม่นยำ',
-            'Drag-and-Drop Accuracy: แก้ไขปัญหาลากวางไม่ตรงจุด ด้วยการปรับระบบตรวจจับชน (Collision) เป็นระดับ Pointer แทน Center',
-            'Dropdown Menu Stability: แก้ปัญหาปุ่มเมนู "ย้ายโซน" ไม่รับคำสั่งในบางครั้ง (Event bubbling fix)',
+            'Cross-Zone Render Sync: ปรับลอจิกหน้าเว็บหลักให้รองรับการสลับบล็อคข้ามคอลัมน์ 100% ไม่ล็อคตำแหน่งเดิมอีกต่อไป',
+            'Layout Initialization Fix: แก้บั๊กระบบหลังบ้านหวังดีเกินไป (ดันลบตัวที่ย้ายโซนแล้วดึงกลับคืนที่เดิม) เซฟแล้วพรีวิวไม่เด้งพังแล้ว',
         ],
     },
     {
         version: 'v1.2.0 (Interactive Layout)',
         date: '',
-        badge: 'bg-green-500',
+        badge: 'bg-violet-500',
         items: [
             'Cross-Zone Movement: ทะลุข้อจำกัดด้วยเมนู "ย้ายโซน" ย้ายบล็อคระหว่างคอลัมน์ได้อย่างอิสระ',
             'Interactive Live Preview: ระบบใช้เมาส์ลากบล็อคจากเครืองมือ ไปวางในจอพรีวิว (Drag to Drop) ได้เลย',
