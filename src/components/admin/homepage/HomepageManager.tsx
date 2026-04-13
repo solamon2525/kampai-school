@@ -3,6 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Save, RotateCcw, ExternalLink, LayoutTemplate } from 'lucide-react';
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { arrayMove } from '@dnd-kit/sortable';
 import {
     BlockPalette,
     MAIN_BLOCKS,
@@ -82,6 +84,53 @@ export const HomepageManager = () => {
     const [saving, setSaving] = useState(false);
     const [activeZone, setActiveZone] = useState<ZoneKey>('main');
     const [selectedBlock, setSelectedBlock] = useState<string | null>(null);
+
+    const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (!over) return;
+
+        // Dropped on a preview zone
+        if (String(over.id).startsWith('preview-zone-')) {
+            const targetZone = String(over.id).replace('preview-zone-', '') as ZoneKey;
+            const blockId = String(active.id);
+            if (activeZone === targetZone) return;
+
+            const sourceZoneData = layout[activeZone];
+            const targetZoneData = layout[targetZone];
+
+            setLayout({
+                ...layout,
+                [activeZone]: {
+                    ...sourceZoneData,
+                    blocks: sourceZoneData.blocks.filter(id => id !== blockId),
+                    hidden: sourceZoneData.hidden.filter(id => id !== blockId)
+                },
+                [targetZone]: {
+                    ...targetZoneData,
+                    blocks: [...targetZoneData.blocks, blockId],
+                }
+            });
+            setActiveZone(targetZone);
+            return;
+        }
+
+        // Reordering
+        if (active.id !== over.id) {
+            const zone = layout[activeZone];
+            const oldIndex = zone.blocks.indexOf(String(active.id));
+            const newIndex = zone.blocks.indexOf(String(over.id));
+            
+            if(oldIndex !== -1 && newIndex !== -1) {
+                const newBlocks = arrayMove(zone.blocks, oldIndex, newIndex);
+                setLayout({
+                    ...layout,
+                    [activeZone]: { ...zone, blocks: newBlocks },
+                });
+            }
+        }
+    };
 
     // Load layout from DB
     useEffect(() => {
@@ -245,9 +294,10 @@ export const HomepageManager = () => {
             </div>
 
             {/* Main Content: Palette + Preview */}
-            <div className="flex-1 flex overflow-hidden">
-                {/* Block Palette (Left Panel) */}
-                <div className="w-80 flex-shrink-0 border-r border-border bg-card overflow-hidden flex flex-col">
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <div className="flex-1 flex overflow-hidden">
+                    {/* Block Palette (Left Panel) */}
+                    <div className="w-80 flex-shrink-0 border-r border-border bg-card overflow-hidden flex flex-col">
                     <BlockPalette
                         layout={layout}
                         onLayoutChange={setLayout as any}
@@ -270,7 +320,7 @@ export const HomepageManager = () => {
                         activeZone={activeZone}
                     />
                 </div>
-            </div>
+            </DndContext>
         </div>
     );
 };

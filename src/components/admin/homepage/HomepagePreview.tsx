@@ -6,6 +6,7 @@ import {
     FOOTER_BLOCKS,
     type ZoneKey,
 } from './BlockPalette';
+import { useDroppable } from '@dnd-kit/core';
 
 interface HomepagePreviewProps {
     layout: Record<ZoneKey, { blocks: string[]; hidden: string[] }>;
@@ -457,6 +458,16 @@ const ALL_PREVIEW_MAP: Record<string, () => JSX.Element> = {
 
 const ALL_BLOCKS_FLAT = [...HEADER_BLOCKS, ...MAIN_BLOCKS, ...RIGHT_BLOCKS, ...LEFT_BLOCKS, ...FOOTER_BLOCKS];
 
+function DroppableZone({ zone, className, children }: { zone: string; className: string; children: React.ReactNode }) {
+    const { isOver, setNodeRef } = useDroppable({ id: `preview-zone-${zone}` });
+    return (
+        <div ref={setNodeRef} className={`${className} transition-all duration-200 ${isOver ? 'ring-4 ring-primary bg-primary/10 rounded-lg min-h-[60px] scale-[1.02]' : ''}`}>
+            {children}
+            {isOver && <div className="py-2 text-center text-[10px] font-bold text-primary animate-pulse w-full">วางที่นี่...</div>}
+        </div>
+    );
+}
+
 export const HomepagePreview = ({
     layout,
     selectedBlock,
@@ -468,7 +479,7 @@ export const HomepagePreview = ({
         const { blocks, hidden } = layout[zone];
 
         return (
-            <div className={className}>
+            <DroppableZone zone={zone} className={className}>
                 {blocks
                     .filter((id) => !hidden.includes(id))
                     .map((id) => {
@@ -496,7 +507,7 @@ export const HomepagePreview = ({
                             </div>
                         );
                     })}
-            </div>
+            </DroppableZone>
         );
     };
 

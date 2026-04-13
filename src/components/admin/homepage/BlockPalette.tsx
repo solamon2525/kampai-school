@@ -160,9 +160,9 @@ function SortableBlock({
                         <ArrowRightLeft className="w-4 h-4" />
                     </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent onClick={(e) => e.stopPropagation()} align="end">
+                <DropdownMenuContent align="end">
                     {(Object.keys(ZONE_INFO) as ZoneKey[]).map(k => (
-                        <DropdownMenuItem key={k} onClick={() => onMoveZone(k)}>
+                        <DropdownMenuItem key={k} onSelect={() => onMoveZone(k)}>
                             ย้ายไป {ZONE_INFO[k].label}
                         </DropdownMenuItem>
                     ))}
@@ -247,7 +247,6 @@ export const BlockPalette = ({
     selectedBlock,
     onSelectBlock,
 }: BlockPaletteProps) => {
-    const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
     const zone = layout[activeZone];
     const blockDefs = ALL_BLOCKS;
     const [filterCategory, setFilterCategory] = useState<string | null>(null);
@@ -269,20 +268,6 @@ export const BlockPalette = ({
                 ...targetZoneData,
                 blocks: [...targetZoneData.blocks, blockId],
             }
-        });
-    };
-
-    const handleDragEnd = (event: DragEndEvent) => {
-        const { active, over } = event;
-        if (!over || active.id === over.id) return;
-
-        const oldIndex = zone.blocks.indexOf(String(active.id));
-        const newIndex = zone.blocks.indexOf(String(over.id));
-        const newBlocks = arrayMove(zone.blocks, oldIndex, newIndex);
-
-        onLayoutChange({
-            ...layout,
-            [activeZone]: { ...zone, blocks: newBlocks },
         });
     };
 
@@ -353,9 +338,8 @@ export const BlockPalette = ({
 
             {/* Sortable Blocks */}
             <div className="flex-1 overflow-y-auto p-4">
-                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                    <SortableContext items={visibleBlockIds} strategy={verticalListSortingStrategy}>
-                        <div className="space-y-2">
+                <SortableContext items={visibleBlockIds} strategy={verticalListSortingStrategy}>
+                    <div className="space-y-2">
                             {visibleBlockIds.map((id) => {
                                 const block = blockDefs.find((b) => b.id === id);
                                 if (!block) return null;
@@ -373,8 +357,7 @@ export const BlockPalette = ({
                                 );
                             })}
                         </div>
-                    </SortableContext>
-                </DndContext>
+                </SortableContext>
             </div>
         </div>
     );
