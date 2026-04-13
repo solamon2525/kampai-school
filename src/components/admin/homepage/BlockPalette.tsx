@@ -97,6 +97,11 @@ function SortableBlock({
     onSelect,
     isHovered,
     onHover,
+    onMoveZone,
+    onReorder,
+    isFirst,
+    isLast,
+    activeZone,
 }: {
     id: string;
     block: BlockDef;
