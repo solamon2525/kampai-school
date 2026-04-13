@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -115,6 +115,7 @@ function SortableBlock({
 
     return (
         <div
+            id={`palette-block-${id}`}
             ref={setNodeRef}
             style={style}
             onClick={onSelect}
@@ -190,6 +191,7 @@ interface BlockPaletteProps {
     selectedBlock: string | null;
     onSelectBlock: (id: string | null) => void;
     hoveredBlock: string | null;
+    hoverSource?: 'palette' | 'preview' | null;
     onHoverBlock: (id: string | null) => void;
 }
 
@@ -255,11 +257,21 @@ export const BlockPalette = ({
     selectedBlock,
     onSelectBlock,
     hoveredBlock,
+    hoverSource,
     onHoverBlock,
 }: BlockPaletteProps) => {
     const zone = layout[activeZone];
     const blockDefs = ALL_BLOCKS;
     const [filterCategory, setFilterCategory] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (hoveredBlock && hoverSource === 'preview') {
+            const el = document.getElementById(`palette-block-${hoveredBlock}`);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+    }, [hoveredBlock, hoverSource]);
 
     const handleMoveZone = (blockId: string, targetZone: ZoneKey) => {
         if (targetZone === activeZone) return;

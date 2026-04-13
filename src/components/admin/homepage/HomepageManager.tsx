@@ -318,6 +318,7 @@ export const HomepageManager = () => {
                         selectedBlock={selectedBlock}
                         onSelectBlock={setSelectedBlock}
                         hoveredBlock={hoveredBlock}
+                        hoverSource={hoverSource}
                         onHoverBlock={(id) => {
                             setHoveredBlock(id);
                             setHoverSource('palette');
