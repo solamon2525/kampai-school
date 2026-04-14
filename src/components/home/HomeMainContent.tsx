@@ -26,6 +26,34 @@ const categoryColor: Record<string, string> = {
 const formatDate = (d: string) =>
   new Date(d).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
 
+const DUMMY_NEWS: NewsItem[] = [
+  { id: 'dummy-1', title: 'เปิดรับสมัครนักเรียนใหม่ ปีการศึกษา 2568', summary: 'รับสมัครนักเรียนใหม่ตั้งแต่ระดับชั้นอนุบาลจนถึงมัธยมศึกษาตอนปลาย', cover_image_url: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=800', category: 'ข่าวประชาสัมพันธ์', created_at: new Date().toISOString(), view_count: 542, author: 'ฝ่ายวิชาการ' },
+  { id: 'dummy-2', title: 'ยินดีกับนักเรียนที่คว้ารางวัลชนะเลิศโครงงานวิทยาศาสตร์', summary: 'ตัวแทนนักเรียนได้รับรางวัลชนะเลิศระดับประเทศ', cover_image_url: 'https://images.unsplash.com/photo-1546410531-fa4ab3ba45cb?q=80&w=800', category: 'ผลงานนักเรียน', created_at: new Date(Date.now() - 86400000*2).toISOString(), view_count: 320, author: 'ฝ่ายประชาสัมพันธ์' },
+  { id: 'dummy-3', title: 'ภาพบรรยากาศกิจกรรมกีฬาสี ประจำปี 2567', summary: 'เต็มไปด้วยความสนุกสนานและรอยยิ้มของเด็กๆ', cover_image_url: 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?q=80&w=800', category: 'กิจกรรม', created_at: new Date(Date.now() - 86400000*5).toISOString(), view_count: 890, author: 'สภานักเรียน' },
+  { id: 'dummy-4', title: 'เทคนิคการเตรียมความพร้อมก่อนการสอบ TCAS', summary: 'คำแนะนำดีๆ จากคุณครูแนะแนว สำหรับน้องๆ ม.6', cover_image_url: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=800', category: 'บทความ', created_at: new Date(Date.now() - 86400000*7).toISOString(), view_count: 125, author: 'ครูแนะแนว' },
+  { id: 'dummy-5', title: 'ประกาศหยุดเรียนในวันสำคัญทางศาสนา', summary: 'เนื่องในวันวิสาขบูชา โรงเรียนจะหยุดทำการเรียนการสอน 1 วัน', cover_image_url: 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?q=80&w=800', category: 'ประกาศ', created_at: new Date(Date.now() - 86400000*12).toISOString(), view_count: 210, author: 'ธุรการ' },
+  { id: 'dummy-6', title: 'ทัศนศึกษาศูนย์การเรียนรู้สร้างแรงบันดาลใจ', summary: 'นักเรียนทัศนศึกษาเพื่อเปิดโลกทัศน์', cover_image_url: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800', category: 'กิจกรรม', created_at: new Date(Date.now() - 86400000*15).toISOString(), view_count: 450, author: 'ฝ่ายกิจกรรม' },
+];
+
+const DUMMY_SLIDES = [
+  { url: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1200', title: 'ยินดีต้อนรับสู่สถานศึกษาแห่งการเรียนรู้ยุคใหม่' },
+  { url: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=1200', title: 'มุ่งมั่นพัฒนาวิชาการ สร้างเสริมทักษะชีวิตที่ยั่งยืน' },
+];
+
+const DUMMY_EVENTS = [
+  { id: 'dummy-e1', title: 'ปฐมนิเทศนักเรียนใหม่ ชั้น ม.1 และ ม.4', start_date: new Date(Date.now() + 86400000 * 3).toISOString(), location: 'หอประชุมใหญ่' },
+  { id: 'dummy-e2', title: 'การประชุมผู้ปกครองภาคเรียนที่ 1', start_date: new Date(Date.now() + 86400000 * 10).toISOString(), location: 'หอประชุมโรงเรียน' },
+  { id: 'dummy-e3', title: 'กิจกรรมกีฬาสีภายใน ทวิภาคี', start_date: new Date(Date.now() + 86400000 * 25).toISOString(), location: 'สนามกีฬาเฉลิมพระเกียรติ' },
+  { id: 'dummy-e4', title: 'สอบกลางภาคเรียน', start_date: new Date(Date.now() + 86400000 * 40).toISOString(), location: 'ห้องสอบ' },
+];
+
+const DUMMY_DOCS = [
+  { id: 'dummy-d1', title: 'คู่มือนักเรียนและผู้ปกครอง.pdf', category: 'ทั่วไป', file_url: '#' },
+  { id: 'dummy-d2', title: 'ใบสมัครเรียนปีการศึกษา 2568.pdf', category: 'รับสมัคร', file_url: '#' },
+  { id: 'dummy-d3', title: 'ปฏิทินวิชาการประจำปี.pdf', category: 'วิชาการ', file_url: '#' },
+  { id: 'dummy-d4', title: 'แบบฟอร์มใบลากิจ/ลาป่วย.pdf', category: 'เอกสารนักเรียน', file_url: '#' },
+];
+
 export const useHomeMainBlocks = () => {
   const { settings } = useSchoolSettings();
   const [news, setNews] = useState<NewsItem[]>([]);
@@ -48,9 +76,12 @@ export const useHomeMainBlocks = () => {
       .order('created_at', { ascending: false })
       .limit(12)
       .then(({ data }) => {
-        if (data) {
+        if (data && data.length > 0) {
           setNews((data as NewsItem[]).slice(0, 6));
           setBlogNews(data as NewsItem[]);
+        } else {
+          setNews(DUMMY_NEWS.slice(0, 6));
+          setBlogNews(DUMMY_NEWS);
         }
       });
 
@@ -61,7 +92,7 @@ export const useHomeMainBlocks = () => {
       .gte('start_date', new Date().toISOString().slice(0, 10))
       .order('start_date')
       .limit(4)
-      .then(({ data }) => { if (data) setEvents(data); });
+      .then(({ data }) => { if (data && data.length > 0) setEvents(data); else setEvents(DUMMY_EVENTS); });
 
     // Fetch documents
     supabase
@@ -70,7 +101,7 @@ export const useHomeMainBlocks = () => {
       .eq('is_active', true)
       .order('created_at', { ascending: false })
       .limit(4)
-      .then(({ data }) => { if (data) setDocuments(data); });
+      .then(({ data }) => { if (data && data.length > 0) setDocuments(data); else setDocuments(DUMMY_DOCS); });
   }, []);
 
   // Fetch hero_slides from DB; fallback to news cover images
@@ -84,11 +115,7 @@ export const useHomeMainBlocks = () => {
         if (data && data.length > 0) {
           setSlides((data as { image_url: string; title: string | null; order_position: number }[]).map(s => ({ url: s.image_url, title: s.title || '' })));
         } else {
-          // fallback: news cover images
-          const s: { url: string; title: string }[] = [];
-          news.filter(n => n.cover_image_url).slice(0, 5).forEach(n => s.push({ url: n.cover_image_url!, title: n.title }));
-          if (s.length === 0) s.push({ url: '/hero-school.jpg', title: settings.school_name });
-          setSlides(s);
+          setSlides(DUMMY_SLIDES);
         }
       });
   }, [news, settings.school_name]);
@@ -271,8 +298,14 @@ export const useHomeMainBlocks = () => {
         <span className="font-semibold text-sm">🎬 แนะนำโรงเรียน</span>
       </div>
       <div className="p-3">
-        <div className="aspect-video bg-gray-900 rounded-lg flex items-center justify-center">
-          <span className="text-gray-500 text-sm">วิดีโอแนะนำ (ตั้งค่าใน Page Builder)</span>
+        <div className="aspect-video bg-gray-900 rounded-lg flex items-center justify-center relative overflow-hidden group cursor-pointer">
+          <img src="https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=800" className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500" alt="Video Thumbnail" />
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <div className="w-12 h-12 rounded-full bg-red-600/90 text-white flex items-center justify-center pl-1 group-hover:scale-110 transition-transform shadow-lg">
+              <span className="text-xl">▶</span>
+            </div>
+            <span className="text-white text-xs font-medium mt-2 drop-shadow">คลิกเพื่อเล่นวิดีโอแนะนำ</span>
+          </div>
         </div>
       </div>
     </div>
