@@ -124,8 +124,18 @@ const roadmap = [
 
 const versionHistory = [
     {
-        version: 'v1.2.4 (Responsive & Mock Data)',
+        version: 'v1.2.5 (Mobile Layout Manager)',
         date: 'ล่าสุด',
+        badge: 'bg-indigo-500',
+        items: [
+            'เพิ่ม Mobile Layout Manager แยกการจัดการหน้าแรกสำหรับมือถือออกจาก Desktop โดยเฉพาะ',
+            'รองรับการลากเพื่อเรียงลำดับใหม่ (Drag & Drop) และระบบเปิด/ปิดการแสดงผล (Toggle) แบบเจาะจงเฉพาะมุมมองมือถือ',
+            'เพิ่มหน้าจอจำลอง (Phone Mockup Preview) เพื่อให้ Admin เห็นภาพรวมเนื้อหาแบบ Real-time',
+        ],
+    },
+    {
+        version: 'v1.2.4 (Responsive & Mock Data)',
+        date: '',
         badge: 'bg-amber-500',
         items: [
             'แก้ไขบั๊กหน้าเว็บล้นกรอบ (Horizontal Overflow) ทั้งบน Desktop และ Mobile โดยใช้ overflow-x-hidden และ flex-wrap',
