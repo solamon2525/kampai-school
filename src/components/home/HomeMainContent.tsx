@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { ChevronLeft, ChevronRight, Eye, Calendar, ArrowRight, FileText, ChevronDown } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Eye, Calendar, ArrowRight, FileText, ChevronDown, Database, Heart, Utensils, BookOpen, Briefcase, Building, Send, Award } from 'lucide-react';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 
 interface NewsItem {
@@ -562,6 +562,130 @@ export const useHomeMainBlocks = () => {
     </div>
   );
 
+  // ─── NEW: OBEC E-Services ───────────────────────────────
+  const obecSystemsSection = (
+    <div key="obec_systems" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-blue-800 text-white px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="bg-white/20 p-1.5 rounded-md">
+            <Building className="w-4 h-4 text-white" />
+          </div>
+          <div>
+            <span className="font-semibold text-sm block">🖥️ ระบบสารสนเทศบุคลากร</span>
+            <span className="text-[10px] text-blue-200 font-medium tracking-wide">E-SERVICES & OBEC SYSTEMS</span>
+          </div>
+        </div>
+      </div>
+      
+      <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        {/* DMC */}
+        <a href="https://portal.bopp-obec.info/" target="_blank" rel="noopener noreferrer" className="group rounded-xl border border-gray-100 bg-gray-50 p-3 hover:bg-blue-50 hover:border-blue-200 transition-all shadow-sm hover:shadow">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
+              <Database className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm text-gray-800 group-hover:text-blue-700 leading-tight">ระบบ DMC</h4>
+              <p className="text-[10px] text-gray-500 mt-0.5">ข้อมูลนักเรียนรายบุคคล</p>
+            </div>
+          </div>
+        </a>
+
+        {/* Thai School Lunch */}
+        <a href="https://www.thaischoollunch.in.th/" target="_blank" rel="noopener noreferrer" className="group rounded-xl border border-gray-100 bg-gray-50 p-3 hover:bg-green-50 hover:border-green-200 transition-all shadow-sm hover:shadow">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-green-100 text-green-700 flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
+              <Utensils className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm text-gray-800 group-hover:text-green-700 leading-tight">School Lunch</h4>
+              <p className="text-[10px] text-gray-500 mt-0.5">ระบบประเมินอาหารกลางวัน</p>
+            </div>
+          </div>
+        </a>
+
+        {/* CCT */}
+        <a href="https://cct.thaieduforall.org/" target="_blank" rel="noopener noreferrer" className="group rounded-xl border border-gray-100 bg-gray-50 p-3 hover:bg-orange-50 hover:border-orange-200 transition-all shadow-sm hover:shadow">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
+              <Heart className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm text-gray-800 group-hover:text-orange-700 leading-tight">ระบบ CCT</h4>
+              <p className="text-[10px] text-gray-500 mt-0.5">คัดกรองนักเรียนยากจน</p>
+            </div>
+          </div>
+        </a>
+
+        {/* School MIS */}
+        <a href="#" target="_blank" rel="noopener noreferrer" className="group rounded-xl border border-gray-100 bg-gray-50 p-3 hover:bg-purple-50 hover:border-purple-200 transition-all shadow-sm hover:shadow">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
+              <BookOpen className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm text-gray-800 group-hover:text-purple-700 leading-tight">School MIS</h4>
+              <p className="text-[10px] text-gray-500 mt-0.5">บริหารจัดการสถานศึกษา</p>
+            </div>
+          </div>
+        </a>
+
+        {/* EMIS */}
+        <a href="http://data.bopp-obec.info/emis/" target="_blank" rel="noopener noreferrer" className="group rounded-xl border border-gray-100 bg-gray-50 p-3 hover:bg-cyan-50 hover:border-cyan-200 transition-all shadow-sm hover:shadow">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-cyan-100 text-cyan-700 flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
+              <Briefcase className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm text-gray-800 group-hover:text-cyan-700 leading-tight">ระบบ EMIS</h4>
+              <p className="text-[10px] text-gray-500 mt-0.5">บริหารการศึกษาสถานศึกษา</p>
+            </div>
+          </div>
+        </a>
+
+        {/* B-OBEC / Asset */}
+        <a href="#" target="_blank" rel="noopener noreferrer" className="group rounded-xl border border-gray-100 bg-gray-50 p-3 hover:bg-rose-50 hover:border-rose-200 transition-all shadow-sm hover:shadow">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
+              <Building className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm text-gray-800 group-hover:text-rose-700 leading-tight">OBEC Asset</h4>
+              <p className="text-[10px] text-gray-500 mt-0.5">ระบบข้อมูลสิ่งก่อสร้าง</p>
+            </div>
+          </div>
+        </a>
+
+        {/* AMSS++ */}
+        <a href="#" target="_blank" rel="noopener noreferrer" className="group rounded-xl border border-gray-100 bg-gray-50 p-3 hover:bg-indigo-50 hover:border-indigo-200 transition-all shadow-sm hover:shadow">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
+              <Send className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm text-gray-800 group-hover:text-indigo-700 leading-tight">AMSS++</h4>
+              <p className="text-[10px] text-gray-500 mt-0.5">รับส่งหนังสืออิเล็กทรอนิกส์</p>
+            </div>
+          </div>
+        </a>
+
+        {/* DPA / HRMS */}
+        <a href="https://dpa.otepc.go.th/" target="_blank" rel="noopener noreferrer" className="group rounded-xl border border-gray-100 bg-gray-50 p-3 hover:bg-teal-50 hover:border-teal-200 transition-all shadow-sm hover:shadow">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
+              <Award className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm text-gray-800 group-hover:text-teal-700 leading-tight">ระบบ DPA</h4>
+              <p className="text-[10px] text-gray-500 mt-0.5">ประเมินวิทยฐานะดิจิทัล</p>
+            </div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  );
+
   const sectionMap: Record<string, JSX.Element | null> = {
     hero: heroSection,
     news: newsSection,
@@ -581,6 +705,7 @@ export const useHomeMainBlocks = () => {
     photo_album: photoAlbumSection,
     map_embed: mapEmbedSection,
     contact_form: contactFormSection,
+    obec_systems: obecSystemsSection,
   };
 
   return sectionMap;

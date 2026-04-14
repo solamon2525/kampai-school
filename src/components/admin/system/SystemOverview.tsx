@@ -124,8 +124,18 @@ const roadmap = [
 
 const versionHistory = [
     {
-        version: 'v1.2.2 (Hover Sync & Two-way Binding)',
+        version: 'v1.2.3 (OBEC E-Services)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-500',
+        items: [
+            'เพิ่ม Block "ระบบสารสนเทศบุคลากร" (E-Services & OBEC Systems) สำหรับเชื่อมโยงระบบของ สพฐ.',
+            'รองรับระบบที่จำเป็นระดับประถม: DMC, Thai School Lunch, CCT, School MIS, EMIS, OBEC Asset, AMSS++, DPA',
+            'ออกแบบ UI Grid แบบ Interactive พร้อม Icon แยกเฉดสีตามประเภทการใช้งาน',
+        ],
+    },
+    {
+        version: 'v1.2.2 (Hover Sync & Two-way Binding)',
+        date: '',
         badge: 'bg-indigo-500',
         items: [
             'Two-way Hover Sync: เลื่อนเมาส์ที่พรีวิวด้านขวา เมนูด้านซ้ายจะสลับโซนตามอัตโนมัติ',
