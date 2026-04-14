@@ -64,20 +64,20 @@ const Index = () => {
       <HomeHeaderZone blockOrder={headerBlocks} />
 
       {/* 3-Column Layout */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-3 py-4">
+      <main className="flex-1 max-w-7xl mx-auto w-full px-3 py-4 overflow-x-hidden min-w-0">
         {/* Desktop: 3 columns */}
         <div className="hidden lg:grid grid-cols-[200px_1fr_240px] gap-4 items-start">
-          <aside>{renderZone(layout?.left, ['principal', 'menu'], 'flex flex-col gap-3 w-full')}</aside>
-          <main>{renderZone(layout?.main, ['hero', 'news', 'about'], 'flex flex-col gap-4 w-full')}</main>
-          <aside>{renderZone(layout?.right, ['categories', 'gallery', 'services', 'social', 'stats'], 'flex flex-col gap-3 w-full')}</aside>
+          <aside className="min-w-0 overflow-hidden">{renderZone(layout?.left, ['principal', 'menu'], 'flex flex-col gap-3 w-full')}</aside>
+          <main className="min-w-0 overflow-hidden">{renderZone(layout?.main, ['hero', 'news', 'about'], 'flex flex-col gap-4 w-full')}</main>
+          <aside className="min-w-0 overflow-hidden">{renderZone(layout?.right, ['categories', 'gallery', 'services', 'social', 'stats'], 'flex flex-col gap-3 w-full')}</aside>
         </div>
 
         {/* Mobile: stack main content + sidebars */}
-        <div className="lg:hidden flex flex-col gap-4">
-          <main>{renderZone(layout?.main, ['hero', 'news', 'about'], 'flex flex-col gap-4 w-full')}</main>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <aside>{renderZone(layout?.left, ['principal', 'menu'], 'flex flex-col gap-3 w-full')}</aside>
-            <aside>{renderZone(layout?.right, ['categories', 'gallery', 'services', 'social', 'stats'], 'flex flex-col gap-3 w-full')}</aside>
+        <div className="lg:hidden flex flex-col gap-4 min-w-0">
+          <div className="min-w-0 overflow-hidden">{renderZone(layout?.main, ['hero', 'news', 'about'], 'flex flex-col gap-4 w-full')}</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 min-w-0">
+            <aside className="min-w-0 overflow-hidden">{renderZone(layout?.left, ['principal', 'menu'], 'flex flex-col gap-3 w-full')}</aside>
+            <aside className="min-w-0 overflow-hidden">{renderZone(layout?.right, ['categories', 'gallery', 'services', 'social', 'stats'], 'flex flex-col gap-3 w-full')}</aside>
           </div>
         </div>
       </main>

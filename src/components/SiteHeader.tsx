@@ -89,11 +89,11 @@ const SiteHeader = () => {
   return (
     <>
       {/* ── Top Bar ── */}
-      <div className="bg-gradient-to-r from-purple-950 via-primary to-purple-900 text-white">
+      <div className="bg-gradient-to-r from-purple-950 via-primary to-purple-900 text-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 py-2.5">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
             {/* Logo + Name */}
-            <Link to="/" onClick={handleLogoClick} className="flex items-center gap-3 group">
+            <Link to="/" onClick={handleLogoClick} className="flex items-center gap-3 group min-w-0">
               <div className="w-16 h-16 rounded-full border-2 border-yellow-400/60 bg-white/10 flex items-center justify-center overflow-hidden flex-shrink-0 transition-all group-hover:border-yellow-400">
                 {settings.school_logo_url ? (
                   <img src={settings.school_logo_url} alt={settings.school_name} className="w-full h-full object-cover" />
@@ -101,11 +101,11 @@ const SiteHeader = () => {
                   <span className="text-xl font-bold text-yellow-300">คผ</span>
                 )}
               </div>
-              <div>
-                <h1 className="text-lg sm:text-xl font-bold text-white leading-tight group-hover:text-yellow-300 transition-colors">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-lg sm:text-xl font-bold text-white leading-tight group-hover:text-yellow-300 transition-colors truncate">
                   {settings.school_name}
                 </h1>
-                <p className="text-yellow-300/80 text-xs mt-0.5">{settings.school_tagline}</p>
+                <p className="text-yellow-300/80 text-xs mt-0.5 truncate">{settings.school_tagline}</p>
               </div>
             </Link>
 

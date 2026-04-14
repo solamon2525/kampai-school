@@ -124,8 +124,18 @@ const roadmap = [
 
 const versionHistory = [
     {
-        version: 'v1.2.3 (OBEC E-Services)',
+        version: 'v1.2.4 (Responsive & Mock Data)',
         date: 'ล่าสุด',
+        badge: 'bg-amber-500',
+        items: [
+            'แก้ไขบั๊กหน้าเว็บล้นกรอบ (Horizontal Overflow) ทั้งบน Desktop และ Mobile โดยใช้ overflow-x-hidden และ flex-wrap',
+            'ฝังข้อมูลจำลอง (Mock Data & Dummy Images) บนระบบ HomeBlocks เพื่อให้ Layout แสดงผลสมบูรณ์แม้ฐานข้อมูลจะว่างเปล่า',
+            'เพิ่มความเสถียรของการ Wrap ตัวอักษรและบรรทัด ป้องกันข้อความยาวดันหน้าเว็บเสียทรง',
+        ],
+    },
+    {
+        version: 'v1.2.3 (OBEC E-Services)',
+        date: '',
         badge: 'bg-emerald-500',
         items: [
             'เพิ่ม Block "ระบบสารสนเทศบุคลากร" (E-Services & OBEC Systems) สำหรับเชื่อมโยงระบบของ สพฐ.',
