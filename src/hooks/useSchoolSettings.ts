@@ -83,6 +83,7 @@ export interface SchoolSettings {
     homepage_main_sections: string;
     homepage_right_widgets: string;
     homepage_layout_raw: string;
+    homepage_mobile_layout: string;
 
     // About page cards
     school_excellence: string;
@@ -177,6 +178,7 @@ const defaultSettings: SchoolSettings = {
     homepage_main_sections: '["hero","news","about"]',
     homepage_right_widgets: '["categories","gallery","services","social","stats"]',
     homepage_layout_raw: '',
+    homepage_mobile_layout: '',
 };
 
 const CACHE_KEY = 'school_settings_cache';

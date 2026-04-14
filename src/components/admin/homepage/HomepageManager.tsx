@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Save, RotateCcw, ExternalLink, LayoutTemplate } from 'lucide-react';
+import { Save, RotateCcw, ExternalLink, LayoutTemplate, Monitor, Smartphone } from 'lucide-react';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 import {
@@ -16,6 +16,7 @@ import {
     type ZoneKey,
 } from './BlockPalette';
 import { HomepagePreview } from './HomepagePreview';
+import { MobileLayoutManager, DEFAULT_MOBILE_LAYOUT, MOBILE_AVAILABLE_BLOCKS, type MobileLayout } from './MobileLayoutManager';
 
 interface HomepageLayout {
     header: { blocks: string[]; hidden: string[] };
@@ -81,12 +82,15 @@ export const HomepageManager = () => {
     const { toast } = useToast();
     const [layout, setLayout] = useState<HomepageLayout>(DEFAULT_LAYOUT);
     const [initialLayout, setInitialLayout] = useState<HomepageLayout>(DEFAULT_LAYOUT);
+    const [mobileLayout, setMobileLayout] = useState<MobileLayout>(DEFAULT_MOBILE_LAYOUT);
+    const [initialMobileLayout, setInitialMobileLayout] = useState<MobileLayout>(DEFAULT_MOBILE_LAYOUT);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [activeZone, setActiveZone] = useState<ZoneKey>('main');
     const [selectedBlock, setSelectedBlock] = useState<string | null>(null);
     const [hoveredBlock, setHoveredBlock] = useState<string | null>(null);
     const [hoverSource, setHoverSource] = useState<'palette' | 'preview' | null>(null);
+    const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
 
     const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
@@ -141,7 +145,7 @@ export const HomepageManager = () => {
             const { data } = await supabase
                 .from('school_settings')
                 .select('key, value')
-                .in('key', ['homepage_layout', 'homepage_main_sections', 'homepage_right_widgets']);
+                .in('key', ['homepage_layout', 'homepage_main_sections', 'homepage_right_widgets', 'homepage_mobile_layout']);
 
             if (!data) {
                 setLoading(false);
@@ -196,12 +200,40 @@ export const HomepageManager = () => {
 
             setLayout(loaded);
             setInitialLayout(JSON.parse(JSON.stringify(loaded)));
+
+            // Load mobile layout
+            let loadedMobile: MobileLayout = DEFAULT_MOBILE_LAYOUT;
+            if (map.homepage_mobile_layout) {
+                try {
+                    const parsed = JSON.parse(map.homepage_mobile_layout) as MobileLayout;
+                    // Ensure all available blocks are present (inject new ones at end)
+                    const existingIds = new Set(parsed.blocks);
+                    const newBlocks = MOBILE_AVAILABLE_BLOCKS.filter(b => !existingIds.has(b.id)).map(b => b.id);
+                    loadedMobile = { ...parsed, blocks: [...parsed.blocks, ...newBlocks] };
+                } catch { /* use default */ }
+            } else {
+                // Auto-build from desktop layout order
+                const desktopOrder = [
+                    ...loaded.main.blocks,
+                    ...loaded.left.blocks,
+                    ...loaded.right.blocks,
+                ];
+                const validIds = new Set(MOBILE_AVAILABLE_BLOCKS.map(b => b.id));
+                const ordered = desktopOrder.filter(id => validIds.has(id));
+                const rest = MOBILE_AVAILABLE_BLOCKS.filter(b => !ordered.includes(b.id)).map(b => b.id);
+                loadedMobile = { blocks: [...ordered, ...rest], hidden: [] };
+            }
+            setMobileLayout(loadedMobile);
+            setInitialMobileLayout(JSON.parse(JSON.stringify(loadedMobile)));
+
             setLoading(false);
         };
         load();
     }, []);
 
-    const hasChanges = JSON.stringify(layout) !== JSON.stringify(initialLayout);
+    const hasChanges =
+        JSON.stringify(layout) !== JSON.stringify(initialLayout) ||
+        JSON.stringify(mobileLayout) !== JSON.stringify(initialMobileLayout);
 
     const handleSave = async () => {
         setSaving(true);
@@ -228,7 +260,16 @@ export const HomepageManager = () => {
                 ),
             ]);
 
+            // Save mobile layout
+            await supabase
+                .from('school_settings' as any)
+                .upsert(
+                    { key: 'homepage_mobile_layout', value: JSON.stringify(mobileLayout), category: 'display' },
+                    { onConflict: 'key' }
+                );
+
             setInitialLayout(JSON.parse(JSON.stringify(layout)));
+            setInitialMobileLayout(JSON.parse(JSON.stringify(mobileLayout)));
             toast({ title: '✅ บันทึกเรียบร้อย', description: 'หน้าแรกจะอัพเดตทันที' });
         } catch (err: any) {
             toast({ title: 'บันทึกล้มเหลว', description: err.message, variant: 'destructive' });
@@ -239,6 +280,7 @@ export const HomepageManager = () => {
 
     const handleReset = () => {
         setLayout(JSON.parse(JSON.stringify(initialLayout)));
+        setMobileLayout(JSON.parse(JSON.stringify(initialMobileLayout)));
         setSelectedBlock(null);
         toast({ title: 'คืนค่าแล้ว' });
     };
@@ -277,6 +319,32 @@ export const HomepageManager = () => {
                         <ExternalLink className="w-3.5 h-3.5" />
                         <span className="hidden sm:inline">ดูหน้าจริง</span>
                     </a>
+
+                    {/* Desktop/Mobile mode toggle */}
+                    <div className="flex items-center border border-border rounded-lg overflow-hidden">
+                        <button
+                            onClick={() => setViewMode('desktop')}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${
+                                viewMode === 'desktop'
+                                    ? 'bg-primary text-primary-foreground'
+                                    : 'text-muted-foreground hover:bg-secondary'
+                            }`}
+                        >
+                            <Monitor className="w-3.5 h-3.5" />
+                            <span className="hidden sm:inline">Desktop</span>
+                        </button>
+                        <button
+                            onClick={() => setViewMode('mobile')}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${
+                                viewMode === 'mobile'
+                                    ? 'bg-primary text-primary-foreground'
+                                    : 'text-muted-foreground hover:bg-secondary'
+                            }`}
+                        >
+                            <Smartphone className="w-3.5 h-3.5" />
+                            <span className="hidden sm:inline">Mobile</span>
+                        </button>
+                    </div>
                     <Button
                         variant="outline"
                         size="sm"
@@ -302,50 +370,59 @@ export const HomepageManager = () => {
                 </div>
             </div>
 
-            {/* Main Content: Palette + Preview */}
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                <div className="flex-1 flex overflow-hidden">
-                    {/* Block Palette (Left Panel) */}
-                    <div className="w-80 flex-shrink-0 border-r border-border bg-card overflow-hidden flex flex-col">
-                    <BlockPalette
-                        layout={layout}
-                        onLayoutChange={setLayout as any}
-                        activeZone={activeZone}
-                        onZoneChange={(zone) => {
-                            setActiveZone(zone);
-                            setSelectedBlock(null);
-                        }}
-                        selectedBlock={selectedBlock}
-                        onSelectBlock={setSelectedBlock}
-                        hoveredBlock={hoveredBlock}
-                        hoverSource={hoverSource}
-                        onHoverBlock={(id) => {
-                            setHoveredBlock(id);
-                            setHoverSource('palette');
-                        }}
-                    />
-                </div>
-
-                {/* Preview (Right Panel) */}
-                <div className="flex-1 overflow-hidden bg-secondary/30">
-                    <HomepagePreview
-                        layout={layout}
-                        selectedBlock={selectedBlock}
-                        onSelectBlock={setSelectedBlock}
-                        activeZone={activeZone}
-                        hoveredBlock={hoveredBlock}
-                        hoverSource={hoverSource}
-                        onHoverPreviewBlock={(id, zone) => {
-                            setHoveredBlock(id);
-                            setHoverSource('preview');
-                            if (id && zone && zone !== activeZone) {
+            {/* Main Content: Desktop or Mobile editor */}
+            {viewMode === 'desktop' ? (
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                    <div className="flex-1 flex overflow-hidden">
+                        {/* Block Palette (Left Panel) */}
+                        <div className="w-80 flex-shrink-0 border-r border-border bg-card overflow-hidden flex flex-col">
+                        <BlockPalette
+                            layout={layout}
+                            onLayoutChange={setLayout as any}
+                            activeZone={activeZone}
+                            onZoneChange={(zone) => {
                                 setActiveZone(zone);
-                            }
-                        }}
+                                setSelectedBlock(null);
+                            }}
+                            selectedBlock={selectedBlock}
+                            onSelectBlock={setSelectedBlock}
+                            hoveredBlock={hoveredBlock}
+                            hoverSource={hoverSource}
+                            onHoverBlock={(id) => {
+                                setHoveredBlock(id);
+                                setHoverSource('palette');
+                            }}
+                        />
+                    </div>
+
+                    {/* Preview (Right Panel) */}
+                    <div className="flex-1 overflow-hidden bg-secondary/30">
+                        <HomepagePreview
+                            layout={layout}
+                            selectedBlock={selectedBlock}
+                            onSelectBlock={setSelectedBlock}
+                            activeZone={activeZone}
+                            hoveredBlock={hoveredBlock}
+                            hoverSource={hoverSource}
+                            onHoverPreviewBlock={(id, zone) => {
+                                setHoveredBlock(id);
+                                setHoverSource('preview');
+                                if (id && zone && zone !== activeZone) {
+                                    setActiveZone(zone);
+                                }
+                            }}
+                        />
+                    </div>
+                    </div>
+                </DndContext>
+            ) : (
+                <div className="flex-1 overflow-hidden">
+                    <MobileLayoutManager
+                        mobileLayout={mobileLayout}
+                        onMobileLayoutChange={setMobileLayout}
                     />
                 </div>
-                </div>
-            </DndContext>
+            )}
         </div>
     );
 };

@@ -36,6 +36,18 @@ const Index = () => {
     try { layout = JSON.parse(settings.homepage_layout_raw); } catch { /* fallback */ }
   }
 
+  // Parse mobile layout from settings
+  let mobileBlocks: string[] | null = null;
+  let mobileHidden: string[] = [];
+  const mobileLayoutRaw = (settings as any).homepage_mobile_layout;
+  if (mobileLayoutRaw) {
+    try {
+      const ml = JSON.parse(mobileLayoutRaw);
+      mobileBlocks = (ml.blocks as string[]) || null;
+      mobileHidden = (ml.hidden as string[]) || [];
+    } catch { /* fallback */ }
+  }
+
   // Header zone blocks
   const headerBlocks = layout ? getVisibleBlocks(layout.header) : ['news_ticker'];
   // Footer zone blocks
@@ -72,13 +84,26 @@ const Index = () => {
           <aside className="min-w-0 overflow-hidden">{renderZone(layout?.right, ['categories', 'gallery', 'services', 'social', 'stats'], 'flex flex-col gap-3 w-full')}</aside>
         </div>
 
-        {/* Mobile: stack main content + sidebars */}
+        {/* Mobile: custom order from MobileLayoutManager, or fallback to default stacking */}
         <div className="lg:hidden flex flex-col gap-4 min-w-0">
-          <div className="min-w-0 overflow-hidden">{renderZone(layout?.main, ['hero', 'news', 'about'], 'flex flex-col gap-4 w-full')}</div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 min-w-0">
-            <aside className="min-w-0 overflow-hidden">{renderZone(layout?.left, ['principal', 'menu'], 'flex flex-col gap-3 w-full')}</aside>
-            <aside className="min-w-0 overflow-hidden">{renderZone(layout?.right, ['categories', 'gallery', 'services', 'social', 'stats'], 'flex flex-col gap-3 w-full')}</aside>
-          </div>
+          {mobileBlocks ? (
+            // Use admin-configured mobile order
+            mobileBlocks
+              .filter((id) => !mobileHidden.includes(id))
+              .map((id) => {
+                const block = allBlocksMap[id as keyof typeof allBlocksMap];
+                return block ? <div key={id} className="min-w-0 overflow-hidden">{block}</div> : null;
+              })
+          ) : (
+            // Default: main then sidebars
+            <>
+              <div className="min-w-0 overflow-hidden">{renderZone(layout?.main, ['hero', 'news', 'about'], 'flex flex-col gap-4 w-full')}</div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 min-w-0">
+                <aside className="min-w-0 overflow-hidden">{renderZone(layout?.left, ['principal', 'menu'], 'flex flex-col gap-3 w-full')}</aside>
+                <aside className="min-w-0 overflow-hidden">{renderZone(layout?.right, ['categories', 'gallery', 'services', 'social', 'stats'], 'flex flex-col gap-3 w-full')}</aside>
+              </div>
+            </>
+          )}
         </div>
       </main>
 
