@@ -350,10 +350,10 @@ export const useHomeMainBlocks = () => {
   );
 
   const announcementSection = (
-    <div key="announcement" className="flex items-center gap-3 px-4 py-3 rounded-lg border border-blue-300 bg-blue-50 shadow-sm">
+    <div key="announcement" className="flex items-center gap-3 px-4 py-3 rounded-lg border border-blue-300 bg-blue-50 shadow-sm overflow-hidden">
       <span className="text-2xl flex-shrink-0">📢</span>
-      <div className="flex-1">
-        <p className="text-sm font-medium text-blue-800">{settings.hero_badge || 'เปิดรับสมัครนักเรียนใหม่ ปีการศึกษา 2568'}</p>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-blue-800 break-words leading-tight">{settings.hero_badge || 'เปิดรับสมัครนักเรียนใหม่ ปีการศึกษา 2568'}</p>
         <Link to="/enrollment" className="text-xs text-blue-600 hover:text-blue-800 underline mt-0.5 inline-block">
           ดูรายละเอียด →
         </Link>
@@ -510,10 +510,10 @@ export const useHomeMainBlocks = () => {
 
   // ─── NEW: Countdown ─────────────────────────────────────
   const countdownSection = (
-    <div key="countdown" className="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg p-6 text-center shadow-md">
-      <h3 className="text-sm font-bold mb-1 opacity-90">⏳ นับถอยหลังสู่วันเปิดเทอม</h3>
-      <p className="text-xs opacity-70 mb-4">ปีการศึกษา 2568</p>
-      <div className="flex justify-center gap-4">
+    <div key="countdown" className="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg p-6 text-center shadow-md overflow-hidden">
+      <h3 className="text-sm font-bold mb-1 opacity-90 truncate">⏳ นับถอยหลังสู่วันเปิดเทอม</h3>
+      <p className="text-xs opacity-70 mb-4 truncate">ปีการศึกษา 2568</p>
+      <div className="flex justify-center gap-2 sm:gap-4 flex-wrap">
         {[
           { value: '--', label: 'วัน' },
           { value: '--', label: 'ชม.' },
