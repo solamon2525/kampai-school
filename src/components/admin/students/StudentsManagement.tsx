@@ -6,13 +6,14 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Edit, Trash2, GraduationCap, Trophy, Users, Award, BarChart3, Table } from 'lucide-react';
+import { Plus, Edit, Trash2, GraduationCap, Trophy, Users, Award, BarChart3, Table, ArrowUpCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { StudentStatsManagement } from './StudentStatsManagement';
 import { GradeDataManagement } from './GradeDataManagement';
 import { StudentCouncilManagement } from './StudentCouncilManagement';
 import { StudentListManagement } from './StudentListManagement';
+import { ClassPromotionManagement } from './ClassPromotionManagement';
 
 interface StudentAchievement {
     id: string;
@@ -274,6 +275,10 @@ export const StudentsManagement = () => {
                         <Award className="w-4 h-4" />
                         สภานักเรียน
                     </TabsTrigger>
+                    <TabsTrigger value="promotion" className="gap-2">
+                        <ArrowUpCircle className="w-4 h-4" />
+                        เลื่อนชั้น
+                    </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="list">
@@ -290,6 +295,10 @@ export const StudentsManagement = () => {
 
                 <TabsContent value="council">
                     <StudentCouncilManagement />
+                </TabsContent>
+
+                <TabsContent value="promotion">
+                    <ClassPromotionManagement />
                 </TabsContent>
 
                 <TabsContent value="achievements">

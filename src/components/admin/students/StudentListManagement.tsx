@@ -169,14 +169,26 @@ function StudentAvatar({ photo_url, name, size = 32 }: { photo_url: string | nul
     );
 }
 
+/** แสดงข้อมูลแบบ read-only */
+const InfoRow = ({ label, value }: { label: string; value: string | null | undefined }) => (
+    <div>
+        <span className="text-xs text-muted-foreground">{label}</span>
+        <p className="text-sm font-medium">{value || '—'}</p>
+    </div>
+);
+
 export const StudentListManagement = () => {
     const [students, setStudents] = useState<Student[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<Student | null>(null);
+    const [viewStudent, setViewStudent] = useState<Student | null>(null);
     const [deleteId, setDeleteId] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterClass, setFilterClass] = useState('all');
+    const [filterRoom, setFilterRoom] = useState('all');
+    const [filterGender, setFilterGender] = useState('all');
+    const [filterStatus, setFilterStatus] = useState('all');
     const [formData, setFormData] = useState(defaultForm);
     const [sorting, setSorting] = useState<SortingState>([]);
     const [webcamOpen, setWebcamOpen] = useState(false);
@@ -325,6 +337,7 @@ export const StudentListManagement = () => {
     };
 
     const uniqueClasses = useMemo(() => Array.from(new Set(students.map(s => s.class))).sort(), [students]);
+    const uniqueRooms = useMemo(() => Array.from(new Set(students.map(s => s.room).filter(Boolean) as string[])).sort(), [students]);
 
     const columns: ColumnDef<Student>[] = useMemo(() => [
         {
@@ -344,7 +357,12 @@ export const StudentListManagement = () => {
             header: 'ชื่อ-นามสกุล',
             cell: ({ row }) => (
                 <div>
-                    <div className="font-medium">{row.original.name}</div>
+                    <div
+                        className="font-medium cursor-pointer hover:text-primary"
+                        onClick={() => setViewStudent(row.original)}
+                    >
+                        {row.original.name}
+                    </div>
                     {row.original.nickname && (
                         <div className="text-xs text-muted-foreground">ชื่อเล่น: {row.original.nickname}</div>
                     )}
@@ -407,8 +425,15 @@ export const StudentListManagement = () => {
     ], [setCardStudent, handleOpenDialog, setDeleteId]);
 
     const filteredData = useMemo(
-        () => students.filter(s => filterClass === 'all' || s.class === filterClass),
-        [students, filterClass]
+        () => students.filter(s => {
+            if (filterClass !== 'all' && s.class !== filterClass) return false;
+            if (filterRoom !== 'all' && s.room !== filterRoom) return false;
+            if (filterGender !== 'all' && s.gender !== filterGender) return false;
+            if (filterStatus === 'active' && !s.is_active) return false;
+            if (filterStatus === 'inactive' && s.is_active) return false;
+            return true;
+        }),
+        [students, filterClass, filterRoom, filterGender, filterStatus]
     );
 
     const globalFilter = searchTerm;
@@ -459,8 +484,8 @@ export const StudentListManagement = () => {
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <div className="flex flex-col sm:flex-row gap-3">
-                        <div className="relative flex-1">
+                    <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
+                        <div className="relative flex-1 min-w-[200px]">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                             <Input
                                 placeholder="ค้นหาชื่อ, รหัส, หรือเลขบัตรประชาชน..."
@@ -470,10 +495,33 @@ export const StudentListManagement = () => {
                             />
                         </div>
                         <Select value={filterClass} onValueChange={setFilterClass}>
-                            <SelectTrigger className="w-full sm:w-40"><SelectValue placeholder="ทุกชั้น" /></SelectTrigger>
+                            <SelectTrigger className="w-full sm:w-36"><SelectValue placeholder="ทุกชั้น" /></SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">ทุกชั้น</SelectItem>
                                 {uniqueClasses.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                        <Select value={filterRoom} onValueChange={setFilterRoom}>
+                            <SelectTrigger className="w-full sm:w-32"><SelectValue placeholder="ทุกห้อง" /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">ทุกห้อง</SelectItem>
+                                {uniqueRooms.map(r => <SelectItem key={r} value={r}>ห้อง {r}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                        <Select value={filterGender} onValueChange={setFilterGender}>
+                            <SelectTrigger className="w-full sm:w-32"><SelectValue placeholder="ทุกเพศ" /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">ทุกเพศ</SelectItem>
+                                <SelectItem value="male">ชาย</SelectItem>
+                                <SelectItem value="female">หญิง</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <Select value={filterStatus} onValueChange={setFilterStatus}>
+                            <SelectTrigger className="w-full sm:w-36"><SelectValue placeholder="ทุกสถานะ" /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">ทุกสถานะ</SelectItem>
+                                <SelectItem value="active">กำลังศึกษา</SelectItem>
+                                <SelectItem value="inactive">ไม่ได้ศึกษา</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -534,6 +582,114 @@ export const StudentListManagement = () => {
                     )}
                 </CardContent>
             </Card>
+
+            {/* ===== View Dialog (read-only) ===== */}
+            <Dialog open={!!viewStudent} onOpenChange={open => { if (!open) setViewStudent(null); }}>
+                <DialogContent className="max-w-2xl max-h-[92vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>ข้อมูลนักเรียน</DialogTitle>
+                    </DialogHeader>
+                    {viewStudent && (
+                        <div className="space-y-5">
+                            {/* Header: รูป + ชื่อ + รหัส + ชั้น */}
+                            <div className="flex items-center gap-4 pb-3 border-b">
+                                <StudentAvatar photo_url={viewStudent.photo_url} name={viewStudent.name} size={80} />
+                                <div>
+                                    <p className="text-xl font-bold">{viewStudent.name}</p>
+                                    {viewStudent.student_code && (
+                                        <p className="text-sm text-muted-foreground font-mono">รหัส: {viewStudent.student_code}</p>
+                                    )}
+                                    <div className="flex gap-2 mt-1">
+                                        <Badge>{viewStudent.class}</Badge>
+                                        {viewStudent.room && <Badge variant="outline">ห้อง {viewStudent.room}</Badge>}
+                                        <Badge variant={viewStudent.is_active ? 'default' : 'outline'}>
+                                            {viewStudent.is_active ? 'กำลังศึกษา' : 'ไม่ได้ศึกษา'}
+                                        </Badge>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Section 1: ข้อมูลหลัก */}
+                            <div>
+                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">ข้อมูลหลัก</p>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                    <InfoRow label="ชื่อ-นามสกุล" value={viewStudent.name} />
+                                    <InfoRow label="ชื่อเล่น" value={viewStudent.nickname} />
+                                    <InfoRow label="ชั้น" value={viewStudent.class} />
+                                    <InfoRow label="ห้อง" value={viewStudent.room} />
+                                    <InfoRow label="เลขที่" value={viewStudent.class_number?.toString()} />
+                                    <InfoRow label="เพศ" value={viewStudent.gender === 'male' ? 'ชาย' : viewStudent.gender === 'female' ? 'หญิง' : viewStudent.gender} />
+                                </div>
+                            </div>
+
+                            {/* Section 2: ข้อมูลส่วนตัว */}
+                            <div className="border-t pt-4">
+                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">ข้อมูลส่วนตัว</p>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                    <InfoRow label="เลขบัตรประชาชน" value={viewStudent.national_id} />
+                                    <InfoRow label="วันเกิด (พ.ศ.)" value={formatBirthDate(viewStudent.birth_date)} />
+                                    <InfoRow label="อายุ" value={calcAge(viewStudent.birth_date)} />
+                                    <InfoRow label="ศาสนา" value={viewStudent.religion} />
+                                    <InfoRow label="สัญชาติ" value={viewStudent.nationality} />
+                                    <InfoRow label="หมู่โลหิต" value={viewStudent.blood_type} />
+                                </div>
+                            </div>
+
+                            {/* Section 3: ที่อยู่ */}
+                            <div className="border-t pt-4">
+                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">ที่อยู่</p>
+                                <p className="text-xs text-muted-foreground mb-2 font-medium">ที่อยู่ปัจจุบัน</p>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+                                    <InfoRow label="บ้านเลขที่" value={viewStudent.current_house_no} />
+                                    <InfoRow label="หมู่" value={viewStudent.current_moo} />
+                                    <InfoRow label="ถนน" value={viewStudent.current_road} />
+                                    <InfoRow label="ตำบล" value={viewStudent.current_tambon} />
+                                    <InfoRow label="อำเภอ" value={viewStudent.current_amphoe} />
+                                    <InfoRow label="จังหวัด" value={viewStudent.current_province} />
+                                    <InfoRow label="รหัสไปรษณีย์" value={viewStudent.current_postal_code} />
+                                    <InfoRow label="โทรศัพท์" value={viewStudent.current_phone} />
+                                </div>
+                                <p className="text-xs text-muted-foreground mb-2 font-medium">ที่อยู่ตามทะเบียนบ้าน</p>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                    <InfoRow label="บ้านเลขที่" value={viewStudent.registered_house_no} />
+                                    <InfoRow label="หมู่" value={viewStudent.registered_moo} />
+                                    <InfoRow label="ถนน" value={viewStudent.registered_road} />
+                                    <InfoRow label="ตำบล" value={viewStudent.registered_tambon} />
+                                    <InfoRow label="อำเภอ" value={viewStudent.registered_amphoe} />
+                                    <InfoRow label="จังหวัด" value={viewStudent.registered_province} />
+                                    <InfoRow label="รหัสไปรษณีย์" value={viewStudent.registered_postal_code} />
+                                    <InfoRow label="โทรศัพท์" value={viewStudent.registered_phone} />
+                                </div>
+                            </div>
+
+                            {/* Section 4: ครอบครัว */}
+                            <div className="border-t pt-4">
+                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">ครอบครัว</p>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                    <InfoRow label="บิดา" value={viewStudent.father_name} />
+                                    <InfoRow label="มารดา" value={viewStudent.mother_name} />
+                                    <InfoRow label="ผู้ปกครอง" value={viewStudent.guardian_name} />
+                                    <InfoRow label="ความสัมพันธ์" value={viewStudent.guardian_relation} />
+                                    <InfoRow label="เบอร์โทรผู้ปกครอง" value={viewStudent.parent_phone} />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    <DialogFooter className="gap-2">
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                const s = viewStudent!;
+                                setViewStudent(null);
+                                handleOpenDialog(s);
+                            }}
+                        >
+                            <Edit className="w-4 h-4 mr-1" /> แก้ไข
+                        </Button>
+                        <Button variant="secondary" onClick={() => setViewStudent(null)}>ปิด</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
             {/* ===== Dialog เพิ่ม/แก้ไขนักเรียน ===== */}
             <Dialog open={isDialogOpen} onOpenChange={open => { if (!open) setIsDialogOpen(false); }}>
@@ -753,6 +909,10 @@ export const StudentListManagement = () => {
                                         <div className="space-y-2">
                                             <Label>รหัสไปรษณีย์</Label>
                                             <Input placeholder="รหัสไปรษณีย์" maxLength={5} value={formData.registered_postal_code} onChange={set('registered_postal_code')} />
+                                        </div>
+                                        <div className="col-span-2 space-y-2">
+                                            <Label>โทรศัพท์บ้าน (ทะเบียนบ้าน)</Label>
+                                            <Input placeholder="โทรศัพท์" value={formData.registered_phone} onChange={set('registered_phone')} />
                                         </div>
                                     </div>
                                 </div>
