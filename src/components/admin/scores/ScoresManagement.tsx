@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { studentsService, scoresService } from '@/services';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -118,26 +118,20 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
 
     const loadStudentsAndScores = async () => {
         setIsLoading(true);
-        const { data: students, error } = await supabase
-            .from('students')
-            .select('id, student_code, name, class, room, class_number, gender, photo_url')
-            .eq('class', selectedClass)
-            .eq('is_active', true)
-            .order('class_number');
+        const { data: students, error } = await studentsService.getByClass(selectedClass);
 
         if (error) { toast({ variant: 'destructive', title: 'โหลดข้อมูลไม่สำเร็จ' }); setIsLoading(false); return; }
 
         // โหลดคะแนนที่บันทึกไปแล้ว (ถ้ามี subject + type เลือกแล้ว)
         let existingMap: Record<string, ScoreRecord> = {};
         if (selectedSubject && selectedType) {
-            const { data: existing } = await supabase
-                .from('score_records')
-                .select('*')
-                .eq('subject', selectedSubject)
-                .eq('score_type', selectedType)
-                .eq('semester', semester)
-                .eq('academic_year', academicYear)
-                .in('student_id', (students || []).map(s => s.id));
+            const { data: existing } = await scoresService.getByStudentIds(
+                (students || []).map(s => s.id),
+                selectedSubject,
+                selectedType,
+                semester,
+                academicYear
+            );
             (existing || []).forEach(r => { existingMap[r.student_id] = r; });
         }
 
@@ -177,7 +171,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
         if (upserts.length === 0) { toast({ variant: 'destructive', title: 'ไม่มีข้อมูลคะแนน' }); return; }
 
         setIsSaving(true);
-        const { error } = await supabase.from('score_records').upsert(upserts, { onConflict: 'student_id,subject,score_type,semester,academic_year' });
+        const { error } = await scoresService.upsert(upserts);
         setIsSaving(false);
 
         if (error) { toast({ variant: 'destructive', title: 'บันทึกไม่สำเร็จ', description: error.message }); return; }

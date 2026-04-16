@@ -12,8 +12,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import {
+  wasteCategoriesService,
+  wasteTransactionsService,
+  wasteSummaryService,
+  studentsService,
+} from '@/services';
 
 const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 
@@ -129,45 +134,28 @@ export const WasteBankManagement = () => {
   useEffect(() => {
     if (form.student_class) {
       (async () => {
-        const { data } = await supabase
-          .from('students')
-          .select('id, name, class, photo_url')
-          .eq('class', form.student_class)
-          .eq('is_active', true)
-          .order('class_number', { ascending: true });
-        setStudentOptions(data || []);
+        const { data } = await studentsService.getByClass(form.student_class);
+        setStudentOptions((data || []).map(s => ({ id: s.id, name: s.name, class: s.class, photo_url: s.photo_url ?? null })));
       })();
     } else {
       setStudentOptions([]);
     }
-    // Reset selected student when class changes
     setSelectedStudentId('');
     setForm(prev => ({ ...prev, student_name: '' }));
   }, [form.student_class]);
 
   const fetchCategories = async () => {
-    const { data, error } = await supabase
-      .from('waste_categories')
-      .select('*')
-      .eq('is_active', true)
-      .order('order_position', { ascending: true });
+    const { data, error } = await wasteCategoriesService.getActive();
     if (!error && data) setCategories(data);
   };
 
   const fetchTransactions = async () => {
-    const { data, error } = await supabase
-      .from('waste_transactions')
-      .select('*, waste_categories(name, icon, color), students(photo_url)')
-      .order('transaction_date', { ascending: false })
-      .order('created_at', { ascending: false })
-      .limit(50);
-    if (!error && data) setTransactions(data);
+    const { data, error } = await wasteTransactionsService.getRecent(50);
+    if (!error && data) setTransactions(data as typeof transactions);
   };
 
   const fetchSummaries = async () => {
-    const { data, error } = await supabase
-      .from('waste_student_summary')
-      .select('student_name, student_class, student_id, photo_url, student_code, total_transactions, total_weight, total_amount, last_transaction_date');
+    const { data, error } = await wasteSummaryService.getAll();
     if (!error && data) setSummaries(data as StudentSummary[]);
   };
 
@@ -190,7 +178,7 @@ export const WasteBankManagement = () => {
     const amount = weight * cat.price_per_kg;
 
     setIsSubmitting(true);
-    const { error } = await supabase.from('waste_transactions').insert({
+    const { error } = await wasteTransactionsService.insert({
       student_name: form.student_name.trim(),
       student_class: form.student_class,
       student_id: selectedStudentId || null,
@@ -218,7 +206,7 @@ export const WasteBankManagement = () => {
 
   const handleDeleteTransaction = async (id: string) => {
     if (!confirm('ต้องการลบรายการนี้?')) return;
-    const { error } = await supabase.from('waste_transactions').delete().eq('id', id);
+    const { error } = await wasteTransactionsService.delete(id);
     if (error) {
       toast({ title: 'ลบไม่สำเร็จ', description: error.message, variant: 'destructive' });
     } else {
@@ -275,9 +263,9 @@ export const WasteBankManagement = () => {
 
     let error;
     if (editingCategory) {
-      ({ error } = await supabase.from('waste_categories').update(payload).eq('id', editingCategory.id));
+      ({ error } = await wasteCategoriesService.update(editingCategory.id, payload));
     } else {
-      ({ error } = await supabase.from('waste_categories').insert({ ...payload, is_active: true, order_position: 99 }));
+      ({ error } = await wasteCategoriesService.insert({ ...payload, is_active: true, order_position: 99 }));
     }
     setIsSavingCategory(false);
 
@@ -292,7 +280,7 @@ export const WasteBankManagement = () => {
 
   const handleDeleteCategory = async (id: string) => {
     if (!confirm('ต้องการลบประเภทขยะนี้?')) return;
-    const { error } = await supabase.from('waste_categories').update({ is_active: false }).eq('id', id);
+    const { error } = await wasteCategoriesService.deactivate(id);
     if (error) {
       toast({ title: 'ลบไม่สำเร็จ', description: error.message, variant: 'destructive' });
     } else {

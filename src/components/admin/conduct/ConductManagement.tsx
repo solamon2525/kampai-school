@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { studentsService, conductService } from '@/services';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -106,8 +106,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
 
     useEffect(() => {
         if (!selectedClass) { setStudents([]); setSelectedStudentId(''); return; }
-        supabase.from('students').select('id, student_code, name, class, room, class_number, gender')
-            .eq('class', selectedClass).eq('is_active', true).order('class_number')
+        studentsService.getByClass(selectedClass)
             .then(({ data }) => setStudents((data || []) as Student[]));
     }, [selectedClass]);
 
@@ -120,7 +119,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
             return;
         }
         setIsSaving(true);
-        const { error } = await supabase.from('conduct_scores').insert({
+        const { error } = await conductService.insert({
             student_id: selectedStudentId,
             type,
             score: parseInt(score) || 1,
@@ -305,11 +304,7 @@ function LeaderboardTab() {
     useEffect(() => {
         const load = async () => {
             setIsLoading(true);
-            const { data } = await supabase
-                .from('conduct_scores')
-                .select('*, students(name, class)')
-                .eq('academic_year', filterYear)
-                .eq('semester', filterSemester);
+            const { data } = await conductService.getAll(filterSemester, filterYear);
             setRecords((data || []) as ConductRecord[]);
             setIsLoading(false);
         };
@@ -407,12 +402,7 @@ function HistoryTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) 
 
     const load = async () => {
         setIsLoading(true);
-        let q = supabase
-            .from('conduct_scores')
-            .select('*, students(name, class)')
-            .eq('academic_year', filterYear)
-            .eq('semester', filterSemester)
-            .order('created_at', { ascending: false });
+        let q = conductService.getAll(filterSemester, filterYear);
         if (filterType) q = q.eq('type', filterType);
         const { data } = await q;
         let result = (data || []) as ConductRecord[];
@@ -426,7 +416,7 @@ function HistoryTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) 
 
     const handleDelete = async () => {
         if (!deleteId) return;
-        const { error } = await supabase.from('conduct_scores').delete().eq('id', deleteId);
+        const { error } = await conductService.delete(deleteId);
         if (error) toast({ variant: 'destructive', title: 'ลบไม่สำเร็จ' });
         else { toast({ title: 'ลบรายการสำเร็จ' }); load(); }
         setDeleteId(null);

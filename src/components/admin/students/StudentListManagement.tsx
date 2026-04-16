@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/client'; // ใช้เฉพาะ storage (webcam)
+import { studentsService } from '@/services';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -188,7 +189,7 @@ export const StudentListManagement = () => {
 
     const fetchStudents = async () => {
         setIsLoading(true);
-        const { data, error } = await supabase.from('students').select('*').order('class').order('class_number');
+        const { data, error } = await studentsService.getAll();
         if (error) toast({ variant: 'destructive', title: 'เกิดข้อผิดพลาด', description: error.message });
         else setStudents((data || []) as Student[]);
         setIsLoading(false);
@@ -307,8 +308,8 @@ export const StudentListManagement = () => {
             updated_at: new Date().toISOString(),
         };
         const { error } = editingItem
-            ? await supabase.from('students').update(payload).eq('id', editingItem.id)
-            : await supabase.from('students').insert(payload);
+            ? await studentsService.update(editingItem.id, payload)
+            : await studentsService.insert(payload);
         if (error) { toast({ variant: 'destructive', title: 'เกิดข้อผิดพลาด', description: error.message }); return; }
         toast({ title: 'สำเร็จ', description: editingItem ? 'แก้ไขข้อมูลเรียบร้อย' : 'เพิ่มนักเรียนใหม่เรียบร้อย' });
         setIsDialogOpen(false);
@@ -317,7 +318,7 @@ export const StudentListManagement = () => {
 
     const handleDelete = async () => {
         if (!deleteId) return;
-        const { error } = await supabase.from('students').delete().eq('id', deleteId);
+        const { error } = await studentsService.delete(deleteId);
         if (error) toast({ variant: 'destructive', title: 'เกิดข้อผิดพลาด', description: error.message });
         else { toast({ title: 'สำเร็จ', description: 'ลบนักเรียนเรียบร้อย' }); fetchStudents(); }
         setDeleteId(null);

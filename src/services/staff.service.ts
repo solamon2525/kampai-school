@@ -1,0 +1,33 @@
+/**
+ * staff.service.ts
+ * Supabase queries สำหรับ staff และ administrators tables
+ */
+import { supabase } from '@/integrations/supabase/client';
+
+export const staffService = {
+  getAll: () =>
+    supabase.from('staff').select('*').order('order_position', { ascending: true }),
+
+  insert: (data: Record<string, unknown>) =>
+    supabase.from('staff').insert(data as never),
+
+  update: (id: string, data: Record<string, unknown>) =>
+    supabase.from('staff').update(data as never).eq('id', id),
+
+  delete: (id: string) =>
+    supabase.from('staff').delete().eq('id', id),
+};
+
+export const administratorsService = {
+  getAll: () =>
+    supabase.from('administrators').select('*').order('order_position', { ascending: true }),
+
+  insert: (data: Record<string, unknown>) =>
+    supabase.from('administrators').insert(data as never),
+
+  update: (id: string, data: Record<string, unknown>) =>
+    supabase.from('administrators').update(data as never).eq('id', id),
+
+  delete: (id: string) =>
+    supabase.from('administrators').delete().eq('id', id),
+};

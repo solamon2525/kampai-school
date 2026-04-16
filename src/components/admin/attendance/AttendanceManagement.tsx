@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { studentsService, attendanceService } from '@/services';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -172,19 +172,13 @@ export const AttendanceManagement = () => {
     setCheckinLoading(true);
     setDataLoaded(false);
     try {
-      const { data: students, error: sErr } = await supabase
-        .from('students')
-        .select('*')
-        .eq('class', checkinClass)
-        .eq('is_active', true)
-        .order('class_number');
+      const { data: students, error: sErr } = await studentsService.getByClass(checkinClass);
       if (sErr) throw sErr;
 
-      const { data: records, error: rErr } = await supabase
-        .from('attendance_records')
-        .select('*')
-        .eq('attendance_date', checkinDate)
-        .in('student_id', (students ?? []).map((s) => s.id));
+      const { data: records, error: rErr } = await attendanceService.getByDateAndStudentIds(
+        checkinDate,
+        (students ?? []).map((s) => s.id)
+      );
       if (rErr) throw rErr;
 
       const map: Record<string, AttendanceStatus> = {};
@@ -225,9 +219,7 @@ export const AttendanceManagement = () => {
         return;
       }
 
-      const { error } = await supabase
-        .from('attendance_records')
-        .upsert(upserts, { onConflict: 'student_id,attendance_date' });
+      const { error } = await attendanceService.upsertBulk(upserts);
       if (error) throw error;
 
       toast({ title: 'บันทึกการเช็คชื่อสำเร็จ', description: `บันทึก ${upserts.length} คน` });
@@ -268,12 +260,7 @@ export const AttendanceManagement = () => {
       const endDay = new Date(ceYear, month, 0).getDate();
       const endDate = `${ceYear}-${String(month).padStart(2, '0')}-${endDay}`;
 
-      const { data: students, error: sErr } = await supabase
-        .from('students')
-        .select('*')
-        .eq('class', reportClass)
-        .eq('is_active', true)
-        .order('class_number');
+      const { data: students, error: sErr } = await studentsService.getByClass(reportClass);
       if (sErr) throw sErr;
 
       const studentIds = (students ?? []).map((s) => s.id);
@@ -283,12 +270,9 @@ export const AttendanceManagement = () => {
         return;
       }
 
-      const { data: records, error: rErr } = await supabase
-        .from('attendance_records')
-        .select('student_id, status, attendance_date')
-        .in('student_id', studentIds)
-        .gte('attendance_date', startDate)
-        .lte('attendance_date', endDate);
+      const { data: records, error: rErr } = await attendanceService.getByStudentIdsDateRange(
+        studentIds, startDate, endDate
+      );
       if (rErr) throw rErr;
 
       const schoolDays = new Set((records ?? []).map((r) => r.attendance_date)).size;
@@ -328,7 +312,7 @@ export const AttendanceManagement = () => {
   useEffect(() => {
     if (!indivClass) { setIndivStudents([]); setIndivStudentId(''); return; }
     (async () => {
-      const { data } = await supabase.from('students').select('id, name, class, class_number, photo_url, student_code, gender, parent_name, parent_phone, is_active').eq('class', indivClass).eq('is_active', true).order('class_number');
+      const { data } = await studentsService.getByClass(indivClass);
       setIndivStudents(data || []);
       setIndivStudentId('');
     })();
@@ -341,7 +325,7 @@ export const AttendanceManagement = () => {
     const start = new Date(); start.setDate(end.getDate() - 29);
     const fmt = (d: Date) => d.toISOString().slice(0, 10);
     (async () => {
-      const { data } = await supabase.from('attendance_records').select('attendance_date, status').eq('student_id', indivStudentId).gte('attendance_date', fmt(start)).lte('attendance_date', fmt(end)).order('attendance_date', { ascending: false });
+      const { data } = await attendanceService.getByStudentDateRange(indivStudentId, fmt(start), fmt(end));
       setIndivRecords((data || []) as any);
       setIndivLoading(false);
     })();
@@ -375,8 +359,7 @@ export const AttendanceManagement = () => {
   const fetchStudents = async () => {
     setStudentsLoading(true);
     try {
-      let query = supabase.from('students').select('*').order('class').order('class_number');
-      const { data, error } = await query;
+      const { data, error } = await studentsService.getAll();
       if (error) throw error;
       setAllStudents(data ?? []);
     } catch (err: any) {
@@ -434,14 +417,11 @@ export const AttendanceManagement = () => {
     setStudentSaving(true);
     try {
       if (editingStudent) {
-        const { error } = await supabase
-          .from('students')
-          .update(studentForm)
-          .eq('id', editingStudent.id);
+        const { error } = await studentsService.update(editingStudent.id, studentForm);
         if (error) throw error;
         toast({ title: 'แก้ไขข้อมูลนักเรียนสำเร็จ' });
       } else {
-        const { error } = await supabase.from('students').insert(studentForm);
+        const { error } = await studentsService.insert(studentForm);
         if (error) throw error;
         toast({ title: 'เพิ่มนักเรียนสำเร็จ' });
       }
@@ -457,7 +437,7 @@ export const AttendanceManagement = () => {
   const deleteStudent = async (s: Student) => {
     if (!confirm(`ต้องการลบ "${s.name}" ออกจากระบบ?`)) return;
     try {
-      const { error } = await supabase.from('students').delete().eq('id', s.id);
+      const { error } = await studentsService.delete(s.id);
       if (error) throw error;
       toast({ title: 'ลบนักเรียนสำเร็จ' });
       fetchStudents();
