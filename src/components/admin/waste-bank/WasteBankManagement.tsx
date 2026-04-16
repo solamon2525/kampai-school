@@ -43,11 +43,15 @@ interface WasteTransaction {
 }
 
 interface StudentSummary {
-  student_name: string;
-  student_class: string;
-  total_transactions: number;
-  total_weight: number;
-  total_amount: number;
+  student_name: string | null;
+  student_class: string | null;
+  student_id: string | null;
+  photo_url: string | null;
+  student_code: string | null;
+  total_transactions: number | null;
+  total_weight: number | null;
+  total_amount: number | null;
+  last_transaction_date: string | null;
 }
 
 interface StudentOption {
@@ -125,7 +129,7 @@ export const WasteBankManagement = () => {
   useEffect(() => {
     if (form.student_class) {
       (async () => {
-        const { data } = await (supabase as any)
+        const { data } = await supabase
           .from('students')
           .select('id, name, class, photo_url')
           .eq('class', form.student_class)
@@ -142,7 +146,7 @@ export const WasteBankManagement = () => {
   }, [form.student_class]);
 
   const fetchCategories = async () => {
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('waste_categories')
       .select('*')
       .eq('is_active', true)
@@ -151,7 +155,7 @@ export const WasteBankManagement = () => {
   };
 
   const fetchTransactions = async () => {
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('waste_transactions')
       .select('*, waste_categories(name, icon, color), students(photo_url)')
       .order('transaction_date', { ascending: false })
@@ -161,11 +165,10 @@ export const WasteBankManagement = () => {
   };
 
   const fetchSummaries = async () => {
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('waste_student_summary')
-      .select('*')
-      .order('total_amount', { ascending: false });
-    if (!error && data) setSummaries(data);
+      .select('student_name, student_class, student_id, photo_url, student_code, total_transactions, total_weight, total_amount, last_transaction_date');
+    if (!error && data) setSummaries(data as StudentSummary[]);
   };
 
   const handleFormChange = (field: string, value: string) => {
@@ -187,7 +190,7 @@ export const WasteBankManagement = () => {
     const amount = weight * cat.price_per_kg;
 
     setIsSubmitting(true);
-    const { error } = await (supabase as any).from('waste_transactions').insert({
+    const { error } = await supabase.from('waste_transactions').insert({
       student_name: form.student_name.trim(),
       student_class: form.student_class,
       student_id: selectedStudentId || null,
@@ -215,7 +218,7 @@ export const WasteBankManagement = () => {
 
   const handleDeleteTransaction = async (id: string) => {
     if (!confirm('ต้องการลบรายการนี้?')) return;
-    const { error } = await (supabase as any).from('waste_transactions').delete().eq('id', id);
+    const { error } = await supabase.from('waste_transactions').delete().eq('id', id);
     if (error) {
       toast({ title: 'ลบไม่สำเร็จ', description: error.message, variant: 'destructive' });
     } else {
@@ -227,12 +230,12 @@ export const WasteBankManagement = () => {
 
   const filteredSummaries = summaries.filter((s) => {
     const matchClass = summaryClassFilter === 'all' || s.student_class === summaryClassFilter;
-    const matchName = !summarySearch || s.student_name.toLowerCase().includes(summarySearch.toLowerCase());
+    const matchName = !summarySearch || (s.student_name ?? '').toLowerCase().includes(summarySearch.toLowerCase());
     return matchClass && matchName;
   });
 
-  const totalWeight = filteredSummaries.reduce((acc, s) => acc + Number(s.total_weight), 0);
-  const totalAmount = filteredSummaries.reduce((acc, s) => acc + Number(s.total_amount), 0);
+  const totalWeight = filteredSummaries.reduce((acc, s) => acc + Number(s.total_weight ?? 0), 0);
+  const totalAmount = filteredSummaries.reduce((acc, s) => acc + Number(s.total_amount ?? 0), 0);
 
   // Category management
   const openAddCategory = () => {
@@ -272,9 +275,9 @@ export const WasteBankManagement = () => {
 
     let error;
     if (editingCategory) {
-      ({ error } = await (supabase as any).from('waste_categories').update(payload).eq('id', editingCategory.id));
+      ({ error } = await supabase.from('waste_categories').update(payload).eq('id', editingCategory.id));
     } else {
-      ({ error } = await (supabase as any).from('waste_categories').insert({ ...payload, is_active: true, order_position: 99 }));
+      ({ error } = await supabase.from('waste_categories').insert({ ...payload, is_active: true, order_position: 99 }));
     }
     setIsSavingCategory(false);
 
@@ -289,7 +292,7 @@ export const WasteBankManagement = () => {
 
   const handleDeleteCategory = async (id: string) => {
     if (!confirm('ต้องการลบประเภทขยะนี้?')) return;
-    const { error } = await (supabase as any).from('waste_categories').update({ is_active: false }).eq('id', id);
+    const { error } = await supabase.from('waste_categories').update({ is_active: false }).eq('id', id);
     if (error) {
       toast({ title: 'ลบไม่สำเร็จ', description: error.message, variant: 'destructive' });
     } else {
@@ -595,23 +598,36 @@ export const WasteBankManagement = () => {
                       <th className="text-right px-4 py-3 font-medium text-muted-foreground">จำนวนครั้ง</th>
                       <th className="text-right px-4 py-3 font-medium text-muted-foreground">น้ำหนักรวม (กก.)</th>
                       <th className="text-right px-4 py-3 font-medium text-muted-foreground">ยอดสะสม (บาท)</th>
+                      <th className="text-right px-4 py-3 font-medium text-muted-foreground">ครั้งล่าสุด</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredSummaries.length === 0 ? (
                       <tr>
-                        <td colSpan={5} className="text-center py-10 text-muted-foreground">ไม่พบข้อมูล</td>
+                        <td colSpan={6} className="text-center py-10 text-muted-foreground">ไม่พบข้อมูล</td>
                       </tr>
                     ) : (
                       filteredSummaries.map((s, idx) => (
                         <tr key={idx} className="border-b border-border hover:bg-muted/30 transition-colors">
-                          <td className="px-4 py-3 font-medium">{s.student_name}</td>
-                          <td className="px-4 py-3">
-                            <Badge variant="outline">{s.student_class}</Badge>
+                          <td className="px-4 py-3 font-medium">
+                            <div className="flex items-center gap-2">
+                              {s.photo_url ? (
+                                <img src={s.photo_url} alt={s.student_name ?? ''} className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
+                              ) : (
+                                <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center text-[11px] font-bold text-primary flex-shrink-0">
+                                  {(s.student_name ?? '?').slice(0, 1)}
+                                </div>
+                              )}
+                              <span>{s.student_name ?? '—'}</span>
+                            </div>
                           </td>
-                          <td className="px-4 py-3 text-right text-muted-foreground">{s.total_transactions}</td>
-                          <td className="px-4 py-3 text-right">{Number(s.total_weight).toFixed(2)}</td>
-                          <td className="px-4 py-3 text-right font-semibold text-green-600">{Number(s.total_amount).toFixed(2)}</td>
+                          <td className="px-4 py-3">
+                            <Badge variant="outline">{s.student_class ?? '—'}</Badge>
+                          </td>
+                          <td className="px-4 py-3 text-right text-muted-foreground">{s.total_transactions ?? 0}</td>
+                          <td className="px-4 py-3 text-right">{Number(s.total_weight ?? 0).toFixed(2)}</td>
+                          <td className="px-4 py-3 text-right font-semibold text-green-600">{Number(s.total_amount ?? 0).toFixed(2)}</td>
+                          <td className="px-4 py-3 text-right text-muted-foreground text-xs">{s.last_transaction_date ?? '—'}</td>
                         </tr>
                       ))
                     )}
@@ -621,10 +637,11 @@ export const WasteBankManagement = () => {
                       <tr className="bg-muted/60 font-semibold border-t-2 border-border">
                         <td className="px-4 py-3" colSpan={2}>รวมทั้งหมด ({filteredSummaries.length} คน)</td>
                         <td className="px-4 py-3 text-right">
-                          {filteredSummaries.reduce((a, s) => a + Number(s.total_transactions), 0)}
+                          {filteredSummaries.reduce((a, s) => a + Number(s.total_transactions ?? 0), 0)}
                         </td>
                         <td className="px-4 py-3 text-right">{totalWeight.toFixed(2)}</td>
                         <td className="px-4 py-3 text-right text-green-600">{totalAmount.toFixed(2)}</td>
+                        <td className="px-4 py-3"></td>
                       </tr>
                     </tfoot>
                   )}

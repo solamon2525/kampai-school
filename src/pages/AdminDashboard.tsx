@@ -22,6 +22,8 @@ const MessagesManagement = lazy(() => import('@/components/admin/messages/Messag
 const DocumentsManagement = lazy(() => import('@/components/admin/documents/DocumentsManagement').then(m => ({ default: m.DocumentsManagement })));
 const WasteBankManagement = lazy(() => import('@/components/admin/waste-bank/WasteBankManagement').then(m => ({ default: m.WasteBankManagement })));
 const AttendanceManagement = lazy(() => import('@/components/admin/attendance/AttendanceManagement').then(m => ({ default: m.AttendanceManagement })));
+const ScoresManagement = lazy(() => import('@/components/admin/scores/ScoresManagement').then(m => ({ default: m.ScoresManagement })));
+const ConductManagement = lazy(() => import('@/components/admin/conduct/ConductManagement').then(m => ({ default: m.ConductManagement })));
 const HeroSlidesManagement = lazy(() => import('@/components/admin/slides/HeroSlidesManagement').then(m => ({ default: m.HeroSlidesManagement })));
 const AnalyticsManagement = lazy(() => import('@/components/admin/analytics/AnalyticsManagement').then(m => ({ default: m.AnalyticsManagement })));
 const SarabanDashboard = lazy(() => import('@/components/admin/saraban/SarabanDashboard').then(m => ({ default: m.SarabanDashboard })));
@@ -97,6 +99,8 @@ const AdminDashboard = () => {
             {/* ระบบบริการ */}
             <Route path="waste-bank" element={<WasteBankManagement />} />
             <Route path="attendance" element={<AttendanceManagement />} />
+            <Route path="scores" element={<ScoresManagement />} />
+            <Route path="conduct" element={<ConductManagement />} />
             <Route path="documents" element={<DocumentsManagement />} />
             <Route path="analytics" element={<AnalyticsManagement />} />
             {/* อื่นๆ */}

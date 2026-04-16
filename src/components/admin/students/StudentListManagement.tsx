@@ -8,7 +8,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Edit, Trash2, Search, Users, Camera, Upload, CreditCard, Printer } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Plus, Edit, Trash2, Search, Users, Camera, CreditCard, Printer } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
 import { ImageUpload } from '../shared/ImageUpload';
@@ -24,11 +25,44 @@ interface Student {
     id: string;
     student_code: string | null;
     name: string;
+    title: string | null;
+    first_name: string | null;
+    last_name: string | null;
+    nickname: string | null;
     class: string;
+    room: string | null;
     class_number: number | null;
     gender: string | null;
+    national_id: string | null;
+    birth_date: string | null;
+    religion: string | null;
+    nationality: string | null;
+    blood_type: string | null;
     is_active: boolean;
     photo_url: string | null;
+    // ที่อยู่ปัจจุบัน
+    current_house_no: string | null;
+    current_moo: string | null;
+    current_road: string | null;
+    current_tambon: string | null;
+    current_amphoe: string | null;
+    current_province: string | null;
+    current_postal_code: string | null;
+    current_phone: string | null;
+    // ที่อยู่ตามทะเบียนบ้าน
+    registered_house_no: string | null;
+    registered_moo: string | null;
+    registered_road: string | null;
+    registered_tambon: string | null;
+    registered_amphoe: string | null;
+    registered_province: string | null;
+    registered_postal_code: string | null;
+    registered_phone: string | null;
+    // ครอบครัว
+    father_name: string | null;
+    mother_name: string | null;
+    guardian_name: string | null;
+    guardian_relation: string | null;
     parent_name: string | null;
     parent_phone: string | null;
     created_at: string;
@@ -41,17 +75,76 @@ const CLASS_OPTIONS = [
     'ม.1', 'ม.2', 'ม.3', 'ม.4', 'ม.5', 'ม.6',
 ];
 
+const TITLE_OPTIONS = ['ด.ช.', 'ด.ญ.', 'นาย', 'นาง', 'นางสาว'];
+const BLOOD_TYPE_OPTIONS = ['A', 'B', 'AB', 'O'];
+
 const defaultForm = {
+    // ข้อมูลพื้นฐาน
     student_code: '',
     name: '',
+    title: 'ด.ช.',
+    first_name: '',
+    last_name: '',
+    nickname: '',
     class: '',
+    room: '1',
     class_number: '' as string | number,
     gender: 'male' as 'male' | 'female',
     is_active: true,
     photo_url: '',
+    // ข้อมูลส่วนตัว
+    national_id: '',
+    birth_date: '',
+    religion: 'พุทธ',
+    nationality: 'ไทย',
+    blood_type: '',
+    // ที่อยู่ปัจจุบัน
+    current_house_no: '',
+    current_moo: '',
+    current_road: '',
+    current_tambon: '',
+    current_amphoe: '',
+    current_province: '',
+    current_postal_code: '',
+    current_phone: '',
+    // ที่อยู่ทะเบียนบ้าน
+    registered_house_no: '',
+    registered_moo: '',
+    registered_road: '',
+    registered_tambon: '',
+    registered_amphoe: '',
+    registered_province: '',
+    registered_postal_code: '',
+    registered_phone: '',
+    // ครอบครัว
+    father_name: '',
+    mother_name: '',
+    guardian_name: '',
+    guardian_relation: '',
     parent_name: '',
     parent_phone: '',
 };
+
+/** คำนวณอายุจากวันเกิด (ค.ศ.) */
+function calcAge(birth_date: string | null): string {
+    if (!birth_date) return '—';
+    const birth = new Date(birth_date);
+    const today = new Date();
+    let years = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) years--;
+    return `${years} ปี`;
+}
+
+/** แปลง birth_date (ค.ศ.) → แสดงเป็น พ.ศ. */
+function formatBirthDate(birth_date: string | null): string {
+    if (!birth_date) return '—';
+    const d = new Date(birth_date);
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = d.getFullYear() + 543;
+    return `${dd}/${mm}/${yyyy}`;
+}
 
 function StudentAvatar({ photo_url, name, size = 32 }: { photo_url: string | null; name: string; size?: number }) {
     const initials = name.slice(0, 1);
@@ -97,7 +190,7 @@ export const StudentListManagement = () => {
         setIsLoading(true);
         const { data, error } = await supabase.from('students').select('*').order('class').order('class_number');
         if (error) toast({ variant: 'destructive', title: 'เกิดข้อผิดพลาด', description: error.message });
-        else setStudents(data || []);
+        else setStudents((data || []) as Student[]);
         setIsLoading(false);
     };
 
@@ -121,11 +214,41 @@ export const StudentListManagement = () => {
             setFormData({
                 student_code: item.student_code || '',
                 name: item.name,
+                title: item.title || 'ด.ช.',
+                first_name: item.first_name || '',
+                last_name: item.last_name || '',
+                nickname: item.nickname || '',
                 class: item.class,
+                room: item.room || '1',
                 class_number: item.class_number ?? '',
                 gender: (item.gender as 'male' | 'female') || 'male',
                 is_active: item.is_active,
                 photo_url: item.photo_url || '',
+                national_id: item.national_id || '',
+                birth_date: item.birth_date || '',
+                religion: item.religion || 'พุทธ',
+                nationality: item.nationality || 'ไทย',
+                blood_type: item.blood_type || '',
+                current_house_no: item.current_house_no || '',
+                current_moo: item.current_moo || '',
+                current_road: item.current_road || '',
+                current_tambon: item.current_tambon || '',
+                current_amphoe: item.current_amphoe || '',
+                current_province: item.current_province || '',
+                current_postal_code: item.current_postal_code || '',
+                current_phone: item.current_phone || '',
+                registered_house_no: item.registered_house_no || '',
+                registered_moo: item.registered_moo || '',
+                registered_road: item.registered_road || '',
+                registered_tambon: item.registered_tambon || '',
+                registered_amphoe: item.registered_amphoe || '',
+                registered_province: item.registered_province || '',
+                registered_postal_code: item.registered_postal_code || '',
+                registered_phone: item.registered_phone || '',
+                father_name: item.father_name || '',
+                mother_name: item.mother_name || '',
+                guardian_name: item.guardian_name || '',
+                guardian_relation: item.guardian_relation || '',
                 parent_name: item.parent_name || '',
                 parent_phone: item.parent_phone || '',
             });
@@ -138,15 +261,48 @@ export const StudentListManagement = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        // auto-build display name from title+first+last if not set
+        const displayName = formData.name ||
+            `${formData.title}${formData.first_name} ${formData.last_name}`.trim();
         const payload = {
             student_code: formData.student_code || null,
-            name: formData.name,
+            name: displayName,
+            title: formData.title || null,
+            first_name: formData.first_name || null,
+            last_name: formData.last_name || null,
+            nickname: formData.nickname || null,
             class: formData.class,
+            room: formData.room || null,
             class_number: formData.class_number !== '' ? Number(formData.class_number) : null,
             gender: formData.gender,
             is_active: formData.is_active,
             photo_url: formData.photo_url || null,
-            parent_name: formData.parent_name || null,
+            national_id: formData.national_id || null,
+            birth_date: formData.birth_date || null,
+            religion: formData.religion || null,
+            nationality: formData.nationality || null,
+            blood_type: formData.blood_type || null,
+            current_house_no: formData.current_house_no || null,
+            current_moo: formData.current_moo || null,
+            current_road: formData.current_road || null,
+            current_tambon: formData.current_tambon || null,
+            current_amphoe: formData.current_amphoe || null,
+            current_province: formData.current_province || null,
+            current_postal_code: formData.current_postal_code || null,
+            current_phone: formData.current_phone || null,
+            registered_house_no: formData.registered_house_no || null,
+            registered_moo: formData.registered_moo || null,
+            registered_road: formData.registered_road || null,
+            registered_tambon: formData.registered_tambon || null,
+            registered_amphoe: formData.registered_amphoe || null,
+            registered_province: formData.registered_province || null,
+            registered_postal_code: formData.registered_postal_code || null,
+            registered_phone: formData.registered_phone || null,
+            father_name: formData.father_name || null,
+            mother_name: formData.mother_name || null,
+            guardian_name: formData.guardian_name || null,
+            guardian_relation: formData.guardian_relation || null,
+            parent_name: formData.guardian_name || formData.parent_name || null,
             parent_phone: formData.parent_phone || null,
             updated_at: new Date().toISOString(),
         };
@@ -177,28 +333,60 @@ export const StudentListManagement = () => {
             enableSorting: false,
             size: 56,
         },
-        { accessorKey: 'student_code', header: 'รหัส', cell: ({ getValue }) => <span className="font-mono text-xs text-muted-foreground">{(getValue() as string) || '—'}</span> },
         {
-            accessorKey: 'name', header: 'ชื่อ-นามสกุล',
+            accessorKey: 'student_code',
+            header: 'รหัส',
+            cell: ({ getValue }) => <span className="font-mono text-xs text-muted-foreground">{(getValue() as string) || '—'}</span>,
+        },
+        {
+            accessorKey: 'name',
+            header: 'ชื่อ-นามสกุล',
             cell: ({ row }) => (
                 <div>
                     <div className="font-medium">{row.original.name}</div>
-                    {row.original.parent_name && <div className="text-xs text-muted-foreground">ผู้ปกครอง: {row.original.parent_name}</div>}
+                    {row.original.nickname && (
+                        <div className="text-xs text-muted-foreground">ชื่อเล่น: {row.original.nickname}</div>
+                    )}
+                    {row.original.national_id && (
+                        <div className="text-xs text-muted-foreground font-mono">{row.original.national_id}</div>
+                    )}
                 </div>
             ),
         },
-        { accessorKey: 'class', header: 'ห้อง' },
+        { accessorKey: 'class', header: 'ชั้น' },
+        { accessorKey: 'room', header: 'ห้อง', cell: ({ getValue }) => <span>{(getValue() as string) || '—'}</span> },
         { accessorKey: 'class_number', header: 'เลขที่', cell: ({ getValue }) => <span className="text-center block">{(getValue() as number) ?? '—'}</span> },
         {
-            accessorKey: 'gender', header: 'เพศ',
-            cell: ({ getValue }) => <Badge variant={(getValue() as string) === 'male' ? 'default' : 'secondary'}>{(getValue() as string) === 'male' ? 'ชาย' : 'หญิง'}</Badge>,
+            accessorKey: 'gender',
+            header: 'เพศ',
+            cell: ({ getValue }) => (
+                <Badge variant={(getValue() as string) === 'male' ? 'default' : 'secondary'}>
+                    {(getValue() as string) === 'male' ? 'ชาย' : 'หญิง'}
+                </Badge>
+            ),
         },
         {
-            accessorKey: 'is_active', header: 'สถานะ',
-            cell: ({ getValue }) => <Badge variant={(getValue() as boolean) ? 'default' : 'outline'}>{(getValue() as boolean) ? 'กำลังศึกษา' : 'ไม่ได้ศึกษา'}</Badge>,
+            accessorKey: 'birth_date',
+            header: 'วันเกิด / อายุ',
+            cell: ({ row }) => (
+                <div className="text-xs whitespace-nowrap">
+                    <div>{formatBirthDate(row.original.birth_date)}</div>
+                    <div className="text-muted-foreground">{calcAge(row.original.birth_date)}</div>
+                </div>
+            ),
         },
         {
-            id: 'actions', header: 'จัดการ',
+            accessorKey: 'is_active',
+            header: 'สถานะ',
+            cell: ({ getValue }) => (
+                <Badge variant={(getValue() as boolean) ? 'default' : 'outline'}>
+                    {(getValue() as boolean) ? 'กำลังศึกษา' : 'ไม่ได้ศึกษา'}
+                </Badge>
+            ),
+        },
+        {
+            id: 'actions',
+            header: 'จัดการ',
             cell: ({ row }) => (
                 <div className="flex gap-1 justify-center">
                     <Button size="icon" variant="ghost" title="บัตรนักเรียน" onClick={() => setCardStudent(row.original)}>
@@ -235,11 +423,18 @@ export const StudentListManagement = () => {
         initialState: { pagination: { pageSize: 20 } },
         globalFilterFn: (row, _col, value) => {
             const s = row.original;
-            return s.name.includes(value) || (s.student_code || '').includes(value);
+            return s.name.includes(value)
+                || (s.student_code || '').includes(value)
+                || (s.national_id || '').includes(value)
+                || (s.first_name || '').includes(value)
+                || (s.last_name || '').includes(value);
         },
     });
 
     const printClassStudents = students.filter(s => s.class === printClass);
+
+    const set = (key: keyof typeof defaultForm) => (e: React.ChangeEvent<HTMLInputElement>) =>
+        setFormData(f => ({ ...f, [key]: e.target.value }));
 
     return (
         <div className="space-y-4">
@@ -266,7 +461,12 @@ export const StudentListManagement = () => {
                     <div className="flex flex-col sm:flex-row gap-3">
                         <div className="relative flex-1">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <Input placeholder="ค้นหาชื่อหรือรหัสนักเรียน..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-9" />
+                            <Input
+                                placeholder="ค้นหาชื่อ, รหัส, หรือเลขบัตรประชาชน..."
+                                value={searchTerm}
+                                onChange={e => setSearchTerm(e.target.value)}
+                                className="pl-9"
+                            />
                         </div>
                         <Select value={filterClass} onValueChange={setFilterClass}>
                             <SelectTrigger className="w-full sm:w-40"><SelectValue placeholder="ทุกชั้น" /></SelectTrigger>
@@ -291,8 +491,11 @@ export const StudentListManagement = () => {
                                     {table.getHeaderGroups().map(hg => (
                                         <tr key={hg.id}>
                                             {hg.headers.map(h => (
-                                                <th key={h.id} className="text-left px-3 py-3 font-medium cursor-pointer select-none whitespace-nowrap"
-                                                    onClick={h.column.getToggleSortingHandler()}>
+                                                <th
+                                                    key={h.id}
+                                                    className="text-left px-3 py-3 font-medium cursor-pointer select-none whitespace-nowrap"
+                                                    onClick={h.column.getToggleSortingHandler()}
+                                                >
                                                     <span className="flex items-center gap-1">
                                                         {flexRender(h.column.columnDef.header, h.getContext())}
                                                         {h.column.getIsSorted() === 'asc' ? ' ↑' : h.column.getIsSorted() === 'desc' ? ' ↓' : ''}
@@ -317,7 +520,6 @@ export const StudentListManagement = () => {
                         </div>
                     )}
 
-                    {/* Pagination */}
                     {table.getPageCount() > 1 && (
                         <div className="flex items-center justify-between text-sm">
                             <span className="text-muted-foreground">
@@ -332,86 +534,260 @@ export const StudentListManagement = () => {
                 </CardContent>
             </Card>
 
-            {/* Dialog เพิ่ม/แก้ไข */}
+            {/* ===== Dialog เพิ่ม/แก้ไขนักเรียน ===== */}
             <Dialog open={isDialogOpen} onOpenChange={open => { if (!open) setIsDialogOpen(false); }}>
-                <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+                <DialogContent className="max-w-2xl max-h-[92vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>{editingItem ? 'แก้ไขข้อมูลนักเรียน' : 'เพิ่มนักเรียนใหม่'}</DialogTitle>
                     </DialogHeader>
                     <form onSubmit={handleSubmit} className="space-y-4">
-                        {/* Photo */}
-                        <div className="space-y-2">
-                            <Label>รูปนักเรียน</Label>
-                            <div className="flex gap-3 items-start">
-                                <div className="flex-1">
-                                    <ImageUpload
-                                        bucket="school-images"
-                                        folder="students"
-                                        compressionPreset="avatar"
-                                        currentImage={formData.photo_url}
-                                        onUploadComplete={url => setFormData(f => ({ ...f, photo_url: url }))}
-                                    />
+                        {/* รูปภาพ */}
+                        <div className="flex gap-4 items-start">
+                            <div className="flex-1 space-y-2">
+                                <Label>รูปนักเรียน</Label>
+                                <div className="flex gap-2">
+                                    <div className="flex-1">
+                                        <ImageUpload
+                                            bucket="school-images"
+                                            folder="students"
+                                            compressionPreset="avatar"
+                                            currentImage={formData.photo_url}
+                                            onUploadComplete={url => setFormData(f => ({ ...f, photo_url: url }))}
+                                        />
+                                    </div>
+                                    <Button type="button" variant="outline" size="sm" onClick={() => setWebcamOpen(true)} className="gap-1 mt-1 shrink-0">
+                                        <Camera className="w-4 h-4" /> ถ่ายรูป
+                                    </Button>
                                 </div>
-                                <Button type="button" variant="outline" size="sm" onClick={() => setWebcamOpen(true)} className="gap-1 mt-1">
-                                    <Camera className="w-4 h-4" /> ถ่ายรูป
-                                </Button>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3">
-                            <div className="space-y-2">
-                                <Label>รหัสนักเรียน</Label>
-                                <Input placeholder="เช่น 12345" value={formData.student_code} onChange={e => setFormData({ ...formData, student_code: e.target.value })} />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>เพศ</Label>
-                                <Select value={formData.gender} onValueChange={v => setFormData({ ...formData, gender: v as 'male' | 'female' })}>
-                                    <SelectTrigger><SelectValue /></SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="male">ชาย</SelectItem>
-                                        <SelectItem value="female">หญิง</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
+                        {/* Tabs หลัก */}
+                        <Tabs defaultValue="basic">
+                            <TabsList className="grid w-full grid-cols-4">
+                                <TabsTrigger value="basic">ข้อมูลหลัก</TabsTrigger>
+                                <TabsTrigger value="personal">ส่วนตัว</TabsTrigger>
+                                <TabsTrigger value="address">ที่อยู่</TabsTrigger>
+                                <TabsTrigger value="family">ครอบครัว</TabsTrigger>
+                            </TabsList>
 
-                        <div className="space-y-2">
-                            <Label>ชื่อ-นามสกุล *</Label>
-                            <Input placeholder="เช่น เด็กชายสมศักดิ์ ใจดี" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
-                        </div>
+                            {/* ===== Tab 1: ข้อมูลหลัก ===== */}
+                            <TabsContent value="basic" className="space-y-3 pt-3">
+                                <div className="grid grid-cols-3 gap-3">
+                                    <div className="space-y-2">
+                                        <Label>คำนำหน้า</Label>
+                                        <Select value={formData.title} onValueChange={v => setFormData(f => ({ ...f, title: v }))}>
+                                            <SelectTrigger><SelectValue /></SelectTrigger>
+                                            <SelectContent>
+                                                {TITLE_OPTIONS.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>ชื่อ *</Label>
+                                        <Input placeholder="ชื่อ" value={formData.first_name} onChange={set('first_name')} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>นามสกุล *</Label>
+                                        <Input placeholder="นามสกุล" value={formData.last_name} onChange={set('last_name')} />
+                                    </div>
+                                </div>
 
-                        <div className="grid grid-cols-2 gap-3">
-                            <div className="space-y-2">
-                                <Label>ห้องเรียน *</Label>
-                                <Select value={formData.class} onValueChange={v => setFormData({ ...formData, class: v })}>
-                                    <SelectTrigger><SelectValue placeholder="เลือกชั้น" /></SelectTrigger>
-                                    <SelectContent>{CLASS_OPTIONS.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
-                                </Select>
-                            </div>
-                            <div className="space-y-2">
-                                <Label>เลขที่</Label>
-                                <Input type="number" min={1} placeholder="เลขที่" value={formData.class_number} onChange={e => setFormData({ ...formData, class_number: e.target.value })} />
-                            </div>
-                        </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="space-y-2">
+                                        <Label>ชื่อเล่น</Label>
+                                        <Input placeholder="ชื่อเล่น" value={formData.nickname} onChange={set('nickname')} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>รหัสนักเรียน</Label>
+                                        <Input placeholder="เช่น 1354" value={formData.student_code} onChange={set('student_code')} />
+                                    </div>
+                                </div>
 
-                        <div className="border-t pt-3 space-y-3">
-                            <Label className="text-muted-foreground text-xs uppercase tracking-wide">ข้อมูลผู้ปกครอง</Label>
-                            <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-3 gap-3">
+                                    <div className="space-y-2">
+                                        <Label>ระดับชั้น *</Label>
+                                        <Select value={formData.class} onValueChange={v => setFormData(f => ({ ...f, class: v }))}>
+                                            <SelectTrigger><SelectValue placeholder="เลือกชั้น" /></SelectTrigger>
+                                            <SelectContent>{CLASS_OPTIONS.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>ห้อง</Label>
+                                        <Input placeholder="1" value={formData.room} onChange={set('room')} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>เลขที่</Label>
+                                        <Input type="number" min={1} placeholder="เลขที่" value={formData.class_number} onChange={set('class_number')} />
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="space-y-2">
+                                        <Label>เพศ</Label>
+                                        <Select value={formData.gender} onValueChange={v => setFormData(f => ({ ...f, gender: v as 'male' | 'female' }))}>
+                                            <SelectTrigger><SelectValue /></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="male">ชาย</SelectItem>
+                                                <SelectItem value="female">หญิง</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="flex items-center gap-3 pt-6">
+                                        <Switch id="is_active" checked={formData.is_active} onCheckedChange={c => setFormData(f => ({ ...f, is_active: c }))} />
+                                        <Label htmlFor="is_active">กำลังศึกษาอยู่</Label>
+                                    </div>
+                                </div>
+                            </TabsContent>
+
+                            {/* ===== Tab 2: ข้อมูลส่วนตัว ===== */}
+                            <TabsContent value="personal" className="space-y-3 pt-3">
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="space-y-2">
+                                        <Label>เลขบัตรประชาชน</Label>
+                                        <Input placeholder="13 หลัก" maxLength={13} value={formData.national_id} onChange={set('national_id')} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>วันเกิด (ค.ศ.)</Label>
+                                        <Input type="date" value={formData.birth_date} onChange={set('birth_date')} />
+                                        {formData.birth_date && (
+                                            <p className="text-xs text-muted-foreground">
+                                                พ.ศ. {formatBirthDate(formData.birth_date)} · อายุ {calcAge(formData.birth_date)}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-3 gap-3">
+                                    <div className="space-y-2">
+                                        <Label>ศาสนา</Label>
+                                        <Input placeholder="พุทธ" value={formData.religion} onChange={set('religion')} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>สัญชาติ</Label>
+                                        <Input placeholder="ไทย" value={formData.nationality} onChange={set('nationality')} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>หมู่โลหิต</Label>
+                                        <Select value={formData.blood_type} onValueChange={v => setFormData(f => ({ ...f, blood_type: v }))}>
+                                            <SelectTrigger><SelectValue placeholder="เลือก" /></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="">ไม่ระบุ</SelectItem>
+                                                {BLOOD_TYPE_OPTIONS.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+                            </TabsContent>
+
+                            {/* ===== Tab 3: ที่อยู่ ===== */}
+                            <TabsContent value="address" className="space-y-4 pt-3">
+                                {/* ที่อยู่ปัจจุบัน */}
+                                <div>
+                                    <p className="text-sm font-medium text-muted-foreground mb-2 uppercase tracking-wide">ที่อยู่ปัจจุบัน</p>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="space-y-2">
+                                            <Label>บ้านเลขที่</Label>
+                                            <Input placeholder="บ้านเลขที่" value={formData.current_house_no} onChange={set('current_house_no')} />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>หมู่ที่</Label>
+                                            <Input placeholder="หมู่ที่" value={formData.current_moo} onChange={set('current_moo')} />
+                                        </div>
+                                        <div className="col-span-2 space-y-2">
+                                            <Label>ซอย/ถนน</Label>
+                                            <Input placeholder="ซอย/ถนน" value={formData.current_road} onChange={set('current_road')} />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>ตำบล</Label>
+                                            <Input placeholder="ตำบล" value={formData.current_tambon} onChange={set('current_tambon')} />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>อำเภอ</Label>
+                                            <Input placeholder="อำเภอ" value={formData.current_amphoe} onChange={set('current_amphoe')} />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>จังหวัด</Label>
+                                            <Input placeholder="จังหวัด" value={formData.current_province} onChange={set('current_province')} />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>รหัสไปรษณีย์</Label>
+                                            <Input placeholder="รหัสไปรษณีย์" maxLength={5} value={formData.current_postal_code} onChange={set('current_postal_code')} />
+                                        </div>
+                                        <div className="col-span-2 space-y-2">
+                                            <Label>โทรศัพท์บ้าน</Label>
+                                            <Input placeholder="โทรศัพท์" value={formData.current_phone} onChange={set('current_phone')} />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* ที่อยู่ตามทะเบียนบ้าน */}
+                                <div className="border-t pt-4">
+                                    <p className="text-sm font-medium text-muted-foreground mb-2 uppercase tracking-wide">ที่อยู่ตามทะเบียนบ้าน</p>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="space-y-2">
+                                            <Label>บ้านเลขที่</Label>
+                                            <Input placeholder="บ้านเลขที่" value={formData.registered_house_no} onChange={set('registered_house_no')} />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>หมู่ที่</Label>
+                                            <Input placeholder="หมู่ที่" value={formData.registered_moo} onChange={set('registered_moo')} />
+                                        </div>
+                                        <div className="col-span-2 space-y-2">
+                                            <Label>ซอย/ถนน</Label>
+                                            <Input placeholder="ซอย/ถนน" value={formData.registered_road} onChange={set('registered_road')} />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>ตำบล</Label>
+                                            <Input placeholder="ตำบล" value={formData.registered_tambon} onChange={set('registered_tambon')} />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>อำเภอ</Label>
+                                            <Input placeholder="อำเภอ" value={formData.registered_amphoe} onChange={set('registered_amphoe')} />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>จังหวัด</Label>
+                                            <Input placeholder="จังหวัด" value={formData.registered_province} onChange={set('registered_province')} />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>รหัสไปรษณีย์</Label>
+                                            <Input placeholder="รหัสไปรษณีย์" maxLength={5} value={formData.registered_postal_code} onChange={set('registered_postal_code')} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </TabsContent>
+
+                            {/* ===== Tab 4: ครอบครัว ===== */}
+                            <TabsContent value="family" className="space-y-3 pt-3">
                                 <div className="space-y-2">
-                                    <Label>ชื่อผู้ปกครอง</Label>
-                                    <Input placeholder="ชื่อ-นามสกุล" value={formData.parent_name} onChange={e => setFormData({ ...formData, parent_name: e.target.value })} />
+                                    <Label>ชื่อ-สกุล บิดา</Label>
+                                    <Input placeholder="ชื่อ-สกุล บิดา" value={formData.father_name} onChange={set('father_name')} />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>เบอร์โทรศัพท์</Label>
-                                    <Input placeholder="08x-xxx-xxxx" value={formData.parent_phone} onChange={e => setFormData({ ...formData, parent_phone: e.target.value })} />
+                                    <Label>ชื่อ-สกุล มารดา</Label>
+                                    <Input placeholder="ชื่อ-สกุล มารดา" value={formData.mother_name} onChange={set('mother_name')} />
                                 </div>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                            <Switch id="is_active" checked={formData.is_active} onCheckedChange={c => setFormData({ ...formData, is_active: c })} />
-                            <Label htmlFor="is_active">กำลังศึกษาอยู่</Label>
-                        </div>
+                                <div className="border-t pt-3">
+                                    <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wide">ผู้ปกครอง</p>
+                                    <div className="space-y-3">
+                                        <div className="space-y-2">
+                                            <Label>ชื่อ-สกุล ผู้ปกครอง</Label>
+                                            <Input placeholder="ชื่อ-สกุล ผู้ปกครอง" value={formData.guardian_name} onChange={set('guardian_name')} />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div className="space-y-2">
+                                                <Label>ความสัมพันธ์</Label>
+                                                <Input placeholder="เช่น บิดา, มารดา, ปู่" value={formData.guardian_relation} onChange={set('guardian_relation')} />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label>เบอร์โทรผู้ปกครอง</Label>
+                                                <Input placeholder="08x-xxx-xxxx" value={formData.parent_phone} onChange={set('parent_phone')} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </TabsContent>
+                        </Tabs>
 
                         <DialogFooter>
                             <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>ยกเลิก</Button>

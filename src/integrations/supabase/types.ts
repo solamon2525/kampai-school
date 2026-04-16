@@ -682,9 +682,45 @@ export type Database = {
                     id: string
                     student_code: string | null
                     name: string
+                    title: string | null
+                    first_name: string | null
+                    last_name: string | null
+                    nickname: string | null
                     class: string
+                    room: string | null
                     class_number: number | null
                     gender: string | null
+                    national_id: string | null
+                    birth_date: string | null
+                    religion: string | null
+                    nationality: string | null
+                    blood_type: string | null
+                    photo_url: string | null
+                    // ที่อยู่ปัจจุบัน
+                    current_house_no: string | null
+                    current_moo: string | null
+                    current_road: string | null
+                    current_tambon: string | null
+                    current_amphoe: string | null
+                    current_province: string | null
+                    current_postal_code: string | null
+                    current_phone: string | null
+                    // ที่อยู่ตามทะเบียนบ้าน
+                    registered_house_no: string | null
+                    registered_moo: string | null
+                    registered_road: string | null
+                    registered_tambon: string | null
+                    registered_amphoe: string | null
+                    registered_province: string | null
+                    registered_postal_code: string | null
+                    registered_phone: string | null
+                    // ครอบครัว
+                    father_name: string | null
+                    mother_name: string | null
+                    guardian_name: string | null
+                    guardian_relation: string | null
+                    parent_name: string | null
+                    parent_phone: string | null
                     is_active: boolean
                     created_at: string
                     updated_at: string
@@ -693,9 +729,42 @@ export type Database = {
                     id?: string
                     student_code?: string | null
                     name: string
+                    title?: string | null
+                    first_name?: string | null
+                    last_name?: string | null
+                    nickname?: string | null
                     class: string
+                    room?: string | null
                     class_number?: number | null
                     gender?: string | null
+                    national_id?: string | null
+                    birth_date?: string | null
+                    religion?: string | null
+                    nationality?: string | null
+                    blood_type?: string | null
+                    photo_url?: string | null
+                    current_house_no?: string | null
+                    current_moo?: string | null
+                    current_road?: string | null
+                    current_tambon?: string | null
+                    current_amphoe?: string | null
+                    current_province?: string | null
+                    current_postal_code?: string | null
+                    current_phone?: string | null
+                    registered_house_no?: string | null
+                    registered_moo?: string | null
+                    registered_road?: string | null
+                    registered_tambon?: string | null
+                    registered_amphoe?: string | null
+                    registered_province?: string | null
+                    registered_postal_code?: string | null
+                    registered_phone?: string | null
+                    father_name?: string | null
+                    mother_name?: string | null
+                    guardian_name?: string | null
+                    guardian_relation?: string | null
+                    parent_name?: string | null
+                    parent_phone?: string | null
                     is_active?: boolean
                     created_at?: string
                     updated_at?: string
@@ -704,17 +773,224 @@ export type Database = {
                     id?: string
                     student_code?: string | null
                     name?: string
+                    title?: string | null
+                    first_name?: string | null
+                    last_name?: string | null
+                    nickname?: string | null
                     class?: string
+                    room?: string | null
                     class_number?: number | null
                     gender?: string | null
+                    national_id?: string | null
+                    birth_date?: string | null
+                    religion?: string | null
+                    nationality?: string | null
+                    blood_type?: string | null
+                    photo_url?: string | null
+                    current_house_no?: string | null
+                    current_moo?: string | null
+                    current_road?: string | null
+                    current_tambon?: string | null
+                    current_amphoe?: string | null
+                    current_province?: string | null
+                    current_postal_code?: string | null
+                    current_phone?: string | null
+                    registered_house_no?: string | null
+                    registered_moo?: string | null
+                    registered_road?: string | null
+                    registered_tambon?: string | null
+                    registered_amphoe?: string | null
+                    registered_province?: string | null
+                    registered_postal_code?: string | null
+                    registered_phone?: string | null
+                    father_name?: string | null
+                    mother_name?: string | null
+                    guardian_name?: string | null
+                    guardian_relation?: string | null
+                    parent_name?: string | null
+                    parent_phone?: string | null
                     is_active?: boolean
                     updated_at?: string
                 }
                 Relationships: []
             }
         }
+            score_records: {
+                Row: {
+                    id: string
+                    student_id: string
+                    subject: string
+                    score_type: string
+                    score: number
+                    max_score: number
+                    semester: string
+                    academic_year: string
+                    recorded_by: string | null
+                    notes: string | null
+                    created_at: string
+                    updated_at: string
+                }
+                Insert: {
+                    id?: string
+                    student_id: string
+                    subject: string
+                    score_type?: string
+                    score?: number
+                    max_score?: number
+                    semester?: string
+                    academic_year: string
+                    recorded_by?: string | null
+                    notes?: string | null
+                    created_at?: string
+                    updated_at?: string
+                }
+                Update: {
+                    id?: string
+                    student_id?: string
+                    subject?: string
+                    score_type?: string
+                    score?: number
+                    max_score?: number
+                    semester?: string
+                    academic_year?: string
+                    recorded_by?: string | null
+                    notes?: string | null
+                    updated_at?: string
+                }
+                Relationships: [{ foreignKeyName: "score_records_student_id_fkey"; columns: ["student_id"]; referencedRelation: "students"; referencedColumns: ["id"] }]
+            }
+            conduct_scores: {
+                Row: {
+                    id: string
+                    student_id: string
+                    type: string
+                    score: number
+                    category: string
+                    reason: string
+                    recorded_by: string | null
+                    academic_year: string
+                    semester: string
+                    created_at: string
+                }
+                Insert: {
+                    id?: string
+                    student_id: string
+                    type: string
+                    score?: number
+                    category?: string
+                    reason: string
+                    recorded_by?: string | null
+                    academic_year: string
+                    semester?: string
+                    created_at?: string
+                }
+                Update: {
+                    id?: string
+                    student_id?: string
+                    type?: string
+                    score?: number
+                    category?: string
+                    reason?: string
+                    recorded_by?: string | null
+                    academic_year?: string
+                    semester?: string
+                }
+                Relationships: [{ foreignKeyName: "conduct_scores_student_id_fkey"; columns: ["student_id"]; referencedRelation: "students"; referencedColumns: ["id"] }]
+            }
+            waste_categories: {
+                Row: {
+                    id: string
+                    name: string
+                    price_per_kg: number
+                    icon: string | null
+                    color: string | null
+                    is_active: boolean | null
+                    order_position: number | null
+                    created_at: string
+                }
+                Insert: {
+                    id?: string
+                    name: string
+                    price_per_kg?: number
+                    icon?: string | null
+                    color?: string | null
+                    is_active?: boolean | null
+                    order_position?: number | null
+                    created_at?: string
+                }
+                Update: {
+                    id?: string
+                    name?: string
+                    price_per_kg?: number
+                    icon?: string | null
+                    color?: string | null
+                    is_active?: boolean | null
+                    order_position?: number | null
+                    created_at?: string
+                }
+                Relationships: []
+            }
+            waste_transactions: {
+                Row: {
+                    id: string
+                    student_name: string
+                    student_class: string
+                    student_id: string | null
+                    category_id: string | null
+                    weight_kg: number
+                    amount: number
+                    transaction_date: string
+                    notes: string | null
+                    recorded_by: string | null
+                    created_at: string
+                }
+                Insert: {
+                    id?: string
+                    student_name: string
+                    student_class: string
+                    student_id?: string | null
+                    category_id?: string | null
+                    weight_kg: number
+                    amount?: number
+                    transaction_date?: string
+                    notes?: string | null
+                    recorded_by?: string | null
+                    created_at?: string
+                }
+                Update: {
+                    id?: string
+                    student_name?: string
+                    student_class?: string
+                    student_id?: string | null
+                    category_id?: string | null
+                    weight_kg?: number
+                    amount?: number
+                    transaction_date?: string
+                    notes?: string | null
+                    recorded_by?: string | null
+                    created_at?: string
+                }
+                Relationships: [
+                    { foreignKeyName: "waste_transactions_category_id_fkey"; columns: ["category_id"]; referencedRelation: "waste_categories"; referencedColumns: ["id"] },
+                    { foreignKeyName: "waste_transactions_student_id_fkey"; columns: ["student_id"]; referencedRelation: "students"; referencedColumns: ["id"] }
+                ]
+            }
+        }
         Views: {
-            [_ in never]: never
+            waste_student_summary: {
+                Row: {
+                    student_name: string | null
+                    student_class: string | null
+                    student_id: string | null
+                    photo_url: string | null
+                    student_code: string | null
+                    total_transactions: number | null
+                    total_weight: number | null
+                    total_amount: number | null
+                    last_transaction_date: string | null
+                }
+                Relationships: []
+            }
         }
         Functions: {
             [_ in never]: never
