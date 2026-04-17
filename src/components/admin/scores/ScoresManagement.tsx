@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BookOpen, Save, Search, BarChart3, ClipboardList } from 'lucide-react';
+import { BookOpen, Save, Search, BarChart3, ClipboardList, Download } from 'lucide-react';
+import { downloadCSV } from '@/lib/export';
 import { useToast } from '@/hooks/use-toast';
 
 // ===== Constants =====
@@ -409,10 +410,26 @@ function ViewTab() {
 
             <Card>
                 <CardHeader>
-                    <CardTitle className="text-base flex items-center justify-between">
-                        <span>รายการคะแนน ({records.length} รายการ)</span>
-                        {avgScore && <Badge variant="outline">เฉลี่ย {avgScore} คะแนน</Badge>}
-                    </CardTitle>
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                        <CardTitle className="text-base">
+                            รายการคะแนน ({records.length} รายการ)
+                            {avgScore && <Badge variant="outline" className="ml-2">เฉลี่ย {avgScore} คะแนน</Badge>}
+                        </CardTitle>
+                        {records.length > 0 && (
+                            <Button size="sm" variant="outline" className="gap-1 text-green-700 border-green-300 hover:bg-green-50"
+                                onClick={() => downloadCSV(
+                                    `คะแนน_${filterClass || 'ทุกชั้น'}_${filterSubject || 'ทุกวิชา'}_${filterSemester}`,
+                                    ['ชื่อนักเรียน', 'ชั้น', 'วิชา', 'ประเภท', 'คะแนน', 'คะแนนเต็ม', '%'],
+                                    records.map(r => [
+                                        r.students?.name ?? '', r.students?.class ?? '', r.subject, r.score_type,
+                                        r.score, r.max_score,
+                                        r.max_score > 0 ? ((r.score / r.max_score) * 100).toFixed(1) : '0'
+                                    ])
+                                )}>
+                                <Download className="w-3.5 h-3.5" /> CSV
+                            </Button>
+                        )}
+                    </div>
                 </CardHeader>
                 <CardContent>
                     {isLoading ? (
@@ -548,7 +565,25 @@ function SummaryTab() {
 
             <Card>
                 <CardHeader>
-                    <CardTitle className="text-base">{studentSummary.length} นักเรียน · {allSubjects.length} วิชา</CardTitle>
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                        <CardTitle className="text-base">{studentSummary.length} นักเรียน · {allSubjects.length} วิชา</CardTitle>
+                        {studentSummary.length > 0 && (
+                            <Button size="sm" variant="outline" className="gap-1 text-green-700 border-green-300 hover:bg-green-50"
+                                onClick={() => {
+                                    const headers = ['ชื่อ', 'ชั้น', 'เลขที่', ...allSubjects.flatMap(s => [`${s}(เก็บ)`, `${s}(กลาง)`, `${s}(ปลาย)`])];
+                                    const rows = studentSummary.map(s => [
+                                        s.name, s.class, s.classNumber ?? '',
+                                        ...allSubjects.flatMap(sub => {
+                                            const d = s.subjects[sub];
+                                            return d ? [d.เก็บ ?? '', d.กลางภาค ?? '', d.ปลายภาค ?? ''] : ['', '', ''];
+                                        })
+                                    ]);
+                                    downloadCSV(`สรุปคะแนน_${filterClass || 'ทุกชั้น'}_${filterSemester}`, headers, rows);
+                                }}>
+                                <Download className="w-3.5 h-3.5" /> CSV
+                            </Button>
+                        )}
+                    </div>
                 </CardHeader>
                 <CardContent>
                     {isLoading ? (

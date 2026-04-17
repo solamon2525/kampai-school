@@ -29,9 +29,14 @@ import {
   Search,
   RefreshCw,
   UserRound,
+  Download,
+  Printer,
+  Bell,
 } from 'lucide-react';
 import { RadialBarChart, RadialBar, PolarAngleAxis, ResponsiveContainer } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
+import { downloadCSV, printTable } from '@/lib/export';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -245,6 +250,10 @@ export const AttendanceManagement = () => {
     leave: Object.values(attendanceMap).filter((s) => s === 'leave').length,
   };
 
+  // ── แจ้งผู้ปกครอง ─────────────────────────────────────────────────────────
+  const [notifyOpen, setNotifyOpen] = useState(false);
+  const absentStudents = checkinStudents.filter(s => attendanceMap[s.id] === 'absent');
+
   // ── Tab 2: รายงาน ─────────────────────────────────────────────────────────
   const currentCEYear = new Date().getFullYear();
   const [reportMonth, setReportMonth] = useState(String(new Date().getMonth() + 1));
@@ -316,6 +325,21 @@ export const AttendanceManagement = () => {
     } finally {
       setReportLoading(false);
     }
+  };
+
+  // ── Export report ──────────────────────────────────────────────────────────
+  const exportAttendanceCSV = () => {
+    const month = THAI_MONTHS[Number(reportMonth) - 1];
+    downloadCSV(`รายงานเช็คชื่อ_${reportClass}_${month}_${reportYearBE}`,
+      ['เลขที่', 'ชื่อ-สกุล', 'รหัสนักเรียน', 'มาเรียน', 'ขาด', 'สาย', 'ลา', 'วันเรียนรวม'],
+      reportRows.map(r => [r.class_number, r.name, r.student_code, r.present, r.absent, r.late, r.leave, r.total])
+    );
+  };
+  const printAttendance = () => {
+    const month = THAI_MONTHS[Number(reportMonth) - 1];
+    const tHead = `<thead><tr><th>เลขที่</th><th>ชื่อ-สกุล</th><th>มาเรียน</th><th>ขาด</th><th>สาย</th><th>ลา</th><th>วันเรียน</th></tr></thead>`;
+    const tBody = `<tbody>${reportRows.map(r => `<tr><td class="ctr">${r.class_number}</td><td>${r.name}</td><td class="ctr">${r.present}</td><td class="ctr">${r.absent}</td><td class="ctr">${r.late}</td><td class="ctr">${r.leave}</td><td class="ctr">${r.total}</td></tr>`).join('')}</tbody>`;
+    printTable(`รายงานการมาเรียน ชั้น ${reportClass}`, `เดือน${month} พ.ศ. ${reportYearBE}`, `<table>${tHead}${tBody}</table>`);
   };
 
   // ── Tab 3: รายงานรายบุคคล ─────────────────────────────────────────────────
@@ -618,7 +642,13 @@ export const AttendanceManagement = () => {
                     );
                   })}
                 </div>
-                <div className="mt-4 flex justify-end">
+                <div className="mt-4 flex justify-end gap-2">
+                  {absentStudents.length > 0 && (
+                    <Button variant="outline" onClick={() => setNotifyOpen(true)} className="gap-1 text-orange-600 border-orange-300 hover:bg-orange-50">
+                      <Bell className="w-4 h-4" />
+                      แจ้งผู้ปกครอง ({absentStudents.length} คน)
+                    </Button>
+                  )}
                   <Button onClick={saveAll} disabled={saveLoading} className="bg-blue-600 hover:bg-blue-700">
                     {saveLoading ? (
                       <RefreshCw className="w-4 h-4 animate-spin mr-2" />
@@ -700,10 +730,22 @@ export const AttendanceManagement = () => {
           {reportLoaded && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">
-                  รายงานการมาเรียน — ชั้น {reportClass} เดือน{' '}
-                  {THAI_MONTHS[Number(reportMonth) - 1]} พ.ศ. {reportYearBE}
-                </CardTitle>
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <CardTitle className="text-base">
+                    รายงานการมาเรียน — ชั้น {reportClass} เดือน{' '}
+                    {THAI_MONTHS[Number(reportMonth) - 1]} พ.ศ. {reportYearBE}
+                  </CardTitle>
+                  {reportRows.length > 0 && (
+                    <div className="flex gap-1">
+                      <Button size="sm" variant="outline" onClick={exportAttendanceCSV} className="gap-1 text-green-700 border-green-300 hover:bg-green-50">
+                        <Download className="w-3.5 h-3.5" /> CSV
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={printAttendance} className="gap-1 text-purple-700 border-purple-300 hover:bg-purple-50">
+                        <Printer className="w-3.5 h-3.5" /> พิมพ์
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </CardHeader>
               <CardContent>
                 {reportRows.length === 0 ? (
@@ -1152,6 +1194,69 @@ export const AttendanceManagement = () => {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ───────────── Dialog: แจ้งผู้ปกครอง ───────────── */}
+      <Dialog open={notifyOpen} onOpenChange={setNotifyOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-orange-600">
+              <Bell className="w-5 h-5" /> แจ้งผู้ปกครองนักเรียนขาดเรียน
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <p className="text-sm text-muted-foreground">
+              วันที่ {checkinDate} ชั้น {checkinClass} — ขาดเรียน {absentStudents.length} คน
+            </p>
+            <div className="border rounded-lg overflow-hidden max-h-64 overflow-y-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50 border-b">
+                  <tr>
+                    <th className="text-left px-3 py-2 font-medium text-xs">ชื่อ-สกุล</th>
+                    <th className="text-left px-3 py-2 font-medium text-xs">ผู้ปกครอง</th>
+                    <th className="text-left px-3 py-2 font-medium text-xs">เบอร์โทร</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {absentStudents.map(s => (
+                    <tr key={s.id} className="border-b last:border-0 hover:bg-gray-50">
+                      <td className="px-3 py-2">{s.name}</td>
+                      <td className="px-3 py-2 text-muted-foreground">{s.parent_name || '—'}</td>
+                      <td className="px-3 py-2">
+                        {s.parent_phone ? (
+                          <a href={`tel:${s.parent_phone}`} className="text-blue-600 hover:underline">{s.parent_phone}</a>
+                        ) : '—'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="bg-orange-50 border border-orange-200 rounded p-3 text-xs text-orange-800">
+              <p className="font-medium mb-1">ข้อความตัวอย่างสำหรับ SMS/LINE:</p>
+              <p className="font-mono leading-relaxed select-all">
+                เรียน ผู้ปกครอง{'\n'}
+                บุตรหลานของท่านไม่ได้มาเรียนในวันที่ {checkinDate}{'\n'}
+                กรุณาติดต่อครูประจำชั้น{'\n'}
+                โรงเรียน
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              className="w-full gap-1"
+              onClick={() => {
+                const text = absentStudents.map(s => `${s.name} — ${s.parent_phone || 'ไม่มีเบอร์'}`).join('\n');
+                navigator.clipboard.writeText(`รายชื่อนักเรียนขาดเรียน ${checkinDate} ชั้น ${checkinClass}\n${text}`);
+                toast({ title: 'คัดลอกรายชื่อแล้ว' });
+              }}
+            >
+              <Download className="w-4 h-4" /> คัดลอกรายชื่อ
+            </Button>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setNotifyOpen(false)}>ปิด</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

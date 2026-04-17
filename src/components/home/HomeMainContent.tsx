@@ -65,6 +65,7 @@ export const useHomeMainBlocks = () => {
   const [blogNews, setBlogNews] = useState<NewsItem[]>([]);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
+  const [countdown, setCountdown] = useState({ days: '--', hours: '--', minutes: '--', seconds: '--', label: 'เปิดเทอม' });
 
   useEffect(() => {
     supabase
@@ -126,6 +127,32 @@ export const useHomeMainBlocks = () => {
     timerRef.current = setInterval(() => setCurrentSlide(p => (p + 1) % slides.length), 5000);
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [slides.length]);
+
+  // ── Countdown to next semester ──────────────────────────────────────────────
+  useEffect(() => {
+    const getNextTarget = () => {
+      const now = new Date();
+      const y = now.getFullYear();
+      const sem1 = new Date(y, 4, 16, 0, 0, 0); // May 16
+      const sem2 = new Date(y, 10, 1, 0, 0, 0);  // Nov 1
+      if (now < sem1) return { date: sem1, label: 'เปิดเทอม 1' };
+      if (now < sem2) return { date: sem2, label: 'เปิดเทอม 2' };
+      return { date: new Date(y + 1, 4, 16, 0, 0, 0), label: 'เปิดเทอม 1' };
+    };
+    const tick = () => {
+      const { date, label } = getNextTarget();
+      const diff = date.getTime() - Date.now();
+      if (diff <= 0) { setCountdown({ days: '0', hours: '0', minutes: '0', seconds: '0', label }); return; }
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      setCountdown({ days: String(d), hours: String(h).padStart(2, '0'), minutes: String(m).padStart(2, '0'), seconds: String(s).padStart(2, '0'), label });
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
 
   const prevSlide = () => {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -511,17 +538,17 @@ export const useHomeMainBlocks = () => {
   // ─── NEW: Countdown ─────────────────────────────────────
   const countdownSection = (
     <div key="countdown" className="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg p-6 text-center shadow-md overflow-hidden">
-      <h3 className="text-sm font-bold mb-1 opacity-90 truncate">⏳ นับถอยหลังสู่วันเปิดเทอม</h3>
+      <h3 className="text-sm font-bold mb-1 opacity-90 truncate">⏳ นับถอยหลังสู่{countdown.label}</h3>
       <p className="text-xs opacity-70 mb-4 truncate">ปีการศึกษา 2568</p>
       <div className="flex justify-center gap-2 sm:gap-4 flex-wrap">
         {[
-          { value: '--', label: 'วัน' },
-          { value: '--', label: 'ชม.' },
-          { value: '--', label: 'นาที' },
-          { value: '--', label: 'วินาที' },
+          { value: countdown.days, label: 'วัน' },
+          { value: countdown.hours, label: 'ชม.' },
+          { value: countdown.minutes, label: 'นาที' },
+          { value: countdown.seconds, label: 'วินาที' },
         ].map((item, i) => (
-          <div key={i} className="bg-white/20 rounded-lg px-4 py-2">
-            <div className="text-2xl font-bold">{item.value}</div>
+          <div key={i} className="bg-white/20 rounded-lg px-4 py-2 min-w-[60px]">
+            <div className="text-2xl font-bold tabular-nums">{item.value}</div>
             <div className="text-xs opacity-70">{item.label}</div>
           </div>
         ))}
