@@ -66,7 +66,7 @@ const featureGroups = [
     {
         label: 'เนื้อหาเว็บไซต์',
         color: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800',
-        features: ['จัดการข่าวสาร + ปักหมุด', 'แกลเลอรี่อัลบั้มรูปภาพ', 'ปฏิทินกิจกรรม', 'จัดการเอกสารดาวน์โหลด', 'FAQ', 'Hero Slides หน้าหลัก'],
+        features: ['จัดการข่าวสาร + ปักหมุด', 'แกลเลอรี่อัลบั้มรูปภาพ', 'ปฏิทินกิจกรรม', 'จัดการเอกสารดาวน์โหลด', 'FAQ', 'Hero Slides หน้าหลัก', 'Countdown เปิดเทอม Real-time'],
     },
     {
         label: 'บุคลากรและนักเรียน',
@@ -96,12 +96,12 @@ const featureGroups = [
     {
         label: 'ระบบบริการ',
         color: 'bg-pink-500/10 text-pink-700 dark:text-pink-400 border-pink-200 dark:border-pink-800',
-        features: ['ธนาคารขยะ (Waste Bank)', 'กล่องข้อความจากผู้ติดต่อ', 'Email Subscribers'],
+        features: ['ธนาคารขยะ (Waste Bank)', 'กล่องข้อความจากผู้ติดต่อ', 'Email Subscribers', 'แจ้งผู้ปกครองเมื่อนักเรียนขาด (SMS)'],
     },
     {
         label: 'ระบบ/เครื่องมือ',
         color: 'bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-200 dark:border-gray-800',
-        features: ['Visual Page Builder (Puck)', 'Analytics ดูสถิติผู้เข้าชม', 'ตั้งค่าโรงเรียน (100+ fields)', 'User Roles & Permissions', 'จัดการเว็บไซต์ผ่าน Admin'],
+        features: ['Visual Page Builder (Puck)', 'Analytics ดูสถิติผู้เข้าชม', 'ตั้งค่าโรงเรียน (100+ fields)', 'User Roles & Permissions', 'จัดการเว็บไซต์ผ่าน Admin', 'Export CSV + Print รายงาน'],
     },
 ];
 
@@ -130,8 +130,20 @@ const roadmap = [
 
 const versionHistory = [
     {
-        version: 'v1.3.0 (ฝ่ายวิชาการ + DB ครบชุด)',
+        version: 'v1.3.1 (Export + แจ้งผู้ปกครอง + Analytics ขยาย)',
         date: 'ล่าสุด',
+        badge: 'bg-sky-600',
+        items: [
+            'Export CSV + พิมพ์รายงาน: เช็คชื่อนักเรียน, คะแนนผลการเรียน, ธนาคารขยะ — รองรับ UTF-8 BOM สำหรับ Excel ภาษาไทย',
+            'แจ้งผู้ปกครองเมื่อนักเรียนขาดเรียน: Dialog แสดงรายชื่อ + เบอร์โทรผู้ปกครอง + SMS template พร้อม Copy to clipboard',
+            'Analytics Dashboard ขยาย: Device Breakdown (Donut PieChart), Peak Hours BarChart, Traffic Sources progress bars',
+            'Countdown เปิดเทอม Real-time: นับถอยหลังเปิดเทอม 1 (16 พ.ค.) / เปิดเทอม 2 (1 พ.ย.) live ทุก 1 วินาที บนหน้าแรก',
+            'เพิ่ม Utility Library: src/lib/export.ts — downloadCSV() + printTable() ใช้ร่วมกันได้ทุก module',
+        ],
+    },
+    {
+        version: 'v1.3.0 (ฝ่ายวิชาการ + DB ครบชุด)',
+        date: '',
         badge: 'bg-emerald-600',
         items: [
             'ระบบฝ่ายวิชาการครบชุด 7 โมดูล: ตารางสอน (Grid 5×8 คาบ), แผนการสอน, สื่อการสอน, ปฏิทินวิชาการ, นักเรียนพิเศษ, แนะแนว, นิเทศชั้นเรียน',
@@ -306,7 +318,7 @@ const exportData = {
     techStack,
     featureGroups: featureGroups.map(g => ({ category: g.label, features: g.features })),
     database: {
-        totalTables: '35+',
+        totalTables: '40+',
         migrations: 21,
         engine: 'PostgreSQL via Supabase',
         security: 'RLS enabled',
@@ -340,7 +352,7 @@ const generateMarkdown = () => {
     });
 
     lines.push('\n## ฐานข้อมูล');
-    lines.push(`- **Tables**: 35+`);
+    lines.push(`- **Tables**: 40+`);
     lines.push(`- **Migrations**: 21`);
     lines.push(`- **Engine**: PostgreSQL via Supabase`);
     lines.push(`- **Security**: RLS enabled`);
@@ -579,7 +591,7 @@ export const SystemOverview = () => {
                 </CardHeader>
                 <CardContent>
                     <div className="flex gap-3 mb-4">
-                        <div className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">35+ Tables</div>
+                        <div className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">40+ Tables</div>
                         <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">21 Migrations</div>
                         <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">PostgreSQL via Supabase</div>
                         <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">RLS enabled</div>
