@@ -79,6 +79,11 @@ const featureGroups = [
         features: ['หลักสูตรการเรียน (4 สาย)', 'กิจกรรมเสริมหลักสูตร', 'ระบบเช็คชื่อนักเรียน + รายงาน', 'ระบบรับสมัครนักเรียนออนไลน์'],
     },
     {
+        label: 'ฝ่ายวิชาการ',
+        color: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800',
+        features: ['ตารางสอน (Grid 5×8 คาบ)', 'แผนการสอน + Approval', 'ทะเบียนสื่อการสอน', 'ปฏิทินวิชาการ', 'นักเรียนพิเศษ', 'บันทึกการแนะแนว', 'บันทึกการนิเทศ'],
+    },
+    {
         label: 'งานสารบรรณ',
         color: 'bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800',
         features: ['หนังสือรับ', 'หนังสือส่ง', 'คำสั่ง/ประกาศ', 'บันทึกการประชุม', 'Dashboard ภาพรวม'],
@@ -105,7 +110,8 @@ const dbGroups = [
     { label: 'บุคลากร', tables: ['administrators', 'staff', 'students', 'attendance_records', 'student_council', 'student_achievements', 'student_activities', 'student_stats', 'grade_data'] },
     { label: 'บริการ', tables: ['admissions', 'contact_messages', 'waste_categories', 'waste_transactions', 'curriculum_programs', 'curriculum_activities', 'faq', 'email_subscribers'] },
     { label: 'สารบรรณ', tables: ['incoming_letters', 'outgoing_letters', 'orders_announcements', 'meetings'] },
-    { label: 'HR', tables: ['leave_records', 'training_records', 'staff_assessments'] },
+    { label: 'HR', tables: ['leave_requests', 'training_records', 'pa_assessments'] },
+    { label: 'วิชาการ', tables: ['class_schedules', 'lesson_plans', 'teaching_materials', 'academic_calendar', 'student_special_needs', 'counseling_records', 'supervision_records'] },
     { label: 'ระบบ', tables: ['school_settings', 'page_views', 'milestones', 'facilities'] },
 ];
 
@@ -124,8 +130,20 @@ const roadmap = [
 
 const versionHistory = [
     {
-        version: 'v1.2.5 (Mobile Layout Manager)',
+        version: 'v1.3.0 (ฝ่ายวิชาการ + DB ครบชุด)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'ระบบฝ่ายวิชาการครบชุด 7 โมดูล: ตารางสอน (Grid 5×8 คาบ), แผนการสอน, สื่อการสอน, ปฏิทินวิชาการ, นักเรียนพิเศษ, แนะแนว, นิเทศชั้นเรียน',
+            'Migration 021: 7 ตารางใหม่ — class_schedules, lesson_plans, teaching_materials, academic_calendar, student_special_needs, counseling_records, supervision_records',
+            'Migration 019 (สารบรรณ) + 020 (HR): เชื่อมต่อ UI ที่มีอยู่แล้วเข้ากับฐานข้อมูลจริง — incoming_letters, outgoing_letters, meetings, orders_announcements, leave_requests, pa_assessments, training_records',
+            'เพิ่ม WasteBankWidget: อันดับ Top 5 นักเรียนธนาคารขยะ (พร้อมเหรียญ 🥇🥈🥉) บนหน้าแรก Right Sidebar',
+            'เพิ่ม Menu ฝ่ายวิชาการ ใน Admin Sidebar และ Route /admin/dashboard/academic',
+        ],
+    },
+    {
+        version: 'v1.2.5 (Mobile Layout Manager)',
+        date: '',
         badge: 'bg-indigo-500',
         items: [
             'เพิ่ม Mobile Layout Manager แยกการจัดการหน้าแรกสำหรับมือถือออกจาก Desktop โดยเฉพาะ',
@@ -288,8 +306,8 @@ const exportData = {
     techStack,
     featureGroups: featureGroups.map(g => ({ category: g.label, features: g.features })),
     database: {
-        totalTables: '24+',
-        migrations: 13,
+        totalTables: '35+',
+        migrations: 21,
         engine: 'PostgreSQL via Supabase',
         security: 'RLS enabled',
         groups: dbGroups,
@@ -322,8 +340,8 @@ const generateMarkdown = () => {
     });
 
     lines.push('\n## ฐานข้อมูล');
-    lines.push(`- **Tables**: 24+`);
-    lines.push(`- **Migrations**: 13`);
+    lines.push(`- **Tables**: 35+`);
+    lines.push(`- **Migrations**: 21`);
     lines.push(`- **Engine**: PostgreSQL via Supabase`);
     lines.push(`- **Security**: RLS enabled`);
     dbGroups.forEach(g => {
@@ -561,8 +579,8 @@ export const SystemOverview = () => {
                 </CardHeader>
                 <CardContent>
                     <div className="flex gap-3 mb-4">
-                        <div className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">24+ Tables</div>
-                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">13 Migrations</div>
+                        <div className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">35+ Tables</div>
+                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">21 Migrations</div>
                         <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">PostgreSQL via Supabase</div>
                         <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">RLS enabled</div>
                     </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Trash2, Plus, Edit2, Save, X, Scale, Users, List, Search } from 'lucide-react';
+import { Trash2, Plus, Edit2, Save, X, Scale, Users, List, Search, Download } from 'lucide-react';
+import { downloadCSV } from '@/lib/export';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -576,7 +577,27 @@ export const WasteBankManagement = () => {
 
           {/* Summary Table */}
           <Card>
-            <CardContent className="p-0">
+            <CardHeader className="pb-0 pt-3 px-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-muted-foreground">{filteredSummaries.length} นักเรียน</span>
+                {filteredSummaries.length > 0 && (
+                  <Button size="sm" variant="outline" className="gap-1 text-green-700 border-green-300 hover:bg-green-50"
+                    onClick={() => downloadCSV('สรุปธนาคารขยะ',
+                      ['ชื่อนักเรียน', 'ชั้น', 'จำนวนครั้ง', 'น้ำหนักรวม (กก.)', 'ยอดสะสม (บาท)', 'ครั้งล่าสุด'],
+                      filteredSummaries.map(s => [
+                        s.student_name ?? '', s.student_class ?? '',
+                        s.total_transactions ?? 0,
+                        Number(s.total_weight ?? 0).toFixed(2),
+                        Number(s.total_amount ?? 0).toFixed(2),
+                        s.last_transaction_date ?? ''
+                      ])
+                    )}>
+                    <Download className="w-3.5 h-3.5" /> CSV
+                  </Button>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent className="p-0 pt-2">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>

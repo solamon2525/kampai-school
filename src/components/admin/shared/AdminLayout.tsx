@@ -73,6 +73,8 @@ const menuItems: MenuItem[] = [
     { type: 'item', id: 'leave', label: 'การลา', icon: UserX, path: '/admin/dashboard/leave', adminOnly: true },
     { type: 'item', id: 'training', label: 'การอบรม', icon: BookMarked, path: '/admin/dashboard/training', adminOnly: true },
     { type: 'item', id: 'pa', label: 'PA Assessment', icon: Award, path: '/admin/dashboard/pa', adminOnly: true },
+    { type: 'section', label: 'ฝ่ายวิชาการ' },
+    { type: 'item', id: 'academic', label: 'ฝ่ายวิชาการ', icon: BookOpen, path: '/admin/dashboard/academic', adminOnly: true },
     { type: 'section', label: 'ข้อมูลโรงเรียน' },
     { type: 'item', id: 'milestones', label: 'ประวัติโรงเรียน', icon: History, path: '/admin/dashboard/milestones', adminOnly: true },
     { type: 'item', id: 'facilities', label: 'สิ่งอำนวยความสะดวก', icon: Building2, path: '/admin/dashboard/facilities', adminOnly: true },

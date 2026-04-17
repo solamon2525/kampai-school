@@ -1,8 +1,112 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
-import { Facebook, Youtube, Instagram, MessageCircle, Link as LinkIcon, Image, Users, Monitor, FileText, ArrowRight } from 'lucide-react';
+import { Facebook, Youtube, Instagram, MessageCircle, Link as LinkIcon, Image, Users, Monitor, FileText, ArrowRight, Recycle } from 'lucide-react';
+
+// ─── WasteBank Widget ─────────────────────────────────────
+
+interface WasteSummary {
+  student_id: string | null;
+  student_name: string | null;
+  photo_url: string | null;
+  total_amount: number | null;
+  total_weight: number | null;
+  total_transactions: number | null;
+}
+
+const MEDALS = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+const RANK_COLORS = [
+  'from-yellow-400 to-amber-500',
+  'from-slate-300 to-slate-400',
+  'from-amber-600 to-amber-700',
+  'from-teal-400 to-cyan-500',
+  'from-purple-400 to-violet-500',
+];
+
+const WasteBankWidget = () => {
+  const [summaries, setSummaries] = useState<WasteSummary[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    supabase
+      .from('waste_student_summary')
+      .select('student_id, student_name, photo_url, total_amount, total_weight, total_transactions')
+      .then(({ data }) => {
+        if (data) setSummaries(data as WasteSummary[]);
+        setIsLoading(false);
+      });
+  }, []);
+
+  const top5 = useMemo(
+    () => [...summaries].sort((a, b) => Number(b.total_amount ?? 0) - Number(a.total_amount ?? 0)).slice(0, 5),
+    [summaries],
+  );
+  const totalAmount = summaries.reduce((acc, s) => acc + Number(s.total_amount ?? 0), 0);
+  const totalWeight = summaries.reduce((acc, s) => acc + Number(s.total_weight ?? 0), 0);
+
+  return (
+    <div className="bg-white rounded-2xl border border-green-100 shadow-sm overflow-hidden">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-green-700 to-emerald-600 px-4 py-3 flex items-center gap-2">
+        <Recycle className="w-5 h-5 text-white" />
+        <h3 className="text-white font-semibold text-sm">🏆 ธนาคารขยะ — Top 5</h3>
+      </div>
+
+      {/* Stats row */}
+      <div className="grid grid-cols-2 gap-2 px-4 py-3 bg-green-50 border-b border-green-100">
+        <div className="text-center">
+          <p className="text-xs text-muted-foreground">ยอดรวม</p>
+          <p className="font-bold text-green-700 text-sm">฿{totalAmount.toFixed(0)}</p>
+        </div>
+        <div className="text-center">
+          <p className="text-xs text-muted-foreground">น้ำหนักรวม</p>
+          <p className="font-bold text-blue-700 text-sm">{totalWeight.toFixed(1)} กก.</p>
+        </div>
+      </div>
+
+      {/* Top 5 list */}
+      {isLoading ? (
+        <div className="py-6 flex items-center justify-center text-sm text-muted-foreground">กำลังโหลด...</div>
+      ) : top5.length === 0 ? (
+        <div className="py-6 flex items-center justify-center text-sm text-muted-foreground">ยังไม่มีข้อมูล</div>
+      ) : (
+        <ul className="divide-y divide-green-50">
+          {top5.map((s, i) => (
+            <li key={s.student_id ?? i} className="flex items-center gap-3 px-4 py-2.5">
+              {/* Rank badge */}
+              <div className={`w-7 h-7 rounded-full bg-gradient-to-br ${RANK_COLORS[i]} flex items-center justify-center flex-shrink-0 text-xs font-bold text-white shadow-sm`}>
+                {MEDALS[i]}
+              </div>
+              {/* Photo */}
+              {s.photo_url ? (
+                <img src={s.photo_url} alt={s.student_name ?? ''} className="w-8 h-8 rounded-full object-cover border border-green-200 flex-shrink-0" />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 text-green-600 text-xs font-bold border border-green-200">
+                  {(s.student_name ?? '?').charAt(0)}
+                </div>
+              )}
+              {/* Name & stats */}
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-gray-800 truncate">{s.student_name ?? '-'}</p>
+                <p className="text-[10px] text-gray-500">{Number(s.total_transactions ?? 0)} ครั้ง · {Number(s.total_weight ?? 0).toFixed(1)} กก.</p>
+              </div>
+              {/* Amount */}
+              <span className="text-xs font-bold text-green-700 flex-shrink-0">฿{Number(s.total_amount ?? 0).toFixed(0)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* Footer link */}
+      <div className="px-4 py-2.5 border-t border-green-100 bg-green-50">
+        <Link to="/waste-bank" className="text-xs text-green-700 hover:underline flex items-center gap-1 font-medium">
+          <Recycle className="w-3 h-3" /> ดูธนาคารขยะทั้งหมด
+        </Link>
+      </div>
+    </div>
+  );
+};
 
 const categoryLinks = [
   { label: 'ข่าวประชาสัมพันธ์', href: '/news', color: 'text-blue-700', dot: 'bg-blue-500' },
@@ -79,8 +183,8 @@ export const useHomeRightBlocks = () => {
 
   const rawOrder = settings.homepage_right_widgets;
   const widgetOrder: string[] = rawOrder
-    ? (() => { try { return JSON.parse(rawOrder); } catch { return ['categories','gallery','services','social','stats']; } })()
-    : ['categories','gallery','services','social','stats'];
+    ? (() => { try { return JSON.parse(rawOrder); } catch { return ['categories','gallery','services','social','stats','waste_bank']; } })()
+    : ['categories','gallery','services','social','stats','waste_bank'];
 
   const categoriesWidget = (
     <div key="categories" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
@@ -213,6 +317,7 @@ export const useHomeRightBlocks = () => {
     social: socialWidget,
     stats: statsWidget,
     documents: documentsWidget,
+    waste_bank: <WasteBankWidget key="waste_bank" />,
   };
 
   return widgetMap;
