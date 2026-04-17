@@ -63,6 +63,7 @@ export const RIGHT_BLOCKS: BlockDef[] = [
     { id: 'social', label: 'โซเชียลมีเดีย', icon: '💬', description: 'ลิงก์ Facebook, LINE', category: 'service' },
     { id: 'stats', label: 'สถิติผู้เข้าชม', icon: '📊', description: 'ตัวเลขเยี่ยมชม', category: 'data' },
     { id: 'documents', label: 'เอกสารดาวน์โหลด', icon: '📄', description: 'เอกสารล่าสุด', category: 'service' },
+    { id: 'waste_bank', label: 'ธนาคารขยะ Top 5', icon: '♻️', description: 'อันดับนักเรียนธนาคารขยะ', category: 'data' },
 ];
 
 export const LEFT_BLOCKS: BlockDef[] = [
