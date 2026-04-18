@@ -4,12 +4,13 @@ interface UseUserRoleResult {
     role: UserRole;
     isAdmin: boolean;
     isTeacher: boolean;
+    isParent: boolean;
     loading: boolean;
 }
 
 export const useUserRole = (): UseUserRoleResult => {
-    const { role, isAdmin, isTeacher, loading } = useAuth();
-    return { role, isAdmin, isTeacher, loading };
+    const { role, isAdmin, isTeacher, isParent, loading } = useAuth();
+    return { role, isAdmin, isTeacher, isParent, loading };
 };
 
 export type { UserRole };

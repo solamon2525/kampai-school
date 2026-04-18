@@ -3,35 +3,48 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
-    LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, Legend,
+    LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
     XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
 import { TrendingUp, Eye, CalendarDays, BarChart2, Smartphone, Monitor, Clock } from 'lucide-react';
 
-// ── Mock data ─────────────────────────────────────────────────────────────────
-const MOCK_DEVICE = [
-  { name: 'มือถือ', value: 62, color: '#8b5cf6' },
-  { name: 'Desktop', value: 29, color: '#3b82f6' },
-  { name: 'Tablet', value: 9, color: '#10b981' },
-];
+// ── Classifiers ───────────────────────────────────────────────────────────────
+const DEVICE_COLORS: Record<string, string> = {
+    'มือถือ': '#8b5cf6',
+    'Desktop': '#3b82f6',
+    'Tablet': '#10b981',
+};
 
-const MOCK_PEAK_HOURS = [
-  { hour: '06:00', views: 12 }, { hour: '07:00', views: 38 }, { hour: '08:00', views: 85 },
-  { hour: '09:00', views: 72 }, { hour: '10:00', views: 54 }, { hour: '11:00', views: 48 },
-  { hour: '12:00', views: 91 }, { hour: '13:00', views: 67 }, { hour: '14:00', views: 55 },
-  { hour: '15:00', views: 43 }, { hour: '16:00', views: 38 }, { hour: '17:00', views: 29 },
-  { hour: '18:00', views: 22 }, { hour: '19:00', views: 14 }, { hour: '20:00', views: 8 },
-];
+function classifyDevice(ua: string | null): 'มือถือ' | 'Desktop' | 'Tablet' {
+    if (!ua) return 'Desktop';
+    const s = ua.toLowerCase();
+    if (/ipad|tablet|playbook|silk|(android(?!.*mobile))/.test(s)) return 'Tablet';
+    if (/mobi|iphone|ipod|android|blackberry|windows phone/.test(s)) return 'มือถือ';
+    return 'Desktop';
+}
 
-const MOCK_REFERRERS = [
-  { source: 'Direct', visits: 520, pct: 52 },
-  { source: 'Facebook', visits: 280, pct: 28 },
-  { source: 'Google', visits: 140, pct: 14 },
-  { source: 'LINE', visits: 60, pct: 6 },
-];
+function classifyReferrer(ref: string | null): string {
+    if (!ref) return 'Direct';
+    try {
+        const host = new URL(ref).hostname.toLowerCase().replace(/^www\./, '');
+        if (host.includes('facebook') || host === 'm.facebook.com' || host.includes('fb.com')) return 'Facebook';
+        if (host.includes('google')) return 'Google';
+        if (host.includes('line.me') || host.includes('liff')) return 'LINE';
+        if (host.includes('twitter') || host.includes('x.com')) return 'Twitter/X';
+        if (host.includes('instagram')) return 'Instagram';
+        if (host.includes('youtube')) return 'YouTube';
+        if (host.includes('tiktok')) return 'TikTok';
+        return host;
+    } catch {
+        return 'Other';
+    }
+}
 
 interface DailyView { date: string; views: number }
 interface PageCount { page: string; views: number }
+interface DeviceCount { name: string; value: number; color: string }
+interface HourCount { hour: string; views: number }
+interface RefCount { source: string; visits: number; pct: number }
 
 const PAGE_LABELS: Record<string, string> = {
     '/': 'หน้าแรก',
@@ -50,6 +63,9 @@ const PAGE_LABELS: Record<string, string> = {
 export const AnalyticsManagement = () => {
     const [daily, setDaily] = useState<DailyView[]>([]);
     const [topPages, setTopPages] = useState<PageCount[]>([]);
+    const [devices, setDevices] = useState<DeviceCount[]>([]);
+    const [peakHours, setPeakHours] = useState<HourCount[]>([]);
+    const [referrers, setReferrers] = useState<RefCount[]>([]);
     const [todayCount, setTodayCount] = useState(0);
     const [weekCount, setWeekCount] = useState(0);
     const [monthCount, setMonthCount] = useState(0);
@@ -64,7 +80,7 @@ export const AnalyticsManagement = () => {
 
             const { data, error } = await supabase
                 .from('page_views')
-                .select('page_path, visited_at')
+                .select('page_path, visited_at, user_agent, referrer')
                 .gte('visited_at', thirtyDaysAgo.toISOString())
                 .order('visited_at', { ascending: true });
 
@@ -87,6 +103,11 @@ export const AnalyticsManagement = () => {
 
             let today = 0, week = 0, month = 0;
 
+            const deviceMap: Record<string, number> = { 'มือถือ': 0, 'Desktop': 0, 'Tablet': 0 };
+            const hourMap: Record<number, number> = {};
+            for (let h = 0; h < 24; h++) hourMap[h] = 0;
+            const refMap: Record<string, number> = {};
+
             for (const row of data) {
                 const dateStr = row.visited_at.slice(0, 10);
                 if (dateStr in dailyMap) dailyMap[dateStr]++;
@@ -96,6 +117,17 @@ export const AnalyticsManagement = () => {
                 if (dateStr === todayStr) today++;
                 if (visitedAt >= weekAgo) week++;
                 if (visitedAt >= monthAgo) month++;
+
+                // Device
+                const dev = classifyDevice((row as any).user_agent ?? null);
+                deviceMap[dev]++;
+
+                // Peak hours (local time)
+                hourMap[visitedAt.getHours()]++;
+
+                // Referrer
+                const src = classifyReferrer((row as any).referrer ?? null);
+                refMap[src] = (refMap[src] || 0) + 1;
             }
 
             setDaily(Object.entries(dailyMap).map(([date, views]) => ({
@@ -108,6 +140,39 @@ export const AnalyticsManagement = () => {
                     .sort((a, b) => b[1] - a[1])
                     .slice(0, 10)
                     .map(([page, views]) => ({ page: PAGE_LABELS[page] || page, views }))
+            );
+
+            // Devices → pie chart data (filter zero)
+            const deviceTotal = Object.values(deviceMap).reduce((s, v) => s + v, 0);
+            setDevices(
+                Object.entries(deviceMap)
+                    .filter(([, v]) => v > 0)
+                    .map(([name, value]) => ({
+                        name,
+                        value: deviceTotal ? Math.round((value / deviceTotal) * 100) : 0,
+                        color: DEVICE_COLORS[name] || '#94a3b8',
+                    }))
+            );
+
+            // Peak hours → bar chart (06:00–20:00 only)
+            setPeakHours(
+                Array.from({ length: 15 }, (_, i) => {
+                    const h = i + 6;
+                    return { hour: `${String(h).padStart(2, '0')}:00`, views: hourMap[h] || 0 };
+                })
+            );
+
+            // Referrers → top 6 + percent
+            const refTotal = Object.values(refMap).reduce((s, v) => s + v, 0);
+            setReferrers(
+                Object.entries(refMap)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 6)
+                    .map(([source, visits]) => ({
+                        source,
+                        visits,
+                        pct: refTotal ? Math.round((visits / refTotal) * 100) : 0,
+                    }))
             );
 
             setTodayCount(today);
@@ -203,29 +268,32 @@ export const AnalyticsManagement = () => {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="flex items-center gap-4">
-                            <ResponsiveContainer width={160} height={160}>
-                                <PieChart>
-                                    <Pie data={MOCK_DEVICE} dataKey="value" cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={2}>
-                                        {MOCK_DEVICE.map((entry, i) => <Cell key={i} fill={entry.color} />)}
-                                    </Pie>
-                                    <Tooltip formatter={(v) => `${v}%`} />
-                                </PieChart>
-                            </ResponsiveContainer>
-                            <div className="space-y-2 flex-1">
-                                {MOCK_DEVICE.map(d => (
-                                    <div key={d.name} className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2 text-sm">
-                                            <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: d.color }} />
-                                            {d.name === 'มือถือ' ? <Smartphone className="w-3.5 h-3.5 text-muted-foreground" /> : <Monitor className="w-3.5 h-3.5 text-muted-foreground" />}
-                                            {d.name}
+                        {devices.length === 0 ? (
+                            <p className="text-center py-8 text-muted-foreground text-sm">ยังไม่มีข้อมูล</p>
+                        ) : (
+                            <div className="flex items-center gap-4">
+                                <ResponsiveContainer width={160} height={160}>
+                                    <PieChart>
+                                        <Pie data={devices} dataKey="value" cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={2}>
+                                            {devices.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                                        </Pie>
+                                        <Tooltip formatter={(v) => `${v}%`} />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                                <div className="space-y-2 flex-1">
+                                    {devices.map(d => (
+                                        <div key={d.name} className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2 text-sm">
+                                                <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: d.color }} />
+                                                {d.name === 'มือถือ' ? <Smartphone className="w-3.5 h-3.5 text-muted-foreground" /> : <Monitor className="w-3.5 h-3.5 text-muted-foreground" />}
+                                                {d.name}
+                                            </div>
+                                            <Badge variant="outline" className="text-xs">{d.value}%</Badge>
                                         </div>
-                                        <Badge variant="outline" className="text-xs">{d.value}%</Badge>
-                                    </div>
-                                ))}
-                                <p className="text-xs text-muted-foreground pt-1">* ข้อมูลประมาณการ (ตัวอย่าง)</p>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </CardContent>
                 </Card>
 
@@ -238,7 +306,7 @@ export const AnalyticsManagement = () => {
                     </CardHeader>
                     <CardContent>
                         <ResponsiveContainer width="100%" height={160}>
-                            <BarChart data={MOCK_PEAK_HOURS} margin={{ left: -20 }}>
+                            <BarChart data={peakHours} margin={{ left: -20 }}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="hour" tick={{ fontSize: 10 }} interval={2} />
                                 <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
@@ -246,7 +314,6 @@ export const AnalyticsManagement = () => {
                                 <Bar dataKey="views" fill="#8b5cf6" radius={[2, 2, 0, 0]} />
                             </BarChart>
                         </ResponsiveContainer>
-                        <p className="text-xs text-muted-foreground text-right mt-1">* ข้อมูลประมาณการ (ตัวอย่าง)</p>
                     </CardContent>
                 </Card>
             </div>
@@ -259,19 +326,22 @@ export const AnalyticsManagement = () => {
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="space-y-3">
-                        {MOCK_REFERRERS.map(r => (
-                            <div key={r.source} className="flex items-center gap-3">
-                                <span className="text-sm font-medium w-24 flex-shrink-0">{r.source}</span>
-                                <div className="flex-1 h-2 rounded-full bg-secondary overflow-hidden">
-                                    <div className="h-full rounded-full bg-primary" style={{ width: `${r.pct}%` }} />
+                    {referrers.length === 0 ? (
+                        <p className="text-center py-8 text-muted-foreground text-sm">ยังไม่มีข้อมูล</p>
+                    ) : (
+                        <div className="space-y-3">
+                            {referrers.map(r => (
+                                <div key={r.source} className="flex items-center gap-3">
+                                    <span className="text-sm font-medium w-24 flex-shrink-0 truncate">{r.source}</span>
+                                    <div className="flex-1 h-2 rounded-full bg-secondary overflow-hidden">
+                                        <div className="h-full rounded-full bg-primary" style={{ width: `${r.pct}%` }} />
+                                    </div>
+                                    <span className="text-sm text-muted-foreground w-16 text-right">{r.visits.toLocaleString()} ครั้ง</span>
+                                    <Badge variant="outline" className="text-xs w-10 justify-center">{r.pct}%</Badge>
                                 </div>
-                                <span className="text-sm text-muted-foreground w-16 text-right">{r.visits.toLocaleString()} ครั้ง</span>
-                                <Badge variant="outline" className="text-xs w-10 justify-center">{r.pct}%</Badge>
-                            </div>
-                        ))}
-                        <p className="text-xs text-muted-foreground text-right">* ข้อมูลประมาณการ (ตัวอย่าง)</p>
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </CardContent>
             </Card>
         </div>

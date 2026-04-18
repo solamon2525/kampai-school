@@ -15,17 +15,30 @@ const AdminLogin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const redirectByRole = async (userId: string) => {
+    const { data } = await supabase
+      .from('user_roles' as any)
+      .select('role')
+      .eq('user_id', userId)
+      .maybeSingle();
+    const role = (data as any)?.role ?? 'admin';
+    if (role === 'teacher') navigate('/teacher');
+    else if (role === 'parent') navigate('/parent');
+    else navigate('/admin/dashboard');
+  };
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) navigate('/admin/dashboard');
+      if (session?.user) redirectByRole(session.user.id);
     });
-  }, [navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
       toast({
@@ -36,9 +49,10 @@ const AdminLogin = () => {
     } else {
       toast({
         title: 'เข้าสู่ระบบสำเร็จ',
-        description: 'ยินดีต้อนรับเข้าสู่ระบบจัดการ',
+        description: 'ยินดีต้อนรับ',
       });
-      navigate('/admin/dashboard');
+      if (data.user) await redirectByRole(data.user.id);
+      else navigate('/admin/dashboard');
     }
     setIsLoading(false);
   };

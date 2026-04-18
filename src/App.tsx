@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { PortalProtectedRoute } from "./components/portal/PortalProtectedRoute";
 
 // หน้าแรกโหลดทันที (Critical path)
 import Index from "./pages/Index";
@@ -27,6 +28,14 @@ const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const PageBuilder = lazy(() => import("./pages/admin/PageBuilder"));
 const Documents = lazy(() => import("./pages/Documents"));
 const WasteBank = lazy(() => import("./pages/WasteBank"));
+
+// Portals
+const TeacherDashboard = lazy(() => import("./pages/teacher/TeacherDashboard"));
+const TeacherSchedule = lazy(() => import("./pages/teacher/TeacherSchedule"));
+const TeacherAttendance = lazy(() => import("./pages/teacher/TeacherAttendance"));
+const TeacherScores = lazy(() => import("./pages/teacher/TeacherScores"));
+const ParentDashboard = lazy(() => import("./pages/parent/ParentDashboard"));
+const ParentChildView = lazy(() => import("./pages/parent/ParentChildView"));
 
 // Loading spinner ขณะรอโหลด page
 const PageLoader = () => (
@@ -69,6 +78,38 @@ const App = () => (
             <Route path="/enrollment" element={<Enrollment />} />
             <Route path="/documents" element={<Documents />} />
             <Route path="/waste-bank" element={<WasteBank />} />
+
+            {/* Teacher Portal */}
+            <Route path="/teacher" element={
+              <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherDashboard /></PortalProtectedRoute>
+            } />
+            <Route path="/teacher/schedule" element={
+              <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherSchedule /></PortalProtectedRoute>
+            } />
+            <Route path="/teacher/attendance" element={
+              <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherAttendance /></PortalProtectedRoute>
+            } />
+            <Route path="/teacher/scores" element={
+              <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherScores /></PortalProtectedRoute>
+            } />
+
+            {/* Parent Portal */}
+            <Route path="/parent" element={
+              <PortalProtectedRoute allow={['parent', 'admin']}><ParentDashboard /></PortalProtectedRoute>
+            } />
+            <Route path="/parent/attendance" element={
+              <PortalProtectedRoute allow={['parent', 'admin']}><ParentChildView view="attendance" /></PortalProtectedRoute>
+            } />
+            <Route path="/parent/scores" element={
+              <PortalProtectedRoute allow={['parent', 'admin']}><ParentChildView view="scores" /></PortalProtectedRoute>
+            } />
+            <Route path="/parent/conduct" element={
+              <PortalProtectedRoute allow={['parent', 'admin']}><ParentChildView view="conduct" /></PortalProtectedRoute>
+            } />
+            <Route path="/parent/waste-bank" element={
+              <PortalProtectedRoute allow={['parent', 'admin']}><ParentChildView view="waste-bank" /></PortalProtectedRoute>
+            } />
+
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>

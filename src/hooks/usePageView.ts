@@ -27,6 +27,7 @@ export const usePageView = () => {
             page_path: path,
             session_id: sessionId,
             referrer: document.referrer || null,
+            user_agent: navigator.userAgent || null,
         } as any).then(() => {});
     }, [location.pathname]);
 };
