@@ -121,16 +121,29 @@ const dbGroups = [
 ];
 
 const roadmap = [
-    { icon: '📱', title: 'LINE Notify', desc: 'แจ้งเตือนผ่าน LINE เมื่อมีข่าวสาร/กิจกรรมใหม่' },
-    { icon: '📲', title: 'SMS Gateway', desc: 'ส่ง SMS จริงเมื่อนักเรียนขาดเรียน (ปัจจุบันเป็น template copy)' },
-    { icon: '🔗', title: 'Parent ↔ Multi-child Linking', desc: 'ผู้ปกครอง 1 account เชื่อมกับลูกหลายคน (ตอนนี้ 1:1)' },
-    { icon: '📧', title: 'Newsletter อัตโนมัติ', desc: 'ส่ง email ผ่าน Resend เมื่อมีข่าวใหม่' },
-    { icon: '📊', title: 'Analytics ขั้นสูง', desc: 'User behavior tracking, heatmaps, conversion funnels' },
-    { icon: '🌐', title: 'Multi-language', desc: 'รองรับภาษาอังกฤษ/ไทยแบบ toggle' },
-    { icon: '📅', title: 'Google Calendar Sync', desc: 'ซิงค์กิจกรรมกับ Google Calendar อัตโนมัติ' },
-    { icon: '📲', title: 'PWA / Offline Mode', desc: 'ติดตั้งเป็นแอปบนมือถือ ใช้งานแบบ offline ได้' },
-    { icon: '💬', title: 'Chat/Inbox', desc: 'ระบบสื่อสารระหว่างโรงเรียนกับผู้ปกครอง' },
-    { icon: '🔑', title: 'API สำหรับแอปมือถือ', desc: 'REST API สำหรับ mobile app ในอนาคต' },
+    // 🎨 UX/UI Beautification — เน้นทำให้ระบบสวย น่าใช้
+    { icon: '🌓', title: 'Dark Mode + Theme Switcher', desc: 'โหมดมืด/สว่าง + เลือกธีมสีได้ (ทอง/เขียว/น้ำเงิน) บันทึกตาม user' },
+    { icon: '⌘', title: 'Command Palette (Ctrl+K)', desc: 'ค้นหา/นำทาง/สั่งการด้วยคีย์บอร์ด สไตล์ Linear/Notion — เร็วขึ้น 10x' },
+    { icon: '🔍', title: 'Global Fuzzy Search', desc: 'ค้นข้ามทั้งระบบแบบ real-time — นักเรียน/ข่าว/เอกสาร/กิจกรรม/คำสั่ง' },
+    { icon: '🎨', title: 'Homepage Redesign (Motion + Parallax)', desc: 'หน้าแรกระดับ modern: Video Background, Parallax Scroll, Animated Hero' },
+    { icon: '✨', title: 'Micro-interactions + Skeleton Loaders', desc: 'Framer Motion transitions, Shimmer loading แทน spinner ทั่วระบบ' },
+    { icon: '🎯', title: 'Onboarding Tour', desc: 'Intro tour guide ขึ้นอัตโนมัติสำหรับ admin/teacher/parent คนแรก (react-joyride)' },
+    { icon: '📊', title: 'Customizable Dashboard Widgets', desc: 'ลาก-วาง widgets เลือกข้อมูลที่อยากเห็นบน Dashboard ตามบทบาท' },
+    { icon: '🏆', title: 'Student Gamification + Badges', desc: 'ระบบเหรียญ/ความสำเร็จ: Waste Bank milestones, คะแนนเด่น, ความประพฤติดี' },
+    { icon: '🖼️', title: 'Empty State Illustrations', desc: 'ภาพประกอบ SVG สวยๆ แทนข้อความ "ยังไม่มีข้อมูล" ทั่วระบบ' },
+    { icon: '📅', title: 'Activity Heatmap (GitHub-style)', desc: 'แสดงการมีส่วนร่วมนักเรียน/ครู รายปีแบบ heatmap calendar' },
+    { icon: '🗺️', title: 'Interactive Floor Plan', desc: 'แผนที่โรงเรียน SVG interactive — คลิก hover อาคาร/ห้องดูข้อมูลได้' },
+    { icon: '📧', title: 'Visual Newsletter Builder', desc: 'Drag-drop สร้าง email template + ส่งผ่าน Resend อัตโนมัติเมื่อมีข่าวใหม่' },
+
+    // 🔔 Communication & Integration
+    { icon: '💬', title: 'In-app Chat (Teacher ↔ Parent)', desc: 'แชทภายในเว็บ realtime + typing indicator + read receipts' },
+    { icon: '📲', title: 'PWA + Push Notifications', desc: 'ติดตั้งเป็นแอปบนมือถือ + Browser push notifications เรียบทุกแพลตฟอร์ม' },
+    { icon: '📱', title: 'LINE Notify Integration', desc: 'แจ้งผ่าน LINE เมื่อมีข่าว/กิจกรรม/ลูกขาดเรียน — เชื่อม LINE Login ผู้ปกครอง' },
+    { icon: '📨', title: 'SMS Gateway (จริง)', desc: 'ส่ง SMS ผ่าน provider จริง (ThaiBulkSMS/Twilio) — ไม่ต้อง copy template แล้ว' },
+    { icon: '🔗', title: 'Parent Multi-child Linking', desc: 'ผู้ปกครอง 1 account รองรับลูกหลายคน พร้อม child switcher ด้านบน' },
+    { icon: '🌐', title: 'Multi-language (TH/EN)', desc: 'Toggle ภาษาไทย/อังกฤษ รองรับ i18n ทั้งเว็บ + รองรับผู้ปกครอง expat' },
+    { icon: '📆', title: 'Google Calendar 2-way Sync', desc: 'ซิงค์กิจกรรม/ปฏิทินวิชาการกับ Google Calendar ทั้งสองทาง' },
+    { icon: '📑', title: 'Reports Builder (Visual)', desc: 'สร้างรายงานด้วย drag chart + field + date filter ส่งออก PDF/CSV' },
 ];
 
 const versionHistory = [
