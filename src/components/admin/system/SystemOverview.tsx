@@ -101,7 +101,12 @@ const featureGroups = [
     {
         label: 'ระบบ/เครื่องมือ',
         color: 'bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-200 dark:border-gray-800',
-        features: ['Visual Page Builder (Puck)', 'Analytics ดูสถิติผู้เข้าชม', 'ตั้งค่าโรงเรียน (100+ fields)', 'User Roles & Permissions', 'จัดการเว็บไซต์ผ่าน Admin', 'Export CSV + Print รายงาน'],
+        features: ['Visual Page Builder (Puck)', 'Analytics ดูสถิติผู้เข้าชม (Device/Peak Hours/Referrer)', 'ตั้งค่าโรงเรียน (100+ fields)', 'User Roles & Permissions (admin/teacher/parent/viewer)', 'จัดการเว็บไซต์ผ่าน Admin', 'Export CSV + Print รายงาน', 'Notification Center (Realtime)', 'RLS Hardened (45 tables)'],
+    },
+    {
+        label: 'Portal ครู/ผู้ปกครอง',
+        color: 'bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-800',
+        features: ['Portal ครู: Dashboard, ตารางสอน, เช็คชื่อ, คะแนน', 'Portal ผู้ปกครอง: ดูการมาเรียน/คะแนน/ความประพฤติ/ธนาคารขยะของลูก', 'Protected Routes ตาม role', 'Smart Login Redirect (admin/teacher/parent)'],
     },
 ];
 
@@ -112,13 +117,13 @@ const dbGroups = [
     { label: 'สารบรรณ', tables: ['incoming_letters', 'outgoing_letters', 'orders_announcements', 'meetings'] },
     { label: 'HR', tables: ['leave_requests', 'training_records', 'pa_assessments'] },
     { label: 'วิชาการ', tables: ['class_schedules', 'lesson_plans', 'teaching_materials', 'academic_calendar', 'student_special_needs', 'counseling_records', 'supervision_records'] },
-    { label: 'ระบบ', tables: ['school_settings', 'page_views', 'milestones', 'facilities'] },
+    { label: 'ระบบ', tables: ['school_settings', 'page_views', 'milestones', 'facilities', 'notifications', 'user_roles'] },
 ];
 
 const roadmap = [
-    { icon: '🔔', title: 'Notification Center', desc: 'ระบบแจ้งเตือนในหน้า Admin เมื่อมีใบสมัคร/ข้อความใหม่' },
-    { icon: '👨‍👩‍👧', title: 'Portal ผู้ปกครอง', desc: 'ระบบล็อกอินสำหรับผู้ปกครองดูผล/ข้อมูลนักเรียน' },
     { icon: '📱', title: 'LINE Notify', desc: 'แจ้งเตือนผ่าน LINE เมื่อมีข่าวสาร/กิจกรรมใหม่' },
+    { icon: '📲', title: 'SMS Gateway', desc: 'ส่ง SMS จริงเมื่อนักเรียนขาดเรียน (ปัจจุบันเป็น template copy)' },
+    { icon: '🔗', title: 'Parent ↔ Multi-child Linking', desc: 'ผู้ปกครอง 1 account เชื่อมกับลูกหลายคน (ตอนนี้ 1:1)' },
     { icon: '📧', title: 'Newsletter อัตโนมัติ', desc: 'ส่ง email ผ่าน Resend เมื่อมีข่าวใหม่' },
     { icon: '📊', title: 'Analytics ขั้นสูง', desc: 'User behavior tracking, heatmaps, conversion funnels' },
     { icon: '🌐', title: 'Multi-language', desc: 'รองรับภาษาอังกฤษ/ไทยแบบ toggle' },
@@ -130,8 +135,23 @@ const roadmap = [
 
 const versionHistory = [
     {
-        version: 'v1.3.1 (Export + แจ้งผู้ปกครอง + Analytics ขยาย)',
+        version: 'v1.4.0 (Security + Notifications + Teacher/Parent Portals)',
         date: 'ล่าสุด',
+        badge: 'bg-rose-600',
+        items: [
+            'Security Hardening: RLS policies ครอบคลุม 45 tables + helper functions (auth_role, is_admin, is_teacher) — ปิดช่องโหว่ "Allow public full access" บน staff/students/administrators และ sensitive tables ทั้งหมด',
+            'Notification Center: ระบบแจ้งเตือน Realtime ในหน้า Admin (Bell icon + Unread badge) — trigger อัตโนมัติเมื่อมีใบสมัคร/ข้อความ/คำขอลา + มีหน้ารวมแจ้งเตือนทั้งหมด',
+            'Real Analytics (แทน Mock): Device Breakdown, Peak Hours, Traffic Sources ใช้ข้อมูลจริงจาก page_views.user_agent + referrer',
+            'Portal ครู: Dashboard, ตารางสอน, เช็คชื่อ, บันทึกคะแนน — กรองข้อมูลเฉพาะห้องที่สอน (/teacher/*)',
+            'Portal ผู้ปกครอง: ดูการมาเรียน, ผลการเรียน, ความประพฤติ, ธนาคารขยะ ของลูก (read-only, /parent/*)',
+            'Smart Login Redirect: admin → /admin/dashboard, teacher → /teacher, parent → /parent ตาม role ใน user_roles',
+            'UserRolesManagement ขยาย: เพิ่ม role "parent" + link กับ students/staff',
+            'Migrations 022/023/024: user_roles + staff_id/student_id linking, notifications + triggers + Realtime publication, page_views.user_agent',
+        ],
+    },
+    {
+        version: 'v1.3.1 (Export + แจ้งผู้ปกครอง + Analytics ขยาย)',
+        date: '',
         badge: 'bg-sky-600',
         items: [
             'Export CSV + พิมพ์รายงาน: เช็คชื่อนักเรียน, คะแนนผลการเรียน, ธนาคารขยะ — รองรับ UTF-8 BOM สำหรับ Excel ภาษาไทย',
@@ -318,8 +338,8 @@ const exportData = {
     techStack,
     featureGroups: featureGroups.map(g => ({ category: g.label, features: g.features })),
     database: {
-        totalTables: '40+',
-        migrations: 21,
+        totalTables: '45+',
+        migrations: 24,
         engine: 'PostgreSQL via Supabase',
         security: 'RLS enabled',
         groups: dbGroups,
@@ -352,8 +372,8 @@ const generateMarkdown = () => {
     });
 
     lines.push('\n## ฐานข้อมูล');
-    lines.push(`- **Tables**: 40+`);
-    lines.push(`- **Migrations**: 21`);
+    lines.push(`- **Tables**: 45+`);
+    lines.push(`- **Migrations**: 24`);
     lines.push(`- **Engine**: PostgreSQL via Supabase`);
     lines.push(`- **Security**: RLS enabled`);
     dbGroups.forEach(g => {
@@ -591,8 +611,8 @@ export const SystemOverview = () => {
                 </CardHeader>
                 <CardContent>
                     <div className="flex gap-3 mb-4">
-                        <div className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">40+ Tables</div>
-                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">21 Migrations</div>
+                        <div className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">45+ Tables</div>
+                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">24 Migrations</div>
                         <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">PostgreSQL via Supabase</div>
                         <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">RLS enabled</div>
                     </div>
