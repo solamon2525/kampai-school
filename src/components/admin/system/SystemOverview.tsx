@@ -24,6 +24,7 @@ import {
     Printer,
     Copy,
     Check,
+    Rocket,
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -144,6 +145,69 @@ const roadmap = [
     { icon: '🌐', title: 'Multi-language (TH/EN)', desc: 'Toggle ภาษาไทย/อังกฤษ รองรับ i18n ทั้งเว็บ + รองรับผู้ปกครอง expat' },
     { icon: '📆', title: 'Google Calendar 2-way Sync', desc: 'ซิงค์กิจกรรม/ปฏิทินวิชาการกับ Google Calendar ทั้งสองทาง' },
     { icon: '📑', title: 'Reports Builder (Visual)', desc: 'สร้างรายงานด้วย drag chart + field + date filter ส่งออก PDF/CSV' },
+];
+
+const sprintPlan = [
+    {
+        sprint: 'Sprint 1 — Quick Wins ชัดตา',
+        duration: '~1 สัปดาห์',
+        goal: 'ทำให้ระบบสวยทันทีด้วยการปรับ visual polish ที่ใช้ effort น้อยแต่ผลลัพธ์ชัด',
+        badge: 'bg-emerald-500',
+        items: [
+            { icon: '🌓', title: 'Dark Mode + Theme Switcher', effort: '1 วัน', stack: 'next-themes + shadcn CSS variables' },
+            { icon: '🖼️', title: 'Empty State Illustrations', effort: '1 วัน', stack: 'unDraw SVG + EmptyState component' },
+            { icon: '✨', title: 'Skeleton Loaders', effort: '1 วัน', stack: 'shadcn Skeleton + react-loading-skeleton' },
+            { icon: '🎨', title: 'Homepage Motion Polish', effort: '2 วัน', stack: 'Framer Motion + Parallax' },
+        ],
+    },
+    {
+        sprint: 'Sprint 2 — Power User Features',
+        duration: '~1 สัปดาห์',
+        goal: 'เพิ่มความเร็วในการใช้งานสำหรับ admin/ครู ให้รู้สึกเหมือน Linear/Notion',
+        badge: 'bg-blue-500',
+        items: [
+            { icon: '⌘', title: 'Command Palette (Ctrl+K)', effort: '2 วัน', stack: 'cmdk + shadcn Dialog' },
+            { icon: '🔍', title: 'Global Fuzzy Search', effort: '2 วัน', stack: 'fuse.js + Supabase multi-table query' },
+            { icon: '🎯', title: 'Onboarding Tour', effort: '1 วัน', stack: 'react-joyride + localStorage flag' },
+        ],
+    },
+    {
+        sprint: 'Sprint 3 — Engagement & Gamification',
+        duration: '~1-2 สัปดาห์',
+        goal: 'ทำให้นักเรียน/ครู/ผู้ปกครอง อยากเข้ามาใช้เว็บบ่อยขึ้น',
+        badge: 'bg-rose-500',
+        items: [
+            { icon: '🏆', title: 'Student Gamification + Badges', effort: '3 วัน', stack: 'Migration + badges table + achievement engine' },
+            { icon: '📅', title: 'Activity Heatmap', effort: '2 วัน', stack: 'react-calendar-heatmap + aggregate query' },
+            { icon: '📊', title: 'Customizable Dashboard Widgets', effort: '3 วัน', stack: 'dnd-kit + user preferences table' },
+        ],
+    },
+    {
+        sprint: 'Sprint 4 — Communication & Integration',
+        duration: '~2 สัปดาห์',
+        goal: 'เชื่อมโยงกับระบบภายนอก + การสื่อสารระหว่างโรงเรียน-ผู้ปกครอง',
+        badge: 'bg-purple-500',
+        items: [
+            { icon: '💬', title: 'In-app Chat (Teacher ↔ Parent)', effort: '4 วัน', stack: 'Supabase Realtime + messages table' },
+            { icon: '📲', title: 'PWA + Push Notifications', effort: '2 วัน', stack: 'vite-plugin-pwa + Web Push API' },
+            { icon: '📱', title: 'LINE Notify Integration', effort: '2 วัน', stack: 'LINE Notify API + Edge Function' },
+            { icon: '📨', title: 'SMS Gateway (จริง)', effort: '2 วัน', stack: 'ThaiBulkSMS/Twilio + Edge Function' },
+            { icon: '🔗', title: 'Parent Multi-child Linking', effort: '2 วัน', stack: 'user_children junction table + child switcher' },
+        ],
+    },
+    {
+        sprint: 'Sprint 5 — Advanced Features',
+        duration: '~2-3 สัปดาห์',
+        goal: 'ยกระดับระบบสู่ production-grade + รองรับผู้ใช้กว้างขึ้น',
+        badge: 'bg-amber-500',
+        items: [
+            { icon: '🌐', title: 'Multi-language (TH/EN)', effort: '4 วัน', stack: 'react-i18next + locale files' },
+            { icon: '📆', title: 'Google Calendar 2-way Sync', effort: '3 วัน', stack: 'Google OAuth + Calendar API' },
+            { icon: '📧', title: 'Visual Newsletter Builder', effort: '3 วัน', stack: 'Maily.to/unlayer + Resend' },
+            { icon: '🗺️', title: 'Interactive Floor Plan', effort: '3 วัน', stack: 'SVG + Tooltip + facilities table' },
+            { icon: '📑', title: 'Reports Builder (Visual)', effort: '4 วัน', stack: 'dnd-kit + Recharts + jsPDF' },
+        ],
+    },
 ];
 
 const versionHistory = [
@@ -358,6 +422,7 @@ const exportData = {
         groups: dbGroups,
     },
     roadmap: roadmap.map(r => ({ title: r.title, description: r.desc })),
+    sprintPlan: sprintPlan.map(s => ({ sprint: s.sprint, duration: s.duration, goal: s.goal, items: s.items })),
     versionHistory: versionHistory.map(v => ({ version: v.version, date: v.date, changes: v.items })),
     exportedAt: new Date().toISOString(),
 };
@@ -396,6 +461,13 @@ const generateMarkdown = () => {
 
     lines.push('\n## Roadmap — สิ่งที่ยังทำต่อได้');
     roadmap.forEach(r => lines.push(`- **${r.title}**: ${r.desc}`));
+
+    lines.push('\n## แผนพัฒนาต่อ (Sprint Plan)');
+    sprintPlan.forEach(s => {
+        lines.push(`\n### ${s.sprint} — ${s.duration}`);
+        lines.push(`> 🎯 ${s.goal}`);
+        s.items.forEach(i => lines.push(`- ${i.icon} **${i.title}** (${i.effort}) — ${i.stack}`));
+    });
 
     lines.push('\n## ประวัติการอัพเดท');
     versionHistory.forEach(v => {
@@ -660,6 +732,57 @@ export const SystemOverview = () => {
                                 <div>
                                     <p className="text-sm font-medium text-foreground">{item.title}</p>
                                     <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Section F2: Sprint Plan */}
+            <Card>
+                <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                        <Rocket className="w-5 h-5 text-primary" />
+                        แผนพัฒนาต่อ (Sprint Plan)
+                    </CardTitle>
+                    <p className="text-xs text-muted-foreground mt-1">
+                        ลำดับการพัฒนาที่แนะนำ — เริ่มจากงานที่เห็นผลเร็ว (Quick Wins) แล้วค่อยๆ เพิ่มฟีเจอร์เชิงลึก
+                    </p>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+                        {sprintPlan.map((s, i) => (
+                            <div key={i} className="rounded-xl border border-border bg-secondary/20 hover:bg-secondary/40 transition-colors overflow-hidden">
+                                <div className={`${s.badge} text-white px-4 py-2.5 flex items-center justify-between`}>
+                                    <p className="text-sm font-bold">{s.sprint}</p>
+                                    <Badge variant="outline" className="bg-white/20 text-white border-white/30 text-xs">
+                                        {s.duration}
+                                    </Badge>
+                                </div>
+                                <div className="p-4 space-y-3">
+                                    <p className="text-xs text-muted-foreground italic leading-relaxed">
+                                        🎯 {s.goal}
+                                    </p>
+                                    <Separator />
+                                    <div className="space-y-2">
+                                        {s.items.map((item, j) => (
+                                            <div key={j} className="flex items-start gap-2.5 group">
+                                                <span className="text-base flex-shrink-0 mt-0.5">{item.icon}</span>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                        <p className="text-sm font-medium text-foreground">{item.title}</p>
+                                                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 border-dashed">
+                                                            {item.effort}
+                                                        </Badge>
+                                                    </div>
+                                                    <p className="text-[11px] text-muted-foreground font-mono mt-0.5 truncate group-hover:text-clip group-hover:whitespace-normal">
+                                                        {item.stack}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                         ))}
