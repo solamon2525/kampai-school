@@ -9,6 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Plus, Edit, Trash2, Building2, BookOpen, Award, Dumbbell, Monitor, FlaskConical, LucideIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { EmptyState } from '@/components/ui/empty-state';
+import { EmptyBoxIllustration } from '@/components/ui/empty-illustrations';
+import { CardSkeleton } from '@/components/ui/loading-skeletons';
 
 interface Facility {
     id: string;
@@ -140,7 +143,7 @@ export const FacilitiesManagement = () => {
     };
 
     if (loading) {
-        return <div className="p-8"><div className="text-center py-12"><p className="text-muted-foreground">กำลังโหลด...</p></div></div>;
+        return <div className="p-8"><CardSkeleton count={6} cols={3} /></div>;
     }
 
     return (
@@ -200,13 +203,16 @@ export const FacilitiesManagement = () => {
             </div>
 
             {facilities.length === 0 ? (
-                <Card>
-                    <CardContent className="p-12 text-center">
-                        <Building2 className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                        <h3 className="text-xl font-semibold mb-2">ยังไม่มีข้อมูล</h3>
-                        <Button onClick={() => handleOpenDialog()}><Plus className="w-4 h-4 mr-2" />เพิ่มข้อมูลแรก</Button>
-                    </CardContent>
-                </Card>
+                <EmptyState
+                    illustration={<EmptyBoxIllustration />}
+                    title="ยังไม่มีสิ่งอำนวยความสะดวก"
+                    description="เริ่มต้นโดยเพิ่มข้อมูลสถานที่และอุปกรณ์ของโรงเรียน"
+                    action={{
+                        label: 'เพิ่มข้อมูลแรก',
+                        icon: Plus,
+                        onClick: () => handleOpenDialog(),
+                    }}
+                />
             ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {facilities.map((facility) => {
