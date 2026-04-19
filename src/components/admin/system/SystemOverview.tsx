@@ -123,15 +123,12 @@ const dbGroups = [
 
 const roadmap = [
     // 🎨 UX/UI Beautification — เน้นทำให้ระบบสวย น่าใช้
-    { icon: '🌓', title: 'Dark Mode + Theme Switcher', desc: 'โหมดมืด/สว่าง + เลือกธีมสีได้ (ทอง/เขียว/น้ำเงิน) บันทึกตาม user' },
     { icon: '⌘', title: 'Command Palette (Ctrl+K)', desc: 'ค้นหา/นำทาง/สั่งการด้วยคีย์บอร์ด สไตล์ Linear/Notion — เร็วขึ้น 10x' },
     { icon: '🔍', title: 'Global Fuzzy Search', desc: 'ค้นข้ามทั้งระบบแบบ real-time — นักเรียน/ข่าว/เอกสาร/กิจกรรม/คำสั่ง' },
     { icon: '🎨', title: 'Homepage Redesign (Motion + Parallax)', desc: 'หน้าแรกระดับ modern: Video Background, Parallax Scroll, Animated Hero' },
-    { icon: '✨', title: 'Micro-interactions + Skeleton Loaders', desc: 'Framer Motion transitions, Shimmer loading แทน spinner ทั่วระบบ' },
     { icon: '🎯', title: 'Onboarding Tour', desc: 'Intro tour guide ขึ้นอัตโนมัติสำหรับ admin/teacher/parent คนแรก (react-joyride)' },
     { icon: '📊', title: 'Customizable Dashboard Widgets', desc: 'ลาก-วาง widgets เลือกข้อมูลที่อยากเห็นบน Dashboard ตามบทบาท' },
     { icon: '🏆', title: 'Student Gamification + Badges', desc: 'ระบบเหรียญ/ความสำเร็จ: Waste Bank milestones, คะแนนเด่น, ความประพฤติดี' },
-    { icon: '🖼️', title: 'Empty State Illustrations', desc: 'ภาพประกอบ SVG สวยๆ แทนข้อความ "ยังไม่มีข้อมูล" ทั่วระบบ' },
     { icon: '📅', title: 'Activity Heatmap (GitHub-style)', desc: 'แสดงการมีส่วนร่วมนักเรียน/ครู รายปีแบบ heatmap calendar' },
     { icon: '🗺️', title: 'Interactive Floor Plan', desc: 'แผนที่โรงเรียน SVG interactive — คลิก hover อาคาร/ห้องดูข้อมูลได้' },
     { icon: '📧', title: 'Visual Newsletter Builder', desc: 'Drag-drop สร้าง email template + ส่งผ่าน Resend อัตโนมัติเมื่อมีข่าวใหม่' },
@@ -149,10 +146,10 @@ const roadmap = [
 
 const sprintPlan = [
     {
-        sprint: 'Sprint 1 — Quick Wins ชัดตา',
+        sprint: '✅ Sprint 1 — Quick Wins ชัดตา (เสร็จแล้ว v1.5.0)',
         duration: '~1 สัปดาห์',
         goal: 'ทำให้ระบบสวยทันทีด้วยการปรับ visual polish ที่ใช้ effort น้อยแต่ผลลัพธ์ชัด',
-        badge: 'bg-emerald-500',
+        badge: 'bg-emerald-600',
         items: [
             { icon: '🌓', title: 'Dark Mode + Theme Switcher', effort: '1 วัน', stack: 'next-themes + shadcn CSS variables' },
             { icon: '🖼️', title: 'Empty State Illustrations', effort: '1 วัน', stack: 'unDraw SVG + EmptyState component' },
@@ -212,8 +209,20 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.4.0 (Security + Notifications + Teacher/Parent Portals)',
+        version: 'v1.5.0 (UX/UI Beautification — Sprint 1)',
         date: 'ล่าสุด',
+        badge: 'bg-indigo-600',
+        items: [
+            'Dark Mode + Theme Switcher: next-themes provider + Sun/Moon/System dropdown ใน Admin/Portal/Public header ทั้งหมด — บันทึก preference ตาม user + follow OS preference',
+            'Framer Motion เปิดตัวครั้งแรก: Homepage Hero stagger entrance, News grid scroll reveal, Countdown pulse, Stats counter animation, Gallery hover zoom — พร้อม MotionConfig reducedMotion="user" (a11y)',
+            'Skeleton Loaders Library: 8 preset (CardSkeleton/TableSkeleton/ListSkeleton/StatSkeleton/HeroSkeleton/FormSkeleton/ChartSkeleton/PageSectionSkeleton) — migrate 7 admin pages จาก "กำลังโหลด..." เป็น shimmer',
+            'EmptyState Component + 6 Inline SVG Illustrations: ใช้ currentColor + text-primary ให้ปรับตาม dark/light อัตโนมัติ — migrate 6 จุดใน FacilitiesManagement/ParentChildView/TeacherSchedule/AttendanceManagement',
+            'PageLoader upgrade: pulse + spin + logo placeholder แทน spinner เปล่า — ดูนุ่มกว่าเดิม',
+        ],
+    },
+    {
+        version: 'v1.4.0 (Security + Notifications + Teacher/Parent Portals)',
+        date: '',
         badge: 'bg-rose-600',
         items: [
             'Security Hardening: RLS policies ครอบคลุม 45 tables + helper functions (auth_role, is_admin, is_teacher) — ปิดช่องโหว่ "Allow public full access" บน staff/students/administrators และ sensitive tables ทั้งหมด',
