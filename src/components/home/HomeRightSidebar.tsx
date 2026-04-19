@@ -1,8 +1,10 @@
 import { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import { Facebook, Youtube, Instagram, MessageCircle, Link as LinkIcon, Image, Users, Monitor, FileText, ArrowRight, Recycle } from 'lucide-react';
+import { staggerContainerVariants, staggerItemVariants } from '@/hooks/useScrollReveal';
 
 // ─── WasteBank Widget ─────────────────────────────────────
 
@@ -203,15 +205,24 @@ export const useHomeRightBlocks = () => {
   );
 
   const galleryWidget = galleryImages.length > 0 ? (
-    <div key="gallery" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+    <motion.div
+      key="gallery"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.2 }}
+      variants={staggerContainerVariants}
+      className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden"
+    >
       <div className="bg-purple-800 text-white text-xs font-semibold px-3 py-2 flex items-center gap-1.5">
         <Image className="w-3.5 h-3.5" /> ลังรูปภาพ
       </div>
       <div className="grid grid-cols-3 gap-0.5 p-1">
         {galleryImages.slice(0, 6).map((url, i) => (
-          <Link key={i} to="/gallery" className="aspect-square overflow-hidden rounded">
-            <img src={url} alt="" className="w-full h-full object-cover hover:scale-110 transition-transform duration-300" />
-          </Link>
+          <motion.div key={i} variants={staggerItemVariants} whileHover={{ scale: 1.05 }}>
+            <Link to="/gallery" className="block aspect-square overflow-hidden rounded">
+              <img src={url} alt="" className="w-full h-full object-cover hover:scale-110 transition-transform duration-500" />
+            </Link>
+          </motion.div>
         ))}
       </div>
       <div className="px-3 py-2 border-t border-gray-100">
@@ -219,7 +230,7 @@ export const useHomeRightBlocks = () => {
           <Image className="w-3 h-3" /> ดูรูปภาพทั้งหมด
         </Link>
       </div>
-    </div>
+    </motion.div>
   ) : null;
 
   const servicesWidget = (

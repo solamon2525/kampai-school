@@ -1,8 +1,14 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { ChevronLeft, ChevronRight, Eye, Calendar, ArrowRight, FileText, ChevronDown, Database, Heart, Utensils, BookOpen, Briefcase, Building, Send, Award } from 'lucide-react';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
+import {
+  staggerContainerVariants,
+  staggerItemVariants,
+  slideUpVariants,
+} from '@/hooks/useScrollReveal';
 
 interface NewsItem {
   id: string;
@@ -179,7 +185,13 @@ export const useHomeMainBlocks = () => {
   // === SECTIONS ===
 
   const heroSection = (
-    <div key="hero" className="relative bg-gray-900 rounded-lg overflow-hidden aspect-[16/7] shadow-md">
+    <motion.div
+      key="hero"
+      initial="hidden"
+      animate="visible"
+      variants={staggerContainerVariants}
+      className="relative bg-gray-900 rounded-lg overflow-hidden aspect-[16/7] shadow-md"
+    >
       {slides.map((slide, i) => (
         <div key={i} className={`absolute inset-0 transition-opacity duration-700 ${i === currentSlide ? 'opacity-100' : 'opacity-0'}`}>
           <img src={slide.url} alt={slide.title} className="w-full h-full object-cover" />
@@ -207,11 +219,18 @@ export const useHomeMainBlocks = () => {
           ))}
         </div>
       )}
-    </div>
+    </motion.div>
   );
 
   const newsSection = news.length > 0 ? (
-    <div key="news" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+    <motion.div
+      key="news"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.15 }}
+      variants={slideUpVariants}
+      className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden"
+    >
       <div className="bg-purple-800 text-white px-4 py-2 flex items-center justify-between">
         <span className="font-semibold text-sm flex items-center gap-2">
           <span className="w-1 h-4 bg-yellow-400 rounded-full inline-block" />
@@ -274,7 +293,7 @@ export const useHomeMainBlocks = () => {
           ดูข่าวสารทั้งหมด <ArrowRight className="w-3 h-3" />
         </Link>
       </div>
-    </div>
+    </motion.div>
   ) : null;
 
   const aboutSection = (
@@ -339,7 +358,14 @@ export const useHomeMainBlocks = () => {
   );
 
   const statisticsSection = (
-    <div key="statistics" className="bg-gradient-to-r from-purple-700 to-indigo-700 text-white rounded-lg p-6 text-center shadow-md">
+    <motion.div
+      key="statistics"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.3 }}
+      variants={staggerContainerVariants}
+      className="bg-gradient-to-r from-purple-700 to-indigo-700 text-white rounded-lg p-6 text-center shadow-md"
+    >
       <h3 className="text-lg font-bold mb-4 opacity-90">โรงเรียนของเราในตัวเลข</h3>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
@@ -348,13 +374,13 @@ export const useHomeMainBlocks = () => {
           { value: settings.stat_years || '50+', label: settings.stat_years_label || 'ปีแห่งความเป็นเลิศ' },
           { value: settings.about_stat_3 || '200+', label: settings.about_stat_3_label || 'บุคลากร' },
         ].map((s, i) => (
-          <div key={i}>
+          <motion.div key={i} variants={staggerItemVariants}>
             <div className="text-2xl sm:text-3xl font-bold">{s.value}</div>
             <div className="text-xs opacity-75 mt-1">{s.label}</div>
-          </div>
+          </motion.div>
         ))}
       </div>
-    </div>
+    </motion.div>
   );
 
   const quicklinksSection = (
@@ -390,7 +416,14 @@ export const useHomeMainBlocks = () => {
 
   // ─── NEW: Blog Grid ─────────────────────────────────────
   const blogGridSection = blogNews.length > 0 ? (
-    <div key="blog_grid" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+    <motion.div
+      key="blog_grid"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.1 }}
+      variants={staggerContainerVariants}
+      className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden"
+    >
       <div className="bg-purple-800 text-white px-4 py-2 flex items-center justify-between">
         <span className="font-semibold text-sm flex items-center gap-2">
           <span className="w-1 h-4 bg-yellow-400 rounded-full inline-block" />
@@ -402,7 +435,8 @@ export const useHomeMainBlocks = () => {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
         {blogNews.slice(0, 6).map((item) => (
-          <Link key={item.id} to="/news" className="group block bg-gray-50 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+          <motion.div key={item.id} variants={staggerItemVariants} whileHover={{ y: -4, scale: 1.02 }} transition={{ type: 'spring', stiffness: 300 }}>
+          <Link to="/news" className="group block bg-gray-50 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
             <div className="aspect-[16/10] bg-gray-200 overflow-hidden">
               {item.cover_image_url ? (
                 <img src={item.cover_image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -423,9 +457,10 @@ export const useHomeMainBlocks = () => {
               </div>
             </div>
           </Link>
+          </motion.div>
         ))}
       </div>
-    </div>
+    </motion.div>
   ) : null;
 
   // ─── NEW: Blog Carousel ─────────────────────────────────
@@ -536,8 +571,17 @@ export const useHomeMainBlocks = () => {
   );
 
   // ─── NEW: Countdown ─────────────────────────────────────
+  const countdownDays = parseInt(countdown.days, 10);
+  const isUrgent = !isNaN(countdownDays) && countdownDays < 7 && countdownDays >= 0;
   const countdownSection = (
-    <div key="countdown" className="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg p-6 text-center shadow-md overflow-hidden">
+    <motion.div
+      key="countdown"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.3 }}
+      variants={slideUpVariants}
+      className={`relative bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg p-6 text-center shadow-md overflow-hidden ${isUrgent ? 'ring-2 ring-yellow-300 ring-offset-2 ring-offset-background animate-pulse' : ''}`}
+    >
       <h3 className="text-sm font-bold mb-1 opacity-90 truncate">⏳ นับถอยหลังสู่{countdown.label}</h3>
       <p className="text-xs opacity-70 mb-4 truncate">ปีการศึกษา 2568</p>
       <div className="flex justify-center gap-2 sm:gap-4 flex-wrap">
@@ -548,12 +592,20 @@ export const useHomeMainBlocks = () => {
           { value: countdown.seconds, label: 'วินาที' },
         ].map((item, i) => (
           <div key={i} className="bg-white/20 rounded-lg px-4 py-2 min-w-[60px]">
-            <div className="text-2xl font-bold tabular-nums">{item.value}</div>
+            <motion.div
+              key={item.value}
+              initial={{ scale: 1 }}
+              animate={{ scale: [1, 1.08, 1] }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
+              className="text-2xl font-bold tabular-nums"
+            >
+              {item.value}
+            </motion.div>
             <div className="text-xs opacity-70">{item.label}</div>
           </div>
         ))}
       </div>
-    </div>
+    </motion.div>
   );
 
   // ─── NEW: Partner Logos ─────────────────────────────────
