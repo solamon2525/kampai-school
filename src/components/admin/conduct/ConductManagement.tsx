@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Star, Plus, Minus, Trophy, History, Search, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
+import { TableSkeleton } from '@/components/ui/loading-skeletons';
 
 // ===== Constants =====
 const CLASS_OPTIONS = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6', 'ม.1', 'ม.2', 'ม.3', 'ม.4', 'ม.5', 'ม.6'];
@@ -355,7 +356,7 @@ function LeaderboardTab() {
                 </CardHeader>
                 <CardContent>
                     {isLoading ? (
-                        <p className="text-center py-8 text-muted-foreground">กำลังโหลด...</p>
+                        <TableSkeleton rows={6} cols={4} className="py-4" />
                     ) : leaderboard.length === 0 ? (
                         <p className="text-center py-8 text-muted-foreground">ยังไม่มีข้อมูลคะแนนความดี</p>
                     ) : (
@@ -460,7 +461,7 @@ function HistoryTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) 
                 </CardHeader>
                 <CardContent>
                     {isLoading ? (
-                        <p className="text-center py-8 text-muted-foreground">กำลังโหลด...</p>
+                        <TableSkeleton rows={6} cols={4} className="py-4" />
                     ) : records.length === 0 ? (
                         <p className="text-center py-8 text-muted-foreground">ไม่มีข้อมูล</p>
                     ) : (

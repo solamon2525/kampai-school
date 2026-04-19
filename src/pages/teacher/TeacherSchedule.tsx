@@ -5,6 +5,9 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useLinkedRecord } from '@/hooks/useLinkedRecord';
 import { TEACHER_MENU } from './TeacherDashboard';
+import { ListSkeleton } from '@/components/ui/loading-skeletons';
+import { EmptyState } from '@/components/ui/empty-state';
+import { NoDataIllustration } from '@/components/ui/empty-illustrations';
 
 const DAYS = ['จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์'];
 
@@ -34,9 +37,14 @@ export default function TeacherSchedule() {
                     <CardHeader><CardTitle className="text-base">รายการคาบสอน</CardTitle></CardHeader>
                     <CardContent>
                         {isLoading ? (
-                            <p className="text-muted-foreground text-sm">กำลังโหลด...</p>
+                            <ListSkeleton count={5} showAvatar={false} />
                         ) : !schedules || schedules.length === 0 ? (
-                            <p className="text-muted-foreground text-sm">ยังไม่มีตารางสอน</p>
+                            <EmptyState
+                                variant="inline"
+                                illustration={<NoDataIllustration />}
+                                title="ยังไม่มีตารางสอน"
+                                description="ยังไม่ได้กำหนดตารางคาบเรียนให้คุณในภาคการศึกษานี้"
+                            />
                         ) : (
                             <div className="space-y-2">
                                 {schedules.map((s: any) => (

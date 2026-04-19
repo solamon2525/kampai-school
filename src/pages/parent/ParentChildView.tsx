@@ -6,6 +6,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLinkedRecord } from '@/hooks/useLinkedRecord';
 import { PARENT_MENU } from './ParentDashboard';
 import { ClipboardCheck, PenLine, Star, Recycle } from 'lucide-react';
+import { ListSkeleton } from '@/components/ui/loading-skeletons';
+import { EmptyState } from '@/components/ui/empty-state';
+import { NoDataIllustration } from '@/components/ui/empty-illustrations';
 
 interface Props {
     view: 'attendance' | 'scores' | 'conduct' | 'waste-bank';
@@ -117,9 +120,14 @@ export default function ParentChildView({ view }: Props) {
                         {!link?.student_id ? (
                             <p className="text-amber-600 text-sm">บัญชียังไม่ได้เชื่อมกับนักเรียน</p>
                         ) : isLoading ? (
-                            <p className="text-muted-foreground text-sm">กำลังโหลด...</p>
+                            <ListSkeleton count={4} showAvatar={false} />
                         ) : !records || records.length === 0 ? (
-                            <p className="text-muted-foreground text-sm">ยังไม่มีข้อมูล</p>
+                            <EmptyState
+                                variant="inline"
+                                illustration={<NoDataIllustration />}
+                                title="ยังไม่มีข้อมูล"
+                                description={`ยังไม่มีประวัติ${cfg.title}ในช่วงนี้`}
+                            />
                         ) : (
                             <div className="space-y-2">
                                 {records.map((r, i) => <div key={r.id || i}>{cfg.render(r)}</div>)}

@@ -13,6 +13,7 @@ import { StudentStatsManagement } from './StudentStatsManagement';
 import { GradeDataManagement } from './GradeDataManagement';
 import { StudentCouncilManagement } from './StudentCouncilManagement';
 import { StudentListManagement } from './StudentListManagement';
+import { StatSkeleton, TableSkeleton } from '@/components/ui/loading-skeletons';
 import { ClassPromotionManagement } from './ClassPromotionManagement';
 
 interface StudentAchievement {
@@ -232,10 +233,9 @@ export const StudentsManagement = () => {
 
     if (loading) {
         return (
-            <div className="p-8">
-                <div className="text-center py-12">
-                    <p className="text-muted-foreground">กำลังโหลด...</p>
-                </div>
+            <div className="p-8 space-y-6">
+                <StatSkeleton count={4} />
+                <TableSkeleton rows={8} cols={5} />
             </div>
         );
     }

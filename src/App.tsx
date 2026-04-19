@@ -1,4 +1,5 @@
 import { lazy, Suspense } from "react";
+import { MotionConfig } from "framer-motion";
 import { usePageView } from "@/hooks/usePageView";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -37,10 +38,17 @@ const TeacherScores = lazy(() => import("./pages/teacher/TeacherScores"));
 const ParentDashboard = lazy(() => import("./pages/parent/ParentDashboard"));
 const ParentChildView = lazy(() => import("./pages/parent/ParentChildView"));
 
-// Loading spinner ขณะรอโหลด page
+// Loading placeholder ขณะรอโหลด page (shimmer + logo placeholder — ดูนุ่มกว่า spinner)
 const PageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-background">
-    <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+  <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-4">
+    <div className="relative">
+      <div className="w-16 h-16 rounded-full bg-primary/10 animate-pulse" />
+      <div className="absolute inset-0 w-16 h-16 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+    </div>
+    <div className="flex flex-col items-center gap-2">
+      <div className="h-3 w-32 rounded-full bg-muted animate-pulse" />
+      <div className="h-2 w-20 rounded-full bg-muted/60 animate-pulse" />
+    </div>
   </div>
 );
 
@@ -53,6 +61,7 @@ const PageViewTracker = () => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
+    <MotionConfig reducedMotion="user">
     <TooltipProvider>
       <Toaster />
       <Sonner />
@@ -115,6 +124,7 @@ const App = () => (
         </Suspense>
       </BrowserRouter>
     </TooltipProvider>
+    </MotionConfig>
   </QueryClientProvider>
 );
 

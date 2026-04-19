@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BookOpen, Save, Search, BarChart3, ClipboardList, Download } from 'lucide-react';
 import { downloadCSV } from '@/lib/export';
 import { useToast } from '@/hooks/use-toast';
+import { TableSkeleton } from '@/components/ui/loading-skeletons';
 
 // ===== Constants =====
 const CLASS_OPTIONS = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6', 'ม.1', 'ม.2', 'ม.3', 'ม.4', 'ม.5', 'ม.6'];
@@ -257,7 +258,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                     </CardHeader>
                     <CardContent>
                         {isLoading ? (
-                            <p className="text-center py-8 text-muted-foreground">กำลังโหลด...</p>
+                            <TableSkeleton rows={6} cols={4} className="py-4" />
                         ) : rows.length === 0 ? (
                             <p className="text-center py-8 text-muted-foreground">ไม่มีนักเรียนในชั้นนี้</p>
                         ) : (
@@ -427,7 +428,7 @@ function ViewTab() {
                 </CardHeader>
                 <CardContent>
                     {isLoading ? (
-                        <p className="text-center py-8 text-muted-foreground">กำลังโหลด...</p>
+                        <TableSkeleton rows={6} cols={4} className="py-4" />
                     ) : records.length === 0 ? (
                         <p className="text-center py-8 text-muted-foreground">ไม่มีข้อมูลคะแนน</p>
                     ) : (
@@ -581,7 +582,7 @@ function SummaryTab() {
                 </CardHeader>
                 <CardContent>
                     {isLoading ? (
-                        <p className="text-center py-8 text-muted-foreground">กำลังโหลด...</p>
+                        <TableSkeleton rows={6} cols={4} className="py-4" />
                     ) : studentSummary.length === 0 ? (
                         <p className="text-center py-8 text-muted-foreground">ไม่มีข้อมูลคะแนน</p>
                     ) : (

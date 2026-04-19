@@ -37,6 +37,9 @@ import { RadialBarChart, RadialBar, PolarAngleAxis, ResponsiveContainer } from '
 import { useToast } from '@/hooks/use-toast';
 import { downloadCSV, printTable } from '@/lib/export';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { TableSkeleton, ListSkeleton } from '@/components/ui/loading-skeletons';
+import { EmptyState } from '@/components/ui/empty-state';
+import { NoPeopleIllustration, NoDataIllustration } from '@/components/ui/empty-illustrations';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -643,7 +646,12 @@ export const AttendanceManagement = () => {
           )}
 
           {dataLoaded && checkinStudents.length === 0 && (
-            <div className="text-center py-12 text-gray-400">ไม่พบนักเรียนในชั้น {checkinClass}</div>
+            <EmptyState
+              variant="inline"
+              illustration={<NoPeopleIllustration />}
+              title="ไม่พบนักเรียน"
+              description={`ยังไม่มีนักเรียนในชั้น ${checkinClass}`}
+            />
           )}
         </div>
       )}
@@ -729,7 +737,12 @@ export const AttendanceManagement = () => {
               </CardHeader>
               <CardContent>
                 {reportRows.length === 0 ? (
-                  <div className="text-center py-8 text-gray-400">ไม่พบข้อมูลในช่วงเวลาที่เลือก</div>
+                  <EmptyState
+                    variant="inline"
+                    illustration={<NoDataIllustration />}
+                    title="ไม่พบข้อมูล"
+                    description="ไม่พบข้อมูลในช่วงเวลาที่เลือก ลองปรับช่วงวันที่อีกครั้ง"
+                  />
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
@@ -877,7 +890,7 @@ export const AttendanceManagement = () => {
                 <CardHeader><CardTitle className="text-sm text-center">อัตราการมาเรียน (30 วัน)</CardTitle></CardHeader>
                 <CardContent>
                   {indivLoading ? (
-                    <div className="flex justify-center py-8 text-gray-400">กำลังโหลด...</div>
+                    <ListSkeleton count={5} className="py-2" />
                   ) : indivTotal === 0 ? (
                     <div className="flex flex-col items-center justify-center h-40 text-gray-400 text-sm">ยังไม่มีข้อมูล</div>
                   ) : (
@@ -981,9 +994,14 @@ export const AttendanceManagement = () => {
           <Card>
             <CardContent className="pt-4">
               {studentsLoading ? (
-                <div className="text-center py-8 text-gray-400">กำลังโหลด...</div>
+                <TableSkeleton rows={6} cols={4} className="py-2" />
               ) : filteredStudents.length === 0 ? (
-                <div className="text-center py-8 text-gray-400">ไม่พบนักเรียน</div>
+                <EmptyState
+                  variant="inline"
+                  illustration={<NoPeopleIllustration />}
+                  title="ไม่พบนักเรียน"
+                  description="ลองปรับตัวกรองหรือค้นหาด้วยคำอื่น"
+                />
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">

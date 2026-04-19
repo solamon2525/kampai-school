@@ -7,6 +7,7 @@ import {
     XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
 import { TrendingUp, Eye, CalendarDays, BarChart2, Smartphone, Monitor, Clock } from 'lucide-react';
+import { StatSkeleton, ChartSkeleton, TableSkeleton } from '@/components/ui/loading-skeletons';
 
 // ── Classifiers ───────────────────────────────────────────────────────────────
 const DEVICE_COLORS: Record<string, string> = {
@@ -184,7 +185,13 @@ export const AnalyticsManagement = () => {
         fetchStats();
     }, []);
 
-    if (loading) return <div className="p-8 text-center text-muted-foreground">กำลังโหลดข้อมูล...</div>;
+    if (loading) return (
+        <div className="p-6 space-y-6">
+            <StatSkeleton count={4} />
+            <ChartSkeleton height={280} />
+            <TableSkeleton rows={6} cols={4} />
+        </div>
+    );
 
     return (
         <div className="p-8 space-y-6">
