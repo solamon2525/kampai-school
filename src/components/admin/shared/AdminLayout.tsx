@@ -47,6 +47,7 @@ import {
 } from 'lucide-react';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import { NotificationBell } from './NotificationBell';
+import { ThemeToggle } from '@/components/theme/ThemeToggle';
 
 interface AdminLayoutProps {
     children: ReactNode;
@@ -292,12 +293,14 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
                     </SheetContent>
                 </Sheet>
                 <h1 className="font-bold text-primary text-sm truncate flex-1">{settings.school_name}</h1>
+                <ThemeToggle />
                 {isAdmin && <NotificationBell />}
             </div>
 
             {/* Desktop Top Bar */}
             {isAdmin && (
                 <div className="lg:ml-64 hidden lg:flex sticky top-0 z-30 justify-end items-center gap-2 px-6 py-2 bg-card/80 backdrop-blur border-b border-border">
+                    <ThemeToggle />
                     <NotificationBell />
                 </div>
             )}

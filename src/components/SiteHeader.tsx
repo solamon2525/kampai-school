@@ -7,6 +7,7 @@ import {
   Youtube, Instagram, MessageCircle, Link as LinkIcon, Globe, LogIn,
   Layers, Download, UserCog,
 } from 'lucide-react';
+import { ThemeToggle } from '@/components/theme/ThemeToggle';
 
 // ─── เมนูหลัก ───────────────────────────────────────────────
 const mainNav = [
@@ -193,8 +194,11 @@ const SiteHeader = () => {
               )}
             </div>
 
-            {/* Enroll CTA */}
-            <div className="ml-auto">
+            {/* Enroll CTA + Theme */}
+            <div className="ml-auto flex items-center gap-2">
+              <div className="text-white/90 [&_button]:text-white/90 [&_button]:hover:bg-white/10 [&_button]:hover:text-yellow-300">
+                <ThemeToggle />
+              </div>
               <Link to="/enrollment"
                 className="flex items-center gap-1.5 bg-yellow-400 hover:bg-yellow-300 text-purple-950 font-bold text-sm px-4 py-2 rounded-lg transition-colors">
                 สมัครเรียน
@@ -205,12 +209,17 @@ const SiteHeader = () => {
           {/* Mobile Header Row */}
           <div className="lg:hidden flex items-center justify-between py-2.5">
             <span className="text-sm font-semibold text-yellow-300">เมนูหลัก</span>
-            <button
-              onClick={() => setMobileOpen(!mobileOpen)}
-              className="w-9 h-9 flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
-              aria-label="Toggle menu">
-              {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
+            <div className="flex items-center gap-1">
+              <div className="text-white/90 [&_button]:text-white/90 [&_button]:hover:bg-white/10 [&_button]:hover:text-yellow-300">
+                <ThemeToggle />
+              </div>
+              <button
+                onClick={() => setMobileOpen(!mobileOpen)}
+                className="w-9 h-9 flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+                aria-label="Toggle menu">
+                {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
         </div>
       </nav>

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu, LogOut, Home, UserCheck } from 'lucide-react';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
+import { ThemeToggle } from '@/components/theme/ThemeToggle';
 
 export interface PortalMenuItem {
     id: string;
@@ -99,7 +100,11 @@ export const RolePortalLayout = ({ children, title, subtitle, menu, accent }: Ro
                     <SheetTrigger asChild><Button variant="ghost" size="icon"><Menu className="w-5 h-5" /></Button></SheetTrigger>
                     <SheetContent side="left" className="p-0 w-72"><Sidebar /></SheetContent>
                 </Sheet>
-                <h1 className="font-bold text-primary text-sm truncate">{title}</h1>
+                <h1 className="font-bold text-primary text-sm truncate flex-1">{title}</h1>
+                <ThemeToggle />
+            </div>
+            <div className="lg:ml-64 hidden lg:flex sticky top-0 z-30 justify-end items-center gap-2 px-6 py-2 bg-card/80 backdrop-blur border-b">
+                <ThemeToggle />
             </div>
             <main className="lg:ml-64 min-h-screen">{children}</main>
         </div>
