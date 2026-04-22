@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Trash2, Plus, Edit2, Save, X, Scale, Users, List, Search, Download } from 'lucide-react';
+import { Trash2, Plus, Edit2, Save, X, Package, Users, List, Download, Gift, ClipboardCheck, QrCode } from 'lucide-react';
 import { downloadCSV } from '@/lib/export';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,45 +20,12 @@ import {
   wasteSummaryService,
   studentsService,
 } from '@/services';
+import type { WasteCategory, WasteTransaction, WasteStudentSummary } from '@/services/waste-bank.service';
+import { RewardsManagement } from './RewardsManagement';
+import { ClaimsApproval } from './ClaimsApproval';
+import { QRScannerDialog } from './QRScannerDialog';
 
 const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
-
-interface WasteCategory {
-  id: string;
-  name: string;
-  price_per_kg: number;
-  icon: string | null;
-  color: string | null;
-  is_active: boolean | null;
-  order_position: number | null;
-}
-
-interface WasteTransaction {
-  id: string;
-  student_name: string;
-  student_class: string;
-  student_id: string | null;
-  category_id: string;
-  weight_kg: number;
-  amount: number;
-  transaction_date: string;
-  notes: string | null;
-  recorded_by: string | null;
-  waste_categories?: { name: string; icon: string | null; color: string | null } | null;
-  students?: { photo_url: string | null } | null;
-}
-
-interface StudentSummary {
-  student_name: string | null;
-  student_class: string | null;
-  student_id: string | null;
-  photo_url: string | null;
-  student_code: string | null;
-  total_transactions: number | null;
-  total_weight: number | null;
-  total_amount: number | null;
-  last_transaction_date: string | null;
-}
 
 interface StudentOption {
   id: string;
@@ -67,7 +34,7 @@ interface StudentOption {
   photo_url: string | null;
 }
 
-type ActiveTab = 'record' | 'summary' | 'categories';
+type ActiveTab = 'record' | 'summary' | 'categories' | 'rewards' | 'claims';
 
 export const WasteBankManagement = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('record');
@@ -77,7 +44,8 @@ export const WasteBankManagement = () => {
   const [categories, setCategories] = useState<WasteCategory[]>([]);
   const [transactions, setTransactions] = useState<WasteTransaction[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [calculatedAmount, setCalculatedAmount] = useState<number | null>(null);
+  const [calculatedPoints, setCalculatedPoints] = useState<number | null>(null);
+  const [showQRScanner, setShowQRScanner] = useState(false);
 
   // Student selector
   const [studentOptions, setStudentOptions] = useState<StudentOption[]>([]);
@@ -89,14 +57,14 @@ export const WasteBankManagement = () => {
     student_name: '',
     student_class: '',
     category_id: '',
-    weight_kg: '',
+    quantity: '',
     transaction_date: today,
     notes: '',
     recorded_by: '',
   });
 
   // ========== Tab 2: สรุปยอดสะสม ==========
-  const [summaries, setSummaries] = useState<StudentSummary[]>([]);
+  const [summaries, setSummaries] = useState<WasteStudentSummary[]>([]);
   const [summaryClassFilter, setSummaryClassFilter] = useState('all');
   const [summarySearch, setSummarySearch] = useState('');
 
@@ -105,7 +73,7 @@ export const WasteBankManagement = () => {
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [categoryForm, setCategoryForm] = useState({
     name: '',
-    price_per_kg: '',
+    points_per_item: '',
     icon: '',
     color: '',
   });
@@ -117,19 +85,20 @@ export const WasteBankManagement = () => {
     fetchSummaries();
   }, []);
 
-  // Auto-calculate amount when category or weight changes
+  // Auto-calculate points when category or quantity changes
   useEffect(() => {
-    if (form.category_id && form.weight_kg) {
+    if (form.category_id && form.quantity) {
       const cat = categories.find((c) => c.id === form.category_id);
-      if (cat && parseFloat(form.weight_kg) > 0) {
-        setCalculatedAmount(parseFloat(form.weight_kg) * cat.price_per_kg);
+      const qty = parseInt(form.quantity, 10);
+      if (cat && qty > 0) {
+        setCalculatedPoints(qty * cat.points_per_item);
       } else {
-        setCalculatedAmount(null);
+        setCalculatedPoints(null);
       }
     } else {
-      setCalculatedAmount(null);
+      setCalculatedPoints(null);
     }
-  }, [form.category_id, form.weight_kg, categories]);
+  }, [form.category_id, form.quantity, categories]);
 
   // Fetch students when class changes
   useEffect(() => {
@@ -147,36 +116,49 @@ export const WasteBankManagement = () => {
 
   const fetchCategories = async () => {
     const { data, error } = await wasteCategoriesService.getActive();
-    if (!error && data) setCategories(data);
+    if (!error && data) setCategories(data as WasteCategory[]);
   };
 
   const fetchTransactions = async () => {
     const { data, error } = await wasteTransactionsService.getRecent(50);
-    if (!error && data) setTransactions(data as typeof transactions);
+    if (!error && data) setTransactions(data as WasteTransaction[]);
   };
 
   const fetchSummaries = async () => {
     const { data, error } = await wasteSummaryService.getAll();
-    if (!error && data) setSummaries(data as StudentSummary[]);
+    if (!error && data) setSummaries(data as WasteStudentSummary[]);
   };
 
   const handleFormChange = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleQRScanned = async (studentId: string) => {
+    setShowQRScanner(false);
+    // Load student data
+    const { data } = await studentsService.getById(studentId);
+    if (data) {
+      setForm(prev => ({ ...prev, student_class: data.class, student_name: data.name }));
+      setSelectedStudentId(data.id);
+      toast({ title: 'สแกนสำเร็จ', description: `${data.name} (${data.class})` });
+    } else {
+      toast({ title: 'ไม่พบนักเรียน', description: 'QR code ไม่ถูกต้อง', variant: 'destructive' });
+    }
+  };
+
   const handleSubmitTransaction = async () => {
-    if (!form.student_name || !form.student_class || !form.category_id || !form.weight_kg || !form.transaction_date) {
+    if (!form.student_name || !form.student_class || !form.category_id || !form.quantity || !form.transaction_date) {
       toast({ title: 'กรุณากรอกข้อมูลให้ครบถ้วน', variant: 'destructive' });
       return;
     }
-    const weight = parseFloat(form.weight_kg);
-    if (isNaN(weight) || weight <= 0) {
-      toast({ title: 'น้ำหนักต้องเป็นตัวเลขมากกว่า 0', variant: 'destructive' });
+    const qty = parseInt(form.quantity, 10);
+    if (isNaN(qty) || qty <= 0) {
+      toast({ title: 'จำนวนต้องเป็นตัวเลขมากกว่า 0', variant: 'destructive' });
       return;
     }
     const cat = categories.find((c) => c.id === form.category_id);
     if (!cat) return;
-    const amount = weight * cat.price_per_kg;
+    const points = qty * cat.points_per_item;
 
     setIsSubmitting(true);
     const { error } = await wasteTransactionsService.insert({
@@ -184,8 +166,8 @@ export const WasteBankManagement = () => {
       student_class: form.student_class,
       student_id: selectedStudentId || null,
       category_id: form.category_id,
-      weight_kg: weight,
-      amount,
+      quantity: qty,
+      points_earned: points,
       transaction_date: form.transaction_date,
       notes: form.notes.trim() || null,
       recorded_by: form.recorded_by.trim() || null,
@@ -195,11 +177,11 @@ export const WasteBankManagement = () => {
     if (error) {
       toast({ title: 'เกิดข้อผิดพลาด', description: error.message, variant: 'destructive' });
     } else {
-      toast({ title: 'บันทึกรายการสำเร็จ', description: `${form.student_name} — ${weight} กก. = ${amount.toFixed(2)} บาท` });
-      setForm({ student_name: '', student_class: '', category_id: '', weight_kg: '', transaction_date: today, notes: '', recorded_by: '' });
+      toast({ title: 'บันทึกรายการสำเร็จ', description: `${form.student_name} — ${qty} ชิ้น = ${points} แต้ม` });
+      setForm({ student_name: '', student_class: '', category_id: '', quantity: '', transaction_date: today, notes: '', recorded_by: '' });
       setSelectedStudentId('');
       setStudentOptions([]);
-      setCalculatedAmount(null);
+      setCalculatedPoints(null);
       fetchTransactions();
       fetchSummaries();
     }
@@ -218,18 +200,18 @@ export const WasteBankManagement = () => {
   };
 
   const filteredSummaries = summaries.filter((s) => {
-    const matchClass = summaryClassFilter === 'all' || s.student_class === summaryClassFilter;
-    const matchName = !summarySearch || (s.student_name ?? '').toLowerCase().includes(summarySearch.toLowerCase());
+    const matchClass = summaryClassFilter === 'all' || s.class_name === summaryClassFilter;
+    const matchName = !summarySearch || (s.full_name ?? '').toLowerCase().includes(summarySearch.toLowerCase());
     return matchClass && matchName;
   });
 
-  const totalWeight = filteredSummaries.reduce((acc, s) => acc + Number(s.total_weight ?? 0), 0);
-  const totalAmount = filteredSummaries.reduce((acc, s) => acc + Number(s.total_amount ?? 0), 0);
+  const totalItems = filteredSummaries.reduce((acc, s) => acc + Number(s.total_items ?? 0), 0);
+  const totalPoints = filteredSummaries.reduce((acc, s) => acc + Number(s.total_points_earned ?? 0), 0);
 
   // Category management
   const openAddCategory = () => {
     setEditingCategory(null);
-    setCategoryForm({ name: '', price_per_kg: '', icon: '', color: '' });
+    setCategoryForm({ name: '', points_per_item: '', icon: '', color: '' });
     setShowCategoryForm(true);
   };
 
@@ -237,7 +219,7 @@ export const WasteBankManagement = () => {
     setEditingCategory(cat);
     setCategoryForm({
       name: cat.name,
-      price_per_kg: String(cat.price_per_kg),
+      points_per_item: String(cat.points_per_item),
       icon: cat.icon || '',
       color: cat.color || '',
     });
@@ -245,19 +227,19 @@ export const WasteBankManagement = () => {
   };
 
   const handleSaveCategory = async () => {
-    if (!categoryForm.name || !categoryForm.price_per_kg) {
-      toast({ title: 'กรุณากรอกชื่อและราคาต่อกิโลกรัม', variant: 'destructive' });
+    if (!categoryForm.name || !categoryForm.points_per_item) {
+      toast({ title: 'กรุณากรอกชื่อและจำนวนแต้มต่อชิ้น', variant: 'destructive' });
       return;
     }
-    const price = parseFloat(categoryForm.price_per_kg);
-    if (isNaN(price) || price < 0) {
-      toast({ title: 'ราคาต้องเป็นตัวเลขที่ถูกต้อง', variant: 'destructive' });
+    const points = parseInt(categoryForm.points_per_item, 10);
+    if (isNaN(points) || points <= 0) {
+      toast({ title: 'แต้มต้องเป็นจำนวนเต็มมากกว่า 0', variant: 'destructive' });
       return;
     }
     setIsSavingCategory(true);
     const payload = {
       name: categoryForm.name.trim(),
-      price_per_kg: price,
+      points_per_item: points,
       icon: categoryForm.icon.trim() || null,
       color: categoryForm.color.trim() || null,
     };
@@ -291,20 +273,22 @@ export const WasteBankManagement = () => {
   };
 
   const tabList: { id: ActiveTab; label: string; icon: React.ReactNode }[] = [
-    { id: 'record', label: 'บันทึกรายการ', icon: <Scale className="w-4 h-4" /> },
+    { id: 'record', label: 'บันทึกรายการ', icon: <Package className="w-4 h-4" /> },
     { id: 'summary', label: 'สรุปยอดสะสม', icon: <Users className="w-4 h-4" /> },
-    { id: 'categories', label: 'จัดการประเภทขยะ', icon: <List className="w-4 h-4" /> },
+    { id: 'categories', label: 'ประเภทขยะ', icon: <List className="w-4 h-4" /> },
+    { id: 'rewards', label: 'รางวัล', icon: <Gift className="w-4 h-4" /> },
+    { id: 'claims', label: 'คำขอแลกรางวัล', icon: <ClipboardCheck className="w-4 h-4" /> },
   ];
 
   return (
     <div className="p-6">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-foreground">ธนาคารขยะ</h1>
-        <p className="text-muted-foreground mt-1">บันทึกและติดตามการนำขยะมาขายของนักเรียน</p>
+        <p className="text-muted-foreground mt-1">บันทึก ติดตาม และแลกรางวัลจากการเก็บขยะของนักเรียน</p>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-6 border-b border-border">
+      <div className="flex flex-wrap gap-2 mb-6 border-b border-border">
         {tabList.map((tab) => (
           <button
             key={tab.id}
@@ -326,8 +310,11 @@ export const WasteBankManagement = () => {
         <div className="space-y-6">
           {/* Form */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-base">บันทึกรายการรับซื้อขยะ</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-base">บันทึกรายการรับขยะ</CardTitle>
+              <Button variant="outline" size="sm" onClick={() => setShowQRScanner(true)} className="gap-2">
+                <QrCode className="w-4 h-4" /> สแกน QR นักเรียน
+              </Button>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -401,33 +388,33 @@ export const WasteBankManagement = () => {
                       {categories.map((cat) => (
                         <SelectItem key={cat.id} value={cat.id}>
                           {cat.icon && <span className="mr-1">{cat.icon}</span>}
-                          {cat.name} ({cat.price_per_kg} บ./กก.)
+                          {cat.name} ({cat.points_per_item} แต้ม/ชิ้น)
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
 
-                {/* Weight */}
+                {/* Quantity */}
                 <div className="space-y-1">
-                  <Label>น้ำหนัก (กก.) <span className="text-destructive">*</span></Label>
+                  <Label>จำนวน (ชิ้น) <span className="text-destructive">*</span></Label>
                   <Input
                     type="number"
-                    step="0.01"
-                    min="0"
-                    placeholder="0.00"
-                    value={form.weight_kg}
-                    onChange={(e) => handleFormChange('weight_kg', e.target.value)}
+                    step="1"
+                    min="1"
+                    placeholder="0"
+                    value={form.quantity}
+                    onChange={(e) => handleFormChange('quantity', e.target.value)}
                   />
                 </div>
 
-                {/* Amount (auto) */}
+                {/* Points (auto) */}
                 <div className="space-y-1">
-                  <Label>จำนวนเงิน (บาท)</Label>
+                  <Label>แต้มที่ได้รับ</Label>
                   <div className={`flex items-center h-10 px-3 rounded-md border text-sm font-medium ${
-                    calculatedAmount !== null ? 'bg-green-50 border-green-300 text-green-700' : 'bg-muted border-border text-muted-foreground'
+                    calculatedPoints !== null ? 'bg-emerald-50 border-emerald-300 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300' : 'bg-muted border-border text-muted-foreground'
                   }`}>
-                    {calculatedAmount !== null ? `${calculatedAmount.toFixed(2)} บาท` : 'คำนวณอัตโนมัติ'}
+                    {calculatedPoints !== null ? `${calculatedPoints} แต้ม` : 'คำนวณอัตโนมัติ'}
                   </div>
                 </div>
 
@@ -484,8 +471,8 @@ export const WasteBankManagement = () => {
                       <th className="text-left px-4 py-3 font-medium text-muted-foreground">นักเรียน</th>
                       <th className="text-left px-4 py-3 font-medium text-muted-foreground">ชั้น</th>
                       <th className="text-left px-4 py-3 font-medium text-muted-foreground">ประเภทขยะ</th>
-                      <th className="text-right px-4 py-3 font-medium text-muted-foreground">น้ำหนัก (กก.)</th>
-                      <th className="text-right px-4 py-3 font-medium text-muted-foreground">จำนวนเงิน (บ.)</th>
+                      <th className="text-right px-4 py-3 font-medium text-muted-foreground">จำนวน (ชิ้น)</th>
+                      <th className="text-right px-4 py-3 font-medium text-muted-foreground">แต้ม</th>
                       <th className="px-4 py-3"></th>
                     </tr>
                   </thead>
@@ -521,8 +508,8 @@ export const WasteBankManagement = () => {
                               </span>
                             ) : '—'}
                           </td>
-                          <td className="px-4 py-3 text-right">{Number(tx.weight_kg).toFixed(2)}</td>
-                          <td className="px-4 py-3 text-right font-medium text-green-600">{Number(tx.amount).toFixed(2)}</td>
+                          <td className="px-4 py-3 text-right">{tx.quantity}</td>
+                          <td className="px-4 py-3 text-right font-medium text-emerald-600 dark:text-emerald-400">+{tx.points_earned}</td>
                           <td className="px-4 py-3 text-right">
                             <Button
                               variant="ghost"
@@ -581,15 +568,15 @@ export const WasteBankManagement = () => {
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-muted-foreground">{filteredSummaries.length} นักเรียน</span>
                 {filteredSummaries.length > 0 && (
-                  <Button size="sm" variant="outline" className="gap-1 text-green-700 border-green-300 hover:bg-green-50"
+                  <Button size="sm" variant="outline" className="gap-1 text-emerald-700 border-emerald-300 hover:bg-emerald-50"
                     onClick={() => downloadCSV('สรุปธนาคารขยะ',
-                      ['ชื่อนักเรียน', 'ชั้น', 'จำนวนครั้ง', 'น้ำหนักรวม (กก.)', 'ยอดสะสม (บาท)', 'ครั้งล่าสุด'],
+                      ['ชื่อนักเรียน', 'ชั้น', 'จำนวนครั้ง', 'ขยะรวม (ชิ้น)', 'แต้มสะสม', 'แต้มคงเหลือ'],
                       filteredSummaries.map(s => [
-                        s.student_name ?? '', s.student_class ?? '',
+                        s.full_name ?? '', s.class_name ?? '',
                         s.total_transactions ?? 0,
-                        Number(s.total_weight ?? 0).toFixed(2),
-                        Number(s.total_amount ?? 0).toFixed(2),
-                        s.last_transaction_date ?? ''
+                        s.total_items ?? 0,
+                        s.total_points_earned ?? 0,
+                        s.available_points ?? 0,
                       ])
                     )}>
                     <Download className="w-3.5 h-3.5" /> CSV
@@ -605,9 +592,9 @@ export const WasteBankManagement = () => {
                       <th className="text-left px-4 py-3 font-medium text-muted-foreground">ชื่อนักเรียน</th>
                       <th className="text-left px-4 py-3 font-medium text-muted-foreground">ชั้น</th>
                       <th className="text-right px-4 py-3 font-medium text-muted-foreground">จำนวนครั้ง</th>
-                      <th className="text-right px-4 py-3 font-medium text-muted-foreground">น้ำหนักรวม (กก.)</th>
-                      <th className="text-right px-4 py-3 font-medium text-muted-foreground">ยอดสะสม (บาท)</th>
-                      <th className="text-right px-4 py-3 font-medium text-muted-foreground">ครั้งล่าสุด</th>
+                      <th className="text-right px-4 py-3 font-medium text-muted-foreground">ขยะรวม (ชิ้น)</th>
+                      <th className="text-right px-4 py-3 font-medium text-muted-foreground">แต้มสะสม</th>
+                      <th className="text-right px-4 py-3 font-medium text-muted-foreground">แต้มคงเหลือ</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -618,25 +605,14 @@ export const WasteBankManagement = () => {
                     ) : (
                       filteredSummaries.map((s, idx) => (
                         <tr key={idx} className="border-b border-border hover:bg-muted/30 transition-colors">
-                          <td className="px-4 py-3 font-medium">
-                            <div className="flex items-center gap-2">
-                              {s.photo_url ? (
-                                <img src={s.photo_url} alt={s.student_name ?? ''} className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
-                              ) : (
-                                <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center text-[11px] font-bold text-primary flex-shrink-0">
-                                  {(s.student_name ?? '?').slice(0, 1)}
-                                </div>
-                              )}
-                              <span>{s.student_name ?? '—'}</span>
-                            </div>
-                          </td>
+                          <td className="px-4 py-3 font-medium">{s.full_name ?? '—'}</td>
                           <td className="px-4 py-3">
-                            <Badge variant="outline">{s.student_class ?? '—'}</Badge>
+                            <Badge variant="outline">{s.class_name ?? '—'}</Badge>
                           </td>
                           <td className="px-4 py-3 text-right text-muted-foreground">{s.total_transactions ?? 0}</td>
-                          <td className="px-4 py-3 text-right">{Number(s.total_weight ?? 0).toFixed(2)}</td>
-                          <td className="px-4 py-3 text-right font-semibold text-green-600">{Number(s.total_amount ?? 0).toFixed(2)}</td>
-                          <td className="px-4 py-3 text-right text-muted-foreground text-xs">{s.last_transaction_date ?? '—'}</td>
+                          <td className="px-4 py-3 text-right">{s.total_items ?? 0}</td>
+                          <td className="px-4 py-3 text-right font-semibold text-emerald-600 dark:text-emerald-400">{s.total_points_earned ?? 0}</td>
+                          <td className="px-4 py-3 text-right font-semibold text-amber-600 dark:text-amber-400">{s.available_points ?? 0}</td>
                         </tr>
                       ))
                     )}
@@ -648,8 +624,8 @@ export const WasteBankManagement = () => {
                         <td className="px-4 py-3 text-right">
                           {filteredSummaries.reduce((a, s) => a + Number(s.total_transactions ?? 0), 0)}
                         </td>
-                        <td className="px-4 py-3 text-right">{totalWeight.toFixed(2)}</td>
-                        <td className="px-4 py-3 text-right text-green-600">{totalAmount.toFixed(2)}</td>
+                        <td className="px-4 py-3 text-right">{totalItems}</td>
+                        <td className="px-4 py-3 text-right text-emerald-600 dark:text-emerald-400">{totalPoints}</td>
                         <td className="px-4 py-3"></td>
                       </tr>
                     </tfoot>
@@ -682,34 +658,34 @@ export const WasteBankManagement = () => {
                   <div className="space-y-1">
                     <Label>ชื่อประเภท <span className="text-destructive">*</span></Label>
                     <Input
-                      placeholder="เช่น กระดาษ, พลาสติก"
+                      placeholder="เช่น ขวดพลาสติกเล็ก"
                       value={categoryForm.name}
                       onChange={(e) => setCategoryForm((p) => ({ ...p, name: e.target.value }))}
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label>ราคา (บาท/กก.) <span className="text-destructive">*</span></Label>
+                    <Label>แต้มต่อชิ้น <span className="text-destructive">*</span></Label>
                     <Input
                       type="number"
-                      step="0.01"
-                      min="0"
-                      placeholder="0.00"
-                      value={categoryForm.price_per_kg}
-                      onChange={(e) => setCategoryForm((p) => ({ ...p, price_per_kg: e.target.value }))}
+                      step="1"
+                      min="1"
+                      placeholder="1"
+                      value={categoryForm.points_per_item}
+                      onChange={(e) => setCategoryForm((p) => ({ ...p, points_per_item: e.target.value }))}
                     />
                   </div>
                   <div className="space-y-1">
                     <Label>ไอคอน (Emoji)</Label>
                     <Input
-                      placeholder="เช่น ♻️ 📦 🥤"
+                      placeholder="เช่น 🥤 🧴 🍾 🥫"
                       value={categoryForm.icon}
                       onChange={(e) => setCategoryForm((p) => ({ ...p, icon: e.target.value }))}
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label>สี (Tailwind class หรือ hex)</Label>
+                    <Label>สี (hex)</Label>
                     <Input
-                      placeholder="เช่น #22c55e หรือ green"
+                      placeholder="เช่น #60a5fa"
                       value={categoryForm.color}
                       onChange={(e) => setCategoryForm((p) => ({ ...p, color: e.target.value }))}
                     />
@@ -737,7 +713,7 @@ export const WasteBankManagement = () => {
                     <tr className="border-b border-border bg-muted/50">
                       <th className="text-left px-4 py-3 font-medium text-muted-foreground">ไอคอน</th>
                       <th className="text-left px-4 py-3 font-medium text-muted-foreground">ชื่อประเภท</th>
-                      <th className="text-right px-4 py-3 font-medium text-muted-foreground">ราคา (บาท/กก.)</th>
+                      <th className="text-right px-4 py-3 font-medium text-muted-foreground">แต้ม/ชิ้น</th>
                       <th className="text-left px-4 py-3 font-medium text-muted-foreground">สี</th>
                       <th className="px-4 py-3"></th>
                     </tr>
@@ -752,7 +728,7 @@ export const WasteBankManagement = () => {
                         <tr key={cat.id} className="border-b border-border hover:bg-muted/30 transition-colors">
                           <td className="px-4 py-3 text-xl">{cat.icon || '—'}</td>
                           <td className="px-4 py-3 font-medium">{cat.name}</td>
-                          <td className="px-4 py-3 text-right">{cat.price_per_kg.toFixed(2)}</td>
+                          <td className="px-4 py-3 text-right">{cat.points_per_item}</td>
                           <td className="px-4 py-3">
                             {cat.color ? (
                               <span className="flex items-center gap-2">
@@ -785,6 +761,21 @@ export const WasteBankManagement = () => {
             </CardContent>
           </Card>
         </div>
+      )}
+
+      {/* ===== TAB 4: รางวัล ===== */}
+      {activeTab === 'rewards' && <RewardsManagement />}
+
+      {/* ===== TAB 5: คำขอแลกรางวัล ===== */}
+      {activeTab === 'claims' && <ClaimsApproval />}
+
+      {/* QR Scanner Dialog */}
+      {showQRScanner && (
+        <QRScannerDialog
+          open={showQRScanner}
+          onClose={() => setShowQRScanner(false)}
+          onScanned={handleQRScanned}
+        />
       )}
     </div>
   );

@@ -9,6 +9,7 @@ import { ClipboardCheck, PenLine, Star, Recycle } from 'lucide-react';
 import { ListSkeleton } from '@/components/ui/loading-skeletons';
 import { EmptyState } from '@/components/ui/empty-state';
 import { NoDataIllustration } from '@/components/ui/empty-illustrations';
+import { WasteBankParentView } from '@/components/parent/WasteBankParentView';
 
 interface Props {
     view: 'attendance' | 'scores' | 'conduct' | 'waste-bank';
@@ -74,14 +75,14 @@ const CONFIG = {
         render: (r: any) => (
             <div className="flex items-center justify-between p-3 border rounded">
                 <div>
-                    <p className="font-medium">{r.category_name || r.waste_type || 'ขยะ'}</p>
+                    <p className="font-medium">{r.waste_categories?.name || 'ขยะ'}</p>
                     <p className="text-xs text-muted-foreground">
-                        {r.created_at ? new Date(r.created_at).toLocaleDateString('th-TH') : ''}
-                        {r.weight_kg ? ` • ${r.weight_kg} กก.` : ''}
+                        {r.transaction_date || (r.created_at ? new Date(r.created_at).toLocaleDateString('th-TH') : '')}
+                        {r.quantity ? ` • ${r.quantity} ชิ้น` : ''}
                     </p>
                 </div>
                 <div className="text-right">
-                    <p className="font-bold text-emerald-600">฿{Number(r.amount || 0).toLocaleString()}</p>
+                    <p className="font-bold text-emerald-600">+{Number(r.points_earned || 0)} แต้ม</p>
                 </div>
             </div>
         ),
@@ -114,6 +115,9 @@ export default function ParentChildView({ view }: Props) {
                 <h1 className="text-2xl font-bold flex items-center gap-2">
                     <Icon className="w-6 h-6" /> {cfg.title}
                 </h1>
+                {view === 'waste-bank' && link?.student_id ? (
+                    <WasteBankParentView studentId={link.student_id} />
+                ) : (
                 <Card>
                     <CardHeader><CardTitle className="text-base">รายการย้อนหลัง 100 รายการ</CardTitle></CardHeader>
                     <CardContent>
@@ -135,6 +139,7 @@ export default function ParentChildView({ view }: Props) {
                         )}
                     </CardContent>
                 </Card>
+                )}
             </div>
         </RolePortalLayout>
     );
