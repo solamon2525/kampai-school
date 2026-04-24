@@ -177,6 +177,30 @@ Alias: `@/*` → `./src/*`
 | **GitHub** | `rtk gh pr view` · `rtk gh pr checks` · `rtk gh run list` · `rtk gh api` | 26-87% |
 | **Files** | `rtk ls <path>` · `rtk grep <pattern>` · `rtk find <pattern>` · `rtk read <file>` | 60-75% |
 | **Debug** | `rtk err <cmd>` (errors only) · `rtk log <file>` (dedup) · `rtk json <file>` (structure) | 70-90% |
+| **Smart summary** | `rtk summary <cmd>` — สรุป output ของ command ใดก็ได้ | — |
+| **Dependencies** | `rtk deps` — dependency overview | ~70% |
+| **Environment** | `rtk env` — env vars compact | ~70% |
+| **Network** | `rtk curl <url>` · `rtk wget <url>` — HTTP compact | 65-70% |
+| **Testing** (future) | `rtk vitest run` · `rtk playwright test` — failures only | 94-99% |
+
+### ⚙️ Auto-apply ผ่าน Hook (Custom)
+
+- มี custom hook ที่ `~/.claude/hooks/rtk-rewrite.py` + ลงทะเบียนใน `~/.claude/settings.json` (PreToolUse + matcher "Bash")
+- Hook จะ **auto-prefix** Bash commands ทุกตัวที่อยู่ใน RTK_COMMANDS (git, gh, pnpm, npm, npx, tsc, lint, prettier, ls, find, grep, curl, wget, docker, kubectl, vite, vitest, playwright, jest, pytest, cargo, prisma, go)
+- **Chained commands ไม่ rewrite อัตโนมัติ** (`&&`, `||`, `;`, `|`) — ต้อง prefix ทุกตัวเอง:
+  ```bash
+  ✅ rtk git add X && rtk git commit -m "..." && rtk git push
+  ❌ rtk git add X && git commit -m "..." && git push
+  ```
+
+### 🪟 Windows Note
+
+- `rtk init -g` บน Windows ไม่ติดตั้ง official hook (Unix-only) — fall back เป็น `--claude-md` mode
+- Warning `[rtk] /!\ No hook installed` จะขึ้นทุกครั้งที่รัน rtk command → **ignore ได้** เป็น cosmetic บน Windows (custom hook ทำงานแทนอยู่แล้ว — ยืนยันด้วย `rtk gain`)
+
+### 🎯 ทุก `gh` command ต้อง rtk
+
+`gh api` · `gh pr create` · `gh pr merge` · `gh pr checks` · `gh run list` · `gh issue list` — ประหยัด 26-87% ต่อ call Hook จะ rewrite ให้เอง **ยกเว้น chained** ที่ต้องระบุเอง
 
 ### ตัวอย่างสำหรับงานจริง
 
