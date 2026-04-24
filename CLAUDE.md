@@ -156,8 +156,58 @@ Alias: `@/*` → `./src/*`
 
 - Branch: `main` (production)
 - Commit style: `feat(scope): description` · `fix(scope): ...` · `docs(scope): ...`
-- ใช้ RTK prefix สำหรับทุก git command (`rtk git ...`) — ประหยัด token
 - Commit รวม Claude co-author เมื่อใช้ Claude Code
+- **ใช้ `rtk` prefix ทุก command** ที่เรียกผ่าน shell — ดูหมวด RTK ด้านล่าง
+
+## 🦀 RTK (Rust Token Killer) — ประหยัด token 60-90%
+
+**Golden rule:** prefix ด้วย `rtk` เสมอสำหรับ command ที่มี output เยอะ ถ้า RTK ไม่ filter ก็ passthrough — ปลอดภัย
+
+### ต้องใช้เสมอสำหรับ project นี้
+
+| หมวด | Command | ประหยัด |
+|---|---|---|
+| **Package manager** | `rtk pnpm install` · `rtk pnpm outdated` · `rtk pnpm list` | 70-90% |
+| **Scripts** | `rtk npm run <script>` · `rtk npx <cmd>` | ~70% |
+| **TypeScript** | `rtk tsc --noEmit` | 83% |
+| **Lint** | `rtk lint` (แทน `pnpm lint` ตรง) | 84% |
+| **Format** | `rtk prettier --check .` | 70% |
+| **Build** | `rtk pnpm build` (ผ่าน npm wrapper) | — |
+| **Git** | `rtk git status` · `rtk git log` · `rtk git diff` · `rtk git add` · `rtk git commit` · `rtk git push` · `rtk git worktree` | 59-80% |
+| **GitHub** | `rtk gh pr view` · `rtk gh pr checks` · `rtk gh run list` · `rtk gh api` | 26-87% |
+| **Files** | `rtk ls <path>` · `rtk grep <pattern>` · `rtk find <pattern>` · `rtk read <file>` | 60-75% |
+| **Debug** | `rtk err <cmd>` (errors only) · `rtk log <file>` (dedup) · `rtk json <file>` (structure) | 70-90% |
+
+### ตัวอย่างสำหรับงานจริง
+
+```bash
+# เช็คสถานะก่อน commit
+rtk git status && rtk git diff
+
+# Commit + push
+rtk git add <files> && rtk git commit -m "..." && rtk git push
+
+# ตรวจ PR + CI
+rtk gh pr checks
+rtk gh run list
+
+# Debug deploy
+rtk gh api repos/solamon2525/kampai-school/hooks
+
+# Type check + lint ก่อน push
+rtk tsc --noEmit
+rtk lint
+```
+
+### ข้อยกเว้น (อย่าใช้ rtk)
+
+- เมื่อใช้ tool ของ Claude Code เอง (Read / Grep / Glob / Edit / Write) — ใช้ tool ตรงๆ เร็วกว่า rtk
+- เมื่อต้องเห็น output ครบเพื่อ debug → ใช้ `rtk proxy <cmd>` (passthrough ไม่ filter)
+
+### เมื่อเสร็จงาน
+
+- `rtk gain` ดูสถิติ token ที่ประหยัดได้
+- `rtk discover` วิเคราะห์ session ที่พลาดไม่ใช้ rtk
 
 ## เมื่อเสร็จงานใหญ่
 
