@@ -243,16 +243,21 @@ const StaffDirCSS = () => (
     }
 
     /* ── Featured card (Director) ── */
-    .sd-featured {
+    .sd-featured { max-width: 100% !important; aspect-ratio: auto !important; }
+    .sd-featured .sd-card-inner { width: 100%; }
+    .sd-featured .sd-card-front {
       display: grid !important;
       grid-template-columns: 240px 1fr !important;
-      max-width: 100% !important;
-      aspect-ratio: auto !important;
+      min-height: 320px;
     }
-    .sd-featured .sd-photo { aspect-ratio: 3/4; }
+    .sd-featured .sd-card-back {
+      display: flex !important;
+      min-height: 320px;
+    }
+    .sd-featured .sd-photo { aspect-ratio: auto; height: 100%; }
     @media (max-width: 600px) {
-      .sd-featured { grid-template-columns: 1fr !important; }
-      .sd-featured .sd-photo { aspect-ratio: 16/9; }
+      .sd-featured .sd-card-front { grid-template-columns: 1fr !important; }
+      .sd-featured .sd-photo { height: 240px; }
     }
 
     /* ── Hero decorations ── */
@@ -367,7 +372,7 @@ const FeaturedCard = ({
   >
     <div className="sd-card-inner" style={{ minHeight: 260 }}>
       {/* ── Front ── */}
-      <div className="sd-card-front" style={{ display: 'grid', gridTemplateColumns: 'inherit', borderRadius: 20, overflow: 'hidden' }}>
+      <div className="sd-card-front" style={{ borderRadius: 20, overflow: 'hidden' }}>
         <div className="sd-photo">
           <PhotoBox url={admin.photo_url} name={admin.name} />
           <div className="sd-ribbon">ผู้อำนวยการ</div>
