@@ -25,7 +25,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { ImageUpload } from '@/components/admin/shared/ImageUpload';
 import { useToast } from '@/hooks/use-toast';
-import { GripVertical, Plus, Pencil, Trash2, Eye, EyeOff } from 'lucide-react';
+import { useSchoolSettings } from '@/hooks/useSchoolSettings';
+import { GripVertical, Plus, Pencil, Trash2, Timer } from 'lucide-react';
 
 interface HeroSlide {
     id: string;
@@ -109,6 +110,14 @@ export const HeroSlidesManagement = () => {
     const [form, setForm] = useState(emptySlide());
     const [saving, setSaving] = useState(false);
     const { toast } = useToast();
+    const { settings } = useSchoolSettings();
+
+    const saveSlideInterval = async (val: string) => {
+        await supabase
+            .from('school_settings')
+            .upsert({ key: 'hero_slide_interval', value: val } as any, { onConflict: 'key' });
+        toast({ title: 'บันทึกช่วงเวลาแล้ว' });
+    };
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -227,6 +236,31 @@ export const HeroSlidesManagement = () => {
                     เพิ่ม Slide
                 </Button>
             </div>
+
+            {/* Interval Setting */}
+            <Card className="mb-6">
+                <CardHeader className="pb-3">
+                    <CardTitle className="text-base flex items-center gap-2">
+                        <Timer className="w-4 h-4" />
+                        ตั้งค่าการแสดงสไลด์
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex items-center gap-3">
+                        <Label className="whitespace-nowrap text-sm">ช่วงเวลาสไลด์</Label>
+                        <select
+                            className="flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                            value={settings.hero_slide_interval || '5'}
+                            onChange={(e) => saveSlideInterval(e.target.value)}
+                        >
+                            {[2, 3, 4, 5, 6, 7, 8, 10].map(n => (
+                                <option key={n} value={String(n)}>{n} วินาที</option>
+                            ))}
+                        </select>
+                        <span className="text-xs text-muted-foreground">เวลาที่แต่ละสไลด์แสดงก่อนเปลี่ยนภาพ</span>
+                    </div>
+                </CardContent>
+            </Card>
 
             {loading ? (
                 <div className="text-center py-16 text-muted-foreground">กำลังโหลด...</div>

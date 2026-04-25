@@ -1,31 +1,17 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Switch } from '@/components/ui/switch';
-import { Settings, Save, AlignLeft, AlignCenter, AlignRight, AlignJustify, X, Plus, Images } from 'lucide-react';
+import { Settings, Save, AlignLeft, AlignCenter, AlignRight, AlignJustify, SlidersHorizontal } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ImageUpload } from '../shared/ImageUpload';
 import { RichTextEditor } from '../shared/RichTextEditor';
 import { UserRolesManagement } from './UserRolesManagement';
 import { EmailSubscribersManagement } from './EmailSubscribersManagement';
-
-interface HeroSlide {
-    id: string;
-    image_url: string;
-    title: string | null;
-    order_position: number;
-}
-
-interface GalleryPhoto {
-    id: string;
-    image_url: string;
-    caption: string | null;
-    gallery_albums: { title: string } | null;
-}
 
 interface Setting {
     key: string;
@@ -41,91 +27,9 @@ export const SettingsManagement = () => {
     const [saving, setSaving] = useState(false);
     const { toast } = useToast();
 
-    // Hero Slideshow state
-    const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([]);
-    const [slidesLoading, setSlidesLoading] = useState(false);
-    const [showGalleryPicker, setShowGalleryPicker] = useState(false);
-    const [galleryPhotos, setGalleryPhotos] = useState<GalleryPhoto[]>([]);
-    const [selectedPhotos, setSelectedPhotos] = useState<Set<string>>(new Set());
-    const [galleryLoading, setGalleryLoading] = useState(false);
-
-    const MAX_SLIDES = 10;
-
-
-    const fetchHeroSlides = useCallback(async () => {
-        setSlidesLoading(true);
-        const { data } = await supabase
-            .from('hero_slides')
-            .select('id, image_url, title, order_position')
-            .eq('is_active', true)
-            .order('order_position', { ascending: true });
-        if (data) setHeroSlides(data as HeroSlide[]);
-        setSlidesLoading(false);
-    }, []);
-
-    const deleteHeroSlide = async (id: string) => {
-        await supabase.from('hero_slides').delete().eq('id', id);
-        setHeroSlides(prev => prev.filter(s => s.id !== id));
-        toast({ title: 'ลบสไลด์แล้ว' });
-    };
-
-    const fetchGalleryPhotos = async () => {
-        setGalleryLoading(true);
-        const { data } = await supabase
-            .from('gallery_photos')
-            .select('id, image_url, caption, gallery_albums(title)')
-            .order('created_at', { ascending: false })
-            .limit(60);
-        if (data) setGalleryPhotos(data as any);
-        setGalleryLoading(false);
-    };
-
-    const openGalleryPicker = () => {
-        setShowGalleryPicker(true);
-        setSelectedPhotos(new Set());
-        fetchGalleryPhotos();
-    };
-
-    const togglePhotoSelection = (id: string) => {
-        setSelectedPhotos(prev => {
-            const next = new Set(prev);
-            if (next.has(id)) {
-                next.delete(id);
-            } else if (next.size < MAX_SLIDES - heroSlides.length) {
-                next.add(id);
-            }
-            return next;
-        });
-    };
-
-    const addSelectedToSlides = async () => {
-        const photos = galleryPhotos.filter(p => selectedPhotos.has(p.id));
-        const baseOrder = heroSlides.length;
-        const inserts = photos.map((p, i) => ({
-            image_url: p.image_url,
-            title: p.caption || (p.gallery_albums?.title ?? null),
-            order_position: baseOrder + i,
-            is_active: true,
-        }));
-        const { data } = await supabase.from('hero_slides').insert(inserts).select();
-        if (data) {
-            setHeroSlides(prev => [...prev, ...(data as HeroSlide[])]);
-            toast({ title: `เพิ่ม ${data.length} ภาพแล้ว` });
-        }
-        setShowGalleryPicker(false);
-        setSelectedPhotos(new Set());
-    };
-
-    const saveSlideInterval = async (val: string) => {
-        handleChange('hero_slide_interval', val);
-        await supabase.from('school_settings').upsert({ key: 'hero_slide_interval', value: val } as any, { onConflict: 'key' });
-        toast({ title: 'บันทึกช่วงเวลาแล้ว' });
-    };
-
     useEffect(() => {
         fetchSettings();
-        fetchHeroSlides();
-    }, [fetchHeroSlides]);
+    }, []);
 
     const fetchSettings = async () => {
         try {
@@ -286,138 +190,25 @@ export const SettingsManagement = () => {
                     </CardContent>
                 </Card>
 
-                {/* Hero Slideshow Manager */}
+                {/* Hero Slideshow — shortcut to dedicated manager */}
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                            <Images className="w-5 h-5" />
-                            Hero Slideshow Manager
+                            <SlidersHorizontal className="w-5 h-5" />
+                            Hero Slideshow
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                        {/* Interval */}
-                        <div className="flex items-center gap-3">
-                            <Label className="whitespace-nowrap">ช่วงเวลาสไลด์</Label>
-                            <select
-                                className="flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                                value={settings.hero_slide_interval || '5'}
-                                onChange={(e) => saveSlideInterval(e.target.value)}
-                            >
-                                {[2, 3, 4, 5, 6, 7, 8, 10].map(n => (
-                                    <option key={n} value={String(n)}>{n} วินาที</option>
-                                ))}
-                            </select>
-                        </div>
-
-                        {/* Current Slides Grid */}
-                        <div>
-                            <div className="flex items-center justify-between mb-2">
-                                <Label>{heroSlides.length}/{MAX_SLIDES} ภาพ</Label>
-                            </div>
-                            {slidesLoading ? (
-                                <p className="text-sm text-muted-foreground">กำลังโหลด...</p>
-                            ) : heroSlides.length === 0 ? (
-                                <p className="text-sm text-muted-foreground">ยังไม่มีสไลด์ (จะใช้ hero_image_url เป็น fallback)</p>
-                            ) : (
-                                <div className="grid grid-cols-5 gap-2">
-                                    {heroSlides.map(slide => (
-                                        <div key={slide.id} className="relative group rounded overflow-hidden border border-border aspect-video bg-gray-100">
-                                            <img src={slide.image_url} alt={slide.title || ''} className="w-full h-full object-cover" />
-                                            <button
-                                                onClick={() => deleteHeroSlide(slide.id)}
-                                                className="absolute top-1 right-1 w-5 h-5 bg-black/70 hover:bg-red-600 text-white rounded-full items-center justify-center hidden group-hover:flex transition-colors"
-                                                aria-label="ลบ"
-                                            >
-                                                <X className="w-3 h-3" />
-                                            </button>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Add buttons */}
-                        {heroSlides.length < MAX_SLIDES && (
-                            <div className="flex flex-wrap gap-2">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={openGalleryPicker}
-                                    className="gap-2"
-                                >
-                                    <Images className="w-4 h-4" />
-                                    เพิ่มจากอัลบั้ม
-                                </Button>
-                                <div className="flex items-center gap-2">
-                                    <Label className="text-xs text-muted-foreground">หรืออัปโหลดโดยตรง:</Label>
-                                    <ImageUpload
-                                        currentImage=""
-                                        onUploadComplete={async (url) => {
-                                            const { data } = await supabase.from('hero_slides').insert({
-                                                image_url: url,
-                                                title: null,
-                                                order_position: heroSlides.length,
-                                                is_active: true,
-                                            } as any).select().single();
-                                            if (data) {
-                                                setHeroSlides(prev => [...prev, data as HeroSlide]);
-                                                toast({ title: 'เพิ่มสไลด์แล้ว' });
-                                            }
-                                        }}
-                                        folder="hero-slides"
-                                        compressionPreset="banner"
-                                        bucket="school-images"
-                                    />
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Gallery Picker */}
-                        {showGalleryPicker && (
-                            <div className="border border-border rounded-lg p-4 bg-secondary/30 space-y-3">
-                                <div className="flex items-center justify-between">
-                                    <p className="font-semibold text-sm">เลือกภาพจากอัลบั้ม (เลือกได้อีก {MAX_SLIDES - heroSlides.length} ภาพ)</p>
-                                    <button onClick={() => setShowGalleryPicker(false)} className="text-muted-foreground hover:text-foreground">
-                                        <X className="w-4 h-4" />
-                                    </button>
-                                </div>
-                                {galleryLoading ? (
-                                    <p className="text-sm text-muted-foreground">กำลังโหลดอัลบั้ม...</p>
-                                ) : galleryPhotos.length === 0 ? (
-                                    <p className="text-sm text-muted-foreground">ไม่มีภาพในอัลบั้ม</p>
-                                ) : (
-                                    <div className="grid grid-cols-6 gap-1.5 max-h-64 overflow-y-auto">
-                                        {galleryPhotos.map(photo => {
-                                            const selected = selectedPhotos.has(photo.id);
-                                            return (
-                                                <button
-                                                    key={photo.id}
-                                                    type="button"
-                                                    onClick={() => togglePhotoSelection(photo.id)}
-                                                    className={`relative aspect-square rounded overflow-hidden border-2 transition-all ${selected ? 'border-primary' : 'border-transparent'}`}
-                                                >
-                                                    <img src={photo.image_url} alt={photo.caption || ''} className="w-full h-full object-cover" />
-                                                    {selected && (
-                                                        <div className="absolute inset-0 bg-primary/30 flex items-center justify-center">
-                                                            <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center">
-                                                                <span className="text-white text-xs font-bold">✓</span>
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                )}
-                                {selectedPhotos.size > 0 && (
-                                    <Button type="button" size="sm" onClick={addSelectedToSlides} className="gap-2">
-                                        <Plus className="w-4 h-4" />
-                                        เพิ่มที่เลือก ({selectedPhotos.size} ภาพ)
-                                    </Button>
-                                )}
-                            </div>
-                        )}
+                    <CardContent>
+                        <p className="text-sm text-muted-foreground mb-3">
+                            จัดการสไลด์ (เพิ่ม ลบ เรียงลำดับ ตั้งค่าช่วงเวลา) ได้ที่:
+                        </p>
+                        <Link
+                            to="/admin/dashboard/hero-slides"
+                            className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+                        >
+                            <SlidersHorizontal className="w-4 h-4" />
+                            Hero Slides Manager →
+                        </Link>
                     </CardContent>
                 </Card>
 
