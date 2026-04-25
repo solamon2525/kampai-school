@@ -7,6 +7,7 @@ import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import type { SchoolSettings } from '@/hooks/useSchoolSettings';
 import { supabase } from '@/integrations/supabase/client';
 import { SEOHead } from '@/components/SEOHead';
+import { PageBlockRenderer } from '@/components/page-builder/PageBlockRenderer';
 
 interface Milestone {
   id: string;
@@ -212,6 +213,7 @@ const About = () => {
           </div>
         </section>
       </main>
+      <PageBlockRenderer dbKey="page_layout_about" />
       <Footer />
     </div>
   );

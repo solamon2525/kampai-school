@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import { supabase } from '@/integrations/supabase/client';
 import { SEOHead } from '@/components/SEOHead';
+import { PageBlockRenderer } from '@/components/page-builder/PageBlockRenderer';
 
 interface FaqItem {
   id: string;
@@ -342,6 +343,7 @@ const Contact = () => {
           </div>
         </section>
       </main>
+      <PageBlockRenderer dbKey="page_layout_contact" />
       <Footer />
     </div>
   );

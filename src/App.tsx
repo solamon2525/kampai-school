@@ -26,6 +26,7 @@ const AcademicCalendar = lazy(() => import("./pages/AcademicCalendar"));
 const Enrollment = lazy(() => import("./pages/Enrollment"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const PageBuilder = lazy(() => import("./pages/admin/PageBuilder"));
 const Documents = lazy(() => import("./pages/Documents"));
 const WasteBank = lazy(() => import("./pages/WasteBank"));
 
@@ -79,6 +80,7 @@ const App = () => (
             <Route path="/admin" element={<AdminLogin />} />
             {/* Admin dashboard with nested route support */}
             <Route path="/admin/dashboard/*" element={<AdminDashboard />} />
+            <Route path="/admin/page-builder" element={<PageBuilder />} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/events" element={<Events />} />
             <Route path="/calendar" element={<AcademicCalendar />} />
