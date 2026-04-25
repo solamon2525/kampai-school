@@ -928,6 +928,7 @@ export const SettingsManagement = () => {
                                 คัดลอก URL จาก Google Maps → Share → Embed a map
                             </p>
                         </div>
+
                     </CardContent>
                 </Card>
 

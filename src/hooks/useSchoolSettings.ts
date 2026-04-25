@@ -56,7 +56,6 @@ export interface SchoolSettings {
     contact_address: string;
     contact_phone: string;
     contact_email: string;
-    contact_fax: string;
     contact_hours: string;
     contact_map_url: string;
     google_maps_embed: string;
@@ -140,7 +139,6 @@ const defaultSettings: SchoolSettings = {
     contact_address: '123 ถนนการศึกษา แขวงวิทยาคม เขตพัฒนา กรุงเทพฯ 10XXX',
     contact_phone: '02-XXX-XXXX',
     contact_email: 'info@bankamphai.ac.th',
-    contact_fax: '',
     contact_hours: 'จันทร์ - ศุกร์ 07:30 - 16:30 น.',
     contact_map_url: '',
     google_maps_embed: '',
