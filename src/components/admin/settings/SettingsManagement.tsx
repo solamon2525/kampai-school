@@ -6,15 +6,12 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
-import { Settings, Save, AlignLeft, AlignCenter, AlignRight, AlignJustify, X, Plus, Images, GripVertical, LayoutDashboard } from 'lucide-react';
+import { Settings, Save, AlignLeft, AlignCenter, AlignRight, AlignJustify, X, Plus, Images } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ImageUpload } from '../shared/ImageUpload';
 import { RichTextEditor } from '../shared/RichTextEditor';
 import { UserRolesManagement } from './UserRolesManagement';
 import { EmailSubscribersManagement } from './EmailSubscribersManagement';
-import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 
 interface HeroSlide {
     id: string;
@@ -37,32 +34,6 @@ interface Setting {
     description: string | null;
 }
 
-const MAIN_LABELS: Record<string, string> = {
-    hero: '🖼️ Hero Slideshow',
-    news: '📰 ข่าวสารล่าสุด',
-    about: '🏫 เกี่ยวกับโรงเรียน',
-};
-const RIGHT_LABELS: Record<string, string> = {
-    categories: '📂 หมวดหมู่ข่าว',
-    gallery: '🖼️ แกลเลอรี่',
-    services: '🔧 บริการออนไลน์',
-    social: '💬 โซเชียลมีเดีย',
-    stats: '📊 สถิติผู้เข้าชม',
-};
-
-function SortableItem({ id, label }: { id: string; label: string }) {
-    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
-    const style = { transform: CSS.Transform.toString(transform), transition };
-    return (
-        <div ref={setNodeRef} style={style}
-            className="flex items-center gap-3 p-3 border rounded-lg bg-background hover:bg-secondary/30 transition-colors">
-            <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground touch-none">
-                <GripVertical className="w-4 h-4" />
-            </button>
-            <span className="flex-1 text-sm">{label}</span>
-        </div>
-    );
-}
 
 export const SettingsManagement = () => {
     const [settings, setSettings] = useState<Record<string, string>>({});
@@ -80,12 +51,6 @@ export const SettingsManagement = () => {
 
     const MAX_SLIDES = 10;
 
-    // Page layout order
-    const [mainSections, setMainSections] = useState<string[]>(['hero', 'news', 'about']);
-    const [rightWidgets, setRightWidgets] = useState<string[]>(['categories', 'gallery', 'services', 'social', 'stats']);
-    const [layoutSaving, setLayoutSaving] = useState(false);
-
-    const dndSensors = useSensors(useSensor(PointerSensor));
 
     const fetchHeroSlides = useCallback(async () => {
         setSlidesLoading(true);
@@ -176,10 +141,6 @@ export const SettingsManagement = () => {
                 settingsMap[setting.key] = setting.value || '';
             });
             setSettings(settingsMap);
-            try {
-                if (settingsMap.homepage_main_sections) setMainSections(JSON.parse(settingsMap.homepage_main_sections));
-                if (settingsMap.homepage_right_widgets) setRightWidgets(JSON.parse(settingsMap.homepage_right_widgets));
-            } catch { /* keep defaults */ }
         } catch (error: any) {
             toast({
                 variant: 'destructive',
@@ -234,21 +195,6 @@ export const SettingsManagement = () => {
         }
     };
 
-    const savePageLayout = async () => {
-        setLayoutSaving(true);
-        try {
-            const { error } = await supabase.from('school_settings').upsert([
-                { key: 'homepage_main_sections', value: JSON.stringify(mainSections), category: 'display' },
-                { key: 'homepage_right_widgets', value: JSON.stringify(rightWidgets), category: 'display' },
-            ] as any, { onConflict: 'key' });
-            if (error) throw error;
-            toast({ title: 'บันทึกเรียบร้อย', description: 'ลำดับ section หน้าเว็บถูกอัปเดตแล้ว' });
-        } catch (e: any) {
-            toast({ variant: 'destructive', title: 'เกิดข้อผิดพลาด', description: e.message });
-        } finally {
-            setLayoutSaving(false);
-        }
-    };
 
     if (loading) {
         return (
@@ -1103,65 +1049,6 @@ export const SettingsManagement = () => {
                     </CardContent>
                 </Card>
 
-                {/* Page Layout Manager */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <LayoutDashboard className="w-5 h-5" />
-                            จัดหน้าเว็บ (ลากเพื่อเรียงลำดับ)
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <div className="grid md:grid-cols-2 gap-6">
-                            {/* Center Column */}
-                            <div>
-                                <p className="text-sm font-semibold mb-3 text-muted-foreground">คอลัมน์กลาง</p>
-                                <DndContext sensors={dndSensors} collisionDetection={closestCenter}
-                                    onDragEnd={(e) => {
-                                        const { active, over } = e;
-                                        if (over && active.id !== over.id) {
-                                            setMainSections(items => arrayMove(items, items.indexOf(String(active.id)), items.indexOf(String(over.id))));
-                                        }
-                                    }}>
-                                    <SortableContext items={mainSections} strategy={verticalListSortingStrategy}>
-                                        <div className="space-y-2">
-                                            {mainSections.map(id => (
-                                                <SortableItem key={id} id={id} label={MAIN_LABELS[id] || id} />
-                                            ))}
-                                        </div>
-                                    </SortableContext>
-                                </DndContext>
-                            </div>
-
-                            {/* Right Sidebar */}
-                            <div>
-                                <p className="text-sm font-semibold mb-3 text-muted-foreground">Sidebar ขวา</p>
-                                <DndContext sensors={dndSensors} collisionDetection={closestCenter}
-                                    onDragEnd={(e) => {
-                                        const { active, over } = e;
-                                        if (over && active.id !== over.id) {
-                                            setRightWidgets(items => arrayMove(items, items.indexOf(String(active.id)), items.indexOf(String(over.id))));
-                                        }
-                                    }}>
-                                    <SortableContext items={rightWidgets} strategy={verticalListSortingStrategy}>
-                                        <div className="space-y-2">
-                                            {rightWidgets.map(id => (
-                                                <SortableItem key={id} id={id} label={RIGHT_LABELS[id] || id} />
-                                            ))}
-                                        </div>
-                                    </SortableContext>
-                                </DndContext>
-                            </div>
-                        </div>
-
-                        <div className="flex justify-end">
-                            <Button onClick={savePageLayout} disabled={layoutSaving} className="gap-2">
-                                <Save className="w-4 h-4" />
-                                {layoutSaving ? 'กำลังบันทึก...' : 'บันทึกลำดับหน้าเว็บ'}
-                            </Button>
-                        </div>
-                    </CardContent>
-                </Card>
 
                 {/* User Roles */}
                 <UserRolesManagement />
