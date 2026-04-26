@@ -48,6 +48,13 @@ const techStack = {
         { name: 'react-photo-album', desc: 'Photo Gallery' },
         { name: 'yet-another-react-lightbox', desc: 'Lightbox Viewer' },
         { name: 'Lucide React', desc: 'Icons' },
+        { name: 'html5-qrcode', desc: 'QR Code Scanner (Waste Bank — กล้องสแกน)' },
+        { name: 'react-qr-code', desc: 'QR Code Generator (Parent Portal — แสดง QR นักเรียน)' },
+        { name: 'react-webcam', desc: 'Webcam Access (QR scanning flow)' },
+        { name: 'DOMPurify', desc: 'HTML Sanitization (rich text display)' },
+        { name: 'date-fns', desc: 'Date Utilities (Thai locale)' },
+        { name: 'embla-carousel-react', desc: 'Carousel (Hero Slides)' },
+        { name: 'cmdk', desc: 'Command Palette (installed — Sprint 2 roadmap)' },
     ],
     backend: [
         { name: 'Supabase', desc: 'PostgreSQL + Auth + Storage + Edge Functions' },
@@ -67,7 +74,7 @@ const featureGroups = [
     {
         label: 'เนื้อหาเว็บไซต์',
         color: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800',
-        features: ['จัดการข่าวสาร + ปักหมุด', 'แกลเลอรี่อัลบั้มรูปภาพ', 'ปฏิทินกิจกรรม', 'จัดการเอกสารดาวน์โหลด', 'FAQ', 'Hero Slides หน้าหลัก', 'Countdown เปิดเทอม Real-time'],
+        features: ['จัดการข่าวสาร + ปักหมุด', 'แกลเลอรี่อัลบั้มรูปภาพ', 'ปฏิทินกิจกรรม', 'จัดการเอกสารดาวน์โหลด', 'FAQ', 'Hero Slides หน้าหลัก', 'Countdown เปิดเทอม Real-time', 'จัดการหน้าแรก (Homepage Layout Manager — DnD zones + live preview)'],
     },
     {
         label: 'บุคลากรและนักเรียน',
@@ -113,7 +120,7 @@ const featureGroups = [
 
 const dbGroups = [
     { label: 'เนื้อหา', tables: ['news', 'news_categories', 'gallery_albums', 'gallery_photos', 'events', 'documents', 'document_categories'] },
-    { label: 'บุคลากร', tables: ['administrators', 'staff', 'students', 'attendance_records', 'student_council', 'student_achievements', 'student_activities', 'student_stats', 'grade_data'] },
+    { label: 'บุคลากร', tables: ['administrators', 'staff', 'students', 'attendance_records', 'student_council', 'student_achievements', 'student_activities', 'student_stats', 'grade_data', 'score_records', 'conduct_scores'] },
     { label: 'บริการ', tables: ['admissions', 'contact_messages', 'waste_categories', 'waste_transactions', 'curriculum_programs', 'curriculum_activities', 'faq', 'email_subscribers'] },
     { label: 'สารบรรณ', tables: ['incoming_letters', 'outgoing_letters', 'orders_announcements', 'meetings'] },
     { label: 'HR', tables: ['leave_requests', 'training_records', 'pa_assessments'] },
@@ -136,7 +143,7 @@ const roadmap = [
     // 🔔 Communication & Integration
     { icon: '💬', title: 'In-app Chat (Teacher ↔ Parent)', desc: 'แชทภายในเว็บ realtime + typing indicator + read receipts' },
     { icon: '📲', title: 'PWA + Push Notifications', desc: 'ติดตั้งเป็นแอปบนมือถือ + Browser push notifications เรียบทุกแพลตฟอร์ม' },
-    { icon: '📱', title: 'LINE Notify Integration', desc: 'แจ้งผ่าน LINE เมื่อมีข่าว/กิจกรรม/ลูกขาดเรียน — เชื่อม LINE Login ผู้ปกครอง' },
+    { icon: '📱', title: 'LINE Messaging API Integration', desc: 'แจ้งผ่าน LINE เมื่อมีข่าว/กิจกรรม/ลูกขาดเรียน (LINE Notify ปิดบริการ เม.ย. 2025 แล้ว — ใช้ Messaging API แทน)' },
     { icon: '📨', title: 'SMS Gateway (จริง)', desc: 'ส่ง SMS ผ่าน provider จริง (ThaiBulkSMS/Twilio) — ไม่ต้อง copy template แล้ว' },
     { icon: '🔗', title: 'Parent Multi-child Linking', desc: 'ผู้ปกครอง 1 account รองรับลูกหลายคน พร้อม child switcher ด้านบน' },
     { icon: '🌐', title: 'Multi-language (TH/EN)', desc: 'Toggle ภาษาไทย/อังกฤษ รองรับ i18n ทั้งเว็บ + รองรับผู้ปกครอง expat' },
@@ -187,7 +194,7 @@ const sprintPlan = [
         items: [
             { icon: '💬', title: 'In-app Chat (Teacher ↔ Parent)', effort: '4 วัน', stack: 'Supabase Realtime + messages table' },
             { icon: '📲', title: 'PWA + Push Notifications', effort: '2 วัน', stack: 'vite-plugin-pwa + Web Push API' },
-            { icon: '📱', title: 'LINE Notify Integration', effort: '2 วัน', stack: 'LINE Notify API + Edge Function' },
+            { icon: '📱', title: 'LINE Messaging API Integration', effort: '2 วัน', stack: 'LINE Messaging API + Edge Function (LINE Notify ปิดแล้ว เม.ย. 2025)' },
             { icon: '📨', title: 'SMS Gateway (จริง)', effort: '2 วัน', stack: 'ThaiBulkSMS/Twilio + Edge Function' },
             { icon: '🔗', title: 'Parent Multi-child Linking', effort: '2 วัน', stack: 'user_children junction table + child switcher' },
         ],
@@ -463,8 +470,8 @@ const exportData = {
     techStack,
     featureGroups: featureGroups.map(g => ({ category: g.label, features: g.features })),
     database: {
-        totalTables: '45+',
-        migrations: 24,
+        totalTables: '47+',
+        migrations: 23,
         engine: 'PostgreSQL via Supabase',
         security: 'RLS enabled',
         groups: dbGroups,
@@ -498,8 +505,8 @@ const generateMarkdown = () => {
     });
 
     lines.push('\n## ฐานข้อมูล');
-    lines.push(`- **Tables**: 45+`);
-    lines.push(`- **Migrations**: 24`);
+    lines.push(`- **Tables**: 47+`);
+    lines.push(`- **Migrations**: 23`);
     lines.push(`- **Engine**: PostgreSQL via Supabase`);
     lines.push(`- **Security**: RLS enabled`);
     dbGroups.forEach(g => {
@@ -744,8 +751,8 @@ export const SystemOverview = () => {
                 </CardHeader>
                 <CardContent>
                     <div className="flex gap-3 mb-4">
-                        <div className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">45+ Tables</div>
-                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">24 Migrations</div>
+                        <div className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">47+ Tables</div>
+                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">23 Migrations</div>
                         <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">PostgreSQL via Supabase</div>
                         <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">RLS enabled</div>
                     </div>
