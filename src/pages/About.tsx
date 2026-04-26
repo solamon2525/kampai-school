@@ -133,6 +133,56 @@ const About = () => {
           </div>
         </section>
 
+        {/* Philosophy · Motto · Identity · Colors */}
+        <section className="py-10 bg-secondary/20 border-y border-border">
+          <div className="container mx-auto px-4">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {/* ปรัชญา */}
+              <div className="text-center p-6 bg-card rounded-2xl shadow-sm border border-border hover:shadow-md transition-shadow">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">📖</span>
+                </div>
+                <div className="text-xs font-bold text-primary uppercase tracking-widest mb-2">ปรัชญาโรงเรียน</div>
+                <p className="text-lg font-bold text-foreground mb-1 leading-snug">
+                  {settings.school_philosophy || 'นัตถิ ปัญญา สมา อาภา'}
+                </p>
+                <p className="text-sm text-muted-foreground italic">
+                  {settings.school_philosophy_translation || 'แสงสว่างเสมอด้วยปัญญาไม่มี'}
+                </p>
+              </div>
+              {/* คำขวัญ */}
+              <div className="text-center p-6 bg-card rounded-2xl shadow-sm border border-border hover:shadow-md transition-shadow">
+                <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">🎯</span>
+                </div>
+                <div className="text-xs font-bold text-primary uppercase tracking-widest mb-2">คำขวัญโรงเรียน</div>
+                <p className="text-2xl font-bold text-foreground leading-snug">
+                  {settings.school_motto || 'เรียนดี มีคุณธรรม'}
+                </p>
+              </div>
+              {/* อัตลักษณ์ */}
+              <div className="text-center p-6 bg-card rounded-2xl shadow-sm border border-border hover:shadow-md transition-shadow">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">✨</span>
+                </div>
+                <div className="text-xs font-bold text-primary uppercase tracking-widest mb-2">อัตลักษณ์โรงเรียน</div>
+                <p className="text-2xl font-bold text-foreground leading-snug">
+                  {settings.school_identity || 'ยิ้มง่าย ไหว้สวย'}
+                </p>
+              </div>
+              {/* สีประจำโรงเรียน */}
+              <div className="text-center p-6 bg-card rounded-2xl shadow-sm border border-border hover:shadow-md transition-shadow">
+                <div className="flex justify-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-full bg-white border-2 border-border shadow" title="สีขาว" />
+                  <div className="w-10 h-10 rounded-full bg-primary shadow" title="สีเขียว" />
+                </div>
+                <div className="text-xs font-bold text-primary uppercase tracking-widest mb-2">สีประจำโรงเรียน</div>
+                <p className="text-xl font-bold text-foreground">สีขาว และสีเขียว</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Stats Section */}
         <section className="py-16 bg-primary">
           <div className="container mx-auto px-4">
@@ -149,6 +199,83 @@ const About = () => {
                   <div className="text-primary-foreground/80">{stat.label}</div>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* GPS-Model */}
+        <section className="section-padding bg-background">
+          <div className="container mx-auto px-4">
+            <div className="text-center max-w-2xl mx-auto mb-12">
+              <span className="inline-block text-accent font-semibold mb-3 uppercase tracking-widest text-sm">นวัตกรรมการบริหาร</span>
+              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">GPS-Model</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                โมเดลที่นำทางไปสู่จุดหมายและความสำเร็จ บนพื้นฐาน Good Governance ·{' '}
+                Participation Management · System Approach
+              </p>
+            </div>
+
+            {/* G · P · S cards */}
+            <div className="grid md:grid-cols-3 gap-6 mb-10">
+              {[
+                {
+                  letter: 'G',
+                  bg: 'bg-primary',
+                  title: 'Good & Goal',
+                  subtitle: 'ดีและมีเป้าหมาย',
+                  desc: 'บริหารงานตามหลักธรรมาภิบาล (Good Governance) มุ่งเน้นผลลัพธ์ที่ดีและมีเป้าหมายที่ชัดเจนในทุกมิติของการพัฒนาโรงเรียน',
+                },
+                {
+                  letter: 'P',
+                  bg: 'bg-accent',
+                  title: 'Participation & Performance',
+                  subtitle: 'มีส่วนร่วมและมีผลงาน',
+                  desc: 'บริหารแบบมีส่วนร่วม (Participation Management) เปิดโอกาสให้ทุกภาคส่วนมีส่วนในการพัฒนา สร้างผลงานที่วัดผลได้',
+                },
+                {
+                  letter: 'S',
+                  bg: 'bg-primary/70',
+                  title: 'System & Sustain',
+                  subtitle: 'เป็นระบบและยั่งยืน',
+                  desc: 'ใช้วิธีการเชิงระบบ (System Approach) ในการดำเนินงาน เพื่อพัฒนาอย่างต่อเนื่องและนำไปสู่ความยั่งยืน',
+                },
+              ].map(({ letter, bg, title, subtitle, desc }) => (
+                <div key={letter} className="bg-card rounded-2xl p-8 shadow-md border border-border text-center hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                  <div className={`w-16 h-16 rounded-2xl ${bg} text-white flex items-center justify-center text-3xl font-black mx-auto mb-5 shadow-md`}>
+                    {letter}
+                  </div>
+                  <h3 className="text-lg font-bold text-foreground mb-1">{title}</h3>
+                  <p className="text-sm text-primary font-semibold mb-3">{subtitle}</p>
+                  <p className="text-muted-foreground text-sm leading-relaxed">{desc}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* PDCA */}
+            <div className="bg-secondary/40 rounded-2xl p-8 border border-border">
+              <div className="text-center mb-6">
+                <span className="text-xs font-bold uppercase tracking-widest text-primary">วงจรคุณภาพ</span>
+                <h3 className="text-2xl font-bold text-foreground mt-1">PDCA Cycle</h3>
+                <p className="text-muted-foreground text-sm mt-2 max-w-xl mx-auto">
+                  ขับเคลื่อน GPS-Model ด้วยวงจรคุณภาพ PDCA เพื่อแก้ปัญหาและปรับปรุงคุณภาพการดำเนินงานอย่างต่อเนื่อง
+                </p>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
+                {[
+                  { letter: 'P', label: 'Plan', desc: 'วางแผน' },
+                  { letter: 'D', label: 'Do', desc: 'ปฏิบัติ' },
+                  { letter: 'C', label: 'Check', desc: 'ตรวจสอบ' },
+                  { letter: 'A', label: 'Act', desc: 'ปรับปรุง' },
+                ].map(({ letter, label, desc }) => (
+                  <div key={letter} className="text-center p-4 bg-card rounded-xl border border-border">
+                    <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center text-xl font-black mx-auto mb-2 shadow-sm">
+                      {letter}
+                    </div>
+                    <div className="font-bold text-foreground">{label}</div>
+                    <div className="text-sm text-muted-foreground">{desc}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>

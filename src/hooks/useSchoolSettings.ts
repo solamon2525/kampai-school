@@ -90,6 +90,12 @@ export interface SchoolSettings {
     quicklinks_json: string;
     obec_links_visible: string;
 
+    // ปรัชญา คำขวัญ อัตลักษณ์ (v1.7.2)
+    school_philosophy: string;
+    school_philosophy_translation: string;
+    school_motto: string;
+    school_identity: string;
+
     // About page cards
     school_excellence: string;
     vision_image_url: string;
@@ -159,6 +165,12 @@ const defaultSettings: SchoolSettings = {
     academic_calendar_url: '',
     academic_year: '2568',
     social_links: [],
+
+    // ปรัชญา คำขวัญ อัตลักษณ์ (v1.7.2)
+    school_philosophy: 'นัตถิ ปัญญา สมา อาภา',
+    school_philosophy_translation: 'แสงสว่างเสมอด้วยปัญญาไม่มี',
+    school_motto: 'เรียนดี มีคุณธรรม',
+    school_identity: 'ยิ้มง่าย ไหว้สวย',
 
     // About page cards
     school_excellence: 'มุ่งมั่นสู่ความเป็นเลิศในทุกด้าน ทั้งวิชาการ กีฬา ศิลปะ และการพัฒนาบุคลิกภาพของผู้เรียน',
