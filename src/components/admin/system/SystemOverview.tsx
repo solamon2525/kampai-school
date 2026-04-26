@@ -41,7 +41,7 @@ const techStack = {
         { name: 'React Hook Form + Zod', desc: 'Form & Validation' },
         { name: 'Recharts', desc: 'Charts & Analytics' },
         { name: 'Framer Motion', desc: 'Animations' },
-        { name: 'Puck v0.20', desc: 'Visual Page Builder' },
+        { name: 'Custom PageBuilder', desc: 'Visual Page Builder (text/image/banner/stats/map blocks)' },
         { name: 'dnd-kit', desc: 'Drag & Drop' },
         { name: 'Uppy', desc: 'File Upload UI' },
         { name: 'React Quill', desc: 'Rich Text Editor' },
@@ -102,7 +102,7 @@ const featureGroups = [
     {
         label: 'ระบบ/เครื่องมือ',
         color: 'bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-200 dark:border-gray-800',
-        features: ['Visual Page Builder (Puck)', 'Analytics ดูสถิติผู้เข้าชม (Device/Peak Hours/Referrer)', 'ตั้งค่าโรงเรียน (100+ fields)', 'User Roles & Permissions (admin/teacher/parent/viewer)', 'จัดการเว็บไซต์ผ่าน Admin', 'Export CSV + Print รายงาน', 'Notification Center (Realtime)', 'RLS Hardened (45 tables)'],
+        features: ['Custom Page Builder (About/Contact — text/image/banner/stats/map)', 'Analytics ดูสถิติผู้เข้าชม (Device/Peak Hours/Referrer)', 'ตั้งค่าโรงเรียน (100+ fields)', 'User Roles & Permissions (admin/teacher/parent/viewer)', 'จัดการเว็บไซต์ผ่าน Admin', 'Export CSV + Print รายงาน', 'Notification Center (Realtime)', 'RLS Hardened (45 tables)'],
     },
     {
         label: 'Portal ครู/ผู้ปกครอง',
@@ -209,8 +209,20 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.6.1 (Dev Workflow — CLAUDE.md + Second Brain Integration)',
+        version: 'v1.7.0 (Admin Audit Remediation)',
         date: 'ล่าสุด',
+        badge: 'bg-violet-700',
+        items: [
+            'Phase 1 — Dead Code Removal: ลบ Puck PageBuilder (PageBuilder.tsx + puck-config.tsx + @measured/puck dependency) + ลบ contact_fax ออกจาก hook (ไม่มี UI ใช้เลย)',
+            'Phase 2 — Hero Slides Consolidation: ย้าย slide_interval setting ไปอยู่ใน HeroSlidesManagement (canonical home) + ลบ duplicate CRD section ออกจาก SettingsManagement (~134 lines) + เพิ่ม shortcut link แทน',
+            'Phase 3 — SettingsManagement Decomposition: แยก 1,068-line God component เป็น 6 sub-sections (GeneralSection, HeroSection, VisionMissionSection, AboutCurriculumSection, ContactSection, FooterSection) — SettingsManagement เหลือ ~115 lines เป็น coordinator เท่านั้น',
+            'Phase 4 — Custom PageBuilder: สร้าง PageBuilderManager ใหม่ทั้งหมด (zone-based DnD, 5 block types: text/image/banner/stats/map) + PageBlockRenderer สำหรับ public pages + เชื่อม About/Contact pages ให้ render custom blocks',
+            'Lesson Learned: grep ก่อนลบ field เสมอ — google_maps_embed ที่ดูเหมือน dead แต่ Contact.tsx ใช้อยู่จริง',
+        ],
+    },
+    {
+        version: 'v1.6.1 (Dev Workflow — CLAUDE.md + Second Brain Integration)',
+        date: '',
         badge: 'bg-slate-600',
         items: [
             'เพิ่ม CLAUDE.md ที่ root project: รวมกฎ coding 8 หมวด (data access, styling, forms, auth, RLS, pages, naming, shadcn) — ให้ Claude session ใหม่ทำงานตาม convention ได้ทันที',
