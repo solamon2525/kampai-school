@@ -167,29 +167,29 @@ const Students = () => {
               <table className="w-full bg-card rounded-2xl shadow-md border border-border overflow-hidden">
                 <thead className="bg-primary text-primary-foreground">
                   <tr>
-                    <th className="px-6 py-4 text-left font-semibold">ระดับชั้น</th>
-                    <th className="px-6 py-4 text-center font-semibold">จำนวนห้อง</th>
-                    <th className="px-6 py-4 text-center font-semibold">นักเรียนชาย</th>
-                    <th className="px-6 py-4 text-center font-semibold">นักเรียนหญิง</th>
-                    <th className="px-6 py-4 text-center font-semibold">รวม</th>
+                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left font-semibold text-sm sm:text-base">ระดับชั้น</th>
+                    <th className="px-2 sm:px-6 py-3 sm:py-4 text-center font-semibold text-sm sm:text-base">ห้อง</th>
+                    <th className="px-2 sm:px-6 py-3 sm:py-4 text-center font-semibold text-sm sm:text-base">ชาย</th>
+                    <th className="px-2 sm:px-6 py-3 sm:py-4 text-center font-semibold text-sm sm:text-base">หญิง</th>
+                    <th className="px-2 sm:px-6 py-3 sm:py-4 text-center font-semibold text-sm sm:text-base">รวม</th>
                   </tr>
                 </thead>
                 <tbody>
                   {gradeData.map((grade, index) => (
                     <tr key={index} className="border-t border-border hover:bg-secondary/50 transition-colors">
-                      <td className="px-6 py-4 font-medium text-foreground">{grade.level}</td>
-                      <td className="px-6 py-4 text-center text-muted-foreground">{grade.rooms}</td>
-                      <td className="px-6 py-4 text-center text-blue-500 font-semibold">{grade.boys}</td>
-                      <td className="px-6 py-4 text-center text-pink-500 font-semibold">{grade.girls}</td>
-                      <td className="px-6 py-4 text-center text-primary font-bold">{grade.students}</td>
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 font-medium text-foreground text-sm sm:text-base">{grade.level}</td>
+                      <td className="px-2 sm:px-6 py-3 sm:py-4 text-center text-muted-foreground text-sm sm:text-base">{grade.rooms}</td>
+                      <td className="px-2 sm:px-6 py-3 sm:py-4 text-center text-blue-500 font-semibold text-sm sm:text-base">{grade.boys}</td>
+                      <td className="px-2 sm:px-6 py-3 sm:py-4 text-center text-pink-500 font-semibold text-sm sm:text-base">{grade.girls}</td>
+                      <td className="px-2 sm:px-6 py-3 sm:py-4 text-center text-primary font-bold text-sm sm:text-base">{grade.students}</td>
                     </tr>
                   ))}
                   <tr className="bg-secondary/50 font-bold">
-                    <td className="px-6 py-4 text-foreground">รวมทั้งหมด</td>
-                    <td className="px-6 py-4 text-center text-muted-foreground">{gradeData.reduce((sum, g) => sum + (g.rooms || 0), 0)}</td>
-                    <td className="px-6 py-4 text-center text-blue-500">{gradeData.reduce((sum, g) => sum + (g.boys || 0), 0)}</td>
-                    <td className="px-6 py-4 text-center text-pink-500">{gradeData.reduce((sum, g) => sum + (g.girls || 0), 0)}</td>
-                    <td className="px-6 py-4 text-center text-primary">{gradeData.reduce((sum, g) => sum + (g.students || 0), 0)}</td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 text-foreground text-sm sm:text-base">รวมทั้งหมด</td>
+                    <td className="px-2 sm:px-6 py-3 sm:py-4 text-center text-muted-foreground text-sm sm:text-base">{gradeData.reduce((sum, g) => sum + (g.rooms || 0), 0)}</td>
+                    <td className="px-2 sm:px-6 py-3 sm:py-4 text-center text-blue-500 text-sm sm:text-base">{gradeData.reduce((sum, g) => sum + (g.boys || 0), 0)}</td>
+                    <td className="px-2 sm:px-6 py-3 sm:py-4 text-center text-pink-500 text-sm sm:text-base">{gradeData.reduce((sum, g) => sum + (g.girls || 0), 0)}</td>
+                    <td className="px-2 sm:px-6 py-3 sm:py-4 text-center text-primary text-sm sm:text-base">{gradeData.reduce((sum, g) => sum + (g.students || 0), 0)}</td>
                   </tr>
                 </tbody>
               </table>

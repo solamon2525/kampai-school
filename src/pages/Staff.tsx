@@ -686,13 +686,12 @@ const Staff = () => {
       <main>
         {/* ── Hero ─────────────────────────────────────────────────── */}
         <header
-          className="relative overflow-hidden"
+          className="relative overflow-hidden flex items-center px-6 sm:px-10 py-14 sm:py-20"
           style={{
             background: `
               radial-gradient(ellipse at top right, oklch(55% 0.18 255 / .35), transparent 60%),
               linear-gradient(135deg, var(--sd-dk) 0%, var(--sd-mid) 70%, var(--sd-base) 100%)`,
-            padding: '64px 40px 56px',
-            display: 'flex', alignItems: 'center', gap: 28,
+            gap: 28,
           }}
         >
           <div className="sd-hero-grid" />
@@ -714,8 +713,8 @@ const Staff = () => {
         </header>
 
         {/* ── Stats strip ──────────────────────────────────────────── */}
-        <div className="bg-card border-b" style={{ padding: '20px 40px' }}>
-          <div className="sd-stat-grid grid gap-0" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+        <div className="bg-card border-b px-4 sm:px-10 py-5">
+          <div className="sd-stat-grid grid grid-cols-2 sm:grid-cols-4 gap-0">
             {[
               { num: totalAll, label: 'ครูและบุคลากร' },
               { num: administrators.length, label: 'ผู้บริหาร' },
@@ -738,7 +737,7 @@ const Staff = () => {
         </div>
 
         {/* ── Toolbar ──────────────────────────────────────────────── */}
-        <div className="bg-card border-b sticky top-[68px] z-40" style={{ padding: '12px 24px' }}>
+        <div className="bg-card border-b sticky top-[68px] z-40 px-4 sm:px-6 py-3">
           <div className="flex items-center gap-3 flex-wrap max-w-screen-xl mx-auto">
             {/* Search */}
             <div className="flex items-center gap-2 flex-1 min-w-48 max-w-xs rounded-full border px-4 py-2 bg-muted/40 focus-within:border-primary transition-colors">
@@ -779,7 +778,7 @@ const Staff = () => {
         {loading ? (
           <div className="py-32 text-center text-muted-foreground">กำลังโหลด…</div>
         ) : (
-          <div className="max-w-screen-xl mx-auto" style={{ display: 'grid', gridTemplateColumns: '188px 1fr', gap: 32, padding: '36px 24px 48px', alignItems: 'start' }}>
+          <div className="max-w-screen-xl mx-auto grid grid-cols-1 lg:grid-cols-[188px_1fr] gap-8 px-4 sm:px-6 py-9 pb-12 items-start">
 
             {/* ── Jump nav (sidebar) ── */}
             <aside className="hidden lg:block sticky" style={{ top: 140, background: 'hsl(var(--card))', borderRadius: 14, padding: 16, boxShadow: 'var(--sd-shd)' }}>
