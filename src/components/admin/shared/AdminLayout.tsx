@@ -41,9 +41,10 @@ import {
     Award,
     Info,
     Menu,
-    LayoutTemplate,
     ExternalLink,
     Sparkles,
+    MessageCircle,
+    Handshake,
 } from 'lucide-react';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import { NotificationBell } from './NotificationBell';
@@ -62,6 +63,8 @@ const menuItems: MenuItem[] = [
     { type: 'section', label: 'เว็บไซต์' },
     { type: 'item', id: 'settings', label: 'ตั้งค่า', icon: Settings, path: '/admin/dashboard/settings', adminOnly: true },
     { type: 'item', id: 'hero-slides', label: 'Hero Slides', icon: SlidersHorizontal, path: '/admin/dashboard/hero-slides', adminOnly: true },
+    { type: 'item', id: 'testimonials', label: 'Testimonials', icon: MessageCircle, path: '/admin/dashboard/testimonials', adminOnly: true },
+    { type: 'item', id: 'partners', label: 'พันธมิตร', icon: Handshake, path: '/admin/dashboard/partners', adminOnly: true },
     { type: 'item', id: 'news', label: 'ข่าวสาร', icon: Newspaper, path: '/admin/dashboard/news' },
     { type: 'item', id: 'gallery', label: 'แกลเลอรี่', icon: Image, path: '/admin/dashboard/gallery', adminOnly: true },
     { type: 'item', id: 'events', label: 'ปฏิทิน', icon: Calendar, path: '/admin/dashboard/events' },

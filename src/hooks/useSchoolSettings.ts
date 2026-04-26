@@ -84,6 +84,12 @@ export interface SchoolSettings {
     homepage_layout_raw: string;
     homepage_mobile_layout: string;
 
+    // Homepage Content (v1.7.1 — block-level CMS)
+    intro_video_url: string;
+    intro_video_thumbnail: string;
+    quicklinks_json: string;
+    obec_links_visible: string;
+
     // About page cards
     school_excellence: string;
     vision_image_url: string;
@@ -177,6 +183,12 @@ const defaultSettings: SchoolSettings = {
     homepage_right_widgets: '["categories","gallery","services","social","stats"]',
     homepage_layout_raw: '',
     homepage_mobile_layout: '',
+
+    // Homepage Content (v1.7.1 — block-level CMS)
+    intro_video_url: '',
+    intro_video_thumbnail: '',
+    quicklinks_json: '',
+    obec_links_visible: '',
 };
 
 const CACHE_KEY = 'school_settings_cache';

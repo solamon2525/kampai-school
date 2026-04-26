@@ -13,6 +13,13 @@ interface Admin {
   photo_url: string | null;
 }
 
+const DUMMY_PRINCIPAL: Admin = {
+  id: 'dummy-principal',
+  name: 'นายมกรธวัช แสนสง่า',
+  position: 'ผู้อำนวยการโรงเรียน',
+  photo_url: null,
+};
+
 const sidebarMenu = [
   { label: 'ประวัติโรงเรียน', href: '/about', icon: Info },
   { label: 'วิสัยทัศน์ / ปรัชญา', href: '/about', icon: BookOpen },
@@ -38,7 +45,7 @@ export const useHomeLeftBlocks = () => {
       .limit(1)
       .single()
       .then(({ data }) => {
-        if (data) setPrincipal(data as Admin);
+        setPrincipal(data ? (data as Admin) : DUMMY_PRINCIPAL);
       });
   }, []);
 

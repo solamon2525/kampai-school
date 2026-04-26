@@ -13,6 +13,7 @@ import { VisionMissionSection } from './sections/VisionMissionSection';
 import { AboutCurriculumSection } from './sections/AboutCurriculumSection';
 import { ContactSection } from './sections/ContactSection';
 import { FooterSection } from './sections/FooterSection';
+import { HomepageContentSection } from './sections/HomepageContentSection';
 
 export const SettingsManagement = () => {
     const [settings, setSettings] = useState<Record<string, string>>({});
@@ -128,6 +129,7 @@ export const SettingsManagement = () => {
                 <HeroSection {...sectionProps} />
                 <VisionMissionSection {...sectionProps} />
                 <AboutCurriculumSection {...sectionProps} />
+                <HomepageContentSection {...sectionProps} />
                 <ContactSection {...sectionProps} />
                 <FooterSection {...sectionProps} />
 

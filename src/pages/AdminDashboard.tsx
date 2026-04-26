@@ -37,6 +37,8 @@ const PAManagement = lazy(() => import('@/components/admin/hr/PAManagement'));
 const AcademicManagement = lazy(() => import('@/components/admin/academic/AcademicManagement').then(m => ({ default: m.AcademicManagement })));
 const SystemOverview = lazy(() => import('@/components/admin/system/SystemOverview').then(m => ({ default: m.SystemOverview })));
 const HomepageManager = lazy(() => import('@/components/admin/homepage/HomepageManager').then(m => ({ default: m.HomepageManager })));
+const TestimonialsManagement = lazy(() => import('@/components/admin/homepage/TestimonialsManagement').then(m => ({ default: m.TestimonialsManagement })));
+const PartnersManagement = lazy(() => import('@/components/admin/homepage/PartnersManagement').then(m => ({ default: m.PartnersManagement })));
 const NotificationsManagement = lazy(() => import('@/components/admin/notifications/NotificationsManagement').then(m => ({ default: m.NotificationsManagement })));
 
 // Loading spinner สำหรับ lazy-loaded admin pages
@@ -75,6 +77,8 @@ const AdminDashboard = () => {
             } />
             {/* เว็บไซต์ */}
             <Route path="homepage-layout" element={<HomepageManager />} />
+            <Route path="testimonials" element={<TestimonialsManagement />} />
+            <Route path="partners" element={<PartnersManagement />} />
             <Route path="settings" element={<SettingsManagement />} />
             <Route path="hero-slides" element={<HeroSlidesManagement />} />
             <Route path="news" element={<NewsManagement />} />

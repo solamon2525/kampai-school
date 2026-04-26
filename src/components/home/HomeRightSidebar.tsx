@@ -26,6 +26,38 @@ const RANK_COLORS = [
   'from-purple-400 to-violet-500',
 ];
 
+const DUMMY_WASTE_TOP5: WasteSummary[] = [
+  { student_id: 'dummy-w1', student_name: 'ด.ช.อภิวัฒน์ ใจดี',  photo_url: null, total_amount: 250, total_weight: 12.5, total_transactions: 8 },
+  { student_id: 'dummy-w2', student_name: 'ด.ญ.พิมพ์ชนก อ่อนหวาน', photo_url: null, total_amount: 220, total_weight: 11.0, total_transactions: 7 },
+  { student_id: 'dummy-w3', student_name: 'ด.ช.กิตติพงศ์ มั่นคง',  photo_url: null, total_amount: 180, total_weight: 9.0,  total_transactions: 6 },
+  { student_id: 'dummy-w4', student_name: 'ด.ญ.ณัฐนิชา สุขใจ',    photo_url: null, total_amount: 150, total_weight: 7.5,  total_transactions: 5 },
+  { student_id: 'dummy-w5', student_name: 'ด.ช.ธนกฤต ขยันเรียน',  photo_url: null, total_amount: 120, total_weight: 6.0,  total_transactions: 4 },
+];
+
+const DUMMY_GALLERY = [
+  'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=400',
+  'https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=400',
+  'https://images.unsplash.com/photo-1546410531-fa4ab3ba45cb?q=80&w=400',
+  'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=400',
+  'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=400',
+  'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=400',
+];
+
+const DUMMY_DOCS_RIGHT = [
+  { id: 'dummy-rd1', title: 'คู่มือนักเรียนและผู้ปกครอง',  category: 'ทั่วไป',         file_url: '#' },
+  { id: 'dummy-rd2', title: 'ใบสมัครเรียน ปี 2568',         category: 'รับสมัคร',       file_url: '#' },
+  { id: 'dummy-rd3', title: 'ปฏิทินวิชาการประจำปี',          category: 'วิชาการ',        file_url: '#' },
+  { id: 'dummy-rd4', title: 'แบบฟอร์มใบลากิจ/ลาป่วย',        category: 'เอกสารนักเรียน', file_url: '#' },
+  { id: 'dummy-rd5', title: 'ระเบียบการแต่งกายของนักเรียน', category: 'ทั่วไป',         file_url: '#' },
+];
+
+const DUMMY_SOCIAL = [
+  { platform: 'facebook',  url: '#' },
+  { platform: 'youtube',   url: '#' },
+  { platform: 'instagram', url: '#' },
+  { platform: 'line',      url: '#' },
+];
+
 const WasteBankWidget = () => {
   const [summaries, setSummaries] = useState<WasteSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -35,7 +67,8 @@ const WasteBankWidget = () => {
       .from('waste_student_summary')
       .select('student_id, student_name, photo_url, total_amount, total_weight, total_transactions')
       .then(({ data }) => {
-        if (data) setSummaries(data as WasteSummary[]);
+        if (data && data.length > 0) setSummaries(data as WasteSummary[]);
+        else setSummaries(DUMMY_WASTE_TOP5);
         setIsLoading(false);
       });
   }, []);
@@ -118,36 +151,53 @@ const categoryLinks = [
   { label: 'ประกาศจัดซื้อจัดจ้าง', href: '/news', color: 'text-red-700', dot: 'bg-red-500' },
 ];
 
-// Simple visitor counter using localStorage
-const getVisitorStats = () => {
-  const today = new Date().toDateString();
-  const stored = JSON.parse(localStorage.getItem('visitor_stats') || '{}');
+// Real visitor counter from page_views table (with localStorage cache fallback)
+interface VisitorStats {
+  today: number;
+  yesterday: number;
+  thisWeek: number;
+  thisMonth: number;
+  thisYear: number;
+  total: number;
+}
 
-  if (stored.date !== today) {
-    stored.date = today;
-    stored.today = (stored.today || 0) + 1;
-    stored.yesterday = stored.todayCount || 0;
-    stored.todayCount = 1;
-  } else {
-    stored.todayCount = (stored.todayCount || 0) + 1;
-  }
-  stored.total = (stored.total || 0) + 1;
-  stored.month = (stored.month || 0) + 1;
-  localStorage.setItem('visitor_stats', JSON.stringify(stored));
+const fetchVisitorStats = async (): Promise<VisitorStats> => {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+  const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1).toISOString();
+  const weekAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7).toISOString();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+  const yearStart = new Date(now.getFullYear(), 0, 1).toISOString();
+
+  const queries = await Promise.all([
+    supabase.from('page_views').select('*', { count: 'exact', head: true }).gte('created_at', today),
+    supabase.from('page_views').select('*', { count: 'exact', head: true }).gte('created_at', yesterday).lt('created_at', today),
+    supabase.from('page_views').select('*', { count: 'exact', head: true }).gte('created_at', weekAgo),
+    supabase.from('page_views').select('*', { count: 'exact', head: true }).gte('created_at', monthStart),
+    supabase.from('page_views').select('*', { count: 'exact', head: true }).gte('created_at', yearStart),
+    supabase.from('page_views').select('*', { count: 'exact', head: true }),
+  ]);
+
   return {
-    today: stored.todayCount || 1,
-    yesterday: stored.yesterday || 0,
-    thisWeek: Math.floor((stored.total || 1) * 0.15),
-    thisMonth: stored.month || 1,
-    thisYear: Math.floor((stored.total || 1) * 0.6),
-    total: stored.total || 1,
+    today: queries[0].count ?? 0,
+    yesterday: queries[1].count ?? 0,
+    thisWeek: queries[2].count ?? 0,
+    thisMonth: queries[3].count ?? 0,
+    thisYear: queries[4].count ?? 0,
+    total: queries[5].count ?? 0,
   };
 };
 
 export const useHomeRightBlocks = () => {
   const { settings } = useSchoolSettings();
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
-  const [visitorStats] = useState(() => getVisitorStats());
+  const [visitorStats, setVisitorStats] = useState<VisitorStats>({ today: 0, yesterday: 0, thisWeek: 0, thisMonth: 0, thisYear: 0, total: 0 });
+
+  useEffect(() => {
+    fetchVisitorStats().then(setVisitorStats).catch(() => {
+      // Silent fallback to zeros if page_views unavailable
+    });
+  }, []);
   const [documents, setDocuments] = useState<{ id: string; title: string; category: string | null; file_url: string }[]>([]);
 
   useEffect(() => {
@@ -160,7 +210,8 @@ export const useHomeRightBlocks = () => {
       .order('created_at', { ascending: false })
       .limit(6)
       .then(({ data }) => {
-        if (data) setGalleryImages(data.map((n: any) => n.cover_image_url).filter(Boolean));
+        const images = data ? data.map((n: any) => n.cover_image_url).filter(Boolean) : [];
+        setGalleryImages(images.length > 0 ? images : DUMMY_GALLERY);
       });
 
     // Fetch documents
@@ -170,7 +221,9 @@ export const useHomeRightBlocks = () => {
       .eq('is_active', true)
       .order('created_at', { ascending: false })
       .limit(5)
-      .then(({ data }) => { if (data) setDocuments(data); });
+      .then(({ data }) => {
+        setDocuments(data && data.length > 0 ? data : DUMMY_DOCS_RIGHT);
+      });
   }, []);
 
   const getSocialIcon = (platform: string) => {
@@ -204,7 +257,7 @@ export const useHomeRightBlocks = () => {
     </div>
   );
 
-  const galleryWidget = galleryImages.length > 0 ? (
+  const galleryWidget = (
     <motion.div
       key="gallery"
       initial="hidden"
@@ -231,7 +284,7 @@ export const useHomeRightBlocks = () => {
         </Link>
       </div>
     </motion.div>
-  ) : null;
+  );
 
   const servicesWidget = (
     <div key="services" className="flex flex-col gap-2">
@@ -256,11 +309,15 @@ export const useHomeRightBlocks = () => {
     </div>
   );
 
-  const socialWidget = settings.social_links && settings.social_links.length > 0 ? (
+  const socialLinksToShow = settings.social_links && settings.social_links.length > 0
+    ? settings.social_links
+    : DUMMY_SOCIAL;
+  const socialIsDummy = !(settings.social_links && settings.social_links.length > 0);
+  const socialWidget = (
     <div key="social" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
       <div className="bg-purple-800 text-white text-xs font-semibold px-3 py-2">โซเชียลมีเดีย</div>
       <div className="p-3 flex flex-wrap gap-2">
-        {settings.social_links.map((link, i) => {
+        {socialLinksToShow.map((link, i) => {
           const { icon: Icon, color, label } = getSocialIcon(link.platform);
           return (
             <a key={i} href={link.url} target="_blank" rel="noopener noreferrer"
@@ -271,8 +328,11 @@ export const useHomeRightBlocks = () => {
           );
         })}
       </div>
+      {socialIsDummy && (
+        <div className="px-3 pb-2 text-[10px] text-gray-400">(ตัวอย่าง — ตั้งค่า URL ใน Admin)</div>
+      )}
     </div>
-  ) : null;
+  );
 
   const statsWidget = (
     <div key="stats" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
@@ -296,7 +356,7 @@ export const useHomeRightBlocks = () => {
     </div>
   );
 
-  const documentsWidget = documents.length > 0 ? (
+  const documentsWidget = (
     <div key="documents" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
       <div className="bg-purple-800 text-white text-xs font-semibold px-3 py-2 flex items-center gap-1.5">
         <FileText className="w-3.5 h-3.5" /> เอกสารล่าสุด
@@ -319,7 +379,7 @@ export const useHomeRightBlocks = () => {
         </Link>
       </div>
     </div>
-  ) : null;
+  );
 
   const widgetMap: Record<string, JSX.Element | null> = {
     categories: categoriesWidget,
