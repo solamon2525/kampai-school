@@ -62,6 +62,7 @@ const menuItems: MenuItem[] = [
     { type: 'item', id: 'dashboard', label: 'แดชบอร์ด', icon: LayoutDashboard, path: '/admin/dashboard' },
     { type: 'section', label: 'เว็บไซต์' },
     { type: 'item', id: 'settings', label: 'ตั้งค่า', icon: Settings, path: '/admin/dashboard/settings', adminOnly: true },
+    { type: 'item', id: 'theme', label: 'ธีมสี (Theme)', icon: Palette, path: '/admin/dashboard/theme', adminOnly: true },
     { type: 'item', id: 'hero-slides', label: 'Hero Slides', icon: SlidersHorizontal, path: '/admin/dashboard/hero-slides', adminOnly: true },
     { type: 'item', id: 'testimonials', label: 'Testimonials', icon: MessageCircle, path: '/admin/dashboard/testimonials', adminOnly: true },
     { type: 'item', id: 'partners', label: 'พันธมิตร', icon: Handshake, path: '/admin/dashboard/partners', adminOnly: true },

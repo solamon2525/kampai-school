@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { PortalProtectedRoute } from "./components/portal/PortalProtectedRoute";
+import { RuntimeThemeStyles } from "./components/theme/RuntimeThemeStyles";
 
 // หน้าแรกโหลดทันที (Critical path)
 import Index from "./pages/Index";
@@ -63,6 +64,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <MotionConfig reducedMotion="user">
     <TooltipProvider>
+      <RuntimeThemeStyles />
       <Toaster />
       <Sonner />
       <BrowserRouter>

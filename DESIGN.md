@@ -397,6 +397,40 @@ Font: **Sarabun** (Google Fonts, wght 100-800) สำหรับทั้งภ
 2. **ห้าม hardcode** — `bg-white`, `bg-black`, `text-black`, `text-white`, `bg-gray-*`, `border-gray-*`, สีใน hex
 3. **ห้ามสีต้องห้ามเด็ดขาด** บน frontend: `purple`, `violet`, `indigo`, `fuchsia`, `pink`, `magenta`, neon variants
 4. **Admin ใช้ admin palette** — `bg-[--admin-bg]`, `bg-[--admin-surface]`, `text-[--admin-text]` ฯลฯ
+5. **ห้าม gradient บน nav/header/announcement banner** — ใช้ **solid color เท่านั้น**
+   ```
+   ❌ <nav className="bg-gradient-to-r from-primary to-accent">     // ขอบ blend ดูเลอะ
+   ❌ <header className="bg-gradient-to-br from-primary via-primary/90 to-accent">
+   ❌ <div className="bg-gradient... text-white">📢 ประกาศ...</div>  // banner
+   ✅ <nav className="bg-primary text-primary-foreground">
+   ✅ <header className="bg-primary text-primary-foreground">
+   ✅ <div className="bg-accent text-accent-foreground">📢 ประกาศ...</div>
+   ```
+   Gradient ใช้ได้เฉพาะ:
+   - Image overlay (text legibility): `bg-gradient-to-t from-black/70 to-transparent`
+   - Image placeholder: `bg-gradient-to-br from-muted to-secondary`
+   - Decorative card thumbnail (ที่ไม่ใช่ navigation/header)
+
+### กฎ contrast เฉพาะสีเหลือง / accent อบอุ่น
+6. **`text-yellow-300` / `accent-soft` (#FFD874)** ใช้ได้เฉพาะบน:
+   - `bg-primary` (forest green) — contrast 9.5:1 ✅
+   - `bg-foreground` / dark surface — contrast > 8:1 ✅
+
+   **ห้ามใช้บน:**
+   - Gradient ที่มี white/light area — ตรงจุด white จะกลืนหายทันที ❌
+   - `bg-secondary` / `bg-muted` (light bg) — contrast < 1.8:1 fail ❌
+   - `bg-background` (white) — fail ❌
+
+### กฎ text-on-light-bg minimum
+7. **บน white/light bg ห้ามใช้ text เบาเกินไป**:
+   ```
+   ❌ text-gray-400 / text-gray-500       (เบา → อ่านยาก)
+   ❌ text-foreground/40 (opacity ต่ำเกิน)
+   ✅ text-foreground                     (default body)
+   ✅ text-muted-foreground               (#568165 — minimum สำหรับ secondary text)
+   ```
+   - Body text ต้อง weight ≥ 400, contrast ≥ 4.5:1
+   - Menu/link items ใช้ `font-medium` ขึ้นไปเพื่อเพิ่ม readability
 
 ### กฎ component
 5. **ไฟล์ใน `src/components/ui/`** (shadcn) ห้ามแก้ — ถ้าต้อง custom ให้ wrap component ใหม่
@@ -416,6 +450,62 @@ Font: **Sarabun** (Google Fonts, wght 100-800) สำหรับทั้งภ
 ### กฎภาษา
 14. **UI ภาษาไทยเป็นหลัก** — ตัวอย่าง placeholder, label, error message
 15. **Typography line-height** ≥ 1.6 บน body text (ภาษาไทยต้องการพื้นที่)
+
+### กฎ layout/spacing
+16. **Footer ต้อง compact + มี visual hierarchy:**
+   - Container padding: `py-10` (ห้าม `py-16` ใหญ่เกิน)
+   - Column gap: `gap-8` (ห้าม `gap-12+`)
+   - Item gap: `space-y-1.5` หรือ `space-y-2` (ห้าม `space-y-3+`)
+   - Section heading: `text-base font-bold mb-3 pb-2 border-b border-primary-foreground/15`
+     (ใช้ subtle bottom border แทนการเว้น margin เยอะ)
+   - Body text: `text-sm` (ห้าม default 1rem ใน footer ดูใหญ่เกิน)
+
+---
+
+## 13. Theme Manager — Single Source of Truth
+
+ทุกสีของเว็บถูกควบคุมผ่าน **Theme Manager** ที่ `/admin/dashboard/theme`
+
+### Architecture
+```
+school_settings.theme_colors (JSON, key-value table)
+       ↓
+useThemeColors() hook (TanStack Query, 5 min staleTime)
+       ↓
+RuntimeThemeStyles component (mounted at App root)
+       ↓
+<style id="kampai-runtime-theme">:root { --primary: ... }</style>
+       ↓
+overrides defaults from src/index.css → all Tailwind tokens reflect
+```
+
+### กฎการใช้งาน
+17. **ห้ามแก้ CSS vars hardcode ใน `src/index.css`** — ค่าเริ่มต้นเท่านั้น (fallback)
+   - User เปลี่ยนสีผ่าน Admin → Theme Manager → DB → runtime override
+   - ค่าใน `src/index.css` คือ "ถ้า DB ว่าง ใช้นี้แทน"
+18. **ห้ามอ่านสีจาก DB ตรงๆ ใน component** — ใช้ Tailwind class (`bg-primary`, etc.)
+   เท่านั้น CSS vars ทำหน้าที่ resolution เอง
+19. **DEFAULT_THEME** อยู่ที่ `src/lib/themeDefaults.ts` — ค่าตรงกับ DESIGN.md hex
+   ถ้าจะเพิ่ม token ใหม่ ต้องเพิ่มทั้ง 3 ที่:
+   1. `src/index.css` (`:root` + `.dark`)
+   2. `tailwind.config.ts` (`colors: {...}`)
+   3. `src/lib/themeDefaults.ts` (`DEFAULT_THEME` + `THEME_LABELS` + `THEME_GROUPS`)
+
+### Tokens ที่ user แก้ได้ผ่าน Theme Manager
+- `primary` + `primary-foreground`
+- `secondary` + `secondary-foreground`
+- `accent` + `accent-foreground`
+- `background` + `foreground`
+- `muted` + `muted-foreground`
+- `border`
+- `destructive`
+
+### Tokens ที่ user แก้ไม่ได้ (ระบบกำหนด)
+- `--ring` (always = `--primary`)
+- `--input` (always = `--border`)
+- `--card` / `--popover` (always = `--background`)
+- Sidebar tokens (admin only — separate task)
+- Dark mode variants (Phase 2 ใช้ light only)
 
 ---
 
