@@ -23,7 +23,7 @@ const RANK_COLORS = [
   'from-slate-300 to-slate-400',
   'from-amber-600 to-amber-700',
   'from-teal-400 to-cyan-500',
-  'from-purple-400 to-violet-500',
+  'from-emerald-400 to-emerald-600',
 ];
 
 const DUMMY_WASTE_TOP5: WasteSummary[] = [
@@ -146,7 +146,7 @@ const WasteBankWidget = () => {
 const categoryLinks = [
   { label: 'ข่าวประชาสัมพันธ์', href: '/news', color: 'text-blue-700', dot: 'bg-blue-500' },
   { label: 'กิจกรรม', href: '/news', color: 'text-green-700', dot: 'bg-green-500' },
-  { label: 'ผลงานนักเรียน', href: '/news', color: 'text-purple-700', dot: 'bg-purple-500' },
+  { label: 'ผลงานนักเรียน', href: '/news', color: 'text-primary', dot: 'bg-accent' },
   { label: 'บทความ', href: '/news', color: 'text-orange-700', dot: 'bg-orange-500' },
   { label: 'ประกาศจัดซื้อจัดจ้าง', href: '/news', color: 'text-red-700', dot: 'bg-red-500' },
 ];
@@ -243,11 +243,11 @@ export const useHomeRightBlocks = () => {
 
   const categoriesWidget = (
     <div key="categories" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-      <div className="bg-purple-800 text-white text-xs font-semibold px-3 py-2">รายการหมวดหมู่</div>
+      <div className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-2">รายการหมวดหมู่</div>
       <ul className="divide-y divide-gray-100">
         {categoryLinks.map((c) => (
           <li key={c.label}>
-            <Link to={c.href} className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-purple-50 transition-colors group">
+            <Link to={c.href} className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-muted transition-colors group">
               <span className={`w-2 h-2 rounded-full ${c.dot} flex-shrink-0`} />
               <span className={`${c.color} group-hover:underline`}>{c.label}</span>
             </Link>
@@ -266,7 +266,7 @@ export const useHomeRightBlocks = () => {
       variants={staggerContainerVariants}
       className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden"
     >
-      <div className="bg-purple-800 text-white text-xs font-semibold px-3 py-2 flex items-center gap-1.5">
+      <div className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-2 flex items-center gap-1.5">
         <Image className="w-3.5 h-3.5" /> ลังรูปภาพ
       </div>
       <div className="grid grid-cols-3 gap-0.5 p-1">
@@ -279,7 +279,7 @@ export const useHomeRightBlocks = () => {
         ))}
       </div>
       <div className="px-3 py-2 border-t border-gray-100">
-        <Link to="/gallery" className="text-xs text-purple-700 hover:underline flex items-center gap-1">
+        <Link to="/gallery" className="text-xs text-primary hover:underline flex items-center gap-1">
           <Image className="w-3 h-3" /> ดูรูปภาพทั้งหมด
         </Link>
       </div>
@@ -315,7 +315,7 @@ export const useHomeRightBlocks = () => {
   const socialIsDummy = !(settings.social_links && settings.social_links.length > 0);
   const socialWidget = (
     <div key="social" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-      <div className="bg-purple-800 text-white text-xs font-semibold px-3 py-2">โซเชียลมีเดีย</div>
+      <div className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-2">โซเชียลมีเดีย</div>
       <div className="p-3 flex flex-wrap gap-2">
         {socialLinksToShow.map((link, i) => {
           const { icon: Icon, color, label } = getSocialIcon(link.platform);
@@ -336,7 +336,7 @@ export const useHomeRightBlocks = () => {
 
   const statsWidget = (
     <div key="stats" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-      <div className="bg-purple-800 text-white text-xs font-semibold px-3 py-2 flex items-center gap-1.5">
+      <div className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-2 flex items-center gap-1.5">
         <Users className="w-3.5 h-3.5" /> สถิติผู้เข้าชม
       </div>
       <ul className="divide-y divide-gray-100">
@@ -349,7 +349,7 @@ export const useHomeRightBlocks = () => {
         ].map((stat) => (
           <li key={stat.label} className="flex items-center justify-between px-3 py-2 text-xs">
             <span className="text-gray-600 flex items-center gap-1.5"><span>{stat.icon}</span>{stat.label}</span>
-            <span className="font-bold text-purple-700">{stat.value.toLocaleString()}</span>
+            <span className="font-bold text-primary">{stat.value.toLocaleString()}</span>
           </li>
         ))}
       </ul>
@@ -358,7 +358,7 @@ export const useHomeRightBlocks = () => {
 
   const documentsWidget = (
     <div key="documents" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-      <div className="bg-purple-800 text-white text-xs font-semibold px-3 py-2 flex items-center gap-1.5">
+      <div className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-2 flex items-center gap-1.5">
         <FileText className="w-3.5 h-3.5" /> เอกสารล่าสุด
       </div>
       <div className="divide-y divide-gray-100">
@@ -374,7 +374,7 @@ export const useHomeRightBlocks = () => {
         ))}
       </div>
       <div className="px-3 py-2 border-t border-gray-100">
-        <Link to="/documents" className="text-xs text-purple-700 hover:underline flex items-center gap-1">
+        <Link to="/documents" className="text-xs text-primary hover:underline flex items-center gap-1">
           ดูเอกสารทั้งหมด <ArrowRight className="w-3 h-3" />
         </Link>
       </div>

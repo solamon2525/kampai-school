@@ -51,24 +51,24 @@ export const useHomeLeftBlocks = () => {
 
   const principalBlock = (
     <div key="principal" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-      <div className="bg-purple-800 text-white text-xs font-semibold px-3 py-2 flex items-center gap-1.5">
+      <div className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-2 flex items-center gap-1.5">
         <Users className="w-3.5 h-3.5" />
         ผู้อำนวยการโรงเรียน
       </div>
       <div className="p-3 text-center">
         {principal ? (
           <>
-            <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-2 border-2 border-purple-200">
+            <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-2 border-2 border-primary/30">
               {principal.photo_url ? (
                 <img src={principal.photo_url} alt={principal.name} className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
+                <div className="w-full h-full bg-gradient-to-br from-accent to-primary flex items-center justify-center">
                   <span className="text-2xl font-bold text-white">{principal.name.charAt(0)}</span>
                 </div>
               )}
             </div>
             <p className="text-sm font-semibold text-gray-800 leading-tight">{principal.name}</p>
-            <p className="text-xs text-purple-700 mt-0.5">{principal.position}</p>
+            <p className="text-xs text-primary mt-0.5">{principal.position}</p>
           </>
         ) : (
           <div className="py-4">
@@ -82,7 +82,7 @@ export const useHomeLeftBlocks = () => {
 
   const menuBlock = (
     <div key="menu" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-      <div className="bg-purple-800 text-white text-xs font-semibold px-3 py-2">
+      <div className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-2">
         เมนูทาง
       </div>
       <ul className="divide-y divide-gray-100">
@@ -90,9 +90,9 @@ export const useHomeLeftBlocks = () => {
           <li key={item.href + item.label}>
             <Link
               to={item.href}
-              className="flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-purple-50 hover:text-purple-800 transition-colors group"
+              className="flex items-center gap-2 px-3 py-2 text-xs text-foreground hover:bg-muted hover:text-primary transition-colors group"
             >
-              <item.icon className="w-3.5 h-3.5 text-purple-400 group-hover:text-purple-700 flex-shrink-0" />
+              <item.icon className="w-3.5 h-3.5 text-accent group-hover:text-primary flex-shrink-0" />
               {item.label}
             </Link>
           </li>

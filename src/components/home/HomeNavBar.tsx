@@ -16,7 +16,7 @@ const HomeNavBar = () => {
   const location = useLocation();
 
   return (
-    <nav className="bg-purple-950 text-white shadow-lg sticky top-0 z-50">
+    <nav className="bg-primary text-primary-foreground shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4">
         {/* Desktop */}
         <div className="hidden md:flex items-center">
@@ -50,7 +50,7 @@ const HomeNavBar = () => {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden bg-purple-900 border-t border-white/10 px-4 pb-4">
+        <div className="md:hidden bg-primary/95 border-t border-white/10 px-4 pb-4">
           {navItems.map((item) => (
             <Link
               key={item.href}

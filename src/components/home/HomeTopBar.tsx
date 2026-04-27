@@ -6,7 +6,7 @@ const HomeTopBar = () => {
   const { settings } = useSchoolSettings();
 
   return (
-    <div className="bg-gradient-to-r from-purple-900 via-purple-800 to-indigo-900 text-white">
+    <div className="bg-gradient-to-r from-primary via-primary/90 to-accent text-primary-foreground">
       <div className="max-w-7xl mx-auto px-4 py-3">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           {/* Logo + School Name */}

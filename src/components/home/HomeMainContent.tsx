@@ -24,7 +24,7 @@ interface NewsItem {
 const categoryColor: Record<string, string> = {
   'ข่าวประชาสัมพันธ์': 'bg-blue-600',
   'กิจกรรม': 'bg-green-600',
-  'ผลงานนักเรียน': 'bg-purple-600',
+  'ผลงานนักเรียน': 'bg-accent',
   'ประกาศ': 'bg-red-600',
   'บทความ': 'bg-orange-500',
 };
@@ -93,22 +93,22 @@ const ContactFormBlock = () => {
         <input
           type="text" placeholder="ชื่อ-นามสกุล" value={form.name}
           onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
-          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-transparent"
+          className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
         />
         <input
           type="email" placeholder="อีเมล" value={form.email}
           onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
-          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-transparent"
+          className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
         />
         <textarea
           placeholder="ข้อความ" rows={3} value={form.message}
           onChange={(e) => setForm(f => ({ ...f, message: e.target.value }))}
-          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-transparent resize-none"
+          className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent resize-none"
         />
         <button
           onClick={submit}
           disabled={status === 'sending'}
-          className="px-4 py-2 bg-purple-700 hover:bg-purple-800 disabled:opacity-60 text-white text-sm font-medium rounded-lg transition-colors"
+          className="px-4 py-2 bg-primary hover:bg-primary/90 disabled:opacity-60 text-white text-sm font-medium rounded-lg transition-colors"
         >
           {status === 'sending' ? 'กำลังส่ง...' : 'ส่งข้อความ'}
         </button>
@@ -341,7 +341,7 @@ export const useHomeMainBlocks = () => {
       variants={slideUpVariants}
       className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden"
     >
-      <div className="bg-purple-800 text-white px-4 py-2 flex items-center justify-between">
+      <div className="bg-primary text-primary-foreground px-4 py-2 flex items-center justify-between">
         <span className="font-semibold text-sm flex items-center gap-2">
           <span className="w-1 h-4 bg-yellow-400 rounded-full inline-block" />
           ข่าวสารล่าสุด
@@ -353,7 +353,7 @@ export const useHomeMainBlocks = () => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-0">
         {featured && (
           <Link to="/news" className="sm:col-span-1 block group border-r border-gray-100">
-            <div className="relative h-44 sm:h-52 bg-gradient-to-br from-purple-600 to-indigo-700 overflow-hidden">
+            <div className="relative h-44 sm:h-52 bg-gradient-to-br from-primary to-accent overflow-hidden">
               {featured.cover_image_url ? (
                 <img src={featured.cover_image_url} alt={featured.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
               ) : (
@@ -399,7 +399,7 @@ export const useHomeMainBlocks = () => {
         </div>
       </div>
       <div className="px-4 py-2 border-t border-gray-100 text-right">
-        <Link to="/news" className="text-xs text-purple-700 hover:text-purple-900 font-medium flex items-center gap-1 justify-end">
+        <Link to="/news" className="text-xs text-primary hover:text-primary font-medium flex items-center gap-1 justify-end">
           ดูข่าวสารทั้งหมด <ArrowRight className="w-3 h-3" />
         </Link>
       </div>
@@ -409,12 +409,12 @@ export const useHomeMainBlocks = () => {
   const aboutSection = (
     <div key="about" className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-xs font-bold text-purple-700 uppercase tracking-wider border-l-4 border-purple-700 pl-2">ABOUT</span>
+        <span className="text-xs font-bold text-primary uppercase tracking-wider border-l-4 border-primary pl-2">ABOUT</span>
         <span className="text-xs text-gray-400">—</span>
         <span className="text-sm font-bold text-gray-800">WHO WE ARE</span>
       </div>
       <p className="text-xs text-gray-600 leading-relaxed line-clamp-4">{settings.school_description || 'โรงเรียนของเรามุ่งมั่นพัฒนาเด็กนักเรียนให้เป็นคนเก่ง คนดี และมีความสุข ภายใต้บรรยากาศการเรียนรู้ที่อบอุ่นและทันสมัย พร้อมบุคลากรครูที่มีคุณภาพและกิจกรรมเสริมหลักสูตรที่หลากหลาย เพื่อเตรียมความพร้อมสู่อนาคตที่สดใส'}</p>
-      <Link to="/about" className="inline-flex items-center gap-1 mt-2 text-xs text-purple-700 hover:text-purple-900 font-medium">
+      <Link to="/about" className="inline-flex items-center gap-1 mt-2 text-xs text-primary hover:text-primary font-medium">
         อ่านเพิ่มเติม <ArrowRight className="w-3 h-3" />
       </Link>
     </div>
@@ -422,7 +422,7 @@ export const useHomeMainBlocks = () => {
 
   const calendarSection = events.length > 0 ? (
     <div key="calendar" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-      <div className="bg-purple-800 text-white px-4 py-2 flex items-center justify-between">
+      <div className="bg-primary text-primary-foreground px-4 py-2 flex items-center justify-between">
         <span className="font-semibold text-sm flex items-center gap-2">
           <span className="w-1 h-4 bg-yellow-400 rounded-full inline-block" />
           📅 ปฏิทินกิจกรรม
@@ -434,7 +434,7 @@ export const useHomeMainBlocks = () => {
       <div className="divide-y divide-gray-100">
         {events.map((ev) => (
           <div key={ev.id} className="flex items-start gap-3 p-3 hover:bg-gray-50 transition-colors">
-            <div className="text-center bg-purple-100 text-purple-700 rounded-lg px-3 py-1.5 flex-shrink-0">
+            <div className="text-center bg-secondary text-primary rounded-lg px-3 py-1.5 flex-shrink-0">
               <div className="text-lg font-bold leading-none">{new Date(ev.start_date).getDate()}</div>
               <div className="text-[10px] uppercase">{new Date(ev.start_date).toLocaleDateString('th-TH', { month: 'short' })}</div>
             </div>
@@ -453,7 +453,7 @@ export const useHomeMainBlocks = () => {
     || 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=800';
   const videoSection = (
     <div key="video" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-      <div className="bg-purple-800 text-white px-4 py-2">
+      <div className="bg-primary text-primary-foreground px-4 py-2">
         <span className="font-semibold text-sm">🎬 แนะนำโรงเรียน</span>
       </div>
       <div className="p-3">
@@ -490,7 +490,7 @@ export const useHomeMainBlocks = () => {
       whileInView="visible"
       viewport={{ once: true, amount: 0.3 }}
       variants={staggerContainerVariants}
-      className="bg-gradient-to-r from-purple-700 to-indigo-700 text-white rounded-lg p-6 text-center shadow-md"
+      className="bg-gradient-to-r from-primary to-accent text-white rounded-lg p-6 text-center shadow-md"
     >
       <h3 className="text-lg font-bold mb-4 opacity-90">โรงเรียนของเราในตัวเลข</h3>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -530,7 +530,7 @@ export const useHomeMainBlocks = () => {
       <h3 className="text-sm font-bold text-center mb-3">🔗 เมนูด่วน</h3>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         {quicklinks.map((link: { icon: string; label: string; href: string }, i: number) => (
-          <Link key={i} to={link.href} className="flex flex-col items-center gap-1.5 p-3 bg-gray-50 hover:bg-purple-50 rounded-xl transition-colors text-center">
+          <Link key={i} to={link.href} className="flex flex-col items-center gap-1.5 p-3 bg-gray-50 hover:bg-muted rounded-xl transition-colors text-center">
             <span className="text-2xl">{link.icon}</span>
             <span className="text-xs font-medium text-gray-700">{link.label}</span>
           </Link>
@@ -561,7 +561,7 @@ export const useHomeMainBlocks = () => {
       variants={staggerContainerVariants}
       className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden"
     >
-      <div className="bg-purple-800 text-white px-4 py-2 flex items-center justify-between">
+      <div className="bg-primary text-primary-foreground px-4 py-2 flex items-center justify-between">
         <span className="font-semibold text-sm flex items-center gap-2">
           <span className="w-1 h-4 bg-yellow-400 rounded-full inline-block" />
           📝 บทความล่าสุด
@@ -578,14 +578,14 @@ export const useHomeMainBlocks = () => {
               {item.cover_image_url ? (
                 <img src={item.cover_image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center">
-                  <span className="text-purple-300 text-3xl">📝</span>
+                <div className="w-full h-full bg-gradient-to-br from-muted to-secondary flex items-center justify-center">
+                  <span className="text-muted-foreground text-3xl">📝</span>
                 </div>
               )}
             </div>
             <div className="p-3">
               <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium text-white ${categoryColor[item.category] || 'bg-gray-600'}`}>{item.category}</span>
-              <h4 className="text-sm font-semibold text-gray-800 mt-2 line-clamp-2 group-hover:text-purple-700 transition-colors">{item.title}</h4>
+              <h4 className="text-sm font-semibold text-gray-800 mt-2 line-clamp-2 group-hover:text-primary transition-colors">{item.title}</h4>
               {item.summary && <p className="text-xs text-gray-500 mt-1 line-clamp-2">{item.summary}</p>}
               <div className="flex items-center gap-2 mt-2 text-[10px] text-gray-400">
                 <span>{formatDate(item.created_at)}</span>
@@ -603,7 +603,7 @@ export const useHomeMainBlocks = () => {
   // ─── NEW: Blog Carousel ─────────────────────────────────
   const blogCarouselSection = blogNews.length > 0 ? (
     <div key="blog_carousel" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-      <div className="bg-purple-800 text-white px-4 py-2 flex items-center justify-between">
+      <div className="bg-primary text-primary-foreground px-4 py-2 flex items-center justify-between">
         <span className="font-semibold text-sm">🎠 บทความแนะนำ</span>
         <Link to="/news" className="text-xs text-yellow-300 hover:text-yellow-100">ดูทั้งหมด →</Link>
       </div>
@@ -615,12 +615,12 @@ export const useHomeMainBlocks = () => {
                 {item.cover_image_url ? (
                   <img src={item.cover_image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center">
-                    <span className="text-purple-300 text-2xl">🎠</span>
+                  <div className="w-full h-full bg-gradient-to-br from-muted to-secondary flex items-center justify-center">
+                    <span className="text-muted-foreground text-2xl">🎠</span>
                   </div>
                 )}
               </div>
-              <h4 className="text-xs font-semibold mt-2 line-clamp-2 group-hover:text-purple-700">{item.title}</h4>
+              <h4 className="text-xs font-semibold mt-2 line-clamp-2 group-hover:text-primary">{item.title}</h4>
               <p className="text-[10px] text-gray-400 mt-0.5">{formatDate(item.created_at)}</p>
             </Link>
           ))}
@@ -632,7 +632,7 @@ export const useHomeMainBlocks = () => {
   // ─── NEW: Blog List ─────────────────────────────────────
   const blogListSection = blogNews.length > 0 ? (
     <div key="blog_list" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-      <div className="bg-purple-800 text-white px-4 py-2 flex items-center justify-between">
+      <div className="bg-primary text-primary-foreground px-4 py-2 flex items-center justify-between">
         <span className="font-semibold text-sm">📋 บทความทั้งหมด</span>
         <Link to="/news" className="text-xs text-yellow-300 hover:text-yellow-100">ดูทั้งหมด →</Link>
       </div>
@@ -646,7 +646,7 @@ export const useHomeMainBlocks = () => {
             )}
             <div className="flex-1 min-w-0">
               <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium text-white ${categoryColor[item.category] || 'bg-gray-600'}`}>{item.category}</span>
-              <h4 className="text-sm font-medium text-gray-800 line-clamp-1 mt-1 group-hover:text-purple-700">{item.title}</h4>
+              <h4 className="text-sm font-medium text-gray-800 line-clamp-1 mt-1 group-hover:text-primary">{item.title}</h4>
               {item.summary && <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{item.summary}</p>}
               <div className="flex items-center gap-2 mt-1 text-[10px] text-gray-400">
                 <span>{formatDate(item.created_at)}</span>
@@ -678,7 +678,7 @@ export const useHomeMainBlocks = () => {
   // ─── NEW: FAQ Accordion ─────────────────────────────────
   const faqAccordionSection = (
     <div key="faq_accordion" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-      <div className="bg-purple-800 text-white px-4 py-2">
+      <div className="bg-primary text-primary-foreground px-4 py-2">
         <span className="font-semibold text-sm">❓ คำถามที่พบบ่อย</span>
       </div>
       <div className="divide-y divide-gray-100">
@@ -751,7 +751,7 @@ export const useHomeMainBlocks = () => {
           );
           return p.link_url && p.link_url !== '#' ? (
             <a key={p.id} href={p.link_url} target="_blank" rel="noopener noreferrer"
-              className="w-20 h-20 rounded-lg bg-gray-100 hover:bg-purple-50 flex items-center justify-center text-center p-2 transition-colors"
+              className="w-20 h-20 rounded-lg bg-gray-100 hover:bg-muted flex items-center justify-center text-center p-2 transition-colors"
               title={p.name}>
               {inner}
             </a>
@@ -768,7 +768,7 @@ export const useHomeMainBlocks = () => {
   // ─── NEW: Photo Album ───────────────────────────────────
   const photoAlbumSection = (
     <div key="photo_album" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-      <div className="bg-purple-800 text-white px-4 py-2 flex items-center justify-between">
+      <div className="bg-primary text-primary-foreground px-4 py-2 flex items-center justify-between">
         <span className="font-semibold text-sm">📸 ภาพกิจกรรมล่าสุด</span>
         <Link to="/gallery" className="text-xs text-yellow-300 hover:text-yellow-100 flex items-center gap-1">
           ดูทั้งหมด <ArrowRight className="w-3 h-3" />
@@ -790,7 +790,7 @@ export const useHomeMainBlocks = () => {
   const mapUrlToShow = settings.contact_map_url || DUMMY_MAP_URL;
   const mapEmbedSection = (
     <div key="map_embed" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-      <div className="bg-purple-800 text-white px-4 py-2">
+      <div className="bg-primary text-primary-foreground px-4 py-2">
         <span className="font-semibold text-sm">🗺️ แผนที่โรงเรียน</span>
       </div>
       <div className="aspect-[2/1]">
@@ -869,13 +869,13 @@ export const useHomeMainBlocks = () => {
         </a>
 
         {/* School MIS */}
-        <a href="#" target="_blank" rel="noopener noreferrer" className="group rounded-xl border border-gray-100 bg-gray-50 p-3 hover:bg-purple-50 hover:border-purple-200 transition-all shadow-sm hover:shadow">
+        <a href="#" target="_blank" rel="noopener noreferrer" className="group rounded-xl border border-gray-100 bg-gray-50 p-3 hover:bg-muted hover:border-border transition-all shadow-sm hover:shadow">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
+            <div className="w-10 h-10 rounded-full bg-secondary text-primary flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
               <BookOpen className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-sm text-gray-800 group-hover:text-purple-700 leading-tight">School MIS</h4>
+              <h4 className="font-bold text-sm text-gray-800 group-hover:text-primary leading-tight">School MIS</h4>
               <p className="text-[10px] text-gray-500 mt-0.5">บริหารจัดการสถานศึกษา</p>
             </div>
           </div>
@@ -908,13 +908,13 @@ export const useHomeMainBlocks = () => {
         </a>
 
         {/* AMSS++ */}
-        <a href="#" target="_blank" rel="noopener noreferrer" className="group rounded-xl border border-gray-100 bg-gray-50 p-3 hover:bg-indigo-50 hover:border-indigo-200 transition-all shadow-sm hover:shadow">
+        <a href="#" target="_blank" rel="noopener noreferrer" className="group rounded-xl border border-gray-100 bg-gray-50 p-3 hover:bg-muted hover:border-border transition-all shadow-sm hover:shadow">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
+            <div className="w-10 h-10 rounded-full bg-secondary text-accent flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
               <Send className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-sm text-gray-800 group-hover:text-indigo-700 leading-tight">AMSS++</h4>
+              <h4 className="font-bold text-sm text-gray-800 group-hover:text-accent leading-tight">AMSS++</h4>
               <p className="text-[10px] text-gray-500 mt-0.5">รับส่งหนังสืออิเล็กทรอนิกส์</p>
             </div>
           </div>
