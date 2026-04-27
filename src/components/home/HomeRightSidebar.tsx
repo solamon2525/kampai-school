@@ -34,15 +34,6 @@ const DUMMY_WASTE_TOP5: WasteSummary[] = [
   { student_id: 'dummy-w5', student_name: 'ด.ช.ธนกฤต ขยันเรียน',  photo_url: null, total_amount: 120, total_weight: 6.0,  total_transactions: 4 },
 ];
 
-const DUMMY_GALLERY = [
-  'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=400',
-  'https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=400',
-  'https://images.unsplash.com/photo-1546410531-fa4ab3ba45cb?q=80&w=400',
-  'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=400',
-  'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=400',
-  'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=400',
-];
-
 const DUMMY_DOCS_RIGHT = [
   { id: 'dummy-rd1', title: 'คู่มือนักเรียนและผู้ปกครอง',  category: 'ทั่วไป',         file_url: '#' },
   { id: 'dummy-rd2', title: 'ใบสมัครเรียน ปี 2568',         category: 'รับสมัคร',       file_url: '#' },
@@ -201,18 +192,39 @@ export const useHomeRightBlocks = () => {
   const [documents, setDocuments] = useState<{ id: string; title: string; category: string | null; file_url: string }[]>([]);
 
   useEffect(() => {
-    // Try to fetch some gallery/news images for the photo box
-    supabase
-      .from('news')
-      .select('cover_image_url')
-      .eq('is_published', true)
-      .not('cover_image_url', 'is', null)
-      .order('created_at', { ascending: false })
-      .limit(6)
-      .then(({ data }) => {
-        const images = data ? data.map((n: any) => n.cover_image_url).filter(Boolean) : [];
-        setGalleryImages(images.length > 0 ? images : DUMMY_GALLERY);
-      });
+    // Fetch real school photos: gallery_albums first → news cover_image fallback → empty (placeholder UI)
+    (async () => {
+      const { data: galleryData } = await supabase
+        .from('gallery_albums' as any)
+        .select('cover_image_url')
+        .eq('is_published', true)
+        .not('cover_image_url', 'is', null)
+        .order('created_at', { ascending: false })
+        .limit(6);
+
+      const galleryUrls = galleryData
+        ? (galleryData as any[]).map((g) => g.cover_image_url).filter(Boolean)
+        : [];
+
+      if (galleryUrls.length > 0) {
+        setGalleryImages(galleryUrls);
+        return;
+      }
+
+      const { data: newsData } = await supabase
+        .from('news')
+        .select('cover_image_url')
+        .eq('is_published', true)
+        .not('cover_image_url', 'is', null)
+        .order('created_at', { ascending: false })
+        .limit(6);
+
+      const newsUrls = newsData
+        ? (newsData as any[]).map((n) => n.cover_image_url).filter(Boolean)
+        : [];
+
+      setGalleryImages(newsUrls);
+    })();
 
     // Fetch documents
     supabase
@@ -267,17 +279,25 @@ export const useHomeRightBlocks = () => {
       className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden"
     >
       <div className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-2 flex items-center gap-1.5">
-        <Image className="w-3.5 h-3.5" /> ลังรูปภาพ
+        <Image className="w-3.5 h-3.5" /> คลังรูปภาพ
       </div>
-      <div className="grid grid-cols-3 gap-0.5 p-1">
-        {galleryImages.slice(0, 6).map((url, i) => (
-          <motion.div key={i} variants={staggerItemVariants} whileHover={{ scale: 1.05 }}>
-            <Link to="/gallery" className="block aspect-square overflow-hidden rounded">
-              <img src={url} alt="" className="w-full h-full object-cover hover:scale-110 transition-transform duration-500" />
-            </Link>
-          </motion.div>
-        ))}
-      </div>
+      {galleryImages.length > 0 ? (
+        <div className="grid grid-cols-3 gap-0.5 p-1">
+          {galleryImages.slice(0, 6).map((url, i) => (
+            <motion.div key={i} variants={staggerItemVariants} whileHover={{ scale: 1.05 }}>
+              <Link to="/gallery" className="block aspect-square overflow-hidden rounded">
+                <img src={url} alt="" className="w-full h-full object-cover hover:scale-110 transition-transform duration-500" />
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+      ) : (
+        <div className="px-4 py-6 text-center bg-muted/30">
+          <Image className="w-8 h-8 mx-auto mb-2 text-muted-foreground/50" />
+          <p className="text-xs text-muted-foreground">ยังไม่มีรูปภาพ</p>
+          <p className="text-[11px] text-muted-foreground/70 mt-0.5">เพิ่มอัลบั้มได้ที่หน้าจัดการแกลเลอรี่</p>
+        </div>
+      )}
       <div className="px-3 py-2 border-t border-gray-100">
         <Link to="/gallery" className="text-xs text-primary hover:underline flex items-center gap-1">
           <Image className="w-3 h-3" /> ดูรูปภาพทั้งหมด
