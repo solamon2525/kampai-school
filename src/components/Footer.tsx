@@ -27,20 +27,20 @@ const Footer = () => {
   return (
     <footer className="bg-primary text-primary-foreground">
       {/* Main Footer */}
-      <div className="container-school py-16">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
+      <div className="container-school py-10">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* School Info */}
           <div className="lg:col-span-1">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center">
-                <span className="text-accent-foreground font-bold text-xl">คผ</span>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-11 h-11 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
+                <span className="text-accent-foreground font-bold text-lg">คผ</span>
               </div>
               <div>
-                <h3 className="text-lg font-bold">{settings.school_name}</h3>
-                <p className="text-sm text-primary-foreground/70">{settings.school_tagline}</p>
+                <h3 className="text-base font-bold leading-tight">{settings.school_name}</h3>
+                <p className="text-xs text-primary-foreground/70">{settings.school_tagline}</p>
               </div>
             </div>
-            <p className="text-primary-foreground/80 mb-6 leading-relaxed">
+            <p className="text-sm text-primary-foreground/80 mb-4 leading-relaxed">
               {settings.school_description}
             </p>
             <div className="flex gap-3 flex-wrap">
@@ -76,8 +76,8 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-lg font-bold mb-6">ลิงก์ด่วน</h4>
-            <ul className="space-y-3">
+            <h4 className="text-base font-bold mb-3 pb-2 border-b border-primary-foreground/15">ลิงก์ด่วน</h4>
+            <ul className="space-y-1.5 text-sm">
               {quickLinks.map((link) => (
                 <li key={link.name}>
                   <Link
@@ -94,8 +94,8 @@ const Footer = () => {
 
           {/* Resources */}
           <div>
-            <h4 className="text-lg font-bold mb-6">บริการออนไลน์</h4>
-            <ul className="space-y-3">
+            <h4 className="text-base font-bold mb-3 pb-2 border-b border-primary-foreground/15">บริการออนไลน์</h4>
+            <ul className="space-y-1.5 text-sm">
               {resources.map((link) => (
                 <li key={link.name}>
                   <a
@@ -111,8 +111,8 @@ const Footer = () => {
 
           {/* Contact */}
           <div>
-            <h4 className="text-lg font-bold mb-6">ติดต่อเรา</h4>
-            <ul className="space-y-4">
+            <h4 className="text-base font-bold mb-3 pb-2 border-b border-primary-foreground/15">ติดต่อเรา</h4>
+            <ul className="space-y-2 text-sm">
               {settings.contact_address && (
                 <li className="flex gap-3">
                   <MapPin className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />

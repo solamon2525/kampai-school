@@ -85,14 +85,14 @@ export const useHomeLeftBlocks = () => {
       <div className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-2">
         เมนูทาง
       </div>
-      <ul className="divide-y divide-gray-100">
+      <ul className="divide-y divide-border">
         {sidebarMenu.map((item) => (
           <li key={item.href + item.label}>
             <Link
               to={item.href}
-              className="flex items-center gap-2 px-3 py-2 text-xs text-foreground hover:bg-muted hover:text-primary transition-colors group"
+              className="flex items-center gap-2 px-3 py-2.5 text-sm font-medium text-foreground hover:bg-secondary hover:text-primary transition-colors group"
             >
-              <item.icon className="w-3.5 h-3.5 text-accent group-hover:text-primary flex-shrink-0" />
+              <item.icon className="w-4 h-4 text-primary group-hover:text-primary flex-shrink-0" />
               {item.label}
             </Link>
           </li>

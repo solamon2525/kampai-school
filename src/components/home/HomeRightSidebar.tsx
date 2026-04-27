@@ -83,7 +83,7 @@ const WasteBankWidget = () => {
   return (
     <div className="bg-white rounded-2xl border border-green-100 shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-700 to-emerald-600 px-4 py-3 flex items-center gap-2">
+      <div className="bg-primary text-primary-foreground px-4 py-3 flex items-center gap-2">
         <Recycle className="w-5 h-5 text-white" />
         <h3 className="text-white font-semibold text-sm">🏆 ธนาคารขยะ — Top 5</h3>
       </div>

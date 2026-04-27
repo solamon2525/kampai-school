@@ -14,7 +14,7 @@ const HomeHeaderZone = ({ blockOrder }: HeaderZoneProps) => {
     const blockMap: Record<string, JSX.Element | null> = {
         news_ticker: <NewsTicker key="news_ticker" />,
         top_banner: settings.hero_badge ? (
-            <div key="top_banner" className="bg-gradient-to-r from-primary via-primary/90 to-accent text-primary-foreground px-4 py-2 text-center">
+            <div key="top_banner" className="bg-accent text-accent-foreground px-4 py-2 text-center">
                 <p className="text-sm font-medium">{settings.hero_badge}</p>
             </div>
         ) : null,

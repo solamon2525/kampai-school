@@ -490,7 +490,7 @@ export const useHomeMainBlocks = () => {
       whileInView="visible"
       viewport={{ once: true, amount: 0.3 }}
       variants={staggerContainerVariants}
-      className="bg-gradient-to-r from-primary to-accent text-white rounded-lg p-6 text-center shadow-md"
+      className="bg-primary text-primary-foreground rounded-lg p-6 text-center shadow-md"
     >
       <h3 className="text-lg font-bold mb-4 opacity-90">โรงเรียนของเราในตัวเลข</h3>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
