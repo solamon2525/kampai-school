@@ -90,7 +90,7 @@ const SiteHeader = () => {
   return (
     <>
       {/* ── Top Bar ── */}
-      <div className="bg-gradient-to-r from-purple-950 via-primary to-purple-900 text-white overflow-hidden">
+      <div className="bg-primary text-primary-foreground overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 py-2.5">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
             {/* Logo + Name */}
@@ -147,7 +147,7 @@ const SiteHeader = () => {
       </div>
 
       {/* ── Navigation Bar ── */}
-      <nav className={`bg-purple-950 text-white sticky top-0 z-50 transition-shadow ${scrolled ? 'shadow-lg shadow-purple-950/50' : ''}`}>
+      <nav className={`bg-primary text-primary-foreground sticky top-0 z-50 transition-shadow ${scrolled ? 'shadow-lg shadow-primary/50' : ''}`}>
         <div className="max-w-7xl mx-auto px-4">
           {/* Desktop Nav */}
           <div className="hidden lg:flex items-center">
@@ -177,14 +177,14 @@ const SiteHeader = () => {
                 <ChevronDown className={`w-3.5 h-3.5 transition-transform ${servicesOpen ? 'rotate-180' : ''}`} />
               </button>
               {servicesOpen && (
-                <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-xl shadow-xl border border-purple-100 py-1.5 z-50">
+                <div className="absolute top-full left-0 mt-1 w-48 bg-card rounded-xl shadow-xl border border-border py-1.5 z-50">
                   {serviceNav.map((s) => (
                     <Link key={s.href} to={s.href}
                       onClick={() => setServicesOpen(false)}
                       className={`flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors ${
                         location.pathname.startsWith(s.href)
-                          ? 'text-primary bg-purple-50 font-semibold'
-                          : 'text-gray-700 hover:bg-purple-50 hover:text-primary'
+                          ? 'text-primary bg-secondary font-semibold'
+                          : 'text-foreground hover:bg-secondary hover:text-primary'
                       }`}>
                       <s.icon className="w-4 h-4 text-primary" />
                       {s.label}
@@ -200,7 +200,7 @@ const SiteHeader = () => {
                 <ThemeToggle />
               </div>
               <Link to="/enrollment"
-                className="flex items-center gap-1.5 bg-yellow-400 hover:bg-yellow-300 text-purple-950 font-bold text-sm px-4 py-2 rounded-lg transition-colors">
+                className="flex items-center gap-1.5 bg-yellow-400 hover:bg-yellow-300 text-foreground font-bold text-sm px-4 py-2 rounded-lg transition-colors">
                 สมัครเรียน
               </Link>
             </div>
@@ -232,9 +232,9 @@ const SiteHeader = () => {
       />
 
       {/* Drawer Panel */}
-      <div className={`lg:hidden fixed top-0 right-0 h-full w-72 bg-white z-50 shadow-2xl flex flex-col transition-transform duration-300 ${mobileOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className={`lg:hidden fixed top-0 right-0 h-full w-72 bg-card z-50 shadow-2xl flex flex-col transition-transform duration-300 ${mobileOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         {/* Drawer header */}
-        <div className="bg-gradient-to-r from-purple-950 to-primary text-white px-4 py-4 flex items-center justify-between flex-shrink-0">
+        <div className="bg-primary text-primary-foreground px-4 py-4 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-full border border-yellow-400/50 bg-white/10 flex items-center justify-center overflow-hidden">
               {settings.school_logo_url
@@ -251,29 +251,29 @@ const SiteHeader = () => {
         {/* Menu items */}
         <div className="flex-1 overflow-y-auto">
           <div className="py-2">
-            <p className="px-4 py-2 text-xs font-bold text-purple-400 uppercase tracking-widest">เมนูหลัก</p>
+            <p className="px-4 py-2 text-xs font-bold text-muted-foreground uppercase tracking-widest">เมนูหลัก</p>
             {mainNav.map((item) => (
               <Link key={item.href} to={item.href}
                 className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors border-l-4 ${
                   isActive(item.href)
-                    ? 'border-primary bg-purple-50 text-primary font-semibold'
-                    : 'border-transparent text-gray-700 hover:bg-gray-50 hover:text-primary hover:border-purple-200'
+                    ? 'border-primary bg-secondary text-primary font-semibold'
+                    : 'border-transparent text-foreground hover:bg-muted hover:text-primary hover:border-border'
                 }`}>
-                <item.icon className={`w-4 h-4 ${isActive(item.href) ? 'text-primary' : 'text-gray-400'}`} />
+                <item.icon className={`w-4 h-4 ${isActive(item.href) ? 'text-primary' : 'text-muted-foreground'}`} />
                 {item.label}
               </Link>
             ))}
 
-            <div className="mx-4 my-2 border-t border-gray-100" />
-            <p className="px-4 py-2 text-xs font-bold text-purple-400 uppercase tracking-widest">บริการ</p>
+            <div className="mx-4 my-2 border-t border-border" />
+            <p className="px-4 py-2 text-xs font-bold text-muted-foreground uppercase tracking-widest">บริการ</p>
             {serviceNav.map((item) => (
               <Link key={item.href} to={item.href}
                 className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors border-l-4 ${
                   location.pathname.startsWith(item.href)
-                    ? 'border-primary bg-purple-50 text-primary font-semibold'
-                    : 'border-transparent text-gray-700 hover:bg-gray-50 hover:text-primary hover:border-purple-200'
+                    ? 'border-primary bg-secondary text-primary font-semibold'
+                    : 'border-transparent text-foreground hover:bg-muted hover:text-primary hover:border-border'
                 }`}>
-                <item.icon className={`w-4 h-4 ${location.pathname.startsWith(item.href) ? 'text-primary' : 'text-gray-400'}`} />
+                <item.icon className={`w-4 h-4 ${location.pathname.startsWith(item.href) ? 'text-primary' : 'text-muted-foreground'}`} />
                 {item.label}
               </Link>
             ))}
@@ -281,9 +281,9 @@ const SiteHeader = () => {
         </div>
 
         {/* Drawer footer */}
-        <div className="flex-shrink-0 p-4 border-t border-gray-100 bg-gray-50 space-y-2">
+        <div className="flex-shrink-0 p-4 border-t border-border bg-muted space-y-2">
           <Link to="/enrollment"
-            className="flex items-center justify-center gap-2 w-full bg-primary hover:bg-purple-800 text-white font-bold py-2.5 rounded-lg transition-colors text-sm">
+            className="flex items-center justify-center gap-2 w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-2.5 rounded-lg transition-colors text-sm">
             สมัครเรียน
           </Link>
           <div className="flex gap-2">
