@@ -509,7 +509,73 @@ overrides defaults from src/index.css → all Tailwind tokens reflect
 
 ---
 
-## 13. Spacing & Layout
+## 14. Frontend UX Rules (กฎเฉพาะที่เคยพลาด — ห้ามทำซ้ำ)
+
+กฎต่อไปนี้สรุปจาก bug ที่เกิดขึ้นจริงในเว็บโรงเรียนหลัง refactor หลายครั้ง
+ใส่ไว้เพื่อ AI agent / dev อนาคต ไม่ทำซ้ำ:
+
+### Rule 14.1 — No gradients on nav/header/banner
+❌ `bg-gradient-to-*` บน `<nav>`, `<header>`, top bar, announcement banner
+✅ Solid color เท่านั้น — `bg-primary`, `bg-foreground`, `bg-accent`
+
+**เหตุผล:** gradient ที่มี hue ต่างกัน (เช่น green→indigo) ทำให้สีเลอะ + ดูไม่เป็นมืออาชีพ
+ปัญหา: Vercel screenshot show top bar เป็น green→white→purple bleed
+
+**ข้อยกเว้น:** image overlay (`from-black/60 to-transparent`) สำหรับ legibility ของข้อความบนรูปภาพ — ใช้ได้
+
+### Rule 14.2 — Yellow text contrast
+- `text-yellow-300` / `accent-soft` (#FFD874) ใช้ได้เฉพาะบน:
+  - `bg-primary` (dark forest green) ✅ contrast ~9.5:1
+  - `bg-foreground` (very dark) ✅
+- ❌ ห้ามใช้บน:
+  - bg-gradient ที่มี white/light area (กลืน)
+  - `bg-secondary` / `bg-muted` (contrast fail)
+  - `bg-background` (white) — contrast 1.8:1 fail
+
+### Rule 14.3 — Text on white bg minimum
+- ❌ `text-gray-400` / `text-gray-500` บน white = อ่านยาก
+- ✅ `text-foreground` (#14291C) — body default
+- ✅ `text-muted-foreground` (#568165) — minimum สำหรับ secondary/helper
+
+ปัญหา: เมนูในหน้า /documents เคยใช้ `text-gray-700` บนพื้นขาว — เกือบกลืน
+
+### Rule 14.4 — Footer compact spacing
+- Container: `py-10` (ไม่ใช่ `py-16` ใหญ่เกิน)
+- Column gap: `gap-8` (ไม่ใช่ `gap-12`)
+- Item gap: `space-y-1.5` หรือ `space-y-2` (ไม่ใช่ `space-y-3/4`)
+- มี subtle divider ใต้ heading (`border-b border-primary-foreground/15`)
+- Text size: `text-sm` ในรายการ (ไม่ใช่ default `text-base`)
+
+ปัญหาเก่า: footer มี vertical space เยอะเกิน — ดูโล่ง
+
+### Rule 14.5 — Theme Manager = Single Source of Truth
+- สี + token ทั้งหมดควรกำหนดผ่าน `/admin/dashboard/theme`
+- `school_settings.theme_colors` (JSON) override CSS vars ผ่าน `RuntimeThemeStyles`
+- DESIGN.md hex = default fallback ถ้า DB ว่าง
+- ห้าม hardcode สีใน component — ใช้ Tailwind class ที่ map กับ CSS var
+
+### Rule 14.6 — Section header colors admin configurable
+- Section header bg/text สามารถ override ผ่าน Theme/Menu Manager
+- Default: `bg-primary text-primary-foreground`
+- HomepageManager block ที่มี optional `bg_color` + `text_color` → ใช้ override
+
+### Rule 14.7 — Menu items + nav style controlled via Menu Manager
+- `/admin/dashboard/menu` — single source of truth สำหรับ navigation
+- `school_settings.menu_config` (JSON) เก็บ items + style
+- `SiteHeader` / `HomeNavBar` อ่านจาก `useMenuConfig()` hook (`src/hooks/useMenuConfig.ts`)
+- `DEFAULT_MENU_CONFIG` (`src/lib/menuDefaults.ts`) = fallback เมื่อ DB ว่าง
+- ห้าม hardcode `mainNav` / `serviceNav` array ใน component
+
+### Rule 14.8 — Theme toggle in admin/portal only
+- Light/dark mode toggle (`<ThemeToggle />`) ใช้เฉพาะ:
+  - `AdminLayout` (admin dashboard)
+  - `RolePortalLayout` (teacher/parent portal)
+- ❌ `SiteHeader`, `HomeNavBar`, `Footer` ห้ามมี
+- เหตุผล: public site ใช้ light mode เท่านั้น (school brand เน้นความสว่าง โล่ง)
+
+---
+
+## 15. Spacing & Layout
 
 - **Container:** `container mx-auto px-4` หรือ `.container-school` (max-w-7xl)
 - **Section padding:** `.section-padding` = `py-16 md:py-20 lg:py-24`
@@ -518,14 +584,14 @@ overrides defaults from src/index.css → all Tailwind tokens reflect
 
 ---
 
-## 14. Verification Commands
+## 16. Verification Commands
 
 ```bash
 # Validate DESIGN.md syntax
 pnpm lint:design
 
 # Find purple offenders
-grep -rn "purple\|violet\|indigo\|fuchsia" src/ | grep -v ".test."
+grep -rn "purple\|violet\|indigo\|fuchsia\|pink-[0-9]" src/ | grep -v ".test."
 
 # Find hardcoded white/black
 grep -rn "bg-white\|text-black\|bg-black\|text-white" src/

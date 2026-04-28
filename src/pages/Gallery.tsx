@@ -37,7 +37,7 @@ interface Photo {
 const categoryColors: Record<string, string> = {
   'กีฬาสี': 'bg-blue-500',
   'วันสำคัญ': 'bg-green-500',
-  'ศึกษาดูงาน': 'bg-purple-500',
+  'ศึกษาดูงาน': 'bg-accent',
   'กิจกรรมวิชาการ': 'bg-orange-500',
   'พิธีการ': 'bg-red-500',
 };

@@ -19,7 +19,7 @@ const semesters = [
 const eventTypes = {
   academic: { label: 'วิชาการ', color: 'bg-blue-500', icon: BookOpen },
   sports: { label: 'กีฬา', color: 'bg-green-500', icon: Trophy },
-  cultural: { label: 'วัฒนธรรม', color: 'bg-purple-500', icon: GraduationCap },
+  cultural: { label: 'วัฒนธรรม', color: 'bg-accent', icon: GraduationCap },
   general: { label: 'ทั่วไป', color: 'bg-orange-500', icon: Users },
 };
 
