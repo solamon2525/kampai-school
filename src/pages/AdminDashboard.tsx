@@ -41,6 +41,7 @@ const TestimonialsManagement = lazy(() => import('@/components/admin/homepage/Te
 const PartnersManagement = lazy(() => import('@/components/admin/homepage/PartnersManagement').then(m => ({ default: m.PartnersManagement })));
 const NotificationsManagement = lazy(() => import('@/components/admin/notifications/NotificationsManagement').then(m => ({ default: m.NotificationsManagement })));
 const ThemeManager = lazy(() => import('@/components/admin/theme/ThemeManager').then(m => ({ default: m.ThemeManager })));
+const MenuManager = lazy(() => import('@/components/admin/menu/MenuManager').then(m => ({ default: m.MenuManager })));
 
 // Loading spinner สำหรับ lazy-loaded admin pages
 const AdminPageLoader = () => (
@@ -82,6 +83,7 @@ const AdminDashboard = () => {
             <Route path="partners" element={<PartnersManagement />} />
             <Route path="settings" element={<SettingsManagement />} />
             <Route path="theme" element={<ThemeManager />} />
+            <Route path="menu" element={<MenuManager />} />
             <Route path="hero-slides" element={<HeroSlidesManagement />} />
             <Route path="news" element={<NewsManagement />} />
             <Route path="gallery" element={<GalleryManagement />} />

@@ -1,32 +1,13 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
+import { useMenuConfig } from '@/hooks/useMenuConfig';
+import { resolveMenuIcon } from '@/lib/menuIcons';
+import type { MenuItem } from '@/lib/menuDefaults';
 import {
-  Home, Info, Users, GraduationCap, BookOpen, Image, Calendar, Newspaper,
-  Phone, FileText, Recycle, ChevronDown, Menu, X, Mail, Facebook,
-  Youtube, Instagram, MessageCircle, Link as LinkIcon, Globe, LogIn,
-  Layers, Download, UserCog,
+  ChevronDown, Menu, X, Phone, Mail, Facebook,
+  Youtube, Instagram, MessageCircle, Link as LinkIcon, Globe,
 } from 'lucide-react';
-
-// ─── เมนูหลัก ───────────────────────────────────────────────
-const mainNav = [
-  { label: 'หน้าหลัก',   href: '/',            icon: Home },
-  { label: 'เกี่ยวกับเรา', href: '/about',        icon: Info },
-  { label: 'บุคลากร',    href: '/staff',        icon: Users },
-  { label: 'นักเรียน',   href: '/students',     icon: GraduationCap },
-  { label: 'หลักสูตร',   href: '/curriculum',   icon: BookOpen },
-  { label: 'แกลเลอรี่',  href: '/gallery',      icon: Image },
-  { label: 'ปฏิทิน',    href: '/calendar',     icon: Calendar },
-  { label: 'ข่าวสาร',   href: '/news',         icon: Newspaper },
-  { label: 'ติดต่อเรา',  href: '/contact',      icon: Phone },
-];
-
-// ─── Dropdown บริการ ────────────────────────────────────────
-const serviceNav = [
-  { label: 'ธนาคารขยะ',       href: '/waste-bank', icon: Recycle },
-  { label: 'เอกสาร/แบบฟอร์ม', href: '/documents',  icon: FileText },
-  { label: 'สมัครเรียน',      href: '/enrollment', icon: UserCog },
-];
 
 const getSocialIcon = (platform: string) => {
   switch (platform) {
@@ -41,12 +22,32 @@ const getSocialIcon = (platform: string) => {
 // ─── Easter Egg: คลิก Logo 5 ครั้งใน 3 วิ → /admin ─────────
 const SiteHeader = () => {
   const { settings } = useSchoolSettings();
+  const { config: menuConfig } = useMenuConfig();
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [servicesOpen, setServicesOpen] = useState(false);
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
-  const servicesRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Derive top-level + children-by-parent maps from menu config
+  const { topLevel, childrenByParent } = useMemo(() => {
+    const top = menuConfig.items
+      .filter((i) => i.parent === null)
+      .sort((a, b) => a.order - b.order);
+    const map = new Map<string, MenuItem[]>();
+    menuConfig.items.forEach((i) => {
+      if (i.parent) {
+        const arr = map.get(i.parent) ?? [];
+        arr.push(i);
+        map.set(i.parent, arr);
+      }
+    });
+    map.forEach((arr) => arr.sort((a, b) => a.order - b.order));
+    return { topLevel: top, childrenByParent: map };
+  }, [menuConfig.items]);
+
+  const navStyle = menuConfig.style;
 
   const logoClicks = useRef(0);
   const logoTimer  = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -71,8 +72,8 @@ const SiteHeader = () => {
 
   useEffect(() => {
     const fn = (e: MouseEvent) => {
-      if (servicesRef.current && !servicesRef.current.contains(e.target as Node))
-        setServicesOpen(false);
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node))
+        setOpenDropdownId(null);
     };
     document.addEventListener('mousedown', fn);
     return () => document.removeEventListener('mousedown', fn);
@@ -81,10 +82,13 @@ const SiteHeader = () => {
   // ปิด mobile menu เมื่อเปลี่ยนหน้า
   useEffect(() => { setMobileOpen(false); }, [location.pathname]);
 
-  const isActive = (href: string) =>
-    href === '/' ? location.pathname === '/' : location.pathname.startsWith(href);
+  const isActive = (href: string | null) =>
+    !href ? false : href === '/' ? location.pathname === '/' : location.pathname.startsWith(href);
 
-  const isServiceActive = serviceNav.some(s => location.pathname.startsWith(s.href));
+  const isParentActive = (parentId: string) => {
+    const children = childrenByParent.get(parentId) ?? [];
+    return children.some((c) => isActive(c.href));
+  };
 
   return (
     <>
@@ -145,53 +149,83 @@ const SiteHeader = () => {
         </div>
       </div>
 
-      {/* ── Navigation Bar ── */}
-      <nav className={`bg-primary text-primary-foreground sticky top-0 z-50 transition-shadow ${scrolled ? 'shadow-lg shadow-primary/50' : ''}`}>
+      {/* ── Navigation Bar ── (driven by useMenuConfig) ── */}
+      <nav
+        className={`sticky top-0 z-50 transition-shadow ${scrolled ? 'shadow-lg' : ''}`}
+        style={{ backgroundColor: navStyle.navBg, color: navStyle.navText }}
+      >
         <div className="max-w-7xl mx-auto px-4">
           {/* Desktop Nav */}
-          <div className="hidden lg:flex items-center">
-            {mainNav.map((item) => (
-              <Link key={item.href} to={item.href}
-                className={`flex items-center gap-1.5 px-3 py-3 text-sm font-medium border-b-2 transition-all whitespace-nowrap ${
-                  isActive(item.href)
-                    ? 'border-yellow-400 text-yellow-300 bg-white/10'
-                    : 'border-transparent text-white/85 hover:text-yellow-300 hover:bg-white/10 hover:border-yellow-400/40'
-                }`}>
-                <item.icon className="w-3.5 h-3.5" />
-                {item.label}
-              </Link>
-            ))}
+          <div className="hidden lg:flex items-center" ref={dropdownRef}>
+            {topLevel.map((item) => {
+              const Icon = resolveMenuIcon(item.icon);
+              const children = childrenByParent.get(item.id) ?? [];
+              const hasChildren = children.length > 0;
+              const active = hasChildren ? isParentActive(item.id) : isActive(item.href);
+              const isOpen = openDropdownId === item.id;
 
-            {/* Services Dropdown */}
-            <div className="relative" ref={servicesRef}>
-              <button
-                onClick={() => setServicesOpen(!servicesOpen)}
-                className={`flex items-center gap-1.5 px-3 py-3 text-sm font-medium border-b-2 transition-all ${
-                  isServiceActive
-                    ? 'border-yellow-400 text-yellow-300 bg-white/10'
-                    : 'border-transparent text-white/85 hover:text-yellow-300 hover:bg-white/10 hover:border-yellow-400/40'
-                }`}>
-                <Layers className="w-3.5 h-3.5" />
-                บริการ
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${servicesOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {servicesOpen && (
-                <div className="absolute top-full left-0 mt-1 w-48 bg-card rounded-xl shadow-xl border border-border py-1.5 z-50">
-                  {serviceNav.map((s) => (
-                    <Link key={s.href} to={s.href}
-                      onClick={() => setServicesOpen(false)}
-                      className={`flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors ${
-                        location.pathname.startsWith(s.href)
-                          ? 'text-primary bg-secondary font-semibold'
-                          : 'text-foreground hover:bg-secondary hover:text-primary'
-                      }`}>
-                      <s.icon className="w-4 h-4 text-primary" />
-                      {s.label}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
+              const buttonStyle: React.CSSProperties = {
+                color: active ? navStyle.navTextActive : navStyle.navText,
+                backgroundColor: active ? navStyle.navBgActive : 'transparent',
+                borderBottomColor: active ? navStyle.borderActive : 'transparent',
+                fontWeight: navStyle.fontWeight as any,
+                fontSize: navStyle.fontSize,
+              };
+
+              const navItemClass = 'flex items-center gap-1.5 px-3 py-3 border-b-2 transition-all whitespace-nowrap';
+
+              if (hasChildren) {
+                return (
+                  <div key={item.id} className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setOpenDropdownId(isOpen ? null : item.id)}
+                      className={navItemClass}
+                      style={buttonStyle}
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                      {item.label}
+                      <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    {isOpen && (
+                      <div className="absolute top-full left-0 mt-1 w-48 bg-card rounded-xl shadow-xl border border-border py-1.5 z-50">
+                        {children.map((c) => {
+                          const ChildIcon = resolveMenuIcon(c.icon);
+                          const childActive = isActive(c.href);
+                          return c.href ? (
+                            <Link
+                              key={c.id}
+                              to={c.href}
+                              onClick={() => setOpenDropdownId(null)}
+                              className={`flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors ${
+                                childActive
+                                  ? 'text-primary bg-secondary font-semibold'
+                                  : 'text-foreground hover:bg-secondary hover:text-primary'
+                              }`}
+                            >
+                              <ChildIcon className="w-4 h-4 text-primary" />
+                              {c.label}
+                            </Link>
+                          ) : null;
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
+              return item.href ? (
+                <Link
+                  key={item.id}
+                  to={item.href}
+                  className={navItemClass}
+                  style={buttonStyle}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  {item.label}
+                </Link>
+              ) : null;
+            })}
 
             {/* Enroll CTA */}
             <div className="ml-auto flex items-center gap-2">
@@ -241,35 +275,61 @@ const SiteHeader = () => {
           </button>
         </div>
 
-        {/* Menu items */}
+        {/* Menu items (driven by menu config) */}
         <div className="flex-1 overflow-y-auto">
           <div className="py-2">
-            <p className="px-4 py-2 text-xs font-bold text-muted-foreground uppercase tracking-widest">เมนูหลัก</p>
-            {mainNav.map((item) => (
-              <Link key={item.href} to={item.href}
-                className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors border-l-4 ${
-                  isActive(item.href)
-                    ? 'border-primary bg-secondary text-primary font-semibold'
-                    : 'border-transparent text-foreground hover:bg-muted hover:text-primary hover:border-border'
-                }`}>
-                <item.icon className={`w-4 h-4 ${isActive(item.href) ? 'text-primary' : 'text-muted-foreground'}`} />
-                {item.label}
-              </Link>
-            ))}
+            {topLevel.map((item, idx) => {
+              const Icon = resolveMenuIcon(item.icon);
+              const children = childrenByParent.get(item.id) ?? [];
+              const hasChildren = children.length > 0;
+              const isFirst = idx === 0;
 
-            <div className="mx-4 my-2 border-t border-border" />
-            <p className="px-4 py-2 text-xs font-bold text-muted-foreground uppercase tracking-widest">บริการ</p>
-            {serviceNav.map((item) => (
-              <Link key={item.href} to={item.href}
-                className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors border-l-4 ${
-                  location.pathname.startsWith(item.href)
-                    ? 'border-primary bg-secondary text-primary font-semibold'
-                    : 'border-transparent text-foreground hover:bg-muted hover:text-primary hover:border-border'
-                }`}>
-                <item.icon className={`w-4 h-4 ${location.pathname.startsWith(item.href) ? 'text-primary' : 'text-muted-foreground'}`} />
-                {item.label}
-              </Link>
-            ))}
+              return (
+                <div key={item.id}>
+                  {hasChildren ? (
+                    <>
+                      {!isFirst && <div className="mx-4 my-2 border-t border-border" />}
+                      <p className="px-4 py-2 text-xs font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-1.5">
+                        <Icon className="w-3.5 h-3.5" />
+                        {item.label}
+                      </p>
+                      {children.map((c) => {
+                        const ChildIcon = resolveMenuIcon(c.icon);
+                        const childActive = isActive(c.href);
+                        return c.href ? (
+                          <Link
+                            key={c.id}
+                            to={c.href}
+                            className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors border-l-4 ${
+                              childActive
+                                ? 'border-primary bg-secondary text-primary font-semibold'
+                                : 'border-transparent text-foreground hover:bg-muted hover:text-primary hover:border-border'
+                            }`}
+                          >
+                            <ChildIcon className={`w-4 h-4 ${childActive ? 'text-primary' : 'text-muted-foreground'}`} />
+                            {c.label}
+                          </Link>
+                        ) : null;
+                      })}
+                    </>
+                  ) : (
+                    item.href && (
+                      <Link
+                        to={item.href}
+                        className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors border-l-4 ${
+                          isActive(item.href)
+                            ? 'border-primary bg-secondary text-primary font-semibold'
+                            : 'border-transparent text-foreground hover:bg-muted hover:text-primary hover:border-border'
+                        }`}
+                      >
+                        <Icon className={`w-4 h-4 ${isActive(item.href) ? 'text-primary' : 'text-muted-foreground'}`} />
+                        {item.label}
+                      </Link>
+                    )
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
 
