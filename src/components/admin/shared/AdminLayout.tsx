@@ -132,33 +132,32 @@ const SidebarContent = ({
     const isHomepageActive = activeId === 'homepage-layout';
 
     return (
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full bg-admin-sidebar text-admin-sidebar-fg">
             {/* School Header */}
-            <div className="p-4 border-b border-border">
+            <div className="p-4 border-b border-white/10">
                 <Link to="/" className="flex items-center gap-3" onClick={() => onNavigate('/')}>
-                    <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-                        <span className="text-accent font-bold">คผ</span>
+                    <div className="w-10 h-10 rounded-full bg-admin-accent flex items-center justify-center">
+                        <span className="text-white font-bold">คผ</span>
                     </div>
                     <div>
-                        <h1 className="font-bold text-primary text-sm">{settings.school_name}</h1>
-                        <p className="text-xs text-muted-foreground">ระบบจัดการ</p>
+                        <h1 className="font-bold text-admin-sidebar-fg text-sm">{settings.school_name}</h1>
+                        <p className="text-xs text-admin-sidebar-muted">ระบบจัดการ</p>
                     </div>
                 </Link>
             </div>
 
-            {/* Homepage Manager — Featured Card */}
+            {/* Homepage Manager — Featured Card (admin palette: green accent on dark sidebar) */}
             {isAdmin && (
                 <div className="px-3 pt-3">
                     <button
                         onClick={() => onNavigate('/admin/dashboard/homepage-layout')}
-                        className={`w-full group relative overflow-hidden rounded-xl p-3 transition-all duration-200 ${
+                        className={`w-full group relative overflow-hidden rounded-xl p-3 transition-all duration-200 border ${
                             isHomepageActive
-                                ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg shadow-violet-500/25'
-                                : 'bg-gradient-to-r from-violet-50 to-purple-50 hover:from-violet-100 hover:to-purple-100 border border-violet-200/60'
+                                ? 'bg-admin-accent text-white border-admin-accent shadow-lg shadow-admin-accent/25'
+                                : 'bg-white/5 hover:bg-white/10 border-white/10'
                         }`}
                     >
-                        {/* Sparkle decoration */}
-                        <div className={`absolute top-1 right-1 ${isHomepageActive ? 'text-white/30' : 'text-violet-300'}`}>
+                        <div className={`absolute top-1 right-1 ${isHomepageActive ? 'text-white/30' : 'text-admin-sidebar-muted'}`}>
                             <Sparkles className="w-4 h-4" />
                         </div>
 
@@ -166,20 +165,20 @@ const SidebarContent = ({
                             <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
                                 isHomepageActive
                                     ? 'bg-white/20'
-                                    : 'bg-violet-100 group-hover:bg-violet-200'
+                                    : 'bg-white/10 group-hover:bg-white/15'
                             }`}>
-                                <LayoutTemplate className={`w-5 h-5 ${isHomepageActive ? 'text-white' : 'text-violet-600'}`} />
+                                <LayoutTemplate className={`w-5 h-5 ${isHomepageActive ? 'text-white' : 'text-admin-accent'}`} />
                             </div>
                             <div className="text-left flex-1 min-w-0">
-                                <p className={`text-sm font-semibold leading-tight ${isHomepageActive ? 'text-white' : 'text-violet-900'}`}>
+                                <p className={`text-sm font-semibold leading-tight ${isHomepageActive ? 'text-white' : 'text-admin-sidebar-fg'}`}>
                                     จัดการหน้าแรก
                                 </p>
-                                <p className={`text-[10px] mt-0.5 ${isHomepageActive ? 'text-white/70' : 'text-violet-500'}`}>
+                                <p className={`text-[10px] mt-0.5 ${isHomepageActive ? 'text-white/70' : 'text-admin-sidebar-muted'}`}>
                                     ลาก วาง จัดบล็อค + Live Preview
                                 </p>
                             </div>
                             <ExternalLink className={`w-3.5 h-3.5 flex-shrink-0 ${
-                                isHomepageActive ? 'text-white/50' : 'text-violet-300 group-hover:text-violet-500'
+                                isHomepageActive ? 'text-white/50' : 'text-admin-sidebar-muted group-hover:text-admin-sidebar-fg'
                             }`} />
                         </div>
 
@@ -198,7 +197,7 @@ const SidebarContent = ({
                 {menuItems.map((item, idx) => {
                     if (item.type === 'section') {
                         return (
-                            <p key={`section-${idx}`} className="px-2 pt-4 pb-1 text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-wider">
+                            <p key={`section-${idx}`} className="px-2 pt-4 pb-1 text-[10px] font-semibold text-admin-sidebar-muted/80 uppercase tracking-wider">
                                 {item.label}
                             </p>
                         );
@@ -210,8 +209,8 @@ const SidebarContent = ({
                             key={item.id}
                             onClick={() => onNavigate(item.path)}
                             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-left ${isActive
-                                ? 'bg-primary text-primary-foreground'
-                                : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                                ? 'bg-admin-accent text-white shadow-sm'
+                                : 'text-admin-sidebar-muted hover:bg-white/10 hover:text-admin-sidebar-fg'
                                 }`}
                         >
                             <item.icon className="w-4 h-4" />
@@ -222,22 +221,22 @@ const SidebarContent = ({
             </nav>
 
             {/* User Footer */}
-            <div className="p-3 border-t border-border">
+            <div className="p-3 border-t border-white/10">
                 <div className="flex items-center gap-3 mb-3 px-1">
-                    <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center">
-                        <UserCheck className="w-4 h-4 text-primary" />
+                    <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                        <UserCheck className="w-4 h-4 text-admin-accent" />
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="font-medium text-xs truncate">{userEmail}</p>
-                        <p className="text-[10px] text-muted-foreground">{isAdmin ? 'ผู้ดูแลระบบ' : 'ผู้ใช้ทั่วไป'}</p>
+                        <p className="font-medium text-xs truncate text-admin-sidebar-fg">{userEmail}</p>
+                        <p className="text-[10px] text-admin-sidebar-muted">{isAdmin ? 'ผู้ดูแลระบบ' : 'ผู้ใช้ทั่วไป'}</p>
                     </div>
                 </div>
                 <div className="flex gap-1.5">
-                    <Button variant="outline" size="sm" className="flex-1 h-8 text-xs" onClick={() => onNavigate('/')}>
+                    <Button variant="outline" size="sm" className="flex-1 h-8 text-xs bg-transparent border-white/20 text-admin-sidebar-fg hover:bg-white/10 hover:text-admin-sidebar-fg" onClick={() => onNavigate('/')}>
                         <Home className="w-3.5 h-3.5 mr-1" />
                         หน้าเว็บ
                     </Button>
-                    <Button variant="outline" size="sm" className="h-8 px-2.5" onClick={onLogout}>
+                    <Button variant="outline" size="sm" className="h-8 px-2.5 bg-transparent border-white/20 text-admin-sidebar-fg hover:bg-white/10 hover:text-admin-sidebar-fg" onClick={onLogout}>
                         <LogOut className="w-3.5 h-3.5" />
                     </Button>
                 </div>
@@ -266,9 +265,9 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
     };
 
     return (
-        <div className="min-h-screen bg-secondary">
-            {/* Desktop Sidebar */}
-            <aside className="fixed left-0 top-0 h-full w-64 bg-card border-r border-border shadow-lg z-40 hidden lg:block">
+        <div className="min-h-screen bg-admin-bg">
+            {/* Desktop Sidebar — dark slate (always) */}
+            <aside className="fixed left-0 top-0 h-full w-64 bg-admin-sidebar shadow-xl z-40 hidden lg:block">
                 <SidebarContent
                     settings={settings}
                     isAdmin={isAdmin}
@@ -280,14 +279,14 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
             </aside>
 
             {/* Mobile Header + Sheet Sidebar */}
-            <div className="lg:hidden sticky top-0 z-40 flex items-center gap-3 px-4 py-3 bg-card border-b border-border">
+            <div className="lg:hidden sticky top-0 z-40 flex items-center gap-3 px-4 py-3 bg-admin-surface border-b border-admin-border">
                 <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
                     <SheetTrigger asChild>
                         <Button variant="ghost" size="icon">
                             <Menu className="w-5 h-5" />
                         </Button>
                     </SheetTrigger>
-                    <SheetContent side="left" className="p-0 w-72">
+                    <SheetContent side="left" className="p-0 w-72 bg-admin-sidebar border-r-0">
                         <SidebarContent
                             settings={settings}
                             isAdmin={isAdmin}
@@ -298,14 +297,14 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
                         />
                     </SheetContent>
                 </Sheet>
-                <h1 className="font-bold text-primary text-sm truncate flex-1">{settings.school_name}</h1>
+                <h1 className="font-bold text-admin-text text-sm truncate flex-1">{settings.school_name}</h1>
                 <ThemeToggle />
                 {isAdmin && <NotificationBell />}
             </div>
 
             {/* Desktop Top Bar */}
             {isAdmin && (
-                <div className="lg:ml-64 hidden lg:flex sticky top-0 z-30 justify-end items-center gap-2 px-6 py-2 bg-card/80 backdrop-blur border-b border-border">
+                <div className="lg:ml-64 hidden lg:flex sticky top-0 z-30 justify-end items-center gap-2 px-6 py-2 bg-admin-surface/95 backdrop-blur border-b border-admin-border">
                     <ThemeToggle />
                     <NotificationBell />
                 </div>

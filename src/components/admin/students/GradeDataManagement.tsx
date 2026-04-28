@@ -130,7 +130,7 @@ export const GradeDataManagement = () => {
                                     <td className="px-4 py-3 text-center">{grade.rooms}</td>
                                     <td className="px-4 py-3 text-center font-semibold text-primary">{grade.students}</td>
                                     <td className="px-4 py-3 text-center text-blue-600">{grade.boys}</td>
-                                    <td className="px-4 py-3 text-center text-pink-600">{grade.girls}</td>
+                                    <td className="px-4 py-3 text-center text-amber-600">{grade.girls}</td>
                                     <td className="px-4 py-3 text-center">{grade.is_active ? <span className="text-green-600">แสดง</span> : <span className="text-muted-foreground">ซ่อน</span>}</td>
                                     <td className="px-4 py-3 text-center">
                                         <div className="flex gap-1 justify-center">

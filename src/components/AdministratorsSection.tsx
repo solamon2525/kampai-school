@@ -17,7 +17,7 @@ const colorPalette = [
   'from-primary to-navy-light',
   'from-accent to-gold-light',
   'from-green-500 to-green-400',
-  'from-purple-500 to-purple-400',
+  'from-emerald-500 to-emerald-400',
   'from-blue-500 to-blue-400',
   'from-orange-500 to-orange-400',
 ];

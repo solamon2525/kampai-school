@@ -44,7 +44,7 @@ const Contact = () => {
   };
   const platformColors: Record<string, string> = {
     facebook: 'hover:bg-blue-600', youtube: 'hover:bg-red-600',
-    instagram: 'hover:bg-pink-600', line: 'hover:bg-green-500',
+    instagram: 'hover:bg-rose-600', line: 'hover:bg-green-500',
   };
   const socialLinks = (settings.social_links || [])
     .filter(link => !!link.url)
@@ -302,7 +302,7 @@ const Contact = () => {
                           switch (platform) {
                             case 'facebook': return 'hover:bg-blue-600';
                             case 'youtube': return 'hover:bg-red-600';
-                            case 'instagram': return 'hover:bg-pink-600';
+                            case 'instagram': return 'hover:bg-rose-600';
                             case 'line': return 'hover:bg-green-500';
                             default: return 'hover:bg-primary-foreground/20';
                           }

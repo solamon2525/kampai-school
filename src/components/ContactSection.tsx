@@ -150,7 +150,7 @@ const ContactSection = () => {
                         switch (platform) {
                           case 'facebook': return 'hover:bg-blue-600';
                           case 'youtube': return 'hover:bg-red-600';
-                          case 'instagram': return 'hover:bg-pink-600';
+                          case 'instagram': return 'hover:bg-rose-600';
                           case 'line': return 'hover:bg-green-500';
                           default: return 'hover:bg-accent';
                         }

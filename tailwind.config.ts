@@ -70,6 +70,18 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        admin: {
+          bg: "hsl(var(--admin-bg))",
+          surface: "hsl(var(--admin-surface))",
+          sidebar: "hsl(var(--admin-sidebar))",
+          "sidebar-fg": "hsl(var(--admin-sidebar-fg))",
+          "sidebar-muted": "hsl(var(--admin-sidebar-muted))",
+          "sidebar-active": "hsl(var(--admin-sidebar-active))",
+          text: "hsl(var(--admin-text))",
+          "text-muted": "hsl(var(--admin-text-muted))",
+          border: "hsl(var(--admin-border))",
+          accent: "hsl(var(--admin-accent))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

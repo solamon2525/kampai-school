@@ -95,7 +95,7 @@ export const EventsManagement = () => {
         const categories: Record<string, { label: string; color: string }> = {
             academic: { label: 'วิชาการ', color: 'bg-blue-500' },
             sports: { label: 'กีฬา', color: 'bg-green-500' },
-            cultural: { label: 'วัฒนธรรม', color: 'bg-purple-500' },
+            cultural: { label: 'วัฒนธรรม', color: 'bg-emerald-500' },
             general: { label: 'ทั่วไป', color: 'bg-gray-500' },
         };
 

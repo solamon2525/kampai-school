@@ -23,8 +23,8 @@ export const AcademicManagement = () => {
     <div className="space-y-4">
       {/* Page Header */}
       <div className="flex items-center gap-3 pb-2 border-b">
-        <div className="w-9 h-9 rounded-lg bg-indigo-100 flex items-center justify-center">
-          <BookOpen className="w-5 h-5 text-indigo-700" />
+        <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center">
+          <BookOpen className="w-5 h-5 text-slate-700" />
         </div>
         <div>
           <h1 className="text-lg font-semibold text-gray-900">ฝ่ายวิชาการ</h1>

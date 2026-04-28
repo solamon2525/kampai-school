@@ -48,7 +48,7 @@ export default function TeacherDashboard() {
                         <Link key={item.id} to={item.path}>
                             <Card className="hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer">
                                 <CardContent className="p-6 flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                                    <div className="w-12 h-12 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center">
                                         <item.icon className="w-6 h-6" />
                                     </div>
                                     <div>

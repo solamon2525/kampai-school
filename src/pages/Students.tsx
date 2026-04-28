@@ -180,7 +180,7 @@ const Students = () => {
                       <td className="px-3 sm:px-6 py-3 sm:py-4 font-medium text-foreground text-sm sm:text-base">{grade.level}</td>
                       <td className="px-2 sm:px-6 py-3 sm:py-4 text-center text-muted-foreground text-sm sm:text-base">{grade.rooms}</td>
                       <td className="px-2 sm:px-6 py-3 sm:py-4 text-center text-blue-500 font-semibold text-sm sm:text-base">{grade.boys}</td>
-                      <td className="px-2 sm:px-6 py-3 sm:py-4 text-center text-pink-500 font-semibold text-sm sm:text-base">{grade.girls}</td>
+                      <td className="px-2 sm:px-6 py-3 sm:py-4 text-center text-rose-500 font-semibold text-sm sm:text-base">{grade.girls}</td>
                       <td className="px-2 sm:px-6 py-3 sm:py-4 text-center text-primary font-bold text-sm sm:text-base">{grade.students}</td>
                     </tr>
                   ))}
@@ -188,7 +188,7 @@ const Students = () => {
                     <td className="px-3 sm:px-6 py-3 sm:py-4 text-foreground text-sm sm:text-base">รวมทั้งหมด</td>
                     <td className="px-2 sm:px-6 py-3 sm:py-4 text-center text-muted-foreground text-sm sm:text-base">{gradeData.reduce((sum, g) => sum + (g.rooms || 0), 0)}</td>
                     <td className="px-2 sm:px-6 py-3 sm:py-4 text-center text-blue-500 text-sm sm:text-base">{gradeData.reduce((sum, g) => sum + (g.boys || 0), 0)}</td>
-                    <td className="px-2 sm:px-6 py-3 sm:py-4 text-center text-pink-500 text-sm sm:text-base">{gradeData.reduce((sum, g) => sum + (g.girls || 0), 0)}</td>
+                    <td className="px-2 sm:px-6 py-3 sm:py-4 text-center text-rose-500 text-sm sm:text-base">{gradeData.reduce((sum, g) => sum + (g.girls || 0), 0)}</td>
                     <td className="px-2 sm:px-6 py-3 sm:py-4 text-center text-primary text-sm sm:text-base">{gradeData.reduce((sum, g) => sum + (g.students || 0), 0)}</td>
                   </tr>
                 </tbody>

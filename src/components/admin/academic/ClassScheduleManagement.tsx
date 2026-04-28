@@ -28,7 +28,7 @@ interface StaffOption { id: string; name: string; }
 
 const DAYS = ['จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์'];
 const GRADES = ['อ.1','อ.2','อ.3','ป.1','ป.2','ป.3','ป.4','ป.5','ป.6'];
-const DAY_COLORS = ['bg-red-50 border-red-200','bg-orange-50 border-orange-200','bg-green-50 border-green-200','bg-blue-50 border-blue-200','bg-purple-50 border-purple-200'];
+const DAY_COLORS = ['bg-red-50 border-red-200','bg-orange-50 border-orange-200','bg-green-50 border-green-200','bg-blue-50 border-blue-200','bg-emerald-50 border-emerald-200'];
 
 const emptyForm = {
   staff_id: '', grade: 'ป.1', room: '', subject: '',

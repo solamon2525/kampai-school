@@ -60,7 +60,7 @@ const MainBlockPreview: Record<string, () => JSX.Element> = {
     ),
     news: () => (
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-            <div className="bg-purple-800 text-white px-2 py-1 flex items-center justify-between">
+            <div className="bg-emerald-800 text-white px-2 py-1 flex items-center justify-between">
                 <span className="text-[8px] font-semibold flex items-center gap-1">
                     <span className="w-0.5 h-2 bg-yellow-400 rounded-full inline-block" />
                     ข่าวสารล่าสุด
@@ -68,7 +68,7 @@ const MainBlockPreview: Record<string, () => JSX.Element> = {
                 <span className="text-[6px] text-yellow-300">ดูทั้งหมด →</span>
             </div>
             <div className="grid grid-cols-3 gap-px bg-gray-100">
-                <div className="bg-gradient-to-br from-purple-600 to-indigo-700 aspect-[4/3]" />
+                <div className="bg-gradient-to-br from-emerald-600 to-slate-700 aspect-[4/3]" />
                 <div className="col-span-2 grid grid-cols-2 gap-px">
                     {[0, 1, 2, 3].map((i) => (
                         <div key={i} className="bg-gray-200 aspect-[4/3]" />
@@ -80,7 +80,7 @@ const MainBlockPreview: Record<string, () => JSX.Element> = {
     about: () => (
         <div className="bg-white border border-gray-200 rounded-lg p-2">
             <div className="flex items-center gap-1 mb-1.5">
-                <span className="text-[6px] font-bold text-purple-700 uppercase border-l-2 border-purple-700 pl-1">ABOUT</span>
+                <span className="text-[6px] font-bold text-emerald-700 uppercase border-l-2 border-emerald-700 pl-1">ABOUT</span>
                 <span className="text-[6px] text-gray-400">—</span>
                 <span className="text-[7px] font-bold text-gray-800">WHO WE ARE</span>
             </div>
@@ -89,12 +89,12 @@ const MainBlockPreview: Record<string, () => JSX.Element> = {
                 <div className="h-1.5 bg-gray-200 rounded w-3/4" />
                 <div className="h-1.5 bg-gray-200 rounded w-1/2" />
             </div>
-            <span className="text-[6px] text-purple-700 mt-1 inline-block">อ่านเพิ่มเติม →</span>
+            <span className="text-[6px] text-emerald-700 mt-1 inline-block">อ่านเพิ่มเติม →</span>
         </div>
     ),
     calendar: () => (
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-            <div className="bg-purple-800 text-white px-2 py-1">
+            <div className="bg-emerald-800 text-white px-2 py-1">
                 <span className="text-[8px] font-semibold">📅 ปฏิทินกิจกรรม</span>
             </div>
             <div className="p-2 space-y-1.5">
@@ -162,7 +162,7 @@ const MainBlockPreview: Record<string, () => JSX.Element> = {
     // ─── New blog/content blocks ──────────────────────────
     blog_grid: () => (
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-            <div className="bg-purple-800 text-white px-2 py-1">
+            <div className="bg-emerald-800 text-white px-2 py-1">
                 <span className="text-[8px] font-semibold">📝 บล็อก (Grid)</span>
             </div>
             <div className="grid grid-cols-3 gap-1 p-1.5">
@@ -180,7 +180,7 @@ const MainBlockPreview: Record<string, () => JSX.Element> = {
     ),
     blog_carousel: () => (
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-            <div className="bg-purple-800 text-white px-2 py-1">
+            <div className="bg-emerald-800 text-white px-2 py-1">
                 <span className="text-[8px] font-semibold">🎠 บล็อก (Carousel)</span>
             </div>
             <div className="p-1.5 flex gap-1 overflow-hidden">
@@ -197,7 +197,7 @@ const MainBlockPreview: Record<string, () => JSX.Element> = {
     ),
     blog_list: () => (
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-            <div className="bg-purple-800 text-white px-2 py-1">
+            <div className="bg-emerald-800 text-white px-2 py-1">
                 <span className="text-[8px] font-semibold">📋 บล็อก (List)</span>
             </div>
             <div className="divide-y divide-gray-100">
@@ -226,7 +226,7 @@ const MainBlockPreview: Record<string, () => JSX.Element> = {
     ),
     faq_accordion: () => (
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-            <div className="bg-purple-800 text-white px-2 py-1">
+            <div className="bg-emerald-800 text-white px-2 py-1">
                 <span className="text-[8px] font-semibold">❓ คำถามที่พบบ่อย</span>
             </div>
             <div className="divide-y divide-gray-100">
@@ -266,7 +266,7 @@ const MainBlockPreview: Record<string, () => JSX.Element> = {
     ),
     photo_album: () => (
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-            <div className="bg-purple-800 text-white px-2 py-1">
+            <div className="bg-emerald-800 text-white px-2 py-1">
                 <span className="text-[8px] font-semibold">📸 อัลบั้มรูปภาพ</span>
             </div>
             <div className="grid grid-cols-4 gap-0.5 p-1">
@@ -302,11 +302,11 @@ const MainBlockPreview: Record<string, () => JSX.Element> = {
 const RightBlockPreview: Record<string, () => JSX.Element> = {
     categories: () => (
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-            <div className="bg-purple-800 text-white px-2 py-1 text-[7px] font-semibold">รายการหมวดหมู่</div>
+            <div className="bg-emerald-800 text-white px-2 py-1 text-[7px] font-semibold">รายการหมวดหมู่</div>
             <div className="divide-y divide-gray-100">
                 {['ข่าวประชาสัมพันธ์', 'กิจกรรม', 'ผลงาน'].map((c, i) => (
                     <div key={i} className="flex items-center gap-1.5 px-2 py-1">
-                        <div className={`w-1.5 h-1.5 rounded-full ${['bg-blue-500', 'bg-green-500', 'bg-purple-500'][i]}`} />
+                        <div className={`w-1.5 h-1.5 rounded-full ${['bg-blue-500', 'bg-green-500', 'bg-emerald-500'][i]}`} />
                         <span className="text-[6px] text-gray-700">{c}</span>
                     </div>
                 ))}
@@ -315,7 +315,7 @@ const RightBlockPreview: Record<string, () => JSX.Element> = {
     ),
     gallery: () => (
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-            <div className="bg-purple-800 text-white px-2 py-1 text-[7px] font-semibold">🖼️ ภาพกิจกรรม</div>
+            <div className="bg-emerald-800 text-white px-2 py-1 text-[7px] font-semibold">🖼️ ภาพกิจกรรม</div>
             <div className="grid grid-cols-3 gap-px p-0.5">
                 {[0, 1, 2, 3, 4, 5].map((i) => (
                     <div key={i} className="aspect-square bg-gray-200 rounded-sm" />
@@ -331,7 +331,7 @@ const RightBlockPreview: Record<string, () => JSX.Element> = {
     ),
     social: () => (
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-            <div className="bg-purple-800 text-white px-2 py-1 text-[7px] font-semibold">โซเชียลมีเดีย</div>
+            <div className="bg-emerald-800 text-white px-2 py-1 text-[7px] font-semibold">โซเชียลมีเดีย</div>
             <div className="p-1.5 flex gap-1">
                 {['🔵', '🔴', '🟣'].map((icon, i) => (
                     <div key={i} className="flex items-center gap-0.5 border border-gray-200 rounded px-1.5 py-0.5">
@@ -344,12 +344,12 @@ const RightBlockPreview: Record<string, () => JSX.Element> = {
     ),
     stats: () => (
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-            <div className="bg-purple-800 text-white px-2 py-1 text-[7px] font-semibold">👥 สถิติผู้เข้าชม</div>
+            <div className="bg-emerald-800 text-white px-2 py-1 text-[7px] font-semibold">👥 สถิติผู้เข้าชม</div>
             <div className="divide-y divide-gray-100">
                 {['วันนี้', 'เมื่อวาน', 'ทั้งหมด'].map((l, i) => (
                     <div key={i} className="flex items-center justify-between px-2 py-1">
                         <span className="text-[6px] text-gray-600">{l}</span>
-                        <span className="text-[7px] font-bold text-purple-700">{[42, 38, 1280][i]}</span>
+                        <span className="text-[7px] font-bold text-emerald-700">{[42, 38, 1280][i]}</span>
                     </div>
                 ))}
             </div>
@@ -357,7 +357,7 @@ const RightBlockPreview: Record<string, () => JSX.Element> = {
     ),
     documents: () => (
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-            <div className="bg-purple-800 text-white px-2 py-1 text-[7px] font-semibold">📄 เอกสารล่าสุด</div>
+            <div className="bg-emerald-800 text-white px-2 py-1 text-[7px] font-semibold">📄 เอกสารล่าสุด</div>
             <div className="divide-y divide-gray-100">
                 {[1, 2].map((i) => (
                     <div key={i} className="flex items-center gap-1 px-2 py-1">
@@ -373,9 +373,9 @@ const RightBlockPreview: Record<string, () => JSX.Element> = {
 const LeftBlockPreview: Record<string, () => JSX.Element> = {
     principal: () => (
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-            <div className="bg-purple-800 text-white px-2 py-1 text-[7px] font-semibold">👤 ผู้อำนวยการ</div>
+            <div className="bg-emerald-800 text-white px-2 py-1 text-[7px] font-semibold">👤 ผู้อำนวยการ</div>
             <div className="p-2 text-center">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 mx-auto mb-1 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 mx-auto mb-1 flex items-center justify-center">
                     <span className="text-white text-[8px] font-bold">ผ</span>
                 </div>
                 <div className="h-1.5 bg-gray-200 rounded w-3/4 mx-auto" />
@@ -385,11 +385,11 @@ const LeftBlockPreview: Record<string, () => JSX.Element> = {
     ),
     menu: () => (
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-            <div className="bg-purple-800 text-white px-2 py-1 text-[7px] font-semibold">เมนูทาง</div>
+            <div className="bg-emerald-800 text-white px-2 py-1 text-[7px] font-semibold">เมนูทาง</div>
             <div className="divide-y divide-gray-100">
                 {['ประวัติ', 'บุคลากร', 'นักเรียน', 'หลักสูตร', 'แกลเลอรี่'].map((m, i) => (
                     <div key={i} className="px-2 py-1 flex items-center gap-1">
-                        <div className="w-1.5 h-1.5 rounded-sm bg-purple-300 flex-shrink-0" />
+                        <div className="w-1.5 h-1.5 rounded-sm bg-emerald-300 flex-shrink-0" />
                         <span className="text-[6px] text-gray-700">{m}</span>
                     </div>
                 ))}

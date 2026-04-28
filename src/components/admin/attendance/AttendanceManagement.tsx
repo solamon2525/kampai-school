@@ -728,7 +728,7 @@ export const AttendanceManagement = () => {
                       <Button size="sm" variant="outline" onClick={exportAttendanceCSV} className="gap-1 text-green-700 border-green-300 hover:bg-green-50">
                         <Download className="w-3.5 h-3.5" /> CSV
                       </Button>
-                      <Button size="sm" variant="outline" onClick={printAttendance} className="gap-1 text-purple-700 border-purple-300 hover:bg-purple-50">
+                      <Button size="sm" variant="outline" onClick={printAttendance} className="gap-1 text-emerald-700 border-emerald-300 hover:bg-emerald-50">
                         <Printer className="w-3.5 h-3.5" /> พิมพ์
                       </Button>
                     </div>

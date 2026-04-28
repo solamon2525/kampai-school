@@ -24,8 +24,8 @@ interface RolePortalLayoutProps {
 }
 
 const ACCENT = {
-    teacher: 'from-indigo-600 to-blue-600',
-    parent: 'from-pink-600 to-rose-600',
+    teacher: 'from-slate-700 to-slate-600',
+    parent: 'from-rose-600 to-rose-500',
 };
 
 export const RolePortalLayout = ({ children, title, subtitle, menu, accent }: RolePortalLayoutProps) => {

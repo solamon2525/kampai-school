@@ -93,7 +93,7 @@ const featureGroups = [
     },
     {
         label: 'งานสารบรรณ',
-        color: 'bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800',
+        color: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800',
         features: ['หนังสือรับ', 'หนังสือส่ง', 'คำสั่ง/ประกาศ', 'บันทึกการประชุม', 'Dashboard ภาพรวม'],
     },
     {
@@ -103,7 +103,7 @@ const featureGroups = [
     },
     {
         label: 'ระบบบริการ',
-        color: 'bg-pink-500/10 text-pink-700 dark:text-pink-400 border-pink-200 dark:border-pink-800',
+        color: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800',
         features: ['ธนาคารขยะ (Waste Bank)', 'กล่องข้อความจากผู้ติดต่อ', 'Email Subscribers', 'แจ้งผู้ปกครองเมื่อนักเรียนขาด (SMS)'],
     },
     {
@@ -190,7 +190,7 @@ const sprintPlan = [
         sprint: 'Sprint 4 — Communication & Integration',
         duration: '~2 สัปดาห์',
         goal: 'เชื่อมโยงกับระบบภายนอก + การสื่อสารระหว่างโรงเรียน-ผู้ปกครอง',
-        badge: 'bg-purple-500',
+        badge: 'bg-emerald-500',
         items: [
             { icon: '💬', title: 'In-app Chat (Teacher ↔ Parent)', effort: '4 วัน', stack: 'Supabase Realtime + messages table' },
             { icon: '📲', title: 'PWA + Push Notifications', effort: '2 วัน', stack: 'vite-plugin-pwa + Web Push API' },
@@ -218,7 +218,7 @@ const versionHistory = [
     {
         version: 'v1.7.0 (Admin Audit Remediation)',
         date: 'ล่าสุด',
-        badge: 'bg-violet-700',
+        badge: 'bg-teal-700',
         items: [
             'Phase 1 — Dead Code Removal: ลบ Puck PageBuilder (PageBuilder.tsx + puck-config.tsx + @measured/puck dependency) + ลบ contact_fax ออกจาก hook (ไม่มี UI ใช้เลย)',
             'Phase 2 — Hero Slides Consolidation: ย้าย slide_interval setting ไปอยู่ใน HeroSlidesManagement (canonical home) + ลบ duplicate CRD section ออกจาก SettingsManagement (~134 lines) + เพิ่ม shortcut link แทน',
@@ -257,7 +257,7 @@ const versionHistory = [
     {
         version: 'v1.5.0 (UX/UI Beautification — Sprint 1)',
         date: '',
-        badge: 'bg-indigo-600',
+        badge: 'bg-slate-600',
         items: [
             'Dark Mode + Theme Switcher: next-themes provider + Sun/Moon/System dropdown ใน Admin/Portal/Public header ทั้งหมด — บันทึก preference ตาม user + follow OS preference',
             'Framer Motion เปิดตัวครั้งแรก: Homepage Hero stagger entrance, News grid scroll reveal, Countdown pulse, Stats counter animation, Gallery hover zoom — พร้อม MotionConfig reducedMotion="user" (a11y)',
@@ -308,7 +308,7 @@ const versionHistory = [
     {
         version: 'v1.2.5 (Mobile Layout Manager)',
         date: '',
-        badge: 'bg-indigo-500',
+        badge: 'bg-slate-500',
         items: [
             'เพิ่ม Mobile Layout Manager แยกการจัดการหน้าแรกสำหรับมือถือออกจาก Desktop โดยเฉพาะ',
             'รองรับการลากเพื่อเรียงลำดับใหม่ (Drag & Drop) และระบบเปิด/ปิดการแสดงผล (Toggle) แบบเจาะจงเฉพาะมุมมองมือถือ',
@@ -338,7 +338,7 @@ const versionHistory = [
     {
         version: 'v1.2.2 (Hover Sync & Two-way Binding)',
         date: '',
-        badge: 'bg-indigo-500',
+        badge: 'bg-slate-500',
         items: [
             'Two-way Hover Sync: เลื่อนเมาส์ที่พรีวิวด้านขวา เมนูด้านซ้ายจะสลับโซนตามอัตโนมัติ',
             'Auto Scroll: ชี้เมาส์เมนูด้านซ้าย พรีวิวด้านขวาจะเลื่อน (scroll) ไปหาบล็อคทันที',
@@ -356,7 +356,7 @@ const versionHistory = [
     {
         version: 'v1.2.0 (Interactive Layout)',
         date: '',
-        badge: 'bg-violet-500',
+        badge: 'bg-teal-500',
         items: [
             'Cross-Zone Movement: ทะลุข้อจำกัดด้วยเมนู "ย้ายโซน" ย้ายบล็อคระหว่างคอลัมน์ได้อย่างอิสระ',
             'Interactive Live Preview: ระบบใช้เมาส์ลากบล็อคจากเครืองมือ ไปวางในจอพรีวิว (Drag to Drop) ได้เลย',
@@ -365,7 +365,7 @@ const versionHistory = [
     {
         version: 'v1.1.0 (Visual Homepage & Performance)',
         date: '',
-        badge: 'bg-violet-500',
+        badge: 'bg-teal-500',
         items: [
             'Visual Homepage Layout Manager: ระบบลากวางหน้าแรก 3 คอลัมน์ + Live Preview',
             'Architecture Refactor: เปลี่ยนเป็น Route-based Lazy Loading โหลดเร็วขึ้น 75%',
@@ -412,7 +412,7 @@ const versionHistory = [
     {
         version: 'Saraban System',
         date: '',
-        badge: 'bg-purple-500',
+        badge: 'bg-emerald-500',
         items: [
             'ระบบสารบรรณ Phase 1+2',
             'หนังสือรับ-ส่ง, คำสั่ง/ประกาศ, บันทึกการประชุม',
@@ -421,7 +421,7 @@ const versionHistory = [
     {
         version: 'Student Management',
         date: '',
-        badge: 'bg-pink-500',
+        badge: 'bg-amber-500',
         items: [
             'ฐานข้อมูลนักเรียนรายบุคคล',
             'ระบบเช็คชื่อนักเรียน',
@@ -430,7 +430,7 @@ const versionHistory = [
     {
         version: 'Page Builder v1',
         date: '',
-        badge: 'bg-indigo-500',
+        badge: 'bg-slate-500',
         items: [
             'Visual Page Editor ด้วย Puck',
             'HeroBlock, NewsGridBlock, GalleryBlock, ContactBlock',
@@ -589,7 +589,7 @@ export const SystemOverview = () => {
                         TXT
                     </Button>
                     <Button variant="outline" size="sm" onClick={handlePrint} className="gap-1.5">
-                        <Printer className="w-4 h-4 text-purple-500" />
+                        <Printer className="w-4 h-4 text-emerald-500" />
                         PDF
                     </Button>
                     <Button variant="outline" size="sm" onClick={handleCopy} className="gap-1.5">
@@ -680,13 +680,13 @@ export const SystemOverview = () => {
                         {/* Deployment */}
                         <div>
                             <div className="flex items-center gap-2 mb-3">
-                                <Cloud className="w-4 h-4 text-purple-500" />
-                                <h4 className="font-semibold text-sm text-purple-600 dark:text-purple-400">Deployment & Hosting</h4>
+                                <Cloud className="w-4 h-4 text-emerald-500" />
+                                <h4 className="font-semibold text-sm text-emerald-600 dark:text-emerald-400">Deployment & Hosting</h4>
                             </div>
                             <div className="space-y-2 mb-6">
                                 {techStack.deployment.map((t) => (
                                     <div key={t.name} className="flex items-start gap-2">
-                                        <CheckCircle2 className="w-3.5 h-3.5 text-purple-400 mt-0.5 flex-shrink-0" />
+                                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 mt-0.5 flex-shrink-0" />
                                         <div>
                                             <span className="text-sm font-medium text-foreground">{t.name}</span>
                                             <span className="text-xs text-muted-foreground ml-1.5">— {t.desc}</span>

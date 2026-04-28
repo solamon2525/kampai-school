@@ -37,12 +37,12 @@ const iconOptions = [
 
 const colorOptions = [
     { value: 'bg-blue-500', label: 'น้ำเงิน' },
-    { value: 'bg-purple-500', label: 'ม่วง' },
+    { value: 'bg-emerald-500', label: 'ม่วง' },
     { value: 'bg-green-500', label: 'เขียว' },
     { value: 'bg-orange-500', label: 'ส้ม' },
     { value: 'bg-red-500', label: 'แดง' },
     { value: 'bg-yellow-500', label: 'เหลือง' },
-    { value: 'bg-pink-500', label: 'ชมพู' },
+    { value: 'bg-amber-500', label: 'ชมพู' },
     { value: 'bg-teal-500', label: 'เทา' },
 ];
 

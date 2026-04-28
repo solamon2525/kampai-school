@@ -230,7 +230,7 @@ export const MobileLayoutManager = ({ mobileLayout, onMobileLayoutChange }: Mobi
                     </div>
                     <div className="p-1.5 space-y-1 max-h-[480px] overflow-y-auto scrollbar-hide bg-gray-100">
                         {/* Header mock */}
-                        <div className="bg-purple-900 rounded-lg px-2 py-1.5 text-center">
+                        <div className="bg-emerald-900 rounded-lg px-2 py-1.5 text-center">
                             <p className="text-[9px] text-white font-semibold">🏫 โรงเรียนบ้านคำไผ่</p>
                         </div>
                         {/* Blocks */}
@@ -245,7 +245,7 @@ export const MobileLayoutManager = ({ mobileLayout, onMobileLayoutChange }: Mobi
                                 return (
                                     <div
                                         key={id}
-                                        className="bg-white border border-purple-100 rounded-lg px-2 py-1.5 flex items-center gap-1.5 shadow-sm"
+                                        className="bg-white border border-emerald-100 rounded-lg px-2 py-1.5 flex items-center gap-1.5 shadow-sm"
                                     >
                                         <span className="text-xs flex-shrink-0">{block.icon}</span>
                                         <span className="text-[9px] font-medium text-gray-700 truncate">

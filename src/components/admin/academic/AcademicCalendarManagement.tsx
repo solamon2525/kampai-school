@@ -27,9 +27,9 @@ const EVENT_COLOR: Record<string, string> = {
   'วันหยุด': 'bg-gray-100 text-gray-700',
   'ส่งเอกสาร': 'bg-yellow-100 text-yellow-800',
   'ประชุม': 'bg-blue-100 text-blue-800',
-  'กิจกรรม': 'bg-purple-100 text-purple-800',
+  'กิจกรรม': 'bg-emerald-100 text-emerald-800',
   'วันเรียน': 'bg-green-100 text-green-800',
-  'วิชาการ': 'bg-indigo-100 text-indigo-800',
+  'วิชาการ': 'bg-slate-100 text-slate-800',
 };
 
 const emptyForm = {

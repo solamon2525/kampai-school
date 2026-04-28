@@ -205,7 +205,7 @@ export const AnalyticsManagement = () => {
                 {[
                     { label: 'วันนี้', value: todayCount, icon: Eye, color: 'text-blue-500' },
                     { label: '7 วันที่ผ่านมา', value: weekCount, icon: CalendarDays, color: 'text-green-500' },
-                    { label: '30 วันที่ผ่านมา', value: monthCount, icon: TrendingUp, color: 'text-purple-500' },
+                    { label: '30 วันที่ผ่านมา', value: monthCount, icon: TrendingUp, color: 'text-emerald-500' },
                 ].map(({ label, value, icon: Icon, color }) => (
                     <Card key={label}>
                         <CardContent className="p-6 flex items-center gap-4">

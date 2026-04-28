@@ -95,10 +95,10 @@ const AdminHome = () => {
         {[
           { label: 'ข่าวสาร', value: stats.news, icon: Newspaper, color: 'bg-orange-500', path: '/admin/dashboard/news' },
           { label: 'แกลเลอรี่', value: stats.gallery, icon: Image, color: 'bg-green-500', path: '/admin/dashboard/gallery' },
-          { label: 'กิจกรรม', value: stats.events, icon: Calendar, color: 'bg-purple-500', path: '/admin/dashboard/events' },
+          { label: 'กิจกรรม', value: stats.events, icon: Calendar, color: 'bg-emerald-500', path: '/admin/dashboard/events' },
           { label: 'ผู้บริหาร', value: stats.administrators, icon: UserCog, color: 'bg-blue-500', path: '/admin/dashboard/administrators' },
           { label: 'บุคลากร', value: stats.staff, icon: Briefcase, color: 'bg-teal-500', path: '/admin/dashboard/staff' },
-          { label: 'ใบสมัคร', value: stats.admissions, icon: FileText, color: 'bg-pink-500', path: '/admin/dashboard/admissions' },
+          { label: 'ใบสมัคร', value: stats.admissions, icon: FileText, color: 'bg-rose-500', path: '/admin/dashboard/admissions' },
         ].map((stat) => (
           <Card
             key={stat.path}

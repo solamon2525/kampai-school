@@ -287,7 +287,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                                                     <td className="px-3 py-1.5">
                                                         <div className="flex items-center gap-2">
                                                             <div
-                                                                className={`w-2 h-2 rounded-full flex-shrink-0 ${row.student.gender === 'male' ? 'bg-blue-400' : 'bg-pink-400'}`}
+                                                                className={`w-2 h-2 rounded-full flex-shrink-0 ${row.student.gender === 'male' ? 'bg-blue-400' : 'bg-amber-400'}`}
                                                             />
                                                             <span>{row.student.name}</span>
                                                             {row.existingId && <Badge variant="outline" className="text-xs h-4 px-1">มีข้อมูล</Badge>}

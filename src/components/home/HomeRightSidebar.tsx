@@ -242,7 +242,7 @@ export const useHomeRightBlocks = () => {
     switch (platform) {
       case 'facebook': return { icon: Facebook, color: 'text-blue-600', label: 'Facebook' };
       case 'youtube': return { icon: Youtube, color: 'text-red-600', label: 'YouTube' };
-      case 'instagram': return { icon: Instagram, color: 'text-pink-600', label: 'Instagram' };
+      case 'instagram': return { icon: Instagram, color: 'text-rose-600', label: 'Instagram' };
       case 'line': return { icon: MessageCircle, color: 'text-green-600', label: 'LINE' };
       default: return { icon: LinkIcon, color: 'text-gray-600', label: platform };
     }

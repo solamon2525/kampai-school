@@ -71,7 +71,7 @@ export const SarabanDashboard = () => {
         { label: 'หนังสือรับทั้งหมด', value: stats.incoming_total, icon: MailOpen, color: 'text-blue-500', tab: 'incoming-letters' },
         { label: 'รอดำเนินการ', value: stats.incoming_pending, icon: Clock, color: 'text-orange-500', tab: 'incoming-letters' },
         { label: 'เสร็จแล้ว', value: stats.incoming_done, icon: CheckCircle, color: 'text-green-500', tab: 'incoming-letters' },
-        { label: 'หนังสือส่ง', value: stats.outgoing_total, icon: SendHorizontal, color: 'text-purple-500', tab: 'outgoing-letters' },
+        { label: 'หนังสือส่ง', value: stats.outgoing_total, icon: SendHorizontal, color: 'text-emerald-500', tab: 'outgoing-letters' },
         { label: 'คำสั่ง/ประกาศ', value: stats.orders_total, icon: Stamp, color: 'text-red-500', tab: 'orders' },
         { label: 'การประชุม', value: stats.meetings_total, icon: CalendarCheck, color: 'text-teal-500', tab: 'meetings' },
     ];

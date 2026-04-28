@@ -36,8 +36,8 @@ const NEED_COLOR: Record<string, string> = {
   'บกพร่องทางการเรียน': 'bg-orange-100 text-orange-800',
   'พิการ': 'bg-red-100 text-red-800',
   'ด้อยโอกาส': 'bg-gray-100 text-gray-700',
-  'ปัญญาเจริญ': 'bg-purple-100 text-purple-800',
-  'สุขภาพจิต': 'bg-pink-100 text-pink-800',
+  'ปัญญาเจริญ': 'bg-emerald-100 text-emerald-800',
+  'สุขภาพจิต': 'bg-amber-100 text-amber-800',
   'อื่นๆ': 'bg-gray-100 text-gray-600',
 };
 

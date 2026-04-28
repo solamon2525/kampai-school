@@ -25,7 +25,7 @@ const colorOptions = [
     { value: 'text-primary', label: 'Primary (น้ำเงิน)' },
     { value: 'text-accent', label: 'Accent (ทอง)' },
     { value: 'text-green-500', label: 'เขียว' },
-    { value: 'text-purple-500', label: 'ม่วง' },
+    { value: 'text-emerald-500', label: 'ม่วง' },
     { value: 'text-red-500', label: 'แดง' },
     { value: 'text-orange-500', label: 'ส้ม' },
 ];
