@@ -206,14 +206,15 @@ const StaffDirCSS = () => (
     /* ── Flip button ── */
     .sd-flip-btn {
       position: absolute; bottom: 12px; right: 12px; z-index: 10;
-      width: 28px; height: 28px; border-radius: 50%; border: none;
-      background: oklch(100% 0 0 / .9); cursor: pointer;
+      width: 32px; height: 32px; border-radius: 50%; border: none;
+      background: var(--sd-acc); cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 2px 8px oklch(0% 0 0 / .22); color: var(--sd-dk);
-      opacity: 0; transition: opacity .2s, background .2s;
+      box-shadow: 0 2px 8px oklch(0% 0 0 / .28); color: var(--sd-dk);
+      opacity: 1; transition: transform .2s, background .2s, box-shadow .2s;
+      font-weight: 700;
     }
-    .sd-card:hover .sd-flip-btn { opacity: 1; }
-    .sd-card.sd-flipped .sd-flip-btn { opacity: 1; background: var(--sd-acc); color: var(--sd-dk); }
+    .sd-flip-btn:hover { transform: scale(1.12); box-shadow: 0 4px 14px oklch(0% 0 0 / .32); }
+    .sd-card.sd-flipped .sd-flip-btn { background: var(--sd-dk); color: oklch(100% 0 0); }
 
     /* ── Section divider ── */
     .sd-divider { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
@@ -350,9 +351,17 @@ const FeaturedCard = ({
     <div className="sd-card-inner" style={{ minHeight: 260 }}>
       {/* ── Front ── */}
       <div className="sd-card-front" style={{ borderRadius: 20, overflow: 'hidden' }}>
-        <div className="sd-photo">
+        <div className="sd-photo" onClick={onOpenModal} style={{ cursor: 'pointer' }}>
           <PhotoBox url={admin.photo_url} name={admin.name} />
           <div className="sd-ribbon">ผู้อำนวยการ</div>
+          <div className="sd-overlay">
+            <span className="sd-ov-pos">{admin.position}</span>
+            <span className="sd-ov-name">{admin.name}</span>
+          </div>
+          <div className="sd-reveal">
+            <span className="sd-badge sd-subj-admin">ผู้บริหาร</span>
+            <span style={{ fontSize: '.74rem', opacity: .85 }}>แตะเพื่อดูประวัติ</span>
+          </div>
         </div>
         <div className="p-6 md:p-8 flex flex-col justify-center" style={{ background: 'hsl(var(--card))' }}>
           <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--sd-acc-dk)' }}>
