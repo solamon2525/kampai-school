@@ -216,8 +216,23 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.8.0 (Two-Surface Design System + Documentation Discipline)',
+        version: 'v1.8.1 (UX Polish — Mobile Compact + Readable Text + Tappable Cards)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'Home Principal Photo (HomeLeftSidebar): วงกลม → สีเหลี่ยม (rounded-full → rounded-xl), ขยาย w-20 h-20 → w-28 h-28 (+40%), เพิ่ม object-position: top เพื่อโฟกัสหน้า ไม่ crop ออก',
+            'Staff Admin Photo (FeaturedCard): mobile portrait aspect-ratio 4/5 (จาก fixed height 240px landscape) + object-position: top — สัดส่วนเดียวกับการ์ดครู',
+            'Staff Admin Card Tappable: เพิ่ม onClick={onOpenModal} + cursor pointer บน sd-photo + sd-overlay (ชื่อ/ตำแหน่ง) + sd-reveal "แตะเพื่อดูประวัติ" — เหมือนการ์ดครูทุกใบ',
+            'Staff Flip Button: opacity 0→1 (เห็นเสมอ ไม่ต้อง hover), background ขาว → var(--sd-acc) ทอง, ขนาด 28→32px, hover scale 1.12 + shadow stronger — flipped state เปลี่ยนเป็น var(--sd-dk) เขียวเข้ม (clear state feedback)',
+            'Staff Mobile Layout: stats grid 2×2 → 1×4 (CSS override 2-col removed) + py-5→py-1.5 + text-2xl→text-lg + label text-[10px] — hero py-6→py-2 + ซ่อน kicker/subtitle (hidden sm:block) + toolbar py-3→py-2 — ลด ~90px ทำให้เห็นรูปการ์ดแรกทันทีที่เปิด',
+            'Staff Hover Overlay Readability: hover opacity .35→1 (ไม่จาง) + translateY -28%→-44% (ยกสูงไม่ทับ reveal) + gradient เข้มขึ้น (transparent 30%/.68/.96) + text-shadow alpha .5→.95 + ov-pos opacity .82→.95 + font-weight 600 — อ่านชัดบนรูปสว่าง zoom + full color',
+            'About Page Compact (6 sections): section-padding (py-16-24) → py-8 md:py-12 ทุก section + Vision/Mission cards p-8→p-5/6 icon w-14→w-12 mb-6→mb-3 + Philosophy strip py-10→py-6/8 + Stats py-16→py-8 grid-cols-2 md:grid-cols-4 → grid-cols-4 (single row mobile) + GPS/PDCA cards p-8 mb-10→p-5/6 mb-6 + Timeline mb-8→mb-4 + Facilities sm:grid-cols-2 — ลดความสูงรวม ~50-60%',
+            'About Color Contrast: text-muted-foreground (HSL 142 20% 42% — เขียวคล้ำดูเป็นน้ำเงินบนพื้นขาว → กลืน) → text-foreground/75-80 + kicker text-accent → text-primary (เขียวเข้ม) + uppercase tracking-widest — ปรับ hierarchy ให้อ่านชัดทุกบรรทัด',
+        ],
+    },
+    {
+        version: 'v1.8.0 (Two-Surface Design System + Documentation Discipline)',
+        date: '',
         badge: 'bg-emerald-700',
         items: [
             'Two-Surface Design System: แยก palette ของ frontend (airy green+white) กับ backend admin (solid dark slate sidebar + green accent) ใน DESIGN.md ครบ + ลง CSS vars (--admin-bg, --admin-sidebar, --admin-accent ฯลฯ) + Tailwind tokens',
