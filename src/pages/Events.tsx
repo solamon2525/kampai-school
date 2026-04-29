@@ -75,14 +75,16 @@ const Events = () => {
             <SEOHead title="ปฏิทินกิจกรรม" description="ปฏิทินกิจกรรมและงานสำคัญของโรงเรียน" />
             <SiteHeader />
 
-            {/* Hero Section */}
-            <section className="bg-primary py-20">
+            {/* Hero — Compact */}
+            <section className="bg-primary py-6 md:py-8">
                 <div className="container mx-auto px-4 text-center">
-                    <span className="inline-block text-accent font-semibold mb-4">กิจกรรมและปฏิทิน</span>
-                    <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary-foreground mb-6">
-                        ปฏิทิน<span className="text-accent">กิจกรรม</span>
+                    <span className="inline-block text-xs md:text-sm font-semibold uppercase tracking-wider text-primary-foreground/70 mb-1.5">
+                        กิจกรรมและปฏิทิน
+                    </span>
+                    <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-primary-foreground mb-1.5">
+                        ปฏิทินกิจกรรม
                     </h1>
-                    <p className="text-xl text-primary-foreground/80 max-w-3xl mx-auto">
+                    <p className="text-xs md:text-sm text-primary-foreground/75 max-w-2xl mx-auto">
                         ติดตามกิจกรรมและเหตุการณ์สำคัญของโรงเรียน
                     </p>
                 </div>

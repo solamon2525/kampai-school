@@ -97,14 +97,16 @@ const AcademicCalendar = () => {
     <div className="min-h-screen bg-background">
       <SiteHeader />
 
-      {/* Hero Section */}
-      <section className="pt-32 pb-16 bg-gradient-to-br from-primary via-primary/90 to-primary/80">
-        <div className="container-school text-center">
-          <Badge className="mb-4 bg-accent/20 text-accent border-0">ปฏิทินการศึกษา</Badge>
-          <h1 className="text-4xl md:text-5xl font-bold text-card mb-4">
+      {/* Hero — Compact */}
+      <section className="bg-primary py-6 md:py-8">
+        <div className="container mx-auto px-4 text-center">
+          <span className="inline-block text-xs md:text-sm font-semibold uppercase tracking-wider text-primary-foreground/70 mb-1.5">
+            ปฏิทินการศึกษา
+          </span>
+          <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-primary-foreground mb-1.5">
             ปฏิทินการศึกษา {settings.academic_year}
           </h1>
-          <p className="text-card/80 text-lg max-w-2xl mx-auto">
+          <p className="text-xs md:text-sm text-primary-foreground/75 max-w-2xl mx-auto">
             กำหนดการสำคัญตลอดปีการศึกษาของโรงเรียนบ้านคำไผ่
           </p>
         </div>
