@@ -260,30 +260,6 @@ const StaffDirCSS = () => (
       .sd-featured .sd-photo { height: 240px; }
     }
 
-    /* ── Hero decorations ── */
-    .sd-h-circle {
-      position: absolute; right: -60px; bottom: -60px;
-      width: 220px; height: 220px;
-      background: var(--sd-acc); border-radius: 50%; opacity: .15; pointer-events: none;
-    }
-    .sd-h-ring {
-      position: absolute; right: 110px; top: -40px;
-      width: 86px; height: 86px;
-      border: 3px solid var(--sd-acc); border-radius: 50%; opacity: .28; pointer-events: none;
-    }
-    .sd-h-dots {
-      position: absolute; left: 42%; top: 18px;
-      width: 120px; height: 60px; pointer-events: none;
-      background-image: radial-gradient(circle, oklch(100% 0 0 / .25) 1.5px, transparent 2px);
-      background-size: 16px 16px;
-    }
-    .sd-hero-grid {
-      content: ''; position: absolute;
-      inset: 0; pointer-events: none;
-      background-image: repeating-linear-gradient(
-        45deg, transparent 0 16px, oklch(100% 0 0 / .04) 16px 17px);
-    }
-
     /* ── Stats border ── */
     .sd-stat-sep:not(:last-child) { border-right: 1px solid hsl(var(--border)); }
     @media (max-width: 600px) {
@@ -684,33 +660,20 @@ const Staff = () => {
       <SiteHeader />
 
       <main>
-        {/* ── Hero ─────────────────────────────────────────────────── */}
-        <header
-          className="relative overflow-hidden flex items-center px-6 sm:px-10 py-14 sm:py-20"
-          style={{
-            background: `
-              radial-gradient(ellipse at top right, oklch(55% 0.18 255 / .35), transparent 60%),
-              linear-gradient(135deg, var(--sd-dk) 0%, var(--sd-mid) 70%, var(--sd-base) 100%)`,
-            gap: 28,
-          }}
-        >
-          <div className="sd-hero-grid" />
-          <div className="sd-h-circle" />
-          <div className="sd-h-ring" />
-          <div className="sd-h-dots" />
-          <div className="relative z-10 max-w-3xl">
-            <span className="inline-block text-xs font-bold uppercase tracking-widest mb-3"
-              style={{ color: 'var(--sd-acc)', letterSpacing: '.14em' }}>
-              — Our Team
+        {/* Hero — Compact */}
+        <section className="bg-primary py-6 md:py-8">
+          <div className="container mx-auto px-4 text-center">
+            <span className="inline-block text-xs md:text-sm font-semibold uppercase tracking-wider text-primary-foreground/70 mb-1.5">
+              บุคลากร
             </span>
-            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4 leading-tight">
+            <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-primary-foreground mb-1.5">
               คณะผู้บริหารและบุคลากร
             </h1>
-            <p className="text-white/80 text-lg font-light max-w-xl">
+            <p className="text-xs md:text-sm text-primary-foreground/75 max-w-2xl mx-auto">
               ทีมผู้บริหาร ครู และบุคลากรที่มีความเชี่ยวชาญ ทุ่มเทพัฒนาการศึกษาและนักเรียนทุกคน
             </p>
           </div>
-        </header>
+        </section>
 
         {/* ── Stats strip ──────────────────────────────────────────── */}
         <div className="bg-card border-b px-4 sm:px-10 py-5">

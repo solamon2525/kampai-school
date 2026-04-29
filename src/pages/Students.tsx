@@ -115,18 +115,18 @@ const Students = () => {
       <SEOHead title="นักเรียน" description="ข้อมูลนักเรียนของโรงเรียน" />
       <SiteHeader />
       <main>
-        {/* Hero Section */}
-        <section className="bg-gradient-to-br from-primary via-primary/90 to-primary/80 py-16 md:py-24">
-          <div className="container mx-auto px-4">
-            <div className="text-center max-w-3xl mx-auto">
-              <span className="inline-block text-accent font-semibold mb-4">นักเรียน</span>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary-foreground mb-6">
-                ข้อมูลนักเรียน
-              </h1>
-              <p className="text-primary-foreground/80 text-lg">
-                ข้อมูลสถิตินักเรียน ผลงานความสำเร็จ และกิจกรรมต่างๆ ของโรงเรียน
-              </p>
-            </div>
+        {/* Hero — Compact */}
+        <section className="bg-primary py-6 md:py-8">
+          <div className="container mx-auto px-4 text-center">
+            <span className="inline-block text-xs md:text-sm font-semibold uppercase tracking-wider text-primary-foreground/70 mb-1.5">
+              นักเรียน
+            </span>
+            <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-primary-foreground mb-1.5">
+              ข้อมูลนักเรียน
+            </h1>
+            <p className="text-xs md:text-sm text-primary-foreground/75 max-w-2xl mx-auto">
+              ข้อมูลสถิตินักเรียน ผลงานความสำเร็จ และกิจกรรมต่างๆ ของโรงเรียน
+            </p>
           </div>
         </section>
 

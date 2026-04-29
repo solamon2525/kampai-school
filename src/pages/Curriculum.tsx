@@ -98,16 +98,17 @@ const Curriculum = () => {
       <SEOHead title="หลักสูตร" description="หลักสูตรการเรียนการสอนของโรงเรียน" />
       <SiteHeader />
       <main>
-        {/* Hero Section */}
-        <section className="bg-primary py-20">
+        {/* Hero — Compact */}
+        <section className="bg-primary py-6 md:py-8">
           <div className="container mx-auto px-4 text-center">
-            <span className="inline-block text-accent font-semibold mb-4">หลักสูตรการศึกษา</span>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary-foreground mb-6">
+            <span className="inline-block text-xs md:text-sm font-semibold uppercase tracking-wider text-primary-foreground/70 mb-1.5">
+              หลักสูตรการศึกษา
+            </span>
+            <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-primary-foreground mb-1.5">
               หลักสูตรที่หลากหลาย
             </h1>
-            <p className="text-xl text-primary-foreground/80 max-w-3xl mx-auto">
-              เราออกแบบหลักสูตรที่ตอบโจทย์ความสนใจและเป้าหมายของนักเรียนทุกคน
-              พร้อมทีมครูผู้เชี่ยวชาญในแต่ละสาขา
+            <p className="text-xs md:text-sm text-primary-foreground/75 max-w-2xl mx-auto">
+              เราออกแบบหลักสูตรที่ตอบโจทย์ความสนใจและเป้าหมายของนักเรียนทุกคน พร้อมทีมครูผู้เชี่ยวชาญในแต่ละสาขา
             </p>
           </div>
         </section>

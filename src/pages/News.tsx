@@ -222,14 +222,16 @@ const News = () => {
       <SEOHead title="ข่าวสาร" description="ข่าวสารและประกาศจากโรงเรียน" />
       <SiteHeader />
 
-      {/* Hero Section */}
-      <section className="bg-primary pt-28 pb-16">
+      {/* Hero — Compact */}
+      <section className="bg-primary py-6 md:py-8">
         <div className="container mx-auto px-4 text-center">
-          <span className="inline-block text-accent font-semibold mb-4">ข่าวสารและกิจกรรม</span>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary-foreground mb-6">
-            ข่าวสาร<span className="text-accent">และกิจกรรม</span>
+          <span className="inline-block text-xs md:text-sm font-semibold uppercase tracking-wider text-primary-foreground/70 mb-1.5">
+            ข่าวสารและกิจกรรม
+          </span>
+          <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-primary-foreground mb-1.5">
+            ข่าวสารและกิจกรรม
           </h1>
-          <p className="text-xl text-primary-foreground/80 max-w-3xl mx-auto">
+          <p className="text-xs md:text-sm text-primary-foreground/75 max-w-2xl mx-auto">
             ติดตามข่าวสารและกิจกรรมต่างๆ ของโรงเรียนได้ที่นี่
           </p>
         </div>

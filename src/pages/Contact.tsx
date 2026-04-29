@@ -130,14 +130,16 @@ const Contact = () => {
       <SEOHead title="ติดต่อเรา" description="ข้อมูลการติดต่อโรงเรียน" />
       <SiteHeader />
       <main>
-        {/* Hero Section */}
-        <section className="bg-primary py-20">
+        {/* Hero — Compact */}
+        <section className="bg-primary py-6 md:py-8">
           <div className="container mx-auto px-4 text-center">
-            <span className="inline-block text-accent font-semibold mb-4">ติดต่อเรา</span>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary-foreground mb-6">
+            <span className="inline-block text-xs md:text-sm font-semibold uppercase tracking-wider text-primary-foreground/70 mb-1.5">
+              ติดต่อเรา
+            </span>
+            <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-primary-foreground mb-1.5">
               พร้อมให้บริการ
             </h1>
-            <p className="text-xl text-primary-foreground/80 max-w-3xl mx-auto">
+            <p className="text-xs md:text-sm text-primary-foreground/75 max-w-2xl mx-auto">
               มีคำถามหรือต้องการข้อมูลเพิ่มเติม? ติดต่อเราได้ทุกช่องทาง
             </p>
           </div>
@@ -146,7 +148,7 @@ const Contact = () => {
         {/* Contact Info Cards */}
         <section className="py-12 bg-background">
           <div className="container mx-auto px-4">
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 -mt-20">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               {contactInfo.map((item, index) => (
                 <div key={index} className="bg-card rounded-2xl p-6 shadow-lg border border-border text-center">
                   <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">

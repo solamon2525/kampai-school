@@ -241,23 +241,17 @@ const WasteBank = () => {
       <SEOHead title="ธนาคารขยะ" description="ระบบธนาคารขยะโรงเรียนบ้านคำไผ่ — สะสมแต้มจากการเก็บขยะ แลกรางวัล" />
       <SiteHeader />
 
-      {/* ─── Hero ─────────────────────────────────────────────────────── */}
-      <section className="relative bg-gradient-to-br from-green-800 via-green-700 to-emerald-600 text-white pt-28 pb-16 px-4 overflow-hidden">
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <div className="absolute top-10 left-10 w-40 h-40 rounded-full bg-white" />
-          <div className="absolute bottom-0 right-20 w-64 h-64 rounded-full bg-white" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-white" />
-        </div>
-        <div className="relative max-w-4xl mx-auto text-center">
-          <div className="flex justify-center mb-5">
-            <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center ring-4 ring-white/30">
-              <Recycle className="w-10 h-10 text-white" />
-            </div>
-          </div>
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight tracking-tight">
+      {/* Hero — Compact */}
+      <section className="bg-primary py-6 md:py-8">
+        <div className="container mx-auto px-4 text-center">
+          <span className="inline-block text-xs md:text-sm font-semibold uppercase tracking-wider text-primary-foreground/70 mb-1.5">
+            ธนาคารขยะ
+          </span>
+          <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-primary-foreground mb-1.5">
+            <Recycle className="inline w-5 h-5 md:w-6 md:h-6 mr-1.5 -mt-1" />
             ธนาคารขยะโรงเรียนบ้านคำไผ่
           </h1>
-          <p className="text-green-100 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+          <p className="text-xs md:text-sm text-primary-foreground/75 max-w-2xl mx-auto">
             ส่งเสริมการคัดแยกขยะ สะสมแต้มแลกรางวัล ร่วมสร้างโรงเรียนสีเขียวไปด้วยกัน
           </p>
         </div>

@@ -28,6 +28,29 @@ Live: https://kampai-school.vercel.app · Repo: solamon2525/kampai-school · v1.
 
 ---
 
+## 📋 Documentation Discipline — กฎเด็ดขาด (DESIGN.md Rule 14.9)
+
+**ทุกครั้งที่ `git commit` + `git push` (deploy) ต้อง sync เอกสารทุกที่ก่อน:**
+
+| update ที่ไหน | เมื่อไหร่ |
+|---|---|
+| `DESIGN.md` (kampai-school root) | เปลี่ยน design token / กฎ / pattern |
+| `src/components/admin/system/SystemOverview.tsx` (`versionHistory`) | feature ใหม่ / refactor ใหญ่ → เพิ่ม version entry หัวบนสุด |
+| second-brain `Features.md` | feature user-visible → list ในหมวด |
+| second-brain `Roadmap.md` | sprint/version จบ → tick `[x]` |
+| second-brain `Lessons Learned.md` | bug + root cause + fix |
+| second-brain `Decisions.md` | architecture / library choice |
+
+**Workflow บังคับ:**
+1. ทำ code changes
+2. **ก่อน commit** → update docs ข้างบน (atomic ใน commit เดียว — ไม่แยก "code" กับ "doc fix")
+3. `git push` kampai-school → `git push` second-brain (ถ้าแก้)
+4. **รายงาน user ว่าบันทึกที่ไหนบ้าง** (ทุก path ที่ touched)
+
+**second-brain repo:** `C:\Users\Admin\Documents\second-brain\` (origin: https://github.com/solamon2525/second-brain)
+
+---
+
 ## Tech Stack
 
 - **Frontend:** React 18 + TypeScript 5.8 + Vite 5 (SWC)
