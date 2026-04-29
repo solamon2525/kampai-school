@@ -153,17 +153,18 @@ const StaffDirCSS = () => (
     .sd-overlay {
       position: absolute; inset: 0;
       background: linear-gradient(to bottom,
-        transparent 45%,
-        oklch(18% 0.08 255 / .72) 82%,
-        oklch(12% 0.10 255 / .92) 100%);
+        transparent 30%,
+        oklch(15% 0.08 255 / .68) 60%,
+        oklch(8% 0.10 255 / .96) 100%);
       display: flex; flex-direction: column; justify-content: flex-end;
       padding: 14px 16px; color: #fff;
       transition: transform .35s, opacity .35s;
     }
-    .sd-card:hover .sd-overlay { transform: translateY(-28%); opacity: .35; }
-    .sd-ov-pos  { font-size: .74rem; opacity: .82; }
+    .sd-card:hover .sd-overlay { transform: translateY(-44%); opacity: 1; }
+    .sd-ov-pos  { font-size: .76rem; opacity: .95; font-weight: 600;
+      text-shadow: 0 1px 4px oklch(0% 0 0 / .9); }
     .sd-ov-name { font-size: 1.05rem; font-weight: 700; line-height: 1.25;
-      text-shadow: 0 1px 4px oklch(0% 0 0 / .5); }
+      text-shadow: 0 2px 6px oklch(0% 0 0 / .95); }
 
     /* ── Hover reveal ── */
     .sd-reveal {
