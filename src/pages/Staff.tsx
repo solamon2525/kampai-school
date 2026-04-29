@@ -265,8 +265,7 @@ const StaffDirCSS = () => (
     /* ── Stats border ── */
     .sd-stat-sep:not(:last-child) { border-right: 1px solid hsl(var(--border)); }
     @media (max-width: 600px) {
-      .sd-stat-sep:not(:last-child) { border-right: none; border-bottom: 1px solid hsl(var(--border)); }
-      .sd-stat-grid { grid-template-columns: repeat(2, 1fr) !important; }
+      .sd-stat-grid { grid-template-columns: repeat(4, 1fr) !important; }
     }
 
     /* ── List view ── */
@@ -671,46 +670,46 @@ const Staff = () => {
 
       <main>
         {/* Hero — Compact */}
-        <section className="bg-primary py-6 md:py-8">
+        <section className="bg-primary py-2 md:py-8">
           <div className="container mx-auto px-4 text-center">
-            <span className="inline-block text-xs md:text-sm font-semibold uppercase tracking-wider text-primary-foreground/70 mb-1.5">
+            <span className="hidden sm:inline-block text-xs md:text-sm font-semibold uppercase tracking-wider text-primary-foreground/70 mb-1.5">
               บุคลากร
             </span>
-            <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-primary-foreground mb-1.5">
+            <h1 className="text-base sm:text-xl md:text-2xl lg:text-3xl font-bold text-primary-foreground mb-0.5 sm:mb-1.5">
               คณะผู้บริหารและบุคลากร
             </h1>
-            <p className="text-xs md:text-sm text-primary-foreground/75 max-w-2xl mx-auto">
+            <p className="hidden sm:block text-xs md:text-sm text-primary-foreground/75 max-w-2xl mx-auto">
               ทีมผู้บริหาร ครู และบุคลากรที่มีความเชี่ยวชาญ ทุ่มเทพัฒนาการศึกษาและนักเรียนทุกคน
             </p>
           </div>
         </section>
 
         {/* ── Stats strip ──────────────────────────────────────────── */}
-        <div className="bg-card border-b px-4 sm:px-10 py-5">
-          <div className="sd-stat-grid grid grid-cols-2 sm:grid-cols-4 gap-0">
+        <div className="bg-card border-b px-2 sm:px-10 py-1.5 sm:py-4">
+          <div className="sd-stat-grid grid grid-cols-4 gap-0">
             {[
               { num: totalAll, label: 'ครูและบุคลากร' },
               { num: administrators.length, label: 'ผู้บริหาร' },
               { num: teachingStaff.length, label: 'ครูผู้สอน' },
               { num: supportStaff.length, label: 'บุคลากรสนับสนุน' },
             ].map(({ num, label }, i) => (
-              <div key={i} className={`sd-stat-sep text-center py-3 px-2`}>
+              <div key={i} className="sd-stat-sep text-center py-1.5 px-1">
                 <motion.div
-                  className="text-2xl font-bold"
+                  className="text-lg sm:text-2xl font-bold leading-none"
                   style={{ color: 'var(--sd-dk)' }}
                   initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}
                   viewport={{ once: true }}
                 >
                   {num}
                 </motion.div>
-                <div className="text-xs text-muted-foreground mt-1">{label}</div>
+                <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 leading-tight">{label}</div>
               </div>
             ))}
           </div>
         </div>
 
         {/* ── Toolbar ──────────────────────────────────────────────── */}
-        <div className="bg-card border-b sticky top-[68px] z-40 px-4 sm:px-6 py-3">
+        <div className="bg-card border-b sticky top-[68px] z-40 px-3 sm:px-6 py-2">
           <div className="flex items-center gap-3 flex-wrap max-w-screen-xl mx-auto">
             {/* Search */}
             <div className="flex items-center gap-2 flex-1 min-w-48 max-w-xs rounded-full border px-4 py-2 bg-muted/40 focus-within:border-primary transition-colors">
