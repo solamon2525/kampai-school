@@ -34,7 +34,8 @@ Live: https://kampai-school.vercel.app · Repo: solamon2525/kampai-school · v1.
 
 | update ที่ไหน | เมื่อไหร่ |
 |---|---|
-| `DESIGN.md` (kampai-school root) | เปลี่ยน design token / กฎ / pattern |
+| `DESIGN.md` (kampai-school root) | เปลี่ยน design token / palette / contrast / typography / UX rules 14.x |
+| `DESIGN-COMPONENTS.md` (kampai-school root) | เปลี่ยน component spec / replacement mapping / AI hard rules |
 | `src/components/admin/system/SystemOverview.tsx` (`versionHistory`) | feature ใหม่ / refactor ใหญ่ → เพิ่ม version entry หัวบนสุด |
 | second-brain `Features.md` | feature user-visible → list ในหมวด |
 | second-brain `Roadmap.md` | sprint/version จบ → tick `[x]` |
@@ -180,81 +181,20 @@ Alias: `@/*` → `./src/*`
 - Branch: `main` (production)
 - Commit style: `feat(scope): description` · `fix(scope): ...` · `docs(scope): ...`
 - Commit รวม Claude co-author เมื่อใช้ Claude Code
-- **ใช้ `rtk` prefix ทุก command** ที่เรียกผ่าน shell — ดูหมวด RTK ด้านล่าง
+- **ใช้ `rtk` prefix ทุก shell command** — ดูหมวด RTK ด้านล่าง
 
-## 🦀 RTK (Rust Token Killer) — ประหยัด token 60-90%
+## 🦀 RTK (Token-Saving CLI Wrapper)
 
-**Golden rule:** prefix ด้วย `rtk` เสมอสำหรับ command ที่มี output เยอะ ถ้า RTK ไม่ filter ก็ passthrough — ปลอดภัย
+**ใช้ `rtk` prefix ทุก shell command** (git, gh, pnpm, npm, tsc, lint, ls, grep, find, curl, wget, docker, kubectl) — ประหยัด 60-90% ต่อ call ถ้า RTK ไม่ filter ก็ passthrough — ปลอดภัย
 
-### ต้องใช้เสมอสำหรับ project นี้
-
-| หมวด | Command | ประหยัด |
-|---|---|---|
-| **Package manager** | `rtk pnpm install` · `rtk pnpm outdated` · `rtk pnpm list` | 70-90% |
-| **Scripts** | `rtk npm run <script>` · `rtk npx <cmd>` | ~70% |
-| **TypeScript** | `rtk tsc --noEmit` | 83% |
-| **Lint** | `rtk lint` (แทน `pnpm lint` ตรง) | 84% |
-| **Format** | `rtk prettier --check .` | 70% |
-| **Build** | `rtk pnpm build` (ผ่าน npm wrapper) | — |
-| **Git** | `rtk git status` · `rtk git log` · `rtk git diff` · `rtk git add` · `rtk git commit` · `rtk git push` · `rtk git worktree` | 59-80% |
-| **GitHub** | `rtk gh pr view` · `rtk gh pr checks` · `rtk gh run list` · `rtk gh api` | 26-87% |
-| **Files** | `rtk ls <path>` · `rtk grep <pattern>` · `rtk find <pattern>` · `rtk read <file>` | 60-75% |
-| **Debug** | `rtk err <cmd>` (errors only) · `rtk log <file>` (dedup) · `rtk json <file>` (structure) | 70-90% |
-| **Smart summary** | `rtk summary <cmd>` — สรุป output ของ command ใดก็ได้ | — |
-| **Dependencies** | `rtk deps` — dependency overview | ~70% |
-| **Environment** | `rtk env` — env vars compact | ~70% |
-| **Network** | `rtk curl <url>` · `rtk wget <url>` — HTTP compact | 65-70% |
-| **Testing** (future) | `rtk vitest run` · `rtk playwright test` — failures only | 94-99% |
-
-### ⚙️ Auto-apply ผ่าน Hook (Custom)
-
-- มี custom hook ที่ `~/.claude/hooks/rtk-rewrite.py` + ลงทะเบียนใน `~/.claude/settings.json` (PreToolUse + matcher "Bash")
-- Hook จะ **auto-prefix** Bash commands ทุกตัวที่อยู่ใน RTK_COMMANDS (git, gh, pnpm, npm, npx, tsc, lint, prettier, ls, find, grep, curl, wget, docker, kubectl, vite, vitest, playwright, jest, pytest, cargo, prisma, go)
-- **Chained commands ไม่ rewrite อัตโนมัติ** (`&&`, `||`, `;`, `|`) — ต้อง prefix ทุกตัวเอง:
+- Reference เต็ม (ตารางทุกหมวด + Windows note + chained command rule + `gh` examples): `~/.claude/CLAUDE.md` (global)
+- Custom hook ที่ `~/.claude/hooks/rtk-rewrite.py` auto-prefix อัตโนมัติ — ยกเว้น **chained** `&&`/`||`/`;`/`|` ต้อง prefix ทุกตัวเอง:
   ```bash
   ✅ rtk git add X && rtk git commit -m "..." && rtk git push
   ❌ rtk git add X && git commit -m "..." && git push
   ```
-
-### 🪟 Windows Note
-
-- `rtk init -g` บน Windows ไม่ติดตั้ง official hook (Unix-only) — fall back เป็น `--claude-md` mode
-- Warning `[rtk] /!\ No hook installed` จะขึ้นทุกครั้งที่รัน rtk command → **ignore ได้** เป็น cosmetic บน Windows (custom hook ทำงานแทนอยู่แล้ว — ยืนยันด้วย `rtk gain`)
-
-### 🎯 ทุก `gh` command ต้อง rtk
-
-`gh api` · `gh pr create` · `gh pr merge` · `gh pr checks` · `gh run list` · `gh issue list` — ประหยัด 26-87% ต่อ call Hook จะ rewrite ให้เอง **ยกเว้น chained** ที่ต้องระบุเอง
-
-### ตัวอย่างสำหรับงานจริง
-
-```bash
-# เช็คสถานะก่อน commit
-rtk git status && rtk git diff
-
-# Commit + push
-rtk git add <files> && rtk git commit -m "..." && rtk git push
-
-# ตรวจ PR + CI
-rtk gh pr checks
-rtk gh run list
-
-# Debug deploy
-rtk gh api repos/solamon2525/kampai-school/hooks
-
-# Type check + lint ก่อน push
-rtk tsc --noEmit
-rtk lint
-```
-
-### ข้อยกเว้น (อย่าใช้ rtk)
-
-- เมื่อใช้ tool ของ Claude Code เอง (Read / Grep / Glob / Edit / Write) — ใช้ tool ตรงๆ เร็วกว่า rtk
-- เมื่อต้องเห็น output ครบเพื่อ debug → ใช้ `rtk proxy <cmd>` (passthrough ไม่ filter)
-
-### เมื่อเสร็จงาน
-
-- `rtk gain` ดูสถิติ token ที่ประหยัดได้
-- `rtk discover` วิเคราะห์ session ที่พลาดไม่ใช้ rtk
+- Verify: `rtk gain` ดูสถิติ token saved · `rtk proxy <cmd>` = passthrough (debug)
+- ข้อยกเว้น: tool ของ Claude Code เอง (Read/Grep/Glob/Edit/Write) ใช้ตรง ไม่ผ่าน rtk
 
 ## เมื่อเสร็จงานใหญ่
 

@@ -216,8 +216,20 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.8.1 (UX Polish — Mobile Compact + Readable Text + Tappable Cards)',
+        version: 'v1.8.2 (Token Diet — Trim CLAUDE.md + Split DESIGN.md)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-500',
+        items: [
+            'CLAUDE.md trim: ลบ RTK section (74 lines / ~7KB) ที่ duplicate กับ global ~/.claude/CLAUDE.md → แทนด้วย stub 12 บรรทัด ลิงก์ไป global — ประหยัด ~2,500 tokens/session ทุก session AI ทำงาน',
+            'DESIGN.md split (621 → ~440 lines): ย้าย Section 8 (Frontend Components specs) + 9 (Backend Components specs) + 10 (Replacement Mapping table) + 11 (Migration Checklist) + 12 (AI Hard Rules) → ไฟล์ใหม่ DESIGN-COMPONENTS.md',
+            'DESIGN.md เก็บเฉพาะ "rules ที่ใช้บ่อย" — palette/contrast/typography (1-7) + Theme Manager SoT (13) + UX Rules 14.1-14.9 + Spacing (15) + Verification Commands (16)',
+            'DESIGN-COMPONENTS.md (companion file) = "deep specs" load on-demand เมื่อ implement component / refactor legacy purple — ประหยัด ~3,000 tokens ตอนงาน routine ที่ไม่ต้องแตะ component spec',
+            'CLAUDE.md Documentation Discipline table: เพิ่ม row DESIGN-COMPONENTS.md เพื่อระบุชัดเจนว่าเปลี่ยน component spec ต้อง update ที่ไหน (Rule 14.9 compliance)',
+        ],
+    },
+    {
+        version: 'v1.8.1 (UX Polish — Mobile Compact + Readable Text + Tappable Cards)',
+        date: '',
         badge: 'bg-emerald-600',
         items: [
             'Home Principal Photo (HomeLeftSidebar): วงกลม → สีเหลี่ยม (rounded-full → rounded-xl), ขยาย w-20 h-20 → w-28 h-28 (+40%), เพิ่ม object-position: top เพื่อโฟกัสหน้า ไม่ crop ออก',
