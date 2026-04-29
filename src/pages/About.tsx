@@ -102,9 +102,9 @@ const About = () => {
         </section>
 
         {/* Vision Mission Section */}
-        <section className="section-padding bg-background">
+        <section className="py-8 md:py-12 bg-background">
           <div className="container mx-auto px-4">
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
               {cardConfigs.map((c) => {
                 const img = settings[`${c.key}_image_url` as keyof SchoolSettings] as string;
                 const align = (settings[`${c.key}_text_align` as keyof SchoolSettings] as string) || 'left';
@@ -114,18 +114,18 @@ const About = () => {
                   <div
                     key={c.key}
                     style={bg ? { backgroundColor: bg } : {}}
-                    className={`group ${!bg ? 'bg-card' : ''} rounded-2xl p-8 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-border`}
+                    className={`group ${!bg ? 'bg-card' : ''} rounded-2xl p-5 md:p-6 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-border`}
                   >
                     {img ? (
-                      <img src={img} alt={c.title} className="w-14 h-14 rounded-xl object-cover mb-6" />
+                      <img src={img} alt={c.title} className="w-12 h-12 rounded-xl object-cover mb-3" />
                     ) : (
-                      <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
-                        <c.icon className="w-7 h-7 text-primary group-hover:text-primary-foreground transition-colors" />
+                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
+                        <c.icon className="w-6 h-6 text-primary group-hover:text-primary-foreground transition-colors" />
                       </div>
                     )}
-                    <h3 className={`text-xl font-bold text-foreground mb-3 ${alignClass}`}>{c.title}</h3>
+                    <h3 className={`text-lg font-bold text-foreground mb-2 ${alignClass}`}>{c.title}</h3>
                     <div
-                      className={`text-muted-foreground leading-relaxed ${alignClass} prose prose-sm max-w-none`}
+                      className={`text-foreground/80 text-sm leading-relaxed ${alignClass} prose prose-sm max-w-none`}
                       dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(c.text || '') }}
                     />
                   </div>
@@ -136,59 +136,59 @@ const About = () => {
         </section>
 
         {/* Philosophy · Motto · Identity · Colors */}
-        <section className="py-10 bg-secondary/20 border-y border-border">
+        <section className="py-6 md:py-8 bg-secondary/20 border-y border-border">
           <div className="container mx-auto px-4">
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
               {/* ปรัชญา */}
-              <div className="text-center p-6 bg-card rounded-2xl shadow-sm border border-border hover:shadow-md transition-shadow">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl">📖</span>
+              <div className="text-center p-4 md:p-5 bg-card rounded-2xl shadow-sm border border-border hover:shadow-md transition-shadow">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
+                  <span className="text-xl">📖</span>
                 </div>
-                <div className="text-xs font-bold text-primary uppercase tracking-widest mb-2">ปรัชญาโรงเรียน</div>
-                <p className="text-lg font-bold text-foreground mb-1 leading-snug">
+                <div className="text-[10px] md:text-xs font-bold text-primary uppercase tracking-widest mb-1">ปรัชญาโรงเรียน</div>
+                <p className="text-base font-bold text-foreground mb-0.5 leading-snug">
                   {settings.school_philosophy || 'นัตถิ ปัญญา สมา อาภา'}
                 </p>
-                <p className="text-sm text-muted-foreground italic">
+                <p className="text-xs text-foreground/70 italic">
                   {settings.school_philosophy_translation || 'แสงสว่างเสมอด้วยปัญญาไม่มี'}
                 </p>
               </div>
               {/* คำขวัญ */}
-              <div className="text-center p-6 bg-card rounded-2xl shadow-sm border border-border hover:shadow-md transition-shadow">
-                <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl">🎯</span>
+              <div className="text-center p-4 md:p-5 bg-card rounded-2xl shadow-sm border border-border hover:shadow-md transition-shadow">
+                <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-2">
+                  <span className="text-xl">🎯</span>
                 </div>
-                <div className="text-xs font-bold text-primary uppercase tracking-widest mb-2">คำขวัญโรงเรียน</div>
-                <p className="text-2xl font-bold text-foreground leading-snug">
+                <div className="text-[10px] md:text-xs font-bold text-primary uppercase tracking-widest mb-1">คำขวัญโรงเรียน</div>
+                <p className="text-lg md:text-xl font-bold text-foreground leading-snug">
                   {settings.school_motto || 'เรียนดี มีคุณธรรม'}
                 </p>
               </div>
               {/* อัตลักษณ์ */}
-              <div className="text-center p-6 bg-card rounded-2xl shadow-sm border border-border hover:shadow-md transition-shadow">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl">✨</span>
+              <div className="text-center p-4 md:p-5 bg-card rounded-2xl shadow-sm border border-border hover:shadow-md transition-shadow">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
+                  <span className="text-xl">✨</span>
                 </div>
-                <div className="text-xs font-bold text-primary uppercase tracking-widest mb-2">อัตลักษณ์โรงเรียน</div>
-                <p className="text-2xl font-bold text-foreground leading-snug">
+                <div className="text-[10px] md:text-xs font-bold text-primary uppercase tracking-widest mb-1">อัตลักษณ์โรงเรียน</div>
+                <p className="text-lg md:text-xl font-bold text-foreground leading-snug">
                   {settings.school_identity || 'ยิ้มง่าย ไหว้สวย'}
                 </p>
               </div>
               {/* สีประจำโรงเรียน */}
-              <div className="text-center p-6 bg-card rounded-2xl shadow-sm border border-border hover:shadow-md transition-shadow">
-                <div className="flex justify-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-full bg-white border-2 border-border shadow" title="สีขาว" />
-                  <div className="w-10 h-10 rounded-full bg-primary shadow" title="สีเขียว" />
+              <div className="text-center p-4 md:p-5 bg-card rounded-2xl shadow-sm border border-border hover:shadow-md transition-shadow">
+                <div className="flex justify-center gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-full bg-white border-2 border-border shadow" title="สีขาว" />
+                  <div className="w-8 h-8 rounded-full bg-primary shadow" title="สีเขียว" />
                 </div>
-                <div className="text-xs font-bold text-primary uppercase tracking-widest mb-2">สีประจำโรงเรียน</div>
-                <p className="text-xl font-bold text-foreground">สีขาว และสีเขียว</p>
+                <div className="text-[10px] md:text-xs font-bold text-primary uppercase tracking-widest mb-1">สีประจำโรงเรียน</div>
+                <p className="text-base md:text-lg font-bold text-foreground">สีขาว และสีเขียว</p>
               </div>
             </div>
           </div>
         </section>
 
         {/* Stats Section */}
-        <section className="py-16 bg-primary">
+        <section className="py-8 md:py-10 bg-primary">
           <div className="container mx-auto px-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="grid grid-cols-4 gap-3 md:gap-6">
               {[
                 { icon: History, value: settings.about_stat_1, label: settings.about_stat_1_label },
                 { icon: Users, value: settings.about_stat_2, label: settings.about_stat_2_label },
@@ -196,9 +196,9 @@ const About = () => {
                 { icon: Award, value: settings.about_stat_4, label: settings.about_stat_4_label },
               ].map((stat, index) => (
                 <div key={index} className="text-center">
-                  <stat.icon className="w-10 h-10 text-accent mx-auto mb-4" />
-                  <div className="text-3xl md:text-4xl lg:text-5xl font-bold text-accent mb-2">{stat.value}</div>
-                  <div className="text-primary-foreground/80">{stat.label}</div>
+                  <stat.icon className="w-7 h-7 md:w-9 md:h-9 text-accent mx-auto mb-1.5 md:mb-2" />
+                  <div className="text-xl md:text-3xl lg:text-4xl font-bold text-accent mb-0.5 md:mb-1 leading-none">{stat.value}</div>
+                  <div className="text-[10px] md:text-sm text-primary-foreground/85 leading-tight">{stat.label}</div>
                 </div>
               ))}
             </div>
@@ -206,19 +206,19 @@ const About = () => {
         </section>
 
         {/* GPS-Model */}
-        <section className="section-padding bg-background">
+        <section className="py-8 md:py-12 bg-background">
           <div className="container mx-auto px-4">
-            <div className="text-center max-w-2xl mx-auto mb-12">
-              <span className="inline-block text-accent font-semibold mb-3 uppercase tracking-widest text-sm">นวัตกรรมการบริหาร</span>
-              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">GPS-Model</h2>
-              <p className="text-muted-foreground leading-relaxed">
+            <div className="text-center max-w-2xl mx-auto mb-6 md:mb-8">
+              <span className="inline-block text-primary font-semibold mb-1.5 uppercase tracking-widest text-xs md:text-sm">นวัตกรรมการบริหาร</span>
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">GPS-Model</h2>
+              <p className="text-foreground/75 text-sm md:text-base leading-relaxed">
                 โมเดลที่นำทางไปสู่จุดหมายและความสำเร็จ บนพื้นฐาน Good Governance ·{' '}
                 Participation Management · System Approach
               </p>
             </div>
 
             {/* G · P · S cards */}
-            <div className="grid md:grid-cols-3 gap-6 mb-10">
+            <div className="grid md:grid-cols-3 gap-4 md:gap-5 mb-6 md:mb-8">
               {[
                 {
                   letter: 'G',
@@ -242,39 +242,39 @@ const About = () => {
                   desc: 'ใช้วิธีการเชิงระบบ (System Approach) ในการดำเนินงาน เพื่อพัฒนาอย่างต่อเนื่องและนำไปสู่ความยั่งยืน',
                 },
               ].map(({ letter, bg, title, subtitle, desc }) => (
-                <div key={letter} className="bg-card rounded-2xl p-8 shadow-md border border-border text-center hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                  <div className={`w-16 h-16 rounded-2xl ${bg} text-white flex items-center justify-center text-3xl font-black mx-auto mb-5 shadow-md`}>
+                <div key={letter} className="bg-card rounded-2xl p-5 md:p-6 shadow-md border border-border text-center hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                  <div className={`w-12 h-12 md:w-14 md:h-14 rounded-2xl ${bg} text-white flex items-center justify-center text-2xl md:text-3xl font-black mx-auto mb-3 shadow-md`}>
                     {letter}
                   </div>
-                  <h3 className="text-lg font-bold text-foreground mb-1">{title}</h3>
-                  <p className="text-sm text-primary font-semibold mb-3">{subtitle}</p>
-                  <p className="text-muted-foreground text-sm leading-relaxed">{desc}</p>
+                  <h3 className="text-base md:text-lg font-bold text-foreground mb-0.5">{title}</h3>
+                  <p className="text-xs md:text-sm text-primary font-semibold mb-2">{subtitle}</p>
+                  <p className="text-foreground/75 text-xs md:text-sm leading-relaxed">{desc}</p>
                 </div>
               ))}
             </div>
 
             {/* PDCA */}
-            <div className="bg-secondary/40 rounded-2xl p-8 border border-border">
-              <div className="text-center mb-6">
-                <span className="text-xs font-bold uppercase tracking-widest text-primary">วงจรคุณภาพ</span>
-                <h3 className="text-2xl font-bold text-foreground mt-1">PDCA Cycle</h3>
-                <p className="text-muted-foreground text-sm mt-2 max-w-xl mx-auto">
+            <div className="bg-secondary/40 rounded-2xl p-5 md:p-6 border border-border">
+              <div className="text-center mb-4">
+                <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-primary">วงจรคุณภาพ</span>
+                <h3 className="text-xl md:text-2xl font-bold text-foreground mt-0.5">PDCA Cycle</h3>
+                <p className="text-foreground/75 text-xs md:text-sm mt-1 max-w-xl mx-auto">
                   ขับเคลื่อน GPS-Model ด้วยวงจรคุณภาพ PDCA เพื่อแก้ปัญหาและปรับปรุงคุณภาพการดำเนินงานอย่างต่อเนื่อง
                 </p>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
+              <div className="grid grid-cols-4 gap-2 md:gap-3 max-w-2xl mx-auto">
                 {[
                   { letter: 'P', label: 'Plan', desc: 'วางแผน' },
                   { letter: 'D', label: 'Do', desc: 'ปฏิบัติ' },
                   { letter: 'C', label: 'Check', desc: 'ตรวจสอบ' },
                   { letter: 'A', label: 'Act', desc: 'ปรับปรุง' },
                 ].map(({ letter, label, desc }) => (
-                  <div key={letter} className="text-center p-4 bg-card rounded-xl border border-border">
-                    <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center text-xl font-black mx-auto mb-2 shadow-sm">
+                  <div key={letter} className="text-center p-2.5 md:p-3 bg-card rounded-xl border border-border">
+                    <div className="w-9 h-9 md:w-11 md:h-11 rounded-full bg-primary text-white flex items-center justify-center text-base md:text-lg font-black mx-auto mb-1 shadow-sm">
                       {letter}
                     </div>
-                    <div className="font-bold text-foreground">{label}</div>
-                    <div className="text-sm text-muted-foreground">{desc}</div>
+                    <div className="text-sm md:text-base font-bold text-foreground leading-tight">{label}</div>
+                    <div className="text-[10px] md:text-xs text-foreground/70">{desc}</div>
                   </div>
                 ))}
               </div>
@@ -283,30 +283,30 @@ const About = () => {
         </section>
 
         {/* History Timeline */}
-        <section className="section-padding bg-secondary/30">
+        <section className="py-8 md:py-12 bg-secondary/30">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-16">
-              <span className="inline-block text-accent font-semibold mb-4">ประวัติความเป็นมา</span>
-              <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
+            <div className="text-center mb-6 md:mb-8">
+              <span className="inline-block text-primary font-semibold mb-1.5 uppercase tracking-widest text-xs md:text-sm">ประวัติความเป็นมา</span>
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
                 เส้นทางแห่งความสำเร็จ
               </h2>
             </div>
 
             <div className="max-w-3xl mx-auto">
               {milestones.map((milestone, index) => (
-                <div key={index} className="flex gap-6 mb-8 last:mb-0">
-                  <div className="flex-shrink-0 w-24 text-right">
-                    <span className="text-2xl font-bold text-primary">{milestone.year}</span>
+                <div key={index} className="flex gap-3 md:gap-5 mb-3 md:mb-4 last:mb-0">
+                  <div className="flex-shrink-0 w-16 md:w-20 text-right">
+                    <span className="text-lg md:text-xl font-bold text-primary">{milestone.year}</span>
                   </div>
                   <div className="relative">
-                    <div className="w-4 h-4 rounded-full bg-accent border-4 border-background" />
+                    <div className="w-3 h-3 md:w-4 md:h-4 rounded-full bg-accent border-[3px] border-background" />
                     {index < milestones.length - 1 && (
-                      <div className="absolute top-4 left-1.5 w-1 h-full bg-border" />
+                      <div className="absolute top-3 md:top-4 left-1 md:left-1.5 w-0.5 md:w-1 h-full bg-border" />
                     )}
                   </div>
-                  <div className="flex-1 pb-8">
-                    <div className="bg-card rounded-xl p-6 shadow-md border border-border">
-                      <p className="text-foreground">{milestone.event}</p>
+                  <div className="flex-1 pb-3 md:pb-4">
+                    <div className="bg-card rounded-xl p-3 md:p-4 shadow-sm border border-border">
+                      <p className="text-foreground text-sm md:text-base">{milestone.event}</p>
                     </div>
                   </div>
                 </div>
@@ -316,25 +316,25 @@ const About = () => {
         </section>
 
         {/* Facilities */}
-        <section className="section-padding bg-background">
+        <section className="py-8 md:py-12 bg-background">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-16">
-              <span className="inline-block text-accent font-semibold mb-4">สิ่งอำนวยความสะดวก</span>
-              <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
+            <div className="text-center mb-6 md:mb-8">
+              <span className="inline-block text-primary font-semibold mb-1.5 uppercase tracking-widest text-xs md:text-sm">สิ่งอำนวยความสะดวก</span>
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
                 สถานที่และอุปกรณ์
               </h2>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
               {facilities.map((facility) => {
                 const IconComponent = iconMap[facility.icon] || Building2;
                 return (
-                  <div key={facility.id} className="bg-card rounded-2xl p-8 shadow-md border border-border text-center">
-                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-                      <IconComponent className="w-8 h-8 text-primary" />
+                  <div key={facility.id} className="bg-card rounded-2xl p-5 md:p-6 shadow-md border border-border text-center">
+                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                      <IconComponent className="w-6 h-6 md:w-7 md:h-7 text-primary" />
                     </div>
-                    <h3 className="text-xl font-bold text-foreground mb-3">{facility.title}</h3>
-                    <p className="text-muted-foreground">{facility.description}</p>
+                    <h3 className="text-base md:text-lg font-bold text-foreground mb-1.5">{facility.title}</h3>
+                    <p className="text-foreground/75 text-sm">{facility.description}</p>
                   </div>
                 );
               })}
