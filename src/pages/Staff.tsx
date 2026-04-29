@@ -255,9 +255,10 @@ const StaffDirCSS = () => (
       min-height: 320px;
     }
     .sd-featured .sd-photo { aspect-ratio: auto; height: 100%; }
+    .sd-featured .sd-photo img { object-position: top; }
     @media (max-width: 600px) {
       .sd-featured .sd-card-front { grid-template-columns: 1fr !important; }
-      .sd-featured .sd-photo { height: 240px; }
+      .sd-featured .sd-photo { aspect-ratio: 4/5 !important; height: auto !important; }
     }
 
     /* ── Stats border ── */
