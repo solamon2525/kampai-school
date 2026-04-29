@@ -58,9 +58,9 @@ export const useHomeLeftBlocks = () => {
       <div className="p-3 text-center">
         {principal ? (
           <>
-            <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-2 border-2 border-primary/30">
+            <div className="w-28 h-28 rounded-xl overflow-hidden mx-auto mb-3 border-2 border-primary/30">
               {principal.photo_url ? (
-                <img src={principal.photo_url} alt={principal.name} className="w-full h-full object-cover" />
+                <img src={principal.photo_url} alt={principal.name} className="w-full h-full object-cover object-top" />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-accent to-primary flex items-center justify-center">
                   <span className="text-2xl font-bold text-white">{principal.name.charAt(0)}</span>
@@ -72,7 +72,7 @@ export const useHomeLeftBlocks = () => {
           </>
         ) : (
           <div className="py-4">
-            <div className="w-20 h-20 rounded-full bg-gray-100 mx-auto mb-2 animate-pulse" />
+            <div className="w-28 h-28 rounded-xl bg-gray-100 mx-auto mb-3 animate-pulse" />
             <div className="h-3 bg-gray-100 rounded mx-auto w-3/4 animate-pulse" />
           </div>
         )}
