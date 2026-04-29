@@ -228,6 +228,7 @@ const versionHistory = [
             'DESIGN.md v2: เพิ่ม 9 UX Rules (14.1-14.9) สรุปจาก bug ที่เคยเจอ ห้ามทำซ้ำ — gradients/contrast/footer spacing/Theme Manager SoT/Menu Manager SoT/theme toggle scope/documentation discipline + renumber duplicate section 13 → 15 (Spacing) + 16 (Verification)',
             'Documentation Discipline (Rule 14.9): ทุก commit + deploy ต้อง sync DESIGN.md + SystemOverview versionHistory + second-brain (Features/Roadmap/Lessons Learned) ในคอมมิตเดียวกัน — ป้องกันเอกสารหลุด',
             'Quick Fixes: typo "ลังรูปภาพ" → "คลังรูปภาพ" + ลบ ThemeToggle จาก SiteHeader (public ใช้ light mode เท่านั้น) + Gallery widget query gallery_albums → news.cover_image → placeholder UI (ลบ Unsplash CDN ที่ block ได้)',
+            'SiteHeader: ลบปุ่ม "สมัครเรียน" ออกจาก navbar (desktop CTA + mobile drawer footer) — user จะวางใน left/right home sidebar block เอง — ทำให้ menu items มีพื้นที่ขยายเต็ม navbar (ลบ `ml-auto` wrapper)',
         ],
     },
     {
