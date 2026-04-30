@@ -99,7 +99,7 @@ const Curriculum = () => {
       <SiteHeader />
       <main>
         {/* Hero — Compact */}
-        <section className="bg-primary py-6 md:py-8">
+        <section className="bg-primary py-2 md:py-6">
           <div className="container mx-auto px-4 text-center">
             <span className="inline-block text-xs md:text-sm font-semibold uppercase tracking-wider text-primary-foreground/70 mb-1.5">
               หลักสูตรการศึกษา
@@ -114,7 +114,7 @@ const Curriculum = () => {
         </section>
 
         {/* Programs Detail */}
-        <section className="section-padding bg-background">
+        <section className="py-4 md:py-8 bg-background">
           <div className="container mx-auto px-4">
             {loading ? (
               <div className="text-center py-12">
@@ -198,7 +198,7 @@ const Curriculum = () => {
         </section>
 
         {/* Schedule Info */}
-        <section className="py-16 bg-primary">
+        <section className="py-4 md:py-8 bg-primary">
           <div className="container mx-auto px-4">
             <div className="grid md:grid-cols-3 gap-8 text-center">
               {[
@@ -217,9 +217,9 @@ const Curriculum = () => {
         </section>
 
         {/* Activities */}
-        <section className="section-padding bg-secondary/30">
+        <section className="py-4 md:py-8 bg-secondary/30">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-16">
+            <div className="text-center mb-6 md:mb-8">
               <span className="inline-block text-accent font-semibold mb-4">กิจกรรมเสริมหลักสูตร</span>
               <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
                 พัฒนาทักษะรอบด้าน

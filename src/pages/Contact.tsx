@@ -131,7 +131,7 @@ const Contact = () => {
       <SiteHeader />
       <main>
         {/* Hero — Compact */}
-        <section className="bg-primary py-6 md:py-8">
+        <section className="bg-primary py-2 md:py-6">
           <div className="container mx-auto px-4 text-center">
             <span className="inline-block text-xs md:text-sm font-semibold uppercase tracking-wider text-primary-foreground/70 mb-1.5">
               ติดต่อเรา
@@ -146,7 +146,7 @@ const Contact = () => {
         </section>
 
         {/* Contact Info Cards */}
-        <section className="py-12 bg-background">
+        <section className="py-4 md:py-6 bg-background">
           <div className="container mx-auto px-4">
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               {contactInfo.map((item, index) => (
@@ -163,7 +163,7 @@ const Contact = () => {
         </section>
 
         {/* Main Content */}
-        <section className="section-padding bg-background">
+        <section className="py-6 md:py-10 bg-background">
           <div className="container mx-auto px-4">
             <div className="grid lg:grid-cols-2 gap-12">
               {/* Contact Form */}

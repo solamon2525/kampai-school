@@ -98,7 +98,7 @@ const AcademicCalendar = () => {
       <SiteHeader />
 
       {/* Hero — Compact */}
-      <section className="bg-primary py-6 md:py-8">
+      <section className="bg-primary py-2 md:py-6">
         <div className="container mx-auto px-4 text-center">
           <span className="inline-block text-xs md:text-sm font-semibold uppercase tracking-wider text-primary-foreground/70 mb-1.5">
             ปฏิทินการศึกษา
@@ -113,7 +113,7 @@ const AcademicCalendar = () => {
       </section>
 
       {/* Calendar Content */}
-      <section className="py-16">
+      <section className="py-4 md:py-8">
         <div className="container-school">
           {/* Event Type Legend */}
           <div className="flex flex-wrap gap-3 justify-center mb-8">
@@ -248,7 +248,7 @@ const AcademicCalendar = () => {
           </Tabs>
 
           {/* Download Calendar */}
-          <div className="text-center mt-12 space-y-4">
+          <div className="text-center mt-6 space-y-3">
             <Button
               variant="outline"
               className="gap-2"

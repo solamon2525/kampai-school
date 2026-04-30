@@ -140,7 +140,7 @@ const News = () => {
     return (
       <div className="min-h-screen bg-background">
         <SiteHeader />
-        <div className="container-school section-padding">
+        <div className="container-school py-4 md:py-8">
           <Button
             variant="outline"
             onClick={() => {
@@ -148,7 +148,7 @@ const News = () => {
               window.history.pushState({}, '', '/news');
               window.scrollTo(0, 0);
             }}
-            className="mb-8"
+            className="mb-4"
           >
             ← กลับ
           </Button>
@@ -223,7 +223,7 @@ const News = () => {
       <SiteHeader />
 
       {/* Hero — Compact */}
-      <section className="bg-primary py-6 md:py-8">
+      <section className="bg-primary py-2 md:py-6">
         <div className="container mx-auto px-4 text-center">
           <span className="inline-block text-xs md:text-sm font-semibold uppercase tracking-wider text-primary-foreground/70 mb-1.5">
             ข่าวสารและกิจกรรม
@@ -280,7 +280,7 @@ const News = () => {
       </section>
 
       {/* News Grid */}
-      <section className="py-8 bg-background">
+      <section className="py-4 md:py-6 bg-background">
         <div className="container mx-auto px-4">
           {isLoading ? (
             <div className="text-center py-12">

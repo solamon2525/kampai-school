@@ -121,7 +121,7 @@ const Documents = () => {
       <SiteHeader />
 
       {/* Hero Section */}
-      <section className="bg-primary py-16 px-4">
+      <section className="bg-primary py-2 md:py-6 px-4">
         <div className="container mx-auto text-center">
           <h1 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-3">
             เอกสารและแบบฟอร์ม
@@ -183,7 +183,7 @@ const Documents = () => {
       </section>
 
       {/* Documents Grid */}
-      <main className="flex-1 container mx-auto px-4 py-8">
+      <main className="flex-1 container mx-auto px-4 py-4 md:py-6">
         {isLoading ? (
           <div className="flex items-center justify-center py-24 text-muted-foreground">
             กำลังโหลดเอกสาร...

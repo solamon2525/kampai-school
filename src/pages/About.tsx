@@ -87,7 +87,7 @@ const About = () => {
       <SiteHeader />
       <main>
         {/* Hero — Compact */}
-        <section className="bg-primary py-6 md:py-8">
+        <section className="bg-primary py-2 md:py-6">
           <div className="container mx-auto px-4 text-center">
             <span className="inline-block text-xs md:text-sm font-semibold uppercase tracking-wider text-primary-foreground/70 mb-1.5">
               เกี่ยวกับเรา
@@ -102,7 +102,7 @@ const About = () => {
         </section>
 
         {/* Vision Mission Section */}
-        <section className="py-8 md:py-12 bg-background">
+        <section className="py-4 md:py-8 bg-background">
           <div className="container mx-auto px-4">
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
               {cardConfigs.map((c) => {
@@ -136,7 +136,7 @@ const About = () => {
         </section>
 
         {/* Philosophy · Motto · Identity · Colors */}
-        <section className="py-6 md:py-8 bg-secondary/20 border-y border-border">
+        <section className="py-3 md:py-6 bg-secondary/20 border-y border-border">
           <div className="container mx-auto px-4">
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
               {/* ปรัชญา */}
@@ -186,7 +186,7 @@ const About = () => {
         </section>
 
         {/* Stats Section */}
-        <section className="py-8 md:py-10 bg-primary">
+        <section className="py-4 md:py-6 bg-primary">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-4 gap-3 md:gap-6">
               {[
@@ -206,7 +206,7 @@ const About = () => {
         </section>
 
         {/* GPS-Model */}
-        <section className="py-8 md:py-12 bg-background">
+        <section className="py-4 md:py-8 bg-background">
           <div className="container mx-auto px-4">
             <div className="text-center max-w-2xl mx-auto mb-6 md:mb-8">
               <span className="inline-block text-primary font-semibold mb-1.5 uppercase tracking-widest text-xs md:text-sm">นวัตกรรมการบริหาร</span>
@@ -283,7 +283,7 @@ const About = () => {
         </section>
 
         {/* History Timeline */}
-        <section className="py-8 md:py-12 bg-secondary/30">
+        <section className="py-4 md:py-8 bg-secondary/30">
           <div className="container mx-auto px-4">
             <div className="text-center mb-6 md:mb-8">
               <span className="inline-block text-primary font-semibold mb-1.5 uppercase tracking-widest text-xs md:text-sm">ประวัติความเป็นมา</span>
@@ -316,7 +316,7 @@ const About = () => {
         </section>
 
         {/* Facilities */}
-        <section className="py-8 md:py-12 bg-background">
+        <section className="py-4 md:py-8 bg-background">
           <div className="container mx-auto px-4">
             <div className="text-center mb-6 md:mb-8">
               <span className="inline-block text-primary font-semibold mb-1.5 uppercase tracking-widest text-xs md:text-sm">สิ่งอำนวยความสะดวก</span>

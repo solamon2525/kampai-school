@@ -76,7 +76,7 @@ const Events = () => {
             <SiteHeader />
 
             {/* Hero — Compact */}
-            <section className="bg-primary py-6 md:py-8">
+            <section className="bg-primary py-2 md:py-6">
                 <div className="container mx-auto px-4 text-center">
                     <span className="inline-block text-xs md:text-sm font-semibold uppercase tracking-wider text-primary-foreground/70 mb-1.5">
                         กิจกรรมและปฏิทิน
@@ -91,7 +91,7 @@ const Events = () => {
             </section>
 
             {/* Events List */}
-            <section className="section-padding bg-background">
+            <section className="py-4 md:py-8 bg-background">
                 <div className="container mx-auto px-4">
                     <div className="max-w-4xl mx-auto">
 
