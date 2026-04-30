@@ -97,11 +97,11 @@ const NewsTicker = () => {
           style={{ background: 'linear-gradient(to right, hsl(var(--primary)), transparent)' }}
         />
 
-        {/* Content — ซ้ำ 2 รอบเพื่อ seamless loop */}
+        {/* Content — ซ้ำ 2 รอบเพื่อ seamless loop, whitespace-nowrap บังคับ 1 แถว */}
         <div
-          className="inline-flex items-center h-full text-sm font-medium"
+          className="inline-flex items-center h-full text-sm font-medium whitespace-nowrap flex-nowrap"
           style={{
-            animation: `news-ticker-reverse ${DURATION}s linear infinite`,
+            animation: `news-ticker-rtl ${DURATION}s linear infinite`,
             animationPlayState: paused ? 'paused' : 'running',
             willChange: 'transform',
           }}
@@ -118,9 +118,9 @@ const NewsTicker = () => {
       </div>
 
       <style>{`
-        @keyframes news-ticker-reverse {
-          from { transform: translateX(-50%); }
-          to   { transform: translateX(0%); }
+        @keyframes news-ticker-rtl {
+          from { transform: translateX(0%); }
+          to   { transform: translateX(-50%); }
         }
       `}</style>
     </div>
