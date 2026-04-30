@@ -675,11 +675,12 @@ const Staff = () => {
   const yearBE = new Date().getFullYear() + 543;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-100">
       <StaffDirCSS />
       <SEOHead title="บุคลากร" description="คณะครูและบุคลากรของโรงเรียน" />
       <SiteHeader />
 
+      <div className="max-w-7xl mx-auto w-full bg-background">
       <main>
         {/* Hero — Compact */}
         <section className="bg-primary py-2 md:py-8">
@@ -920,6 +921,7 @@ const Staff = () => {
       </main>
 
       <Footer />
+      </div>
 
       {/* ── Modal ── */}
       <StaffModal

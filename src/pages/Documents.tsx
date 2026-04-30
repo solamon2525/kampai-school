@@ -116,9 +116,10 @@ const Documents = () => {
   });
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-100">
       <SEOHead title="เอกสาร" description="เอกสารและแบบฟอร์มสำหรับดาวน์โหลด" />
       <SiteHeader />
+      <div className="max-w-7xl mx-auto w-full bg-background flex-grow flex flex-col">
 
       {/* Hero Section */}
       <section className="bg-primary py-2 md:py-6 px-4">
@@ -271,6 +272,7 @@ const Documents = () => {
       </main>
 
       <Footer />
+      </div>
     </div>
   );
 };

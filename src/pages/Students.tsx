@@ -111,9 +111,10 @@ const Students = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-100">
       <SEOHead title="นักเรียน" description="ข้อมูลนักเรียนของโรงเรียน" />
       <SiteHeader />
+      <div className="max-w-7xl mx-auto w-full bg-background">
       <main>
         {/* Hero — Compact */}
         <section className="bg-primary py-6 md:py-8">
@@ -292,6 +293,7 @@ const Students = () => {
         </section>
       </main>
       <Footer />
+      </div>
     </div>
   );
 };

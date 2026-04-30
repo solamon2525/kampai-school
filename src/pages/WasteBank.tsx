@@ -237,9 +237,10 @@ const WasteBank = () => {
   const podiumRankIdx = [1, 0, 2];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-gray-100 flex flex-col">
       <SEOHead title="ธนาคารขยะ" description="ระบบธนาคารขยะโรงเรียนบ้านคำไผ่ — สะสมแต้มจากการเก็บขยะ แลกรางวัล" />
       <SiteHeader />
+      <div className="max-w-7xl mx-auto w-full bg-background flex-grow flex flex-col">
 
       {/* Hero — Compact */}
       <section className="bg-primary py-6 md:py-8">
@@ -700,6 +701,7 @@ const WasteBank = () => {
       </section>
 
       <Footer />
+      </div>
     </div>
   );
 };

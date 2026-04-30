@@ -138,8 +138,9 @@ const News = () => {
 
   if (selectedNews) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gray-100">
         <SiteHeader />
+        <div className="max-w-7xl mx-auto w-full bg-background">
         <div className="container-school py-4 md:py-8">
           <Button
             variant="outline"
@@ -213,14 +214,16 @@ const News = () => {
           </article>
         </div>
         <Footer />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-100">
       <SEOHead title="ข่าวสาร" description="ข่าวสารและประกาศจากโรงเรียน" />
       <SiteHeader />
+      <div className="max-w-7xl mx-auto w-full bg-background">
 
       {/* Hero — Compact */}
       <section className="bg-primary py-2 md:py-6">
@@ -349,6 +352,7 @@ const News = () => {
       </section>
 
       <Footer />
+      </div>
     </div>
   );
 };

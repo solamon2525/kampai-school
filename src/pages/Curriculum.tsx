@@ -94,9 +94,10 @@ const Curriculum = () => {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gray-100">
       <SEOHead title="หลักสูตร" description="หลักสูตรการเรียนการสอนของโรงเรียน" />
       <SiteHeader />
+      <div className="max-w-7xl mx-auto w-full bg-background">
       <main>
         {/* Hero — Compact */}
         <section className="bg-primary py-2 md:py-6">
@@ -244,6 +245,7 @@ const Curriculum = () => {
         </section>
       </main>
       <Footer />
+      </div>
     </div>
   );
 };

@@ -71,9 +71,10 @@ const Events = () => {
     };
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-gray-100">
             <SEOHead title="ปฏิทินกิจกรรม" description="ปฏิทินกิจกรรมและงานสำคัญของโรงเรียน" />
             <SiteHeader />
+            <div className="max-w-7xl mx-auto w-full bg-background">
 
             {/* Hero — Compact */}
             <section className="bg-primary py-2 md:py-6">
@@ -170,6 +171,7 @@ const Events = () => {
             </section>
 
             <Footer />
+            </div>
         </div>
     );
 };

@@ -298,8 +298,9 @@ const Enrollment = () => {
           }
         `}</style>
 
-        <div className="min-h-screen bg-background print:hidden">
+        <div className="min-h-screen bg-gray-100 print:hidden">
           <SiteHeader />
+          <div className="max-w-7xl mx-auto w-full bg-background">
           <section className="pt-32 pb-16">
             <div className="container-school">
               <Card className="max-w-2xl mx-auto text-center">
@@ -330,6 +331,7 @@ const Enrollment = () => {
             </div>
           </section>
           <Footer />
+          </div>
         </div>
 
         {/* Print Form - 1 A4 Page */}
@@ -466,8 +468,9 @@ const Enrollment = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-100">
       <SiteHeader />
+      <div className="max-w-7xl mx-auto w-full bg-background">
 
       {/* Hero Section */}
       <section className="pt-32 pb-8 bg-gradient-to-br from-primary via-primary/90 to-primary/80">
@@ -1175,6 +1178,7 @@ const Enrollment = () => {
       </section>
 
       <Footer />
+      </div>
     </div>
   );
 };
