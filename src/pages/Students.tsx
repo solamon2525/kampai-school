@@ -131,18 +131,18 @@ const Students = () => {
         </section>
 
         {/* Stats */}
-        <section className="py-12 bg-secondary/30">
+        <section className="py-4 md:py-6 bg-secondary/30">
           <div className="container mx-auto px-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {studentStats.map((stat) => {
                 const IconComponent = iconMap[stat.icon] || Users;
                 return (
-                  <div key={stat.id} className="bg-card rounded-2xl p-6 text-center shadow-md border border-border">
-                    <div className={`w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4`}>
-                      <IconComponent className={`w-6 h-6 ${stat.color}`} />
+                  <div key={stat.id} className="bg-card rounded-xl p-4 text-center shadow-sm border border-border">
+                    <div className={`w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2`}>
+                      <IconComponent className={`w-5 h-5 ${stat.color}`} />
                     </div>
-                    <div className={`text-3xl font-bold ${stat.color} mb-2`}>{stat.value}</div>
-                    <div className="text-muted-foreground">{stat.label}</div>
+                    <div className={`text-2xl font-bold ${stat.color} mb-1`}>{stat.value}</div>
+                    <div className="text-sm text-muted-foreground">{stat.label}</div>
                   </div>
                 );
               })}
@@ -151,45 +151,45 @@ const Students = () => {
         </section>
 
         {/* Grade Distribution */}
-        <section className="py-16 md:py-24">
+        <section className="py-4 md:py-8">
           <div className="container mx-auto px-4">
-            <div className="text-center max-w-2xl mx-auto mb-12">
-              <span className="inline-block text-accent font-semibold mb-4">สถิติ</span>
-              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
+            <div className="text-center max-w-2xl mx-auto mb-5">
+              <span className="inline-block text-accent font-semibold mb-1 text-sm uppercase tracking-wider">สถิติ</span>
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
                 จำนวนนักเรียนแยกตามระดับชั้น
               </h2>
-              <p className="text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 ข้อมูลจำนวนนักเรียนในแต่ละระดับชั้น ปีการศึกษา 2567
               </p>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full bg-card rounded-2xl shadow-md border border-border overflow-hidden">
+              <table className="w-full bg-card rounded-xl shadow-sm border border-border overflow-hidden">
                 <thead className="bg-primary text-primary-foreground">
                   <tr>
-                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left font-semibold text-sm sm:text-base">ระดับชั้น</th>
-                    <th className="px-2 sm:px-6 py-3 sm:py-4 text-center font-semibold text-sm sm:text-base">ห้อง</th>
-                    <th className="px-2 sm:px-6 py-3 sm:py-4 text-center font-semibold text-sm sm:text-base">ชาย</th>
-                    <th className="px-2 sm:px-6 py-3 sm:py-4 text-center font-semibold text-sm sm:text-base">หญิง</th>
-                    <th className="px-2 sm:px-6 py-3 sm:py-4 text-center font-semibold text-sm sm:text-base">รวม</th>
+                    <th className="px-3 sm:px-4 py-2 text-left font-semibold text-xs sm:text-sm">ระดับชั้น</th>
+                    <th className="px-2 sm:px-4 py-2 text-center font-semibold text-xs sm:text-sm">ห้อง</th>
+                    <th className="px-2 sm:px-4 py-2 text-center font-semibold text-xs sm:text-sm">ชาย</th>
+                    <th className="px-2 sm:px-4 py-2 text-center font-semibold text-xs sm:text-sm">หญิง</th>
+                    <th className="px-2 sm:px-4 py-2 text-center font-semibold text-xs sm:text-sm">รวม</th>
                   </tr>
                 </thead>
                 <tbody>
                   {gradeData.map((grade, index) => (
                     <tr key={index} className="border-t border-border hover:bg-secondary/50 transition-colors">
-                      <td className="px-3 sm:px-6 py-3 sm:py-4 font-medium text-foreground text-sm sm:text-base">{grade.level}</td>
-                      <td className="px-2 sm:px-6 py-3 sm:py-4 text-center text-muted-foreground text-sm sm:text-base">{grade.rooms}</td>
-                      <td className="px-2 sm:px-6 py-3 sm:py-4 text-center text-blue-500 font-semibold text-sm sm:text-base">{grade.boys}</td>
-                      <td className="px-2 sm:px-6 py-3 sm:py-4 text-center text-rose-500 font-semibold text-sm sm:text-base">{grade.girls}</td>
-                      <td className="px-2 sm:px-6 py-3 sm:py-4 text-center text-primary font-bold text-sm sm:text-base">{grade.students}</td>
+                      <td className="px-3 sm:px-4 py-2 font-medium text-foreground text-xs sm:text-sm">{grade.level}</td>
+                      <td className="px-2 sm:px-4 py-2 text-center text-muted-foreground text-xs sm:text-sm">{grade.rooms}</td>
+                      <td className="px-2 sm:px-4 py-2 text-center text-blue-500 font-semibold text-xs sm:text-sm">{grade.boys}</td>
+                      <td className="px-2 sm:px-4 py-2 text-center text-rose-500 font-semibold text-xs sm:text-sm">{grade.girls}</td>
+                      <td className="px-2 sm:px-4 py-2 text-center text-primary font-bold text-xs sm:text-sm">{grade.students}</td>
                     </tr>
                   ))}
                   <tr className="bg-secondary/50 font-bold">
-                    <td className="px-3 sm:px-6 py-3 sm:py-4 text-foreground text-sm sm:text-base">รวมทั้งหมด</td>
-                    <td className="px-2 sm:px-6 py-3 sm:py-4 text-center text-muted-foreground text-sm sm:text-base">{gradeData.reduce((sum, g) => sum + (g.rooms || 0), 0)}</td>
-                    <td className="px-2 sm:px-6 py-3 sm:py-4 text-center text-blue-500 text-sm sm:text-base">{gradeData.reduce((sum, g) => sum + (g.boys || 0), 0)}</td>
-                    <td className="px-2 sm:px-6 py-3 sm:py-4 text-center text-rose-500 text-sm sm:text-base">{gradeData.reduce((sum, g) => sum + (g.girls || 0), 0)}</td>
-                    <td className="px-2 sm:px-6 py-3 sm:py-4 text-center text-primary text-sm sm:text-base">{gradeData.reduce((sum, g) => sum + (g.students || 0), 0)}</td>
+                    <td className="px-3 sm:px-4 py-2 text-foreground text-xs sm:text-sm">รวมทั้งหมด</td>
+                    <td className="px-2 sm:px-4 py-2 text-center text-muted-foreground text-xs sm:text-sm">{gradeData.reduce((sum, g) => sum + (g.rooms || 0), 0)}</td>
+                    <td className="px-2 sm:px-4 py-2 text-center text-blue-500 text-xs sm:text-sm">{gradeData.reduce((sum, g) => sum + (g.boys || 0), 0)}</td>
+                    <td className="px-2 sm:px-4 py-2 text-center text-rose-500 text-xs sm:text-sm">{gradeData.reduce((sum, g) => sum + (g.girls || 0), 0)}</td>
+                    <td className="px-2 sm:px-4 py-2 text-center text-primary text-xs sm:text-sm">{gradeData.reduce((sum, g) => sum + (g.students || 0), 0)}</td>
                   </tr>
                 </tbody>
               </table>
@@ -198,30 +198,30 @@ const Students = () => {
         </section>
 
         {/* Achievements */}
-        <section className="py-16 bg-secondary/30">
+        <section className="py-4 md:py-6 bg-secondary/30">
           <div className="container mx-auto px-4">
-            <div className="text-center max-w-2xl mx-auto mb-12">
-              <span className="inline-block text-accent font-semibold mb-4">ความสำเร็จ</span>
-              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
+            <div className="text-center max-w-2xl mx-auto mb-5">
+              <span className="inline-block text-accent font-semibold mb-1 text-sm uppercase tracking-wider">ความสำเร็จ</span>
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
                 ผลงานนักเรียนดีเด่น
               </h2>
-              <p className="text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 ความสำเร็จและรางวัลที่นักเรียนได้รับจากการแข่งขันต่างๆ
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-3">
               {achievements.map((achievement) => (
                 <div
                   key={achievement.id}
-                  className="bg-card rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300 border border-border"
+                  className="bg-card rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-300 border border-border"
                 >
-                  <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mb-4">
-                    <Trophy className="w-6 h-6 text-accent" />
+                  <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center mb-2">
+                    <Trophy className="w-5 h-5 text-accent" />
                   </div>
-                  <span className="text-sm text-primary font-semibold">{achievement.year}</span>
-                  <h3 className="text-lg font-bold text-foreground mt-1 mb-2">{achievement.title}</h3>
-                  <p className="text-muted-foreground text-sm">{achievement.description}</p>
+                  <span className="text-xs text-primary font-semibold">{achievement.year}</span>
+                  <h3 className="text-base font-bold text-foreground mt-0.5 mb-1">{achievement.title}</h3>
+                  <p className="text-muted-foreground text-xs">{achievement.description}</p>
                 </div>
               ))}
             </div>
@@ -229,31 +229,31 @@ const Students = () => {
         </section>
 
         {/* Activities */}
-        <section className="py-16 md:py-24">
+        <section className="py-4 md:py-8">
           <div className="container mx-auto px-4">
-            <div className="text-center max-w-2xl mx-auto mb-12">
-              <span className="inline-block text-accent font-semibold mb-4">กิจกรรม</span>
-              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
+            <div className="text-center max-w-2xl mx-auto mb-5">
+              <span className="inline-block text-accent font-semibold mb-1 text-sm uppercase tracking-wider">กิจกรรม</span>
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
                 ชมรมและกิจกรรมนักเรียน
               </h2>
-              <p className="text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 กิจกรรมหลากหลายเพื่อพัฒนาทักษะและความสามารถของนักเรียน
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
               {activities.map((activity, index) => (
                 <div
                   key={index}
-                  className="bg-card rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300 border border-border"
+                  className="bg-card rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-300 border border-border"
                 >
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-foreground">{activity.name}</h3>
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-semibold">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-base font-bold text-foreground">{activity.name}</h3>
+                    <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs font-semibold">
                       {activity.members} คน
                     </span>
                   </div>
-                  <p className="text-muted-foreground">{activity.description}</p>
+                  <p className="text-sm text-muted-foreground">{activity.description}</p>
                 </div>
               ))}
             </div>
@@ -261,29 +261,29 @@ const Students = () => {
         </section>
 
         {/* Student Council */}
-        <section className="py-16 bg-primary">
+        <section className="py-4 md:py-6 bg-primary">
           <div className="container mx-auto px-4">
             <div className="text-center max-w-3xl mx-auto">
-              <span className="inline-block text-accent font-semibold mb-4">สภานักเรียน</span>
-              <h2 className="text-3xl sm:text-4xl font-bold text-primary-foreground mb-6">
+              <span className="inline-block text-accent font-semibold mb-1 text-sm uppercase tracking-wider">สภานักเรียน</span>
+              <h2 className="text-xl sm:text-2xl font-bold text-primary-foreground mb-2">
                 คณะกรรมการสภานักเรียน
               </h2>
-              <p className="text-primary-foreground/80 mb-8">
+              <p className="text-sm text-primary-foreground/80 mb-4">
                 ตัวแทนนักเรียนที่ได้รับเลือกตั้งเพื่อทำหน้าที่เป็นสื่อกลางระหว่างนักเรียนและโรงเรียน
               </p>
-              <div className="grid md:grid-cols-3 gap-6">
+              <div className="grid md:grid-cols-3 gap-3">
                 {studentCouncil.map((member) => (
-                  <div key={member.id} className="bg-primary-foreground/10 backdrop-blur-sm rounded-2xl p-6 border border-primary-foreground/20">
+                  <div key={member.id} className="bg-primary-foreground/10 backdrop-blur-sm rounded-xl p-4 border border-primary-foreground/20">
                     {member.image_url ? (
-                      <img src={member.image_url} alt={member.name} className="w-16 h-16 rounded-full object-cover mx-auto mb-4" />
+                      <img src={member.image_url} alt={member.name} className="w-12 h-12 rounded-full object-cover mx-auto mb-2" />
                     ) : (
-                      <div className="w-16 h-16 rounded-full bg-accent flex items-center justify-center mx-auto mb-4">
-                        <span className="text-2xl font-bold text-accent-foreground">{member.initial || member.name.charAt(0)}</span>
+                      <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center mx-auto mb-2">
+                        <span className="text-lg font-bold text-accent-foreground">{member.initial || member.name.charAt(0)}</span>
                       </div>
                     )}
-                    <h3 className="text-lg font-bold text-primary-foreground">{member.name}</h3>
-                    <p className="text-accent font-semibold">{member.position}</p>
-                    <p className="text-primary-foreground/70 text-sm mt-2">{member.class}</p>
+                    <h3 className="text-base font-bold text-primary-foreground">{member.name}</h3>
+                    <p className="text-sm text-accent font-semibold">{member.position}</p>
+                    <p className="text-primary-foreground/70 text-xs mt-1">{member.class}</p>
                   </div>
                 ))}
               </div>
