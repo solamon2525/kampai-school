@@ -153,15 +153,15 @@ const StaffDirCSS = () => (
     .sd-overlay {
       position: absolute; inset: 0;
       background: linear-gradient(to bottom,
-        transparent 30%,
-        oklch(15% 0.08 255 / .68) 60%,
-        oklch(8% 0.10 255 / .96) 100%);
+        transparent 40%,
+        oklch(12% 0.08 255 / .62) 72%,
+        oklch(6% 0.10 255 / .93) 100%);
       display: flex; flex-direction: column; justify-content: flex-end;
       padding: 14px 16px; color: #fff;
-      transition: transform .35s, opacity .35s;
+      transition: opacity .3s ease;
     }
-    .sd-card:hover .sd-overlay { transform: translateY(-44%); opacity: 1; }
-    .sd-ov-pos  { font-size: .76rem; opacity: .95; font-weight: 600;
+    .sd-card:hover .sd-overlay { opacity: 0; }
+    .sd-ov-pos  { font-size: .76rem; opacity: .92; font-weight: 600;
       text-shadow: 0 1px 4px oklch(0% 0 0 / .9); }
     .sd-ov-name { font-size: 1.05rem; font-weight: 700; line-height: 1.25;
       text-shadow: 0 2px 6px oklch(0% 0 0 / .95); }
@@ -170,14 +170,21 @@ const StaffDirCSS = () => (
     .sd-reveal {
       position: absolute; left: 0; right: 0; bottom: 0;
       background: linear-gradient(180deg,
-        oklch(18% 0.10 255 / .92),
-        oklch(12% 0.12 255 / .96));
-      color: #fff; padding: 14px 16px 16px;
+        oklch(16% 0.12 255 / .80) 0%,
+        oklch(9% 0.14 255 / .97) 100%);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-top: 1px solid oklch(100% 0 0 / .12);
+      color: #fff; padding: 16px 16px 18px;
       transform: translateY(100%);
-      transition: transform .35s cubic-bezier(.2,.8,.2,1);
-      display: flex; flex-direction: column; gap: 6px;
+      transition: transform .38s cubic-bezier(.2,.8,.2,1);
+      display: flex; flex-direction: column; gap: 5px;
     }
     .sd-card:not(.sd-flipped):hover .sd-reveal { transform: translateY(0); }
+    .sd-reveal-name { font-size: .98rem; font-weight: 700; line-height: 1.3;
+      text-shadow: 0 1px 6px oklch(0% 0 0 / .8); }
+    .sd-reveal-pos  { font-size: .74rem; opacity: .80; font-weight: 500; }
+    .sd-reveal-cta  { font-size: .70rem; opacity: .60; margin-top: 3px; letter-spacing: .02em; }
 
     /* ── Ribbon ── */
     .sd-ribbon {
@@ -360,7 +367,9 @@ const FeaturedCard = ({
           </div>
           <div className="sd-reveal">
             <span className="sd-badge sd-subj-admin">ผู้บริหาร</span>
-            <span style={{ fontSize: '.74rem', opacity: .85 }}>แตะเพื่อดูประวัติ</span>
+            <span className="sd-reveal-name">{admin.name}</span>
+            <span className="sd-reveal-pos">{admin.position}</span>
+            <span className="sd-reveal-cta">↗ แตะเพื่อดูประวัติ</span>
           </div>
         </div>
         <div className="p-6 md:p-8 flex flex-col justify-center" style={{ background: 'hsl(var(--card))' }}>
@@ -460,7 +469,9 @@ const StaffCard = ({
             </div>
             <div className="sd-reveal">
               <span className={`sd-badge ${sc}`}>{label}</span>
-              <span style={{ fontSize: '.74rem', opacity: .8 }}>คลิกเพื่อดูรายละเอียด</span>
+              <span className="sd-reveal-name">{person.name}</span>
+              <span className="sd-reveal-pos">{person.position}</span>
+              <span className="sd-reveal-cta">↗ คลิกเพื่อดูรายละเอียด</span>
             </div>
           </div>
           <div className="p-4 pb-5">
