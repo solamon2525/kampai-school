@@ -216,9 +216,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.8.3 (Lean Context — Remove Second-Brain Integration)',
+        version: 'v1.8.4 (Compact Spacing + Staff Card Polish)',
         date: 'ล่าสุด',
         badge: 'bg-emerald-400',
+        items: [
+            'Compact Spacing ทุกหน้า public (7 หน้า): Hero py-16/py-6 md:py-8 → py-2 md:py-6, Main sections py-8 md:py-12 → py-4 md:py-8, Contact cards py-12 → py-4 md:py-6 — ลบ section-padding utility ออกแทนด้วย explicit py — ใช้กับ About, AcademicCalendar, Contact, Curriculum, Documents, Events, News',
+            'Staff Card Hover Effect ใหม่: เปลี่ยนจาก translateY(-44%) overlay เป็น opacity fade เพื่อให้หน้าเห็นตลอดเวลา + Reveal panel glassmorphism (backdrop-filter blur) + เพิ่มชื่อ/ตำแหน่ง/CTA ใน reveal panel ทั้ง StaffCard และ FeaturedCard',
+        ],
+    },
+    {
+        version: 'v1.8.3 (Lean Context — Remove Second-Brain Integration)',
+        date: '',
+        badge: 'bg-emerald-500',
         items: [
             'CLAUDE.md ลบ section "🧠 ก่อนเริ่มงาน — อ่าน Second Brain" (23 บรรทัด — ตาราง 7 row + กฎ 3 ข้อ) — AI ไม่อ่าน second-brain notes อีก ประหยัด ~700 tokens/session',
             'CLAUDE.md ลบ "เมื่อเสร็จงานใหญ่" section (10 บรรทัด — แนะนำ user อัปเดต Decisions/Lessons/Features/Roadmap) — ไม่ต้องคอมมิตซ้อน 2 repo อีก',
