@@ -216,8 +216,23 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.8.2 (Token Diet — Trim CLAUDE.md + Split DESIGN.md)',
+        version: 'v1.8.3 (Lean Context — Remove Second-Brain Integration)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-400',
+        items: [
+            'CLAUDE.md ลบ section "🧠 ก่อนเริ่มงาน — อ่าน Second Brain" (23 บรรทัด — ตาราง 7 row + กฎ 3 ข้อ) — AI ไม่อ่าน second-brain notes อีก ประหยัด ~700 tokens/session',
+            'CLAUDE.md ลบ "เมื่อเสร็จงานใหญ่" section (10 บรรทัด — แนะนำ user อัปเดต Decisions/Lessons/Features/Roadmap) — ไม่ต้องคอมมิตซ้อน 2 repo อีก',
+            'CLAUDE.md "Documentation Discipline" table: 7 rows → 3 rows (เก็บเฉพาะ DESIGN.md + DESIGN-COMPONENTS.md + SystemOverview.tsx)',
+            'CLAUDE.md "Known Pitfalls" trim: 7 entries เต็มประโยค → 5 bullets สั้น (Dark mode/Vercel/worktree/LINE/CRLF) ลด ~250 tokens',
+            'DESIGN.md Rule 14.9 simplified: ตาราง 6 rows → 3 rows + workflow 5 ขั้น → 1 บรรทัด — ลบส่วน second-brain ทั้งหมด',
+            '.gitignore เพิ่ม: .claude/skills/, .claude/worktrees/, .agents/, skills/, skills-lock.json — git status ไม่แสดง 9 untracked dirs ทุกครั้ง ประหยัดต่อ command',
+            'package.json: เพิ่ม script "build:check" = "vite build 2>&1 | tail -5" — quiet build ไม่กิน token จาก asset list 50+ บรรทัด',
+            'CLAUDE.md ขนาดสุดท้าย: 11.2 KB → 9.0 KB (-20%) — รวม v1.8.2 + v1.8.3 ประหยัดจาก 14.3 KB → 9.0 KB (-37% / ~1,500 tokens/session)',
+        ],
+    },
+    {
+        version: 'v1.8.2 (Token Diet — Trim CLAUDE.md + Split DESIGN.md)',
+        date: '',
         badge: 'bg-emerald-500',
         items: [
             'CLAUDE.md trim: ลบ RTK section (74 lines / ~7KB) ที่ duplicate กับ global ~/.claude/CLAUDE.md → แทนด้วย stub 12 บรรทัด ลิงก์ไป global — ประหยัด ~2,500 tokens/session ทุก session AI ทำงาน',

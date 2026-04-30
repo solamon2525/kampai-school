@@ -5,50 +5,17 @@ Live: https://kampai-school.vercel.app · Repo: solamon2525/kampai-school · v1.
 
 ---
 
-## 🧠 ก่อนเริ่มงาน — อ่าน Second Brain ก่อนเสมอ
+## 📋 Documentation Discipline (DESIGN.md Rule 14.9)
 
-**Knowledge base อยู่ที่:** `C:\Users\Admin\Documents\second-brain\`
-
-ก่อนเสนอ design / แก้บั๊ก / เพิ่มฟีเจอร์ อ่านไฟล์ที่เกี่ยวข้องก่อน:
-
-| เรื่องที่จะทำ | อ่านไฟล์นี้ก่อน |
-|---|---|
-| ตัดสินใจ architecture / เลือก library | `01 - Projects/kampai-school/Decisions.md` |
-| แก้บั๊ก / เจอ error / deploy ไม่สำเร็จ | `01 - Projects/kampai-school/Lessons Learned.md` |
-| ถามว่ามีฟีเจอร์อะไรแล้ว | `01 - Projects/kampai-school/Features.md` |
-| วางแผน sprint / ฟีเจอร์ใหม่ | `01 - Projects/kampai-school/Roadmap.md` |
-| RLS policy / auth helper | `03 - Resources/Supabase RLS Patterns.md` |
-| Pattern React + Supabase | `03 - Resources/Tech Stack/React + Supabase Pattern.md` |
-| Overview ทั้งหมด | `HOME.md` (index ของทุก note) |
-
-**กฎ:**
-1. ถ้า user ถามเรื่องการตัดสินใจ ("ทำไมใช้ X") → อ่าน Decisions.md ก่อน อย่าเดา
-2. ถ้าเจอบั๊กที่คุ้นๆ → เช็ค Lessons Learned.md ก่อน debug ใหม่
-3. เมื่อจบงานที่มี decision/bug สำคัญ → แนะนำ user ให้อัปเดต second-brain
-
----
-
-## 📋 Documentation Discipline — กฎเด็ดขาด (DESIGN.md Rule 14.9)
-
-**ทุกครั้งที่ `git commit` + `git push` (deploy) ต้อง sync เอกสารทุกที่ก่อน:**
+ทุก commit ที่เปลี่ยน design/feature ต้อง sync atomic ใน commit เดียว:
 
 | update ที่ไหน | เมื่อไหร่ |
 |---|---|
-| `DESIGN.md` (kampai-school root) | เปลี่ยน design token / palette / contrast / typography / UX rules 14.x |
-| `DESIGN-COMPONENTS.md` (kampai-school root) | เปลี่ยน component spec / replacement mapping / AI hard rules |
-| `src/components/admin/system/SystemOverview.tsx` (`versionHistory`) | feature ใหม่ / refactor ใหญ่ → เพิ่ม version entry หัวบนสุด |
-| second-brain `Features.md` | feature user-visible → list ในหมวด |
-| second-brain `Roadmap.md` | sprint/version จบ → tick `[x]` |
-| second-brain `Lessons Learned.md` | bug + root cause + fix |
-| second-brain `Decisions.md` | architecture / library choice |
+| `DESIGN.md` | เปลี่ยน palette / contrast / typography / UX rules 14.x |
+| `DESIGN-COMPONENTS.md` | เปลี่ยน component spec / replacement mapping / AI hard rules |
+| `src/components/admin/system/SystemOverview.tsx` (`versionHistory`) | feature ใหม่ / refactor ใหญ่ → เพิ่ม entry หัวบนสุด |
 
-**Workflow บังคับ:**
-1. ทำ code changes
-2. **ก่อน commit** → update docs ข้างบน (atomic ใน commit เดียว — ไม่แยก "code" กับ "doc fix")
-3. `git push` kampai-school → `git push` second-brain (ถ้าแก้)
-4. **รายงาน user ว่าบันทึกที่ไหนบ้าง** (ทุก path ที่ touched)
-
-**second-brain repo:** `C:\Users\Admin\Documents\second-brain\` (origin: https://github.com/solamon2525/second-brain)
+หลัง push → รายงาน user ว่าบันทึกที่ไหนบ้าง
 
 ---
 
@@ -159,15 +126,13 @@ Alias: `@/*` → `./src/*`
 - สี brand: **gold** + **navy** (ดู `tailwind.config.ts`)
 - Format วันที่ใช้ `date-fns` + locale ไทย
 
-## Known Pitfalls (อย่าเสียเวลาซ้ำ)
+## Known Pitfalls
 
-1. **Dark Mode:** hardcode สี = contrast แตก → ใช้ CSS vars เท่านั้น
-2. **Vercel auto-deploy หลุด:** ถ้า push แล้ว deploy ไม่ขึ้น → เช็ค `gh api repos/solamon2525/kampai-school/hooks` ถ้า `[]` = webhook หาย → `vercel deploy --prod --yes` กู้ชั่วคราว
-3. **Windows CRLF:** warning `LF will be replaced by CRLF` — cosmetic ไม่ต้องแก้
-4. **Git worktree:** Bash cwd กลับไป worktree เสมอ → ใช้ absolute path + verify ด้วย `git status` ที่ main repo
-5. **Edit/Write ต้อง Read ก่อน** — tool validation บังคับ
-6. **React Quill + React 18:** มี warning `findDOMNode` — ignore ได้
-7. **LINE Notify ปิดแล้ว** (1 เม.ย. 2025) → ใช้ LINE Messaging API
+- Dark mode: ใช้ CSS vars เท่านั้น (ห้าม hardcode สี)
+- Vercel webhook หลุดเงียบ: ถ้า push แล้วไม่ deploy → `vercel deploy --prod --yes` กู้
+- Git worktree: cwd กลับไป worktree → ใช้ absolute path
+- LINE Notify ปิด (1 เม.ย. 2025) → ใช้ LINE Messaging API
+- Windows CRLF warning + React Quill `findDOMNode` warning → ignore ได้
 
 ## Deployment
 
@@ -195,11 +160,3 @@ Alias: `@/*` → `./src/*`
   ```
 - Verify: `rtk gain` ดูสถิติ token saved · `rtk proxy <cmd>` = passthrough (debug)
 - ข้อยกเว้น: tool ของ Claude Code เอง (Read/Grep/Glob/Edit/Write) ใช้ตรง ไม่ผ่าน rtk
-
-## เมื่อเสร็จงานใหญ่
-
-แนะนำ user ให้อัปเดต second-brain:
-- Decision ใหม่ → `Decisions.md`
-- Bug/Solution ใหม่ → `Lessons Learned.md`
-- ฟีเจอร์ใหม่ → `Features.md` + bump version
-- Sprint complete → `Roadmap.md`

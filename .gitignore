@@ -24,6 +24,11 @@ dist-ssr
 
 # Claude Code (contains API tokens)
 .claude/settings.local.json
+.claude/skills/
+.claude/worktrees/
+.agents/
+skills/
+skills-lock.json
 
 # Editor directories and files
 .vscode/*

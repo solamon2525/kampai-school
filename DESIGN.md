@@ -396,21 +396,13 @@ overrides defaults from src/index.css → all Tailwind tokens reflect
 
 | ที่ต้อง update | ใน case ไหน |
 |---|---|
-| **`DESIGN.md`** | เปลี่ยน design token / กฎ / pattern ใหม่ → เพิ่ม section หรือ Rule |
+| **`DESIGN.md`** | เปลี่ยน palette / contrast / typography / UX rules 14.x |
+| **`DESIGN-COMPONENTS.md`** | เปลี่ยน component spec / replacement mapping / AI hard rules |
 | **`SystemOverview.tsx`** (`versionHistory` array) | feature ใหม่ / refactor ใหญ่ → เพิ่ม version entry หัวบนสุด |
-| **second-brain `Features.md`** | feature ใหม่ที่ user-visible → list ในหมวดที่เกี่ยวข้อง |
-| **second-brain `Roadmap.md`** | sprint/version จบ → tick `[x]` ใน "✅ เสร็จแล้ว" |
-| **second-brain `Lessons Learned.md`** | bug ที่ระบุ root cause + fix → entry ใหม่ |
-| **second-brain `Decisions.md`** | architecture / library choice → entry ใหม่พร้อม rationale |
 
-**Workflow:**
-1. ทำ code changes
-2. **ก่อน commit** — update เอกสารข้างบนตามที่เกี่ยวข้อง
-3. Commit ทั้ง code + docs ใน commit เดียว (atomic — ไม่แยก "code" กับ "doc fix")
-4. Push kampai-school → push second-brain (ถ้าแก้)
-5. **รายงาน user ว่าบันทึกที่ไหนบ้าง**
+**Workflow:** code changes → update docs ในตาราง → commit atomic (ไม่แยก code/doc) → push → รายงาน user ที่ touched
 
-**เหตุผล:** ป้องกันเอกสารหลุด/ล้าสมัย → ทุก session ใหม่ของ Claude/dev อ่าน docs แล้วได้ context ปัจจุบันจริง ไม่ใช่ snapshot เก่า
+**เหตุผล:** ป้องกันเอกสารหลุด/ล้าสมัย → session ใหม่อ่าน docs แล้วได้ context ปัจจุบันจริง
 
 ---
 

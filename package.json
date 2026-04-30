@@ -8,6 +8,7 @@
     "dev:local": "vite",
     "build": "vite build",
     "build:dev": "vite build --mode development",
+    "build:check": "vite build 2>&1 | tail -5",
     "lint": "eslint .",
     "preview": "vite preview",
     "supabase:start": "supabase start",
