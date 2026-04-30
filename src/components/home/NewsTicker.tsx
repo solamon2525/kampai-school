@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 // ปรับความเร็ว: ค่าสูง = ช้าลง (วินาทีต่อรอบ)
@@ -22,6 +22,19 @@ const NewsTicker = () => {
   const [items, setItems] = useState<TickerItem[]>([]);
   const [paused, setPaused] = useState(false);
 
+  // วัดความกว้าง scrolling area เพื่อให้จุดเริ่มต้นแม่นยำ
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [containerW, setContainerW] = useState(0);
+
+  useEffect(() => {
+    if (!scrollRef.current) return;
+    const ro = new ResizeObserver(entries => {
+      setContainerW(Math.round(entries[0].contentRect.width));
+    });
+    ro.observe(scrollRef.current);
+    return () => ro.disconnect();
+  }, []);
+
   useEffect(() => {
     supabase
       .from('news')
@@ -40,76 +53,82 @@ const NewsTicker = () => {
 
   if (items.length === 0) return null;
 
+  const ready = containerW > 0;
+
   return (
     <div
-      className="relative w-full bg-primary flex items-center overflow-hidden select-none"
+      className="relative w-full bg-primary flex items-center select-none"
       style={{ height: '36px' }}
     >
-      {/* Badge */}
-      <div className="flex-shrink-0 bg-accent text-accent-foreground text-xs font-bold px-3 h-full flex items-center gap-1.5 z-20">
-        <span className="w-1.5 h-1.5 rounded-full bg-accent-foreground animate-pulse" />
-        <span className="hidden sm:inline tracking-wide">ข่าวล่าสุด</span>
-        <span className="sm:hidden">ข่าว</span>
-      </div>
-
-      {/* Scrolling area */}
+      {/* Scrolling area — ซ้าย (flex-1) */}
       <div
+        ref={scrollRef}
         className="relative flex-1 overflow-hidden h-full"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
       >
-        {/* Fade ซ้าย */}
+        {/* Fade ซ้าย — จุดออก */}
         <div
           className="absolute left-0 top-0 bottom-0 w-10 z-10 pointer-events-none"
           style={{ background: 'linear-gradient(to right, hsl(var(--primary)), transparent)' }}
         />
 
-        {/* ข่าว 5 รายการ — ไม่ซ้ำ วิ่งจากขวาออกซ้ายจบแล้ววนใหม่ */}
-        <div
-          className="absolute top-1/2 -translate-y-1/2 inline-flex items-center gap-0 whitespace-nowrap text-sm font-medium"
-          style={{
-            animation: `ticker-rtl ${DURATION}s linear infinite`,
-            animationPlayState: paused ? 'paused' : 'running',
-            willChange: 'transform',
-          }}
-        >
-          {items.map((item, i) => {
-            const isFirst = i === 0;
-            return (
-              <span key={item.id} className="inline-flex items-center">
-                <a
-                  href={item.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="whitespace-nowrap text-primary-foreground hover:text-accent transition-colors duration-200 hover:underline underline-offset-2"
-                >
-                  {item.title}
-                </a>
-                {/* separator กว้างพิเศษหลังข่าวแรก */}
-                <span
-                  className={
-                    isFirst
-                      ? 'mx-10 text-accent opacity-75 text-sm'
-                      : 'mx-6 text-primary-foreground/35 text-xs'
-                  }
-                >
-                  {isFirst ? '◆◆' : '◆'}
+        {/* ข่าว 5 รายการ — วิ่งจากขอบขวาออกขอบซ้าย ครบแล้ววนใหม่ */}
+        {ready && (
+          <div
+            className="absolute top-1/2 -translate-y-1/2 inline-flex items-center whitespace-nowrap text-sm font-medium"
+            style={{
+              animation: `ticker-rtl ${DURATION}s linear infinite`,
+              animationPlayState: paused ? 'paused' : 'running',
+              willChange: 'transform',
+            }}
+          >
+            {items.map((item, i) => {
+              const isFirst = i === 0;
+              return (
+                <span key={item.id} className="inline-flex items-center">
+                  <a
+                    href={item.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="whitespace-nowrap text-primary-foreground hover:text-accent transition-colors duration-200 hover:underline underline-offset-2"
+                  >
+                    {item.title}
+                  </a>
+                  {/* separator — กว้างพิเศษหลังข่าวแรก */}
+                  <span
+                    className={
+                      isFirst
+                        ? 'mx-10 text-accent opacity-75 text-sm'
+                        : 'mx-6 text-primary-foreground/35 text-xs'
+                    }
+                  >
+                    {isFirst ? '◆◆' : '◆'}
+                  </span>
                 </span>
-              </span>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
 
-        {/* Fade ขวา */}
+        {/* Fade ขวา — จุดเข้า (ชิด badge) */}
         <div
           className="absolute right-0 top-0 bottom-0 w-10 z-10 pointer-events-none"
           style={{ background: 'linear-gradient(to left, hsl(var(--primary)), transparent)' }}
         />
       </div>
 
+      {/* Badge — ขวา */}
+      <div className="flex-shrink-0 bg-accent text-accent-foreground text-xs font-bold px-3 h-full flex items-center gap-1.5 z-20">
+        <span className="w-1.5 h-1.5 rounded-full bg-accent-foreground animate-pulse" />
+        <span className="hidden sm:inline tracking-wide">ข่าวล่าสุด</span>
+        <span className="sm:hidden">ข่าว</span>
+      </div>
+
+      {/* Keyframe: จุดเกิด = ขอบขวา scrolling area พอดี, จุดสิ้นสุด = ขอบซ้ายพ้นหน้าจอพอดี */}
       <style>{`
         @keyframes ticker-rtl {
-          from { transform: translateX(100vw); }
+          from { transform: translateX(${containerW}px); }
           to   { transform: translateX(-100%); }
         }
       `}</style>

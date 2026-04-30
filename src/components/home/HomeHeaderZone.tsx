@@ -13,11 +13,7 @@ const HomeHeaderZone = ({ blockOrder }: HeaderZoneProps) => {
     // Block map
     const blockMap: Record<string, JSX.Element | null> = {
         news_ticker: <NewsTicker key="news_ticker" />,
-        top_banner: settings.hero_badge ? (
-            <div key="top_banner" className="bg-accent text-accent-foreground px-4 py-2 text-center">
-                <p className="text-sm font-medium">{settings.hero_badge}</p>
-            </div>
-        ) : null,
+        top_banner: null,
     };
 
     if (blockOrder.length === 0) return null;
