@@ -51,14 +51,12 @@ const NewsTicker = () => {
       });
   }, []);
 
-  if (items.length === 0) return null;
-
-  const ready = containerW > 0;
+  const ready = containerW > 0 && items.length > 0;
 
   return (
     <div
       className="relative w-full bg-primary flex items-center select-none"
-      style={{ height: '36px' }}
+      style={{ height: '36px', display: items.length === 0 ? 'none' : 'flex' }}
     >
       {/* Scrolling area — ซ้าย (flex-1) */}
       <div
