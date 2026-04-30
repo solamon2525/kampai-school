@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 // ปรับความเร็ว: ค่าสูง = ช้าลง (วินาทีต่อรอบ)
-const DURATION = 42;
+const DURATION = 30;
 
 interface TickerItem {
   id: string;
@@ -31,13 +31,7 @@ const NewsTicker = () => {
       .limit(5)
       .then(({ data }) => {
         if (data && data.length > 0) {
-          setItems(
-            data.map((n: any) => ({
-              id: n.id,
-              title: n.title,
-              link: '/news',
-            }))
-          );
+          setItems(data.map((n: any) => ({ id: n.id, title: n.title, link: '/news' })));
         } else {
           setItems(FALLBACK);
         }
@@ -46,43 +40,16 @@ const NewsTicker = () => {
 
   if (items.length === 0) return null;
 
-  // render ข่าวทั้งหมด 1 รอบ — ข่าวแรก (i=0) มี separator กว้างพิเศษ
-  const renderItems = (loopKey: number) =>
-    items.map((item, i) => {
-      const isFirst = i === 0;
-      return (
-        <span key={`${loopKey}-${item.id}`} className="inline-flex items-center">
-          <a
-            href={item.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="whitespace-nowrap text-primary-foreground hover:text-accent transition-colors duration-200 underline-offset-2 hover:underline"
-          >
-            {item.title}
-          </a>
-          {/* separator กว้างกว่าหลังข่าวแรก เพื่อเน้นความสำคัญ */}
-          <span
-            className={
-              isFirst
-                ? 'mx-12 text-accent opacity-80 text-base'
-                : 'mx-7 text-primary-foreground/40 text-xs'
-            }
-          >
-            {isFirst ? '◆◆' : '◆'}
-          </span>
-        </span>
-      );
-    });
-
   return (
-    <div className="relative w-full bg-primary flex items-center overflow-hidden select-none"
-      style={{ height: '36px' }}>
-
+    <div
+      className="relative w-full bg-primary flex items-center overflow-hidden select-none"
+      style={{ height: '36px' }}
+    >
       {/* Badge */}
       <div className="flex-shrink-0 bg-accent text-accent-foreground text-xs font-bold px-3 h-full flex items-center gap-1.5 z-20">
         <span className="w-1.5 h-1.5 rounded-full bg-accent-foreground animate-pulse" />
         <span className="hidden sm:inline tracking-wide">ข่าวล่าสุด</span>
-        <span className="sm:hidden tracking-wide">ข่าว</span>
+        <span className="sm:hidden">ข่าว</span>
       </div>
 
       {/* Scrolling area */}
@@ -93,34 +60,57 @@ const NewsTicker = () => {
       >
         {/* Fade ซ้าย */}
         <div
-          className="absolute left-0 top-0 bottom-0 w-12 z-10 pointer-events-none"
+          className="absolute left-0 top-0 bottom-0 w-10 z-10 pointer-events-none"
           style={{ background: 'linear-gradient(to right, hsl(var(--primary)), transparent)' }}
         />
 
-        {/* Content — ซ้ำ 2 รอบเพื่อ seamless loop, whitespace-nowrap บังคับ 1 แถว */}
+        {/* ข่าว 5 รายการ — ไม่ซ้ำ วิ่งจากขวาออกซ้ายจบแล้ววนใหม่ */}
         <div
-          className="inline-flex items-center h-full text-sm font-medium whitespace-nowrap flex-nowrap"
+          className="absolute top-1/2 -translate-y-1/2 inline-flex items-center gap-0 whitespace-nowrap text-sm font-medium"
           style={{
-            animation: `news-ticker-rtl ${DURATION}s linear infinite`,
+            animation: `ticker-rtl ${DURATION}s linear infinite`,
             animationPlayState: paused ? 'paused' : 'running',
             willChange: 'transform',
           }}
         >
-          {renderItems(0)}
-          {renderItems(1)}
+          {items.map((item, i) => {
+            const isFirst = i === 0;
+            return (
+              <span key={item.id} className="inline-flex items-center">
+                <a
+                  href={item.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="whitespace-nowrap text-primary-foreground hover:text-accent transition-colors duration-200 hover:underline underline-offset-2"
+                >
+                  {item.title}
+                </a>
+                {/* separator กว้างพิเศษหลังข่าวแรก */}
+                <span
+                  className={
+                    isFirst
+                      ? 'mx-10 text-accent opacity-75 text-sm'
+                      : 'mx-6 text-primary-foreground/35 text-xs'
+                  }
+                >
+                  {isFirst ? '◆◆' : '◆'}
+                </span>
+              </span>
+            );
+          })}
         </div>
 
         {/* Fade ขวา */}
         <div
-          className="absolute right-0 top-0 bottom-0 w-12 z-10 pointer-events-none"
+          className="absolute right-0 top-0 bottom-0 w-10 z-10 pointer-events-none"
           style={{ background: 'linear-gradient(to left, hsl(var(--primary)), transparent)' }}
         />
       </div>
 
       <style>{`
-        @keyframes news-ticker-rtl {
-          from { transform: translateX(0%); }
-          to   { transform: translateX(-50%); }
+        @keyframes ticker-rtl {
+          from { transform: translateX(100vw); }
+          to   { transform: translateX(-100%); }
         }
       `}</style>
     </div>
