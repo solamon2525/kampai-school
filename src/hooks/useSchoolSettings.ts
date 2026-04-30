@@ -110,6 +110,11 @@ export interface SchoolSettings {
     excellence_image_url: string;
     excellence_text_align: string;
     excellence_bg_color: string;
+
+    // News Ticker
+    ticker_speed_seconds: string;
+    ticker_gap_px: string;
+    ticker_pause_on_hover: string;
 }
 
 const defaultSettings: SchoolSettings = {
@@ -201,6 +206,11 @@ const defaultSettings: SchoolSettings = {
     intro_video_thumbnail: '',
     quicklinks_json: '',
     obec_links_visible: '',
+
+    // News Ticker
+    ticker_speed_seconds: '30',
+    ticker_gap_px: '60',
+    ticker_pause_on_hover: 'true',
 };
 
 const CACHE_KEY = 'school_settings_cache';

@@ -4,10 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { NewsForm } from './NewsForm';
 import { NewsList } from './NewsList';
+import { TickerManagement } from './TickerManagement';
 import { deleteStorageImage } from '@/utils/storageUtils';
 
 export interface NewsItem {
@@ -203,70 +205,83 @@ export const NewsManagement = () => {
 
     return (
         <div className="p-8">
-            <Card>
-                <CardHeader>
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <CardTitle className="text-2xl">จัดการข่าวสาร</CardTitle>
-                            <CardDescription>เพิ่ม แก้ไข และจัดการข่าวประชาสัมพันธ์ของโรงเรียน</CardDescription>
-                        </div>
-                        <Button onClick={() => setShowForm(true)}>
-                            <Plus className="w-4 h-4 mr-2" />
-                            เพิ่มข่าวใหม่
-                        </Button>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    {/* Filters */}
-                    <div className="flex flex-col md:flex-row gap-4 mb-6">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <Input
-                                placeholder="ค้นหาข่าวสาร..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="pl-10"
-                            />
-                        </div>
-                        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                            <SelectTrigger className="w-full md:w-[200px]">
-                                <Filter className="w-4 h-4 mr-2" />
-                                <SelectValue placeholder="หมวดหมู่" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">ทั้งหมด</SelectItem>
-                                {categories.map((category) => (
-                                    <SelectItem key={category} value={category}>
-                                        {category}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
+            <Tabs defaultValue="news">
+                <TabsList className="mb-4">
+                    <TabsTrigger value="news">ข่าวสาร</TabsTrigger>
+                    <TabsTrigger value="ticker">ตัววิ่งข่าว</TabsTrigger>
+                </TabsList>
 
-                    {/* News List */}
-                    {isLoading ? (
-                        <div className="text-center py-12">
-                            <p className="text-muted-foreground">กำลังโหลด...</p>
-                        </div>
-                    ) : filteredNews.length === 0 ? (
-                        <div className="text-center py-12">
-                            <p className="text-muted-foreground">ไม่พบข่าวสาร</p>
-                        </div>
-                    ) : (
-                        <NewsList
-                            items={filteredNews}
-                            onEdit={(item) => {
-                                setEditingNews(item);
-                                setShowForm(true);
-                            }}
-                            onDelete={handleDelete}
-                            onTogglePublish={handleTogglePublish}
-                            onReorder={handleReorder}
-                        />
-                    )}
-                </CardContent>
-            </Card>
+                <TabsContent value="news">
+                    <Card>
+                        <CardHeader>
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <CardTitle className="text-2xl">จัดการข่าวสาร</CardTitle>
+                                    <CardDescription>เพิ่ม แก้ไข และจัดการข่าวประชาสัมพันธ์ของโรงเรียน</CardDescription>
+                                </div>
+                                <Button onClick={() => setShowForm(true)}>
+                                    <Plus className="w-4 h-4 mr-2" />
+                                    เพิ่มข่าวใหม่
+                                </Button>
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            {/* Filters */}
+                            <div className="flex flex-col md:flex-row gap-4 mb-6">
+                                <div className="relative flex-1">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                    <Input
+                                        placeholder="ค้นหาข่าวสาร..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="pl-10"
+                                    />
+                                </div>
+                                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                                    <SelectTrigger className="w-full md:w-[200px]">
+                                        <Filter className="w-4 h-4 mr-2" />
+                                        <SelectValue placeholder="หมวดหมู่" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">ทั้งหมด</SelectItem>
+                                        {categories.map((category) => (
+                                            <SelectItem key={category} value={category}>
+                                                {category}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            {/* News List */}
+                            {isLoading ? (
+                                <div className="text-center py-12">
+                                    <p className="text-muted-foreground">กำลังโหลด...</p>
+                                </div>
+                            ) : filteredNews.length === 0 ? (
+                                <div className="text-center py-12">
+                                    <p className="text-muted-foreground">ไม่พบข่าวสาร</p>
+                                </div>
+                            ) : (
+                                <NewsList
+                                    items={filteredNews}
+                                    onEdit={(item) => {
+                                        setEditingNews(item);
+                                        setShowForm(true);
+                                    }}
+                                    onDelete={handleDelete}
+                                    onTogglePublish={handleTogglePublish}
+                                    onReorder={handleReorder}
+                                />
+                            )}
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+
+                <TabsContent value="ticker">
+                    <TickerManagement />
+                </TabsContent>
+            </Tabs>
         </div>
     );
 };
