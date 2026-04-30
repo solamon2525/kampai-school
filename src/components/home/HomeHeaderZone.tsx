@@ -19,7 +19,7 @@ const HomeHeaderZone = ({ blockOrder }: HeaderZoneProps) => {
     if (blockOrder.length === 0) return null;
 
     return (
-        <div>
+        <div className="w-full overflow-hidden">
             {blockOrder.map((key) => blockMap[key] ?? null)}
         </div>
     );
