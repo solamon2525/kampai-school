@@ -74,12 +74,11 @@ const NewsTicker = () => {
         {/* ข่าว 5 รายการ — วิ่งจากขอบขวาออกขอบซ้าย ครบแล้ววนใหม่ */}
         {ready && (
           <div
-            className="absolute top-1/2 -translate-y-1/2 inline-flex items-center whitespace-nowrap text-sm font-medium leading-none"
+            className="absolute inset-y-0 inline-flex items-center whitespace-nowrap text-sm font-medium"
             style={{
               animation: `ticker-rtl ${DURATION}s linear infinite`,
               animationPlayState: paused ? 'paused' : 'running',
               willChange: 'transform',
-              lineHeight: 1,
             }}
           >
             {items.map((item, i) => {
