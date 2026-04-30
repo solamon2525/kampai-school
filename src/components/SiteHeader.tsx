@@ -93,8 +93,8 @@ const SiteHeader = () => {
   return (
     <>
       {/* ── Top Bar ── */}
-      <div className="bg-primary text-primary-foreground overflow-hidden w-full">
-        <div className="max-w-7xl mx-auto px-4 py-2.5">
+      <div className="max-w-7xl mx-auto bg-primary text-primary-foreground overflow-hidden w-full">
+        <div className="px-4 py-2.5">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
             {/* Logo + Name */}
             <Link to="/" onClick={handleLogoClick} className="flex items-center gap-3 group min-w-0">
@@ -151,10 +151,10 @@ const SiteHeader = () => {
 
       {/* ── Navigation Bar ── (driven by useMenuConfig) ── */}
       <nav
-        className={`sticky top-0 z-50 transition-shadow w-full ${scrolled ? 'shadow-lg' : ''}`}
+        className={`sticky top-0 z-50 transition-shadow max-w-7xl mx-auto w-full ${scrolled ? 'shadow-lg' : ''}`}
         style={{ backgroundColor: navStyle.navBg, color: navStyle.navText }}
       >
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="px-4">
           {/* Desktop Nav */}
           <div className="hidden lg:flex items-center" ref={dropdownRef}>
             {topLevel.map((item) => {
