@@ -303,18 +303,19 @@ const MainBlockPreview: Record<string, () => JSX.Element> = {
 // ดึงข้อมูล Top 5 จาก DB จริง (sync กับ HomeRightSidebar)
 const WASTE_MEDALS = ['🥇', '🥈', '🥉', '4', '5'];
 const WasteBankPreview = () => {
-    const [rows, setRows] = useState<Array<{ name: string; amount: number }> | null>(null);
+    const [rows, setRows] = useState<Array<{ name: string; points: number }> | null>(null);
     useEffect(() => {
         supabase
             .from('waste_student_summary')
-            .select('student_name, total_amount')
-            .order('total_amount', { ascending: false })
+            .select('full_name, total_points_earned, total_transactions')
+            .gt('total_transactions', 0)
+            .order('total_points_earned', { ascending: false })
             .limit(5)
             .then(({ data }) => {
                 setRows(
-                    (data ?? []).map((r: { student_name: string | null; total_amount: number | null }) => ({
-                        name: r.student_name ?? '-',
-                        amount: Number(r.total_amount ?? 0),
+                    (data ?? []).map((r: { full_name: string | null; total_points_earned: number | null }) => ({
+                        name: r.full_name ?? '-',
+                        points: Number(r.total_points_earned ?? 0),
                     })),
                 );
             });
@@ -334,7 +335,7 @@ const WasteBankPreview = () => {
                         <li key={i} className="flex items-center gap-1 px-2 py-1">
                             <span className="text-[7px] w-3 text-center">{WASTE_MEDALS[i]}</span>
                             <span className="text-[6px] text-gray-700 flex-1 truncate">{r.name}</span>
-                            <span className="text-[6px] font-bold text-emerald-700">฿{r.amount.toFixed(0)}</span>
+                            <span className="text-[6px] font-bold text-emerald-700">{r.points.toLocaleString()} pt</span>
                         </li>
                     ))}
                 </ul>

@@ -10,10 +10,11 @@ import { staggerContainerVariants, staggerItemVariants } from '@/hooks/useScroll
 
 interface WasteSummary {
   student_id: string | null;
-  student_name: string | null;
+  full_name: string | null;
+  class_name: string | null;
   photo_url: string | null;
-  total_amount: number | null;
-  total_weight: number | null;
+  total_points_earned: number | null;
+  total_items: number | null;
   total_transactions: number | null;
 }
 
@@ -48,8 +49,9 @@ const WasteBankWidget = () => {
   useEffect(() => {
     supabase
       .from('waste_student_summary')
-      .select('student_id, student_name, photo_url, total_amount, total_weight, total_transactions')
-      .order('total_amount', { ascending: false })
+      .select('student_id, full_name, class_name, photo_url, total_points_earned, total_items, total_transactions')
+      .gt('total_transactions', 0)
+      .order('total_points_earned', { ascending: false })
       .then(({ data }) => {
         setSummaries((data as WasteSummary[]) ?? []);
         setIsLoading(false);
@@ -57,11 +59,11 @@ const WasteBankWidget = () => {
   }, []);
 
   const top5 = useMemo(
-    () => [...summaries].sort((a, b) => Number(b.total_amount ?? 0) - Number(a.total_amount ?? 0)).slice(0, 5),
+    () => [...summaries].sort((a, b) => Number(b.total_points_earned ?? 0) - Number(a.total_points_earned ?? 0)).slice(0, 5),
     [summaries],
   );
-  const totalAmount = summaries.reduce((acc, s) => acc + Number(s.total_amount ?? 0), 0);
-  const totalWeight = summaries.reduce((acc, s) => acc + Number(s.total_weight ?? 0), 0);
+  const totalPoints = summaries.reduce((acc, s) => acc + Number(s.total_points_earned ?? 0), 0);
+  const totalItems  = summaries.reduce((acc, s) => acc + Number(s.total_items ?? 0), 0);
 
   return (
     <div className="bg-white rounded-2xl border border-green-100 shadow-sm overflow-hidden">
@@ -74,12 +76,12 @@ const WasteBankWidget = () => {
       {/* Stats row */}
       <div className="grid grid-cols-2 gap-2 px-4 py-3 bg-green-50 border-b border-green-100">
         <div className="text-center">
-          <p className="text-xs text-muted-foreground">ยอดรวม</p>
-          <p className="font-bold text-green-700 text-sm">฿{totalAmount.toFixed(0)}</p>
+          <p className="text-xs text-muted-foreground">คะแนนรวม</p>
+          <p className="font-bold text-green-700 text-sm">{totalPoints.toLocaleString()} คะแนน</p>
         </div>
         <div className="text-center">
-          <p className="text-xs text-muted-foreground">น้ำหนักรวม</p>
-          <p className="font-bold text-blue-700 text-sm">{totalWeight.toFixed(1)} กก.</p>
+          <p className="text-xs text-muted-foreground">จำนวนชิ้นรวม</p>
+          <p className="font-bold text-blue-700 text-sm">{totalItems.toLocaleString()} ชิ้น</p>
         </div>
       </div>
 
@@ -98,19 +100,19 @@ const WasteBankWidget = () => {
               </div>
               {/* Photo */}
               {s.photo_url ? (
-                <img src={s.photo_url} alt={s.student_name ?? ''} className="w-8 h-8 rounded-full object-cover border border-green-200 flex-shrink-0" />
+                <img src={s.photo_url} alt={s.full_name ?? ''} className="w-8 h-8 rounded-full object-cover border border-green-200 flex-shrink-0" />
               ) : (
                 <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 text-green-600 text-xs font-bold border border-green-200">
-                  {(s.student_name ?? '?').charAt(0)}
+                  {(s.full_name ?? '?').charAt(0)}
                 </div>
               )}
               {/* Name & stats */}
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-gray-800 truncate">{s.student_name ?? '-'}</p>
-                <p className="text-[10px] text-gray-500">{Number(s.total_transactions ?? 0)} ครั้ง · {Number(s.total_weight ?? 0).toFixed(1)} กก.</p>
+                <p className="text-xs font-semibold text-gray-800 truncate">{s.full_name ?? '-'}</p>
+                <p className="text-[10px] text-gray-500">{s.class_name ?? ''} · {Number(s.total_transactions ?? 0)} ครั้ง · {Number(s.total_items ?? 0)} ชิ้น</p>
               </div>
-              {/* Amount */}
-              <span className="text-xs font-bold text-green-700 flex-shrink-0">฿{Number(s.total_amount ?? 0).toFixed(0)}</span>
+              {/* Points */}
+              <span className="text-xs font-bold text-green-700 flex-shrink-0">{Number(s.total_points_earned ?? 0).toLocaleString()} คะแนน</span>
             </li>
           ))}
         </ul>
