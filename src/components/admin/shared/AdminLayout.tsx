@@ -46,6 +46,7 @@ import {
     Sparkles,
     MessageCircle,
     Handshake,
+    Database,
 } from 'lucide-react';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import { NotificationBell } from './NotificationBell';
@@ -105,6 +106,7 @@ const menuItems: MenuItem[] = [
     { type: 'item', id: 'faq', label: 'FAQ', icon: HelpCircle, path: '/admin/dashboard/faq', adminOnly: true },
     { type: 'section', label: 'ระบบ' },
     { type: 'item', id: 'system-overview', label: 'ภาพรวมระบบ', icon: Info, path: '/admin/dashboard/system-overview', adminOnly: true },
+    { type: 'item', id: 'dashboard-school', label: 'แดชบอร์ดโรงเรียน', icon: Database, path: '/admin/dashboard/dashboard-school', adminOnly: true },
 ];
 
 // Extract active tab from pathname

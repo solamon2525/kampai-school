@@ -14,3 +14,4 @@ export * from './waste-bank.service';
 export * from './staff.service';
 export * from './news.service';
 export * from './settings.service';
+export * from './school-dashboard.service';

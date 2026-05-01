@@ -36,6 +36,7 @@ const TrainingManagement = lazy(() => import('@/components/admin/hr/TrainingMana
 const PAManagement = lazy(() => import('@/components/admin/hr/PAManagement'));
 const AcademicManagement = lazy(() => import('@/components/admin/academic/AcademicManagement').then(m => ({ default: m.AcademicManagement })));
 const SystemOverview = lazy(() => import('@/components/admin/system/SystemOverview').then(m => ({ default: m.SystemOverview })));
+const DashboardSchoolManagement = lazy(() => import('@/components/admin/dashboard-school/DashboardSchoolManagement').then(m => ({ default: m.DashboardSchoolManagement })));
 const HomepageManager = lazy(() => import('@/components/admin/homepage/HomepageManager').then(m => ({ default: m.HomepageManager })));
 const TestimonialsManagement = lazy(() => import('@/components/admin/homepage/TestimonialsManagement').then(m => ({ default: m.TestimonialsManagement })));
 const PartnersManagement = lazy(() => import('@/components/admin/homepage/PartnersManagement').then(m => ({ default: m.PartnersManagement })));
@@ -122,6 +123,7 @@ const AdminDashboard = () => {
             {/* ระบบ */}
             <Route path="system-overview" element={<SystemOverview />} />
             <Route path="notifications" element={<NotificationsManagement />} />
+            <Route path="dashboard-school" element={<DashboardSchoolManagement />} />
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
           </Routes>
