@@ -29,6 +29,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import {
   wasteSummaryService,
   wasteTransactionsService,
+  studentsService,
   type WasteStudentSummary,
   type WasteTransaction,
 } from '@/services';
@@ -71,9 +72,11 @@ const MEDAL_TEXT = ['text-amber-700', 'text-slate-600', 'text-orange-700'];
 function StudentAvatar({
   name,
   size = 48,
+  photoUrl,
 }: {
   name: string;
   size?: number;
+  photoUrl?: string | null;
 }) {
   const colors = [
     'from-green-400 to-emerald-600',
@@ -83,6 +86,22 @@ function StudentAvatar({
     'from-amber-300 to-amber-500',
   ];
   const color = colors[(name.charCodeAt(0) || 0) % colors.length];
+
+  if (photoUrl) {
+    return (
+      <img
+        src={photoUrl}
+        alt={name}
+        loading="lazy"
+        style={{ width: size, height: size }}
+        className="rounded-full object-cover flex-shrink-0 border-2 border-white shadow-sm bg-muted"
+        onError={(e) => {
+          (e.currentTarget as HTMLImageElement).style.display = 'none';
+        }}
+      />
+    );
+  }
+
   return (
     <div
       style={{ width: size, height: size }}
@@ -110,6 +129,7 @@ function formatDate(dateStr: string) {
 const WasteBank = () => {
   const [summaries, setSummaries] = useState<WasteStudentSummary[]>([]);
   const [recentTx, setRecentTx] = useState<WasteTransaction[]>([]);
+  const [photoMap, setPhotoMap] = useState<Map<string, string | null>>(new Map());
   const [isLoading, setIsLoading] = useState(true);
   const [rankTab, setRankTab] = useState<'points' | 'items' | 'count'>('points');
   const [classTab, setClassTab] = useState('');
@@ -127,9 +147,10 @@ const WasteBank = () => {
   }, []);
 
   const loadData = async () => {
-    const [summaryRes, txRes] = await Promise.all([
+    const [summaryRes, txRes, studentsRes] = await Promise.all([
       wasteSummaryService.getAll(),
       wasteTransactionsService.getRecent(10),
+      studentsService.getActive(),
     ]);
     if (summaryRes.data) {
       // Only show students with at least 1 transaction in rankings
@@ -139,6 +160,13 @@ const WasteBank = () => {
       setSummaries(active);
     }
     if (txRes.data) setRecentTx(txRes.data as WasteTransaction[]);
+    if (studentsRes.data) {
+      const m = new Map<string, string | null>();
+      for (const s of studentsRes.data as Array<{ id: string; photo_url: string | null }>) {
+        m.set(s.id, s.photo_url);
+      }
+      setPhotoMap(m);
+    }
     setIsLoading(false);
   };
 
@@ -367,6 +395,7 @@ const WasteBank = () => {
                           <StudentAvatar
                             name={student.full_name || '?'}
                             size={isFirst ? 80 : 60}
+                            photoUrl={student.student_id ? photoMap.get(student.student_id) : null}
                           />
                           <p
                             className={`font-semibold mt-2 leading-tight text-foreground ${isFirst ? 'text-base' : 'text-sm'}`}
@@ -403,7 +432,11 @@ const WasteBank = () => {
                           <span className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground flex-shrink-0">
                             {i + 4}
                           </span>
-                          <StudentAvatar name={s.full_name || '?'} size={36} />
+                          <StudentAvatar
+                            name={s.full_name || '?'}
+                            size={36}
+                            photoUrl={s.student_id ? photoMap.get(s.student_id) : null}
+                          />
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium truncate">{s.full_name || '—'}</p>
                             {s.class_name && (
@@ -461,7 +494,11 @@ const WasteBank = () => {
                             <span className="text-lg w-7 text-center flex-shrink-0">
                               {i < 3 ? MEDALS[i] : `${i + 1}`}
                             </span>
-                            <StudentAvatar name={s.full_name || '?'} size={36} />
+                            <StudentAvatar
+                              name={s.full_name || '?'}
+                              size={36}
+                              photoUrl={s.student_id ? photoMap.get(s.student_id) : null}
+                            />
                             <p className="flex-1 text-sm font-medium truncate">
                               {s.full_name || '—'}
                             </p>
@@ -521,7 +558,14 @@ const WasteBank = () => {
                       )}
                     </div>
 
-                    <StudentAvatar name={tx.student_name} size={32} />
+                    <StudentAvatar
+                      name={tx.student_name}
+                      size={32}
+                      photoUrl={
+                        tx.students?.photo_url ??
+                        (tx.student_id ? photoMap.get(tx.student_id) : null)
+                      }
+                    />
 
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{tx.student_name}</p>

@@ -19,6 +19,7 @@ import {
   wasteSummaryService,
   wasteTransactionsService,
   wasteCategoriesService,
+  studentsService,
   type WasteCategory,
   type WasteStudentSummary,
 } from '@/services';
@@ -46,7 +47,15 @@ const TH_DOW = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function StudentAvatar({ name, size = 48 }: { name: string; size?: number }) {
+function StudentAvatar({
+  name,
+  size = 48,
+  photoUrl,
+}: {
+  name: string;
+  size?: number;
+  photoUrl?: string | null;
+}) {
   const colors = [
     'from-green-400 to-emerald-600',
     'from-blue-400 to-cyan-600',
@@ -55,6 +64,23 @@ function StudentAvatar({ name, size = 48 }: { name: string; size?: number }) {
     'from-teal-400 to-teal-600',
   ];
   const color = colors[(name.charCodeAt(0) || 0) % colors.length];
+
+  if (photoUrl) {
+    return (
+      <img
+        src={photoUrl}
+        alt={name}
+        loading="lazy"
+        style={{ width: size, height: size }}
+        className="rounded-full object-cover flex-shrink-0 border-2 border-white shadow-sm bg-muted"
+        onError={(e) => {
+          // If image fails, hide it so the parent layout stays clean.
+          (e.currentTarget as HTMLImageElement).style.display = 'none';
+        }}
+      />
+    );
+  }
+
   return (
     <div
       style={{ width: size, height: size }}
@@ -102,6 +128,7 @@ const WasteBankStats = () => {
   const [summaries, setSummaries] = useState<WasteStudentSummary[]>([]);
   const [categories, setCategories] = useState<WasteCategory[]>([]);
   const [recentTx, setRecentTx] = useState<DatedTx[]>([]);
+  const [photoMap, setPhotoMap] = useState<Map<string, string | null>>(new Map());
   const [isLoading, setIsLoading] = useState(true);
   const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
   const [isLive, setIsLive] = useState(false);
@@ -133,10 +160,11 @@ const WasteBankStats = () => {
   const loadData = async () => {
     const startISO = daysAgoISO(89); // last 90 days for category chips + chart
     const endISO = todayISO();
-    const [summaryRes, categoriesRes, txRes] = await Promise.all([
+    const [summaryRes, categoriesRes, txRes, studentsRes] = await Promise.all([
       wasteSummaryService.getAll(),
       wasteCategoriesService.getActive(),
       wasteTransactionsService.getInDateRange(startISO, endISO),
+      studentsService.getActive(),
     ]);
     if (summaryRes.data) {
       const active = (summaryRes.data as WasteStudentSummary[]).filter(
@@ -146,6 +174,13 @@ const WasteBankStats = () => {
     }
     if (categoriesRes.data) setCategories(categoriesRes.data as WasteCategory[]);
     if (txRes.data) setRecentTx(txRes.data as DatedTx[]);
+    if (studentsRes.data) {
+      const m = new Map<string, string | null>();
+      for (const s of studentsRes.data as Array<{ id: string; photo_url: string | null }>) {
+        m.set(s.id, s.photo_url);
+      }
+      setPhotoMap(m);
+    }
     setUpdatedAt(new Date());
     setIsLoading(false);
   };
@@ -382,6 +417,7 @@ const WasteBankStats = () => {
                             <StudentAvatar
                               name={s.full_name || '?'}
                               size={isFirst ? 72 : 56}
+                              photoUrl={s.student_id ? photoMap.get(s.student_id) : null}
                             />
                             <p
                               className={`font-semibold mt-2 leading-tight text-foreground ${
@@ -429,7 +465,11 @@ const WasteBankStats = () => {
                                 <span className="w-6 text-center text-base flex-shrink-0">
                                   {RANK_ICONS[rank - 1] ?? rank}
                                 </span>
-                                <StudentAvatar name={s.full_name || '?'} size={36} />
+                                <StudentAvatar
+                                  name={s.full_name || '?'}
+                                  size={36}
+                                  photoUrl={s.student_id ? photoMap.get(s.student_id) : null}
+                                />
                                 <div className="flex-1 min-w-0">
                                   <p className="text-sm font-medium truncate">
                                     {s.full_name || '—'}
