@@ -164,22 +164,35 @@ export const DashboardSchoolManagement = () => {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return entries.filter((e) => {
-      if (activeCategory !== 'all' && e.category !== activeCategory) return false;
-      if (!q) return true;
-      const hay = [
-        e.title,
-        e.description ?? '',
-        e.username ?? '',
-        e.url ?? '',
-        ...e.tags,
-        ...e.extra_fields.flatMap((f) => [f.label, f.value]),
-        ...(e.table_data?.rows.flatMap((r) => Object.values(r)) ?? []),
-      ]
-        .join(' ')
-        .toLowerCase();
-      return hay.includes(q);
-    });
+    return entries
+      .filter((e) => {
+        if (activeCategory !== 'all' && e.category !== activeCategory) return false;
+        if (!q) return true;
+        const hay = [
+          e.title,
+          e.description ?? '',
+          e.username ?? '',
+          e.url ?? '',
+          ...e.tags,
+          ...e.extra_fields.flatMap((f) => [f.label, f.value]),
+          ...(e.table_data?.rows.flatMap((r) => Object.values(r)) ?? []),
+        ]
+          .join(' ')
+          .toLowerCase();
+        return hay.includes(q);
+      })
+      .sort((a, b) => {
+        // ลำดับการแสดง (order_position) เป็นหลัก
+        if (a.order_position !== b.order_position) {
+          return a.order_position - b.order_position;
+        }
+        // category รอง
+        if (a.category !== b.category) {
+          return a.category.localeCompare(b.category);
+        }
+        // created_at สุดท้าย (เก่า → ใหม่)
+        return a.created_at.localeCompare(b.created_at);
+      });
   }, [entries, search, activeCategory]);
 
   const countByCategory = useMemo(() => {

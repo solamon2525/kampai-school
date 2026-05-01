@@ -80,8 +80,8 @@ export const schoolDashboardService = {
   list: async (): Promise<{ data: SchoolDashboardEntry[] | null; error: Error | null }> => {
     const { data, error } = await tbl()
       .select('*')
-      .order('category', { ascending: true })
       .order('order_position', { ascending: true })
+      .order('category', { ascending: true })
       .order('created_at', { ascending: true });
     return {
       data: data ? (data as unknown as SchoolDashboardEntry[]) : null,
