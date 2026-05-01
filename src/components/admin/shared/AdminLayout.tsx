@@ -62,6 +62,7 @@ type MenuItem =
 
 const menuItems: MenuItem[] = [
     { type: 'item', id: 'dashboard', label: 'แดชบอร์ด', icon: LayoutDashboard, path: '/admin/dashboard' },
+    { type: 'item', id: 'dashboard-school', label: 'แดชบอร์ดโรงเรียน', icon: Database, path: '/admin/dashboard/dashboard-school', adminOnly: true },
     { type: 'section', label: 'เว็บไซต์' },
     { type: 'item', id: 'settings', label: 'ตั้งค่า', icon: Settings, path: '/admin/dashboard/settings', adminOnly: true },
     { type: 'item', id: 'theme', label: 'ธีมสี (Theme)', icon: Palette, path: '/admin/dashboard/theme', adminOnly: true },
@@ -106,7 +107,6 @@ const menuItems: MenuItem[] = [
     { type: 'item', id: 'faq', label: 'FAQ', icon: HelpCircle, path: '/admin/dashboard/faq', adminOnly: true },
     { type: 'section', label: 'ระบบ' },
     { type: 'item', id: 'system-overview', label: 'ภาพรวมระบบ', icon: Info, path: '/admin/dashboard/system-overview', adminOnly: true },
-    { type: 'item', id: 'dashboard-school', label: 'แดชบอร์ดโรงเรียน', icon: Database, path: '/admin/dashboard/dashboard-school', adminOnly: true },
 ];
 
 // Extract active tab from pathname
