@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
+import { MapEmbed } from '@/components/MapEmbed';
 import { supabase } from '@/integrations/supabase/client';
 
 
@@ -178,22 +179,7 @@ const ContactSection = () => {
 
             {/* Map */}
             <div className="bg-card rounded-2xl overflow-hidden shadow-lg border border-border h-64">
-              {settings.google_maps_embed ? (
-                <iframe
-                  src={settings.google_maps_embed}
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title={`แผนที่${settings.school_name}`}
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-muted">
-                  <p className="text-muted-foreground">กรุณาตั้งค่า Google Maps ใน Admin Settings</p>
-                </div>
-              )}
+              <MapEmbed url={settings.google_maps_embed} title={`แผนที่${settings.school_name}`} />
             </div>
           </div>
 

@@ -2,7 +2,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trash2 } from 'lucide-react';
+import { Trash2, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { parseMapInput, isEmbedUrl } from '@/utils/mapUtils';
 
 interface Props {
     settings: Record<string, string>;
@@ -74,15 +75,45 @@ export const ContactSection = ({ settings, onChange }: Props) => {
 
                     <div className="space-y-2">
                         <Label htmlFor="google_maps_embed">Google Maps Embed URL</Label>
-                        <Input
+                        <textarea
                             id="google_maps_embed"
                             value={settings.google_maps_embed || ''}
-                            onChange={(e) => onChange('google_maps_embed', e.target.value)}
+                            onChange={(e) => {
+                                const raw = e.target.value;
+                                // ถ้าวางก้อน <iframe> มา ดึงเฉพาะ src= ออกมาให้อัตโนมัติ
+                                const parsed = parseMapInput(raw);
+                                if (raw.trim().toLowerCase().startsWith('<iframe') && parsed.embedUrl) {
+                                    onChange('google_maps_embed', parsed.embedUrl);
+                                } else {
+                                    onChange('google_maps_embed', raw);
+                                }
+                            }}
                             placeholder="https://www.google.com/maps/embed?pb=..."
+                            rows={3}
+                            className="w-full min-h-[72px] px-3 py-2 border rounded-md text-sm font-mono"
                         />
-                        <p className="text-xs text-muted-foreground">
-                            คัดลอก URL จาก Google Maps → Share → Embed a map
-                        </p>
+                        {(() => {
+                            const v = (settings.google_maps_embed || '').trim();
+                            if (!v) return (
+                                <p className="text-xs text-muted-foreground">
+                                    Google Maps → Share → <b>Embed a map</b> → Copy HTML แล้ววางที่นี่ (ระบบจะดึง URL ให้อัตโนมัติ)
+                                </p>
+                            );
+                            if (isEmbedUrl(v)) return (
+                                <p className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
+                                    <CheckCircle2 className="w-3.5 h-3.5" /> URL ถูกต้อง พร้อมแสดงบนเว็บ
+                                </p>
+                            );
+                            return (
+                                <div className="text-xs flex items-start gap-1.5 p-2 rounded bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-200 border border-amber-200 dark:border-amber-900">
+                                    <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                                    <div>
+                                        <b>URL นี้ embed ไม่ได้</b> — ลิงก์ที่ขึ้นต้นด้วย <code>maps.app.goo.gl</code> หรือ <code>maps.google.com/place/</code> เป็น share link ที่ Google บล็อกใน iframe<br />
+                                        วิธีที่ถูก: เปิด Google Maps → กด <b>Share</b> → แท็บ <b>Embed a map</b> → กด Copy HTML → วางที่ช่องนี้
+                                    </div>
+                                </div>
+                            );
+                        })()}
                     </div>
                 </CardContent>
             </Card>

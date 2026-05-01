@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import { supabase } from '@/integrations/supabase/client';
 import { SEOHead } from '@/components/SEOHead';
+import { MapEmbed } from '@/components/MapEmbed';
 import { PageBlockRenderer } from '@/components/page-builder/PageBlockRenderer';
 
 interface FaqItem {
@@ -263,22 +264,7 @@ const Contact = () => {
               <div className="space-y-8">
                 {/* Map */}
                 <div className="bg-card rounded-2xl overflow-hidden shadow-lg border border-border h-80">
-                  {settings.google_maps_embed ? (
-                    <iframe
-                      src={settings.google_maps_embed}
-                      width="100%"
-                      height="100%"
-                      style={{ border: 0 }}
-                      allowFullScreen
-                      loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                      title="แผนที่โรงเรียน"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-muted">
-                      <p className="text-muted-foreground">กรุณาตั้งค่า Google Maps ใน Admin Settings</p>
-                    </div>
-                  )}
+                  <MapEmbed url={settings.google_maps_embed} title="แผนที่โรงเรียน" />
                 </div>
 
                 {/* Social Links */}

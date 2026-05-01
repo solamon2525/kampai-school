@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { ChevronLeft, ChevronRight, Eye, Calendar, ArrowRight, FileText, ChevronDown, Database, Heart, Utensils, BookOpen, Briefcase, Building, Send, Award } from 'lucide-react';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
+import { MapEmbed } from '@/components/MapEmbed';
 import {
   staggerContainerVariants,
   staggerItemVariants,
@@ -794,13 +795,7 @@ export const useHomeMainBlocks = () => {
         <span className="font-semibold text-sm">🗺️ แผนที่โรงเรียน</span>
       </div>
       <div className="aspect-[2/1]">
-        <iframe
-          src={mapUrlToShow}
-          className="w-full h-full border-0"
-          allowFullScreen
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-        />
+        <MapEmbed url={mapUrlToShow} title="แผนที่โรงเรียน" />
       </div>
       {!settings.google_maps_embed && (
         <div className="px-3 py-1.5 text-[10px] text-gray-400 border-t border-gray-100">
