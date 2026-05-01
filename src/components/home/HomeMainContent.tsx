@@ -785,9 +785,9 @@ export const useHomeMainBlocks = () => {
   );
 
   // ─── NEW: Map Embed ─────────────────────────────────────
-  // Fallback: ภาคอีสาน Thailand pin (ปรับใน Admin Settings → contact_map_url)
+  // Fallback: ภาคอีสาน Thailand pin (ปรับใน Admin Settings → google_maps_embed)
   const DUMMY_MAP_URL = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3814.5!2d104.2!3d16.5!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTbCsDMwJzAuMCJOIDEwNMKwMTInMC4wIkU!5e0!3m2!1sen!2sth!4v1700000000000!5m2!1sen!2sth';
-  const mapUrlToShow = settings.contact_map_url || DUMMY_MAP_URL;
+  const mapUrlToShow = settings.google_maps_embed || DUMMY_MAP_URL;
   const mapEmbedSection = (
     <div key="map_embed" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
       <div className="bg-primary text-primary-foreground px-4 py-2">
@@ -802,7 +802,7 @@ export const useHomeMainBlocks = () => {
           referrerPolicy="no-referrer-when-downgrade"
         />
       </div>
-      {!settings.contact_map_url && (
+      {!settings.google_maps_embed && (
         <div className="px-3 py-1.5 text-[10px] text-gray-400 border-t border-gray-100">
           (ตัวอย่าง — ตั้งค่า Google Maps URL ใน Admin Settings)
         </div>

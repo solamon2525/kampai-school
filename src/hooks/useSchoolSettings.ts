@@ -57,7 +57,6 @@ export interface SchoolSettings {
     contact_phone: string;
     contact_email: string;
     contact_hours: string;
-    contact_map_url: string;
     google_maps_embed: string;
 
     // Social Media (ใช้ social_links เป็นระบบเดียว)
@@ -157,7 +156,6 @@ const defaultSettings: SchoolSettings = {
     contact_phone: '02-XXX-XXXX',
     contact_email: 'info@bankamphai.ac.th',
     contact_hours: 'จันทร์ - ศุกร์ 07:30 - 16:30 น.',
-    contact_map_url: '',
     google_maps_embed: '',
     footer_service_1_name: 'ระบบรับสมัคร',
     footer_service_1_url: '#',

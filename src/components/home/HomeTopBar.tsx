@@ -1,4 +1,4 @@
-import { Phone, Mail, Facebook, Globe } from 'lucide-react';
+import { Phone, Mail, Facebook } from 'lucide-react';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import { Link } from 'react-router-dom';
 
@@ -20,12 +20,6 @@ const HomeTopBar = () => {
             </div>
             <div>
               <h1 className="text-xl sm:text-2xl font-bold text-white leading-tight">{settings.school_name}</h1>
-              {settings.contact_map_url && (
-                <p className="text-yellow-300 text-sm flex items-center gap-1 mt-0.5">
-                  <Globe className="w-3 h-3" />
-                  {settings.contact_map_url.replace(/^https?:\/\//, '')}
-                </p>
-              )}
             </div>
           </Link>
 

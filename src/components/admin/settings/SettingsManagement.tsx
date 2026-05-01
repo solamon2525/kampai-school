@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,6 +21,7 @@ export const SettingsManagement = () => {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const { toast } = useToast();
+    const queryClient = useQueryClient();
 
     useEffect(() => {
         fetchSettings();
@@ -64,6 +66,7 @@ export const SettingsManagement = () => {
                     .upsert({ key: update.key, value: update.value } as any, { onConflict: 'key' });
                 if (error) throw error;
             }
+            await queryClient.invalidateQueries({ queryKey: ['school-settings'] });
             toast({ title: 'สำเร็จ', description: 'บันทึกการตั้งค่าเรียบร้อยแล้ว' });
         } catch {
             toast({
