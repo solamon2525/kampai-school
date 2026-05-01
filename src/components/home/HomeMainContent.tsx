@@ -47,13 +47,6 @@ const DUMMY_SLIDES = [
   { url: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=1200', title: 'มุ่งมั่นพัฒนาวิชาการ สร้างเสริมทักษะชีวิตที่ยั่งยืน' },
 ];
 
-const DUMMY_EVENTS = [
-  { id: 'dummy-e1', title: 'ปฐมนิเทศนักเรียนใหม่ ชั้น ม.1 และ ม.4', start_date: new Date(Date.now() + 86400000 * 3).toISOString(), location: 'หอประชุมใหญ่' },
-  { id: 'dummy-e2', title: 'การประชุมผู้ปกครองภาคเรียนที่ 1', start_date: new Date(Date.now() + 86400000 * 10).toISOString(), location: 'หอประชุมโรงเรียน' },
-  { id: 'dummy-e3', title: 'กิจกรรมกีฬาสีภายใน ทวิภาคี', start_date: new Date(Date.now() + 86400000 * 25).toISOString(), location: 'สนามกีฬาเฉลิมพระเกียรติ' },
-  { id: 'dummy-e4', title: 'สอบกลางภาคเรียน', start_date: new Date(Date.now() + 86400000 * 40).toISOString(), location: 'ห้องสอบ' },
-];
-
 const DUMMY_DOCS = [
   { id: 'dummy-d1', title: 'คู่มือนักเรียนและผู้ปกครอง.pdf', category: 'ทั่วไป', file_url: '#' },
   { id: 'dummy-d2', title: 'ใบสมัครเรียนปีการศึกษา 2568.pdf', category: 'รับสมัคร', file_url: '#' },
@@ -126,7 +119,7 @@ export const useHomeMainBlocks = () => {
   const [slides, setSlides] = useState<{ url: string; title: string }[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const [events, setEvents] = useState<{ id: string; title: string; start_date: string; location: string | null }[]>([]);
+  const [events, setEvents] = useState<{ id: string; title: string; event_date: string; location: string | null }[]>([]);
   const [documents, setDocuments] = useState<{ id: string; title: string; category: string | null; file_url: string }[]>([]);
   const [blogNews, setBlogNews] = useState<NewsItem[]>([]);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -155,14 +148,15 @@ export const useHomeMainBlocks = () => {
         }
       });
 
-    // Fetch events
+    // Fetch upcoming 5 events from "ปฏิทิน" (events table) — sync กับเมนู Admin "ปฏิทิน"
     supabase
       .from('events')
-      .select('id, title, start_date, location')
-      .gte('start_date', new Date().toISOString().slice(0, 10))
-      .order('start_date')
-      .limit(4)
-      .then(({ data }) => { if (data && data.length > 0) setEvents(data); else setEvents(DUMMY_EVENTS); });
+      .select('id, title, event_date, location')
+      .eq('status', 'published')
+      .gte('event_date', new Date().toISOString().slice(0, 10))
+      .order('event_date', { ascending: true })
+      .limit(5)
+      .then(({ data }) => { setEvents(data ?? []); });
 
     // Fetch documents
     supabase
@@ -436,8 +430,8 @@ export const useHomeMainBlocks = () => {
         {events.map((ev) => (
           <div key={ev.id} className="flex items-start gap-3 p-3 hover:bg-gray-50 transition-colors">
             <div className="text-center bg-secondary text-primary rounded-lg px-3 py-1.5 flex-shrink-0">
-              <div className="text-lg font-bold leading-none">{new Date(ev.start_date).getDate()}</div>
-              <div className="text-[10px] uppercase">{new Date(ev.start_date).toLocaleDateString('th-TH', { month: 'short' })}</div>
+              <div className="text-lg font-bold leading-none">{new Date(ev.event_date).getDate()}</div>
+              <div className="text-[10px] uppercase">{new Date(ev.event_date).toLocaleDateString('th-TH', { month: 'short' })}</div>
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-800 line-clamp-1">{ev.title}</p>
