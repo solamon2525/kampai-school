@@ -37,6 +37,18 @@ export type DashboardExtraField = {
   type?: DashboardExtraFieldType;
 };
 
+export type DashboardTableColumn = {
+  key: string;
+  label: string;
+  align?: 'left' | 'center' | 'right';
+  width?: string;
+};
+
+export type DashboardTableData = {
+  columns: DashboardTableColumn[];
+  rows: Array<Record<string, string>>;
+};
+
 export type SchoolDashboardEntry = {
   id: string;
   category: DashboardEntryCategory;
@@ -46,6 +58,7 @@ export type SchoolDashboardEntry = {
   username: string | null;
   password: string | null;
   extra_fields: DashboardExtraField[];
+  table_data: DashboardTableData | null;
   tags: string[];
   is_sensitive: boolean;
   order_position: number;

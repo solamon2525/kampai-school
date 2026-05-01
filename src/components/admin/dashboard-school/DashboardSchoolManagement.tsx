@@ -3,7 +3,7 @@
  * แดชบอร์ดโรงเรียน — เก็บข้อมูล metadata ของโรงเรียนแบบยืดหยุ่น
  * (รหัสโรงเรียน, บัญชีระบบราชการ, เครือข่ายอินเทอร์เน็ต ฯลฯ)
  *
- * Admin-only via RLS. Supports CRUD + dynamic extra_fields.
+ * Admin-only via RLS. Supports CRUD + dynamic extra_fields + structured table.
  */
 import { useEffect, useMemo, useState } from 'react';
 import {
@@ -18,12 +18,15 @@ import {
   X,
   Save,
   Tag as TagIcon,
+  Table as TableIcon,
+  ArrowUp,
+  ArrowDown,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -59,6 +62,8 @@ import {
   type DashboardEntryCategory,
   type DashboardExtraField,
   type DashboardExtraFieldType,
+  type DashboardTableColumn,
+  type DashboardTableData,
 } from '@/services';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -71,13 +76,23 @@ const FIELD_TYPE_OPTIONS: Array<{ value: DashboardExtraFieldType; label: string 
   { value: 'note', label: 'หมายเหตุ' },
 ];
 
-const CATEGORY_BADGE_BG: Record<DashboardEntryCategory, string> = {
-  codes: 'bg-blue-100 text-blue-700 border-blue-200',
-  systems: 'bg-purple-100 text-purple-700 border-purple-200',
-  network: 'bg-green-100 text-green-700 border-green-200',
-  contacts: 'bg-amber-100 text-amber-700 border-amber-200',
-  other: 'bg-slate-100 text-slate-700 border-slate-200',
+// Per-category visual identity (border accent + soft chip background)
+const CATEGORY_THEME: Record<
+  DashboardEntryCategory,
+  { border: string; chip: string; ring: string }
+> = {
+  codes:    { border: 'border-l-blue-500',    chip: 'bg-blue-50 text-blue-700 border-blue-200',       ring: 'ring-blue-100' },
+  systems:  { border: 'border-l-violet-500',  chip: 'bg-violet-50 text-violet-700 border-violet-200', ring: 'ring-violet-100' },
+  network:  { border: 'border-l-emerald-500', chip: 'bg-emerald-50 text-emerald-700 border-emerald-200', ring: 'ring-emerald-100' },
+  contacts: { border: 'border-l-amber-500',   chip: 'bg-amber-50 text-amber-700 border-amber-200',    ring: 'ring-amber-100' },
+  other:    { border: 'border-l-slate-400',   chip: 'bg-slate-50 text-slate-700 border-slate-200',    ring: 'ring-slate-100' },
 };
+
+const ALIGN_OPTIONS: Array<{ value: 'left' | 'center' | 'right'; label: string }> = [
+  { value: 'left', label: 'ซ้าย' },
+  { value: 'center', label: 'กึ่งกลาง' },
+  { value: 'right', label: 'ขวา' },
+];
 
 const emptyForm = (): EntryForm => ({
   category: 'other',
@@ -87,6 +102,7 @@ const emptyForm = (): EntryForm => ({
   username: '',
   password: '',
   extra_fields: [],
+  table_data: null,
   tags: [],
   is_sensitive: false,
   order_position: 0,
@@ -100,6 +116,7 @@ type EntryForm = {
   username: string;
   password: string;
   extra_fields: DashboardExtraField[];
+  table_data: DashboardTableData | null;
   tags: string[];
   is_sensitive: boolean;
   order_position: number;
@@ -157,6 +174,7 @@ export const DashboardSchoolManagement = () => {
         e.url ?? '',
         ...e.tags,
         ...e.extra_fields.flatMap((f) => [f.label, f.value]),
+        ...(e.table_data?.rows.flatMap((r) => Object.values(r)) ?? []),
       ]
         .join(' ')
         .toLowerCase();
@@ -192,6 +210,12 @@ export const DashboardSchoolManagement = () => {
       username: entry.username ?? '',
       password: entry.password ?? '',
       extra_fields: entry.extra_fields.map((f) => ({ ...f })),
+      table_data: entry.table_data
+        ? {
+            columns: entry.table_data.columns.map((c) => ({ ...c })),
+            rows: entry.table_data.rows.map((r) => ({ ...r })),
+          }
+        : null,
       tags: [...entry.tags],
       is_sensitive: entry.is_sensitive,
       order_position: entry.order_position,
@@ -203,6 +227,8 @@ export const DashboardSchoolManagement = () => {
   const setField = <K extends keyof EntryForm>(key: K, value: EntryForm[K]) => {
     setForm((f) => ({ ...f, [key]: value }));
   };
+
+  // ─── Extra fields handlers ─────────────────────────────────────────────────
 
   const addExtraField = () => {
     setForm((f) => ({
@@ -222,6 +248,116 @@ export const DashboardSchoolManagement = () => {
     setForm((f) => ({ ...f, extra_fields: f.extra_fields.filter((_, i) => i !== idx) }));
   };
 
+  // ─── Table editor handlers ─────────────────────────────────────────────────
+
+  const enableTable = () => {
+    setForm((f) => ({
+      ...f,
+      table_data: f.table_data ?? {
+        columns: [
+          { key: 'col1', label: 'คอลัมน์ 1' },
+          { key: 'col2', label: 'คอลัมน์ 2' },
+        ],
+        rows: [{ col1: '', col2: '' }],
+      },
+    }));
+  };
+
+  const disableTable = () => setForm((f) => ({ ...f, table_data: null }));
+
+  const updateTableColumn = (idx: number, patch: Partial<DashboardTableColumn>) => {
+    setForm((f) => {
+      if (!f.table_data) return f;
+      return {
+        ...f,
+        table_data: {
+          ...f.table_data,
+          columns: f.table_data.columns.map((c, i) => (i === idx ? { ...c, ...patch } : c)),
+        },
+      };
+    });
+  };
+
+  const addTableColumn = () => {
+    setForm((f) => {
+      if (!f.table_data) return f;
+      const i = f.table_data.columns.length + 1;
+      return {
+        ...f,
+        table_data: {
+          columns: [...f.table_data.columns, { key: `col${i}`, label: `คอลัมน์ ${i}` }],
+          rows: f.table_data.rows.map((r) => ({ ...r, [`col${i}`]: '' })),
+        },
+      };
+    });
+  };
+
+  const removeTableColumn = (idx: number) => {
+    setForm((f) => {
+      if (!f.table_data) return f;
+      const removedKey = f.table_data.columns[idx].key;
+      return {
+        ...f,
+        table_data: {
+          columns: f.table_data.columns.filter((_, i) => i !== idx),
+          rows: f.table_data.rows.map((r) => {
+            const next = { ...r };
+            delete next[removedKey];
+            return next;
+          }),
+        },
+      };
+    });
+  };
+
+  const addTableRow = () => {
+    setForm((f) => {
+      if (!f.table_data) return f;
+      const blank: Record<string, string> = {};
+      for (const c of f.table_data.columns) blank[c.key] = '';
+      return {
+        ...f,
+        table_data: { ...f.table_data, rows: [...f.table_data.rows, blank] },
+      };
+    });
+  };
+
+  const updateTableCell = (rowIdx: number, key: string, value: string) => {
+    setForm((f) => {
+      if (!f.table_data) return f;
+      return {
+        ...f,
+        table_data: {
+          ...f.table_data,
+          rows: f.table_data.rows.map((r, i) => (i === rowIdx ? { ...r, [key]: value } : r)),
+        },
+      };
+    });
+  };
+
+  const removeTableRow = (idx: number) => {
+    setForm((f) => {
+      if (!f.table_data) return f;
+      return {
+        ...f,
+        table_data: { ...f.table_data, rows: f.table_data.rows.filter((_, i) => i !== idx) },
+      };
+    });
+  };
+
+  const moveTableRow = (idx: number, dir: -1 | 1) => {
+    setForm((f) => {
+      if (!f.table_data) return f;
+      const target = idx + dir;
+      if (target < 0 || target >= f.table_data.rows.length) return f;
+      const rows = [...f.table_data.rows];
+      [rows[idx], rows[target]] = [rows[target], rows[idx]];
+      return { ...f, table_data: { ...f.table_data, rows } };
+    });
+  };
+
+  // ─── Tag handlers ──────────────────────────────────────────────────────────
+
   const addTag = () => {
     const t = tagInput.trim();
     if (!t) return;
@@ -234,6 +370,8 @@ export const DashboardSchoolManagement = () => {
   };
 
   const removeTag = (t: string) => setForm((f) => ({ ...f, tags: f.tags.filter((x) => x !== t) }));
+
+  // ─── Save / Delete ─────────────────────────────────────────────────────────
 
   const handleSave = async () => {
     if (!form.title.trim()) {
@@ -255,6 +393,7 @@ export const DashboardSchoolManagement = () => {
           value: f.value.trim(),
           type: f.type ?? 'text',
         })),
+      table_data: form.table_data,
       tags: form.tags,
       is_sensitive: form.is_sensitive,
       order_position: Number(form.order_position) || 0,
@@ -317,9 +456,11 @@ export const DashboardSchoolManagement = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">📋 แดชบอร์ดโรงเรียน</h1>
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+            <span className="text-2xl">📋</span> แดชบอร์ดโรงเรียน
+          </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            ศูนย์รวมข้อมูลโรงเรียน — รหัส, บัญชีระบบราชการ, เครือข่ายอินเทอร์เน็ต และอื่น ๆ
+            ศูนย์รวมข้อมูลโรงเรียน — รหัส, บัญชีระบบราชการ, เครือข่ายอินเทอร์เน็ต, ทำเนียบบุคลากร และอื่น ๆ
           </p>
         </div>
         <Button onClick={openCreate} className="gap-2">
@@ -329,18 +470,16 @@ export const DashboardSchoolManagement = () => {
       </div>
 
       {/* Filter bar */}
-      <Card>
+      <Card className="border-0 shadow-sm">
         <CardContent className="pt-6 space-y-3">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="ค้นหาชื่อ, URL, แท็ก, ค่าในรายการ..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-9"
-              />
-            </div>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="ค้นหาชื่อ, URL, แท็ก, ค่าในตาราง..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9"
+            />
           </div>
           <div className="flex flex-wrap gap-2">
             <CategoryPill
@@ -380,105 +519,176 @@ export const DashboardSchoolManagement = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {filtered.map((entry) => {
             const meta = categoryMeta(entry.category);
+            const theme = CATEGORY_THEME[entry.category];
             return (
-              <Card key={entry.id} className="overflow-hidden">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between gap-3 flex-wrap">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap mb-1">
-                        <Badge className={`${CATEGORY_BADGE_BG[entry.category]} border`}>
-                          {meta.icon} {meta.label}
+              <Card
+                key={entry.id}
+                className={`overflow-hidden border-l-4 ${theme.border} shadow-sm hover:shadow-md transition-shadow`}
+              >
+                {/* Card header */}
+                <div className="px-5 pt-4 pb-3 flex items-start justify-between gap-3 flex-wrap">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-1.5">
+                      <Badge className={`${theme.chip} border font-medium`}>
+                        {meta.icon} {meta.label}
+                      </Badge>
+                      {entry.is_sensitive && (
+                        <Badge className="bg-red-50 text-red-700 border border-red-200">
+                          🔒 ข้อมูลละเอียดอ่อน
                         </Badge>
-                        {entry.is_sensitive && (
-                          <Badge className="bg-red-50 text-red-700 border border-red-200">
-                            ข้อมูลละเอียดอ่อน
-                          </Badge>
-                        )}
-                        {entry.tags.map((t) => (
-                          <span
-                            key={t}
-                            className="inline-flex items-center gap-1 text-[11px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full"
-                          >
-                            <TagIcon className="w-3 h-3" />
-                            {t}
-                          </span>
-                        ))}
-                      </div>
-                      <CardTitle className="text-lg">{entry.title}</CardTitle>
-                      {entry.description && (
-                        <p className="text-sm text-muted-foreground mt-1">{entry.description}</p>
+                      )}
+                      {entry.tags.map((t) => (
+                        <span
+                          key={t}
+                          className="inline-flex items-center gap-1 text-[11px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full"
+                        >
+                          <TagIcon className="w-3 h-3" />
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                    <h3 className="text-lg font-semibold leading-tight text-foreground">
+                      {entry.title}
+                    </h3>
+                    {entry.description && (
+                      <p className="text-sm text-muted-foreground mt-0.5">{entry.description}</p>
+                    )}
+                  </div>
+                  <div className="flex gap-1.5 flex-shrink-0">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => openEdit(entry)}
+                      className="gap-1.5"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                      แก้ไข
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setDeleteId(entry.id)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 gap-1.5"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      ลบ
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Card body */}
+                <div className="px-5 pb-5 space-y-3">
+                  {/* Standard fields */}
+                  {(entry.url || entry.username || entry.password) && (
+                    <div className="rounded-lg border border-border/70 bg-muted/30 px-4 py-2 divide-y divide-border/50">
+                      {entry.url && (
+                        <FieldRow
+                          label="URL"
+                          value={entry.url}
+                          type="url"
+                          onCopy={() => copyToClipboard(entry.url!, 'URL')}
+                        />
+                      )}
+                      {entry.username && (
+                        <FieldRow
+                          label="Username"
+                          value={entry.username}
+                          type="text"
+                          onCopy={() => copyToClipboard(entry.username!, 'Username')}
+                        />
+                      )}
+                      {entry.password && (
+                        <FieldRow
+                          label="Password"
+                          value={entry.password}
+                          type="password"
+                          revealed={revealed.has(`${entry.id}:password`)}
+                          onToggle={() => toggleReveal(`${entry.id}:password`)}
+                          onCopy={() => copyToClipboard(entry.password!, 'Password')}
+                        />
                       )}
                     </div>
-                    <div className="flex gap-1.5 flex-shrink-0">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => openEdit(entry)}
-                        className="gap-1.5"
-                      >
-                        <Pencil className="w-3.5 h-3.5" />
-                        แก้ไข
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => setDeleteId(entry.id)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50 gap-1.5"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        ลบ
-                      </Button>
+                  )}
+
+                  {/* Extra fields */}
+                  {entry.extra_fields.length > 0 && (
+                    <div className="rounded-lg border border-border/70 bg-muted/30 px-4 py-2 divide-y divide-border/50">
+                      {entry.extra_fields.map((f, i) => (
+                        <FieldRow
+                          key={`${entry.id}:extra:${i}`}
+                          label={f.label}
+                          value={f.value}
+                          type={f.type ?? 'text'}
+                          revealed={revealed.has(`${entry.id}:extra:${i}`)}
+                          onToggle={
+                            f.type === 'password'
+                              ? () => toggleReveal(`${entry.id}:extra:${i}`)
+                              : undefined
+                          }
+                          onCopy={() => copyToClipboard(f.value, f.label)}
+                        />
+                      ))}
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="space-y-2">
-                    {entry.url && (
-                      <FieldRow
-                        label="URL"
-                        value={entry.url}
-                        type="url"
-                        onCopy={() => copyToClipboard(entry.url!, 'URL')}
-                      />
+                  )}
+
+                  {/* Structured table */}
+                  {entry.table_data && entry.table_data.rows.length > 0 && (
+                    <div className={`rounded-xl border border-border overflow-hidden ring-1 ${theme.ring}`}>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="bg-muted/60 border-b border-border">
+                              {entry.table_data.columns.map((col) => (
+                                <th
+                                  key={col.key}
+                                  className="px-3 py-2.5 font-semibold text-foreground/80 text-xs uppercase tracking-wide"
+                                  style={{
+                                    textAlign: col.align ?? 'left',
+                                    width: col.width,
+                                  }}
+                                >
+                                  {col.label}
+                                </th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {entry.table_data.rows.map((row, ri) => (
+                              <tr
+                                key={ri}
+                                className="border-b border-border/50 last:border-b-0 hover:bg-muted/30 transition-colors"
+                              >
+                                {entry.table_data!.columns.map((col) => (
+                                  <td
+                                    key={col.key}
+                                    className="px-3 py-2.5 text-foreground/90"
+                                    style={{ textAlign: col.align ?? 'left' }}
+                                  >
+                                    {row[col.key] ?? ''}
+                                  </td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Empty state for entry with no content */}
+                  {!entry.url &&
+                    !entry.username &&
+                    !entry.password &&
+                    entry.extra_fields.length === 0 &&
+                    !entry.table_data && (
+                      <p className="text-xs text-muted-foreground italic px-1">
+                        (ยังไม่มีข้อมูลในรายการนี้ — กด "แก้ไข" เพื่อเพิ่ม)
+                      </p>
                     )}
-                    {entry.username && (
-                      <FieldRow
-                        label="Username"
-                        value={entry.username}
-                        type="text"
-                        onCopy={() => copyToClipboard(entry.username!, 'Username')}
-                      />
-                    )}
-                    {entry.password && (
-                      <FieldRow
-                        label="Password"
-                        value={entry.password}
-                        type="password"
-                        revealed={revealed.has(`${entry.id}:password`)}
-                        onToggle={() => toggleReveal(`${entry.id}:password`)}
-                        onCopy={() => copyToClipboard(entry.password!, 'Password')}
-                      />
-                    )}
-                    {entry.extra_fields.map((f, i) => (
-                      <FieldRow
-                        key={`${entry.id}:extra:${i}`}
-                        label={f.label}
-                        value={f.value}
-                        type={f.type ?? 'text'}
-                        revealed={revealed.has(`${entry.id}:extra:${i}`)}
-                        onToggle={
-                          f.type === 'password'
-                            ? () => toggleReveal(`${entry.id}:extra:${i}`)
-                            : undefined
-                        }
-                        onCopy={() => copyToClipboard(f.value, f.label)}
-                      />
-                    ))}
-                  </div>
-                </CardContent>
+                </div>
               </Card>
             );
           })}
@@ -487,21 +697,21 @@ export const DashboardSchoolManagement = () => {
 
       {/* CRUD dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>
-              {editingId ? 'แก้ไขรายการ' : 'เพิ่มรายการใหม่'}
-            </DialogTitle>
+            <DialogTitle>{editingId ? 'แก้ไขรายการ' : 'เพิ่มรายการใหม่'}</DialogTitle>
             <DialogDescription>
-              เก็บข้อมูลโรงเรียนแบบยืดหยุ่น — เพิ่มฟิลด์ย่อยได้ตามต้องการ
+              เก็บข้อมูลโรงเรียนแบบยืดหยุ่น — ใช้ฟิลด์มาตรฐาน, ฟิลด์เพิ่มเติม, หรือเปิดโหมดตาราง
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
-            {/* Category + Title row */}
+            {/* Category + Title */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
-                <Label>หมวด <span className="text-red-500">*</span></Label>
+                <Label>
+                  หมวด <span className="text-red-500">*</span>
+                </Label>
                 <Select
                   value={form.category}
                   onValueChange={(v) => setField('category', v as DashboardEntryCategory)}
@@ -519,7 +729,9 @@ export const DashboardSchoolManagement = () => {
                 </Select>
               </div>
               <div className="md:col-span-2">
-                <Label>ชื่อรายการ <span className="text-red-500">*</span></Label>
+                <Label>
+                  ชื่อรายการ <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   value={form.title}
                   onChange={(e) => setField('title', e.target.value)}
@@ -574,7 +786,7 @@ export const DashboardSchoolManagement = () => {
             <div className="rounded-lg border border-border p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                  ฟิลด์เพิ่มเติม (ยืดหยุ่น)
+                  ฟิลด์เพิ่มเติม (Key-Value)
                 </p>
                 <Button size="sm" variant="outline" onClick={addExtraField} className="gap-1.5">
                   <Plus className="w-3.5 h-3.5" />
@@ -583,7 +795,7 @@ export const DashboardSchoolManagement = () => {
               </div>
               {form.extra_fields.length === 0 ? (
                 <p className="text-xs text-muted-foreground italic">
-                  ยังไม่มีฟิลด์เพิ่มเติม — กดปุ่มด้านบนเพื่อเพิ่ม (เช่น "WAN IP", "เลขครุภัณฑ์", ฯลฯ)
+                  ยังไม่มีฟิลด์เพิ่มเติม — เหมาะกับข้อมูล 1-3 บรรทัด
                 </p>
               ) : (
                 <div className="space-y-2">
@@ -628,6 +840,177 @@ export const DashboardSchoolManagement = () => {
                       </Button>
                     </div>
                   ))}
+                </div>
+              )}
+            </div>
+
+            {/* Table editor */}
+            <div className="rounded-lg border border-border p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+                  <TableIcon className="w-3.5 h-3.5" />
+                  ตารางข้อมูล (เหมาะกับข้อมูลหลายแถว)
+                </p>
+                {form.table_data ? (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={disableTable}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50 gap-1.5"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    ปิดโหมดตาราง
+                  </Button>
+                ) : (
+                  <Button size="sm" variant="outline" onClick={enableTable} className="gap-1.5">
+                    <Plus className="w-3.5 h-3.5" />
+                    เปิดโหมดตาราง
+                  </Button>
+                )}
+              </div>
+
+              {form.table_data && (
+                <div className="space-y-3">
+                  {/* Columns editor */}
+                  <div className="space-y-2">
+                    <p className="text-[11px] font-semibold text-muted-foreground uppercase">
+                      คอลัมน์
+                    </p>
+                    {form.table_data.columns.map((col, idx) => (
+                      <div key={idx} className="flex items-center gap-2">
+                        <Input
+                          value={col.label}
+                          onChange={(e) => updateTableColumn(idx, { label: e.target.value })}
+                          placeholder="ชื่อคอลัมน์"
+                          className="flex-1"
+                        />
+                        <Input
+                          value={col.key}
+                          onChange={(e) =>
+                            updateTableColumn(idx, {
+                              key: e.target.value.replace(/\s+/g, '_'),
+                            })
+                          }
+                          placeholder="key"
+                          className="w-28 font-mono text-xs"
+                        />
+                        <Select
+                          value={col.align ?? 'left'}
+                          onValueChange={(v) =>
+                            updateTableColumn(idx, {
+                              align: v as 'left' | 'center' | 'right',
+                            })
+                          }
+                        >
+                          <SelectTrigger className="w-28 flex-shrink-0">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {ALIGN_OPTIONS.map((o) => (
+                              <SelectItem key={o.value} value={o.value}>
+                                {o.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Input
+                          value={col.width ?? ''}
+                          onChange={(e) =>
+                            updateTableColumn(idx, { width: e.target.value || undefined })
+                          }
+                          placeholder="กว้าง"
+                          className="w-20 text-xs"
+                        />
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => removeTableColumn(idx)}
+                          disabled={form.table_data!.columns.length <= 1}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 flex-shrink-0"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={addTableColumn}
+                      className="gap-1.5"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      เพิ่มคอลัมน์
+                    </Button>
+                  </div>
+
+                  {/* Rows editor */}
+                  <div className="space-y-2">
+                    <p className="text-[11px] font-semibold text-muted-foreground uppercase">
+                      ข้อมูล (แถว)
+                    </p>
+                    <div className="space-y-2">
+                      {form.table_data.rows.map((row, rIdx) => (
+                        <div
+                          key={rIdx}
+                          className="flex items-start gap-2 rounded-md border border-border bg-muted/20 p-2"
+                        >
+                          <div className="flex flex-col gap-1 pt-1">
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => moveTableRow(rIdx, -1)}
+                              disabled={rIdx === 0}
+                              className="h-6 w-6"
+                            >
+                              <ArrowUp className="w-3 h-3" />
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => moveTableRow(rIdx, 1)}
+                              disabled={rIdx === form.table_data!.rows.length - 1}
+                              className="h-6 w-6"
+                            >
+                              <ArrowDown className="w-3 h-3" />
+                            </Button>
+                          </div>
+                          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {form.table_data!.columns.map((col) => (
+                              <div key={col.key}>
+                                <Label className="text-[10px] text-muted-foreground">
+                                  {col.label}
+                                </Label>
+                                <Input
+                                  value={row[col.key] ?? ''}
+                                  onChange={(e) =>
+                                    updateTableCell(rIdx, col.key, e.target.value)
+                                  }
+                                  className="h-8"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => removeTableRow(rIdx)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 flex-shrink-0"
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={addTableRow}
+                      className="gap-1.5"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      เพิ่มแถว
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
@@ -745,7 +1128,7 @@ function CategoryPill({
       onClick={onClick}
       className={`px-3 py-1.5 rounded-full text-sm font-medium border transition ${
         active
-          ? 'bg-primary text-primary-foreground border-primary'
+          ? 'bg-primary text-primary-foreground border-primary shadow-sm'
           : 'bg-background text-foreground border-border hover:bg-muted'
       }`}
     >
@@ -776,7 +1159,7 @@ function FieldRow({
   const display = isPassword && !revealed ? '•'.repeat(Math.min(12, value.length || 8)) : value;
 
   return (
-    <div className="flex items-center gap-2 py-1.5 border-b border-border/50 last:border-b-0 last:pb-0">
+    <div className="flex items-center gap-2 py-2">
       <span className="text-xs font-medium text-muted-foreground min-w-[110px] flex-shrink-0">
         {label}
       </span>
