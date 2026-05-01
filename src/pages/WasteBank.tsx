@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
 import { SEOHead } from '@/components/SEOHead';
@@ -11,6 +12,7 @@ import {
   ClipboardList,
   Clock,
   Gift,
+  BarChart3,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -255,6 +257,13 @@ const WasteBank = () => {
           <p className="text-xs md:text-sm text-primary-foreground/75 max-w-2xl mx-auto">
             ส่งเสริมการคัดแยกขยะ สะสมแต้มแลกรางวัล ร่วมสร้างโรงเรียนสีเขียวไปด้วยกัน
           </p>
+          <Link
+            to="/waste-bank/stats"
+            className="inline-flex items-center gap-1.5 mt-3 px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/25 text-primary-foreground text-xs md:text-sm font-medium transition"
+          >
+            <BarChart3 className="w-4 h-4" />
+            ดูสถิติแบบละเอียด
+          </Link>
         </div>
       </section>
 

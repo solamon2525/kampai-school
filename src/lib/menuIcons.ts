@@ -2,7 +2,7 @@ import {
     Home, Info, Users, GraduationCap, BookOpen, Image, Calendar,
     Newspaper, Phone, Mail, FileText, Recycle, UserCog, Layers,
     Download, Globe, LogIn, Award, Briefcase, Building, Bell,
-    Star, Heart, Settings, type LucideIcon,
+    Star, Heart, Settings, BarChart3, TrendingUp, type LucideIcon,
 } from 'lucide-react';
 
 /**
@@ -13,7 +13,7 @@ export const MENU_ICON_REGISTRY: Record<string, LucideIcon> = {
     Home, Info, Users, GraduationCap, BookOpen, Image, Calendar,
     Newspaper, Phone, Mail, FileText, Recycle, UserCog, Layers,
     Download, Globe, LogIn, Award, Briefcase, Building, Bell,
-    Star, Heart, Settings,
+    Star, Heart, Settings, BarChart3, TrendingUp,
 };
 
 export const resolveMenuIcon = (name: string): LucideIcon => {

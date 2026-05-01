@@ -70,8 +70,9 @@ export const DEFAULT_MENU_ITEMS: MenuItem[] = [
     // Services dropdown group
     { id: 'services', label: 'บริการ', href: null, icon: 'Layers', parent: null, order: 9 },
     { id: 'waste-bank', label: 'ธนาคารขยะ', href: '/waste-bank', icon: 'Recycle', parent: 'services', order: 0 },
-    { id: 'documents', label: 'เอกสาร/แบบฟอร์ม', href: '/documents', icon: 'FileText', parent: 'services', order: 1 },
-    { id: 'enrollment', label: 'สมัครเรียน', href: '/enrollment', icon: 'UserCog', parent: 'services', order: 2 },
+    { id: 'waste-bank-stats', label: 'สถิติธนาคารขยะ', href: '/waste-bank/stats', icon: 'BarChart3', parent: 'services', order: 1 },
+    { id: 'documents', label: 'เอกสาร/แบบฟอร์ม', href: '/documents', icon: 'FileText', parent: 'services', order: 2 },
+    { id: 'enrollment', label: 'สมัครเรียน', href: '/enrollment', icon: 'UserCog', parent: 'services', order: 3 },
 ];
 
 export const DEFAULT_MENU_CONFIG: MenuConfig = {
@@ -87,7 +88,7 @@ export const MENU_ICON_OPTIONS = [
     'Home', 'Info', 'Users', 'GraduationCap', 'BookOpen', 'Image', 'Calendar',
     'Newspaper', 'Phone', 'Mail', 'FileText', 'Recycle', 'UserCog', 'Layers',
     'Download', 'Globe', 'LogIn', 'Award', 'Briefcase', 'Building', 'Bell',
-    'Star', 'Heart', 'Settings',
+    'Star', 'Heart', 'Settings', 'BarChart3', 'TrendingUp',
 ] as const;
 
 export type MenuIconName = typeof MENU_ICON_OPTIONS[number];

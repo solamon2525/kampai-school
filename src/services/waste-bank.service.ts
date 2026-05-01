@@ -115,6 +115,14 @@ export const wasteTransactionsService = {
       .eq('student_id', studentId)
       .order('transaction_date', { ascending: false }),
 
+  getInDateRange: (startISO: string, endISO: string) =>
+    supabase
+      .from('waste_transactions')
+      .select('id, category_id, quantity, transaction_date')
+      .gte('transaction_date', startISO)
+      .lte('transaction_date', endISO)
+      .order('transaction_date', { ascending: false }),
+
   insert: (
     data: Omit<WasteTransaction, 'id' | 'created_at' | 'points_earned' | 'waste_categories' | 'students'> & {
       points_earned: number;

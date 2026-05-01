@@ -30,6 +30,7 @@ const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const PageBuilder = lazy(() => import("./pages/admin/PageBuilder"));
 const Documents = lazy(() => import("./pages/Documents"));
 const WasteBank = lazy(() => import("./pages/WasteBank"));
+const WasteBankStats = lazy(() => import("./pages/WasteBankStats"));
 
 // Portals
 const TeacherDashboard = lazy(() => import("./pages/teacher/TeacherDashboard"));
@@ -89,6 +90,7 @@ const App = () => (
             <Route path="/enrollment" element={<Enrollment />} />
             <Route path="/documents" element={<Documents />} />
             <Route path="/waste-bank" element={<WasteBank />} />
+            <Route path="/waste-bank/stats" element={<WasteBankStats />} />
 
             {/* Teacher Portal */}
             <Route path="/teacher" element={

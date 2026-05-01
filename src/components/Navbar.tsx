@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, ChevronDown, Recycle, FileText } from 'lucide-react';
+import { Menu, X, ChevronDown, Recycle, FileText, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 
 const serviceLinks = [
   { name: 'ธนาคารขยะ', href: '/waste-bank', icon: Recycle },
+  { name: 'สถิติธนาคารขยะ', href: '/waste-bank/stats', icon: BarChart3 },
   { name: 'เอกสาร/แบบฟอร์ม', href: '/documents', icon: FileText },
 ];
 
