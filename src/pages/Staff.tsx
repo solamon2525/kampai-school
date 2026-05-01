@@ -19,6 +19,8 @@ interface Administrator {
   order_position: number;
 }
 
+interface ExtraInfoItem { label: string; value: string }
+
 interface StaffMember {
   id: string;
   name: string;
@@ -30,6 +32,11 @@ interface StaffMember {
   photo_url: string | null;
   staff_type: string;
   order_position: number;
+  academic_rank: string | null;
+  degree: string | null;
+  major: string | null;
+  phone: string | null;
+  extra_info: ExtraInfoItem[] | null;
 }
 
 interface ModalPerson {
@@ -42,6 +49,11 @@ interface ModalPerson {
   subject?: string | null;
   department?: string | null;
   experience?: string | null;
+  academic_rank?: string | null;
+  degree?: string | null;
+  major?: string | null;
+  phone?: string | null;
+  extra_info?: ExtraInfoItem[] | null;
 }
 
 // ── Utilities ──────────────────────────────────────────────────────────────────
@@ -123,10 +135,33 @@ const StaffDirCSS = () => (
       position: absolute; inset: 0;
       transform: rotateY(180deg);
       background: linear-gradient(160deg, var(--sd-dk), var(--sd-mid));
-      color: #fff; padding: 20px 18px;
-      display: flex; flex-direction: column; gap: 10px;
+      color: #fff; padding: 18px 16px 14px;
+      display: flex; flex-direction: column; gap: 8px;
       border-radius: 20px; overflow: hidden;
     }
+
+    /* ── Back info rows ── */
+    .sd-back-scroll {
+      flex: 1; overflow-y: auto; min-height: 0;
+      display: flex; flex-direction: column; gap: 7px;
+      padding-right: 4px; position: relative; z-index: 1;
+      scrollbar-width: thin;
+      scrollbar-color: oklch(100% 0 0 / .3) transparent;
+    }
+    .sd-back-scroll::-webkit-scrollbar { width: 4px; }
+    .sd-back-scroll::-webkit-scrollbar-thumb {
+      background: oklch(100% 0 0 / .3); border-radius: 4px;
+    }
+    .sd-info-row {
+      display: grid; grid-template-columns: 78px 1fr;
+      gap: 8px; align-items: baseline;
+      font-size: .76rem; line-height: 1.4;
+    }
+    .sd-info-label {
+      color: var(--sd-acc); font-weight: 600;
+      letter-spacing: .02em; opacity: .92;
+    }
+    .sd-info-value { color: #fff; opacity: .94; word-break: break-word; }
     .sd-card-back::before {
       content: ''; position: absolute; top: -40px; right: -40px;
       width: 120px; height: 120px;
@@ -448,6 +483,13 @@ const StaffCard = ({
   const edu  = 'education' in person ? person.education : null;
   const exp  = 'experience' in person ? person.experience : null;
   const dept = 'department' in person ? person.department : null;
+  const rank = 'academic_rank' in person ? person.academic_rank : null;
+  const deg  = 'degree' in person ? person.degree : null;
+  const maj  = 'major' in person ? person.major : null;
+  const tel  = 'phone' in person ? person.phone : null;
+  const extras: ExtraInfoItem[] = ('extra_info' in person && Array.isArray(person.extra_info))
+    ? person.extra_info.filter(it => it && (it.label || it.value))
+    : [];
   const label = subj || person.position;
   const sc = subjClass(subj || person.position);
 
@@ -476,23 +518,45 @@ const StaffCard = ({
           </div>
           <div className="p-4 pb-5">
             <span className={`sd-badge ${sc} mb-2`}>{label}</span>
-            {dept && <p className="text-xs text-muted-foreground mt-2">{dept}</p>}
-            {edu  && <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{edu}</p>}
+            {rank && <p className="text-xs text-muted-foreground mt-2">วิทยฐานะ: {rank}</p>}
+            {(deg || maj) && (
+              <p className="text-xs text-muted-foreground mt-1">
+                {[deg, maj].filter(Boolean).join(' • ')}
+              </p>
+            )}
+            {dept && <p className="text-xs text-muted-foreground mt-1">{dept}</p>}
             {exp  && <p className="text-xs text-muted-foreground mt-1">ประสบการณ์: {exp}</p>}
           </div>
         </div>
         {/* ── Back ── */}
         <div className="sd-card-back" onClick={(e) => e.stopPropagation()}>
           <div style={{ position: 'relative', zIndex: 1 }}>
-            <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--sd-acc)' }}>ข้อมูลครู</p>
-            <h4 className="font-bold text-base leading-tight">{person.name}</h4>
-            <p className="text-sm opacity-80 mt-1">{person.position}</p>
-            <span className={`sd-badge ${sc} mt-2`}>{label}</span>
+            <p className="text-[10px] font-bold uppercase tracking-widest mb-0.5" style={{ color: 'var(--sd-acc)' }}>ข้อมูลบุคลากร</p>
+            <h4 className="font-bold text-sm leading-tight">{person.name}</h4>
+            <p className="text-xs opacity-80 mt-0.5 leading-snug">{person.position}</p>
           </div>
-          {edu && <p className="text-xs opacity-80 leading-relaxed" style={{ position: 'relative', zIndex: 1 }}>{edu}</p>}
-          {exp && <p className="text-xs opacity-70" style={{ position: 'relative', zIndex: 1 }}>ประสบการณ์: {exp}</p>}
-          {dept && <p className="text-xs opacity-70" style={{ position: 'relative', zIndex: 1 }}>หน่วยงาน: {dept}</p>}
-          <div className="flex gap-2 mt-auto" style={{ position: 'relative', zIndex: 1 }}>
+          <div className="sd-back-scroll">
+            {rank && (<div className="sd-info-row"><span className="sd-info-label">วิทยฐานะ</span><span className="sd-info-value">{rank}</span></div>)}
+            {deg  && (<div className="sd-info-row"><span className="sd-info-label">วุฒิ</span><span className="sd-info-value">{deg}</span></div>)}
+            {maj  && (<div className="sd-info-row"><span className="sd-info-label">วิชาเอก</span><span className="sd-info-value">{maj}</span></div>)}
+            {subj && (<div className="sd-info-row"><span className="sd-info-label">วิชาที่สอน</span><span className="sd-info-value">{subj}</span></div>)}
+            {dept && (<div className="sd-info-row"><span className="sd-info-label">หน่วยงาน</span><span className="sd-info-value">{dept}</span></div>)}
+            {edu  && (<div className="sd-info-row"><span className="sd-info-label">การศึกษา</span><span className="sd-info-value">{edu}</span></div>)}
+            {exp  && (<div className="sd-info-row"><span className="sd-info-label">ประสบการณ์</span><span className="sd-info-value">{exp}</span></div>)}
+            {tel  && (<div className="sd-info-row"><span className="sd-info-label">โทร</span><span className="sd-info-value">{tel}</span></div>)}
+            {extras.map((it, i) => (
+              <div key={i} className="sd-info-row">
+                <span className="sd-info-label">{it.label || '—'}</span>
+                <span className="sd-info-value">{it.value || '—'}</span>
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-2 flex-wrap" style={{ position: 'relative', zIndex: 1 }}>
+            {tel && (
+              <a href={`tel:${tel}`} className="sd-back-btn phone" onClick={(e) => e.stopPropagation()}>
+                <Phone className="w-3.5 h-3.5" /> {tel}
+              </a>
+            )}
             <button className="sd-back-btn detail" onClick={onOpenModal}>ดูประวัติ</button>
           </div>
         </div>
@@ -551,6 +615,29 @@ const StaffModal = ({ person, open, onClose, phone, email }: {
               </blockquote>
             )}
 
+            {(person.academic_rank || person.degree || person.major) && (
+              <div className="grid grid-cols-3 gap-2 mb-4 p-3 rounded-xl" style={{ background: 'var(--sd-pale)' }}>
+                {person.academic_rank && (
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">วิทยฐานะ</p>
+                    <p className="text-sm font-semibold mt-0.5" style={{ color: 'var(--sd-dk)' }}>{person.academic_rank}</p>
+                  </div>
+                )}
+                {person.degree && (
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">วุฒิ</p>
+                    <p className="text-sm font-semibold mt-0.5" style={{ color: 'var(--sd-dk)' }}>{person.degree}</p>
+                  </div>
+                )}
+                {person.major && (
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">วิชาเอก</p>
+                    <p className="text-sm font-semibold mt-0.5" style={{ color: 'var(--sd-dk)' }}>{person.major}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="space-y-3">
               {person.education && (
                 <div>
@@ -570,10 +657,30 @@ const StaffModal = ({ person, open, onClose, phone, email }: {
                   <p className="text-sm">{person.experience}</p>
                 </div>
               )}
+              {Array.isArray(person.extra_info) && person.extra_info.length > 0 && (
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2">ข้อมูลเพิ่มเติม</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {person.extra_info.filter(it => it && (it.label || it.value)).map((it, i) => (
+                      <div key={i} className="p-2.5 rounded-lg" style={{ background: 'var(--sd-pale)' }}>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{it.label || '—'}</p>
+                        <p className="text-sm mt-0.5" style={{ color: 'var(--sd-dk)' }}>{it.value || '—'}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="mt-6 pt-4 border-t flex gap-2 flex-wrap">
-              {phone && (
+              {person.phone && (
+                <a href={`tel:${person.phone}`}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-opacity hover:opacity-80"
+                  style={{ background: 'var(--sd-acc)', color: 'var(--sd-dk)' }}>
+                  <Phone className="w-4 h-4" /> {person.phone}
+                </a>
+              )}
+              {phone && !person.phone && (
                 <a href={`tel:${phone}`}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-opacity hover:opacity-80"
                   style={{ background: 'oklch(93% 0.04 255)', color: 'var(--sd-dk)' }}>
@@ -664,6 +771,8 @@ const Staff = () => {
     id: s.id, name: s.name, position: s.position,
     photo_url: s.photo_url, education: s.education,
     subject: s.subject, department: s.department, experience: s.experience,
+    academic_rank: s.academic_rank, degree: s.degree, major: s.major,
+    phone: s.phone, extra_info: s.extra_info,
   });
 
   const sections = [

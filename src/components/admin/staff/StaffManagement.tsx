@@ -7,10 +7,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Edit, Trash2, Users, Briefcase, LayoutGrid, Save } from 'lucide-react';
+import { Plus, Edit, Trash2, Users, Briefcase, LayoutGrid, Save, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ImageUpload } from '../shared/ImageUpload';
 import { deleteStorageImage } from '@/utils/storageUtils';
+
+interface ExtraInfoItem { label: string; value: string }
 
 interface Staff {
     id: string;
@@ -23,6 +25,11 @@ interface Staff {
     photo_url: string;
     staff_type: 'teaching' | 'support';
     order_position: number;
+    academic_rank: string;
+    degree: string;
+    major: string;
+    phone: string;
+    extra_info: ExtraInfoItem[];
 }
 
 export const StaffManagement = () => {
@@ -40,6 +47,11 @@ export const StaffManagement = () => {
         experience: '',
         photo_url: '',
         staff_type: 'teaching' as 'teaching' | 'support',
+        academic_rank: '',
+        degree: '',
+        major: '',
+        phone: '',
+        extra_info: [] as ExtraInfoItem[],
     });
     // Column settings
     const [adminCols, setAdminCols] = useState('1');
@@ -118,6 +130,11 @@ export const StaffManagement = () => {
             experience: '',
             photo_url: '',
             staff_type: activeTab === 'support' ? 'support' : 'teaching',
+            academic_rank: '',
+            degree: '',
+            major: '',
+            phone: '',
+            extra_info: [],
         });
         setEditingStaff(null);
     };
@@ -134,6 +151,11 @@ export const StaffManagement = () => {
                 experience: staff.experience || '',
                 photo_url: staff.photo_url || '',
                 staff_type: staff.staff_type,
+                academic_rank: staff.academic_rank || '',
+                degree: staff.degree || '',
+                major: staff.major || '',
+                phone: staff.phone || '',
+                extra_info: Array.isArray(staff.extra_info) ? staff.extra_info : [],
             });
         } else {
             resetForm();
@@ -141,10 +163,21 @@ export const StaffManagement = () => {
         setIsDialogOpen(true);
     };
 
+    const addExtraInfo = () =>
+        setFormData(p => ({ ...p, extra_info: [...p.extra_info, { label: '', value: '' }] }));
+    const updateExtraInfo = (i: number, key: 'label' | 'value', val: string) =>
+        setFormData(p => ({
+            ...p,
+            extra_info: p.extra_info.map((it, idx) => idx === i ? { ...it, [key]: val } : it),
+        }));
+    const removeExtraInfo = (i: number) =>
+        setFormData(p => ({ ...p, extra_info: p.extra_info.filter((_, idx) => idx !== i) }));
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         try {
+            const cleanedExtra = formData.extra_info.filter(it => it.label.trim() || it.value.trim());
             if (editingStaff) {
                 const { error } = await supabase
                     .from('staff')
@@ -157,7 +190,12 @@ export const StaffManagement = () => {
                         experience: formData.experience,
                         photo_url: formData.photo_url,
                         staff_type: formData.staff_type,
-                    })
+                        academic_rank: formData.academic_rank,
+                        degree: formData.degree,
+                        major: formData.major,
+                        phone: formData.phone,
+                        extra_info: cleanedExtra,
+                    } as never)
                     .eq('id', editingStaff.id);
 
                 if (error) throw error;
@@ -183,7 +221,12 @@ export const StaffManagement = () => {
                         photo_url: formData.photo_url,
                         staff_type: formData.staff_type,
                         order_position: maxOrder + 1,
-                    });
+                        academic_rank: formData.academic_rank,
+                        degree: formData.degree,
+                        major: formData.major,
+                        phone: formData.phone,
+                        extra_info: cleanedExtra,
+                    } as never);
 
                 if (error) throw error;
 
@@ -274,8 +317,15 @@ export const StaffManagement = () => {
             <CardContent className="p-4">
                 <h3 className="font-bold text-foreground text-sm">{staff.name}</h3>
                 <p className="text-xs text-accent font-medium">{staff.position}</p>
+                {staff.academic_rank && <p className="text-xs text-muted-foreground mt-1">วิทยฐานะ: {staff.academic_rank}</p>}
                 {staff.subject && <p className="text-xs text-muted-foreground mt-1">วิชา: {staff.subject}</p>}
+                {(staff.degree || staff.major) && (
+                    <p className="text-xs text-muted-foreground">
+                        {[staff.degree, staff.major].filter(Boolean).join(' • ')}
+                    </p>
+                )}
                 {staff.department && <p className="text-xs text-muted-foreground">{staff.department}</p>}
+                {staff.phone && <p className="text-xs text-muted-foreground">โทร: {staff.phone}</p>}
                 <div className="flex gap-2 mt-3">
                     <Button size="sm" variant="outline" onClick={() => handleOpenDialog(staff)} className="text-xs">
                         <Edit className="w-3 h-3 mr-1" />
@@ -304,7 +354,7 @@ export const StaffManagement = () => {
                             เพิ่มบุคลากร
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
                             <DialogTitle>
                                 {editingStaff ? 'แก้ไขบุคลากร' : 'เพิ่มบุคลากรใหม่'}
@@ -370,13 +420,52 @@ export const StaffManagement = () => {
                                     />
                                 </div>
                             )}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div className="space-y-2">
+                                    <Label htmlFor="academic_rank">วิทยฐานะ</Label>
+                                    <Input
+                                        id="academic_rank"
+                                        value={formData.academic_rank}
+                                        onChange={(e) => setFormData({ ...formData, academic_rank: e.target.value })}
+                                        placeholder="ชำนาญการพิเศษ"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="phone">เบอร์ติดต่อ</Label>
+                                    <Input
+                                        id="phone"
+                                        type="tel"
+                                        value={formData.phone}
+                                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                        placeholder="08X-XXX-XXXX"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="degree">วุฒิ</Label>
+                                    <Input
+                                        id="degree"
+                                        value={formData.degree}
+                                        onChange={(e) => setFormData({ ...formData, degree: e.target.value })}
+                                        placeholder="ค.บ. / ศษ.ม."
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="major">วิชาเอก</Label>
+                                    <Input
+                                        id="major"
+                                        value={formData.major}
+                                        onChange={(e) => setFormData({ ...formData, major: e.target.value })}
+                                        placeholder="ภาษาไทย"
+                                    />
+                                </div>
+                            </div>
                             <div className="space-y-2">
-                                <Label htmlFor="education">การศึกษา</Label>
+                                <Label htmlFor="education">การศึกษา (รายละเอียด)</Label>
                                 <Input
                                     id="education"
                                     value={formData.education}
                                     onChange={(e) => setFormData({ ...formData, education: e.target.value })}
-                                    placeholder="ปริญญาโท ภาษาไทย"
+                                    placeholder="ปริญญาโท ภาษาไทย มหาวิทยาลัย..."
                                 />
                             </div>
                             <div className="space-y-2">
@@ -397,6 +486,49 @@ export const StaffManagement = () => {
                                     maxSizeMB={5}
                                     compressionPreset="profile"
                                 />
+                            </div>
+                            {/* ── ข้อมูลอื่นๆ (ด้านหลังการ์ด) ── */}
+                            <div className="space-y-2 pt-2 border-t">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <Label className="text-sm font-semibold">ข้อมูลอื่นๆ (แสดงด้านหลังการ์ด)</Label>
+                                        <p className="text-xs text-muted-foreground mt-0.5">เช่น วันเกิด, วันบรรจุ, ที่อยู่, Line ID, อีเมล ฯลฯ</p>
+                                    </div>
+                                    <Button type="button" size="sm" variant="outline" onClick={addExtraInfo} className="gap-1">
+                                        <Plus className="w-3.5 h-3.5" /> เพิ่ม
+                                    </Button>
+                                </div>
+                                {formData.extra_info.length === 0 ? (
+                                    <p className="text-xs text-muted-foreground py-2 text-center bg-muted/30 rounded">ยังไม่มีข้อมูลเพิ่มเติม</p>
+                                ) : (
+                                    <div className="space-y-2">
+                                        {formData.extra_info.map((item, idx) => (
+                                            <div key={idx} className="flex gap-2 items-start">
+                                                <Input
+                                                    placeholder="หัวข้อ เช่น วันเกิด"
+                                                    value={item.label}
+                                                    onChange={(e) => updateExtraInfo(idx, 'label', e.target.value)}
+                                                    className="flex-1"
+                                                />
+                                                <Input
+                                                    placeholder="ค่า เช่น 5 มิ.ย. 2520"
+                                                    value={item.value}
+                                                    onChange={(e) => updateExtraInfo(idx, 'value', e.target.value)}
+                                                    className="flex-[1.4]"
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    size="icon"
+                                                    variant="ghost"
+                                                    onClick={() => removeExtraInfo(idx)}
+                                                    className="text-destructive hover:text-destructive shrink-0"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </Button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                             <div className="flex gap-2 justify-end">
                                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
