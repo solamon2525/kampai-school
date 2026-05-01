@@ -26,14 +26,6 @@ const RANK_COLORS = [
   'from-emerald-400 to-emerald-600',
 ];
 
-const DUMMY_WASTE_TOP5: WasteSummary[] = [
-  { student_id: 'dummy-w1', student_name: 'ด.ช.อภิวัฒน์ ใจดี',  photo_url: null, total_amount: 250, total_weight: 12.5, total_transactions: 8 },
-  { student_id: 'dummy-w2', student_name: 'ด.ญ.พิมพ์ชนก อ่อนหวาน', photo_url: null, total_amount: 220, total_weight: 11.0, total_transactions: 7 },
-  { student_id: 'dummy-w3', student_name: 'ด.ช.กิตติพงศ์ มั่นคง',  photo_url: null, total_amount: 180, total_weight: 9.0,  total_transactions: 6 },
-  { student_id: 'dummy-w4', student_name: 'ด.ญ.ณัฐนิชา สุขใจ',    photo_url: null, total_amount: 150, total_weight: 7.5,  total_transactions: 5 },
-  { student_id: 'dummy-w5', student_name: 'ด.ช.ธนกฤต ขยันเรียน',  photo_url: null, total_amount: 120, total_weight: 6.0,  total_transactions: 4 },
-];
-
 const DUMMY_DOCS_RIGHT = [
   { id: 'dummy-rd1', title: 'คู่มือนักเรียนและผู้ปกครอง',  category: 'ทั่วไป',         file_url: '#' },
   { id: 'dummy-rd2', title: 'ใบสมัครเรียน ปี 2568',         category: 'รับสมัคร',       file_url: '#' },
@@ -57,9 +49,9 @@ const WasteBankWidget = () => {
     supabase
       .from('waste_student_summary')
       .select('student_id, student_name, photo_url, total_amount, total_weight, total_transactions')
+      .order('total_amount', { ascending: false })
       .then(({ data }) => {
-        if (data && data.length > 0) setSummaries(data as WasteSummary[]);
-        else setSummaries(DUMMY_WASTE_TOP5);
+        setSummaries((data as WasteSummary[]) ?? []);
         setIsLoading(false);
       });
   }, []);

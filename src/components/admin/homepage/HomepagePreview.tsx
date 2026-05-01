@@ -7,7 +7,8 @@ import {
     type ZoneKey,
 } from './BlockPalette';
 import { useDroppable } from '@dnd-kit/core';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface HomepagePreviewProps {
     layout: Record<ZoneKey, { blocks: string[]; hidden: string[] }>;
@@ -299,7 +300,51 @@ const MainBlockPreview: Record<string, () => JSX.Element> = {
     ),
 };
 
+// ดึงข้อมูล Top 5 จาก DB จริง (sync กับ HomeRightSidebar)
+const WASTE_MEDALS = ['🥇', '🥈', '🥉', '4', '5'];
+const WasteBankPreview = () => {
+    const [rows, setRows] = useState<Array<{ name: string; amount: number }> | null>(null);
+    useEffect(() => {
+        supabase
+            .from('waste_student_summary')
+            .select('student_name, total_amount')
+            .order('total_amount', { ascending: false })
+            .limit(5)
+            .then(({ data }) => {
+                setRows(
+                    (data ?? []).map((r: { student_name: string | null; total_amount: number | null }) => ({
+                        name: r.student_name ?? '-',
+                        amount: Number(r.total_amount ?? 0),
+                    })),
+                );
+            });
+    }, []);
+    return (
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <div className="bg-emerald-700 text-white px-2 py-1 text-[7px] font-semibold flex items-center gap-1">
+                <span>♻️</span> ธนาคารขยะ — Top 5
+            </div>
+            {rows === null ? (
+                <div className="px-2 py-2 text-[6px] text-gray-400 text-center">กำลังโหลด…</div>
+            ) : rows.length === 0 ? (
+                <div className="px-2 py-2 text-[6px] text-gray-400 text-center">ยังไม่มีข้อมูล</div>
+            ) : (
+                <ul className="divide-y divide-gray-100">
+                    {rows.map((r, i) => (
+                        <li key={i} className="flex items-center gap-1 px-2 py-1">
+                            <span className="text-[7px] w-3 text-center">{WASTE_MEDALS[i]}</span>
+                            <span className="text-[6px] text-gray-700 flex-1 truncate">{r.name}</span>
+                            <span className="text-[6px] font-bold text-emerald-700">฿{r.amount.toFixed(0)}</span>
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </div>
+    );
+};
+
 const RightBlockPreview: Record<string, () => JSX.Element> = {
+    waste_bank: WasteBankPreview,
     categories: () => (
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
             <div className="bg-emerald-800 text-white px-2 py-1 text-[7px] font-semibold">รายการหมวดหมู่</div>
