@@ -9,6 +9,19 @@ html, body {
   max-width: 100%;
 }
 
+/* News ticker — duplicate items + animate to -50% for seamless loop (works on mobile too) */
+@keyframes news-ticker-rtl {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+
+.news-ticker-track {
+  animation-name: news-ticker-rtl;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
 @layer base {
   :root {
     /* School colors - Green & White theme */
