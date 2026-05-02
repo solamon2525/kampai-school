@@ -3,34 +3,15 @@ import { Link } from 'react-router-dom';
 import { useTickerItems } from '@/hooks/useTickerItems';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 
-const FALLBACK_TITLES = [
-  'ยินดีต้อนรับสู่โรงเรียนบ้านคำไผ่',
-  'ประกาศรับสมัครนักเรียน ปีการศึกษา 2569',
-  'กิจกรรมวันสำคัญประจำภาคเรียน',
-  'ผลการแข่งขันทักษะทางวิชาการ ประจำปี 2568',
-  'ประชาสัมพันธ์โครงการธนาคารขยะโรงเรียน',
-];
-
 const isExternal = (url: string) => /^https?:\/\//i.test(url);
 
 const NewsTicker = () => {
-  const { items: dbItems } = useTickerItems();
+  const { items } = useTickerItems();
   const { settings } = useSchoolSettings();
 
   const duration = Math.max(5, parseInt(settings.ticker_speed_seconds || '30', 10) || 30);
   const gapPx = Math.max(8, parseInt(settings.ticker_gap_px || '60', 10) || 60);
   const pauseOnHover = (settings.ticker_pause_on_hover ?? 'true') !== 'false';
-
-  // Use DB items if any; otherwise fall back to static list
-  const items =
-    dbItems.length > 0
-      ? dbItems
-      : FALLBACK_TITLES.map((title, i) => ({
-          id: `f-${i}`,
-          title,
-          link: '/news' as string | null,
-          source: 'news' as const,
-        }));
 
   const [paused, setPaused] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);

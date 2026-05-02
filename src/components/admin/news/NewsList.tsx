@@ -95,6 +95,11 @@ const SortableNewsItem = ({
                             ปักหมุด
                         </Badge>
                     )}
+                    {item.show_in_ticker && (
+                        <Badge className="text-xs bg-accent text-accent-foreground">
+                            📢 ใน ticker
+                        </Badge>
+                    )}
                 </div>
                 <p className="text-sm text-muted-foreground line-clamp-2 mb-2">{item.excerpt}</p>
                 <div className="flex items-center gap-4 text-xs text-muted-foreground">

@@ -202,7 +202,7 @@ export const TickerManagement = () => {
             <div>
               <CardTitle>รายการตัววิ่ง (Manual)</CardTitle>
               <CardDescription>
-                แสดงผสมกับข่าวล่าสุด 5 รายการอัตโนมัติ — ตั้งเวลา start/end เพื่อให้แสดงเฉพาะช่วงที่ต้องการ
+                แสดงผสมกับข่าวที่ติด "แสดงในตัววิ่งข่าว" จากเมนูจัดการข่าว (สูงสุด 5 ข่าว) — ตั้งเวลา start/end เพื่อให้แสดงเฉพาะช่วงที่ต้องการ
               </CardDescription>
             </div>
             <Button onClick={() => setCreating(true)} disabled={creating}>

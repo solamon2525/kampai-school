@@ -14,12 +14,12 @@ import {
 interface NewsItem {
   id: string;
   title: string;
-  summary: string | null;
+  excerpt: string | null;
   cover_image_url: string | null;
   category: string;
   created_at: string;
-  view_count: number;
-  author: string | null;
+  views: number | null;
+  published_at: string | null;
 }
 
 const categoryColor: Record<string, string> = {
@@ -32,15 +32,6 @@ const categoryColor: Record<string, string> = {
 
 const formatDate = (d: string) =>
   new Date(d).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
-
-const DUMMY_NEWS: NewsItem[] = [
-  { id: 'dummy-1', title: 'เปิดรับสมัครนักเรียนใหม่ ปีการศึกษา 2568', summary: 'รับสมัครนักเรียนใหม่ตั้งแต่ระดับชั้นอนุบาลจนถึงมัธยมศึกษาตอนปลาย', cover_image_url: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=800', category: 'ข่าวประชาสัมพันธ์', created_at: new Date().toISOString(), view_count: 542, author: 'ฝ่ายวิชาการ' },
-  { id: 'dummy-2', title: 'ยินดีกับนักเรียนที่คว้ารางวัลชนะเลิศโครงงานวิทยาศาสตร์', summary: 'ตัวแทนนักเรียนได้รับรางวัลชนะเลิศระดับประเทศ', cover_image_url: 'https://images.unsplash.com/photo-1546410531-fa4ab3ba45cb?q=80&w=800', category: 'ผลงานนักเรียน', created_at: new Date(Date.now() - 86400000*2).toISOString(), view_count: 320, author: 'ฝ่ายประชาสัมพันธ์' },
-  { id: 'dummy-3', title: 'ภาพบรรยากาศกิจกรรมกีฬาสี ประจำปี 2567', summary: 'เต็มไปด้วยความสนุกสนานและรอยยิ้มของเด็กๆ', cover_image_url: 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?q=80&w=800', category: 'กิจกรรม', created_at: new Date(Date.now() - 86400000*5).toISOString(), view_count: 890, author: 'สภานักเรียน' },
-  { id: 'dummy-4', title: 'เทคนิคการเตรียมความพร้อมก่อนการสอบ TCAS', summary: 'คำแนะนำดีๆ จากคุณครูแนะแนว สำหรับน้องๆ ม.6', cover_image_url: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=800', category: 'บทความ', created_at: new Date(Date.now() - 86400000*7).toISOString(), view_count: 125, author: 'ครูแนะแนว' },
-  { id: 'dummy-5', title: 'ประกาศหยุดเรียนในวันสำคัญทางศาสนา', summary: 'เนื่องในวันวิสาขบูชา โรงเรียนจะหยุดทำการเรียนการสอน 1 วัน', cover_image_url: 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?q=80&w=800', category: 'ประกาศ', created_at: new Date(Date.now() - 86400000*12).toISOString(), view_count: 210, author: 'ธุรการ' },
-  { id: 'dummy-6', title: 'ทัศนศึกษาศูนย์การเรียนรู้สร้างแรงบันดาลใจ', summary: 'นักเรียนทัศนศึกษาเพื่อเปิดโลกทัศน์', cover_image_url: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800', category: 'กิจกรรม', created_at: new Date(Date.now() - 86400000*15).toISOString(), view_count: 450, author: 'ฝ่ายกิจกรรม' },
-];
 
 const DUMMY_SLIDES = [
   { url: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1200', title: 'ยินดีต้อนรับสู่สถานศึกษาแห่งการเรียนรู้ยุคใหม่' },
@@ -132,20 +123,16 @@ export const useHomeMainBlocks = () => {
   useEffect(() => {
     supabase
       .from('news')
-      .select('id, title, summary, cover_image_url, category, created_at, view_count, author')
-      .eq('is_published', true)
+      .select('id, title, excerpt, cover_image_url, category, created_at, views, published_at')
+      .eq('published', true)
       .order('is_pinned', { ascending: false })
       .order('sort_order', { ascending: true })
-      .order('created_at', { ascending: false })
+      .order('published_at', { ascending: false, nullsFirst: false })
       .limit(12)
       .then(({ data }) => {
-        if (data && data.length > 0) {
-          setNews((data as NewsItem[]).slice(0, 6));
-          setBlogNews(data as NewsItem[]);
-        } else {
-          setNews(DUMMY_NEWS.slice(0, 6));
-          setBlogNews(DUMMY_NEWS);
-        }
+        const items = (data as NewsItem[] | null) ?? [];
+        setNews(items.slice(0, 6));
+        setBlogNews(items);
       });
 
     // Fetch upcoming 5 events from "ปฏิทิน" (events table) — sync กับเมนู Admin "ปฏิทิน"
@@ -361,8 +348,8 @@ export const useHomeMainBlocks = () => {
               <div className="absolute bottom-3 left-3 right-3 text-white">
                 <p className="font-semibold text-sm leading-tight line-clamp-2 mb-1">{featured.title}</p>
                 <div className="flex items-center gap-3 text-xs text-white/70">
-                  <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{formatDate(featured.created_at)}</span>
-                  <span className="flex items-center gap-1"><Eye className="w-3 h-3" />{featured.view_count}</span>
+                  <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{formatDate(featured.published_at ?? featured.created_at)}</span>
+                  <span className="flex items-center gap-1"><Eye className="w-3 h-3" />{featured.views ?? 0}</span>
                 </div>
               </div>
             </div>
@@ -383,7 +370,7 @@ export const useHomeMainBlocks = () => {
                 </div>
                 <div className="absolute bottom-2 left-2 right-2 text-white">
                   <p className="text-xs font-medium leading-tight line-clamp-2">{item.title}</p>
-                  <p className="text-[10px] text-white/60 mt-0.5">{formatDate(item.created_at)}</p>
+                  <p className="text-[10px] text-white/60 mt-0.5">{formatDate(item.published_at ?? item.created_at)}</p>
                 </div>
               </div>
             </Link>
@@ -581,11 +568,11 @@ export const useHomeMainBlocks = () => {
             <div className="p-3">
               <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium text-white ${categoryColor[item.category] || 'bg-gray-600'}`}>{item.category}</span>
               <h4 className="text-sm font-semibold text-gray-800 mt-2 line-clamp-2 group-hover:text-primary transition-colors">{item.title}</h4>
-              {item.summary && <p className="text-xs text-gray-500 mt-1 line-clamp-2">{item.summary}</p>}
+              {item.excerpt && <p className="text-xs text-gray-500 mt-1 line-clamp-2">{item.excerpt}</p>}
               <div className="flex items-center gap-2 mt-2 text-[10px] text-gray-400">
-                <span>{formatDate(item.created_at)}</span>
+                <span>{formatDate(item.published_at ?? item.created_at)}</span>
                 <span>•</span>
-                <span className="flex items-center gap-0.5"><Eye className="w-3 h-3" />{item.view_count}</span>
+                <span className="flex items-center gap-0.5"><Eye className="w-3 h-3" />{item.views ?? 0}</span>
               </div>
             </div>
           </Link>
@@ -616,7 +603,7 @@ export const useHomeMainBlocks = () => {
                 )}
               </div>
               <h4 className="text-xs font-semibold mt-2 line-clamp-2 group-hover:text-primary">{item.title}</h4>
-              <p className="text-[10px] text-gray-400 mt-0.5">{formatDate(item.created_at)}</p>
+              <p className="text-[10px] text-gray-400 mt-0.5">{formatDate(item.published_at ?? item.created_at)}</p>
             </Link>
           ))}
         </div>
@@ -642,10 +629,10 @@ export const useHomeMainBlocks = () => {
             <div className="flex-1 min-w-0">
               <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium text-white ${categoryColor[item.category] || 'bg-gray-600'}`}>{item.category}</span>
               <h4 className="text-sm font-medium text-gray-800 line-clamp-1 mt-1 group-hover:text-primary">{item.title}</h4>
-              {item.summary && <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{item.summary}</p>}
+              {item.excerpt && <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{item.excerpt}</p>}
               <div className="flex items-center gap-2 mt-1 text-[10px] text-gray-400">
-                <span>{formatDate(item.created_at)}</span>
-                <span className="flex items-center gap-0.5"><Eye className="w-3 h-3" />{item.view_count}</span>
+                <span>{formatDate(item.published_at ?? item.created_at)}</span>
+                <span className="flex items-center gap-0.5"><Eye className="w-3 h-3" />{item.views ?? 0}</span>
               </div>
             </div>
           </Link>
@@ -761,7 +748,8 @@ export const useHomeMainBlocks = () => {
   );
 
   // ─── NEW: Photo Album ───────────────────────────────────
-  const photoAlbumSection = (
+  const photoAlbumItems = blogNews.filter(n => n.cover_image_url).slice(0, 8);
+  const photoAlbumSection = photoAlbumItems.length > 0 ? (
     <div key="photo_album" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
       <div className="bg-primary text-primary-foreground px-4 py-2 flex items-center justify-between">
         <span className="font-semibold text-sm">📸 ภาพกิจกรรมล่าสุด</span>
@@ -770,14 +758,14 @@ export const useHomeMainBlocks = () => {
         </Link>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 p-2">
-        {blogNews.filter(n => n.cover_image_url).slice(0, 8).map((item, i) => (
+        {photoAlbumItems.map((item) => (
           <Link key={item.id} to="/gallery" className="aspect-square overflow-hidden rounded-lg group">
             <img src={item.cover_image_url!} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
           </Link>
         ))}
       </div>
     </div>
-  );
+  ) : null;
 
   // ─── NEW: Map Embed ─────────────────────────────────────
   // Fallback: ภาคอีสาน Thailand pin (ปรับใน Admin Settings → google_maps_embed)

@@ -25,6 +25,8 @@ export interface NewsItem {
     sort_order: number;
     views: number;
     external_links: { title: string; url: string }[] | null;
+    show_in_ticker: boolean;
+    ticker_order: number | null;
     created_at: string;
     updated_at: string;
 }

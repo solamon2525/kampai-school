@@ -23,6 +23,7 @@ export const NewsForm = ({ news, onSuccess, onCancel }: NewsFormProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [categories, setCategories] = useState<string[]>([]);
     const [sendEmail, setSendEmail] = useState(false);
+    const [tickerCount, setTickerCount] = useState(0);
     const { toast } = useToast();
 
     const [formData, setFormData] = useState({
@@ -33,11 +34,14 @@ export const NewsForm = ({ news, onSuccess, onCancel }: NewsFormProps) => {
         cover_image_url: news?.cover_image_url || '',
         published: news?.published || false,
         is_pinned: news?.is_pinned || false,
+        show_in_ticker: news?.show_in_ticker || false,
+        ticker_order: news?.ticker_order ?? null as number | null,
         external_links: news?.external_links || [] as { title: string; url: string }[],
     });
 
     useEffect(() => {
         fetchCategories();
+        fetchTickerCount();
     }, []);
 
     const fetchCategories = async () => {
@@ -54,13 +58,31 @@ export const NewsForm = ({ news, onSuccess, onCancel }: NewsFormProps) => {
         }
     };
 
+    const fetchTickerCount = async () => {
+        const { count } = await supabase
+            .from('news')
+            .select('id', { count: 'exact', head: true })
+            .eq('show_in_ticker', true)
+            .eq('published', true);
+        setTickerCount(count ?? 0);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
 
         try {
+            // Auto-assign ticker_order ตอน admin เพิ่งติ๊ก show_in_ticker (append ท้าย)
+            const tickerOrderToSave =
+                formData.show_in_ticker && formData.ticker_order == null
+                    ? tickerCount
+                    : formData.show_in_ticker
+                        ? formData.ticker_order
+                        : null;
+
             const dataToSave = {
                 ...formData,
+                ticker_order: tickerOrderToSave,
                 published_at: formData.published ? new Date().toISOString() : null,
                 updated_at: new Date().toISOString(),
             };
@@ -316,6 +338,23 @@ export const NewsForm = ({ news, onSuccess, onCancel }: NewsFormProps) => {
                                 <Switch
                                     checked={formData.is_pinned}
                                     onCheckedChange={(checked) => setFormData({ ...formData, is_pinned: checked })}
+                                />
+                            </div>
+
+                            <div className="flex items-center justify-between">
+                                <div className="space-y-0.5">
+                                    <Label>แสดงในตัววิ่งข่าว</Label>
+                                    <p className="text-sm text-muted-foreground">
+                                        เลือกได้สูงสุด 5 ข่าว — ใช้แล้ว {tickerCount}/5
+                                        {!formData.show_in_ticker && tickerCount >= 5 && (
+                                            <span className="text-destructive"> (ครบจำนวนแล้ว)</span>
+                                        )}
+                                    </p>
+                                </div>
+                                <Switch
+                                    checked={formData.show_in_ticker}
+                                    disabled={!formData.show_in_ticker && tickerCount >= 5}
+                                    onCheckedChange={(checked) => setFormData({ ...formData, show_in_ticker: checked })}
                                 />
                             </div>
 

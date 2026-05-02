@@ -1124,7 +1124,9 @@ export type Database = {
           is_pinned: boolean | null
           published: boolean
           published_at: string | null
+          show_in_ticker: boolean
           sort_order: number | null
+          ticker_order: number | null
           title: string
           updated_at: string
           views: number | null
@@ -1141,7 +1143,9 @@ export type Database = {
           is_pinned?: boolean | null
           published?: boolean
           published_at?: string | null
+          show_in_ticker?: boolean
           sort_order?: number | null
+          ticker_order?: number | null
           title: string
           updated_at?: string
           views?: number | null
@@ -1158,7 +1162,9 @@ export type Database = {
           is_pinned?: boolean | null
           published?: boolean
           published_at?: string | null
+          show_in_ticker?: boolean
           sort_order?: number | null
+          ticker_order?: number | null
           title?: string
           updated_at?: string
           views?: number | null

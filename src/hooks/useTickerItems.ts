@@ -15,11 +15,13 @@ const fetchTicker = async (): Promise<TickerItem[]> => {
     .select('id, title, link, sort_order')
     .order('sort_order', { ascending: true });
 
-  // 2) Latest published news (limit 5) — fallback / mix
+  // 2) Selected news (admin ticked show_in_ticker) — max 5
   const { data: news } = await supabase
     .from('news')
     .select('id, title')
     .eq('published', true)
+    .eq('show_in_ticker', true)
+    .order('ticker_order', { ascending: true, nullsFirst: false })
     .order('published_at', { ascending: false })
     .limit(5);
 

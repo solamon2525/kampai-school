@@ -15,7 +15,7 @@ export const newsService = {
     supabase
       .from('news')
       .select('*, news_categories(name, color)')
-      .eq('is_published', true)
+      .eq('published', true)
       .order('published_at', { ascending: false }),
 
   insert: (data: Record<string, unknown>) =>
