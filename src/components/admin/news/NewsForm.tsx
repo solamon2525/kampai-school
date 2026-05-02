@@ -349,6 +349,9 @@ export const NewsForm = ({ news, onSuccess, onCancel }: NewsFormProps) => {
                                         {!formData.show_in_ticker && tickerCount >= 5 && (
                                             <span className="text-destructive"> (ครบจำนวนแล้ว)</span>
                                         )}
+                                        {formData.show_in_ticker && (
+                                            <span className="text-green-600"> ✓ ข่าวนี้กำลังวิ่ง — คลิก Switch เพื่อยกเลิก</span>
+                                        )}
                                     </p>
                                 </div>
                                 <Switch

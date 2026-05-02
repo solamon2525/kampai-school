@@ -334,7 +334,7 @@ export const useHomeMainBlocks = () => {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-0">
         {featured && (
-          <Link to="/news" className="sm:col-span-1 block group border-r border-gray-100">
+          <Link to={`/news?id=${featured.id}`} className="sm:col-span-1 block group border-r border-gray-100">
             <div className="relative h-44 sm:h-52 bg-gradient-to-br from-primary to-accent overflow-hidden">
               {featured.cover_image_url ? (
                 <img src={featured.cover_image_url} alt={featured.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -357,7 +357,7 @@ export const useHomeMainBlocks = () => {
         )}
         <div className="sm:col-span-2 grid grid-cols-2 gap-0 divide-x divide-y divide-gray-100">
           {rest.map((item) => (
-            <Link key={item.id} to="/news" className="group p-0 block">
+            <Link key={item.id} to={`/news?id=${item.id}`} className="group p-0 block">
               <div className="relative h-28 overflow-hidden bg-gray-100">
                 {item.cover_image_url ? (
                   <img src={item.cover_image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -555,7 +555,7 @@ export const useHomeMainBlocks = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
         {blogNews.slice(0, 6).map((item) => (
           <motion.div key={item.id} variants={staggerItemVariants} whileHover={{ y: -4, scale: 1.02 }} transition={{ type: 'spring', stiffness: 300 }}>
-          <Link to="/news" className="group block bg-gray-50 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+          <Link to={`/news?id=${item.id}`} className="group block bg-gray-50 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
             <div className="aspect-[16/10] bg-gray-200 overflow-hidden">
               {item.cover_image_url ? (
                 <img src={item.cover_image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -592,7 +592,7 @@ export const useHomeMainBlocks = () => {
       <div className="relative">
         <div ref={carouselRef} className="flex gap-4 p-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory">
           {blogNews.slice(0, 8).map((item) => (
-            <Link key={item.id} to="/news" className="flex-shrink-0 w-52 sm:w-60 snap-start group">
+            <Link key={item.id} to={`/news?id=${item.id}`} className="flex-shrink-0 w-52 sm:w-60 snap-start group">
               <div className="aspect-[16/10] bg-gray-200 rounded-lg overflow-hidden">
                 {item.cover_image_url ? (
                   <img src={item.cover_image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -620,7 +620,7 @@ export const useHomeMainBlocks = () => {
       </div>
       <div className="divide-y divide-gray-100">
         {blogNews.slice(0, 6).map((item) => (
-          <Link key={item.id} to="/news" className="flex items-start gap-3 p-3 hover:bg-gray-50 transition-colors group">
+          <Link key={item.id} to={`/news?id=${item.id}`} className="flex items-start gap-3 p-3 hover:bg-gray-50 transition-colors group">
             {item.cover_image_url && (
               <div className="w-20 h-14 flex-shrink-0 rounded-md overflow-hidden bg-gray-200">
                 <img src={item.cover_image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
