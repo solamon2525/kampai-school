@@ -43,7 +43,16 @@ export const PartnersManagement = () => {
                 .select('*')
                 .order('order_position', { ascending: true });
             if (error) throw error;
-            setItems((data || []) as any);
+            
+            const fixedData = (data || []).map((p: any) => {
+                if (p.logo_url && p.logo_url.includes('wikimedia.org')) {
+                    if (p.name.includes('กระทรวง')) p.logo_url = '/logos/moe.png';
+                    else if (p.name.includes('สพฐ')) p.logo_url = '/logos/obec.png';
+                    else p.logo_url = '/logos/garuda.png';
+                }
+                return p;
+            });
+            setItems(fixedData as any);
         } catch (e: any) {
             toast({ variant: 'destructive', title: 'เกิดข้อผิดพลาด', description: e.message });
         } finally {
