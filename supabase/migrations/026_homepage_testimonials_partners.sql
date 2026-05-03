@@ -69,8 +69,8 @@ CREATE POLICY "all_partners_admin"
 
 -- Seed sample partners
 INSERT INTO partners (name, logo_url, link_url, order_position) VALUES
-  ('กระทรวงศึกษาธิการ', 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Emblem_of_the_Ministry_of_Education_of_Thailand.svg/512px-Emblem_of_the_Ministry_of_Education_of_Thailand.svg.png', 'https://www.moe.go.th',       1),
-  ('สพฐ.',              'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Emblem_of_the_Office_of_the_Basic_Education_Commission.svg/512px-Emblem_of_the_Office_of_the_Basic_Education_Commission.svg.png', 'https://www.obec.go.th',      2),
-  ('สพท.',              'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Garuda_Emblem_of_Thailand.svg/512px-Garuda_Emblem_of_Thailand.svg.png', '#',                            3),
-  ('ท้องถิ่น',          'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Garuda_Emblem_of_Thailand.svg/512px-Garuda_Emblem_of_Thailand.svg.png', '#',                            4)
+  ('กระทรวงศึกษาธิการ', '/logos/moe.png', 'https://www.moe.go.th',       1),
+  ('สพฐ.',              '/logos/obec.png', 'https://www.obec.go.th',      2),
+  ('สพท.',              '/logos/garuda.png', '#',                            3),
+  ('ท้องถิ่น',          '/logos/garuda.png', '#',                            4)
 ON CONFLICT DO NOTHING;

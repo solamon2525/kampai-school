@@ -195,10 +195,10 @@ export const useHomeMainBlocks = () => {
       .then(({ data }) => {
         if (data && data.length > 0) setPartners(data as any);
         else setPartners([
-          { id: 'p1', name: 'กระทรวงศึกษาธิการ', logo_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Emblem_of_the_Ministry_of_Education_of_Thailand.svg/512px-Emblem_of_the_Ministry_of_Education_of_Thailand.svg.png', link_url: 'https://www.moe.go.th' },
-          { id: 'p2', name: 'สพฐ.',             logo_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Emblem_of_the_Office_of_the_Basic_Education_Commission.svg/512px-Emblem_of_the_Office_of_the_Basic_Education_Commission.svg.png', link_url: 'https://www.obec.go.th' },
-          { id: 'p3', name: 'สพท.',             logo_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Garuda_Emblem_of_Thailand.svg/512px-Garuda_Emblem_of_Thailand.svg.png', link_url: '#' },
-          { id: 'p4', name: 'ท้องถิ่น',         logo_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Garuda_Emblem_of_Thailand.svg/512px-Garuda_Emblem_of_Thailand.svg.png', link_url: '#' },
+          { id: 'p1', name: 'กระทรวงศึกษาธิการ', logo_url: '/logos/moe.png', link_url: 'https://www.moe.go.th' },
+          { id: 'p2', name: 'สพฐ.',             logo_url: '/logos/obec.png', link_url: 'https://www.obec.go.th' },
+          { id: 'p3', name: 'สพท.',             logo_url: '/logos/garuda.png', link_url: '#' },
+          { id: 'p4', name: 'ท้องถิ่น',         logo_url: '/logos/garuda.png', link_url: '#' },
         ]);
       });
   }, []);
