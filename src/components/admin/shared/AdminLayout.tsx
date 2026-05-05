@@ -89,6 +89,7 @@ const menuItems: MenuItem[] = [
     { type: 'item', id: 'milestones', label: 'ประวัติโรงเรียน', icon: History, path: '/admin/dashboard/milestones', adminOnly: true },
     { type: 'item', id: 'facilities', label: 'สิ่งอำนวยความสะดวก', icon: Building2, path: '/admin/dashboard/facilities', adminOnly: true },
     { type: 'item', id: 'staff', label: 'ครู/บุคลากร', icon: Briefcase, path: '/admin/dashboard/staff' },
+    { type: 'item', id: 'teachers', label: 'รายชื่อครู', icon: Users, path: '/admin/dashboard/teachers' },
     { type: 'item', id: 'administrators', label: 'ผู้บริหาร', icon: UserCog, path: '/admin/dashboard/administrators', adminOnly: true },
     { type: 'item', id: 'students', label: 'นักเรียน', icon: GraduationCap, path: '/admin/dashboard/students' },
     { type: 'item', id: 'curriculum', label: 'หลักสูตร', icon: BookOpen, path: '/admin/dashboard/curriculum', adminOnly: true },

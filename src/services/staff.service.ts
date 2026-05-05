@@ -8,6 +8,20 @@ export const staffService = {
   getAll: () =>
     supabase.from('staff').select('*').order('order_position', { ascending: true }),
 
+  getTeachers: () =>
+    supabase
+      .from('staff')
+      .select('id, name, position, subject, photo_url, order_position, email, phone, department')
+      .eq('staff_type', 'teaching')
+      .order('order_position', { ascending: true }),
+
+  getTeacherAccountStatus: () =>
+    supabase
+      .from('user_roles')
+      .select('staff_id')
+      .eq('role', 'teacher')
+      .not('staff_id', 'is', null),
+
   insert: (data: Record<string, unknown>) =>
     supabase.from('staff').insert(data as never),
 
