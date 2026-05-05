@@ -19,7 +19,6 @@ export const staffService = {
     supabase
       .from('user_roles')
       .select('staff_id, role')
-      .in('role', ['teacher', 'admin'])
       .not('staff_id', 'is', null),
 
   insert: (data: Record<string, unknown>) =>
