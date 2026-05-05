@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { SEOHead } from '@/components/SEOHead';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -469,6 +470,7 @@ const Enrollment = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
+      <SEOHead title="รับสมัครนักเรียน" description="ข้อมูลการรับสมัครนักเรียนและขั้นตอนการสมัครเรียน" />
       <SiteHeader />
       <div className="max-w-7xl mx-auto w-full bg-background">
 

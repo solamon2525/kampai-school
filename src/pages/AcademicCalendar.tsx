@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import SiteHeader from '@/components/SiteHeader';
+import { SEOHead } from '@/components/SEOHead';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -95,6 +96,7 @@ const AcademicCalendar = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
+      <SEOHead title="ปฏิทินการศึกษา" description="กำหนดการและกิจกรรมประจำปีการศึกษา" />
       <SiteHeader />
       <div className="max-w-7xl mx-auto w-full bg-background">
 
