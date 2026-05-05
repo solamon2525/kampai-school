@@ -64,17 +64,19 @@ export function TeacherListManagement() {
   };
 
   const fetchAccountStatus = async () => {
-    const { data } = await staffService.getTeacherAccountStatus();
-    const teachers = new Set<string>();
-    const admins = new Set<string>();
+    const { data, error } = await staffService.getTeacherAccountStatus();
+    console.log('[teacherStatus] data:', data, 'error:', error);
+    const teacherSet = new Set<string>();
+    const adminSet = new Set<string>();
     (data || []).forEach((r) => {
+      console.log('[teacherStatus] row:', r.staff_id, r.role);
       if (r.staff_id) {
-        if (r.role === 'admin') admins.add(r.staff_id as string);
-        else teachers.add(r.staff_id as string);
+        if ((r.role as string) === 'admin') adminSet.add(r.staff_id as string);
+        else teacherSet.add(r.staff_id as string);
       }
     });
-    setTeacherStaffIds(teachers);
-    setAdminStaffIds(admins);
+    setTeacherStaffIds(teacherSet);
+    setAdminStaffIds(adminSet);
   };
 
   useEffect(() => {
