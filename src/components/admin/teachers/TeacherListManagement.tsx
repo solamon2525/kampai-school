@@ -32,7 +32,8 @@ export function TeacherListManagement() {
   const { toast } = useToast();
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [loading, setLoading] = useState(true);
-  const [accountStaffIds, setAccountStaffIds] = useState<Set<string>>(new Set());
+  const [teacherStaffIds, setTeacherStaffIds] = useState<Set<string>>(new Set());
+  const [adminStaffIds, setAdminStaffIds] = useState<Set<string>>(new Set());
 
   // Edit info dialog
   const [editTarget, setEditTarget] = useState<Teacher | null>(null);
@@ -64,7 +65,16 @@ export function TeacherListManagement() {
 
   const fetchAccountStatus = async () => {
     const { data } = await staffService.getTeacherAccountStatus();
-    setAccountStaffIds(new Set((data || []).map((r) => r.staff_id as string)));
+    const teachers = new Set<string>();
+    const admins = new Set<string>();
+    (data || []).forEach((r) => {
+      if (r.staff_id) {
+        if (r.role === 'admin') admins.add(r.staff_id as string);
+        else teachers.add(r.staff_id as string);
+      }
+    });
+    setTeacherStaffIds(teachers);
+    setAdminStaffIds(admins);
   };
 
   useEffect(() => {
@@ -169,7 +179,7 @@ export function TeacherListManagement() {
     }
   };
 
-  const withAccountCount = teachers.filter((t) => accountStaffIds.has(t.id)).length;
+  const withAccountCount = teachers.filter((t) => teacherStaffIds.has(t.id) || adminStaffIds.has(t.id)).length;
 
   return (
     <div className="p-8 space-y-6">
@@ -234,7 +244,8 @@ export function TeacherListManagement() {
             </thead>
             <tbody className="divide-y divide-border">
               {teachers.map((teacher) => {
-                const hasAccount = accountStaffIds.has(teacher.id);
+                const isAdmin = adminStaffIds.has(teacher.id);
+                const hasTeacherAccount = teacherStaffIds.has(teacher.id);
                 return (
                   <tr key={teacher.id} className="bg-card hover:bg-muted/30 transition-colors">
                     <td className="px-4 py-3 text-center font-mono text-muted-foreground">
@@ -266,7 +277,15 @@ export function TeacherListManagement() {
                       {teacher.email ?? <span className="italic">—</span>}
                     </td>
                     <td className="px-4 py-3">
-                      {hasAccount ? (
+                      {isAdmin ? (
+                        <Badge
+                          variant="outline"
+                          className="border-amber-500 text-amber-700 dark:text-amber-400 gap-1 whitespace-nowrap"
+                        >
+                          <ShieldCheck className="h-3 w-3" />
+                          Admin
+                        </Badge>
+                      ) : hasTeacherAccount ? (
                         <Badge
                           variant="outline"
                           className="border-green-500 text-green-700 dark:text-green-400 gap-1 whitespace-nowrap"
@@ -295,26 +314,28 @@ export function TeacherListManagement() {
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
-                        {hasAccount ? (
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="h-8 w-8 text-blue-600 dark:text-blue-400"
-                            title="รีเซ็ตรหัสผ่าน"
-                            onClick={() => openResetPassword(teacher)}
-                          >
-                            <KeyRound className="h-4 w-4" />
-                          </Button>
-                        ) : (
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="h-8 w-8 text-green-600 dark:text-green-400"
-                            title="สร้าง Account"
-                            onClick={() => openCreateAccount(teacher)}
-                          >
-                            <UserPlus className="h-4 w-4" />
-                          </Button>
+                        {!isAdmin && (
+                          hasTeacherAccount ? (
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-8 w-8 text-blue-600 dark:text-blue-400"
+                              title="รีเซ็ตรหัสผ่าน"
+                              onClick={() => openResetPassword(teacher)}
+                            >
+                              <KeyRound className="h-4 w-4" />
+                            </Button>
+                          ) : (
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-8 w-8 text-green-600 dark:text-green-400"
+                              title="สร้าง Account"
+                              onClick={() => openCreateAccount(teacher)}
+                            >
+                              <UserPlus className="h-4 w-4" />
+                            </Button>
+                          )
                         )}
                       </div>
                     </td>
