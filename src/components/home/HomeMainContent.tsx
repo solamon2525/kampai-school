@@ -563,7 +563,7 @@ export const useHomeMainBlocks = () => {
           ดูทั้งหมด <ArrowRight className="w-3 h-3" />
         </Link>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-4 p-4">
         {blogNews.slice(0, 6).map((item) => (
           <motion.div key={item.id} variants={staggerItemVariants} whileHover={{ y: -4, scale: 1.02 }} transition={{ type: 'spring', stiffness: 300 }}>
           <Link to={`/news/${item.id}`} className="group block bg-gray-50 rounded-lg overflow-hidden hover:shadow-md transition-shadow">

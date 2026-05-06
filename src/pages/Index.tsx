@@ -78,7 +78,7 @@ const Index = () => {
       {/* 3-Column Layout */}
       <main className="flex-1 max-w-7xl mx-auto w-full px-3 py-4 overflow-x-hidden min-w-0">
         {/* Desktop: 3 columns */}
-        <div className="hidden lg:grid grid-cols-[200px_1fr_240px] gap-4 items-start">
+        <div className="hidden lg:grid grid-cols-[240px_1fr_240px] gap-4 items-start">
           <aside className="min-w-0 overflow-hidden">{renderZone(layout?.left, ['principal', 'menu'], 'flex flex-col gap-3 w-full')}</aside>
           <main className="min-w-0 overflow-hidden">{renderZone(layout?.main, ['hero', 'news', 'about'], 'flex flex-col gap-4 w-full')}</main>
           <aside className="min-w-0 overflow-hidden">{renderZone(layout?.right, ['categories', 'gallery', 'services', 'social', 'stats'], 'flex flex-col gap-3 w-full')}</aside>

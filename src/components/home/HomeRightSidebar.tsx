@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import { Facebook, Youtube, Instagram, MessageCircle, Link as LinkIcon, Image, Users, Monitor, FileText, ArrowRight, Recycle } from 'lucide-react';
-import { staggerContainerVariants, staggerItemVariants } from '@/hooks/useScrollReveal';
+import { staggerContainerVariants, staggerItemVariants, fadeInVariants } from '@/hooks/useScrollReveal';
 
 // ─── WasteBank Widget ─────────────────────────────────────
 
@@ -93,7 +93,7 @@ const WasteBankWidget = () => {
       ) : (
         <ul className="divide-y divide-green-50">
           {top5.map((s, i) => (
-            <li key={s.student_id ?? i} className="flex items-center gap-3 px-4 py-2.5">
+            <li key={s.student_id ?? i} className="flex items-center gap-2 px-3 py-2">
               {/* Rank badge */}
               <div className={`w-7 h-7 rounded-full bg-gradient-to-br ${RANK_COLORS[i]} flex items-center justify-center flex-shrink-0 text-xs font-bold text-white shadow-sm`}>
                 {MEDALS[i]}
@@ -267,8 +267,7 @@ export const useHomeRightBlocks = () => {
     <motion.div
       key="gallery"
       initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, amount: 0.2 }}
+      animate="visible"
       variants={staggerContainerVariants}
       className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden"
     >
@@ -278,7 +277,7 @@ export const useHomeRightBlocks = () => {
       {galleryImages.length > 0 ? (
         <div className="grid grid-cols-3 gap-0.5 p-1">
           {galleryImages.slice(0, 6).map((url, i) => (
-            <motion.div key={i} variants={staggerItemVariants} whileHover={{ scale: 1.05 }}>
+            <motion.div key={i} variants={fadeInVariants} whileHover={{ scale: 1.05 }}>
               <Link to="/gallery" className="block aspect-square overflow-hidden rounded">
                 <img src={url} alt="" className="w-full h-full object-cover hover:scale-110 transition-transform duration-500" />
               </Link>
