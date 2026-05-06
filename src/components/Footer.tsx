@@ -25,132 +25,134 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-primary text-primary-foreground">
-      {/* Main Footer */}
-      <div className="container-school py-10">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* School Info */}
-          <div className="lg:col-span-1">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-11 h-11 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
-                <span className="text-accent-foreground font-bold text-lg">คผ</span>
+    <footer>
+      <div className="max-w-7xl mx-auto bg-primary text-primary-foreground overflow-hidden w-full">
+        {/* Main Footer */}
+        <div className="px-4 sm:px-6 lg:px-8 py-5">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {/* School Info */}
+            <div className="lg:col-span-1">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-11 h-11 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
+                  <span className="text-accent-foreground font-bold text-lg">คผ</span>
+                </div>
+                <div>
+                  <h3 className="text-base font-bold leading-tight">{settings.school_name}</h3>
+                  <p className="text-xs text-primary-foreground/70">{settings.school_tagline}</p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-base font-bold leading-tight">{settings.school_name}</h3>
-                <p className="text-xs text-primary-foreground/70">{settings.school_tagline}</p>
+              <p className="text-sm text-primary-foreground/80 mb-4 leading-relaxed">
+                {settings.school_description}
+              </p>
+              <div className="flex gap-3 flex-wrap">
+                {settings.social_links && settings.social_links.length > 0 ? (
+                  settings.social_links.map((link, index) => {
+                    const getSocialIcon = (platform: string) => {
+                      switch (platform) {
+                        case 'facebook': return Facebook;
+                        case 'youtube': return Youtube;
+                        case 'instagram': return Instagram;
+                        case 'line': return MessageCircle;
+                        default: return LinkIcon;
+                      }
+                    };
+                    const Icon = getSocialIcon(link.platform);
+
+                    return (
+                      <a
+                        key={index}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-10 h-10 rounded-lg bg-primary-foreground/10 flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors"
+                        aria-label={link.platform}
+                      >
+                        <Icon className="w-5 h-5" />
+                      </a>
+                    );
+                  })
+                ) : null}
               </div>
             </div>
-            <p className="text-sm text-primary-foreground/80 mb-4 leading-relaxed">
-              {settings.school_description}
-            </p>
-            <div className="flex gap-3 flex-wrap">
-              {settings.social_links && settings.social_links.length > 0 ? (
-                settings.social_links.map((link, index) => {
-                  const getSocialIcon = (platform: string) => {
-                    switch (platform) {
-                      case 'facebook': return Facebook;
-                      case 'youtube': return Youtube;
-                      case 'instagram': return Instagram;
-                      case 'line': return MessageCircle;
-                      default: return LinkIcon;
-                    }
-                  };
-                  const Icon = getSocialIcon(link.platform);
 
-                  return (
-                    <a
-                      key={index}
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-10 h-10 rounded-lg bg-primary-foreground/10 flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors"
-                      aria-label={link.platform}
+            {/* Quick Links */}
+            <div>
+              <h4 className="text-sm font-bold mb-2 pb-2 border-b border-primary-foreground/15">ลิงก์ด่วน</h4>
+              <ul className="space-y-1.5 text-sm">
+                {quickLinks.map((link) => (
+                  <li key={link.name}>
+                    <Link
+                      to={link.href}
+                      onClick={() => window.scrollTo(0, 0)}
+                      className="text-primary-foreground/80 hover:text-accent transition-colors"
                     >
-                      <Icon className="w-5 h-5" />
-                    </a>
-                  );
-                })
-              ) : null}
+                      {link.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </div>
 
-          {/* Quick Links */}
-          <div>
-            <h4 className="text-base font-bold mb-3 pb-2 border-b border-primary-foreground/15">ลิงก์ด่วน</h4>
-            <ul className="space-y-1.5 text-sm">
-              {quickLinks.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    to={link.href}
-                    onClick={() => window.scrollTo(0, 0)}
-                    className="text-primary-foreground/80 hover:text-accent transition-colors"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+            {/* Resources */}
+            <div>
+              <h4 className="text-sm font-bold mb-2 pb-2 border-b border-primary-foreground/15">บริการออนไลน์</h4>
+              <ul className="space-y-1.5 text-sm">
+                {resources.map((link) => (
+                  <li key={link.name}>
+                    <a
+                      href={link.href}
+                      className="text-primary-foreground/80 hover:text-accent transition-colors"
+                    >
+                      {link.name}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-          {/* Resources */}
-          <div>
-            <h4 className="text-base font-bold mb-3 pb-2 border-b border-primary-foreground/15">บริการออนไลน์</h4>
-            <ul className="space-y-1.5 text-sm">
-              {resources.map((link) => (
-                <li key={link.name}>
-                  <a
-                    href={link.href}
-                    className="text-primary-foreground/80 hover:text-accent transition-colors"
-                  >
-                    {link.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <h4 className="text-base font-bold mb-3 pb-2 border-b border-primary-foreground/15">ติดต่อเรา</h4>
-            <ul className="space-y-2 text-sm">
-              {settings.contact_address && (
-                <li className="flex gap-3">
-                  <MapPin className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
-                  <span className="text-primary-foreground/80">
-                    {settings.contact_address}
-                  </span>
-                </li>
-              )}
-              {settings.contact_phone && (
-                <li className="flex gap-3">
-                  <Phone className="w-5 h-5 text-accent flex-shrink-0" />
-                  <span className="text-primary-foreground/80">{settings.contact_phone}</span>
-                </li>
-              )}
-              {settings.contact_email && (
-                <li className="flex gap-3">
-                  <Mail className="w-5 h-5 text-accent flex-shrink-0" />
-                  <span className="text-primary-foreground/80">{settings.contact_email}</span>
-                </li>
-              )}
-            </ul>
+            {/* Contact */}
+            <div>
+              <h4 className="text-sm font-bold mb-2 pb-2 border-b border-primary-foreground/15">ติดต่อเรา</h4>
+              <ul className="space-y-1.5 text-sm">
+                {settings.contact_address && (
+                  <li className="flex gap-3">
+                    <MapPin className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
+                    <span className="text-primary-foreground/80">
+                      {settings.contact_address}
+                    </span>
+                  </li>
+                )}
+                {settings.contact_phone && (
+                  <li className="flex gap-3">
+                    <Phone className="w-5 h-5 text-accent flex-shrink-0" />
+                    <span className="text-primary-foreground/80">{settings.contact_phone}</span>
+                  </li>
+                )}
+                {settings.contact_email && (
+                  <li className="flex gap-3">
+                    <Mail className="w-5 h-5 text-accent flex-shrink-0" />
+                    <span className="text-primary-foreground/80">{settings.contact_email}</span>
+                  </li>
+                )}
+              </ul>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Bottom Bar */}
-      <div className="border-t border-primary-foreground/10">
-        <div className="container-school py-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-primary-foreground/60 text-center md:text-left">
-            © {new Date().getFullYear()} {settings.school_name}. สงวนลิขสิทธิ์.
-          </p>
-          <button
-            onClick={scrollToTop}
-            className="flex items-center gap-2 text-sm text-primary-foreground/60 hover:text-accent transition-colors"
-          >
-            กลับด้านบน
-            <ChevronUp className="w-4 h-4" />
-          </button>
+        {/* Bottom Bar */}
+        <div className="border-t border-primary-foreground/10">
+          <div className="px-4 sm:px-6 lg:px-8 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-sm text-primary-foreground/60 text-center md:text-left">
+              © {new Date().getFullYear()} {settings.school_name}. สงวนลิขสิทธิ์.
+            </p>
+            <button
+              onClick={scrollToTop}
+              className="flex items-center gap-2 text-sm text-primary-foreground/60 hover:text-accent transition-colors"
+            >
+              กลับด้านบน
+              <ChevronUp className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
     </footer>

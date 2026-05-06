@@ -44,16 +44,16 @@ const HomeFooterZone = ({ blockOrder }: FooterZoneProps) => {
     // Block renderers
     const footerInfo = (
         <div key="footer_info" className="lg:col-span-1">
-            <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center">
-                    <span className="text-accent-foreground font-bold text-xl">คผ</span>
+            <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center">
+                    <span className="text-accent-foreground font-bold text-base">คผ</span>
                 </div>
                 <div>
-                    <h3 className="text-lg font-bold">{settings.school_name}</h3>
-                    <p className="text-sm text-primary-foreground/70">{settings.school_tagline}</p>
+                    <h3 className="text-base font-bold">{settings.school_name}</h3>
+                    <p className="text-xs text-primary-foreground/70">{settings.school_tagline}</p>
                 </div>
             </div>
-            <p className="text-primary-foreground/80 mb-6 leading-relaxed">
+            <p className="text-sm text-primary-foreground/80 mb-3 leading-relaxed">
                 {settings.school_description}
             </p>
         </div>
@@ -61,8 +61,8 @@ const HomeFooterZone = ({ blockOrder }: FooterZoneProps) => {
 
     const footerLinks = (
         <div key="footer_links">
-            <h4 className="text-lg font-bold mb-6">ลิงก์ด่วน</h4>
-            <ul className="space-y-3">
+            <h4 className="text-sm font-bold mb-2">ลิงก์ด่วน</h4>
+            <ul className="space-y-1.5 text-sm">
                 {quickLinks.map((link) => (
                     <li key={link.name}>
                         <Link
@@ -104,8 +104,8 @@ const HomeFooterZone = ({ blockOrder }: FooterZoneProps) => {
 
     const footerContact = (
         <div key="footer_contact">
-            <h4 className="text-lg font-bold mb-6">ติดต่อเรา</h4>
-            <ul className="space-y-4">
+            <h4 className="text-sm font-bold mb-2">ติดต่อเรา</h4>
+            <ul className="space-y-2 text-sm">
                 {settings.contact_address && (
                     <li className="flex gap-3">
                         <MapPin className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
@@ -130,8 +130,8 @@ const HomeFooterZone = ({ blockOrder }: FooterZoneProps) => {
 
     const footerServices = (
         <div key="footer_services">
-            <h4 className="text-lg font-bold mb-6">บริการออนไลน์</h4>
-            <ul className="space-y-3">
+            <h4 className="text-sm font-bold mb-2">บริการออนไลน์</h4>
+            <ul className="space-y-1.5 text-sm">
                 {resources.map((link) => (
                     <li key={link.name}>
                         <a
@@ -157,27 +157,29 @@ const HomeFooterZone = ({ blockOrder }: FooterZoneProps) => {
     if (blockOrder.length === 0) return null;
 
     return (
-        <footer className="bg-primary text-primary-foreground">
-            {/* Main Footer */}
-            <div className="container-school py-16">
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
-                    {blockOrder.map((key) => blockMap[key] ?? null)}
+        <footer>
+            <div className="max-w-7xl mx-auto bg-primary text-primary-foreground overflow-hidden w-full">
+                {/* Main Footer */}
+                <div className="px-4 sm:px-6 lg:px-8 py-5">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
+                        {blockOrder.map((key) => blockMap[key] ?? null)}
+                    </div>
                 </div>
-            </div>
 
-            {/* Bottom Bar — always shown */}
-            <div className="border-t border-primary-foreground/10">
-                <div className="container-school py-6 flex flex-col md:flex-row items-center justify-between gap-4">
-                    <p className="text-sm text-primary-foreground/60 text-center md:text-left">
-                        © {new Date().getFullYear()} {settings.school_name}. สงวนลิขสิทธิ์.
-                    </p>
-                    <button
-                        onClick={scrollToTop}
-                        className="flex items-center gap-2 text-sm text-primary-foreground/60 hover:text-accent transition-colors"
-                    >
-                        กลับด้านบน
-                        <ChevronUp className="w-4 h-4" />
-                    </button>
+                {/* Bottom Bar — always shown */}
+                <div className="border-t border-primary-foreground/10">
+                    <div className="px-4 sm:px-6 lg:px-8 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
+                        <p className="text-sm text-primary-foreground/60 text-center md:text-left">
+                            © {new Date().getFullYear()} {settings.school_name}. สงวนลิขสิทธิ์.
+                        </p>
+                        <button
+                            onClick={scrollToTop}
+                            className="flex items-center gap-2 text-sm text-primary-foreground/60 hover:text-accent transition-colors"
+                        >
+                            กลับด้านบน
+                            <ChevronUp className="w-4 h-4" />
+                        </button>
+                    </div>
                 </div>
             </div>
         </footer>
