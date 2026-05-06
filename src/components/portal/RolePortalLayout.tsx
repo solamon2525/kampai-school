@@ -1,4 +1,5 @@
 import { ReactNode, useState } from 'react';
+import SchoolLogoMark from '@/components/SchoolLogoMark';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
@@ -44,7 +45,7 @@ export const RolePortalLayout = ({ children, title, subtitle, menu, accent }: Ro
         <div className="flex flex-col h-full">
             <div className={`p-4 bg-gradient-to-r ${ACCENT[accent]} text-white`}>
                 <Link to="/" className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-bold">คผ</div>
+                    <SchoolLogoMark className="w-10 h-10 bg-white/20" fallbackClassName="text-white" />
                     <div>
                         <h1 className="font-bold text-sm">{settings.school_name}</h1>
                         <p className="text-xs opacity-80">{title}</p>

@@ -4,6 +4,7 @@ import {
     Facebook, Youtube, Instagram, Mail, Phone, MapPin, MessageCircle,
     Link as LinkIcon, ChevronUp,
 } from 'lucide-react';
+import SchoolLogoMark from '@/components/SchoolLogoMark';
 
 interface FooterZoneProps {
     blockOrder: string[];
@@ -45,9 +46,7 @@ const HomeFooterZone = ({ blockOrder }: FooterZoneProps) => {
     const footerInfo = (
         <div key="footer_info" className="lg:col-span-1">
             <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center">
-                    <span className="text-accent-foreground font-bold text-base">คผ</span>
-                </div>
+                <SchoolLogoMark className="w-10 h-10 bg-accent" fallbackClassName="text-accent-foreground text-base" />
                 <div>
                     <h3 className="text-base font-bold">{settings.school_name}</h3>
                     <p className="text-xs text-primary-foreground/70">{settings.school_tagline}</p>

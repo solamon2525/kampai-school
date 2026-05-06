@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import SchoolLogoMark from '@/components/SchoolLogoMark';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -63,9 +64,7 @@ const AdminLogin = () => {
       
       <Card className="w-full max-w-md relative z-10 shadow-2xl border-0">
         <CardHeader className="text-center pb-2">
-          <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-primary flex items-center justify-center">
-            <span className="text-accent font-bold text-2xl">คผ</span>
-          </div>
+          <SchoolLogoMark className="w-20 h-20 mx-auto mb-4 bg-primary" fallbackClassName="text-accent text-2xl" />
           <CardTitle className="text-2xl text-primary">ระบบจัดการโรงเรียน</CardTitle>
           <CardDescription>กรุณาเข้าสู่ระบบเพื่อจัดการข้อมูล</CardDescription>
         </CardHeader>

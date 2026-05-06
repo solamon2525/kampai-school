@@ -1,4 +1,5 @@
 import { ReactNode, useState } from 'react';
+import SchoolLogoMark from '@/components/SchoolLogoMark';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthProvider';
 import { Button } from '@/components/ui/button';
@@ -139,9 +140,7 @@ const SidebarContent = ({
             {/* School Header */}
             <div className="p-4 border-b border-white/10">
                 <Link to="/" className="flex items-center gap-3" onClick={() => onNavigate('/')}>
-                    <div className="w-10 h-10 rounded-full bg-admin-accent flex items-center justify-center">
-                        <span className="text-white font-bold">คผ</span>
-                    </div>
+                    <SchoolLogoMark className="w-10 h-10 bg-admin-accent" fallbackClassName="text-white" />
                     <div>
                         <h1 className="font-bold text-admin-sidebar-fg text-sm">{settings.school_name}</h1>
                         <p className="text-xs text-admin-sidebar-muted">ระบบจัดการ</p>
