@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
@@ -40,25 +40,22 @@ const News = () => {
   const [categories, setCategories] = useState<string[]>(['ทั้งหมด']);
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { id: paramId } = useParams<{ id?: string }>();
 
   // Scroll to top on mount
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  // Handle URL query params for deep linking
+  // Support /news/:id (path param) and /news?id= (legacy query string)
   useEffect(() => {
-    if (allNews.length > 0) {
-      const params = new URLSearchParams(location.search);
-      const newsId = params.get('id');
-      if (newsId) {
-        const foundNews = allNews.find(n => n.id === newsId);
-        if (foundNews) {
-          handleNewsClick(foundNews);
-        }
-      }
-    }
-  }, [allNews, location.search]);
+    if (allNews.length === 0) return;
+    const newsId = paramId ?? new URLSearchParams(location.search).get('id');
+    if (!newsId) { setSelectedNews(null); return; }
+    const found = allNews.find(n => n.id === newsId);
+    if (found) handleNewsClick(found);
+  }, [allNews, paramId, location.search]);
 
   useEffect(() => {
     fetchNews();
@@ -115,16 +112,18 @@ const News = () => {
     }
   };
 
-  // Increment view count when opening news detail
   const handleNewsClick = async (news: NewsItem) => {
     setSelectedNews(news);
     window.scrollTo(0, 0);
-    // Increment view count
     try {
       await (supabase as any).rpc('increment_news_view', { news_id: news.id });
     } catch (error) {
       console.error('Error updating views:', error);
     }
+  };
+
+  const openNews = (news: NewsItem) => {
+    navigate(`/news/${news.id}`);
   };
 
   const filteredNews = allNews.filter((news) => {
@@ -144,11 +143,7 @@ const News = () => {
         <div className="container-school py-4 md:py-8">
           <Button
             variant="outline"
-            onClick={() => {
-              setSelectedNews(null);
-              window.history.pushState({}, '', '/news');
-              window.scrollTo(0, 0);
-            }}
+            onClick={() => navigate('/news')}
             className="mb-4"
           >
             ← กลับ
@@ -298,7 +293,7 @@ const News = () => {
               {filteredNews.map((news) => (
                 <div
                   key={news.id}
-                  onClick={() => handleNewsClick(news)}
+                  onClick={() => openNews(news)}
                   className="group bg-card rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-border cursor-pointer"
                 >
                   {news.cover_image_url ? (

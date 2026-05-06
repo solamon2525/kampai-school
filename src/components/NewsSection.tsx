@@ -113,7 +113,7 @@ const NewsSection = () => {
             {featuredNews && (
               <div
                 className="group bg-card rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-border cursor-pointer"
-                onClick={() => navigate(`/news?id=${featuredNews.id}`)}
+                onClick={() => navigate(`/news/${featuredNews.id}`)}
               >
                 {featuredNews.cover_image_url ? (
                   <div className="h-64 overflow-hidden">
@@ -166,7 +166,7 @@ const NewsSection = () => {
                 <div
                   key={news.id}
                   className="group bg-card rounded-xl p-5 shadow-md hover:shadow-lg transition-all duration-300 border border-border flex gap-5 cursor-pointer"
-                  onClick={() => navigate(`/news?id=${news.id}`)}
+                  onClick={() => navigate(`/news/${news.id}`)}
                 >
                   {news.cover_image_url ? (
                     <div className="flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden">

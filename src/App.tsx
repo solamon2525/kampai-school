@@ -79,6 +79,7 @@ const App = () => (
             <Route path="/students" element={<Students />} />
             <Route path="/curriculum" element={<Curriculum />} />
             <Route path="/news" element={<News />} />
+            <Route path="/news/:id" element={<News />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/admin" element={<AdminLogin />} />
             {/* Admin dashboard with nested route support */}

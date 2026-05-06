@@ -21,7 +21,7 @@ const fetchTicker = async (): Promise<TickerItem[]> => {
   return ((news as { id: string; title: string }[] | null) ?? []).map((n) => ({
     id: n.id,
     title: n.title,
-    link: `/news?id=${n.id}`,
+    link: `/news/${n.id}`,
   }));
 };
 

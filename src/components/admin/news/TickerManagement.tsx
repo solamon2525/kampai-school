@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Save } from 'lucide-react';
+import { Save, GripVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,9 +8,59 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { cn } from '@/lib/utils';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+interface TickerNewsItem {
+  id: string;
+  title: string;
+  ticker_order: number | null;
+}
+
+const SortableItem = ({ item }: { item: TickerNewsItem }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
+  return (
+    <div
+      ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+      className={cn(
+        'flex items-center gap-3 p-3 bg-card rounded-lg border border-border select-none',
+        isDragging && 'opacity-50 shadow-lg z-10'
+      )}
+    >
+      <button
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing touch-none text-muted-foreground hover:text-foreground"
+        aria-label="ลาก"
+      >
+        <GripVertical className="w-5 h-5" />
+      </button>
+      <span className="text-sm flex-1 truncate">{item.title}</span>
+    </div>
+  );
+};
 
 export const TickerManagement = () => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const { settings, refetch: refetchSettings } = useSchoolSettings();
 
   const [speed, setSpeed] = useState(settings.ticker_speed_seconds || '30');
@@ -43,6 +93,57 @@ export const TickerManagement = () => {
     }
     refetchSettings();
     toast({ title: 'บันทึกการตั้งค่าแล้ว' });
+  };
+
+  // Ticker items — query from news table
+  const { data: tickerNews = [], isLoading: loadingItems } = useQuery({
+    queryKey: ['ticker-news-admin'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('news')
+        .select('id, title, ticker_order')
+        .eq('published', true)
+        .eq('show_in_ticker', true)
+        .order('ticker_order', { ascending: true, nullsFirst: false })
+        .order('published_at', { ascending: false });
+      return (data ?? []) as TickerNewsItem[];
+    },
+  });
+
+  const [items, setItems] = useState<TickerNewsItem[]>([]);
+  useEffect(() => { setItems(tickerNews); }, [tickerNews]);
+
+  const reorderMutation = useMutation({
+    mutationFn: async (ordered: TickerNewsItem[]) => {
+      await Promise.all(
+        ordered.map((item, i) =>
+          supabase.from('news').update({ ticker_order: i + 1 } as any).eq('id', item.id)
+        )
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ticker-news-admin'] });
+      queryClient.invalidateQueries({ queryKey: ['ticker-items'] });
+      toast({ title: 'บันทึกลำดับแล้ว' });
+    },
+    onError: (err: Error) => {
+      toast({ title: 'บันทึกล้มเหลว', description: err.message, variant: 'destructive' });
+    },
+  });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = items.findIndex(i => i.id === active.id);
+    const newIndex = items.findIndex(i => i.id === over.id);
+    const newOrder = arrayMove(items, oldIndex, newIndex);
+    setItems(newOrder);
+    reorderMutation.mutate(newOrder);
   };
 
   return (
@@ -78,6 +179,32 @@ export const TickerManagement = () => {
             <Save className="w-4 h-4 mr-2" />
             {savingSettings ? 'กำลังบันทึก...' : 'บันทึกการตั้งค่า'}
           </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>จัดลำดับข่าวในตัววิ่ง</CardTitle>
+          <CardDescription>
+            ลากเพื่อเรียงลำดับ — ข่าวที่ติ๊ก &quot;แสดงในตัววิ่งข่าว&quot; จะปรากฏที่นี่
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {loadingItems ? (
+            <p className="text-sm text-muted-foreground">กำลังโหลด...</p>
+          ) : items.length === 0 ? (
+            <p className="text-sm text-muted-foreground">ยังไม่มีข่าวที่เลือกไว้ — ไปที่เมนู ข่าวสาร แล้วเปิด Switch &quot;แสดงในตัววิ่งข่าว&quot;</p>
+          ) : (
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
+                <div className="space-y-2">
+                  {items.map(item => (
+                    <SortableItem key={item.id} item={item} />
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
+          )}
         </CardContent>
       </Card>
     </div>
