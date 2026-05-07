@@ -59,20 +59,20 @@ export const SettingsManagement = () => {
     const handleSave = async () => {
         try {
             setSaving(true);
-            const updates = Object.entries(settings).map(([key, value]) => ({ key, value }));
-            for (const update of updates) {
-                const { error } = await supabase
-                    .from('school_settings')
-                    .upsert({ key: update.key, value: update.value } as any, { onConflict: 'key' });
-                if (error) throw error;
-            }
+            const updates = Object.entries(settings).map(([key, value]) => ({ key, value: value ?? '' }));
+            const { error } = await supabase
+                .from('school_settings')
+                .upsert(updates as any, { onConflict: 'key' });
+            if (error) throw error;
             await queryClient.invalidateQueries({ queryKey: ['school-settings'] });
+            localStorage.removeItem('school_settings_cache');
             toast({ title: 'สำเร็จ', description: 'บันทึกการตั้งค่าเรียบร้อยแล้ว' });
-        } catch {
+        } catch (err: any) {
+            console.error('Settings save error:', err);
             toast({
                 variant: 'destructive',
-                title: 'เกิดข้อผิดพลาด',
-                description: 'ไม่สามารถบันทึกการตั้งค่าได้',
+                title: 'บันทึกไม่สำเร็จ',
+                description: err?.message || 'ไม่สามารถบันทึกการตั้งค่าได้ — ดู Console สำหรับรายละเอียด',
             });
         } finally {
             setSaving(false);
