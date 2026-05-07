@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { PortalProtectedRoute } from "./components/portal/PortalProtectedRoute";
 import { RuntimeThemeStyles } from "./components/theme/RuntimeThemeStyles";
+import DynamicFavicon from "./components/DynamicFavicon";
 
 // หน้าแรกโหลดทันที (Critical path)
 import Index from "./pages/Index";
@@ -66,6 +67,7 @@ const App = () => (
     <MotionConfig reducedMotion="user">
     <TooltipProvider>
       <RuntimeThemeStyles />
+      <DynamicFavicon />
       <Toaster />
       <Sonner />
       <BrowserRouter>
