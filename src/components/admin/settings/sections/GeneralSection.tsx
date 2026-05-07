@@ -7,9 +7,10 @@ import { ImageUpload } from '../../shared/ImageUpload';
 interface Props {
     settings: Record<string, string>;
     onChange: (key: string, value: string) => void;
+    onAutoSave?: (key: string, value: string) => Promise<void>;
 }
 
-export const GeneralSection = ({ settings, onChange }: Props) => (
+export const GeneralSection = ({ settings, onChange, onAutoSave }: Props) => (
     <Card>
         <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -23,7 +24,10 @@ export const GeneralSection = ({ settings, onChange }: Props) => (
                 <div className="flex items-start gap-4">
                     <ImageUpload
                         currentImage={settings.school_logo_url || ''}
-                        onUploadComplete={(url) => onChange('school_logo_url', url)}
+                        onUploadComplete={(url) => {
+                            onChange('school_logo_url', url);
+                            onAutoSave?.('school_logo_url', url);
+                        }}
                         folder="logo"
                         compressionPreset="avatar"
                         bucket="school-images"

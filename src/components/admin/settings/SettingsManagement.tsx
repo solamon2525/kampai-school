@@ -56,6 +56,22 @@ export const SettingsManagement = () => {
         setSettings((prev) => ({ ...prev, [key]: value }));
     };
 
+    const handleAutoSave = async (key: string, value: string) => {
+        try {
+            const { error } = await supabase
+                .from('school_settings')
+                .upsert([{ key, value: value ?? '' }], { onConflict: 'key' });
+            if (error) throw error;
+            setSettings((prev) => ({ ...prev, [key]: value }));
+            await queryClient.invalidateQueries({ queryKey: ['school-settings'] });
+            localStorage.removeItem('school_settings_cache');
+            toast({ title: 'บันทึก Logo สำเร็จ', description: 'Logo จะแสดงในทุกหน้าทันที' });
+        } catch (err: any) {
+            console.error('Auto-save logo error:', err);
+            toast({ variant: 'destructive', title: 'บันทึก Logo ล้มเหลว', description: err?.message });
+        }
+    };
+
     const handleSave = async () => {
         try {
             setSaving(true);
@@ -105,7 +121,7 @@ export const SettingsManagement = () => {
             </div>
 
             <div className="space-y-6">
-                <GeneralSection {...sectionProps} />
+                <GeneralSection {...sectionProps} onAutoSave={handleAutoSave} />
 
                 {/* Hero Slideshow — shortcut to dedicated manager */}
                 <Card>
