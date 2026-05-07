@@ -15,6 +15,39 @@ export const staffService = {
       .eq('staff_type', 'teaching')
       .order('order_position', { ascending: true }),
 
+  getAllPersonnel: async () => {
+    const [staffRes, adminsRes] = await Promise.all([
+      supabase
+        .from('staff')
+        .select('id, name, position, subject, photo_url, order_position, email, phone, department, staff_type')
+        .in('staff_type', ['teaching', 'support'])
+        .order('order_position', { ascending: true }),
+      supabase
+        .from('administrators')
+        .select('id, name, position, photo_url, order_position')
+        .order('order_position', { ascending: true }),
+    ]);
+
+    if (staffRes.error) return { data: null, error: staffRes.error };
+    if (adminsRes.error) return { data: null, error: adminsRes.error };
+
+    const admins = (adminsRes.data || []).map((a: any) => ({
+      ...a,
+      subject: null,
+      email: null,
+      phone: null,
+      department: null,
+      staff_type: 'admin' as const,
+      source: 'administrators' as const,
+    }));
+    const staff = (staffRes.data || []).map((s: any) => ({
+      ...s,
+      source: 'staff' as const,
+    }));
+
+    return { data: [...admins, ...staff], error: null };
+  },
+
   getTeacherAccountStatus: () =>
     supabase
       .from('user_roles')
