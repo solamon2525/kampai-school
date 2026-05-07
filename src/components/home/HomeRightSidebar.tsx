@@ -155,11 +155,11 @@ const fetchVisitorStats = async (): Promise<VisitorStats> => {
   const yearStart = new Date(now.getFullYear(), 0, 1).toISOString();
 
   const queries = await Promise.all([
-    supabase.from('page_views').select('*', { count: 'exact', head: true }).gte('created_at', today),
-    supabase.from('page_views').select('*', { count: 'exact', head: true }).gte('created_at', yesterday).lt('created_at', today),
-    supabase.from('page_views').select('*', { count: 'exact', head: true }).gte('created_at', weekAgo),
-    supabase.from('page_views').select('*', { count: 'exact', head: true }).gte('created_at', monthStart),
-    supabase.from('page_views').select('*', { count: 'exact', head: true }).gte('created_at', yearStart),
+    supabase.from('page_views').select('*', { count: 'exact', head: true }).gte('visited_at', today),
+    supabase.from('page_views').select('*', { count: 'exact', head: true }).gte('visited_at', yesterday).lt('visited_at', today),
+    supabase.from('page_views').select('*', { count: 'exact', head: true }).gte('visited_at', weekAgo),
+    supabase.from('page_views').select('*', { count: 'exact', head: true }).gte('visited_at', monthStart),
+    supabase.from('page_views').select('*', { count: 'exact', head: true }).gte('visited_at', yearStart),
     supabase.from('page_views').select('*', { count: 'exact', head: true }),
   ]);
 
