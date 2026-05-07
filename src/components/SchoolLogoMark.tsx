@@ -2,7 +2,7 @@ import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import { cn } from '@/lib/utils';
 
 interface SchoolLogoMarkProps {
-  /** Classes for the container — include size (w-*/h-*) and background */
+  /** Classes for the container — include size (w-N h-N) and background */
   className?: string;
   /** Classes for the fallback text shown when no logo URL is configured */
   fallbackClassName?: string;
