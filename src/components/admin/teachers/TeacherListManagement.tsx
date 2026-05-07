@@ -36,6 +36,7 @@ export function TeacherListManagement() {
   const [loading, setLoading] = useState(true);
   const [teacherStaffIds, setTeacherStaffIds] = useState<Set<string>>(new Set());
   const [adminStaffIds, setAdminStaffIds] = useState<Set<string>>(new Set());
+  const [adminAccountIds, setAdminAccountIds] = useState<Set<string>>(new Set());
 
   // Edit info dialog
   const [editTarget, setEditTarget] = useState<Teacher | null>(null);
@@ -69,14 +70,19 @@ export function TeacherListManagement() {
     const { data } = await staffService.getTeacherAccountStatus();
     const teacherSet = new Set<string>();
     const adminSet = new Set<string>();
-    (data || []).forEach((r) => {
+    const adminAccountSet = new Set<string>();
+    (data || []).forEach((r: any) => {
       if (r.staff_id) {
         if ((r.role as string) === 'admin') adminSet.add(r.staff_id as string);
         else teacherSet.add(r.staff_id as string);
       }
+      if (r.administrator_id && (r.role as string) === 'admin') {
+        adminAccountSet.add(r.administrator_id as string);
+      }
     });
     setTeacherStaffIds(teacherSet);
     setAdminStaffIds(adminSet);
+    setAdminAccountIds(adminAccountSet);
   };
 
   useEffect(() => {
@@ -137,14 +143,18 @@ export function TeacherListManagement() {
       return;
     }
     setActionLoading(true);
-    const { data, error } = await supabase.functions.invoke('create-teacher-account', {
-      body: { staffId: createTarget.id, email: createForm.email.trim(), password: createForm.password },
-    });
+    const isAdminSource = createTarget.source === 'administrators';
+    const fnName = isAdminSource ? 'create-admin-account' : 'create-teacher-account';
+    const body = isAdminSource
+      ? { administratorId: createTarget.id, email: createForm.email.trim(), password: createForm.password }
+      : { staffId: createTarget.id, email: createForm.email.trim(), password: createForm.password };
+    const { data, error } = await supabase.functions.invoke(fnName, { body });
     setActionLoading(false);
     if (error || data?.error) {
       toast({ title: 'สร้าง account ไม่สำเร็จ', description: data?.error ?? error?.message, variant: 'destructive' });
     } else {
-      toast({ title: 'สร้าง account สำเร็จ', description: `${createForm.email} เข้าสู่ระบบครูได้แล้ว` });
+      const portalText = isAdminSource ? 'เข้าระบบหลังบ้านได้แล้ว' : 'เข้าสู่ระบบครูได้แล้ว';
+      toast({ title: 'สร้าง account สำเร็จ', description: `${createForm.email} ${portalText}` });
       setIsCreateOpen(false);
       fetchTeachers();
       fetchAccountStatus();
@@ -169,9 +179,12 @@ export function TeacherListManagement() {
       return;
     }
     setActionLoading(true);
-    const { data, error } = await supabase.functions.invoke('reset-teacher-password', {
-      body: { staffId: resetTarget.id, newPassword: resetForm.password },
-    });
+    const isAdminSource = resetTarget.source === 'administrators';
+    const fnName = isAdminSource ? 'reset-admin-password' : 'reset-teacher-password';
+    const body = isAdminSource
+      ? { administratorId: resetTarget.id, newPassword: resetForm.password }
+      : { staffId: resetTarget.id, newPassword: resetForm.password };
+    const { data, error } = await supabase.functions.invoke(fnName, { body });
     setActionLoading(false);
     if (error || data?.error) {
       toast({ title: 'รีเซ็ตรหัสผ่านไม่สำเร็จ', description: data?.error ?? error?.message, variant: 'destructive' });
@@ -181,8 +194,10 @@ export function TeacherListManagement() {
     }
   };
 
-  const staffOnly = teachers.filter((t) => t.source === 'staff');
-  const withAccountCount = staffOnly.filter((t) => teacherStaffIds.has(t.id) || adminStaffIds.has(t.id)).length;
+  const withAccountCount = teachers.filter((t) => {
+    if (t.source === 'administrators') return adminAccountIds.has(t.id);
+    return teacherStaffIds.has(t.id) || adminStaffIds.has(t.id);
+  }).length;
 
   return (
     <div className="p-8 space-y-6">
@@ -193,16 +208,16 @@ export function TeacherListManagement() {
           <h1 className="text-2xl font-bold text-foreground">รายชื่อบุคลากร</h1>
         </div>
         <p className="text-sm text-muted-foreground">
-          ทั้งหมด {teachers.length} คน · ครู/ธุรการที่มี account{' '}
+          ทั้งหมด {teachers.length} คน · มี account แล้ว{' '}
           <span
             className={cn(
               'font-semibold',
-              withAccountCount === staffOnly.length && staffOnly.length > 0
+              withAccountCount === teachers.length && teachers.length > 0
                 ? 'text-green-600 dark:text-green-400'
                 : 'text-yellow-600 dark:text-yellow-400',
             )}
           >
-            {withAccountCount}/{staffOnly.length}
+            {withAccountCount}/{teachers.length}
           </span>{' '}
           คน
         </p>
@@ -250,6 +265,7 @@ export function TeacherListManagement() {
               {teachers.map((teacher) => {
                 const isAdmin = adminStaffIds.has(teacher.id);
                 const hasTeacherAccount = teacherStaffIds.has(teacher.id);
+                const hasAdminAccount = teacher.source === 'administrators' && adminAccountIds.has(teacher.id);
                 return (
                   <tr key={teacher.id} className="bg-card hover:bg-muted/30 transition-colors">
                     <td className="px-4 py-3 text-center font-mono text-muted-foreground">
@@ -297,7 +313,23 @@ export function TeacherListManagement() {
                     </td>
                     <td className="px-4 py-3">
                       {teacher.source === 'administrators' ? (
-                        <span className="text-xs text-muted-foreground italic">—</span>
+                        hasAdminAccount ? (
+                          <Badge
+                            variant="outline"
+                            className="border-amber-500 text-amber-700 dark:text-amber-400 gap-1 whitespace-nowrap"
+                          >
+                            <ShieldCheck className="h-3 w-3" />
+                            Admin
+                          </Badge>
+                        ) : (
+                          <Badge
+                            variant="outline"
+                            className="border-yellow-500 text-yellow-700 dark:text-yellow-400 gap-1 whitespace-nowrap"
+                          >
+                            <AlertCircle className="h-3 w-3" />
+                            ยังไม่มี
+                          </Badge>
+                        )
                       ) : isAdmin ? (
                         <Badge
                           variant="outline"
@@ -325,12 +357,8 @@ export function TeacherListManagement() {
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      {teacher.source === 'administrators' ? (
-                        <span className="text-xs text-muted-foreground italic">
-                          จัดการที่หน้าผู้บริหาร
-                        </span>
-                      ) : (
-                        <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1">
+                        {teacher.source === 'staff' && (
                           <Button
                             size="icon"
                             variant="ghost"
@@ -340,31 +368,53 @@ export function TeacherListManagement() {
                           >
                             <Pencil className="h-4 w-4" />
                           </Button>
-                          {!isAdmin && (
-                            hasTeacherAccount ? (
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="h-8 w-8 text-blue-600 dark:text-blue-400"
-                                title="รีเซ็ตรหัสผ่าน"
-                                onClick={() => openResetPassword(teacher)}
-                              >
-                                <KeyRound className="h-4 w-4" />
-                              </Button>
-                            ) : (
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="h-8 w-8 text-green-600 dark:text-green-400"
-                                title="สร้าง Account"
-                                onClick={() => openCreateAccount(teacher)}
-                              >
-                                <UserPlus className="h-4 w-4" />
-                              </Button>
-                            )
-                          )}
-                        </div>
-                      )}
+                        )}
+                        {teacher.source === 'administrators' ? (
+                          hasAdminAccount ? (
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-8 w-8 text-blue-600 dark:text-blue-400"
+                              title="รีเซ็ตรหัสผ่าน"
+                              onClick={() => openResetPassword(teacher)}
+                            >
+                              <KeyRound className="h-4 w-4" />
+                            </Button>
+                          ) : (
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-8 w-8 text-green-600 dark:text-green-400"
+                              title="สร้าง Account"
+                              onClick={() => openCreateAccount(teacher)}
+                            >
+                              <UserPlus className="h-4 w-4" />
+                            </Button>
+                          )
+                        ) : !isAdmin && (
+                          hasTeacherAccount ? (
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-8 w-8 text-blue-600 dark:text-blue-400"
+                              title="รีเซ็ตรหัสผ่าน"
+                              onClick={() => openResetPassword(teacher)}
+                            >
+                              <KeyRound className="h-4 w-4" />
+                            </Button>
+                          ) : (
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-8 w-8 text-green-600 dark:text-green-400"
+                              title="สร้าง Account"
+                              onClick={() => openCreateAccount(teacher)}
+                            >
+                              <UserPlus className="h-4 w-4" />
+                            </Button>
+                          )
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );

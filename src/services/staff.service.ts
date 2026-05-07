@@ -51,8 +51,8 @@ export const staffService = {
   getTeacherAccountStatus: () =>
     supabase
       .from('user_roles')
-      .select('staff_id, role')
-      .not('staff_id', 'is', null),
+      .select('staff_id, administrator_id, role')
+      .or('staff_id.not.is.null,administrator_id.not.is.null'),
 
   insert: (data: Record<string, unknown>) =>
     supabase.from('staff').insert(data as never),
