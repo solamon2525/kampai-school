@@ -302,30 +302,30 @@ const Enrollment = () => {
         <div className="min-h-screen bg-gray-100 print:hidden">
           <SiteHeader />
           <div className="max-w-7xl mx-auto w-full bg-background">
-          <section className="pt-32 pb-16">
+          <section className="py-6 md:py-8">
             <div className="container-school">
               <Card className="max-w-2xl mx-auto text-center">
-                <CardContent className="py-16">
-                  <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-green-100 flex items-center justify-center">
-                    <CheckCircle className="w-12 h-12 text-green-600" />
+                <CardContent className="py-8 md:py-10">
+                  <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-green-100 flex items-center justify-center">
+                    <CheckCircle className="w-8 h-8 text-green-600" />
                   </div>
-                  <h2 className="text-3xl font-bold text-foreground mb-4">สมัครเรียนสำเร็จ!</h2>
-                  <p className="text-muted-foreground mb-2">เราได้รับใบสมัครของคุณเรียบร้อยแล้ว</p>
-                  <p className="text-muted-foreground mb-8">
+                  <h2 className="text-xl md:text-2xl font-bold text-foreground mb-1.5">สมัครเรียนสำเร็จ!</h2>
+                  <p className="text-sm text-muted-foreground mb-1">เราได้รับใบสมัครของคุณเรียบร้อยแล้ว</p>
+                  <p className="text-sm text-muted-foreground mb-4">
                     หมายเลขใบสมัคร: <span className="font-bold text-primary">ENR-{settings.academic_year}-{Math.floor(Math.random() * 9000) + 1000}</span>
                   </p>
-                  <div className="bg-secondary rounded-lg p-6 mb-8 text-left">
-                    <h3 className="font-semibold mb-4">ขั้นตอนถัดไป:</h3>
-                    <ol className="space-y-2 text-sm text-muted-foreground">
+                  <div className="bg-secondary rounded-lg p-4 mb-4 text-left">
+                    <h3 className="font-semibold mb-2 text-sm">ขั้นตอนถัดไป:</h3>
+                    <ol className="space-y-1 text-xs md:text-sm text-muted-foreground">
                       <li>1. พิมพ์ใบสมัครและติดรูปถ่าย 1 นิ้ว</li>
                       <li>2. นำใบสมัครมายื่นที่โรงเรียนพร้อมเอกสารประกอบ</li>
                       <li>3. รอเข้าสอบวัดความรู้พื้นฐาน</li>
                       <li>4. ประกาศผลการคัดเลือก</li>
                     </ol>
                   </div>
-                  <div className="flex gap-4 justify-center">
-                    <Link to="/"><Button variant="outline" className="gap-2"><ArrowLeft className="w-4 h-4" />กลับหน้าหลัก</Button></Link>
-                    <Button onClick={() => window.print()} className="gap-2"><FileText className="w-4 h-4" />พิมพ์ใบสมัคร</Button>
+                  <div className="flex gap-2 justify-center">
+                    <Link to="/"><Button variant="outline" size="sm" className="gap-1.5"><ArrowLeft className="w-3.5 h-3.5" />กลับหน้าหลัก</Button></Link>
+                    <Button onClick={() => window.print()} size="sm" className="gap-1.5"><FileText className="w-3.5 h-3.5" />พิมพ์ใบสมัคร</Button>
                   </div>
                 </CardContent>
               </Card>
@@ -474,30 +474,30 @@ const Enrollment = () => {
       <SiteHeader />
       <div className="max-w-7xl mx-auto w-full bg-background">
 
-      {/* Hero Section */}
-      <section className="pt-32 pb-8 bg-gradient-to-br from-primary via-primary/90 to-primary/80">
+      {/* Hero Section — Compact (Rule 14.10) */}
+      <section className="py-5 md:py-7 bg-gradient-to-br from-primary via-primary/90 to-primary/80">
         <div className="container-school text-center">
-          <Badge className="mb-4 bg-accent/20 text-accent border-0">สมัครเรียน</Badge>
-          <h1 className="text-4xl md:text-5xl font-bold text-card mb-4">
+          <Badge className="mb-2 bg-accent/20 text-accent border-0">สมัครเรียน</Badge>
+          <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-card mb-1.5">
             สมัครเรียนออนไลน์
           </h1>
-          <p className="text-card/80 text-lg max-w-2xl mx-auto mb-6">
+          <p className="text-card/80 text-xs md:text-sm max-w-2xl mx-auto mb-3">
             ปีการศึกษา {settings.academic_year} | รับสมัครนักเรียนชั้น ม.1 และ ม.4
           </p>
 
-          {/* Search existing admission */}
-          <div className="max-w-md mx-auto bg-white/10 backdrop-blur rounded-lg p-4">
-            <p className="text-card/90 text-sm mb-2">ค้นหาใบสมัครที่ยื่นไปแล้ว</p>
+          {/* Search existing admission — compact */}
+          <div className="max-w-md mx-auto bg-white/10 backdrop-blur rounded-lg p-3">
+            <p className="text-card/90 text-xs mb-1.5">ค้นหาใบสมัครที่ยื่นไปแล้ว</p>
             <div className="flex gap-2">
               <Input
                 placeholder="ชื่อนักเรียน หรือ หมายเลขใบสมัคร"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-white/90 text-foreground"
+                className="bg-white/90 text-foreground h-9"
                 onKeyDown={(e) => e.key === 'Enter' && searchAdmission()}
               />
-              <Button onClick={searchAdmission} disabled={isSearching} variant="secondary" className="gap-2">
-                {isSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+              <Button onClick={searchAdmission} disabled={isSearching} variant="secondary" className="gap-1.5 h-9" size="sm">
+                {isSearching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Search className="w-3.5 h-3.5" />}
                 ค้นหา
               </Button>
             </div>
@@ -616,33 +616,33 @@ const Enrollment = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Progress Steps */}
-      <section className="py-8 bg-card border-b">
+      {/* Progress Steps — Compact (Rule 14.10) */}
+      <section className="py-4 bg-card border-b">
         <div className="container-school">
           <div className="flex items-center justify-center">
             {steps.map((step, index) => (
               <div key={step.id} className="flex items-center">
                 <div className="flex flex-col items-center">
                   <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${currentStep >= step.id
+                    className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${currentStep >= step.id
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-secondary text-muted-foreground'
                       }`}
                   >
                     {currentStep > step.id ? (
-                      <Check className="w-6 h-6" />
+                      <Check className="w-4 h-4" />
                     ) : (
-                      <step.icon className="w-6 h-6" />
+                      <step.icon className="w-4 h-4" />
                     )}
                   </div>
-                  <span className={`text-sm mt-2 hidden md:block ${currentStep >= step.id ? 'text-primary font-medium' : 'text-muted-foreground'
+                  <span className={`text-xs mt-1.5 hidden md:block ${currentStep >= step.id ? 'text-primary font-medium' : 'text-muted-foreground'
                     }`}>
                     {step.title}
                   </span>
                 </div>
                 {index < steps.length - 1 && (
                   <div
-                    className={`w-16 md:w-24 h-1 mx-2 rounded ${currentStep > step.id ? 'bg-primary' : 'bg-secondary'
+                    className={`w-10 md:w-16 h-0.5 mx-2 rounded ${currentStep > step.id ? 'bg-primary' : 'bg-secondary'
                       }`}
                   />
                 )}
@@ -652,30 +652,30 @@ const Enrollment = () => {
         </div>
       </section>
 
-      {/* Form Content */}
-      <section className="py-12">
+      {/* Form Content — Compact (Rule 14.10) */}
+      <section className="py-5 md:py-6">
         <div className="container-school">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <Card className="max-w-4xl mx-auto">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    {currentStep === 1 && <><User className="w-5 h-5" /> ข้อมูลนักเรียน</>}
-                    {currentStep === 2 && <><Users className="w-5 h-5" /> ข้อมูลผู้ปกครอง</>}
-                    {currentStep === 3 && <><BookOpen className="w-5 h-5" /> ข้อมูลการศึกษา</>}
-                    {currentStep === 4 && <><FileText className="w-5 h-5" /> ตรวจสอบและยืนยัน</>}
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    {currentStep === 1 && <><User className="w-4 h-4" /> ข้อมูลนักเรียน</>}
+                    {currentStep === 2 && <><Users className="w-4 h-4" /> ข้อมูลผู้ปกครอง</>}
+                    {currentStep === 3 && <><BookOpen className="w-4 h-4" /> ข้อมูลการศึกษา</>}
+                    {currentStep === 4 && <><FileText className="w-4 h-4" /> ตรวจสอบและยืนยัน</>}
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-xs">
                     {currentStep === 1 && 'กรอกข้อมูลส่วนตัวของนักเรียน'}
                     {currentStep === 2 && 'กรอกข้อมูลบิดาและมารดา'}
                     {currentStep === 3 && 'กรอกข้อมูลการศึกษาและแผนการเรียนที่ต้องการ'}
                     {currentStep === 4 && 'ตรวจสอบความถูกต้องของข้อมูลก่อนส่งใบสมัคร'}
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-4">
                   {/* Step 1: Student Info */}
                   {currentStep === 1 && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
                         name="prefix"
@@ -933,7 +933,7 @@ const Enrollment = () => {
                   {/* Step 3: Academic Info */}
                   {currentStep === 3 && (
                     <div className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField
                           control={form.control}
                           name="previousSchool"
@@ -1037,7 +1037,7 @@ const Enrollment = () => {
                   {/* Step 4: Review */}
                   {currentStep === 4 && (
                     <div className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Card>
                           <CardHeader>
                             <CardTitle className="text-base flex items-center gap-2">
