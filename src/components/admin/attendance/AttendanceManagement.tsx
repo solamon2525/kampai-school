@@ -40,6 +40,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { TableSkeleton, ListSkeleton } from '@/components/ui/loading-skeletons';
 import { EmptyState } from '@/components/ui/empty-state';
 import { NoPeopleIllustration, NoDataIllustration } from '@/components/ui/empty-illustrations';
+import { RecorderSelect, EMPTY_RECORDER, type RecorderValue } from '@/components/admin/shared/RecorderSelect';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -171,6 +172,7 @@ export const AttendanceManagement = () => {
   const [checkinLoading, setCheckinLoading] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
   const [dataLoaded, setDataLoaded] = useState(false);
+  const [recorder, setRecorder] = useState<RecorderValue>(EMPTY_RECORDER);
 
   const loadCheckin = async () => {
     if (!checkinClass) {
@@ -210,6 +212,10 @@ export const AttendanceManagement = () => {
 
   const saveAll = async () => {
     if (!dataLoaded || checkinStudents.length === 0) return;
+    if (!recorder.staffId && !recorder.administratorId) {
+      toast({ title: 'กรุณาเลือกผู้บันทึก', variant: 'destructive' });
+      return;
+    }
     setSaveLoading(true);
     try {
       const upserts = checkinStudents
@@ -219,7 +225,9 @@ export const AttendanceManagement = () => {
           attendance_date: checkinDate,
           status: attendanceMap[s.id],
           notes: null,
-          recorded_by: null,
+          recorded_by: recorder.name || null,
+          recorded_by_staff_id: recorder.staffId,
+          recorded_by_administrator_id: recorder.administratorId,
         }));
 
       if (upserts.length === 0) {
@@ -554,6 +562,12 @@ export const AttendanceManagement = () => {
                   )}
                   โหลดรายชื่อ
                 </Button>
+                <RecorderSelect
+                  value={recorder}
+                  onChange={setRecorder}
+                  required
+                  className="w-56"
+                />
               </div>
             </CardContent>
           </Card>

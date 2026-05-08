@@ -27,6 +27,8 @@ export type ConductInsert = {
   category: string;
   reason: string;
   recorded_by?: string | null;
+  recorded_by_staff_id?: string | null;
+  recorded_by_administrator_id?: string | null;
   academic_year: string;
   semester: string;
 };

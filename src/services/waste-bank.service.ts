@@ -27,6 +27,8 @@ export type WasteTransaction = {
   transaction_date: string;
   notes: string | null;
   recorded_by: string | null;
+  recorded_by_staff_id: string | null;
+  recorded_by_administrator_id: string | null;
   created_at: string;
   waste_categories?: { name: string; icon: string | null; color: string | null } | null;
   students?: { photo_url: string | null } | null;

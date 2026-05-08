@@ -153,6 +153,8 @@ export type Database = {
           id: string
           notes: string | null
           recorded_by: string | null
+          recorded_by_administrator_id: string | null
+          recorded_by_staff_id: string | null
           status: string
           student_id: string | null
           updated_at: string | null
@@ -163,6 +165,8 @@ export type Database = {
           id?: string
           notes?: string | null
           recorded_by?: string | null
+          recorded_by_administrator_id?: string | null
+          recorded_by_staff_id?: string | null
           status: string
           student_id?: string | null
           updated_at?: string | null
@@ -173,6 +177,8 @@ export type Database = {
           id?: string
           notes?: string | null
           recorded_by?: string | null
+          recorded_by_administrator_id?: string | null
+          recorded_by_staff_id?: string | null
           status?: string
           student_id?: string | null
           updated_at?: string | null
@@ -255,6 +261,8 @@ export type Database = {
           id: string
           reason: string
           recorded_by: string | null
+          recorded_by_administrator_id: string | null
+          recorded_by_staff_id: string | null
           score: number
           semester: string
           student_id: string
@@ -267,6 +275,8 @@ export type Database = {
           id?: string
           reason: string
           recorded_by?: string | null
+          recorded_by_administrator_id?: string | null
+          recorded_by_staff_id?: string | null
           score?: number
           semester?: string
           student_id: string
@@ -279,6 +289,8 @@ export type Database = {
           id?: string
           reason?: string
           recorded_by?: string | null
+          recorded_by_administrator_id?: string | null
+          recorded_by_staff_id?: string | null
           score?: number
           semester?: string
           student_id?: string
@@ -2178,6 +2190,8 @@ export type Database = {
           points_earned: number
           quantity: number
           recorded_by: string | null
+          recorded_by_administrator_id: string | null
+          recorded_by_staff_id: string | null
           student_class: string | null
           student_id: string | null
           student_name: string
@@ -2191,6 +2205,8 @@ export type Database = {
           points_earned: number
           quantity: number
           recorded_by?: string | null
+          recorded_by_administrator_id?: string | null
+          recorded_by_staff_id?: string | null
           student_class?: string | null
           student_id?: string | null
           student_name: string
@@ -2204,6 +2220,8 @@ export type Database = {
           points_earned?: number
           quantity?: number
           recorded_by?: string | null
+          recorded_by_administrator_id?: string | null
+          recorded_by_staff_id?: string | null
           student_class?: string | null
           student_id?: string | null
           student_name?: string

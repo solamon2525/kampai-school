@@ -21,6 +21,8 @@ export type AttendanceUpsert = {
   status: AttendanceStatus;
   notes?: string | null;
   recorded_by?: string | null;
+  recorded_by_staff_id?: string | null;
+  recorded_by_administrator_id?: string | null;
 };
 
 export const attendanceService = {

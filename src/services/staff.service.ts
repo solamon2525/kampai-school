@@ -54,6 +54,39 @@ export const staffService = {
       .select('staff_id, administrator_id, role')
       .or('staff_id.not.is.null,administrator_id.not.is.null'),
 
+  /** ตัวเลือกผู้บันทึก: ครู (staff_type=teaching) + ผอ. (administrators) — ไม่รวม support */
+  getRecorderOptions: async () => {
+    const [teachers, admins] = await Promise.all([
+      supabase
+        .from('staff')
+        .select('id, name, position, order_position')
+        .eq('staff_type', 'teaching')
+        .order('order_position', { ascending: true }),
+      supabase
+        .from('administrators')
+        .select('id, name, position, order_position')
+        .order('order_position', { ascending: true }),
+    ]);
+    if (teachers.error) return { data: null, error: teachers.error };
+    if (admins.error) return { data: null, error: admins.error };
+
+    const adminOptions = (admins.data ?? []).map((a: any) => ({
+      id: a.id as string,
+      name: a.name as string,
+      position: (a.position ?? null) as string | null,
+      order_position: (a.order_position ?? 0) as number,
+      source: 'administrator' as const,
+    }));
+    const teacherOptions = (teachers.data ?? []).map((t: any) => ({
+      id: t.id as string,
+      name: t.name as string,
+      position: (t.position ?? null) as string | null,
+      order_position: (t.order_position ?? 0) as number,
+      source: 'staff' as const,
+    }));
+    return { data: [...adminOptions, ...teacherOptions], error: null };
+  },
+
   insert: (data: Record<string, unknown>) =>
     supabase.from('staff').insert(data as never),
 

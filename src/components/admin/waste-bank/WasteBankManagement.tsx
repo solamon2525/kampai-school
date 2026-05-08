@@ -24,6 +24,7 @@ import type { WasteCategory, WasteTransaction, WasteStudentSummary } from '@/ser
 import { RewardsManagement } from './RewardsManagement';
 import { ClaimsApproval } from './ClaimsApproval';
 import { QRScannerDialog } from './QRScannerDialog';
+import { RecorderSelect, EMPTY_RECORDER, type RecorderValue } from '@/components/admin/shared/RecorderSelect';
 
 const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 
@@ -60,8 +61,8 @@ export const WasteBankManagement = () => {
     quantity: '',
     transaction_date: today,
     notes: '',
-    recorded_by: '',
   });
+  const [recorder, setRecorder] = useState<RecorderValue>(EMPTY_RECORDER);
 
   // ========== Tab 2: สรุปยอดสะสม ==========
   const [summaries, setSummaries] = useState<WasteStudentSummary[]>([]);
@@ -170,7 +171,9 @@ export const WasteBankManagement = () => {
       points_earned: points,
       transaction_date: form.transaction_date,
       notes: form.notes.trim() || null,
-      recorded_by: form.recorded_by.trim() || null,
+      recorded_by: recorder.name || null,
+      recorded_by_staff_id: recorder.staffId,
+      recorded_by_administrator_id: recorder.administratorId,
     });
     setIsSubmitting(false);
 
@@ -178,7 +181,8 @@ export const WasteBankManagement = () => {
       toast({ title: 'เกิดข้อผิดพลาด', description: error.message, variant: 'destructive' });
     } else {
       toast({ title: 'บันทึกรายการสำเร็จ', description: `${form.student_name} — ${qty} ชิ้น = ${points} แต้ม` });
-      setForm({ student_name: '', student_class: '', category_id: '', quantity: '', transaction_date: today, notes: '', recorded_by: '' });
+      setForm({ student_name: '', student_class: '', category_id: '', quantity: '', transaction_date: today, notes: '' });
+      // recorder ไม่ reset — auto-fill ของ login user คงอยู่ บันทึกรายการต่อๆ ได้เลย
       setSelectedStudentId('');
       setStudentOptions([]);
       setCalculatedPoints(null);
@@ -429,14 +433,7 @@ export const WasteBankManagement = () => {
                 </div>
 
                 {/* Recorded by */}
-                <div className="space-y-1">
-                  <Label>ผู้บันทึก</Label>
-                  <Input
-                    placeholder="ชื่อครูผู้บันทึก"
-                    value={form.recorded_by}
-                    onChange={(e) => handleFormChange('recorded_by', e.target.value)}
-                  />
-                </div>
+                <RecorderSelect value={recorder} onChange={setRecorder} />
 
                 {/* Notes */}
                 <div className="space-y-1 md:col-span-2">

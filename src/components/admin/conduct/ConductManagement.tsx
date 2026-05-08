@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Star, Plus, Minus, Trophy, History, Search, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
+import { RecorderSelect, EMPTY_RECORDER, type RecorderValue } from '../shared/RecorderSelect';
 import { TableSkeleton } from '@/components/ui/loading-skeletons';
 
 // ===== Constants =====
@@ -100,7 +101,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
     const [category, setCategory] = useState('');
     const [reason, setReason] = useState('');
     const [score, setScore] = useState('1');
-    const [recordedBy, setRecordedBy] = useState('');
+    const [recorder, setRecorder] = useState<RecorderValue>(EMPTY_RECORDER);
     const [semester, setSemester] = useState('1');
     const [academicYear, setAcademicYear] = useState(currentYear);
     const [isSaving, setIsSaving] = useState(false);
@@ -126,7 +127,9 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
             score: parseInt(score) || 1,
             category: category || (type === 'add' ? 'ความดี' : 'วินัย'),
             reason: reason.trim(),
-            recorded_by: recordedBy || null,
+            recorded_by: recorder.name || null,
+            recorded_by_staff_id: recorder.staffId,
+            recorded_by_administrator_id: recorder.administratorId,
             academic_year: academicYear,
             semester,
         });
@@ -186,10 +189,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                                 <Input value={academicYear} onChange={e => setAcademicYear(e.target.value)} />
                             </div>
                         </div>
-                        <div className="space-y-1">
-                            <Label>ผู้บันทึก (ครู)</Label>
-                            <Input placeholder="ชื่อครู" value={recordedBy} onChange={e => setRecordedBy(e.target.value)} />
-                        </div>
+                        <RecorderSelect label="ผู้บันทึก (ครู/ผอ.)" value={recorder} onChange={setRecorder} />
                     </CardContent>
                 </Card>
 
