@@ -32,12 +32,14 @@ const PageBuilder = lazy(() => import("./pages/admin/PageBuilder"));
 const Documents = lazy(() => import("./pages/Documents"));
 const WasteBank = lazy(() => import("./pages/WasteBank"));
 const WasteBankStats = lazy(() => import("./pages/WasteBankStats"));
+const RewardsCatalog = lazy(() => import("./pages/RewardsCatalog"));
 
 // Portals
 const TeacherDashboard = lazy(() => import("./pages/teacher/TeacherDashboard"));
 const TeacherSchedule = lazy(() => import("./pages/teacher/TeacherSchedule"));
 const TeacherAttendance = lazy(() => import("./pages/teacher/TeacherAttendance"));
 const TeacherScores = lazy(() => import("./pages/teacher/TeacherScores"));
+const TeacherRewardsApproval = lazy(() => import("./pages/teacher/TeacherRewardsApproval"));
 const ParentDashboard = lazy(() => import("./pages/parent/ParentDashboard"));
 const ParentChildView = lazy(() => import("./pages/parent/ParentChildView"));
 
@@ -94,6 +96,7 @@ const App = () => (
             <Route path="/documents" element={<Documents />} />
             <Route path="/waste-bank" element={<WasteBank />} />
             <Route path="/waste-bank/stats" element={<WasteBankStats />} />
+            <Route path="/waste-bank/rewards" element={<RewardsCatalog />} />
 
             {/* Teacher Portal */}
             <Route path="/teacher" element={
@@ -107,6 +110,9 @@ const App = () => (
             } />
             <Route path="/teacher/scores" element={
               <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherScores /></PortalProtectedRoute>
+            } />
+            <Route path="/teacher/rewards-approval" element={
+              <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherRewardsApproval /></PortalProtectedRoute>
             } />
 
             {/* Parent Portal */}

@@ -285,13 +285,22 @@ const WasteBank = () => {
           <p className="text-xs md:text-sm text-primary-foreground/75 max-w-2xl mx-auto">
             ส่งเสริมการคัดแยกขยะ สะสมแต้มแลกรางวัล ร่วมสร้างโรงเรียนสีเขียวไปด้วยกัน
           </p>
-          <Link
-            to="/waste-bank/stats"
-            className="inline-flex items-center gap-1.5 mt-3 px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/25 text-primary-foreground text-xs md:text-sm font-medium transition"
-          >
-            <BarChart3 className="w-4 h-4" />
-            ดูสถิติแบบละเอียด
-          </Link>
+          <div className="flex flex-wrap justify-center gap-2 mt-3">
+            <Link
+              to="/waste-bank/rewards"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-400 hover:bg-amber-300 text-amber-950 text-xs md:text-sm font-semibold transition shadow-sm"
+            >
+              <Gift className="w-4 h-4" />
+              ดูรางวัลที่แลกได้
+            </Link>
+            <Link
+              to="/waste-bank/stats"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/25 text-primary-foreground text-xs md:text-sm font-medium transition"
+            >
+              <BarChart3 className="w-4 h-4" />
+              ดูสถิติแบบละเอียด
+            </Link>
+          </div>
         </div>
       </section>
 

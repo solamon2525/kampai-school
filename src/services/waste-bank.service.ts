@@ -75,6 +75,14 @@ export type RewardClaim = {
   students?: { name: string; class: string; photo_url: string | null } | null;
 };
 
+export type StudentBalanceLookup = {
+  student_id: string;
+  full_name: string;
+  class_name: string | null;
+  photo_url: string | null;
+  available_points: number;
+};
+
 // ─── Categories ──────────────────────────────────────────────────────────────
 export const wasteCategoriesService = {
   getAll: () =>
@@ -232,4 +240,15 @@ export const rewardClaimsService = {
         rejection_reason: reason ?? null,
       } as never)
       .eq('id', id),
+
+  // Public RPC: lookup student balance by student_code (no auth)
+  lookupStudent: (code: string) =>
+    supabase
+      .rpc('lookup_student_balance' as never, { p_code: code } as never)
+      .returns<StudentBalanceLookup[]>(),
+
+  // Public RPC: create a pending claim by student_code (no auth)
+  // Returns claim_id (UUID) on success; throws Postgres exception on validation failure
+  claimByCode: (code: string, rewardId: string) =>
+    supabase.rpc('claim_reward' as never, { p_code: code, p_reward_id: rewardId } as never),
 };

@@ -216,8 +216,20 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.8.4 (Compact Spacing + Staff Card Polish)',
+        version: 'v1.8.5 (Public Rewards Catalog + Teacher Approval)',
         date: 'ล่าสุด',
+        badge: 'bg-amber-400',
+        items: [
+            'หน้าแลกรางวัลสาธารณะ /waste-bank/rewards — แสดงรางวัลทั้งหมด auto-bucket ตามคะแนน 4 ระดับ (🌱 0–50 / 🌿 51–150 / 🌳 151–300 / 🏆 301+) นักเรียนกรอกรหัสนักเรียนเพื่อแลกได้เอง ครูอนุมัติทีหลัง',
+            'Teacher Portal เพิ่มเมนู "อนุมัติรางวัล" /teacher/rewards-approval — reuse <ClaimsApproval /> component ครูทุกคน (role=teacher) อนุมัติ/ปฏิเสธคำขอแลกรางวัลได้ ไม่ต้องเป็น admin',
+            'Migration 031_reward_claim_public_rpc.sql เพิ่ม 2 RPC: lookup_student_balance(code) คืนข้อมูลนักเรียน+แต้มคงเหลือ, claim_reward(code, reward_id) สร้างคำขอ pending — ทั้งคู่ SECURITY DEFINER + grant ให้ anon เพื่อไม่ต้องเปิด INSERT policy บน reward_claims',
+            'Components ใหม่: <RewardCard />, <RewardClaimDialog /> (modal 2-step ตรวจรหัส→ยืนยัน), tier auto-bucket helper — design เน้น "เห็นเป้าหมายชัด แลกเองได้"',
+            'WasteBank.tsx Hero CTA เพิ่มปุ่ม "ดูรางวัลที่แลกได้" สีทอง คู่กับ "ดูสถิติแบบละเอียด"',
+        ],
+    },
+    {
+        version: 'v1.8.4 (Compact Spacing + Staff Card Polish)',
+        date: '',
         badge: 'bg-emerald-400',
         items: [
             'Compact Spacing ทุกหน้า public (7 หน้า): Hero py-16/py-6 md:py-8 → py-2 md:py-6, Main sections py-8 md:py-12 → py-4 md:py-8, Contact cards py-12 → py-4 md:py-6 — ลบ section-padding utility ออกแทนด้วย explicit py — ใช้กับ About, AcademicCalendar, Contact, Curriculum, Documents, Events, News',

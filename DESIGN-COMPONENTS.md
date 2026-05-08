@@ -203,3 +203,38 @@ DESIGN.md ครอบคลุม: theme, palette, contrast, typography, UX rul
    - Section heading: `text-base font-bold mb-3 pb-2 border-b border-primary-foreground/15`
      (ใช้ subtle bottom border แทนการเว้น margin เยอะ)
    - Body text: `text-sm` (ห้าม default 1rem ใน footer ดูใหญ่เกิน)
+
+---
+
+## Rewards Catalog (Public)
+
+### `<RewardCard reward={...} onClaim={...} />`
+- Path: `src/components/rewards/RewardCard.tsx`
+- Square aspect image (fallback `<Gift>` icon บน gradient ของ tier)
+- Top-left badge = **tier** (emoji + label) — สีตาม `tierFor(points_cost)`
+- Top-right badge = **stock** ถ้า `stock !== null` (สีแดงเมื่อหมด)
+- Bottom: ชื่อ + description (line-clamp-2) + แต้ม + ปุ่ม "แลกรางวัล"
+- Hover: `-translate-y-1 hover:shadow-xl`
+
+### `<RewardClaimDialog reward open onOpenChange />`
+- Path: `src/components/rewards/RewardClaimDialog.tsx`
+- 2-step flow ใน Dialog เดียว:
+  1. กรอก `student_code` → ปุ่ม "ตรวจสอบ" → เรียก RPC `lookup_student_balance`
+  2. Preview ชื่อ + แต้มคงเหลือ + การ์ดเตือนถ้าแต้มไม่พอ → ปุ่ม "ยืนยันส่งคำขอ" → เรียก RPC `claim_reward`
+- Error mapping: `STUDENT_NOT_FOUND` / `REWARD_UNAVAILABLE` / `INSUFFICIENT_POINTS` / `OUT_OF_STOCK` → ภาษาไทย
+- Reset state ทุกครั้งที่เปิดใหม่
+
+### Tier auto-bucket (`src/components/rewards/tier.ts`)
+| Key | Emoji | Label | Range | Badge classes |
+|---|---|---|---|---|
+| `starter` | 🌱 | ระดับเริ่มต้น | 0–50 | `bg-lime-100 text-lime-700` |
+| `good` | 🌿 | ระดับดี | 51–150 | `bg-emerald-100 text-emerald-700` |
+| `great` | 🌳 | ระดับเยี่ยม | 151–300 | `bg-teal-100 text-teal-700` |
+| `elite` | 🏆 | ระดับเลิศ | 301+ | `bg-amber-100 text-amber-700` |
+
+ใช้ `tierFor(points_cost)` เพื่อ map คะแนน → tier ทั้งใน `RewardCard` (สี+badge) และ `RewardsCatalog` (grouping)
+
+### กฎ Public Claim flow (security)
+- **ห้ามเปิด INSERT policy บน `reward_claims`** ให้ anon ตรงๆ — ใช้ SECURITY DEFINER RPC `claim_reward(p_code, p_reward_id)` แทน
+- Validation ทั้งหมด (student lookup, balance, stock, active) อยู่ใน RPC ฝั่ง DB — ไม่เชื่อ client
+- Migration: `supabase/migrations/031_reward_claim_public_rpc.sql`
