@@ -216,8 +216,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.8.5 (Public Rewards Catalog + Teacher Approval)',
+        version: 'v1.8.7 (Compact Rewards Catalog + Rules 14.10–14.12)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-500',
+        items: [
+            'Rewards Catalog refactor — compact hero (`py-5 md:py-7`, headline `text-xl md:text-2xl`), wrap ใน `max-w-7xl mx-auto` ตรงกับ SiteHeader, ลบ tier overview strip + per-tier sections, เปลี่ยนเป็น single grid + sticky category chip filter (เลื่อน horizontal บน mobile)',
+            'Mobile fit: grid `grid-cols-2 sm:grid-cols-3 md:grid-cols-4`, chip strip `overflow-x-auto whitespace-nowrap`, ปุ่ม CTA hero ใช้ `size="sm" h-8`',
+            'Migration 032 + admin form: เพิ่ม `category` column ใน rewards table (TEXT) + datalist 5 ตัวเลือก (เครื่องเขียน/ขนม/กีฬา/ของเล่น/อื่นๆ) — admin พิมพ์เองได้, public derive distinct values เป็น chip',
+            'DESIGN.md เพิ่ม Rule 14.10 (compact spacing) / 14.11 (container constraint, ห้าม container mx-auto) / 14.12 (AI ต้องถามก่อนตัดสินใจสิ่งนอกเหนือคำสั่ง) — battle-tested จาก feedback v1 ที่หน้านี้ล้นกรอบ + กินพื้นที่เกิน',
+        ],
+    },
+    {
+        version: 'v1.8.5 (Public Rewards Catalog + Teacher Approval)',
+        date: '',
         badge: 'bg-amber-400',
         items: [
             'หน้าแลกรางวัลสาธารณะ /waste-bank/rewards — แสดงรางวัลทั้งหมด auto-bucket ตามคะแนน 4 ระดับ (🌱 0–50 / 🌿 51–150 / 🌳 151–300 / 🏆 301+) นักเรียนกรอกรหัสนักเรียนเพื่อแลกได้เอง ครูอนุมัติทีหลัง',

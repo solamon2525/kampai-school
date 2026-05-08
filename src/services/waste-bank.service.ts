@@ -54,6 +54,7 @@ export type Reward = {
   stock: number | null;
   is_active: boolean | null;
   order_position: number | null;
+  category: string | null;
   created_at?: string;
   updated_at?: string;
 };

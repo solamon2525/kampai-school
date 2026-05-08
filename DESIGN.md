@@ -404,6 +404,68 @@ overrides defaults from src/index.css → all Tailwind tokens reflect
 
 **เหตุผล:** ป้องกันเอกสารหลุด/ล้าสมัย → session ใหม่อ่าน docs แล้วได้ context ปัจจุบันจริง
 
+### Rule 14.10 — Compact spacing (หน้า public ทุกหน้า)
+
+หน้า public ใช้พื้นที่ vertical ให้น้อยที่สุด — เน้น **"directory"** ไม่ใช่ "showroom":
+
+| ส่วน | กฎ | ห้าม |
+|---|---|---|
+| Hero | `py-5 md:py-7` หรือ `py-6 md:py-8` (compact pattern เดียวกับ WasteBank.tsx) | `py-16` / `py-20` / `py-24` |
+| Hero headline | `text-xl md:text-2xl lg:text-3xl` 1 บรรทัด | `text-4xl/5xl` หรือใส่ `<br>` ขึ้น 2 บรรทัด |
+| Description | `text-xs md:text-sm` 1–2 บรรทัด | paragraph ยาว ≥ 3 บรรทัด |
+| Section gap | `py-5` หรือ `py-6 md:py-8` (ระหว่าง section) | `py-12` ขึ้นไป |
+| List item gap | `gap-2` หรือ `gap-3` | `gap-6` ขึ้นไป |
+| Button height | `h-8` (size="sm") บน hero CTA | `size="lg"` ที่กิน vertical space |
+
+**เหตุผล:** หน้า rewards v1 ใช้ `py-16 md:py-20` + headline 4xl/5xl — มือถือต้อง scroll ไกลก่อนเห็น content จริง user feedback ตรงๆ ว่า "ใช้พื้นที่มากเกินไป" — refactor ใน v1.8.7 ลด vertical height ของ above-fold ลงเกิน 50%
+
+**ข้อยกเว้น:** หน้า marketing/landing พิเศษที่ต้องการ "showcase feel" (เช่น Index, About) — ใช้ hero `py-12 md:py-16` ได้
+
+### Rule 14.11 — Container constraint (ห้ามล้นกรอบ)
+
+ทุกหน้า public ที่ render หลัง `<SiteHeader />` **ต้อง wrap content ใน `max-w-7xl mx-auto`** ตาม pattern ของ WasteBank.tsx:
+
+```tsx
+<div className="min-h-screen flex flex-col bg-background">
+  <SiteHeader />
+  <div className="max-w-7xl mx-auto w-full bg-background flex-grow flex flex-col">
+    {/* hero + content + sections ทุกอย่างไว้ในนี้ */}
+  </div>
+  <Footer />
+</div>
+```
+
+**ห้าม:**
+- ❌ ใช้ `container mx-auto` (Tailwind `container` ขยายถึง 1536px ที่ breakpoint `2xl` — ไม่ตรงกับ SiteHeader ที่ใช้ `max-w-7xl` = 1280px)
+- ❌ Hero / section อยู่ระดับเดียวกับ `<SiteHeader />` แล้วใช้ full-width gradient (จะล้นเกินกรอบบนจอกว้าง)
+
+**เหตุผล:** หน้า rewards v1 ใช้ `container mx-auto` → จอกว้าง > 1280px เนื้อหาขยายเลยกรอบ SiteHeader → user mark ว่า "ล้นขอบจอ" ใน screenshot v1.8.7
+
+**ตรวจสอบ:** เปิดหน้าใหม่ที่ viewport ≥ 1400px → ขอบเนื้อหาต้องตรงแนวเดียวกับขอบ SiteHeader (logo ซ้าย / menu ขวา)
+
+### Rule 14.12 — ถามก่อนตัดสินใจสิ่งที่นอกเหนือคำสั่ง (AI agent rule)
+
+เวลา user สั่งงานสร้าง/แก้หน้า ถ้า requirement ไม่ครบหรือต้องตัดสินใจสำคัญที่ user ไม่ได้ระบุ — **AI ต้องถามก่อน ห้ามเดาเอง**
+
+**ตัวอย่างที่ต้องถาม:**
+- Layout pattern ของ hero (centered / split / asymmetric) ถ้า user ไม่ได้บอก
+- Filter dimension (tier vs category vs ทั้งคู่) ถ้า user ไม่ได้ระบุ
+- การ remove section ที่มีอยู่ vs เพิ่มใหม่ทับ
+- Data source / schema change (เพิ่ม column ใหม่หรือใช้ของเดิม)
+- Public vs portal-protected route
+- Default values (เช่น list ของ category options ที่มีให้เลือก)
+- Spacing/density (compact directory vs spacious showroom) ถ้าไม่ระบุ → default เป็น compact (Rule 14.10)
+
+**ใช้ `AskUserQuestion` tool** ใน Plan Mode (Phase 1 / Phase 3) — ส่ง 1-4 คำถามชัดเจนพร้อม options
+
+**ข้อยกเว้นที่ตัดสินใจเองได้ (ไม่ต้องถาม):**
+- Implementation detail (variable name, helper function ordering)
+- Bug fix แบบ obvious (typo, missing import)
+- Style refactor ที่ไม่กระทบ behavior
+- Convention ที่ codebase กำหนดไว้แล้ว (เช่น CLAUDE.md / DESIGN.md rule ระบุชัด)
+
+**เหตุผล:** หน้า rewards v1 AI เลือกใช้ tier-based grouping + emerald gradient hero + 4-col tier overview strip โดยไม่ได้ถาม — user feedback หลังเห็น production ว่า "ไม่ใช่สิ่งที่ต้องการ" → เสีย time + commit cycles แก้ทับ (v1.8.7 refactor) ครั้งหน้าให้ถามก่อน ไม่ตีความเอง
+
 ---
 
 ## 15. Spacing & Layout

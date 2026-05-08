@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Gift, Recycle, Search, Sparkles } from 'lucide-react';
+import { ArrowLeft, BarChart3, Gift, Search, Sparkles } from 'lucide-react';
 import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
 import { SEOHead } from '@/components/SEOHead';
@@ -20,13 +20,13 @@ import { rewardsService, rewardClaimsService } from '@/services/waste-bank.servi
 import type { Reward, StudentBalanceLookup } from '@/services/waste-bank.service';
 import { RewardCard } from '@/components/rewards/RewardCard';
 import { RewardClaimDialog } from '@/components/rewards/RewardClaimDialog';
-import { TIERS, tierFor } from '@/components/rewards/tier';
 import { cn } from '@/lib/utils';
 
 export default function RewardsCatalog() {
   const [selected, setSelected] = useState<Reward | null>(null);
   const [claimOpen, setClaimOpen] = useState(false);
   const [balanceOpen, setBalanceOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   const { data: rewards = [], isLoading } = useQuery({
     queryKey: ['rewards', 'active'],
@@ -37,19 +37,21 @@ export default function RewardsCatalog() {
     },
   });
 
-  // Group rewards by auto-bucket tier
-  const grouped = useMemo(() => {
-    const map: Record<string, Reward[]> = { starter: [], good: [], great: [], elite: [] };
+  // Distinct categories from active rewards (sorted alphabetically)
+  const categories = useMemo(() => {
+    const set = new Set<string>();
     for (const r of rewards) {
-      const t = tierFor(r.points_cost);
-      map[t.key].push(r);
+      if (r.category && r.category.trim()) set.add(r.category);
     }
-    // Sort each tier by points_cost asc
-    for (const key of Object.keys(map)) {
-      map[key].sort((a, b) => a.points_cost - b.points_cost);
-    }
-    return map;
+    return Array.from(set).sort();
   }, [rewards]);
+
+  // Filtered + sorted (points asc within filter)
+  const filtered = useMemo(() => {
+    const sorted = [...rewards].sort((a, b) => a.points_cost - b.points_cost);
+    if (activeCategory === null) return sorted;
+    return sorted.filter((r) => r.category === activeCategory);
+  }, [rewards, activeCategory]);
 
   const handleClaim = (reward: Reward) => {
     setSelected(reward);
@@ -58,148 +60,144 @@ export default function RewardsCatalog() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <SEOHead title="แลกของรางวัล - ธนาคารขยะ" description="ใช้แต้มสะสมจากธนาคารขยะแลกของรางวัลจากทางโรงเรียน" />
+      <SEOHead
+        title="แลกของรางวัล - ธนาคารขยะ"
+        description="ใช้แต้มสะสมจากธนาคารขยะแลกของรางวัลจากทางโรงเรียน"
+      />
       <SiteHeader />
 
-      {/* ── Hero ──────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 text-white">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(255,255,255,0.15),_transparent_60%)]" />
-        <div className="container mx-auto px-4 py-16 md:py-20 relative">
-          <Link
-            to="/waste-bank"
-            className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm mb-6 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            กลับไปธนาคารขยะ
-          </Link>
-
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/30 rounded-full px-4 py-1.5 text-sm mb-4">
-              <Gift className="w-4 h-4" />
-              ห้องของรางวัล
-            </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
-              แลกของรางวัล
-              <br />
-              ด้วยแต้มจากธนาคารขยะ
+      {/* max-w-7xl wrapper — Rule 14.11: ห้ามล้นกรอบ */}
+      <div className="max-w-7xl mx-auto w-full bg-background flex-grow flex flex-col">
+        {/* ── Compact Hero (Rule 14.10) ─────────────────────────────────── */}
+        <section className="bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 text-white py-5 md:py-7">
+          <div className="px-4">
+            <Link
+              to="/waste-bank"
+              className="inline-flex items-center gap-1.5 text-white/80 hover:text-white text-xs md:text-sm mb-2 transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              กลับไปธนาคารขยะ
+            </Link>
+            <h1 className="text-xl md:text-2xl lg:text-3xl font-bold leading-tight">
+              <Gift className="inline w-5 h-5 md:w-6 md:h-6 mr-1.5 -mt-1" />
+              แลกของรางวัลด้วยแต้มจากธนาคารขยะ
             </h1>
-            <p className="text-lg text-white/90 max-w-2xl">
-              เก็บขยะ → สะสมแต้ม → แลกของรางวัลได้เอง
-              <br />
-              กรอกรหัสนักเรียนเพื่อตรวจแต้มและส่งคำขอ ครูจะอนุมัติให้
+            <p className="text-xs md:text-sm text-white/85 mt-1.5 max-w-2xl">
+              เก็บขยะ → สะสมแต้ม → แลกได้เอง · กรอกรหัสนักเรียนเพื่อตรวจแต้มและส่งคำขอ
             </p>
-
-            <div className="flex flex-wrap gap-3 mt-6">
+            <div className="flex flex-wrap gap-2 mt-3">
               <Button
-                size="lg"
+                size="sm"
                 onClick={() => setBalanceOpen(true)}
-                className="bg-white text-emerald-700 hover:bg-white/90 font-semibold"
+                className="bg-white text-emerald-700 hover:bg-white/90 font-semibold h-8"
               >
-                <Search className="w-5 h-5 mr-2" />
+                <Search className="w-3.5 h-3.5 mr-1.5" />
                 ตรวจสอบแต้มของฉัน
               </Button>
-              <Link to="/waste-bank">
+              <Link to="/waste-bank/stats">
                 <Button
-                  size="lg"
+                  size="sm"
                   variant="outline"
-                  className="border-white/40 text-white hover:bg-white/10 hover:text-white"
+                  className="border-white/40 text-white hover:bg-white/10 hover:text-white h-8"
                 >
-                  <Recycle className="w-5 h-5 mr-2" />
-                  ดูสถิติธนาคารขยะ
+                  <BarChart3 className="w-3.5 h-3.5 mr-1.5" />
+                  ดูสถิติ
                 </Button>
               </Link>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ── Tier overview ─────────────────────────────────────────────────── */}
-      <section className="border-b border-border bg-muted/30">
-        <div className="container mx-auto px-4 py-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {TIERS.map((t) => (
-              <a
-                key={t.key}
-                href={`#tier-${t.key}`}
-                className={cn(
-                  'flex items-center gap-3 p-3 rounded-xl border border-border bg-card',
-                  'hover:shadow-md hover:-translate-y-0.5 transition-all',
-                )}
+        {/* ── Sticky Category chip filter ───────────────────────────────── */}
+        <section className="sticky top-0 z-10 bg-background border-b border-border">
+          <div
+            className="px-4 py-2.5 overflow-x-auto"
+            style={{ scrollbarWidth: 'none' }}
+          >
+            <div className="flex gap-2 min-w-max">
+              <CategoryChip
+                active={activeCategory === null}
+                onClick={() => setActiveCategory(null)}
               >
-                <span className="text-2xl">{t.emoji}</span>
-                <div className="min-w-0">
-                  <div className="font-semibold text-sm truncate">{t.label}</div>
-                  <div className="text-xs text-muted-foreground">{t.range}</div>
-                </div>
-              </a>
-            ))}
+                ทั้งหมด
+              </CategoryChip>
+              {categories.map((c) => (
+                <CategoryChip
+                  key={c}
+                  active={activeCategory === c}
+                  onClick={() => setActiveCategory(c)}
+                >
+                  {c}
+                </CategoryChip>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ── Tier sections ─────────────────────────────────────────────────── */}
-      <main className="flex-1 container mx-auto px-4 py-8 space-y-12">
-        {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="aspect-[3/4] rounded-2xl bg-muted animate-pulse" />
-            ))}
-          </div>
-        ) : rewards.length === 0 ? (
-          <Card>
-            <CardContent className="py-16 text-center">
-              <Gift className="w-12 h-12 mx-auto text-muted-foreground/40 mb-3" />
-              <p className="text-muted-foreground">ยังไม่มีของรางวัล กรุณากลับมาใหม่เร็วๆ นี้</p>
-            </CardContent>
-          </Card>
-        ) : (
-          TIERS.map((tier) => {
-            const items = grouped[tier.key] ?? [];
-            return (
-              <section key={tier.key} id={`tier-${tier.key}`} className="scroll-mt-20">
-                <div className="flex items-end justify-between mb-4">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-3xl">{tier.emoji}</span>
-                      <h2 className="text-2xl font-bold text-foreground">{tier.label}</h2>
-                    </div>
-                    <p className="text-sm text-muted-foreground ml-11">{tier.range}</p>
-                  </div>
-                  <span className="text-xs text-muted-foreground">
-                    {items.length} {items.length === 1 ? 'รางวัล' : 'รางวัล'}
-                  </span>
-                </div>
-
-                {items.length === 0 ? (
-                  <div className="rounded-2xl border-2 border-dashed border-border py-10 text-center text-sm text-muted-foreground">
-                    <Sparkles className="w-6 h-6 mx-auto opacity-40 mb-2" />
-                    ยังไม่มีรางวัลในระดับนี้
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {items.map((r) => (
-                      <RewardCard key={r.id} reward={r} onClaim={handleClaim} />
-                    ))}
-                  </div>
-                )}
-              </section>
-            );
-          })
-        )}
-      </main>
+        {/* ── Single grid (sorted by points asc) ────────────────────────── */}
+        <main className="flex-1 px-4 py-5 md:py-6">
+          {isLoading ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="aspect-[3/4] rounded-2xl bg-muted animate-pulse" />
+              ))}
+            </div>
+          ) : filtered.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <Gift className="w-10 h-10 mx-auto text-muted-foreground/40 mb-2" />
+                <p className="text-sm text-muted-foreground">
+                  {activeCategory === null
+                    ? 'ยังไม่มีของรางวัล กรุณากลับมาใหม่เร็วๆ นี้'
+                    : `ยังไม่มีรางวัลในหมวด "${activeCategory}"`}
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {filtered.map((r) => (
+                <RewardCard key={r.id} reward={r} onClaim={handleClaim} />
+              ))}
+            </div>
+          )}
+        </main>
+      </div>
 
       <Footer />
 
-      {/* ── Claim dialog ──────────────────────────────────────────────────── */}
       <RewardClaimDialog reward={selected} open={claimOpen} onOpenChange={setClaimOpen} />
-
-      {/* ── Balance check dialog ──────────────────────────────────────────── */}
       <BalanceCheckDialog open={balanceOpen} onOpenChange={setBalanceOpen} />
     </div>
   );
 }
 
-// ─── Inline subcomponent: balance check (read-only lookup, no claim) ─────────
+// ─── CategoryChip (inline) ──────────────────────────────────────────────────
+function CategoryChip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      type="button"
+      className={cn(
+        'flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs md:text-sm font-medium transition-colors whitespace-nowrap',
+        active
+          ? 'bg-primary text-primary-foreground shadow-sm'
+          : 'bg-muted text-foreground hover:bg-muted/70 border border-border',
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+
+// ─── Inline subcomponent: balance check (read-only lookup, no claim) ────────
 function BalanceCheckDialog({
   open,
   onOpenChange,

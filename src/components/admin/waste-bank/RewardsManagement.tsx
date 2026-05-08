@@ -25,6 +25,7 @@ export const RewardsManagement = () => {
     points_cost: '',
     stock: '',
     is_active: true,
+    category: '',
   });
 
   useEffect(() => { fetchAll(); }, []);
@@ -36,7 +37,7 @@ export const RewardsManagement = () => {
 
   const openAdd = () => {
     setEditing(null);
-    setForm({ name: '', description: '', image_url: '', points_cost: '', stock: '', is_active: true });
+    setForm({ name: '', description: '', image_url: '', points_cost: '', stock: '', is_active: true, category: '' });
     setShowForm(true);
   };
 
@@ -49,6 +50,7 @@ export const RewardsManagement = () => {
       points_cost: String(r.points_cost),
       stock: r.stock !== null && r.stock !== undefined ? String(r.stock) : '',
       is_active: r.is_active ?? true,
+      category: r.category ?? '',
     });
     setShowForm(true);
   };
@@ -91,6 +93,7 @@ export const RewardsManagement = () => {
       stock,
       is_active: form.is_active,
       order_position: editing?.order_position ?? 99,
+      category: form.category.trim() || null,
     };
 
     const { error } = editing
@@ -174,6 +177,23 @@ export const RewardsManagement = () => {
                   />
                   <label htmlFor="is_active" className="text-sm">เปิดให้แลก</label>
                 </div>
+              </div>
+              <div className="space-y-1 md:col-span-2">
+                <Label>ประเภทรางวัล (สำหรับ chip filter ในหน้าสาธารณะ)</Label>
+                <Input
+                  list="reward-category-suggestions"
+                  placeholder="เช่น เครื่องเขียน, ขนมและเครื่องดื่ม"
+                  value={form.category}
+                  onChange={(e) => setForm((p) => ({ ...p, category: e.target.value }))}
+                />
+                <datalist id="reward-category-suggestions">
+                  <option value="เครื่องเขียน" />
+                  <option value="ขนมและเครื่องดื่ม" />
+                  <option value="อุปกรณ์กีฬา" />
+                  <option value="ของเล่น" />
+                  <option value="อื่นๆ" />
+                </datalist>
+                <p className="text-xs text-muted-foreground">เว้นว่างได้ — รางวัลจะอยู่ใน &quot;ทั้งหมด&quot; แต่ไม่ขึ้น chip</p>
               </div>
               <div className="space-y-1 md:col-span-2">
                 <Label>คำอธิบาย</Label>
