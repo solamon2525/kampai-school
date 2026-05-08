@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { staffService } from '@/services/staff.service';
+import { staffService, administratorsService } from '@/services/staff.service';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -13,8 +13,30 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Pencil, Users, AlertCircle, UserPlus, KeyRound, ShieldCheck } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Pencil,
+  Users,
+  AlertCircle,
+  UserPlus,
+  KeyRound,
+  ShieldCheck,
+  Plus,
+  Trash2,
+  GraduationCap,
+  Briefcase,
+  UserCog,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ImageUpload } from '@/components/admin/shared/ImageUpload';
+import { ConfirmDialog } from '@/components/admin/shared/ConfirmDialog';
+import { deleteStorageImage } from '@/utils/storageUtils';
 
 interface Teacher {
   id: string;
@@ -30,6 +52,32 @@ interface Teacher {
   source: 'staff' | 'administrators';
 }
 
+type PersonnelKind = 'teaching' | 'support' | 'admin';
+
+const KIND_META: Record<PersonnelKind, { label: string; source: 'staff' | 'administrators'; icon: typeof GraduationCap }> = {
+  teaching: { label: 'ครู', source: 'staff', icon: GraduationCap },
+  support: { label: 'เจ้าหน้าที่สนับสนุน', source: 'staff', icon: Briefcase },
+  admin: { label: 'ผู้บริหาร', source: 'administrators', icon: UserCog },
+};
+
+interface FormState {
+  name: string;
+  position: string;
+  photo_url: string;
+  email: string;
+  order_position: string;
+  subject: string;
+}
+
+const EMPTY_FORM: FormState = {
+  name: '',
+  position: '',
+  photo_url: '',
+  email: '',
+  order_position: '99',
+  subject: '',
+};
+
 export function TeacherListManagement() {
   const { toast } = useToast();
   const [teachers, setTeachers] = useState<Teacher[]>([]);
@@ -38,11 +86,19 @@ export function TeacherListManagement() {
   const [adminStaffIds, setAdminStaffIds] = useState<Set<string>>(new Set());
   const [adminAccountIds, setAdminAccountIds] = useState<Set<string>>(new Set());
 
-  // Edit info dialog
-  const [editTarget, setEditTarget] = useState<Teacher | null>(null);
-  const [isEditOpen, setIsEditOpen] = useState(false);
+  // Unified form (add + edit)
+  const [formOpen, setFormOpen] = useState(false);
+  const [formMode, setFormMode] = useState<'add' | 'edit'>('add');
+  const [formKind, setFormKind] = useState<PersonnelKind>('teaching');
+  const [formEditingId, setFormEditingId] = useState<string | null>(null);
+  const [formData, setFormData] = useState<FormState>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
-  const [editForm, setEditForm] = useState({ email: '', position: '', subject: '', phone: '' });
+
+  // Type picker (before add)
+  const [pickerOpen, setPickerOpen] = useState(false);
+
+  // Delete confirm
+  const [deleteTarget, setDeleteTarget] = useState<Teacher | null>(null);
 
   // Create account dialog
   const [createTarget, setCreateTarget] = useState<Teacher | null>(null);
@@ -90,35 +146,121 @@ export function TeacherListManagement() {
     fetchAccountStatus();
   }, []);
 
-  // ── Edit info ──────────────────────────────────────────────────────────────
-  const openEdit = (teacher: Teacher) => {
-    setEditTarget(teacher);
-    setEditForm({
-      email: teacher.email || '',
-      position: teacher.position || '',
-      subject: teacher.subject || '',
-      phone: teacher.phone || '',
-    });
-    setIsEditOpen(true);
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  const hasAccount = (t: Teacher): boolean => {
+    if (t.source === 'administrators') return adminAccountIds.has(t.id);
+    return teacherStaffIds.has(t.id) || adminStaffIds.has(t.id);
   };
 
-  const handleSave = async () => {
-    if (!editTarget) return;
-    setSaving(true);
-    const { error } = await staffService.update(editTarget.id, {
-      email: editForm.email.trim() || null,
-      position: editForm.position.trim(),
-      subject: editForm.subject.trim() || null,
-      phone: editForm.phone.trim() || null,
+  const kindOf = (t: Teacher): PersonnelKind => {
+    if (t.source === 'administrators') return 'admin';
+    return t.staff_type === 'support' ? 'support' : 'teaching';
+  };
+
+  // ── Add flow ───────────────────────────────────────────────────────────────
+  const openAddPicker = () => setPickerOpen(true);
+
+  const startAdd = (kind: PersonnelKind) => {
+    setFormMode('add');
+    setFormKind(kind);
+    setFormEditingId(null);
+    setFormData(EMPTY_FORM);
+    setPickerOpen(false);
+    setFormOpen(true);
+  };
+
+  // ── Edit flow ──────────────────────────────────────────────────────────────
+  const openEdit = (t: Teacher) => {
+    setFormMode('edit');
+    setFormKind(kindOf(t));
+    setFormEditingId(t.id);
+    setFormData({
+      name: t.name || '',
+      position: t.position || '',
+      photo_url: t.photo_url || '',
+      email: t.email || '',
+      order_position: String(t.order_position ?? 99),
+      subject: t.subject || '',
     });
+    setFormOpen(true);
+  };
+
+  const handleFormSave = async () => {
+    if (!formData.name.trim() || !formData.position.trim()) {
+      toast({ title: 'กรุณากรอก ชื่อ-สกุล และ ตำแหน่ง', variant: 'destructive' });
+      return;
+    }
+    const order = parseInt(formData.order_position, 10);
+    if (isNaN(order)) {
+      toast({ title: 'ลำดับต้องเป็นตัวเลข', variant: 'destructive' });
+      return;
+    }
+
+    setSaving(true);
+    const meta = KIND_META[formKind];
+    let error: { message: string } | null = null;
+
+    if (meta.source === 'staff') {
+      const payload = {
+        name: formData.name.trim(),
+        position: formData.position.trim(),
+        photo_url: formData.photo_url.trim() || null,
+        email: formData.email.trim() || null,
+        order_position: order,
+        subject: formData.subject.trim() || null,
+        staff_type: formKind, // 'teaching' | 'support'
+      };
+      const res = formMode === 'add'
+        ? await staffService.insert(payload)
+        : await staffService.update(formEditingId!, payload);
+      error = res.error;
+    } else {
+      // administrators — ห้ามแตะ education / quote
+      const payload = {
+        name: formData.name.trim(),
+        position: formData.position.trim(),
+        photo_url: formData.photo_url.trim() || null,
+        email: formData.email.trim() || null,
+        order_position: order,
+      };
+      const res = formMode === 'add'
+        ? await administratorsService.insert(payload)
+        : await administratorsService.update(formEditingId!, payload);
+      error = res.error;
+    }
+
     setSaving(false);
     if (error) {
       toast({ title: 'บันทึกไม่สำเร็จ', description: error.message, variant: 'destructive' });
+      return;
+    }
+    toast({ title: formMode === 'add' ? 'เพิ่มบุคลากรสำเร็จ' : 'บันทึกสำเร็จ' });
+    setFormOpen(false);
+    fetchTeachers();
+  };
+
+  // ── Delete flow ────────────────────────────────────────────────────────────
+  const openDelete = (t: Teacher) => setDeleteTarget(t);
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    if (hasAccount(deleteTarget)) {
+      toast({ title: 'ลบไม่ได้ — กรุณาลบ Account login ก่อน', variant: 'destructive' });
+      setDeleteTarget(null);
+      return;
+    }
+    if (deleteTarget.photo_url) {
+      await deleteStorageImage(deleteTarget.photo_url, 'school-images');
+    }
+    const svc = deleteTarget.source === 'staff' ? staffService : administratorsService;
+    const { error } = await svc.delete(deleteTarget.id);
+    if (error) {
+      toast({ title: 'ลบไม่สำเร็จ', description: error.message, variant: 'destructive' });
     } else {
-      toast({ title: 'บันทึกสำเร็จ' });
-      setIsEditOpen(false);
+      toast({ title: 'ลบบุคลากรสำเร็จ' });
       fetchTeachers();
     }
+    setDeleteTarget(null);
   };
 
   // ── Create account ─────────────────────────────────────────────────────────
@@ -194,33 +336,37 @@ export function TeacherListManagement() {
     }
   };
 
-  const withAccountCount = teachers.filter((t) => {
-    if (t.source === 'administrators') return adminAccountIds.has(t.id);
-    return teacherStaffIds.has(t.id) || adminStaffIds.has(t.id);
-  }).length;
+  const withAccountCount = teachers.filter(hasAccount).length;
+  const formMeta = KIND_META[formKind];
 
   return (
     <div className="p-8 space-y-6">
       {/* Header */}
-      <div>
-        <div className="flex items-center gap-2 mb-1">
-          <Users className="h-6 w-6 text-primary" />
-          <h1 className="text-2xl font-bold text-foreground">รายชื่อบุคลากร</h1>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <Users className="h-6 w-6 text-primary" />
+            <h1 className="text-2xl font-bold text-foreground">รายชื่อบุคลากร</h1>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            ทั้งหมด {teachers.length} คน · มี account แล้ว{' '}
+            <span
+              className={cn(
+                'font-semibold',
+                withAccountCount === teachers.length && teachers.length > 0
+                  ? 'text-green-600 dark:text-green-400'
+                  : 'text-yellow-600 dark:text-yellow-400',
+              )}
+            >
+              {withAccountCount}/{teachers.length}
+            </span>{' '}
+            คน
+          </p>
         </div>
-        <p className="text-sm text-muted-foreground">
-          ทั้งหมด {teachers.length} คน · มี account แล้ว{' '}
-          <span
-            className={cn(
-              'font-semibold',
-              withAccountCount === teachers.length && teachers.length > 0
-                ? 'text-green-600 dark:text-green-400'
-                : 'text-yellow-600 dark:text-yellow-400',
-            )}
-          >
-            {withAccountCount}/{teachers.length}
-          </span>{' '}
-          คน
-        </p>
+        <Button onClick={openAddPicker} className="gap-2">
+          <Plus className="h-4 w-4" />
+          เพิ่มบุคลากร
+        </Button>
       </div>
 
       {/* Info banner */}
@@ -242,7 +388,7 @@ export function TeacherListManagement() {
           <CardContent className="flex flex-col items-center gap-3 py-16 text-muted-foreground">
             <AlertCircle className="h-10 w-10" />
             <p>ยังไม่มีข้อมูลบุคลากร</p>
-            <p className="text-xs">เพิ่มได้ที่เมนู ครู/บุคลากร หรือ ผู้บริหาร</p>
+            <p className="text-xs">กดปุ่ม "เพิ่มบุคลากร" ด้านบนเพื่อเริ่ม</p>
           </CardContent>
         </Card>
       ) : (
@@ -258,7 +404,7 @@ export function TeacherListManagement() {
                 <th className="px-4 py-3 hidden lg:table-cell">วิชาที่สอน</th>
                 <th className="px-4 py-3 hidden md:table-cell">อีเมล</th>
                 <th className="px-4 py-3">Account</th>
-                <th className="px-4 py-3 w-24" />
+                <th className="px-4 py-3 w-32" />
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -266,6 +412,7 @@ export function TeacherListManagement() {
                 const isAdmin = adminStaffIds.has(teacher.id);
                 const hasTeacherAccount = teacherStaffIds.has(teacher.id);
                 const hasAdminAccount = teacher.source === 'administrators' && adminAccountIds.has(teacher.id);
+                const accountLinked = hasAccount(teacher);
                 return (
                   <tr key={teacher.id} className="bg-card hover:bg-muted/30 transition-colors">
                     <td className="px-4 py-3 text-center font-mono text-muted-foreground">
@@ -358,17 +505,15 @@ export function TeacherListManagement() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
-                        {teacher.source === 'staff' && (
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="h-8 w-8"
-                            title="แก้ไขข้อมูล"
-                            onClick={() => openEdit(teacher)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                        )}
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8"
+                          title="แก้ไขข้อมูล"
+                          onClick={() => openEdit(teacher)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
                         {teacher.source === 'administrators' ? (
                           hasAdminAccount ? (
                             <Button
@@ -414,6 +559,16 @@ export function TeacherListManagement() {
                             </Button>
                           )
                         )}
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8 text-destructive disabled:opacity-30"
+                          title={accountLinked ? 'ลบ Account login ก่อน' : 'ลบบุคลากร'}
+                          disabled={accountLinked}
+                          onClick={() => openDelete(teacher)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -424,76 +579,143 @@ export function TeacherListManagement() {
         </div>
       )}
 
-      {/* Edit Info Dialog */}
-      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="max-w-md">
+      {/* Type picker dialog */}
+      <Dialog open={pickerOpen} onOpenChange={setPickerOpen}>
+        <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>แก้ไขข้อมูลครู</DialogTitle>
+            <DialogTitle>เลือกประเภทบุคลากร</DialogTitle>
           </DialogHeader>
-          {editTarget && (
-            <div className="space-y-4 pt-2">
-              <div className="flex items-center gap-3 pb-2 border-b border-border">
-                {editTarget.photo_url ? (
-                  <img
-                    src={editTarget.photo_url}
-                    alt={editTarget.name}
-                    className="h-10 w-10 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                    <span className="text-sm font-medium">{editTarget.name.charAt(0)}</span>
-                  </div>
-                )}
-                <p className="font-medium text-foreground">{editTarget.name}</p>
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="edit-email">
-                  อีเมล{' '}
-                  <span className="text-xs text-muted-foreground">(แสดงในโปรไฟล์ครู)</span>
-                </Label>
-                <Input
-                  id="edit-email"
-                  type="email"
-                  value={editForm.email}
-                  onChange={(e) => setEditForm((p) => ({ ...p, email: e.target.value }))}
-                />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="edit-position">ตำแหน่ง</Label>
-                <Input
-                  id="edit-position"
-                  value={editForm.position}
-                  onChange={(e) => setEditForm((p) => ({ ...p, position: e.target.value }))}
-                />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="edit-subject">วิชาที่สอน</Label>
-                <Input
-                  id="edit-subject"
-                  value={editForm.subject}
-                  onChange={(e) => setEditForm((p) => ({ ...p, subject: e.target.value }))}
-                />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="edit-phone">เบอร์โทร</Label>
-                <Input
-                  id="edit-phone"
-                  value={editForm.phone}
-                  onChange={(e) => setEditForm((p) => ({ ...p, phone: e.target.value }))}
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-2">
-                <Button variant="outline" onClick={() => setIsEditOpen(false)}>
-                  ยกเลิก
+          <div className="grid gap-2 pt-2">
+            {(Object.keys(KIND_META) as PersonnelKind[]).map((k) => {
+              const m = KIND_META[k];
+              const Icon = m.icon;
+              return (
+                <Button
+                  key={k}
+                  variant="outline"
+                  className="justify-start gap-3 h-auto py-3"
+                  onClick={() => startAdd(k)}
+                >
+                  <Icon className="h-5 w-5 text-primary" />
+                  <span className="font-medium">{m.label}</span>
                 </Button>
-                <Button onClick={handleSave} disabled={saving}>
-                  {saving ? 'กำลังบันทึก...' : 'บันทึก'}
-                </Button>
-              </div>
-            </div>
-          )}
+              );
+            })}
+          </div>
         </DialogContent>
       </Dialog>
+
+      {/* Unified Add/Edit form dialog */}
+      <Dialog open={formOpen} onOpenChange={setFormOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {formMode === 'add'
+                ? `เพิ่มบุคลากร — ${formMeta.label}`
+                : `แก้ไขข้อมูล — ${formMeta.label}`}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <ImageUpload
+              currentImage={formData.photo_url}
+              onUploadComplete={(url) => setFormData((p) => ({ ...p, photo_url: url }))}
+              folder={formMeta.source}
+              compressionPreset="profile"
+              maxSizeMB={5}
+            />
+
+            <div className="space-y-1">
+              <Label htmlFor="form-name">ชื่อ-สกุล <span className="text-destructive">*</span></Label>
+              <Input
+                id="form-name"
+                value={formData.name}
+                onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
+                placeholder="เช่น นางสาวสมหญิง ใจดี"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="form-position">ตำแหน่ง <span className="text-destructive">*</span></Label>
+              <Input
+                id="form-position"
+                value={formData.position}
+                onChange={(e) => setFormData((p) => ({ ...p, position: e.target.value }))}
+                placeholder="เช่น ครู ค.ศ.1 / ผู้อำนวยการ"
+              />
+            </div>
+
+            {formMeta.source === 'staff' && (
+              <>
+                <div className="space-y-1">
+                  <Label htmlFor="form-subject">วิชาที่สอน</Label>
+                  <Input
+                    id="form-subject"
+                    value={formData.subject}
+                    onChange={(e) => setFormData((p) => ({ ...p, subject: e.target.value }))}
+                    placeholder="เช่น คณิตศาสตร์"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label>ประเภท</Label>
+                  <Select
+                    value={formKind}
+                    onValueChange={(v) => setFormKind(v as PersonnelKind)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="teaching">ครู</SelectItem>
+                      <SelectItem value="support">เจ้าหน้าที่สนับสนุน</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
+            )}
+
+            <div className="space-y-1">
+              <Label htmlFor="form-email">อีเมล</Label>
+              <Input
+                id="form-email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))}
+                placeholder="optional@example.com"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="form-order">ลำดับ</Label>
+              <Input
+                id="form-order"
+                type="number"
+                value={formData.order_position}
+                onChange={(e) => setFormData((p) => ({ ...p, order_position: e.target.value }))}
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="outline" onClick={() => setFormOpen(false)}>
+                ยกเลิก
+              </Button>
+              <Button onClick={handleFormSave} disabled={saving}>
+                {saving ? 'กำลังบันทึก...' : formMode === 'add' ? 'เพิ่ม' : 'บันทึก'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete confirm */}
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        title={`ลบ ${deleteTarget?.name ?? 'บุคลากร'} ออกจากระบบ?`}
+        description="ข้อมูลและรูปโปรไฟล์จะถูกลบถาวร — กู้คืนไม่ได้"
+        confirmText="ลบ"
+        variant="destructive"
+      />
 
       {/* Create Account Dialog */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
