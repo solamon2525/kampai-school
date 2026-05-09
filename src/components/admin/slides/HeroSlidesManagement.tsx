@@ -307,7 +307,10 @@ export const HeroSlidesManagement = () => {
                     </DialogHeader>
                     <div className="space-y-4 py-2">
                         <div>
-                            <Label className="mb-2 block">รูปภาพ *</Label>
+                            <Label className="mb-1 block">รูปภาพ *</Label>
+                            <p className="text-xs text-muted-foreground mb-2">
+                                แนะนำขนาด <span className="font-medium text-foreground">1920 × 1080 px</span> (16:9) · JPG/PNG/WebP สูงสุด 5MB · ระบบจะปรับขนาดและบีบอัดให้อัตโนมัติ
+                            </p>
                             <ImageUpload
                                 onUploadComplete={(url) => setForm(f => ({ ...f, image_url: url }))}
                                 currentImage={form.image_url}

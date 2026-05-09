@@ -57,9 +57,11 @@ export type Database = {
         Row: {
           created_at: string | null
           education: string | null
+          email: string | null
           id: string
           name: string
           order_position: number | null
+          phone: string | null
           photo_url: string | null
           position: string
           quote: string | null
@@ -68,9 +70,11 @@ export type Database = {
         Insert: {
           created_at?: string | null
           education?: string | null
+          email?: string | null
           id?: string
           name: string
           order_position?: number | null
+          phone?: string | null
           photo_url?: string | null
           position: string
           quote?: string | null
@@ -79,9 +83,11 @@ export type Database = {
         Update: {
           created_at?: string | null
           education?: string | null
+          email?: string | null
           id?: string
           name?: string
           order_position?: number | null
+          phone?: string | null
           photo_url?: string | null
           position?: string
           quote?: string | null
@@ -184,6 +190,20 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "attendance_records_recorded_by_administrator_id_fkey"
+            columns: ["recorded_by_administrator_id"]
+            isOneToOne: false
+            referencedRelation: "administrators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_records_recorded_by_staff_id_fkey"
+            columns: ["recorded_by_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "attendance_records_student_id_fkey"
             columns: ["student_id"]
@@ -297,6 +317,20 @@ export type Database = {
           type?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "conduct_scores_recorded_by_administrator_id_fkey"
+            columns: ["recorded_by_administrator_id"]
+            isOneToOne: false
+            referencedRelation: "administrators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conduct_scores_recorded_by_staff_id_fkey"
+            columns: ["recorded_by_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "conduct_scores_student_id_fkey"
             columns: ["student_id"]
@@ -812,7 +846,9 @@ export type Database = {
           id: string
           image_url: string
           is_active: boolean | null
+          link_url: string | null
           order_position: number | null
+          subtitle: string | null
           title: string | null
         }
         Insert: {
@@ -820,7 +856,9 @@ export type Database = {
           id?: string
           image_url: string
           is_active?: boolean | null
+          link_url?: string | null
           order_position?: number | null
+          subtitle?: string | null
           title?: string | null
         }
         Update: {
@@ -828,7 +866,9 @@ export type Database = {
           id?: string
           image_url?: string
           is_active?: boolean | null
+          link_url?: string | null
           order_position?: number | null
+          subtitle?: string | null
           title?: string | null
         }
         Relationships: []
@@ -1395,6 +1435,42 @@ export type Database = {
         }
         Relationships: []
       }
+      partners: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          link_url: string | null
+          logo_url: string | null
+          name: string
+          order_position: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          link_url?: string | null
+          logo_url?: string | null
+          name: string
+          order_position?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          link_url?: string | null
+          logo_url?: string | null
+          name?: string
+          order_position?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       reward_claims: {
         Row: {
           claimed_at: string | null
@@ -1458,6 +1534,7 @@ export type Database = {
       }
       rewards: {
         Row: {
+          category: string | null
           created_at: string | null
           description: string | null
           id: string
@@ -1470,6 +1547,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          category?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -1482,6 +1560,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          category?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -1492,6 +1571,57 @@ export type Database = {
           points_cost?: number
           stock?: number | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      school_dashboard_entries: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          extra_fields: Json
+          id: string
+          is_sensitive: boolean
+          order_position: number
+          password: string | null
+          table_data: Json | null
+          tags: string[]
+          title: string
+          updated_at: string
+          url: string | null
+          username: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          extra_fields?: Json
+          id?: string
+          is_sensitive?: boolean
+          order_position?: number
+          password?: string | null
+          table_data?: Json | null
+          tags?: string[]
+          title: string
+          updated_at?: string
+          url?: string | null
+          username?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          extra_fields?: Json
+          id?: string
+          is_sensitive?: boolean
+          order_position?: number
+          password?: string | null
+          table_data?: Json | null
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          url?: string | null
+          username?: string | null
         }
         Relationships: []
       }
@@ -1587,13 +1717,19 @@ export type Database = {
       }
       staff: {
         Row: {
+          academic_rank: string | null
           created_at: string | null
+          degree: string | null
           department: string | null
           education: string | null
+          email: string | null
           experience: string | null
+          extra_info: Json | null
           id: string
+          major: string | null
           name: string
           order_position: number | null
+          phone: string | null
           photo_url: string | null
           position: string
           staff_type: string
@@ -1601,13 +1737,19 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          academic_rank?: string | null
           created_at?: string | null
+          degree?: string | null
           department?: string | null
           education?: string | null
+          email?: string | null
           experience?: string | null
+          extra_info?: Json | null
           id?: string
+          major?: string | null
           name: string
           order_position?: number | null
+          phone?: string | null
           photo_url?: string | null
           position: string
           staff_type?: string
@@ -1615,13 +1757,19 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          academic_rank?: string | null
           created_at?: string | null
+          degree?: string | null
           department?: string | null
           education?: string | null
+          email?: string | null
           experience?: string | null
+          extra_info?: Json | null
           id?: string
+          major?: string | null
           name?: string
           order_position?: number | null
+          phone?: string | null
           photo_url?: string | null
           position?: string
           staff_type?: string
@@ -2040,6 +2188,81 @@ export type Database = {
         }
         Relationships: []
       }
+      testimonials: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          order_position: number | null
+          quote: string
+          rating: number | null
+          role: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          order_position?: number | null
+          quote: string
+          rating?: number | null
+          role?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          order_position?: number | null
+          quote?: string
+          rating?: number | null
+          role?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      ticker_items: {
+        Row: {
+          created_at: string
+          end_at: string | null
+          id: string
+          is_active: boolean
+          link: string | null
+          sort_order: number
+          start_at: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          end_at?: string | null
+          id?: string
+          is_active?: boolean
+          link?: string | null
+          sort_order?: number
+          start_at?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          end_at?: string | null
+          id?: string
+          is_active?: boolean
+          link?: string | null
+          sort_order?: number
+          start_at?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       training_records: {
         Row: {
           budget: number | null
@@ -2101,6 +2324,7 @@ export type Database = {
       }
       user_roles: {
         Row: {
+          administrator_id: string | null
           created_at: string | null
           id: string
           role: Database["public"]["Enums"]["user_role"] | null
@@ -2109,6 +2333,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          administrator_id?: string | null
           created_at?: string | null
           id?: string
           role?: Database["public"]["Enums"]["user_role"] | null
@@ -2117,6 +2342,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          administrator_id?: string | null
           created_at?: string | null
           id?: string
           role?: Database["public"]["Enums"]["user_role"] | null
@@ -2125,6 +2351,13 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "user_roles_administrator_id_fkey"
+            columns: ["administrator_id"]
+            isOneToOne: false
+            referencedRelation: "administrators"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "user_roles_staff_id_fkey"
             columns: ["staff_id"]
@@ -2236,6 +2469,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "waste_transactions_recorded_by_administrator_id_fkey"
+            columns: ["recorded_by_administrator_id"]
+            isOneToOne: false
+            referencedRelation: "administrators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waste_transactions_recorded_by_staff_id_fkey"
+            columns: ["recorded_by_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "waste_transactions_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
@@ -2258,6 +2505,8 @@ export type Database = {
           available_points: number | null
           class_name: string | null
           full_name: string | null
+          photo_url: string | null
+          student_code: string | null
           student_id: string | null
           total_items: number | null
           total_points_earned: number | null
@@ -2269,6 +2518,10 @@ export type Database = {
     }
     Functions: {
       auth_role: { Args: never; Returns: string }
+      claim_reward: {
+        Args: { p_code: string; p_reward_id: string }
+        Returns: string
+      }
       get_db_size: { Args: never; Returns: number }
       get_storage_usage: {
         Args: never
@@ -2281,6 +2534,16 @@ export type Database = {
       increment_news_view: { Args: { news_id: string }; Returns: undefined }
       is_admin: { Args: never; Returns: boolean }
       is_teacher: { Args: never; Returns: boolean }
+      lookup_student_balance: {
+        Args: { p_code: string }
+        Returns: {
+          available_points: number
+          class_name: string
+          full_name: string
+          photo_url: string
+          student_id: string
+        }[]
+      }
       next_incoming_number: { Args: never; Returns: string }
       next_outgoing_number: { Args: never; Returns: string }
     }
