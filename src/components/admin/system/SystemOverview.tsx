@@ -216,8 +216,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.8.7 (Compact Rewards Catalog + Rules 14.10–14.12)',
+        version: 'v1.8.8 (Hero Slides Image Fit Option)',
         date: 'ล่าสุด',
+        badge: 'bg-sky-500',
+        items: [
+            'Migration 041 + admin form: เพิ่ม `image_fit` column บน `hero_slides` (TEXT, default `cover`, CHECK `cover|contain`) + dropdown "การแสดงรูป" ในฟอร์ม edit slide — เลือกระหว่าง "เต็มจอ (อาจถูก crop ขอบ)" และ "พอดีกรอบ (เห็นเต็มใบ + พื้นหลังเบลอ)"',
+            'HeroSection render: ถ้า `image_fit=contain` render `<img>` 2 ชั้น — backdrop (`object-cover blur-2xl scale-110`) + รูปจริง (`object-contain`) ห่อใน wrapper `<div>` เพื่อให้คู่ fade together; กรณี `cover` คง render เดิม',
+            'Backwards compat: slide เก่าทั้งหมด default = `cover` (migration value default) → ไม่มีการเปลี่ยน visual ของ slide ที่มีอยู่แล้ว — admin เลือกปรับเฉพาะ slide ที่ต้องการ',
+            'แก้ pain point: รูปอัปโหลดที่อัตราส่วนไม่ใช่ 16:9 เคยถูก crop ส่วนเกินทิ้ง — `compressImage()` รักษา aspect ratio อยู่แล้ว ปัญหาอยู่ที่ render ฝั่งเดียว',
+        ],
+    },
+    {
+        version: 'v1.8.7 (Compact Rewards Catalog + Rules 14.10–14.12)',
+        date: '',
         badge: 'bg-emerald-500',
         items: [
             'Rewards Catalog refactor — compact hero (`py-5 md:py-7`, headline `text-xl md:text-2xl`), wrap ใน `max-w-7xl mx-auto` ตรงกับ SiteHeader, ลบ tier overview strip + per-tier sections, เปลี่ยนเป็น single grid + sticky category chip filter (เลื่อน horizontal บน mobile)',

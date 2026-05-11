@@ -844,6 +844,7 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
+          image_fit: string
           image_url: string
           is_active: boolean | null
           link_url: string | null
@@ -854,6 +855,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           id?: string
+          image_fit?: string
           image_url: string
           is_active?: boolean | null
           link_url?: string | null
@@ -864,6 +866,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           id?: string
+          image_fit?: string
           image_url?: string
           is_active?: boolean | null
           link_url?: string | null

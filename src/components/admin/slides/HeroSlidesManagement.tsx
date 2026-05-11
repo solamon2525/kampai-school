@@ -28,6 +28,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import { GripVertical, Plus, Pencil, Trash2, Timer } from 'lucide-react';
 
+type ImageFit = 'cover' | 'contain';
+
 interface HeroSlide {
     id: string;
     image_url: string;
@@ -36,6 +38,7 @@ interface HeroSlide {
     link_url: string | null;
     order_position: number;
     is_active: boolean;
+    image_fit: ImageFit;
 }
 
 const emptySlide = (): Omit<HeroSlide, 'id' | 'order_position'> => ({
@@ -44,6 +47,7 @@ const emptySlide = (): Omit<HeroSlide, 'id' | 'order_position'> => ({
     subtitle: '',
     link_url: '',
     is_active: true,
+    image_fit: 'cover',
 });
 
 function SortableSlide({
@@ -154,6 +158,7 @@ export const HeroSlidesManagement = () => {
             subtitle: slide.subtitle || '',
             link_url: slide.link_url || '',
             is_active: slide.is_active,
+            image_fit: slide.image_fit === 'contain' ? 'contain' : 'cover',
         });
         setDialogOpen(true);
     };
@@ -318,6 +323,18 @@ export const HeroSlidesManagement = () => {
                                 folder="hero-slides"
                                 compressionPreset="banner"
                             />
+                        </div>
+                        <div>
+                            <Label htmlFor="slide-fit" className="mb-1.5 block">การแสดงรูป</Label>
+                            <select
+                                id="slide-fit"
+                                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                value={form.image_fit}
+                                onChange={e => setForm(f => ({ ...f, image_fit: e.target.value === 'contain' ? 'contain' : 'cover' }))}
+                            >
+                                <option value="cover">เต็มจอ (อาจถูก crop ขอบ) — เหมาะกับรูป 16:9</option>
+                                <option value="contain">พอดีกรอบ (เห็นเต็มใบ + พื้นหลังเบลอ) — เหมาะกับรูปสัดส่วนอื่น</option>
+                            </select>
                         </div>
                         <div>
                             <Label htmlFor="slide-title" className="mb-1.5 block">หัวข้อ</Label>

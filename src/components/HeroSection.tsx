@@ -6,17 +6,20 @@ import { supabase } from '@/integrations/supabase/client';
 import heroImageFallback from '@/assets/hero-school.jpg';
 import { useNavigate } from 'react-router-dom';
 
+type ImageFit = 'cover' | 'contain';
+
 interface HeroSlide {
   id: string;
   image_url: string;
   title: string | null;
   order_position: number;
+  image_fit: string;
 }
 
 const HeroSection = () => {
   const { settings } = useSchoolSettings();
   const navigate = useNavigate();
-  const [slides, setSlides] = useState<{ url: string; title: string }[]>([]);
+  const [slides, setSlides] = useState<{ url: string; title: string; fit: ImageFit }[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [paused, setPaused] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -31,16 +34,19 @@ const HeroSection = () => {
   useEffect(() => {
     supabase
       .from('hero_slides')
-      .select('id, image_url, title, order_position')
+      .select('id, image_url, title, order_position, image_fit')
       .eq('is_active', true)
       .order('order_position', { ascending: true })
       .then(({ data }) => {
         if (data && data.length > 0) {
-          setSlides((data as HeroSlide[]).map(s => ({ url: s.image_url, title: s.title || '' })));
+          setSlides((data as HeroSlide[]).map(s => ({
+            url: s.image_url,
+            title: s.title || '',
+            fit: (s.image_fit === 'contain' ? 'contain' : 'cover') as ImageFit,
+          })));
         } else {
-          // fallback to single hero image
           const fallbackUrl = settings.hero_image_url || heroImageFallback;
-          setSlides([{ url: fallbackUrl, title: settings.school_name }]);
+          setSlides([{ url: fallbackUrl, title: settings.school_name, fit: 'cover' }]);
         }
       });
   }, [settings.hero_image_url, settings.school_name]);
@@ -89,12 +95,32 @@ const HeroSection = () => {
       {/* Slides */}
       <div className="absolute inset-0 z-0">
         {slides.map((slide, i) => (
-          <img
+          <div
             key={i}
-            src={slide.url}
-            alt={slide.title}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === currentSlide ? 'opacity-100' : 'opacity-0'}`}
-          />
+            className={`absolute inset-0 transition-opacity duration-1000 ${i === currentSlide ? 'opacity-100' : 'opacity-0'}`}
+          >
+            {slide.fit === 'contain' ? (
+              <>
+                <img
+                  src={slide.url}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110"
+                />
+                <img
+                  src={slide.url}
+                  alt={slide.title}
+                  className="absolute inset-0 w-full h-full object-contain"
+                />
+              </>
+            ) : (
+              <img
+                src={slide.url}
+                alt={slide.title}
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            )}
+          </div>
         ))}
         <div className="absolute inset-0 bg-gradient-to-r from-navy-dark/95 via-navy/80 to-navy/60" />
       </div>
