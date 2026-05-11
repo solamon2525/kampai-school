@@ -216,14 +216,16 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.8.8 (Hero Slides Image Fit Option)',
+        version: 'v1.8.8 (Hero Slides — Image Fit + 16:9 Frame Standardization)',
         date: 'ล่าสุด',
         badge: 'bg-sky-500',
         items: [
-            'Migration 041 + admin form: เพิ่ม `image_fit` column บน `hero_slides` (TEXT, default `cover`, CHECK `cover|contain`) + dropdown "การแสดงรูป" ในฟอร์ม edit slide — เลือกระหว่าง "เต็มจอ (อาจถูก crop ขอบ)" และ "พอดีกรอบ (เห็นเต็มใบ + พื้นหลังเบลอ)"',
-            'HeroSection render: ถ้า `image_fit=contain` render `<img>` 2 ชั้น — backdrop (`object-cover blur-2xl scale-110`) + รูปจริง (`object-contain`) ห่อใน wrapper `<div>` เพื่อให้คู่ fade together; กรณี `cover` คง render เดิม',
-            'Backwards compat: slide เก่าทั้งหมด default = `cover` (migration value default) → ไม่มีการเปลี่ยน visual ของ slide ที่มีอยู่แล้ว — admin เลือกปรับเฉพาะ slide ที่ต้องการ',
-            'แก้ pain point: รูปอัปโหลดที่อัตราส่วนไม่ใช่ 16:9 เคยถูก crop ส่วนเกินทิ้ง — `compressImage()` รักษา aspect ratio อยู่แล้ว ปัญหาอยู่ที่ render ฝั่งเดียว',
+            'Root cause ของปัญหารูป hero ถูก crop: hero frame เป็น `aspect-[16/7]` แต่ admin hint แนะนำ 1920×1080 (16:9) → ทุกรูปที่ user อัปตามมาตรฐานโดน crop ขอบบน-ล่าง ~16% ทุกใบ — แก้ frame เป็น `aspect-[16/9]` ใน `HomeMainContent.tsx:300` ทีเดียวจบ standard upload 1920×1080 แสดงเต็มเป๊ะ',
+            'Migration 041: เพิ่ม `image_fit` column บน `hero_slides` (TEXT, default `cover`, CHECK `cover|contain`) สำหรับ edge case ที่ admin อัปรูป portrait/4:3/panorama แล้วต้องการเห็นเต็มใบ',
+            'Admin form: dropdown "การแสดงรูป" ระหว่าง ImageUpload กับ "หัวข้อ" ใน `HeroSlidesManagement.tsx` — เลือก "เต็มจอ" (cover) หรือ "พอดีกรอบ" (contain + blurred dimmed backdrop)',
+            'Render: ถ้า `image_fit=contain` ใน `HomeMainContent.tsx` heroSection render `<img>` 2 ชั้น — backdrop `object-cover blur-3xl scale-125 brightness-50` + foreground `object-contain` (backdrop ดิ่มแรงให้แยกชัดจาก foreground ไม่กลืน)',
+            'Lesson learned: `src/components/HeroSection.tsx` เป็น dead code ไม่ถูก import ที่ public — รอบแรกแก้ผิดไฟล์เสีย commit ฟรี (`37ba80e`) ต้องตามแก้ที่ `HomeMainContent.tsx` (`09070202`). ต่อไปก่อนแก้ component ที่ดูตรงเป้าตามชื่อ — `grep "import.*ComponentName.*from"` ใน `src/pages/` เช็คก่อนเสมอ',
+            'Backwards compat: slide ทุกใบ default = `cover` (migration default) → ไม่มี visual change กับ slide เดิม; admin เลือกปรับเฉพาะ slide ที่ต้องการ',
         ],
     },
     {
