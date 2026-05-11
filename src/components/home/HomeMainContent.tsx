@@ -107,7 +107,7 @@ const ContactFormBlock = () => {
 export const useHomeMainBlocks = () => {
   const { settings } = useSchoolSettings();
   const [news, setNews] = useState<NewsItem[]>([]);
-  const [slides, setSlides] = useState<{ url: string; title: string }[]>([]);
+  const [slides, setSlides] = useState<{ url: string; title: string; fit: 'cover' | 'contain' }[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [events, setEvents] = useState<{ id: string; title: string; event_date: string; location: string | null }[]>([]);
@@ -218,14 +218,18 @@ export const useHomeMainBlocks = () => {
   useEffect(() => {
     supabase
       .from('hero_slides')
-      .select('image_url, title, order_position')
+      .select('image_url, title, order_position, image_fit')
       .eq('is_active', true)
       .order('order_position', { ascending: true })
       .then(({ data }) => {
         if (data && data.length > 0) {
-          setSlides((data as { image_url: string; title: string | null; order_position: number }[]).map(s => ({ url: s.image_url, title: s.title || '' })));
+          setSlides((data as { image_url: string; title: string | null; order_position: number; image_fit: string }[]).map(s => ({
+            url: s.image_url,
+            title: s.title || '',
+            fit: (s.image_fit === 'contain' ? 'contain' : 'cover') as 'cover' | 'contain',
+          })));
         } else {
-          setSlides(DUMMY_SLIDES);
+          setSlides(DUMMY_SLIDES.map(s => ({ ...s, fit: 'cover' as const })));
         }
       });
   }, [news, settings.school_name]);
@@ -297,7 +301,23 @@ export const useHomeMainBlocks = () => {
     >
       {slides.map((slide, i) => (
         <div key={i} className={`absolute inset-0 transition-opacity duration-700 ${i === currentSlide ? 'opacity-100' : 'opacity-0'}`}>
-          <img src={slide.url} alt={slide.title} className="w-full h-full object-cover" />
+          {slide.fit === 'contain' ? (
+            <>
+              <img
+                src={slide.url}
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 w-full h-full object-cover blur-3xl scale-125 brightness-50"
+              />
+              <img
+                src={slide.url}
+                alt={slide.title}
+                className="absolute inset-0 w-full h-full object-contain"
+              />
+            </>
+          ) : (
+            <img src={slide.url} alt={slide.title} className="absolute inset-0 w-full h-full object-cover" />
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           <div className="absolute bottom-4 left-4 right-16 text-white">
             <p className="text-sm font-semibold drop-shadow line-clamp-2">{slide.title}</p>
