@@ -297,7 +297,7 @@ export const useHomeMainBlocks = () => {
       initial="hidden"
       animate="visible"
       variants={staggerContainerVariants}
-      className="relative bg-gray-900 rounded-lg overflow-hidden aspect-[16/7] shadow-md"
+      className="relative bg-gray-900 rounded-lg overflow-hidden aspect-[16/9] shadow-md"
     >
       {slides.map((slide, i) => (
         <div key={i} className={`absolute inset-0 transition-opacity duration-700 ${i === currentSlide ? 'opacity-100' : 'opacity-0'}`}>
