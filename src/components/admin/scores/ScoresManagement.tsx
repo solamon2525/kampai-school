@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { studentsService, scoresService } from '@/services';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -25,6 +26,9 @@ const SCORE_TYPES = ['เก็บ', 'กลางภาค', 'ปลายภ�
 type ScoreType = typeof SCORE_TYPES[number];
 
 const currentYear = (new Date().getFullYear() + 543).toString();
+
+// Sentinel สำหรับ <Select> ของ radix v2.2+ ที่ห้าม value=""
+const ALL = '__all__';
 
 // ===== Interfaces =====
 interface Student {
@@ -370,24 +374,24 @@ function ViewTab() {
             <Card>
                 <CardContent className="pt-4">
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                        <Select value={filterClass} onValueChange={setFilterClass}>
+                        <Select value={filterClass || ALL} onValueChange={v => setFilterClass(v === ALL ? '' : v)}>
                             <SelectTrigger><SelectValue placeholder="ทุกชั้น" /></SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="">ทุกชั้น</SelectItem>
+                                <SelectItem value={ALL}>ทุกชั้น</SelectItem>
                                 {CLASS_OPTIONS.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                             </SelectContent>
                         </Select>
-                        <Select value={filterSubject} onValueChange={setFilterSubject}>
+                        <Select value={filterSubject || ALL} onValueChange={v => setFilterSubject(v === ALL ? '' : v)}>
                             <SelectTrigger><SelectValue placeholder="ทุกวิชา" /></SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="">ทุกวิชา</SelectItem>
+                                <SelectItem value={ALL}>ทุกวิชา</SelectItem>
                                 {SUBJECTS.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                             </SelectContent>
                         </Select>
-                        <Select value={filterType} onValueChange={setFilterType}>
+                        <Select value={filterType || ALL} onValueChange={v => setFilterType(v === ALL ? '' : v)}>
                             <SelectTrigger><SelectValue placeholder="ทุกประเภท" /></SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="">ทุกประเภท</SelectItem>
+                                <SelectItem value={ALL}>ทุกประเภท</SelectItem>
                                 {SCORE_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                             </SelectContent>
                         </Select>
@@ -535,10 +539,10 @@ function SummaryTab() {
             <Card>
                 <CardContent className="pt-4">
                     <div className="flex flex-wrap gap-3">
-                        <Select value={filterClass} onValueChange={setFilterClass}>
+                        <Select value={filterClass || ALL} onValueChange={v => setFilterClass(v === ALL ? '' : v)}>
                             <SelectTrigger className="w-36"><SelectValue placeholder="ทุกชั้น" /></SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="">ทุกชั้น</SelectItem>
+                                <SelectItem value={ALL}>ทุกชั้น</SelectItem>
                                 {CLASS_OPTIONS.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                             </SelectContent>
                         </Select>

@@ -965,12 +965,12 @@ export const AttendanceManagement = () => {
               <div className="flex flex-wrap items-end gap-3">
                 <div className="flex flex-col gap-1">
                   <Label>ชั้นเรียน</Label>
-                  <Select value={filterClass} onValueChange={setFilterClass}>
+                  <Select value={filterClass || '__all__'} onValueChange={v => setFilterClass(v === '__all__' ? '' : v)}>
                     <SelectTrigger className="w-36">
                       <SelectValue placeholder="ทุกชั้น" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">ทุกชั้น</SelectItem>
+                      <SelectItem value="__all__">ทุกชั้น</SelectItem>
                       {CLASSES.map((c) => (
                         <SelectItem key={c} value={c}>
                           {c}

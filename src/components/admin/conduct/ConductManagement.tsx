@@ -19,6 +19,9 @@ const CLASS_OPTIONS = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', '�
 
 const currentYear = (new Date().getFullYear() + 543).toString();
 
+// Sentinel สำหรับ <Select> ของ radix v2.2+ ที่ห้าม value=""
+const ALL = '__all__';
+
 const PRESET_REASONS: Record<'add' | 'deduct', { category: string; reasons: string[] }[]> = {
     add: [
         { category: 'ความดี', reasons: ['ช่วยเหลือผู้อื่น', 'มีน้ำใจ', 'รักษาความสะอาด', 'ซื่อสัตย์สุจริต'] },
@@ -330,10 +333,10 @@ function LeaderboardTab() {
     return (
         <div className="space-y-4 pt-4">
             <div className="flex flex-wrap gap-3">
-                <Select value={filterClass} onValueChange={setFilterClass}>
+                <Select value={filterClass || ALL} onValueChange={v => setFilterClass(v === ALL ? '' : v)}>
                     <SelectTrigger className="w-36"><SelectValue placeholder="ทุกชั้น" /></SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="">ทุกชั้น</SelectItem>
+                        <SelectItem value={ALL}>ทุกชั้น</SelectItem>
                         {CLASS_OPTIONS.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                     </SelectContent>
                 </Select>
@@ -426,17 +429,17 @@ function HistoryTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) 
     return (
         <div className="space-y-4 pt-4">
             <div className="flex flex-wrap gap-3">
-                <Select value={filterClass} onValueChange={setFilterClass}>
+                <Select value={filterClass || ALL} onValueChange={v => setFilterClass(v === ALL ? '' : v)}>
                     <SelectTrigger className="w-32"><SelectValue placeholder="ทุกชั้น" /></SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="">ทุกชั้น</SelectItem>
+                        <SelectItem value={ALL}>ทุกชั้น</SelectItem>
                         {CLASS_OPTIONS.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                     </SelectContent>
                 </Select>
-                <Select value={filterType} onValueChange={setFilterType}>
+                <Select value={filterType || ALL} onValueChange={v => setFilterType(v === ALL ? '' : v)}>
                     <SelectTrigger className="w-32"><SelectValue placeholder="ทุกประเภท" /></SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="">ทุกประเภท</SelectItem>
+                        <SelectItem value={ALL}>ทุกประเภท</SelectItem>
                         <SelectItem value="add">บวกคะแนน</SelectItem>
                         <SelectItem value="deduct">หักคะแนน</SelectItem>
                     </SelectContent>

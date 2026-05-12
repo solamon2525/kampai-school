@@ -826,10 +826,10 @@ export const StudentListManagement = () => {
                                     </div>
                                     <div className="space-y-2">
                                         <Label>หมู่โลหิต</Label>
-                                        <Select value={formData.blood_type} onValueChange={v => setFormData(f => ({ ...f, blood_type: v }))}>
+                                        <Select value={formData.blood_type || '__unset__'} onValueChange={v => setFormData(f => ({ ...f, blood_type: v === '__unset__' ? '' : v }))}>
                                             <SelectTrigger><SelectValue placeholder="เลือก" /></SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="">ไม่ระบุ</SelectItem>
+                                                <SelectItem value="__unset__">ไม่ระบุ</SelectItem>
                                                 {BLOOD_TYPE_OPTIONS.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
                                             </SelectContent>
                                         </Select>
