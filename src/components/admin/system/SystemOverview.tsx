@@ -216,8 +216,20 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.8.9 (Hall of Fame — หอเกียรติยศคนดีคำไผ่)',
+        version: 'v1.9.0 (Quick Menu Personalization — เมนูลัดเลือกเองได้)',
         date: 'ล่าสุด',
+        badge: 'bg-indigo-500',
+        items: [
+            'Dashboard ทั้ง admin (`/admin/dashboard`) และ teacher (`/teacher`) มี Quick Menu ที่ user เลือกเองได้ — กดปุ่ม "จัดการ" เปิด dialog ลากเรียงลำดับ (drag-drop ด้วย @dnd-kit) + เพิ่ม/ลบเมนูจาก catalog ที่จัดกลุ่มตาม section',
+            'Migration 025: ตาราง `user_quick_menu_preferences` (compound PK `user_id` + `context`) — รองรับ user คนเดียวที่มีทั้ง admin + teacher context (เก็บแยก row), RLS `auth.uid() = user_id` กัน user เห็น/แก้ของคนอื่น',
+            'Component `<QuickMenu context="admin"|"teacher" />` แทน hardcoded section เดิม — responsive grid auto (2/3/4/5 cols), fallback default ids ถ้าไม่มี preference, ใช้ useQuery + useMutation invalidate ตามมาตรฐาน',
+            'Catalog: `src/lib/quickMenuCatalog.ts` — รวมเมนู admin 30+ ตัวจัดกลุ่ม (เว็บไซต์/สารบรรณ/บุคลากร/วิชาการ/ข้อมูลโรงเรียน/ระบบบริการ/อื่นๆ/ระบบ) + teacher 4 ตัว — แยกไฟล์เพื่อ reuse + ลดขนาด AdminLayout',
+            'Service `quickMenu.service.ts` — get + save (upsert onConflict `user_id,context`) เป็น contract ระหว่าง component กับ DB',
+        ],
+    },
+    {
+        version: 'v1.8.9 (Hall of Fame — หอเกียรติยศคนดีคำไผ่)',
+        date: '',
         badge: 'bg-yellow-500',
         items: [
             'หน้าสาธารณะ `/hall-of-fame` เปิดให้ผู้มาเยือนดูได้โดยไม่ต้อง login — แสดง leaderboard top 10 (มี podium top 3 พร้อมเหรียญ), แยกรายชั้น (top 3 ต่อชั้น), feed ความดีล่าสุด 20 รายการ — filter ภาคเรียน/ปีการศึกษา + แสดงรูป `students.photo_url` พร้อม Avatar fallback initials',

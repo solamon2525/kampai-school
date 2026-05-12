@@ -1,10 +1,10 @@
 import { LayoutDashboard, ClipboardCheck, PenLine, Calendar, Gift } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { RolePortalLayout } from '@/components/portal/RolePortalLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { useLinkedRecord } from '@/hooks/useLinkedRecord';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { QuickMenu } from '@/components/admin/shared/QuickMenu';
 
 const MENU = [
     { id: 'dashboard', label: 'แดชบอร์ด', icon: LayoutDashboard, path: '/teacher' },
@@ -44,23 +44,7 @@ export default function TeacherDashboard() {
                     </Card>
                 )}
 
-                <div className="grid md:grid-cols-3 gap-4">
-                    {MENU.slice(1).map((item) => (
-                        <Link key={item.id} to={item.path}>
-                            <Card className="hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer">
-                                <CardContent className="p-6 flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center">
-                                        <item.icon className="w-6 h-6" />
-                                    </div>
-                                    <div>
-                                        <p className="font-semibold">{item.label}</p>
-                                        <p className="text-xs text-muted-foreground">เปิดเพื่อจัดการ</p>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </Link>
-                    ))}
-                </div>
+                <QuickMenu context="teacher" />
             </div>
         </RolePortalLayout>
     );

@@ -6,6 +6,7 @@ import {
   FileText, GraduationCap, HardDrive, Database,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { QuickMenu } from '@/components/admin/shared/QuickMenu';
 
 // Supabase Free Plan limits
 const STORAGE_LIMIT_BYTES = 1 * 1024 * 1024 * 1024; // 1 GB
@@ -122,32 +123,8 @@ const AdminHome = () => {
         ))}
       </div>
 
-      {/* Quick Actions */}
-      <Card className="mb-6">
-        <CardContent className="p-8">
-          <h3 className="text-lg font-semibold mb-4">เมนูลัด</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { label: 'จัดการข่าวสาร', path: '/admin/dashboard/news', icon: Newspaper, desc: 'เพิ่ม/แก้ไขข่าว' },
-              { label: 'จัดการแกลเลอรี่', path: '/admin/dashboard/gallery', icon: Image, desc: 'อัพโหลดรูปภาพ' },
-              { label: 'จัดการกิจกรรม', path: '/admin/dashboard/events', icon: Calendar, desc: 'เพิ่มกิจกรรม' },
-              { label: 'ตั้งค่าโรงเรียน', path: '/admin/dashboard/settings', icon: Settings, desc: 'แก้ไขข้อมูลทั่วไป' },
-            ].map((item) => (
-              <button
-                key={item.path}
-                onClick={() => navigate(item.path)}
-                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-secondary hover:bg-secondary/80 transition-colors text-center"
-              >
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <item.icon className="w-6 h-6 text-primary" />
-                </div>
-                <span className="font-medium text-foreground">{item.label}</span>
-                <span className="text-xs text-muted-foreground">{item.desc}</span>
-              </button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Quick Menu — personalized (admin context) */}
+      <QuickMenu context="admin" />
 
       {/* Storage & Database Usage */}
       <div className="grid md:grid-cols-2 gap-6">
