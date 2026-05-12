@@ -34,7 +34,7 @@ const Navbar = () => {
 
   const isServiceActive = serviceLinks.some(l => location.pathname === l.href);
 
-  // ── Easter Egg: คลิก Logo 5 ครั้งภายใน 3 วินาที → Admin Login ──
+  // ── Easter Egg: คลิก Logo 3 ครั้งภายใน 3 วินาที → Admin Login ──
   const logoClickCount = useRef(0);
   const logoClickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -48,7 +48,7 @@ const Navbar = () => {
       logoClickCount.current = 0;
     }, 3000);
 
-    if (logoClickCount.current >= 5) {
+    if (logoClickCount.current >= 3) {
       logoClickCount.current = 0;
       if (logoClickTimer.current) clearTimeout(logoClickTimer.current);
       e.preventDefault();
@@ -82,7 +82,7 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-4">
         <nav className="flex items-center justify-between h-20">
-          {/* Logo — คลิก 5 ครั้งภายใน 3 วินาทีเพื่อเข้า Admin */}
+          {/* Logo — คลิก 3 ครั้งภายใน 3 วินาทีเพื่อเข้า Admin */}
           <Link to="/" onClick={handleLogoClick} className="flex items-center gap-2 sm:gap-3">
             <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center overflow-hidden flex-shrink-0">
               {settings.school_logo_url ? (

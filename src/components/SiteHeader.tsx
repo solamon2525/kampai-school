@@ -56,7 +56,7 @@ const SiteHeader = () => {
     logoClicks.current += 1;
     if (logoTimer.current) clearTimeout(logoTimer.current);
     logoTimer.current = setTimeout(() => { logoClicks.current = 0; }, 3000);
-    if (logoClicks.current >= 5) {
+    if (logoClicks.current >= 3) {
       logoClicks.current = 0;
       if (logoTimer.current) clearTimeout(logoTimer.current);
       e.preventDefault();
