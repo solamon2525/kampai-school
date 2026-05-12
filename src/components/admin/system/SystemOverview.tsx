@@ -216,8 +216,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.8.8 (Hero Slides — Image Fit + 16:9 Frame Standardization)',
+        version: 'v1.8.9 (Hall of Fame — หอเกียรติยศคนดีคำไผ่)',
         date: 'ล่าสุด',
+        badge: 'bg-yellow-500',
+        items: [
+            'หน้าสาธารณะ `/hall-of-fame` เปิดให้ผู้มาเยือนดูได้โดยไม่ต้อง login — แสดง leaderboard top 10 (มี podium top 3 พร้อมเหรียญ), แยกรายชั้น (top 3 ต่อชั้น), feed ความดีล่าสุด 20 รายการ — filter ภาคเรียน/ปีการศึกษา + แสดงรูป `students.photo_url` พร้อม Avatar fallback initials',
+            'Migration 024: เพิ่ม RLS policy `Public read positive conduct` (FOR SELECT USING type = \'add\') — เปิดเฉพาะคะแนนบวกตามหลัก PDPA ป้องกัน expose การหักคะแนน, policy เดิม `Auth manage conduct_scores` ยังคงเดิม Postgres รวมแบบ OR ผู้ใช้ login ยังจัดการได้ปกติ',
+            'Home block `conduct_leaderboard` ใน `HomeMainContent.tsx` — top 5 เทอมปัจจุบัน คลิกไป `/hall-of-fame` (admin จัดผ่าน MobileLayoutManager / Layout Settings เพื่อเพิ่ม block นี้เข้าหน้าแรก)',
+            'Service: `conductService.getPublicPositive()` ใหม่ใน `conduct.service.ts` — join `students(name, class, photo_url)`, filter `type=add` + optional semester/year — ใช้ทั้งหน้า hall of fame และ home block',
+        ],
+    },
+    {
+        version: 'v1.8.8 (Hero Slides — Image Fit + 16:9 Frame Standardization)',
+        date: '',
         badge: 'bg-sky-500',
         items: [
             'Root cause ของปัญหารูป hero ถูก crop: hero frame เป็น `aspect-[16/7]` แต่ admin hint แนะนำ 1920×1080 (16:9) → ทุกรูปที่ user อัปตามมาตรฐานโดน crop ขอบบน-ล่าง ~16% ทุกใบ — แก้ frame เป็น `aspect-[16/9]` ใน `HomeMainContent.tsx:300` ทีเดียวจบ standard upload 1920×1080 แสดงเต็มเป๊ะ',

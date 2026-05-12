@@ -17,7 +17,7 @@ export type ConductRecord = {
   academic_year: string;
   semester: string;
   created_at: string;
-  students?: { name: string; class: string } | null;
+  students?: { name: string; class: string; photo_url?: string | null } | null;
 };
 
 export type ConductInsert = {
@@ -52,6 +52,18 @@ export const conductService = {
       .select('*')
       .eq('student_id', studentId)
       .order('created_at', { ascending: false }),
+
+  /** ดึงเฉพาะคะแนน "บวก" สำหรับหน้าสาธารณะ (hall of fame) — รวม photo_url */
+  getPublicPositive: (semester?: string, academicYear?: string) => {
+    let q = supabase
+      .from('conduct_scores')
+      .select('*, students(name, class, photo_url)')
+      .eq('type', 'add')
+      .order('created_at', { ascending: false });
+    if (semester) q = q.eq('semester', semester);
+    if (academicYear) q = q.eq('academic_year', academicYear);
+    return q;
+  },
 
   /** บันทึกคะแนนความดี */
   insert: (record: ConductInsert) =>

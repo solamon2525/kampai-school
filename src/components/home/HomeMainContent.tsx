@@ -2,9 +2,10 @@ import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
-import { ChevronLeft, ChevronRight, Eye, Calendar, ArrowRight, FileText, ChevronDown, Database, Heart, Utensils, BookOpen, Briefcase, Building, Send, Award } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Eye, Calendar, ArrowRight, FileText, ChevronDown, Database, Heart, Utensils, BookOpen, Briefcase, Building, Send, Award, Trophy } from 'lucide-react';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import { MapEmbed } from '@/components/MapEmbed';
+import { conductService, type ConductRecord } from '@/services/conduct.service';
 import {
   staggerContainerVariants,
   staggerItemVariants,
@@ -119,6 +120,7 @@ export const useHomeMainBlocks = () => {
   const [partners, setPartners] = useState<{ id: string; name: string; logo_url: string | null; link_url: string | null }[]>([]);
   const carouselRef = useRef<HTMLDivElement>(null);
   const [countdown, setCountdown] = useState({ days: '--', hours: '--', minutes: '--', seconds: '--', label: 'เปิดเทอม' });
+  const [topConduct, setTopConduct] = useState<{ id: string; name: string; class: string; photo: string | null; total: number }[]>([]);
 
   useEffect(() => {
     supabase
@@ -212,6 +214,28 @@ export const useHomeMainBlocks = () => {
           { id: 'p4', name: 'ท้องถิ่น',         logo_url: '/logos/garuda.png', link_url: '#' },
         ]);
       });
+  }, []);
+
+  // Fetch top conduct students (current semester guess: month >= May → sem 1, else sem 2)
+  useEffect(() => {
+    const now = new Date();
+    const sem = now.getMonth() >= 4 && now.getMonth() <= 9 ? '1' : '2';
+    const year = String(now.getFullYear() + 543);
+    conductService.getPublicPositive(sem, year).then(({ data }) => {
+      const records = (data || []) as ConductRecord[];
+      const map = new Map<string, { id: string; name: string; class: string; photo: string | null; total: number }>();
+      for (const r of records) {
+        if (!r.students) continue;
+        const cur = map.get(r.student_id) ?? {
+          id: r.student_id, name: r.students.name, class: r.students.class,
+          photo: r.students.photo_url ?? null, total: 0,
+        };
+        cur.total += r.score;
+        map.set(r.student_id, cur);
+      }
+      const top = Array.from(map.values()).sort((a, b) => b.total - a.total).slice(0, 5);
+      setTopConduct(top);
+    });
   }, []);
 
   // Fetch hero_slides from DB; fallback to news cover images
@@ -945,6 +969,40 @@ export const useHomeMainBlocks = () => {
     </div>
   );
 
+  const conductLeaderboardSection = topConduct.length > 0 ? (
+    <div className="bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-950/20 dark:to-amber-950/20 rounded-lg shadow-sm border border-yellow-200/60 dark:border-yellow-900/30 p-4">
+      <div className="flex items-center gap-2 mb-4">
+        <Trophy className="w-5 h-5 text-yellow-500" />
+        <h3 className="text-base font-bold text-gray-800 dark:text-foreground">คนดีคำไผ่</h3>
+        <span className="text-xs text-muted-foreground ml-2">เทอมปัจจุบัน</span>
+        <Link to="/hall-of-fame" className="ml-auto text-xs text-primary hover:underline flex items-center gap-0.5">
+          ดูทั้งหมด <ArrowRight className="w-3 h-3" />
+        </Link>
+      </div>
+      <div className="space-y-2">
+        {topConduct.map((s, idx) => (
+          <Link key={s.id} to="/hall-of-fame" className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/60 dark:hover:bg-foreground/5 transition-colors">
+            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${idx === 0 ? 'bg-yellow-400 text-white' : idx === 1 ? 'bg-gray-400 text-white' : idx === 2 ? 'bg-amber-600 text-white' : 'bg-muted text-muted-foreground'}`}>
+              {idx + 1}
+            </div>
+            {s.photo ? (
+              <img src={s.photo} alt={s.name} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold flex-shrink-0">
+                {s.name.replace(/^(ด\.ช\.|ด\.ญ\.|นาย|นางสาว|นาง)\s*/, '').slice(0, 2)}
+              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-800 dark:text-foreground truncate">{s.name}</p>
+              <p className="text-[10px] text-muted-foreground">{s.class}</p>
+            </div>
+            <span className="text-sm font-bold text-yellow-700 dark:text-yellow-400 flex-shrink-0">+{s.total}</span>
+          </Link>
+        ))}
+      </div>
+    </div>
+  ) : null;
+
   const sectionMap: Record<string, JSX.Element | null> = {
     hero: heroSection,
     news: newsSection,
@@ -965,6 +1023,7 @@ export const useHomeMainBlocks = () => {
     map_embed: mapEmbedSection,
     contact_form: contactFormSection,
     obec_systems: obecSystemsSection,
+    conduct_leaderboard: conductLeaderboardSection,
   };
 
   return sectionMap;
