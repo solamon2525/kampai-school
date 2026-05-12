@@ -135,7 +135,7 @@ export const ClassPromotionManagement = () => {
 
             if (next === null) {
                 // จบการศึกษา
-                const { error } = await studentsService.update(s.id, { is_active: false });
+                const { error } = await studentsService.update(s.id, { is_active: false, class: 'จบการศึกษา' });
                 if (error) errorCount++;
                 else successCount++;
             } else {
