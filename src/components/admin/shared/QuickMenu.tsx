@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -42,8 +42,10 @@ export const QuickMenu = ({ context }: QuickMenuProps) => {
     enabled: !!user?.id,
     queryFn: async () => {
       const { data } = await quickMenuService.get(user!.id, context);
-      const ids = (data as { menu_item_ids: string[] } | null)?.menu_item_ids;
-      return ids && ids.length > 0 ? ids : getDefaultIds(context);
+      const row = data as { menu_item_ids: string[] } | null;
+      // null = ยังไม่เคย save → ใช้ defaults
+      // array (อาจว่าง) = save แล้ว → respect user choice ไม่ revert
+      return row?.menu_item_ids ?? getDefaultIds(context);
     },
   });
 
@@ -116,11 +118,11 @@ const QuickMenuEditor = ({ open, onOpenChange, context, initialIds, catalog }: Q
   const queryClient = useQueryClient();
   const [ids, setIds] = useState<string[]>(initialIds);
 
-  // Sync ids กับ initialIds เมื่อ dialog เปิด
-  const handleOpenChange = (v: boolean) => {
-    if (v) setIds(initialIds);
-    onOpenChange(v);
-  };
+  // Resync ids กับ initialIds ทุกครั้งที่ dialog เปิด (initialIds จาก parent query
+  // อาจ resolve หลัง mount → handleOpenChange เดิมไม่ trigger บน controlled open prop)
+  useEffect(() => {
+    if (open) setIds(initialIds);
+  }, [open, initialIds]);
 
   const catalogById = useMemo(() => {
     const m = new Map<string, QuickMenuOption>();
@@ -171,7 +173,7 @@ const QuickMenuEditor = ({ open, onOpenChange, context, initialIds, catalog }: Q
   });
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>จัดการเมนูลัด</DialogTitle>
@@ -208,38 +210,54 @@ const QuickMenuEditor = ({ open, onOpenChange, context, initialIds, catalog }: Q
 
           {/* Section 2: เมนูทั้งหมด (เพิ่ม) */}
           <div>
-            <h4 className="text-sm font-semibold mb-2">เมนูทั้งหมด</h4>
+            <h4 className="text-sm font-semibold mb-2">
+              เมนูทั้งหมด{' '}
+              <span className="text-muted-foreground font-normal">
+                (เลือก {ids.length}/{catalog.length})
+              </span>
+            </h4>
             <div className="space-y-3">
-              {groupedAvailable.map(([group, opts]) => (
-                <div key={group}>
-                  <p className="text-xs text-muted-foreground mb-1.5">{group}</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                    {opts.map((opt) => {
-                      const isSelected = selectedSet.has(opt.id);
-                      return (
-                        <button
-                          key={opt.id}
-                          onClick={() => (isSelected ? removeId(opt.id) : addId(opt.id))}
-                          className={cn(
-                            'flex items-center gap-2 p-2 rounded-lg text-left text-sm transition-colors',
-                            isSelected
-                              ? 'bg-primary/10 border border-primary/30 text-primary'
-                              : 'bg-secondary/50 hover:bg-secondary border border-transparent'
-                          )}
-                        >
-                          <opt.icon className="w-4 h-4 flex-shrink-0" />
-                          <span className="flex-1 truncate">{opt.label}</span>
-                          {isSelected ? (
-                            <X className="w-3.5 h-3.5 flex-shrink-0" />
-                          ) : (
-                            <Plus className="w-3.5 h-3.5 flex-shrink-0 text-muted-foreground" />
-                          )}
-                        </button>
-                      );
-                    })}
+              {groupedAvailable.map(([group, opts]) => {
+                const groupSelected = opts.filter((o) => selectedSet.has(o.id)).length;
+                return (
+                  <div key={group}>
+                    <p className="text-xs text-muted-foreground mb-1.5">
+                      {group}{' '}
+                      <span className="opacity-70">
+                        ({groupSelected}/{opts.length})
+                      </span>
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                      {opts.map((opt) => {
+                        const isSelected = selectedSet.has(opt.id);
+                        return (
+                          <button
+                            key={opt.id}
+                            onClick={() => (isSelected ? removeId(opt.id) : addId(opt.id))}
+                            className={cn(
+                              'flex items-center gap-2 p-2 rounded-lg text-left text-sm transition-colors',
+                              isSelected
+                                ? 'bg-primary/10 border border-primary/40 text-primary ring-1 ring-primary/20'
+                                : 'bg-secondary/50 hover:bg-secondary border border-transparent'
+                            )}
+                            title={isSelected ? 'กำลังแสดงในเมนูลัด — คลิกเพื่อเอาออก' : 'คลิกเพื่อเพิ่มเข้าเมนูลัด'}
+                          >
+                            <opt.icon className="w-4 h-4 flex-shrink-0" />
+                            <span className="flex-1 truncate">{opt.label}</span>
+                            {isSelected ? (
+                              <span className="text-[10px] font-semibold text-primary bg-primary/15 px-1.5 py-0.5 rounded shrink-0">
+                                ใช้อยู่
+                              </span>
+                            ) : (
+                              <Plus className="w-3.5 h-3.5 flex-shrink-0 text-muted-foreground" />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
