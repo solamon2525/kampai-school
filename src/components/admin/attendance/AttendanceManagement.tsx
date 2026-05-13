@@ -32,9 +32,12 @@ import {
   Download,
   Printer,
   Bell,
+  Check,
+  RotateCcw,
 } from 'lucide-react';
 import { RadialBarChart, RadialBar, PolarAngleAxis, ResponsiveContainer } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 import { downloadCSV, printTable } from '@/lib/export';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { TableSkeleton, ListSkeleton } from '@/components/ui/loading-skeletons';
@@ -149,12 +152,32 @@ function StatusButton({ status, active, onClick }: StatusButtonProps) {
     <button
       type="button"
       onClick={onClick}
-      className={`px-3 py-1 text-sm font-medium rounded border transition-colors ${
+      className={cn(
+        'px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium rounded border transition-colors min-w-[36px]',
         active ? cfg.activeBg : cfg.bg
-      }`}
+      )}
     >
       {cfg.label}
     </button>
+  );
+}
+
+function StudentAvatar({ student }: { student: Student }) {
+  return (
+    <div className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-full overflow-hidden border border-border bg-muted flex items-center justify-center">
+      {student.photo_url ? (
+        <img
+          src={student.photo_url}
+          alt={student.name}
+          className="w-full h-full object-cover"
+          loading="lazy"
+        />
+      ) : (
+        <span className="text-sm font-bold text-muted-foreground">
+          {student.name.slice(0, 1)}
+        </span>
+      )}
+    </div>
   );
 }
 
@@ -175,10 +198,7 @@ export const AttendanceManagement = () => {
   const [recorder, setRecorder] = useState<RecorderValue>(EMPTY_RECORDER);
 
   const loadCheckin = async () => {
-    if (!checkinClass) {
-      toast({ title: 'กรุณาเลือกชั้นเรียน', variant: 'destructive' });
-      return;
-    }
+    if (!checkinClass) return;
     setCheckinLoading(true);
     setDataLoaded(false);
     try {
@@ -206,9 +226,27 @@ export const AttendanceManagement = () => {
     }
   };
 
+  useEffect(() => {
+    if (!checkinClass) return;
+    loadCheckin();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkinClass, checkinDate]);
+
   const setStatus = (studentId: string, status: AttendanceStatus) => {
     setAttendanceMap((prev) => ({ ...prev, [studentId]: status }));
   };
+
+  const markAllPresent = () => {
+    setAttendanceMap(
+      Object.fromEntries(
+        checkinStudents.map((s) => [s.id, 'present' as AttendanceStatus])
+      )
+    );
+  };
+
+  const clearAll = () => setAttendanceMap({});
+
+  const checkedCount = Object.keys(attendanceMap).length;
 
   const saveAll = async () => {
     if (!dataLoaded || checkinStudents.length === 0) return;
@@ -554,14 +592,12 @@ export const AttendanceManagement = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <Button onClick={loadCheckin} disabled={checkinLoading}>
-                  {checkinLoading ? (
+                {checkinLoading && (
+                  <div className="flex items-center text-sm text-muted-foreground">
                     <RefreshCw className="w-4 h-4 animate-spin mr-2" />
-                  ) : (
-                    <ClipboardList className="w-4 h-4 mr-2" />
-                  )}
-                  โหลดรายชื่อ
-                </Button>
+                    กำลังโหลด...
+                  </div>
+                )}
                 <RecorderSelect
                   value={recorder}
                   onChange={setRecorder}
@@ -579,20 +615,20 @@ export const AttendanceManagement = () => {
                 ([status, cfg]) => (
                   <div
                     key={status}
-                    className="flex items-center gap-2 bg-white border rounded-lg px-4 py-2 shadow-sm"
+                    className="flex items-center gap-2 bg-card border border-border rounded-lg px-4 py-2 shadow-sm"
                   >
                     <span className={`text-sm font-medium ${cfg.color}`}>{cfg.activeText}</span>
-                    <span className="text-lg font-bold text-gray-800">{summary[status]}</span>
-                    <span className="text-xs text-gray-400">คน</span>
+                    <span className="text-lg font-bold text-foreground">{summary[status]}</span>
+                    <span className="text-xs text-muted-foreground">คน</span>
                   </div>
                 )
               )}
-              <div className="flex items-center gap-2 bg-gray-50 border rounded-lg px-4 py-2 shadow-sm">
-                <span className="text-sm font-medium text-gray-600">ยังไม่ได้เช็ค</span>
-                <span className="text-lg font-bold text-gray-800">
+              <div className="flex items-center gap-2 bg-muted/50 border border-border rounded-lg px-4 py-2 shadow-sm">
+                <span className="text-sm font-medium text-muted-foreground">ยังไม่ได้เช็ค</span>
+                <span className="text-lg font-bold text-foreground">
                   {checkinStudents.length - Object.keys(attendanceMap).length}
                 </span>
-                <span className="text-xs text-gray-400">คน</span>
+                <span className="text-xs text-muted-foreground">คน</span>
               </div>
             </div>
           )}
@@ -601,31 +637,70 @@ export const AttendanceManagement = () => {
           {dataLoaded && checkinStudents.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">
-                  รายชื่อนักเรียน ชั้น {checkinClass} — {checkinStudents.length} คน
-                </CardTitle>
+                <div className="flex items-center justify-between flex-wrap gap-3">
+                  <CardTitle className="text-base">
+                    รายชื่อนักเรียน ชั้น {checkinClass} — {checkinStudents.length} คน
+                  </CardTitle>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={markAllPresent}
+                      className="gap-1 text-green-700 border-green-300 hover:bg-green-50"
+                    >
+                      <Check className="w-4 h-4" /> มาทั้งหมด
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={clearAll}
+                      className="gap-1 text-muted-foreground"
+                    >
+                      <RotateCcw className="w-4 h-4" /> ล้างทั้งหมด
+                    </Button>
+                  </div>
+                </div>
+                {/* Progress */}
+                <div className="flex items-center gap-2 mt-2">
+                  <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-green-500 transition-all"
+                      style={{
+                        width: `${
+                          checkinStudents.length
+                            ? (checkedCount / checkinStudents.length) * 100
+                            : 0
+                        }%`,
+                      }}
+                    />
+                  </div>
+                  <span className="text-xs text-muted-foreground tabular-nums shrink-0">
+                    เช็คแล้ว {checkedCount}/{checkinStudents.length}
+                  </span>
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
+                <div className="space-y-1">
                   {checkinStudents.map((s) => {
                     const currentStatus = attendanceMap[s.id];
                     return (
                       <div
                         key={s.id}
-                        className="flex items-center gap-3 py-2 border-b last:border-b-0"
+                        className={cn(
+                          'flex items-center gap-2 sm:gap-3 px-2 py-2 rounded-md min-w-0 transition-colors',
+                          'odd:bg-muted/30',
+                          !currentStatus &&
+                            'ring-1 ring-amber-300 bg-amber-50/40 dark:bg-amber-950/20'
+                        )}
                       >
-                        <span className="w-8 text-center text-sm font-semibold text-gray-500">
+                        <span className="w-6 shrink-0 text-center text-xs sm:text-sm font-semibold text-muted-foreground tabular-nums">
                           {s.class_number}
                         </span>
-                        {s.photo_url ? (
-                          <img src={s.photo_url} alt={s.name} className="w-9 h-9 rounded-full object-cover flex-shrink-0 border border-gray-200" />
-                        ) : (
-                          <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-sm font-bold text-blue-600 flex-shrink-0">
-                            {s.name.slice(0, 1)}
-                          </div>
-                        )}
-                        <span className="flex-1 text-sm font-medium text-gray-800">{s.name}</span>
-                        <div className="flex gap-1">
+                        <StudentAvatar student={s} />
+                        <span className="flex-1 min-w-0 truncate text-sm font-medium text-foreground">
+                          {s.name}
+                        </span>
+                        <div className="flex gap-0.5 sm:gap-1 shrink-0">
                           {(Object.keys(STATUS_CONFIG) as AttendanceStatus[]).map((st) => (
                             <StatusButton
                               key={st}
@@ -639,7 +714,7 @@ export const AttendanceManagement = () => {
                     );
                   })}
                 </div>
-                <div className="mt-4 flex justify-end gap-2">
+                <div className="sticky bottom-0 -mx-6 px-6 mt-4 bg-background/95 backdrop-blur border-t border-border py-3 flex justify-end gap-2 z-10">
                   {absentStudents.length > 0 && (
                     <Button variant="outline" onClick={() => setNotifyOpen(true)} className="gap-1 text-orange-600 border-orange-300 hover:bg-orange-50">
                       <Bell className="w-4 h-4" />
