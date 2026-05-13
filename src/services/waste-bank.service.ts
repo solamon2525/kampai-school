@@ -164,6 +164,15 @@ export const wasteTransactionsService = {
     },
   ) => supabase.from('waste_transactions').insert(data as never),
 
+  /** Batch insert — atomic (ทั้ง batch ผ่านหรือพร้อมกัน fail) */
+  insertMany: (
+    rows: Array<
+      Omit<WasteTransaction, 'id' | 'created_at' | 'waste_categories' | 'students'> & {
+        points_earned: number;
+      }
+    >,
+  ) => supabase.from('waste_transactions').insert(rows as never),
+
   update: (
     id: string,
     data: Partial<Omit<WasteTransaction, 'id' | 'created_at' | 'waste_categories' | 'students'>>,

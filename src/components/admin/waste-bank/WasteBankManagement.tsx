@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Trash2, Plus, Edit2, Save, X, Package, Users, List, Download, Gift, ClipboardCheck, QrCode } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { downloadCSV } from '@/lib/export';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -46,7 +47,6 @@ export const WasteBankManagement = () => {
   const [categories, setCategories] = useState<WasteCategory[]>([]);
   const [transactions, setTransactions] = useState<WasteTransaction[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [calculatedPoints, setCalculatedPoints] = useState<number | null>(null);
   const [showQRScanner, setShowQRScanner] = useState(false);
 
   // Student selector
@@ -55,15 +55,31 @@ export const WasteBankManagement = () => {
 
   const today = new Date().toISOString().split('T')[0];
 
+  type RecordRow = { category_id: string; quantity: string };
+
   const [form, setForm] = useState({
     student_name: '',
     student_class: '',
-    category_id: '',
-    quantity: '',
     transaction_date: today,
     notes: '',
   });
+  const [rows, setRows] = useState<RecordRow[]>([{ category_id: '', quantity: '' }]);
   const [recorder, setRecorder] = useState<RecorderValue>(EMPTY_RECORDER);
+
+  const addRow = () => setRows((rs) => [...rs, { category_id: '', quantity: '' }]);
+  const removeRow = (i: number) =>
+    setRows((rs) => (rs.length === 1 ? rs : rs.filter((_, idx) => idx !== i)));
+  const updateRow = (i: number, patch: Partial<RecordRow>) =>
+    setRows((rs) => rs.map((r, idx) => (idx === i ? { ...r, ...patch } : r)));
+
+  const rowsTotalPoints = useMemo(() => {
+    return rows.reduce((sum, r) => {
+      const c = categories.find((x) => x.id === r.category_id);
+      const q = parseInt(r.quantity, 10);
+      if (c && q > 0) return sum + q * c.points_per_item;
+      return sum;
+    }, 0);
+  }, [rows, categories]);
 
   // ========== Tab 2: สรุปยอดสะสม ==========
   const [summaries, setSummaries] = useState<WasteStudentSummary[]>([]);
@@ -86,21 +102,6 @@ export const WasteBankManagement = () => {
     fetchTransactions();
     fetchSummaries();
   }, []);
-
-  // Auto-calculate points when category or quantity changes
-  useEffect(() => {
-    if (form.category_id && form.quantity) {
-      const cat = categories.find((c) => c.id === form.category_id);
-      const qty = parseInt(form.quantity, 10);
-      if (cat && qty > 0) {
-        setCalculatedPoints(qty * cat.points_per_item);
-      } else {
-        setCalculatedPoints(null);
-      }
-    } else {
-      setCalculatedPoints(null);
-    }
-  }, [form.category_id, form.quantity, categories]);
 
   // Fetch students when class changes
   useEffect(() => {
@@ -149,47 +150,61 @@ export const WasteBankManagement = () => {
   };
 
   const handleSubmitTransaction = async () => {
-    if (!form.student_name || !form.student_class || !form.category_id || !form.quantity || !form.transaction_date) {
-      toast({ title: 'กรุณากรอกข้อมูลให้ครบถ้วน', variant: 'destructive' });
+    if (!form.student_name || !form.student_class || !form.transaction_date) {
+      toast({ title: 'กรุณาเลือกนักเรียนและวันที่', variant: 'destructive' });
       return;
     }
-    const qty = parseInt(form.quantity, 10);
-    if (isNaN(qty) || qty <= 0) {
-      toast({ title: 'จำนวนต้องเป็นตัวเลขมากกว่า 0', variant: 'destructive' });
-      return;
-    }
-    const cat = categories.find((c) => c.id === form.category_id);
-    if (!cat) return;
-    const points = qty * cat.points_per_item;
 
-    setIsSubmitting(true);
-    const { error } = await wasteTransactionsService.insert({
+    // build valid rows — กรองแถวที่ขาด category หรือ quantity ออก
+    const valid = rows
+      .map((r) => {
+        const cat = categories.find((c) => c.id === r.category_id);
+        const qty = parseInt(r.quantity, 10);
+        if (!cat || isNaN(qty) || qty <= 0) return null;
+        return { cat, qty };
+      })
+      .filter((x): x is { cat: WasteCategory; qty: number } => x !== null);
+
+    if (valid.length === 0) {
+      toast({ title: 'กรอกประเภทและจำนวนอย่างน้อย 1 แถว', variant: 'destructive' });
+      return;
+    }
+
+    const payload = valid.map(({ cat, qty }) => ({
       student_name: form.student_name.trim(),
       student_class: form.student_class,
       student_id: selectedStudentId || null,
-      category_id: form.category_id,
+      category_id: cat.id,
       quantity: qty,
-      points_earned: points,
+      points_earned: qty * cat.points_per_item,
       transaction_date: form.transaction_date,
       notes: form.notes.trim() || null,
       recorded_by: recorder.name || null,
       recorded_by_staff_id: recorder.staffId,
       recorded_by_administrator_id: recorder.administratorId,
-    });
+    }));
+
+    setIsSubmitting(true);
+    const { error } = await wasteTransactionsService.insertMany(payload);
     setIsSubmitting(false);
 
     if (error) {
       toast({ title: 'เกิดข้อผิดพลาด', description: error.message, variant: 'destructive' });
-    } else {
-      toast({ title: 'บันทึกรายการสำเร็จ', description: `${form.student_name} — ${qty} ชิ้น = ${points} แต้ม` });
-      setForm({ student_name: '', student_class: '', category_id: '', quantity: '', transaction_date: today, notes: '' });
-      // recorder ไม่ reset — auto-fill ของ login user คงอยู่ บันทึกรายการต่อๆ ได้เลย
-      setSelectedStudentId('');
-      setStudentOptions([]);
-      setCalculatedPoints(null);
-      fetchTransactions();
-      fetchSummaries();
+      return;
     }
+
+    const totalPointsSubmitted = payload.reduce((s, p) => s + p.points_earned, 0);
+    toast({
+      title: 'บันทึกรายการสำเร็จ',
+      description: `${form.student_name} — ${valid.length} ประเภท · รวม ${totalPointsSubmitted} แต้ม`,
+    });
+    setRows([{ category_id: '', quantity: '' }]);
+    setForm({ student_name: '', student_class: '', transaction_date: today, notes: '' });
+    // recorder ไม่ reset — auto-fill ของ login user คงอยู่ บันทึกรายการต่อๆ ได้เลย
+    setSelectedStudentId('');
+    setStudentOptions([]);
+    fetchTransactions();
+    fetchSummaries();
   };
 
   const handleDeleteTransaction = async (id: string) => {
@@ -386,44 +401,87 @@ export const WasteBankManagement = () => {
                   )}
                 </div>
 
-                {/* Category */}
-                <div className="space-y-1">
-                  <Label>ประเภทขยะ <span className="text-destructive">*</span></Label>
-                  <Select value={form.category_id} onValueChange={(v) => handleFormChange('category_id', v)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="เลือกประเภทขยะ" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((cat) => (
-                        <SelectItem key={cat.id} value={cat.id}>
-                          {cat.icon && <span className="mr-1">{cat.icon}</span>}
-                          {cat.name} ({cat.points_per_item} แต้ม/ชิ้น)
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Quantity */}
-                <div className="space-y-1">
-                  <Label>จำนวน (ชิ้น) <span className="text-destructive">*</span></Label>
-                  <Input
-                    type="number"
-                    step="1"
-                    min="1"
-                    placeholder="0"
-                    value={form.quantity}
-                    onChange={(e) => handleFormChange('quantity', e.target.value)}
-                  />
-                </div>
-
-                {/* Points (auto) */}
-                <div className="space-y-1">
-                  <Label>แต้มที่ได้รับ</Label>
-                  <div className={`flex items-center h-10 px-3 rounded-md border text-sm font-medium ${
-                    calculatedPoints !== null ? 'bg-emerald-50 border-emerald-300 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300' : 'bg-muted border-border text-muted-foreground'
-                  }`}>
-                    {calculatedPoints !== null ? `${calculatedPoints} แต้ม` : 'คำนวณอัตโนมัติ'}
+                {/* ─── Multi-row: ประเภทขยะ + จำนวน + แต้ม ─── */}
+                <div className="md:col-span-2 lg:col-span-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label>ประเภทขยะ <span className="text-destructive">*</span></Label>
+                    <Button type="button" size="sm" variant="outline" onClick={addRow} className="gap-1">
+                      <Plus className="w-3.5 h-3.5" /> เพิ่มประเภท
+                    </Button>
+                  </div>
+                  <div className="space-y-2">
+                    {rows.map((row, i) => {
+                      const cat = categories.find((c) => c.id === row.category_id);
+                      const qty = parseInt(row.quantity, 10);
+                      const rowPoints = cat && qty > 0 ? qty * cat.points_per_item : null;
+                      return (
+                        <div
+                          key={i}
+                          className="flex items-end gap-2 p-2 rounded-md border border-border bg-muted/20"
+                        >
+                          <div className="flex-1 min-w-0 space-y-1">
+                            <Label className="text-xs text-muted-foreground">ประเภท</Label>
+                            <Select
+                              value={row.category_id}
+                              onValueChange={(v) => updateRow(i, { category_id: v })}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="เลือกประเภทขยะ" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {categories.map((c) => (
+                                  <SelectItem key={c.id} value={c.id}>
+                                    {c.icon && <span className="mr-1">{c.icon}</span>}
+                                    {c.name} ({c.points_per_item} แต้ม/ชิ้น)
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="w-20 sm:w-24 shrink-0 space-y-1">
+                            <Label className="text-xs text-muted-foreground">จำนวน</Label>
+                            <Input
+                              type="number"
+                              min="1"
+                              step="1"
+                              placeholder="0"
+                              value={row.quantity}
+                              onChange={(e) => updateRow(i, { quantity: e.target.value })}
+                            />
+                          </div>
+                          <div className="w-20 sm:w-24 shrink-0 space-y-1">
+                            <Label className="text-xs text-muted-foreground">แต้ม</Label>
+                            <div
+                              className={cn(
+                                'h-10 flex items-center justify-end px-2 rounded-md border text-sm font-medium tabular-nums',
+                                rowPoints !== null
+                                  ? 'bg-emerald-50 border-emerald-300 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
+                                  : 'bg-muted border-border text-muted-foreground',
+                              )}
+                            >
+                              {rowPoints !== null ? `+${rowPoints}` : '—'}
+                            </div>
+                          </div>
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => removeRow(i)}
+                            disabled={rows.length === 1}
+                            className="text-destructive shrink-0"
+                            title={rows.length === 1 ? 'อย่างน้อย 1 แถว' : 'ลบแถวนี้'}
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="flex justify-end items-center gap-2 pt-1 text-sm">
+                    <span className="text-muted-foreground">รวมแต้มทั้งหมด:</span>
+                    <span className="text-lg font-bold text-emerald-700 dark:text-emerald-400 tabular-nums">
+                      {rowsTotalPoints} แต้ม
+                    </span>
                   </div>
                 </div>
 
