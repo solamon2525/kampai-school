@@ -1476,6 +1476,10 @@ export type Database = {
       }
       reward_claims: {
         Row: {
+          academic_year: string | null
+          approved_by_administrator_id: string | null
+          approved_by_staff_id: string | null
+          balance_after: number | null
           claimed_at: string | null
           id: string
           points_used: number
@@ -1484,10 +1488,15 @@ export type Database = {
           reviewed_by: string | null
           reward_id: string
           reward_name: string
+          semester: string | null
           status: Database["public"]["Enums"]["reward_claim_status"] | null
           student_id: string
         }
         Insert: {
+          academic_year?: string | null
+          approved_by_administrator_id?: string | null
+          approved_by_staff_id?: string | null
+          balance_after?: number | null
           claimed_at?: string | null
           id?: string
           points_used: number
@@ -1496,10 +1505,15 @@ export type Database = {
           reviewed_by?: string | null
           reward_id: string
           reward_name: string
+          semester?: string | null
           status?: Database["public"]["Enums"]["reward_claim_status"] | null
           student_id: string
         }
         Update: {
+          academic_year?: string | null
+          approved_by_administrator_id?: string | null
+          approved_by_staff_id?: string | null
+          balance_after?: number | null
           claimed_at?: string | null
           id?: string
           points_used?: number
@@ -1508,10 +1522,25 @@ export type Database = {
           reviewed_by?: string | null
           reward_id?: string
           reward_name?: string
+          semester?: string | null
           status?: Database["public"]["Enums"]["reward_claim_status"] | null
           student_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "reward_claims_approved_by_administrator_id_fkey"
+            columns: ["approved_by_administrator_id"]
+            isOneToOne: false
+            referencedRelation: "administrators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reward_claims_approved_by_staff_id_fkey"
+            columns: ["approved_by_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "reward_claims_reward_id_fkey"
             columns: ["reward_id"]
@@ -1545,6 +1574,8 @@ export type Database = {
           is_active: boolean | null
           name: string
           order_position: number | null
+          owner_administrator_id: string | null
+          owner_staff_id: string | null
           points_cost: number
           stock: number | null
           updated_at: string | null
@@ -1558,6 +1589,8 @@ export type Database = {
           is_active?: boolean | null
           name: string
           order_position?: number | null
+          owner_administrator_id?: string | null
+          owner_staff_id?: string | null
           points_cost: number
           stock?: number | null
           updated_at?: string | null
@@ -1571,11 +1604,28 @@ export type Database = {
           is_active?: boolean | null
           name?: string
           order_position?: number | null
+          owner_administrator_id?: string | null
+          owner_staff_id?: string | null
           points_cost?: number
           stock?: number | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "rewards_owner_administrator_id_fkey"
+            columns: ["owner_administrator_id"]
+            isOneToOne: false
+            referencedRelation: "administrators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rewards_owner_staff_id_fkey"
+            columns: ["owner_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       school_dashboard_entries: {
         Row: {
@@ -2325,6 +2375,27 @@ export type Database = {
           },
         ]
       }
+      user_quick_menu_preferences: {
+        Row: {
+          context: string
+          menu_item_ids: string[]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          context: string
+          menu_item_ids?: string[]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          context?: string
+          menu_item_ids?: string[]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           administrator_id: string | null
@@ -2419,6 +2490,7 @@ export type Database = {
       }
       waste_transactions: {
         Row: {
+          academic_year: string | null
           category_id: string
           created_at: string | null
           id: string
@@ -2428,12 +2500,14 @@ export type Database = {
           recorded_by: string | null
           recorded_by_administrator_id: string | null
           recorded_by_staff_id: string | null
+          semester: string | null
           student_class: string | null
           student_id: string | null
           student_name: string
           transaction_date: string | null
         }
         Insert: {
+          academic_year?: string | null
           category_id: string
           created_at?: string | null
           id?: string
@@ -2443,12 +2517,14 @@ export type Database = {
           recorded_by?: string | null
           recorded_by_administrator_id?: string | null
           recorded_by_staff_id?: string | null
+          semester?: string | null
           student_class?: string | null
           student_id?: string | null
           student_name: string
           transaction_date?: string | null
         }
         Update: {
+          academic_year?: string | null
           category_id?: string
           created_at?: string | null
           id?: string
@@ -2458,6 +2534,7 @@ export type Database = {
           recorded_by?: string | null
           recorded_by_administrator_id?: string | null
           recorded_by_staff_id?: string | null
+          semester?: string | null
           student_class?: string | null
           student_id?: string | null
           student_name?: string
@@ -2520,7 +2597,15 @@ export type Database = {
       }
     }
     Functions: {
+      active_term: {
+        Args: never
+        Returns: {
+          sem: string
+          year: string
+        }[]
+      }
       auth_role: { Args: never; Returns: string }
+      can_approve_reward: { Args: { p_reward_id: string }; Returns: boolean }
       claim_reward: {
         Args: { p_code: string; p_reward_id: string }
         Returns: string
@@ -2532,6 +2617,20 @@ export type Database = {
           bucket_id: string
           file_count: number
           total_bytes: number
+        }[]
+      }
+      get_student_history: {
+        Args: { p_code: string; p_limit?: number }
+        Returns: {
+          academic_year: string
+          balance_after: number
+          claim_id: string
+          claimed_at: string
+          points_used: number
+          reward_image: string
+          reward_name: string
+          semester: string
+          status: Database["public"]["Enums"]["reward_claim_status"]
         }[]
       }
       increment_news_view: { Args: { news_id: string }; Returns: undefined }

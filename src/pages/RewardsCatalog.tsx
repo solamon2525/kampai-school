@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, BarChart3, Gift, Search, Sparkles } from 'lucide-react';
+import { ArrowLeft, BarChart3, Gift, Search, Sparkles, History, Clock, CheckCircle2, XCircle } from 'lucide-react';
 import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
 import { SEOHead } from '@/components/SEOHead';
@@ -17,7 +17,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { rewardsService, rewardClaimsService } from '@/services/waste-bank.service';
-import type { Reward, StudentBalanceLookup } from '@/services/waste-bank.service';
+import type { Reward, StudentBalanceLookup, StudentHistoryRow } from '@/services/waste-bank.service';
+import { Badge } from '@/components/ui/badge';
 import { RewardCard } from '@/components/rewards/RewardCard';
 import { RewardClaimDialog } from '@/components/rewards/RewardClaimDialog';
 import { cn } from '@/lib/utils';
@@ -207,12 +208,14 @@ function BalanceCheckDialog({
 }) {
   const [code, setCode] = useState('');
   const [student, setStudent] = useState<StudentBalanceLookup | null>(null);
+  const [history, setHistory] = useState<StudentHistoryRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
   const reset = () => {
     setCode('');
     setStudent(null);
+    setHistory([]);
     setLoading(false);
     setErr(null);
   };
@@ -223,18 +226,24 @@ function BalanceCheckDialog({
     setLoading(true);
     setErr(null);
     setStudent(null);
+    setHistory([]);
     const { data, error } = await rewardClaimsService.lookupStudent(trimmed);
-    setLoading(false);
     if (error) {
+      setLoading(false);
       setErr(error.message ?? 'เกิดข้อผิดพลาด');
       return;
     }
     const row = Array.isArray(data) ? data[0] : data;
     if (!row || !row.student_id) {
+      setLoading(false);
       setErr('ไม่พบนักเรียนที่ใช้รหัสนี้');
       return;
     }
     setStudent(row as StudentBalanceLookup);
+    // โหลดประวัติแลกในพื้นหลัง
+    const { data: hist } = await rewardClaimsService.getStudentHistory(trimmed, 30);
+    setHistory((hist as StudentHistoryRow[]) ?? []);
+    setLoading(false);
   };
 
   return (
@@ -303,6 +312,66 @@ function BalanceCheckDialog({
                   <span className="text-sm text-muted-foreground">แต้ม</span>
                 </div>
               </div>
+            </div>
+          )}
+
+          {student && (
+            <div className="space-y-2 max-h-[40vh] overflow-y-auto">
+              <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                <History className="w-4 h-4 text-primary" />
+                ประวัติการแลก ({history.length})
+              </div>
+              {history.length === 0 ? (
+                <p className="text-xs text-muted-foreground py-3 text-center">
+                  ยังไม่มีการแลกรางวัล
+                </p>
+              ) : (
+                <ul className="space-y-1.5">
+                  {history.map((h) => (
+                    <li
+                      key={h.claim_id}
+                      className="flex items-center gap-2 p-2 rounded-lg border border-border bg-card"
+                    >
+                      {h.reward_image ? (
+                        <img src={h.reward_image} alt={h.reward_name} className="w-9 h-9 rounded object-cover shrink-0" />
+                      ) : (
+                        <div className="w-9 h-9 rounded bg-muted flex items-center justify-center shrink-0">
+                          <Gift className="w-4 h-4 text-muted-foreground" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium truncate">{h.reward_name}</div>
+                        <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                          <span>−{h.points_used} แต้ม</span>
+                          {h.balance_after !== null && (
+                            <span>· เหลือ {h.balance_after}</span>
+                          )}
+                          {h.academic_year && h.semester && (
+                            <span>· เทอม {h.semester}/{h.academic_year}</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="shrink-0">
+                        {h.status === 'pending' && (
+                          <Badge variant="outline" className="gap-1 text-[10px] border-amber-300 text-amber-700 dark:text-amber-300">
+                            <Clock className="w-3 h-3" /> รออนุมัติ
+                          </Badge>
+                        )}
+                        {h.status === 'approved' && (
+                          <Badge variant="outline" className="gap-1 text-[10px] border-emerald-300 text-emerald-700 dark:text-emerald-300">
+                            <CheckCircle2 className="w-3 h-3" /> สำเร็จ
+                          </Badge>
+                        )}
+                        {h.status === 'rejected' && (
+                          <Badge variant="outline" className="gap-1 text-[10px] border-rose-300 text-rose-700 dark:text-rose-300">
+                            <XCircle className="w-3 h-3" /> ปฏิเสธ
+                          </Badge>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           )}
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Check, X, ClipboardCheck, Clock, CheckCircle2, XCircle } from 'lucide-react';
+import { Check, X, ClipboardCheck, Clock, CheckCircle2, XCircle, Globe2, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -16,7 +16,7 @@ const STATUS_LABEL: Record<RewardClaimStatus, string> = {
 
 export const ClaimsApproval = () => {
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, staffId, administratorId } = useAuth();
   const [filter, setFilter] = useState<'pending' | 'all'>('pending');
   const [claims, setClaims] = useState<RewardClaim[]>([]);
   const [processingId, setProcessingId] = useState<string | null>(null);
@@ -33,7 +33,7 @@ export const ClaimsApproval = () => {
   const handleApprove = async (id: string) => {
     if (!user?.id) return;
     setProcessingId(id);
-    const { error } = await rewardClaimsService.approve(id, user.id);
+    const { error } = await rewardClaimsService.approve(id, user.id, { staffId, administratorId });
     setProcessingId(null);
     if (error) {
       toast({ title: 'อนุมัติไม่สำเร็จ', description: error.message, variant: 'destructive' });
@@ -47,7 +47,7 @@ export const ClaimsApproval = () => {
     if (!user?.id) return;
     const reason = prompt('เหตุผลที่ปฏิเสธ (ไม่บังคับ):') ?? undefined;
     setProcessingId(id);
-    const { error } = await rewardClaimsService.reject(id, user.id, reason);
+    const { error } = await rewardClaimsService.reject(id, user.id, reason, { staffId, administratorId });
     setProcessingId(null);
     if (error) {
       toast({ title: 'ปฏิเสธไม่สำเร็จ', description: error.message, variant: 'destructive' });
@@ -63,6 +63,24 @@ export const ClaimsApproval = () => {
     return <Badge className="bg-rose-500/15 text-rose-700 dark:text-rose-300 hover:bg-rose-500/20 gap-1"><XCircle className="w-3 h-3" />{STATUS_LABEL[s]}</Badge>;
   };
 
+  const ownerBadge = (c: RewardClaim) => {
+    const ownerStaff = c.rewards?.owner_staff_id ?? null;
+    const ownerAdmin = c.rewards?.owner_administrator_id ?? null;
+    if (!ownerStaff && !ownerAdmin) {
+      return (
+        <Badge variant="outline" className="gap-1 text-[10px] border-sky-300 text-sky-700 dark:text-sky-300">
+          <Globe2 className="w-3 h-3" /> กลาง
+        </Badge>
+      );
+    }
+    const mine = (staffId && ownerStaff === staffId) || (administratorId && ownerAdmin === administratorId);
+    return (
+      <Badge variant="outline" className={`gap-1 text-[10px] ${mine ? 'border-emerald-300 text-emerald-700 dark:text-emerald-300' : ''}`}>
+        <User className="w-3 h-3" /> {mine ? 'ของฉัน' : 'ของครู'}
+      </Badge>
+    );
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -70,18 +88,10 @@ export const ClaimsApproval = () => {
           <ClipboardCheck className="w-4 h-4" /> อนุมัติหรือปฏิเสธคำขอแลกรางวัล
         </div>
         <div className="flex gap-2">
-          <Button
-            size="sm"
-            variant={filter === 'pending' ? 'default' : 'outline'}
-            onClick={() => setFilter('pending')}
-          >
+          <Button size="sm" variant={filter === 'pending' ? 'default' : 'outline'} onClick={() => setFilter('pending')}>
             รออนุมัติ
           </Button>
-          <Button
-            size="sm"
-            variant={filter === 'all' ? 'default' : 'outline'}
-            onClick={() => setFilter('all')}
-          >
+          <Button size="sm" variant={filter === 'all' ? 'default' : 'outline'} onClick={() => setFilter('all')}>
             ทั้งหมด
           </Button>
         </div>
@@ -97,6 +107,7 @@ export const ClaimsApproval = () => {
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground">นักเรียน</th>
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground">รางวัล</th>
                   <th className="text-right px-4 py-3 font-medium text-muted-foreground">แต้ม</th>
+                  <th className="text-right px-4 py-3 font-medium text-muted-foreground">คงเหลือหลังแลก</th>
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground">สถานะ</th>
                   <th className="px-4 py-3"></th>
                 </tr>
@@ -104,8 +115,8 @@ export const ClaimsApproval = () => {
               <tbody>
                 {claims.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="text-center py-10 text-muted-foreground">
-                      {filter === 'pending' ? 'ไม่มีคำขอที่รออนุมัติ' : 'ยังไม่มีคำขอแลกรางวัล'}
+                    <td colSpan={7} className="text-center py-10 text-muted-foreground">
+                      {filter === 'pending' ? 'ไม่มีคำขอที่รออนุมัติของฉัน' : 'ยังไม่มีคำขอแลกรางวัล'}
                     </td>
                   </tr>
                 ) : (
@@ -113,6 +124,11 @@ export const ClaimsApproval = () => {
                     <tr key={c.id} className="border-b border-border hover:bg-muted/30 transition-colors">
                       <td className="px-4 py-3 text-muted-foreground whitespace-nowrap text-xs">
                         {new Date(c.claimed_at).toLocaleString('th-TH')}
+                        {c.academic_year && c.semester && (
+                          <div className="text-[10px] text-muted-foreground/70">
+                            เทอม {c.semester}/{c.academic_year}
+                          </div>
+                        )}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
@@ -134,10 +150,16 @@ export const ClaimsApproval = () => {
                           {c.rewards?.image_url && (
                             <img src={c.rewards.image_url} alt={c.reward_name} className="w-10 h-10 rounded object-cover" />
                           )}
-                          <span>{c.reward_name}</span>
+                          <div className="space-y-1">
+                            <div>{c.reward_name}</div>
+                            {ownerBadge(c)}
+                          </div>
                         </div>
                       </td>
                       <td className="px-4 py-3 text-right font-semibold text-amber-600 dark:text-amber-400">{c.points_used}</td>
+                      <td className="px-4 py-3 text-right tabular-nums">
+                        {c.balance_after !== null ? c.balance_after : '—'}
+                      </td>
                       <td className="px-4 py-3">{statusBadge(c.status)}</td>
                       <td className="px-4 py-3">
                         {c.status === 'pending' ? (

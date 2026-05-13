@@ -24,6 +24,7 @@ import type { WasteCategory, WasteTransaction, WasteStudentSummary } from '@/ser
 import { RewardsManagement } from './RewardsManagement';
 import { ClaimsApproval } from './ClaimsApproval';
 import { QRScannerDialog } from './QRScannerDialog';
+import { TermBanner } from './TermBanner';
 import { RecorderSelect, EMPTY_RECORDER, type RecorderValue } from '@/components/admin/shared/RecorderSelect';
 
 const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
@@ -286,9 +287,13 @@ export const WasteBankManagement = () => {
 
   return (
     <div className="p-6">
-      <div className="mb-6">
+      <div className="mb-4">
         <h1 className="text-2xl font-bold text-foreground">ธนาคารขยะ</h1>
         <p className="text-muted-foreground mt-1">บันทึก ติดตาม และแลกรางวัลจากการเก็บขยะของนักเรียน</p>
+      </div>
+
+      <div className="mb-6">
+        <TermBanner />
       </div>
 
       {/* Tabs */}
