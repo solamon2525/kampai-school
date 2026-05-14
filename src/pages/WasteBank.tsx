@@ -65,7 +65,7 @@ const MEDAL_COLORS = [
   'border-slate-300 bg-gradient-to-br from-slate-50 to-gray-100',
   'border-orange-300 bg-gradient-to-br from-orange-50 to-amber-100',
 ];
-const MEDAL_TEXT = ['text-amber-700', 'text-slate-600', 'text-orange-700'];
+const MEDAL_TEXT = ['text-amber-900', 'text-slate-800', 'text-orange-900'];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
