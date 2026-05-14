@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { useTheme } from 'next-themes';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { hexToHslString } from '@/lib/colorUtils';
 import type { ThemeColors } from '@/lib/themeDefaults';
@@ -9,38 +8,35 @@ const STYLE_ELEMENT_ID = 'kampai-runtime-theme';
 /**
  * RuntimeThemeStyles — injects user-customized CSS custom properties into <head>.
  *
- * Only applies in light mode. In dark mode the injection is cleared so that the
- * `.dark` overrides in index.css take full effect without interference.
+ * Applies to BOTH `:root` (light) and `.dark` (dark) so user customizations from
+ * the Theme Manager show up regardless of current mode. The selector group has
+ * specificity equal to `.dark` from index.css but the style tag is appended after
+ * the main bundle — so the cascade order ensures customizations win over both
+ * light AND dark mode defaults.
  *
- * Root cause why this matters: this <style> tag is appended after the main CSS
- * bundle, so a bare `:root {}` block has equal specificity to `.dark {}` but wins
- * by cascade order — accidentally overriding dark-mode foreground/background/etc.
- * with light-mode hex values stored in school_settings.
+ * Trade-off: user's chosen palette applies in both modes. If they pick a white
+ * background, dark mode will look white-bg. That's intentional — user gets what
+ * they configured. Future improvement could add a separate dark-mode palette.
  */
 export const RuntimeThemeStyles = () => {
     const { theme } = useThemeColors();
-    const { resolvedTheme } = useTheme();
 
     useEffect(() => {
+        const css = buildCss(theme);
         let el = document.getElementById(STYLE_ELEMENT_ID) as HTMLStyleElement | null;
         if (!el) {
             el = document.createElement('style');
             el.id = STYLE_ELEMENT_ID;
             document.head.appendChild(el);
         }
-        // In dark mode: clear injection entirely — let index.css .dark rules win
-        if (resolvedTheme === 'dark') {
-            el.textContent = '';
-            return;
-        }
-        el.textContent = buildCss(theme);
-    }, [theme, resolvedTheme]);
+        el.textContent = css;
+    }, [theme]);
 
     return null;
 };
 
 const buildCss = (theme: ThemeColors): string => {
-    const lines: string[] = [':root {'];
+    const lines: string[] = [':root, .dark {'];
     (Object.keys(theme) as Array<keyof ThemeColors>).forEach((key) => {
         try {
             const hsl = hexToHslString(theme[key]);
