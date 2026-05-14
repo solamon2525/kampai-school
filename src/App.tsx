@@ -9,6 +9,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { PortalProtectedRoute } from "./components/portal/PortalProtectedRoute";
 import { RuntimeThemeStyles } from "./components/theme/RuntimeThemeStyles";
 import DynamicFavicon from "./components/DynamicFavicon";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 // หน้าแรกโหลดทันที (Critical path)
 import Index from "./pages/Index";
@@ -58,7 +59,16 @@ const PageLoader = () => (
   </div>
 );
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60_000,
+      gcTime: 5 * 60_000,
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const PageViewTracker = () => {
   usePageView();
@@ -73,6 +83,7 @@ const App = () => (
       <DynamicFavicon />
       <Toaster />
       <Sonner />
+      <ErrorBoundary>
       <BrowserRouter>
         <PageViewTracker />
         <Suspense fallback={<PageLoader />}>
@@ -138,6 +149,7 @@ const App = () => (
           </Routes>
         </Suspense>
       </BrowserRouter>
+      </ErrorBoundary>
     </TooltipProvider>
     </MotionConfig>
   </QueryClientProvider>

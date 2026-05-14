@@ -216,8 +216,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.9.3 (Bundle Split — Main Chunk 787KB → 182KB, -77%)',
+        version: 'v1.9.4 (Production Polish — QueryClient + ErrorBoundary + console.log cleanup)',
         date: 'ล่าสุด',
+        badge: 'bg-rose-500',
+        items: [
+            'QueryClient defaults (`src/App.tsx`): staleTime 60s + gcTime 5min + retry 1 + refetchOnWindowFocus false — ทุก useQuery ที่ไม่ override จะใช้ค่านี้, ลด refetch ซ้ำเวลา navigate ไป-กลับใน 1 นาที + ไม่ดึงใหม่ทุก tab focus (ครู/แอดมินสลับ tab LINE/Gmail บ่อย ไม่ควรเปลือง bandwidth)',
+            'ErrorBoundary (`src/components/ErrorBoundary.tsx`): class component ใหม่ wrap รอบ BrowserRouter — เมื่อ component crash (render error/undefined access/type mismatch) แสดง fallback UI ภาษาไทย + ปุ่ม "โหลดหน้านี้ใหม่" / "กลับหน้าแรก" แทนหน้าขาวทั้งจอ + dev mode แสดง stack trace ช่วย debug',
+            'ลบ `console.log` 3 ตัวใน `src/utils/storageUtils.ts` — debug logs ที่ลืมลบ (success/skip storage deletion) — `console.error` ที่เหลือเก็บไว้ เพราะใช้ diagnose error production จริงๆ',
+            'ผลกระทบรวม: cache hit rate สูงขึ้น (ลด Supabase egress + UI responsive ขึ้น), white screen of death หายไป (กัน user เห็นหน้าขาวเมื่อ component error), dev console สะอาดขึ้น',
+        ],
+    },
+    {
+        version: 'v1.9.3 (Bundle Split — Main Chunk 787KB → 182KB, -77%)',
+        date: '',
         badge: 'bg-violet-500',
         items: [
             'ตั้ง `manualChunks` ใน `vite.config.ts` (function form) — แยก vendor chunks 14 ก้อน: react/radix/charts/editor/dnd/motion/uppy/form/query/media/scanner/icons/supabase/utils → main chunk เหลือ 182 KB (gzip 52 KB) จาก 787 KB เดิม',
