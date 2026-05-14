@@ -218,18 +218,8 @@ Font: **Sarabun** (Google Fonts, wght 100-800) สำหรับทั้งภ
 | `--admin-border` | `#E5E7EB` | Table border, input border, divider |
 | `--admin-accent` | `#157F3C` | CTA button, active link, success state ONLY |
 
-### Dark mode (admin)
-| Token | Hex | Use |
-|---|---|---|
-| `--admin-dark-bg` | `#0F172A` | Page bg |
-| `--admin-dark-surface` | `#1E293B` | Card |
-| `--admin-dark-sidebar` | `#0B1220` | Sidebar (deeper than surface) |
-| `--admin-dark-text` | `#F1F5F9` | Body |
-| `--admin-dark-text-muted` | `#94A3B8` | Secondary |
-| `--admin-dark-border` | `#334155` | Divider |
-
 ### Backend rules
-- **Sidebar เป็น dark slate ตลอดเวลา** ไม่ว่า light/dark mode ของ user — เพื่อให้ navigation มีน้ำหนัก แยกชัดจาก content area
+- **Sidebar เป็น dark slate ตลอดเวลา** — เพื่อให้ navigation มีน้ำหนัก แยกชัดจาก content area (เว็บใช้ light mode อย่างเดียว)
 - **CTA และ active state ใช้เขียวเดียว** ไม่มีสีอื่นเลย
 - **Stat cards ใช้ neutral surface + เขียว accent number** ไม่ใช้ rainbow ของสี
 - **ห้าม gradient** ในหน้า admin ใดๆ (ยกเว้น progress bar ที่จำเป็น)
@@ -304,7 +294,7 @@ overrides defaults from src/index.css → all Tailwind tokens reflect
    เท่านั้น CSS vars ทำหน้าที่ resolution เอง
 19. **DEFAULT_THEME** อยู่ที่ `src/lib/themeDefaults.ts` — ค่าตรงกับ DESIGN.md hex
    ถ้าจะเพิ่ม token ใหม่ ต้องเพิ่มทั้ง 3 ที่:
-   1. `src/index.css` (`:root` + `.dark`)
+   1. `src/index.css` (`:root`)
    2. `tailwind.config.ts` (`colors: {...}`)
    3. `src/lib/themeDefaults.ts` (`DEFAULT_THEME` + `THEME_LABELS` + `THEME_GROUPS`)
 
@@ -322,7 +312,6 @@ overrides defaults from src/index.css → all Tailwind tokens reflect
 - `--input` (always = `--border`)
 - `--card` / `--popover` (always = `--background`)
 - Sidebar tokens (admin only — separate task)
-- Dark mode variants (Phase 2 ใช้ light only)
 
 ---
 
@@ -383,12 +372,10 @@ overrides defaults from src/index.css → all Tailwind tokens reflect
 - `DEFAULT_MENU_CONFIG` (`src/lib/menuDefaults.ts`) = fallback เมื่อ DB ว่าง
 - ห้าม hardcode `mainNav` / `serviceNav` array ใน component
 
-### Rule 14.8 — Theme toggle in admin/portal only
-- Light/dark mode toggle (`<ThemeToggle />`) ใช้เฉพาะ:
-  - `AdminLayout` (admin dashboard)
-  - `RolePortalLayout` (teacher/parent portal)
-- ❌ `SiteHeader`, `HomeNavBar`, `Footer` ห้ามมี
-- เหตุผล: public site ใช้ light mode เท่านั้น (school brand เน้นความสว่าง โล่ง)
+### Rule 14.8 — Light mode only (ทั้งระบบ)
+- เว็บใช้ light mode อย่างเดียว — ไม่มี theme toggle ทั้ง public/admin/portal
+- `next-themes` + `ThemeToggle` ถูกถอดออกแล้ว (v1.9.1)
+- เหตุผล: school brand เน้นความสว่าง โล่ง — ผู้ใช้ผู้ปกครอง/ครูส่วนใหญ่ไม่รู้จัก dark mode + ทำให้ contrast แตกบางหน้า
 
 ### Rule 14.9 — Documentation Discipline (commit + deploy = ต้อง sync ทุกที่)
 

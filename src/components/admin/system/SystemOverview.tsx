@@ -216,8 +216,20 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.9.0 (Quick Menu Personalization — เมนูลัดเลือกเองได้)',
+        version: 'v1.9.1 (ลบ Theme Toggle — Light Mode Only)',
         date: 'ล่าสุด',
+        badge: 'bg-amber-500',
+        items: [
+            'ถอด `next-themes` ออกทั้งระบบ — ลบ `ThemeProvider`, `ThemeToggle`, `.dark` CSS vars block, `darkMode: ["class"]` ใน tailwind — เว็บใช้ light mode อย่างเดียวทั้ง public/admin/portal บน desktop + มือถือ',
+            'AdminLayout + RolePortalLayout: ลบปุ่ม ☀ สว่าง/มืด/ตามระบบ ทั้ง mobile header + desktop top bar (RolePortal desktop top bar ว่างเลยลบทั้ง div)',
+            'sonner.tsx: ตัด `useTheme()` hardcode `theme="light"` — toast ไม่ตามระบบ OS อีก',
+            'index.html: เพิ่ม inline script ลบ `localStorage["kampai-theme"]` + `documentElement.classList.remove("dark")` ก่อน React mount — กัน user ที่เคยเลือกโหมดมืดไว้ค้าง class `dark` บน <html>',
+            'หมายเหตุ: ระบบ Theme Manager (`useThemeColors` / `RuntimeThemeStyles` / `school_settings.theme_colors`) ไม่ถูกแตะ — admin ยังปรับสี brand (gold/navy) ได้ตามเดิม คนละระบบกับ light/dark toggle',
+        ],
+    },
+    {
+        version: 'v1.9.0 (Quick Menu Personalization — เมนูลัดเลือกเองได้)',
+        date: '',
         badge: 'bg-indigo-500',
         items: [
             'Dashboard ทั้ง admin (`/admin/dashboard`) และ teacher (`/teacher`) มี Quick Menu ที่ user เลือกเองได้ — กดปุ่ม "จัดการ" เปิด dialog ลากเรียงลำดับ (drag-drop ด้วย @dnd-kit) + เพิ่ม/ลบเมนูจาก catalog ที่จัดกลุ่มตาม section',
