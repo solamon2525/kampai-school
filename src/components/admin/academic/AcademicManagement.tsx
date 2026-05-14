@@ -33,7 +33,7 @@ export const AcademicManagement = () => {
       </div>
 
       <Tabs defaultValue="schedule">
-        <TabsList className="flex flex-wrap h-auto gap-1 bg-gray-100 p-1 rounded-lg">
+        <TabsList className="flex flex-wrap h-auto gap-1 bg-muted p-1 rounded-lg">
           {TABS.map(tab => {
             const Icon = tab.icon;
             return (

@@ -127,7 +127,7 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-background">
       <SEOHead title="ติดต่อเรา" description="ข้อมูลการติดต่อโรงเรียน" />
       <SiteHeader />
       <div className="max-w-7xl mx-auto w-full bg-background">

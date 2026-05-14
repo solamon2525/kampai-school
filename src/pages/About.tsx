@@ -82,7 +82,7 @@ const About = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-background">
       <SEOHead title="เกี่ยวกับเรา" description="ประวัติและข้อมูลโรงเรียน" />
       <SiteHeader />
       <div className="max-w-7xl mx-auto w-full bg-background">

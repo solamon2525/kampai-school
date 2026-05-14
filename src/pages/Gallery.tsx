@@ -124,7 +124,7 @@ const Gallery = () => {
     }));
 
     return (
-      <div className="min-h-screen flex flex-col bg-gray-100">
+      <div className="min-h-screen flex flex-col bg-background">
         <SiteHeader />
         <div className="max-w-7xl mx-auto w-full bg-background flex-grow flex flex-col">
         <main className="flex-grow container mx-auto px-4 py-8">
@@ -163,7 +163,7 @@ const Gallery = () => {
 
   // Album list view
   return (
-    <div className="min-h-screen flex flex-col bg-gray-100">
+    <div className="min-h-screen flex flex-col bg-background">
       <SEOHead title="แกลเลอรี่" description="ภาพกิจกรรมและบรรยากาศโรงเรียน" />
       <SiteHeader />
       <div className="max-w-7xl mx-auto w-full bg-background flex-grow flex flex-col">

@@ -33,7 +33,7 @@ interface StaffOption { id: string; name: string; }
 
 const GRADES = ['อ.1','อ.2','อ.3','ป.1','ป.2','ป.3','ป.4','ป.5','ป.6'];
 const STATUS_COLOR: Record<string, string> = {
-  'ร่าง': 'bg-gray-100 text-gray-700',
+  'ร่าง': 'bg-muted text-muted-foreground',
   'อนุมัติ': 'bg-yellow-100 text-yellow-800',
   'ใช้งาน': 'bg-green-100 text-green-800',
 };

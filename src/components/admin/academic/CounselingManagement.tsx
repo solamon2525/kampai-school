@@ -34,7 +34,7 @@ const CONCERN_COLOR: Record<string, string> = {
   'พฤติกรรม': 'bg-orange-100 text-orange-800',
   'ครอบครัว': 'bg-amber-100 text-amber-800',
   'อาชีพ': 'bg-emerald-100 text-emerald-800',
-  'อื่นๆ': 'bg-gray-100 text-gray-700',
+  'อื่นๆ': 'bg-muted text-muted-foreground',
 };
 
 const STATUS_COLOR: Record<string, string> = {

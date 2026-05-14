@@ -27,13 +27,13 @@ const TYPE_COLOR: Record<string, string> = {
   'อุปกรณ์วิทยาศาสตร์': 'bg-green-100 text-green-800',
   'คอมพิวเตอร์': 'bg-emerald-100 text-emerald-800',
   'หนังสือ': 'bg-orange-100 text-orange-800',
-  'อื่นๆ': 'bg-gray-100 text-gray-700',
+  'อื่นๆ': 'bg-muted text-muted-foreground',
 };
 
 const CONDITION_COLOR: Record<string, string> = {
   'ดี': 'bg-green-100 text-green-800',
   'ชำรุด': 'bg-red-100 text-red-800',
-  'จำหน่ายออก': 'bg-gray-100 text-gray-700',
+  'จำหน่ายออก': 'bg-muted text-muted-foreground',
 };
 
 const emptyForm = {

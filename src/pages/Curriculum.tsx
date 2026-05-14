@@ -94,7 +94,7 @@ const Curriculum = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-background">
       <SEOHead title="หลักสูตร" description="หลักสูตรการเรียนการสอนของโรงเรียน" />
       <SiteHeader />
       <div className="max-w-7xl mx-auto w-full bg-background">

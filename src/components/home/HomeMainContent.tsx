@@ -413,7 +413,7 @@ export const useHomeMainBlocks = () => {
         <div className="sm:col-span-2 grid grid-cols-2 gap-0 divide-x divide-y divide-gray-100">
           {rest.map((item) => (
             <Link key={item.id} to={`/news/${item.id}`} className="group p-0 block">
-              <div className="relative h-28 overflow-hidden bg-gray-100">
+              <div className="relative h-28 overflow-hidden bg-muted">
                 {item.cover_image_url ? (
                   <img src={item.cover_image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 ) : (
@@ -788,12 +788,12 @@ export const useHomeMainBlocks = () => {
           );
           return p.link_url && p.link_url !== '#' ? (
             <a key={p.id} href={p.link_url} target="_blank" rel="noopener noreferrer"
-              className="w-20 h-20 rounded-lg bg-gray-100 hover:bg-muted flex items-center justify-center text-center p-2 transition-colors"
+              className="w-20 h-20 rounded-lg bg-muted hover:bg-muted/80 flex items-center justify-center text-center p-2 transition-colors"
               title={p.name}>
               {inner}
             </a>
           ) : (
-            <div key={p.id} className="w-20 h-20 rounded-lg bg-gray-100 flex items-center justify-center text-center p-2">
+            <div key={p.id} className="w-20 h-20 rounded-lg bg-muted flex items-center justify-center text-center p-2">
               {inner}
             </div>
           );

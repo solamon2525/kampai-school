@@ -137,7 +137,7 @@ const News = () => {
 
   if (selectedNews) {
     return (
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-background">
         <SiteHeader />
         <div className="max-w-7xl mx-auto w-full bg-background">
         <div className="container-school py-4 md:py-8">
@@ -215,7 +215,7 @@ const News = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-background">
       <SEOHead title="ข่าวสาร" description="ข่าวสารและประกาศจากโรงเรียน" />
       <SiteHeader />
       <div className="max-w-7xl mx-auto w-full bg-background">

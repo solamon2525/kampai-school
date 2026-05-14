@@ -1124,7 +1124,7 @@ export const AttendanceManagement = () => {
                               className={
                                 s.is_active
                                   ? 'bg-green-100 text-green-700'
-                                  : 'bg-gray-100 text-gray-500'
+                                  : 'bg-muted text-muted-foreground'
                               }
                             >
                               {s.is_active ? 'กำลังเรียน' : 'ไม่ใช้งาน'}

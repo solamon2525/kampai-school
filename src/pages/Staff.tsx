@@ -105,7 +105,14 @@ const StaffDirCSS = () => (
       --sd-subj-comp: oklch(55% 0.14 210);
       --sd-subj-admin:oklch(50% 0.08 270);
     }
-    .dark { --sd-pale: oklch(20% 0.03 255); }
+    .dark {
+      --sd-dk:     oklch(72% 0.10 255);
+      --sd-mid:    oklch(60% 0.13 255);
+      --sd-base:   oklch(50% 0.16 255);
+      --sd-pale:   oklch(15% 0.03 255);
+      --sd-acc:    oklch(85% 0.14 82);
+      --sd-acc-dk: oklch(75% 0.15 82);
+    }
 
     /* ── Card ─────────────────────────────────────────────── */
     .sd-card {
@@ -784,7 +791,7 @@ const Staff = () => {
   const yearBE = new Date().getFullYear() + 543;
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-background">
       <StaffDirCSS />
       <SEOHead title="บุคลากร" description="คณะครูและบุคลากรของโรงเรียน" />
       <SiteHeader />

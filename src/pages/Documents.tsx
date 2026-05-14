@@ -116,7 +116,7 @@ const Documents = () => {
   });
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-100">
+    <div className="min-h-screen flex flex-col bg-background">
       <SEOHead title="เอกสาร" description="เอกสารและแบบฟอร์มสำหรับดาวน์โหลด" />
       <SiteHeader />
       <div className="max-w-7xl mx-auto w-full bg-background flex-grow flex flex-col">

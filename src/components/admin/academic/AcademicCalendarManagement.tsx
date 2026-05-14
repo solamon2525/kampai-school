@@ -24,7 +24,7 @@ interface AcademicEvent {
 
 const EVENT_COLOR: Record<string, string> = {
   'สอบ': 'bg-red-100 text-red-800',
-  'วันหยุด': 'bg-gray-100 text-gray-700',
+  'วันหยุด': 'bg-muted text-muted-foreground',
   'ส่งเอกสาร': 'bg-yellow-100 text-yellow-800',
   'ประชุม': 'bg-blue-100 text-blue-800',
   'กิจกรรม': 'bg-emerald-100 text-emerald-800',

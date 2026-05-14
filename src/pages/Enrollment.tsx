@@ -299,7 +299,7 @@ const Enrollment = () => {
           }
         `}</style>
 
-        <div className="min-h-screen bg-gray-100 print:hidden">
+        <div className="min-h-screen bg-background print:hidden">
           <SiteHeader />
           <div className="max-w-7xl mx-auto w-full bg-background">
           <section className="py-6 md:py-8">
@@ -469,7 +469,7 @@ const Enrollment = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-background">
       <SEOHead title="รับสมัครนักเรียน" description="ข้อมูลการรับสมัครนักเรียนและขั้นตอนการสมัครเรียน" />
       <SiteHeader />
       <div className="max-w-7xl mx-auto w-full bg-background">

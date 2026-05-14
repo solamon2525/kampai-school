@@ -67,7 +67,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col overflow-x-hidden w-full">
+    <div className="min-h-screen bg-background flex flex-col overflow-x-hidden w-full">
       <SEOHead />
       {/* Unified Header + Nav */}
       <SiteHeader />

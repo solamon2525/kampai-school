@@ -294,7 +294,7 @@ const WasteBankStats = () => {
   // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       <SEOHead
         title="สถิติธนาคารขยะ"
         description="สถิติและอันดับนักเรียนธนาคารขยะโรงเรียนบ้านคำไผ่ — อัปเดตเรียลไทม์"

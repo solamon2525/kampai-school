@@ -111,7 +111,7 @@ const Students = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-background">
       <SEOHead title="นักเรียน" description="ข้อมูลนักเรียนของโรงเรียน" />
       <SiteHeader />
       <div className="max-w-7xl mx-auto w-full bg-background">
@@ -139,10 +139,10 @@ const Students = () => {
                 const IconComponent = iconMap[stat.icon] || Users;
                 return (
                   <div key={stat.id} className="bg-card rounded-xl p-4 text-center shadow-sm border border-border">
-                    <div className={`w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2`}>
+                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-2">
                       <IconComponent className={`w-5 h-5 ${stat.color}`} />
                     </div>
-                    <div className={`text-2xl font-bold ${stat.color} mb-1`}>{stat.value}</div>
+                    <div className="text-2xl font-bold text-foreground mb-1">{stat.value}</div>
                     <div className="text-sm text-muted-foreground">{stat.label}</div>
                   </div>
                 );
