@@ -11,7 +11,37 @@ serve(async (req) => {
         return new Response('ok', { headers: corsHeaders });
     }
 
+    const json = (body: unknown, status = 200) =>
+        new Response(JSON.stringify(body), {
+            status,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+
     try {
+        const authHeader = req.headers.get('Authorization');
+        if (!authHeader) return json({ error: 'Unauthorized' }, 401);
+
+        const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+        const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+        const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+
+        const adminClient = createClient(supabaseUrl, serviceRoleKey);
+
+        const callerClient = createClient(supabaseUrl, anonKey, {
+            global: { headers: { Authorization: authHeader } },
+        });
+        const { data: { user }, error: userError } = await callerClient.auth.getUser();
+        if (userError || !user) return json({ error: 'Unauthorized' }, 401);
+
+        const { data: roleRow } = await adminClient
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', user.id)
+            .eq('role', 'admin')
+            .maybeSingle();
+
+        if (!roleRow) return json({ error: 'Forbidden: ต้องเป็น admin เท่านั้น' }, 403);
+
         const { subject, html, newsTitle } = await req.json();
 
         const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
@@ -21,24 +51,16 @@ serve(async (req) => {
             throw new Error('RESEND_API_KEY is not set');
         }
 
-        // Get all active subscribers from Supabase
-        const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-        const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-        const supabase = createClient(supabaseUrl, supabaseKey);
-
-        const { data: subscribers, error } = await supabase
+        const { data: subscribers, error } = await adminClient
             .from('email_subscribers')
             .select('email, name')
             .eq('is_active', true);
 
         if (error) throw error;
         if (!subscribers || subscribers.length === 0) {
-            return new Response(JSON.stringify({ sent: 0, message: 'No active subscribers' }), {
-                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            });
+            return json({ sent: 0, message: 'No active subscribers' });
         }
 
-        // Send email via Resend
         const res = await fetch('https://api.resend.com/emails', {
             method: 'POST',
             headers: {
@@ -55,9 +77,7 @@ serve(async (req) => {
 
         const result = await res.json();
 
-        return new Response(JSON.stringify({ sent: subscribers.length, result }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
+        return json({ sent: subscribers.length, result });
     } catch (err: any) {
         return new Response(JSON.stringify({ error: err.message }), {
             status: 500,
