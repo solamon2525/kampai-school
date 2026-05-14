@@ -87,14 +87,16 @@ const colsMap: Record<string, string> = {
 const StaffDirCSS = () => (
   <style>{`
     :root {
-      --sd-dk:   oklch(28% 0.10 255);
-      --sd-mid:  oklch(38% 0.13 255);
-      --sd-base: oklch(50% 0.16 255);
-      --sd-pale: oklch(97% 0.015 255);
-      --sd-acc:  oklch(78% 0.14 82);
-      --sd-acc-dk: oklch(62% 0.15 82);
-      --sd-shd:  0 2px 12px oklch(28% 0.08 255 / 0.12);
-      --sd-shd-h:0 14px 40px oklch(28% 0.12 255 / 0.28);
+      /* Theme-aware (uses project theme primary/secondary — adapts to light/dark + user customization) */
+      --sd-dk:     hsl(var(--primary));
+      --sd-mid:    hsl(var(--primary) / 0.85);
+      --sd-base:   hsl(var(--primary) / 0.65);
+      --sd-pale:   hsl(var(--secondary));
+      /* Fixed gold accent (school brand secondary — independent of theme) */
+      --sd-acc:    #FACC15;
+      --sd-acc-dk: #B45309;
+      --sd-shd:    0 2px 12px hsl(var(--foreground) / 0.10);
+      --sd-shd-h:  0 14px 40px hsl(var(--foreground) / 0.25);
       --sd-subj-math: oklch(62% 0.14 235);
       --sd-subj-thai: oklch(60% 0.16 25);
       --sd-subj-sci:  oklch(58% 0.14 155);
@@ -104,14 +106,6 @@ const StaffDirCSS = () => (
       --sd-subj-art:  oklch(65% 0.17 345);
       --sd-subj-comp: oklch(55% 0.14 210);
       --sd-subj-admin:oklch(50% 0.08 270);
-    }
-    .dark {
-      --sd-dk:     oklch(72% 0.10 255);
-      --sd-mid:    oklch(60% 0.13 255);
-      --sd-base:   oklch(50% 0.16 255);
-      --sd-pale:   oklch(15% 0.03 255);
-      --sd-acc:    oklch(85% 0.14 82);
-      --sd-acc-dk: oklch(75% 0.15 82);
     }
 
     /* ── Card ─────────────────────────────────────────────── */
@@ -270,23 +264,18 @@ const StaffDirCSS = () => (
     .sd-divider { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
     .sd-divider-line {
       flex: 1; height: 1px;
-      background: linear-gradient(90deg, transparent, oklch(82% 0.02 255) 40%, oklch(82% 0.02 255) 60%, transparent);
-    }
-    .dark .sd-divider-line {
-      background: linear-gradient(90deg, transparent, oklch(35% 0.04 255) 40%, oklch(35% 0.04 255) 60%, transparent);
+      background: linear-gradient(90deg, transparent, hsl(var(--border)) 40%, hsl(var(--border)) 60%, transparent);
     }
     .sd-sec-title {
       display: flex; align-items: center; gap: 8px; padding: 0 14px;
       font-weight: 700; font-size: 1.05rem; white-space: nowrap;
-      color: var(--sd-dk);
+      color: hsl(var(--foreground));
     }
-    .dark .sd-sec-title { color: oklch(88% 0.04 255); }
     .sd-sec-icon {
       width: 28px; height: 28px; border-radius: 8px;
-      background: var(--sd-pale); color: var(--sd-dk);
+      background: hsl(var(--secondary)); color: hsl(var(--secondary-foreground));
       display: flex; align-items: center; justify-content: center;
     }
-    .dark .sd-sec-icon { background: oklch(25% 0.04 255); color: oklch(80% 0.06 255); }
     .sd-cnt {
       background: var(--sd-acc); color: var(--sd-dk);
       font-size: .7rem; font-weight: 700;
@@ -338,16 +327,18 @@ const StaffDirCSS = () => (
     .sd-jump-link {
       display: flex; align-items: center; justify-content: space-between;
       padding: 7px 10px; border-radius: 8px;
-      color: hsl(var(--muted-foreground)); text-decoration: none; font-size: .85rem;
+      color: hsl(var(--foreground) / 0.75); text-decoration: none; font-size: .85rem;
       transition: all .15s; margin-bottom: 2px;
     }
-    .sd-jump-link:hover { background: var(--sd-pale); color: var(--sd-dk); }
-    .dark .sd-jump-link:hover { background: oklch(25% 0.04 255); color: oklch(88% 0.04 255); }
+    .sd-jump-link:hover {
+      background: hsl(var(--secondary));
+      color: hsl(var(--secondary-foreground));
+    }
     .sd-jump-link.active {
-      background: var(--sd-pale); color: var(--sd-dk);
+      background: hsl(var(--secondary));
+      color: hsl(var(--secondary-foreground));
       font-weight: 600; border-left: 3px solid var(--sd-acc);
     }
-    .dark .sd-jump-link.active { background: oklch(25% 0.04 255); color: oklch(88% 0.04 255); }
 
     /* ── Contact btn on card back ── */
     .sd-back-btn {
@@ -426,8 +417,8 @@ const FeaturedCard = ({
               style={{
                 borderLeft: '3px solid var(--sd-acc)',
                 paddingLeft: 14, paddingTop: 10, paddingBottom: 10, paddingRight: 14,
-                background: 'var(--sd-pale)', borderRadius: '0 8px 8px 0',
-                color: 'hsl(var(--muted-foreground))',
+                background: 'hsl(var(--secondary))', borderRadius: '0 8px 8px 0',
+                color: 'hsl(var(--secondary-foreground))',
               }}
             >
               {admin.quote}
@@ -525,14 +516,14 @@ const StaffCard = ({
           </div>
           <div className="p-4 pb-5">
             <span className={`sd-badge ${sc} mb-2`}>{label}</span>
-            {rank && <p className="text-xs text-muted-foreground mt-2">วิทยฐานะ: {rank}</p>}
+            {rank && <p className="text-xs text-foreground/80 mt-2">วิทยฐานะ: {rank}</p>}
             {(deg || maj) && (
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs text-foreground/80 mt-1">
                 {[deg, maj].filter(Boolean).join(' • ')}
               </p>
             )}
-            {dept && <p className="text-xs text-muted-foreground mt-1">{dept}</p>}
-            {exp  && <p className="text-xs text-muted-foreground mt-1">ประสบการณ์: {exp}</p>}
+            {dept && <p className="text-xs text-foreground/80 mt-1">{dept}</p>}
+            {exp  && <p className="text-xs text-foreground/80 mt-1">ประสบการณ์: {exp}</p>}
           </div>
         </div>
         {/* ── Back ── */}
@@ -882,8 +873,8 @@ const Staff = () => {
           <div className="max-w-screen-xl mx-auto grid grid-cols-1 lg:grid-cols-[188px_1fr] gap-8 px-4 sm:px-6 py-9 pb-12 items-start">
 
             {/* ── Jump nav (sidebar) ── */}
-            <aside className="hidden lg:block sticky" style={{ top: 140, background: 'hsl(var(--card))', borderRadius: 14, padding: 16, boxShadow: 'var(--sd-shd)' }}>
-              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">หมวดหมู่</p>
+            <aside className="hidden lg:block sticky" style={{ top: 140, background: 'hsl(var(--card))', borderRadius: 14, padding: 16, boxShadow: 'var(--sd-shd)', border: '1px solid hsl(var(--border))' }}>
+              <p className="text-xs font-bold uppercase tracking-widest text-foreground mb-3">หมวดหมู่</p>
               {sections.map(sec => (
                 <a key={sec.id} href={`#section-${sec.id}`}
                   className="sd-jump-link"
