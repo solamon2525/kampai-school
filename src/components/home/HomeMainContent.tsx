@@ -199,19 +199,19 @@ export const useHomeMainBlocks = () => {
           // Hotfix: Auto-replace broken wikimedia URLs with local assets if they were saved in the DB
           const sanitizedData = (data as any[]).map(p => {
             if (p.logo_url && p.logo_url.includes('wikimedia.org')) {
-              if (p.name.includes('กระทรวง') || p.name.includes('moe')) p.logo_url = '/logos/moe.png';
-              else if (p.name.includes('สพฐ') || p.name.includes('obec')) p.logo_url = '/logos/obec.png';
-              else p.logo_url = '/logos/garuda.png';
+              if (p.name.includes('กระทรวง') || p.name.includes('moe')) p.logo_url = '/logos/moe.webp';
+              else if (p.name.includes('สพฐ') || p.name.includes('obec')) p.logo_url = '/logos/obec.webp';
+              else p.logo_url = '/logos/garuda.webp';
             }
             return p;
           });
           setPartners(sanitizedData);
         }
         else setPartners([
-          { id: 'p1', name: 'กระทรวงศึกษาธิการ', logo_url: '/logos/moe.png', link_url: 'https://www.moe.go.th' },
-          { id: 'p2', name: 'สพฐ.',             logo_url: '/logos/obec.png', link_url: 'https://www.obec.go.th' },
-          { id: 'p3', name: 'สพท.',             logo_url: '/logos/garuda.png', link_url: '#' },
-          { id: 'p4', name: 'ท้องถิ่น',         logo_url: '/logos/garuda.png', link_url: '#' },
+          { id: 'p1', name: 'กระทรวงศึกษาธิการ', logo_url: '/logos/moe.webp', link_url: 'https://www.moe.go.th' },
+          { id: 'p2', name: 'สพฐ.',             logo_url: '/logos/obec.webp', link_url: 'https://www.obec.go.th' },
+          { id: 'p3', name: 'สพท.',             logo_url: '/logos/garuda.webp', link_url: '#' },
+          { id: 'p4', name: 'ท้องถิ่น',         logo_url: '/logos/garuda.webp', link_url: '#' },
         ]);
       });
   }, []);

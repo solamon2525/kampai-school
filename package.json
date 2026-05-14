@@ -17,7 +17,8 @@
     "supabase:status": "supabase status",
     "supabase:reset": "supabase db reset",
     "lint:design": "design.md lint DESIGN.md",
-    "generate:og": "node scripts/generate-og-image.mjs"
+    "generate:og": "node scripts/generate-og-image.mjs",
+    "optimize:logos": "node scripts/optimize-logos.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
