@@ -216,8 +216,20 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.9.2 (SEO Polish — OG Image + Schema.org JSON-LD)',
+        version: 'v1.9.3 (Bundle Split — Main Chunk 787KB → 182KB, -77%)',
         date: 'ล่าสุด',
+        badge: 'bg-violet-500',
+        items: [
+            'ตั้ง `manualChunks` ใน `vite.config.ts` (function form) — แยก vendor chunks 14 ก้อน: react/radix/charts/editor/dnd/motion/uppy/form/query/media/scanner/icons/supabase/utils → main chunk เหลือ 182 KB (gzip 52 KB) จาก 787 KB เดิม',
+            'ผลข้างเคียงดี: WasteBankManagement 370KB → 34KB (deps ย้ายไป charts-vendor ที่ shared), RichTextEditor → editor-vendor 249KB ที่ใช้ร่วมกันใน NewsForm+DocumentsManagement (ไม่ดูเหมือนกันอีก)',
+            'Browser caching ดีขึ้น: vendor chunks (immutable) cache ยาว, แก้ app code เปลี่ยนแค่ index.js (52KB gzip) แทน 234KB เดิม — repeat visits เร็วขึ้นมาก',
+            'Trade-off: First page load มี HTTP requests มากขึ้น (~5-8 chunks parallel) แต่ HTTP/2 multiplexing + Vercel edge caching ทำให้เร็วกว่า monolithic 787KB chunk',
+            'เพิ่ม `chunkSizeWarningLimit: 600` ใน build config — สูงสุดตอนนี้คือ charts-vendor (422 KB / gzip 112 KB) — recharts หนัก แต่ lazy-load เฉพาะหน้าที่ใช้',
+        ],
+    },
+    {
+        version: 'v1.9.2 (SEO Polish — OG Image + Schema.org JSON-LD)',
+        date: '',
         badge: 'bg-sky-500',
         items: [
             'สร้าง `public/og-image.png` ขนาด 1200×630 (navy gradient + gold accent + Sarabun) — Facebook/Twitter/LINE share เห็นรูป preview แล้ว ไม่ใช่กล่องเทาว่างอีก',
