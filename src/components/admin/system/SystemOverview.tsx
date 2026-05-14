@@ -216,8 +216,20 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.9.1 (ลบ Theme Toggle — Light Mode Only)',
+        version: 'v1.9.2 (SEO Polish — OG Image + Schema.org JSON-LD)',
         date: 'ล่าสุด',
+        badge: 'bg-sky-500',
+        items: [
+            'สร้าง `public/og-image.png` ขนาด 1200×630 (navy gradient + gold accent + Sarabun) — Facebook/Twitter/LINE share เห็นรูป preview แล้ว ไม่ใช่กล่องเทาว่างอีก',
+            '`scripts/og-image-template.svg` + `scripts/generate-og-image.mjs` — pipeline แปลง SVG → PNG ผ่าน `sharp` (devDep), `pnpm generate:og` regenerate ได้ทุกเมื่อถ้าเปลี่ยน design',
+            'Schema.org `EducationalOrganization` JSON-LD ใน 2 จุด: `index.html` (initial crawl static) + `SEOHead.tsx` (runtime dynamic ที่อ่านจาก school_settings — name/description/logo/address/phone/email/social_links) → Google Rich Results / Knowledge Graph มี structured data',
+            '`SEOHead.tsx` ปรับ: og:image/twitter:image fallback chain (image prop → school_logo_url → /og-image.png) + บังคับ absolute URL ผ่าน `absoluteUrl()` helper (crawler ที่ไม่ resolve relative URL ก็เจอรูป) + เพิ่ม `noOrgSchema` prop กันชนกับ schema เฉพาะหน้า (เช่น NewsArticle ในอนาคต)',
+            '`index.html`: เพิ่ม og:image:width/height (1200×630), `canonical` + og:url ให้เป็น absolute URL — กฎ Open Graph standard',
+        ],
+    },
+    {
+        version: 'v1.9.1 (ลบ Theme Toggle — Light Mode Only)',
+        date: '',
         badge: 'bg-amber-500',
         items: [
             'ถอด `next-themes` ออกทั้งระบบ — ลบ `ThemeProvider`, `ThemeToggle`, `.dark` CSS vars block, `darkMode: ["class"]` ใน tailwind — เว็บใช้ light mode อย่างเดียวทั้ง public/admin/portal บน desktop + มือถือ',
