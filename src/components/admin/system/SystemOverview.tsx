@@ -216,8 +216,21 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.9.5 (Logos PNG → WebP — −63% size, ลบ broken SVG stubs)',
+        version: 'v1.9.6 (Hotfix — TDZ ใน charts-vendor ทำให้ทุกหน้าขาว)',
         date: 'ล่าสุด',
+        badge: 'bg-red-500',
+        items: [
+            '🚨 หลัง deploy v1.9.3 (Bundle Split) + v1.9.5 (WebP) user รายงาน "ทุกหน้าเข้าไม่ได้ หน้าขาวล้วน" — console พ่น `Uncaught ReferenceError: Cannot access \'S\' before initialization at charts-vendor-*.js`',
+            'Root cause: `vite.config.ts` line 34 บังคับ recharts + d3-* ให้อยู่ใน chunk `charts-vendor` เดียวกัน แต่ recharts มี circular deps กับ d3-* ภายใน — เมื่อ esbuild minify chunk ลำดับ declarations พังเป็น Temporal Dead Zone (TDZ)',
+            'ทำไมหน้า public ก็พัง: `src/components/ui/chart.tsx` (shadcn) import recharts ทาง dep graph → charts-vendor ถูก eager evaluate ตอน main bundle load → TDZ crash → React ไม่ mount → หน้าขาวทั้งระบบ',
+            'Fix: ลบบรรทัด `charts-vendor` เดียวออกจาก manualChunks ใน `vite.config.ts` → Vite auto-split recharts กลับเป็น `generateCategoricalChart-*.js` (334 KB) ที่ co-located กับ component ที่ใช้ (WasteBank/Analytics/Saraban) เหมือนก่อน v1.9.3 — ไม่ TDZ',
+            'Vendor chunks อื่นในรอบ v1.9.3 (radix/editor/scanner/motion/uppy/form/query/media/dnd/icons/supabase/utils) ปล่อยไว้ — packages เหล่านี้ไม่มี circular deps แบบ recharts',
+            'Lesson learned: ก่อนแตก vendor chunk ต้องตรวจว่า package นั้นมี internal circular dep ไหม (recharts โด่งดังเรื่องนี้) — verify ด้วยการ deploy + browser test ไม่ใช่แค่ Vercel state=READY',
+        ],
+    },
+    {
+        version: 'v1.9.5 (Logos PNG → WebP — −63% size, ลบ broken SVG stubs)',
+        date: '',
         badge: 'bg-teal-500',
         items: [
             'แปลง `public/logos/{garuda,moe,obec}.png` เป็น `.webp` ผ่าน `scripts/optimize-logos.mjs` (sharp, quality 88, alphaQuality 90): garuda 79.1→30.4 KB (−62%), moe 120.9→55.5 KB (−54%), obec 171.1→52.5 KB (−69%) — รวม 371 KB → 138 KB (−63%)',

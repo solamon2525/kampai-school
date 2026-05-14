@@ -31,7 +31,9 @@ export default defineConfig(() => ({
             return "react-vendor";
           }
           if (id.includes("@radix-ui/")) return "radix-vendor";
-          if (id.includes("/recharts/") || id.includes("/d3-")) return "charts-vendor";
+          // ไม่แตก recharts/d3 เป็น chunk แยก — มี circular deps ภายในที่ทำให้
+          // เกิด TDZ "Cannot access X before initialization" หลัง minify
+          // (Vite auto-split co-located กับ component ที่ใช้แทน)
           if (
             id.includes("react-quill") ||
             id.includes("/quill") ||
