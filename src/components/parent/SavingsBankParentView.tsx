@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Wallet, ArrowDownToLine, ArrowUpFromLine, History, Sparkles } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/empty-state';
 import { NoDataIllustration } from '@/components/ui/empty-illustrations';
+import { cn } from '@/lib/utils';
 import { savingsSummaryService, savingsTransactionsService } from '@/services';
 import type {
   SavingsStudentSummary,
   SavingsTransaction,
 } from '@/services/savings.service';
+import { SaverTierBadge } from '@/components/savings/SaverTierBadge';
 
 interface Props {
   studentId: string;
@@ -41,157 +41,210 @@ export const SavingsBankParentView = ({ studentId, studentName }: Props) => {
   const balance = Number(summary?.current_balance ?? 0);
   const deposits = Number(summary?.total_deposits ?? 0);
   const withdrawals = Number(summary?.total_withdrawals ?? 0);
-
-  const tabs: { id: TabId; label: string; icon: React.ReactNode }[] = [
-    { id: 'overview', label: 'ภาพรวม', icon: <Sparkles className="w-4 h-4" /> },
-    { id: 'history', label: 'ประวัติธุรกรรม', icon: <History className="w-4 h-4" /> },
-  ];
+  const depositCount = Number(summary?.deposit_count ?? 0);
 
   return (
     <div className="space-y-6">
-      {/* Hero card */}
-      <Card className="bg-gradient-to-br from-amber-500/15 via-amber-500/10 to-emerald-500/15 border-amber-500/30">
-        <CardContent className="p-6 space-y-4">
-          <div className="flex items-center gap-2 text-amber-900 dark:text-amber-200 text-sm font-semibold">
-            <Wallet className="w-4 h-4" /> ยอดเงินสะสมของ {studentName ?? summary?.full_name ?? 'นักเรียน'}
+      {/* ─── HERO — Premium dark slate + gold ─────────────────────────── */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-amber-900 p-6 md:p-8 shadow-xl ring-1 ring-amber-500/20">
+        {/* Subtle pattern */}
+        <div
+          className="absolute inset-0 opacity-[0.04]"
+          style={{
+            backgroundImage:
+              'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
+            backgroundSize: '20px 20px',
+          }}
+        />
+
+        <div className="relative">
+          <div className="flex items-start justify-between gap-3 mb-4">
+            <div>
+              <div className="text-xs font-bold uppercase tracking-[0.15em] text-amber-400 mb-1">
+                ยอดเงินสะสมของ
+              </div>
+              <div className="text-sm md:text-base font-bold text-white flex items-center gap-2">
+                <Wallet className="w-4 h-4" />
+                {studentName ?? summary?.full_name ?? 'นักเรียน'}
+              </div>
+            </div>
+            <SaverTierBadge depositCount={depositCount} size="lg" />
           </div>
-          <div className="text-center py-2">
-            <div className="text-4xl md:text-5xl font-bold text-amber-900 dark:text-amber-200 tabular-nums">
+
+          {/* Balance — massive */}
+          <div className="py-4">
+            <div className="text-5xl md:text-6xl font-extrabold text-amber-400 tabular-nums tracking-tight leading-none">
               {fmtBaht(balance)}
             </div>
-            <div className="text-xs text-amber-800 dark:text-amber-300 mt-1 font-medium">ยอดคงเหลือปัจจุบัน</div>
+            <div className="text-xs md:text-sm font-semibold text-amber-200/80 uppercase tracking-wider mt-2">
+              ยอดคงเหลือปัจจุบัน
+            </div>
           </div>
-          <div className="grid grid-cols-2 gap-4 pt-2 border-t border-amber-500/20">
-            <Stat
-              label="ฝากสะสม"
-              value={fmtBaht(deposits)}
-              icon={<ArrowDownToLine className="w-3.5 h-3.5" />}
-              color="text-emerald-900 dark:text-emerald-300"
-            />
-            <Stat
-              label="ถอนสะสม"
-              value={fmtBaht(withdrawals)}
-              icon={<ArrowUpFromLine className="w-3.5 h-3.5" />}
-              color="text-orange-900 dark:text-orange-300"
-            />
-          </div>
-        </CardContent>
-      </Card>
 
-      {/* Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-border">
-        {tabs.map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold border-b-2 transition-colors -mb-px ${
-              tab === t.id ? 'border-primary text-primary' : 'border-transparent text-foreground/65 hover:text-foreground'
-            }`}
-          >
-            {t.icon}
-            {t.label}
-          </button>
-        ))}
+          {/* Sub stats */}
+          <div className="grid grid-cols-2 gap-4 pt-4 mt-4 border-t border-amber-500/20">
+            <div>
+              <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-300 mb-1">
+                <ArrowDownToLine className="w-3.5 h-3.5" />
+                ฝากสะสม
+              </div>
+              <div className="text-lg md:text-xl font-extrabold text-white tabular-nums">
+                {fmtBaht(deposits)}
+              </div>
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-rose-300 mb-1">
+                <ArrowUpFromLine className="w-3.5 h-3.5" />
+                ถอนสะสม
+              </div>
+              <div className="text-lg md:text-xl font-extrabold text-white tabular-nums">
+                {fmtBaht(withdrawals)}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── Tabs (pill) ────────────────────────────────────────────── */}
+      <div className="inline-flex p-1 bg-slate-100 rounded-xl">
+        <PillTab
+          active={tab === 'overview'}
+          onClick={() => setTab('overview')}
+          icon={<Sparkles className="w-4 h-4" />}
+        >
+          ภาพรวม
+        </PillTab>
+        <PillTab
+          active={tab === 'history'}
+          onClick={() => setTab('history')}
+          icon={<History className="w-4 h-4" />}
+        >
+          ประวัติธุรกรรม
+        </PillTab>
       </div>
 
       {tab === 'overview' && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">เกี่ยวกับธนาคารพอเพียง</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm text-foreground/80 font-medium">
-            <p>ธนาคารพอเพียงคือระบบฝากเงินสำหรับนักเรียน — สอนวินัยการออมตามหลักปรัชญาเศรษฐกิจพอเพียง</p>
-            <ul className="list-disc list-inside space-y-1 ml-2">
-              <li>ฝากเงินกับครูที่โรงเรียน — จำนวนใดก็ได้</li>
-              <li>ถอนเงินผ่านครู เมื่อจำเป็น</li>
-              <li>ดูยอดและประวัติได้ตลอดเวลา</li>
-            </ul>
-          </CardContent>
-        </Card>
+        <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200 p-6 space-y-4">
+          <h3 className="text-lg font-extrabold text-slate-900">เกี่ยวกับธนาคารพอเพียง</h3>
+          <p className="text-slate-700 font-medium leading-relaxed">
+            ธนาคารพอเพียงคือระบบฝากเงินสำหรับนักเรียน — สอนวินัยการออมตามหลักปรัชญาเศรษฐกิจพอเพียง
+          </p>
+          <ul className="space-y-2 text-slate-700 font-medium">
+            <li className="flex gap-3">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-500 text-amber-950 text-xs font-extrabold flex items-center justify-center">
+                1
+              </span>
+              ฝากเงินกับครูที่โรงเรียน — จำนวนใดก็ได้
+            </li>
+            <li className="flex gap-3">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-500 text-amber-950 text-xs font-extrabold flex items-center justify-center">
+                2
+              </span>
+              ถอนเงินผ่านครู เมื่อจำเป็น
+            </li>
+            <li className="flex gap-3">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-500 text-amber-950 text-xs font-extrabold flex items-center justify-center">
+                3
+              </span>
+              ดูยอดและประวัติได้ตลอดเวลา
+            </li>
+          </ul>
+        </div>
       )}
 
       {tab === 'history' && (
-        <Card>
-          <CardContent className="p-0">
-            {transactions.length === 0 ? (
-              <div className="py-10">
-                <EmptyState
-                  variant="inline"
-                  illustration={<NoDataIllustration />}
-                  title="ยังไม่มีประวัติ"
-                  description="ยังไม่มีรายการฝาก/ถอน"
-                />
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border bg-muted/60">
-                      <th className="text-left px-4 py-3 font-semibold text-foreground/80">วันที่</th>
-                      <th className="text-left px-4 py-3 font-semibold text-foreground/80">ประเภท</th>
-                      <th className="text-right px-4 py-3 font-semibold text-foreground/80">จำนวน</th>
-                      <th className="text-right px-4 py-3 font-semibold text-foreground/80">คงเหลือ</th>
+        <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200 overflow-hidden">
+          {transactions.length === 0 ? (
+            <div className="py-12">
+              <EmptyState
+                variant="inline"
+                illustration={<NoDataIllustration />}
+                title="ยังไม่มีประวัติ"
+                description="ยังไม่มีรายการฝาก/ถอน"
+              />
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-100">
+                  <tr>
+                    <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
+                      วันที่
+                    </th>
+                    <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
+                      ประเภท
+                    </th>
+                    <th className="text-right px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
+                      จำนวน
+                    </th>
+                    <th className="text-right px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
+                      คงเหลือ
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {transactions.map((t, idx) => (
+                    <tr
+                      key={t.id}
+                      className={cn('border-t border-slate-100', idx % 2 === 1 && 'bg-slate-50/40')}
+                    >
+                      <td className="px-4 py-3 text-slate-700 font-medium whitespace-nowrap">
+                        {t.transaction_date}
+                      </td>
+                      <td className="px-4 py-3">
+                        {t.transaction_type === 'deposit' ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500 text-amber-950 text-xs font-bold shadow-sm">
+                            <ArrowDownToLine className="w-3 h-3" /> ฝาก
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-500 text-white text-xs font-bold shadow-sm">
+                            <ArrowUpFromLine className="w-3 h-3" /> ถอน
+                          </span>
+                        )}
+                      </td>
+                      <td
+                        className={cn(
+                          'px-4 py-3 text-right tabular-nums font-extrabold',
+                          t.transaction_type === 'deposit' ? 'text-amber-700' : 'text-rose-700',
+                        )}
+                      >
+                        {t.transaction_type === 'deposit' ? '+' : '−'}
+                        {fmtBaht(Number(t.amount))}
+                      </td>
+                      <td className="px-4 py-3 text-right tabular-nums text-slate-700 font-semibold">
+                        {fmtBaht(Number(t.balance_after))}
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {transactions.map((t) => (
-                      <tr key={t.id} className="border-b border-border">
-                        <td className="px-4 py-3 text-foreground/75 font-medium whitespace-nowrap">
-                          {t.transaction_date}
-                        </td>
-                        <td className="px-4 py-3">
-                          {t.transaction_type === 'deposit' ? (
-                            <Badge className="bg-emerald-500/20 text-emerald-900 dark:text-emerald-200 hover:bg-emerald-500/30 gap-1 font-semibold">
-                              <ArrowDownToLine className="w-3 h-3" /> ฝาก
-                            </Badge>
-                          ) : (
-                            <Badge className="bg-orange-500/20 text-orange-900 dark:text-orange-200 hover:bg-orange-500/30 gap-1 font-semibold">
-                              <ArrowUpFromLine className="w-3 h-3" /> ถอน
-                            </Badge>
-                          )}
-                        </td>
-                        <td
-                          className={`px-4 py-3 text-right font-bold tabular-nums ${
-                            t.transaction_type === 'deposit'
-                              ? 'text-emerald-900 dark:text-emerald-200'
-                              : 'text-orange-900 dark:text-orange-200'
-                          }`}
-                        >
-                          {t.transaction_type === 'deposit' ? '+' : '−'}
-                          {fmtBaht(Number(t.amount))}
-                        </td>
-                        <td className="px-4 py-3 text-right tabular-nums text-foreground/75 font-medium">
-                          {fmtBaht(Number(t.balance_after))}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
 };
 
-const Stat = ({
-  label,
-  value,
+const PillTab = ({
+  active,
+  onClick,
   icon,
-  color,
+  children,
 }: {
-  label: string;
-  value: string;
+  active: boolean;
+  onClick: () => void;
   icon?: React.ReactNode;
-  color: string;
+  children: React.ReactNode;
 }) => (
-  <div className="text-center">
-    <div className={`text-lg font-bold tabular-nums ${color} flex items-center justify-center gap-1`}>
-      {icon}
-      {value}
-    </div>
-    <div className="text-xs text-foreground/70 font-medium mt-0.5">{label}</div>
-  </div>
+  <button
+    onClick={onClick}
+    className={cn(
+      'flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold transition active:translate-y-px',
+      active ? 'bg-slate-900 text-white shadow-md' : 'text-slate-600 hover:text-slate-900',
+    )}
+  >
+    {icon}
+    {children}
+  </button>
 );

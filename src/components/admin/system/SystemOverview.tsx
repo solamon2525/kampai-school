@@ -216,8 +216,26 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.10.4–5 (ธนาคารพอเพียง — รอบ 2 แก้ muted-foreground ที่ยังจาง)',
+        version: 'v1.11.0 (ธนาคารพอเพียง — Premium UX/UI Redesign)',
         date: 'ล่าสุด',
+        badge: 'bg-slate-900',
+        items: [
+            'User รายงานหลังแก้ contrast 4 รอบ (v1.10.3-6) ว่า "สีฟ้าอ่อนยังจาง ไม่เอา รีดีไซน์ใหม่ทั้งหมด" — root cause ที่เพิ่งเจอ: `src/index.css` line 62-67 ระบุ `--gold` และ `--navy` ทั้งคู่ถูก repurpose เป็นเฉดเขียวล้วน (HSL 142°) ตามคอมเมนต์ "Custom school variables — repurposed as green tones" → ทุกสีอ่อนที่ tint อยู่ในระบบ (amber-50, sky-100, emerald-50) fight กับ theme green ที่ tint อยู่ทุกที่ → ดูจางตลอด',
+            'Redesign ทั้ง UX/UI ของธนาคารพอเพียง 5 ส่วน — ใช้ taste-design skill framework (premium banking aesthetic) + แตกจาก green theme: หลัก dark slate (#0F172A) + saturated amber/gold (#F59E0B) + rose-500 สำหรับถอน — สี solid saturated ไม่ใช้ tinted bg/text คู่กันอีกเลย',
+            'SaverTierBadge: 6 tiers ใช้ **saturated gradient panels** (Diamond sky→blue, Platinum slate metallic, Gold amber gradient, Silver zinc, Bronze orange gradient, Beginner emerald) + shadow-md + font-bold + tier icon — contrast WCAG AAA ทุกระดับ',
+            'SaverPodium: ลำดับ 2-1-3 พร้อม solid panels (1st amber + crown floating ด้านบน, 2nd silver metallic, 3rd bronze) + รูปนักเรียน floating ด้านบน podium + medal emoji + height ลดหลั่น (44/56/40)',
+            'Public /savings-bank: complete rewrite — asymmetric hero split (dark slate gradient ซ้าย + amber rotated floating panel ขวา), animated stats row (4 cards พร้อม featured slate-900 card), Hall of Savers podium + timeline rank 4-10, Recent Activity timeline-style (vertical line + dots), Lookup section (slate-900 header card + amber balance hero), How-it-works zigzag asymmetric (ไม่ใช่ 3 equal cards)',
+            'Admin SavingsBankManagement: pill tabs (bg-slate-100 container, active bg-slate-900 text-white), Type toggle solid bg ทั้งบล็อก (active deposit = bg-amber-500 text-amber-950 ring-2, active withdraw = bg-rose-500 text-white ring-2, inactive bg-slate-100) — **แก้ปัญหา toggle มองไม่เห็นที่ user ชี้ใน screenshot**, KpiCard (3 ใบ + 1 KpiHero featured slate-900 ขวาสุด), Summary table zebra + accent column colors, History table solid pills + filter chips',
+            'SavingsBankParentView: premium dark hero (slate-900 → amber-900 gradient) + Tier badge ใหญ่, balance text-amber-400 5xl-6xl extrabold (high contrast บน dark), pill tabs, history table consistent กับ admin',
+            'Homepage Widget: header bg-slate-900 + eyebrow amber-400 + รูป + tier mini, footer link with ArrowRight icon',
+            'Lesson 3: ถ้า theme primary เป็นสีหนึ่ง (เขียว) ห้ามใช้สี semantic ที่เป็น family เดียวกัน (emerald) ใน UI ของ context นั้น แม้จะ convention ของ industry ที่ "green = positive money" — ทำให้ blend ทั้งหมด',
+            'Lesson 4: tinted bg + tinted text ของสีเดียวกัน (เช่น bg-amber-100 text-amber-700) จะดู "จาง" แม้ contrast ratio ผ่าน WCAG AA — solution คือ **solid saturated bg + white/dark text** (สูตรของธนาคารจริง) แทน tinted-on-tinted',
+            'Scoped exception ใน scope ธนาคารพอเพียง: ใช้ Tailwind colors ตรง (slate/amber/rose) แทน theme tokens (bg-card/text-foreground) เพื่อแก้ green-theme-hell — documented ใน commit',
+        ],
+    },
+    {
+        version: 'v1.10.4–5 (ธนาคารพอเพียง — รอบ 2 แก้ muted-foreground ที่ยังจาง)',
+        date: '',
         badge: 'bg-amber-100',
         items: [
             'User ยังเห็นสีจางที่หน้า /savings-bank หลัง v1.10.3 — รอบแรกแก้แค่ text-color-700 → 900 แต่ยังเหลือ text-muted-foreground อีกมากที่จาง (opacity ~50% เป็นพื้นฐานของ var) โดยเฉพาะบน amber-tinted bg',

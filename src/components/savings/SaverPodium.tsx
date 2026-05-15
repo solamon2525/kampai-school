@@ -1,3 +1,4 @@
+import { Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SaverTierBadge } from './SaverTierBadge';
 
@@ -13,26 +14,53 @@ interface Props {
   entries: PodiumEntry[]; // top 3
 }
 
-const MEDALS = ['🥇', '🥈', '🥉'];
-const MEDAL_BG = [
-  'border-amber-300 bg-gradient-to-br from-amber-50 to-yellow-100 dark:from-amber-950/30 dark:to-yellow-900/20',
-  'border-slate-300 bg-gradient-to-br from-slate-50 to-gray-100 dark:from-slate-900/50 dark:to-gray-900/40',
-  'border-orange-300 bg-gradient-to-br from-orange-50 to-amber-100 dark:from-orange-950/30 dark:to-amber-900/20',
-];
-const MEDAL_TEXT = [
-  'text-amber-900 dark:text-amber-200',
-  'text-slate-800 dark:text-slate-200',
-  'text-orange-900 dark:text-orange-200',
+// Solid saturated panels — high contrast, premium feel
+const PODIUM_STYLE = [
+  // 1st place — gold
+  {
+    bg: 'bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600',
+    text: 'text-amber-950',
+    label: 'text-amber-900',
+    ring: 'ring-amber-300',
+    medal: '🥇',
+    height: 'h-44 md:h-56',
+    photoSize: 96,
+    showCrown: true,
+  },
+  // 2nd place — silver
+  {
+    bg: 'bg-gradient-to-br from-slate-200 via-slate-300 to-slate-400',
+    text: 'text-slate-900',
+    label: 'text-slate-700',
+    ring: 'ring-slate-300',
+    medal: '🥈',
+    height: 'h-36 md:h-44',
+    photoSize: 72,
+    showCrown: false,
+  },
+  // 3rd place — bronze
+  {
+    bg: 'bg-gradient-to-br from-orange-400 via-orange-500 to-orange-700',
+    text: 'text-white',
+    label: 'text-orange-100',
+    ring: 'ring-orange-300',
+    medal: '🥉',
+    height: 'h-32 md:h-40',
+    photoSize: 64,
+    showCrown: false,
+  },
 ];
 
 function StudentAvatar({
   name,
-  size = 64,
+  size,
   photoUrl,
+  ringClass,
 }: {
   name: string;
-  size?: number;
+  size: number;
   photoUrl?: string | null;
+  ringClass: string;
 }) {
   const colors = [
     'from-amber-400 to-yellow-500',
@@ -50,10 +78,10 @@ function StudentAvatar({
         alt={name}
         loading="lazy"
         style={{ width: size, height: size }}
-        className="rounded-full object-cover flex-shrink-0 border-2 border-card shadow-sm bg-muted"
-        onError={(e) => {
-          (e.currentTarget as HTMLImageElement).style.display = 'none';
-        }}
+        className={cn(
+          'rounded-full object-cover flex-shrink-0 ring-4 shadow-lg',
+          ringClass,
+        )}
       />
     );
   }
@@ -61,8 +89,9 @@ function StudentAvatar({
     <div
       style={{ width: size, height: size }}
       className={cn(
-        'rounded-full flex items-center justify-center flex-shrink-0 border-2 border-card shadow-sm bg-gradient-to-br text-white font-bold',
+        'rounded-full flex items-center justify-center flex-shrink-0 ring-4 shadow-lg bg-gradient-to-br text-white font-extrabold text-2xl',
         color,
+        ringClass,
       )}
     >
       {(name || '?').charAt(0)}
@@ -71,43 +100,72 @@ function StudentAvatar({
 }
 
 export const SaverPodium = ({ entries }: Props) => {
-  // ลำดับการแสดง: 2-1-3 (อันดับ 1 อยู่กลางสูงสุด)
-  const podiumOrder = [entries[1], entries[0], entries[2]].filter(Boolean) as PodiumEntry[];
-  const visualRanks = [1, 0, 2]; // index ใน entries สำหรับ medal
-
   if (entries.length === 0) return null;
 
+  // Visual order: 2nd-1st-3rd (1st in middle, tallest)
+  const visualOrder = [
+    { entry: entries[1], rank: 1 },
+    { entry: entries[0], rank: 0 },
+    { entry: entries[2], rank: 2 },
+  ].filter((x) => x.entry);
+
   return (
-    <div className="grid grid-cols-3 gap-3 md:gap-6 max-w-3xl mx-auto items-end">
-      {podiumOrder.map((s, idx) => {
-        const rank = visualRanks[idx];
+    <div className="grid grid-cols-3 gap-3 md:gap-6 max-w-3xl mx-auto items-end pt-12 md:pt-16">
+      {visualOrder.map(({ entry, rank }) => {
+        const style = PODIUM_STYLE[rank];
+        const s = entry as PodiumEntry;
         const isFirst = rank === 0;
+
         return (
           <div
-            key={s.student_id ?? idx}
+            key={s.student_id ?? rank}
             className={cn(
-              'rounded-xl border-2 p-4 text-center space-y-2',
-              MEDAL_BG[rank],
-              isFirst ? 'md:py-6' : '',
+              'relative rounded-t-2xl border border-black/5 p-4 md:p-5 text-center flex flex-col items-center justify-end shadow-xl',
+              style.bg,
+              style.height,
             )}
           >
-            <div className="text-3xl md:text-4xl">{MEDALS[rank]}</div>
-            <div className="flex justify-center">
+            {/* Crown for #1 */}
+            {style.showCrown && (
+              <Crown className="absolute -top-7 left-1/2 -translate-x-1/2 w-10 h-10 text-amber-500 drop-shadow-md fill-amber-400" />
+            )}
+
+            {/* Medal floating */}
+            <div className="absolute -top-6 right-3 text-3xl md:text-4xl drop-shadow-lg">
+              {style.medal}
+            </div>
+
+            {/* Avatar floating top */}
+            <div className="absolute -top-10 left-1/2 -translate-x-1/2">
               <StudentAvatar
                 name={s.full_name ?? '?'}
                 photoUrl={s.photo_url}
-                size={isFirst ? 80 : 60}
+                size={style.photoSize}
+                ringClass={style.ring}
               />
             </div>
-            <div className={cn('font-semibold truncate text-sm md:text-base', MEDAL_TEXT[rank])}>
-              {s.full_name ?? '—'}
-            </div>
-            <div className="text-xs text-muted-foreground">{s.class_name ?? ''}</div>
-            <div className={cn('font-bold tabular-nums text-base md:text-lg', MEDAL_TEXT[rank])}>
-              ฝาก {Number(s.deposit_count ?? 0).toLocaleString('th-TH')} ครั้ง
-            </div>
-            <div className="flex justify-center pt-1">
-              <SaverTierBadge depositCount={s.deposit_count} size="sm" />
+
+            {/* Content */}
+            <div className="mt-12 md:mt-14 space-y-1 w-full">
+              <div className={cn('font-bold truncate text-sm md:text-base', style.text)}>
+                {s.full_name ?? '—'}
+              </div>
+              <div className={cn('text-xs font-medium', style.label)}>
+                {s.class_name ?? ''}
+              </div>
+              <div
+                className={cn(
+                  'font-extrabold tabular-nums tracking-tight',
+                  isFirst ? 'text-xl md:text-2xl' : 'text-lg md:text-xl',
+                  style.text,
+                )}
+              >
+                {Number(s.deposit_count ?? 0).toLocaleString('th-TH')}
+                <span className={cn('text-xs font-medium ml-1', style.label)}>ครั้ง</span>
+              </div>
+              <div className="flex justify-center pt-1">
+                <SaverTierBadge depositCount={s.deposit_count} size="sm" />
+              </div>
             </div>
           </div>
         );

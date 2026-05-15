@@ -1,12 +1,20 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowDownToLine, ArrowUpFromLine, List, Users, Download, Trash2 } from 'lucide-react';
+import {
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  List,
+  Users,
+  Download,
+  Trash2,
+  PiggyBank,
+  Wallet,
+  TrendingUp,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { downloadCSV } from '@/lib/export';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -27,7 +35,11 @@ import type {
   SavingsTransactionType,
 } from '@/services/savings.service';
 import { TermBanner } from '@/components/admin/waste-bank/TermBanner';
-import { RecorderSelect, EMPTY_RECORDER, type RecorderValue } from '@/components/admin/shared/RecorderSelect';
+import {
+  RecorderSelect,
+  EMPTY_RECORDER,
+  type RecorderValue,
+} from '@/components/admin/shared/RecorderSelect';
 
 const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 
@@ -45,11 +57,13 @@ const fmtBaht = (n: number | null | undefined) => {
   return `${n.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿`;
 };
 
+const fmtCount = (n: number | null | undefined) =>
+  Number(n ?? 0).toLocaleString('th-TH');
+
 export const SavingsBankManagement = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('record');
   const { toast } = useToast();
 
-  // ─── Form state (Tab 1) ────────────────────────────────────────────────────
   const today = new Date().toISOString().split('T')[0];
   const [form, setForm] = useState({
     transaction_type: 'deposit' as SavingsTransactionType,
@@ -64,11 +78,9 @@ export const SavingsBankManagement = () => {
   const [recorder, setRecorder] = useState<RecorderValue>(EMPTY_RECORDER);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // ─── Data ──────────────────────────────────────────────────────────────────
   const [transactions, setTransactions] = useState<SavingsTransaction[]>([]);
   const [summaries, setSummaries] = useState<SavingsStudentSummary[]>([]);
 
-  // ─── Filters (Tab 2 / 3) ───────────────────────────────────────────────────
   const [summaryClassFilter, setSummaryClassFilter] = useState('all');
   const [summarySearch, setSummarySearch] = useState('');
   const [historyTypeFilter, setHistoryTypeFilter] = useState<'all' | SavingsTransactionType>('all');
@@ -116,7 +128,6 @@ export const SavingsBankManagement = () => {
     setSummaries((data ?? []) as unknown as SavingsStudentSummary[]);
   };
 
-  // ─── Submit deposit/withdraw ───────────────────────────────────────────────
   const handleSubmit = async () => {
     if (!form.student_id) {
       toast({ title: 'กรุณาเลือกนักเรียน', variant: 'destructive' });
@@ -132,7 +143,6 @@ export const SavingsBankManagement = () => {
       return;
     }
 
-    // ตรวจยอดคงเหลือก่อนถอน
     if (form.transaction_type === 'withdraw') {
       const { data: summary } = await savingsSummaryService.getForStudent(form.student_id);
       const current = summary?.current_balance ?? 0;
@@ -148,13 +158,11 @@ export const SavingsBankManagement = () => {
 
     setIsSubmitting(true);
     try {
-      // คำนวณ balance_after (snapshot — source of truth ยังคงเป็น view SUM)
       const { data: summaryBefore } = await savingsSummaryService.getForStudent(form.student_id);
       const before = Number(summaryBefore?.current_balance ?? 0);
       const balance_after =
         form.transaction_type === 'deposit' ? before + amount : before - amount;
 
-      // ดึงเทอมปัจจุบันมา tag
       const term = await termService.getActive();
 
       const studentOpt = studentOptions.find((s) => s.id === form.student_id);
@@ -181,7 +189,6 @@ export const SavingsBankManagement = () => {
         description: `${studentOpt?.name} — ${fmtBaht(amount)} (คงเหลือ ${fmtBaht(balance_after)})`,
       });
 
-      // reset
       setForm((p) => ({
         ...p,
         student_id: '',
@@ -209,12 +216,12 @@ export const SavingsBankManagement = () => {
     await Promise.all([fetchTransactions(), fetchSummaries()]);
   };
 
-  // ─── Derived data ──────────────────────────────────────────────────────────
+  // Derived data
   const filteredSummaries = useMemo(() => {
     const term = summarySearch.trim().toLowerCase();
     return summaries.filter((s) => {
       if (summaryClassFilter !== 'all' && s.class_name !== summaryClassFilter) return false;
-      if (term && !(s.full_name?.toLowerCase().includes(term))) return false;
+      if (term && !s.full_name?.toLowerCase().includes(term)) return false;
       return true;
     });
   }, [summaries, summaryClassFilter, summarySearch]);
@@ -254,10 +261,17 @@ export const SavingsBankManagement = () => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">ธนาคารพอเพียง</h2>
-        <p className="text-sm text-muted-foreground">
+        <div className="text-xs font-bold uppercase tracking-[0.15em] text-amber-600 mb-1">
+          ระบบบริการ
+        </div>
+        <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 flex items-center gap-2">
+          <PiggyBank className="w-7 h-7 text-amber-500" />
+          ธนาคารพอเพียง
+        </h2>
+        <p className="text-sm text-slate-600 font-medium mt-1">
           ระบบฝาก/ถอนเงินสำหรับนักเรียน — สอนวินัยการออมตามหลักปรัชญาเศรษฐกิจพอเพียง
         </p>
       </div>
@@ -266,83 +280,121 @@ export const SavingsBankManagement = () => {
 
       {/* School totals */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard label="ผู้ออม" value={schoolTotals.savers.toLocaleString('th-TH')} icon={<Users className="w-4 h-4" />} />
-        <StatCard label="ยอดฝากรวม" value={fmtBaht(schoolTotals.deposits)} accent="sky" />
-        <StatCard label="ยอดถอนรวม" value={fmtBaht(schoolTotals.withdrawals)} accent="orange" />
-        <StatCard label="ยอดเงินคงเหลือ" value={fmtBaht(schoolTotals.balance)} accent="primary" />
+        <KpiCard
+          label="ผู้ออม"
+          value={fmtCount(schoolTotals.savers)}
+          unit="คน"
+          icon={<Users className="w-5 h-5 text-slate-500" />}
+          accentBar="bg-slate-900"
+        />
+        <KpiCard
+          label="ยอดฝากรวม"
+          value={fmtBaht(schoolTotals.deposits)}
+          icon={<ArrowDownToLine className="w-5 h-5 text-amber-500" />}
+          accentBar="bg-amber-500"
+        />
+        <KpiCard
+          label="ยอดถอนรวม"
+          value={fmtBaht(schoolTotals.withdrawals)}
+          icon={<ArrowUpFromLine className="w-5 h-5 text-rose-500" />}
+          accentBar="bg-rose-500"
+        />
+        <KpiHero
+          label="ยอดเงินคงเหลือ"
+          value={fmtBaht(schoolTotals.balance)}
+          icon={<Wallet className="w-5 h-5" />}
+        />
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-2 border-b border-border">
-        <TabButton active={activeTab === 'record'} onClick={() => setActiveTab('record')} icon={<ArrowDownToLine className="w-4 h-4" />}>
+      {/* Tab navigation — pill style */}
+      <div className="inline-flex p-1 bg-slate-100 rounded-xl">
+        <PillTab
+          active={activeTab === 'record'}
+          onClick={() => setActiveTab('record')}
+          icon={<TrendingUp className="w-4 h-4" />}
+        >
           บันทึกธุรกรรม
-        </TabButton>
-        <TabButton active={activeTab === 'summary'} onClick={() => setActiveTab('summary')} icon={<Users className="w-4 h-4" />}>
+        </PillTab>
+        <PillTab
+          active={activeTab === 'summary'}
+          onClick={() => setActiveTab('summary')}
+          icon={<Users className="w-4 h-4" />}
+        >
           สรุปยอดรายคน
-        </TabButton>
-        <TabButton active={activeTab === 'history'} onClick={() => setActiveTab('history')} icon={<List className="w-4 h-4" />}>
+        </PillTab>
+        <PillTab
+          active={activeTab === 'history'}
+          onClick={() => setActiveTab('history')}
+          icon={<List className="w-4 h-4" />}
+        >
           ประวัติธุรกรรม
-        </TabButton>
+        </PillTab>
       </div>
 
-      {/* ─── Tab 1: Record ─────────────────────────────────────────────── */}
+      {/* ─── Tab 1: Record ────────────────────────────────────────────── */}
       {activeTab === 'record' && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">บันทึกฝาก/ถอนเงิน</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Type toggle */}
-            <div className="grid grid-cols-2 gap-2">
+        <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200">
+          <div className="px-5 md:px-6 py-4 border-b border-slate-200">
+            <h3 className="text-base font-extrabold text-slate-900">บันทึกฝาก/ถอนเงิน</h3>
+          </div>
+
+          <div className="p-5 md:p-6 space-y-5">
+            {/* Type toggle — SOLID HIGH CONTRAST */}
+            <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => setForm((p) => ({ ...p, transaction_type: 'deposit' }))}
                 className={cn(
-                  'rounded-lg border-2 p-3 text-sm font-bold transition flex items-center justify-center gap-2',
+                  'rounded-xl py-4 text-base font-extrabold transition flex items-center justify-center gap-2 active:translate-y-px',
                   form.transaction_type === 'deposit'
-                    ? 'border-sky-600 bg-sky-100 dark:bg-sky-950/40 text-sky-900 dark:text-sky-200 ring-2 ring-sky-300 shadow-sm'
-                    : 'border-border text-foreground/60 hover:border-foreground/40 hover:text-foreground',
+                    ? 'bg-amber-500 text-amber-950 shadow-lg shadow-amber-500/30 ring-2 ring-amber-300'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
                 )}
               >
-                <ArrowDownToLine className="w-4 h-4" /> ฝากเงิน
+                <ArrowDownToLine className="w-5 h-5" /> ฝากเงิน
               </button>
               <button
                 type="button"
                 onClick={() => setForm((p) => ({ ...p, transaction_type: 'withdraw' }))}
                 className={cn(
-                  'rounded-lg border-2 p-3 text-sm font-bold transition flex items-center justify-center gap-2',
+                  'rounded-xl py-4 text-base font-extrabold transition flex items-center justify-center gap-2 active:translate-y-px',
                   form.transaction_type === 'withdraw'
-                    ? 'border-orange-600 bg-orange-100 dark:bg-orange-950/40 text-orange-900 dark:text-orange-200 ring-2 ring-orange-300 shadow-sm'
-                    : 'border-border text-foreground/60 hover:border-foreground/40 hover:text-foreground',
+                    ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/30 ring-2 ring-rose-300'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
                 )}
               >
-                <ArrowUpFromLine className="w-4 h-4" /> ถอนเงิน
+                <ArrowUpFromLine className="w-5 h-5" /> ถอนเงิน
               </button>
             </div>
 
             {/* Class + Student */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <Label>ชั้น</Label>
-                <Select value={form.student_class} onValueChange={(v) => setForm((p) => ({ ...p, student_class: v }))}>
-                  <SelectTrigger>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">ชั้น</Label>
+                <Select
+                  value={form.student_class}
+                  onValueChange={(v) => setForm((p) => ({ ...p, student_class: v }))}
+                >
+                  <SelectTrigger className="border-slate-300">
                     <SelectValue placeholder="เลือกชั้น" />
                   </SelectTrigger>
                   <SelectContent>
                     {CLASSES.map((c) => (
-                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                      <SelectItem key={c} value={c}>
+                        {c}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-1">
-                <Label>นักเรียน</Label>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">นักเรียน</Label>
                 <Select
                   value={form.student_id}
                   onValueChange={(v) => setForm((p) => ({ ...p, student_id: v }))}
                   disabled={!form.student_class}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="border-slate-300">
                     <SelectValue placeholder={form.student_class ? 'เลือกนักเรียน' : 'เลือกชั้นก่อน'} />
                   </SelectTrigger>
                   <SelectContent>
@@ -352,7 +404,7 @@ export const SavingsBankManagement = () => {
                           {s.photo_url ? (
                             <img src={s.photo_url} alt={s.name} className="w-6 h-6 rounded-full object-cover" />
                           ) : (
-                            <div className="w-6 h-6 rounded-full bg-amber-100 dark:bg-amber-950/40 flex items-center justify-center text-[10px] font-bold text-amber-700 dark:text-amber-300">
+                            <div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-700">
                               {s.name.slice(0, 1)}
                             </div>
                           )}
@@ -367,8 +419,10 @@ export const SavingsBankManagement = () => {
 
             {/* Amount + Date */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <Label>จำนวนเงิน (บาท)</Label>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                  จำนวนเงิน (บาท)
+                </Label>
                 <Input
                   type="number"
                   inputMode="decimal"
@@ -377,36 +431,44 @@ export const SavingsBankManagement = () => {
                   value={form.amount}
                   onChange={(e) => setForm((p) => ({ ...p, amount: e.target.value }))}
                   placeholder="0.00"
+                  className="border-slate-300 font-bold tabular-nums text-base"
                 />
               </div>
-              <div className="space-y-1">
-                <Label>วันที่</Label>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">วันที่</Label>
                 <Input
                   type="date"
                   value={form.transaction_date}
                   onChange={(e) => setForm((p) => ({ ...p, transaction_date: e.target.value }))}
+                  className="border-slate-300 font-medium"
                 />
               </div>
             </div>
 
-            {/* Notes */}
-            <div className="space-y-1">
-              <Label>หมายเหตุ (ถ้ามี)</Label>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                หมายเหตุ (ถ้ามี)
+              </Label>
               <Input
                 value={form.notes}
                 onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))}
                 placeholder="เช่น ฝากประจำสัปดาห์"
+                className="border-slate-300"
               />
             </div>
 
-            {/* Recorder */}
             <RecorderSelect value={recorder} onChange={setRecorder} required />
 
             <Button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="w-full"
               size="lg"
+              className={cn(
+                'w-full text-base font-extrabold shadow-lg active:translate-y-px',
+                form.transaction_type === 'deposit'
+                  ? 'bg-amber-500 hover:bg-amber-400 text-amber-950 shadow-amber-500/30'
+                  : 'bg-rose-500 hover:bg-rose-400 text-white shadow-rose-500/30',
+              )}
             >
               {isSubmitting
                 ? 'กำลังบันทึก...'
@@ -414,75 +476,94 @@ export const SavingsBankManagement = () => {
                   ? 'บันทึกฝากเงิน'
                   : 'บันทึกถอนเงิน'}
             </Button>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
-      {/* ─── Tab 2: Summary ──────────────────────────────────────────────── */}
+      {/* ─── Tab 2: Summary ────────────────────────────────────────────── */}
       {activeTab === 'summary' && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">ยอดเงินคงเหลือรายคน</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex flex-wrap items-end gap-2">
-              <div className="space-y-1 min-w-40">
-                <Label>ชั้น</Label>
+        <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200">
+          <div className="px-5 md:px-6 py-4 border-b border-slate-200 flex flex-wrap items-center gap-3 justify-between">
+            <h3 className="text-base font-extrabold text-slate-900">ยอดเงินคงเหลือรายคน</h3>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={exportSummaryCSV}
+              className="border-slate-300 text-slate-700 font-bold gap-1"
+            >
+              <Download className="w-4 h-4" /> Export CSV
+            </Button>
+          </div>
+
+          <div className="p-5 md:p-6 space-y-4">
+            <div className="flex flex-wrap items-end gap-3">
+              <div className="space-y-1.5 min-w-40">
+                <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">ชั้น</Label>
                 <Select value={summaryClassFilter} onValueChange={setSummaryClassFilter}>
-                  <SelectTrigger>
+                  <SelectTrigger className="border-slate-300">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">ทุกชั้น</SelectItem>
                     {CLASSES.map((c) => (
-                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                      <SelectItem key={c} value={c}>
+                        {c}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-1 flex-1 min-w-40">
-                <Label>ค้นหาชื่อ</Label>
+              <div className="space-y-1.5 flex-1 min-w-40">
+                <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">ค้นหาชื่อ</Label>
                 <Input
                   value={summarySearch}
                   onChange={(e) => setSummarySearch(e.target.value)}
                   placeholder="พิมพ์ชื่อ..."
+                  className="border-slate-300"
                 />
               </div>
-              <Button variant="outline" size="sm" onClick={exportSummaryCSV} className="gap-1">
-                <Download className="w-4 h-4" /> Export CSV
-              </Button>
             </div>
 
-            <div className="overflow-x-auto rounded border border-border">
+            <div className="overflow-x-auto rounded-xl border border-slate-200">
               <table className="w-full text-sm">
-                <thead className="bg-muted/40 text-muted-foreground">
+                <thead className="bg-slate-100">
                   <tr>
-                    <th className="text-left p-2">ชื่อ</th>
-                    <th className="text-left p-2">ชั้น</th>
-                    <th className="text-right p-2">ฝากรวม</th>
-                    <th className="text-right p-2">ถอนรวม</th>
-                    <th className="text-right p-2">คงเหลือ</th>
-                    <th className="text-right p-2">ธุรกรรม</th>
+                    <Th className="text-left">ชื่อ</Th>
+                    <Th className="text-left">ชั้น</Th>
+                    <Th className="text-right">ฝากรวม</Th>
+                    <Th className="text-right">ถอนรวม</Th>
+                    <Th className="text-right">คงเหลือ</Th>
+                    <Th className="text-right">ธุรกรรม</Th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredSummaries.length === 0 && (
-                    <tr><td colSpan={6} className="p-4 text-center text-muted-foreground">ไม่มีข้อมูล</td></tr>
+                    <tr>
+                      <td colSpan={6} className="p-6 text-center text-slate-500 font-medium">
+                        ไม่มีข้อมูล
+                      </td>
+                    </tr>
                   )}
-                  {filteredSummaries.map((s) => (
-                    <tr key={s.student_id ?? s.full_name} className="border-t border-border">
-                      <td className="p-2">{s.full_name}</td>
-                      <td className="p-2">{s.class_name}</td>
-                      <td className="p-2 text-right tabular-nums font-semibold text-sky-900 dark:text-sky-200">
+                  {filteredSummaries.map((s, idx) => (
+                    <tr
+                      key={s.student_id ?? s.full_name}
+                      className={cn(
+                        'border-t border-slate-100',
+                        idx % 2 === 1 && 'bg-slate-50/40',
+                      )}
+                    >
+                      <td className="p-3 font-bold text-slate-900">{s.full_name}</td>
+                      <td className="p-3 text-slate-700 font-medium">{s.class_name}</td>
+                      <td className="p-3 text-right tabular-nums font-bold text-amber-700">
                         {fmtBaht(Number(s.total_deposits ?? 0))}
                       </td>
-                      <td className="p-2 text-right tabular-nums font-semibold text-orange-900 dark:text-orange-200">
+                      <td className="p-3 text-right tabular-nums font-bold text-rose-700">
                         {fmtBaht(Number(s.total_withdrawals ?? 0))}
                       </td>
-                      <td className="p-2 text-right tabular-nums font-semibold">
+                      <td className="p-3 text-right tabular-nums font-extrabold text-slate-900">
                         {fmtBaht(Number(s.current_balance ?? 0))}
                       </td>
-                      <td className="p-2 text-right tabular-nums text-muted-foreground">
+                      <td className="p-3 text-right tabular-nums text-slate-600 font-medium">
                         {s.total_transactions ?? 0}
                       </td>
                     </tr>
@@ -490,88 +571,116 @@ export const SavingsBankManagement = () => {
                 </tbody>
               </table>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
-      {/* ─── Tab 3: History ──────────────────────────────────────────────── */}
+      {/* ─── Tab 3: History ────────────────────────────────────────────── */}
       {activeTab === 'history' && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">ประวัติธุรกรรมล่าสุด</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
+        <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200">
+          <div className="px-5 md:px-6 py-4 border-b border-slate-200 flex items-center gap-3 justify-between">
+            <h3 className="text-base font-extrabold text-slate-900">ประวัติธุรกรรมล่าสุด</h3>
             <div className="flex items-center gap-2">
-              <Label className="text-xs">กรอง:</Label>
-              <Select value={historyTypeFilter} onValueChange={(v) => setHistoryTypeFilter(v as 'all' | SavingsTransactionType)}>
-                <SelectTrigger className="w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">ทั้งหมด</SelectItem>
-                  <SelectItem value="deposit">ฝาก</SelectItem>
-                  <SelectItem value="withdraw">ถอน</SelectItem>
-                </SelectContent>
-              </Select>
+              <FilterChip
+                active={historyTypeFilter === 'all'}
+                onClick={() => setHistoryTypeFilter('all')}
+              >
+                ทั้งหมด
+              </FilterChip>
+              <FilterChip
+                active={historyTypeFilter === 'deposit'}
+                onClick={() => setHistoryTypeFilter('deposit')}
+                accent="amber"
+              >
+                ฝาก
+              </FilterChip>
+              <FilterChip
+                active={historyTypeFilter === 'withdraw'}
+                onClick={() => setHistoryTypeFilter('withdraw')}
+                accent="rose"
+              >
+                ถอน
+              </FilterChip>
             </div>
+          </div>
 
-            <div className="overflow-x-auto rounded border border-border">
+          <div className="p-5 md:p-6">
+            <div className="overflow-x-auto rounded-xl border border-slate-200">
               <table className="w-full text-sm">
-                <thead className="bg-muted/40 text-muted-foreground">
+                <thead className="bg-slate-100">
                   <tr>
-                    <th className="text-left p-2">วันที่</th>
-                    <th className="text-left p-2">นักเรียน</th>
-                    <th className="text-left p-2">ชั้น</th>
-                    <th className="text-center p-2">ประเภท</th>
-                    <th className="text-right p-2">จำนวน</th>
-                    <th className="text-right p-2">คงเหลือหลังทำ</th>
-                    <th className="text-left p-2">ผู้บันทึก</th>
-                    <th className="text-center p-2"></th>
+                    <Th className="text-left">วันที่</Th>
+                    <Th className="text-left">นักเรียน</Th>
+                    <Th className="text-left">ชั้น</Th>
+                    <Th className="text-center">ประเภท</Th>
+                    <Th className="text-right">จำนวน</Th>
+                    <Th className="text-right">คงเหลือหลัง</Th>
+                    <Th className="text-left">ผู้บันทึก</Th>
+                    <Th className="text-center"></Th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredTransactions.length === 0 && (
-                    <tr><td colSpan={8} className="p-4 text-center text-muted-foreground">ไม่มีรายการ</td></tr>
+                    <tr>
+                      <td colSpan={8} className="p-6 text-center text-slate-500 font-medium">
+                        ไม่มีรายการ
+                      </td>
+                    </tr>
                   )}
-                  {filteredTransactions.map((t) => (
-                    <tr key={t.id} className="border-t border-border">
-                      <td className="p-2 whitespace-nowrap">{t.transaction_date}</td>
-                      <td className="p-2">
+                  {filteredTransactions.map((t, idx) => (
+                    <tr
+                      key={t.id}
+                      className={cn(
+                        'border-t border-slate-100',
+                        idx % 2 === 1 && 'bg-slate-50/40',
+                      )}
+                    >
+                      <td className="p-3 whitespace-nowrap text-slate-700 font-medium">
+                        {t.transaction_date}
+                      </td>
+                      <td className="p-3">
                         <div className="flex items-center gap-2">
                           {t.students?.photo_url ? (
-                            <img src={t.students.photo_url} alt={t.student_name} className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
+                            <img
+                              src={t.students.photo_url}
+                              alt={t.student_name}
+                              className="w-7 h-7 rounded-full object-cover flex-shrink-0"
+                            />
                           ) : (
-                            <div className="w-7 h-7 rounded-full bg-amber-100 dark:bg-amber-950/40 flex items-center justify-center text-[11px] font-bold text-amber-700 dark:text-amber-300 flex-shrink-0">
+                            <div className="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-[11px] font-bold text-slate-700 flex-shrink-0">
                               {t.student_name.slice(0, 1)}
                             </div>
                           )}
-                          <span>{t.student_name}</span>
+                          <span className="font-bold text-slate-900">{t.student_name}</span>
                         </div>
                       </td>
-                      <td className="p-2">{t.student_class}</td>
-                      <td className="p-2 text-center">
-                        <Badge
-                          variant="outline"
-                          className={cn(
-                            'font-semibold',
-                            t.transaction_type === 'deposit'
-                              ? 'border-sky-600/60 text-sky-900 dark:text-sky-200 bg-sky-100 dark:bg-sky-950/40'
-                              : 'border-orange-600/60 text-orange-900 dark:text-orange-200 bg-orange-100 dark:bg-orange-950/40',
-                          )}
-                        >
-                          {t.transaction_type === 'deposit' ? 'ฝาก' : 'ถอน'}
-                        </Badge>
+                      <td className="p-3 text-slate-700 font-medium">{t.student_class}</td>
+                      <td className="p-3 text-center">
+                        {t.transaction_type === 'deposit' ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500 text-amber-950 text-xs font-bold shadow-sm">
+                            <ArrowDownToLine className="w-3 h-3" /> ฝาก
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-500 text-white text-xs font-bold shadow-sm">
+                            <ArrowUpFromLine className="w-3 h-3" /> ถอน
+                          </span>
+                        )}
                       </td>
-                      <td className="p-2 text-right tabular-nums font-medium">
+                      <td className="p-3 text-right tabular-nums font-extrabold text-slate-900">
                         {fmtBaht(Number(t.amount))}
                       </td>
-                      <td className="p-2 text-right tabular-nums text-muted-foreground">
+                      <td className="p-3 text-right tabular-nums text-slate-600 font-semibold">
                         {fmtBaht(Number(t.balance_after))}
                       </td>
-                      <td className="p-2 text-muted-foreground">{t.recorded_by ?? '—'}</td>
-                      <td className="p-2 text-center">
-                        <Button size="icon" variant="ghost" onClick={() => handleDelete(t.id)} className="h-7 w-7">
-                          <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                      <td className="p-3 text-slate-700 font-medium">{t.recorded_by ?? '—'}</td>
+                      <td className="p-3 text-center">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => handleDelete(t.id)}
+                          className="h-7 w-7 hover:bg-rose-50"
+                        >
+                          <Trash2 className="w-3.5 h-3.5 text-rose-600" />
                         </Button>
                       </td>
                     </tr>
@@ -579,15 +688,85 @@ export const SavingsBankManagement = () => {
                 </tbody>
               </table>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
     </div>
   );
 };
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
-const TabButton = ({
+
+const Th = ({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => (
+  <th
+    className={cn(
+      'p-3 text-xs font-bold uppercase tracking-wider text-slate-700',
+      className,
+    )}
+  >
+    {children}
+  </th>
+);
+
+const KpiCard = ({
+  label,
+  value,
+  unit,
+  icon,
+  accentBar,
+}: {
+  label: string;
+  value: string;
+  unit?: string;
+  icon?: React.ReactNode;
+  accentBar: string;
+}) => (
+  <div
+    className={cn(
+      'bg-white rounded-xl p-4 ring-1 ring-slate-200 border-l-4 hover:shadow-md transition',
+      accentBar.replace('bg-', 'border-l-'),
+    )}
+  >
+    <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+      {icon}
+      {label}
+    </div>
+    <div className="flex items-baseline gap-1.5">
+      <span className="text-xl md:text-2xl font-extrabold text-slate-900 tabular-nums tracking-tight">
+        {value}
+      </span>
+      {unit && <span className="text-sm font-bold text-slate-600">{unit}</span>}
+    </div>
+  </div>
+);
+
+const KpiHero = ({
+  label,
+  value,
+  icon,
+}: {
+  label: string;
+  value: string;
+  icon?: React.ReactNode;
+}) => (
+  <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl p-4 shadow-lg ring-1 ring-amber-500/20">
+    <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-400 mb-1.5">
+      {icon}
+      {label}
+    </div>
+    <div className="text-xl md:text-2xl font-extrabold text-white tabular-nums tracking-tight">
+      {value}
+    </div>
+  </div>
+);
+
+const PillTab = ({
   active,
   onClick,
   icon,
@@ -595,16 +774,16 @@ const TabButton = ({
 }: {
   active: boolean;
   onClick: () => void;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   children: React.ReactNode;
 }) => (
   <button
     onClick={onClick}
     className={cn(
-      'px-3 py-2 text-sm font-medium border-b-2 -mb-px flex items-center gap-1.5 transition',
+      'flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold transition active:translate-y-px',
       active
-        ? 'border-primary text-foreground'
-        : 'border-transparent text-muted-foreground hover:text-foreground',
+        ? 'bg-slate-900 text-white shadow-md'
+        : 'text-slate-600 hover:text-slate-900',
     )}
   >
     {icon}
@@ -612,34 +791,32 @@ const TabButton = ({
   </button>
 );
 
-const StatCard = ({
-  label,
-  value,
-  icon,
+const FilterChip = ({
+  active,
+  onClick,
   accent,
+  children,
 }: {
-  label: string;
-  value: string;
-  icon?: React.ReactNode;
-  accent?: 'sky' | 'orange' | 'primary';
+  active: boolean;
+  onClick: () => void;
+  accent?: 'amber' | 'rose';
+  children: React.ReactNode;
 }) => {
-  const accentClass =
-    accent === 'sky'
-      ? 'text-sky-900 dark:text-sky-200'
-      : accent === 'orange'
-        ? 'text-orange-900 dark:text-orange-200'
-        : accent === 'primary'
-          ? 'text-foreground'
-          : 'text-foreground';
+  const activeClass =
+    accent === 'amber'
+      ? 'bg-amber-500 text-amber-950 shadow-sm'
+      : accent === 'rose'
+        ? 'bg-rose-500 text-white shadow-sm'
+        : 'bg-slate-900 text-white shadow-sm';
   return (
-    <Card>
-      <CardContent className="py-3 px-4">
-        <div className="text-xs text-foreground/70 font-medium flex items-center gap-1">
-          {icon}
-          {label}
-        </div>
-        <div className={cn('text-lg font-bold tabular-nums mt-1', accentClass)}>{value}</div>
-      </CardContent>
-    </Card>
+    <button
+      onClick={onClick}
+      className={cn(
+        'px-3 py-1.5 rounded-full text-xs font-bold transition active:translate-y-px',
+        active ? activeClass : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
+      )}
+    >
+      {children}
+    </button>
   );
 };

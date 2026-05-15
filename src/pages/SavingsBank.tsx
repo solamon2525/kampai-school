@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 import {
   Wallet,
   Search,
@@ -12,15 +11,13 @@ import {
   Trophy,
   Award,
   Activity,
+  ChevronRight,
 } from 'lucide-react';
 import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
 import { SEOHead } from '@/components/SEOHead';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import {
@@ -40,22 +37,22 @@ const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 
 
 const HOW_IT_WORKS = [
   {
-    icon: <PiggyBank className="w-8 h-8 text-amber-600" />,
-    step: '1',
+    step: '01',
     title: 'ฝากเงินกับครู',
-    desc: 'นำเงินมาฝากที่โรงเรียน — จำนวนใดก็ได้ ครูจะบันทึกธุรกรรมในระบบ',
+    desc: 'นำเงินมาฝากที่โรงเรียน จำนวนใดก็ได้ ครูจะบันทึกธุรกรรมในระบบทันที',
+    icon: <PiggyBank className="w-10 h-10 text-amber-500" />,
   },
   {
-    icon: <Wallet className="w-8 h-8 text-amber-600" />,
-    step: '2',
-    title: 'ตรวจสอบยอดได้',
-    desc: 'ดูยอดเงินสะสมและประวัติฝาก/ถอน ด้วยรหัสนักเรียน',
+    step: '02',
+    title: 'ตรวจสอบยอดได้ตลอดเวลา',
+    desc: 'ดูยอดเงินสะสมและประวัติฝาก/ถอนของตนเองได้ด้วยรหัสนักเรียน',
+    icon: <Wallet className="w-10 h-10 text-amber-500" />,
   },
   {
-    icon: <ArrowUpFromLine className="w-8 h-8 text-amber-600" />,
-    step: '3',
-    title: 'ถอนเมื่อจำเป็น',
-    desc: 'ขอถอนเงินผ่านครู — เพื่อความปลอดภัยและสอนวินัยการออม',
+    step: '03',
+    title: 'ถอนเงินเมื่อจำเป็น',
+    desc: 'ขอถอนผ่านครู เพื่อความปลอดภัยและฝึกวินัยการวางแผนใช้จ่าย',
+    icon: <ArrowUpFromLine className="w-10 h-10 text-amber-500" />,
   },
 ];
 
@@ -63,6 +60,9 @@ const fmtBaht = (n: number | null | undefined) => {
   if (n == null) return '0.00 ฿';
   return `${Number(n).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿`;
 };
+
+const fmtCount = (n: number | null | undefined) =>
+  Number(n ?? 0).toLocaleString('th-TH');
 
 const StudentAvatar = ({
   name,
@@ -80,14 +80,14 @@ const StudentAvatar = ({
         alt={name}
         loading="lazy"
         style={{ width: size, height: size }}
-        className="rounded-full object-cover flex-shrink-0 border border-amber-200 dark:border-amber-800/40 bg-muted"
+        className="rounded-full object-cover flex-shrink-0 ring-2 ring-white shadow-sm bg-slate-100"
       />
     );
   }
   return (
     <div
       style={{ width: size, height: size }}
-      className="rounded-full bg-amber-100 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 flex items-center justify-center flex-shrink-0 font-bold border border-amber-300 dark:border-amber-800/40"
+      className="rounded-full bg-slate-200 text-slate-700 flex items-center justify-center flex-shrink-0 font-bold ring-2 ring-white shadow-sm"
     >
       {(name || '?').charAt(0)}
     </div>
@@ -152,7 +152,7 @@ export default function SavingsBank() {
     setSearching(false);
   };
 
-  // ─── Derived public data ─────────────────────────────────────────────────
+  // Derived data
   const publicSummaries = useMemo(
     () => summaries.filter((s) => Number(s.deposit_count ?? 0) > 0),
     [summaries],
@@ -182,7 +182,7 @@ export default function SavingsBank() {
   }, [publicSummaries]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-white">
       <SEOHead
         title="ธนาคารพอเพียง — โรงเรียนคำไผ่"
         description="ระบบฝาก/ถอนเงินสำหรับนักเรียน สอนวินัยการออมตามหลักปรัชญาเศรษฐกิจพอเพียง"
@@ -190,142 +190,204 @@ export default function SavingsBank() {
       <SiteHeader />
 
       <main className="flex-1">
-        {/* ─── Hero ───────────────────────────────────────────────────────── */}
-        <section className="bg-gradient-to-br from-amber-50 via-background to-emerald-50/40 dark:from-amber-950/20 dark:to-emerald-950/10 py-12 md:py-16">
-          <div className="container max-w-5xl mx-auto px-4 text-center space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950/30 text-amber-900 dark:text-amber-200 text-xs font-semibold">
-              <PiggyBank className="w-3.5 h-3.5" /> เศรษฐกิจพอเพียง
-            </div>
-            <h1 className="text-3xl md:text-5xl font-bold tracking-tight">ธนาคารพอเพียง</h1>
-            <p className="text-base md:text-lg text-foreground/80 font-medium max-w-2xl mx-auto">
-              ระบบฝาก/ถอนเงินสำหรับนักเรียน สอนวินัยการออมตามหลักปรัชญาเศรษฐกิจพอเพียง
-            </p>
-            <div className="flex flex-wrap justify-center gap-2 pt-2">
-              <a
-                href="#leaderboard"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-400 hover:bg-amber-300 text-amber-950 text-xs md:text-sm font-semibold transition shadow-sm"
-              >
-                <Trophy className="w-4 h-4" />
-                ดูอันดับนักออม
-              </a>
-              <a
-                href="#lookup"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-700/15 hover:bg-amber-700/25 text-amber-900 dark:text-amber-200 text-xs md:text-sm font-semibold transition"
-              >
-                <Search className="w-4 h-4" />
-                ตรวจสอบยอดของฉัน
-              </a>
+        {/* ─── HERO (asymmetric split, dark slate + gold accent) ──────────── */}
+        <section className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
+          {/* Subtle pattern overlay */}
+          <div
+            className="absolute inset-0 opacity-[0.04]"
+            style={{
+              backgroundImage:
+                'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
+              backgroundSize: '24px 24px',
+            }}
+          />
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+            <div className="grid lg:grid-cols-[1.4fr_1fr] gap-10 lg:gap-16 items-center">
+              {/* LEFT: Copy */}
+              <div className="space-y-6">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 ring-1 ring-amber-400/30 text-amber-300 text-xs font-bold uppercase tracking-[0.15em]">
+                  <PiggyBank className="w-3.5 h-3.5" />
+                  ธนาคารพอเพียง
+                </div>
+                <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white leading-[1.1]">
+                  ออม <span className="text-amber-400">วันละนิด</span>
+                  <br />
+                  สร้างวินัย <span className="italic font-bold text-slate-300">ทั้งชีวิต</span>
+                </h1>
+                <p className="text-base md:text-lg text-slate-300 max-w-xl leading-relaxed">
+                  ระบบฝาก/ถอนเงินสำหรับนักเรียน
+                  สอนวินัยการออมตามหลักปรัชญาเศรษฐกิจพอเพียง
+                </p>
+                <div className="flex flex-wrap gap-3 pt-2">
+                  <a
+                    href="#leaderboard"
+                    className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 active:translate-y-px text-amber-950 text-sm font-bold transition shadow-lg shadow-amber-500/20"
+                  >
+                    <Trophy className="w-4 h-4" />
+                    ดูอันดับนักออม
+                    <ChevronRight className="w-4 h-4" />
+                  </a>
+                  <a
+                    href="#lookup"
+                    className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white/10 hover:bg-white/15 active:translate-y-px text-white text-sm font-bold transition ring-1 ring-white/20"
+                  >
+                    <Search className="w-4 h-4" />
+                    ตรวจสอบยอดของฉัน
+                  </a>
+                </div>
+              </div>
+
+              {/* RIGHT: Floating amber stat panel */}
+              <div className="relative lg:rotate-2 transform-gpu">
+                <div className="bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 rounded-2xl p-6 md:p-8 shadow-2xl shadow-amber-500/30 ring-1 ring-amber-300/50">
+                  <div className="text-xs font-bold uppercase tracking-[0.15em] text-amber-950/80 mb-1">
+                    Hall of Savers
+                  </div>
+                  <div className="text-sm font-semibold text-amber-950 mb-4">
+                    นักเรียนที่ร่วมโครงการ
+                  </div>
+                  <div className="text-5xl md:text-6xl font-extrabold tabular-nums text-amber-950 leading-none tracking-tight">
+                    {isLoading ? '—' : fmtCount(stats.savers)}
+                  </div>
+                  <div className="text-lg font-bold text-amber-900 mt-1">คน</div>
+                  <div className="mt-5 pt-5 border-t border-amber-900/15 flex items-center justify-between text-amber-950">
+                    <div>
+                      <div className="text-xs font-semibold uppercase tracking-wider opacity-75">
+                        ครั้งฝากรวม
+                      </div>
+                      <div className="text-2xl font-extrabold tabular-nums">
+                        {isLoading ? '—' : fmtCount(stats.totalDeposits)}
+                      </div>
+                    </div>
+                    <Sparkles className="w-8 h-8 opacity-30" />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* ─── Stats Row (ไม่มีตัวเลขเงิน) ───────────────────────────────── */}
-        <section className="bg-card border-b border-border shadow-sm">
-          <div className="max-w-5xl mx-auto px-4 py-6">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="flex items-center gap-4 p-4 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40">
-                <div className="w-12 h-12 rounded-full bg-amber-200 dark:bg-amber-900/40 flex items-center justify-center flex-shrink-0">
-                  <Users className="w-6 h-6 text-amber-900 dark:text-amber-200" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground/80">นักเรียนที่ร่วมออม</p>
-                  <p className="text-2xl font-bold text-amber-900 dark:text-amber-200 tabular-nums">
-                    {isLoading ? '...' : stats.savers.toLocaleString('th-TH')}
-                    <span className="text-sm font-normal ml-1">คน</span>
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40">
-                <div className="w-12 h-12 rounded-full bg-emerald-200 dark:bg-emerald-900/40 flex items-center justify-center flex-shrink-0">
-                  <ArrowDownToLine className="w-6 h-6 text-emerald-900 dark:text-emerald-200" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground/80">จำนวนครั้งฝากรวม</p>
-                  <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-200 tabular-nums">
-                    {isLoading ? '...' : stats.totalDeposits.toLocaleString('th-TH')}
-                    <span className="text-sm font-normal ml-1">ครั้ง</span>
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 p-4 rounded-xl bg-sky-50 dark:bg-sky-950/20 border border-sky-200 dark:border-sky-900/40">
-                <div className="w-12 h-12 rounded-full bg-sky-200 dark:bg-sky-900/40 flex items-center justify-center flex-shrink-0">
-                  <Sparkles className="w-6 h-6 text-sky-900 dark:text-sky-200" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground/80">ระดับ Gold ขึ้นไป</p>
-                  <p className="text-2xl font-bold text-sky-900 dark:text-sky-200 tabular-nums">
-                    {isLoading ? '...' : stats.goldPlus.toLocaleString('th-TH')}
-                    <span className="text-sm font-normal ml-1">คน</span>
-                  </p>
-                </div>
-              </div>
+        {/* ─── STATS STRIP (asymmetric 4 cards) ───────────────────────────── */}
+        <section className="bg-white border-b border-slate-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <StatCard
+                label="นักเรียนที่ร่วมออม"
+                value={fmtCount(stats.savers)}
+                unit="คน"
+                icon={<Users className="w-5 h-5" />}
+                accent="amber"
+                isFeatured
+              />
+              <StatCard
+                label="ครั้งฝากรวม"
+                value={fmtCount(stats.totalDeposits)}
+                unit="ครั้ง"
+                icon={<ArrowDownToLine className="w-5 h-5" />}
+                accent="slate"
+              />
+              <StatCard
+                label="ระดับ Gold ขึ้นไป"
+                value={fmtCount(stats.goldPlus)}
+                unit="คน"
+                icon={<Award className="w-5 h-5" />}
+                accent="slate"
+              />
+              <StatCard
+                label="ใช้งานล่าสุด"
+                value={recent[0]?.transaction_date ?? '—'}
+                unit=""
+                icon={<Activity className="w-5 h-5" />}
+                accent="slate"
+                isDate
+              />
             </div>
           </div>
         </section>
 
-        {/* ─── Hall of Savers ─────────────────────────────────────────────── */}
-        <section id="leaderboard" className="max-w-5xl mx-auto w-full px-4 py-10">
-          <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold flex items-center justify-center gap-2">
-              <Trophy className="w-6 h-6 text-amber-700 dark:text-amber-400" /> อันดับนักออม
-            </h2>
-            <p className="text-foreground/75 text-sm font-medium mt-1">
-              จัดอันดับตามจำนวนครั้งที่ฝาก — รางวัลวินัย ไม่ใช่ความรวย
-            </p>
-          </div>
+        {/* ─── HALL OF SAVERS ─────────────────────────────────────────────── */}
+        <section id="leaderboard" className="bg-slate-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
+            <div className="text-center mb-10">
+              <div className="text-xs font-bold uppercase tracking-[0.15em] text-amber-600 mb-2">
+                Hall of Savers
+              </div>
+              <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">
+                อันดับนักออม
+              </h2>
+              <p className="text-base text-slate-600 font-medium mt-3 max-w-xl mx-auto">
+                จัดอันดับตามจำนวนครั้งที่ฝาก — รางวัลของวินัย ไม่ใช่ความรวย
+              </p>
+            </div>
 
-          <Tabs value={classFilter} onValueChange={setClassFilter} className="w-full">
-            <TabsList className="w-full flex flex-wrap h-auto">
-              <TabsTrigger value="all" className="flex-1 min-w-20">รวมทุกชั้น</TabsTrigger>
+            {/* Class filter chips */}
+            <div className="flex flex-wrap justify-center gap-2 mb-10">
+              <ClassChip active={classFilter === 'all'} onClick={() => setClassFilter('all')}>
+                รวมทุกชั้น
+              </ClassChip>
               {CLASSES.map((c) => (
-                <TabsTrigger key={c} value={c} className="flex-1 min-w-14">{c}</TabsTrigger>
+                <ClassChip key={c} active={classFilter === c} onClick={() => setClassFilter(c)}>
+                  {c}
+                </ClassChip>
               ))}
-            </TabsList>
-          </Tabs>
+            </div>
 
-          <div className="mt-6">
             {isLoading ? (
-              <div className="space-y-3">
+              <div className="space-y-3 max-w-3xl mx-auto">
                 {[...Array(5)].map((_, i) => (
-                  <div key={i} className="h-16 rounded-xl bg-muted animate-pulse" />
+                  <div key={i} className="h-16 rounded-xl bg-slate-200 animate-pulse" />
                 ))}
               </div>
             ) : filteredSummaries.length === 0 ? (
-              <div className="text-center py-16 text-muted-foreground">
+              <div className="text-center py-16 text-slate-500">
                 <PiggyBank className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                <p>ยังไม่มีข้อมูล</p>
+                <p className="font-medium">ยังไม่มีข้อมูล</p>
               </div>
             ) : (
               <>
                 {/* Top 3 podium */}
                 <SaverPodium entries={filteredSummaries.slice(0, 3) as never} />
 
-                {/* Rank 4-10 */}
+                {/* Rank 4-10 timeline list */}
                 {filteredSummaries.length > 3 && (
-                  <div className="mt-6 space-y-2">
-                    {filteredSummaries.slice(3, 10).map((s, idx) => (
-                      <div
-                        key={s.student_id ?? idx}
-                        className="flex items-center gap-3 px-3 py-2 rounded-lg border border-border bg-card hover:bg-muted/30 transition"
-                      >
-                        <div className="w-8 h-8 rounded-full bg-amber-200 dark:bg-amber-900/50 text-amber-900 dark:text-amber-200 flex items-center justify-center text-xs font-bold flex-shrink-0">
-                          {idx + 4}
+                  <div className="mt-16 max-w-3xl mx-auto">
+                    <div className="text-xs font-bold uppercase tracking-[0.15em] text-slate-500 mb-4 text-center">
+                      อันดับ 4 — 10
+                    </div>
+                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                      {filteredSummaries.slice(3, 10).map((s, idx) => (
+                        <div
+                          key={s.student_id ?? idx}
+                          className="flex items-center gap-3 px-4 py-3 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition"
+                        >
+                          <div className="w-9 h-9 rounded-full bg-slate-900 text-amber-400 flex items-center justify-center text-sm font-extrabold flex-shrink-0 tabular-nums">
+                            {idx + 4}
+                          </div>
+                          <StudentAvatar
+                            name={s.full_name ?? '?'}
+                            photoUrl={s.photo_url}
+                            size={40}
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold text-slate-900 truncate">
+                              {s.full_name ?? '—'}
+                            </p>
+                            <p className="text-xs text-slate-600 font-medium">
+                              {s.class_name ?? ''}
+                            </p>
+                          </div>
+                          <SaverTierBadge depositCount={s.deposit_count} size="sm" />
+                          <div className="text-right">
+                            <div className="text-base font-extrabold text-slate-900 tabular-nums">
+                              {fmtCount(s.deposit_count)}
+                            </div>
+                            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                              ครั้ง
+                            </div>
+                          </div>
                         </div>
-                        <StudentAvatar
-                          name={s.full_name ?? '?'}
-                          photoUrl={s.photo_url}
-                          size={36}
-                        />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold truncate">{s.full_name ?? '—'}</p>
-                          <p className="text-xs text-foreground/70 font-medium">{s.class_name ?? ''}</p>
-                        </div>
-                        <SaverTierBadge depositCount={s.deposit_count} size="sm" />
-                        <div className="text-sm font-bold text-amber-900 dark:text-amber-200 tabular-nums flex-shrink-0">
-                          ฝาก {Number(s.deposit_count ?? 0).toLocaleString('th-TH')} ครั้ง
-                        </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 )}
               </>
@@ -333,171 +395,253 @@ export default function SavingsBank() {
           </div>
         </section>
 
-        {/* ─── Recent Activity (ไม่แสดงจำนวนเงิน) ────────────────────────── */}
-        <section className="max-w-5xl mx-auto w-full px-4 pb-12">
-          <Card>
-            <CardContent className="p-0">
-              <div className="px-4 py-3 border-b border-border flex items-center gap-2">
-                <Activity className="w-4 h-4 text-amber-700 dark:text-amber-400" />
-                <h3 className="text-sm font-semibold">ความเคลื่อนไหวล่าสุด</h3>
-                <span className="text-xs text-foreground/65 ml-auto font-medium">
-                  (แสดงเฉพาะการทำรายการ ไม่เปิดเผยจำนวนเงิน)
-                </span>
+        {/* ─── RECENT ACTIVITY (timeline) ─────────────────────────────────── */}
+        <section className="bg-white">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div className="mb-8">
+              <div className="text-xs font-bold uppercase tracking-[0.15em] text-amber-600 mb-2">
+                Live Activity
               </div>
-              {isLoading ? (
-                <div className="p-6 text-center text-sm text-muted-foreground">กำลังโหลด...</div>
-              ) : recent.length === 0 ? (
-                <div className="p-6 text-center text-sm text-muted-foreground">ยังไม่มีรายการ</div>
-              ) : (
-                <ul className="divide-y divide-border">
-                  {recent.map((t) => (
-                    <li key={t.id} className="px-4 py-3 flex items-center gap-3">
+              <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">
+                ความเคลื่อนไหวล่าสุด
+              </h2>
+              <p className="text-sm text-slate-600 font-medium mt-2">
+                แสดงเฉพาะรายการธุรกรรม ไม่เปิดเผยจำนวนเงิน
+              </p>
+            </div>
+
+            {isLoading ? (
+              <div className="p-6 text-center text-sm text-slate-500 font-medium">
+                กำลังโหลด...
+              </div>
+            ) : recent.length === 0 ? (
+              <div className="p-6 text-center text-sm text-slate-500 font-medium">
+                ยังไม่มีรายการ
+              </div>
+            ) : (
+              <ol className="relative border-l-2 border-slate-200 ml-3 space-y-5">
+                {recent.map((t) => (
+                  <li key={t.id} className="ml-6">
+                    <span
+                      className={cn(
+                        'absolute -left-[9px] flex items-center justify-center w-4 h-4 rounded-full ring-4 ring-white',
+                        t.transaction_type === 'deposit' ? 'bg-amber-500' : 'bg-rose-500',
+                      )}
+                    />
+                    <div className="flex items-center gap-3">
                       <StudentAvatar
                         name={t.student_name}
                         photoUrl={t.students?.photo_url}
-                        size={32}
+                        size={36}
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold truncate">{t.student_name}</p>
-                        <p className="text-xs text-foreground/70 font-medium">
+                        <p className="text-sm font-bold text-slate-900 truncate">
+                          {t.student_name}
+                        </p>
+                        <p className="text-xs text-slate-600 font-medium">
                           {t.student_class ?? ''} · {t.transaction_date}
                         </p>
                       </div>
                       {t.transaction_type === 'deposit' ? (
-                        <Badge className="bg-emerald-500/20 text-emerald-900 dark:text-emerald-200 hover:bg-emerald-500/30 gap-1 font-semibold">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500 text-white text-xs font-bold shadow-sm">
                           <ArrowDownToLine className="w-3 h-3" /> ฝาก
-                        </Badge>
+                        </span>
                       ) : (
-                        <Badge className="bg-orange-500/20 text-orange-900 dark:text-orange-200 hover:bg-orange-500/30 gap-1 font-semibold">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-500 text-white text-xs font-bold shadow-sm">
                           <ArrowUpFromLine className="w-3 h-3" /> ถอน
-                        </Badge>
+                        </span>
                       )}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </CardContent>
-          </Card>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </div>
         </section>
 
-        {/* ─── Lookup (เฉพาะตัวเด็ก/ผู้ปกครอง) ────────────────────────────── */}
-        <section id="lookup" className="container max-w-3xl mx-auto px-4 pb-12">
-          <Card className="shadow-lg">
-            <CardContent className="p-6 md:p-8 space-y-4">
-              <div>
-                <h2 className="text-lg font-semibold flex items-center gap-2">
-                  <Search className="w-5 h-5" /> ตรวจสอบยอดเงินสะสมของฉัน
+        {/* ─── LOOKUP (private balance check) ─────────────────────────────── */}
+        <section id="lookup" className="bg-slate-50">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div className="bg-white rounded-3xl shadow-xl ring-1 ring-slate-200 overflow-hidden">
+              <div className="bg-slate-900 px-6 md:px-8 py-6">
+                <div className="text-xs font-bold uppercase tracking-[0.15em] text-amber-400 mb-1">
+                  Account Lookup
+                </div>
+                <h2 className="text-xl md:text-2xl font-extrabold text-white flex items-center gap-2">
+                  <Search className="w-5 h-5" /> ตรวจสอบยอดเงินของฉัน
                 </h2>
-                <p className="text-sm text-foreground/75 font-medium mt-1">
-                  กรอกรหัสนักเรียนเพื่อดูยอดเงินและประวัติธุรกรรมของตัวเอง
+                <p className="text-sm text-slate-300 mt-2 font-medium">
+                  กรอกรหัสนักเรียนเพื่อดูยอดเงินสะสม + ประวัติธุรกรรม
                 </p>
               </div>
-              <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2">
-                <Input
-                  value={code}
-                  onChange={(e) => setCode(e.target.value)}
-                  placeholder="เช่น 12345"
-                  className="flex-1"
-                />
-                <Button type="submit" disabled={searching || !code.trim()}>
-                  {searching ? 'กำลังค้นหา...' : 'ค้นหา'}
-                </Button>
-              </form>
 
-              {student && (
-                <div className="pt-4 border-t border-border space-y-4">
-                  <div className="flex items-center gap-3">
-                    <StudentAvatar
-                      name={student.full_name}
-                      photoUrl={student.photo_url}
-                      size={56}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold">{student.full_name}</p>
-                      <p className="text-xs text-foreground/70 font-medium">{student.class_name ?? '—'}</p>
-                    </div>
-                    <SaverTierBadge depositCount={studentDepositCount} size="md" />
-                  </div>
-                  <div className="bg-gradient-to-br from-amber-500/15 to-emerald-500/15 rounded-lg p-4 text-center border border-amber-500/20">
-                    <div className="text-xs text-amber-900 dark:text-amber-200 font-semibold">ยอดเงินคงเหลือ</div>
-                    <div className="text-3xl md:text-4xl font-bold text-amber-900 dark:text-amber-200 tabular-nums mt-1">
-                      {fmtBaht(Number(student.current_balance ?? 0))}
-                    </div>
-                  </div>
+              <div className="p-6 md:p-8 space-y-5">
+                <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2">
+                  <Input
+                    value={code}
+                    onChange={(e) => setCode(e.target.value)}
+                    placeholder="เช่น 12345"
+                    className="flex-1 text-base font-medium border-slate-300 focus-visible:ring-amber-500"
+                  />
+                  <Button
+                    type="submit"
+                    disabled={searching || !code.trim()}
+                    className="bg-amber-500 hover:bg-amber-400 active:translate-y-px text-amber-950 font-bold shadow-md"
+                  >
+                    {searching ? 'กำลังค้นหา...' : 'ค้นหา'}
+                  </Button>
+                </form>
 
-                  {history.length > 0 && (
-                    <div>
-                      <h3 className="text-sm font-semibold flex items-center gap-1 mb-2">
-                        <History className="w-4 h-4" /> ประวัติธุรกรรม
-                      </h3>
-                      <div className="overflow-x-auto rounded border border-border">
-                        <table className="w-full text-sm">
-                          <thead className="bg-muted/60 text-foreground/80 font-semibold">
-                            <tr>
-                              <th className="text-left p-2">วันที่</th>
-                              <th className="text-center p-2">ประเภท</th>
-                              <th className="text-right p-2">จำนวน</th>
-                              <th className="text-right p-2">คงเหลือ</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {history.map((h) => (
-                              <tr key={h.txn_id} className="border-t border-border">
-                                <td className="p-2 text-foreground/75 font-medium whitespace-nowrap">
-                                  {h.transaction_date}
-                                </td>
-                                <td className="p-2 text-center">
-                                  {h.transaction_type === 'deposit' ? (
-                                    <Badge className="bg-emerald-500/20 text-emerald-900 dark:text-emerald-200 hover:bg-emerald-500/30 gap-1 font-semibold">
-                                      <ArrowDownToLine className="w-3 h-3" /> ฝาก
-                                    </Badge>
-                                  ) : (
-                                    <Badge className="bg-orange-500/20 text-orange-900 dark:text-orange-200 hover:bg-orange-500/30 gap-1 font-semibold">
-                                      <ArrowUpFromLine className="w-3 h-3" /> ถอน
-                                    </Badge>
-                                  )}
-                                </td>
-                                <td
-                                  className={cn(
-                                    'p-2 text-right tabular-nums font-bold',
-                                    h.transaction_type === 'deposit'
-                                      ? 'text-emerald-900 dark:text-emerald-200'
-                                      : 'text-orange-900 dark:text-orange-200',
-                                  )}
-                                >
-                                  {h.transaction_type === 'deposit' ? '+' : '−'}
-                                  {fmtBaht(Number(h.amount))}
-                                </td>
-                                <td className="p-2 text-right tabular-nums text-foreground/75 font-medium">
-                                  {fmtBaht(Number(h.balance_after))}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                {student && (
+                  <div className="pt-6 border-t border-slate-200 space-y-5">
+                    {/* Student header */}
+                    <div className="flex items-center gap-3">
+                      <StudentAvatar
+                        name={student.full_name}
+                        photoUrl={student.photo_url}
+                        size={56}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-extrabold text-slate-900 truncate">
+                          {student.full_name}
+                        </p>
+                        <p className="text-xs text-slate-600 font-medium">
+                          {student.class_name ?? '—'}
+                        </p>
+                      </div>
+                      <SaverTierBadge depositCount={studentDepositCount} size="md" />
+                    </div>
+
+                    {/* Balance hero — only place $ shown publicly */}
+                    <div className="bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 rounded-2xl p-6 text-center shadow-lg shadow-amber-500/20">
+                      <div className="text-xs font-bold uppercase tracking-[0.15em] text-amber-950/80">
+                        ยอดเงินคงเหลือ
+                      </div>
+                      <div className="text-4xl md:text-5xl font-extrabold text-amber-950 tabular-nums tracking-tight mt-2">
+                        {fmtBaht(Number(student.current_balance ?? 0))}
                       </div>
                     </div>
-                  )}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+
+                    {/* History table */}
+                    {history.length > 0 && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-3">
+                          <History className="w-4 h-4 text-slate-700" />
+                          <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider">
+                            ประวัติธุรกรรม
+                          </h3>
+                        </div>
+                        <div className="overflow-x-auto rounded-xl border border-slate-200">
+                          <table className="w-full text-sm">
+                            <thead className="bg-slate-100">
+                              <tr>
+                                <th className="text-left px-3 py-2 text-xs font-bold uppercase tracking-wider text-slate-700">
+                                  วันที่
+                                </th>
+                                <th className="text-center px-3 py-2 text-xs font-bold uppercase tracking-wider text-slate-700">
+                                  ประเภท
+                                </th>
+                                <th className="text-right px-3 py-2 text-xs font-bold uppercase tracking-wider text-slate-700">
+                                  จำนวน
+                                </th>
+                                <th className="text-right px-3 py-2 text-xs font-bold uppercase tracking-wider text-slate-700">
+                                  คงเหลือ
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {history.map((h) => (
+                                <tr
+                                  key={h.txn_id}
+                                  className="border-t border-slate-100 hover:bg-slate-50/50"
+                                >
+                                  <td className="px-3 py-2.5 text-slate-700 font-medium whitespace-nowrap">
+                                    {h.transaction_date}
+                                  </td>
+                                  <td className="px-3 py-2.5 text-center">
+                                    {h.transaction_type === 'deposit' ? (
+                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500 text-white text-xs font-bold">
+                                        <ArrowDownToLine className="w-3 h-3" /> ฝาก
+                                      </span>
+                                    ) : (
+                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500 text-white text-xs font-bold">
+                                        <ArrowUpFromLine className="w-3 h-3" /> ถอน
+                                      </span>
+                                    )}
+                                  </td>
+                                  <td
+                                    className={cn(
+                                      'px-3 py-2.5 text-right tabular-nums font-extrabold',
+                                      h.transaction_type === 'deposit'
+                                        ? 'text-amber-700'
+                                        : 'text-rose-700',
+                                    )}
+                                  >
+                                    {h.transaction_type === 'deposit' ? '+' : '−'}
+                                    {fmtBaht(Number(h.amount))}
+                                  </td>
+                                  <td className="px-3 py-2.5 text-right tabular-nums text-slate-700 font-semibold">
+                                    {fmtBaht(Number(h.balance_after))}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </section>
 
-        {/* ─── How it works ───────────────────────────────────────────────── */}
-        <section className="container max-w-5xl mx-auto px-4 pb-16">
-          <h2 className="text-2xl font-bold text-center mb-8">ขั้นตอนการใช้งาน</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {HOW_IT_WORKS.map((s) => (
-              <Card key={s.step}>
-                <CardContent className="p-6 space-y-3 text-center">
-                  <div className="flex justify-center">{s.icon}</div>
-                  <div className="text-xs font-bold text-amber-900 dark:text-amber-300">ขั้นที่ {s.step}</div>
-                  <h3 className="font-semibold">{s.title}</h3>
-                  <p className="text-sm text-foreground/75 font-medium">{s.desc}</p>
-                </CardContent>
-              </Card>
-            ))}
+        {/* ─── HOW IT WORKS (asymmetric zigzag, not equal cards) ──────────── */}
+        <section className="bg-white">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
+            <div className="text-center mb-12">
+              <div className="text-xs font-bold uppercase tracking-[0.15em] text-amber-600 mb-2">
+                How It Works
+              </div>
+              <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">
+                ขั้นตอนการใช้งาน
+              </h2>
+            </div>
+            <div className="space-y-12 md:space-y-16">
+              {HOW_IT_WORKS.map((s, idx) => {
+                const isReverse = idx % 2 === 1;
+                return (
+                  <div
+                    key={s.step}
+                    className={cn(
+                      'grid md:grid-cols-[1fr_2fr] gap-6 md:gap-10 items-center',
+                      isReverse && 'md:grid-flow-dense',
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        'flex flex-col items-center md:items-start gap-3',
+                        isReverse && 'md:col-start-2',
+                      )}
+                    >
+                      <div className="text-7xl md:text-8xl font-extrabold tracking-tighter text-amber-500 leading-none">
+                        {s.step}
+                      </div>
+                      {s.icon}
+                    </div>
+                    <div className={cn('space-y-3', isReverse && 'md:col-start-1 md:row-start-1')}>
+                      <h3 className="text-xl md:text-2xl font-extrabold text-slate-900">
+                        {s.title}
+                      </h3>
+                      <p className="text-base text-slate-700 leading-relaxed font-medium">
+                        {s.desc}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </section>
       </main>
@@ -506,3 +650,82 @@ export default function SavingsBank() {
     </div>
   );
 }
+
+// ─── Sub-components ──────────────────────────────────────────────────────────
+
+const StatCard = ({
+  label,
+  value,
+  unit,
+  icon,
+  accent,
+  isFeatured,
+  isDate,
+}: {
+  label: string;
+  value: string;
+  unit: string;
+  icon?: React.ReactNode;
+  accent: 'amber' | 'slate';
+  isFeatured?: boolean;
+  isDate?: boolean;
+}) => {
+  if (isFeatured) {
+    return (
+      <div className="col-span-2 md:col-span-1 bg-slate-900 rounded-2xl p-5 shadow-lg ring-1 ring-amber-500/20">
+        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-amber-400 mb-2">
+          {icon}
+          {label}
+        </div>
+        <div className="flex items-baseline gap-2">
+          <span className="text-4xl font-extrabold text-white tabular-nums tracking-tight">
+            {value}
+          </span>
+          {unit && <span className="text-base font-bold text-slate-400">{unit}</span>}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-2xl p-5 ring-1 ring-slate-200 border-l-4 border-slate-900 hover:border-amber-500 hover:shadow-md transition">
+      <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-slate-600 mb-2">
+        {icon}
+        {label}
+      </div>
+      <div className="flex items-baseline gap-2">
+        <span
+          className={cn(
+            'tabular-nums tracking-tight font-extrabold text-slate-900',
+            isDate ? 'text-lg' : 'text-3xl',
+          )}
+        >
+          {value}
+        </span>
+        {unit && <span className="text-sm font-bold text-slate-600">{unit}</span>}
+      </div>
+    </div>
+  );
+};
+
+const ClassChip = ({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) => (
+  <button
+    onClick={onClick}
+    className={cn(
+      'px-4 py-2 rounded-full text-sm font-bold transition active:translate-y-px',
+      active
+        ? 'bg-slate-900 text-white shadow-md'
+        : 'bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-100',
+    )}
+  >
+    {children}
+  </button>
+);

@@ -164,53 +164,58 @@ const SavingsBankWidget = () => {
   const totalDeposits = rows.reduce((acc, r) => acc + Number(r.deposit_count ?? 0), 0);
 
   return (
-    <div className="bg-white rounded-2xl border border-amber-100 shadow-sm overflow-hidden">
-      {/* Header */}
-      <div className="bg-amber-500 text-white px-4 py-3 flex items-center gap-2">
-        <Wallet className="w-5 h-5 text-white" />
-        <h3 className="text-white font-semibold text-sm">🏦 ธนาคารพอเพียง — Top 5</h3>
+    <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200 overflow-hidden">
+      {/* Header — Premium slate + gold accent */}
+      <div className="bg-slate-900 px-4 py-3">
+        <div className="text-[10px] font-bold uppercase tracking-[0.15em] text-amber-400 mb-0.5">
+          Hall of Savers · Top 5
+        </div>
+        <h3 className="text-white font-extrabold text-sm flex items-center gap-1.5">
+          <Wallet className="w-4 h-4 text-amber-400" /> ธนาคารพอเพียง
+        </h3>
       </div>
 
-      {/* Stats row (ไม่มีตัวเลขเงิน) */}
-      <div className="grid grid-cols-2 gap-2 px-4 py-3 bg-amber-50 border-b border-amber-100">
+      {/* Stats row */}
+      <div className="grid grid-cols-2 gap-2 px-4 py-3 bg-slate-50 border-b border-slate-200">
         <div className="text-center">
-          <p className="text-xs text-muted-foreground">นักเรียนที่ออม</p>
-          <p className="font-bold text-amber-900 text-sm">{totalSavers.toLocaleString('th-TH')} คน</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">นักเรียนที่ออม</p>
+          <p className="font-extrabold text-slate-900 text-sm tabular-nums">{totalSavers.toLocaleString('th-TH')} คน</p>
         </div>
         <div className="text-center">
-          <p className="text-xs text-muted-foreground">ครั้งฝากรวม</p>
-          <p className="font-bold text-emerald-900 text-sm">{totalDeposits.toLocaleString('th-TH')} ครั้ง</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">ครั้งฝากรวม</p>
+          <p className="font-extrabold text-amber-700 text-sm tabular-nums">{totalDeposits.toLocaleString('th-TH')}</p>
         </div>
       </div>
 
       {/* Top 5 list */}
       {isLoading ? (
-        <div className="py-6 flex items-center justify-center text-sm text-muted-foreground">กำลังโหลด...</div>
+        <div className="py-6 flex items-center justify-center text-sm text-slate-500 font-medium">กำลังโหลด...</div>
       ) : top5.length === 0 ? (
-        <div className="py-6 flex items-center justify-center text-sm text-muted-foreground">ยังไม่มีข้อมูล</div>
+        <div className="py-6 flex items-center justify-center text-sm text-slate-500 font-medium">ยังไม่มีข้อมูล</div>
       ) : (
-        <ul className="divide-y divide-amber-50">
+        <ul className="divide-y divide-slate-100">
           {top5.map((s, i) => (
-            <li key={s.student_id ?? i} className="flex items-center gap-2 px-3 py-2">
+            <li key={s.student_id ?? i} className="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 transition">
               <div className={`w-7 h-7 rounded-full bg-gradient-to-br ${RANK_COLORS[i]} flex items-center justify-center flex-shrink-0 text-xs font-bold text-white shadow-sm`}>
                 {MEDALS[i]}
               </div>
               {s.photo_url ? (
-                <img src={s.photo_url} alt={s.full_name ?? ''} className="w-8 h-8 rounded-full object-cover border border-amber-200 flex-shrink-0" />
+                <img src={s.photo_url} alt={s.full_name ?? ''} className="w-8 h-8 rounded-full object-cover ring-2 ring-white shadow-sm flex-shrink-0" />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 text-amber-900 text-xs font-bold border border-amber-300">
+                <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center flex-shrink-0 text-slate-700 text-xs font-bold ring-2 ring-white shadow-sm">
                   {(s.full_name ?? '?').charAt(0)}
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-gray-800 truncate">{s.full_name ?? '-'}</p>
+                <p className="text-xs font-bold text-slate-900 truncate">{s.full_name ?? '-'}</p>
                 <div className="flex items-center gap-1">
-                  <p className="text-[10px] text-gray-500">{s.class_name ?? ''}</p>
+                  <p className="text-[10px] text-slate-600 font-medium">{s.class_name ?? ''}</p>
                   <SaverTierBadge depositCount={s.deposit_count} size="sm" showLabel={false} />
                 </div>
               </div>
-              <span className="text-xs font-bold text-amber-900 flex-shrink-0">
-                {Number(s.deposit_count ?? 0).toLocaleString('th-TH')} ครั้ง
+              <span className="text-xs font-extrabold text-slate-900 flex-shrink-0 tabular-nums">
+                {Number(s.deposit_count ?? 0).toLocaleString('th-TH')}
+                <span className="text-[9px] font-bold text-slate-500 ml-0.5">ครั้ง</span>
               </span>
             </li>
           ))}
@@ -218,9 +223,9 @@ const SavingsBankWidget = () => {
       )}
 
       {/* Footer link */}
-      <div className="px-4 py-2.5 border-t border-amber-100 bg-amber-50">
-        <Link to="/savings-bank" className="text-xs text-amber-900 hover:underline flex items-center gap-1 font-semibold">
-          <Wallet className="w-3 h-3" /> ดูธนาคารพอเพียงทั้งหมด
+      <div className="px-4 py-2.5 border-t border-slate-200 bg-slate-50">
+        <Link to="/savings-bank" className="text-xs text-slate-900 hover:text-amber-700 flex items-center gap-1 font-extrabold">
+          ดูธนาคารพอเพียงทั้งหมด <ArrowRight className="w-3 h-3 text-amber-500" />
         </Link>
       </div>
     </div>
