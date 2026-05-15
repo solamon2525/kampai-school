@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
-import { Facebook, Youtube, Instagram, MessageCircle, Link as LinkIcon, Image, Users, Monitor, FileText, ArrowRight, Recycle } from 'lucide-react';
+import { Facebook, Youtube, Instagram, MessageCircle, Link as LinkIcon, Image, Users, Monitor, FileText, ArrowRight, Recycle, Wallet } from 'lucide-react';
+import { SaverTierBadge } from '@/components/savings/SaverTierBadge';
 import { staggerContainerVariants, staggerItemVariants, fadeInVariants } from '@/hooks/useScrollReveal';
 
 // ─── WasteBank Widget ─────────────────────────────────────
@@ -128,6 +129,104 @@ const WasteBankWidget = () => {
   );
 };
 
+// ─── SavingsBank Widget ───────────────────────────────────
+// ⚠️ Privacy: หน้านี้สาธารณะ — ห้ามแสดงตัวเลขเงิน
+// จัดอันดับ + แสดงเฉพาะ "จำนวนครั้งฝาก" + tier (รางวัลวินัย ไม่ใช่ความรวย)
+
+interface SavingsSummaryRow {
+  student_id: string | null;
+  full_name: string | null;
+  class_name: string | null;
+  photo_url: string | null;
+  deposit_count: number | null;
+  total_transactions: number | null;
+}
+
+const SavingsBankWidget = () => {
+  const [rows, setRows] = useState<SavingsSummaryRow[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    supabase
+      .from('savings_student_summary')
+      .select('student_id, full_name, class_name, photo_url, deposit_count, total_transactions')
+      .gt('deposit_count', 0)
+      .order('deposit_count', { ascending: false })
+      .order('total_transactions', { ascending: false })
+      .then(({ data }) => {
+        setRows((data as SavingsSummaryRow[]) ?? []);
+        setIsLoading(false);
+      });
+  }, []);
+
+  const top5 = useMemo(() => rows.slice(0, 5), [rows]);
+  const totalSavers = rows.length;
+  const totalDeposits = rows.reduce((acc, r) => acc + Number(r.deposit_count ?? 0), 0);
+
+  return (
+    <div className="bg-white rounded-2xl border border-amber-100 shadow-sm overflow-hidden">
+      {/* Header */}
+      <div className="bg-amber-500 text-white px-4 py-3 flex items-center gap-2">
+        <Wallet className="w-5 h-5 text-white" />
+        <h3 className="text-white font-semibold text-sm">🏦 ธนาคารพอเพียง — Top 5</h3>
+      </div>
+
+      {/* Stats row (ไม่มีตัวเลขเงิน) */}
+      <div className="grid grid-cols-2 gap-2 px-4 py-3 bg-amber-50 border-b border-amber-100">
+        <div className="text-center">
+          <p className="text-xs text-muted-foreground">นักเรียนที่ออม</p>
+          <p className="font-bold text-amber-700 text-sm">{totalSavers.toLocaleString('th-TH')} คน</p>
+        </div>
+        <div className="text-center">
+          <p className="text-xs text-muted-foreground">ครั้งฝากรวม</p>
+          <p className="font-bold text-emerald-700 text-sm">{totalDeposits.toLocaleString('th-TH')} ครั้ง</p>
+        </div>
+      </div>
+
+      {/* Top 5 list */}
+      {isLoading ? (
+        <div className="py-6 flex items-center justify-center text-sm text-muted-foreground">กำลังโหลด...</div>
+      ) : top5.length === 0 ? (
+        <div className="py-6 flex items-center justify-center text-sm text-muted-foreground">ยังไม่มีข้อมูล</div>
+      ) : (
+        <ul className="divide-y divide-amber-50">
+          {top5.map((s, i) => (
+            <li key={s.student_id ?? i} className="flex items-center gap-2 px-3 py-2">
+              <div className={`w-7 h-7 rounded-full bg-gradient-to-br ${RANK_COLORS[i]} flex items-center justify-center flex-shrink-0 text-xs font-bold text-white shadow-sm`}>
+                {MEDALS[i]}
+              </div>
+              {s.photo_url ? (
+                <img src={s.photo_url} alt={s.full_name ?? ''} className="w-8 h-8 rounded-full object-cover border border-amber-200 flex-shrink-0" />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 text-amber-700 text-xs font-bold border border-amber-200">
+                  {(s.full_name ?? '?').charAt(0)}
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-gray-800 truncate">{s.full_name ?? '-'}</p>
+                <div className="flex items-center gap-1">
+                  <p className="text-[10px] text-gray-500">{s.class_name ?? ''}</p>
+                  <SaverTierBadge depositCount={s.deposit_count} size="sm" showLabel={false} />
+                </div>
+              </div>
+              <span className="text-xs font-bold text-amber-700 flex-shrink-0">
+                {Number(s.deposit_count ?? 0).toLocaleString('th-TH')} ครั้ง
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* Footer link */}
+      <div className="px-4 py-2.5 border-t border-amber-100 bg-amber-50">
+        <Link to="/savings-bank" className="text-xs text-amber-700 hover:underline flex items-center gap-1 font-medium">
+          <Wallet className="w-3 h-3" /> ดูธนาคารพอเพียงทั้งหมด
+        </Link>
+      </div>
+    </div>
+  );
+};
+
 const categoryLinks = [
   { label: 'ข่าวประชาสัมพันธ์', href: '/news', color: 'text-blue-700', dot: 'bg-blue-500' },
   { label: 'กิจกรรม', href: '/news', color: 'text-green-700', dot: 'bg-green-500' },
@@ -244,8 +343,8 @@ export const useHomeRightBlocks = () => {
 
   const rawOrder = settings.homepage_right_widgets;
   const widgetOrder: string[] = rawOrder
-    ? (() => { try { return JSON.parse(rawOrder); } catch { return ['categories','gallery','services','social','stats','waste_bank']; } })()
-    : ['categories','gallery','services','social','stats','waste_bank'];
+    ? (() => { try { return JSON.parse(rawOrder); } catch { return ['categories','gallery','services','social','stats','waste_bank','savings_bank']; } })()
+    : ['categories','gallery','services','social','stats','waste_bank','savings_bank'];
 
   const categoriesWidget = (
     <div key="categories" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
@@ -402,6 +501,7 @@ export const useHomeRightBlocks = () => {
     stats: statsWidget,
     documents: documentsWidget,
     waste_bank: <WasteBankWidget key="waste_bank" />,
+    savings_bank: <SavingsBankWidget key="savings_bank" />,
   };
 
   return widgetMap;

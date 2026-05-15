@@ -34,9 +34,31 @@ export type SavingsStudentSummary = {
   photo_url: string | null;
   student_code: string | null;
   total_transactions: number | null;
+  deposit_count: number | null;
+  withdraw_count: number | null;
   total_deposits: number | null;
   total_withdrawals: number | null;
   current_balance: number | null;
+};
+
+export type SaverTier = 'Diamond' | 'Platinum' | 'Gold' | 'Silver' | 'Bronze' | 'Beginner';
+
+export const SAVER_TIER_THRESHOLDS: Array<{ tier: SaverTier; min: number }> = [
+  { tier: 'Diamond', min: 100 },
+  { tier: 'Platinum', min: 50 },
+  { tier: 'Gold', min: 25 },
+  { tier: 'Silver', min: 10 },
+  { tier: 'Bronze', min: 3 },
+  { tier: 'Beginner', min: 1 },
+];
+
+export const getSaverTier = (depositCount: number | null | undefined): SaverTier | null => {
+  const c = Number(depositCount ?? 0);
+  if (c < 1) return null;
+  for (const { tier, min } of SAVER_TIER_THRESHOLDS) {
+    if (c >= min) return tier;
+  }
+  return null;
 };
 
 export type StudentSavingsLookup = {
@@ -117,6 +139,20 @@ export const savingsSummaryService = {
       .select('*')
       .eq('student_id', studentId)
       .maybeSingle(),
+
+  /**
+   * Public leaderboard — sort by deposit_count DESC (จัดอันดับโดยจำนวนครั้งฝาก)
+   * ❌ ห้ามแสดงตัวเลขเงินในที่สาธารณะ (privacy)
+   */
+  getLeaderboard: (limit?: number) => {
+    const q = supabase
+      .from('savings_student_summary')
+      .select('student_id, full_name, class_name, photo_url, student_code, deposit_count, withdraw_count, total_transactions')
+      .gt('deposit_count', 0)
+      .order('deposit_count', { ascending: false })
+      .order('total_transactions', { ascending: false });
+    return limit ? q.limit(limit) : q;
+  },
 };
 
 // ─── Public RPC lookups (by student_code, no auth) ────────────────────────────

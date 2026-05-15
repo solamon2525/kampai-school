@@ -64,6 +64,7 @@ export const RIGHT_BLOCKS: BlockDef[] = [
     { id: 'stats', label: 'สถิติผู้เข้าชม', icon: '📊', description: 'ตัวเลขเยี่ยมชม', category: 'data' },
     { id: 'documents', label: 'เอกสารดาวน์โหลด', icon: '📄', description: 'เอกสารล่าสุด', category: 'service' },
     { id: 'waste_bank', label: 'ธนาคารขยะ Top 5', icon: '♻️', description: 'อันดับนักเรียนธนาคารขยะ', category: 'data' },
+    { id: 'savings_bank', label: 'ธนาคารพอเพียง Top 5', icon: '🏦', description: 'อันดับนักออม (จำนวนครั้งฝาก ไม่แสดงเงิน)', category: 'data' },
 ];
 
 export const LEFT_BLOCKS: BlockDef[] = [

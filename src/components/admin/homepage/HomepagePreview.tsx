@@ -344,8 +344,52 @@ const WasteBankPreview = () => {
     );
 };
 
+// SavingsBank preview (ห้ามแสดงตัวเลขเงิน — แสดงครั้งฝากเท่านั้น)
+const SavingsBankPreview = () => {
+    const [rows, setRows] = useState<Array<{ name: string; deposits: number }> | null>(null);
+    useEffect(() => {
+        supabase
+            .from('savings_student_summary')
+            .select('full_name, deposit_count, total_transactions')
+            .gt('deposit_count', 0)
+            .order('deposit_count', { ascending: false })
+            .limit(5)
+            .then(({ data }) => {
+                setRows(
+                    (data ?? []).map((r: { full_name: string | null; deposit_count: number | null }) => ({
+                        name: r.full_name ?? '-',
+                        deposits: Number(r.deposit_count ?? 0),
+                    })),
+                );
+            });
+    }, []);
+    return (
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <div className="bg-amber-500 text-white px-2 py-1 text-[7px] font-semibold flex items-center gap-1">
+                <span>🏦</span> ธนาคารพอเพียง — Top 5
+            </div>
+            {rows === null ? (
+                <div className="px-2 py-2 text-[6px] text-gray-400 text-center">กำลังโหลด…</div>
+            ) : rows.length === 0 ? (
+                <div className="px-2 py-2 text-[6px] text-gray-400 text-center">ยังไม่มีข้อมูล</div>
+            ) : (
+                <ul className="divide-y divide-gray-100">
+                    {rows.map((r, i) => (
+                        <li key={i} className="flex items-center gap-1 px-2 py-1">
+                            <span className="text-[7px] w-3 text-center">{WASTE_MEDALS[i]}</span>
+                            <span className="text-[6px] text-gray-700 flex-1 truncate">{r.name}</span>
+                            <span className="text-[6px] font-bold text-amber-700">{r.deposits.toLocaleString()} ครั้ง</span>
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </div>
+    );
+};
+
 const RightBlockPreview: Record<string, () => JSX.Element> = {
     waste_bank: WasteBankPreview,
+    savings_bank: SavingsBankPreview,
     categories: () => (
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
             <div className="bg-emerald-800 text-white px-2 py-1 text-[7px] font-semibold">รายการหมวดหมู่</div>

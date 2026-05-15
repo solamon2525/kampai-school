@@ -2667,6 +2667,7 @@ export type Database = {
         Row: {
           class_name: string | null
           current_balance: number | null
+          deposit_count: number | null
           full_name: string | null
           photo_url: string | null
           student_code: string | null
@@ -2674,6 +2675,7 @@ export type Database = {
           total_deposits: number | null
           total_transactions: number | null
           total_withdrawals: number | null
+          withdraw_count: number | null
         }
         Relationships: []
       }

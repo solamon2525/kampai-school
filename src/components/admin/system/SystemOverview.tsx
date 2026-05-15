@@ -216,8 +216,23 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.10.0 (ระบบ "ธนาคารพอเพียง" — ฝาก/ถอนเงินจริงสำหรับนักเรียน)',
+        version: 'v1.10.1 (ธนาคารพอเพียง — Public stats + Leaderboard + Homepage widget)',
         date: 'ล่าสุด',
+        badge: 'bg-amber-400',
+        items: [
+            'ขยายระบบ "ธนาคารพอเพียง" จาก core (v1.10.0) → ครบเหมือนธนาคารขยะ — public stats / leaderboard / homepage widget',
+            'Migration 046: เพิ่ม `deposit_count` + `withdraw_count` ใน VIEW `savings_student_summary` ผ่าน `COUNT(...) FILTER (WHERE transaction_type=...)` — ใช้สำหรับ leaderboard ranking โดยจำนวนครั้งฝาก (ไม่ใช่จำนวนเงิน — privacy)',
+            'Ranking metric: **จำนวนครั้งฝาก** (รางวัลวินัย ไม่ใช่ความรวย) + **Tier system 6 ระดับ** (Diamond 100+/Platinum 50+/Gold 25+/Silver 10+/Bronze 3+/Beginner 1+) — เด็กฝาก 1 ครั้ง 5000 บาท ไม่ควรชนะเด็กฝาก 50 ครั้ง 10 บาท',
+            'Public `/savings-bank` overhaul: เพิ่ม 4 sections — animated stats (savers/deposits/gold+) + Hall of Savers leaderboard (Top 3 podium + Rank 4-10 + class filter tabs) + Recent activity feed (ไม่แสดงจำนวนเงิน) + Tier badge ใน lookup result — section "ตรวจสอบยอดของฉัน" ยังแสดงยอดได้ (private, คนกรอก code ของตัวเองรู้จัก kid)',
+            'Reusable components ใน `src/components/savings/`: `SaverTierBadge` (6 ระดับ + icon + size sm/md/lg) + `SaverPodium` (top 3 visual 2-1-3 พร้อม StudentAvatar fallback)',
+            'Homepage widget: `SavingsBankWidget` ใน `HomeRightSidebar.tsx` mirror `WasteBankWidget` — Top 5 รูป+ชื่อ+ชั้น+tier+ครั้งฝาก, สีทอง (border-amber-100) ต่าง green ของขยะ + register ใน Homepage Manager (`BlockPalette.tsx` + `HomepagePreview.tsx`) ให้ admin เปิด/ปิด/เรียงได้',
+            'Admin photo catch-up: เพิ่มรูปนักเรียนใน student selector dropdown + transactions list ของ `SavingsBankManagement` (ใช้ pattern เดียวกับ `WasteBankManagement`)',
+            'Service helpers: `getSaverTier(depositCount)` + `savingsSummaryService.getLeaderboard(limit)` (sort by deposit_count DESC, tie-break by total_transactions DESC)',
+        ],
+    },
+    {
+        version: 'v1.10.0 (ระบบ "ธนาคารพอเพียง" — ฝาก/ถอนเงินจริงสำหรับนักเรียน)',
+        date: '',
         badge: 'bg-amber-500',
         items: [
             'ระบบใหม่: ธนาคารพอเพียง (savings bank) — สอนวินัยการออมตามหลักปรัชญาเศรษฐกิจพอเพียง ใช้เงินจริง (บาท) ฝาก/ถอน — ต่างจากธนาคารขยะที่ใช้แต้ม',

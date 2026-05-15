@@ -347,7 +347,18 @@ export const SavingsBankManagement = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {studentOptions.map((s) => (
-                      <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                      <SelectItem key={s.id} value={s.id}>
+                        <div className="flex items-center gap-2">
+                          {s.photo_url ? (
+                            <img src={s.photo_url} alt={s.name} className="w-6 h-6 rounded-full object-cover" />
+                          ) : (
+                            <div className="w-6 h-6 rounded-full bg-amber-100 dark:bg-amber-950/40 flex items-center justify-center text-[10px] font-bold text-amber-700 dark:text-amber-300">
+                              {s.name.slice(0, 1)}
+                            </div>
+                          )}
+                          <span>{s.name}</span>
+                        </div>
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -525,7 +536,18 @@ export const SavingsBankManagement = () => {
                   {filteredTransactions.map((t) => (
                     <tr key={t.id} className="border-t border-border">
                       <td className="p-2 whitespace-nowrap">{t.transaction_date}</td>
-                      <td className="p-2">{t.student_name}</td>
+                      <td className="p-2">
+                        <div className="flex items-center gap-2">
+                          {t.students?.photo_url ? (
+                            <img src={t.students.photo_url} alt={t.student_name} className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
+                          ) : (
+                            <div className="w-7 h-7 rounded-full bg-amber-100 dark:bg-amber-950/40 flex items-center justify-center text-[11px] font-bold text-amber-700 dark:text-amber-300 flex-shrink-0">
+                              {t.student_name.slice(0, 1)}
+                            </div>
+                          )}
+                          <span>{t.student_name}</span>
+                        </div>
+                      </td>
                       <td className="p-2">{t.student_class}</td>
                       <td className="p-2 text-center">
                         <Badge
