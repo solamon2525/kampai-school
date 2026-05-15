@@ -267,7 +267,7 @@ export const SavingsBankManagement = () => {
       {/* School totals */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard label="ผู้ออม" value={schoolTotals.savers.toLocaleString('th-TH')} icon={<Users className="w-4 h-4" />} />
-        <StatCard label="ยอดฝากรวม" value={fmtBaht(schoolTotals.deposits)} accent="emerald" />
+        <StatCard label="ยอดฝากรวม" value={fmtBaht(schoolTotals.deposits)} accent="sky" />
         <StatCard label="ยอดถอนรวม" value={fmtBaht(schoolTotals.withdrawals)} accent="orange" />
         <StatCard label="ยอดเงินคงเหลือ" value={fmtBaht(schoolTotals.balance)} accent="primary" />
       </div>
@@ -298,10 +298,10 @@ export const SavingsBankManagement = () => {
                 type="button"
                 onClick={() => setForm((p) => ({ ...p, transaction_type: 'deposit' }))}
                 className={cn(
-                  'rounded-lg border p-3 text-sm font-medium transition flex items-center justify-center gap-2',
+                  'rounded-lg border-2 p-3 text-sm font-bold transition flex items-center justify-center gap-2',
                   form.transaction_type === 'deposit'
-                    ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300'
-                    : 'border-border text-muted-foreground hover:border-foreground/30',
+                    ? 'border-sky-600 bg-sky-100 dark:bg-sky-950/40 text-sky-900 dark:text-sky-200 ring-2 ring-sky-300 shadow-sm'
+                    : 'border-border text-foreground/60 hover:border-foreground/40 hover:text-foreground',
                 )}
               >
                 <ArrowDownToLine className="w-4 h-4" /> ฝากเงิน
@@ -310,10 +310,10 @@ export const SavingsBankManagement = () => {
                 type="button"
                 onClick={() => setForm((p) => ({ ...p, transaction_type: 'withdraw' }))}
                 className={cn(
-                  'rounded-lg border p-3 text-sm font-medium transition flex items-center justify-center gap-2',
+                  'rounded-lg border-2 p-3 text-sm font-bold transition flex items-center justify-center gap-2',
                   form.transaction_type === 'withdraw'
-                    ? 'border-orange-500 bg-orange-50 dark:bg-orange-950/30 text-orange-700 dark:text-orange-300'
-                    : 'border-border text-muted-foreground hover:border-foreground/30',
+                    ? 'border-orange-600 bg-orange-100 dark:bg-orange-950/40 text-orange-900 dark:text-orange-200 ring-2 ring-orange-300 shadow-sm'
+                    : 'border-border text-foreground/60 hover:border-foreground/40 hover:text-foreground',
                 )}
               >
                 <ArrowUpFromLine className="w-4 h-4" /> ถอนเงิน
@@ -473,10 +473,10 @@ export const SavingsBankManagement = () => {
                     <tr key={s.student_id ?? s.full_name} className="border-t border-border">
                       <td className="p-2">{s.full_name}</td>
                       <td className="p-2">{s.class_name}</td>
-                      <td className="p-2 text-right tabular-nums text-emerald-700 dark:text-emerald-400">
+                      <td className="p-2 text-right tabular-nums font-semibold text-sky-900 dark:text-sky-200">
                         {fmtBaht(Number(s.total_deposits ?? 0))}
                       </td>
-                      <td className="p-2 text-right tabular-nums text-orange-700 dark:text-orange-400">
+                      <td className="p-2 text-right tabular-nums font-semibold text-orange-900 dark:text-orange-200">
                         {fmtBaht(Number(s.total_withdrawals ?? 0))}
                       </td>
                       <td className="p-2 text-right tabular-nums font-semibold">
@@ -553,9 +553,10 @@ export const SavingsBankManagement = () => {
                         <Badge
                           variant="outline"
                           className={cn(
+                            'font-semibold',
                             t.transaction_type === 'deposit'
-                              ? 'border-emerald-500/40 text-emerald-700 dark:text-emerald-300 bg-emerald-50/50 dark:bg-emerald-950/30'
-                              : 'border-orange-500/40 text-orange-700 dark:text-orange-300 bg-orange-50/50 dark:bg-orange-950/30',
+                              ? 'border-sky-600/60 text-sky-900 dark:text-sky-200 bg-sky-100 dark:bg-sky-950/40'
+                              : 'border-orange-600/60 text-orange-900 dark:text-orange-200 bg-orange-100 dark:bg-orange-950/40',
                           )}
                         >
                           {t.transaction_type === 'deposit' ? 'ฝาก' : 'ถอน'}
@@ -620,20 +621,20 @@ const StatCard = ({
   label: string;
   value: string;
   icon?: React.ReactNode;
-  accent?: 'emerald' | 'orange' | 'primary';
+  accent?: 'sky' | 'orange' | 'primary';
 }) => {
   const accentClass =
-    accent === 'emerald'
-      ? 'text-emerald-700 dark:text-emerald-400'
+    accent === 'sky'
+      ? 'text-sky-900 dark:text-sky-200'
       : accent === 'orange'
-        ? 'text-orange-700 dark:text-orange-400'
+        ? 'text-orange-900 dark:text-orange-200'
         : accent === 'primary'
-          ? 'text-primary'
+          ? 'text-foreground'
           : 'text-foreground';
   return (
     <Card>
       <CardContent className="py-3 px-4">
-        <div className="text-xs text-muted-foreground flex items-center gap-1">
+        <div className="text-xs text-foreground/70 font-medium flex items-center gap-1">
           {icon}
           {label}
         </div>
