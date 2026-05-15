@@ -26,7 +26,7 @@ ENV จำเป็น: `VITE_SUPABASE_URL` · `VITE_SUPABASE_PUBLISHABLE_KEY` �
 - หลัง mutation → `queryClient.invalidateQueries({ queryKey: [...] })` เสมอ
 - Types ใช้จาก `@/integrations/supabase/types` — ห้ามสร้าง interface ซ้ำ
 
-**Styling (dark-mode safe):**
+**Styling (light mode only):**
 - ใช้ CSS vars เท่านั้น — `bg-background` / `bg-card` / `text-foreground` / `text-muted-foreground` / `border-border`
 - ห้าม `bg-white` / `text-black` / hex color hardcode
 - รวม class ด้วย `cn()` จาก `@/lib/utils` เสมอ

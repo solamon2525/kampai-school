@@ -31,7 +31,6 @@ export const deleteStorageImage = async (url: string | null | undefined, bucket:
     const filePath = extractStoragePath(url, bucket);
 
     if (!filePath) {
-        console.log('Not a valid storage URL, skipping deletion:', url);
         return false;
     }
 
@@ -43,7 +42,6 @@ export const deleteStorageImage = async (url: string | null | undefined, bucket:
             return false;
         }
 
-        console.log('Successfully deleted file from storage:', filePath);
         return true;
     } catch (error) {
         console.error('Error deleting file from storage:', error);
@@ -74,7 +72,6 @@ export const deleteMultipleStorageImages = async (urls: (string | null | undefin
             return 0;
         }
 
-        console.log('Successfully deleted files from storage:', filePaths);
         return filePaths.length;
     } catch (error) {
         console.error('Error deleting files from storage:', error);

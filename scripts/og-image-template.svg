@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B1A2E"/>
+      <stop offset="100%" stop-color="#1E3A5F"/>
+    </linearGradient>
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#D4AF37"/>
+      <stop offset="50%" stop-color="#F4D03F"/>
+      <stop offset="100%" stop-color="#D4AF37"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#F4D03F" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#F4D03F" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bgGradient)"/>
+
+  <circle cx="950" cy="180" r="320" fill="url(#glow)"/>
+  <circle cx="200" cy="500" r="260" fill="url(#glow)" opacity="0.6"/>
+
+  <rect x="0" y="0" width="1200" height="6" fill="url(#goldGradient)"/>
+  <rect x="0" y="624" width="1200" height="6" fill="url(#goldGradient)"/>
+
+  <g transform="translate(90, 130)">
+    <circle cx="50" cy="50" r="50" fill="#F4D03F" opacity="0.12"/>
+    <circle cx="50" cy="50" r="42" fill="none" stroke="#F4D03F" stroke-width="2.5"/>
+    <text x="50" y="68" font-family="Sarabun, Tahoma, sans-serif" font-size="44" font-weight="800" fill="#F4D03F" text-anchor="middle">ค</text>
+  </g>
+
+  <text x="90" y="320" font-family="Sarabun, Tahoma, sans-serif" font-size="72" font-weight="800" fill="#FFFFFF" letter-spacing="-1">
+    โรงเรียนบ้านคำไผ่
+  </text>
+
+  <text x="90" y="380" font-family="Sarabun, Tahoma, sans-serif" font-size="36" font-weight="500" fill="#F4D03F">
+    ก้าวสู่อนาคตด้วยปัญญา
+  </text>
+
+  <rect x="90" y="410" width="80" height="4" fill="#F4D03F"/>
+
+  <text x="90" y="465" font-family="Sarabun, Tahoma, sans-serif" font-size="22" font-weight="400" fill="#FFFFFF" opacity="0.85">
+    เรียนดี มีคุณธรรม · นัตถิ ปัญญา สมา อาภา
+  </text>
+
+  <text x="90" y="560" font-family="Sarabun, Tahoma, sans-serif" font-size="20" font-weight="500" fill="#F4D03F" opacity="0.9">
+    kampai-school.vercel.app
+  </text>
+</svg>
