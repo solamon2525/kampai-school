@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Database, Settings, Palette, Menu as MenuIcon, SlidersHorizontal,
   MessageCircle, Handshake, Newspaper, Image, Calendar, ClipboardList, MailOpen,
   SendHorizontal, Stamp, CalendarCheck, UserX, BookMarked, Award, BookOpen, History,
-  Building2, Briefcase, Users, UserCog, GraduationCap, Recycle, ClipboardCheck,
+  Building2, Briefcase, Users, UserCog, GraduationCap, Recycle, Wallet, ClipboardCheck,
   PenLine, Star, FolderOpen, BarChart2, LayoutTemplate, FileText, Mail, HelpCircle,
   Info, Gift,
 } from 'lucide-react';
@@ -59,6 +59,7 @@ export const ADMIN_QUICK_MENU_CATALOG: QuickMenuOption[] = [
 
   // ระบบบริการ
   { id: 'waste-bank', label: 'ธนาคารขยะ', icon: Recycle, path: '/admin/dashboard/waste-bank', group: 'ระบบบริการ' },
+  { id: 'savings-bank', label: 'ธนาคารพอเพียง', icon: Wallet, path: '/admin/dashboard/savings-bank', group: 'ระบบบริการ' },
   { id: 'attendance', label: 'เช็คชื่อนักเรียน', icon: ClipboardCheck, path: '/admin/dashboard/attendance', group: 'ระบบบริการ' },
   { id: 'scores', label: 'คะแนนเก็บ', icon: PenLine, path: '/admin/dashboard/scores', group: 'ระบบบริการ' },
   { id: 'conduct', label: 'คะแนนความดี', icon: Star, path: '/admin/dashboard/conduct', group: 'ระบบบริการ' },

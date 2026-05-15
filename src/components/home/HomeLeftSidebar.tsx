@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import {
   Home, Info, Users, GraduationCap, BookOpen, Image,
-  Calendar, Newspaper, Phone, FileText, Recycle, ClipboardCheck,
+  Calendar, Newspaper, Phone, FileText, Recycle, Wallet, ClipboardCheck,
 } from 'lucide-react';
 
 interface Admin {
@@ -30,6 +30,7 @@ const sidebarMenu = [
   { label: 'ปฏิทินกิจกรรม', href: '/calendar', icon: Calendar },
   { label: 'ข่าวสาร', href: '/news', icon: Newspaper },
   { label: 'ธนาคารขยะ', href: '/waste-bank', icon: Recycle },
+  { label: 'ธนาคารพอเพียง', href: '/savings-bank', icon: Wallet },
   { label: 'เอกสาร/แบบฟอร์ม', href: '/documents', icon: FileText },
   { label: 'ติดต่อโรงเรียน', href: '/contact', icon: Phone },
 ];

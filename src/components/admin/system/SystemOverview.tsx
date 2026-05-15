@@ -216,8 +216,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.10.1 (ธนาคารพอเพียง — Public stats + Leaderboard + Homepage widget)',
+        version: 'v1.10.2 (ธนาคารพอเพียง — เพิ่มเมนูที่ขาดใน 4 จุด)',
         date: 'ล่าสุด',
+        badge: 'bg-amber-300',
+        items: [
+            'User รายงาน screenshot ของ `/admin/dashboard` หน้า home "ระบบบริการ (3/7)" ไม่มีการ์ด "ธนาคารพอเพียง" — Quick Menu catalog ที่ขับ card grid ใน admin home ยังไม่มี savings-bank registry แม้ sidebar menu จะมีแล้ว',
+            'แก้ 4 จุดที่พลาดใน v1.10.0/v1.10.1: (1) `src/lib/quickMenuCatalog.ts` — เพิ่ม savings-bank ในกลุ่ม "ระบบบริการ" + import Wallet icon (2) `src/lib/menuDefaults.ts` — เพิ่ม savings-bank ใน DEFAULT_MENU_ITEMS services dropdown + shift order ของ documents/enrollment + เพิ่ม "Wallet" ใน MENU_ICON_OPTIONS allowlist (3) `src/components/home/HomeLeftSidebar.tsx` — เพิ่ม link ในเมนู sidebar (4) `src/components/Navbar.tsx` — เพิ่มใน serviceLinks (top bar dropdown)',
+            'Note: ถ้า admin เคย save menu config ใน DB (school_settings.menu_config) แล้ว → DB ทับ defaults → ต้องเข้า `/admin/dashboard/menu` เพิ่มเอง (by-design) เปลี่ยน defaults ไม่กระทบ data ที่ customize แล้ว',
+            'Bundle impact: +1-2 KB (Wallet icon ใน 4 modules ที่ส่วนใหญ่อยู่ใน main bundle)',
+        ],
+    },
+    {
+        version: 'v1.10.1 (ธนาคารพอเพียง — Public stats + Leaderboard + Homepage widget)',
+        date: '',
         badge: 'bg-amber-400',
         items: [
             'ขยายระบบ "ธนาคารพอเพียง" จาก core (v1.10.0) → ครบเหมือนธนาคารขยะ — public stats / leaderboard / homepage widget',
