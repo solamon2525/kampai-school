@@ -34,6 +34,7 @@ const Documents = lazy(() => import("./pages/Documents"));
 const WasteBank = lazy(() => import("./pages/WasteBank"));
 const WasteBankStats = lazy(() => import("./pages/WasteBankStats"));
 const RewardsCatalog = lazy(() => import("./pages/RewardsCatalog"));
+const SavingsBank = lazy(() => import("./pages/SavingsBank"));
 const HallOfFame = lazy(() => import("./pages/HallOfFame"));
 
 // Portals
@@ -109,6 +110,7 @@ const App = () => (
             <Route path="/waste-bank" element={<WasteBank />} />
             <Route path="/waste-bank/stats" element={<WasteBankStats />} />
             <Route path="/waste-bank/rewards" element={<RewardsCatalog />} />
+            <Route path="/savings-bank" element={<SavingsBank />} />
             <Route path="/hall-of-fame" element={<HallOfFame />} />
 
             {/* Teacher Portal */}
@@ -143,6 +145,9 @@ const App = () => (
             } />
             <Route path="/parent/waste-bank" element={
               <PortalProtectedRoute allow={['parent', 'admin']}><ParentChildView view="waste-bank" /></PortalProtectedRoute>
+            } />
+            <Route path="/parent/savings-bank" element={
+              <PortalProtectedRoute allow={['parent', 'admin']}><ParentChildView view="savings-bank" /></PortalProtectedRoute>
             } />
 
             <Route path="*" element={<NotFound />} />

@@ -2455,6 +2455,89 @@ export type Database = {
           },
         ]
       }
+      savings_transactions: {
+        Row: {
+          academic_year: string | null
+          amount: number
+          balance_after: number | null
+          created_at: string | null
+          id: string
+          notes: string | null
+          recorded_by: string | null
+          recorded_by_administrator_id: string | null
+          recorded_by_staff_id: string | null
+          semester: string | null
+          student_class: string | null
+          student_id: string | null
+          student_name: string
+          transaction_date: string
+          transaction_type: string
+        }
+        Insert: {
+          academic_year?: string | null
+          amount: number
+          balance_after?: number | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          recorded_by?: string | null
+          recorded_by_administrator_id?: string | null
+          recorded_by_staff_id?: string | null
+          semester?: string | null
+          student_class?: string | null
+          student_id?: string | null
+          student_name: string
+          transaction_date?: string
+          transaction_type: string
+        }
+        Update: {
+          academic_year?: string | null
+          amount?: number
+          balance_after?: number | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          recorded_by?: string | null
+          recorded_by_administrator_id?: string | null
+          recorded_by_staff_id?: string | null
+          semester?: string | null
+          student_class?: string | null
+          student_id?: string | null
+          student_name?: string
+          transaction_date?: string
+          transaction_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "savings_transactions_recorded_by_administrator_id_fkey"
+            columns: ["recorded_by_administrator_id"]
+            isOneToOne: false
+            referencedRelation: "administrators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "savings_transactions_recorded_by_staff_id_fkey"
+            columns: ["recorded_by_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "savings_transactions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "savings_transactions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "savings_student_summary"
+            referencedColumns: ["student_id"]
+          },
+        ]
+      }
       waste_categories: {
         Row: {
           color: string | null
@@ -2580,6 +2663,20 @@ export type Database = {
       }
     }
     Views: {
+      savings_student_summary: {
+        Row: {
+          class_name: string | null
+          current_balance: number | null
+          full_name: string | null
+          photo_url: string | null
+          student_code: string | null
+          student_id: string | null
+          total_deposits: number | null
+          total_transactions: number | null
+          total_withdrawals: number | null
+        }
+        Relationships: []
+      }
       waste_student_summary: {
         Row: {
           available_points: number | null
@@ -2611,6 +2708,21 @@ export type Database = {
         Returns: string
       }
       get_db_size: { Args: never; Returns: number }
+      get_savings_history: {
+        Args: { p_code: string; p_limit?: number }
+        Returns: {
+          academic_year: string
+          amount: number
+          balance_after: number
+          created_at: string
+          notes: string
+          recorded_by: string
+          semester: string
+          transaction_date: string
+          transaction_type: string
+          txn_id: string
+        }[]
+      }
       get_storage_usage: {
         Args: never
         Returns: {
@@ -2636,6 +2748,16 @@ export type Database = {
       increment_news_view: { Args: { news_id: string }; Returns: undefined }
       is_admin: { Args: never; Returns: boolean }
       is_teacher: { Args: never; Returns: boolean }
+      lookup_savings_balance: {
+        Args: { p_code: string }
+        Returns: {
+          class_name: string
+          current_balance: number
+          full_name: string
+          photo_url: string
+          student_id: string
+        }[]
+      }
       lookup_student_balance: {
         Args: { p_code: string }
         Returns: {

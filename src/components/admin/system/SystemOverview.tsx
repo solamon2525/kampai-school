@@ -216,8 +216,22 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.9.6 (Hotfix — TDZ ใน charts-vendor ทำให้ทุกหน้าขาว)',
+        version: 'v1.10.0 (ระบบ "ธนาคารพอเพียง" — ฝาก/ถอนเงินจริงสำหรับนักเรียน)',
         date: 'ล่าสุด',
+        badge: 'bg-amber-500',
+        items: [
+            'ระบบใหม่: ธนาคารพอเพียง (savings bank) — สอนวินัยการออมตามหลักปรัชญาเศรษฐกิจพอเพียง ใช้เงินจริง (บาท) ฝาก/ถอน — ต่างจากธนาคารขยะที่ใช้แต้ม',
+            'Migration `045_savings_bank.sql`: ตาราง `savings_transactions` (deposit/withdraw + balance_after snapshot + recorder FK + term tags) + VIEW `savings_student_summary` (cumulative — ไม่ scope ต่อเทอม เพราะออมเงินไม่ reset) + RLS (public SELECT, teacher/admin write) + 2 RPC public: `lookup_savings_balance(code)` + `get_savings_history(code, limit)` (anon executable, pattern เดียวกับ waste-bank)',
+            'Service `src/services/savings.service.ts` mirror waste-bank.service.ts (transactions / summary / lookup) — re-export ผ่าน `services/index.ts`',
+            'Admin: `src/components/admin/savings-bank/SavingsBankManagement.tsx` single-file 3-tab (บันทึก / สรุปยอด / ประวัติ) + StatCard ยอดรวมโรงเรียน + Export CSV + reuse `TermBanner` จาก waste-bank (ใช้ termService ร่วมกัน)',
+            'Parent/Public: `SavingsBankParentView.tsx` (2-tab overview + history) wire เข้า `ParentChildView` ผ่าน `view="savings-bank"` + public page `src/pages/SavingsBank.tsx` (student lookup ด้วย student_code → ยอด + ประวัติ)',
+            'Routes: `/savings-bank` (public) + `/parent/savings-bank` (parent) + `/admin/dashboard/savings-bank` (admin) — Admin sidebar menu entry "ธนาคารพอเพียง" (Wallet icon) ใต้ "ธนาคารขยะ"',
+            'ข้อกำหนดความปลอดภัย: ไม่มี self-withdraw RPC สำหรับนักเรียนเอง — ถอนต้องผ่านครู/admin บันทึก (เพราะเงินจริงต้องมีคน verify) Validation: ห้ามถอนเกินยอดคงเหลือ (query summary ก่อน mutate)',
+        ],
+    },
+    {
+        version: 'v1.9.6 (Hotfix — TDZ ใน charts-vendor ทำให้ทุกหน้าขาว)',
+        date: '',
         badge: 'bg-red-500',
         items: [
             '🚨 หลัง deploy v1.9.3 (Bundle Split) + v1.9.5 (WebP) user รายงาน "ทุกหน้าเข้าไม่ได้ หน้าขาวล้วน" — console พ่น `Uncaught ReferenceError: Cannot access \'S\' before initialization at charts-vendor-*.js`',

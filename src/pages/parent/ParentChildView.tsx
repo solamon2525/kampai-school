@@ -5,14 +5,15 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useLinkedRecord } from '@/hooks/useLinkedRecord';
 import { PARENT_MENU } from './ParentDashboard';
-import { ClipboardCheck, PenLine, Star, Recycle } from 'lucide-react';
+import { ClipboardCheck, PenLine, Star, Recycle, Wallet } from 'lucide-react';
 import { ListSkeleton } from '@/components/ui/loading-skeletons';
 import { EmptyState } from '@/components/ui/empty-state';
 import { NoDataIllustration } from '@/components/ui/empty-illustrations';
 import { WasteBankParentView } from '@/components/parent/WasteBankParentView';
+import { SavingsBankParentView } from '@/components/parent/SavingsBankParentView';
 
 interface Props {
-    view: 'attendance' | 'scores' | 'conduct' | 'waste-bank';
+    view: 'attendance' | 'scores' | 'conduct' | 'waste-bank' | 'savings-bank';
 }
 
 const CONFIG = {
@@ -87,6 +88,13 @@ const CONFIG = {
             </div>
         ),
     },
+    'savings-bank': {
+        title: 'ธนาคารพอเพียง',
+        icon: Wallet,
+        table: 'savings_transactions',
+        select: '*',
+        render: (_: any) => null,
+    },
 } as const;
 
 export default function ParentChildView({ view }: Props) {
@@ -117,6 +125,8 @@ export default function ParentChildView({ view }: Props) {
                 </h1>
                 {view === 'waste-bank' && link?.student_id ? (
                     <WasteBankParentView studentId={link.student_id} />
+                ) : view === 'savings-bank' && link?.student_id ? (
+                    <SavingsBankParentView studentId={link.student_id} />
                 ) : (
                 <Card>
                     <CardHeader><CardTitle className="text-base">รายการย้อนหลัง 100 รายการ</CardTitle></CardHeader>

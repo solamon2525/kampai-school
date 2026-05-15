@@ -21,6 +21,7 @@ const FacilitiesManagement = lazy(() => import('@/components/admin/about/Facilit
 const MessagesManagement = lazy(() => import('@/components/admin/messages/MessagesManagement').then(m => ({ default: m.MessagesManagement })));
 const DocumentsManagement = lazy(() => import('@/components/admin/documents/DocumentsManagement').then(m => ({ default: m.DocumentsManagement })));
 const WasteBankManagement = lazy(() => import('@/components/admin/waste-bank/WasteBankManagement').then(m => ({ default: m.WasteBankManagement })));
+const SavingsBankManagement = lazy(() => import('@/components/admin/savings-bank/SavingsBankManagement').then(m => ({ default: m.SavingsBankManagement })));
 const AttendanceManagement = lazy(() => import('@/components/admin/attendance/AttendanceManagement').then(m => ({ default: m.AttendanceManagement })));
 const ScoresManagement = lazy(() => import('@/components/admin/scores/ScoresManagement').then(m => ({ default: m.ScoresManagement })));
 const ConductManagement = lazy(() => import('@/components/admin/conduct/ConductManagement').then(m => ({ default: m.ConductManagement })));
@@ -113,6 +114,7 @@ const AdminDashboard = () => {
             <Route path="activities" element={<ActivitiesManagement />} />
             {/* ระบบบริการ */}
             <Route path="waste-bank" element={<WasteBankManagement />} />
+            <Route path="savings-bank" element={<SavingsBankManagement />} />
             <Route path="attendance" element={<AttendanceManagement />} />
             <Route path="scores" element={<ScoresManagement />} />
             <Route path="conduct" element={<ConductManagement />} />
