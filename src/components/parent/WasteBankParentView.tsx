@@ -12,12 +12,14 @@ import {
   wasteTransactionsService,
   rewardsService,
   rewardClaimsService,
+  wasteCategoriesService,
 } from '@/services/waste-bank.service';
 import type {
   WasteStudentSummary,
   WasteTransaction,
   Reward,
   RewardClaim,
+  WasteCategory,
 } from '@/services/waste-bank.service';
 
 interface Props {
@@ -35,18 +37,21 @@ export const WasteBankParentView = ({ studentId, studentName }: Props) => {
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [claims, setClaims] = useState<RewardClaim[]>([]);
   const [claimingId, setClaimingId] = useState<string | null>(null);
+  const [categories, setCategories] = useState<WasteCategory[]>([]);
 
   const fetchAll = async () => {
-    const [s, t, r, c] = await Promise.all([
+    const [s, t, r, c, cats] = await Promise.all([
       wasteSummaryService.getForStudent(studentId),
       wasteTransactionsService.getByStudent(studentId),
       rewardsService.getActive(),
       rewardClaimsService.listForStudent(studentId),
+      wasteCategoriesService.getActive(),
     ]);
     if (s.data) setSummary(s.data as WasteStudentSummary);
     if (t.data) setTransactions(t.data as WasteTransaction[]);
     if (r.data) setRewards(r.data as Reward[]);
     if (c.data) setClaims(c.data as RewardClaim[]);
+    if (cats.data) setCategories(cats.data as WasteCategory[]);
   };
 
   useEffect(() => { fetchAll(); }, [studentId]);
@@ -134,16 +139,45 @@ export const WasteBankParentView = ({ studentId, studentName }: Props) => {
       </div>
 
       {tab === 'overview' && (
-        <Card>
-          <CardContent className="p-6 space-y-3">
-            <h3 className="font-semibold">วิธีใช้งาน</h3>
-            <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
-              <li>นำขยะไปให้ครู → โชว์ QR จากหน้านี้</li>
-              <li>ครูสแกน QR → บันทึกจำนวนและประเภทขยะ → แต้มเพิ่มอัตโนมัติ</li>
-              <li>เลือกแลกรางวัลในแท็บ &quot;รางวัล&quot; → รอครูอนุมัติ</li>
-            </ol>
-          </CardContent>
-        </Card>
+        <>
+          <Card>
+            <CardContent className="p-6 space-y-3">
+              <h3 className="font-semibold">วิธีใช้งาน</h3>
+              <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
+                <li>นำขยะไปให้ครู → โชว์ QR จากหน้านี้</li>
+                <li>ครูสแกน QR → บันทึกจำนวนและประเภทขยะ → แต้มเพิ่มอัตโนมัติ</li>
+                <li>เลือกแลกรางวัลในแท็บ &quot;รางวัล&quot; → รอครูอนุมัติ</li>
+              </ol>
+            </CardContent>
+          </Card>
+
+          {categories.length > 0 && (
+            <Card>
+              <CardContent className="p-4">
+                <h3 className="font-semibold text-sm mb-3 flex items-center gap-1.5">
+                  <Recycle className="w-4 h-4 text-emerald-600" />
+                  คะแนนขยะแต่ละประเภท
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {categories.map((cat) => (
+                    <div
+                      key={cat.id}
+                      className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2"
+                    >
+                      {cat.icon && <span className="text-lg leading-none">{cat.icon}</span>}
+                      <div className="min-w-0 flex-1">
+                        <div className="text-xs font-medium truncate">{cat.name}</div>
+                        <div className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
+                          {cat.points_per_item} แต้ม/ชิ้น
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </>
       )}
 
       {tab === 'rewards' && (
