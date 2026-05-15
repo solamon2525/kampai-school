@@ -50,29 +50,29 @@ export const SavingsBankParentView = ({ studentId, studentName }: Props) => {
   return (
     <div className="space-y-6">
       {/* Hero card */}
-      <Card className="bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-emerald-500/10 border-amber-500/20">
+      <Card className="bg-gradient-to-br from-amber-500/15 via-amber-500/10 to-emerald-500/15 border-amber-500/30">
         <CardContent className="p-6 space-y-4">
-          <div className="flex items-center gap-2 text-muted-foreground text-sm">
+          <div className="flex items-center gap-2 text-amber-900 dark:text-amber-200 text-sm font-semibold">
             <Wallet className="w-4 h-4" /> ยอดเงินสะสมของ {studentName ?? summary?.full_name ?? 'นักเรียน'}
           </div>
           <div className="text-center py-2">
-            <div className="text-4xl md:text-5xl font-bold text-amber-700 dark:text-amber-300 tabular-nums">
+            <div className="text-4xl md:text-5xl font-bold text-amber-900 dark:text-amber-200 tabular-nums">
               {fmtBaht(balance)}
             </div>
-            <div className="text-xs text-muted-foreground mt-1">ยอดคงเหลือปัจจุบัน</div>
+            <div className="text-xs text-amber-800 dark:text-amber-300 mt-1 font-medium">ยอดคงเหลือปัจจุบัน</div>
           </div>
-          <div className="grid grid-cols-2 gap-4 pt-2 border-t border-amber-500/10">
+          <div className="grid grid-cols-2 gap-4 pt-2 border-t border-amber-500/20">
             <Stat
               label="ฝากสะสม"
               value={fmtBaht(deposits)}
               icon={<ArrowDownToLine className="w-3.5 h-3.5" />}
-              color="text-emerald-700 dark:text-emerald-400"
+              color="text-emerald-900 dark:text-emerald-300"
             />
             <Stat
               label="ถอนสะสม"
               value={fmtBaht(withdrawals)}
               icon={<ArrowUpFromLine className="w-3.5 h-3.5" />}
-              color="text-orange-700 dark:text-orange-400"
+              color="text-orange-900 dark:text-orange-300"
             />
           </div>
         </CardContent>

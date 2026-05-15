@@ -175,11 +175,11 @@ const SavingsBankWidget = () => {
       <div className="grid grid-cols-2 gap-2 px-4 py-3 bg-amber-50 border-b border-amber-100">
         <div className="text-center">
           <p className="text-xs text-muted-foreground">นักเรียนที่ออม</p>
-          <p className="font-bold text-amber-700 text-sm">{totalSavers.toLocaleString('th-TH')} คน</p>
+          <p className="font-bold text-amber-900 text-sm">{totalSavers.toLocaleString('th-TH')} คน</p>
         </div>
         <div className="text-center">
           <p className="text-xs text-muted-foreground">ครั้งฝากรวม</p>
-          <p className="font-bold text-emerald-700 text-sm">{totalDeposits.toLocaleString('th-TH')} ครั้ง</p>
+          <p className="font-bold text-emerald-900 text-sm">{totalDeposits.toLocaleString('th-TH')} ครั้ง</p>
         </div>
       </div>
 
@@ -198,7 +198,7 @@ const SavingsBankWidget = () => {
               {s.photo_url ? (
                 <img src={s.photo_url} alt={s.full_name ?? ''} className="w-8 h-8 rounded-full object-cover border border-amber-200 flex-shrink-0" />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 text-amber-700 text-xs font-bold border border-amber-200">
+                <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 text-amber-900 text-xs font-bold border border-amber-300">
                   {(s.full_name ?? '?').charAt(0)}
                 </div>
               )}
@@ -209,7 +209,7 @@ const SavingsBankWidget = () => {
                   <SaverTierBadge depositCount={s.deposit_count} size="sm" showLabel={false} />
                 </div>
               </div>
-              <span className="text-xs font-bold text-amber-700 flex-shrink-0">
+              <span className="text-xs font-bold text-amber-900 flex-shrink-0">
                 {Number(s.deposit_count ?? 0).toLocaleString('th-TH')} ครั้ง
               </span>
             </li>
@@ -219,7 +219,7 @@ const SavingsBankWidget = () => {
 
       {/* Footer link */}
       <div className="px-4 py-2.5 border-t border-amber-100 bg-amber-50">
-        <Link to="/savings-bank" className="text-xs text-amber-700 hover:underline flex items-center gap-1 font-medium">
+        <Link to="/savings-bank" className="text-xs text-amber-900 hover:underline flex items-center gap-1 font-semibold">
           <Wallet className="w-3 h-3" /> ดูธนาคารพอเพียงทั้งหมด
         </Link>
       </div>

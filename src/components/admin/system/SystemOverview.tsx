@@ -216,8 +216,22 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.10.2 (ธนาคารพอเพียง — เพิ่มเมนูที่ขาดใน 4 จุด)',
+        version: 'v1.10.3 (ธนาคารพอเพียง — แก้ contrast สีฟอนต์จาง)',
         date: 'ล่าสุด',
+        badge: 'bg-amber-200',
+        items: [
+            'User รายงาน "สีฟอนต์ของธนาคารพอเพียง มีบางส่วน สีจาง ไม่ตัดกับหลัง" — text 700-level บน bg 50/100-level แม้ผ่าน WCAG AA numerically แต่ผ่านการรับรู้สายตา (similar warm tones blend) ไม่ตัดเด่นเท่าที่ควร',
+            'Bump text 700 → 800/900 + บางจุดเพิ่ม font-medium → font-semibold/bold (pattern เดียวกับ commit ef12092 ที่แก้ medal contrast 700→900 ของธนาคารขยะ)',
+            'SaverTierBadge.tsx: 6 tier ทั้งหมด — text 700 → 900 (light) + 300 → 200 (dark) + border 300/60 → 400/60 + font-medium → font-semibold',
+            'SavingsBank.tsx public: hero eyebrow badge "เศรษฐกิจพอเพียง" 700→900 + font-semibold, CTA "ตรวจสอบของฉัน" amber-700/10 → amber-700/15 + text-amber-800→900 + font-semibold, stat cards (3 ใบ savers/deposits/gold+) ทั้ง icon และ value 700→900 + bg-100→200 + label text-muted-foreground → text-foreground/80 font-medium, leaderboard rank 4-10 700→900, StudentAvatar fallback 700→900, "ขั้นที่" step labels 700→900 + font-bold',
+            'HomeRightSidebar SavingsBankWidget: stats row (savers/deposits) 700→900 (amber + emerald), avatar fallback initial 700→900 + border 200→300, rank deposit count 700→900, footer link "ดูธนาคารพอเพียงทั้งหมด" 700→900 + font-medium→semibold',
+            'SavingsBankParentView hero card: gradient bg /10 → /15 (เด่นขึ้น) + border /20 → /30, "ยอดเงินสะสมของ" label text-muted-foreground → text-amber-900 font-semibold, balance 700→900, "ยอดคงเหลือปัจจุบัน" sub-label muted → text-amber-800 font-medium, Stat ฝาก/ถอน emerald-700→900, orange-700→900',
+            'Lesson learned: text-amber-700 on bg-amber-100 contrast ~6:1 ผ่าน WCAG AA แต่ visual blend ของ warm tones ทำให้ดูจาง — สำหรับ tinted bg ใช้ 800/900 ดีกว่าเสมอ',
+        ],
+    },
+    {
+        version: 'v1.10.2 (ธนาคารพอเพียง — เพิ่มเมนูที่ขาดใน 4 จุด)',
+        date: '',
         badge: 'bg-amber-300',
         items: [
             'User รายงาน screenshot ของ `/admin/dashboard` หน้า home "ระบบบริการ (3/7)" ไม่มีการ์ด "ธนาคารพอเพียง" — Quick Menu catalog ที่ขับ card grid ใน admin home ยังไม่มี savings-bank registry แม้ sidebar menu จะมีแล้ว',
