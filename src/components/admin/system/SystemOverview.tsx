@@ -216,8 +216,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.10.3 (ธนาคารพอเพียง — แก้ contrast สีฟอนต์จาง)',
+        version: 'v1.10.4–5 (ธนาคารพอเพียง — รอบ 2 แก้ muted-foreground ที่ยังจาง)',
         date: 'ล่าสุด',
+        badge: 'bg-amber-100',
+        items: [
+            'User ยังเห็นสีจางที่หน้า /savings-bank หลัง v1.10.3 — รอบแรกแก้แค่ text-color-700 → 900 แต่ยังเหลือ text-muted-foreground อีกมากที่จาง (opacity ~50% เป็นพื้นฐานของ var) โดยเฉพาะบน amber-tinted bg',
+            '/savings-bank (Public): Hero subtitle ใหญ่+leaderboard subtitle muted→foreground/75-80 + font-medium, Rank 4-10 circle bg-muted text-muted → bg-amber-200 text-amber-900 bold, class+date row muted→foreground/70, Activity feed note + row class+date muted→foreground/65-70, Activity/History Badges (ฝาก/ถอน) bg /15→/20 + text-700→900 + font-semibold, Lookup section description + result class name muted→foreground/70-75 medium, Lookup balance card bg /10→/15 + label muted→amber-900 semibold + value 700→900, History table header muted→foreground/80 semibold + bg-muted/40→/60, Date/balance_after columns muted→foreground/75 medium, History amount row 700→900 + font-bold, How-it-works step descriptions muted→foreground/75 medium',
+            '/parent/savings-bank (SavingsBankParentView): Tab labels font-medium→semibold + inactive muted→foreground/65, Overview body muted→foreground/80 medium, History table ทุกคอลัมน์ + badges + amounts รูปแบบเดียวกัน, Stat label muted→foreground/70 medium',
+            'Lesson 2: text-muted-foreground ใน design system นี้คือ ~50% opacity gray — เหมาะกับ "secondary text" บน bg-card สีขาวที่มี space เยอะ แต่ blend ทันทีบน tinted bg (amber/emerald gradient) หรือ small text/labels — ใช้ text-foreground/70-80 + font-medium ดีกว่าสำหรับ text สำคัญ',
+        ],
+    },
+    {
+        version: 'v1.10.3 (ธนาคารพอเพียง — แก้ contrast สีฟอนต์จาง — รอบ 1)',
+        date: '',
         badge: 'bg-amber-200',
         items: [
             'User รายงาน "สีฟอนต์ของธนาคารพอเพียง มีบางส่วน สีจาง ไม่ตัดกับหลัง" — text 700-level บน bg 50/100-level แม้ผ่าน WCAG AA numerically แต่ผ่านการรับรู้สายตา (similar warm tones blend) ไม่ตัดเด่นเท่าที่ควร',

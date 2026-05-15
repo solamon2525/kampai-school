@@ -84,8 +84,8 @@ export const SavingsBankParentView = ({ studentId, studentName }: Props) => {
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors -mb-px ${
-              tab === t.id ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold border-b-2 transition-colors -mb-px ${
+              tab === t.id ? 'border-primary text-primary' : 'border-transparent text-foreground/65 hover:text-foreground'
             }`}
           >
             {t.icon}
@@ -99,7 +99,7 @@ export const SavingsBankParentView = ({ studentId, studentName }: Props) => {
           <CardHeader>
             <CardTitle className="text-base">เกี่ยวกับธนาคารพอเพียง</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm text-muted-foreground">
+          <CardContent className="space-y-3 text-sm text-foreground/80 font-medium">
             <p>ธนาคารพอเพียงคือระบบฝากเงินสำหรับนักเรียน — สอนวินัยการออมตามหลักปรัชญาเศรษฐกิจพอเพียง</p>
             <ul className="list-disc list-inside space-y-1 ml-2">
               <li>ฝากเงินกับครูที่โรงเรียน — จำนวนใดก็ได้</li>
@@ -126,41 +126,41 @@ export const SavingsBankParentView = ({ studentId, studentName }: Props) => {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-border bg-muted/50">
-                      <th className="text-left px-4 py-3 font-medium text-muted-foreground">วันที่</th>
-                      <th className="text-left px-4 py-3 font-medium text-muted-foreground">ประเภท</th>
-                      <th className="text-right px-4 py-3 font-medium text-muted-foreground">จำนวน</th>
-                      <th className="text-right px-4 py-3 font-medium text-muted-foreground">คงเหลือ</th>
+                    <tr className="border-b border-border bg-muted/60">
+                      <th className="text-left px-4 py-3 font-semibold text-foreground/80">วันที่</th>
+                      <th className="text-left px-4 py-3 font-semibold text-foreground/80">ประเภท</th>
+                      <th className="text-right px-4 py-3 font-semibold text-foreground/80">จำนวน</th>
+                      <th className="text-right px-4 py-3 font-semibold text-foreground/80">คงเหลือ</th>
                     </tr>
                   </thead>
                   <tbody>
                     {transactions.map((t) => (
                       <tr key={t.id} className="border-b border-border">
-                        <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
+                        <td className="px-4 py-3 text-foreground/75 font-medium whitespace-nowrap">
                           {t.transaction_date}
                         </td>
                         <td className="px-4 py-3">
                           {t.transaction_type === 'deposit' ? (
-                            <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20 gap-1">
+                            <Badge className="bg-emerald-500/20 text-emerald-900 dark:text-emerald-200 hover:bg-emerald-500/30 gap-1 font-semibold">
                               <ArrowDownToLine className="w-3 h-3" /> ฝาก
                             </Badge>
                           ) : (
-                            <Badge className="bg-orange-500/15 text-orange-700 dark:text-orange-300 hover:bg-orange-500/20 gap-1">
+                            <Badge className="bg-orange-500/20 text-orange-900 dark:text-orange-200 hover:bg-orange-500/30 gap-1 font-semibold">
                               <ArrowUpFromLine className="w-3 h-3" /> ถอน
                             </Badge>
                           )}
                         </td>
                         <td
-                          className={`px-4 py-3 text-right font-semibold tabular-nums ${
+                          className={`px-4 py-3 text-right font-bold tabular-nums ${
                             t.transaction_type === 'deposit'
-                              ? 'text-emerald-700 dark:text-emerald-400'
-                              : 'text-orange-700 dark:text-orange-400'
+                              ? 'text-emerald-900 dark:text-emerald-200'
+                              : 'text-orange-900 dark:text-orange-200'
                           }`}
                         >
                           {t.transaction_type === 'deposit' ? '+' : '−'}
                           {fmtBaht(Number(t.amount))}
                         </td>
-                        <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">
+                        <td className="px-4 py-3 text-right tabular-nums text-foreground/75 font-medium">
                           {fmtBaht(Number(t.balance_after))}
                         </td>
                       </tr>
@@ -192,6 +192,6 @@ const Stat = ({
       {icon}
       {value}
     </div>
-    <div className="text-xs text-muted-foreground mt-0.5">{label}</div>
+    <div className="text-xs text-foreground/70 font-medium mt-0.5">{label}</div>
   </div>
 );
