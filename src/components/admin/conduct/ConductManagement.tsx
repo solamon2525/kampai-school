@@ -62,7 +62,7 @@ interface ConductRecord {
     academic_year: string;
     semester: string;
     created_at: string;
-    students?: { name: string; class: string } | null;
+    students?: { name: string; class: string; photo_url?: string | null } | null;
 }
 
 // ===== Main Component =====
@@ -324,12 +324,12 @@ function LeaderboardTab() {
 
     // รวมคะแนนรายนักเรียน
     const leaderboard = useMemo(() => {
-        const map: Record<string, { studentId: string; name: string; class: string; total: number; added: number; deducted: number }> = {};
+        const map: Record<string, { studentId: string; name: string; class: string; photoUrl: string | null; total: number; added: number; deducted: number }> = {};
         records.forEach(r => {
             if (!r.students) return;
             if (filterClass && r.students.class !== filterClass) return;
             if (!map[r.student_id]) {
-                map[r.student_id] = { studentId: r.student_id, name: r.students.name, class: r.students.class, total: 0, added: 0, deducted: 0 };
+                map[r.student_id] = { studentId: r.student_id, name: r.students.name, class: r.students.class, photoUrl: r.students.photo_url ?? null, total: 0, added: 0, deducted: 0 };
             }
             if (r.type === 'add') { map[r.student_id].total += r.score; map[r.student_id].added += r.score; }
             else { map[r.student_id].total -= r.score; map[r.student_id].deducted += r.score; }
@@ -376,6 +376,7 @@ function LeaderboardTab() {
                                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${idx === 0 ? 'bg-yellow-400 text-white' : idx === 1 ? 'bg-gray-400 text-white' : idx === 2 ? 'bg-amber-600 text-white' : 'bg-muted text-muted-foreground'}`}>
                                         {idx + 1}
                                     </div>
+                                    <PersonAvatar name={s.name} photoUrl={s.photoUrl} size="md" />
                                     <div className="flex-1 min-w-0">
                                         <p className="font-medium truncate">{s.name}</p>
                                         <p className="text-xs text-muted-foreground">{s.class}</p>
@@ -481,6 +482,7 @@ function HistoryTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) 
                                     <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${r.type === 'add' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                                         {r.type === 'add' ? `+${r.score}` : `-${r.score}`}
                                     </div>
+                                    <PersonAvatar name={r.students?.name ?? '—'} photoUrl={r.students?.photo_url} size="sm" className="flex-shrink-0 mt-0.5" />
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 flex-wrap">
                                             <span className="font-medium">{r.students?.name ?? '—'}</span>

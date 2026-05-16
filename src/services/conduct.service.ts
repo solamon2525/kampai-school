@@ -34,11 +34,11 @@ export type ConductInsert = {
 };
 
 export const conductService = {
-  /** ดึงประวัติคะแนนความดีทั้งหมด (พร้อม join ชื่อนักเรียน) */
+  /** ดึงประวัติคะแนนความดีทั้งหมด (พร้อม join ชื่อ+รูปนักเรียน) */
   getAll: (semester?: string, academicYear?: string) => {
     let q = supabase
       .from('conduct_scores')
-      .select('*, students(name, class)')
+      .select('*, students(name, class, photo_url)')
       .order('created_at', { ascending: false });
     if (semester) q = q.eq('semester', semester);
     if (academicYear) q = q.eq('academic_year', academicYear);
