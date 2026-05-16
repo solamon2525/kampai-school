@@ -80,6 +80,7 @@ export const SavingsBankManagement = () => {
   const [recorder, setRecorder] = useState<RecorderValue>(EMPTY_RECORDER);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [scannerOpen, setScannerOpen] = useState(false);
+  const [quickRepeat, setQuickRepeat] = useState(false);
 
   const [transactions, setTransactions] = useState<SavingsTransaction[]>([]);
   const [summaries, setSummaries] = useState<SavingsStudentSummary[]>([]);
@@ -234,6 +235,9 @@ export const SavingsBankManagement = () => {
         notes: '',
       }));
       await Promise.all([fetchTransactions(), fetchSummaries()]);
+      if (quickRepeat) {
+        setScannerOpen(true);
+      }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'เกิดข้อผิดพลาด';
       toast({ title: 'บันทึกไม่สำเร็จ', description: msg, variant: 'destructive' });
@@ -405,15 +409,28 @@ export const SavingsBankManagement = () => {
             </div>
 
             {/* QR Scanner shortcut */}
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => setScannerOpen(true)}
-              className="w-full gap-2 border-amber-400 bg-amber-50 text-amber-900 hover:bg-amber-100 hover:border-amber-500"
-            >
-              <QrCode className="w-5 h-5" />
-              สแกน QR นักเรียน
-            </Button>
+            <div className="space-y-2">
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => setScannerOpen(true)}
+                className="w-full gap-2 border-amber-400 bg-amber-50 text-amber-900 hover:bg-amber-100 hover:border-amber-500"
+              >
+                <QrCode className="w-5 h-5" />
+                สแกน QR นักเรียน
+              </Button>
+              <label className="flex items-center gap-2 text-xs text-slate-600 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={quickRepeat}
+                  onChange={(e) => setQuickRepeat(e.target.checked)}
+                  className="rounded border-slate-300 text-amber-600 focus:ring-amber-500"
+                />
+                <span>
+                  <span className="font-semibold">โหมดต่อเนื่อง</span> — หลังบันทึกเปิดสแกนต่อทันที (เหมาะกับช่วงเช้านักเรียนต่อแถว)
+                </span>
+              </label>
+            </div>
 
             {/* Class + Student */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

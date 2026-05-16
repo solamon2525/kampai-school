@@ -216,8 +216,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.13.0 (QR Scan ใช้ร่วม 2 ระบบ + พิมพ์ QR แจกห้อง)',
+        version: 'v1.13.1 (QR Scanner UX: beep + preview + โหมดต่อเนื่อง)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-700',
+        items: [
+            'StudentQRScanner: เพิ่ม audio feedback (Web Audio API sine 880Hz 200ms) + haptic vibrate(50ms) ตอน decode สำเร็จ — ครูยืนยันได้โดยไม่ต้องดูจอ',
+            'StudentQRScanner: เพิ่มขั้น preview ก่อน prefill — หลัง scan แสดงการ์ดรูปนักเรียน+ชื่อ+ชั้น+เลขที่+รหัส (สีเขียวเด่น) → ครูกด "ยืนยัน" หรือ "สแกนใหม่" กัน scan ผิดคน',
+            'Waste/Savings BankManagement: เพิ่ม checkbox "โหมดต่อเนื่อง" — หลังบันทึกรายการสำเร็จเปิด scanner ทันที (เหมาะกับช่วงเช้านักเรียนต่อแถวฝาก)',
+            'Scanner lifecycle: stop camera ก่อน fetch student data + รองรับ error case (QR ไม่ตรงนักเรียน) → ปุ่ม "ลองสแกนใหม่"',
+        ],
+    },
+    {
+        version: 'v1.13.0 (QR Scan ใช้ร่วม 2 ระบบ + พิมพ์ QR แจกห้อง)',
+        date: '',
         badge: 'bg-emerald-600',
         items: [
             'ขยาย QR Scan flow จากธนาคารขยะ → ใช้ได้ทั้งธนาคารพอเพียง: QR ใบเดียวต่อเด็ก (format kampai-student:{uuid}) สแกนรับขยะหรือฝาก/ถอนเงินได้ทั้งคู่ — ครูไม่ต้องเลือกชั้น+ชื่อด้วยมือ',

@@ -48,6 +48,7 @@ export const WasteBankManagement = () => {
   const [transactions, setTransactions] = useState<WasteTransaction[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showQRScanner, setShowQRScanner] = useState(false);
+  const [quickRepeat, setQuickRepeat] = useState(false);
 
   // Student selector
   const [studentOptions, setStudentOptions] = useState<StudentOption[]>([]);
@@ -205,6 +206,9 @@ export const WasteBankManagement = () => {
     setStudentOptions([]);
     fetchTransactions();
     fetchSummaries();
+    if (quickRepeat) {
+      setShowQRScanner(true);
+    }
   };
 
   const handleDeleteTransaction = async (id: string) => {
@@ -334,11 +338,22 @@ export const WasteBankManagement = () => {
         <div className="space-y-6">
           {/* Form */}
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-row items-center justify-between gap-3 flex-wrap">
               <CardTitle className="text-base">บันทึกรายการรับขยะ</CardTitle>
-              <Button variant="outline" size="sm" onClick={() => setShowQRScanner(true)} className="gap-2">
-                <QrCode className="w-4 h-4" /> สแกน QR นักเรียน
-              </Button>
+              <div className="flex items-center gap-3">
+                <label className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={quickRepeat}
+                    onChange={(e) => setQuickRepeat(e.target.checked)}
+                    className="rounded border-input"
+                  />
+                  <span><span className="font-semibold">โหมดต่อเนื่อง</span></span>
+                </label>
+                <Button variant="outline" size="sm" onClick={() => setShowQRScanner(true)} className="gap-2">
+                  <QrCode className="w-4 h-4" /> สแกน QR นักเรียน
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

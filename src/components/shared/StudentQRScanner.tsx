@@ -1,80 +1,207 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Check, RotateCcw, Loader2 } from 'lucide-react';
+import { studentsService } from '@/services/students.service';
+import { PersonAvatar } from '@/components/shared/PersonAvatar';
 
 interface Props {
-  open: boolean;
-  onClose: () => void;
-  onScanned: (studentId: string) => void;
+    open: boolean;
+    onClose: () => void;
+    onScanned: (studentId: string) => void;
 }
 
+type Preview = {
+    id: string;
+    name: string;
+    class: string;
+    class_number: number | null;
+    student_code: string | null;
+    photo_url: string | null;
+};
+
 /**
- * StudentQRScanner — สแกน QR ของนักเรียนจาก parent portal หรือบัตร QR แจกห้อง
+ * StudentQRScanner — สแกน QR ของนักเรียน + preview ยืนยันก่อน prefill form
  *
- * รองรับ 2 payload format:
- *   - `kampai-student:<uuid>` (ใช้ใน Parent Portal + StudentCard + StudentQRSheet)
- *   - `<uuid>` ตรง ๆ (backward compat กับ QR เก่า)
+ * Flow:
+ *   1. เปิด dialog → กล้องสตาร์ท
+ *   2. ตรวจ QR (format `kampai-student:{uuid}` หรือ plain uuid)
+ *   3. Beep + haptic vibrate → กล้อง pause
+ *   4. Fetch student → แสดง preview card (avatar + ชื่อ + ชั้น)
+ *   5. ครูกด "ยืนยัน" → callback onScanned + ปิด / กด "สแกนใหม่" → resume
  *
- * ใช้ร่วมโดย WasteBankManagement, SavingsBankManagement (DESIGN.md Rule 14.13 pattern)
+ * ใช้ร่วม waste-bank + savings-bank admin
  */
 export const StudentQRScanner = ({ open, onClose, onScanned }: Props) => {
-  const scannerRef = useRef<Html5Qrcode | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const elementId = 'qr-scanner-region';
+    const scannerRef = useRef<Html5Qrcode | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [preview, setPreview] = useState<Preview | null>(null);
+    const [fetching, setFetching] = useState(false);
+    const elementId = 'qr-scanner-region';
 
-  useEffect(() => {
-    if (!open) return;
-    let cancelled = false;
+    const playFeedback = useCallback(() => {
+        try {
+            if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+                navigator.vibrate(50);
+            }
+            const AudioCtx =
+                (window as unknown as { AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext }).AudioContext ||
+                (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+            if (!AudioCtx) return;
+            const ctx = new AudioCtx();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'sine';
+            osc.frequency.value = 880;
+            gain.gain.setValueAtTime(0.001, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.2);
+            setTimeout(() => ctx.close().catch(() => {/* ignore */}), 250);
+        } catch {/* feedback เป็น nice-to-have ไม่ critical */}
+    }, []);
 
-    const start = async () => {
-      try {
-        const html5 = new Html5Qrcode(elementId);
-        scannerRef.current = html5;
-        await html5.start(
-          { facingMode: 'environment' },
-          { fps: 10, qrbox: { width: 240, height: 240 } },
-          (decoded) => {
-            if (cancelled) return;
-            const match = decoded.match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
-            const studentId = match ? match[1] : decoded;
-            onScanned(studentId);
-          },
-          () => {/* ignore decode errors */},
-        );
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'ไม่สามารถเปิดกล้องได้');
-      }
+    const stopCamera = useCallback(async () => {
+        const s = scannerRef.current;
+        if (s && s.isScanning) {
+            try {
+                await s.stop();
+                await s.clear();
+            } catch {/* ignore */}
+        }
+        scannerRef.current = null;
+    }, []);
+
+    const startCamera = useCallback(async () => {
+        try {
+            const html5 = new Html5Qrcode(elementId);
+            scannerRef.current = html5;
+            await html5.start(
+                { facingMode: 'environment' },
+                { fps: 10, qrbox: { width: 240, height: 240 } },
+                async (decoded) => {
+                    // หยุด scanner ทันทีกัน decode ซ้ำ
+                    if (scannerRef.current && scannerRef.current.isScanning) {
+                        try {
+                            await scannerRef.current.stop();
+                        } catch {/* ignore */}
+                    }
+                    const match = decoded.match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
+                    const studentId = match ? match[1] : decoded;
+                    playFeedback();
+                    setFetching(true);
+                    const { data, error: fetchErr } = await studentsService.getById(studentId);
+                    setFetching(false);
+                    if (fetchErr || !data) {
+                        setError('ไม่พบนักเรียน — QR ไม่ถูกต้องหรือนักเรียนถูกลบ');
+                        return;
+                    }
+                    setPreview({
+                        id: data.id,
+                        name: data.name,
+                        class: data.class,
+                        class_number: data.class_number,
+                        student_code: data.student_code,
+                        photo_url: data.photo_url,
+                    });
+                },
+                () => {/* ignore decode errors */},
+            );
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'ไม่สามารถเปิดกล้องได้');
+        }
+    }, [playFeedback]);
+
+    useEffect(() => {
+        if (!open) return;
+        setError(null);
+        setPreview(null);
+        setFetching(false);
+        startCamera();
+        return () => {
+            stopCamera();
+        };
+    }, [open, startCamera, stopCamera]);
+
+    const handleRescan = async () => {
+        setPreview(null);
+        setError(null);
+        await stopCamera();
+        await startCamera();
     };
-    start();
 
-    return () => {
-      cancelled = true;
-      const s = scannerRef.current;
-      if (s && s.isScanning) {
-        s.stop().then(() => s.clear()).catch(() => {/* ignore */});
-      }
-      scannerRef.current = null;
+    const handleConfirm = async () => {
+        if (!preview) return;
+        await stopCamera();
+        onScanned(preview.id);
+        setPreview(null);
     };
-  }, [open, onScanned]);
 
-  return (
-    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>สแกน QR นักเรียน</DialogTitle>
-        </DialogHeader>
-        {error ? (
-          <div className="text-sm text-destructive p-4 bg-destructive/10 rounded-md">
-            {error}
-          </div>
-        ) : (
-          <div id={elementId} className="w-full rounded-md overflow-hidden bg-black" />
-        )}
-        <div className="flex justify-end">
-          <Button variant="outline" onClick={onClose}>ปิด</Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
+    return (
+        <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+            <DialogContent className="max-w-md">
+                <DialogHeader>
+                    <DialogTitle>สแกน QR นักเรียน</DialogTitle>
+                </DialogHeader>
+
+                {error ? (
+                    <div className="space-y-3">
+                        <div className="text-sm text-destructive p-4 bg-destructive/10 rounded-md">
+                            {error}
+                        </div>
+                        <Button variant="outline" onClick={handleRescan} className="w-full gap-2">
+                            <RotateCcw className="w-4 h-4" /> ลองสแกนใหม่
+                        </Button>
+                    </div>
+                ) : preview ? (
+                    <div className="space-y-3">
+                        <div className="rounded-lg border-2 border-emerald-300 bg-emerald-50 p-4 flex items-center gap-3">
+                            <PersonAvatar
+                                name={preview.name}
+                                photoUrl={preview.photo_url}
+                                size="lg"
+                                className="ring-2 ring-emerald-400"
+                            />
+                            <div className="flex-1 min-w-0">
+                                <div className="font-bold text-emerald-900 truncate">{preview.name}</div>
+                                <div className="text-xs text-emerald-800 mt-0.5">
+                                    ชั้น {preview.class}
+                                    {preview.class_number ? ` · เลขที่ ${preview.class_number}` : ''}
+                                </div>
+                                {preview.student_code && (
+                                    <div className="text-[10px] text-emerald-700/80 font-mono mt-0.5">
+                                        รหัส {preview.student_code}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                            <Button variant="outline" onClick={handleRescan} className="gap-1">
+                                <RotateCcw className="w-4 h-4" /> สแกนใหม่
+                            </Button>
+                            <Button onClick={handleConfirm} className="gap-1 bg-emerald-600 hover:bg-emerald-700">
+                                <Check className="w-4 h-4" /> ยืนยัน
+                            </Button>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="space-y-3">
+                        <div id={elementId} className="w-full rounded-md overflow-hidden bg-black aspect-square" />
+                        {fetching && (
+                            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                                <Loader2 className="w-4 h-4 animate-spin" /> กำลังโหลดข้อมูลนักเรียน...
+                            </div>
+                        )}
+                        <Button variant="outline" onClick={onClose} className="w-full">
+                            ยกเลิก
+                        </Button>
+                    </div>
+                )}
+            </DialogContent>
+        </Dialog>
+    );
 };
