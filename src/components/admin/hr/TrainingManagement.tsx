@@ -24,6 +24,7 @@ import { TrainingShowcase } from './TrainingShowcase';
 import { runCertOCR } from './CertOCR';
 import { useRef } from 'react';
 import { formatThaiDateRange } from '@/lib/thaiDate';
+import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
 
 interface Staff { id: string; name: string; }
 
@@ -320,14 +321,22 @@ export default function TrainingManagement() {
                             <Label>หน่วยงานที่จัด</Label>
                             <Input value={form.provider} onChange={e => setForm(f => ({ ...f, provider: e.target.value }))} placeholder="ชื่อหน่วยงาน/สถาบัน" />
                         </div>
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div className="space-y-1">
                                 <Label>วันที่เริ่ม</Label>
-                                <Input type="date" value={form.start_date} onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))} />
+                                <ThaiDatePicker
+                                    value={form.start_date}
+                                    onChange={(iso) => setForm(f => ({ ...f, start_date: iso }))}
+                                    placeholder="เลือกวันที่เริ่ม"
+                                />
                             </div>
                             <div className="space-y-1">
                                 <Label>วันที่สิ้นสุด</Label>
-                                <Input type="date" value={form.end_date} onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))} />
+                                <ThaiDatePicker
+                                    value={form.end_date}
+                                    onChange={(iso) => setForm(f => ({ ...f, end_date: iso }))}
+                                    placeholder="เลือกวันที่สิ้นสุด"
+                                />
                             </div>
                         </div>
                         <div className="grid grid-cols-2 gap-3">
