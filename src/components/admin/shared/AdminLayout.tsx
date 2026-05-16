@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import SchoolLogoMark from '@/components/SchoolLogoMark';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthProvider';
@@ -49,9 +49,12 @@ import {
     MessageCircle,
     Handshake,
     Database,
+    QrCode,
 } from 'lucide-react';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import { NotificationBell } from './NotificationBell';
+import { ScanFAB } from '@/components/shared/ScanFAB';
+import { CameraPermissionPrompt } from '@/components/shared/CameraPermissionPrompt';
 
 interface AdminLayoutProps {
     children: ReactNode;
@@ -96,6 +99,7 @@ const menuItems: MenuItem[] = [
     { type: 'item', id: 'curriculum', label: 'หลักสูตร', icon: BookOpen, path: '/admin/dashboard/curriculum', adminOnly: true },
     { type: 'item', id: 'activities', label: 'กิจกรรมเสริม', icon: Palette, path: '/admin/dashboard/activities', adminOnly: true },
     { type: 'section', label: 'ระบบบริการ' },
+    { type: 'item', id: 'scan', label: 'สแกน QR ด่วน', icon: QrCode, path: '/admin/dashboard/scan' },
     { type: 'item', id: 'waste-bank', label: 'ธนาคารขยะ', icon: Recycle, path: '/admin/dashboard/waste-bank', adminOnly: true },
     { type: 'item', id: 'savings-bank', label: 'ธนาคารพอเพียง', icon: Wallet, path: '/admin/dashboard/savings-bank', adminOnly: true },
     { type: 'item', id: 'attendance', label: 'เช็คชื่อนักเรียน', icon: ClipboardCheck, path: '/admin/dashboard/attendance' },
@@ -267,6 +271,19 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
         navigate('/admin');
     };
 
+    // Keyboard shortcut: Ctrl/Cmd + Shift + S → เปิดหน้าสแกน
+    useEffect(() => {
+        const onKey = (e: KeyboardEvent) => {
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 's') {
+                e.preventDefault();
+                navigate('/admin/dashboard/scan');
+                setMobileOpen(false);
+            }
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [navigate]);
+
     return (
         <div className="min-h-screen bg-admin-bg">
             {/* Desktop Sidebar — dark slate (always) */}
@@ -315,6 +332,12 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
             <main className="lg:ml-64 min-h-screen">
                 {children}
             </main>
+
+            {/* Floating Action Button — สแกน QR ด่วน (mobile only) */}
+            <ScanFAB />
+
+            {/* Camera permission pre-request — ขออนุญาตล่วงหน้าตอน login ครั้งแรก */}
+            <CameraPermissionPrompt />
         </div>
     );
 };

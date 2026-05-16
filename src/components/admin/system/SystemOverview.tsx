@@ -216,8 +216,22 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.13.1 (QR Scanner UX: beep + preview + โหมดต่อเนื่อง)',
+        version: 'v1.14.0 (Fast Scanner — FAB + /scan + permission pre-request)',
         date: 'ล่าสุด',
+        badge: 'bg-orange-600',
+        items: [
+            'หน้า /admin/dashboard/scan ใหม่ — สแกน QR แล้วเลือกระบบในหน้าเดียว: ฝากขยะ / ฝากเงิน / ถอนเงิน → compact form prefilled + แสดงยอดคงเหลือ/แต้มของนักเรียนใน sticky header',
+            'FAB (Floating Action Button) สีอ่ำพันมุมขวาล่างบนมือถือ — 1 tap จากทุกหน้า admin/teacher เข้าสแกนทันที (lg:hidden — ซ่อนบน desktop)',
+            'Camera permission pre-request: Dialog ขออนุญาตกล้องตั้งแต่ login ครั้งแรก → ตอนกดสแกนกล้องเปิดทันที ไม่ต้องผ่าน native prompt (เก็บ flag ใน localStorage ไม่ถามซ้ำ)',
+            'Keyboard shortcut Ctrl+Shift+S เปิด /scan จากทุกหน้า admin — สำหรับ user laptop ที่ใช้ keyboard เป็นหลัก',
+            'Quick repeat mode (default ติ๊ก) — บันทึก transaction เสร็จ → reset + เปิด scanner ต่อให้นักเรียนคนถัดไปทันที',
+            'Sidebar: เพิ่มเมนู "สแกน QR ด่วน" บนสุดของ section ระบบบริการ (ไม่ adminOnly → teacher login เห็นด้วย)',
+            'RLS verified: waste_transactions + savings_transactions มี policy (is_admin() OR is_teacher()) สำหรับ INSERT แล้ว — teacher สแกน+บันทึกได้โดยไม่ต้อง migration',
+        ],
+    },
+    {
+        version: 'v1.13.1 (QR Scanner UX: beep + preview + โหมดต่อเนื่อง)',
+        date: '',
         badge: 'bg-emerald-700',
         items: [
             'StudentQRScanner: เพิ่ม audio feedback (Web Audio API sine 880Hz 200ms) + haptic vibrate(50ms) ตอน decode สำเร็จ — ครูยืนยันได้โดยไม่ต้องดูจอ',

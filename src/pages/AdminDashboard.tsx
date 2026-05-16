@@ -45,6 +45,7 @@ const NotificationsManagement = lazy(() => import('@/components/admin/notificati
 const ThemeManager = lazy(() => import('@/components/admin/theme/ThemeManager').then(m => ({ default: m.ThemeManager })));
 const MenuManager = lazy(() => import('@/components/admin/menu/MenuManager').then(m => ({ default: m.MenuManager })));
 const TeacherListManagement = lazy(() => import('@/components/admin/teachers/TeacherListManagement').then(m => ({ default: m.TeacherListManagement })));
+const ScanRecorder = lazy(() => import('./admin/ScanRecorder'));
 
 // Loading spinner สำหรับ lazy-loaded admin pages
 const AdminPageLoader = () => (
@@ -113,6 +114,7 @@ const AdminDashboard = () => {
             <Route path="curriculum" element={<CurriculumManagement />} />
             <Route path="activities" element={<ActivitiesManagement />} />
             {/* ระบบบริการ */}
+            <Route path="scan" element={<ScanRecorder />} />
             <Route path="waste-bank" element={<WasteBankManagement />} />
             <Route path="savings-bank" element={<SavingsBankManagement />} />
             <Route path="attendance" element={<AttendanceManagement />} />
