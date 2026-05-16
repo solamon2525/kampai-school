@@ -59,12 +59,12 @@ export const staffService = {
     const [teachers, admins] = await Promise.all([
       supabase
         .from('staff')
-        .select('id, name, position, order_position')
+        .select('id, name, position, order_position, photo_url')
         .eq('staff_type', 'teaching')
         .order('order_position', { ascending: true }),
       supabase
         .from('administrators')
-        .select('id, name, position, order_position')
+        .select('id, name, position, order_position, photo_url')
         .order('order_position', { ascending: true }),
     ]);
     if (teachers.error) return { data: null, error: teachers.error };
@@ -75,6 +75,7 @@ export const staffService = {
       name: a.name as string,
       position: (a.position ?? null) as string | null,
       order_position: (a.order_position ?? 0) as number,
+      photo_url: (a.photo_url ?? null) as string | null,
       source: 'administrator' as const,
     }));
     const teacherOptions = (teachers.data ?? []).map((t: any) => ({
@@ -82,6 +83,7 @@ export const staffService = {
       name: t.name as string,
       position: (t.position ?? null) as string | null,
       order_position: (t.order_position ?? 0) as number,
+      photo_url: (t.photo_url ?? null) as string | null,
       source: 'staff' as const,
     }));
     return { data: [...adminOptions, ...teacherOptions], error: null };

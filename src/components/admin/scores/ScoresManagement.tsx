@@ -12,6 +12,7 @@ import { BookOpen, Save, Search, BarChart3, ClipboardList, Download } from 'luci
 import { downloadCSV } from '@/lib/export';
 import { useToast } from '@/hooks/use-toast';
 import { TableSkeleton } from '@/components/ui/loading-skeletons';
+import { PersonAvatar } from '@/components/shared/PersonAvatar';
 
 // ===== Constants =====
 const CLASS_OPTIONS = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6', 'ม.1', 'ม.2', 'ม.3', 'ม.4', 'ม.5', 'ม.6'];
@@ -290,6 +291,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                                                     <td className="px-3 py-1.5 text-muted-foreground text-xs">{idx + 1}</td>
                                                     <td className="px-3 py-1.5">
                                                         <div className="flex items-center gap-2">
+                                                            <PersonAvatar name={row.student.name} photoUrl={row.student.photo_url} size="sm" />
                                                             <div
                                                                 className={`w-2 h-2 rounded-full flex-shrink-0 ${row.student.gender === 'male' ? 'bg-blue-400' : 'bg-amber-400'}`}
                                                             />
@@ -484,14 +486,14 @@ function SummaryTab() {
     const [filterSemester, setFilterSemester] = useState('1');
     const [filterYear, setFilterYear] = useState(currentYear);
     const [searchName, setSearchName] = useState('');
-    const [allRecords, setAllRecords] = useState<(ScoreRecord & { students: { id: string; name: string; class: string; class_number: number | null } | null })[]>([]);
+    const [allRecords, setAllRecords] = useState<(ScoreRecord & { students: { id: string; name: string; class: string; class_number: number | null; photo_url: string | null } | null })[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
     const loadAll = async () => {
         setIsLoading(true);
         const { data } = await supabase
             .from('score_records')
-            .select('*, students(id, name, class, class_number)')
+            .select('*, students(id, name, class, class_number, photo_url)')
             .eq('semester', filterSemester)
             .eq('academic_year', filterYear)
             .order('subject');
@@ -510,14 +512,14 @@ function SummaryTab() {
         });
 
         const map: Record<string, {
-            id: string; name: string; class: string; classNumber: number | null;
+            id: string; name: string; class: string; classNumber: number | null; photoUrl: string | null;
             subjects: Record<string, { เก็บ?: number; กลางภาค?: number; ปลายภาค?: number; max: number }>;
         }> = {};
 
         filtered.forEach(r => {
             if (!r.students) return;
             const sid = r.students.id;
-            if (!map[sid]) map[sid] = { id: sid, name: r.students.name, class: r.students.class, classNumber: r.students.class_number, subjects: {} };
+            if (!map[sid]) map[sid] = { id: sid, name: r.students.name, class: r.students.class, classNumber: r.students.class_number, photoUrl: r.students.photo_url, subjects: {} };
             if (!map[sid].subjects[r.subject]) map[sid].subjects[r.subject] = { max: r.max_score };
             map[sid].subjects[r.subject][r.score_type as 'เก็บ' | 'กลางภาค' | 'ปลายภาค'] = r.score;
         });
@@ -616,7 +618,12 @@ function SummaryTab() {
                                 <tbody>
                                     {studentSummary.map((s, i) => (
                                         <tr key={s.id} className={i % 2 === 0 ? '' : 'bg-muted/20'}>
-                                            <td className="sticky left-0 bg-inherit px-3 py-2 font-medium whitespace-nowrap">{s.name}</td>
+                                            <td className="sticky left-0 bg-inherit px-3 py-2 font-medium whitespace-nowrap">
+                                                <div className="flex items-center gap-2">
+                                                    <PersonAvatar name={s.name} photoUrl={s.photoUrl} size="sm" />
+                                                    <span>{s.name}</span>
+                                                </div>
+                                            </td>
                                             <td className="px-2 py-2 text-center">{s.class}</td>
                                             <td className="px-2 py-2 text-center text-muted-foreground">{s.classNumber ?? '—'}</td>
                                             {allSubjects.map(sub => {

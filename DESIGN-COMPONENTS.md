@@ -73,6 +73,53 @@ DESIGN.md ครอบคลุม: theme, palette, contrast, typography, UX rul
 - Border: `border-[--admin-border]`
 - ห้าม row striping ด้วยสีเขียว — ใช้ neutral grey เท่านั้น
 
+### PersonAvatar (shared — frontend + backend)
+
+ใช้ทุกที่ที่แสดงชื่อ ครู / ผู้บริหาร / นักเรียน (บังคับโดย DESIGN.md Rule 14.13)
+
+```tsx
+import { PersonAvatar } from '@/components/shared/PersonAvatar';
+
+<PersonAvatar name={person.name} photoUrl={person.photo_url} size="sm" />
+```
+
+**Props:**
+| prop | type | default |
+|---|---|---|
+| `name` | `string` (required) | — |
+| `photoUrl` | `string \| null \| undefined` | — |
+| `size` | `'xs' \| 'sm' \| 'md' \| 'lg'` | `'sm'` |
+| `className` | `string` | — |
+
+**Size map:**
+- `xs` = 24px (dropdown items, inline mentions)
+- `sm` = 32px (list row, table cell — default)
+- `md` = 40px (card body)
+- `lg` = 56px (header / profile)
+
+**Behavior:**
+- มี `photoUrl` → render `<AvatarImage>` (Radix)
+- ไม่มี / null → fallback ตัวอักษรแรก 2 ตัว (`getInitials` จาก `@/lib/avatars`)
+- `aria-label={name}` set ให้อัตโนมัติ
+
+**Pattern ที่ถูกต้อง (list/table):**
+```tsx
+<div className="flex items-center gap-2">
+  <PersonAvatar name={s.name} photoUrl={s.photo_url} size="sm" />
+  <span className="text-sm">{s.name}</span>
+</div>
+```
+
+**Pattern ที่ถูกต้อง (dropdown):**
+```tsx
+<SelectItem value={o.id}>
+  <div className="flex items-center gap-2">
+    <PersonAvatar name={o.name} photoUrl={o.photo_url} size="xs" />
+    <span>{o.name}</span>
+  </div>
+</SelectItem>
+```
+
 ---
 
 ## 3. Replacement Mapping (Purple → Green tokens)
@@ -180,11 +227,13 @@ DESIGN.md ครอบคลุม: theme, palette, contrast, typography, UX rul
 8. **ไฟล์ใน `src/components/ui/`** (shadcn) ห้ามแก้ — ถ้าต้อง custom ให้ wrap component ใหม่
 9. **Icon** import จาก `lucide-react` เท่านั้น
 10. **Card** ใช้ `<Card>` จาก shadcn — ห้าม build div+border เอง
+10a. **Person display** ทุกที่ที่ render ชื่อครู/ผู้บริหาร/นักเรียน ต้องใช้ `<PersonAvatar>` คู่ชื่อเสมอ (DESIGN.md Rule 14.13) — ห้ามใช้ shadcn `<Avatar>` ตรง
 
 ### กฎ data
 11. **State management** ใช้ TanStack Query v5 (`useQuery`/`useMutation`) — ไม่ใช่ `useState` + `useEffect` + `fetch`
 12. **Supabase queries** ผ่าน `src/services/*.service.ts` เท่านั้น — ห้ามเรียก `supabase.from()` ใน component
 13. **Types** ใช้จาก `@/integrations/supabase/types` — ห้ามสร้าง interface ซ้ำ
+13a. **Person services** ที่ดึงชื่อมาแสดง **ต้อง SELECT `photo_url`** ด้วยเสมอ (staff/teachers/administrators/students) — ขาดข้อนี้ = ผิด Rule 14.13
 
 ### กฎ a11y
 14. **Contrast** ต้องผ่าน WCAG AA (4.5:1 body, 3:1 large/UI)

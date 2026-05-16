@@ -38,6 +38,8 @@ export type WasteStudentSummary = {
   student_id: string | null;
   full_name: string | null;
   class_name: string | null;
+  photo_url: string | null;
+  student_code: string | null;
   total_items: number | null;
   total_points_earned: number | null;
   total_points_spent: number | null;

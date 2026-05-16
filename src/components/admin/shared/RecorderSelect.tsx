@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { useRecorderOptions } from '@/hooks/useRecorderOptions';
 import { useAuth } from '@/contexts/AuthProvider';
 import { cn } from '@/lib/utils';
+import { PersonAvatar } from '@/components/shared/PersonAvatar';
 
 export type RecorderValue = {
   staffId: string | null;
@@ -92,8 +93,13 @@ export const RecorderSelect = ({
         <SelectContent>
           {options.map((o) => (
             <SelectItem key={`${o.source}:${o.id}`} value={`${o.source}:${o.id}`}>
-              {o.name}
-              {o.position ? ` (${o.position})` : ''}
+              <div className="flex items-center gap-2">
+                <PersonAvatar name={o.name} photoUrl={o.photo_url} size="xs" />
+                <span>
+                  {o.name}
+                  {o.position ? ` (${o.position})` : ''}
+                </span>
+              </div>
             </SelectItem>
           ))}
         </SelectContent>

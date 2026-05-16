@@ -9,6 +9,7 @@ import type {
   SavingsTransaction,
 } from '@/services/savings.service';
 import { SaverTierBadge } from '@/components/savings/SaverTierBadge';
+import { PersonAvatar } from '@/components/shared/PersonAvatar';
 
 interface Props {
   studentId: string;
@@ -59,13 +60,21 @@ export const SavingsBankParentView = ({ studentId, studentName }: Props) => {
 
         <div className="relative">
           <div className="flex items-start justify-between gap-3 mb-4">
-            <div>
-              <div className="text-xs font-bold uppercase tracking-[0.15em] text-amber-400 mb-1">
-                ยอดเงินสะสมของ
-              </div>
-              <div className="text-sm md:text-base font-bold text-white flex items-center gap-2">
-                <Wallet className="w-4 h-4" />
-                {studentName ?? summary?.full_name ?? 'นักเรียน'}
+            <div className="flex items-center gap-3">
+              <PersonAvatar
+                name={studentName ?? summary?.full_name ?? 'นักเรียน'}
+                photoUrl={summary?.photo_url}
+                size="lg"
+                className="ring-2 ring-amber-400/40"
+              />
+              <div>
+                <div className="text-xs font-bold uppercase tracking-[0.15em] text-amber-400 mb-1">
+                  ยอดเงินสะสมของ
+                </div>
+                <div className="text-sm md:text-base font-bold text-white flex items-center gap-2">
+                  <Wallet className="w-4 h-4" />
+                  {studentName ?? summary?.full_name ?? 'นักเรียน'}
+                </div>
               </div>
             </div>
             <SaverTierBadge depositCount={depositCount} size="lg" />

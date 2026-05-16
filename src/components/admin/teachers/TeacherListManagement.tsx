@@ -37,6 +37,7 @@ import { cn } from '@/lib/utils';
 import { ImageUpload } from '@/components/admin/shared/ImageUpload';
 import { ConfirmDialog } from '@/components/admin/shared/ConfirmDialog';
 import { deleteStorageImage } from '@/utils/storageUtils';
+import { PersonAvatar } from '@/components/shared/PersonAvatar';
 
 interface Teacher {
   id: string;
@@ -419,19 +420,12 @@ export function TeacherListManagement() {
                       {teacher.order_position}
                     </td>
                     <td className="px-4 py-3">
-                      {teacher.photo_url ? (
-                        <img
-                          src={teacher.photo_url}
-                          alt={teacher.name}
-                          className="h-9 w-9 rounded-full object-cover ring-1 ring-border"
-                        />
-                      ) : (
-                        <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center ring-1 ring-border">
-                          <span className="text-xs text-muted-foreground font-medium">
-                            {teacher.name.charAt(0)}
-                          </span>
-                        </div>
-                      )}
+                      <PersonAvatar
+                        name={teacher.name}
+                        photoUrl={teacher.photo_url}
+                        size="md"
+                        className="ring-1 ring-border"
+                      />
                     </td>
                     <td className="px-4 py-3 font-medium text-foreground">{teacher.name}</td>
                     <td className="px-4 py-3">

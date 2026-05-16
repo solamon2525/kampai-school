@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
 import { RecorderSelect, EMPTY_RECORDER, type RecorderValue } from '../shared/RecorderSelect';
 import { TableSkeleton } from '@/components/ui/loading-skeletons';
+import { PersonAvatar } from '@/components/shared/PersonAvatar';
 
 // ===== Constants =====
 const CLASS_OPTIONS = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6', 'ม.1', 'ม.2', 'ม.3', 'ม.4', 'ม.5', 'ม.6'];
@@ -47,6 +48,7 @@ interface Student {
     room: string | null;
     class_number: number | null;
     gender: string | null;
+    photo_url: string | null;
 }
 
 interface ConductRecord {
@@ -169,8 +171,13 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                                 <SelectContent>
                                     {students.map(s => (
                                         <SelectItem key={s.id} value={s.id}>
-                                            {s.name}
-                                            {s.class_number ? ` (เลขที่ ${s.class_number})` : ''}
+                                            <div className="flex items-center gap-2">
+                                                <PersonAvatar name={s.name} photoUrl={s.photo_url} size="xs" />
+                                                <span>
+                                                    {s.name}
+                                                    {s.class_number ? ` (เลขที่ ${s.class_number})` : ''}
+                                                </span>
+                                            </div>
                                         </SelectItem>
                                     ))}
                                 </SelectContent>

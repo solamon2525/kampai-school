@@ -32,6 +32,8 @@ ENV จำเป็น: `VITE_SUPABASE_URL` · `VITE_SUPABASE_PUBLISHABLE_KEY` �
 - รวม class ด้วย `cn()` จาก `@/lib/utils` เสมอ
 - Illustrations = inline SVG component ที่ใช้ `currentColor` + Tailwind class (ไม่ download PNG, ไม่ใส่ `public/`)
 
+**Person display:** ทุกที่ที่แสดงชื่อ ครู/ผู้บริหาร/นักเรียน → ต้องใช้ `<PersonAvatar name=... photoUrl=... />` คู่ชื่อเสมอ — ห้าม name-only (DESIGN.md Rule 14.13) + service ที่ดึงชื่อมา **ต้อง SELECT `photo_url` ด้วย**
+
 **Forms:** React Hook Form + `zodResolver(schema)` + `<Form>` primitive จาก `components/ui/form` เสมอ
 
 **Auth:** ใช้ `<PortalProtectedRoute requiredRole="admin|teacher|parent">` — ห้ามเขียน auth check ใน component  

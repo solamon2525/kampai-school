@@ -216,8 +216,23 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.11.0 (ธนาคารพอเพียง — Premium UX/UI Redesign)',
+        version: 'v1.12.0 (Name + Photo Co-display — Rule 14.13)',
         date: 'ล่าสุด',
+        badge: 'bg-blue-600',
+        items: [
+            'User audit พบว่าหลายหน้าแสดงชื่อครู/นักเรียนโดยไม่มีรูปคู่กัน (Scores, Attendance report, Conduct dropdown, RecorderSelect, Parent SavingsBank/WasteBank header) — ทำให้แยกคนยาก ชื่อไทยซ้ำกันบ่อย และไม่สอดคล้องกับหน้าที่ถูกแล้ว (HallOfFame, HomeRightSidebar, Staff directory)',
+            'เพิ่ม DESIGN.md Rule 14.13 — Name+Photo Co-display: ทุกที่ที่ render ชื่อครู/ผู้บริหาร/นักเรียน ต้องมี avatar คู่กันเสมอ — บังคับใช้ list/table/dropdown/header/leaderboard ห้าม name-only',
+            'สร้าง shared primitive: `src/components/shared/PersonAvatar.tsx` (wrapper รอบ shadcn Avatar — 4 sizes xs/sm/md/lg + aria-label + fallback initials อัตโนมัติ) + `src/lib/avatars.ts` (getInitials util ที่ Staff.tsx ก็ import กลับมาใช้แทน duplicate)',
+            'แก้ services ที่ขาด photo_url: `staff.service.ts.getRecorderOptions()` SELECT photo_url เพิ่ม + ชนิด RecorderOption ใน `useRecorderOptions` + WasteStudentSummary type เพิ่ม photo_url + student_code ที่ DB view มีอยู่แล้ว — ConductManagement Student interface เพิ่ม photo_url ให้ตรง service',
+            'แก้ component HIGH: ScoresManagement (roster + summary table), AttendanceManagement (report row + student management table + absent students dialog), ConductManagement (student dropdown), RecorderSelect (teacher/admin dropdown) — ทั้งหมดใช้ <PersonAvatar size="sm/xs">',
+            'แก้ component MEDIUM: SavingsBankParentView header (avatar lg ring amber), WasteBankParentView summary header (avatar md ring emerald), TeacherListManagement (replace raw <img>+custom fallback ด้วย <PersonAvatar>)',
+            'อัปเดต CLAUDE.md Hard Rules + DESIGN-COMPONENTS.md (เพิ่ม PersonAvatar spec + กฎ 10a + 13a ใน AI Hard Rules) เพื่อให้ session/AI ใหม่อ่านแล้วได้ context ครบ',
+            'Lesson: Person identity = name + photo เป็น single unit — ถ้า DB มี photo_url แต่ component ไม่ render = bug ของ DESIGN discipline ไม่ใช่ feature work ที่ optional',
+        ],
+    },
+    {
+        version: 'v1.11.0 (ธนาคารพอเพียง — Premium UX/UI Redesign)',
+        date: '',
         badge: 'bg-slate-900',
         items: [
             'User รายงานหลังแก้ contrast 4 รอบ (v1.10.3-6) ว่า "สีฟ้าอ่อนยังจาง ไม่เอา รีดีไซน์ใหม่ทั้งหมด" — root cause ที่เพิ่งเจอ: `src/index.css` line 62-67 ระบุ `--gold` และ `--navy` ทั้งคู่ถูก repurpose เป็นเฉดเขียวล้วน (HSL 142°) ตามคอมเมนต์ "Custom school variables — repurposed as green tones" → ทุกสีอ่อนที่ tint อยู่ในระบบ (amber-50, sky-100, emerald-50) fight กับ theme green ที่ tint อยู่ทุกที่ → ดูจางตลอด',

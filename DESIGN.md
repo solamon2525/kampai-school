@@ -453,6 +453,47 @@ overrides defaults from src/index.css → all Tailwind tokens reflect
 
 **เหตุผล:** หน้า rewards v1 AI เลือกใช้ tier-based grouping + emerald gradient hero + 4-col tier overview strip โดยไม่ได้ถาม — user feedback หลังเห็น production ว่า "ไม่ใช่สิ่งที่ต้องการ" → เสีย time + commit cycles แก้ทับ (v1.8.7 refactor) ครั้งหน้าให้ถามก่อน ไม่ตีความเอง
 
+### Rule 14.13 — Name + Photo Co-display (ห้ามแสดงชื่อเดียว)
+
+ทุกที่ที่ render **ชื่อครู / ผู้บริหาร / นักเรียน** ใน UI ต้องมี **รูป (avatar)** คู่กันเสมอ — ห้าม name-only
+
+**บังคับใช้กับ:**
+- รายการ / ตาราง (list, table) — score, attendance, conduct, transactions, leaderboard
+- Dropdown / Selector — ครู ผอ. นักเรียน (รวมทุก `<SelectItem>` ที่มีชื่อคน)
+- Card / Profile header — parent portal "ยอดของ &lt;ชื่อนักเรียน&gt;", widget สรุป
+- Comment / Author / Recorder mention — บันทึกโดย, แสดงความเห็น
+
+**วิธีใช้:**
+```tsx
+import { PersonAvatar } from '@/components/shared/PersonAvatar';
+
+<div className="flex items-center gap-2">
+  <PersonAvatar name={s.name} photoUrl={s.photo_url} size="sm" />
+  <span>{s.name}</span>
+</div>
+```
+
+**Size guide:**
+- `xs` (24px) — dropdown items, inline mentions
+- `sm` (32px) — list rows, table cells (default)
+- `md` (40px) — card content
+- `lg` (56px) — hero / profile header
+
+**ข้อบังคับ service layer:**
+- ทุก service ที่ดึงชื่อคนมาแสดง → **ต้อง SELECT `photo_url`** (สำหรับ staff/teachers/administrators) หรือ `image_url` (student_council) ด้วย
+- Type interface ในฝั่ง component ต้องประกาศ `photo_url: string | null` ให้ตรง
+
+**Fallback อัตโนมัติ:** ถ้า `photoUrl` เป็น `null/undefined` → `PersonAvatar` จะ render initials เอง (ใช้ `getInitials` จาก `src/lib/avatars.ts`) ไม่ต้องเขียน fallback ซ้ำ
+
+**ห้าม:**
+- ❌ Render `<span>{name}</span>` เดี่ยว ๆ ใน list/dropdown/header
+- ❌ ใช้ shadcn `<Avatar>` ตรง — ต้องใช้ `<PersonAvatar>` (เพื่อให้ a11y label + initials fallback เป็น single API)
+- ❌ Hardcode `<img src={photo}/>` แบบ raw — ไม่มี fallback เมื่อรูปหาย
+
+**เหตุผล:** ชื่อไทยซ้ำกันบ่อย (สมชาย, สมหญิง) — รูปช่วย recognition ทันที + สอดคล้องกับ pattern ที่ HallOfFame, HomeRightSidebar leaderboard, Staff directory ใช้แล้ว v1.12.0 audit พบ Scores/Attendance/Conduct/RecorderSelect/ParentViews/TeacherList แสดงชื่อเดียวไม่มีรูป → refactor ผ่าน `<PersonAvatar>` primitive ครั้งเดียวจบ
+
+**ตรวจสอบ:** ทุกหน้าใหม่ที่แสดงชื่อคน → grep หา `<PersonAvatar` ในไฟล์เดียวกัน ถ้าไม่มีคือผิดกฎ
+
 ---
 
 ## 15. Spacing & Layout

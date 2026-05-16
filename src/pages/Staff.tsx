@@ -7,6 +7,7 @@ import { SEOHead } from '@/components/SEOHead';
 import { motion } from 'framer-motion';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Mail, Phone, RotateCcw, LayoutGrid, List } from 'lucide-react';
+import { getInitials } from '@/lib/avatars';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 interface Administrator {
@@ -68,11 +69,6 @@ function subjClass(s: string | null | undefined): string {
   if (/ศิลป|ดนตรี/.test(t)) return 'sd-subj-art';
   if (/คอม|เทคโน/.test(t)) return 'sd-subj-comp';
   return 'sd-subj-admin';
-}
-
-function getInitials(name: string): string {
-  const w = name.trim().split(/\s+/);
-  return w.length >= 2 ? (w[0]?.[0] || '') + (w[1]?.[0] || '') : name.slice(0, 2);
 }
 
 const colsMap: Record<string, string> = {

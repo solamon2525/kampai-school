@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { NoDataIllustration } from '@/components/ui/empty-illustrations';
 import { useToast } from '@/hooks/use-toast';
+import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import {
   wasteSummaryService,
   wasteTransactionsService,
@@ -110,8 +111,16 @@ export const WasteBankParentView = ({ studentId, studentName }: Props) => {
 
         <Card className="md:col-span-2 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-amber-500/10 border-emerald-500/20">
           <CardContent className="p-6 space-y-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-sm">
-              <Recycle className="w-4 h-4" /> สรุปสำหรับ {studentName ?? summary?.full_name ?? 'นักเรียน'}
+            <div className="flex items-center gap-3 text-muted-foreground text-sm">
+              <PersonAvatar
+                name={studentName ?? summary?.full_name ?? 'นักเรียน'}
+                photoUrl={summary?.photo_url}
+                size="md"
+                className="ring-2 ring-emerald-500/30"
+              />
+              <div className="flex items-center gap-2">
+                <Recycle className="w-4 h-4" /> สรุปสำหรับ {studentName ?? summary?.full_name ?? 'นักเรียน'}
+              </div>
             </div>
             <div className="grid grid-cols-3 gap-4">
               <Stat label="ขยะรวม" value={`${summary?.total_items ?? 0} ชิ้น`} color="text-blue-600 dark:text-blue-400" />

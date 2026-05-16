@@ -6,12 +6,6 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -44,6 +38,7 @@ import { TableSkeleton, ListSkeleton } from '@/components/ui/loading-skeletons';
 import { EmptyState } from '@/components/ui/empty-state';
 import { NoPeopleIllustration, NoDataIllustration } from '@/components/ui/empty-illustrations';
 import { RecorderSelect, EMPTY_RECORDER, type RecorderValue } from '@/components/admin/shared/RecorderSelect';
+import { PersonAvatar } from '@/components/shared/PersonAvatar';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -76,6 +71,7 @@ interface ReportRow {
   name: string;
   student_code: string;
   class_number: number;
+  photo_url: string | null;
   present: number;
   absent: number;
   late: number;
@@ -343,6 +339,7 @@ export const AttendanceManagement = () => {
           name: s.name,
           student_code: s.student_code,
           class_number: s.class_number,
+          photo_url: s.photo_url ?? null,
           present: count('present'),
           absent: count('absent'),
           late: count('late'),
@@ -856,7 +853,10 @@ export const AttendanceManagement = () => {
                           >
                             <td className="py-2 px-3 text-gray-500">{row.class_number}</td>
                             <td className="py-2 px-3 font-medium text-gray-800">
-                              {row.name}
+                              <div className="flex items-center gap-2">
+                                <PersonAvatar name={row.name} photoUrl={row.photo_url} size="sm" />
+                                <span>{row.name}</span>
+                              </div>
                               {row.absent > 3 && (
                                 <Badge className="ml-2 bg-red-100 text-red-700 text-xs">
                                   ขาดเกิน 3 วัน
@@ -1111,7 +1111,12 @@ export const AttendanceManagement = () => {
                       {filteredStudents.map((s) => (
                         <tr key={s.id} className="border-b last:border-b-0 hover:bg-gray-50">
                           <td className="py-2 px-3 font-mono text-xs text-gray-600">{s.student_code}</td>
-                          <td className="py-2 px-3 font-medium text-gray-800">{s.name}</td>
+                          <td className="py-2 px-3 font-medium text-gray-800">
+                            <div className="flex items-center gap-2">
+                              <PersonAvatar name={s.name} photoUrl={s.photo_url} size="sm" />
+                              <span>{s.name}</span>
+                            </div>
+                          </td>
                           <td className="py-2 px-3 text-center text-gray-600">{s.class}</td>
                           <td className="py-2 px-3 text-center text-gray-600">{s.class_number}</td>
                           <td className="py-2 px-3 text-center text-gray-600">
@@ -1308,7 +1313,12 @@ export const AttendanceManagement = () => {
                 <tbody>
                   {absentStudents.map(s => (
                     <tr key={s.id} className="border-b last:border-0 hover:bg-gray-50">
-                      <td className="px-3 py-2">{s.name}</td>
+                      <td className="px-3 py-2">
+                        <div className="flex items-center gap-2">
+                          <PersonAvatar name={s.name} photoUrl={s.photo_url} size="sm" />
+                          <span>{s.name}</span>
+                        </div>
+                      </td>
                       <td className="px-3 py-2 text-muted-foreground">{s.parent_name || '—'}</td>
                       <td className="px-3 py-2">
                         {s.parent_phone ? (

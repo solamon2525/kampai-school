@@ -6,6 +6,7 @@ export type RecorderOption = {
   name: string;
   position: string | null;
   order_position: number;
+  photo_url: string | null;
   source: 'staff' | 'administrator';
 };
 
