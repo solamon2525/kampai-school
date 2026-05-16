@@ -112,7 +112,7 @@ function CardFace({ student, schoolName, logoUrl, academicYear }: {
                         {/* QR */}
                         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
                             <div style={{ background: 'white', padding: '4px', borderRadius: '4px', border: '1px solid #e5e7eb' }}>
-                                <QRCode value={student.id} size={48} />
+                                <QRCode value={`kampai-student:${student.id}`} size={48} />
                             </div>
                         </div>
                     </div>

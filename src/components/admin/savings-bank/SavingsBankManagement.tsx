@@ -9,6 +9,7 @@ import {
   PiggyBank,
   Wallet,
   TrendingUp,
+  QrCode,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { downloadCSV } from '@/lib/export';
@@ -40,6 +41,7 @@ import {
   EMPTY_RECORDER,
   type RecorderValue,
 } from '@/components/admin/shared/RecorderSelect';
+import { StudentQRScanner } from '@/components/shared/StudentQRScanner';
 
 const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 
@@ -77,6 +79,7 @@ export const SavingsBankManagement = () => {
   const [studentOptions, setStudentOptions] = useState<StudentOption[]>([]);
   const [recorder, setRecorder] = useState<RecorderValue>(EMPTY_RECORDER);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
 
   const [transactions, setTransactions] = useState<SavingsTransaction[]>([]);
   const [summaries, setSummaries] = useState<SavingsStudentSummary[]>([]);
@@ -98,16 +101,20 @@ export const SavingsBankManagement = () => {
     }
     (async () => {
       const { data } = await studentsService.getByClass(form.student_class);
-      setStudentOptions(
-        (data || []).map((s) => ({
-          id: s.id,
-          name: s.name,
-          class: s.class,
-          photo_url: s.photo_url ?? null,
-        })),
-      );
+      const opts = (data || []).map((s) => ({
+        id: s.id,
+        name: s.name,
+        class: s.class,
+        photo_url: s.photo_url ?? null,
+      }));
+      setStudentOptions(opts);
+      // เก็บ student_id เดิมไว้ถ้ายังอยู่ในชั้นใหม่ (กรณี QR scan ที่ set ทั้ง class+id พร้อมกัน)
+      setForm((p) => {
+        const stillValid = p.student_id && opts.some((o) => o.id === p.student_id);
+        if (stillValid) return p;
+        return { ...p, student_id: '', student_name: '' };
+      });
     })();
-    setForm((p) => ({ ...p, student_id: '', student_name: '' }));
   }, [form.student_class]);
 
   const fetchTransactions = async () => {
@@ -126,6 +133,36 @@ export const SavingsBankManagement = () => {
       return;
     }
     setSummaries((data ?? []) as unknown as SavingsStudentSummary[]);
+  };
+
+  const handleQRScanned = async (studentId: string) => {
+    setScannerOpen(false);
+    const { data, error } = await studentsService.getById(studentId);
+    if (error || !data) {
+      toast({
+        title: 'ไม่พบนักเรียน',
+        description: 'QR ไม่ถูกต้องหรือนักเรียนถูกลบ',
+        variant: 'destructive',
+      });
+      return;
+    }
+    // โหลด options ของชั้นก่อน แล้วค่อย set student — เลี่ยง useEffect reset student_id
+    const { data: classmates } = await studentsService.getByClass(data.class);
+    setStudentOptions(
+      (classmates || []).map((s) => ({
+        id: s.id,
+        name: s.name,
+        class: s.class,
+        photo_url: s.photo_url ?? null,
+      })),
+    );
+    setForm((p) => ({
+      ...p,
+      student_class: data.class,
+      student_id: data.id,
+      student_name: data.name,
+    }));
+    toast({ title: `เลือก: ${data.name} (${data.class})` });
   };
 
   const handleSubmit = async () => {
@@ -366,6 +403,17 @@ export const SavingsBankManagement = () => {
                 <ArrowUpFromLine className="w-5 h-5" /> ถอนเงิน
               </button>
             </div>
+
+            {/* QR Scanner shortcut */}
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => setScannerOpen(true)}
+              className="w-full gap-2 border-amber-400 bg-amber-50 text-amber-900 hover:bg-amber-100 hover:border-amber-500"
+            >
+              <QrCode className="w-5 h-5" />
+              สแกน QR นักเรียน
+            </Button>
 
             {/* Class + Student */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -691,6 +739,13 @@ export const SavingsBankManagement = () => {
           </div>
         </div>
       )}
+
+      {/* QR Scanner Dialog */}
+      <StudentQRScanner
+        open={scannerOpen}
+        onClose={() => setScannerOpen(false)}
+        onScanned={handleQRScanned}
+      />
     </div>
   );
 };

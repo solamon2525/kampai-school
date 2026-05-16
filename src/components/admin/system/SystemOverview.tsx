@@ -216,8 +216,22 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.12.0 (Name + Photo Co-display — Rule 14.13)',
+        version: 'v1.13.0 (QR Scan ใช้ร่วม 2 ระบบ + พิมพ์ QR แจกห้อง)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'ขยาย QR Scan flow จากธนาคารขยะ → ใช้ได้ทั้งธนาคารพอเพียง: QR ใบเดียวต่อเด็ก (format kampai-student:{uuid}) สแกนรับขยะหรือฝาก/ถอนเงินได้ทั้งคู่ — ครูไม่ต้องเลือกชั้น+ชื่อด้วยมือ',
+            'Refactor: QRScannerDialog → src/components/shared/StudentQRScanner.tsx (shared component) + อัปเดต import ใน WasteBankManagement',
+            'SavingsBankManagement: เพิ่มปุ่ม "สแกน QR นักเรียน" สีอ่ำพันในแท็บบันทึก — สแกนแล้วชื่อ/ชั้น prefill อัตโนมัติ + แก้ useEffect ที่เคย reset student_id ทุกครั้งที่ class เปลี่ยน (เก็บ id ไว้ถ้ายังอยู่ในชั้นใหม่)',
+            'SavingsBankParentView: เพิ่ม QR card หลัง hero — caption ระบุ "QR ใบเดียวใช้ได้กับธนาคารขยะด้วย" ใช้ format เดียวกับ WasteBankParentView',
+            'StudentQRSheet ใหม่: หน้า "พิมพ์ QR ทั้งห้อง" (4×8 grid = 32 QR/A4) เข้าผ่านปุ่มใน /admin/dashboard/students เลือกชั้น → preview → print (เส้นประให้ตัด)',
+            'Fix: StudentCard QR format → kampai-student:{uuid} (เดิมเป็น plain UUID — scanner accept ทั้ง 2 แต่ระบุ prefix ป้องกัน QR ระบบอื่นชนกัน)',
+            'Lesson: ก่อนสร้าง feature ใหม่ ค้นใน codebase ก่อน — QRScannerDialog + react-qr-code + html5-qrcode มีอยู่ครบแล้ว ใช้ซ้ำ ไม่ต้อง add deps ใหม่',
+        ],
+    },
+    {
+        version: 'v1.12.0 (Name + Photo Co-display — Rule 14.13)',
+        date: '',
         badge: 'bg-blue-600',
         items: [
             'User audit พบว่าหลายหน้าแสดงชื่อครู/นักเรียนโดยไม่มีรูปคู่กัน (Scores, Attendance report, Conduct dropdown, RecorderSelect, Parent SavingsBank/WasteBank header) — ทำให้แยกคนยาก ชื่อไทยซ้ำกันบ่อย และไม่สอดคล้องกับหน้าที่ถูกแล้ว (HallOfFame, HomeRightSidebar, Staff directory)',

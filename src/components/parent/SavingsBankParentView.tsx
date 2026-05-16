@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Wallet, ArrowDownToLine, ArrowUpFromLine, History, Sparkles } from 'lucide-react';
+import QRCode from 'react-qr-code';
+import { Wallet, ArrowDownToLine, ArrowUpFromLine, History, Sparkles, QrCode } from 'lucide-react';
 import { EmptyState } from '@/components/ui/empty-state';
 import { NoDataIllustration } from '@/components/ui/empty-illustrations';
 import { cn } from '@/lib/utils';
@@ -110,6 +111,27 @@ export const SavingsBankParentView = ({ studentId, studentName }: Props) => {
                 {fmtBaht(withdrawals)}
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── QR Card สำหรับให้ครูสแกน ───────────────────────────────── */}
+      <div className="rounded-2xl border border-amber-500/30 bg-gradient-to-br from-slate-50 to-amber-50/40 p-4 md:p-5">
+        <div className="flex flex-col md:flex-row md:items-center gap-4">
+          <div className="bg-white p-3 rounded-lg ring-1 ring-amber-200 self-center md:self-auto flex-shrink-0">
+            <QRCode value={`kampai-student:${studentId}`} size={120} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 text-amber-900 font-bold text-sm mb-1">
+              <QrCode className="w-4 h-4" />
+              QR สำหรับฝาก/ถอนเงิน
+            </div>
+            <p className="text-xs md:text-sm text-foreground/75 leading-relaxed">
+              ให้ครูสแกนเพื่อบันทึกการฝาก/ถอนเงิน
+              <br />
+              <span className="text-amber-800 font-semibold">QR ใบเดียวใช้ได้กับธนาคารขยะด้วย</span> —
+              ไม่ต้องพิมพ์แยก
+            </p>
           </div>
         </div>
       </div>

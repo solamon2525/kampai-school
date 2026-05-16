@@ -24,7 +24,7 @@ import {
 import type { WasteCategory, WasteTransaction, WasteStudentSummary } from '@/services/waste-bank.service';
 import { RewardsManagement } from './RewardsManagement';
 import { ClaimsApproval } from './ClaimsApproval';
-import { QRScannerDialog } from './QRScannerDialog';
+import { StudentQRScanner } from '@/components/shared/StudentQRScanner';
 import { TermBanner } from './TermBanner';
 import { RecorderSelect, EMPTY_RECORDER, type RecorderValue } from '@/components/admin/shared/RecorderSelect';
 
@@ -831,7 +831,7 @@ export const WasteBankManagement = () => {
 
       {/* QR Scanner Dialog */}
       {showQRScanner && (
-        <QRScannerDialog
+        <StudentQRScanner
           open={showQRScanner}
           onClose={() => setShowQRScanner(false)}
           onScanned={handleQRScanned}

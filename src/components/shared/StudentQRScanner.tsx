@@ -9,7 +9,16 @@ interface Props {
   onScanned: (studentId: string) => void;
 }
 
-export const QRScannerDialog = ({ open, onClose, onScanned }: Props) => {
+/**
+ * StudentQRScanner — สแกน QR ของนักเรียนจาก parent portal หรือบัตร QR แจกห้อง
+ *
+ * รองรับ 2 payload format:
+ *   - `kampai-student:<uuid>` (ใช้ใน Parent Portal + StudentCard + StudentQRSheet)
+ *   - `<uuid>` ตรง ๆ (backward compat กับ QR เก่า)
+ *
+ * ใช้ร่วมโดย WasteBankManagement, SavingsBankManagement (DESIGN.md Rule 14.13 pattern)
+ */
+export const StudentQRScanner = ({ open, onClose, onScanned }: Props) => {
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const [error, setError] = useState<string | null>(null);
   const elementId = 'qr-scanner-region';
@@ -27,7 +36,6 @@ export const QRScannerDialog = ({ open, onClose, onScanned }: Props) => {
           { fps: 10, qrbox: { width: 240, height: 240 } },
           (decoded) => {
             if (cancelled) return;
-            // Accept "kampai-student:<uuid>" or plain uuid
             const match = decoded.match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
             const studentId = match ? match[1] : decoded;
             onScanned(studentId);
