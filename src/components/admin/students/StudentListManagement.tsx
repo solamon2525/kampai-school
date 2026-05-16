@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Edit, Trash2, Search, Users, Camera, CreditCard, Printer } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Users, Camera, CreditCard, Printer, QrCode } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
 import { ImageUpload } from '../shared/ImageUpload';
@@ -21,6 +21,7 @@ import {
 } from '@tanstack/react-table';
 import Webcam from 'react-webcam';
 import StudentCard from './StudentCard';
+import StudentQRSheet from './StudentQRSheet';
 
 interface Student {
     id: string;
@@ -194,6 +195,7 @@ export const StudentListManagement = () => {
     const [webcamOpen, setWebcamOpen] = useState(false);
     const [cardStudent, setCardStudent] = useState<Student | null>(null);
     const [printClass, setPrintClass] = useState<string | null>(null);
+    const [qrSheetOpen, setQrSheetOpen] = useState(false);
     const webcamRef = useRef<Webcam>(null);
     const { toast } = useToast();
 
@@ -471,7 +473,15 @@ export const StudentListManagement = () => {
                             <Users className="w-5 h-5" />
                             รายชื่อนักเรียน ({students.length} คน)
                         </CardTitle>
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setQrSheetOpen(true)}
+                                className="border-amber-300 text-amber-900 hover:bg-amber-50"
+                            >
+                                <QrCode className="w-4 h-4 mr-1" /> พิมพ์ QR ทั้งห้อง
+                            </Button>
                             {filterClass !== 'all' && (
                                 <Button variant="outline" size="sm" onClick={() => setPrintClass(filterClass)}>
                                     <Printer className="w-4 h-4 mr-1" /> พิมพ์บัตรทั้งห้อง
@@ -994,6 +1004,18 @@ export const StudentListManagement = () => {
                     printAll
                 />
             )}
+
+            {/* Bulk QR Sheet */}
+            <StudentQRSheet
+                students={students.map((s) => ({
+                    id: s.id,
+                    name: s.name,
+                    class: s.class,
+                    class_number: s.class_number,
+                }))}
+                open={qrSheetOpen}
+                onClose={() => setQrSheetOpen(false)}
+            />
 
             <ConfirmDialog
                 open={!!deleteId}
