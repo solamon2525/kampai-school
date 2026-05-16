@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
 import Zoom from 'yet-another-react-lightbox/plugins/zoom';
@@ -6,18 +6,26 @@ import Captions from 'yet-another-react-lightbox/plugins/captions';
 import 'yet-another-react-lightbox/plugins/captions.css';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { GraduationCap, Clock, Users, Banknote, FileDown, Sparkles } from 'lucide-react';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { HoursGauge } from './HoursGauge';
-import { CertCard } from './CertCard';
 import { printTranscript } from './TrainingTranscriptPDF';
 import { TrainingCharts } from './TrainingCharts';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import type { TrainingRecord } from '@/services/training.service';
+import { ViewModeSwitcher } from './views/ViewModeSwitcher';
+import { AsymGridView } from './views/AsymGridView';
+import { BentoGridView } from './views/BentoGridView';
+import { SpotlightView } from './views/SpotlightView';
+import { PolaroidWallView } from './views/PolaroidWallView';
+import { TimelineHorizontalView } from './views/TimelineHorizontalView';
+import { CursorFollower } from './views/CursorFollower';
+import { useConfettiOnHover } from './views/useConfettiOnHover';
+import type { ViewMode } from './views/types';
+import { cn } from '@/lib/utils';
 
 interface Props {
     records: TrainingRecord[];
@@ -36,6 +44,24 @@ export function TrainingShowcase({ records, loading }: Props) {
     const [filterType, setFilterType] = useState<string>(ALL);
     const [filterStaff, setFilterStaff] = useState<string>(ALL);
     const [lightboxIndex, setLightboxIndex] = useState<number>(-1);
+    const [viewMode, setViewMode] = useState<ViewMode>('grid');
+    const [isDark, setIsDark] = useState<boolean>(
+        () => typeof localStorage !== 'undefined' && localStorage.getItem('training-showcase-dark') === '1',
+    );
+    const [hoveredRecord, setHoveredRecord] = useState<TrainingRecord | null>(null);
+    const triggerConfetti = useConfettiOnHover();
+
+    useEffect(() => {
+        try { localStorage.setItem('training-showcase-dark', isDark ? '1' : '0'); } catch {/* noop */}
+    }, [isDark]);
+
+    // Hover handler — trigger confetti for "featured" records (hours >= 16)
+    const handleHover = (r: TrainingRecord | null) => {
+        setHoveredRecord(r);
+        if (r && Number(r.hours || 0) >= 16) {
+            triggerConfetti(r.id);
+        }
+    };
 
     // ปีจาก start_date (พ.ศ.) — distinct + sort desc
     const yearOptions = useMemo(() => {
@@ -282,33 +308,60 @@ export function TrainingShowcase({ records, loading }: Props) {
                 </Card>
             )}
 
-            {/* Asymmetric grid */}
-            <div>
-                <h2 className="font-bold text-lg mb-3 flex items-center gap-2">
-                    <GraduationCap className="w-5 h-5 text-violet-600" />
-                    เกียรติบัตร ({filtered.length})
-                </h2>
-                {loading ? (
-                    <div className="text-center py-12 text-sm text-muted-foreground">กำลังโหลด...</div>
-                ) : filtered.length === 0 ? (
-                    <Card>
-                        <CardContent className="text-center py-12 text-sm text-muted-foreground">
-                            ไม่มีเกียรติบัตรในตัวกรองนี้
-                        </CardContent>
-                    </Card>
-                ) : (
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 [grid-auto-flow:dense]">
-                        {filtered.map((r, idx) => (
-                            <CertCard
-                                key={r.id}
-                                record={r}
-                                big={idx % 7 === 0}
-                                onClick={() => setLightboxIndex(idx)}
-                            />
-                        ))}
+            {/* View Switcher + Cert Display */}
+            <div className={cn(isDark && 'dark')}>
+                <div className={cn(isDark && 'dark bg-slate-950 text-slate-100 -mx-4 px-4 py-4 rounded-2xl')}>
+                    <div className="flex items-center justify-between mb-3 flex-wrap gap-3">
+                        <h2 className="font-bold text-lg flex items-center gap-2">
+                            <GraduationCap className="w-5 h-5 text-violet-600 dark:text-violet-400" />
+                            เกียรติบัตร ({filtered.length})
+                        </h2>
+                        <ViewModeSwitcher
+                            value={viewMode}
+                            onChange={setViewMode}
+                            isDark={isDark}
+                            onToggleDark={() => setIsDark((v) => !v)}
+                        />
                     </div>
-                )}
+
+                    {loading ? (
+                        <div className="text-center py-12 text-sm text-muted-foreground">กำลังโหลด...</div>
+                    ) : filtered.length === 0 ? (
+                        <Card>
+                            <CardContent className="text-center py-12 text-sm text-muted-foreground">
+                                ไม่มีเกียรติบัตรในตัวกรองนี้
+                            </CardContent>
+                        </Card>
+                    ) : (
+                        <>
+                            {viewMode === 'grid' && (
+                                <AsymGridView records={filtered} showStaff onSelect={setLightboxIndex} onHoverRecord={handleHover} />
+                            )}
+                            {viewMode === 'bento' && (
+                                <BentoGridView
+                                    records={filtered}
+                                    showStaff
+                                    onSelect={setLightboxIndex}
+                                    onHoverRecord={handleHover}
+                                    stats={{ totalHours: stats.totalHours, totalCount: stats.totalCount, uniqueStaff: stats.uniqueStaff }}
+                                />
+                            )}
+                            {viewMode === 'spotlight' && (
+                                <SpotlightView records={filtered} showStaff onSelect={setLightboxIndex} onHoverRecord={handleHover} />
+                            )}
+                            {viewMode === 'polaroid' && (
+                                <PolaroidWallView records={filtered} showStaff onSelect={setLightboxIndex} onHoverRecord={handleHover} />
+                            )}
+                            {viewMode === 'timeline' && (
+                                <TimelineHorizontalView records={filtered} showStaff onSelect={setLightboxIndex} onHoverRecord={handleHover} />
+                            )}
+                        </>
+                    )}
+                </div>
             </div>
+
+            {/* Cursor follower (admin only, lg+) */}
+            <CursorFollower record={hoveredRecord} />
 
             {/* Lightbox */}
             <Lightbox

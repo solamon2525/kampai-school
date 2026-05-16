@@ -15,10 +15,17 @@ import {
 import {
     GraduationCap, Clock, Users, Banknote, Sparkles, Award,
 } from 'lucide-react';
-import { trainingPublicService, type TrainingPublicRow, type TrainingPublicAggregate } from '@/services/training.service';
+import { trainingPublicService, type TrainingPublicRow, type TrainingPublicAggregate, type TrainingRecord } from '@/services/training.service';
 import { TrainingCharts } from '@/components/admin/hr/TrainingCharts';
 import { formatThaiDateMedium } from '@/lib/thaiDate';
 import { cn } from '@/lib/utils';
+import { ViewModeSwitcher } from '@/components/admin/hr/views/ViewModeSwitcher';
+import { AsymGridView } from '@/components/admin/hr/views/AsymGridView';
+import { BentoGridView } from '@/components/admin/hr/views/BentoGridView';
+import { SpotlightView } from '@/components/admin/hr/views/SpotlightView';
+import { PolaroidWallView } from '@/components/admin/hr/views/PolaroidWallView';
+import { TimelineHorizontalView } from '@/components/admin/hr/views/TimelineHorizontalView';
+import type { ViewMode } from '@/components/admin/hr/views/types';
 
 const TRAINING_TYPES = ['อบรม', 'สัมมนา', 'ศึกษาดูงาน', 'ประชุมวิชาการ'];
 const ALL = '__all__';
@@ -33,6 +40,25 @@ const TYPE_RING: Record<string, string> = {
     'ประชุมวิชาการ': 'border-amber-300',
 };
 
+/** Adapter: TrainingPublicRow → TrainingRecord shape (staff=null for anonymized) */
+const toRecord = (r: TrainingPublicRow): TrainingRecord => ({
+    id: r.id,
+    staff_id: null,
+    course_name: r.course_name,
+    provider: r.provider,
+    training_type: r.training_type,
+    start_date: r.start_date,
+    end_date: r.end_date,
+    hours: r.hours,
+    location: null,
+    budget: 0,
+    certificate_url: r.certificate_url,
+    status: 'ผ่านการอบรม',
+    notes: null,
+    created_at: r.created_at,
+    staff: null,
+});
+
 export default function TrainingShowcasePublic() {
     const [certs, setCerts] = useState<TrainingPublicRow[]>([]);
     const [aggregate, setAggregate] = useState<TrainingPublicAggregate | null>(null);
@@ -40,6 +66,14 @@ export default function TrainingShowcasePublic() {
     const [filterYear, setFilterYear] = useState<string>(ALL);
     const [filterType, setFilterType] = useState<string>(ALL);
     const [lightboxIndex, setLightboxIndex] = useState<number>(-1);
+    const [viewMode, setViewMode] = useState<ViewMode>('grid');
+    const [isDark, setIsDark] = useState<boolean>(
+        () => typeof localStorage !== 'undefined' && localStorage.getItem('training-showcase-dark') === '1',
+    );
+
+    useEffect(() => {
+        try { localStorage.setItem('training-showcase-dark', isDark ? '1' : '0'); } catch {/* noop */}
+    }, [isDark]);
 
     useEffect(() => {
         (async () => {
@@ -157,11 +191,19 @@ export default function TrainingShowcasePublic() {
                         </CardContent>
                     </Card>
 
-                    <div>
-                        <h2 className="font-bold text-lg md:text-xl mb-3 flex items-center gap-2">
-                            <Award className="w-5 h-5 text-violet-600" />
-                            เกียรติบัตร
-                        </h2>
+                    <div className={cn(isDark && 'dark bg-slate-950 text-slate-100 -mx-2 px-2 py-4 rounded-2xl')}>
+                        <div className="flex items-center justify-between mb-3 flex-wrap gap-3">
+                            <h2 className="font-bold text-lg md:text-xl flex items-center gap-2">
+                                <Award className="w-5 h-5 text-violet-600 dark:text-violet-400" />
+                                เกียรติบัตร
+                            </h2>
+                            <ViewModeSwitcher
+                                value={viewMode}
+                                onChange={setViewMode}
+                                isDark={isDark}
+                                onToggleDark={() => setIsDark((v) => !v)}
+                            />
+                        </div>
                         {loading ? (
                             <div className="text-center py-12 text-sm text-muted-foreground">กำลังโหลด...</div>
                         ) : filtered.length === 0 ? (
@@ -170,50 +212,27 @@ export default function TrainingShowcasePublic() {
                                     ยังไม่มีข้อมูลในตัวกรองนี้
                                 </CardContent>
                             </Card>
-                        ) : (
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 [grid-auto-flow:dense]">
-                                {filtered.map((r, idx) => {
-                                    const big = idx % 7 === 0;
-                                    return (
-                                        <button
-                                            key={r.id}
-                                            type="button"
-                                            onClick={() => setLightboxIndex(idx)}
-                                            className={cn(
-                                                'group text-left rounded-2xl border-2 overflow-hidden bg-card transition-all',
-                                                'hover:shadow-xl hover:-translate-y-0.5 hover:ring-2 hover:ring-violet-400',
-                                                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400',
-                                                TYPE_RING[r.training_type] || 'border-border',
-                                                big && 'lg:col-span-2 lg:row-span-2',
-                                            )}
-                                        >
-                                            <div className={cn('relative overflow-hidden bg-muted', big ? 'aspect-[16/10]' : 'aspect-[4/3]')}>
-                                                <img
-                                                    src={r.certificate_url}
-                                                    alt={r.course_name}
-                                                    loading="lazy"
-                                                    className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
-                                                />
-                                            </div>
-                                            <div className="p-3 space-y-2">
-                                                <h3 className={cn('font-bold leading-snug line-clamp-2', big ? 'text-base' : 'text-sm')}>
-                                                    {r.course_name}
-                                                </h3>
-                                                <div className="flex items-center gap-1.5 flex-wrap">
-                                                    <Badge variant="outline" className="text-[10px] h-5">{r.training_type}</Badge>
-                                                    <span className="text-[10px] text-muted-foreground font-medium">{r.hours} ชม.</span>
-                                                    <span className="text-[10px] text-muted-foreground">·</span>
-                                                    <span className="text-[10px] text-muted-foreground">{formatThaiDateMedium(r.start_date)}</span>
-                                                </div>
-                                                {r.provider && (
-                                                    <p className="text-[10px] text-muted-foreground line-clamp-1">โดย {r.provider}</p>
-                                                )}
-                                            </div>
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        )}
+                        ) : (() => {
+                            const adapted = filtered.map(toRecord);
+                            const aggStats = {
+                                totalHours: aggregate?.total_hours ?? 0,
+                                totalCount: aggregate?.total_count ?? 0,
+                                uniqueStaff: aggregate?.total_staff ?? 0,
+                            };
+                            const onSelect = setLightboxIndex;
+                            switch (viewMode) {
+                                case 'bento':
+                                    return <BentoGridView records={adapted} showStaff={false} onSelect={onSelect} stats={aggStats} />;
+                                case 'spotlight':
+                                    return <SpotlightView records={adapted} showStaff={false} onSelect={onSelect} />;
+                                case 'polaroid':
+                                    return <PolaroidWallView records={adapted} showStaff={false} onSelect={onSelect} />;
+                                case 'timeline':
+                                    return <TimelineHorizontalView records={adapted} showStaff={false} onSelect={onSelect} />;
+                                default:
+                                    return <AsymGridView records={adapted} showStaff={false} onSelect={onSelect} />;
+                            }
+                        })()}
                         <p className="text-[10px] text-muted-foreground/80 text-center mt-6 italic">
                             * เพื่อความเป็นส่วนตัวของบุคลากร หน้านี้ไม่แสดงข้อมูลส่วนตัวรายบุคคล
                         </p>

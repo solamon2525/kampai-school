@@ -216,8 +216,25 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.16.0 (Training — OCR + Charts + Embed widget)',
+        version: 'v1.17.0 (Training Showcase — multi-view + motion polish)',
         date: 'ล่าสุด',
+        badge: 'bg-fuchsia-600',
+        items: [
+            'ViewModeSwitcher: 5 modes (Grid + Bento + Spotlight + Polaroid + Timeline) — toggle bar ใน toolbar ของแท็บภาพรวม + public /training-showcase',
+            'Bento Grid: 6-col + slot pattern + stat tiles (ชม./รายการ/ครู) แทรกระหว่าง cert — สไตล์ Apple/Notion 2024-25',
+            'Spotlight + Strip: cert ใหญ่ + AnimatePresence + auto-rotate 6s + progress bar + thumbnail snap strip ด้านล่าง + pause/play',
+            'Polaroid Wall: deterministic rotation hash(id) -4° ถึง +4° + cork-board gradient bg + rose pin + hover straighten + scale + zIndex raise',
+            'Timeline Horizontal: snap-x ตามปีพ.ศ. + sticky year markers + ChevronLeft/Right + dot indicators',
+            'Framer Motion: whileInView stagger fade-in (delay clamp 0.45s กัน lag list ยาว) + AnimatePresence ใน Spotlight + Polaroid wiggle',
+            'CursorFollower (admin only, lg+): PersonAvatar floating ตาม cursor ด้วย useSpring stiffness 350 damping 30 — hidden บน touch/mobile + respect prefers-reduced-motion',
+            'Confetti on hover (admin only): canvas-confetti lazy-loaded → trigger เมื่อ hover cert hours ≥ 16 (debounced 5s/id) + origin = cursor position (track global mousemove)',
+            'Dark mode toggle: scoped to showcase เท่านั้น (.dark class wrapper) + localStorage persist → ไม่กระทบหน้าอื่น',
+            'Dependencies: + canvas-confetti 1.9.4 + @types/canvas-confetti (lazy import — ไม่กระทบ main bundle)',
+        ],
+    },
+    {
+        version: 'v1.16.0 (Training — OCR + Charts + Embed widget)',
+        date: '',
         badge: 'bg-violet-700',
         items: [
             'OCR auto-fill: ปุ่ม "อ่านอัตโนมัติจากรูป" ใน TrainingManagement form — Tesseract.js lazy-loaded (tha+eng worker) → parse course/date/hours จาก cert image → prefill ฟอร์ม (ครูตรวจก่อน save) + progress indicator',
