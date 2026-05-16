@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Mail, Phone, RotateCcw, LayoutGrid, List } from 'lucide-react';
 import { getInitials } from '@/lib/avatars';
+import { TrainingEmbedWidget } from '@/components/admin/hr/TrainingEmbedWidget';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 interface Administrator {
@@ -822,6 +823,11 @@ const Staff = () => {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* ── Faculty Development Widget ───────────────────────────── */}
+        <div className="px-3 sm:px-6 pt-3 sm:pt-4">
+          <TrainingEmbedWidget />
         </div>
 
         {/* ── Toolbar ──────────────────────────────────────────────── */}

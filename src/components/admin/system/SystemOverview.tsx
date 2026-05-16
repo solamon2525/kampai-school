@@ -216,8 +216,20 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.15.0 (Training Showcase — upload + editorial dashboard)',
+        version: 'v1.16.0 (Training — OCR + Charts + Embed widget)',
         date: 'ล่าสุด',
+        badge: 'bg-violet-700',
+        items: [
+            'OCR auto-fill: ปุ่ม "อ่านอัตโนมัติจากรูป" ใน TrainingManagement form — Tesseract.js lazy-loaded (tha+eng worker) → parse course/date/hours จาก cert image → prefill ฟอร์ม (ครูตรวจก่อน save) + progress indicator',
+            'Recharts trend: BarChart รายการต่อปี + Donut สัดส่วนประเภท ใน TrainingShowcase (admin tab + public /training-showcase) — violet palette + Thai tooltip + responsive',
+            'TrainingEmbedWidget บน /staff หลัง stats strip — การ์ดสรุปพัฒนาบุคลากร (3 KPI + sparkline 5 ปี + CTA "ดูทั้งหมด") → /training-showcase',
+            'Tesseract.js: dynamic import เท่านั้น → ไม่กระทบ main bundle, Thai trained data cache ใน browser หลังโหลดครั้งแรก',
+            'CertOCR parser รองรับ: วันที่ไทย (15 มี.ค. 2568), ISO (2025-03-15), DD/MM/YYYY + เดาชื่อหลักสูตรจาก keyword "เรื่อง/หลักสูตร" หรือบรรทัดยาวสุด + ชั่วโมง "N ชั่วโมง/ชม."',
+        ],
+    },
+    {
+        version: 'v1.15.0 (Training Showcase — upload + editorial dashboard)',
+        date: '',
         badge: 'bg-violet-600',
         items: [
             'แก้ form บันทึกอบรม: certificate_url Input → ImageUpload (school-images/training-certificates/) compressionPreset gallery — admin upload ตรง backward compat ระเบียนเก่ายังแสดงปกติ',

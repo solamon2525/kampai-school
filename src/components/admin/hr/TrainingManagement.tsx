@@ -15,12 +15,14 @@ import {
 } from '@/components/ui/table';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, Search, FileText, Award, LayoutDashboard, ListTodo } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, FileText, Award, LayoutDashboard, ListTodo, ScanLine, Loader2 } from 'lucide-react';
 import CertificateViewer from './CertificateViewer';
 import { ImageUpload } from '@/components/admin/shared/ImageUpload';
 import { supabase } from '@/integrations/supabase/client';
 import { trainingService, type TrainingRecord } from '@/services/training.service';
 import { TrainingShowcase } from './TrainingShowcase';
+import { runCertOCR } from './CertOCR';
+import { useRef } from 'react';
 
 interface Staff { id: string; name: string; }
 
@@ -43,6 +45,9 @@ export default function TrainingManagement() {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editing, setEditing] = useState<TrainingRecord | null>(null);
     const [certRecord, setCertRecord] = useState<TrainingRecord | null>(null);
+    const [ocrLoading, setOcrLoading] = useState(false);
+    const [ocrProgress, setOcrProgress] = useState(0);
+    const ocrFileRef = useRef<HTMLInputElement>(null);
     const [form, setForm] = useState({
         staff_id: '',
         course_name: '',
@@ -104,6 +109,40 @@ export default function TrainingManagement() {
             notes: r.notes || '',
         });
         setDialogOpen(true);
+    }
+
+    async function handleOcrFile(e: React.ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (!file.type.startsWith('image/')) {
+            toast.error('กรุณาเลือกไฟล์รูปภาพ');
+            return;
+        }
+        setOcrLoading(true);
+        setOcrProgress(0);
+        try {
+            const { parsed } = await runCertOCR(file, (p) => setOcrProgress(p));
+            const updates: Partial<typeof form> = {};
+            const filled: string[] = [];
+            if (parsed.courseName) { updates.course_name = parsed.courseName; filled.push('ชื่อหลักสูตร'); }
+            if (parsed.startDate) { updates.start_date = parsed.startDate; filled.push('วันที่'); }
+            if (parsed.hours) { updates.hours = parsed.hours; filled.push(`${parsed.hours} ชม.`); }
+            if (filled.length > 0) {
+                setForm((f) => ({ ...f, ...updates }));
+                toast.success(`อ่านสำเร็จ — เติม: ${filled.join(' · ')}`, {
+                    description: 'โปรดตรวจสอบและแก้ก่อนบันทึก',
+                });
+            } else {
+                toast.warning('อ่านไม่ได้ข้อมูลที่ใช้ได้', {
+                    description: 'ลองใช้รูปที่คมชัดขึ้น หรือกรอกเอง',
+                });
+            }
+        } catch (err: any) {
+            toast.error('OCR ล้มเหลว', { description: err?.message ?? 'ลองใหม่อีกครั้ง' });
+        } finally {
+            setOcrLoading(false);
+            if (ocrFileRef.current) ocrFileRef.current.value = '';
+        }
     }
 
     async function handleSave() {
@@ -305,7 +344,30 @@ export default function TrainingManagement() {
                             <Input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="สถานที่จัดอบรม" />
                         </div>
                         <div className="space-y-1">
-                            <Label>ใบรับรอง / วุฒิบัตร</Label>
+                            <div className="flex items-center justify-between gap-2 flex-wrap">
+                                <Label>ใบรับรอง / วุฒิบัตร</Label>
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => ocrFileRef.current?.click()}
+                                    disabled={ocrLoading}
+                                    className="gap-1.5 h-7 text-xs border-violet-300 text-violet-700 hover:bg-violet-50"
+                                >
+                                    {ocrLoading ? (
+                                        <><Loader2 className="w-3.5 h-3.5 animate-spin" /> อ่าน... {Math.round(ocrProgress * 100)}%</>
+                                    ) : (
+                                        <><ScanLine className="w-3.5 h-3.5" /> อ่านอัตโนมัติจากรูป</>
+                                    )}
+                                </Button>
+                                <input
+                                    ref={ocrFileRef}
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={handleOcrFile}
+                                />
+                            </div>
                             <ImageUpload
                                 onUploadComplete={(url) => setForm(f => ({ ...f, certificate_url: url }))}
                                 currentImage={form.certificate_url}
@@ -314,7 +376,9 @@ export default function TrainingManagement() {
                                 maxSizeMB={10}
                                 compressionPreset="gallery"
                             />
-                            <p className="text-[10px] text-muted-foreground">รองรับ JPG/PNG/PDF (กรณีไฟล์ PDF แนะนำให้แปลงเป็นรูป)</p>
+                            <p className="text-[10px] text-muted-foreground">
+                                💡 ปุ่ม "อ่านอัตโนมัติ" ใช้ OCR (Tesseract) เดาชื่อหลักสูตร/วันที่/ชั่วโมง — โปรดตรวจก่อนบันทึก
+                            </p>
                         </div>
                         <div className="space-y-1">
                             <Label>หมายเหตุ</Label>

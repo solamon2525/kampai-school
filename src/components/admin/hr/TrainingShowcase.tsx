@@ -15,6 +15,7 @@ import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { HoursGauge } from './HoursGauge';
 import { CertCard } from './CertCard';
 import { printTranscript } from './TrainingTranscriptPDF';
+import { TrainingCharts } from './TrainingCharts';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import type { TrainingRecord } from '@/services/training.service';
 
@@ -90,6 +91,20 @@ export function TrainingShowcase({ records, loading }: Props) {
             uniqueStaff: uniqueStaff.size,
             totalBudget,
         };
+    }, [filtered]);
+
+    // Aggregates for charts — based on filtered records
+    const chartData = useMemo(() => {
+        const byYear: Record<string, number> = {};
+        const byType: Record<string, number> = {};
+        filtered.forEach((r) => {
+            if (r.start_date) {
+                const y = String(new Date(r.start_date).getFullYear() + 543);
+                byYear[y] = (byYear[y] || 0) + 1;
+            }
+            byType[r.training_type] = (byType[r.training_type] || 0) + 1;
+        });
+        return { byYear, byType };
     }, [filtered]);
 
     // Top 10 by hours (within filter scope)
@@ -172,6 +187,9 @@ export function TrainingShowcase({ records, loading }: Props) {
                     </div>
                 </div>
             </div>
+
+            {/* Charts */}
+            <TrainingCharts byYear={chartData.byYear} byType={chartData.byType} />
 
             {/* Filter chips */}
             <Card>

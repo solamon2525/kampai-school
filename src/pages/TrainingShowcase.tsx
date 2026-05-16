@@ -16,6 +16,7 @@ import {
     GraduationCap, Clock, Users, Banknote, Sparkles, Award,
 } from 'lucide-react';
 import { trainingPublicService, type TrainingPublicRow, type TrainingPublicAggregate } from '@/services/training.service';
+import { TrainingCharts } from '@/components/admin/hr/TrainingCharts';
 import { format } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -134,6 +135,10 @@ export default function TrainingShowcasePublic() {
 
                 {/* Filter + Grid */}
                 <div className="px-4 md:px-8 py-6 md:py-10 space-y-6">
+                    {aggregate && (
+                        <TrainingCharts byYear={aggregate.by_year} byType={aggregate.by_type} />
+                    )}
+
                     <Card>
                         <CardContent className="p-3 flex flex-wrap items-center gap-3">
                             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">ตัวกรอง</span>
