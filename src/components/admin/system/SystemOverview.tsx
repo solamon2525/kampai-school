@@ -216,8 +216,20 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.14.0 (Fast Scanner — FAB + /scan + permission pre-request)',
+        version: 'v1.15.0 (Training Showcase — upload + editorial dashboard)',
         date: 'ล่าสุด',
+        badge: 'bg-violet-600',
+        items: [
+            'แก้ form บันทึกอบรม: certificate_url Input → ImageUpload (school-images/training-certificates/) compressionPreset gallery — admin upload ตรง backward compat ระเบียนเก่ายังแสดงปกติ',
+            'หน้า /admin/dashboard/training แท็บใหม่ "ภาพรวม" — Editorial layout (taste-design framework): Hero band slate→violet gradient + 4 KPI (ชม./รายการ/ครู/งบ) + Top 10 ครูพร้อม HoursGauge (ก.ค.ศ. 20 ชม./ปี) + Asymmetric cert grid (lg col-span-2 ทุก 7 ใบ)',
+            'Public /training-showcase ใหม่ — aggregated stats ไม่ระบุตัวบุคคล (ผ่าน VIEW training_public_view security_invoker + RPC get_training_public_aggregate ใน migration 047)',
+            'Add-ons: Lightbox (yet-another-react-lightbox + Zoom + Captions), Filter ปี/ประเภท/ครู, HoursGauge SVG circular ring (สีตามเปอร์เซ็นต์ rose<amber<emerald), PDF transcript รายบุคคล (print-popup A4 + Sarabun + summary + signoff slots)',
+            'src/services/training.service.ts ใหม่ — ปิด gap ที่ component เคยเรียก supabase.from() ตรง (CLAUDE.md rule)',
+        ],
+    },
+    {
+        version: 'v1.14.0 (Fast Scanner — FAB + /scan + permission pre-request)',
+        date: '',
         badge: 'bg-orange-600',
         items: [
             'หน้า /admin/dashboard/scan ใหม่ — สแกน QR แล้วเลือกระบบในหน้าเดียว: ฝากขยะ / ฝากเงิน / ถอนเงิน → compact form prefilled + แสดงยอดคงเหลือ/แต้มของนักเรียนใน sticky header',

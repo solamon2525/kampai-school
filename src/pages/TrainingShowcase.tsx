@@ -1,0 +1,257 @@
+import { useEffect, useMemo, useState } from 'react';
+import Lightbox from 'yet-another-react-lightbox';
+import 'yet-another-react-lightbox/styles.css';
+import Zoom from 'yet-another-react-lightbox/plugins/zoom';
+import Captions from 'yet-another-react-lightbox/plugins/captions';
+import 'yet-another-react-lightbox/plugins/captions.css';
+import SiteHeader from '@/components/SiteHeader';
+import Footer from '@/components/Footer';
+import { SEOHead } from '@/components/SEOHead';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import {
+    Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select';
+import {
+    GraduationCap, Clock, Users, Banknote, Sparkles, Award,
+} from 'lucide-react';
+import { trainingPublicService, type TrainingPublicRow, type TrainingPublicAggregate } from '@/services/training.service';
+import { format } from 'date-fns';
+import { th } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
+
+const TRAINING_TYPES = ['อบรม', 'สัมมนา', 'ศึกษาดูงาน', 'ประชุมวิชาการ'];
+const ALL = '__all__';
+
+const fmtNum = (n: number) => Number(n).toLocaleString('th-TH');
+
+const formatThaiDate = (iso: string) => {
+    try {
+        const d = new Date(iso);
+        return format(d, 'd MMM', { locale: th }) + ' ' + (d.getFullYear() + 543);
+    } catch {
+        return iso;
+    }
+};
+
+const TYPE_RING: Record<string, string> = {
+    'อบรม': 'border-violet-300',
+    'สัมมนา': 'border-blue-300',
+    'ศึกษาดูงาน': 'border-emerald-300',
+    'ประชุมวิชาการ': 'border-amber-300',
+};
+
+export default function TrainingShowcasePublic() {
+    const [certs, setCerts] = useState<TrainingPublicRow[]>([]);
+    const [aggregate, setAggregate] = useState<TrainingPublicAggregate | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [filterYear, setFilterYear] = useState<string>(ALL);
+    const [filterType, setFilterType] = useState<string>(ALL);
+    const [lightboxIndex, setLightboxIndex] = useState<number>(-1);
+
+    useEffect(() => {
+        (async () => {
+            setLoading(true);
+            const [c, a] = await Promise.all([
+                trainingPublicService.getCerts(),
+                trainingPublicService.getAggregate(),
+            ]);
+            if (c.data) setCerts(c.data as unknown as TrainingPublicRow[]);
+            if (a.data) setAggregate(a.data);
+            setLoading(false);
+        })();
+    }, []);
+
+    const yearOptions = useMemo(() => {
+        const years = new Set<number>();
+        certs.forEach((r) => years.add(r.academic_year_be));
+        return Array.from(years).sort((a, b) => b - a);
+    }, [certs]);
+
+    const filtered = useMemo(() => {
+        return certs.filter((r) => {
+            if (filterYear !== ALL && String(r.academic_year_be) !== filterYear) return false;
+            if (filterType !== ALL && r.training_type !== filterType) return false;
+            return true;
+        });
+    }, [certs, filterYear, filterType]);
+
+    const slides = useMemo(() => filtered.map((r) => ({
+        src: r.certificate_url,
+        title: r.course_name,
+        description: `${r.training_type} · ${r.hours} ชม. · ปี ${r.academic_year_be}${r.provider ? ` · โดย ${r.provider}` : ''}`,
+    })), [filtered]);
+
+    return (
+        <div className="min-h-screen flex flex-col bg-background">
+            <SEOHead
+                title="พัฒนาบุคลากร — โรงเรียนคำไผ่"
+                description="สรุปการอบรม สัมมนา และศึกษาดูงานของบุคลากรโรงเรียนคำไผ่"
+            />
+            <SiteHeader />
+            <div className="max-w-7xl mx-auto w-full bg-background flex-grow flex flex-col">
+                {/* HERO BAND */}
+                <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-violet-900 text-white py-10 md:py-14 px-4 md:px-8">
+                    <div
+                        className="absolute inset-0 opacity-[0.04]"
+                        style={{
+                            backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
+                            backgroundSize: '20px 20px',
+                        }}
+                    />
+                    <div className="relative max-w-5xl mx-auto">
+                        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-violet-300 mb-2">
+                            <Sparkles className="w-3.5 h-3.5" /> Faculty Development
+                        </div>
+                        <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight">
+                            พัฒนาบุคลากร
+                        </h1>
+                        <p className="text-sm md:text-base text-violet-200/90 mt-2 font-medium max-w-2xl">
+                            ภาพรวมการอบรม สัมมนา และศึกษาดูงานของบุคลากร — เพื่อความโปร่งใสและความเชื่อมั่นต่อชุมชน
+                        </p>
+
+                        {aggregate && (
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mt-7 md:mt-10">
+                                <KpiBox icon={<Clock className="w-4 h-4" />} label="ชั่วโมงรวม" value={fmtNum(aggregate.total_hours)} suffix="ชม." />
+                                <KpiBox icon={<GraduationCap className="w-4 h-4" />} label="รายการอบรม" value={fmtNum(aggregate.total_count)} suffix="รายการ" />
+                                <KpiBox icon={<Users className="w-4 h-4" />} label="บุคลากร" value={fmtNum(aggregate.total_staff)} suffix="คน" />
+                                <KpiBox icon={<Banknote className="w-4 h-4" />} label="งบประมาณรวม" value={`฿${fmtNum(aggregate.total_budget)}`} />
+                            </div>
+                        )}
+
+                        {/* Breakdown by type */}
+                        {aggregate?.by_type && Object.keys(aggregate.by_type).length > 0 && (
+                            <div className="flex flex-wrap gap-2 mt-6">
+                                {Object.entries(aggregate.by_type).map(([t, c]) => (
+                                    <Badge key={t} variant="secondary" className="bg-white/10 text-violet-100 border-violet-400/30 hover:bg-white/15">
+                                        {t}: {c} รายการ
+                                    </Badge>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Filter + Grid */}
+                <div className="px-4 md:px-8 py-6 md:py-10 space-y-6">
+                    <Card>
+                        <CardContent className="p-3 flex flex-wrap items-center gap-3">
+                            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">ตัวกรอง</span>
+                            <Select value={filterYear} onValueChange={setFilterYear}>
+                                <SelectTrigger className="w-40"><SelectValue placeholder="ปี" /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value={ALL}>ทุกปี</SelectItem>
+                                    {yearOptions.map((y) => (
+                                        <SelectItem key={y} value={String(y)}>ปีการศึกษา {y}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <Select value={filterType} onValueChange={setFilterType}>
+                                <SelectTrigger className="w-40"><SelectValue placeholder="ประเภท" /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value={ALL}>ทุกประเภท</SelectItem>
+                                    {TRAINING_TYPES.map((t) => (
+                                        <SelectItem key={t} value={t}>{t}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <span className="text-xs text-muted-foreground ml-auto">
+                                {filtered.length} เกียรติบัตร
+                            </span>
+                        </CardContent>
+                    </Card>
+
+                    <div>
+                        <h2 className="font-bold text-lg md:text-xl mb-3 flex items-center gap-2">
+                            <Award className="w-5 h-5 text-violet-600" />
+                            เกียรติบัตร
+                        </h2>
+                        {loading ? (
+                            <div className="text-center py-12 text-sm text-muted-foreground">กำลังโหลด...</div>
+                        ) : filtered.length === 0 ? (
+                            <Card>
+                                <CardContent className="text-center py-12 text-sm text-muted-foreground">
+                                    ยังไม่มีข้อมูลในตัวกรองนี้
+                                </CardContent>
+                            </Card>
+                        ) : (
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 [grid-auto-flow:dense]">
+                                {filtered.map((r, idx) => {
+                                    const big = idx % 7 === 0;
+                                    return (
+                                        <button
+                                            key={r.id}
+                                            type="button"
+                                            onClick={() => setLightboxIndex(idx)}
+                                            className={cn(
+                                                'group text-left rounded-2xl border-2 overflow-hidden bg-card transition-all',
+                                                'hover:shadow-xl hover:-translate-y-0.5 hover:ring-2 hover:ring-violet-400',
+                                                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400',
+                                                TYPE_RING[r.training_type] || 'border-border',
+                                                big && 'lg:col-span-2 lg:row-span-2',
+                                            )}
+                                        >
+                                            <div className={cn('relative overflow-hidden bg-muted', big ? 'aspect-[16/10]' : 'aspect-[4/3]')}>
+                                                <img
+                                                    src={r.certificate_url}
+                                                    alt={r.course_name}
+                                                    loading="lazy"
+                                                    className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
+                                                />
+                                            </div>
+                                            <div className="p-3 space-y-2">
+                                                <h3 className={cn('font-bold leading-snug line-clamp-2', big ? 'text-base' : 'text-sm')}>
+                                                    {r.course_name}
+                                                </h3>
+                                                <div className="flex items-center gap-1.5 flex-wrap">
+                                                    <Badge variant="outline" className="text-[10px] h-5">{r.training_type}</Badge>
+                                                    <span className="text-[10px] text-muted-foreground font-medium">{r.hours} ชม.</span>
+                                                    <span className="text-[10px] text-muted-foreground">·</span>
+                                                    <span className="text-[10px] text-muted-foreground">{formatThaiDate(r.start_date)}</span>
+                                                </div>
+                                                {r.provider && (
+                                                    <p className="text-[10px] text-muted-foreground line-clamp-1">โดย {r.provider}</p>
+                                                )}
+                                            </div>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        )}
+                        <p className="text-[10px] text-muted-foreground/80 text-center mt-6 italic">
+                            * เพื่อความเป็นส่วนตัวของบุคลากร หน้านี้ไม่แสดงข้อมูลส่วนตัวรายบุคคล
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <Footer />
+
+            <Lightbox
+                open={lightboxIndex >= 0}
+                close={() => setLightboxIndex(-1)}
+                index={lightboxIndex < 0 ? 0 : lightboxIndex}
+                slides={slides}
+                plugins={[Zoom, Captions]}
+                zoom={{ maxZoomPixelRatio: 4, scrollToZoom: true }}
+                captions={{ descriptionTextAlign: 'center' }}
+            />
+        </div>
+    );
+}
+
+function KpiBox({ icon, label, value, suffix }: { icon: React.ReactNode; label: string; value: string; suffix?: string }) {
+    return (
+        <div className="rounded-xl bg-white/5 border border-white/10 backdrop-blur p-3 md:p-4">
+            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-violet-200/80 font-semibold mb-1">
+                {icon}
+                <span>{label}</span>
+            </div>
+            <div className="font-extrabold text-2xl md:text-3xl tabular-nums text-white leading-none">
+                {value}
+            </div>
+            {suffix && (
+                <div className="text-[10px] text-violet-200/70 mt-1 font-medium">{suffix}</div>
+            )}
+        </div>
+    );
+}

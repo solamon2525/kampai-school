@@ -36,6 +36,7 @@ const WasteBankStats = lazy(() => import("./pages/WasteBankStats"));
 const RewardsCatalog = lazy(() => import("./pages/RewardsCatalog"));
 const SavingsBank = lazy(() => import("./pages/SavingsBank"));
 const HallOfFame = lazy(() => import("./pages/HallOfFame"));
+const TrainingShowcasePublic = lazy(() => import("./pages/TrainingShowcase"));
 
 // Portals
 const TeacherDashboard = lazy(() => import("./pages/teacher/TeacherDashboard"));
@@ -112,6 +113,7 @@ const App = () => (
             <Route path="/waste-bank/rewards" element={<RewardsCatalog />} />
             <Route path="/savings-bank" element={<SavingsBank />} />
             <Route path="/hall-of-fame" element={<HallOfFame />} />
+            <Route path="/training-showcase" element={<TrainingShowcasePublic />} />
 
             {/* Teacher Portal */}
             <Route path="/teacher" element={
