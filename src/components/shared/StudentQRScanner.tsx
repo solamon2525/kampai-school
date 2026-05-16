@@ -2,9 +2,31 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Check, RotateCcw, Loader2 } from 'lucide-react';
+import { Check, RotateCcw, Loader2, Camera, AlertCircle } from 'lucide-react';
 import { studentsService } from '@/services/students.service';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
+
+/** ตีความ error จาก html5-qrcode/getUserMedia เป็นข้อความภาษาไทย */
+function describeCameraError(err: unknown): string {
+    const raw = err instanceof Error ? err.message : typeof err === 'string' ? err : JSON.stringify(err);
+    const lower = raw.toLowerCase();
+    if (lower.includes('permission') || lower.includes('notallowed') || lower.includes('denied')) {
+        return 'เบราว์เซอร์ไม่อนุญาตให้ใช้กล้อง — ตรวจสอบการตั้งค่า permission แล้วลองใหม่ (ดูวิธีด้านล่าง)';
+    }
+    if (lower.includes('notfound') || lower.includes('devicesnotfound') || lower.includes('no camera')) {
+        return 'ไม่พบกล้องบนอุปกรณ์นี้';
+    }
+    if (lower.includes('notreadable') || lower.includes('in use') || lower.includes('trackstart')) {
+        return 'กล้องถูกใช้งานโดยแอปอื่น — ปิดแอปกล้อง/วิดีโอคอลแล้วลองใหม่';
+    }
+    if (lower.includes('overconstrained')) {
+        return 'กล้องไม่รองรับการตั้งค่าที่ขอ — ลองสลับเป็นกล้องหน้าหรือเบราว์เซอร์อื่น';
+    }
+    if (lower.includes('secure') || lower.includes('https')) {
+        return 'ต้องเปิดผ่าน HTTPS เท่านั้น (ไม่ใช่ http://)';
+    }
+    return `เปิดกล้องไม่สำเร็จ: ${raw}`;
+}
 
 interface Props {
     open: boolean;
@@ -77,6 +99,13 @@ export const StudentQRScanner = ({ open, onClose, onScanned }: Props) => {
     }, []);
 
     const startCamera = useCallback(async () => {
+        // เช็คก่อนว่ารองรับ getUserMedia (secure context = HTTPS หรือ localhost)
+        if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
+            setError('เบราว์เซอร์ไม่รองรับการใช้กล้อง — โปรดเปิดผ่าน HTTPS ด้วยเบราว์เซอร์ Chrome/Safari/Edge รุ่นใหม่');
+            return;
+        }
+        // รอ frame ถัดไปให้ DOM element id={elementId} mount จริงก่อน
+        await new Promise((resolve) => requestAnimationFrame(resolve));
         try {
             const html5 = new Html5Qrcode(elementId);
             scannerRef.current = html5;
@@ -112,7 +141,8 @@ export const StudentQRScanner = ({ open, onClose, onScanned }: Props) => {
                 () => {/* ignore decode errors */},
             );
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'ไม่สามารถเปิดกล้องได้');
+            console.error('[StudentQRScanner] camera error:', err);
+            setError(describeCameraError(err));
         }
     }, [playFeedback]);
 
@@ -150,12 +180,31 @@ export const StudentQRScanner = ({ open, onClose, onScanned }: Props) => {
 
                 {error ? (
                     <div className="space-y-3">
-                        <div className="text-sm text-destructive p-4 bg-destructive/10 rounded-md">
-                            {error}
+                        <div className="text-sm text-destructive p-4 bg-destructive/10 rounded-md flex gap-2">
+                            <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                            <div className="flex-1">{error}</div>
                         </div>
-                        <Button variant="outline" onClick={handleRescan} className="w-full gap-2">
-                            <RotateCcw className="w-4 h-4" /> ลองสแกนใหม่
-                        </Button>
+                        {/permission|notallowed|denied|ไม่อนุญาต/i.test(error) && (
+                            <div className="text-xs text-muted-foreground p-3 bg-muted rounded-md space-y-1.5">
+                                <div className="font-semibold text-foreground flex items-center gap-1">
+                                    <Camera className="w-3.5 h-3.5" /> วิธีอนุญาตกล้องบนมือถือ
+                                </div>
+                                <ol className="list-decimal list-inside space-y-0.5 leading-relaxed">
+                                    <li>แตะไอคอน 🔒 หรือ ⓘ ข้างที่อยู่เว็บ</li>
+                                    <li>เลือก "การตั้งค่าเว็บไซต์" หรือ "Site settings"</li>
+                                    <li>เปลี่ยน "กล้อง / Camera" เป็น "อนุญาต / Allow"</li>
+                                    <li>โหลดหน้านี้ใหม่แล้วลองสแกนอีกครั้ง</li>
+                                </ol>
+                            </div>
+                        )}
+                        <div className="grid grid-cols-2 gap-2">
+                            <Button variant="outline" onClick={onClose}>
+                                ปิด
+                            </Button>
+                            <Button variant="default" onClick={handleRescan} className="gap-2">
+                                <RotateCcw className="w-4 h-4" /> ลองใหม่
+                            </Button>
+                        </div>
                     </div>
                 ) : preview ? (
                     <div className="space-y-3">
