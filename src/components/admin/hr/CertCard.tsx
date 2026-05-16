@@ -1,8 +1,7 @@
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
-import { th } from 'date-fns/locale';
+import { formatThaiDateMedium } from '@/lib/thaiDate';
 import type { TrainingRecord } from '@/services/training.service';
 
 interface Props {
@@ -17,15 +16,6 @@ const TYPE_COLORS: Record<string, string> = {
     'สัมมนา': 'border-blue-300 bg-blue-50/40',
     'ศึกษาดูงาน': 'border-emerald-300 bg-emerald-50/40',
     'ประชุมวิชาการ': 'border-amber-300 bg-amber-50/40',
-};
-
-const formatThaiDate = (iso: string) => {
-    try {
-        const d = new Date(iso);
-        return format(d, 'd MMM', { locale: th }) + ' ' + (d.getFullYear() + 543);
-    } catch {
-        return iso;
-    }
 };
 
 /**
@@ -93,7 +83,7 @@ export const CertCard = ({ record, big, onClick, showStaff = true }: Props) => {
                     </span>
                     <span className="text-[10px] text-muted-foreground">·</span>
                     <span className="text-[10px] text-muted-foreground">
-                        {formatThaiDate(record.start_date)}
+                        {formatThaiDateMedium(record.start_date)}
                     </span>
                 </div>
                 {record.provider && (

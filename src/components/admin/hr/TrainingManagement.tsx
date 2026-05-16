@@ -23,6 +23,7 @@ import { trainingService, type TrainingRecord } from '@/services/training.servic
 import { TrainingShowcase } from './TrainingShowcase';
 import { runCertOCR } from './CertOCR';
 import { useRef } from 'react';
+import { formatThaiDateRange } from '@/lib/thaiDate';
 
 interface Staff { id: string; name: string; }
 
@@ -249,7 +250,7 @@ export default function TrainingManagement() {
                                         <TableCell>{r.staff?.name || '-'}</TableCell>
                                         <TableCell className="max-w-[180px] truncate font-medium">{r.course_name}</TableCell>
                                         <TableCell><Badge variant="outline">{r.training_type}</Badge></TableCell>
-                                        <TableCell className="text-sm">{r.start_date}</TableCell>
+                                        <TableCell className="text-sm whitespace-nowrap">{formatThaiDateRange(r.start_date, r.end_date)}</TableCell>
                                         <TableCell>{r.hours}</TableCell>
                                         <TableCell><Badge variant={statusVariant(r.status) as any}>{r.status}</Badge></TableCell>
                                         <TableCell>

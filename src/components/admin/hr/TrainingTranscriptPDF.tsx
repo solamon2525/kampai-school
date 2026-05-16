@@ -1,4 +1,5 @@
 import type { TrainingRecord } from '@/services/training.service';
+import { formatThaiDateFull, formatThaiDateMedium } from '@/lib/thaiDate';
 
 interface TranscriptStaff {
     id: string;
@@ -12,15 +13,6 @@ interface SchoolInfo {
     logo_url?: string | null;
     academic_year?: string | null;
 }
-
-const formatThaiDate = (iso: string) => {
-    try {
-        const d = new Date(iso);
-        return d.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
-    } catch {
-        return iso;
-    }
-};
 
 /**
  * printTranscript — เปิด window ใหม่พิมพ์ A4 ของรายการอบรมรายบุคคล
@@ -36,7 +28,7 @@ export function printTranscript(
 
     const totalHours = records.reduce((sum, r) => sum + Number(r.hours || 0), 0);
     const totalBudget = records.reduce((sum, r) => sum + Number(r.budget || 0), 0);
-    const today = new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
+    const today = formatThaiDateFull(new Date().toISOString().split('T')[0]);
 
     const rowsHtml = records
         .filter((r) => r.status === 'ผ่านการอบรม')
@@ -46,7 +38,7 @@ export function printTranscript(
                 <td>${r.course_name}</td>
                 <td>${r.provider || '-'}</td>
                 <td class="ctr">${r.training_type}</td>
-                <td class="ctr">${formatThaiDate(r.start_date)}</td>
+                <td class="ctr">${formatThaiDateMedium(r.start_date)}</td>
                 <td class="ctr num">${r.hours}</td>
                 <td class="ctr num">${Number(r.budget || 0).toLocaleString('th-TH')}</td>
             </tr>

@@ -17,8 +17,7 @@ import {
 } from 'lucide-react';
 import { trainingPublicService, type TrainingPublicRow, type TrainingPublicAggregate } from '@/services/training.service';
 import { TrainingCharts } from '@/components/admin/hr/TrainingCharts';
-import { format } from 'date-fns';
-import { th } from 'date-fns/locale';
+import { formatThaiDateMedium } from '@/lib/thaiDate';
 import { cn } from '@/lib/utils';
 
 const TRAINING_TYPES = ['อบรม', 'สัมมนา', 'ศึกษาดูงาน', 'ประชุมวิชาการ'];
@@ -26,14 +25,6 @@ const ALL = '__all__';
 
 const fmtNum = (n: number) => Number(n).toLocaleString('th-TH');
 
-const formatThaiDate = (iso: string) => {
-    try {
-        const d = new Date(iso);
-        return format(d, 'd MMM', { locale: th }) + ' ' + (d.getFullYear() + 543);
-    } catch {
-        return iso;
-    }
-};
 
 const TYPE_RING: Record<string, string> = {
     'อบรม': 'border-violet-300',
@@ -212,7 +203,7 @@ export default function TrainingShowcasePublic() {
                                                     <Badge variant="outline" className="text-[10px] h-5">{r.training_type}</Badge>
                                                     <span className="text-[10px] text-muted-foreground font-medium">{r.hours} ชม.</span>
                                                     <span className="text-[10px] text-muted-foreground">·</span>
-                                                    <span className="text-[10px] text-muted-foreground">{formatThaiDate(r.start_date)}</span>
+                                                    <span className="text-[10px] text-muted-foreground">{formatThaiDateMedium(r.start_date)}</span>
                                                 </div>
                                                 {r.provider && (
                                                     <p className="text-[10px] text-muted-foreground line-clamp-1">โดย {r.provider}</p>
