@@ -18,3 +18,4 @@ export * from './settings.service';
 export * from './school-dashboard.service';
 export * from './training.service';
 export * from './docs-hub.service';
+export * from './letter-tracking.service';

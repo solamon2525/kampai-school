@@ -5,3 +5,4 @@ export type { CategoryCardTone } from './CategoryCard';
 export { KpiRibbon } from './KpiRibbon';
 export type { KpiTile } from './KpiRibbon';
 export { UrgentDocumentsList } from './UrgentDocumentsList';
+export { TrackingTimeline } from './TrackingTimeline';

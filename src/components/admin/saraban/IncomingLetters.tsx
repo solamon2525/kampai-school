@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Search, Pencil, Trash2, Paperclip, MailOpen } from 'lucide-react';
+import { TrackingTimeline } from '@/components/admin/docs-hub/TrackingTimeline';
 
 interface IncomingLetter {
     id: string;
@@ -297,6 +298,11 @@ export const IncomingLetters = () => {
                             <Label className="mb-1.5 block">URL ไฟล์แนบ</Label>
                             <Input value={form.attachment_url} onChange={e => setForm(f => ({ ...f, attachment_url: e.target.value }))} placeholder="https://..." />
                         </div>
+                        {editing ? (
+                            <div className="border-t border-border pt-4">
+                                <TrackingTimeline entityType="incoming" entityId={editing.id} />
+                            </div>
+                        ) : null}
                     </div>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setDialogOpen(false)}>ยกเลิก</Button>
