@@ -25,3 +25,4 @@ export * from './sar.service';
 export * from './ics.service';
 export * from './action-plan.service';
 export * from './doc-templates.service';
+export * from './student-documents.service';

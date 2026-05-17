@@ -33,6 +33,7 @@ const SarManagement = lazy(() => import('@/components/admin/sar/SarManagement').
 const IcsManagement = lazy(() => import('@/components/admin/ics/IcsManagement').then(m => ({ default: m.IcsManagement })));
 const ActionPlanManagement = lazy(() => import('@/components/admin/action-plan/ActionPlanManagement').then(m => ({ default: m.ActionPlanManagement })));
 const DocTemplatesManagement = lazy(() => import('@/components/admin/doc-templates/DocTemplatesManagement').then(m => ({ default: m.DocTemplatesManagement })));
+const StudentDocsHub = lazy(() => import('@/components/admin/student-docs/StudentDocsHub').then(m => ({ default: m.StudentDocsHub })));
 const SarabanDashboard = lazy(() => import('@/components/admin/saraban/SarabanDashboard').then(m => ({ default: m.SarabanDashboard })));
 const IncomingLetters = lazy(() => import('@/components/admin/saraban/IncomingLetters').then(m => ({ default: m.IncomingLetters })));
 const OutgoingLetters = lazy(() => import('@/components/admin/saraban/OutgoingLetters').then(m => ({ default: m.OutgoingLetters })));
@@ -105,6 +106,7 @@ const AdminDashboard = () => {
             <Route path="ics" element={<IcsManagement />} />
             <Route path="action-plan" element={<ActionPlanManagement />} />
             <Route path="doc-templates" element={<DocTemplatesManagement />} />
+            <Route path="student-docs" element={<StudentDocsHub />} />
             {/* งานสารบรรณ */}
             <Route path="saraban" element={<SarabanDashboard />} />
             <Route path="incoming-letters" element={<IncomingLetters />} />
