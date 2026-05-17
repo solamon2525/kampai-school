@@ -74,6 +74,7 @@ const menuItems: MenuItem[] = [
     { type: 'item', id: 'sar', label: 'SAR ประกันคุณภาพ', icon: ClipboardCheck, path: '/admin/dashboard/sar', adminOnly: true },
     { type: 'item', id: 'ics', label: 'ควบคุมภายใน (ICS)', icon: ShieldCheck, path: '/admin/dashboard/ics', adminOnly: true },
     { type: 'item', id: 'action-plan', label: 'แผนปฏิบัติการ', icon: Target, path: '/admin/dashboard/action-plan', adminOnly: true },
+    { type: 'item', id: 'doc-templates', label: 'แบบฟอร์มสำเร็จรูป', icon: FileText, path: '/admin/dashboard/doc-templates', adminOnly: true },
     { type: 'section', label: 'เว็บไซต์' },
     { type: 'item', id: 'settings', label: 'ตั้งค่า', icon: Settings, path: '/admin/dashboard/settings', adminOnly: true },
     { type: 'item', id: 'theme', label: 'ธีมสี (Theme)', icon: Palette, path: '/admin/dashboard/theme', adminOnly: true },
