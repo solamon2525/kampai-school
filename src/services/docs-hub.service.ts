@@ -28,6 +28,28 @@ export type HubKpi = {
 
 export type UrgentDocEntityType = 'incoming' | 'outgoing' | 'leave';
 
+export type RecentDocEntityType =
+    | 'incoming' | 'outgoing' | 'order' | 'leave' | 'training'
+    | 'budget' | 'sar' | 'ics' | 'project' | 'template';
+
+export type RecentDoc = {
+    entity_type: RecentDocEntityType;
+    entity_id: string;
+    title: string;
+    status: string | null;
+    event_at: string;
+    staff_id: string | null;
+};
+
+export type CalendarItem = {
+    source: 'meeting' | 'training' | 'leave' | 'project';
+    source_id: string;
+    title: string;
+    start_date: string;
+    end_date: string;
+    location: string | null;
+};
+
 export type UrgentDoc = {
     entity_type: UrgentDocEntityType;
     entity_id: string;
@@ -100,5 +122,27 @@ export const docsHubService = {
             })),
             error: null,
         };
+    },
+};
+
+// Phase 5: aggregation across all modules
+export const docsHubAggregateService = {
+    listRecentDocuments: async (limit = 20) => {
+        const { data, error } = await supabase
+            .from('v_recent_documents_unified' as never)
+            .select('*')
+            .order('event_at', { ascending: false })
+            .limit(limit);
+        return { data: data as RecentDoc[] | null, error };
+    },
+
+    listCalendar: async (startIso: string, endIso: string) => {
+        const { data, error } = await supabase
+            .from('v_aggregated_calendar' as never)
+            .select('*')
+            .gte('end_date', startIso)
+            .lte('start_date', endIso)
+            .order('start_date', { ascending: true });
+        return { data: data as CalendarItem[] | null, error };
     },
 };

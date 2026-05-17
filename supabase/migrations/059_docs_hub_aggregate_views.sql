@@ -1,0 +1,7 @@
+-- ============================================================================
+-- Migration 059: Docs Hub aggregate views
+-- ============================================================================
+-- v_recent_documents_unified — 30 วันล่าสุด across modules
+-- v_aggregated_calendar — meetings + training + leave + action_plan
+-- (ดูเนื้อหา SQL จริงใน Supabase migration history: 059_docs_hub_aggregate_views)
+-- ============================================================================

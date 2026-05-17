@@ -216,8 +216,28 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.18.0 (Staff Detail Page — per-teacher training showcase)',
+        version: 'v1.19.0–1.19.9 (Documents Hub + 6 New Modules)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'ผสานเนื้อหา school-docs.html mockup (15 หมวด) เข้าระบบหลัก — 6 phases, 11 migrations (049-059), build verified ทุก phase',
+            'Phase 1: Docs Hub Landing — /admin/dashboard/docs-hub — 15 cat grid + KPI ribbon (urgent/pending/active/meetings/training/outgoing) + Urgent list (incoming ด่วน + outgoing รอลงนาม + leave รออนุมัติ) — chunk 12 KB',
+            'Phase 2: Document Tracking Timeline — letter_tracking_logs + DB trigger บน incoming/outgoing/leave + RPC add_tracking_note + TrackingTimeline.tsx (PersonAvatar + Mustache-light note input) ใส่ใน IncomingLetters/OutgoingLetters edit dialog',
+            'Phase 3: e-Signature — react-signature-canvas + signatures table + storage bucket signatures + SignaturePad/Dialog/List components — wire LeaveManagement (อนุมัติบังคับลงนาม) + OutgoingLetters (รอลงนาม → ส่งแล้ว)',
+            'Phase 4A: Budget — budget_categories + budget_transactions + v_budget_summary VIEW + KpiRibbon (งบ/เบิก/ผูกพัน/คงเหลือ) + progress bar ต่อหมวด',
+            'Phase 4B: SAR — sar_standards (seed 3) + sar_indicators + sar_assessments (level 1-5) + sar_evidence_files + bucket sar-evidence (signed 7d)',
+            'Phase 4C: ICS — ics_forms ปย.1/ปย.2/ปย.3 + content jsonb (schema-flexible) + 3-column overview + JSON editor',
+            'Phase 4D: Action Plan — action_plan_projects + milestones + responsible_staff_id FK (PersonAvatar) + formatThaiDateRange',
+            'Phase 4E: Doc Templates — seed 12 ฟอร์ม (หนังสือราชการ/ใบลา/บันทึก/เชิญประชุม/รายงานประชุม/คำสั่ง/ประกาศ/เกียรติบัตร/จดหมายผู้ปกครอง/ทัศนศึกษา/จัดซื้อ/ID Plan) + Mustache-style renderer + window.open print',
+            'Phase 4F: Student Documents sub-hub — 6 หมวด (ทะเบียน/ปพ./SDQ/อาหาร/เยี่ยมบ้าน/ดูแลช่วยเหลือ) + student_documents + home_visits + sdq_responses + bucket student-docs (signed 30d)',
+            'Phase 5: Hub aggregation — v_recent_documents_unified (10 sources ใน 30 วัน) + v_aggregated_calendar (meetings+training+leave+projects) + RecentActivityFeed component ใส่ใน Hub',
+            'Phase 6: SystemOverview versionHistory + final build',
+            'Bundle: ทุก module chunk แยก 5-12 KB gzip — total bundle เพิ่มน้อย เพราะ shared docs-hub components reuse ข้าม module',
+        ],
+    },
+    {
+        version: 'v1.18.0 (Staff Detail Page — per-teacher training showcase)',
+        date: '',
         badge: 'bg-amber-600',
         items: [
             '/staff/:id: เปลี่ยน modal เป็น page เต็ม สำหรับครู+บุคลากรสนับสนุน — Hero (PersonAvatar 32-40 + ribbon ตำแหน่ง + badges วิชา/แผนก/วิทยฐานะ + contact ปุ่มทอง)',

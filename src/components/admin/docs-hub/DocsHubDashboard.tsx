@@ -15,6 +15,7 @@ import { docsHubService, type DocCategoryMeta, type HubKpi, type UrgentDoc } fro
 import { CategoryGrid } from './CategoryGrid';
 import { KpiRibbon, type KpiTile } from './KpiRibbon';
 import { UrgentDocumentsList } from './UrgentDocumentsList';
+import { RecentActivityFeed } from './RecentActivityFeed';
 
 export const DocsHubDashboard = () => {
     const navigate = useNavigate();
@@ -110,8 +111,9 @@ export const DocsHubDashboard = () => {
                         <CategoryGrid categories={categories} />
                     )}
                 </div>
-                <div>
+                <div className="space-y-3">
                     <UrgentDocumentsList items={urgent} loading={loading} />
+                    <RecentActivityFeed />
                 </div>
             </div>
         </div>

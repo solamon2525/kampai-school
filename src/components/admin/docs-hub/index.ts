@@ -10,3 +10,4 @@ export { SignaturePad } from './SignaturePad';
 export type { SignaturePadHandle } from './SignaturePad';
 export { SignaturePadDialog } from './SignaturePadDialog';
 export { SignatureList } from './SignatureList';
+export { RecentActivityFeed } from './RecentActivityFeed';
