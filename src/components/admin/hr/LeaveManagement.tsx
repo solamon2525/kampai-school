@@ -15,7 +15,9 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, Search, CheckCircle, XCircle } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, CheckCircle, XCircle, PenLine } from 'lucide-react';
+import { SignaturePadDialog } from '@/components/admin/docs-hub/SignaturePadDialog';
+import { SignatureList } from '@/components/admin/docs-hub/SignatureList';
 
 interface Staff { id: string; name: string; }
 interface LeaveRequest {
@@ -153,10 +155,22 @@ export default function LeaveManagement() {
     else { toast.success('ลบสำเร็จ'); fetchRecords(); }
   }
 
-  async function quickApprove(id: string, status: string) {
-    const { error } = await supabase.from('leave_requests').update({ status, approved_at: new Date().toISOString() }).eq('id', id);
+  const [signApproveTarget, setSignApproveTarget] = useState<LeaveRequest | null>(null);
+
+  async function quickReject(id: string) {
+    const { error } = await supabase.from('leave_requests').update({ status: 'ไม่อนุมัติ', approved_at: new Date().toISOString() }).eq('id', id);
     if (error) toast.error('อัพเดตไม่สำเร็จ');
-    else { toast.success(status === 'อนุมัติ' ? 'อนุมัติแล้ว' : 'ไม่อนุมัติ'); fetchRecords(); }
+    else { toast.success('ไม่อนุมัติ'); fetchRecords(); }
+  }
+
+  /** flip status → อนุมัติ หลัง e-Signature upload สำเร็จ */
+  async function handleSignatureSuccess(req: LeaveRequest, signerName: string) {
+    const { error } = await supabase
+      .from('leave_requests')
+      .update({ status: 'อนุมัติ', approved_by: signerName, approved_at: new Date().toISOString() })
+      .eq('id', req.id);
+    if (error) toast.error('อัพเดตสถานะไม่สำเร็จ: ' + error.message);
+    else { toast.success('อนุมัติเรียบร้อยแล้ว'); fetchRecords(); }
   }
 
   const filtered = records.filter(r => {
@@ -218,9 +232,12 @@ export default function LeaveManagement() {
                   <div className="flex justify-end gap-1">
                     {r.status === 'รออนุมัติ' && (
                       <>
-                        <Button size="icon" variant="ghost" title="อนุมัติ" onClick={() => quickApprove(r.id, 'อนุมัติ')}><CheckCircle className="w-4 h-4 text-green-600" /></Button>
-                        <Button size="icon" variant="ghost" title="ไม่อนุมัติ" onClick={() => quickApprove(r.id, 'ไม่อนุมัติ')}><XCircle className="w-4 h-4 text-destructive" /></Button>
+                        <Button size="icon" variant="ghost" title="อนุมัติ (ลงนาม)" onClick={() => setSignApproveTarget(r)}><PenLine className="w-4 h-4 text-green-600" /></Button>
+                        <Button size="icon" variant="ghost" title="ไม่อนุมัติ" onClick={() => quickReject(r.id)}><XCircle className="w-4 h-4 text-destructive" /></Button>
                       </>
+                    )}
+                    {r.status === 'อนุมัติ' && (
+                      <Badge variant="outline" className="text-[10px]"><CheckCircle className="w-3 h-3 mr-0.5 text-green-600" /> ลงนาม</Badge>
                     )}
                     <Button size="icon" variant="ghost" onClick={() => openEdit(r)}><Pencil className="w-4 h-4" /></Button>
                     <Button size="icon" variant="ghost" onClick={() => handleDelete(r.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
@@ -283,6 +300,12 @@ export default function LeaveManagement() {
               <Label>URL ไฟล์แนบ</Label>
               <Input value={form.attachment_url} onChange={e => setForm(f => ({ ...f, attachment_url: e.target.value }))} placeholder="https://..." />
             </div>
+            {editing ? (
+              <div className="border-t border-border pt-3">
+                <Label className="mb-2 block text-xs text-muted-foreground">ลายเซ็นผู้อนุมัติ</Label>
+                <SignatureList entityType="leave_request" entityId={editing.id} />
+              </div>
+            ) : null}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>ยกเลิก</Button>
@@ -290,6 +313,23 @@ export default function LeaveManagement() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {signApproveTarget ? (
+        <SignaturePadDialog
+          open={!!signApproveTarget}
+          onOpenChange={(v) => { if (!v) setSignApproveTarget(null); }}
+          entityType="leave_request"
+          entityId={signApproveTarget.id}
+          role="approver"
+          title="อนุมัติใบลา — ลงนามอิเล็กทรอนิกส์"
+          description={`ลาประเภท ${signApproveTarget.leave_type} • ${signApproveTarget.days} วัน`}
+          onSuccess={({ signerName }) => {
+            const target = signApproveTarget;
+            setSignApproveTarget(null);
+            if (target) handleSignatureSuccess(target, signerName);
+          }}
+        />
+      ) : null}
     </div>
   );
 }

@@ -6,3 +6,7 @@ export { KpiRibbon } from './KpiRibbon';
 export type { KpiTile } from './KpiRibbon';
 export { UrgentDocumentsList } from './UrgentDocumentsList';
 export { TrackingTimeline } from './TrackingTimeline';
+export { SignaturePad } from './SignaturePad';
+export type { SignaturePadHandle } from './SignaturePad';
+export { SignaturePadDialog } from './SignaturePadDialog';
+export { SignatureList } from './SignatureList';

@@ -7,8 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Search, Pencil, Trash2, Paperclip, SendHorizontal } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, Paperclip, SendHorizontal, PenLine } from 'lucide-react';
 import { TrackingTimeline } from '@/components/admin/docs-hub/TrackingTimeline';
+import { SignaturePadDialog } from '@/components/admin/docs-hub/SignaturePadDialog';
+import { SignatureList } from '@/components/admin/docs-hub/SignatureList';
 
 interface OutgoingLetter {
     id: string;
@@ -116,6 +118,17 @@ export const OutgoingLetters = () => {
         setSaving(false);
     };
 
+    const [signTarget, setSignTarget] = useState<OutgoingLetter | null>(null);
+
+    const handleSignSuccess = async (target: OutgoingLetter) => {
+        const { error } = await supabase
+            .from('outgoing_letters' as any)
+            .update({ status: 'ส่งแล้ว' })
+            .eq('id', target.id);
+        if (error) toast({ title: 'อัพเดตสถานะล้มเหลว', description: error.message, variant: 'destructive' });
+        else { toast({ title: 'ลงนามและส่งแล้ว' }); fetchLetters(); }
+    };
+
     const handleDelete = async (id: string) => {
         if (!confirm('ต้องการลบหนังสือนี้?')) return;
         await supabase.from('outgoing_letters' as any).delete().eq('id', id);
@@ -201,6 +214,11 @@ export const OutgoingLetters = () => {
                                             </td>
                                             <td className="px-4 py-3">
                                                 <div className="flex gap-1">
+                                                    {l.status === 'รอลงนาม' && (
+                                                        <Button variant="ghost" size="icon" className="w-7 h-7 text-primary" title="ลงนาม" onClick={() => setSignTarget(l)}>
+                                                            <PenLine className="w-3.5 h-3.5" />
+                                                        </Button>
+                                                    )}
                                                     <Button variant="ghost" size="icon" className="w-7 h-7" onClick={() => openEdit(l)}><Pencil className="w-3.5 h-3.5" /></Button>
                                                     <Button variant="ghost" size="icon" className="w-7 h-7 text-destructive" onClick={() => handleDelete(l.id)}><Trash2 className="w-3.5 h-3.5" /></Button>
                                                 </div>
@@ -253,7 +271,11 @@ export const OutgoingLetters = () => {
                             <Input value={form.attachment_url} onChange={e => setForm(f => ({ ...f, attachment_url: e.target.value }))} placeholder="https://..." />
                         </div>
                         {editing ? (
-                            <div className="border-t border-border pt-4">
+                            <div className="border-t border-border pt-4 space-y-4">
+                                <div>
+                                    <Label className="mb-2 block text-xs text-muted-foreground">ลายเซ็น</Label>
+                                    <SignatureList entityType="outgoing_letter" entityId={editing.id} />
+                                </div>
                                 <TrackingTimeline entityType="outgoing" entityId={editing.id} />
                             </div>
                         ) : null}
@@ -264,6 +286,23 @@ export const OutgoingLetters = () => {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            {signTarget ? (
+                <SignaturePadDialog
+                    open={!!signTarget}
+                    onOpenChange={(v) => { if (!v) setSignTarget(null); }}
+                    entityType="outgoing_letter"
+                    entityId={signTarget.id}
+                    role="signer"
+                    title="ลงนามหนังสือส่ง"
+                    description={`เรื่อง: ${signTarget.subject}`}
+                    onSuccess={() => {
+                        const target = signTarget;
+                        setSignTarget(null);
+                        if (target) handleSignSuccess(target);
+                    }}
+                />
+            ) : null}
         </div>
     );
 };
