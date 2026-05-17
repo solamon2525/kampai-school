@@ -17,3 +17,4 @@ export * from './news.service';
 export * from './settings.service';
 export * from './school-dashboard.service';
 export * from './training.service';
+export * from './docs-hub.service';

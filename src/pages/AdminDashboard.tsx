@@ -27,6 +27,7 @@ const ScoresManagement = lazy(() => import('@/components/admin/scores/ScoresMana
 const ConductManagement = lazy(() => import('@/components/admin/conduct/ConductManagement').then(m => ({ default: m.ConductManagement })));
 const HeroSlidesManagement = lazy(() => import('@/components/admin/slides/HeroSlidesManagement').then(m => ({ default: m.HeroSlidesManagement })));
 const AnalyticsManagement = lazy(() => import('@/components/admin/analytics/AnalyticsManagement').then(m => ({ default: m.AnalyticsManagement })));
+const DocsHubDashboard = lazy(() => import('@/components/admin/docs-hub/DocsHubDashboard').then(m => ({ default: m.DocsHubDashboard })));
 const SarabanDashboard = lazy(() => import('@/components/admin/saraban/SarabanDashboard').then(m => ({ default: m.SarabanDashboard })));
 const IncomingLetters = lazy(() => import('@/components/admin/saraban/IncomingLetters').then(m => ({ default: m.IncomingLetters })));
 const OutgoingLetters = lazy(() => import('@/components/admin/saraban/OutgoingLetters').then(m => ({ default: m.OutgoingLetters })));
@@ -92,6 +93,8 @@ const AdminDashboard = () => {
             <Route path="news" element={<NewsManagement />} />
             <Route path="gallery" element={<GalleryManagement />} />
             <Route path="events" element={<EventsManagement />} />
+            {/* ศูนย์เอกสารโรงเรียน */}
+            <Route path="docs-hub" element={<DocsHubDashboard />} />
             {/* งานสารบรรณ */}
             <Route path="saraban" element={<SarabanDashboard />} />
             <Route path="incoming-letters" element={<IncomingLetters />} />

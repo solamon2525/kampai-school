@@ -67,6 +67,7 @@ type MenuItem =
 const menuItems: MenuItem[] = [
     { type: 'item', id: 'dashboard', label: 'แดชบอร์ด', icon: LayoutDashboard, path: '/admin/dashboard' },
     { type: 'item', id: 'dashboard-school', label: 'แดชบอร์ดโรงเรียน', icon: Database, path: '/admin/dashboard/dashboard-school', adminOnly: true },
+    { type: 'item', id: 'docs-hub', label: 'ศูนย์เอกสาร', icon: FolderOpen, path: '/admin/dashboard/docs-hub', adminOnly: true },
     { type: 'section', label: 'เว็บไซต์' },
     { type: 'item', id: 'settings', label: 'ตั้งค่า', icon: Settings, path: '/admin/dashboard/settings', adminOnly: true },
     { type: 'item', id: 'theme', label: 'ธีมสี (Theme)', icon: Palette, path: '/admin/dashboard/theme', adminOnly: true },
