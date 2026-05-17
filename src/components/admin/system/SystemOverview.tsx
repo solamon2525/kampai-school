@@ -216,8 +216,22 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.20.0 (Student 360° integration — Phase 4G)',
+        version: 'v1.20.1 (hotfix — Student 360° banks/attendance schema mismatch)',
         date: 'ล่าสุด',
+        badge: 'bg-rose-600',
+        items: [
+            'รายงานจากผู้ใช้: นักเรียนที่มี waste deposit จริง — Student360 tab "ธนาคาร" แสดง 0 — สำรวจพบ 2 schema mismatch + ฝ่าฝืน Hard Rule "no raw supabase.from() in component"',
+            'BanksSummary: query `waste_transactions.select(\'amount\')` ผิด schema — waste_transactions ใช้ Items+Points model (`quantity` + `points_earned`) ไม่มี column `amount` → r.amount เป็น undefined → sum = 0 เสมอ',
+            'แก้: ใช้ wasteSummaryService.getForStudent + savingsSummaryService.getForStudent (view waste_student_summary / savings_student_summary ที่มีอยู่แล้ว) → แสดง total_transactions + total_points_earned + available_points สำหรับ waste, deposit_count + withdraw_count + current_balance สำหรับ savings',
+            'AttendanceSummary: เปรียบ status === "มา"/"ขาด"/"สาย" แต่ DB เก็บเป็น English literal "present"/"absent"/"late"/"leave" (ดู AttendanceStatus type) → ทุก condition false → % การมาเรียน = 0% เสมอ',
+            'แก้: ใช้ attendanceService.getByStudentDateRange (12 เดือนล่าสุด) + เปรียบเทียบ English literal + เพิ่ม bucket "ลา" เป็นช่องที่ 5 ใน grid',
+            'SupportSummary: เปลี่ยน .select("*") (โหลด rows เต็ม) → .select("id", { count: "exact", head: true }) — ลด network payload, type-safe (state: number ไม่ใช่ unknown[])',
+            'Lesson learned: component ที่เขียน raw supabase.from() เสี่ยงสูง — schema เปลี่ยน (เช่น migration 018 เปลี่ยน waste จาก kg/baht → items/points) แต่ component ไม่รู้ — service layer จะ catch ด้วย type system ตั้งแต่ compile',
+        ],
+    },
+    {
+        version: 'v1.20.0 (Student 360° integration — Phase 4G)',
+        date: '',
         badge: 'bg-sky-600',
         items: [
             'จาก data overlap audit พบ student-docs (Phase 4F) duplicate กับ students/score_records/student_special_needs/counseling_records 80-100% — refactor เป็น Student 360° Profile Hub เพื่อใช้ source-of-truth tables ตัวเดียว',

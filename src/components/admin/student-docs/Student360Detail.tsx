@@ -10,6 +10,9 @@ import {
     ExternalLink, Utensils, Wallet, FileText, Calendar,
 } from 'lucide-react';
 import { student360Service, type Student360Profile } from '@/services/student-360.service';
+import { attendanceService, type AttendanceStatus } from '@/services/attendance.service';
+import { wasteSummaryService, type WasteStudentSummary } from '@/services/waste-bank.service';
+import { savingsSummaryService, type SavingsStudentSummary } from '@/services/savings.service';
 import { formatThaiDateFull } from '@/lib/thaiDate';
 import { cn } from '@/lib/utils';
 import { HomeVisitTab } from './HomeVisitForm';
@@ -199,24 +202,30 @@ const ExternalLinkTab = ({ path, label, hint }: { path: string; label: string; h
 };
 
 const AttendanceSummary = ({ studentId }: { studentId: string }) => {
-    const [summary, setSummary] = useState<{ present: number; absent: number; late: number; total: number } | null>(null);
+    const [summary, setSummary] = useState<{ present: number; absent: number; late: number; leave: number; total: number } | null>(null);
     const navigate = useNavigate();
 
     useEffect(() => {
+        let canceled = false;
         (async () => {
-            const { data } = await supabase
-                .from('attendance_records')
-                .select('status')
-                .eq('student_id', studentId);
-            const rows = (data ?? []) as { status: string }[];
-            const s = { present: 0, absent: 0, late: 0, total: rows.length };
-            rows.forEach((r) => {
-                if (r.status === 'มา') s.present++;
-                else if (r.status === 'ขาด') s.absent++;
-                else if (r.status === 'สาย') s.late++;
-            });
-            setSummary(s);
+            const today = new Date();
+            const yearAgo = new Date();
+            yearAgo.setFullYear(today.getFullYear() - 1);
+            const startISO = yearAgo.toISOString().slice(0, 10);
+            const endISO = today.toISOString().slice(0, 10);
+
+            const { data } = await attendanceService.getByStudentDateRange(studentId, startISO, endISO);
+            const rows = (data ?? []) as { status: AttendanceStatus }[];
+            const s = { present: 0, absent: 0, late: 0, leave: 0, total: rows.length };
+            for (const r of rows) {
+                if (r.status === 'present') s.present++;
+                else if (r.status === 'absent') s.absent++;
+                else if (r.status === 'late') s.late++;
+                else if (r.status === 'leave') s.leave++;
+            }
+            if (!canceled) setSummary(s);
         })();
+        return () => { canceled = true; };
     }, [studentId]);
 
     if (!summary) return <p className="text-center py-4 text-sm text-muted-foreground">กำลังโหลด…</p>;
@@ -225,14 +234,15 @@ const AttendanceSummary = ({ studentId }: { studentId: string }) => {
     return (
         <Card>
             <CardContent className="p-4 space-y-3">
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-5 gap-2">
                     <SummaryTile label="ทั้งหมด" value={summary.total} tone="muted" />
                     <SummaryTile label="มา" value={summary.present} tone="success" />
                     <SummaryTile label="สาย" value={summary.late} tone="warning" />
                     <SummaryTile label="ขาด" value={summary.absent} tone="danger" />
+                    <SummaryTile label="ลา" value={summary.leave} tone="info" />
                 </div>
                 <p className="text-sm text-center">
-                    เปอร์เซ็นต์การมาเรียน <span className="text-2xl font-bold text-primary">{pct}%</span>
+                    เปอร์เซ็นต์การมาเรียน (12 เดือนล่าสุด) <span className="text-2xl font-bold text-primary">{pct}%</span>
                 </p>
                 <div className="flex justify-center">
                     <Button variant="outline" size="sm" onClick={() => navigate('/admin/dashboard/attendance')}>
@@ -245,27 +255,37 @@ const AttendanceSummary = ({ studentId }: { studentId: string }) => {
 };
 
 const SupportSummary = ({ studentId }: { studentId: string }) => {
-    const [special, setSpecial] = useState<unknown[]>([]);
-    const [counseling, setCounseling] = useState<unknown[]>([]);
+    const [specialCount, setSpecialCount] = useState<number>(0);
+    const [counselingCount, setCounselingCount] = useState<number>(0);
     const navigate = useNavigate();
 
     useEffect(() => {
+        let canceled = false;
         (async () => {
             const [sn, cr] = await Promise.all([
-                supabase.from('student_special_needs').select('*').eq('student_id', studentId),
-                supabase.from('counseling_records').select('*').eq('student_id', studentId),
+                supabase
+                    .from('student_special_needs')
+                    .select('id', { count: 'exact', head: true })
+                    .eq('student_id', studentId),
+                supabase
+                    .from('counseling_records')
+                    .select('id', { count: 'exact', head: true })
+                    .eq('student_id', studentId),
             ]);
-            setSpecial(sn.data ?? []);
-            setCounseling(cr.data ?? []);
+            if (!canceled) {
+                setSpecialCount(sn.count ?? 0);
+                setCounselingCount(cr.count ?? 0);
+            }
         })();
+        return () => { canceled = true; };
     }, [studentId]);
 
     return (
         <Card>
             <CardContent className="p-4 space-y-3">
                 <div className="grid grid-cols-2 gap-2">
-                    <SummaryTile label="แผนการดูแลพิเศษ" value={special.length} tone="primary" />
-                    <SummaryTile label="บันทึกให้คำปรึกษา" value={counseling.length} tone="info" />
+                    <SummaryTile label="แผนการดูแลพิเศษ" value={specialCount} tone="primary" />
+                    <SummaryTile label="บันทึกให้คำปรึกษา" value={counselingCount} tone="info" />
                 </div>
                 <div className="flex justify-center gap-2 flex-wrap">
                     <Button variant="outline" size="sm" onClick={() => navigate('/admin/dashboard/academic')}>
@@ -281,31 +301,48 @@ const SupportSummary = ({ studentId }: { studentId: string }) => {
 };
 
 const BanksSummary = ({ studentId }: { studentId: string }) => {
-    const [waste, setWaste] = useState<{ count: number; amount: number } | null>(null);
-    const [savings, setSavings] = useState<{ count: number; amount: number } | null>(null);
+    const [waste, setWaste] = useState<WasteStudentSummary | null>(null);
+    const [savings, setSavings] = useState<SavingsStudentSummary | null>(null);
+    const [loaded, setLoaded] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
+        let canceled = false;
         (async () => {
             const [w, s] = await Promise.all([
-                supabase.from('waste_transactions').select('amount').eq('student_id', studentId),
-                supabase.from('savings_transactions').select('amount').eq('student_id', studentId),
+                wasteSummaryService.getForStudent(studentId),
+                savingsSummaryService.getForStudent(studentId),
             ]);
-            const wRows = (w.data ?? []) as { amount: number }[];
-            const sRows = (s.data ?? []) as { amount: number }[];
-            setWaste({ count: wRows.length, amount: wRows.reduce((acc, r) => acc + Number(r.amount ?? 0), 0) });
-            setSavings({ count: sRows.length, amount: sRows.reduce((acc, r) => acc + Number(r.amount ?? 0), 0) });
+            if (!canceled) {
+                setWaste((w.data as WasteStudentSummary | null) ?? null);
+                setSavings((s.data as SavingsStudentSummary | null) ?? null);
+                setLoaded(true);
+            }
         })();
+        return () => { canceled = true; };
     }, [studentId]);
 
-    const fmt = (n: number) => new Intl.NumberFormat('th-TH', { maximumFractionDigits: 0 }).format(n);
+    const fmt = (n: number | null | undefined) =>
+        new Intl.NumberFormat('th-TH', { maximumFractionDigits: 0 }).format(Number(n ?? 0));
+
+    if (!loaded) return <p className="text-center py-4 text-sm text-muted-foreground">กำลังโหลด…</p>;
 
     return (
         <Card>
             <CardContent className="p-4 space-y-3">
                 <div className="grid grid-cols-2 gap-2">
-                    <SummaryTile label="ขยะ (รายการ)" value={waste?.count ?? '–'} tone="primary" hint={waste ? `${fmt(waste.amount)} บาท` : undefined} />
-                    <SummaryTile label="ออมทรัพย์ (รายการ)" value={savings?.count ?? '–'} tone="success" hint={savings ? `${fmt(savings.amount)} บาท` : undefined} />
+                    <SummaryTile
+                        label="ขยะ (รายการ)"
+                        value={fmt(waste?.total_transactions)}
+                        tone="primary"
+                        hint={`สะสม ${fmt(waste?.total_points_earned)} คะแนน · คงเหลือ ${fmt(waste?.available_points)}`}
+                    />
+                    <SummaryTile
+                        label="ออมทรัพย์ (ครั้ง)"
+                        value={fmt(savings?.total_transactions)}
+                        tone="success"
+                        hint={`ฝาก ${fmt(savings?.deposit_count)} · ถอน ${fmt(savings?.withdraw_count)} · คงเหลือ ${fmt(savings?.current_balance)} บาท`}
+                    />
                 </div>
                 <div className="flex justify-center gap-2 flex-wrap">
                     <Button variant="outline" size="sm" onClick={() => navigate('/admin/dashboard/waste-bank')}>
