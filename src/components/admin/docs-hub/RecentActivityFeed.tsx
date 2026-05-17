@@ -9,6 +9,7 @@ import type { LucideIcon } from 'lucide-react';
 import {
     docsHubAggregateService, type RecentDoc, type RecentDocEntityType,
 } from '@/services/docs-hub.service';
+import { formatThaiDateMedium } from '@/lib/thaiDate';
 import { cn } from '@/lib/utils';
 
 const ENTITY_ICON: Record<RecentDocEntityType, LucideIcon> = {
@@ -31,7 +32,7 @@ const formatRelative = (iso: string) => {
     if (hr < 24) return `${hr} ชม.ที่แล้ว`;
     const d = Math.round(hr / 24);
     if (d < 30) return `${d} วันที่แล้ว`;
-    return new Date(iso).toLocaleDateString('th-TH');
+    return formatThaiDateMedium(iso);
 };
 
 interface RecentActivityFeedProps { className?: string }

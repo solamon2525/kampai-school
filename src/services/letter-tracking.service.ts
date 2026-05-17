@@ -41,4 +41,23 @@ export const letterTrackingService = {
         });
         return { data, error };
     },
+
+    /** อัปโหลดไฟล์แนบจดหมาย ใช้ student-docs bucket (private, signed URL 1 ปี) */
+    uploadAttachment: async (
+        letterType: 'incoming' | 'outgoing',
+        letterIdOrTemp: string,
+        file: File,
+    ): Promise<{ url: string | null; error: Error | null }> => {
+        const ext = file.name.split('.').pop()?.toLowerCase() ?? 'bin';
+        const path = `letters/${letterType}/${letterIdOrTemp}/${Date.now()}.${ext}`;
+        const { error: upErr } = await supabase.storage
+            .from('student-docs')
+            .upload(path, file, { upsert: false });
+        if (upErr) return { url: null, error: upErr };
+        const { data, error: urlErr } = await supabase.storage
+            .from('student-docs')
+            .createSignedUrl(path, 60 * 60 * 24 * 365);
+        if (urlErr) return { url: null, error: urlErr };
+        return { url: data.signedUrl, error: null };
+    },
 };

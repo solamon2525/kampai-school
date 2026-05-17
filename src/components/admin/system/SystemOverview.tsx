@@ -216,8 +216,25 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.20.2 (academic cluster — service layer refactor)',
+        version: 'v1.20.3 (docs-hub — Thai dates + file-first upload UX)',
         date: 'ล่าสุด',
+        badge: 'bg-amber-600',
+        items: [
+            'ผู้ใช้ตรวจ /admin/dashboard/docs-hub พบ 2 จุดต้องปรับ: รูปแบบวันที่ไม่ consistent + saraban forms รับเฉพาะ URL ไม่มีปุ่ม upload',
+            'Date format: 5 จุดเปลี่ยนเป็น formatThaiDateFull/Medium จาก @/lib/thaiDate',
+            '  • IncomingLetters: คอลัมน์ "วันที่รับ" + "ครบกำหนด" (.toLocaleDateString → formatThaiDateFull)',
+            '  • OutgoingLetters: คอลัมน์ "วันที่" (.toLocaleDateString → formatThaiDateFull)',
+            '  • MeetingsManagement: คอลัมน์ "วันประชุม" (raw ISO → formatThaiDateFull)',
+            '  • OrdersManagement: คอลัมน์ "วันที่" (raw ISO → formatThaiDateFull)',
+            '  • RecentActivityFeed fallback (.toLocaleDateString → formatThaiDateMedium)',
+            'Upload UX: IncomingLetters/OutgoingLetters dialogs เปลี่ยน "URL ไฟล์แนบ" เดิม → file input PRIMARY (บน, label "แนะนำให้อัปโหลด") + URL input SECONDARY (ล่าง, label "หรือใส่ URL — ทางเลือก")',
+            'letterTrackingService.uploadAttachment(type, id, file) — เก็บใน student-docs bucket path letters/{type}/{id}/{ts}.{ext}, signed URL 1 ปี, ไม่ต้อง migration ใหม่',
+            'Out of scope (defer): Budget/ICS/ActionPlan ฟอร์ม ไม่มีช่องไฟล์แนบเลย → เป็น feature ใหม่ ไม่ใช่ UX fix',
+        ],
+    },
+    {
+        version: 'v1.20.2 (academic cluster — service layer refactor)',
+        date: '',
         badge: 'bg-indigo-600',
         items: [
             'ต่อจาก v1.20.1 lesson: 7 components ใน admin/academic/ ฝ่าฝืน Hard Rule "no raw supabase.from() in component" — 28 occurrences เสี่ยง schema drift เหมือน BanksSummary ที่เพิ่งแก้',

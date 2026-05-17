@@ -8,8 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Search, Pencil, Trash2, Paperclip, MailOpen } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, Paperclip, MailOpen, Upload } from 'lucide-react';
 import { TrackingTimeline } from '@/components/admin/docs-hub/TrackingTimeline';
+import { letterTrackingService } from '@/services/letter-tracking.service';
+import { formatThaiDateFull } from '@/lib/thaiDate';
 
 interface IncomingLetter {
     id: string;
@@ -61,6 +63,7 @@ export const IncomingLetters = () => {
     const [editing, setEditing] = useState<IncomingLetter | null>(null);
     const [form, setForm] = useState({ ...emptyForm });
     const [saving, setSaving] = useState(false);
+    const [uploading, setUploading] = useState(false);
     const { toast } = useToast();
 
     const fetchLetters = async () => {
@@ -207,7 +210,7 @@ export const IncomingLetters = () => {
                                     {filtered.map(l => (
                                         <tr key={l.id} className="hover:bg-secondary/30 transition-colors">
                                             <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{l.letter_number || '-'}</td>
-                                            <td className="px-4 py-3 whitespace-nowrap">{new Date(l.received_date).toLocaleDateString('th-TH')}</td>
+                                            <td className="px-4 py-3 whitespace-nowrap">{formatThaiDateFull(l.received_date)}</td>
                                             <td className="px-4 py-3">
                                                 <p className="font-medium line-clamp-1">{l.subject}</p>
                                                 {l.attachment_url && <Paperclip className="w-3 h-3 text-muted-foreground inline mt-0.5" />}
@@ -224,7 +227,7 @@ export const IncomingLetters = () => {
                                                 </span>
                                             </td>
                                             <td className="px-4 py-3 text-muted-foreground text-xs">
-                                                {l.due_date ? new Date(l.due_date).toLocaleDateString('th-TH') : '-'}
+                                                {l.due_date ? formatThaiDateFull(l.due_date) : '-'}
                                             </td>
                                             <td className="px-4 py-3">
                                                 <div className="flex gap-1">
@@ -294,9 +297,48 @@ export const IncomingLetters = () => {
                             <Label className="mb-1.5 block">หมายเหตุ</Label>
                             <Input value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder="หมายเหตุเพิ่มเติม" />
                         </div>
-                        <div>
-                            <Label className="mb-1.5 block">URL ไฟล์แนบ</Label>
-                            <Input value={form.attachment_url} onChange={e => setForm(f => ({ ...f, attachment_url: e.target.value }))} placeholder="https://..." />
+                        <div className="space-y-2">
+                            <Label className="mb-1.5 block flex items-center gap-1.5">
+                                <Upload className="w-3.5 h-3.5 text-primary" /> ไฟล์แนบ (แนะนำให้อัปโหลด)
+                            </Label>
+                            <Input
+                                type="file"
+                                accept=".pdf,.png,.jpg,.jpeg,.webp"
+                                disabled={uploading}
+                                onChange={async (e) => {
+                                    const f = e.target.files?.[0];
+                                    if (!f) return;
+                                    setUploading(true);
+                                    const res = await letterTrackingService.uploadAttachment(
+                                        'incoming',
+                                        editing?.id ?? crypto.randomUUID(),
+                                        f,
+                                    );
+                                    setUploading(false);
+                                    if (res.url) {
+                                        setForm(f0 => ({ ...f0, attachment_url: res.url! }));
+                                        toast({ title: 'อัปโหลดเรียบร้อย' });
+                                    } else {
+                                        toast({ title: 'อัปโหลดล้มเหลว', description: res.error?.message, variant: 'destructive' });
+                                    }
+                                    e.target.value = '';
+                                }}
+                            />
+                            {uploading ? <p className="text-[11px] text-muted-foreground">กำลังอัปโหลด…</p> : null}
+                            {form.attachment_url ? (
+                                <a href={form.attachment_url} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1 truncate">
+                                    <Paperclip className="w-3 h-3" /> ไฟล์แนบที่บันทึกไว้
+                                </a>
+                            ) : null}
+                            <div className="pt-1">
+                                <Label className="mb-1 block text-xs text-muted-foreground">หรือใส่ URL (ทางเลือก)</Label>
+                                <Input
+                                    type="url"
+                                    value={form.attachment_url}
+                                    onChange={e => setForm(f => ({ ...f, attachment_url: e.target.value }))}
+                                    placeholder="https://..."
+                                />
+                            </div>
                         </div>
                         {editing ? (
                             <div className="border-t border-border pt-4">

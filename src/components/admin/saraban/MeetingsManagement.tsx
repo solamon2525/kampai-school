@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { formatThaiDateFull } from '@/lib/thaiDate';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -191,7 +192,7 @@ export default function MeetingsManagement() {
             ) : filtered.map(r => (
               <TableRow key={r.id}>
                 <TableCell className="font-medium max-w-[200px] truncate">{r.title}</TableCell>
-                <TableCell>{r.meeting_date}</TableCell>
+                <TableCell className="whitespace-nowrap">{formatThaiDateFull(r.meeting_date)}</TableCell>
                 <TableCell>{r.meeting_time || '-'}</TableCell>
                 <TableCell>{r.location || '-'}</TableCell>
                 <TableCell>

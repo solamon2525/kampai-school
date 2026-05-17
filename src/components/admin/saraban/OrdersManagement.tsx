@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { formatThaiDateFull } from '@/lib/thaiDate';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -206,7 +207,7 @@ export default function OrdersManagement() {
                   <Badge variant={docTypeBadgeVariant(r.doc_type) as any}>{r.doc_type}</Badge>
                 </TableCell>
                 <TableCell className="font-mono text-sm">{r.doc_number}</TableCell>
-                <TableCell>{r.doc_date}</TableCell>
+                <TableCell className="whitespace-nowrap">{formatThaiDateFull(r.doc_date)}</TableCell>
                 <TableCell className="max-w-[300px] truncate">{r.subject}</TableCell>
                 <TableCell>
                   {r.attachment_url ? (
