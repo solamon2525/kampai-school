@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { specialNeedsService } from '@/services/academic.service';
+import { studentsService } from '@/services/students.service';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -61,18 +62,14 @@ export const SpecialNeedsManagement = () => {
 
   const fetchRecords = async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from('student_special_needs')
-      .select('*, students(student_code, first_name, last_name, class_level, class_room)')
-      .order('created_at', { ascending: false });
+    const { data } = await specialNeedsService.getAll();
     setRecords((data as SpecialNeed[]) || []);
     setLoading(false);
   };
 
   useEffect(() => { fetchRecords(); }, []);
   useEffect(() => {
-    supabase.from('students').select('id, student_code, first_name, last_name, class_level, class_room').order('first_name')
-      .then(({ data }) => setStudents((data as StudentOption[]) || []));
+    studentsService.getAcademicOptions().then(({ data }) => setStudents((data as StudentOption[]) || []));
   }, []);
 
   const filteredStudents = studentSearch
@@ -108,8 +105,8 @@ export const SpecialNeedsManagement = () => {
       start_date: form.start_date, end_date: form.end_date || null, notes: form.notes || null,
     };
     const { error } = editing
-      ? await supabase.from('student_special_needs').update(payload).eq('id', editing.id)
-      : await supabase.from('student_special_needs').insert(payload);
+      ? await specialNeedsService.update(editing.id, payload)
+      : await specialNeedsService.insert(payload);
     if (error) { toast({ title: 'เกิดข้อผิดพลาด', description: error.message, variant: 'destructive' }); return; }
     toast({ title: editing ? 'แก้ไขสำเร็จ' : 'เพิ่มสำเร็จ' });
     setDialogOpen(false); fetchRecords();
@@ -117,7 +114,7 @@ export const SpecialNeedsManagement = () => {
 
   const handleDelete = async (id: string) => {
     if (!confirm('ยืนยันการลบ?')) return;
-    await supabase.from('student_special_needs').delete().eq('id', id);
+    await specialNeedsService.delete(id);
     toast({ title: 'ลบสำเร็จ' }); fetchRecords();
   };
 

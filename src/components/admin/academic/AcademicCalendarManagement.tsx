@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { academicCalendarService } from '@/services/academic.service';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -52,10 +52,9 @@ export const AcademicCalendarManagement = () => {
 
   const fetchEvents = useCallback(async () => {
     setLoading(true);
-    let q = supabase.from('academic_calendar').select('*').eq('academic_year', filterYear).order('start_date');
-    if (filterSemester !== 'ทั้งหมด') q = q.eq('semester', Number(filterSemester));
-    const { data } = await q;
-    setEvents((data as AcademicEvent[]) || []);
+    const { data } = await academicCalendarService.getAll(filterYear);
+    const rows = (data as AcademicEvent[]) || [];
+    setEvents(filterSemester === 'ทั้งหมด' ? rows : rows.filter(e => e.semester === Number(filterSemester)));
     setLoading(false);
   }, [filterYear, filterSemester]);
 
@@ -85,8 +84,8 @@ export const AcademicCalendarManagement = () => {
       is_all_day: form.is_all_day === 'true',
     };
     const { error } = editing
-      ? await supabase.from('academic_calendar').update(payload).eq('id', editing.id)
-      : await supabase.from('academic_calendar').insert(payload);
+      ? await academicCalendarService.update(editing.id, payload)
+      : await academicCalendarService.insert(payload);
     if (error) { toast({ title: 'เกิดข้อผิดพลาด', description: error.message, variant: 'destructive' }); return; }
     toast({ title: editing ? 'แก้ไขสำเร็จ' : 'เพิ่มสำเร็จ' });
     setDialogOpen(false); fetchEvents();
@@ -94,7 +93,7 @@ export const AcademicCalendarManagement = () => {
 
   const handleDelete = async (id: string) => {
     if (!confirm('ยืนยันการลบ?')) return;
-    await supabase.from('academic_calendar').delete().eq('id', id);
+    await academicCalendarService.delete(id);
     toast({ title: 'ลบสำเร็จ' }); fetchEvents();
   };
 

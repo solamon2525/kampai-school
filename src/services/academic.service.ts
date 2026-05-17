@@ -87,6 +87,12 @@ export const specialNeedsService = {
       .select('*, students(student_code, first_name, last_name, class_level, class_room, photo_url)')
       .order('created_at', { ascending: false }),
 
+  countByStudent: (studentId: string) =>
+    supabase
+      .from('student_special_needs')
+      .select('id', { count: 'exact', head: true })
+      .eq('student_id', studentId),
+
   insert: (data: Record<string, unknown>) =>
     supabase.from('student_special_needs').insert(data),
 
@@ -104,6 +110,12 @@ export const counselingService = {
       .from('counseling_records')
       .select('*, students(student_code, first_name, last_name, class_level, class_room)')
       .order('session_date', { ascending: false }),
+
+  countByStudent: (studentId: string) =>
+    supabase
+      .from('counseling_records')
+      .select('id', { count: 'exact', head: true })
+      .eq('student_id', studentId),
 
   insert: (data: Record<string, unknown>) =>
     supabase.from('counseling_records').insert(data),

@@ -8,6 +8,10 @@ export const staffService = {
   getAll: () =>
     supabase.from('staff').select('*').order('order_position', { ascending: true }),
 
+  /** Lightweight name options สำหรับ dropdown — ใช้ใน academic cluster (lesson plan / supervision / class schedule) */
+  getNameOptions: () =>
+    supabase.from('staff').select('id, name').order('name'),
+
   getTeachers: () =>
     supabase
       .from('staff')

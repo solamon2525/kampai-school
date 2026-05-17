@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supervisionService } from '@/services/academic.service';
+import { staffService } from '@/services/staff.service';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -52,17 +53,14 @@ export const SupervisionManagement = () => {
 
   const fetchRecords = async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from('supervision_records')
-      .select('*, staff(name)')
-      .order('visit_date', { ascending: false });
+    const { data } = await supervisionService.getAll();
     setRecords((data as SupervisionRecord[]) || []);
     setLoading(false);
   };
 
   useEffect(() => { fetchRecords(); }, []);
   useEffect(() => {
-    supabase.from('staff').select('id, name').order('name').then(({ data }) => setStaffList((data as StaffOption[]) || []));
+    staffService.getNameOptions().then(({ data }) => setStaffList((data as StaffOption[]) || []));
   }, []);
 
   const filtered = filterStatus === 'ทั้งหมด' ? records : records.filter(r => r.status === filterStatus);
@@ -88,8 +86,8 @@ export const SupervisionManagement = () => {
       recommendations: form.recommendations || null, followup_date: form.followup_date || null, status: form.status,
     };
     const { error } = editing
-      ? await supabase.from('supervision_records').update(payload).eq('id', editing.id)
-      : await supabase.from('supervision_records').insert(payload);
+      ? await supervisionService.update(editing.id, payload)
+      : await supervisionService.insert(payload);
     if (error) { toast({ title: 'เกิดข้อผิดพลาด', description: error.message, variant: 'destructive' }); return; }
     toast({ title: editing ? 'แก้ไขสำเร็จ' : 'บันทึกสำเร็จ' });
     setDialogOpen(false); fetchRecords();
@@ -97,7 +95,7 @@ export const SupervisionManagement = () => {
 
   const handleDelete = async (id: string) => {
     if (!confirm('ยืนยันการลบ?')) return;
-    await supabase.from('supervision_records').delete().eq('id', id);
+    await supervisionService.delete(id);
     toast({ title: 'ลบสำเร็จ' }); fetchRecords();
   };
 

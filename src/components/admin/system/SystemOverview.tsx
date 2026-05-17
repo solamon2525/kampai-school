@@ -216,8 +216,22 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.20.1 (hotfix — Student 360° banks/attendance schema mismatch)',
+        version: 'v1.20.2 (academic cluster — service layer refactor)',
         date: 'ล่าสุด',
+        badge: 'bg-indigo-600',
+        items: [
+            'ต่อจาก v1.20.1 lesson: 7 components ใน admin/academic/ ฝ่าฝืน Hard Rule "no raw supabase.from() in component" — 28 occurrences เสี่ยง schema drift เหมือน BanksSummary ที่เพิ่งแก้',
+            'Wire-up only: academic.service.ts มี 7 services พร้อมแล้ว (classSchedule/lessonPlan/teachingMaterial/academicCalendar/specialNeeds/counseling/supervision) — แค่ component ไม่ได้ใช้',
+            'Refactor 7 components: TeachingMaterials, Supervision, SpecialNeeds, Counseling, LessonPlan, ClassSchedule, AcademicCalendar — แต่ละไฟล์ 4 ที่ (fetch/insert/update/delete) → service method',
+            'Lookup helpers ใหม่: staffService.getNameOptions() + studentsService.getAcademicOptions() — ปิด dropdown queries ใน 5 ไฟล์ (LessonPlan/Supervision/ClassSchedule/SpecialNeeds/Counseling)',
+            'ปิด loop จาก v1.20.1: Student360Detail.SupportSummary เลิก raw query → ใช้ specialNeedsService.countByStudent + counseling Service.countByStudent → **Student 360° = 0 raw queries**',
+            'Bonus: ลบ `import { supabase }` ใน 8 ไฟล์ (เหลือ 0 หลัง refactor)',
+            'ผลรวม: 111 raw occurrences → 83 (-28 จาก academic cluster + ไม่นับ supportSummary ที่ aliased ผ่าน v1.20.1 ก่อนหน้า). cluster ที่เหลือ defer ตามแผน supabase_refactor_pending: saraban/hr/students/homepage/gallery',
+        ],
+    },
+    {
+        version: 'v1.20.1 (hotfix — Student 360° banks/attendance schema mismatch)',
+        date: '',
         badge: 'bg-rose-600',
         items: [
             'รายงานจากผู้ใช้: นักเรียนที่มี waste deposit จริง — Student360 tab "ธนาคาร" แสดง 0 — สำรวจพบ 2 schema mismatch + ฝ่าฝืน Hard Rule "no raw supabase.from() in component"',

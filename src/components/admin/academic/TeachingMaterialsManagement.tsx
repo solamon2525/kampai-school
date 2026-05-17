@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { teachingMaterialService } from '@/services/academic.service';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -54,7 +54,7 @@ export const TeachingMaterialsManagement = () => {
 
   const fetchMaterials = async () => {
     setLoading(true);
-    const { data } = await supabase.from('teaching_materials').select('*').order('title');
+    const { data } = await teachingMaterialService.getAll();
     setMaterials((data as TeachingMaterial[]) || []);
     setLoading(false);
   };
@@ -87,8 +87,8 @@ export const TeachingMaterialsManagement = () => {
       condition: form.condition, notes: form.notes || null,
     };
     const { error } = editing
-      ? await supabase.from('teaching_materials').update(payload).eq('id', editing.id)
-      : await supabase.from('teaching_materials').insert(payload);
+      ? await teachingMaterialService.update(editing.id, payload)
+      : await teachingMaterialService.insert(payload);
     if (error) { toast({ title: 'เกิดข้อผิดพลาด', description: error.message, variant: 'destructive' }); return; }
     toast({ title: editing ? 'แก้ไขสำเร็จ' : 'เพิ่มสำเร็จ' });
     setDialogOpen(false); fetchMaterials();
@@ -96,7 +96,7 @@ export const TeachingMaterialsManagement = () => {
 
   const handleDelete = async (id: string) => {
     if (!confirm('ยืนยันการลบ?')) return;
-    await supabase.from('teaching_materials').delete().eq('id', id);
+    await teachingMaterialService.delete(id);
     toast({ title: 'ลบสำเร็จ' }); fetchMaterials();
   };
 

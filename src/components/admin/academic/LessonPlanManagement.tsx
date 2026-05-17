@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { lessonPlanService } from '@/services/academic.service';
+import { staffService } from '@/services/staff.service';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -60,19 +61,14 @@ export const LessonPlanManagement = () => {
 
   const fetchPlans = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from('lesson_plans')
-      .select('*, staff(name)')
-      .eq('academic_year', filterYear)
-      .eq('semester', Number(filterSemester))
-      .order('grade').order('week_number');
+    const { data } = await lessonPlanService.getAll(filterYear, Number(filterSemester));
     setPlans((data as LessonPlan[]) || []);
     setLoading(false);
   }, [filterYear, filterSemester]);
 
   useEffect(() => { fetchPlans(); }, [fetchPlans]);
   useEffect(() => {
-    supabase.from('staff').select('id, name').order('name').then(({ data }) => setStaffList((data as StaffOption[]) || []));
+    staffService.getNameOptions().then(({ data }) => setStaffList((data as StaffOption[]) || []));
   }, []);
 
   const filtered = plans.filter(p => {
@@ -107,8 +103,8 @@ export const LessonPlanManagement = () => {
       academic_year: form.academic_year, status: form.status, file_url: form.file_url || null,
     };
     const { error } = editing
-      ? await supabase.from('lesson_plans').update(payload).eq('id', editing.id)
-      : await supabase.from('lesson_plans').insert(payload);
+      ? await lessonPlanService.update(editing.id, payload)
+      : await lessonPlanService.insert(payload);
     if (error) { toast({ title: 'เกิดข้อผิดพลาด', description: error.message, variant: 'destructive' }); return; }
     toast({ title: editing ? 'แก้ไขสำเร็จ' : 'เพิ่มสำเร็จ' });
     setDialogOpen(false); fetchPlans();
@@ -116,7 +112,7 @@ export const LessonPlanManagement = () => {
 
   const handleDelete = async (id: string) => {
     if (!confirm('ยืนยันการลบ?')) return;
-    await supabase.from('lesson_plans').delete().eq('id', id);
+    await lessonPlanService.delete(id);
     toast({ title: 'ลบสำเร็จ' }); fetchPlans();
   };
 

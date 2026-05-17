@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { classScheduleService } from '@/services/academic.service';
+import { staffService } from '@/services/staff.service';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -50,12 +51,7 @@ export const ClassScheduleManagement = () => {
 
   const fetchSchedules = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from('class_schedules')
-      .select('*, staff(name)')
-      .eq('academic_year', filterYear)
-      .eq('semester', Number(filterSemester))
-      .order('day_of_week').order('period');
+    const { data } = await classScheduleService.getAll(filterYear, Number(filterSemester));
     setSchedules((data as ClassSchedule[]) || []);
     setLoading(false);
   }, [filterYear, filterSemester]);
@@ -63,7 +59,7 @@ export const ClassScheduleManagement = () => {
   useEffect(() => { fetchSchedules(); }, [fetchSchedules]);
 
   useEffect(() => {
-    supabase.from('staff').select('id, name').order('name').then(({ data }) => {
+    staffService.getNameOptions().then(({ data }) => {
       setStaffList((data as StaffOption[]) || []);
     });
   }, []);
@@ -99,8 +95,8 @@ export const ClassScheduleManagement = () => {
       semester: Number(form.semester), academic_year: form.academic_year,
     };
     const { error } = editing
-      ? await supabase.from('class_schedules').update(payload).eq('id', editing.id)
-      : await supabase.from('class_schedules').insert(payload);
+      ? await classScheduleService.update(editing.id, payload)
+      : await classScheduleService.insert(payload);
     if (error) { toast({ title: 'เกิดข้อผิดพลาด', description: error.message, variant: 'destructive' }); return; }
     toast({ title: editing ? 'แก้ไขสำเร็จ' : 'เพิ่มสำเร็จ' });
     setDialogOpen(false); fetchSchedules();
@@ -108,7 +104,7 @@ export const ClassScheduleManagement = () => {
 
   const handleDelete = async (id: string) => {
     if (!confirm('ยืนยันการลบ?')) return;
-    await supabase.from('class_schedules').delete().eq('id', id);
+    await classScheduleService.delete(id);
     toast({ title: 'ลบสำเร็จ' }); fetchSchedules();
   };
 

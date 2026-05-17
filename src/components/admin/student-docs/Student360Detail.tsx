@@ -4,7 +4,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
-import { supabase } from '@/integrations/supabase/client';
 import {
     ArrowLeft, User, Trophy, Star, ClipboardCheck, Heart, Home,
     ExternalLink, Utensils, Wallet, FileText, Calendar,
@@ -13,6 +12,7 @@ import { student360Service, type Student360Profile } from '@/services/student-36
 import { attendanceService, type AttendanceStatus } from '@/services/attendance.service';
 import { wasteSummaryService, type WasteStudentSummary } from '@/services/waste-bank.service';
 import { savingsSummaryService, type SavingsStudentSummary } from '@/services/savings.service';
+import { specialNeedsService, counselingService } from '@/services/academic.service';
 import { formatThaiDateFull } from '@/lib/thaiDate';
 import { cn } from '@/lib/utils';
 import { HomeVisitTab } from './HomeVisitForm';
@@ -263,14 +263,8 @@ const SupportSummary = ({ studentId }: { studentId: string }) => {
         let canceled = false;
         (async () => {
             const [sn, cr] = await Promise.all([
-                supabase
-                    .from('student_special_needs')
-                    .select('id', { count: 'exact', head: true })
-                    .eq('student_id', studentId),
-                supabase
-                    .from('counseling_records')
-                    .select('id', { count: 'exact', head: true })
-                    .eq('student_id', studentId),
+                specialNeedsService.countByStudent(studentId),
+                counselingService.countByStudent(studentId),
             ]);
             if (!canceled) {
                 setSpecialCount(sn.count ?? 0);

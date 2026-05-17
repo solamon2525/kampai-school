@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { counselingService } from '@/services/academic.service';
+import { studentsService } from '@/services/students.service';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -65,18 +66,14 @@ export const CounselingManagement = () => {
 
   const fetchRecords = async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from('counseling_records')
-      .select('*, students(student_code, first_name, last_name, class_level, class_room)')
-      .order('session_date', { ascending: false });
+    const { data } = await counselingService.getAll();
     setRecords((data as CounselingRecord[]) || []);
     setLoading(false);
   };
 
   useEffect(() => { fetchRecords(); }, []);
   useEffect(() => {
-    supabase.from('students').select('id, student_code, first_name, last_name, class_level, class_room').order('first_name')
-      .then(({ data }) => setStudents((data as StudentOption[]) || []));
+    studentsService.getAcademicOptions().then(({ data }) => setStudents((data as StudentOption[]) || []));
   }, []);
 
   const filteredStudents = studentSearch
@@ -114,8 +111,8 @@ export const CounselingManagement = () => {
       action_taken: form.action_taken || null, followup_date: form.followup_date || null, status: form.status,
     };
     const { error } = editing
-      ? await supabase.from('counseling_records').update(payload).eq('id', editing.id)
-      : await supabase.from('counseling_records').insert(payload);
+      ? await counselingService.update(editing.id, payload)
+      : await counselingService.insert(payload);
     if (error) { toast({ title: 'เกิดข้อผิดพลาด', description: error.message, variant: 'destructive' }); return; }
     toast({ title: editing ? 'แก้ไขสำเร็จ' : 'บันทึกสำเร็จ' });
     setDialogOpen(false); fetchRecords();
@@ -123,7 +120,7 @@ export const CounselingManagement = () => {
 
   const handleDelete = async (id: string) => {
     if (!confirm('ยืนยันการลบ?')) return;
-    await supabase.from('counseling_records').delete().eq('id', id);
+    await counselingService.delete(id);
     toast({ title: 'ลบสำเร็จ' }); fetchRecords();
   };
 

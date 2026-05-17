@@ -63,6 +63,13 @@ export const studentsService = {
   getActive: () =>
     supabase.from('students').select('*').eq('is_active', true).order('class').order('class_number'),
 
+  /** Lightweight options สำหรับ dropdown ใน academic cluster (special needs / counseling) — ใช้ class_level/class_room schema */
+  getAcademicOptions: () =>
+    supabase
+      .from('students')
+      .select('id, student_code, first_name, last_name, class_level, class_room')
+      .order('first_name'),
+
   /** ดึงนักเรียนในชั้นเรียนที่กำหนด (active เท่านั้น) — ใช้ใน checkin / scores / conduct / waste */
   getByClass: (className: string) =>
     supabase
