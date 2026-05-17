@@ -26,3 +26,7 @@ export * from './ics.service';
 export * from './action-plan.service';
 export * from './doc-templates.service';
 export * from './student-documents.service';
+export * from './meal-budget.service';
+export * from './home-visits.service';
+export * from './sdq.service';
+export * from './student-360.service';

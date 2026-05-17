@@ -216,8 +216,24 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.19.0–1.19.9 (Documents Hub + 6 New Modules)',
+        version: 'v1.20.0 (Student 360° integration — Phase 4G)',
         date: 'ล่าสุด',
+        badge: 'bg-sky-600',
+        items: [
+            'จาก data overlap audit พบ student-docs (Phase 4F) duplicate กับ students/score_records/student_special_needs/counseling_records 80-100% — refactor เป็น Student 360° Profile Hub เพื่อใช้ source-of-truth tables ตัวเดียว',
+            'Migration 060: student_meal_budget (UNIQUE student+year+period) + RLS is_teacher() + DELETE rows category IN (registry,transcript,support) + UPDATE doc_category_meta.students label เป็น "ภาพรวมนักเรียน 360°"',
+            'ยุบ 3 หมวดซ้ำ: STUDENT_DOC_CATEGORIES จาก 6 → 4 (home_visit/health/meal/general) — เลิก registry/transcript/support ที่ duplicate students table',
+            'lib/sdqScoring.ts: 25 ข้อ Thai SDQ (5 domain × 5) + reverse-coded items + computeSdqScores + interpretSdqTotal (0-15 ปกติ, 16-19 เสี่ยง, 20-40 มีปัญหา) + interpretDomain cutoffs',
+            'Services ใหม่: meal-budget (upsert onConflict student+year+period) + home-visits (photo upload signed 365d) + sdq (upsert onConflict student+year) + student-360 (getProfile aggregate address + listStudents search/classroom filter + listClassrooms)',
+            'StudentDocsHub refactor: 6-card category grid → student-first landing (search + classroom Select + grid PersonAvatar) — คลิกนักเรียน → ?id=... → Student360Detail',
+            'Student360Detail (10 tabs): โปรไฟล์ (read-only จาก students + link StudentsManagement) / คะแนน+ความดี (External link ไป /admin/dashboard/scores+conduct) / เช็คชื่อ (% present/late/absent คำนวณจาก attendance_records) / ดูแลพิเศษ (special_needs+counseling counts) / เยี่ยมบ้าน (HomeVisit form+timeline+photo) / SDQ (25 ข้อ Likert + real-time domain scoring + history) / อาหาร/นม (per ปี-ภาคเรียน + totals card) / ธนาคาร (waste+savings sum) / ไฟล์แนบ (general category)',
+            'No duplicate data: ทุก field profile ดึงจาก students table ตรง ๆ (current_address compose จาก house_no+moo+tambon+amphoe+province) — ไม่มี local copy + แก้ที่ StudentsManagement = sync ทั่วระบบ',
+            'Bundle: chunk student-docs ≤ 30 KB gz — reuse PersonAvatar / formatThaiDateFull / shadcn Card/Select/Badge/Table/Dialog',
+        ],
+    },
+    {
+        version: 'v1.19.0–1.19.9 (Documents Hub + 6 New Modules)',
+        date: '',
         badge: 'bg-emerald-600',
         items: [
             'ผสานเนื้อหา school-docs.html mockup (15 หมวด) เข้าระบบหลัก — 6 phases, 11 migrations (049-059), build verified ทุก phase',

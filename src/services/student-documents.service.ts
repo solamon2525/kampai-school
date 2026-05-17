@@ -4,18 +4,21 @@
  */
 import { supabase } from '@/integrations/supabase/client';
 
+/**
+ * Categories ที่ student_documents เก็บไว้จริง — ลบ registry/transcript/support
+ * ออกแล้วเพราะมีตารางต้นทาง (students/score_records/counseling+special_needs)
+ * เก็บเฉพาะหมวดที่ student_documents เป็น attachment ของ feature ใหม่ + general
+ */
 export type StudentDocCategoryKey =
-    | 'registry' | 'transcript' | 'health' | 'meal' | 'home_visit' | 'support';
+    | 'home_visit' | 'health' | 'meal' | 'general';
 
 export const STUDENT_DOC_CATEGORIES: {
     key: StudentDocCategoryKey; label: string; emoji: string; description: string;
 }[] = [
-    { key: 'registry',    label: 'ทะเบียนนักเรียน', emoji: '📋', description: 'ข้อมูลทะเบียน' },
-    { key: 'transcript',  label: 'ผลการเรียน ปพ.',   emoji: '📊', description: 'ปพ.1–9' },
-    { key: 'health',      label: 'สุขภาพ / SDQ',     emoji: '🏥', description: 'คัดกรองสุขภาพและ SDQ' },
-    { key: 'meal',        label: 'อาหารกลางวัน/นม',  emoji: '🍱', description: 'งบประมาณอาหารกลางวัน' },
-    { key: 'home_visit',  label: 'เยี่ยมบ้าน',      emoji: '🏠', description: 'บันทึกการเยี่ยมบ้าน' },
-    { key: 'support',     label: 'ดูแลช่วยเหลือ',   emoji: '🎒', description: 'นักเรียนกลุ่มเสี่ยง/พิเศษ' },
+    { key: 'home_visit',  label: 'เยี่ยมบ้าน',     emoji: '🏠', description: 'บันทึกการเยี่ยมบ้าน' },
+    { key: 'health',      label: 'สุขภาพ / SDQ',   emoji: '🏥', description: 'SDQ + คัดกรอง' },
+    { key: 'meal',        label: 'อาหาร/นม',       emoji: '🍱', description: 'อุดหนุนรายเด็ก' },
+    { key: 'general',     label: 'เอกสารทั่วไป',   emoji: '📎', description: 'สำเนาบัตร/ทะเบียน/ใบเกิด' },
 ];
 
 export type StudentDocument = {

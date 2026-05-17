@@ -1,52 +1,78 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import {
-    Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
-} from '@/components/ui/dialog';
 import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
-import {
-    Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from '@/components/ui/table';
-import { useToast } from '@/hooks/use-toast';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
-import { ArrowLeft, GraduationCap, Plus, Paperclip, Trash2, Upload } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import {
-    studentDocumentsService, STUDENT_DOC_CATEGORIES,
-    type StudentDocCategoryKey, type StudentDocument,
-} from '@/services/student-documents.service';
-import { formatThaiDateFull } from '@/lib/thaiDate';
+import { GraduationCap, Search, Users } from 'lucide-react';
+import { student360Service } from '@/services/student-360.service';
+import { Student360Detail } from './Student360Detail';
+import { cn } from '@/lib/utils';
 
-type Student = { id: string; first_name: string | null; last_name: string | null; photo_url: string | null; classroom: string | null };
+type StudentRow = {
+    id: string;
+    student_code: string | null;
+    name: string | null;
+    first_name: string | null;
+    last_name: string | null;
+    photo_url: string | null;
+    class: string | null;
+    class_number: number | null;
+};
 
 const StudentDocsHub = () => {
     const [searchParams, setSearchParams] = useSearchParams();
-    const category = searchParams.get('cat') as StudentDocCategoryKey | null;
-    const navigate = useNavigate();
-    const [counts, setCounts] = useState<Record<string, number>>({});
+    const studentId = searchParams.get('id');
+
+    const [search, setSearch] = useState('');
+    const [classroom, setClassroom] = useState<string>('all');
+    const [classrooms, setClassrooms] = useState<string[]>([]);
+    const [students, setStudents] = useState<StudentRow[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         (async () => {
-            const res = await studentDocumentsService.countsByCategory();
-            if (res.data) setCounts(res.data);
-            setLoading(false);
+            const res = await student360Service.listClassrooms();
+            if (res.data) setClassrooms(res.data);
         })();
     }, []);
 
-    if (category) {
+    useEffect(() => {
+        let canceled = false;
+        (async () => {
+            setLoading(true);
+            const res = await student360Service.listStudents({
+                search: search || undefined,
+                classroom: classroom === 'all' ? undefined : classroom,
+            });
+            if (!canceled) {
+                setStudents((res.data ?? []) as StudentRow[]);
+                setLoading(false);
+            }
+        })();
+        return () => { canceled = true; };
+    }, [search, classroom]);
+
+    const counts = useMemo(() => {
+        const byClass: Record<string, number> = {};
+        for (const s of students) {
+            const k = s.class ?? '–';
+            byClass[k] = (byClass[k] ?? 0) + 1;
+        }
+        return { total: students.length, byClass };
+    }, [students]);
+
+    if (studentId) {
         return (
-            <StudentDocsByCategory
-                category={category}
-                onBack={() => setSearchParams({})}
-            />
+            <div className="p-6 md:p-8 max-w-screen-2xl mx-auto">
+                <Student360Detail
+                    studentId={studentId}
+                    onBack={() => setSearchParams({})}
+                />
+            </div>
         );
     }
 
@@ -55,245 +81,83 @@ const StudentDocsHub = () => {
             <div>
                 <p className="text-xs font-semibold text-primary uppercase">เอกสารนักเรียน</p>
                 <h1 className="text-3xl md:text-4xl font-bold text-foreground mt-1 flex items-center gap-2">
-                    <GraduationCap className="w-8 h-8 text-primary" /> Student Documents Hub
+                    <GraduationCap className="w-8 h-8 text-primary" /> ภาพรวมนักเรียน 360°
                 </h1>
-                <p className="text-sm text-muted-foreground mt-1">6 หมวด — ทะเบียน, ปพ., SDQ, อาหาร, เยี่ยมบ้าน, ดูแลช่วยเหลือ</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                    เลือกนักเรียน → ดูโปรไฟล์ + คะแนน + เช็คชื่อ + เยี่ยมบ้าน + SDQ + อาหาร/นม + ธนาคาร + ไฟล์แนบ ในที่เดียว
+                </p>
             </div>
+
+            <Card>
+                <CardContent className="p-4 flex items-center gap-3 flex-wrap">
+                    <div className="relative flex-1 min-w-[220px]">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            placeholder="ค้นหาชื่อ / รหัสนักเรียน…"
+                            className="pl-9"
+                        />
+                    </div>
+                    <Select value={classroom} onValueChange={setClassroom}>
+                        <SelectTrigger className="w-44">
+                            <SelectValue placeholder="ทุกห้อง" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">ทุกห้อง</SelectItem>
+                            {classrooms.map((c) => (
+                                <SelectItem key={c} value={c}>{c}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <Badge variant="outline" className="text-xs">
+                        <Users className="w-3 h-3 mr-1" /> {counts.total} คน
+                    </Badge>
+                </CardContent>
+            </Card>
 
             {loading ? (
                 <p className="text-center py-12 text-muted-foreground">กำลังโหลด…</p>
+            ) : students.length === 0 ? (
+                <Card>
+                    <CardContent className="py-12 text-center text-muted-foreground">
+                        ไม่พบนักเรียนตามเงื่อนไข
+                    </CardContent>
+                </Card>
             ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-                    {STUDENT_DOC_CATEGORIES.map((cat) => (
-                        <Card
-                            key={cat.key}
-                            className="cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-md"
-                            onClick={() => setSearchParams({ cat: cat.key })}
-                        >
-                            <CardContent className="p-4 text-center space-y-2">
-                                <span className="text-3xl block" aria-hidden>{cat.emoji}</span>
-                                <p className="font-semibold text-sm text-foreground">{cat.label}</p>
-                                <p className="text-[11px] text-muted-foreground">{cat.description}</p>
-                                <Badge variant="outline" className="text-[10px]">{counts[cat.key] ?? 0} รายการ</Badge>
-                            </CardContent>
-                        </Card>
-                    ))}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                    {students.map((s) => {
+                        const fullName = `${s.first_name ?? ''} ${s.last_name ?? ''}`.trim() || s.name || '–';
+                        return (
+                            <Card
+                                key={s.id}
+                                onClick={() => setSearchParams({ id: s.id })}
+                                className={cn(
+                                    'cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-md',
+                                )}
+                            >
+                                <CardContent className="p-3 flex flex-col items-center text-center gap-2">
+                                    <PersonAvatar name={fullName} photoUrl={s.photo_url} size="lg" />
+                                    <div className="min-w-0 w-full">
+                                        <p className="text-sm font-semibold text-foreground truncate">{fullName}</p>
+                                        <div className="flex items-center justify-center gap-1 mt-1 flex-wrap">
+                                            {s.class ? (
+                                                <Badge variant="secondary" className="text-[10px]">{s.class}</Badge>
+                                            ) : null}
+                                            {s.class_number ? (
+                                                <Badge variant="outline" className="text-[10px]">เลขที่ {s.class_number}</Badge>
+                                            ) : null}
+                                        </div>
+                                        {s.student_code ? (
+                                            <p className="text-[10px] text-muted-foreground mt-1 font-mono truncate">{s.student_code}</p>
+                                        ) : null}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        );
+                    })}
                 </div>
             )}
-
-            <Card>
-                <CardContent className="p-6 text-sm text-muted-foreground">
-                    <p>
-                        💡 คลิกหมวดเพื่ออัปโหลด/บันทึกเอกสารต่อนักเรียน
-                        — ระบบ SDQ + เยี่ยมบ้านแบบเต็มจะอยู่ใน sub-page เฉพาะของหมวด (Phase ถัดไป).
-                    </p>
-                </CardContent>
-            </Card>
-        </div>
-    );
-};
-
-interface ByCategoryProps {
-    category: StudentDocCategoryKey;
-    onBack: () => void;
-}
-
-const StudentDocsByCategory = ({ category, onBack }: ByCategoryProps) => {
-    const meta = STUDENT_DOC_CATEGORIES.find((c) => c.key === category)!;
-    const [docs, setDocs] = useState<(StudentDocument & { student?: Student })[]>([]);
-    const [students, setStudents] = useState<Student[]>([]);
-    const [loading, setLoading] = useState(true);
-    const { toast } = useToast();
-
-    const [dialogOpen, setDialogOpen] = useState(false);
-    const [form, setForm] = useState<{
-        student_id: string; doc_date: string; title: string; notes: string; file: File | null;
-    }>({
-        student_id: '', doc_date: new Date().toISOString().slice(0, 10),
-        title: '', notes: '', file: null,
-    });
-
-    const reload = async () => {
-        setLoading(true);
-        const res = await studentDocumentsService.listByCategory(category);
-        if (res.data) {
-            setDocs(res.data as (StudentDocument & { student?: Student })[]);
-        }
-        setLoading(false);
-    };
-    useEffect(() => { reload(); /* eslint-disable-next-line */ }, [category]);
-
-    useEffect(() => {
-        supabase.from('students')
-            .select('id, first_name, last_name, photo_url, classroom')
-            .order('first_name')
-            .then(({ data }) => { if (data) setStudents(data as Student[]); });
-    }, []);
-
-    const handleSave = async () => {
-        if (!form.student_id) { toast({ title: 'เลือกนักเรียน', variant: 'destructive' }); return; }
-        let fileUrl: string | null = null;
-        if (form.file) {
-            const up = await studentDocumentsService.upload(form.student_id, category, form.file);
-            if (up.error) { toast({ title: 'อัปโหลดไฟล์ล้มเหลว', description: up.error.message, variant: 'destructive' }); return; }
-            fileUrl = up.url;
-        }
-        const res = await studentDocumentsService.create({
-            student_id: form.student_id,
-            category_key: category,
-            doc_date: form.doc_date,
-            title: form.title || null,
-            file_url: fileUrl,
-            notes: form.notes || null,
-        });
-        if (res.error) { toast({ title: 'บันทึกล้มเหลว', description: res.error.message, variant: 'destructive' }); return; }
-        toast({ title: 'เพิ่มเอกสารแล้ว' });
-        setDialogOpen(false);
-        setForm({ student_id: '', doc_date: new Date().toISOString().slice(0, 10), title: '', notes: '', file: null });
-        reload();
-    };
-
-    const handleDelete = async (id: string) => {
-        if (!confirm('ลบเอกสารนี้?')) return;
-        await studentDocumentsService.remove(id);
-        toast({ title: 'ลบแล้ว' });
-        reload();
-    };
-
-    return (
-        <div className="p-6 md:p-8 space-y-6 max-w-screen-2xl mx-auto">
-            <div className="flex items-center gap-3">
-                <Button size="icon" variant="ghost" onClick={onBack}>
-                    <ArrowLeft className="w-4 h-4" />
-                </Button>
-                <div>
-                    <p className="text-xs font-semibold text-primary uppercase">เอกสารนักเรียน</p>
-                    <h1 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-2">
-                        <span>{meta.emoji}</span> {meta.label}
-                    </h1>
-                    <p className="text-sm text-muted-foreground">{meta.description}</p>
-                </div>
-                <div className="ml-auto">
-                    <Button onClick={() => setDialogOpen(true)}>
-                        <Plus className="w-4 h-4 mr-1" /> เพิ่มเอกสาร
-                    </Button>
-                </div>
-            </div>
-
-            <Card>
-                <CardContent className="p-0">
-                    {loading ? (
-                        <p className="text-center py-12 text-muted-foreground">กำลังโหลด…</p>
-                    ) : docs.length === 0 ? (
-                        <p className="text-center py-12 text-muted-foreground">ยังไม่มีเอกสารในหมวดนี้</p>
-                    ) : (
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>นักเรียน</TableHead>
-                                    <TableHead>วันที่</TableHead>
-                                    <TableHead>หัวเรื่อง</TableHead>
-                                    <TableHead>หมายเหตุ</TableHead>
-                                    <TableHead></TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {docs.map((d) => {
-                                    const name = d.student
-                                        ? `${d.student.first_name ?? ''} ${d.student.last_name ?? ''}`.trim() || '–'
-                                        : '–';
-                                    return (
-                                        <TableRow key={d.id}>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    {d.student ? (
-                                                        <PersonAvatar name={name} photoUrl={d.student.photo_url} size="xs" />
-                                                    ) : null}
-                                                    <div>
-                                                        <p className="text-sm">{name}</p>
-                                                        {d.student?.classroom ? (
-                                                            <p className="text-[11px] text-muted-foreground">ห้อง {d.student.classroom}</p>
-                                                        ) : null}
-                                                    </div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="text-xs whitespace-nowrap">{formatThaiDateFull(d.doc_date)}</TableCell>
-                                            <TableCell className="text-sm">
-                                                <div className="flex items-center gap-1">
-                                                    {d.file_url ? (
-                                                        <a href={d.file_url} target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:underline">
-                                                            <Paperclip className="w-3 h-3" /> {d.title ?? 'ไฟล์แนบ'}
-                                                        </a>
-                                                    ) : (
-                                                        d.title ?? '–'
-                                                    )}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="text-xs text-muted-foreground">{d.notes ?? '–'}</TableCell>
-                                            <TableCell>
-                                                <Button size="icon" variant="ghost" className="w-7 h-7 text-destructive"
-                                                    onClick={() => handleDelete(d.id)}>
-                                                    <Trash2 className="w-3.5 h-3.5" />
-                                                </Button>
-                                            </TableCell>
-                                        </TableRow>
-                                    );
-                                })}
-                            </TableBody>
-                        </Table>
-                    )}
-                </CardContent>
-            </Card>
-
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                <DialogContent>
-                    <DialogHeader><DialogTitle>เพิ่ม{meta.label}</DialogTitle></DialogHeader>
-                    <div className="space-y-3">
-                        <div>
-                            <Label className="mb-1 block text-xs">นักเรียน *</Label>
-                            <Select value={form.student_id} onValueChange={(v) => setForm({ ...form, student_id: v })}>
-                                <SelectTrigger><SelectValue placeholder="เลือกนักเรียน" /></SelectTrigger>
-                                <SelectContent>
-                                    {students.map((s) => (
-                                        <SelectItem key={s.id} value={s.id}>
-                                            {`${s.first_name ?? ''} ${s.last_name ?? ''}`.trim() || s.id} {s.classroom ? `(${s.classroom})` : ''}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="grid grid-cols-2 gap-2">
-                            <div>
-                                <Label className="mb-1 block text-xs">วันที่</Label>
-                                <Input type="date" value={form.doc_date} onChange={(e) => setForm({ ...form, doc_date: e.target.value })} />
-                            </div>
-                            <div>
-                                <Label className="mb-1 block text-xs">หัวเรื่อง</Label>
-                                <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
-                            </div>
-                        </div>
-                        <div>
-                            <Label className="mb-1 block text-xs">หมายเหตุ</Label>
-                            <Input value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
-                        </div>
-                        <div>
-                            <Label className="mb-1 block text-xs">ไฟล์</Label>
-                            <div className="flex items-center gap-2">
-                                <Input
-                                    type="file"
-                                    accept=".pdf,.png,.jpg,.jpeg,.webp"
-                                    onChange={(e) => setForm({ ...form, file: e.target.files?.[0] ?? null })}
-                                />
-                                <Upload className="w-4 h-4 text-muted-foreground" />
-                            </div>
-                        </div>
-                    </div>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setDialogOpen(false)}>ยกเลิก</Button>
-                        <Button onClick={handleSave}>บันทึก</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
         </div>
     );
 };
