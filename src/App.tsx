@@ -19,6 +19,7 @@ import NotFound from "./pages/NotFound";
 const About = lazy(() => import("./pages/About"));
 const Administrators = lazy(() => import("./pages/Administrators"));
 const Staff = lazy(() => import("./pages/Staff"));
+const StaffDetail = lazy(() => import("./pages/StaffDetail"));
 const Students = lazy(() => import("./pages/Students"));
 const Curriculum = lazy(() => import("./pages/Curriculum"));
 const News = lazy(() => import("./pages/News"));
@@ -94,6 +95,7 @@ const App = () => (
             <Route path="/about" element={<About />} />
             <Route path="/administrators" element={<Administrators />} />
             <Route path="/staff" element={<Staff />} />
+            <Route path="/staff/:id" element={<StaffDetail />} />
             <Route path="/students" element={<Students />} />
             <Route path="/curriculum" element={<Curriculum />} />
             <Route path="/news" element={<News />} />

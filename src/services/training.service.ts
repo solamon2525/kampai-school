@@ -43,6 +43,11 @@ export type TrainingPublicRow = {
     created_at: string;
 };
 
+/** เหมือน TrainingPublicRow แต่มี staff_id เพื่อ filter รายคน */
+export type TrainingPerStaffRow = TrainingPublicRow & {
+    staff_id: string;
+};
+
 export type TrainingPublicAggregate = {
     total_hours: number;
     total_count: number;
@@ -92,4 +97,12 @@ export const trainingPublicService = {
         if (error) return { data: null, error };
         return { data: data as unknown as TrainingPublicAggregate, error: null };
     },
+
+    /** ดึงเกียรติบัตรของครูคนเดียว (public) — ผ่าน VIEW training_per_staff_view */
+    getByStaff: (staffId: string) =>
+        supabase
+            .from('training_per_staff_view' as never)
+            .select('*')
+            .eq('staff_id', staffId)
+            .order('start_date', { ascending: false }),
 };

@@ -216,8 +216,24 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.17.0 (Training Showcase — multi-view + motion polish)',
+        version: 'v1.18.0 (Staff Detail Page — per-teacher training showcase)',
         date: 'ล่าสุด',
+        badge: 'bg-amber-600',
+        items: [
+            '/staff/:id: เปลี่ยน modal เป็น page เต็ม สำหรับครู+บุคลากรสนับสนุน — Hero (PersonAvatar 32-40 + ribbon ตำแหน่ง + badges วิชา/แผนก/วิทยฐานะ + contact ปุ่มทอง)',
+            'ProfileCard: วุฒิ · วิชาเอก · การศึกษา · ประสบการณ์ · extra_info (grid 2 คอลัมน์) — แสดงเฉพาะที่มีข้อมูล',
+            'Stats KPI: เกียรติบัตร (amber) + ชั่วโมงรวม (violet) + ประเภท (emerald) — gradient tile palette แต่ละสี',
+            'Certificate showcase รายครู: default = Spotlight + Strip + ViewModeSwitcher สลับ 5 modes (Grid/Bento/Spotlight/Polaroid/Timeline) ครบ',
+            'CTA gradient gold "ดูประวัติ + เกียรติบัตร →" หลัง flip card ของครู+support → /staff/:id (admin/ผู้บริหาร ยังใช้ modal เดิม เพราะแยก table)',
+            'Empty state: ครูที่ไม่มี cert → "ยังไม่มีเกียรติบัตรที่เผยแพร่" + icon Award',
+            'DB: VIEW training_per_staff_view (Migration 048) — เปิดเผย staff_id เพื่อ filter รายคน, ยัง anonymize อย่างอื่น (security_invoker)',
+            'Service: staffService.getById + trainingPublicService.getByStaff — เรียกขนาน Promise.all',
+            'Routing: lazy /staff/:id + PageLoader fallback + SEOHead ด้วยชื่อครู',
+        ],
+    },
+    {
+        version: 'v1.17.0 (Training Showcase — multi-view + motion polish)',
+        date: '',
         badge: 'bg-fuchsia-600',
         items: [
             'ViewModeSwitcher: 5 modes (Grid + Bento + Spotlight + Polaroid + Timeline) — toggle bar ใน toolbar ของแท็บภาพรวม + public /training-showcase',

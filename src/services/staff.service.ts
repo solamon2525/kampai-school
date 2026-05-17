@@ -15,6 +15,14 @@ export const staffService = {
       .eq('staff_type', 'teaching')
       .order('order_position', { ascending: true }),
 
+  /** ดึงครูคนเดียว (public-safe fields) สำหรับหน้า /staff/:id */
+  getById: (id: string) =>
+    supabase
+      .from('staff')
+      .select('id, name, position, subject, photo_url, email, phone, department, staff_type, academic_rank, degree, major, education, experience, extra_info')
+      .eq('id', id)
+      .maybeSingle(),
+
   getAllPersonnel: async () => {
     const [staffRes, adminsRes] = await Promise.all([
       supabase

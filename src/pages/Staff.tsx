@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
 import { supabase } from '@/integrations/supabase/client';
@@ -6,7 +7,7 @@ import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import { SEOHead } from '@/components/SEOHead';
 import { motion } from 'framer-motion';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Mail, Phone, RotateCcw, LayoutGrid, List } from 'lucide-react';
+import { Mail, Phone, RotateCcw, LayoutGrid, List, Trophy, ChevronRight } from 'lucide-react';
 import { getInitials } from '@/lib/avatars';
 import { TrainingEmbedWidget } from '@/components/admin/hr/TrainingEmbedWidget';
 
@@ -465,15 +466,19 @@ const FeaturedCard = ({
 
 // ── Regular Staff Card ─────────────────────────────────────────────────────────
 const StaffCard = ({
-  person, ribbon, isFlipped, onFlip, onOpenModal, delay,
+  person, ribbon, isFlipped, onFlip, onOpenModal, detailLink, delay,
 }: {
   person: Administrator | StaffMember;
   ribbon?: string;
   isFlipped: boolean;
   onFlip: (e: React.MouseEvent) => void;
   onOpenModal: () => void;
+  /** ถ้ามี → front click + back CTA นำทางไป page นี้แทน modal */
+  detailLink?: string;
   delay: number;
 }) => {
+  const navigate = useNavigate();
+  const handleFrontClick = detailLink ? () => navigate(detailLink) : onOpenModal;
   const subj = 'subject' in person ? person.subject : null;
   const edu  = 'education' in person ? person.education : null;
   const exp  = 'experience' in person ? person.experience : null;
@@ -496,7 +501,7 @@ const StaffCard = ({
     >
       <div className="sd-card-inner" style={{ minHeight: 280 }}>
         {/* ── Front ── */}
-        <div className="sd-card-front" onClick={onOpenModal} style={{ cursor: 'pointer' }}>
+        <div className="sd-card-front" onClick={handleFrontClick} style={{ cursor: 'pointer' }}>
           <div className="sd-photo">
             <PhotoBox url={person.photo_url} name={person.name} />
             {ribbon && <div className="sd-ribbon">{ribbon}</div>}
@@ -508,7 +513,7 @@ const StaffCard = ({
               <span className={`sd-badge ${sc}`}>{label}</span>
               <span className="sd-reveal-name">{person.name}</span>
               <span className="sd-reveal-pos">{person.position}</span>
-              <span className="sd-reveal-cta">↗ คลิกเพื่อดูรายละเอียด</span>
+              <span className="sd-reveal-cta">{detailLink ? '↗ คลิกดูประวัติ + เกียรติบัตร' : '↗ คลิกเพื่อดูรายละเอียด'}</span>
             </div>
           </div>
           <div className="p-4 pb-5">
@@ -552,7 +557,22 @@ const StaffCard = ({
                 <Phone className="w-3.5 h-3.5" /> {tel}
               </a>
             )}
-            <button className="sd-back-btn detail" onClick={onOpenModal}>ดูประวัติ</button>
+            {detailLink ? (
+              <Link
+                to={detailLink}
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold
+                  bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-500
+                  hover:from-amber-400 hover:to-yellow-600
+                  text-slate-900 shadow-md ring-1 ring-amber-200/50 transition-all hover:scale-105"
+              >
+                <Trophy className="w-3.5 h-3.5" />
+                ดูประวัติ + เกียรติบัตร
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
+            ) : (
+              <button className="sd-back-btn detail" onClick={onOpenModal}>ดูประวัติ</button>
+            )}
           </div>
         </div>
       </div>
@@ -948,6 +968,7 @@ const Staff = () => {
                           isFlipped={flippedId === key}
                           onFlip={handleFlip(key)}
                           onOpenModal={() => openModal(staffToModal(teacher))}
+                          detailLink={`/staff/${teacher.id}`}
                           delay={i}
                         />
                       );
@@ -974,6 +995,7 @@ const Staff = () => {
                           isFlipped={flippedId === key}
                           onFlip={handleFlip(key)}
                           onOpenModal={() => openModal(staffToModal(staff))}
+                          detailLink={`/staff/${staff.id}`}
                           delay={i}
                         />
                       );
