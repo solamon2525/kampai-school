@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { formatThaiDateFull } from '@/lib/thaiDate';
+import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -232,7 +233,7 @@ export default function MeetingsManagement() {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <Label>วันที่ประชุม <span className="text-destructive">*</span></Label>
-                <Input type="date" value={form.meeting_date} onChange={e => setForm(f => ({ ...f, meeting_date: e.target.value }))} />
+                <ThaiDatePicker value={form.meeting_date} onChange={v => setForm(f => ({ ...f, meeting_date: v }))} clearable={false} />
               </div>
               <div className="space-y-1">
                 <Label>เวลา</Label>

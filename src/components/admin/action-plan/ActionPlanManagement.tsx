@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
@@ -272,11 +273,11 @@ const ActionPlanManagement = () => {
                         <div className="grid grid-cols-2 gap-2">
                             <div>
                                 <Label className="mb-1 block text-xs">เริ่ม</Label>
-                                <Input type="date" value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} />
+                                <ThaiDatePicker value={form.start_date} onChange={v => setForm({ ...form, start_date: v })} />
                             </div>
                             <div>
                                 <Label className="mb-1 block text-xs">สิ้นสุด</Label>
-                                <Input type="date" value={form.end_date} onChange={(e) => setForm({ ...form, end_date: e.target.value })} />
+                                <ThaiDatePicker value={form.end_date} onChange={v => setForm({ ...form, end_date: v })} />
                             </div>
                         </div>
                         <div>

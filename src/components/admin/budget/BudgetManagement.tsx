@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -274,7 +275,7 @@ const BudgetManagement = () => {
                             </div>
                             <div>
                                 <Label className="mb-1 block text-xs">วันที่</Label>
-                                <Input type="date" value={txnForm.txn_date} onChange={(e) => setTxnForm({ ...txnForm, txn_date: e.target.value })} />
+                                <ThaiDatePicker value={txnForm.txn_date} onChange={v => setTxnForm({ ...txnForm, txn_date: v })} />
                             </div>
                         </div>
                         <div>

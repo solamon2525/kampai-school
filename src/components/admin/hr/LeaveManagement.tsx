@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
@@ -281,11 +282,11 @@ export default function LeaveManagement() {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <Label>วันที่เริ่ม</Label>
-                <Input type="date" value={form.start_date} onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))} />
+                <ThaiDatePicker value={form.start_date} onChange={v => setForm(f => ({ ...f, start_date: v }))} />
               </div>
               <div className="space-y-1">
                 <Label>วันที่สิ้นสุด</Label>
-                <Input type="date" value={form.end_date} onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))} />
+                <ThaiDatePicker value={form.end_date} onChange={v => setForm(f => ({ ...f, end_date: v }))} />
               </div>
             </div>
             <div className="space-y-1">

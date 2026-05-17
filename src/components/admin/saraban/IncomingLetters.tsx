@@ -12,6 +12,7 @@ import { Plus, Search, Pencil, Trash2, Paperclip, MailOpen, Upload } from 'lucid
 import { TrackingTimeline } from '@/components/admin/docs-hub/TrackingTimeline';
 import { letterTrackingService } from '@/services/letter-tracking.service';
 import { formatThaiDateFull } from '@/lib/thaiDate';
+import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
 
 interface IncomingLetter {
     id: string;
@@ -258,11 +259,11 @@ export const IncomingLetters = () => {
                         <div className="grid grid-cols-2 gap-3">
                             <div>
                                 <Label className="mb-1.5 block">วันที่รับ *</Label>
-                                <Input type="date" value={form.received_date} onChange={e => setForm(f => ({ ...f, received_date: e.target.value }))} />
+                                <ThaiDatePicker value={form.received_date} onChange={v => setForm(f => ({ ...f, received_date: v }))} clearable={false} />
                             </div>
                             <div>
                                 <Label className="mb-1.5 block">ครบกำหนด</Label>
-                                <Input type="date" value={form.due_date} onChange={e => setForm(f => ({ ...f, due_date: e.target.value }))} />
+                                <ThaiDatePicker value={form.due_date} onChange={v => setForm(f => ({ ...f, due_date: v }))} />
                             </div>
                         </div>
                         <div>

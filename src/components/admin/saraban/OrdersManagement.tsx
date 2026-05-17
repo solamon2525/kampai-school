@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { formatThaiDateFull } from '@/lib/thaiDate';
+import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -251,7 +252,7 @@ export default function OrdersManagement() {
             </div>
             <div className="space-y-1">
               <Label>วันที่</Label>
-              <Input type="date" value={form.doc_date} onChange={e => setForm(f => ({ ...f, doc_date: e.target.value }))} />
+              <ThaiDatePicker value={form.doc_date} onChange={v => setForm(f => ({ ...f, doc_date: v }))} />
             </div>
             <div className="space-y-1">
               <Label>เรื่อง</Label>

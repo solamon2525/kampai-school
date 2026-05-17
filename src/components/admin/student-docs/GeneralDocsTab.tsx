@@ -12,6 +12,7 @@ import {
     studentDocumentsService, type StudentDocument,
 } from '@/services/student-documents.service';
 import { formatThaiDateFull } from '@/lib/thaiDate';
+import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
 
 interface GeneralDocsTabProps { studentId: string }
 
@@ -128,7 +129,7 @@ export const GeneralDocsTab = ({ studentId }: GeneralDocsTabProps) => {
                         <div className="grid grid-cols-2 gap-2">
                             <div>
                                 <Label className="mb-1 block text-xs">วันที่</Label>
-                                <Input type="date" value={form.doc_date} onChange={(e) => setForm({ ...form, doc_date: e.target.value })} />
+                                <ThaiDatePicker value={form.doc_date} onChange={v => setForm({ ...form, doc_date: v })} />
                             </div>
                             <div>
                                 <Label className="mb-1 block text-xs">หัวเรื่อง</Label>

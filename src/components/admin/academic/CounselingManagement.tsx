@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { counselingService } from '@/services/academic.service';
 import { studentsService } from '@/services/students.service';
+import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -226,7 +227,7 @@ export const CounselingManagement = () => {
               </div>
               <div>
                 <Label className="text-xs">วันที่</Label>
-                <Input type="date" value={form.session_date} onChange={e => setForm(f => ({ ...f, session_date: e.target.value }))} className="h-8 text-sm" />
+                <ThaiDatePicker value={form.session_date} onChange={v => setForm(f => ({ ...f, session_date: v }))} className="h-8" />
               </div>
               <div className="col-span-2">
                 <Label className="text-xs">หัวข้อ *</Label>
@@ -248,7 +249,7 @@ export const CounselingManagement = () => {
               </div>
               <div>
                 <Label className="text-xs">วันที่นัดติดตาม</Label>
-                <Input type="date" value={form.followup_date} onChange={e => setForm(f => ({ ...f, followup_date: e.target.value }))} className="h-8 text-sm" />
+                <ThaiDatePicker value={form.followup_date} onChange={v => setForm(f => ({ ...f, followup_date: v }))} className="h-8" />
               </div>
             </div>
             <div>

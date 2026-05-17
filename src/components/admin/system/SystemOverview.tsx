@@ -216,8 +216,25 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.20.3 (docs-hub — Thai dates + file-first upload UX)',
+        version: 'v1.20.4 (docs-hub date INPUTS เป็น พ.ศ. ผ่าน ThaiDatePicker)',
         date: 'ล่าสุด',
+        badge: 'bg-teal-600',
+        items: [
+            'รายงานจาก screenshot ผู้ใช้: dialog "รับหนังสือใหม่" ช่อง "วันที่รับ" แสดง 17/05/2026 (HTML5 native = ค.ศ.) — v1.20.3 แก้แค่ "display" (table cells) ไม่ได้แตะ "input" (form fields)',
+            'แก้ 19 จุดใน 13 ไฟล์ใต้ /admin/dashboard/docs-hub: `<Input type="date">` → `<ThaiDatePicker>` (component พร้อมตั้งแต่ v1.18.x)',
+            'Saraban (4 ไฟล์): IncomingLetters (received_date+due_date), OutgoingLetters (sent_date), Meetings (meeting_date), Orders (doc_date)',
+            'HR (1 ไฟล์): LeaveManagement (start_date+end_date)',
+            'Budget (1 ไฟล์): BudgetManagement (txn_date)',
+            'ActionPlan (1 ไฟล์): start_date+end_date',
+            'StudentDocs (2 ไฟล์): HomeVisitForm (visit_date), GeneralDocsTab (doc_date)',
+            'Academic (4 ไฟล์ที่เข้าจาก docs-hub ผ่าน /academic): AcademicCalendar (start_date+end_date), Supervision (visit_date+followup_date), Counseling (session_date+followup_date), SpecialNeeds (start_date+end_date)',
+            'Required fields (received_date/sent_date/meeting_date/visit_date) ใส่ clearable={false} กันลบโดยไม่ตั้งใจ',
+            'ภายในเก็บ value เป็น ISO ค.ศ. เหมือนเดิม — DB ไม่เปลี่ยน, ผู้ใช้เห็น "17 พฤษภาคม 2569" + month/year dropdown ภาษาไทย + weekday header ภาษาไทย',
+        ],
+    },
+    {
+        version: 'v1.20.3 (docs-hub — Thai dates + file-first upload UX)',
+        date: '',
         badge: 'bg-amber-600',
         items: [
             'ผู้ใช้ตรวจ /admin/dashboard/docs-hub พบ 2 จุดต้องปรับ: รูปแบบวันที่ไม่ consistent + saraban forms รับเฉพาะ URL ไม่มีปุ่ม upload',

@@ -13,6 +13,7 @@ import { SignaturePadDialog } from '@/components/admin/docs-hub/SignaturePadDial
 import { SignatureList } from '@/components/admin/docs-hub/SignatureList';
 import { letterTrackingService } from '@/services/letter-tracking.service';
 import { formatThaiDateFull } from '@/lib/thaiDate';
+import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
 
 interface OutgoingLetter {
     id: string;
@@ -243,7 +244,7 @@ export const OutgoingLetters = () => {
                     <div className="space-y-4 py-2">
                         <div>
                             <Label className="mb-1.5 block">วันที่ส่ง *</Label>
-                            <Input type="date" value={form.sent_date} onChange={e => setForm(f => ({ ...f, sent_date: e.target.value }))} />
+                            <ThaiDatePicker value={form.sent_date} onChange={v => setForm(f => ({ ...f, sent_date: v }))} clearable={false} />
                         </div>
                         <div>
                             <Label className="mb-1.5 block">เรื่อง *</Label>

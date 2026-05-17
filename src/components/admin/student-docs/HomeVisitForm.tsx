@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Plus, Trash2, Upload, X, Home } from 'lucide-react';
 import { homeVisitsService, type HomeVisit } from '@/services/home-visits.service';
 import { formatThaiDateFull } from '@/lib/thaiDate';
+import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
 
 interface HomeVisitTabProps { studentId: string }
 
@@ -127,7 +128,7 @@ export const HomeVisitTab = ({ studentId }: HomeVisitTabProps) => {
                     <div className="space-y-3">
                         <div>
                             <Label className="mb-1 block text-xs">วันที่เยี่ยม *</Label>
-                            <Input type="date" value={form.visit_date} onChange={(e) => setForm({ ...form, visit_date: e.target.value })} />
+                            <ThaiDatePicker value={form.visit_date} onChange={v => setForm({ ...form, visit_date: v })} clearable={false} />
                         </div>
                         <div>
                             <Label className="mb-1 block text-xs">ผู้ไปเยี่ยม (คั่นด้วย ,)</Label>

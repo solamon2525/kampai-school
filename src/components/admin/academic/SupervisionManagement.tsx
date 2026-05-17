@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supervisionService } from '@/services/academic.service';
 import { staffService } from '@/services/staff.service';
+import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -170,7 +171,7 @@ export const SupervisionManagement = () => {
             </div>
             <div>
               <Label className="text-xs">วันที่นิเทศ</Label>
-              <Input type="date" value={form.visit_date} onChange={e => setForm(f => ({ ...f, visit_date: e.target.value }))} className="h-8 text-sm" />
+              <ThaiDatePicker value={form.visit_date} onChange={v => setForm(f => ({ ...f, visit_date: v }))} className="h-8" />
             </div>
             <div>
               <Label className="text-xs">วิชาที่สังเกต</Label>
@@ -182,7 +183,7 @@ export const SupervisionManagement = () => {
             </div>
             <div>
               <Label className="text-xs">วันที่นัดติดตาม</Label>
-              <Input type="date" value={form.followup_date} onChange={e => setForm(f => ({ ...f, followup_date: e.target.value }))} className="h-8 text-sm" />
+              <ThaiDatePicker value={form.followup_date} onChange={v => setForm(f => ({ ...f, followup_date: v }))} className="h-8" />
             </div>
             <div>
               <Label className="text-xs">สถานะ</Label>

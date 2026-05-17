@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { academicCalendarService } from '@/services/academic.service';
+import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -174,11 +175,11 @@ export const AcademicCalendarManagement = () => {
             </div>
             <div>
               <Label className="text-xs">วันที่เริ่ม *</Label>
-              <Input type="date" value={form.start_date} onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))} className="h-8 text-sm" />
+              <ThaiDatePicker value={form.start_date} onChange={v => setForm(f => ({ ...f, start_date: v }))} className="h-8" />
             </div>
             <div>
               <Label className="text-xs">วันที่สิ้นสุด</Label>
-              <Input type="date" value={form.end_date} onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))} className="h-8 text-sm" />
+              <ThaiDatePicker value={form.end_date} onChange={v => setForm(f => ({ ...f, end_date: v }))} className="h-8" />
             </div>
             <div>
               <Label className="text-xs">ปีการศึกษา</Label>
