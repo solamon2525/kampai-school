@@ -28,6 +28,7 @@ const ConductManagement = lazy(() => import('@/components/admin/conduct/ConductM
 const HeroSlidesManagement = lazy(() => import('@/components/admin/slides/HeroSlidesManagement').then(m => ({ default: m.HeroSlidesManagement })));
 const AnalyticsManagement = lazy(() => import('@/components/admin/analytics/AnalyticsManagement').then(m => ({ default: m.AnalyticsManagement })));
 const DocsHubDashboard = lazy(() => import('@/components/admin/docs-hub/DocsHubDashboard').then(m => ({ default: m.DocsHubDashboard })));
+const BudgetManagement = lazy(() => import('@/components/admin/budget/BudgetManagement').then(m => ({ default: m.BudgetManagement })));
 const SarabanDashboard = lazy(() => import('@/components/admin/saraban/SarabanDashboard').then(m => ({ default: m.SarabanDashboard })));
 const IncomingLetters = lazy(() => import('@/components/admin/saraban/IncomingLetters').then(m => ({ default: m.IncomingLetters })));
 const OutgoingLetters = lazy(() => import('@/components/admin/saraban/OutgoingLetters').then(m => ({ default: m.OutgoingLetters })));
@@ -95,6 +96,7 @@ const AdminDashboard = () => {
             <Route path="events" element={<EventsManagement />} />
             {/* ศูนย์เอกสารโรงเรียน */}
             <Route path="docs-hub" element={<DocsHubDashboard />} />
+            <Route path="budget" element={<BudgetManagement />} />
             {/* งานสารบรรณ */}
             <Route path="saraban" element={<SarabanDashboard />} />
             <Route path="incoming-letters" element={<IncomingLetters />} />

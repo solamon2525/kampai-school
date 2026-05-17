@@ -20,3 +20,4 @@ export * from './training.service';
 export * from './docs-hub.service';
 export * from './letter-tracking.service';
 export * from './signatures.service';
+export * from './budget.service';
