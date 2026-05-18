@@ -156,7 +156,7 @@ const SiteHeader = () => {
       >
         <div className="px-4">
           {/* Desktop Nav */}
-          <div className="hidden lg:flex items-center" ref={dropdownRef}>
+          <div className="hidden lg:flex items-center" ref={dropdownRef} data-desktop-only>
             {topLevel.map((item) => {
               const Icon = resolveMenuIcon(item.icon);
               const children = childrenByParent.get(item.id) ?? [];
@@ -229,7 +229,7 @@ const SiteHeader = () => {
           </div>
 
           {/* Mobile Header Row */}
-          <div className="lg:hidden flex items-center justify-between py-2.5">
+          <div className="lg:hidden flex items-center justify-between py-2.5" data-mobile-only>
             <span className="text-sm font-semibold text-yellow-300">เมนูหลัก</span>
             <div className="flex items-center gap-1">
               <button
@@ -246,12 +246,13 @@ const SiteHeader = () => {
       {/* ── Mobile Drawer ── */}
       {/* Backdrop */}
       <div
+        data-mobile-only
         className={`lg:hidden fixed inset-0 bg-black/60 z-40 transition-opacity duration-300 ${mobileOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
         onClick={() => setMobileOpen(false)}
       />
 
       {/* Drawer Panel */}
-      <div className={`lg:hidden fixed top-0 right-0 h-full w-72 bg-card z-50 shadow-2xl flex flex-col transition-transform duration-300 ${mobileOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div data-mobile-only className={`lg:hidden fixed top-0 right-0 h-full w-72 bg-card z-50 shadow-2xl flex flex-col transition-transform duration-300 ${mobileOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         {/* Drawer header */}
         <div className="bg-primary text-primary-foreground px-4 py-4 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-2">

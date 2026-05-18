@@ -25,6 +25,17 @@
     <meta name="theme-color" content="#1e3a5f" />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://kampai-school.vercel.app/" />
+    <!-- FOUC guard — apply responsive visibility before Tailwind CSS finishes loading.
+         Without this, both desktop nav and mobile header in SiteHeader render simultaneously
+         on first paint (looks like duplicate menu). Matches lg breakpoint (1024px). -->
+    <style>
+      @media (min-width: 1024px) {
+        [data-mobile-only] { display: none !important; }
+      }
+      @media (max-width: 1023.98px) {
+        [data-desktop-only] { display: none !important; }
+      }
+    </style>
     <!-- Schema.org JSON-LD (initial crawl — React SEOHead จะ inject per-page เพิ่ม) -->
     <script type="application/ld+json">
     {
