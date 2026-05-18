@@ -324,15 +324,18 @@ export const useHomeRightBlocks = () => {
       setGalleryImages(newsUrls);
     })();
 
-    // Fetch documents
+    // Fetch documents (schema: is_published + no `category` string — use category_id FK)
     supabase
       .from('documents')
-      .select('id, title, category, file_url')
-      .eq('is_active', true)
+      .select('id, title, file_url')
+      .eq('is_published', true)
       .order('created_at', { ascending: false })
       .limit(5)
       .then(({ data }) => {
-        setDocuments(data && data.length > 0 ? data : DUMMY_DOCS_RIGHT);
+        const mapped = data && data.length > 0
+          ? data.map((d) => ({ id: d.id, title: d.title, category: null, file_url: d.file_url ?? '#' }))
+          : DUMMY_DOCS_RIGHT;
+        setDocuments(mapped);
       });
   }, []);
 

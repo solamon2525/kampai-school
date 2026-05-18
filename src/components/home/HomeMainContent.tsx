@@ -147,14 +147,20 @@ export const useHomeMainBlocks = () => {
       .limit(5)
       .then(({ data }) => { setEvents(data ?? []); });
 
-    // Fetch documents
+    // Fetch documents (schema: is_published + no `category` string column — use category_id FK)
     supabase
       .from('documents')
-      .select('id, title, category, file_url')
-      .eq('is_active', true)
+      .select('id, title, file_url')
+      .eq('is_published', true)
       .order('created_at', { ascending: false })
       .limit(4)
-      .then(({ data }) => { if (data && data.length > 0) setDocuments(data); else setDocuments(DUMMY_DOCS); });
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          setDocuments(data.map((d) => ({ id: d.id, title: d.title, category: null, file_url: d.file_url ?? '#' })));
+        } else {
+          setDocuments(DUMMY_DOCS);
+        }
+      });
 
     // Fetch FAQ from DB (fallback to defaults if empty)
     supabase
