@@ -38,6 +38,8 @@ const RewardsCatalog = lazy(() => import("./pages/RewardsCatalog"));
 const SavingsBank = lazy(() => import("./pages/SavingsBank"));
 const HallOfFame = lazy(() => import("./pages/HallOfFame"));
 const TrainingShowcasePublic = lazy(() => import("./pages/TrainingShowcase"));
+const EducationalHub = lazy(() => import("./pages/EducationalHub"));
+const EducationalHubTeacher = lazy(() => import("./pages/EducationalHubTeacher"));
 
 // Portals
 const TeacherDashboard = lazy(() => import("./pages/teacher/TeacherDashboard"));
@@ -45,6 +47,7 @@ const TeacherSchedule = lazy(() => import("./pages/teacher/TeacherSchedule"));
 const TeacherAttendance = lazy(() => import("./pages/teacher/TeacherAttendance"));
 const TeacherScores = lazy(() => import("./pages/teacher/TeacherScores"));
 const TeacherRewardsApproval = lazy(() => import("./pages/teacher/TeacherRewardsApproval"));
+const TeacherEduHubManager = lazy(() => import("./pages/teacher/TeacherEduHubManager"));
 const ParentDashboard = lazy(() => import("./pages/parent/ParentDashboard"));
 const ParentChildView = lazy(() => import("./pages/parent/ParentChildView"));
 
@@ -116,6 +119,8 @@ const App = () => (
             <Route path="/savings-bank" element={<SavingsBank />} />
             <Route path="/hall-of-fame" element={<HallOfFame />} />
             <Route path="/training-showcase" element={<TrainingShowcasePublic />} />
+            <Route path="/educational-hub" element={<EducationalHub />} />
+            <Route path="/educational-hub/:staffId" element={<EducationalHubTeacher />} />
 
             {/* Teacher Portal */}
             <Route path="/teacher" element={
@@ -132,6 +137,9 @@ const App = () => (
             } />
             <Route path="/teacher/rewards-approval" element={
               <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherRewardsApproval /></PortalProtectedRoute>
+            } />
+            <Route path="/teacher/edu-hub" element={
+              <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherEduHubManager /></PortalProtectedRoute>
             } />
 
             {/* Parent Portal */}

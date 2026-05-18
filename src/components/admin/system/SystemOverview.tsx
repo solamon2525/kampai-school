@@ -216,8 +216,24 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.20.4 (docs-hub date INPUTS เป็น พ.ศ. ผ่าน ThaiDatePicker)',
+        version: 'v1.21.0 (Educational Hub — คลังสื่อและเกมการศึกษา)',
         date: 'ล่าสุด',
+        badge: 'bg-purple-600',
+        items: [
+            'หน้าใหม่ /educational-hub (สาธารณะ): list การ์ดครูทุกคน — รูป + คำอธิบาย + chip นับรายการต่อหมวด + ปุ่มเข้าหน้าครูแต่ละท่าน',
+            'หน้าใหม่ /educational-hub/:staffId (สาธารณะ): banner + bio + ปุ่ม "ดูข้อมูลครู" (→ /staff/:id) + "เว็บส่วนตัวครู" (→ external_url) + sticky chip nav สำหรับ scroll to category + sections แสดง items ของแต่ละหมวด',
+            'หน้าใหม่ /teacher/edu-hub (Teacher Portal): tab "รายการของฉัน" จัดการ items ของตัวเอง + tab "โปรไฟล์คลัง" แก้ banner / bio / external_url / is_hub_active',
+            'หน้าใหม่ /admin/dashboard/educational-hub: 3 tab — หมวดหมู่ (CRUD global catalog) / ครูทั้งหมด (toggle is_hub_active + drill-in จัดการ items แทนครู) / รายการทั้งหมด (moderation filter)',
+            'Item types 4 แบบใน 1 ตาราง (polymorphic + CHECK constraint): file (อัพโหลด, 50MB), link (URL ภายนอก), youtube (auto-extract ID + iframe preview), text (rich text snippet)',
+            'Migration 061: 3 tables (categories/profiles/items) + view v_educational_hub_teachers (JSON counts_by_category) + 2 RPC counters (incrementView/incrementDownload, anon-safe SECURITY DEFINER) + storage bucket educational-hub (public, 50MB, mime allowlist)',
+            'RLS owner pattern (จาก migration 042 rewards): public อ่าน is_published=true เท่านั้น, ครูแก้เฉพาะของตัวเอง via user_roles.staff_id, admin จัดการได้ทั้งหมด',
+            'Reuse: ImageUpload (banners + thumbnails), PersonAvatar (DESIGN Rule 14.13), Form+RHF+zod, TanStack Query + invalidation chain (items → teachers view), PortalProtectedRoute',
+            'Seed 4 หมวดเริ่มต้น: คลังสื่อการสอน / คลังเกมการศึกษา / คลังใบงาน / วิดีโอการสอน',
+        ],
+    },
+    {
+        version: 'v1.20.4 (docs-hub date INPUTS เป็น พ.ศ. ผ่าน ThaiDatePicker)',
+        date: '',
         badge: 'bg-teal-600',
         items: [
             'รายงานจาก screenshot ผู้ใช้: dialog "รับหนังสือใหม่" ช่อง "วันที่รับ" แสดง 17/05/2026 (HTML5 native = ค.ศ.) — v1.20.3 แก้แค่ "display" (table cells) ไม่ได้แตะ "input" (form fields)',

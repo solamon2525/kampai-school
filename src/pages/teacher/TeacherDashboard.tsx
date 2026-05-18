@@ -1,4 +1,4 @@
-import { LayoutDashboard, ClipboardCheck, PenLine, Calendar, Gift } from 'lucide-react';
+import { LayoutDashboard, ClipboardCheck, PenLine, Calendar, Gift, FolderOpen } from 'lucide-react';
 import { RolePortalLayout } from '@/components/portal/RolePortalLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { useLinkedRecord } from '@/hooks/useLinkedRecord';
@@ -12,6 +12,7 @@ const MENU = [
     { id: 'attendance', label: 'เช็คชื่อ', icon: ClipboardCheck, path: '/teacher/attendance' },
     { id: 'scores', label: 'คะแนน', icon: PenLine, path: '/teacher/scores' },
     { id: 'rewards', label: 'อนุมัติรางวัล', icon: Gift, path: '/teacher/rewards-approval' },
+    { id: 'edu-hub', label: 'คลังสื่อของฉัน', icon: FolderOpen, path: '/teacher/edu-hub' },
 ];
 
 export default function TeacherDashboard() {

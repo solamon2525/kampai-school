@@ -1,0 +1,442 @@
+import { useMemo, useState, useEffect } from 'react';
+import { FolderOpen, Plus, Edit, Trash2, Eye, EyeOff, FileText, ExternalLink as LinkIcon, Youtube, Type, Loader2 } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { RolePortalLayout } from '@/components/portal/RolePortalLayout';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import {
+    Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription,
+} from '@/components/ui/form';
+import {
+    Dialog, DialogContent, DialogHeader, DialogTitle,
+} from '@/components/ui/dialog';
+import { ImageUpload } from '@/components/admin/shared/ImageUpload';
+import { useLinkedRecord } from '@/hooks/useLinkedRecord';
+import { useToast } from '@/hooks/use-toast';
+import {
+    educationalHubService,
+    formatFileSize,
+    type EduHubCategory,
+    type EduHubItem,
+    type EduHubItemType,
+    type EduHubProfile,
+} from '@/services/educational-hub.service';
+import { EduHubItemForm } from '@/components/admin/educational-hub/EduHubItemForm';
+
+const MENU = [
+    { id: 'dashboard', label: 'แดชบอร์ด', icon: FolderOpen, path: '/teacher' },
+    { id: 'edu-hub', label: 'คลังสื่อของฉัน', icon: FolderOpen, path: '/teacher/edu-hub' },
+];
+
+const ITEM_TYPE_ICON: Record<EduHubItemType, typeof FileText> = {
+    file: FileText,
+    link: LinkIcon,
+    youtube: Youtube,
+    text: Type,
+};
+
+const ITEM_TYPE_LABEL: Record<EduHubItemType, string> = {
+    file: 'ไฟล์',
+    link: 'ลิงก์',
+    youtube: 'YouTube',
+    text: 'ข้อความ',
+};
+
+export default function TeacherEduHubManager() {
+    const { data: link } = useLinkedRecord();
+    const staffId = link?.staff_id ?? null;
+
+    return (
+        <RolePortalLayout title="Portal ครู" subtitle="คลังสื่อ/เกม ของฉัน" menu={MENU} accent="teacher">
+            <div className="p-4 sm:p-6 space-y-4 max-w-5xl mx-auto">
+                <div>
+                    <h1 className="text-2xl font-bold text-foreground">คลังสื่อและเกมการศึกษา</h1>
+                    <p className="text-sm text-muted-foreground mt-1">
+                        จัดการโปรไฟล์คลังและรายการสื่อ/เกม/ใบงานของคุณ
+                    </p>
+                </div>
+
+                {!staffId ? (
+                    <Card>
+                        <CardContent className="p-6">
+                            <p className="text-sm text-amber-600">
+                                บัญชีของคุณยังไม่ได้เชื่อมกับข้อมูลบุคลากร กรุณาติดต่อผู้ดูแลระบบ
+                            </p>
+                        </CardContent>
+                    </Card>
+                ) : (
+                    <Tabs defaultValue="items" className="w-full">
+                        <TabsList>
+                            <TabsTrigger value="items">รายการของฉัน</TabsTrigger>
+                            <TabsTrigger value="profile">โปรไฟล์คลัง</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="items"><MyItemsTab staffId={staffId} /></TabsContent>
+                        <TabsContent value="profile"><MyProfileTab staffId={staffId} /></TabsContent>
+                    </Tabs>
+                )}
+            </div>
+        </RolePortalLayout>
+    );
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// Items tab — list grouped by category + add/edit/delete
+// ──────────────────────────────────────────────────────────────────────────
+const MyItemsTab = ({ staffId }: { staffId: string }) => {
+    const { toast } = useToast();
+    const queryClient = useQueryClient();
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [editing, setEditing] = useState<EduHubItem | null>(null);
+
+    const { data: items, isLoading } = useQuery({
+        queryKey: ['edu-hub', 'items', 'mine', staffId],
+        queryFn: async () => {
+            const { data, error } = await educationalHubService.listMyItems(staffId);
+            if (error) throw error;
+            return (data ?? []) as EduHubItem[];
+        },
+    });
+
+    const { data: categories } = useQuery({
+        queryKey: ['edu-hub', 'categories'],
+        queryFn: async () => {
+            const { data, error } = await educationalHubService.listCategories();
+            if (error) throw error;
+            return (data ?? []) as EduHubCategory[];
+        },
+    });
+
+    const itemsByCategory = useMemo(() => {
+        const m = new Map<string, EduHubItem[]>();
+        (items ?? []).forEach((it) => {
+            const arr = m.get(it.category_id) ?? [];
+            arr.push(it);
+            m.set(it.category_id, arr);
+        });
+        return m;
+    }, [items]);
+
+    const handleDelete = async (item: EduHubItem) => {
+        if (!confirm(`ลบรายการ "${item.title}"?`)) return;
+        const res = await educationalHubService.deleteItem(item.id);
+        if (res.error) {
+            toast({ title: 'ลบไม่ได้', description: res.error.message, variant: 'destructive' });
+            return;
+        }
+        await queryClient.invalidateQueries({ queryKey: ['edu-hub', 'items', 'mine', staffId] });
+        await queryClient.invalidateQueries({ queryKey: ['edu-hub', 'items', staffId] });
+        await queryClient.invalidateQueries({ queryKey: ['edu-hub', 'teachers'] });
+        toast({ title: 'ลบรายการสำเร็จ' });
+    };
+
+    const togglePublished = async (item: EduHubItem) => {
+        const res = await educationalHubService.updateItem(item.id, { is_published: !item.is_published });
+        if (res.error) {
+            toast({ title: 'บันทึกไม่ได้', description: res.error.message, variant: 'destructive' });
+            return;
+        }
+        await queryClient.invalidateQueries({ queryKey: ['edu-hub', 'items', 'mine', staffId] });
+        await queryClient.invalidateQueries({ queryKey: ['edu-hub', 'teachers'] });
+    };
+
+    return (
+        <div className="space-y-6">
+            <div className="flex items-center justify-between">
+                <div className="text-sm text-muted-foreground">
+                    รวม {items?.length ?? 0} รายการ
+                </div>
+                <Button
+                    onClick={() => { setEditing(null); setDialogOpen(true); }}
+                    disabled={!categories || categories.length === 0}
+                >
+                    <Plus className="h-4 w-4 mr-2" />เพิ่มรายการ
+                </Button>
+            </div>
+
+            {isLoading ? (
+                <div className="text-center text-muted-foreground py-12">กำลังโหลด...</div>
+            ) : !categories || categories.length === 0 ? (
+                <Card>
+                    <CardContent className="p-6 text-center text-muted-foreground">
+                        ยังไม่มีหมวดหมู่ในระบบ — กรุณาติดต่อผู้ดูแล
+                    </CardContent>
+                </Card>
+            ) : (
+                <div className="space-y-6">
+                    {categories.map((cat) => {
+                        const list = itemsByCategory.get(cat.id) ?? [];
+                        return (
+                            <div key={cat.id} className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="font-semibold text-foreground">{cat.name}</h3>
+                                    <span className="text-xs text-muted-foreground">{list.length} รายการ</span>
+                                </div>
+                                {list.length === 0 ? (
+                                    <p className="text-xs text-muted-foreground italic px-3">— ยังไม่มี —</p>
+                                ) : (
+                                    <Card>
+                                        <CardContent className="p-0">
+                                            <table className="w-full">
+                                                <tbody>
+                                                    {list.map((item) => {
+                                                        const Icon = ITEM_TYPE_ICON[item.item_type];
+                                                        return (
+                                                            <tr key={item.id} className="border-b border-border last:border-0 hover:bg-muted/20">
+                                                                <td className="px-3 py-2 w-24">
+                                                                    <Badge variant="outline" className="text-[10px]">
+                                                                        <Icon className="h-3 w-3 mr-1" />
+                                                                        {ITEM_TYPE_LABEL[item.item_type]}
+                                                                    </Badge>
+                                                                </td>
+                                                                <td className="px-3 py-2">
+                                                                    <p className="text-sm font-medium">{item.title}</p>
+                                                                    {item.description && (
+                                                                        <p className="text-xs text-muted-foreground line-clamp-1">{item.description}</p>
+                                                                    )}
+                                                                    {item.file_size && (
+                                                                        <p className="text-[10px] text-muted-foreground">{formatFileSize(item.file_size)}</p>
+                                                                    )}
+                                                                </td>
+                                                                <td className="px-3 py-2 w-28">
+                                                                    <button
+                                                                        onClick={() => togglePublished(item)}
+                                                                        className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full ${
+                                                                            item.is_published ? 'bg-green-100 text-green-700' : 'bg-muted text-muted-foreground'
+                                                                        }`}
+                                                                    >
+                                                                        {item.is_published ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+                                                                        {item.is_published ? 'เผยแพร่' : 'ซ่อน'}
+                                                                    </button>
+                                                                </td>
+                                                                <td className="px-3 py-2 w-24">
+                                                                    <div className="flex gap-1">
+                                                                        <Button variant="ghost" size="sm" onClick={() => { setEditing(item); setDialogOpen(true); }}>
+                                                                            <Edit className="h-4 w-4" />
+                                                                        </Button>
+                                                                        <Button variant="ghost" size="sm" className="text-destructive" onClick={() => handleDelete(item)}>
+                                                                            <Trash2 className="h-4 w-4" />
+                                                                        </Button>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    })}
+                                                </tbody>
+                                            </table>
+                                        </CardContent>
+                                    </Card>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>{editing ? 'แก้ไขรายการ' : 'เพิ่มรายการ'}</DialogTitle>
+                    </DialogHeader>
+                    {categories && categories.length > 0 && (
+                        <EduHubItemForm
+                            ownerStaffId={staffId}
+                            categories={categories}
+                            initial={editing}
+                            onSaved={() => setDialogOpen(false)}
+                            onCancel={() => setDialogOpen(false)}
+                        />
+                    )}
+                </DialogContent>
+            </Dialog>
+        </div>
+    );
+};
+
+// ──────────────────────────────────────────────────────────────────────────
+// Profile tab — edit per-teacher hub metadata
+// ──────────────────────────────────────────────────────────────────────────
+const profileSchema = z.object({
+    hub_bio: z.string().max(500).optional().nullable(),
+    banner_url: z.string().optional().nullable(),
+    accent_color: z.string().optional().nullable(),
+    external_url: z
+        .string()
+        .optional()
+        .nullable()
+        .refine(
+            (v) => !v || /^https?:\/\//i.test(v),
+            'URL ต้องขึ้นต้นด้วย http(s)://',
+        ),
+    is_hub_active: z.boolean().default(true),
+});
+type ProfileForm = z.infer<typeof profileSchema>;
+
+const MyProfileTab = ({ staffId }: { staffId: string }) => {
+    const { toast } = useToast();
+    const queryClient = useQueryClient();
+    const [saving, setSaving] = useState(false);
+
+    const { data: profile, isLoading } = useQuery({
+        queryKey: ['edu-hub', 'profile', staffId],
+        queryFn: async () => {
+            const { data, error } = await educationalHubService.getProfile(staffId);
+            if (error) throw error;
+            return data as EduHubProfile | null;
+        },
+    });
+
+    const form = useForm<ProfileForm>({
+        resolver: zodResolver(profileSchema),
+        defaultValues: {
+            hub_bio: '',
+            banner_url: '',
+            accent_color: '#157F3C',
+            external_url: '',
+            is_hub_active: true,
+        },
+    });
+
+    useEffect(() => {
+        if (profile) {
+            form.reset({
+                hub_bio: profile.hub_bio ?? '',
+                banner_url: profile.banner_url ?? '',
+                accent_color: profile.accent_color ?? '#157F3C',
+                external_url: profile.external_url ?? '',
+                is_hub_active: profile.is_hub_active,
+            });
+        }
+    }, [profile, form]);
+
+    const onSubmit = async (values: ProfileForm) => {
+        setSaving(true);
+        try {
+            const res = await educationalHubService.upsertProfile({
+                staff_id: staffId,
+                hub_bio: values.hub_bio?.trim() || null,
+                banner_url: values.banner_url?.trim() || null,
+                accent_color: values.accent_color?.trim() || null,
+                external_url: values.external_url?.trim() || null,
+                is_hub_active: values.is_hub_active,
+            });
+            if (res.error) throw res.error;
+            await queryClient.invalidateQueries({ queryKey: ['edu-hub', 'profile', staffId] });
+            await queryClient.invalidateQueries({ queryKey: ['edu-hub', 'teachers'] });
+            toast({ title: 'บันทึกโปรไฟล์สำเร็จ' });
+        } catch (err) {
+            const msg = err instanceof Error ? err.message : 'บันทึกล้มเหลว';
+            toast({ title: 'บันทึกล้มเหลว', description: msg, variant: 'destructive' });
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    if (isLoading) {
+        return <div className="text-center text-muted-foreground py-12">กำลังโหลด...</div>;
+    }
+
+    const watchedBanner = form.watch('banner_url');
+
+    return (
+        <Card>
+            <CardContent className="p-4 sm:p-6">
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                        <FormField
+                            control={form.control}
+                            name="banner_url"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>ภาพแบนเนอร์ (ไม่บังคับ)</FormLabel>
+                                    <FormControl>
+                                        <ImageUpload
+                                            bucket="educational-hub"
+                                            folder={`${staffId}/banners`}
+                                            compressionPreset="cover"
+                                            currentImage={watchedBanner || undefined}
+                                            onUploadComplete={(url) => field.onChange(url)}
+                                        />
+                                    </FormControl>
+                                    <FormDescription>แสดงเป็นพื้นหลังบนการ์ดของครูในหน้าคลังหลัก</FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="hub_bio"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>คำแนะนำตัว / คำอธิบายคลัง</FormLabel>
+                                    <FormControl>
+                                        <Textarea
+                                            rows={3}
+                                            placeholder="เช่น ครูคณิตศาสตร์ ม.ปลาย — สื่อสำหรับชั้น ป.4-6 ..."
+                                            {...field}
+                                            value={field.value ?? ''}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="external_url"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>ลิงก์เว็บส่วนตัวครู (ไม่บังคับ)</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="url"
+                                            placeholder="https://sites.google.com/... หรือ https://padlet.com/..."
+                                            {...field}
+                                            value={field.value ?? ''}
+                                        />
+                                    </FormControl>
+                                    <FormDescription>
+                                        Google Site / Padlet / Facebook ฯลฯ — จะแสดงเป็นปุ่ม "เว็บส่วนตัวครู" บนหน้าคลังของคุณ
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="is_hub_active"
+                            render={({ field }) => (
+                                <FormItem className="flex items-center justify-between rounded-lg border border-border p-3">
+                                    <div>
+                                        <FormLabel className="mb-0">เปิดให้สาธารณะเข้าชม</FormLabel>
+                                        <FormDescription>
+                                            ปิดเมื่อยังไม่พร้อมเผยแพร่ — คลังของคุณจะไม่แสดงในหน้าคลังหลัก
+                                        </FormDescription>
+                                    </div>
+                                    <FormControl>
+                                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                    </FormControl>
+                                </FormItem>
+                            )}
+                        />
+
+                        <Button type="submit" disabled={saving}>
+                            {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                            บันทึกโปรไฟล์
+                        </Button>
+                    </form>
+                </Form>
+            </CardContent>
+        </Card>
+    );
+};
