@@ -63,12 +63,13 @@ export const DEFAULT_MENU_ITEMS: MenuItem[] = [
     { id: 'staff', label: 'บุคลากร', href: '/staff', icon: 'Users', parent: null, order: 2 },
     { id: 'students', label: 'นักเรียน', href: '/students', icon: 'GraduationCap', parent: null, order: 3 },
     { id: 'curriculum', label: 'หลักสูตร', href: '/curriculum', icon: 'BookOpen', parent: null, order: 4 },
-    { id: 'gallery', label: 'แกลเลอรี่', href: '/gallery', icon: 'Image', parent: null, order: 5 },
-    { id: 'calendar', label: 'ปฏิทิน', href: '/calendar', icon: 'Calendar', parent: null, order: 6 },
-    { id: 'news', label: 'ข่าวสาร', href: '/news', icon: 'Newspaper', parent: null, order: 7 },
-    { id: 'contact', label: 'ติดต่อเรา', href: '/contact', icon: 'Phone', parent: null, order: 8 },
+    { id: 'educational-hub', label: 'คลังสื่อ', href: '/educational-hub', icon: 'Sparkles', parent: null, order: 5 },
+    { id: 'gallery', label: 'แกลเลอรี่', href: '/gallery', icon: 'Image', parent: null, order: 6 },
+    { id: 'calendar', label: 'ปฏิทิน', href: '/calendar', icon: 'Calendar', parent: null, order: 7 },
+    { id: 'news', label: 'ข่าวสาร', href: '/news', icon: 'Newspaper', parent: null, order: 8 },
+    { id: 'contact', label: 'ติดต่อเรา', href: '/contact', icon: 'Phone', parent: null, order: 9 },
     // Services dropdown group
-    { id: 'services', label: 'บริการ', href: null, icon: 'Layers', parent: null, order: 9 },
+    { id: 'services', label: 'บริการ', href: null, icon: 'Layers', parent: null, order: 10 },
     { id: 'waste-bank', label: 'ธนาคารขยะ', href: '/waste-bank', icon: 'Recycle', parent: 'services', order: 0 },
     { id: 'waste-bank-stats', label: 'สถิติธนาคารขยะ', href: '/waste-bank/stats', icon: 'BarChart3', parent: 'services', order: 1 },
     { id: 'savings-bank', label: 'ธนาคารพอเพียง', href: '/savings-bank', icon: 'Wallet', parent: 'services', order: 2 },
@@ -89,7 +90,7 @@ export const MENU_ICON_OPTIONS = [
     'Home', 'Info', 'Users', 'GraduationCap', 'BookOpen', 'Image', 'Calendar',
     'Newspaper', 'Phone', 'Mail', 'FileText', 'Recycle', 'UserCog', 'Layers',
     'Download', 'Globe', 'LogIn', 'Award', 'Briefcase', 'Building', 'Bell',
-    'Star', 'Heart', 'Settings', 'BarChart3', 'TrendingUp', 'Wallet',
+    'Star', 'Heart', 'Settings', 'BarChart3', 'TrendingUp', 'Wallet', 'Sparkles',
 ] as const;
 
 export type MenuIconName = typeof MENU_ICON_OPTIONS[number];
