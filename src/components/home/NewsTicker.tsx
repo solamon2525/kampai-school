@@ -6,7 +6,7 @@ import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 const isExternal = (url: string) => /^https?:\/\//i.test(url);
 
 const NewsTicker = () => {
-  const { items } = useTickerItems();
+  const { items, loading } = useTickerItems();
   const { settings } = useSchoolSettings();
 
   const duration = Math.max(5, parseInt(settings.ticker_speed_seconds || '30', 10) || 30);
@@ -15,6 +15,10 @@ const NewsTicker = () => {
 
   const [paused, setPaused] = useState(false);
 
+  // Reserve the same vertical space during loading → prevent layout shift on first paint
+  if (loading) {
+    return <div className="relative w-full bg-primary" style={{ height: '36px' }} aria-hidden />;
+  }
   if (items.length === 0) return null;
 
   // Duplicate items for seamless loop (animate -50% to wrap perfectly)

@@ -16,8 +16,8 @@ const HomeHeaderZone = ({ blockOrder }: HeaderZoneProps) => {
         top_banner: null,
     };
 
-    if (blockOrder.length === 0) return null;
-
+    // Render wrapper เสมอ — ไม่ early return เมื่อ blockOrder empty หรือ children เป็น null
+    // เพื่อให้ layout vertical คงที่ตั้งแต่ first paint ป้องกัน layout shift
     return (
         <div className="max-w-7xl mx-auto w-full overflow-hidden">
             {blockOrder.map((key) => blockMap[key] ?? null)}
