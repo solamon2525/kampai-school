@@ -45,9 +45,9 @@ export type MenuConfig = {
 };
 
 export const DEFAULT_NAV_STYLE: NavStyle = {
-    navBg: '#157F3C',
+    navBg: '#1c5e34',             // match school_settings.menu_config (เขียวเข้ม) — กัน flicker first paint
     navText: '#FFFFFF',
-    navTextActive: '#FDE047',     // yellow-300
+    navTextActive: '#fbff00',     // match DB (เหลืองสด)
     navBgActive: 'rgba(255,255,255,0.1)',
     navHoverBg: 'rgba(255,255,255,0.1)',
     navHoverText: '#FDE047',
