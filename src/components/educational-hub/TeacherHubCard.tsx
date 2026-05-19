@@ -50,9 +50,11 @@ export const TeacherHubCard = ({ teacher, categories }: Props) => {
     }, [teacher.name]);
 
     // Top categories with non-zero counts (max 4)
+    // NOTE: counts_by_category is keyed by category.id (UUID), NOT category_key
+    // (per v_educational_hub_teachers view in migration 065)
     const topCategories = useMemo(() => {
         return categories
-            .filter((c) => (counts[c.category_key] ?? 0) > 0)
+            .filter((c) => (counts[c.id] ?? 0) > 0)
             .slice(0, 4);
     }, [categories, counts]);
 
@@ -134,7 +136,7 @@ export const TeacherHubCard = ({ teacher, categories }: Props) => {
                                     key={cat.id}
                                     iconName={cat.icon_name}
                                     label={cat.name}
-                                    count={counts[cat.category_key] ?? 0}
+                                    count={counts[cat.id] ?? 0}
                                 />
                             ))}
                         </div>

@@ -48,7 +48,8 @@ export const CategoryChipStrip = ({ categories, counts }: Props) => {
                         const Icon =
                             (Icons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[c.icon_name]
                             ?? Icons.Folder;
-                        const n = counts[c.category_key] ?? 0;
+                        // counts_by_category is keyed by category.id (UUID) per migration 065
+                        const n = counts[c.id] ?? 0;
                         const isActive = activeKey === c.category_key;
                         return (
                             <button
