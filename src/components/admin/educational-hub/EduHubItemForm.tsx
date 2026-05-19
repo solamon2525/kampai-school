@@ -28,6 +28,8 @@ import {
     type EduHubCategory,
     type EduHubItemType,
 } from '@/services/educational-hub.service';
+import { SUBJECT_OPTIONS } from '@/lib/edu-hub-subjects';
+import { TagPicker } from './TagPicker';
 
 const GRADE_OPTIONS = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 
@@ -47,7 +49,7 @@ const schema = z.object({
     body_html: z.string().optional().nullable(),
     subject: z.string().optional().nullable(),
     grade_levels: z.array(z.string()).default([]),
-    tags: z.string().optional().nullable(),
+    tags: z.array(z.string()).default([]),
     is_published: z.boolean().default(true),
 }).superRefine((val, ctx) => {
     if (val.item_type === 'file' && !val.file_url) {
@@ -56,8 +58,8 @@ const schema = z.object({
     if (val.item_type === 'link' && !val.external_url) {
         ctx.addIssue({ code: 'custom', path: ['external_url'], message: 'กรุณากรอก URL' });
     }
-    if (val.item_type === 'link' && val.external_url && !/^https?:\/\//i.test(val.external_url)) {
-        ctx.addIssue({ code: 'custom', path: ['external_url'], message: 'URL ต้องขึ้นต้นด้วย http(s)://' });
+    if (val.item_type === 'link' && val.external_url && !/^(https?:\/\/|\/)/i.test(val.external_url)) {
+        ctx.addIssue({ code: 'custom', path: ['external_url'], message: 'URL ต้องขึ้นต้นด้วย http(s):// หรือ /' });
     }
     if (val.item_type === 'youtube' && !val.youtube_id) {
         ctx.addIssue({ code: 'custom', path: ['youtube_url_input'], message: 'URL ไม่ใช่ลิงก์ YouTube ที่ถูกต้อง' });
@@ -101,7 +103,7 @@ export const EduHubItemForm = ({ ownerStaffId, categories, initial, onSaved, onC
             body_html: initial?.body_html ?? '',
             subject: initial?.subject ?? '',
             grade_levels: initial?.grade_levels ?? [],
-            tags: (initial?.tags ?? []).join(', '),
+            tags: initial?.tags ?? [],
             is_published: initial?.is_published ?? true,
         },
     });
@@ -144,8 +146,8 @@ export const EduHubItemForm = ({ ownerStaffId, categories, initial, onSaved, onC
     const onSubmit = async (values: FormValues) => {
         setSaving(true);
         try {
-            const tagsArray = (values.tags ?? '')
-                .split(',')
+            // Tags เป็น array อยู่แล้ว (จาก TagPicker) — แค่ trim + filter empty
+            const tagsArray = (values.tags ?? [])
                 .map((t) => t.trim())
                 .filter(Boolean);
 
@@ -432,28 +434,70 @@ export const EduHubItemForm = ({ ownerStaffId, categories, initial, onSaved, onC
                     )}
                 />
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <FormField
-                        control={form.control}
-                        name="subject"
-                        render={({ field }) => (
+                <FormField
+                    control={form.control}
+                    name="subject"
+                    render={({ field }) => {
+                        const currentValue = field.value ?? '';
+                        const isCustom = currentValue !== '' && !SUBJECT_OPTIONS.some((s) => s.value === currentValue);
+                        // ค่าใน Select: ถ้าเป็น custom → "__custom__" / ถ้าว่าง → "" / ไม่งั้น = currentValue
+                        const selectValue = isCustom ? '__custom__' : currentValue;
+                        return (
                             <FormItem>
                                 <FormLabel>วิชา</FormLabel>
-                                <FormControl><Input placeholder="เช่น คณิตศาสตร์" {...field} value={field.value ?? ''} /></FormControl>
+                                <Select
+                                    value={selectValue}
+                                    onValueChange={(v) => {
+                                        // เลือก "__custom__" → เคลียร์ field เพื่อให้ user พิมพ์เอง
+                                        field.onChange(v === '__custom__' ? '' : v);
+                                    }}
+                                >
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="เลือกกลุ่มสาระ" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {SUBJECT_OPTIONS.map((s) => (
+                                            <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                                        ))}
+                                        <SelectItem value="__custom__">อื่นๆ (พิมพ์เอง)</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                {(isCustom || selectValue === '__custom__') && (
+                                    <Input
+                                        placeholder="พิมพ์ชื่อวิชาเอง"
+                                        value={currentValue}
+                                        onChange={(e) => field.onChange(e.target.value)}
+                                        className="mt-2"
+                                    />
+                                )}
+                                <FormMessage />
                             </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="tags"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>แท็ก (คั่นด้วย ,)</FormLabel>
-                                <FormControl><Input placeholder="บวกเลข, จำนวน, นับ" {...field} value={field.value ?? ''} /></FormControl>
-                            </FormItem>
-                        )}
-                    />
-                </div>
+                        );
+                    }}
+                />
+
+                <FormField
+                    control={form.control}
+                    name="tags"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>แท็ก</FormLabel>
+                            <FormControl>
+                                <TagPicker
+                                    subject={form.watch('subject')}
+                                    value={field.value ?? []}
+                                    onChange={field.onChange}
+                                />
+                            </FormControl>
+                            <FormDescription className="text-[10px]">
+                                คลิกแท็กแนะนำเพื่อเลือก หรือพิมพ์แท็กใหม่ + Enter
+                            </FormDescription>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
 
                 <FormField
                     control={form.control}

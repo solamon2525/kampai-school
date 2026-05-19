@@ -53,18 +53,7 @@ export const ImageUpload = ({
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // Validate file size
-        const fileSizeMB = file.size / (1024 * 1024);
-        if (fileSizeMB > maxSizeMB) {
-            toast({
-                title: 'ไฟล์ใหญ่เกินไป',
-                description: `กรุณาเลือกไฟล์ขนาดไม่เกิน ${maxSizeMB}MB`,
-                variant: 'destructive',
-            });
-            return;
-        }
-
-        // Validate file type
+        // Validate file type first (cheapest check)
         if (!file.type.startsWith('image/')) {
             toast({
                 title: 'ประเภทไฟล์ไม่ถูกต้อง',
@@ -77,9 +66,24 @@ export const ImageUpload = ({
         // Upload to Supabase Storage
         setIsUploading(true);
         try {
-            // Compress image before upload
+            // ★ Compress FIRST (regardless of source size) — ImageUpload guarantees
+            //   compression to WebP per preset, so even 50MB sources are valid as
+            //   long as the compressed output fits maxSizeMB.
             const compressionOptions = compressionPresets[compressionPreset];
             const compressedBlob = await compressImage(file, compressionOptions);
+
+            // Validate COMPRESSED size against limit
+            const compressedMB = compressedBlob.size / (1024 * 1024);
+            if (compressedMB > maxSizeMB) {
+                const originalMB = (file.size / (1024 * 1024)).toFixed(1);
+                toast({
+                    title: 'รูปขนาดใหญ่เกินไป',
+                    description: `แม้บีบอัดแล้วเหลือ ${compressedMB.toFixed(1)} MB (จากเดิม ${originalMB} MB) ยังเกิน ${maxSizeMB} MB — กรุณาใช้รูปที่เล็กกว่านี้`,
+                    variant: 'destructive',
+                });
+                setIsUploading(false);
+                return;
+            }
 
             // Show compressed preview
             const previewUrl = URL.createObjectURL(compressedBlob);
