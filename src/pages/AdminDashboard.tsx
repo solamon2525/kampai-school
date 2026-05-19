@@ -53,6 +53,7 @@ const ThemeManager = lazy(() => import('@/components/admin/theme/ThemeManager').
 const MenuManager = lazy(() => import('@/components/admin/menu/MenuManager').then(m => ({ default: m.MenuManager })));
 const TeacherListManagement = lazy(() => import('@/components/admin/teachers/TeacherListManagement').then(m => ({ default: m.TeacherListManagement })));
 const EduHubManagement = lazy(() => import('@/components/admin/educational-hub/EduHubManagement').then(m => ({ default: m.EduHubManagement })));
+const GamePlayDashboard = lazy(() => import('@/components/admin/games/GamePlayDashboard').then(m => ({ default: m.GamePlayDashboard })));
 const ScanRecorder = lazy(() => import('./admin/ScanRecorder'));
 
 // Loading spinner สำหรับ lazy-loaded admin pages
@@ -138,6 +139,7 @@ const AdminDashboard = () => {
             <Route path="conduct" element={<ConductManagement />} />
             <Route path="documents" element={<DocumentsManagement />} />
             <Route path="educational-hub" element={<EduHubManagement />} />
+            <Route path="games" element={<GamePlayDashboard />} />
             <Route path="analytics" element={<AnalyticsManagement />} />
             {/* อื่นๆ */}
             <Route path="admissions" element={<AdmissionsManagement />} />

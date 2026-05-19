@@ -53,6 +53,8 @@ export type EduHubItem = {
     view_count: number;
     download_count: number;
     is_published: boolean;
+    game_slug: string | null;
+    tracked_game: boolean;
     created_at: string;
     updated_at: string;
 };

@@ -287,3 +287,46 @@ import { PersonAvatar } from '@/components/shared/PersonAvatar';
 - **ห้ามเปิด INSERT policy บน `reward_claims`** ให้ anon ตรงๆ — ใช้ SECURITY DEFINER RPC `claim_reward(p_code, p_reward_id)` แทน
 - Validation ทั้งหมด (student lookup, balance, stock, active) อยู่ใน RPC ฝั่ง DB — ไม่เชื่อ client
 - Migration: `supabase/migrations/031_reward_claim_public_rpc.sql`
+
+---
+
+## 18. Game Play Wrapper — `/play/:gameSlug` (v1.22.0 Pizza pilot)
+
+**Hierarchy:** เกมจะเปิดผ่าน wrapper แทน `window.open` เมื่อ `educational_hub_items.tracked_game = true`
+
+| Component | Path | หน้าที่ |
+|---|---|---|
+| `PlayGame` (page) | `src/pages/PlayGame.tsx` | State machine `lookup → confirm → pre-game → playing → result` |
+| `GamePlayDashboard` (admin) | `src/components/admin/games/GamePlayDashboard.tsx` | 4 stat cards + BarChart + leaderboard |
+| `GamesSummary` (Student 360°) | `src/components/admin/student-docs/GamesSummary.tsx` | Per-student stats + LineChart trend + badges + push-to-score dialog |
+
+**Service primitives** (`src/services/game-play.service.ts`):
+- `gamePlayService.lookupStudent(code)` · `recordSession({...})` · `getLeaderboard(slug)` · `pushToScoreRecord({...})`
+- `gameStatsService.getForStudent(sid, slug)` (view `game_student_stats`)
+- `gameSessionsService.getByStudent` / `getRecent` / `getInDateRange`
+- `gameAchievementsService.getCatalog(slug)` · `getUnlocked(sid, slug)`
+- `trackedGamesService.getBySlug(slug)` · `listTracked()`
+- **Helper** `levelFromXp(xp): { level, xpInLevel, xpToNext, progress, isMaxLevel }` — compute client-side
+
+**AI hard rules:**
+- ❌ ห้าม `supabase.from('game_sessions').insert()` ใน component — ใช้ `gamePlayService.recordSession()` (RPC)
+- ❌ ห้าม trust `studentCode` ที่ส่งจาก iframe โดยตรง — ทุก RPC resolve student เอง
+- ❌ ห้าม push session เข้า `score_records` อัตโนมัติ — ต้อง manual gate ผ่าน Student 360° (admin/teacher only)
+- ❌ ห้ามแก้ HTML game โดยไม่ทำตาม embed contract ใน DESIGN.md Rule 14.14
+
+**XP/Level curve** (doubling): L(n) requires `100 * (2^(n-1) - 1)` cumulative XP → L1=0, L2=100, L3=300, L4=700, L5=1500, L6=3100, L7=6300 …
+
+**Badge thresholds** (Pizza pilot, migration 066 seed):
+| Code | Title | Type | Threshold | XP Bonus |
+|---|---|---|---|---|
+| `first_play` | ก้าวแรกเชฟพิซซ่า | first_play | — | 20 |
+| `score_1k`/`3k`/`5k`/`10k` | พิซซ่ามือ… | score_gte | 1000/3000/5000/10000 | 30/50/80/150 |
+| `plays_10` | ขยันฝึกฝน | plays_gte | 10 | 40 |
+| `improve_1_5` | พัฒนาตัวเอง 1.5x | improvement_ratio | 1.5 (last_5_avg/first_5_avg) | 100 |
+| `streak_7` | ติดต่อกัน 7 วัน | streak_days | 7 (Asia/Bangkok day) | 60 |
+
+**ขยายระบบไปเกมอื่น:**
+1. Patch HTML game ตาม contract Rule 14.14 (5 บรรทัด: EMBED flag + listener + postMessage)
+2. INSERT badges ลง `game_achievements_catalog` (game_slug ใหม่)
+3. UPDATE `educational_hub_items SET game_slug='...', tracked_game=true WHERE external_url='...'`
+4. ตรวจ `subject` ให้ตรงเนื้อหาจริง (ไม่ใช่ folder)

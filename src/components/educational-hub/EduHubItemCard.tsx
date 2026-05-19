@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     FileText, ExternalLink, Play, Type, Download, Eye, Star, PlayCircle, Maximize2,
-    GripVertical,
+    GripVertical, Gamepad2,
 } from 'lucide-react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -39,6 +40,7 @@ export const EduHubItemCard = ({
 }: Props) => {
     const [openDialog, setOpenDialog] = useState(false);
     const [embedOpen, setEmbedOpen] = useState(false);
+    const navigate = useNavigate();
 
     // Sortable — always called (hook ordering), no-op when not editable
     const sortable = useSortable({ id: item.id, disabled: !editable });
@@ -56,6 +58,11 @@ export const EduHubItemCard = ({
     };
 
     const handleClick = () => {
+        if (item.tracked_game && item.game_slug) {
+            trackView();
+            navigate(`/play/${item.game_slug}`);
+            return;
+        }
         if (item.item_type === 'file' && item.file_url) {
             trackDownload();
             window.open(item.file_url, '_blank', 'noopener,noreferrer');
@@ -222,6 +229,12 @@ export const EduHubItemCard = ({
                     <div className="flex items-center justify-between pt-2 text-[10px] text-muted-foreground gap-2">
                         <div className="flex items-center gap-1.5 flex-wrap">
                             {item.subject && <Badge variant="outline" className="text-[10px]">{item.subject}</Badge>}
+                            {item.tracked_game && (
+                                <Badge variant="secondary" className="gap-1 text-[10px]">
+                                    <Gamepad2 className="h-3 w-3" />
+                                    เก็บคะแนน
+                                </Badge>
+                            )}
                             {item.grade_levels?.slice(0, 2).map((g) => (
                                 <Badge key={g} variant="outline" className="text-[10px]">{g}</Badge>
                             ))}

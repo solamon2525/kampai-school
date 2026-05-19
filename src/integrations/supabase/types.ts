@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -995,6 +995,7 @@ export type Database = {
           file_name: string | null
           file_size: number | null
           file_url: string | null
+          game_slug: string | null
           grade_levels: string[]
           id: string
           is_published: boolean
@@ -1005,6 +1006,7 @@ export type Database = {
           tags: string[]
           thumbnail_url: string | null
           title: string
+          tracked_game: boolean
           updated_at: string
           view_count: number
           youtube_id: string | null
@@ -1020,6 +1022,7 @@ export type Database = {
           file_name?: string | null
           file_size?: number | null
           file_url?: string | null
+          game_slug?: string | null
           grade_levels?: string[]
           id?: string
           is_published?: boolean
@@ -1030,6 +1033,7 @@ export type Database = {
           tags?: string[]
           thumbnail_url?: string | null
           title: string
+          tracked_game?: boolean
           updated_at?: string
           view_count?: number
           youtube_id?: string | null
@@ -1045,6 +1049,7 @@ export type Database = {
           file_name?: string | null
           file_size?: number | null
           file_url?: string | null
+          game_slug?: string | null
           grade_levels?: string[]
           id?: string
           is_published?: boolean
@@ -1055,6 +1060,7 @@ export type Database = {
           tags?: string[]
           thumbnail_url?: string | null
           title?: string
+          tracked_game?: boolean
           updated_at?: string
           view_count?: number
           youtube_id?: string | null
@@ -1093,6 +1099,7 @@ export type Database = {
           is_hub_active: boolean
           staff_id: string
           updated_at: string
+          username: string | null
         }
         Insert: {
           accent_color?: string | null
@@ -1103,6 +1110,7 @@ export type Database = {
           is_hub_active?: boolean
           staff_id: string
           updated_at?: string
+          username?: string | null
         }
         Update: {
           accent_color?: string | null
@@ -1113,6 +1121,7 @@ export type Database = {
           is_hub_active?: boolean
           staff_id?: string
           updated_at?: string
+          username?: string | null
         }
         Relationships: [
           {
@@ -1328,6 +1337,192 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "gallery_albums"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      game_achievements_catalog: {
+        Row: {
+          code: string
+          created_at: string
+          description_th: string | null
+          game_slug: string
+          icon: string | null
+          id: string
+          sort_order: number
+          threshold_kind: string
+          threshold_value: number | null
+          title_th: string
+          xp_bonus: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description_th?: string | null
+          game_slug: string
+          icon?: string | null
+          id?: string
+          sort_order?: number
+          threshold_kind: string
+          threshold_value?: number | null
+          title_th: string
+          xp_bonus?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description_th?: string | null
+          game_slug?: string
+          icon?: string | null
+          id?: string
+          sort_order?: number
+          threshold_kind?: string
+          threshold_value?: number | null
+          title_th?: string
+          xp_bonus?: number
+        }
+        Relationships: []
+      }
+      game_sessions: {
+        Row: {
+          academic_year: string | null
+          created_at: string
+          duration_sec: number | null
+          edu_hub_item_id: string | null
+          game_slug: string
+          id: string
+          metadata: Json
+          mode: string | null
+          pushed_to_score_record_id: string | null
+          score: number
+          semester: string | null
+          student_id: string
+          xp_earned: number
+        }
+        Insert: {
+          academic_year?: string | null
+          created_at?: string
+          duration_sec?: number | null
+          edu_hub_item_id?: string | null
+          game_slug: string
+          id?: string
+          metadata?: Json
+          mode?: string | null
+          pushed_to_score_record_id?: string | null
+          score: number
+          semester?: string | null
+          student_id: string
+          xp_earned?: number
+        }
+        Update: {
+          academic_year?: string | null
+          created_at?: string
+          duration_sec?: number | null
+          edu_hub_item_id?: string | null
+          game_slug?: string
+          id?: string
+          metadata?: Json
+          mode?: string | null
+          pushed_to_score_record_id?: string | null
+          score?: number
+          semester?: string | null
+          student_id?: string
+          xp_earned?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_sessions_edu_hub_item_id_fkey"
+            columns: ["edu_hub_item_id"]
+            isOneToOne: false
+            referencedRelation: "educational_hub_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_sessions_pushed_to_score_record_id_fkey"
+            columns: ["pushed_to_score_record_id"]
+            isOneToOne: false
+            referencedRelation: "score_records"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_sessions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "savings_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "game_sessions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_sessions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "waste_student_summary"
+            referencedColumns: ["student_id"]
+          },
+        ]
+      }
+      game_student_achievements: {
+        Row: {
+          achievement_id: string
+          id: string
+          session_id: string | null
+          student_id: string
+          unlocked_at: string
+        }
+        Insert: {
+          achievement_id: string
+          id?: string
+          session_id?: string | null
+          student_id: string
+          unlocked_at?: string
+        }
+        Update: {
+          achievement_id?: string
+          id?: string
+          session_id?: string | null
+          student_id?: string
+          unlocked_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_student_achievements_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "game_achievements_catalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_student_achievements_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "game_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_student_achievements_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "savings_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "game_student_achievements_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_student_achievements_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "waste_student_summary"
+            referencedColumns: ["student_id"]
           },
         ]
       }
@@ -3785,6 +3980,42 @@ export type Database = {
       }
     }
     Views: {
+      game_student_stats: {
+        Row: {
+          first_5_avg: number | null
+          first_played_at: string | null
+          game_slug: string | null
+          last_5_avg: number | null
+          last_played_at: string | null
+          personal_best: number | null
+          plays_count: number | null
+          student_id: string | null
+          total_xp: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_sessions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "savings_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "game_sessions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_sessions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "waste_student_summary"
+            referencedColumns: ["student_id"]
+          },
+        ]
+      }
       savings_student_summary: {
         Row: {
           class_name: string | null
@@ -3949,6 +4180,7 @@ export type Database = {
           staff_id: string | null
           subject: string | null
           total_items: number | null
+          username: string | null
         }
         Relationships: []
       }
@@ -4013,6 +4245,19 @@ export type Database = {
         Returns: string
       }
       get_db_size: { Args: never; Returns: number }
+      get_game_leaderboard: {
+        Args: { p_game_slug: string; p_limit?: number }
+        Returns: {
+          class_label: string
+          display_name: string
+          last_played_at: string
+          personal_best: number
+          photo_url: string
+          plays_count: number
+          student_id: string
+          total_xp: number
+        }[]
+      }
       get_savings_history: {
         Args: { p_code: string; p_limit?: number }
         Returns: {
@@ -4076,8 +4321,39 @@ export type Database = {
           student_id: string
         }[]
       }
+      lookup_student_for_game: {
+        Args: { p_student_code: string }
+        Returns: {
+          class_label: string
+          display_name: string
+          id: string
+          photo_url: string
+        }[]
+      }
       next_incoming_number: { Args: never; Returns: string }
       next_outgoing_number: { Args: never; Returns: string }
+      push_game_session_to_score_records: {
+        Args: {
+          p_academic_year: string
+          p_max_score: number
+          p_normalized_score: number
+          p_score_type: string
+          p_semester: string
+          p_session_id: string
+        }
+        Returns: string
+      }
+      record_game_session: {
+        Args: {
+          p_duration_sec?: number
+          p_game_slug: string
+          p_metadata?: Json
+          p_mode?: string
+          p_score: number
+          p_student_code: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       edu_hub_item_type: "file" | "link" | "youtube" | "text"

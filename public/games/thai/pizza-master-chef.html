@@ -146,6 +146,9 @@
         .gold-effect { animation: goldGlow 1s infinite alternate; }
         @keyframes goldGlow { from { filter: drop-shadow(0 0 5px gold); } to { filter: drop-shadow(0 0 20px gold); } }
 
+        /* Embed mode (เล่นใน iframe ของ wrapper /play/:slug) */
+        html.embed-mode .name-input,
+        html.embed-mode .leaderboard-box { display: none !important; }
     </style>
 </head>
 <body>
@@ -217,6 +220,20 @@
     </div>
 
     <script>
+        /** Embed mode (เล่นใน iframe ของ wrapper /play/:slug — โพสต์คะแนนกลับ parent แทน localStorage) */
+        const EMBED = (window.parent !== window) &&
+                      (new URLSearchParams(location.search).get('embed') === '1');
+        let STUDENT_CODE = null;
+        let SESSION_START_TS = 0;
+        if (EMBED) {
+            document.documentElement.classList.add('embed-mode');
+            window.addEventListener('message', (e) => {
+                if (e?.data?.type === 'init' && typeof e.data.studentCode === 'string') {
+                    STUDENT_CODE = e.data.studentCode;
+                }
+            });
+        }
+
         /** ระบบบันทึกคะแนน */
         class HighScoreManager {
             constructor() { this.key = 'pizza_master_scores_deluxe_v3'; }
@@ -377,7 +394,10 @@
 
             start(modeName) {
                 this.sound.init(); this.sound.setTempo(120); this.sound.startBGM();
-                this.state.playerName = document.getElementById('player-name').value.trim() || "เชฟนิรนาม";
+                this.state.playerName = EMBED
+                    ? ''
+                    : (document.getElementById('player-name').value.trim() || "เชฟนิรนาม");
+                if (EMBED) SESSION_START_TS = Date.now();
                 this.state.mode = modeName;
                 const modeConfig = CONFIG.modes[modeName];
                 this.state.timeLeft = modeConfig.time;
@@ -396,7 +416,25 @@
             gameOver() {
                 this.state.isPlaying = false;
                 this.sound.stopBGM();
-                this.highScoreManager.saveScore(this.state.playerName, this.player.score);
+                if (!EMBED) {
+                    this.highScoreManager.saveScore(this.state.playerName, this.player.score);
+                } else {
+                    try {
+                        window.parent.postMessage({
+                            type: 'gameEnd',
+                            gameSlug: 'pizza-master-chef',
+                            studentCode: STUDENT_CODE,
+                            score: this.player.score,
+                            mode: this.state.mode,
+                            metadata: {
+                                duration: Math.max(1, Math.floor((Date.now() - SESSION_START_TS) / 1000)),
+                                combo_max: this.player.combo,
+                                fever: !!this.player.isFever,
+                                delivery_streak: this.player.deliveryStreak
+                            }
+                        }, '*');
+                    } catch (err) { /* parent gone */ }
+                }
                 document.getElementById('final-score').innerText = this.player.score;
                 document.getElementById('gameover-screen').classList.remove('hidden');
             }

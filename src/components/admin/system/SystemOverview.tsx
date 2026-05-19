@@ -216,8 +216,25 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.21.0 (Educational Hub — คลังสื่อและเกมการศึกษา)',
+        version: 'v1.22.0 (Game Play Tracking — XP/Level/Badges + Pizza pilot)',
         date: 'ล่าสุด',
+        badge: 'bg-amber-600',
+        items: [
+            'หน้าใหม่ /play/:gameSlug (สาธารณะ): wrapper state-machine 5 ขั้น — กรอกรหัสนักเรียน → ยืนยันด้วยรูป (PersonAvatar) → pre-game (XP bar + Level + Badge grid) → playing (iframe) → result modal (level-up, badges)',
+            'แก้ public/games/thai/pizza-master-chef.html (~25 บรรทัด): EMBED detection + postMessage gameEnd ออกไปยัง parent wrapper (ส่ง score+mode+duration+combo+fever), CSS .embed-mode ซ่อน name input + standalone leaderboard',
+            'Migration 066: game_sessions + game_achievements_catalog + game_student_achievements + view game_student_stats (first_5_avg vs last_5_avg) + 4 RPCs (lookup_student_for_game, record_game_session, get_game_leaderboard, push_game_session_to_score_records) + RLS pattern (writes ผ่าน SECURITY DEFINER เท่านั้น) + seed 8 badges + fix Pizza subject เป็น "คณิตศาสตร์" (migration 062 seed ผิด เพราะ folder /games/thai/)',
+            'Anti-cheat: 20s rate-limit per (student, game) ใน RPC + sanity (score 0–1M, duration ≥ 5s ถ้า score > 100) + clamp params',
+            'XP/Level: xp_earned = max(1, score/10) + badge xp_bonus, level curve doubling (L1=0, L2=100, L3=300, L4=700, L5=1500...) compute client-side',
+            'Badges 8 ประเภท: first_play, score_gte (1k/3k/5k/10k), plays_gte (10), improvement_ratio (1.5x last_5_avg/first_5_avg), streak_days (7 — ใช้ Asia/Bangkok timezone)',
+            'EduHubItemCard: เพิ่ม branch ถ้า item.tracked_game && game_slug → navigate /play/:slug (แทน window.open) + Badge "เก็บคะแนน" บน card',
+            'Admin Dashboard /admin/dashboard/games: 4 stat cards (30 วัน) + BarChart plays/day (14 วัน) + เกมยอดนิยม + leaderboard pizza (RPC get_game_leaderboard)',
+            'Student 360° tab "เกมการศึกษา": per-game stats + improvement % + LineChart trend + Badge grid + sessions table พร้อมปุ่ม "ส่งเข้าคะแนน" (admin/teacher only) → push เข้า score_records (manual gate — ไม่ปนคะแนนจริงโดยอัตโนมัติ)',
+            'Service: src/services/game-play.service.ts + helper levelFromXp() — ทุก query ผ่าน service layer (กฎ CLAUDE.md)',
+        ],
+    },
+    {
+        version: 'v1.21.0 (Educational Hub — คลังสื่อและเกมการศึกษา)',
+        date: '',
         badge: 'bg-purple-600',
         items: [
             'หน้าใหม่ /educational-hub (สาธารณะ): list การ์ดครูทุกคน — รูป + คำอธิบาย + chip นับรายการต่อหมวด + ปุ่มเข้าหน้าครูแต่ละท่าน',

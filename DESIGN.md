@@ -494,6 +494,32 @@ import { PersonAvatar } from '@/components/shared/PersonAvatar';
 
 **ตรวจสอบ:** ทุกหน้าใหม่ที่แสดงชื่อคน → grep หา `<PersonAvatar` ในไฟล์เดียวกัน ถ้าไม่มีคือผิดกฎ
 
+### Rule 14.14 — Game embed contract (เกมการศึกษา เก็บคะแนน)
+
+เกม HTML ใต้ `public/games/{subject}/*.html` ที่ tracked (มี row `educational_hub_items.tracked_game = true` + `game_slug`) ต้องรองรับ **iframe embed mode** เพื่อให้ wrapper `/play/:gameSlug` รับ-ส่งข้อมูลได้:
+
+**Contract:**
+1. ตรวจ embed mode ผ่าน 2 เงื่อนไข: `window.parent !== window` **และ** query `?embed=1`
+2. เมื่อ embed: รับ `postMessage({type:'init', studentCode})` จาก parent — เก็บไว้ใน scope ของเกม
+3. เมื่อจบเกม: `window.parent.postMessage({type:'gameEnd', gameSlug, studentCode, score, mode, metadata}, '*')`
+4. CSS class `html.embed-mode` ใช้ซ่อน UI ที่ wrapper ทำให้แทน (input ชื่อ, standalone leaderboard, ปุ่ม restart)
+5. **เกมต้องเล่นแบบ standalone ได้ปกติ** — ไม่ใช่ทุกครั้งที่เปิดต้องอยู่ใน wrapper (เก็บ localStorage HighScore ไว้สำหรับโหมดเดี่ยว)
+
+**Server-side enforcement (Migration 066 RPC `record_game_session`):**
+- Rate-limit: 1 session/20s per (student_id, game_slug) — กัน accidental double-submit + spam
+- Sanity: score ∈ [0, 1,000,000]; duration ≥ 5s ถ้า score > 100
+- XP formula: `max(1, floor(score/10)) + sum(badge.xp_bonus)` — clamp & compute server-side
+- Badge unlock: ตรวจ threshold หลัง insert session (atomic ใน transaction เดียว)
+
+**Subject linkage (สำคัญ — ตรวจก่อน seed):**
+- `educational_hub_items.subject` ต้องเป็นวิชาจริง ๆ ของเกม **ไม่ใช่ folder name** (Pizza อยู่ใน `/games/thai/` แต่เป็นเศษส่วน = คณิตศาสตร์)
+- เมื่อ admin/teacher push session เข้า `score_records` → ใช้ subject จากแถวนี้
+
+**ห้าม:**
+- ❌ ส่งคะแนนเข้า `score_records` อัตโนมัติทุก session — ต้อง manual gate ที่ Student 360°
+- ❌ trust `student_id` จาก iframe โดยตรง — server resolve เองจาก `student_code` ใน RPC
+- ❌ INSERT `game_sessions` ตรง ๆ จาก client — ผ่าน SECURITY DEFINER RPC เท่านั้น (RLS ปิด INSERT ทุก policy)
+
 ---
 
 ## 15. Spacing & Layout
