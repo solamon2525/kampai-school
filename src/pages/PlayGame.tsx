@@ -219,11 +219,14 @@ const PlayGame = () => {
     setPhase('lookup');
   }, []);
 
-  // ─── derive iframe url (append ?embed=1) ──────────────────────────────────
+  // ─── derive iframe url (append ?embed=1 + cache-buster) ───────────────────
+  // cache-buster t= บังคับ fresh fetch ทุก mount — bypass browser/edge cache เก่า
+  // ที่อาจเก็บ header X-Frame-Options: DENY ของ Pizza HTML ก่อน hotfix vercel.json
   const iframeUrl = useMemo(() => {
     const url = gameQuery.data?.external_url;
     if (!url) return null;
-    return url.includes('?') ? `${url}&embed=1` : `${url}?embed=1`;
+    const sep = url.includes('?') ? '&' : '?';
+    return `${url}${sep}embed=1&t=${Date.now()}`;
   }, [gameQuery.data?.external_url]);
 
   // ─── early returns: 404 / loading ─────────────────────────────────────────
