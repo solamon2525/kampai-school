@@ -69,7 +69,14 @@ export const conductService = {
   insert: (record: ConductInsert) =>
     supabase.from('conduct_scores').insert(record as never),
 
-  /** ลบประวัติคะแนน */
+  /** แก้ไข record คะแนน (admin-only — บังคับโดย RLS migration 067) */
+  update: (
+    id: string,
+    payload: Pick<ConductInsert, 'type' | 'score' | 'category' | 'reason'>,
+  ) =>
+    supabase.from('conduct_scores').update(payload as never).eq('id', id),
+
+  /** ลบประวัติคะแนน (admin-only — บังคับโดย RLS migration 067) */
   delete: (id: string) =>
     supabase.from('conduct_scores').delete().eq('id', id),
 };

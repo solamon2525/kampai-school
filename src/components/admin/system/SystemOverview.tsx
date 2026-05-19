@@ -216,8 +216,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.22.0 (Game Play Tracking — XP/Level/Badges + Pizza pilot)',
+        version: 'v1.22.1 (Conduct — admin-only edit/delete)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'หน้า /admin/dashboard/conduct → History tab: ปุ่ม "แก้ไข" (Pencil) + ปุ่มลบเดิม แสดงเฉพาะเมื่อ role=admin (ครูเห็น list เฉย ๆ)',
+            'ConductEditDialog ใหม่: react-hook-form + zodResolver — แก้ type/score/category/reason ของ record ที่บันทึกไปแล้ว',
+            'conductService.update(id, payload) — service-layer ตามวินัย CLAUDE.md',
+            'Migration 067: แทน policy "teacher_manage_conduct_scores" (FOR ALL) ด้วย 4 policy แยก — teacher SELECT/INSERT, admin UPDATE/DELETE (is_admin()) → กัน teacher แก้ย้อนหลัง',
+        ],
+    },
+    {
+        version: 'v1.22.0 (Game Play Tracking — XP/Level/Badges + Pizza pilot)',
+        date: '',
         badge: 'bg-amber-600',
         items: [
             'หน้าใหม่ /play/:gameSlug (สาธารณะ): wrapper state-machine 5 ขั้น — กรอกรหัสนักเรียน → ยืนยันด้วยรูป (PersonAvatar) → pre-game (XP bar + Level + Badge grid) → playing (iframe) → result modal (level-up, badges)',

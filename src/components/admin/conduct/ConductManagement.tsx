@@ -8,12 +8,15 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
-import { Star, Plus, Minus, Trophy, History, Search, Trash2 } from 'lucide-react';
+import { Star, Plus, Minus, Trophy, History, Search, Trash2, Pencil } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useUserRole } from '@/hooks/useUserRole';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
 import { RecorderSelect, EMPTY_RECORDER, type RecorderValue } from '../shared/RecorderSelect';
 import { TableSkeleton } from '@/components/ui/loading-skeletons';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
+import { ConductEditDialog } from './ConductEditDialog';
+import type { ConductRecord as ServiceConductRecord } from '@/services/conduct.service';
 
 // ===== Constants =====
 const CLASS_OPTIONS = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6', 'ม.1', 'ม.2', 'ม.3', 'ม.4', 'ม.5', 'ม.6'];
@@ -403,6 +406,7 @@ function LeaderboardTab() {
 
 // ===== Tab 3: ประวัติคะแนน =====
 function HistoryTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
+    const { isAdmin } = useUserRole();
     const [filterClass, setFilterClass] = useState('');
     const [filterType, setFilterType] = useState('');
     const [filterSemester, setFilterSemester] = useState('1');
@@ -411,6 +415,7 @@ function HistoryTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) 
     const [records, setRecords] = useState<ConductRecord[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [deleteId, setDeleteId] = useState<string | null>(null);
+    const [editRecord, setEditRecord] = useState<ConductRecord | null>(null);
 
     const load = async () => {
         setIsLoading(true);
@@ -495,9 +500,16 @@ function HistoryTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) 
                                             {new Date(r.created_at).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' })}
                                         </p>
                                     </div>
-                                    <Button size="icon" variant="ghost" className="flex-shrink-0" onClick={() => setDeleteId(r.id)}>
-                                        <Trash2 className="w-3.5 h-3.5 text-muted-foreground" />
-                                    </Button>
+                                    {isAdmin && (
+                                        <div className="flex items-center gap-1 flex-shrink-0">
+                                            <Button size="icon" variant="ghost" onClick={() => setEditRecord(r)} title="แก้ไข">
+                                                <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+                                            </Button>
+                                            <Button size="icon" variant="ghost" onClick={() => setDeleteId(r.id)} title="ลบ">
+                                                <Trash2 className="w-3.5 h-3.5 text-muted-foreground" />
+                                            </Button>
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>
@@ -511,6 +523,13 @@ function HistoryTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) 
                 onConfirm={handleDelete}
                 title="ลบรายการคะแนนนี้?"
                 description="รายการที่ลบแล้วจะไม่สามารถกู้คืนได้"
+            />
+
+            <ConductEditDialog
+                record={editRecord as ServiceConductRecord | null}
+                open={!!editRecord}
+                onOpenChange={(o) => { if (!o) setEditRecord(null); }}
+                onSaved={load}
             />
         </div>
     );
