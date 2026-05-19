@@ -57,39 +57,48 @@ const EducationalHub = () => {
             <SiteHeader />
 
             <main className="flex-1">
-                {/* Hero */}
+                {/* Hero — compact: ลด py + รวม title+subtitle+search ใน row เดียวบน desktop */}
                 <section className="bg-gradient-to-br from-primary/10 via-accent/5 to-background border-b border-border">
-                    <div className="container mx-auto px-4 py-10 sm:py-14 max-w-6xl">
-                        <div className="flex flex-col items-center text-center gap-3">
-                            <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-medium">
-                                <Sparkles className="h-3.5 w-3.5" />
-                                คลังสื่อและเกมการศึกษา
-                            </span>
-                            <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
-                                เลือกครูที่ต้องการเข้าชมคลังสื่อ
-                            </h1>
-                            <p className="text-sm text-muted-foreground max-w-2xl">
-                                รวมสื่อการสอน เกม ใบงาน คลิปวิดีโอ และทรัพยากรการเรียนรู้ของครูทุกท่าน — เลือกครูที่ต้องการเพื่อเข้าสู่คลังของท่าน
-                            </p>
-                            <div className="relative w-full max-w-md mt-3">
+                    <div className="max-w-screen-2xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-5">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div className="flex items-center gap-2 sm:gap-3">
+                                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-primary/15 flex items-center justify-center shrink-0">
+                                    <Sparkles className="h-5 w-5 text-primary" />
+                                </div>
+                                <div className="min-w-0">
+                                    <h1 className="text-lg sm:text-xl font-bold text-foreground leading-tight">
+                                        คลังสื่อและเกมการศึกษา
+                                    </h1>
+                                    <p className="text-[11px] sm:text-xs text-muted-foreground">
+                                        เลือกครูเพื่อเข้าชมคลังสื่อ · {teachers?.length ?? 0} ท่าน
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="relative w-full sm:w-72 shrink-0">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                 <Input
                                     placeholder="ค้นหาชื่อครู / วิชา / ฝ่าย..."
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    className="pl-9 bg-background"
+                                    className="pl-9 bg-background h-9"
                                 />
                             </div>
                         </div>
                     </div>
                 </section>
 
-                {/* Teacher grid */}
-                <section className="container mx-auto px-4 py-10 max-w-6xl">
+                {/* Teacher grid — full-width container, 2/3/4/5 cols responsive */}
+                <section className="max-w-screen-2xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
                     {loadingTeachers ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {Array.from({ length: 6 }).map((_, i) => (
-                                <div key={i} className="rounded-lg border border-border bg-card p-4 animate-pulse h-56" />
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+                            {Array.from({ length: 10 }).map((_, i) => (
+                                <div key={i} className="rounded-xl border border-border bg-card overflow-hidden animate-pulse">
+                                    <div className="aspect-[4/5] bg-muted" />
+                                    <div className="p-3 space-y-2">
+                                        <div className="h-3 bg-muted rounded" />
+                                        <div className="h-3 bg-muted rounded w-2/3" />
+                                    </div>
+                                </div>
                             ))}
                         </div>
                     ) : filtered.length === 0 ? (
@@ -97,7 +106,7 @@ const EducationalHub = () => {
                             {search ? 'ไม่พบครูที่ตรงกับการค้นหา' : 'ยังไม่มีครูในคลัง'}
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
                             {filtered.map((t) => (
                                 <TeacherHubCard
                                     key={t.staff_id}
