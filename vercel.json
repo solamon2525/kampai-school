@@ -45,6 +45,15 @@
                     "value": "strict-origin-when-cross-origin"
                 }
             ]
+        },
+        {
+            "source": "/games/(.*)",
+            "headers": [
+                {
+                    "key": "X-Frame-Options",
+                    "value": "SAMEORIGIN"
+                }
+            ]
         }
     ]
 }
