@@ -59,7 +59,7 @@ const EducationalHub = () => {
             <main className="flex-1">
                 {/* Hero — compact: ลด py + รวม title+subtitle+search ใน row เดียวบน desktop */}
                 <section className="bg-gradient-to-br from-primary/10 via-accent/5 to-background border-b border-border">
-                    <div className="max-w-screen-2xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-5">
+                    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-5">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                             <div className="flex items-center gap-2 sm:gap-3">
                                 <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-primary/15 flex items-center justify-center shrink-0">
@@ -88,7 +88,7 @@ const EducationalHub = () => {
                 </section>
 
                 {/* Teacher grid — full-width container, 2/3/4/5 cols responsive */}
-                <section className="max-w-screen-2xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
+                <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
                     {loadingTeachers ? (
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
                             {Array.from({ length: 10 }).map((_, i) => (
