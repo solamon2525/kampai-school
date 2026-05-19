@@ -197,7 +197,7 @@ export const GamesTab = () => {
                                                         <img
                                                             src={item.thumbnail_url}
                                                             alt=""
-                                                            className="h-12 w-16 object-cover rounded border border-border"
+                                                            className="h-12 w-16 object-contain bg-muted rounded border border-border"
                                                         />
                                                     ) : (
                                                         <div className="h-12 w-16 bg-muted rounded border border-border" />
