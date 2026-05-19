@@ -300,8 +300,9 @@ export const EduHubItemForm = ({ ownerStaffId, categories, initial, onSaved, onC
                                 <FormLabel>URL ลิงก์ภายนอก <span className="text-destructive">*</span></FormLabel>
                                 <FormControl>
                                     <Input
-                                        type="url"
-                                        placeholder="https://wordwall.net/... หรือ https://quizizz.com/..."
+                                        type="text"
+                                        inputMode="url"
+                                        placeholder="https://... หรือ /games/thai/..."
                                         {...field}
                                         value={field.value ?? ''}
                                     />
