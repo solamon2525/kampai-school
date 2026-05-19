@@ -102,6 +102,25 @@ export const educationalHubService = {
     deleteCategory: (id: string) =>
         supabase.from('educational_hub_categories' as never).delete().eq('id', id),
 
+    /**
+     * Batch update sort_order for multiple categories (admin drag-drop).
+     * Same shape as bulkUpdateSortOrder for items, but targets categories table.
+     */
+    bulkUpdateSortOrderCategories: async (
+        updates: { id: string; sort_order: number }[],
+    ): Promise<{ error: Error | null }> => {
+        const results = await Promise.all(
+            updates.map((u) =>
+                supabase
+                    .from('educational_hub_categories' as never)
+                    .update({ sort_order: u.sort_order } as never)
+                    .eq('id', u.id),
+            ),
+        );
+        const firstErr = results.find((r) => r.error)?.error;
+        return { error: (firstErr as Error | undefined) ?? null };
+    },
+
     // ─── Teacher cards (hub home) ───────────────────────────────────────
     listTeacherCards: () =>
         supabase

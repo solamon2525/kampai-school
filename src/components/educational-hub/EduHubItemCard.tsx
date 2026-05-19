@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import {
     FileText, ExternalLink, Play, Type, Download, Eye, Star, PlayCircle, Maximize2,
+    GripVertical,
 } from 'lucide-react';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -23,6 +26,8 @@ interface Props {
     isFavorite?: boolean;
     /** If provided, renders a ⭐ button (toggle on click) */
     onToggleFavorite?: () => void;
+    /** Admin-only — shows a drag handle and registers with parent SortableContext */
+    editable?: boolean;
 }
 
 export const EduHubItemCard = ({
@@ -30,9 +35,18 @@ export const EduHubItemCard = ({
     viewMode = 'grid',
     isFavorite = false,
     onToggleFavorite,
+    editable = false,
 }: Props) => {
     const [openDialog, setOpenDialog] = useState(false);
     const [embedOpen, setEmbedOpen] = useState(false);
+
+    // Sortable — always called (hook ordering), no-op when not editable
+    const sortable = useSortable({ id: item.id, disabled: !editable });
+    const sortableStyle: React.CSSProperties = {
+        transform: CSS.Transform.toString(sortable.transform),
+        transition: sortable.transition,
+        opacity: sortable.isDragging ? 0.5 : 1,
+    };
 
     const trackView = () => {
         void Promise.resolve(educationalHubService.incrementView(item.id)).catch(() => {});
@@ -72,9 +86,23 @@ export const EduHubItemCard = ({
         return (
             <>
                 <Card
+                    ref={sortable.setNodeRef}
+                    style={sortableStyle}
                     onClick={handleClick}
                     className="group cursor-pointer flex items-center gap-3 p-2.5 hover:shadow-sm transition-all hover:bg-accent/30"
                 >
+                    {editable && (
+                        <button
+                            type="button"
+                            {...sortable.attributes}
+                            {...sortable.listeners}
+                            onClick={(e) => e.stopPropagation()}
+                            className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground touch-none shrink-0"
+                            aria-label="ลากเพื่อจัดลำดับ"
+                        >
+                            <GripVertical className="h-4 w-4" />
+                        </button>
+                    )}
                     <CompactThumb item={item} />
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
@@ -111,12 +139,30 @@ export const EduHubItemCard = ({
     return (
         <>
             <Card
+                ref={sortable.setNodeRef}
+                style={sortableStyle}
                 onClick={handleClick}
                 className={cn(
                     'group cursor-pointer overflow-hidden hover:shadow-md transition-all hover:-translate-y-0.5 relative',
                     isSpotlight && 'shadow-sm',
+                    sortable.isDragging && 'ring-2 ring-primary',
                 )}
             >
+                {/* Drag handle overlay (top-left, admin only) */}
+                {editable && (
+                    <button
+                        type="button"
+                        {...sortable.attributes}
+                        {...sortable.listeners}
+                        onClick={(e) => e.stopPropagation()}
+                        className="absolute top-2 left-2 z-10 h-7 w-7 rounded-full bg-background/90 backdrop-blur flex items-center justify-center shadow-sm hover:bg-background hover:scale-110 transition-transform cursor-grab active:cursor-grabbing touch-none"
+                        aria-label="ลากเพื่อจัดลำดับ"
+                        title="ลากเพื่อจัดลำดับ"
+                    >
+                        <GripVertical className="h-3.5 w-3.5 text-foreground" />
+                    </button>
+                )}
+
                 {/* Favorite + Embed action overlay (top-right) */}
                 <div className="absolute top-2 right-2 z-10 flex gap-1">
                     {item.item_type === 'link' && item.external_url && (

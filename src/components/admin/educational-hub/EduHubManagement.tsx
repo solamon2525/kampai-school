@@ -27,6 +27,7 @@ import {
 import { CategoryForm } from './CategoryForm';
 import { EduHubItemForm } from './EduHubItemForm';
 import { GamesTab } from './GamesTab';
+import { SortableCategoriesGrid } from './SortableCategoriesGrid';
 
 type Teacher = {
     id: string;
@@ -123,7 +124,10 @@ const CategoriesTab = () => {
 
     return (
         <div className="space-y-4">
-            <div className="flex justify-end">
+            <div className="flex items-center justify-between gap-2">
+                <p className="text-xs text-muted-foreground">
+                    ลากการ์ดเพื่อจัดลำดับการแสดงผลในหน้าครู (sort_order)
+                </p>
                 <Button onClick={() => { setEditing(null); setDialogOpen(true); }}>
                     <Plus className="h-4 w-4 mr-2" />เพิ่มหมวดหมู่
                 </Button>
@@ -132,39 +136,11 @@ const CategoriesTab = () => {
             {isLoading ? (
                 <div className="text-center text-muted-foreground py-12">กำลังโหลด...</div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {(data ?? []).map((c) => (
-                        <Card key={c.id}>
-                            <CardContent className="p-4">
-                                <div className="flex items-start justify-between gap-2">
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <Badge variant="outline" className="text-[10px] font-mono">{c.category_key}</Badge>
-                                            {!c.is_active && (
-                                                <Badge variant="secondary" className="text-[10px]">ปิด</Badge>
-                                            )}
-                                        </div>
-                                        <p className="font-semibold text-sm">{c.name}</p>
-                                        {c.description && (
-                                            <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{c.description}</p>
-                                        )}
-                                        <p className="text-[10px] text-muted-foreground mt-2">
-                                            icon: {c.icon_name} · ลำดับ {c.sort_order}
-                                        </p>
-                                    </div>
-                                    <div className="flex gap-1 flex-shrink-0">
-                                        <Button variant="ghost" size="sm" onClick={() => { setEditing(c); setDialogOpen(true); }}>
-                                            <Edit className="h-4 w-4" />
-                                        </Button>
-                                        <Button variant="ghost" size="sm" className="text-destructive" onClick={() => handleDelete(c)}>
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
+                <SortableCategoriesGrid
+                    categories={data ?? []}
+                    onEdit={(c) => { setEditing(c); setDialogOpen(true); }}
+                    onDelete={handleDelete}
+                />
             )}
 
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

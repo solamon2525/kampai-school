@@ -1,7 +1,20 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, ExternalLink, IdCard, Star } from 'lucide-react';
+import {
+    DndContext,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    closestCenter,
+    type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+    SortableContext,
+    arrayMove,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -24,6 +37,8 @@ import {
 } from '@/components/educational-hub/SectionToolbar';
 import { useViewMode } from '@/hooks/useViewMode';
 import { useFavorites } from '@/hooks/useFavorites';
+import { useUserRole } from '@/hooks/useUserRole';
+import { useToast } from '@/hooks/use-toast';
 
 // UUID v4 shape (used to disambiguate :identifier between staff_id vs username)
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -85,6 +100,38 @@ const EducationalHubTeacher = () => {
     const [sort, setSort] = useState<SortMode>('default');
     const { mode: viewMode, setMode: setViewMode } = useViewMode();
     const { favorites, toggle: toggleFav, isFavorite } = useFavorites();
+
+    // Admin edit mode — adds drag handles on section headers + item cards
+    const { isAdmin } = useUserRole();
+    const { toast } = useToast();
+    const queryClient = useQueryClient();
+    const dndSensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+    const [orderedCategories, setOrderedCategories] = useState<EduHubCategory[]>([]);
+
+    // Sync local order with server data (categories from useQuery)
+    useEffect(() => {
+        if (categories) setOrderedCategories(categories);
+    }, [categories]);
+
+    const handleCategoryDragEnd = async (e: DragEndEvent) => {
+        const { active, over } = e;
+        if (!over || active.id === over.id) return;
+        const oldIdx = orderedCategories.findIndex((c) => c.id === active.id);
+        const newIdx = orderedCategories.findIndex((c) => c.id === over.id);
+        if (oldIdx < 0 || newIdx < 0) return;
+        const next = arrayMove(orderedCategories, oldIdx, newIdx);
+        setOrderedCategories(next);
+        const updates = next.map((c, i) => ({ id: c.id, sort_order: (i + 1) * 10 }));
+        const { error } = await educationalHubService.bulkUpdateSortOrderCategories(updates);
+        if (error) {
+            setOrderedCategories(categories ?? []);
+            toast({ title: 'จัดลำดับล้มเหลว', description: error.message, variant: 'destructive' });
+            return;
+        }
+        await queryClient.invalidateQueries({ queryKey: ['edu-hub', 'categories'] });
+        await queryClient.invalidateQueries({ queryKey: ['edu-hub', 'categories', 'admin'] });
+        toast({ title: 'บันทึกลำดับใหม่' });
+    };
 
     const allItems = useMemo(() => items ?? [], [items]);
 
@@ -324,18 +371,36 @@ const EducationalHubTeacher = () => {
                                 </section>
                             )}
 
-                            <div className="space-y-10">
-                                {categories.map((cat) => (
-                                    <CategorySection
-                                        key={cat.id}
-                                        category={cat}
-                                        items={itemsByCategory.get(cat.id) ?? []}
-                                        viewMode={viewMode}
-                                        isFavorite={isFavorite}
-                                        onToggleFavorite={toggleFav}
-                                    />
-                                ))}
-                            </div>
+                            {isAdmin && (
+                                <p className="text-[10px] text-muted-foreground -mb-4 italic">
+                                    💡 โหมด admin: ลากที่ grip ⋮⋮ บน section header เพื่อจัดลำดับหมวด หรือบนการ์ดเกมเพื่อจัดลำดับเกม
+                                </p>
+                            )}
+                            <DndContext
+                                sensors={dndSensors}
+                                collisionDetection={closestCenter}
+                                onDragEnd={handleCategoryDragEnd}
+                            >
+                                <SortableContext
+                                    items={orderedCategories.map((c) => c.id)}
+                                    strategy={verticalListSortingStrategy}
+                                    disabled={!isAdmin}
+                                >
+                                    <div className="space-y-10">
+                                        {orderedCategories.map((cat) => (
+                                            <CategorySection
+                                                key={cat.id}
+                                                category={cat}
+                                                items={itemsByCategory.get(cat.id) ?? []}
+                                                viewMode={viewMode}
+                                                isFavorite={isFavorite}
+                                                onToggleFavorite={toggleFav}
+                                                editable={isAdmin}
+                                            />
+                                        ))}
+                                    </div>
+                                </SortableContext>
+                            </DndContext>
                         </>
                     )}
                 </div>
