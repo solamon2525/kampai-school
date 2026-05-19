@@ -6,6 +6,9 @@ import {
   Building2, Briefcase, Users, UserCog, GraduationCap, Recycle, Wallet, ClipboardCheck,
   PenLine, Star, FolderOpen, BarChart2, LayoutTemplate, FileText, Mail, HelpCircle,
   Info, Gift,
+  // newly added admin routes (educational-hub, docs-hub family, system)
+  Sparkles, Folder, DollarSign, FileCheck2, NotebookText, Target, Files, IdCard,
+  Bell, QrCode,
 } from 'lucide-react';
 
 export type QuickMenuOption = {
@@ -31,6 +34,16 @@ export const ADMIN_QUICK_MENU_CATALOG: QuickMenuOption[] = [
   { id: 'news', label: 'ข่าวสาร', icon: Newspaper, path: '/admin/dashboard/news', group: 'เว็บไซต์' },
   { id: 'gallery', label: 'แกลเลอรี่', icon: Image, path: '/admin/dashboard/gallery', group: 'เว็บไซต์' },
   { id: 'events', label: 'ปฏิทิน', icon: Calendar, path: '/admin/dashboard/events', group: 'เว็บไซต์' },
+  { id: 'educational-hub', label: 'คลังสื่อและเกม', icon: Sparkles, path: '/admin/dashboard/educational-hub', group: 'เว็บไซต์' },
+
+  // ศูนย์เอกสาร (docs-hub family, v1.19.x — เพิ่งเพิ่ม)
+  { id: 'docs-hub', label: 'ศูนย์เอกสาร', icon: Folder, path: '/admin/dashboard/docs-hub', group: 'ศูนย์เอกสาร' },
+  { id: 'budget', label: 'งบประมาณ', icon: DollarSign, path: '/admin/dashboard/budget', group: 'ศูนย์เอกสาร' },
+  { id: 'sar', label: 'SAR (รายงานประจำปี)', icon: FileCheck2, path: '/admin/dashboard/sar', group: 'ศูนย์เอกสาร' },
+  { id: 'ics', label: 'ICS (แผนการเรียนรู้)', icon: NotebookText, path: '/admin/dashboard/ics', group: 'ศูนย์เอกสาร' },
+  { id: 'action-plan', label: 'แผนปฏิบัติการ', icon: Target, path: '/admin/dashboard/action-plan', group: 'ศูนย์เอกสาร' },
+  { id: 'doc-templates', label: 'แม่แบบเอกสาร', icon: Files, path: '/admin/dashboard/doc-templates', group: 'ศูนย์เอกสาร' },
+  { id: 'student-docs', label: 'เอกสารนักเรียน 360°', icon: IdCard, path: '/admin/dashboard/student-docs', group: 'ศูนย์เอกสาร' },
 
   // งานสารบรรณ
   { id: 'saraban', label: 'สารบรรณ — ภาพรวม', icon: ClipboardList, path: '/admin/dashboard/saraban', group: 'งานสารบรรณ' },
@@ -66,6 +79,7 @@ export const ADMIN_QUICK_MENU_CATALOG: QuickMenuOption[] = [
   { id: 'documents', label: 'จัดการเอกสาร', icon: FolderOpen, path: '/admin/dashboard/documents', group: 'ระบบบริการ' },
   { id: 'analytics', label: 'Analytics', icon: BarChart2, path: '/admin/dashboard/analytics', group: 'ระบบบริการ' },
   { id: 'page-builder', label: 'Page Builder', icon: LayoutTemplate, path: '/admin/page-builder', group: 'ระบบบริการ' },
+  { id: 'scan', label: 'สแกน QR', icon: QrCode, path: '/admin/dashboard/scan', group: 'ระบบบริการ' },
 
   // อื่นๆ
   { id: 'admissions', label: 'ใบสมัคร', icon: FileText, path: '/admin/dashboard/admissions', group: 'อื่นๆ' },
@@ -74,6 +88,7 @@ export const ADMIN_QUICK_MENU_CATALOG: QuickMenuOption[] = [
 
   // ระบบ
   { id: 'system-overview', label: 'ภาพรวมระบบ', icon: Info, path: '/admin/dashboard/system-overview', group: 'ระบบ' },
+  { id: 'notifications', label: 'การแจ้งเตือน', icon: Bell, path: '/admin/dashboard/notifications', group: 'ระบบ' },
 ];
 
 export const TEACHER_QUICK_MENU_CATALOG: QuickMenuOption[] = [
