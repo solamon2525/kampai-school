@@ -199,6 +199,26 @@ export const educationalHubService = {
     deleteItem: (id: string) =>
         supabase.from('educational_hub_items' as never).delete().eq('id', id),
 
+    /**
+     * Batch update sort_order for multiple items in one round-trip.
+     * Used by admin drag-drop UI in TeacherEduHubManager + EduHubManagement.
+     * Each item is UPDATE'd individually but in parallel (Promise.all).
+     */
+    bulkUpdateSortOrder: async (
+        updates: { id: string; sort_order: number }[],
+    ): Promise<{ error: Error | null }> => {
+        const results = await Promise.all(
+            updates.map((u) =>
+                supabase
+                    .from('educational_hub_items' as never)
+                    .update({ sort_order: u.sort_order } as never)
+                    .eq('id', u.id),
+            ),
+        );
+        const firstErr = results.find((r) => r.error)?.error;
+        return { error: (firstErr as Error | undefined) ?? null };
+    },
+
     // ─── Counters (anon-safe RPCs) ──────────────────────────────────────
     incrementView: (id: string) =>
         supabase.rpc('increment_ehi_view' as never, { p_id: id } as never),

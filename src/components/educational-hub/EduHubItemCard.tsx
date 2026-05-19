@@ -1,8 +1,13 @@
 import { useState } from 'react';
-import { FileText, ExternalLink, Play, Type, Download, Eye } from 'lucide-react';
+import {
+    FileText, ExternalLink, Play, Type, Download, Eye, Star, PlayCircle, Maximize2,
+} from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import {
+    Dialog, DialogContent, DialogHeader, DialogTitle,
+} from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import {
     educationalHubService,
@@ -10,13 +15,24 @@ import {
     youtubeThumbnail,
     type EduHubItem,
 } from '@/services/educational-hub.service';
+import type { ViewMode } from '@/hooks/useViewMode';
 
 interface Props {
     item: EduHubItem;
+    viewMode?: ViewMode;
+    isFavorite?: boolean;
+    /** If provided, renders a ⭐ button (toggle on click) */
+    onToggleFavorite?: () => void;
 }
 
-export const EduHubItemCard = ({ item }: Props) => {
+export const EduHubItemCard = ({
+    item,
+    viewMode = 'grid',
+    isFavorite = false,
+    onToggleFavorite,
+}: Props) => {
     const [openDialog, setOpenDialog] = useState(false);
+    const [embedOpen, setEmbedOpen] = useState(false);
 
     const trackView = () => {
         void Promise.resolve(educationalHubService.incrementView(item.id)).catch(() => {});
@@ -31,6 +47,8 @@ export const EduHubItemCard = ({ item }: Props) => {
             window.open(item.file_url, '_blank', 'noopener,noreferrer');
         } else if (item.item_type === 'link' && item.external_url) {
             trackView();
+            // For external links, default click opens in new tab.
+            // "เล่นในหน้านี้" button (below) lets users embed without leaving.
             window.open(item.external_url, '_blank', 'noopener,noreferrer');
         } else if (item.item_type === 'youtube' || item.item_type === 'text') {
             trackView();
@@ -38,33 +56,131 @@ export const EduHubItemCard = ({ item }: Props) => {
         }
     };
 
+    const handleFavoriteClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        onToggleFavorite?.();
+    };
+
+    const handleEmbedClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        trackView();
+        setEmbedOpen(true);
+    };
+
+    // ─── COMPACT view: single-row list item ────────────────────────────
+    if (viewMode === 'compact') {
+        return (
+            <>
+                <Card
+                    onClick={handleClick}
+                    className="group cursor-pointer flex items-center gap-3 p-2.5 hover:shadow-sm transition-all hover:bg-accent/30"
+                >
+                    <CompactThumb item={item} />
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                            <TypeIcon item={item} />
+                            <h4 className="font-medium text-sm text-foreground truncate group-hover:text-primary transition-colors">
+                                {item.title}
+                            </h4>
+                        </div>
+                        <div className="flex items-center gap-2 text-[10px] text-muted-foreground mt-0.5">
+                            {item.subject && <span>{item.subject}</span>}
+                            {item.subject && <span>·</span>}
+                            <span className="inline-flex items-center gap-0.5">
+                                <Eye className="h-3 w-3" />{item.view_count}
+                            </span>
+                        </div>
+                    </div>
+                    <CardActions
+                        item={item}
+                        isFavorite={isFavorite}
+                        onToggleFavorite={onToggleFavorite ? handleFavoriteClick : undefined}
+                        onEmbed={item.item_type === 'link' ? handleEmbedClick : undefined}
+                        compact
+                    />
+                </Card>
+                <DetailDialog item={item} open={openDialog} onOpenChange={setOpenDialog} />
+                <EmbedDialog item={item} open={embedOpen} onOpenChange={setEmbedOpen} />
+            </>
+        );
+    }
+
+    // ─── GRID + SPOTLIGHT view: card layout ────────────────────────────
+    const isSpotlight = viewMode === 'spotlight';
+
     return (
         <>
             <Card
                 onClick={handleClick}
-                className="group cursor-pointer overflow-hidden hover:shadow-md transition-all hover:-translate-y-0.5"
+                className={cn(
+                    'group cursor-pointer overflow-hidden hover:shadow-md transition-all hover:-translate-y-0.5 relative',
+                    isSpotlight && 'shadow-sm',
+                )}
             >
+                {/* Favorite + Embed action overlay (top-right) */}
+                <div className="absolute top-2 right-2 z-10 flex gap-1">
+                    {item.item_type === 'link' && item.external_url && (
+                        <button
+                            type="button"
+                            onClick={handleEmbedClick}
+                            className="h-7 w-7 rounded-full bg-background/90 backdrop-blur flex items-center justify-center shadow-sm hover:bg-background hover:scale-110 transition-transform"
+                            aria-label="เล่นในหน้านี้"
+                            title="เล่นในหน้านี้"
+                        >
+                            <Maximize2 className="h-3.5 w-3.5 text-foreground" />
+                        </button>
+                    )}
+                    {onToggleFavorite && (
+                        <button
+                            type="button"
+                            onClick={handleFavoriteClick}
+                            className="h-7 w-7 rounded-full bg-background/90 backdrop-blur flex items-center justify-center shadow-sm hover:bg-background hover:scale-110 transition-transform"
+                            aria-label={isFavorite ? 'ลบจากรายการโปรด' : 'เพิ่มในรายการโปรด'}
+                            aria-pressed={isFavorite}
+                            title={isFavorite ? 'รายการโปรด' : 'เพิ่มในรายการโปรด'}
+                        >
+                            <Star
+                                className={cn(
+                                    'h-3.5 w-3.5 transition-colors',
+                                    isFavorite ? 'fill-amber-400 text-amber-500' : 'text-muted-foreground',
+                                )}
+                            />
+                        </button>
+                    )}
+                </div>
+
                 {/* Media preview */}
                 <ItemThumbnail item={item} />
 
                 {/* Body */}
-                <div className="p-3 space-y-1">
+                <div className={cn('p-3 space-y-1', isSpotlight && 'p-4 space-y-2')}>
                     <div className="flex items-start justify-between gap-2">
-                        <h4 className="font-semibold text-sm text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+                        <h4 className={cn(
+                            'font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors',
+                            isSpotlight ? 'text-base' : 'text-sm',
+                        )}>
                             {item.title}
                         </h4>
                         <TypeIcon item={item} />
                     </div>
                     {item.description && (
-                        <p className="text-xs text-muted-foreground line-clamp-2">{item.description}</p>
+                        <p className={cn(
+                            'text-muted-foreground',
+                            isSpotlight ? 'text-sm line-clamp-3' : 'text-xs line-clamp-2',
+                        )}>
+                            {item.description}
+                        </p>
                     )}
 
                     {/* Meta row */}
-                    <div className="flex items-center justify-between pt-2 text-[10px] text-muted-foreground">
-                        <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex items-center justify-between pt-2 text-[10px] text-muted-foreground gap-2">
+                        <div className="flex items-center gap-1.5 flex-wrap">
                             {item.subject && <Badge variant="outline" className="text-[10px]">{item.subject}</Badge>}
                             {item.grade_levels?.slice(0, 2).map((g) => (
                                 <Badge key={g} variant="outline" className="text-[10px]">{g}</Badge>
+                            ))}
+                            {item.tags?.slice(0, isSpotlight ? 4 : 2).map((t) => (
+                                <Badge key={t} variant="secondary" className="text-[10px]">#{t}</Badge>
                             ))}
                         </div>
                         <ActionStat item={item} />
@@ -72,39 +188,83 @@ export const EduHubItemCard = ({ item }: Props) => {
                 </div>
             </Card>
 
-            <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-                <DialogContent className="max-w-3xl">
-                    <DialogHeader>
-                        <DialogTitle>{item.title}</DialogTitle>
-                    </DialogHeader>
-                    {item.item_type === 'youtube' && item.youtube_id && (
-                        <div className="aspect-video w-full overflow-hidden rounded-md bg-black">
-                            <iframe
-                                src={`https://www.youtube.com/embed/${item.youtube_id}?rel=0`}
-                                title={item.title}
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                                className="w-full h-full"
-                            />
-                        </div>
-                    )}
-                    {item.item_type === 'text' && item.body_html && (
-                        <div
-                            className="prose prose-sm max-w-none text-foreground"
-                            // body_html stored by teachers/admins — same trust level as news.content_html
-                            dangerouslySetInnerHTML={{ __html: item.body_html }}
-                        />
-                    )}
-                    {item.description && item.item_type !== 'text' && (
-                        <p className="text-sm text-muted-foreground">{item.description}</p>
-                    )}
-                </DialogContent>
-            </Dialog>
+            <DetailDialog item={item} open={openDialog} onOpenChange={setOpenDialog} />
+            <EmbedDialog item={item} open={embedOpen} onOpenChange={setEmbedOpen} />
         </>
     );
 };
 
-// ──────────────────────────────────────────────────────────────────────────
+// ─── Sub-components ─────────────────────────────────────────────────────────
+
+const CardActions = ({
+    item,
+    isFavorite,
+    onToggleFavorite,
+    onEmbed,
+    compact,
+}: {
+    item: EduHubItem;
+    isFavorite: boolean;
+    onToggleFavorite?: (e: React.MouseEvent) => void;
+    onEmbed?: (e: React.MouseEvent) => void;
+    compact?: boolean;
+}) => (
+    <div className="flex items-center gap-1 shrink-0">
+        {item.item_type === 'link' && onEmbed && (
+            <Button
+                size="icon"
+                variant="ghost"
+                onClick={onEmbed}
+                className={compact ? 'h-7 w-7' : 'h-8 w-8'}
+                title="เล่นในหน้านี้"
+            >
+                <PlayCircle className="h-4 w-4" />
+            </Button>
+        )}
+        {onToggleFavorite && (
+            <Button
+                size="icon"
+                variant="ghost"
+                onClick={onToggleFavorite}
+                className={compact ? 'h-7 w-7' : 'h-8 w-8'}
+                title={isFavorite ? 'รายการโปรด' : 'เพิ่มในรายการโปรด'}
+                aria-pressed={isFavorite}
+            >
+                <Star
+                    className={cn(
+                        'h-4 w-4',
+                        isFavorite ? 'fill-amber-400 text-amber-500' : 'text-muted-foreground',
+                    )}
+                />
+            </Button>
+        )}
+    </div>
+);
+
+const CompactThumb = ({ item }: { item: EduHubItem }) => {
+    if (item.thumbnail_url) {
+        return (
+            <img
+                src={item.thumbnail_url}
+                alt=""
+                loading="lazy"
+                className="h-10 w-14 object-contain bg-muted rounded shrink-0"
+            />
+        );
+    }
+    if (item.item_type === 'youtube' && item.youtube_id) {
+        return (
+            <img
+                src={youtubeThumbnail(item.youtube_id, 'hq')}
+                alt=""
+                loading="lazy"
+                className="h-10 w-14 object-cover rounded shrink-0"
+            />
+        );
+    }
+    return <div className="h-10 w-14 bg-muted rounded shrink-0" />;
+};
+
 const ItemThumbnail = ({ item }: { item: EduHubItem }) => {
     if (item.thumbnail_url) {
         return (
@@ -164,16 +324,81 @@ const TypeIcon = ({ item }: { item: EduHubItem }) => {
 const ActionStat = ({ item }: { item: EduHubItem }) => {
     if (item.item_type === 'file') {
         return (
-            <span className="inline-flex items-center gap-1">
+            <span className="inline-flex items-center gap-1 shrink-0">
                 <Download className="h-3 w-3" />
                 {item.file_size ? formatFileSize(item.file_size) : 'ดาวน์โหลด'}
             </span>
         );
     }
     return (
-        <span className="inline-flex items-center gap-1">
+        <span className="inline-flex items-center gap-1 shrink-0">
             <Eye className="h-3 w-3" />
             {item.view_count}
         </span>
+    );
+};
+
+const DetailDialog = ({
+    item, open, onOpenChange,
+}: { item: EduHubItem; open: boolean; onOpenChange: (v: boolean) => void }) => (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-3xl">
+            <DialogHeader>
+                <DialogTitle>{item.title}</DialogTitle>
+            </DialogHeader>
+            {item.item_type === 'youtube' && item.youtube_id && (
+                <div className="aspect-video w-full overflow-hidden rounded-md bg-black">
+                    <iframe
+                        src={`https://www.youtube.com/embed/${item.youtube_id}?rel=0`}
+                        title={item.title}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="w-full h-full"
+                    />
+                </div>
+            )}
+            {item.item_type === 'text' && item.body_html && (
+                <div
+                    className="prose prose-sm max-w-none text-foreground"
+                    // body_html stored by teachers/admins — same trust level as news.content_html
+                    dangerouslySetInnerHTML={{ __html: item.body_html }}
+                />
+            )}
+            {item.description && item.item_type !== 'text' && (
+                <p className="text-sm text-muted-foreground">{item.description}</p>
+            )}
+        </DialogContent>
+    </Dialog>
+);
+
+const EmbedDialog = ({
+    item, open, onOpenChange,
+}: { item: EduHubItem; open: boolean; onOpenChange: (v: boolean) => void }) => {
+    if (!item.external_url) return null;
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="max-w-[95vw] w-[95vw] h-[90vh] p-0 flex flex-col gap-0">
+                <DialogHeader className="px-4 py-3 border-b border-border">
+                    <DialogTitle className="text-base flex items-center justify-between gap-3 pr-8">
+                        <span className="truncate">{item.title}</span>
+                        <a
+                            href={item.external_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs font-normal text-primary hover:underline inline-flex items-center gap-1 shrink-0"
+                        >
+                            <ExternalLink className="h-3 w-3" /> เปิดเต็มจอ
+                        </a>
+                    </DialogTitle>
+                </DialogHeader>
+                <iframe
+                    src={item.external_url}
+                    title={item.title}
+                    className="flex-1 w-full border-0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                    allowFullScreen
+                />
+            </DialogContent>
+        </Dialog>
     );
 };

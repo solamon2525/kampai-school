@@ -30,6 +30,7 @@ import {
     type EduHubProfile,
 } from '@/services/educational-hub.service';
 import { EduHubItemForm } from '@/components/admin/educational-hub/EduHubItemForm';
+import { SortableItemsTable } from '@/components/admin/educational-hub/SortableItemsTable';
 
 const MENU = [
     { id: 'dashboard', label: 'แดชบอร์ด', icon: FolderOpen, path: '/teacher' },
@@ -124,28 +125,16 @@ const MyItemsTab = ({ staffId }: { staffId: string }) => {
         return m;
     }, [items]);
 
-    const handleDelete = async (item: EduHubItem) => {
-        if (!confirm(`ลบรายการ "${item.title}"?`)) return;
-        const res = await educationalHubService.deleteItem(item.id);
-        if (res.error) {
-            toast({ title: 'ลบไม่ได้', description: res.error.message, variant: 'destructive' });
-            return;
-        }
-        await queryClient.invalidateQueries({ queryKey: ['edu-hub', 'items', 'mine', staffId] });
-        await queryClient.invalidateQueries({ queryKey: ['edu-hub', 'items', staffId] });
-        await queryClient.invalidateQueries({ queryKey: ['edu-hub', 'teachers'] });
-        toast({ title: 'ลบรายการสำเร็จ' });
-    };
-
-    const togglePublished = async (item: EduHubItem) => {
-        const res = await educationalHubService.updateItem(item.id, { is_published: !item.is_published });
-        if (res.error) {
-            toast({ title: 'บันทึกไม่ได้', description: res.error.message, variant: 'destructive' });
-            return;
-        }
-        await queryClient.invalidateQueries({ queryKey: ['edu-hub', 'items', 'mine', staffId] });
-        await queryClient.invalidateQueries({ queryKey: ['edu-hub', 'teachers'] });
-    };
+    // Query keys to invalidate after row actions (delete/publish/reorder) —
+    // covers self-view, public hub view, and teacher card counts
+    const invalidateKeys = useMemo<readonly (readonly unknown[])[]>(
+        () => [
+            ['edu-hub', 'items', 'mine', staffId],
+            ['edu-hub', 'items', staffId],
+            ['edu-hub', 'teachers'],
+        ],
+        [staffId],
+    );
 
     return (
         <div className="space-y-6">
@@ -177,62 +166,18 @@ const MyItemsTab = ({ staffId }: { staffId: string }) => {
                             <div key={cat.id} className="space-y-2">
                                 <div className="flex items-center justify-between">
                                     <h3 className="font-semibold text-foreground">{cat.name}</h3>
-                                    <span className="text-xs text-muted-foreground">{list.length} รายการ</span>
+                                    <span className="text-xs text-muted-foreground">
+                                        {list.length > 1 ? `${list.length} รายการ · ลากแถวเพื่อจัดลำดับ` : `${list.length} รายการ`}
+                                    </span>
                                 </div>
                                 {list.length === 0 ? (
                                     <p className="text-xs text-muted-foreground italic px-3">— ยังไม่มี —</p>
                                 ) : (
-                                    <Card>
-                                        <CardContent className="p-0">
-                                            <table className="w-full">
-                                                <tbody>
-                                                    {list.map((item) => {
-                                                        const Icon = ITEM_TYPE_ICON[item.item_type];
-                                                        return (
-                                                            <tr key={item.id} className="border-b border-border last:border-0 hover:bg-muted/20">
-                                                                <td className="px-3 py-2 w-24">
-                                                                    <Badge variant="outline" className="text-[10px]">
-                                                                        <Icon className="h-3 w-3 mr-1" />
-                                                                        {ITEM_TYPE_LABEL[item.item_type]}
-                                                                    </Badge>
-                                                                </td>
-                                                                <td className="px-3 py-2">
-                                                                    <p className="text-sm font-medium">{item.title}</p>
-                                                                    {item.description && (
-                                                                        <p className="text-xs text-muted-foreground line-clamp-1">{item.description}</p>
-                                                                    )}
-                                                                    {item.file_size && (
-                                                                        <p className="text-[10px] text-muted-foreground">{formatFileSize(item.file_size)}</p>
-                                                                    )}
-                                                                </td>
-                                                                <td className="px-3 py-2 w-28">
-                                                                    <button
-                                                                        onClick={() => togglePublished(item)}
-                                                                        className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full ${
-                                                                            item.is_published ? 'bg-green-100 text-green-700' : 'bg-muted text-muted-foreground'
-                                                                        }`}
-                                                                    >
-                                                                        {item.is_published ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
-                                                                        {item.is_published ? 'เผยแพร่' : 'ซ่อน'}
-                                                                    </button>
-                                                                </td>
-                                                                <td className="px-3 py-2 w-24">
-                                                                    <div className="flex gap-1">
-                                                                        <Button variant="ghost" size="sm" onClick={() => { setEditing(item); setDialogOpen(true); }}>
-                                                                            <Edit className="h-4 w-4" />
-                                                                        </Button>
-                                                                        <Button variant="ghost" size="sm" className="text-destructive" onClick={() => handleDelete(item)}>
-                                                                            <Trash2 className="h-4 w-4" />
-                                                                        </Button>
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
-                                                        );
-                                                    })}
-                                                </tbody>
-                                            </table>
-                                        </CardContent>
-                                    </Card>
+                                    <SortableItemsTable
+                                        items={list}
+                                        invalidateKeys={invalidateKeys}
+                                        onEdit={(item) => { setEditing(item); setDialogOpen(true); }}
+                                    />
                                 )}
                             </div>
                         );

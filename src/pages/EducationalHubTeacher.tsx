@@ -1,7 +1,7 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, ExternalLink, IdCard } from 'lucide-react';
+import { ArrowLeft, ExternalLink, IdCard, Star } from 'lucide-react';
 import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,14 @@ import {
 } from '@/services/educational-hub.service';
 import { CategoryChipStrip } from '@/components/educational-hub/CategoryChipStrip';
 import { CategorySection } from '@/components/educational-hub/CategorySection';
+import {
+    SectionToolbar,
+    EMPTY_FILTER,
+    type FilterState,
+    type SortMode,
+} from '@/components/educational-hub/SectionToolbar';
+import { useViewMode } from '@/hooks/useViewMode';
+import { useFavorites } from '@/hooks/useFavorites';
 
 // UUID v4 shape (used to disambiguate :identifier between staff_id vs username)
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -72,15 +80,56 @@ const EducationalHubTeacher = () => {
         },
     });
 
+    // ─── Toolbar state: filters, sort, view mode, favorites ─────────────
+    const [filter, setFilter] = useState<FilterState>(EMPTY_FILTER);
+    const [sort, setSort] = useState<SortMode>('default');
+    const { mode: viewMode, setMode: setViewMode } = useViewMode();
+    const { favorites, toggle: toggleFav, isFavorite } = useFavorites();
+
+    const allItems = useMemo(() => items ?? [], [items]);
+
+    // Apply filters + sort to the full item list (parent-side filtering keeps
+    // category grouping logic untouched downstream)
+    const visibleItems = useMemo(() => {
+        const q = filter.search.trim().toLowerCase();
+        let arr = allItems.filter((it) => {
+            if (q) {
+                const hay = `${it.title} ${it.description ?? ''}`.toLowerCase();
+                if (!hay.includes(q)) return false;
+            }
+            if (filter.subjects.length && (!it.subject || !filter.subjects.includes(it.subject))) return false;
+            if (filter.grades.length && !it.grade_levels?.some((g) => filter.grades.includes(g))) return false;
+            if (filter.tags.length && !it.tags?.some((t) => filter.tags.includes(t))) return false;
+            if (filter.types.length && !filter.types.includes(it.item_type)) return false;
+            return true;
+        });
+
+        // Sort modes (default = keep ordering from service: sort_order asc, created_at desc)
+        if (sort === 'newest') {
+            arr = [...arr].sort((a, b) => (b.created_at > a.created_at ? 1 : -1));
+        } else if (sort === 'popular') {
+            arr = [...arr].sort((a, b) => b.view_count - a.view_count);
+        } else if (sort === 'alpha') {
+            arr = [...arr].sort((a, b) => a.title.localeCompare(b.title, 'th'));
+        }
+        return arr;
+    }, [allItems, filter, sort]);
+
     const itemsByCategory = useMemo(() => {
         const m = new Map<string, EduHubItem[]>();
-        (items ?? []).forEach((it) => {
+        visibleItems.forEach((it) => {
             const arr = m.get(it.category_id) ?? [];
             arr.push(it);
             m.set(it.category_id, arr);
         });
         return m;
-    }, [items]);
+    }, [visibleItems]);
+
+    // Favorites = subset of ALL items (so user can find favorites even if filtered out)
+    const favoriteItems = useMemo(
+        () => allItems.filter((it) => favorites.has(it.id)),
+        [allItems, favorites],
+    );
 
     // Deep-link: scroll to ?cat=key after items render
     useEffect(() => {
@@ -231,7 +280,7 @@ const EducationalHubTeacher = () => {
                 />
 
                 {/* Category sections */}
-                <div className="container mx-auto px-4 py-10 max-w-6xl space-y-10">
+                <div className="container mx-auto px-4 py-10 max-w-6xl space-y-6">
                     {loadingItems ? (
                         <div className="text-center text-muted-foreground py-20">กำลังโหลดรายการ...</div>
                     ) : !categories || categories.length === 0 ? (
@@ -239,13 +288,55 @@ const EducationalHubTeacher = () => {
                             ยังไม่มีหมวดหมู่
                         </div>
                     ) : (
-                        categories.map((cat) => (
-                            <CategorySection
-                                key={cat.id}
-                                category={cat}
-                                items={itemsByCategory.get(cat.id) ?? []}
+                        <>
+                            {/* Toolbar — applies filters across all sections */}
+                            <SectionToolbar
+                                filter={filter}
+                                onFilterChange={setFilter}
+                                sort={sort}
+                                onSortChange={setSort}
+                                viewMode={viewMode}
+                                onViewModeChange={setViewMode}
+                                allItems={allItems}
                             />
-                        ))
+
+                            {/* ⭐ Favorites pinned above */}
+                            {favoriteItems.length > 0 && (
+                                <section className="space-y-4">
+                                    <header className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+                                            <Star className="h-5 w-5 text-amber-600 fill-amber-500" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h2 className="text-lg sm:text-xl font-bold text-foreground">รายการโปรด</h2>
+                                            <p className="text-xs text-muted-foreground">เก็บไว้บนเครื่องนี้ — เล่นซ้ำได้ง่ายๆ</p>
+                                        </div>
+                                        <span className="text-xs text-muted-foreground font-medium">{favoriteItems.length} รายการ</span>
+                                    </header>
+                                    <CategorySection
+                                        category={null}
+                                        items={favoriteItems}
+                                        viewMode={viewMode}
+                                        isFavorite={isFavorite}
+                                        onToggleFavorite={toggleFav}
+                                        hideHeader
+                                    />
+                                </section>
+                            )}
+
+                            <div className="space-y-10">
+                                {categories.map((cat) => (
+                                    <CategorySection
+                                        key={cat.id}
+                                        category={cat}
+                                        items={itemsByCategory.get(cat.id) ?? []}
+                                        viewMode={viewMode}
+                                        isFavorite={isFavorite}
+                                        onToggleFavorite={toggleFav}
+                                    />
+                                ))}
+                            </div>
+                        </>
                     )}
                 </div>
             </main>
