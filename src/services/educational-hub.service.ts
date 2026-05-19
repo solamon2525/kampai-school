@@ -74,6 +74,7 @@ export type EduHubTeacherCard = {
 };
 
 const BUCKET = 'educational-hub';
+const GAMES_BUCKET = 'edu-hub-games';
 
 export const educationalHubService = {
     // ─── Categories ─────────────────────────────────────────────────────
@@ -216,6 +217,57 @@ export const educationalHubService = {
     /** Remove a previously uploaded file by its storage path */
     removeFile: async (path: string) =>
         supabase.storage.from(BUCKET).remove([path]),
+
+    // ─── HTML Game upload (admin-only via RLS) ──────────────────────────
+    /**
+     * Upload an HTML game file to the `edu-hub-games` bucket.
+     * Path scheme: `{subject}/{slug}.html` — stable so v.2 overwrites v.1.
+     * Caller appends `?v=<version>` to bust browser cache.
+     * RLS gates writes to admins only (see migration 063).
+     */
+    uploadGameHtml: async (
+        subject: string,
+        slug: string,
+        file: File,
+    ): Promise<{ publicUrl: string; path: string; version: number; error: Error | null }> => {
+        const path = `${subject}/${slug}.html`;
+        const { error: upErr } = await supabase.storage
+            .from(GAMES_BUCKET)
+            .upload(path, file, {
+                cacheControl: '3600',
+                upsert: true,
+                contentType: 'text/html',
+            });
+        if (upErr) return { publicUrl: '', path: '', version: 0, error: upErr };
+        const { data } = supabase.storage.from(GAMES_BUCKET).getPublicUrl(path);
+        const version = Date.now();
+        return {
+            publicUrl: `${data.publicUrl}?v=${version}`,
+            path,
+            version,
+            error: null,
+        };
+    },
+
+    /**
+     * Replace an existing game item's HTML — upload new file at same path,
+     * bump `?v=<timestamp>` on the item's external_url to invalidate browser cache.
+     */
+    replaceGameHtml: async (
+        itemId: string,
+        subject: string,
+        slug: string,
+        file: File,
+    ) => {
+        const up = await educationalHubService.uploadGameHtml(subject, slug, file);
+        if (up.error) return { data: null, error: up.error };
+        return supabase
+            .from('educational_hub_items' as never)
+            .update({ external_url: up.publicUrl } as never)
+            .eq('id', itemId)
+            .select()
+            .single();
+    },
 };
 
 /**

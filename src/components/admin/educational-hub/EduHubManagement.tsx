@@ -26,6 +26,7 @@ import {
 } from '@/services/educational-hub.service';
 import { CategoryForm } from './CategoryForm';
 import { EduHubItemForm } from './EduHubItemForm';
+import { GamesTab } from './GamesTab';
 
 type Teacher = {
     id: string;
@@ -79,11 +80,13 @@ export const EduHubManagement = () => {
                     <TabsTrigger value="categories">หมวดหมู่</TabsTrigger>
                     <TabsTrigger value="teachers">ครูทั้งหมด</TabsTrigger>
                     <TabsTrigger value="items">รายการทั้งหมด</TabsTrigger>
+                    <TabsTrigger value="games">เกม HTML</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="categories"><CategoriesTab /></TabsContent>
                 <TabsContent value="teachers"><TeachersTab /></TabsContent>
                 <TabsContent value="items"><AllItemsTab /></TabsContent>
+                <TabsContent value="games"><GamesTab /></TabsContent>
             </Tabs>
         </div>
     );
