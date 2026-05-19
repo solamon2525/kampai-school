@@ -17,14 +17,21 @@ import {
 import { CategoryChipStrip } from '@/components/educational-hub/CategoryChipStrip';
 import { CategorySection } from '@/components/educational-hub/CategorySection';
 
+// UUID v4 shape (used to disambiguate :identifier between staff_id vs username)
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 const EducationalHubTeacher = () => {
-    const { staffId } = useParams<{ staffId: string }>();
+    // Page is mounted from 2 routes:
+    //   /educational-hub/:staffId  (legacy long URL — UUID)
+    //   /h/:identifier             (short URL — username OR UUID for fallback)
+    const params = useParams<{ staffId?: string; identifier?: string }>();
+    const rawId = params.staffId ?? params.identifier ?? '';
     const [searchParams] = useSearchParams();
     const deepLinkCat = searchParams.get('cat');
 
     useEffect(() => {
         window.scrollTo(0, 0);
-    }, [staffId]);
+    }, [rawId]);
 
     const { data: cards, isLoading: loadingCards } = useQuery({
         queryKey: ['edu-hub', 'teachers'],
@@ -35,11 +42,22 @@ const EducationalHubTeacher = () => {
         },
     });
 
+    // Resolve rawId → teacher record (by UUID or by username)
+    const teacher = useMemo<EduHubTeacherCard | null>(() => {
+        if (!cards || !rawId) return null;
+        if (UUID_RE.test(rawId)) {
+            return cards.find((c) => c.staff_id === rawId) ?? null;
+        }
+        return cards.find((c) => c.username === rawId.toLowerCase()) ?? null;
+    }, [cards, rawId]);
+
+    const resolvedStaffId = teacher?.staff_id ?? null;
+
     const { data: items, isLoading: loadingItems } = useQuery({
-        queryKey: ['edu-hub', 'items', staffId, { publishedOnly: true }],
-        enabled: !!staffId,
+        queryKey: ['edu-hub', 'items', resolvedStaffId, { publishedOnly: true }],
+        enabled: !!resolvedStaffId,
         queryFn: async () => {
-            const { data, error } = await educationalHubService.listItemsByTeacher(staffId!, { publishedOnly: true });
+            const { data, error } = await educationalHubService.listItemsByTeacher(resolvedStaffId!, { publishedOnly: true });
             if (error) throw error;
             return (data ?? []) as EduHubItem[];
         },
@@ -53,11 +71,6 @@ const EducationalHubTeacher = () => {
             return (data ?? []) as EduHubCategory[];
         },
     });
-
-    const teacher = useMemo(
-        () => (cards ?? []).find((c) => c.staff_id === staffId),
-        [cards, staffId],
-    );
 
     const itemsByCategory = useMemo(() => {
         const m = new Map<string, EduHubItem[]>();

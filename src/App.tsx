@@ -121,6 +121,8 @@ const App = () => (
             <Route path="/training-showcase" element={<TrainingShowcasePublic />} />
             <Route path="/educational-hub" element={<EducationalHub />} />
             <Route path="/educational-hub/:staffId" element={<EducationalHubTeacher />} />
+            {/* Short URL alias — /h/<username|uuid> */}
+            <Route path="/h/:identifier" element={<EducationalHubTeacher />} />
 
             {/* Teacher Portal */}
             <Route path="/teacher" element={

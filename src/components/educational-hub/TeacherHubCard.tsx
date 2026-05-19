@@ -41,7 +41,10 @@ export const TeacherHubCard = ({ teacher, categories }: Props) => {
                 )}
             </div>
 
-            <Link to={`/educational-hub/${teacher.staff_id}`} className="block p-4 -mt-8">
+            <Link
+                to={teacher.username ? `/h/${teacher.username}` : `/educational-hub/${teacher.staff_id}`}
+                className="block p-4 -mt-8"
+            >
                 {/* Avatar overlapping the banner */}
                 <div className="relative inline-block">
                     <div className="rounded-full bg-background p-1 shadow-md">

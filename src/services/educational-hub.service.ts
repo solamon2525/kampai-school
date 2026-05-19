@@ -21,6 +21,7 @@ export type EduHubCategory = {
 
 export type EduHubProfile = {
     staff_id: string;
+    username: string | null;
     banner_url: string | null;
     hub_bio: string | null;
     accent_color: string | null;
@@ -71,6 +72,7 @@ export type EduHubTeacherCard = {
     is_hub_active: boolean;
     total_items: number;
     counts_by_category: Record<string, number>;
+    username: string | null;
 };
 
 const BUCKET = 'educational-hub';
@@ -121,6 +123,17 @@ export const educationalHubService = {
             .from('educational_hub_profiles' as never)
             .select('*')
             .eq('staff_id', staffId)
+            .maybeSingle(),
+
+    /**
+     * Resolve a username (short URL /h/:username) → profile row.
+     * Returns null via `data: null` if username not found.
+     */
+    getProfileByUsername: (username: string) =>
+        supabase
+            .from('educational_hub_profiles' as never)
+            .select('*')
+            .eq('username', username)
             .maybeSingle(),
 
     upsertProfile: (data: EduHubProfile) =>

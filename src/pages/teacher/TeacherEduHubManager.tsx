@@ -264,6 +264,14 @@ const MyItemsTab = ({ staffId }: { staffId: string }) => {
 // Profile tab — edit per-teacher hub metadata
 // ──────────────────────────────────────────────────────────────────────────
 const profileSchema = z.object({
+    username: z
+        .string()
+        .optional()
+        .nullable()
+        .refine(
+            (v) => !v || /^[a-z0-9_-]{2,32}$/.test(v),
+            'username: a-z, 0-9, - หรือ _ เท่านั้น (2-32 ตัว)',
+        ),
     hub_bio: z.string().max(500).optional().nullable(),
     banner_url: z.string().optional().nullable(),
     accent_color: z.string().optional().nullable(),
@@ -296,6 +304,7 @@ const MyProfileTab = ({ staffId }: { staffId: string }) => {
     const form = useForm<ProfileForm>({
         resolver: zodResolver(profileSchema),
         defaultValues: {
+            username: '',
             hub_bio: '',
             banner_url: '',
             accent_color: '#157F3C',
@@ -307,6 +316,7 @@ const MyProfileTab = ({ staffId }: { staffId: string }) => {
     useEffect(() => {
         if (profile) {
             form.reset({
+                username: profile.username ?? '',
                 hub_bio: profile.hub_bio ?? '',
                 banner_url: profile.banner_url ?? '',
                 accent_color: profile.accent_color ?? '#157F3C',
@@ -321,6 +331,7 @@ const MyProfileTab = ({ staffId }: { staffId: string }) => {
         try {
             const res = await educationalHubService.upsertProfile({
                 staff_id: staffId,
+                username: values.username?.trim() || null,
                 hub_bio: values.hub_bio?.trim() || null,
                 banner_url: values.banner_url?.trim() || null,
                 accent_color: values.accent_color?.trim() || null,
@@ -350,6 +361,33 @@ const MyProfileTab = ({ staffId }: { staffId: string }) => {
             <CardContent className="p-4 sm:p-6">
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                        <FormField
+                            control={form.control}
+                            name="username"
+                            render={({ field }) => {
+                                const previewName = (field.value ?? '').trim();
+                                return (
+                                    <FormItem>
+                                        <FormLabel>Username (สำหรับลิงก์สั้น)</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                placeholder="natthapong"
+                                                {...field}
+                                                value={field.value ?? ''}
+                                                onChange={(e) => field.onChange(e.target.value.toLowerCase())}
+                                            />
+                                        </FormControl>
+                                        <FormDescription>
+                                            {previewName
+                                                ? <>ลิงก์สั้น: <code className="text-primary">{`${window.location.origin}/h/${previewName}`}</code></>
+                                                : 'ตั้ง username (a-z, 0-9, -, _) เพื่อใช้ลิงก์สั้นแทน UUID — ปล่อยว่างจะใช้ลิงก์ /educational-hub/&lt;uuid&gt; เหมือนเดิม'}
+                                        </FormDescription>
+                                        <FormMessage />
+                                    </FormItem>
+                                );
+                            }}
+                        />
+
                         <FormField
                             control={form.control}
                             name="banner_url"
