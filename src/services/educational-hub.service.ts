@@ -75,6 +75,8 @@ export type EduHubTeacherCard = {
     total_items: number;
     counts_by_category: Record<string, number>;
     username: string | null;
+    /** Most recent published item created_at across all categories (nullable) */
+    last_item_at: string | null;
 };
 
 const BUCKET = 'educational-hub';
