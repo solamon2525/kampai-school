@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>เกมตัวอย่าง — แตะจุด (Template v1)</title>
+<!--
+═══════════════════════════════════════════════════════════════════════════
+  KAMPAI-SCHOOL · GAME TEMPLATE v1 (single-file)
+═══════════════════════════════════════════════════════════════════════════
+
+  วิธีใช้:
+  1. copy ไฟล์นี้เปลี่ยนชื่อเป็น <slug>.html  (เช่น my-game.html)
+  2. แก้ <title> และเนื้อหาส่วน TODO ให้เป็นเกมของคุณ
+  3. อัพโหลดผ่าน /admin/dashboard/educational-hub → tab "เกม HTML"
+  4. ระบบจะเก็บไว้ Storage bucket: edu-hub-games/{subject}/{slug}.html
+  5. หลังอัพ — admin ตั้ง tracked_game=true + game_slug ใน item form
+  6. เด็กเข้า /play/<slug> → กรอกรหัส → เล่น → score เข้า XP/Badge
+
+  template มีให้แล้ว (ไม่ต้องเขียนเอง):
+    ✅ EMBED detection + STUDENT_CODE caching
+    ✅ Score HUD + postMessage gameEnd กลับ wrapper
+    ✅ Game over screen + final score
+    ✅ exit/select-another buttons (iframe-safe via postMessage)
+    ✅ Touch controls (mobile-friendly canvas + tap)
+
+  ครู/AI ต้องเขียนเอง:
+    🔧 Game logic ในส่วน TODO sections
+    🔧 Assets (รูป base64 / SVG inline / CDN URL)
+    🔧 ปรับ scoring rules
+
+═══════════════════════════════════════════════════════════════════════════
+-->
+<style>
+    /* ─── Base reset + Thai font ─────────────────────────────────── */
+    @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Sarabun:wght@400;600&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+        height: 100%;
+        font-family: 'Kanit', 'Sarabun', sans-serif;
+        background: #0f172a;
+        color: #fff;
+        overflow: hidden;
+        touch-action: none;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+
+    /* ─── Game canvas ─────────────────────────────────────────────── */
+    #game-canvas {
+        display: block;
+        width: 100vw;
+        height: 100vh;
+        background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%);
+    }
+
+    /* ─── Score HUD ───────────────────────────────────────────────── */
+    #score-container {
+        position: fixed;
+        top: 16px;
+        left: 20px;
+        font-size: 28px;
+        font-weight: 700;
+        color: #FFD700;
+        text-shadow: 2px 2px 4px #000, 0 0 8px rgba(255,215,0,0.4);
+        background: rgba(0,0,0,0.4);
+        padding: 6px 16px;
+        border-radius: 999px;
+        border: 2px solid rgba(255,215,0,0.5);
+        z-index: 20;
+        transition: transform 0.15s ease-out;
+    }
+    #score-container.pop { transform: scale(1.18); }
+
+    #life-container {
+        position: fixed;
+        top: 16px;
+        right: 20px;
+        font-size: 28px;
+        text-shadow: 0 0 5px rgba(0,0,0,0.5);
+        z-index: 20;
+    }
+
+    /* ─── Start screen (blocker) + Game over ──────────────────────── */
+    #blocker, #gameover-screen {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.9);
+        backdrop-filter: blur(8px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 30;
+        text-align: center;
+        padding: 24px;
+    }
+    #gameover-screen { display: none; }
+
+    #blocker h1, #gameover-screen h1 {
+        font-size: 40px;
+        margin-bottom: 16px;
+        background: linear-gradient(135deg, #FFD700, #FFA500);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    #blocker p, #gameover-screen p { font-size: 18px; color: #cbd5e1; margin-bottom: 24px; line-height: 1.5; }
+
+    .btn {
+        padding: 14px 32px;
+        font-family: inherit;
+        font-size: 20px;
+        font-weight: 600;
+        border-radius: 999px;
+        border: none;
+        cursor: pointer;
+        margin: 6px;
+        transition: transform 0.1s, box-shadow 0.1s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .btn:active { transform: scale(0.95); }
+    .btn-primary { background: linear-gradient(45deg, #4CAF50, #45a049); color: white; box-shadow: 0 4px 10px rgba(76,175,80,0.4); }
+    .btn-blue { background: linear-gradient(45deg, #3b82f6, #2563eb); color: white; box-shadow: 0 4px 10px rgba(59,130,246,0.4); }
+    .btn-gray { background: rgba(100,116,139,0.7); color: white; }
+
+    #final-score { color: #FFD700; font-size: 48px; font-weight: 700; margin: 12px 0 24px; }
+
+    /* ─── Mobile touch hint (overlay) ─────────────────────────────── */
+    #touch-hint {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.5);
+        color: #fff;
+        padding: 8px 20px;
+        border-radius: 999px;
+        font-size: 14px;
+        z-index: 15;
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+    }
+    #touch-hint.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- Score HUD -->
+<div id="score-container">⭐ <span id="score-value">0</span></div>
+<div id="life-container">❤️❤️❤️</div>
+
+<!-- Game canvas (TODO: replace or add more elements as needed) -->
+<canvas id="game-canvas"></canvas>
+
+<!-- Touch hint -->
+<div id="touch-hint">แตะจุดสีแดงให้ทัน!</div>
+
+<!-- Start screen -->
+<div id="blocker">
+    <h1>🎯 แตะจุด</h1>
+    <p>แตะจุดสีแดงให้ทันก่อนหายไป<br>เกมตัวอย่างจาก template</p>
+    <button class="btn btn-primary" onclick="startGame()">▶ เริ่มเกม</button>
+</div>
+
+<!-- Game Over screen -->
+<div id="gameover-screen">
+    <h1>จบเกม!</h1>
+    <p>คะแนนสุดท้าย</p>
+    <div id="final-score">0</div>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
+        <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นใหม่</button>
+        <a href="/h/natthapong" target="_top" class="btn btn-blue">🎮 เลือกเกมใหม่</a>
+        <a href="/" target="_top" class="btn btn-gray">🚪 ออกจากเกม</a>
+    </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTION A · KAMPAI INTEGRATION BOILERPLATE (อย่าแก้ — ทำงานร่วมกับ /play wrapper)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+// 1. EMBED detection
+const EMBED = (window.parent !== window) &&
+              (new URLSearchParams(location.search).get('embed') === '1');
+
+// 2. STUDENT_CODE + SESSION_START_TS (ติดตาม student + duration)
+let STUDENT_CODE = null;
+let SESSION_START_TS = 0;
+if (EMBED) {
+    document.documentElement.classList.add('embed-mode');
+    window.addEventListener('message', (e) => {
+        if (e?.data?.type === 'init' && typeof e.data.studentCode === 'string') {
+            STUDENT_CODE = e.data.studentCode;
+            SESSION_START_TS = Date.now();
+        }
+    });
+
+    // 3. anchor target=_top interceptor (iframe sandbox ไม่ allow-top-navigation)
+    //    เปลี่ยนคลิกเป็น postMessage → React wrapper ใช้ useNavigate
+    document.addEventListener('click', (e) => {
+        const a = e.target.closest('a[target="_top"]');
+        if (!a) return;
+        const href = a.getAttribute('href');
+        if (!href) return;
+        e.preventDefault();
+        try {
+            window.parent.postMessage({ type: 'navigate', to: href }, '*');
+        } catch (_err) { /* parent gone */ }
+    });
+}
+
+// 4. IS_TOUCH detection (มือถือ/แท็บเล็ตไม่มี mouse + pointer lock)
+const IS_TOUCH = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+// 5. Score state + HUD updater (with pop animation)
+let score = 0;
+function setScore(newVal) {
+    score = Math.max(0, newVal);
+    const el = document.getElementById('score-value');
+    if (!el) return;
+    el.innerText = score;
+    const wrap = document.getElementById('score-container');
+    wrap?.classList.add('pop');
+    setTimeout(() => wrap?.classList.remove('pop'), 150);
+}
+
+// 6. Life HUD (สำหรับเกมที่มีระบบ life — ถ้าไม่ใช้ ลบออกได้)
+let lives = 3;
+function setLives(newVal) {
+    lives = Math.max(0, newVal);
+    let str = '';
+    for (let i = 0; i < 3; i++) str += (i < lives) ? '❤️' : '🖤';
+    document.getElementById('life-container').innerText = str;
+    if (lives <= 0) gameOver();
+}
+
+// 7. gameOver() → postMessage to parent (kampai PlayGame wrapper)
+let isGameOver = false;
+function gameOver() {
+    if (isGameOver) return;
+    isGameOver = true;
+
+    if (EMBED) {
+        try {
+            window.parent.postMessage({
+                type: 'gameEnd',
+                gameSlug: 'TODO-CHANGE-ME',           // ← ต้องตรงกับ educational_hub_items.game_slug
+                studentCode: STUDENT_CODE,
+                score: score,
+                mode: 'normal',
+                metadata: {
+                    duration: Math.max(1, Math.floor((Date.now() - SESSION_START_TS) / 1000)),
+                    // เพิ่มข้อมูลอื่นๆ ที่อยากเก็บ:
+                    // lives_remaining: lives,
+                    // combo_max: ...,
+                },
+            }, '*');
+        } catch (_err) { /* parent gone */ }
+    }
+
+    document.getElementById('final-score').innerText = score;
+    document.getElementById('gameover-screen').style.display = 'flex';
+
+    // หยุด game loop (TODO: ถ้าใช้ requestAnimationFrame แยก ให้ cancel ที่นี่)
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTION B · TODO: GAME LOGIC (แก้ตรงนี้ให้เป็นเกมของคุณ)
+   ═══════════════════════════════════════════════════════════════════════════
+   ตัวอย่างด้านล่าง = "Tap the Dot" — แตะจุดสีแดงให้ทันก่อนหาย
+   เป็น minigame สำหรับทดสอบ pipeline — ลบ/แทนที่ได้เลย
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+const canvas = document.getElementById('game-canvas');
+const ctx = canvas.getContext('2d');
+let cw = 0, ch = 0;
+function resizeCanvas() {
+    cw = canvas.width = window.innerWidth;
+    ch = canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+// Game state
+let dot = null;          // { x, y, r, spawnTs }
+let dotLifeMs = 1200;    // จุดอยู่นานเท่าไรก่อนหายเอง (ลดลงเรื่อยๆเพื่อให้ยากขึ้น)
+let nextSpawnTs = 0;
+let started = false;
+
+function spawnDot() {
+    const r = 36;
+    dot = {
+        x: r + Math.random() * (cw - 2 * r),
+        y: 80 + r + Math.random() * (ch - 160 - 2 * r),
+        r,
+        spawnTs: Date.now(),
+    };
+}
+
+function drawDot() {
+    if (!dot) return;
+    const age = Date.now() - dot.spawnTs;
+    const remain = Math.max(0, 1 - age / dotLifeMs);
+    // ring shrink animation
+    ctx.beginPath();
+    ctx.arc(dot.x, dot.y, dot.r + 6, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(dot.x, dot.y, dot.r * remain + 4, 0, Math.PI * 2);
+    ctx.fillStyle = `hsl(${remain * 120}, 80%, 55%)`;  // red→green based on time left
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = `hsl(${remain * 120}, 80%, 55%)`;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    ctx.beginPath();
+    ctx.arc(dot.x, dot.y, dot.r * remain * 0.6, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    ctx.fill();
+}
+
+function gameLoop() {
+    if (isGameOver || !started) {
+        requestAnimationFrame(gameLoop);
+        return;
+    }
+    ctx.clearRect(0, 0, cw, ch);
+
+    const now = Date.now();
+    if (!dot && now >= nextSpawnTs) {
+        spawnDot();
+    }
+    if (dot) {
+        if (now - dot.spawnTs > dotLifeMs) {
+            // หมดเวลา — เสีย 1 life
+            dot = null;
+            nextSpawnTs = now + 400;
+            setLives(lives - 1);
+        } else {
+            drawDot();
+        }
+    }
+
+    requestAnimationFrame(gameLoop);
+}
+
+function handleTap(e) {
+    if (!started || isGameOver || !dot) return;
+    e.preventDefault();
+    const t = e.touches?.[0] ?? e.changedTouches?.[0] ?? e;
+    const x = t.clientX, y = t.clientY;
+    const dx = x - dot.x, dy = y - dot.y;
+    if (Math.hypot(dx, dy) <= dot.r + 8) {
+        // โดน!
+        setScore(score + 50);
+        dot = null;
+        nextSpawnTs = Date.now() + 300;
+        // เร่งเกมให้ยากขึ้นทุก 5 จุดที่กดถูก
+        if (score % 250 === 0 && dotLifeMs > 500) {
+            dotLifeMs = Math.max(500, dotLifeMs - 80);
+        }
+    }
+}
+
+// รองรับทั้ง touch + mouse
+canvas.addEventListener('touchstart', handleTap, { passive: false });
+canvas.addEventListener('mousedown', handleTap);
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTION C · ENTRY POINT
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+window.startGame = () => {
+    document.getElementById('blocker').style.display = 'none';
+    started = true;
+    SESSION_START_TS = Date.now();
+    if (IS_TOUCH) {
+        document.getElementById('touch-hint').classList.add('show');
+        setTimeout(() => document.getElementById('touch-hint')?.classList.remove('show'), 3000);
+    }
+    nextSpawnTs = Date.now() + 600;
+    gameLoop();
+};
+</script>
+
+</body>
+</html>
