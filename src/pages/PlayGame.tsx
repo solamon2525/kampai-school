@@ -543,7 +543,10 @@ const PlayingPanel = ({
       onLoad={onLoad}
       title="game"
       className="block h-[80vh] w-full border-0"
-      sandbox="allow-scripts allow-same-origin"
+      // allow-pointer-lock: required for FPS-style games (e.g. attack-on-noun mouse look)
+      // allow-modals: future-proof for in-game confirm() / alert()
+      sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-modals"
+      allow="pointer-lock; fullscreen; autoplay; cross-origin-isolated"
     />
   </Card>
 );
