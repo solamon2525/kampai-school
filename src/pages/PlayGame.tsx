@@ -243,7 +243,7 @@ const PlayGame = () => {
         <Gamepad2 className="h-12 w-12 text-muted-foreground" />
         <p className="text-lg text-muted-foreground">ไม่พบเกมนี้ในระบบติดตาม</p>
         <Button asChild variant="outline">
-          <Link to="/educational-hub">
+          <Link to="/h/natthapong">
             <ArrowLeft className="mr-2 h-4 w-4" />
             กลับคลังสื่อ
           </Link>
@@ -269,7 +269,7 @@ const PlayGame = () => {
           <div className="flex items-center gap-2">
             {phase !== 'playing' && (
               <Button asChild variant="outline" size="sm">
-                <Link to="/educational-hub">
+                <Link to="/h/natthapong">
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   กลับไปเลือกเกมอื่น
                 </Link>
