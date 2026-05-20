@@ -32,6 +32,7 @@ interface Event {
   event_time: string | null;
   location: string | null;
   category: string | null;
+  image_url?: string | null;
 }
 
 const AcademicCalendar = () => {
@@ -101,30 +102,30 @@ const AcademicCalendar = () => {
       <div className="max-w-7xl mx-auto w-full bg-background">
 
       {/* Hero — Compact */}
-      <section className="bg-primary py-2 md:py-6">
+      <section className="bg-primary py-3 md:py-4">
         <div className="container mx-auto px-4 text-center">
-          <span className="inline-block text-xs md:text-sm font-semibold uppercase tracking-wider text-primary-foreground/70 mb-1.5">
+          <span className="inline-block text-xs md:text-sm font-semibold uppercase tracking-wider text-primary-foreground/70 mb-1">
             ปฏิทินการศึกษา
           </span>
-          <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-primary-foreground mb-1.5">
+          <h1 className="text-xl md:text-2xl font-bold text-primary-foreground mb-1">
             ปฏิทินการศึกษา {settings.academic_year}
           </h1>
-          <p className="text-xs md:text-sm text-primary-foreground/75 max-w-2xl mx-auto">
+          <p className="text-xs text-primary-foreground/75 max-w-2xl mx-auto">
             กำหนดการสำคัญตลอดปีการศึกษาของโรงเรียนบ้านคำไผ่
           </p>
         </div>
       </section>
 
       {/* Calendar Content */}
-      <section className="py-4 md:py-8">
+      <section className="py-3 md:py-5">
         <div className="container-school">
           {/* Event Type Legend */}
-          <div className="flex flex-wrap gap-3 justify-center mb-8">
+          <div className="flex flex-wrap gap-2.5 justify-center mb-4">
             <Button
               variant={selectedType === null ? 'default' : 'outline'}
               size="sm"
               onClick={() => setSelectedType(null)}
-              className="rounded-full"
+              className="rounded-full text-xs h-8"
             >
               ทั้งหมด
             </Button>
@@ -134,9 +135,9 @@ const AcademicCalendar = () => {
                 variant={selectedType === key ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setSelectedType(key)}
-                className="rounded-full gap-2"
+                className="rounded-full gap-1.5 text-xs h-8"
               >
-                <div className={`w-3 h-3 rounded-full ${value.color}`} />
+                <div className={`w-2.5 h-2.5 rounded-full ${value.color}`} />
                 {value.label}
               </Button>
             ))}
@@ -144,9 +145,9 @@ const AcademicCalendar = () => {
 
           {/* Semester Tabs */}
           <Tabs value={activeSemester} onValueChange={setActiveSemester} className="w-full">
-            <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
+            <TabsList className="grid w-full max-w-xs mx-auto grid-cols-2 mb-4 h-9">
               {semesters.map((sem) => (
-                <TabsTrigger key={sem.id} value={sem.id} className="text-base">
+                <TabsTrigger key={sem.id} value={sem.id} className="text-xs md:text-sm">
                   {sem.label}
                 </TabsTrigger>
               ))}
@@ -156,13 +157,13 @@ const AcademicCalendar = () => {
               <TabsContent key={sem.id} value={sem.id}>
                 {loading ? (
                   <div className="text-center py-12">
-                    <p className="text-muted-foreground">กำลังโหลด...</p>
+                    <p className="text-muted-foreground text-sm">กำลังโหลด...</p>
                   </div>
                 ) : filteredEvents.length === 0 ? (
                   <div className="text-center py-12">
-                    <Calendar className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                    <h3 className="text-xl font-semibold mb-2">ยังไม่มีกิจกรรมในภาคเรียนนี้</h3>
-                    <p className="text-muted-foreground">
+                    <Calendar className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
+                    <h3 className="text-base font-semibold mb-1">ยังไม่มีกิจกรรมในภาคเรียนนี้</h3>
+                    <p className="text-muted-foreground text-xs">
                       โปรดติดตามกิจกรรมใหม่ ๆ ที่จะมีขึ้น
                     </p>
                   </div>
@@ -172,24 +173,24 @@ const AcademicCalendar = () => {
                     <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-border hidden md:block" />
 
                     {/* Events */}
-                    <div className="space-y-6">
+                    <div className="space-y-3.5">
                       {filteredEvents.map((event) => {
                         const eventType = eventTypes[event.category as keyof typeof eventTypes] || eventTypes.general;
                         const Icon = eventType.icon;
 
                         return (
-                          <div key={event.id} className="relative flex gap-6">
+                          <div key={event.id} className="relative flex gap-4">
                             {/* Timeline Dot */}
-                            <div className="hidden md:flex flex-shrink-0 w-16 items-start justify-center pt-6">
-                              <div className={`w-4 h-4 rounded-full ${eventType.color} ring-4 ring-background`} />
+                            <div className="hidden md:flex flex-shrink-0 w-16 items-start justify-center pt-4">
+                              <div className={`w-3 h-3 rounded-full ${eventType.color} ring-4 ring-background`} />
                             </div>
 
                             {/* Event Card */}
-                            <Card className="flex-1 hover:shadow-lg transition-shadow">
+                            <Card className="flex-1 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-slate-100 shadow-sm rounded-xl">
                               <CardContent className="p-0">
                                 {/* Event Image */}
                                 {event.image_url && (
-                                  <div className="relative h-48 overflow-hidden rounded-t-lg">
+                                  <div className="relative h-32 overflow-hidden rounded-t-xl">
                                     <img
                                       src={event.image_url}
                                       alt={event.title}
@@ -199,38 +200,38 @@ const AcademicCalendar = () => {
                                   </div>
                                 )}
 
-                                <div className="p-6">
-                                  <div className="flex flex-col md:flex-row md:items-start gap-4">
-                                    <div className={`w-12 h-12 rounded-xl ${eventType.color} flex items-center justify-center flex-shrink-0`}>
-                                      <Icon className="w-6 h-6 text-white" />
+                                <div className="p-4 md:p-5">
+                                  <div className="flex flex-col md:flex-row md:items-start gap-3.5">
+                                    <div className={`w-9 h-9 rounded-lg ${eventType.color} flex items-center justify-center flex-shrink-0`}>
+                                      <Icon className="w-4.5 h-4.5 text-white" />
                                     </div>
                                     <div className="flex-1">
-                                      <div className="flex flex-wrap items-center gap-2 mb-2">
-                                        <Badge variant="secondary" className="text-xs">
+                                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                                        <Badge variant="secondary" className="text-[10px] px-2 py-0.5 font-bold">
                                           {eventType.label}
                                         </Badge>
-                                        <span className="text-sm text-muted-foreground">
+                                        <span className="text-xs text-muted-foreground font-medium">
                                           {formatDate(event.event_date)}
                                         </span>
                                       </div>
-                                      <h3 className="text-lg font-bold text-foreground mb-2">
+                                      <h3 className="text-sm md:text-base font-bold text-foreground mb-1 leading-snug">
                                         {event.title}
                                       </h3>
                                       {event.description && (
-                                        <p className="text-muted-foreground mb-4">
+                                        <p className="text-muted-foreground text-xs mb-2.5 leading-relaxed">
                                           {event.description}
                                         </p>
                                       )}
-                                      <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                                      <div className="flex flex-wrap gap-3.5 text-xs text-muted-foreground">
                                         {event.event_time && (
-                                          <span className="flex items-center gap-1">
-                                            <Clock className="w-4 h-4" />
+                                          <span className="flex items-center gap-1 font-medium">
+                                            <Clock className="w-3.5 h-3.5 text-slate-400" />
                                             {event.event_time} น.
                                           </span>
                                         )}
                                         {event.location && (
-                                          <span className="flex items-center gap-1">
-                                            <MapPin className="w-4 h-4" />
+                                          <span className="flex items-center gap-1 font-medium">
+                                            <MapPin className="w-3.5 h-3.5 text-slate-400" />
                                             {event.location}
                                           </span>
                                         )}
@@ -251,10 +252,11 @@ const AcademicCalendar = () => {
           </Tabs>
 
           {/* Download Calendar */}
-          <div className="text-center mt-6 space-y-3">
+          <div className="text-center mt-4.5 space-y-2.5">
             <Button
               variant="outline"
-              className="gap-2"
+              size="sm"
+              className="gap-1.5 text-xs h-9"
               onClick={() => {
                 if (settings.academic_calendar_url) {
                   window.open(settings.academic_calendar_url, '_blank');
@@ -262,13 +264,13 @@ const AcademicCalendar = () => {
               }}
               disabled={!settings.academic_calendar_url}
             >
-              <Calendar className="w-4 h-4" />
+              <Calendar className="w-3.5 h-3.5" />
               ดาวน์โหลดปฏิทินการศึกษา (PDF)
             </Button>
             <div>
               <Link to="/">
-                <Button variant="ghost" className="gap-2">
-                  <ArrowLeft className="w-4 h-4" />
+                <Button variant="ghost" size="sm" className="gap-1.5 text-xs h-9">
+                  <ArrowLeft className="w-3.5 h-3.5" />
                   กลับหน้าหลัก
                 </Button>
               </Link>
