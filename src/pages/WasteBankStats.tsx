@@ -451,8 +451,8 @@ const WasteBankStats = () => {
 
                   {/* Rest 4–10 */}
                   {rest.length > 0 && (
-                    <Card className="shadow-sm overflow-hidden max-w-3xl mx-auto">
-                      <div className="divide-y divide-border">
+                    <Card className="shadow-sm overflow-hidden max-w-2xl mx-auto">
+                      <div className="divide-y divide-border max-h-[360px] overflow-y-auto">
                         {rest.map((s, i) => {
                           const rank = i + 4;
                           const pts = Number(s.total_points_earned ?? 0);
@@ -460,53 +460,53 @@ const WasteBankStats = () => {
                           const next = findNextBadge(pts);
                           const pct = (pts / maxPts) * 100;
                           return (
-                            <div key={s.student_id ?? i} className="px-3 md:px-4 py-3">
+                            <div key={s.student_id ?? i} className="px-3 py-1.5 hover:bg-muted/40 transition-colors">
                               <div className="flex items-center gap-3">
-                                <span className="w-6 text-center text-base flex-shrink-0">
+                                <span className="w-6 text-center text-sm font-bold flex-shrink-0 text-muted-foreground">
                                   {RANK_ICONS[rank - 1] ?? rank}
                                 </span>
                                 <StudentAvatar
                                   name={s.full_name || '?'}
-                                  size={36}
+                                  size={28}
                                   photoUrl={s.student_id ? photoMap.get(s.student_id) : null}
                                 />
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-medium truncate">
-                                    {s.full_name || '—'}
-                                  </p>
-                                  <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
+                                  <div className="flex items-baseline gap-1.5">
+                                    <p className="text-xs font-semibold truncate text-foreground">
+                                      {s.full_name || '—'}
+                                    </p>
                                     {s.class_name && (
-                                      <Badge className="bg-green-100 text-green-700 border-0 text-[10px] py-0 px-1.5">
+                                      <Badge className="bg-green-100 text-green-700 border-0 text-[9px] py-0 px-1">
                                         {s.class_name}
                                       </Badge>
                                     )}
                                     {badge && (
-                                      <span className={`text-[10px] font-medium ${badge.color}`}>
+                                      <span className={`text-[9px] font-medium ${badge.color}`}>
                                         {badge.icon} {badge.label}
                                       </span>
                                     )}
                                   </div>
+                                  
+                                  {/* Compact Progress Bar & Label */}
+                                  <div className="flex items-center gap-2 mt-0.5">
+                                    <div className="w-16 h-1 rounded-full bg-muted overflow-hidden flex-shrink-0">
+                                      <div
+                                        className="h-full bg-green-500 rounded-full transition-all"
+                                        style={{ width: `${Math.min(100, pct).toFixed(1)}%` }}
+                                      />
+                                    </div>
+                                    <span className="text-[9px] text-muted-foreground truncate">
+                                      {next
+                                        ? `ถัดไป: ${next.icon} (${pts}/${next.pts})`
+                                        : '🏆 สูงสุดแล้ว!'}
+                                    </span>
+                                  </div>
                                 </div>
                                 <div className="text-right flex-shrink-0">
-                                  <p className="text-base font-bold text-green-700">
-                                    {pts.toLocaleString()}
-                                  </p>
-                                  <p className="text-[10px] text-muted-foreground">แต้ม</p>
+                                  <span className="text-xs font-bold text-green-700">
+                                    {pts.toLocaleString()} แต้ม
+                                  </span>
                                 </div>
-                              </div>
-                              {/* Progress bar to next badge or to top */}
-                              <div className="mt-2 ml-9">
-                                <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                                  <div
-                                    className="h-full bg-green-500 rounded-full transition-all"
-                                    style={{ width: `${Math.min(100, pct).toFixed(1)}%` }}
-                                  />
-                                </div>
-                                <p className="text-[10px] text-muted-foreground mt-1">
-                                  {next
-                                    ? `ถัดไป: ${next.icon} ${next.label} (${pts}/${next.pts} แต้ม)`
-                                    : '🏆 ระดับสูงสุดแล้ว!'}
-                                </p>
                               </div>
                             </div>
                           );
@@ -553,86 +553,90 @@ const WasteBankStats = () => {
             </TabsContent>
 
             {/* ── Tab 3: Stats / 7-day Chart ────────────────────────── */}
-            <TabsContent value="stats" className="mt-0 space-y-4 max-w-3xl mx-auto">
-              {/* Bar chart */}
-              <Card className="p-5 shadow-sm">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">
-                  📅 จำนวนขยะ 7 วันย้อนหลัง (ชิ้น)
-                </p>
-                {isLoading ? (
-                  <div className="h-32 rounded-lg bg-muted animate-pulse" />
-                ) : (
-                  <div className="flex items-end gap-1.5 md:gap-2 h-32">
-                    {chart7d.map((d) => {
-                      const pct = Math.max(4, (d.total / chartMax) * 100);
-                      return (
-                        <div
-                          key={d.day}
-                          className="flex-1 flex flex-col items-center gap-1"
-                        >
-                          <span className="text-[10px] font-bold text-green-700">
-                            {d.total > 0 ? d.total : ''}
-                          </span>
-                          <div
-                            className="w-full bg-gradient-to-b from-green-400 to-green-600 rounded-t-md transition-all"
-                            style={{ height: `${pct}%` }}
-                          />
-                          <span className="text-[10px] text-muted-foreground text-center leading-tight">
-                            {TH_DOW[d.dow]}
-                            <br />
-                            <span className="text-[9px] text-slate-400">{d.day.slice(5)}</span>
-                          </span>
-                        </div>
-                      );
-                    })}
+            <TabsContent value="stats" className="mt-0 max-w-5xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch">
+                {/* Bar chart - 7 cols */}
+                <Card className="p-4 shadow-sm md:col-span-7 flex flex-col justify-between">
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                      📅 จำนวนขยะ 7 วันย้อนหลัง (ชิ้น)
+                    </p>
                   </div>
-                )}
-              </Card>
+                  {isLoading ? (
+                    <div className="h-32 rounded-lg bg-muted animate-pulse" />
+                  ) : (
+                    <div className="flex items-end gap-1.5 md:gap-2 h-32 mt-2">
+                      {chart7d.map((d) => {
+                        const pct = Math.max(4, (d.total / chartMax) * 100);
+                        return (
+                          <div
+                            key={d.day}
+                            className="flex-1 flex flex-col items-center gap-1"
+                          >
+                            <span className="text-[10px] font-bold text-green-700">
+                              {d.total > 0 ? d.total : ''}
+                            </span>
+                            <div
+                              className="w-full bg-gradient-to-b from-green-400 to-green-600 rounded-t-md transition-all"
+                              style={{ height: `${pct}%` }}
+                            />
+                            <span className="text-[10px] text-muted-foreground text-center leading-tight">
+                              {TH_DOW[d.dow]}
+                              <br />
+                              <span className="text-[9px] text-slate-400">{d.day.slice(5)}</span>
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </Card>
 
-              {/* Summary rows */}
-              <Card className="shadow-sm overflow-hidden">
-                <div className="divide-y divide-border">
-                  <SummaryRow
-                    icon="🌍"
-                    label="ขยะทั้งหมด"
-                    value={`${animTotals.items.toLocaleString()} ชิ้น`}
-                  />
-                  <SummaryRow
-                    icon="📅"
-                    label="วันนี้"
-                    value={`${todayTotal.toLocaleString()} ชิ้น`}
-                  />
-                  <SummaryRow
-                    icon="📋"
-                    label="จำนวนครั้งบันทึก"
-                    value={totalAllTx.toLocaleString()}
-                  />
-                  <SummaryRow
-                    icon="👤"
-                    label="จำนวนนักเรียน"
-                    value={`${animTotals.students.toLocaleString()} คน`}
-                  />
-                  <SummaryRow
-                    icon="✨"
-                    label="แต้มสะสมรวม"
-                    value={`${animTotals.points.toLocaleString()} แต้ม`}
-                  />
-                  <SummaryRow
-                    icon="🏆"
-                    label="นักเรียนอันดับ 1"
-                    value={
-                      top1
-                        ? `${top1.full_name ?? '—'} (${Number(top1.total_points_earned ?? 0)} แต้ม)`
-                        : '—'
-                    }
-                  />
-                  <SummaryRow
-                    icon="🏫"
-                    label="ห้องอันดับ 1"
-                    value={topClass ? `${topClass.name} (${topClass.total} ชิ้น)` : '—'}
-                  />
-                </div>
-              </Card>
+                {/* Summary rows - 5 cols */}
+                <Card className="shadow-sm overflow-hidden md:col-span-5 flex flex-col justify-between">
+                  <div className="divide-y divide-border text-xs">
+                    <SummaryRow
+                      icon="🌍"
+                      label="ขยะทั้งหมด"
+                      value={`${animTotals.items.toLocaleString()} ชิ้น`}
+                    />
+                    <SummaryRow
+                      icon="📅"
+                      label="วันนี้"
+                      value={`${todayTotal.toLocaleString()} ชิ้น`}
+                    />
+                    <SummaryRow
+                      icon="📋"
+                      label="จำนวนครั้งบันทึก"
+                      value={totalAllTx.toLocaleString()}
+                    />
+                    <SummaryRow
+                      icon="👤"
+                      label="จำนวนนักเรียน"
+                      value={`${animTotals.students.toLocaleString()} คน`}
+                    />
+                    <SummaryRow
+                      icon="✨"
+                      label="แต้มสะสมรวม"
+                      value={`${animTotals.points.toLocaleString()} แต้ม`}
+                    />
+                    <SummaryRow
+                      icon="🏆"
+                      label="นักเรียนอันดับ 1"
+                      value={
+                        top1
+                          ? `${top1.full_name ?? '—'} (${Number(top1.total_points_earned ?? 0)} แต้ม)`
+                          : '—'
+                      }
+                    />
+                    <SummaryRow
+                      icon="🏫"
+                      label="ห้องอันดับ 1"
+                      value={topClass ? `${topClass.name} (${topClass.total} ชิ้น)` : '—'}
+                    />
+                  </div>
+                </Card>
+              </div>
             </TabsContent>
           </Tabs>
         </section>
@@ -680,10 +684,10 @@ function SummaryRow({
   value: string;
 }) {
   return (
-    <div className="flex items-center gap-3 px-4 py-3">
-      <span className="text-xl flex-shrink-0">{icon}</span>
-      <div className="flex-1 text-sm text-muted-foreground">{label}</div>
-      <div className="text-sm font-bold text-foreground text-right">{value}</div>
+    <div className="flex items-center gap-2.5 px-3 py-1.5 hover:bg-muted/20 transition-colors">
+      <span className="text-base flex-shrink-0">{icon}</span>
+      <div className="flex-1 text-xs text-muted-foreground">{label}</div>
+      <div className="text-xs font-semibold text-foreground text-right">{value}</div>
     </div>
   );
 }
