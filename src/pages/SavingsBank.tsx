@@ -40,19 +40,19 @@ const HOW_IT_WORKS = [
     step: '01',
     title: 'ฝากเงินกับครู',
     desc: 'นำเงินมาฝากที่โรงเรียน จำนวนใดก็ได้ ครูจะบันทึกธุรกรรมในระบบทันที',
-    icon: <PiggyBank className="w-10 h-10 text-amber-500" />,
+    icon: PiggyBank,
   },
   {
     step: '02',
     title: 'ตรวจสอบยอดได้ตลอดเวลา',
     desc: 'ดูยอดเงินสะสมและประวัติฝาก/ถอนของตนเองได้ด้วยรหัสนักเรียน',
-    icon: <Wallet className="w-10 h-10 text-amber-500" />,
+    icon: Wallet,
   },
   {
     step: '03',
     title: 'ถอนเงินเมื่อจำเป็น',
     desc: 'ขอถอนผ่านครู เพื่อความปลอดภัยและฝึกวินัยการวางแผนใช้จ่าย',
-    icon: <ArrowUpFromLine className="w-10 h-10 text-amber-500" />,
+    icon: ArrowUpFromLine,
   },
 ];
 
@@ -603,42 +603,37 @@ export default function SavingsBank() {
 
         {/* ─── HOW IT WORKS (asymmetric zigzag, not equal cards) ──────────── */}
         <section className="bg-white">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-            <div className="text-center mb-6">
-              <div className="text-xs font-bold uppercase tracking-[0.15em] text-amber-600 mb-1.5">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 py-5 md:py-6">
+            <div className="text-center mb-4">
+              <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-amber-600 mb-1">
                 How It Works
               </div>
-              <h2 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900">
+              <h2 className="text-base md:text-lg font-bold tracking-tight text-slate-900">
                 ขั้นตอนการใช้งาน
               </h2>
             </div>
-            <div className="space-y-8 md:space-y-10">
-              {HOW_IT_WORKS.map((s, idx) => {
-                const isReverse = idx % 2 === 1;
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+              {HOW_IT_WORKS.map((s) => {
+                const IconComponent = s.icon;
                 return (
                   <div
                     key={s.step}
-                    className={cn(
-                      'grid md:grid-cols-[1fr_2fr] gap-4 md:gap-8 items-center',
-                      isReverse && 'md:grid-flow-dense',
-                    )}
+                    className="relative bg-slate-50/70 rounded-xl p-3.5 border border-slate-100 hover:border-amber-400/30 hover:shadow-md hover:shadow-amber-500/5 hover:-translate-y-0.5 transition duration-300 flex flex-col items-center text-center md:items-start md:text-left group"
                   >
-                    <div
-                      className={cn(
-                        'flex flex-col items-center md:items-start gap-2',
-                        isReverse && 'md:col-start-2',
-                      )}
-                    >
-                      <div className="text-5xl md:text-6xl font-extrabold tracking-tighter text-amber-500 leading-none">
+                    {/* Top row: Number and icon */}
+                    <div className="flex items-center justify-between w-full mb-2">
+                      <div className="text-xl font-black tracking-tight text-amber-500/80 leading-none group-hover:text-amber-500 transition duration-300">
                         {s.step}
                       </div>
-                      {s.icon}
+                      <div className="text-amber-500 bg-amber-500/10 p-1.5 rounded-lg group-hover:bg-amber-500/15 transition duration-300">
+                        <IconComponent className="w-4 h-4" />
+                      </div>
                     </div>
-                    <div className={cn('space-y-2', isReverse && 'md:col-start-1 md:row-start-1')}>
-                      <h3 className="text-base md:text-lg font-bold text-slate-900">
+                    <div className="space-y-0.5">
+                      <h3 className="text-xs font-bold text-slate-900">
                         {s.title}
                       </h3>
-                      <p className="text-xs md:text-sm text-slate-600 leading-normal font-normal">
+                      <p className="text-[11px] text-slate-500 leading-normal font-normal">
                         {s.desc}
                       </p>
                     </div>
