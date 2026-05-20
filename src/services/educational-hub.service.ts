@@ -242,6 +242,40 @@ export const educationalHubService = {
         return { error: (firstErr as Error | undefined) ?? null };
     },
 
+    // ─── Hub layout default (school_settings key='hub_layout_default') ──
+    /**
+     * Fetch global default hub layout from school_settings.
+     * Returns null if no row exists (caller uses hardcoded fallback).
+     */
+    getHubLayoutDefault: () =>
+        supabase
+            .from('school_settings')
+            .select('value')
+            .eq('key', 'hub_layout_default')
+            .maybeSingle(),
+
+    /**
+     * Upsert global hub layout (admin-only via RLS in production).
+     * Stored as JSON string in school_settings.value.
+     */
+    saveHubLayoutDefault: (cfg: {
+        viewMode: string;
+        columns: number;
+        sort: string;
+        is_locked: boolean;
+    }) =>
+        supabase
+            .from('school_settings')
+            .upsert(
+                {
+                    key: 'hub_layout_default',
+                    value: JSON.stringify(cfg),
+                    category: 'educational-hub',
+                    description: 'Default layout for /educational-hub (optionally locked for all visitors)',
+                } as never,
+                { onConflict: 'key' },
+            ),
+
     // ─── Counters (anon-safe RPCs) ──────────────────────────────────────
     incrementView: (id: string) =>
         supabase.rpc('increment_ehi_view' as never, { p_id: id } as never),

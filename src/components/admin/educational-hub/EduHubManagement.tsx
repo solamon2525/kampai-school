@@ -28,6 +28,7 @@ import { CategoryForm } from './CategoryForm';
 import { EduHubItemForm } from './EduHubItemForm';
 import { GamesTab } from './GamesTab';
 import { SortableCategoriesGrid } from './SortableCategoriesGrid';
+import { HubLayoutDefaultsTab } from './HubLayoutDefaultsTab';
 
 type Teacher = {
     id: string;
@@ -82,12 +83,14 @@ export const EduHubManagement = () => {
                     <TabsTrigger value="teachers">ครูทั้งหมด</TabsTrigger>
                     <TabsTrigger value="items">รายการทั้งหมด</TabsTrigger>
                     <TabsTrigger value="games">เกม HTML</TabsTrigger>
+                    <TabsTrigger value="layout-defaults">ค่าเริ่มต้นหน้าคลัง</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="categories"><CategoriesTab /></TabsContent>
                 <TabsContent value="teachers"><TeachersTab /></TabsContent>
                 <TabsContent value="items"><AllItemsTab /></TabsContent>
                 <TabsContent value="games"><GamesTab /></TabsContent>
+                <TabsContent value="layout-defaults"><HubLayoutDefaultsTab /></TabsContent>
             </Tabs>
         </div>
     );

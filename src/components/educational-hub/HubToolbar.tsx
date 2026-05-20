@@ -10,11 +10,12 @@
  * State owned by parent (EducationalHub) via useHubViewMode hook.
  */
 
-import { Search, X, Grid3x3, Rows, AlignJustify, Star, ArrowUpDown } from 'lucide-react';
+import { Search, X, Grid3x3, Rows, AlignJustify, Star, ArrowUpDown, Lock } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import type { HubViewMode, HubColumns, HubSort } from '@/hooks/useHubViewMode';
 
@@ -36,6 +37,8 @@ interface Props {
     onSortChange: (s: HubSort) => void;
     totalCount: number;
     visibleCount: number;
+    /** When true, admin has locked the layout — disable layout controls (search still works) */
+    readonly?: boolean;
 }
 
 export const HubToolbar = ({
@@ -44,6 +47,7 @@ export const HubToolbar = ({
     columns, onColumnsChange,
     sort, onSortChange,
     totalCount, visibleCount,
+    readonly = false,
 }: Props) => {
     const showColumns = viewMode === 'grid' || viewMode === 'featured';
 
@@ -72,26 +76,28 @@ export const HubToolbar = ({
                 </div>
 
                 {/* View mode toggle */}
-                <div className="inline-flex rounded-md border border-border overflow-hidden">
-                    <ViewBtn icon={Grid3x3} active={viewMode === 'grid'} onClick={() => onViewModeChange('grid')} title="ตาราง" />
-                    <ViewBtn icon={Star} active={viewMode === 'featured'} onClick={() => onViewModeChange('featured')} title="เด่นตัวแรก" />
-                    <ViewBtn icon={Rows} active={viewMode === 'list'} onClick={() => onViewModeChange('list')} title="รายการ" />
-                    <ViewBtn icon={AlignJustify} active={viewMode === 'compact'} onClick={() => onViewModeChange('compact')} title="กะทัดรัด" />
+                <div className={cn('inline-flex rounded-md border border-border overflow-hidden', readonly && 'opacity-50')}>
+                    <ViewBtn icon={Grid3x3} active={viewMode === 'grid'} onClick={() => onViewModeChange('grid')} title="ตาราง" disabled={readonly} />
+                    <ViewBtn icon={Star} active={viewMode === 'featured'} onClick={() => onViewModeChange('featured')} title="เด่นตัวแรก" disabled={readonly} />
+                    <ViewBtn icon={Rows} active={viewMode === 'list'} onClick={() => onViewModeChange('list')} title="รายการ" disabled={readonly} />
+                    <ViewBtn icon={AlignJustify} active={viewMode === 'compact'} onClick={() => onViewModeChange('compact')} title="กะทัดรัด" disabled={readonly} />
                 </div>
 
                 {/* Column selector */}
                 {showColumns && (
-                    <div className="inline-flex rounded-md border border-border overflow-hidden">
+                    <div className={cn('inline-flex rounded-md border border-border overflow-hidden', readonly && 'opacity-50')}>
                         {([3, 4, 5, 6] as HubColumns[]).map((c) => (
                             <button
                                 key={c}
                                 type="button"
                                 onClick={() => onColumnsChange(c)}
+                                disabled={readonly}
                                 className={cn(
                                     'h-9 px-2 text-xs font-medium transition-colors min-w-[28px]',
                                     columns === c
                                         ? 'bg-primary text-primary-foreground'
                                         : 'bg-card text-foreground hover:bg-accent',
+                                    readonly && 'cursor-not-allowed',
                                 )}
                                 aria-pressed={columns === c}
                                 title={`${c} คอลัมน์`}
@@ -103,8 +109,8 @@ export const HubToolbar = ({
                 )}
 
                 {/* Sort dropdown */}
-                <Select value={sort} onValueChange={(v) => onSortChange(v as HubSort)}>
-                    <SelectTrigger className="w-[160px] h-9">
+                <Select value={sort} onValueChange={(v) => onSortChange(v as HubSort)} disabled={readonly}>
+                    <SelectTrigger className={cn('w-[160px] h-9', readonly && 'opacity-50 cursor-not-allowed')}>
                         <ArrowUpDown className="h-3.5 w-3.5 mr-1 text-muted-foreground" />
                         <SelectValue />
                     </SelectTrigger>
@@ -115,12 +121,24 @@ export const HubToolbar = ({
                     </SelectContent>
                 </Select>
 
-                {/* Count badge */}
-                <span className="text-[11px] text-muted-foreground ml-auto">
-                    {visibleCount === totalCount
-                        ? `${totalCount} ท่าน`
-                        : `${visibleCount}/${totalCount} ท่าน`}
-                </span>
+                {/* Lock badge + Count */}
+                <div className="flex items-center gap-2 ml-auto">
+                    {readonly && (
+                        <Badge
+                            variant="secondary"
+                            className="text-[10px] gap-1 bg-amber-100 text-amber-900 dark:bg-amber-900 dark:text-amber-100"
+                            title="แอดมินล็อกการแสดงผลไว้ — ผู้ใช้ทุกคนเห็นเหมือนกัน"
+                        >
+                            <Lock className="h-3 w-3" />
+                            ล็อกโดยแอดมิน
+                        </Badge>
+                    )}
+                    <span className="text-[11px] text-muted-foreground">
+                        {visibleCount === totalCount
+                            ? `${totalCount} ท่าน`
+                            : `${visibleCount}/${totalCount} ท่าน`}
+                    </span>
+                </div>
             </div>
         </div>
     );
@@ -129,22 +147,25 @@ export const HubToolbar = ({
 // ─── Subcomponent ────────────────────────────────────────────────────────────
 
 const ViewBtn = ({
-    icon: Icon, active, onClick, title,
+    icon: Icon, active, onClick, title, disabled,
 }: {
     icon: React.ComponentType<{ className?: string }>;
     active: boolean;
     onClick: () => void;
     title: string;
+    disabled?: boolean;
 }) => (
     <button
         type="button"
         onClick={onClick}
+        disabled={disabled}
         title={title}
         aria-label={title}
         aria-pressed={active}
         className={cn(
             'h-9 w-9 inline-flex items-center justify-center transition-colors',
             active ? 'bg-primary text-primary-foreground' : 'bg-card text-foreground hover:bg-accent',
+            disabled && 'cursor-not-allowed',
         )}
     >
         <Icon className="h-4 w-4" />

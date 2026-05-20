@@ -11,7 +11,8 @@ import {
 } from '@/services/educational-hub.service';
 import { TeacherHubCard, type CardVariant } from '@/components/educational-hub/TeacherHubCard';
 import { HubToolbar } from '@/components/educational-hub/HubToolbar';
-import { useHubViewMode, type HubColumns } from '@/hooks/useHubViewMode';
+import { useHubLayoutWithDefault } from '@/hooks/useHubLayoutWithDefault';
+import type { HubColumns } from '@/hooks/useHubViewMode';
 import { cn } from '@/lib/utils';
 
 // Pre-defined Tailwind grid classes (JIT requires literal strings to detect)
@@ -24,7 +25,7 @@ const GRID_CLASS_BY_COLS: Record<HubColumns, string> = {
 
 const EducationalHub = () => {
     const [search, setSearch] = useState('');
-    const { viewMode, columns, sort, setViewMode, setColumns, setSort } = useHubViewMode();
+    const { viewMode, columns, sort, setViewMode, setColumns, setSort, readonly } = useHubLayoutWithDefault();
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -135,6 +136,7 @@ const EducationalHub = () => {
                         onSortChange={setSort}
                         totalCount={teachers?.length ?? 0}
                         visibleCount={visible.length}
+                        readonly={readonly}
                     />
 
                     {loadingTeachers ? (
