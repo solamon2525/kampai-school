@@ -10,6 +10,7 @@ import { PortalProtectedRoute } from "./components/portal/PortalProtectedRoute";
 import { RuntimeThemeStyles } from "./components/theme/RuntimeThemeStyles";
 import DynamicFavicon from "./components/DynamicFavicon";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { InstallBanner } from "./components/pwa/InstallBanner";
 
 // หน้าแรกโหลดทันที (Critical path)
 import Index from "./pages/Index";
@@ -90,6 +91,7 @@ const App = () => (
       <DynamicFavicon />
       <Toaster />
       <Sonner />
+      <InstallBanner />
       <ErrorBoundary>
       <BrowserRouter>
         <PageViewTracker />

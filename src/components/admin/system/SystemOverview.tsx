@@ -55,6 +55,7 @@ const techStack = {
         { name: 'date-fns', desc: 'Date Utilities (Thai locale)' },
         { name: 'embla-carousel-react', desc: 'Carousel (Hero Slides)' },
         { name: 'cmdk', desc: 'Command Palette (installed — Sprint 2 roadmap)' },
+        { name: 'vite-plugin-pwa', desc: 'PWA + Service Worker (Workbox) — Add to Home Screen' },
     ],
     backend: [
         { name: 'Supabase', desc: 'PostgreSQL + Auth + Storage + Edge Functions' },
@@ -128,6 +129,19 @@ const featureGroups = [
             'Staff short URL /staff/<username> (Migration 067 ย้าย username → staff)',
             'Portal ครู: tab "รายการของฉัน" + "โปรไฟล์คลัง"',
             'View counter + Download counter (anon-safe SECURITY DEFINER RPC)',
+        ],
+    },
+    {
+        label: 'PWA / ติดตั้งบนมือถือ',
+        color: 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800',
+        features: [
+            'Add to Home Screen — Android (Chrome/Edge/Samsung) + iOS (Safari)',
+            'Service Worker (Workbox autoUpdate) — cache shell + ใช้งานได้ offline เบื้องต้น',
+            'Manifest: name โรงเรียนบ้านคำไผ่ / standalone / theme #157F3C / 4 icons',
+            'InstallBanner: floating bottom banner mobile — Android prompt / iOS instructions',
+            'Dismiss + 14-day TTL — กดปิดแล้วไม่กวนซ้ำ',
+            'Standalone detection — ไม่โชว์ banner ถ้าติดตั้งแล้ว',
+            'Apple PWA meta tags ครบ (capable, status-bar, title, apple-touch-icon)',
         ],
     },
     {
@@ -249,8 +263,23 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.25.0 (Layout Density — Premium Compact Refactor)',
+        version: 'v1.26.0 (PWA — Add to Home Screen / Installable App Icon)',
         date: 'ล่าสุด',
+        badge: 'bg-green-700',
+        items: [
+            'vite-plugin-pwa (Workbox autoUpdate) + injectRegister: ผู้ใช้ไม่ต้องพิมพ์ URL — ติดตั้ง icon บนหน้าจอมือถือได้เลย (Android + iOS)',
+            'public/manifest.webmanifest: name โรงเรียนบ้านคำไผ่ / short_name คำไผ่ / display standalone / theme #157F3C / scope / + 4 icons (192, 512, maskable 192/512)',
+            'public/icons/ (6 ไฟล์ via @vite-pwa/assets-generator): pwa-64/192/512.png + maskable-icon-512.png + apple-touch-icon-180x180.png + favicon.ico — gen จาก og-image placeholder (admin upload ของจริง → rerun generator)',
+            'src/hooks/usePwaInstall.ts: state machine — canInstall (beforeinstallprompt) + isIos + isStandalone + isMobile + isDismissed (14-day TTL via localStorage)',
+            'src/components/pwa/InstallBanner.tsx (mounted global ใน App.tsx ใต้ Toaster): floating bottom banner — Android โชว์ปุ่ม "ติดตั้ง" / iOS โชว์คำแนะนำ 3 ขั้น (Share → เพิ่มที่หน้าจอโฮม → เพิ่ม) + Framer Motion slide-up + dismiss button',
+            'index.html: เพิ่ม link rel="manifest" + apple-touch-icon + apple-mobile-web-app-* meta tags + เปลี่ยน theme-color #1e3a5f → #157F3C (sync กับ DESIGN.md)',
+            'Workbox: globPatterns รวม js/css/html/png/svg/woff + navigateFallback /index.html + denylist (/api/, /games/) — sync กับ vercel.json rewrites + Supabase = NetworkOnly (กัน stale data)',
+            'devOptions.enabled: false — SW run แค่ production (กัน dev cache headache) + registerType autoUpdate (Workbox check version + reload auto)',
+        ],
+    },
+    {
+        version: 'v1.25.0 (Layout Density — Premium Compact Refactor)',
+        date: '',
         badge: 'bg-slate-600',
         items: [
             'WasteBank + WasteBankStats: compress spacing + padding + typography (742 บรรทัด refactor) — เห็น content ต่อ viewport มากขึ้น',
