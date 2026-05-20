@@ -116,16 +116,49 @@ const featureGroups = [
         color: 'bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-800',
         features: ['Portal ครู: Dashboard, ตารางสอน, เช็คชื่อ, คะแนน', 'Portal ผู้ปกครอง: ดูการมาเรียน/คะแนน/ความประพฤติ/ธนาคารขยะของลูก', 'Protected Routes ตาม role', 'Smart Login Redirect (admin/teacher/parent)'],
     },
+    {
+        label: 'ศูนย์การศึกษา (Edu Hub)',
+        color: 'bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800',
+        features: [
+            'หน้าครูคลังสื่อรายบุคคล (/educational-hub + short URL /h/<username>)',
+            '4 หมวด: คลังสื่อ / เกม / ใบงาน / วิดีโอ',
+            'Item polymorphic 4 ประเภท: file / link / youtube / text',
+            '4 view modes: Grid 3×3 / Featured / List / Compact + column selector + sort',
+            'Admin lock layout default (school_settings — readonly + 🔒 badge)',
+            'Staff short URL /staff/<username> (Migration 067 ย้าย username → staff)',
+            'Portal ครู: tab "รายการของฉัน" + "โปรไฟล์คลัง"',
+            'View counter + Download counter (anon-safe SECURITY DEFINER RPC)',
+        ],
+    },
+    {
+        label: 'เกมการศึกษา',
+        color: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800',
+        features: [
+            'Wrapper /play/:gameSlug — student auth + XP/Level + Badges + result modal',
+            'Game session tracking (score, duration, mode, combo, fever, metadata)',
+            'XP curve doubling + 8 badge types (first_play, score_*, plays_10, improvement 1.5x, streak_7)',
+            '18+ games (Pizza Master Chef, Attack-on-Noun, fishing, typing, kingdom, ฯลฯ)',
+            'Single-file Game Template + GAME-TEMPLATE.md (ครูสร้างเกมเองได้)',
+            'Admin upload: file หรือ paste HTML code (size counter)',
+            'Iframe security: sandbox + SAMEORIGIN + postMessage navigation',
+            'Mobile parity: touch controls (virtual joystick + fire/jump/zoom buttons)',
+            'Admin dashboard /admin/dashboard/games (stats + leaderboard + BarChart)',
+            'Student 360° tab "เกมการศึกษา" + manual push to score_records',
+            'Anti-cheat: 20s rate-limit + score sanity (0–1M) + duration ≥ 5s',
+        ],
+    },
 ];
 
 const dbGroups = [
-    { label: 'เนื้อหา', tables: ['news', 'news_categories', 'gallery_albums', 'gallery_photos', 'events', 'documents', 'document_categories'] },
+    { label: 'เนื้อหา', tables: ['news', 'news_categories', 'gallery_albums', 'gallery_photos', 'events', 'documents', 'document_categories', 'hero_slides', 'testimonials', 'partners'] },
     { label: 'บุคลากร', tables: ['administrators', 'staff', 'students', 'attendance_records', 'student_council', 'student_achievements', 'student_activities', 'student_stats', 'grade_data', 'score_records', 'conduct_scores'] },
-    { label: 'บริการ', tables: ['admissions', 'contact_messages', 'waste_categories', 'waste_transactions', 'curriculum_programs', 'curriculum_activities', 'faq', 'email_subscribers'] },
-    { label: 'สารบรรณ', tables: ['incoming_letters', 'outgoing_letters', 'orders_announcements', 'meetings'] },
+    { label: 'บริการ', tables: ['admissions', 'contact_messages', 'waste_categories', 'waste_transactions', 'savings_transactions', 'savings_summary', 'rewards', 'reward_claims', 'curriculum_programs', 'curriculum_activities', 'faq', 'email_subscribers'] },
+    { label: 'สารบรรณ + Docs Hub', tables: ['incoming_letters', 'outgoing_letters', 'letter_tracking_logs', 'orders_announcements', 'meetings', 'signatures', 'budget_items', 'sar_records', 'ics_records', 'action_plan_items', 'doc_templates', 'student_documents'] },
     { label: 'HR', tables: ['leave_requests', 'training_records', 'pa_assessments'] },
     { label: 'วิชาการ', tables: ['class_schedules', 'lesson_plans', 'teaching_materials', 'academic_calendar', 'student_special_needs', 'counseling_records', 'supervision_records'] },
-    { label: 'ระบบ', tables: ['school_settings', 'page_views', 'milestones', 'facilities', 'notifications', 'user_roles'] },
+    { label: 'ศูนย์การศึกษา', tables: ['educational_hub_categories', 'educational_hub_profiles', 'educational_hub_items', 'v_educational_hub_teachers (view)'] },
+    { label: 'เกมการศึกษา', tables: ['game_sessions', 'game_achievements_catalog', 'game_student_achievements', 'game_student_stats (view)'] },
+    { label: 'ระบบ', tables: ['school_settings', 'page_views', 'milestones', 'facilities', 'notifications', 'user_roles', 'user_quick_menu_preferences'] },
 ];
 
 const roadmap = [
@@ -216,8 +249,82 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.22.0 (Game Play Tracking — XP/Level/Badges + Pizza pilot)',
+        version: 'v1.25.0 (Layout Density — Premium Compact Refactor)',
         date: 'ล่าสุด',
+        badge: 'bg-slate-600',
+        items: [
+            'WasteBank + WasteBankStats: compress spacing + padding + typography (742 บรรทัด refactor) — เห็น content ต่อ viewport มากขึ้น',
+            'SavingsBank: compress layout + ลด podium height + box main container กัน full-width banner overflow + "วิธีฝาก-ถอน" compact (272 บรรทัด รวม 4 commits)',
+            'Contact: compress spacing + card padding + typography ให้ match site density (93 บรรทัด)',
+            'Calendar: compress spacing + paddings + timeline dot + card height (82 บรรทัด)',
+            'แนวคิด "high-density premium" — premium visual presentation แต่ content density สูงขึ้น โดยไม่เสีย hierarchy',
+            'Pure visual density polish — ไม่มี logic เปลี่ยน ไม่กระทบ data/queries',
+        ],
+    },
+    {
+        version: 'v1.24.0 (Educational Hub — View Modes + Admin Layout Lock + Staff Short URL)',
+        date: '',
+        badge: 'bg-purple-600',
+        items: [
+            'HubToolbar.tsx (new): 4 view modes (Grid 3×3 / Featured / List / Compact) + column selector (3/4/5/6) + sort (Default / Popular / Alpha / Newest) + integrated search',
+            'useHubViewMode hook (new, 93 บรรทัด): localStorage persistence (key: kampai_edu_hub_layout) + cross-tab sync via storage event',
+            'Admin lock layout: HubLayoutDefaultsTab.tsx (new, 224 บรรทัด) — admin lock view+cols+sort ทั้งหมด → users เห็น readonly + amber 🔒 badge',
+            'useHubLayoutWithDefault hook (new, 97 บรรทัด): compose DB default (school_settings) + localStorage + isLocked gate; uses useQuery + invalidation chain',
+            'TeacherHubCard refactored: 4 variants (grid / featured / list / compact) — share base, differ in layout/typography',
+            'Staff short URL /staff/<username>: Migration 067 ย้าย username จาก educational_hub_profiles → staff table (UNIQUE + CHECK regex) + staffService.getByIdentifier() resolve UUID หรือ username',
+            'Migration 066 (edu_hub_view_last_item_at.sql): เพิ่ม last_item_at column ใน view v_educational_hub_teachers สำหรับ Newest sort',
+        ],
+    },
+    {
+        version: 'v1.23.0 (Games Framework — Single-file Template + Teacher Guide + Admin Paste Upload)',
+        date: '',
+        badge: 'bg-amber-600',
+        items: [
+            'public/games/_template.html (new, 395 บรรทัด): single-file boilerplate — EMBED detection, STUDENT_CODE cache, postMessage init/gameEnd, IS_TOUCH detection, score/lives HUD, sample Tap-the-Dot game; แบ่ง 3 sections (A boilerplate / B TODO logic / C entry)',
+            'GAME-TEMPLATE.md (new, 242 บรรทัด) ที่ repo root: 11-section guide — single-file rationale, quick start, structure, naming conventions, upload workflow, testing checklist, AI prompt template, game ideas, FAQ, versioning',
+            'GamesTab.tsx (admin): toggle inputMode file ↔ paste — textarea + size counter (เปลี่ยนเป็นแดงเมื่อ >5MB) + resolveHtmlFile() helper สร้าง File blob จาก text — support ทั้ง create + replace flow (ไม่ต้องแก้ backend)',
+            'Workflow ใหม่: ครู copy _template.html → rename → แก้แค่ SECTION B (game logic) แล้ว upload ผ่าน admin UI ได้เลย — ไม่ต้อง code knowledge เชิงลึก',
+            'Standalone playable ที่ /games/_template.html (test ก่อน upload) หรือ /play/_template (เมื่อ tracked_game = true → เก็บ score/XP/badges)',
+        ],
+    },
+    {
+        version: 'v1.22.3 (Attack-on-Noun — Score Tracking + Mobile Touch Controls)',
+        date: '',
+        badge: 'bg-orange-600',
+        items: [
+            'Attack-on-Noun (3D FPS shooter) hook เข้า game tracking pattern เดียวกับ pizza: postMessage init/gameEnd, score HUD, +100 ถูก / −20 ผิด (min 0), 3 hearts; final score → record_game_session RPC ผ่าน wrapper',
+            'Mobile/tablet touch controls: IS_TOUCH detection → virtual joystick (left-bottom, 130px+ responsive) + look pad (full-screen drag) + fire/jump/zoom buttons (right-bottom) — ทุกตัวมี touch-action: none กัน scroll',
+            'Mobile fix: skip pointer-lock เมื่อ IS_TOUCH (iOS/Android ไม่ support) → manually show/hide blocker overlay แทน',
+            'Navigation polish: เพิ่ม "← Back to games" button ใน PlayGame header + game redirect ปรับเป็น /h/natthapong (specific teacher hub แทน /educational-hub generic)',
+        ],
+    },
+    {
+        version: 'v1.22.2 (Pizza Master Chef — Complete Overhaul + Pause System)',
+        date: '',
+        badge: 'bg-amber-500',
+        items: [
+            'Visual overhaul: glassmorphism start screen, circular timer, star rating system, gradient pizza fills, confetti, fever mode visual, VIP (⭐) / angry (😠) / group customers',
+            'Difficulty system: 3 waves (14/20/26 orders) + daily challenge mode + equivalent fractions mini-challenge + wrong-answer explanation modal (feedback loop ดีขึ้น)',
+            'Pause system: ESC modal + exit / select-new-game navigation buttons ภายใน iframe',
+            'External nav links ทั้งหมดเพิ่ม target="_top" + return-to-selection link ปรับไปยัง /educational-hub',
+            'File ขยาย 2174 → 2362 บรรทัด (+188 บรรทัด — UI/feedback/power-ups/pause)',
+        ],
+    },
+    {
+        version: 'v1.22.1 (Iframe Security & Navigation — Vercel SAMEORIGIN + Sandbox + postMessage)',
+        date: '',
+        badge: 'bg-red-500',
+        items: [
+            'vercel.json SPA rewrite pattern: /((?!api/).*) → /((?!api/|games/).*) — กัน static game HTML ตก fallback เป็น index.html (เคยทำให้เกมโหลด React app แทน HTML)',
+            'vercel.json header rule: /games/(.*) → X-Frame-Options: SAMEORIGIN เฉพาะ (route อื่นยังคง DENY กัน clickjacking) — แก้ /play wrapper ที่ embed iframe ไม่ได้',
+            'PlayGame iframe sandbox: เพิ่ม allow-pointer-lock + allow-modals tokens + Permissions-Policy header (pointer-lock, fullscreen, autoplay, cross-origin-isolated) — แก้ Attack-on-Noun start ไม่ได้เพราะ pointer-lock ถูก block',
+            'postMessage navigation pattern: game ส่ง {type:"navigate", to} → parent ทำ React Router navigate (กัน <a target="_top"> break ออกจาก iframe ทำลาย wrapper state)',
+            'PlayGame URL cache-bust: append ?t=Date.now() ป้องกัน iframe cache เก่าค้างหลัง deploy',
+        ],
+    },
+    {
+        version: 'v1.22.0 (Game Play Tracking — XP/Level/Badges + Pizza pilot)',
+        date: '',
         badge: 'bg-amber-600',
         items: [
             'หน้าใหม่ /play/:gameSlug (สาธารณะ): wrapper state-machine 5 ขั้น — กรอกรหัสนักเรียน → ยืนยันด้วยรูป (PersonAvatar) → pre-game (XP bar + Level + Badge grid) → playing (iframe) → result modal (level-up, badges)',
@@ -993,8 +1100,8 @@ const exportData = {
     techStack,
     featureGroups: featureGroups.map(g => ({ category: g.label, features: g.features })),
     database: {
-        totalTables: '47+',
-        migrations: 23,
+        totalTables: '100+',
+        migrations: 73,
         engine: 'PostgreSQL via Supabase',
         security: 'RLS enabled',
         groups: dbGroups,
@@ -1226,12 +1333,16 @@ export const SystemOverview = () => {
                                 <h4 className="font-semibold text-sm text-orange-600 dark:text-orange-400">Infrastructure</h4>
                             </div>
                             <div className="space-y-1.5 text-xs text-muted-foreground">
-                                <p>• Vercel: SPA + catch-all rewrite, cron <code className="bg-secondary px-1 rounded">/api/ping</code> ทุก 3 วัน</p>
-                                <p>• Security headers: X-Frame-Options, XSRF, Referrer-Policy</p>
-                                <p>• Asset cache: 1 ปี (immutable)</p>
+                                <p>• Vercel: SPA rewrite <code className="bg-secondary px-1 rounded">{'/((?!api/|games/).*)'}</code> (exclude static games), cron <code className="bg-secondary px-1 rounded">/api/ping</code> ทุก 3 วัน</p>
+                                <p>• Security headers: X-Frame-Options DENY (default), XSRF, Referrer-Policy</p>
+                                <p>• Iframe security: <code className="bg-secondary px-1 rounded">/games/*</code> = SAMEORIGIN เฉพาะ (อื่น = DENY), sandbox tokens <code className="bg-secondary px-1 rounded">allow-pointer-lock allow-modals</code>, Permissions-Policy รวม fullscreen + autoplay + cross-origin-isolated</p>
+                                <p>• Game iframe nav: parent ↔ child via <code className="bg-secondary px-1 rounded">postMessage</code> ({'{type:"gameEnd"}'} score + {'{type:"navigate"}'} route) — กัน <code className="bg-secondary px-1 rounded">{'<a target="_top">'}</code> break out</p>
+                                <p>• Asset cache: 1 ปี (immutable) + iframe URL cache-bust <code className="bg-secondary px-1 rounded">?t=Date.now()</code></p>
                                 <p>• Storage bucket <code className="bg-secondary px-1 rounded">school-images</code>: รูปภาพ (1 GB)</p>
                                 <p>• Storage bucket <code className="bg-secondary px-1 rounded">school-documents</code>: เอกสาร (50 MB/file)</p>
-                                <p>• Env vars: <code className="bg-secondary px-1 rounded">VITE_SUPABASE_URL</code>, <code className="bg-secondary px-1 rounded">VITE_SUPABASE_ANON_KEY</code></p>
+                                <p>• Storage bucket <code className="bg-secondary px-1 rounded">educational-hub</code>: คลังสื่อ (50 MB/file)</p>
+                                <p>• Storage bucket <code className="bg-secondary px-1 rounded">edu-hub-games</code>: เกมการศึกษา HTML (single-file template)</p>
+                                <p>• Env vars: <code className="bg-secondary px-1 rounded">VITE_SUPABASE_URL</code>, <code className="bg-secondary px-1 rounded">VITE_SUPABASE_PUBLISHABLE_KEY</code>, <code className="bg-secondary px-1 rounded">RESEND_API_KEY</code></p>
                             </div>
                         </div>
                     </div>
@@ -1274,8 +1385,8 @@ export const SystemOverview = () => {
                 </CardHeader>
                 <CardContent>
                     <div className="flex gap-3 mb-4">
-                        <div className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">47+ Tables</div>
-                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">23 Migrations</div>
+                        <div className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">100+ Tables</div>
+                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">73 Migrations</div>
                         <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">PostgreSQL via Supabase</div>
                         <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">RLS enabled</div>
                     </div>
