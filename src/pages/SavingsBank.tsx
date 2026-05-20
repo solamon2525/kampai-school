@@ -201,65 +201,67 @@ export default function SavingsBank() {
               backgroundSize: '24px 24px',
             }}
           />
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
-            <div className="grid lg:grid-cols-[1.4fr_1fr] gap-10 lg:gap-16 items-center">
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+            <div className="grid lg:grid-cols-[1.4fr_1fr] gap-6 lg:gap-8 items-center">
               {/* LEFT: Copy */}
-              <div className="space-y-6">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 ring-1 ring-amber-400/30 text-amber-300 text-xs font-bold uppercase tracking-[0.15em]">
-                  <PiggyBank className="w-3.5 h-3.5" />
+              <div className="space-y-4">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/15 ring-1 ring-amber-400/30 text-amber-300 text-[10px] font-bold uppercase tracking-[0.12em]">
+                  <PiggyBank className="w-3 h-3" />
                   ธนาคารพอเพียง
                 </div>
-                <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white leading-[1.1]">
+                <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight text-white leading-[1.15]">
                   ออม <span className="text-amber-400">วันละนิด</span>
                   <br />
                   สร้างวินัย <span className="italic font-bold text-slate-300">ทั้งชีวิต</span>
                 </h1>
-                <p className="text-base md:text-lg text-slate-300 max-w-xl leading-relaxed">
+                <p className="text-xs md:text-sm text-slate-300 max-w-xl leading-relaxed">
                   ระบบฝาก/ถอนเงินสำหรับนักเรียน
                   สอนวินัยการออมตามหลักปรัชญาเศรษฐกิจพอเพียง
                 </p>
-                <div className="flex flex-wrap gap-3 pt-2">
+                <div className="flex flex-wrap gap-2 pt-1">
                   <a
                     href="#leaderboard"
-                    className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 active:translate-y-px text-amber-950 text-sm font-bold transition shadow-lg shadow-amber-500/20"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 active:translate-y-px text-amber-950 text-xs font-bold transition shadow-md shadow-amber-500/10"
                   >
-                    <Trophy className="w-4 h-4" />
+                    <Trophy className="w-3.5 h-3.5" />
                     ดูอันดับนักออม
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="w-3.5 h-3.5" />
                   </a>
                   <a
                     href="#lookup"
-                    className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white/10 hover:bg-white/15 active:translate-y-px text-white text-sm font-bold transition ring-1 ring-white/20"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/15 active:translate-y-px text-white text-xs font-bold transition ring-1 ring-white/20"
                   >
-                    <Search className="w-4 h-4" />
+                    <Search className="w-3.5 h-3.5" />
                     ตรวจสอบยอดของฉัน
                   </a>
                 </div>
               </div>
 
               {/* RIGHT: Floating amber stat panel */}
-              <div className="relative lg:rotate-2 transform-gpu">
-                <div className="bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 rounded-2xl p-6 md:p-8 shadow-2xl shadow-amber-500/30 ring-1 ring-amber-300/50">
-                  <div className="text-xs font-bold uppercase tracking-[0.15em] text-amber-950/80 mb-1">
+              <div className="relative transform-gpu">
+                <div className="bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 rounded-xl p-4 md:p-5 shadow-xl shadow-amber-500/20 ring-1 ring-amber-300/40">
+                  <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-amber-950/80 mb-0.5">
                     Hall of Savers
                   </div>
-                  <div className="text-sm font-semibold text-amber-950 mb-4">
+                  <div className="text-xs font-semibold text-amber-950 mb-3">
                     นักเรียนที่ร่วมโครงการ
                   </div>
-                  <div className="text-5xl md:text-6xl font-extrabold tabular-nums text-amber-950 leading-none tracking-tight">
-                    {isLoading ? '—' : fmtCount(stats.savers)}
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-3xl md:text-4xl font-extrabold tabular-nums text-amber-950 leading-none tracking-tight">
+                      {isLoading ? '—' : fmtCount(stats.savers)}
+                    </span>
+                    <span className="text-xs font-bold text-amber-900">คน</span>
                   </div>
-                  <div className="text-lg font-bold text-amber-900 mt-1">คน</div>
-                  <div className="mt-5 pt-5 border-t border-amber-900/15 flex items-center justify-between text-amber-950">
+                  <div className="mt-4 pt-3 border-t border-amber-900/15 flex items-center justify-between text-amber-950">
                     <div>
-                      <div className="text-xs font-semibold uppercase tracking-wider opacity-75">
+                      <div className="text-[10px] font-semibold uppercase tracking-wider opacity-75">
                         ครั้งฝากรวม
                       </div>
-                      <div className="text-2xl font-extrabold tabular-nums">
+                      <div className="text-xl font-extrabold tabular-nums">
                         {isLoading ? '—' : fmtCount(stats.totalDeposits)}
                       </div>
                     </div>
-                    <Sparkles className="w-8 h-8 opacity-30" />
+                    <Sparkles className="w-6 h-6 opacity-30" />
                   </div>
                 </div>
               </div>
@@ -307,21 +309,21 @@ export default function SavingsBank() {
 
         {/* ─── HALL OF SAVERS ─────────────────────────────────────────────── */}
         <section id="leaderboard" className="bg-slate-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
-            <div className="text-center mb-10">
-              <div className="text-xs font-bold uppercase tracking-[0.15em] text-amber-600 mb-2">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+            <div className="text-center mb-6">
+              <div className="text-xs font-bold uppercase tracking-[0.15em] text-amber-600 mb-1.5">
                 Hall of Savers
               </div>
-              <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">
+              <h2 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900">
                 อันดับนักออม
               </h2>
-              <p className="text-base text-slate-600 font-medium mt-3 max-w-xl mx-auto">
+              <p className="text-xs md:text-sm text-slate-500 font-medium mt-1.5 max-w-xl mx-auto">
                 จัดอันดับตามจำนวนครั้งที่ฝาก — รางวัลของวินัย ไม่ใช่ความรวย
               </p>
             </div>
 
             {/* Class filter chips */}
-            <div className="flex flex-wrap justify-center gap-2 mb-10">
+            <div className="flex flex-wrap justify-center gap-2 mb-6">
               <ClassChip active={classFilter === 'all'} onClick={() => setClassFilter('all')}>
                 รวมทุกชั้น
               </ClassChip>
@@ -397,15 +399,15 @@ export default function SavingsBank() {
 
         {/* ─── RECENT ACTIVITY (timeline) ─────────────────────────────────── */}
         <section className="bg-white">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-            <div className="mb-8">
-              <div className="text-xs font-bold uppercase tracking-[0.15em] text-amber-600 mb-2">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+            <div className="mb-5">
+              <div className="text-xs font-bold uppercase tracking-[0.15em] text-amber-600 mb-1.5">
                 Live Activity
               </div>
-              <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">
+              <h2 className="text-lg md:text-xl font-bold tracking-tight text-slate-900">
                 ความเคลื่อนไหวล่าสุด
               </h2>
-              <p className="text-sm text-slate-600 font-medium mt-2">
+              <p className="text-xs text-slate-500 font-medium mt-1">
                 แสดงเฉพาะรายการธุรกรรม ไม่เปิดเผยจำนวนเงิน
               </p>
             </div>
@@ -461,21 +463,21 @@ export default function SavingsBank() {
 
         {/* ─── LOOKUP (private balance check) ─────────────────────────────── */}
         <section id="lookup" className="bg-slate-50">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-            <div className="bg-white rounded-3xl shadow-xl ring-1 ring-slate-200 overflow-hidden">
-              <div className="bg-slate-900 px-6 md:px-8 py-6">
-                <div className="text-xs font-bold uppercase tracking-[0.15em] text-amber-400 mb-1">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+            <div className="bg-white rounded-2xl shadow-lg ring-1 ring-slate-200 overflow-hidden">
+              <div className="bg-slate-900 px-4 md:px-6 py-4">
+                <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-amber-400 mb-0.5">
                   Account Lookup
                 </div>
-                <h2 className="text-xl md:text-2xl font-extrabold text-white flex items-center gap-2">
-                  <Search className="w-5 h-5" /> ตรวจสอบยอดเงินของฉัน
+                <h2 className="text-base md:text-lg font-bold text-white flex items-center gap-1.5">
+                  <Search className="w-4 h-4" /> ตรวจสอบยอดเงินของฉัน
                 </h2>
-                <p className="text-sm text-slate-300 mt-2 font-medium">
+                <p className="text-xs text-slate-400 mt-1 font-medium">
                   กรอกรหัสนักเรียนเพื่อดูยอดเงินสะสม + ประวัติธุรกรรม
                 </p>
               </div>
 
-              <div className="p-6 md:p-8 space-y-5">
+              <div className="p-4 md:p-6 space-y-4">
                 <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2">
                   <Input
                     value={code}
@@ -493,31 +495,31 @@ export default function SavingsBank() {
                 </form>
 
                 {student && (
-                  <div className="pt-6 border-t border-slate-200 space-y-5">
+                  <div className="pt-4 border-t border-slate-200 space-y-4">
                     {/* Student header */}
                     <div className="flex items-center gap-3">
                       <StudentAvatar
                         name={student.full_name}
                         photoUrl={student.photo_url}
-                        size={56}
+                        size={48}
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="font-extrabold text-slate-900 truncate">
+                        <p className="font-extrabold text-slate-900 truncate text-sm md:text-base">
                           {student.full_name}
                         </p>
                         <p className="text-xs text-slate-600 font-medium">
                           {student.class_name ?? '—'}
                         </p>
                       </div>
-                      <SaverTierBadge depositCount={studentDepositCount} size="md" />
+                      <SaverTierBadge depositCount={studentDepositCount} size="sm" />
                     </div>
 
                     {/* Balance hero — only place $ shown publicly */}
-                    <div className="bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 rounded-2xl p-6 text-center shadow-lg shadow-amber-500/20">
-                      <div className="text-xs font-bold uppercase tracking-[0.15em] text-amber-950/80">
+                    <div className="bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 rounded-xl p-4 md:p-5 text-center shadow-md shadow-amber-500/10">
+                      <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-amber-950/80">
                         ยอดเงินคงเหลือ
                       </div>
-                      <div className="text-4xl md:text-5xl font-extrabold text-amber-950 tabular-nums tracking-tight mt-2">
+                      <div className="text-2xl md:text-3xl font-extrabold text-amber-950 tabular-nums tracking-tight mt-1">
                         {fmtBaht(Number(student.current_balance ?? 0))}
                       </div>
                     </div>
@@ -599,42 +601,42 @@ export default function SavingsBank() {
 
         {/* ─── HOW IT WORKS (asymmetric zigzag, not equal cards) ──────────── */}
         <section className="bg-white">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
-            <div className="text-center mb-12">
-              <div className="text-xs font-bold uppercase tracking-[0.15em] text-amber-600 mb-2">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+            <div className="text-center mb-6">
+              <div className="text-xs font-bold uppercase tracking-[0.15em] text-amber-600 mb-1.5">
                 How It Works
               </div>
-              <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">
+              <h2 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900">
                 ขั้นตอนการใช้งาน
               </h2>
             </div>
-            <div className="space-y-12 md:space-y-16">
+            <div className="space-y-8 md:space-y-10">
               {HOW_IT_WORKS.map((s, idx) => {
                 const isReverse = idx % 2 === 1;
                 return (
                   <div
                     key={s.step}
                     className={cn(
-                      'grid md:grid-cols-[1fr_2fr] gap-6 md:gap-10 items-center',
+                      'grid md:grid-cols-[1fr_2fr] gap-4 md:gap-8 items-center',
                       isReverse && 'md:grid-flow-dense',
                     )}
                   >
                     <div
                       className={cn(
-                        'flex flex-col items-center md:items-start gap-3',
+                        'flex flex-col items-center md:items-start gap-2',
                         isReverse && 'md:col-start-2',
                       )}
                     >
-                      <div className="text-7xl md:text-8xl font-extrabold tracking-tighter text-amber-500 leading-none">
+                      <div className="text-5xl md:text-6xl font-extrabold tracking-tighter text-amber-500 leading-none">
                         {s.step}
                       </div>
                       {s.icon}
                     </div>
-                    <div className={cn('space-y-3', isReverse && 'md:col-start-1 md:row-start-1')}>
-                      <h3 className="text-xl md:text-2xl font-extrabold text-slate-900">
+                    <div className={cn('space-y-2', isReverse && 'md:col-start-1 md:row-start-1')}>
+                      <h3 className="text-base md:text-lg font-bold text-slate-900">
                         {s.title}
                       </h3>
-                      <p className="text-base text-slate-700 leading-relaxed font-medium">
+                      <p className="text-xs md:text-sm text-slate-600 leading-normal font-normal">
                         {s.desc}
                       </p>
                     </div>
