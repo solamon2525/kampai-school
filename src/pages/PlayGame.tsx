@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import * as LucideIcons from 'lucide-react';
 import {
@@ -46,6 +46,7 @@ type Phase = 'lookup' | 'confirm' | 'pre-game' | 'playing' | 'result';
 const PlayGame = () => {
   const { gameSlug = '' } = useParams<{ gameSlug: string }>();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const [phase, setPhase] = useState<Phase>('lookup');
   const [codeInput, setCodeInput] = useState('');
@@ -153,6 +154,19 @@ const PlayGame = () => {
       '*',
     );
   }, [student, codeInput]);
+
+  // ─── receive `navigate` from iframe (exit / select-another-game buttons) ──
+  // Not gated by phase — game can request navigation anytime (pause modal, etc.)
+  useEffect(() => {
+    const navHandler = (e: MessageEvent) => {
+      const d = e.data as { type?: string; to?: string } | undefined;
+      if (d?.type === 'navigate' && typeof d.to === 'string' && d.to.startsWith('/')) {
+        navigate(d.to);
+      }
+    };
+    window.addEventListener('message', navHandler);
+    return () => window.removeEventListener('message', navHandler);
+  }, [navigate]);
 
   // ─── receive gameEnd from iframe ───────────────────────────────────────────
   useEffect(() => {

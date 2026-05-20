@@ -1079,6 +1079,22 @@
                     STUDENT_CODE = e.data.studentCode;
                 }
             });
+
+            // Intercept target="_top" anchor clicks → postMessage to parent.
+            // Sandboxed iframe can't break out via target="_top" (would need
+            // allow-top-navigation), so the React wrapper handles navigation
+            // via useNavigate(). Standalone mode unchanged (browser handles
+            // target="_top" normally — this block doesn't run).
+            document.addEventListener('click', (e) => {
+                const a = e.target.closest('a[target="_top"]');
+                if (!a) return;
+                const href = a.getAttribute('href');
+                if (!href) return;
+                e.preventDefault();
+                try {
+                    window.parent.postMessage({ type: 'navigate', to: href }, '*');
+                } catch (_err) { /* parent gone — ignore */ }
+            });
         }
 
         /* ============================================
