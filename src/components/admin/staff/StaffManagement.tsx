@@ -51,6 +51,7 @@ export const StaffManagement = () => {
         degree: '',
         major: '',
         phone: '',
+        username: '',
         extra_info: [] as ExtraInfoItem[],
     });
     // Column settings
@@ -134,6 +135,7 @@ export const StaffManagement = () => {
             degree: '',
             major: '',
             phone: '',
+            username: '',
             extra_info: [],
         });
         setEditingStaff(null);
@@ -155,6 +157,7 @@ export const StaffManagement = () => {
                 degree: staff.degree || '',
                 major: staff.major || '',
                 phone: staff.phone || '',
+                username: (staff as unknown as { username?: string | null }).username ?? '',
                 extra_info: Array.isArray(staff.extra_info) ? staff.extra_info : [],
             });
         } else {
@@ -194,6 +197,7 @@ export const StaffManagement = () => {
                         degree: formData.degree,
                         major: formData.major,
                         phone: formData.phone,
+                        username: formData.username.trim() || null,
                         extra_info: cleanedExtra,
                     } as never)
                     .eq('id', editingStaff.id);
@@ -225,6 +229,7 @@ export const StaffManagement = () => {
                         degree: formData.degree,
                         major: formData.major,
                         phone: formData.phone,
+                        username: formData.username.trim() || null,
                         extra_info: cleanedExtra,
                     } as never);
 
@@ -457,6 +462,22 @@ export const StaffManagement = () => {
                                         onChange={(e) => setFormData({ ...formData, major: e.target.value })}
                                         placeholder="ภาษาไทย"
                                     />
+                                </div>
+                                <div className="space-y-2 sm:col-span-2">
+                                    <Label htmlFor="username">Username (สำหรับลิงก์สั้น)</Label>
+                                    <Input
+                                        id="username"
+                                        value={formData.username}
+                                        onChange={(e) => setFormData({ ...formData, username: e.target.value.toLowerCase() })}
+                                        placeholder="natthapong"
+                                        pattern="[a-z0-9_-]{2,32}"
+                                        title="ใช้ a-z, 0-9, -, _ (2-32 ตัวอักษร)"
+                                    />
+                                    <p className="text-[10px] text-muted-foreground">
+                                        {formData.username
+                                            ? <>ลิงก์สั้น: <code className="text-primary">{`/staff/${formData.username}`}</code> · <code className="text-primary">{`/h/${formData.username}`}</code></>
+                                            : 'เว้นว่างถ้าไม่ใช้ — จะใช้ UUID ในลิงก์'}
+                                    </p>
                                 </div>
                             </div>
                             <div className="space-y-2">

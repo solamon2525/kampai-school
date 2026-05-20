@@ -968,7 +968,7 @@ const Staff = () => {
                           isFlipped={flippedId === key}
                           onFlip={handleFlip(key)}
                           onOpenModal={() => openModal(staffToModal(teacher))}
-                          detailLink={`/staff/${teacher.id}`}
+                          detailLink={`/staff/${(teacher as unknown as { username?: string | null }).username ?? teacher.id}`}
                           delay={i}
                         />
                       );
@@ -995,7 +995,7 @@ const Staff = () => {
                           isFlipped={flippedId === key}
                           onFlip={handleFlip(key)}
                           onOpenModal={() => openModal(staffToModal(staff))}
-                          detailLink={`/staff/${staff.id}`}
+                          detailLink={`/staff/${(staff as unknown as { username?: string | null }).username ?? staff.id}`}
                           delay={i}
                         />
                       );

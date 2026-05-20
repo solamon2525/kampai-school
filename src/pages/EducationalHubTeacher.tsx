@@ -300,7 +300,7 @@ const EducationalHubTeacher = () => {
 
                                     <div className="flex flex-wrap gap-2 pt-2">
                                         <Button asChild size="sm" variant={teacher.banner_url ? 'secondary' : 'outline'}>
-                                            <Link to={`/staff/${teacher.staff_id}`}>
+                                            <Link to={`/staff/${teacher.username ?? teacher.staff_id}`}>
                                                 <IdCard className="h-4 w-4 mr-1" />
                                                 ดูข้อมูลครู
                                             </Link>

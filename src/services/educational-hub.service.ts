@@ -21,7 +21,6 @@ export type EduHubCategory = {
 
 export type EduHubProfile = {
     staff_id: string;
-    username: string | null;
     banner_url: string | null;
     hub_bio: string | null;
     accent_color: string | null;
@@ -148,16 +147,8 @@ export const educationalHubService = {
             .eq('staff_id', staffId)
             .maybeSingle(),
 
-    /**
-     * Resolve a username (short URL /h/:username) → profile row.
-     * Returns null via `data: null` if username not found.
-     */
-    getProfileByUsername: (username: string) =>
-        supabase
-            .from('educational_hub_profiles' as never)
-            .select('*')
-            .eq('username', username)
-            .maybeSingle(),
+    // NOTE: getProfileByUsername removed — username moved to staff table
+    // in migration 067. Use staffService.getByIdentifier(username) instead.
 
     upsertProfile: (data: EduHubProfile) =>
         supabase

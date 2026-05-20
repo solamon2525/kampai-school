@@ -4,6 +4,12 @@
  */
 import { supabase } from '@/integrations/supabase/client';
 
+// UUID v4 shape — discriminate UUID vs username in route params (cf. EducationalHubTeacher)
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+const STAFF_DETAIL_FIELDS =
+  'id, name, position, subject, photo_url, email, phone, department, staff_type, academic_rank, degree, major, education, experience, extra_info, username';
+
 export const staffService = {
   getAll: () =>
     supabase.from('staff').select('*').order('order_position', { ascending: true }),
@@ -15,17 +21,32 @@ export const staffService = {
   getTeachers: () =>
     supabase
       .from('staff')
-      .select('id, name, position, subject, photo_url, order_position, email, phone, department')
+      .select('id, name, position, subject, photo_url, order_position, email, phone, department, username')
       .eq('staff_type', 'teaching')
       .order('order_position', { ascending: true }),
 
   /** ดึงครูคนเดียว (public-safe fields) สำหรับหน้า /staff/:id */
   getById: (id: string) =>
-    supabase
+    supabase.from('staff').select(STAFF_DETAIL_FIELDS).eq('id', id).maybeSingle(),
+
+  /**
+   * Resolve identifier (UUID or username) → staff record.
+   * Used by /staff/:id route to accept both shapes (short URL + backward-compat UUID).
+   */
+  getByIdentifier: (id: string) => {
+    if (UUID_RE.test(id)) {
+      return supabase.from('staff').select(STAFF_DETAIL_FIELDS).eq('id', id).maybeSingle();
+    }
+    return supabase
       .from('staff')
-      .select('id, name, position, subject, photo_url, email, phone, department, staff_type, academic_rank, degree, major, education, experience, extra_info')
-      .eq('id', id)
-      .maybeSingle(),
+      .select(STAFF_DETAIL_FIELDS)
+      .eq('username', id.toLowerCase())
+      .maybeSingle();
+  },
+
+  /** Set username (admin or teacher self-edit). Pass null to clear. */
+  updateUsername: (staffId: string, username: string | null) =>
+    supabase.from('staff').update({ username } as never).eq('id', staffId),
 
   getAllPersonnel: async () => {
     const [staffRes, adminsRes] = await Promise.all([

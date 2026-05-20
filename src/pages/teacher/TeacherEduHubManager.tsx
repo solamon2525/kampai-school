@@ -31,6 +31,7 @@ import {
 } from '@/services/educational-hub.service';
 import { EduHubItemForm } from '@/components/admin/educational-hub/EduHubItemForm';
 import { SortableItemsTable } from '@/components/admin/educational-hub/SortableItemsTable';
+import { staffService } from '@/services/staff.service';
 
 const MENU = [
     { id: 'dashboard', label: 'แดชบอร์ด', icon: FolderOpen, path: '/teacher' },
@@ -246,6 +247,16 @@ const MyProfileTab = ({ staffId }: { staffId: string }) => {
         },
     });
 
+    // Username lives on staff table (migration 067) — fetch separately
+    const { data: staffRecord } = useQuery({
+        queryKey: ['staff', staffId, 'username'],
+        queryFn: async () => {
+            const { data, error } = await staffService.getById(staffId);
+            if (error) throw error;
+            return data as { username: string | null } | null;
+        },
+    });
+
     const form = useForm<ProfileForm>({
         resolver: zodResolver(profileSchema),
         defaultValues: {
@@ -261,7 +272,7 @@ const MyProfileTab = ({ staffId }: { staffId: string }) => {
     useEffect(() => {
         if (profile) {
             form.reset({
-                username: profile.username ?? '',
+                username: staffRecord?.username ?? '',
                 hub_bio: profile.hub_bio ?? '',
                 banner_url: profile.banner_url ?? '',
                 accent_color: profile.accent_color ?? '#157F3C',
@@ -269,23 +280,32 @@ const MyProfileTab = ({ staffId }: { staffId: string }) => {
                 is_hub_active: profile.is_hub_active,
             });
         }
-    }, [profile, form]);
+    }, [profile, staffRecord, form]);
 
     const onSubmit = async (values: ProfileForm) => {
         setSaving(true);
         try {
-            const res = await educationalHubService.upsertProfile({
+            // Hub fields → educational_hub_profiles (no longer includes username)
+            const profileRes = await educationalHubService.upsertProfile({
                 staff_id: staffId,
-                username: values.username?.trim() || null,
                 hub_bio: values.hub_bio?.trim() || null,
                 banner_url: values.banner_url?.trim() || null,
                 accent_color: values.accent_color?.trim() || null,
                 external_url: values.external_url?.trim() || null,
                 is_hub_active: values.is_hub_active,
             });
-            if (res.error) throw res.error;
+            if (profileRes.error) throw profileRes.error;
+
+            // username → staff.username (moved out of profile in migration 067)
+            const usernameRes = await staffService.updateUsername(
+                staffId,
+                values.username?.trim() || null,
+            );
+            if (usernameRes.error) throw usernameRes.error;
+
             await queryClient.invalidateQueries({ queryKey: ['edu-hub', 'profile', staffId] });
             await queryClient.invalidateQueries({ queryKey: ['edu-hub', 'teachers'] });
+            await queryClient.invalidateQueries({ queryKey: ['staff', staffId, 'username'] });
             toast({ title: 'บันทึกโปรไฟล์สำเร็จ' });
         } catch (err) {
             const msg = err instanceof Error ? err.message : 'บันทึกล้มเหลว';
@@ -324,8 +344,8 @@ const MyProfileTab = ({ staffId }: { staffId: string }) => {
                                         </FormControl>
                                         <FormDescription>
                                             {previewName
-                                                ? <>ลิงก์สั้น: <code className="text-primary">{`${window.location.origin}/h/${previewName}`}</code></>
-                                                : 'ตั้ง username (a-z, 0-9, -, _) เพื่อใช้ลิงก์สั้นแทน UUID — ปล่อยว่างจะใช้ลิงก์ /educational-hub/&lt;uuid&gt; เหมือนเดิม'}
+                                                ? <>ลิงก์สั้น: <code className="text-primary">{`/h/${previewName}`}</code> · <code className="text-primary">{`/staff/${previewName}`}</code></>
+                                                : 'ตั้ง username (a-z, 0-9, -, _) เพื่อใช้ลิงก์สั้นแทน UUID — ใช้ทั้งคลังสื่อและหน้าข้อมูลครู'}
                                         </FormDescription>
                                         <FormMessage />
                                     </FormItem>

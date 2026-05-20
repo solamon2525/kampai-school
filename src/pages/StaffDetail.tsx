@@ -82,12 +82,20 @@ export default function StaffDetailPage() {
         let cancel = false;
         (async () => {
             setLoading(true);
-            const [s, t] = await Promise.all([
-                staffService.getById(id),
-                trainingPublicService.getByStaff(id),
-            ]);
+            // Step 1: resolve identifier (UUID or username) → staff record
+            const s = await staffService.getByIdentifier(id);
             if (cancel) return;
-            if (s.data) setStaff(s.data as unknown as StaffPublic);
+            if (!s.data) {
+                setStaff(null);
+                setRecords([]);
+                setLoading(false);
+                return;
+            }
+            const resolved = s.data as unknown as StaffPublic;
+            setStaff(resolved);
+            // Step 2: fetch training using resolved staff.id (always UUID)
+            const t = await trainingPublicService.getByStaff(resolved.id);
+            if (cancel) return;
             if (t.data) setRecords(t.data as unknown as TrainingPerStaffRow[]);
             setLoading(false);
         })();
