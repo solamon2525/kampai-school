@@ -122,6 +122,232 @@
         .hidden { display: none !important; }
 
         /* ============================================
+           SECTION 3B: Pause Modal & System Controls
+           ============================================ */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .pause-content {
+            background: rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 28px;
+            padding: 30px 40px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            transform: scale(0.85);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: #fff;
+        }
+
+        .modal-overlay.show .pause-content {
+            transform: scale(1);
+        }
+
+        .pause-title {
+            font-size: 2.2rem;
+            font-family: 'Kanit', sans-serif;
+            font-weight: 700;
+            color: #FFD700;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            margin-bottom: 5px;
+        }
+
+        .pause-subtitle {
+            font-size: 1rem;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 25px;
+        }
+
+        .pause-btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn-pause-menu {
+            padding: 12px 24px;
+            font-size: 1.15rem;
+            font-family: 'Kanit', sans-serif;
+            font-weight: 700;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-pause-menu:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+        }
+
+        .btn-pause-menu:active {
+            transform: translateY(1px);
+        }
+
+        .btn-pause-resume {
+            background: linear-gradient(to bottom, #4CAF50, #2E7D32);
+            color: white;
+            border-bottom: 4px solid #1B5E20;
+        }
+
+        .btn-pause-restart {
+            background: linear-gradient(to bottom, #FF9800, #E65100);
+            color: white;
+            border-bottom: 4px solid #BF360C;
+        }
+
+        .btn-pause-select {
+            background: linear-gradient(to bottom, #2196F3, #1565C0);
+            color: white;
+            border-bottom: 4px solid #0D47A1;
+        }
+
+        .btn-pause-exit {
+            background: linear-gradient(to bottom, #9E9E9E, #616161);
+            color: white;
+            border-bottom: 4px solid #424242;
+        }
+
+        .hud-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            pointer-events: auto;
+        }
+
+        .btn-pause-circle {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border: 3px solid var(--primary-red);
+            color: var(--primary-red);
+            font-size: 1.1rem;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.1s, background-color 0.2s;
+            outline: none;
+            pointer-events: auto;
+        }
+
+        .btn-pause-circle:hover {
+            transform: scale(1.08);
+            background-color: #FFF5F5;
+        }
+
+        .btn-pause-circle:active {
+            transform: scale(0.95);
+        }
+
+        .system-controls-box {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            width: 80%;
+            max-width: 350px;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .btn-sys-control {
+            padding: 10px 18px;
+            font-size: 0.9rem;
+            font-family: 'Kanit', sans-serif;
+            font-weight: 700;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-sys-control:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+        }
+
+        .btn-sys-control:active {
+            transform: translateY(1px);
+        }
+
+        .btn-sys-blue {
+            background: linear-gradient(135deg, #0288D1, #01579B);
+            border-bottom: 3px solid #004D40;
+        }
+
+        .btn-sys-gray {
+            background: linear-gradient(135deg, #757575, #424242);
+            border-bottom: 3px solid #212121;
+        }
+
+        .btn-sys-green {
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            border-bottom: 3px solid #1B5E20;
+        }
+
+        .equivalent-badge {
+            font-size: 0.7rem;
+            background: linear-gradient(135deg, #FFD700, #FF9800);
+            color: #3E2723;
+            padding: 2px 10px;
+            border-radius: 6px;
+            margin-top: 4px;
+            display: inline-block;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+            animation: pulse-badge 1.5s infinite alternate;
+        }
+
+        @keyframes pulse-badge {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.06); }
+        }
+
+        @media (max-height: 700px) {
+            .system-controls-box {
+                margin-top: 10px;
+            }
+        }
+
+        /* ============================================
            SECTION 4: HUD (Top Bar)
            ============================================ */
         .top-bar {
@@ -697,13 +923,16 @@
                     </div>
                 </div>
 
-                <div class="timer-ring-container">
-                    <svg class="timer-ring-svg" viewBox="0 0 64 64">
-                        <circle class="timer-ring-bg" cx="32" cy="32" r="28"></circle>
-                        <circle class="timer-ring-fg" id="timer-ring" cx="32" cy="32" r="28"
-                                stroke-dasharray="175.93" stroke-dashoffset="0"></circle>
-                    </svg>
-                    <div class="timer-ring-text" id="timer-text">60</div>
+                <div class="hud-controls">
+                    <button id="btn-pause" class="btn-pause-circle" onclick="game.pauseGame()">⏸️</button>
+                    <div class="timer-ring-container">
+                        <svg class="timer-ring-svg" viewBox="0 0 64 64">
+                            <circle class="timer-ring-bg" cx="32" cy="32" r="28"></circle>
+                            <circle class="timer-ring-fg" id="timer-ring" cx="32" cy="32" r="28"
+                                    stroke-dasharray="175.93" stroke-dashoffset="0"></circle>
+                        </svg>
+                        <div class="timer-ring-text" id="timer-text">60</div>
+                    </div>
                 </div>
             </div>
 
@@ -720,6 +949,7 @@
                     <div id="order-bubble-0" class="order-bubble">
                         <div style="font-weight: bold; color: #555; font-size: 0.85rem;">ออเดอร์</div>
                         <div class="order-fraction" id="fraction-display-0">1/2</div>
+                        <div id="equivalent-badge" class="equivalent-badge hidden">💡 เศษส่วนสมมูล!</div>
                         <div id="topping-label-0" style="font-size: 1rem; font-weight: bold; color: var(--veggie-green); margin-top: 3px;"></div>
                     </div>
                 </div>
@@ -780,6 +1010,11 @@
                 <div class="leaderboard-title">🏆 5 อันดับสุดยอดเชฟ</div>
                 <ul id="leaderboard-list" class="leaderboard-list"></ul>
             </div>
+            
+            <div class="system-controls-box">
+                <a href="/games/index.html" class="btn-sys-control btn-sys-blue">🎮 กลับไปเลือกเกมใหม่</a>
+                <a href="/" class="btn-sys-control btn-sys-gray">🚪 ออกจากเกม</a>
+            </div>
         </div>
 
         <!-- ============================================
@@ -791,7 +1026,32 @@
             <div class="gameover-stars" id="gameover-stars"></div>
             <div class="gameover-score">คะแนนรวม: <span id="final-score">0</span></div>
             <div class="gameover-stats" id="gameover-stats"></div>
-            <button class="btn-restart" onclick="game.showStartScreen()">กลับไปหน้าเมนู</button>
+            
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 15px; width: 100%;">
+                <button class="btn-restart" onclick="game.start(game.state.mode)" style="margin-top: 0;">🔄 เล่นอีกครั้ง</button>
+                <button class="btn-restart btn-sys-green" onclick="game.showStartScreen()" style="margin-top: 0; font-size: 1.1rem; padding: 8px 30px;">🏠 กลับหน้าเมนูหลักเกม</button>
+                
+                <div class="system-controls-box" style="margin-top: 10px;">
+                    <a href="/games/index.html" class="btn-sys-control btn-sys-blue">🎮 เลือกเกมใหม่</a>
+                    <a href="/" class="btn-sys-control btn-sys-gray">🚪 ออกจากเกม</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             PAUSE MODAL
+             ============================================ -->
+        <div id="pause-modal" class="modal-overlay">
+            <div class="pause-content">
+                <div class="pause-title">⏸️ พักเบรกเชฟ</div>
+                <div class="pause-subtitle">ร้านค้าหยุดพักชั่วคราว</div>
+                <div class="pause-btn-group">
+                    <button class="btn-pause-menu btn-pause-resume" onclick="game.resumeGame()">▶️ เล่นต่อ</button>
+                    <button class="btn-pause-menu btn-pause-restart" onclick="game.resumeGame(); game.start(game.state.mode)">🔄 เริ่มเกมใหม่</button>
+                    <a href="/games/index.html" class="btn-pause-menu btn-pause-select">🎮 กลับไปเลือกเกมใหม่</a>
+                    <a href="/" class="btn-pause-menu btn-pause-exit">🚪 ออกจากเกม</a>
+                </div>
+            </div>
         </div>
 
         <!-- Wave Banner -->
@@ -943,9 +1203,9 @@
                 daily:    { time: 60, name: "Daily",      points: 12, bonus: 5, rotSpeed: 0.15 }
             },
             waves: [
-                { start: 0,  end: 20, label: 'WAVE 1', dens: [2, 4], rotMult: 1.0 },
-                { start: 20, end: 40, label: 'WAVE 2 🔥', dens: [4, 6], rotMult: 1.3 },
-                { start: 40, end: 60, label: 'WAVE 3 🔥🔥', dens: [6, 8], rotMult: 1.6 }
+                { start: 0,  end: 20, label: 'WAVE 1', dens: [2, 3, 4], rotMult: 1.0 },
+                { start: 20, end: 40, label: 'WAVE 2 🔥', dens: [3, 4, 5, 6, 8], rotMult: 1.3 },
+                { start: 40, end: 60, label: 'WAVE 3 🔥🔥', dens: [4, 5, 6, 8, 10, 12], rotMult: 1.6 }
             ],
             equivalentFacts: {
                 '1/2': '2/4 ก็เท่ากับ 1/2 เลยนะ!',
@@ -994,7 +1254,7 @@
                 };
                 this.state = {
                     timeLeft: 0, maxTime: 60, isPlaying: false, mode: 'classic', playerName: '',
-                    currentWave: 0, waveShown: [false, false, false]
+                    currentWave: 0, waveShown: [false, false, false], isPaused: false
                 };
 
                 // Visual systems
@@ -1114,10 +1374,37 @@
                 });
             }
 
+            /* --- Pause Management & Math Helper --- */
+            pauseGame() {
+                if (!this.state.isPlaying || this.state.isPaused) return;
+                this.state.isPaused = true;
+                const pauseModal = document.getElementById('pause-modal');
+                if (pauseModal) pauseModal.classList.add('show');
+                this.sound.playSelect();
+                this.sound.stopBGM();
+            }
+
+            resumeGame() {
+                if (!this.state.isPlaying || !this.state.isPaused) return;
+                this.state.isPaused = false;
+                const pauseModal = document.getElementById('pause-modal');
+                if (pauseModal) pauseModal.classList.remove('show');
+                this.sound.playSelect();
+                this.sound.startBGM();
+            }
+
+            gcd(a, b) {
+                return b ? this.gcd(b, a % b) : a;
+            }
+
             start(modeName) {
                 this.sound.init();
                 this.sound.setTempo(120);
                 this.sound.startBGM();
+
+                this.state.isPaused = false;
+                const pauseModal = document.getElementById('pause-modal');
+                if (pauseModal) pauseModal.classList.remove('show');
 
                 this.state.playerName = EMBED ? '' : (document.getElementById('player-name').value.trim() || 'เชฟนิรนาม');
                 if (EMBED) SESSION_START_TS = Date.now();
@@ -1336,6 +1623,10 @@
                     typeBadge.classList.remove('hidden');
                 }
 
+                // Reset equivalent badge
+                const equivBadge = document.getElementById('equivalent-badge');
+                if (equivBadge) equivBadge.classList.add('hidden');
+
                 // Get denominators based on wave
                 const waveDens = this.getWaveDenominators();
                 let pizzaSlices = waveDens[Math.floor(this.rng() * waveDens.length)];
@@ -1349,7 +1640,19 @@
                 } else {
                     orderDenominator = pizzaSlices;
                     orderNumerator = Math.floor(this.rng() * (pizzaSlices - 1)) + 1;
-                    fractionText.innerHTML = this.getFractionHTML(orderNumerator, orderDenominator);
+
+                    // Equivalent Fractions Logic! (Skip in half mode, and apply when reducible)
+                    let displayNumerator = orderNumerator;
+                    let displayDenominator = orderDenominator;
+                    
+                    const g = this.gcd(orderNumerator, orderDenominator);
+                    if (g > 1 && this.state.mode !== 'half' && this.rng() < 0.6) {
+                        displayNumerator = orderNumerator / g;
+                        displayDenominator = orderDenominator / g;
+                        if (equivBadge) equivBadge.classList.remove('hidden');
+                    }
+
+                    fractionText.innerHTML = this.getFractionHTML(displayNumerator, displayDenominator);
                 }
 
                 this.player.level = {
@@ -1429,7 +1732,7 @@
 
             /* --- Check Order (Serve) --- */
             checkOrder() {
-                if (!this.state.isPlaying || this.player.isServing) return;
+                if (!this.state.isPlaying || this.state.isPaused || this.player.isServing) return;
                 this.player.isServing = true;
 
                 try {
@@ -1586,7 +1889,7 @@
 
             /* --- Input Handling --- */
             handleInput(e) {
-                if (!this.state.isPlaying) return;
+                if (!this.state.isPlaying || this.state.isPaused) return;
                 const rect = this.canvas.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
@@ -1766,6 +2069,7 @@
 
             /* --- Main Update --- */
             update(dt) {
+                if (this.state.isPaused) return;
                 if (!this.state.isPlaying) {
                     // Animate floating fractions on start screen
                     this.floatingFractions.forEach(f => {
@@ -2268,7 +2572,9 @@
             loop(t) {
                 const dt = Math.min((t - (this.lastTime || t)) / 1000, 0.1);
                 this.lastTime = t;
-                this.update(dt);
+                if (!this.state.isPaused) {
+                    this.update(dt);
+                }
                 this.draw();
                 requestAnimationFrame((t) => this.loop(t));
             }
