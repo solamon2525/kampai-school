@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2, FileText, ExternalLink as LinkIcon, Youtube, Type } from 'lucide-react';
+import { Loader2, FileText, ExternalLink as LinkIcon, Youtube, Type, ExternalLink, Gamepad2 } from 'lucide-react';
 import {
     Form,
     FormControl,
@@ -33,6 +33,9 @@ import { TagPicker } from './TagPicker';
 
 const GRADE_OPTIONS = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 
+/** Marker ที่บอกว่า external_url ชี้ไปที่ edu-hub-games bucket */
+const STORAGE_GAME_MARKER = '/edu-hub-games/';
+
 const schema = z.object({
     item_type: z.enum(['file', 'link', 'youtube', 'text']),
     category_id: z.string().uuid({ message: 'กรุณาเลือกหมวดหมู่' }),
@@ -51,6 +54,8 @@ const schema = z.object({
     grade_levels: z.array(z.string()).default([]),
     tags: z.array(z.string()).default([]),
     is_published: z.boolean().default(true),
+    game_slug: z.string().optional().nullable(),
+    tracked_game: z.boolean().default(false),
 }).superRefine((val, ctx) => {
     if (val.item_type === 'file' && !val.file_url) {
         ctx.addIssue({ code: 'custom', path: ['file_url'], message: 'กรุณาอัปโหลดไฟล์' });
@@ -105,12 +110,16 @@ export const EduHubItemForm = ({ ownerStaffId, categories, initial, onSaved, onC
             grade_levels: initial?.grade_levels ?? [],
             tags: initial?.tags ?? [],
             is_published: initial?.is_published ?? true,
+            game_slug: initial?.game_slug ?? '',
+            tracked_game: initial?.tracked_game ?? false,
         },
     });
 
     const itemType = form.watch('item_type') as EduHubItemType;
     const watchedThumb = form.watch('thumbnail_url');
     const watchedYtId = form.watch('youtube_id');
+    const watchedExtUrl = form.watch('external_url');
+    const isStorageGame = !!(watchedExtUrl && watchedExtUrl.includes(STORAGE_GAME_MARKER));
 
     // Auto-derive youtube_id from URL input
     const ytInput = form.watch('youtube_url_input');
@@ -169,6 +178,8 @@ export const EduHubItemForm = ({ ownerStaffId, categories, initial, onSaved, onC
                 grade_levels: values.grade_levels,
                 tags: tagsArray,
                 is_published: values.is_published,
+                game_slug: values.game_slug?.trim() || null,
+                tracked_game: values.tracked_game ?? false,
             };
 
             const res = initial
@@ -299,18 +310,83 @@ export const EduHubItemForm = ({ ownerStaffId, categories, initial, onSaved, onC
                             <FormItem>
                                 <FormLabel>URL ลิงก์ภายนอก <span className="text-destructive">*</span></FormLabel>
                                 <FormControl>
-                                    <Input
-                                        type="text"
-                                        inputMode="url"
-                                        placeholder="https://... หรือ /games/thai/..."
-                                        {...field}
-                                        value={field.value ?? ''}
-                                    />
+                                    <div className="flex gap-2">
+                                        <Input
+                                            type="text"
+                                            inputMode="url"
+                                            placeholder="https://... หรือ /games/thai/..."
+                                            {...field}
+                                            value={field.value ?? ''}
+                                            className="flex-1"
+                                        />
+                                        {field.value && (
+                                            <a
+                                                href={field.value}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                title="ทดสอบ URL (เปิด tab ใหม่)"
+                                                className="inline-flex items-center justify-center h-10 w-10 rounded-md border border-border bg-card hover:bg-accent transition-colors shrink-0"
+                                            >
+                                                <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                                            </a>
+                                        )}
+                                    </div>
                                 </FormControl>
+                                {isStorageGame && (
+                                    <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                                        <Gamepad2 className="h-3 w-3 text-primary" />
+                                        เกม HTML จาก Supabase Storage — เปลี่ยนไฟล์ HTML ผ่านแท็บ <strong>เกม HTML</strong> แทน
+                                    </p>
+                                )}
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
+                )}
+
+                {/* game_slug + tracked_game — แสดงเฉพาะ link type ที่เป็น Storage game */}
+                {itemType === 'link' && isStorageGame && (
+                    <div className="rounded-md border border-primary/20 bg-primary/5 p-3 space-y-3">
+                        <p className="text-xs font-medium text-primary flex items-center gap-1">
+                            <Gamepad2 className="h-3.5 w-3.5" /> ตั้งค่าเกม (ระบบติดตามคะแนน)
+                        </p>
+                        <FormField
+                            control={form.control}
+                            name="game_slug"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs">Game Slug (สำหรับ /play/[slug])</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            placeholder="เช่น math-jumper"
+                                            {...field}
+                                            value={field.value ?? ''}
+                                            className="h-8 text-sm"
+                                        />
+                                    </FormControl>
+                                    <FormDescription className="text-[10px]">
+                                        ใส่ slug เพื่อเปิดระบบ XP + บันทึกคะแนน (/play/[slug])
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="tracked_game"
+                            render={({ field }) => (
+                                <FormItem className="flex items-center justify-between">
+                                    <div>
+                                        <FormLabel className="text-xs mb-0">เปิดระบบติดตามคะแนน</FormLabel>
+                                        <FormDescription className="text-[10px]">เมื่อเปิด — กด card จะไปหน้า /play/[slug]</FormDescription>
+                                    </div>
+                                    <FormControl>
+                                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                    </FormControl>
+                                </FormItem>
+                            )}
+                        />
+                    </div>
                 )}
 
                 {itemType === 'youtube' && (
