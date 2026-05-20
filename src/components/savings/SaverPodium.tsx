@@ -23,8 +23,8 @@ const PODIUM_STYLE = [
     label: 'text-amber-900',
     ring: 'ring-amber-300',
     medal: '🥇',
-    height: 'h-44 md:h-56',
-    photoSize: 96,
+    height: 'h-36 md:h-44',
+    photoSize: 72,
     showCrown: true,
   },
   // 2nd place — silver
@@ -34,8 +34,8 @@ const PODIUM_STYLE = [
     label: 'text-slate-700',
     ring: 'ring-slate-300',
     medal: '🥈',
-    height: 'h-36 md:h-44',
-    photoSize: 72,
+    height: 'h-28 md:h-34',
+    photoSize: 56,
     showCrown: false,
   },
   // 3rd place — bronze
@@ -45,8 +45,8 @@ const PODIUM_STYLE = [
     label: 'text-orange-100',
     ring: 'ring-orange-300',
     medal: '🥉',
-    height: 'h-32 md:h-40',
-    photoSize: 64,
+    height: 'h-24 md:h-28',
+    photoSize: 48,
     showCrown: false,
   },
 ];
@@ -110,7 +110,7 @@ export const SaverPodium = ({ entries }: Props) => {
   ].filter((x) => x.entry);
 
   return (
-    <div className="grid grid-cols-3 gap-3 md:gap-6 max-w-3xl mx-auto items-end pt-12 md:pt-16">
+    <div className="grid grid-cols-3 gap-2 md:gap-4 max-w-3xl mx-auto items-end pt-6 md:pt-8">
       {visualOrder.map(({ entry, rank }) => {
         const style = PODIUM_STYLE[rank];
         const s = entry as PodiumEntry;
@@ -146,7 +146,7 @@ export const SaverPodium = ({ entries }: Props) => {
             </div>
 
             {/* Content */}
-            <div className="mt-12 md:mt-14 space-y-1 w-full">
+            <div className="mt-8 md:mt-10 space-y-1 w-full">
               <div className={cn('font-bold truncate text-sm md:text-base', style.text)}>
                 {s.full_name ?? '—'}
               </div>
