@@ -551,6 +551,11 @@ const BadgeGrid = ({
   </Card>
 );
 
+/**
+ * PlayingPanel — โหลด HTML game ผ่าน fetch → Blob URL
+ * เพื่อแก้ปัญหา Supabase Storage serve Content-Type: text/plain
+ * (ทำให้ iframe แสดง source code แทนที่จะ render เป็นเกม)
+ */
 const PlayingPanel = ({
   iframeRef,
   url,
@@ -559,21 +564,59 @@ const PlayingPanel = ({
   iframeRef: React.RefObject<HTMLIFrameElement>;
   url: string;
   onLoad: () => void;
-}) => (
-  <Card className="overflow-hidden">
-    <iframe
-      ref={iframeRef}
-      src={url}
-      onLoad={onLoad}
-      title="game"
-      className="block h-[80vh] w-full border-0"
-      // allow-pointer-lock: required for FPS-style games (e.g. attack-on-noun mouse look)
-      // allow-modals: future-proof for in-game confirm() / alert()
-      sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-modals"
-      allow="pointer-lock; fullscreen; autoplay; cross-origin-isolated"
-    />
-  </Card>
-);
+}) => {
+  const [iframeSrc, setIframeSrc] = useState('');
+
+  useEffect(() => {
+    let blobUrl: string | null = null;
+    setIframeSrc('');
+
+    fetch(url, { mode: 'cors' })
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.text();
+      })
+      .then((html) => {
+        // สร้าง Blob URL พร้อม Content-Type: text/html ถูกต้อง
+        const blob = new Blob([html], { type: 'text/html' });
+        blobUrl = URL.createObjectURL(blob);
+        setIframeSrc(blobUrl);
+      })
+      .catch(() => {
+        // Fallback: ใช้ URL ตรงๆ ถ้า fetch ไม่ได้
+        setIframeSrc(url);
+      });
+
+    return () => {
+      if (blobUrl) URL.revokeObjectURL(blobUrl);
+    };
+  }, [url]);
+
+  if (!iframeSrc) {
+    return (
+      <Card className="overflow-hidden">
+        <div className="flex h-[80vh] items-center justify-center gap-2">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <span className="text-sm text-muted-foreground">กำลังโหลดเกม...</span>
+        </div>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="overflow-hidden">
+      <iframe
+        ref={iframeRef}
+        src={iframeSrc}
+        onLoad={onLoad}
+        title="game"
+        className="block h-[80vh] w-full border-0"
+        sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-modals"
+        allow="pointer-lock; fullscreen; autoplay; cross-origin-isolated"
+      />
+    </Card>
+  );
+};
 
 const ResultPanel = ({
   student,
