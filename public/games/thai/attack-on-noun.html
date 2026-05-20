@@ -42,6 +42,22 @@
             text-shadow: 0 0 5px rgba(0,0,0,0.5);
         }
 
+        #score-container {
+            position: absolute;
+            top: 16px;
+            left: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px #000, 0 0 8px rgba(255, 215, 0, 0.4);
+            background: rgba(0,0,0,0.4);
+            padding: 6px 16px;
+            border-radius: 999px;
+            border: 2px solid rgba(255, 215, 0, 0.5);
+            transition: transform 0.15s ease-out;
+        }
+        #score-container.pop { transform: scale(1.15); }
+
         #ammo-container {
             position: absolute;
             bottom: 40px;
@@ -171,6 +187,7 @@
 
     <div id="crosshair"></div>
     <div id="ui-layer">
+        <div id="score-container">⭐ <span id="score-value">0</span></div>
         <div id="top-ui">
             <div id="heart-container">❤️❤️❤️❤️❤️</div>
         </div>
@@ -198,12 +215,31 @@
     <!-- Game Over Screen -->
     <div id="gameover-screen">
         <h1 style="color: #FF5722; margin: 0 0 20px 0; font-size: 48px;">จบเกม!</h1>
-        <h2 style="font-size:24px; color: #fff; margin-bottom: 30px;">คุณสูญเสียพลังชีวิตจนหมด</h2>
+        <h2 style="font-size:24px; color: #fff; margin-bottom: 12px;">คุณสูญเสียพลังชีวิตจนหมด</h2>
+        <div style="font-size: 20px; color: #fff; margin-bottom: 30px;">
+            คะแนนสุดท้าย: <span id="final-score" style="color: #FFD700; font-weight: bold; font-size: 28px;">0</span>
+        </div>
         <button class="btn-start" onclick="location.reload()">เล่นใหม่</button>
     </div>
 
     <script type="module">
         import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.126.0/build/three.module.js';
+
+        // ─── Score tracking embed hook (kampai-school PlayGame wrapper) ───
+        // Pattern: same as pizza-master-chef — detect ?embed=1, cache STUDENT_CODE,
+        // post {type:'gameEnd', score, ...} to parent on game over.
+        const EMBED = (window.parent !== window) &&
+                     (new URLSearchParams(location.search).get('embed') === '1');
+        let STUDENT_CODE = null;
+        let SESSION_START_TS = 0;
+        if (EMBED) {
+            window.addEventListener('message', (e) => {
+                if (e?.data?.type === 'init' && typeof e.data.studentCode === 'string') {
+                    STUDENT_CODE = e.data.studentCode;
+                    SESSION_START_TS = Date.now();
+                }
+            });
+        }
 
         // --- Data: 150+ Words ---
         const questionData = [
@@ -407,6 +443,7 @@
         let titans = [], abnormalTitans = [], birdTitans = [], colossalTitans = [], beastTitans = [], ammoBoxes = [], enemyBullets = [], trees = [], heartItems = [];
         let keys = {};
         let hearts = 5, ammo = 20, isGameOver = false, isLocked = false;
+        let score = 0;  // tracked for kampai PlayGame postMessage
         let pitch = 0, yaw = 0;
         let lastWarningTime = 0;
         let isZoomed = false;
@@ -1102,10 +1139,12 @@
                         }
                     } else {
                         playSound('correct'); flashMessage("ถูกต้อง!", "limegreen"); enemy.remove();
+                        score += 100;
                         if(Math.random() < 0.4) spawnAmmoBox(enemy.mesh.position.clone().setY(0));
                     }
                 } else {
                     playSound('wrong'); flashMessage("ผิด! ระวังตัว!", "red"); takeDamage();
+                    score = Math.max(0, score - 20);
                 }
                 updateUI();
             }
@@ -1132,14 +1171,44 @@
             const ammoEl = document.getElementById('ammo-count');
             ammoEl.innerText = ammo;
             if(ammo === 0) ammoEl.parentElement.parentElement.classList.add('warn'); else ammoEl.parentElement.parentElement.classList.remove('warn');
+            // Score HUD update + brief pop animation
+            const scoreEl = document.getElementById('score-value');
+            if (scoreEl && scoreEl.innerText !== String(score)) {
+                scoreEl.innerText = score;
+                const wrap = document.getElementById('score-container');
+                wrap?.classList.add('pop');
+                setTimeout(() => wrap?.classList.remove('pop'), 150);
+            }
         }
 
         function gameOver() {
-            isGameOver = true; 
+            isGameOver = true;
             document.exitPointerLock();
+
+            // Report score to parent (kampai PlayGame wrapper)
+            if (EMBED) {
+                try {
+                    window.parent.postMessage({
+                        type: 'gameEnd',
+                        gameSlug: 'attack-on-noun',
+                        studentCode: STUDENT_CODE,
+                        score: score,
+                        mode: 'normal',
+                        metadata: {
+                            duration: Math.max(1, Math.floor((Date.now() - SESSION_START_TS) / 1000)),
+                            hearts_remaining: hearts,
+                        },
+                    }, '*');
+                } catch (_err) { /* parent gone — ignore */ }
+            }
+
+            // Show final score on game-over screen
+            const finalScoreEl = document.getElementById('final-score');
+            if (finalScoreEl) finalScoreEl.innerText = score;
+
             const screen = document.getElementById('gameover-screen');
             screen.style.display = 'block';
-            document.getElementById('blocker').style.display = 'none'; 
+            document.getElementById('blocker').style.display = 'none';
         }
 
         window.startGame = () => { 
