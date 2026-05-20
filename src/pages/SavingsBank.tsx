@@ -189,7 +189,7 @@ export default function SavingsBank() {
       />
       <SiteHeader />
 
-      <main className="flex-1">
+      <main className="flex-1 max-w-7xl mx-auto w-full bg-white flex flex-col">
         {/* ─── HERO (asymmetric split, dark slate + gold accent) ──────────── */}
         <section className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
           {/* Subtle pattern overlay */}
