@@ -35,6 +35,7 @@ import {
 } from '@/components/ui/select';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { ImageUpload } from '@/components/admin/shared/ImageUpload';
+import { TagPicker } from './TagPicker';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import {
@@ -52,6 +53,8 @@ const SUBJECT_OPTIONS = [
 ] as const;
 
 type SubjectFolder = (typeof SUBJECT_OPTIONS)[number]['folder'];
+
+const GRADE_OPTIONS = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 
 /** category_key ของหมวด "คลังเกมการศึกษา" — เกมใหม่จะถูก assign เข้าหมวดนี้ */
 const GAMES_CATEGORY_KEY = 'games';
@@ -294,6 +297,8 @@ const createSchema = z.object({
         .regex(/^[a-z0-9-]+$/, 'ใช้ a-z, 0-9, - เท่านั้น (ห้ามมีไทย/space)'),
     description: z.string().max(2000).optional().nullable(),
     thumbnail_url: z.string().optional().nullable(),
+    grade_levels: z.array(z.string()).default([]),
+    tags: z.array(z.string()).default([]),
 });
 
 type CreateValues = z.infer<typeof createSchema>;
@@ -366,6 +371,8 @@ const GameUploadDialog = (props: Props) => {
             slug: '',
             description: '',
             thumbnail_url: '',
+            grade_levels: [],
+            tags: [],
         },
     });
 
@@ -406,6 +413,8 @@ const GameUploadDialog = (props: Props) => {
                 thumbnail_url: values.thumbnail_url?.trim() || null,
                 external_url: up.publicUrl,
                 subject: SUBJECT_OPTIONS.find((s) => s.folder === values.subject)?.label ?? null,
+                grade_levels: values.grade_levels ?? [],
+                tags: (values.tags ?? []).map((t) => t.trim()).filter(Boolean),
                 is_published: true,
             });
             if (insErr) throw insErr;
@@ -599,6 +608,62 @@ const GameUploadDialog = (props: Props) => {
                                     />
                                 </FormControl>
                                 <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={createForm.control}
+                        name="tags"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>แท็ก</FormLabel>
+                                <FormControl>
+                                    <TagPicker
+                                        subject={SUBJECT_OPTIONS.find((s) => s.folder === createForm.watch('subject'))?.label}
+                                        value={field.value ?? []}
+                                        onChange={field.onChange}
+                                    />
+                                </FormControl>
+                                <FormDescription className="text-[10px]">
+                                    คลิกแท็กแนะนำหรือพิมพ์แท็กใหม่ + Enter
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={createForm.control}
+                        name="grade_levels"
+                        render={() => (
+                            <FormItem>
+                                <FormLabel>ระดับชั้น</FormLabel>
+                                <div className="flex flex-wrap gap-2">
+                                    {GRADE_OPTIONS.map((g) => {
+                                        const selected = createForm.watch('grade_levels')?.includes(g);
+                                        return (
+                                            <button
+                                                type="button"
+                                                key={g}
+                                                onClick={() => {
+                                                    const current = createForm.getValues('grade_levels') ?? [];
+                                                    const next = current.includes(g)
+                                                        ? current.filter((x) => x !== g)
+                                                        : [...current, g];
+                                                    createForm.setValue('grade_levels', next);
+                                                }}
+                                                className={`px-3 py-1 text-xs rounded-full border transition-colors ${
+                                                    selected
+                                                        ? 'bg-primary text-primary-foreground border-primary'
+                                                        : 'bg-card text-foreground border-border hover:bg-accent'
+                                                }`}
+                                            >
+                                                {g}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
                             </FormItem>
                         )}
                     />

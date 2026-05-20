@@ -454,7 +454,8 @@ const EmbedDialog = ({
                     src={item.external_url}
                     title={item.title}
                     className="flex-1 w-full border-0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                    sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-modals allow-forms"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen; pointer-lock"
                     allowFullScreen
                 />
             </DialogContent>
