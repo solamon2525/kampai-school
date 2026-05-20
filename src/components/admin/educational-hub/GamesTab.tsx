@@ -23,6 +23,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
 import {
     Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from '@/components/ui/dialog';
@@ -316,6 +317,39 @@ const GameUploadDialog = (props: Props) => {
     const { toast } = useToast();
     const [htmlFile, setHtmlFile] = useState<File | null>(null);
     const [saving, setSaving] = useState(false);
+    // Input mode: 'file' (upload .html) | 'paste' (paste HTML code, e.g. from Gemini)
+    const [inputMode, setInputMode] = useState<'file' | 'paste'>('file');
+    const [pastedHtml, setPastedHtml] = useState('');
+
+    /**
+     * Resolve the HTML payload from either file picker or pasted code.
+     * Returns a File ready for uploadGameHtml(), or null + toast on validation fail.
+     */
+    const resolveHtmlFile = (slug: string): File | null => {
+        if (inputMode === 'file') {
+            if (!htmlFile) {
+                toast({ title: 'กรุณาเลือกไฟล์ HTML', variant: 'destructive' });
+                return null;
+            }
+            return htmlFile;
+        }
+        // paste mode
+        const code = pastedHtml.trim();
+        if (!code) {
+            toast({ title: 'กรุณาวางโค้ด HTML', variant: 'destructive' });
+            return null;
+        }
+        const blob = new Blob([pastedHtml], { type: 'text/html' });
+        if (blob.size > MAX_HTML_SIZE) {
+            toast({
+                title: 'โค้ดยาวเกินกำหนด',
+                description: `${(blob.size / 1024 / 1024).toFixed(1)} MB > ${(MAX_HTML_SIZE / 1024 / 1024).toFixed(0)} MB`,
+                variant: 'destructive',
+            });
+            return null;
+        }
+        return new File([blob], `${slug || 'game'}.html`, { type: 'text/html' });
+    };
 
     // Replace mode — parse existing URL เพื่อ derive subject/slug
     const existing = props.mode === 'replace'
@@ -356,13 +390,11 @@ const GameUploadDialog = (props: Props) => {
     // ── CREATE submit ──
     const onCreateSubmit = async (values: CreateValues) => {
         if (props.mode !== 'create') return;
-        if (!htmlFile) {
-            toast({ title: 'กรุณาเลือกไฟล์ HTML', variant: 'destructive' });
-            return;
-        }
+        const file = resolveHtmlFile(values.slug);
+        if (!file) return;
         setSaving(true);
         try {
-            const up = await educationalHubService.uploadGameHtml(values.subject, values.slug, htmlFile);
+            const up = await educationalHubService.uploadGameHtml(values.subject, values.slug, file);
             if (up.error) throw up.error;
 
             const { error: insErr } = await educationalHubService.insertItem({
@@ -389,21 +421,19 @@ const GameUploadDialog = (props: Props) => {
     // ── REPLACE submit ──
     const onReplaceSubmit = async () => {
         if (props.mode !== 'replace') return;
-        if (!htmlFile) {
-            toast({ title: 'กรุณาเลือกไฟล์ HTML', variant: 'destructive' });
-            return;
-        }
         if (!existing?.subject || !existing?.slug) {
             toast({ title: 'URL เดิมไม่ valid', variant: 'destructive' });
             return;
         }
+        const file = resolveHtmlFile(existing.slug);
+        if (!file) return;
         setSaving(true);
         try {
             const { error } = await educationalHubService.replaceGameHtml(
                 props.item.id,
                 existing.subject,
                 existing.slug,
-                htmlFile,
+                file,
             );
             if (error) throw error;
             props.onSaved();
@@ -438,15 +468,15 @@ const GameUploadDialog = (props: Props) => {
                         </p>
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">ไฟล์ HTML ใหม่ (v.2)</label>
-                        <Input type="file" accept=".html" onChange={handleHtmlSelect} />
-                        {htmlFile && (
-                            <p className="text-xs text-muted-foreground">
-                                เลือกแล้ว: {htmlFile.name} ({(htmlFile.size / 1024).toFixed(1)} KB)
-                            </p>
-                        )}
-                    </div>
+                    <HtmlInput
+                        label="ไฟล์ HTML ใหม่ (v.2)"
+                        inputMode={inputMode}
+                        setInputMode={setInputMode}
+                        htmlFile={htmlFile}
+                        handleHtmlSelect={handleHtmlSelect}
+                        pastedHtml={pastedHtml}
+                        setPastedHtml={setPastedHtml}
+                    />
 
                     <div className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 p-3 text-xs text-destructive">
                         <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
@@ -456,7 +486,7 @@ const GameUploadDialog = (props: Props) => {
 
                 <DialogFooter>
                     <Button variant="ghost" onClick={props.onCancel} disabled={saving}>ยกเลิก</Button>
-                    <Button onClick={onReplaceSubmit} disabled={saving || !htmlFile}>
+                    <Button onClick={onReplaceSubmit} disabled={saving || (inputMode === 'file' ? !htmlFile : !pastedHtml.trim())}>
                         {saving ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> กำลังอัพโหลด...</> : 'อัพเดท v.2'}
                     </Button>
                 </DialogFooter>
@@ -543,15 +573,15 @@ const GameUploadDialog = (props: Props) => {
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">ไฟล์ HTML</label>
-                        <Input type="file" accept=".html" onChange={handleHtmlSelect} />
-                        {htmlFile && (
-                            <p className="text-xs text-muted-foreground">
-                                เลือกแล้ว: {htmlFile.name} ({(htmlFile.size / 1024).toFixed(1)} KB)
-                            </p>
-                        )}
-                    </div>
+                    <HtmlInput
+                        label="ไฟล์ HTML"
+                        inputMode={inputMode}
+                        setInputMode={setInputMode}
+                        htmlFile={htmlFile}
+                        handleHtmlSelect={handleHtmlSelect}
+                        pastedHtml={pastedHtml}
+                        setPastedHtml={setPastedHtml}
+                    />
 
                     <FormField
                         control={createForm.control}
@@ -586,12 +616,95 @@ const GameUploadDialog = (props: Props) => {
 
                     <DialogFooter>
                         <Button type="button" variant="ghost" onClick={props.onCancel} disabled={saving}>ยกเลิก</Button>
-                        <Button type="submit" disabled={saving || !htmlFile}>
+                        <Button type="submit" disabled={saving || (inputMode === 'file' ? !htmlFile : !pastedHtml.trim())}>
                             {saving ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> กำลังอัพโหลด...</> : 'อัพโหลด'}
                         </Button>
                     </DialogFooter>
                 </form>
             </Form>
         </>
+    );
+};
+
+// ─── HtmlInput: shared file/paste toggle for both create + replace modes ───
+const HtmlInput = ({
+    label,
+    inputMode,
+    setInputMode,
+    htmlFile,
+    handleHtmlSelect,
+    pastedHtml,
+    setPastedHtml,
+}: {
+    label: string;
+    inputMode: 'file' | 'paste';
+    setInputMode: (m: 'file' | 'paste') => void;
+    htmlFile: File | null;
+    handleHtmlSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    pastedHtml: string;
+    setPastedHtml: (v: string) => void;
+}) => {
+    const pasteBytes = new Blob([pastedHtml]).size;
+    return (
+        <div className="space-y-2">
+            <label className="text-sm font-medium">{label}</label>
+
+            {/* Mode toggle */}
+            <div className="inline-flex rounded-md border border-border overflow-hidden text-xs">
+                <button
+                    type="button"
+                    onClick={() => setInputMode('file')}
+                    className={cn(
+                        'px-3 py-1.5 font-medium transition-colors',
+                        inputMode === 'file'
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-card text-foreground hover:bg-accent',
+                    )}
+                >
+                    📁 อัพโหลดไฟล์
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setInputMode('paste')}
+                    className={cn(
+                        'px-3 py-1.5 font-medium transition-colors border-l border-border',
+                        inputMode === 'paste'
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-card text-foreground hover:bg-accent',
+                    )}
+                >
+                    📋 วางโค้ด
+                </button>
+            </div>
+
+            {/* Conditional input */}
+            {inputMode === 'file' ? (
+                <>
+                    <Input type="file" accept=".html" onChange={handleHtmlSelect} />
+                    {htmlFile && (
+                        <p className="text-xs text-muted-foreground">
+                            เลือกแล้ว: {htmlFile.name} ({(htmlFile.size / 1024).toFixed(1)} KB)
+                        </p>
+                    )}
+                </>
+            ) : (
+                <>
+                    <Textarea
+                        value={pastedHtml}
+                        onChange={(e) => setPastedHtml(e.target.value)}
+                        placeholder={'วางโค้ด HTML ของเกมที่นี่...\n\n<!DOCTYPE html>\n<html lang="th">\n  ...\n</html>'}
+                        className="font-mono text-xs h-64 resize-y"
+                        rows={20}
+                        spellCheck={false}
+                    />
+                    <p className="text-[10px] text-muted-foreground flex items-center justify-between">
+                        <span>🤖 วางโค้ดจาก AI (Gemini / Claude / ChatGPT) ได้</span>
+                        <span className={cn(pasteBytes > MAX_HTML_SIZE && 'text-destructive font-semibold')}>
+                            {pasteBytes.toLocaleString()} / {MAX_HTML_SIZE.toLocaleString()} bytes
+                        </span>
+                    </p>
+                </>
+            )}
+        </div>
     );
 };
