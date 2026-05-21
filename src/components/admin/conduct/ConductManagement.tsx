@@ -116,9 +116,19 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
-        if (!selectedClass) { setStudents([]); setSelectedStudentId(''); return; }
-        studentsService.getByClass(selectedClass)
-            .then(({ data }) => setStudents((data || []) as Student[]));
+        setStudents([]);
+        setSelectedStudentId('');
+        if (!selectedClass) return;
+
+        let active = true;
+        studentsService.getByClass(selectedClass).then(({ data }) => {
+            if (!active) return;
+            setStudents((data || []) as Student[]);
+        });
+
+        return () => {
+            active = false;
+        };
     }, [selectedClass]);
 
     const presets = PRESET_REASONS[type];
@@ -127,6 +137,11 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
     const handleSave = async () => {
         if (!selectedStudentId || !reason.trim()) {
             toast({ variant: 'destructive', title: 'กรุณาเลือกนักเรียนและกรอกเหตุผล' });
+            return;
+        }
+        const studentExists = students.some(s => s.id === selectedStudentId);
+        if (!studentExists) {
+            toast({ variant: 'destructive', title: 'นักเรียนที่เลือกไม่อยู่ในชั้นเรียนปัจจุบัน' });
             return;
         }
         setIsSaving(true);
@@ -536,13 +551,21 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
     const [isLoadingStudents, setIsLoadingStudents] = useState(false);
 
     useEffect(() => {
-        if (!selectedClass) { setStudents([]); setSelectedIds(new Set()); return; }
+        setStudents([]);
+        setSelectedIds(new Set());
+        if (!selectedClass) return;
+
+        let active = true;
         setIsLoadingStudents(true);
         studentsService.getByClass(selectedClass).then(({ data }) => {
+            if (!active) return;
             setStudents((data || []) as Student[]);
-            setSelectedIds(new Set());
             setIsLoadingStudents(false);
         });
+
+        return () => {
+            active = false;
+        };
     }, [selectedClass]);
 
     const toggleStudent = (id: string) => {
@@ -564,7 +587,10 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
     const categoryPreset = presets.find(p => p.category === category);
 
     const handleBulkSave = async () => {
-        if (selectedIds.size === 0) {
+        const currentStudentIds = new Set(students.map(s => s.id));
+        const validSelectedIds = Array.from(selectedIds).filter(id => currentStudentIds.has(id));
+
+        if (validSelectedIds.length === 0) {
             toast({ variant: 'destructive', title: 'กรุณาเลือกนักเรียนอย่างน้อย 1 คน' });
             return;
         }
@@ -572,7 +598,7 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
             toast({ variant: 'destructive', title: 'กรุณาระบุเหตุผล' });
             return;
         }
-        const records = Array.from(selectedIds).map(student_id => ({
+        const records = validSelectedIds.map(student_id => ({
             student_id,
             type,
             score: parseInt(score) || 1,
@@ -593,7 +619,7 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
         }
         toast({
             title: `${type === 'add' ? '+ บวก' : '− หัก'}คะแนนสำเร็จ`,
-            description: `${selectedIds.size} คน · ${score} คะแนน · ${reason}`,
+            description: `${validSelectedIds.length} คน · ${score} คะแนน · ${reason}`,
         });
         // reset selection + reason; keep class/type/category for quick re-use
         setSelectedIds(new Set());
@@ -849,7 +875,7 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
                     <Button
                         className={`w-full h-12 text-base gap-2 font-semibold hidden md:flex ${saveBtnClass}`}
                         onClick={handleBulkSave}
-                        disabled={isSaving || selectedIds.size === 0}
+                        disabled={isSaving || isLoadingStudents || selectedIds.size === 0}
                     >
                         {type === 'add' ? <Plus className="w-5 h-5" /> : <Minus className="w-5 h-5" />}
                         {isSaving ? 'กำลังบันทึก...' : saveLabel}
@@ -862,7 +888,7 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
                 <Button
                     className={`w-full h-14 text-base gap-2 font-semibold rounded-xl ${saveBtnClass}`}
                     onClick={handleBulkSave}
-                    disabled={isSaving || selectedIds.size === 0}
+                    disabled={isSaving || isLoadingStudents || selectedIds.size === 0}
                 >
                     {isSaving ? (
                         'กำลังบันทึก...'
