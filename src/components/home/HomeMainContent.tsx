@@ -232,35 +232,49 @@ export const useHomeMainBlocks = () => {
     const now = new Date();
     const sem = now.getMonth() >= 4 && now.getMonth() <= 9 ? '1' : '2';
     const year = String(now.getFullYear() + 543);
-    conductService.getPublicPositive(sem, year).then(({ data }) => {
-      const records = (data || []) as ConductRecord[];
-      const map = new Map<string, { id: string; name: string; class: string; photo: string | null; total: number }>();
-      for (const r of records) {
-        if (!r.students) continue;
-        const cur = map.get(r.student_id) ?? {
-          id: r.student_id, name: r.students.name, class: r.students.class,
-          photo: r.students.photo_url ?? null, total: 0,
-        };
-        cur.total += r.score;
-        map.set(r.student_id, cur);
-      }
-      const top = Array.from(map.values()).sort((a, b) => b.total - a.total).slice(0, 5);
-      setTopConduct(top);
 
-      if (top.length > 0) {
-        setFeaturedHeroLoading(true);
-        conductService.getHeroProfile(top[0].id)
-          .then((profile) => {
-            setFeaturedHeroProfile(profile);
-          })
-          .catch((err) => {
-            console.error("Error fetching featured hero profile:", err);
-          })
-          .finally(() => {
-            setFeaturedHeroLoading(false);
-          });
-      }
-    });
+    const fetchTopStudents = (targetSem?: string, targetYear?: string) => {
+      conductService.getPublicPositive(targetSem, targetYear).then(({ data }) => {
+        const records = (data || []) as ConductRecord[];
+
+        if (records.length === 0 && targetSem && targetYear) {
+          // If empty for current term, fall back to agnostic (all-time/previous semesters)
+          fetchTopStudents(undefined, undefined);
+          return;
+        }
+
+        const map = new Map<string, { id: string; name: string; class: string; photo: string | null; total: number }>();
+        for (const r of records) {
+          if (!r.students) continue;
+          const cur = map.get(r.student_id) ?? {
+            id: r.student_id, name: r.students.name, class: r.students.class,
+            photo: r.students.photo_url ?? null, total: 0,
+          };
+          cur.total += r.score;
+          map.set(r.student_id, cur);
+        }
+        const top = Array.from(map.values()).sort((a, b) => b.total - a.total).slice(0, 5);
+        setTopConduct(top);
+
+        if (top.length > 0) {
+          setFeaturedHeroLoading(true);
+          conductService.getHeroProfile(top[0].id)
+            .then((profile) => {
+              setFeaturedHeroProfile(profile);
+            })
+            .catch((err) => {
+              console.error("Error fetching featured hero profile:", err);
+            })
+            .finally(() => {
+              setFeaturedHeroLoading(false);
+            });
+        } else {
+          setFeaturedHeroProfile(null);
+        }
+      });
+    };
+
+    fetchTopStudents(sem, year);
   }, []);
 
   // Fetch hero_slides from DB; fallback to news cover images
@@ -545,7 +559,20 @@ export const useHomeMainBlocks = () => {
   const getSectionOrder = (): string[] => {
     const rawLayout = settings.homepage_main_sections;
     if (rawLayout) {
-      try { return JSON.parse(rawLayout); } catch { /* fallback */ }
+      try {
+        const parsed = JSON.parse(rawLayout) as string[];
+        if (Array.isArray(parsed)) {
+          if (!parsed.includes('featured_hero')) {
+            const heroIndex = parsed.indexOf('hero');
+            if (heroIndex !== -1) {
+              parsed.splice(heroIndex + 1, 0, 'featured_hero');
+            } else {
+              parsed.unshift('featured_hero');
+            }
+          }
+          return parsed;
+        }
+      } catch { /* fallback */ }
     }
     return ['hero', 'featured_hero', 'news', 'about'];
   };

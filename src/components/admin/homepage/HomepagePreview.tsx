@@ -59,6 +59,21 @@ const MainBlockPreview: Record<string, () => JSX.Element> = {
             </div>
         </div>
     ),
+    featured_hero: () => (
+        <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-2 flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-amber-200 border-2 border-white flex items-center justify-center flex-shrink-0 text-amber-700 font-bold text-[10px]">
+                🏆
+            </div>
+            <div className="flex-1 min-w-0">
+                <div className="h-2 bg-amber-400/30 rounded w-24 mb-1" />
+                <div className="h-1.5 bg-gray-300 rounded w-3/4 mb-1" />
+                <div className="h-1 bg-gray-200 rounded w-1/2" />
+            </div>
+            <div className="w-10 h-10 bg-white rounded border border-gray-100 flex items-center justify-center text-[7px] text-amber-500 font-bold flex-shrink-0">
+                📊 RADAR
+            </div>
+        </div>
+    ),
     news: () => (
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
             <div className="bg-emerald-800 text-white px-2 py-1 flex items-center justify-between">

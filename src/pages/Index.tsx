@@ -33,7 +33,39 @@ const Index = () => {
   // Parse homepage layout from settings
   let layout: HomepageLayout | null = null;
   if (settings.homepage_layout_raw) {
-    try { layout = JSON.parse(settings.homepage_layout_raw); } catch { /* fallback */ }
+    try {
+      layout = JSON.parse(settings.homepage_layout_raw);
+      if (layout) {
+        // Auto-inject featured_hero if missing entirely from blocks and hidden
+        const allBlocks = [
+          ...(layout.header?.blocks || []),
+          ...(layout.left?.blocks || []),
+          ...(layout.main?.blocks || []),
+          ...(layout.right?.blocks || []),
+          ...(layout.footer?.blocks || [])
+        ];
+        const allHidden = [
+          ...(layout.header?.hidden || []),
+          ...(layout.left?.hidden || []),
+          ...(layout.main?.hidden || []),
+          ...(layout.right?.hidden || []),
+          ...(layout.footer?.hidden || [])
+        ];
+        if (!allBlocks.includes('featured_hero') && !allHidden.includes('featured_hero')) {
+          if (!layout.main) {
+            layout.main = { blocks: [], hidden: [] };
+          }
+          const heroIndex = layout.main.blocks.indexOf('hero');
+          if (heroIndex !== -1) {
+            // Insert featured_hero right after hero
+            layout.main.blocks.splice(heroIndex + 1, 0, 'featured_hero');
+          } else {
+            // Prepend to main
+            layout.main.blocks.unshift('featured_hero');
+          }
+        }
+      }
+    } catch { /* fallback */ }
   }
 
   // Parse mobile layout from settings
@@ -45,6 +77,16 @@ const Index = () => {
       const ml = JSON.parse(mobileLayoutRaw);
       mobileBlocks = (ml.blocks as string[]) || null;
       mobileHidden = (ml.hidden as string[]) || [];
+
+      // Auto-inject featured_hero if missing entirely from mobile layout
+      if (mobileBlocks && !mobileBlocks.includes('featured_hero') && !mobileHidden.includes('featured_hero')) {
+        const heroIndex = mobileBlocks.indexOf('hero');
+        if (heroIndex !== -1) {
+          mobileBlocks.splice(heroIndex + 1, 0, 'featured_hero');
+        } else {
+          mobileBlocks.unshift('featured_hero');
+        }
+      }
     } catch { /* fallback */ }
   }
 
