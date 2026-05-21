@@ -100,6 +100,74 @@ html, body {
     --admin-border: 220 13% 91%;         /* #E5E7EB — table/input border */
     --admin-accent: 142 72% 29%;         /* #157F3C — CTA/active link */
   }
+
+  /* ── Dark Mode ── */
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 47% 14%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 47% 14%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 142 72% 42%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+
+    --accent: 142 55% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+
+    --destructive: 0 63% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 217 33% 22%;
+    --input: 217 33% 22%;
+    --ring: 142 72% 42%;
+
+    --gold: 142 55% 50%;
+    --gold-light: 142 50% 60%;
+    --gold-dark: 142 72% 35%;
+    --navy: 210 40% 90%;
+    --navy-light: 210 30% 80%;
+    --navy-dark: 210 40% 98%;
+
+    --gradient-hero: linear-gradient(135deg, hsl(222 47% 11%) 0%, hsl(217 33% 17%) 50%, hsl(222 47% 20%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(142 55% 50%) 0%, hsl(142 50% 60%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(222 47% 14%) 0%, hsl(222 47% 11%) 100%);
+
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.2);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.3), 0 2px 4px -2px hsl(0 0% 0% / 0.2);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.3), 0 4px 6px -4px hsl(0 0% 0% / 0.2);
+    --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.3), 0 8px 10px -6px hsl(0 0% 0% / 0.2);
+    --shadow-gold: 0 4px 14px 0 hsl(142 55% 50% / 0.2);
+
+    --sidebar-background: 222 47% 11%;
+    --sidebar-foreground: 210 40% 90%;
+    --sidebar-primary: 142 72% 42%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 217 33% 20%;
+    --sidebar-accent-foreground: 210 40% 90%;
+    --sidebar-border: 217 33% 22%;
+    --sidebar-ring: 142 72% 42%;
+
+    --admin-bg: 222 47% 11%;
+    --admin-surface: 222 47% 14%;
+    --admin-sidebar: 222 47% 8%;
+    --admin-sidebar-fg: 210 40% 90%;
+    --admin-sidebar-muted: 215 20% 55%;
+    --admin-sidebar-active: 142 72% 42%;
+    --admin-text: 210 40% 98%;
+    --admin-text-muted: 215 20% 65%;
+    --admin-border: 217 33% 22%;
+    --admin-accent: 142 72% 42%;
+  }
 }
 
 @layer base {
@@ -194,10 +262,12 @@ html, body {
     }
   }
   /* Hide scrollbar but keep functionality */
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
+  
+/* ── Contrast utility: ensures readable text on any surface ── */
+.contrast-fix {
+  color: hsl(var(--foreground)) !important;
+}
+
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }

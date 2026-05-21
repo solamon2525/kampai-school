@@ -115,6 +115,10 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
       });
     } finally {
       setIsLoading(false);
+      toast({
+        title: 'อัปเดต UI สำเร็จ',
+        description: 'หากยังเห็นสีฟ้อนต์จาง โปรดทำ Hard Reload (Ctrl+F5) เพื่อเคลียร์แคช'
+      });
     }
   };
 
@@ -232,12 +236,12 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
           {/* Core Info */}
           <div className="flex-1 text-center md:text-left space-y-2">
             <div className="space-y-0.5">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold bg-indigo-500/20 text-indigo-200 border border-indigo-500/30 shadow-inner uppercase tracking-wider">
-                <Sparkles className="w-3.5 h-3.5 text-indigo-300 animate-pulse" />
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold bg-indigo-500/20 text-indigo-100 border border-indigo-500/30 shadow-inner uppercase tracking-wider">
+                <Sparkles className="w-3.5 h-3.5 text-indigo-200 animate-pulse" />
                 Kampai Hero Profile
               </span>
               <h2 className="text-2xl font-black tracking-tight">{student.name}</h2>
-              <p className="text-sm text-slate-300">
+              <p className="text-sm text-slate-100">
                 ชั้นเรียน {student.class}{student.room ? `/${student.room}` : ''} 
                 {student.class_number ? ` · เลขที่ ${student.class_number}` : ''}
               </p>
@@ -246,7 +250,7 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
             {/* Title / Badge */}
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 pt-1">
               <span className="bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-2xl text-xs font-bold flex items-center gap-1.5 border border-white/10">
-                <Shield className="w-3.5 h-3.5 text-indigo-400" />
+                <Shield className="w-3.5 h-3.5 text-indigo-200" />
                 {profile.heroTitle}
               </span>
               <span className="bg-yellow-500/20 backdrop-blur-md text-yellow-300 px-3.5 py-1.5 rounded-2xl text-xs font-bold flex items-center gap-1.5 border border-yellow-500/30">
@@ -259,8 +263,8 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
           {/* XP Progress Engine */}
           <div className="w-full md:w-80 space-y-2 bg-slate-950/40 backdrop-blur-md p-4 rounded-2xl border border-white/5">
             <div className="flex justify-between text-xs font-bold">
-              <span className="text-slate-300">เลเวลเติบโต</span>
-              <span className="text-indigo-300">
+              <span className="text-white">เลเวลเติบโต</span>
+              <span className="text-indigo-100">
                 {profile.xpNeededForNextLevel > 0 
                   ? `${profile.xpInLevel}/${profile.xpNeededForNextLevel} XP`
                   : 'MAX LEVEL 🏆'}
@@ -278,7 +282,7 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
             </div>
 
             {profile.xpNeededForNextLevel > 0 ? (
-              <p className="text-[10px] text-slate-300 text-center md:text-left">
+              <p className="text-[10px] text-slate-100 text-center md:text-left">
                 อีก <span className="text-white font-bold">{profile.xpNeededForNextLevel - profile.xpInLevel} XP</span> เพื่อเลื่อนเป็นขั้นถัดไป!
               </p>
             ) : (
@@ -454,11 +458,11 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
           <CardHeader className="pb-2 bg-gradient-to-b from-indigo-100/30 to-transparent">
             <div className="flex justify-between items-start">
               <div>
-                <CardTitle className="text-base font-extrabold text-indigo-900 dark:text-indigo-400 flex items-center gap-1.5">
+                <CardTitle className="text-base font-extrabold text-indigo-900 dark:text-indigo-100 flex items-center gap-1.5">
                   <Target className="w-4 h-4" />
                   เป้าหมายฮีโร่ทั้งห้อง 🎉
                 </CardTitle>
-                <CardDescription className="text-xs text-indigo-700/60 dark:text-indigo-400/60">
+                <CardDescription className="text-xs text-indigo-700/60 dark:text-indigo-200/70">
                   ห้อง {student.class}{student.room ? `/${student.room}` : ''}
                 </CardDescription>
               </div>
@@ -466,7 +470,7 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
                 <Button 
                   size="icon" 
                   variant="ghost" 
-                  className="h-8 w-8 text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
+                  className="h-8 w-8 text-indigo-600 hover:text-indigo-700 dark:text-indigo-200 dark:hover:text-indigo-100"
                   onClick={() => setIsEditingGoal(!isEditingGoal)}
                 >
                   {isEditingGoal ? <X className="w-4 h-4" /> : <Edit3 className="w-4 h-4" />}
@@ -527,15 +531,15 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
                 >
                   {/* Reward Card */}
                   <div className="bg-gradient-to-r from-yellow-100/50 to-amber-100/30 dark:from-yellow-950/20 dark:to-transparent border border-yellow-200/50 p-4.5 rounded-2xl text-center space-y-1">
-                    <span className="text-[10px] text-amber-800 dark:text-amber-400 font-bold uppercase tracking-wider">ของรางวัลที่จะได้รับร่วมกัน</span>
-                    <h3 className="text-base font-extrabold text-slate-800 dark:text-yellow-100">{classroomReward}</h3>
+                    <span className="text-[10px] text-amber-800 dark:text-amber-200 font-bold uppercase tracking-wider">ของรางวัลที่จะได้รับร่วมกัน</span>
+                    <h3 className="text-base font-extrabold text-slate-800 dark:text-white">{classroomReward}</h3>
                   </div>
 
                   {/* Meter visual */}
                   <div className="space-y-2">
                     <div className="flex justify-between text-xs font-bold">
-                      <span className="text-slate-500">สะสมปัจจุบัน</span>
-                      <span className="text-indigo-600 dark:text-indigo-400">{classXp} / {goalTargetNum} XP</span>
+                      <span className="text-slate-600 dark:text-slate-200">สะสมปัจจุบัน</span>
+                      <span className="text-indigo-600 dark:text-indigo-200">{classXp} / {goalTargetNum} XP</span>
                     </div>
 
                     <div className="w-full bg-slate-100 dark:bg-slate-800/80 rounded-full h-4 overflow-hidden relative border border-slate-200/30">
@@ -552,7 +556,7 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
                       )}
                     </div>
 
-                    <p className="text-[10px] text-slate-400 text-center leading-relaxed">
+                    <p className="text-[10px] text-slate-500 dark:text-slate-300 text-center leading-relaxed">
                       {goalProgressPercent >= 100 
                         ? 'สุดยอดไปเลยทุกคน! เป้าหมายความร่วมมือสำเร็จแล้ว เตรียมรับของรางวัลร่วมกันได้เลย!'
                         : `พวกเราต้องช่วยกันอีก ${goalTargetNum - classXp} XP เพื่อปลดล็อคของรางวัลสุดพิเศษ!`}
@@ -598,7 +602,7 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
 
                       <div className="space-y-1 bg-slate-50/50 dark:bg-slate-900/30 border border-slate-100 dark:border-slate-900/40 p-3 rounded-2xl">
                         <div className="flex justify-between items-start gap-2 flex-wrap">
-                          <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">
+                          <span className="text-[10px] font-bold text-slate-500 dark:text-slate-300">
                             {new Date(item.date).toLocaleDateString('th-TH', { year: '2-digit', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                           </span>
                           <span className={cn(
@@ -609,7 +613,7 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
                           </span>
                         </div>
 
-                        <h4 className="text-xs font-black text-slate-800 dark:text-slate-200">
+                        <h4 className="text-xs font-black text-slate-800 dark:text-white">
                           {item.title}
                         </h4>
 
@@ -620,7 +624,7 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
                               {metric.label}
                             </Badge>
                           )}
-                          <p className="text-[10px] italic font-medium text-indigo-700 dark:text-indigo-300">
+                          <p className="text-[10px] italic font-medium text-indigo-700 dark:text-indigo-200">
                             "{item.message}"
                           </p>
                         </div>

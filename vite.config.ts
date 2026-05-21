@@ -15,6 +15,8 @@ export default defineConfig(() => ({
       registerType: "autoUpdate",
       injectRegister: "auto",
       manifest: false,
+      skipWaiting: true,
+      clientsClaim: true,
       includeAssets: ["favicon.ico", "icons/apple-touch-icon-180x180.png"],
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,woff,woff2}"],
@@ -39,6 +41,14 @@ export default defineConfig(() => ({
             options: {
               cacheName: "fonts",
               expiration: { maxEntries: 20, maxAgeSeconds: 365 * 24 * 60 * 60 },
+            },
+          },
+          {
+            urlPattern: /\.(?:css|js)$/,
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "static-resources",
+              expiration: { maxEntries: 100, maxAgeSeconds: 0 },
             },
           },
         ],
