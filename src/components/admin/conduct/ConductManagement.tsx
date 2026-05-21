@@ -874,7 +874,7 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
                     )}
                 </Button>
             </div>
-        </div>{/* end grid */}
-        </div>{/* end outer */}
-    );
+        </div>
+    </div>
+);
 }
