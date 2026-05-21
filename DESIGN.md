@@ -520,6 +520,117 @@ import { PersonAvatar } from '@/components/shared/PersonAvatar';
 - ❌ trust `student_id` จาก iframe โดยตรง — server resolve เองจาก `student_code` ใน RPC
 - ❌ INSERT `game_sessions` ตรง ๆ จาก client — ผ่าน SECURITY DEFINER RPC เท่านั้น (RLS ปิด INSERT ทุก policy)
 
+### Rule 14.15 — Color Contrast & Surface-Aware Palette (สีต้องตัดกับพื้นเสมอ)
+
+**บังคับ:** ก่อนเขียน component ใหม่หรือเปลี่ยนสีใดๆ ต้องทำ **Contrast Pre-Check** ทุกครั้ง
+
+#### 14.15.1 — ห้ามใช้ `dark:` prefix ทั้งระบบ
+- เว็บนี้เป็น **Light Mode only** (Rule 14.8) — `dark:` class ไม่มีผลใดๆ
+- ❌ `dark:text-indigo-300`, `dark:bg-slate-900/40`, `dark:border-slate-800`
+- ✅ ใช้สีตรงๆ เช่น `text-slate-700`, `bg-white`, `border-slate-200`
+- **เหตุผล:** ใส่ `dark:` แล้วคิดว่าครอบคลุมแล้ว ทำให้ลืมแก้สี light mode จริงๆ ที่ user เห็น
+
+#### 14.15.2 — กฎ 2 พื้นผิว (Two-Surface Rule)
+เมื่อ component มีพื้นหลังเข้ม (เช่น hero banner, gradient card) อยู่ในหน้า light:
+
+| พื้นผิว | ฟ้อนท์/ไอคอน ที่ใช้ได้ | ❌ ห้าม |
+|---|---|---|
+| **พื้นเข้ม** (`bg-slate-900`, `bg-primary`, gradient เข้ม) | `text-white`, `text-white/80`, `text-yellow-300`, `text-emerald-300` | `text-slate-300`, `text-indigo-300`, `text-slate-500` (วรรณะเดียวกัน = กลืน) |
+| **พื้นสว่าง** (`bg-white`, `bg-card`, `bg-slate-50`) | `text-slate-800`, `text-slate-700`, `text-foreground`, `text-muted-foreground` | `text-white`, `text-slate-100`, `text-gray-400` (อ่านไม่ออก) |
+
+**วิธีตรวจง่าย:**
+- พื้นเข้ม → ฟ้อนท์ต้อง **lightness ≥ 80%** (white, yellow-300, amber-200)
+- พื้นสว่าง → ฟ้อนท์ต้อง **lightness ≤ 40%** (slate-800, gray-700, foreground)
+
+#### 14.15.3 — ห้ามสีวรรณะเดียวกัน (Same-Hue Trap)
+- ❌ `text-indigo-300` บน `bg-indigo-950` → hue เดียวกัน lightness ใกล้กัน = กลืน
+- ❌ `text-slate-400` บน `bg-slate-800` → hue เดียวกัน = contrast ต่ำ
+- ✅ ใช้สีที่ **ต่าง hue** หรือ **ต่าง lightness อย่างน้อย 50%** จากพื้นหลัง
+- ✅ ทางที่ดีบนพื้นเข้ม ใช้ **ขาวตรงๆ** (`text-white`) แล้วค่อย tone down ด้วย opacity (`text-white/70`)
+
+#### 14.15.4 — Contrast Pre-Check Checklist (ต้องตรวจก่อนทุกครั้ง)
+
+ก่อนสร้างหน้าใหม่ หรือเพิ่ม/เปลี่ยนสี component ใดๆ:
+
+```
+☐ 1. ตรวจว่าหน้านี้ใช้ Light/Dark mode? → ตอบ: Light only (Rule 14.8)
+☐ 2. component นี้มีพื้นหลังอะไร? → ระบุให้ชัด (เช่น bg-white, bg-slate-900)
+☐ 3. ฟ้อนท์/ไอคอนที่เลือก contrast กับพื้นหลังไหม? → ตรวจ Two-Surface Rule (14.15.2)
+☐ 4. มี `dark:` prefix ไหม? → ลบออกทั้งหมด (14.15.1)
+☐ 5. มีสีวรรณะเดียวกับพื้นไหม? → เปลี่ยนเป็นข้ามวรรณะ (14.15.3)
+☐ 6. ตรวจ index.css ว่า CSS var ที่ใช้ค่าตรง/ไม่ conflict กับ context ไหม?
+```
+
+#### 14.15.5 — ห้าม `contrast-fix` hack
+- ❌ สร้าง utility class แก้สีแบบ patch (`!important`) → ปิดบังปัญหา ไม่แก้ต้นตอ
+- ✅ แก้ที่ต้นทาง: ใช้สีที่ contrast ตั้งแต่แรกตาม Two-Surface Rule
+
+**ข้อยกเว้นเดียว:** component ที่ render ทั้งบนพื้นเข้มและพื้นสว่าง (เช่น Badge ที่ reuse) → ใส่ prop `variant="light"|"dark"` เพื่อเลือกสีให้ตรง context
+
+---
+
+### Rule 14.16 — CSS Cascade & Color Overriding Prevention (ระวังการทับกันของกฎสีและสไตล์)
+
+**บังคับ:** ทุกการเขียน Component ต้องระวังเรื่อง **Cascading & Rule Conflicts** เพื่อไม่ให้สไตล์อื่นหรือ CSS global เข้ามาทับจนอ่านไม่ออกหรือเลย์เอาต์พัง
+
+#### 14.16.1 — ห้ามสไตล์ชนกัน (No Tailwind Utility Collisions)
+- **ห้ามใส่ Utility Class ชนิดเดียวกันซ้ำใน Component:**
+  - ❌ `<div className="bg-white bg-slate-50 text-slate-800 text-gray-700">`
+  - **ความเสี่ยง:** บราวเซอร์จะเลือกสไตล์ที่ลำดับโหลดหลังสุด ทำให้สไตล์ทับกันและเพี้ยนในบางเครื่อง
+  - ✅ **ใช้ `cn()` จาก `@/lib/utils` เสมอ:** ในการ merge classes หรือ conditional formatting เพื่อตัดคลาสที่ซ้ำซ้อนกันทิ้งโดยอัตโนมัติ
+
+#### 14.16.2 — ระวัง CSS Inheritance จาก Parent (Parent Override Danger)
+- **ห้ามปล่อยให้สีตัวอักษรของ Parent ครอบงำ Child ที่มีพื้นหลังต่างกัน:**
+  - ❌ กำหนด `text-slate-800` ที่ Parent Div แล้วใส่ `bg-slate-900` ที่ Child Card โดยไม่ระบุสีของ Child
+  - **ผลเสีย:** Child จะดึงสี `text-slate-800` มาใช้ ทำให้ตัวหนังสือสีเข้มทับบนพื้นเข้ม (กลืนหายมองไม่เห็น)
+  - ✅ **กำกับสีเจาะจงให้ Child เสมอ:** บนพื้นผิวที่เปลี่ยนวรรณะเข้ม/สว่าง ต้องประกาศสีตัวอักษรขององค์ประกอบนั้นโดยตรง (Explicit Colors)
+
+#### 14.16.3 — จัดการสไตล์ทับซ้อนใน Global CSS
+- **ห้ามเขียน Custom Selector เปล่าๆ ทับ Tailwind Class ทั่วไปใน `index.css`:**
+  - ❌ `h2 { color: #1e293b; }` (โดยไม่ระบุ layer หรือ specificity)
+  - **ความเสี่ยง:** จะทำให้ utility อย่าง `text-primary` บน `h2` ทำงานไม่ถูกต้องในบางบราวเซอร์เพราะถูกความจำเพาะ (specificity) ของ CSS เปล่าๆ ทับ
+  - ✅ **ใช้ `@layer base` หรือ `@layer components` เสมอ:** เพื่อให้ Tailwind utility classes สามารถระบุทับ (override) ได้อย่างถูกต้องตามมาตรฐาน
+
+---
+
+### Rule 14.17 — Page & Component Creation Pre-flight Rule (การเช็กความพร้อมและความเป็นไปได้ก่อนสร้างหน้าใหม่)
+
+**บังคับ:** ก่อนสร้างหน้าใหม่ (`src/pages/`) หรือ Component ขนาดใหญ่ **ห้าม** ลงมือโค้ดทันที ให้รัน **Pre-flight Check** เพื่อตรวจสอบข้อจำกัดและทิศทางโครงสร้างระบบก่อนว่าสมควรและทำได้จริงไหม
+
+#### 14.17.1 — Checklist 5 ด้านหลัก (ต้องตอบให้ได้ครบทุกข้อก่อนเริ่ม)
+
+1. **โครงสร้างฐานข้อมูล (Database & Schema Check):**
+   - *คำถาม:* หน้านี้ใช้ Table/View/RPC หรือ RLS Policy อะไรบ้าง? มีอยู่จริงหรือยัง?
+   - *วิธีตรวจสอบ:* รัน queries หรือเปิดดู migration files ก่อน
+   - *คำสั่ง:* ถ้ายังไม่มี ห้าม Mock ข้อมูลชั่วคราวใน Component เปล่าๆ ให้เริ่มสร้าง SQL Migration เสนอเข้าแผนก่อน
+
+2. **ระบบสิทธิ์และการป้องกัน (Auth & Portal Protection Guard):**
+   - *คำถาม:* หน้าใหม่นี้ใช้กับบทบาทใด? (Admin, Teacher, Parent, Public)
+   - *วิธีปฏิบัติ:* ต้องกำหนดการครอบด้วย `<PortalProtectedRoute>` ตั้งแต่เริ่ม เพื่อให้สิทธิ์ความปลอดภัยตรงตามเงื่อนไข (Rule 14.12 & Rule 14.13)
+
+3. **ความซ้ำซ้อนและการประหยัดโค้ด (Redundancy & Reusability):**
+   - *คำถาม:* มีหน้าจอหรือ Component ที่ทำงานคล้ายกันอยู่แล้วหรือไม่? สามารถขยาย (extend) จากของเดิมได้ไหม?
+   - *เป้าหมาย:* หลีกเลี่ยงการสร้างหน้าเปล่าใหม่ที่มีการทำงานซ้ำ 80% กับหน้าเดิม
+
+4. **การเตรียม Layout และ Palette (Layout Integration):**
+   - *คำถาม:* หน้าใหม่นี้อยู่ใน Context ไหน?
+     - Frontend (Airy Forest): พื้นสว่าง, brand-green, Sarabun, สะอาดตา
+     - Backend (Quiet Operator): พื้นหลัง `--admin-bg` (#F4F6F8), Sidebar เข้มเสมอ, ห้าม gradient บน nav
+   - *เป้าหมาย:* ป้องกันการใส่โทนสีสะเปะสะปะหรือการผสมผสานปะปน
+
+5. **สิทธิ์ของ User และ Context (Can it be done?):**
+   - *คำถาม:* ฟังก์ชันที่กำลังจะทำ ได้รับความเห็นชอบหรือสอดคล้องกับ Requirement ส่วนอื่นหรือไม่? มีกฎเหล็กใดขวางอยู่หรือไม่?
+
+#### 14.17.2 — Pre-flight Command List
+ก่อนเขียนโค้ดหน้าใหม่ ให้รันคำสั่งเหล่านี้เพื่อตรวจสอบสภาพแวดล้อม:
+```bash
+# 1. ตรวจสอบว่ามี components ที่คล้ายกันในระบบหรือไม่ (เช่น หน้า Dashboard หรือ Table)
+grep -rn "Table" src/components/admin/
+
+# 2. ตรวจสอบ types ของ supabase เสมอเพื่อให้มั่นใจว่า schema พร้อมใช้งาน
+grep -A 20 "table_name_here" src/integrations/supabase/types.ts
+```
+
 ---
 
 ## 15. Spacing & Layout

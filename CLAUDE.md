@@ -31,6 +31,8 @@ ENV จำเป็น: `VITE_SUPABASE_URL` · `VITE_SUPABASE_PUBLISHABLE_KEY` �
 - ห้าม `bg-white` / `text-black` / hex color hardcode
 - รวม class ด้วย `cn()` จาก `@/lib/utils` เสมอ
 - Illustrations = inline SVG component ที่ใช้ `currentColor` + Tailwind class (ไม่ download PNG, ไม่ใส่ `public/`)
+- ห้ามใช้ `dark:` prefix เด็ดขาด (เว็บเป็น Light-only) และระวังการเขียนทับกันของสไตล์/สิทธิ์การทับซ้อน (Rule 14.15 & 14.16)
+- **ก่อนสร้างหน้าใหม่ / Component ใหม่:** ต้องรัน Pre-flight Check 5 ด้าน (DB Schema, Auth, Redundancy, Layout, Feasibility) และเช็กความพร้อมก่อนเสมอ (Rule 14.17)
 
 **Person display:** ทุกที่ที่แสดงชื่อ ครู/ผู้บริหาร/นักเรียน → ต้องใช้ `<PersonAvatar name=... photoUrl=... />` คู่ชื่อเสมอ — ห้าม name-only (DESIGN.md Rule 14.13) + service ที่ดึงชื่อมา **ต้อง SELECT `photo_url` ด้วย**
 
