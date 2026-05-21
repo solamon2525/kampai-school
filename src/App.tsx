@@ -16,43 +16,64 @@ import { InstallBanner } from "./components/pwa/InstallBanner";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
+// Helper for dynamic imports to reload the page when a chunk loading error occurs
+// (common in PWAs or when a new version is deployed and client holds old asset cache)
+const lazyWithRetry = (componentImport: () => Promise<any>) => {
+  return lazy(async () => {
+    const hasRetried = window.sessionStorage.getItem("retry-lazy-load");
+    try {
+      const component = await componentImport();
+      window.sessionStorage.removeItem("retry-lazy-load");
+      return component;
+    } catch (error) {
+      if (!hasRetried) {
+        window.sessionStorage.setItem("retry-lazy-load", "true");
+        console.error("Dynamic import failed, forcing reload to get latest version...", error);
+        window.location.reload();
+        return new Promise(() => {}); // Wait for reload
+      }
+      throw error; // If already retried, let ErrorBoundary catch it
+    }
+  });
+};
+
 // หน้าอื่นๆ โหลดแบบ lazy เพื่อลดขนาด bundle เริ่มต้น
-const About = lazy(() => import("./pages/About"));
-const Administrators = lazy(() => import("./pages/Administrators"));
-const Staff = lazy(() => import("./pages/Staff"));
-const StaffDetail = lazy(() => import("./pages/StaffDetail"));
-const Students = lazy(() => import("./pages/Students"));
-const Curriculum = lazy(() => import("./pages/Curriculum"));
-const News = lazy(() => import("./pages/News"));
-const Contact = lazy(() => import("./pages/Contact"));
-const Gallery = lazy(() => import("./pages/Gallery"));
-const Events = lazy(() => import("./pages/Events"));
-const AcademicCalendar = lazy(() => import("./pages/AcademicCalendar"));
-const Enrollment = lazy(() => import("./pages/Enrollment"));
-const AdminLogin = lazy(() => import("./pages/AdminLogin"));
-const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
-const PageBuilder = lazy(() => import("./pages/admin/PageBuilder"));
-const Documents = lazy(() => import("./pages/Documents"));
-const WasteBank = lazy(() => import("./pages/WasteBank"));
-const WasteBankStats = lazy(() => import("./pages/WasteBankStats"));
-const RewardsCatalog = lazy(() => import("./pages/RewardsCatalog"));
-const SavingsBank = lazy(() => import("./pages/SavingsBank"));
-const HallOfFame = lazy(() => import("./pages/HallOfFame"));
-const TrainingShowcasePublic = lazy(() => import("./pages/TrainingShowcase"));
-const EducationalHub = lazy(() => import("./pages/EducationalHub"));
-const EducationalHubTeacher = lazy(() => import("./pages/EducationalHubTeacher"));
-const PlayGame = lazy(() => import("./pages/PlayGame"));
-const StudentHeroPublic = lazy(() => import("./pages/StudentHeroPublic"));
+const About = lazyWithRetry(() => import("./pages/About"));
+const Administrators = lazyWithRetry(() => import("./pages/Administrators"));
+const Staff = lazyWithRetry(() => import("./pages/Staff"));
+const StaffDetail = lazyWithRetry(() => import("./pages/StaffDetail"));
+const Students = lazyWithRetry(() => import("./pages/Students"));
+const Curriculum = lazyWithRetry(() => import("./pages/Curriculum"));
+const News = lazyWithRetry(() => import("./pages/News"));
+const Contact = lazyWithRetry(() => import("./pages/Contact"));
+const Gallery = lazyWithRetry(() => import("./pages/Gallery"));
+const Events = lazyWithRetry(() => import("./pages/Events"));
+const AcademicCalendar = lazyWithRetry(() => import("./pages/AcademicCalendar"));
+const Enrollment = lazyWithRetry(() => import("./pages/Enrollment"));
+const AdminLogin = lazyWithRetry(() => import("./pages/AdminLogin"));
+const AdminDashboard = lazyWithRetry(() => import("./pages/AdminDashboard"));
+const PageBuilder = lazyWithRetry(() => import("./pages/admin/PageBuilder"));
+const Documents = lazyWithRetry(() => import("./pages/Documents"));
+const WasteBank = lazyWithRetry(() => import("./pages/WasteBank"));
+const WasteBankStats = lazyWithRetry(() => import("./pages/WasteBankStats"));
+const RewardsCatalog = lazyWithRetry(() => import("./pages/RewardsCatalog"));
+const SavingsBank = lazyWithRetry(() => import("./pages/SavingsBank"));
+const HallOfFame = lazyWithRetry(() => import("./pages/HallOfFame"));
+const TrainingShowcasePublic = lazyWithRetry(() => import("./pages/TrainingShowcase"));
+const EducationalHub = lazyWithRetry(() => import("./pages/EducationalHub"));
+const EducationalHubTeacher = lazyWithRetry(() => import("./pages/EducationalHubTeacher"));
+const PlayGame = lazyWithRetry(() => import("./pages/PlayGame"));
+const StudentHeroPublic = lazyWithRetry(() => import("./pages/StudentHeroPublic"));
 
 // Portals
-const TeacherDashboard = lazy(() => import("./pages/teacher/TeacherDashboard"));
-const TeacherSchedule = lazy(() => import("./pages/teacher/TeacherSchedule"));
-const TeacherAttendance = lazy(() => import("./pages/teacher/TeacherAttendance"));
-const TeacherScores = lazy(() => import("./pages/teacher/TeacherScores"));
-const TeacherRewardsApproval = lazy(() => import("./pages/teacher/TeacherRewardsApproval"));
-const TeacherEduHubManager = lazy(() => import("./pages/teacher/TeacherEduHubManager"));
-const ParentDashboard = lazy(() => import("./pages/parent/ParentDashboard"));
-const ParentChildView = lazy(() => import("./pages/parent/ParentChildView"));
+const TeacherDashboard = lazyWithRetry(() => import("./pages/teacher/TeacherDashboard"));
+const TeacherSchedule = lazyWithRetry(() => import("./pages/teacher/TeacherSchedule"));
+const TeacherAttendance = lazyWithRetry(() => import("./pages/teacher/TeacherAttendance"));
+const TeacherScores = lazyWithRetry(() => import("./pages/teacher/TeacherScores"));
+const TeacherRewardsApproval = lazyWithRetry(() => import("./pages/teacher/TeacherRewardsApproval"));
+const TeacherEduHubManager = lazyWithRetry(() => import("./pages/teacher/TeacherEduHubManager"));
+const ParentDashboard = lazyWithRetry(() => import("./pages/parent/ParentDashboard"));
+const ParentChildView = lazyWithRetry(() => import("./pages/parent/ParentChildView"));
 
 // Loading placeholder ขณะรอโหลด page (shimmer + logo placeholder — ดูนุ่มกว่า spinner)
 const PageLoader = () => (
