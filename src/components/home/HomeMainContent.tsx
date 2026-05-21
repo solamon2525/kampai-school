@@ -791,7 +791,7 @@ export const useHomeMainBlocks = () => {
       <div className="divide-y divide-gray-100">
         {partners.map((p) => {
           const content = (
-            <div className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors group">
+            <div className="flex items-center gap-3 px-4 py-1.5 hover:bg-gray-50 transition-colors group">
               {/* Logo 32×32 */}
               <div className="w-8 h-8 flex-shrink-0 rounded bg-muted flex items-center justify-center overflow-hidden">
                 {p.logo_url ? (
