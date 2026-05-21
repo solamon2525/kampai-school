@@ -19,6 +19,7 @@ import { Label } from '@/components/ui/label';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { useToast } from '@/hooks/use-toast';
 import type { HeroProfile, ClassroomGoal } from '@/services/conduct.service';
+import { cn } from '@/lib/utils';
 
 // Virtue translation mapping with styles
 const VIRTUE_METRICS = {
@@ -172,7 +173,7 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
   // Classroom goal calculation
   const goalTargetNum = classGoal?.target_xp || 500;
   const classroomReward = classGoal?.reward || 'ปาร์ตี้พิซซ่าฉลองชัย 🍕';
-  const goalProgressPercent = Math.min(100, Math.round((classXp / goalTargetNum) * 100));
+  const goalProgressPercent = goalTargetNum > 0 ? Math.min(100, Math.round((classXp / goalTargetNum) * 100)) : 0;
 
   return (
     <div className="space-y-6 pt-2 pb-10">

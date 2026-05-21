@@ -105,7 +105,7 @@ export default function ParentChildView({ view }: Props) {
 
     const { data: records, isLoading } = useQuery({
         queryKey: ['parent-view', view, link?.student_id],
-        enabled: !!link?.student_id,
+        enabled: !!link?.student_id && ['attendance', 'scores'].includes(view),
         queryFn: async () => {
             const { data, error } = await supabase
                 .from(cfg.table as any)

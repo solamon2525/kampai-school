@@ -92,7 +92,8 @@ export const mapCategoryToVirtue = (cat: string): 'publicMind' | 'responsibility
 };
 
 /** คำนวณเลเวล และยศฮีโร่ตามค่า XP สะสม */
-export const calculateHeroLevel = (xp: number) => {
+export const calculateHeroLevel = (rawXp: number) => {
+  const xp = Math.max(0, rawXp);
   if (xp < 100) {
     return { level: 1, title: 'เมล็ดพันธุ์แห่งความดี 🌱', xpInLevel: xp, xpNeededForNextLevel: 100, progressPercent: xp };
   } else if (xp < 200) {
@@ -133,6 +134,7 @@ export const getEmotionalFeedback = (category: string, reason: string): string =
 };
 
 export const conductService = {
+  mapCategoryToVirtue,
   /** ดึงประวัติคะแนนความดีทั้งหมด (พร้อม join ชื่อ+รูปนักเรียน) */
   getAll: (semester?: string, academicYear?: string) => {
     let q = supabase
@@ -198,7 +200,10 @@ export const conductService = {
     // เก็บประวัติจำนวนครั้งเพื่อวิเคราะห์ Badge
     const counts = { publicMind: 0, responsibility: 0, discipline: 0, honesty: 0, kindness: 0, punctuality: 0 };
 
-    list.forEach(r => {
+    // เพื่อการคำนวณที่ถูกต้องตามลำดับเวลา (Chronological) เราจะกลับรายการข้อมูลจากเก่าไปใหม่ก่อนประมวลผล
+    const chronologicalList = [...list].reverse();
+
+    chronologicalList.forEach(r => {
       const v = mapCategoryToVirtue(r.category);
       if (r.type === 'add') {
         totalXp += r.score;
@@ -335,11 +340,12 @@ export const conductService = {
     
     const ids = studentIds.map(s => s.id);
 
-    // 2. ดึงประวัติและคำนวณ XP สุทธิร่วมกันของทั้งห้อง
+    // 2. ดึงประวัติและคำนวณ XP สุทธิของแต่ละคนตามลำดับเวลา แล้วนำมารวมกัน (ป้องกันการหักลบข้ามคน และคำนวณ clamping ที่ถูกต้อง)
     let conductQuery = supabase
       .from('conduct_scores')
-      .select('score, type')
-      .in('student_id', ids);
+      .select('student_id, score, type')
+      .in('student_id', ids)
+      .order('created_at', { ascending: true });
 
     if (semester) conductQuery = conductQuery.eq('semester', semester);
     if (academicYear) conductQuery = conductQuery.eq('academic_year', academicYear);
@@ -347,15 +353,20 @@ export const conductService = {
     const { data: scores, error: conductError } = await conductQuery;
     if (conductError || !scores) return 0;
 
-    let sum = 0;
+    const studentXpMap: Record<string, number> = {};
+    ids.forEach(id => {
+      studentXpMap[id] = 0;
+    });
+
     scores.forEach(s => {
+      const current = studentXpMap[s.student_id] || 0;
       if (s.type === 'add') {
-        sum += s.score;
+        studentXpMap[s.student_id] = current + s.score;
       } else {
-        sum = Math.max(0, sum - s.score);
+        studentXpMap[s.student_id] = Math.max(0, current - s.score);
       }
     });
 
-    return sum;
+    return Object.values(studentXpMap).reduce((acc, val) => acc + val, 0);
   }
 };

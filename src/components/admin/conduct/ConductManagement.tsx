@@ -193,14 +193,14 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                     <CardContent className="space-y-3">
                         <div className="space-y-1">
                             <Label>ชั้น/ห้อง</Label>
-                            <Select value={selectedClass} onValueChange={v => { setSelectedClass(v); setSelectedStudentId(''); }}>
+                            <Select value={selectedClass || undefined} onValueChange={v => { setSelectedClass(v); setSelectedStudentId(''); }}>
                                 <SelectTrigger><SelectValue placeholder="เลือกชั้น" /></SelectTrigger>
                                 <SelectContent>{CLASS_OPTIONS.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                             </Select>
                         </div>
                         <div className="space-y-1">
                             <Label>นักเรียน</Label>
-                            <Select value={selectedStudentId} onValueChange={setSelectedStudentId} disabled={students.length === 0}>
+                            <Select value={selectedStudentId || undefined} onValueChange={setSelectedStudentId} disabled={students.length === 0}>
                                 <SelectTrigger><SelectValue placeholder={students.length === 0 ? 'เลือกชั้นก่อน' : 'เลือกนักเรียน'} /></SelectTrigger>
                                 <SelectContent>
                                     {students.map(s => (
@@ -681,7 +681,7 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
                     <div className="grid grid-cols-2 gap-2">
                         <div className="space-y-1">
                             <Label>ชั้น/ห้อง *</Label>
-                            <Select value={selectedClass} onValueChange={setSelectedClass}>
+                            <Select value={selectedClass || undefined} onValueChange={setSelectedClass}>
                                 <SelectTrigger className="h-11">
                                     <SelectValue placeholder="เลือกชั้น" />
                                 </SelectTrigger>
