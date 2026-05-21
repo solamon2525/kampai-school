@@ -42,6 +42,7 @@ const TrainingShowcasePublic = lazy(() => import("./pages/TrainingShowcase"));
 const EducationalHub = lazy(() => import("./pages/EducationalHub"));
 const EducationalHubTeacher = lazy(() => import("./pages/EducationalHubTeacher"));
 const PlayGame = lazy(() => import("./pages/PlayGame"));
+const StudentHeroPublic = lazy(() => import("./pages/StudentHeroPublic"));
 
 // Portals
 const TeacherDashboard = lazy(() => import("./pages/teacher/TeacherDashboard"));
@@ -127,6 +128,8 @@ const App = () => (
             {/* Short URL alias — /h/<username|uuid> */}
             <Route path="/h/:identifier" element={<EducationalHubTeacher />} />
             <Route path="/play/:gameSlug" element={<PlayGame />} />
+            <Route path="/hero" element={<StudentHeroPublic />} />
+            <Route path="/hero/:studentId" element={<StudentHeroPublic />} />
 
             {/* Teacher Portal */}
             <Route path="/teacher" element={

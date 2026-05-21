@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useLinkedRecord } from '@/hooks/useLinkedRecord';
 import { PARENT_MENU } from './ParentDashboard';
-import { ClipboardCheck, PenLine, Star, Recycle, Wallet } from 'lucide-react';
+import { ClipboardCheck, PenLine, Star, Recycle, Wallet, Trophy } from 'lucide-react';
 import { ListSkeleton } from '@/components/ui/loading-skeletons';
 import { EmptyState } from '@/components/ui/empty-state';
 import { NoDataIllustration } from '@/components/ui/empty-illustrations';
@@ -121,9 +121,22 @@ export default function ParentChildView({ view }: Props) {
     return (
         <RolePortalLayout title="Portal ผู้ปกครอง" subtitle="ผู้ปกครอง" menu={PARENT_MENU} accent="parent">
             <div className="p-8 space-y-6">
-                <h1 className="text-2xl font-bold flex items-center gap-2">
-                    <Icon className="w-6 h-6" /> {cfg.title}
-                </h1>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-4">
+                    <h1 className="text-2xl font-bold flex items-center gap-2">
+                        <Icon className="w-6 h-6" /> {cfg.title}
+                    </h1>
+                    {view === 'conduct' && link?.student_id && (
+                        <a 
+                            href={`/hero/${link.student_id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-slate-950 font-black rounded-xl text-xs shadow-md transition-all active:scale-[0.98] w-fit"
+                        >
+                            <Trophy className="w-4 h-4 text-slate-950 animate-bounce" />
+                            ดูใบประวัติฮีโร่พรีเมียม & เกียรติบัตรสาธารณะ ✨
+                        </a>
+                    )}
+                </div>
                 {view === 'conduct' && link?.student_id ? (
                     <KampaiHeroDashboard studentId={link.student_id} isParentView={true} />
                 ) : view === 'waste-bank' && link?.student_id ? (
