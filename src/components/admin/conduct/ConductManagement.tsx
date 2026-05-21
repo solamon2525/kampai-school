@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
-import { Star, Plus, Minus, Trophy, History, Search, Trash2 } from 'lucide-react';
+import { Star, Plus, Minus, Trophy, History, Search, Trash2, Users, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
 import { RecorderSelect, EMPTY_RECORDER, type RecorderValue } from '../shared/RecorderSelect';
@@ -77,19 +77,23 @@ export const ConductManagement = () => {
             </div>
 
             <Tabs defaultValue="record">
-                <TabsList className="grid w-full grid-cols-3 max-w-md">
-                    <TabsTrigger value="record" className="gap-1">
-                        <Plus className="w-4 h-4" /> บันทึกคะแนน
+                <TabsList className="grid w-full grid-cols-4">
+                    <TabsTrigger value="record" className="gap-1 text-xs sm:text-sm px-1">
+                        <Plus className="w-3.5 h-3.5 flex-shrink-0" /> ทีละคน
                     </TabsTrigger>
-                    <TabsTrigger value="leaderboard" className="gap-1">
-                        <Trophy className="w-4 h-4" /> อันดับ
+                    <TabsTrigger value="bulk" className="gap-1 text-xs sm:text-sm px-1">
+                        <Users className="w-3.5 h-3.5 flex-shrink-0" /> หลายคน
                     </TabsTrigger>
-                    <TabsTrigger value="history" className="gap-1">
-                        <History className="w-4 h-4" /> ประวัติ
+                    <TabsTrigger value="leaderboard" className="gap-1 text-xs sm:text-sm px-1">
+                        <Trophy className="w-3.5 h-3.5 flex-shrink-0" /> อันดับ
+                    </TabsTrigger>
+                    <TabsTrigger value="history" className="gap-1 text-xs sm:text-sm px-1">
+                        <History className="w-3.5 h-3.5 flex-shrink-0" /> ประวัติ
                     </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="record"><RecordTab toast={toast} /></TabsContent>
+                <TabsContent value="bulk"><BulkRecordTab toast={toast} /></TabsContent>
                 <TabsContent value="leaderboard"><LeaderboardTab /></TabsContent>
                 <TabsContent value="history"><HistoryTab toast={toast} /></TabsContent>
             </Tabs>
@@ -513,5 +517,364 @@ function HistoryTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) 
                 description="รายการที่ลบแล้วจะไม่สามารถกู้คืนได้"
             />
         </div>
+    );
+}
+
+// ===== Tab Bulk: บันทึกคะแนนหลายคนพร้อมกัน =====
+function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
+    const [selectedClass, setSelectedClass] = useState('');
+    const [students, setStudents] = useState<Student[]>([]);
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+    const [type, setType] = useState<'add' | 'deduct'>('add');
+    const [category, setCategory] = useState('');
+    const [reason, setReason] = useState('');
+    const [score, setScore] = useState('1');
+    const [recorder, setRecorder] = useState<RecorderValue>(EMPTY_RECORDER);
+    const [semester, setSemester] = useState('1');
+    const [academicYear, setAcademicYear] = useState(currentYear);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isLoadingStudents, setIsLoadingStudents] = useState(false);
+
+    useEffect(() => {
+        if (!selectedClass) { setStudents([]); setSelectedIds(new Set()); return; }
+        setIsLoadingStudents(true);
+        studentsService.getByClass(selectedClass).then(({ data }) => {
+            setStudents((data || []) as Student[]);
+            setSelectedIds(new Set());
+            setIsLoadingStudents(false);
+        });
+    }, [selectedClass]);
+
+    const toggleStudent = (id: string) => {
+        setSelectedIds(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id); else next.add(id);
+            return next;
+        });
+    };
+
+    const allSelected = students.length > 0 && selectedIds.size === students.length;
+    const someSelected = selectedIds.size > 0 && selectedIds.size < students.length;
+
+    const toggleAll = () => {
+        setSelectedIds(allSelected ? new Set() : new Set(students.map(s => s.id)));
+    };
+
+    const presets = PRESET_REASONS[type];
+    const categoryPreset = presets.find(p => p.category === category);
+
+    const handleBulkSave = async () => {
+        if (selectedIds.size === 0) {
+            toast({ variant: 'destructive', title: 'กรุณาเลือกนักเรียนอย่างน้อย 1 คน' });
+            return;
+        }
+        if (!reason.trim()) {
+            toast({ variant: 'destructive', title: 'กรุณาระบุเหตุผล' });
+            return;
+        }
+        const records = Array.from(selectedIds).map(student_id => ({
+            student_id,
+            type,
+            score: parseInt(score) || 1,
+            category: category || (type === 'add' ? 'ความดี' : 'วินัย'),
+            reason: reason.trim(),
+            recorded_by: recorder.name || null,
+            recorded_by_staff_id: recorder.staffId,
+            recorded_by_administrator_id: recorder.administratorId,
+            academic_year: academicYear,
+            semester,
+        }));
+        setIsSaving(true);
+        const { error } = await conductService.insertBulk(records);
+        setIsSaving(false);
+        if (error) {
+            toast({ variant: 'destructive', title: 'บันทึกไม่สำเร็จ', description: error.message });
+            return;
+        }
+        toast({
+            title: `${type === 'add' ? '+ บวก' : '− หัก'}คะแนนสำเร็จ`,
+            description: `${selectedIds.size} คน · ${score} คะแนน · ${reason}`,
+        });
+        // reset selection + reason; keep class/type/category for quick re-use
+        setSelectedIds(new Set());
+        setReason('');
+        setScore('1');
+    };
+
+    const saveLabel = selectedIds.size === 0
+        ? 'เลือกนักเรียนก่อน'
+        : `${type === 'add' ? 'บวก' : 'หัก'} ${score} คะแนน · ${selectedIds.size} คน`;
+
+    const saveBtnClass = type === 'add'
+        ? 'bg-green-600 hover:bg-green-700 active:bg-green-800'
+        : 'bg-red-600 hover:bg-red-700 active:bg-red-800';
+
+    return (
+        /* Mobile: single column + sticky save bar
+           Desktop (md+): 2-column side-by-side, save button inside Step-2 card */
+        <div className="pt-4 pb-28 md:pb-4">
+            <div className="grid md:grid-cols-2 md:items-start gap-4">
+
+            {/* ──────────── ขั้นที่ 1: เลือกนักเรียน ──────────── */}
+            <Card>
+                <CardHeader className="pb-3">
+                    <CardTitle className="text-base flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold flex-shrink-0">1</span>
+                        เลือกนักเรียน
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                    {/* ชั้น + ภาคเรียน */}
+                    <div className="grid grid-cols-2 gap-2">
+                        <div className="space-y-1">
+                            <Label>ชั้น/ห้อง *</Label>
+                            <Select value={selectedClass} onValueChange={setSelectedClass}>
+                                <SelectTrigger className="h-11">
+                                    <SelectValue placeholder="เลือกชั้น" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {CLASS_OPTIONS.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-1">
+                            <Label>ภาคเรียน</Label>
+                            <Select value={semester} onValueChange={setSemester}>
+                                <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="1">ภาคเรียน 1</SelectItem>
+                                    <SelectItem value="2">ภาคเรียน 2</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+
+                    {/* รายชื่อนักเรียน */}
+                    {selectedClass && (
+                        <div className="space-y-2">
+                            {/* Select-all bar — full-width tappable */}
+                            <button
+                                type="button"
+                                onClick={toggleAll}
+                                className="w-full flex items-center justify-between bg-muted/60 hover:bg-muted active:bg-muted rounded-xl px-4 py-3 transition-colors"
+                            >
+                                <div className="flex items-center gap-3">
+                                    {/* Custom checkbox */}
+                                    <div className={`w-6 h-6 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                                        allSelected ? 'bg-primary border-primary' : someSelected ? 'border-primary bg-primary/20' : 'border-muted-foreground/50'
+                                    }`}>
+                                        {allSelected && <Check className="w-4 h-4 text-primary-foreground" />}
+                                        {someSelected && <div className="w-2.5 h-0.5 bg-primary rounded" />}
+                                    </div>
+                                    <span className="font-semibold text-sm">เลือกทั้งห้อง</span>
+                                </div>
+                                <Badge variant={selectedIds.size > 0 ? 'default' : 'secondary'} className="text-sm font-bold">
+                                    {selectedIds.size} / {students.length} คน
+                                </Badge>
+                            </button>
+
+                            {/* Student rows */}
+                            {isLoadingStudents ? (
+                                <TableSkeleton rows={5} cols={2} className="py-2" />
+                            ) : students.length === 0 ? (
+                                <p className="text-center py-6 text-muted-foreground text-sm">ไม่มีนักเรียนในชั้นนี้</p>
+                            ) : (
+                                <div className="divide-y rounded-xl border overflow-hidden">
+                                    {students.map(s => {
+                                        const isSelected = selectedIds.has(s.id);
+                                        return (
+                                            <button
+                                                key={s.id}
+                                                type="button"
+                                                onClick={() => toggleStudent(s.id)}
+                                                className={`w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors ${
+                                                    isSelected ? 'bg-primary/10' : 'bg-background hover:bg-muted/40'
+                                                }`}
+                                            >
+                                                {/* Checkbox */}
+                                                <div className={`w-6 h-6 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                                                    isSelected ? 'bg-primary border-primary scale-110' : 'border-muted-foreground/40'
+                                                }`}>
+                                                    {isSelected && <Check className="w-4 h-4 text-primary-foreground" />}
+                                                </div>
+                                                {/* Avatar */}
+                                                <PersonAvatar name={s.name} photoUrl={s.photo_url} size="sm" />
+                                                {/* Name + class number */}
+                                                <div className="flex-1 min-w-0">
+                                                    <p className={`text-sm font-medium truncate ${isSelected ? 'text-primary' : ''}`}>
+                                                        {s.name}
+                                                    </p>
+                                                    {s.class_number && (
+                                                        <p className="text-xs text-muted-foreground">เลขที่ {s.class_number}</p>
+                                                    )}
+                                                </div>
+                                                {/* Gender dot */}
+                                                <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                                                    s.gender === 'male' ? 'bg-blue-400' : 'bg-amber-400'
+                                                }`} />
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+
+            {/* ──────────── ขั้นที่ 2: รายละเอียดคะแนน ──────────── */}
+            {/* md:sticky md:top-4 — stays in view while scrolling the student list */}
+            <Card className="md:sticky md:top-4">
+                <CardHeader className="pb-3">
+                    <CardTitle className="text-base flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold flex-shrink-0">2</span>
+                        รายละเอียดคะแนน
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    {/* บวก / หัก */}
+                    <div className="grid grid-cols-2 gap-3">
+                        <Button
+                            type="button"
+                            variant={type === 'add' ? 'default' : 'outline'}
+                            className={`h-12 gap-2 text-base font-semibold ${
+                                type === 'add'
+                                    ? 'bg-green-600 hover:bg-green-700 border-green-600'
+                                    : 'border-green-300 text-green-700 hover:bg-green-50 dark:hover:bg-green-950'
+                            }`}
+                            onClick={() => { setType('add'); setCategory(''); setReason(''); }}
+                        >
+                            <Plus className="w-5 h-5" /> บวกคะแนน
+                        </Button>
+                        <Button
+                            type="button"
+                            variant={type === 'deduct' ? 'default' : 'outline'}
+                            className={`h-12 gap-2 text-base font-semibold ${
+                                type === 'deduct'
+                                    ? 'bg-red-600 hover:bg-red-700 border-red-600'
+                                    : 'border-red-300 text-red-700 hover:bg-red-50 dark:hover:bg-red-950'
+                            }`}
+                            onClick={() => { setType('deduct'); setCategory(''); setReason(''); }}
+                        >
+                            <Minus className="w-5 h-5" /> หักคะแนน
+                        </Button>
+                    </div>
+
+                    {/* หมวดหมู่ */}
+                    <div className="space-y-2">
+                        <Label>หมวดหมู่</Label>
+                        <div className="flex flex-wrap gap-2">
+                            {presets.map(p => (
+                                <Badge
+                                    key={p.category}
+                                    variant={category === p.category ? 'default' : 'outline'}
+                                    className="cursor-pointer py-1.5 px-3 text-sm"
+                                    onClick={() => { setCategory(p.category); setReason(''); }}
+                                >
+                                    {p.category}
+                                </Badge>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* เหตุผลสำเร็จรูป */}
+                    {categoryPreset && (
+                        <div className="space-y-2">
+                            <Label className="text-xs text-muted-foreground">เหตุผลสำเร็จรูป — กดเพื่อเลือก</Label>
+                            <div className="flex flex-wrap gap-2">
+                                {categoryPreset.reasons.map(r => (
+                                    <Badge
+                                        key={r}
+                                        variant={reason === r ? 'default' : 'secondary'}
+                                        className="cursor-pointer py-1.5 px-3 text-sm"
+                                        onClick={() => setReason(r)}
+                                    >
+                                        {r}
+                                    </Badge>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* เหตุผล (กรอกเอง) */}
+                    <div className="space-y-1">
+                        <Label>เหตุผล *</Label>
+                        <Textarea
+                            placeholder="ระบุเหตุผล..."
+                            rows={2}
+                            value={reason}
+                            onChange={e => setReason(e.target.value)}
+                            className="text-base resize-none"
+                        />
+                    </div>
+
+                    {/* จำนวนคะแนน — large tap targets */}
+                    <div className="space-y-2">
+                        <Label>จำนวนคะแนน</Label>
+                        <div className="flex items-center gap-3">
+                            <Button
+                                type="button" variant="outline" size="icon"
+                                className="h-12 w-12 flex-shrink-0"
+                                onClick={() => setScore(s => String(Math.max(1, parseInt(s) - 1)))}
+                            >
+                                <Minus className="w-5 h-5" />
+                            </Button>
+                            <Input
+                                type="number" min={1} max={100}
+                                className="h-12 text-center text-xl font-bold w-20"
+                                value={score}
+                                onChange={e => setScore(e.target.value)}
+                            />
+                            <Button
+                                type="button" variant="outline" size="icon"
+                                className="h-12 w-12 flex-shrink-0"
+                                onClick={() => setScore(s => String(parseInt(s) + 1))}
+                            >
+                                <Plus className="w-5 h-5" />
+                            </Button>
+                            <span className="text-sm text-muted-foreground">คะแนน</span>
+                        </div>
+                    </div>
+
+                    {/* ผู้บันทึก */}
+                    <RecorderSelect label="ผู้บันทึก (ครู/ผอ.)" value={recorder} onChange={setRecorder} />
+
+                    {/* ปีการศึกษา */}
+                    <div className="space-y-1">
+                        <Label>ปีการศึกษา</Label>
+                        <Input className="max-w-xs" value={academicYear} onChange={e => setAcademicYear(e.target.value)} />
+                    </div>
+
+                    {/* Desktop: save button inside card */}
+                    <Button
+                        className={`w-full h-12 text-base gap-2 font-semibold hidden md:flex ${saveBtnClass}`}
+                        onClick={handleBulkSave}
+                        disabled={isSaving || selectedIds.size === 0}
+                    >
+                        {type === 'add' ? <Plus className="w-5 h-5" /> : <Minus className="w-5 h-5" />}
+                        {isSaving ? 'กำลังบันทึก...' : saveLabel}
+                    </Button>
+                </CardContent>
+            </Card>
+
+            {/* ──────── Mobile sticky save bar (hidden on md+) ──────── */}
+            <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-background/95 backdrop-blur-md border-t p-3">
+                <Button
+                    className={`w-full h-14 text-base gap-2 font-semibold rounded-xl ${saveBtnClass}`}
+                    onClick={handleBulkSave}
+                    disabled={isSaving || selectedIds.size === 0}
+                >
+                    {isSaving ? (
+                        'กำลังบันทึก...'
+                    ) : (
+                        <>
+                            {type === 'add' ? <Plus className="w-5 h-5" /> : <Minus className="w-5 h-5" />}
+                            {saveLabel}
+                        </>
+                    )}
+                </Button>
+            </div>
+        </div>{/* end grid */}
+        </div>{/* end outer */}
     );
 }

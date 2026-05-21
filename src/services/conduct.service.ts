@@ -69,6 +69,10 @@ export const conductService = {
   insert: (record: ConductInsert) =>
     supabase.from('conduct_scores').insert(record as never),
 
+  /** บันทึกคะแนนความดีหลายคนพร้อมกัน (batch insert) */
+  insertBulk: (records: ConductInsert[]) =>
+    supabase.from('conduct_scores').insert(records as never[]),
+
   /** ลบประวัติคะแนน */
   delete: (id: string) =>
     supabase.from('conduct_scores').delete().eq('id', id),
