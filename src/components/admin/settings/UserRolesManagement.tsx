@@ -19,8 +19,8 @@ interface UserRoleRow {
     email?: string;
 }
 
-interface StaffOpt { id: string; full_name: string }
-interface StudentOpt { id: string; full_name: string; grade_level?: string }
+interface StaffOpt { id: string; name: string }
+interface StudentOpt { id: string; name: string; class?: string }
 
 const ROLE_LABELS: Record<UserRole, string> = {
     admin: 'ผู้ดูแลระบบ',
@@ -48,8 +48,8 @@ export const UserRolesManagement = () => {
         try {
             const [rolesRes, staffRes, studentsRes] = await Promise.all([
                 supabase.from('user_roles' as any).select('*').order('created_at', { ascending: true }),
-                supabase.from('staff').select('id, full_name').order('full_name'),
-                supabase.from('students').select('id, full_name, grade_level').order('full_name'),
+                supabase.from('staff').select('id, name').order('name'),
+                supabase.from('students').select('id, name, class').order('name'),
             ]);
 
             if (rolesRes.error) {
@@ -130,7 +130,7 @@ export const UserRolesManagement = () => {
                                                 <SelectContent>
                                                     <SelectItem value="none">— ไม่เชื่อม —</SelectItem>
                                                     {staff.map(s => (
-                                                        <SelectItem key={s.id} value={s.id}>{s.full_name}</SelectItem>
+                                                        <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                                                     ))}
                                                 </SelectContent>
                                             </Select>
@@ -148,7 +148,7 @@ export const UserRolesManagement = () => {
                                                     <SelectItem value="none">— ไม่เชื่อม —</SelectItem>
                                                     {students.map(s => (
                                                         <SelectItem key={s.id} value={s.id}>
-                                                            {s.full_name}{s.grade_level ? ` (${s.grade_level})` : ''}
+                                                            {s.name}{s.class ? ` (${s.class})` : ''}
                                                         </SelectItem>
                                                     ))}
                                                 </SelectContent>

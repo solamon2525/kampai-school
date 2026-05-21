@@ -24,7 +24,7 @@ export default function ParentDashboard() {
         queryFn: async () => {
             const { data } = await supabase
                 .from('students')
-                .select('full_name, grade_level, student_number')
+                .select('name, class, student_code')
                 .eq('id', link!.student_id!)
                 .maybeSingle();
             return data;
@@ -35,11 +35,11 @@ export default function ParentDashboard() {
         <RolePortalLayout title="Portal ผู้ปกครอง" subtitle="ผู้ปกครอง" menu={MENU} accent="parent">
             <div className="p-8 space-y-6">
                 <div>
-                    <h1 className="text-3xl font-bold">ผู้ปกครองของ {student?.full_name || 'นักเรียน'}</h1>
+                    <h1 className="text-3xl font-bold">ผู้ปกครองของ {student?.name || 'นักเรียน'}</h1>
                     {student && (
                         <p className="text-muted-foreground mt-1">
-                            {student.grade_level ? `${student.grade_level} • ` : ''}
-                            {student.student_number ? `รหัส ${student.student_number}` : ''}
+                            {student.class ? `${student.class} • ` : ''}
+                            {student.student_code ? `รหัส ${student.student_code}` : ''}
                         </p>
                     )}
                 </div>

@@ -22,7 +22,7 @@ export default function TeacherDashboard() {
         queryKey: ['staff-self', link?.staff_id],
         enabled: !!link?.staff_id,
         queryFn: async () => {
-            const { data } = await supabase.from('staff').select('full_name, position').eq('id', link!.staff_id!).maybeSingle();
+            const { data } = await supabase.from('staff').select('name, position').eq('id', link!.staff_id!).maybeSingle();
             return data;
         },
     });
@@ -31,7 +31,7 @@ export default function TeacherDashboard() {
         <RolePortalLayout title="Portal ครู" subtitle="ครู/บุคลากร" menu={MENU} accent="teacher">
             <div className="p-8 space-y-6">
                 <div>
-                    <h1 className="text-3xl font-bold">สวัสดี {staff?.full_name || 'คุณครู'}</h1>
+                    <h1 className="text-3xl font-bold">สวัสดี {staff?.name || 'คุณครู'}</h1>
                     <p className="text-muted-foreground mt-1">{staff?.position || 'ครู/บุคลากร'}</p>
                 </div>
 
