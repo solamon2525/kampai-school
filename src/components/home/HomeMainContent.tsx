@@ -124,7 +124,9 @@ export const useHomeMainBlocks = () => {
   const carouselRef = useRef<HTMLDivElement>(null);
   const [countdown, setCountdown] = useState({ days: '--', hours: '--', minutes: '--', seconds: '--', label: 'เปิดเทอม' });
   const [topConduct, setTopConduct] = useState<{ id: string; name: string; class: string; photo: string | null; total: number }[]>([]);
-  const [featuredHeroProfile, setFeaturedHeroProfile] = useState<HeroProfile | null>(null);
+  const [featuredHeroProfiles, setFeaturedHeroProfiles] = useState<HeroProfile[]>([]);
+  const [activeHeroIndex, setActiveHeroIndex] = useState(0);
+  const [isHeroHovered, setIsHeroHovered] = useState(false);
   const [featuredHeroLoading, setFeaturedHeroLoading] = useState(false);
 
   useEffect(() => {
@@ -253,29 +255,42 @@ export const useHomeMainBlocks = () => {
           cur.total += r.score;
           map.set(r.student_id, cur);
         }
-        const top = Array.from(map.values()).sort((a, b) => b.total - a.total).slice(0, 5);
+        const top = Array.from(map.values()).sort((a, b) => b.total - a.total).slice(0, 10);
         setTopConduct(top);
 
         if (top.length > 0) {
           setFeaturedHeroLoading(true);
-          conductService.getHeroProfile(top[0].id)
-            .then((profile) => {
-              setFeaturedHeroProfile(profile);
-            })
-            .catch((err) => {
-              console.error("Error fetching featured hero profile:", err);
-            })
-            .finally(() => {
-              setFeaturedHeroLoading(false);
-            });
+          Promise.all(
+            top.map(student =>
+              conductService.getHeroProfile(student.id)
+                .catch(err => {
+                  console.error("Error fetching featured hero profile:", err);
+                  return null;
+                })
+            )
+          ).then((profiles) => {
+            const validProfiles = profiles.filter((p): p is HeroProfile => p !== null);
+            setFeaturedHeroProfiles(validProfiles);
+          }).finally(() => {
+            setFeaturedHeroLoading(false);
+          });
         } else {
-          setFeaturedHeroProfile(null);
+          setFeaturedHeroProfiles([]);
         }
       });
     };
 
     fetchTopStudents(sem, year);
   }, []);
+
+  // Auto-play for Hero Showcase
+  useEffect(() => {
+    if (featuredHeroProfiles.length < 2 || isHeroHovered) return;
+    const interval = setInterval(() => {
+      setActiveHeroIndex(p => (p + 1) % featuredHeroProfiles.length);
+    }, 4500);
+    return () => clearInterval(interval);
+  }, [featuredHeroProfiles.length, isHeroHovered]);
 
   // Fetch hero_slides from DB; fallback to news cover images
   useEffect(() => {
@@ -338,6 +353,9 @@ export const useHomeMainBlocks = () => {
     if (timerRef.current) clearInterval(timerRef.current);
     setCurrentSlide(p => (p + 1) % slides.length);
   };
+
+  const featuredHeroProfile = featuredHeroProfiles[activeHeroIndex] || null;
+  const currentHeroRecord = topConduct[activeHeroIndex] || null;
 
   const featured = news[0];
   const rest = news.slice(1, 5);
@@ -405,51 +423,75 @@ export const useHomeMainBlocks = () => {
     return Math.max(...Object.values(featuredHeroProfile.virtues), 10);
   })();
 
-  const featuredHeroSection = featuredHeroProfile && topConduct[0] ? (
+  // Helper for rank styling
+  const getRankBadgeStyle = (rank: number) => {
+    if (rank === 1) return { bg: 'bg-gradient-to-r from-yellow-400 to-amber-500', text: 'text-white', label: 'อันดับ 1 👑' };
+    if (rank === 2) return { bg: 'bg-gradient-to-r from-slate-300 to-slate-400', text: 'text-slate-800', label: 'อันดับ 2 🥈' };
+    if (rank === 3) return { bg: 'bg-gradient-to-r from-amber-600 to-amber-700', text: 'text-white', label: 'อันดับ 3 🥉' };
+    return { bg: 'bg-slate-100', text: 'text-slate-600', label: `อันดับ ${rank}` };
+  };
+
+  const featuredHeroSection = featuredHeroProfile && currentHeroRecord ? (
     <motion.div
-      key="featured_hero"
+      key="featured_hero_container"
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.15 }}
       variants={slideUpVariants}
-      className="bg-gradient-to-br from-amber-50/60 via-white to-orange-50/40 border border-amber-200/60 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden"
+      onMouseEnter={() => setIsHeroHovered(true)}
+      onMouseLeave={() => setIsHeroHovered(false)}
+      className="bg-gradient-to-br from-amber-50/60 via-white to-orange-50/40 border border-amber-200/60 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group/showcase animate-fadeIn"
     >
       {/* Background elegant accents */}
       <div className="absolute top-0 right-0 w-24 h-24 bg-amber-200/10 rounded-full blur-2xl -z-10" />
       <div className="absolute bottom-0 left-0 w-32 h-32 bg-orange-200/10 rounded-full blur-2xl -z-10" />
 
       {/* Header section title */}
-      <div className="flex items-center gap-2 mb-5 border-b border-gray-100 pb-3">
-        <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600 flex-shrink-0">
-          <Trophy className="w-5 h-5 text-amber-500 animate-bounce" />
+      <div className="flex items-center justify-between mb-5 border-b border-gray-100 pb-3">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600 flex-shrink-0">
+            <Trophy className="w-5 h-5 text-amber-500 animate-bounce" />
+          </div>
+          <div>
+            <h3 className="text-base font-extrabold text-gray-800 tracking-tight flex items-center gap-1.5 text-left">
+              Kampai Hero Profile Showcase
+              <Sparkles className="w-4 h-4 text-yellow-500 animate-pulse" />
+            </h3>
+            <p className="text-[10px] font-medium text-gray-400 text-left">
+              10 อันดับสุดยอดฮีโร่คุณธรรมและความดีสะสมสูงสุดประจำปีการศึกษา
+            </p>
+          </div>
         </div>
-        <div>
-          <h3 className="text-base font-extrabold text-gray-800 tracking-tight flex items-center gap-1.5 text-left">
-            Kampai Hero Profile Showcase
-            <Sparkles className="w-4 h-4 text-yellow-500 animate-pulse" />
-          </h3>
-          <p className="text-[10px] font-medium text-gray-400 text-left">
-            นักเรียนต้นแบบคุณธรรมและความดีประจำเทอมผู้สร้างแรงบันดาลใจ
-          </p>
-        </div>
+
+        {/* Current Rank Badge */}
+        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-black shadow-sm ${getRankBadgeStyle(activeHeroIndex + 1).bg} ${getRankBadgeStyle(activeHeroIndex + 1).text}`}>
+          {getRankBadgeStyle(activeHeroIndex + 1).label}
+        </span>
       </div>
 
+      {/* Main Body */}
       <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-6 items-center">
-        {/* Left Side: Avatar and stats */}
+        {/* Left Side: Avatar and stats with slide transition */}
         <div className="flex flex-col items-center md:items-start text-center md:text-left space-y-4">
-          <div className="flex flex-col md:flex-row items-center gap-4 w-full">
+          <motion.div 
+            key={activeHeroIndex}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3 }}
+            className="flex flex-col md:flex-row items-center gap-4 w-full"
+          >
             {/* Student Photo with premium gold glow frame */}
             <div className="relative flex-shrink-0">
               <div className="absolute -inset-1 bg-gradient-to-tr from-yellow-400 to-amber-500 rounded-full blur opacity-40 animate-pulse" />
-              {topConduct[0].photo ? (
+              {currentHeroRecord.photo ? (
                 <img
-                  src={topConduct[0].photo}
-                  alt={topConduct[0].name}
+                  src={currentHeroRecord.photo}
+                  alt={currentHeroRecord.name}
                   className="relative w-20 h-20 md:w-24 md:h-24 rounded-full object-cover border-4 border-white shadow-md flex-shrink-0"
                 />
               ) : (
                 <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-amber-100 to-orange-100 text-amber-700 border-4 border-white shadow-md flex items-center justify-center text-2xl font-black flex-shrink-0">
-                  {topConduct[0].name.replace(/^(ด\.ช\.|ด\.ญ\.|นาย|นางสาว|นาง)\s*/, '').slice(0, 2)}
+                  {currentHeroRecord.name.replace(/^(ด\.ช\.|ด\.ญ\.|นาย|นางสาว|นาง)\s*/, '').slice(0, 2)}
                 </div>
               )}
               {/* Level Badge */}
@@ -464,16 +506,16 @@ export const useHomeMainBlocks = () => {
                 <Shield className="w-3 h-3 text-amber-500" />
                 {featuredHeroProfile.heroTitle}
               </span>
-              <h4 className="text-lg font-black text-gray-800 tracking-tight truncate">{topConduct[0].name}</h4>
+              <h4 className="text-lg font-black text-gray-800 tracking-tight truncate">{currentHeroRecord.name}</h4>
               <p className="text-xs font-bold text-gray-500">
-                ชั้นเรียน {topConduct[0].class}
+                ชั้นเรียน {currentHeroRecord.class}
               </p>
               <div className="inline-flex items-center gap-1 text-[11px] font-black text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-md">
                 <Star className="w-3.5 h-3.5 fill-current animate-pulse" />
                 สะสม {featuredHeroProfile.totalXp} XP คะแนนความดี
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Level Progress Bar */}
           <div className="w-full space-y-1 bg-gray-50/60 p-3 rounded-xl border border-gray-100">
@@ -533,7 +575,12 @@ export const useHomeMainBlocks = () => {
 
       {/* Psychological positive feedback message bubble */}
       {highestVirtueInfo && (
-        <div className="mt-5 relative bg-gradient-to-r from-amber-50/50 to-orange-50/50 border border-amber-100 p-3.5 rounded-xl flex items-start gap-3 shadow-inner">
+        <motion.div 
+          key={`feedback-${activeHeroIndex}`}
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-5 relative bg-gradient-to-r from-amber-50/50 to-orange-50/50 border border-amber-100 p-3.5 rounded-xl flex items-start gap-3 shadow-inner"
+        >
           <div className="p-1.5 bg-white rounded-lg border border-amber-200 shadow-sm text-sm flex-shrink-0">
             💬
           </div>
@@ -545,6 +592,38 @@ export const useHomeMainBlocks = () => {
               "{highestVirtueInfo.meta.feedback}"
             </p>
           </div>
+        </motion.div>
+      )}
+
+      {/* Slideshow Arrow Navigation */}
+      {featuredHeroProfiles.length > 1 && (
+        <>
+          <button 
+            onClick={() => setActiveHeroIndex(p => (p - 1 + featuredHeroProfiles.length) % featuredHeroProfiles.length)}
+            className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 hover:bg-white text-slate-700 shadow border border-slate-200 flex items-center justify-center cursor-pointer md:opacity-0 md:group-hover/showcase:opacity-100 transition-opacity"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <button 
+            onClick={() => setActiveHeroIndex(p => (p + 1) % featuredHeroProfiles.length)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 hover:bg-white text-slate-700 shadow border border-slate-200 flex items-center justify-center cursor-pointer md:opacity-0 md:group-hover/showcase:opacity-100 transition-opacity"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </>
+      )}
+
+      {/* Dot Indicators */}
+      {featuredHeroProfiles.length > 1 && (
+        <div className="flex justify-center gap-1.5 mt-4">
+          {featuredHeroProfiles.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setActiveHeroIndex(i)}
+              className={`h-2 rounded-full transition-all cursor-pointer ${i === activeHeroIndex ? 'bg-amber-500 w-6' : 'bg-slate-300 w-2 hover:bg-slate-400'}`}
+              title={`Rank ${i + 1}`}
+            />
+          ))}
         </div>
       )}
     </motion.div>
