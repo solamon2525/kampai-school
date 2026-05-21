@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -6,13 +6,15 @@ import {
   Trophy, Sparkles, Award, Lock, Shield, 
   Check, ArrowRight, Heart, BookOpen, Clock, 
   UserCheck, Flame, Star, Target, RefreshCw, 
-  Smile, AlertCircle, X, Zap, Search, ArrowLeft, Share2, QrCode, Download, HeartHandshake
+  Smile, AlertCircle, X, Zap, Search, ArrowLeft, Share2, QrCode, Download, HeartHandshake,
+  ChevronLeft, ChevronRight, Crown, Medal
 } from 'lucide-react';
 import { 
   Radar, RadarChart, PolarGrid, 
   PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer 
 } from 'recharts';
 import { conductService, studentsService } from '@/services';
+import { calculateHeroLevel, type ConductRecord } from '@/services/conduct.service';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -74,6 +76,194 @@ const LEVELS_INFO = [
   { level: 5, title: 'ต้นแบบแห่งความดี 👑', desc: 'ระดับสูงสุดของการอุทิศตนเพื่อคุณธรรมความดีและแบบอย่างผู้นำ' }
 ];
 
+// ─── Rank badge color helper ───
+const rankMedalStyle = (rank: number): { bg: string; text: string; ring: string } => {
+  if (rank === 1) return { bg: 'bg-gradient-to-br from-yellow-400 to-amber-500', text: 'text-slate-900', ring: 'ring-yellow-300' };
+  if (rank === 2) return { bg: 'bg-gradient-to-br from-slate-300 to-slate-400', text: 'text-slate-900', ring: 'ring-slate-300' };
+  if (rank === 3) return { bg: 'bg-gradient-to-br from-amber-600 to-orange-700', text: 'text-white', ring: 'ring-amber-400' };
+  return { bg: 'bg-gradient-to-br from-primary/80 to-primary', text: 'text-white', ring: 'ring-primary/40' };
+};
+
+type TopHeroRow = {
+  studentId: string;
+  name: string;
+  class: string;
+  photoUrl: string | null;
+  total: number;
+  count: number;
+};
+
+// ════════════════════════════════════════════════════════════
+//  TOP HERO CAROUSEL  (อันดับ 1-10 สลับอัตโนมัติ)
+// ════════════════════════════════════════════════════════════
+function TopHeroCarousel({ heroes, onSelect }: { heroes: TopHeroRow[]; onSelect: (id: string) => void }) {
+  const [current, setCurrent] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const INTERVAL_MS = 4500;
+
+  const startTimer = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    if (heroes.length < 2) return;
+    timerRef.current = setInterval(() => {
+      setCurrent(p => (p + 1) % heroes.length);
+    }, INTERVAL_MS);
+  }, [heroes.length]);
+
+  useEffect(() => {
+    if (!paused) startTimer();
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [paused, startTimer]);
+
+  const go = (dir: 1 | -1) => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    setCurrent(p => (p + dir + heroes.length) % heroes.length);
+    if (!paused) startTimer();
+  };
+
+  if (heroes.length === 0) return null;
+
+  const hero = heroes[current];
+  const rank = current + 1;
+  const levelInfo = calculateHeroLevel(hero.total);
+  const medal = rankMedalStyle(rank);
+
+  return (
+    <div
+      className="w-full rounded-3xl overflow-hidden relative"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      {/* Dark cinematic background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 z-0" />
+
+      {/* Decorative glow orbs */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-400/10 rounded-full blur-3xl z-0 pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-48 h-48 bg-primary/15 rounded-full blur-3xl z-0 pointer-events-none" />
+
+      {/* Header label */}
+      <div className="relative z-10 flex items-center justify-between px-5 pt-5 pb-2">
+        <div className="flex items-center gap-2">
+          <Crown className="w-4 h-4 text-yellow-400 animate-pulse" />
+          <span className="text-[11px] font-black text-yellow-400/90 uppercase tracking-widest">Kampai Hero Showcase</span>
+        </div>
+        <span className="text-[10px] font-bold text-slate-400">
+          {current + 1} / {heroes.length}
+        </span>
+      </div>
+
+      {/* Slide content */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={current}
+          initial={{ opacity: 0, y: 16, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -16, scale: 0.97 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
+          className="relative z-10 flex flex-col items-center px-5 pb-5 pt-2 gap-4"
+        >
+          {/* Rank badge + avatar */}
+          <div className="relative mt-1">
+            {/* Glow ring */}
+            <div className={cn(
+              'absolute -inset-3 rounded-full blur-xl opacity-60',
+              rank === 1 ? 'bg-yellow-400/50' : rank === 2 ? 'bg-slate-300/30' : rank === 3 ? 'bg-amber-600/40' : 'bg-primary/30'
+            )} />
+            {/* Avatar ring */}
+            <div className={cn('relative rounded-full p-[3px] ring-4', medal.ring,
+              rank === 1 ? 'bg-gradient-to-br from-yellow-300 to-amber-500'
+              : rank === 2 ? 'bg-gradient-to-br from-slate-200 to-slate-400'
+              : rank === 3 ? 'bg-gradient-to-br from-amber-500 to-orange-600'
+              : 'bg-gradient-to-br from-primary/60 to-primary'
+            )}>
+              <div className="rounded-full overflow-hidden w-24 h-24 border-2 border-slate-900">
+                {hero.photoUrl ? (
+                  <img src={hero.photoUrl} alt={hero.name} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center text-white text-2xl font-black">
+                    {hero.name.replace(/^(ด\.ช\.|ด\.ญ\.|นาย|นางสาว|นาง)\s*/, '').slice(0, 2)}
+                  </div>
+                )}
+              </div>
+            </div>
+            {/* Floating rank badge */}
+            <div className={cn(
+              'absolute -bottom-2 -right-2 w-9 h-9 rounded-full flex items-center justify-center font-black text-sm border-2 border-slate-900 shadow-lg z-10',
+              medal.bg, medal.text
+            )}>
+              {rank}
+            </div>
+          </div>
+
+          {/* Name & class */}
+          <div className="text-center space-y-1">
+            <p className="text-white font-black text-xl leading-tight tracking-tight">{hero.name}</p>
+            <p className="text-slate-400 text-xs font-semibold">ห้องเรียน {hero.class}</p>
+          </div>
+
+          {/* XP + title badges */}
+          <div className="flex flex-wrap justify-center gap-2">
+            <span className="inline-flex items-center gap-1.5 bg-yellow-400/15 border border-yellow-400/30 text-yellow-300 px-3 py-1 rounded-full text-xs font-black">
+              <Trophy className="w-3.5 h-3.5" />
+              {hero.total} Hero XP
+            </span>
+            <span className="inline-flex items-center gap-1.5 bg-white/10 border border-white/15 text-slate-200 px-3 py-1 rounded-full text-xs font-bold">
+              <Sparkles className="w-3.5 h-3.5 text-sky-300" />
+              {levelInfo.title}
+            </span>
+          </div>
+
+          {/* CTA button */}
+          <button
+            onClick={() => onSelect(hero.studentId)}
+            className="w-full max-w-[280px] h-11 rounded-2xl font-black text-sm bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-950 hover:from-yellow-300 hover:to-amber-400 transition-all active:scale-[0.97] flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20"
+          >
+            <Zap className="w-4 h-4" />
+            ดูประวัติฮีโร่ความดี
+          </button>
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Prev / Next buttons */}
+      {heroes.length > 1 && (
+        <>
+          <button
+            onClick={() => go(-1)}
+            aria-label="ก่อนหน้า"
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white flex items-center justify-center transition-all"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => go(1)}
+            aria-label="ถัดไป"
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white flex items-center justify-center transition-all"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </>
+      )}
+
+      {/* Dot indicators */}
+      {heroes.length > 1 && (
+        <div className="relative z-10 flex justify-center gap-1.5 pb-4">
+          {heroes.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => { if (timerRef.current) clearInterval(timerRef.current); setCurrent(i); if (!paused) startTimer(); }}
+              aria-label={`ไปยังอันดับที่ ${i + 1}`}
+              className={cn(
+                'rounded-full transition-all duration-300',
+                i === current ? 'bg-yellow-400 w-5 h-2' : 'bg-white/30 hover:bg-white/50 w-2 h-2'
+              )}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function StudentHeroPublic() {
   const { studentId } = useParams<{ studentId?: string }>();
   const navigate = useNavigate();
@@ -131,6 +321,41 @@ export default function StudentHeroPublic() {
       const roomName = student.room || '';
       return await conductService.getClassroomXpSum(student.class, roomName);
     }
+  });
+
+  // 5. Fetch Top-10 Heroes for Carousel (always loaded on search page)
+  const { data: topHeroes = [] } = useQuery<TopHeroRow[]>({
+    queryKey: ['public-top-heroes'],
+    staleTime: 5 * 60 * 1000, // 5 min cache
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('conduct_scores')
+        .select('student_id, score, type, students(id, name, class, photo_url)')
+        .eq('type', 'add');
+      if (error) throw error;
+      if (!data) return [];
+
+      const map = new Map<string, TopHeroRow>();
+      (data as any[]).forEach((r) => {
+        const stu = r.students;
+        if (!stu) return;
+        const cur = map.get(r.student_id) ?? {
+          studentId: r.student_id,
+          name: stu.name,
+          class: stu.class,
+          photoUrl: stu.photo_url ?? null,
+          total: 0,
+          count: 0,
+        };
+        cur.total += r.score;
+        cur.count += 1;
+        map.set(r.student_id, cur);
+      });
+
+      return Array.from(map.values())
+        .sort((a, b) => b.total - a.total)
+        .slice(0, 10);
+    },
   });
 
   // Handle Lookup by Student Code
@@ -240,8 +465,26 @@ export default function StudentHeroPublic() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -30 }}
-              className="max-w-md mx-auto my-12"
+              className="max-w-md mx-auto my-8 space-y-5"
             >
+              {/* ══════════════════════════════════════════
+                  TOP 10 HERO CAROUSEL
+                 ══════════════════════════════════════════ */}
+              {topHeroes.length > 0 && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-center gap-2 text-center">
+                    <Trophy className="w-4 h-4 text-yellow-500" />
+                    <p className="text-xs font-black text-slate-600 uppercase tracking-widest">
+                      10 อันดับฮีโร่ความดีแห่งปี
+                    </p>
+                    <Trophy className="w-4 h-4 text-yellow-500" />
+                  </div>
+                  <TopHeroCarousel
+                    heroes={topHeroes}
+                    onSelect={(id) => navigate(`/hero/${id}`)}
+                  />
+                </div>
+              )}
               <Card className="border border-slate-200 shadow-xl overflow-hidden bg-white rounded-3xl">
                 <div className="bg-gradient-to-br from-primary via-primary-light to-primary-deep text-primary-foreground p-8 text-center relative overflow-hidden">
                   <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl" />

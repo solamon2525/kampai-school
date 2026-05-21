@@ -263,9 +263,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.26.0 (PWA — Add to Home Screen / Installable App Icon)',
+        version: 'v1.27.0 (Featured Hero Visibility & DB RLS Policies)',
         date: 'ล่าสุด',
         badge: 'bg-green-700',
+        items: [
+            'แก้ไขระบบการจัดการโครงร่างหน้าแรก (Homepage Layout Manager) ให้ทำงานครอบคลุมโค้ดการสร้างหน้าจากคีย์ดั้งเดิม (Legacy Keys) เพื่อให้ปุ่มและบล็อก สุดยอดฮีโร่ความดีประจำสัปดาห์ (featured_hero) ถูกโหลดและแสดงผลได้โดยอัตโนมัติ',
+            'สร้าง Migration 070_public_read_active_students_basic.sql เพื่อตั้งค่าสิทธิ์ Row Level Security (RLS) ของตารางนักเรียน (students) ให้ผู้ใช้ทั่วไป (anon) และผู้ใช้ที่ล็อกอินสามารถ SELECT นักเรียนที่มีสถานะ is_active = true และให้ผู้ปกครองสามารถ SELECT ประวัตินักเรียนของตนเองได้',
+            'ปรับปรุงระบบการแสดงผลชื่อนักเรียนและรูปภาพโปรไฟล์ (PersonAvatar) บนหน้าแรก (Featured Hero Block) ให้สอดคล้องตามกฎ PDPA และกฎ DESIGN.md Rule 14.13 ในระบบโรงเรียน',
+        ],
+    },
+    {
+        version: 'v1.26.0 (PWA — Add to Home Screen / Installable App Icon)',
+        date: '',
+        badge: 'bg-slate-600',
         items: [
             'vite-plugin-pwa (Workbox autoUpdate) + injectRegister: ผู้ใช้ไม่ต้องพิมพ์ URL — ติดตั้ง icon บนหน้าจอมือถือได้เลย (Android + iOS)',
             'public/manifest.webmanifest: name โรงเรียนบ้านคำไผ่ / short_name คำไผ่ / display standalone / theme #157F3C / scope / + 4 icons (192, 512, maskable 192/512)',

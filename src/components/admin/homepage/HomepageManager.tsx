@@ -159,44 +159,44 @@ export const HomepageManager = () => {
             if (map.homepage_layout) {
                 try {
                     loaded = JSON.parse(map.homepage_layout);
-
-                    // Ensure all 5 zones exist
-                    if (!loaded.header) loaded.header = { blocks: [], hidden: [] };
-                    if (!loaded.main) loaded.main = { blocks: [], hidden: [] };
-                    if (!loaded.right) loaded.right = { blocks: [], hidden: [] };
-                    if (!loaded.left) loaded.left = { blocks: [], hidden: [] };
-                    if (!loaded.footer) loaded.footer = { blocks: [], hidden: [] };
-
-                    // Find all blocks currently ANYWHERE in the layout
-                    const allCurrentBlocks = new Set([
-                        ...loaded.header.blocks,
-                        ...loaded.main.blocks,
-                        ...loaded.right.blocks,
-                        ...loaded.left.blocks,
-                        ...loaded.footer.blocks,
-                    ]);
-
-                    // Inject legally missing blocks into their default zones
-                    HEADER_BLOCKS.forEach(b => { if (!allCurrentBlocks.has(b.id)) loaded.header.blocks.push(b.id); });
-                    MAIN_BLOCKS.forEach(b => { if (!allCurrentBlocks.has(b.id)) loaded.main.blocks.push(b.id); });
-                    RIGHT_BLOCKS.forEach(b => { if (!allCurrentBlocks.has(b.id)) loaded.right.blocks.push(b.id); });
-                    LEFT_BLOCKS.forEach(b => { if (!allCurrentBlocks.has(b.id)) loaded.left.blocks.push(b.id); });
-                    FOOTER_BLOCKS.forEach(b => { if (!allCurrentBlocks.has(b.id)) loaded.footer.blocks.push(b.id); });
-
-                    // Remove invalid blocks that don't exist in codebase anymore
-                    const validIds = new Set(ALL_BLOCKS.map(b => b.id));
-                    (Object.keys(loaded) as ZoneKey[]).forEach(zone => {
-                        if (loaded[zone]) {
-                            loaded[zone].blocks = loaded[zone].blocks.filter(id => validIds.has(id));
-                            loaded[zone].hidden = loaded[zone].hidden.filter(id => validIds.has(id));
-                        }
-                    });
                 } catch {
                     loaded = DEFAULT_LAYOUT;
                 }
             } else {
                 loaded = buildFromLegacy(map.homepage_main_sections, map.homepage_right_widgets);
             }
+
+            // Ensure all 5 zones exist
+            if (!loaded.header) loaded.header = { blocks: [], hidden: [] };
+            if (!loaded.main) loaded.main = { blocks: [], hidden: [] };
+            if (!loaded.right) loaded.right = { blocks: [], hidden: [] };
+            if (!loaded.left) loaded.left = { blocks: [], hidden: [] };
+            if (!loaded.footer) loaded.footer = { blocks: [], hidden: [] };
+
+            // Find all blocks currently ANYWHERE in the layout
+            const allCurrentBlocks = new Set([
+                ...loaded.header.blocks,
+                ...loaded.main.blocks,
+                ...loaded.right.blocks,
+                ...loaded.left.blocks,
+                ...loaded.footer.blocks,
+            ]);
+
+            // Inject legally missing blocks into their default zones
+            HEADER_BLOCKS.forEach(b => { if (!allCurrentBlocks.has(b.id)) loaded.header.blocks.push(b.id); });
+            MAIN_BLOCKS.forEach(b => { if (!allCurrentBlocks.has(b.id)) loaded.main.blocks.push(b.id); });
+            RIGHT_BLOCKS.forEach(b => { if (!allCurrentBlocks.has(b.id)) loaded.right.blocks.push(b.id); });
+            LEFT_BLOCKS.forEach(b => { if (!allCurrentBlocks.has(b.id)) loaded.left.blocks.push(b.id); });
+            FOOTER_BLOCKS.forEach(b => { if (!allCurrentBlocks.has(b.id)) loaded.footer.blocks.push(b.id); });
+
+            // Remove invalid blocks that don't exist in codebase anymore
+            const validIds = new Set(ALL_BLOCKS.map(b => b.id));
+            (Object.keys(loaded) as ZoneKey[]).forEach(zone => {
+                if (loaded[zone]) {
+                    loaded[zone].blocks = loaded[zone].blocks.filter(id => validIds.has(id));
+                    loaded[zone].hidden = loaded[zone].hidden.filter(id => validIds.has(id));
+                }
+            });
 
             setLayout(loaded);
             setInitialLayout(JSON.parse(JSON.stringify(loaded)));
