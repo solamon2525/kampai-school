@@ -23,11 +23,36 @@ import { cn } from '@/lib/utils';
 
 // Virtue translation mapping with styles
 const VIRTUE_METRICS = {
-  publicMind: { label: 'จิตสาธารณะ 🌱', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-950/30', border: 'border-emerald-100 dark:border-emerald-900/50', gradient: 'from-emerald-400 to-teal-500' },
-  responsibility: { label: 'ความรับผิดชอบ 📘', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-950/30', border: 'border-blue-100 dark:border-blue-900/50', gradient: 'from-blue-400 to-indigo-500' },
-  discipline: { label: 'วินัย ⏰', color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-50 dark:bg-purple-950/30', border: 'border-purple-100 dark:border-purple-900/50', gradient: 'from-purple-400 to-pink-500' },
-  honesty: { label: 'ซื่อสัตย์ 🤝', color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-950/30', border: 'border-amber-100 dark:border-amber-900/50', gradient: 'from-amber-400 to-orange-500' },
-  kindness: { label: 'น้ำใจ ❤️', color: 'text-pink-600 dark:text-pink-400', bg: 'bg-pink-50 dark:bg-pink-950/30', border: 'border-pink-100 dark:border-pink-900/50', gradient: 'from-pink-400 to-rose-500' },
+  publicMind: { 
+    label: 'จิตสาธารณะ 🌱', 
+    accentBorder: 'border-l-emerald-500 dark:border-l-emerald-400', 
+    badgeBg: 'bg-emerald-50/80 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200/30 dark:border-emerald-800/40',
+    gradient: 'from-emerald-400 to-teal-500' 
+  },
+  responsibility: { 
+    label: 'ความรับผิดชอบ 📘', 
+    accentBorder: 'border-l-blue-500 dark:border-l-blue-400', 
+    badgeBg: 'bg-blue-50/80 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200/30 dark:border-blue-800/40',
+    gradient: 'from-blue-400 to-indigo-500' 
+  },
+  discipline: { 
+    label: 'วินัย ⏰', 
+    accentBorder: 'border-l-purple-500 dark:border-l-purple-400', 
+    badgeBg: 'bg-purple-50/80 text-purple-800 dark:bg-purple-950/40 dark:text-purple-300 border border-purple-200/30 dark:border-purple-800/40',
+    gradient: 'from-purple-400 to-pink-500' 
+  },
+  honesty: { 
+    label: 'ซื่อสัตย์ 🤝', 
+    accentBorder: 'border-l-amber-500 dark:border-l-amber-400', 
+    badgeBg: 'bg-amber-50/80 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200/30 dark:border-amber-800/40',
+    gradient: 'from-amber-400 to-orange-500' 
+  },
+  kindness: { 
+    label: 'น้ำใจ ❤️', 
+    accentBorder: 'border-l-pink-500 dark:border-l-pink-400', 
+    badgeBg: 'bg-pink-50/80 text-pink-800 dark:bg-pink-950/40 dark:text-pink-300 border border-pink-200/30 dark:border-pink-800/40',
+    gradient: 'from-pink-400 to-rose-500' 
+  },
 };
 
 interface KampaiHeroDashboardProps {
@@ -318,13 +343,19 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
                 const ratio = maxVirtue > 0 ? (val / maxVirtue) * 100 : 0;
                 
                 return (
-                  <div key={key} className={cn("p-2.5 rounded-xl border flex items-center justify-between gap-4 transition-all hover:translate-x-1", metric.bg, metric.border)}>
+                  <div 
+                    key={key} 
+                    className={cn(
+                      "p-2.5 rounded-xl border border-slate-200/60 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/20 flex items-center justify-between gap-4 transition-all hover:translate-x-1 border-l-4", 
+                      metric.accentBorder
+                    )}
+                  >
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-center mb-1">
-                        <span className={cn("text-xs font-black", metric.color)}>
+                        <span className="text-xs font-black text-slate-800 dark:text-slate-200">
                           {metric.label}
                         </span>
-                        <span className="text-xs font-black text-slate-800 dark:text-slate-200">
+                        <span className={cn("text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm", metric.badgeBg)}>
                           {val} XP
                         </span>
                       </div>
@@ -363,8 +394,8 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
                   className={cn(
                     "flex items-center gap-4.5 p-3 rounded-2xl border transition-all duration-300",
                     badge.unlocked 
-                      ? "bg-gradient-to-r from-yellow-50/50 to-amber-50/30 border-amber-200 dark:from-amber-950/20 dark:border-amber-900/40" 
-                      : "bg-slate-50/50 border-slate-100 dark:bg-slate-900/20 dark:border-slate-800/50 opacity-70"
+                      ? "bg-gradient-to-r from-amber-50/60 to-yellow-50/40 border-amber-200 dark:from-amber-950/20 dark:border-amber-900/40" 
+                      : "bg-slate-50/80 border-slate-200 dark:bg-slate-900/40 dark:border-slate-800/80"
                   )}
                 >
                   {/* Badge Icon Frame */}
@@ -387,14 +418,14 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
                   {/* Details */}
                   <div className="flex-1 min-w-0 space-y-1">
                     <div className="flex justify-between items-start gap-2">
-                      <h4 className={cn("text-xs font-bold truncate", badge.unlocked ? "text-amber-800 dark:text-amber-300" : "text-slate-600 dark:text-slate-400")}>
+                      <h4 className={cn("text-xs font-bold truncate", badge.unlocked ? "text-amber-900 dark:text-amber-200" : "text-slate-700 dark:text-slate-300")}>
                         {badge.name}
                       </h4>
-                      <span className="text-[10px] font-bold text-slate-500">
+                      <span className={cn("text-[10px] font-bold", badge.unlocked ? "text-amber-700 dark:text-amber-400" : "text-slate-500 dark:text-slate-400")}>
                         {badge.progress}/{badge.target} ครั้ง
                       </span>
                     </div>
-                    <p className="text-[10px] text-slate-400 dark:text-slate-500 leading-tight">
+                    <p className={cn("text-[10px] leading-tight", badge.unlocked ? "text-amber-800/80 dark:text-amber-400/80" : "text-slate-500 dark:text-slate-400")}>
                       {badge.description}
                     </p>
                     
