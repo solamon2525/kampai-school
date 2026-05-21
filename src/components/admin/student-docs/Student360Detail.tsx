@@ -20,6 +20,7 @@ import { SdqTab } from './SdqForm';
 import { MealBudgetTab } from './MealBudgetForm';
 import { GeneralDocsTab } from './GeneralDocsTab';
 import { GamesSummary } from './GamesSummary';
+import { KampaiHeroDashboard } from '../conduct/KampaiHeroDashboard';
 
 type TabKey =
     | 'profile' | 'scores' | 'conduct' | 'attendance' | 'support'
@@ -132,7 +133,7 @@ export const Student360Detail = ({ studentId, onBack }: Student360DetailProps) =
             <div className="pt-2">
                 {tab === 'profile' && <ProfileTab profile={profile} />}
                 {tab === 'scores' && <ExternalLinkTab path="/admin/dashboard/scores" label="คะแนนเก็บ" hint="ระบบเก็บคะแนนรายวิชา — ไปจัดการที่หน้า ScoresManagement" />}
-                {tab === 'conduct' && <ExternalLinkTab path="/admin/dashboard/conduct" label="Kampai Hero System" hint="ระบบ Kampai Hero System — ไปดู/บันทึกที่ ConductManagement" />}
+                {tab === 'conduct' && <KampaiHeroDashboard studentId={studentId} />}
                 {tab === 'attendance' && <AttendanceSummary studentId={studentId} />}
                 {tab === 'support' && <SupportSummary studentId={studentId} />}
                 {tab === 'home_visit' && <HomeVisitTab studentId={studentId} />}

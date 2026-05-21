@@ -11,6 +11,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { NoDataIllustration } from '@/components/ui/empty-illustrations';
 import { WasteBankParentView } from '@/components/parent/WasteBankParentView';
 import { SavingsBankParentView } from '@/components/parent/SavingsBankParentView';
+import { KampaiHeroDashboard } from '@/components/admin/conduct/KampaiHeroDashboard';
 
 interface Props {
     view: 'attendance' | 'scores' | 'conduct' | 'waste-bank' | 'savings-bank';
@@ -123,7 +124,9 @@ export default function ParentChildView({ view }: Props) {
                 <h1 className="text-2xl font-bold flex items-center gap-2">
                     <Icon className="w-6 h-6" /> {cfg.title}
                 </h1>
-                {view === 'waste-bank' && link?.student_id ? (
+                {view === 'conduct' && link?.student_id ? (
+                    <KampaiHeroDashboard studentId={link.student_id} isParentView={true} />
+                ) : view === 'waste-bank' && link?.student_id ? (
                     <WasteBankParentView studentId={link.student_id} />
                 ) : view === 'savings-bank' && link?.student_id ? (
                     <SavingsBankParentView studentId={link.student_id} />

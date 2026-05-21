@@ -23,19 +23,34 @@ const currentYear = (new Date().getFullYear() + 543).toString();
 // Sentinel สำหรับ <Select> ของ radix v2.2+ ที่ห้าม value=""
 const ALL = '__all__';
 
+const VIRTUE_LABELS: Record<string, string> = {
+    publicMind: 'จิตสาธารณะ 🌱',
+    responsibility: 'ความรับผิดชอบ 📘',
+    discipline: 'วินัย ⏰',
+    honesty: 'ซื่อสัตย์ 🤝',
+    kindness: 'น้ำใจ ❤️',
+};
+
+const VIRTUE_COLORS: Record<string, string> = {
+    publicMind: 'border-emerald-500 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900',
+    responsibility: 'border-blue-500 text-blue-700 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-900',
+    discipline: 'border-purple-500 text-purple-700 bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/20 dark:text-purple-400 dark:border-purple-900',
+    honesty: 'border-amber-500 text-amber-700 bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900',
+    kindness: 'border-pink-500 text-pink-700 bg-pink-50 hover:bg-pink-100 dark:bg-pink-950/20 dark:text-pink-400 dark:border-pink-900',
+};
+
 const PRESET_REASONS: Record<'add' | 'deduct', { category: string; reasons: string[] }[]> = {
     add: [
-        { category: 'ความดี', reasons: ['ช่วยเหลือผู้อื่น', 'มีน้ำใจ', 'รักษาความสะอาด', 'ซื่อสัตย์สุจริต'] },
-        { category: 'จิตอาสา', reasons: ['เข้าร่วมกิจกรรมจิตอาสา', 'ช่วยงานโรงเรียน', 'บริจาคสิ่งของ'] },
-        { category: 'วินัย', reasons: ['มาเรียนตรงเวลา', 'แต่งกายถูกระเบียบ', 'รักษาระเบียบวินัย'] },
-        { category: 'วิชาการ', reasons: ['ได้รับรางวัลการแข่งขัน', 'สอบได้คะแนนดีเด่น', 'ทำงานส่งครบ'] },
-        { category: 'กีฬา', reasons: ['ได้รับรางวัลกีฬา', 'มีน้ำใจนักกีฬา'] },
+        { category: 'publicMind', reasons: ['ช่วยเก็บขยะรักษาความสะอาด 🌱', 'อาสาช่วยงานคุณครู 🤝', 'บริจาคสิ่งของช่วยเหลือโรงเรียน 🎒', 'จัดระเบียบจัดแถวชั้นเรียน 🏫'] },
+        { category: 'responsibility', reasons: ['ส่งการบ้านตรงเวลาครบถ้วน 📘', 'ทำหน้าที่เวรประจำวันอย่างดี 🧹', 'ปฏิบัติภารกิจที่ได้รับมอบหมายสำเร็จ 🎯'] },
+        { category: 'discipline', reasons: ['เข้าแถวตอนเช้าตรงเวลา ⏰', 'แต่งกายถูกระเบียบเรียบร้อย 👔', 'ปฏิบัติตามข้อตกลงห้องเรียน 📜'] },
+        { category: 'honesty', reasons: ['ซื่อสัตย์สุจริตไม่โกงการบ้าน 🤝', 'เก็บของมีค่าตกหล่นส่งคืน 🪙', 'ยอมรับความผิดของตนเองอย่างตรงไปตรงมา 👤'] },
+        { category: 'kindness', reasons: ['ช่วยเหลือเพื่อนสอนการบ้าน ❤️', 'มีน้ำใจแบ่งปันของกินของใช้ 🍎', 'ช่วยคุณครูถือของหนัก 🛍️'] },
     ],
     deduct: [
-        { category: 'วินัย', reasons: ['มาสาย', 'แต่งกายผิดระเบียบ', 'ใช้โทรศัพท์ในห้องเรียน', 'ส่งเสียงรบกวน'] },
-        { category: 'ทรัพย์สิน', reasons: ['ทำลายทรัพย์สินโรงเรียน', 'ลักขโมย'] },
-        { category: 'การเรียน', reasons: ['ไม่ส่งงาน', 'ขาดเรียนโดยไม่มีเหตุผล', 'ทุจริตในการสอบ'] },
-        { category: 'ความประพฤติ', reasons: ['ทะเลาะวิวาท', 'พูดจาหยาบคาย', 'กลั่นแกล้งเพื่อน'] },
+        { category: 'discipline', reasons: ['มาสาย/ไม่ทันเข้าแถว ⏰', 'แต่งกายผิดระเบียบ 👔', 'ใช้โทรศัพท์ในเวลาเรียน 📱', 'ส่งเสียงดังรบกวนสมาธิห้องเรียน 📣'] },
+        { category: 'honesty', reasons: ['ทะเลาะวิวาทหรือรังแกเพื่อน 🤝', 'พูดจาหยาบคายหรือไม่สุภาพ 🤬', 'ทำลายข้าวของโรงเรียนเสียหาย 🧱'] },
+        { category: 'responsibility', reasons: ['ไม่ทำการบ้าน/ไม่ส่งงาน 📘', 'หลบเลี่ยงไม่ทำหน้าที่เวรประจำวัน 🧹'] },
     ],
 };
 
@@ -149,7 +164,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
             student_id: selectedStudentId,
             type,
             score: parseInt(score) || 1,
-            category: category || (type === 'add' ? 'ความดี' : 'วินัย'),
+            category: category || (type === 'add' ? 'publicMind' : 'discipline'),
             reason: reason.trim(),
             recorded_by: recorder.name || null,
             recorded_by_staff_id: recorder.staffId,
@@ -250,16 +265,23 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                         <div className="space-y-1">
                             <Label>หมวดหมู่</Label>
                             <div className="flex flex-wrap gap-1">
-                                {presets.map(p => (
-                                    <Badge
-                                        key={p.category}
-                                        variant={category === p.category ? 'default' : 'outline'}
-                                        className="cursor-pointer"
-                                        onClick={() => { setCategory(p.category); setReason(''); }}
-                                    >
-                                        {p.category}
-                                    </Badge>
-                                ))}
+                                {presets.map(p => {
+                                    const isSelected = category === p.category;
+                                    return (
+                                        <Badge
+                                            key={p.category}
+                                            variant="outline"
+                                            className={`cursor-pointer transition-colors py-1 px-2.5 ${
+                                                isSelected 
+                                                    ? VIRTUE_COLORS[p.category] 
+                                                    : 'border-muted-foreground/20 text-muted-foreground hover:bg-muted'
+                                            }`}
+                                            onClick={() => { setCategory(p.category); setReason(''); }}
+                                        >
+                                            {VIRTUE_LABELS[p.category] || p.category}
+                                        </Badge>
+                                    );
+                                })}
                             </div>
                         </div>
 
@@ -506,7 +528,12 @@ function HistoryTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) 
                                         <div className="flex items-center gap-2 flex-wrap">
                                             <span className="font-medium">{r.students?.name ?? '—'}</span>
                                             <Badge variant="outline" className="text-xs">{r.students?.class}</Badge>
-                                            <Badge variant="secondary" className="text-xs">{r.category}</Badge>
+                                            <Badge 
+                                                variant="outline" 
+                                                className={`text-xs ${VIRTUE_COLORS[r.category] || 'bg-secondary text-secondary-foreground border-transparent'}`}
+                                            >
+                                                {VIRTUE_LABELS[r.category] || r.category}
+                                            </Badge>
                                         </div>
                                         <p className="text-sm mt-0.5">{r.reason}</p>
                                         <p className="text-xs text-muted-foreground mt-1">
@@ -602,7 +629,7 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
             student_id,
             type,
             score: parseInt(score) || 1,
-            category: category || (type === 'add' ? 'ความดี' : 'วินัย'),
+            category: category || (type === 'add' ? 'publicMind' : 'discipline'),
             reason: reason.trim(),
             recorded_by: recorder.name || null,
             recorded_by_staff_id: recorder.staffId,
@@ -790,16 +817,23 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
                     <div className="space-y-2">
                         <Label>หมวดหมู่</Label>
                         <div className="flex flex-wrap gap-2">
-                            {presets.map(p => (
-                                <Badge
-                                    key={p.category}
-                                    variant={category === p.category ? 'default' : 'outline'}
-                                    className="cursor-pointer py-1.5 px-3 text-sm"
-                                    onClick={() => { setCategory(p.category); setReason(''); }}
-                                >
-                                    {p.category}
-                                </Badge>
-                            ))}
+                            {presets.map(p => {
+                                const isSelected = category === p.category;
+                                return (
+                                    <Badge
+                                        key={p.category}
+                                        variant="outline"
+                                        className={`cursor-pointer transition-colors py-1.5 px-3 text-sm ${
+                                            isSelected 
+                                                ? VIRTUE_COLORS[p.category] 
+                                                : 'border-muted-foreground/20 text-muted-foreground hover:bg-muted'
+                                        }`}
+                                        onClick={() => { setCategory(p.category); setReason(''); }}
+                                    >
+                                        {VIRTUE_LABELS[p.category] || p.category}
+                                    </Badge>
+                                );
+                            })}
                         </div>
                     </div>
 

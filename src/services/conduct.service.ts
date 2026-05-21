@@ -1,6 +1,7 @@
 /**
  * conduct.service.ts
  * Supabase queries สำหรับ conduct_scores table
+ * และโมเดลการประมวลผลระบบพลังความดีของฮีโร่ (Kampai Hero System)
  */
 import { supabase } from '@/integrations/supabase/client';
 
@@ -17,7 +18,7 @@ export type ConductRecord = {
   academic_year: string;
   semester: string;
   created_at: string;
-  students?: { name: string; class: string; photo_url?: string | null } | null;
+  students?: { name: string; class: string; room?: string | null; photo_url?: string | null } | null;
 };
 
 export type ConductInsert = {
@@ -31,6 +32,104 @@ export type ConductInsert = {
   recorded_by_administrator_id?: string | null;
   academic_year: string;
   semester: string;
+};
+
+export type HeroBadge = {
+  id: string;
+  name: string;
+  icon: string;
+  description: string;
+  progress: number;
+  target: number;
+  unlocked: boolean;
+};
+
+export type HeroProfile = {
+  studentId: string;
+  totalXp: number;
+  level: number;
+  heroTitle: string;
+  xpInLevel: number;
+  xpNeededForNextLevel: number;
+  progressPercent: number;
+  virtues: {
+    publicMind: number;
+    responsibility: number;
+    discipline: number;
+    honesty: number;
+    kindness: number;
+  };
+  badges: HeroBadge[];
+  timeline: {
+    id: string;
+    date: string;
+    title: string;
+    category: string;
+    xp: number;
+    type: 'add' | 'deduct';
+    message: string;
+  }[];
+};
+
+export type ClassroomGoal = {
+  id: string;
+  class: string;
+  room: string;
+  target_xp: number;
+  reward: string;
+  is_active: boolean;
+};
+
+/** แผนที่แปลงหมวดหมู่ภาษาไทย/ดั้งเดิม เข้ากับ 5 มิติคุณธรรมหลักภาษาอังกฤษ */
+export const mapCategoryToVirtue = (cat: string): 'publicMind' | 'responsibility' | 'discipline' | 'honesty' | 'kindness' => {
+  const norm = (cat || '').trim();
+  if (['publicMind', 'จิตสาธารณะ', 'จิตอาสา'].includes(norm)) return 'publicMind';
+  if (['responsibility', 'ความรับผิดชอบ', 'วิชาการ', 'กีฬา'].includes(norm)) return 'responsibility';
+  if (['discipline', 'วินัย', 'ระเบียบวินัย'].includes(norm)) return 'discipline';
+  if (['honesty', 'ซื่อสัตย์', 'ซื่อสัตย์สุจริต'].includes(norm)) return 'honesty';
+  if (['kindness', 'น้ำใจ', 'ความดี', 'ช่วยเหลือ'].includes(norm)) return 'kindness';
+  return 'kindness'; // default fallback
+};
+
+/** คำนวณเลเวล และยศฮีโร่ตามค่า XP สะสม */
+export const calculateHeroLevel = (xp: number) => {
+  if (xp < 100) {
+    return { level: 1, title: 'เมล็ดพันธุ์แห่งความดี 🌱', xpInLevel: xp, xpNeededForNextLevel: 100, progressPercent: xp };
+  } else if (xp < 200) {
+    const xpInLevel = xp - 100;
+    return { level: 2, title: 'ผู้ช่วยตัวน้อย 🤝', xpInLevel, xpNeededForNextLevel: 100, progressPercent: xpInLevel };
+  } else if (xp < 400) {
+    const xpInLevel = xp - 200;
+    return { level: 3, title: 'ฮีโร่ประจำห้อง ⭐', xpInLevel, xpNeededForNextLevel: 200, progressPercent: Math.round((xpInLevel / 200) * 100) };
+  } else if (xp < 700) {
+    const xpInLevel = xp - 400;
+    return { level: 4, title: 'ผู้พิทักษ์โรงเรียน 🛡️', xpInLevel, xpNeededForNextLevel: 300, progressPercent: Math.round((xpInLevel / 300) * 100) };
+  } else {
+    const xpInLevel = xp - 700;
+    return { level: 5, title: 'ต้นแบบแห่งความดี 👑', xpInLevel, xpNeededForNextLevel: 0, progressPercent: 100 };
+  }
+};
+
+/** ข้อความสนับสนุนทางจิตวิทยาเชิงบวกตามมิติคุณธรรม */
+export const getEmotionalFeedback = (category: string, reason: string): string => {
+  const virtue = mapCategoryToVirtue(category);
+  switch (virtue) {
+    case 'publicMind':
+      return 'หนูช่วยให้โรงเรียนน่าอยู่และน่าเรียนรู้ยิ่งขึ้น 🌱';
+    case 'responsibility':
+      return 'ความรับผิดชอบและการทำหน้าที่ของหนูเป็นเรื่องที่น่ายกย่อง 📘';
+    case 'discipline':
+      if (reason.includes('ตรงเวลา')) {
+        return 'การตรงต่อเวลาของหนูแสดงถึงความเป็นผู้ใหญ่อย่างยอดเยี่ยม ⏰';
+      }
+      return 'ความมีระเบียบวินัยเป็นรากฐานที่สำคัญของผู้นำที่ดี ⏰';
+    case 'honesty':
+      return 'ความซื่อสัตย์ของหนูเป็นแบบอย่างที่งดงามและน่าชื่นชม 🤝';
+    case 'kindness':
+      return 'การมีน้ำใจช่วยเหลือผู้อื่นทำให้สิ่งแวดล้อมรอบตัวเต็มไปด้วยรอยยิ้ม ❤️';
+    default:
+      return 'หนูยอดเยี่ยมมาก และมีพัฒนาการที่ดีขึ้นในทุกๆ วัน ✨';
+  }
 };
 
 export const conductService = {
@@ -76,4 +175,187 @@ export const conductService = {
   /** ลบประวัติคะแนน */
   delete: (id: string) =>
     supabase.from('conduct_scores').delete().eq('id', id),
+
+  // =========================================================
+  // ฟีเจอร์เพิ่มเติมสำหรับ Kampai Hero System (Backend Ledger Calculation)
+  // =========================================================
+
+  /** คำนวณประมวลผลโปรไฟล์ฮีโร่ของนักเรียน */
+  getHeroProfile: async (studentId: string): Promise<HeroProfile> => {
+    const { data: records, error } = await supabase
+      .from('conduct_scores')
+      .select('*')
+      .eq('student_id', studentId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    const list = (records || []) as ConductRecord[];
+
+    // 1. คำนวณ XP สุทธิ (บวก ลบ หัก, ต่ำสุดที่ 0)
+    let totalXp = 0;
+    const virtues = { publicMind: 0, responsibility: 0, discipline: 0, honesty: 0, kindness: 0 };
+
+    // เก็บประวัติจำนวนครั้งเพื่อวิเคราะห์ Badge
+    const counts = { publicMind: 0, responsibility: 0, discipline: 0, honesty: 0, kindness: 0, punctuality: 0 };
+
+    list.forEach(r => {
+      const v = mapCategoryToVirtue(r.category);
+      if (r.type === 'add') {
+        totalXp += r.score;
+        virtues[v] += r.score;
+        counts[v] += 1;
+        if (v === 'discipline' && (r.reason.includes('ตรงเวลา') || r.reason.includes('เข้าแถว'))) {
+          counts.punctuality += 1;
+        }
+      } else {
+        totalXp = Math.max(0, totalXp - r.score);
+        // การหักคะแนนส่งผลลดมิติเรดาร์ย่อย
+        virtues[v] = Math.max(0, virtues[v] - r.score);
+      }
+    });
+
+    // 2. คำนวณเลเวล
+    const levelInfo = calculateHeroLevel(totalXp);
+
+    // 3. คำนวณสถานะ Badge
+    const badges: HeroBadge[] = [
+      {
+        id: 'clean_hero',
+        name: 'ผู้รักษาความสะอาด 🌱',
+        icon: '🌱',
+        description: 'มีจิตสาธารณะช่วยงานส่วนรวมและรักษาสิ่งแวดล้อม 5 ครั้ง',
+        progress: Math.min(5, counts.publicMind),
+        target: 5,
+        unlocked: counts.publicMind >= 5
+      },
+      {
+        id: 'kind_friend',
+        name: 'เพื่อนที่แสนดี ❤️',
+        icon: '❤️',
+        description: 'มีน้ำใจและช่วยเหลือเพื่อนฝูงบ่อยครั้ง 5 ครั้ง',
+        progress: Math.min(5, counts.kindness),
+        target: 5,
+        unlocked: counts.kindness >= 5
+      },
+      {
+        id: 'responsible_hero',
+        name: 'นักรับผิดชอบ 📘',
+        icon: '📘',
+        description: 'มีความรับผิดชอบส่งงานหรือทำภาระหน้าที่ 3 ครั้ง',
+        progress: Math.min(3, counts.responsibility),
+        target: 3,
+        unlocked: counts.responsibility >= 3
+      },
+      {
+        id: 'on_time_hero',
+        name: 'ตรงต่อเวลา ⏰',
+        icon: '⏰',
+        description: 'รักษาเวลา เข้าแถว หรือมาเรียนตรงเวลา 3 ครั้ง',
+        progress: Math.min(3, counts.punctuality),
+        target: 3,
+        unlocked: counts.punctuality >= 3
+      },
+      {
+        id: 'honest_hero',
+        name: 'น้ำใจงาม & ซื่อสัตย์ 🤝',
+        icon: '🤝',
+        description: 'ซื่อสัตย์สุจริต เก็บของได้ส่งคืน หรือพูดความจริง 2 ครั้ง',
+        progress: Math.min(2, counts.honesty),
+        target: 2,
+        unlocked: counts.honesty >= 2
+      }
+    ];
+
+    // 4. สร้าง Timeline แบบสร้างแรงบันดาลใจ
+    const timeline = list.map(r => ({
+      id: r.id,
+      date: r.created_at,
+      title: r.reason,
+      category: r.category,
+      xp: r.score,
+      type: r.type,
+      message: r.type === 'add' ? getEmotionalFeedback(r.category, r.reason) : 'ทบทวนตนเองเพื่อเติบโตเป็นฮีโร่ที่ดีขึ้น 🛡️'
+    }));
+
+    return {
+      studentId,
+      totalXp,
+      level: levelInfo.level,
+      heroTitle: levelInfo.title,
+      xpInLevel: levelInfo.xpInLevel,
+      xpNeededForNextLevel: levelInfo.xpNeededForNextLevel,
+      progressPercent: levelInfo.progressPercent,
+      virtues,
+      badges,
+      timeline
+    };
+  },
+
+  /** ดึงเป้าหมายกลุ่มของห้องเรียน */
+  getClassroomGoal: async (className: string, roomName: string): Promise<ClassroomGoal | null> => {
+    const { data, error } = await supabase
+      .from('classroom_goals')
+      .select('*')
+      .eq('class', className)
+      .eq('room', roomName)
+      .maybeSingle();
+
+    if (error) return null;
+    return data as ClassroomGoal;
+  },
+
+  /** อัปเดตหรือสร้างเป้าหมายของห้องเรียน */
+  upsertClassroomGoal: async (className: string, roomName: string, targetXp: number, reward: string) => {
+    return supabase
+      .from('classroom_goals')
+      .upsert({
+        class: className,
+        room: roomName,
+        target_xp: targetXp,
+        reward,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'class,room' });
+  },
+
+  /** รวมคะแนน XP ทั้งหมดของห้องเรียนในปัจจุบัน */
+  getClassroomXpSum: async (className: string, roomName: string, semester?: string, academicYear?: string): Promise<number> => {
+    // 1. ดึง ID นักเรียนทั้งหมดในห้องเรียนนี้
+    let studentQuery = supabase
+      .from('students')
+      .select('id')
+      .eq('class', className)
+      .eq('is_active', true);
+    
+    if (roomName) {
+      studentQuery = studentQuery.eq('room', roomName);
+    }
+    
+    const { data: studentIds, error: studentError } = await studentQuery;
+    if (studentError || !studentIds || studentIds.length === 0) return 0;
+    
+    const ids = studentIds.map(s => s.id);
+
+    // 2. ดึงประวัติและคำนวณ XP สุทธิร่วมกันของทั้งห้อง
+    let conductQuery = supabase
+      .from('conduct_scores')
+      .select('score, type')
+      .in('student_id', ids);
+
+    if (semester) conductQuery = conductQuery.eq('semester', semester);
+    if (academicYear) conductQuery = conductQuery.eq('academic_year', academicYear);
+
+    const { data: scores, error: conductError } = await conductQuery;
+    if (conductError || !scores) return 0;
+
+    let sum = 0;
+    scores.forEach(s => {
+      if (s.type === 'add') {
+        sum += s.score;
+      } else {
+        sum = Math.max(0, sum - s.score);
+      }
+    });
+
+    return sum;
+  }
 };

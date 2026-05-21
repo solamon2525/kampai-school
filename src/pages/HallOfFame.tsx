@@ -13,8 +13,24 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { conductService, type ConductRecord } from '@/services/conduct.service';
+import { conductService, type ConductRecord, calculateHeroLevel } from '@/services/conduct.service';
 import { cn } from '@/lib/utils';
+
+const VIRTUE_LABELS: Record<string, string> = {
+  publicMind: 'จิตสาธารณะ 🌱',
+  responsibility: 'ความรับผิดชอบ 📘',
+  discipline: 'วินัย ⏰',
+  honesty: 'ซื่อสัตย์ 🤝',
+  kindness: 'น้ำใจ ❤️',
+};
+
+const VIRTUE_COLORS: Record<string, string> = {
+  publicMind: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900',
+  responsibility: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-900',
+  discipline: 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/20 dark:text-purple-400 dark:border-purple-900',
+  honesty: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900',
+  kindness: 'bg-pink-50 text-pink-700 border-pink-200 dark:bg-pink-950/20 dark:text-pink-400 dark:border-pink-900',
+};
 
 const CLASS_ORDER = [
   'อ.1', 'อ.2', 'อ.3',
@@ -190,9 +206,12 @@ const HallOfFame = () => {
                         </Avatar>
                         <p className="font-semibold text-lg leading-tight">{row.name}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">{row.class}</p>
-                        <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10">
-                          <Medal className="w-3.5 h-3.5 text-primary" />
-                          <span className="font-bold text-primary">+{row.total}</span>
+                        <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 mt-1">
+                          {calculateHeroLevel(row.total).title}
+                        </p>
+                        <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-700 dark:text-indigo-400">
+                          <Medal className="w-3.5 h-3.5" />
+                          <span className="font-bold">{row.total} Hero XP</span>
                           <span className="text-xs text-muted-foreground">({row.count} ครั้ง)</span>
                         </div>
                       </CardContent>
@@ -217,10 +236,15 @@ const HallOfFame = () => {
                             </Avatar>
                             <div className="flex-1 min-w-0">
                               <p className="font-medium truncate">{row.name}</p>
-                              <p className="text-xs text-muted-foreground">{row.class}</p>
+                              <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                                <span className="text-xs text-muted-foreground">{row.class}</span>
+                                <Badge variant="outline" className="text-[10px] py-0 px-1.5 text-indigo-600 border-indigo-200 bg-indigo-50/50">
+                                  {calculateHeroLevel(row.total).title}
+                                </Badge>
+                              </div>
                             </div>
                             <div className="text-right flex-shrink-0">
-                              <p className="font-bold text-primary">+{row.total}</p>
+                              <p className="font-bold text-indigo-600 dark:text-indigo-400">{row.total} Hero XP</p>
                               <p className="text-xs text-muted-foreground">{row.count} ครั้ง</p>
                             </div>
                           </div>
@@ -287,7 +311,15 @@ const HallOfFame = () => {
                           <div className="flex items-center gap-2 flex-wrap">
                             <p className="font-semibold">{r.students?.name ?? '—'}</p>
                             <Badge variant="outline" className="text-xs">{r.students?.class ?? '—'}</Badge>
-                            <Badge className="text-xs bg-primary/10 text-primary hover:bg-primary/20">{r.category}</Badge>
+                            <Badge 
+                              variant="outline" 
+                              className={cn(
+                                "text-xs font-semibold",
+                                VIRTUE_COLORS[conductService.mapCategoryToVirtue(r.category)] || 'bg-secondary text-secondary-foreground'
+                              )}
+                            >
+                              {VIRTUE_LABELS[conductService.mapCategoryToVirtue(r.category)] || r.category}
+                            </Badge>
                             <span className="ml-auto text-sm font-bold text-green-600">+{r.score}</span>
                           </div>
                           <p className="text-sm text-muted-foreground mt-1">{r.reason}</p>
