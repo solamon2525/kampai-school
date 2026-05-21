@@ -259,8 +259,8 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
           {/* XP Progress Engine */}
           <div className="w-full md:w-80 space-y-2 bg-slate-950/40 backdrop-blur-md p-4 rounded-2xl border border-white/5">
             <div className="flex justify-between text-xs font-bold">
-              <span className="text-slate-400">เลเวลเติบโต</span>
-              <span className="text-indigo-400">
+              <span className="text-slate-300">เลเวลเติบโต</span>
+              <span className="text-indigo-300">
                 {profile.xpNeededForNextLevel > 0 
                   ? `${profile.xpInLevel}/${profile.xpNeededForNextLevel} XP`
                   : 'MAX LEVEL 🏆'}
@@ -278,7 +278,7 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
             </div>
 
             {profile.xpNeededForNextLevel > 0 ? (
-              <p className="text-[10px] text-slate-400 text-center md:text-left">
+              <p className="text-[10px] text-slate-300 text-center md:text-left">
                 อีก <span className="text-white font-bold">{profile.xpNeededForNextLevel - profile.xpInLevel} XP</span> เพื่อเลื่อนเป็นขั้นถัดไป!
               </p>
             ) : (
@@ -421,11 +421,11 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
                       <h4 className={cn("text-xs font-bold truncate", badge.unlocked ? "text-amber-900 dark:text-amber-200" : "text-slate-700 dark:text-slate-300")}>
                         {badge.name}
                       </h4>
-                      <span className={cn("text-[10px] font-bold", badge.unlocked ? "text-amber-700 dark:text-amber-400" : "text-slate-500 dark:text-slate-400")}>
+                      <span className={cn("text-[10px] font-bold", badge.unlocked ? "text-amber-700 dark:text-amber-400" : "text-slate-600 dark:text-slate-400")}>
                         {badge.progress}/{badge.target} ครั้ง
                       </span>
                     </div>
-                    <p className={cn("text-[10px] leading-tight", badge.unlocked ? "text-amber-800/80 dark:text-amber-400/80" : "text-slate-500 dark:text-slate-400")}>
+                    <p className={cn("text-[10px] leading-tight", badge.unlocked ? "text-amber-800/80 dark:text-amber-400/80" : "text-slate-600 dark:text-slate-400")}>
                       {badge.description}
                     </p>
                     
@@ -527,7 +527,7 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
                 >
                   {/* Reward Card */}
                   <div className="bg-gradient-to-r from-yellow-100/50 to-amber-100/30 dark:from-yellow-950/20 dark:to-transparent border border-yellow-200/50 p-4.5 rounded-2xl text-center space-y-1">
-                    <span className="text-[10px] text-yellow-600 dark:text-yellow-400 font-bold uppercase tracking-wider">ของรางวัลที่จะได้รับร่วมกัน</span>
+                    <span className="text-[10px] text-amber-800 dark:text-amber-400 font-bold uppercase tracking-wider">ของรางวัลที่จะได้รับร่วมกัน</span>
                     <h3 className="text-base font-extrabold text-slate-800 dark:text-yellow-100">{classroomReward}</h3>
                   </div>
 
@@ -598,7 +598,7 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
 
                       <div className="space-y-1 bg-slate-50/50 dark:bg-slate-900/30 border border-slate-100 dark:border-slate-900/40 p-3 rounded-2xl">
                         <div className="flex justify-between items-start gap-2 flex-wrap">
-                          <span className="text-[10px] font-bold text-slate-400">
+                          <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">
                             {new Date(item.date).toLocaleDateString('th-TH', { year: '2-digit', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                           </span>
                           <span className={cn(
@@ -616,11 +616,11 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
                         {/* Positive psychology supportive words */}
                         <div className="flex gap-2 items-center flex-wrap pt-0.5">
                           {metric && (
-                            <Badge variant="outline" className={cn("text-[9px] py-0 px-1.5", metric.color, metric.bg, metric.border)}>
+                            <Badge className={cn("text-[9px] py-0.5 px-2 border-none font-bold", metric.badgeBg)}>
                               {metric.label}
                             </Badge>
                           )}
-                          <p className="text-[10px] italic font-semibold text-indigo-500/80 dark:text-indigo-400/80">
+                          <p className="text-[10px] italic font-medium text-indigo-700 dark:text-indigo-300">
                             "{item.message}"
                           </p>
                         </div>
