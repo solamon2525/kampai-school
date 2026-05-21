@@ -238,7 +238,7 @@ const HallOfFame = () => {
                               <p className="font-medium truncate">{row.name}</p>
                               <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                                 <span className="text-xs text-muted-foreground">{row.class}</span>
-                                <Badge variant="outline" className="text-[10px] py-0 px-1.5 text-indigo-600 border-indigo-200 bg-indigo-50/50">
+                                <Badge variant="outline" className="text-[10px] py-0 px-1.5 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-950 bg-indigo-50/50 dark:bg-indigo-950/30">
                                   {calculateHeroLevel(row.total).title}
                                 </Badge>
                               </div>

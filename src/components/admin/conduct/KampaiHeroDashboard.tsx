@@ -207,7 +207,10 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
           {/* Core Info */}
           <div className="flex-1 text-center md:text-left space-y-2">
             <div className="space-y-0.5">
-              <span className="text-xs text-indigo-300 font-bold uppercase tracking-wider">Kampai Hero Profile</span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold bg-indigo-500/20 text-indigo-200 border border-indigo-500/30 shadow-inner uppercase tracking-wider">
+                <Sparkles className="w-3.5 h-3.5 text-indigo-300 animate-pulse" />
+                Kampai Hero Profile
+              </span>
               <h2 className="text-2xl font-black tracking-tight">{student.name}</h2>
               <p className="text-sm text-slate-300">
                 ชั้นเรียน {student.class}{student.room ? `/${student.room}` : ''} 
