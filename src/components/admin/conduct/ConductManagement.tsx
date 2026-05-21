@@ -361,7 +361,7 @@ function LeaderboardTab() {
             setIsLoading(false);
         };
         load();
-    }, [filterClass, filterSemester, filterYear]);
+    }, [filterSemester, filterYear]);
 
     // รวมคะแนนรายนักเรียน
     const leaderboard = useMemo(() => {
@@ -458,14 +458,21 @@ function HistoryTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) 
         let q = conductService.getAll(filterSemester, filterYear);
         if (filterType) q = q.eq('type', filterType);
         const { data } = await q;
-        let result = (data || []) as ConductRecord[];
-        if (filterClass) result = result.filter(r => r.students?.class === filterClass);
-        if (searchName) result = result.filter(r => (r.students?.name || '').includes(searchName));
-        setRecords(result);
+        setRecords((data || []) as ConductRecord[]);
         setIsLoading(false);
     };
 
-    useEffect(() => { load(); }, [filterClass, filterType, filterSemester, filterYear, searchName]);
+    useEffect(() => { load(); }, [filterType, filterSemester, filterYear]);
+
+    const filteredRecords = useMemo(() => {
+        let result = records;
+        if (filterClass) result = result.filter(r => r.students?.class === filterClass);
+        if (searchName) {
+            const normSearch = searchName.toLowerCase().trim();
+            result = result.filter(r => (r.students?.name || '').toLowerCase().includes(normSearch));
+        }
+        return result;
+    }, [records, filterClass, searchName]);
 
     const handleDelete = async () => {
         if (!deleteId) return;
@@ -509,16 +516,16 @@ function HistoryTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) 
 
             <Card>
                 <CardHeader>
-                    <CardTitle className="text-base">ประวัติการบันทึก ({records.length} รายการ)</CardTitle>
+                    <CardTitle className="text-base">ประวัติการบันทึก ({filteredRecords.length} รายการ)</CardTitle>
                 </CardHeader>
                 <CardContent>
                     {isLoading ? (
                         <TableSkeleton rows={6} cols={4} className="py-4" />
-                    ) : records.length === 0 ? (
+                    ) : filteredRecords.length === 0 ? (
                         <p className="text-center py-8 text-muted-foreground">ไม่มีข้อมูล</p>
                     ) : (
                         <div className="space-y-2">
-                            {records.map(r => (
+                            {filteredRecords.map(r => (
                                 <div key={r.id} className={`flex items-start gap-3 p-3 rounded-lg border ${r.type === 'add' ? 'border-green-100 bg-green-50/50' : 'border-red-100 bg-red-50/50'}`}>
                                     <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${r.type === 'add' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                                         {r.type === 'add' ? `+${r.score}` : `-${r.score}`}

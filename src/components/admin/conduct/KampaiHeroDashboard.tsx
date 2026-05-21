@@ -289,12 +289,12 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
                   <PolarGrid stroke="#e2e8f0" strokeDasharray="3 3" />
                   <PolarAngleAxis 
                     dataKey="name" 
-                    tick={{ fill: '#475569', fontSize: 10, fontWeight: 700 }}
+                    tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 700, opacity: 0.8 }}
                   />
                   <PolarRadiusAxis 
                     angle={30} 
                     domain={[0, maxVirtue]} 
-                    tick={{ fill: '#94a3b8', fontSize: 9 }}
+                    tick={{ fill: 'currentColor', fontSize: 9, opacity: 0.5 }}
                   />
                   <Radar
                     name="คะแนนพลังความดี"

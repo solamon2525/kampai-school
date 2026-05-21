@@ -347,8 +347,27 @@ export const conductService = {
       .in('student_id', ids)
       .order('created_at', { ascending: true });
 
-    if (semester) conductQuery = conductQuery.eq('semester', semester);
-    if (academicYear) conductQuery = conductQuery.eq('academic_year', academicYear);
+    let activeSem = semester;
+    let activeYear = academicYear;
+    
+    if (!activeSem || !activeYear) {
+      const { data: settingsData } = await supabase
+        .from('school_settings')
+        .select('key, value')
+        .in('key', ['active_academic_year', 'active_semester']);
+      
+      if (settingsData) {
+        const settingsMap = Object.fromEntries(settingsData.map(r => [r.key, r.value]));
+        if (!activeSem) activeSem = settingsMap.active_semester;
+        if (!activeYear) activeYear = settingsMap.active_academic_year;
+      }
+      
+      if (!activeSem) activeSem = '1';
+      if (!activeYear) activeYear = (new Date().getFullYear() + 543).toString();
+    }
+
+    conductQuery = conductQuery.eq('semester', activeSem);
+    conductQuery = conductQuery.eq('academic_year', activeYear);
 
     const { data: scores, error: conductError } = await conductQuery;
     if (conductError || !scores) return 0;

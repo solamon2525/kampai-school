@@ -23,10 +23,11 @@ CREATE POLICY "Allow public read classroom_goals"
   ON public.classroom_goals FOR SELECT
   USING (true);
 
--- ผู้ใช้ที่ผ่านการตรวจสอบสิทธิ์ (ครู/แอดมิน) สามารถจัดการเป้าหมายห้องเรียนได้
-CREATE POLICY "Allow auth manage classroom_goals"
+-- ผู้ใช้ที่เป็นครูหรือแอดมิน สามารถจัดการเป้าหมายห้องเรียนได้ (เพื่อความปลอดภัย RLS)
+CREATE POLICY "Allow teacher manage classroom_goals"
   ON public.classroom_goals FOR ALL
-  USING (auth.role() = 'authenticated');
+  USING (public.is_teacher())
+  WITH CHECK (public.is_teacher());
 
 -- 3. สร้าง Index เพื่อความเร็วในการค้นหา
 CREATE INDEX IF NOT EXISTS idx_classroom_goals_lookup ON public.classroom_goals(class, room);
