@@ -781,27 +781,41 @@ export const useHomeMainBlocks = () => {
     </motion.div>
   );
 
-  // ─── NEW: Partner Logos (DB-backed with fallback) ─────────────────────────────────
+  // ─── Partner Links — compact row list: small logo + name ─────────────────────────
   const partnerLogosSection = (
-    <div key="partner_logos" className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
-      <h3 className="text-sm font-bold text-center mb-4">🤝 หน่วยงานที่เกี่ยวข้อง</h3>
-      <div className="flex flex-wrap justify-center gap-4">
+    <div key="partner_logos" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-primary text-primary-foreground px-4 py-2 flex items-center gap-2">
+        <span className="w-1 h-4 bg-yellow-400 rounded-full inline-block" />
+        <span className="font-semibold text-sm">🤝 หน่วยงานที่เกี่ยวข้อง</span>
+      </div>
+      <div className="divide-y divide-gray-100">
         {partners.map((p) => {
-          const inner = p.logo_url ? (
-            <img src={p.logo_url} alt={p.name} className="w-full h-full object-contain" />
-          ) : (
-            <span className="text-[10px] text-gray-500 leading-tight px-1">{p.name}</span>
+          const content = (
+            <div className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors group">
+              {/* Logo 32×32 */}
+              <div className="w-8 h-8 flex-shrink-0 rounded bg-muted flex items-center justify-center overflow-hidden">
+                {p.logo_url ? (
+                  <img src={p.logo_url} alt={p.name} className="w-full h-full object-contain" />
+                ) : (
+                  <Building className="w-4 h-4 text-muted-foreground" />
+                )}
+              </div>
+              {/* Name */}
+              <span className="flex-1 text-sm font-medium text-gray-700 group-hover:text-primary transition-colors line-clamp-1">
+                {p.name}
+              </span>
+              {/* Link icon */}
+              {p.link_url && p.link_url !== '#' && (
+                <ArrowRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-primary flex-shrink-0 transition-colors" />
+              )}
+            </div>
           );
           return p.link_url && p.link_url !== '#' ? (
-            <a key={p.id} href={p.link_url} target="_blank" rel="noopener noreferrer"
-              className="w-20 h-20 rounded-lg bg-muted hover:bg-muted/80 flex items-center justify-center text-center p-2 transition-colors"
-              title={p.name}>
-              {inner}
+            <a key={p.id} href={p.link_url} target="_blank" rel="noopener noreferrer" className="block">
+              {content}
             </a>
           ) : (
-            <div key={p.id} className="w-20 h-20 rounded-lg bg-muted flex items-center justify-center text-center p-2">
-              {inner}
-            </div>
+            <div key={p.id}>{content}</div>
           );
         })}
       </div>
