@@ -2,10 +2,13 @@ import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
-import { ChevronLeft, ChevronRight, Eye, Calendar, ArrowRight, FileText, ChevronDown, Database, Heart, Utensils, BookOpen, Briefcase, Building, Send, Award, Trophy } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Eye, Calendar, ArrowRight, FileText, ChevronDown, Database, Heart, Utensils, BookOpen, Briefcase, Building, Send, Award, Trophy, Sparkles, Shield, Star, HeartHandshake } from 'lucide-react';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import { MapEmbed } from '@/components/MapEmbed';
-import { conductService, type ConductRecord } from '@/services/conduct.service';
+import { conductService, type ConductRecord, type HeroProfile } from '@/services/conduct.service';
+import {
+  Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer
+} from 'recharts';
 import {
   staggerContainerVariants,
   staggerItemVariants,
@@ -121,6 +124,8 @@ export const useHomeMainBlocks = () => {
   const carouselRef = useRef<HTMLDivElement>(null);
   const [countdown, setCountdown] = useState({ days: '--', hours: '--', minutes: '--', seconds: '--', label: 'เปิดเทอม' });
   const [topConduct, setTopConduct] = useState<{ id: string; name: string; class: string; photo: string | null; total: number }[]>([]);
+  const [featuredHeroProfile, setFeaturedHeroProfile] = useState<HeroProfile | null>(null);
+  const [featuredHeroLoading, setFeaturedHeroLoading] = useState(false);
 
   useEffect(() => {
     supabase
@@ -241,6 +246,20 @@ export const useHomeMainBlocks = () => {
       }
       const top = Array.from(map.values()).sort((a, b) => b.total - a.total).slice(0, 5);
       setTopConduct(top);
+
+      if (top.length > 0) {
+        setFeaturedHeroLoading(true);
+        conductService.getHeroProfile(top[0].id)
+          .then((profile) => {
+            setFeaturedHeroProfile(profile);
+          })
+          .catch((err) => {
+            console.error("Error fetching featured hero profile:", err);
+          })
+          .finally(() => {
+            setFeaturedHeroLoading(false);
+          });
+      }
     });
   }, []);
 
@@ -309,13 +328,226 @@ export const useHomeMainBlocks = () => {
   const featured = news[0];
   const rest = news.slice(1, 5);
 
+  // Determine highest virtue for bubble feedback
+  const highestVirtueInfo = (() => {
+    if (!featuredHeroProfile?.virtues) return null;
+    const virtues = featuredHeroProfile.virtues;
+    let highestKey: keyof typeof virtues = 'publicMind';
+    let highestVal = -1;
+
+    Object.entries(virtues).forEach(([key, val]) => {
+      if (val > highestVal) {
+        highestVal = val;
+        highestKey = key as keyof typeof virtues;
+      }
+    });
+
+    const VIRTUE_METRICS = {
+      publicMind: { 
+        label: 'จิตสาธารณะ 🌱', 
+        feedback: 'ความดีด้านจิตสาธารณะของหนู ช่วยให้โรงเรียนและเพื่อนๆ มีสิ่งแวดล้อมที่น่าอยู่และน่าเรียนรู้ยิ่งขึ้น 🌱'
+      },
+      responsibility: { 
+        label: 'ความรับผิดชอบ 📘', 
+        feedback: 'ความรับผิดชอบและการทำหน้าที่ของหนูอย่างเต็มความสามารถ เป็นเรื่องที่น่ายกย่องและเป็นแบบอย่างที่ดีเยี่ยม 📘'
+      },
+      discipline: { 
+        label: 'วินัย ⏰', 
+        feedback: 'ความมีระเบียบวินัยและการตรงต่อเวลาของหนู เป็นรากฐานสำคัญของผู้นำที่ดีในอนาคต ⏰'
+      },
+      honesty: { 
+        label: 'ซื่อสัตย์ 🤝', 
+        feedback: 'ความซื่อสัตย์สุจริตของหนูเป็นเรื่องที่ประเสริฐสุด นำพาความเชื่อมั่นและเกียรติยศที่น่าภูมิใจมาสู่ตนเอง 🤝'
+      },
+      kindness: { 
+        label: 'น้ำใจ ❤️', 
+        feedback: 'ความมีน้ำใจและการช่วยเหลือแบ่งปันของหนู เติมเต็มรอยยิ้มและความอบอุ่นให้สังคมรอบตัวมีความสุข ❤️'
+      },
+    };
+
+    return {
+      key: highestKey,
+      val: highestVal,
+      meta: VIRTUE_METRICS[highestKey]
+    };
+  })();
+
+  // Dynamic Radar Chart Calculation
+  const radarData = (() => {
+    if (!featuredHeroProfile?.virtues) return [];
+    const values = Object.values(featuredHeroProfile.virtues);
+    const maxVal = Math.max(...values, 10);
+    return [
+      { name: 'จิตสาธารณะ 🌱', score: featuredHeroProfile.virtues.publicMind, fullMark: maxVal },
+      { name: 'ความรับผิดชอบ 📘', score: featuredHeroProfile.virtues.responsibility, fullMark: maxVal },
+      { name: 'วินัย ⏰', score: featuredHeroProfile.virtues.discipline, fullMark: maxVal },
+      { name: 'ซื่อสัตย์ 🤝', score: featuredHeroProfile.virtues.honesty, fullMark: maxVal },
+      { name: 'น้ำใจ ❤️', score: featuredHeroProfile.virtues.kindness, fullMark: maxVal },
+    ];
+  })();
+
+  const maxVirtueScore = (() => {
+    if (!featuredHeroProfile?.virtues) return 10;
+    return Math.max(...Object.values(featuredHeroProfile.virtues), 10);
+  })();
+
+  const featuredHeroSection = featuredHeroProfile && topConduct[0] ? (
+    <motion.div
+      key="featured_hero"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.15 }}
+      variants={slideUpVariants}
+      className="bg-gradient-to-br from-amber-50/60 via-white to-orange-50/40 border border-amber-200/60 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden"
+    >
+      {/* Background elegant accents */}
+      <div className="absolute top-0 right-0 w-24 h-24 bg-amber-200/10 rounded-full blur-2xl -z-10" />
+      <div className="absolute bottom-0 left-0 w-32 h-32 bg-orange-200/10 rounded-full blur-2xl -z-10" />
+
+      {/* Header section title */}
+      <div className="flex items-center gap-2 mb-5 border-b border-gray-100 pb-3">
+        <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600 flex-shrink-0">
+          <Trophy className="w-5 h-5 text-amber-500 animate-bounce" />
+        </div>
+        <div>
+          <h3 className="text-base font-extrabold text-gray-800 tracking-tight flex items-center gap-1.5 text-left">
+            Kampai Hero Profile Showcase
+            <Sparkles className="w-4 h-4 text-yellow-500 animate-pulse" />
+          </h3>
+          <p className="text-[10px] font-medium text-gray-400 text-left">
+            นักเรียนต้นแบบคุณธรรมและความดีประจำเทอมผู้สร้างแรงบันดาลใจ
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-6 items-center">
+        {/* Left Side: Avatar and stats */}
+        <div className="flex flex-col items-center md:items-start text-center md:text-left space-y-4">
+          <div className="flex flex-col md:flex-row items-center gap-4 w-full">
+            {/* Student Photo with premium gold glow frame */}
+            <div className="relative flex-shrink-0">
+              <div className="absolute -inset-1 bg-gradient-to-tr from-yellow-400 to-amber-500 rounded-full blur opacity-40 animate-pulse" />
+              {topConduct[0].photo ? (
+                <img
+                  src={topConduct[0].photo}
+                  alt={topConduct[0].name}
+                  className="relative w-20 h-20 md:w-24 md:h-24 rounded-full object-cover border-4 border-white shadow-md flex-shrink-0"
+                />
+              ) : (
+                <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-amber-100 to-orange-100 text-amber-700 border-4 border-white shadow-md flex items-center justify-center text-2xl font-black flex-shrink-0">
+                  {topConduct[0].name.replace(/^(ด\.ช\.|ด\.ญ\.|นาย|นางสาว|นาง)\s*/, '').slice(0, 2)}
+                </div>
+              )}
+              {/* Level Badge */}
+              <div className="absolute -bottom-1 -right-1 bg-gradient-to-br from-yellow-400 to-orange-500 text-white font-black px-2.5 py-0.5 rounded-full text-[10px] shadow border border-white">
+                LV.{featuredHeroProfile.level}
+              </div>
+            </div>
+
+            {/* Profile core details */}
+            <div className="space-y-1.5 text-center md:text-left min-w-0">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black bg-amber-50 text-amber-700 border border-amber-200 uppercase tracking-wider">
+                <Shield className="w-3 h-3 text-amber-500" />
+                {featuredHeroProfile.heroTitle}
+              </span>
+              <h4 className="text-lg font-black text-gray-800 tracking-tight truncate">{topConduct[0].name}</h4>
+              <p className="text-xs font-bold text-gray-500">
+                ชั้นเรียน {topConduct[0].class}
+              </p>
+              <div className="inline-flex items-center gap-1 text-[11px] font-black text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-md">
+                <Star className="w-3.5 h-3.5 fill-current animate-pulse" />
+                สะสม {featuredHeroProfile.totalXp} XP คะแนนความดี
+              </div>
+            </div>
+          </div>
+
+          {/* Level Progress Bar */}
+          <div className="w-full space-y-1 bg-gray-50/60 p-3 rounded-xl border border-gray-100">
+            <div className="flex justify-between text-[10px] font-bold text-gray-500">
+              <span>ความก้าวหน้าสู่เลเวลถัดไป</span>
+              <span>{featuredHeroProfile.xpInLevel} / {featuredHeroProfile.xpInLevel + featuredHeroProfile.xpNeededForNextLevel} XP</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden shadow-inner">
+              <div
+                className="bg-gradient-to-r from-yellow-400 to-amber-500 h-full rounded-full transition-all duration-500"
+                style={{ width: `${featuredHeroProfile.progressPercent}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Interactive CTA to full public profile */}
+          <Link
+            to={`/hero/${featuredHeroProfile.studentId}`}
+            className="w-full md:w-auto px-5 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-extrabold rounded-xl shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 group cursor-pointer"
+          >
+            <HeartHandshake className="w-4 h-4" />
+            เปิดใบประกาศและโปรไฟล์ฉบับเต็ม
+            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </div>
+
+        {/* Right Side: Recharts 5-Dimension Radar Chart */}
+        <div className="w-full bg-gray-50/50 rounded-2xl border border-gray-100 p-3 flex flex-col items-center">
+          <h4 className="text-[10px] font-bold text-gray-500 tracking-wider uppercase mb-1">
+            ผังพลังคุณธรรม 5 มิติฮีโร่
+          </h4>
+          <div className="h-44 w-full flex items-center justify-center min-h-[176px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
+                <PolarGrid stroke="#e2e8f0" strokeDasharray="3 3" />
+                <PolarAngleAxis
+                  dataKey="name"
+                  tick={{ fill: '#475569', fontSize: 8, fontWeight: 700 }}
+                />
+                <PolarRadiusAxis
+                  angle={30}
+                  domain={[0, maxVirtueScore]}
+                  tick={false}
+                />
+                <Radar
+                  name="คะแนนพลังความดี"
+                  dataKey="score"
+                  stroke="#d97706"
+                  fill="#f59e0b"
+                  fillOpacity={0.3}
+                />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* Psychological positive feedback message bubble */}
+      {highestVirtueInfo && (
+        <div className="mt-5 relative bg-gradient-to-r from-amber-50/50 to-orange-50/50 border border-amber-100 p-3.5 rounded-xl flex items-start gap-3 shadow-inner">
+          <div className="p-1.5 bg-white rounded-lg border border-amber-200 shadow-sm text-sm flex-shrink-0">
+            💬
+          </div>
+          <div className="space-y-0.5 text-left">
+            <h5 className="text-xs font-extrabold text-amber-800">
+              พลังเด่นวันนี้: {highestVirtueInfo.meta.label}
+            </h5>
+            <p className="text-[11px] font-medium text-amber-950 leading-relaxed">
+              "{highestVirtueInfo.meta.feedback}"
+            </p>
+          </div>
+        </div>
+      )}
+    </motion.div>
+  ) : featuredHeroLoading ? (
+    <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex flex-col items-center justify-center space-y-3 h-72">
+      <div className="w-8 h-8 rounded-full border-4 border-amber-400 border-t-transparent animate-spin" />
+      <p className="text-xs text-muted-foreground font-semibold">กำลังดึงข้อมูล Kampai Hero Profile...</p>
+    </div>
+  ) : null;
+
   // Parse section order from layout or legacy key
   const getSectionOrder = (): string[] => {
     const rawLayout = settings.homepage_main_sections;
     if (rawLayout) {
       try { return JSON.parse(rawLayout); } catch { /* fallback */ }
     }
-    return ['hero', 'news', 'about'];
+    return ['hero', 'featured_hero', 'news', 'about'];
   };
   const sectionOrder = getSectionOrder();
 
@@ -1025,6 +1257,7 @@ export const useHomeMainBlocks = () => {
 
   const sectionMap: Record<string, JSX.Element | null> = {
     hero: heroSection,
+    featured_hero: featuredHeroSection,
     news: newsSection,
     about: aboutSection,
     calendar: calendarSection,
