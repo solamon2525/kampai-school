@@ -99,7 +99,7 @@ const HallOfFame = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <SEOHead title="หอเกียรติยศคนดีคำไผ่" description="เชิดชูนักเรียนที่ทำความดี — คะแนนความดี อันดับ และประวัติ" />
+      <SEOHead title="Kampai Hero System - หอเกียรติยศคนดีคำไผ่" description="เชิดชูนักเรียนที่ทำความดี — Kampai Hero System อันดับ และประวัติ" />
       <SiteHeader />
 
       {/* Hero band */}
@@ -110,7 +110,7 @@ const HallOfFame = () => {
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold text-primary mb-2">หอเกียรติยศคนดีคำไผ่</h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            เชิดชูนักเรียนที่ทำความดี ด้วยการบันทึกคะแนนความดีจากคุณครูทุกท่าน
+            เชิดชูนักเรียนที่ทำความดี ด้วยการบันทึกคะแนน Kampai Hero System จากคุณครูทุกท่าน
           </p>
         </div>
       </section>

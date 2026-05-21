@@ -30,7 +30,7 @@ interface TabDef { key: TabKey; label: string; icon: typeof User }
 const TABS: TabDef[] = [
     { key: 'profile',    label: 'โปรไฟล์',     icon: User },
     { key: 'scores',     label: 'คะแนน',       icon: Trophy },
-    { key: 'conduct',    label: 'ความดี',       icon: Star },
+    { key: 'conduct',    label: 'Kampai Hero', icon: Star },
     { key: 'attendance', label: 'เช็คชื่อ',     icon: Calendar },
     { key: 'support',    label: 'ดูแลพิเศษ',   icon: Heart },
     { key: 'home_visit', label: 'เยี่ยมบ้าน',  icon: Home },
@@ -132,7 +132,7 @@ export const Student360Detail = ({ studentId, onBack }: Student360DetailProps) =
             <div className="pt-2">
                 {tab === 'profile' && <ProfileTab profile={profile} />}
                 {tab === 'scores' && <ExternalLinkTab path="/admin/dashboard/scores" label="คะแนนเก็บ" hint="ระบบเก็บคะแนนรายวิชา — ไปจัดการที่หน้า ScoresManagement" />}
-                {tab === 'conduct' && <ExternalLinkTab path="/admin/dashboard/conduct" label="คะแนนความดี" hint="ระบบคะแนนความดี — ไปดู/บันทึกที่ ConductManagement" />}
+                {tab === 'conduct' && <ExternalLinkTab path="/admin/dashboard/conduct" label="Kampai Hero System" hint="ระบบ Kampai Hero System — ไปดู/บันทึกที่ ConductManagement" />}
                 {tab === 'attendance' && <AttendanceSummary studentId={studentId} />}
                 {tab === 'support' && <SupportSummary studentId={studentId} />}
                 {tab === 'home_visit' && <HomeVisitTab studentId={studentId} />}

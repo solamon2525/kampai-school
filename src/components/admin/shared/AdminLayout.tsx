@@ -114,7 +114,7 @@ const menuItems: MenuItem[] = [
     { type: 'item', id: 'savings-bank', label: 'ธนาคารพอเพียง', icon: Wallet, path: '/admin/dashboard/savings-bank', adminOnly: true },
     { type: 'item', id: 'attendance', label: 'เช็คชื่อนักเรียน', icon: ClipboardCheck, path: '/admin/dashboard/attendance' },
     { type: 'item', id: 'scores', label: 'คะแนนเก็บ', icon: PenLine, path: '/admin/dashboard/scores' },
-    { type: 'item', id: 'conduct', label: 'คะแนนความดี', icon: Star, path: '/admin/dashboard/conduct' },
+    { type: 'item', id: 'conduct', label: 'Kampai Hero System', icon: Star, path: '/admin/dashboard/conduct' },
     { type: 'item', id: 'documents', label: 'จัดการเอกสาร', icon: FolderOpen, path: '/admin/dashboard/documents', adminOnly: true },
     { type: 'item', id: 'educational-hub', label: 'คลังสื่อ/เกม', icon: Sparkles, path: '/admin/dashboard/educational-hub', adminOnly: true },
     { type: 'item', id: 'games', label: 'การเล่นเกม', icon: Gamepad2, path: '/admin/dashboard/games', adminOnly: true },
