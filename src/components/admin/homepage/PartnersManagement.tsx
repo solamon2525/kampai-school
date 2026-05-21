@@ -146,8 +146,8 @@ export const PartnersManagement = () => {
                                 <Label>โลโก้</Label>
                                 <ImageUpload
                                     bucket="school-images"
-                                    value={formData.logo_url}
-                                    onChange={(url) => setFormData({ ...formData, logo_url: url })}
+                                    currentImage={formData.logo_url}
+                                    onUploadComplete={(url) => setFormData({ ...formData, logo_url: url })}
                                 />
                             </div>
                             <div className="space-y-2">
