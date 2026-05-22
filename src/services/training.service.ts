@@ -22,6 +22,8 @@ export type TrainingRecord = {
     status: string;
     notes: string | null;
     created_at: string;
+    activity_photos: string[] | null;
+    certificate_gen_id: string | null;
     staff?: {
         id: string;
         name: string;

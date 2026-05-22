@@ -42,6 +42,7 @@ const MeetingsManagement = lazy(() => import('@/components/admin/saraban/Meeting
 const LeaveManagement = lazy(() => import('@/components/admin/hr/LeaveManagement'));
 const TrainingManagement = lazy(() => import('@/components/admin/hr/TrainingManagement'));
 const PAManagement = lazy(() => import('@/components/admin/hr/PAManagement'));
+const SelfDevelopmentHub = lazy(() => import('@/components/admin/hr/SelfDevelopmentHub').then(m => ({ default: m.SelfDevelopmentHub })));
 const AcademicManagement = lazy(() => import('@/components/admin/academic/AcademicManagement').then(m => ({ default: m.AcademicManagement })));
 const SystemOverview = lazy(() => import('@/components/admin/system/SystemOverview').then(m => ({ default: m.SystemOverview })));
 const DashboardSchoolManagement = lazy(() => import('@/components/admin/dashboard-school/DashboardSchoolManagement').then(m => ({ default: m.DashboardSchoolManagement })));
@@ -119,6 +120,7 @@ const AdminDashboard = () => {
             <Route path="leave" element={<LeaveManagement />} />
             <Route path="training" element={<TrainingManagement />} />
             <Route path="pa" element={<PAManagement />} />
+            <Route path="self-development" element={<SelfDevelopmentHub />} />
             {/* ฝ่ายวิชาการ */}
             <Route path="academic" element={<AcademicManagement />} />
             {/* ข้อมูลโรงเรียน */}

@@ -94,6 +94,7 @@ const menuItems: MenuItem[] = [
     { type: 'item', id: 'orders', label: 'คำสั่ง/ประกาศ', icon: Stamp, path: '/admin/dashboard/orders', adminOnly: true },
     { type: 'item', id: 'meetings', label: 'การประชุม', icon: CalendarCheck, path: '/admin/dashboard/meetings', adminOnly: true },
     { type: 'section', label: 'บุคลากร (HR)' },
+    { type: 'item', id: 'self-development', label: 'แฟ้มพัฒนาตนเอง', icon: Sparkles, path: '/admin/dashboard/self-development' },
     { type: 'item', id: 'leave', label: 'การลา', icon: UserX, path: '/admin/dashboard/leave', adminOnly: true },
     { type: 'item', id: 'training', label: 'การอบรม', icon: BookMarked, path: '/admin/dashboard/training', adminOnly: true },
     { type: 'item', id: 'pa', label: 'PA Assessment', icon: Award, path: '/admin/dashboard/pa', adminOnly: true },
