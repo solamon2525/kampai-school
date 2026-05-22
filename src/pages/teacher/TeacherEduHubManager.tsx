@@ -32,6 +32,7 @@ import {
 import { EduHubItemForm } from '@/components/admin/educational-hub/EduHubItemForm';
 import { SortableItemsTable } from '@/components/admin/educational-hub/SortableItemsTable';
 import { staffService } from '@/services/staff.service';
+import TeacherGameAnalytics from './TeacherGameAnalytics';
 
 const MENU = [
     { id: 'dashboard', label: 'แดชบอร์ด', icon: FolderOpen, path: '/teacher' },
@@ -79,9 +80,11 @@ export default function TeacherEduHubManager() {
                         <TabsList>
                             <TabsTrigger value="items">รายการของฉัน</TabsTrigger>
                             <TabsTrigger value="profile">โปรไฟล์คลัง</TabsTrigger>
+                            <TabsTrigger value="analytics">วิเคราะห์คะแนนเกม</TabsTrigger>
                         </TabsList>
                         <TabsContent value="items"><MyItemsTab staffId={staffId} /></TabsContent>
                         <TabsContent value="profile"><MyProfileTab staffId={staffId} /></TabsContent>
+                        <TabsContent value="analytics"><TeacherGameAnalytics staffId={staffId} /></TabsContent>
                     </Tabs>
                 )}
             </div>

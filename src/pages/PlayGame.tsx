@@ -11,6 +11,7 @@ import {
   Lock,
   RotateCcw,
 } from 'lucide-react';
+import confetti from 'canvas-confetti';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -117,6 +118,15 @@ const PlayGame = () => {
     [statsQuery.data?.total_xp],
   );
 
+  // leaderboard for this game
+  const leaderboardQuery = useQuery({
+    queryKey: ['game-leaderboard', gameSlug],
+    queryFn: async () => {
+      return await gamePlayService.getLeaderboard(gameSlug, 10);
+    },
+    enabled: !!gameSlug,
+  });
+
   // ─── lookup handler ────────────────────────────────────────────────────────
   const handleLookup = useCallback(async () => {
     const code = codeInput.trim();
@@ -195,6 +205,7 @@ const PlayGame = () => {
         setResult(submitted);
         statsQuery.refetch();
         unlockedQuery.refetch();
+        leaderboardQuery.refetch();
         setPhase('result');
       } catch (err) {
         const msg = (err as Error).message ?? '';
@@ -325,6 +336,8 @@ const PlayGame = () => {
             catalog={catalogQuery.data ?? []}
             unlockedIds={unlockedIds}
             onStart={handleStart}
+            leaderboard={leaderboardQuery.data}
+            leaderboardLoading={leaderboardQuery.isLoading}
           />
         )}
 
@@ -443,6 +456,145 @@ const ConfirmPanel = ({
   </Card>
 );
 
+// ─── Web Audio API Sound Synthesizer ──────────────────────────────────────────
+const playCelebrationSound = (type: 'levelUp' | 'personalBest') => {
+  try {
+    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const playNote = (freq: number, start: number, duration: number, vol = 0.12) => {
+      const osc = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, start);
+      
+      gainNode.gain.setValueAtTime(vol, start);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+      
+      osc.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      
+      osc.start(start);
+      osc.stop(start + duration);
+    };
+
+    const now = audioCtx.currentTime;
+    if (type === 'levelUp') {
+      const notes = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25];
+      notes.forEach((freq, idx) => {
+        playNote(freq, now + idx * 0.1, 0.45, 0.12);
+      });
+    } else if (type === 'personalBest') {
+      const notes = [523.25, 659.25, 783.99, 1046.50];
+      notes.forEach((freq, idx) => {
+        playNote(freq, now + idx * 0.08, 0.55, 0.08);
+      });
+    }
+  } catch (err) {
+    console.warn('AudioContext blocked or unsupported:', err);
+  }
+};
+
+const LeaderboardCard = ({
+  leaderboard,
+  loading,
+  currentStudentId,
+}: {
+  leaderboard: any[] | undefined;
+  loading: boolean;
+  currentStudentId: string;
+}) => {
+  return (
+    <Card className="h-full border border-border bg-card">
+      <CardContent className="p-4 space-y-3">
+        <div className="flex items-center gap-2 border-b border-border pb-2">
+          <Trophy className="h-5 w-5 text-amber-500 animate-pulse" />
+          <div>
+            <h3 className="text-sm font-bold text-foreground">10 อันดับเกียรติยศ</h3>
+            <p className="text-[10px] text-muted-foreground">ทำเนียบสถิติสูงสุดประจำเกม</p>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="flex py-10 items-center justify-center gap-2">
+            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+            <span className="text-xs text-muted-foreground">กำลังโหลด...</span>
+          </div>
+        ) : !leaderboard || leaderboard.length === 0 ? (
+          <p className="py-8 text-center text-xs text-muted-foreground italic">ยังไม่มีใครทำสถิติเกมนี้</p>
+        ) : (
+          <div className="space-y-1.5 max-h-[380px] overflow-y-auto pr-1">
+            {leaderboard.map((row, index) => {
+              const isSelf = row.student_id === currentStudentId;
+              const rank = index + 1;
+              let medalIcon = null;
+              let rankBg = 'bg-muted/40 text-muted-foreground';
+              let rankBorder = 'border-transparent';
+
+              if (rank === 1) {
+                medalIcon = '🥇';
+                rankBg = 'bg-amber-500/15 text-amber-500 border-amber-500/30';
+              } else if (rank === 2) {
+                medalIcon = '🥈';
+                rankBg = 'bg-slate-400/15 text-slate-400 border-slate-400/30';
+              } else if (rank === 3) {
+                medalIcon = '🥉';
+                rankBg = 'bg-amber-700/15 text-amber-700 border-amber-700/30';
+              }
+
+              return (
+                <div
+                  key={row.student_id}
+                  className={cn(
+                    'flex items-center gap-2 rounded-xl border p-2 transition-all duration-200',
+                    isSelf 
+                      ? 'border-primary/40 bg-primary/10 shadow-[0_0_10px_rgba(59,130,246,0.12)] scale-[1.01]' 
+                      : 'border-border/40 hover:border-border bg-card/40'
+                  )}
+                >
+                  <div
+                    className={cn(
+                      'flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[11px] font-bold',
+                      rankBg,
+                      rankBorder
+                    )}
+                  >
+                    {medalIcon ? medalIcon : rank}
+                  </div>
+
+                  <PersonAvatar
+                    name={row.display_name}
+                    photoUrl={row.photo_url}
+                    size="sm"
+                    className="h-7 w-7 ring-1 ring-border"
+                  />
+
+                  <div className="flex-1 min-w-0">
+                    <p className={cn('text-xs font-semibold truncate', isSelf ? 'text-primary' : 'text-foreground')}>
+                      {row.display_name}
+                    </p>
+                    <p className="text-[9px] text-muted-foreground truncate">
+                      ชั้น {row.class_label ?? '—'} · Lv.{levelFromXp(row.total_xp).level}
+                    </p>
+                  </div>
+
+                  <div className="text-right">
+                    <p className="text-xs font-bold text-foreground">
+                      {row.personal_best.toLocaleString('th-TH')}
+                    </p>
+                    <p className="text-[9px] text-muted-foreground leading-none">
+                      {row.plays_count} ครั้ง
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
 const PreGamePanel = ({
   student,
   stats,
@@ -450,6 +602,8 @@ const PreGamePanel = ({
   catalog,
   unlockedIds,
   onStart,
+  leaderboard,
+  leaderboardLoading,
 }: {
   student: StudentLookup;
   stats: { plays_count: number | null; personal_best: number | null; total_xp: number | null } | null | undefined;
@@ -457,48 +611,60 @@ const PreGamePanel = ({
   catalog: Array<{ id: string; code: string; title_th: string; description_th: string | null; icon: string | null; threshold_kind: string }>;
   unlockedIds: Set<string>;
   onStart: () => void;
+  leaderboard: any[] | undefined;
+  leaderboardLoading: boolean;
 }) => (
-  <div className="space-y-5">
-    <Card>
-      <CardContent className="space-y-4 p-6">
-        <div className="flex items-center gap-4">
-          <PersonAvatar
-            name={student.display_name}
-            photoUrl={student.photo_url}
-            size="lg"
-            className="h-16 w-16"
-          />
-          <div className="flex-1">
-            <p className="text-lg font-bold text-foreground">{student.display_name}</p>
-            <p className="text-xs text-muted-foreground">ชั้น {student.class_label ?? '—'}</p>
+  <div className="grid gap-6 md:grid-cols-3 items-start">
+    <div className="md:col-span-2 space-y-5">
+      <Card>
+        <CardContent className="space-y-4 p-6">
+          <div className="flex items-center gap-4">
+            <PersonAvatar
+              name={student.display_name}
+              photoUrl={student.photo_url}
+              size="lg"
+              className="h-16 w-16"
+            />
+            <div className="flex-1">
+              <p className="text-lg font-bold text-foreground">{student.display_name}</p>
+              <p className="text-xs text-muted-foreground">ชั้น {student.class_label ?? '—'}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-3xl font-bold text-primary">Lv.{levelInfo.level}</p>
+              <p className="text-xs text-muted-foreground">{(stats?.total_xp ?? 0).toLocaleString('th-TH')} XP</p>
+            </div>
           </div>
-          <div className="text-right">
-            <p className="text-3xl font-bold text-primary">Lv.{levelInfo.level}</p>
-            <p className="text-xs text-muted-foreground">{(stats?.total_xp ?? 0).toLocaleString('th-TH')} XP</p>
+          <div className="space-y-1">
+            <Progress value={levelInfo.progress * 100} className="h-2.5" />
+            <p className="text-right text-xs text-muted-foreground">
+              {levelInfo.isMaxLevel
+                ? 'เลเวลสูงสุดแล้ว 🎉'
+                : `อีก ${levelInfo.xpToNext.toLocaleString('th-TH')} XP เลื่อนเป็น Lv.${levelInfo.level + 1}`}
+            </p>
           </div>
-        </div>
-        <div className="space-y-1">
-          <Progress value={levelInfo.progress * 100} className="h-2.5" />
-          <p className="text-right text-xs text-muted-foreground">
-            {levelInfo.isMaxLevel
-              ? 'เลเวลสูงสุดแล้ว 🎉'
-              : `อีก ${levelInfo.xpToNext.toLocaleString('th-TH')} XP เลื่อนเป็น Lv.${levelInfo.level + 1}`}
-          </p>
-        </div>
-        <div className="grid grid-cols-3 gap-3 border-t border-border pt-3 text-center">
-          <Stat label="ครั้งที่เล่น" value={(stats?.plays_count ?? 0).toLocaleString('th-TH')} />
-          <Stat label="คะแนนสูงสุด" value={(stats?.personal_best ?? 0).toLocaleString('th-TH')} />
-          <Stat label="ป้ายสะสม" value={`${unlockedIds.size}/${catalog.length}`} />
-        </div>
-      </CardContent>
-    </Card>
+          <div className="grid grid-cols-3 gap-3 border-t border-border pt-3 text-center">
+            <Stat label="ครั้งที่เล่น" value={(stats?.plays_count ?? 0).toLocaleString('th-TH')} />
+            <Stat label="คะแนนสูงสุด" value={(stats?.personal_best ?? 0).toLocaleString('th-TH')} />
+            <Stat label="ป้ายสะสม" value={`${unlockedIds.size}/${catalog.length}`} />
+          </div>
+        </CardContent>
+      </Card>
 
-    <BadgeGrid catalog={catalog} unlockedIds={unlockedIds} />
+      <BadgeGrid catalog={catalog} unlockedIds={unlockedIds} />
 
-    <Button className="h-14 w-full text-lg" onClick={onStart}>
-      <Gamepad2 className="mr-2 h-5 w-5" />
-      เริ่มเล่นเกม
-    </Button>
+      <Button className="h-14 w-full text-lg" onClick={onStart}>
+        <Gamepad2 className="mr-2 h-5 w-5" />
+        เริ่มเล่นเกม
+      </Button>
+    </div>
+
+    <div className="md:col-span-1">
+      <LeaderboardCard
+        leaderboard={leaderboard}
+        loading={leaderboardLoading}
+        currentStudentId={student.id}
+      />
+    </div>
   </div>
 );
 
@@ -634,6 +800,32 @@ const ResultPanel = ({
   const newLevel = useMemo(() => levelFromXp(result.total_xp), [result.total_xp]);
   const leveledUp = !!prevLevel && newLevel.level > prevLevel.level;
 
+  useEffect(() => {
+    // 1. Confetti celebration
+    confetti({
+      particleCount: 80,
+      spread: 60,
+      origin: { y: 0.65 }
+    });
+
+    if (result.unlocked.length > 0 || leveledUp) {
+      setTimeout(() => {
+        confetti({
+          particleCount: 120,
+          spread: 80,
+          origin: { y: 0.6 }
+        });
+      }, 300);
+    }
+
+    // 2. Synthesize audio chime
+    if (leveledUp) {
+      playCelebrationSound('levelUp');
+    } else if (result.xp_earned > 0) {
+      playCelebrationSound('personalBest');
+    }
+  }, [result, leveledUp]);
+
   return (
     <Card className="mx-auto mt-4 max-w-lg">
       <CardContent className="space-y-5 p-6 text-center sm:p-8">
@@ -654,7 +846,7 @@ const ResultPanel = ({
         </div>
 
         {leveledUp && (
-          <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
+          <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 animate-pulse">
             <p className="text-sm font-semibold text-primary">🎉 เลเวลอัพ! → Lv.{newLevel.level}</p>
           </div>
         )}
@@ -668,7 +860,7 @@ const ResultPanel = ({
                 return (
                   <div
                     key={u.code}
-                    className="flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-3 py-1.5"
+                    className="flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-3 py-1.5 animate-bounce"
                   >
                     <Icon className="h-4 w-4 text-primary" />
                     <span className="text-xs font-medium text-foreground">{u.title}</span>
