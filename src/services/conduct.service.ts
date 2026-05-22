@@ -184,16 +184,46 @@ export const conductService = {
 
   /** คำนวณประมวลผลโปรไฟล์ฮีโร่ของนักเรียน */
   getHeroProfile: async (studentId: string): Promise<HeroProfile> => {
-    const { data: records, error } = await supabase
-      .from('conduct_scores')
-      .select('*')
-      .eq('student_id', studentId)
-      .order('created_at', { ascending: false });
+    // 1. คิวรีข้อมูลความดี, สรุปแต้มขยะ, สรุปการออมเงิน และประวัติเข้าเรียน ร่วมกันแบบรวดเร็ว
+    const today = new Date();
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(today.getFullYear() - 1);
+    const startISO = oneYearAgo.toISOString().slice(0, 10);
+    const endISO = today.toISOString().slice(0, 10);
 
-    if (error) throw error;
-    const list = (records || []) as ConductRecord[];
+    const [
+      conductRes,
+      wasteRes,
+      savingsRes,
+      attendanceRes
+    ] = await Promise.all([
+      supabase
+        .from('conduct_scores')
+        .select('*')
+        .eq('student_id', studentId)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('waste_student_summary')
+        .select('total_points_earned')
+        .eq('student_id', studentId)
+        .maybeSingle(),
+      supabase
+        .from('savings_student_summary')
+        .select('deposit_count')
+        .eq('student_id', studentId)
+        .maybeSingle(),
+      supabase
+        .from('attendance_records')
+        .select('status')
+        .eq('student_id', studentId)
+        .gte('attendance_date', startISO)
+        .lte('attendance_date', endISO)
+    ]);
 
-    // 1. คำนวณ XP สุทธิ (บวก ลบ หัก, ต่ำสุดที่ 0)
+    if (conductRes.error) throw conductRes.error;
+    const list = (conductRes.data || []) as ConductRecord[];
+
+    // 2. คำนวณคะแนนความดีพื้นฐานและจำนวนครั้งพฤติกรรม
     let totalXp = 0;
     const virtues = { publicMind: 0, responsibility: 0, discipline: 0, honesty: 0, kindness: 0 };
 
@@ -219,10 +249,36 @@ export const conductService = {
       }
     });
 
-    // 2. คำนวณเลเวล
+    // 3. คำนวณคะแนนโบนัสภายนอก (ตามสูตรที่สมดุลและปลอดภัย)
+    
+    // 🌱 จิตสาธารณะ (publicMind) ⬅️ ธนาคารขยะ (Waste Bank)
+    const wastePoints = wasteRes.data?.total_points_earned || 0;
+    const wasteBonus = Math.min(50, Math.floor(wastePoints / 10));
+
+    // ⏰ วินัย (discipline) ⬅️ ธนาคารพอเพียง (Savings Bank)
+    const depositCount = savingsRes.data?.deposit_count || 0;
+    const savingsBonus = Math.min(40, depositCount * 2);
+
+    // 📘 ความรับผิดชอบ (responsibility) ⬅️ เวลามาเรียน (Attendance - ย้อนหลัง 12 เดือนล่าสุด)
+    const attendanceRecords = attendanceRes.data || [];
+    let attendanceBonus = 50; // ค่าเริ่มต้นเต็ม 50 ในช่วงไม่มีข้อมูลหรือข้อมูลน้อย (< 5 วัน) ป้องกันความเหวี่ยงต้นเทอม
+    if (attendanceRecords.length >= 5) {
+      const presentCount = attendanceRecords.filter(r => r.status === 'present').length;
+      const attendanceRate = presentCount / attendanceRecords.length;
+      attendanceBonus = Math.round(attendanceRate * 50);
+    }
+
+    // 4. บวกรวมโบนัสเข้าสู่คุณลักษณะหลัก และ XP สะสม
+    virtues.publicMind += wasteBonus;
+    virtues.discipline += savingsBonus;
+    virtues.responsibility += attendanceBonus;
+
+    totalXp += wasteBonus + savingsBonus + attendanceBonus;
+
+    // 5. คำนวณเลเวลหลังจากเพิ่มโบนัสเรียบร้อย
     const levelInfo = calculateHeroLevel(totalXp);
 
-    // 3. คำนวณสถานะ Badge
+    // 6. คำนวณสถานะ Badge
     const badges: HeroBadge[] = [
       {
         id: 'clean_hero',
@@ -271,7 +327,7 @@ export const conductService = {
       }
     ];
 
-    // 4. สร้าง Timeline แบบสร้างแรงบันดาลใจ
+    // 7. สร้าง Timeline แบบสร้างแรงบันดาลใจ
     const timeline = list.map(r => ({
       id: r.id,
       date: r.created_at,
