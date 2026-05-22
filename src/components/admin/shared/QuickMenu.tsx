@@ -27,17 +27,37 @@ interface QuickMenuProps {
 
 export const QuickMenu = ({ context }: QuickMenuProps) => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, allowedMenus = [], isAdmin } = useAuth();
   const [editorOpen, setEditorOpen] = useState(false);
 
-  const catalog = useMemo(() => getCatalog(context), [context]);
+  // คำนวณแคตตาล็อกเมนูที่อนุญาตตามบทบาทและสิทธิ์การเข้าถึงจริง
+  const catalog = useMemo(() => {
+    if (context === 'teacher') {
+      // เมนูครูพื้นฐาน
+      const baseCatalog = getCatalog('teacher');
+      // เมนูแอดมินหลังบ้านเฉพาะที่คุณครูได้รับสิทธิ์การเข้าถึง
+      const adminCatalog = getCatalog('admin');
+      const allowedAdminOptions = adminCatalog.filter((opt) => allowedMenus.includes(opt.id));
+      return [...baseCatalog, ...allowedAdminOptions];
+    } else {
+      // context === 'admin'
+      const adminCatalog = getCatalog('admin');
+      if (isAdmin) {
+        return adminCatalog;
+      } else {
+        // ครูทั่วไปที่เข้ามาหน้าหลังบ้าน -> กรองเฉพาะเมนูที่ได้รับสิทธิ์เท่านั้น
+        return adminCatalog.filter((opt) => allowedMenus.includes(opt.id));
+      }
+    }
+  }, [context, allowedMenus, isAdmin]);
+
   const catalogById = useMemo(() => {
     const m = new Map<string, QuickMenuOption>();
     catalog.forEach((o) => m.set(o.id, o));
     return m;
   }, [catalog]);
 
-  const { data: selectedIds = getDefaultIds(context) } = useQuery({
+  const { data: selectedIds = [] } = useQuery({
     queryKey: ['quick-menu', user?.id, context],
     enabled: !!user?.id,
     queryFn: async () => {
@@ -49,7 +69,13 @@ export const QuickMenu = ({ context }: QuickMenuProps) => {
     },
   });
 
-  const items = selectedIds
+  // กรองเฉพาะเมนูที่คุณครูมีสิทธิ์ใช้งานจริงเท่านั้น (สุขอนามัยของทางลัด)
+  const sanitizedSelectedIds = useMemo(() => {
+    const ids = selectedIds || [];
+    return ids.filter(id => catalogById.has(id));
+  }, [selectedIds, catalogById]);
+
+  const items = sanitizedSelectedIds
     .map((id) => catalogById.get(id))
     .filter((x): x is QuickMenuOption => !!x);
 
@@ -94,7 +120,7 @@ export const QuickMenu = ({ context }: QuickMenuProps) => {
           open={editorOpen}
           onOpenChange={setEditorOpen}
           context={context}
-          initialIds={selectedIds}
+          initialIds={sanitizedSelectedIds}
           catalog={catalog}
         />
       </CardContent>
@@ -154,7 +180,11 @@ const QuickMenuEditor = ({ open, onOpenChange, context, initialIds, catalog }: Q
 
   const addId = (id: string) => setIds((cur) => (cur.includes(id) ? cur : [...cur, id]));
   const removeId = (id: string) => setIds((cur) => cur.filter((x) => x !== id));
-  const resetDefault = () => setIds(getDefaultIds(context));
+  const resetDefault = () => {
+    const defaults = getDefaultIds(context);
+    const validDefaults = defaults.filter((id) => catalog.some((opt) => opt.id === id));
+    setIds(validDefaults);
+  };
 
   const saveMutation = useMutation({
     mutationFn: async () => {
