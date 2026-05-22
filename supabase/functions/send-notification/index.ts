@@ -69,7 +69,8 @@ serve(async (req) => {
             },
             body: JSON.stringify({
                 from: FROM_EMAIL,
-                to: subscribers.map((s: { email: string }) => s.email),
+                to: [FROM_EMAIL],
+                bcc: subscribers.map((s: { email: string }) => s.email),
                 subject: subject || `ข่าวสารใหม่: ${newsTitle}`,
                 html: html,
             }),
