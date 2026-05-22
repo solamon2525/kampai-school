@@ -11,6 +11,7 @@ import { RuntimeThemeStyles } from "./components/theme/RuntimeThemeStyles";
 import DynamicFavicon from "./components/DynamicFavicon";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { InstallBanner } from "./components/pwa/InstallBanner";
+import { OfflineIndicator } from "./components/shared/OfflineIndicator";
 
 // หน้าแรกโหลดทันที (Critical path)
 import Index from "./pages/Index";
@@ -114,6 +115,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <InstallBanner />
+      <OfflineIndicator />
       <ErrorBoundary>
       <BrowserRouter>
         <PageViewTracker />

@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams, Routes, Route, Navigate } from 'react-rou
 import { AdminLayout } from '@/components/admin/shared/AdminLayout';
 import ProtectedRoute from '@/components/admin/shared/ProtectedRoute';
 import { useAuth } from '@/contexts/AuthProvider';
+import { DashboardSkeleton } from '@/components/shared/LoadingSkeletons';
 
 // Lazy load ทุก admin page — แยก chunk per feature
 const AdminHome = lazy(() => import('./admin/AdminHome'));
@@ -58,13 +59,10 @@ const EduHubManagement = lazy(() => import('@/components/admin/educational-hub/E
 const GamePlayDashboard = lazy(() => import('@/components/admin/games/GamePlayDashboard').then(m => ({ default: m.GamePlayDashboard })));
 const ScanRecorder = lazy(() => import('./admin/ScanRecorder'));
 
-// Loading spinner สำหรับ lazy-loaded admin pages
+// Loading spinner สำหรับ lazy-loaded admin pages — เปลี่ยนเป็น DashboardSkeleton ระดับพรีเมียม
 const AdminPageLoader = () => (
-  <div className="flex-1 flex items-center justify-center p-12">
-    <div className="flex flex-col items-center gap-3">
-      <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      <p className="text-sm text-muted-foreground">กำลังโหลด...</p>
-    </div>
+  <div className="flex-1 p-6">
+    <DashboardSkeleton />
   </div>
 );
 

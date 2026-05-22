@@ -13,7 +13,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sarabun: ['Sarabun', 'sans-serif'],
+        sarabun: ['Outfit', 'Sarabun', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
       },
       colors: {
         border: "hsl(var(--border))",
