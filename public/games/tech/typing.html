@@ -84,6 +84,42 @@
   <button class="btn btn-outline" onclick="location.href='/educational-hub/a5f53911-b9cb-465a-b963-7202bcb907b1'" style="margin:4px">🏠 กลับ</button>
 </div>
 <script>
+// --- postMessage tracking boilerplate ---
+let studentCode = '';
+let gameStartedAt = Date.now();
+
+window.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'init') {
+    studentCode = e.data.studentCode;
+    console.log('[Typing] Student initialized:', studentCode);
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const backBtns = document.querySelectorAll('.back, a[href*="educational-hub"], a[href*="index.html"]');
+  backBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.parent.postMessage({ type: 'navigate', to: '/h/natthapong' }, '*');
+    });
+  });
+});
+
+function reportScore(score, mode = 'normal', additionalMetadata = {}) {
+  const duration = Math.round((Date.now() - gameStartedAt) / 1000);
+  console.log('[Typing] Reporting score:', score, 'Duration:', duration);
+  window.parent.postMessage({
+    type: 'gameEnd',
+    score: score,
+    mode: mode,
+    metadata: {
+      duration: duration,
+      ...additionalMetadata
+    }
+  }, '*');
+}
+// --- end boilerplate ---
+
 const SENTENCES=[
   "the quick brown fox jumps over the lazy dog",
   "practice makes perfect every single day",
@@ -163,10 +199,12 @@ function showResult(){
   document.getElementById("res-wrong").textContent=totalWrong;
   document.getElementById("game-screen").style.display="none";
   document.getElementById("result-panel").classList.add("show");
+  reportScore(wpm, 'typing', { accuracy: acc, correct_chars: totalChars, wrong_chars: totalWrong });
 }
 
 function restartGame(){
   timeLeft=60;totalWrong=0;totalChars=0;started=false;clearInterval(timerID);
+  gameStartedAt = Date.now();
   document.getElementById("timer").textContent=60;
   document.getElementById("wpm").textContent=0;
   document.getElementById("acc").textContent="100%";

@@ -82,6 +82,42 @@
   </div>
 </div>
 <script>
+// --- postMessage tracking boilerplate ---
+let studentCode = '';
+let gameStartedAt = Date.now();
+
+window.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'init') {
+    studentCode = e.data.studentCode;
+    console.log('[Pizza Math] Student initialized:', studentCode);
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const backBtns = document.querySelectorAll('.back, a[href*="educational-hub"], a[href*="index.html"]');
+  backBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.parent.postMessage({ type: 'navigate', to: '/h/natthapong' }, '*');
+    });
+  });
+});
+
+function reportScore(score, mode = 'normal', additionalMetadata = {}) {
+  const duration = Math.round((Date.now() - gameStartedAt) / 1000);
+  console.log('[Pizza Math] Reporting score:', score, 'Duration:', duration);
+  window.parent.postMessage({
+    type: 'gameEnd',
+    score: score,
+    mode: mode,
+    metadata: {
+      duration: duration,
+      ...additionalMetadata
+    }
+  }, '*');
+}
+// --- end boilerplate ---
+
 let score=0,lives=3,qNum=0,answered=false;
 const maxQ=15;
 
@@ -189,10 +225,12 @@ function endGame(win){
   document.getElementById("modal-title").textContent=win?"ยอดเยี่ยม! ทำข้อสอบครบแล้ว!":"ชีวิตหมดแล้ว!";
   document.getElementById("final-score").textContent=score;
   document.getElementById("modal").classList.add("on");
+  reportScore(score);
 }
 
 function restartGame(){
   score=0;lives=3;qNum=1;
+  gameStartedAt = Date.now();
   document.getElementById("modal").classList.remove("on");
   document.getElementById("fb").textContent="";
   updateHUD();genQuestion();

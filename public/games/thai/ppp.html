@@ -306,6 +306,45 @@
     <div id="enemyProjectileTank"></div>
 </div>
 
+<script>
+// --- postMessage tracking boilerplate ---
+window.studentCode = '';
+window.gameStartedAt = Date.now();
+
+window.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'init') {
+    window.studentCode = e.data.studentCode;
+    console.log('[PPP Fishing] Student initialized:', window.studentCode);
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const backBtns = document.querySelectorAll('.back, a[href*="educational-hub"], a[href*="index.html"]');
+  backBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.parent.postMessage({ type: 'navigate', to: '/h/natthapong' }, '*');
+    });
+  });
+});
+
+window.reportScore = function(score, mode = 'normal', additionalMetadata = {}) {
+  const duration = Math.round((Date.now() - window.gameStartedAt) / 1000);
+  console.log('[PPP Fishing] Reporting score:', score, 'Duration:', duration);
+  window.parent.postMessage({
+    type: 'gameEnd',
+    gameSlug: 'ppp',
+    score: score,
+    mode: mode,
+    metadata: {
+      duration: duration,
+      ...additionalMetadata
+    }
+  }, '*');
+};
+// --- end boilerplate ---
+</script>
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -370,6 +409,7 @@
 
     function endGame(reason = "") {
         if(!gameActive) return; gameActive = false; sfx.explode();
+        if (window.reportScore) window.reportScore(score, 'normal', { reason });
         spawnIntervals.forEach(i => clearInterval(i)); 
         if(mainTimerInterval) clearInterval(mainTimerInterval); 
         document.getElementById('gameOverScreen').classList.remove('hidden'); 
@@ -530,6 +570,7 @@
     }
 
     function startGame() {
+        window.gameStartedAt = Date.now();
         gameActive = true; paused = false; lives = 5; score = 0; timeLeft = 100; gameDifficultyLevel = 0;
         timeToNextDifficulty = 30; currentDifficultyInterval = 30; // Reset difficulty state
         document.getElementById('difficultyLabel').textContent = `ความยากถัดไป: ${timeToNextDifficulty} วิ`;

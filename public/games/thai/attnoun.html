@@ -185,6 +185,44 @@
         </div>
     </div>
 
+    <script>
+        // --- postMessage tracking boilerplate ---
+        let studentCode = '';
+        let gameStartedAt = Date.now();
+
+        window.addEventListener('message', (e) => {
+            if (e.data && e.data.type === 'init') {
+                studentCode = e.data.studentCode;
+                console.log('[Attnoun] Student initialized:', studentCode);
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const backBtns = document.querySelectorAll('.back, a[href*="educational-hub"], a[href*="index.html"]');
+            backBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    window.parent.postMessage({ type: 'navigate', to: '/h/natthapong' }, '*');
+                });
+            });
+        });
+
+        window.reportScore = function(score, mode = 'normal', additionalMetadata = {}) {
+            const duration = Math.round((Date.now() - gameStartedAt) / 1000);
+            console.log('[Attnoun] Reporting score:', score, 'Duration:', duration);
+            window.parent.postMessage({
+                type: 'gameEnd',
+                score: score,
+                mode: mode,
+                metadata: {
+                    duration: duration,
+                    ...additionalMetadata
+                }
+            }, '*');
+        };
+        // --- end boilerplate ---
+    </script>
+
     <script type="module">
         import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.126.0/build/three.module.js';
 
@@ -643,6 +681,7 @@
             document.getElementById('blocker').style.display = 'none'; 
             updateScoreLists();
             if (checkIsHighScore(score)) document.getElementById('input-section').style.display = 'block';
+            if (window.reportScore) window.reportScore(score);
         }
 
         function shoot() {

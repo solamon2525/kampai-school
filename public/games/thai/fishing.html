@@ -152,6 +152,42 @@
 </div>
 
 <script>
+// --- postMessage tracking boilerplate ---
+let studentCode = '';
+let gameStartedAt = Date.now();
+
+window.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'init') {
+    studentCode = e.data.studentCode;
+    console.log('[Fishing] Student initialized:', studentCode);
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const backBtns = document.querySelectorAll('.back, a[href*="educational-hub"], a[href*="index.html"]');
+  backBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.parent.postMessage({ type: 'navigate', to: '/h/natthapong' }, '*');
+    });
+  });
+});
+
+function reportScore(score, mode = 'normal', additionalMetadata = {}) {
+  const duration = Math.round((Date.now() - gameStartedAt) / 1000);
+  console.log('[Fishing] Reporting score:', score, 'Duration:', duration);
+  window.parent.postMessage({
+    type: 'gameEnd',
+    score: score,
+    mode: mode,
+    metadata: {
+      duration: duration,
+      ...additionalMetadata
+    }
+  }, '*');
+}
+// --- end boilerplate ---
+
 // ====== DATA ======
 const ROUNDS = [
   { target:"กก", label:"มาตรา กก", correct:["รัก","จัก","นัก","หมาก","อาก","ปาก","ยาก","จาก","ตาก","มาก"], wrong:["กาน","ราน","นาม","คาน","บาน","ดาว","ขาว"] },
@@ -272,6 +308,7 @@ function endGame(win){
   document.getElementById("res-title").textContent=win?"ยอดเยี่ยมมาก!":"พยายามอีกครั้งนะ!";
   document.getElementById("res-msg").textContent=win?"คุณตกปลาครบทุกมาตราแล้ว!":"ชีวิตหมดแล้ว ลองใหม่อีกครั้ง";
   document.getElementById("res-score").textContent=score;
+  reportScore(score);
 }
 
 function updateHUD(){
@@ -280,6 +317,7 @@ function updateHUD(){
 }
 
 function restartGame(){
+  gameStartedAt = Date.now();
   document.querySelector(".overlay").classList.remove("on");
   startGame();
 }

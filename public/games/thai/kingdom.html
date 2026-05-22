@@ -39,6 +39,45 @@
 <body class="bg-indigo-50 bg-royal-pattern min-h-screen">
     <div id="root"></div>
 
+    <script>
+    // --- postMessage tracking boilerplate ---
+    window.studentCode = '';
+    window.gameStartedAt = Date.now();
+
+    window.addEventListener('message', (e) => {
+      if (e.data && e.data.type === 'init') {
+        window.studentCode = e.data.studentCode;
+        console.log('[Kingdom Duel] Student initialized:', window.studentCode);
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const backBtns = document.querySelectorAll('.back, a[href*="educational-hub"], a[href*="index.html"]');
+      backBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          window.parent.postMessage({ type: 'navigate', to: '/h/natthapong' }, '*');
+        });
+      });
+    });
+
+    window.reportScore = function(score, mode = 'normal', additionalMetadata = {}) {
+      const duration = Math.round((Date.now() - window.gameStartedAt) / 1000);
+      console.log('[Kingdom Duel] Reporting score:', score, 'Duration:', duration);
+      window.parent.postMessage({
+        type: 'gameEnd',
+        gameSlug: 'kingdom',
+        score: score,
+        mode: mode,
+        metadata: {
+          duration: duration,
+          ...additionalMetadata
+        }
+      }, '*');
+    };
+    // --- end boilerplate ---
+    </script>
+
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
@@ -117,6 +156,16 @@
                 return () => clearInterval(interval);
             }, [scene, status, timer]);
 
+            // Game End Tracking Logic
+            useEffect(() => {
+                if (scene === 'result') {
+                    const finalScore = p1.hp > p2.hp ? p1.hp : 0;
+                    if (window.reportScore) {
+                        window.reportScore(finalScore, 'normal', { p1_hp: p1.hp, p2_hp: p2.hp });
+                    }
+                }
+            }, [scene]);
+
             const generateQuestion = () => {
                 const cats = Object.keys(vocabulary);
                 const cat = cats[Math.floor(Math.random() * cats.length)];
@@ -139,6 +188,7 @@
             };
 
             const startGame = (m) => {
+                window.gameStartedAt = Date.now();
                 setMode(m);
                 setP1({ hp: 100, inv: { magnifier: 1, shield: 1, power: 1 } });
                 setP2({ hp: 100, inv: { magnifier: 1, shield: 1, power: 1 } });

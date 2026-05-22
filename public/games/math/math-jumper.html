@@ -93,6 +93,42 @@
   </div>
 </div>
 <script>
+// --- postMessage tracking boilerplate ---
+let studentCode = '';
+let gameStartedAt = Date.now();
+
+window.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'init') {
+    studentCode = e.data.studentCode;
+    console.log('[Math Jumper] Student initialized:', studentCode);
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const backBtns = document.querySelectorAll('.back, a[href*="educational-hub"], a[href*="index.html"]');
+  backBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.parent.postMessage({ type: 'navigate', to: '/h/natthapong' }, '*');
+    });
+  });
+});
+
+function reportScore(score, mode = 'normal', additionalMetadata = {}) {
+  const duration = Math.round((Date.now() - gameStartedAt) / 1000);
+  console.log('[Math Jumper] Reporting score:', score, 'Duration:', duration);
+  window.parent.postMessage({
+    type: 'gameEnd',
+    score: score,
+    mode: mode,
+    metadata: {
+      duration: duration,
+      ...additionalMetadata
+    }
+  }, '*');
+}
+// --- end boilerplate ---
+
 let score=0,timeLeft=30,streak=0,timerID=null,answered=false;
 function genQuestion(){
   answered=false;
@@ -143,11 +179,17 @@ function startTimer(){
   clearInterval(timerID);
   timerID=setInterval(()=>{
     timeLeft--;document.getElementById("timer").textContent=timeLeft;
-    if(timeLeft<=0){clearInterval(timerID);document.getElementById("final-score").textContent=score;document.getElementById("modal").classList.add("on");}
+    if(timeLeft<=0){
+      clearInterval(timerID);
+      document.getElementById("final-score").textContent=score;
+      document.getElementById("modal").classList.add("on");
+      reportScore(score);
+    }
   },1000);
 }
 function restartGame(){
   score=0;timeLeft=30;streak=0;
+  gameStartedAt = Date.now();
   document.getElementById("modal").classList.remove("on");
   document.getElementById("fb").textContent="";
   updateHUD();genQuestion();startTimer();

@@ -140,6 +140,42 @@
 </div>
 
 <script>
+// --- postMessage tracking boilerplate ---
+let studentCode = '';
+let gameStartedAt = Date.now();
+
+window.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'init') {
+    studentCode = e.data.studentCode;
+    console.log('[Attack Noun] Student initialized:', studentCode);
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const backBtns = document.querySelectorAll('.back, a[href*="educational-hub"], a[href*="index.html"]');
+  backBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.parent.postMessage({ type: 'navigate', to: '/h/natthapong' }, '*');
+    });
+  });
+});
+
+function reportScore(score, mode = 'normal', additionalMetadata = {}) {
+  const duration = Math.round((Date.now() - gameStartedAt) / 1000);
+  console.log('[Attack Noun] Reporting score:', score, 'Duration:', duration);
+  window.parent.postMessage({
+    type: 'gameEnd',
+    score: score,
+    mode: mode,
+    metadata: {
+      duration: duration,
+      ...additionalMetadata
+    }
+  }, '*');
+}
+// --- end boilerplate ---
+
 const NOUNS=["ครู","นักเรียน","หนังสือ","โรงเรียน","แมว","สุนัข","ต้นไม้","ดอกไม้","บ้าน","รถ",
              "ปลา","นก","คน","เมือง","แม่น้ำ","ภูเขา","ท้องฟ้า","ดาว","บึง","วัด","ห้อง","ถนน",
              "กระเป๋า","ด้ามปากกา","สมุด","ดินสอ","ไม้บรรทัด","กระดาน","โต๊ะ","เก้าอี้"];
@@ -249,10 +285,12 @@ function endGame(){
   document.getElementById("end-emoji").textContent=score>100?"🏆":"💔";
   document.getElementById("end-title").textContent=score>100?"ยอดเยี่ยม! ป้องกันหมู่บ้านสำเร็จ!":"ถูกคำนามโจมตี!";
   document.getElementById("end-ov").style.display="flex";
+  reportScore(score);
 }
 
 function restartGame(){
   score=0; lives=3; waveN=1; combo=1; enemies=[];
+  gameStartedAt = Date.now();
   document.getElementById("enemy-container").innerHTML="";
   document.getElementById("end-ov").style.display="none";
   updateHUD(); spawnEnemies();

@@ -1,1 +1,951 @@
-555
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>คณิตคิดเร็ว 24 — Kampai School</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+            --glass-bg: rgba(255, 255, 255, 0.07);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --accent-yellow: #f59e0b;
+            --accent-gold: #fbbf24;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: 'Kanit', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* Nav Header */
+        .nav-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 10;
+        }
+        .btn-back {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 600;
+            padding: 6px 14px;
+            border: 1px solid var(--glass-border);
+            background: var(--glass-bg);
+            border-radius: 10px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-back:hover {
+            color: var(--text-light);
+            border-color: var(--accent-blue);
+            background: rgba(59, 130, 246, 0.15);
+        }
+        .game-title {
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--accent-gold), #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Game Layout */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+            gap: 16px;
+            position: relative;
+        }
+
+        /* HUD Row */
+        .hud-row {
+            width: 100%;
+            display: flex;
+            gap: 12px;
+            justify-content: space-between;
+        }
+        .hud-card {
+            flex: 1;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 10px;
+            text-align: center;
+            backdrop-filter: blur(8px);
+        }
+        .hud-val {
+            font-size: 24px;
+            font-weight: 700;
+            display: block;
+        }
+        .hud-val.gold { color: var(--accent-gold); }
+        .hud-val.blue { color: #60a5fa; }
+        .hud-val.green { color: #34d399; }
+        .hud-lbl {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Instructions */
+        .instruction-box {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+            min-height: 24px;
+        }
+        .instruction-box.highlight {
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+
+        /* Cards Workspace Area */
+        .cards-area {
+            width: 100%;
+            min-height: 140px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 16px;
+            position: relative;
+        }
+        .num-card {
+            width: 80px;
+            height: 96px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.03) 100%);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-light);
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            touch-action: none;
+        }
+        .num-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255,255,255,0.3);
+        }
+        .num-card.selected {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            border-color: #60a5fa;
+            box-shadow: 0 0 15px rgba(59,130,246,0.6);
+            transform: scale(1.08) translateY(-6px);
+        }
+        .num-card.combined-pop {
+            animation: popEffect 0.3s ease-out;
+        }
+
+        /* Operators Row */
+        .operators-row {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        .op-btn {
+            height: 60px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            font-size: 26px;
+            color: var(--text-light);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .op-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--text-muted);
+        }
+        .op-btn.selected {
+            background: linear-gradient(135deg, #ea580c 0%, #ca8a04 100%);
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 12px rgba(234, 88, 12, 0.5);
+            transform: scale(1.05);
+        }
+
+        /* Actions Console Panel */
+        .actions-panel {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .btn-act {
+            padding: 12px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-light);
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .btn-act:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+        .btn-act-blue {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.1) 100%);
+            border-color: rgba(59, 130, 246, 0.4);
+            color: #93c5fd;
+        }
+        .btn-act-blue:hover {
+            background: rgba(59, 130, 246, 0.3);
+        }
+
+        /* Modal Screens overlay */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            text-align: center;
+            padding: 24px;
+            transition: opacity 0.3s;
+        }
+        .overlay.hidden { display: none !important; }
+
+        .modal-card {
+            background: rgba(30, 41, 59, 0.7);
+            border: 2px solid var(--glass-border);
+            border-radius: 32px;
+            padding: 32px;
+            max-width: 440px;
+            width: 100%;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            transform: scale(0.9);
+            animation: zoomIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        .modal-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--accent-gold), #f97316);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .modal-sub {
+            color: var(--text-muted);
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .btn-start {
+            width: 100%;
+            padding: 16px;
+            border-radius: 20px;
+            border: none;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            font-family: inherit;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(16,185,129,0.3);
+            transition: all 0.2s;
+            margin-bottom: 12px;
+        }
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(16,185,129,0.4);
+        }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 14px;
+            border-radius: 18px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255,255,255,0.05);
+            color: var(--text-light);
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .score-val-big {
+            font-size: 54px;
+            font-weight: 700;
+            color: var(--accent-gold);
+            margin: 12px 0 20px;
+            text-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
+        }
+
+        /* Confetti elements */
+        .confetti-particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        /* Animations */
+        @keyframes popEffect {
+            0% { transform: scale(0.6); opacity: 0.5; }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes zoomIn {
+            to { transform: scale(1); }
+        }
+
+        /* Floating Score Text Indicator */
+        .floating-score {
+            position: absolute;
+            font-size: 24px;
+            font-weight: 700;
+            color: #34d399;
+            pointer-events: none;
+            animation: fadeUp 0.8s ease-out forwards;
+            z-index: 100;
+        }
+
+        @keyframes fadeUp {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-40px); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="nav-header">
+        <a href="/h/natthapong" target="_top" class="btn-back">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            กลับพอร์ทัล
+        </a>
+        <span class="game-title">🎯 เกม 24 แต้มพรีเมียม</span>
+        <div style="width: 80px;"></div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main>
+        <!-- HUD Statistics -->
+        <div class="hud-row">
+            <div class="hud-card">
+                <span class="hud-val gold" id="score-val">0</span>
+                <span class="hud-lbl">คะแนน</span>
+            </div>
+            <div class="hud-card">
+                <span class="hud-val blue" id="timer-val">90</span>
+                <span class="hud-lbl">เวลาเหลือ (วิ)</span>
+            </div>
+            <div class="hud-card">
+                <span class="hud-val green" id="level-val">1</span>
+                <span class="hud-lbl">เลเวลข้อ</span>
+            </div>
+        </div>
+
+        <!-- Touch hints / state text -->
+        <div class="instruction-box" id="instruct">แตะเลือกตัวเลขตัวแรกเพื่อเริ่มต้นคิดเลข 24</div>
+
+        <!-- Active Cards Area -->
+        <div class="cards-area" id="cards-box">
+            <!-- Cards will be injected dynamically -->
+        </div>
+
+        <!-- Math Operators Panel -->
+        <div class="operators-row">
+            <button class="op-btn" onclick="selectOperator('+')">+</button>
+            <button class="op-btn" onclick="selectOperator('-')">−</button>
+            <button class="op-btn" onclick="selectOperator('*')">×</button>
+            <button class="op-btn" onclick="selectOperator('/')">÷</button>
+        </div>
+
+        <!-- Utility Console Actions -->
+        <div class="actions-panel">
+            <button class="btn-act" onclick="resetBoard()">🔄 ล้างกระดาน</button>
+            <button class="btn-act btn-act-blue" onclick="showHint()">💡 ดูคำใบ้</button>
+            <button class="btn-act" onclick="skipQuestion()">⏭️ ข้ามข้อนี้</button>
+        </div>
+    </main>
+
+    <!-- Start Overlay Screen -->
+    <div class="overlay" id="start-screen">
+        <div class="modal-card">
+            <div style="font-size: 72px; margin-bottom: 12px; transform: scale(1);">🧠</div>
+            <h1 class="modal-title">คณิตคิดเร็ว 24</h1>
+            <p class="modal-sub">รวมตัวเลข 4 ตัวที่กำหนดให้ได้เท่ากับ 24 โดยใช้เครื่องหมายบวก ลบ คูณ หาร แตะการ์ดและเครื่องหมายเพื่อยุบรวมกัน!<br><small style="color:var(--accent-gold)">* มีเฉลยและสุ่มข้อที่คิดออกได้ 100%</small></p>
+            <button class="btn-start" onclick="startGame()">▶ เริ่มเล่นเกม</button>
+            <a href="/h/natthapong" target="_top" class="btn-secondary">🚪 ออกจากเกม</a>
+        </div>
+    </div>
+
+    <!-- Game Over Overlay Screen -->
+    <div class="overlay hidden" id="gameover-screen">
+        <div class="modal-card">
+            <div style="font-size: 72px; margin-bottom: 8px;">🏆</div>
+            <h1 class="modal-title">หมดเวลา!</h1>
+            <p class="modal-sub">เก่งมาก! เล่นได้อย่างยอดเยี่ยม คะแนนสอบของคุณได้รับการส่งและ persistence ลงในระบบโรงเรียนเรียบร้อยแล้ว</p>
+            <div class="score-val-big" id="final-score">0</div>
+            <button class="btn-start" onclick="location.reload()">🔄 เล่นใหม่อีกครั้ง</button>
+            <a href="/h/natthapong" target="_top" class="btn-secondary">🎮 เลือกเกมอื่น</a>
+        </div>
+    </div>
+
+    <script>
+        /* ============================================================================
+           SECTION A · KAMPAI INTEGRATION BOILERPLATE
+           ============================================================================ */
+        const EMBED = (window.parent !== window) && (new URLSearchParams(location.search).get('embed') === '1');
+        let STUDENT_CODE = null;
+        let SESSION_START_TS = 0;
+
+        if (EMBED) {
+            document.documentElement.classList.add('embed-mode');
+            window.addEventListener('message', (e) => {
+                if (e?.data?.type === 'init' && typeof e.data.studentCode === 'string') {
+                    STUDENT_CODE = e.data.studentCode;
+                    SESSION_START_TS = Date.now();
+                }
+            });
+
+            // Click interceptor for target="_top" anchors
+            document.addEventListener('click', (e) => {
+                const a = e.target.closest('a[target="_top"]');
+                if (!a) return;
+                const href = a.getAttribute('href');
+                if (!href) return;
+                e.preventDefault();
+                try {
+                    window.parent.postMessage({ type: 'navigate', to: href }, '*');
+                } catch (_err) { }
+            });
+        }
+
+        /* ============================================================================
+           SECTION B · WEB AUDIO API SOUND GENERATOR
+           ============================================================================ */
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSfx(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'tap') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+            } else if (type === 'combine') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(880, audioCtx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+            } else if (type === 'correct') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+                osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2); // G5
+                osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.3); // C6
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.6);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(80, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.35);
+            } else if (type === 'hint') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.25);
+            }
+        }
+
+        /* ============================================================================
+           SECTION C · MATHEMATICAL 24 SOLVER ENGINE (Permutations check)
+           ============================================================================ */
+        const operators = {
+            '+': (a, b) => a + b,
+            '-': (a, b) => a - b,
+            '*': (a, b) => a * b,
+            '/': (a, b) => b !== 0 ? a / b : null
+        };
+        const opSyms = ['+', '-', '*', '/'];
+
+        // permute array helper
+        function permute(arr) {
+            let res = [];
+            function dfs(curr, remaining) {
+                if (remaining.length === 0) { res.push(curr); return; }
+                for (let i = 0; i < remaining.length; i++) {
+                    dfs([...curr, remaining[i]], [...remaining.slice(0, i), ...remaining.slice(i + 1)]);
+                }
+            }
+            dfs([], arr);
+            return res;
+        }
+
+        // checks if a value is extremely close to 24 (float rounding proof)
+        const EPS = 0.0001;
+        function isCloseTo24(val) {
+            return val !== null && Math.abs(val - 24) < EPS;
+        }
+
+        function solve24(numbers) {
+            const numPerms = permute(numbers);
+            for (let num of numPerms) {
+                const a = num[0], b = num[1], c = num[2], d = num[3];
+                for (let op1 of opSyms) {
+                    for (let op2 of opSyms) {
+                        for (let op3 of opSyms) {
+                            // Tree 1: ((a op1 b) op2 c) op3 d
+                            try {
+                                let r1 = operators[op1](a, b);
+                                if (r1 !== null) {
+                                    let r2 = operators[op2](r1, c);
+                                    if (r2 !== null) {
+                                        let r3 = operators[op3](r2, d);
+                                        if (isCloseTo24(r3)) return `(((${a} ${op1} ${b}) ${op2} ${c}) ${op3} ${d})`;
+                                    }
+                                }
+                            } catch (e) {}
+
+                            // Tree 2: (a op1 (b op2 c)) op3 d
+                            try {
+                                let r1 = operators[op2](b, c);
+                                if (r1 !== null) {
+                                    let r2 = operators[op1](a, r1);
+                                    if (r2 !== null) {
+                                        let r3 = operators[op3](r2, d);
+                                        if (isCloseTo24(r3)) return `((${a} ${op1} (${b} ${op2} ${c})) ${op3} ${d})`;
+                                    }
+                                }
+                            } catch (e) {}
+
+                            // Tree 3: a op1 ((b op2 c) op3 d)
+                            try {
+                                let r1 = operators[op2](b, c);
+                                if (r1 !== null) {
+                                    let r2 = operators[op3](r1, d);
+                                    if (r2 !== null) {
+                                        let r3 = operators[op1](a, r2);
+                                        if (isCloseTo24(r3)) return `(${a} ${op1} ((${b} ${op2} ${c}) ${op3} ${d}))`;
+                                    }
+                                }
+                            } catch (e) {}
+
+                            // Tree 4: a op1 (b op2 (c op3 d))
+                            try {
+                                let r1 = operators[op3](c, d);
+                                if (r1 !== null) {
+                                    let r2 = operators[op2](b, r1);
+                                    if (r2 !== null) {
+                                        let r3 = operators[op1](a, r2);
+                                        if (isCloseTo24(r3)) return `(${a} ${op1} (${b} ${op2} (${c} ${op3} ${d})))`;
+                                    }
+                                }
+                            } catch (e) {}
+
+                            // Tree 5: (a op1 b) op2 (c op3 d)
+                            try {
+                                let r1 = operators[op1](a, b);
+                                let r2 = operators[op3](c, d);
+                                if (r1 !== null && r2 !== null) {
+                                    let r3 = operators[op2](r1, r2);
+                                    if (isCloseTo24(r3)) return `((${a} ${op1} ${b}) ${op2} (${c} ${op3} ${d}))`;
+                                }
+                            } catch (e) {}
+                        }
+                    }
+                }
+            }
+            return null; // not solvable
+        }
+
+        // generate solvable numbers set
+        function generateSolvableSet() {
+            while (true) {
+                const nums = [
+                    Math.floor(Math.random() * 9) + 1,
+                    Math.floor(Math.random() * 9) + 1,
+                    Math.floor(Math.random() * 9) + 1,
+                    Math.floor(Math.random() * 9) + 1
+                ];
+                const sol = solve24(nums);
+                if (sol !== null) {
+                    return { nums, sol };
+                }
+            }
+        }
+
+        /* ============================================================================
+           SECTION D · GAMESTATE & COLLAPSING MECHANICS
+           ============================================================================ */
+        let score = 0;
+        let timeLeft = 90;
+        let level = 1;
+        let timerInterval = null;
+        let isGameOver = false;
+
+        let activeNumbers = []; // elements like { id, val }
+        let currentSolution = "";
+        let originalSet = [];
+
+        let selectedIndices = []; // selected ids
+        let selectedOperator = null;
+
+        function startGame() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            document.getElementById('start-screen').classList.add('hidden');
+            score = 0;
+            timeLeft = 90;
+            level = 1;
+            isGameOver = false;
+            
+            document.getElementById('score-val').innerText = score;
+            document.getElementById('timer-val').innerText = timeLeft;
+            document.getElementById('level-val').innerText = level;
+
+            loadNewSet();
+            startTimer();
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer-val').innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function loadNewSet() {
+            const data = generateSolvableSet();
+            originalSet = [...data.nums];
+            currentSolution = data.sol;
+            
+            activeNumbers = data.nums.map((n, i) => ({ id: i, val: n }));
+            selectedIndices = [];
+            selectedOperator = null;
+            document.getElementById('instruct').className = 'instruction-box';
+            document.getElementById('instruct').innerText = 'แตะเลือกตัวเลขการ์ดใบแรกที่ต้องการคำนวณ';
+
+            renderCards();
+            clearOperatorHighlights();
+        }
+
+        function renderCards() {
+            const box = document.getElementById('cards-box');
+            box.innerHTML = '';
+            activeNumbers.forEach((n) => {
+                const card = document.createElement('div');
+                card.className = `num-card ${selectedIndices.includes(n.id) ? 'selected' : ''}`;
+                card.innerText = Math.round(n.val * 100) / 100; // print rounded to 2 decimals if fraction
+                card.onclick = () => selectCard(n.id);
+                box.appendChild(card);
+            });
+        }
+
+        function clearOperatorHighlights() {
+            document.querySelectorAll('.op-btn').forEach(btn => btn.classList.remove('selected'));
+        }
+
+        function selectCard(id) {
+            playSfx('tap');
+            const numObj = activeNumbers.find(n => n.id === id);
+            if (!numObj) return;
+
+            // Step 1: choosing first card
+            if (selectedIndices.length === 0) {
+                selectedIndices = [id];
+                document.getElementById('instruct').innerText = `เลือกได้เลข ${numObj.val} แล้ว, ต่อไปแตะเลือกเครื่องหมายด้านล่าง (+, -, ×, ÷)`;
+                renderCards();
+            } 
+            // Step 2: cancel first card selection
+            else if (selectedIndices.length === 1 && selectedIndices[0] === id && !selectedOperator) {
+                selectedIndices = [];
+                document.getElementById('instruct').innerText = 'แตะเลือกตัวเลขการ์ดใบแรกที่ต้องการคำนวณ';
+                renderCards();
+            } 
+            // Step 3: choosing second card to compute
+            else if (selectedIndices.length === 1 && selectedOperator) {
+                if (selectedIndices[0] === id) {
+                    // Tap same card again -> cancel
+                    return;
+                }
+                
+                // Do the collapse!
+                const card1Val = activeNumbers.find(n => n.id === selectedIndices[0]).val;
+                const card2Val = numObj.val;
+                
+                let result = null;
+                if (selectedOperator === '+') result = card1Val + card2Val;
+                else if (selectedOperator === '-') result = card1Val - card2Val;
+                else if (selectedOperator === '*') result = card1Val * card2Val;
+                else if (selectedOperator === '/') {
+                    if (card2Val === 0) {
+                        playSfx('wrong');
+                        showNotice('❌ คำนวณขัดข้อง: ห้ามหารด้วยศูนย์!', true);
+                        return;
+                    }
+                    result = card1Val / card2Val;
+                }
+
+                if (result !== null) {
+                    playSfx('combine');
+                    
+                    // replace the two cards with one new card
+                    activeNumbers = activeNumbers.filter(n => n.id !== selectedIndices[0] && n.id !== id);
+                    const newId = Date.now(); // random unique id
+                    activeNumbers.push({ id: newId, val: result });
+                    
+                    selectedIndices = [];
+                    selectedOperator = null;
+                    clearOperatorHighlights();
+                    
+                    renderCards();
+
+                    // Animate the pop on the newly combined card
+                    setTimeout(() => {
+                        const newCardEl = Array.from(document.querySelectorAll('.num-card')).pop();
+                        if (newCardEl) newCardEl.classList.add('combined-pop');
+                    }, 10);
+
+                    // Check win state
+                    checkBoardState();
+                }
+            }
+        }
+
+        function selectOperator(op) {
+            if (selectedIndices.length !== 1) {
+                playSfx('wrong');
+                showNotice('⚠️ กรุณาเลือกตัวเลขการ์ดตัวแรกก่อน!', true);
+                return;
+            }
+            playSfx('tap');
+            selectedOperator = op;
+            
+            // highlight the selected operator
+            clearOperatorHighlights();
+            document.querySelectorAll('.op-btn').forEach(btn => {
+                if (btn.innerText === (op === '*' ? '×' : op === '/' ? '÷' : op === '-' ? '−' : op)) {
+                    btn.classList.add('selected');
+                }
+            });
+
+            const cardVal = activeNumbers.find(n => n.id === selectedIndices[0]).val;
+            document.getElementById('instruct').innerText = `แตะเลือกตัวเลขการ์ดใบที่สองเพื่อนำไป ${op === '*' ? 'คูณ' : op === '/' ? 'หาร' : op === '+' ? 'บวก' : 'ลบ'}`;
+        }
+
+        function checkBoardState() {
+            if (activeNumbers.length === 1) {
+                const finalVal = activeNumbers[0].val;
+                if (isCloseTo24(finalVal)) {
+                    // VICTORY!
+                    playSfx('correct');
+                    score += 100;
+                    level++;
+                    document.getElementById('score-val').innerText = score;
+                    document.getElementById('level-val').innerText = level;
+                    
+                    showFloatingText('+100');
+                    spawnConfetti();
+                    showNotice('🎉 สุดยอดมาก! ได้ 24 แต้มพอดีเป๊ะ!', false);
+                    
+                    setTimeout(() => {
+                        loadNewSet();
+                    }, 1500);
+                } else {
+                    // Failed
+                    playSfx('wrong');
+                    showNotice(`😢 ผลลัพธ์สุดท้ายคือ ${Math.round(finalVal * 100) / 100} ซึ่งไม่ใช่ 24 ลองใหม่อีกครั้งนะ!`, true);
+                    setTimeout(() => {
+                        resetBoard();
+                    }, 1800);
+                }
+            } else {
+                document.getElementById('instruct').innerText = 'แตะเลือกตัวเลขใบต่อไปเพื่อคำนวณขั้นถัดไป';
+            }
+        }
+
+        function resetBoard() {
+            playSfx('tap');
+            activeNumbers = originalSet.map((n, i) => ({ id: i, val: n }));
+            selectedIndices = [];
+            selectedOperator = null;
+            clearOperatorHighlights();
+            renderCards();
+            document.getElementById('instruct').innerText = 'ล้างกระดานเรียบร้อยแล้ว, แตกเริ่มใบแรกใหม่ได้เลย';
+            document.getElementById('instruct').className = 'instruction-box';
+        }
+
+        function showHint() {
+            playSfx('hint');
+            const hintBox = document.getElementById('instruct');
+            hintBox.className = 'instruction-box highlight';
+            hintBox.innerText = `💡 คำใบ้เฉลย: ลองคิดในแบบโครงสร้าง ${currentSolution}`;
+        }
+
+        function skipQuestion() {
+            playSfx('tap');
+            score = Math.max(0, score - 20); // skip costs 20 pts
+            document.getElementById('score-val').innerText = score;
+            showNotice('⏭️ ข้ามข้อนี้แล้ว (ถูกหัก 20 คะแนน)', true);
+            loadNewSet();
+        }
+
+        function showNotice(txt, isWarning) {
+            const el = document.getElementById('instruct');
+            el.innerText = txt;
+            el.className = isWarning ? 'instruction-box highlight' : 'instruction-box';
+        }
+
+        function showFloatingText(txt) {
+            const cardsBox = document.getElementById('cards-box');
+            const rect = cardsBox.getBoundingClientRect();
+            const el = document.createElement('div');
+            el.className = 'floating-score';
+            el.innerText = txt;
+            el.style.left = `${rect.width / 2}px`;
+            el.style.top = `${rect.height / 2}px`;
+            cardsBox.appendChild(el);
+            setTimeout(() => el.remove(), 800);
+        }
+
+        /* Confetti Fireworks simulation */
+        function spawnConfetti() {
+            const count = 60;
+            const colors = ['#f59e0b', '#fbbf24', '#3b82f6', '#10b981', '#ef4444', '#ec4899'];
+            for (let i = 0; i < count; i++) {
+                const el = document.createElement('div');
+                el.className = 'confetti-particle';
+                el.style.background = colors[Math.floor(Math.random() * colors.length)];
+                
+                // spawn at viewport middle
+                el.style.left = '50vw';
+                el.style.top = '50vh';
+                
+                document.body.appendChild(el);
+                
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 50 + Math.random() * 200;
+                const duration = 0.5 + Math.random() * 1.0;
+                
+                el.style.transition = `all ${duration}s cubic-bezier(0.1, 0.8, 0.3, 1)`;
+                
+                setTimeout(() => {
+                    el.style.transform = `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px) scale(0)`;
+                    el.style.opacity = '0';
+                }, 10);
+                
+                setTimeout(() => el.remove(), duration * 1000 + 50);
+            }
+        }
+
+        /* ============================================================================
+           SECTION E · END GAME & SCORE POSTING
+           ============================================================================ */
+        function endGame() {
+            if (isGameOver) return;
+            isGameOver = true;
+            clearInterval(timerInterval);
+
+            // postMessage to parent wrapper
+            if (EMBED) {
+                try {
+                    window.parent.postMessage({
+                        type: 'gameEnd',
+                        gameSlug: 'math-24',
+                        studentCode: STUDENT_CODE,
+                        score: score,
+                        mode: 'normal',
+                        metadata: {
+                            duration: Math.max(1, Math.floor((Date.now() - SESSION_START_TS) / 1000)),
+                            solved_levels: level - 1
+                        }
+                    }, '*');
+                } catch (err) { }
+            }
+
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('gameover-screen').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
