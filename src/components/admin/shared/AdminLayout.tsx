@@ -151,6 +151,7 @@ const SidebarContent = ({
     onNavigate: (path: string) => void;
     onLogout: () => void;
 }) => {
+    const { role, allowedMenus } = useAuth();
     const isHomepageActive = activeId === 'homepage-layout';
 
     return (
@@ -167,7 +168,7 @@ const SidebarContent = ({
             </div>
 
             {/* Homepage Manager — Featured Card (admin palette: green accent on dark sidebar) */}
-            {isAdmin && (
+            {(isAdmin || allowedMenus.includes('homepage-layout')) && (
                 <div className="px-3 pt-3">
                     <button
                         onClick={() => onNavigate('/admin/dashboard/homepage-layout')}
@@ -222,7 +223,7 @@ const SidebarContent = ({
                             </p>
                         );
                     }
-                    if (item.adminOnly && !isAdmin) return null;
+                    if (item.adminOnly && !isAdmin && !allowedMenus.includes(item.id)) return null;
                     const isActive = activeId === item.id;
                     return (
                         <button
@@ -248,7 +249,9 @@ const SidebarContent = ({
                     </div>
                     <div className="flex-1 min-w-0">
                         <p className="font-medium text-xs truncate text-admin-sidebar-fg">{userEmail}</p>
-                        <p className="text-[10px] text-admin-sidebar-muted">{isAdmin ? 'ผู้ดูแลระบบ' : 'ผู้ใช้ทั่วไป'}</p>
+                        <p className="text-[10px] text-admin-sidebar-muted">
+                            {isAdmin ? 'ผู้ดูแลระบบ' : role === 'teacher' ? 'ครู/บุคลากร' : role === 'parent' ? 'ผู้ปกครอง' : 'ผู้ใช้ทั่วไป'}
+                        </p>
                     </div>
                 </div>
                 <div className="flex gap-1.5">
@@ -267,7 +270,7 @@ const SidebarContent = ({
 
 export const AdminLayout = ({ children }: AdminLayoutProps) => {
     const navigate = useNavigate();
-    const { isAdmin, userEmail } = useAuth();
+    const { isAdmin, userEmail, allowedMenus } = useAuth();
     const { settings } = useSchoolSettings();
     const location = useLocation();
     const activeId = getActiveId(location.pathname);
@@ -331,11 +334,11 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
                     </SheetContent>
                 </Sheet>
                 <h1 className="font-bold text-admin-text text-sm truncate flex-1">{settings.school_name}</h1>
-                {isAdmin && <NotificationBell />}
+                {(isAdmin || allowedMenus.length > 0) && <NotificationBell />}
             </div>
 
             {/* Desktop Top Bar */}
-            {isAdmin && (
+            {(isAdmin || allowedMenus.length > 0) && (
                 <div className="lg:ml-64 hidden lg:flex sticky top-0 z-30 justify-end items-center gap-2 px-6 py-2 bg-admin-surface/95 backdrop-blur border-b border-admin-border">
                     <NotificationBell />
                 </div>

@@ -1,7 +1,8 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useEffect, ReactNode } from 'react';
 import { useNavigate, useSearchParams, Routes, Route, Navigate } from 'react-router-dom';
 import { AdminLayout } from '@/components/admin/shared/AdminLayout';
 import ProtectedRoute from '@/components/admin/shared/ProtectedRoute';
+import { useAuth } from '@/contexts/AuthProvider';
 
 // Lazy load ทุก admin page — แยก chunk per feature
 const AdminHome = lazy(() => import('./admin/AdminHome'));
@@ -79,6 +80,25 @@ const TabRedirect = () => {
   return null;
 };
 
+interface PermissionGuardProps {
+  menuId: string;
+  children: ReactNode;
+}
+
+const PermissionGuard = ({ menuId, children }: PermissionGuardProps) => {
+  const { isAdmin, allowedMenus, loading } = useAuth();
+
+  if (loading) {
+    return <AdminPageLoader />;
+  }
+
+  if (isAdmin || allowedMenus.includes(menuId)) {
+    return <>{children}</>;
+  }
+
+  return <Navigate to="/admin/dashboard" replace />;
+};
+
 const AdminDashboard = () => {
   return (
     <ProtectedRoute>
@@ -92,65 +112,65 @@ const AdminDashboard = () => {
               </>
             } />
             {/* เว็บไซต์ */}
-            <Route path="homepage-layout" element={<HomepageManager />} />
-            <Route path="testimonials" element={<TestimonialsManagement />} />
-            <Route path="partners" element={<PartnersManagement />} />
-            <Route path="settings" element={<SettingsManagement />} />
-            <Route path="theme" element={<ThemeManager />} />
-            <Route path="menu" element={<MenuManager />} />
-            <Route path="hero-slides" element={<HeroSlidesManagement />} />
+            <Route path="homepage-layout" element={<PermissionGuard menuId="homepage-layout"><HomepageManager /></PermissionGuard>} />
+            <Route path="testimonials" element={<PermissionGuard menuId="testimonials"><TestimonialsManagement /></PermissionGuard>} />
+            <Route path="partners" element={<PermissionGuard menuId="partners"><PartnersManagement /></PermissionGuard>} />
+            <Route path="settings" element={<PermissionGuard menuId="settings"><SettingsManagement /></PermissionGuard>} />
+            <Route path="theme" element={<PermissionGuard menuId="theme"><ThemeManager /></PermissionGuard>} />
+            <Route path="menu" element={<PermissionGuard menuId="menu"><MenuManager /></PermissionGuard>} />
+            <Route path="hero-slides" element={<PermissionGuard menuId="hero-slides"><HeroSlidesManagement /></PermissionGuard>} />
             <Route path="news" element={<NewsManagement />} />
-            <Route path="gallery" element={<GalleryManagement />} />
+            <Route path="gallery" element={<PermissionGuard menuId="gallery"><GalleryManagement /></PermissionGuard>} />
             <Route path="events" element={<EventsManagement />} />
             {/* ศูนย์เอกสารโรงเรียน */}
-            <Route path="docs-hub" element={<DocsHubDashboard />} />
-            <Route path="budget" element={<BudgetManagement />} />
-            <Route path="sar" element={<SarManagement />} />
-            <Route path="ics" element={<IcsManagement />} />
-            <Route path="action-plan" element={<ActionPlanManagement />} />
-            <Route path="doc-templates" element={<DocTemplatesManagement />} />
-            <Route path="student-docs" element={<StudentDocsHub />} />
+            <Route path="docs-hub" element={<PermissionGuard menuId="docs-hub"><DocsHubDashboard /></PermissionGuard>} />
+            <Route path="budget" element={<PermissionGuard menuId="budget"><BudgetManagement /></PermissionGuard>} />
+            <Route path="sar" element={<PermissionGuard menuId="sar"><SarManagement /></PermissionGuard>} />
+            <Route path="ics" element={<PermissionGuard menuId="ics"><IcsManagement /></PermissionGuard>} />
+            <Route path="action-plan" element={<PermissionGuard menuId="action-plan"><ActionPlanManagement /></PermissionGuard>} />
+            <Route path="doc-templates" element={<PermissionGuard menuId="doc-templates"><DocTemplatesManagement /></PermissionGuard>} />
+            <Route path="student-docs" element={<PermissionGuard menuId="student-docs"><StudentDocsHub /></PermissionGuard>} />
             {/* งานสารบรรณ */}
-            <Route path="saraban" element={<SarabanDashboard />} />
-            <Route path="incoming-letters" element={<IncomingLetters />} />
-            <Route path="outgoing-letters" element={<OutgoingLetters />} />
-            <Route path="orders" element={<OrdersManagement />} />
-            <Route path="meetings" element={<MeetingsManagement />} />
+            <Route path="saraban" element={<PermissionGuard menuId="saraban"><SarabanDashboard /></PermissionGuard>} />
+            <Route path="incoming-letters" element={<PermissionGuard menuId="incoming-letters"><IncomingLetters /></PermissionGuard>} />
+            <Route path="outgoing-letters" element={<PermissionGuard menuId="outgoing-letters"><OutgoingLetters /></PermissionGuard>} />
+            <Route path="orders" element={<PermissionGuard menuId="orders"><OrdersManagement /></PermissionGuard>} />
+            <Route path="meetings" element={<PermissionGuard menuId="meetings"><MeetingsManagement /></PermissionGuard>} />
             {/* HR */}
-            <Route path="leave" element={<LeaveManagement />} />
-            <Route path="training" element={<TrainingManagement />} />
-            <Route path="pa" element={<PAManagement />} />
+            <Route path="leave" element={<PermissionGuard menuId="leave"><LeaveManagement /></PermissionGuard>} />
+            <Route path="training" element={<PermissionGuard menuId="training"><TrainingManagement /></PermissionGuard>} />
+            <Route path="pa" element={<PermissionGuard menuId="pa"><PAManagement /></PermissionGuard>} />
             <Route path="self-development" element={<SelfDevelopmentHub />} />
             {/* ฝ่ายวิชาการ */}
-            <Route path="academic" element={<AcademicManagement />} />
+            <Route path="academic" element={<PermissionGuard menuId="academic"><AcademicManagement /></PermissionGuard>} />
             {/* ข้อมูลโรงเรียน */}
-            <Route path="milestones" element={<MilestonesManagement />} />
-            <Route path="facilities" element={<FacilitiesManagement />} />
+            <Route path="milestones" element={<PermissionGuard menuId="milestones"><MilestonesManagement /></PermissionGuard>} />
+            <Route path="facilities" element={<PermissionGuard menuId="facilities"><FacilitiesManagement /></PermissionGuard>} />
             <Route path="staff" element={<StaffManagement />} />
             <Route path="teachers" element={<TeacherListManagement />} />
-            <Route path="administrators" element={<AdministratorsManagement />} />
+            <Route path="administrators" element={<PermissionGuard menuId="administrators"><AdministratorsManagement /></PermissionGuard>} />
             <Route path="students" element={<StudentsManagement />} />
-            <Route path="curriculum" element={<CurriculumManagement />} />
-            <Route path="activities" element={<ActivitiesManagement />} />
+            <Route path="curriculum" element={<PermissionGuard menuId="curriculum"><CurriculumManagement /></PermissionGuard>} />
+            <Route path="activities" element={<PermissionGuard menuId="activities"><ActivitiesManagement /></PermissionGuard>} />
             {/* ระบบบริการ */}
             <Route path="scan" element={<ScanRecorder />} />
-            <Route path="waste-bank" element={<WasteBankManagement />} />
-            <Route path="savings-bank" element={<SavingsBankManagement />} />
+            <Route path="waste-bank" element={<PermissionGuard menuId="waste-bank"><WasteBankManagement /></PermissionGuard>} />
+            <Route path="savings-bank" element={<PermissionGuard menuId="savings-bank"><SavingsBankManagement /></PermissionGuard>} />
             <Route path="attendance" element={<AttendanceManagement />} />
             <Route path="scores" element={<ScoresManagement />} />
             <Route path="conduct" element={<ConductManagement />} />
-            <Route path="documents" element={<DocumentsManagement />} />
-            <Route path="educational-hub" element={<EduHubManagement />} />
-            <Route path="games" element={<GamePlayDashboard />} />
-            <Route path="analytics" element={<AnalyticsManagement />} />
+            <Route path="documents" element={<PermissionGuard menuId="documents"><DocumentsManagement /></PermissionGuard>} />
+            <Route path="educational-hub" element={<PermissionGuard menuId="educational-hub"><EduHubManagement /></PermissionGuard>} />
+            <Route path="games" element={<PermissionGuard menuId="games"><GamePlayDashboard /></PermissionGuard>} />
+            <Route path="analytics" element={<PermissionGuard menuId="analytics"><AnalyticsManagement /></PermissionGuard>} />
             {/* อื่นๆ */}
             <Route path="admissions" element={<AdmissionsManagement />} />
             <Route path="messages" element={<MessagesManagement />} />
-            <Route path="faq" element={<FaqManagement />} />
+            <Route path="faq" element={<PermissionGuard menuId="faq"><FaqManagement /></PermissionGuard>} />
             {/* ระบบ */}
-            <Route path="system-overview" element={<SystemOverview />} />
+            <Route path="system-overview" element={<PermissionGuard menuId="system-overview"><SystemOverview /></PermissionGuard>} />
             <Route path="notifications" element={<NotificationsManagement />} />
-            <Route path="dashboard-school" element={<DashboardSchoolManagement />} />
+            <Route path="dashboard-school" element={<PermissionGuard menuId="dashboard-school"><DashboardSchoolManagement /></PermissionGuard>} />
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
           </Routes>

@@ -15,6 +15,7 @@ interface AuthContextValue {
   isParent: boolean;
   loading: boolean;
   userEmail: string;
+  allowedMenus: string[];
 }
 
 const AuthContext = createContext<AuthContextValue>({
@@ -28,6 +29,7 @@ const AuthContext = createContext<AuthContextValue>({
   isParent: false,
   loading: true,
   userEmail: '',
+  allowedMenus: [],
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -37,34 +39,50 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [role, setRole] = useState<UserRole>(null);
   const [staffId, setStaffId] = useState<string | null>(null);
   const [administratorId, setAdministratorId] = useState<string | null>(null);
+  const [allowedMenus, setAllowedMenus] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchRole = async (userId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('user_roles' as any)
-        .select('role, staff_id, administrator_id')
-        .eq('user_id', userId)
-        .single();
+      const [roleRes, menuRes] = await Promise.all([
+        supabase
+          .from('user_roles' as any)
+          .select('role, staff_id, administrator_id')
+          .eq('user_id', userId)
+          .single(),
+        supabase
+          .from('user_menu_permissions' as any)
+          .select('menu_ids')
+          .eq('user_id', userId)
+          .maybeSingle(),
+      ]);
 
-      if (error) {
+      if (roleRes.error) {
         // Table might not exist — silently default to admin
-        console.warn('user_roles query failed (table may not exist):', error.message);
+        console.warn('user_roles query failed (table may not exist):', roleRes.error.message);
         setRole('admin');
         setStaffId(null);
         setAdministratorId(null);
+        setAllowedMenus([]);
         return;
       }
 
-      const row = data as any;
+      const row = roleRes.data as any;
       setRole(row?.role ?? 'admin');
       setStaffId(row?.staff_id ?? null);
       setAdministratorId(row?.administrator_id ?? null);
+
+      if (menuRes.data) {
+        setAllowedMenus((menuRes.data as any).menu_ids || []);
+      } else {
+        setAllowedMenus([]);
+      }
     } catch {
       // Network or other error — default to admin
       setRole('admin');
       setStaffId(null);
       setAdministratorId(null);
+      setAllowedMenus([]);
     }
   };
 
@@ -88,6 +106,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setRole(null);
           setStaffId(null);
           setAdministratorId(null);
+          setAllowedMenus([]);
         }
         setLoading(false);
       }
@@ -107,6 +126,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     isParent: role === 'parent',
     loading,
     userEmail: session?.user?.email ?? '',
+    allowedMenus,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
