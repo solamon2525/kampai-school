@@ -105,6 +105,8 @@ function TopHeroCarousel({ heroes, onSelect }: { heroes: TopHeroRow[]; onSelect:
   const startTimer = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
     if (heroes.length < 2) return;
+    // Don't auto-slide on mobile screens to save battery & CPU cycles
+    if (window.innerWidth < 768) return;
     timerRef.current = setInterval(() => {
       setCurrent(p => (p + 1) % heroes.length);
     }, INTERVAL_MS);
@@ -319,7 +321,7 @@ export default function StudentHeroPublic() {
     enabled: !!student?.class,
     queryFn: async () => {
       const roomName = student.room || '';
-      return await conductService.getClassroomXpSum(student.class, roomName);
+      return await conductService.getClassroomXpSumOptimized(student.class, roomName);
     }
   });
 
@@ -328,33 +330,18 @@ export default function StudentHeroPublic() {
     queryKey: ['public-top-heroes'],
     staleTime: 5 * 60 * 1000, // 5 min cache
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('conduct_scores')
-        .select('student_id, score, type, students(id, name, class, photo_url)')
-        .eq('type', 'add');
+      const { data, error } = await conductService.getTop10Heroes(10);
       if (error) throw error;
       if (!data) return [];
 
-      const map = new Map<string, TopHeroRow>();
-      (data as any[]).forEach((r) => {
-        const stu = r.students;
-        if (!stu) return;
-        const cur = map.get(r.student_id) ?? {
-          studentId: r.student_id,
-          name: stu.name,
-          class: stu.class,
-          photoUrl: stu.photo_url ?? null,
-          total: 0,
-          count: 0,
-        };
-        cur.total += r.score;
-        cur.count += 1;
-        map.set(r.student_id, cur);
-      });
-
-      return Array.from(map.values())
-        .sort((a, b) => b.total - a.total)
-        .slice(0, 10);
+      return (data as any[]).map(r => ({
+        studentId: r.student_id,
+        name: r.name,
+        class: r.class,
+        photoUrl: r.photo_url ?? null,
+        total: Number(r.total_xp),
+        count: Number(r.deeds_count)
+      }));
     },
   });
 
@@ -615,7 +602,7 @@ export default function StudentHeroPublic() {
                 {/* ──────────────────────────────────────────────────────────
                     LEFT BLOCK: Progress & Score (lg:col-span-3)
                    ────────────────────────────────────────────────────────── */}
-                <div className="lg:col-span-3 space-y-6">
+                <div className="lg:col-span-3 space-y-6 order-2 lg:order-1">
                   
                   {/* Card 1: Level Progression Timeline */}
                   <Card className="border border-slate-200 shadow-sm rounded-2xl overflow-hidden bg-white">
@@ -735,7 +722,7 @@ export default function StudentHeroPublic() {
                 {/* ──────────────────────────────────────────────────────────
                     CENTER BLOCK: Pride & Radar Chart (lg:col-span-6)
                    ────────────────────────────────────────────────────────── */}
-                <div className="lg:col-span-6 space-y-6">
+                <div className="lg:col-span-6 space-y-6 order-1 lg:order-2">
                   
                   {/* Card 3: Main Profile Showcase Frame */}
                   <Card className="border border-slate-200 shadow-lg rounded-3xl overflow-hidden bg-white relative">
@@ -798,7 +785,7 @@ export default function StudentHeroPublic() {
                           แผนผังพลังคุณธรรม 5 มิติฮีโร่
                         </h3>
                         <div className="h-60 w-full flex items-center justify-center">
-                          <ResponsiveContainer width="100%" height="100%">
+                          <ResponsiveContainer width="100%" height={240}>
                             <RadarChart cx="50%" cy="50%" outerRadius="75%" data={radarData}>
                               <PolarGrid stroke="#cbd5e1" strokeDasharray="3 3" />
                               <PolarAngleAxis 
@@ -940,7 +927,7 @@ export default function StudentHeroPublic() {
                 {/* ──────────────────────────────────────────────────────────
                     RIGHT BLOCK: Badges & Synergy (lg:col-span-3)
                    ────────────────────────────────────────────────────────── */}
-                <div className="lg:col-span-3 space-y-6">
+                <div className="lg:col-span-3 space-y-6 order-3">
                   
                   {/* Card 4: Unlocked/Locked Badges Wall */}
                   <Card className="border border-slate-200 shadow-sm rounded-2xl overflow-hidden bg-white">

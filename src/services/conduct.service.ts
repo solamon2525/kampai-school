@@ -178,6 +178,24 @@ export const conductService = {
   delete: (id: string) =>
     supabase.from('conduct_scores').delete().eq('id', id),
 
+  /** ดึงข้อมูล 10 อันดับสุดยอดฮีโร่ความดีผ่าน RPC (High Performance) */
+  getTop10Heroes: async (limitVal: number = 10) => {
+    return supabase.rpc('get_top_heroes', { limit_val: limitVal });
+  },
+
+  /** ดึงคะแนนสะสมห้องเรียนด้วย RPC (High Performance) */
+  getClassroomXpSumOptimized: async (className: string, roomName: string): Promise<number> => {
+    const { data, error } = await supabase.rpc('get_classroom_xp_sum', {
+      class_name: className,
+      room_name: roomName
+    });
+    if (error) {
+      console.error('Error fetching classroom XP sum via RPC:', error);
+      return 0;
+    }
+    return Number(data || 0);
+  },
+
   // =========================================================
   // ฟีเจอร์เพิ่มเติมสำหรับ Kampai Hero System (Backend Ledger Calculation)
   // =========================================================
