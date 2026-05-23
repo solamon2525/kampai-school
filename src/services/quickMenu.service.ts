@@ -29,4 +29,26 @@ export const quickMenuService = {
         } as never,
         { onConflict: 'user_id,context' },
       ),
+
+  /** ดึงเมนูลัดของแอดมินคนแรก/หลัก เพื่อใช้ในการซิงค์ */
+  getAdminQuickMenu: async () => {
+    // 1. ดึง user_id ของผู้ใช้ที่เป็น 'admin' คนแรกจากตาราง user_roles
+    const { data: adminRole } = await supabase
+      .from('user_roles' as any)
+      .select('user_id')
+      .eq('role', 'admin')
+      .order('created_at' as any, { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    if (!adminRole?.user_id) return { data: null, error: null };
+
+    // 2. ดึงเมนูลัดของแอดมินคนนั้น
+    return supabase
+      .from('user_quick_menu_preferences' as any)
+      .select('menu_item_ids')
+      .eq('user_id', adminRole.user_id)
+      .eq('context', 'admin')
+      .maybeSingle();
+  },
 };

@@ -61,11 +61,16 @@ export const QuickMenu = ({ context }: QuickMenuProps) => {
     queryKey: ['quick-menu', user?.id, context],
     enabled: !!user?.id,
     queryFn: async () => {
-      const { data } = await quickMenuService.get(user!.id, context);
-      const row = data as { menu_item_ids: string[] } | null;
-      // null = ยังไม่เคย save → ใช้ defaults
-      // array (อาจว่าง) = save แล้ว → respect user choice ไม่ revert
-      return row?.menu_item_ids ?? getDefaultIds(context);
+      if (context === 'teacher') {
+        const { data } = await quickMenuService.getAdminQuickMenu();
+        const row = data as { menu_item_ids: string[] } | null;
+        // หากแอดมินยังไม่เคยตั้งค่าอะไรเลย ให้ใช้เมนูครูเริ่มต้น
+        return row?.menu_item_ids ?? getDefaultIds('teacher');
+      } else {
+        const { data } = await quickMenuService.get(user!.id, context);
+        const row = data as { menu_item_ids: string[] } | null;
+        return row?.menu_item_ids ?? getDefaultIds(context);
+      }
     },
   });
 
@@ -87,10 +92,12 @@ export const QuickMenu = ({ context }: QuickMenuProps) => {
             <Sparkles className="w-5 h-5 text-primary" />
             เมนูลัด
           </h3>
-          <Button variant="ghost" size="sm" onClick={() => setEditorOpen(true)} className="gap-1.5">
-            <Edit3 className="w-4 h-4" />
-            จัดการ
-          </Button>
+          {context !== 'teacher' && (
+            <Button variant="ghost" size="sm" onClick={() => setEditorOpen(true)} className="gap-1.5">
+              <Edit3 className="w-4 h-4" />
+              จัดการ
+            </Button>
+          )}
         </div>
 
         {items.length === 0 ? (
@@ -193,7 +200,7 @@ const QuickMenuEditor = ({ open, onOpenChange, context, initialIds, catalog }: Q
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['quick-menu', user?.id, context] });
+      queryClient.invalidateQueries({ queryKey: ['quick-menu'] });
       toast({ title: 'บันทึกแล้ว', description: 'เมนูลัดของคุณได้รับการอัพเดต' });
       onOpenChange(false);
     },
