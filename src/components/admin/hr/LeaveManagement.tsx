@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
+import { formatThaiDateRange } from '@/lib/thaiDate';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
@@ -226,7 +227,7 @@ export default function LeaveManagement() {
               <TableRow key={r.id}>
                 <TableCell className="font-medium">{(r.staff as any)?.name || '-'}</TableCell>
                 <TableCell>{r.leave_type}</TableCell>
-                <TableCell className="text-sm">{r.start_date}{r.start_date !== r.end_date ? ` – ${r.end_date}` : ''}</TableCell>
+                <TableCell className="text-sm">{formatThaiDateRange(r.start_date, r.end_date)}</TableCell>
                 <TableCell>{r.days} วัน</TableCell>
                 <TableCell><Badge variant={statusVariant(r.status) as any}>{r.status}</Badge></TableCell>
                 <TableCell className="text-right">

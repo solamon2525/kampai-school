@@ -1,12 +1,14 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useMemo } from 'react';
 import SchoolLogoMark from '@/components/SchoolLogoMark';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, LogOut, Home, UserCheck } from 'lucide-react';
+import { Menu, LogOut, Home, UserCheck, SlidersHorizontal, QrCode } from 'lucide-react';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
+import { ADMIN_QUICK_MENU_CATALOG } from '@/lib/quickMenuCatalog';
+import { ScanFAB } from '@/components/shared/ScanFAB';
 
 export interface PortalMenuItem {
     id: string;
@@ -29,7 +31,7 @@ const ACCENT = {
 };
 
 export const RolePortalLayout = ({ children, title, subtitle, menu, accent }: RolePortalLayoutProps) => {
-    const { userEmail, role } = useAuth();
+    const { userEmail, role, allowedMenus = [] } = useAuth();
     const { settings } = useSchoolSettings();
     const navigate = useNavigate();
     const location = useLocation();
@@ -39,6 +41,26 @@ export const RolePortalLayout = ({ children, title, subtitle, menu, accent }: Ro
         await supabase.auth.signOut();
         navigate('/admin');
     };
+
+    const dynamicMenu = useMemo(() => {
+        if (role === 'teacher' && allowedMenus && allowedMenus.length > 0) {
+            const permittedAdminItems = ADMIN_QUICK_MENU_CATALOG.filter((item) =>
+                allowedMenus.includes(item.id)
+            ).map((item) => ({
+                id: item.id,
+                label: item.label,
+                icon: item.icon,
+                path: item.path,
+            }));
+            
+            // ป้องกันเมนูซ้ำซ้อน
+            const menuIds = new Set(menu.map(m => m.id));
+            const uniquePermitted = permittedAdminItems.filter(item => !menuIds.has(item.id));
+            
+            return [...menu, ...uniquePermitted];
+        }
+        return menu;
+    }, [menu, role, allowedMenus]);
 
     const Sidebar = () => (
         <div className="flex flex-col h-full">
@@ -52,7 +74,7 @@ export const RolePortalLayout = ({ children, title, subtitle, menu, accent }: Ro
                 </Link>
             </div>
             <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-                {menu.map((item) => {
+                {dynamicMenu.map((item) => {
                     const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
                     return (
                         <button
@@ -78,13 +100,26 @@ export const RolePortalLayout = ({ children, title, subtitle, menu, accent }: Ro
                         <p className="text-[10px] text-muted-foreground">{subtitle}</p>
                     </div>
                 </div>
-                <div className="flex gap-1.5">
-                    <Button variant="outline" size="sm" className="flex-1 h-8 text-xs" onClick={() => navigate('/')}>
-                        <Home className="w-3.5 h-3.5 mr-1" /> หน้าเว็บ
-                    </Button>
-                    <Button variant="outline" size="sm" className="h-8 px-2.5" onClick={handleLogout}>
-                        <LogOut className="w-3.5 h-3.5" />
-                    </Button>
+                <div className="flex flex-col gap-1.5">
+                    {(role === 'admin' || allowedMenus.length > 0) && (
+                        <Button
+                            variant="default"
+                            size="sm"
+                            className="w-full h-8 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white"
+                            onClick={() => { navigate('/admin/dashboard'); setMobileOpen(false); }}
+                        >
+                            <SlidersHorizontal className="w-3.5 h-3.5 mr-1" />
+                            ระบบบริหารหลังบ้าน
+                        </Button>
+                    )}
+                    <div className="flex gap-1.5">
+                        <Button variant="outline" size="sm" className="flex-1 h-8 text-xs" onClick={() => navigate('/')}>
+                            <Home className="w-3.5 h-3.5 mr-1" /> หน้าเว็บ
+                        </Button>
+                        <Button variant="outline" size="sm" className="h-8 px-2.5" onClick={handleLogout}>
+                            <LogOut className="w-3.5 h-3.5" />
+                        </Button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -103,6 +138,8 @@ export const RolePortalLayout = ({ children, title, subtitle, menu, accent }: Ro
                 <h1 className="font-bold text-primary text-sm truncate flex-1">{title}</h1>
             </div>
             <main className="lg:ml-64 min-h-screen">{children}</main>
+            {/* Floating Action Button — สแกน QR ด่วน (mobile only) */}
+            <ScanFAB />
         </div>
     );
 };
