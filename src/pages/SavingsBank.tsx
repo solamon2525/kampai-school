@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { formatThaiDateMedium } from '@/lib/thaiDate';
 import {
   savingsLookupService,
   savingsSummaryService,
@@ -297,7 +298,7 @@ export default function SavingsBank() {
               />
               <StatCard
                 label="ใช้งานล่าสุด"
-                value={recent[0]?.transaction_date ?? '—'}
+                value={recent[0]?.transaction_date ? formatThaiDateMedium(recent[0].transaction_date) : '—'}
                 unit=""
                 icon={<Activity className="w-5 h-5" />}
                 accent="slate"
@@ -442,7 +443,7 @@ export default function SavingsBank() {
                             {t.student_name}
                           </p>
                           <p className="text-xs text-slate-600 font-medium">
-                            {t.student_class ?? ''} · {t.transaction_date}
+                            {t.student_class ?? ''} · {formatThaiDateMedium(t.transaction_date)}
                           </p>
                         </div>
                         {t.transaction_type === 'deposit' ? (
@@ -560,7 +561,7 @@ export default function SavingsBank() {
                                   className="border-t border-slate-100 hover:bg-slate-50/50"
                                 >
                                   <td className="px-3 py-1.5 text-slate-700 font-medium whitespace-nowrap">
-                                    {h.transaction_date}
+                                    {formatThaiDateMedium(h.transaction_date)}
                                   </td>
                                   <td className="px-3 py-1.5 text-center">
                                     {h.transaction_type === 'deposit' ? (

@@ -39,6 +39,8 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { NoPeopleIllustration, NoDataIllustration } from '@/components/ui/empty-illustrations';
 import { RecorderSelect, EMPTY_RECORDER, type RecorderValue } from '@/components/admin/shared/RecorderSelect';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
+import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
+import { formatThaiDateCustom, formatThaiDateMedium } from '@/lib/thaiDate';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -580,16 +582,18 @@ export const AttendanceManagement = () => {
           <Card>
             <CardContent className="pt-4">
               <div className="flex flex-wrap items-end gap-3">
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1 w-60">
                   <Label>วันที่</Label>
-                  <Input
-                    type="date"
+                  <ThaiDatePicker
                     value={checkinDate}
-                    onChange={(e) => {
-                      setCheckinDate(e.target.value);
-                      setDataLoaded(false);
+                    onChange={(v) => {
+                      if (v) {
+                        setCheckinDate(v);
+                        setDataLoaded(false);
+                      }
                     }}
-                    className="w-44"
+                    clearable={false}
+                    dateFormat="custom"
                   />
                 </div>
                 <div className="flex flex-col gap-1">
@@ -1346,7 +1350,7 @@ export const AttendanceManagement = () => {
           </DialogHeader>
           <div className="space-y-3 py-2">
             <p className="text-sm text-muted-foreground">
-              วันที่ {checkinDate} ชั้น {checkinClass} — ขาดเรียน {absentStudents.length} คน
+              {formatThaiDateCustom(checkinDate)} ชั้น {checkinClass} — ขาดเรียน {absentStudents.length} คน
             </p>
             <div className="border rounded-lg overflow-hidden max-h-64 overflow-y-auto">
               <table className="w-full text-sm">
@@ -1381,7 +1385,7 @@ export const AttendanceManagement = () => {
               <p className="font-medium mb-1">ข้อความตัวอย่างสำหรับ SMS/LINE:</p>
               <p className="font-mono leading-relaxed select-all">
                 เรียน ผู้ปกครอง{'\n'}
-                บุตรหลานของท่านไม่ได้มาเรียนในวันที่ {checkinDate}{'\n'}
+                บุตรหลานของท่านไม่ได้มาเรียนใน{formatThaiDateCustom(checkinDate)}{'\n'}
                 กรุณาติดต่อครูประจำชั้น{'\n'}
                 โรงเรียน
               </p>
@@ -1391,7 +1395,7 @@ export const AttendanceManagement = () => {
               className="w-full gap-1"
               onClick={() => {
                 const text = absentStudents.map(s => `${s.name} — ${s.parent_phone || 'ไม่มีเบอร์'}`).join('\n');
-                navigator.clipboard.writeText(`รายชื่อนักเรียนขาดเรียน ${checkinDate} ชั้น ${checkinClass}\n${text}`);
+                navigator.clipboard.writeText(`รายชื่อนักเรียนขาดเรียน ${formatThaiDateCustom(checkinDate)} ชั้น ${checkinClass}\n${text}`);
                 toast({ title: 'คัดลอกรายชื่อแล้ว' });
               }}
             >

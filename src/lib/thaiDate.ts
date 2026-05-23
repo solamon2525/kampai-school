@@ -84,3 +84,11 @@ export const formatThaiDateRange = (
     // เดือนเดียวกัน → "11 - 13 พฤษภาคม 2569"
     return `${s.getDate()} - ${e.getDate()} ${THAI_MONTHS_FULL[s.getMonth()]} ${eYear}`;
 };
+
+/** "วันที่ 11 เดือน พฤษภาคม พ.ศ. 2569" */
+export const formatThaiDateCustom = (iso: string | null | undefined): string => {
+    if (!iso) return '—';
+    const d = parse(iso);
+    if (!d) return iso;
+    return `วันที่ ${d.getDate()} เดือน ${THAI_MONTHS_FULL[d.getMonth()]} พ.ศ. ${d.getFullYear() + 543}`;
+};

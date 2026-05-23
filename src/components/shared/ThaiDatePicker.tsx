@@ -4,7 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { formatThaiDateFull } from '@/lib/thaiDate';
+import {
+    formatThaiDateFull,
+    formatThaiDateMedium,
+    formatThaiDateShort,
+    formatThaiDateWithDow,
+    formatThaiDateCustom,
+} from '@/lib/thaiDate';
 
 interface Props {
     /** ISO date string ("YYYY-MM-DD") — ค.ศ. */
@@ -19,6 +25,8 @@ interface Props {
     toYear?: number;
     /** อนุญาตให้ clear ค่า (กากบาท) */
     clearable?: boolean;
+    /** Format type */
+    dateFormat?: 'full' | 'custom' | 'medium' | 'short' | 'withDow';
 }
 
 const THAI_MONTHS_FULL = [
@@ -58,12 +66,22 @@ export const ThaiDatePicker = ({
     fromYear,
     toYear,
     clearable = true,
+    dateFormat = 'full',
 }: Props) => {
     const [open, setOpen] = useState(false);
     const selected = parseIso(value);
     const now = new Date();
     const from = fromYear ?? now.getFullYear() - 20;
     const to = toYear ?? now.getFullYear() + 2;
+
+    const displayDate = () => {
+        if (!selected) return placeholder;
+        if (dateFormat === 'custom') return formatThaiDateCustom(value);
+        if (dateFormat === 'medium') return formatThaiDateMedium(value);
+        if (dateFormat === 'short') return formatThaiDateShort(value);
+        if (dateFormat === 'withDow') return formatThaiDateWithDow(value);
+        return formatThaiDateFull(value);
+    };
 
     return (
         <Popover open={open} onOpenChange={(v) => !disabled && setOpen(v)}>
@@ -80,7 +98,7 @@ export const ThaiDatePicker = ({
                 >
                     <CalendarIcon className="mr-2 w-4 h-4 flex-shrink-0" />
                     <span className="flex-1 truncate">
-                        {selected ? formatThaiDateFull(value) : placeholder}
+                        {displayDate()}
                     </span>
                     {clearable && selected && (
                         <span

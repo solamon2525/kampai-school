@@ -27,6 +27,7 @@ import { ClaimsApproval } from './ClaimsApproval';
 import { StudentQRScanner } from '@/components/shared/StudentQRScanner';
 import { TermBanner } from './TermBanner';
 import { RecorderSelect, EMPTY_RECORDER, type RecorderValue } from '@/components/admin/shared/RecorderSelect';
+import { formatThaiDateMedium } from '@/lib/thaiDate';
 
 const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 
@@ -559,7 +560,7 @@ export const WasteBankManagement = () => {
                     ) : (
                       transactions.map((tx) => (
                         <tr key={tx.id} className="border-b border-border hover:bg-muted/30 transition-colors">
-                          <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{tx.transaction_date}</td>
+                          <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{formatThaiDateMedium(tx.transaction_date)}</td>
                           <td className="px-4 py-3 font-medium">
                             <div className="flex items-center gap-2">
                               {tx.students?.photo_url ? (

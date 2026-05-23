@@ -42,6 +42,7 @@ import {
   type RecorderValue,
 } from '@/components/admin/shared/RecorderSelect';
 import { StudentQRScanner } from '@/components/shared/StudentQRScanner';
+import { formatThaiDateMedium } from '@/lib/thaiDate';
 
 const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 
@@ -701,7 +702,7 @@ export const SavingsBankManagement = () => {
                       )}
                     >
                       <td className="p-3 whitespace-nowrap text-slate-700 font-medium">
-                        {t.transaction_date}
+                        {formatThaiDateMedium(t.transaction_date)}
                       </td>
                       <td className="p-3">
                         <div className="flex items-center gap-2">

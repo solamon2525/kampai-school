@@ -11,6 +11,7 @@ import type {
 } from '@/services/savings.service';
 import { SaverTierBadge } from '@/components/savings/SaverTierBadge';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
+import { formatThaiDateMedium } from '@/lib/thaiDate';
 
 interface Props {
   studentId: string;
@@ -220,7 +221,7 @@ export const SavingsBankParentView = ({ studentId, studentName }: Props) => {
                       className={cn('border-t border-slate-100', idx % 2 === 1 && 'bg-slate-50/40')}
                     >
                       <td className="px-4 py-3 text-slate-700 font-medium whitespace-nowrap">
-                        {t.transaction_date}
+                        {formatThaiDateMedium(t.transaction_date)}
                       </td>
                       <td className="px-4 py-3">
                         {t.transaction_type === 'deposit' ? (
