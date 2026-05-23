@@ -470,7 +470,7 @@ export const WasteBankManagement = () => {
                               className={cn(
                                 'h-10 flex items-center justify-end px-2 rounded-md border text-sm font-medium tabular-nums',
                                 rowPoints !== null
-                                  ? 'bg-emerald-50 border-emerald-300 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
+                                  ? 'bg-emerald-50 border-emerald-300 text-foreground font-bold dark:bg-emerald-950/40 dark:text-emerald-200'
                                   : 'bg-muted border-border text-muted-foreground',
                               )}
                             >
@@ -494,7 +494,7 @@ export const WasteBankManagement = () => {
                   </div>
                   <div className="flex justify-end items-center gap-2 pt-1 text-sm">
                     <span className="text-muted-foreground">รวมแต้มทั้งหมด:</span>
-                    <span className="text-lg font-bold text-emerald-700 dark:text-emerald-400 tabular-nums">
+                    <span className="text-lg font-bold text-foreground dark:text-foreground tabular-nums">
                       {rowsTotalPoints} แต้ม
                     </span>
                   </div>
@@ -584,7 +584,7 @@ export const WasteBankManagement = () => {
                             ) : '—'}
                           </td>
                           <td className="px-4 py-3 text-right">{tx.quantity}</td>
-                          <td className="px-4 py-3 text-right font-medium text-emerald-600 dark:text-emerald-400">+{tx.points_earned}</td>
+                          <td className="px-4 py-3 text-right font-bold text-foreground">+{tx.points_earned}</td>
                           <td className="px-4 py-3 text-right">
                             <Button
                               variant="ghost"
@@ -686,7 +686,7 @@ export const WasteBankManagement = () => {
                           </td>
                           <td className="px-4 py-3 text-right text-muted-foreground">{s.total_transactions ?? 0}</td>
                           <td className="px-4 py-3 text-right">{s.total_items ?? 0}</td>
-                          <td className="px-4 py-3 text-right font-semibold text-emerald-600 dark:text-emerald-400">{s.total_points_earned ?? 0}</td>
+                          <td className="px-4 py-3 text-right font-bold text-foreground">{s.total_points_earned ?? 0}</td>
                           <td className="px-4 py-3 text-right font-semibold text-amber-600 dark:text-amber-400">{s.available_points ?? 0}</td>
                         </tr>
                       ))
@@ -700,7 +700,7 @@ export const WasteBankManagement = () => {
                           {filteredSummaries.reduce((a, s) => a + Number(s.total_transactions ?? 0), 0)}
                         </td>
                         <td className="px-4 py-3 text-right">{totalItems}</td>
-                        <td className="px-4 py-3 text-right text-emerald-600 dark:text-emerald-400">{totalPoints}</td>
+                        <td className="px-4 py-3 text-right font-bold text-foreground">{totalPoints}</td>
                         <td className="px-4 py-3"></td>
                       </tr>
                     </tfoot>

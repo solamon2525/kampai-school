@@ -455,7 +455,7 @@ const WasteBank = () => {
                                   <p className="text-[10px] text-muted-foreground">{s.class_name}</p>
                                 )}
                               </div>
-                              <span className="text-xs font-semibold text-green-700 whitespace-nowrap">
+                              <span className="text-xs font-bold text-foreground whitespace-nowrap">
                                 {rankValue(s)}
                               </span>
                             </div>
@@ -517,7 +517,7 @@ const WasteBank = () => {
                               <p className="flex-1 text-xs font-medium truncate">
                                 {s.full_name || '—'}
                               </p>
-                              <span className="text-xs font-semibold text-green-700 whitespace-nowrap">
+                              <span className="text-xs font-bold text-foreground whitespace-nowrap">
                                 {Number(s.total_points_earned ?? 0)} แต้ม
                               </span>
                             </div>
@@ -601,7 +601,7 @@ const WasteBank = () => {
                         </div>
 
                         <div className="text-right flex-shrink-0">
-                          <p className="text-xs font-semibold text-green-700">
+                          <p className="text-xs font-bold text-foreground">
                             +{tx.points_earned} แต้ม
                           </p>
                           <p className="text-[9px] text-muted-foreground">

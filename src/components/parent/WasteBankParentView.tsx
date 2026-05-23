@@ -124,7 +124,7 @@ export const WasteBankParentView = ({ studentId, studentName }: Props) => {
             </div>
             <div className="grid grid-cols-3 gap-4">
               <Stat label="ขยะรวม" value={`${summary?.total_items ?? 0} ชิ้น`} color="text-blue-600 dark:text-blue-400" />
-              <Stat label="แต้มสะสม" value={`${summary?.total_points_earned ?? 0}`} color="text-emerald-600 dark:text-emerald-400" />
+              <Stat label="แต้มสะสม" value={`${summary?.total_points_earned ?? 0}`} color="text-foreground dark:text-foreground" />
               <Stat label="แต้มคงเหลือ" value={`${available}`} color="text-amber-600 dark:text-amber-400" highlight />
             </div>
           </CardContent>
@@ -176,7 +176,7 @@ export const WasteBankParentView = ({ studentId, studentName }: Props) => {
                       {cat.icon && <span className="text-lg leading-none">{cat.icon}</span>}
                       <div className="min-w-0 flex-1">
                         <div className="text-xs font-medium truncate">{cat.name}</div>
-                        <div className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
+                        <div className="text-xs text-foreground font-bold">
                           {cat.points_per_item} แต้ม/ชิ้น
                         </div>
                       </div>
@@ -260,7 +260,7 @@ export const WasteBankParentView = ({ studentId, studentName }: Props) => {
                           {t.waste_categories?.name ?? '—'}
                         </td>
                         <td className="px-4 py-3 text-right">{t.quantity} ชิ้น</td>
-                        <td className="px-4 py-3 text-right font-semibold text-emerald-600 dark:text-emerald-400">+{t.points_earned}</td>
+                        <td className="px-4 py-3 text-right font-bold text-foreground">+{t.points_earned}</td>
                       </tr>
                     ))
                   )}
