@@ -56,6 +56,8 @@ const techStack = {
         { name: 'embla-carousel-react', desc: 'Carousel (Hero Slides)' },
         { name: 'cmdk', desc: 'Command Palette (installed — Sprint 2 roadmap)' },
         { name: 'vite-plugin-pwa', desc: 'PWA + Service Worker (Workbox) — Add to Home Screen' },
+        { name: 'ThaiDatePicker', desc: 'Custom Buddhist Calendar Date Picker (วัน/เดือน/พ.ศ.)' },
+        { name: 'ScanFAB / Mobile Camera Scanner', desc: 'กล้องสแกนด่วนบนมือถือครอบคลุมทุกเมนู Portal ครู' },
     ],
     backend: [
         { name: 'Supabase', desc: 'PostgreSQL + Auth + Storage + Edge Functions' },
@@ -85,7 +87,7 @@ const featureGroups = [
     {
         label: 'การศึกษา',
         color: 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800',
-        features: ['หลักสูตรการเรียน (4 สาย)', 'กิจกรรมเสริมหลักสูตร', 'ระบบเช็คชื่อนักเรียน + รายงาน', 'ระบบรับสมัครนักเรียนออนไลน์'],
+        features: ['หลักสูตรการเรียน (4 สาย)', 'กิจกรรมเสริมหลักสูตร', 'ระบบเช็คชื่อนักเรียน (Attendance) ปรับปรุงฟอร์แมตวันที่ภาษาไทยย่อ/เต็มแบบพรีเมียม (พ.ศ.) + รายงาน', 'ระบบรับสมัครนักเรียนออนไลน์'],
     },
     {
         label: 'ฝ่ายวิชาการ',
@@ -100,12 +102,12 @@ const featureGroups = [
     {
         label: 'งานบุคคล (HR)',
         color: 'bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-800',
-        features: ['ระบบการลา', 'บันทึกการอบรม/พัฒนาตนเอง', 'ประเมินผลงาน PA Assessment'],
+        features: ['ระบบการลา', 'บันทึกการอบรม/พัฒนาตนเอง', 'ประเมินผลงาน PA Assessment', 'ระบบการลาแสดงผลวันที่ พ.ศ. และรูปแบบช่วงวันอัจฉริยะ'],
     },
     {
         label: 'ระบบบริการ',
         color: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800',
-        features: ['ธนาคารขยะ (Waste Bank)', 'กล่องข้อความจากผู้ติดต่อ', 'Email Subscribers', 'แจ้งผู้ปกครองเมื่อนักเรียนขาด (SMS)'],
+        features: ['ธนาคารขยะ (Waste Bank)', 'กล่องข้อความจากผู้ติดต่อ', 'Email Subscribers', 'แจ้งผู้ปกครองเมื่อนักเรียนขาด (SMS)', 'อัปเกรดการแสดงผลวันที่ภาษาไทย พ.ศ. (ธนาคารขยะ/ธนาคารพอเพียง)'],
     },
     {
         label: 'ระบบ/เครื่องมือ',
@@ -115,7 +117,14 @@ const featureGroups = [
     {
         label: 'Portal ครู/ผู้ปกครอง',
         color: 'bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-800',
-        features: ['Portal ครู: Dashboard, ตารางสอน, เช็คชื่อ, คะแนน', 'Portal ผู้ปกครอง: ดูการมาเรียน/คะแนน/ความประพฤติ/ธนาคารขยะของลูก', 'Protected Routes ตาม role', 'Smart Login Redirect (admin/teacher/parent)'],
+        features: [
+            'Portal ครู: Dashboard, ตารางสอน, เช็คชื่อ, คะแนน',
+            'Portal ผู้ปกครอง: ดูการมาเรียน/คะแนน/ความประพฤติ/ธนาคารขยะของลูก',
+            'Protected Routes ตาม role',
+            'Smart Login Redirect (admin/teacher/parent)',
+            'Portal ครูรองรับการดึงเมนูระบบงานหลังบ้านแบบไดนามิกตามสิทธิ์และปุ่มสลับระบบหลังบ้าน',
+            'ปุ่มทางลัดสแกนด่วนบนแดชบอร์ดครูและปุ่มลอยสแกนด่วนบนมือถือ (ScanFAB) ทุกหน้าจอ',
+        ],
     },
     {
         label: 'ศูนย์การศึกษา (Edu Hub)',
@@ -263,9 +272,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.27.0 (Featured Hero Visibility & DB RLS Policies)',
+        version: 'v1.28.0 (Thai Dates & Teacher Portal Scanner FAB Upgrades)',
         date: 'ล่าสุด',
         badge: 'bg-green-700',
+        items: [
+            'ระบบวันที่ภาษาไทย (Thai Localized Dates): ฟอร์แมตวันที่ภาษาไทยย่อ/เต็มแบบพรีเมียม (พ.ศ.) ในระบบบันทึกเวลาเรียน (Attendance), ธนาคารขยะ (Waste Bank), ธนาคารพอเพียง (Savings Bank), และระบบใบลา (Leave Management) ด้วย formatThaiDateCustom และ formatThaiDateRange',
+            'ระบบจัดการสิทธิ์ Portal ครู (Teacher Portal Access & Navigation): ปรับปรุงการแสดงผลเมนูหลังบ้านบนแถบเมนูข้าง (Dynamic Sidebar) และการ์ดสวิตช์ระบบ (Back-office Welcomer Card) บนแดชบอร์ดของครูอัตโนมัติตามสิทธิ์ allowedMenus',
+            'ปุ่มสแกนด่วน (Quick Scan & ScanFAB): เพิ่มปุ่มทางลัดสแกนด่วนบน Portal ครู และนำเข้าปุ่มลอยกล้องสแกนด่วนบนมือถือ (ScanFAB) ครอบคลุมการทำงานครูทุกหน้าจอ',
+        ],
+    },
+    {
+        version: 'v1.27.0 (Featured Hero Visibility & DB RLS Policies)',
+        date: '',
+        badge: 'bg-slate-600',
         items: [
             'แก้ไขระบบการจัดการโครงร่างหน้าแรก (Homepage Layout Manager) ให้ทำงานครอบคลุมโค้ดการสร้างหน้าจากคีย์ดั้งเดิม (Legacy Keys) เพื่อให้ปุ่มและบล็อก สุดยอดฮีโร่ความดีประจำสัปดาห์ (featured_hero) ถูกโหลดและแสดงผลได้โดยอัตโนมัติ',
             'สร้าง Migration 070_public_read_active_students_basic.sql เพื่อตั้งค่าสิทธิ์ Row Level Security (RLS) ของตารางนักเรียน (students) ให้ผู้ใช้ทั่วไป (anon) และผู้ใช้ที่ล็อกอินสามารถ SELECT นักเรียนที่มีสถานะ is_active = true และให้ผู้ปกครองสามารถ SELECT ประวัตินักเรียนของตนเองได้',
@@ -1139,8 +1158,8 @@ const exportData = {
     techStack,
     featureGroups: featureGroups.map(g => ({ category: g.label, features: g.features })),
     database: {
-        totalTables: '100+',
-        migrations: 73,
+        totalTables: '70+',
+        migrations: 84,
         engine: 'PostgreSQL via Supabase',
         security: 'RLS enabled',
         groups: dbGroups,
@@ -1174,8 +1193,8 @@ const generateMarkdown = () => {
     });
 
     lines.push('\n## ฐานข้อมูล');
-    lines.push(`- **Tables**: 47+`);
-    lines.push(`- **Migrations**: 23`);
+    lines.push(`- **Tables**: ${exportData.database.totalTables}`);
+    lines.push(`- **Migrations**: ${exportData.database.migrations}`);
     lines.push(`- **Engine**: PostgreSQL via Supabase`);
     lines.push(`- **Security**: RLS enabled`);
     dbGroups.forEach(g => {
@@ -1424,8 +1443,8 @@ export const SystemOverview = () => {
                 </CardHeader>
                 <CardContent>
                     <div className="flex gap-3 mb-4">
-                        <div className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">100+ Tables</div>
-                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">73 Migrations</div>
+                        <div className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">{exportData.database.totalTables} Tables</div>
+                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">{exportData.database.migrations} Migrations</div>
                         <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">PostgreSQL via Supabase</div>
                         <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">RLS enabled</div>
                     </div>
