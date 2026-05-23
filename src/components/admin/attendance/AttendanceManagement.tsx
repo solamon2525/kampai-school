@@ -126,6 +126,18 @@ function todayISO(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+function isWeekend(dateStr: string): boolean {
+  if (!dateStr) return false;
+  const parts = dateStr.split('-');
+  if (parts.length !== 3) return false;
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10) - 1;
+  const day = parseInt(parts[2], 10);
+  const date = new Date(year, month, day);
+  const dayOfWeek = date.getDay();
+  return dayOfWeek === 0 || dayOfWeek === 6; // 0 = Sunday, 6 = Saturday
+}
+
 function ceYearToBE(ce: number): number {
   return ce + 543;
 }
@@ -140,17 +152,20 @@ interface StatusButtonProps {
   status: AttendanceStatus;
   active: boolean;
   onClick: () => void;
+  disabled?: boolean;
 }
 
-function StatusButton({ status, active, onClick }: StatusButtonProps) {
+function StatusButton({ status, active, onClick, disabled }: StatusButtonProps) {
   const cfg = STATUS_CONFIG[status];
   return (
     <button
       type="button"
       onClick={onClick}
+      disabled={disabled}
       className={cn(
         'px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium rounded border transition-colors min-w-[36px]',
-        active ? cfg.activeBg : cfg.bg
+        active ? cfg.activeBg : cfg.bg,
+        disabled && 'opacity-50 cursor-not-allowed pointer-events-none'
       )}
     >
       {cfg.label}
@@ -229,10 +244,12 @@ export const AttendanceManagement = () => {
   }, [checkinClass, checkinDate]);
 
   const setStatus = (studentId: string, status: AttendanceStatus) => {
+    if (isWeekend(checkinDate)) return;
     setAttendanceMap((prev) => ({ ...prev, [studentId]: status }));
   };
 
   const markAllPresent = () => {
+    if (isWeekend(checkinDate)) return;
     setAttendanceMap(
       Object.fromEntries(
         checkinStudents.map((s) => [s.id, 'present' as AttendanceStatus])
@@ -240,12 +257,19 @@ export const AttendanceManagement = () => {
     );
   };
 
-  const clearAll = () => setAttendanceMap({});
+  const clearAll = () => {
+    if (isWeekend(checkinDate)) return;
+    setAttendanceMap({});
+  };
 
   const checkedCount = Object.keys(attendanceMap).length;
 
   const saveAll = async () => {
     if (!dataLoaded || checkinStudents.length === 0) return;
+    if (isWeekend(checkinDate)) {
+      toast({ title: 'ไม่สามารถบันทึกได้', description: 'ระบบไม่อนุญาตให้บันทึกเวลาเรียนในวันเสาร์-อาทิตย์', variant: 'destructive' });
+      return;
+    }
     if (!recorder.staffId && !recorder.administratorId) {
       toast({ title: 'กรุณาเลือกผู้บันทึก', variant: 'destructive' });
       return;
@@ -605,6 +629,17 @@ export const AttendanceManagement = () => {
             </CardContent>
           </Card>
 
+          {/* Weekend warning */}
+          {isWeekend(checkinDate) && (
+            <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/50 rounded-lg p-4 flex items-start gap-3 text-red-800 dark:text-red-300">
+              <span className="text-xl shrink-0">⚠️</span>
+              <div>
+                <h4 className="font-semibold text-sm">ไม่สามารถบันทึกเวลาเรียนในวันเสาร์-อาทิตย์ได้</h4>
+                <p className="text-xs mt-0.5">ระบบไม่อนุญาตให้บันทึกเวลาเรียนในวันเสาร์และอาทิตย์ (กรุณาเลือกเฉพาะวันจันทร์-ศุกร์เท่านั้น)</p>
+              </div>
+            </div>
+          )}
+
           {/* Summary bar */}
           {dataLoaded && (
             <div className="flex flex-wrap gap-3">
@@ -643,7 +678,8 @@ export const AttendanceManagement = () => {
                       size="sm"
                       variant="outline"
                       onClick={markAllPresent}
-                      className="gap-1 text-green-700 border-green-300 hover:bg-green-50"
+                      disabled={isWeekend(checkinDate)}
+                      className="gap-1 text-green-700 border-green-300 hover:bg-green-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Check className="w-4 h-4" /> มาทั้งหมด
                     </Button>
@@ -651,7 +687,8 @@ export const AttendanceManagement = () => {
                       size="sm"
                       variant="ghost"
                       onClick={clearAll}
-                      className="gap-1 text-muted-foreground"
+                      disabled={isWeekend(checkinDate)}
+                      className="gap-1 text-muted-foreground disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <RotateCcw className="w-4 h-4" /> ล้างทั้งหมด
                     </Button>
@@ -704,6 +741,7 @@ export const AttendanceManagement = () => {
                               status={st}
                               active={currentStatus === st}
                               onClick={() => setStatus(s.id, st)}
+                              disabled={isWeekend(checkinDate)}
                             />
                           ))}
                         </div>
@@ -713,12 +751,21 @@ export const AttendanceManagement = () => {
                 </div>
                 <div className="sticky bottom-0 -mx-6 px-6 mt-4 bg-background/95 backdrop-blur border-t border-border py-3 flex justify-end gap-2 z-10">
                   {absentStudents.length > 0 && (
-                    <Button variant="outline" onClick={() => setNotifyOpen(true)} className="gap-1 text-orange-600 border-orange-300 hover:bg-orange-50">
+                    <Button
+                      variant="outline"
+                      onClick={() => setNotifyOpen(true)}
+                      disabled={isWeekend(checkinDate)}
+                      className="gap-1 text-orange-600 border-orange-300 hover:bg-orange-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
                       <Bell className="w-4 h-4" />
                       แจ้งผู้ปกครอง ({absentStudents.length} คน)
                     </Button>
                   )}
-                  <Button onClick={saveAll} disabled={saveLoading} className="bg-blue-600 hover:bg-blue-700">
+                  <Button
+                    onClick={saveAll}
+                    disabled={saveLoading || isWeekend(checkinDate)}
+                    className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
                     {saveLoading ? (
                       <RefreshCw className="w-4 h-4 animate-spin mr-2" />
                     ) : (
