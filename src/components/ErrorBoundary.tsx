@@ -41,8 +41,8 @@ export class ErrorBoundary extends Component<Props, State> {
                             กลับหน้าแรก
                         </Button>
                     </div>
-                    {import.meta.env.DEV && this.state.error && (
-                        <pre className="mt-4 text-xs text-left bg-muted p-3 rounded overflow-auto max-h-40 text-foreground">
+                    {this.state.error && (
+                        <pre className="mt-4 text-xs text-left bg-rose-50 text-rose-800 p-4 rounded-xl border border-rose-200 overflow-auto max-h-48 font-mono">
                             {this.state.error.message}
                             {'\n\n'}
                             {this.state.error.stack}
