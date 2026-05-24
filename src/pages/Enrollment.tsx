@@ -17,6 +17,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
 import {
   ArrowLeft,
   ArrowRight,
@@ -747,10 +748,13 @@ const Enrollment = () => {
                         control={form.control}
                         name="birthDate"
                         render={({ field }) => (
-                          <FormItem>
+                          <FormItem className="flex flex-col justify-end">
                             <FormLabel>วันเกิด</FormLabel>
                             <FormControl>
-                              <Input type="date" {...field} />
+                              <ThaiDatePicker
+                                value={field.value}
+                                onChange={field.onChange}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>

@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ImageUpload } from '../shared/ImageUpload';
+import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
 
 interface Event {
     id: string;
@@ -175,14 +176,12 @@ export const EventForm = ({ event, onClose }: EventFormProps) => {
                                 <Label htmlFor="event_date">
                                     วันที่ <span className="text-destructive">*</span>
                                 </Label>
-                                <Input
-                                    id="event_date"
-                                    type="date"
+                                <ThaiDatePicker
                                     value={formData.event_date}
-                                    onChange={(e) =>
-                                        setFormData({ ...formData, event_date: e.target.value })
+                                    onChange={(v) =>
+                                        setFormData({ ...formData, event_date: v })
                                     }
-                                    required
+                                    clearable={false}
                                 />
                             </div>
 

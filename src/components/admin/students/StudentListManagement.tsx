@@ -22,6 +22,7 @@ import {
 import Webcam from 'react-webcam';
 import StudentCard from './StudentCard';
 import StudentQRSheet from './StudentQRSheet';
+import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
 
 interface Student {
     id: string;
@@ -814,12 +815,15 @@ export const StudentListManagement = () => {
                                         <Label>เลขบัตรประชาชน</Label>
                                         <Input placeholder="13 หลัก" maxLength={13} value={formData.national_id} onChange={set('national_id')} />
                                     </div>
-                                    <div className="space-y-2">
-                                        <Label>วันเกิด (ค.ศ.)</Label>
-                                        <Input type="date" value={formData.birth_date} onChange={set('birth_date')} />
+                                    <div className="space-y-2 font-medium">
+                                        <Label>วันเกิด</Label>
+                                        <ThaiDatePicker
+                                            value={formData.birth_date}
+                                            onChange={(v) => setFormData(f => ({ ...f, birth_date: v }))}
+                                        />
                                         {formData.birth_date && (
                                             <p className="text-xs text-muted-foreground">
-                                                พ.ศ. {formatBirthDate(formData.birth_date)} · อายุ {calcAge(formData.birth_date)}
+                                                อายุ {calcAge(formData.birth_date)}
                                             </p>
                                         )}
                                     </div>
