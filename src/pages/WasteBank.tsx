@@ -33,6 +33,7 @@ import {
   type WasteStudentSummary,
   type WasteTransaction,
 } from '@/services';
+import { formatThaiDateFull } from '@/lib/thaiDate';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -113,15 +114,7 @@ function StudentAvatar({
 }
 
 function formatDate(dateStr: string) {
-  try {
-    return new Date(dateStr).toLocaleDateString('th-TH', {
-      day: 'numeric',
-      month: 'short',
-      year: '2-digit',
-    });
-  } catch {
-    return dateStr;
-  }
+  return formatThaiDateFull(dateStr);
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────

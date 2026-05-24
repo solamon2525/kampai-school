@@ -22,7 +22,7 @@ import type {
   RewardClaim,
   WasteCategory,
 } from '@/services/waste-bank.service';
-import { formatThaiDateMedium } from '@/lib/thaiDate';
+import { formatThaiDateFull } from '@/lib/thaiDate';
 
 interface Props {
   studentId: string;
@@ -255,7 +255,7 @@ export const WasteBankParentView = ({ studentId, studentName }: Props) => {
                   ) : (
                     transactions.map((t) => (
                       <tr key={t.id} className="border-b border-border">
-                        <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{formatThaiDateMedium(t.transaction_date)}</td>
+                        <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{formatThaiDateFull(t.transaction_date)}</td>
                         <td className="px-4 py-3">
                           {t.waste_categories?.icon && <span className="mr-1">{t.waste_categories.icon}</span>}
                           {t.waste_categories?.name ?? '—'}
@@ -292,7 +292,7 @@ export const WasteBankParentView = ({ studentId, studentName }: Props) => {
                     claims.map((c) => (
                       <tr key={c.id} className="border-b border-border">
                         <td className="px-4 py-3 text-muted-foreground whitespace-nowrap text-xs">
-                          {formatThaiDateMedium(c.claimed_at)}
+                          {formatThaiDateFull(c.claimed_at)}
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">

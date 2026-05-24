@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthProvider';
 import { rewardClaimsService } from '@/services/waste-bank.service';
 import type { RewardClaim, RewardClaimStatus } from '@/services/waste-bank.service';
+import { formatThaiDateFull } from '@/lib/thaiDate';
 
 const STATUS_LABEL: Record<RewardClaimStatus, string> = {
   pending: 'รออนุมัติ',
@@ -123,7 +124,7 @@ export const ClaimsApproval = () => {
                   claims.map((c) => (
                     <tr key={c.id} className="border-b border-border hover:bg-muted/30 transition-colors">
                       <td className="px-4 py-3 text-muted-foreground whitespace-nowrap text-xs">
-                        {new Date(c.claimed_at).toLocaleString('th-TH')}
+                        {formatThaiDateFull(c.claimed_at)}
                         {c.academic_year && c.semester && (
                           <div className="text-[10px] text-muted-foreground/70">
                             เทอม {c.semester}/{c.academic_year}

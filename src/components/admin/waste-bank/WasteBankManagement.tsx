@@ -27,7 +27,7 @@ import { ClaimsApproval } from './ClaimsApproval';
 import { StudentQRScanner } from '@/components/shared/StudentQRScanner';
 import { TermBanner } from './TermBanner';
 import { RecorderSelect, EMPTY_RECORDER, type RecorderValue } from '@/components/admin/shared/RecorderSelect';
-import { formatThaiDateMedium } from '@/lib/thaiDate';
+import { formatThaiDateFull } from '@/lib/thaiDate';
 
 const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 
@@ -549,18 +549,19 @@ export const WasteBankManagement = () => {
                       <th className="text-left px-4 py-3 font-medium text-muted-foreground">ประเภทขยะ</th>
                       <th className="text-right px-4 py-3 font-medium text-muted-foreground">จำนวน (ชิ้น)</th>
                       <th className="text-right px-4 py-3 font-medium text-muted-foreground">แต้ม</th>
+                      <th className="text-left px-4 py-3 font-medium text-muted-foreground">ผู้บันทึก</th>
                       <th className="px-4 py-3"></th>
                     </tr>
                   </thead>
                   <tbody>
                     {transactions.length === 0 ? (
                       <tr>
-                        <td colSpan={7} className="text-center py-10 text-muted-foreground">ยังไม่มีรายการ</td>
+                        <td colSpan={8} className="text-center py-10 text-muted-foreground">ยังไม่มีรายการ</td>
                       </tr>
                     ) : (
                       transactions.map((tx) => (
                         <tr key={tx.id} className="border-b border-border hover:bg-muted/30 transition-colors">
-                          <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{formatThaiDateMedium(tx.transaction_date)}</td>
+                          <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{formatThaiDateFull(tx.transaction_date)}</td>
                           <td className="px-4 py-3 font-medium">
                             <div className="flex items-center gap-2">
                               {tx.students?.photo_url ? (
@@ -586,6 +587,7 @@ export const WasteBankManagement = () => {
                           </td>
                           <td className="px-4 py-3 text-right">{tx.quantity}</td>
                           <td className="px-4 py-3 text-right font-bold text-foreground">+{tx.points_earned}</td>
+                          <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{tx.recorded_by || '—'}</td>
                           <td className="px-4 py-3 text-right">
                             <Button
                               variant="ghost"
