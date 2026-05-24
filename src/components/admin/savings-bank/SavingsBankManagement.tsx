@@ -10,9 +10,11 @@ import {
   Wallet,
   TrendingUp,
   QrCode,
+  Database,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { downloadCSV } from '@/lib/export';
+import { BackupsTabContent } from './BackupsTabContent';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -54,7 +56,7 @@ interface StudentOption {
   photo_url: string | null;
 }
 
-type ActiveTab = 'record' | 'summary' | 'history';
+type ActiveTab = 'record' | 'summary' | 'history' | 'backups';
 
 const fmtBaht = (n: number | null | undefined) => {
   if (n == null) return '—';
@@ -350,7 +352,7 @@ export const SavingsBankManagement = () => {
       </div>
 
       {/* Tab navigation — pill style */}
-      <div className="inline-flex p-1 bg-slate-100 rounded-xl">
+      <div className="inline-flex p-1 bg-slate-100 rounded-xl flex-wrap gap-1">
         <PillTab
           active={activeTab === 'record'}
           onClick={() => setActiveTab('record')}
@@ -371,6 +373,13 @@ export const SavingsBankManagement = () => {
           icon={<List className="w-4 h-4" />}
         >
           ประวัติธุรกรรม
+        </PillTab>
+        <PillTab
+          active={activeTab === 'backups'}
+          onClick={() => setActiveTab('backups')}
+          icon={<Database className="w-4 h-4" />}
+        >
+          ระบบสำรองข้อมูล
         </PillTab>
       </div>
 
@@ -756,6 +765,11 @@ export const SavingsBankManagement = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ─── Tab 4: Backups ────────────────────────────────────────────── */}
+      {activeTab === 'backups' && (
+        <BackupsTabContent summaries={summaries} fetchSummaries={fetchSummaries} />
       )}
 
       {/* QR Scanner Dialog */}
