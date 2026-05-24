@@ -41,7 +41,7 @@ export function RewardCard({ reward, onClaim }: RewardCardProps) {
         )}
 
         {/* Tier badge — top-left */}
-        <div className="absolute top-3 left-3">
+        <div className="absolute top-3 left-3 z-10">
           <Badge className={cn('border gap-1 backdrop-blur-md shadow-sm', tier.badge)}>
             <span>{tier.emoji}</span>
             <span className="font-semibold">{tier.label}</span>
@@ -50,7 +50,7 @@ export function RewardCard({ reward, onClaim }: RewardCardProps) {
 
         {/* Stock badge — top-right */}
         {reward.stock !== null && reward.stock !== undefined && (
-          <div className="absolute top-3 right-3">
+          <div className="absolute top-3 right-3 z-10">
             <Badge
               variant="outline"
               className={cn(
@@ -63,49 +63,51 @@ export function RewardCard({ reward, onClaim }: RewardCardProps) {
             </Badge>
           </div>
         )}
+
+        {/* Floating Teacher / Central Owner Capsule — bottom-right */}
+        <div className="absolute bottom-2.5 right-2.5 z-10 flex items-center gap-1.5 bg-background/95 dark:bg-background/90 backdrop-blur-md p-1 pr-2.5 rounded-full border border-border/80 shadow-lg transition-all duration-300 group-hover:scale-105">
+          {isCentral ? (
+            <>
+              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center shadow-sm shrink-0">
+                <Globe2 className="w-3.5 h-3.5 text-white animate-spin-slow" />
+              </div>
+              <span className="text-[10px] font-bold text-sky-600 dark:text-sky-400">รางวัลกลาง</span>
+            </>
+          ) : (
+            <>
+              {ownerPhoto ? (
+                <img
+                  src={ownerPhoto}
+                  alt={ownerName || ''}
+                  className="w-6 h-6 rounded-full object-cover shadow-sm shrink-0 ring-1 ring-emerald-500/20"
+                />
+              ) : (
+                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-sm shrink-0 text-white text-[9px] font-bold">
+                  {(ownerName || '?').slice(0, 1)}
+                </div>
+              )}
+              <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 truncate max-w-[70px]">
+                ครู{ownerName?.split(' ')[0]}
+              </span>
+            </>
+          )}
+        </div>
       </div>
 
       {/* ── Content area ── */}
-      <div className="p-3.5 flex-1 flex flex-col justify-between space-y-2.5">
-        <div className="space-y-2">
-          {/* Teacher owner / Central reward badge */}
-          <div className="flex items-center">
-            {isCentral ? (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400 text-[10px] font-semibold border border-sky-100 dark:border-sky-900/50 shadow-sm">
-                <Globe2 className="w-2.5 h-2.5 text-sky-500" />
-                <span>รางวัลกลาง</span>
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-[10px] font-semibold border border-emerald-100 dark:border-emerald-900/50 shadow-sm max-w-full">
-                {ownerPhoto ? (
-                  <img
-                    src={ownerPhoto}
-                    alt={ownerName || ''}
-                    className="w-3.5 h-3.5 rounded-full object-cover shrink-0 ring-1 ring-emerald-200/50 dark:ring-emerald-800/50"
-                  />
-                ) : (
-                  <div className="w-3.5 h-3.5 rounded-full bg-emerald-500 flex items-center justify-center shrink-0 text-white text-[8px] font-bold">
-                    {(ownerName || '?').slice(0, 1)}
-                  </div>
-                )}
-                <span className="truncate">ครู{ownerName?.split(' ')[0]}</span>
-              </span>
-            )}
-          </div>
-
-          <div>
-            <h3 
-              className="font-semibold text-foreground text-sm md:text-base line-clamp-1 group-hover:text-primary transition-colors duration-200" 
-              title={reward.name}
-            >
-              {reward.name}
-            </h3>
-            {reward.description && (
-              <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5 leading-relaxed">
-                {reward.description}
-              </p>
-            )}
-          </div>
+      <div className="p-3.5 flex-1 flex flex-col justify-between space-y-2">
+        <div className="space-y-1">
+          <h3 
+            className="font-semibold text-foreground text-sm md:text-base line-clamp-1 group-hover:text-primary transition-colors duration-200" 
+            title={reward.name}
+          >
+            {reward.name}
+          </h3>
+          {reward.description && (
+            <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+              {reward.description}
+            </p>
+          )}
         </div>
 
         {/* Points and action button */}
