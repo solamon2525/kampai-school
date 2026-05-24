@@ -561,7 +561,10 @@ export default function SavingsBank() {
                                   className="border-t border-slate-100 hover:bg-slate-50/50"
                                 >
                                   <td className="px-3 py-1.5 text-slate-700 font-medium whitespace-nowrap">
-                                    {formatThaiDateMedium(h.transaction_date)}
+                                    <div>{formatThaiDateMedium(h.transaction_date)}</div>
+                                    <div className="text-[9px] text-slate-400 font-semibold mt-0.5">
+                                      {h.created_at ? new Date(h.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Bangkok' }) + ' น.' : '—'}
+                                    </div>
                                   </td>
                                   <td className="px-3 py-1.5 text-center">
                                     {h.transaction_type === 'deposit' ? (

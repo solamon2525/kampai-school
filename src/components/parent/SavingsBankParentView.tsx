@@ -221,7 +221,10 @@ export const SavingsBankParentView = ({ studentId, studentName }: Props) => {
                       className={cn('border-t border-slate-100', idx % 2 === 1 && 'bg-slate-50/40')}
                     >
                       <td className="px-4 py-3 text-slate-700 font-medium whitespace-nowrap">
-                        {formatThaiDateMedium(t.transaction_date)}
+                        <div>{formatThaiDateMedium(t.transaction_date)}</div>
+                        <div className="text-[10px] text-slate-400 font-semibold mt-0.5">
+                          {t.created_at ? new Date(t.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Bangkok' }) + ' น.' : '—'}
+                        </div>
                       </td>
                       <td className="px-4 py-3">
                         {t.transaction_type === 'deposit' ? (

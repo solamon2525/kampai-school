@@ -255,7 +255,12 @@ export const WasteBankParentView = ({ studentId, studentName }: Props) => {
                   ) : (
                     transactions.map((t) => (
                       <tr key={t.id} className="border-b border-border">
-                        <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{formatThaiDateFull(t.transaction_date)}</td>
+                        <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
+                          <div>{formatThaiDateFull(t.transaction_date)}</div>
+                          <div className="text-[10px] text-slate-400 font-semibold mt-0.5">
+                            {t.created_at ? new Date(t.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Bangkok' }) + ' น.' : '—'}
+                          </div>
+                        </td>
                         <td className="px-4 py-3">
                           {t.waste_categories?.icon && <span className="mr-1">{t.waste_categories.icon}</span>}
                           {t.waste_categories?.name ?? '—'}

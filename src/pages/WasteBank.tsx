@@ -601,7 +601,7 @@ const WasteBank = () => {
                             +{tx.points_earned} แต้ม
                           </p>
                           <p className="text-[9px] text-muted-foreground">
-                            {tx.quantity} ชิ้น · {formatDate(tx.transaction_date)}
+                            {tx.quantity} ชิ้น · {formatDate(tx.transaction_date)} {tx.created_at ? ' · ' + new Date(tx.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Bangkok' }) + ' น.' : ''}
                           </p>
                         </div>
                       </div>

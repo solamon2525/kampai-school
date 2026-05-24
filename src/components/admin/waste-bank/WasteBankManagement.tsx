@@ -598,7 +598,12 @@ export const WasteBankManagement = () => {
                     ) : (
                       transactions.map((tx) => (
                         <tr key={tx.id} className="border-b border-border hover:bg-muted/30 transition-colors">
-                          <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{formatThaiDateFull(tx.transaction_date)}</td>
+                          <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
+                            <div>{formatThaiDateFull(tx.transaction_date)}</div>
+                            <div className="text-[10px] text-slate-400 font-semibold mt-0.5">
+                              {tx.created_at ? new Date(tx.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Bangkok' }) + ' น.' : '—'}
+                            </div>
+                          </td>
                           <td className="px-4 py-3 font-medium">
                             <div className="flex items-center gap-2">
                               {tx.students?.photo_url ? (

@@ -711,7 +711,10 @@ export const SavingsBankManagement = () => {
                       )}
                     >
                       <td className="p-3 whitespace-nowrap text-slate-700 font-medium">
-                        {formatThaiDateMedium(t.transaction_date)}
+                        <div>{formatThaiDateMedium(t.transaction_date)}</div>
+                        <div className="text-[10px] text-slate-400 font-semibold mt-0.5">
+                          {t.created_at ? new Date(t.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Bangkok' }) + ' น.' : '—'}
+                        </div>
                       </td>
                       <td className="p-3">
                         <div className="flex items-center gap-2">
