@@ -22,7 +22,7 @@ export function RewardCard({ reward, onClaim }: RewardCardProps) {
     <div
       className={cn(
         'group relative bg-card border border-border/80 rounded-2xl overflow-hidden flex flex-col h-full',
-        'transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-primary/20',
+        'transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-emerald-500/10 hover:border-emerald-500/30',
       )}
     >
       {/* ── Image area ── */}
@@ -32,7 +32,7 @@ export function RewardCard({ reward, onClaim }: RewardCardProps) {
             src={reward.image_url}
             alt={reward.name}
             loading="lazy"
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-muted-foreground">
@@ -65,13 +65,13 @@ export function RewardCard({ reward, onClaim }: RewardCardProps) {
         )}
 
         {/* Floating Teacher / Central Owner Capsule — bottom-right */}
-        <div className="absolute bottom-2.5 right-2.5 z-10 flex items-center gap-1.5 bg-background/95 dark:bg-background/90 backdrop-blur-md p-1 pr-2.5 rounded-full border border-border/80 shadow-lg transition-all duration-300 group-hover:scale-105">
+        <div className="absolute bottom-2.5 right-2.5 z-10 flex items-center gap-1.5 bg-background/98 dark:bg-background/95 backdrop-blur-md p-1 pr-3 rounded-full border border-border/80 shadow-md transition-all duration-300 group-hover:translate-y-[-2px] group-hover:shadow-lg">
           {isCentral ? (
             <>
               <div className="w-6 h-6 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center shadow-sm shrink-0">
                 <Globe2 className="w-3.5 h-3.5 text-white animate-spin-slow" />
               </div>
-              <span className="text-[10px] font-bold text-sky-600 dark:text-sky-400">รางวัลกลาง</span>
+              <span className="text-[10px] font-bold text-sky-800 dark:text-sky-300">รางวัลกลาง</span>
             </>
           ) : (
             <>
@@ -86,7 +86,7 @@ export function RewardCard({ reward, onClaim }: RewardCardProps) {
                   {(ownerName || '?').slice(0, 1)}
                 </div>
               )}
-              <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 truncate max-w-[70px]">
+              <span className="text-[10.5px] font-bold text-slate-800 dark:text-slate-100 truncate max-w-[95px] sm:max-w-[125px]">
                 ครู{ownerName?.split(' ')[0]}
               </span>
             </>
