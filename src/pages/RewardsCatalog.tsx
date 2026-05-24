@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, BarChart3, Gift, Search, Sparkles, History, Clock, CheckCircle2, XCircle } from 'lucide-react';
+import { ArrowLeft, BarChart3, Gift, Search, Sparkles, History, Clock, CheckCircle2, XCircle, User, Globe2, QrCode } from 'lucide-react';
 import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
 import { SEOHead } from '@/components/SEOHead';
@@ -16,6 +16,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import QRCode from 'react-qr-code';
 import { rewardsService, rewardClaimsService } from '@/services/waste-bank.service';
 import type { Reward, StudentBalanceLookup, StudentHistoryRow } from '@/services/waste-bank.service';
 import { Badge } from '@/components/ui/badge';
@@ -28,6 +36,8 @@ export default function RewardsCatalog() {
   const [claimOpen, setClaimOpen] = useState(false);
   const [balanceOpen, setBalanceOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [activeTeacherId, setActiveTeacherId] = useState<string | null | 'central'>(null);
+  const [selectedClaimQr, setSelectedClaimQr] = useState<string | null>(null);
 
   const { data: rewards = [], isLoading } = useQuery({
     queryKey: ['rewards', 'active'],
@@ -47,12 +57,31 @@ export default function RewardsCatalog() {
     return Array.from(set).sort();
   }, [rewards]);
 
+  const teachers = useMemo(() => {
+    const map = new Map<string, { id: string; name: string; photo_url: string | null }>();
+    for (const r of rewards) {
+      if (r.staff) {
+        map.set(r.owner_staff_id!, { id: r.owner_staff_id!, name: r.staff.name, photo_url: r.staff.photo_url });
+      } else if (r.administrators) {
+        map.set(r.owner_administrator_id!, { id: r.owner_administrator_id!, name: r.administrators.name, photo_url: r.administrators.photo_url });
+      }
+    }
+    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name, 'th'));
+  }, [rewards]);
+
   // Filtered + sorted (points asc within filter)
   const filtered = useMemo(() => {
-    const sorted = [...rewards].sort((a, b) => a.points_cost - b.points_cost);
-    if (activeCategory === null) return sorted;
-    return sorted.filter((r) => r.category === activeCategory);
-  }, [rewards, activeCategory]);
+    let list = [...rewards];
+    if (activeCategory !== null) {
+      list = list.filter((r) => r.category === activeCategory);
+    }
+    if (activeTeacherId === 'central') {
+      list = list.filter((r) => !r.owner_staff_id && !r.owner_administrator_id);
+    } else if (activeTeacherId !== null) {
+      list = list.filter((r) => r.owner_staff_id === activeTeacherId || r.owner_administrator_id === activeTeacherId);
+    }
+    return list.sort((a, b) => a.points_cost - b.points_cost);
+  }, [rewards, activeCategory, activeTeacherId]);
 
   const handleClaim = (reward: Reward) => {
     setSelected(reward);
@@ -135,6 +164,62 @@ export default function RewardsCatalog() {
           </div>
         </section>
 
+        {/* ── Teacher Filter Chips ── */}
+        <section className="bg-background border-b border-border pb-3 pt-2 px-4">
+          <div className="text-xs font-semibold text-muted-foreground mb-1.5 flex items-center gap-1">
+            <User className="w-3.5 h-3.5 text-primary" /> คัดกรองตามครูผู้ดูแล:
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
+            <button
+              onClick={() => setActiveTeacherId(null)}
+              type="button"
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-colors border whitespace-nowrap',
+                activeTeacherId === null
+                  ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                  : 'bg-card text-foreground hover:bg-muted/70 border-border',
+              )}
+            >
+              <span>ครูทุกคน / ทั้งหมด</span>
+            </button>
+            <button
+              onClick={() => setActiveTeacherId('central')}
+              type="button"
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-colors border whitespace-nowrap',
+                activeTeacherId === 'central'
+                  ? 'bg-sky-600 text-white border-sky-600 shadow-sm'
+                  : 'bg-card text-foreground hover:bg-muted/70 border-border',
+              )}
+            >
+              <Globe2 className="w-3.5 h-3.5 text-sky-500" />
+              <span>รางวัลกลาง</span>
+            </button>
+            {teachers.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setActiveTeacherId(t.id)}
+                type="button"
+                className={cn(
+                  'flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors border shrink-0 whitespace-nowrap',
+                  activeTeacherId === t.id
+                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                    : 'bg-card text-foreground hover:bg-muted/70 border-border',
+                )}
+              >
+                {t.photo_url ? (
+                  <img src={t.photo_url} alt={t.name} className="w-4 h-4 rounded-full object-cover" />
+                ) : (
+                  <div className="w-4 h-4 rounded-full bg-primary/10 flex items-center justify-center text-[8px] font-bold text-primary">
+                    {t.name.slice(0, 1)}
+                  </div>
+                )}
+                <span>ครู{t.name.split(' ')[0]}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+
         {/* ── Single grid (sorted by points asc) ────────────────────────── */}
         <main className="flex-1 px-4 py-5 md:py-6">
           {isLoading ? (
@@ -167,7 +252,40 @@ export default function RewardsCatalog() {
       <Footer />
 
       <RewardClaimDialog reward={selected} open={claimOpen} onOpenChange={setClaimOpen} />
-      <BalanceCheckDialog open={balanceOpen} onOpenChange={setBalanceOpen} />
+      <BalanceCheckDialog
+        open={balanceOpen}
+        onOpenChange={setBalanceOpen}
+        rewards={rewards}
+        onShowClaimQr={setSelectedClaimQr}
+      />
+
+      {/* Dialog for displaying QR Code for pending claim */}
+      <Dialog open={!!selectedClaimQr} onOpenChange={(v) => !v && setSelectedClaimQr(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <QrCode className="w-5 h-5 text-primary" />
+              รหัสอนุมัติของรางวัล
+            </DialogTitle>
+            <DialogDescription>
+              ยื่นหน้าจอนี้ให้คุณครูสแกนเพื่ออนุมัติรับของรางวัลได้ทันที
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col items-center justify-center p-6 space-y-4">
+            {selectedClaimQr && (
+              <div className="bg-white p-3.5 rounded-xl shadow-sm border border-border">
+                <QRCode value={selectedClaimQr} size={180} />
+              </div>
+            )}
+            <div className="text-xs text-muted-foreground text-center">
+              * รหัสนี้ใช้สำหรับสแกนผ่านแอปพลิเคชันของคุณครูคำไผ่เท่านั้น
+            </div>
+          </div>
+          <Button className="w-full" onClick={() => setSelectedClaimQr(null)}>
+            ปิดหน้าต่าง
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -202,15 +320,21 @@ function CategoryChip({
 function BalanceCheckDialog({
   open,
   onOpenChange,
+  rewards,
+  onShowClaimQr,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  rewards: Reward[];
+  onShowClaimQr: (qrValue: string) => void;
 }) {
   const [code, setCode] = useState('');
   const [student, setStudent] = useState<StudentBalanceLookup | null>(null);
   const [history, setHistory] = useState<StudentHistoryRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [goal, setGoal] = useState<{ rewardId: string; rewardName: string; pointsCost: number; imageUrl: string | null } | null>(null);
+  const [showGoalSelector, setShowGoalSelector] = useState(false);
 
   const reset = () => {
     setCode('');
@@ -218,6 +342,8 @@ function BalanceCheckDialog({
     setHistory([]);
     setLoading(false);
     setErr(null);
+    setGoal(null);
+    setShowGoalSelector(false);
   };
 
   const handleLookup = async () => {
@@ -240,6 +366,15 @@ function BalanceCheckDialog({
       return;
     }
     setStudent(row as StudentBalanceLookup);
+
+    // โหลดเป้าหมาย
+    const savedGoal = localStorage.getItem(`kampai-goal:${trimmed}`);
+    if (savedGoal) {
+      setGoal(JSON.parse(savedGoal));
+    } else {
+      setGoal(null);
+    }
+
     // โหลดประวัติแลกในพื้นหลัง
     const { data: hist } = await rewardClaimsService.getStudentHistory(trimmed, 30);
     setHistory((hist as StudentHistoryRow[]) ?? []);
@@ -286,32 +421,136 @@ function BalanceCheckDialog({
           </div>
 
           {student && (
-            <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 border border-emerald-200 dark:border-emerald-800">
-              <div className="flex items-center gap-3">
-                {student.photo_url ? (
-                  <img
-                    src={student.photo_url}
-                    alt={student.full_name}
-                    className="w-14 h-14 rounded-full object-cover ring-2 ring-emerald-400"
-                  />
-                ) : (
-                  <div className="w-14 h-14 rounded-full bg-emerald-200 flex items-center justify-center text-emerald-700 font-bold text-lg">
-                    {student.full_name.slice(0, 1)}
+            <div className="space-y-3">
+              <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 border border-emerald-200 dark:border-emerald-800">
+                <div className="flex items-center gap-3">
+                  {student.photo_url ? (
+                    <img
+                      src={student.photo_url}
+                      alt={student.full_name}
+                      className="w-14 h-14 rounded-full object-cover ring-2 ring-emerald-400"
+                    />
+                  ) : (
+                    <div className="w-14 h-14 rounded-full bg-emerald-200 flex items-center justify-center text-emerald-700 font-bold text-lg">
+                      {student.full_name.slice(0, 1)}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold truncate">{student.full_name}</div>
+                    <div className="text-sm text-muted-foreground">{student.class_name ?? '—'}</div>
                   </div>
-                )}
-                <div className="flex-1 min-w-0">
-                  <div className="font-semibold truncate">{student.full_name}</div>
-                  <div className="text-sm text-muted-foreground">{student.class_name ?? '—'}</div>
+                </div>
+                <div className="mt-3 pt-3 border-t border-emerald-200 dark:border-emerald-800 flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">แต้มคงเหลือ</span>
+                  <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400">
+                    <Sparkles className="w-5 h-5" />
+                    <span className="text-2xl font-bold">{student.available_points}</span>
+                    <span className="text-sm text-muted-foreground">แต้ม</span>
+                  </div>
                 </div>
               </div>
-              <div className="mt-3 pt-3 border-t border-emerald-200 dark:border-emerald-800 flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">แต้มคงเหลือ</span>
-                <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400">
-                  <Sparkles className="w-5 h-5" />
-                  <span className="text-2xl font-bold">{student.available_points}</span>
-                  <span className="text-sm text-muted-foreground">แต้ม</span>
+
+              {/* Goal Progress Section */}
+              {goal ? (
+                <div className="p-3.5 rounded-xl border border-dashed border-amber-300 dark:border-amber-800 bg-amber-500/5 space-y-2">
+                  <div className="flex justify-between items-start gap-2">
+                    <div className="flex gap-2">
+                      {goal.imageUrl ? (
+                        <img src={goal.imageUrl} alt={goal.rewardName} className="w-9 h-9 rounded object-cover shrink-0 border border-border" />
+                      ) : (
+                        <div className="w-9 h-9 rounded bg-muted flex items-center justify-center shrink-0">
+                          <Gift className="w-4 h-4 text-muted-foreground" />
+                        </div>
+                      )}
+                      <div>
+                        <div className="text-[10px] text-muted-foreground">เป้าหมายสะสม</div>
+                        <div className="text-xs font-semibold text-foreground line-clamp-1">{goal.rewardName}</div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        localStorage.removeItem(`kampai-goal:${code.trim()}`);
+                        setGoal(null);
+                      }}
+                      className="text-[10px] text-muted-foreground hover:text-destructive underline"
+                    >
+                      ยกเลิก
+                    </button>
+                  </div>
+
+                  {/* Progress bar */}
+                  {(() => {
+                    const percent = Math.min(100, Math.round((student.available_points / goal.pointsCost) * 100));
+                    const isGoalMet = student.available_points >= goal.pointsCost;
+                    return (
+                      <div className="space-y-1">
+                        <div className="w-full bg-muted dark:bg-muted/30 rounded-full h-1.5 overflow-hidden">
+                          <div
+                            className={cn(
+                              "h-full transition-all duration-500",
+                              isGoalMet ? "bg-emerald-500" : "bg-amber-500"
+                            )}
+                            style={{ width: `${percent}%` }}
+                          />
+                        </div>
+                        <div className="flex justify-between items-center text-[10px]">
+                          <span className="text-muted-foreground tabular-nums">
+                            {student.available_points} / {goal.pointsCost} แต้ม ({percent}%)
+                          </span>
+                          <span className={cn("font-semibold", isGoalMet ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400")}>
+                            {isGoalMet ? '🎉 แต้มถึงแล้ว แลกได้เลย!' : `ขาดอีก ${goal.pointsCost - student.available_points} แต้ม`}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
-              </div>
+              ) : (
+                <div className="space-y-2">
+                  {showGoalSelector ? (
+                    <div className="p-3 rounded-lg border border-border bg-card space-y-2">
+                      <Label className="text-xs">เลือกเป้าหมายรางวัลของคุณ</Label>
+                      <Select
+                        onValueChange={(val) => {
+                          const selectedReward = rewards.find(r => r.id === val);
+                          if (selectedReward) {
+                            const goalData = {
+                              rewardId: selectedReward.id,
+                              rewardName: selectedReward.name,
+                              pointsCost: selectedReward.points_cost,
+                              imageUrl: selectedReward.image_url,
+                            };
+                            localStorage.setItem(`kampai-goal:${code.trim()}`, JSON.stringify(goalData));
+                            setGoal(goalData);
+                            setShowGoalSelector(false);
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="h-8 text-xs">
+                          <SelectValue placeholder="เลือกของรางวัล..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {rewards.map(r => (
+                            <SelectItem key={r.id} value={r.id} className="text-xs">
+                              {r.name} ({r.points_cost} แต้ม)
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button size="sm" variant="ghost" className="w-full text-xs h-7" onClick={() => setShowGoalSelector(false)}>
+                        ยกเลิก
+                      </Button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setShowGoalSelector(true)}
+                      className="w-full py-2 border border-dashed border-border rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors flex items-center justify-center gap-1"
+                    >
+                      🎯 ตั้งเป้าหมายสะสมของรางวัล
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
@@ -351,11 +590,22 @@ function BalanceCheckDialog({
                           )}
                         </div>
                       </div>
-                      <div className="shrink-0">
+                      <div className="shrink-0 flex items-center gap-1">
                         {h.status === 'pending' && (
-                          <Badge variant="outline" className="gap-1 text-[10px] border-amber-300 text-amber-700 dark:text-amber-300">
-                            <Clock className="w-3 h-3" /> รออนุมัติ
-                          </Badge>
+                          <>
+                            <Badge variant="outline" className="gap-1 text-[10px] border-amber-300 text-amber-700 dark:text-amber-300 animate-pulse">
+                              <Clock className="w-3 h-3" /> รออนุมัติ
+                            </Badge>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="w-7 h-7 p-0 text-amber-600 hover:text-amber-700 hover:bg-amber-100 dark:hover:bg-amber-950/40"
+                              onClick={() => onShowClaimQr(`kampai-claim:${h.claim_id}`)}
+                              title="แสดง QR Code อนุมัติ"
+                            >
+                              <QrCode className="w-4 h-4" />
+                            </Button>
+                          </>
                         )}
                         {h.status === 'approved' && (
                           <Badge variant="outline" className="gap-1 text-[10px] border-emerald-300 text-emerald-700 dark:text-emerald-300">

@@ -1,4 +1,4 @@
-import { Gift, Sparkles, Package } from 'lucide-react';
+import { Gift, Sparkles, Package, Globe2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -63,6 +63,33 @@ export function RewardCard({ reward, onClaim }: RewardCardProps) {
           <h3 className="font-semibold text-foreground line-clamp-1">{reward.name}</h3>
           {reward.description && (
             <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{reward.description}</p>
+          )}
+        </div>
+
+        {/* Owner Info */}
+        <div className="flex items-center gap-2 pt-2 border-t border-border/40 text-xs text-muted-foreground">
+          {reward.staff || reward.administrators ? (
+            <>
+              {reward.staff?.photo_url || reward.administrators?.photo_url ? (
+                <img
+                  src={reward.staff?.photo_url || reward.administrators?.photo_url || ''}
+                  alt={reward.staff?.name || reward.administrators?.name || ''}
+                  className="w-5 h-5 rounded-full object-cover border border-border"
+                />
+              ) : (
+                <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center text-[9px] font-bold text-primary shrink-0">
+                  {(reward.staff?.name || reward.administrators?.name || '?').slice(0, 1)}
+                </div>
+              )}
+              <span className="truncate">
+                ครูผู้ดูแล: {reward.staff?.name || reward.administrators?.name}
+              </span>
+            </>
+          ) : (
+            <>
+              <Globe2 className="w-3.5 h-3.5 text-sky-500 shrink-0" />
+              <span className="truncate">รางวัลกลาง (แลกกับครูคนใดก็ได้)</span>
+            </>
           )}
         </div>
 

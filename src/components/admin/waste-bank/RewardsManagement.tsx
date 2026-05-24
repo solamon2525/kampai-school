@@ -114,8 +114,8 @@ export const RewardsManagement = () => {
       return;
     }
 
-    // ownership: admin toggle central; teachers always own their own
-    const willBeCentral = isAdmin ? form.is_central : false;
+    // ownership: anyone (teachers and admins) can toggle central
+    const willBeCentral = form.is_central;
     const owner_staff_id = willBeCentral ? null : (staffId ?? null);
     const owner_administrator_id = willBeCentral ? null : (staffId ? null : administratorId);
 
@@ -134,10 +134,8 @@ export const RewardsManagement = () => {
     const { error } = editing
       ? await rewardsService.update(editing.id, {
           ...payload,
-          // Admin can re-assign central toggle; teachers cannot change ownership
-          ...(isAdmin
-            ? { owner_staff_id, owner_administrator_id }
-            : {}),
+          owner_staff_id,
+          owner_administrator_id,
         })
       : await rewardsService.insert({ ...payload, owner_staff_id, owner_administrator_id });
     setSaving(false);
@@ -223,7 +221,7 @@ export const RewardsManagement = () => {
                   <label htmlFor="is_active" className="text-sm">เปิดให้แลก</label>
                 </div>
               </div>
-              {isAdmin && (
+              {(isAdmin || staffId || administratorId) && (
                 <div className="space-y-1 md:col-span-2">
                   <Label>เจ้าของรางวัล</Label>
                   <div className="flex items-center gap-2 h-10">
@@ -240,7 +238,7 @@ export const RewardsManagement = () => {
                     </label>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    ไม่ติ๊ก = เป็นของฉัน (แอดมิน) เท่านั้น
+                    ไม่ติ๊ก = เป็นของฉันเท่านั้น นักเรียนต้องแลกและรับอนุมัติจากฉัน
                   </p>
                 </div>
               )}

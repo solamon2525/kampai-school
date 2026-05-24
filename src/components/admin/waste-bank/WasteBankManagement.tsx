@@ -21,10 +21,12 @@ import {
   wasteSummaryService,
   studentsService,
 } from '@/services';
+import { rewardClaimsService } from '@/services/waste-bank.service';
 import type { WasteCategory, WasteTransaction, WasteStudentSummary } from '@/services/waste-bank.service';
 import { RewardsManagement } from './RewardsManagement';
 import { ClaimsApproval } from './ClaimsApproval';
 import { StudentQRScanner } from '@/components/shared/StudentQRScanner';
+import { useAuth } from '@/contexts/AuthProvider';
 import { TermBanner } from './TermBanner';
 import { RecorderSelect, EMPTY_RECORDER, type RecorderValue } from '@/components/admin/shared/RecorderSelect';
 import { formatThaiDateFull } from '@/lib/thaiDate';
@@ -44,6 +46,21 @@ type ActiveTab = 'record' | 'summary' | 'categories' | 'rewards' | 'claims';
 export const WasteBankManagement = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('record');
   const { toast } = useToast();
+  const { staffId, administratorId, isAdmin } = useAuth();
+  const [pendingCount, setPendingCount] = useState(0);
+
+  const fetchPendingCount = async () => {
+    if (!staffId && !administratorId && !isAdmin) return;
+    const { data } = await rewardClaimsService.listPending();
+    if (data) {
+      setPendingCount(data.length);
+    }
+  };
+
+  useEffect(() => {
+    fetchPendingCount();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [staffId, administratorId, isAdmin, activeTab]);
 
   // ========== Tab 1: บันทึกรายการ ==========
   const [categories, setCategories] = useState<WasteCategory[]>([]);
@@ -319,7 +336,20 @@ export const WasteBankManagement = () => {
     { id: 'summary', label: 'สรุปยอดสะสม', icon: <Users className="w-4 h-4" /> },
     { id: 'categories', label: 'ประเภทขยะ', icon: <List className="w-4 h-4" /> },
     { id: 'rewards', label: 'รางวัล', icon: <Gift className="w-4 h-4" /> },
-    { id: 'claims', label: 'คำขอแลกรางวัล', icon: <ClipboardCheck className="w-4 h-4" /> },
+    {
+      id: 'claims',
+      label: 'คำขอแลกรางวัล',
+      icon: (
+        <div className="relative">
+          <ClipboardCheck className="w-4 h-4" />
+          {pendingCount > 0 && (
+            <span className="absolute -top-1.5 -right-1.5 bg-destructive text-destructive-foreground text-[9px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold">
+              {pendingCount}
+            </span>
+          )}
+        </div>
+      ),
+    },
   ];
 
   return (
@@ -887,7 +917,7 @@ export const WasteBankManagement = () => {
       {activeTab === 'rewards' && <RewardsManagement />}
 
       {/* ===== TAB 5: คำขอแลกรางวัล ===== */}
-      {activeTab === 'claims' && <ClaimsApproval />}
+      {activeTab === 'claims' && <ClaimsApproval onAction={fetchPendingCount} />}
 
       {/* QR Scanner Dialog */}
       {showQRScanner && (

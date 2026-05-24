@@ -62,8 +62,8 @@ export type Reward = {
   created_at?: string;
   updated_at?: string;
   // joined display labels (optional)
-  staff?: { name: string } | null;
-  administrators?: { name: string } | null;
+  staff?: { name: string; photo_url: string | null } | null;
+  administrators?: { name: string; photo_url: string | null } | null;
 };
 
 export type RewardClaimStatus = 'pending' | 'approved' | 'rejected';
@@ -193,7 +193,7 @@ export const wasteSummaryService = {
 
 // ─── Rewards ──────────────────────────────────────────────────────────────────
 const REWARDS_SELECT_WITH_OWNER =
-  '*, staff:owner_staff_id(name), administrators:owner_administrator_id(name)';
+  '*, staff:owner_staff_id(name, photo_url), administrators:owner_administrator_id(name, photo_url)';
 
 export const rewardsService = {
   getAll: () =>
@@ -261,6 +261,13 @@ const CLAIMS_SELECT =
   '*, rewards(image_url, owner_staff_id, owner_administrator_id), students(name, class, photo_url)';
 
 export const rewardClaimsService = {
+  getById: (id: string) =>
+    supabase
+      .from('reward_claims')
+      .select(CLAIMS_SELECT)
+      .eq('id', id)
+      .maybeSingle(),
+
   listPending: () =>
     supabase
       .from('reward_claims')

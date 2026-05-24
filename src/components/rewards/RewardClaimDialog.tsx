@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Loader2, Sparkles, Search, CheckCircle2, AlertTriangle, Gift } from 'lucide-react';
+import QRCode from 'react-qr-code';
 import {
   Dialog,
   DialogContent,
@@ -46,6 +47,7 @@ export function RewardClaimDialog({ reward, open, onOpenChange }: RewardClaimDia
   const [looking, setLooking] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [successClaimId, setSuccessClaimId] = useState<string | null>(null);
 
   // Reset state every time the dialog opens or reward changes
   useEffect(() => {
@@ -55,6 +57,7 @@ export function RewardClaimDialog({ reward, open, onOpenChange }: RewardClaimDia
       setLooking(false);
       setSubmitting(false);
       setErrorMsg(null);
+      setSuccessClaimId(null);
     }
   }, [open, reward?.id]);
 
@@ -82,7 +85,7 @@ export function RewardClaimDialog({ reward, open, onOpenChange }: RewardClaimDia
     if (!reward || !code.trim()) return;
     setSubmitting(true);
     setErrorMsg(null);
-    const { error } = await rewardClaimsService.claimByCode(code.trim(), reward.id);
+    const { data, error } = await rewardClaimsService.claimByCode(code.trim(), reward.id);
     setSubmitting(false);
     if (error) {
       setErrorMsg(mapError(error.message));
@@ -92,8 +95,52 @@ export function RewardClaimDialog({ reward, open, onOpenChange }: RewardClaimDia
       title: 'ส่งคำขอแลกสำเร็จ',
       description: 'รอครูอนุมัติ — จะประกาศหน้าเช็คแต้มของคุณ',
     });
-    onOpenChange(false);
+    if (data) {
+      setSuccessClaimId(data as string);
+    } else {
+      onOpenChange(false);
+    }
   };
+
+  if (successClaimId) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+              <CheckCircle2 className="w-5 h-5" />
+              ส่งคำขอแลกรางวัลสำเร็จ!
+            </DialogTitle>
+            <DialogDescription>
+              โปรดยื่นหน้าจอนี้ให้คุณครูสแกนเพื่ออนุมัติรับของรางวัล
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex flex-col items-center justify-center p-6 space-y-4 bg-muted/40 rounded-2xl border border-border">
+            <div className="bg-white p-3.5 rounded-xl shadow-sm border border-border">
+              <QRCode value={`kampai-claim:${successClaimId}`} size={160} />
+            </div>
+            
+            <div className="text-center space-y-1">
+              <div className="font-semibold text-foreground">{reward.name}</div>
+              <div className="text-xs text-muted-foreground">
+                ผู้ขอแลก: {student?.full_name} ({student?.class_name})
+              </div>
+              <div className="text-xs font-bold text-amber-600 dark:text-amber-400 mt-1">
+                ใช้แต้มสะสม: {reward.points_cost} แต้ม
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button className="w-full bg-emerald-600 hover:bg-emerald-700" onClick={() => onOpenChange(false)}>
+              เสร็จสิ้น / ปิดหน้าต่าง
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   if (!reward) return null;
 

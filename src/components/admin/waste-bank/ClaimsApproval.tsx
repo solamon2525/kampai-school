@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Check, X, ClipboardCheck, Clock, CheckCircle2, XCircle, Globe2, User } from 'lucide-react';
+import { Check, X, ClipboardCheck, Clock, CheckCircle2, XCircle, Globe2, User, QrCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthProvider';
 import { rewardClaimsService } from '@/services/waste-bank.service';
 import type { RewardClaim, RewardClaimStatus } from '@/services/waste-bank.service';
 import { formatThaiDateFull } from '@/lib/thaiDate';
+import { ClaimQRScanner } from './ClaimQRScanner';
 
 const STATUS_LABEL: Record<RewardClaimStatus, string> = {
   pending: 'รออนุมัติ',
@@ -15,12 +16,17 @@ const STATUS_LABEL: Record<RewardClaimStatus, string> = {
   rejected: 'ปฏิเสธ',
 };
 
-export const ClaimsApproval = () => {
+interface ClaimsApprovalProps {
+  onAction?: () => void;
+}
+
+export const ClaimsApproval = ({ onAction }: ClaimsApprovalProps) => {
   const { toast } = useToast();
   const { user, staffId, administratorId } = useAuth();
   const [filter, setFilter] = useState<'pending' | 'all'>('pending');
   const [claims, setClaims] = useState<RewardClaim[]>([]);
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [showScanner, setShowScanner] = useState(false);
 
   useEffect(() => { fetchAll(); }, [filter]);
 
@@ -29,6 +35,11 @@ export const ClaimsApproval = () => {
       ? await rewardClaimsService.listPending()
       : await rewardClaimsService.listAll();
     if (!error && data) setClaims(data as RewardClaim[]);
+  };
+
+  const handleActionCompleted = () => {
+    fetchAll();
+    onAction?.();
   };
 
   const handleApprove = async (id: string) => {
@@ -40,7 +51,7 @@ export const ClaimsApproval = () => {
       toast({ title: 'อนุมัติไม่สำเร็จ', description: error.message, variant: 'destructive' });
     } else {
       toast({ title: 'อนุมัติสำเร็จ' });
-      fetchAll();
+      handleActionCompleted();
     }
   };
 
@@ -54,7 +65,7 @@ export const ClaimsApproval = () => {
       toast({ title: 'ปฏิเสธไม่สำเร็จ', description: error.message, variant: 'destructive' });
     } else {
       toast({ title: 'ปฏิเสธคำขอสำเร็จ' });
-      fetchAll();
+      handleActionCompleted();
     }
   };
 
@@ -84,11 +95,19 @@ export const ClaimsApproval = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center gap-2 flex-wrap">
         <div className="flex items-center gap-2 text-muted-foreground text-sm">
           <ClipboardCheck className="w-4 h-4" /> อนุมัติหรือปฏิเสธคำขอแลกรางวัล
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setShowScanner(true)}
+            className="gap-1.5 border-primary text-primary hover:bg-primary/5"
+          >
+            <QrCode className="w-4 h-4" /> สแกน QR อนุมัติ
+          </Button>
           <Button size="sm" variant={filter === 'pending' ? 'default' : 'outline'} onClick={() => setFilter('pending')}>
             รออนุมัติ
           </Button>
@@ -198,6 +217,12 @@ export const ClaimsApproval = () => {
           </div>
         </CardContent>
       </Card>
+
+      <ClaimQRScanner
+        open={showScanner}
+        onClose={() => setShowScanner(false)}
+        onAction={handleActionCompleted}
+      />
     </div>
   );
 };
