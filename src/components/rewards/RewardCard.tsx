@@ -70,13 +70,13 @@ export function RewardCard({ reward, onClaim }: RewardCardProps) {
         )}
 
         {/* Floating Teacher / Central Owner Capsule — bottom-right */}
-        <div className="absolute bottom-2.5 right-2.5 z-10 flex items-center gap-1.5 bg-white p-1 pr-3 rounded-full border border-border/80 shadow-md transition-all duration-300 group-hover:translate-y-[-2px] group-hover:shadow-lg">
+        <div className="absolute bottom-2.5 right-2.5 z-10 flex flex-col items-center gap-1 bg-white/95 backdrop-blur-md p-1.5 pb-2 rounded-xl border border-border/80 shadow-md transition-all duration-300 group-hover:translate-y-[-2px] group-hover:shadow-lg w-[72px]">
           {isCentral ? (
             <>
-              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center shadow-sm shrink-0">
-                <Globe2 className="w-3.5 h-3.5 text-white animate-spin-slow" />
+              <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center shadow-sm shrink-0">
+                <Globe2 className="w-5 h-5 text-white animate-spin-slow" />
               </div>
-              <span className="text-[10px] font-bold text-sky-800">รางวัลกลาง</span>
+              <span className="text-[9px] font-bold text-sky-800 text-center leading-none mt-1">รางวัลกลาง</span>
             </>
           ) : (
             <>
@@ -84,14 +84,14 @@ export function RewardCard({ reward, onClaim }: RewardCardProps) {
                 <img
                   src={ownerPhoto}
                   alt={ownerName || ''}
-                  className="w-6 h-6 rounded-full object-cover shadow-sm shrink-0 ring-1 ring-emerald-500/20"
+                  className="w-11 h-11 rounded-lg object-cover shadow-sm shrink-0 ring-1 ring-emerald-500/10"
                 />
               ) : (
-                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-sm shrink-0 text-white text-[9px] font-bold">
+                <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-sm shrink-0 text-white text-[11px] font-bold">
                   {(ownerName || '?').slice(0, 1)}
                 </div>
               )}
-              <span className="text-[10.5px] font-bold text-slate-800 truncate max-w-[95px] sm:max-w-[125px]">
+              <span className="text-[9px] font-extrabold text-slate-800 text-center truncate w-full px-0.5 leading-tight mt-0.5" title={`ครู${cleanThaiTitle(ownerName)}`}>
                 ครู{cleanThaiTitle(ownerName)}
               </span>
             </>
