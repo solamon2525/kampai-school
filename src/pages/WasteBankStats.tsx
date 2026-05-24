@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 import {
   Recycle,
   TrendingUp,
@@ -51,10 +52,12 @@ function StudentAvatar({
   name,
   size = 48,
   photoUrl,
+  className,
 }: {
   name: string;
   size?: number;
   photoUrl?: string | null;
+  className?: string;
 }) {
   const colors = [
     'from-green-400 to-emerald-600',
@@ -71,8 +74,8 @@ function StudentAvatar({
         src={photoUrl}
         alt={name}
         loading="lazy"
-        style={{ width: size, height: size }}
-        className="rounded-full object-cover flex-shrink-0 border-2 border-white shadow-sm bg-muted"
+        className={cn("rounded-full object-cover flex-shrink-0 border-2 border-white shadow-sm bg-muted", className)}
+        style={className ? undefined : { width: size, height: size }}
         onError={(e) => {
           // If image fails, hide it so the parent layout stays clean.
           (e.currentTarget as HTMLImageElement).style.display = 'none';
@@ -83,10 +86,10 @@ function StudentAvatar({
 
   return (
     <div
-      style={{ width: size, height: size }}
-      className={`rounded-full bg-gradient-to-br ${color} flex items-center justify-center text-white font-bold flex-shrink-0 border-2 border-white shadow-sm`}
+      className={cn(`rounded-full bg-gradient-to-br ${color} flex items-center justify-center text-white font-bold flex-shrink-0 border-2 border-white shadow-sm`, className)}
+      style={className ? undefined : { width: size, height: size }}
     >
-      <span style={{ fontSize: size * 0.38 }}>{(name || '?').charAt(0)}</span>
+      <span style={className ? undefined : { fontSize: size * 0.38 }}>{(name || '?').charAt(0)}</span>
     </div>
   );
 }
@@ -407,39 +410,35 @@ const WasteBankStats = () => {
                         return (
                           <div
                             key={pos}
-                            className={`flex flex-col items-center text-center p-3 md:p-4 rounded-2xl border-2 ${MEDAL_BG[idx]} ${
-                              isFirst ? 'shadow-md scale-105 pt-5 pb-6' : 'shadow-sm'
+                            className={`flex flex-col items-center text-center p-1.5 xs:p-2.5 md:p-4 rounded-2xl border-2 ${MEDAL_BG[idx]} ${
+                              isFirst ? 'shadow-md scale-105 pt-3.5 pb-4 md:pt-5 md:pb-6' : 'shadow-sm'
                             } transition-all`}
                           >
-                            <span className={`mb-2 ${isFirst ? 'text-4xl' : 'text-3xl'}`}>
+                            <span className={`mb-1.5 ${isFirst ? 'text-2xl xs:text-4xl' : 'text-xl xs:text-3xl'}`}>
                               {MEDALS[idx]}
                             </span>
                             <StudentAvatar
                               name={s.full_name || '?'}
-                              size={isFirst ? 72 : 56}
+                              className={isFirst ? "w-12 h-12 xs:w-16 xs:h-16 md:w-20 md:h-20" : "w-9 h-9 xs:w-12 xs:h-12 md:w-14 md:h-14"}
                               photoUrl={s.student_id ? photoMap.get(s.student_id) : null}
                             />
                             <p
-                              className={`font-semibold mt-2 leading-tight text-foreground ${
-                                isFirst ? 'text-base' : 'text-sm'
-                              }`}
+                              className={`font-semibold mt-1.5 leading-tight text-foreground truncate max-w-full text-[10px] xs:text-xs md:text-base`}
                             >
                               {s.full_name || '—'}
                             </p>
                             {s.class_name && (
-                              <Badge className="mt-1 bg-white/70 text-foreground border-0 text-[10px] py-0">
+                              <Badge className="mt-0.5 bg-white/70 text-foreground border-0 text-[9px] py-0 px-1">
                                 {s.class_name}
                               </Badge>
                             )}
                             <p
-                              className={`mt-2 font-bold ${MEDAL_TEXT[idx]} ${
-                                isFirst ? 'text-lg' : 'text-sm'
-                              }`}
+                              className={`mt-1 font-bold ${MEDAL_TEXT[idx]} text-[10px] xs:text-xs sm:text-sm md:text-base`}
                             >
                               {Number(s.total_points_earned ?? 0).toLocaleString()} แต้ม
                             </p>
                             {badge && (
-                              <p className="text-[10px] text-muted-foreground mt-0.5">
+                              <p className="text-[9px] xs:text-[10px] text-muted-foreground mt-0.5 hidden xs:block">
                                 {badge.icon} {badge.label}
                               </p>
                             )}

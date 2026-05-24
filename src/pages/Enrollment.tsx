@@ -514,7 +514,7 @@ const Enrollment = () => {
           </DialogHeader>
           {foundAdmission && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <div><span className="text-muted-foreground">ชื่อ:</span> <strong>{foundAdmission.student_name}</strong></div>
                 <div><span className="text-muted-foreground">สถานะ:</span>
                   <Badge className={`ml-2 ${foundAdmission.status === 'approved' ? 'bg-green-100 text-green-800' :
@@ -1080,7 +1080,7 @@ const Enrollment = () => {
                               ข้อมูลการศึกษา
                             </CardTitle>
                           </CardHeader>
-                          <CardContent className="text-sm grid grid-cols-2 gap-4">
+                          <CardContent className="text-sm grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <p><span className="text-muted-foreground">โรงเรียนเดิม:</span> {form.getValues('previousSchool')}</p>
                             <p><span className="text-muted-foreground">ระดับชั้นที่จบ:</span> {form.getValues('previousLevel')}</p>
                             <p><span className="text-muted-foreground">GPA:</span> {form.getValues('gpa')}</p>

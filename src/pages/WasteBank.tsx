@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
 import { SEOHead } from '@/components/SEOHead';
@@ -74,10 +75,12 @@ function StudentAvatar({
   name,
   size = 48,
   photoUrl,
+  className,
 }: {
   name: string;
   size?: number;
   photoUrl?: string | null;
+  className?: string;
 }) {
   const colors = [
     'from-green-400 to-emerald-600',
@@ -94,8 +97,8 @@ function StudentAvatar({
         src={photoUrl}
         alt={name}
         loading="lazy"
-        style={{ width: size, height: size }}
-        className="rounded-full object-cover flex-shrink-0 border-2 border-white shadow-sm bg-muted"
+        className={cn("rounded-full object-cover flex-shrink-0 border-2 border-white shadow-sm bg-muted", className)}
+        style={className ? undefined : { width: size, height: size }}
         onError={(e) => {
           (e.currentTarget as HTMLImageElement).style.display = 'none';
         }}
@@ -105,10 +108,10 @@ function StudentAvatar({
 
   return (
     <div
-      style={{ width: size, height: size }}
-      className={`rounded-full bg-gradient-to-br ${color} flex items-center justify-center text-white font-bold flex-shrink-0 border-2 border-white shadow-sm`}
+      className={cn(`rounded-full bg-gradient-to-br ${color} flex items-center justify-center text-white font-bold flex-shrink-0 border-2 border-white shadow-sm`, className)}
+      style={className ? undefined : { width: size, height: size }}
     >
-      <span style={{ fontSize: size * 0.38 }}>{(name || '?').charAt(0)}</span>
+      <span style={className ? undefined : { fontSize: size * 0.38 }}>{(name || '?').charAt(0)}</span>
     </div>
   );
 }
@@ -379,7 +382,7 @@ const WasteBank = () => {
                   <TabsContent key={tab} value={tab} className="mt-0">
                     {/* Podium */}
                     {top3.length > 0 && (
-                      <div className="grid grid-cols-3 gap-2 mb-4 items-end">
+                      <div className="grid grid-cols-3 gap-2 mb-4 items-end max-w-2xl mx-auto">
                         {podiumOrder.map((student, pos) => {
                           if (!student) return <div key={pos} />;
                           const rankIdx = podiumRankIdx[pos];
@@ -388,22 +391,22 @@ const WasteBank = () => {
                             <div
                               key={pos}
                               className={`
-                                flex flex-col items-center text-center p-3 rounded-2xl border-2
+                                flex flex-col items-center text-center p-1.5 xs:p-2.5 md:p-4 rounded-2xl border-2
                                 ${MEDAL_COLORS[rankIdx]}
-                                ${isFirst ? 'ring-2 ring-amber-300 shadow-md scale-105 pb-4 pt-3' : 'shadow-sm'}
+                                ${isFirst ? 'ring-2 ring-amber-300 shadow-md scale-105 pb-2.5 pt-2 md:pb-4 md:pt-3' : 'shadow-sm'}
                                 transition-all
                               `}
                             >
-                              <span className={`text-2xl mb-1 ${isFirst ? 'text-3xl' : ''}`}>
+                              <span className={`text-lg xs:text-2xl mb-1 ${isFirst ? 'text-2xl xs:text-3xl' : ''}`}>
                                 {MEDALS[rankIdx]}
                               </span>
                               <StudentAvatar
                                 name={student.full_name || '?'}
-                                size={isFirst ? 64 : 48}
+                                className={isFirst ? "w-12 h-12 xs:w-16 xs:h-16 md:w-20 md:h-20" : "w-9 h-9 xs:w-12 xs:h-12 md:w-14 md:h-14"}
                                 photoUrl={student.student_id ? photoMap.get(student.student_id) : null}
                               />
                               <p
-                                className={`font-semibold mt-1.5 leading-tight text-foreground truncate max-w-full ${isFirst ? 'text-xs' : 'text-[11px]'}`}
+                                className={`font-semibold mt-1.5 leading-tight text-foreground truncate max-w-full text-[10px] xs:text-xs md:text-base`}
                               >
                                 {student.full_name || '—'}
                               </p>
@@ -412,7 +415,7 @@ const WasteBank = () => {
                                   {student.class_name}
                                 </Badge>
                               )}
-                              <p className={`mt-1 font-bold ${MEDAL_TEXT[rankIdx]} ${isFirst ? 'text-sm' : 'text-xs'}`}>
+                              <p className={`mt-1 font-bold ${MEDAL_TEXT[rankIdx]} text-[10px] xs:text-xs sm:text-sm md:text-base`}>
                                 {rankTab === 'points'
                                   ? `${Number(student.total_points_earned ?? 0)} แต้ม`
                                   : rankTab === 'items'

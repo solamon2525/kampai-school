@@ -672,7 +672,7 @@ const StatCard = ({
 }) => {
   if (isFeatured) {
     return (
-      <div className="col-span-2 md:col-span-1 bg-slate-900 rounded-xl p-3.5 md:p-4 shadow-md ring-1 ring-amber-500/20">
+      <div className="col-span-1 md:col-span-1 bg-slate-900 rounded-xl p-3.5 md:p-4 shadow-md ring-1 ring-amber-500/20">
         <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-amber-400 mb-1.5">
           <span className="[&>svg]:w-4 [&>svg]:h-4">{icon}</span>
           {label}

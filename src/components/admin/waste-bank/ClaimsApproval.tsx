@@ -110,7 +110,7 @@ export const ClaimsApproval = () => {
                   <th className="text-right px-4 py-3 font-medium text-muted-foreground">แต้ม</th>
                   <th className="text-right px-4 py-3 font-medium text-muted-foreground">คงเหลือหลังแลก</th>
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground">สถานะ</th>
-                  <th className="px-4 py-3"></th>
+                  <th className="px-4 py-3 min-w-[90px]"></th>
                 </tr>
               </thead>
               <tbody>
@@ -162,7 +162,7 @@ export const ClaimsApproval = () => {
                         {c.balance_after !== null ? c.balance_after : '—'}
                       </td>
                       <td className="px-4 py-3">{statusBadge(c.status)}</td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 min-w-[90px]">
                         {c.status === 'pending' ? (
                           <div className="flex gap-1 justify-end">
                             <Button

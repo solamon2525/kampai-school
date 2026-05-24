@@ -811,7 +811,7 @@ const KpiCard = ({
       {label}
     </div>
     <div className="flex items-baseline gap-1.5">
-      <span className="text-xl md:text-2xl font-extrabold text-slate-900 tabular-nums tracking-tight">
+      <span className="text-base xs:text-lg sm:text-xl md:text-2xl font-extrabold text-slate-900 tabular-nums tracking-tight">
         {value}
       </span>
       {unit && <span className="text-sm font-bold text-slate-600">{unit}</span>}
@@ -833,7 +833,7 @@ const KpiHero = ({
       {icon}
       {label}
     </div>
-    <div className="text-xl md:text-2xl font-extrabold text-white tabular-nums tracking-tight">
+    <div className="text-base xs:text-lg sm:text-xl md:text-2xl font-extrabold text-white tabular-nums tracking-tight">
       {value}
     </div>
   </div>

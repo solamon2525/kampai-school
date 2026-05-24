@@ -24,7 +24,7 @@ const PODIUM_STYLE = [
     ring: 'ring-amber-300',
     medal: '🥇',
     height: 'h-36 md:h-44',
-    photoSize: 72,
+    photoClass: 'w-12 h-12 xs:w-16 xs:h-16 md:w-[72px] md:h-[72px]',
     showCrown: true,
   },
   // 2nd place — silver
@@ -35,7 +35,7 @@ const PODIUM_STYLE = [
     ring: 'ring-slate-300',
     medal: '🥈',
     height: 'h-28 md:h-34',
-    photoSize: 56,
+    photoClass: 'w-10 h-10 xs:w-12 xs:h-12 md:w-14 md:h-14',
     showCrown: false,
   },
   // 3rd place — bronze
@@ -46,21 +46,21 @@ const PODIUM_STYLE = [
     ring: 'ring-orange-300',
     medal: '🥉',
     height: 'h-24 md:h-28',
-    photoSize: 48,
+    photoClass: 'w-8 h-8 xs:w-10 xs:h-10 md:w-12 md:h-12',
     showCrown: false,
   },
 ];
 
 function StudentAvatar({
   name,
-  size,
   photoUrl,
   ringClass,
+  className,
 }: {
   name: string;
-  size: number;
   photoUrl?: string | null;
   ringClass: string;
+  className?: string;
 }) {
   const colors = [
     'from-amber-400 to-yellow-500',
@@ -77,21 +77,21 @@ function StudentAvatar({
         src={photoUrl}
         alt={name}
         loading="lazy"
-        style={{ width: size, height: size }}
         className={cn(
-          'rounded-full object-cover flex-shrink-0 ring-4 shadow-lg',
+          'rounded-full object-cover flex-shrink-0 ring-4 shadow-lg bg-slate-100',
           ringClass,
+          className,
         )}
       />
     );
   }
   return (
     <div
-      style={{ width: size, height: size }}
       className={cn(
-        'rounded-full flex items-center justify-center flex-shrink-0 ring-4 shadow-lg bg-gradient-to-br text-white font-extrabold text-2xl',
+        'rounded-full flex items-center justify-center flex-shrink-0 ring-4 shadow-lg bg-gradient-to-br text-white font-extrabold text-lg xs:text-xl md:text-2xl',
         color,
         ringClass,
+        className,
       )}
     >
       {(name || '?').charAt(0)}
@@ -120,51 +120,50 @@ export const SaverPodium = ({ entries }: Props) => {
           <div
             key={s.student_id ?? rank}
             className={cn(
-              'relative rounded-t-2xl border border-black/5 p-4 md:p-5 text-center flex flex-col items-center justify-end shadow-xl',
+              'relative rounded-t-2xl border border-black/5 p-2 xs:p-3 md:p-5 text-center flex flex-col items-center justify-end shadow-xl',
               style.bg,
               style.height,
             )}
           >
             {/* Crown for #1 */}
             {style.showCrown && (
-              <Crown className="absolute -top-7 left-1/2 -translate-x-1/2 w-10 h-10 text-amber-500 drop-shadow-md fill-amber-400" />
+              <Crown className="absolute -top-6 xs:-top-7 left-1/2 -translate-x-1/2 w-8 h-8 xs:w-10 xs:h-10 text-amber-500 drop-shadow-md fill-amber-400" />
             )}
 
             {/* Medal floating */}
-            <div className="absolute -top-6 right-3 text-3xl md:text-4xl drop-shadow-lg">
+            <div className="absolute -top-5 xs:-top-6 right-1.5 xs:right-3 text-2xl xs:text-3xl md:text-4xl drop-shadow-lg">
               {style.medal}
             </div>
 
             {/* Avatar floating top */}
-            <div className="absolute -top-10 left-1/2 -translate-x-1/2">
+            <div className="absolute -top-8 xs:-top-10 left-1/2 -translate-x-1/2">
               <StudentAvatar
                 name={s.full_name ?? '?'}
                 photoUrl={s.photo_url}
-                size={style.photoSize}
+                className={style.photoClass}
                 ringClass={style.ring}
               />
             </div>
 
             {/* Content */}
-            <div className="mt-8 md:mt-10 space-y-1 w-full">
-              <div className={cn('font-bold truncate text-sm md:text-base', style.text)}>
+            <div className="mt-5 xs:mt-8 md:mt-10 space-y-0.5 xs:space-y-1 w-full">
+              <div className={cn('font-bold truncate text-[10px] xs:text-xs md:text-base', style.text)}>
                 {s.full_name ?? '—'}
               </div>
-              <div className={cn('text-xs font-medium', style.label)}>
+              <div className={cn('text-[9px] xs:text-xs font-medium', style.label)}>
                 {s.class_name ?? ''}
               </div>
               <div
                 className={cn(
-                  'font-extrabold tabular-nums tracking-tight',
-                  isFirst ? 'text-xl md:text-2xl' : 'text-lg md:text-xl',
+                  'font-extrabold tabular-nums tracking-tight text-xs xs:text-sm md:text-2xl',
                   style.text,
                 )}
               >
                 {Number(s.deposit_count ?? 0).toLocaleString('th-TH')}
-                <span className={cn('text-xs font-medium ml-1', style.label)}>ครั้ง</span>
+                <span className={cn('text-[9px] xs:text-xs font-medium ml-0.5 xs:ml-1', style.label)}>ครั้ง</span>
               </div>
-              <div className="flex justify-center pt-1">
-                <SaverTierBadge depositCount={s.deposit_count} size="sm" />
+              <div className="flex justify-center pt-0.5 xs:pt-1">
+                <SaverTierBadge depositCount={s.deposit_count} size="sm" className="hidden xs:inline-flex" />
               </div>
             </div>
           </div>

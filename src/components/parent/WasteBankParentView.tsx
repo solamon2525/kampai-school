@@ -133,12 +133,12 @@ export const WasteBankParentView = ({ studentId, studentName }: Props) => {
       </div>
 
       {/* Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-border">
+      <div className="flex overflow-x-auto whitespace-nowrap scrollbar-none gap-2 border-b border-border -mx-4 px-4 sm:mx-0 sm:px-0 flex-nowrap">
         {tabs.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors -mb-px ${
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors -mb-px flex-shrink-0 ${
               tab === t.id ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'
             }`}
           >
