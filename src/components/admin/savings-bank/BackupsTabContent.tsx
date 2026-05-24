@@ -32,6 +32,7 @@ export const BackupsTabContent = ({ summaries, fetchSummaries }: Props) => {
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   const [isCreatingSnapshot, setIsCreatingSnapshot] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
+  const [dbError, setDbError] = useState<string | null>(null);
 
   // Settings state
   const [settings, setSettings] = useState({
@@ -100,8 +101,14 @@ export const BackupsTabContent = ({ summaries, fetchSummaries }: Props) => {
         .select('*')
         .order('backup_date', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === 'PGRST205' || error.message?.includes('does not exist')) {
+          setDbError('missing_table');
+        }
+        throw error;
+      }
       setBackups(data || []);
+      setDbError(null);
     } catch (err: any) {
       console.error('Error fetching backups list:', err);
     } finally {
@@ -264,6 +271,19 @@ export const BackupsTabContent = ({ summaries, fetchSummaries }: Props) => {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      {dbError === 'missing_table' && (
+        <div className="lg:col-span-12 bg-rose-50 border border-rose-200 rounded-2xl p-5 flex items-start gap-4 shadow-sm">
+          <ShieldAlert className="w-10 h-10 text-rose-500 flex-shrink-0 mt-0.5" />
+          <div className="space-y-1.5">
+            <h3 className="text-sm font-extrabold text-rose-950">⚠️ ยังไม่ได้เปิดใช้งานตารางเก็บข้อมูลในฐานข้อมูล Production</h3>
+            <p className="text-xs text-rose-700 font-medium leading-relaxed">
+              ไม่พบตาราง <code className="bg-rose-100 px-1.5 py-0.5 rounded font-mono text-[11px] text-rose-800">savings_backups</code> ในฐานข้อมูลระบบโรงเรียนบ้านคำไผ่ 
+              กรุณานำเนื้อหาในไฟล์ <code className="bg-rose-100 px-1.5 py-0.5 rounded font-mono text-[11px] text-rose-800">supabase/migrations/079_savings_backup_system.sql</code> 
+              ไปรันในช่อง <strong>SQL Editor</strong> บน <strong>Supabase Dashboard</strong> ของโรงเรียนเพื่อสร้างตารางข้อมูลและเปิดใช้งานระบบนี้ครับ
+            </p>
+          </div>
+        </div>
+      )}
       {/* LEFT: Configure Backups & Settings */}
       <div className="lg:col-span-5 space-y-4">
         <Card className="border-amber-200">
@@ -291,7 +311,7 @@ export const BackupsTabContent = ({ summaries, fetchSummaries }: Props) => {
             <div className="space-y-1.5">
               <Label className="text-xs font-bold uppercase tracking-wider text-slate-500">คุณครูผู้รับผิดชอบระบบ</Label>
               <Select
-                value={settings.teacherId}
+                value={settings.teacherId || undefined}
                 onValueChange={(val) => {
                   const selected = teachers.find(t => t.id === val);
                   setSettings(prev => ({
@@ -438,7 +458,7 @@ export const BackupsTabContent = ({ summaries, fetchSummaries }: Props) => {
 
                     <div className="flex items-center gap-1.5 justify-end">
                       <Button
-                        size="xs"
+                        size="sm"
                         variant="outline"
                         onClick={() => handleRestore(b)}
                         disabled={isRestoring}
