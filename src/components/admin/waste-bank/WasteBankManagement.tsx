@@ -28,6 +28,7 @@ import { StudentQRScanner } from '@/components/shared/StudentQRScanner';
 import { TermBanner } from './TermBanner';
 import { RecorderSelect, EMPTY_RECORDER, type RecorderValue } from '@/components/admin/shared/RecorderSelect';
 import { formatThaiDateFull } from '@/lib/thaiDate';
+import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
 
 const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 
@@ -540,10 +541,10 @@ export const WasteBankManagement = () => {
                 {/* Date */}
                 <div className="space-y-1">
                   <Label>วันที่ <span className="text-destructive">*</span></Label>
-                  <Input
-                    type="date"
+                  <ThaiDatePicker
                     value={form.transaction_date}
-                    onChange={(e) => handleFormChange('transaction_date', e.target.value)}
+                    onChange={(v) => handleFormChange('transaction_date', v)}
+                    dateFormat="full"
                   />
                 </div>
 

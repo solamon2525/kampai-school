@@ -43,6 +43,7 @@ import {
 } from '@/components/admin/shared/RecorderSelect';
 import { StudentQRScanner } from '@/components/shared/StudentQRScanner';
 import { formatThaiDateMedium } from '@/lib/thaiDate';
+import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
 
 const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 
@@ -502,11 +503,10 @@ export const SavingsBankManagement = () => {
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">วันที่</Label>
-                <Input
-                  type="date"
+                <ThaiDatePicker
                   value={form.transaction_date}
-                  onChange={(e) => setForm((p) => ({ ...p, transaction_date: e.target.value }))}
-                  className="border-slate-300 font-medium"
+                  onChange={(v) => setForm((p) => ({ ...p, transaction_date: v }))}
+                  dateFormat="full"
                 />
               </div>
             </div>
