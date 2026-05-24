@@ -65,10 +65,15 @@ export const WasteBankManagement = () => {
     transaction_date: today,
     notes: '',
   });
-  const [rows, setRows] = useState<RecordRow[]>([{ category_id: '', quantity: '' }]);
+  const [rows, setRows] = useState<RecordRow[]>([{ category_id: '', quantity: '1' }]);
   const [recorder, setRecorder] = useState<RecorderValue>(EMPTY_RECORDER);
 
-  const addRow = () => setRows((rs) => [...rs, { category_id: '', quantity: '' }]);
+  const addRow = () => {
+    const defaultCat = categories.find(
+      (c) => c.name.includes('ขวดพลาสติกเล็ก') || c.name.includes('ขวดเล็ก')
+    );
+    setRows((rs) => [...rs, { category_id: defaultCat?.id || '', quantity: '1' }]);
+  };
   const removeRow = (i: number) =>
     setRows((rs) => (rs.length === 1 ? rs : rs.filter((_, idx) => idx !== i)));
   const updateRow = (i: number, patch: Partial<RecordRow>) =>
@@ -121,7 +126,15 @@ export const WasteBankManagement = () => {
 
   const fetchCategories = async () => {
     const { data, error } = await wasteCategoriesService.getActive();
-    if (!error && data) setCategories(data as WasteCategory[]);
+    if (!error && data) {
+      setCategories(data as WasteCategory[]);
+      const defaultCat = (data as WasteCategory[]).find(
+        (c) => c.name.includes('ขวดพลาสติกเล็ก') || c.name.includes('ขวดเล็ก')
+      );
+      if (defaultCat) {
+        setRows([{ category_id: defaultCat.id, quantity: '1' }]);
+      }
+    }
   };
 
   const fetchTransactions = async () => {
@@ -200,7 +213,10 @@ export const WasteBankManagement = () => {
       title: 'บันทึกรายการสำเร็จ',
       description: `${form.student_name} — ${valid.length} ประเภท · รวม ${totalPointsSubmitted} แต้ม`,
     });
-    setRows([{ category_id: '', quantity: '' }]);
+    const defaultCat = categories.find(
+      (c) => c.name.includes('ขวดพลาสติกเล็ก') || c.name.includes('ขวดเล็ก')
+    );
+    setRows([{ category_id: defaultCat?.id || '', quantity: '1' }]);
     setForm({ student_name: '', student_class: '', transaction_date: today, notes: '' });
     // recorder ไม่ reset — auto-fill ของ login user คงอยู่ บันทึกรายการต่อๆ ได้เลย
     setSelectedStudentId('');
@@ -425,7 +441,7 @@ export const WasteBankManagement = () => {
                       <Plus className="w-3.5 h-3.5" /> เพิ่มประเภท
                     </Button>
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {rows.map((row, i) => {
                       const cat = categories.find((c) => c.id === row.category_id);
                       const qty = parseInt(row.quantity, 10);
@@ -433,62 +449,82 @@ export const WasteBankManagement = () => {
                       return (
                         <div
                           key={i}
-                          className="flex items-end gap-2 p-2 rounded-md border border-border bg-muted/20"
+                          className="space-y-4 p-4 rounded-xl border border-border bg-muted/10 relative"
                         >
-                          <div className="flex-1 min-w-0 space-y-1">
-                            <Label className="text-xs text-muted-foreground">ประเภท</Label>
-                            <Select
-                              value={row.category_id}
-                              onValueChange={(v) => updateRow(i, { category_id: v })}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="เลือกประเภทขยะ" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {categories.map((c) => (
-                                  <SelectItem key={c.id} value={c.id}>
-                                    {c.icon && <span className="mr-1">{c.icon}</span>}
-                                    {c.name} ({c.points_per_item} แต้ม/ชิ้น)
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="w-20 sm:w-24 shrink-0 space-y-1">
-                            <Label className="text-xs text-muted-foreground">จำนวน</Label>
-                            <Input
-                              type="number"
-                              min="1"
-                              step="1"
-                              placeholder="0"
-                              value={row.quantity}
-                              onChange={(e) => updateRow(i, { quantity: e.target.value })}
-                            />
-                          </div>
-                          <div className="w-20 sm:w-24 shrink-0 space-y-1">
-                            <Label className="text-xs text-muted-foreground">แต้ม</Label>
-                            <div
-                              className={cn(
-                                'h-10 flex items-center justify-end px-2 rounded-md border text-sm font-medium tabular-nums',
-                                rowPoints !== null
-                                  ? 'bg-emerald-50 border-emerald-300 text-foreground font-bold dark:bg-emerald-950/40 dark:text-emerald-200'
-                                  : 'bg-muted border-border text-muted-foreground',
-                              )}
-                            >
-                              {rowPoints !== null ? `+${rowPoints}` : '—'}
+                          {rows.length > 1 && (
+                            <div className="flex justify-between items-center border-b border-border pb-2 mb-2">
+                              <span className="text-xs font-bold text-muted-foreground">ประเภทที่ {i + 1}</span>
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => removeRow(i)}
+                                className="text-destructive h-7 px-2 gap-1 hover:bg-destructive/10"
+                              >
+                                <X className="w-3.5 h-3.5" /> ลบรายการนี้
+                              </Button>
+                            </div>
+                          )}
+
+                          {/* Category Radio Grid */}
+                          <div className="space-y-2">
+                            <Label className="text-xs text-muted-foreground font-semibold">เลือกประเภทขยะ</Label>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+                              {categories.map((c) => {
+                                const isSelected = row.category_id === c.id;
+                                return (
+                                  <button
+                                    key={c.id}
+                                    type="button"
+                                    onClick={() => updateRow(i, { category_id: c.id })}
+                                    className={cn(
+                                      "flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all text-center gap-1.5 cursor-pointer relative",
+                                      isSelected
+                                        ? "border-primary bg-primary/5 text-primary shadow-sm scale-102 font-semibold"
+                                        : "border-border bg-card text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                                    )}
+                                  >
+                                    {isSelected && (
+                                      <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary" />
+                                    )}
+                                    <span className="text-2xl leading-none">{c.icon || '♻️'}</span>
+                                    <div className="space-y-0.5 min-w-0 w-full">
+                                      <div className="text-xs font-bold truncate">{c.name}</div>
+                                      <div className="text-[10px] opacity-80">{c.points_per_item} แต้ม</div>
+                                    </div>
+                                  </button>
+                                );
+                              })}
                             </div>
                           </div>
-                          <Button
-                            type="button"
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => removeRow(i)}
-                            disabled={rows.length === 1}
-                            className="text-destructive shrink-0"
-                            title={rows.length === 1 ? 'อย่างน้อย 1 แถว' : 'ลบแถวนี้'}
-                          >
-                            <X className="w-4 h-4" />
-                          </Button>
+
+                          <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                            <div className="w-full sm:w-32 space-y-1">
+                              <Label className="text-xs text-muted-foreground font-semibold">จำนวน (ชิ้น)</Label>
+                              <Input
+                                type="number"
+                                min="1"
+                                step="1"
+                                placeholder="0"
+                                value={row.quantity}
+                                onChange={(e) => updateRow(i, { quantity: e.target.value })}
+                                className="font-semibold text-base"
+                              />
+                            </div>
+                            <div className="flex-1 space-y-1">
+                              <Label className="text-xs text-muted-foreground font-semibold">แต้มที่ได้รับ</Label>
+                              <div
+                                className={cn(
+                                  'h-10 flex items-center justify-end px-3 rounded-md border text-sm font-medium tabular-nums',
+                                  rowPoints !== null
+                                    ? 'bg-emerald-50 border-emerald-300 text-foreground font-bold dark:bg-emerald-950/40 dark:text-emerald-200'
+                                    : 'bg-muted border-border text-muted-foreground',
+                                )}
+                              >
+                                {rowPoints !== null ? `+${rowPoints} แต้ม` : '—'}
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       );
                     })}
