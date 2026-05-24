@@ -31,6 +31,11 @@ import { RewardCard } from '@/components/rewards/RewardCard';
 import { RewardClaimDialog } from '@/components/rewards/RewardClaimDialog';
 import { cn } from '@/lib/utils';
 
+function cleanThaiTitle(name: string | null): string | null {
+  if (!name) return null;
+  return name.trim().replace(/^(นาย|นางสาว|นาง|ดร\.|ครู|อาจารย์)\s*/, '');
+}
+
 export default function RewardsCatalog() {
   const [selected, setSelected] = useState<Reward | null>(null);
   const [claimOpen, setClaimOpen] = useState(false);
@@ -214,7 +219,7 @@ export default function RewardsCatalog() {
                     {t.name.slice(0, 1)}
                   </div>
                 )}
-                <span>ครู{t.name.split(' ')[0]}</span>
+                <span>ครู{cleanThaiTitle(t.name)}</span>
               </button>
             ))}
           </div>

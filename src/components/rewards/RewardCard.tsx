@@ -10,6 +10,11 @@ interface RewardCardProps {
   onClaim: (reward: Reward) => void;
 }
 
+function cleanThaiTitle(name: string | null): string | null {
+  if (!name) return null;
+  return name.trim().replace(/^(นาย|นางสาว|นาง|ดร\.|ครู|อาจารย์)\s*/, '');
+}
+
 export function RewardCard({ reward, onClaim }: RewardCardProps) {
   const tier = tierFor(reward.points_cost);
   const outOfStock = reward.stock !== null && reward.stock !== undefined && reward.stock <= 0;
@@ -87,7 +92,7 @@ export function RewardCard({ reward, onClaim }: RewardCardProps) {
                 </div>
               )}
               <span className="text-[10.5px] font-bold text-slate-800 dark:text-slate-100 truncate max-w-[95px] sm:max-w-[125px]">
-                ครู{ownerName?.split(' ')[0]}
+                ครู{cleanThaiTitle(ownerName)}
               </span>
             </>
           )}
