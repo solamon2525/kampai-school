@@ -70,13 +70,13 @@ export function RewardCard({ reward, onClaim }: RewardCardProps) {
         )}
 
         {/* Floating Teacher / Central Owner Capsule — bottom-right */}
-        <div className="absolute bottom-2.5 right-2.5 z-10 flex items-center gap-1.5 bg-background/98 dark:bg-background/95 backdrop-blur-md p-1 pr-3 rounded-full border border-border/80 shadow-md transition-all duration-300 group-hover:translate-y-[-2px] group-hover:shadow-lg">
+        <div className="absolute bottom-2.5 right-2.5 z-10 flex items-center gap-1.5 bg-white p-1 pr-3 rounded-full border border-border/80 shadow-md transition-all duration-300 group-hover:translate-y-[-2px] group-hover:shadow-lg">
           {isCentral ? (
             <>
               <div className="w-6 h-6 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center shadow-sm shrink-0">
                 <Globe2 className="w-3.5 h-3.5 text-white animate-spin-slow" />
               </div>
-              <span className="text-[10px] font-bold text-sky-800 dark:text-sky-300">รางวัลกลาง</span>
+              <span className="text-[10px] font-bold text-sky-800">รางวัลกลาง</span>
             </>
           ) : (
             <>
@@ -91,7 +91,7 @@ export function RewardCard({ reward, onClaim }: RewardCardProps) {
                   {(ownerName || '?').slice(0, 1)}
                 </div>
               )}
-              <span className="text-[10.5px] font-bold text-slate-800 dark:text-slate-100 truncate max-w-[95px] sm:max-w-[125px]">
+              <span className="text-[10.5px] font-bold text-slate-800 truncate max-w-[95px] sm:max-w-[125px]">
                 ครู{cleanThaiTitle(ownerName)}
               </span>
             </>
