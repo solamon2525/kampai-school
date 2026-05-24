@@ -2,6 +2,7 @@ import { Gift, Sparkles, Package, Globe2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import { tierFor } from './tier';
 import type { Reward } from '@/services/waste-bank.service';
 
@@ -16,6 +17,7 @@ function cleanThaiTitle(name: string | null): string | null {
 }
 
 export function RewardCard({ reward, onClaim }: RewardCardProps) {
+  const { settings } = useSchoolSettings();
   const tier = tierFor(reward.points_cost);
   const outOfStock = reward.stock !== null && reward.stock !== undefined && reward.stock <= 0;
 
@@ -73,9 +75,17 @@ export function RewardCard({ reward, onClaim }: RewardCardProps) {
         <div className="absolute bottom-2.5 right-2.5 z-10 flex flex-col items-center gap-1.5 bg-white/95 backdrop-blur-md p-1.5 pb-2 rounded-xl border border-border/80 shadow-md transition-all duration-300 group-hover:translate-y-[-2px] group-hover:shadow-lg w-[84px]">
           {isCentral ? (
             <>
-              <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center shadow-sm shrink-0">
-                <Globe2 className="w-7 h-7 text-white animate-spin-slow" />
-              </div>
+              {settings.school_logo_url ? (
+                <img
+                  src={settings.school_logo_url}
+                  alt={settings.school_name || 'โลโก้โรงเรียน'}
+                  className="w-16 h-16 rounded-lg object-cover shadow-sm shrink-0 ring-1 ring-yellow-400/30"
+                />
+              ) : (
+                <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center shadow-sm shrink-0">
+                  <Globe2 className="w-7 h-7 text-white animate-spin-slow" />
+                </div>
+              )}
               <span className="text-[10px] font-bold text-sky-800 text-center leading-none mt-1">รางวัลกลาง</span>
             </>
           ) : (
