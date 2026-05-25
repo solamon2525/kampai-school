@@ -256,12 +256,14 @@ export const BackupsTabContent = ({ summaries, fetchSummaries }: Props) => {
     try {
       // Export summaries
       downloadCSV(
-        'สำรองยอดฝากสะสมธนาคารพอเพียง',
-        ['รหัสนักเรียน', 'ยอดเงินคงเหลือ', 'จำนวนรายการสะสม'],
+        'สำรองยอดเงินฝากสะสมธนาคารพอเพียง',
+        ['รหัสประจำตัวนักเรียน', 'ชื่อ-นามสกุล', 'ชั้นเรียน', 'ยอดเงินคงเหลือ (บาท)', 'จำนวนรายการสะสม'],
         summaries.map(s => [
-          s.students?.student_code || s.student_id,
-          s.current_balance ?? 0,
-          s.total_transactions ?? 0
+          s.student_code || '—',
+          s.full_name || '—',
+          s.class_name || '—',
+          Number(s.current_balance ?? 0).toFixed(2),
+          String(s.total_transactions ?? 0)
         ])
       );
       toast({ title: 'ส่งออกข้อมูลเรียบร้อย', description: 'กำลังจัดเตรียมไฟล์ CSV สรุปยอดบัญชีเพื่อดาวน์โหลด...' });
