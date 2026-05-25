@@ -185,7 +185,7 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 // 1. EMBED detection
-const EMBED = (window.parent !== window) &&
+const EMBED = (window.parent !== window) ||
               (new URLSearchParams(location.search).get('embed') === '1');
 
 // 2. STUDENT_CODE + SESSION_START_TS (ติดตาม student + duration)

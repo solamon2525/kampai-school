@@ -1068,7 +1068,7 @@
         /* ============================================
            SECTION A: EMBED MODE (postMessage)
            ============================================ */
-        const EMBED = (window.parent !== window) &&
+        const EMBED = (window.parent !== window) ||
                       (new URLSearchParams(location.search).get('embed') === '1');
         let STUDENT_CODE = null;
         let SESSION_START_TS = 0;

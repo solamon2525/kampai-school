@@ -734,6 +734,14 @@ const PlayingPanel = ({
   const [iframeSrc, setIframeSrc] = useState('');
 
   useEffect(() => {
+    // If it's a legacy local game (served from the local public/games folder),
+    // load it directly so that its query params (like ?embed=1) are preserved in the iframe URL search.
+    // Storage-based games (/edu-hub-games/) will still use the fetch -> Blob URL flow to solve content-type issues.
+    if (!url.includes('/edu-hub-games/')) {
+      setIframeSrc(url);
+      return;
+    }
+
     let blobUrl: string | null = null;
     setIframeSrc('');
 

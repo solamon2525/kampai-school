@@ -327,7 +327,7 @@
         // ─── Score tracking embed hook (kampai-school PlayGame wrapper) ───
         // Pattern: same as pizza-master-chef — detect ?embed=1, cache STUDENT_CODE,
         // post {type:'gameEnd', score, ...} to parent on game over.
-        const EMBED = (window.parent !== window) &&
+        const EMBED = (window.parent !== window) ||
                      (new URLSearchParams(location.search).get('embed') === '1');
         let STUDENT_CODE = null;
         let SESSION_START_TS = 0;
