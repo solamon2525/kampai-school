@@ -4,6 +4,7 @@ import { RolePortalLayout } from '@/components/portal/RolePortalLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { useActiveChild } from '@/hooks/useActiveChild';
 import { ChildSwitcher } from '@/components/parent/ChildSwitcher';
+import { LineConnectCard } from '@/components/parent/LineConnectCard';
 
 const MENU = [
     { id: 'dashboard', label: 'แดชบอร์ด', icon: LayoutDashboard, path: '/parent' },
@@ -42,6 +43,8 @@ export default function ParentDashboard() {
                         </CardContent>
                     </Card>
                 )}
+
+                <LineConnectCard />
 
                 <div className="grid md:grid-cols-2 gap-4">
                     {MENU.slice(1).map((item) => (

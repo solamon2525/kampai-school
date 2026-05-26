@@ -272,6 +272,22 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.32.0 (LINE Official Account Integration — replaces LINE Notify)',
+        date: 'ล่าสุด',
+        badge: 'bg-green-700',
+        items: [
+            'Migration 085 line_user_links + line_message_logs: schema สำหรับเก็บผู้ติดตาม LINE OA + log ทุก in/out message + RPC helper line_ids_for_users(uuid[]) (SECURITY DEFINER) ใช้ fanout ตอนส่ง',
+            'Edge function line-webhook (verify_jwt=false): รับ events จาก LINE — ตรวจ x-line-signature ด้วย HMAC-SHA256, follow → upsert profile, unfollow → mark is_followed=false, message → log + auto-reply text "ติดต่อครูประจำชั้น"',
+            'Edge function line-send (verify_jwt=true, admin/teacher): resolve user_ids → line_user_ids ผ่าน RPC → push text message ผ่าน LINE Messaging API + log ทุก attempt (status ok/error)',
+            'LineConnectCard ใน parent dashboard: แสดงสถานะ "เชื่อมต่อแล้ว" (พร้อมรูป profile + ปุ่มยกเลิก) หรือ "ยังไม่เชื่อมต่อ" (พร้อม "เพิ่มเพื่อน LINE" + QR + คำแนะนำ 3 ขั้น)',
+            'LineFollowersManager /admin/dashboard/line: admin manage ผู้ติดตาม 3 tabs (รอผูก / ผูกแล้ว / เลิกติดตาม) + ปุ่ม "ผูก" (ใส่ user UUID) + ปุ่ม "ทดสอบ" ส่งข้อความเฉพาะคน',
+            'Absence trigger v2: attendanceService.notifyAbsenceParents() ตอนนี้ fan-out ทั้ง send-push (Web Push) และ line-send (LINE) แบบขนาน — parent ที่มีอย่างใดอย่างหนึ่งหรือทั้งสองจะได้รับเสมอ',
+            'Sidebar + Cmd-K entries: "LINE OA" admin-only — รองรับ Cmd-K keywords "line", "oa", "notify", "broadcast"',
+            'Required Supabase secrets ก่อนใช้งาน: LINE_CHANNEL_SECRET (webhook signature), LINE_CHANNEL_ACCESS_TOKEN (Messaging API)',
+            'Required Vercel env: VITE_LINE_OA_BASIC_ID (basic ID ของ OA — ใช้สร้าง add-friend URL)',
+        ],
+    },
+    {
         version: 'v1.31.0 (Save Teachers — ปพ.5 / ปพ.6 Auto PDF Generation)',
         date: 'ล่าสุด',
         badge: 'bg-green-700',

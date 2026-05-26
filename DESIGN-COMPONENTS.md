@@ -224,6 +224,41 @@ const result = await aiAssistService.generate({
 
 ---
 
+### LineConnectCard (parent portal)
+
+แสดงสถานะการเชื่อมต่อ LINE OA สำหรับ parent (Rule 14.23)
+
+```tsx
+import { LineConnectCard } from '@/components/parent/LineConnectCard';
+<LineConnectCard />  // self-managing: detects linked status via lineService
+```
+
+**3 states:**
+- Loading → skeleton + spinner
+- Linked → profile picture + display name + ปุ่ม "ยกเลิกการเชื่อมต่อ"
+- Not linked → "เพิ่มเพื่อน LINE" button + show/hide QR + 3-step instructions
+
+**Required env:** `VITE_LINE_OA_BASIC_ID` — ถ้าไม่ตั้งจะแสดง warning "ยังไม่ได้ตั้งค่า"
+
+---
+
+### LineFollowersManager (admin)
+
+หน้า `/admin/dashboard/line` — manage ผู้ติดตาม LINE OA
+
+```tsx
+import { LineFollowersManager } from '@/components/admin/line/LineFollowersManager';
+<LineFollowersManager />
+```
+
+**3 tabs:** รอผูก / ผูกแล้ว / เลิกติดตาม
+**Actions per row:** "ผูก" (เปิด dialog ใส่ user UUID) + "ทดสอบ" (ส่งข้อความ test ตามใจ)
+**Test text:** กำหนดได้ที่ Card ด้านบน — ใช้ร่วมทั้งหน้า
+
+ใช้ `lineService.send({ line_user_ids: [...] })` — ส่งตรงไปยัง LINE userId ไม่ผ่าน user_id
+
+---
+
 ### PushPermissionBanner (shared — global)
 
 Mount ใน `App.tsx` ระดับ root. แสดงเฉพาะเมื่อ login + permission default + ไม่ได้กดไว้ก่อนใน 7 วันที่ผ่านมา

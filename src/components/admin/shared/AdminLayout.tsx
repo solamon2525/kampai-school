@@ -131,6 +131,7 @@ const menuItems: MenuItem[] = [
     { type: 'item', id: 'system-overview', label: 'ภาพรวมระบบ', icon: Info, path: '/admin/dashboard/system-overview', adminOnly: true },
     { type: 'item', id: 'ai-assist', label: 'AI ผู้ช่วยครู', icon: Sparkles, path: '/admin/dashboard/ai-assist' },
     { type: 'item', id: 'papor', label: 'ปพ.5 / ปพ.6 (PDF)', icon: FileText, path: '/admin/dashboard/papor' },
+    { type: 'item', id: 'line', label: 'LINE OA', icon: MessageCircle, path: '/admin/dashboard/line', adminOnly: true },
 ];
 
 // Extract active tab from pathname

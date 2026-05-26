@@ -79,6 +79,7 @@ export const STATIC_COMMANDS: CommandEntry[] = [
   { id: 'adm-settings', label: 'ตั้งค่าระบบ', group: 'แอดมิน', icon: Settings, roles: ['admin'], action: { type: 'navigate', path: '/admin/dashboard/settings' } },
   { id: 'adm-system', label: 'ภาพรวมระบบ (Version)', group: 'แอดมิน', icon: Sparkles, roles: ['admin'], action: { type: 'navigate', path: '/admin/dashboard/system-overview' } },
   { id: 'adm-ai-assist', label: 'AI ผู้ช่วยครู (Claude)', group: 'แอดมิน', icon: Sparkles, roles: ['admin', 'teacher'], keywords: ['ai', 'claude', 'lesson', 'exam', 'comment', 'gpt'], action: { type: 'navigate', path: '/admin/dashboard/ai-assist' } },
+  { id: 'adm-line', label: 'LINE OA — ผู้ติดตาม', group: 'แอดมิน', icon: Sparkles, roles: ['admin'], keywords: ['line', 'oa', 'message', 'notify', 'broadcast'], action: { type: 'navigate', path: '/admin/dashboard/line' } },
   { id: 'adm-papor', label: 'สร้างเอกสาร ปพ.5 / ปพ.6', group: 'แอดมิน', icon: FileText, roles: ['admin', 'teacher'], keywords: ['papor', 'transcript', 'report', 'card', 'ปพ', 'สมุดพก', 'pdf'], action: { type: 'navigate', path: '/admin/dashboard/papor' } },
 
   // ── Teacher ──────────────────────────────────────────────

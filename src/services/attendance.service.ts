@@ -105,19 +105,35 @@ export const attendanceService = {
       }
 
       await Promise.all(
-        Array.from(byParent.entries()).map(([userId, names]) => {
+        Array.from(byParent.entries()).flatMap(([userId, names]) => {
           const childNames = Array.from(new Set(names)).join(', ');
           const body = `${childNames} ขาดเรียน${attendanceDate ? ` วันที่ ${attendanceDate}` : ''} — กรุณาตรวจสอบ`;
-          return supabase.functions.invoke('send-push', {
-            body: {
-              user_ids: [userId],
-              topic: 'absence',
-              title: 'แจ้งเตือนการเข้าเรียน',
-              body,
-              url: '/parent/attendance',
-              tag: `absence-${attendanceDate ?? 'today'}`,
-            },
-          });
+          const url = '/parent/attendance';
+          // Fan out to BOTH Web Push and LINE OA — each parent may have one,
+          // the other, or both linked. Failures are caught individually.
+          return [
+            supabase.functions
+              .invoke('send-push', {
+                body: {
+                  user_ids: [userId],
+                  topic: 'absence',
+                  title: 'แจ้งเตือนการเข้าเรียน',
+                  body,
+                  url,
+                  tag: `absence-${attendanceDate ?? 'today'}`,
+                },
+              })
+              .catch(() => {}),
+            supabase.functions
+              .invoke('line-send', {
+                body: {
+                  user_ids: [userId],
+                  text: `[โรงเรียนคำไผ่] แจ้งเตือนการเข้าเรียน\n🔴 ${body}`,
+                  url: typeof window !== 'undefined' ? `${window.location.origin}${url}` : url,
+                },
+              })
+              .catch(() => {}),
+          ];
         }),
       );
     } catch (e) {

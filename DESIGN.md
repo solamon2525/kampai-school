@@ -653,6 +653,20 @@ grep -A 20 "table_name_here" src/integrations/supabase/types.ts
 - **Data source:** ดึงจาก score_records + attendance_records + conduct_scores เท่านั้น — **ห้าม** Mock หรือ hardcode ตัวอย่าง
 - **Disclaimer:** ปุ่ม download ต้องมีข้อความเตือน "กรุณาตรวจสอบก่อนส่ง" — ระบบไม่รับผิดชอบความถูกต้องของข้อมูลก่อนส่งราชการ
 
+### Rule 14.23 — LINE Official Account Integration (M085)
+
+ทดแทน LINE Notify ที่ปิดไป 1 เม.ย. 2025
+
+- **Schema source of truth:** `line_user_links` — ห้ามเก็บ line_user_id ในตารางอื่น
+- **Webhook URL ใน LINE Console:** `https://lkpqssbqxxpasidfqhpb.supabase.co/functions/v1/line-webhook` (verify_jwt=false, ใช้ x-line-signature แทน)
+- **Signature verification:** HMAC-SHA256 + base64 + constant-time compare — **ห้าม** skip ในทุกกรณี
+- **Required secrets (Supabase Edge Functions):** `LINE_CHANNEL_SECRET`, `LINE_CHANNEL_ACCESS_TOKEN` — ห้าม commit
+- **Required Vercel env:** `VITE_LINE_OA_BASIC_ID` (จาก LINE OA Manager → ตั้งค่า → ID) → ใช้สร้าง add-friend URL `https://line.me/R/ti/p/@{basicId}`
+- **ส่งข้อความ:** ทุกครั้งต้องผ่าน `line-send` edge function — **ห้าม** call LINE Messaging API ตรงจาก client (access token = secret)
+- **Fan-out pattern:** เมื่อมี event ที่ต้อง notify (absence, score, news) → call `send-push` + `line-send` **คู่กัน** แบบขนาน (Promise.all) — parent ที่มีอย่างใดอย่างหนึ่งก็พอ
+- **Log audit:** ทุก in/out message ต้องบันทึก `line_message_logs` — admin ใช้ตรวจการส่ง
+- **Rate limit:** LINE OA Free plan = 200 messages/month — production ควรอัป plan หรือใช้ broadcast แทน per-user push เมื่อส่ง mass message
+
 ### Rule 14.20 — Multi-Child Parent Architecture (M083)
 
 - **Source of truth:** ตาราง `parent_student_links` (many-to-many) — **ห้าม** อ่าน `user_roles.student_id` โดยตรงสำหรับ parent อีกต่อไป
