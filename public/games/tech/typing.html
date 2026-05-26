@@ -218,5 +218,32 @@ function restartGame(){
 loadSentence();
 document.getElementById("type-input").focus();
 </script>
+<script>
+// iframe-safe navigation interceptor (kampai PlayGame wrapper)
+(function() {
+  const EMBED = (window.parent !== window) ||
+                (new URLSearchParams(location.search).get('embed') === '1');
+  if (!EMBED) return;
+  function navigateTo(href) {
+    if (href && href.includes('/educational-hub/a5f53911-b9cb-465a-b963-7202bcb907b1')) {
+      href = '/h/natthapong';
+    }
+    try { window.parent.postMessage({ type: 'navigate', to: href }, '*'); } catch (_) {}
+  }
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('a[target="_top"], a[href*="educational-hub"], a[href*="/h/"], a.back').forEach(a => {
+      a.addEventListener('click', (e) => { e.preventDefault(); navigateTo(a.getAttribute('href')); });
+    });
+    document.querySelectorAll('button[onclick*="location.href"]').forEach(btn => {
+      const onclick = btn.getAttribute('onclick') || '';
+      const m = onclick.match(/location\.href\s*=\s*['"]([^'"]+)['"]/);
+      if (m) {
+        btn.removeAttribute('onclick');
+        btn.addEventListener('click', (e) => { e.preventDefault(); navigateTo(m[1]); });
+      }
+    });
+  });
+})();
+</script>
 </body>
 </html>
