@@ -278,7 +278,7 @@ export default function RewardsCatalog() {
           </DialogHeader>
           <div className="flex flex-col items-center justify-center p-6 space-y-4">
             {selectedClaimQr && (
-              <div className="bg-white p-3.5 rounded-xl shadow-sm border border-border">
+              <div className="bg-card p-3.5 rounded-xl shadow-sm border border-border">
                 <QRCode value={selectedClaimQr} size={180} />
               </div>
             )}

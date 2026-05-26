@@ -76,7 +76,7 @@ const ContactFormBlock = () => {
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+    <div className="bg-card border border-border rounded-lg shadow-sm p-4">
       <h3 className="text-sm font-bold mb-3">✉️ ส่งข้อความถึงโรงเรียน</h3>
       <div className="space-y-3">
         <input
@@ -628,7 +628,7 @@ export const useHomeMainBlocks = () => {
       )}
     </motion.div>
   ) : featuredHeroLoading ? (
-    <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex flex-col items-center justify-center space-y-3 h-72">
+    <div className="bg-card border border-border rounded-2xl p-6 shadow-sm flex flex-col items-center justify-center space-y-3 h-72">
       <div className="w-8 h-8 rounded-full border-4 border-amber-400 border-t-transparent animate-spin" />
       <p className="text-xs text-muted-foreground font-semibold">กำลังดึงข้อมูล Kampai Hero Profile...</p>
     </div>
@@ -720,7 +720,7 @@ export const useHomeMainBlocks = () => {
       whileInView="visible"
       viewport={{ once: true, amount: 0.15 }}
       variants={slideUpVariants}
-      className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden"
+      className="bg-card border border-border rounded-lg shadow-sm overflow-hidden"
     >
       <div className="bg-primary text-primary-foreground px-4 py-2 flex items-center justify-between">
         <span className="font-semibold text-sm flex items-center gap-2">
@@ -788,7 +788,7 @@ export const useHomeMainBlocks = () => {
   ) : null;
 
   const aboutSection = (
-    <div key="about" className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+    <div key="about" className="bg-card border border-border rounded-lg shadow-sm p-4">
       <div className="flex items-center gap-2 mb-3">
         <span className="text-xs font-bold text-primary uppercase tracking-wider border-l-4 border-primary pl-2">ABOUT</span>
         <span className="text-xs text-gray-400">—</span>
@@ -802,7 +802,7 @@ export const useHomeMainBlocks = () => {
   );
 
   const calendarSection = events.length > 0 ? (
-    <div key="calendar" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+    <div key="calendar" className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
       <div className="bg-primary text-primary-foreground px-4 py-2 flex items-center justify-between">
         <span className="font-semibold text-sm flex items-center gap-2">
           <span className="w-1 h-4 bg-yellow-400 rounded-full inline-block" />
@@ -833,7 +833,7 @@ export const useHomeMainBlocks = () => {
   const videoThumb = (settings as any).intro_video_thumbnail as string | undefined
     || 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=800';
   const videoSection = (
-    <div key="video" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+    <div key="video" className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
       <div className="bg-primary text-primary-foreground px-4 py-2">
         <span className="font-semibold text-sm">🎬 แนะนำโรงเรียน</span>
       </div>
@@ -907,7 +907,7 @@ export const useHomeMainBlocks = () => {
     }
   })();
   const quicklinksSection = (
-    <div key="quicklinks" className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+    <div key="quicklinks" className="bg-card border border-border rounded-lg shadow-sm p-4">
       <h3 className="text-sm font-bold text-center mb-3">🔗 เมนูด่วน</h3>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         {quicklinks.map((link: { icon: string; label: string; href: string }, i: number) => (
@@ -940,7 +940,7 @@ export const useHomeMainBlocks = () => {
       whileInView="visible"
       viewport={{ once: true, amount: 0.1 }}
       variants={staggerContainerVariants}
-      className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden"
+      className="bg-card border border-border rounded-lg shadow-sm overflow-hidden"
     >
       <div className="bg-primary text-primary-foreground px-4 py-2 flex items-center justify-between">
         <span className="font-semibold text-sm flex items-center gap-2">
@@ -983,7 +983,7 @@ export const useHomeMainBlocks = () => {
 
   // ─── NEW: Blog Carousel ─────────────────────────────────
   const blogCarouselSection = blogNews.length > 0 ? (
-    <div key="blog_carousel" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+    <div key="blog_carousel" className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
       <div className="bg-primary text-primary-foreground px-4 py-2 flex items-center justify-between">
         <span className="font-semibold text-sm">🎠 บทความแนะนำ</span>
         <Link to="/news" className="text-xs text-yellow-300 hover:text-yellow-100">ดูทั้งหมด →</Link>
@@ -1012,7 +1012,7 @@ export const useHomeMainBlocks = () => {
 
   // ─── NEW: Blog List ─────────────────────────────────────
   const blogListSection = blogNews.length > 0 ? (
-    <div key="blog_list" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+    <div key="blog_list" className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
       <div className="bg-primary text-primary-foreground px-4 py-2 flex items-center justify-between">
         <span className="font-semibold text-sm">📋 บทความทั้งหมด</span>
         <Link to="/news" className="text-xs text-yellow-300 hover:text-yellow-100">ดูทั้งหมด →</Link>
@@ -1042,7 +1042,7 @@ export const useHomeMainBlocks = () => {
 
   // ─── NEW: Testimonials (DB-backed with fallback) ──────────────────────────────────
   const testimonialsSection = (
-    <div key="testimonials" className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+    <div key="testimonials" className="bg-card border border-border rounded-lg shadow-sm p-4">
       <h3 className="text-sm font-bold text-center mb-4">💬 เสียงจากนักเรียนและผู้ปกครอง</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {testimonials.map((t) => (
@@ -1058,7 +1058,7 @@ export const useHomeMainBlocks = () => {
 
   // ─── NEW: FAQ Accordion ─────────────────────────────────
   const faqAccordionSection = (
-    <div key="faq_accordion" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+    <div key="faq_accordion" className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
       <div className="bg-primary text-primary-foreground px-4 py-2">
         <span className="font-semibold text-sm">❓ คำถามที่พบบ่อย</span>
       </div>
@@ -1121,7 +1121,7 @@ export const useHomeMainBlocks = () => {
 
   // ─── Partner Links — compact row list: small logo + name ─────────────────────────
   const partnerLogosSection = (
-    <div key="partner_logos" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+    <div key="partner_logos" className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
       <div className="bg-primary text-primary-foreground px-4 py-2 flex items-center gap-2">
         <span className="w-1 h-4 bg-yellow-400 rounded-full inline-block" />
         <span className="font-semibold text-sm">🤝 หน่วยงานที่เกี่ยวข้อง</span>
@@ -1163,7 +1163,7 @@ export const useHomeMainBlocks = () => {
   // ─── NEW: Photo Album ───────────────────────────────────
   const photoAlbumItems = blogNews.filter(n => n.cover_image_url).slice(0, 8);
   const photoAlbumSection = photoAlbumItems.length > 0 ? (
-    <div key="photo_album" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+    <div key="photo_album" className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
       <div className="bg-primary text-primary-foreground px-4 py-2 flex items-center justify-between">
         <span className="font-semibold text-sm">📸 ภาพกิจกรรมล่าสุด</span>
         <Link to="/gallery" className="text-xs text-yellow-300 hover:text-yellow-100 flex items-center gap-1">
@@ -1185,7 +1185,7 @@ export const useHomeMainBlocks = () => {
   const DUMMY_MAP_URL = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3814.5!2d104.2!3d16.5!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTbCsDMwJzAuMCJOIDEwNMKwMTInMC4wIkU!5e0!3m2!1sen!2sth!4v1700000000000!5m2!1sen!2sth';
   const mapUrlToShow = settings.google_maps_embed || DUMMY_MAP_URL;
   const mapEmbedSection = (
-    <div key="map_embed" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+    <div key="map_embed" className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
       <div className="bg-primary text-primary-foreground px-4 py-2">
         <span className="font-semibold text-sm">🗺️ แผนที่โรงเรียน</span>
       </div>
@@ -1205,7 +1205,7 @@ export const useHomeMainBlocks = () => {
 
   // ─── NEW: OBEC E-Services ───────────────────────────────
   const obecSystemsSection = (
-    <div key="obec_systems" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+    <div key="obec_systems" className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
       <div className="bg-blue-800 text-white px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="bg-white/20 p-1.5 rounded-md">

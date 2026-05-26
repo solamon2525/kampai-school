@@ -472,7 +472,7 @@ export default function StudentHeroPublic() {
                   />
                 </div>
               )}
-              <Card className="border border-slate-200 shadow-xl overflow-hidden bg-white rounded-3xl">
+              <Card className="border border-border shadow-xl overflow-hidden bg-card rounded-3xl">
                 <div className="bg-gradient-to-br from-primary via-primary-light to-primary-deep text-primary-foreground p-8 text-center relative overflow-hidden">
                   <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
                   <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-yellow-400/10 rounded-full blur-2xl" />
@@ -552,7 +552,7 @@ export default function StudentHeroPublic() {
               animate={{ opacity: 1, scale: 1 }}
               className="max-w-md mx-auto my-12"
             >
-              <Card className="border-dashed border-2 border-slate-300 p-8 text-center rounded-3xl bg-white space-y-4">
+              <Card className="border-dashed border-2 border-border p-8 text-center rounded-3xl bg-card space-y-4">
                 <div className="mx-auto w-12 h-12 rounded-full bg-red-100 flex items-center justify-center text-red-600">
                   <AlertCircle className="w-6 h-6" />
                 </div>
@@ -605,7 +605,7 @@ export default function StudentHeroPublic() {
                 <div className="lg:col-span-3 space-y-6 order-2 lg:order-1">
                   
                   {/* Card 1: Level Progression Timeline */}
-                  <Card className="border border-slate-200 shadow-sm rounded-2xl overflow-hidden bg-white">
+                  <Card className="border border-border shadow-sm rounded-2xl overflow-hidden bg-card">
                     <CardHeader className="pb-3 bg-gradient-to-b from-slate-50 to-transparent">
                       <CardTitle className="text-sm font-black text-slate-800 flex items-center gap-1.5">
                         <Flame className="w-4 h-4 text-orange-500" />
@@ -631,7 +631,7 @@ export default function StudentHeroPublic() {
                                   ? "bg-yellow-400 border-yellow-500 scale-125 ring-2 ring-yellow-300" 
                                   : isReached 
                                     ? "bg-primary border-primary" 
-                                    : "bg-white border-slate-300"
+                                    : "bg-card border-border"
                               )} />
                               
                               <div className="space-y-0.5">
@@ -680,7 +680,7 @@ export default function StudentHeroPublic() {
                   </Card>
 
                   {/* Card 2: Micro-bars Virtue Metrics */}
-                  <Card className="border border-slate-200 shadow-sm rounded-2xl overflow-hidden bg-white">
+                  <Card className="border border-border shadow-sm rounded-2xl overflow-hidden bg-card">
                     <CardHeader className="pb-3 bg-gradient-to-b from-slate-50 to-transparent">
                       <CardTitle className="text-sm font-black text-slate-800 flex items-center gap-1.5">
                         <Star className="w-4 h-4 text-yellow-500 animate-pulse" />
@@ -725,7 +725,7 @@ export default function StudentHeroPublic() {
                 <div className="lg:col-span-6 space-y-6 order-1 lg:order-2">
                   
                   {/* Card 3: Main Profile Showcase Frame */}
-                  <Card className="border border-slate-200 shadow-lg rounded-3xl overflow-hidden bg-white relative">
+                  <Card className="border border-border shadow-lg rounded-3xl overflow-hidden bg-card relative">
                     
                     {/* Golden decorative bar top */}
                     <div className="h-2 w-full bg-gradient-to-r from-primary via-yellow-400 to-primary-deep" />
@@ -812,7 +812,7 @@ export default function StudentHeroPublic() {
                       {/* Psychological positive feedback message bubble */}
                       {highestVirtueInfo && (
                         <div className="w-full relative bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200/70 p-4.5 rounded-2xl flex items-start gap-3 shadow-inner">
-                          <div className="p-2 bg-white rounded-xl border border-emerald-200 shadow-sm text-lg">
+                          <div className="p-2 bg-card rounded-xl border border-emerald-200 shadow-sm text-lg">
                             💬
                           </div>
                           <div className="space-y-1">
@@ -837,7 +837,7 @@ export default function StudentHeroPublic() {
                           </DialogTrigger>
                           
                           {/* 📜 CERTIFICATE DIALOG CONTENT */}
-                          <DialogContent className="sm:max-w-[480px] rounded-3xl bg-white p-6 overflow-hidden max-h-[90vh] overflow-y-auto">
+                          <DialogContent className="sm:max-w-[480px] rounded-3xl bg-card p-6 overflow-hidden max-h-[90vh] overflow-y-auto">
                             <DialogHeader>
                               <DialogTitle className="text-lg font-black text-slate-800 text-center">
                                 ใบเกียรติบัตรความดีดิจิทัล
@@ -863,7 +863,7 @@ export default function StudentHeroPublic() {
                                 <p className="text-[9px] text-slate-500">โรงเรียนบ้านคำไผ่ สพป.กาฬสินธุ์ เขต 3</p>
                               </div>
 
-                              <div className="w-16 h-16 rounded-full border-2 border-amber-300 p-1 bg-white shadow">
+                              <div className="w-16 h-16 rounded-full border-2 border-amber-300 p-1 bg-card shadow">
                                 <PersonAvatar name={student.name} photoUrl={student.photo_url} size="md" className="rounded-full" />
                               </div>
 
@@ -882,7 +882,7 @@ export default function StudentHeroPublic() {
 
                               {/* Virtual QR code link */}
                               <div className="flex flex-col items-center space-y-1 pt-1">
-                                <div className="p-2 bg-white rounded-lg border border-slate-200">
+                                <div className="p-2 bg-card rounded-lg border border-border">
                                   {/* Custom QR representation */}
                                   <div className="w-16 h-16 bg-slate-900 flex items-center justify-center text-[10px] text-white font-bold p-1 rounded">
                                     <span className="border-4 border-white p-0.5 text-center leading-none text-[7px]">
@@ -930,7 +930,7 @@ export default function StudentHeroPublic() {
                 <div className="lg:col-span-3 space-y-6 order-3">
                   
                   {/* Card 4: Unlocked/Locked Badges Wall */}
-                  <Card className="border border-slate-200 shadow-sm rounded-2xl overflow-hidden bg-white">
+                  <Card className="border border-border shadow-sm rounded-2xl overflow-hidden bg-card">
                     <CardHeader className="pb-3 bg-gradient-to-b from-slate-50 to-transparent">
                       <CardTitle className="text-sm font-black text-slate-800 flex items-center gap-1.5">
                         <Award className="w-4 h-4 text-amber-500" />
@@ -981,7 +981,7 @@ export default function StudentHeroPublic() {
                   </Card>
 
                   {/* Card 5: Classroom Synergy Goal */}
-                  <Card className="border border-emerald-200 shadow-sm rounded-2xl overflow-hidden bg-white">
+                  <Card className="border border-emerald-200 shadow-sm rounded-2xl overflow-hidden bg-card">
                     <CardHeader className="pb-3 bg-gradient-to-b from-emerald-50/30 to-transparent">
                       <CardTitle className="text-sm font-black text-emerald-800 flex items-center gap-1.5">
                         <Target className="w-4 h-4 text-emerald-600 animate-pulse" />
@@ -1037,7 +1037,7 @@ export default function StudentHeroPublic() {
                   </Card>
 
                   {/* Card 6: Recent Deeds merit feed */}
-                  <Card className="border border-slate-200 shadow-sm rounded-2xl overflow-hidden bg-white">
+                  <Card className="border border-border shadow-sm rounded-2xl overflow-hidden bg-card">
                     <CardHeader className="pb-3 bg-gradient-to-b from-slate-50 to-transparent">
                       <CardTitle className="text-sm font-black text-slate-800 flex items-center gap-1.5">
                         <HeartHandshake className="w-4 h-4 text-pink-500" />

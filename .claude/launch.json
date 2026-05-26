@@ -3,10 +3,10 @@
   "configurations": [
     {
       "name": "dev",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["vite", "--host"],
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["dev", "--host"],
       "port": 8080,
-      "cwd": "C:\\Users\\Admin\\My Drive\\เว็บโรงเรียน\\school-website-template"
+      "cwd": "D:\\kampai-school-main"
     }
   ]
 }

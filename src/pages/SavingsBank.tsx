@@ -183,14 +183,14 @@ export default function SavingsBank() {
   }, [publicSummaries]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-background">
       <SEOHead
         title="ธนาคารพอเพียง — โรงเรียนคำไผ่"
         description="ระบบฝาก/ถอนเงินสำหรับนักเรียน สอนวินัยการออมตามหลักปรัชญาเศรษฐกิจพอเพียง"
       />
       <SiteHeader />
 
-      <main className="flex-1 max-w-7xl mx-auto w-full bg-white flex flex-col">
+      <main className="flex-1 max-w-7xl mx-auto w-full bg-background flex flex-col">
         {/* ─── HERO (asymmetric split, dark slate + gold accent) ──────────── */}
         <section className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
           {/* Subtle pattern overlay */}
@@ -271,7 +271,7 @@ export default function SavingsBank() {
         </section>
 
         {/* ─── STATS STRIP (asymmetric 4 cards) ───────────────────────────── */}
-        <section className="bg-white border-b border-slate-200">
+        <section className="bg-card border-b border-border">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-5">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
               <StatCard
@@ -357,7 +357,7 @@ export default function SavingsBank() {
                     <div className="text-xs font-bold uppercase tracking-[0.15em] text-slate-500 mb-2 text-center">
                       อันดับ 4 — 10
                     </div>
-                    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
                       {filteredSummaries.slice(3, 10).map((s, idx) => (
                         <div
                           key={s.student_id ?? idx}
@@ -399,7 +399,7 @@ export default function SavingsBank() {
         </section>
 
         {/* ─── RECENT ACTIVITY (timeline) ─────────────────────────────────── */}
-        <section className="bg-white">
+        <section className="bg-background">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
             <div className="mb-5">
               <div className="text-xs font-bold uppercase tracking-[0.15em] text-amber-600 mb-1.5">
@@ -467,7 +467,7 @@ export default function SavingsBank() {
         {/* ─── LOOKUP (private balance check) ─────────────────────────────── */}
         <section id="lookup" className="bg-slate-50">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-            <div className="bg-white rounded-2xl shadow-lg ring-1 ring-slate-200 overflow-hidden">
+            <div className="bg-card rounded-2xl shadow-lg ring-1 ring-border overflow-hidden">
               <div className="bg-slate-900 px-4 md:px-6 py-4">
                 <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-amber-400 mb-0.5">
                   Account Lookup
@@ -606,7 +606,7 @@ export default function SavingsBank() {
         </section>
 
         {/* ─── HOW IT WORKS (asymmetric zigzag, not equal cards) ──────────── */}
-        <section className="bg-white">
+        <section className="bg-background">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 py-5 md:py-6">
             <div className="text-center mb-4">
               <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-amber-600 mb-1">
@@ -691,7 +691,7 @@ const StatCard = ({
   }
 
   return (
-    <div className="bg-white rounded-xl p-3.5 md:p-4 ring-1 ring-slate-200 border-l-4 border-slate-900 hover:border-amber-500 hover:shadow-sm transition">
+    <div className="bg-card rounded-xl p-3.5 md:p-4 ring-1 ring-border border-l-4 border-slate-900 hover:border-amber-500 hover:shadow-sm transition">
       <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-600 mb-1.5">
         <span className="[&>svg]:w-4 [&>svg]:h-4">{icon}</span>
         {label}
@@ -726,7 +726,7 @@ const ClassChip = ({
       'px-4 py-2 rounded-full text-sm font-bold transition active:translate-y-px',
       active
         ? 'bg-slate-900 text-white shadow-md'
-        : 'bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-100',
+        : 'bg-card text-muted-foreground ring-1 ring-border hover:bg-muted/50',
     )}
   >
     {children}

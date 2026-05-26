@@ -58,6 +58,8 @@ const TeacherListManagement = lazy(() => import('@/components/admin/teachers/Tea
 const EduHubManagement = lazy(() => import('@/components/admin/educational-hub/EduHubManagement').then(m => ({ default: m.EduHubManagement })));
 const GamePlayDashboard = lazy(() => import('@/components/admin/games/GamePlayDashboard').then(m => ({ default: m.GamePlayDashboard })));
 const ScanRecorder = lazy(() => import('./admin/ScanRecorder'));
+const AiAssistPanel = lazy(() => import('@/components/admin/ai-assist/AiAssistPanel').then(m => ({ default: m.AiAssistPanel })));
+const PaporGenerator = lazy(() => import('@/components/admin/papor/PaporGenerator').then(m => ({ default: m.PaporGenerator })));
 
 // Loading spinner สำหรับ lazy-loaded admin pages — เปลี่ยนเป็น DashboardSkeleton ระดับพรีเมียม
 const AdminPageLoader = () => (
@@ -167,6 +169,8 @@ const AdminDashboard = () => {
             <Route path="faq" element={<PermissionGuard menuId="faq"><FaqManagement /></PermissionGuard>} />
             {/* ระบบ */}
             <Route path="system-overview" element={<PermissionGuard menuId="system-overview"><SystemOverview /></PermissionGuard>} />
+            <Route path="ai-assist" element={<AiAssistPanel />} />
+            <Route path="papor" element={<PaporGenerator />} />
             <Route path="notifications" element={<NotificationsManagement />} />
             <Route path="dashboard-school" element={<PermissionGuard menuId="dashboard-school"><DashboardSchoolManagement /></PermissionGuard>} />
             {/* Fallback */}

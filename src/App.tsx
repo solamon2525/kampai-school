@@ -12,6 +12,10 @@ import DynamicFavicon from "./components/DynamicFavicon";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { InstallBanner } from "./components/pwa/InstallBanner";
 import { OfflineIndicator } from "./components/shared/OfflineIndicator";
+import { CommandPaletteProvider } from "./hooks/useCommandPalette";
+import { CommandPalette } from "./components/shared/CommandPalette";
+import { PushPermissionBanner } from "./components/shared/PushPermissionBanner";
+import { ActiveChildProvider } from "./hooks/useActiveChild";
 
 // หน้าแรกโหลดทันที (Critical path)
 import Index from "./pages/Index";
@@ -116,8 +120,12 @@ const App = () => (
       <Sonner />
       <InstallBanner />
       <OfflineIndicator />
+      <PushPermissionBanner />
       <ErrorBoundary>
       <BrowserRouter>
+        <CommandPaletteProvider>
+        <ActiveChildProvider>
+        <CommandPalette />
         <PageViewTracker />
         <Suspense fallback={<PageLoader />}>
           <Routes>
@@ -197,6 +205,8 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
+        </ActiveChildProvider>
+        </CommandPaletteProvider>
       </BrowserRouter>
       </ErrorBoundary>
     </TooltipProvider>

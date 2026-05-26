@@ -12,46 +12,17 @@ export default defineConfig(() => ({
   plugins: [
     react(),
     VitePWA({
+      // InjectManifest strategy — uses our custom src/sw.ts so we can handle
+      // push events (GenerateSW can't). Runtime caching is implemented inside sw.ts.
+      strategies: "injectManifest",
+      srcDir: "src",
+      filename: "sw.ts",
       registerType: "autoUpdate",
       injectRegister: "auto",
       manifest: false,
-      skipWaiting: true,
-      clientsClaim: true,
       includeAssets: ["favicon.ico", "icons/apple-touch-icon-180x180.png"],
-      workbox: {
+      injectManifest: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,woff,woff2}"],
-        navigateFallback: "/index.html",
-        navigateFallbackDenylist: [/^\/api\//, /^\/games\//],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/.+\.supabase\.co\/.*/i,
-            handler: "NetworkOnly",
-          },
-          {
-            urlPattern: /\.(?:png|jpg|jpeg|webp|svg|gif)$/,
-            handler: "CacheFirst",
-            options: {
-              cacheName: "images",
-              expiration: { maxEntries: 60, maxAgeSeconds: 30 * 24 * 60 * 60 },
-            },
-          },
-          {
-            urlPattern: /\.(?:woff|woff2|ttf)$/,
-            handler: "CacheFirst",
-            options: {
-              cacheName: "fonts",
-              expiration: { maxEntries: 20, maxAgeSeconds: 365 * 24 * 60 * 60 },
-            },
-          },
-          {
-            urlPattern: /\.(?:css|js)$/,
-            handler: "NetworkFirst",
-            options: {
-              cacheName: "static-resources",
-              expiration: { maxEntries: 100, maxAgeSeconds: 0 },
-            },
-          },
-        ],
       },
       devOptions: { enabled: false },
     }),

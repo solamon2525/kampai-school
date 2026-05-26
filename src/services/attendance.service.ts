@@ -54,12 +54,74 @@ export const attendanceService = {
       .lte('attendance_date', endDate),
 
   /** บันทึกเช็คชื่อแบบ bulk (upsert) */
-  upsertBulk: (records: AttendanceUpsert[]) =>
-    supabase
+  upsertBulk: async (records: AttendanceUpsert[]) => {
+    const result = await supabase
       .from('attendance_records')
-      .upsert(records as never[], { onConflict: 'student_id,attendance_date' }),
+      .upsert(records as never[], { onConflict: 'student_id,attendance_date' });
+    // Fire-and-forget push for newly-marked absent students. Failures don't
+    // block the save — the user already saw their attendance write succeed.
+    if (!result.error) {
+      const absentIds = records.filter((r) => r.status === 'absent').map((r) => r.student_id);
+      if (absentIds.length) {
+        void attendanceService.notifyAbsenceParents(absentIds, records[0]?.attendance_date);
+      }
+    }
+    return result;
+  },
 
   /** ลบรายการเช็คชื่อ */
   delete: (id: string) =>
     supabase.from('attendance_records').delete().eq('id', id),
+
+  /**
+   * Look up parent user_ids for given students, then invoke send-push.
+   * Best-effort: any error is logged but never thrown.
+   */
+  async notifyAbsenceParents(studentIds: string[], attendanceDate?: string) {
+    try {
+      // Resolve student names for the push body
+      const { data: students } = await supabase
+        .from('students')
+        .select('id, name, class')
+        .in('id', studentIds);
+
+      const parentMap = new Map<string, { user_ids: string[]; name: string; cls?: string }>();
+      for (const sid of studentIds) {
+        const s = students?.find((x: any) => x.id === sid);
+        const { data: rows } = await supabase.rpc('parents_of_student' as any, { p_student_id: sid });
+        const userIds = (rows as any[] | null)?.map((r) => r.user_id) ?? [];
+        if (userIds.length) {
+          parentMap.set(sid, { user_ids: userIds, name: s?.name ?? '', cls: s?.class ?? undefined });
+        }
+      }
+
+      // Group by parent (each parent gets ONE push covering their children)
+      const byParent = new Map<string, string[]>();
+      for (const [, info] of parentMap) {
+        for (const uid of info.user_ids) {
+          if (!byParent.has(uid)) byParent.set(uid, []);
+          byParent.get(uid)!.push(info.name);
+        }
+      }
+
+      await Promise.all(
+        Array.from(byParent.entries()).map(([userId, names]) => {
+          const childNames = Array.from(new Set(names)).join(', ');
+          const body = `${childNames} ขาดเรียน${attendanceDate ? ` วันที่ ${attendanceDate}` : ''} — กรุณาตรวจสอบ`;
+          return supabase.functions.invoke('send-push', {
+            body: {
+              user_ids: [userId],
+              topic: 'absence',
+              title: 'แจ้งเตือนการเข้าเรียน',
+              body,
+              url: '/parent/attendance',
+              tag: `absence-${attendanceDate ?? 'today'}`,
+            },
+          });
+        }),
+      );
+    } catch (e) {
+      console.warn('notifyAbsenceParents failed (non-fatal):', e);
+    }
+  },
 };

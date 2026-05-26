@@ -350,7 +350,7 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
                   <div 
                     key={key} 
                     className={cn(
-                      "p-2.5 rounded-xl border border-slate-200 bg-white flex items-center justify-between gap-4 transition-all hover:translate-x-1 border-l-4", 
+                      "p-2.5 rounded-xl border border-border bg-card flex items-center justify-between gap-4 transition-all hover:translate-x-1 border-l-4", 
                       metric.accentBorder
                     )}
                   >
@@ -602,7 +602,7 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
                         isAdd ? "bg-emerald-500" : "bg-red-500"
                       )} />
 
-                      <div className="space-y-1 bg-white border border-slate-200 p-3 rounded-2xl shadow-sm">
+                      <div className="space-y-1 bg-card border border-border p-3 rounded-2xl shadow-sm">
                         <div className="flex justify-between items-start gap-2 flex-wrap">
                           <span className="text-[10px] font-bold text-slate-400">
                             {new Date(item.date).toLocaleDateString('th-TH', { year: '2-digit', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}

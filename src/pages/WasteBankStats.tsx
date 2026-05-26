@@ -354,7 +354,7 @@ const WasteBankStats = () => {
                   {categoryTotals.map((c) => (
                     <div
                       key={c.id}
-                      className="px-3 py-1.5 rounded-full bg-white border border-green-100 text-xs md:text-sm font-medium text-foreground shadow-sm flex items-center gap-1.5"
+                      className="px-3 py-1.5 rounded-full bg-card border border-green-100 text-xs md:text-sm font-medium text-foreground shadow-sm flex items-center gap-1.5"
                       title={`${c.name} (90 วันล่าสุด)`}
                     >
                       <span className="text-base leading-none">{c.icon ?? '♻️'}</span>

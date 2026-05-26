@@ -272,9 +272,56 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.28.0 (Thai Dates & Teacher Portal Scanner FAB Upgrades)',
+        version: 'v1.31.0 (Save Teachers — ปพ.5 / ปพ.6 Auto PDF Generation)',
         date: 'ล่าสุด',
         badge: 'bg-green-700',
+        items: [
+            'ปพ.5 (รายภาคเรียน) + ปพ.6 (รายปี) สร้าง PDF อัตโนมัติ: ดึงคะแนน scores_records + การมาเรียน attendance_records + ความประพฤติ conduct_scores ของนักเรียนแต่ละคน → ออก PDF พร้อมส่ง สพฐ. ลดเวลาครูจาก 3-5 วัน/เทอม เหลือไม่กี่นาที',
+            'หน้า /admin/dashboard/papor (admin + teacher): tab ปพ.5 / ปพ.6, เลือกปีการศึกษา + ภาคเรียน + ชั้น + นักเรียน → preview inline ผ่าน PDFViewer + ปุ่ม "ดาวน์โหลด" และ "ดาวน์โหลดทั้งห้อง" (bulk per class)',
+            'paporService: ฟังก์ชัน forStudentTerm() aggregate ข้อมูล + คำนวณเกรดตามเกณฑ์ สพฐ. 4-point (80=4, 75=3.5, ..., <50=0) + ช่วงวันที่ภาคเรียนตามรูปแบบไทย (เทอม 1 พ.ค.-ก.ย., เทอม 2 พ.ย.-มี.ค.)',
+            'React-PDF templates: PaporFive (1 หน้า/คน/ภาคเรียน) + PaporSix (1 หน้า/คน/ปี รวม 2 ภาคเรียน) — มี school header, นักเรียน info block, ตารางคะแนน, สรุปการมาเรียน, conduct summary, ลายเซ็น 3 ตำแหน่ง (ครูประจำชั้น/หัวหน้าวิชาการ/ผอ.)',
+            'Sarabun font embedded: bundle จาก @fontsource/sarabun (weights Thai 400+700) ไป public/fonts/ + Font.register() + Font.registerHyphenationCallback() ป้องกันตัดคำไทย',
+            'PDF generation 100% client-side (browser): ไม่ผ่าน server, ข้อมูลไม่หลุดออกจาก client — แต่ละ download trigger 1 ครั้ง ต่อนักเรียน, มี 150ms delay กันบราวเซอร์บล็อก bulk download',
+            'Command Palette + Sidebar entry: เพิ่ม "ปพ.5 / ปพ.6 (PDF)" — Cmd-K → "ปพ" หรือ "papor" หรือ "สมุดพก" ค้นเจอ',
+            'Dependencies: + @react-pdf/renderer@4.5.1, + @fontsource/sarabun@5.2.8',
+        ],
+    },
+    {
+        version: 'v1.30.0 (AI Assistant + Multi-child Parent + Absence Push Trigger)',
+        date: '',
+        badge: 'bg-slate-600',
+        items: [
+            'AI ผู้ช่วยครู (Anthropic Claude API): edge function ai-assist + service ai-assist.service.ts + admin/teacher UI หน้า /admin/dashboard/ai-assist พร้อม 4 modes — แผนการสอน (lesson_plan), ข้อสอบ (exam_questions, รูปแบบ ก./ข./ค./ง. + เฉลย), ความเห็นในสมุดพก (report_comment) ใช้ claude-haiku-4-5, แบบอิสระ (free)',
+            'Prompt caching: ใช้ cache_control: ephemeral บน system prompt → ลด input tokens ครั้งถัดไป (auto-tracked ใน ai_assist_log.cached_input_tokens)',
+            'Migration 084 ai_assist_log: บันทึก mode/model/token usage/duration/error → admin audit cost ได้ผ่าน RLS (user เห็นของตัวเอง, admin เห็นทุกคน)',
+            'Multi-child parent linking (Migration 083): parent_student_links many-to-many + RPC helpers my_children() และ parents_of_student() (SECURITY DEFINER) + backfill ผู้ปกครองเดิมจาก user_roles อัตโนมัติ',
+            'ChildSwitcher UI: ผู้ปกครองที่มีบุตรหลายคนสลับได้จาก parent dashboard header — เก็บ active child ใน localStorage, default เป็น is_primary',
+            'useActiveChild hook + ActiveChildProvider: context ใช้ทั่ว parent portal — แทน useLinkedRecord เดิมที่จำกัด 1 ลูก',
+            'Absence Push Trigger: เมื่อบันทึก attendance status="absent" → attendanceService.notifyAbsenceParents() resolve parent user_ids ผ่าน parents_of_student RPC → invoke send-push พร้อมชื่อบุตร + วันที่ (รวมหลายลูกใน 1 push ต่อผู้ปกครอง)',
+            'Command Palette entry: เพิ่ม "AI ผู้ช่วยครู (Claude)" ใน registry (admin + teacher) — Cmd-K → "AI" ค้นเจอ',
+            'Sidebar entry: "AI ผู้ช่วยครู" ใน AdminLayout menu (ทุก role ที่เข้า admin dashboard)',
+            'Env: ต้องตั้ง ANTHROPIC_API_KEY บน Supabase Edge Function secrets (ทางเลือก: ANTHROPIC_MODEL_FAST / ANTHROPIC_MODEL_SMART)',
+        ],
+    },
+    {
+        version: 'v1.29.0 (Quick Wins — Command Palette + Fuzzy Search + Web Push)',
+        date: '',
+        badge: 'bg-slate-600',
+        items: [
+            'Command Palette (Ctrl/Cmd+K): global dialog เรียกได้ทุกหน้า — รวม static commands ตามสิทธิ์ (admin/teacher/parent/public), shortcut overlay บน Admin top bar, mount ครั้งเดียวใน App.tsx ผ่าน CommandPaletteProvider',
+            'Global Fuzzy Search (Fuse.js): ค้นข้ามนักเรียน/บุคลากร/ข่าวจากช่องเดียวใน Cmd-K — debounce + แคชด้วย TanStack Query (staleTime 5 นาที), respect RLS via existing tables, แสดงเป็น group แยกตามประเภท พร้อม icon',
+            'Web Push Notifications (PWA): Migration 082 push_subscriptions + RLS (user เห็นของตัวเอง, admin อ่าน/ลบได้), สลับ vite-plugin-pwa จาก GenerateSW → InjectManifest พร้อม src/sw.ts ที่จัดการ push event + notificationclick + ย้าย workbox runtime caching เดิมมาให้ครบ',
+            'PushPermissionBanner: nudge ผู้ปกครอง/ครูเปิด permission — แสดงเมื่อ login + browser รองรับ + permission default, กดไว้ก่อนแล้วเงียบ 7 วัน, แสดงผ่าน sonner toast',
+            'send-push Edge Function: รับ {user_ids, topic, title, body, url} → ตรวจสิทธิ์ admin → ดึง subscription ผ่าน service role → ส่งผ่าน web-push (VAPID) → auto-prune subscription ที่ 404/410',
+            'Theme cleanup: ลบ bg-white / border-gray-200 / border-slate-200 / text-slate-700 hardcoded ออกจากหน้าหลัก (SavingsBank, StudentHeroPublic, WasteBank, RewardsCatalog) และบล็อก homepage (HomeMainContent, HomeLeftSidebar, HomeRightSidebar, KampaiHeroDashboard, SavingsBankParentView) → ใช้ bg-card / border-border / text-muted-foreground ตาม Rule 14',
+            'Dependencies: + cmdk (มีอยู่), + fuse.js@7, + web-push@3.6.7, + workbox-precaching/routing/strategies/expiration/core',
+            'Env: ต้องตั้ง VITE_VAPID_PUBLIC_KEY บน Vercel + VAPID_PRIVATE_KEY / VAPID_PUBLIC_KEY / VAPID_SUBJECT บน Supabase Edge Function secrets',
+        ],
+    },
+    {
+        version: 'v1.28.0 (Thai Dates & Teacher Portal Scanner FAB Upgrades)',
+        date: '',
+        badge: 'bg-slate-600',
         items: [
             'ระบบวันที่ภาษาไทย (Thai Localized Dates): ฟอร์แมตวันที่ภาษาไทยย่อ/เต็มแบบพรีเมียม (พ.ศ.) ในระบบบันทึกเวลาเรียน (Attendance), ธนาคารขยะ (Waste Bank), ธนาคารพอเพียง (Savings Bank), และระบบใบลา (Leave Management) ด้วย formatThaiDateCustom และ formatThaiDateRange',
             'ระบบจัดการสิทธิ์ Portal ครู (Teacher Portal Access & Navigation): ปรับปรุงการแสดงผลเมนูหลังบ้านบนแถบเมนูข้าง (Dynamic Sidebar) และการ์ดสวิตช์ระบบ (Back-office Welcomer Card) บนแดชบอร์ดของครูอัตโนมัติตามสิทธิ์ allowedMenus',

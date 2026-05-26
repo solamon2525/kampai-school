@@ -67,7 +67,7 @@ const WasteBankWidget = () => {
   const totalItems  = summaries.reduce((acc, s) => acc + Number(s.total_items ?? 0), 0);
 
   return (
-    <div className="bg-white rounded-2xl border border-green-100 shadow-sm overflow-hidden">
+    <div className="bg-card rounded-2xl border border-green-100 shadow-sm overflow-hidden">
       {/* Header */}
       <div className="bg-primary text-primary-foreground px-4 py-3 flex items-center gap-2">
         <Recycle className="w-5 h-5 text-white" />
@@ -164,7 +164,7 @@ const SavingsBankWidget = () => {
   const totalDeposits = rows.reduce((acc, r) => acc + Number(r.deposit_count ?? 0), 0);
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200 overflow-hidden">
+    <div className="bg-card rounded-2xl shadow-sm ring-1 ring-border overflow-hidden">
       {/* Header — Premium slate + gold accent */}
       <div className="bg-slate-900 px-4 py-3">
         <div className="text-[10px] font-bold uppercase tracking-[0.15em] text-amber-400 mb-0.5">
@@ -355,7 +355,7 @@ export const useHomeRightBlocks = () => {
     : ['categories','gallery','services','social','stats','waste_bank','savings_bank'];
 
   const categoriesWidget = (
-    <div key="categories" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+    <div key="categories" className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
       <div className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-2">รายการหมวดหมู่</div>
       <ul className="divide-y divide-gray-100">
         {categoryLinks.map((c) => (
@@ -376,7 +376,7 @@ export const useHomeRightBlocks = () => {
       initial="hidden"
       animate="visible"
       variants={staggerContainerVariants}
-      className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden"
+      className="bg-card border border-border rounded-lg shadow-sm overflow-hidden"
     >
       <div className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-2 flex items-center gap-1.5">
         <Image className="w-3.5 h-3.5" /> คลังรูปภาพ
@@ -434,7 +434,7 @@ export const useHomeRightBlocks = () => {
     : DUMMY_SOCIAL;
   const socialIsDummy = !(settings.social_links && settings.social_links.length > 0);
   const socialWidget = (
-    <div key="social" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+    <div key="social" className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
       <div className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-2">โซเชียลมีเดีย</div>
       <div className="p-3 flex flex-wrap gap-2">
         {socialLinksToShow.map((link, i) => {
@@ -455,7 +455,7 @@ export const useHomeRightBlocks = () => {
   );
 
   const statsWidget = (
-    <div key="stats" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+    <div key="stats" className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
       <div className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-2 flex items-center gap-1.5">
         <Users className="w-3.5 h-3.5" /> สถิติผู้เข้าชม
       </div>
@@ -477,7 +477,7 @@ export const useHomeRightBlocks = () => {
   );
 
   const documentsWidget = (
-    <div key="documents" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+    <div key="documents" className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
       <div className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-2 flex items-center gap-1.5">
         <FileText className="w-3.5 h-3.5" /> เอกสารล่าสุด
       </div>

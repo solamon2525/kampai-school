@@ -122,6 +122,132 @@ import { PersonAvatar } from '@/components/shared/PersonAvatar';
 
 ---
 
+### CommandPalette (shared — global)
+
+Global Cmd-K palette mount ครั้งเดียวใน `App.tsx` ภายใน `<CommandPaletteProvider>`. ทุก feature ใหม่ที่ navigable ควรเพิ่ม entry ใน registry (DESIGN.md Rule 14.18)
+
+```tsx
+// src/lib/commands/registry.ts
+import { Newspaper } from 'lucide-react';
+export const STATIC_COMMANDS: CommandEntry[] = [
+  {
+    id: 'adm-news-new',
+    label: 'เพิ่มข่าวใหม่',
+    group: 'แอดมิน',
+    icon: Newspaper,
+    roles: ['admin'],
+    keywords: ['add', 'create', 'new'],
+    action: { type: 'navigate', path: '/admin/dashboard/news?new=1' },
+  },
+];
+```
+
+**Trigger:** `useCommandPalette().setOpen(true)` หรือ hotkey Ctrl/Cmd+K (handled by provider)
+
+**Search results:** auto-fetched ผ่าน `globalSearchService.fetchIndex()` + Fuse.js — ไม่ต้อง wire เอง
+
+---
+
+### PaporGenerator (admin/teacher)
+
+หน้า `/admin/dashboard/papor` สร้างเอกสาร ปพ.5 / ปพ.6 อัตโนมัติจากข้อมูลในระบบ
+
+```tsx
+import { paporService } from '@/services/papor.service';
+
+// Aggregate one student's data for a term
+const data = await paporService.forStudentTerm(studentId, '2569', '1');
+// → { student, scores: [{subject, total, max, percent, grade}], attendance, conduct, averagePercent, averageGrade }
+
+// Render PDF (React-PDF)
+import { PaporFive } from '@/lib/pdf/papor/PaporFive';
+import { pdf } from '@react-pdf/renderer';
+const blob = await pdf(<PaporFive data={data} schoolName="..." />).toBlob();
+```
+
+**Components:**
+- `PaporFive` — ปพ.5, 1 หน้า/คน/ภาคเรียน
+- `PaporSix` — ปพ.6, 1 หน้า/คน/ปี (ภาค 1+2 side-by-side)
+
+**Grading scale:** สพฐ. 4-point (`percentToGrade()` exported จาก papor.service)
+
+**Font:** ทุก template เรียก `ensurePaporFontsRegistered()` ก่อนใช้ (idempotent)
+
+---
+
+### ChildSwitcher (parent portal — global)
+
+Popover ที่ให้ผู้ปกครองสลับลูก (Migration 083). Mount ใน parent dashboard header
+
+```tsx
+import { ChildSwitcher } from '@/components/parent/ChildSwitcher';
+import { useActiveChild } from '@/hooks/useActiveChild';
+
+const { activeChild, children: kids } = useActiveChild();
+// activeChild = ChildSummary | null (default = is_primary)
+{kids.length > 0 && <ChildSwitcher />}
+```
+
+**Behavior:**
+- 0 children → hidden
+- 1 child → static label (ไม่มี popover)
+- 2+ children → popover with search + checkmark on active
+
+**Persistence:** เก็บ active id ใน `localStorage['kampai_active_child_id']` — re-hydrate ตอน mount
+
+---
+
+### AiAssistPanel (admin/teacher)
+
+หน้า `/admin/dashboard/ai-assist` 4 modes (Tabs): lesson_plan, exam_questions, report_comment, free
+
+```tsx
+import { aiAssistService } from '@/services/ai-assist.service';
+
+const result = await aiAssistService.generate({
+  mode: 'lesson_plan',
+  input: { subject: 'คณิต', grade: 'ป.4', topic: 'การบวก', duration: '60' },
+  notes: 'เน้นกิจกรรมกลุ่ม',
+});
+// result = { text, model, usage: {input_tokens, output_tokens, cached}, duration_ms }
+```
+
+**Modes + required input fields:**
+| mode | fields |
+|---|---|
+| `lesson_plan` | subject, grade, topic, duration |
+| `exam_questions` | subject, grade, topic, count, difficulty |
+| `report_comment` | studentName, grade, strengths, improvements, conduct |
+| `free` | prompt |
+
+**ห้าม:** เรียก ai-assist จาก client ของ parent/student — backend จะ 403 (Rule 14.21)
+
+---
+
+### PushPermissionBanner (shared — global)
+
+Mount ใน `App.tsx` ระดับ root. แสดงเฉพาะเมื่อ login + permission default + ไม่ได้กดไว้ก่อนใน 7 วันที่ผ่านมา
+
+```tsx
+import { PushPermissionBanner } from '@/components/shared/PushPermissionBanner';
+<PushPermissionBanner />  // self-managing
+```
+
+**API ผ่าน `pushService`:**
+| method | ใช้เมื่อ |
+|---|---|
+| `pushService.isSupported()` | ก่อนแสดง UI ใดๆ ที่เกี่ยวกับ push |
+| `pushService.subscribe()` | ผู้ใช้กด "เปิดแจ้งเตือน" — return `{ok:true}` หรือ `{ok:false, reason}` |
+| `pushService.unsubscribe()` | settings page "ปิดการแจ้งเตือน" |
+| `pushService.getPermission()` | sync check ปัจจุบัน |
+
+**Push payload (จาก edge function):**
+```ts
+{ title: string, body: string, url?: string, icon?: string, tag?: string }
+```
+
+---
+
 ## 3. Replacement Mapping (Purple → Green tokens)
 
 ใช้ตารางนี้เมื่อ refactor ไฟล์ที่มี hardcoded purple:

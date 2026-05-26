@@ -156,7 +156,7 @@ export const SavingsBankParentView = ({ studentId, studentName }: Props) => {
       </div>
 
       {tab === 'overview' && (
-        <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200 p-6 space-y-4">
+        <div className="bg-card rounded-2xl shadow-sm ring-1 ring-border p-6 space-y-4">
           <h3 className="text-lg font-extrabold text-slate-900">เกี่ยวกับธนาคารพอเพียง</h3>
           <p className="text-slate-700 font-medium leading-relaxed">
             ธนาคารพอเพียงคือระบบฝากเงินสำหรับนักเรียน — สอนวินัยการออมตามหลักปรัชญาเศรษฐกิจพอเพียง
@@ -185,7 +185,7 @@ export const SavingsBankParentView = ({ studentId, studentName }: Props) => {
       )}
 
       {tab === 'history' && (
-        <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200 overflow-hidden">
+        <div className="bg-card rounded-2xl shadow-sm ring-1 ring-border overflow-hidden">
           {transactions.length === 0 ? (
             <div className="py-12">
               <EmptyState

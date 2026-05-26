@@ -51,7 +51,7 @@ export const useHomeLeftBlocks = () => {
   }, []);
 
   const principalBlock = (
-    <div key="principal" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+    <div key="principal" className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
       <div className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-2 flex items-center gap-1.5">
         <Users className="w-3.5 h-3.5" />
         ผู้อำนวยการโรงเรียน
@@ -82,7 +82,7 @@ export const useHomeLeftBlocks = () => {
   );
 
   const menuBlock = (
-    <div key="menu" className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+    <div key="menu" className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
       <div className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-2">
         เมนูทาง
       </div>

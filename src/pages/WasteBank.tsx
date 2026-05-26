@@ -301,7 +301,7 @@ const WasteBank = () => {
       </section>
 
       {/* ─── Animated Stats ───────────────────────────────────────────── */}
-      <section className="bg-white border-b border-border shadow-sm">
+      <section className="bg-card border-b border-border shadow-sm">
         <div className="max-w-5xl mx-auto px-4 py-6">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="flex items-center gap-4 p-4 rounded-xl bg-green-50 border border-green-100">
@@ -363,7 +363,7 @@ const WasteBank = () => {
                 ))}
               </div>
             ) : summaries.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground bg-white rounded-xl border border-border">
+              <div className="text-center py-12 text-muted-foreground bg-card rounded-xl border border-border">
                 <Recycle className="w-12 h-12 mx-auto mb-3 opacity-30" />
                 <p>ยังไม่มีข้อมูล</p>
               </div>
@@ -481,7 +481,7 @@ const WasteBank = () => {
                     <TabsTrigger
                       key={cls}
                       value={cls}
-                      className="data-[state=active]:bg-green-600 data-[state=active]:text-white rounded-full px-2.5 py-1 text-xs border border-green-200 bg-white"
+                      className="data-[state=active]:bg-green-600 data-[state=active]:text-white rounded-full px-2.5 py-1 text-xs border border-green-200 bg-card"
                     >
                       {cls}
                     </TabsTrigger>
@@ -546,7 +546,7 @@ const WasteBank = () => {
                 ))}
               </div>
             ) : recentTx.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground bg-white rounded-xl border border-border">
+              <div className="text-center py-12 text-muted-foreground bg-card rounded-xl border border-border">
                 <ClipboardList className="w-10 h-10 mx-auto mb-2 opacity-30" />
                 <p className="text-xs">ยังไม่มีรายการ</p>
               </div>
@@ -661,7 +661,7 @@ const WasteBank = () => {
             {hasSearched && (
               <div className="mt-3">
                 {searchResults.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground bg-white rounded-xl border border-border">
+                  <div className="text-center py-8 text-muted-foreground bg-card rounded-xl border border-border">
                     <ClipboardList className="w-10 h-10 mx-auto mb-2 opacity-30" />
                     <p className="text-xs">ไม่พบข้อมูลนักเรียน</p>
                     <p className="text-[10px] mt-0.5">ลองค้นหาด้วยชื่อหรือชั้นอื่น</p>
@@ -732,7 +732,7 @@ const WasteBank = () => {
             {HOW_IT_WORKS.map((item) => (
               <div
                 key={item.step}
-                className="bg-white rounded-xl p-4 shadow-sm border border-green-100 text-center flex flex-col items-center"
+                className="bg-card rounded-xl p-4 shadow-sm border border-green-100 text-center flex flex-col items-center"
               >
                 <div className="w-10 h-10 rounded-full bg-green-50 border-2 border-green-200 flex items-center justify-center mb-2 text-green-600">
                   {item.icon}

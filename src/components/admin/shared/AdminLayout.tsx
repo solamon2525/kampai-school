@@ -58,6 +58,8 @@ import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import { NotificationBell } from './NotificationBell';
 import { ScanFAB } from '@/components/shared/ScanFAB';
 import { CameraPermissionPrompt } from '@/components/shared/CameraPermissionPrompt';
+import { useCommandPalette } from '@/hooks/useCommandPalette';
+import { Search } from 'lucide-react';
 
 interface AdminLayoutProps {
     children: ReactNode;
@@ -127,6 +129,8 @@ const menuItems: MenuItem[] = [
     { type: 'item', id: 'faq', label: 'FAQ', icon: HelpCircle, path: '/admin/dashboard/faq', adminOnly: true },
     { type: 'section', label: 'ระบบ' },
     { type: 'item', id: 'system-overview', label: 'ภาพรวมระบบ', icon: Info, path: '/admin/dashboard/system-overview', adminOnly: true },
+    { type: 'item', id: 'ai-assist', label: 'AI ผู้ช่วยครู', icon: Sparkles, path: '/admin/dashboard/ai-assist' },
+    { type: 'item', id: 'papor', label: 'ปพ.5 / ปพ.6 (PDF)', icon: FileText, path: '/admin/dashboard/papor' },
 ];
 
 // Extract active tab from pathname
@@ -272,9 +276,11 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
     const navigate = useNavigate();
     const { isAdmin, userEmail, allowedMenus } = useAuth();
     const { settings } = useSchoolSettings();
+    const { setOpen: openPalette } = useCommandPalette();
     const location = useLocation();
     const activeId = getActiveId(location.pathname);
     const [mobileOpen, setMobileOpen] = useState(false);
+    const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform);
 
     const handleNavigate = (path: string) => {
         navigate(path);
@@ -340,6 +346,15 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
             {/* Desktop Top Bar */}
             {(isAdmin || allowedMenus.length > 0) && (
                 <div className="lg:ml-64 hidden lg:flex sticky top-0 z-30 justify-end items-center gap-2 px-6 py-2 bg-admin-surface/95 backdrop-blur border-b border-admin-border">
+                    <button
+                        onClick={() => openPalette(true)}
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-admin-border bg-admin-bg/40 text-xs text-admin-text-muted hover:text-admin-text hover:bg-admin-bg/70 transition-colors min-w-[220px]"
+                        aria-label="ค้นหา (Ctrl+K)"
+                    >
+                        <Search className="w-3.5 h-3.5" />
+                        <span className="flex-1 text-left">ค้นหานักเรียน, ข่าว, คำสั่ง...</span>
+                        <kbd className="px-1.5 py-0.5 rounded bg-admin-border/50 text-[10px] font-mono">{isMac ? '⌘K' : 'Ctrl K'}</kbd>
+                    </button>
                     <NotificationBell />
                 </div>
             )}

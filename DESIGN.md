@@ -633,6 +633,55 @@ grep -A 20 "table_name_here" src/integrations/supabase/types.ts
 
 ---
 
+### Rule 14.18 — Command Palette & Global Search (Ctrl/Cmd+K)
+
+ทุก action ที่ "เปิดหน้า" หรือ "เปิด dialog หลัก" **ควร** เข้าถึงได้จาก Command Palette เพื่อให้ผู้ใช้ขั้นสูง (admin/teacher) ทำงานเร็วโดยไม่ต้อง navigate ผ่านเมนู
+
+- **Registry:** `src/lib/commands/registry.ts` (static commands) — เพิ่ม entry ตอนสร้าง feature ใหม่ พร้อมระบุ `roles?: ('admin'|'teacher'|'parent'|'public')[]`
+- **Hotkey:** Ctrl/Cmd+K สงวนไว้สำหรับ Command Palette เท่านั้น — ห้ามใช้กับ shortcut อื่น
+- **Fuzzy Search:** ใช้ index จาก `globalSearchService.fetchIndex()` (cache 5 นาทีผ่าน TanStack Query) — แสดงผลแยก group ตาม type (student/staff/news/document)
+- **Affordance:** ทุก layout หลัก (AdminLayout) ต้องโชว์ปุ่ม "🔍 ค้นหา... ⌘K" ใน top bar
+- **RLS:** Service ที่ดึง index ต้องอาศัย RLS เดิม — ห้ามเปิด policy เพิ่มเพื่อ search
+
+### Rule 14.22 — ปพ. PDF Generation Standards
+
+- **เกรด:** ใช้เกณฑ์ สพฐ. 4-point เท่านั้น — 80=4 / 75=3.5 / 70=3 / 65=2.5 / 60=2 / 55=1.5 / 50=1 / <50=0. **ห้าม** ใช้ระบบเกรดอื่น (เช่น A-F หรือ 100-point) ใน ปพ.
+- **ช่วงเทอม:** เทอม 1 = พ.ค.-15 ต.ค. · เทอม 2 = 1 พ.ย.-31 มี.ค. (ปี ค.ศ. ถัดไป) — Hardcoded ใน `termDateRange()` ของ `papor.service.ts`
+- **ฟอนต์:** ต้องใช้ Sarabun (Thai weights 400/700) เท่านั้น — ไฟล์อยู่ที่ `public/fonts/Sarabun-{Regular,Bold}.woff`. ห้าม fallback เป็นฟอนต์ระบบ
+- **Hyphenation:** ปิด React-PDF hyphenation สำหรับไทยด้วย `Font.registerHyphenationCallback((w) => [w])` — ป้องกัน "การเรียน" ถูกตัดเป็น "การ-เรียน"
+- **Bulk download:** ต้องมี `setTimeout(150)` ระหว่างไฟล์เพื่อกัน browser block (Chrome จำกัด <= 10 downloads/sec)
+- **Data source:** ดึงจาก score_records + attendance_records + conduct_scores เท่านั้น — **ห้าม** Mock หรือ hardcode ตัวอย่าง
+- **Disclaimer:** ปุ่ม download ต้องมีข้อความเตือน "กรุณาตรวจสอบก่อนส่ง" — ระบบไม่รับผิดชอบความถูกต้องของข้อมูลก่อนส่งราชการ
+
+### Rule 14.20 — Multi-Child Parent Architecture (M083)
+
+- **Source of truth:** ตาราง `parent_student_links` (many-to-many) — **ห้าม** อ่าน `user_roles.student_id` โดยตรงสำหรับ parent อีกต่อไป
+- **Client API:** `useActiveChild()` hook returns `{children, activeChild, setActiveChildId}` — ทุก parent page ใช้ `activeChild` ไม่ใช่ `useLinkedRecord`
+- **RPC:** ใช้ `my_children()` (parent) และ `parents_of_student(uuid)` (server-side push trigger) — ทั้งคู่ SECURITY DEFINER
+- **Default child:** field `is_primary` ใน parent_student_links → fallback ไป list[0] ถ้าไม่มี
+- **localStorage key:** `kampai_active_child_id` — persist across sessions
+- **Backward compat:** Backfill migration ดึงข้อมูลเดิมจาก user_roles เข้า parent_student_links ตอน apply M083 (idempotent)
+
+### Rule 14.21 — AI Assistant Boundaries
+
+- **Roles:** admin + teacher เท่านั้น — parent/student/public ห้ามเรียก ai-assist function
+- **Logging:** ทุก call ต้อง insert `ai_assist_log` (mode, model, tokens, duration) — admin ใช้ audit cost
+- **Prompt caching:** system prompt ต้องใช้ `cache_control: { type: 'ephemeral' }` เสมอ — ประหยัด input tokens ครั้งถัดไป
+- **Model selection:** `report_comment` ใช้ MODEL_FAST (haiku), อื่นๆ ใช้ MODEL_SMART (sonnet) — override ผ่าน env ANTHROPIC_MODEL_FAST/SMART ได้
+- **Disclaimer:** ผลลัพธ์ AI **ต้อง** มีคำเตือนใน UI ว่า "ปรับแก้ต่อก่อนใช้งานจริง" — AI อาจ hallucinate ข้อมูลตัวเลข
+- **Secret:** `ANTHROPIC_API_KEY` ใน Supabase Edge Function — **ห้าม** commit หรือใส่ใน VITE_* env
+
+### Rule 14.19 — Web Push Notifications (PWA)
+
+- **VAPID keys:** Public key อยู่ใน `VITE_VAPID_PUBLIC_KEY` (env), Private key อยู่ใน Supabase Edge Function secret `VAPID_PRIVATE_KEY` — **ห้าม** commit private key
+- **Service Worker:** ใช้ InjectManifest strategy + `src/sw.ts` เท่านั้น — ห้ามกลับไปใช้ GenerateSW
+- **Subscription table:** `push_subscriptions` (Migration 082) — schema มี `topics` array สำหรับ filter (absence/score/news/emergency)
+- **Edge function `send-push`:** ตรวจสิทธิ์ admin ก่อนส่งเสมอ; auto-prune subscription ที่ 404/410
+- **iOS support:** ต้องติดตั้ง PWA ผ่าน "Add to Home Screen" + iOS 16.4+ เท่านั้น — แสดง hint นี้ใน PushPermissionBanner ถ้าตรวจพบ Safari iOS ปกติ
+- **Banner UX:** `PushPermissionBanner` แสดงเฉพาะเมื่อ `session && permission === 'default' && !dismissedRecently(7d)` — ห้าม spam
+
+---
+
 ## 15. Spacing & Layout
 
 - **Container:** `container mx-auto px-4` หรือ `.container-school` (max-w-7xl)

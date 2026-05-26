@@ -2,9 +2,8 @@ import { LayoutDashboard, ClipboardCheck, PenLine, Star, Recycle, Wallet } from 
 import { Link } from 'react-router-dom';
 import { RolePortalLayout } from '@/components/portal/RolePortalLayout';
 import { Card, CardContent } from '@/components/ui/card';
-import { useLinkedRecord } from '@/hooks/useLinkedRecord';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { useActiveChild } from '@/hooks/useActiveChild';
+import { ChildSwitcher } from '@/components/parent/ChildSwitcher';
 
 const MENU = [
     { id: 'dashboard', label: 'แดชบอร์ด', icon: LayoutDashboard, path: '/parent' },
@@ -16,35 +15,25 @@ const MENU = [
 ];
 
 export default function ParentDashboard() {
-    const { data: link } = useLinkedRecord();
-
-    const { data: student } = useQuery({
-        queryKey: ['student-self', link?.student_id],
-        enabled: !!link?.student_id,
-        queryFn: async () => {
-            const { data } = await supabase
-                .from('students')
-                .select('name, class, student_code')
-                .eq('id', link!.student_id!)
-                .maybeSingle();
-            return data;
-        },
-    });
+    const { activeChild, children: kids } = useActiveChild();
 
     return (
         <RolePortalLayout title="Portal ผู้ปกครอง" subtitle="ผู้ปกครอง" menu={MENU} accent="parent">
             <div className="p-8 space-y-6">
-                <div>
-                    <h1 className="text-3xl font-bold">ผู้ปกครองของ {student?.name || 'นักเรียน'}</h1>
-                    {student && (
-                        <p className="text-muted-foreground mt-1">
-                            {student.class ? `${student.class} • ` : ''}
-                            {student.student_code ? `รหัส ${student.student_code}` : ''}
-                        </p>
-                    )}
+                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                    <div>
+                        <h1 className="text-3xl font-bold">ผู้ปกครองของ {activeChild?.name || 'นักเรียน'}</h1>
+                        {activeChild && (
+                            <p className="text-muted-foreground mt-1">
+                                {activeChild.class ? `${activeChild.class}${activeChild.room ? `/${activeChild.room}` : ''} • ` : ''}
+                                {activeChild.student_code ? `รหัส ${activeChild.student_code}` : ''}
+                            </p>
+                        )}
+                    </div>
+                    {kids.length > 0 && <ChildSwitcher />}
                 </div>
 
-                {!link?.student_id && (
+                {!kids.length && (
                     <Card>
                         <CardContent className="p-6">
                             <p className="text-sm text-amber-600">
