@@ -139,6 +139,10 @@ const menuItems: MenuItem[] = [
     { type: 'item', id: 'emergency', label: 'แจ้งเตือนฉุกเฉิน', icon: Mail, path: '/admin/dashboard/emergency', adminOnly: true },
     { type: 'item', id: 'donations', label: 'รับบริจาค', icon: Award, path: '/admin/dashboard/donations', adminOnly: true },
     { type: 'item', id: 'dismissal', label: 'รับ-ส่งนักเรียน', icon: UserX, path: '/admin/dashboard/dismissal' },
+    { type: 'section', label: 'ชุมชน/Engagement' },
+    { type: 'item', id: 'surveys', label: 'แบบสำรวจ', icon: ClipboardList, path: '/admin/dashboard/surveys', adminOnly: true },
+    { type: 'item', id: 'alumni', label: 'ศิษย์เก่า', icon: GraduationCap, path: '/admin/dashboard/alumni', adminOnly: true },
+    { type: 'item', id: 'class-photos', label: 'รูปห้อง + แท็ก', icon: Image, path: '/admin/dashboard/class-photos' },
 ];
 
 // Extract active tab from pathname

@@ -61,6 +61,7 @@ export const STATIC_COMMANDS: CommandEntry[] = [
   { id: 'go-edu-hub', label: 'คลังสื่อ/เกม', group: 'ไปยังหน้า', icon: Sparkles, keywords: ['edu', 'hub', 'games'], action: { type: 'navigate', path: '/educational-hub' } },
   { id: 'go-enrollment', label: 'สมัครเข้าเรียน', group: 'ไปยังหน้า', icon: GraduationCap, keywords: ['enroll', 'apply'], action: { type: 'navigate', path: '/enrollment' } },
   { id: 'go-donate', label: 'ร่วมบริจาคให้โรงเรียน', group: 'ไปยังหน้า', icon: Award, keywords: ['donate', 'fundraise', 'promptpay', 'บริจาค'], action: { type: 'navigate', path: '/donate' } },
+  { id: 'go-alumni', label: 'เครือข่ายศิษย์เก่า', group: 'ไปยังหน้า', icon: GraduationCap, keywords: ['alumni', 'reunion', 'ศิษย์เก่า'], action: { type: 'navigate', path: '/alumni' } },
 
   // ── Admin ────────────────────────────────────────────────
   { id: 'adm-dashboard', label: 'แดชบอร์ดผู้ดูแล', group: 'แอดมิน', icon: LayoutDashboard, roles: ['admin'], action: { type: 'navigate', path: '/admin/dashboard' } },
@@ -87,6 +88,9 @@ export const STATIC_COMMANDS: CommandEntry[] = [
   { id: 'adm-emergency', label: 'แจ้งเตือนฉุกเฉิน (Push + LINE)', group: 'แอดมิน', icon: Sparkles, roles: ['admin'], keywords: ['emergency', 'alert', 'broadcast', 'urgent', 'ฉุกเฉิน'], action: { type: 'navigate', path: '/admin/dashboard/emergency' } },
   { id: 'adm-donations', label: 'รับบริจาค (PromptPay)', group: 'แอดมิน', icon: Award, roles: ['admin'], keywords: ['donate', 'fundraise', 'promptpay', 'qr', 'บริจาค'], action: { type: 'navigate', path: '/admin/dashboard/donations' } },
   { id: 'adm-dismissal', label: 'ระบบรับ-ส่งนักเรียน', group: 'แอดมิน', icon: ClipboardCheck, roles: ['admin', 'teacher'], keywords: ['pickup', 'dismissal', 'bus', 'รับ', 'ส่ง'], action: { type: 'navigate', path: '/admin/dashboard/dismissal' } },
+  { id: 'adm-surveys', label: 'แบบสำรวจ', group: 'แอดมิน', icon: ClipboardList, roles: ['admin'], keywords: ['survey', 'feedback', 'nps', 'แบบสำรวจ'], action: { type: 'navigate', path: '/admin/dashboard/surveys' } },
+  { id: 'adm-alumni', label: 'ศิษย์เก่า (จัดการ)', group: 'แอดมิน', icon: GraduationCap, roles: ['admin'], keywords: ['alumni', 'verify', 'reunion', 'ศิษย์เก่า'], action: { type: 'navigate', path: '/admin/dashboard/alumni' } },
+  { id: 'adm-class-photos', label: 'รูปห้อง + แท็กหน้า', group: 'แอดมิน', icon: Image, roles: ['admin', 'teacher'], keywords: ['photo', 'tag', 'class', 'รูป'], action: { type: 'navigate', path: '/admin/dashboard/class-photos' } },
   { id: 'adm-papor', label: 'สร้างเอกสาร ปพ.5 / ปพ.6', group: 'แอดมิน', icon: FileText, roles: ['admin', 'teacher'], keywords: ['papor', 'transcript', 'report', 'card', 'ปพ', 'สมุดพก', 'pdf'], action: { type: 'navigate', path: '/admin/dashboard/papor' } },
 
   // ── Teacher ──────────────────────────────────────────────

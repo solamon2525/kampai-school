@@ -653,6 +653,30 @@ grep -A 20 "table_name_here" src/integrations/supabase/types.ts
 - **Data source:** ดึงจาก score_records + attendance_records + conduct_scores เท่านั้น — **ห้าม** Mock หรือ hardcode ตัวอย่าง
 - **Disclaimer:** ปุ่ม download ต้องมีข้อความเตือน "กรุณาตรวจสอบก่อนส่ง" — ระบบไม่รับผิดชอบความถูกต้องของข้อมูลก่อนส่งราชการ
 
+### Rule 14.31 — Survey Builder (M094)
+
+- **Answers as JSONB:** `survey_responses.answers` เก็บ `{question_id: value}` — flexible แต่ requires client knowledge ของ question schema เมื่อ render results
+- **Anonymous by default:** `surveys.is_anonymous` default true — `respondent_user_id` ตั้งเป็น NULL เมื่อ anon + ไม่ผูกกับ auth (RLS allows INSERT for anyone)
+- **Time window:** ใช้ `starts_at` + `ends_at` ใน policy WITH CHECK — RLS-enforced ไม่ใช่แค่ UI guard
+- **Question types:** ห้ามเพิ่มประเภทใหม่ใน client โดยไม่อัพ CHECK constraint + service type union — ทั้งสอง must match
+- **Response count:** trigger auto-sync ตอน INSERT — **ห้าม** UPDATE manually
+
+### Rule 14.32 — Alumni Network (M095)
+
+- **Public submit, admin verifies:** `alumni_profiles.is_verified` default false — **ห้าม** show ใน public listing ก่อน verify (RLS enforces)
+- **Year range:** CHECK constraint `graduation_year BETWEEN 1900 AND current_year + 5` — ป้องกัน garbage
+- **Contact fields:** `contact_email_public` + `contact_phone_public` แสดงสาธารณะ — alumni ยินยอมตอน submit (consent implicit by filling field)
+- **Featured:** `is_featured` boolean สำหรับ admin highlight — แสดงด้านบนสุด, ring สี amber
+- **Event RSVP:** trigger auto-sum `party_size` เข้า `attendee_count` — **ห้าม** UPDATE manually
+
+### Rule 14.33 — Class Photos + Face Tagging (M096, PDPA-strict)
+
+- **Position as percent:** `x_pct + y_pct + radius_pct` (ไม่ใช่ pixels) — รูป responsive scale ได้ทุก viewport
+- **Tag RLS per child:** parent อ่าน tag ได้เฉพาะของลูกตัวเอง (Rule 14.30 + Rule 14.24 PDPA) — **ห้าม** ทำ admin UI public ที่โชว์ทุก tag
+- **Photo RLS by class:** parent อ่านรูปทั้งหมดในห้องลูก — แต่ tag เห็นเฉพาะลูก (เห็นว่าลูกอยู่ในรูปนี้, แต่ไม่เห็นว่าใครอีกถูกแท็ก)
+- **UNIQUE(photo_id, student_id):** student คนเดียวแท็กได้ครั้งเดียวต่อรูป — re-tag = upsert
+- **Storage bucket:** ใช้ `school_images` ที่มีอยู่แล้ว path = `class-photos/{class}/{timestamp}.{ext}`
+
 ### Rule 14.28 — Homework Portal (M091)
 
 - **1 submission per (assignment, student):** UNIQUE constraint — re-submit = upsert (overwrite previous body/attachment)

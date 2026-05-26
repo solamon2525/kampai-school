@@ -86,6 +86,8 @@ const ParentAssignments = lazyWithRetry(() => import("./components/parent/Parent
 const ConferenceBooking = lazyWithRetry(() => import("./components/parent/ConferenceBooking").then(m => ({ default: m.ConferenceBooking })));
 const AssignmentManagement = lazyWithRetry(() => import("./components/teacher/AssignmentManagement").then(m => ({ default: m.AssignmentManagement })));
 const ConferenceSlotsManager = lazyWithRetry(() => import("./components/teacher/ConferenceSlotsManager").then(m => ({ default: m.ConferenceSlotsManager })));
+const Alumni = lazyWithRetry(() => import("./pages/Alumni"));
+const SurveyResponse = lazyWithRetry(() => import("./pages/SurveyResponse"));
 
 // Loading placeholder ขณะรอโหลด page (shimmer + logo placeholder — ดูนุ่มกว่า spinner)
 const PageLoader = () => (
@@ -169,6 +171,8 @@ const App = () => (
             <Route path="/hero" element={<StudentHeroPublic />} />
             <Route path="/hero/:studentId" element={<StudentHeroPublic />} />
             <Route path="/donate" element={<Donate />} />
+            <Route path="/alumni" element={<Alumni />} />
+            <Route path="/surveys/:id" element={<SurveyResponse />} />
 
             {/* Teacher Portal */}
             <Route path="/teacher" element={

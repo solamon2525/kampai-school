@@ -272,6 +272,23 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.36.0 (Community & Engagement — Surveys + Alumni + Class Photos with Face Tagging)',
+        date: 'ล่าสุด',
+        badge: 'bg-green-700',
+        items: [
+            'Migration 094 Surveys: surveys + survey_questions + survey_responses (answers stored as JSONB keyed by question_id) + trigger increment_response_count. 6 question types (text/radio/checkbox/rating_5/rating_10/nps)',
+            'SurveyManagement /admin/dashboard/surveys: question builder + audience selection (all/parents/staff/students/class) + anonymous toggle + publish toggle + responses viewer',
+            'SurveyResponse /surveys/:id (public): fill UI with required validation, NPS/rating button grids, anonymous-by-default',
+            'Migration 095 Alumni Network: alumni_profiles (public submit, admin verifies) + alumni_events + alumni_event_attendees (RSVP) + trigger increment_attendee_count',
+            'Alumni /alumni (public): grid of verified profiles, RSVP to events, submit own profile (สถานะรอตรวจสอบ)',
+            'AlumniManagement /admin/dashboard/alumni: 3 tabs (รอตรวจ/ยืนยันแล้ว/กิจกรรม) — verify with "เด่น" flag + create events',
+            'Migration 096 Class Photos + Face Tagging: class_photos + class_photo_tags (x/y/radius as percent — responsive) + RLS PDPA-strict (parents see only own child tags)',
+            'ClassPhotosManagement /admin/dashboard/class-photos: upload via existing school_images storage bucket + click-to-tag UI (cursor crosshair → click face → pick student) + tooltip with delete on hover',
+            'Routes ใหม่: /alumni + /surveys/:id (public) · /admin/dashboard/{surveys,alumni,class-photos} (admin/teacher) · Cmd-K 5 entries + 1 public',
+            'Sidebar section "ชุมชน/Engagement" — แยกจาก operations เพื่อความชัดเจน',
+        ],
+    },
+    {
         version: 'v1.35.0 (School Daily Operations — Homework + Conference + Dismissal)',
         date: 'ล่าสุด',
         badge: 'bg-green-700',

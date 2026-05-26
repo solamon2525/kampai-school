@@ -66,6 +66,9 @@ const PdpaDashboard = lazy(() => import('@/components/admin/pdpa/PdpaDashboard')
 const EmergencyAlertPanel = lazy(() => import('@/components/admin/emergency/EmergencyAlertPanel').then(m => ({ default: m.EmergencyAlertPanel })));
 const DonationsManagement = lazy(() => import('@/components/admin/donations/DonationsManagement').then(m => ({ default: m.DonationsManagement })));
 const DismissalManagement = lazy(() => import('@/components/admin/dismissal/DismissalManagement').then(m => ({ default: m.DismissalManagement })));
+const SurveyManagement = lazy(() => import('@/components/admin/surveys/SurveyManagement').then(m => ({ default: m.SurveyManagement })));
+const AlumniManagement = lazy(() => import('@/components/admin/alumni/AlumniManagement').then(m => ({ default: m.AlumniManagement })));
+const ClassPhotosManagement = lazy(() => import('@/components/admin/class-photos/ClassPhotosManagement').then(m => ({ default: m.ClassPhotosManagement })));
 const PaporGenerator = lazy(() => import('@/components/admin/papor/PaporGenerator').then(m => ({ default: m.PaporGenerator })));
 
 // Loading spinner สำหรับ lazy-loaded admin pages — เปลี่ยนเป็น DashboardSkeleton ระดับพรีเมียม
@@ -184,6 +187,9 @@ const AdminDashboard = () => {
             <Route path="emergency" element={<PermissionGuard menuId="emergency"><EmergencyAlertPanel /></PermissionGuard>} />
             <Route path="donations" element={<PermissionGuard menuId="donations"><DonationsManagement /></PermissionGuard>} />
             <Route path="dismissal" element={<DismissalManagement />} />
+            <Route path="surveys" element={<PermissionGuard menuId="surveys"><SurveyManagement /></PermissionGuard>} />
+            <Route path="alumni" element={<PermissionGuard menuId="alumni"><AlumniManagement /></PermissionGuard>} />
+            <Route path="class-photos" element={<ClassPhotosManagement />} />
             <Route path="papor" element={<PaporGenerator />} />
             <Route path="notifications" element={<NotificationsManagement />} />
             <Route path="dashboard-school" element={<PermissionGuard menuId="dashboard-school"><DashboardSchoolManagement /></PermissionGuard>} />
