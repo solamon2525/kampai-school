@@ -60,6 +60,7 @@ export const STATIC_COMMANDS: CommandEntry[] = [
   { id: 'go-rewards', label: 'ของรางวัล', group: 'ไปยังหน้า', icon: Award, keywords: ['rewards'], action: { type: 'navigate', path: '/waste-bank/rewards' } },
   { id: 'go-edu-hub', label: 'คลังสื่อ/เกม', group: 'ไปยังหน้า', icon: Sparkles, keywords: ['edu', 'hub', 'games'], action: { type: 'navigate', path: '/educational-hub' } },
   { id: 'go-enrollment', label: 'สมัครเข้าเรียน', group: 'ไปยังหน้า', icon: GraduationCap, keywords: ['enroll', 'apply'], action: { type: 'navigate', path: '/enrollment' } },
+  { id: 'go-donate', label: 'ร่วมบริจาคให้โรงเรียน', group: 'ไปยังหน้า', icon: Award, keywords: ['donate', 'fundraise', 'promptpay', 'บริจาค'], action: { type: 'navigate', path: '/donate' } },
 
   // ── Admin ────────────────────────────────────────────────
   { id: 'adm-dashboard', label: 'แดชบอร์ดผู้ดูแล', group: 'แอดมิน', icon: LayoutDashboard, roles: ['admin'], action: { type: 'navigate', path: '/admin/dashboard' } },
@@ -83,6 +84,8 @@ export const STATIC_COMMANDS: CommandEntry[] = [
   { id: 'adm-health', label: 'สุขภาพนักเรียน (น้ำหนัก/วัคซีน)', group: 'แอดมิน', icon: Award, roles: ['admin', 'teacher'], keywords: ['health', 'weight', 'height', 'vaccine', 'bmi'], action: { type: 'navigate', path: '/admin/dashboard/health' } },
   { id: 'adm-dmc', label: 'DMC Export (สพฐ.)', group: 'แอดมิน', icon: FileText, roles: ['admin'], keywords: ['dmc', 'emis', 'moe', 'export', 'excel'], action: { type: 'navigate', path: '/admin/dashboard/dmc-export' } },
   { id: 'adm-pdpa', label: 'PDPA Compliance', group: 'แอดมิน', icon: Sparkles, roles: ['admin'], keywords: ['pdpa', 'consent', 'privacy', 'audit', 'erasure'], action: { type: 'navigate', path: '/admin/dashboard/pdpa' } },
+  { id: 'adm-emergency', label: 'แจ้งเตือนฉุกเฉิน (Push + LINE)', group: 'แอดมิน', icon: Sparkles, roles: ['admin'], keywords: ['emergency', 'alert', 'broadcast', 'urgent', 'ฉุกเฉิน'], action: { type: 'navigate', path: '/admin/dashboard/emergency' } },
+  { id: 'adm-donations', label: 'รับบริจาค (PromptPay)', group: 'แอดมิน', icon: Award, roles: ['admin'], keywords: ['donate', 'fundraise', 'promptpay', 'qr', 'บริจาค'], action: { type: 'navigate', path: '/admin/dashboard/donations' } },
   { id: 'adm-papor', label: 'สร้างเอกสาร ปพ.5 / ปพ.6', group: 'แอดมิน', icon: FileText, roles: ['admin', 'teacher'], keywords: ['papor', 'transcript', 'report', 'card', 'ปพ', 'สมุดพก', 'pdf'], action: { type: 'navigate', path: '/admin/dashboard/papor' } },
 
   // ── Teacher ──────────────────────────────────────────────
@@ -100,6 +103,8 @@ export const STATIC_COMMANDS: CommandEntry[] = [
   { id: 'p-conduct', label: 'ความประพฤติของบุตร', group: 'พอร์ทัลผู้ปกครอง', icon: Star, roles: ['parent', 'admin'], action: { type: 'navigate', path: '/parent/conduct' } },
   { id: 'p-savings', label: 'ธนาคารของบุตร', group: 'พอร์ทัลผู้ปกครอง', icon: Wallet, roles: ['parent', 'admin'], action: { type: 'navigate', path: '/parent/savings-bank' } },
   { id: 'p-privacy', label: 'ความเป็นส่วนตัว (PDPA)', group: 'พอร์ทัลผู้ปกครอง', icon: Sparkles, roles: ['parent', 'admin'], keywords: ['privacy', 'consent', 'erasure', 'pdpa'], action: { type: 'navigate', path: '/parent/privacy' } },
+  { id: 'p-chat', label: 'แชตกับครู', group: 'พอร์ทัลผู้ปกครอง', icon: Sparkles, roles: ['parent', 'admin'], keywords: ['chat', 'message', 'teacher', 'แชต'], action: { type: 'navigate', path: '/parent/chat' } },
+  { id: 't-chat', label: 'แชตกับผู้ปกครอง', group: 'พอร์ทัลครู', icon: Sparkles, roles: ['teacher', 'admin'], keywords: ['chat', 'message', 'parent', 'แชต'], action: { type: 'navigate', path: '/teacher/chat' } },
 ];
 
 /** Filter visible commands based on the user's effective role. */

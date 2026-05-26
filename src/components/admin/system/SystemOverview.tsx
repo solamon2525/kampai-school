@@ -272,6 +272,24 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.34.0 (Communication & Engagement — Emergency + Chat + Donations)',
+        date: 'ล่าสุด',
+        badge: 'bg-green-700',
+        items: [
+            'Migration 088 emergency_alerts: severity (info/warning/critical) + target_audience (all_parents/all_staff/all_users/class_specific) + audit trail (push_sent_count, line_sent_count, total_targets)',
+            'EmergencyAlertPanel /admin/dashboard/emergency: one-click broadcast UI → fan out Push + LINE พร้อมกัน, severity preview, confirmation dialog ก่อนส่ง, history list',
+            'Migration 089 realtime chat: chat_threads (UNIQUE per parent×teacher×student) + chat_messages พร้อม read_at + trigger auto-update last_message_preview + ALTER PUBLICATION supabase_realtime — enable live updates',
+            'chat.service.ts: openThread (idempotent), sendMessage, markRead, subscribeToThread (Supabase Realtime postgres_changes), unreadCount',
+            'ChatWindow + ChatPage components: message list with read receipts + auto-scroll + Enter-to-send + composer, parent picks teacher จาก staff list ที่มี user_role=teacher, ใช้กับทั้ง /parent/chat และ /teacher/chat',
+            'Migration 090 donations: donation_campaigns + donations + trigger recalc_campaign_raised (auto-sum verified donations), RLS public read campaigns + verified donations',
+            'Donate.tsx public page /donate: PromptPay QR generation (lib promptpay-qr) ตามจำนวนที่กรอก, multi-campaign picker, anonymous donation toggle, progress bar',
+            'DonationsManagement /admin/dashboard/donations: create campaign + verify slips + toggle active/featured + ทั้ง 3 tabs (campaigns/pending/all)',
+            'Sidebar entries: แจ้งเตือนฉุกเฉิน + รับบริจาค (admin only) + Cmd-K entries: emergency, donations, p-chat, t-chat, go-donate',
+            'Routes ใหม่: /donate (public), /parent/chat + /teacher/chat (gated), /admin/dashboard/{emergency,donations} (admin)',
+            'Dependencies: + promptpay-qr@0.5.0',
+        ],
+    },
+    {
         version: 'v1.33.0 (Tier 1 Compliance — Health + DMC + PDPA)',
         date: 'ล่าสุด',
         badge: 'bg-green-700',

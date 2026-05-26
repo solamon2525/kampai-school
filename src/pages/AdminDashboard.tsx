@@ -63,6 +63,8 @@ const LineFollowersManager = lazy(() => import('@/components/admin/line/LineFoll
 const HealthManagement = lazy(() => import('@/components/admin/health/HealthManagement').then(m => ({ default: m.HealthManagement })));
 const DmcExportPanel = lazy(() => import('@/components/admin/dmc/DmcExportPanel').then(m => ({ default: m.DmcExportPanel })));
 const PdpaDashboard = lazy(() => import('@/components/admin/pdpa/PdpaDashboard').then(m => ({ default: m.PdpaDashboard })));
+const EmergencyAlertPanel = lazy(() => import('@/components/admin/emergency/EmergencyAlertPanel').then(m => ({ default: m.EmergencyAlertPanel })));
+const DonationsManagement = lazy(() => import('@/components/admin/donations/DonationsManagement').then(m => ({ default: m.DonationsManagement })));
 const PaporGenerator = lazy(() => import('@/components/admin/papor/PaporGenerator').then(m => ({ default: m.PaporGenerator })));
 
 // Loading spinner สำหรับ lazy-loaded admin pages — เปลี่ยนเป็น DashboardSkeleton ระดับพรีเมียม
@@ -178,6 +180,8 @@ const AdminDashboard = () => {
             <Route path="health" element={<HealthManagement />} />
             <Route path="dmc-export" element={<PermissionGuard menuId="dmc-export"><DmcExportPanel /></PermissionGuard>} />
             <Route path="pdpa" element={<PermissionGuard menuId="pdpa"><PdpaDashboard /></PermissionGuard>} />
+            <Route path="emergency" element={<PermissionGuard menuId="emergency"><EmergencyAlertPanel /></PermissionGuard>} />
+            <Route path="donations" element={<PermissionGuard menuId="donations"><DonationsManagement /></PermissionGuard>} />
             <Route path="papor" element={<PaporGenerator />} />
             <Route path="notifications" element={<NotificationsManagement />} />
             <Route path="dashboard-school" element={<PermissionGuard menuId="dashboard-school"><DashboardSchoolManagement /></PermissionGuard>} />

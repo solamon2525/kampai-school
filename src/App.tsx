@@ -80,6 +80,8 @@ const TeacherEduHubManager = lazyWithRetry(() => import("./pages/teacher/Teacher
 const ParentDashboard = lazyWithRetry(() => import("./pages/parent/ParentDashboard"));
 const ParentChildView = lazyWithRetry(() => import("./pages/parent/ParentChildView"));
 const PdpaSelfView = lazyWithRetry(() => import("./components/parent/PdpaSelfView").then(m => ({ default: m.PdpaSelfView })));
+const ChatPage = lazyWithRetry(() => import("./components/chat/ChatPage").then(m => ({ default: m.ChatPage })));
+const Donate = lazyWithRetry(() => import("./pages/Donate"));
 
 // Loading placeholder ขณะรอโหลด page (shimmer + logo placeholder — ดูนุ่มกว่า spinner)
 const PageLoader = () => (
@@ -162,6 +164,7 @@ const App = () => (
             <Route path="/play/:gameSlug" element={<PlayGame />} />
             <Route path="/hero" element={<StudentHeroPublic />} />
             <Route path="/hero/:studentId" element={<StudentHeroPublic />} />
+            <Route path="/donate" element={<Donate />} />
 
             {/* Teacher Portal */}
             <Route path="/teacher" element={
@@ -181,6 +184,9 @@ const App = () => (
             } />
             <Route path="/teacher/edu-hub" element={
               <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherEduHubManager /></PortalProtectedRoute>
+            } />
+            <Route path="/teacher/chat" element={
+              <PortalProtectedRoute allow={['teacher', 'admin']}><ChatPage /></PortalProtectedRoute>
             } />
 
             {/* Parent Portal */}
@@ -204,6 +210,9 @@ const App = () => (
             } />
             <Route path="/parent/privacy" element={
               <PortalProtectedRoute allow={['parent', 'admin']}><PdpaSelfView /></PortalProtectedRoute>
+            } />
+            <Route path="/parent/chat" element={
+              <PortalProtectedRoute allow={['parent', 'admin']}><ChatPage /></PortalProtectedRoute>
             } />
 
             <Route path="*" element={<NotFound />} />

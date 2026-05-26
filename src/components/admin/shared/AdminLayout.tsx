@@ -136,6 +136,8 @@ const menuItems: MenuItem[] = [
     { type: 'item', id: 'health', label: 'สุขภาพนักเรียน', icon: Award, path: '/admin/dashboard/health' },
     { type: 'item', id: 'dmc-export', label: 'DMC Export', icon: Database, path: '/admin/dashboard/dmc-export', adminOnly: true },
     { type: 'item', id: 'pdpa', label: 'PDPA Dashboard', icon: ShieldCheck, path: '/admin/dashboard/pdpa', adminOnly: true },
+    { type: 'item', id: 'emergency', label: 'แจ้งเตือนฉุกเฉิน', icon: Mail, path: '/admin/dashboard/emergency', adminOnly: true },
+    { type: 'item', id: 'donations', label: 'รับบริจาค', icon: Award, path: '/admin/dashboard/donations', adminOnly: true },
 ];
 
 // Extract active tab from pathname

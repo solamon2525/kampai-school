@@ -653,6 +653,32 @@ grep -A 20 "table_name_here" src/integrations/supabase/types.ts
 - **Data source:** ดึงจาก score_records + attendance_records + conduct_scores เท่านั้น — **ห้าม** Mock หรือ hardcode ตัวอย่าง
 - **Disclaimer:** ปุ่ม download ต้องมีข้อความเตือน "กรุณาตรวจสอบก่อนส่ง" — ระบบไม่รับผิดชอบความถูกต้องของข้อมูลก่อนส่งราชการ
 
+### Rule 14.25 — Realtime Chat Architecture (M089)
+
+- **1 thread per tuple:** UNIQUE(parent_user_id, teacher_user_id, student_id) — **ห้าม** สร้าง thread ซ้ำสำหรับคู่เดิม. ใช้ `chatService.openThread()` ที่ idempotent
+- **Realtime subscription:** `chat.service.subscribeToThread()` ส่ง postgres_changes INSERT events เท่านั้น — UPDATE (mark-read) ไม่ broadcast เพื่อลด traffic
+- **Read receipt:** field `read_at` set โดย receiver ผ่าน policy `message_mark_read` — sender แก้ไม่ได้
+- **trigger update_thread_on_new_message:** sync `last_message_at` + `last_message_preview` ให้ทุก INSERT — **ห้าม** sync ใน client (race condition)
+- **Attachments (Phase 2):** ใช้ storage bucket `chat-attachments` (ยังไม่สร้าง — เพิ่มเมื่อต้องการ)
+- **Working hours hint:** UI แสดง "ตอบกลับช่วง 08:00–17:00" — ไม่บังคับด้วย code (parent อาจส่งนอกเวลา, teacher เห็นใน working hours จริง)
+
+### Rule 14.26 — Emergency Alerts (M088)
+
+- **3 severities:** info (ℹ️), warning (⚠️), critical (🚨) — มี visual + prefix แตกต่าง
+- **4 audiences:** all_parents / all_staff / all_users / class_specific — admin เท่านั้นที่ส่งได้
+- **Fan-out pattern:** Push (`send-push`) + LINE (`line-send`) พร้อมกันด้วย Promise.all — แต่ละช่องล้มเหลวอย่างเดียวไม่ block
+- **Audit mandatory:** ทุก broadcast ต้อง insert emergency_alerts row พร้อม push_sent_count + line_sent_count + total_targets
+- **Confirmation dialog:** ต้องมี ก่อนส่งทุกครั้ง — ห้าม one-click ส่งทันที (life-safety, ลด accidental broadcasts)
+
+### Rule 14.27 — Donations & PromptPay (M090)
+
+- **Source of truth:** ใช้ `donation_campaigns.raised_amount` ที่ trigger auto-recalc จาก verified donations — **ห้าม** คำนวณยอดเองใน client
+- **Verification flow:** parent บริจาค → donations.is_verified = false → admin ตรวจสลิปจริง → verify → trigger รวมเข้า raised_amount
+- **PromptPay QR:** ใช้ lib `promptpay-qr@0.5.0` — `generatePayload(id, { amount })` → render ใน `<QRCode>` (lib react-qr-code)
+- **PromptPay ID format:** รองรับเบอร์มือถือ (xxx-xxx-xxxx) และเลขปชช. (x-xxxx-xxxxx-xx-x) — lib parse อัตโนมัติ
+- **Tax receipt (Phase 2):** ปัจจุบันออกใบเสร็จ manual — เชื่อม e-Donation ของกรมสรรพากร = next sprint
+- **Public read:** anyone อ่าน campaigns ที่ is_active = true + verified donations ได้ — สำหรับ transparency
+
 ### Rule 14.24 — Health Records & PDPA (M086 + M087)
 
 - **Health source of truth:** `student_health_records` (1:1) + `student_vaccinations` + `student_growth_measurements` — **ห้าม** เก็บข้อมูลสุขภาพในตารางอื่น
