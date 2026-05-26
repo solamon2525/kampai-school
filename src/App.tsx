@@ -79,6 +79,7 @@ const TeacherRewardsApproval = lazyWithRetry(() => import("./pages/teacher/Teach
 const TeacherEduHubManager = lazyWithRetry(() => import("./pages/teacher/TeacherEduHubManager"));
 const ParentDashboard = lazyWithRetry(() => import("./pages/parent/ParentDashboard"));
 const ParentChildView = lazyWithRetry(() => import("./pages/parent/ParentChildView"));
+const PdpaSelfView = lazyWithRetry(() => import("./components/parent/PdpaSelfView").then(m => ({ default: m.PdpaSelfView })));
 
 // Loading placeholder ขณะรอโหลด page (shimmer + logo placeholder — ดูนุ่มกว่า spinner)
 const PageLoader = () => (
@@ -200,6 +201,9 @@ const App = () => (
             } />
             <Route path="/parent/savings-bank" element={
               <PortalProtectedRoute allow={['parent', 'admin']}><ParentChildView view="savings-bank" /></PortalProtectedRoute>
+            } />
+            <Route path="/parent/privacy" element={
+              <PortalProtectedRoute allow={['parent', 'admin']}><PdpaSelfView /></PortalProtectedRoute>
             } />
 
             <Route path="*" element={<NotFound />} />

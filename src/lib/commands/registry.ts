@@ -80,6 +80,9 @@ export const STATIC_COMMANDS: CommandEntry[] = [
   { id: 'adm-system', label: 'ภาพรวมระบบ (Version)', group: 'แอดมิน', icon: Sparkles, roles: ['admin'], action: { type: 'navigate', path: '/admin/dashboard/system-overview' } },
   { id: 'adm-ai-assist', label: 'AI ผู้ช่วยครู (Claude)', group: 'แอดมิน', icon: Sparkles, roles: ['admin', 'teacher'], keywords: ['ai', 'claude', 'lesson', 'exam', 'comment', 'gpt'], action: { type: 'navigate', path: '/admin/dashboard/ai-assist' } },
   { id: 'adm-line', label: 'LINE OA — ผู้ติดตาม', group: 'แอดมิน', icon: Sparkles, roles: ['admin'], keywords: ['line', 'oa', 'message', 'notify', 'broadcast'], action: { type: 'navigate', path: '/admin/dashboard/line' } },
+  { id: 'adm-health', label: 'สุขภาพนักเรียน (น้ำหนัก/วัคซีน)', group: 'แอดมิน', icon: Award, roles: ['admin', 'teacher'], keywords: ['health', 'weight', 'height', 'vaccine', 'bmi'], action: { type: 'navigate', path: '/admin/dashboard/health' } },
+  { id: 'adm-dmc', label: 'DMC Export (สพฐ.)', group: 'แอดมิน', icon: FileText, roles: ['admin'], keywords: ['dmc', 'emis', 'moe', 'export', 'excel'], action: { type: 'navigate', path: '/admin/dashboard/dmc-export' } },
+  { id: 'adm-pdpa', label: 'PDPA Compliance', group: 'แอดมิน', icon: Sparkles, roles: ['admin'], keywords: ['pdpa', 'consent', 'privacy', 'audit', 'erasure'], action: { type: 'navigate', path: '/admin/dashboard/pdpa' } },
   { id: 'adm-papor', label: 'สร้างเอกสาร ปพ.5 / ปพ.6', group: 'แอดมิน', icon: FileText, roles: ['admin', 'teacher'], keywords: ['papor', 'transcript', 'report', 'card', 'ปพ', 'สมุดพก', 'pdf'], action: { type: 'navigate', path: '/admin/dashboard/papor' } },
 
   // ── Teacher ──────────────────────────────────────────────
@@ -96,6 +99,7 @@ export const STATIC_COMMANDS: CommandEntry[] = [
   { id: 'p-scores', label: 'คะแนนของบุตร', group: 'พอร์ทัลผู้ปกครอง', icon: PenLine, roles: ['parent', 'admin'], action: { type: 'navigate', path: '/parent/scores' } },
   { id: 'p-conduct', label: 'ความประพฤติของบุตร', group: 'พอร์ทัลผู้ปกครอง', icon: Star, roles: ['parent', 'admin'], action: { type: 'navigate', path: '/parent/conduct' } },
   { id: 'p-savings', label: 'ธนาคารของบุตร', group: 'พอร์ทัลผู้ปกครอง', icon: Wallet, roles: ['parent', 'admin'], action: { type: 'navigate', path: '/parent/savings-bank' } },
+  { id: 'p-privacy', label: 'ความเป็นส่วนตัว (PDPA)', group: 'พอร์ทัลผู้ปกครอง', icon: Sparkles, roles: ['parent', 'admin'], keywords: ['privacy', 'consent', 'erasure', 'pdpa'], action: { type: 'navigate', path: '/parent/privacy' } },
 ];
 
 /** Filter visible commands based on the user's effective role. */

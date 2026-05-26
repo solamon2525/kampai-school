@@ -132,6 +132,10 @@ const menuItems: MenuItem[] = [
     { type: 'item', id: 'ai-assist', label: 'AI ผู้ช่วยครู', icon: Sparkles, path: '/admin/dashboard/ai-assist' },
     { type: 'item', id: 'papor', label: 'ปพ.5 / ปพ.6 (PDF)', icon: FileText, path: '/admin/dashboard/papor' },
     { type: 'item', id: 'line', label: 'LINE OA', icon: MessageCircle, path: '/admin/dashboard/line', adminOnly: true },
+    { type: 'section', label: 'สุขภาพ/Compliance' },
+    { type: 'item', id: 'health', label: 'สุขภาพนักเรียน', icon: Award, path: '/admin/dashboard/health' },
+    { type: 'item', id: 'dmc-export', label: 'DMC Export', icon: Database, path: '/admin/dashboard/dmc-export', adminOnly: true },
+    { type: 'item', id: 'pdpa', label: 'PDPA Dashboard', icon: ShieldCheck, path: '/admin/dashboard/pdpa', adminOnly: true },
 ];
 
 // Extract active tab from pathname

@@ -60,6 +60,9 @@ const GamePlayDashboard = lazy(() => import('@/components/admin/games/GamePlayDa
 const ScanRecorder = lazy(() => import('./admin/ScanRecorder'));
 const AiAssistPanel = lazy(() => import('@/components/admin/ai-assist/AiAssistPanel').then(m => ({ default: m.AiAssistPanel })));
 const LineFollowersManager = lazy(() => import('@/components/admin/line/LineFollowersManager').then(m => ({ default: m.LineFollowersManager })));
+const HealthManagement = lazy(() => import('@/components/admin/health/HealthManagement').then(m => ({ default: m.HealthManagement })));
+const DmcExportPanel = lazy(() => import('@/components/admin/dmc/DmcExportPanel').then(m => ({ default: m.DmcExportPanel })));
+const PdpaDashboard = lazy(() => import('@/components/admin/pdpa/PdpaDashboard').then(m => ({ default: m.PdpaDashboard })));
 const PaporGenerator = lazy(() => import('@/components/admin/papor/PaporGenerator').then(m => ({ default: m.PaporGenerator })));
 
 // Loading spinner สำหรับ lazy-loaded admin pages — เปลี่ยนเป็น DashboardSkeleton ระดับพรีเมียม
@@ -172,6 +175,9 @@ const AdminDashboard = () => {
             <Route path="system-overview" element={<PermissionGuard menuId="system-overview"><SystemOverview /></PermissionGuard>} />
             <Route path="ai-assist" element={<AiAssistPanel />} />
             <Route path="line" element={<PermissionGuard menuId="line"><LineFollowersManager /></PermissionGuard>} />
+            <Route path="health" element={<HealthManagement />} />
+            <Route path="dmc-export" element={<PermissionGuard menuId="dmc-export"><DmcExportPanel /></PermissionGuard>} />
+            <Route path="pdpa" element={<PermissionGuard menuId="pdpa"><PdpaDashboard /></PermissionGuard>} />
             <Route path="papor" element={<PaporGenerator />} />
             <Route path="notifications" element={<NotificationsManagement />} />
             <Route path="dashboard-school" element={<PermissionGuard menuId="dashboard-school"><DashboardSchoolManagement /></PermissionGuard>} />

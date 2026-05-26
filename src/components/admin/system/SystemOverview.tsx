@@ -272,6 +272,22 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.33.0 (Tier 1 Compliance — Health + DMC + PDPA)',
+        date: 'ล่าสุด',
+        badge: 'bg-green-700',
+        items: [
+            'Migration 086 health: student_health_records (กรุ๊ปเลือด, แพ้, ยาประจำตัว, ผู้ติดต่อฉุกเฉิน, สายตา, ฟัน) + student_vaccinations (วัคซีน 10+ ชนิด, dose, next_dose_date) + student_growth_measurements (น้ำหนัก/ส่วนสูง/BMI generated column) + view student_latest_growth → ใช้ใน DMC export',
+            'HealthManagement /admin/dashboard/health: per-student detail panel 3 tabs (โปรไฟล์, วัคซีน, น้ำหนัก/ส่วนสูง) — admin/teacher บันทึก, parent อ่าน (RLS ผ่าน parent_student_links)',
+            'Migration 087 PDPA: pdpa_consents (6 scopes — photo_public, photo_news, line_msg, push_notify, data_sharing_moe, data_sharing_thirdparty), data_access_logs (append-only audit trail), pdpa_erasure_requests (parent submit → admin review) + RPC log_data_access() SECURITY DEFINER',
+            'DMC Export Excel (M002): xlsx lib + dmc-export.service ดึง students + latest growth + health → 34 columns ตาม DMC schema (ลำดับ, รหัส, ปชช., คำนำหน้า, ชื่อ-สกุล, เพศ, วันเกิด, ชั้น, น้ำหนัก, ส่วนสูง, กรุ๊ปเลือด, ที่อยู่, ผู้ปกครอง, อาการแพ้)',
+            'DmcExportPanel /admin/dashboard/dmc-export: filter ตามชั้น + completeness audit (5 fields ที่บังคับ) + ตัวอย่าง 5 ระเบียน + ดาวน์โหลด .xlsx ผ่าน XLSX.writeFile (100% client-side)',
+            'PdpaDashboard /admin/dashboard/pdpa: 3 tabs (คำขอลบ pending → review with notes, audit log 100 รายการล่าสุด, แนวปฏิบัติพ.ร.บ.มาตรา 83 ปรับ 5 ล้านบาท)',
+            'PdpaSelfView /parent/privacy: parent toggle consent ต่อ scope (6 ตัว) + submit erasure request (photos/attendance/scores/all) + ดู status คำขอเก่า',
+            'Sidebar section "สุขภาพ/Compliance": Health (ทุกบทบาท admin), DMC (admin), PDPA (admin) + Cmd-K entries ครบ 4 keywords (health, dmc, pdpa, privacy)',
+            'Dependencies: + xlsx@0.18.5 (DMC Excel formatter)',
+        ],
+    },
+    {
         version: 'v1.32.0 (LINE Official Account Integration — replaces LINE Notify)',
         date: 'ล่าสุด',
         badge: 'bg-green-700',

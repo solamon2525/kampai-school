@@ -653,6 +653,18 @@ grep -A 20 "table_name_here" src/integrations/supabase/types.ts
 - **Data source:** ดึงจาก score_records + attendance_records + conduct_scores เท่านั้น — **ห้าม** Mock หรือ hardcode ตัวอย่าง
 - **Disclaimer:** ปุ่ม download ต้องมีข้อความเตือน "กรุณาตรวจสอบก่อนส่ง" — ระบบไม่รับผิดชอบความถูกต้องของข้อมูลก่อนส่งราชการ
 
+### Rule 14.24 — Health Records & PDPA (M086 + M087)
+
+- **Health source of truth:** `student_health_records` (1:1) + `student_vaccinations` + `student_growth_measurements` — **ห้าม** เก็บข้อมูลสุขภาพในตารางอื่น
+- **น้ำหนัก/ส่วนสูง:** ใช้ view `student_latest_growth` เมื่อต้องการค่าล่าสุด (DMC export, parent dashboard) — view auto-refresh เมื่อเพิ่ม measurement ใหม่
+- **BMI:** generated column ใน student_growth_measurements — **ห้าม** คำนวณใน client (เผื่อ inconsistency)
+- **DMC export:** ต้องใช้ `dmcExportService.fetchRows()` เท่านั้น — ตาราง schema match สพฐ. — **ห้าม** export field อื่นที่ผู้ปกครองไม่อนุญาต (ตรวจ pdpa_consents.data_sharing_moe ก่อน)
+- **PDPA consents:** scope ใหม่ทุกตัวต้องเพิ่มใน CHECK constraint ของ pdpa_consents.scope + SCOPE_LABELS ใน pdpa.service.ts — sync ทั้งคู่
+- **Audit log mandatory:** ทุก action ที่อ่าน/แก้ข้อมูลละเอียดอ่อนของนักเรียน (รูป, คะแนน, attendance, health) **ต้อง** call `log_data_access()` RPC — admin จะใช้ตรวจตาม พ.ร.บ.มาตรา 83
+- **Erasure SLA:** เมื่อ pdpa_erasure_requests.status = 'approved' → ต้อง execute deletion ภายใน 30 วัน → mark status='completed'
+- **Privacy notice link:** footer ของเว็บไซต์โรงเรียน**ต้อง**มี link "นโยบายความเป็นส่วนตัว" (ปัจจุบันยังขาด — ติดตามใน next sprint)
+- **DPO contact:** ถ้าโรงเรียนมีนักเรียน > 5,000 คน → ต้องแต่งตั้ง DPO + เปิด contact form สำหรับ data subject
+
 ### Rule 14.23 — LINE Official Account Integration (M085)
 
 ทดแทน LINE Notify ที่ปิดไป 1 เม.ย. 2025
