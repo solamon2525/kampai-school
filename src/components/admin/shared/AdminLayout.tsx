@@ -138,6 +138,7 @@ const menuItems: MenuItem[] = [
     { type: 'item', id: 'pdpa', label: 'PDPA Dashboard', icon: ShieldCheck, path: '/admin/dashboard/pdpa', adminOnly: true },
     { type: 'item', id: 'emergency', label: 'แจ้งเตือนฉุกเฉิน', icon: Mail, path: '/admin/dashboard/emergency', adminOnly: true },
     { type: 'item', id: 'donations', label: 'รับบริจาค', icon: Award, path: '/admin/dashboard/donations', adminOnly: true },
+    { type: 'item', id: 'dismissal', label: 'รับ-ส่งนักเรียน', icon: UserX, path: '/admin/dashboard/dismissal' },
 ];
 
 // Extract active tab from pathname

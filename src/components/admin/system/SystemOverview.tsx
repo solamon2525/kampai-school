@@ -272,6 +272,24 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.35.0 (School Daily Operations — Homework + Conference + Dismissal)',
+        date: 'ล่าสุด',
+        badge: 'bg-green-700',
+        items: [
+            'Migration 091 Homework Portal: assignments (per class+room+due_date+max_score) + assignment_submissions (UNIQUE per student) + RLS แยกตามบทบาท (staff manage, parent submit own children only)',
+            'AssignmentManagement /teacher/assignments: ครูสร้างการบ้าน + ดูรายชื่อนักเรียนที่ส่ง/ยังไม่ส่ง + grade inline พร้อม comment',
+            'ParentAssignments /parent/assignments: ผู้ปกครองเห็นการบ้านของบุตรในห้องเรียน + ส่งงาน (text body) + เห็นคะแนน + ความเห็นครู',
+            'Migration 092 Conference Scheduling: conference_slots (teacher publishes, Calendly-style) + conference_bookings (UNIQUE per slot — ป้องกัน double-booking) + status (confirmed/cancelled/no_show/completed)',
+            'ConferenceSlotsManager /teacher/conferences: ครูเปิด slot พร้อม duration + location + notes, ดูว่า slot ไหนถูกจอง, ยกเลิกได้',
+            'ConferenceBooking /parent/conferences: parent ดู slot ว่างทั้งหมด group by day, จองพร้อมระบุหัวข้อที่อยากคุย, ยกเลิกได้',
+            'Migration 093 Dismissal Tracking: pickup_persons (authorized adults per student พร้อม photo + nat_id 4 หลักท้าย) + pickup_log (snapshot ชื่อ+ความสัมพันธ์เผื่อ pickup_persons ลบทีหลัง)',
+            'DismissalManagement /admin/dashboard/dismissal: 3 tabs — บันทึกการรับ (quick mode + ค้นหานักเรียน), จัดการผู้รับ (CRUD pickup persons), ประวัติ (50 รายการล่าสุด real-time)',
+            'Auto-notify parents: ทุกครั้งที่บันทึก pickup → fan out Push + LINE พร้อมกัน — parent ได้รับข้อความ "ลูกถูกรับโดย X เรียบร้อย"',
+            'Routes ใหม่: /teacher/{assignments,conferences} + /parent/{assignments,conferences} + /admin/dashboard/dismissal',
+            'Cmd-K: t-assignments, t-conferences, p-assignments, p-conferences, adm-dismissal — รองรับ keywords ไทย/อังกฤษ',
+        ],
+    },
+    {
         version: 'v1.34.0 (Communication & Engagement — Emergency + Chat + Donations)',
         date: 'ล่าสุด',
         badge: 'bg-green-700',

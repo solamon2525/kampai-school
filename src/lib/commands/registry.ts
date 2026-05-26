@@ -86,6 +86,7 @@ export const STATIC_COMMANDS: CommandEntry[] = [
   { id: 'adm-pdpa', label: 'PDPA Compliance', group: 'แอดมิน', icon: Sparkles, roles: ['admin'], keywords: ['pdpa', 'consent', 'privacy', 'audit', 'erasure'], action: { type: 'navigate', path: '/admin/dashboard/pdpa' } },
   { id: 'adm-emergency', label: 'แจ้งเตือนฉุกเฉิน (Push + LINE)', group: 'แอดมิน', icon: Sparkles, roles: ['admin'], keywords: ['emergency', 'alert', 'broadcast', 'urgent', 'ฉุกเฉิน'], action: { type: 'navigate', path: '/admin/dashboard/emergency' } },
   { id: 'adm-donations', label: 'รับบริจาค (PromptPay)', group: 'แอดมิน', icon: Award, roles: ['admin'], keywords: ['donate', 'fundraise', 'promptpay', 'qr', 'บริจาค'], action: { type: 'navigate', path: '/admin/dashboard/donations' } },
+  { id: 'adm-dismissal', label: 'ระบบรับ-ส่งนักเรียน', group: 'แอดมิน', icon: ClipboardCheck, roles: ['admin', 'teacher'], keywords: ['pickup', 'dismissal', 'bus', 'รับ', 'ส่ง'], action: { type: 'navigate', path: '/admin/dashboard/dismissal' } },
   { id: 'adm-papor', label: 'สร้างเอกสาร ปพ.5 / ปพ.6', group: 'แอดมิน', icon: FileText, roles: ['admin', 'teacher'], keywords: ['papor', 'transcript', 'report', 'card', 'ปพ', 'สมุดพก', 'pdf'], action: { type: 'navigate', path: '/admin/dashboard/papor' } },
 
   // ── Teacher ──────────────────────────────────────────────
@@ -95,6 +96,8 @@ export const STATIC_COMMANDS: CommandEntry[] = [
   { id: 't-scores', label: 'บันทึกคะแนน', group: 'พอร์ทัลครู', icon: PenLine, roles: ['teacher', 'admin'], action: { type: 'navigate', path: '/teacher/scores' } },
   { id: 't-rewards', label: 'อนุมัติของรางวัล', group: 'พอร์ทัลครู', icon: Award, roles: ['teacher', 'admin'], action: { type: 'navigate', path: '/teacher/rewards-approval' } },
   { id: 't-edu-hub', label: 'จัดการคลังสื่อของฉัน', group: 'พอร์ทัลครู', icon: Sparkles, roles: ['teacher', 'admin'], action: { type: 'navigate', path: '/teacher/edu-hub' } },
+  { id: 't-assignments', label: 'จัดการการบ้าน', group: 'พอร์ทัลครู', icon: ClipboardCheck, roles: ['teacher', 'admin'], keywords: ['homework', 'assignment', 'การบ้าน'], action: { type: 'navigate', path: '/teacher/assignments' } },
+  { id: 't-conferences', label: 'ตารางนัดผู้ปกครอง', group: 'พอร์ทัลครู', icon: Calendar, roles: ['teacher', 'admin'], keywords: ['conference', 'slot', 'นัด'], action: { type: 'navigate', path: '/teacher/conferences' } },
 
   // ── Parent ───────────────────────────────────────────────
   { id: 'p-dashboard', label: 'แดชบอร์ดผู้ปกครอง', group: 'พอร์ทัลผู้ปกครอง', icon: LayoutDashboard, roles: ['parent', 'admin'], action: { type: 'navigate', path: '/parent' } },
@@ -105,6 +108,8 @@ export const STATIC_COMMANDS: CommandEntry[] = [
   { id: 'p-privacy', label: 'ความเป็นส่วนตัว (PDPA)', group: 'พอร์ทัลผู้ปกครอง', icon: Sparkles, roles: ['parent', 'admin'], keywords: ['privacy', 'consent', 'erasure', 'pdpa'], action: { type: 'navigate', path: '/parent/privacy' } },
   { id: 'p-chat', label: 'แชตกับครู', group: 'พอร์ทัลผู้ปกครอง', icon: Sparkles, roles: ['parent', 'admin'], keywords: ['chat', 'message', 'teacher', 'แชต'], action: { type: 'navigate', path: '/parent/chat' } },
   { id: 't-chat', label: 'แชตกับผู้ปกครอง', group: 'พอร์ทัลครู', icon: Sparkles, roles: ['teacher', 'admin'], keywords: ['chat', 'message', 'parent', 'แชต'], action: { type: 'navigate', path: '/teacher/chat' } },
+  { id: 'p-assignments', label: 'การบ้านของบุตร', group: 'พอร์ทัลผู้ปกครอง', icon: ClipboardCheck, roles: ['parent', 'admin'], keywords: ['homework', 'การบ้าน'], action: { type: 'navigate', path: '/parent/assignments' } },
+  { id: 'p-conferences', label: 'จองนัดครู', group: 'พอร์ทัลผู้ปกครอง', icon: Calendar, roles: ['parent', 'admin'], keywords: ['book', 'conference', 'นัด', 'จอง'], action: { type: 'navigate', path: '/parent/conferences' } },
 ];
 
 /** Filter visible commands based on the user's effective role. */

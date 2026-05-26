@@ -653,6 +653,29 @@ grep -A 20 "table_name_here" src/integrations/supabase/types.ts
 - **Data source:** ดึงจาก score_records + attendance_records + conduct_scores เท่านั้น — **ห้าม** Mock หรือ hardcode ตัวอย่าง
 - **Disclaimer:** ปุ่ม download ต้องมีข้อความเตือน "กรุณาตรวจสอบก่อนส่ง" — ระบบไม่รับผิดชอบความถูกต้องของข้อมูลก่อนส่งราชการ
 
+### Rule 14.28 — Homework Portal (M091)
+
+- **1 submission per (assignment, student):** UNIQUE constraint — re-submit = upsert (overwrite previous body/attachment)
+- **Parent submits, never edits after grading:** policy `parent_update_own_submission` blocks UPDATE when `graded_at IS NOT NULL`
+- **Class scope:** assignments เก็บ `class` + nullable `room` — parent visibility via parent_student_links → students.class match
+- **max_score default 10:** ถ้าครูไม่ระบุจะ default 10 (ป้องกัน null)
+- **Archive flag:** ใช้ `is_archived` ลบ soft — **ห้าม** DELETE assignment ที่มี submissions (เก็บประวัติคะแนน)
+
+### Rule 14.29 — Conference Scheduling (M092)
+
+- **UNIQUE slot booking:** `chat_threads.slot_id UNIQUE` — 1 booking ต่อ slot เด็ดขาด (no double-booking)
+- **Future-only booking:** RLS policy `parent_book_open_slot` ตรวจ `starts_at > NOW()` — server-side enforcement
+- **Cancellation:** ใช้ status='cancelled' + cancelled_reason — **ห้าม** DELETE booking (audit trail)
+- **No timezone field:** ทุกอย่างใช้ timestamptz + Asia/Bangkok ในการแสดงผล — สมมุติว่าเฉพาะโรงเรียนเดียวเขต TH
+- **Notification (TODO):** ยังไม่ wire push เมื่อ booking สร้าง — ใส่ใน next sprint (เพิ่ม trigger หรือ edge fn)
+
+### Rule 14.30 — Dismissal/Pickup Tracking (M093)
+
+- **Snapshot fields mandatory:** pickup_log.pickup_person_name_snapshot + relation_snapshot — เก็บค่าตอนบันทึก เพราะ pickup_persons อาจ deactivated ทีหลัง (audit needs name)
+- **Action enum:** pickup / self_dismiss / bus_board / bus_arrive_home / left_school — **ห้าม** เพิ่มค่านอก enum โดยไม่อัพ CHECK
+- **Auto-notify parents:** ทุกครั้งที่ insert pickup_log → fan out send-push + line-send แบบ best-effort (catch errors, ไม่ block)
+- **PDPA:** ID 4 หลักท้ายเท่านั้น (`national_id_last4`) — ห้ามเก็บเต็ม 13 หลัก ยกเว้นในตาราง `students.national_id` ที่ใช้สำหรับ DMC export
+
 ### Rule 14.25 — Realtime Chat Architecture (M089)
 
 - **1 thread per tuple:** UNIQUE(parent_user_id, teacher_user_id, student_id) — **ห้าม** สร้าง thread ซ้ำสำหรับคู่เดิม. ใช้ `chatService.openThread()` ที่ idempotent

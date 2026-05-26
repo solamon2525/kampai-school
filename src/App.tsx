@@ -82,6 +82,10 @@ const ParentChildView = lazyWithRetry(() => import("./pages/parent/ParentChildVi
 const PdpaSelfView = lazyWithRetry(() => import("./components/parent/PdpaSelfView").then(m => ({ default: m.PdpaSelfView })));
 const ChatPage = lazyWithRetry(() => import("./components/chat/ChatPage").then(m => ({ default: m.ChatPage })));
 const Donate = lazyWithRetry(() => import("./pages/Donate"));
+const ParentAssignments = lazyWithRetry(() => import("./components/parent/ParentAssignments").then(m => ({ default: m.ParentAssignments })));
+const ConferenceBooking = lazyWithRetry(() => import("./components/parent/ConferenceBooking").then(m => ({ default: m.ConferenceBooking })));
+const AssignmentManagement = lazyWithRetry(() => import("./components/teacher/AssignmentManagement").then(m => ({ default: m.AssignmentManagement })));
+const ConferenceSlotsManager = lazyWithRetry(() => import("./components/teacher/ConferenceSlotsManager").then(m => ({ default: m.ConferenceSlotsManager })));
 
 // Loading placeholder ขณะรอโหลด page (shimmer + logo placeholder — ดูนุ่มกว่า spinner)
 const PageLoader = () => (
@@ -188,6 +192,12 @@ const App = () => (
             <Route path="/teacher/chat" element={
               <PortalProtectedRoute allow={['teacher', 'admin']}><ChatPage /></PortalProtectedRoute>
             } />
+            <Route path="/teacher/assignments" element={
+              <PortalProtectedRoute allow={['teacher', 'admin']}><AssignmentManagement /></PortalProtectedRoute>
+            } />
+            <Route path="/teacher/conferences" element={
+              <PortalProtectedRoute allow={['teacher', 'admin']}><ConferenceSlotsManager /></PortalProtectedRoute>
+            } />
 
             {/* Parent Portal */}
             <Route path="/parent" element={
@@ -213,6 +223,12 @@ const App = () => (
             } />
             <Route path="/parent/chat" element={
               <PortalProtectedRoute allow={['parent', 'admin']}><ChatPage /></PortalProtectedRoute>
+            } />
+            <Route path="/parent/assignments" element={
+              <PortalProtectedRoute allow={['parent', 'admin']}><ParentAssignments /></PortalProtectedRoute>
+            } />
+            <Route path="/parent/conferences" element={
+              <PortalProtectedRoute allow={['parent', 'admin']}><ConferenceBooking /></PortalProtectedRoute>
             } />
 
             <Route path="*" element={<NotFound />} />
