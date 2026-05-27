@@ -564,7 +564,7 @@ const versionHistory = [
             'Attack-on-Noun (3D FPS shooter) hook เข้า game tracking pattern เดียวกับ pizza: postMessage init/gameEnd, score HUD, +100 ถูก / −20 ผิด (min 0), 3 hearts; final score → record_game_session RPC ผ่าน wrapper',
             'Mobile/tablet touch controls: IS_TOUCH detection → virtual joystick (left-bottom, 130px+ responsive) + look pad (full-screen drag) + fire/jump/zoom buttons (right-bottom) — ทุกตัวมี touch-action: none กัน scroll',
             'Mobile fix: skip pointer-lock เมื่อ IS_TOUCH (iOS/Android ไม่ support) → manually show/hide blocker overlay แทน',
-            'Navigation polish: เพิ่ม "← Back to games" button ใน PlayGame header + game redirect ปรับเป็น /h/natthapong (specific teacher hub แทน /educational-hub generic)',
+            'Navigation polish: เพิ่ม "← Back to games" button ใน PlayGame header + game redirect ปรับเป็น /h/nattapong (specific teacher hub แทน /educational-hub generic)',
         ],
     },
     {

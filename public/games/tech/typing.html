@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
   backBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
-      window.parent.postMessage({ type: 'navigate', to: '/h/natthapong' }, '*');
+      window.parent.postMessage({ type: 'navigate', to: '/h/nattapong' }, '*');
     });
   });
 });
@@ -226,7 +226,7 @@ document.getElementById("type-input").focus();
   if (!EMBED) return;
   function navigateTo(href) {
     if (href && href.includes('/educational-hub/a5f53911-b9cb-465a-b963-7202bcb907b1')) {
-      href = '/h/natthapong';
+      href = '/h/nattapong';
     }
     try { window.parent.postMessage({ type: 'navigate', to: href }, '*'); } catch (_) {}
   }

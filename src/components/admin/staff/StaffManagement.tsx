@@ -469,7 +469,7 @@ export const StaffManagement = () => {
                                         id="username"
                                         value={formData.username}
                                         onChange={(e) => setFormData({ ...formData, username: e.target.value.toLowerCase() })}
-                                        placeholder="natthapong"
+                                        placeholder="nattapong"
                                         pattern="[a-z0-9_-]{2,32}"
                                         title="ใช้ a-z, 0-9, -, _ (2-32 ตัวอักษร)"
                                     />

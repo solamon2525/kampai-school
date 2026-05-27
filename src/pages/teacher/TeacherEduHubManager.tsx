@@ -339,7 +339,7 @@ const MyProfileTab = ({ staffId }: { staffId: string }) => {
                                         <FormLabel>Username (สำหรับลิงก์สั้น)</FormLabel>
                                         <FormControl>
                                             <Input
-                                                placeholder="natthapong"
+                                                placeholder="nattapong"
                                                 {...field}
                                                 value={field.value ?? ''}
                                                 onChange={(e) => field.onChange(e.target.value.toLowerCase())}

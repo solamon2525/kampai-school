@@ -37,7 +37,7 @@
           backBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
               e.preventDefault();
-              window.parent.postMessage({ type: 'navigate', to: '/h/natthapong' }, '*');
+              window.parent.postMessage({ type: 'navigate', to: '/h/nattapong' }, '*');
             });
           });
         });
@@ -462,7 +462,7 @@
               {/* Floating Back Button */}
               <button 
                 onClick={() => {
-                  window.parent.postMessage({ type: 'navigate', to: '/h/natthapong' }, '*');
+                  window.parent.postMessage({ type: 'navigate', to: '/h/nattapong' }, '*');
                 }}
                 className="fixed top-4 left-4 z-50 flex items-center gap-2 px-4 py-2.5 bg-white/90 backdrop-blur rounded-full shadow-md border border-white hover:bg-white text-gray-700 font-bold transition-all hover:scale-105 active:scale-95"
               >
