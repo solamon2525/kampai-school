@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Plus, Edit2, Trash2, Save, X, ImagePlus, Gift, Globe2, User } from 'lucide-react';
+import { Plus, Edit2, Trash2, Save, X, ImagePlus, Gift, Globe2, User, Pencil, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthProvider';
 import { rewardsService } from '@/services/waste-bank.service';
@@ -353,9 +354,13 @@ export const RewardsManagement = () => {
                     <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20">
                       {r.points_cost} แต้ม
                     </Badge>
-                    <span className="text-xs text-muted-foreground">
-                      {r.stock === null ? 'ไม่จำกัด' : `คงเหลือ ${r.stock}`}
-                    </span>
+                    {isAdmin ? (
+                      <StockResetPopover reward={r} onSaved={fetchAll} />
+                    ) : (
+                      <span className="text-xs text-muted-foreground">
+                        {r.stock === null ? 'ไม่จำกัด' : `คงเหลือ ${r.stock}`}
+                      </span>
+                    )}
                   </div>
                   <div className="flex gap-2 pt-2">
                     <Button
@@ -387,3 +392,100 @@ export const RewardsManagement = () => {
     </div>
   );
 };
+
+// ─── StockResetPopover (admin only) ─────────────────────────────────────────
+// คลิก stock badge → popover ที่กรอกตัวเลขใหม่ → call admin_set_reward_stock RPC
+// ใช้สำหรับ reconcile drift (เช่นกรณี trigger หาย active claims > stock)
+function StockResetPopover({ reward, onSaved }: { reward: Reward; onSaved: () => void }) {
+  const { toast } = useToast();
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState<string>(reward.stock === null ? '' : String(reward.stock));
+  const [saving, setSaving] = useState(false);
+
+  // resync ค่าทุกครั้งที่ popover เปิด (เผื่อ stock ถูก update จากที่อื่น)
+  useEffect(() => {
+    if (open) setValue(reward.stock === null ? '' : String(reward.stock));
+  }, [open, reward.stock]);
+
+  const handleSave = async () => {
+    const n = parseInt(value, 10);
+    if (isNaN(n) || n < 0) {
+      toast({ title: 'ค่าไม่ถูกต้อง', description: 'กรอกตัวเลขจำนวนเต็ม ≥ 0', variant: 'destructive' });
+      return;
+    }
+    setSaving(true);
+    const { error } = await rewardsService.setStock(reward.id, n);
+    setSaving(false);
+    if (error) {
+      toast({ title: 'บันทึกไม่สำเร็จ', description: error.message, variant: 'destructive' });
+      return;
+    }
+    toast({ title: 'ปรับ stock แล้ว', description: `${reward.name}: ${reward.stock ?? '∞'} → ${n}` });
+    setOpen(false);
+    onSaved();
+  };
+
+  const handleSetUnlimited = async () => {
+    setSaving(true);
+    // ใช้ update() ตรงๆ เพื่อ set NULL — admin RLS อนุญาตอยู่แล้ว
+    const { error } = await rewardsService.update(reward.id, { stock: null });
+    setSaving(false);
+    if (error) {
+      toast({ title: 'บันทึกไม่สำเร็จ', description: error.message, variant: 'destructive' });
+      return;
+    }
+    toast({ title: 'ตั้งเป็นไม่จำกัดแล้ว', description: reward.name });
+    setOpen(false);
+    onSaved();
+  };
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 px-1.5 py-0.5 rounded hover:bg-muted/60"
+          title="คลิกเพื่อปรับ stock (admin only)"
+        >
+          {reward.stock === null ? 'ไม่จำกัด' : `คงเหลือ ${reward.stock}`}
+          <Pencil className="w-3 h-3 opacity-60" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-64 p-3 space-y-3" align="end">
+        <div className="space-y-1">
+          <Label className="text-xs font-semibold">ปรับ stock ของ "{reward.name}"</Label>
+          <p className="text-[10px] text-muted-foreground">
+            ตั้งค่าตรงๆ — ใช้สำหรับ reconcile หาก stock ไม่ตรงสต๊อกจริง
+          </p>
+        </div>
+        <Input
+          type="number"
+          min={0}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          disabled={saving}
+          placeholder="จำนวนคงเหลือ"
+          autoFocus
+        />
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" onClick={() => setOpen(false)} disabled={saving} className="flex-1">
+            ยกเลิก
+          </Button>
+          <Button size="sm" onClick={handleSave} disabled={saving} className="flex-1 gap-1">
+            <Save className="w-3.5 h-3.5" />
+            บันทึก
+          </Button>
+        </div>
+        <button
+          type="button"
+          onClick={handleSetUnlimited}
+          disabled={saving}
+          className="w-full text-[11px] text-muted-foreground hover:text-foreground py-1 border border-dashed rounded transition-colors flex items-center justify-center gap-1"
+        >
+          <RotateCcw className="w-3 h-3" />
+          ตั้งเป็นไม่จำกัด (NULL)
+        </button>
+      </PopoverContent>
+    </Popover>
+  );
+}

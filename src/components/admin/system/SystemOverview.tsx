@@ -272,8 +272,26 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.37.3 (Reward Claim Quantity — แลกหลายชิ้นต่อครั้ง + รายการที่แลกได้เลยจากหน้าเช็คแต้ม)',
+        version: 'v1.37.4 (Stock-in-RPC — แก้บัค stock ไม่ตัด + เลิกพึ่ง trigger + admin reset UI)',
         date: 'ล่าสุด',
+        badge: 'bg-rose-600',
+        items: [
+            '🐛 Critical bug: v1.37.3 พึ่ง trigger trg_reward_claim_status_change เพื่อหัก stock. ใน prod ตรวจพบ trigger หายเงียบๆ (function อยู่ครบ migration 081 รันแล้ว แต่ pg_trigger ว่าง) → claim หลายร้อย rows insert โดย stock ไม่ถูกหัก → drift "ลูกบอล" stock=6 vs claimed=7',
+            'Architecture fix (migration 100): ย้าย stock mutation ทั้งหมดเข้า RPC ไม่พึ่ง trigger',
+            'claim_reward RPC: เพิ่ม UPDATE rewards SET stock = stock - p_quantity inline หลัง INSERT — atomic ใน TX เดียว',
+            'approve_reward_claim RPC ใหม่: ไม่กระทบ stock (pending→approved ไม่ต้องเปลี่ยน). idempotent. RPC อ่าน reviewer + approver จาก auth.uid() + user_roles เอง — ไม่ต้องส่ง params จาก client',
+            'reject_reward_claim RPC ใหม่: คืน stock +qty เฉพาะถ้า OLD status เป็น active. Idempotent กัน double-restore (ถ้า reject ซ้ำจะ no-op)',
+            'admin_set_reward_stock RPC ใหม่: SECURITY DEFINER + is_admin() guard — admin เซ็ต stock ตรงๆ สำหรับ reconcile drift',
+            'DROP TRIGGER trg_reward_claim_status_change — ไม่ใช้แล้ว. Function handle_reward_claim_status_change() คงไว้ + COMMENT DEPRECATED (ใช้ escape hatch รอ rollback)',
+            '🛠️ Admin UI: หน้า Rewards Management — คลิก stock badge ของรางวัล → popover พิมพ์ค่าใหม่ → setStock RPC. ปุ่ม "ตั้งเป็นไม่จำกัด" เซ็ต stock=NULL (admin RLS อนุญาต)',
+            'Service refactor: approve(claimId) / reject(claimId, reason) — ลบ args reviewedBy/staffId/administratorId. setStock(rewardId, n) เพิ่มใน rewardsService',
+            'Call sites: ClaimsApproval.tsx + ClaimQRScanner.tsx ตัด args เก่าออก — ไม่กระทบฟังก์ชันเดิม',
+            'DESIGN.md Rule 14.42: architecture matrix + ห้าม update reward_claims.status ตรงๆ + Admin reconcile workflow',
+        ],
+    },
+    {
+        version: 'v1.37.3 (Reward Claim Quantity — แลกหลายชิ้นต่อครั้ง + รายการที่แลกได้เลยจากหน้าเช็คแต้ม)',
+        date: '',
         badge: 'bg-amber-600',
         items: [
             '🎁 Feature: หน้า /waste-bank/rewards (หน้าบ้านนักเรียน) — เลือกจำนวนชิ้นที่จะแลกได้ผ่าน +/− stepper + ช่อง number input. แสดง total breakdown ใหญ่ + แต้มคงเหลือหลังหัก realtime',

@@ -45,7 +45,8 @@ export const ClaimsApproval = ({ onAction }: ClaimsApprovalProps) => {
   const handleApprove = async (id: string) => {
     if (!user?.id) return;
     setProcessingId(id);
-    const { error } = await rewardClaimsService.approve(id, user.id, { staffId, administratorId });
+    // v1.37.4: RPC อ่าน reviewer + approver จาก auth.uid() เอง — ไม่ต้องส่ง params
+    const { error } = await rewardClaimsService.approve(id);
     setProcessingId(null);
     if (error) {
       toast({ title: 'อนุมัติไม่สำเร็จ', description: error.message, variant: 'destructive' });
@@ -59,12 +60,13 @@ export const ClaimsApproval = ({ onAction }: ClaimsApprovalProps) => {
     if (!user?.id) return;
     const reason = prompt('เหตุผลที่ปฏิเสธ (ไม่บังคับ):') ?? undefined;
     setProcessingId(id);
-    const { error } = await rewardClaimsService.reject(id, user.id, reason, { staffId, administratorId });
+    // v1.37.4: RPC อ่าน reviewer จาก auth.uid() + คืน stock อัตโนมัติ (idempotent)
+    const { error } = await rewardClaimsService.reject(id, reason);
     setProcessingId(null);
     if (error) {
       toast({ title: 'ปฏิเสธไม่สำเร็จ', description: error.message, variant: 'destructive' });
     } else {
-      toast({ title: 'ปฏิเสธคำขอสำเร็จ' });
+      toast({ title: 'ปฏิเสธคำขอสำเร็จ — คืน stock แล้ว' });
       handleActionCompleted();
     }
   };

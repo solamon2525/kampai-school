@@ -30,7 +30,7 @@ interface Props {
 
 export const ClaimQRScanner = ({ open, onClose, onAction }: Props) => {
   const { toast } = useToast();
-  const { user, staffId, administratorId } = useAuth();
+  const { user } = useAuth();
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [claim, setClaim] = useState<RewardClaim | null>(null);
@@ -142,7 +142,8 @@ export const ClaimQRScanner = ({ open, onClose, onAction }: Props) => {
   const handleApprove = async () => {
     if (!claim || !user?.id) return;
     setProcessing(true);
-    const { error: approveErr } = await rewardClaimsService.approve(claim.id, user.id, { staffId, administratorId });
+    // v1.37.4: RPC อ่าน reviewer จาก auth.uid() เอง
+    const { error: approveErr } = await rewardClaimsService.approve(claim.id);
     setProcessing(false);
     if (approveErr) {
       toast({ title: 'อนุมัติไม่สำเร็จ', description: approveErr.message, variant: 'destructive' });
@@ -157,12 +158,13 @@ export const ClaimQRScanner = ({ open, onClose, onAction }: Props) => {
     if (!claim || !user?.id) return;
     const reason = prompt('เหตุผลที่ปฏิเสธ (ไม่บังคับ):') ?? undefined;
     setProcessing(true);
-    const { error: rejectErr } = await rewardClaimsService.reject(claim.id, user.id, reason, { staffId, administratorId });
+    // v1.37.4: RPC คืน stock ให้อัตโนมัติ (idempotent กัน double-restore)
+    const { error: rejectErr } = await rewardClaimsService.reject(claim.id, reason);
     setProcessing(false);
     if (rejectErr) {
       toast({ title: 'ดำเนินการไม่สำเร็จ', description: rejectErr.message, variant: 'destructive' });
     } else {
-      toast({ title: 'ปฏิเสธคำขอเรียบร้อย' });
+      toast({ title: 'ปฏิเสธคำขอเรียบร้อย — คืน stock แล้ว' });
       onAction();
       onClose();
     }

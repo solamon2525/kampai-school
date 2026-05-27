@@ -245,6 +245,17 @@ export const rewardsService = {
 
   delete: (id: string) => supabase.from('rewards').delete().eq('id', id),
 
+  /**
+   * Admin-only: ตั้ง stock ใหม่ตรงๆ (สำหรับ reconcile drift)
+   * NULL ไม่รองรับใน RPC นี้ — ถ้าอยากตั้ง unlimited ใช้ update(id, { stock: null }) แทน
+   * RPC: admin_set_reward_stock (migration 100, requires is_admin())
+   */
+  setStock: (rewardId: string, newStock: number) =>
+    supabase.rpc('admin_set_reward_stock' as never, {
+      p_reward_id: rewardId,
+      p_new_stock: newStock,
+    } as never),
+
   uploadImage: async (file: File): Promise<string> => {
     const ext = file.name.split('.').pop() || 'png';
     const fileName = `${crypto.randomUUID()}.${ext}`;
@@ -297,39 +308,23 @@ export const rewardClaimsService = {
     points_used: number;
   }) => supabase.from('reward_claims').insert(data as never),
 
-  approve: (
-    id: string,
-    reviewedBy: string,
-    approver: { staffId: string | null; administratorId: string | null },
-  ) =>
-    supabase
-      .from('reward_claims')
-      .update({
-        status: 'approved',
-        reviewed_at: new Date().toISOString(),
-        reviewed_by: reviewedBy,
-        approved_by_staff_id: approver.staffId,
-        approved_by_administrator_id: approver.administratorId,
-      } as never)
-      .eq('id', id),
+  /**
+   * Approve a pending claim. RPC derives reviewer + approver id from auth.uid().
+   * pending → approved: stock ไม่เปลี่ยน (หักไปแล้วตอน claim_reward INSERT).
+   * Idempotent: ถ้า status='approved' อยู่แล้ว → no-op.
+   */
+  approve: (claimId: string) =>
+    supabase.rpc('approve_reward_claim' as never, { p_claim_id: claimId } as never),
 
-  reject: (
-    id: string,
-    reviewedBy: string,
-    reason: string | undefined,
-    approver: { staffId: string | null; administratorId: string | null },
-  ) =>
-    supabase
-      .from('reward_claims')
-      .update({
-        status: 'rejected',
-        reviewed_at: new Date().toISOString(),
-        reviewed_by: reviewedBy,
-        rejection_reason: reason ?? null,
-        approved_by_staff_id: approver.staffId,
-        approved_by_administrator_id: approver.administratorId,
-      } as never)
-      .eq('id', id),
+  /**
+   * Reject a claim + คืน stock (ถ้า OLD status เป็น active).
+   * Idempotent: ถ้า status='rejected' อยู่แล้ว → no-op (กัน double-restore).
+   */
+  reject: (claimId: string, reason?: string) =>
+    supabase.rpc('reject_reward_claim' as never, {
+      p_claim_id: claimId,
+      p_reason: reason ?? null,
+    } as never),
 
   // Public RPC: lookup student balance by student_code (no auth)
   lookupStudent: (code: string) =>

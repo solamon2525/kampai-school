@@ -801,6 +801,28 @@ Logic อยู่ใน `src/main.tsx` (ก่อน `createRoot`) ที่อ
 - LINE OA / Facebook page ของโรงเรียน: "ถ้าเว็บไม่โหลด ให้กดลิงก์นี้ 1 ครั้ง: kampai-school.vercel.app/?reset_sw=1"
 - Admin support — เป็นคำถามแรกก่อน escalate
 
+### Rule 14.42 — Reward Stock = RPC-Managed (No Trigger)
+
+**Architecture:** ตั้งแต่ migration 100 (v1.37.4) — stock mutation **ทำใน RPC ทั้งหมด** ไม่พึ่ง trigger.
+
+| Action | RPC | Stock effect |
+|---|---|---|
+| แลกรางวัล (public) | `claim_reward(code, reward_id, qty=1)` | `stock -= qty` (inline, atomic) |
+| ครูอนุมัติ | `approve_reward_claim(claim_id)` | ไม่เปลี่ยน (pending→approved ไม่กระทบ) |
+| ครูปฏิเสธ | `reject_reward_claim(claim_id, reason)` | `stock += qty` ถ้า OLD active (idempotent) |
+| Admin reset | `admin_set_reward_stock(reward_id, new)` | `stock = max(0, new)` (admin only) |
+
+**Trigger เก่า `trg_reward_claim_status_change` ถูก DROP แล้ว** (migration 100). Function `handle_reward_claim_status_change()` คงไว้แค่ comment DEPRECATED — ใช้ escape hatch ถ้าต้อง emergency rollback re-attach trigger.
+
+**Incident background:** v1.37.3 พึ่ง trigger เพื่อหัก stock. ใน prod ตรวจพบ trigger หายเงียบๆ (function อยู่ครบ ตรวจสอบ migration 081 รันแล้วแต่ pg_trigger ว่าง) → claim หลายร้อย rows insert โดย stock ไม่ถูกหัก → drift บน "ลูกบอล" stock=6 vs claimed=7. ย้าย logic เข้า RPC = ไม่ต้องพึ่ง trigger reliability อีก
+
+**ห้าม:**
+- เขียน `supabase.from('reward_claims').update({status:'...'})` ตรงๆ ใน client — ต้องผ่าน `approve_reward_claim` / `reject_reward_claim` เพื่อให้ stock + audit fields update พร้อมกัน
+- DROP function `handle_reward_claim_status_change()` — เก็บไว้เผื่อ rollback emergency
+- เพิ่ม trigger ใหม่บน `reward_claims` ที่แตะ stock — จะ double-deduct กับ RPC
+
+**Admin reconcile UI:** หน้า Rewards Management (ตาราง grid) — admin คลิก stock badge → popover ใส่จำนวนใหม่ → `rewardsService.setStock(id, n)`. ปุ่ม "ตั้งเป็นไม่จำกัด" → `rewardsService.update(id, { stock: null })` (admin RLS อนุญาต)
+
 ### Rule 14.41 — Reward Claim Quantity (หน้าบ้าน /waste-bank/rewards)
 
 **Source of truth:** RPC `claim_reward(p_code TEXT, p_reward_id UUID, p_quantity INT DEFAULT 1)` — **ห้าม** insert ตรงเข้า `reward_claims` ในโค้ดฝั่ง client. RPC ทำ:
