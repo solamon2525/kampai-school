@@ -117,6 +117,15 @@ export const gamePlayService = {
     return (data as unknown as LeaderboardRow[]) ?? [];
   },
 
+  adminResetGameSessions: async (gameSlug: string, studentId?: string) => {
+    const { data, error } = await supabase.rpc('admin_reset_game_sessions', {
+      p_game_slug: gameSlug,
+      p_student_id: studentId ?? null,
+    });
+    if (error) throw error;
+    return data as { sessions_deleted: number; achievements_deleted: number };
+  },
+
   pushToScoreRecord: async (params: {
     sessionId: string;
     scoreType: 'เก็บ' | 'กลางภาค' | 'ปลายภาค';

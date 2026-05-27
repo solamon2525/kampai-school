@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useMemo, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   BarChart,
   Bar,
@@ -9,12 +9,18 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { Gamepad2, Trophy, Users, Sparkles, Calendar } from 'lucide-react';
+import { Gamepad2, Trophy, Users, Sparkles, Calendar, RotateCcw } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+    Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
+import { ConfirmDialog } from '@/components/admin/shared/ConfirmDialog';
+import { useToast } from '@/hooks/use-toast';
 import {
   gameSessionsService,
   gamePlayService,
@@ -24,6 +30,27 @@ import {
 const PIZZA_SLUG = 'pizza-master-chef';
 
 export const GamePlayDashboard = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const [selectedGameSlug, setSelectedGameSlug] = useState(PIZZA_SLUG);
+  const [resetTarget, setResetTarget] = useState<{ studentId: string; name: string } | null>(null);
+
+  const executeStudentReset = async () => {
+    if (!resetTarget) return;
+    const { studentId, name } = resetTarget;
+    setResetTarget(null);
+    try {
+      const result = await gamePlayService.adminResetGameSessions(selectedGameSlug, studentId);
+      queryClient.invalidateQueries({ queryKey: ['game-leaderboard', selectedGameSlug] });
+      toast({
+        title: `รีเซทคะแนนของ ${name} สำเร็จ`,
+        description: `ลบ ${result.sessions_deleted} เซสชั่น, ${result.achievements_deleted} badge`,
+      });
+    } catch (err) {
+      toast({ title: 'รีเซทไม่สำเร็จ', description: err instanceof Error ? err.message : 'เกิดข้อผิดพลาด', variant: 'destructive' });
+    }
+  };
+
   // tracked games list
   const gamesQuery = useQuery({
     queryKey: ['tracked-games'],
@@ -44,10 +71,9 @@ export const GamePlayDashboard = () => {
     },
   });
 
-  // pilot leaderboard (Pizza)
   const leaderboardQuery = useQuery({
-    queryKey: ['game-leaderboard', PIZZA_SLUG],
-    queryFn: () => gamePlayService.getLeaderboard(PIZZA_SLUG, 10),
+    queryKey: ['game-leaderboard', selectedGameSlug],
+    queryFn: () => gamePlayService.getLeaderboard(selectedGameSlug, 10),
   });
 
   const stats = useMemo(() => {
@@ -182,10 +208,24 @@ export const GamePlayDashboard = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Trophy className="h-4 w-4 text-amber-500" />
-            อันดับสูงสุด — Pizza Master Chef
-          </CardTitle>
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Trophy className="h-4 w-4 text-amber-500" />
+              อันดับสูงสุด
+            </CardTitle>
+            <Select value={selectedGameSlug} onValueChange={setSelectedGameSlug}>
+              <SelectTrigger className="w-52 h-8 text-sm">
+                <SelectValue placeholder="เลือกเกม" />
+              </SelectTrigger>
+              <SelectContent>
+                {(gamesQuery.data ?? []).map((g) => (
+                  <SelectItem key={g.game_slug!} value={g.game_slug!}>
+                    {g.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </CardHeader>
         <CardContent>
           {leaderboardQuery.isLoading ? (
@@ -202,6 +242,7 @@ export const GamePlayDashboard = () => {
                   <TableHead className="text-right">คะแนนสูงสุด</TableHead>
                   <TableHead className="text-right">ครั้งที่เล่น</TableHead>
                   <TableHead className="text-right">XP</TableHead>
+                  <TableHead className="w-10"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -232,6 +273,17 @@ export const GamePlayDashboard = () => {
                     <TableCell className="text-right text-sm text-muted-foreground">
                       {row.total_xp.toLocaleString('th-TH')}
                     </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                        title={`รีเซทคะแนนของ ${row.display_name}`}
+                        onClick={() => setResetTarget({ studentId: row.student_id, name: row.display_name })}
+                      >
+                        <RotateCcw className="h-3.5 w-3.5" />
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -239,6 +291,15 @@ export const GamePlayDashboard = () => {
           )}
         </CardContent>
       </Card>
+
+      <ConfirmDialog
+        open={!!resetTarget}
+        onOpenChange={(open) => !open && setResetTarget(null)}
+        onConfirm={executeStudentReset}
+        title={`รีเซทคะแนนของ ${resetTarget?.name}?`}
+        description={`ลบประวัติการเล่นและ badge ทั้งหมดของ ${resetTarget?.name} สำหรับเกมนี้ — ไม่สามารถกู้คืนได้`}
+        confirmText="รีเซทคะแนน"
+      />
     </div>
   );
 };

@@ -272,8 +272,22 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.37.4 (Stock-in-RPC — แก้บัค stock ไม่ตัด + เลิกพึ่ง trigger + admin reset UI)',
+        version: 'v1.38.0 (Game Management — ลบเกม + รีเซทคะแนนนักเรียน)',
         date: 'ล่าสุด',
+        badge: 'bg-violet-600',
+        items: [
+            'GamesTab: ปุ่ม "ลบเกม" — ลบ DB record + ไฟล์ HTML จาก Storage พร้อม ConfirmDialog',
+            'GamesTab: ปุ่ม "รีเซทคะแนน" (เฉพาะเกมที่มี game_slug) — ลบ sessions + achievements ของทุกนักเรียนสำหรับเกมนั้น',
+            'GamePlayDashboard: game selector dropdown — เลือกดู leaderboard ของเกมใดก็ได้ (ไม่ล็อค pizza)',
+            'GamePlayDashboard: ปุ่มรีเซทคะแนนต่อนักเรียน (icon RotateCcw) ใน leaderboard row',
+            'Migration 097: RPC admin_reset_game_sessions(p_game_slug, p_student_id?) — ลบ sessions + achievements แบบ atomic ผ่าน SECURITY DEFINER',
+            'Math Jumper bugfixes: star flicker, splice-in-forEach, bgObjects accumulation',
+            'Math Jumper gravity -30%: very_easy 0.14 / easy 0.28 / hard 0.525',
+        ],
+    },
+    {
+        version: 'v1.37.4 (Stock-in-RPC — แก้บัค stock ไม่ตัด + เลิกพึ่ง trigger + admin reset UI)',
+        date: '',
         badge: 'bg-rose-600',
         items: [
             '🐛 Critical bug: v1.37.3 พึ่ง trigger trg_reward_claim_status_change เพื่อหัก stock. ใน prod ตรวจพบ trigger หายเงียบๆ (function อยู่ครบ migration 081 รันแล้ว แต่ pg_trigger ว่าง) → claim หลายร้อย rows insert โดย stock ไม่ถูกหัก → drift "ลูกบอล" stock=6 vs claimed=7',

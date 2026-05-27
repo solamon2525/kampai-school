@@ -299,6 +299,10 @@ export const educationalHubService = {
     removeFile: async (path: string) =>
         supabase.storage.from(BUCKET).remove([path]),
 
+    /** Remove an HTML game file from the edu-hub-games bucket by storage path (e.g. 'math/math-jumper.html') */
+    removeGameHtml: async (storagePath: string) =>
+        supabase.storage.from(GAMES_BUCKET).remove([storagePath]),
+
     // ─── HTML Game upload (admin-only via RLS) ──────────────────────────
     /**
      * Upload an HTML game file to the `edu-hub-games` bucket.

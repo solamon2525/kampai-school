@@ -17,7 +17,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink, Plus, RefreshCw, AlertTriangle, Loader2 } from 'lucide-react';
+import { ExternalLink, Plus, RefreshCw, AlertTriangle, Loader2, Trash2, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -35,6 +35,7 @@ import {
 } from '@/components/ui/select';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { ImageUpload } from '@/components/admin/shared/ImageUpload';
+import { ConfirmDialog } from '@/components/admin/shared/ConfirmDialog';
 import { TagPicker } from './TagPicker';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -42,6 +43,7 @@ import {
     educationalHubService,
     type EduHubItem,
 } from '@/services/educational-hub.service';
+import { gamePlayService } from '@/services/game-play.service';
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
@@ -97,6 +99,50 @@ export const GamesTab = () => {
         | { mode: 'replace'; item: EduHubItem }
         | null
     >(null);
+    const [confirmAction, setConfirmAction] = useState<
+        | { type: 'delete'; item: EduHubItem }
+        | { type: 'reset'; item: EduHubItem }
+        | null
+    >(null);
+
+    const handleConfirm = async () => {
+        if (!confirmAction) return;
+        const { type, item } = confirmAction;
+        setConfirmAction(null);
+
+        if (type === 'delete') {
+            try {
+                const { error: dbErr } = await educationalHubService.deleteItem(item.id);
+                if (dbErr) throw dbErr;
+                const { subject, slug } = parseGameUrl(item.external_url ?? '');
+                if (subject && slug) {
+                    await educationalHubService.removeGameHtml(`${subject}/${slug}.html`);
+                }
+                queryClient.invalidateQueries({ queryKey: ['edu-hub', 'storage-games'] });
+                queryClient.invalidateQueries({ queryKey: ['edu-hub'] });
+                toast({ title: 'ลบเกมสำเร็จ', description: `ลบ "${item.title}" แล้ว` });
+            } catch (err) {
+                toast({ title: 'ลบไม่สำเร็จ', description: err instanceof Error ? err.message : 'เกิดข้อผิดพลาด', variant: 'destructive' });
+            }
+        } else {
+            const gameSlug = item.game_slug ?? parseGameUrl(item.external_url ?? '').slug;
+            if (!gameSlug) {
+                toast({ title: 'รีเซทไม่ได้', description: 'เกมนี้ยังไม่มี game_slug กำหนดไว้', variant: 'destructive' });
+                return;
+            }
+            try {
+                const result = await gamePlayService.adminResetGameSessions(gameSlug);
+                queryClient.invalidateQueries({ queryKey: ['game-leaderboard'] });
+                queryClient.invalidateQueries({ queryKey: ['game-sessions-recent'] });
+                toast({
+                    title: 'รีเซทคะแนนสำเร็จ',
+                    description: `ลบ ${result.sessions_deleted} เซสชั่น, ${result.achievements_deleted} badge`,
+                });
+            } catch (err) {
+                toast({ title: 'รีเซทไม่สำเร็จ', description: err instanceof Error ? err.message : 'เกิดข้อผิดพลาด', variant: 'destructive' });
+            }
+        }
+    };
 
     // List items ที่ external_url ขึ้นต้นด้วย Storage URL
     const { data: items, isLoading } = useQuery({
@@ -241,13 +287,33 @@ export const GamesTab = () => {
                                                     )}
                                                 </td>
                                                 <td className="px-4 py-3 text-right">
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() => setDialog({ mode: 'replace', item })}
-                                                    >
-                                                        <RefreshCw className="h-3 w-3 mr-1" /> อัพเดท v.2
-                                                    </Button>
+                                                    <div className="flex items-center justify-end gap-1">
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            onClick={() => setDialog({ mode: 'replace', item })}
+                                                        >
+                                                            <RefreshCw className="h-3 w-3 mr-1" /> อัพเดท v.2
+                                                        </Button>
+                                                        {item.game_slug && (
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                className="text-amber-600 border-amber-200 hover:bg-amber-50"
+                                                                onClick={() => setConfirmAction({ type: 'reset', item })}
+                                                            >
+                                                                <RotateCcw className="h-3 w-3 mr-1" /> รีเซทคะแนน
+                                                            </Button>
+                                                        )}
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="text-destructive border-destructive/30 hover:bg-destructive/5"
+                                                            onClick={() => setConfirmAction({ type: 'delete', item })}
+                                                        >
+                                                            <Trash2 className="h-3 w-3 mr-1" /> ลบ
+                                                        </Button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         );
@@ -280,6 +346,23 @@ export const GamesTab = () => {
                     )}
                 </DialogContent>
             </Dialog>
+
+            <ConfirmDialog
+                open={confirmAction?.type === 'delete'}
+                onOpenChange={(open) => !open && setConfirmAction(null)}
+                onConfirm={handleConfirm}
+                title={`ลบเกม "${confirmAction?.item.title}"?`}
+                description="ลบ record และไฟล์ HTML ออกจาก Storage ถาวร — ประวัติคะแนนของนักเรียนจะยังคงอยู่ใน DB"
+                confirmText="ลบเกม"
+            />
+            <ConfirmDialog
+                open={confirmAction?.type === 'reset'}
+                onOpenChange={(open) => !open && setConfirmAction(null)}
+                onConfirm={handleConfirm}
+                title={`รีเซทคะแนนเกม "${confirmAction?.item.title}"?`}
+                description="ลบประวัติการเล่นและ badge ของนักเรียนทุกคนสำหรับเกมนี้ — ไม่สามารถกู้คืนได้"
+                confirmText="รีเซทคะแนนทั้งหมด"
+            />
         </div>
     );
 };
