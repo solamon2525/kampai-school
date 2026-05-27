@@ -559,6 +559,16 @@
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
+    // --- postMessage integration with PlayGame.tsx wrapper ---
+    let STUDENT_CODE = '';
+    let SESSION_START_TS = Date.now();
+
+    window.addEventListener('message', (e) => {
+        if (e?.data?.type === 'init' && typeof e.data.studentCode === 'string') {
+            STUDENT_CODE = e.data.studentCode;
+        }
+    });
+
     // Game Variables
     let gameState = 'START';
     let score = 0;
@@ -1095,6 +1105,7 @@
     }
 
     function startGame() {
+        SESSION_START_TS = Date.now();
         audioSys.init();
         audioSys.startBGM();
 
@@ -1140,6 +1151,19 @@
         document.getElementById('final-score').innerText = score;
         document.getElementById('game-over-screen').style.display = 'flex';
         updateLeaderboardUI();
+        // ส่งคะแนนไปยัง PlayGame.tsx wrapper เพื่อบันทึกลง Supabase
+        window.parent.postMessage({
+            type: 'gameEnd',
+            gameSlug: 'math-jumper',
+            studentCode: STUDENT_CODE,
+            score: score,
+            mode: currentMathMode + (isEquationMode ? '_eq' : ''),
+            metadata: {
+                duration: Math.max(1, Math.floor((Date.now() - SESSION_START_TS) / 1000)),
+                height: Math.floor(heightScore),
+                difficulty: selectedDifficulty,
+            }
+        }, '*');
     }
 
     function createParticles(x, y, color) {
