@@ -272,8 +272,22 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.38.0 (Game Management — ลบเกม + รีเซทคะแนนนักเรียน)',
+        version: 'v1.38.1 (GamesTab — จัดการเกมทั้งหมด Storage + Git)',
         date: 'ล่าสุด',
+        badge: 'bg-teal-600',
+        items: [
+            'GamesTab query: ขยายจาก Storage-only → Storage + Git legacy games (17 ตัว ใน /games/...)',
+            'เพิ่ม badge "ประเภท" ในตาราง — Storage (เขียว) vs Git (เทา)',
+            'ปุ่ม "อัพเดท v.2" แสดงเฉพาะ Storage games เท่านั้น',
+            'ปุ่ม "ตั้งค่า" (Settings) สำหรับทุกเกม → GameSettingsDialog แก้ game_slug / tracked_game / is_published',
+            'ลบ Git game: ลบแค่ DB record พร้อมแจ้ง dialog ว่าไฟล์ยังอยู่ใน git',
+            'ลบ Storage game: ลบ DB record + ไฟล์จาก Storage (เดิม)',
+            'แสดง game_slug ใต้ชื่อเกมในตาราง (ถ้ามี)',
+        ],
+    },
+    {
+        version: 'v1.38.0 (Game Management — ลบเกม + รีเซทคะแนนนักเรียน)',
+        date: '',
         badge: 'bg-violet-600',
         items: [
             'GamesTab: ปุ่ม "ลบเกม" — ลบ DB record + ไฟล์ HTML จาก Storage พร้อม ConfirmDialog',

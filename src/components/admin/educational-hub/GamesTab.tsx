@@ -1,12 +1,16 @@
 /**
- * GamesTab.tsx — Admin-only tab สำหรับจัดการ HTML game files
+ * GamesTab.tsx — Admin-only tab สำหรับจัดการ HTML game files (ทุกประเภท)
  *
- * แสดงเฉพาะ items ที่ external_url ชี้ไป Supabase Storage bucket `edu-hub-games`
- * (ไม่แสดงเกม `/games/...` แบบเดิมที่ยังอยู่ใน git)
+ * แสดง 2 ประเภท:
+ * - Storage games: external_url มี /edu-hub-games/ → อัพเดท v.2 ได้ + ลบ DB+file
+ * - Git games: external_url ขึ้นต้น /games/ → ลบแค่ DB (ไฟล์อยู่ใน git)
  *
  * Features:
  * - อัพโหลดเกมใหม่ → upload HTML + cover + create educational_hub_items row
- * - อัพเดท v.2 → upload HTML ทับไฟล์เดิม (path เดียวกัน) + bump ?v=timestamp
+ * - อัพเดท v.2 → upload HTML ทับไฟล์เดิม (Storage games เท่านั้น)
+ * - ตั้งค่า → แก้ game_slug / tracked_game / is_published
+ * - ลบ → ลบ DB record (+ Storage file ถ้าเป็น Storage game)
+ * - รีเซทคะแนน → ลบ sessions + achievements ทุก student ต่อเกม
  *
  * Auth: ทั้ง tab อยู่ใน `/admin/dashboard/educational-hub` ซึ่ง gate ด้วย ProtectedRoute
  * และ Storage RLS (migration 063) บังคับ admin-only เพิ่มอีกชั้น
@@ -17,7 +21,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink, Plus, RefreshCw, AlertTriangle, Loader2, Trash2, RotateCcw } from 'lucide-react';
+import { ExternalLink, Plus, RefreshCw, AlertTriangle, Loader2, Trash2, RotateCcw, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -36,6 +40,7 @@ import {
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { ImageUpload } from '@/components/admin/shared/ImageUpload';
 import { ConfirmDialog } from '@/components/admin/shared/ConfirmDialog';
+import { Switch } from '@/components/ui/switch';
 import { TagPicker } from './TagPicker';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -83,6 +88,30 @@ const parseGameUrl = (url: string): { subject: SubjectFolder | null; slug: strin
 const subjectLabel = (folder: string | null): string =>
     SUBJECT_OPTIONS.find((s) => s.folder === folder)?.label ?? '—';
 
+/** Returns true for Supabase Storage-hosted games (vs git-static /games/...) */
+const isStorageGame = (url: string | null | undefined): boolean =>
+    !!(url?.includes(STORAGE_URL_MARKER));
+
+/**
+ * Extract subject + slug from either game URL type:
+ * - Storage: `.../edu-hub-games/{subject}/{slug}.html`
+ * - Git:     `/games/{subject}/{slug}.html`
+ */
+const getGameDisplayInfo = (url: string | null | undefined): { subject: SubjectFolder | null; slug: string | null } => {
+    if (!url) return { subject: null, slug: null };
+    const sm = url.match(/\/edu-hub-games\/([^/]+)\/([^/?]+)\.html/);
+    if (sm) {
+        const s = sm[1] as SubjectFolder;
+        return { subject: SUBJECT_OPTIONS.some((o) => o.folder === s) ? s : null, slug: sm[2] };
+    }
+    const gm = url.match(/^\/games\/([^/]+)\/([^/?]+)\.html/);
+    if (gm) {
+        const s = gm[1] as SubjectFolder;
+        return { subject: SUBJECT_OPTIONS.some((o) => o.folder === s) ? s : null, slug: gm[2] };
+    }
+    return { subject: null, slug: null };
+};
+
 // ─── Tab ────────────────────────────────────────────────────────────────────
 
 type Teacher = {
@@ -97,6 +126,7 @@ export const GamesTab = () => {
     const [dialog, setDialog] = useState<
         | { mode: 'create' }
         | { mode: 'replace'; item: EduHubItem }
+        | { mode: 'settings'; item: EduHubItem }
         | null
     >(null);
     const [confirmAction, setConfirmAction] = useState<
@@ -118,7 +148,7 @@ export const GamesTab = () => {
                 if (subject && slug) {
                     await educationalHubService.removeGameHtml(`${subject}/${slug}.html`);
                 }
-                queryClient.invalidateQueries({ queryKey: ['edu-hub', 'storage-games'] });
+                queryClient.invalidateQueries({ queryKey: ['edu-hub', 'all-games'] });
                 queryClient.invalidateQueries({ queryKey: ['edu-hub'] });
                 toast({ title: 'ลบเกมสำเร็จ', description: `ลบ "${item.title}" แล้ว` });
             } catch (err) {
@@ -144,15 +174,15 @@ export const GamesTab = () => {
         }
     };
 
-    // List items ที่ external_url ขึ้นต้นด้วย Storage URL
+    // List items ทั้งหมด — Storage games (/edu-hub-games/) + Git games (/games/)
     const { data: items, isLoading } = useQuery({
-        queryKey: ['edu-hub', 'storage-games'],
+        queryKey: ['edu-hub', 'all-games'],
         queryFn: async () => {
             const { data, error } = await supabase
                 .from('educational_hub_items' as never)
                 .select('*')
                 .eq('item_type', 'link')
-                .like('external_url', `%${STORAGE_URL_MARKER}%`)
+                .or('external_url.like.%/edu-hub-games/%,external_url.like./games/%')
                 .order('updated_at', { ascending: false });
             if (error) throw error;
             return (data ?? []) as EduHubItem[];
@@ -190,7 +220,7 @@ export const GamesTab = () => {
     }, [teachers]);
 
     const handleSaved = () => {
-        queryClient.invalidateQueries({ queryKey: ['edu-hub', 'storage-games'] });
+        queryClient.invalidateQueries({ queryKey: ['edu-hub', 'all-games'] });
         queryClient.invalidateQueries({ queryKey: ['edu-hub'] });
         setDialog(null);
         toast({ title: 'บันทึกสำเร็จ' });
@@ -200,9 +230,9 @@ export const GamesTab = () => {
         <div className="space-y-4">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-lg font-semibold text-foreground">เกม HTML (Supabase Storage)</h2>
+                    <h2 className="text-lg font-semibold text-foreground">เกม HTML (ทั้งหมด)</h2>
                     <p className="text-sm text-muted-foreground">
-                        อัพโหลดและรีเพลซเกม single-file HTML — v.1 → v.2 ทับไฟล์เดิม URL คงเดิม (เพิ่ม ?v=… กัน cache)
+                        จัดการเกมทุกประเภท — Storage (อัพเดท v.2 ได้) และ Git legacy (ตั้งค่า/ลบ DB record ได้)
                     </p>
                 </div>
                 <Button onClick={() => setDialog({ mode: 'create' })} disabled={!gamesCategoryId}>
@@ -215,9 +245,9 @@ export const GamesTab = () => {
             ) : (items ?? []).length === 0 ? (
                 <Card>
                     <CardContent className="py-12 text-center space-y-2">
-                        <p className="text-muted-foreground">ยังไม่มีเกมใน Storage</p>
+                        <p className="text-muted-foreground">ยังไม่มีเกมในระบบ</p>
                         <p className="text-xs text-muted-foreground">
-                            เกมเก่าใน `/games/...` (git) จะไม่ปรากฏที่นี่ — ต้อง migrate ก่อน
+                            เกมที่มี external_url เป็น /edu-hub-games/ หรือ /games/ จะปรากฏที่นี่
                         </p>
                     </CardContent>
                 </Card>
@@ -230,6 +260,7 @@ export const GamesTab = () => {
                                     <tr>
                                         <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">ปก</th>
                                         <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">ชื่อเกม</th>
+                                        <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">ประเภท</th>
                                         <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">หมวด</th>
                                         <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">เจ้าของ</th>
                                         <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">URL</th>
@@ -238,7 +269,8 @@ export const GamesTab = () => {
                                 </thead>
                                 <tbody>
                                     {items!.map((item) => {
-                                        const { subject, slug } = parseGameUrl(item.external_url ?? '');
+                                        const { subject, slug } = getGameDisplayInfo(item.external_url);
+                                        const storage = isStorageGame(item.external_url);
                                         const owner = teacherById.get(item.owner_staff_id);
                                         return (
                                             <tr key={item.id} className="border-b border-border last:border-0 hover:bg-muted/20">
@@ -257,6 +289,20 @@ export const GamesTab = () => {
                                                     <p className="font-medium truncate">{item.title}</p>
                                                     {slug && (
                                                         <p className="text-[10px] text-muted-foreground truncate">{slug}.html</p>
+                                                    )}
+                                                    {item.game_slug && (
+                                                        <p className="text-[10px] text-primary/70 truncate">slug: {item.game_slug}</p>
+                                                    )}
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    {storage ? (
+                                                        <Badge className="text-[10px] bg-emerald-100 text-emerald-700 border-emerald-200">
+                                                            Storage
+                                                        </Badge>
+                                                    ) : (
+                                                        <Badge variant="secondary" className="text-[10px]">
+                                                            Git
+                                                        </Badge>
                                                     )}
                                                 </td>
                                                 <td className="px-4 py-3">
@@ -287,13 +333,23 @@ export const GamesTab = () => {
                                                     )}
                                                 </td>
                                                 <td className="px-4 py-3 text-right">
-                                                    <div className="flex items-center justify-end gap-1">
+                                                    <div className="flex items-center justify-end gap-1 flex-wrap">
+                                                        {storage && (
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                onClick={() => setDialog({ mode: 'replace', item })}
+                                                            >
+                                                                <RefreshCw className="h-3 w-3 mr-1" /> อัพเดท v.2
+                                                            </Button>
+                                                        )}
                                                         <Button
                                                             variant="outline"
                                                             size="sm"
-                                                            onClick={() => setDialog({ mode: 'replace', item })}
+                                                            className="text-sky-600 border-sky-200 hover:bg-sky-50"
+                                                            onClick={() => setDialog({ mode: 'settings', item })}
                                                         >
-                                                            <RefreshCw className="h-3 w-3 mr-1" /> อัพเดท v.2
+                                                            <Settings className="h-3 w-3 mr-1" /> ตั้งค่า
                                                         </Button>
                                                         {item.game_slug && (
                                                             <Button
@@ -326,7 +382,7 @@ export const GamesTab = () => {
             )}
 
             <Dialog open={!!dialog} onOpenChange={(open) => !open && setDialog(null)}>
-                <DialogContent className="max-w-2xl">
+                <DialogContent className={dialog?.mode === 'settings' ? 'max-w-md' : 'max-w-2xl'}>
                     {dialog?.mode === 'create' && gamesCategoryId && (
                         <GameUploadDialog
                             mode="create"
@@ -344,6 +400,13 @@ export const GamesTab = () => {
                             onCancel={() => setDialog(null)}
                         />
                     )}
+                    {dialog?.mode === 'settings' && (
+                        <GameSettingsDialog
+                            item={dialog.item}
+                            onSaved={handleSaved}
+                            onCancel={() => setDialog(null)}
+                        />
+                    )}
                 </DialogContent>
             </Dialog>
 
@@ -352,7 +415,11 @@ export const GamesTab = () => {
                 onOpenChange={(open) => !open && setConfirmAction(null)}
                 onConfirm={handleConfirm}
                 title={`ลบเกม "${confirmAction?.item.title}"?`}
-                description="ลบ record และไฟล์ HTML ออกจาก Storage ถาวร — ประวัติคะแนนของนักเรียนจะยังคงอยู่ใน DB"
+                description={
+                    confirmAction?.type === 'delete' && isStorageGame(confirmAction.item.external_url)
+                        ? 'ลบ record และไฟล์ HTML ออกจาก Storage ถาวร — ประวัติคะแนนของนักเรียนจะยังคงอยู่ใน DB'
+                        : 'ลบออกจากคลังข้อมูล — ไฟล์ HTML ยังอยู่ใน git (ต้องลบด้วยตัวเองถ้าต้องการ) — ประวัติคะแนนจะยังคงอยู่ใน DB'
+                }
                 confirmText="ลบเกม"
             />
             <ConfirmDialog
@@ -364,6 +431,93 @@ export const GamesTab = () => {
                 confirmText="รีเซทคะแนนทั้งหมด"
             />
         </div>
+    );
+};
+
+// ─── Settings Dialog ────────────────────────────────────────────────────────
+
+const GameSettingsDialog = ({
+    item,
+    onSaved,
+    onCancel,
+}: {
+    item: EduHubItem;
+    onSaved: () => void;
+    onCancel: () => void;
+}) => {
+    const { toast } = useToast();
+    const [gameSlug, setGameSlug] = useState(item.game_slug ?? '');
+    const [tracked, setTracked] = useState(item.tracked_game);
+    const [published, setPublished] = useState(item.is_published);
+    const [saving, setSaving] = useState(false);
+
+    const handleSave = async () => {
+        setSaving(true);
+        try {
+            const { error } = await educationalHubService.updateItem(item.id, {
+                game_slug: gameSlug.trim() || null,
+                tracked_game: tracked,
+                is_published: published,
+            });
+            if (error) throw error;
+            onSaved();
+        } catch (err) {
+            toast({
+                title: 'บันทึกไม่สำเร็จ',
+                description: err instanceof Error ? err.message : 'เกิดข้อผิดพลาด',
+                variant: 'destructive',
+            });
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    return (
+        <>
+            <DialogHeader>
+                <DialogTitle>ตั้งค่าเกม — {item.title}</DialogTitle>
+                <DialogDescription>
+                    กำหนด game_slug สำหรับเชื่อมกับระบบ XP/Leaderboard และสถานะการเผยแพร่
+                </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+                <div className="space-y-1.5">
+                    <label className="text-sm font-medium">Game Slug (ว่างได้ = ยังไม่ track)</label>
+                    <Input
+                        value={gameSlug}
+                        onChange={(e) => setGameSlug(e.target.value)}
+                        placeholder="เช่น pizza-master-chef"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                        ต้องตรงกับค่า gameSlug ใน HTML ไฟล์ เพื่อให้ระบบ XP/Leaderboard ทำงาน
+                    </p>
+                </div>
+
+                <div className="flex items-center justify-between rounded-md border border-border p-3">
+                    <div>
+                        <p className="text-sm font-medium">ติดตามคะแนน (Tracked)</p>
+                        <p className="text-xs text-muted-foreground">เปิดเพื่อให้ระบบ XP และ Leaderboard ทำงาน</p>
+                    </div>
+                    <Switch checked={tracked} onCheckedChange={setTracked} />
+                </div>
+
+                <div className="flex items-center justify-between rounded-md border border-border p-3">
+                    <div>
+                        <p className="text-sm font-medium">เผยแพร่ (Published)</p>
+                        <p className="text-xs text-muted-foreground">ปิดเพื่อซ่อนจากคลังเกมของนักเรียน</p>
+                    </div>
+                    <Switch checked={published} onCheckedChange={setPublished} />
+                </div>
+            </div>
+
+            <DialogFooter>
+                <Button variant="ghost" onClick={onCancel} disabled={saving}>ยกเลิก</Button>
+                <Button onClick={handleSave} disabled={saving}>
+                    {saving ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> บันทึก...</> : 'บันทึก'}
+                </Button>
+            </DialogFooter>
+        </>
     );
 };
 
