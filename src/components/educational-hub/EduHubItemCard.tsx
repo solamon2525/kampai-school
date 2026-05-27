@@ -260,11 +260,11 @@ export const EduHubItemCard = ({
                     {/* Leaderboard strip — top-5 players for tracked games */}
                     {item.tracked_game && item.game_slug && (leaders?.length ?? 0) > 0 && (
                         <div className="mt-2 pt-2 border-t border-border">
-                            <div className="flex items-end gap-2 overflow-x-auto">
+                            <div className="flex items-end justify-around">
                                 {leaders!.map((row, i) => (
                                     <div
                                         key={row.student_id}
-                                        className="flex flex-col items-center gap-0.5 flex-shrink-0"
+                                        className="flex flex-col items-center gap-0.5 min-w-0"
                                         title={`${i + 1}. ${row.display_name} — ${row.personal_best.toLocaleString('th-TH')} คะแนน`}
                                     >
                                         <div className="relative">
