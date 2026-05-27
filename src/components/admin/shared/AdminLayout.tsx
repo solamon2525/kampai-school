@@ -60,6 +60,7 @@ import { ScanFAB } from '@/components/shared/ScanFAB';
 import { CameraPermissionPrompt } from '@/components/shared/CameraPermissionPrompt';
 import { useCommandPalette } from '@/hooks/useCommandPalette';
 import { Search } from 'lucide-react';
+import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
 
 interface AdminLayoutProps {
     children: ReactNode;
@@ -367,6 +368,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
                         <span className="flex-1 text-left">ค้นหานักเรียน, ข่าว, คำสั่ง...</span>
                         <kbd className="px-1.5 py-0.5 rounded bg-admin-border/50 text-[10px] font-mono">{isMac ? '⌘K' : 'Ctrl K'}</kbd>
                     </button>
+                    <LanguageSwitcher />
                     <NotificationBell />
                 </div>
             )}

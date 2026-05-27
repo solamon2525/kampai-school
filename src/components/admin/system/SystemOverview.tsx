@@ -272,6 +272,21 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.37.0 (Productivity & Polish — i18n + Heatmap + Custom Dashboard + Offline Attendance)',
+        date: 'ล่าสุด',
+        badge: 'bg-green-700',
+        items: [
+            'i18n TH/EN (#17): react-i18next + i18next-browser-languagedetector — config + 2 locale files (th/en) + LanguageSwitcher dropdown ใน SiteHeader (public) + AdminLayout top bar. localStorage key kampai_lang ผู้ใช้เปลี่ยนแล้วจำ',
+            'ActivityHeatmap (#20): GitHub-style 52-week grid component — percent-based threshold intensity, Thai month/day labels, total contributions footer, tooltip per cell. Reusable ทุกที่ที่อยากแสดง daily activity (admin home, student profile, teacher dashboard)',
+            'Migration 097 user_dashboard_layout: per-user JSONB widgets config — RLS scoped to own user only. service dashboard-layout.service ใช้ upsert จัด layout',
+            'CustomizableDashboard (#18): wrapper component รับ widgets[] + จำ layout per user — dnd-kit (มีอยู่แล้ว) reorder + hide/show ผ่าน dialog "จัด layout" + auto-merge widget catalog ใหม่ที่เพิ่มมาภายหลัง',
+            'Offline-First Attendance (#22): IndexedDB queue (lib idb) ใน src/lib/offline-queue.ts + service เพิ่ม upsertBulkResilient + flushOfflineQueue (auto-retry, drop after 5 failures)',
+            'OfflineQueueIndicator: floating badge bottom-left แสดงคิว pending + auto-flush เมื่อ window online event — hide เมื่อคิวว่าง + online',
+            'Dependencies: + i18next@26, react-i18next@17, i18next-browser-languagedetector@8, idb@8',
+            'Skipped จาก Tier 3: #19 Visual Report Builder (ใหญ่มาก ต้อง full drag-drop builder + scheduler), #21 Capacitor wrapper (ส่วนใหญ่เป็น infra config — verify ไม่ได้ใน session)',
+        ],
+    },
+    {
         version: 'v1.36.0 (Community & Engagement — Surveys + Alumni + Class Photos with Face Tagging)',
         date: 'ล่าสุด',
         badge: 'bg-green-700',

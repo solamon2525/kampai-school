@@ -8,6 +8,7 @@ import {
   ChevronDown, Menu, X, Phone, Mail, Facebook,
   Youtube, Instagram, MessageCircle, Link as LinkIcon, Globe,
 } from 'lucide-react';
+import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
 
 const getSocialIcon = (platform: string) => {
   switch (platform) {
@@ -144,6 +145,7 @@ const SiteHeader = () => {
                   </a>
                 );
               })}
+              <LanguageSwitcher className="text-white hover:bg-white/20" />
             </div>
           </div>
         </div>

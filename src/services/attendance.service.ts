@@ -1,8 +1,12 @@
 /**
  * attendance.service.ts
  * Supabase queries สำหรับ attendance_records table
+ *
+ * Offline-first: upsertBulkResilient() ใช้ IndexedDB queue เมื่อ offline
+ * และ flushOfflineQueue() เคลียร์ queue เมื่อ online กลับมา (Rule 14.34).
  */
 import { supabase } from '@/integrations/supabase/client';
+import { offlineQueue, isOnline } from '@/lib/offline-queue';
 
 export type AttendanceStatus = 'present' | 'absent' | 'late' | 'leave';
 
@@ -72,6 +76,53 @@ export const attendanceService = {
   /** ลบรายการเช็คชื่อ */
   delete: (id: string) =>
     supabase.from('attendance_records').delete().eq('id', id),
+
+  /**
+   * Offline-aware bulk upsert.
+   * Returns { queued: true } if offline (records saved to IndexedDB queue),
+   * otherwise returns Supabase response. Caller treats both as "saved".
+   */
+  async upsertBulkResilient(records: AttendanceUpsert[]) {
+    if (!isOnline()) {
+      await offlineQueue.enqueue(
+        records.map((r) => ({
+          student_id: r.student_id,
+          attendance_date: r.attendance_date,
+          status: r.status,
+          notes: r.notes ?? null,
+        })),
+      );
+      return { error: null, data: null, queued: true as const, queueSize: await offlineQueue.count() };
+    }
+    const result = await attendanceService.upsertBulk(records);
+    return { ...result, queued: false as const };
+  },
+
+  /**
+   * Drain the offline queue. Idempotent — call on app boot + on 'online' event.
+   * Returns { flushed, remaining }.
+   */
+  async flushOfflineQueue(): Promise<{ flushed: number; remaining: number }> {
+    if (!isOnline()) return { flushed: 0, remaining: await offlineQueue.count() };
+    const items = await offlineQueue.list();
+    let flushed = 0;
+    for (const item of items) {
+      if (!item.id) continue;
+      const r = await attendanceService.upsertBulk(item.records as AttendanceUpsert[]);
+      if (r.error) {
+        await offlineQueue.bumpAttempts(item.id);
+        // Don't keep retrying forever — drop after 5 failures
+        if ((item.attempts ?? 0) + 1 >= 5) await offlineQueue.remove(item.id);
+      } else {
+        await offlineQueue.remove(item.id);
+        flushed++;
+      }
+    }
+    return { flushed, remaining: await offlineQueue.count() };
+  },
+
+  /** Count of pending offline writes (for UI indicator). */
+  pendingOfflineCount: () => offlineQueue.count(),
 
   /**
    * Look up parent user_ids for given students, then invoke send-push.

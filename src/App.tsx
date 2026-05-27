@@ -15,6 +15,7 @@ import { OfflineIndicator } from "./components/shared/OfflineIndicator";
 import { CommandPaletteProvider } from "./hooks/useCommandPalette";
 import { CommandPalette } from "./components/shared/CommandPalette";
 import { PushPermissionBanner } from "./components/shared/PushPermissionBanner";
+import { OfflineQueueIndicator } from "./components/shared/OfflineQueueIndicator";
 import { ActiveChildProvider } from "./hooks/useActiveChild";
 
 // หน้าแรกโหลดทันที (Critical path)
@@ -130,6 +131,7 @@ const App = () => (
       <InstallBanner />
       <OfflineIndicator />
       <PushPermissionBanner />
+      <OfflineQueueIndicator />
       <ErrorBoundary>
       <BrowserRouter>
         <CommandPaletteProvider>

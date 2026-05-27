@@ -1,0 +1,52 @@
+{
+  "nav": {
+    "home": "หน้าหลัก",
+    "about": "เกี่ยวกับเรา",
+    "staff": "บุคลากร",
+    "students": "นักเรียน",
+    "curriculum": "หลักสูตร",
+    "news": "ข่าวสาร",
+    "contact": "ติดต่อ",
+    "gallery": "แกลเลอรี่",
+    "events": "ปฏิทินกิจกรรม",
+    "enrollment": "สมัครเข้าเรียน",
+    "alumni": "ศิษย์เก่า",
+    "donate": "ร่วมบริจาค",
+    "login": "เข้าสู่ระบบ",
+    "logout": "ออกจากระบบ"
+  },
+  "common": {
+    "loading": "กำลังโหลด...",
+    "save": "บันทึก",
+    "cancel": "ยกเลิก",
+    "delete": "ลบ",
+    "edit": "แก้ไข",
+    "add": "เพิ่ม",
+    "search": "ค้นหา",
+    "submit": "ส่ง",
+    "back": "ย้อนกลับ",
+    "next": "ถัดไป",
+    "confirm": "ยืนยัน",
+    "close": "ปิด",
+    "yes": "ใช่",
+    "no": "ไม่ใช่"
+  },
+  "parent": {
+    "dashboard_title": "Portal ผู้ปกครอง",
+    "select_child": "เลือกบุตร",
+    "attendance": "การเข้าเรียน",
+    "scores": "ผลการเรียน",
+    "conduct": "ความประพฤติ",
+    "savings_bank": "ธนาคารพอเพียง",
+    "waste_bank": "ธนาคารขยะ",
+    "assignments": "การบ้าน",
+    "conferences": "จองนัดครู",
+    "chat": "แชตกับครู",
+    "privacy": "ความเป็นส่วนตัว"
+  },
+  "language": {
+    "label": "ภาษา",
+    "th": "ไทย",
+    "en": "English"
+  }
+}

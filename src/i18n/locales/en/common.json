@@ -1,0 +1,52 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "staff": "Staff",
+    "students": "Students",
+    "curriculum": "Curriculum",
+    "news": "News",
+    "contact": "Contact",
+    "gallery": "Gallery",
+    "events": "Events",
+    "enrollment": "Apply",
+    "alumni": "Alumni",
+    "donate": "Donate",
+    "login": "Login",
+    "logout": "Logout"
+  },
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "submit": "Submit",
+    "back": "Back",
+    "next": "Next",
+    "confirm": "Confirm",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "parent": {
+    "dashboard_title": "Parent Portal",
+    "select_child": "Select child",
+    "attendance": "Attendance",
+    "scores": "Grades",
+    "conduct": "Conduct",
+    "savings_bank": "Savings Bank",
+    "waste_bank": "Waste Bank",
+    "assignments": "Homework",
+    "conferences": "Book Conference",
+    "chat": "Chat with teacher",
+    "privacy": "Privacy"
+  },
+  "language": {
+    "label": "Language",
+    "th": "ไทย",
+    "en": "English"
+  }
+}

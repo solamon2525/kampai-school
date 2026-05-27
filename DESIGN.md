@@ -653,6 +653,34 @@ grep -A 20 "table_name_here" src/integrations/supabase/types.ts
 - **Data source:** ดึงจาก score_records + attendance_records + conduct_scores เท่านั้น — **ห้าม** Mock หรือ hardcode ตัวอย่าง
 - **Disclaimer:** ปุ่ม download ต้องมีข้อความเตือน "กรุณาตรวจสอบก่อนส่ง" — ระบบไม่รับผิดชอบความถูกต้องของข้อมูลก่อนส่งราชการ
 
+### Rule 14.34 — i18n (TH default + EN)
+
+- **TH = default + fallback:** `fallbackLng: 'th'` ใน i18next config — string ที่ยังไม่ translate จะ fall back กลับเป็น TH (ไม่ทำ key string โผล่)
+- **localStorage key:** `kampai_lang` — สำหรับ language persistence + ห้ามใช้ key อื่น
+- **Namespace:** ใช้ `common` เป็น default — namespace ใหม่ต้องเพิ่มทั้ง 2 locale files (`src/i18n/locales/{th,en}/{ns}.json`) พร้อมกัน
+- **Locale switcher mandatory:** ทุก layout ที่ public/admin/parent ต้องมี `<LanguageSwitcher />` ที่มองเห็น
+- **No `dark:` prefix:** ยังเหมือนเดิม — Light mode only (Rule 14.8)
+
+### Rule 14.35 — Activity Heatmap
+
+- **Percent intensity:** ไม่ใช่ absolute thresholds — config ผ่าน `thresholds: [a, b, c, d]` ที่ default `[1, 3, 5, 10]`
+- **Future dates hidden:** cell ที่ date > today render เป็น `opacity-0` ไม่ใช่ลบออก — รักษา grid alignment
+- **Data shape:** `Record<"YYYY-MM-DD", number>` — เก็บ count ต่อวัน (ไม่ใช่ events array)
+
+### Rule 14.36 — Customizable Dashboard
+
+- **Widget catalog เป็น source of truth:** widgets[] prop ของ `<CustomizableDashboard>` — เพิ่ม/ลบ widget ต้องอัป catalog ก่อน (config ใน DB merge auto)
+- **Pinned widgets:** ใช้ `pinned: true` สำหรับ widget ที่ user ห้ามซ่อน (e.g. ข้อความสำคัญ)
+- **Storage:** per-user via Migration 097 + localStorage fallback — **ห้าม** ลบ user row ตอน logout (อยู่ข้าม session)
+
+### Rule 14.37 — Offline-First Writes (Attendance)
+
+- **IndexedDB DB name:** `kampai-offline` v1 — store `attendance_queue` keyPath id auto-increment. **ห้าม** เปลี่ยน name หรือ schema (เพิ่ม store ใหม่ = bump DB_VERSION)
+- **Drop after 5 attempts:** retry-then-drop pattern — ป้องกัน queue blocking สำหรับ payload เสีย
+- **Auto-flush triggers:** mount + 'online' event + 30s polling — **ห้าม** flush ใน 'visibilitychange' (อาจถูกเรียกบ่อยเกิน)
+- **service contract:** ใช้ `upsertBulkResilient()` แทน `upsertBulk()` ในทุก attendance write path ที่ user-facing (UI shouldn't break offline)
+- **Indicator mounted globally:** `<OfflineQueueIndicator />` ใน App.tsx — hide เอง เมื่อคิวว่าง + online
+
 ### Rule 14.31 — Survey Builder (M094)
 
 - **Answers as JSONB:** `survey_responses.answers` เก็บ `{question_id: value}` — flexible แต่ requires client knowledge ของ question schema เมื่อ render results
