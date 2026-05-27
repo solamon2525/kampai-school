@@ -18,6 +18,13 @@ void i18n
     defaultNS: 'common',
     ns: ['common'],
     interpolation: { escapeValue: false },
+    // Critical: react-i18next 17 defaults useSuspense=true which makes
+    // useTranslation() throw a Promise (Suspense) until init resolves.
+    // Without a Suspense boundary at the right level the whole tree
+    // unmounts → blank screen. Disable suspense; useTranslation returns
+    // the key as fallback while init is pending (matches our inline-resources
+    // pattern where init completes almost instantly anyway).
+    react: { useSuspense: false },
     detection: {
       order: ['localStorage', 'navigator'],
       caches: ['localStorage'],
@@ -27,6 +34,7 @@ void i18n
       th: { common: thCommon },
       en: { common: enCommon },
     },
-  });
+  })
+  .catch((e) => console.error('[i18n] init failed (non-fatal):', e));
 
 export default i18n;

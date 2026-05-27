@@ -18,6 +18,7 @@ import {
   LayoutDashboard,
   Settings,
   ClipboardCheck,
+  ClipboardList,
   PenLine,
   Users,
   FileText,
@@ -90,7 +91,7 @@ export const STATIC_COMMANDS: CommandEntry[] = [
   { id: 'adm-dismissal', label: 'ระบบรับ-ส่งนักเรียน', group: 'แอดมิน', icon: ClipboardCheck, roles: ['admin', 'teacher'], keywords: ['pickup', 'dismissal', 'bus', 'รับ', 'ส่ง'], action: { type: 'navigate', path: '/admin/dashboard/dismissal' } },
   { id: 'adm-surveys', label: 'แบบสำรวจ', group: 'แอดมิน', icon: ClipboardList, roles: ['admin'], keywords: ['survey', 'feedback', 'nps', 'แบบสำรวจ'], action: { type: 'navigate', path: '/admin/dashboard/surveys' } },
   { id: 'adm-alumni', label: 'ศิษย์เก่า (จัดการ)', group: 'แอดมิน', icon: GraduationCap, roles: ['admin'], keywords: ['alumni', 'verify', 'reunion', 'ศิษย์เก่า'], action: { type: 'navigate', path: '/admin/dashboard/alumni' } },
-  { id: 'adm-class-photos', label: 'รูปห้อง + แท็กหน้า', group: 'แอดมิน', icon: Image, roles: ['admin', 'teacher'], keywords: ['photo', 'tag', 'class', 'รูป'], action: { type: 'navigate', path: '/admin/dashboard/class-photos' } },
+  { id: 'adm-class-photos', label: 'รูปห้อง + แท็กหน้า', group: 'แอดมิน', icon: ImageIcon, roles: ['admin', 'teacher'], keywords: ['photo', 'tag', 'class', 'รูป'], action: { type: 'navigate', path: '/admin/dashboard/class-photos' } },
   { id: 'adm-papor', label: 'สร้างเอกสาร ปพ.5 / ปพ.6', group: 'แอดมิน', icon: FileText, roles: ['admin', 'teacher'], keywords: ['papor', 'transcript', 'report', 'card', 'ปพ', 'สมุดพก', 'pdf'], action: { type: 'navigate', path: '/admin/dashboard/papor' } },
 
   // ── Teacher ──────────────────────────────────────────────
