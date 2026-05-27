@@ -43,6 +43,9 @@ export default function RewardsCatalog() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [activeTeacherId, setActiveTeacherId] = useState<string | null | 'central'>(null);
   const [selectedClaimQr, setSelectedClaimQr] = useState<string | null>(null);
+  // pre-fill ให้ RewardClaimDialog เมื่อเปิดจาก BalanceCheckDialog (ข้าม lookup ซ้ำ)
+  const [lookedUpCode, setLookedUpCode] = useState<string | null>(null);
+  const [lookedUpStudent, setLookedUpStudent] = useState<StudentBalanceLookup | null>(null);
 
   const { data: rewards = [], isLoading } = useQuery({
     queryKey: ['rewards', 'active'],
@@ -256,12 +259,32 @@ export default function RewardsCatalog() {
 
       <Footer />
 
-      <RewardClaimDialog reward={selected} open={claimOpen} onOpenChange={setClaimOpen} />
+      <RewardClaimDialog
+        reward={selected}
+        open={claimOpen}
+        onOpenChange={(v) => {
+          setClaimOpen(v);
+          if (!v) {
+            // เคลียร์ pre-fill เมื่อปิด — ครั้งต่อไปเริ่มใหม่
+            setLookedUpCode(null);
+            setLookedUpStudent(null);
+          }
+        }}
+        initialCode={lookedUpCode ?? undefined}
+        initialStudent={lookedUpStudent}
+      />
       <BalanceCheckDialog
         open={balanceOpen}
         onOpenChange={setBalanceOpen}
         rewards={rewards}
         onShowClaimQr={setSelectedClaimQr}
+        onPickReward={(reward, code, student) => {
+          setLookedUpCode(code);
+          setLookedUpStudent(student);
+          setSelected(reward);
+          setBalanceOpen(false);
+          setClaimOpen(true);
+        }}
       />
 
       {/* Dialog for displaying QR Code for pending claim */}
@@ -327,11 +350,14 @@ function BalanceCheckDialog({
   onOpenChange,
   rewards,
   onShowClaimQr,
+  onPickReward,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   rewards: Reward[];
   onShowClaimQr: (qrValue: string) => void;
+  /** เมื่อคลิก "แลกเลย" ใน eligible grid → เปิด RewardClaimDialog พร้อมข้ามขั้น lookup */
+  onPickReward: (reward: Reward, code: string, student: StudentBalanceLookup) => void;
 }) {
   const [code, setCode] = useState('');
   const [student, setStudent] = useState<StudentBalanceLookup | null>(null);
@@ -558,6 +584,64 @@ function BalanceCheckDialog({
               )}
             </div>
           )}
+
+          {student && (() => {
+            const eligible = rewards
+              .filter(
+                (r) =>
+                  r.is_active &&
+                  r.points_cost <= student.available_points &&
+                  (r.stock === null || r.stock === undefined || r.stock > 0),
+              )
+              .sort((a, b) => a.points_cost - b.points_cost);
+            return (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <Gift className="w-4 h-4 text-emerald-600" />
+                  🎁 รางวัลที่คุณแลกได้เลย ({eligible.length})
+                </div>
+                {eligible.length === 0 ? (
+                  <div className="text-xs text-center text-muted-foreground py-3 border border-dashed border-border rounded-lg">
+                    ตอนนี้ยังไม่มีรางวัลที่แต้มของคุณแลกได้ — เก็บขยะเพิ่มอีกหน่อยนะ!
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2 max-h-[40vh] overflow-y-auto">
+                    {eligible.map((r) => (
+                      <button
+                        key={r.id}
+                        onClick={() => onPickReward(r, code.trim(), student)}
+                        className="flex flex-col p-2 rounded-lg border border-emerald-200 bg-emerald-50/40 hover:bg-emerald-50 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/40 dark:border-emerald-800 transition-colors text-left active:scale-95"
+                      >
+                        {r.image_url ? (
+                          <img
+                            src={r.image_url}
+                            alt={r.name}
+                            className="w-full aspect-square rounded object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="w-full aspect-square rounded bg-muted flex items-center justify-center">
+                            <Gift className="w-6 h-6 text-muted-foreground" />
+                          </div>
+                        )}
+                        <div className="text-xs font-medium truncate mt-1.5" title={r.name}>
+                          {r.name}
+                        </div>
+                        <div className="flex items-center justify-between gap-1 mt-1">
+                          <span className="text-[11px] text-amber-700 dark:text-amber-300 font-bold tabular-nums">
+                            {r.points_cost} แต้ม
+                          </span>
+                          <span className="text-[10px] px-1.5 py-0.5 bg-emerald-600 text-white rounded font-semibold">
+                            แลกเลย
+                          </span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {student && (
             <div className="space-y-2 max-h-[40vh] overflow-y-auto">

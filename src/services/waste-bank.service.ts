@@ -101,6 +101,8 @@ export type StudentHistoryRow = {
   reward_name: string;
   reward_image: string | null;
   points_used: number;
+  /** จำนวนชิ้นที่แลกในครั้งนั้น (default 1, มาจาก migration 099) */
+  quantity: number;
   balance_after: number | null;
   status: RewardClaimStatus;
   claimed_at: string;
@@ -336,8 +338,13 @@ export const rewardClaimsService = {
       .returns<StudentBalanceLookup[]>(),
 
   // Public RPC: create a pending claim by student_code (no auth)
-  claimByCode: (code: string, rewardId: string) =>
-    supabase.rpc('claim_reward' as never, { p_code: code, p_reward_id: rewardId } as never),
+  // quantity default = 1 (backward compat) — RPC validates: balance >= cost*qty, stock >= qty
+  claimByCode: (code: string, rewardId: string, quantity = 1) =>
+    supabase.rpc('claim_reward' as never, {
+      p_code: code,
+      p_reward_id: rewardId,
+      p_quantity: quantity,
+    } as never),
 
   // Public RPC: get history list by student_code (no auth)
   getStudentHistory: (code: string, limit = 50) =>

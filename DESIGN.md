@@ -801,6 +801,31 @@ Logic อยู่ใน `src/main.tsx` (ก่อน `createRoot`) ที่อ
 - LINE OA / Facebook page ของโรงเรียน: "ถ้าเว็บไม่โหลด ให้กดลิงก์นี้ 1 ครั้ง: kampai-school.vercel.app/?reset_sw=1"
 - Admin support — เป็นคำถามแรกก่อน escalate
 
+### Rule 14.41 — Reward Claim Quantity (หน้าบ้าน /waste-bank/rewards)
+
+**Source of truth:** RPC `claim_reward(p_code TEXT, p_reward_id UUID, p_quantity INT DEFAULT 1)` — **ห้าม** insert ตรงเข้า `reward_claims` ในโค้ดฝั่ง client. RPC ทำ:
+- Lock reward row (FOR UPDATE) → กัน race condition stock/balance
+- Validate `available_points >= points_cost * quantity` และ `stock >= quantity` (ถ้า stock NOT NULL)
+- Insert ครั้งเดียว 1 row พร้อม `quantity, points_used = points_cost * quantity, balance_after`
+- Tag `academic_year, semester` จาก `active_term()` อัตโนมัติ
+
+**Stock trigger:** `handle_reward_claim_status_change()` ใช้ `NEW.quantity` / `OLD.quantity` (ไม่ใช่ ±1) — INSERT หัก stock −qty, status active→rejected คืน +qty, rejected→active หัก −qty, DELETE คืน +qty. การคืน stock ตอน reject ปลอดภัยเพราะ `quantity` ไม่เคยเปลี่ยนหลัง insert
+
+**Frontend (`RewardClaimDialog`):**
+- maxQuantity = `min(floor(available_points / points_cost), stock ?? Infinity)` — clamp อัตโนมัติเมื่อ user พิมพ์เกิน
+- แสดง total breakdown ใหญ่ + แจ้งแต้มคงเหลือหลังหัก realtime — สีอำพันปกติ, สีกุหลาบเมื่อแต้มไม่พอ
+- Pre-fill via props `initialCode` + `initialStudent` (เปิดจาก BalanceCheckDialog → ข้าม lookup ซ้ำ)
+
+**BalanceCheckDialog eligible grid:**
+- หลังกรอกรหัสตรวจแต้มสำเร็จ → render "🎁 รางวัลที่คุณแลกได้เลย" mini-grid 2-col แสดงเฉพาะ `is_active && points_cost <= available_points && stock > 0`
+- คลิก "แลกเลย" → trigger `onPickReward(reward, code, student)` → parent ปิด balance dialog + เปิด claim dialog ทันที
+
+**ห้าม:**
+- เพิ่ม column `quantity` ใน RPC อื่นโดยไม่เพิ่ม validation `quantity > 0` (มี CHECK constraint อยู่แล้ว แต่ controller layer ก็ควรเช็ค)
+- เปลี่ยน trigger logic ให้ใช้ค่าคงที่ ±1 — กระทบ accuracy ของ stock อย่างเงียบ
+
+**Incident reference:** ก่อน v1.37.3 นักเรียนแลกได้ครั้งละ 1 ชิ้น ต้องกดซ้ำหลายรอบ + เช็คแต้มแล้วต้องเดาว่าแลกอะไรได้บ้าง
+
 ### Rule 14.40 — Shared Quick Menu (เมนูลัดบน dashboard)
 
 **Source of truth:** ตาราง `shared_quick_menu` (singleton, id=1) — **ห้าม** อ่าน/เขียน `user_quick_menu_preferences` ใน QuickMenu อีก (deprecated, คงไว้เพื่อ rollback)

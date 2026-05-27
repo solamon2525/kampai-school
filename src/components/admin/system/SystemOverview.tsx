@@ -272,8 +272,24 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.37.2 (Shared Quick Menu — แอดมินปักหมุดเมนูเดียว ครูทุกคนเห็นเหมือนกัน)',
+        version: 'v1.37.3 (Reward Claim Quantity — แลกหลายชิ้นต่อครั้ง + รายการที่แลกได้เลยจากหน้าเช็คแต้ม)',
         date: 'ล่าสุด',
+        badge: 'bg-amber-600',
+        items: [
+            '🎁 Feature: หน้า /waste-bank/rewards (หน้าบ้านนักเรียน) — เลือกจำนวนชิ้นที่จะแลกได้ผ่าน +/− stepper + ช่อง number input. แสดง total breakdown ใหญ่ + แต้มคงเหลือหลังหัก realtime',
+            'Schema (migration 099): reward_claims เพิ่ม column quantity INT NOT NULL DEFAULT 1 CHECK > 0. claim_reward RPC signature ใหม่ (p_code, p_reward_id, p_quantity DEFAULT 1) — บันทึก row เดียวต่อการแลกพร้อม points_used = points_cost × quantity',
+            'Stock trigger handle_reward_claim_status_change อัปเดต: ใช้ NEW/OLD.quantity แทน ±1. status active→rejected คืน stock +qty, rejected→active หัก −qty, DELETE คืน +qty',
+            'maxQuantity clamp: min(floor(available_points/points_cost), stock). user ใส่เกิน max → auto-clamp. ปุ่ม + disabled เมื่อถึง max — กัน RPC error ก่อนถึง server',
+            '🔍 UX: BalanceCheckDialog — หลังกรอกรหัสตรวจแต้มสำเร็จ แสดง mini-grid "🎁 รางวัลที่คุณแลกได้เลย" (filter เฉพาะที่ points_cost ≤ available_points + stock พอ + sort ราคาน้อยก่อน). คลิก "แลกเลย" → balance dialog ปิด + claim dialog เปิดทันที พร้อมข้อมูลนักเรียน prefilled (ไม่ต้อง lookup ซ้ำ)',
+            'RewardClaimDialog props ใหม่ initialCode + initialStudent — skip lookup ทันทีที่มี → ลด round-trip RPC',
+            'get_student_history RPC: คืน quantity เพิ่ม ใช้ตอนแสดงประวัติ "ครั้งนั้นแลกกี่ชิ้น" ในอนาคต',
+            'Backward compat: ทุก claim เก่ามี quantity=1 (DEFAULT) ไม่ต้อง backfill. RPC signature ใหม่ใช้ DEFAULT 1 → caller เดิม claim_reward(code, reward_id) ยังเรียกได้ผ่าน positional/named args',
+            'DESIGN.md Rule 14.41: source-of-truth = RPC, ห้าม insert ตรง, stock trigger logic, max quantity formula',
+        ],
+    },
+    {
+        version: 'v1.37.2 (Shared Quick Menu — แอดมินปักหมุดเมนูเดียว ครูทุกคนเห็นเหมือนกัน)',
+        date: '',
         badge: 'bg-emerald-600',
         items: [
             '🐛 Bug fix: ครูเห็นเมนูลัดไม่ครบกับที่แอดมินปัก — ส่วนใหญ่เห็นแค่ 4 เมนู default. Root cause: migration 025 ตั้ง RLS เป็น auth.uid() = user_id → quickMenuService.getAdminQuickMenu() คืน null สำหรับครู → fallback ไป DEFAULT_TEACHER_IDS',
