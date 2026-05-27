@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -9,15 +9,16 @@ import {
   SortableContext, useSortable, verticalListSortingStrategy, arrayMove,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Edit3, GripVertical, Plus, X, RotateCcw, Save, Sparkles } from 'lucide-react';
+import { Edit3, GripVertical, Plus, X, RotateCcw, Save, Sparkles, Lock } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthProvider';
-import { quickMenuService, type QuickMenuContext } from '@/services/quickMenu.service';
+import { quickMenuService, type QuickMenuContext, type SharedQuickMenuRow } from '@/services/quickMenu.service';
 import {
-  getCatalog, getDefaultIds, type QuickMenuOption,
+  ADMIN_QUICK_MENU_CATALOG, TEACHER_QUICK_MENU_CATALOG, getDefaultIds,
+  type QuickMenuOption,
 } from '@/lib/quickMenuCatalog';
 import { cn } from '@/lib/utils';
 
@@ -25,64 +26,72 @@ interface QuickMenuProps {
   context: QuickMenuContext;
 }
 
+// แคตตาล็อกแบบรวม — ใช้แก้ id → option ได้ทั้ง admin/teacher item
+const FULL_CATALOG: QuickMenuOption[] = [
+  ...ADMIN_QUICK_MENU_CATALOG,
+  ...TEACHER_QUICK_MENU_CATALOG,
+];
+const FULL_CATALOG_BY_ID = new Map(FULL_CATALOG.map((o) => [o.id, o]));
+
 export const QuickMenu = ({ context }: QuickMenuProps) => {
   const navigate = useNavigate();
   const { user, allowedMenus = [], isAdmin } = useAuth();
+  const queryClient = useQueryClient();
   const [editorOpen, setEditorOpen] = useState(false);
+  const autoAppendDoneRef = useRef(false);
 
-  // คำนวณแคตตาล็อกเมนูที่อนุญาตตามบทบาทและสิทธิ์การเข้าถึงจริง
-  const catalog = useMemo(() => {
-    if (context === 'teacher') {
-      // เมนูครูพื้นฐาน
-      const baseCatalog = getCatalog('teacher');
-      // เมนูแอดมินหลังบ้านเฉพาะที่คุณครูได้รับสิทธิ์การเข้าถึง
-      const adminCatalog = getCatalog('admin');
-      const allowedAdminOptions = adminCatalog.filter((opt) => allowedMenus.includes(opt.id));
-      return [...baseCatalog, ...allowedAdminOptions];
-    } else {
-      // context === 'admin'
-      const adminCatalog = getCatalog('admin');
-      if (isAdmin) {
-        return adminCatalog;
-      } else {
-        // ครูทั่วไปที่เข้ามาหน้าหลังบ้าน -> กรองเฉพาะเมนูที่ได้รับสิทธิ์เท่านั้น
-        return adminCatalog.filter((opt) => allowedMenus.includes(opt.id));
-      }
-    }
-  }, [context, allowedMenus, isAdmin]);
-
-  const catalogById = useMemo(() => {
-    const m = new Map<string, QuickMenuOption>();
-    catalog.forEach((o) => m.set(o.id, o));
-    return m;
-  }, [catalog]);
-
-  const { data: selectedIds = [] } = useQuery({
-    queryKey: ['quick-menu', user?.id, context],
-    enabled: !!user?.id,
+  const { data: shared } = useQuery({
+    queryKey: ['shared-quick-menu'],
     queryFn: async () => {
-      if (context === 'teacher') {
-        const { data } = await quickMenuService.getAdminQuickMenu();
-        const row = data as { menu_item_ids: string[] } | null;
-        // หากแอดมินยังไม่เคยตั้งค่าอะไรเลย ให้ใช้เมนูครูเริ่มต้น
-        return row?.menu_item_ids ?? getDefaultIds('teacher');
-      } else {
-        const { data } = await quickMenuService.get(user!.id, context);
-        const row = data as { menu_item_ids: string[] } | null;
-        return row?.menu_item_ids ?? getDefaultIds(context);
-      }
+      const { data } = await quickMenuService.getShared();
+      return (data as SharedQuickMenuRow | null) ?? null;
     },
   });
 
-  // กรองเฉพาะเมนูที่คุณครูมีสิทธิ์ใช้งานจริงเท่านั้น (สุขอนามัยของทางลัด)
-  const sanitizedSelectedIds = useMemo(() => {
-    const ids = selectedIds || [];
-    return ids.filter(id => catalogById.has(id));
-  }, [selectedIds, catalogById]);
+  const selectedIds = shared?.menu_item_ids ?? getDefaultIds('admin');
+  const knownIds = shared?.known_catalog_ids ?? [];
 
-  const items = sanitizedSelectedIds
-    .map((id) => catalogById.get(id))
-    .filter((x): x is QuickMenuOption => !!x);
+  // ─── Auto-append: เมนูใหม่ใน catalog → เพิ่มเข้า shared list ทันที (เฉพาะแอดมิน) ───
+  useEffect(() => {
+    if (!isAdmin || !user?.id || shared === undefined) return;
+    if (autoAppendDoneRef.current) return;
+
+    const currentCatalogIds = ADMIN_QUICK_MENU_CATALOG.map((o) => o.id);
+    const newIds = currentCatalogIds.filter((id) => !knownIds.includes(id));
+
+    // ไม่มีอะไรใหม่และ knownIds ก็ครบแล้ว → ไม่ต้องเขียน
+    if (newIds.length === 0 && knownIds.length === currentCatalogIds.length) return;
+
+    autoAppendDoneRef.current = true;
+    const appendedSelectedIds = [
+      ...selectedIds,
+      ...newIds.filter((id) => !selectedIds.includes(id)),
+    ];
+    quickMenuService
+      .saveShared(user.id, appendedSelectedIds, currentCatalogIds)
+      .then(({ error }) => {
+        if (error) {
+          autoAppendDoneRef.current = false; // retry ครั้งหน้า
+          return;
+        }
+        queryClient.invalidateQueries({ queryKey: ['shared-quick-menu'] });
+      });
+  }, [isAdmin, user?.id, shared, selectedIds, knownIds, queryClient]);
+
+  // แปลง id → option + สถานะการเข้าถึง
+  const items = useMemo(() => {
+    return selectedIds
+      .map((id) => {
+        const opt = FULL_CATALOG_BY_ID.get(id);
+        if (!opt) return null;
+        // แอดมิน = เข้าได้หมด
+        // ครู = เข้าได้ถ้าเป็นเมนูครูพื้นฐาน หรือมีใน allowedMenus
+        const isTeacherCoreItem = TEACHER_QUICK_MENU_CATALOG.some((t) => t.id === id);
+        const hasAccess = isAdmin || isTeacherCoreItem || allowedMenus.includes(id);
+        return { ...opt, hasAccess };
+      })
+      .filter((x): x is QuickMenuOption & { hasAccess: boolean } => !!x);
+  }, [selectedIds, isAdmin, allowedMenus]);
 
   return (
     <Card className="mb-6">
@@ -92,7 +101,7 @@ export const QuickMenu = ({ context }: QuickMenuProps) => {
             <Sparkles className="w-5 h-5 text-primary" />
             เมนูลัด
           </h3>
-          {context !== 'teacher' && (
+          {isAdmin && (
             <Button variant="ghost" size="sm" onClick={() => setEditorOpen(true)} className="gap-1.5">
               <Edit3 className="w-4 h-4" />
               จัดการ
@@ -102,61 +111,94 @@ export const QuickMenu = ({ context }: QuickMenuProps) => {
 
         {items.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-6">
-            ยังไม่ได้เลือกเมนูลัด — กด "จัดการ" เพื่อเลือกเมนูที่ใช้บ่อย
+            {isAdmin
+              ? 'ยังไม่ได้เลือกเมนูลัด — กด "จัดการ" เพื่อเลือกเมนูที่ใช้บ่อย'
+              : 'ยังไม่มีเมนูลัด — แอดมินยังไม่ได้ปักหมุดเมนู'}
           </p>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
             {items.map((item) => (
               <button
                 key={item.id}
-                onClick={() => navigate(item.path)}
-                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-secondary hover:bg-secondary/80 transition-colors text-center"
+                onClick={() => item.hasAccess && navigate(item.path)}
+                disabled={!item.hasAccess}
+                title={
+                  item.hasAccess
+                    ? item.label
+                    : 'คุณยังไม่มีสิทธิ์ใช้เมนูนี้ — ติดต่อแอดมินเพื่อขอสิทธิ์'
+                }
+                className={cn(
+                  'flex flex-col items-center gap-2 p-4 rounded-xl transition-colors text-center relative',
+                  item.hasAccess
+                    ? 'bg-secondary hover:bg-secondary/80 cursor-pointer'
+                    : 'bg-secondary/40 opacity-50 cursor-not-allowed',
+                )}
               >
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <item.icon className="w-6 h-6 text-primary" />
+                <div
+                  className={cn(
+                    'w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0',
+                    item.hasAccess ? 'bg-primary/10' : 'bg-muted',
+                  )}
+                >
+                  <item.icon
+                    className={cn(
+                      'w-6 h-6',
+                      item.hasAccess ? 'text-primary' : 'text-muted-foreground',
+                    )}
+                  />
                 </div>
-                <span className="font-medium text-foreground text-sm leading-tight line-clamp-2">
+                <span
+                  className={cn(
+                    'font-medium text-sm leading-tight line-clamp-2',
+                    item.hasAccess ? 'text-foreground' : 'text-muted-foreground',
+                  )}
+                >
                   {item.label}
                 </span>
+                {!item.hasAccess && (
+                  <span className="absolute top-1.5 right-1.5 text-muted-foreground">
+                    <Lock className="w-3 h-3" />
+                  </span>
+                )}
               </button>
             ))}
           </div>
         )}
 
-        <QuickMenuEditor
-          open={editorOpen}
-          onOpenChange={setEditorOpen}
-          context={context}
-          initialIds={sanitizedSelectedIds}
-          catalog={catalog}
-        />
+        {isAdmin && (
+          <QuickMenuEditor
+            open={editorOpen}
+            onOpenChange={setEditorOpen}
+            initialIds={selectedIds.filter((id) => FULL_CATALOG_BY_ID.has(id))}
+            knownCatalogIds={knownIds}
+          />
+        )}
       </CardContent>
     </Card>
   );
 };
 
-// ─── Editor dialog ───────────────────────────────────────────
+// ─── Editor dialog (admin only) ─────────────────────────────────
 
 interface QuickMenuEditorProps {
   open: boolean;
   onOpenChange: (v: boolean) => void;
-  context: QuickMenuContext;
   initialIds: string[];
-  catalog: QuickMenuOption[];
+  knownCatalogIds: string[];
 }
 
-const QuickMenuEditor = ({ open, onOpenChange, context, initialIds, catalog }: QuickMenuEditorProps) => {
+const QuickMenuEditor = ({ open, onOpenChange, initialIds, knownCatalogIds }: QuickMenuEditorProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [ids, setIds] = useState<string[]>(initialIds);
 
-  // Resync ids กับ initialIds ทุกครั้งที่ dialog เปิด (initialIds จาก parent query
-  // อาจ resolve หลัง mount → handleOpenChange เดิมไม่ trigger บน controlled open prop)
+  // Resync เมื่อ dialog เปิด เพราะ initialIds จาก query อาจ resolve หลัง mount
   useEffect(() => {
     if (open) setIds(initialIds);
   }, [open, initialIds]);
 
+  const catalog = ADMIN_QUICK_MENU_CATALOG;
   const catalogById = useMemo(() => {
     const m = new Map<string, QuickMenuOption>();
     catalog.forEach((o) => m.set(o.id, o));
@@ -174,7 +216,6 @@ const QuickMenuEditor = ({ open, onOpenChange, context, initialIds, catalog }: Q
   }, [catalog]);
 
   const selectedSet = new Set(ids);
-
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -188,20 +229,22 @@ const QuickMenuEditor = ({ open, onOpenChange, context, initialIds, catalog }: Q
   const addId = (id: string) => setIds((cur) => (cur.includes(id) ? cur : [...cur, id]));
   const removeId = (id: string) => setIds((cur) => cur.filter((x) => x !== id));
   const resetDefault = () => {
-    const defaults = getDefaultIds(context);
-    const validDefaults = defaults.filter((id) => catalog.some((opt) => opt.id === id));
-    setIds(validDefaults);
+    const defaults = getDefaultIds('admin');
+    setIds(defaults.filter((id) => catalogById.has(id)));
   };
 
   const saveMutation = useMutation({
     mutationFn: async () => {
       if (!user?.id) throw new Error('ไม่พบผู้ใช้');
-      const { error } = await quickMenuService.save(user.id, context, ids);
+      // อัปเดต known_catalog_ids ให้ตรงกับ catalog ปัจจุบันด้วย — กัน auto-append re-fire
+      const currentCatalogIds = catalog.map((o) => o.id);
+      const mergedKnown = Array.from(new Set([...knownCatalogIds, ...currentCatalogIds]));
+      const { error } = await quickMenuService.saveShared(user.id, ids, mergedKnown);
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['quick-menu'] });
-      toast({ title: 'บันทึกแล้ว', description: 'เมนูลัดของคุณได้รับการอัพเดต' });
+      queryClient.invalidateQueries({ queryKey: ['shared-quick-menu'] });
+      toast({ title: 'บันทึกแล้ว', description: 'เมนูลัดได้รับการอัพเดตและซิงค์ให้ครูทุกคนแล้ว' });
       onOpenChange(false);
     },
     onError: (err: Error) => {
@@ -213,11 +256,10 @@ const QuickMenuEditor = ({ open, onOpenChange, context, initialIds, catalog }: Q
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>จัดการเมนูลัด</DialogTitle>
+          <DialogTitle>จัดการเมนูลัด (แชร์ให้ครูทุกคน)</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Section 1: เมนูที่เลือก */}
           <div>
             <div className="flex items-center justify-between mb-2">
               <h4 className="text-sm font-semibold">เมนูที่เลือก ({ids.length})</h4>
@@ -245,7 +287,6 @@ const QuickMenuEditor = ({ open, onOpenChange, context, initialIds, catalog }: Q
             )}
           </div>
 
-          {/* Section 2: เมนูทั้งหมด (เพิ่ม) */}
           <div>
             <h4 className="text-sm font-semibold mb-2">
               เมนูทั้งหมด{' '}

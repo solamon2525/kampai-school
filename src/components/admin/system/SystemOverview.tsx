@@ -272,8 +272,22 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.37.1 (Critical Hotfix — Cmd-K registry icon import + safety net)',
+        version: 'v1.37.2 (Shared Quick Menu — แอดมินปักหมุดเมนูเดียว ครูทุกคนเห็นเหมือนกัน)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            '🐛 Bug fix: ครูเห็นเมนูลัดไม่ครบกับที่แอดมินปัก — ส่วนใหญ่เห็นแค่ 4 เมนู default. Root cause: migration 025 ตั้ง RLS เป็น auth.uid() = user_id → quickMenuService.getAdminQuickMenu() คืน null สำหรับครู → fallback ไป DEFAULT_TEACHER_IDS',
+            'Architecture fix: migration 098 สร้างตาราง shared_quick_menu (singleton, id=1) เป็น single source of truth — RLS: ทุก authenticated user อ่านได้, เฉพาะ is_admin() เขียนได้. Seed จาก user_quick_menu_preferences ของแอดมินคนแรก (ไม่หาย)',
+            'Auto-append เมนูใหม่: เพิ่ม known_catalog_ids ใน shared_quick_menu — เมื่อ catalog เพิ่มเมนูใหม่ (เช่น budget, sar) → รอบที่แอดมินเปิด dashboard ครั้งถัดไป QuickMenu จะ append อัตโนมัติ → ครูทุกคนเห็นทันที (ไม่ต้องให้แอดมินกดจัดการเอง)',
+            'Permission-aware rendering: เมนูที่ครูไม่มีสิทธิ์ (ไม่อยู่ใน allowedMenus + ไม่ใช่เมนูครูพื้นฐาน) แสดงเป็นปุ่มสีเทา + ไอคอน lock + tooltip "คุณยังไม่มีสิทธิ์ใช้เมนูนี้" — ไม่ซ่อน, เพื่อให้ครูรู้ว่ามีเมนูนี้และขอสิทธิ์ได้',
+            'Service rewrite: quickMenu.service.ts เหลือแค่ getShared / saveShared (ลบ get / save / getAdminQuickMenu เดิม). QuickMenu.tsx ใช้ useRef กัน auto-append re-fire ระหว่าง mount',
+            'Backwards-compat: คงตาราง user_quick_menu_preferences (migration 025) ไว้ ไม่ drop — เผื่อ rollback. ไม่มี code path ไหนใช้แล้ว',
+            'DESIGN.md Rule 14.40: source of truth + data flow + ห้ามเปลี่ยน id ของเมนูเดิม (จะกลายเป็นเมนูใหม่และเมนูเดิมหายจาก list ของทุกคน)',
+        ],
+    },
+    {
+        version: 'v1.37.1 (Critical Hotfix — Cmd-K registry icon import + safety net)',
+        date: '',
         badge: 'bg-red-600',
         items: [
             '🚨 Critical: หน้าเว็บขาวทั้งระบบ เนื่องจาก src/lib/commands/registry.ts อ้าง icon ClipboardList ที่ไม่ได้ import จาก lucide-react → ReferenceError ตอน module load → React ไม่ mount (incident 2ba6903)',

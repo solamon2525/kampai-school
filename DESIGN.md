@@ -801,6 +801,27 @@ Logic อยู่ใน `src/main.tsx` (ก่อน `createRoot`) ที่อ
 - LINE OA / Facebook page ของโรงเรียน: "ถ้าเว็บไม่โหลด ให้กดลิงก์นี้ 1 ครั้ง: kampai-school.vercel.app/?reset_sw=1"
 - Admin support — เป็นคำถามแรกก่อน escalate
 
+### Rule 14.40 — Shared Quick Menu (เมนูลัดบน dashboard)
+
+**Source of truth:** ตาราง `shared_quick_menu` (singleton, id=1) — **ห้าม** อ่าน/เขียน `user_quick_menu_preferences` ใน QuickMenu อีก (deprecated, คงไว้เพื่อ rollback)
+
+**Data flow:**
+- แอดมินทุกคนแก้ row เดียวกัน → ครูทุกคนเห็นเหมือนกันทันที (RLS: SELECT = authenticated ทุกคน, INSERT/UPDATE = `public.is_admin()`)
+- ครูที่ไม่มีสิทธิ์เมนู (`allowedMenus` ไม่ครอบคลุม) → ปุ่มแสดงเป็นสีเทา + ไอคอน lock + tooltip "คุณยังไม่มีสิทธิ์ใช้เมนูนี้" (ไม่ซ่อน)
+- เมนูครูพื้นฐาน (`TEACHER_QUICK_MENU_CATALOG`) ครูเข้าได้เสมอ ไม่ต้องอยู่ใน `allowedMenus`
+
+**การเพิ่มเมนูใหม่:**
+- เพิ่ม entry ใน `src/lib/quickMenuCatalog.ts` ในกลุ่ม `ADMIN_QUICK_MENU_CATALOG` — **ไม่ต้องทำอะไรอีก**
+- รอบที่แอดมินคนถัดไปเปิด dashboard → `QuickMenu` จะ auto-append ลง `shared_quick_menu.menu_item_ids` + อัปเดต `known_catalog_ids` ให้ตรงกับ catalog ปัจจุบัน
+- ครูทุกคนจะเห็นเมนูใหม่ทันทีโดยไม่ต้องให้แอดมินกด "จัดการ"
+
+**ห้าม:**
+- เปลี่ยน `id` ของเมนูเดิมใน `quickMenuCatalog.ts` — จะกลายเป็นเมนูใหม่และเมนูเดิมหายจากรายการของทุกคน (ใช้ label เปลี่ยนแทน)
+- ลบ migration 098 หรือ drop ตาราง `shared_quick_menu` — ทั้งระบบจะ fallback กลับไปใช้ default 4 เมนู
+- เปิด RLS ให้ user ที่ไม่ใช่ admin เขียน row — ทำลายโมเดล "single source of truth"
+
+**Incident reference:** ก่อน v1.37.2 ครูเห็นแค่ 4 เมนู default เพราะ RLS ใน migration 025 (`auth.uid() = user_id`) block ครูไม่ให้อ่าน row ของแอดมิน + ไม่มีกลไก auto-append เมนูใหม่
+
 ### Rule 14.24 — Health Records & PDPA (M086 + M087)
 
 - **Health source of truth:** `student_health_records` (1:1) + `student_vaccinations` + `student_growth_measurements` — **ห้าม** เก็บข้อมูลสุขภาพในตารางอื่น
