@@ -272,8 +272,22 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.38.1 (GamesTab — จัดการเกมทั้งหมด Storage + Git)',
+        version: 'v1.38.2 (Math Han — postMessage + score tracking)',
         date: 'ล่าสุด',
+        badge: 'bg-blue-600',
+        items: [
+            'เพิ่ม kampai postMessage integration ใน mth.html (เกมหารยาว Math Journey)',
+            'IS_EMBED detection + รับ STUDENT_CODE / DISPLAY_NAME จาก init message',
+            'ส่ง gameEnd เมื่อผ่านสอบ (test pass): score = (ด่าน+1)×10 + HP×2',
+            'ส่ง gameEnd เมื่อ HP หมด (gameover): score = ด่านที่ผ่าน × 10',
+            'ส่ง gameEnd เมื่อจบโหมดสอน (tutorial): score = 50 (participation)',
+            'ปุ่ม Home ใน gameplay/gameover/certificate → navigateBack() เมื่อ embed',
+            'เปลี่ยน external_url ใน DB จาก Storage URL → /games/math/mth.html (git path)',
+        ],
+    },
+    {
+        version: 'v1.38.1 (GamesTab — จัดการเกมทั้งหมด Storage + Git)',
+        date: '',
         badge: 'bg-teal-600',
         items: [
             'GamesTab query: ขยายจาก Storage-only → Storage + Git legacy games (17 ตัว ใน /games/...)',

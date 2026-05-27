@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Math Journey: Long Division Masterpiece</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load React & Babel -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Load Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&family=Sarabun:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Mali', cursive;
+            margin: 0;
+            overflow-x: hidden;
+            touch-action: manipulation;
+            transition: background-color 0.5s;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        /* --- Themes --- */
+        .theme-default { background-color: #fce7f3; }
+        .theme-default .board-bg {
+            background-color: #264e36;
+            background-image: radial-gradient(#3a6b4c 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .theme-default .wood-border {
+            border: 12px solid #8b5a2b;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.7), 0 10px 20px rgba(0,0,0,0.3);
+        }
+        @media (min-width: 768px) { .theme-default .wood-border { border-width: 16px; } }
+        .theme-default .desk-bg { background: linear-gradient(to bottom, #d2b48c, #cda77a); }
+        .theme-default .chalk-text { color: #ffffff; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); font-family: 'Comic Sans MS', 'Mali', cursive; }
+
+        .theme-space { background-color: #0b0f19; }
+        .theme-space .board-bg {
+            background: radial-gradient(circle at center, #1e1345 0%, #080511 100%);
+            background-image: radial-gradient(rgba(255,255,255,0.2) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+        .theme-space .wood-border {
+            border: 6px solid #4a00e0;
+            box-shadow: inset 0 0 30px rgba(74,0,224,0.8), 0 0 20px #8e2de2;
+            border-radius: 16px;
+        }
+        @media (min-width: 768px) { .theme-space .wood-border { border-width: 8px; border-radius: 20px; } }
+        .theme-space .desk-bg { background: linear-gradient(to bottom, #141e30, #243b55); border-top: 4px solid #4a00e0; }
+        .theme-space .chalk-text { color: #00ffff; text-shadow: 0 0 8px #00ffff; font-family: 'Courier New', Courier, monospace; }
+
+        .theme-boss .board-bg {
+            background: radial-gradient(circle at center, #590000 0%, #1a0000 100%);
+            animation: bossPulsate 3s infinite alternate;
+        }
+        @keyframes bossPulsate { from { box-shadow: inset 0 0 20px #ff0000; } to { box-shadow: inset 0 0 80px #ff0000; } }
+
+        /* --- Animations --- */
+        @keyframes pulse-ring { 0% { transform: scale(0.9); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.8; } 100% { transform: scale(0.9); opacity: 1; } }
+        .animate-pulse-ring { animation: pulse-ring 1.5s infinite; }
+
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } }
+        .animate-shake { animation: shake 0.4s; }
+
+        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 70% { transform: scale(1.2); } 100% { transform: scale(1); opacity: 1; } }
+        .animate-pop { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+        @keyframes fireGlow { 0% { filter: drop-shadow(0 0 2px #ff4500); } 50% { filter: drop-shadow(0 0 10px #ff8c00); } 100% { filter: drop-shadow(0 0 2px #ff4500); } }
+        .animate-fire { animation: fireGlow 1s infinite; }
+
+        @keyframes drawArrow { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+        .path-draw { stroke-dasharray: 100; animation: drawArrow 1s forwards; }
+
+        /* --- UI Components --- */
+        .num-btn { box-shadow: 0 4px 0 rgba(0,0,0,0.3); transition: all 0.1s; }
+        @media (min-width: 768px) { .num-btn { box-shadow: 0 6px 0 rgba(0,0,0,0.3); } }
+        .num-btn:active, .num-btn.selected { transform: translateY(4px); box-shadow: 0 0 0 rgba(0,0,0,0.3); filter: brightness(1.1); }
+        @media (min-width: 768px) { .num-btn:active, .num-btn.selected { transform: translateY(6px); } }
+
+        .certificate-bg {
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><defs><pattern id="p" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M0 100V50Q25 25 50 50t50-50v100z" fill="%23fdfbf7" opacity="0.5"/></pattern></defs><rect width="100%" height="100%" fill="%23fff" /><rect width="100%" height="100%" fill="url(%23p)" /></svg>');
+            border: 10px solid transparent;
+            border-image: repeating-linear-gradient(45deg, #d4af37, #d4af37 10px, #f3e5ab 10px, #f3e5ab 20px) 20;
+        }
+        @media (min-width: 768px) { .certificate-bg { border-width: 20px; } }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // ─── kampai-school integration ────────────────────────────────────────────
+        const IS_EMBED = window.self !== window.top ||
+                         new URLSearchParams(location.search).get('embed') === '1';
+        let STUDENT_CODE = null;
+        let DISPLAY_NAME_INIT = '';
+        let SESSION_START_TS = Date.now();
+        const GAME_SLUG = 'math-han';
+
+        if (IS_EMBED) {
+            window.addEventListener('message', (e) => {
+                if (e?.data?.type === 'init' && typeof e.data.studentCode === 'string') {
+                    STUDENT_CODE = e.data.studentCode;
+                    if (e.data.displayName) DISPLAY_NAME_INIT = e.data.displayName;
+                    SESSION_START_TS = Date.now();
+                }
+            });
+        }
+
+        function sendGameEnd(score, gameMode, extra) {
+            if (!IS_EMBED || !STUDENT_CODE) return;
+            try {
+                window.parent.postMessage({
+                    type: 'gameEnd',
+                    gameSlug: GAME_SLUG,
+                    studentCode: STUDENT_CODE,
+                    score: Math.round(score),
+                    mode: gameMode,
+                    metadata: {
+                        duration: Math.max(1, Math.floor((Date.now() - SESSION_START_TS) / 1000)),
+                        ...extra,
+                    },
+                }, '*');
+            } catch (_) {}
+        }
+
+        function navigateBack() {
+            if (IS_EMBED) {
+                try { window.parent.postMessage({ type: 'navigate', to: '/h/nattapong' }, '*'); } catch (_) {}
+            }
+        }
+        // ─────────────────────────────────────────────────────────────────────────
+
+        const { useState, useEffect, useRef, useCallback } = React;
+
+        // --- SVG Icons Components ---
+        const RefreshIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>;
+        const HintIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.9 1.2 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>;
+        const NextIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>;
+        const TrophyIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>;
+        const HeartIcon = ({ filled }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill={filled ? "#ff3333" : "none"} stroke={filled ? "#ff3333" : "#ffcccc"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`flex-shrink-0 ${filled ? "drop-shadow-lg animate-pulse scale-110" : "opacity-40"}`}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>;
+        const HomeIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+        const StarIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#fbbf24" stroke="#d97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>;
+        const SpeakerIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>;
+        const EditIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>;
+
+        const LEVELS = [ { div: 14, val: 357 }, { div: 12, val: 456 }, { div: 15, val: 784 }, { div: 13, val: 549 }, { div: 16, val: 680 }, { div: 21, val: 890 }, { div: 25, val: 834 }, { div: 11, val: 489 }, { div: 18, val: 759 }, { div: 22, val: 951 } ];
+        const TEST_LEVELS = [ { div: 17, val: 568 }, { div: 14, val: 621 }, { div: 19, val: 843 }, { div: 13, val: 425 }, { div: 23, val: 742 }, { div: 16, val: 539 }, { div: 24, val: 895 }, { div: 15, val: 671 }, { div: 21, val: 932 }, { div: 35, val: 884 } /* Boss Level */ ];
+
+        const generateLevelData = (divisor, dividend) => {
+            const divStr = divisor.toString();
+            const divdStr = dividend.toString().padStart(3, '0');
+
+            const part1 = parseInt(divdStr.substring(0, 2));
+            const q1 = Math.floor(part1 / divisor);
+            const sub1 = q1 * divisor;
+            const rem1 = part1 - sub1;
+
+            const part2 = parseInt(rem1.toString() + divdStr[2]);
+            const q2 = Math.floor(part2 / divisor);
+            const sub2 = q2 * divisor;
+            const rem2 = part2 - sub2;
+
+            const sub1Str = sub1.toString().padStart(2, '0');
+            const sub2Str = sub2.toString().padStart(2, '0');
+
+            return {
+                hints: { h1: `${q1} × ${divisor} = ${sub1}`, h2: `${q2} × ${divisor} = ${sub2}` },
+                cells: [
+                    { id: 'q1', r: 0, c: 4, val: '', expected: q1.toString(), type: 'input', step: 0 },
+                    { id: 'q2', r: 0, c: 5, val: '', expected: q2.toString(), type: 'input', step: 4 },
+
+                    { id: 'd1', r: 1, c: 0, val: divStr.length > 1 ? divStr[0] : '', type: 'text' },
+                    { id: 'd2', r: 1, c: 1, val: divStr.length > 1 ? divStr[1] : divStr[0], type: 'text' },
+                    { id: 'sym1', r: 1, c: 2, val: '', type: 'bracket' },
+                    { id: 'div1', r: 1, c: 3, val: divdStr[0], type: 'text', borderTop: true },
+                    { id: 'div2', r: 1, c: 4, val: divdStr[1], type: 'text', borderTop: true },
+                    { id: 'div3', r: 1, c: 5, val: divdStr[2], type: 'text', borderTop: true, isDraggableTarget: true },
+
+                    { id: 'sym2', r: 2, c: 2, val: '-', type: 'symbol' },
+                    { id: 's1_1', r: 2, c: 3, val: '', expected: sub1Str[0], type: 'input', step: 1, borderBottom: true },
+                    { id: 's1_2', r: 2, c: 4, val: '', expected: sub1Str[1], type: 'input', step: 1, borderBottom: true },
+
+                    { id: 'r1_1', r: 3, c: 4, val: '', expected: rem1.toString(), type: 'input', step: 2 },
+                    { id: 'b1', r: 3, c: 5, val: '', expected: divdStr[2], type: 'bringDown', step: 3, sourceId: 'div3' },
+
+                    { id: 'sym3', r: 4, c: 3, val: '-', type: 'symbol' },
+                    { id: 's2_1', r: 4, c: 4, val: '', expected: sub2Str[0], type: 'input', step: 5, borderBottom: true },
+                    { id: 's2_2', r: 4, c: 5, val: '', expected: sub2Str[1], type: 'input', step: 5, borderBottom: true },
+
+                    { id: 'rem', r: 5, c: 5, val: '', expected: rem2.toString(), type: 'input', step: 6, borderBottom: true, doubleBorderBottom: true }
+                ],
+                instructions: [
+                    `ขั้นตอน 1: นำ ${divisor} ไปหาร ${part1} ได้กี่ครั้ง? (แตะเลือกเลข แล้วแตะช่องว่างด้านบน)`,
+                    `ขั้นตอน 2: นำ ${q1} ไปคูณ ${divisor} ได้เท่าไหร่? (ใส่ตัวเลขด้านล่าง)`,
+                    `ขั้นตอน 3: ลบเลข ${part1} ด้วย ${sub1} เหลือเท่าไหร่?`,
+                    `ขั้นตอน 4: แตะที่เลข ${divdStr[2]} ที่กระพริบ เพื่อดึงลงมาหารต่อ`,
+                    `ขั้นตอน 5: นำ ${divisor} ไปหาร ${part2} ได้กี่ครั้ง?`,
+                    `ขั้นตอน 6: นำ ${q2} ไปคูณ ${divisor} ได้เท่าไหร่?`,
+                    `ขั้นตอน 7: ลบเลขรอบสุดท้าย เหลือเศษเท่าไหร่?`,
+                    `ยอดเยี่ยมมาก! การหารเสร็จสมบูรณ์ คำตอบคือ ${q1}${q2} เศษ ${rem2}`
+                ],
+                testInstructions: [
+                    `ขั้นตอน 1: นำ ${divisor} ไปหาร ${part1} ได้กี่ครั้ง?`,
+                    `ขั้นตอน 2: นำผลหารคูณ ${divisor} ได้เท่าไหร่?`,
+                    `ขั้นตอน 3: ลบเลข ${part1} ด้วยผลคูณ เหลือเท่าไหร่?`,
+                    `ขั้นตอน 4: แตะดึงเลขตัวถัดไปลงมาเพื่อหารต่อ`,
+                    `ขั้นตอน 5: นำ ${divisor} ไปหารตัวเลขใหม่ ได้กี่ครั้ง?`,
+                    `ขั้นตอน 6: นำผลหารคูณ ${divisor} ได้เท่าไหร่?`,
+                    `ขั้นตอน 7: ลบเลขรอบสุดท้าย เหลือเศษเท่าไหร่?`,
+                    `ยอดเยี่ยมมาก! ทำข้อนี้สำเร็จแล้ว`
+                ]
+            };
+        };
+
+        let globalAudioCtx = null;
+        const getAudioContext = () => {
+            if (!globalAudioCtx) globalAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (globalAudioCtx.state === 'suspended') globalAudioCtx.resume();
+            return globalAudioCtx;
+        };
+
+        const App = () => {
+            // Player Data
+            const [playerName, setPlayerName] = useState('');
+            const [stars, setStars] = useState(0);
+            const [unlockedThemes, setUnlockedThemes] = useState(['default']);
+            const [activeTheme, setActiveTheme] = useState('default');
+
+            // Game State
+            const [mode, setMode] = useState('menu');
+            const [hp, setHp] = useState(5);
+            const [levelIndex, setLevelIndex] = useState(0);
+            const [levelData, setLevelData] = useState(() => generateLevelData(LEVELS[0].div, LEVELS[0].val));
+            const [step, setStep] = useState(0);
+            const [cells, setCells] = useState(levelData.cells);
+            const [selectedDigit, setSelectedDigit] = useState(null);
+            const [errorCell, setErrorCell] = useState(null);
+
+            // Features & Responsive State
+            const [showHint, setShowHint] = useState(false);
+            const [streak, setStreak] = useState(0);
+            const [aiFeedback, setAiFeedback] = useState("");
+            const [showScratchpad, setShowScratchpad] = useState(false);
+            const [scratchText, setScratchText] = useState("");
+            const [animatingCells, setAnimatingCells] = useState([]);
+            const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+            // Custom Mode State
+            const [customDiv, setCustomDiv] = useState(12);
+            const [customDivd, setCustomDivd] = useState(250);
+
+            // ── kampai integration refs ──────────────────────────────────────────
+            const levelIndexRef = useRef(0);
+            const hpRef = useRef(5);
+            useEffect(() => { levelIndexRef.current = levelIndex; }, [levelIndex]);
+            useEffect(() => { hpRef.current = hp; }, [hp]);
+
+            // Pre-fill ชื่อจาก init message เมื่อเล่นใน embed
+            useEffect(() => {
+                if (IS_EMBED && DISPLAY_NAME_INIT && !playerName) {
+                    setPlayerName(DISPLAY_NAME_INIT);
+                }
+            }, []);
+
+            // ส่ง gameEnd เมื่อผ่านสอบ หรือ HP หมด
+            useEffect(() => {
+                if (mode === 'certificate') {
+                    const score = (levelIndexRef.current + 1) * 10 + hpRef.current * 2;
+                    sendGameEnd(score, 'test', {
+                        levelReached: levelIndexRef.current + 1,
+                        hpRemaining: hpRef.current,
+                        result: 'pass',
+                    });
+                } else if (mode === 'gameover') {
+                    const score = levelIndexRef.current * 10;
+                    sendGameEnd(score, 'test', {
+                        levelReached: levelIndexRef.current,
+                        hpRemaining: 0,
+                        result: 'fail',
+                    });
+                }
+            }, [mode]);
+            // ────────────────────────────────────────────────────────────────────
+
+            // Responsive Listener
+            useEffect(() => {
+                const handleResize = () => setIsMobile(window.innerWidth < 768);
+                window.addEventListener('resize', handleResize);
+                return () => window.removeEventListener('resize', handleResize);
+            }, []);
+
+            // Load Data
+            useEffect(() => {
+                try {
+                    const savedName = localStorage.getItem('mathDivName');
+                    const savedStars = localStorage.getItem('mathDivStars');
+                    const savedThemes = localStorage.getItem('mathDivThemes');
+                    const activeT = localStorage.getItem('mathDivActiveTheme');
+                    if(savedName) setPlayerName(savedName);
+                    if(savedStars) setStars(parseInt(savedStars));
+                    if(savedThemes) setUnlockedThemes(JSON.parse(savedThemes));
+                    if(activeT) setActiveTheme(activeT);
+                } catch(e) { console.warn("Local storage disabled"); }
+            }, []);
+
+            // Save Data & Update Body Theme
+            useEffect(() => {
+                try {
+                    if(playerName) localStorage.setItem('mathDivName', playerName);
+                    localStorage.setItem('mathDivStars', stars);
+                    localStorage.setItem('mathDivThemes', JSON.stringify(unlockedThemes));
+                    localStorage.setItem('mathDivActiveTheme', activeTheme);
+                } catch(e) {}
+                document.body.className = `theme-${activeTheme} ${mode === 'test' && levelIndex === TEST_LEVELS.length - 1 ? 'theme-boss' : ''}`;
+            }, [playerName, stars, unlockedThemes, activeTheme, mode, levelIndex]);
+
+            const playSound = useCallback((type) => {
+                try {
+                    const ctx = getAudioContext();
+                    const osc = ctx.createOscillator();
+                    const gainNode = ctx.createGain();
+                    osc.connect(gainNode); gainNode.connect(ctx.destination);
+
+                    if (type === 'success') {
+                        osc.type = 'sine'; osc.frequency.setValueAtTime(600, ctx.currentTime);
+                        osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.1);
+                        gainNode.gain.setValueAtTime(0.3, ctx.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                        osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.3);
+                    } else if (type === 'error') {
+                        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(300, ctx.currentTime);
+                        osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.2);
+                        gainNode.gain.setValueAtTime(0.3, ctx.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+                        osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.2);
+                    } else if (type === 'pop') {
+                        osc.type = 'square'; osc.frequency.setValueAtTime(800, ctx.currentTime);
+                        gainNode.gain.setValueAtTime(0.1, ctx.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+                        osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.1);
+                    }
+                } catch(e) { console.warn("Audio play failed"); }
+            }, []);
+
+            const speakText = (text) => {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'th-TH'; utterance.rate = 0.9;
+                    window.speechSynthesis.speak(utterance);
+                }
+            };
+
+            const triggerConfetti = () => { if (window.confetti) confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, zIndex: 1000 }); };
+
+            const handleDrop = (cellId, droppedVal, isFromBringDown = false) => {
+                const targetCell = cells.find(c => c.id === cellId);
+                if (!targetCell || targetCell.step !== step) return;
+
+                if (droppedVal === targetCell.expected) {
+                    const newCells = cells.map(c => c.id === cellId ? { ...c, val: droppedVal } : c);
+                    setCells(newCells); setSelectedDigit(null); setAiFeedback(""); setStreak(s => s + 1);
+
+                    setAnimatingCells([...animatingCells, cellId]);
+                    setTimeout(() => setAnimatingCells(prev => prev.filter(id => id !== cellId)), 300);
+
+                    const currentStepCells = newCells.filter(c => c.step === step);
+                    if (currentStepCells.length > 0 && currentStepCells.every(c => c.val === c.expected)) {
+                        playSound('success');
+                        if (streak >= 2 && !isFromBringDown) setStars(s => s + 1);
+                        setTimeout(() => {
+                            setStep(s => s + 1);
+                            if (step + 1 === 7) triggerConfetti();
+                        }, 500);
+                    } else { playSound('pop'); }
+                } else {
+                    triggerError(cellId); setStreak(0);
+                    if(step === 1 || step === 5) setAiFeedback("💡 เช็คผลคูณดีๆ นะจ๊ะ เอาผลหารไปคูณตัวหาร");
+                    else if (step === 2 || step === 6) setAiFeedback("💡 ลบเลขผิดหรือเปล่า? ลองตั้งลบในกระดาษทดดูนะ");
+                    else if (step === 0 || step === 4) setAiFeedback("💡 ผลหารยังไม่ถูกจ้า ลองท่องสูตรคูณดูอีกที");
+                    else setAiFeedback("💡 ผิดช่องหรือเปล่านะ ลองดูคำสั่งด้านล่าง");
+                }
+            };
+
+            const triggerError = (cellId) => {
+                playSound('error'); setErrorCell(cellId);
+                setTimeout(() => setErrorCell(null), 500);
+                if (mode === 'test' || mode === 'boss') {
+                    setHp(prev => {
+                        const newHp = prev - 1;
+                        if (newHp <= 0) setTimeout(() => setMode('gameover'), 600);
+                        return newHp;
+                    });
+                }
+            };
+
+            const handleCellClick = (cell) => {
+                if (cell.step !== step) return;
+                if (step === 3 && cell.type === 'bringDown') {
+                    if (selectedDigit === 'bringDown_digit') handleDrop(cell.id, cell.expected, true);
+                    return;
+                }
+                if (selectedDigit !== null && selectedDigit !== 'bringDown_digit') {
+                    handleDrop(cell.id, selectedDigit);
+                }
+            };
+
+            const startGame = (selectedMode) => {
+                let currentName = playerName.trim();
+                if (!currentName && selectedMode !== 'custom') {
+                    currentName = "นักคณิตศาสตร์";
+                    setPlayerName(currentName);
+                }
+
+                setMode(selectedMode); setLevelIndex(0); setHp(5); setStreak(0); setAiFeedback(""); setShowScratchpad(false);
+                SESSION_START_TS = Date.now();
+                getAudioContext();
+
+                let data;
+                if (selectedMode === 'test') data = generateLevelData(TEST_LEVELS[0].div, TEST_LEVELS[0].val);
+                else if (selectedMode === 'tutorial') data = generateLevelData(LEVELS[0].div, LEVELS[0].val);
+                else data = generateLevelData(customDiv, customDivd);
+
+                setLevelData(data); setCells(data.cells); setStep(0); setSelectedDigit(null);
+            };
+
+            const nextLevel = () => {
+                if (mode === 'custom') { setMode('menu'); return; }
+                const currentLevels = mode === 'test' ? TEST_LEVELS : LEVELS;
+
+                if (levelIndex < currentLevels.length - 1) {
+                    const nextIdx = levelIndex + 1;
+                    const nextData = generateLevelData(currentLevels[nextIdx].div, currentLevels[nextIdx].val);
+                    setLevelIndex(nextIdx); setLevelData(nextData); setCells(nextData.cells); setStep(0); setSelectedDigit(null);
+                    setStars(s => s + 5);
+                } else {
+                    if (mode === 'test') { triggerConfetti(); setTimeout(() => setMode('certificate'), 1000); }
+                    else {
+                        sendGameEnd(50, 'tutorial', { levelReached: 10, result: 'complete' });
+                        setStars(s => s + 10);
+                        setMode('menu');
+                    }
+                }
+            };
+
+            const buyTheme = (themeName, cost) => {
+                if (stars >= cost && !unlockedThemes.includes(themeName)) {
+                    setStars(s => s - cost); setUnlockedThemes([...unlockedThemes, themeName]); setActiveTheme(themeName); playSound('success');
+                }
+            };
+
+            if (mode === 'menu') {
+                return (
+                    <div className="min-h-screen flex flex-col items-center justify-center p-3 lg:p-4 desk-bg">
+                        <div className="max-w-2xl w-full bg-[#fcf5e5] rounded-[1.5rem] lg:rounded-[2rem] shadow-2xl p-4 lg:p-8 border-[8px] lg:border-[12px] wood-border text-center relative overflow-hidden transition-all duration-500">
+                            <h1 className="text-3xl lg:text-5xl font-bold chalk-text !text-[#264e36] mb-2 drop-shadow-sm theme-space:!text-cyan-300">
+                                🚀 Math Journey Pro
+                            </h1>
+                            <p className="text-sm lg:text-xl text-gray-600 mb-4 lg:mb-6 font-semibold">ฝึกหารยาว ฉบับมาสเตอร์</p>
+
+                            <div className="bg-white/50 p-3 lg:p-4 rounded-xl mb-4 lg:mb-6 shadow-inner">
+                                <input
+                                    type="text"
+                                    placeholder="พิมพ์ชื่อของคุณ (ถ้ามี)"
+                                    className="w-full text-center text-lg lg:text-2xl p-2 lg:p-3 rounded-lg border-2 border-gray-300 focus:border-[#4fb0a4] outline-none font-bold text-gray-700"
+                                    value={playerName} onChange={(e) => setPlayerName(e.target.value)} maxLength={20}
+                                />
+                            </div>
+
+                            <div className="flex justify-center gap-4 lg:gap-6 mb-4 lg:mb-8 font-bold text-base lg:text-xl">
+                                <div className="flex items-center gap-2 bg-yellow-100 text-yellow-700 px-3 lg:px-4 py-1.5 lg:py-2 rounded-full border-2 border-yellow-300 shadow-sm">
+                                    <StarIcon /> ดาวสะสม: {stars}
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 lg:gap-4 mb-6 lg:mb-8">
+                                <button onClick={() => startGame('tutorial')} className="flex flex-col items-center justify-center gap-1 lg:gap-2 p-3 lg:p-4 bg-[#4fb0a4] hover:bg-[#3d8c82] text-white font-bold rounded-xl lg:rounded-2xl shadow-[0_4px_0_#2b6b63] lg:shadow-[0_6px_0_#2b6b63] active:translate-y-1 lg:active:translate-y-2 active:shadow-none transition-all">
+                                    <HintIcon /> <span className="text-sm lg:text-base">โหมดสอน<br/><small>(มีคำใบ้)</small></span>
+                                </button>
+                                <button onClick={() => startGame('test')} className="flex flex-col items-center justify-center gap-1 lg:gap-2 p-3 lg:p-4 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl lg:rounded-2xl shadow-[0_4px_0_#991b1b] lg:shadow-[0_6px_0_#991b1b] active:translate-y-1 lg:active:translate-y-2 active:shadow-none transition-all">
+                                    <TrophyIcon /> <span className="text-sm lg:text-base">โหมดสอบ<br/><small>(เก็บคะแนน/สู้บอส)</small></span>
+                                </button>
+                                <button onClick={() => setMode('setupCustom')} className="flex flex-col items-center justify-center gap-1 lg:gap-2 p-3 lg:p-4 bg-purple-500 hover:bg-purple-600 text-white font-bold rounded-xl lg:rounded-2xl shadow-[0_4px_0_#6b21a8] lg:shadow-[0_6px_0_#6b21a8] active:translate-y-1 lg:active:translate-y-2 active:shadow-none transition-all">
+                                    <EditIcon /> <span className="text-sm lg:text-base">โหมดครู<br/><small>(ตั้งโจทย์เอง)</small></span>
+                                </button>
+                            </div>
+
+                            <div className="bg-black/10 p-3 lg:p-4 rounded-xl text-left border-2 border-black/5">
+                                <h3 className="font-bold mb-2 lg:mb-3 flex items-center gap-2 text-sm lg:text-base">🎨 ร้านค้ากระดาน</h3>
+                                <div className="flex flex-col sm:flex-row gap-2 lg:gap-4">
+                                    <button onClick={() => setActiveTheme('default')} className={`flex-1 py-1.5 lg:py-2 rounded-lg font-bold border-2 text-sm lg:text-base ${activeTheme === 'default' ? 'border-green-600 bg-green-100 text-green-800' : 'border-gray-300 bg-white'}`}>ชอล์กบอร์ด</button>
+                                    <button onClick={() => unlockedThemes.includes('space') ? setActiveTheme('space') : buyTheme('space', 100)} className={`flex-1 py-1.5 lg:py-2 rounded-lg font-bold border-2 text-sm lg:text-base ${activeTheme === 'space' ? 'border-blue-600 bg-blue-100 text-blue-800' : 'border-gray-300 bg-gray-800 text-cyan-300'}`}>
+                                        {unlockedThemes.includes('space') ? 'อวกาศ (ใช้งาน)' : 'อวกาศ (100⭐)'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (mode === 'setupCustom') {
+                return (
+                    <div className="min-h-screen flex flex-col items-center justify-center p-4 desk-bg">
+                        <div className="max-w-md w-full bg-white rounded-[2rem] shadow-2xl p-6 lg:p-8 border-[8px] lg:border-[12px] wood-border text-center">
+                            <h2 className="text-2xl lg:text-3xl font-bold mb-6 text-purple-700 flex items-center justify-center gap-2"><EditIcon/> โหมดตั้งโจทย์เอง</h2>
+                            <div className="mb-4 text-left">
+                                <label className="font-bold text-gray-600 block mb-2">ตัวหาร (Divisor: 10-99)</label>
+                                <input type="number" min="10" max="99" value={customDiv} onChange={(e) => setCustomDiv(e.target.value)} className="w-full p-2 lg:p-3 border-2 border-purple-300 rounded-lg text-xl font-bold outline-none" />
+                            </div>
+                            <div className="mb-6 text-left">
+                                <label className="font-bold text-gray-600 block mb-2">ตัวตั้ง (Dividend: 100-999)</label>
+                                <input type="number" min="100" max="999" value={customDivd} onChange={(e) => setCustomDivd(e.target.value)} className="w-full p-2 lg:p-3 border-2 border-purple-300 rounded-lg text-xl font-bold outline-none" />
+                            </div>
+                            <div className="flex gap-4">
+                                <button onClick={() => startGame('custom')} className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-2 rounded-xl shadow-[0_4px_0_#166534] active:translate-y-1">เริ่มเลย!</button>
+                                <button onClick={() => setMode('menu')} className="flex-1 bg-gray-400 text-white font-bold py-2 rounded-xl shadow-[0_4px_0_#4b5563] active:translate-y-1">กลับ</button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (mode === 'certificate') {
+                return (
+                    <div className="min-h-screen flex flex-col items-center justify-center p-2 lg:p-4 bg-gray-900">
+                        <div className="max-w-2xl w-full certificate-bg rounded shadow-2xl p-6 lg:p-12 text-center relative bg-white">
+                            <div className="text-4xl lg:text-6xl mb-4">🎖️</div>
+                            <h1 className="text-3xl lg:text-5xl font-bold mb-2 text-[#d4af37]" style={{fontFamily: "'Sarabun', serif"}}>เกียรติบัตรเชิดชูเกียรติ</h1>
+                            <p className="text-sm lg:text-xl text-gray-600 mb-6">ขอมอบเกียรติบัตรฉบับนี้เพื่อแสดงว่า</p>
+                            <h2 className="text-3xl lg:text-5xl font-bold text-blue-800 mb-6 border-b-2 border-gray-300 pb-2 inline-block px-4">{playerName}</h2>
+                            <p className="text-base lg:text-xl text-gray-700 mb-8">ได้ผ่านการทดสอบ "การหารยาว (Master Level)"<br/>ด้วยคะแนนยอดเยี่ยม และเหลือพลังชีวิต {hp} ดวง</p>
+                            <div className="flex justify-between items-end mt-4 border-t-2 border-gray-200 pt-4">
+                                <div>
+                                    <div className="w-24 border-b-2 border-black mb-2"></div>
+                                    <p className="text-xs font-bold text-gray-500">AI Teacher</p>
+                                </div>
+                                <div className="text-right flex items-center gap-1 font-bold text-yellow-600 text-sm">
+                                    <StarIcon/> ได้รับ: +50 ⭐
+                                </div>
+                            </div>
+                        </div>
+                        <button onClick={() => { setStars(s => s + 50); IS_EMBED ? navigateBack() : setMode('menu'); }} className="mt-6 flex items-center gap-2 px-6 py-3 bg-white text-black font-bold rounded-full shadow-lg hover:scale-105 transition-transform">
+                            <HomeIcon /> กลับสู่หน้าหลัก
+                        </button>
+                    </div>
+                );
+            }
+
+            if (mode === 'gameover') {
+                return (
+                    <div className="min-h-screen flex flex-col items-center justify-center p-4 desk-bg">
+                        <div className="max-w-xl w-full bg-white rounded-[2rem] shadow-2xl p-6 lg:p-8 border-[8px] lg:border-[12px] wood-border text-center">
+                            <div className="text-6xl mb-4">💔</div>
+                            <h1 className="text-4xl lg:text-5xl font-bold mb-2 text-red-600">Game Over!</h1>
+                            <p className="text-lg lg:text-xl text-gray-700 mb-6">พลังชีวิตหมดแล้ว ลองสู้ใหม่อีกครั้งนะ {playerName}!</p>
+                            <button onClick={() => IS_EMBED ? navigateBack() : setMode('menu')} className="flex items-center justify-center gap-2 mx-auto px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl shadow-[0_4px_0_#1e3a8a] active:translate-y-1">
+                                <HomeIcon /> กลับหน้าแรก
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            const isTest = mode === 'test';
+            const isBoss = isTest && levelIndex === TEST_LEVELS.length - 1;
+            const currentLevels = isTest ? TEST_LEVELS : (mode === 'custom' ? [ {div: customDiv, val: customDivd} ] : LEVELS);
+
+            const cellSize = isMobile ? 42 : 60;
+            const gap = isMobile ? 4 : 8;
+            const boardWidth = (cellSize * 6) + (gap * 5);
+            const boardHeight = (cellSize * 6) + (gap * 5);
+
+            const getCenterX = (c) => c * (cellSize + gap) + (cellSize / 2);
+            const getCenterY = (r) => r * (cellSize + gap) + (cellSize / 2);
+            const arrowStartX = getCenterX(5);
+            const arrowStartY = getCenterY(1) + (cellSize/2) + (isMobile ? 2 : 5);
+            const arrowEndY = getCenterY(3) - (cellSize/2) - (isMobile ? 2 : 5);
+
+            return (
+                <div className="min-h-screen flex flex-col items-center justify-center p-1 sm:p-2 w-full overflow-hidden">
+                    <div className="w-full max-w-5xl game-container bg-[#fcf5e5] rounded-[1rem] sm:rounded-[2rem] shadow-2xl overflow-hidden border-[6px] sm:border-[12px] wood-border relative transition-colors duration-500">
+
+                        {/* Header Area */}
+                        <div className={`text-white py-2 lg:py-3 px-3 lg:px-6 flex flex-wrap justify-between items-center shadow-md relative overflow-hidden ${isBoss ? 'bg-red-900' : (isTest ? 'bg-red-700' : 'bg-[#4fb0a4]')}`}>
+                            <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, #000 10px, #000 20px)' }}></div>
+
+                            <div className="flex items-center gap-2 lg:gap-4 z-10">
+                                <button onClick={() => IS_EMBED ? navigateBack() : setMode('menu')} className="bg-black/30 p-1.5 lg:p-2 rounded-full hover:bg-black/50 transition"><HomeIcon /></button>
+                                <h1 className="text-sm sm:text-lg lg:text-2xl font-bold drop-shadow-md flex items-center gap-1">
+                                    {isBoss ? '👹 BOSS' : (isTest ? '📝 สอบ' : (mode === 'custom' ? '⚙️' : '📚 สอน'))}
+                                </h1>
+                            </div>
+
+                            <div className="flex items-center gap-1 lg:gap-4 z-10 text-[10px] sm:text-xs lg:text-base">
+                                <div className="flex items-center gap-1 font-bold text-yellow-300 bg-black/30 px-2 lg:px-3 py-1 rounded-full"><StarIcon/> {stars}</div>
+                                {streak > 1 && <div className="font-bold text-orange-400 animate-fire flex items-center gap-1">🔥 <span className="hidden sm:inline">Combo</span> x{streak}</div>}
+                                {(isTest || isBoss) && (
+                                    <div className="flex gap-0.5 sm:gap-1 bg-black/40 px-2 py-1 rounded-full border border-white/20">
+                                        {[1,2,3,4,5].map(h => <HeartIcon key={h} filled={h <= hp} />)}
+                                    </div>
+                                )}
+                                <div className="bg-white/20 px-2 lg:px-3 py-1 rounded-full font-bold">
+                                    {mode === 'custom' ? 'Custom' : `ข้อ ${levelIndex + 1}/${currentLevels.length}`}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col lg:flex-row p-2 lg:p-4 gap-2 lg:gap-4 desk-bg relative">
+
+                            {/* Scratchpad Overlay */}
+                            {showScratchpad && (
+                                <div className="absolute inset-2 lg:inset-4 z-50 bg-white/95 backdrop-blur-sm rounded-xl lg:rounded-2xl shadow-2xl border-4 border-gray-300 flex flex-col">
+                                    <div className="bg-gray-200 p-2 lg:p-3 font-bold text-gray-700 flex justify-between items-center rounded-t-lg">
+                                        <span className="text-sm lg:text-base">📝 กระดาษทด</span>
+                                        <button onClick={() => setShowScratchpad(false)} className="text-red-500 hover:text-red-700 px-2">❌ ปิด</button>
+                                    </div>
+                                    <textarea
+                                        className="flex-1 w-full p-3 lg:p-4 text-lg lg:text-2xl font-mono outline-none bg-transparent resize-none"
+                                        placeholder="พิมพ์ทดเลขตรงนี้..."
+                                        value={scratchText} onChange={(e) => setScratchText(e.target.value)}
+                                    ></textarea>
+                                </div>
+                            )}
+
+                            {/* Left Area: Chalkboard */}
+                            <div className="flex-grow wood-border board-bg p-2 lg:p-6 relative flex flex-col items-center justify-center min-h-[300px] lg:min-h-[450px]">
+
+                                {(!isTest && !isBoss && mode !== 'custom') && (
+                                    <div className="absolute top-2 left-2 lg:top-4 lg:left-4 opacity-20 chalk-text text-sm lg:text-xl pointer-events-none">
+                                        {levelData.hints.h1}<br/>{levelData.hints.h2}
+                                    </div>
+                                )}
+
+                                <div className="relative mx-auto" style={{ width: `${boardWidth}px`, height: `${boardHeight}px` }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: `repeat(6, ${cellSize}px)`, gridTemplateRows: `repeat(6, ${cellSize}px)`, gap: `${gap}px` }}>
+                                        {cells.map(cell => {
+                                            const isTarget = cell.step === step;
+                                            const isError = errorCell === cell.id;
+                                            const isFilled = cell.val !== '';
+                                            const isBringDownSource = step === 3 && cell.id === 'div3';
+                                            const isAnimating = animatingCells.includes(cell.id);
+                                            const isBringDownSelected = selectedDigit === 'bringDown_digit' && cell.id === 'div3';
+
+                                            let cellClasses = `flex items-center justify-center text-2xl lg:text-4xl font-bold chalk-text select-none transition-all duration-300`;
+
+                                            if (cell.type === 'input' || cell.type === 'bringDown') {
+                                                if (isTarget) cellClasses += ` bg-[#00000050] border-2 border-dashed ${showHint ? 'border-yellow-400 animate-pulse-ring' : 'border-white/50'} cursor-pointer rounded-lg hover:bg-[#ffffff20]`;
+                                                else if (isFilled) cellClasses += ` bg-transparent text-[#a7f3d0]`;
+                                                else cellClasses += ` border-none`;
+                                            }
+
+                                            if (cell.borderTop) cellClasses += ` border-t-2 lg:border-t-4 border-white border-solid`;
+                                            if (cell.borderBottom) cellClasses += ` border-b-2 lg:border-b-4 border-white border-solid`;
+                                            if (cell.doubleBorderBottom) cellClasses += ` border-b-[4px] lg:border-b-[6px] border-double border-white`;
+                                            if (cell.type === 'bracket') cellClasses += ` border-r-2 lg:border-r-4 border-white rounded-br-[20px] rounded-tr-[5px] transform scale-y-[1.2] translate-x-[-2px] lg:translate-x-[-10px]`;
+                                            if (isBringDownSource) cellClasses += ` border-2 border-dashed border-red-400 rounded-full animate-pulse cursor-pointer ${isBringDownSelected ? 'bg-red-400/30 ring-4 ring-red-400' : ''}`;
+                                            if (isError) cellClasses += ` bg-red-500/50 border-red-500 animate-shake`;
+                                            if (isAnimating) cellClasses += ` animate-pop text-yellow-300`;
+
+                                            return (
+                                                <div
+                                                    key={cell.id} id={cell.id} className={cellClasses}
+                                                    style={{ gridColumn: cell.c + 1, gridRow: cell.r + 1 }}
+                                                    onClick={() => {
+                                                        if (isTarget) handleCellClick(cell);
+                                                        else if (isBringDownSource) { setSelectedDigit('bringDown_digit'); playSound('pop'); }
+                                                    }}
+                                                >
+                                                    {isTarget && showHint && !isFilled ? <span className="text-yellow-400 opacity-50">{cell.expected}</span> : cell.val}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+
+                                    {/* Arrow Overlay */}
+                                    <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                                        <defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#f87171" /></marker></defs>
+                                        {(step >= 3) && <path d={`M ${arrowStartX} ${arrowStartY} L ${arrowStartX} ${arrowEndY}`} stroke="#f87171" strokeWidth={isMobile ? "3" : "4"} fill="none" strokeDasharray={step === 3 ? "8, 8" : "none"} markerEnd="url(#arrowhead)" className={step === 3 ? "animate-pulse" : "path-draw"} />}
+                                        {step === 3 && <circle cx={arrowStartX} cy={arrowEndY + (cellSize/2)} r={cellSize/2 - 2} stroke="#f87171" strokeWidth={isMobile ? "2" : "3"} strokeDasharray="6,6" fill="none" className="animate-pulse-ring" />}
+                                    </svg>
+                                </div>
+                            </div>
+
+                            {/* Right Area: Keypad */}
+                            <div className="w-full lg:w-72 bg-[#2b2b2b] p-3 lg:p-6 rounded-xl border-4 border-[#1a1a1a] shadow-xl flex flex-col items-center z-10">
+                                <div className="flex justify-between w-full mb-2 lg:mb-4 items-center border-b-2 border-gray-600 pb-1">
+                                    <h3 className="text-white font-bold text-sm lg:text-lg">แป้นตัวเลข</h3>
+                                    <button onClick={() => setShowScratchpad(true)} className="bg-blue-600 hover:bg-blue-500 text-[10px] lg:text-xs text-white px-2 py-1 rounded shadow">📝 ทดเลข</button>
+                                </div>
+                                <div className="grid grid-cols-5 lg:grid-cols-2 gap-2 lg:gap-3 w-full">
+                                    {[0,1,2,3,4,5,6,7,8,9].map((num) => (
+                                        <div
+                                            key={num} onClick={() => { setSelectedDigit(num.toString()); playSound('pop'); }}
+                                            className={`num-btn h-12 lg:h-14 rounded-lg flex items-center justify-center text-xl lg:text-3xl font-bold text-white cursor-pointer select-none
+                                                ${selectedDigit === num.toString() ? 'ring-2 sm:ring-4 ring-white translate-y-1' : ''}
+                                                ${num===0?'bg-blue-500':num===1?'bg-orange-500':num===2?'bg-red-500':num===3?'bg-green-500':num===4?'bg-cyan-500':num===5?'bg-amber-500':num===6?'bg-yellow-500':num===7?'bg-indigo-500':num===8?'bg-emerald-500':'bg-rose-500'}`}
+                                        >
+                                            {num}
+                                        </div>
+                                    ))}
+                                </div>
+                                <p className="mt-2 text-gray-400 text-[10px] lg:text-xs text-center">
+                                    <span className="lg:hidden text-yellow-300 font-bold">👆 แตะเลือกเลข แล้วแตะที่ช่องว่างบนกระดาน</span>
+                                    <span className="hidden lg:inline text-yellow-300 font-bold">คลิกเลือกตัวเลข แล้วแตะที่ช่องว่างบนกระดาน</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Bottom Area: Instructions & AI Feedback */}
+                        <div className="bg-white p-2 sm:p-3 lg:p-4 border-t-2 lg:border-t-4 border-gray-200 flex flex-col md:flex-row items-center justify-between gap-2">
+                            <div className="flex-1 bg-blue-50 border-2 border-blue-200 p-2 lg:p-3 rounded-lg relative w-full">
+                                <button onClick={() => speakText(isTest ? levelData.testInstructions[Math.min(step, 7)] : levelData.instructions[Math.min(step, 7)])} className="absolute -top-2 lg:-top-3 -left-2 lg:-left-3 bg-blue-600 text-white p-1.5 lg:p-2 rounded-full shadow hover:scale-110 transition"><SpeakerIcon/></button>
+                                <div className="pl-6 lg:pl-8 min-h-[40px] flex flex-col justify-center">
+                                    <p className="text-xs sm:text-sm lg:text-lg text-blue-900 font-bold leading-tight">
+                                        {isTest ? levelData.testInstructions[Math.min(step, 7)] : levelData.instructions[Math.min(step, 7)]}
+                                    </p>
+                                    {aiFeedback && <p className="text-[10px] sm:text-xs lg:text-sm text-red-600 font-bold mt-1 animate-pulse">{aiFeedback}</p>}
+                                </div>
+                            </div>
+
+                            <div className="flex gap-2 w-full md:w-auto justify-end text-xs sm:text-sm lg:text-base">
+                                {step >= 7 ? (
+                                    <button onClick={nextLevel} className="flex-1 md:flex-none flex justify-center items-center gap-1 sm:gap-2 px-3 py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg shadow-[0_4px_0_#166534] active:translate-y-1 animate-pulse">
+                                        {levelIndex < currentLevels.length - 1 ? <><NextIcon /> ด่านต่อไป</> : <><TrophyIcon /> จบเกม</>}
+                                    </button>
+                                ) : (
+                                    <>
+                                        {(!isTest && !isBoss) && (
+                                            <button onClick={() => {setShowHint(true); setTimeout(() => setShowHint(false), 2000);}} className="flex-1 md:flex-none flex justify-center items-center gap-1 px-2 py-2 bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-bold rounded-lg shadow-[0_4px_0_#ca8a04] active:translate-y-1">
+                                                <HintIcon /> ใบ้
+                                            </button>
+                                        )}
+                                        <button onClick={() => {setCells(levelData.cells); setStep(0); setAiFeedback("");}} className="flex-1 md:flex-none flex justify-center items-center gap-1 px-2 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-lg shadow-[0_4px_0_#9ca3af] active:translate-y-1">
+                                            <RefreshIcon /> เริ่มใหม่
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
