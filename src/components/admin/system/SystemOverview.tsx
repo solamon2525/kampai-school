@@ -272,8 +272,20 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.38.2 (Math Han — postMessage + score tracking)',
+        version: 'v1.38.3 (EduHubItemCard — leaderboard strip)',
         date: 'ล่าสุด',
+        badge: 'bg-indigo-600',
+        items: [
+            'เพิ่ม leaderboard strip ในการ์ดเกม (tracked_game=true) — แสดง top-5 อันดับนักเรียน',
+            'แต่ละช่อง: rank badge + PersonAvatar (xs) + คะแนน personal_best',
+            'useQuery staleTime 5 นาที ป้องกัน RPC ซ้ำเมื่อการ์ดเยอะ',
+            'ถ้าเกมยังไม่มีคนเล่น → ไม่แสดง strip (ความสูงการ์ดไม่เปลี่ยน)',
+            'compact view: ไม่ fetch และไม่แสดง strip',
+        ],
+    },
+    {
+        version: 'v1.38.2 (Math Han — postMessage + score tracking)',
+        date: '',
         badge: 'bg-blue-600',
         items: [
             'เพิ่ม kampai postMessage integration ใน mth.html (เกมหารยาว Math Journey)',

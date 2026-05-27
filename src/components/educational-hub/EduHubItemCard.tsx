@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import {
     FileText, ExternalLink, Play, Type, Download, Eye, Star, PlayCircle, Maximize2,
     GripVertical, Gamepad2,
@@ -19,6 +20,8 @@ import {
     youtubeThumbnail,
     type EduHubItem,
 } from '@/services/educational-hub.service';
+import { gamePlayService } from '@/services/game-play.service';
+import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import type { ViewMode } from '@/hooks/useViewMode';
 
 interface Props {
@@ -49,6 +52,15 @@ export const EduHubItemCard = ({
         transition: sortable.transition,
         opacity: sortable.isDragging ? 0.5 : 1,
     };
+
+    // Leaderboard strip — only for tracked games in non-compact views
+    const isCompact = viewMode === 'compact';
+    const { data: leaders } = useQuery({
+        queryKey: ['game-leaderboard-card', item.game_slug],
+        queryFn: () => gamePlayService.getLeaderboard(item.game_slug!, 5),
+        enabled: !isCompact && !!item.game_slug && item.tracked_game,
+        staleTime: 5 * 60 * 1000,
+    });
 
     const trackView = () => {
         void Promise.resolve(educationalHubService.incrementView(item.id)).catch(() => {});
@@ -89,7 +101,7 @@ export const EduHubItemCard = ({
     };
 
     // ─── COMPACT view: single-row list item ────────────────────────────
-    if (viewMode === 'compact') {
+    if (isCompact) {
         return (
             <>
                 <Card
@@ -244,6 +256,31 @@ export const EduHubItemCard = ({
                         </div>
                         <ActionStat item={item} />
                     </div>
+
+                    {/* Leaderboard strip — top-5 players for tracked games */}
+                    {item.tracked_game && item.game_slug && (leaders?.length ?? 0) > 0 && (
+                        <div className="mt-2 pt-2 border-t border-border">
+                            <div className="flex items-end gap-2 overflow-x-auto">
+                                {leaders!.map((row, i) => (
+                                    <div
+                                        key={row.student_id}
+                                        className="flex flex-col items-center gap-0.5 flex-shrink-0"
+                                        title={`${i + 1}. ${row.display_name} — ${row.personal_best.toLocaleString('th-TH')} คะแนน`}
+                                    >
+                                        <div className="relative">
+                                            <PersonAvatar name={row.display_name} photoUrl={row.photo_url} size="xs" />
+                                            <span className="absolute -top-1 -left-1 text-[8px] font-bold bg-primary text-primary-foreground rounded-full w-3.5 h-3.5 flex items-center justify-center leading-none shadow-sm">
+                                                {i + 1}
+                                            </span>
+                                        </div>
+                                        <span className="text-[8px] text-muted-foreground font-medium leading-none">
+                                            {row.personal_best.toLocaleString('th-TH')}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </Card>
 
