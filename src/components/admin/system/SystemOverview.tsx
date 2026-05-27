@@ -272,9 +272,25 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.37.0 (Productivity & Polish — i18n + Heatmap + Custom Dashboard + Offline Attendance)',
+        version: 'v1.37.1 (Critical Hotfix — Cmd-K registry icon import + safety net)',
         date: 'ล่าสุด',
-        badge: 'bg-green-700',
+        badge: 'bg-red-600',
+        items: [
+            '🚨 Critical: หน้าเว็บขาวทั้งระบบ เนื่องจาก src/lib/commands/registry.ts อ้าง icon ClipboardList ที่ไม่ได้ import จาก lucide-react → ReferenceError ตอน module load → React ไม่ mount (incident 2ba6903)',
+            'Root cause: เพิ่ม Cmd-K entries ใน v1.35-1.37 หลายรอบ แต่ลืม sync top imports. TypeScript ปล่อยผ่านเพราะ object literal value reference + lenient tsconfig (noImplicitAny: false + strictNullChecks: false)',
+            'Fix หลัก: เพิ่ม ClipboardList ใน import block ของ src/lib/commands/registry.ts + เปลี่ยน bare Image (browser global) → ImageIcon (alias ที่มีอยู่)',
+            'Hardening กันซ้ำ (1): src/i18n/config.ts เพิ่ม react.useSuspense=false + .catch() บน init — ป้องกัน i18n race condition ที่อาจทำให้ขาวซ้ำในอนาคต',
+            'Hardening กันซ้ำ (2): src/main.tsx wrap <App /> ด้วย <ErrorBoundary> ที่ root — error ก่อน App body render จะเห็น error fallback แทนหน้าขาว',
+            'Recovery tool: src/main.tsx เพิ่ม URL kill-switch ?reset_sw=1 → unregister ทุก ServiceWorker + clear ทุก Cache Storage + reload — สำหรับ user ที่ติด PWA cache เก่า (เปิด https://kampai-school.vercel.app/?reset_sw=1)',
+            'DESIGN.md sync: Rule 14.38 (Cmd-K Registry Icon Import Discipline — mandatory pre-commit grep check) + Rule 14.39 (PWA Service Worker Recovery — ?reset_sw=1 protocol)',
+            'CLAUDE.md Gotchas: 2 bullets ใหม่ — registry.ts blank-screen trap + PWA cache recovery workflow',
+            'Lesson learned: เพิ่ม entry ใน registry.ts ต้อง grep ตรวจ icons ก่อน commit ทุกครั้ง — คำสั่ง: grep -oE "icon: [A-Z][a-zA-Z]+" src/lib/commands/registry.ts | sort -u',
+        ],
+    },
+    {
+        version: 'v1.37.0 (Productivity & Polish — i18n + Heatmap + Custom Dashboard + Offline Attendance)',
+        date: '',
+        badge: 'bg-slate-600',
         items: [
             'i18n TH/EN (#17): react-i18next + i18next-browser-languagedetector — config + 2 locale files (th/en) + LanguageSwitcher dropdown ใน SiteHeader (public) + AdminLayout top bar. localStorage key kampai_lang ผู้ใช้เปลี่ยนแล้วจำ',
             'ActivityHeatmap (#20): GitHub-style 52-week grid component — percent-based threshold intensity, Thai month/day labels, total contributions footer, tooltip per cell. Reusable ทุกที่ที่อยากแสดง daily activity (admin home, student profile, teacher dashboard)',

@@ -64,6 +64,8 @@ Client check = UX เท่านั้น **ความปลอดภัย�
 - **Git worktree:** cwd อาจกลับไป worktree → ใช้ absolute path
 - **LINE Notify ปิด** (1 เม.ย. 2025) → ใช้ LINE Messaging API แทน
 - Windows CRLF warning + React Quill `findDOMNode` warning → ignore ได้
+- **registry.ts blank-screen trap:** เพิ่ม entry ใน `src/lib/commands/registry.ts` ต้องเช็คว่า icon ใน `icon: X` มีใน top `import { ... } from 'lucide-react'` — TS ปล่อยผ่าน, runtime ถึงพัง, ทำให้เว็บขาวทั้งระบบ (incident `2ba6903` — ดู DESIGN.md Rule 14.38, รัน `grep -oE "icon: [A-Z][a-zA-Z]+" src/lib/commands/registry.ts | sort -u` ก่อน commit)
+- **PWA cache recovery:** user รายงานเว็บขาว → แนะนำเปิด `https://kampai-school.vercel.app/?reset_sw=1` เป็นด่านแรกก่อน escalate (kill-switch อยู่ใน `src/main.tsx` — DESIGN.md Rule 14.39)
 
 ## Git
 

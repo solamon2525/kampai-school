@@ -754,6 +754,53 @@ grep -A 20 "table_name_here" src/integrations/supabase/types.ts
 - **Tax receipt (Phase 2):** ปัจจุบันออกใบเสร็จ manual — เชื่อม e-Donation ของกรมสรรพากร = next sprint
 - **Public read:** anyone อ่าน campaigns ที่ is_active = true + verified donations ได้ — สำหรับ transparency
 
+### Rule 14.38 — Cmd-K Registry Icon Import Discipline (post-mortem จาก 2ba6903)
+
+**Incident:** `src/lib/commands/registry.ts` มี entry ที่อ้าง icon `ClipboardList` ที่ไม่ได้ import → undefined ที่ object literal value → module load throw `ReferenceError` → React mount ล้ม → **blank screen ทุกหน้า** ทั้งระบบ (รวม `/`, `/admin/*`, `/parent/*`, etc.)
+
+**ทำไม TS ไม่จับ:**
+- tsconfig แบบ lenient (`noImplicitAny: false`, `strictNullChecks: false`, `noUnusedLocals: false`)
+- การอ้าง symbol ใน object literal value position ไม่ trigger `Cannot find name` consistently เหมือนตอนใช้เป็น expression statement
+
+**กฎเหล็ก (mandatory pre-commit check):**
+
+```bash
+# ก่อน commit src/lib/commands/registry.ts ทุกครั้ง — ทุกชื่อต้องอยู่ใน top import block
+grep -oE "icon: [A-Z][a-zA-Z]+" src/lib/commands/registry.ts | sort -u
+```
+
+**กฎเสริม:**
+- เมื่อเพิ่ม entry ใหม่ — **ใส่ import ก่อน** แล้วค่อยใส่ entry (ไม่ใช่ตรงข้าม)
+- ใช้ alias ที่ unique เช่น `Image as ImageIcon` เพื่อเลี่ยงชนกับ browser globals
+- ถ้าจะใช้ icon ใหม่ — เพิ่ม import block + grep verify ทุกครั้ง
+
+**Defensive layers ที่มีอยู่แล้ว (post-2ba6903):**
+- `<ErrorBoundary>` ที่ root ใน `src/main.tsx` — error ก่อน App body render จะถูกจับ ไม่ขาว
+- SW kill-switch `?reset_sw=1` (ดู Rule 14.39)
+
+### Rule 14.39 — PWA Service Worker Recovery (kill-switch)
+
+**เมื่อ user รายงานเว็บขาว** (จาก PWA cache poisoned จาก deploy เก่าที่ broken) → ให้เปิด:
+
+```
+https://kampai-school.vercel.app/?reset_sw=1
+```
+
+ระบบจะ:
+1. Unregister ทุก ServiceWorker registration
+2. Clear ทุก Cache Storage entry
+3. ลบ query param + reload คลีน
+
+Logic อยู่ใน `src/main.tsx` (ก่อน `createRoot`) ที่อ่าน `URLSearchParams.get('reset_sw')`
+
+**ห้าม:**
+- ลบ kill-switch logic นี้จาก main.tsx — เป็น safety net ระดับ production
+- แก้ SW config ใน `vite.config.ts` หรือ `src/sw.ts` โดยไม่ test incognito + bump cache name ก่อน deploy
+
+**Workflow แจ้ง user:**
+- LINE OA / Facebook page ของโรงเรียน: "ถ้าเว็บไม่โหลด ให้กดลิงก์นี้ 1 ครั้ง: kampai-school.vercel.app/?reset_sw=1"
+- Admin support — เป็นคำถามแรกก่อน escalate
+
 ### Rule 14.24 — Health Records & PDPA (M086 + M087)
 
 - **Health source of truth:** `student_health_records` (1:1) + `student_vaccinations` + `student_growth_measurements` — **ห้าม** เก็บข้อมูลสุขภาพในตารางอื่น
