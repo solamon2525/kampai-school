@@ -1,227 +1,1468 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Math Jumper — บ้านคำไผ่</title>
-  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap" rel="stylesheet" />
-  <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--bg:#0d1117;--surface:#1c2128;--border:#30363d;--text:#e6edf3;--muted:#8b949e;
-         --blue:#2f86f7;--green:#3fb950;--red:#e53935;--yellow:#ffd700}
-    body{font-family:'Kanit',sans-serif;background:var(--bg);color:var(--text);
-      min-height:100vh;display:flex;flex-direction:column}
-    .nav{background:rgba(13,17,23,.9);backdrop-filter:blur(10px);
-      border-bottom:1px solid var(--border);display:flex;align-items:center;
-      justify-content:space-between;padding:0 16px;height:50px;flex-shrink:0;z-index:10}
-    .back{text-decoration:none;color:var(--muted);font-size:13px;padding:4px 12px;
-      border:1px solid var(--border);border-radius:8px;transition:.2s}
-    .back:hover{color:var(--text);border-color:var(--red)}
-    .nav-title{font-weight:700;font-size:15px}
-    main{flex:1;display:flex;flex-direction:column;align-items:center;
-      justify-content:center;padding:20px;gap:18px}
-    .hud{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
-    .hud-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;
-      padding:8px 20px;text-align:center;min-width:85px}
-    .hud-val{font-size:1.6rem;font-weight:700}
-    .hud-val.y{color:var(--yellow)}.hud-val.g{color:var(--green)}.hud-val.b{color:#90caf9}
-    .hud-label{font-size:11px;color:var(--muted);display:block}
-    .char-area{width:100%;max-width:480px;height:130px;position:relative;
-      background:linear-gradient(180deg,#0a1628,#0d2144);border-radius:16px;
-      border:1px solid var(--border);overflow:hidden}
-    .ground{position:absolute;bottom:0;left:0;right:0;height:40px;
-      background:linear-gradient(180deg,#1a3a00,#0f2200);border-top:2px solid #2d5a0a}
-    .char{position:absolute;bottom:40px;left:60px;font-size:2.5rem;
-      transition:bottom .3s cubic-bezier(.2,1.5,.6,1)}
-    .char.jump{bottom:90px}
-    .question-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;
-      padding:24px 28px;text-align:center;width:100%;max-width:480px}
-    .q-text{font-size:2rem;font-weight:700;margin-bottom:18px}
-    .choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .choice{background:var(--bg);border:2px solid var(--border);border-radius:14px;
-      padding:13px;font-family:inherit;font-size:1.2rem;font-weight:600;
-      color:var(--text);cursor:pointer;transition:.2s}
-    .choice:hover{border-color:var(--blue);background:rgba(47,134,247,.1);transform:translateY(-2px)}
-    .choice.correct{border-color:var(--green);background:rgba(63,185,80,.15);color:var(--green)}
-    .choice.wrong{border-color:var(--red);background:rgba(229,57,53,.15);color:var(--red)}
-    .fb{height:26px;text-align:center;font-size:15px;font-weight:600}
-    .fb.ok{color:var(--green)}.fb.no{color:var(--red)}
-    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;
-      display:none;align-items:center;justify-content:center}
-    .overlay.on{display:flex}
-    .panel{background:var(--surface);border:1px solid var(--border);border-radius:20px;
-      padding:28px 34px;text-align:center;max-width:360px;width:90%}
-    .score-big{font-size:3rem;font-weight:700;color:var(--yellow);margin:12px 0}
-    .btn{background:var(--red);color:#fff;border:none;border-radius:12px;
-      padding:12px 24px;font-family:inherit;font-size:14px;font-weight:600;
-      cursor:pointer;transition:.2s;margin:4px}
-    .btn:hover{background:#b71c1c;transform:translateY(-2px)}
-    .btn-outline{background:transparent;border:2px solid var(--border);color:var(--text)}
-    .btn-outline:hover{background:var(--border)}
-    @media(max-width:480px){.choices{grid-template-columns:1fr}.q-text{font-size:1.5rem}}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Math Jumper: ตะลุยฟ้าคว้าสูตรคูณ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #2c3e50;
+            font-family: 'Sarabun', sans-serif;
+            touch-action: none;
+            user-select: none;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: #000; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            background: transparent;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        #hud {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            text-shadow: 2px 2px 0px #fff;
+            pointer-events: auto;
+        }
+
+        .hud-item {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 3px solid #333;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #333;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        #mute-btn {
+            cursor: pointer;
+            font-size: 1.5rem;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        #math-problem {
+            position: absolute;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #FFD700;
+            padding: 15px 40px;
+            border-radius: 50px;
+            border: 4px solid #fff;
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.5rem;
+            color: #d35400;
+            box-shadow: 0 8px 0px #e67e22, 0 15px 20px rgba(0,0,0,0.2);
+            animation: float 3s ease-in-out infinite;
+            z-index: 10;
+            white-space: nowrap;
+        }
+
+        @keyframes float {
+            0% { transform: translateX(-50%) translateY(0px); }
+            50% { transform: translateX(-50%) translateY(-10px); }
+            100% { transform: translateX(-50%) translateY(0px); }
+        }
+
+        #start-screen, #game-over-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* เปลี่ยนพื้นหลังให้โปร่งใสและเบลอ เพื่อโชว์ฉากเกมด้านหลัง */
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            pointer-events: auto;
+            z-index: 20;
+            overflow-y: auto;
+        }
+
+        /* กรอบเมนูใหม่สไตล์ Glassmorphism */
+        .menu-panel {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2), inset 0 0 0 2px rgba(255,255,255,0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 90%;
+            width: 350px;
+            position: relative;
+        }
+
+        h1 {
+            font-family: 'Fredoka One', cursive;
+            font-size: 3rem;
+            color: #FFD700;
+            text-shadow: 3px 3px 0px #d35400, 0 5px 15px rgba(211,84,0,0.4);
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-align: center;
+            animation: titleBounce 2s infinite;
+        }
+
+        @keyframes titleBounce {
+            0%, 100% { transform: translateY(0) rotate(-2deg); }
+            50% { transform: translateY(-8px) rotate(2deg); }
+        }
+
+        p.subtitle {
+            color: #2c3e50; /* สีเข้มขึ้นให้อ่านง่ายบนพื้นขาว */
+            font-size: 1.1rem;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .btn {
+            background: #2ecc71;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.4rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Fredoka One', cursive;
+            box-shadow: 0 6px 0px #27ae60;
+            transition: transform 0.1s, box-shadow 0.1s;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0px #27ae60;
+        }
+
+        .setting-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .setting-label {
+            color: #7f8c8d; /* สีเทาเข้ม */
+            margin-bottom: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .diff-btn, .mode-btn {
+            background: #ecf0f1;
+            color: #7f8c8d;
+            border: none;
+            border-radius: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #bdc3c7;
+            font-family: 'Sarabun', sans-serif;
+            transition: all 0.1s;
+        }
+
+        .diff-btn {
+            padding: 8px 15px;
+            font-size: 1rem;
+        }
+
+        .diff-btn.active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #bdc3c7;
+        }
+
+        .diff-btn[data-level="very_easy"].active { background: #2ecc71; color: white; box-shadow: 0 2px 0 #27ae60; }
+        .diff-btn[data-level="easy"].active { background: #3498db; color: white; box-shadow: 0 2px 0 #2980b9; }
+        .diff-btn[data-level="hard"].active { background: #e74c3c; color: white; box-shadow: 0 2px 0 #c0392b; }
+
+        .mode-btn {
+            padding: 10px 10px;
+            font-size: 1.3rem;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Fredoka One', cursive;
+        }
+
+        .mode-btn.active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #bdc3c7;
+            background: #9b59b6;
+            color: white;
+            box-shadow: 0 2px 0 #8e44ad;
+        }
+
+        .mode-btn[data-mode="add"].active { background: #e67e22; box-shadow: 0 2px 0 #d35400; }
+        .mode-btn[data-mode="sub"].active { background: #e74c3c; box-shadow: 0 2px 0 #c0392b; }
+        .mode-btn[data-mode="mul"].active { background: #f1c40f; color: #d35400; box-shadow: 0 2px 0 #f39c12; }
+        .mode-btn[data-mode="div"].active { background: #2ecc71; box-shadow: 0 2px 0 #27ae60; }
+        .mode-btn[data-mode="mix"] { font-size: 0.9rem; }
+        .mode-btn[data-mode="mix"].active { 
+            background: linear-gradient(45deg, #e67e22, #2ecc71, #3498db); 
+            box-shadow: 0 2px 0 #2c3e50; 
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+            color: #e74c3c;
+            font-weight: bold;
+            font-size: 0.95rem;
+            cursor: pointer;
+            background: #ffeaa7;
+            padding: 8px 15px;
+            border-radius: 10px;
+        }
+        .checkbox-container input {
+            width: 18px;
+            height: 18px;
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        .leaderboard-box {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 15px;
+            width: 100%;
+            box-sizing: border-box;
+            border: 2px solid #ecf0f1;
+            margin-top: 10px;
+        }
+
+        .leaderboard-box h3 {
+            color: #f39c12;
+            text-align: center;
+            margin: 0 0 10px 0;
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.1rem;
+        }
+
+        .leaderboard-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .leaderboard-list li {
+            display: flex;
+            justify-content: space-between;
+            color: #2c3e50;
+            padding: 5px 5px;
+            border-bottom: 1px solid #ecf0f1;
+            font-family: 'Fredoka One', cursive;
+            font-size: 0.9rem;
+        }
+
+        .leaderboard-list li:last-child {
+            border-bottom: none;
+        }
+
+        .lb-entry { display: flex; align-items: center; gap: 8px; }
+        .lb-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #f39c12; flex-shrink: 0; }
+        .lb-avatar-init { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: bold; flex-shrink: 0; }
+        .lb-entry-info { flex: 1; min-width: 0; }
+        .lb-entry-name { font-family: 'Fredoka One', cursive; font-size: 0.88rem; color: #2c3e50; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .lb-entry-sub { font-size: 0.72rem; color: #7f8c8d; }
+
+        /* ของตกแต่งลอยฟ้า */
+        .math-deco {
+            position: absolute;
+            font-family: 'Fredoka One', cursive;
+            font-size: 4rem;
+            font-weight: bold;
+            pointer-events: none;
+            z-index: -1;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            animation: floatDeco 6s ease-in-out infinite;
+        }
+        .deco-1 { top: 15%; left: 10%; color: rgba(231, 76, 60, 0.8); animation-delay: 0s; }
+        .deco-2 { top: 25%; right: 12%; color: rgba(241, 196, 15, 0.8); font-size: 3rem; animation-delay: 1s; }
+        .deco-3 { bottom: 20%; left: 15%; color: rgba(52, 152, 219, 0.8); font-size: 3.5rem; animation-delay: 2s; }
+        .deco-4 { bottom: 30%; right: 15%; color: rgba(46, 204, 113, 0.8); animation-delay: 1.5s; }
+
+        @keyframes floatDeco {
+            0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+            50% { transform: translateY(-30px) rotate(15deg) scale(1.1); }
+        }
+
+        #mobile-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            display: flex;
+            pointer-events: auto;
+            z-index: 5;
+            opacity: 0;
+        }
+        .control-zone {
+            flex: 1;
+        }
+
+    </style>
 </head>
 <body>
-<nav class="nav">
-  <a class="back" href="/educational-hub/a5f53911-b9cb-465a-b963-7202bcb907b1">← กลับ</a>
-  <span class="nav-title">🦘 Math Jumper</span>
-  <span style="width:60px"></span>
-</nav>
-<main>
-  <div class="hud">
-    <div class="hud-box"><span class="hud-val y" id="score">0</span><span class="hud-label">คะแนน</span></div>
-    <div class="hud-box"><span class="hud-val g" id="timer">30</span><span class="hud-label">วินาที</span></div>
-    <div class="hud-box"><span class="hud-val b" id="streak">0</span><span class="hud-label">ตอบถูกต่อเนื่อง</span></div>
-  </div>
-  <div class="char-area">
-    <div class="ground"></div>
-    <div class="char" id="char">🦘</div>
-  </div>
-  <div class="fb" id="fb"></div>
-  <div class="question-card">
-    <div class="q-text" id="q-text"></div>
-    <div class="choices" id="choices"></div>
-  </div>
-</main>
-<div class="overlay" id="modal">
-  <div class="panel">
-    <h2>⏰ หมดเวลา!</h2>
-    <div class="score-big" id="final-score">0</div>
-    <p style="color:var(--muted);margin-bottom:16px">คะแนนสุดท้าย</p>
-    <button class="btn" onclick="restartGame()">🔄 เล่นใหม่</button>
-    <button class="btn btn-outline" onclick="location.href='/educational-hub/a5f53911-b9cb-465a-b963-7202bcb907b1'">🏠 กลับ</button>
-  </div>
+
+<div id="game-container">
+    <canvas id="gameCanvas"></canvas>
+
+    <div id="ui-layer">
+        <div id="hud">
+            <div class="hud-item">High: <span id="height-display">0</span>m</div>
+            <div class="hud-item" id="mute-btn" onclick="toggleMute()">🔊</div>
+            <div class="hud-item">Score: <span id="score-display">0</span></div>
+        </div>
+        <div id="math-problem">Ready?</div>
+    </div>
+
+    <!-- ฉากเริ่มต้นแบบใหม่ -->
+    <div id="start-screen">
+        <div class="math-deco deco-1">+</div>
+        <div class="math-deco deco-2">×</div>
+        <div class="math-deco deco-3">÷</div>
+        <div class="math-deco deco-4">-</div>
+
+        <div class="menu-panel">
+            <h1>Math Jumper</h1>
+            <p class="subtitle">ช่วยน้องจัมป์กระโดดขึ้นฟ้า! <br><span style="font-size: 0.9rem; color: #7f8c8d;">(กด Spacebar กลางอากาศเพื่อร่อน)</span></p>
+            
+            <div class="setting-section">
+                <div class="setting-label">เลือกโหมดคณิตศาสตร์</div>
+                <div class="button-group">
+                    <button class="mode-btn" data-mode="add" onclick="setMathMode('add')">+</button>
+                    <button class="mode-btn" data-mode="sub" onclick="setMathMode('sub')">-</button>
+                    <button class="mode-btn active" data-mode="mul" onclick="setMathMode('mul')">×</button>
+                    <button class="mode-btn" data-mode="div" onclick="setMathMode('div')">÷</button>
+                    <button class="mode-btn" data-mode="mix" onclick="setMathMode('mix')">Mix</button>
+                </div>
+                <label class="checkbox-container">
+                    <input type="checkbox" id="equation-mode" onchange="toggleEquationMode()">
+                    โหมดสมการขั้นสูง (? + 5 = 12)
+                </label>
+            </div>
+
+            <div class="setting-section">
+                <div class="setting-label">เลือกระดับความยาก</div>
+                <div class="button-group">
+                    <button class="diff-btn" data-level="very_easy" onclick="setDifficulty('very_easy')">ง่ายมาก</button>
+                    <button class="diff-btn active" data-level="easy" onclick="setDifficulty('easy')">ง่าย</button>
+                    <button class="diff-btn" data-level="hard" onclick="setDifficulty('hard')">ยาก</button>
+                </div>
+            </div>
+
+            <button class="btn" onclick="startGame()">Start Game (Enter)</button>
+
+            <div class="leaderboard-box">
+                <h3 id="lb-title">🏆 อันดับนักเรียน</h3>
+                <ul id="score-list" class="leaderboard-list">
+                    <!-- Scores will be injected here -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ฉากจบเกม (ปรับให้อยู่ในกรอบสีขาวเหมือนกัน) -->
+    <div id="game-over-screen">
+        <div class="menu-panel">
+            <h1 style="color: #e74c3c; text-shadow: 3px 3px 0px #c0392b;">Game Over!</h1>
+            <p class="subtitle" style="margin-bottom: 5px;">ทำความสูงได้: <span id="final-height">0</span> เมตร</p>
+            <p style="font-size: 1.5rem; color: #f39c12; font-weight: bold; margin-top:0; font-family: 'Fredoka One', cursive;">Score: <span id="final-score">0</span></p>
+            
+            <div class="leaderboard-box">
+                <h3 id="lb-title-over">🏆 อันดับนักเรียน</h3>
+                <ul id="score-list-gameover" class="leaderboard-list">
+                    <!-- Scores will be injected here -->
+                </ul>
+            </div>
+
+            <button class="btn" onclick="startGame()" style="margin-bottom: 10px;">เล่นใหม่อีกครั้ง (Enter)</button>
+            <button class="btn" onclick="resetGame()" style="background: #95a5a6; box-shadow: 0 6px 0px #7f8c8d; font-size: 1.1rem; padding: 10px 20px;">กลับเมนูหลัก</button>
+        </div>
+    </div>
+
+    <div id="mobile-controls">
+        <div class="control-zone" id="zone-left"></div>
+        <div class="control-zone" id="zone-right"></div>
+    </div>
 </div>
+
 <script>
-// --- postMessage tracking boilerplate ---
-let studentCode = '';
-let gameStartedAt = Date.now();
+    // --- Audio System ---
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx;
+    let isMuted = false;
+    let bgmInterval;
 
-window.addEventListener('message', (e) => {
-  if (e.data && e.data.type === 'init') {
-    studentCode = e.data.studentCode;
-    console.log('[Math Jumper] Student initialized:', studentCode);
-  }
-});
+    const audioSys = {
+        init: () => {
+            if (!audioCtx) audioCtx = new AudioContext();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        },
+        playTone: (freq, type, duration, vol = 0.1) => {
+            if (isMuted || !audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        },
+        playJump: () => {
+            if (isMuted || !audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.2);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.2);
+        },
+        playSpring: () => {
+            if (isMuted || !audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle'; 
+            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.5);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.5);
+        },
+        playCorrect: () => {
+            audioSys.playTone(880, 'sine', 0.3, 0.15); 
+            setTimeout(() => audioSys.playTone(1108, 'sine', 0.6, 0.15), 100); 
+        },
+        playWrong: () => {
+            if (isMuted || !audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(50, audioCtx.currentTime + 0.2);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.2);
+        },
+        playCollect: () => {
+            audioSys.playTone(1200, 'sine', 0.2, 0.1);
+        },
+        playGameOver: () => {
+            const notes = [400, 350, 300, 250];
+            notes.forEach((freq, i) => {
+                setTimeout(() => audioSys.playTone(freq, 'triangle', 0.5, 0.2), i * 300);
+            });
+        },
+        startBGM: () => {
+            if (bgmInterval) clearInterval(bgmInterval);
+            let noteIndex = 0;
+            const melody = [261.63, 329.63, 392.00, 440.00, 392.00, 329.63]; 
+            bgmInterval = setInterval(() => {
+                if (isMuted || !audioCtx || gameState !== 'PLAYING') return;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(melody[noteIndex], audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.03, audioCtx.currentTime); 
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.2);
+                noteIndex = (noteIndex + 1) % melody.length;
+            }, 300); 
+        },
+        stopBGM: () => {
+            if (bgmInterval) clearInterval(bgmInterval);
+        }
+    };
 
-document.addEventListener('DOMContentLoaded', () => {
-  const backBtns = document.querySelectorAll('.back, a[href*="educational-hub"], a[href*="index.html"]');
-  backBtns.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      window.parent.postMessage({ type: 'navigate', to: '/h/nattapong' }, '*');
-    });
-  });
-});
-
-function reportScore(score, mode = 'normal', additionalMetadata = {}) {
-  const duration = Math.round((Date.now() - gameStartedAt) / 1000);
-  console.log('[Math Jumper] Reporting score:', score, 'Duration:', duration);
-  window.parent.postMessage({
-    type: 'gameEnd',
-    score: score,
-    mode: mode,
-    metadata: {
-      duration: duration,
-      ...additionalMetadata
+    function toggleMute() {
+        isMuted = !isMuted;
+        const btn = document.getElementById('mute-btn');
+        btn.innerText = isMuted ? '🔇' : '🔊';
+        if (!isMuted && (!audioCtx || audioCtx.state === 'suspended')) audioSys.init();
     }
-  }, '*');
-}
-// --- end boilerplate ---
 
-let score=0,timeLeft=30,streak=0,timerID=null,answered=false;
-function genQuestion(){
-  answered=false;
-  const lvl=Math.min(3,1+Math.floor(score/30));
-  let q,a,choices=new Set();
-  if(lvl===1){
-    const a1=2+Math.floor(Math.random()*8),a2=2+Math.floor(Math.random()*8);
-    const op=Math.random()<.5?'+':'-';
-    q=`${a1} ${op} ${a2}`;a=op==='+'?a1+a2:a1-a2;
-  }else if(lvl===2){
-    const a1=2+Math.floor(Math.random()*8),a2=2+Math.floor(Math.random()*5);
-    const op=Math.random()<.5?'×':'÷';
-    if(op==='×'){q=`${a1} × ${a2}`;a=a1*a2;}
-    else{q=`${a1*a2} ÷ ${a1}`;a=a2;}
-  }else{
-    const a1=5+Math.floor(Math.random()*10),a2=2+Math.floor(Math.random()*8),a3=2+Math.floor(Math.random()*5);
-    const op=Math.random()<.5?'+':'-';
-    q=`(${a1} ${op} ${a2}) × ${a3}`;a=(op==='+'?a1+a2:a1-a2)*a3;
-  }
-  choices.add(a);
-  while(choices.size<4){const o=Math.floor(Math.random()*20)-10;if(o!==0)choices.add(a+o);}
-  const arr=[...choices].sort(()=>Math.random()-.5);
-  document.getElementById("q-text").textContent=`${q} = ?`;
-  document.getElementById("choices").innerHTML=arr.map(c=>`<button class="choice" onclick="answer(${c},${a})">${c}</button>`).join("");
-}
-function answer(chosen,correct){
-  if(answered)return;answered=true;
-  const btns=document.querySelectorAll(".choice");
-  btns.forEach(b=>{b.disabled=true;if(+b.textContent===correct)b.classList.add("correct");});
-  const fb=document.getElementById("fb");
-  if(chosen===correct){
-    streak++;score+=5+streak;
-    fb.className="fb ok";fb.textContent=streak>1?`🎉 Combo ${streak}x +${5+streak}`:"✅ ถูก!";
-    const c=document.getElementById("char");c.classList.add("jump");setTimeout(()=>c.classList.remove("jump"),400);
-  }else{
-    streak=0;score=Math.max(0,score-2);
-    btns.forEach(b=>{if(+b.textContent===chosen)b.classList.add("wrong");});
-    fb.className="fb no";fb.textContent="❌ ผิด! คำตอบคือ "+correct;
-  }
-  updateHUD();setTimeout(genQuestion,1100);
-}
-function updateHUD(){
-  document.getElementById("score").textContent=score;
-  document.getElementById("timer").textContent=timeLeft;
-  document.getElementById("streak").textContent=streak;
-}
-function startTimer(){
-  clearInterval(timerID);
-  timerID=setInterval(()=>{
-    timeLeft--;document.getElementById("timer").textContent=timeLeft;
-    if(timeLeft<=0){
-      clearInterval(timerID);
-      document.getElementById("final-score").textContent=score;
-      document.getElementById("modal").classList.add("on");
-      reportScore(score);
+    // --- Configuration & Setup ---
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    function resizeCanvas() {
+        const maxWidth = 600; 
+        const width = Math.min(window.innerWidth, maxWidth);
+        canvas.width = width;
+        canvas.height = window.innerHeight;
     }
-  },1000);
-}
-function restartGame(){
-  score=0;timeLeft=30;streak=0;
-  gameStartedAt = Date.now();
-  document.getElementById("modal").classList.remove("on");
-  document.getElementById("fb").textContent="";
-  updateHUD();genQuestion();startTimer();
-}
-genQuestion();startTimer();
-</script>
-<script>
-// iframe-safe navigation interceptor (kampai PlayGame wrapper)
-(function() {
-  const EMBED = (window.parent !== window) ||
-                (new URLSearchParams(location.search).get('embed') === '1');
-  if (!EMBED) return;
-  function navigateTo(href) {
-    if (href && href.includes('/educational-hub/a5f53911-b9cb-465a-b963-7202bcb907b1')) {
-      href = '/h/nattapong';
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // Game Variables
+    let gameState = 'START';
+    let score = 0;
+    let heightScore = 0;
+    let combo = 0;
+    let cameraY = 0;
+    let difficultyTier = 1;
+    let keys = { ArrowLeft: false, ArrowRight: false, Space: false };
+    let playerName = "Player";
+    let currentMathMode = 'mul'; // add, sub, mul, div, mix
+    let isEquationMode = false;
+    let problemStartTime = 0;
+    let showHint = false;
+
+    // Assets
+    const player = {
+        x: canvas.width / 2,
+        y: canvas.height - 150,
+        width: 40,
+        height: 60,
+        vx: 0,
+        vy: 0,
+        speed: 7,
+        jumpForce: -16, 
+        boostForce: -25,
+        color: '#e74c3c',
+        facingRight: true,
+        shield: false,
+        isGliding: false
+    };
+
+    // Settings
+    let selectedGravity = 0.4; 
+    let selectedDifficulty = 'easy'; // Store difficulty level string
+    
+    function setDifficulty(level) {
+        selectedDifficulty = level;
+        document.querySelectorAll('.diff-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelector(`.diff-btn[data-level="${level}"]`).classList.add('active');
+
+        const baseJump = -16;
+        const baseBoost = -25;
+
+        if (level === 'very_easy') {
+            selectedGravity = 0.2; 
+            player.jumpForce = baseJump * 1.1; 
+            player.boostForce = baseBoost * 1.1;
+        } else if (level === 'easy') {
+            selectedGravity = 0.4;
+            player.jumpForce = baseJump * 1.5;
+            player.boostForce = baseBoost * 1.5;
+        } else if (level === 'hard') {
+            selectedGravity = 0.75;
+            player.jumpForce = baseJump * 2.0;
+            player.boostForce = baseBoost * 2.0;
+        }
     }
-    try { window.parent.postMessage({ type: 'navigate', to: href }, '*'); } catch (_) {}
-  }
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('a[target="_top"], a[href*="educational-hub"], a[href*="/h/"], a.back').forEach(a => {
-      a.addEventListener('click', (e) => { e.preventDefault(); navigateTo(a.getAttribute('href')); });
+    
+    function setMathMode(mode) {
+        currentMathMode = mode;
+        // Update Buttons
+        document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelector(`.mode-btn[data-mode="${mode}"]`).classList.add('active');
+    }
+
+    function toggleEquationMode() {
+        isEquationMode = document.getElementById('equation-mode').checked;
+    }
+
+    setDifficulty('easy');
+    setMathMode('mul'); // Default
+
+    let currentProblem = { A: 2, B: 2, Ans: 4, Op: '×', Target: 4 };
+
+    // --- Leaderboard System (Server-side from Supabase) ---
+    const SUPABASE_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrcHFzc2JxeHhwYXNpZGZxaHBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NjUyMjgsImV4cCI6MjA5MTI0MTIyOH0.X7YsSlrgYl9ifLWvgyZI04PtebK572pacadfNlmNO-A';
+
+    async function fetchLeaderboard() {
+        try {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_game_leaderboard`, {
+                method: 'POST',
+                headers: { 'apikey': SUPABASE_ANON, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ p_game_slug: 'math-jumper', p_limit: 5 })
+            });
+            if (!res.ok) return [];
+            return await res.json();
+        } catch { return []; }
+    }
+
+    function renderLeaderboard(rows, listId) {
+        const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+        const list = document.getElementById(listId);
+        if (!list) return;
+        if (!rows || rows.length === 0) {
+            list.innerHTML = '<li style="justify-content:center;color:#95a5a6;padding:12px 0;font-family:Sarabun,sans-serif">ยังไม่มีผู้เล่น — เป็นคนแรกสิ! 🎮</li>';
+            return;
+        }
+        list.innerHTML = rows.map((r, i) => {
+            const initial = (r.display_name || '?')[0].toUpperCase();
+            const av = r.photo_url
+                ? `<img class="lb-avatar" src="${r.photo_url}" alt="${r.display_name}" onerror="this.outerHTML='<div class=&quot;lb-avatar-init&quot;>${initial}</div>'">`
+                : `<div class="lb-avatar-init">${initial}</div>`;
+            return `<li class="lb-entry">
+                <span style="font-family:'Fredoka One',cursive;color:#f39c12;min-width:26px;text-align:center;font-size:1.1rem">${medals[i] || i + 1}</span>
+                ${av}
+                <div class="lb-entry-info">
+                    <div class="lb-entry-name">${r.display_name || 'ไม่ทราบชื่อ'}</div>
+                    <div class="lb-entry-sub">${(r.personal_best || 0).toLocaleString()} คะแนน · ${r.class_label || ''}</div>
+                </div>
+            </li>`;
+        }).join('');
+    }
+
+    async function updateLeaderboardUI() {
+        const rows = await fetchLeaderboard();
+        renderLeaderboard(rows, 'score-list');
+        renderLeaderboard(rows, 'score-list-gameover');
+    }
+
+    function saveHighScore(finalScore) {
+        if (finalScore <= 0) return;
+        const eqSuffix = isEquationMode ? '_eq' : '';
+        const storageKey = `mathJumperScores_${currentMathMode}${eqSuffix}`;
+        let scores = JSON.parse(localStorage.getItem(storageKey)) || [];
+        scores.push({ name: playerName, score: finalScore });
+        scores.sort((a, b) => b.score - a.score);
+        scores = scores.slice(0, 5);
+        localStorage.setItem(storageKey, JSON.stringify(scores));
+    }
+
+    let platforms = [];
+    let items = [];
+    let particles = [];
+    let floatingTexts = []; 
+    // --- BACKGROUND SYSTEM ---
+    let bgObjects = []; // Clouds/Stars
+
+    class BgObject {
+        constructor(y, type) {
+            this.y = y;
+            this.x = Math.random() * canvas.width;
+            this.type = type; // 'cloud', 'star'
+            this.size = Math.random() * 20 + 10; // Base size
+            this.speed = (Math.random() * 0.5) + 0.1; // Horizontal drift
+            if (this.type === 'cloud') {
+                this.width = Math.random() * 60 + 40;
+                this.height = Math.random() * 30 + 20;
+            }
+        }
+
+        draw() {
+            if (this.type === 'cloud') {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.height/2, 0, Math.PI * 2);
+                ctx.arc(this.x + 20, this.y - 10, this.height/1.5, 0, Math.PI * 2);
+                ctx.arc(this.x + 40, this.y, this.height/2, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (this.type === 'star') {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, Math.random() * 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+    }
+
+    // สร้างเมฆประดับฉากตอนเริ่มต้น (รันทันทีตอนโหลดสคริปต์)
+    for(let i=0; i<8; i++) {
+        bgObjects.push(new BgObject(Math.random() * canvas.height, 'cloud'));
+    }
+
+    function drawBackground() {
+        // 1. Determine Phase Colors
+        let topColor, bottomColor;
+        let objectType = 'cloud'; // Default
+
+        if (heightScore < 1000) {
+            // SKY: 0 - 1000
+            topColor = "#87CEEB";
+            bottomColor = "#E0F7FA";
+            objectType = 'cloud';
+        } else if (heightScore < 2000) {
+            // SUNSET: 1000 - 2000
+            topColor = "#fd746c"; // Orange/Pink
+            bottomColor = "#ff9068"; // Peach
+            objectType = 'cloud';
+        } else {
+            // SPACE: 2000+
+            topColor = "#0f0c29"; // Dark Blue/Black
+            bottomColor = "#302b63"; // Deep Purple
+            objectType = 'star';
+        }
+
+        // Draw Gradient Background
+        let grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        grd.addColorStop(0, topColor);
+        grd.addColorStop(1, bottomColor);
+        ctx.fillStyle = grd;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Manage BG Objects (Parallax)
+        if (bgObjects.length < 10) {
+            bgObjects.push(new BgObject(-Math.random() * 200, objectType));
+        }
+
+        // Draw and Move (Horizontal drift)
+        bgObjects.forEach((obj, index) => {
+            if (heightScore > 2000 && obj.type === 'cloud') obj.type = 'star';
+            if (heightScore < 2000 && obj.type === 'star') obj.type = 'cloud';
+
+            obj.x += obj.speed;
+            if (obj.x > canvas.width + 50) obj.x = -50; 
+            obj.draw();
+        });
+    }
+
+    // --- Math Algorithm ---
+    function generateMathProblem() {
+        let A, B, Ans, Op, Target;
+        
+        let tier = 1;
+        if (heightScore > 500) tier = 2;
+        if (heightScore > 1500) tier = 3;
+        if (heightScore > 3000) tier = 4;
+
+        let mode = currentMathMode;
+        if (mode === 'mix') {
+            const modes = ['add', 'sub', 'mul', 'div'];
+            mode = modes[Math.floor(Math.random() * modes.length)];
+        }
+
+        if (mode === 'mul') {
+            Op = '×';
+            if (tier === 1) { 
+                const set = [2, 5, 10];
+                A = set[Math.floor(Math.random() * set.length)];
+                B = Math.floor(Math.random() * 9) + 1;
+            } else if (tier === 2) { 
+                const set = [3, 4];
+                A = set[Math.floor(Math.random() * set.length)];
+                B = Math.floor(Math.random() * 12) + 1;
+            } else if (tier === 3) { 
+                const set = [6, 7, 8, 9];
+                A = set[Math.floor(Math.random() * set.length)];
+                B = Math.floor(Math.random() * 12) + 1;
+            } else { 
+                A = Math.floor(Math.random() * 11) + 2;
+                B = Math.floor(Math.random() * 12) + 1;
+            }
+            Ans = A * B;
+        } 
+        else if (mode === 'add') {
+            Op = '+';
+            if (tier === 1) { 
+                A = Math.floor(Math.random() * 9) + 1;
+                B = Math.floor(Math.random() * 9) + 1;
+            } else if (tier === 2) { 
+                A = Math.floor(Math.random() * 20) + 10;
+                B = Math.floor(Math.random() * 9) + 1;
+            } else { 
+                A = Math.floor(Math.random() * 40) + 10;
+                B = Math.floor(Math.random() * 40) + 10;
+            }
+            Ans = A + B;
+        }
+        else if (mode === 'sub') {
+            Op = '-';
+            if (tier === 1) {
+                A = Math.floor(Math.random() * 10) + 5; 
+                B = Math.floor(Math.random() * (A - 1)) + 1; 
+            } else if (tier === 2) {
+                A = Math.floor(Math.random() * 40) + 20;
+                B = Math.floor(Math.random() * 20) + 1;
+            } else {
+                A = Math.floor(Math.random() * 80) + 20;
+                B = Math.floor(Math.random() * 50) + 10;
+            }
+            if (B >= A) B = A - 1;
+            Ans = A - B;
+        }
+        else if (mode === 'div') {
+            Op = '÷';
+            let divisor, answer;
+            if (tier === 1) {
+                divisor = Math.floor(Math.random() * 5) + 2; 
+                answer = Math.floor(Math.random() * 5) + 1;   
+            } else if (tier === 2) {
+                divisor = Math.floor(Math.random() * 8) + 2;
+                answer = Math.floor(Math.random() * 9) + 2;
+            } else {
+                divisor = Math.floor(Math.random() * 11) + 2;
+                answer = Math.floor(Math.random() * 12) + 2;
+            }
+            B = divisor;
+            A = divisor * answer; 
+            Ans = answer;
+        }
+
+        Target = Ans;
+        let displayStr = `${A} ${Op} ${B} = ?`;
+
+        if (isEquationMode) {
+            if (Math.random() < 0.5) {
+                displayStr = `? ${Op} ${B} = ${Ans}`;
+                Target = A;
+            } else {
+                displayStr = `${A} ${Op} ? = ${Ans}`;
+                Target = B;
+            }
+        }
+
+        currentProblem = { A: A, B: B, Ans: Ans, Op: Op, Target: Target };
+        
+        problemStartTime = Date.now();
+        showHint = false;
+
+        document.getElementById('math-problem').innerText = displayStr;
+        document.getElementById('math-problem').style.color = '#d35400';
+
+        updateNearbyPlatformsToCorrect(currentProblem.Target);
+    }
+
+    function updateNearbyPlatformsToCorrect(correctAnswer) {
+        let candidates = platforms.filter(p => 
+            !p.broken && 
+            p.y < player.y && 
+            p.y > player.y - 400 && 
+            p.type !== 'spring' 
+        );
+
+        if (candidates.length > 0) {
+            candidates.sort((a, b) => b.y - a.y);
+            let target = candidates[0];
+            target.type = 'correct';
+            target.value = correctAnswer;
+            
+            for(let i=1; i<candidates.length; i++) {
+                if(Math.random() < 0.3) {
+                     candidates[i].type = 'correct';
+                     candidates[i].value = correctAnswer;
+                }
+            }
+        }
+    }
+
+    function generateDistractors(correctAnswer) {
+        let distractors = [];
+        let fake1 = correctAnswer + (Math.floor(Math.random() * 5) + 1);
+        let fake2 = correctAnswer - (Math.floor(Math.random() * 5) + 1);
+        let fake3 = correctAnswer + 10;
+        let s = correctAnswer.toString();
+        let fake4 = parseInt(s.split('').reverse().join(''));
+        if (fake4 === correctAnswer || isNaN(fake4) || s.length < 2) fake4 = correctAnswer + 2;
+
+        distractors.push(fake1, fake2, fake3, fake4);
+        return distractors.filter(d => d !== correctAnswer && d > 0);
+    }
+
+    // --- Visual Effects & Platform Logic ---
+    class FloatingText {
+        constructor(x, y, text, color) {
+            this.x = x;
+            this.y = y;
+            this.text = text;
+            this.color = color;
+            this.life = 1.0;
+            this.vy = -2;
+        }
+        update() { this.y += this.vy; this.life -= 0.02; }
+        draw() {
+            ctx.globalAlpha = Math.max(0, this.life);
+            ctx.fillStyle = this.color;
+            ctx.font = 'bold 24px Fredoka One';
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 3;
+            ctx.strokeText(this.text, this.x, this.y);
+            ctx.fillText(this.text, this.x, this.y);
+            ctx.globalAlpha = 1.0;
+        }
+    }
+
+    class Platform {
+        constructor(x, y, type, value) {
+            this.x = x;
+            this.y = y;
+            this.width = 100;
+            this.height = 25;
+            this.type = type;
+            this.value = value;
+            this.broken = false;
+            const hue = Math.floor(Math.random() * 360);
+            this.color = `hsl(${hue}, 70%, 80%)`;
+            this.borderColor = `hsl(${hue}, 70%, 60%)`;
+        }
+
+        draw() {
+            if (this.broken) return;
+            ctx.shadowBlur = 0;
+            
+            if (showHint && this.type === 'correct') {
+                ctx.shadowColor = '#f1c40f';
+                ctx.shadowBlur = 20; 
+                ctx.strokeStyle = '#f1c40f';
+                ctx.lineWidth = 4;
+            } else {
+                ctx.strokeStyle = this.borderColor;
+                ctx.lineWidth = 2;
+            }
+
+            ctx.fillStyle = this.color;
+            if (this.type === 'spring') {
+                ctx.fillStyle = '#e67e22'; 
+                ctx.strokeStyle = '#d35400';
+            }
+
+            ctx.beginPath();
+            ctx.roundRect(this.x, this.y, this.width, this.height, 10);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.lineWidth = 2;
+
+            if (this.value !== null) {
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 22px Fredoka One';
+                ctx.textAlign = 'center';
+                ctx.fillText(this.value, this.x + this.width / 2, this.y + 21);
+            }
+
+            if (showHint && this.type === 'correct') {
+                const cx = this.x + this.width / 2;
+                const cy = this.y + this.height / 2;
+                const ringSize = (Math.sin(Date.now() / 200) * 5) + 60;
+                ctx.beginPath();
+                ctx.strokeStyle = 'rgba(241, 196, 15, 0.6)';
+                ctx.lineWidth = 3;
+                ctx.arc(cx, cy, ringSize, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            if (this.type === 'spring') {
+                const cx = this.x + this.width / 2;
+                ctx.beginPath();
+                ctx.strokeStyle = '#2c3e50'; 
+                ctx.lineWidth = 3;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                const coilW = 12;
+                const startY = this.y + this.height - 5; 
+                ctx.moveTo(cx - coilW, startY);
+                ctx.lineTo(cx + coilW, startY - 5);
+                ctx.lineTo(cx - coilW, startY - 10);
+                ctx.lineTo(cx + coilW, startY - 15);
+                ctx.lineTo(cx - coilW, startY - 20); 
+                ctx.stroke();
+
+                ctx.fillStyle = '#fff';
+                ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                ctx.shadowBlur = 4;
+                const bounceY = (Math.sin(Date.now() / 150) * 3); 
+                const arrowBaseY = this.y - 15 + bounceY;
+                ctx.beginPath();
+                ctx.moveTo(cx, arrowBaseY - 10); 
+                ctx.lineTo(cx - 8, arrowBaseY);
+                ctx.lineTo(cx - 3, arrowBaseY);
+                ctx.lineTo(cx - 3, arrowBaseY + 8);
+                ctx.lineTo(cx + 3, arrowBaseY + 8);
+                ctx.lineTo(cx + 3, arrowBaseY);
+                ctx.lineTo(cx + 8, arrowBaseY);
+                ctx.closePath();
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+    }
+
+    class Item {
+        constructor(x, y, type) {
+            this.x = x;
+            this.y = y;
+            this.width = 30;
+            this.height = 30;
+            this.type = type;
+            this.active = true;
+            this.floatOffset = 0;
+        }
+        draw() {
+            if (!this.active) return;
+            this.floatOffset += 0.1;
+            let drawY = this.y + Math.sin(this.floatOffset) * 5;
+            ctx.font = '24px Arial';
+            ctx.textAlign = 'center';
+            if (this.type === 'shield') ctx.fillText('🛡️', this.x, drawY);
+            if (this.type === 'coin') ctx.fillText('🪙', this.x, drawY);
+        }
+    }
+
+    function initPlatforms() {
+        platforms = [];
+        platforms.push(new Platform(canvas.width / 2 - 50, canvas.height - 50, 'normal', null));
+        generateRow(canvas.height - 200);
+        generateRow(canvas.height - 350);
+        generateRow(canvas.height - 500);
+    }
+
+    function generateRow(y) {
+        let platformCount = 2 + Math.floor(Math.random() * 2);
+        let spacing = canvas.width / platformCount;
+        let positions = [];
+        for(let i=0; i<platformCount; i++) {
+            positions.push((spacing * i) + (spacing/2) - 50 + (Math.random()*20 - 10));
+        }
+        positions.sort(() => Math.random() - 0.5);
+        let distractors = generateDistractors(currentProblem.Target);
+        for (let i = 0; i < platformCount; i++) {
+            let type = 'wrong';
+            let val = distractors[i % distractors.length];
+            if (i === 0) { 
+                type = 'correct';
+                val = currentProblem.Target;
+            }
+            if (type === 'wrong' && Math.random() < 0.1) {
+                type = 'spring';
+                val = null;
+            }
+            platforms.push(new Platform(positions[i], y, type, val));
+        }
+        if (Math.random() < 0.2) {
+            let itemType = Math.random() < 0.5 ? 'shield' : 'coin';
+            items.push(new Item(Math.random() * (canvas.width - 40) + 20, y - 50, itemType));
+        }
+    }
+
+    function startGame() {
+        audioSys.init();
+        audioSys.startBGM();
+
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('game-over-screen').style.display = 'none';
+        
+        player.x = canvas.width / 2;
+        player.y = canvas.height - 150;
+        player.vy = 0;
+        player.shield = false;
+        player.isGliding = false;
+        
+        score = 0;
+        heightScore = 0;
+        combo = 0;
+        cameraY = 0;
+        
+        items = [];
+        particles = [];
+        floatingTexts = [];
+        
+        initPlatforms(); 
+        generateMathProblem(); 
+        
+        gameState = 'PLAYING';
+    }
+
+    function resetGame() {
+        document.getElementById('start-screen').style.display = 'flex';
+        document.getElementById('game-over-screen').style.display = 'none';
+        updateLeaderboardUI();
+        gameState = 'START';
+        // Reset view for menu background
+        heightScore = 0; 
+    }
+
+    function gameOver() {
+        gameState = 'GAMEOVER';
+        audioSys.stopBGM();
+        audioSys.playGameOver();
+        saveHighScore(score);
+        document.getElementById('final-height').innerText = Math.floor(heightScore);
+        document.getElementById('final-score').innerText = score;
+        document.getElementById('game-over-screen').style.display = 'flex';
+        updateLeaderboardUI();
+    }
+
+    function createParticles(x, y, color) {
+        for(let i=0; i<10; i++) {
+            particles.push({
+                x: x, y: y,
+                vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 0.5) * 10,
+                life: 1.0, color: color
+            });
+        }
+    }
+
+    // --- MAIN GAME LOOP ---
+    function update() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // วาดพื้นหลังเสมอ ไม่ว่าจะอยู่ในสถานะไหน
+        drawBackground();
+
+        if (gameState === 'START') {
+            // วาดตัวละครกำลังยืนกระโดดดึ๋งๆ รออยู่ตรงกลางจอ
+            let idleY = canvas.height - 180 + Math.sin(Date.now() / 150) * 15; // เด้งขึ้นลง
+            
+            // วาดแท่นยืนพื้นฐานให้ตัวละคร
+            ctx.fillStyle = 'rgba(255,255,255,0.2)';
+            ctx.beginPath();
+            ctx.ellipse(canvas.width / 2, canvas.height - 110, 60, 15, 0, 0, Math.PI*2);
+            ctx.fill();
+
+            // ใช้ค่าคงที่สำหรับการวาดตัวละครในเมนู
+            player.vy = Math.cos(Date.now() / 150) * 2; // เพื่อให้ตาขยับ
+            drawPlayer(canvas.width / 2, idleY, player.width, player.height, player.color);
+        }
+        else if (gameState === 'PLAYING') {
+            // --- LOGIC การเล่นจริง ---
+            if (selectedDifficulty === 'easy' && !showHint) {
+                if (Date.now() - problemStartTime > 4000) showHint = true;
+            }
+
+            if (keys.ArrowLeft) player.vx = -player.speed;
+            else if (keys.ArrowRight) player.vx = player.speed;
+            else player.vx *= 0.8;
+
+            player.x += player.vx;
+            if (player.x < -player.width/2) player.x = canvas.width;
+            if (player.x > canvas.width) player.x = -player.width/2;
+            player.facingRight = player.vx >= 0;
+
+            // ระบบร่อน (Gliding) ทำงานเฉพาะตอนที่กำลังตกลงมา (vy > 0)
+            player.isGliding = keys.Space && player.vy > 0; 
+            
+            if (player.isGliding) {
+                player.vy += selectedGravity * 0.2; // ลดแรงดึงดูดขณะร่อน
+                if (player.vy > 2.5) player.vy = 2.5; // ล็อกความเร็วไม่ให้ตกเร็วเกินไป
+            } else {
+                player.vy += selectedGravity;
+            }
+
+            player.y += player.vy;
+
+            if (player.y < canvas.height * 0.4) {
+                let diff = (canvas.height * 0.4) - player.y;
+                player.y = canvas.height * 0.4;
+                cameraY += diff;
+                heightScore += diff / 10;
+                platforms.forEach(p => p.y += diff);
+                items.forEach(i => i.y += diff);
+                particles.forEach(p => p.y += diff);
+                floatingTexts.forEach(t => t.y += diff);
+                bgObjects.forEach(obj => obj.y += diff * 0.2);
+            }
+
+            bgObjects = bgObjects.filter(obj => obj.y < canvas.height + 100);
+            platforms = platforms.filter(p => p.y < canvas.height + 50);
+            items = items.filter(i => i.y < canvas.height + 50);
+
+            let highestPlatformY = Math.min(...platforms.map(p => p.y));
+            if (highestPlatformY > 100) {
+                generateRow(highestPlatformY - 150 - (Math.random() * 50));
+            }
+
+            if (player.vy > 0) {
+                platforms.forEach(p => {
+                    if (!p.broken &&
+                        player.x + player.width/2 > p.x && 
+                        player.x - player.width/2 < p.x + p.width &&
+                        player.y + player.height > p.y && 
+                        player.y + player.height < p.y + p.height + 20
+                       ) {
+                        
+                        if (p.type === 'normal') {
+                            player.vy = player.jumpForce;
+                            audioSys.playJump();
+                            p.broken = true; 
+                            createParticles(p.x + p.width/2, p.y, '#fff');
+                        } else if (p.type === 'spring') {
+                            player.vy = player.boostForce;
+                            audioSys.playSpring();
+                            p.broken = true; 
+                            createParticles(p.x, p.y + 60, '#e67e22');
+                        } else if (p.value !== null) {
+                            let isCorrectAnswer = (p.value === currentProblem.Target);
+                            if (isCorrectAnswer) {
+                                player.vy = player.jumpForce;
+                                audioSys.playJump(); 
+                                audioSys.playCorrect();
+                                createParticles(player.x, player.y + 60, '#2ecc71');
+                                let points = 100 + (combo * 20);
+                                score += points;
+                                combo++;
+                                floatingTexts.push(new FloatingText(player.x, player.y - 20, `+${points}`, "#2ecc71"));
+                                p.broken = true; 
+                                generateMathProblem(); 
+                                document.getElementById('math-problem').style.transform = "translateX(-50%) scale(1.2)";
+                                setTimeout(() => {
+                                     document.getElementById('math-problem').style.transform = "translateX(-50%) scale(1)";
+                                }, 200);
+                            } else {
+                                if (player.shield) {
+                                    player.shield = false;
+                                    player.vy = player.jumpForce;
+                                    p.broken = true;
+                                    audioSys.playWrong();
+                                    floatingTexts.push(new FloatingText(player.x, player.y - 20, "Shield!", "#3498db"));
+                                } else {
+                                    p.broken = true; 
+                                    createParticles(p.x + p.width/2, p.y, '#95a5a6');
+                                    audioSys.playWrong();
+                                    combo = 0; 
+                                    floatingTexts.push(new FloatingText(player.x, player.y - 20, "Miss!", "#e74c3c"));
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            items.forEach(item => {
+                if (item.active && Math.abs(player.x - item.x) < 40 && Math.abs(player.y - item.y) < 40) {
+                    item.active = false;
+                    audioSys.playCollect();
+                    if (item.type === 'shield') { 
+                        player.shield = true; 
+                        score += 50; 
+                        floatingTexts.push(new FloatingText(player.x, player.y - 20, "+50", "#f1c40f"));
+                    } else if (item.type === 'coin') { 
+                        score += 50; 
+                        floatingTexts.push(new FloatingText(player.x, player.y - 20, "+50", "#f1c40f"));
+                    }
+                }
+            });
+
+            if (player.y > canvas.height) gameOver();
+
+            platforms.forEach(p => p.draw());
+            items.forEach(i => i.draw());
+            drawPlayer(player.x, player.y, player.width, player.height, player.color);
+
+            particles.forEach((p, index) => {
+                p.life -= 0.05; p.x += p.vx; p.y += p.vy;
+                ctx.fillStyle = p.color; ctx.globalAlpha = p.life; ctx.fillRect(p.x, p.y, 8, 8);
+                ctx.globalAlpha = 1.0;
+                if (p.life <= 0) particles.splice(index, 1);
+            });
+
+            floatingTexts.forEach((t, index) => {
+                t.update(); t.draw();
+                if (t.life <= 0) floatingTexts.splice(index, 1);
+            });
+
+            document.getElementById('height-display').innerText = Math.floor(heightScore);
+            document.getElementById('score-display').innerText = score;
+        }
+        else if (gameState === 'GAMEOVER') {
+            // โหมดเกมโอเวอร์ วาดแท่นและผู้เล่นที่ค้างอยู่แบบสแตติก
+            platforms.forEach(p => p.draw());
+            items.forEach(i => i.draw());
+            drawPlayer(player.x, player.y, player.width, player.height, player.color);
+        }
+
+        requestAnimationFrame(update);
+    }
+
+    if (CanvasRenderingContext2D.prototype.roundRect === undefined) {
+      CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+        if (w < 2 * r) r = w / 2;
+        if (h < 2 * r) r = h / 2;
+        this.beginPath();
+        this.moveTo(x + r, y);
+        this.arcTo(x + w, y, x + w, y + h, r);
+        this.arcTo(x + w, y + h, x, y + h, r);
+        this.arcTo(x, y + h, x, y, r);
+        this.arcTo(x, y, x + w, y, r);
+        this.closePath();
+        return this;
+      };
+    }
+
+    function drawPlayer(x, y, w, h, color) {
+        ctx.save();
+        ctx.translate(x, y);
+        if (!player.facingRight) ctx.scale(-1, 1);
+        
+        // Cape
+        const capeBaseY = 10; const capeBaseX = -w/2 + 5;
+        let capeLift = player.vy * 1.5; capeLift = Math.max(-20, Math.min(20, capeLift)); 
+        const flutterX = Math.sin(Date.now() / 150) * 5;
+        const flutterY = Math.cos(Date.now() / 150) * 5;
+        
+        let capeTipX = -w - 15 + flutterX; 
+        let capeTipY = (h / 2) - capeLift + flutterY;
+
+        if (player.isGliding) {
+            capeTipX = -w - 35 + (Math.sin(Date.now() / 50) * 3); 
+            capeTipY = -10 + (Math.cos(Date.now() / 50) * 3); 
+        }
+
+        ctx.fillStyle = '#f1c40f'; 
+        ctx.beginPath(); 
+        ctx.moveTo(capeBaseX, capeBaseY); 
+        
+        if (player.isGliding) {
+            ctx.quadraticCurveTo(capeBaseX - 20, capeBaseY - 20, capeTipX, capeTipY); 
+            ctx.lineTo(capeTipX + 10, capeTipY + 30); 
+            ctx.quadraticCurveTo(capeBaseX - 10, h - 5, capeBaseX, h - 15); 
+        } else {
+            ctx.quadraticCurveTo(capeBaseX - 10, capeBaseY + 10, capeTipX, capeTipY); 
+            ctx.lineTo(capeTipX, capeTipY + 25); 
+            ctx.quadraticCurveTo(capeBaseX - 5, h - 10, capeBaseX, h - 15); 
+        }
+        
+        ctx.closePath(); 
+        ctx.fill();
+
+        // Legs
+        ctx.fillStyle = '#34495e'; 
+        const legW = 10; const legH = 15;
+        ctx.fillRect(-8, h - 8, legW, legH); ctx.fillRect(2, h - 8, legW, legH);
+
+        // Back Arm
+        let armAngle = 0; 
+        if (player.vy < 0) armAngle = -Math.PI / 3; 
+        else if (player.vy > 0) armAngle = -Math.PI / 8; 
+        else armAngle = Math.sin(Date.now() / 200) * 0.2; 
+        ctx.save(); ctx.translate(-5, 20); ctx.rotate(armAngle);
+        ctx.fillStyle = color; ctx.beginPath(); ctx.roundRect(-5, 0, 10, 20, 5); ctx.fill();
+        ctx.fillStyle = '#ffccaa'; ctx.beginPath(); ctx.arc(0, 20, 6, 0, Math.PI*2); ctx.fill();
+        ctx.restore();
+
+        // Body
+        ctx.fillStyle = color; ctx.beginPath(); ctx.roundRect(-w/2, 0, w, h, 10); ctx.fill();
+
+        // Face
+        ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(8, 18, 8, 0, Math.PI*2); ctx.fill();
+        let pupilY = 18 + (player.vy * 0.1);
+        ctx.fillStyle = 'black'; ctx.beginPath(); ctx.arc(10, pupilY, 3, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.strokeStyle = 'white'; ctx.lineWidth = 3;
+        if (player.vy > 5) ctx.arc(8, 30, 5, 0, Math.PI*2); 
+        else ctx.arc(5, 28, 8, 0.2, Math.PI - 0.5);
+        ctx.stroke();
+
+        // Front Arm
+        ctx.save(); ctx.translate(5, 20); 
+        if (player.vy !== 0) ctx.rotate(armAngle); else ctx.rotate(-armAngle); 
+        ctx.fillStyle = color; ctx.beginPath(); ctx.roundRect(-5, 0, 10, 20, 5); ctx.fill();
+        ctx.fillStyle = '#ffccaa'; ctx.beginPath(); ctx.arc(0, 20, 6, 0, Math.PI*2); ctx.fill();
+        ctx.restore();
+
+        // Shoes
+        ctx.strokeStyle = '#7f8c8d'; ctx.lineWidth = 4;
+        let compression = (player.vy < 0 && player.vy > -5) ? 5 : 0;
+        ctx.beginPath(); ctx.moveTo(-10, h + 8 - compression); ctx.lineTo(-10, h + 18 - compression); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(8, h + 8 - compression); ctx.lineTo(8, h + 18 - compression); ctx.stroke();
+        ctx.fillStyle = '#95a5a6'; ctx.fillRect(-16, h + 8 - compression, 12, 8); ctx.fillRect(2, h + 8 - compression, 12, 8);  
+
+        if (player.shield) {
+            ctx.strokeStyle = '#3498db'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.arc(0, h/2, w*1.2, 0, Math.PI*2); ctx.stroke();
+            ctx.globalAlpha = 0.2; ctx.fillStyle = '#3498db'; ctx.fill(); ctx.globalAlpha = 1.0;
+        }
+        ctx.restore();
+    }
+
+    window.addEventListener('keydown', (e) => {
+        if (e.code === 'ArrowLeft') keys.ArrowLeft = true;
+        if (e.code === 'ArrowRight') keys.ArrowRight = true;
+        if (e.code === 'Space') {
+            if (gameState === 'PLAYING') e.preventDefault(); 
+            keys.Space = true;
+        }
+        
+        if (e.key === 'Enter' || e.code === 'Enter') {
+            if (gameState === 'START') {
+                e.preventDefault();
+                startGame();
+            } else if (gameState === 'GAMEOVER') {
+                e.preventDefault();
+                // กด Enter เพื่อเริ่มเกมใหม่ทันที
+                startGame();
+            }
+        }
     });
-    document.querySelectorAll('button[onclick*="location.href"]').forEach(btn => {
-      const onclick = btn.getAttribute('onclick') || '';
-      const m = onclick.match(/location\.href\s*=\s*['"]([^'"]+)['"]/);
-      if (m) {
-        btn.removeAttribute('onclick');
-        btn.addEventListener('click', (e) => { e.preventDefault(); navigateTo(m[1]); });
-      }
+    window.addEventListener('keyup', (e) => {
+        if (e.code === 'ArrowLeft') keys.ArrowLeft = false;
+        if (e.code === 'ArrowRight') keys.ArrowRight = false;
+        if (e.code === 'Space') keys.Space = false;
     });
-  });
-})();
+
+    const zoneLeft = document.getElementById('zone-left');
+    const zoneRight = document.getElementById('zone-right');
+
+    const handleTouchStart = (dir) => (e) => { e.preventDefault(); if(dir === 'left') keys.ArrowLeft = true; else keys.ArrowRight = true; };
+    const handleTouchEnd = (dir) => (e) => { e.preventDefault(); if(dir === 'left') keys.ArrowLeft = false; else keys.ArrowRight = false; };
+    
+    zoneLeft.addEventListener('touchstart', handleTouchStart('left'));
+    zoneLeft.addEventListener('touchend', handleTouchEnd('left'));
+    zoneRight.addEventListener('touchstart', handleTouchStart('right'));
+    zoneRight.addEventListener('touchend', handleTouchEnd('right'));
+
+    // เริ่มต้น Animation พื้นหลังทันที
+    updateLeaderboardUI();
+    requestAnimationFrame(update);
+
 </script>
 </body>
 </html>
