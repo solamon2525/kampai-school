@@ -613,15 +613,15 @@
         const baseBoost = -25;
 
         if (level === 'very_easy') {
-            selectedGravity = 0.2; 
-            player.jumpForce = baseJump * 1.1; 
+            selectedGravity = 0.14;
+            player.jumpForce = baseJump * 1.1;
             player.boostForce = baseBoost * 1.1;
         } else if (level === 'easy') {
-            selectedGravity = 0.4;
+            selectedGravity = 0.28;
             player.jumpForce = baseJump * 1.5;
             player.boostForce = baseBoost * 1.5;
         } else if (level === 'hard') {
-            selectedGravity = 0.75;
+            selectedGravity = 0.525;
             player.jumpForce = baseJump * 2.0;
             player.boostForce = baseBoost * 2.0;
         }
@@ -717,6 +717,8 @@
             if (this.type === 'cloud') {
                 this.width = Math.random() * 60 + 40;
                 this.height = Math.random() * 30 + 20;
+            } else {
+                this.starRadius = Math.random() * 1.5 + 0.5;
             }
         }
 
@@ -731,7 +733,7 @@
             } else if (this.type === 'star') {
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, Math.random() * 2, 0, Math.PI * 2);
+                ctx.arc(this.x, this.y, this.starRadius, 0, Math.PI * 2);
                 ctx.fill();
             }
         }
@@ -1126,6 +1128,10 @@
         items = [];
         particles = [];
         floatingTexts = [];
+        bgObjects = [];
+        for (let i = 0; i < 8; i++) {
+            bgObjects.push(new BgObject(Math.random() * canvas.height, 'cloud'));
+        }
         
         initPlatforms(); 
         generateMathProblem(); 
@@ -1322,17 +1328,15 @@
             items.forEach(i => i.draw());
             drawPlayer(player.x, player.y, player.width, player.height, player.color);
 
-            particles.forEach((p, index) => {
+            particles.forEach(p => {
                 p.life -= 0.05; p.x += p.vx; p.y += p.vy;
                 ctx.fillStyle = p.color; ctx.globalAlpha = p.life; ctx.fillRect(p.x, p.y, 8, 8);
                 ctx.globalAlpha = 1.0;
-                if (p.life <= 0) particles.splice(index, 1);
             });
+            particles = particles.filter(p => p.life > 0);
 
-            floatingTexts.forEach((t, index) => {
-                t.update(); t.draw();
-                if (t.life <= 0) floatingTexts.splice(index, 1);
-            });
+            floatingTexts.forEach(t => { t.update(); t.draw(); });
+            floatingTexts = floatingTexts.filter(t => t.life > 0);
 
             document.getElementById('height-display').innerText = Math.floor(heightScore);
             document.getElementById('score-display').innerText = score;
