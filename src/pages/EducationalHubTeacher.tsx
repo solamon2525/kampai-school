@@ -1,12 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    ResponsiveContainer,
-    Tooltip,
-} from 'recharts';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, ExternalLink, IdCard, Star } from 'lucide-react';
@@ -196,14 +188,6 @@ const EducationalHubTeacher = () => {
         return () => clearTimeout(t);
     }, [deepLinkCat, loadingItems]);
 
-    const chartData = useMemo(() =>
-        (categories ?? [])
-            .map(c => ({ name: c.name, count: teacher?.counts_by_category?.[c.id] ?? 0 }))
-            .filter(d => d.count > 0)
-            .sort((a, b) => b.count - a.count),
-        [categories, teacher?.counts_by_category],
-    );
-
     if (loadingCards) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background">
@@ -289,7 +273,7 @@ const EducationalHubTeacher = () => {
                                     />
                                 </div>
 
-                                <div className="flex-1 min-w-0 space-y-1 max-w-sm">
+                                <div className="flex-1 min-w-0 space-y-1">
                                     <div>
                                         <h1 className="text-base sm:text-lg font-bold leading-tight">
                                             {teacher.name}
@@ -332,54 +316,6 @@ const EducationalHubTeacher = () => {
                                         )}
                                     </div>
                                 </div>
-
-                                {/* Content breakdown bar chart — desktop only */}
-                                {chartData.length > 0 && (
-                                    <div className="hidden md:flex flex-col justify-center shrink-0 w-52 h-32 ml-auto">
-                                        <p className={`text-[10px] font-medium mb-1 ${teacher.banner_url ? 'text-white/70' : 'text-muted-foreground'}`}>
-                                            เนื้อหาทั้งหมด
-                                        </p>
-                                        <ResponsiveContainer width="100%" height="100%">
-                                          <BarChart
-                                            layout="vertical"
-                                            data={chartData}
-                                            margin={{ top: 2, right: 4, bottom: 2, left: 0 }}
-                                          >
-                                            <XAxis type="number" hide />
-                                            <YAxis
-                                                type="category"
-                                                dataKey="name"
-                                                width={80}
-                                                tick={{ fontSize: 10, fill: teacher.banner_url ? 'rgba(255,255,255,0.75)' : 'hsl(var(--muted-foreground))' }}
-                                                tickFormatter={(v: string) => v.length > 7 ? v.slice(0, 6) + '…' : v}
-                                                axisLine={false}
-                                                tickLine={false}
-                                            />
-                                            <Tooltip
-                                                contentStyle={{
-                                                    backgroundColor: 'hsl(var(--card))',
-                                                    border: '1px solid hsl(var(--border))',
-                                                    borderRadius: '0.5rem',
-                                                    fontSize: 11,
-                                                    fontFamily: 'inherit',
-                                                }}
-                                                formatter={(v: number) => [`${v} รายการ`, '']}
-                                            />
-                                            <Bar
-                                                dataKey="count"
-                                                fill="hsl(var(--primary))"
-                                                radius={[0, 4, 4, 0]}
-                                                label={{
-                                                    position: 'insideRight',
-                                                    fontSize: 10,
-                                                    fontWeight: 600,
-                                                    fill: 'white',
-                                                }}
-                                            />
-                                          </BarChart>
-                                        </ResponsiveContainer>
-                                    </div>
-                                )}
                             </div>
                         </div>
                     </div>

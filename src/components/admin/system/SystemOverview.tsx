@@ -272,8 +272,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.39.5 (EducationalHubTeacher — Rule 14.11 fix)',
+        version: 'v1.39.6 (EducationalHubTeacher — ลบ Hero Bar Chart)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'ลบ bar chart ใน hero ออก — ครูส่วนใหญ่มี content ไม่ครบทุกหมวด ทำให้ chart โล่ง ดูแปลก',
+            'คืน info เต็มความกว้าง (ลบ max-w-sm) — hero เรียบ ไม่มีพื้นที่ว่างกลาง',
+            'ลบ Recharts imports + chartData useMemo ออก — bundle เล็กลงเล็กน้อย',
+            'รักษา Rule 14.11 wrapper (max-w-7xl mx-auto) จาก v1.39.5 ไว้',
+        ],
+    },
+    {
+        version: 'v1.39.5 (EducationalHubTeacher — Rule 14.11 fix)',
+        date: '',
         badge: 'bg-emerald-600',
         items: [
             'หน้า /h/:identifier: ทำตาม DESIGN.md Rule 14.11 — wrap content ใน max-w-7xl mx-auto',
