@@ -272,8 +272,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.39.2 (RewardCard — Mobile teacher photo fix)',
+        version: 'v1.39.3 (EducationalHubTeacher — Compact Hero)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'หน้า /h/:identifier: hero section ลดพื้นที่แนวตั้ง ~60% — py-3 sm:py-5 (จาก py-10 sm:py-14)',
+            'Avatar: 48px (จาก 80px), layout เป็น flex-row ตลอด (ไม่ stack บนมือถือ)',
+            'ชื่อครู: text-base sm:text-lg (จาก text-2xl sm:text-3xl), bio ซ่อนบนมือถือ',
+            'ใช้กับทุกครู /h/:identifier อัตโนมัติ — content โหลดทันทีโดยไม่ต้องเลื่อน',
+        ],
+    },
+    {
+        version: 'v1.39.2 (RewardCard — Mobile teacher photo fix)',
+        date: '',
         badge: 'bg-emerald-600',
         items: [
             'RewardCard: teacher photo capsule เล็กลงบนมือถือ (w-9 h-9 + container w-[50px]) — ไม่บังภาพสินค้า',

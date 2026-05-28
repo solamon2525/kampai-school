@@ -249,12 +249,12 @@ const EducationalHubTeacher = () => {
                                 : 'bg-gradient-to-br from-primary/10 via-accent/5 to-background text-foreground'
                         }
                     >
-                        <div className="container mx-auto px-4 py-10 sm:py-14 max-w-6xl">
+                        <div className="container mx-auto px-4 py-3 sm:py-5 max-w-6xl">
                             <Button
                                 asChild
                                 variant={teacher.banner_url ? 'secondary' : 'ghost'}
                                 size="sm"
-                                className="mb-4"
+                                className="mb-2"
                             >
                                 <Link to="/educational-hub">
                                     <ArrowLeft className="h-3.5 w-3.5 mr-1" />
@@ -262,22 +262,22 @@ const EducationalHubTeacher = () => {
                                 </Link>
                             </Button>
 
-                            <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
-                                <div className="rounded-full bg-background p-1.5 shadow-lg">
+                            <div className="flex flex-row items-center gap-3">
+                                <div className="rounded-full bg-background p-1 shadow-lg shrink-0">
                                     <PersonAvatar
                                         name={teacher.name}
                                         photoUrl={teacher.photo_url}
                                         size="lg"
-                                        className="!h-20 !w-20 !text-xl"
+                                        className="!h-12 !w-12 !text-base"
                                     />
                                 </div>
 
-                                <div className="flex-1 min-w-0 space-y-2">
+                                <div className="flex-1 min-w-0 space-y-1">
                                     <div>
-                                        <h1 className="text-2xl sm:text-3xl font-bold leading-tight">
+                                        <h1 className="text-base sm:text-lg font-bold leading-tight">
                                             {teacher.name}
                                         </h1>
-                                        <p className={teacher.banner_url ? 'text-white/80 text-sm' : 'text-muted-foreground text-sm'}>
+                                        <p className={teacher.banner_url ? 'text-white/80 text-xs' : 'text-muted-foreground text-xs'}>
                                             {teacher.position}
                                             {teacher.department && ` · ${teacher.department}`}
                                         </p>
@@ -293,12 +293,12 @@ const EducationalHubTeacher = () => {
                                     )}
 
                                     {teacher.hub_bio && (
-                                        <p className={`text-sm max-w-2xl ${teacher.banner_url ? 'text-white/90' : 'text-muted-foreground'}`}>
+                                        <p className={`text-xs max-w-2xl hidden sm:block ${teacher.banner_url ? 'text-white/90' : 'text-muted-foreground'}`}>
                                             {teacher.hub_bio}
                                         </p>
                                     )}
 
-                                    <div className="flex flex-wrap gap-2 pt-2">
+                                    <div className="flex flex-wrap gap-2 pt-1">
                                         <Button asChild size="sm" variant={teacher.banner_url ? 'secondary' : 'outline'}>
                                             <Link to={`/staff/${teacher.username ?? teacher.staff_id}`}>
                                                 <IdCard className="h-4 w-4 mr-1" />
