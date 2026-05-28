@@ -57,9 +57,14 @@ import { gamePlayService } from '@/services/game-play.service';
 
 /** Subject folder slug → human label (ใช้ใน UI + map กับ public/games/{folder}/) */
 const SUBJECT_OPTIONS = [
-    { folder: 'math', label: 'คณิตศาสตร์' },
-    { folder: 'tech', label: 'เทคโนโลยี' },
-    { folder: 'thai', label: 'ภาษาไทย' },
+    { folder: 'thai',    label: 'ภาษาไทย' },
+    { folder: 'math',    label: 'คณิตศาสตร์' },
+    { folder: 'tech',    label: 'วิทยาศาสตร์และเทคโนโลยี' },
+    { folder: 'social',  label: 'สังคมศึกษา ศาสนา และวัฒนธรรม' },
+    { folder: 'health',  label: 'สุขศึกษาและพลศึกษา' },
+    { folder: 'arts',    label: 'ศิลปะ' },
+    { folder: 'career',  label: 'การงานอาชีพ' },
+    { folder: 'english', label: 'ภาษาต่างประเทศ (อังกฤษ)' },
 ] as const;
 
 type SubjectFolder = (typeof SUBJECT_OPTIONS)[number]['folder'];
