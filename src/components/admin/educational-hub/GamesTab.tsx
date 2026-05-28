@@ -21,7 +21,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink, Plus, RefreshCw, AlertTriangle, Loader2, Trash2, RotateCcw, Settings } from 'lucide-react';
+import { ExternalLink, Plus, RefreshCw, AlertTriangle, Loader2, Trash2, RotateCcw, Settings, Code2, ChevronDown, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -41,6 +41,9 @@ import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { ImageUpload } from '@/components/admin/shared/ImageUpload';
 import { ConfirmDialog } from '@/components/admin/shared/ConfirmDialog';
 import { Switch } from '@/components/ui/switch';
+import {
+    Collapsible, CollapsibleContent, CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { TagPicker } from './TagPicker';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -111,6 +114,128 @@ const getGameDisplayInfo = (url: string | null | undefined): { subject: SubjectF
     }
     return { subject: null, slug: null };
 };
+
+// ─── DeveloperCheatsheet ────────────────────────────────────────────────────
+// คู่มือคำสั่งสำหรับ AI/นักพัฒนา — sync กับ GAME.md (รวมคำสั่ง verify, integrate, copy template)
+// แสดงเป็น collapsible card ด้านบนสุดของ GamesTab — กันลืม + copy-to-clipboard ได้
+
+interface CommandBlockProps {
+    label: string;
+    command: string;
+    note?: string;
+}
+
+function CommandBlock({ label, command, note }: CommandBlockProps) {
+    const [copied, setCopied] = useState(false);
+    const { toast } = useToast();
+
+    const handleCopy = async () => {
+        try {
+            await navigator.clipboard.writeText(command);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1500);
+            toast({ title: 'คัดลอกแล้ว', description: command });
+        } catch {
+            toast({ title: 'คัดลอกไม่สำเร็จ', variant: 'destructive' });
+        }
+    };
+
+    return (
+        <div className="space-y-1">
+            <div className="flex items-center justify-between gap-2">
+                <span className="text-xs font-medium text-foreground">{label}</span>
+                <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    className="h-6 px-2 text-[10px]"
+                    onClick={handleCopy}
+                >
+                    {copied ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
+                    {copied ? 'คัดลอกแล้ว' : 'คัดลอก'}
+                </Button>
+            </div>
+            <code className="block w-full rounded-md border border-border bg-muted/50 px-3 py-2 font-mono text-xs text-foreground overflow-x-auto whitespace-pre">
+                {command}
+            </code>
+            {note && <p className="text-[11px] text-muted-foreground">{note}</p>}
+        </div>
+    );
+}
+
+function DeveloperCheatsheet() {
+    const [open, setOpen] = useState(false);
+    return (
+        <Card className="border-amber-200 bg-amber-50/30">
+            <Collapsible open={open} onOpenChange={setOpen}>
+                <CollapsibleTrigger asChild>
+                    <button
+                        type="button"
+                        className="w-full flex items-center justify-between gap-2 p-4 text-left hover:bg-amber-50/50 transition-colors"
+                    >
+                        <div className="flex items-center gap-2">
+                            <Code2 className="h-4 w-4 text-amber-700" />
+                            <span className="text-sm font-semibold text-foreground">
+                                💡 คู่มือคำสั่งสำหรับ AI / นักพัฒนา
+                            </span>
+                            <Badge variant="outline" className="text-[10px] bg-amber-100 border-amber-300 text-amber-800">
+                                GAME.md
+                            </Badge>
+                        </div>
+                        <ChevronDown
+                            className={cn(
+                                'h-4 w-4 text-muted-foreground transition-transform',
+                                open && 'rotate-180',
+                            )}
+                        />
+                    </button>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                    <CardContent className="space-y-4 pt-0 pb-4">
+                        <div className="space-y-3">
+                            <CommandBlock
+                                label="🔍 ตรวจเกมที่มีอยู่"
+                                command="pnpm verify:game public/games/tech/word-shield.html"
+                                note="ตรวจ 6 จุด: GAME_SLUG, sendGameEnd, navigateBack, init listener, sendGameEnd called, migration"
+                            />
+                            <CommandBlock
+                                label="🤖 ให้ Claude auto-integrate เกมใหม่ (ใน Claude Code)"
+                                command="/integrate-game public/games/thai/my-new-game.html"
+                                note="Claude อ่าน GAME.md + แก้ kampai integration ให้ครบตาม checklist"
+                            />
+                            <CommandBlock
+                                label="🆕 สร้างเกมใหม่จากศูนย์"
+                                command={[
+                                    'cp public/games/_template-full.html public/games/tech/my-game.html',
+                                    '# → แก้ GAME_SLUG → เขียน logic → verify → migration → done',
+                                ].join('\n')}
+                                note="Template มี kampai postMessage + Supabase leaderboard ครบ — copy แล้วแก้แค่ game logic"
+                            />
+                        </div>
+
+                        <div className="border-t border-amber-200 pt-3 space-y-2">
+                            <p className="text-xs font-semibold text-foreground">📋 Integration Checklist</p>
+                            <ul className="text-[11px] text-muted-foreground space-y-0.5 list-disc list-inside">
+                                <li>GAME_SLUG ใน HTML ต้องตรงกับ <code className="text-foreground">game_slug</code> ใน DB</li>
+                                <li>เรียก <code className="text-foreground">sendGameEnd(score, mode, metadata)</code> เมื่อเกมจบ</li>
+                                <li>ปุ่ม "กลับ" ใช้ <code className="text-foreground">navigateBack()</code> ไม่ใช่ <code className="text-foreground">window.location.href</code></li>
+                                <li>ห้ามมี Firebase SDK / input ชื่อผู้เล่น (ใช้ DISPLAY_NAME_INIT แทน)</li>
+                                <li>สร้าง migration: <code className="text-foreground">supabase/migrations/NNN_seed_&#123;slug&#125;_game.sql</code></li>
+                            </ul>
+                        </div>
+
+                        <div className="border-t border-amber-200 pt-3">
+                            <p className="text-[11px] text-muted-foreground">
+                                📖 อ่านมาตรฐานเต็มได้ที่ <code className="text-foreground">GAME.md</code> ใน repo root —
+                                หรือบอก Claude ว่า <em>"อ่าน GAME.md แล้ว integrate เกม &#123;path&#125;"</em>
+                            </p>
+                        </div>
+                    </CardContent>
+                </CollapsibleContent>
+            </Collapsible>
+        </Card>
+    );
+}
 
 // ─── Tab ────────────────────────────────────────────────────────────────────
 
@@ -239,6 +364,8 @@ export const GamesTab = () => {
                     <Plus className="h-4 w-4 mr-1" /> อัพโหลดเกมใหม่
                 </Button>
             </div>
+
+            <DeveloperCheatsheet />
 
             {isLoading ? (
                 <div className="text-center text-muted-foreground py-12">กำลังโหลด...</div>

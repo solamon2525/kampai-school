@@ -272,8 +272,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.39.0 (GAME.md rewrite + Automation System)',
+        version: 'v1.39.1 (GamesTab — Developer Cheatsheet card)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มกล่อง "💡 คู่มือคำสั่งสำหรับ AI / นักพัฒนา" ด้านบนสุดของ GamesTab',
+            'แสดง 3 คำสั่งหลัก: pnpm verify:game / /integrate-game / cp _template-full.html — กด copy ได้',
+            'Integration Checklist 5 ข้อ + ลิงก์ไปยัง GAME.md',
+            'Collapsible card — เปิดปิดได้ ไม่เกะกะตอนใช้งานปกติ',
+        ],
+    },
+    {
+        version: 'v1.39.0 (GAME.md rewrite + Automation System)',
+        date: '',
         badge: 'bg-emerald-600',
         items: [
             'GAME.md เขียนใหม่ AI-friendly (~250 บรรทัด จาก 460+242) — รวม GAME-TEMPLATE.md เข้าไฟล์เดียว',
