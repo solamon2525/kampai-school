@@ -189,6 +189,21 @@
         .bg-flash { background-color: #FFFFFF !important; transition: background-color 0.1s; }
 
         /* Overlays */
+        /* ─── Leaderboard Strip ─── */
+        .leaderboard-box { background:#f8f9fa; border:2px solid var(--black); border-radius:12px; padding:12px 15px; margin-bottom:12px; width:100%; max-width:420px; box-shadow:3px 3px 0 var(--black); }
+        .lb-title { font-family:'Fredoka One',cursive; color:#2c3e50; font-size:1rem; margin:0 0 8px 0; text-align:left; }
+        .leaderboard-list { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:4px; }
+        .leaderboard-list li { display:flex; align-items:center; gap:8px; padding:4px 2px; border-bottom:1px dashed #dee2e6; }
+        .leaderboard-list li:last-child { border-bottom:none; }
+        .lb-entry { display:flex; align-items:center; gap:8px; width:100%; }
+        .lb-avatar { width:36px; height:36px; border-radius:50%; object-fit:cover; border:2px solid #f39c12; flex-shrink:0; }
+        .lb-avatar-init { width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,#6c5ce7,#a29bfe); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1rem; flex-shrink:0; }
+        .lb-entry-info { display:flex; flex-direction:column; min-width:0; flex:1; text-align:left; }
+        .lb-entry-name { font-family:'Fredoka One',cursive; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#2c3e50; }
+        .lb-entry-sub { font-size:0.72rem; color:#868e96; }
+        .lb-loading { color:#868e96; text-align:center; padding:8px; font-size:0.85rem; list-style:none; }
+        /* ─────────────────────────── */
+
         .overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(178, 240, 240, 0.98);
@@ -352,9 +367,6 @@
         <div class="subtitle">โล่คำศัพท์พิทักษ์โลก</div>
         
         <div class="settings-box">
-            <div class="settings-title">ชื่อผู้เล่น (Player Name)</div>
-            <input type="text" id="player-name" class="input-text fredoka" placeholder="ใส่ชื่อของคุณ..." maxlength="15">
-
             <div class="settings-title">เลือกระดับความยาก</div>
             <div class="difficulty-options">
                 <button class="diff-btn" data-diff="very-easy">ง่ายมาก</button>
@@ -374,6 +386,13 @@
                     <option value="en-th">Eng ➜ Thai</option>
                 </select>
             </div>
+        </div>
+
+        <div class="leaderboard-box">
+            <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+            <ul id="score-list" class="leaderboard-list">
+                <li class="lb-loading">กำลังโหลด...</li>
+            </ul>
         </div>
 
         <button class="btn" id="start-btn">▶ เริ่มเล่น!</button>
@@ -430,6 +449,13 @@
             <div>💀 พลาดบ่อยสุด: <strong id="analysis-missed" style="color: var(--magenta);">-</strong></div>
         </div>
         
+        <div class="leaderboard-box" style="max-width:420px;width:100%;">
+            <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+            <ul id="score-list-gameover" class="leaderboard-list">
+                <li class="lb-loading">กำลังโหลด...</li>
+            </ul>
+        </div>
+
         <button class="btn" id="restart-btn">🏠 กลับหน้าหลัก</button>
     </div>
 
@@ -477,6 +503,48 @@
             try { window.parent.postMessage({ type: 'navigate', to: '/h/nattapong' }, '*'); } catch (_) {}
         }
     }
+    // ─────────────────────────────────────────────────────────────────────────
+
+    // ─── Supabase Leaderboard ─────────────────────────────────────────────────
+    const SB_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co';
+    const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrcHFzc2JxeHhwYXNpZGZxaHBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NjUyMjgsImV4cCI6MjA5MTI0MTIyOH0.X7YsSlrgYl9ifLWvgyZI04PtebK572pacadfNlmNO-A';
+
+    async function fetchGameLeaderboard() {
+        try {
+            const res = await fetch(`${SB_URL}/rest/v1/rpc/get_game_leaderboard`, {
+                method: 'POST',
+                headers: { 'apikey': SB_ANON, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ p_game_slug: 'word-shield', p_limit: 5 })
+            });
+            return res.ok ? await res.json() : [];
+        } catch { return []; }
+    }
+
+    function renderGameLeaderboard(rows, listId = 'score-list') {
+        const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+        const el = document.getElementById(listId);
+        if (!el) return;
+        if (!rows.length) {
+            el.innerHTML = '<li class="lb-loading">ยังไม่มีผู้เล่น — เป็นคนแรกสิ!</li>';
+            return;
+        }
+        el.innerHTML = rows.map((r, i) => {
+            const av = r.photo_url
+                ? `<img class="lb-avatar" src="${r.photo_url}" alt="${r.display_name}">`
+                : `<div class="lb-avatar-init">${(r.display_name || '?')[0].toUpperCase()}</div>`;
+            return `<li><div class="lb-entry">
+                <span style="font-family:'Fredoka One',cursive;color:#f39c12;min-width:26px;text-align:center;font-size:1.1rem">${medals[i] || i + 1}</span>
+                ${av}
+                <div class="lb-entry-info">
+                    <div class="lb-entry-name">${r.display_name}</div>
+                    <div class="lb-entry-sub">${(r.personal_best || 0).toLocaleString()} คะแนน · ${r.class_label || ''}</div>
+                </div>
+            </div></li>`;
+        }).join('');
+    }
+
+    // Fetch leaderboard on page load
+    fetchGameLeaderboard().then(rows => renderGameLeaderboard(rows, 'score-list'));
     // ─────────────────────────────────────────────────────────────────────────
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -1005,8 +1073,7 @@
         Sound.init(); 
         Sound.startBGM();
         
-        const nameInput = document.getElementById('player-name').value.trim();
-        GameState.playerName = nameInput || DISPLAY_NAME_INIT || 'นิรนาม';
+        GameState.playerName = DISPLAY_NAME_INIT || 'นิรนาม';
         
         GameState.gameMode = mode; 
         GameState.isPlaying = true; 
@@ -1103,6 +1170,9 @@
             wpm: GameState.wpm,
         });
         // saveScore(GameState.playerName, GameState.score, GameState.wpm, GameState.difficulty, GameState.gameMode);
+
+        // Refresh leaderboard on game over screen
+        fetchGameLeaderboard().then(rows => renderGameLeaderboard(rows, 'score-list-gameover'));
     }
 
     // Button Binds

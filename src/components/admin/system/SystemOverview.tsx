@@ -272,8 +272,20 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.38.4 (Word-Shield — kampai postMessage + score tracking)',
+        version: 'v1.38.5 (Word-Shield — Supabase leaderboard พร้อมรูปนักเรียน)',
         date: 'ล่าสุด',
+        badge: 'bg-teal-600',
+        items: [
+            'ลบ input ชื่อผู้เล่น (Player Name) ออกจาก start screen',
+            'เพิ่ม Supabase leaderboard top-5 พร้อมรูป avatar นักเรียน บน start screen',
+            'เพิ่ม leaderboard ใน gameover screen — re-fetch หลังเล่นจบ',
+            'startGame() ใช้ DISPLAY_NAME_INIT จาก kampai init message แทน input',
+            'CSS: .leaderboard-box, .lb-avatar, .lb-entry-* สไตล์ neobrutalist ตามธีมเกม',
+        ],
+    },
+    {
+        version: 'v1.38.4 (Word-Shield — kampai postMessage + score tracking)',
+        date: '',
         badge: 'bg-green-600',
         items: [
             'เพิ่ม kampai postMessage integration ใน word-shield.html (เกมพิมพ์คำสกัดศัตรู)',
