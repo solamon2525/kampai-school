@@ -509,7 +509,10 @@ export const GamesTab = () => {
             )}
 
             <Dialog open={!!dialog} onOpenChange={(open) => !open && setDialog(null)}>
-                <DialogContent className={dialog?.mode === 'settings' ? 'max-w-md' : 'max-w-2xl'}>
+                <DialogContent className={cn(
+                    dialog?.mode === 'settings' ? 'max-w-md' : 'max-w-2xl',
+                    'overflow-y-auto max-h-[90vh]',
+                )}>
                     {dialog?.mode === 'create' && gamesCategoryId && (
                         <GameUploadDialog
                             mode="create"
