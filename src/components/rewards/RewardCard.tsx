@@ -72,21 +72,21 @@ export function RewardCard({ reward, onClaim }: RewardCardProps) {
         )}
 
         {/* Floating Teacher / Central Owner Capsule — bottom-right */}
-        <div className="absolute bottom-2.5 right-2.5 z-10 flex flex-col items-center gap-1.5 bg-white/95 backdrop-blur-md p-1.5 pb-2 rounded-xl border border-border/80 shadow-md transition-all duration-300 group-hover:translate-y-[-2px] group-hover:shadow-lg w-[84px]">
+        <div className="absolute bottom-2.5 right-2.5 z-10 flex flex-col items-center gap-1 sm:gap-1.5 bg-white/35 sm:bg-white/95 backdrop-blur-md p-1 pb-1.5 sm:p-1.5 sm:pb-2 rounded-xl border border-border/80 shadow-md transition-all duration-300 group-hover:translate-y-[-2px] group-hover:shadow-lg w-[50px] sm:w-[84px]">
           {isCentral ? (
             <>
               {settings.school_logo_url ? (
                 <img
                   src={settings.school_logo_url}
                   alt={settings.school_name || 'โลโก้โรงเรียน'}
-                  className="w-16 h-16 rounded-lg object-cover shadow-sm shrink-0 ring-1 ring-yellow-400/30"
+                  className="w-9 h-9 sm:w-16 sm:h-16 rounded-lg object-cover shadow-sm shrink-0 ring-1 ring-yellow-400/30"
                 />
               ) : (
-                <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center shadow-sm shrink-0">
-                  <Globe2 className="w-7 h-7 text-white animate-spin-slow" />
+                <div className="w-9 h-9 sm:w-16 sm:h-16 rounded-lg bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center shadow-sm shrink-0">
+                  <Globe2 className="w-4 h-4 sm:w-7 sm:h-7 text-white animate-spin-slow" />
                 </div>
               )}
-              <span className="text-[10px] font-bold text-sky-800 text-center leading-none mt-1">รางวัลกลาง</span>
+              <span className="hidden sm:block text-[10px] font-bold text-sky-800 text-center leading-none mt-1">รางวัลกลาง</span>
             </>
           ) : (
             <>
@@ -94,14 +94,14 @@ export function RewardCard({ reward, onClaim }: RewardCardProps) {
                 <img
                   src={ownerPhoto}
                   alt={ownerName || ''}
-                  className="w-16 h-16 rounded-lg object-cover shadow-sm shrink-0 ring-1 ring-emerald-500/10"
+                  className="w-9 h-9 sm:w-16 sm:h-16 rounded-lg object-cover shadow-sm shrink-0 ring-1 ring-emerald-500/10"
                 />
               ) : (
-                <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-sm shrink-0 text-white text-lg font-bold">
+                <div className="w-9 h-9 sm:w-16 sm:h-16 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-sm shrink-0 text-white text-lg font-bold">
                   {(ownerName || '?').slice(0, 1)}
                 </div>
               )}
-              <span className="text-[10px] font-extrabold text-slate-800 text-center truncate w-full px-0.5 leading-tight mt-0.5" title={`ครู${cleanThaiTitle(ownerName)}`}>
+              <span className="hidden sm:block text-[10px] font-extrabold text-slate-800 text-center truncate w-full px-0.5 leading-tight mt-0.5" title={`ครู${cleanThaiTitle(ownerName)}`}>
                 ครู{cleanThaiTitle(ownerName)}
               </span>
             </>

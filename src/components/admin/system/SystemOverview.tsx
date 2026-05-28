@@ -272,8 +272,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.39.1 (GamesTab — Developer Cheatsheet card)',
+        version: 'v1.39.2 (RewardCard — Mobile teacher photo fix)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'RewardCard: teacher photo capsule เล็กลงบนมือถือ (w-9 h-9 + container w-[50px]) — ไม่บังภาพสินค้า',
+            'Background โปร่งใส 35% บน mobile (bg-white/35) เทียบกับ 95% บน desktop — เห็นสินค้าชัดขึ้น',
+            'ซ่อนชื่อครู/รางวัลกลางบน mobile (hidden sm:block) — ลด visual noise',
+            'Desktop (sm+): ทุกอย่างเหมือนเดิม — ไม่กระทบ UX desktop',
+        ],
+    },
+    {
+        version: 'v1.39.1 (GamesTab — Developer Cheatsheet card)',
+        date: '',
         badge: 'bg-emerald-600',
         items: [
             'เพิ่มกล่อง "💡 คู่มือคำสั่งสำหรับ AI / นักพัฒนา" ด้านบนสุดของ GamesTab',
