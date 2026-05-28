@@ -65,26 +65,26 @@
     <div id="uiCursor2" class="hand-cursor hidden"><div id="icon2" class="drop-shadow-[0_0_15px_rgba(59,130,246,1)] scale-x-[-1]">👆</div></div>
 
     <!-- Title Screen -->
-    <div id="titleScreen" class="absolute inset-0 flex items-center justify-center bg-slate-900/80 backdrop-blur-md z-[60] flex-col transition-opacity duration-500">
-        <div class="text-center flex flex-col items-center px-10 py-16 glass-panel rounded-[3rem] w-11/12 max-w-4xl">
-            <div class="flex items-center gap-6 mb-4">
-                <span class="text-7xl">🔴</span><span class="text-8xl animate-bounce">🪢</span><span class="text-7xl">🔵</span>
+    <div id="titleScreen" class="absolute inset-0 overflow-y-auto flex items-start justify-center py-4 bg-slate-900/80 backdrop-blur-md z-[60] transition-opacity duration-500">
+        <div class="text-center flex flex-col items-center px-6 py-8 glass-panel rounded-[2rem] w-11/12 max-w-4xl my-auto">
+            <div class="flex items-center gap-4 mb-2">
+                <span class="text-5xl">🔴</span><span class="text-6xl animate-bounce">🪢</span><span class="text-5xl">🔵</span>
             </div>
-            <h1 class="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-yellow-400 to-blue-500 mb-2 drop-shadow-lg uppercase tracking-wider">Tug-of-War</h1>
-            <h2 class="text-4xl md:text-5xl text-white font-black mb-8 text-outline">ศึกชักเย่อคำศัพท์</h2>
+            <h1 class="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-yellow-400 to-blue-500 mb-1 drop-shadow-lg uppercase tracking-wider">Tug-of-War</h1>
+            <h2 class="text-2xl md:text-3xl text-white font-black mb-5 text-outline">ศึกชักเย่อคำศัพท์</h2>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full text-left mb-10">
-                <div class="bg-red-900/40 p-6 rounded-2xl border border-red-500/30">
-                    <h3 class="text-red-400 font-bold text-2xl mb-2 flex items-center gap-2"><span class="text-3xl">🤏</span> 1. โหมดสะกดคำ</h3>
-                    <p class="text-slate-200 text-lg">ใช้ท่า <b>"จีบนิ้ว"</b> หยิบตัวอักษรที่ขาดหายไปมาเติมในช่องว่างให้ถูกต้องและเร็วที่สุด!</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full text-left mb-6">
+                <div class="bg-red-900/40 p-4 rounded-2xl border border-red-500/30">
+                    <h3 class="text-red-400 font-bold text-lg mb-1 flex items-center gap-2"><span class="text-2xl">🤏</span> 1. โหมดสะกดคำ</h3>
+                    <p class="text-slate-200 text-sm">ใช้ท่า <b>"จีบนิ้ว"</b> หยิบตัวอักษรที่ขาดหายไปมาเติมในช่องว่างให้ถูกต้องและเร็วที่สุด!</p>
                 </div>
-                <div class="bg-blue-900/40 p-6 rounded-2xl border border-blue-500/30">
-                    <h3 class="text-blue-400 font-bold text-2xl mb-2 flex items-center gap-2"><span class="text-3xl">✊</span> 2. โหมดออกแรงดึง</h3>
-                    <p class="text-slate-200 text-lg">เมื่อตอบถูก ให้ทำท่า <b>"กำมือ สลับ แบมือ"</b> รัวๆ (Pump) เพื่อดึงเชือกข้ามฝั่งตัวเองให้ได้!</p>
+                <div class="bg-blue-900/40 p-4 rounded-2xl border border-blue-500/30">
+                    <h3 class="text-blue-400 font-bold text-lg mb-1 flex items-center gap-2"><span class="text-2xl">✊</span> 2. โหมดออกแรงดึง</h3>
+                    <p class="text-slate-200 text-sm">เมื่อตอบถูก ให้ทำท่า <b>"กำมือ สลับ แบมือ"</b> รัวๆ (Pump) เพื่อดึงเชือกข้ามฝั่งตัวเองให้ได้!</p>
                 </div>
             </div>
 
-            <button onclick="startGame()" class="btn-start px-20 py-5 bg-white rounded-full text-slate-900 font-black text-4xl transition-transform hover:scale-110 active:scale-95 cursor-pointer">
+            <button onclick="startGame()" class="btn-start px-14 py-4 bg-white rounded-full text-slate-900 font-black text-2xl transition-transform hover:scale-110 active:scale-95 cursor-pointer">
                 เริ่มประลอง! ⚔️
             </button>
         </div>
