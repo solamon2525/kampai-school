@@ -272,8 +272,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.38.5 (Word-Shield — Supabase leaderboard พร้อมรูปนักเรียน)',
+        version: 'v1.38.6 (PlayGame — Floating Exit Menu ระหว่างเล่นเกม)',
         date: 'ล่าสุด',
+        badge: 'bg-orange-600',
+        items: [
+            'เพิ่มปุ่ม "☰ เมนู" floating มุมบนขวาของ game container ปรากฏตลอดระหว่าง phase=playing',
+            'กดปุ่ม → AlertDialog "ออกจากเกม?" ถามยืนยัน',
+            'กด "เล่นต่อ" → ปิด dialog เล่นต่อได้ปกติ / กด "ออกจากเกม" → navigate /h/nattapong',
+            'ทำงานกับทุกเกมโดยไม่ต้องแก้ไฟล์ HTML เกมใดเลย',
+        ],
+    },
+    {
+        version: 'v1.38.5 (Word-Shield — Supabase leaderboard พร้อมรูปนักเรียน)',
+        date: '',
         badge: 'bg-teal-600',
         items: [
             'ลบ input ชื่อผู้เล่น (Player Name) ออกจาก start screen',

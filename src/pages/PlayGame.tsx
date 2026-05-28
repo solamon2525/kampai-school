@@ -10,6 +10,7 @@ import {
   Trophy,
   Lock,
   RotateCcw,
+  Menu,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -18,6 +19,16 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -56,6 +67,7 @@ const PlayGame = () => {
   const [lookupError, setLookupError] = useState<string | null>(null);
   const [result, setResult] = useState<RecordSessionResult | null>(null);
   const [prevLevel, setPrevLevel] = useState<LevelInfo | null>(null);
+  const [showExitMenu, setShowExitMenu] = useState(false);
 
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const sessionSubmittedRef = useRef(false);
@@ -342,7 +354,40 @@ const PlayGame = () => {
         )}
 
         {phase === 'playing' && iframeUrl && (
-          <PlayingPanel iframeRef={iframeRef} url={iframeUrl} onLoad={handleIframeLoad} />
+          <div className="relative">
+            <PlayingPanel iframeRef={iframeRef} url={iframeUrl} onLoad={handleIframeLoad} />
+
+            {/* Floating Exit Button — มุมบนขวาของ game container */}
+            <button
+              onClick={() => setShowExitMenu(true)}
+              className="absolute top-3 right-3 z-10 flex items-center gap-1.5 rounded-full bg-black/50 px-3 py-1.5 text-sm font-medium text-white backdrop-blur-sm hover:bg-black/70 transition-colors"
+              title="เมนู / ออกจากเกม"
+            >
+              <Menu className="h-4 w-4" />
+              <span className="hidden sm:inline">เมนู</span>
+            </button>
+
+            {/* Exit Confirmation Dialog */}
+            <AlertDialog open={showExitMenu} onOpenChange={setShowExitMenu}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>ออกจากเกม?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    คะแนนในรอบนี้จะไม่ถูกบันทึก ต้องการกลับไปหน้าเลือกเกมใช่ไหม?
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>เล่นต่อ</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => navigate('/h/nattapong')}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    ออกจากเกม
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         )}
 
         {phase === 'result' && student && result && (
