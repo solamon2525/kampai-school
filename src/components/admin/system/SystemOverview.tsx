@@ -272,8 +272,20 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.39.4 (EducationalHubTeacher — Hero Bar Chart)',
+        version: 'v1.39.5 (EducationalHubTeacher — Rule 14.11 fix)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'หน้า /h/:identifier: ทำตาม DESIGN.md Rule 14.11 — wrap content ใน max-w-7xl mx-auto',
+            'ลบ container mx-auto max-w-6xl ออกจาก hero + category sections (ละเมิด rule)',
+            'CategoryChipStrip: ลบ -mx-4 hack + ลบ container mx-auto max-w-6xl inner',
+            'Bar chart กลับมาใช้ ResponsiveContainer ได้ตามปกติ — root cause fix',
+            'ขอบเนื้อหาตรงแนวเดียวกับ SiteHeader ที่ทุก viewport — ไม่ล้นซ้าย/ขวา',
+        ],
+    },
+    {
+        version: 'v1.39.4 (EducationalHubTeacher — Hero Bar Chart)',
+        date: '',
         badge: 'bg-emerald-600',
         items: [
             'หน้า /h/:identifier: เพิ่ม horizontal bar chart แสดง content breakdown แต่ละหมวดในพื้นที่ด้านขวาของ hero',

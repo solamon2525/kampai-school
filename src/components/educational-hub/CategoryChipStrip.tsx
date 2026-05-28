@@ -41,8 +41,8 @@ export const CategoryChipStrip = ({ categories, counts }: Props) => {
     if (categories.length === 0) return null;
 
     return (
-        <div className="sticky top-16 z-30 -mx-4 px-4 py-2 bg-background/90 backdrop-blur border-b border-border">
-            <div className="container mx-auto max-w-6xl overflow-x-auto scrollbar-none">
+        <div className="sticky top-16 z-30 px-4 py-2 bg-background/90 backdrop-blur border-b border-border">
+            <div className="overflow-x-auto scrollbar-none">
                 <div className="flex gap-2 min-w-max">
                     {categories.map((c) => {
                         const Icon =

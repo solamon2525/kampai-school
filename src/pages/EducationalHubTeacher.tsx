@@ -4,6 +4,7 @@ import {
     Bar,
     XAxis,
     YAxis,
+    ResponsiveContainer,
     Tooltip,
 } from 'recharts';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
@@ -243,7 +244,8 @@ const EducationalHubTeacher = () => {
             />
             <SiteHeader />
 
-            <main className="flex-1">
+            <main className="flex-1 flex flex-col">
+              <div className="max-w-7xl mx-auto w-full flex-grow flex flex-col">
                 {/* Hero */}
                 <section
                     className="relative border-b border-border"
@@ -264,7 +266,7 @@ const EducationalHubTeacher = () => {
                                 : 'bg-gradient-to-br from-primary/10 via-accent/5 to-background text-foreground'
                         }
                     >
-                        <div className="container mx-auto px-4 py-3 sm:py-5 max-w-6xl">
+                        <div className="px-4 py-3 sm:py-5">
                             <Button
                                 asChild
                                 variant={teacher.banner_url ? 'secondary' : 'ghost'}
@@ -333,17 +335,16 @@ const EducationalHubTeacher = () => {
 
                                 {/* Content breakdown bar chart — desktop only */}
                                 {chartData.length > 0 && (
-                                    <div className="hidden md:flex flex-col justify-center shrink-0 w-52 h-32 ml-auto overflow-hidden">
+                                    <div className="hidden md:flex flex-col justify-center shrink-0 w-52 h-32 ml-auto">
                                         <p className={`text-[10px] font-medium mb-1 ${teacher.banner_url ? 'text-white/70' : 'text-muted-foreground'}`}>
                                             เนื้อหาทั้งหมด
                                         </p>
-                                        <BarChart
-                                            width={200}
-                                            height={112}
+                                        <ResponsiveContainer width="100%" height="100%">
+                                          <BarChart
                                             layout="vertical"
                                             data={chartData}
                                             margin={{ top: 2, right: 4, bottom: 2, left: 0 }}
-                                        >
+                                          >
                                             <XAxis type="number" hide />
                                             <YAxis
                                                 type="category"
@@ -375,7 +376,8 @@ const EducationalHubTeacher = () => {
                                                     fill: 'white',
                                                 }}
                                             />
-                                        </BarChart>
+                                          </BarChart>
+                                        </ResponsiveContainer>
                                     </div>
                                 )}
                             </div>
@@ -390,7 +392,7 @@ const EducationalHubTeacher = () => {
                 />
 
                 {/* Category sections */}
-                <div className="container mx-auto px-4 py-10 max-w-6xl space-y-6">
+                <div className="px-4 py-10 space-y-6">
                     {loadingItems ? (
                         <div className="text-center text-muted-foreground py-20">กำลังโหลดรายการ...</div>
                     ) : !categories || categories.length === 0 ? (
@@ -467,6 +469,7 @@ const EducationalHubTeacher = () => {
                         </>
                     )}
                 </div>
+              </div>
             </main>
 
             <Footer />
