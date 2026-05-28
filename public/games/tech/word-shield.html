@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Word Shield - โล่คำศัพท์พิทักษ์โลก</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Mitr:wght@400;500;600&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cyan: #B2F0F0;
+            --magenta: #FF66FF;
+            --yellow: #FFF380;
+            --lime: #32CD32;
+            --purple: #9D00FF;
+            --black: #1A1A1A;
+            --white: #FFFFFF;
+            --border-width: 4px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Mitr', sans-serif;
+        }
+
+        body {
+            background-color: var(--black);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            color: var(--black);
+        }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 100vh;
+            max-height: 900px;
+            background-color: var(--cyan);
+            background-image: 
+                linear-gradient(rgba(0, 0, 0, 0.05) 2px, transparent 2px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.05) 2px, transparent 2px);
+            background-size: 40px 40px;
+            border: var(--border-width) solid var(--black);
+            box-shadow: 8px 8px 0px rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Dashboard */
+        #dashboard {
+            background-color: var(--yellow);
+            border-bottom: var(--border-width) solid var(--black);
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1rem;
+            font-weight: 600;
+            z-index: 10;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .stat-box {
+            background-color: var(--white);
+            border: 3px solid var(--black);
+            border-radius: 8px;
+            padding: 4px 10px;
+            box-shadow: 2px 2px 0px var(--black);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        #lives-display { color: #FF0055; letter-spacing: 2px; }
+        #timer-display { color: var(--purple); display: none; }
+        
+        #mute-btn {
+            background-color: var(--white);
+            border: 3px solid var(--black);
+            border-radius: 8px;
+            padding: 4px 8px;
+            cursor: pointer;
+            box-shadow: 2px 2px 0px var(--black);
+            font-size: 1.1rem;
+            transition: transform 0.1s;
+        }
+        #mute-btn:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px var(--black); }
+
+        /* Play Area */
+        #play-area { 
+            flex-grow: 1; 
+            position: relative; 
+            overflow: hidden; 
+            transition: background-color 0.1s;
+        }
+        #laser-canvas { 
+            position: absolute; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            pointer-events: none; 
+            z-index: 5; 
+        }
+
+        /* Input Area */
+        #input-area {
+            background-color: var(--magenta);
+            border-top: var(--border-width) solid var(--black);
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        #word-input {
+            width: 100%;
+            max-width: 500px;
+            font-size: 2rem;
+            font-family: 'Nunito', 'Mitr', sans-serif;
+            font-weight: 800;
+            text-align: center;
+            padding: 10px 20px;
+            border: var(--border-width) solid var(--black);
+            border-radius: 12px;
+            box-shadow: 4px 4px 0px var(--black);
+            outline: none;
+            transition: transform 0.1s, border-color 0.1s;
+        }
+        #word-input:focus { transform: scale(1.02); border-color: var(--lime); }
+        #word-input:disabled { background-color: #eee; cursor: not-allowed; }
+
+        /* Enemy Styling */
+        .enemy {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform: translateX(-50%);
+            z-index: 4;
+            will-change: top;
+        }
+
+        .enemy-sprite {
+            width: 40px; height: 40px; 
+            background-color: var(--purple);
+            border: 3px solid var(--black); 
+            border-radius: 10px;
+            box-shadow: 3px 3px 0px var(--black); 
+            margin-bottom: 5px; 
+            position: relative;
+        }
+        .enemy-sprite::before, .enemy-sprite::after {
+            content: ''; position: absolute; background-color: var(--white);
+            width: 8px; height: 8px; border-radius: 50%; top: 10px;
+        }
+        .enemy-sprite::before { left: 6px; }
+        .enemy-sprite::after { right: 6px; }
+
+        .enemy-word {
+            background-color: var(--white); 
+            padding: 6px 16px;
+            border: 3px solid var(--black); 
+            border-radius: 20px;
+            font-size: 1.3rem; font-weight: bold;
+            box-shadow: 2px 2px 0px var(--black); 
+            white-space: nowrap;
+        }
+        .font-eng { font-family: 'Nunito', 'Mitr', sans-serif; font-weight: 800; }
+        .font-th { font-family: 'Mitr', sans-serif; font-weight: 500; }
+
+        /* Items & Effects */
+        .enemy-bonus .enemy-sprite { background-color: #FFD700; border-color: #FF4500; animation: pulse-gold 1s infinite alternate; }
+        .enemy-bonus .enemy-word { color: #D2691E; border-color: #FFD700; box-shadow: 2px 2px 0px #FF4500; }
+        @keyframes pulse-gold { from { box-shadow: 0 0 5px #FFD700; } to { box-shadow: 0 0 20px #FFD700, inset 0 0 10px #FFD700; } }
+        
+        #item-container { position: absolute; top: -50px; left: 50%; transform: translateX(-50%); background: var(--white); border: 3px solid var(--black); border-radius: 12px; padding: 5px 15px; display: flex; align-items: center; gap: 10px; font-weight: bold; box-shadow: 3px 3px 0px var(--black); transition: all 0.2s; opacity: 0; pointer-events: none; }
+        #item-container.has-item { opacity: 1; top: -45px; pointer-events: auto; }
+        .item-key { background: var(--black); color: var(--white); padding: 2px 8px; border-radius: 6px; font-size: 0.8rem; }
+        
+        .bg-frozen { background-color: #E0FFFF !important; }
+        .bg-flash { background-color: #FFFFFF !important; transition: background-color 0.1s; }
+
+        /* Overlays */
+        .overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(178, 240, 240, 0.98);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 100; text-align: center; padding: 15px; overflow-y: auto;
+        }
+        .hidden { display: none !important; }
+
+        .logo {
+            font-family: 'Fredoka One', cursive, sans-serif; 
+            font-size: 3.5rem;
+            color: var(--yellow); 
+            line-height: 1.1;
+            text-shadow: -3px -3px 0 var(--black), 3px -3px 0 var(--black), -3px 3px 0 var(--black), 3px 3px 0 var(--black), 6px 6px 0 var(--black);
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem; background-color: var(--magenta); color: var(--white);
+            padding: 4px 20px; border: 3px solid var(--black); border-radius: 25px;
+            margin-bottom: 20px; box-shadow: 4px 4px 0px var(--black);
+        }
+
+        .settings-box {
+            background-color: var(--white); border: 3px solid var(--black);
+            border-radius: 12px; padding: 15px; margin-bottom: 15px;
+            box-shadow: 4px 4px 0px var(--black); width: 100%;
+            max-width: 420px;
+        }
+
+        .settings-title { font-weight: 600; margin-bottom: 10px; font-size: 1.05rem; color: var(--black); text-align: left;}
+
+        .difficulty-options { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 5px; margin-bottom: 15px; }
+
+        .diff-btn {
+            flex: 1;
+            background-color: #f0f0f0; border: 2px solid var(--black);
+            padding: 8px 5px; border-radius: 8px; cursor: pointer;
+            font-family: 'Mitr', sans-serif; font-weight: 600; transition: all 0.1s; font-size: 0.9rem;
+        }
+        .diff-btn.selected { background-color: var(--yellow); box-shadow: 3px 3px 0px var(--black); transform: translate(-2px, -2px); }
+
+        .input-text {
+            width: 100%; padding: 10px; border: 2px solid var(--black);
+            border-radius: 8px; font-family: 'Mitr', sans-serif;
+            font-size: 1.1rem; text-align: center; margin-bottom: 15px; outline: none;
+        }
+        .input-text:focus { border-color: var(--purple); }
+        .input-text.fredoka { font-family: 'Fredoka One', 'Mitr', sans-serif; }
+
+        .flex-row { display: flex; gap: 8px; width: 100%; }
+
+        .btn {
+            background-color: var(--lime); color: var(--black);
+            font-family: 'Fredoka One', cursive, sans-serif; font-size: 1.6rem;
+            padding: 12px 20px; border: var(--border-width) solid var(--black);
+            border-radius: 15px; cursor: pointer; box-shadow: 4px 4px 0px var(--black);
+            transition: all 0.1s; margin-bottom: 10px; width: 100%; max-width: 420px;
+            display: flex; justify-content: center; align-items: center; gap: 10px;
+        }
+        .btn:active { transform: translate(4px, 4px); box-shadow: 0px 0px 0px var(--black); }
+        .btn-daily { background-color: var(--purple); color: var(--white); font-size: 1.2rem; }
+        .btn-half { flex: 1; font-size: 1.1rem; padding: 10px; margin-bottom: 0; font-family: 'Mitr', sans-serif; font-weight: 600;}
+
+        /* Vocabulary Screen */
+        .vocab-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 10px; overflow-y: auto; padding: 10px; background: #FAFAFA;
+            border: 3px solid var(--black); border-radius: 10px; margin-bottom: 15px; 
+            max-height: 50vh;
+        }
+        .vocab-item {
+            background: var(--white); border: 2px solid var(--black); padding: 8px;
+            border-radius: 8px; text-align: center; display: flex; flex-direction: column;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.05);
+        }
+        .vocab-word { font-family: 'Nunito', 'Mitr', sans-serif; font-weight: 800; color: var(--purple); font-size: 1.15rem; }
+        .vocab-mean { font-size: 0.95rem; color: #444; }
+
+        /* Effects */
+        .explosion {
+            position: absolute; font-size: 2rem; font-family: 'Fredoka One', cursive; color: var(--yellow);
+            text-shadow: 3px 3px 0 var(--black); pointer-events: none; 
+            animation: pop 0.4s ease-out forwards; z-index: 6;
+            transform: translate(-50%, -50%);
+        }
+        @keyframes pop {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+            50% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+        }
+
+        /* Leaderboard */
+        .tabs { display: flex; gap: 5px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
+        .tab-btn {
+            flex: 1; padding: 6px 10px; background: #EEE; border: 2px solid var(--black);
+            border-radius: 8px; cursor: pointer; font-size: 0.85rem; white-space: nowrap; transition: all 0.1s; font-weight: 600;
+        }
+        .tab-btn.active { background: var(--yellow); box-shadow: 2px 2px 0px var(--black); transform: translateY(-2px); }
+        .score-row { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px dashed #CCC; font-size: 0.95rem;}
+        .score-row:nth-child(1) .rank { font-weight: bold; color: #D4AF37; font-size: 1.2rem; }
+        .score-row:nth-child(2) .rank { font-weight: bold; color: #C0C0C0; font-size: 1.1rem; }
+        .score-row:nth-child(3) .rank { font-weight: bold; color: #CD7F32; font-size: 1.05rem; }
+        .score-row .score-val { font-weight: bold; color: var(--purple); font-size: 1.1rem; }
+
+        /* Responsive Adjustments */
+        @media (max-width: 600px) {
+            .logo { font-size: 2.8rem; }
+            #dashboard { font-size: 0.85rem; justify-content: center; }
+            .stat-box { padding: 4px 8px; }
+            #word-input { font-size: 1.6rem; }
+            .btn { font-size: 1.3rem; }
+            .enemy-word { font-size: 1rem; }
+            .settings-box { padding: 12px; }
+        }
+        @media (max-height: 700px) {
+            .logo { font-size: 2.2rem; margin-bottom: 0; }
+            .subtitle { margin-bottom: 10px; font-size: 1rem; padding: 2px 15px;}
+            .settings-box { margin-bottom: 10px; padding: 10px;}
+            .settings-title { margin-bottom: 5px; font-size: 0.95rem; }
+            .input-text { margin-bottom: 10px; padding: 6px; }
+            .btn { padding: 8px 15px; font-size: 1.2rem; margin-bottom: 8px;}
+            .vocab-grid { max-height: 40vh; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <!-- Header / Stats -->
+    <header id="dashboard">
+        <button id="mute-btn">🔊</button>
+        <div class="stat-box">โหมด: <span id="mode-display">ปกติ</span></div>
+        <div class="stat-box" id="level-container">เลเวล: <span id="level-display">1</span></div>
+        <div class="stat-box hidden" id="timer-display">เวลา: <span id="time-left">60</span>s</div>
+        <div class="stat-box">WPM: <span id="wpm-display">0</span></div>
+        <div class="stat-box">คะแนน: <span id="score-display">0</span></div>
+        <div class="stat-box" id="lives-display">❤️❤️❤️❤️❤️</div>
+    </header>
+
+    <!-- Game Canvas -->
+    <div id="play-area">
+        <canvas id="laser-canvas"></canvas>
+    </div>
+
+    <!-- User Input -->
+    <div id="input-area" style="position: relative;">
+        <div id="item-container">
+            <span id="item-icon">📦</span>
+            <span id="item-name">ไม่มีไอเทม</span>
+            <span class="item-key">Spacebar</span>
+        </div>
+        <input type="text" id="word-input" autocomplete="off" placeholder="พิมพ์ที่นี่..." disabled>
+    </div>
+
+    <!-- === SCREENS === -->
+
+    <!-- 1. Start Screen -->
+    <div id="start-screen" class="overlay">
+        <div class="logo">WORD<br>SHIELD</div>
+        <div class="subtitle">โล่คำศัพท์พิทักษ์โลก</div>
+        
+        <div class="settings-box">
+            <div class="settings-title">ชื่อผู้เล่น (Player Name)</div>
+            <input type="text" id="player-name" class="input-text fredoka" placeholder="ใส่ชื่อของคุณ..." maxlength="15">
+
+            <div class="settings-title">เลือกระดับความยาก</div>
+            <div class="difficulty-options">
+                <button class="diff-btn" data-diff="very-easy">ง่ายมาก</button>
+                <button class="diff-btn" data-diff="easy">ง่าย</button>
+                <button class="diff-btn selected" data-diff="medium">ปานกลาง</button>
+                <button class="diff-btn" data-diff="hard">ยาก</button>
+            </div>
+            
+            <div class="settings-title">หมวดหมู่และรูปแบบ</div>
+            <div class="flex-row">
+                <select id="category-select" class="diff-btn" style="text-align: center; height: 38px;">
+                    <option value="all">รวมทุกหมวด</option>
+                </select>
+                <select id="play-mode-select" class="diff-btn" style="text-align: center; height: 38px;">
+                    <option value="en-en">Eng ➜ Eng</option>
+                    <option value="th-en">Thai ➜ Eng</option>
+                    <option value="en-th">Eng ➜ Thai</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="btn" id="start-btn">▶ เริ่มเล่น!</button>
+        
+        <div class="flex-row" style="max-width: 420px; margin-bottom: 10px;">
+            <button class="btn btn-half" id="vocab-btn" style="background-color: #80E0FF;">📖 สมุดคำศัพท์</button>
+            <button class="btn btn-half" id="leaderboard-btn" style="background-color: #FFD700;">🏆 ตารางคะแนน</button>
+        </div>
+        
+        <button class="btn btn-daily" id="daily-btn">⭐ ชาเลนจ์ประจำวัน (Daily) ⭐</button>
+    </div>
+
+    <!-- 2. Leaderboard Screen -->
+    <div id="leaderboard-screen" class="overlay hidden">
+        <div class="logo" style="font-size: 2.2rem; color: #FFD700; text-shadow: 2px 2px 0 var(--black);">ตารางคะแนน</div>
+        <div class="settings-box" style="max-width: 500px; padding: 15px;">
+            <div class="tabs" id="leaderboard-tabs">
+                <button class="tab-btn" data-tab="very-easy">ง่ายมาก</button>
+                <button class="tab-btn" data-tab="easy">ง่าย</button>
+                <button class="tab-btn active" data-tab="medium">ปานกลาง</button>
+                <button class="tab-btn" data-tab="hard">ยาก</button>
+                <button class="tab-btn" data-tab="daily" style="background-color: #E6E6FA;">Daily</button>
+            </div>
+            <div id="leaderboard-content" style="text-align: left; height: 40vh; overflow-y: auto; background: #FAFAFA; border: 2px solid #DDD; border-radius: 8px;">
+                <div style="text-align:center; padding: 20px; color: #888;">กำลังโหลดข้อมูล...</div>
+            </div>
+            <button class="btn" id="close-leaderboard-btn" style="margin-top: 15px; margin-bottom: 0; font-size: 1.2rem; background-color: var(--cyan);">ย้อนกลับ</button>
+        </div>
+    </div>
+
+    <!-- 3. Vocab Screen -->
+    <div id="vocab-screen" class="overlay hidden">
+        <div class="logo" style="font-size: 2.2rem; color: var(--magenta);">สมุดคำศัพท์</div>
+        <div class="settings-box" style="max-width: 600px; display: flex; flex-direction: column;">
+            <div class="vocab-grid" id="vocab-list"></div>
+            <button class="btn" id="close-vocab-btn" style="margin-bottom: 0; font-size: 1.2rem; background-color: var(--cyan);">ย้อนกลับ</button>
+        </div>
+    </div>
+
+    <!-- 4. Game Over Screen -->
+    <div id="game-over-screen" class="overlay hidden">
+        <div class="logo" style="color: var(--magenta); font-size: 3rem;">GAME OVER</div>
+        <div class="subtitle" style="background-color: var(--yellow); color: var(--black);" id="end-title">จบเกม!</div>
+        
+        <div class="settings-box" style="text-align: center; font-size: 1.1rem; margin-bottom: 10px;">
+            ผู้เล่น: <strong id="final-player-name" style="color: var(--black);"></strong><br>
+            คะแนน: <strong id="final-score" style="color: var(--purple); font-size: 1.8rem;">0</strong><br>
+            ความเร็ว (WPM): <strong id="final-wpm">0</strong>
+        </div>
+        
+        <div class="settings-box" style="text-align: left; font-size: 1rem; margin-bottom: 15px;">
+            <div style="text-align: center; font-weight: bold; margin-bottom: 5px; color: var(--purple); border-bottom: 2px solid #EEE; padding-bottom: 5px;">📊 วิเคราะห์จุดอ่อน</div>
+            <div style="margin-bottom: 5px;">⏱️ พิมพ์ช้าสุด: <strong id="analysis-slowest" style="color: var(--magenta);">-</strong></div>
+            <div>💀 พลาดบ่อยสุด: <strong id="analysis-missed" style="color: var(--magenta);">-</strong></div>
+        </div>
+        
+        <button class="btn" id="restart-btn">🏠 กลับหน้าหลัก</button>
+    </div>
+
+</div>
+
+<!-- Firebase & Game Logic Script -->
+<script type="module">
+    // ─── kampai-school integration ────────────────────────────────────────────
+    const IS_EMBED = window.self !== window.top ||
+                     new URLSearchParams(location.search).get('embed') === '1';
+    let STUDENT_CODE = null;
+    let DISPLAY_NAME_INIT = '';
+    let SESSION_START_TS = Date.now();
+    const GAME_SLUG = 'word-shield';
+
+    if (IS_EMBED) {
+        window.addEventListener('message', (e) => {
+            if (e?.data?.type === 'init' && typeof e.data.studentCode === 'string') {
+                STUDENT_CODE = e.data.studentCode;
+                if (e.data.displayName) DISPLAY_NAME_INIT = e.data.displayName;
+                SESSION_START_TS = Date.now();
+            }
+        });
+    }
+
+    function sendGameEnd(finalScore, mode, extra) {
+        if (!IS_EMBED || !STUDENT_CODE) return;
+        try {
+            window.parent.postMessage({
+                type: 'gameEnd',
+                gameSlug: GAME_SLUG,
+                studentCode: STUDENT_CODE,
+                score: Math.round(finalScore),
+                mode: mode,
+                metadata: {
+                    duration: Math.max(1, Math.floor((Date.now() - SESSION_START_TS) / 1000)),
+                    ...extra,
+                },
+            }, '*');
+        } catch (_) {}
+    }
+
+    function navigateBack() {
+        if (IS_EMBED) {
+            try { window.parent.postMessage({ type: 'navigate', to: '/h/nattapong' }, '*'); } catch (_) {}
+        }
+    }
+    // ─────────────────────────────────────────────────────────────────────────
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // ==========================================
+    // 1. Vocabulary Database
+    // ==========================================
+    const wordCategories = {
+        animal: { name: "สัตว์", words: [{w: "cat", m: "แมว"}, {w: "dog", m: "หมา"}, {w: "pig", m: "หมู"}, {w: "cow", m: "วัว"}, {w: "rat", m: "หนู"}, {w: "ant", m: "มด"}, {w: "bee", m: "ผึ้ง"}, {w: "fox", m: "จิ้งจอก"}, {w: "bear", m: "หมี"}, {w: "lion", m: "สิงโต"}, {w: "fish", m: "ปลา"}, {w: "bird", m: "นก"}] },
+        color: { name: "สี", words: [{w: "red", m: "สีแดง"}, {w: "blue", m: "สีน้ำเงิน"}, {w: "green", m: "สีเขียว"}, {w: "pink", m: "สีชมพู"}, {w: "black", m: "สีดำ"}, {w: "white", m: "สีขาว"}] },
+        number: { name: "ตัวเลข", words: [{w: "zero", m: "ศูนย์"}, {w: "one", m: "หนึ่ง"}, {w: "two", m: "สอง"}, {w: "three", m: "สาม"}, {w: "four", m: "สี่"}, {w: "five", m: "ห้า"}] },
+        body: { name: "ร่างกาย", words: [{w: "eye", m: "ตา"}, {w: "ear", m: "หู"}, {w: "nose", m: "จมูก"}, {w: "arm", m: "แขน"}, {w: "leg", m: "ขา"}, {w: "foot", m: "เท้า"}] },
+        food: { name: "อาหาร", words: [{w: "egg", m: "ไข่"}, {w: "milk", m: "นม"}, {w: "rice", m: "ข้าว"}, {w: "cake", m: "เค้ก"}, {w: "soup", m: "ซุป"}, {w: "ice", m: "น้ำแข็ง"}] },
+        fruit: { name: "ผลไม้", words: [{w: "apple", m: "แอปเปิ้ล"}, {w: "banana", m: "กล้วย"}, {w: "mango", m: "มะม่วง"}, {w: "melon", m: "เมล่อน"}, {w: "lemon", m: "มะนาว"}] },
+        house: { name: "ของใช้", words: [{w: "door", m: "ประตู"}, {w: "bed", m: "เตียง"}, {w: "lamp", m: "โคมไฟ"}, {w: "box", m: "กล่อง"}, {w: "clock", m: "นาฬิกา"}] },
+        nature: { name: "ธรรมชาติ", words: [{w: "sun", m: "พระอาทิตย์"}, {w: "moon", m: "พระจันทร์"}, {w: "star", m: "ดาว"}, {w: "sky", m: "ฟ้า"}, {w: "tree", m: "ต้นไม้"}] }
+    };
+    
+    const wordList = [];
+    for (const catId in wordCategories) { 
+        wordCategories[catId].words.forEach(item => wordList.push({ ...item, c: catId })); 
+        // Populate Select UI
+        const option = document.createElement('option'); 
+        option.value = catId; 
+        option.innerText = wordCategories[catId].name;
+        document.getElementById('category-select').appendChild(option);
+    }
+
+    // Populate Vocab Screen
+    const vocabListContainer = document.getElementById('vocab-list');
+    const sortedList = [...wordList].sort((a, b) => a.w.localeCompare(b.w));
+    sortedList.forEach(item => {
+        const div = document.createElement('div'); div.className = 'vocab-item';
+        div.innerHTML = `<span class="vocab-word">${item.w}</span><span class="vocab-mean">${item.m}</span>`;
+        vocabListContainer.appendChild(div);
+    });
+
+    // ==========================================
+    // 2. Audio System (Web Audio API)
+    // ==========================================
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let isMuted = false;
+    let bgmInterval = null;
+
+    const Sound = {
+        init: () => { if (audioCtx.state === 'suspended') audioCtx.resume(); },
+        toggleMute: () => {
+            isMuted = !isMuted;
+            document.getElementById('mute-btn').innerText = isMuted ? '🔇' : '🔊';
+            if(isMuted) Sound.stopBGM(); else if(GameState.isPlaying) Sound.startBGM();
+        },
+        playTone: (freq, type, duration, vol=0.1) => {
+            if (isMuted) return;
+            try {
+                const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+                osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(); osc.stop(audioCtx.currentTime + duration);
+            } catch(e){}
+        },
+        type: () => Sound.playTone(800, 'square', 0.05, 0.03),
+        shootLaser: () => {
+            if (isMuted) return;
+            try {
+                const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.15);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+            } catch(e){}
+        },
+        explosion: () => {
+            if (isMuted) return;
+            try {
+                const dur = 0.3; const bufferSize = audioCtx.sampleRate * dur;
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+                const noise = audioCtx.createBufferSource(); noise.buffer = buffer;
+                const filter = audioCtx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 1000;
+                const gain = audioCtx.createGain(); gain.gain.setValueAtTime(0.3, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + dur);
+                noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination); noise.start();
+            } catch(e){}
+        },
+        error: () => Sound.playTone(150, 'sawtooth', 0.3, 0.2),
+        itemGet: () => {
+            if (isMuted) return;
+            try { Sound.playTone(400, 'square', 0.1, 0.05); setTimeout(() => Sound.playTone(600, 'square', 0.1, 0.05), 100); } catch(e){}
+        },
+        useBomb: () => {
+            if (isMuted) return;
+            try {
+                const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.5);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+            } catch(e){}
+        },
+        useFreeze: () => {
+            if (isMuted) return;
+            try {
+                const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+                osc.type = 'sine'; osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(1500, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
+                osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+            } catch(e){}
+        },
+        useHeal: () => {
+            if (isMuted) return;
+            try { Sound.playTone(523.25, 'triangle', 0.15, 0.1); setTimeout(() => Sound.playTone(659.25, 'triangle', 0.3, 0.1), 150); } catch(e){}
+        },
+        startBGM: () => {
+            if (isMuted || bgmInterval) return;
+            const notes = [261.63, 329.63, 392.00, 523.25]; let noteIdx = 0;
+            bgmInterval = setInterval(() => { Sound.playTone(notes[noteIdx % notes.length] / 2, 'triangle', 0.4, 0.03); noteIdx++; }, 600);
+        },
+        stopBGM: () => { clearInterval(bgmInterval); bgmInterval = null; }
+    };
+    document.getElementById('mute-btn').addEventListener('click', Sound.toggleMute);
+
+    // ==========================================
+    // 3. Game State & Logic
+    // ==========================================
+    const ItemTypes = [
+        { id: 'bomb', icon: '💣', name: 'ล้างบาง', desc: 'ระเบิดศัตรูทั้งหมด' },
+        { id: 'freeze', icon: '❄️', name: 'แช่แข็ง', desc: 'หยุดเวลา 4 วิ' },
+        { id: 'heal', icon: '❤️', name: 'ฮีล', desc: 'เพิ่ม 1 ชีวิต' }
+    ];
+
+    const GameState = {
+        isPlaying: false, score: 0, lives: 5, level: 1, wordsTyped: 0,
+        startTime: 0, lastTime: 0, wpm: 0, dailyTimeLeft: 60,
+        difficulty: 'medium', gameMode: 'normal',
+        fallSpeed: 30, spawnInterval: 4000, baseSpawnInterval: 4000, spawnTimer: 0,
+        enemies: [], activeLasers: [], enemyIdCounter: 0,
+        currentCategory: 'all', playMode: 'en-en', activeWordList: [],
+        missedWords: {}, typingTimes: [], playerName: "นิรนาม",
+        heldItem: null, isFrozen: false, freezeTimer: null
+    };
+
+    // DOM Elements
+    const playArea = document.getElementById('play-area');
+    const wordInput = document.getElementById('word-input');
+    const laserCanvas = document.getElementById('laser-canvas');
+    const ctx = laserCanvas.getContext('2d');
+    
+    function resizeCanvas() { 
+        laserCanvas.width = playArea.clientWidth; 
+        laserCanvas.height = playArea.clientHeight; 
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function applySettings() {
+        // เพิ่มเวลาหน่วงเริ่มต้นเป็น 2 เท่า เพื่อให้ช่วงแรกลดจำนวนคำลง 50%
+        const diffParams = {
+            'very-easy': { speed: 15, spawn: 6400 },
+            'easy': { speed: 22, spawn: 5600 },
+            'medium': { speed: 35, spawn: 4000 },
+            'hard': { speed: 55, spawn: 2400 }
+        };
+        const setting = diffParams[GameState.difficulty];
+        GameState.fallSpeed = setting.speed;
+        GameState.spawnInterval = setting.spawn;
+        GameState.baseSpawnInterval = setting.spawn; // เก็บค่าเริ่มต้นไว้เพื่อคำนวณเปอร์เซ็นต์
+    }
+
+    function spawnEnemy() {
+        const vocabItem = GameState.activeWordList[Math.floor(Math.random() * GameState.activeWordList.length)];
+        const word = vocabItem.w; 
+        
+        const enemyDiv = document.createElement('div'); 
+        enemyDiv.className = 'enemy';
+        
+        const spriteDiv = document.createElement('div'); 
+        spriteDiv.className = 'enemy-sprite';
+        
+        const wordDiv = document.createElement('div'); 
+        wordDiv.className = 'enemy-word';
+        
+        let displayWord = ''; 
+        let targetWord = '';
+        
+        const isBonus = Math.random() < 0.10; // โอกาส 10% ที่จะเป็นตัวดรอปไอเทม
+        let itemDrop = isBonus ? ItemTypes[Math.floor(Math.random() * ItemTypes.length)] : null;
+        
+        if (GameState.playMode === 'th-en') { 
+            displayWord = vocabItem.m; 
+            targetWord = word; 
+            wordDiv.classList.add('font-th'); 
+        } else if (GameState.playMode === 'en-th') { 
+            displayWord = word; 
+            // Extract core Thai meaning (e.g. "แอปเปิ้ล" from "แอปเปิ้ล(ผลไม้)")
+            targetWord = vocabItem.m.split('/')[0].split('(')[0].trim(); 
+            wordDiv.classList.add('font-eng'); 
+        } else { 
+            displayWord = word; 
+            targetWord = word; 
+            wordDiv.classList.add('font-eng'); 
+        }
+        
+        if (isBonus) {
+            enemyDiv.classList.add('enemy-bonus');
+            displayWord = `${itemDrop.icon} ${displayWord}`;
+        }
+        
+        wordDiv.innerText = displayWord;
+        enemyDiv.appendChild(spriteDiv); 
+        enemyDiv.appendChild(wordDiv); 
+        playArea.appendChild(enemyDiv);
+        
+        // Random X position with Anti-Overlap logic
+        let startX;
+        let attempts = 0;
+        let isOverlapping;
+        do {
+            // สุ่มตำแหน่ง X (เผื่อระยะขอบไม่ให้ตกจอ)
+            startX = Math.random() * (playArea.clientWidth - 140) + 70; 
+            isOverlapping = false;
+            
+            // เช็คว่ามีคำที่เพิ่งเกิดอยู่ในระยะใกล้ๆ หรือไม่
+            for (let i = 0; i < GameState.enemies.length; i++) {
+                let existing = GameState.enemies[i];
+                // ถ้ามีคำศัทพ์อื่นเพิ่งตกลงมา (แกน Y ยังอยู่บนๆ) และแกน X ใกล้กันเกินไป (< 130px)
+                if (existing.y < 80 && Math.abs(existing.x - startX) < 130) {
+                    isOverlapping = true;
+                    break;
+                }
+            }
+            attempts++;
+        } while (isOverlapping && attempts < 10); // ถ้าทับกันให้สุ่มใหม่ (สูงสุด 10 ครั้งเพื่อป้องกันค้าง)
+        
+        const enemyObj = { 
+            id: GameState.enemyIdCounter++, 
+            word: targetWord, 
+            element: enemyDiv, 
+            x: startX, 
+            y: -60, 
+            spawnTime: performance.now(),
+            item: itemDrop 
+        };
+        
+        enemyDiv.style.left = `${startX}px`; 
+        enemyDiv.style.top = `${enemyObj.y}px`; 
+        GameState.enemies.push(enemyObj);
+    }
+
+    function updateGameLoop(currentTime) {
+        if (!GameState.isPlaying) return;
+        
+        const deltaTime = currentTime - GameState.lastTime; 
+        GameState.lastTime = currentTime;
+
+        // Mode specific logic
+        if (GameState.gameMode === 'daily') {
+            const elapsed = (currentTime - GameState.startTime) / 1000;
+            GameState.dailyTimeLeft = Math.max(0, 60 - elapsed);
+            document.getElementById('time-left').innerText = Math.ceil(GameState.dailyTimeLeft);
+            if (GameState.dailyTimeLeft <= 0) { 
+                endGame('timeout'); 
+                return; 
+            }
+        }
+
+        // WPM Calculation and Time Tracking
+        const elapsedTimeMinutes = (currentTime - GameState.startTime) / 60000;
+        if (elapsedTimeMinutes > 0) { 
+            GameState.wpm = Math.round(GameState.wordsTyped / elapsedTimeMinutes); 
+            document.getElementById('wpm-display').innerText = GameState.wpm; 
+        }
+
+        // --- ระบบความยากเพิ่มขึ้นตามเวลา ---
+        // ทุกๆ 1 นาที ระยะเวลาหน่วงจะลดลง 25% (ทำให้คำศัพท์ตกลงมาบ่อยขึ้น)
+        // เริ่มเกมจะง่าย (Interval สูง) และจะยากขึ้นเรื่อยๆ
+        const difficultyMultiplier = Math.pow(0.75, elapsedTimeMinutes);
+        GameState.spawnInterval = Math.max(600, GameState.baseSpawnInterval * difficultyMultiplier);
+
+        if (!GameState.isFrozen) {
+            // Spawning
+            GameState.spawnTimer += deltaTime; 
+            if (GameState.spawnTimer >= GameState.spawnInterval) { 
+                spawnEnemy(); 
+                GameState.spawnTimer = 0; 
+            }
+
+            // Update Enemies
+            const bottomThreshold = playArea.clientHeight;
+            for (let i = GameState.enemies.length - 1; i >= 0; i--) {
+                let enemy = GameState.enemies[i]; 
+                enemy.y += GameState.fallSpeed * (deltaTime / 1000); 
+                enemy.element.style.top = `${enemy.y}px`;
+                
+                if (enemy.y > bottomThreshold - 20) {
+                    // Enemy reached bottom
+                    GameState.missedWords[enemy.word] = (GameState.missedWords[enemy.word] || 0) + 1;
+                    enemy.element.remove(); 
+                    GameState.enemies.splice(i, 1);
+                    loseLife();
+                }
+            }
+        }
+
+        // Draw Lasers
+        drawLasers(deltaTime); 
+
+        requestAnimationFrame(updateGameLoop);
+    }
+
+    function drawLasers(deltaTime) {
+        ctx.clearRect(0, 0, laserCanvas.width, laserCanvas.height);
+        for(let i = GameState.activeLasers.length - 1; i >= 0; i--) {
+            let l = GameState.activeLasers[i];
+            
+            // Core
+            ctx.beginPath(); ctx.moveTo(l.startX, l.startY); ctx.lineTo(l.endX, l.endY);
+            ctx.strokeStyle = `rgba(255, 255, 255, ${l.life})`; ctx.lineWidth = 3; ctx.stroke();
+            // Glow
+            ctx.beginPath(); ctx.moveTo(l.startX, l.startY); ctx.lineTo(l.endX, l.endY);
+            ctx.strokeStyle = `rgba(50, 205, 50, ${l.life * 0.7})`; ctx.lineWidth = 10; ctx.stroke();
+            
+            l.life -= (deltaTime / 150); 
+            if(l.life <= 0) GameState.activeLasers.splice(i, 1);
+        }
+    }
+
+    function destroyEnemy(index) {
+        if(!GameState.enemies[index]) return; 
+        const enemy = GameState.enemies[index]; 
+        Sound.explosion();
+        
+        const boom = document.createElement('div'); 
+        boom.className = 'explosion';
+        boom.innerText = 'BOOM!'; 
+        boom.style.left = `${enemy.x}px`; 
+        boom.style.top = `${enemy.y}px`; 
+        playArea.appendChild(boom);
+        
+        enemy.element.remove(); 
+        GameState.enemies.splice(index, 1); 
+        setTimeout(() => boom.remove(), 400);
+    }
+
+    function loseLife() {
+        GameState.lives--; 
+        Sound.error(); 
+        updateDashboardUI(); 
+        
+        playArea.style.backgroundColor = '#FF0055';
+        setTimeout(() => playArea.style.backgroundColor = '', 100); 
+        
+        if (GameState.lives <= 0) endGame('died');
+    }
+
+    function updateDashboardUI() {
+        document.getElementById('score-display').innerText = GameState.score; 
+        if(GameState.gameMode === 'normal') {
+            document.getElementById('level-display').innerText = GameState.level;
+        }
+        let hearts = ''; 
+        for(let i=0; i<GameState.lives; i++) hearts += '❤️'; 
+        document.getElementById('lives-display').innerText = hearts || '💀';
+    }
+
+    function checkLevelUp() {
+        const newLevel = Math.floor(GameState.score / 100) + 1;
+        if (newLevel > GameState.level) {
+            GameState.level = newLevel; 
+            const speedInc = (GameState.difficulty === 'very-easy') ? 4 : 6;
+            // เพิ่มความเร็วในการตกลงมาเล็กน้อยเมื่อเลเวลอัพ
+            GameState.fallSpeed += speedInc; 
+        }
+    }
+
+    function updateItemUI() {
+        const container = document.getElementById('item-container');
+        if (GameState.heldItem) {
+            container.classList.add('has-item');
+            document.getElementById('item-icon').innerText = GameState.heldItem.icon;
+            document.getElementById('item-name').innerText = GameState.heldItem.name;
+        } else {
+            container.classList.remove('has-item');
+        }
+    }
+
+    function useItem() {
+        if (!GameState.heldItem || !GameState.isPlaying) return;
+        const item = GameState.heldItem;
+        GameState.heldItem = null;
+        updateItemUI();
+        
+        if (item.id === 'bomb') {
+            Sound.useBomb();
+            playArea.classList.add('bg-flash');
+            setTimeout(() => playArea.classList.remove('bg-flash'), 150);
+            
+            for (let i = GameState.enemies.length - 1; i >= 0; i--) {
+                const e = GameState.enemies[i];
+                GameState.activeLasers.push({ 
+                    startX: playArea.clientWidth / 2, startY: playArea.clientHeight, 
+                    endX: e.x, endY: e.y + 20, life: 1.0 
+                });
+                destroyEnemy(i);
+                GameState.score += 5; // ได้คะแนนครึ่งเดียวจากการใช้ระเบิด
+            }
+            updateDashboardUI();
+        } else if (item.id === 'freeze') {
+            Sound.useFreeze();
+            GameState.isFrozen = true;
+            playArea.classList.add('bg-frozen');
+            
+            if(GameState.freezeTimer) clearTimeout(GameState.freezeTimer);
+            GameState.freezeTimer = setTimeout(() => {
+                GameState.isFrozen = false;
+                playArea.classList.remove('bg-frozen');
+            }, 4000);
+        } else if (item.id === 'heal') {
+            Sound.useHeal();
+            GameState.lives = Math.min(5, GameState.lives + 1);
+            updateDashboardUI();
+            
+            const boom = document.createElement('div'); 
+            boom.className = 'explosion';
+            boom.style.color = '#FF0055';
+            boom.innerText = '+1 ❤️'; 
+            boom.style.left = `50%`; 
+            boom.style.top = `30%`; 
+            playArea.appendChild(boom);
+            setTimeout(() => boom.remove(), 600);
+        }
+    }
+
+    // Input Handling
+    wordInput.addEventListener('keydown', (e) => { 
+        if(e.code === 'Space') {
+            e.preventDefault();
+            useItem();
+            return;
+        }
+        // Only play sound for valid typing characters
+        if(GameState.isPlaying && e.key.length === 1 && !e.ctrlKey && !e.altKey) Sound.type(); 
+    });
+
+    wordInput.addEventListener('input', (e) => {
+        if (!GameState.isPlaying) return; 
+        const typedWord = e.target.value.trim().toLowerCase();
+        
+        let matchedIndex = -1; 
+        let maxY = -1000; // Target the lowest enemy
+        
+        for (let i = 0; i < GameState.enemies.length; i++) {
+            if (GameState.enemies[i].word.toLowerCase() === typedWord) { 
+                if (GameState.enemies[i].y > maxY) { 
+                    maxY = GameState.enemies[i].y; 
+                    matchedIndex = i; 
+                } 
+            }
+        }
+        
+        if (matchedIndex !== -1) {
+            const enemy = GameState.enemies[matchedIndex]; 
+            GameState.typingTimes.push({ w: enemy.word, time: performance.now() - enemy.spawnTime });
+            
+            // เก็บไอเทมถ้ามี
+            if (enemy.item) {
+                GameState.heldItem = enemy.item;
+                updateItemUI();
+                Sound.itemGet();
+            }
+
+            Sound.shootLaser(); 
+            GameState.activeLasers.push({ 
+                startX: playArea.clientWidth / 2, startY: playArea.clientHeight, 
+                endX: enemy.x, endY: enemy.y + 20, life: 1.0 
+            });
+            
+            setTimeout(() => destroyEnemy(matchedIndex), 30); // slight delay for visual sync
+            
+            wordInput.value = ''; 
+            GameState.score += 10; 
+            GameState.wordsTyped++;
+            
+            if(GameState.gameMode === 'normal') checkLevelUp(); 
+            updateDashboardUI();
+        }
+    });
+
+    // Keep focus
+    document.addEventListener('click', (e) => { 
+        if (GameState.isPlaying && e.target.tagName !== 'BUTTON') wordInput.focus(); 
+    });
+
+
+    // ==========================================
+    // 4. UI Flow & Event Listeners
+    // ==========================================
+    const screens = {
+        start: document.getElementById('start-screen'),
+        gameover: document.getElementById('game-over-screen'),
+        leaderboard: document.getElementById('leaderboard-screen'),
+        vocab: document.getElementById('vocab-screen')
+    };
+
+    function showScreen(name) {
+        Object.values(screens).forEach(s => s.classList.add('hidden'));
+        if(name) screens[name].classList.remove('hidden');
+    }
+
+    // Difficulty selection
+    document.querySelectorAll('.diff-btn[data-diff]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.diff-btn[data-diff]').forEach(b => b.classList.remove('selected')); 
+            e.target.classList.add('selected');
+            GameState.difficulty = e.target.getAttribute('data-diff');
+        });
+    });
+
+    // Start Game
+    function startGame(mode) {
+        Sound.init(); 
+        Sound.startBGM();
+        
+        const nameInput = document.getElementById('player-name').value.trim();
+        GameState.playerName = nameInput || DISPLAY_NAME_INIT || 'นิรนาม';
+        
+        GameState.gameMode = mode; 
+        GameState.isPlaying = true; 
+        GameState.score = 0; 
+        GameState.wordsTyped = 0;
+        
+        // Reset Arrays and Items
+        GameState.enemies.forEach(e => e.element.remove()); 
+        GameState.enemies = []; 
+        GameState.activeLasers = []; 
+        GameState.missedWords = {}; 
+        GameState.typingTimes = [];
+        GameState.heldItem = null;
+        GameState.isFrozen = false;
+        if(GameState.freezeTimer) clearTimeout(GameState.freezeTimer);
+        playArea.classList.remove('bg-frozen');
+        updateItemUI();
+        
+        // Setup Category
+        GameState.currentCategory = document.getElementById('category-select').value; 
+        GameState.playMode = document.getElementById('play-mode-select').value;
+        GameState.activeWordList = (GameState.currentCategory === 'all') 
+            ? wordList 
+            : wordCategories[GameState.currentCategory].words;
+        
+        if (mode === 'daily') {
+            GameState.difficulty = 'hard'; 
+            GameState.lives = 1; 
+            GameState.dailyTimeLeft = 60;
+            document.getElementById('timer-display').style.display = 'flex'; 
+            document.getElementById('level-container').style.display = 'none';
+            document.getElementById('mode-display').innerText = 'Daily';
+        } else {
+            GameState.lives = 5; 
+            GameState.level = 1;
+            document.getElementById('timer-display').style.display = 'none'; 
+            document.getElementById('level-container').style.display = 'flex';
+            const diffLabels = { 'very-easy': 'ง่ายมาก', 'easy': 'ง่าย', 'medium': 'ปานกลาง', 'hard': 'ยาก' };
+            document.getElementById('mode-display').innerText = diffLabels[GameState.difficulty];
+        }
+
+        applySettings(); 
+        GameState.spawnTimer = GameState.spawnInterval; 
+        updateDashboardUI();
+        
+        showScreen(null); // Hide all overlays
+        
+        wordInput.disabled = false; 
+        wordInput.value = ''; 
+        wordInput.focus();
+        
+        GameState.startTime = performance.now(); 
+        GameState.lastTime = performance.now();
+        requestAnimationFrame(updateGameLoop);
+    }
+
+    function endGame(reason) {
+        GameState.isPlaying = false; 
+        wordInput.disabled = true; 
+        wordInput.value = ''; 
+        Sound.stopBGM();
+        
+        document.getElementById('final-player-name').innerText = GameState.playerName;
+        document.getElementById('final-score').innerText = GameState.score;
+        document.getElementById('final-wpm').innerText = GameState.wpm;
+        
+        document.getElementById('end-title').innerText = (reason === 'timeout') ? "หมดเวลา!" : "พลาดซะแล้ว!";
+
+        // Analytics
+        let slowestWord = "-";
+        if (GameState.typingTimes.length > 0) {
+            let maxRecord = GameState.typingTimes.reduce((max, obj) => (obj.time > max.time) ? obj : max);
+            slowestWord = `${maxRecord.w} (${(maxRecord.time / 1000).toFixed(1)}s)`;
+        }
+        
+        let mostMissedWord = "-"; 
+        let maxMisses = 0;
+        for (const [w, count] of Object.entries(GameState.missedWords)) {
+            if (count > maxMisses) { 
+                maxMisses = count; 
+                mostMissedWord = `${w} (${count} ครั้ง)`; 
+            }
+        }
+        
+        document.getElementById('analysis-slowest').innerText = slowestWord;
+        document.getElementById('analysis-missed').innerText = mostMissedWord;
+        
+        showScreen('gameover');
+
+        // Send score to kampai (replaces Firebase leaderboard)
+        sendGameEnd(GameState.score, GameState.gameMode === 'daily' ? 'daily' : GameState.difficulty, {
+            wordsTyped: GameState.wordsTyped,
+            wave: GameState.level,
+            wpm: GameState.wpm,
+        });
+        // saveScore(GameState.playerName, GameState.score, GameState.wpm, GameState.difficulty, GameState.gameMode);
+    }
+
+    // Button Binds
+    document.getElementById('start-btn').addEventListener('click', () => startGame('normal'));
+    document.getElementById('daily-btn').addEventListener('click', () => startGame('daily'));
+    
+    document.getElementById('restart-btn').addEventListener('click', () => {
+        Sound.stopBGM();
+        if (IS_EMBED) navigateBack();
+        else showScreen('start');
+    });
+    
+    document.getElementById('vocab-btn').addEventListener('click', () => showScreen('vocab'));
+    document.getElementById('close-vocab-btn').addEventListener('click', () => showScreen('start'));
+
+    document.getElementById('leaderboard-btn').addEventListener('click', () => {
+        showScreen('leaderboard');
+        renderLeaderboard();
+    });
+    document.getElementById('close-leaderboard-btn').addEventListener('click', () => showScreen('start'));
+
+    // ==========================================
+    // 5. Firebase & Leaderboard Logic
+    // ==========================================
+    let db, auth, currentUser, appId;
+    let allScores = [];
+    let currentLeaderboardTab = 'medium';
+
+    const initFirebase = async () => {
+        try {
+            if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                const config = JSON.parse(__firebase_config);
+                const app = initializeApp(config);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+                // RULE 3: Auth first before any queries
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    currentUser = user;
+                    if (user) setupLeaderboardListener();
+                });
+            } else {
+                console.warn("Firebase config is missing, running in local mode.");
+                document.getElementById('leaderboard-content').innerHTML = '<div style="text-align:center; padding: 20px; color: #888;">ระบบตารางคะแนนทำงานแบบออฟไลน์</div>';
+            }
+        } catch(e) { console.error("Firebase init error", e); }
+    };
+
+    const setupLeaderboardListener = () => {
+        if (!currentUser || !db) return;
+        // RULE 1: Strict Paths
+        const scoresRef = collection(db, 'artifacts', appId, 'public', 'data', 'word_shield_scores');
+        
+        // RULE 2: No Complex Queries (Fetch all, sort in memory)
+        onSnapshot(scoresRef, (snapshot) => {
+            allScores = [];
+            snapshot.forEach(doc => { allScores.push(doc.data()); });
+            renderLeaderboard();
+        }, (error) => { 
+            console.error("Error fetching scores:", error); 
+        });
+    };
+
+    const saveScore = async (name, score, wpm, difficulty, mode) => {
+        if (!currentUser || !db || score <= 0) return;
+        try {
+            const scoresRef = collection(db, 'artifacts', appId, 'public', 'data', 'word_shield_scores');
+            await addDoc(scoresRef, {
+                name: name || 'นิรนาม',
+                score: score,
+                wpm: wpm,
+                difficulty: mode === 'daily' ? 'daily' : difficulty,
+                timestamp: Date.now()
+            });
+        } catch (error) { console.error("Error saving score:", error); }
+    };
+
+    function renderLeaderboard() {
+        const container = document.getElementById('leaderboard-content');
+        if (!db) return; // If offline
+        container.innerHTML = '';
+        
+        // Filter and Sort in memory (Rule 2)
+        const filtered = allScores.filter(s => s.difficulty === currentLeaderboardTab);
+        filtered.sort((a, b) => {
+            if (b.score !== a.score) return b.score - a.score;
+            return b.wpm - a.wpm; // Tie-breaker
+        });
+
+        if (filtered.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding: 20px; color: #888;">ยังไม่มีบันทึกคะแนนในโหมดนี้<br>มาเป็นที่ 1 กันเถอะ!</div>';
+            return;
+        }
+
+        filtered.slice(0, 50).forEach((s, index) => {
+            const row = document.createElement('div');
+            row.className = 'score-row';
+            
+            let rankHtml = `<span class="rank" style="width: 30px; display:inline-block;">#${index + 1}</span>`;
+            if (index === 0) rankHtml = `<span class="rank" style="width: 30px; display:inline-block;">🥇</span>`;
+            else if (index === 1) rankHtml = `<span class="rank" style="width: 30px; display:inline-block;">🥈</span>`;
+            else if (index === 2) rankHtml = `<span class="rank" style="width: 30px; display:inline-block;">🥉</span>`;
+
+            row.innerHTML = `
+                ${rankHtml}
+                <span style="flex-grow: 1; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 10px; font-family: 'Mitr', sans-serif;">${s.name}</span>
+                <span style="width: 55px; text-align: right; font-size: 0.8rem; color: #888;">${s.wpm}wpm</span>
+                <span class="score-val" style="width: 60px; text-align: right;">${s.score}</span>
+            `;
+            container.appendChild(row);
+        });
+    }
+
+    // Leaderboard Tabs Event
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            tabBtns.forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            currentLeaderboardTab = e.target.getAttribute('data-tab');
+            renderLeaderboard();
+        });
+    });
+
+    // Initialize Firebase on load
+    initFirebase();
+
+</script>
+</body>
+</html>

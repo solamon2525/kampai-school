@@ -272,8 +272,21 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.38.3 (EduHubItemCard — leaderboard strip)',
+        version: 'v1.38.4 (Word-Shield — kampai postMessage + score tracking)',
         date: 'ล่าสุด',
+        badge: 'bg-green-600',
+        items: [
+            'เพิ่ม kampai postMessage integration ใน word-shield.html (เกมพิมพ์คำสกัดศัตรู)',
+            'IS_EMBED detection + รับ STUDENT_CODE / DISPLAY_NAME_INIT จาก init message',
+            'sendGameEnd() ส่งคะแนนพร้อม metadata: wordsTyped, wave, wpm',
+            'navigateBack() ใน restart-btn เมื่อ IS_EMBED → ส่ง navigate ไป /h/nattapong',
+            'comment out saveScore() (Firebase) — ใช้ kampai แทน',
+            'สร้าง migration 099_seed_word_shield_game.sql — game_slug=word-shield, tracked_game=true',
+        ],
+    },
+    {
+        version: 'v1.38.3 (EduHubItemCard — leaderboard strip)',
+        date: '',
         badge: 'bg-indigo-600',
         items: [
             'เพิ่ม leaderboard strip ในการ์ดเกม (tracked_game=true) — แสดง top-5 อันดับนักเรียน',
