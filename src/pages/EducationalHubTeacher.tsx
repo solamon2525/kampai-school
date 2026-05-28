@@ -4,7 +4,6 @@ import {
     Bar,
     XAxis,
     YAxis,
-    ResponsiveContainer,
     Tooltip,
 } from 'recharts';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
@@ -334,48 +333,49 @@ const EducationalHubTeacher = () => {
 
                                 {/* Content breakdown bar chart — desktop only */}
                                 {chartData.length > 0 && (
-                                    <div className="hidden md:flex flex-col justify-center shrink-0 w-48 h-32 ml-auto">
+                                    <div className="hidden md:flex flex-col justify-center shrink-0 w-52 h-32 ml-auto overflow-hidden">
                                         <p className={`text-[10px] font-medium mb-1 ${teacher.banner_url ? 'text-white/70' : 'text-muted-foreground'}`}>
                                             เนื้อหาทั้งหมด
                                         </p>
-                                        <ResponsiveContainer width="100%" height="100%">
-                                            <BarChart
-                                                layout="vertical"
-                                                data={chartData}
-                                                margin={{ top: 0, right: 4, bottom: 0, left: 0 }}
-                                            >
-                                                <XAxis type="number" hide />
-                                                <YAxis
-                                                    type="category"
-                                                    dataKey="name"
-                                                    width={72}
-                                                    tick={{ fontSize: 10, fill: teacher.banner_url ? 'rgba(255,255,255,0.75)' : 'hsl(var(--muted-foreground))' }}
-                                                    axisLine={false}
-                                                    tickLine={false}
-                                                />
-                                                <Tooltip
-                                                    contentStyle={{
-                                                        backgroundColor: 'hsl(var(--card))',
-                                                        border: '1px solid hsl(var(--border))',
-                                                        borderRadius: '0.5rem',
-                                                        fontSize: 11,
-                                                        fontFamily: 'inherit',
-                                                    }}
-                                                    formatter={(v: number) => [`${v} รายการ`, '']}
-                                                />
-                                                <Bar
-                                                    dataKey="count"
-                                                    fill="hsl(var(--primary))"
-                                                    radius={[0, 4, 4, 0]}
-                                                    label={{
-                                                        position: 'insideRight',
-                                                        fontSize: 10,
-                                                        fontWeight: 600,
-                                                        fill: 'white',
-                                                    }}
-                                                />
-                                            </BarChart>
-                                        </ResponsiveContainer>
+                                        <BarChart
+                                            width={200}
+                                            height={112}
+                                            layout="vertical"
+                                            data={chartData}
+                                            margin={{ top: 2, right: 4, bottom: 2, left: 0 }}
+                                        >
+                                            <XAxis type="number" hide />
+                                            <YAxis
+                                                type="category"
+                                                dataKey="name"
+                                                width={80}
+                                                tick={{ fontSize: 10, fill: teacher.banner_url ? 'rgba(255,255,255,0.75)' : 'hsl(var(--muted-foreground))' }}
+                                                tickFormatter={(v: string) => v.length > 7 ? v.slice(0, 6) + '…' : v}
+                                                axisLine={false}
+                                                tickLine={false}
+                                            />
+                                            <Tooltip
+                                                contentStyle={{
+                                                    backgroundColor: 'hsl(var(--card))',
+                                                    border: '1px solid hsl(var(--border))',
+                                                    borderRadius: '0.5rem',
+                                                    fontSize: 11,
+                                                    fontFamily: 'inherit',
+                                                }}
+                                                formatter={(v: number) => [`${v} รายการ`, '']}
+                                            />
+                                            <Bar
+                                                dataKey="count"
+                                                fill="hsl(var(--primary))"
+                                                radius={[0, 4, 4, 0]}
+                                                label={{
+                                                    position: 'insideRight',
+                                                    fontSize: 10,
+                                                    fontWeight: 600,
+                                                    fill: 'white',
+                                                }}
+                                            />
+                                        </BarChart>
                                     </div>
                                 )}
                             </div>
