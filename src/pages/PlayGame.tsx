@@ -20,15 +20,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -140,8 +136,8 @@ const PlayGame = () => {
   });
 
   // ─── lookup handler ────────────────────────────────────────────────────────
-  const handleLookup = useCallback(async () => {
-    const code = codeInput.trim();
+  const handleLookup = useCallback(async (overrideCode?: string) => {
+    const code = (overrideCode ?? codeInput).trim();
     if (!code) return;
     setLookupLoading(true);
     setLookupError(null);
@@ -149,9 +145,11 @@ const PlayGame = () => {
       const found = await gamePlayService.lookupStudent(code);
       if (!found) {
         setLookupError('ไม่พบรหัสนักเรียนนี้ ลองใหม่อีกครั้ง');
+        sessionStorage.removeItem('kampai_student_code');
         return;
       }
       setStudent(found);
+      sessionStorage.setItem('kampai_student_code', code);
       setPhase('confirm');
     } catch {
       setLookupError('เกิดข้อผิดพลาด โปรดลองใหม่');
@@ -176,6 +174,16 @@ const PlayGame = () => {
       '*',
     );
   }, [student, codeInput]);
+
+  // ─── auto-login จาก sessionStorage (ลดเวลากรอกรหัสเมื่อเปลี่ยนเกม) ────────
+  useEffect(() => {
+    const saved = sessionStorage.getItem('kampai_student_code');
+    if (saved) {
+      setCodeInput(saved);
+      handleLookup(saved);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // run once on mount only
 
   // ─── receive `navigate` from iframe (exit / select-another-game buttons) ──
   // Not gated by phase — game can request navigation anytime (pause modal, etc.)
@@ -367,26 +375,73 @@ const PlayGame = () => {
               <span className="hidden sm:inline">เมนู</span>
             </button>
 
-            {/* Exit Confirmation Dialog */}
-            <AlertDialog open={showExitMenu} onOpenChange={setShowExitMenu}>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>ออกจากเกม?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    คะแนนในรอบนี้จะไม่ถูกบันทึก ต้องการกลับไปหน้าเลือกเกมใช่ไหม?
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>เล่นต่อ</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={() => navigate('/h/nattapong')}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            {/* Exit Menu Dialog — 4 ตัวเลือก */}
+            <Dialog open={showExitMenu} onOpenChange={setShowExitMenu}>
+              <DialogContent className="sm:max-w-xs">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <Menu className="h-4 w-4" /> เมนูเกม
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="flex flex-col gap-2 pt-1">
+                  {/* 1. เล่นซ้ำ */}
+                  <Button
+                    variant="outline"
+                    className="justify-start gap-3 h-12"
+                    onClick={() => { setShowExitMenu(false); handlePlayAgain(); }}
                   >
-                    ออกจากเกม
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+                    <RotateCcw className="h-4 w-4 shrink-0" />
+                    <span>เล่นซ้ำเกมนี้</span>
+                  </Button>
+
+                  {/* 2. เลือกเกมอื่น — keep session */}
+                  <Button
+                    variant="outline"
+                    className="justify-start gap-3 h-12"
+                    onClick={() => navigate('/h/nattapong')}
+                  >
+                    <Gamepad2 className="h-4 w-4 shrink-0" />
+                    <div className="flex flex-col items-start">
+                      <span>เลือกเกมอื่น</span>
+                      <span className="text-[10px] text-muted-foreground font-normal">ไม่ต้องกรอกรหัสใหม่</span>
+                    </div>
+                  </Button>
+
+                  {/* 3. เปลี่ยนผู้เล่น — clear session, stay on this game */}
+                  <Button
+                    variant="outline"
+                    className="justify-start gap-3 h-12"
+                    onClick={() => {
+                      sessionStorage.removeItem('kampai_student_code');
+                      setShowExitMenu(false);
+                      handleSwitchStudent();
+                    }}
+                  >
+                    <ArrowLeft className="h-4 w-4 shrink-0" />
+                    <div className="flex flex-col items-start">
+                      <span>เปลี่ยนผู้เล่น</span>
+                      <span className="text-[10px] text-muted-foreground font-normal">กรอกรหัสใหม่ — เกมเดิม</span>
+                    </div>
+                  </Button>
+
+                  {/* 4. กลับหน้าหลัก — clear session */}
+                  <Button
+                    variant="ghost"
+                    className="justify-start gap-3 h-12 text-muted-foreground"
+                    onClick={() => {
+                      sessionStorage.removeItem('kampai_student_code');
+                      navigate('/h/nattapong');
+                    }}
+                  >
+                    <ArrowLeft className="h-4 w-4 shrink-0" />
+                    <div className="flex flex-col items-start">
+                      <span>กลับหน้าหลัก</span>
+                      <span className="text-[10px] font-normal">ล้าง session</span>
+                    </div>
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         )}
 

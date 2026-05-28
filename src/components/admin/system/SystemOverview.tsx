@@ -272,8 +272,20 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.38.6 (PlayGame — Floating Exit Menu ระหว่างเล่นเกม)',
+        version: 'v1.38.7 (PlayGame — Exit Menu 4 ตัวเลือก + Auto-login)',
         date: 'ล่าสุด',
+        badge: 'bg-purple-600',
+        items: [
+            'Exit Menu อัปเกรดเป็น 4 ตัวเลือก: เล่นซ้ำ / เลือกเกมอื่น / เปลี่ยนผู้เล่น / กลับหน้าหลัก',
+            'Auto-login: บันทึกรหัสนักเรียนใน sessionStorage — เปลี่ยนเกมแล้วไม่ต้องกรอกรหัสใหม่',
+            '"เลือกเกมอื่น" คง session ไว้ → เปิดเกมถัดไป auto-login ทันที',
+            '"เปลี่ยนผู้เล่น" / "กลับหน้าหลัก" ลบ session → ต้องกรอกรหัสใหม่',
+            'handleLookup รับ overrideCode ได้ เพื่อรองรับ auto-login จาก sessionStorage',
+        ],
+    },
+    {
+        version: 'v1.38.6 (PlayGame — Floating Exit Menu ระหว่างเล่นเกม)',
+        date: '',
         badge: 'bg-orange-600',
         items: [
             'เพิ่มปุ่ม "☰ เมนู" floating มุมบนขวาของ game container ปรากฏตลอดระหว่าง phase=playing',
