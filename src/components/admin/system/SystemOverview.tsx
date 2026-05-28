@@ -272,8 +272,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.39.3 (EducationalHubTeacher — Compact Hero)',
+        version: 'v1.39.4 (EducationalHubTeacher — Hero Bar Chart)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'หน้า /h/:identifier: เพิ่ม horizontal bar chart แสดง content breakdown แต่ละหมวดในพื้นที่ด้านขวาของ hero',
+            'ใช้ข้อมูล counts_by_category + categories ที่มีอยู่แล้ว — ไม่มี API call ใหม่',
+            'Chart ซ่อนบน mobile (hidden sm:flex) — แสดงเฉพาะ desktop/tablet',
+            'รองรับ banner variant (ครูที่มีรูป background) — ปรับสี label/tick อัตโนมัติ',
+        ],
+    },
+    {
+        version: 'v1.39.3 (EducationalHubTeacher — Compact Hero)',
+        date: '',
         badge: 'bg-emerald-600',
         items: [
             'หน้า /h/:identifier: hero section ลดพื้นที่แนวตั้ง ~60% — py-3 sm:py-5 (จาก py-10 sm:py-14)',
