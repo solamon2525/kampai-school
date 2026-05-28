@@ -342,13 +342,13 @@ const EducationalHubTeacher = () => {
                                             <BarChart
                                                 layout="vertical"
                                                 data={chartData}
-                                                margin={{ top: 0, right: 28, bottom: 0, left: 0 }}
+                                                margin={{ top: 0, right: 4, bottom: 0, left: 0 }}
                                             >
                                                 <XAxis type="number" hide />
                                                 <YAxis
                                                     type="category"
                                                     dataKey="name"
-                                                    width={68}
+                                                    width={72}
                                                     tick={{ fontSize: 10, fill: teacher.banner_url ? 'rgba(255,255,255,0.75)' : 'hsl(var(--muted-foreground))' }}
                                                     axisLine={false}
                                                     tickLine={false}
@@ -368,9 +368,10 @@ const EducationalHubTeacher = () => {
                                                     fill="hsl(var(--primary))"
                                                     radius={[0, 4, 4, 0]}
                                                     label={{
-                                                        position: 'right',
+                                                        position: 'insideRight',
                                                         fontSize: 10,
-                                                        fill: teacher.banner_url ? 'rgba(255,255,255,0.9)' : 'hsl(var(--foreground))',
+                                                        fontWeight: 600,
+                                                        fill: 'white',
                                                     }}
                                                 />
                                             </BarChart>
