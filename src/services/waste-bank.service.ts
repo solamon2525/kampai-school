@@ -348,6 +348,38 @@ export const rewardClaimsService = {
       .returns<StudentHistoryRow[]>(),
 };
 
+// ─── View Preference (school_settings) ───────────────────────────────────────
+export type WasteSummaryViewMode = 'table' | 'grid' | 'by-class';
+export type WasteSummarySortBy = 'points' | 'earned' | 'items' | 'transactions' | 'class' | 'name';
+
+const WASTE_PREF_VIEW_KEY = 'waste_summary_view_mode';
+const WASTE_PREF_SORT_KEY = 'waste_summary_sort_by';
+
+export const wasteViewPreferenceService = {
+  load: async (): Promise<{ viewMode: WasteSummaryViewMode; sortBy: WasteSummarySortBy }> => {
+    const { data } = await supabase
+      .from('school_settings')
+      .select('key, value')
+      .in('key', [WASTE_PREF_VIEW_KEY, WASTE_PREF_SORT_KEY]);
+    const map = Object.fromEntries((data ?? []).map((r) => [r.key, r.value as string]));
+    return {
+      viewMode: (map[WASTE_PREF_VIEW_KEY] as WasteSummaryViewMode) ?? 'table',
+      sortBy:   (map[WASTE_PREF_SORT_KEY] as WasteSummarySortBy)   ?? 'points',
+    };
+  },
+  save: (pref: { viewMode: WasteSummaryViewMode; sortBy: WasteSummarySortBy }) =>
+    Promise.all([
+      supabase.from('school_settings').upsert(
+        { key: WASTE_PREF_VIEW_KEY, value: pref.viewMode, category: 'waste', description: 'waste summary view mode' },
+        { onConflict: 'key' },
+      ),
+      supabase.from('school_settings').upsert(
+        { key: WASTE_PREF_SORT_KEY, value: pref.sortBy, category: 'waste', description: 'waste summary sort' },
+        { onConflict: 'key' },
+      ),
+    ]),
+};
+
 // ─── Active term (school_settings keys) ──────────────────────────────────────
 export const termService = {
   /** อ่านเทอมปัจจุบันจาก school_settings — return null ถ้ายังไม่ได้ตั้งค่า */

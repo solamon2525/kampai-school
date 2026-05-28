@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Trash2, Plus, Edit2, Save, X, Package, Users, List, Download, Gift, ClipboardCheck, QrCode } from 'lucide-react';
+import { Trash2, Plus, Edit2, Save, X, Package, Users, List, Gift, ClipboardCheck, QrCode } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { downloadCSV } from '@/lib/export';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -25,6 +24,7 @@ import { rewardClaimsService } from '@/services/waste-bank.service';
 import type { WasteCategory, WasteTransaction, WasteStudentSummary } from '@/services/waste-bank.service';
 import { RewardsManagement } from './RewardsManagement';
 import { ClaimsApproval } from './ClaimsApproval';
+import { WasteStudentSummaryTab } from './WasteStudentSummaryTab';
 import { StudentQRScanner } from '@/components/shared/StudentQRScanner';
 import { useAuth } from '@/contexts/AuthProvider';
 import { TermBanner } from './TermBanner';
@@ -108,8 +108,6 @@ export const WasteBankManagement = () => {
 
   // ========== Tab 2: สรุปยอดสะสม ==========
   const [summaries, setSummaries] = useState<WasteStudentSummary[]>([]);
-  const [summaryClassFilter, setSummaryClassFilter] = useState('all');
-  const [summarySearch, setSummarySearch] = useState('');
 
   // ========== Tab 3: จัดการประเภทขยะ ==========
   const [editingCategory, setEditingCategory] = useState<WasteCategory | null>(null);
@@ -257,15 +255,6 @@ export const WasteBankManagement = () => {
       fetchSummaries();
     }
   };
-
-  const filteredSummaries = summaries.filter((s) => {
-    const matchClass = summaryClassFilter === 'all' || s.class_name === summaryClassFilter;
-    const matchName = !summarySearch || (s.full_name ?? '').toLowerCase().includes(summarySearch.toLowerCase());
-    return matchClass && matchName;
-  });
-
-  const totalItems = filteredSummaries.reduce((acc, s) => acc + Number(s.total_items ?? 0), 0);
-  const totalPoints = filteredSummaries.reduce((acc, s) => acc + Number(s.total_points_earned ?? 0), 0);
 
   // Category management
   const openAddCategory = () => {
@@ -683,108 +672,7 @@ export const WasteBankManagement = () => {
 
       {/* ===== TAB 2: สรุปยอดสะสม ===== */}
       {activeTab === 'summary' && (
-        <div className="space-y-4">
-          {/* Filters */}
-          <Card>
-            <CardContent className="pt-4">
-              <div className="flex flex-col sm:flex-row gap-3">
-                <div className="flex-1">
-                  <Input
-                    placeholder="ค้นหาชื่อนักเรียน..."
-                    value={summarySearch}
-                    onChange={(e) => setSummarySearch(e.target.value)}
-                  />
-                </div>
-                <div className="w-full sm:w-48">
-                  <Select value={summaryClassFilter} onValueChange={setSummaryClassFilter}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="ทุกชั้น" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">ทุกชั้น</SelectItem>
-                      {CLASSES.map((cls) => (
-                        <SelectItem key={cls} value={cls}>{cls}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Summary Table */}
-          <Card>
-            <CardHeader className="pb-0 pt-3 px-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-muted-foreground">{filteredSummaries.length} นักเรียน</span>
-                {filteredSummaries.length > 0 && (
-                  <Button size="sm" variant="outline" className="gap-1 text-emerald-700 border-emerald-300 hover:bg-emerald-50"
-                    onClick={() => downloadCSV('สรุปธนาคารขยะ',
-                      ['ชื่อนักเรียน', 'ชั้น', 'จำนวนครั้ง', 'ขยะรวม (ชิ้น)', 'แต้มสะสม', 'แต้มคงเหลือ'],
-                      filteredSummaries.map(s => [
-                        s.full_name ?? '', s.class_name ?? '',
-                        s.total_transactions ?? 0,
-                        s.total_items ?? 0,
-                        s.total_points_earned ?? 0,
-                        s.available_points ?? 0,
-                      ])
-                    )}>
-                    <Download className="w-3.5 h-3.5" /> CSV
-                  </Button>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent className="p-0 pt-2">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border bg-muted/50">
-                      <th className="text-left px-4 py-3 font-medium text-muted-foreground">ชื่อนักเรียน</th>
-                      <th className="text-left px-4 py-3 font-medium text-muted-foreground">ชั้น</th>
-                      <th className="text-right px-4 py-3 font-medium text-muted-foreground">จำนวนครั้ง</th>
-                      <th className="text-right px-4 py-3 font-medium text-muted-foreground">ขยะรวม (ชิ้น)</th>
-                      <th className="text-right px-4 py-3 font-medium text-muted-foreground">แต้มสะสม</th>
-                      <th className="text-right px-4 py-3 font-medium text-muted-foreground">แต้มคงเหลือ</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredSummaries.length === 0 ? (
-                      <tr>
-                        <td colSpan={6} className="text-center py-10 text-muted-foreground">ไม่พบข้อมูล</td>
-                      </tr>
-                    ) : (
-                      filteredSummaries.map((s, idx) => (
-                        <tr key={idx} className="border-b border-border hover:bg-muted/30 transition-colors">
-                          <td className="px-4 py-3 font-medium">{s.full_name ?? '—'}</td>
-                          <td className="px-4 py-3">
-                            <Badge variant="outline">{s.class_name ?? '—'}</Badge>
-                          </td>
-                          <td className="px-4 py-3 text-right text-muted-foreground">{s.total_transactions ?? 0}</td>
-                          <td className="px-4 py-3 text-right">{s.total_items ?? 0}</td>
-                          <td className="px-4 py-3 text-right font-bold text-foreground">{s.total_points_earned ?? 0}</td>
-                          <td className="px-4 py-3 text-right font-semibold text-amber-600 dark:text-amber-400">{s.available_points ?? 0}</td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                  {filteredSummaries.length > 0 && (
-                    <tfoot>
-                      <tr className="bg-muted/60 font-semibold border-t-2 border-border">
-                        <td className="px-4 py-3" colSpan={2}>รวมทั้งหมด ({filteredSummaries.length} คน)</td>
-                        <td className="px-4 py-3 text-right">
-                          {filteredSummaries.reduce((a, s) => a + Number(s.total_transactions ?? 0), 0)}
-                        </td>
-                        <td className="px-4 py-3 text-right">{totalItems}</td>
-                        <td className="px-4 py-3 text-right font-bold text-foreground">{totalPoints}</td>
-                        <td className="px-4 py-3"></td>
-                      </tr>
-                    </tfoot>
-                  )}
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <WasteStudentSummaryTab summaries={summaries} />
       )}
 
       {/* ===== TAB 3: จัดการประเภทขยะ ===== */}
