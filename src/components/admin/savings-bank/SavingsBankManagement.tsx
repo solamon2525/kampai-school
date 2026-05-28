@@ -4,20 +4,18 @@ import {
   ArrowUpFromLine,
   List,
   Users,
-  Download,
   Trash2,
   PiggyBank,
   Wallet,
   TrendingUp,
   QrCode,
   Database,
-  Printer,
   UserCheck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { downloadCSV } from '@/lib/export';
 import { BackupsTabContent } from './BackupsTabContent';
 import { TeacherSummaryTab } from './TeacherSummaryTab';
+import { StudentSummaryTab } from './StudentSummaryTab';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -92,8 +90,6 @@ export const SavingsBankManagement = () => {
   const [transactions, setTransactions] = useState<SavingsTransaction[]>([]);
   const [summaries, setSummaries] = useState<SavingsStudentSummary[]>([]);
 
-  const [summaryClassFilter, setSummaryClassFilter] = useState('all');
-  const [summarySearch, setSummarySearch] = useState('');
   const [historyTypeFilter, setHistoryTypeFilter] = useState<'all' | SavingsTransactionType>('all');
 
   useEffect(() => {
@@ -265,15 +261,6 @@ export const SavingsBankManagement = () => {
   };
 
   // Derived data
-  const filteredSummaries = useMemo(() => {
-    const term = summarySearch.trim().toLowerCase();
-    return summaries.filter((s) => {
-      if (summaryClassFilter !== 'all' && s.class_name !== summaryClassFilter) return false;
-      if (term && !s.full_name?.toLowerCase().includes(term)) return false;
-      return true;
-    });
-  }, [summaries, summaryClassFilter, summarySearch]);
-
   const filteredTransactions = useMemo(() => {
     return transactions.filter((t) => {
       if (historyTypeFilter !== 'all' && t.transaction_type !== historyTypeFilter) return false;
@@ -293,289 +280,6 @@ export const SavingsBankManagement = () => {
     );
   }, [summaries]);
 
-  const exportSummaryCSV = () => {
-    downloadCSV(
-      'savings-summary.csv',
-      ['ชื่อ', 'ชั้น', 'ยอดฝากรวม', 'ยอดถอนรวม', 'ยอดคงเหลือ', 'จำนวนธุรกรรม'],
-      filteredSummaries.map((s) => [
-        s.full_name ?? '',
-        s.class_name ?? '',
-        Number(s.total_deposits ?? 0).toFixed(2),
-        Number(s.total_withdrawals ?? 0).toFixed(2),
-        Number(s.current_balance ?? 0).toFixed(2),
-        String(s.total_transactions ?? 0),
-      ]),
-    );
-  };
-
-  const printReport = () => {
-    const w = window.open('', '_blank', 'width=1000,height=800');
-    if (!w) return;
-
-    const totalBalance = filteredSummaries.reduce((sum, s) => sum + Number(s.current_balance ?? 0), 0);
-    const totalSavers = filteredSummaries.filter(s => Number(s.current_balance ?? 0) > 0).length;
-    const totalDeposits = filteredSummaries.reduce((sum, s) => sum + Number(s.total_deposits ?? 0), 0);
-    const totalWithdrawals = filteredSummaries.reduce((sum, s) => sum + Number(s.total_withdrawals ?? 0), 0);
-
-    const rowsHtml = filteredSummaries.map((s, idx) => `
-      <tr>
-        <td style="text-align: center;">${idx + 1}</td>
-        <td style="text-align: center;">${s.student_code || '—'}</td>
-        <td style="font-weight: 600;">${s.full_name || '—'}</td>
-        <td style="text-align: center;">${s.class_name || '—'}</td>
-        <td class="num">${Number(s.total_deposits ?? 0).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-        <td class="num">${Number(s.total_withdrawals ?? 0).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-        <td class="num" style="font-weight: 700;">${Number(s.current_balance ?? 0).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-        <td style="text-align: center;">${s.total_transactions ?? 0}</td>
-      </tr>
-    `).join('');
-
-    w.document.write(`<!DOCTYPE html>
-<html lang="th">
-<head>
-  <meta charset="UTF-8" />
-  <title>รายงานสรุปยอดเงินฝากสะสมธนาคารพอเพียง</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap');
-    
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    
-    body {
-      font-family: 'Sarabun', sans-serif;
-      padding: 40px;
-      color: #1e293b;
-      background: #fff;
-      line-height: 1.5;
-    }
-    
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      margin-bottom: 30px;
-      border-bottom: 2px solid #e2e8f0;
-      padding-bottom: 20px;
-    }
-    
-    .logo-placeholder {
-      font-size: 40px;
-    }
-    
-    .title-area {
-      text-align: center;
-    }
-    
-    h1 {
-      font-size: 20px;
-      font-weight: 800;
-      color: #0f172a;
-      margin-bottom: 4px;
-    }
-    
-    .subtitle {
-      font-size: 13px;
-      color: #64748b;
-      font-weight: 500;
-    }
-    
-    .kpi-container {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 30px;
-    }
-    
-    .kpi-card {
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 16px;
-      background: #f8fafc;
-    }
-    
-    .kpi-card.hero {
-      background: #fffbeb;
-      border-color: #fde68a;
-    }
-    
-    .kpi-label {
-      font-size: 10px;
-      color: #64748b;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 6px;
-    }
-    
-    .kpi-value {
-      font-size: 18px;
-      font-weight: 800;
-      color: #0f172a;
-    }
-    
-    .kpi-value .unit {
-      font-size: 12px;
-      font-weight: 500;
-      color: #64748b;
-      margin-left: 4px;
-    }
-    
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 40px;
-      font-size: 12px;
-    }
-    
-    th, td {
-      border: 1px solid #cbd5e1;
-      padding: 10px 12px;
-    }
-    
-    th {
-      background: #f1f5f9;
-      font-weight: 700;
-      color: #334155;
-      text-align: center;
-    }
-    
-    td.num {
-      text-align: right;
-      font-family: monospace;
-      font-size: 12px;
-    }
-    
-    tr:nth-child(even) {
-      background: #f8fafc;
-    }
-    
-    .signatures {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 60px;
-      margin-top: 50px;
-      page-break-inside: avoid;
-    }
-    
-    .sig-block {
-      text-align: center;
-      font-size: 13px;
-    }
-    
-    .sig-line {
-      margin-bottom: 8px;
-      color: #64748b;
-    }
-    
-    .sig-title {
-      font-weight: 600;
-      color: #334155;
-      margin-top: 4px;
-    }
-    
-    .footer {
-      margin-top: 40px;
-      border-top: 1px solid #e2e8f0;
-      padding-top: 12px;
-      font-size: 10px;
-      color: #94a3b8;
-      display: flex;
-      justify-content: space-between;
-      page-break-inside: avoid;
-    }
-    
-    @media print {
-      body {
-        padding: 0;
-        background: #fff;
-      }
-      .kpi-card {
-        background: #f8fafc !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-      }
-      .kpi-card.hero {
-        background: #fffbeb !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-      }
-      table {
-        page-break-inside: auto;
-      }
-      tr {
-        page-break-inside: avoid;
-        page-break-after: auto;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <span class="logo-placeholder">🐷</span>
-    <div class="title-area">
-      <h1>รายงานสารสนเทศยอดเงินออมสะสม ธนาคารพอเพียง</h1>
-      <div class="subtitle">โรงเรียนบ้านคำไผ่ · ข้อมูลอัปเดต ณ วันที่ ${new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
-    </div>
-  </div>
-
-  <div class="kpi-container">
-    <div class="kpi-card">
-      <div class="kpi-label">จำนวนผู้ออมทั้งหมด</div>
-      <div class="kpi-value">${totalSavers}<span class="unit">คน</span></div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">ยอดเงินฝากรวม</div>
-      <div class="kpi-value">${totalDeposits.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}<span class="unit">฿</span></div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">ยอดเงินถอนรวม</div>
-      <div class="kpi-value">${totalWithdrawals.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}<span class="unit">฿</span></div>
-    </div>
-    <div class="kpi-card hero">
-      <div class="kpi-label" style="color: #92400e;">ยอดเงินออมคงเหลือสุทธิ</div>
-      <div class="kpi-value" style="color: #92400e;">${totalBalance.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}<span class="unit" style="color: #92400e;">฿</span></div>
-    </div>
-  </div>
-
-  <table>
-    <thead>
-      <tr>
-        <th style="width: 50px;">ลำดับ</th>
-        <th style="width: 100px;">รหัสนักเรียน</th>
-        <th>ชื่อ-นามสกุล</th>
-        <th style="width: 80px;">ชั้นเรียน</th>
-        <th style="width: 120px;">ยอดฝากรวม (บาท)</th>
-        <th style="width: 120px;">ยอดถอนรวม (บาท)</th>
-        <th style="width: 130px;">ยอดคงเหลือสุทธิ (บาท)</th>
-        <th style="width: 100px;">จำนวนธุรกรรม</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${rowsHtml}
-    </tbody>
-  </table>
-
-  <div class="signatures">
-    <div class="sig-block">
-      <div class="sig-line">ลงชื่อ............................................................ ผู้จัดทำรายงาน</div>
-      <div class="sig-title">(ครูผู้บันทึกข้อมูล)</div>
-    </div>
-    <div class="sig-block">
-      <div class="sig-line">ลงชื่อ............................................................ ผู้อนุมัติรายงาน</div>
-      <div class="sig-title">(ผู้อำนวยการโรงเรียนบ้านคำไผ่)</div>
-    </div>
-  </div>
-
-  <div class="footer">
-    <span>พิมพ์ด้วยระบบอัตโนมัติธนาคารพอเพียง</span>
-    <span>พิมพ์เมื่อ: ${new Date().toLocaleString('th-TH', { dateStyle: 'long', timeStyle: 'medium' })} น.</span>
-  </div>
-</body>
-</html>`);
-    w.document.close();
-    w.focus();
-    setTimeout(() => { w.print(); }, 500);
-  };
 
   return (
     <div className="space-y-6">
@@ -835,109 +539,7 @@ export const SavingsBankManagement = () => {
       )}
 
       {/* ─── Tab 2: Summary ────────────────────────────────────────────── */}
-      {activeTab === 'summary' && (
-        <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200">
-          <div className="px-5 md:px-6 py-4 border-b border-slate-200 flex flex-wrap items-center gap-3 justify-between">
-            <h3 className="text-base font-extrabold text-slate-900">ยอดเงินคงเหลือรายคน</h3>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={printReport}
-                className="border-slate-300 text-slate-700 font-bold gap-1"
-              >
-                <Printer className="w-4 h-4" /> พิมพ์รายงาน
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={exportSummaryCSV}
-                className="border-slate-300 text-slate-700 font-bold gap-1"
-              >
-                <Download className="w-4 h-4" /> Export CSV
-              </Button>
-            </div>
-          </div>
-
-          <div className="p-5 md:p-6 space-y-4">
-            <div className="flex flex-wrap items-end gap-3">
-              <div className="space-y-1.5 min-w-40">
-                <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">ชั้น</Label>
-                <Select value={summaryClassFilter} onValueChange={setSummaryClassFilter}>
-                  <SelectTrigger className="border-slate-300">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">ทุกชั้น</SelectItem>
-                    {CLASSES.map((c) => (
-                      <SelectItem key={c} value={c}>
-                        {c}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5 flex-1 min-w-40">
-                <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">ค้นหาชื่อ</Label>
-                <Input
-                  value={summarySearch}
-                  onChange={(e) => setSummarySearch(e.target.value)}
-                  placeholder="พิมพ์ชื่อ..."
-                  className="border-slate-300"
-                />
-              </div>
-            </div>
-
-            <div className="overflow-x-auto rounded-xl border border-slate-200">
-              <table className="w-full text-sm">
-                <thead className="bg-slate-100">
-                  <tr>
-                    <Th className="text-left">ชื่อ</Th>
-                    <Th className="text-left">ชั้น</Th>
-                    <Th className="text-right">ฝากรวม</Th>
-                    <Th className="text-right">ถอนรวม</Th>
-                    <Th className="text-right">คงเหลือ</Th>
-                    <Th className="text-right">ธุรกรรม</Th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredSummaries.length === 0 && (
-                    <tr>
-                      <td colSpan={6} className="p-6 text-center text-slate-500 font-medium">
-                        ไม่มีข้อมูล
-                      </td>
-                    </tr>
-                  )}
-                  {filteredSummaries.map((s, idx) => (
-                    <tr
-                      key={s.student_id ?? s.full_name}
-                      className={cn(
-                        'border-t border-slate-100',
-                        idx % 2 === 1 && 'bg-slate-50/40',
-                      )}
-                    >
-                      <td className="p-3 font-bold text-slate-900">{s.full_name}</td>
-                      <td className="p-3 text-slate-700 font-medium">{s.class_name}</td>
-                      <td className="p-3 text-right tabular-nums font-bold text-amber-700">
-                        {fmtBaht(Number(s.total_deposits ?? 0))}
-                      </td>
-                      <td className="p-3 text-right tabular-nums font-bold text-rose-700">
-                        {fmtBaht(Number(s.total_withdrawals ?? 0))}
-                      </td>
-                      <td className="p-3 text-right tabular-nums font-extrabold text-slate-900">
-                        {fmtBaht(Number(s.current_balance ?? 0))}
-                      </td>
-                      <td className="p-3 text-right tabular-nums text-slate-600 font-medium">
-                        {s.total_transactions ?? 0}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
+      {activeTab === 'summary' && <StudentSummaryTab summaries={summaries} />}
 
       {/* ─── Tab 3: History ────────────────────────────────────────────── */}
       {activeTab === 'history' && (

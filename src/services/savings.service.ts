@@ -219,6 +219,52 @@ export const savingsRecorderService = {
   },
 };
 
+// ─── Summary view preference (admin lock, persisted in school_settings) ──────
+export type SavingsSummaryViewMode = 'table' | 'grid' | 'by-class';
+export type SavingsSummarySortBy =
+  | 'balance'
+  | 'deposits'
+  | 'deposit_count'
+  | 'withdrawals'
+  | 'transactions'
+  | 'class'
+  | 'name';
+
+export type SavingsSummaryPreference = {
+  viewMode: SavingsSummaryViewMode;
+  sortBy: SavingsSummarySortBy;
+};
+
+const PREF_VIEW_KEY = 'savings_summary_view_mode';
+const PREF_SORT_KEY = 'savings_summary_sort_by';
+const DEFAULT_PREF: SavingsSummaryPreference = { viewMode: 'table', sortBy: 'balance' };
+
+export const savingsViewPreferenceService = {
+  load: async (): Promise<SavingsSummaryPreference> => {
+    const { data } = await supabase
+      .from('school_settings')
+      .select('key, value')
+      .in('key', [PREF_VIEW_KEY, PREF_SORT_KEY]);
+    if (!data) return DEFAULT_PREF;
+    const map = Object.fromEntries(data.map((r) => [r.key, r.value as string]));
+    return {
+      viewMode: (map[PREF_VIEW_KEY] as SavingsSummaryViewMode) ?? DEFAULT_PREF.viewMode,
+      sortBy: (map[PREF_SORT_KEY] as SavingsSummarySortBy) ?? DEFAULT_PREF.sortBy,
+    };
+  },
+  save: (pref: SavingsSummaryPreference) =>
+    Promise.all([
+      supabase.from('school_settings').upsert(
+        { key: PREF_VIEW_KEY, value: pref.viewMode, category: 'savings', description: 'savings summary default view mode' },
+        { onConflict: 'key' },
+      ),
+      supabase.from('school_settings').upsert(
+        { key: PREF_SORT_KEY, value: pref.sortBy, category: 'savings', description: 'savings summary default sort' },
+        { onConflict: 'key' },
+      ),
+    ]),
+};
+
 // ─── Public RPC lookups (by student_code, no auth) ────────────────────────────
 export const savingsLookupService = {
   lookupStudent: (code: string) =>
