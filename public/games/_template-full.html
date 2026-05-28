@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>เกมตัวอย่าง — Template Full (kampai + Leaderboard)</title>
+<!--
+═══════════════════════════════════════════════════════════════════════════
+  KAMPAI-SCHOOL · GAME TEMPLATE (FULL)
+  Pre-wired: kampai postMessage + Supabase leaderboard + score tracking
+
+  วิธีใช้ (3 ขั้นตอน):
+  1. copy ไฟล์นี้ → public/games/{subject}/{slug}.html
+  2. แก้ค่า GAME_SLUG = 'placeholder-slug' → '{slug}' จริง (1 ที่)
+  3. เขียน game logic ที่ /* TODO */ markers ใน SECTION C
+  4. สร้าง migration: supabase/migrations/NNN_seed_{slug}_game.sql
+  5. รัน `pnpm verify:game public/games/{subject}/{slug}.html` ตรวจสอบ
+═══════════════════════════════════════════════════════════════════════════
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Fredoka+One&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: 'Kanit', sans-serif; background: #0f172a; color: #fff; overflow: hidden; touch-action: none; -webkit-user-select: none; user-select: none; }
+
+/* Game canvas */
+#game-canvas { display: block; width: 100vw; height: 100vh; background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); }
+
+/* Score HUD */
+#score-container { position: fixed; top: 16px; left: 20px; font-size: 28px; font-weight: 700; color: #FFD700; text-shadow: 2px 2px 4px #000; background: rgba(0,0,0,0.4); padding: 6px 16px; border-radius: 999px; border: 2px solid rgba(255,215,0,0.5); z-index: 20; transition: transform 0.15s ease-out; }
+#score-container.pop { transform: scale(1.18); }
+#life-container { position: fixed; top: 16px; right: 20px; font-size: 28px; z-index: 20; }
+
+/* Screens (start + gameover) */
+#blocker, #gameover-screen { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.92); backdrop-filter: blur(8px); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 30; text-align: center; padding: 24px; overflow-y: auto; }
+#gameover-screen { display: none; }
+#blocker h1, #gameover-screen h1 { font-size: 40px; margin-bottom: 16px; background: linear-gradient(135deg, #FFD700, #FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+#blocker p, #gameover-screen p { font-size: 18px; color: #cbd5e1; margin-bottom: 16px; line-height: 1.5; }
+#final-score { color: #FFD700; font-size: 48px; font-weight: 700; margin: 12px 0 24px; }
+
+.btn { padding: 14px 32px; font-family: inherit; font-size: 20px; font-weight: 600; border-radius: 999px; border: none; cursor: pointer; margin: 6px; transition: transform 0.1s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+.btn:active { transform: scale(0.95); }
+.btn-primary { background: linear-gradient(45deg, #4CAF50, #45a049); color: white; box-shadow: 0 4px 10px rgba(76,175,80,0.4); }
+.btn-blue { background: linear-gradient(45deg, #3b82f6, #2563eb); color: white; box-shadow: 0 4px 10px rgba(59,130,246,0.4); }
+.btn-gray { background: rgba(100,116,139,0.7); color: white; }
+
+/* Leaderboard (Supabase top-5) */
+.leaderboard-box { background: rgba(255,255,255,0.95); color: #2c3e50; border-radius: 12px; padding: 12px 15px; margin: 10px 0; width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.lb-title { font-family: 'Fredoka One', cursive; color: #2c3e50; font-size: 1rem; margin: 0 0 8px 0; text-align: left; }
+.leaderboard-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.leaderboard-list li { display: flex; align-items: center; gap: 8px; padding: 4px 2px; border-bottom: 1px dashed #dee2e6; }
+.leaderboard-list li:last-child { border-bottom: none; }
+.lb-entry { display: flex; align-items: center; gap: 8px; width: 100%; }
+.lb-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #f39c12; flex-shrink: 0; }
+.lb-avatar-init { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; flex-shrink: 0; }
+.lb-entry-info { display: flex; flex-direction: column; min-width: 0; flex: 1; text-align: left; }
+.lb-entry-name { font-family: 'Fredoka One', cursive; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #2c3e50; }
+.lb-entry-sub { font-size: 0.72rem; color: #868e96; }
+.lb-loading { color: #868e96; text-align: center; padding: 8px; font-size: 0.85rem; }
+</style>
+</head>
+<body>
+
+<!-- Score HUD -->
+<div id="score-container">⭐ <span id="score-value">0</span></div>
+<div id="life-container">❤️❤️❤️</div>
+
+<!-- Game canvas (TODO: ปรับ/แทนที่ตามต้องการ) -->
+<canvas id="game-canvas"></canvas>
+
+<!-- Start screen -->
+<div id="blocker">
+    <h1>🎯 ชื่อเกม</h1>
+    <p>คำอธิบายเกมสั้น ๆ<br>เป้าหมาย / กติกาคร่าว ๆ</p>
+
+    <!-- Leaderboard top-5 (kampai standard) -->
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list" class="leaderboard-list">
+            <li class="lb-loading">กำลังโหลด...</li>
+        </ul>
+    </div>
+
+    <button class="btn btn-primary" onclick="startGame()">▶ เริ่มเกม</button>
+</div>
+
+<!-- Game Over screen -->
+<div id="gameover-screen">
+    <h1>จบเกม!</h1>
+    <p>คะแนนสุดท้าย</p>
+    <div id="final-score">0</div>
+
+    <!-- Leaderboard top-5 หลังเล่นจบ -->
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับล่าสุด</h3>
+        <ul id="score-list-gameover" class="leaderboard-list">
+            <li class="lb-loading">กำลังโหลด...</li>
+        </ul>
+    </div>
+
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
+        <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นใหม่</button>
+        <a href="/h/nattapong" target="_top" class="btn btn-blue">🎮 เลือกเกมใหม่</a>
+    </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTION A · KAMPAI INTEGRATION (ห้ามแก้ ยกเว้น GAME_SLUG)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+const GAME_SLUG = 'placeholder-slug';   // ⚠️ TODO: เปลี่ยนเป็น slug จริงให้ตรงกับ educational_hub_items.game_slug
+
+const IS_EMBED = window.self !== window.top ||
+                 new URLSearchParams(location.search).get('embed') === '1';
+
+let STUDENT_CODE       = null;
+let DISPLAY_NAME_INIT  = '';
+let SESSION_START_TS   = Date.now();
+
+if (IS_EMBED) {
+    window.addEventListener('message', (e) => {
+        if (e?.data?.type === 'init' && typeof e.data.studentCode === 'string') {
+            STUDENT_CODE      = e.data.studentCode;
+            DISPLAY_NAME_INIT = e.data.displayName ?? '';
+            SESSION_START_TS  = Date.now();
+        }
+    });
+
+    // anchor target=_top interceptor: iframe ไม่มีสิทธิ์ navigate parent โดยตรง
+    document.addEventListener('click', (e) => {
+        const a = e.target.closest('a[target="_top"]');
+        if (!a) return;
+        const href = a.getAttribute('href');
+        if (!href) return;
+        e.preventDefault();
+        try { window.parent.postMessage({ type: 'navigate', to: href }, '*'); } catch (_) {}
+    });
+}
+
+/** เรียกเมื่อเกมจบ (แพ้/ชนะ/ครบเวลา) */
+function sendGameEnd(finalScore, mode, extra) {
+    if (!IS_EMBED || !STUDENT_CODE) return;
+    try {
+        window.parent.postMessage({
+            type:        'gameEnd',
+            gameSlug:    GAME_SLUG,
+            studentCode: STUDENT_CODE,
+            score:       Math.round(finalScore),
+            mode:        mode || 'normal',
+            metadata: {
+                duration: Math.max(1, Math.floor((Date.now() - SESSION_START_TS) / 1000)),
+                ...(extra || {}),
+            },
+        }, '*');
+    } catch (_) {}
+}
+
+/** เรียกเมื่อกดปุ่ม "กลับหน้าหลัก" หรือ "ออกจากเกม" */
+function navigateBack() {
+    if (IS_EMBED) {
+        try { window.parent.postMessage({ type: 'navigate', to: '/h/nattapong' }, '*'); } catch (_) {}
+    } else {
+        window.location.href = '/h/nattapong';
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTION B · SUPABASE LEADERBOARD (ห้ามแก้)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+const SB_URL  = 'https://lkpqssbqxxpasidfqhpb.supabase.co';
+const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrcHFzc2JxeHhwYXNpZGZxaHBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NjUyMjgsImV4cCI6MjA5MTI0MTIyOH0.X7YsSlrgYl9ifLWvgyZI04PtebK572pacadfNlmNO-A';
+
+async function fetchGameLeaderboard(limit = 5) {
+    try {
+        const res = await fetch(`${SB_URL}/rest/v1/rpc/get_game_leaderboard`, {
+            method:  'POST',
+            headers: { 'apikey': SB_ANON, 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ p_game_slug: GAME_SLUG, p_limit: limit }),
+        });
+        return res.ok ? await res.json() : [];
+    } catch { return []; }
+}
+
+function renderGameLeaderboard(rows, listId = 'score-list') {
+    const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+    const el = document.getElementById(listId);
+    if (!el) return;
+    if (!rows.length) {
+        el.innerHTML = '<li class="lb-loading">ยังไม่มีผู้เล่น — เป็นคนแรกสิ!</li>';
+        return;
+    }
+    el.innerHTML = rows.map((r, i) => {
+        const av = r.photo_url
+            ? `<img class="lb-avatar" src="${r.photo_url}" alt="${r.display_name}">`
+            : `<div class="lb-avatar-init">${(r.display_name || '?')[0].toUpperCase()}</div>`;
+        return `<li><div class="lb-entry">
+            <span style="font-family:'Fredoka One',cursive;color:#f39c12;min-width:26px;text-align:center;font-size:1.1rem">${medals[i] || i + 1}</span>
+            ${av}
+            <div class="lb-entry-info">
+                <div class="lb-entry-name">${r.display_name}</div>
+                <div class="lb-entry-sub">${(r.personal_best || 0).toLocaleString()} คะแนน · ${r.class_label || ''}</div>
+            </div>
+        </div></li>`;
+    }).join('');
+}
+
+// โหลด leaderboard อัตโนมัติเมื่อเปิดหน้า
+fetchGameLeaderboard().then(rows => renderGameLeaderboard(rows, 'score-list'));
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTION C · GAME LOGIC (TODO: เขียนเกมของคุณตรงนี้)
+   ═══════════════════════════════════════════════════════════════════════════
+   ตัวอย่างด้านล่าง: "Tap the Dot" — แตะจุดสีแดงให้ทันก่อนหาย
+   ลบหรือแทนที่ทั้งหมดได้ตามต้องการ
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+let score = 0;
+let lives = 3;
+let isGameOver = false;
+let started = false;
+
+function setScore(n) {
+    score = Math.max(0, n);
+    document.getElementById('score-value').innerText = score;
+    const wrap = document.getElementById('score-container');
+    wrap?.classList.add('pop');
+    setTimeout(() => wrap?.classList.remove('pop'), 150);
+}
+
+function setLives(n) {
+    lives = Math.max(0, n);
+    let str = '';
+    for (let i = 0; i < 3; i++) str += (i < lives) ? '❤️' : '🖤';
+    document.getElementById('life-container').innerText = str;
+    if (lives <= 0) endGame();
+}
+
+// ⚠️ จุดสำคัญ: ฟังก์ชันนี้ต้องเรียก sendGameEnd() ทุกครั้งที่จบเกม
+function endGame() {
+    if (isGameOver) return;
+    isGameOver = true;
+
+    // 1. ส่งคะแนนกลับ kampai wrapper
+    sendGameEnd(score, 'normal', {
+        // TODO: เพิ่ม metadata อื่นๆ ตามต้องการ
+        // wave: currentWave,
+        // lives_remaining: lives,
+    });
+
+    // 2. แสดงหน้า Game Over
+    document.getElementById('final-score').innerText = score;
+    document.getElementById('gameover-screen').style.display = 'flex';
+
+    // 3. โหลด leaderboard ของหน้า gameover
+    fetchGameLeaderboard().then(rows => renderGameLeaderboard(rows, 'score-list-gameover'));
+
+    // TODO: หยุด game loop / cancel animation frame ที่นี่
+}
+
+function startGame() {
+    if (started) return;
+    started = true;
+    document.getElementById('blocker').style.display = 'none';
+    // TODO: เริ่ม game loop / spawn enemies / start timer
+    spawnDot();
+    requestAnimationFrame(loop);
+}
+
+// ─── ตัวอย่าง Game Logic (Tap the Dot) — ลบได้ ──────────────────────────────
+const canvas = document.getElementById('game-canvas');
+const ctx    = canvas.getContext('2d');
+let cw = 0, ch = 0;
+function resizeCanvas() { cw = canvas.width = window.innerWidth; ch = canvas.height = window.innerHeight; }
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+let dot = null;
+let dotLifeMs = 1200;
+
+function spawnDot() {
+    const r = 36;
+    dot = {
+        x: r + Math.random() * (cw - 2 * r),
+        y: 80 + r + Math.random() * (ch - 160 - 2 * r),
+        r: r,
+        spawnTs: performance.now(),
+    };
+}
+
+function loop(ts) {
+    if (isGameOver) return;
+    ctx.clearRect(0, 0, cw, ch);
+    if (dot) {
+        const age = performance.now() - dot.spawnTs;
+        if (age > dotLifeMs) {
+            setLives(lives - 1);
+            spawnDot();
+        } else {
+            const alpha = 1 - age / dotLifeMs;
+            ctx.fillStyle = `rgba(239,68,68,${alpha})`;
+            ctx.beginPath();
+            ctx.arc(dot.x, dot.y, dot.r, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+    requestAnimationFrame(loop);
+}
+
+canvas.addEventListener('click', (e) => {
+    if (!started || isGameOver || !dot) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const dx = x - dot.x, dy = y - dot.y;
+    if (dx * dx + dy * dy <= dot.r * dot.r) {
+        setScore(score + 10);
+        dotLifeMs = Math.max(500, dotLifeMs * 0.97);  // เร็วขึ้นเรื่อย ๆ
+        spawnDot();
+    }
+});
+canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    const t = e.touches[0];
+    canvas.dispatchEvent(new MouseEvent('click', { clientX: t.clientX, clientY: t.clientY }));
+}, { passive: false });
+// ─── จบตัวอย่าง — ลบส่วนนี้เมื่อเขียนเกมจริง ─────────────────────────────────
+</script>
+</body>
+</html>

@@ -18,7 +18,8 @@
     "supabase:reset": "supabase db reset",
     "lint:design": "design.md lint DESIGN.md",
     "generate:og": "node scripts/generate-og-image.mjs",
-    "optimize:logos": "node scripts/optimize-logos.mjs"
+    "optimize:logos": "node scripts/optimize-logos.mjs",
+    "verify:game": "node scripts/verify-game.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

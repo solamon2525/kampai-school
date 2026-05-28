@@ -272,9 +272,22 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.38.8 (PlayGame — Fix session persistence ด้วย localStorage)',
+        version: 'v1.39.0 (GAME.md rewrite + Automation System)',
         date: 'ล่าสุด',
         badge: 'bg-emerald-600',
+        items: [
+            'GAME.md เขียนใหม่ AI-friendly (~250 บรรทัด จาก 460+242) — รวม GAME-TEMPLATE.md เข้าไฟล์เดียว',
+            'สร้าง public/games/_template-full.html — template ใหม่ที่มี kampai + Supabase leaderboard ครบ',
+            'สร้าง scripts/verify-game.mjs + `pnpm verify:game <file>` — ตรวจ 6 จุด integration อัตโนมัติ',
+            'สร้าง /integrate-game slash command (Claude Code) — AI auto-integrate ตาม checklist',
+            'เพิ่ม anti-pattern warnings: Firebase SDK, input ชื่อผู้เล่น, window.location.href ตรงๆ',
+            'ลด integrate time จาก ~30 นาที → ~5 นาที',
+        ],
+    },
+    {
+        version: 'v1.38.8 (PlayGame — Fix session persistence ด้วย localStorage)',
+        date: '',
+        badge: 'bg-purple-600',
         items: [
             'เปลี่ยน sessionStorage → localStorage — session คงอยู่แม้ปิด tab / ปิด browser',
             '"กลับหน้าหลัก" ไม่ล้าง session อีกต่อไป — เปิดเกมถัดไปก็ยังไม่ต้องกรอกรหัส',
