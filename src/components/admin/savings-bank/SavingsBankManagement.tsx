@@ -12,10 +12,12 @@ import {
   QrCode,
   Database,
   Printer,
+  UserCheck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { downloadCSV } from '@/lib/export';
 import { BackupsTabContent } from './BackupsTabContent';
+import { TeacherSummaryTab } from './TeacherSummaryTab';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -57,7 +59,7 @@ interface StudentOption {
   photo_url: string | null;
 }
 
-type ActiveTab = 'record' | 'summary' | 'history' | 'backups';
+type ActiveTab = 'record' | 'summary' | 'history' | 'backups' | 'teachers';
 
 const fmtBaht = (n: number | null | undefined) => {
   if (n == null) return '—';
@@ -651,6 +653,13 @@ export const SavingsBankManagement = () => {
         >
           ระบบสำรองข้อมูล
         </PillTab>
+        <PillTab
+          active={activeTab === 'teachers'}
+          onClick={() => setActiveTab('teachers')}
+          icon={<UserCheck className="w-4 h-4" />}
+        >
+          สรุปรายครู
+        </PillTab>
       </div>
 
       {/* ─── Tab 1: Record ────────────────────────────────────────────── */}
@@ -1054,6 +1063,9 @@ export const SavingsBankManagement = () => {
       {activeTab === 'backups' && (
         <BackupsTabContent summaries={summaries} fetchSummaries={fetchSummaries} />
       )}
+
+      {/* ─── Tab 5: Teacher recorder summary ────────────────────────────── */}
+      {activeTab === 'teachers' && <TeacherSummaryTab />}
 
       {/* QR Scanner Dialog */}
       <StudentQRScanner

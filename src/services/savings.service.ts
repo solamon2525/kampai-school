@@ -155,6 +155,70 @@ export const savingsSummaryService = {
   },
 };
 
+// ─── Recorder Summary (per teacher who recorded transactions) ─────────────────
+export type SavingsRecorderSummary = {
+  recorder_name: string;
+  recorded_by_staff_id: string | null;
+  photo_url: string | null;
+  deposit_count: number;
+  withdraw_count: number;
+  total_deposits: number;
+  total_withdrawals: number;
+};
+
+export const savingsRecorderService = {
+  getSummary: async (): Promise<{ data: SavingsRecorderSummary[] | null; error: unknown }> => {
+    const { data, error } = await supabase
+      .from('savings_transactions')
+      .select(
+        'recorded_by, recorded_by_staff_id, recorded_by_administrator_id, transaction_type, amount, staff!recorded_by_staff_id(photo_url)',
+      )
+      .not('recorded_by', 'is', null);
+
+    if (error || !data) return { data: null, error };
+
+    const map = new Map<string, SavingsRecorderSummary>();
+    for (const txn of data as unknown as Array<{
+      recorded_by: string | null;
+      recorded_by_staff_id: string | null;
+      recorded_by_administrator_id: string | null;
+      transaction_type: string;
+      amount: number;
+      staff: { photo_url: string | null } | null;
+    }>) {
+      const key =
+        txn.recorded_by_staff_id ??
+        txn.recorded_by_administrator_id ??
+        txn.recorded_by ??
+        'unknown';
+      if (!map.has(key)) {
+        map.set(key, {
+          recorder_name: txn.recorded_by ?? 'ไม่ระบุ',
+          recorded_by_staff_id: txn.recorded_by_staff_id ?? null,
+          photo_url: txn.staff?.photo_url ?? null,
+          deposit_count: 0,
+          withdraw_count: 0,
+          total_deposits: 0,
+          total_withdrawals: 0,
+        });
+      }
+      const rec = map.get(key)!;
+      if (txn.transaction_type === 'deposit') {
+        rec.deposit_count++;
+        rec.total_deposits += Number(txn.amount ?? 0);
+      } else {
+        rec.withdraw_count++;
+        rec.total_withdrawals += Number(txn.amount ?? 0);
+      }
+    }
+
+    const result = Array.from(map.values()).sort(
+      (a, b) => b.deposit_count + b.withdraw_count - (a.deposit_count + a.withdraw_count),
+    );
+    return { data: result, error: null };
+  },
+};
+
 // ─── Public RPC lookups (by student_code, no auth) ────────────────────────────
 export const savingsLookupService = {
   lookupStudent: (code: string) =>
