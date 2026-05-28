@@ -334,7 +334,7 @@ const EducationalHubTeacher = () => {
 
                                 {/* Content breakdown bar chart — desktop only */}
                                 {chartData.length > 0 && (
-                                    <div className="hidden sm:flex flex-col justify-center shrink-0 w-56 h-32 ml-auto">
+                                    <div className="hidden md:flex flex-col justify-center shrink-0 w-48 h-32 ml-auto">
                                         <p className={`text-[10px] font-medium mb-1 ${teacher.banner_url ? 'text-white/70' : 'text-muted-foreground'}`}>
                                             เนื้อหาทั้งหมด
                                         </p>
