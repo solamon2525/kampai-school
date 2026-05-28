@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.38.7 (PlayGame — Exit Menu 4 ตัวเลือก + Auto-login)',
+        version: 'v1.38.8 (PlayGame — Fix session persistence ด้วย localStorage)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'เปลี่ยน sessionStorage → localStorage — session คงอยู่แม้ปิด tab / ปิด browser',
+            '"กลับหน้าหลัก" ไม่ล้าง session อีกต่อไป — เปิดเกมถัดไปก็ยังไม่ต้องกรอกรหัส',
+            'ล้าง session ได้ทางเดียว: กดปุ่ม "เปลี่ยนผู้เล่น" เท่านั้น',
+        ],
+    },
+    {
+        version: 'v1.38.7 (PlayGame — Exit Menu 4 ตัวเลือก + Auto-login)',
+        date: '',
         badge: 'bg-purple-600',
         items: [
             'Exit Menu อัปเกรดเป็น 4 ตัวเลือก: เล่นซ้ำ / เลือกเกมอื่น / เปลี่ยนผู้เล่น / กลับหน้าหลัก',

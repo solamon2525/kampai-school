@@ -145,11 +145,11 @@ const PlayGame = () => {
       const found = await gamePlayService.lookupStudent(code);
       if (!found) {
         setLookupError('ไม่พบรหัสนักเรียนนี้ ลองใหม่อีกครั้ง');
-        sessionStorage.removeItem('kampai_student_code');
+        localStorage.removeItem('kampai_student_code');
         return;
       }
       setStudent(found);
-      sessionStorage.setItem('kampai_student_code', code);
+      localStorage.setItem('kampai_student_code', code);
       setPhase('confirm');
     } catch {
       setLookupError('เกิดข้อผิดพลาด โปรดลองใหม่');
@@ -175,9 +175,9 @@ const PlayGame = () => {
     );
   }, [student, codeInput]);
 
-  // ─── auto-login จาก sessionStorage (ลดเวลากรอกรหัสเมื่อเปลี่ยนเกม) ────────
+  // ─── auto-login จาก localStorage (ลดเวลากรอกรหัสเมื่อเปลี่ยนเกม) ────────
   useEffect(() => {
-    const saved = sessionStorage.getItem('kampai_student_code');
+    const saved = localStorage.getItem('kampai_student_code');
     if (saved) {
       setCodeInput(saved);
       handleLookup(saved);
@@ -412,7 +412,7 @@ const PlayGame = () => {
                     variant="outline"
                     className="justify-start gap-3 h-12"
                     onClick={() => {
-                      sessionStorage.removeItem('kampai_student_code');
+                      localStorage.removeItem('kampai_student_code');
                       setShowExitMenu(false);
                       handleSwitchStudent();
                     }}
@@ -428,16 +428,10 @@ const PlayGame = () => {
                   <Button
                     variant="ghost"
                     className="justify-start gap-3 h-12 text-muted-foreground"
-                    onClick={() => {
-                      sessionStorage.removeItem('kampai_student_code');
-                      navigate('/h/nattapong');
-                    }}
+                    onClick={() => navigate('/h/nattapong')}
                   >
                     <ArrowLeft className="h-4 w-4 shrink-0" />
-                    <div className="flex flex-col items-start">
-                      <span>กลับหน้าหลัก</span>
-                      <span className="text-[10px] font-normal">ล้าง session</span>
-                    </div>
+                    <span>กลับหน้าหลัก</span>
                   </Button>
                 </div>
               </DialogContent>
