@@ -880,7 +880,7 @@ const PlayingPanel = ({
         title="game"
         className="block h-[80vh] w-full border-0"
         sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-modals"
-        allow="pointer-lock; fullscreen; autoplay; cross-origin-isolated"
+        allow="pointer-lock; fullscreen; autoplay; cross-origin-isolated; camera; microphone"
       />
     </Card>
   );
