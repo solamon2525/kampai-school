@@ -10,12 +10,7 @@ import { PortalProtectedRoute } from "./components/portal/PortalProtectedRoute";
 import { RuntimeThemeStyles } from "./components/theme/RuntimeThemeStyles";
 import DynamicFavicon from "./components/DynamicFavicon";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-import { InstallBanner } from "./components/pwa/InstallBanner";
-import { OfflineIndicator } from "./components/shared/OfflineIndicator";
 import { CommandPaletteProvider } from "./hooks/useCommandPalette";
-import { CommandPalette } from "./components/shared/CommandPalette";
-import { PushPermissionBanner } from "./components/shared/PushPermissionBanner";
-import { OfflineQueueIndicator } from "./components/shared/OfflineQueueIndicator";
 import { ActiveChildProvider } from "./hooks/useActiveChild";
 
 // หน้าแรกโหลดทันที (Critical path)
@@ -90,6 +85,13 @@ const ConferenceSlotsManager = lazyWithRetry(() => import("./components/teacher/
 const Alumni = lazyWithRetry(() => import("./pages/Alumni"));
 const SurveyResponse = lazyWithRetry(() => import("./pages/SurveyResponse"));
 
+// Non-critical UX components — lazy เพื่อลด eager bundle
+const InstallBanner = lazyWithRetry(() => import("./components/pwa/InstallBanner").then(m => ({ default: m.InstallBanner })));
+const OfflineIndicator = lazyWithRetry(() => import("./components/shared/OfflineIndicator").then(m => ({ default: m.OfflineIndicator })));
+const PushPermissionBanner = lazyWithRetry(() => import("./components/shared/PushPermissionBanner").then(m => ({ default: m.PushPermissionBanner })));
+const OfflineQueueIndicator = lazyWithRetry(() => import("./components/shared/OfflineQueueIndicator").then(m => ({ default: m.OfflineQueueIndicator })));
+const CommandPalette = lazyWithRetry(() => import("./components/shared/CommandPalette").then(m => ({ default: m.CommandPalette })));
+
 // Loading placeholder ขณะรอโหลด page (shimmer + logo placeholder — ดูนุ่มกว่า spinner)
 const PageLoader = () => (
   <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-4">
@@ -128,15 +130,19 @@ const App = () => (
       <DynamicFavicon />
       <Toaster />
       <Sonner />
-      <InstallBanner />
-      <OfflineIndicator />
-      <PushPermissionBanner />
-      <OfflineQueueIndicator />
+      <Suspense fallback={null}>
+        <InstallBanner />
+        <OfflineIndicator />
+        <PushPermissionBanner />
+        <OfflineQueueIndicator />
+      </Suspense>
       <ErrorBoundary>
       <BrowserRouter>
         <CommandPaletteProvider>
         <ActiveChildProvider>
-        <CommandPalette />
+        <Suspense fallback={null}>
+          <CommandPalette />
+        </Suspense>
         <PageViewTracker />
         <Suspense fallback={<PageLoader />}>
           <Routes>

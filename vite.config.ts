@@ -32,4 +32,20 @@ export default defineConfig(() => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    chunkSizeWarningLimit: 700,
+    rollupOptions: {
+      output: {
+        // Vendor split. CRITICAL: recharts ต้องแยกออกจาก d3 (TDZ pitfall, v1.9.3 hotfix).
+        // Default Vite chunking already keeps them separate — เราแค่ตัง explicit vendor chunks
+        // ที่ shared กับหลายหน้า ออกจาก main bundle เพื่อให้ cache แยกและ parallel download.
+        manualChunks: {
+          "react-vendor": ["react", "react-dom", "react-router-dom"],
+          "query-vendor": ["@tanstack/react-query"],
+          "motion-vendor": ["framer-motion"],
+          "supabase-vendor": ["@supabase/supabase-js"],
+        },
+      },
+    },
+  },
 }));
