@@ -280,7 +280,7 @@ import FacebookFeedSection from '@/components/home/sections/FacebookFeedSection'
 | Service | `facebookService` ใน `src/services/facebook.service.ts` |
 | Hooks | `useFacebookFeedMeta`, `useFacebookPosts`, `useRefreshFacebookFeed` |
 
-**Admin form:** `Settings → Homepage Content → ฟีดข่าว Facebook` — `FacebookFeedSettingsCard.tsx`
+**Admin form:** `Sidebar → ฟีดข่าว Facebook → /admin/dashboard/facebook-feed` (`FacebookFeedManager.tsx` wraps `FacebookFeedSettingsCard.tsx`)
 
 **States:** loading skeleton / `enabled=false` → null / `last_status=token_expired` → error banner "Facebook token หมดอายุ..." / empty / posts list
 

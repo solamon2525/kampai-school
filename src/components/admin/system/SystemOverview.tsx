@@ -272,8 +272,21 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.40.0 (Homepage — ฟีดข่าว Facebook)',
+        version: 'v1.40.1 (Admin — เมนูสายตรง Facebook Feed)',
         date: 'ล่าสุด',
+        badge: 'bg-[#1877F2]',
+        items: [
+            'เพิ่มเมนู Sidebar "ฟีดข่าว Facebook" ใต้หมวด "เว็บไซต์" (next to Hero Slides) → /admin/dashboard/facebook-feed',
+            'หน้าใหม่ FacebookFeedManager.tsx — header + collapsible help (วิธีหา Page ID + วิธีสร้าง Long-Lived Token + การแก้ Token หมดอายุ) + FacebookFeedSettingsCard (reuse)',
+            'ย้ายฟอร์มออกจาก Settings → Homepage Content (single source of truth) — Quicklinks ตามมาด้วย OBEC links โดยตรง',
+            'เพิ่ม Cmd+K entry "ฟีดข่าว Facebook — ตั้งค่า" (keywords: facebook, feed, page, token, social, fb)',
+            'อัปเดต BlockPalette hint: ตั้งค่าที่เมนู "ฟีดข่าว Facebook" (เดิมชี้ไปที่เนื้อหาหน้าแรก)',
+            'PermissionGuard menuId="facebook-feed" — admin only (defense-in-depth + RLS layer)',
+        ],
+    },
+    {
+        version: 'v1.40.0 (Homepage — ฟีดข่าว Facebook)',
+        date: '',
         badge: 'bg-[#1877F2]',
         items: [
             'Widget ใหม่ "ฟีดข่าว Facebook" ใต้ส่วนข่าวสารบนหน้าแรก — ดึงโพสต์ล่าสุดจาก Facebook Page ผ่าน Graph API',

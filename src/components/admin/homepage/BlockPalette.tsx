@@ -35,7 +35,7 @@ export const MAIN_BLOCKS: BlockDef[] = [
     { id: 'hero', label: 'Hero Slideshow', icon: '🖼️', description: 'สไลด์โชว์ภาพหลัก', category: 'basic' },
     { id: 'featured_hero', label: 'สุดยอดฮีโร่ความดีประจำสัปดาห์', icon: '🏆', description: 'แสดงโปรไฟล์ฮีโร่พร้อมผังพลังคุณธรรม 5 มิติ', category: 'basic' },
     { id: 'news', label: 'ข่าวสาร', icon: '📰', description: 'ข่าวล่าสุด 5 รายการ', category: 'basic' },
-    { id: 'facebook_feed', label: 'ฟีดข่าว Facebook', icon: '📘', description: 'โพสต์ล่าสุดจาก Facebook Page (ตั้งค่าใน "เนื้อหาหน้าแรก")', category: 'service' },
+    { id: 'facebook_feed', label: 'ฟีดข่าว Facebook', icon: '📘', description: 'โพสต์ล่าสุดจาก Facebook Page (ตั้งค่าที่เมนู "ฟีดข่าว Facebook")', category: 'service' },
     { id: 'about', label: 'เกี่ยวกับโรงเรียน', icon: '🏫', description: 'คำอธิบาย + ลิงก์อ่านเพิ่ม', category: 'basic' },
     { id: 'announcement', label: 'ประกาศ', icon: '📢', description: 'แบนเนอร์ประกาศ', category: 'basic' },
     { id: 'quicklinks', label: 'ลิงก์ด่วน', icon: '🔗', description: 'ปุ่ม shortcut 4 ปุ่ม', category: 'basic' },

@@ -53,6 +53,7 @@ import {
     QrCode,
     ShieldCheck,
     Target,
+    Facebook,
 } from 'lucide-react';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import { NotificationBell } from './NotificationBell';
@@ -85,6 +86,7 @@ const menuItems: MenuItem[] = [
     { type: 'item', id: 'theme', label: 'ธีมสี (Theme)', icon: Palette, path: '/admin/dashboard/theme', adminOnly: true },
     { type: 'item', id: 'menu', label: 'เมนูเว็บไซต์', icon: MenuIcon, path: '/admin/dashboard/menu', adminOnly: true },
     { type: 'item', id: 'hero-slides', label: 'Hero Slides', icon: SlidersHorizontal, path: '/admin/dashboard/hero-slides', adminOnly: true },
+    { type: 'item', id: 'facebook-feed', label: 'ฟีดข่าว Facebook', icon: Facebook, path: '/admin/dashboard/facebook-feed', adminOnly: true },
     { type: 'item', id: 'testimonials', label: 'Testimonials', icon: MessageCircle, path: '/admin/dashboard/testimonials', adminOnly: true },
     { type: 'item', id: 'partners', label: 'พันธมิตร', icon: Handshake, path: '/admin/dashboard/partners', adminOnly: true },
     { type: 'item', id: 'news', label: 'ข่าวสาร', icon: Newspaper, path: '/admin/dashboard/news' },

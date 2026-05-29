@@ -27,6 +27,7 @@ import {
   BarChart2,
   Sparkles,
   LogOut,
+  Facebook,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -83,6 +84,7 @@ export const STATIC_COMMANDS: CommandEntry[] = [
   { id: 'adm-system', label: 'ภาพรวมระบบ (Version)', group: 'แอดมิน', icon: Sparkles, roles: ['admin'], action: { type: 'navigate', path: '/admin/dashboard/system-overview' } },
   { id: 'adm-ai-assist', label: 'AI ผู้ช่วยครู (Claude)', group: 'แอดมิน', icon: Sparkles, roles: ['admin', 'teacher'], keywords: ['ai', 'claude', 'lesson', 'exam', 'comment', 'gpt'], action: { type: 'navigate', path: '/admin/dashboard/ai-assist' } },
   { id: 'adm-line', label: 'LINE OA — ผู้ติดตาม', group: 'แอดมิน', icon: Sparkles, roles: ['admin'], keywords: ['line', 'oa', 'message', 'notify', 'broadcast'], action: { type: 'navigate', path: '/admin/dashboard/line' } },
+  { id: 'adm-facebook-feed', label: 'ฟีดข่าว Facebook — ตั้งค่า', group: 'แอดมิน', icon: Facebook, roles: ['admin'], keywords: ['facebook', 'feed', 'page', 'token', 'social', 'fb'], action: { type: 'navigate', path: '/admin/dashboard/facebook-feed' } },
   { id: 'adm-health', label: 'สุขภาพนักเรียน (น้ำหนัก/วัคซีน)', group: 'แอดมิน', icon: Award, roles: ['admin', 'teacher'], keywords: ['health', 'weight', 'height', 'vaccine', 'bmi'], action: { type: 'navigate', path: '/admin/dashboard/health' } },
   { id: 'adm-dmc', label: 'DMC Export (สพฐ.)', group: 'แอดมิน', icon: FileText, roles: ['admin'], keywords: ['dmc', 'emis', 'moe', 'export', 'excel'], action: { type: 'navigate', path: '/admin/dashboard/dmc-export' } },
   { id: 'adm-pdpa', label: 'PDPA Compliance', group: 'แอดมิน', icon: Sparkles, roles: ['admin'], keywords: ['pdpa', 'consent', 'privacy', 'audit', 'erasure'], action: { type: 'navigate', path: '/admin/dashboard/pdpa' } },
