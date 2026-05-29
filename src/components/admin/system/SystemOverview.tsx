@@ -272,8 +272,22 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.39.6 (EducationalHubTeacher — ลบ Hero Bar Chart)',
+        version: 'v1.40.0 (Homepage — ฟีดข่าว Facebook)',
         date: 'ล่าสุด',
+        badge: 'bg-[#1877F2]',
+        items: [
+            'Widget ใหม่ "ฟีดข่าว Facebook" ใต้ส่วนข่าวสารบนหน้าแรก — ดึงโพสต์ล่าสุดจาก Facebook Page ผ่าน Graph API',
+            'Edge function `facebook-fetch` — โทร Graph API + cache โพสต์ + จัดการ token_expired/error status',
+            'Migration 102: `facebook_feed_config` (admin-only RLS, token เก็บลึก) + `facebook_posts` (public read, service-role write)',
+            'RPC `get_facebook_feed_meta` — เปิด non-secret config ให้หน้าแรกอ่านโดยไม่หลุด token',
+            'Admin form ใน Settings → Homepage Content: ตั้ง Page ID, Token (masked), จำนวนโพสต์, refresh interval, ปุ่ม "รีเฟรชเดี๋ยวนี้"',
+            'PageBuilder รองรับ block `facebook_feed` (BlockPalette + HomepagePreview)',
+            'Stale-while-revalidate — หน้าโหลด cache ทันที + ยิง refresh background ถ้าเกิน refresh_interval',
+        ],
+    },
+    {
+        version: 'v1.39.6 (EducationalHubTeacher — ลบ Hero Bar Chart)',
+        date: '',
         badge: 'bg-emerald-600',
         items: [
             'ลบ bar chart ใน hero ออก — ครูส่วนใหญ่มี content ไม่ครบทุกหมวด ทำให้ chart โล่ง ดูแปลก',

@@ -93,6 +93,34 @@ const MainBlockPreview: Record<string, () => JSX.Element> = {
             </div>
         </div>
     ),
+    facebook_feed: () => (
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <div className="bg-emerald-800 text-white px-2 py-1 flex items-center justify-between">
+                <span className="text-[8px] font-semibold flex items-center gap-1">
+                    <span className="w-0.5 h-2 bg-yellow-400 rounded-full inline-block" />
+                    📘 ฟีดข่าว Facebook
+                </span>
+                <span className="text-[6px] text-yellow-300">ดูเพิ่มเติม →</span>
+            </div>
+            <div className="p-2">
+                <div className="border border-gray-200 rounded-md p-1.5 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                        <span className="text-[7px] font-semibold text-gray-700">ข่าวสารจาก Facebook</span>
+                        <span className="text-[5px] px-1 py-0.5 rounded-full border border-gray-300 text-gray-600">โรงเรียน</span>
+                    </div>
+                    {[0, 1, 2].map((i) => (
+                        <div key={i} className="flex gap-1.5">
+                            <div className="w-5 h-5 bg-gray-200 rounded flex-shrink-0" />
+                            <div className="flex-1 space-y-0.5">
+                                <div className="h-1 bg-gray-200 rounded w-full" />
+                                <div className="h-1 bg-gray-100 rounded w-1/3" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    ),
     about: () => (
         <div className="bg-white border border-gray-200 rounded-lg p-2">
             <div className="flex items-center gap-1 mb-1.5">

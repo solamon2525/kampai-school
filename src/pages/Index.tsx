@@ -122,7 +122,7 @@ const Index = () => {
         {/* Desktop: 3 columns */}
         <div className="hidden lg:grid grid-cols-[240px_1fr_240px] gap-4 items-start">
           <aside className="min-w-0 overflow-hidden">{renderZone(layout?.left, ['principal', 'menu'], 'flex flex-col gap-3 w-full')}</aside>
-          <main className="min-w-0 overflow-hidden">{renderZone(layout?.main, ['hero', 'featured_hero', 'news', 'about'], 'flex flex-col gap-4 w-full')}</main>
+          <main className="min-w-0 overflow-hidden">{renderZone(layout?.main, ['hero', 'featured_hero', 'news', 'facebook_feed', 'about'], 'flex flex-col gap-4 w-full')}</main>
           <aside className="min-w-0 overflow-hidden">{renderZone(layout?.right, ['categories', 'gallery', 'services', 'social', 'stats'], 'flex flex-col gap-3 w-full')}</aside>
         </div>
 
@@ -139,7 +139,7 @@ const Index = () => {
           ) : (
             // Default: main then sidebars
             <>
-              <div className="min-w-0 overflow-hidden">{renderZone(layout?.main, ['hero', 'featured_hero', 'news', 'about'], 'flex flex-col gap-4 w-full')}</div>
+              <div className="min-w-0 overflow-hidden">{renderZone(layout?.main, ['hero', 'featured_hero', 'news', 'facebook_feed', 'about'], 'flex flex-col gap-4 w-full')}</div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 min-w-0">
                 <aside className="min-w-0 overflow-hidden">{renderZone(layout?.left, ['principal', 'menu'], 'flex flex-col gap-3 w-full')}</aside>
                 <aside className="min-w-0 overflow-hidden">{renderZone(layout?.right, ['categories', 'gallery', 'services', 'social', 'stats'], 'flex flex-col gap-3 w-full')}</aside>

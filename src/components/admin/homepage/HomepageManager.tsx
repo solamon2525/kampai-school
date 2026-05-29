@@ -36,7 +36,7 @@ const DEFAULT_LAYOUT: HomepageLayout = {
         hidden: [],
     },
     main: {
-        blocks: ['hero', 'news', 'about'],
+        blocks: ['hero', 'news', 'facebook_feed', 'about'],
         hidden: [],
     },
     right: {

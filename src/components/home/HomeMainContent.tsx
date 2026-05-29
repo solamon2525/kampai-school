@@ -14,6 +14,7 @@ import {
   staggerItemVariants,
   slideUpVariants,
 } from '@/hooks/useScrollReveal';
+import FacebookFeedSection from '@/components/home/sections/FacebookFeedSection';
 
 interface NewsItem {
   id: string;
@@ -1365,6 +1366,7 @@ export const useHomeMainBlocks = () => {
     hero: heroSection,
     featured_hero: featuredHeroSection,
     news: newsSection,
+    facebook_feed: <FacebookFeedSection key="facebook_feed" />,
     about: aboutSection,
     calendar: calendarSection,
     video: videoSection,

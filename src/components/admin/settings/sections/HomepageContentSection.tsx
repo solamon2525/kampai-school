@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Plus, Trash2, GripVertical } from 'lucide-react';
 import { ImageUpload } from '@/components/admin/shared/ImageUpload';
+import { FacebookFeedSettingsCard } from './FacebookFeedSettingsCard';
 
 interface Props {
     settings: Record<string, string>;
@@ -127,6 +128,9 @@ export const HomepageContentSection = ({ settings, onChange }: Props) => {
                     </p>
                 </CardContent>
             </Card>
+
+            {/* Facebook Feed (separate table — admin-only RLS) */}
+            <FacebookFeedSettingsCard />
 
             {/* OBEC Links Visibility */}
             <Card>

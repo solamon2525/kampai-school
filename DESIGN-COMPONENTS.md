@@ -259,6 +259,37 @@ import { LineFollowersManager } from '@/components/admin/line/LineFollowersManag
 
 ---
 
+### FacebookFeedSection (homepage block)
+
+Homepage block ใต้ส่วน "ข่าวสารล่าสุด" — แสดงโพสต์ล่าสุดจาก Facebook Page
+
+```tsx
+import FacebookFeedSection from '@/components/home/sections/FacebookFeedSection';
+<FacebookFeedSection />  // self-managing — ใช้ react-query + facebookService
+```
+
+**Block id:** `facebook_feed` (registered ใน `BlockPalette.MAIN_BLOCKS` + `HomeMainContent.sectionMap` + `HomepagePreview`)
+
+**Data flow:**
+| layer | path |
+|---|---|
+| Table (admin-only RLS) | `public.facebook_feed_config` (singleton) |
+| Table (public read, service-role write) | `public.facebook_posts` |
+| RPC (anon-readable, no token) | `public.get_facebook_feed_meta()` |
+| Edge function | `supabase/functions/facebook-fetch` (admin auth) |
+| Service | `facebookService` ใน `src/services/facebook.service.ts` |
+| Hooks | `useFacebookFeedMeta`, `useFacebookPosts`, `useRefreshFacebookFeed` |
+
+**Admin form:** `Settings → Homepage Content → ฟีดข่าว Facebook` — `FacebookFeedSettingsCard.tsx`
+
+**States:** loading skeleton / `enabled=false` → null / `last_status=token_expired` → error banner "Facebook token หมดอายุ..." / empty / posts list
+
+**Visual:** outer card `bg-card border-border` + brand header `bg-primary` + inner card `bg-muted/40` + post rows with thumbnail (`w-16 h-16`) + relative time (date-fns th locale)
+
+**Hard rule:** access_token ห้ามถูกส่งให้ anonymous client — ใช้ RPC `get_facebook_feed_meta()` สำหรับ public meta เท่านั้น
+
+---
+
 ### PushPermissionBanner (shared — global)
 
 Mount ใน `App.tsx` ระดับ root. แสดงเฉพาะเมื่อ login + permission default + ไม่ได้กดไว้ก่อนใน 7 วันที่ผ่านมา
