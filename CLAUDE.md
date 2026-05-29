@@ -58,6 +58,15 @@ Client check = UX เท่านั้น **ความปลอดภัย�
 - Component folders = `kebab-case/` แต่ไฟล์ component = `PascalCase.tsx`
 - Migrations 3-digit prefix: `NNN_description.sql`
 
+## Behavioral guidelines (Karpathy)
+
+- **Think first** — surface assumptions ก่อน code, ถามถ้าไม่ชัด, ไม่เลือกแนวทางเงียบ ๆ
+- **Simplicity first** — เขียน code น้อยที่สุดที่แก้ปัญหา; ไม่เพิ่ม abstraction / config / "flexibility" ที่ไม่ได้ขอ; ไม่ handle scenario ที่เป็นไปไม่ได้
+- **Surgical changes** — แตะเฉพาะที่จำเป็น; ไม่ refactor adjacent code; match style เดิมแม้จะไม่ใช่ที่ตัวเองชอบ; ลบเฉพาะ orphan ที่ตัวเองทำให้เกิด
+- **Goal-driven** — แปลงงานเป็น verifiable success criteria + loop จนผ่าน (เช่น "add validation" → "write tests for invalid inputs, then make them pass")
+
+รายละเอียดเต็มเรียกได้ที่ `/andrej-karpathy-skills:karpathy-guidelines`
+
 ## Gotchas
 
 - **Vercel webhook หลุดเงียบ:** push แล้วไม่ deploy → กู้ด้วย `vercel deploy --prod --yes`
