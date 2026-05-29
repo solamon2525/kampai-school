@@ -5,8 +5,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { EmptyState } from '@/components/ui/empty-state';
 import { useToast } from '@/hooks/use-toast';
-import { TIPS, TIP_CATEGORIES, type TipEntry } from '@/lib/tipsRegistry';
+import { TIPS, TIP_CATEGORIES, type TipEntry, type TipCategory } from '@/lib/tipsRegistry';
 
 const ALL = 'all';
 
@@ -33,20 +34,31 @@ export const TipPromptManager = () => {
   );
 
   const filtered = useMemo(() => {
-    const base = query.trim()
-      ? fuse.search(query.trim()).map((r) => r.item)
-      : TIPS;
+    const trimmed = query.trim();
+    const base = trimmed ? fuse.search(trimmed).map((r) => r.item) : TIPS;
     return category === ALL ? base : base.filter((t) => t.category === category);
   }, [query, category, fuse]);
 
   const grouped = useMemo(() => {
     const map = new Map<string, TipEntry[]>();
     for (const tip of filtered) {
-      if (!map.has(tip.category)) map.set(tip.category, []);
-      map.get(tip.category)!.push(tip);
+      const bucket = map.get(tip.category);
+      if (bucket) bucket.push(tip);
+      else map.set(tip.category, [tip]);
     }
     return map;
   }, [filtered]);
+
+  const categoryById = useMemo(
+    () => new Map<string, TipCategory>(TIP_CATEGORIES.map((c) => [c.id, c])),
+    [],
+  );
+
+  const countsByCategory = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const tip of TIPS) counts.set(tip.category, (counts.get(tip.category) ?? 0) + 1);
+    return counts;
+  }, []);
 
   const handleCopy = async (id: string, text: string) => {
     try {
@@ -61,8 +73,8 @@ export const TipPromptManager = () => {
   return (
     <div className="p-4 md:p-6 space-y-4 max-w-5xl mx-auto w-full">
       <header className="flex items-start gap-3">
-        <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center flex-shrink-0">
-          <Lightbulb className="w-6 h-6 text-amber-600" />
+        <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0">
+          <Lightbulb className="w-6 h-6 text-accent" />
         </div>
         <div className="min-w-0">
           <h1 className="text-xl font-bold text-foreground">Tip Prompt</h1>
@@ -91,30 +103,30 @@ export const TipPromptManager = () => {
             onClick={() => setCategory(ALL)}
             count={TIPS.length}
           />
-          {TIP_CATEGORIES.map((cat) => {
-            const count = TIPS.filter((t) => t.category === cat.id).length;
-            return (
-              <CategoryChip
-                key={cat.id}
-                active={category === cat.id}
-                label={cat.label}
-                icon={cat.icon}
-                onClick={() => setCategory(cat.id)}
-                count={count}
-              />
-            );
-          })}
+          {TIP_CATEGORIES.map((cat) => (
+            <CategoryChip
+              key={cat.id}
+              active={category === cat.id}
+              label={cat.label}
+              icon={cat.icon}
+              onClick={() => setCategory(cat.id)}
+              count={countsByCategory.get(cat.id) ?? 0}
+            />
+          ))}
         </div>
       </div>
 
       {filtered.length === 0 ? (
-        <div className="rounded-lg border border-border bg-muted/30 py-10 text-center text-sm text-muted-foreground">
-          ไม่พบ tip ที่ตรงกับคำค้น
-        </div>
+        <EmptyState
+          variant="card"
+          icon={Search}
+          title="ไม่พบ tip ที่ตรงกับคำค้น"
+          description="ลองปรับคำค้นหาหรือเลือกหมวดอื่น"
+        />
       ) : (
         <div className="space-y-6">
           {Array.from(grouped.entries()).map(([catId, tips]) => {
-            const cat = TIP_CATEGORIES.find((c) => c.id === catId);
+            const cat = categoryById.get(catId);
             return (
               <section key={catId} className="space-y-2">
                 <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
