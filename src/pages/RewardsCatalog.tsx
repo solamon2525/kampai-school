@@ -136,7 +136,7 @@ export default function RewardsCatalog() {
                 <Button
                   size="sm"
                   variant="outline"
-                  className="border-white/40 text-white hover:bg-white/10 hover:text-white h-8"
+                  className="bg-transparent border-white/40 text-white hover:bg-white/10 hover:text-white h-8"
                 >
                   <BarChart3 className="w-3.5 h-3.5 mr-1.5" />
                   ดูสถิติ
