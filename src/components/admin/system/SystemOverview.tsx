@@ -272,8 +272,20 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.40.4 (สแกน QR + ระบบอัปเดต PWA)',
+        version: 'v1.40.5 (เกม wizard-thai — port เข้า /play)',
         date: 'ล่าสุด',
+        badge: 'bg-purple-600',
+        items: [
+            'เกม "ศึกจอมเวทแห่งภาษา" (/play/wizard-thai) เล่นไม่ได้ — ไฟล์ที่อัปโหลดเป็น React/TSX ดิบ (import + lucide-react) รันใน iframe ไม่ได้',
+            'Port เป็น single-file HTML แบบ mth.html (React18+Babel CDN) + lucide UMD shim (33 ไอคอน) + ฝัง kampai EMBED block (GAME_SLUG, sendGameEnd ตอนแพ้/ชนะ, navigateBack)',
+            'Fix bug ที่ทำให้เกมพัง: handleNextStage ถูกเรียกแต่ไม่เคย define (crash ตอนผ่านด่าน) + proceedToArena ด่านสุดท้าย index เกิน → เพิ่มเงื่อนไขจบเกมชนะ',
+            'Migration 104: ย้าย external_url จาก Supabase Storage → /games/thai/wizard-thai.html (version-controlled, verify:game 6/6)',
+            'เพิ่มปุ่ม "กลับหน้าหลัก" (navigateBack) ในจอแพ้/ชนะ — ไม่ค้างใน iframe',
+        ],
+    },
+    {
+        version: 'v1.40.4 (สแกน QR + ระบบอัปเดต PWA)',
+        date: '',
         badge: 'bg-indigo-600',
         items: [
             'แก้ "ไม่สามารถเปิดกล้องได้" จริง ๆ คือ PWA บนมือถือจำ cache โค้ดเก่าค้าง (โค้ดสแกนเวอร์ชันใหม่ขึ้น production แล้ว แต่เครื่องไม่โหลด)',

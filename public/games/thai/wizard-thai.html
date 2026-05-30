@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ศึกจอมเวทแห่งภาษา</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700;800&family=Sarabun:wght@400;600&display=swap');
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; font-family: 'Kanit', 'Sarabun', sans-serif; background: #020617; -webkit-tap-highlight-color: transparent; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .animate-fadeIn { animation: fadeIn 0.4s ease-out; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+/* ═══ KAMPAI INTEGRATION (GAME.md EMBED block) ═══ */
+const GAME_SLUG = 'wizard-thai';
+const IS_EMBED = window.self !== window.top ||
+                 new URLSearchParams(location.search).get('embed') === '1';
+let STUDENT_CODE      = null;
+let DISPLAY_NAME_INIT = '';
+let SESSION_START_TS  = Date.now();
+if (IS_EMBED) {
+  window.addEventListener('message', (e) => {
+    if (e?.data?.type === 'init' && typeof e.data.studentCode === 'string') {
+      STUDENT_CODE      = e.data.studentCode;
+      DISPLAY_NAME_INIT = e.data.displayName ?? '';
+      SESSION_START_TS  = Date.now();
+    }
+  });
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('a[target="_top"]');
+    if (!a) return;
+    const href = a.getAttribute('href');
+    if (!href) return;
+    e.preventDefault();
+    try { window.parent.postMessage({ type: 'navigate', to: href }, '*'); } catch (_) {}
+  });
+}
+function sendGameEnd(finalScore, mode, extra) {
+  if (!IS_EMBED || !STUDENT_CODE) return;
+  try {
+    window.parent.postMessage({
+      type: 'gameEnd', gameSlug: GAME_SLUG, studentCode: STUDENT_CODE,
+      score: Math.round(finalScore), mode: mode || 'normal',
+      metadata: { duration: Math.max(1, Math.floor((Date.now() - SESSION_START_TS) / 1000)), ...(extra || {}) },
+    }, '*');
+  } catch (_) {}
+}
+function navigateBack() {
+  if (IS_EMBED) { try { window.parent.postMessage({ type: 'navigate', to: '/h/nattapong' }, '*'); } catch (_) {} }
+  else { window.location.href = '/h/nattapong'; }
+}
+
+/* ═══ React + lucide-react shim (UMD) ═══ */
+const { useState, useEffect, useCallback, useRef } = React;
+const _ICONS = (window.lucide && (window.lucide.icons || window.lucide)) || {};
+const _mkIcon = (name) => (p = {}) => {
+  const node = _ICONS[name];
+  const sz = p.size || 24;
+  const children = (Array.isArray(node) ? node : []).map((entry, i) =>
+    React.createElement(entry[0], { key: i, ...entry[1] }));
+  return React.createElement('svg', {
+    xmlns: 'http://www.w3.org/2000/svg', width: sz, height: sz, viewBox: '0 0 24 24',
+    fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round',
+    strokeLinejoin: 'round', className: p.className, style: p.style,
+  }, children);
+};
+const Sparkles = _mkIcon('Sparkles'), Heart = _mkIcon('Heart'), Zap = _mkIcon('Zap'),
+  ShieldAlert = _mkIcon('ShieldAlert'), Skull = _mkIcon('Skull'), Trophy = _mkIcon('Trophy'),
+  RotateCcw = _mkIcon('RotateCcw'), Play = _mkIcon('Play'), BookOpen = _mkIcon('BookOpen'),
+  Flame = _mkIcon('Flame'), Beaker = _mkIcon('Beaker'), Volume2 = _mkIcon('Volume2'),
+  VolumeX = _mkIcon('VolumeX'), Sword = _mkIcon('Sword'), Shield = _mkIcon('Shield'),
+  ChevronRight = _mkIcon('ChevronRight'), Clock = _mkIcon('Clock'), Coins = _mkIcon('Coins'),
+  ShoppingCart = _mkIcon('ShoppingCart'), Store = _mkIcon('Store'), Search = _mkIcon('Search'),
+  X = _mkIcon('X'), Crosshair = _mkIcon('Crosshair'), Snowflake = _mkIcon('Snowflake'),
+  Droplets = _mkIcon('Droplets'), Leaf = _mkIcon('Leaf');
+
+/* ═══ GAME (ported จาก React source — gameplay เดิม) ═══ */
+
+// --- สไตล์แอนิเมชันเพิ่มเติม ---
+const globalStyles = `
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 50% { transform: translateX(10px); } 75% { transform: translateX(-10px); } }
+  .animate-shake { animation: shake 0.4s ease-in-out; }
+  
+  @keyframes flash-red { 0%, 100% { filter: drop-shadow(0 0 0 rgba(239, 68, 68, 0)); } 50% { filter: drop-shadow(0 0 40px rgba(239, 68, 68, 1)) brightness(1.5) sepia(1) hue-rotate(-50deg) saturate(5); } }
+  .animate-flash-red { animation: flash-red 0.5s ease-in-out; }
+
+  @keyframes flash-green { 0%, 100% { filter: drop-shadow(0 0 0 rgba(16, 185, 129, 0)); } 50% { filter: drop-shadow(0 0 50px rgba(16, 185, 129, 1)) brightness(1.3); } }
+  .animate-flash-green { animation: flash-green 0.6s ease-in-out; }
+
+  @keyframes flash-blue { 0%, 100% { filter: drop-shadow(0 0 0 rgba(56, 189, 248, 0)); } 50% { filter: drop-shadow(0 0 50px rgba(56, 189, 248, 1)) brightness(1.3); } }
+  .animate-flash-blue { animation: flash-blue 0.6s ease-in-out; }
+  
+  @keyframes cast-spell { 0% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(168, 85, 247, 0)); } 50% { transform: scale(1.1) translateY(-15px); filter: drop-shadow(0 0 40px rgba(168, 85, 247, 1)) brightness(1.3); } 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(168, 85, 247, 0)); } }
+  .animate-cast-spell { animation: cast-spell 0.6s ease-out; }
+
+  @keyframes cast-ultimate { 0% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(234, 179, 8, 0)); } 50% { transform: scale(1.2) translateY(-20px); filter: drop-shadow(0 0 60px rgba(234, 179, 8, 1)) brightness(1.8); } 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(234, 179, 8, 0)); } }
+  .animate-cast-ultimate { animation: cast-ultimate 0.8s ease-out; }
+  
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  .animate-float { animation: float 3s ease-in-out infinite; }
+
+  @keyframes damage-text { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-60px) scale(1.5); } }
+  .animate-damage { animation: damage-text 1s forwards; }
+
+  .level-up-anim { animation: cast-ultimate 1.5s ease-out; }
+  .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); border-radius: 4px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(139, 92, 246, 0.5); border-radius: 4px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(139, 92, 246, 0.8); }
+`;
+
+// --- ระบบเสียง 8-Bit (Web Audio API) ---
+const SoundEngine = {
+  ctx: null,
+  muted: false,
+  bgmTimer: null,
+  bgmTheme: null,
+  bgmIndex: 0,
+  bgmPatterns: {
+    battle: [261.63, 0, 329.63, 0, 392.00, 329.63, 523.25, 392.00], 
+    boss: [110.00, 116.54, 110.00, 98.00], 
+    shop: [349.23, 440.00, 523.25, 440.00], 
+  },
+  bgmSpeeds: { battle: 250, boss: 400, shop: 450 },
+  
+  init() { if (this.ctx) return; const AudioContext = window.AudioContext || window.webkitAudioContext; this.ctx = new AudioContext(); },
+  startBGM(theme) {
+    if (!this.ctx) return;
+    if (this.bgmTheme === theme && this.bgmTimer) return; 
+    this.stopBGM(); this.bgmTheme = theme;
+    const pattern = this.bgmPatterns[theme]; const speed = this.bgmSpeeds[theme];
+    if (!pattern) return;
+    this.bgmIndex = 0;
+    this.bgmTimer = setInterval(() => {
+      if (this.muted) return; 
+      const freq = pattern[this.bgmIndex];
+      if (freq > 0) this.playBGMNote(freq, speed / 1000);
+      this.bgmIndex = (this.bgmIndex + 1) % pattern.length;
+    }, speed);
+  },
+  stopBGM() { if (this.bgmTimer) clearInterval(this.bgmTimer); this.bgmTimer = null; this.bgmTheme = null; },
+  playBGMNote(freq, duration) {
+    if (this.ctx.state === 'suspended') this.ctx.resume();
+    const t = this.ctx.currentTime; const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+    osc.connect(gain); gain.connect(this.ctx.destination);
+    osc.type = (this.bgmTheme === 'boss' || this.bgmTheme === 'battle') ? 'sawtooth' : 'triangle';
+    osc.frequency.setValueAtTime(freq, t);
+    gain.gain.setValueAtTime(0, t); gain.gain.linearRampToValueAtTime(0.015, t + 0.05); gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+    osc.start(t); osc.stop(t + duration);
+  },
+  play(type) {
+    if (this.muted || !this.ctx) return;
+    if (this.ctx.state === 'suspended') this.ctx.resume();
+    const t = this.ctx.currentTime; const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+    osc.connect(gain); gain.connect(this.ctx.destination);
+    switch(type) {
+      case 'click': osc.type = 'sine'; osc.frequency.setValueAtTime(800, t); osc.frequency.exponentialRampToValueAtTime(1200, t + 0.05); gain.gain.setValueAtTime(0.05, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1); osc.start(t); osc.stop(t + 0.1); break;
+      case 'coin': osc.type = 'sine'; osc.frequency.setValueAtTime(1000, t); osc.frequency.exponentialRampToValueAtTime(2000, t + 0.1); gain.gain.setValueAtTime(0.05, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.2); osc.start(t); osc.stop(t + 0.2); break;
+      case 'attack': osc.type = 'square'; osc.frequency.setValueAtTime(400, t); osc.frequency.exponentialRampToValueAtTime(100, t + 0.2); gain.gain.setValueAtTime(0.1, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.2); osc.start(t); osc.stop(t + 0.2); break;
+      case 'skill': osc.type = 'triangle'; osc.frequency.setValueAtTime(600, t); osc.frequency.exponentialRampToValueAtTime(1200, t + 0.4); gain.gain.setValueAtTime(0.15, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.4); osc.start(t); osc.stop(t + 0.4); break;
+      case 'crit': osc.type = 'square'; osc.frequency.setValueAtTime(800, t); osc.frequency.exponentialRampToValueAtTime(200, t + 0.3); gain.gain.setValueAtTime(0.15, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.3); osc.start(t); osc.stop(t + 0.3); break;
+      case 'enemy_attack': osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, t); osc.frequency.linearRampToValueAtTime(50, t + 0.3); gain.gain.setValueAtTime(0.15, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.3); osc.start(t); osc.stop(t + 0.3); break;
+      case 'dodge': osc.type = 'sine'; osc.frequency.setValueAtTime(400, t); osc.frequency.exponentialRampToValueAtTime(800, t + 0.1); gain.gain.setValueAtTime(0.1, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.2); osc.start(t); osc.stop(t + 0.2); break;
+      case 'hit': osc.type = 'triangle'; osc.frequency.setValueAtTime(100, t); osc.frequency.exponentialRampToValueAtTime(20, t + 0.15); gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.15); osc.start(t); osc.stop(t + 0.15); break;
+      case 'heal': osc.type = 'sine'; osc.frequency.setValueAtTime(300, t); osc.frequency.linearRampToValueAtTime(500, t + 0.1); osc.frequency.linearRampToValueAtTime(800, t + 0.2); gain.gain.setValueAtTime(0.1, t); gain.gain.linearRampToValueAtTime(0, t + 0.4); osc.start(t); osc.stop(t + 0.4); break;
+      case 'level_up': osc.type = 'square'; [400, 600, 800, 1200].forEach((freq, i) => { osc.frequency.setValueAtTime(freq, t + i*0.1); }); gain.gain.setValueAtTime(0.1, t); gain.gain.linearRampToValueAtTime(0.1, t + 0.4); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.8); osc.start(t); osc.stop(t + 0.8); break;
+      case 'ultimate': osc.type = 'triangle'; osc.frequency.setValueAtTime(100, t); osc.frequency.exponentialRampToValueAtTime(800, t + 0.6); gain.gain.setValueAtTime(0, t); gain.gain.linearRampToValueAtTime(0.2, t + 0.3); gain.gain.exponentialRampToValueAtTime(0.01, t + 1.2); osc.start(t); osc.stop(t + 1.2); break;
+      case 'victory': osc.type = 'square'; [400, 500, 600, 800].forEach((freq, i) => { osc.frequency.setValueAtTime(freq, t + i*0.15); }); gain.gain.setValueAtTime(0.1, t); gain.gain.linearRampToValueAtTime(0.1, t + 0.6); gain.gain.exponentialRampToValueAtTime(0.01, t + 1.0); osc.start(t); osc.stop(t + 1.0); break;
+    }
+  }
+};
+
+const shuffleArray = (array) => {
+  let shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
+
+// --- ระบบธาตุ (Elemental System) ---
+const ELEMENTS = {
+  water: { name: 'น้ำ', emoji: '💧', color: 'text-blue-400', strongAgainst: 'fire', weakAgainst: 'earth' },
+  fire: { name: 'ไฟ', emoji: '🔥', color: 'text-red-400', strongAgainst: 'earth', weakAgainst: 'water' },
+  earth: { name: 'พืช/ดิน', emoji: '🌿', color: 'text-emerald-400', strongAgainst: 'water', weakAgainst: 'fire' },
+  dark: { name: 'ความมืด', emoji: '🌑', color: 'text-purple-400', strongAgainst: null, weakAgainst: null },
+  neutral: { name: 'ไร้ธาตุ', emoji: '⚪', color: 'text-slate-400', strongAgainst: null, weakAgainst: null }
+};
+
+const checkElementAdvantage = (atkElem, defElem) => {
+  if (ELEMENTS[atkElem].strongAgainst === defElem) return 1.5; // Super Effective
+  if (ELEMENTS[atkElem].weakAgainst === defElem) return 0.7; // Not Effective
+  return 1.0; // Normal
+};
+
+const VOCABULARY = [
+  { word: 'กฎหมาย', meaning: 'ข้อบังคับที่รัฐกำหนดขึ้นเพื่อใช้บังคับบุคคล' }, { word: 'กตัญญู', meaning: 'รู้คุณท่าน, รู้จักและตอบแทนบุญคุณ' },
+  { word: 'กฤษณา', meaning: 'ส่วนของเนื้อไม้ที่มีกลิ่นหอม ใช้ทำยา' }, { word: 'กันดาร', meaning: 'ลำบาก, แห้งแล้ง, ขาดแคลน' },
+  { word: 'ซากดึกดำบรรพ์', meaning: 'ร่องรอยของสิ่งมีชีวิตในอดีตที่กลายเป็นหิน' }, { word: 'สึนามิ', meaning: 'คลื่นยักษ์ที่เกิดจากแผ่นดินไหวใต้ทะเล' },
+  { word: 'อาฆาต', meaning: 'ผูกใจเจ็บและอยากแก้แค้น' }, { word: 'อัชฌาสัย', meaning: 'นิสัยใจคอ, ความรู้จักผ่อนปรน' },
+  { word: 'อนุญาต', meaning: 'ยินยอม, ตกลงให้ทำ' }, { word: 'ประมาท', meaning: 'ขาดความระมัดระวัง' },
+  { word: 'กรรโชก', meaning: 'ขู่เอาทรัพย์ด้วยกิริยาวาจาให้กลัว' }, { word: 'กำพร้า', meaning: 'ไร้บิดามารดาเลี้ยงดูมาตั้งแต่เด็ก' },
+  { word: 'อนันต์', meaning: 'มากมาย, ไม่มีที่สิ้นสุด' }, { word: 'อุทยาน', meaning: 'สวนขนาดใหญ่สำหรับพักผ่อน' },
+  { word: 'วัฒนธรรม', meaning: 'สิ่งที่ทำความเจริญงอกงามให้แก่หมู่คณะ' }, { word: 'นวัตกรรม', meaning: 'สิ่งใหม่ที่ทำขึ้นหรือดัดแปลงจากของเดิม' },
+  { word: 'วิจารณญาณ', meaning: 'ปัญญาที่สามารถรู้หรือให้เหตุผลที่ถูกต้อง' }, { word: 'ทัศนคติ', meaning: 'แนวความคิดเห็น, ท่าทีความรู้สึก' },
+  { word: 'อุตสาหกรรม', meaning: 'กิจกรรมผลิตสิ่งของจำนวนมากด้วยเครื่องจักร' }, { word: 'เกษตรกรรม', meaning: 'การผลิตอาหารด้วยการเพาะปลูกและเลี้ยงสัตว์' },
+  { word: 'พาณิชยกรรม', meaning: 'การค้าขาย, การแลกเปลี่ยนสินค้า' }, { word: 'เอกสาร', meaning: 'หนังสือที่เป็นหลักฐานอ้างอิงได้' },
+  { word: 'ภูมิปัญญา', meaning: 'ความรู้ ความสามารถที่สั่งสมมา' }, { word: 'ประเพณี', meaning: 'สิ่งที่นิยมถือประพฤติปฏิบัติสืบๆ กันมา' },
+  { word: 'ปรากฏการณ์', meaning: 'สิ่งที่แสดงออกมาให้เห็นตามธรรมชาติ' }, { word: 'สังเคราะห์', meaning: 'การสร้างสิ่งใหม่จากการนำส่วนประกอบมารวมกัน' },
+  { word: 'นิเวศวิทยา', meaning: 'วิชาว่าด้วยความสัมพันธ์ระหว่างสิ่งมีชีวิตกับสิ่งแวดล้อม' }, { word: 'อุณหภูมิ', meaning: 'ระดับความร้อนหรือความเย็น' },
+  { word: 'แร่ธาตุ', meaning: 'สารประกอบอนินทรีย์ที่เกิดขึ้นตามธรรมชาติ' }, { word: 'ปรับตัว', meaning: 'การเปลี่ยนแปลงตนเองให้เข้ากับสภาพแวดล้อม' },
+  { word: 'คิดวิเคราะห์', meaning: 'การใคร่ครวญแยกแยะองค์ประกอบต่างๆ อย่างมีเหตุผล' }, { word: 'คิดสร้างสรรค์', meaning: 'การคิดริเริ่มสิ่งใหม่ๆ ที่เป็นประโยชน์' },
+  { word: 'ตรวจสอบ', meaning: 'การพิจารณาเพื่อหาความถูกต้องและข้อบกพร่อง' }, { word: 'ตัดสินใจ', meaning: 'การตกลงใจเลือกทางใดทางหนึ่ง' },
+  { word: 'แรงจูงใจ', meaning: 'พลังผลักดันให้เกิดความกระตือรือร้น' }, { word: 'ยอมรับความจริง', meaning: 'การเข้าใจในสิ่งที่เกิดขึ้นตามความเป็นจริง' },
+  { word: 'ขยันหมั่นเพียร', meaning: 'การตั้งใจทำอย่างต่อเนื่องไม่ลดละความพยายาม' }, { word: 'กลมกลืน', meaning: 'เข้ากันได้สนิทหรือสอดคล้องกันอย่างพอดี' },
+  { word: 'กายา', meaning: 'ร่างกายหรือตัวตน' }, { word: 'กริ้ว', meaning: 'โกรธ (คำราชาศัพท์ ใช้กับเจ้านาย)' },
+  { word: 'กล้าหาญ', meaning: 'ไม่เกรงกลัวอันตราย' }, { word: 'กรณี', meaning: 'เหตุการณ์, เรื่องราว, หรือข้อเท็จจริงที่เกิดขึ้น' },
+  { word: 'กรรมสิทธิ์', meaning: 'ความเป็นเจ้าของทรัพย์สินอย่างถูกต้องตามกฎหมาย' }, { word: 'เหตุการณ์', meaning: 'เรื่องราวหรือความเป็นไปที่เกิดขึ้น' },
+  { word: 'เหตุผล', meaning: 'ข้ออ้างอิงประกอบการกระทำที่สมเหตุสมผล' }, { word: 'กติกา', meaning: 'ข้อตกลง, ข้อกำหนด, กฎเกณฑ์' },
+  { word: 'กตเวที', meaning: 'การสนองคุณท่าน, การตอบแทนบุญคุณ' }, { word: 'กบฏ', meaning: 'การประทุษร้ายต่อแผ่นดินหรือทรยศ' },
+  { word: 'กรรมการ', meaning: 'บุคคลที่ได้รับมอบหมายให้พิจารณาตัดสินงาน' }, { word: 'กระจ่าง', meaning: 'ชัดเจน, สว่าง, แจ่มแจ้ง' },
+  { word: 'ทะเล', meaning: 'แหล่งน้ำเค็มขนาดใหญ่บนผิวโลก' }, { word: 'มหาสมุทร', meaning: 'ห้วงน้ำเค็มที่กว้างใหญ่ไพศาลที่สุด' },
+  { word: 'แม่น้ำ', meaning: 'สายน้ำขนาดใหญ่ที่ไหลลงสู่ทะเล' }, { word: 'ลำธาร', meaning: 'สายน้ำเล็กๆ ที่ไหลจากป่าหรือภูเขา' },
+  { word: 'น้ำตก', meaning: 'น้ำที่ขังอยู่บนเขาแล้วตกลงมาที่หน้าผา' }, { word: 'ภูเขา', meaning: 'พื้นดินที่สูงขึ้นไปเป็นจอมเด่น' },
+  { word: 'หุบเขา', meaning: 'พื้นที่ต่ำระหว่างภูเขา' }, { word: 'ถ้ำ', meaning: 'ช่องลึกเข้าไปในภูเขาหรือพื้นดิน' },
+  { word: 'หน้าผา', meaning: 'ภูเขาหรือแผ่นดินที่มีลักษณะสูงชันมาก' }, { word: 'ชะง่อนผา', meaning: 'ส่วนของหินที่ยื่นออกมาจากหน้าผา' },
+  { word: 'ธารลึก', meaning: 'สายน้ำหรือลำธารที่มีความลึกมาก' }, { word: 'ป่าไม้', meaning: 'บริเวณที่มีต้นไม้ขึ้นหนาแน่นตามธรรมชาติ' },
+  { word: 'ป่าดิบชื้น', meaning: 'ป่าที่มีความชื้นสูง มีฝนตกชุก เขียวชอุ่มตลอดปี' }, { word: 'ป่าชายเลน', meaning: 'ป่าที่ขึ้นตามชายฝั่งทะเลหรือปากแม่น้ำ' },
+  { word: 'ทะเลทราย', meaning: 'พื้นที่แห้งแล้งกว้างใหญ่ มีทรายจำนวนมาก' }, { word: 'โอเอซิส', meaning: 'แหล่งน้ำและพื้นที่อุดมสมบูรณ์กลางทะเลทราย' },
+  { word: 'ท้องฟ้า', meaning: 'พื้นที่เบื้องบนที่มองเห็นครอบคลุมโลก' }, { word: 'ก้อนเมฆ', meaning: 'ไอน้ำที่รวมตัวกันลอยอยู่บนฟ้า' },
+  { word: 'สายฝน', meaning: 'น้ำที่ตกลงมาจากเมฆเป็นหยดๆ' }, { word: 'สายลม', meaning: 'อากาศที่เคลื่อนที่พัดไปมา' },
+  { word: 'พายุ', meaning: 'ลมที่พัดรุนแรงมาก' }, { word: 'หิมะ', meaning: 'ละอองน้ำที่แข็งตัวตกลงมาจากฟ้า' },
+  { word: 'ลูกเห็บ', meaning: 'ก้อนน้ำแข็งที่ตกลงมาจากฟ้าพร้อมกับพายุฝน' }, { word: 'สายรุ้ง', meaning: 'แถบสีโค้งบนฟ้า เกิดจากการหักเหของแสงผ่านละอองน้ำ' },
+  { word: 'ต้นไม้', meaning: 'พืชที่มีลำต้น กิ่งก้าน และใบ' }, { word: 'ใบไม้', meaning: 'ส่วนของพืชที่ทำหน้าที่สังเคราะห์แสง' },
+  { word: 'ดอกไม้', meaning: 'ส่วนของพืชที่ทำหน้าที่สืบพันธุ์ มักมีสีสันสวยงาม' }, { word: 'ผลไม้', meaning: 'ส่วนที่เจริญมาจากรังไข่ของดอกไม้ ใช้รับประทานได้' },
+  { word: 'รากไม้', meaning: 'ส่วนของพืชที่อยู่ใต้ดิน ดูดน้ำและแร่ธาตุ' }, { word: 'เถาวัลย์', meaning: 'พืชที่มีลำต้นยาวเลื้อยพันสิ่งอื่น' },
+  { word: 'หญ้า', meaning: 'พืชล้มลุกขนาดเล็ก ขึ้นปกคลุมผิวดิน' }, { word: 'เห็ด', meaning: 'สิ่งมีชีวิตประเภทรา ไม่มีคลอโรฟิลล์' },
+  { word: 'แบคทีเรีย', meaning: 'สิ่งมีชีวิตเซลล์เดียวขนาดเล็กมาก มองไม่เห็นด้วยตาเปล่า' }, { word: 'สัตว์ป่า', meaning: 'สัตว์ที่อาศัยและหากินตามธรรมชาติในป่า' },
+  { word: 'สัตว์เลี้ยง', meaning: 'สัตว์ที่มนุษย์นำมาเลี้ยงไว้ใช้งานหรือเป็นเพื่อน' }, { word: 'สัตว์น้ำ', meaning: 'สัตว์ที่อาศัยและดำรงชีวิตอยู่ในน้ำ' },
+  { word: 'สัตว์ปีก', meaning: 'สัตว์จำพวกนก มีปีกและมีขนปกคลุมร่างกาย' }, { word: 'แมลง', meaning: 'สัตว์ไม่มีกระดูกสันหลัง ร่างกายแบ่งเป็น 3 ส่วน มี 6 ขา' },
+  { word: 'สัตว์เลื้อยคลาน', meaning: 'สัตว์เลือดเย็น ผิวหนังมีเกล็ด หายใจด้วยปอด' }, { word: 'ไดโนเสาร์', meaning: 'สัตว์เลื้อยคลานยุคดึกดำบรรพ์ที่สูญพันธุ์ไปแล้ว' },
+  { word: 'อัญมณี', meaning: 'แร่ธาตุที่นำมาเจียระไนเป็นเครื่องประดับ' }, { word: 'เกล็ดหิมะ', meaning: 'ผลึกน้ำแข็งชิ้นเล็กๆ' },
+  { word: 'ลมกระโชก', meaning: 'ลมที่พัดแรงขึ้นมาทันทีทันใด' }, { word: 'พายุหมุน', meaning: 'ลมพายุที่พัดวนเป็นวงกลมด้วยความเร็วสูง' },
+  { word: 'พายุไซโคลน', meaning: 'พายุหมุนเขตร้อนกำลังแรง' }, { word: 'แผ่นดินไหว', meaning: 'การสั่นสะเทือนของพื้นดินเนื่องจากการเคลื่อนตัวของเปลือกโลก' },
+  { word: 'ลาวา', meaning: 'หินหนืดหลอมเหลวที่ปะทุขึ้นมาบนผิวโลก' }, { word: 'พื้นที่ชุ่มน้ำ', meaning: 'บริเวณที่มีน้ำท่วมขัง มีความหลากหลายทางชีวภาพ' },
+  { word: 'ป่าสงวน', meaning: 'พื้นที่ป่าที่รัฐกำหนดไว้เพื่อรักษาสภาพป่า' }, { word: 'ภูเขาไฟ', meaning: 'ภูเขาที่เกิดจากการปะทุของหินละลายใต้โลก' }
+];
+
+// --- ข้อมูลด่าน บอส และธาตุ ---
+const STAGES = [
+  { id: 1, name: 'สไลม์เขียว', tier: 'ทั่วไป', element: 'water', emoji: '🦠', maxHp: 50, attack: 20, chargeRate: 0.8, exp: 50, gold: 20, bg: 'from-blue-900/40 to-slate-900', drop: { name: 'รองเท้าหนังเมือก', type: 'shoes', def: 2, emoji: '🥾' } },
+  { id: 2, name: 'ค้างคาวถ้ำ', tier: 'ทั่วไป', element: 'dark', emoji: '🦇', maxHp: 100, attack: 30, chargeRate: 1.2, exp: 80, gold: 35, bg: 'from-purple-900/40 to-slate-900', drop: { name: 'หมวกค้างคาว', type: 'head', def: 3, emoji: '🦇' } },
+  { id: 3, name: 'ก็อบลินเพลิง', tier: 'ทั่วไป', element: 'fire', emoji: '👺', maxHp: 180, attack: 45, chargeRate: 1.5, exp: 120, gold: 50, bg: 'from-red-900/40 to-slate-900', drop: { name: 'มีดเพลิง', type: 'weapon', atk: 12, emoji: '🗡️' } },
+  { id: 4, name: 'ออร์คป่าทึบ', tier: 'โหด', element: 'earth', emoji: '👹', maxHp: 300, attack: 65, chargeRate: 2.0, exp: 200, gold: 80, bg: 'from-green-800/60 to-slate-900', drop: { name: 'เกราะใบไม้หนา', type: 'armor', def: 10, emoji: '🌿' } },
+  { id: 5, name: 'โครงกระดูกขุนพล', tier: 'โหด', element: 'dark', emoji: '💀', maxHp: 450, attack: 90, chargeRate: 2.5, exp: 350, gold: 120, bg: 'from-zinc-900/80 to-slate-900', drop: { name: 'รองเท้ากระดูก', type: 'shoes', atk: 5, def: 5, emoji: '🦴' } },
+  { id: 6, name: 'มนุษย์หมาป่าพุ่งชน', tier: 'โหดมาก', element: 'earth', emoji: '🐺', maxHp: 650, attack: 120, chargeRate: 3.2, exp: 550, gold: 180, bg: 'from-emerald-950/40 to-slate-900', drop: { name: 'หมวกเขี้ยวหมาป่า', type: 'head', def: 15, emoji: '🪖' } },
+  { id: 7, name: 'แวมไพร์ลอร์ด', tier: 'โหดมาก', element: 'water', emoji: '🧛', maxHp: 850, attack: 160, chargeRate: 4.0, exp: 800, gold: 250, bg: 'from-blue-900/60 to-slate-900', drop: { name: 'โล่น้ำแข็ง', type: 'armor', def: 25, emoji: '🛡️' } },
+  { id: 8, name: 'จอมเวททมิฬ', tier: 'โหดมาก', element: 'dark', emoji: '🧙‍♀️', maxHp: 1100, attack: 200, chargeRate: 5.0, exp: 1200, gold: 400, bg: 'from-fuchsia-900/40 to-slate-900', drop: { name: 'คทามืด', type: 'weapon', atk: 40, emoji: '🪄' } },
+  { id: 9, name: 'มังกรอัคคีพิโรธ', tier: 'บอส', element: 'fire', emoji: '🐉', maxHp: 1500, attack: 250, chargeRate: 5.5, exp: 1800, gold: 800, bg: 'from-orange-900/60 to-red-950', drop: { name: 'ดาบเกล็ดมังกรไฟ', type: 'weapon', atk: 60, emoji: '🔥' }, isBoss: true },
+  { id: 10, name: 'คราเคนจ้าวสมุทร', tier: 'บอส', element: 'water', emoji: '🦑', maxHp: 2000, attack: 300, chargeRate: 6.0, exp: 2500, gold: 1000, bg: 'from-cyan-900/70 to-blue-950', drop: { name: 'มงกุฎมหาสมุทร', type: 'head', def: 40, emoji: '👑' }, isBoss: true },
+  { id: 11, name: 'โกเลมพฤกษา', tier: 'บอส', element: 'earth', emoji: '🧌', maxHp: 3000, attack: 350, chargeRate: 4.5, exp: 3500, gold: 1500, bg: 'from-emerald-900/70 to-green-950', drop: { name: 'เกราะศิลาศักดิ์สิทธิ์', type: 'armor', def: 60, emoji: '🗿' }, isBoss: true },
+  { id: 12, name: 'จอมมารไร้พ่าย', tier: 'บอสใหญ่', element: 'dark', emoji: '👿', maxHp: 5000, attack: 450, chargeRate: 7.0, exp: 5000, gold: 3000, bg: 'from-purple-950/80 to-slate-950', drop: null, isBoss: true }
+];
+
+const CLASSES = [
+  { id: 'mage', name: 'นักเวท', emoji: '🧙‍♂️', element: 'water', baseHp: 200, baseAtk: 45, baseDef: 5, growth: { hp: 20, atk: 12, def: 2 }, theme: 'from-blue-600 to-indigo-600', perk: '+สกิลแช่แข็งเวลา', skillName: 'แช่แข็งเวลา (50 MP)', skillIcon: Snowflake, skillColor: 'text-blue-300', skillDesc: 'หยุดเกจมอนสเตอร์ 5 วินาที' },
+  { id: 'sword', name: 'นักดาบ', emoji: '⚔️', element: 'fire', baseHp: 450, baseAtk: 25, baseDef: 18, growth: { hp: 45, atk: 6, def: 5 }, theme: 'from-red-600 to-orange-600', perk: '+สกิลโล่สะท้อน', skillName: 'โล่สะท้อน (50 MP)', skillIcon: Shield, skillColor: 'text-orange-300', skillDesc: 'บล็อกการโจมตี 100% 1 ครั้ง และสะท้อนดาเมจ' },
+  { id: 'archer', name: 'นักธนู', emoji: '🏹', element: 'earth', baseHp: 320, baseAtk: 35, baseDef: 12, growth: { hp: 30, atk: 9, def: 3 }, theme: 'from-emerald-600 to-teal-600', perk: '+สกิลศรทะลวง', skillName: 'ศรทะลวง (50 MP)', skillIcon: Crosshair, skillColor: 'text-emerald-300', skillDesc: 'การตอบถูกครั้งต่อไปจะ Critical 100%' }
+];
+
+const GAME_TITLE = "ศึกจอมเวทแห่งภาษา"; 
+
+function App() {
+  const [gameState, setGameState] = useState('start'); 
+  const [isMuted, setIsMuted] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  // --- Character Stats ---
+  const [playerClass, setPlayerClass] = useState(null);
+  const [level, setLevel] = useState(1);
+  const [exp, setExp] = useState(0);
+  const [maxExp, setMaxExp] = useState(100);
+  const [gold, setGold] = useState(0); 
+  const [playerMaxHp, setPlayerMaxHp] = useState(300);
+  const [playerHp, setPlayerHp] = useState(300);
+  const [baseAtk, setBaseAtk] = useState(0);
+  const [baseDef, setBaseDef] = useState(0);
+  
+  const [equipment, setEquipment] = useState({ head: null, weapon: null, armor: null, shoes: null });
+  const [droppedItem, setDroppedItem] = useState(null);
+  const [levelUpInfo, setLevelUpInfo] = useState(null);
+  
+  const [playerAction, setPlayerAction] = useState('');
+  const [playerEffectText, setPlayerEffectText] = useState(null); 
+  const [playerEffectType, setPlayerEffectType] = useState('damage');
+  
+  const [combo, setCombo] = useState(0);
+  const [mana, setMana] = useState(0);
+  const [potions, setPotions] = useState(3);
+  
+  const [buffs, setBuffs] = useState({ freeze: false, shield: false, nextCrit: false });
+  
+  // --- Enemy & Combat Stats ---
+  const [currentStageIndex, setCurrentStageIndex] = useState(0);
+  const [enemyHp, setEnemyHp] = useState(STAGES[0].maxHp);
+  const [enemyAction, setEnemyAction] = useState('');
+  const [enemyDamageText, setEnemyDamageText] = useState(null);
+  const [enemyDamageType, setEnemyDamageType] = useState('normal'); 
+  const [enemyCharge, setEnemyCharge] = useState(0);
+
+  const [currentQuestion, setCurrentQuestion] = useState(null);
+  const [isResolving, setIsResolving] = useState(false);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [battleMessage, setBattleMessage] = useState('เตรียมร่ายเวท!');
+
+  const vocabDeckRef = useRef([]);
+
+  const enemy = STAGES[currentStageIndex] || STAGES[0];
+
+  // kampai: ส่งคะแนนเมื่อจบเกม (แพ้/ชนะ) — ยิงครั้งเดียวต่อจอจบ
+  useEffect(() => {
+    if (gameState === 'game_over') sendGameEnd(level * 50 + gold, 'normal', { result: 'defeat', level });
+    else if (gameState === 'victory') sendGameEnd(1000 + level * 50 + gold, 'normal', { result: 'victory', level });
+  }, [gameState]);
+  
+  const getTotalAtk = () => baseAtk + (equipment.weapon?.atk || 0) + (equipment.head?.atk || 0) + (equipment.armor?.atk || 0) + (equipment.shoes?.atk || 0);
+  const getTotalDef = () => baseDef + (equipment.weapon?.def || 0) + (equipment.head?.def || 0) + (equipment.armor?.def || 0) + (equipment.shoes?.def || 0);
+
+  // --- Actions ---
+  const handleUsePotion = () => {
+    if (potions > 0 && playerHp < playerMaxHp && !isResolving && gameState !== 'stage_clear') {
+      SoundEngine.play('heal');
+      setPotions(prev => prev - 1);
+      const healAmount = Math.floor(playerMaxHp * 0.4); 
+      setPlayerHp(prev => Math.min(playerMaxHp, prev + healAmount));
+
+      setPlayerEffectType('heal');
+      setPlayerEffectText(`+${healAmount}`);
+      setPlayerAction('animate-flash-green');
+
+      setTimeout(() => {
+        setPlayerEffectText(null);
+        setPlayerAction('');
+      }, 1000);
+    }
+  };
+
+  const handleClassSkill = () => {
+    if (mana < 50 || isResolving || gameState === 'stage_clear' || enemyHp <= 0) return;
+    SoundEngine.play('skill');
+    setMana(m => m - 50);
+    setPlayerAction('animate-cast-spell');
+
+    if (playerClass.id === 'mage') {
+      setBattleMessage('❄️ แช่แข็งเวลาสำเร็จ!');
+      setBuffs(p => ({ ...p, freeze: true }));
+      setTimeout(() => setBuffs(p => ({ ...p, freeze: false })), 5000);
+    } else if (playerClass.id === 'sword') {
+      setBattleMessage('🛡️ กางโล่ศักดิ์สิทธิ์!');
+      setBuffs(p => ({ ...p, shield: true }));
+    } else if (playerClass.id === 'archer') {
+      setBattleMessage('🎯 เล็งจุดตาย!');
+      setBuffs(p => ({ ...p, nextCrit: true }));
+    }
+    
+    setTimeout(() => { setPlayerAction(''); }, 600);
+  };
+
+  const handleUltimate = () => {
+    if (mana < 100 || isResolving || gameState === 'stage_clear' || enemyHp <= 0) return;
+    SoundEngine.play('ultimate');
+    setIsResolving(true);
+    setMana(0);
+    setBattleMessage('🔥 มหาเวททำลายล้าง!! 🔥');
+    setPlayerAction('animate-cast-ultimate');
+
+    setTimeout(() => {
+      SoundEngine.play('hit');
+      
+      const elementAdvantage = checkElementAdvantage(playerClass.element, enemy.element);
+      const baseUlt = (getTotalAtk() * 3) + 200 + Math.random() * 50;
+      const ultDamage = Math.floor(baseUlt * elementAdvantage);
+      
+      setEnemyDamageType('crit');
+      
+      let dmgMsg = `-${ultDamage} (CRIT!)`;
+      if (elementAdvantage > 1) dmgMsg = `-${ultDamage} (CRIT! โจมตีจุดอ่อน 💥)`;
+      else if (elementAdvantage < 1) dmgMsg = `-${ultDamage} (ต้านทานธาตุ)`;
+      
+      setEnemyDamageText(dmgMsg);
+      setEnemyAction('animate-shake animate-flash-red');
+
+      setEnemyHp(prev => {
+        const nextHp = Math.max(0, prev - ultDamage);
+        if (nextHp <= 0) handleVictory();
+        return nextHp;
+      });
+
+      setTimeout(() => {
+        setPlayerAction('');
+        setEnemyAction('');
+        setEnemyDamageText(null);
+        
+        if (enemyHp - ultDamage > 0) {
+          setIsResolving(false);
+          setBattleMessage('ร่ายเวทมนตร์ต่อไป!');
+        }
+      }, 1000);
+    }, 600);
+  };
+
+  // --- Auto-Attack System ---
+  useEffect(() => {
+    let timer;
+    if (gameState === 'playing' && !isResolving && enemyHp > 0) {
+      timer = setInterval(() => {
+        if (buffs.freeze) return; 
+
+        setEnemyCharge(prev => {
+          if (prev >= 100) { handleEnemyAttack(); return 0; }
+          return prev + enemy.chargeRate;
+        });
+      }, 50);
+    }
+    return () => clearInterval(timer);
+  }, [gameState, isResolving, enemyHp, enemy, buffs.freeze]);
+
+  // --- ระบบเล่น BGM ---
+  useEffect(() => {
+    if (!SoundEngine.ctx) return; 
+    if (gameState === 'playing') SoundEngine.startBGM(enemy.isBoss ? 'boss' : 'battle');
+    else if (gameState === 'shop' || gameState === 'dictionary') SoundEngine.startBGM('shop');
+    else SoundEngine.stopBGM();
+  }, [gameState, enemy, isMuted]);
+
+  const toggleMute = () => { SoundEngine.muted = !isMuted; setIsMuted(!isMuted); SoundEngine.play('click'); };
+
+  const generateQuestion = useCallback(() => {
+    if (vocabDeckRef.current.length === 0) vocabDeckRef.current = shuffleArray(VOCABULARY);
+    const targetWord = vocabDeckRef.current.pop();
+    const wrongOptions = VOCABULARY.filter(v => v.word !== targetWord.word).sort(() => 0.5 - Math.random()).slice(0, 3).map(v => v.meaning);
+    const allOptions = [...wrongOptions, targetWord.meaning].sort(() => 0.5 - Math.random());
+    setCurrentQuestion({ word: targetWord.word, correctMeaning: targetWord.meaning, options: allOptions });
+    setSelectedOption(null); setIsResolving(false);
+  }, []);
+
+  const handleSelectClass = (cls) => {
+    SoundEngine.play('click');
+    setPlayerClass(cls);
+    setPlayerMaxHp(cls.baseHp); setPlayerHp(cls.baseHp);
+    setBaseAtk(cls.baseAtk); setBaseDef(cls.baseDef);
+    setLevel(1); setExp(0); setMaxExp(100); setGold(0);
+    setEquipment({ head: null, weapon: null, armor: null, shoes: null });
+    setBuffs({ freeze: false, shield: false, nextCrit: false });
+    setCurrentStageIndex(0); setEnemyHp(STAGES[0].maxHp); setEnemyCharge(0);
+    setCombo(0); setMana(0); setPotions(3);
+    
+    vocabDeckRef.current = shuffleArray(VOCABULARY);
+    setGameState('playing'); generateQuestion();
+  };
+
+  const handleEnemyAttack = () => {
+    if (gameState !== 'playing' || enemyHp <= 0) return;
+    
+    if (buffs.shield) {
+       SoundEngine.play('hit');
+       setPlayerEffectType('dodge');
+       setPlayerEffectText('บล็อกและสะท้อน!');
+       setBuffs(p => ({...p, shield: false}));
+       
+       const reflectDmg = getTotalDef() * 2;
+       setEnemyAction('animate-shake animate-flash-red');
+       setEnemyDamageType('normal');
+       setEnemyDamageText(`-${reflectDmg} (สะท้อน)`);
+       
+       setEnemyHp(prev => {
+         const nextHp = Math.max(0, prev - reflectDmg);
+         if (nextHp <= 0) setTimeout(() => handleVictory(), 800);
+         return nextHp;
+       });
+       
+       setTimeout(() => { setEnemyAction(''); setEnemyDamageText(null); setPlayerEffectText(null); }, 800);
+       return;
+    }
+
+    SoundEngine.play('enemy_attack');
+    setEnemyAction('animate-cast-spell');
+    
+    setTimeout(() => {
+      let dodgeChance = 0.05; 
+      if (playerClass.id === 'archer') dodgeChance += 0.10; 
+      const isDodged = Math.random() < dodgeChance;
+
+      if (isDodged) {
+        SoundEngine.play('dodge');
+        setPlayerEffectType('dodge');
+        setPlayerEffectText(`หลบหลีก!`);
+        setPlayerAction('animate-shake'); 
+        setTimeout(() => { setPlayerAction(''); setEnemyAction(''); setPlayerEffectText(null); }, 800);
+      } else {
+        const damageBase = enemy.attack + Math.floor(Math.random() * (enemy.attack * 0.2));
+        const defBonus = playerClass.id === 'sword' ? getTotalDef() * 1.1 : getTotalDef(); 
+        
+        // Element Multiplier for Enemy attacking Player
+        const elementAdvantage = checkElementAdvantage(enemy.element, playerClass.element);
+        const finalDmg = Math.max(5, Math.floor((damageBase - defBonus) * elementAdvantage));
+        
+        setPlayerEffectType('damage');
+        if (elementAdvantage > 1) {
+            setPlayerEffectText(`-${finalDmg} 💔`); // Super Effective against player
+        } else {
+            setPlayerEffectText(`-${finalDmg}`);
+        }
+        
+        setPlayerAction('animate-shake animate-flash-red');
+        setPlayerHp(prev => {
+          const newHp = Math.max(0, prev - finalDmg);
+          if (newHp <= 0) setGameState('game_over');
+          return newHp;
+        });
+        setTimeout(() => { setPlayerAction(''); setEnemyAction(''); setPlayerEffectText(null); }, 800);
+      }
+    }, 400);
+  };
+
+  const handleAnswer = (option) => {
+    if (isResolving || enemyHp <= 0) return;
+    setIsResolving(true); setSelectedOption(option);
+    const isCorrect = option === currentQuestion.correctMeaning;
+
+    if (isCorrect) {
+      setCombo(prev => prev + 1); setMana(prev => Math.min(100, prev + 25));
+      setPlayerAction('animate-cast-spell');
+      setBattleMessage('ร่ายเวทสำเร็จ!');
+      
+      let critChance = 0.10; 
+      if (playerClass.id === 'mage') critChance += 0.05; 
+      
+      let isCrit = Math.random() < critChance;
+      if (buffs.nextCrit) {
+        isCrit = true;
+        setBuffs(p => ({...p, nextCrit: false}));
+      }
+      
+      if (isCrit) SoundEngine.play('crit');
+      else SoundEngine.play('attack');
+
+      setTimeout(() => {
+        SoundEngine.play('hit');
+        const comboMultiplier = 1 + (combo * 0.1);
+        const elementAdvantage = checkElementAdvantage(playerClass.element, enemy.element);
+        
+        let finalDamage = Math.floor((getTotalAtk() + Math.random() * 10) * comboMultiplier * elementAdvantage);
+        if (isCrit) finalDamage = Math.floor(finalDamage * 1.5); 
+
+        setEnemyDamageType(isCrit ? 'crit' : 'normal');
+        
+        let dmgMsg = `-${finalDamage}`;
+        if (isCrit) dmgMsg += ' (CRIT!)';
+        if (elementAdvantage > 1) dmgMsg += ' 💥ชนะธาตุ';
+        else if (elementAdvantage < 1) dmgMsg += ' 🛡️ติดเกราะ';
+        
+        setEnemyDamageText(dmgMsg);
+        setEnemyAction('animate-shake animate-flash-red');
+        setEnemyHp(prev => {
+          const nextHp = Math.max(0, prev - finalDamage);
+          if (nextHp <= 0) handleVictory();
+          return nextHp;
+        });
+        setTimeout(() => { setPlayerAction(''); setEnemyAction(''); setEnemyDamageText(null); if (enemyHp > finalDamage) generateQuestion(); }, 800);
+      }, 400);
+    } else {
+      SoundEngine.play('wrong'); setCombo(0); setBattleMessage('ร่ายเวทพลาด!');
+      setEnemyCharge(prev => Math.min(100, prev + 30)); 
+      setTimeout(() => { generateQuestion(); }, 1000);
+    }
+  };
+
+  const handleVictory = () => {
+    SoundEngine.stopBGM(); 
+    SoundEngine.play('victory');
+    
+    // Clear buffs
+    setBuffs({ freeze: false, shield: false, nextCrit: false });
+    
+    let newExp = exp + enemy.exp;
+    let newGold = gold + enemy.gold;
+    setGold(newGold);
+    
+    let currentLv = level, currentMaxExp = maxExp, leveled = false, hpG = 0, atkG = 0, defG = 0;
+    while (newExp >= currentMaxExp) {
+      newExp -= currentMaxExp; currentLv++; leveled = true; currentMaxExp = Math.floor(currentMaxExp * 1.5);
+      hpG += playerClass.growth.hp; atkG += playerClass.growth.atk; defG += playerClass.growth.def;
+    }
+    setExp(newExp);
+    if (leveled) {
+      setLevel(currentLv); setMaxExp(currentMaxExp);
+      setPlayerMaxHp(prev => prev + hpG); setBaseAtk(prev => prev + atkG); setBaseDef(prev => prev + defG);
+      setPlayerHp(playerMaxHp + hpG);
+      setLevelUpInfo({ level: currentLv, hp: hpG, atk: atkG, def: defG });
+    }
+    setDroppedItem(enemy.drop);
+    setGameState('stage_clear');
+  };
+
+  const handleNextStage = () => { SoundEngine.play('click'); setGameState('shop'); };
+
+  const proceedToArena = () => {
+    SoundEngine.play('click');
+    const nextIdx = currentStageIndex + 1;
+    if (nextIdx >= STAGES.length) { setGameState('victory'); return; }
+    setCurrentStageIndex(nextIdx);
+    setEnemyHp(STAGES[nextIdx].maxHp); setEnemyCharge(0);
+    setDroppedItem(null); setLevelUpInfo(null);
+    setGameState('playing'); generateQuestion();
+  };
+
+  const upgradeWeapon = () => {
+    if (gold < 75 || !equipment.weapon) return;
+    SoundEngine.play('coin'); setGold(g => g - 75);
+    setEquipment(p => {
+       const w = p.weapon;
+       const lvl = (w.upg || 0) + 1;
+       const baseName = w.name.replace(/\+\d+/, '').trim();
+       return { ...p, weapon: { ...w, name: `${baseName} +${lvl}`, atk: w.atk + 5, upg: lvl } };
+    });
+  };
+  
+  const upgradeArmor = () => {
+    if (gold < 75 || !equipment.armor) return;
+    SoundEngine.play('coin'); setGold(g => g - 75);
+    setEquipment(p => {
+       const a = p.armor;
+       const lvl = (a.upg || 0) + 1;
+       const baseName = a.name.replace(/\+\d+/, '').trim();
+       return { ...p, armor: { ...a, name: `${baseName} +${lvl}`, def: a.def + 5, upg: lvl } };
+    });
+  };
+
+  // --- UI Components ---
+  const Gauge = ({ value, color, label, icon: Icon, extraClasses="" }) => (
+    <div className={`w-full ${extraClasses}`}>
+      <div className="flex justify-between font-bold text-slate-300 mb-1 px-1 text-[10px] md:text-xs">
+        <span className="flex items-center">{Icon && <Icon className="w-3 h-3 mr-1"/>} {label}</span>
+        <span>{Math.floor(value)}%</span>
+      </div>
+      <div className="w-full h-2 md:h-3 bg-slate-800 rounded-full border border-slate-700 overflow-hidden relative shadow-inner">
+        <div className={`h-full transition-all duration-100 ${color}`} style={{ width: `${value}%` }} />
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="fixed inset-0 bg-slate-950 text-slate-100 font-sans flex flex-col items-center justify-center p-2 md:p-4 overflow-hidden">
+      <style dangerouslySetInnerHTML={{ __html: globalStyles }} />
+      
+      {/* ---------------- Start Screen ---------------- */}
+      {gameState === 'start' && (
+        <div className="max-w-xl w-full text-center space-y-8 animate-float bg-slate-900/40 p-10 rounded-[3rem] border border-purple-500/20 shadow-2xl backdrop-blur-sm">
+          <BookOpen className="w-32 h-32 text-purple-400 mx-auto" />
+          <h1 className="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 drop-shadow-lg tracking-tight">{GAME_TITLE}</h1>
+          <p className="text-purple-200 tracking-widest font-semibold pb-4">คลังคำศัพท์ {VOCABULARY.length} คำ</p>
+          
+          <div className="flex flex-col gap-4">
+            <button onClick={() => { SoundEngine.init(); SoundEngine.play('click'); setGameState('select_class'); }} className="w-full px-8 py-5 font-bold text-white bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full hover:from-purple-500 hover:to-indigo-500 shadow-[0_0_30px_rgba(168,85,247,0.4)] text-xl md:text-2xl transition-all hover:scale-105">
+              เริ่มการผจญภัย
+            </button>
+            <button onClick={() => { SoundEngine.init(); SoundEngine.play('click'); setGameState('dictionary'); }} className="w-full px-8 py-4 font-bold text-purple-300 bg-slate-800 border-2 border-purple-900/50 rounded-full hover:bg-slate-700 hover:text-white transition-all text-lg flex items-center justify-center">
+              <BookOpen className="mr-2 w-5 h-5"/> คัมภีร์เวท (เรียนรู้คำศัพท์)
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ---------------- Dictionary / Learning Screen ---------------- */}
+      {gameState === 'dictionary' && (
+        <div className="max-w-4xl w-full h-full max-h-[90vh] bg-slate-900/90 rounded-[2rem] border border-purple-500/50 shadow-[0_0_50px_rgba(168,85,247,0.2)] flex flex-col overflow-hidden backdrop-blur-md">
+          <div className="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-950/50">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 flex items-center">
+                <BookOpen className="text-purple-400 mr-3 w-8 h-8"/> คลังคัมภีร์เวทมนตร์
+              </h2>
+              <p className="text-slate-400 text-sm mt-1">ศึกษาความหมายของอักขระเวททั้ง {VOCABULARY.length} คำ เพื่อเตรียมตัวสำหรับสมรภูมิ</p>
+            </div>
+            <button onClick={() => { SoundEngine.play('click'); setGameState('start'); }} className="p-2 bg-slate-800 hover:bg-red-900/50 hover:text-red-400 rounded-full transition-colors">
+              <X className="w-6 h-6"/>
+            </button>
+          </div>
+          
+          <div className="p-4 border-b border-slate-800 bg-slate-900">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5"/>
+              <input 
+                type="text" 
+                placeholder="ค้นหาคำศัพท์ หรือ ความหมาย..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-700 rounded-full py-3 pl-12 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all"
+              />
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {VOCABULARY.filter(v => v.word.includes(searchQuery) || v.meaning.includes(searchQuery)).map((item, idx) => (
+                <div key={idx} className="bg-slate-800/50 p-4 rounded-xl border border-slate-700 hover:border-purple-500/50 transition-colors flex flex-col justify-center">
+                  <h3 className="text-xl font-bold text-white mb-2">{item.word}</h3>
+                  <p className="text-sm text-indigo-300 leading-relaxed">{item.meaning}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ---------------- Class Selection Screen ---------------- */}
+      {gameState === 'select_class' && (
+        <div className="max-w-4xl w-full bg-slate-900/80 p-6 md:p-10 rounded-3xl border border-slate-700 shadow-2xl overflow-y-auto max-h-[90vh] custom-scrollbar">
+          <h2 className="text-3xl md:text-5xl font-black text-white text-center mb-2">เลือกสายอาชีพ</h2>
+          <div className="text-center text-slate-400 text-sm mb-6 bg-slate-950/50 p-3 rounded-xl border border-slate-800 inline-block mx-auto">
+             <span className="font-bold text-slate-200">กฎระบบธาตุ:</span> 💧น้ำ ชนะ 🔥ไฟ | 🔥ไฟ ชนะ 🌿พืช | 🌿พืช ชนะ 💧น้ำ
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {CLASSES.map(cls => (
+              <button key={cls.id} onClick={() => handleSelectClass(cls)} className="p-6 bg-slate-800 rounded-2xl border-2 border-slate-600 hover:border-purple-400 hover:scale-105 transition-all text-left group">
+                <div className="flex justify-between items-start mb-2">
+                   <div className="text-5xl md:text-6xl group-hover:animate-float">{cls.emoji}</div>
+                   <div className={`px-3 py-1 rounded-full text-xs font-bold border flex items-center ${ELEMENTS[cls.element].color} border-${ELEMENTS[cls.element].color.split('-')[1]}-500/50 bg-${ELEMENTS[cls.element].color.split('-')[1]}-900/30`}>
+                      {ELEMENTS[cls.element].emoji} {ELEMENTS[cls.element].name}
+                   </div>
+                </div>
+                <h3 className="text-2xl font-bold mb-1 text-center">{cls.name}</h3>
+                <p className="text-emerald-400 text-xs font-bold text-center mb-4">{cls.perk}</p>
+                
+                {/* Active Skill Info */}
+                <div className="bg-slate-950/50 p-3 rounded-xl border border-slate-700 mb-4 flex flex-col items-center text-center h-20 justify-center">
+                  <span className={`font-bold text-sm flex items-center ${cls.skillColor}`}>
+                    <cls.skillIcon className="w-4 h-4 mr-1"/> {cls.skillName}
+                  </span>
+                  <span className="text-[10px] text-slate-400 mt-1">{cls.skillDesc}</span>
+                </div>
+
+                <div className="space-y-1 text-xs text-slate-400 mb-4 bg-slate-900 p-3 rounded-xl border border-slate-700">
+                  <div className="flex justify-between"><span>❤️ HP</span><span className="text-white">{cls.baseHp}</span></div>
+                  <div className="flex justify-between"><span>⚔️ ATK</span><span className="text-white">{cls.baseAtk}</span></div>
+                  <div className="flex justify-between"><span>🛡️ DEF</span><span className="text-white">{cls.baseDef}</span></div>
+                </div>
+                <div className="py-3 bg-purple-600 text-center rounded-xl font-bold uppercase tracking-widest text-sm text-white">เลือกอาชีพ</div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ---------------- Gameplay ---------------- */}
+      {(gameState === 'playing' || gameState === 'stage_clear') && playerClass && (
+        <div className="flex flex-col md:flex-row w-full h-full max-w-[1400px] bg-slate-900 rounded-[2rem] overflow-hidden shadow-2xl border border-slate-800 relative">
+          
+          {/* Left Panel: Arena */}
+          <div className={`w-full md:w-[55%] h-[45%] md:h-full relative flex flex-col justify-between bg-gradient-to-b ${enemy.bg} p-4 md:p-8`}>
+            <header className="flex justify-between items-center z-10 bg-slate-950/60 p-3 rounded-2xl backdrop-blur-md">
+              <div className="flex items-center space-x-3">
+                <ShieldAlert className="text-purple-400 w-6 h-6" />
+                <span className="font-bold text-purple-200 md:text-xl">ด่านที่ {currentStageIndex + 1}</span>
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${enemy.isBoss ? 'bg-red-900 border-red-500 animate-pulse text-red-100' : 'bg-slate-800 border-slate-600'}`}>{enemy.tier}</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center bg-yellow-900/40 px-3 py-1.5 rounded-full border border-yellow-600/50">
+                  <Coins className="w-4 h-4 text-yellow-400 mr-1.5" />
+                  <span className="font-bold text-yellow-300 text-sm">{gold}</span>
+                </div>
+                <button onClick={toggleMute} className="p-2 bg-slate-800 rounded-full hover:bg-slate-700 transition-colors">{isMuted ? <VolumeX className="text-red-400 w-4 h-4"/> : <Volume2 className="text-emerald-400 w-4 h-4"/>}</button>
+              </div>
+            </header>
+
+            <div className="flex-1 flex flex-col justify-around items-center pt-2">
+              {/* Enemy */}
+              <div className="w-full max-w-sm flex flex-col items-center">
+                <Gauge value={(enemyHp/enemy.maxHp)*100} color="bg-red-500" label={enemy.name} icon={Heart} />
+                <div className="mt-1 w-full relative">
+                  <Gauge value={enemyCharge} color={buffs.freeze ? "bg-blue-400" : "bg-orange-500"} label={buffs.freeze ? "แช่แข็ง!!" : "เกจเตรียมโจมตี"} icon={Clock} extraClasses={buffs.freeze ? "animate-pulse" : ""} />
+                </div>
+                <div className={`mt-4 md:mt-8 text-[4rem] md:text-8xl ${enemyAction} animate-float relative ${buffs.freeze ? 'filter drop-shadow-[0_0_15px_rgba(96,165,250,0.8)]' : ''}`}>
+                  {enemy.emoji}
+                  {enemyDamageText && <div className={`absolute top-0 left-1/2 -translate-x-1/2 font-black animate-damage whitespace-nowrap ${enemyDamageType === 'crit' ? 'text-yellow-400 text-5xl md:text-6xl drop-shadow-[0_0_15px_rgba(234,179,8,1)]' : 'text-red-500 text-3xl md:text-4xl drop-shadow-md'}`}>{enemyDamageText}</div>}
+                  
+                  {/* Enemy Element Icon */}
+                  <div className="absolute -bottom-4 -right-4 bg-slate-900 border-2 border-slate-700 rounded-full w-10 h-10 md:w-14 md:h-14 flex items-center justify-center text-xl md:text-3xl shadow-lg" title={`ธาตุ${ELEMENTS[enemy.element].name}`}>
+                    {ELEMENTS[enemy.element].emoji}
+                  </div>
+                </div>
+              </div>
+
+              {/* Player UI */}
+              <div className="w-full flex items-end justify-between mt-auto shrink-0 pb-1">
+                
+                {/* Player Sprite & Floating Stat Table */}
+                <div className="flex flex-col items-center mr-2 md:mr-6 flex-shrink-0">
+                  <div className="bg-slate-900/90 border border-slate-600 rounded-xl p-2 mb-2 shadow-lg min-w-[110px] md:min-w-[130px] backdrop-blur-sm relative z-10">
+                    <div className="flex justify-between items-center border-b border-slate-700 pb-1 mb-1">
+                      <span className="text-purple-300 font-bold text-[10px] md:text-xs truncate">LV.{level} {playerClass.name}</span>
+                      <span title={`ธาตุ${ELEMENTS[playerClass.element].name}`}>{ELEMENTS[playerClass.element].emoji}</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1 text-[9px] md:text-[11px] font-bold">
+                      <div className="flex items-center text-red-400" title="พลังโจมตีรวม"><Sword className="w-3 h-3 md:w-4 md:h-4 mr-0.5"/> {getTotalAtk()}</div>
+                      <div className="flex items-center text-blue-400" title="พลังป้องกันรวม"><Shield className="w-3 h-3 md:w-4 md:h-4 mr-0.5"/> {getTotalDef()}</div>
+                      <div className="flex items-center text-emerald-400 col-span-2 mt-0.5" title="พลังชีวิต"><Heart className="w-3 h-3 md:w-4 md:h-4 mr-1"/> {playerHp} / {playerMaxHp}</div>
+                    </div>
+                  </div>
+
+                  <div className={`text-6xl md:text-8xl ${playerAction} relative ${buffs.shield ? 'filter drop-shadow-[0_0_20px_rgba(251,146,60,0.8)]' : buffs.nextCrit ? 'filter drop-shadow-[0_0_20px_rgba(16,185,129,0.8)]' : ''}`}>
+                    {playerClass.emoji}
+                    {playerEffectText && <div className={`absolute top-0 left-1/2 -translate-x-1/2 font-black text-3xl md:text-4xl animate-damage whitespace-nowrap z-30 ${playerEffectType === 'damage' ? 'text-red-500' : playerEffectType === 'dodge' ? 'text-blue-400 text-2xl md:text-3xl' : 'text-emerald-400'}`}>{playerEffectText}</div>}
+                  </div>
+                </div>
+                
+                {/* Player Stats & Equip Panel */}
+                <div className="flex-1 bg-slate-950/70 p-3 md:p-4 rounded-2xl backdrop-blur-md border border-slate-700/50 flex flex-col">
+                  {/* Progress Bars */}
+                  <Gauge value={(playerHp/playerMaxHp)*100} color="bg-emerald-500" label="HP พลังชีวิต" />
+                  <div className="mt-1.5"><Gauge value={mana} color="bg-blue-500" label="MP พลังเวท" /></div>
+                  <div className="mt-1.5"><Gauge value={(exp/maxExp)*100} color="bg-yellow-500" label="EXP หลอดประสบการณ์" /></div>
+                  
+                  {/* --- Equipment Bar UI (4 Slots) --- */}
+                  <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2 pt-3 border-t border-slate-700/50">
+                    {/* Head Slot */}
+                    <div className={`flex items-center p-1.5 md:p-2 rounded-lg border ${equipment.head ? 'bg-amber-900/30 border-amber-500/50' : 'bg-slate-900/50 border-slate-700'}`}>
+                      <div className={`w-8 h-8 md:w-10 md:h-10 shrink-0 rounded flex items-center justify-center mr-2 text-lg md:text-2xl ${equipment.head ? 'bg-amber-950 shadow-inner' : 'bg-slate-800'}`}>
+                        {equipment.head ? equipment.head.emoji : '🎩'}
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-[9px] md:text-[10px] text-slate-400 font-bold uppercase">หมวก</span>
+                        <span className="text-[10px] md:text-[11px] font-bold text-slate-200 truncate">{equipment.head ? equipment.head.name : 'ว่าง'}</span>
+                        <span className="text-[9px] md:text-[10px] text-amber-400">
+                          {equipment.head?.atk ? `ATK+${equipment.head.atk} ` : ''}{equipment.head?.def ? `DEF+${equipment.head.def}` : ''}
+                        </span>
+                      </div>
+                    </div>
+                    {/* Weapon Slot */}
+                    <div className={`flex items-center p-1.5 md:p-2 rounded-lg border ${equipment.weapon ? 'bg-red-900/30 border-red-500/50' : 'bg-slate-900/50 border-slate-700'}`}>
+                      <div className={`w-8 h-8 md:w-10 md:h-10 shrink-0 rounded flex items-center justify-center mr-2 text-lg md:text-2xl ${equipment.weapon ? 'bg-red-950 shadow-inner' : 'bg-slate-800'}`}>
+                        {equipment.weapon ? equipment.weapon.emoji : <Sword className="w-4 h-4 md:w-5 md:h-5 text-slate-500 opacity-50" />}
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-[9px] md:text-[10px] text-slate-400 font-bold uppercase">อาวุธ</span>
+                        <span className="text-[10px] md:text-[11px] font-bold text-slate-200 truncate">{equipment.weapon ? equipment.weapon.name : 'ว่าง'}</span>
+                        <span className="text-[9px] md:text-[10px] text-red-400">
+                          {equipment.weapon?.atk ? `ATK+${equipment.weapon.atk} ` : ''}{equipment.weapon?.def ? `DEF+${equipment.weapon.def}` : ''}
+                        </span>
+                      </div>
+                    </div>
+                    {/* Armor Slot */}
+                    <div className={`flex items-center p-1.5 md:p-2 rounded-lg border ${equipment.armor ? 'bg-blue-900/30 border-blue-500/50' : 'bg-slate-900/50 border-slate-700'}`}>
+                      <div className={`w-8 h-8 md:w-10 md:h-10 shrink-0 rounded flex items-center justify-center mr-2 text-lg md:text-2xl ${equipment.armor ? 'bg-blue-950 shadow-inner' : 'bg-slate-800'}`}>
+                        {equipment.armor ? equipment.armor.emoji : <Shield className="w-4 h-4 md:w-5 md:h-5 text-slate-500 opacity-50" />}
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-[9px] md:text-[10px] text-slate-400 font-bold uppercase">เสื้อเกราะ</span>
+                        <span className="text-[10px] md:text-[11px] font-bold text-slate-200 truncate">{equipment.armor ? equipment.armor.name : 'ว่าง'}</span>
+                        <span className="text-[9px] md:text-[10px] text-blue-400">
+                          {equipment.armor?.atk ? `ATK+${equipment.armor.atk} ` : ''}{equipment.armor?.def ? `DEF+${equipment.armor.def}` : ''}
+                        </span>
+                      </div>
+                    </div>
+                    {/* Shoes Slot */}
+                    <div className={`flex items-center p-1.5 md:p-2 rounded-lg border ${equipment.shoes ? 'bg-emerald-900/30 border-emerald-500/50' : 'bg-slate-900/50 border-slate-700'}`}>
+                      <div className={`w-8 h-8 md:w-10 md:h-10 shrink-0 rounded flex items-center justify-center mr-2 text-lg md:text-2xl ${equipment.shoes ? 'bg-emerald-950 shadow-inner' : 'bg-slate-800'}`}>
+                        {equipment.shoes ? equipment.shoes.emoji : '👢'}
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-[9px] md:text-[10px] text-slate-400 font-bold uppercase">รองเท้า</span>
+                        <span className="text-[10px] md:text-[11px] font-bold text-slate-200 truncate">{equipment.shoes ? equipment.shoes.name : 'ว่าง'}</span>
+                        <span className="text-[9px] md:text-[10px] text-emerald-400">
+                          {equipment.shoes?.atk ? `ATK+${equipment.shoes.atk} ` : ''}{equipment.shoes?.def ? `DEF+${equipment.shoes.def}` : ''}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Stage Clear Overlay */}
+            {gameState === 'stage_clear' && (
+              <div className="absolute inset-0 z-40 bg-slate-950/90 flex flex-col items-center justify-center p-8 animate-fadeIn text-center">
+                {levelUpInfo ? (
+                  <div className="level-up-anim mb-4">
+                    <Sparkles className="w-20 h-20 text-yellow-400 mx-auto mb-2" />
+                    <h2 className="text-5xl font-black text-yellow-400">เลเวลอัป!</h2>
+                    <p className="text-xl text-slate-300">เป็นเลเวล {levelUpInfo.level}</p>
+                  </div>
+                ) : (
+                  <h2 className="text-4xl font-black text-white mb-2">ปราบสำเร็จ!</h2>
+                )}
+                
+                <div className="flex gap-4 mb-4">
+                  <span className="bg-yellow-900/50 text-yellow-400 px-4 py-1.5 rounded-full font-bold border border-yellow-600/50">+ {enemy.gold} Gold</span>
+                  <span className="bg-blue-900/50 text-blue-300 px-4 py-1.5 rounded-full font-bold border border-blue-600/50">+ {enemy.exp} EXP</span>
+                </div>
+
+                {droppedItem && (
+                  <div className="bg-indigo-950/50 border border-indigo-500 p-6 rounded-2xl mb-6 flex flex-col items-center shadow-[0_0_20px_rgba(99,102,241,0.3)]">
+                    <p className="text-indigo-300 font-bold mb-2">ได้รับไอเทมใหม่!</p>
+                    <div className="text-5xl mb-2">{droppedItem.emoji}</div>
+                    <p className="font-bold text-xl">{droppedItem.name}</p>
+                    <p className="text-sm text-slate-400 mb-4">
+                      {droppedItem.atk ? `ATK +${droppedItem.atk} ` : ''}
+                      {droppedItem.def ? `DEF +${droppedItem.def}` : ''}
+                    </p>
+                    <button onClick={() => { SoundEngine.play('click'); setEquipment(p => ({...p, [droppedItem.type]: droppedItem})); setDroppedItem(null); }} className="w-full bg-indigo-600 hover:bg-indigo-500 px-6 py-3 rounded-xl font-bold transition-all shadow-lg text-white">สวมใส่ไอเทม</button>
+                  </div>
+                )}
+                {!droppedItem && <button onClick={handleNextStage} className="bg-purple-600 hover:bg-purple-500 px-10 py-4 rounded-full text-xl font-bold hover:scale-105 transition-all flex items-center shadow-[0_0_20px_rgba(168,85,247,0.4)] text-white"><ShoppingCart className="mr-2"/> แวะร้านค้าเวทมนตร์ <ChevronRight className="ml-1"/></button>}
+              </div>
+            )}
+          </div>
+
+          {/* Right Panel: Command Center */}
+          <div className="w-full md:w-[45%] h-[55%] md:h-full bg-slate-950 border-l border-slate-800 flex flex-col p-4 md:p-6 lg:p-8">
+            <div className="flex-1 flex flex-col justify-center">
+              <div className="text-center mb-6 mt-4">
+                <span className="text-slate-500 text-sm md:text-lg uppercase tracking-widest font-bold">อักขระคาถา</span>
+                <h3 className="text-3xl md:text-5xl font-extrabold text-white mt-2 leading-tight">"{currentQuestion?.word}"</h3>
+              </div>
+              
+              <div className="h-8 md:h-12 flex justify-center items-center mb-4 space-x-4">
+                 <h2 className={`text-lg md:text-xl font-black transition-opacity duration-300 ${isResolving ? 'opacity-100' : 'opacity-0'} ${selectedOption === currentQuestion?.correctMeaning ? 'text-emerald-400' : 'text-red-400'}`}>{battleMessage}</h2>
+                 
+                 {combo > 1 && (
+                  <div className="flex items-center text-orange-400 animate-pulse font-black text-sm md:text-lg tracking-wider bg-orange-900/30 px-3 py-1 rounded-full border border-orange-500/50">
+                    <Flame className="w-4 h-4 md:w-5 md:h-5 mr-1" />
+                    {combo} COMBO!
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 gap-2 lg:gap-3">
+                {currentQuestion?.options.map((opt, idx) => (
+                  <button key={idx} disabled={isResolving} onClick={() => handleAnswer(opt)} className={`p-3 lg:p-4 rounded-2xl border-2 text-left transition-all flex items-center shadow-sm ${
+                    isResolving ? (opt === currentQuestion.correctMeaning ? 'bg-emerald-900/60 border-emerald-400' : opt === selectedOption ? 'bg-red-900/60 border-red-500' : 'bg-slate-900 border-slate-800 opacity-40') 
+                    : 'bg-slate-800 border-slate-600 hover:border-purple-400 hover:bg-slate-700 active:scale-95'
+                  }`}>
+                    <span className="w-6 h-6 lg:w-8 lg:h-8 rounded-full bg-slate-950 flex items-center justify-center mr-3 lg:mr-4 shrink-0 font-bold text-slate-400 text-xs lg:text-sm">{idx+1}</span>
+                    <span className="text-xs md:text-sm lg:text-base font-medium leading-snug">{opt}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* --- Action Tray (Potions, Skills, Ultimate) --- */}
+            <div className="mt-4 lg:mt-6 grid grid-cols-3 gap-2 lg:gap-3 shrink-0">
+              <button onClick={handleUsePotion} disabled={potions===0 || isResolving} className={`relative flex flex-col items-center justify-center py-2 lg:py-3 rounded-xl border-2 font-bold transition-all ${potions>0 && !isResolving ? 'bg-emerald-900/40 border-emerald-500 text-emerald-300 hover:bg-emerald-800 shadow-[0_0_15px_rgba(16,185,129,0.2)]' : 'bg-slate-900 border-slate-800 opacity-50'}`}>
+                <Beaker className="w-5 h-5 lg:w-6 lg:h-6 mb-1"/> 
+                <span className="text-[10px] lg:text-xs">ฟื้นพลัง</span>
+                <span className="absolute top-1 right-1 lg:top-2 lg:right-2 bg-slate-950 border border-emerald-500 text-emerald-400 w-4 h-4 lg:w-5 lg:h-5 flex items-center justify-center rounded-full text-[9px] lg:text-[10px]">x{potions}</span>
+              </button>
+              
+              <button onClick={handleClassSkill} disabled={mana < 50 || isResolving} className={`flex flex-col items-center justify-center py-2 lg:py-3 rounded-xl border-2 font-bold transition-all ${mana>=50 && !isResolving ? 'bg-slate-800 border-purple-500 text-purple-300 hover:bg-slate-700 shadow-[0_0_15px_rgba(168,85,247,0.3)]' : 'bg-slate-900 border-slate-800 opacity-50 text-slate-600'}`}>
+                {playerClass.id === 'mage' && <Snowflake className="w-5 h-5 lg:w-6 lg:h-6 mb-1 text-blue-300"/>}
+                {playerClass.id === 'sword' && <Shield className="w-5 h-5 lg:w-6 lg:h-6 mb-1 text-orange-300"/>}
+                {playerClass.id === 'archer' && <Crosshair className="w-5 h-5 lg:w-6 lg:h-6 mb-1 text-emerald-300"/>}
+                <span className="text-[10px] lg:text-xs">สกิล (50MP)</span>
+              </button>
+
+              <button onClick={handleUltimate} disabled={mana<100 || isResolving} className={`flex flex-col items-center justify-center py-2 lg:py-3 rounded-xl border-2 font-black transition-all ${mana>=100 && !isResolving ? 'bg-yellow-600 border-yellow-300 text-yellow-100 animate-pulse shadow-[0_0_15px_rgba(234,179,8,0.4)] hover:bg-yellow-500' : 'bg-slate-900 border-slate-800 opacity-50 text-slate-600'}`}>
+                <Zap className="w-5 h-5 lg:w-6 lg:h-6 mb-1"/> 
+                <span className="text-[10px] lg:text-xs">มหาเวท</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ---------------- Shop / Blacksmith Screen ---------------- */}
+      {gameState === 'shop' && (
+        <div className="max-w-4xl w-full bg-slate-900/90 p-6 md:p-8 rounded-[2rem] border border-slate-700 shadow-2xl backdrop-blur-md relative overflow-hidden custom-scrollbar overflow-y-auto max-h-[90vh]">
+           <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none"><Store className="w-64 h-64 text-yellow-400"/></div>
+           <div className="relative z-10">
+              <div className="flex flex-col md:flex-row justify-between md:items-end mb-6 border-b border-slate-700 pb-4 gap-4">
+                 <div>
+                    <h2 className="text-3xl md:text-4xl font-black text-white flex items-center"><Store className="mr-3 text-purple-400 w-8 h-8 md:w-10 md:h-10"/> ร้านค้า & โรงตีเหล็ก</h2>
+                    <p className="text-slate-400 mt-1 text-sm md:text-base">"มีทองมาแลกพลังและตีบวกอาวุธไหมล่ะ นักเดินทาง?"</p>
+                 </div>
+                 <div className="bg-yellow-900/30 border border-yellow-600/50 px-6 py-2 md:py-3 rounded-2xl flex items-center shrink-0">
+                    <Coins className="text-yellow-400 mr-2 w-5 h-5 md:w-6 md:h-6"/> <span className="text-xl md:text-2xl font-bold text-yellow-400">{gold}</span>
+                 </div>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                 {/* Item: Potion */}
+                 <div className="bg-slate-800 p-4 rounded-2xl border border-slate-600 flex flex-col items-center text-center">
+                    <div className="text-4xl mb-2">🧪</div>
+                    <h4 className="font-bold text-sm md:text-lg text-emerald-400 leading-tight mb-1">ขวดยาฟื้นพลัง</h4>
+                    <p className="text-[10px] md:text-xs text-slate-400 mb-3 flex-1">เพิ่มฮีล 1 ขวด<br/>(มีอยู่ {potions})</p>
+                    <button disabled={gold < 25} onClick={() => { SoundEngine.play('coin'); setGold(g => g-25); setPotions(p => p+1); }} className={`w-full py-2 rounded-xl font-bold flex items-center justify-center transition-all ${gold >= 25 ? 'bg-yellow-600 hover:bg-yellow-500 text-white' : 'bg-slate-700 text-slate-500'}`}>
+                      <Coins className="w-4 h-4 mr-1"/> 25
+                    </button>
+                 </div>
+                 
+                 {/* Item: Base Stat Up */}
+                 <div className="bg-slate-800 p-4 rounded-2xl border border-slate-600 flex flex-col items-center text-center">
+                    <div className="text-4xl mb-2">💪</div>
+                    <h4 className="font-bold text-sm md:text-lg text-purple-400 leading-tight mb-1">ยาเสริมกาย</h4>
+                    <p className="text-[10px] md:text-xs text-slate-400 mb-3 flex-1">พลังโจมตีและป้องกันถาวร +2</p>
+                    <button disabled={gold < 50} onClick={() => { SoundEngine.play('coin'); setGold(g => g-50); setBaseAtk(a => a+2); setBaseDef(d => d+2); }} className={`w-full py-2 rounded-xl font-bold flex items-center justify-center transition-all ${gold >= 50 ? 'bg-yellow-600 hover:bg-yellow-500 text-white' : 'bg-slate-700 text-slate-500'}`}>
+                      <Coins className="w-4 h-4 mr-1"/> 50
+                    </button>
+                 </div>
+
+                 {/* Blacksmith: Weapon Up */}
+                 <div className="bg-slate-800 p-4 rounded-2xl border border-slate-600 flex flex-col items-center text-center">
+                    <div className="text-4xl mb-2">⚒️</div>
+                    <h4 className="font-bold text-sm md:text-lg text-red-400 leading-tight mb-1">ตีบวกอาวุธ</h4>
+                    <p className="text-[10px] md:text-xs text-slate-400 mb-3 flex-1">
+                      {equipment.weapon ? `อัปเกรด ${equipment.weapon.name} (+5 ATK)` : 'ไม่มีอาวุธให้ตีบวก'}
+                    </p>
+                    <button disabled={gold < 75 || !equipment.weapon} onClick={upgradeWeapon} className={`w-full py-2 rounded-xl font-bold flex items-center justify-center transition-all ${gold >= 75 && equipment.weapon ? 'bg-yellow-600 hover:bg-yellow-500 text-white' : 'bg-slate-700 text-slate-500'}`}>
+                      <Coins className="w-4 h-4 mr-1"/> 75
+                    </button>
+                 </div>
+
+                 {/* Blacksmith: Armor Up */}
+                 <div className="bg-slate-800 p-4 rounded-2xl border border-slate-600 flex flex-col items-center text-center">
+                    <div className="text-4xl mb-2">🛡️</div>
+                    <h4 className="font-bold text-sm md:text-lg text-blue-400 leading-tight mb-1">ตีบวกชุดเกราะ</h4>
+                    <p className="text-[10px] md:text-xs text-slate-400 mb-3 flex-1">
+                      {equipment.armor ? `อัปเกรด ${equipment.armor.name} (+5 DEF)` : 'ไม่มีเกราะให้ตีบวก'}
+                    </p>
+                    <button disabled={gold < 75 || !equipment.armor} onClick={upgradeArmor} className={`w-full py-2 rounded-xl font-bold flex items-center justify-center transition-all ${gold >= 75 && equipment.armor ? 'bg-yellow-600 hover:bg-yellow-500 text-white' : 'bg-slate-700 text-slate-500'}`}>
+                      <Coins className="w-4 h-4 mr-1"/> 75
+                    </button>
+                 </div>
+              </div>
+
+              <button onClick={proceedToArena} className="w-full bg-emerald-600 hover:bg-emerald-500 py-4 rounded-full text-lg md:text-xl font-bold flex items-center justify-center transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] text-white">
+                 ออกจากร้านค้าและลุยต่อ <ChevronRight className="ml-2"/>
+              </button>
+           </div>
+        </div>
+      )}
+
+      {/* ---------------- Game Over & Victory ---------------- */}
+      {gameState === 'game_over' && (
+        <div className="max-w-md w-full text-center p-10 bg-slate-900 rounded-[3rem] border-2 border-red-500 shadow-2xl">
+          <Skull className="w-32 h-32 text-red-500 mx-auto mb-6" />
+          <h2 className="text-5xl font-black text-white mb-8">พ่ายแพ้!</h2>
+          <button onClick={() => { SoundEngine.play('click'); setGameState('select_class'); }} className="w-full bg-red-600 hover:bg-red-500 py-4 rounded-2xl text-xl font-bold flex items-center justify-center transition-colors text-white"><RotateCcw className="mr-2"/> กลับไปเริ่มใหม่</button>
+          <button onClick={navigateBack} className="w-full mt-3 bg-slate-700 hover:bg-slate-600 py-3 rounded-2xl text-lg font-bold text-white transition-colors">🏠 กลับหน้าหลัก</button>
+        </div>
+      )}
+
+      {gameState === 'victory' && (
+        <div className="max-w-xl w-full text-center p-12 bg-gradient-to-br from-indigo-900 to-purple-900 rounded-[3rem] border-4 border-yellow-400 shadow-2xl">
+          <Trophy className="w-40 h-40 text-yellow-400 mx-auto mb-6" />
+          <h2 className="text-5xl font-black text-white mb-4">จอมเวทในตำนาน!</h2>
+          <p className="text-purple-100 text-xl mb-10">คุณพิชิตมังกรยักษ์และปกป้องอาณาจักรได้สำเร็จ!</p>
+          <button onClick={() => { SoundEngine.play('click'); setGameState('select_class'); }} className="w-full bg-yellow-500 hover:bg-yellow-400 text-slate-900 py-4 rounded-2xl text-xl font-black transition-colors">เริ่มการผจญภัยครั้งใหม่</button>
+          <button onClick={navigateBack} className="w-full mt-3 bg-purple-800/60 hover:bg-purple-700 py-3 rounded-2xl text-lg font-bold text-white transition-colors">🏠 กลับหน้าหลัก</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
