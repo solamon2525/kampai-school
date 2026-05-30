@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.41.1 (Educational Hub — รวมแท็บ + ครูอัปเกมเอง + UX อัปโหลด)',
+        version: 'v1.41.2 (เกม math-han — เลิกพิมพ์ชื่อเอง, ใช้ชื่อจริง + โชว์อันดับ/สถิติ)',
         date: 'ล่าสุด',
+        badge: 'bg-purple-600',
+        items: [
+            'เอาช่องกรอกชื่อหน้าเมนูออก — เกียรติบัตร + หน้า Game Over ใช้ชื่อจริงจากระบบ (student.displayName) แทนชื่อที่พิมพ์เอง (fallback "นักเรียน" ตอนเล่นนอกระบบ)',
+            'หน้าเมนูโชว์ "สถิติฉัน" (คะแนนสูงสุด + จำนวนครั้งที่เล่น) + ตารางอันดับ Top 10 (เหรียญ/avatar/ชื่อ/ชั้น/คะแนน, ไฮไลต์แถวตัวเอง) — ดึงจาก init payload ที่ PlayGame ส่งให้อยู่แล้ว (stats/leaderboard)',
+            'อ่าน init เต็ม (student/stats/leaderboard) + listener กัน race ตอน init มาหลัง mount · คะแนนยังบันทึกผ่าน sendGameEnd เหมือนเดิม · verify:game 7/7',
+        ],
+    },
+    {
+        version: 'v1.41.1 (Educational Hub — รวมแท็บ + ครูอัปเกมเอง + UX อัปโหลด)',
+        date: '',
         badge: 'bg-emerald-600',
         items: [
             'รวมแท็บ "ครูทั้งหมด" + "รายการทั้งหมด" → แท็บ "รายการทั้งหมด" เดียว: ลิสต์ทุก item + filter (ครู/หมวด/ประเภท/สถานะ) + CRUD inline (แก้/ลบ/toggle เผยแพร่) — RLS คุมสิทธิ์ (admin เห็นทั้งหมด, ครูแก้เฉพาะของตัว) · แท็บ "ครู" เหลือ toggle เปิด/ปิดแสดงในคลัง + แก้โปรไฟล์',

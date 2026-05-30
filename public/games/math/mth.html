@@ -100,7 +100,7 @@
         const IS_EMBED = window.self !== window.top ||
                          new URLSearchParams(location.search).get('embed') === '1';
         let STUDENT_CODE = null;
-        let DISPLAY_NAME_INIT = '';
+        let INIT_DATA = null;   // payload เต็มจาก wrapper: {student, stats, leaderboard, ...}
         let SESSION_START_TS = Date.now();
         const GAME_SLUG = 'math-han';
 
@@ -108,7 +108,7 @@
             window.addEventListener('message', (e) => {
                 if (e?.data?.type === 'init' && typeof e.data.studentCode === 'string') {
                     STUDENT_CODE = e.data.studentCode;
-                    if (e.data.displayName) DISPLAY_NAME_INIT = e.data.displayName;
+                    INIT_DATA = e.data;
                     SESSION_START_TS = Date.now();
                 }
             });
@@ -228,8 +228,10 @@
         };
 
         const App = () => {
-            // Player Data
-            const [playerName, setPlayerName] = useState('');
+            // Player Data — ชื่อจริง/สถิติ/อันดับ มาจาก wrapper (init) เท่านั้น
+            const [displayName, setDisplayName] = useState('');
+            const [myStats, setMyStats] = useState(null);   // {personalBest, playsCount, level}
+            const [board, setBoard] = useState([]);          // leaderboard [{rank,displayName,photoUrl,classLabel,personalBest,isMe}]
             const [stars, setStars] = useState(0);
             const [unlockedThemes, setUnlockedThemes] = useState(['default']);
             const [activeTheme, setActiveTheme] = useState('default');
@@ -263,11 +265,20 @@
             useEffect(() => { levelIndexRef.current = levelIndex; }, [levelIndex]);
             useEffect(() => { hpRef.current = hp; }, [hp]);
 
-            // Pre-fill ชื่อจาก init message เมื่อเล่นใน embed
+            // รับชื่อจริง/สถิติ/อันดับจาก wrapper — init อาจมาก่อนหรือหลัง mount
             useEffect(() => {
-                if (IS_EMBED && DISPLAY_NAME_INIT && !playerName) {
-                    setPlayerName(DISPLAY_NAME_INIT);
-                }
+                const apply = (d) => {
+                    if (!d) return;
+                    setDisplayName(d.student?.displayName || d.displayName || '');
+                    if (d.stats) setMyStats(d.stats);
+                    if (Array.isArray(d.leaderboard)) setBoard(d.leaderboard);
+                };
+                apply(INIT_DATA);   // กรณี init มาถึงก่อน component mount
+                const onMsg = (e) => {
+                    if (e?.data?.type === 'init') apply(e.data);
+                };
+                window.addEventListener('message', onMsg);
+                return () => window.removeEventListener('message', onMsg);
             }, []);
 
             // ส่ง gameEnd เมื่อผ่านสอบ หรือ HP หมด
@@ -297,14 +308,12 @@
                 return () => window.removeEventListener('resize', handleResize);
             }, []);
 
-            // Load Data
+            // Load Data (cosmetic: ดาว/ธีม เก็บในเครื่อง — ไม่เก็บชื่อแล้ว)
             useEffect(() => {
                 try {
-                    const savedName = localStorage.getItem('mathDivName');
                     const savedStars = localStorage.getItem('mathDivStars');
                     const savedThemes = localStorage.getItem('mathDivThemes');
                     const activeT = localStorage.getItem('mathDivActiveTheme');
-                    if(savedName) setPlayerName(savedName);
                     if(savedStars) setStars(parseInt(savedStars));
                     if(savedThemes) setUnlockedThemes(JSON.parse(savedThemes));
                     if(activeT) setActiveTheme(activeT);
@@ -314,13 +323,12 @@
             // Save Data & Update Body Theme
             useEffect(() => {
                 try {
-                    if(playerName) localStorage.setItem('mathDivName', playerName);
                     localStorage.setItem('mathDivStars', stars);
                     localStorage.setItem('mathDivThemes', JSON.stringify(unlockedThemes));
                     localStorage.setItem('mathDivActiveTheme', activeTheme);
                 } catch(e) {}
                 document.body.className = `theme-${activeTheme} ${mode === 'test' && levelIndex === TEST_LEVELS.length - 1 ? 'theme-boss' : ''}`;
-            }, [playerName, stars, unlockedThemes, activeTheme, mode, levelIndex]);
+            }, [stars, unlockedThemes, activeTheme, mode, levelIndex]);
 
             const playSound = useCallback((type) => {
                 try {
@@ -411,12 +419,6 @@
             };
 
             const startGame = (selectedMode) => {
-                let currentName = playerName.trim();
-                if (!currentName && selectedMode !== 'custom') {
-                    currentName = "นักคณิตศาสตร์";
-                    setPlayerName(currentName);
-                }
-
                 setMode(selectedMode); setLevelIndex(0); setHp(5); setStreak(0); setAiFeedback(""); setShowScratchpad(false);
                 SESSION_START_TS = Date.now();
                 getAudioContext();
@@ -463,14 +465,45 @@
                             </h1>
                             <p className="text-sm lg:text-xl text-gray-600 mb-4 lg:mb-6 font-semibold">ฝึกหารยาว ฉบับมาสเตอร์</p>
 
-                            <div className="bg-white/50 p-3 lg:p-4 rounded-xl mb-4 lg:mb-6 shadow-inner">
-                                <input
-                                    type="text"
-                                    placeholder="พิมพ์ชื่อของคุณ (ถ้ามี)"
-                                    className="w-full text-center text-lg lg:text-2xl p-2 lg:p-3 rounded-lg border-2 border-gray-300 focus:border-[#4fb0a4] outline-none font-bold text-gray-700"
-                                    value={playerName} onChange={(e) => setPlayerName(e.target.value)} maxLength={20}
-                                />
-                            </div>
+                            {myStats && (
+                                <div className="flex justify-center gap-3 lg:gap-4 mb-4 lg:mb-6">
+                                    <div className="flex-1 max-w-[180px] bg-white/60 rounded-xl p-3 shadow-inner">
+                                        <div className="text-2xl lg:text-3xl font-bold text-[#264e36]">{myStats.personalBest ?? 0}</div>
+                                        <div className="text-xs lg:text-sm text-gray-600 font-semibold">คะแนนสูงสุด</div>
+                                    </div>
+                                    <div className="flex-1 max-w-[180px] bg-white/60 rounded-xl p-3 shadow-inner">
+                                        <div className="text-2xl lg:text-3xl font-bold text-[#264e36]">{myStats.playsCount ?? 0}</div>
+                                        <div className="text-xs lg:text-sm text-gray-600 font-semibold">เล่นไปแล้ว (ครั้ง)</div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {board.length > 0 && (
+                                <div className="bg-white/50 rounded-xl mb-4 lg:mb-6 shadow-inner overflow-hidden text-left">
+                                    <h3 className="font-bold text-sm lg:text-base px-3 lg:px-4 py-2 bg-[#4fb0a4] text-white flex items-center gap-2">🏆 อันดับนักคิดเลข</h3>
+                                    <div className="divide-y divide-black/5 max-h-64 overflow-y-auto">
+                                        {board.slice(0, 10).map((r) => (
+                                            <div key={r.rank} className={`flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 ${r.isMe ? 'bg-yellow-100' : ''}`}>
+                                                <span className="w-7 text-center text-base lg:text-lg font-bold">
+                                                    {r.rank === 1 ? '🥇' : r.rank === 2 ? '🥈' : r.rank === 3 ? '🥉' : r.rank}
+                                                </span>
+                                                {r.photoUrl
+                                                    ? <img src={r.photoUrl} alt="" className="w-8 h-8 lg:w-9 lg:h-9 rounded-full object-cover flex-shrink-0 border border-black/10" />
+                                                    : <span className="w-8 h-8 lg:w-9 lg:h-9 rounded-full bg-[#4fb0a4] text-white flex items-center justify-center font-bold flex-shrink-0">{(r.displayName || '?').charAt(0)}</span>}
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="font-bold text-sm lg:text-base text-gray-800 truncate">{r.displayName}{r.isMe ? ' (คุณ)' : ''}</div>
+                                                    {r.classLabel && <div className="text-[10px] lg:text-xs text-gray-500 truncate">{r.classLabel}</div>}
+                                                </div>
+                                                <span className="font-bold text-base lg:text-lg text-[#264e36] flex-shrink-0">{r.personalBest}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {!IS_EMBED && (
+                                <p className="text-xs lg:text-sm text-gray-500 mb-4 lg:mb-6">เล่นผ่านระบบโรงเรียนเพื่อบันทึกคะแนนและจัดอันดับ</p>
+                            )}
 
                             <div className="flex justify-center gap-4 lg:gap-6 mb-4 lg:mb-8 font-bold text-base lg:text-xl">
                                 <div className="flex items-center gap-2 bg-yellow-100 text-yellow-700 px-3 lg:px-4 py-1.5 lg:py-2 rounded-full border-2 border-yellow-300 shadow-sm">
@@ -533,7 +566,7 @@
                             <div className="text-4xl lg:text-6xl mb-4">🎖️</div>
                             <h1 className="text-3xl lg:text-5xl font-bold mb-2 text-[#d4af37]" style={{fontFamily: "'Sarabun', serif"}}>เกียรติบัตรเชิดชูเกียรติ</h1>
                             <p className="text-sm lg:text-xl text-gray-600 mb-6">ขอมอบเกียรติบัตรฉบับนี้เพื่อแสดงว่า</p>
-                            <h2 className="text-3xl lg:text-5xl font-bold text-blue-800 mb-6 border-b-2 border-gray-300 pb-2 inline-block px-4">{playerName}</h2>
+                            <h2 className="text-3xl lg:text-5xl font-bold text-blue-800 mb-6 border-b-2 border-gray-300 pb-2 inline-block px-4">{displayName || 'นักเรียน'}</h2>
                             <p className="text-base lg:text-xl text-gray-700 mb-8">ได้ผ่านการทดสอบ "การหารยาว (Master Level)"<br/>ด้วยคะแนนยอดเยี่ยม และเหลือพลังชีวิต {hp} ดวง</p>
                             <div className="flex justify-between items-end mt-4 border-t-2 border-gray-200 pt-4">
                                 <div>
@@ -558,7 +591,7 @@
                         <div className="max-w-xl w-full bg-white rounded-[2rem] shadow-2xl p-6 lg:p-8 border-[8px] lg:border-[12px] wood-border text-center">
                             <div className="text-6xl mb-4">💔</div>
                             <h1 className="text-4xl lg:text-5xl font-bold mb-2 text-red-600">Game Over!</h1>
-                            <p className="text-lg lg:text-xl text-gray-700 mb-6">พลังชีวิตหมดแล้ว ลองสู้ใหม่อีกครั้งนะ {playerName}!</p>
+                            <p className="text-lg lg:text-xl text-gray-700 mb-6">พลังชีวิตหมดแล้ว ลองสู้ใหม่อีกครั้งนะ {displayName || 'นักเรียน'}!</p>
                             <button onClick={() => IS_EMBED ? navigateBack() : setMode('menu')} className="flex items-center justify-center gap-2 mx-auto px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl shadow-[0_4px_0_#1e3a8a] active:translate-y-1">
                                 <HomeIcon /> กลับหน้าแรก
                             </button>
