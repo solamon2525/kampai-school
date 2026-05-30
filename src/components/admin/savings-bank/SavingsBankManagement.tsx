@@ -174,9 +174,9 @@ export const SavingsBankManagement = () => {
       toast({ title: 'กรุณาเลือกนักเรียน', variant: 'destructive' });
       return;
     }
-    const amount = parseFloat(form.amount);
-    if (!amount || amount <= 0) {
-      toast({ title: 'จำนวนเงินไม่ถูกต้อง', variant: 'destructive' });
+    const amount = parseInt(form.amount, 10);
+    if (!Number.isInteger(amount) || amount <= 0) {
+      toast({ title: 'กรุณากรอกจำนวนเต็ม (ไม่มีทศนิยม)', variant: 'destructive' });
       return;
     }
     if (!recorder.staffId && !recorder.administratorId) {
@@ -484,12 +484,13 @@ export const SavingsBankManagement = () => {
                 </Label>
                 <Input
                   type="number"
-                  inputMode="decimal"
+                  inputMode="numeric"
                   min="0"
-                  step="0.01"
+                  step="1"
                   value={form.amount}
                   onChange={(e) => setForm((p) => ({ ...p, amount: e.target.value }))}
-                  placeholder="0.00"
+                  onWheel={(e) => e.currentTarget.blur()}
+                  placeholder="0"
                   className="border-slate-300 font-bold tabular-nums text-base"
                 />
               </div>

@@ -272,8 +272,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.40.1 (Admin — เมนูสายตรง Facebook Feed)',
+        version: 'v1.40.2 (Fix — ธนาคารพอเพียง ฝากเป็นจำนวนเต็มบาท)',
         date: 'ล่าสุด',
+        badge: 'bg-amber-600',
+        items: [
+            'แก้บั๊ก mouse-wheel footgun: <input type="number" step="0.01"> ถูก scroll ลดค่าทีละ 0.01 เงียบ ๆ (เคสจริง ฝาก 20 → ลงเป็น 19.98)',
+            'ฟอร์มฝาก/ถอน (SavingsBankManagement + ScanRecorder): step="1" + inputMode="numeric" + parseInt + Number.isInteger + onWheel blur — รับจำนวนเต็มเท่านั้น',
+            'Migration 103: CHECK (amount = trunc(amount)) เป็น defense-in-depth ที่ DB (คง column DECIMAL(10,2) เดิม)',
+            'แก้ข้อมูล production: ด.ญ.กมลชนก อุ้ยอั้ง — รวม row 19.98 + row patch 0.02 เป็น deposit 20.00 รายการเดียว',
+        ],
+    },
+    {
+        version: 'v1.40.1 (Admin — เมนูสายตรง Facebook Feed)',
+        date: '',
         badge: 'bg-[#1877F2]',
         items: [
             'เพิ่มเมนู Sidebar "ฟีดข่าว Facebook" ใต้หมวด "เว็บไซต์" (next to Hero Slides) → /admin/dashboard/facebook-feed',

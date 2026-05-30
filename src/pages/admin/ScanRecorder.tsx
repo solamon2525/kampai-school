@@ -164,9 +164,9 @@ export default function ScanRecorder() {
 
     const handleSubmitSavings = async (type: 'deposit' | 'withdraw') => {
         if (!student) return;
-        const amt = parseFloat(amount);
-        if (!amt || amt <= 0) {
-            toast({ title: 'จำนวนเงินไม่ถูกต้อง', variant: 'destructive' });
+        const amt = parseInt(amount, 10);
+        if (!Number.isInteger(amt) || amt <= 0) {
+            toast({ title: 'กรุณากรอกจำนวนเต็ม (ไม่มีทศนิยม)', variant: 'destructive' });
             return;
         }
         if (!recorder.staffId && !recorder.administratorId) {
@@ -420,11 +420,13 @@ export default function ScanRecorder() {
                             <Label className="text-xs">จำนวนเงิน (บาท)</Label>
                             <Input
                                 type="number"
-                                min="0.01"
-                                step="0.01"
-                                placeholder="0.00"
+                                inputMode="numeric"
+                                min="1"
+                                step="1"
+                                placeholder="0"
                                 value={amount}
                                 onChange={(e) => setAmount(e.target.value)}
+                                onWheel={(e) => e.currentTarget.blur()}
                                 className="text-lg font-bold"
                                 autoFocus
                             />
