@@ -63,10 +63,11 @@ function navigateBack() {
 const { useState, useEffect, useCallback, useRef } = React;
 const _ICONS = (window.lucide && (window.lucide.icons || window.lucide)) || {};
 const _mkIcon = (name) => (p = {}) => {
+  // lucide IconNode = ["svg", attrs, [["path",{...}], ...]] — เอาเฉพาะ drawing children (index 2)
   const node = _ICONS[name];
+  const paths = (node && Array.isArray(node[2])) ? node[2] : [];
   const sz = p.size || 24;
-  const children = (Array.isArray(node) ? node : []).map((entry, i) =>
-    React.createElement(entry[0], { key: i, ...entry[1] }));
+  const children = paths.map((c, i) => React.createElement(c[0], { key: i, ...c[1] }));
   return React.createElement('svg', {
     xmlns: 'http://www.w3.org/2000/svg', width: sz, height: sz, viewBox: '0 0 24 24',
     fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round',
