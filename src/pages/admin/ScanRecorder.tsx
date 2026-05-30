@@ -12,6 +12,7 @@ import {
     Wallet, Plus, Trash2, Check, RotateCcw, ArrowLeft,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 import { StudentQRScanner } from '@/components/shared/StudentQRScanner';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import {
@@ -31,6 +32,8 @@ import type {
     WasteStudentSummary,
 } from '@/services/waste-bank.service';
 import type { SavingsStudentSummary } from '@/services/savings.service';
+
+const QUICK_AMOUNTS = [5, 10, 20, 50, 100] as const;
 
 type Mode = 'scanning' | 'picking' | 'form-waste' | 'form-deposit' | 'form-withdraw' | 'done';
 
@@ -430,6 +433,23 @@ export default function ScanRecorder() {
                                 className="text-lg font-bold"
                                 autoFocus
                             />
+                            <div className="flex flex-wrap gap-1.5">
+                                {QUICK_AMOUNTS.map((v) => (
+                                    <button
+                                        key={v}
+                                        type="button"
+                                        onClick={() => setAmount(String(v))}
+                                        className={cn(
+                                            'px-2.5 py-1 rounded-md border text-sm font-bold tabular-nums transition-colors',
+                                            amount === String(v)
+                                                ? 'border-amber-500 bg-amber-100 text-amber-900'
+                                                : 'border-input text-foreground hover:bg-amber-50 hover:border-amber-400',
+                                        )}
+                                    >
+                                        {v}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                         <div className="space-y-1">
                             <Label className="text-xs">หมายเหตุ (ไม่บังคับ)</Label>

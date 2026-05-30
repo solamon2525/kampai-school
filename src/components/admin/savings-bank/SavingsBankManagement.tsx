@@ -50,6 +50,8 @@ import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
 
 const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 
+const QUICK_AMOUNTS = [5, 10, 20, 50, 100] as const;
+
 interface StudentOption {
   id: string;
   name: string;
@@ -493,6 +495,23 @@ export const SavingsBankManagement = () => {
                   placeholder="0"
                   className="border-slate-300 font-bold tabular-nums text-base"
                 />
+                <div className="flex flex-wrap gap-1.5">
+                  {QUICK_AMOUNTS.map((v) => (
+                    <button
+                      key={v}
+                      type="button"
+                      onClick={() => setForm((p) => ({ ...p, amount: String(v) }))}
+                      className={cn(
+                        'px-2.5 py-1 rounded-md border text-sm font-bold tabular-nums transition-colors',
+                        form.amount === String(v)
+                          ? 'border-amber-500 bg-amber-100 text-amber-900'
+                          : 'border-slate-300 text-slate-700 hover:bg-amber-50 hover:border-amber-400',
+                      )}
+                    >
+                      {v}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">วันที่</Label>
