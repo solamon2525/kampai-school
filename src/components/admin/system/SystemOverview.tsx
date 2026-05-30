@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.41.3 (เกม — ตารางอันดับในจอแรกให้เหมือนกันทุกเกม)',
+        version: 'v1.41.4 (เทมเพลตเกม + AI Prompt — blueprint โครงสร้างหน้าจอ + การ์ดสถิติฉัน)',
         date: 'ล่าสุด',
+        badge: 'bg-purple-600',
+        items: [
+            'GAME-PROMPT.md (ปุ่ม "คัดลอก Prompt" + "ดู Prompt"): เพิ่ม section "โครงสร้างหน้าจอมาตรฐาน (ต้องมีครบ)" — จอเริ่ม (การ์ดสถิติฉัน + ตารางอันดับ, ห้ามช่องกรอกชื่อ) / HUD / จอจบ (อันดับ + เล่นใหม่ + goHome) / มือถือ + เพิ่ม playsCount ใน k.stats',
+            'เทมเพลต vanilla (_template-full.html) + React (_template-react.html): เพิ่มการ์ด "สถิติฉัน" (คะแนนสูงสุด + จำนวนครั้งที่เล่น จาก KAMPAI.stats) ในจอ title — ซ่อนเองถ้าไม่มีข้อมูล (เปิดทดสอบเดี่ยว)',
+            'ทั้ง 2 เทมเพลต render Check 7 ผ่าน (การ์ดสถิติ + อันดับ render กับ mock init); เกมใหม่/สั่ง AI สร้างจะได้โครงสร้างมาตรฐานตั้งแต่แรก',
+        ],
+    },
+    {
+        version: 'v1.41.3 (เกม — ตารางอันดับในจอแรกให้เหมือนกันทุกเกม)',
+        date: '',
         badge: 'bg-purple-600',
         items: [
             'public/games/kampai-leaderboard.js (ใหม่) — drop-in widget: ใส่ <script src> + <div data-kampai-lb> ก็โชว์ตารางอันดับในจอ title ได้ทันที (อ่านจาก init ที่ wrapper ส่ง, ไม่ฝัง anon key, ไม่มีข้อมูล→ซ่อนเอง)',

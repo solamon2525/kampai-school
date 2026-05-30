@@ -60,6 +60,12 @@ html, body { height: 100%; font-family: 'Kanit', sans-serif; background: #0f172a
 .lb-name { font-family: 'Fredoka One', cursive; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .lb-sub { font-size: 0.72rem; color: #868e96; }
 .lb-loading { color: #868e96; text-align: center; padding: 8px; font-size: 0.85rem; }
+
+/* การ์ดสถิติฉัน (จอเริ่ม) */
+#my-stats { display: none; gap: 10px; margin: 4px 0 10px; width: 100%; max-width: 420px; }
+#my-stats .ms-cell { flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 10px; }
+#my-stats .ms-val { font-family: 'Fredoka One', cursive; font-size: 1.6rem; color: #FFD700; line-height: 1.1; }
+#my-stats .ms-label { font-size: 0.72rem; color: #cbd5e1; }
 </style>
 </head>
 <body>
@@ -75,6 +81,10 @@ html, body { height: 100%; font-family: 'Kanit', sans-serif; background: #0f172a
 <div id="blocker">
     <h1>🧺 เกมตัวอย่าง</h1>
     <p>ขยับตะกร้าซ้าย–ขวารับดาว — บนมือถือใช้ปุ่มลูกศร, เดสก์ท็อปใช้ ← →</p>
+    <div id="my-stats">
+        <div class="ms-cell"><div class="ms-val" id="ms-best">0</div><div class="ms-label">คะแนนสูงสุด</div></div>
+        <div class="ms-cell"><div class="ms-val" id="ms-plays">0</div><div class="ms-label">เล่นไปแล้ว (ครั้ง)</div></div>
+    </div>
     <div class="leaderboard-box">
         <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
         <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
@@ -123,6 +133,13 @@ function renderPlayer() {
     chip.innerHTML = av + `<span>${s.displayName}${best}</span>`;
     chip.style.display = 'flex';
 }
+function renderMyStats() {
+    const st = KAMPAI.stats;
+    if (!st) return;   // เปิดทดสอบเดี่ยว ๆ → ไม่มี stats → ซ่อนการ์ดไว้
+    document.getElementById('ms-best').innerText = (st.personalBest || 0).toLocaleString();
+    document.getElementById('ms-plays').innerText = (st.playsCount || 0).toLocaleString();
+    document.getElementById('my-stats').style.display = 'flex';
+}
 function renderLeaderboard(listId) {
     const el = document.getElementById(listId);
     if (!el) return;
@@ -139,7 +156,7 @@ function renderLeaderboard(listId) {
     }).join('');
 }
 // เมื่อข้อมูลนักเรียนพร้อม → โชว์ป้ายผู้เล่น + leaderboard
-KAMPAI.onReady(function () { renderPlayer(); renderLeaderboard('score-list'); });
+KAMPAI.onReady(function () { renderPlayer(); renderMyStats(); renderLeaderboard('score-list'); });
 
 // ปุ่มควบคุมบนมือถือ (D-pad ซ้าย/ขวาใช้ในเกมนี้) + คีย์บอร์ด desktop อัตโนมัติ
 KAMPAI.controls.mount({ dpad: true, buttons: [] });
