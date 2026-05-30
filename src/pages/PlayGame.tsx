@@ -167,13 +167,40 @@ const PlayGame = () => {
   }, [levelInfo]);
 
   // ─── send init to iframe once loaded ───────────────────────────────────────
+  // ส่งทั้ง studentCode (เดิม — เกมเก่าใช้ได้) + student/stats/leaderboard (ใหม่ — KAMPAI SDK
+  // เอาไปโชว์ชื่อ/คะแนน/อันดับในหน้าเกม โดยไม่ต้องยิง Supabase เอง)
   const handleIframeLoad = useCallback(() => {
     if (!student || !iframeRef.current?.contentWindow) return;
+    const s = statsQuery.data;
     iframeRef.current.contentWindow.postMessage(
-      { type: 'init', studentCode: codeInput.trim() },
+      {
+        type: 'init',
+        studentCode: codeInput.trim(),
+        student: {
+          id: student.id,
+          displayName: student.display_name,
+          photoUrl: student.photo_url,
+          classLabel: student.class_label,
+        },
+        stats: {
+          playsCount: s?.plays_count ?? 0,
+          personalBest: s?.personal_best ?? 0,
+          totalXp: s?.total_xp ?? 0,
+          level: levelInfo.level,
+        },
+        leaderboard: (leaderboardQuery.data ?? []).map((r, i) => ({
+          rank: i + 1,
+          studentId: r.student_id,
+          displayName: r.display_name,
+          photoUrl: r.photo_url,
+          classLabel: r.class_label,
+          personalBest: r.personal_best,
+          isMe: r.student_id === student.id,
+        })),
+      },
       '*',
     );
-  }, [student, codeInput]);
+  }, [student, codeInput, statsQuery.data, levelInfo.level, leaderboardQuery.data]);
 
   // ─── auto-login จาก localStorage (ลดเวลากรอกรหัสเมื่อเปลี่ยนเกม) ────────
   useEffect(() => {

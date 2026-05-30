@@ -37,7 +37,42 @@
 
 ---
 
-## 🔌 EMBED Block (canonical version)
+## 🚀 KAMPAI SDK (แนะนำ — เทมเพลตใหม่ใช้ตัวนี้)
+
+เกมใหม่โหลด **ไฟล์เดียว** `/games/kampai-sdk.js` แทนการ copy boilerplate เอง → integration อัปเดต
+ที่เดียว ทุกเกมได้ตาม. ใส่ใน `<body>` ก่อน script เกม + fallback stub (กัน standalone พัง):
+```html
+<script src="/games/kampai-sdk.js"></script>
+<script>window.KAMPAI = window.KAMPAI || { isEmbed:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}} };</script>
+```
+
+**API (`window.KAMPAI`):**
+| เมธอด / property | ใช้ทำอะไร |
+|---|---|
+| `KAMPAI.setSlug('slug')` | ตั้ง game_slug (ครั้งเดียวตอนเริ่ม) |
+| `KAMPAI.onReady(cb)` | `cb(k)` รันเมื่อข้อมูลนักเรียนมาถึง — ใช้ `k.student/k.stats/k.leaderboard` ไปโชว์ |
+| `KAMPAI.student` | `{id, code, displayName, photoUrl, classLabel}` |
+| `KAMPAI.stats` | `{playsCount, personalBest, totalXp, level}` |
+| `KAMPAI.leaderboard` | `[{rank, studentId, displayName, photoUrl, classLabel, personalBest, isMe}]` |
+| `KAMPAI.submitScore(score,{mode,...meta})` | ส่งคะแนนตอนจบเกม (= gameEnd เดิม) — **ต้องเรียก** |
+| `KAMPAI.goHome()` | ปุ่มกลับหน้าหลัก (= navigate เดิม) |
+| `KAMPAI.controls.mount({dpad,buttons,onTap})` | วาด D-pad+ปุ่มบนมือถือ + sync คีย์บอร์ด → อ่าน `KAMPAI.input{up,down,left,right,a,b}` |
+
+**Prompt สำหรับสั่ง AI เจ้าอื่นสร้างเกม:** `public/GAME-PROMPT.md` (served ที่ `/GAME-PROMPT.md`) —
+แอดมินมีปุ่ม "คัดลอก Prompt" + ดาวน์โหลดเทมเพลตที่ เมนูเกม HTML (GamesTab).
+
+**init payload ที่ wrapper ส่งให้** (PlayGame.tsx — SDK แปลงให้แล้ว, เกมไม่ต้องอ่านเอง):
+```js
+{ type:'init', studentCode, student:{id,displayName,photoUrl,classLabel},
+  stats:{playsCount,personalBest,totalXp,level},
+  leaderboard:[{rank,studentId,displayName,photoUrl,classLabel,personalBest,isMe}] }
+```
+> เกมเก่าที่อ่านแค่ `studentCode` ยังทำงานได้ (additive). เทมเพลต: `_template-full.html` (vanilla),
+> `_template-react.html` (React) — ทั้งคู่ใช้ SDK + โชว์ leaderboard ในเกม + D-pad มือถือ.
+
+---
+
+## 🔌 EMBED Block (legacy — manual, ไม่ใช้ SDK)
 
 วาง **ต้นสุดของ `<script>` tag หลัก** ก่อนตัวแปรอื่นทั้งหมด:
 
@@ -290,4 +325,4 @@ PlayGame wrapper ทำสิ่งเหล่านี้ — เกม HTML *
 
 ---
 
-*v1.40.6 — เพิ่ม Check 7 render smoke-test + _template-react.html + lucide IconNode lesson. อัปเดตล่าสุดดู `src/components/admin/system/SystemOverview.tsx`*
+*v1.41.0 — KAMPAI SDK (/games/kampai-sdk.js) + in-game leaderboard ผ่าน init + D-pad มือถือ + GAME-PROMPT.md + ปุ่มดาวน์โหลดเทมเพลตใน admin. v1.40.6 — Check 7 render smoke-test + _template-react.html. อัปเดตล่าสุดดู `src/components/admin/system/SystemOverview.tsx`*

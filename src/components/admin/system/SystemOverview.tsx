@@ -272,8 +272,20 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.40.6 (verify:game render smoke-test — กันเกมจอดำ)',
+        version: 'v1.41.0 (KAMPAI Game SDK — เชื่อมเกมเข้าระบบง่ายสุด)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'public/games/kampai-sdk.js (window.KAMPAI) — single source ของ integration: setSlug/onReady/submitScore/goHome + student/stats/leaderboard; เกมโหลด <script src> ไฟล์เดียว แก้ SDK ทีเดียวทุกเกมได้ตาม',
+            'PlayGame init ส่ง student + stats + leaderboard เข้าเกม (additive — เกมเก่าไม่กระทบ) → เกมโชว์ชื่อผู้เล่น + 5 อันดับในจอได้โดยไม่ยิง Supabase เอง (เลิกฝัง anon key)',
+            'มือถือ: KAMPAI.controls.mount({dpad,buttons}) วาด D-pad+ปุ่ม action บน touch + sync คีย์บอร์ด → อ่าน KAMPAI.input ที่เดียว',
+            'public/GAME-PROMPT.md + ปุ่ม "ดาวน์โหลดเทมเพลต" + "คัดลอก Prompt สำหรับ AI" ใน admin (GamesTab) — สั่ง ChatGPT/Gemini/Claude สร้างเกมแล้วเชื่อมระบบได้ทันที',
+            'อัปเกรด _template-full.html (vanilla) + _template-react.html ใช้ SDK + leaderboard ในเกม + D-pad · verify:game รองรับ SDK (Check 2-5) + Check 7 post mock init + เกม vanilla',
+        ],
+    },
+    {
+        version: 'v1.40.6 (verify:game render smoke-test — กันเกมจอดำ)',
+        date: '',
         badge: 'bg-purple-600',
         items: [
             'บทเรียน wizard-thai: verify:game เดิมเป็น static regex ล้วน — ผ่าน 6/6 ทั้งที่เกมจอดำ (ไม่เคย render จริง)',

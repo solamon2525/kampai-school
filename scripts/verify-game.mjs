@@ -45,6 +45,9 @@ if (!existsSync(filePath)) {
 const html = readFileSync(filePath, 'utf8');
 const fileName = basename(filePath, '.html');
 
+// เกมที่ใช้ KAMPAI SDK (/games/kampai-sdk.js) — integration อยู่ใน SDK ไม่ใช่ในไฟล์เกม
+const usesSdk = /kampai-sdk\.js/.test(html) || /KAMPAI\s*\.\s*(submitScore|setSlug|onReady|goHome)/.test(html);
+
 console.log(`\n${BOLD}${CYAN}🎮 Verify Game Integration${RESET}`);
 console.log(`${CYAN}File:${RESET} ${targetArg}\n`);
 
@@ -73,51 +76,54 @@ if (!slugMatch) {
     }
 }
 
-// ─── Check 2: sendGameEnd function defined ──────────────────────────────────
-if (!/function\s+sendGameEnd\s*\(/.test(html)) {
+// ─── Check 2: score-submit available (SDK: KAMPAI.submitScore | legacy: sendGameEnd) ──
+if (!(usesSdk || /function\s+sendGameEnd\s*\(/.test(html))) {
     issues.push({
         check: 'sendGameEnd',
-        msg:   'ไม่พบ `function sendGameEnd(...)` — copy EMBED block จาก GAME.md Section 3',
+        msg:   'ไม่พบ `KAMPAI.submitScore` (SDK) หรือ `function sendGameEnd(...)` — โหลด /games/kampai-sdk.js หรือ copy EMBED block',
     });
-    console.log(`${FAIL} Check 2 — sendGameEnd: ไม่ถูก define`);
+    console.log(`${FAIL} Check 2 — score submit: ไม่พบ (SDK/sendGameEnd)`);
 } else {
-    console.log(`${PASS} Check 2 — sendGameEnd: ถูก define`);
+    console.log(`${PASS} Check 2 — score submit: ${usesSdk ? 'KAMPAI SDK' : 'sendGameEnd'}`);
 }
 
-// ─── Check 3: navigateBack function defined ─────────────────────────────────
-if (!/function\s+navigateBack\s*\(/.test(html)) {
+// ─── Check 3: กลับหน้าหลัก (SDK: KAMPAI.goHome | legacy: navigateBack | a[target=_top]) ──
+if (!(usesSdk || /function\s+navigateBack\s*\(/.test(html) || /target=["']_top["']/.test(html))) {
     issues.push({
         check: 'navigateBack',
-        msg:   'ไม่พบ `function navigateBack(...)` — copy EMBED block จาก GAME.md Section 3',
+        msg:   'ไม่พบทางกลับหน้าหลัก — `KAMPAI.goHome()` (SDK) หรือ `function navigateBack()` หรือ <a target="_top">',
     });
-    console.log(`${FAIL} Check 3 — navigateBack: ไม่ถูก define`);
+    console.log(`${FAIL} Check 3 — navigate back: ไม่พบ`);
 } else {
-    console.log(`${PASS} Check 3 — navigateBack: ถูก define`);
+    console.log(`${PASS} Check 3 — navigate back: ${usesSdk ? 'KAMPAI.goHome' : 'OK'}`);
 }
 
-// ─── Check 4: 'init' message listener present ───────────────────────────────
+// ─── Check 4: รับข้อมูลนักเรียน (SDK จัดการ init ให้ | legacy: init listener) ──────────
 const hasInitListener = /addEventListener\s*\(\s*['"]message['"][\s\S]{0,500}type\s*===?\s*['"]init['"]/.test(html);
-if (!hasInitListener) {
+if (!(usesSdk || hasInitListener)) {
     issues.push({
         check: 'init listener',
-        msg:   "ไม่พบ message listener สำหรับ type 'init' — EMBED block ขาด หรือ STUDENT_CODE ไม่ถูก capture",
+        msg:   "ไม่พบการรับ init — โหลด /games/kampai-sdk.js หรือเพิ่ม message listener สำหรับ type 'init'",
     });
-    console.log(`${FAIL} Check 4 — init listener: ไม่พบ`);
+    console.log(`${FAIL} Check 4 — init: ไม่พบ`);
 } else {
-    console.log(`${PASS} Check 4 — init listener: ทำงาน`);
+    console.log(`${PASS} Check 4 — init: ${usesSdk ? 'KAMPAI SDK' : 'listener'}`);
 }
 
-// ─── Check 5: sendGameEnd actually called (not just defined) ────────────────
-// นับ occurrences — define จะมี 1 ครั้ง, ถ้ามีแค่ 1 = ไม่ถูกเรียก
+// ─── Check 5: ต้อง "เรียก" submit จริง (SDK: KAMPAI.submitScore( | legacy: sendGameEnd ≥2) ──
+const sdkSubmitCalls = (html.match(/KAMPAI\s*\.\s*submitScore\s*\(/g) || []).length;
 const sendCalls = (html.match(/sendGameEnd\s*\(/g) || []).length;
-if (sendCalls < 2) {
+const submitCalled = usesSdk ? sdkSubmitCalls >= 1 : sendCalls >= 2;
+if (!submitCalled) {
     issues.push({
         check: 'sendGameEnd called',
-        msg:   'sendGameEnd ถูก define แต่ไม่ถูก "เรียก" จริงในเกม — ต้องเรียกในฟังก์ชัน endGame()/gameOver() เมื่อเกมจบ',
+        msg:   usesSdk
+            ? 'ไม่พบการเรียก `KAMPAI.submitScore(...)` — ต้องเรียกตอนเกมจบ (endGame/gameOver)'
+            : 'sendGameEnd ถูก define แต่ไม่ถูก "เรียก" จริง — ต้องเรียกตอนเกมจบ',
     });
-    console.log(`${FAIL} Check 5 — sendGameEnd called: พบเพียง ${sendCalls} (ต้อง ≥ 2)`);
+    console.log(`${FAIL} Check 5 — submit called: ${usesSdk ? `KAMPAI.submitScore ${sdkSubmitCalls} ครั้ง` : `พบเพียง ${sendCalls}`}`);
 } else {
-    console.log(`${PASS} Check 5 — sendGameEnd called: ${sendCalls - 1} ครั้ง`);
+    console.log(`${PASS} Check 5 — submit called: ${usesSdk ? `KAMPAI.submitScore ${sdkSubmitCalls} ครั้ง` : `${sendCalls - 1} ครั้ง`}`);
 }
 
 // ─── Check 6: migration file exists for this slug ───────────────────────────
@@ -174,10 +180,11 @@ if (/window\.location\.href\s*=\s*['"][^/]*\.\.?\/index/.test(html)) {
 
 // ─── Check 7: render smoke-test (จับ "จอดำ" — runtime error/crash ที่ static ไม่เห็น) ──
 // static checks ข้างบนเคยปล่อยเกมจอดำผ่าน (เคส wizard-thai) เพราะไม่เคย render จริง
-if (/<script\s+type="text\/babel">/.test(html)) {
+const isReactGame = /<script\s+type="text\/babel">/.test(html);
+if (isReactGame || usesSdk) {
     const r = await renderSmokeTest(html);
     if (r.status === 'pass') {
-        console.log(`${PASS} Check 7 — render: เกม render สำเร็จ (root ${r.size} ตัวอักษร)`);
+        console.log(`${PASS} Check 7 — render: เกมโหลด+render สำเร็จ${r.size ? ` (DOM ${r.size} ตัวอักษร)` : ''}`);
     } else if (r.status === 'skip') {
         warnings.push({ check: 'render', msg: r.msg });
         console.log(`${WARN} Check 7 — render: ข้าม (${r.msg})`);
@@ -186,7 +193,7 @@ if (/<script\s+type="text\/babel">/.test(html)) {
         console.log(`${FAIL} Check 7 — render: ${r.msg}`);
     }
 } else {
-    console.log(`${WARN} Check 7 — render: ข้าม (เกม vanilla ไม่ใช่ React/Babel — ต้องทดสอบ browser เอง)`);
+    console.log(`${WARN} Check 7 — render: ข้าม (เกม vanilla เก่า ไม่ใช่ SDK — ต้องทดสอบ browser เอง)`);
 }
 
 // ─── Summary ─────────────────────────────────────────────────────────────────
@@ -219,8 +226,8 @@ process.exit(issues.length > 0 ? 1 : 0);
 // ────────────────────────────────────────────────────────────────────────────
 
 /**
- * โหลดเกม React/Babel ใน jsdom + React UMD จริง แล้วเช็คว่า render ขึ้น (root ไม่ว่าง)
- * และไม่มี runtime error — จับเคส "จอดำ" ที่ static regex มองไม่เห็น
+ * โหลดเกมใน jsdom จริง (React UMD / KAMPAI SDK) + post mock init แล้วเช็คว่าไม่ throw
+ * + (React) render ขึ้น — จับ "จอดำ"/crash ที่ static regex มองไม่เห็น
  * คืน { status: 'pass'|'fail'|'skip', ... }
  */
 async function renderSmokeTest(html) {
@@ -234,29 +241,47 @@ async function renderSmokeTest(html) {
         return { status: 'skip', msg: 'ไม่มี jsdom/@babel/standalone — รัน: pnpm add -D jsdom @babel/standalone' };
     }
 
-    // ดึง UMD ที่ต้องโหลด (react, react-dom, lucide; ข้าม tailwind/babel/อื่นๆ)
-    const srcs = [...html.matchAll(/<script[^>]*\ssrc="([^"]+)"/g)].map((m) => m[1]);
-    const need = srcs.filter((u) => /(^|\/)react(-dom)?[@./]|lucide/i.test(u) && !/babel|tailwind/i.test(u));
-
+    const isReact = /<script\s+type="text\/babel">/.test(html);
     const cacheDir = join(REPO_ROOT, 'node_modules', '.cache', 'game-verify');
-    let bundles;
+
+    // เดิน <script> ตามลำดับเอกสาร: CDN(react/lucide)=fetch, /...js=local public, babel=transform, inline=eval
+    const scriptTags = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)];
+    const steps = []; // { kind:'eval'|'babel', code }
     try {
-        bundles = [];
-        for (const u of need) bundles.push(await fetchCached(u, cacheDir));
+        for (const m of scriptTags) {
+            const attrs = m[1] || '', inner = m[2] || '';
+            const srcM = attrs.match(/\ssrc=["']([^"']+)["']/);
+            const isBabel = /type=["']text\/babel["']/.test(attrs);
+            if (srcM) {
+                const src = srcM[1];
+                if (/^\/(?!\/)/.test(src)) {
+                    // absolute local เช่น /games/kampai-sdk.js → public/
+                    const lp = join(REPO_ROOT, 'public', src.replace(/^\//, ''));
+                    if (existsSync(lp)) steps.push({ kind: 'eval', code: readFileSync(lp, 'utf8') });
+                } else if (/(^|\/)react(-dom)?[@./]|lucide/i.test(src) && !/babel|tailwind/i.test(src)) {
+                    steps.push({ kind: 'eval', code: await fetchCached(src, cacheDir) });
+                }
+                // ข้าม tailwind/babel CDN (ไม่ต้องตอน runtime)
+            } else if (isBabel) {
+                steps.push({ kind: 'babel', code: inner });
+            } else if (inner.trim()) {
+                steps.push({ kind: 'eval', code: inner });
+            }
+        }
     } catch (e) {
-        return { status: 'skip', msg: `โหลด CDN ไม่ได้ (offline?) — ${e.message}` };
+        return { status: 'skip', msg: `โหลด dependency ไม่ได้ (offline?) — ${e.message}` };
     }
 
     const vc = new VirtualConsole();
     const errs = [];
-    // uncaught exception จริง = crash (กรอง "Not implemented" ของ jsdom ที่ไม่ใช่บั๊กเกม)
     vc.on('jsdomError', (e) => { const m = e.message || String(e); if (!/Not implemented/i.test(m)) errs.push(m); });
-    const dom = new JSDOM('<!DOCTYPE html><html><body><div id="root"></div></body></html>', {
+    // ใช้ DOM จริงของเกม (canvas/#root/ปุ่ม ครบ) แต่ปิด auto-run script — เรา eval เองตามลำดับ
+    const dom = new JSDOM(html, {
+        url: 'https://verify.local/?embed=1', // ให้ KAMPAI SDK เข้าโหมด embed → ทดสอบ init path
         runScripts: 'outside-only', pretendToBeVisual: true, virtualConsole: vc,
     });
     const { window } = dom;
     window.onerror = (m) => errs.push(String(m));
-    // console.error เงียบ (React warnings = noise ไม่ใช่ crash); crash จริงมาทาง jsdomError/onerror + root ว่าง
     window.console = { log() {}, info() {}, warn() {}, debug() {}, error() {} };
     window.matchMedia = () => ({ matches: false, media: '', onchange: null, addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {}, dispatchEvent() { return false; } });
     const noopOsc = () => ({ connect() {}, frequency: { setValueAtTime() {}, exponentialRampToValueAtTime() {}, linearRampToValueAtTime() {} }, type: '', start() {}, stop() {} });
@@ -267,19 +292,35 @@ async function renderSmokeTest(html) {
     try { window.HTMLCanvasElement.prototype.getContext = () => null; } catch { /* ignore */ }
 
     try {
-        for (const code of bundles) window.eval(code);
-        const blocks = [...html.matchAll(/<script type="text\/babel">([\s\S]*?)<\/script>/g)].map((m) => m[1]);
-        for (const block of blocks) window.eval(Babel.transform(block, { presets: ['react', 'env'] }).code);
+        for (const step of steps) {
+            window.eval(step.kind === 'babel' ? Babel.transform(step.code, { presets: ['react', 'env'] }).code : step.code);
+        }
     } catch (e) {
         return { status: 'fail', msg: `เกม throw ตอนโหลด/compile: ${e.message}` };
     }
 
-    await new Promise((r) => setTimeout(r, 500)); // รอ React 18 commit (async)
-    const root = window.document.getElementById('root') || window.document.body;
-    const size = root ? root.innerHTML.length : 0;
+    // จำลอง wrapper ส่ง init (student + stats + leaderboard) → exercise onReady/leaderboard path
+    try {
+        window.postMessage({
+            type: 'init', studentCode: '9999',
+            student: { id: 'test-id', displayName: 'ทดสอบ นักเรียน', photoUrl: null, classLabel: 'ป.6' },
+            stats: { playsCount: 3, personalBest: 120, totalXp: 340, level: 3 },
+            leaderboard: [
+                { rank: 1, studentId: 'a', displayName: 'เอ', photoUrl: null, classLabel: 'ป.6', personalBest: 200, isMe: false },
+                { rank: 2, studentId: 'test-id', displayName: 'ทดสอบ นักเรียน', photoUrl: null, classLabel: 'ป.6', personalBest: 120, isMe: true },
+            ],
+        }, '*');
+    } catch { /* ignore */ }
+
+    await new Promise((r) => setTimeout(r, 500)); // รอ message delivery + React commit
     if (errs.length) return { status: 'fail', msg: `พบ error ขณะ render: ${errs[0].slice(0, 220)}` };
-    if (size <= 50) return { status: 'fail', msg: `เกม render ไม่ขึ้น (จอดำ) — root ว่าง (${size} ตัวอักษร)` };
-    return { status: 'pass', size };
+    if (isReact) {
+        const root = window.document.getElementById('root') || window.document.body;
+        const size = root ? root.innerHTML.length : 0;
+        if (size <= 50) return { status: 'fail', msg: `เกม render ไม่ขึ้น (จอดำ) — root ว่าง (${size} ตัวอักษร)` };
+        return { status: 'pass', size };
+    }
+    return { status: 'pass', size: window.document.body.innerHTML.length };
 }
 
 async function fetchCached(url, cacheDir) {

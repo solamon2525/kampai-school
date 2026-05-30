@@ -21,7 +21,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink, Plus, RefreshCw, AlertTriangle, Loader2, Trash2, RotateCcw, Settings, Code2, ChevronDown, Copy, Check } from 'lucide-react';
+import { ExternalLink, Plus, RefreshCw, AlertTriangle, Loader2, Trash2, RotateCcw, Settings, Code2, ChevronDown, Copy, Check, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -168,6 +168,61 @@ function CommandBlock({ label, command, note }: CommandBlockProps) {
     );
 }
 
+function AiGameKit() {
+    const { toast } = useToast();
+    const [copied, setCopied] = useState(false);
+
+    const copyPrompt = async () => {
+        try {
+            const res = await fetch('/GAME-PROMPT.md');
+            const text = await res.text();
+            await navigator.clipboard.writeText(text);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1500);
+            toast({ title: 'คัดลอก Prompt แล้ว', description: 'วางให้ AI (ChatGPT / Gemini / Claude) พร้อมไอเดียเกมได้เลย' });
+        } catch {
+            toast({ title: 'คัดลอกไม่สำเร็จ', variant: 'destructive' });
+        }
+    };
+
+    return (
+        <Card className="border-primary/20 bg-primary/5">
+            <CardContent className="p-4 space-y-3">
+                <div className="flex items-center gap-2">
+                    <Code2 className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-semibold text-foreground">🎮 สร้างเกมใหม่ด้วย AI ภายนอก</span>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                    ดาวน์โหลดเทมเพลต → คัดลอก Prompt ไปวางให้ AI (ChatGPT / Gemini / Claude) พร้อมไอเดียเกม →
+                    ได้ไฟล์ HTML กลับมา → กด "อัพโหลดเกมใหม่" → ตั้ง game slug → เสร็จ
+                    (เกมเชื่อมคะแนน + นักเรียน + leaderboard ผ่าน <code className="text-foreground">KAMPAI SDK</code> อัตโนมัติ)
+                </p>
+                <div className="flex flex-wrap gap-2">
+                    <Button asChild size="sm" variant="outline">
+                        <a href="/games/_template-full.html" download>
+                            <Download className="h-3.5 w-3.5 mr-1" /> เทมเพลต (vanilla)
+                        </a>
+                    </Button>
+                    <Button asChild size="sm" variant="outline">
+                        <a href="/games/_template-react.html" download>
+                            <Download className="h-3.5 w-3.5 mr-1" /> เทมเพลต (React)
+                        </a>
+                    </Button>
+                    <Button size="sm" onClick={copyPrompt}>
+                        {copied ? <Check className="h-3.5 w-3.5 mr-1" /> : <Copy className="h-3.5 w-3.5 mr-1" />}
+                        คัดลอก Prompt สำหรับ AI
+                    </Button>
+                    <Button asChild size="sm" variant="ghost">
+                        <a href="/GAME-PROMPT.md" target="_blank" rel="noreferrer">
+                            <ExternalLink className="h-3.5 w-3.5 mr-1" /> ดู Prompt
+                        </a>
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
+
 function DeveloperCheatsheet() {
     const [open, setOpen] = useState(false);
     return (
@@ -201,7 +256,7 @@ function DeveloperCheatsheet() {
                             <CommandBlock
                                 label="🔍 ตรวจเกมที่มีอยู่"
                                 command="pnpm verify:game public/games/tech/word-shield.html"
-                                note="ตรวจ 6 จุด: GAME_SLUG, sendGameEnd, navigateBack, init listener, sendGameEnd called, migration"
+                                note="ตรวจ 7 จุด: GAME_SLUG, submit score, navigate back, init, submit called, migration, + render smoke-test (จับจอดำ)"
                             />
                             <CommandBlock
                                 label="🤖 ให้ Claude auto-integrate เกมใหม่ (ใน Claude Code)"
@@ -221,10 +276,10 @@ function DeveloperCheatsheet() {
                         <div className="border-t border-amber-200 pt-3 space-y-2">
                             <p className="text-xs font-semibold text-foreground">📋 Integration Checklist</p>
                             <ul className="text-[11px] text-muted-foreground space-y-0.5 list-disc list-inside">
-                                <li>GAME_SLUG ใน HTML ต้องตรงกับ <code className="text-foreground">game_slug</code> ใน DB</li>
-                                <li>เรียก <code className="text-foreground">sendGameEnd(score, mode, metadata)</code> เมื่อเกมจบ</li>
-                                <li>ปุ่ม "กลับ" ใช้ <code className="text-foreground">navigateBack()</code> ไม่ใช่ <code className="text-foreground">window.location.href</code></li>
-                                <li>ห้ามมี Firebase SDK / input ชื่อผู้เล่น (ใช้ DISPLAY_NAME_INIT แทน)</li>
+                                <li>โหลด <code className="text-foreground">/games/kampai-sdk.js</code> + ตั้ง <code className="text-foreground">KAMPAI.setSlug('slug')</code> ให้ตรง DB</li>
+                                <li>เรียก <code className="text-foreground">KAMPAI.submitScore(score, &#123;mode, ...&#125;)</code> เมื่อเกมจบ</li>
+                                <li>ปุ่ม "กลับ" ใช้ <code className="text-foreground">KAMPAI.goHome()</code> ไม่ใช่ <code className="text-foreground">window.location.href</code></li>
+                                <li>ห้ามมี Firebase / input ชื่อผู้เล่น (ใช้ <code className="text-foreground">KAMPAI.student.displayName</code>)</li>
                                 <li>สร้าง migration: <code className="text-foreground">supabase/migrations/NNN_seed_&#123;slug&#125;_game.sql</code></li>
                             </ul>
                         </div>
@@ -370,6 +425,7 @@ export const GamesTab = () => {
                 </Button>
             </div>
 
+            <AiGameKit />
             <DeveloperCheatsheet />
 
             {isLoading ? (

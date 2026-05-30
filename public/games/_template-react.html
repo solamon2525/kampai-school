@@ -37,48 +37,19 @@
 </head>
 <body>
 <div id="root"></div>
+
+<!-- ═══ KAMPAI SDK (single source — อย่าแก้) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}} };
+</script>
+
 <script type="text/babel">
 /* ═══════════════════════════════════════════════════════════════════════════
-   SECTION A · KAMPAI INTEGRATION (อย่าแก้ — ทำงานร่วมกับ /play wrapper)
+   SECTION A · ตั้งค่า (แก้แค่ GAME_SLUG — integration อยู่ใน /games/kampai-sdk.js)
    ═══════════════════════════════════════════════════════════════════════════ */
 const GAME_SLUG = 'CHANGE-ME';   // ⚠️ ต้องตรงกับ educational_hub_items.game_slug
-
-const IS_EMBED = window.self !== window.top ||
-                 new URLSearchParams(location.search).get('embed') === '1';
-let STUDENT_CODE      = null;
-let DISPLAY_NAME_INIT = '';
-let SESSION_START_TS  = Date.now();
-if (IS_EMBED) {
-  window.addEventListener('message', (e) => {
-    if (e?.data?.type === 'init' && typeof e.data.studentCode === 'string') {
-      STUDENT_CODE      = e.data.studentCode;
-      DISPLAY_NAME_INIT = e.data.displayName ?? '';
-      SESSION_START_TS  = Date.now();
-    }
-  });
-  document.addEventListener('click', (e) => {
-    const a = e.target.closest('a[target="_top"]');
-    if (!a) return;
-    const href = a.getAttribute('href');
-    if (!href) return;
-    e.preventDefault();
-    try { window.parent.postMessage({ type: 'navigate', to: href }, '*'); } catch (_) {}
-  });
-}
-function sendGameEnd(finalScore, mode, extra) {
-  if (!IS_EMBED || !STUDENT_CODE) return;
-  try {
-    window.parent.postMessage({
-      type: 'gameEnd', gameSlug: GAME_SLUG, studentCode: STUDENT_CODE,
-      score: Math.round(finalScore), mode: mode || 'normal',
-      metadata: { duration: Math.max(1, Math.floor((Date.now() - SESSION_START_TS) / 1000)), ...(extra || {}) },
-    }, '*');
-  } catch (_) {}
-}
-function navigateBack() {
-  if (IS_EMBED) { try { window.parent.postMessage({ type: 'navigate', to: '/h/nattapong' }, '*'); } catch (_) {} }
-  else { window.location.href = '/h/nattapong'; }
-}
+KAMPAI.setSlug(GAME_SLUG);
 
 /* ═══════════════════════════════════════════════════════════════════════════
    SECTION B · React + lucide-react shim (อย่าแก้ — ใช้ตอน source import จาก lucide-react)
@@ -101,22 +72,55 @@ const Sparkles = _mkIcon('Sparkles'), Play = _mkIcon('Play'), Trophy = _mkIcon('
   Home = _mkIcon('Home');
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   SECTION C · GAME (วาง component ของคุณตรงนี้ — ตัวอย่าง: เก็บแต้มแล้วจบเกม)
+   SECTION C · GAME (วาง component ของคุณตรงนี้ — ตัวอย่าง: เก็บแต้ม + leaderboard)
    ═══════════════════════════════════════════════════════════════════════════ */
+// แสดง leaderboard จาก KAMPAI (ส่งมาจาก wrapper ตอน init — ไม่ต้องยิง DB เอง)
+function Leaderboard({ rows }) {
+  if (!rows.length) return null;
+  const medals = ['🥇', '🥈', '🥉'];
+  return (
+    <div className="bg-white/95 text-slate-800 rounded-xl p-3 w-full max-w-sm shadow-lg">
+      <div className="font-bold text-sm mb-2 flex items-center gap-1"><Trophy className="w-4 h-4 text-amber-500" /> อันดับนักเรียน</div>
+      <ul className="space-y-1">
+        {rows.slice(0, 5).map((r) => (
+          <li key={r.studentId || r.rank} className={`flex items-center gap-2 px-1.5 py-1 rounded-lg ${r.isMe ? 'bg-amber-100' : ''}`}>
+            <span className="w-6 text-center font-bold text-amber-600">{medals[r.rank - 1] || r.rank}</span>
+            {r.photoUrl
+              ? <img src={r.photoUrl} alt="" className="w-7 h-7 rounded-full object-cover" />
+              : <div className="w-7 h-7 rounded-full bg-violet-400 text-white flex items-center justify-center text-xs font-bold">{(r.displayName || '?')[0]}</div>}
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-semibold truncate">{r.displayName}{r.isMe ? ' (คุณ)' : ''}</div>
+              <div className="text-[11px] text-slate-500">{(r.personalBest || 0).toLocaleString()} คะแนน · {r.classLabel || ''}</div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 function App() {
   const [score, setScore] = useState(0);
   const [done, setDone] = useState(false);
+  const [player, setPlayer] = useState(null);   // KAMPAI.student
+  const [board, setBoard] = useState([]);       // KAMPAI.leaderboard
+
+  // รับข้อมูลนักเรียน/leaderboard เมื่อพร้อม
+  useEffect(() => {
+    KAMPAI.onReady((k) => { setPlayer(k.student); setBoard(k.leaderboard || []); });
+  }, []);
 
   const finish = () => {
     setDone(true);
-    sendGameEnd(score, 'normal', {}); // ⚠️ ต้องเรียกตอนจบเกมทุกครั้ง ไม่งั้นคะแนนไม่บันทึก
+    KAMPAI.submitScore(score, { mode: 'normal' }); // ⚠️ ต้องเรียกตอนจบเกมทุกครั้ง
   };
 
   return (
-    <div className="fixed inset-0 flex flex-col items-center justify-center text-white p-6 text-center gap-6">
+    <div className="fixed inset-0 flex flex-col items-center justify-center text-white p-6 text-center gap-5 overflow-y-auto">
       <h1 className="text-3xl font-bold flex items-center gap-2">
         <Sparkles className="w-7 h-7 text-amber-400" /> เกมตัวอย่าง React
       </h1>
+      {player && <div className="text-sm text-slate-300">ผู้เล่น: <b>{player.displayName}</b></div>}
 
       {!done ? (
         <>
@@ -129,18 +133,20 @@ function App() {
             className="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 font-bold flex items-center gap-2">
             <Trophy className="w-5 h-5" /> จบเกม + ส่งคะแนน
           </button>
+          <Leaderboard rows={board} />
         </>
       ) : (
         <>
-          <Trophy className="w-24 h-24 text-amber-400" />
+          <Trophy className="w-20 h-20 text-amber-400" />
           <div className="text-2xl font-bold">จบเกม! คะแนน {score}</div>
+          <Leaderboard rows={board} />
           <button onClick={() => { setScore(0); setDone(false); }}
             className="px-6 py-3 rounded-2xl bg-amber-500 text-slate-900 font-bold">เล่นใหม่</button>
         </>
       )}
 
-      <button onClick={navigateBack}
-        className="mt-2 px-6 py-3 rounded-2xl bg-slate-700 hover:bg-slate-600 font-bold flex items-center gap-2">
+      <button onClick={() => KAMPAI.goHome()}
+        className="mt-1 px-6 py-3 rounded-2xl bg-slate-700 hover:bg-slate-600 font-bold flex items-center gap-2">
         <Home className="w-5 h-5" /> กลับหน้าหลัก
       </button>
     </div>
