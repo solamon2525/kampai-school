@@ -16,7 +16,8 @@
  * และ Storage RLS (migration 063) บังคับ admin-only เพิ่มอีกชั้น
  */
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
+import { useAuth } from '@/contexts/AuthProvider';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -746,13 +747,33 @@ type Props =
           onCancel: () => void;
       };
 
+// title → slug kebab-case (ascii). ชื่อไทยล้วน → fallback timestamp
+function slugify(title: string): string {
+    const s = title.toLowerCase().normalize('NFKD')
+        .replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-');
+    return s || `game-${Date.now().toString(36)}`;
+}
+
+// ตรวจ HTML เกม: มีการส่งคะแนน (KAMPAI/sendGameEnd) ไหม + ดึง game_slug ที่ฝังไว้
+function analyzeGameHtml(text: string): { hasSubmit: boolean; slug: string | null } {
+    const hasSubmit = /KAMPAI\s*\.\s*submitScore\s*\(|kampai-sdk\.js|sendGameEnd\s*\(/.test(text);
+    const m = text.match(/KAMPAI\s*\.\s*setSlug\s*\(\s*['"]([^'"]+)['"]/)
+        || text.match(/const\s+GAME_SLUG\s*=\s*['"]([^'"]+)['"]/);
+    const slug = m && !['CHANGE-ME', 'placeholder-slug', 'TODO-CHANGE-ME'].includes(m[1]) ? m[1] : null;
+    return { hasSubmit, slug };
+}
+
 const GameUploadDialog = (props: Props) => {
     const { toast } = useToast();
+    const { staffId: myStaffId, isAdmin } = useAuth();
     const [htmlFile, setHtmlFile] = useState<File | null>(null);
     const [saving, setSaving] = useState(false);
     // Input mode: 'file' (upload .html) | 'paste' (paste HTML code, e.g. from Gemini)
     const [inputMode, setInputMode] = useState<'file' | 'paste'>('file');
     const [pastedHtml, setPastedHtml] = useState('');
+    const [sdk, setSdk] = useState<{ hasSubmit: boolean; slug: string | null } | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const slugEdited = useRef(false);
 
     /**
      * Resolve the HTML payload from either file picker or pasted code.
@@ -793,7 +814,7 @@ const GameUploadDialog = (props: Props) => {
     const createForm = useForm<CreateValues>({
         resolver: zodResolver(createSchema),
         defaultValues: {
-            owner_staff_id: props.mode === 'create' && props.teachers[0]?.id || '',
+            owner_staff_id: props.mode === 'create' ? (myStaffId ?? props.teachers[0]?.id ?? '') : '',
             title: '',
             subject: 'thai',
             slug: '',
@@ -803,6 +824,38 @@ const GameUploadDialog = (props: Props) => {
             tags: [],
         },
     });
+
+    // อ่านข้อความ HTML ปัจจุบัน (ไฟล์/วางโค้ด)
+    const readCurrentHtml = async (): Promise<string> =>
+        inputMode === 'paste' ? pastedHtml : (htmlFile ? await htmlFile.text() : '');
+
+    // วิเคราะห์ SDK ทุกครั้งที่ไฟล์/โค้ดเปลี่ยน → เตือนถ้าไม่เก็บคะแนน + ดึง slug ที่ฝัง
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            const text = await readCurrentHtml();
+            if (cancelled) return;
+            setSdk(text.trim() ? analyzeGameHtml(text) : null);
+        })();
+        return () => { cancelled = true; };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [htmlFile, pastedHtml, inputMode]);
+
+    // auto-slug จากชื่อ (จนกว่าผู้ใช้จะแก้ slug เอง)
+    const titleWatch = createForm.watch('title');
+    useEffect(() => {
+        if (props.mode !== 'create' || slugEdited.current) return;
+        createForm.setValue('slug', slugify(titleWatch || ''));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [titleWatch]);
+
+    // เล่นทดสอบก่อนอัปโหลด (Blob preview — SDK โหลดจาก app origin, ไม่มีข้อมูลนักเรียน)
+    const handlePlaytest = async () => {
+        const text = await readCurrentHtml();
+        if (!text.trim()) { toast({ title: 'ยังไม่มีไฟล์/โค้ดให้ทดสอบ', variant: 'destructive' }); return; }
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(URL.createObjectURL(new Blob([text], { type: 'text/html' })));
+    };
 
     const handleHtmlSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const f = e.target.files?.[0];
@@ -829,6 +882,7 @@ const GameUploadDialog = (props: Props) => {
         if (!file) return;
         setSaving(true);
         try {
+            const info = analyzeGameHtml(await file.text()); // auto game_slug + tracked จาก SDK
             const up = await educationalHubService.uploadGameHtml(values.subject, values.slug, file);
             if (up.error) throw up.error;
 
@@ -843,6 +897,8 @@ const GameUploadDialog = (props: Props) => {
                 subject: SUBJECT_OPTIONS.find((s) => s.folder === values.subject)?.label ?? null,
                 grade_levels: values.grade_levels ?? [],
                 tags: (values.tags ?? []).map((t) => t.trim()).filter(Boolean),
+                game_slug: info.slug,
+                tracked_game: !!info.slug,
                 is_published: true,
             });
             if (insErr) throw insErr;
@@ -915,6 +971,27 @@ const GameUploadDialog = (props: Props) => {
                         setPastedHtml={setPastedHtml}
                     />
 
+                    {sdk && (
+                        <div className="flex items-start justify-between gap-3 rounded-md border border-border bg-muted/40 p-3">
+                            <div className="flex items-start gap-2 text-sm">
+                                {sdk.hasSubmit ? (
+                                    <>
+                                        <Check className="h-4 w-4 mt-0.5 shrink-0 text-green-600" />
+                                        <p className="font-medium text-foreground">เชื่อม KAMPAI SDK แล้ว — เก็บคะแนนได้</p>
+                                    </>
+                                ) : (
+                                    <>
+                                        <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-amber-600" />
+                                        <p className="font-medium text-foreground">ไฟล์ใหม่จะไม่เก็บคะแนน (ไม่พบ KAMPAI SDK)</p>
+                                    </>
+                                )}
+                            </div>
+                            <Button type="button" variant="outline" size="sm" onClick={handlePlaytest} className="shrink-0">
+                                <ExternalLink className="h-4 w-4 mr-1" /> เล่นทดสอบ
+                            </Button>
+                        </div>
+                    )}
+
                     <div className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 p-3 text-xs text-destructive">
                         <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
                         <p>การ replace เป็นแบบ overwrite — v.1 จะหายถาวร (ไม่มี rollback)</p>
@@ -927,6 +1004,28 @@ const GameUploadDialog = (props: Props) => {
                         {saving ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> กำลังอัพโหลด...</> : 'อัพเดท v.2'}
                     </Button>
                 </DialogFooter>
+
+                <Dialog
+                    open={!!previewUrl}
+                    onOpenChange={(open) => {
+                        if (!open && previewUrl) { URL.revokeObjectURL(previewUrl); setPreviewUrl(null); }
+                    }}
+                >
+                    <DialogContent className="max-w-4xl">
+                        <DialogHeader>
+                            <DialogTitle>เล่นทดสอบ (ตัวอย่าง)</DialogTitle>
+                            <DialogDescription>เล่นจากไฟล์ก่อนอัปเดต — ไม่มีข้อมูลนักเรียนจริง/ไม่บันทึกคะแนน</DialogDescription>
+                        </DialogHeader>
+                        {previewUrl && (
+                            <iframe
+                                src={previewUrl}
+                                title="game-playtest"
+                                className="w-full rounded-md border border-border"
+                                style={{ height: '70vh' }}
+                            />
+                        )}
+                    </DialogContent>
+                </Dialog>
             </>
         );
     }
@@ -947,7 +1046,7 @@ const GameUploadDialog = (props: Props) => {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>เจ้าของ (ครู)</FormLabel>
-                                <Select value={field.value} onValueChange={field.onChange}>
+                                <Select value={field.value} onValueChange={field.onChange} disabled={!isAdmin}>
                                     <FormControl>
                                         <SelectTrigger><SelectValue placeholder="เลือกครู" /></SelectTrigger>
                                     </FormControl>
@@ -957,6 +1056,9 @@ const GameUploadDialog = (props: Props) => {
                                         ))}
                                     </SelectContent>
                                 </Select>
+                                {!isAdmin && (
+                                    <FormDescription className="text-[10px]">เกมจะบันทึกในชื่อของคุณ</FormDescription>
+                                )}
                                 <FormMessage />
                             </FormItem>
                         )}
@@ -1002,8 +1104,14 @@ const GameUploadDialog = (props: Props) => {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Slug (ชื่อไฟล์)</FormLabel>
-                                    <FormControl><Input {...field} placeholder="pizza-master-chef" /></FormControl>
-                                    <FormDescription className="text-[10px]">a-z, 0-9, - เท่านั้น</FormDescription>
+                                    <FormControl>
+                                        <Input
+                                            {...field}
+                                            placeholder="pizza-master-chef"
+                                            onChange={(e) => { slugEdited.current = true; field.onChange(e); }}
+                                        />
+                                    </FormControl>
+                                    <FormDescription className="text-[10px]">สร้างจากชื่ออัตโนมัติ · a-z, 0-9, - เท่านั้น</FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -1019,6 +1127,35 @@ const GameUploadDialog = (props: Props) => {
                         pastedHtml={pastedHtml}
                         setPastedHtml={setPastedHtml}
                     />
+
+                    {sdk && (
+                        <div className="flex items-start justify-between gap-3 rounded-md border border-border bg-muted/40 p-3">
+                            <div className="flex items-start gap-2 text-sm">
+                                {sdk.hasSubmit ? (
+                                    <>
+                                        <Check className="h-4 w-4 mt-0.5 shrink-0 text-green-600" />
+                                        <div>
+                                            <p className="font-medium text-foreground">เชื่อม KAMPAI SDK แล้ว — เก็บคะแนนได้</p>
+                                            {sdk.slug && (
+                                                <p className="text-xs text-muted-foreground">game_slug: <code>{sdk.slug}</code> (เปิด tracked อัตโนมัติ)</p>
+                                            )}
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-amber-600" />
+                                        <div>
+                                            <p className="font-medium text-foreground">เกมนี้จะไม่เก็บคะแนน</p>
+                                            <p className="text-xs text-muted-foreground">ไม่พบ <code>KAMPAI.submitScore</code> / <code>kampai-sdk.js</code> — อัปโหลดได้ แต่จะไม่บันทึกคะแนนนักเรียน</p>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                            <Button type="button" variant="outline" size="sm" onClick={handlePlaytest} className="shrink-0">
+                                <ExternalLink className="h-4 w-4 mr-1" /> เล่นทดสอบ
+                            </Button>
+                        </div>
+                    )}
 
                     <FormField
                         control={createForm.control}
@@ -1115,6 +1252,28 @@ const GameUploadDialog = (props: Props) => {
                     </DialogFooter>
                 </form>
             </Form>
+
+            <Dialog
+                open={!!previewUrl}
+                onOpenChange={(open) => {
+                    if (!open && previewUrl) { URL.revokeObjectURL(previewUrl); setPreviewUrl(null); }
+                }}
+            >
+                <DialogContent className="max-w-4xl">
+                    <DialogHeader>
+                        <DialogTitle>เล่นทดสอบ (ตัวอย่าง)</DialogTitle>
+                        <DialogDescription>เล่นจากไฟล์ก่อนอัปโหลด — ไม่มีข้อมูลนักเรียนจริง/ไม่บันทึกคะแนน</DialogDescription>
+                    </DialogHeader>
+                    {previewUrl && (
+                        <iframe
+                            src={previewUrl}
+                            title="game-playtest"
+                            className="w-full rounded-md border border-border"
+                            style={{ height: '70vh' }}
+                        />
+                    )}
+                </DialogContent>
+            </Dialog>
         </>
     );
 };

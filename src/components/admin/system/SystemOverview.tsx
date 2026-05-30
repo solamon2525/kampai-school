@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.41.0 (KAMPAI Game SDK — เชื่อมเกมเข้าระบบง่ายสุด)',
+        version: 'v1.41.1 (Educational Hub — รวมแท็บ + ครูอัปเกมเอง + UX อัปโหลด)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'รวมแท็บ "ครูทั้งหมด" + "รายการทั้งหมด" → แท็บ "รายการทั้งหมด" เดียว: ลิสต์ทุก item + filter (ครู/หมวด/ประเภท/สถานะ) + CRUD inline (แก้/ลบ/toggle เผยแพร่) — RLS คุมสิทธิ์ (admin เห็นทั้งหมด, ครูแก้เฉพาะของตัว) · แท็บ "ครู" เหลือ toggle เปิด/ปิดแสดงในคลัง + แก้โปรไฟล์',
+            'Migration 105: storage bucket edu-hub-games จาก admin-only → teacher-or-admin (public.is_teacher()) — "ใครอัปเกมก็มีสิทธิ์แก้" (table RLS owner-or-admin อยู่แล้ว ไม่แตะ)',
+            'อัปโหลดเกม UX: auto-slug จากชื่อ (ascii kebab, ไทยล้วน→fallback ts, แก้เองได้) · เช็ก KAMPAI SDK ก่อนบันทึก (เจอ submitScore→เขียว+auto game_slug/tracked, ไม่เจอ→เตือน "ไม่เก็บคะแนน") · owner เริ่มต้น=ตัวเอง (ครูล็อก, admin เลือกได้) · ปุ่ม "เล่นทดสอบ" Blob preview ในจอ (ทั้ง create + replace v.2)',
+        ],
+    },
+    {
+        version: 'v1.41.0 (KAMPAI Game SDK — เชื่อมเกมเข้าระบบง่ายสุด)',
+        date: '',
         badge: 'bg-emerald-600',
         items: [
             'public/games/kampai-sdk.js (window.KAMPAI) — single source ของ integration: setSlug/onReady/submitScore/goHome + student/stats/leaderboard; เกมโหลด <script src> ไฟล์เดียว แก้ SDK ทีเดียวทุกเกมได้ตาม',
