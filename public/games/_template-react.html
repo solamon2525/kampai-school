@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>เกมตัวอย่าง React — Template</title>
+<!--
+═══════════════════════════════════════════════════════════════════════════
+  KAMPAI-SCHOOL · REACT GAME TEMPLATE (single-file, React 18 + Babel standalone)
+═══════════════════════════════════════════════════════════════════════════
+  ใช้เมื่อ: เกมเป็น React component (เช่นได้ JSX/TSX ดิบจาก AI/Stitch ที่ import
+  จาก 'react' + 'lucide-react' — รันใน iframe ตรง ๆ ไม่ได้)
+
+  วิธี port เกม React ที่มีอยู่:
+  1. cp ไฟล์นี้ → public/games/{subject}/{slug}.html
+  2. ตั้ง GAME_SLUG = '{slug}'  (SECTION A)
+  3. ลบ `import React...` + `import {...} from 'lucide-react'` ออกจาก source
+  4. เอา component (export default function App → function App) วางใน SECTION C
+  5. destructure ไอคอน lucide ที่ใช้จาก _mkIcon (อย่าเขียน shim เอง — ใช้ที่ให้)
+  6. เรียก sendGameEnd(score, mode, extra) ตอนจบเกม + navigateBack() ปุ่มออก
+  7. pnpm verify:game public/games/{subject}/{slug}.html  (ต้องผ่าน 7/7 รวม render)
+
+  ⚠️ lucide IconNode = ["svg", attrs, [["path",{...}], ...]]  → drawing อยู่ index 2
+     (เคยพลาด map ผิด level → createElement(undefined) → จอดำ — ดู GAME.md)
+═══════════════════════════════════════════════════════════════════════════
+-->
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Sarabun:wght@400;600&display=swap');
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; font-family: 'Kanit', 'Sarabun', sans-serif; background: #0f172a; -webkit-tap-highlight-color: transparent; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTION A · KAMPAI INTEGRATION (อย่าแก้ — ทำงานร่วมกับ /play wrapper)
+   ═══════════════════════════════════════════════════════════════════════════ */
+const GAME_SLUG = 'CHANGE-ME';   // ⚠️ ต้องตรงกับ educational_hub_items.game_slug
+
+const IS_EMBED = window.self !== window.top ||
+                 new URLSearchParams(location.search).get('embed') === '1';
+let STUDENT_CODE      = null;
+let DISPLAY_NAME_INIT = '';
+let SESSION_START_TS  = Date.now();
+if (IS_EMBED) {
+  window.addEventListener('message', (e) => {
+    if (e?.data?.type === 'init' && typeof e.data.studentCode === 'string') {
+      STUDENT_CODE      = e.data.studentCode;
+      DISPLAY_NAME_INIT = e.data.displayName ?? '';
+      SESSION_START_TS  = Date.now();
+    }
+  });
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('a[target="_top"]');
+    if (!a) return;
+    const href = a.getAttribute('href');
+    if (!href) return;
+    e.preventDefault();
+    try { window.parent.postMessage({ type: 'navigate', to: href }, '*'); } catch (_) {}
+  });
+}
+function sendGameEnd(finalScore, mode, extra) {
+  if (!IS_EMBED || !STUDENT_CODE) return;
+  try {
+    window.parent.postMessage({
+      type: 'gameEnd', gameSlug: GAME_SLUG, studentCode: STUDENT_CODE,
+      score: Math.round(finalScore), mode: mode || 'normal',
+      metadata: { duration: Math.max(1, Math.floor((Date.now() - SESSION_START_TS) / 1000)), ...(extra || {}) },
+    }, '*');
+  } catch (_) {}
+}
+function navigateBack() {
+  if (IS_EMBED) { try { window.parent.postMessage({ type: 'navigate', to: '/h/nattapong' }, '*'); } catch (_) {} }
+  else { window.location.href = '/h/nattapong'; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTION B · React + lucide-react shim (อย่าแก้ — ใช้ตอน source import จาก lucide-react)
+   ═══════════════════════════════════════════════════════════════════════════ */
+const { useState, useEffect, useCallback, useRef } = React;
+const _ICONS = (window.lucide && (window.lucide.icons || window.lucide)) || {};
+const _mkIcon = (name) => (p = {}) => {
+  // lucide IconNode = ["svg", attrs, [["path",{...}], ...]] — เอาเฉพาะ drawing children (index 2)
+  const node = _ICONS[name];
+  const paths = (node && Array.isArray(node[2])) ? node[2] : [];
+  const sz = p.size || 24;
+  return React.createElement('svg', {
+    xmlns: 'http://www.w3.org/2000/svg', width: sz, height: sz, viewBox: '0 0 24 24',
+    fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round',
+    strokeLinejoin: 'round', className: p.className, style: p.style,
+  }, paths.map((c, i) => React.createElement(c[0], { key: i, ...c[1] })));
+};
+// destructure เฉพาะไอคอนที่เกมใช้ (เพิ่ม/ลบได้ตามต้องการ)
+const Sparkles = _mkIcon('Sparkles'), Play = _mkIcon('Play'), Trophy = _mkIcon('Trophy'),
+  Home = _mkIcon('Home');
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTION C · GAME (วาง component ของคุณตรงนี้ — ตัวอย่าง: เก็บแต้มแล้วจบเกม)
+   ═══════════════════════════════════════════════════════════════════════════ */
+function App() {
+  const [score, setScore] = useState(0);
+  const [done, setDone] = useState(false);
+
+  const finish = () => {
+    setDone(true);
+    sendGameEnd(score, 'normal', {}); // ⚠️ ต้องเรียกตอนจบเกมทุกครั้ง ไม่งั้นคะแนนไม่บันทึก
+  };
+
+  return (
+    <div className="fixed inset-0 flex flex-col items-center justify-center text-white p-6 text-center gap-6">
+      <h1 className="text-3xl font-bold flex items-center gap-2">
+        <Sparkles className="w-7 h-7 text-amber-400" /> เกมตัวอย่าง React
+      </h1>
+
+      {!done ? (
+        <>
+          <div className="text-6xl font-black text-amber-400 tabular-nums">{score}</div>
+          <button onClick={() => setScore((s) => s + 10)}
+            className="px-8 py-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-900 text-xl font-bold flex items-center gap-2">
+            <Play className="w-5 h-5" /> เก็บแต้ม +10
+          </button>
+          <button onClick={finish}
+            className="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 font-bold flex items-center gap-2">
+            <Trophy className="w-5 h-5" /> จบเกม + ส่งคะแนน
+          </button>
+        </>
+      ) : (
+        <>
+          <Trophy className="w-24 h-24 text-amber-400" />
+          <div className="text-2xl font-bold">จบเกม! คะแนน {score}</div>
+          <button onClick={() => { setScore(0); setDone(false); }}
+            className="px-6 py-3 rounded-2xl bg-amber-500 text-slate-900 font-bold">เล่นใหม่</button>
+        </>
+      )}
+
+      <button onClick={navigateBack}
+        className="mt-2 px-6 py-3 rounded-2xl bg-slate-700 hover:bg-slate-600 font-bold flex items-center gap-2">
+        <Home className="w-5 h-5" /> กลับหน้าหลัก
+      </button>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

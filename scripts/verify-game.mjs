@@ -14,7 +14,8 @@
  *   1 = ขาด integration หรือมี anti-pattern
  */
 
-import { readFileSync, existsSync, readdirSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync, writeFileSync, mkdirSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { resolve, basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -171,6 +172,23 @@ if (/window\.location\.href\s*=\s*['"][^/]*\.\.?\/index/.test(html)) {
     console.log(`${WARN} Anti-pattern: window.location.href ตรงๆ`);
 }
 
+// ─── Check 7: render smoke-test (จับ "จอดำ" — runtime error/crash ที่ static ไม่เห็น) ──
+// static checks ข้างบนเคยปล่อยเกมจอดำผ่าน (เคส wizard-thai) เพราะไม่เคย render จริง
+if (/<script\s+type="text\/babel">/.test(html)) {
+    const r = await renderSmokeTest(html);
+    if (r.status === 'pass') {
+        console.log(`${PASS} Check 7 — render: เกม render สำเร็จ (root ${r.size} ตัวอักษร)`);
+    } else if (r.status === 'skip') {
+        warnings.push({ check: 'render', msg: r.msg });
+        console.log(`${WARN} Check 7 — render: ข้าม (${r.msg})`);
+    } else {
+        issues.push({ check: 'render', msg: r.msg });
+        console.log(`${FAIL} Check 7 — render: ${r.msg}`);
+    }
+} else {
+    console.log(`${WARN} Check 7 — render: ข้าม (เกม vanilla ไม่ใช่ React/Babel — ต้องทดสอบ browser เอง)`);
+}
+
 // ─── Summary ─────────────────────────────────────────────────────────────────
 console.log('');
 if (issues.length === 0 && warnings.length === 0) {
@@ -195,3 +213,82 @@ if (warnings.length > 0) {
 
 console.log(`${CYAN}💡 อ่าน GAME.md สำหรับ EMBED block + checklist เต็ม${RESET}\n`);
 process.exit(issues.length > 0 ? 1 : 0);
+
+// ────────────────────────────────────────────────────────────────────────────
+// Render smoke-test helpers (hoisted)
+// ────────────────────────────────────────────────────────────────────────────
+
+/**
+ * โหลดเกม React/Babel ใน jsdom + React UMD จริง แล้วเช็คว่า render ขึ้น (root ไม่ว่าง)
+ * และไม่มี runtime error — จับเคส "จอดำ" ที่ static regex มองไม่เห็น
+ * คืน { status: 'pass'|'fail'|'skip', ... }
+ */
+async function renderSmokeTest(html) {
+    let JSDOM, VirtualConsole, Babel;
+    try {
+        ({ JSDOM, VirtualConsole } = await import('jsdom'));
+        const b = await import('@babel/standalone');
+        Babel = b.transform ? b : (b.default ?? b);
+        if (typeof Babel.transform !== 'function') throw new Error('no Babel.transform');
+    } catch {
+        return { status: 'skip', msg: 'ไม่มี jsdom/@babel/standalone — รัน: pnpm add -D jsdom @babel/standalone' };
+    }
+
+    // ดึง UMD ที่ต้องโหลด (react, react-dom, lucide; ข้าม tailwind/babel/อื่นๆ)
+    const srcs = [...html.matchAll(/<script[^>]*\ssrc="([^"]+)"/g)].map((m) => m[1]);
+    const need = srcs.filter((u) => /(^|\/)react(-dom)?[@./]|lucide/i.test(u) && !/babel|tailwind/i.test(u));
+
+    const cacheDir = join(REPO_ROOT, 'node_modules', '.cache', 'game-verify');
+    let bundles;
+    try {
+        bundles = [];
+        for (const u of need) bundles.push(await fetchCached(u, cacheDir));
+    } catch (e) {
+        return { status: 'skip', msg: `โหลด CDN ไม่ได้ (offline?) — ${e.message}` };
+    }
+
+    const vc = new VirtualConsole();
+    const errs = [];
+    // uncaught exception จริง = crash (กรอง "Not implemented" ของ jsdom ที่ไม่ใช่บั๊กเกม)
+    vc.on('jsdomError', (e) => { const m = e.message || String(e); if (!/Not implemented/i.test(m)) errs.push(m); });
+    const dom = new JSDOM('<!DOCTYPE html><html><body><div id="root"></div></body></html>', {
+        runScripts: 'outside-only', pretendToBeVisual: true, virtualConsole: vc,
+    });
+    const { window } = dom;
+    window.onerror = (m) => errs.push(String(m));
+    // console.error เงียบ (React warnings = noise ไม่ใช่ crash); crash จริงมาทาง jsdomError/onerror + root ว่าง
+    window.console = { log() {}, info() {}, warn() {}, debug() {}, error() {} };
+    window.matchMedia = () => ({ matches: false, media: '', onchange: null, addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {}, dispatchEvent() { return false; } });
+    const noopOsc = () => ({ connect() {}, frequency: { setValueAtTime() {}, exponentialRampToValueAtTime() {}, linearRampToValueAtTime() {} }, type: '', start() {}, stop() {} });
+    const noopGain = () => ({ connect() {}, gain: { setValueAtTime() {}, exponentialRampToValueAtTime() {}, linearRampToValueAtTime() {} } });
+    const NoopAudio = function () { return { createOscillator: noopOsc, createGain: noopGain, destination: {}, currentTime: 0, state: 'running', resume() {}, close() { return Promise.resolve(); } }; };
+    window.AudioContext = NoopAudio; window.webkitAudioContext = NoopAudio;
+    try { window.navigator.vibrate = () => {}; } catch { /* readonly */ }
+    try { window.HTMLCanvasElement.prototype.getContext = () => null; } catch { /* ignore */ }
+
+    try {
+        for (const code of bundles) window.eval(code);
+        const blocks = [...html.matchAll(/<script type="text\/babel">([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+        for (const block of blocks) window.eval(Babel.transform(block, { presets: ['react', 'env'] }).code);
+    } catch (e) {
+        return { status: 'fail', msg: `เกม throw ตอนโหลด/compile: ${e.message}` };
+    }
+
+    await new Promise((r) => setTimeout(r, 500)); // รอ React 18 commit (async)
+    const root = window.document.getElementById('root') || window.document.body;
+    const size = root ? root.innerHTML.length : 0;
+    if (errs.length) return { status: 'fail', msg: `พบ error ขณะ render: ${errs[0].slice(0, 220)}` };
+    if (size <= 50) return { status: 'fail', msg: `เกม render ไม่ขึ้น (จอดำ) — root ว่าง (${size} ตัวอักษร)` };
+    return { status: 'pass', size };
+}
+
+async function fetchCached(url, cacheDir) {
+    const file = join(cacheDir, createHash('sha1').update(url).digest('hex').slice(0, 16) + '.js');
+    if (existsSync(file)) return readFileSync(file, 'utf8');
+    const res = await fetch(url, { redirect: 'follow' });
+    if (!res.ok) throw new Error(`HTTP ${res.status} ${url}`);
+    const text = await res.text();
+    mkdirSync(cacheDir, { recursive: true });
+    writeFileSync(file, text, 'utf8');
+    return text;
+}

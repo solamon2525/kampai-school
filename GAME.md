@@ -26,10 +26,11 @@
 เริ่มเกมใหม่
 ├─ สร้างจากศูนย์         → cp _template-full.html  (มี leaderboard ครบ)
 ├─ ไม่อยาก leaderboard   → cp _template.html       (basic version)
+├─ เกมเป็น React component → cp _template-react.html (JSX/lucide-react → single-file)
 └─ มีไฟล์เกมเก่าอยู่แล้ว    → /integrate-game <path>  (Claude slash command)
 
 แก้ไขเกมเดิม
-├─ ตรวจสอบสถานะ        → pnpm verify:game <path>
+├─ ตรวจสอบสถานะ        → pnpm verify:game <path>   (รวม Check 7 render smoke-test)
 ├─ Claude ช่วย integrate → /integrate-game <path>
 └─ แก้เอง              → อ่าน Section "EMBED Block" + "postMessage Protocol"
 ```
@@ -130,6 +131,30 @@ function navigateBack() {
 
 ---
 
+## 🧩 เกม React component (single-file Babel)
+
+เมื่อ source เป็น React/JSX ดิบ (เช่นได้จาก AI/Stitch — `import React...` + `import {...} from 'lucide-react'`)
+มันรันใน iframe ตรง ๆ ไม่ได้ (ไม่มี bundler) → ต้อง port เป็น single-file:
+
+1. `cp public/games/_template-react.html  public/games/{subject}/{slug}.html`
+2. ตั้ง `GAME_SLUG = '{slug}'` (SECTION A)
+3. ลบ 2 บรรทัด `import` ออกจาก source
+4. `export default function App()` → `function App()` แล้ววางใน SECTION C
+5. **lucide:** ใช้ `_mkIcon` ที่ template ให้ (SECTION B) แล้ว destructure ไอคอนที่ใช้ —
+   **อย่าเขียน shim เอง**
+6. ปิดท้ายด้วย `ReactDOM.createRoot(document.getElementById('root')).render(<App/>)`
+7. `pnpm verify:game <path>` ต้องผ่าน **7/7** (Check 7 = render จริงด้วย React UMD)
+
+**⚠️ lucide IconNode shape:** `window.lucide.icons.X = ["svg", attrs, [["path",{...}], ...]]`
+— drawing children อยู่ที่ **index 2** (`node[2]`). เคยพลาด map ผิด level (คิดว่าเป็น array ของ
+`[tag,attrs]`) → `React.createElement(undefined)` → React crash → **จอดำ**.
+
+> **บทเรียน (wizard-thai):** `verify:game` เดิมเป็น static regex ล้วน — ผ่าน 6/6 ทั้งที่เกมจอดำ
+> เพราะไม่เคย render จริง. ตอนนี้เพิ่ม **Check 7 (render smoke-test)** ด้วย jsdom + React UMD
+> จับ runtime crash / root ว่างได้แล้ว. แต่ **ยังต้องเปิด browser จริง** เพื่อเช็ค UX/gameplay/layout.
+
+---
+
 ## ❌ Anti-Patterns (ห้ามทำ)
 
 | ❌ ผิด | ✅ ถูก |
@@ -141,6 +166,7 @@ function navigateBack() {
 | `score: 25.5` (float) | `score: Math.round(25.5)` (integer) |
 | `gameSlug: 'TODO-CHANGE-ME'` | `gameSlug: 'fishing'` ตรงกับ DB |
 | Save score ที่ localStorage แทน sendGameEnd | sendGameEnd ส่งคืน wrapper (wrapper บันทึก DB) |
+| เขียน lucide shim เอง map ผิด level (node 3-tuple) | ใช้ `_mkIcon` จาก `_template-react.html` (อ่าน `node[2]`) |
 
 ---
 
@@ -216,12 +242,16 @@ WHERE id = 'UUID-OF-ITEM';
 
 | คำสั่ง | หน้าที่ |
 |---|---|
-| `pnpm verify:game <file>` | ตรวจ 6 จุด integration (GAME_SLUG, sendGameEnd, navigateBack, init listener, sendGameEnd called, migration) |
+| `pnpm verify:game <file>` | ตรวจ 7 จุด: 6 static (GAME_SLUG, sendGameEnd, navigateBack, init listener, sendGameEnd called, migration) + **Check 7 render smoke-test** (jsdom + React UMD — จับจอดำ/crash สำหรับเกม React/Babel) |
 | `/integrate-game <file>` | Claude slash command — auto-integrate ตาม checklist |
+
+> Check 7 ใช้ `jsdom` + `@babel/standalone` (devDeps) + ดาวน์โหลด React/lucide UMD cache ที่
+> `node_modules/.cache/game-verify/`. ถ้า offline/ไม่มี deps → WARN skip (ไม่ทำให้ verifier fail).
 
 **Template files (copy เป็นจุดเริ่มต้น):**
 - `public/games/_template-full.html` — kampai + leaderboard + score HUD + lives HUD (canvas-based ตัวอย่าง)
 - `public/games/_template.html` — basic kampai integration (ไม่มี leaderboard)
+- `public/games/_template-react.html` — React 18 + Babel + lucide shim ที่ถูกต้อง (สำหรับเกม React component)
 
 **Reference เกมจริง (copy pattern ได้):**
 - `public/games/tech/word-shield.html` — Vanilla JS + leaderboard ครบ
@@ -241,6 +271,8 @@ WHERE id = 'UUID-OF-ITEM';
 - [ ] ไม่มี Firebase SDK ที่ active
 - [ ] ไม่มี input ชื่อผู้เล่น (ใช้ DISPLAY_NAME_INIT)
 - [ ] Migration SQL พร้อม
+- [ ] **`pnpm verify:game` ผ่าน 7/7 (รวม Check 7 render — ไม่จอดำ)**
+- [ ] **เปิด browser จริง: เกมแสดงผล + ไอคอนขึ้นครบ + เล่นจบได้** (static + render check ไม่พอสำหรับ UX)
 - [ ] ทดสอบ local: `/play/{slug}` → กรอกรหัส → เล่น → คะแนนขึ้น GamePlayDashboard
 
 ---
@@ -258,4 +290,4 @@ PlayGame wrapper ทำสิ่งเหล่านี้ — เกม HTML *
 
 ---
 
-*v1.39.0 — อัปเดตล่าสุดดู `src/components/admin/system/SystemOverview.tsx`*
+*v1.40.6 — เพิ่ม Check 7 render smoke-test + _template-react.html + lucide IconNode lesson. อัปเดตล่าสุดดู `src/components/admin/system/SystemOverview.tsx`*

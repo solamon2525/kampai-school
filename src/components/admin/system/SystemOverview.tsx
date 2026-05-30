@@ -272,8 +272,20 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.40.5 (เกม wizard-thai — port เข้า /play)',
+        version: 'v1.40.6 (verify:game render smoke-test — กันเกมจอดำ)',
         date: 'ล่าสุด',
+        badge: 'bg-purple-600',
+        items: [
+            'บทเรียน wizard-thai: verify:game เดิมเป็น static regex ล้วน — ผ่าน 6/6 ทั้งที่เกมจอดำ (ไม่เคย render จริง)',
+            'เพิ่ม Check 7 ใน scripts/verify-game.mjs: render เกมจริงใน jsdom + React UMD → จับ runtime crash / root ว่าง (undefined component, compile error)',
+            'devDeps: jsdom + @babel/standalone · cache CDN ที่ node_modules/.cache/game-verify · offline → WARN skip (ไม่ fail)',
+            'public/games/_template-react.html ใหม่ — base เกม React+Babel ที่ lucide shim ถูกต้อง (อ่าน node[2]) สำหรับ port เกม React component',
+            'GAME.md + CLAUDE.md: section เกม React + lucide IconNode = [tag,attrs,children] + ⚠️ verify ต้อง 7/7 + browser test',
+        ],
+    },
+    {
+        version: 'v1.40.5 (เกม wizard-thai — port เข้า /play)',
+        date: '',
         badge: 'bg-purple-600',
         items: [
             'เกม "ศึกจอมเวทแห่งภาษา" (/play/wizard-thai) เล่นไม่ได้ — ไฟล์ที่อัปโหลดเป็น React/TSX ดิบ (import + lucide-react) รันใน iframe ไม่ได้',
