@@ -272,8 +272,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.41.2 (เกม math-han — เลิกพิมพ์ชื่อเอง, ใช้ชื่อจริง + โชว์อันดับ/สถิติ)',
+        version: 'v1.41.3 (เกม — ตารางอันดับในจอแรกให้เหมือนกันทุกเกม)',
         date: 'ล่าสุด',
+        badge: 'bg-purple-600',
+        items: [
+            'public/games/kampai-leaderboard.js (ใหม่) — drop-in widget: ใส่ <script src> + <div data-kampai-lb> ก็โชว์ตารางอันดับในจอ title ได้ทันที (อ่านจาก init ที่ wrapper ส่ง, ไม่ฝัง anon key, ไม่มีข้อมูล→ซ่อนเอง)',
+            'เพิ่ม/แก้ตารางอันดับในจอแรกของเกมที่ยังขาด: wizard-thai + kingdom (React panel), 24 + attack-on-noun (drop-in), Pizza (เดิมซ่อนตอน embed → โชว์ของจริงจาก init)',
+            'มือปราบคำผิด (spelling): ย้าย Storage → git (/games/thai/spelling.html, migration 106) + เพิ่ม KAMPAI integration ที่ขาดทั้งหมด (init/sendGameEnd/navigateBack — เดิมไม่เก็บคะแนนเลย) + ตารางอันดับ',
+            'ทุกเกม verify:game ผ่าน (เกม SDK/React ผ่าน render Check 7, เกม vanilla ผ่าน Check 1-6 + widget ตรวจ jsdom แยก)',
+        ],
+    },
+    {
+        version: 'v1.41.2 (เกม math-han — เลิกพิมพ์ชื่อเอง, ใช้ชื่อจริง + โชว์อันดับ/สถิติ)',
+        date: '',
         badge: 'bg-purple-600',
         items: [
             'เอาช่องกรอกชื่อหน้าเมนูออก — เกียรติบัตร + หน้า Game Over ใช้ชื่อจริงจากระบบ (student.displayName) แทนชื่อที่พิมพ์เอง (fallback "นักเรียน" ตอนเล่นนอกระบบ)',

@@ -44,9 +44,11 @@
     window.studentCode = '';
     window.gameStartedAt = Date.now();
 
+    window.__kampaiInit = null;   // payload เต็มจาก wrapper (student/stats/leaderboard)
     window.addEventListener('message', (e) => {
       if (e.data && e.data.type === 'init') {
         window.studentCode = e.data.studentCode;
+        window.__kampaiInit = e.data;
         console.log('[Kingdom Duel] Student initialized:', window.studentCode);
       }
     });
@@ -80,6 +82,42 @@
 
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
+
+        // --- Leaderboard (อ่านจาก init ที่ wrapper ส่งมา) ---
+        function useKampaiBoard() {
+            const [board, setBoard] = useState([]);
+            useEffect(() => {
+                const apply = (d) => { if (d && Array.isArray(d.leaderboard)) setBoard(d.leaderboard); };
+                apply(window.__kampaiInit);
+                const onMsg = (e) => { if (e?.data?.type === 'init') apply(e.data); };
+                window.addEventListener('message', onMsg);
+                return () => window.removeEventListener('message', onMsg);
+            }, []);
+            return board;
+        }
+        const LeaderboardPanel = ({ board }) => {
+            if (!board || board.length === 0) return null;
+            return (
+                <div className="bg-white/80 border-2 border-indigo-100 rounded-3xl p-4 mt-6 text-left">
+                    <div className="font-black text-indigo-900 mb-2 text-center">🏆 อันดับนักเรียน</div>
+                    <div className="space-y-1 max-h-60 overflow-y-auto">
+                        {board.slice(0, 10).map((r) => (
+                            <div key={r.rank} className={`flex items-center gap-2 px-2 py-1.5 rounded-xl ${r.isMe ? 'bg-yellow-100' : ''}`}>
+                                <span className="w-6 text-center font-black text-amber-500">{r.rank === 1 ? '🥇' : r.rank === 2 ? '🥈' : r.rank === 3 ? '🥉' : r.rank}</span>
+                                {r.photoUrl
+                                    ? <img src={r.photoUrl} alt="" className="w-7 h-7 rounded-full object-cover border border-indigo-200" />
+                                    : <span className="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-bold">{(r.displayName || '?').charAt(0)}</span>}
+                                <div className="flex-1 min-w-0">
+                                    <div className="text-sm font-bold text-indigo-900 truncate">{r.displayName}{r.isMe ? ' (คุณ)' : ''}</div>
+                                    {r.classLabel && <div className="text-[10px] text-indigo-400 truncate">{r.classLabel}</div>}
+                                </div>
+                                <span className="font-black text-indigo-700">{(r.personalBest || 0).toLocaleString()}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
 
         // --- Web Audio API SFX ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -133,6 +171,7 @@
 
         const App = () => {
             const [scene, setScene] = useState('menu'); // menu, battle, result
+            const board = useKampaiBoard();
             const [mode, setMode] = useState('1p');
             const [p1, setP1] = useState({ hp: 100, inv: { magnifier: 1, shield: 1, power: 1 } });
             const [p2, setP2] = useState({ hp: 100, inv: { magnifier: 1, shield: 1, power: 1 } });
@@ -294,6 +333,7 @@
                             <button onClick={() => startGame('1p')} className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold py-5 rounded-2xl text-2xl shadow-lg hover:shadow-xl transition-all btn-bounce border-b-8 border-blue-800">👤 เล่นกับบิ๊กกี้</button>
                             <button onClick={() => startGame('2p')} className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-5 rounded-2xl text-2xl shadow-lg hover:shadow-xl transition-all btn-bounce border-b-8 border-orange-800">👥 ดวลกับเพื่อน</button>
                         </div>
+                        <LeaderboardPanel board={board} />
                     </div>
                 </div>
             );

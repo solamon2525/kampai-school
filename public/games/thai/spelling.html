@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>มือปราบคำผิด (Top-Down) v4.4 - Expanded Vocabulary</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #1a1a2e;
+            font-family: 'Sarabun', sans-serif;
+            color: white;
+            user-select: none;
+            transition: background-color 0.5s;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .hud-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            font-size: 24px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            z-index: 5;
+        }
+
+        .score-box { text-align: left; }
+        .score-bar { color: #ffd700; }
+        .kill-bar { color: #00d2ff; font-size: 20px; margin-top: 5px; }
+
+        .health-box { text-align: right; }
+        .health-row { margin-bottom: 5px; }
+        .p1-health { color: #00d2ff; }
+        .p2-health { color: #ff9900; }
+
+        .screen-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            pointer-events: auto;
+            backdrop-filter: blur(5px);
+        }
+
+        h1 {
+            font-size: 56px;
+            margin: 0 0 10px 0;
+            background: linear-gradient(45deg, #ff00cc, #3333ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+        }
+
+        .tutorial-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+            text-align: left;
+            max-width: 600px;
+            margin-bottom: 20px;
+        }
+
+        .tutorial-box p { margin: 8px 0; font-size: 18px; }
+        .key-badge {
+            background: #fff; color: #333; padding: 2px 8px;
+            border-radius: 4px; font-weight: bold; font-family: monospace;
+        }
+        .p1-badge { background: #00d2ff; color: #000; }
+        .p2-badge { background: #ff9900; color: #000; }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 22px;
+            font-family: 'Sarabun', sans-serif;
+            font-weight: bold;
+            background: linear-gradient(to bottom, #4CAF50, #2E7D32);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,255,0,0.4);
+            transition: transform 0.1s;
+        }
+        button:active { transform: scale(0.95); }
+        button:hover { filter: brightness(1.1); }
+        
+        button.mode-btn {
+            background: linear-gradient(to bottom, #2196F3, #1565C0);
+            min-width: 160px;
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+        }
+
+        button.learn-btn {
+            background: linear-gradient(to bottom, #9C27B0, #6A1B9A);
+            min-width: 160px;
+            box-shadow: 0 5px 15px rgba(156, 39, 176, 0.4);
+        }
+
+        /* เพิ่ม Style สำหรับกล่องแจ้งอัปเดตตามกฎใหม่ */
+        .update-log-box {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid #ffcc00;
+            text-align: center;
+            margin-bottom: 15px;
+            box-shadow: 0 0 10px rgba(255, 204, 0, 0.3);
+        }
+
+        canvas { display: block; cursor: crosshair; }
+
+        .floating-text {
+            position: absolute;
+            font-weight: bold;
+            font-size: 20px;
+            animation: floatUp 1s ease-out forwards;
+            pointer-events: none;
+            text-shadow: 1px 1px 2px black;
+        }
+        
+        .speed-up-text {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 60px;
+            color: #ff3333;
+            font-weight: bold;
+            text-shadow: 0 0 20px red;
+            animation: fadeOut 2.5s forwards;
+            pointer-events: none;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-50px); opacity: 0; }
+        }
+        
+        @keyframes fadeOut {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
+        }
+
+        #muteBtn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.5);
+            padding: 5px 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            pointer-events: auto;
+        }
+
+        /* Shared Styles for Scrollable Data Containers */
+        .data-container {
+            width: 95%; 
+            max-width: 1200px; 
+            max-height: 55vh; 
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.75);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 2px solid #555;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.9);
+        }
+        
+        .data-container::-webkit-scrollbar { width: 10px; }
+        .data-container::-webkit-scrollbar-track { background: #111; border-radius: 5px; }
+        .data-container::-webkit-scrollbar-thumb { background: #666; border-radius: 5px; }
+        .data-container::-webkit-scrollbar-thumb:hover { background: #888; }
+
+        .data-grid {
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 12px;
+        }
+
+        .dict-item {
+            background: rgba(255,255,255,0.08);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: left;
+            border-left: 5px solid #ff4d4d;
+            height: 100%;
+            box-sizing: border-box;
+        }
+        .dict-mistake { color: #ff4d4d; font-size: 16px; margin-bottom: 4px; }
+        .dict-correct { color: #4CAF50; font-size: 20px; font-weight: bold; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
+        .dict-hint { color: #ddd; font-size: 15px; font-style: italic; }
+
+        /* ปุ่มฟังเสียง TTS */
+        .tts-btn {
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: 'Sarabun', sans-serif;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            transition: background 0.2s;
+            pointer-events: auto;
+        }
+        .tts-btn:hover {
+            background: #1976D2;
+        }
+
+    </style>
+</head>
+<body>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <div id="ui-layer">
+        <div class="hud-top">
+            <!-- P1 Stats -->
+            <div class="score-box" id="p1Stats">
+                <div style="color: #00d2ff; font-weight: bold;">P1 คะแนน: <span id="p1ScoreVal">0</span></div>
+                <div style="color: #00d2ff; font-size: 20px; margin-top: 5px;">กำจัด: <span id="p1KillVal">0</span> 💀</div>
+                <div class="health-row p1-health" style="margin-top: 5px;">P1 หัวใจ: <span id="p1HealthVal">❤️❤️❤️❤️❤️</span></div>
+            </div>
+            
+            <!-- Center Controls -->
+            <div style="text-align: center;">
+                <button id="muteBtn" onclick="toggleMute()">🔊 ปิดเสียง</button>
+            </div>
+
+            <!-- P2 Stats -->
+            <div class="health-box" id="p2Stats" style="display: none; text-align: right;">
+                <div style="color: #ff9900; font-weight: bold;">P2 คะแนน: <span id="p2ScoreVal">0</span></div>
+                <div style="color: #ff9900; font-size: 20px; margin-top: 5px;">กำจัด: <span id="p2KillVal">0</span> 💀</div>
+                <div class="health-row p2-health" style="margin-top: 5px;">P2 หัวใจ: <span id="p2HealthVal">❤️❤️❤️❤️❤️</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Start Screen -->
+    <div id="startScreen" class="screen-overlay">
+        <h1 style="margin-bottom: 5px;">มือปราบคำผิด</h1>
+        
+        <!-- ระบบแจ้งอัปเดตตามกฎใหม่ -->
+        <div class="update-log-box">
+            <div style="color: #ffcc00; font-size: 22px; font-weight: bold;">📌 เวอร์ชัน 4.4</div>
+            <div style="color: #aaaaaa; font-size: 14px; margin-bottom: 5px;">🕒 อัปเดตล่าสุด: 24 กุมภาพันธ์ 2026</div>
+            <div style="color: #00FFFF; font-size: 16px;">✨ อัปเดต: เพิ่มคลังคำศัพท์ใหม่อีก 50 คำ (คำทับศัพท์, อาหาร, คำระดับบอส) รวมเป็นกว่า 120 คำ!</div>
+        </div>
+
+        <div class="tutorial-box">
+            <p><strong>🎯 ภารกิจ:</strong> ยิงปีศาจ <strong>"คำผิด"</strong> (✅) | ห้ามยิง <strong>"คำถูก"</strong> (❌)</p>
+            <p><strong>🔊 เรียนรู้การออกเสียง:</strong> เมื่อยิงคำผิดสำเร็จ เกมจะอ่านออกเสียงคำที่ถูกต้องให้ฟัง!</p>
+            <hr style="border-color: rgba(255,255,255,0.2);">
+            <p><span class="key-badge p1-badge">P1</span>: <span class="key-badge">W</span><span class="key-badge">A</span><span class="key-badge">S</span><span class="key-badge">D</span> เดิน | 🖱️ <strong>เมาส์</strong> หรือ <span class="key-badge">Space</span> ยิง</p>
+            <p><span class="key-badge p2-badge">P2</span>: <span class="key-badge">ลูกศร</span> เดิน | <span class="key-badge">Enter</span> ยิง</p>
+        </div>
+        <h3>เลือกเมนู:</h3>
+        <div class="btn-group">
+            <button class="learn-btn" onclick="showLearningScreen()">📚 เรียนรู้คำศัพท์</button>
+            <button class="mode-btn" onclick="startGame(1)">👤 เริ่มเล่น 1 คน</button>
+            <button class="mode-btn" onclick="startGame(2)">👥 เริ่มเล่น 2 คน</button>
+        </div>
+        <div data-kampai-lb style="margin-top:16px;"></div>
+    </div>
+
+    <!-- Learning Screen (Pre-game) -->
+    <div id="learningScreen" class="screen-overlay" style="display: none;">
+        <h1 style="color: #9C27B0; margin-bottom: 5px;">คลังคำศัพท์ก่อนลงสนาม</h1>
+        <p style="font-size: 18px; color: #ddd; margin-bottom: 15px;">ศึกษาและจดจำคำที่ถูกต้อง เพื่อเตรียมพร้อมสำหรับภารกิจ!</p>
+        
+        <div class="data-container">
+            <div id="learningList" class="data-grid">
+                <!-- Content will be injected here -->
+            </div>
+        </div>
+
+        <button onclick="hideLearningScreen()" style="background: linear-gradient(to bottom, #757575, #424242); box-shadow: 0 5px 15px rgba(100,100,100,0.4);">กลับหน้าหลัก</button>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="gameOverScreen" class="screen-overlay" style="display: none;">
+        <h1 style="color: #ff4444; margin-bottom: 5px;">จบเกม!</h1>
+        
+        <div style="display: flex; gap: 30px; margin-bottom: 10px;">
+            <p style="font-size: 24px; margin: 0;">คะแนนรวม: <span id="finalScore" style="color: yellow; font-weight: bold;">0</span></p>
+            <p style="font-size: 24px; margin: 0;">กำจัดศัตรู: <span id="finalKills" style="color: #00d2ff;">0</span></p>
+        </div>
+        
+        <div id="p2GameOverStats" style="display: none; background: rgba(0,0,0,0.5); padding: 5px 20px; border-radius: 10px; margin-bottom: 10px;">
+            <span style="color: #00d2ff; font-size: 18px; margin-right: 20px;">P1 (คะแนน: <span id="p1FinalScore">0</span> / กำจัด: <span id="p1FinalKills">0</span>)</span>
+            <span style="color: #ff9900; font-size: 18px;">P2 (คะแนน: <span id="p2FinalScore">0</span> / กำจัด: <span id="p2FinalKills">0</span>)</span>
+        </div>
+
+        <p id="rankText" style="color: #aaa; margin-top: 0; margin-bottom: 10px; font-size: 20px;"></p>
+
+        <!-- Post-Game Dictionary Section -->
+        <div class="data-container">
+            <h3 style="margin-top: 0; color: #fff; text-align: center; border-bottom: 1px solid #555; padding-bottom: 10px; margin-bottom: 15px;">📚 ทบทวนคำศัพท์จากคำผิดที่คุณกำจัดได้</h3>
+            <div id="postGameDict" class="data-grid">
+                <!-- Content will be injected here -->
+            </div>
+        </div>
+
+        <button onclick="restartGame()">กลับเมนูหลัก</button>
+    </div>
+
+    <script src="/games/kampai-leaderboard.js"></script>
+    <script>
+        /* ═══ KAMPAI INTEGRATION (GAME.md EMBED block) ═══ */
+        const GAME_SLUG = 'spelling';
+        const IS_EMBED = window.self !== window.top ||
+                         new URLSearchParams(location.search).get('embed') === '1';
+        let STUDENT_CODE = null;
+        let SESSION_START_TS = Date.now();
+        if (IS_EMBED) {
+            document.documentElement.classList.add('embed-mode');
+            window.addEventListener('message', (e) => {
+                if (e?.data?.type === 'init' && typeof e.data.studentCode === 'string') {
+                    STUDENT_CODE = e.data.studentCode;
+                    SESSION_START_TS = Date.now();
+                }
+            });
+            document.addEventListener('click', (e) => {
+                const a = e.target.closest('a[target="_top"]');
+                if (!a) return;
+                const href = a.getAttribute('href');
+                if (!href) return;
+                e.preventDefault();
+                try { window.parent.postMessage({ type: 'navigate', to: href }, '*'); } catch (_) {}
+            });
+        }
+        function sendGameEnd(finalScore, mode, extra) {
+            if (!IS_EMBED || !STUDENT_CODE) return;
+            try {
+                window.parent.postMessage({
+                    type: 'gameEnd', gameSlug: GAME_SLUG, studentCode: STUDENT_CODE,
+                    score: Math.round(finalScore), mode: mode || 'normal',
+                    metadata: { duration: Math.max(1, Math.floor((Date.now() - SESSION_START_TS) / 1000)), ...(extra || {}) },
+                }, '*');
+            } catch (_) {}
+        }
+        function navigateBack() {
+            if (IS_EMBED) { try { window.parent.postMessage({ type: 'navigate', to: '/h/nattapong' }, '*'); } catch (_) {} }
+            else { window.location.href = '/h/nattapong'; }
+        }
+
+        // --- 1. Sound System & TTS ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+        let isMuted = false;
+        
+        // ตัวแปรสำหรับระบบ TTS ที่เสถียรขึ้น
+        let ttsVoices = []; 
+        let currentUtterance = null; 
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new AudioContext();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            if (window.speechSynthesis) {
+                ttsVoices = window.speechSynthesis.getVoices();
+                window.speechSynthesis.onvoiceschanged = () => {
+                    ttsVoices = window.speechSynthesis.getVoices();
+                };
+            }
+        }
+
+        document.addEventListener('click', function unlockAudio() {
+            initAudio();
+            document.removeEventListener('click', unlockAudio);
+        }, { once: true });
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            const btn = document.getElementById('muteBtn');
+            btn.innerText = isMuted ? "🔇 เปิดเสียง" : "🔊 ปิดเสียง";
+            if (isMuted && window.speechSynthesis) {
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        function speakWord(word) {
+            if (isMuted || !window.speechSynthesis) return;
+            window.speechSynthesis.cancel(); 
+            
+            currentUtterance = new SpeechSynthesisUtterance(word);
+            currentUtterance.lang = 'th-TH'; 
+            currentUtterance.rate = 1.0;     
+
+            if (ttsVoices.length > 0) {
+                const thaiVoice = ttsVoices.find(v => v.lang === 'th-TH' || v.lang === 'th');
+                if (thaiVoice) {
+                    currentUtterance.voice = thaiVoice;
+                }
+            }
+
+            setTimeout(() => {
+                window.speechSynthesis.speak(currentUtterance);
+            }, 50);
+        }
+
+        function playSound(type) {
+            if (isMuted || !audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+
+            if (type === 'shoot') {
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(600, now); osc.frequency.exponentialRampToValueAtTime(100, now + 0.15);
+                gainNode.gain.setValueAtTime(0.15, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.15);
+                osc.start(now); osc.stop(now + 0.15);
+            } else if (type === 'shoot2') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(400, now); osc.frequency.exponentialRampToValueAtTime(100, now + 0.15);
+                gainNode.gain.setValueAtTime(0.15, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.15);
+                osc.start(now); osc.stop(now + 0.15);
+            } else if (type === 'hit_correct') { 
+                osc.type = 'sine'; osc.frequency.setValueAtTime(800, now); osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+                gainNode.gain.setValueAtTime(0.3, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now); osc.stop(now + 0.3);
+            } else if (type === 'hit_boss') { 
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(300, now); osc.frequency.exponentialRampToValueAtTime(100, now + 0.1);
+                gainNode.gain.setValueAtTime(0.4, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.start(now); osc.stop(now + 0.1);
+            } else if (type === 'hit_wrong' || type === 'damage') { 
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now); osc.frequency.linearRampToValueAtTime(100, now + 0.2);
+                gainNode.gain.setValueAtTime(0.4, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.2);
+                osc.start(now); osc.stop(now + 0.2);
+            } else if (type === 'powerup') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(400, now); osc.frequency.linearRampToValueAtTime(1000, now + 0.3);
+                gainNode.gain.setValueAtTime(0.3, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
+                osc.start(now); osc.stop(now + 0.3);
+            } else if (type === 'heal') {
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(300, now); osc.frequency.linearRampToValueAtTime(600, now + 0.3);
+                gainNode.gain.setValueAtTime(0.3, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
+                osc.start(now); osc.stop(now + 0.3);
+            } else if (type === 'nuke') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(100, now); osc.frequency.exponentialRampToValueAtTime(10, now + 1);
+                gainNode.gain.setValueAtTime(0.8, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 1);
+                osc.start(now); osc.stop(now + 1);
+            } else if (type === 'boss_spawn' || type === 'levelup') {
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(200, now); osc.frequency.linearRampToValueAtTime(800, now + 0.8);
+                gainNode.gain.setValueAtTime(0.5, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.8);
+                osc.start(now); osc.stop(now + 0.8);
+            } else if (type === 'gameover') {
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(300, now); osc.frequency.linearRampToValueAtTime(50, now + 1);
+                gainNode.gain.setValueAtTime(0.5, now); gainNode.gain.linearRampToValueAtTime(0, now + 1);
+                osc.start(now); osc.stop(now + 1);
+            }
+        }
+
+        // --- 2. Config & Vars ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // ฐานข้อมูลคำศัพท์ พร้อม "เกร็ดความรู้ (Hint)"
+        const wordPairs = [
+            ["โอกาส", "โอกาศ", "โอกาส ต้องใช้ ส.เสือ สะกด (จำว่า อากาศ ถึงจะใช้ ศ.ศาลา)"],
+            ["อนุญาต", "อนุญาติ", "อนุญาต ไม่มีสระอิ (ถ้าเป็น ญาติพี่น้อง ถึงจะมีสระอิ)"],
+            ["สังเกต", "สังเกตุ", "สังเกต ไม่มีสระอุ (แต่ สาเหตุ มีสระอุ)"],
+            ["กฎหมาย", "กฏหมาย", "กฎหมาย ใช้ ฎ.ชฎา (มีหยักเดียวที่ฐาน)"],
+            ["ปรากฏ", "ปรากฎ", "ปรากฏ ใช้ ฏ.ปฏัก (มีสองหยักที่ฐาน)"],
+            ["ศีรษะ", "ศรีษะ", "สระอี ต้องอยู่บนหัวตัว ศ.ศาลา ไม่ใช่ ร.เรือ"],
+            ["รสชาติ", "รสชาด", "ใช้ ต.เต่า + สระอิ เพราะมีความหมายถึง ชาติกำเนิด"],
+            ["ผูกพัน", "ผูกพันธ์", "ผูกพัน ไม่มีตัวการันต์ (สายสัมพันธ์ ถึงจะมี ธ์)"],
+            ["กาลเทศะ", "กาละเทศะ", "กาลเทศะ เขียนติดกัน ไม่ต้องมีสระอะตรงกลาง"],
+            ["ลายเซ็น", "ลายเซ็นต์", "ลายเซ็น มาจาก Sign เป็นคำกริยา จึงไม่มีตัวการันต์"],
+            ["กะเพรา", "กระเพรา", "กะเพรา ไม่มี ร.เรือ ควบกล้ำที่ตัว ก"],
+            ["กะทิ", "กระทิ", "กะทิ ไม่มี ร.เรือ ควบกล้ำที่ตัว ก"],
+            ["ปะการัง", "ประการัง", "ปะการัง ไม่มี ร.เรือ ควบกล้ำที่ตัว ป"],
+            ["ไอศกรีม", "ไอศครีม", "ใช้ ก.ไก่ ควบกล้ำ (Ice Cream -> กรีม)"],
+            ["คลินิก", "คลีนิค", "คลินิก ใช้สระอิ และสะกดด้วย ก.ไก่"],
+            ["อินเทอร์เน็ต", "อินเตอร์เน็ต", "อินเทอร์เน็ต ใช้ ท.ทหาร (Ther-net)"],
+            ["บันได", "บรรได", "บันได ใช้ บัน ไม้หันอากาศ"],
+            ["บันทึก", "บรรทึก", "บันทึก ใช้ บัน ไม้หันอากาศ"],
+            ["บรรยากาศ", "บันยากาศ", "บรรยากาศ ต้องใช้ บรร (ร หัน)"],
+            ["ไข่มุก", "ไข่มุข", "ไข่มุก ใช้ ก.ไก่ สะกด (มุขขอบหน้าต่าง ถึงใช้ ข.ไข่)"],
+            ["มุกตลก", "มุขตลก", "มุกตลก ใช้ ก.ไก่ สะกด"],
+            ["กะทัดรัด", "กระทัดรัด", "กะทัดรัด ไม่มี ร.เรือ ที่คำว่า กะ"],
+            ["ละเอียด", "ละเอีด", "ต้องมี ย.ยักษ์ ควบอยู่ในสระเอีย"],
+            ["น้ำแข็งไส", "น้ำแข็งใส", "น้ำแข็งไส ใช้ไม้มลาย (มาจากกริยา ไสน้ำแข็งบนมีด)"],
+            ["สัมมนา", "สัมนา", "สัมมนา ต้องมี ม.ม้า สองตัว"],
+            ["อัธยาศัย", "อัธยาศรัย", "อัธยาศัย ไม่มี ร.เรือ ควบกล้ำ"],
+            ["มัคคุเทศก์", "มัคคุเทศ", "มัคคุเทศก์ ต้องมี ก์ (ก.ไก่ การันต์)"],
+            ["เจตนารมณ์", "เจตจำนงค์", "เจตนารมณ์ ต้องมี ณ์ (ณ.เณร การันต์)"],
+            ["เค้ก", "เค๊ก", "คำทับศัพท์อักษรต่ำ ไม่ใช้ไม้ตรี ให้ใช้ไม้โท (เค้ก)"],
+            ["คุกกี้", "คุ้กกี้", "คำทับศัพท์ ไม่ต้องใส่ไม้โทที่ตัว ค"],
+            ["โน้ต", "โน๊ต", "โน้ต เป็นอักษรต่ำเสียงยาว ใช้ไม้โท"],
+            ["เชิ้ต", "เชิ๊ต", "เชิ้ต เป็นอักษรต่ำ ใช้ไม้โท"],
+            ["บิณฑบาต", "บิณฑบาตร", "บิณฑบาต ไม่มี ร.เรือ สะกด (บาตรพระ ถึงจะมี ร.เรือ)"],
+            ["ตักบาตร", "ตักบาต", "ตักบาตร ต้องมี ร.เรือ สะกด"],
+            ["บุคลากร", "บุคคลากร", "บุคลากร ไม่มี ค.ควาย ซ้อนทับ"],
+            ["สังสรรค์", "สังสรร", "สังสรรค์ ต้องมี ค์ (ค.ควาย การันต์)"],
+            ["พรรณนา", "พันนา", "พรรณนา ใช้ รร (ร หัน) และ ณ.เณร"],
+            ["เหตุการณ์", "เหตุการ", "เหตุการณ์ ต้องมี ณ์ (ณ.เณร การันต์)"],
+            ["จำนง", "จำนงค์", "ความจำนง ไม่มีตัวการันต์"],
+            ["ประสงค์", "ประสง", "จุดประสงค์ ต้องมี ค์ (ค.ควาย การันต์)"],
+            ["ภารกิจ", "ภาระกิจ", "ภารกิจ เขียนติดกันโดยไม่ประวิสรรชนีย์ (ไม่มีสระอะ)"],
+            ["อิสรภาพ", "อิสระภาพ", "อิสรภาพ ไม่ประวิสรรชนีย์ตรงกลาง (ไม่มีสระอะ)"],
+            ["สุขภาพ", "สุขะภาพ", "สุขภาพ ไม่ประวิสรรชนีย์ (ไม่มีสระอะ)"],
+            ["จระเข้", "จรเข้", "จระเข้ ต้องประวิสรรชนีย์ (มีสระอะที่ตัว ร)"],
+            ["ตะกร้า", "ตระกร้า", "ตะกร้า ไม่มี ร.เรือ ที่ตัว ต"],
+            ["ตะไคร้", "ไคร้", "ต้องมี ตะ นำหน้าเสมอ"],
+            ["กะหล่ำ", "กระหล่ำ", "กะหล่ำปลี ไม่มี ร.เรือ ควบกล้ำ"],
+            ["กะทันหัน", "กระทันหัน", "กะทันหัน ไม่มี ร.เรือ ควบกล้ำ"],
+            ["ขะมักเขม้น", "ขมักเขม้น", "ขะมักเขม้น ต้องมีสระอะที่ตัว ข"],
+            ["กฎเกณฑ์", "กฏเกณฑ์", "กฎเกณฑ์ ใช้ ฎ.ชฎา (หยักเดียว)"],
+            ["มงกุฎ", "มงกุฏ", "มงกุฎ ใช้ ฎ.ชฎา (หยักเดียว)"],
+            ["จราจร", "จลาจล", "ตำรวจจราจร ใช้ ร.เรือ (จลาจล หมายถึง ความวุ่นวาย)"],
+            ["ราษฎร", "ราษฏร", "ราษฎร ใช้ ฎ.ชฎา (หยักเดียว)"],
+            ["เกษียณ", "เกษียน", "เกษียณอายุ ใช้ ณ.เณร สะกด"],
+            ["สาบสูญ", "สาปสูญ", "สาบสูญ ใช้ บ.ใบไม้ สะกด"],
+            ["ทแยง", "ทะแยง", "เส้นทแยงมุม ไม่ประวิสรรชนีย์ (ไม่มีสระอะ)"],
+            ["ทยอย", "ทะยอย", "ทยอยเดิน ไม่ประวิสรรชนีย์ (ไม่มีสระอะ)"],
+            ["เครื่องยนต์", "เครื่องยล", "เครื่องยนต์ ต้องมี ต์ การันต์"],
+            ["ภาพยนตร์", "ภาพยนต์", "ภาพยนตร์ ต้องมี ตร์ การันต์"],
+            ["สร้างสรรค์", "สร้างสรร", "สร้างสรรค์ ต้องมี ค์ การันต์"],
+            ["สวรรค์", "สวรร", "สวรรค์ ต้องมี ค์ การันต์"],
+            ["กรรไกร", "กันไกร", "กรรไกร ใช้ รร (ร หัน)"],
+            ["พลาสติก", "พลาสติค", "พลาสติก (Plastic) ใช้ ก.ไก่ สะกด"],
+            ["ออฟฟิศ", "ออฟฟิต", "ออฟฟิศ (Office) ใช้ ศ.ศาลา สะกด"],
+            ["คลิก", "คลิ๊ก", "คลิก (Click) เป็นคำทับศัพท์อักษรต่ำ ไม่ใช้ไม้ตรี"],
+            ["ลิงก์", "ลิ้งค์", "ลิงก์ (Link) ใช้ ก.ไก่ การันต์ (ก์)"],
+            ["เฟซบุ๊ก", "เฟสบุ๊ค", "เฟซบุ๊ก (Facebook) ทับศัพท์มาตรฐานใช้ ซ.โซ่ และ ก.ไก่"],
+            ["โพสต์", "โพส", "โพสต์ (Post) ต้องมี ต์ การันต์"],
+            ["โปรไฟล์", "โปรไฟล์ท", "โปรไฟล์ (Profile) ไม่ต้องมี ท.ทหาร หรือ ต.เต่า การันต์"],
+            ["เกม", "เกมส์", "เกม (Game) ทั่วไปไม่มี ส์ การันต์ (ยกเว้นงานกีฬาซีเกมส์)"],
+            ["แอปพลิเคชัน", "แอพพลิเคชั่น", "แอปพลิเคชัน ใช้ ป.ปลา สะกด และ ช.ช้าง สะกด ไม่มีไม้เอก"],
+            ["เว็บไซต์", "เวปไซด์", "เว็บไซต์ (Website) ใช้ บ.ใบไม้ สะกด และ ต์ การันต์"],
+            ["อีเมล", "อีเมล์", "อีเมล (Email) ไม่ต้องมี ล์ การันต์"],
+            ["เมาส์", "เม้าส์", "เมาส์ (Mouse) เป็นอักษรต่ำ ไม่ใช้ไม้ตรี"],
+            ["ก๋วยเตี๋ยว", "ก๊วยเตี๋ยว", "ก๋วยเตี๋ยว ใช้ไม้จัตวา (ก๋)"],
+            ["หมูหย็อง", "หมูหยอง", "หมูหย็อง ต้องมีไม้ไต่คู้เพื่อให้ออกเสียงสั้น"],
+            ["มัสมั่น", "มัสหมั่น", "แกงมัสมั่น ใช้ ม.ม้า สะกด ไม่ใช่ ห.หีบ นำ"],
+            ["ข้าวเหนียวมูน", "ข้าวเหนียวมูล", "มูน (นำกะทิมาคลุกเคล้า) ใช้ น.หนู สะกด"],
+            ["เครื่องสำอาง", "เครื่องสำอางค์", "เครื่องสำอาง ไม่มี ค์ การันต์"],
+            ["โคตร", "โครต", "โคตร (วงศ์ตระกูล) ร.เรือ ต้องอยู่หลัง ต.เต่า"],
+            ["เลือดกำเดา", "เลือดกำเดาว์", "กำเดา ไม่มี ว.แหวน การันต์"],
+            ["ดอกไม้จันทน์", "ดอกไม้จันทร์", "ดอกไม้จันทน์ (ไม้หอม) ใช้ ทน์ การันต์"],
+            ["ดวงจันทร์", "ดวงจันทน์", "ดวงจันทร์ (ดวงดาว) ใช้ ทร์ การันต์"],
+            ["วันศุกร์", "วันศุกข์", "วันศุกร์ ใช้ กร์ การันต์"],
+            ["ความทุกข์", "ความทุก", "ความทุกข์ ต้องมี ข์ การันต์"],
+            ["สับปะรด", "สัปปะรด", "สับปะรด ใช้ บ.ใบไม้ สะกดในพยางค์แรก (สับ)"],
+            ["แมงมุม", "แมลงมุม", "แมงมุม เป็นสัตว์มี 8 ขา จึงเรียกว่า 'แมง'"],
+            ["แมลงปอ", "แมงปอ", "แมลงปอ เป็นสัตว์มี 6 ขา จึงเรียกว่า 'แมลง'"],
+            ["ผัดผ่อน", "ผลัดผ่อน", "ผัดผ่อน (ขอเลื่อนเวลา) ไม่ต้องมี ล.ลิง ควบกล้ำ"],
+            ["ผลัดเวร", "ผัดเวร", "ผลัดเวร (การเปลี่ยนกะ/เปลี่ยนหน้าที่) ต้องมี ล.ลิง ควบกล้ำ"],
+            ["ซากศพ", "ซากสพ", "ซากศพ ศพ ใช้ ศ.ศาลา"],
+            ["คำนวณ", "คำนวน", "คำนวณ ใช้ ณ.เณร สะกด"],
+            ["จำนวน", "จำนวณ", "จำนวน ใช้ น.หนู สะกด"],
+            ["บริเวณ", "บริเวน", "บริเวณ ใช้ ณ.เณร สะกด"],
+            ["ญาติพี่น้อง", "ญาตพี่น้อง", "ญาติ (เครือญาติ) ต้องมีสระอิ"],
+            ["ปฏิกิริยา", "ปฎิกิริยา", "ปฏิกิริยา ใช้ ฏ.ปฏัก (มีสองหยักที่ฐาน)"],
+            ["ปฏิบัติ", "ปฎิบัติ", "ปฏิบัติ ใช้ ฏ.ปฏัก (มีสองหยักที่ฐาน)"],
+            ["ทรมาน", "ทรมาณ", "ทรมาน ใช้ น.หนู สะกด"],
+            ["ประมาณ", "ประมาน", "ประมาณ ใช้ ณ.เณร สะกด"],
+            ["รำคาญ", "รำคาณ", "รำคาญ ใช้ ญ.หญิง สะกด"],
+            ["สำคัญ", "สำคัณ", "สำคัญ ใช้ ญ.หญิง สะกด"],
+            ["รางวัล", "รางวัลย์", "รางวัล ไม่มี ย์ การันต์"],
+            ["ความสัมพันธ์", "ความสัมพัน", "สัมพันธ์ (ความผูกพัน) ต้องมี ธ์ การันต์"],
+            ["อารมณ์", "อารมย์", "อารมณ์ ต้องมี ณ์ การันต์"],
+            ["สมบูรณ์", "สมบรูณ์", "สมบูรณ์ ใช้ ณ.เณร การันต์ และสระอูอยู่ใต้ บ.ใบไม้"],
+            ["รังสรรค์", "รังสรร", "รังสรรค์ (ตกแต่ง, สร้าง) ต้องมี ค์ การันต์"],
+            ["อาเจียน", "อาเจียร", "อาเจียน ใช้ น.หนู สะกด"]
+        ];
+
+        const bossWords = [
+            ["มหัศจรรย์", "มหัศจรร", "มหัศจรรย์ ต้องมี ย์ การันต์"], 
+            ["บิณฑบาต", "บิณฑบาตร", "บิณฑบาต ของพระสงฆ์ ไม่มี ร.เรือ สะกด"], 
+            ["อนุสาวรีย์", "อนุสาวลีย์", "อนุสาวรีย์ ใช้ ร.เรือ และ ย์ การันต์"],
+            ["ปรากฏการณ์", "ปรากฎการณ์", "ปรากฏ ใช้ ฏ.ปฏัก (สองหยัก) และ การณ์ ใช้ ณ.เณร การันต์"], 
+            ["มัคคุเทศก์", "มัคคุเทศ", "มัคคุเทศก์ (ไกด์นำเที่ยว) ต้องมี ก์ การันต์"],
+            ["วรรณยุกต์", "วรรณยุกติ์", "วรรณยุกต์ (เอก โท ตรี จัตวา) ไม่มีสระอิใต้การันต์"], 
+            ["ผัดวันประกันพรุ่ง", "ผลัดวันประกันพรุ่ง", "ผัดวัน (เลื่อนเวลาออกไป) ไม่ต้องมี ล.ลิง ควบกล้ำ"],
+            ["อเนกประสงค์", "เอนกประสงค์", "อเนก (อ่านว่า อะ-เหนก) สระเอ ต้องอยู่หน้า อ.อ่าง"],
+            ["ปาฏิหาริย์", "ปาฎิหาริย์", "ปาฏิหาริย์ ใช้ ฏ.ปฏัก (สองหยัก) และมี ย์ การันต์"],
+            ["ประสบการณ์", "ประสพการณ์", "ประสบการณ์ ใช้ บ.ใบไม้ สะกดในคำว่า 'สบ'"],
+            ["สัญชาตญาณ", "สัณชาตญาณ", "สัญชาตญาณ ใช้ ญ.หญิง ทั้งคำว่า สัญ และ ญาณ"],
+            ["วิพากษ์วิจารณ์", "วิพากษ์วิจารย์", "วิจารณ์ ต้องมี ณ์ การันต์"]
+        ];
+
+        const enemyColors = [
+            '#FF5733', '#33FF57', '#3357FF', '#F033FF', '#FF33A8', 
+            '#33FFF2', '#F2FF33', '#FF8C33', '#8C33FF', '#00C853',
+            '#2962FF', '#D50000', '#AA00FF', '#FFD600', '#00BFA5'
+        ];
+
+        const enemyFaces = [
+            '👻', '👽', '🤖', '🎃', '👹', '👺', '🤡', '💀', '💩', '👾', 
+            '🤠', '🥸', '😎', '🥶', '🥵', '🤯', '🥸', '🐱‍👤', '🐻'
+        ];
+
+        let gameState = 'MENU';
+        let playerCount = 1;
+        let frameCount = 0;
+        let animationId; 
+        
+        let totalKillCount = 0;
+        let nextBossThreshold = 20; 
+        
+        let baseEnemySpeed = 1.5; 
+        let speedMultiplier = 1.0;
+        let spawnRate = 120;
+        
+        let isFrozen = false; 
+        let freezeTimer = 0;
+
+        let collectedVocabs = new Map(); 
+
+        const keys = { 
+            w: false, a: false, s: false, d: false, 
+            ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false,
+            Enter: false, Space: false
+        };
+        const mouse = { x: 0, y: 0, isDown: false };
+
+        let players = [];
+        let bullets = [];
+        let enemies = [];
+        let particles = [];
+        let items = [];
+        let splatters = []; // เพิ่ม Array สำหรับเก็บรอยหมึก
+
+        // --- Pre-Game Learning System ---
+        function showLearningScreen() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('learningScreen').style.display = 'flex';
+            renderLearningData();
+        }
+
+        function hideLearningScreen() {
+            document.getElementById('learningScreen').style.display = 'none';
+            document.getElementById('startScreen').style.display = 'flex';
+        }
+
+        function renderLearningData() {
+            const container = document.getElementById('learningList');
+            let htmlStr = `<h2 style="color: #FFD700; text-align: center; grid-column: 1 / -1; margin-top: 0;">📖 คำศัพท์ทั่วไป</h2>`;
+            
+            wordPairs.forEach(pair => {
+                htmlStr += `
+                <div class="dict-item" style="border-left: 5px solid #4CAF50;">
+                    <div class="dict-correct">
+                        <span>✅ ${pair[0]}</span>
+                        <button class="tts-btn" onclick="speakWord('${pair[0]}')">🔊</button>
+                    </div>
+                    <div class="dict-mistake" style="color: #ff9999;">❌ มักเขียนผิดเป็น: ${pair[1]}</div>
+                    <div class="dict-hint">💡 ${pair[2] || ''}</div>
+                </div>`;
+            });
+
+            htmlStr += `<h2 style="color: #FF00FF; text-align: center; grid-column: 1 / -1; margin-top: 20px;">😈 คำศัพท์ระดับบอส</h2>`;
+            
+            bossWords.forEach(pair => {
+                htmlStr += `
+                <div class="dict-item" style="border-left: 5px solid #FF00FF;">
+                    <div class="dict-correct">
+                        <span>✅ ${pair[0]}</span>
+                        <button class="tts-btn" onclick="speakWord('${pair[0]}')">🔊</button>
+                    </div>
+                    <div class="dict-mistake" style="color: #ff9999;">❌ มักเขียนผิดเป็น: ${pair[1]}</div>
+                    <div class="dict-hint">💡 ${pair[2] || ''}</div>
+                </div>`;
+            });
+
+            container.innerHTML = htmlStr;
+        }
+
+        function recordVocab(enemy) {
+            if (!collectedVocabs.has(enemy.correctWord)) {
+                collectedVocabs.set(enemy.correctWord, {
+                    correctWord: enemy.correctWord,
+                    wrongWord: enemy.wrongWord,
+                    hint: enemy.hint
+                });
+            }
+        }
+
+        class Player {
+            constructor(id) {
+                this.id = id;
+                this.radius = 25;
+                this.speed = 5;
+                this.angle = 0;
+                this.lives = 5; 
+                this.maxLives = 5;
+                this.active = true; 
+                this.score = 0;
+                this.kills = 0;
+                this.lastShotTime = 0;
+                this.fireRate = 250; 
+                this.weaponType = 'NORMAL';
+                this.weaponTimer = 0;
+                
+                if (id === 1) {
+                    this.x = canvas.width / 2 - 50;
+                    this.y = canvas.height / 2;
+                    this.color = '#00d2ff';
+                } else {
+                    this.x = canvas.width / 2 + 50;
+                    this.y = canvas.height / 2;
+                    this.color = '#ff9900';
+                }
+            }
+
+            update() {
+                if (!this.active) return; 
+
+                if (this.weaponTimer > 0) {
+                    this.weaponTimer--;
+                    if (this.weaponTimer <= 0) {
+                        this.weaponType = 'NORMAL';
+                    }
+                }
+
+                let dx = 0; let dy = 0;
+
+                if (this.id === 1) {
+                    if (keys.w) dy -= 1;
+                    if (keys.s) dy += 1;
+                    if (keys.a) dx -= 1;
+                    if (keys.d) dx += 1;
+                    this.angle = Math.atan2(mouse.y - this.y, mouse.x - this.x);
+                } else {
+                    if (keys.ArrowUp) dy -= 1;
+                    if (keys.ArrowDown) dy += 1;
+                    if (keys.ArrowLeft) dx -= 1;
+                    if (keys.ArrowRight) dx += 1;
+                    if (dx !== 0 || dy !== 0) {
+                        this.angle = Math.atan2(dy, dx);
+                    }
+                }
+
+                if (dx !== 0 || dy !== 0) {
+                    const length = Math.sqrt(dx * dx + dy * dy);
+                    this.x += (dx / length) * this.speed;
+                    this.y += (dy / length) * this.speed;
+                }
+
+                this.x = Math.max(this.radius, Math.min(canvas.width - this.radius, this.x));
+                this.y = Math.max(this.radius, Math.min(canvas.height - this.radius, this.y));
+            }
+
+            draw() {
+                if (!this.active) return;
+
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                
+                // เพิ่ม Glow Effect ให้ตัวละคร
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = this.color;
+                
+                ctx.beginPath(); ctx.strokeStyle = this.color; ctx.lineWidth = 2;
+                ctx.arc(0, 0, this.radius + 5, 0, Math.PI * 2); ctx.stroke();
+
+                ctx.rotate(this.angle);
+                
+                ctx.fillStyle = this.color; ctx.beginPath();
+                ctx.arc(0, 0, this.radius, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.stroke();
+
+                ctx.fillStyle = '#555'; ctx.fillRect(10, -8, 30, 16);
+                ctx.fillStyle = '#222'; ctx.fillRect(10, -3, 35, 6);
+                ctx.restore();
+
+                ctx.fillStyle = 'white'; ctx.font = '14px Arial'; ctx.textAlign = 'center';
+                ctx.fillText(`P${this.id}`, this.x, this.y - 35);
+
+                if (this.weaponTimer > 0) {
+                    ctx.fillStyle = 'yellow';
+                    ctx.fillRect(this.x - 20, this.y + 30, 40 * (this.weaponTimer / 600), 5);
+                }
+            }
+
+            shoot(now) {
+                let currentFireRate = this.weaponType === 'WEAPON_MACHINEGUN' ? 80 : 250;
+                
+                if (now - this.lastShotTime >= currentFireRate) {
+                    let isPiercing = this.weaponType === 'WEAPON_PIERCING';
+
+                    if (this.weaponType === 'WEAPON_SHOTGUN') {
+                        bullets.push(new Bullet(this.x, this.y, this.angle - 0.25, this.id, isPiercing));
+                        bullets.push(new Bullet(this.x, this.y, this.angle, this.id, isPiercing));
+                        bullets.push(new Bullet(this.x, this.y, this.angle + 0.25, this.id, isPiercing));
+                    } else {
+                        bullets.push(new Bullet(this.x, this.y, this.angle, this.id, isPiercing));
+                    }
+
+                    this.x -= Math.cos(this.angle) * 3;
+                    this.y -= Math.sin(this.angle) * 3;
+                    playSound(this.id === 1 ? 'shoot' : 'shoot2');
+                    this.lastShotTime = now;
+                }
+            }
+
+            takeDamage(amount) {
+                this.lives -= amount;
+                if (this.lives <= 0) {
+                    this.lives = 0;
+                    this.active = false; 
+                    createExplosion(this.x, this.y, this.color);
+                    playSound('damage'); 
+                } else {
+                    playSound('damage');
+                }
+            }
+
+            heal(amount) {
+                if (!this.active) return;
+                this.lives += amount;
+                if (this.lives > this.maxLives) this.lives = this.maxLives;
+                playSound('heal');
+                createPopupText(this.x, this.y, "+1 ❤️", "#FF69B4");
+            }
+        }
+
+        class Bullet {
+            constructor(x, y, angle, ownerId, piercing = false) {
+                this.x = x; this.y = y;
+                this.radius = 5;
+                this.speed = 15;
+                this.vx = Math.cos(angle) * this.speed;
+                this.vy = Math.sin(angle) * this.speed;
+                this.ownerId = ownerId;
+                this.piercing = piercing;
+                this.hitEnemies = new Set(); 
+                
+                if (this.piercing) {
+                    this.color = '#00FFFF'; 
+                } else {
+                    this.color = this.ownerId === 1 ? '#ffff00' : '#ffcc00';
+                }
+            }
+            update() { this.x += this.vx; this.y += this.vy; }
+            draw() {
+                ctx.save();
+                // เพิ่ม Glow Effect ให้กระสุน
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = this.color;
+
+                ctx.fillStyle = this.color;
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fill();
+                
+                if (this.piercing) {
+                    ctx.fillStyle = 'rgba(0, 255, 255, 0.4)';
+                    ctx.beginPath(); ctx.arc(this.x - this.vx*0.5, this.y - this.vy*0.5, this.radius + 2, 0, Math.PI * 2); ctx.fill();
+                }
+                ctx.restore();
+            }
+        }
+
+        class Enemy {
+            constructor(isBoss = false) {
+                const edge = Math.floor(Math.random() * 4);
+                const buffer = isBoss ? 100 : 60; 
+                if (edge === 0) { this.x = Math.random() * canvas.width; this.y = -buffer; }
+                else if (edge === 1) { this.x = canvas.width + buffer; this.y = Math.random() * canvas.height; }
+                else if (edge === 2) { this.x = Math.random() * canvas.width; this.y = canvas.height + buffer; }
+                else { this.x = -buffer; this.y = Math.random() * canvas.height; }
+
+                this.isBoss = isBoss;
+
+                if (this.isBoss) {
+                    const pair = bossWords[Math.floor(Math.random() * bossWords.length)];
+                    this.correctWord = pair[0];
+                    this.wrongWord = pair[1];
+                    this.hint = pair[2] || `คำที่ถูกต้องคือ "${pair[0]}"`;
+                    this.word = this.wrongWord; 
+                    this.isWrong = true; 
+                    this.type = 'BOSS';
+                    this.color = '#8A2BE2'; 
+                    this.icon = '👿'; 
+                    this.radius = 65; 
+                    this.baseSpeed = 0.8; 
+                    this.hp = 15; 
+                    this.maxHp = 15;
+                } else {
+                    const pair = wordPairs[Math.floor(Math.random() * wordPairs.length)];
+                    this.correctWord = pair[0];
+                    this.wrongWord = pair[1];
+                    this.hint = pair[2] || `คำที่ถูกต้องคือ "${pair[0]}"`;
+                    
+                    this.isWrong = Math.random() > 0.4;
+                    if (this.isWrong) {
+                        this.word = this.wrongWord;
+                        this.type = 'ZOMBIE';
+                    } else {
+                        this.word = this.correctWord;
+                        this.type = 'CIVILIAN';
+                    }
+                    this.color = enemyColors[Math.floor(Math.random() * enemyColors.length)];
+                    this.icon = enemyFaces[Math.floor(Math.random() * enemyFaces.length)];
+                    this.radius = 30;
+                    this.baseSpeed = baseEnemySpeed; 
+                    this.hp = 1; 
+                    this.maxHp = 1;
+                }
+            }
+
+            update() {
+                if (isFrozen) {
+                    this.speed = 0;
+                } else {
+                    this.speed = this.baseSpeed * speedMultiplier;
+                }
+
+                let target = null;
+                let minDist = 99999;
+                
+                players.forEach(p => {
+                    if (p.active) { 
+                        const d = Math.hypot(p.x - this.x, p.y - this.y);
+                        if (d < minDist) {
+                            minDist = d;
+                            target = p;
+                        }
+                    }
+                });
+
+                if (target) {
+                    const angle = Math.atan2(target.y - this.y, target.x - this.x);
+                    this.x += Math.cos(angle) * this.speed;
+                    this.y += Math.sin(angle) * this.speed;
+                }
+            }
+
+            draw() {
+                ctx.save();
+                
+                // เพิ่ม Glow Effect ให้ศัตรู
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = this.color;
+
+                ctx.fillStyle = isFrozen ? '#87CEEB' : this.color;
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = '#fff'; ctx.lineWidth = this.isBoss ? 4 : 2; ctx.stroke();
+                
+                ctx.restore();
+
+                ctx.font = this.isBoss ? '70px Arial' : '35px Arial'; 
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(this.icon, this.x, this.y - (this.isBoss ? 10 : 5));
+
+                ctx.font = this.isBoss ? 'bold 24px Sarabun' : 'bold 20px Sarabun';
+                const textWidth = ctx.measureText(this.word).width;
+                ctx.fillStyle = 'rgba(0,0,0,0.7)';
+                const textY = this.y + (this.isBoss ? 35 : 18);
+                ctx.fillRect(this.x - textWidth/2 - 5, textY, textWidth + 10, this.isBoss ? 30 : 24);
+                ctx.fillStyle = '#fff';
+                ctx.fillText(this.word, this.x, textY + (this.isBoss ? 15 : 12));
+
+                if (isFrozen) {
+                    ctx.font = '20px Arial';
+                    ctx.fillText("❄️", this.x + this.radius, this.y - this.radius);
+                }
+
+                if (this.isBoss) {
+                    const barWidth = 80;
+                    const hpPercent = this.hp / this.maxHp;
+                    ctx.fillStyle = 'red';
+                    ctx.fillRect(this.x - barWidth/2, this.y - this.radius - 20, barWidth, 10);
+                    ctx.fillStyle = '#00FF00';
+                    ctx.fillRect(this.x - barWidth/2, this.y - this.radius - 20, barWidth * hpPercent, 10);
+                    ctx.strokeStyle = '#fff';
+                    ctx.strokeRect(this.x - barWidth/2, this.y - this.radius - 20, barWidth, 10);
+                }
+            }
+        }
+
+        class Item {
+            constructor(x, y, forcedType = null) {
+                this.x = x; this.y = y;
+                this.radius = 15;
+                this.timer = 600;
+                this.type = forcedType ? forcedType : 'HEALTH';
+
+                if (this.type === 'HEALTH') {
+                    this.color = '#FF69B4'; this.icon = '❤️';
+                } else if (this.type === 'FREEZE') {
+                    this.color = '#00FFFF'; this.icon = '❄️';
+                } else if (this.type === 'NUKE') {
+                    this.color = '#FF4500'; this.icon = '💣';
+                } else if (this.type === 'WEAPON_SHOTGUN') {
+                    this.color = '#FFA500'; this.icon = '💥';
+                } else if (this.type === 'WEAPON_MACHINEGUN') {
+                    this.color = '#FF1493'; this.icon = '🔥';
+                } else if (this.type === 'WEAPON_PIERCING') {
+                    this.color = '#ADFF2F'; this.icon = '⚡';
+                }
+            }
+            update() { this.timer--; }
+            draw() {
+                if (this.timer < 120 && Math.floor(Date.now() / 100) % 2 === 0) return;
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                
+                // เพิ่ม Glow Effect ให้ไอเทม
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = this.color;
+
+                ctx.beginPath();
+                ctx.arc(0, 0, this.radius + Math.sin(frameCount * 0.1) * 3, 0, Math.PI * 2);
+                ctx.fillStyle = this.color; ctx.fill();
+                ctx.lineWidth = 2; ctx.strokeStyle = 'white'; ctx.stroke();
+                ctx.font = '20px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillStyle = 'white'; ctx.fillText(this.icon, 0, 0);
+                ctx.restore();
+            }
+        }
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x; this.y = y; this.color = color;
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 5;
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed;
+                this.alpha = 1; this.decay = Math.random() * 0.05 + 0.02;
+            }
+            update() { this.x += this.vx; this.y += this.vy; this.alpha -= this.decay; }
+            draw() {
+                ctx.save(); ctx.globalAlpha = this.alpha; ctx.fillStyle = this.color;
+                // เพิ่ม Glow Effect ให้เอฟเฟกต์ระเบิด
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = this.color;
+                ctx.fillRect(this.x, this.y, 6, 6); 
+                ctx.restore();
+            }
+        }
+
+        // --- Class ใหม่สำหรับรอยหมึก (Ink Splatter) ---
+        class Splatter {
+            constructor(x, y, color) {
+                this.x = x; this.y = y; this.color = color;
+                this.alpha = 0.6;
+                this.spots = [];
+                for(let i=0; i<5; i++) {
+                    this.spots.push({
+                        offsetX: (Math.random() - 0.5) * 50,
+                        offsetY: (Math.random() - 0.5) * 50,
+                        radius: Math.random() * 12 + 5
+                    });
+                }
+            }
+            update() {
+                this.alpha -= 0.001; // ค่อยๆ จางหายไปทีละนิด
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.fillStyle = this.color;
+                for(let spot of this.spots) {
+                    ctx.beginPath();
+                    ctx.arc(this.x + spot.offsetX, this.y + spot.offsetY, spot.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.restore();
+            }
+        }
+
+        function startGame(numPlayers) {
+            playerCount = numPlayers;
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('learningScreen').style.display = 'none';
+            document.getElementById('p2Stats').style.display = (numPlayers === 2) ? 'block' : 'none';
+            gameState = 'PLAYING';
+            init();
+            
+            if (animationId) cancelAnimationFrame(animationId); 
+            gameLoop();
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (keys.hasOwnProperty(e.key)) keys[e.key] = true;
+            if (keys.hasOwnProperty(e.code)) keys[e.code] = true;
+            if (e.key === "ArrowUp") keys.ArrowUp = true;
+            if (e.key === "ArrowDown") keys.ArrowDown = true;
+            if (e.key === "ArrowLeft") keys.ArrowLeft = true;
+            if (e.key === "ArrowRight") keys.ArrowRight = true;
+            if (e.code === 'Space') { e.preventDefault(); keys.Space = true; }
+            if (e.key === "Enter") keys.Enter = true;
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (keys.hasOwnProperty(e.key)) keys[e.key] = false;
+            if (e.code === 'Space') keys.Space = false;
+            if (e.key === "ArrowUp") keys.ArrowUp = false;
+            if (e.key === "ArrowDown") keys.ArrowDown = false;
+            if (e.key === "ArrowLeft") keys.ArrowLeft = false;
+            if (e.key === "ArrowRight") keys.ArrowRight = false;
+            if (e.key === "Enter") keys.Enter = false;
+        });
+
+        window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+        window.addEventListener('mousedown', () => mouse.isDown = true);
+        window.addEventListener('mouseup', () => mouse.isDown = false);
+
+        function init() {
+            document.querySelectorAll('.floating-text').forEach(el => el.remove());
+            document.querySelectorAll('.speed-up-text').forEach(el => el.remove());
+            initAudio();
+
+            players = [];
+            players.push(new Player(1));
+            if (playerCount === 2) players.push(new Player(2));
+
+            bullets = [];
+            enemies = [];
+            particles = [];
+            items = [];
+            splatters = []; // เคลียร์รอยหมึกเมื่อเริ่มรอบใหม่
+            frameCount = 0;
+            
+            totalKillCount = 0;
+            nextBossThreshold = 20; 
+            
+            spawnRate = 120;
+            speedMultiplier = 1.0;
+            baseEnemySpeed = 1.5;
+            isFrozen = false;
+            
+            collectedVocabs = new Map(); 
+
+            document.body.style.backgroundColor = "#1a1a2e"; 
+            updateHUD();
+        }
+
+        function spawnBoss() {
+            playSound('boss_spawn'); 
+            
+            // หน้าจอสั่นอย่างรุนแรงเมื่อบอสเกิด
+            shakeScreen(20, 1000);
+
+            const div = document.createElement('div');
+            div.className = 'speed-up-text';
+            div.style.color = '#FF00FF';
+            div.style.textShadow = '0 0 20px #FF00FF';
+            div.innerText = "⚠️ บอสปรากฏตัว! ⚠️";
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 2500);
+            
+            document.body.style.backgroundColor = "#4A0E4E";
+            setTimeout(() => { if(gameState === 'PLAYING') document.body.style.backgroundColor = "#1a1a2e"; }, 2000);
+            setTimeout(() => { if(gameState === 'PLAYING') enemies.push(new Enemy(true)); }, 2000);
+        }
+
+        function checkDifficultyLevel() {
+            let bonus = 0;
+            if (totalKillCount >= 20) bonus += 0.1;
+            if (totalKillCount >= 40) bonus += 0.1;
+            if (totalKillCount >= 80) bonus += 0.1;
+            if (totalKillCount >= 160) bonus += 0.1;
+
+            let newMultiplier = 1.0 + bonus;
+            if (newMultiplier > speedMultiplier) {
+                speedMultiplier = newMultiplier;
+                const div = document.createElement('div');
+                div.className = 'speed-up-text';
+                div.innerText = "⚡ SPEED UP!";
+                document.body.appendChild(div);
+                setTimeout(() => div.remove(), 2000);
+                playSound('levelup');
+                if (spawnRate > 40) spawnRate -= 10;
+            }
+        }
+
+        function triggerItemEffect(type, player, x, y) {
+            if (type === 'HEALTH') {
+                player.heal(1);
+            } else if (type === 'WEAPON_SHOTGUN') {
+                playSound('powerup');
+                player.weaponType = 'WEAPON_SHOTGUN';
+                player.weaponTimer = 600; 
+                createPopupText(x, y, "💥 ปืนลูกซอง!", "#FFA500");
+            } else if (type === 'WEAPON_MACHINEGUN') {
+                playSound('powerup');
+                player.weaponType = 'WEAPON_MACHINEGUN';
+                player.weaponTimer = 600; 
+                createPopupText(x, y, "🔥 ปืนกล!", "#FF1493");
+            } else if (type === 'WEAPON_PIERCING') {
+                playSound('powerup');
+                player.weaponType = 'WEAPON_PIERCING';
+                player.weaponTimer = 600; 
+                createPopupText(x, y, "⚡ กระสุนทะลวง!", "#ADFF2F");
+            } else if (type === 'FREEZE') {
+                playSound('powerup');
+                isFrozen = true;
+                freezeTimer = 300;
+                createPopupText(x, y, "❄️ แช่แข็ง!", "#00FFFF");
+                document.body.style.backgroundColor = "#003366";
+                setTimeout(() => { if(!isFrozen) document.body.style.backgroundColor = "#1a1a2e"; }, 200);
+            } else if (type === 'NUKE') {
+                playSound('nuke');
+                let killThisNuke = 0;
+                
+                // หน้าจอสั่นสะเทือนเมื่อใช้ระเบิดนิวเคลียร์
+                shakeScreen(30, 800);
+
+                canvas.style.transform = `translate(${Math.random()*20-10}px, ${Math.random()*20-10}px)`;
+                setTimeout(()=>canvas.style.transform='none', 200);
+                document.body.style.backgroundColor = "#FF4500";
+                setTimeout(() => document.body.style.backgroundColor = "#1a1a2e", 100);
+
+                for (let i = enemies.length - 1; i >= 0; i--) {
+                    if (enemies[i].isWrong) {
+                        createExplosion(enemies[i].x, enemies[i].y, '#ff4444');
+                        splatters.push(new Splatter(enemies[i].x, enemies[i].y, '#ff4444')); // รอยหมึกจากการระเบิด
+
+                        if (enemies[i].isBoss) { player.score += 100; player.kills += 1; } 
+                        else { player.score += 10; player.kills++; }
+                        killThisNuke++;
+                        enemies.splice(i, 1);
+                    }
+                }
+                if (killThisNuke > 0) {
+                    totalKillCount += killThisNuke;
+                    checkDifficultyLevel();
+                }
+                createPopupText(x, y, `💣 BOOM! x${killThisNuke}`, "#FF4500");
+                updateHUD();
+            }
+        }
+
+        function gameLoop() {
+            if (gameState === 'PLAYING') {
+                const now = Date.now();
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)'; ctx.lineWidth = 1;
+                for(let x=0; x<canvas.width; x+=50) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke(); }
+                for(let y=0; y<canvas.height; y+=50) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke(); }
+
+                if (isFrozen) {
+                    freezeTimer--;
+                    ctx.fillStyle = "rgba(0, 255, 255, 0.1)";
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    if (freezeTimer <= 0) {
+                        isFrozen = false;
+                        document.body.style.backgroundColor = "#1a1a2e";
+                    }
+                }
+
+                // วาดรอยหมึกให้เลอะพื้นฉากหลัง (ก่อนวาดผู้เล่นและศัตรู)
+                for (let i = splatters.length - 1; i >= 0; i--) {
+                    splatters[i].update();
+                    splatters[i].draw();
+                    if (splatters[i].alpha <= 0) splatters.splice(i, 1);
+                }
+
+                players.forEach(p => { p.update(); p.draw(); });
+
+                if ((keys.Space || mouse.isDown) && players[0] && players[0].active) { players[0].shoot(now); }
+                if (keys.Enter && playerCount === 2 && players[1] && players[1].active) { players[1].shoot(now); }
+
+                frameCount++;
+                if (!isFrozen && frameCount % Math.floor(spawnRate) === 0) { enemies.push(new Enemy()); }
+
+                for (let i = items.length - 1; i >= 0; i--) {
+                    items[i].update(); items[i].draw();
+                    if (items[i].timer <= 0) { items.splice(i, 1); continue; }
+                    let itemPickedUp = false;
+                    for (let p of players) {
+                        if (p.active) {
+                            if (!items[i]) break;
+                            const dist = Math.hypot(p.x - items[i].x, p.y - items[i].y);
+                            if (dist < p.radius + items[i].radius) {
+                                triggerItemEffect(items[i].type, p, items[i].x, items[i].y);
+                                items.splice(i, 1);
+                                itemPickedUp = true;
+                                break; 
+                            }
+                        }
+                    }
+                    if (itemPickedUp) continue; 
+                }
+
+                for (let i = bullets.length - 1; i >= 0; i--) {
+                    bullets[i].update(); bullets[i].draw();
+                    if (bullets[i].x < 0 || bullets[i].x > canvas.width || bullets[i].y < 0 || bullets[i].y > canvas.height) {
+                        bullets.splice(i, 1);
+                    }
+                }
+
+                for (let i = enemies.length - 1; i >= 0; i--) {
+                    const e = enemies[i];
+                    e.update(); e.draw();
+
+                    let enemyDead = false;
+                    
+                    for (let j = bullets.length - 1; j >= 0; j--) {
+                        const b = bullets[j];
+                        if (Math.hypot(b.x - e.x, b.y - e.y) < e.radius + b.radius) {
+                            
+                            if (b.hitEnemies.has(e)) continue; 
+
+                            e.hp--;
+                            
+                            if (b.piercing) {
+                                b.hitEnemies.add(e); 
+                            } else {
+                                bullets.splice(j, 1); 
+                            }
+
+                            if (e.hp > 0) {
+                                createExplosion(b.x, b.y, '#ffff00');
+                                playSound('hit_boss');
+                                enemyDead = false;
+                            } else {
+                                createExplosion(e.x, e.y, e.color);
+                                splatters.push(new Splatter(e.x, e.y, e.color)); // สร้างรอยหมึกเมื่อศัตรูตาย
+                                
+                                if (e.isWrong) {
+                                    recordVocab(e);
+
+                                    let shooter = players.find(p => p.id === b.ownerId);
+                                    if (shooter) {
+                                        shooter.score += e.isBoss ? 100 : 10;
+                                        shooter.kills++;
+                                    }
+                                    
+                                    if (e.isBoss) {
+                                        createPopupText(e.x, e.y, "+100 BOSS KILL!", "#FFD700");
+                                        playSound('levelup');
+                                        items.push(new Item(e.x - 20, e.y, 'HEALTH'));
+                                        const pType = Math.random() < 0.5 ? 'FREEZE' : 'NUKE';
+                                        items.push(new Item(e.x + 20, e.y, pType));
+                                        
+                                        const wTypes = ['WEAPON_SHOTGUN', 'WEAPON_MACHINEGUN', 'WEAPON_PIERCING'];
+                                        items.push(new Item(e.x, e.y + 20, wTypes[Math.floor(Math.random() * wTypes.length)]));
+
+                                    } else {
+                                        createPopupText(e.x, e.y, "+10", "#ffff00");
+                                        playSound('hit_correct');
+                                        speakWord(e.correctWord); 
+
+                                        const chance = Math.random();
+                                        if (chance < 0.05) items.push(new Item(e.x, e.y, 'HEALTH'));
+                                        else if (chance < 0.15) items.push(new Item(e.x, e.y, Math.random() < 0.5 ? 'FREEZE' : 'NUKE'));
+                                        else if (chance < 0.30) {
+                                            const wTypes = ['WEAPON_SHOTGUN', 'WEAPON_MACHINEGUN', 'WEAPON_PIERCING'];
+                                            items.push(new Item(e.x, e.y, wTypes[Math.floor(Math.random() * wTypes.length)]));
+                                        }
+                                    }
+
+                                    totalKillCount++;
+                                    if (totalKillCount === nextBossThreshold) {
+                                        spawnBoss();
+                                        nextBossThreshold += 20; 
+                                    }
+                                    checkDifficultyLevel();
+
+                                } else {
+                                    let shooter = players.find(p => p.id === b.ownerId);
+                                    if (shooter && shooter.active) {
+                                        shooter.takeDamage(1);
+                                        createPopupText(e.x, e.y, "อย่ายิงคนดี!", "#ff4444");
+                                    }
+                                    shakeScreen(15, 150); // สั่นหน้าจอเมื่อยิงผิด
+                                    playSound('hit_wrong');
+                                }
+                                enemyDead = true;
+                            }
+                            break;
+                        }
+                    }
+
+                    if (enemyDead) {
+                        enemies.splice(i, 1);
+                        updateHUD();
+                        continue;
+                    }
+
+                    for (let p of players) {
+                        if (p.active) {
+                            if (Math.hypot(p.x - e.x, p.y - e.y) < p.radius + e.radius) {
+                                createExplosion(e.x, e.y, e.color);
+                                enemies.splice(i, 1);
+
+                                if (e.isWrong) {
+                                    let dmg = e.isBoss ? 3 : 1;
+                                    p.takeDamage(dmg); 
+                                    createPopupText(p.x, p.y, `-${dmg} ใจ`, "#ff4444");
+                                    shakeScreen(20, 200); // สั่นหน้าจอเมื่อถูกชน
+                                } else {
+                                    p.score += 5;
+                                    createPopupText(p.x, p.y, "+5 ช่วยสำเร็จ", "#4CAF50");
+                                    playSound('hit_correct');
+                                    speakWord(e.correctWord);
+                                }
+                                updateHUD();
+                                break; 
+                            }
+                        }
+                    }
+                }
+
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    particles[i].update(); particles[i].draw();
+                    if (particles[i].alpha <= 0) particles.splice(i, 1);
+                }
+
+                if (players.every(p => !p.active)) {
+                    gameOver();
+                } else {
+                    updateHUD(); 
+                }
+            }
+            animationId = requestAnimationFrame(gameLoop);
+        }
+
+        function createExplosion(x, y, color) {
+            for (let i = 0; i < 15; i++) particles.push(new Particle(x, y, color));
+        }
+
+        function createPopupText(x, y, text, color) {
+            const div = document.createElement('div');
+            div.className = 'floating-text';
+            div.innerText = text;
+            div.style.left = x + 'px';
+            div.style.top = y + 'px';
+            div.style.color = color;
+            document.getElementById('ui-layer').appendChild(div);
+            setTimeout(() => div.remove(), 1000);
+        }
+
+        // ปรับปรุงฟังก์ชันการสั่นหน้าจอ (Screen Shake) แบบต่อเนื่องและเนียนขึ้น
+        function shakeScreen(intensity = 5, duration = 100) {
+            const startTime = Date.now();
+            function shake() {
+                const elapsed = Date.now() - startTime;
+                if (elapsed < duration) {
+                    const dx = (Math.random() * 2 - 1) * intensity;
+                    const dy = (Math.random() * 2 - 1) * intensity;
+                    canvas.style.transform = `translate(${dx}px, ${dy}px)`;
+                    requestAnimationFrame(shake);
+                } else {
+                    canvas.style.transform = 'none';
+                }
+            }
+            shake();
+        }
+
+        function updateHUD() {
+            if (!players[0]) return;
+            document.getElementById('p1ScoreVal').innerText = players[0].score;
+            document.getElementById('p1KillVal').innerText = players[0].kills;
+            document.getElementById('p1HealthVal').innerText = players[0].active ? "❤️".repeat(players[0].lives) : "💀 หมดสภาพ";
+
+            if (playerCount === 2 && players[1]) {
+                document.getElementById('p2ScoreVal').innerText = players[1].score;
+                document.getElementById('p2KillVal').innerText = players[1].kills;
+                document.getElementById('p2HealthVal').innerText = players[1].active ? "❤️".repeat(players[1].lives) : "💀 หมดสภาพ";
+            }
+        }
+
+        function gameOver() {
+            gameState = 'GAMEOVER';
+            playSound('gameover');
+            document.getElementById('gameOverScreen').style.display = 'flex';
+            
+            let totalScore = players[0].score + (players[1] ? players[1].score : 0);
+
+            document.getElementById('finalScore').innerText = totalScore;
+            document.getElementById('finalKills').innerText = totalKillCount;
+
+            sendGameEnd(totalScore, 'normal', { kills: totalKillCount, players: playerCount });
+            
+            if (playerCount === 2) {
+                document.getElementById('p2GameOverStats').style.display = 'block';
+                document.getElementById('p1FinalScore').innerText = players[0].score;
+                document.getElementById('p1FinalKills').innerText = players[0].kills;
+                document.getElementById('p2FinalScore').innerText = players[1].score;
+                document.getElementById('p2FinalKills').innerText = players[1].kills;
+            } else {
+                document.getElementById('p2GameOverStats').style.display = 'none';
+            }
+
+            let rank = totalScore < 200 ? "มือปราบฝึกหัด" : totalScore < 500 ? "มือปราบชั้นยอด" : "ตำนานราชบัณฑิต!";
+            document.getElementById('rankText').innerText = "ระดับ: " + rank;
+
+            const dictDiv = document.getElementById('postGameDict');
+
+            if (collectedVocabs.size === 0) {
+                dictDiv.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: #4CAF50; font-size: 20px; padding: 20px;">
+                                        คุณยังไม่ได้กำจัดศัตรูที่ถือคำผิดเลย!
+                                     </div>`;
+            } else {
+                let htmlStr = "";
+                collectedVocabs.forEach((data) => {
+                    htmlStr += `
+                    <div class="dict-item">
+                        <div class="dict-mistake">❌ คำที่ผิด: ${data.wrongWord}</div>
+                        <div class="dict-correct">
+                            <span>✅ คำที่ถูกต้อง: ${data.correctWord}</span>
+                            <button class="tts-btn" onclick="speakWord('${data.correctWord}')">🔊 ฟังเสียง</button>
+                        </div>
+                        <div class="dict-hint">💡 เกร็ดความรู้: ${data.hint}</div>
+                    </div>`;
+                });
+                dictDiv.innerHTML = htmlStr;
+            }
+        }
+
+        function restartGame() {
+            document.getElementById('gameOverScreen').style.display = 'none';
+            document.getElementById('startScreen').style.display = 'flex'; 
+        }
+    </script>
+</body>
+</html>

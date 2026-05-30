@@ -72,6 +72,20 @@
 
 ---
 
+## 🏆 ตารางอันดับในจอแรก (drop-in — เกม legacy/vanilla)
+
+เกมที่ไม่ได้ใช้ SDK (อ่าน init เอง) เพิ่มตารางอันดับในจอ title ได้ด้วย **2 บรรทัด** —
+ไม่ต้องเขียน render เอง / ไม่ฝัง anon key (อ่าน `leaderboard` จาก init ที่ wrapper ส่งให้):
+
+```html
+<script src="/games/kampai-leaderboard.js"></script>
+<div data-kampai-lb></div>   <!-- วางในจอ title (หรือ game-over) มีได้หลายจุด -->
+```
+
+- ไม่มีข้อมูล (เล่นนอกระบบ) → ซ่อน container อัตโนมัติ · inject style เอง (white card + gold)
+- เกม React (Babel) ที่คุม DOM เอง → อย่าใช้ drop-in นี้ (React จะ overwrite) ให้ทำ panel จาก
+  `e.data.leaderboard` ใน state แทน (ดูตัวอย่าง `thai/wizard-thai.html`, `math/mth.html`)
+
 ## 🔌 EMBED Block (legacy — manual, ไม่ใช้ SDK)
 
 วาง **ต้นสุดของ `<script>` tag หลัก** ก่อนตัวแปรอื่นทั้งหมด:
