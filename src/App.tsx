@@ -89,6 +89,7 @@ const SurveyResponse = lazyWithRetry(() => import("./pages/SurveyResponse"));
 const InstallBanner = lazyWithRetry(() => import("./components/pwa/InstallBanner").then(m => ({ default: m.InstallBanner })));
 const OfflineIndicator = lazyWithRetry(() => import("./components/shared/OfflineIndicator").then(m => ({ default: m.OfflineIndicator })));
 const PushPermissionBanner = lazyWithRetry(() => import("./components/shared/PushPermissionBanner").then(m => ({ default: m.PushPermissionBanner })));
+const PWAUpdatePrompt = lazyWithRetry(() => import("./components/shared/PWAUpdatePrompt").then(m => ({ default: m.PWAUpdatePrompt })));
 const OfflineQueueIndicator = lazyWithRetry(() => import("./components/shared/OfflineQueueIndicator").then(m => ({ default: m.OfflineQueueIndicator })));
 const CommandPalette = lazyWithRetry(() => import("./components/shared/CommandPalette").then(m => ({ default: m.CommandPalette })));
 
@@ -135,6 +136,7 @@ const App = () => (
         <OfflineIndicator />
         <PushPermissionBanner />
         <OfflineQueueIndicator />
+        <PWAUpdatePrompt />
       </Suspense>
       <ErrorBoundary>
       <BrowserRouter>

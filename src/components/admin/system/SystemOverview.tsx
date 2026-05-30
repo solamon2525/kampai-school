@@ -272,8 +272,20 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.40.3 (ธนาคารพอเพียง — ปุ่มเลือกจำนวนเงินด่วน)',
+        version: 'v1.40.4 (สแกน QR + ระบบอัปเดต PWA)',
         date: 'ล่าสุด',
+        badge: 'bg-indigo-600',
+        items: [
+            'แก้ "ไม่สามารถเปิดกล้องได้" จริง ๆ คือ PWA บนมือถือจำ cache โค้ดเก่าค้าง (โค้ดสแกนเวอร์ชันใหม่ขึ้น production แล้ว แต่เครื่องไม่โหลด)',
+            'เพิ่ม PWAUpdatePrompt: registerType=prompt + sw.ts message-driven skipWaiting → มีเวอร์ชันใหม่ขึ้นแถบ "อัปเดต" แตะแล้วรีโหลด (deploy ใหม่ถึงมือถืออัตโนมัติ ไม่ต้อง reset_sw)',
+            'อัปเกรดกล้อง: helper กลาง src/lib/qrCamera.ts — startRearScanner ลองกล้องหลังก่อน ถ้า facingMode ล้มเหลว fallback ไป getCameras() เลือก deviceId',
+            'รวมโค้ดซ้ำ: describeCameraError + start logic เข้า qrCamera.ts (StudentQRScanner + ClaimQRScanner ใช้ร่วม) + ลบ orphan QRScannerDialog.tsx',
+            'Recovery ทันที (เครื่องที่ค้างอยู่ก่อน): เปิด ?reset_sw=1 1 ครั้งเพื่อรับโค้ดที่มีแถบอัปเดต',
+        ],
+    },
+    {
+        version: 'v1.40.3 (ธนาคารพอเพียง — ปุ่มเลือกจำนวนเงินด่วน)',
+        date: '',
         badge: 'bg-amber-600',
         items: [
             'เพิ่มปุ่มเลือกด่วน 5/10/20/50/100 บาท ใต้ช่องจำนวนเงิน — กดแทนค่า (set) ลดเวลากรอกช่วงนักเรียนต่อแถว',

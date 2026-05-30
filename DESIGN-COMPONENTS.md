@@ -290,6 +290,21 @@ import FacebookFeedSection from '@/components/home/sections/FacebookFeedSection'
 
 ---
 
+### PWAUpdatePrompt (shared — global)
+
+Mount ใน `App.tsx` ระดับ root (กลุ่ม global banner). แสดงแถบล่างเมื่อ service worker ตัวใหม่พร้อม
+(`needRefresh`) — แตะ "อัปเดต" → `updateServiceWorker(true)` (post `SKIP_WAITING` ให้ `sw.ts` + reload).
+ต้องคู่กับ `registerType: 'prompt'` ใน `vite.config.ts` + sw.ts handle message `SKIP_WAITING`.
+
+```tsx
+import { PWAUpdatePrompt } from '@/components/shared/PWAUpdatePrompt';
+<PWAUpdatePrompt />  // self-managing (useRegisterSW)
+```
+
+ไม่รีโหลดเองเงียบ ๆ — ผู้ใช้กดเองกันงานที่กรอกค้างหาย. Recovery เครื่องที่ค้าง cache เก่า: `?reset_sw=1`.
+
+---
+
 ### PushPermissionBanner (shared — global)
 
 Mount ใน `App.tsx` ระดับ root. แสดงเฉพาะเมื่อ login + permission default + ไม่ได้กดไว้ก่อนใน 7 วันที่ผ่านมา

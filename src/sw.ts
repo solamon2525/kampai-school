@@ -103,6 +103,11 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-// Skip waiting on install so updates roll out promptly
-self.addEventListener('install', () => self.skipWaiting());
+// Update delivery: prompt model — SW ใหม่ "waiting" จนกว่าผู้ใช้กดอัปเดต (PWAUpdatePrompt)
+// ซึ่ง post { type: 'SKIP_WAITING' } เข้ามา → activate + reload (ไม่ขัดจังหวะงานที่ค้างอยู่)
+self.addEventListener('message', (event) => {
+  if ((event.data as { type?: string } | undefined)?.type === 'SKIP_WAITING') {
+    void self.skipWaiting();
+  }
+});
 self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()));

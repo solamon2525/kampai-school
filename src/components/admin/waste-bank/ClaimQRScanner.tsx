@@ -6,21 +6,7 @@ import { Check, X, RotateCcw, Loader2, Camera, AlertCircle, Gift } from 'lucide-
 import { rewardClaimsService, type RewardClaim } from '@/services/waste-bank.service';
 import { useAuth } from '@/contexts/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
-
-function describeCameraError(err: unknown): string {
-  const raw = err instanceof Error ? err.message : typeof err === 'string' ? err : JSON.stringify(err);
-  const lower = raw.toLowerCase();
-  if (lower.includes('permission') || lower.includes('notallowed') || lower.includes('denied')) {
-    return 'เบราว์เซอร์ไม่อนุญาตให้ใช้กล้อง — ตรวจสอบการตั้งค่า permission แล้วลองใหม่';
-  }
-  if (lower.includes('notfound') || lower.includes('devicesnotfound') || lower.includes('no camera')) {
-    return 'ไม่พบกล้องบนอุปกรณ์นี้';
-  }
-  if (lower.includes('notreadable') || lower.includes('in use') || lower.includes('trackstart')) {
-    return 'กล้องถูกใช้งานโดยแอปอื่น — ปิดแอปกล้อง/วิดีโอคอลแล้วลองใหม่';
-  }
-  return `เปิดกล้องไม่สำเร็จ: ${raw}`;
-}
+import { describeCameraError, startRearScanner } from '@/lib/qrCamera';
 
 interface Props {
   open: boolean;
@@ -83,36 +69,31 @@ export const ClaimQRScanner = ({ open, onClose, onAction }: Props) => {
     try {
       const html5 = new Html5Qrcode(elementId);
       scannerRef.current = html5;
-      await html5.start(
-        { facingMode: 'environment' },
-        { fps: 10, qrbox: { width: 240, height: 240 } },
-        async (decoded) => {
-          if (scannerRef.current && scannerRef.current.isScanning) {
-            try {
-              await scannerRef.current.stop();
-            } catch {}
-          }
-          
-          // Parse claim format: kampai-claim:{uuid}
-          const match = decoded.match(/kampai-claim:([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
-          const claimId = match ? match[1] : decoded;
+      await startRearScanner(html5, async (decoded) => {
+        if (scannerRef.current && scannerRef.current.isScanning) {
+          try {
+            await scannerRef.current.stop();
+          } catch {}
+        }
 
-          playFeedback();
-          setFetching(true);
-          const { data, error: fetchErr } = await rewardClaimsService.getById(claimId);
-          setFetching(false);
-          if (fetchErr || !data) {
-            setError('ไม่พบข้อมูลคำขอแลกรางวัลนี้ในระบบ');
-            return;
-          }
-          if (data.status !== 'pending') {
-            setError(`คำขอนี้ถูกดำเนินการไปแล้ว (สถานะปัจจุบัน: ${data.status === 'approved' ? 'อนุมัติแล้ว' : 'ปฏิเสธ'})`);
-            return;
-          }
-          setClaim(data as RewardClaim);
-        },
-        () => {}
-      );
+        // Parse claim format: kampai-claim:{uuid}
+        const match = decoded.match(/kampai-claim:([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
+        const claimId = match ? match[1] : decoded;
+
+        playFeedback();
+        setFetching(true);
+        const { data, error: fetchErr } = await rewardClaimsService.getById(claimId);
+        setFetching(false);
+        if (fetchErr || !data) {
+          setError('ไม่พบข้อมูลคำขอแลกรางวัลนี้ในระบบ');
+          return;
+        }
+        if (data.status !== 'pending') {
+          setError(`คำขอนี้ถูกดำเนินการไปแล้ว (สถานะปัจจุบัน: ${data.status === 'approved' ? 'อนุมัติแล้ว' : 'ปฏิเสธ'})`);
+          return;
+        }
+        setClaim(data as RewardClaim);
+      });
     } catch (err) {
       console.error('[ClaimQRScanner] camera error:', err);
       setError(describeCameraError(err));

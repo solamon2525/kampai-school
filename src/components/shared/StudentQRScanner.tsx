@@ -5,28 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Check, RotateCcw, Loader2, Camera, AlertCircle } from 'lucide-react';
 import { studentsService } from '@/services/students.service';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
-
-/** ตีความ error จาก html5-qrcode/getUserMedia เป็นข้อความภาษาไทย */
-function describeCameraError(err: unknown): string {
-    const raw = err instanceof Error ? err.message : typeof err === 'string' ? err : JSON.stringify(err);
-    const lower = raw.toLowerCase();
-    if (lower.includes('permission') || lower.includes('notallowed') || lower.includes('denied')) {
-        return 'เบราว์เซอร์ไม่อนุญาตให้ใช้กล้อง — ตรวจสอบการตั้งค่า permission แล้วลองใหม่ (ดูวิธีด้านล่าง)';
-    }
-    if (lower.includes('notfound') || lower.includes('devicesnotfound') || lower.includes('no camera')) {
-        return 'ไม่พบกล้องบนอุปกรณ์นี้';
-    }
-    if (lower.includes('notreadable') || lower.includes('in use') || lower.includes('trackstart')) {
-        return 'กล้องถูกใช้งานโดยแอปอื่น — ปิดแอปกล้อง/วิดีโอคอลแล้วลองใหม่';
-    }
-    if (lower.includes('overconstrained')) {
-        return 'กล้องไม่รองรับการตั้งค่าที่ขอ — ลองสลับเป็นกล้องหน้าหรือเบราว์เซอร์อื่น';
-    }
-    if (lower.includes('secure') || lower.includes('https')) {
-        return 'ต้องเปิดผ่าน HTTPS เท่านั้น (ไม่ใช่ http://)';
-    }
-    return `เปิดกล้องไม่สำเร็จ: ${raw}`;
-}
+import { describeCameraError, startRearScanner } from '@/lib/qrCamera';
 
 interface Props {
     open: boolean;
@@ -109,37 +88,32 @@ export const StudentQRScanner = ({ open, onClose, onScanned }: Props) => {
         try {
             const html5 = new Html5Qrcode(elementId);
             scannerRef.current = html5;
-            await html5.start(
-                { facingMode: 'environment' },
-                { fps: 10, qrbox: { width: 240, height: 240 } },
-                async (decoded) => {
-                    // หยุด scanner ทันทีกัน decode ซ้ำ
-                    if (scannerRef.current && scannerRef.current.isScanning) {
-                        try {
-                            await scannerRef.current.stop();
-                        } catch {/* ignore */}
-                    }
-                    const match = decoded.match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
-                    const studentId = match ? match[1] : decoded;
-                    playFeedback();
-                    setFetching(true);
-                    const { data, error: fetchErr } = await studentsService.getById(studentId);
-                    setFetching(false);
-                    if (fetchErr || !data) {
-                        setError('ไม่พบนักเรียน — QR ไม่ถูกต้องหรือนักเรียนถูกลบ');
-                        return;
-                    }
-                    setPreview({
-                        id: data.id,
-                        name: data.name,
-                        class: data.class,
-                        class_number: data.class_number,
-                        student_code: data.student_code,
-                        photo_url: data.photo_url,
-                    });
-                },
-                () => {/* ignore decode errors */},
-            );
+            await startRearScanner(html5, async (decoded) => {
+                // หยุด scanner ทันทีกัน decode ซ้ำ
+                if (scannerRef.current && scannerRef.current.isScanning) {
+                    try {
+                        await scannerRef.current.stop();
+                    } catch {/* ignore */}
+                }
+                const match = decoded.match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
+                const studentId = match ? match[1] : decoded;
+                playFeedback();
+                setFetching(true);
+                const { data, error: fetchErr } = await studentsService.getById(studentId);
+                setFetching(false);
+                if (fetchErr || !data) {
+                    setError('ไม่พบนักเรียน — QR ไม่ถูกต้องหรือนักเรียนถูกลบ');
+                    return;
+                }
+                setPreview({
+                    id: data.id,
+                    name: data.name,
+                    class: data.class,
+                    class_number: data.class_number,
+                    student_code: data.student_code,
+                    photo_url: data.photo_url,
+                });
+            });
         } catch (err) {
             console.error('[StudentQRScanner] camera error:', err);
             setError(describeCameraError(err));
