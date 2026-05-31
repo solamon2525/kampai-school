@@ -16,6 +16,7 @@ import {
   CheckCircle2,
   AlertCircle,
   UserCheck,
+  Divide,
 } from 'lucide-react';
 import {
   BarChart,
@@ -291,6 +292,40 @@ export default function TeacherGameAnalytics({ staffId }: { staffId: string }) {
     }));
   }, [studentStatsList]);
 
+  // C3: รวม miss_log จาก metadata ทุก session → เศษส่วนที่นักเรียนพลาดบ่อย
+  const fractionDiagnostic = useMemo(() => {
+    const sessions = sessionsQuery.data ?? [];
+    const reduceFrac = (key: string) => {
+      const parts = String(key).split('/').map(Number);
+      const n = parts[0], d = parts[1];
+      if (!n || !d) return key;
+      const gcd = (a: number, b: number): number => (b ? gcd(b, a % b) : a);
+      const k = gcd(n, d) || 1;
+      return `${n / k}/${d / k}`;
+    };
+    const missByFrac = new Map<string, { misses: number; students: Set<string> }>();
+    const gradeBands = { lower: 0, upper: 0 };
+    sessions.forEach((s: any) => {
+      const meta = (s.metadata ?? {}) as Record<string, unknown>;
+      if (meta.grade_band === 'lower') gradeBands.lower += 1;
+      else if (meta.grade_band === 'upper') gradeBands.upper += 1;
+      const ml = meta.miss_log;
+      if (ml && typeof ml === 'object') {
+        Object.entries(ml as Record<string, number>).forEach(([k, cnt]) => {
+          const f = reduceFrac(k);
+          const e = missByFrac.get(f) ?? { misses: 0, students: new Set<string>() };
+          e.misses += Number(cnt) || 0;
+          if (s.student_id) e.students.add(s.student_id);
+          missByFrac.set(f, e);
+        });
+      }
+    });
+    const rows = Array.from(missByFrac.entries())
+      .map(([frac, e]) => ({ frac, misses: e.misses, students: e.students.size }))
+      .sort((a, b) => b.misses - a.misses);
+    return { rows, gradeBands, hasData: rows.length > 0 };
+  }, [sessionsQuery.data]);
+
   // Score Calculator Helper
   const calculateGradeScore = (entry: typeof studentStatsList[0]) => {
     const rawScore = syncTarget === 'best' ? entry.bestScore : entry.latestScore;
@@ -536,7 +571,7 @@ export default function TeacherGameAnalytics({ staffId }: { staffId: string }) {
 
       {/* Main Tabs */}
       <Tabs defaultValue="grading" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 max-w-md">
+        <TabsList className="grid w-full grid-cols-3 max-w-2xl">
           <TabsTrigger value="grading" className="gap-2">
             <UserCheck className="h-4 w-4" />
             สมุดโอนเกรดอัจฉริยะ
@@ -544,6 +579,10 @@ export default function TeacherGameAnalytics({ staffId }: { staffId: string }) {
           <TabsTrigger value="charts" className="gap-2">
             <Sparkles className="h-4 w-4" />
             วิเคราะห์สถิติและการแจกแจง
+          </TabsTrigger>
+          <TabsTrigger value="fractions" className="gap-2">
+            <Divide className="h-4 w-4" />
+            วิเคราะห์เศษส่วน
           </TabsTrigger>
         </TabsList>
 
@@ -884,6 +923,69 @@ export default function TeacherGameAnalytics({ staffId }: { staffId: string }) {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        {/* ────────── Tab 3: Fraction Diagnostic (C3) ────────── */}
+        <TabsContent value="fractions" className="space-y-6 mt-4">
+          <Card className="border border-border bg-card/60 backdrop-blur-md">
+            <CardHeader className="py-4 px-6 border-b border-border">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Divide className="h-4.5 w-4.5 text-rose-500" />
+                เศษส่วนที่นักเรียนตอบผิดบ่อย (จุดที่ควรเน้นสอน)
+              </CardTitle>
+              <CardDescription>
+                รวมจากการเล่นจริงของชั้น {selectedClass} · เศษส่วนแสดงแบบลดรูป · ยิ่งสูง = ยิ่งควรทบทวน
+                {fractionDiagnostic.gradeBands.lower + fractionDiagnostic.gradeBands.upper > 0 && (
+                  <span className="ml-1">(เล่นระดับ ป.1-3: {fractionDiagnostic.gradeBands.lower} · ป.4-6: {fractionDiagnostic.gradeBands.upper} รอบ)</span>
+                )}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-6">
+              {!fractionDiagnostic.hasData ? (
+                <div className="py-16 text-center text-muted-foreground text-sm flex flex-col items-center gap-2">
+                  <AlertCircle className="h-8 w-8 opacity-40" />
+                  <span>ยังไม่มีข้อมูล — ข้อมูลจะปรากฏเมื่อนักเรียนเล่นเกมเศษส่วน (เช่น Pizza Master Chef) แล้วตอบผิด</span>
+                </div>
+              ) : (
+                <div className="grid gap-6 lg:grid-cols-2">
+                  <div className="h-80">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={fractionDiagnostic.rows.slice(0, 10)} layout="vertical" margin={{ left: 8 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                        <XAxis type="number" allowDecimals={false} stroke="hsl(var(--muted-foreground))" tick={{ fontSize: 11 }} />
+                        <YAxis type="category" dataKey="frac" width={48} stroke="hsl(var(--muted-foreground))" tick={{ fontSize: 13, fontWeight: 700 }} />
+                        <Tooltip
+                          contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '0.75rem' }}
+                          formatter={(v: number) => [`${v} ครั้ง`, 'พลาด']}
+                        />
+                        <Bar dataKey="misses" name="จำนวนครั้งที่พลาด" fill="hsl(var(--destructive))" radius={[0, 6, 6, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="rounded-lg border border-border overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-muted/30">
+                          <TableHead>เศษส่วน</TableHead>
+                          <TableHead className="text-right">พลาด (ครั้ง)</TableHead>
+                          <TableHead className="text-right">นักเรียนที่พลาด</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {fractionDiagnostic.rows.slice(0, 12).map((r) => (
+                          <TableRow key={r.frac} className="hover:bg-muted/20">
+                            <TableCell className="font-bold text-base">{r.frac}</TableCell>
+                            <TableCell className="text-right font-semibold text-destructive">{r.misses}</TableCell>
+                            <TableCell className="text-right text-muted-foreground">{r.students} คน</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
 
