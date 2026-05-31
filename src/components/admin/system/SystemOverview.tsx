@@ -272,8 +272,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.42.2 (เล่นเกมเต็มจอ — ปุ่ม Fullscreen + ขยายเต็มพื้นที่ ทุกเกม)',
+        version: 'v1.42.3 (ตรวจสุขภาพเกมทั้งระบบ + verify:game Check 8 กันบั๊กซ้ำ)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'ตรวจ 12 เกม active (headless render/style smoke): ไม่มีจอเปล่า, Tailwind ขึ้นครบ, 0 console error — ระบบสุขภาพดี (detective คือตัวเดียวที่เคยพังและแก้แล้ว)',
+            'verify:game Check 8 (ใหม่): จับไอคอน/ตัวแปรชื่อชน JS global (Map/Image/Set/Promise/Text/History...) ที่ทำ Tailwind Play CDN ล่ม → fail ก่อน commit (negative test จับ Map+Image ได้)',
+            'GAME-PROMPT.md: เพิ่มข้อห้ามตั้งชื่อทับ global + ย้ำ responsive มือถือ (~360px ไม่ล้น, ปุ่ม ≥44px, ไม่ต้องเลื่อนหาปุ่ม) + ทดสอบ browser จริง',
+            '_template-react.html: คอมเมนต์เตือน global-shadow ที่ SECTION B + GAME.md อัปเดตเป็น 8 checks',
+        ],
+    },
+    {
+        version: 'v1.42.2 (เล่นเกมเต็มจอ — ปุ่ม Fullscreen + ขยายเต็มพื้นที่ ทุกเกม)',
+        date: '',
         badge: 'bg-purple-600',
         items: [
             'PlayGame wrapper: ตอนเล่น หน้าเป็น flex เต็ม viewport (h-100dvh) → iframe เต็มความกว้าง + สูงเท่าที่เหลือจาก header (เดิม max-w-5xl + h-80vh ทำให้ต้องสกอลหน้า/หาปุ่ม)',

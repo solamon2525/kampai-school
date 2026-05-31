@@ -68,6 +68,10 @@ const _mkIcon = (name) => (p = {}) => {
   }, paths.map((c, i) => React.createElement(c[0], { key: i, ...c[1] })));
 };
 // destructure เฉพาะไอคอนที่เกมใช้ (เพิ่ม/ลบได้ตามต้องการ)
+// ⚠️ ห้ามตั้งชื่อ binding ทับ JS global! ไอคอน lucide บางตัวชื่อชน global
+//    (Map, Image, History, Text, Set, Date, Event, Promise...) → const Map=... จะทับ global Map
+//    ใน scope ที่ทุก <script> แชร์ → Tailwind Play CDN เรียก new Map().set() พัง → จอเบี้ยวไม่มี CSS.
+//    ใช้ชื่อเลี่ยง เช่น  const MapIcon = _mkIcon('Map')  (verify:game Check 8 จับให้)
 const Sparkles = _mkIcon('Sparkles'), Play = _mkIcon('Play'), Trophy = _mkIcon('Trophy'),
   Home = _mkIcon('Home');
 

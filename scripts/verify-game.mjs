@@ -196,6 +196,38 @@ if (isReactGame || usesSdk) {
     console.log(`${WARN} Check 7 — render: ข้าม (เกม vanilla เก่า ไม่ใช่ SDK — ต้องทดสอบ browser เอง)`);
 }
 
+// ─── Check 8: icon binding ชื่อชน JS global → ทำ Tailwind Play CDN ล่ม (จอเบี้ยว ไม่มี CSS) ──
+// const Map = _mkIcon('Map') สร้าง lexical binding ทับ global Map ใน scope ที่ทุก <script> แชร์
+// → Tailwind rebuild เรียก new Map().set() พัง ("i.set is not a function") → ไม่ generate CSS เลย.
+// render check (Check 7) จับไม่ได้เพราะเกม render สำเร็จ (ไม่จอดำ) แค่ไม่มีสไตล์. (ดู GAME.md)
+const JS_GLOBALS = [
+    'Map', 'Set', 'WeakMap', 'WeakSet', 'Promise', 'Proxy', 'Reflect', 'Symbol',
+    'Image', 'Audio', 'History', 'Text', 'Range', 'Date', 'Event', 'Worker',
+    'Notification', 'Selection', 'Navigator', 'Screen', 'Location', 'Frame',
+    'Array', 'Object', 'Number', 'String', 'Boolean', 'Document', 'Window',
+];
+const shadowed = new Set();
+// (ก) X = _mkIcon('...')  — icon factory ของเทมเพลต
+for (const m of html.matchAll(/\b([A-Z][A-Za-z0-9_]*)\s*=\s*_mkIcon\b/g)) {
+    if (JS_GLOBALS.includes(m[1])) shadowed.add(m[1]);
+}
+// (ข) const { A, Map, B } = ...lucide...  — destructure ไอคอนตามชื่อ global
+for (const m of html.matchAll(/(?:const|let|var)\s*\{([^}]*)\}\s*=\s*[^;]*lucide/gi)) {
+    m[1].split(',').map((s) => s.trim().split(':').pop().trim()).forEach((n) => {
+        if (JS_GLOBALS.includes(n)) shadowed.add(n);
+    });
+}
+if (shadowed.size) {
+    const names = [...shadowed].join(', ');
+    issues.push({
+        check: 'global-shadow',
+        msg: `ตัวแปรไอคอน [${names}] ทับ JS global → Tailwind/SDK ล่ม (จอเบี้ยว ไม่มี CSS). เปลี่ยนชื่อ เช่น ${[...shadowed][0]} → ${[...shadowed][0]}Icon`,
+    });
+    console.log(`${FAIL} Check 8 — global-shadow: ไอคอน [${names}] ทับ JS global (rename → ${[...shadowed][0]}Icon)`);
+} else {
+    console.log(`${PASS} Check 8 — global-shadow: ไม่มีไอคอนชื่อชน JS global`);
+}
+
 // ─── Summary ─────────────────────────────────────────────────────────────────
 console.log('');
 if (issues.length === 0 && warnings.length === 0) {

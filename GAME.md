@@ -192,7 +192,7 @@ function navigateBack() {
 5. **lucide:** ใช้ `_mkIcon` ที่ template ให้ (SECTION B) แล้ว destructure ไอคอนที่ใช้ —
    **อย่าเขียน shim เอง**
 6. ปิดท้ายด้วย `ReactDOM.createRoot(document.getElementById('root')).render(<App/>)`
-7. `pnpm verify:game <path>` ต้องผ่าน **7/7** (Check 7 = render จริงด้วย React UMD)
+7. `pnpm verify:game <path>` ต้องผ่าน **8/8** (Check 7 = render จริง, Check 8 = ไอคอนไม่ชน JS global)
 
 **⚠️ lucide IconNode shape:** `window.lucide.icons.X = ["svg", attrs, [["path",{...}], ...]]`
 — drawing children อยู่ที่ **index 2** (`node[2]`). เคยพลาด map ผิด level (คิดว่าเป็น array ของ
@@ -292,7 +292,7 @@ WHERE id = 'UUID-OF-ITEM';
 
 | คำสั่ง | หน้าที่ |
 |---|---|
-| `pnpm verify:game <file>` | ตรวจ 7 จุด: 6 static (GAME_SLUG, sendGameEnd, navigateBack, init listener, sendGameEnd called, migration) + **Check 7 render smoke-test** (jsdom + React UMD — จับจอดำ/crash สำหรับเกม React/Babel) |
+| `pnpm verify:game <file>` | ตรวจ 8 จุด: 6 static (GAME_SLUG, sendGameEnd, navigateBack, init listener, sendGameEnd called, migration) + **Check 7 render smoke-test** (jsdom + React UMD — จับจอดำ/crash) + **Check 8 global-shadow** (ไอคอนชื่อชน JS global เช่น Map/Image → Tailwind ล่ม จอเบี้ยว) |
 | `/integrate-game <file>` | Claude slash command — auto-integrate ตาม checklist |
 
 > Check 7 ใช้ `jsdom` + `@babel/standalone` (devDeps) + ดาวน์โหลด React/lucide UMD cache ที่
@@ -321,7 +321,7 @@ WHERE id = 'UUID-OF-ITEM';
 - [ ] ไม่มี Firebase SDK ที่ active
 - [ ] ไม่มี input ชื่อผู้เล่น (ใช้ DISPLAY_NAME_INIT)
 - [ ] Migration SQL พร้อม
-- [ ] **`pnpm verify:game` ผ่าน 7/7 (รวม Check 7 render — ไม่จอดำ)**
+- [ ] **`pnpm verify:game` ผ่าน 8/8 (Check 7 render — ไม่จอดำ + Check 8 — ไอคอนไม่ชน JS global)**
 - [ ] **เปิด browser จริง: เกมแสดงผล + ไอคอนขึ้นครบ + เล่นจบได้** (static + render check ไม่พอสำหรับ UX)
 - [ ] ทดสอบ local: `/play/{slug}` → กรอกรหัส → เล่น → คะแนนขึ้น GamePlayDashboard
 
