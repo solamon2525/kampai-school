@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.42.7 (Pizza เฟส 2B — โหมดเทียบเศษส่วน >,<,= ครบเฟส 2)',
+        version: 'v1.42.8 (Pizza เฟส 3 — เหรียญตราสะสม + Boss order ท้ายเวฟ)',
         date: 'ล่าสุด',
+        badge: 'bg-orange-600',
+        items: [
+            'B1 เหรียญตรา 8 แบบ (BadgeManager + localStorage): เปิดร้านครั้งแรก/คอมโบ5,10/แม่นยำ100%/เสิร์ฟ50,200/ครบ7โหมด/เล่น7วันติด — แถวเหรียญบนจอเริ่ม + แจ้งปลดล็อกตอนจบเกม',
+            'B3 Boss order: ขึ้นเวฟใหม่ → ลูกค้าบอส 👹 สั่งตัวส่วนใหญ่สุดของเวฟ (ยากสุด) คะแนน ×5 + เวลา/confetti',
+            'ทดสอบ headless: 8 เหรียญ render, recordGame ปลดล็อก [first,combo5,combo10,perfect,served50] ถูก, boss type/slices/emoji ถูก, 0 error',
+        ],
+    },
+    {
+        version: 'v1.42.7 (Pizza เฟส 2B — โหมดเทียบเศษส่วน >,<,= ครบเฟส 2)',
+        date: '',
         badge: 'bg-orange-600',
         items: [
             'A1 โหมดเทียบเศษส่วน (compare): โชว์ 2 ถาดซ้าย-ขวา (ระบายตามเศษส่วน + ป้าย) → กดปุ่ม > / = / < เทียบ — interaction ใหม่ ไม่ใช่เลือก slice',

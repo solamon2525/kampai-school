@@ -987,6 +987,13 @@
           .btn-compare.btn-compare-eq { background:#2E7D32; box-shadow:0 6px 0 #1b5e20; }
           .btn-compare span { font-size:0.8rem; font-weight:600; margin-top:5px; }
           .btn-compare:active { transform:translateY(4px); box-shadow:0 2px 0 #8e2a20; }
+          /* B1 เหรียญตรา */
+          .badges-box { width:100%; max-width:420px; margin:6px auto 0; }
+          .badges-row { display:flex; gap:8px; overflow-x:auto; padding:6px 2px; justify-content:flex-start; }
+          .badge-chip { flex:0 0 auto; display:flex; flex-direction:column; align-items:center; width:72px; background:rgba(255,255,255,0.16); border:2px solid rgba(255,255,255,0.35); border-radius:12px; padding:6px 4px; }
+          .badge-chip.locked { opacity:0.4; filter:grayscale(1); }
+          .badge-ic { font-size:1.6rem; line-height:1; }
+          .badge-nm { font-size:0.62rem; color:#fff; font-weight:600; text-align:center; margin-top:3px; line-height:1.1; }
         </style>
 
         <!-- ============================================
@@ -1058,6 +1065,11 @@
                     <span class="mode-desc">โจทย์ประจำวัน</span>
                     <span class="mode-diff">🎲</span>
                 </button>
+            </div>
+
+            <div class="badges-box">
+                <div class="leaderboard-title">🏅 เหรียญตราของฉัน</div>
+                <div id="badges-row" class="badges-row"></div>
             </div>
 
             <div class="leaderboard-box">
@@ -1179,6 +1191,63 @@
                     const medals = ['🥇','🥈','🥉','4','5'];
                     list.innerHTML += `<li class="leaderboard-item"><span class="rank-num">${medals[i] || i+1}</span> <span>${s.name}</span> <span>${s.score}</span></li>`;
                 });
+            }
+        }
+
+        /* ============================================
+           SECTION B2: BADGE MANAGER (B1 — เหรียญตราสะสม, localStorage)
+           ============================================ */
+        const BADGE_DEFS = [
+            { id: 'first',    icon: '🍕', name: 'เปิดร้านครั้งแรก' },
+            { id: 'combo5',   icon: '🔥', name: 'คอมโบ 5' },
+            { id: 'combo10',  icon: '💥', name: 'คอมโบ 10' },
+            { id: 'perfect',  icon: '🎯', name: 'แม่นยำ 100%' },
+            { id: 'served50', icon: '👨‍🍳', name: 'เสิร์ฟครบ 50' },
+            { id: 'served200',icon: '⭐', name: 'เสิร์ฟครบ 200' },
+            { id: 'allmodes', icon: '🏆', name: 'เล่นครบ 7 โหมด' },
+            { id: 'streak7',  icon: '📅', name: 'เล่น 7 วันติด' },
+        ];
+        class BadgeManager {
+            constructor() { this.key = 'pizza_master_badges_v1'; }
+            getStats() { try { const s = localStorage.getItem(this.key); return s ? JSON.parse(s) : {}; } catch (e) { return {}; } }
+            save(st) { try { localStorage.setItem(this.key, JSON.stringify(st)); } catch (e) {} }
+            getEarned() { return this.getStats().earned || []; }
+            /** อัปเดตสถิติสะสมจากเกมที่เพิ่งจบ → คืน array เหรียญที่เพิ่งปลดล็อก */
+            recordGame(g) {
+                const st = this.getStats();
+                st.games = (st.games || 0) + 1;
+                st.totalServed = (st.totalServed || 0) + (g.served || 0);
+                st.bestCombo = Math.max(st.bestCombo || 0, g.maxCombo || 0);
+                if (g.accuracy >= 100 && (g.served || 0) >= 5) st.perfectRuns = (st.perfectRuns || 0) + 1;
+                st.modes = st.modes || {};
+                if (g.mode) st.modes[g.mode] = 1;
+                const today = new Date().toISOString().slice(0, 10);
+                if (st.lastDay !== today) {
+                    const yest = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+                    st.dayStreak = (st.lastDay === yest) ? (st.dayStreak || 0) + 1 : 1;
+                    st.lastDay = today;
+                }
+                if (!st.dayStreak) st.dayStreak = 1;
+                const cond = {
+                    first: st.games >= 1, combo5: st.bestCombo >= 5, combo10: st.bestCombo >= 10,
+                    perfect: (st.perfectRuns || 0) >= 1, served50: st.totalServed >= 50, served200: st.totalServed >= 200,
+                    allmodes: Object.keys(st.modes).length >= 7, streak7: (st.dayStreak || 0) >= 7,
+                };
+                const earned = st.earned || [];
+                const newly = [];
+                BADGE_DEFS.forEach(b => { if (cond[b.id] && !earned.includes(b.id)) { earned.push(b.id); newly.push(b); } });
+                st.earned = earned;
+                this.save(st);
+                return newly;
+            }
+            display(elementId) {
+                const el = document.getElementById(elementId);
+                if (!el) return;
+                const earned = this.getEarned();
+                el.innerHTML = BADGE_DEFS.map(b => {
+                    const has = earned.includes(b.id);
+                    return `<div class="badge-chip${has ? '' : ' locked'}" title="${b.name}"><span class="badge-ic">${has ? b.icon : '❓'}</span><span class="badge-nm">${b.name}</span></div>`;
+                }).join('');
             }
         }
 
@@ -1319,6 +1388,7 @@
                 this.ctx = this.canvas.getContext('2d');
                 this.sound = new SoundManager();
                 this.highScoreManager = new HighScoreManager();
+                this.badgeManager = new BadgeManager();
 
                 // Player state
                 this.player = {
@@ -1358,7 +1428,8 @@
                 this.fly = { active: false, x: 0, y: 0, timer: 0, nextSpawn: 5 };
 
                 // Customer special types
-                this.customerType = 'normal'; // normal, vip, angry, group
+                this.customerType = 'normal'; // normal, vip, angry, group, boss
+                this.pendingBoss = false;     // B3: ออเดอร์บอสท้ายเวฟ
                 this.angryTimer = 0;
                 this.angryMaxTime = 5;
                 this.groupOrderIndex = 0;
@@ -1393,6 +1464,7 @@
                 document.getElementById('btn-serve-0').addEventListener('click', () => this.checkOrder());
 
                 this.highScoreManager.display('leaderboard-list');
+                this.badgeManager.display('badges-row');
                 this.reflectSetupUI();
                 this.resize();
                 requestAnimationFrame((t) => this.loop(t));
@@ -1460,6 +1532,7 @@
                 document.getElementById('shield-indicator').classList.add('hidden');
                 document.body.classList.remove('fever-bg');
                 this.highScoreManager.display('leaderboard-list');
+                this.badgeManager.display('badges-row');
                 this.sound.setTempo(120);
                 this.sound.startBGM();
 
@@ -1530,6 +1603,7 @@
                 this.autoHintActive = false;
                 this.autoHintSlice = -1;
                 this.customerType = 'normal';
+                this.pendingBoss = false;
                 this.angryTimer = 0;
                 this.groupOrderIndex = 0;
                 this.groupTotal = 0;
@@ -1670,8 +1744,20 @@
                     <div class="stat-card"><div class="stat-value">W${waveReached}</div><div class="stat-label">🌊 Wave ที่ถึง</div></div>
                 `;
 
+                // B1: บันทึกเหรียญตรา (เฉพาะเกมจริง ไม่นับโหมดฝึก)
+                let newBadges = [];
+                if (!this.state.practice) {
+                    newBadges = this.badgeManager.recordGame({ served: this.player.totalServed, maxCombo: this.player.maxCombo, accuracy, mode: this.state.mode });
+                }
                 // A7: สรุป diagnostic — เก่งเศษส่วนไหน / ควรฝึกไหน (จาก hitLog + missLog)
                 this.renderDiagnostic();
+                if (newBadges.length) {
+                    const dg = document.getElementById('gameover-diagnostic');
+                    if (dg) {
+                        dg.style.display = 'block';
+                        dg.innerHTML = `<div class="diag-row" style="background:#FFF8E1;color:#F57F17">🏅 ปลดล็อกเหรียญใหม่: ${newBadges.map(b => b.icon + ' ' + b.name).join(', ')}</div>` + dg.innerHTML;
+                    }
+                }
 
                 document.getElementById('gameover-screen').classList.remove('hidden');
                 document.getElementById('hud-bar').classList.add('hidden');
@@ -1790,11 +1876,16 @@
                 if (this.groupOrderIndex <= 0) {
                     this.rollCustomerType();
                 }
+                // B3: ออเดอร์บอสท้ายเวฟ — แทนที่ลูกค้าปกติ
+                if (this.pendingBoss) { this.customerType = 'boss'; this.pendingBoss = false; }
 
                 // Customer type badge
                 typeBadge.classList.add('hidden');
                 customerTimerBar.classList.add('hidden');
-                if (this.customerType === 'vip') {
+                if (this.customerType === 'boss') {
+                    typeBadge.textContent = '👹🔥 บอส x5';
+                    typeBadge.classList.remove('hidden');
+                } else if (this.customerType === 'vip') {
                     typeBadge.textContent = '👑';
                     typeBadge.classList.remove('hidden');
                 } else if (this.customerType === 'angry') {
@@ -1814,6 +1905,7 @@
                 // Get denominators based on wave
                 const waveDens = this.getWaveDenominators();
                 let pizzaSlices = waveDens[Math.floor(this.rng() * waveDens.length)];
+                if (this.customerType === 'boss') pizzaSlices = Math.max(...waveDens);   // B3: บอสใช้ตัวส่วนใหญ่สุด = ยากสุด
                 let orderNumerator, orderDenominator;
                 let isGolden = this.rng() < 0.12;
 
@@ -1899,7 +1991,9 @@
                 }
 
                 // Set customer emoji
-                if (this.customerType === 'angry') {
+                if (this.customerType === 'boss') {
+                    emoji.innerText = '👹';
+                } else if (this.customerType === 'angry') {
                     emoji.innerText = '😡';
                 } else if (this.customerType === 'vip') {
                     emoji.innerText = '🤴';
@@ -2066,6 +2160,12 @@
                         if (this.player.isFever) pts *= 2;
 
                         // Customer type bonuses
+                        if (this.customerType === 'boss') {
+                            pts *= 5;
+                            this.state.timeLeft = Math.min(this.state.timeLeft + 10, this.state.maxTime + 15);
+                            this.spawnConfetti();
+                            this.spawnFloatingText('👹 ปราบบอสสำเร็จ! x5', '#9C27B0');
+                        }
                         if (this.customerType === 'vip') {
                             pts *= 3;
                             this.state.timeLeft = Math.min(this.state.timeLeft + 8, this.state.maxTime + 15);
@@ -2433,6 +2533,7 @@
                         if (!this.state.waveShown[newWave]) {
                             this.state.waveShown[newWave] = true;
                             this.showWaveBanner(newWave);
+                            if (newWave > 0) this.pendingBoss = true;   // B3: ขึ้นเวฟใหม่ → ออเดอร์ถัดไปเป็นบอส
                         }
                     }
                 }
