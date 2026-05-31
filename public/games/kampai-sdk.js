@@ -27,6 +27,7 @@
     _startTs: Date.now(),
     _readyCbs: [],
     _submitted: false,
+    _online: { room: null, onJoined: null, onPresence: null, onEvent: null },
   };
 
   // ─── lifecycle ──────────────────────────────────────────────────────────────
@@ -104,6 +105,14 @@
       if (Array.isArray(d.leaderboard)) K.leaderboard = d.leaderboard;
       K._startTs = Date.now();
       fireReady();
+    });
+    // ─── online relay: รับ event ห้องจาก wrapper (broadcast/presence) ─────────
+    window.addEventListener('message', function (e) {
+      var d = e && e.data; if (!d || !d.type) return;
+      var o = K._online;
+      if (d.type === 'rtJoined') { o.room = d.room; if (o.onJoined) try { o.onJoined(d.room); } catch (x) { /* */ } }
+      else if (d.type === 'rtPresence') { if (o.onPresence) try { o.onPresence(d.members || []); } catch (x) { /* */ } }
+      else if (d.type === 'rtEvent') { if (o.onEvent) try { o.onEvent(d.event, d.payload, d.fromKey); } catch (x) { /* */ } }
     });
     // anchor target="_top" → navigate ผ่าน wrapper (iframe sandbox ห้าม top-nav)
     document.addEventListener('click', function (e) {
@@ -193,6 +202,34 @@
       if (document.body) go(); else document.addEventListener('DOMContentLoaded', go);
       return K;
     },
+  };
+
+  // ─── online multiplayer (wrapper รีเลย์ Supabase Realtime ผ่าน postMessage) ───
+  // เกมเรียก: KAMPAI.online.join(code,{onJoined,onPresence,onEvent}); .send(ev,data); .leave()
+  // wrapper เปิด channel 'live:<slug>:<code>' (broadcast+presence) — เกมไม่ต้องมี anon key
+  function parentMsg(obj) { if (IS_EMBED) { try { window.parent.postMessage(obj, '*'); } catch (e) { /* */ } } }
+  K.online = {
+    available: IS_EMBED,
+    /** สุ่มรหัสห้อง 4 หลัก (1000–9999) */
+    makeCode: function () { return String(1000 + Math.floor(Math.random() * 9000)); },
+    /** เข้าห้อง room (string) + ลงทะเบียน handler. meta presence ดึงจาก KAMPAI.student อัตโนมัติ */
+    join: function (room, handlers) {
+      handlers = handlers || {};
+      K._online = {
+        room: String(room),
+        onJoined: handlers.onJoined || null,
+        onPresence: handlers.onPresence || null,
+        onEvent: handlers.onEvent || null,
+      };
+      var s = K.student || {};
+      var meta = { id: s.id || null, name: s.displayName || '', photoUrl: s.photoUrl || null, classLabel: s.classLabel || null };
+      parentMsg({ type: 'rtJoin', room: String(room), meta: meta });
+      return K.online;
+    },
+    /** ส่ง event ให้ทุกคนในห้อง (broadcast) */
+    send: function (event, payload) { parentMsg({ type: 'rtSend', event: event, payload: payload }); return K.online; },
+    /** ออกจากห้อง */
+    leave: function () { parentMsg({ type: 'rtLeave' }); K._online = { room: null, onJoined: null, onPresence: null, onEvent: null }; return K.online; },
   };
 
   window.KAMPAI = K;

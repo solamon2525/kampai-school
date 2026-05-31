@@ -87,6 +87,37 @@ body { background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); }
 #player-chip img, #player-chip .pc-init { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
 #player-chip .pc-init { background: linear-gradient(135deg,#6c5ce7,#a29bfe); display: flex; align-items: center; justify-content: center; font-weight: 700; }
 #player-chip .pc-best { color: #FFD700; font-weight: 700; }
+
+/* ── โหมดออนไลน์ ── */
+#join-row { display: none; gap: 8px; justify-content: center; align-items: center; margin: 6px auto 12px; }
+#join-row.on { display: flex; }
+#room-input { width: 160px; height: 56px; text-align: center; font-family: 'Fredoka One', cursive; font-size: 30px; letter-spacing: 8px; border-radius: 14px; border: 2px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.1); color: #fff; }
+.room-code-big { font-family: 'Fredoka One', cursive; font-size: 72px; letter-spacing: 12px; color: #FFD700; text-shadow: 2px 2px 0 rgba(0,0,0,0.3); margin: 4px 0; }
+.online-hint { font-size: 14px; color: #94a3b8; }
+/* รายชื่อผู้เล่นในห้อง / แถบคะแนนสด */
+.members-box { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 10px 12px; margin: 10px 0; width: 100%; max-width: 440px; }
+.members-box h3 { font-size: 14px; color: #cbd5e1; margin-bottom: 8px; text-align: left; font-weight: 600; }
+.member-row { display: flex; align-items: center; gap: 10px; padding: 6px 4px; }
+.member-row .m-av, .member-row .m-init { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.member-row .m-init { background: linear-gradient(135deg,#6c5ce7,#a29bfe); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; }
+.member-row.me { background: rgba(251,191,36,0.12); border-radius: 10px; }
+.m-main { flex: 1; min-width: 0; text-align: left; }
+.m-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.m-bar-track { height: 7px; background: rgba(255,255,255,0.12); border-radius: 999px; overflow: hidden; margin-top: 3px; }
+.m-bar-fill { height: 100%; background: linear-gradient(90deg,#4ade80,#22c55e); border-radius: 999px; transition: width 0.25s; }
+.m-score { font-family: 'Fredoka One', cursive; font-size: 18px; color: #FFD700; min-width: 42px; text-align: right; }
+.m-rank { font-family: 'Fredoka One', cursive; font-size: 16px; color: #f39c12; min-width: 24px; text-align: center; }
+.m-done { font-size: 11px; color: #4ade80; }
+/* แถบคะแนนสดระหว่างแข่ง (มุมขวา) */
+#online-bars { position: fixed; top: 56px; right: 12px; width: 220px; max-width: 46vw; z-index: 25; display: none; }
+#online-bars.on { display: block; }
+#online-bars .members-box { margin: 0; background: rgba(15,23,42,0.78); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+/* countdown overlay */
+#countdown { position: fixed; inset: 0; z-index: 40; display: none; align-items: center; justify-content: center; background: rgba(15,23,42,0.82); backdrop-filter: blur(6px); }
+#countdown.on { display: flex; }
+#countdown span { font-family: 'Fredoka One', cursive; font-size: 160px; color: #FFD700; text-shadow: 4px 4px 0 rgba(0,0,0,0.3); animation: cd 1s ease-in-out; }
+@keyframes cd { 0% { transform: scale(0.3); opacity: 0; } 40% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+#online-clock { font-family: 'Fredoka One', cursive; font-size: 22px; color: #fff; min-width: 56px; text-align: center; }
 </style>
 </head>
 <body>
@@ -95,9 +126,18 @@ body { background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); }
     <div id="hud">
         <div id="score-container">⭐ <span id="score-value">0</span></div>
         <div id="combo-badge">🔥 x1</div>
+        <div id="online-clock" style="display:none">1:00</div>
         <div id="life-container">❤️❤️❤️</div>
     </div>
     <div id="timer-wrap"><div id="timer-bar"></div></div>
+
+    <!-- แถบคะแนนสด (โหมดออนไลน์) -->
+    <div id="online-bars">
+        <div class="members-box">
+            <h3>🏁 คู่แข่งสด</h3>
+            <div id="online-bars-list"></div>
+        </div>
+    </div>
 
     <!-- พื้นเล่น -->
     <div id="play">
@@ -114,6 +154,7 @@ body { background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); }
     <p>ตอบให้เร็วและถูก! ยิ่งต่อเนื่องยิ่งได้ตัวคูณคะแนน 🔥<br>เลือก 4 ตัวเลือก — แตะ หรือกดเลข 1–4</p>
     <div class="mode-grid">
         <button class="btn btn-primary" onclick="chooseMode('race')">⚡ แข่งเร็ว</button>
+        <button class="btn btn-blue" onclick="openOnline()">🌐 ออนไลน์</button>
         <button class="btn btn-ghost" onclick="chooseMode('practice')">📚 ฝึกแม่</button>
     </div>
     <div id="table-picker"></div>
@@ -138,11 +179,60 @@ body { background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); }
     </div>
 </div>
 
+<!-- Online: เลือกสร้าง/เข้าร่วม -->
+<div id="online-setup" class="screen">
+    <h1>🌐 แข่งออนไลน์</h1>
+    <p>แข่งสูตรคูณกับเพื่อนต่างเครื่อง 60 วินาที!<br>ใครตอบถูกมากสุดชนะ 🏆</p>
+    <div class="mode-grid">
+        <button class="btn btn-primary" onclick="createRoom()">➕ สร้างห้อง</button>
+    </div>
+    <div id="join-row" class="on">
+        <input id="room-input" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="รหัส">
+        <button class="btn btn-blue" onclick="joinRoomFromInput()">เข้าร่วม</button>
+    </div>
+    <p class="online-hint">มีรหัสห้องแล้ว? กรอกรหัส 4 หลักเพื่อเข้าร่วม</p>
+    <div id="online-msg" class="online-hint" style="color:#f87171"></div>
+    <button class="btn btn-ghost" onclick="backToStart()">← กลับ</button>
+</div>
+
+<!-- Online: ห้องรอ (lobby) -->
+<div id="lobby" class="screen">
+    <h1>ห้องแข่ง</h1>
+    <p class="online-hint">บอกรหัสนี้ให้เพื่อนเข้าร่วม</p>
+    <div class="room-code-big" id="lobby-code">----</div>
+    <div class="members-box">
+        <h3>👥 ผู้เล่นในห้อง (<span id="lobby-count">0</span>)</h3>
+        <div id="lobby-list"></div>
+    </div>
+    <div id="lobby-host" style="display:none">
+        <button class="btn btn-primary" onclick="hostStart()">🚀 เริ่มแข่ง</button>
+    </div>
+    <p id="lobby-wait" class="online-hint" style="display:none">รอเจ้าของห้องเริ่มเกม...</p>
+    <button class="btn btn-ghost" onclick="leaveRoom()">← ออกจากห้อง</button>
+</div>
+
+<!-- Online: ผลแข่ง -->
+<div id="online-over" class="screen">
+    <h1 id="oo-title">จบการแข่ง!</h1>
+    <div id="oo-place" style="font-size:20px;color:#FFD700;font-weight:700;margin-bottom:8px"></div>
+    <div class="members-box">
+        <h3>🏆 อันดับสุดท้าย</h3>
+        <div id="oo-list"></div>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
+        <button class="btn btn-primary" onclick="location.reload()">🔄 แข่งใหม่</button>
+        <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+    </div>
+</div>
+
+<!-- Countdown overlay -->
+<div id="countdown"><span id="countdown-num">3</span></div>
+
 <!-- ═══ KAMPAI SDK (single source — อย่าแก้) ═══ -->
 <script src="/games/kampai-sdk.js"></script>
 <script>
 /* fallback stub: กันพังถ้าเปิด standalone แล้ว SDK โหลดไม่ได้ */
-window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}} };
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, online:{available:false,makeCode:function(){return'0000';},join:function(){return this;},send:function(){return this;},leave:function(){return this;}} };
 </script>
 
 <script>
@@ -188,10 +278,22 @@ const TABLES = [2,3,4,5,6,7,8,9,10,11,12];   // แม่สูตรคูณ
 const FACTORS = [2,3,4,5,6,7,8,9,10,11,12];   // ตัวคูณที่สุ่มเจอ
 
 let score = 0, lives = 3, streak = 0, maxStreak = 0, correctCount = 0, answered = 0;
-let mode = 'race';                 // 'race' | 'practice'
+let mode = 'race';                 // 'race' | 'practice' | 'online'
 let selectedTable = null;          // ใช้เฉพาะ practice
 let curA = 0, curB = 0, curAns = 0;
 let qStart = 0, qLimit = 0, rafId = 0, locked = false, started = false;
+
+// seeded PRNG (mulberry32) — ใช้ในโหมดออนไลน์ให้โจทย์เหมือนกันทุกเครื่อง; default = Math.random
+let qrand = Math.random;
+function seedRng(seed) {
+    let a = (seed >>> 0) || 1;
+    qrand = function () {
+        a |= 0; a = (a + 0x6D2B79F5) | 0;
+        let t = Math.imul(a ^ (a >>> 15), 1 | a);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+}
 
 const $ = (id) => document.getElementById(id);
 
@@ -228,8 +330,8 @@ function startGame(tbl) {
 /* ── สุ่มโจทย์ + ตัวเลือก ── */
 function nextQuestion() {
     locked = false;
-    curA = (mode === 'practice' && selectedTable) ? selectedTable : TABLES[(Math.random()*TABLES.length)|0];
-    curB = FACTORS[(Math.random()*FACTORS.length)|0];
+    curA = (mode === 'practice' && selectedTable) ? selectedTable : TABLES[(qrand()*TABLES.length)|0];
+    curB = FACTORS[(qrand()*FACTORS.length)|0];
     curAns = curA * curB;
 
     $('question').textContent = `${curA} × ${curB}`;
@@ -287,6 +389,8 @@ function answer(v, btn) {
     cancelAnimationFrame(rafId);
     answered++;
 
+    const online = mode === 'online';
+
     if (v === curAns) {
         btn.classList.add('correct');
         correctCount++;
@@ -295,13 +399,14 @@ function answer(v, btn) {
         let gained = 10;
         if (mode === 'race') {
             const frac = Math.max(0, 1 - (performance.now() - qStart) / qLimit);
-            gained += Math.round(frac * 10);   // โบนัสความเร็ว 0–10
+            gained += Math.round(frac * 10);   // โบนัสความเร็ว 0–10 (ออนไลน์ไม่มี — แข่งที่จำนวนข้อ)
         }
         gained *= mult;
         setScore(score + gained);
         updateCombo();
         flash(`+${gained}` + (mult > 1 ? `  (x${mult})` : '') + ' ✓', true);
-        setTimeout(nextQuestion, mode === 'practice' ? 550 : 480);
+        if (online) { sendOnlineScore(); scheduleNext(340); }
+        else setTimeout(nextQuestion, mode === 'practice' ? 550 : 480);
     } else {
         btn.classList.add('wrong');
         revealCorrect();
@@ -310,11 +415,14 @@ function answer(v, btn) {
         if (mode === 'race') {
             setLives(lives - 1);
             if (lives > 0) setTimeout(nextQuestion, 1100);
+        } else if (online) {
+            sendOnlineScore(); scheduleNext(680);   // ออนไลน์ = ไม่เสียชีวิต ไปข้อถัดไป
         } else {
             setTimeout(nextQuestion, 1100);   // ฝึก = ไม่เสียชีวิต เล่นต่อไปเรื่อย ๆ
         }
     }
 }
+function scheduleNext(ms) { setTimeout(() => { if (!onlineEnded) nextQuestion(); }, ms); }
 
 function revealCorrect() {
     document.querySelectorAll('.ans').forEach(b => {
@@ -370,6 +478,185 @@ function endGame() {
         (mode === 'practice' ? ' · (โหมดฝึก ไม่นับอันดับ)' : '');
     $('gameover').classList.add('on');
     renderLeaderboard('score-list-gameover');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   โหมดออนไลน์ — แข่งสด 60 วิ (ผ่าน KAMPAI.online / wrapper รีเลย์ Realtime)
+   ═══════════════════════════════════════════════════════════════════════════ */
+let myId = null, roomCode = null, isHost = false;
+let members = {};                  // id -> {name, photoUrl, classLabel, score, correct, done, me}
+let onlineStarted = false, onlineEnded = false, resultShown = false;
+let raceEndsAt = 0, onlineRafId = 0, scoreSendTs = 0, finishTimer = 0;
+
+const SCREENS = ['start', 'gameover', 'online-setup', 'lobby', 'online-over'];
+function hideAllScreens() { SCREENS.forEach((id) => $(id).classList.remove('on')); }
+function showScreen(id) { hideAllScreens(); $(id).classList.add('on'); }
+
+function openOnline() {
+    showScreen('online-setup');
+    $('online-msg').textContent = (KAMPAI.online && KAMPAI.online.available)
+        ? '' : 'โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น';
+}
+function backToStart() { showScreen('start'); }
+
+function createRoom() { isHost = true; joinRoom(KAMPAI.online.makeCode()); }
+function joinRoomFromInput() {
+    const v = ($('room-input').value || '').trim();
+    if (!/^\d{4}$/.test(v)) { $('online-msg').textContent = 'กรอกรหัส 4 หลัก'; return; }
+    isHost = false; joinRoom(v);
+}
+function joinRoom(code) {
+    if (!KAMPAI.online || !KAMPAI.online.available) { $('online-msg').textContent = 'โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'; return; }
+    roomCode = code; mode = 'online';
+    myId = (KAMPAI.student && KAMPAI.student.id) || ('me-' + Math.random().toString(36).slice(2, 7));
+    const me = KAMPAI.student || {};
+    members = {};
+    members[myId] = { name: me.displayName || 'ฉัน', photoUrl: me.photoUrl || null, classLabel: me.classLabel || null, score: 0, correct: 0, done: false, me: true };
+    $('lobby-code').textContent = code;
+    $('lobby-host').style.display = isHost ? 'block' : 'none';
+    $('lobby-wait').style.display = isHost ? 'none' : 'block';
+    showScreen('lobby');
+    renderMembers('lobby-list', false);
+    KAMPAI.online.join(code, { onJoined: function () {}, onPresence: onPresence, onEvent: onEvent });
+}
+function leaveRoom() { try { KAMPAI.online.leave(); } catch (e) {} roomCode = null; isHost = false; mode = 'race'; showScreen('start'); }
+
+function onPresence(list) {
+    const ids = new Set([myId]);
+    (list || []).forEach((m) => {
+        if (!m || !m.id) return;
+        ids.add(m.id);
+        const ex = members[m.id] || { score: 0, correct: 0, done: false };
+        members[m.id] = Object.assign(ex, {
+            name: m.name || ex.name || '?',
+            photoUrl: (m.photoUrl != null) ? m.photoUrl : (ex.photoUrl || null),
+            classLabel: (m.classLabel != null) ? m.classLabel : (ex.classLabel || null),
+            me: m.id === myId,
+        });
+    });
+    if (!onlineStarted) {  // ตัดคนออกห้องเฉพาะตอนยัง lobby (ระหว่างแข่งคงคะแนนไว้)
+        Object.keys(members).forEach((id) => { if (!ids.has(id)) delete members[id]; });
+    }
+    $('lobby-count').textContent = Object.keys(members).length;
+    renderMembers('lobby-list', false);
+    if (onlineStarted) renderMembers('online-bars-list', true);
+}
+function onEvent(ev, data, fromKey) {
+    if (ev === 'start') { beginOnlineRace(data && data.startAt); return; }
+    if (!fromKey) return;
+    const m = members[fromKey] || (members[fromKey] = { name: '?', photoUrl: null, classLabel: null, done: false });
+    if (ev === 'score') { m.score = data.score | 0; m.correct = data.correct | 0; }
+    else if (ev === 'done') { m.score = data.score | 0; m.correct = data.correct | 0; m.done = true; }
+    if (onlineStarted) renderMembers('online-bars-list', true);
+    if (ev === 'done') maybeFinishOnline();
+}
+
+function hostStart() {
+    const startAt = Date.now() + 3500;
+    KAMPAI.online.send('start', { startAt });
+    beginOnlineRace(startAt);
+}
+
+function beginOnlineRace(startAt) {
+    if (onlineStarted) return;
+    onlineStarted = true; started = true; locked = true;
+    score = 0; streak = 0; maxStreak = 0; correctCount = 0; onlineEnded = false;
+    if (members[myId]) { members[myId].score = 0; members[myId].correct = 0; members[myId].done = false; }
+    seedRng(parseInt(roomCode, 10) || 1);
+    raceEndsAt = (startAt || Date.now()) + 60000;   // จบเวลาเดียวกันทุกเครื่อง (absolute)
+    hideAllScreens();
+    $('hud').classList.add('on');
+    $('life-container').style.display = 'none';
+    $('online-clock').style.display = '';
+    $('timer-wrap').classList.remove('on');
+    $('play').classList.add('on');
+    $('online-bars').classList.add('on');
+    setScore(0); updateCombo();
+    renderMembers('online-bars-list', true);
+    runCountdown(Math.max(0, (startAt || Date.now()) - Date.now()), () => {
+        locked = false; nextQuestion(); onlineTick();
+    });
+}
+function runCountdown(delay, done) {
+    const cd = $('countdown'), num = $('countdown-num');
+    const endAt = Date.now() + Math.max(400, delay);   // อย่างน้อยโชว์ "GO" สั้น ๆ
+    cd.classList.add('on');
+    (function step() {
+        const rem = endAt - Date.now();
+        if (rem <= 0) { cd.classList.remove('on'); done(); return; }
+        const n = Math.ceil(rem / 1000);
+        const label = n <= 0 ? 'GO' : String(n);
+        if (num.textContent !== label) { num.textContent = label; num.style.animation = 'none'; void num.offsetWidth; num.style.animation = 'cd 1s ease-in-out'; }
+        requestAnimationFrame(step);
+    })();
+}
+function onlineTick() {
+    const rem = raceEndsAt - Date.now();
+    const sec = Math.max(0, Math.ceil(rem / 1000));
+    const m = Math.floor(sec / 60), s = sec % 60;
+    $('online-clock').textContent = m + ':' + (s < 10 ? '0' : '') + s;
+    $('online-clock').style.color = sec <= 10 ? '#f87171' : '#fff';
+    if (rem <= 0) { endOnlineRace(); return; }
+    onlineRafId = requestAnimationFrame(onlineTick);
+}
+function sendOnlineScore() {
+    if (members[myId]) { members[myId].score = score; members[myId].correct = correctCount; }
+    const now = performance.now();
+    if (now - scoreSendTs > 120) { scoreSendTs = now; KAMPAI.online.send('score', { score, correct: correctCount }); }
+    renderMembers('online-bars-list', true);
+}
+function endOnlineRace() {
+    if (onlineEnded) return;
+    onlineEnded = true; locked = true;
+    cancelAnimationFrame(onlineRafId);
+    if (members[myId]) { members[myId].score = score; members[myId].correct = correctCount; members[myId].done = true; }
+    KAMPAI.online.send('done', { score, correct: correctCount });
+    KAMPAI.submitScore(score, { mode: 'online', correct: correctCount, room: roomCode });
+    finishTimer = setTimeout(showOnlineResult, 2000);   // รอผลคนอื่นสั้น ๆ
+    maybeFinishOnline();
+}
+function maybeFinishOnline() {
+    if (!onlineEnded) return;   // เราต้องจบก่อนถึงตัดสิน
+    const all = Object.keys(members).map((id) => members[id]);
+    if (all.length && all.every((m) => m.done)) { clearTimeout(finishTimer); showOnlineResult(); }
+}
+function rankMembers() {
+    return Object.keys(members).map((id) => Object.assign({ id }, members[id]))
+        .sort((a, b) => (b.correct - a.correct) || (b.score - a.score));
+}
+function showOnlineResult() {
+    if (resultShown) return; resultShown = true;
+    cancelAnimationFrame(onlineRafId);
+    $('hud').classList.remove('on');
+    $('online-bars').classList.remove('on');
+    $('play').classList.remove('on');
+    const ranked = rankMembers();
+    const myRank = ranked.findIndex((r) => r.id === myId) + 1;
+    $('oo-title').textContent = (myRank === 1 && ranked.length > 1) ? '🏆 คุณชนะ!' : 'จบการแข่ง!';
+    $('oo-place').textContent = myRank > 0 ? `คุณได้อันดับ ${myRank} จาก ${ranked.length}` : '';
+    renderRanked('oo-list', ranked);
+    showScreen('online-over');
+}
+function avatarHtml(m, cls) {
+    return m.photoUrl ? `<img class="m-av" src="${m.photoUrl}" alt="">` : `<div class="m-init">${(m.name || '?')[0]}</div>`;
+}
+function renderMembers(listId, withScore) {
+    const el = $(listId); if (!el) return;
+    const list = withScore ? rankMembers() : Object.keys(members).map((id) => Object.assign({ id }, members[id]));
+    const maxC = Math.max(1, ...list.map((m) => m.correct || 0));
+    el.innerHTML = list.map((m, i) => {
+        const rank = withScore ? `<span class="m-rank">${i + 1}</span>` : '';
+        const bar = withScore ? `<div class="m-bar-track"><div class="m-bar-fill" style="width:${Math.round((m.correct || 0) / maxC * 100)}%"></div></div>` : '';
+        const sc = withScore ? `<span class="m-score">${m.score || 0}${m.done ? ' ✓' : ''}</span>` : '';
+        return `<div class="member-row ${m.me ? 'me' : ''}">${rank}${avatarHtml(m)}<div class="m-main"><div class="m-name">${m.name || '?'}${m.me ? ' (คุณ)' : ''}</div>${bar}</div>${sc}</div>`;
+    }).join('') || '<div class="online-hint">ยังไม่มีผู้เล่น...</div>';
+}
+function renderRanked(listId, ranked) {
+    const el = $(listId); if (!el) return;
+    const medals = ['🥇', '🥈', '🥉'];
+    el.innerHTML = ranked.map((m, i) =>
+        `<div class="member-row ${m.me ? 'me' : ''}"><span class="m-rank">${medals[i] || (i + 1)}</span>${avatarHtml(m)}<div class="m-main"><div class="m-name">${m.name || '?'}${m.me ? ' (คุณ)' : ''}</div><div class="online-hint" style="text-align:left">ตอบถูก ${m.correct || 0} ข้อ</div></div><span class="m-score">${m.score || 0}</span></div>`
+    ).join('');
 }
 
 /* ── คีย์บอร์ด 1–4 (desktop) ── */

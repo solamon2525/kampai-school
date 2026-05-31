@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.43.1 (Pizza เฟส 4/C2 — กระดานอันดับสดหน้าครู · ครบเฟส 4)',
+        version: 'v1.44.0 (เกม "แข่งสูตรคูณ" + โหมดออนไลน์เรียลไทม์ คนละเครื่อง)',
         date: 'ล่าสุด',
+        badge: 'bg-indigo-600',
+        items: [
+            'เกมใหม่ multiply-race (Quiz Race สูตรคูณ 2–12): โหมดแข่งเร็ว (แถบเวลา+3ชีวิต+combo) + ฝึกแม่เจาะจง + ปก 16:9 — เก็บคะแนน/XP/อันดับผ่าน KAMPAI SDK',
+            'โหมดออนไลน์: นักเรียนสร้างห้อง (รหัส 4 หลัก) เล่นคนละเครื่อง แข่งสด 60 วิ — โจทย์เดียวกันทุกเครื่อง (seed จากรหัสห้อง) + เห็นคะแนนคู่แข่งวิ่งสด + จัดอันดับผู้ชนะ',
+            'สถาปัตย์ใหม่: KAMPAI.online ใน SDK + PlayGame wrapper รีเลย์ Supabase Realtime (broadcast+presence) ผ่าน postMessage — เกมไม่ต้องมี anon key, ไม่ต้อง migration, เกมอื่นนำไปใช้ซ้ำได้',
+        ],
+    },
+    {
+        version: 'v1.43.1 (Pizza เฟส 4/C2 — กระดานอันดับสดหน้าครู · ครบเฟส 4)',
+        date: '',
         badge: 'bg-teal-600',
         items: [
             'เพิ่มแท็บ "อันดับสด" ใน TeacherGameAnalytics: เรียงตามคะแนนสูงสุดของห้อง อัปเดตอัตโนมัติทุก 8 วิ (React Query refetchInterval) — ฉายหน้าห้องตอนแข่งได้',

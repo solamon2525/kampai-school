@@ -30,6 +30,8 @@ import {
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 
 import {
   gamePlayService,
@@ -72,6 +74,7 @@ const PlayGame = () => {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const gameContainerRef = useRef<HTMLDivElement | null>(null);
   const sessionSubmittedRef = useRef(false);
+  const rtChannelRef = useRef<RealtimeChannel | null>(null);
 
   // ─── fullscreen: ขยายเกมเต็มจอจริง (iframe มี allow="fullscreen" อยู่แล้ว) ───
   const toggleFullscreen = useCallback(() => {
@@ -294,6 +297,69 @@ const PlayGame = () => {
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
   }, [phase, student, codeInput, gameSlug, toast, statsQuery, unlockedQuery]);
+
+  // ─── realtime relay: ห้องออนไลน์ของเกม (broadcast + presence) ──────────────
+  // เกมใน iframe ไม่มี anon key → wrapper เปิด channel ให้ แล้วรีเลย์ผ่าน postMessage
+  // (KAMPAI.online.* ฝั่งเกม ↔ rtJoin/rtSend/rtLeave ↔ ช่องนี้)
+  useEffect(() => {
+    if (phase !== 'playing' || !student) return;
+
+    const postToIframe = (obj: unknown) =>
+      iframeRef.current?.contentWindow?.postMessage(obj, '*');
+
+    const teardown = () => {
+      if (rtChannelRef.current) {
+        supabase.removeChannel(rtChannelRef.current);
+        rtChannelRef.current = null;
+      }
+    };
+
+    const relay = (e: MessageEvent) => {
+      const d = e.data as
+        | { type?: string; room?: string; meta?: Record<string, unknown>; event?: string; payload?: unknown }
+        | undefined;
+      if (!d?.type) return;
+
+      if (d.type === 'rtJoin' && typeof d.room === 'string') {
+        teardown(); // ออกจากห้องเก่าก่อน (ถ้ามี)
+        const meta = { ...(d.meta ?? {}), id: student.id };
+        const channel = supabase.channel(`live:${gameSlug}:${d.room}`, {
+          config: { presence: { key: student.id }, broadcast: { self: false } },
+        });
+        channel
+          .on('presence', { event: 'sync' }, () => {
+            const state = channel.presenceState() as Record<string, Array<Record<string, unknown>>>;
+            const members = Object.values(state).map((entries) => entries[0]).filter(Boolean);
+            postToIframe({ type: 'rtPresence', members });
+          })
+          .on('broadcast', { event: 'msg' }, ({ payload }) => {
+            const p = payload as { ev?: string; data?: unknown; from?: string };
+            postToIframe({ type: 'rtEvent', event: p?.ev, payload: p?.data, fromKey: p?.from });
+          })
+          .subscribe((status) => {
+            if (status === 'SUBSCRIBED') {
+              channel.track(meta);
+              postToIframe({ type: 'rtJoined', room: d.room });
+            }
+          });
+        rtChannelRef.current = channel;
+      } else if (d.type === 'rtSend' && rtChannelRef.current) {
+        rtChannelRef.current.send({
+          type: 'broadcast',
+          event: 'msg',
+          payload: { ev: d.event, data: d.payload, from: student.id },
+        });
+      } else if (d.type === 'rtLeave') {
+        teardown();
+      }
+    };
+
+    window.addEventListener('message', relay);
+    return () => {
+      window.removeEventListener('message', relay);
+      teardown();
+    };
+  }, [phase, student, gameSlug]);
 
   const handlePlayAgain = useCallback(() => {
     setResult(null);

@@ -57,6 +57,15 @@
 | `KAMPAI.submitScore(score,{mode,...meta})` | ส่งคะแนนตอนจบเกม (= gameEnd เดิม) — **ต้องเรียก** |
 | `KAMPAI.goHome()` | ปุ่มกลับหน้าหลัก (= navigate เดิม) |
 | `KAMPAI.controls.mount({dpad,buttons,onTap})` | วาด D-pad+ปุ่มบนมือถือ + sync คีย์บอร์ด → อ่าน `KAMPAI.input{up,down,left,right,a,b}` |
+| `KAMPAI.online.available` | `true` ถ้าเล่นใน embed (standalone เล่นออนไลน์ไม่ได้) |
+| `KAMPAI.online.makeCode()` | สุ่มรหัสห้อง 4 หลัก |
+| `KAMPAI.online.join(room,{onJoined,onPresence,onEvent})` | เข้าห้อง realtime — wrapper เปิด Supabase channel ให้ (เกมไม่ต้องมี anon key). meta presence ดึงจาก `KAMPAI.student` อัตโนมัติ |
+| `KAMPAI.online.send(event,payload)` | broadcast event ให้ทุกคนในห้อง → ปลายทางได้ผ่าน `onEvent(event,payload,fromKey)` |
+| `KAMPAI.online.leave()` | ออกจากห้อง |
+
+> **โหมดออนไลน์ (multiplayer):** ใช้ Supabase Realtime **broadcast + presence** ที่ wrapper รีเลย์ผ่าน postMessage —
+> ไม่ต้องสร้างตาราง/migration และไม่ฝัง key ในไฟล์เกม. `onPresence(members)` = รายชื่อสดในห้อง, `onEvent` = event ที่คนอื่น `send`.
+> นักเรียนเล่นเกม**ไม่ได้ login** → channel ใช้ anon key (broadcast/presence default เปิด). ตัวอย่างเต็ม: `math/multiply-race.html` (โหมด 🌐 ออนไลน์ — แข่ง 60 วิ seed จากรหัสห้อง).
 
 **Prompt สำหรับสั่ง AI เจ้าอื่นสร้างเกม:** `public/GAME-PROMPT.md` (served ที่ `/GAME-PROMPT.md`) —
 แอดมินมีปุ่ม "คัดลอก Prompt" + ดาวน์โหลดเทมเพลตที่ เมนูเกม HTML (GamesTab).
@@ -157,6 +166,12 @@ function navigateBack() {
 | `init` | parent → iframe | `{type:'init', studentCode, displayName?}` |
 | `gameEnd` | iframe → parent | `{type:'gameEnd', gameSlug, studentCode, score, mode, metadata:{duration,...}}` |
 | `navigate` | iframe → parent | `{type:'navigate', to:'/h/nattapong'}` |
+| `rtJoin` | iframe → parent | `{type:'rtJoin', room, meta}` — เข้าห้องออนไลน์ (wrapper เปิด channel) |
+| `rtSend` | iframe → parent | `{type:'rtSend', event, payload}` — broadcast ให้ทุกคนในห้อง |
+| `rtLeave` | iframe → parent | `{type:'rtLeave'}` — ออกจากห้อง |
+| `rtJoined` | parent → iframe | `{type:'rtJoined', room}` — subscribe สำเร็จ |
+| `rtPresence` | parent → iframe | `{type:'rtPresence', members:[{id,name,photoUrl,classLabel}]}` |
+| `rtEvent` | parent → iframe | `{type:'rtEvent', event, payload, fromKey}` — broadcast จากคนอื่น |
 
 **Constraints:**
 - `score` ต้องเป็น integer (ใช้ `Math.round(...)`)
