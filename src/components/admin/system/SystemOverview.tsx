@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.43.0 (Pizza เฟส 4/C1 — ครูตั้งโจทย์ผ่านลิงก์มอบหมาย)',
+        version: 'v1.43.1 (Pizza เฟส 4/C2 — กระดานอันดับสดหน้าครู · ครบเฟส 4)',
         date: 'ล่าสุด',
+        badge: 'bg-teal-600',
+        items: [
+            'เพิ่มแท็บ "อันดับสด" ใน TeacherGameAnalytics: เรียงตามคะแนนสูงสุดของห้อง อัปเดตอัตโนมัติทุก 8 วิ (React Query refetchInterval) — ฉายหน้าห้องตอนแข่งได้',
+            'ไฮไลต์ Top 3 (เหรียญ) + ปุ่มรีเฟรชเอง + empty state — ไม่ต้อง migration/realtime publication (เบา+verify ได้)',
+            'ครบเฟส 4 (ครู): C3 รายงานเศษส่วน + C1 ลิงก์มอบหมาย + C2 อันดับสด — และครบทั้ง roadmap Pizza (เฟส 1-4)',
+        ],
+    },
+    {
+        version: 'v1.43.0 (Pizza เฟส 4/C1 — ครูตั้งโจทย์ผ่านลิงก์มอบหมาย)',
+        date: '',
         badge: 'bg-teal-600',
         items: [
             'ครูสร้างลิงก์มอบหมายในหน้าวิเคราะห์เกม: เลือกระดับชั้น + โหมด → คัดลอกลิงก์ /play/pizza-master-chef?grade=&mode= ส่งให้นักเรียน',

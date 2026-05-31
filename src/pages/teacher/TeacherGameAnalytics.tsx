@@ -19,6 +19,8 @@ import {
   Divide,
   Link2,
   Copy,
+  Radio,
+  RefreshCw,
 } from 'lucide-react';
 import {
   BarChart,
@@ -94,6 +96,9 @@ export default function TeacherGameAnalytics({ staffId }: { staffId: string }) {
   const [assignGrade, setAssignGrade] = useState<string>('');
   const [assignMode, setAssignMode] = useState<string>('');
 
+  // C2: แท็บปัจจุบัน (อันดับสด auto-refresh เมื่อเปิดแท็บ live)
+  const [activeTab, setActiveTab] = useState<string>('grading');
+
   // Curve and Grading State
   const [syncTarget, setSyncTarget] = useState<'best' | 'latest'>('best');
   const [scoringCurve, setScoringCurve] = useState<'linear' | 'level'>('linear');
@@ -147,6 +152,8 @@ export default function TeacherGameAnalytics({ staffId }: { staffId: string }) {
       return data ?? [];
     },
     enabled: !!selectedGame && !!selectedClass,
+    // C2: เมื่อเปิดแท็บ "อันดับสด" → รีเฟรชอัตโนมัติทุก 8 วินาที
+    refetchInterval: activeTab === 'live' ? 8000 : false,
   });
 
   // Derived Data: Combine student records with their session statistics
@@ -331,6 +338,13 @@ export default function TeacherGameAnalytics({ staffId }: { staffId: string }) {
       .sort((a, b) => b.misses - a.misses);
     return { rows, gradeBands, hasData: rows.length > 0 };
   }, [sessionsQuery.data]);
+
+  // C2: อันดับสด — เรียงตามคะแนนสูงสุด เฉพาะคนที่เล่นแล้ว
+  const liveRanking = useMemo(() => {
+    return studentStatsList
+      .filter((s) => s.playsCount > 0)
+      .sort((a, b) => b.bestScore - a.bestScore);
+  }, [studentStatsList]);
 
   // Score Calculator Helper
   const calculateGradeScore = (entry: typeof studentStatsList[0]) => {
@@ -643,8 +657,8 @@ export default function TeacherGameAnalytics({ staffId }: { staffId: string }) {
       </div>
 
       {/* Main Tabs */}
-      <Tabs defaultValue="grading" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 max-w-2xl">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 max-w-3xl">
           <TabsTrigger value="grading" className="gap-2">
             <UserCheck className="h-4 w-4" />
             สมุดโอนเกรดอัจฉริยะ
@@ -656,6 +670,10 @@ export default function TeacherGameAnalytics({ staffId }: { staffId: string }) {
           <TabsTrigger value="fractions" className="gap-2">
             <Divide className="h-4 w-4" />
             วิเคราะห์เศษส่วน
+          </TabsTrigger>
+          <TabsTrigger value="live" className="gap-2">
+            <Radio className="h-4 w-4" />
+            อันดับสด
           </TabsTrigger>
         </TabsList>
 
@@ -1056,6 +1074,74 @@ export default function TeacherGameAnalytics({ staffId }: { staffId: string }) {
                     </Table>
                   </div>
                 </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ────────── Tab 4: Live Leaderboard (C2) ────────── */}
+        <TabsContent value="live" className="space-y-6 mt-4">
+          <Card className="border border-border bg-card/60 backdrop-blur-md">
+            <CardHeader className="py-4 px-6 border-b border-border flex flex-row items-center justify-between flex-wrap gap-3">
+              <div>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-70"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
+                  </span>
+                  อันดับสด — {selectedGameTitle} ชั้น {selectedClass}
+                </CardTitle>
+                <CardDescription>
+                  อัปเดตอัตโนมัติทุก 8 วินาที · เรียงตามคะแนนสูงสุด · ใช้ฉายบนจอหน้าห้องตอนแข่งได้
+                </CardDescription>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={() => sessionsQuery.refetch()}
+                disabled={sessionsQuery.isFetching}
+              >
+                <RefreshCw className={`h-4 w-4 ${sessionsQuery.isFetching ? 'animate-spin' : ''}`} />
+                รีเฟรช
+              </Button>
+            </CardHeader>
+            <CardContent className="p-4 sm:p-6">
+              {liveRanking.length === 0 ? (
+                <div className="py-16 text-center text-muted-foreground text-sm flex flex-col items-center gap-2">
+                  <Radio className="h-8 w-8 opacity-40" />
+                  <span>ยังไม่มีนักเรียนในห้องนี้เล่น — เมื่อมีคนเล่น อันดับจะขึ้นและอัปเดตสดที่นี่</span>
+                </div>
+              ) : (
+                <ol className="space-y-2">
+                  {liveRanking.map((row, i) => {
+                    const medal = ['🥇', '🥈', '🥉'][i];
+                    return (
+                      <li
+                        key={row.student.id}
+                        className={`flex items-center gap-3 rounded-xl border p-3 ${
+                          i === 0
+                            ? 'border-amber-400/50 bg-amber-400/10'
+                            : i < 3
+                              ? 'border-primary/20 bg-primary/5'
+                              : 'border-border bg-card/40'
+                        }`}
+                      >
+                        <span className="w-8 text-center text-lg font-black">{medal ?? i + 1}</span>
+                        <PersonAvatar name={row.student.name} photoUrl={row.student.photo_url} size="sm" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold truncate">{row.student.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Lv.{row.levelInfo.level} · เล่น {row.playsCount} ครั้ง
+                          </p>
+                        </div>
+                        <span className="text-lg font-black text-primary tabular-nums">
+                          {row.bestScore.toLocaleString('th-TH')}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ol>
               )}
             </CardContent>
           </Card>
