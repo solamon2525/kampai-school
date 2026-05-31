@@ -1468,6 +1468,7 @@
                 this.reflectSetupUI();
                 this.resize();
                 requestAnimationFrame((t) => this.loop(t));
+                this.applyUrlParams();
             }
 
             /* --- Resize & Layout --- */
@@ -1672,6 +1673,19 @@
                 if (gu) gu.classList.toggle('active', this.state.gradeBand === 'upper');
                 if (pt) pt.classList.toggle('active', !!this.state.practice);
                 if (vt) vt.classList.toggle('active', !!this.state.showVisual);
+            }
+            /* --- C1: ครูตั้งโจทย์ผ่านลิงก์ (?grade=&mode=&practice=) --- */
+            applyUrlParams() {
+                let params;
+                try { params = new URLSearchParams(location.search); } catch (e) { return; }
+                const grade = params.get('grade');
+                if (grade === 'lower' || grade === 'upper') this.state.gradeBand = grade;  // session-only ไม่เซฟทับ pref เด็ก
+                if (params.get('practice') === '1') this.state.practice = true;
+                this.reflectSetupUI();
+                const mode = params.get('mode');
+                if (mode && CONFIG.modes[mode]) {
+                    setTimeout(() => { try { this.start(mode); } catch (e) {} }, 60);  // ครูกำหนดโหมด → เริ่มทันที
+                }
             }
             /* --- A5: วาดรูปวงกลมเศษส่วนข้างตั๋วออเดอร์ (conic-gradient) --- */
             renderFractionVisual() {

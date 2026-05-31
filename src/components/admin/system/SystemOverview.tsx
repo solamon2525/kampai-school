@@ -272,8 +272,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.42.9 (Pizza เฟส 4/C3 — รายงานครู "เศษส่วนที่พลาดบ่อย")',
+        version: 'v1.43.0 (Pizza เฟส 4/C1 — ครูตั้งโจทย์ผ่านลิงก์มอบหมาย)',
         date: 'ล่าสุด',
+        badge: 'bg-teal-600',
+        items: [
+            'ครูสร้างลิงก์มอบหมายในหน้าวิเคราะห์เกม: เลือกระดับชั้น + โหมด → คัดลอกลิงก์ /play/pizza-master-chef?grade=&mode= ส่งให้นักเรียน',
+            'PlayGame wrapper ส่งต่อ param (grade/mode/practice) จาก URL เข้า iframe เกมอัตโนมัติ',
+            'เกม pizza อ่าน param: ตั้งระดับชั้น/โหมดฝึกแบบ session-only (ไม่ทับ pref เด็ก) + ถ้าระบุ mode → เริ่มเกมโหมดนั้นทันที',
+            'ทดสอบ headless: grade=lower&mode=compare → auto-start compare+lower, grade=upper&practice=1 → preset ค้างจอเริ่ม, 0 error',
+        ],
+    },
+    {
+        version: 'v1.42.9 (Pizza เฟส 4/C3 — รายงานครู "เศษส่วนที่พลาดบ่อย")',
+        date: '',
         badge: 'bg-teal-600',
         items: [
             'เพิ่มแท็บ "วิเคราะห์เศษส่วน" ใน TeacherGameAnalytics: รวม miss_log จาก game_sessions.metadata ทั้งห้อง → กราฟแท่ง + ตาราง เศษส่วนที่นักเรียนตอบผิดบ่อย (ลดรูป) + จำนวนนักเรียนที่พลาด',

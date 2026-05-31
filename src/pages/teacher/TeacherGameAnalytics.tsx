@@ -17,6 +17,8 @@ import {
   AlertCircle,
   UserCheck,
   Divide,
+  Link2,
+  Copy,
 } from 'lucide-react';
 import {
   BarChart,
@@ -87,6 +89,10 @@ export default function TeacherGameAnalytics({ staffId }: { staffId: string }) {
   // State selections
   const [selectedGame, setSelectedGame] = useState<string>('pizza-master-chef');
   const [selectedClass, setSelectedClass] = useState<string>('ป.4');
+
+  // C1: ตัวสร้างลิงก์มอบหมาย (ครูตั้งระดับชั้น + โหมด)
+  const [assignGrade, setAssignGrade] = useState<string>('');
+  const [assignMode, setAssignMode] = useState<string>('');
 
   // Curve and Grading State
   const [syncTarget, setSyncTarget] = useState<'best' | 'latest'>('best');
@@ -462,6 +468,24 @@ export default function TeacherGameAnalytics({ staffId }: { staffId: string }) {
     return trackedGamesQuery.data?.find((g) => g.game_slug === selectedGame)?.title ?? selectedGame;
   }, [trackedGamesQuery.data, selectedGame]);
 
+  // C1: ลิงก์มอบหมายให้นักเรียน (preset ระดับชั้น/โหมด)
+  const assignmentLink = useMemo(() => {
+    const base = `${window.location.origin}/play/${selectedGame}`;
+    const qs: string[] = [];
+    if (assignGrade) qs.push(`grade=${assignGrade}`);
+    if (assignMode) qs.push(`mode=${assignMode}`);
+    return qs.length ? `${base}?${qs.join('&')}` : base;
+  }, [selectedGame, assignGrade, assignMode]);
+
+  const copyAssignmentLink = async () => {
+    try {
+      await navigator.clipboard.writeText(assignmentLink);
+      toast({ title: 'คัดลอกลิงก์มอบหมายแล้ว', description: 'ส่งให้นักเรียนเปิดเล่นได้เลย' });
+    } catch {
+      toast({ title: 'คัดลอกไม่สำเร็จ', description: assignmentLink, variant: 'destructive' });
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Upper Control Bar */}
@@ -509,6 +533,55 @@ export default function TeacherGameAnalytics({ staffId }: { staffId: string }) {
           </div>
         </CardContent>
       </Card>
+
+      {/* C1: Assignment link builder (รองรับเกมที่อ่าน param เช่น Pizza) */}
+      {selectedGame === 'pizza-master-chef' && (
+        <Card className="border border-border bg-card/60 backdrop-blur-md">
+          <CardHeader className="py-4 px-6 border-b border-border">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Link2 className="h-4.5 w-4.5 text-primary" /> สร้างลิงก์มอบหมาย (ตั้งโจทย์ให้นักเรียน)
+            </CardTitle>
+            <CardDescription>
+              เลือกระดับชั้น + โหมด แล้วส่งลิงก์ให้นักเรียน — เกมจะตั้งค่า/เริ่มโหมดให้อัตโนมัติ
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-6 grid gap-4 md:grid-cols-3 items-end">
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium">ระดับชั้น</Label>
+              <Select value={assignGrade || 'any'} onValueChange={(v) => setAssignGrade(v === 'any' ? '' : v)}>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">ไม่ระบุ (ให้เด็กเลือกเอง)</SelectItem>
+                  <SelectItem value="lower">ป.1-3 (เศษส่วนง่าย ตัวส่วน ≤4)</SelectItem>
+                  <SelectItem value="upper">ป.4-6 (เต็ม)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium">โหมด</Label>
+              <Select value={assignMode || 'any'} onValueChange={(v) => setAssignMode(v === 'any' ? '' : v)}>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">ไม่ระบุ (เลือกในเกม)</SelectItem>
+                  <SelectItem value="classic">คลาสสิก</SelectItem>
+                  <SelectItem value="equivalent">เศษส่วนสมมูล</SelectItem>
+                  <SelectItem value="compare">เทียบเศษส่วน</SelectItem>
+                  <SelectItem value="mixed">จำนวนคละ</SelectItem>
+                  <SelectItem value="half">หน้าฮาล์ฟ</SelectItem>
+                  <SelectItem value="speed">สปีดรัน</SelectItem>
+                  <SelectItem value="delivery">ส่งด่วน</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Button onClick={copyAssignmentLink} className="gap-2">
+              <Copy className="h-4 w-4" /> คัดลอกลิงก์
+            </Button>
+            <div className="md:col-span-3 text-xs font-mono bg-muted/40 border border-border rounded-lg p-2.5 break-all text-muted-foreground">
+              {assignmentLink}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* KPI Stats Board */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

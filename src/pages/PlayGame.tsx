@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import * as LucideIcons from 'lucide-react';
 import {
@@ -55,6 +55,7 @@ type Phase = 'lookup' | 'confirm' | 'pre-game' | 'playing' | 'result';
 // ============================================================================
 const PlayGame = () => {
   const { gameSlug = '' } = useParams<{ gameSlug: string }>();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -316,8 +317,12 @@ const PlayGame = () => {
     const url = gameQuery.data?.external_url;
     if (!url) return null;
     const sep = url.includes('?') ? '&' : '?';
-    return `${url}${sep}embed=1&t=${Date.now()}`;
-  }, [gameQuery.data?.external_url]);
+    // C1: ส่งต่อพารามิเตอร์ "ครูตั้งโจทย์" (grade/mode/practice) เข้าไปในเกม
+    const extra = ['grade', 'mode', 'practice']
+      .map((k) => { const v = searchParams.get(k); return v ? `&${k}=${encodeURIComponent(v)}` : ''; })
+      .join('');
+    return `${url}${sep}embed=1${extra}&t=${Date.now()}`;
+  }, [gameQuery.data?.external_url, searchParams]);
 
   // ─── early returns: 404 / loading ─────────────────────────────────────────
   if (gameQuery.isLoading) {
