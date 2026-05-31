@@ -957,15 +957,34 @@
             </div>
         </div>
 
+        <style>
+          .setup-row { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; align-items:center; margin: 2px 0 14px; }
+          .setup-group { display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.12); padding:6px 10px; border-radius:14px; }
+          .setup-label { color:#fff; font-weight:700; font-size:0.9rem; opacity:0.92; }
+          .btn-opt { min-height:44px; padding:8px 14px; border:2px solid rgba(255,255,255,0.5); background:rgba(255,255,255,0.15); color:#fff; font-weight:700; border-radius:12px; cursor:pointer; font-family:inherit; font-size:0.95rem; transition:all .15s; }
+          .btn-opt:hover { background:rgba(255,255,255,0.28); }
+          .btn-opt.active { background:#fff; color:var(--primary-red); border-color:#fff; box-shadow:0 4px 12px rgba(0,0,0,0.2); }
+          .btn-practice.active { background:#4CAF50; color:#fff; border-color:#4CAF50; }
+        </style>
+
         <!-- ============================================
              START SCREEN
              ============================================ -->
         <div id="start-screen" class="screen">
             <div class="pizza-logo">🍕</div>
             <h1>พิซซ่ามาสเตอร์</h1>
-            <p class="subtitle">เลือกโหมดเพื่อเริ่มเปิดร้าน!</p>
+            <p class="subtitle">เลือกระดับชั้น แล้วเลือกโหมดเพื่อเริ่มเปิดร้าน!</p>
 
             <input type="text" id="player-name" class="name-input" placeholder="ใส่ชื่อเชฟที่นี่..." maxlength="10">
+
+            <div class="setup-row">
+                <div class="setup-group">
+                    <span class="setup-label">ระดับชั้น</span>
+                    <button type="button" class="btn-opt" id="grade-lower" onclick="game.setGrade('lower')">ป.1-3</button>
+                    <button type="button" class="btn-opt" id="grade-upper" onclick="game.setGrade('upper')">ป.4-6</button>
+                </div>
+                <button type="button" class="btn-opt btn-practice" id="practice-toggle" onclick="game.togglePractice()">🧪 ฝึกซ้อม (ไม่จับเวลา)</button>
+            </div>
 
             <div class="mode-container">
                 <button class="btn-mode" onclick="game.start('classic')">
@@ -1268,11 +1287,16 @@
                     score: 0, combo: 0, maxCombo: 0, level: null,
                     isServing: false, deliveryStreak: 0,
                     isFever: false, hasShield: false,
-                    totalServed: 0, totalWrong: 0
+                    totalServed: 0, totalWrong: 0,
+                    missLog: {}   // E1: นับว่าพลาดเศษส่วนไหนบ้าง { '4/8': 2 }
                 };
                 this.state = {
                     timeLeft: 0, maxTime: 60, isPlaying: false, mode: 'classic', playerName: '',
-                    currentWave: 0, waveShown: [false, false, false], isPaused: false
+                    currentWave: 0, waveShown: [false, false, false], isPaused: false,
+                    // A4: ระดับชั้น (lower = ป.1-3 ตัวส่วน ≤4 ไม่ลดรูป / upper = ป.4-6 เต็ม) จำใน localStorage
+                    gradeBand: (localStorage.getItem('pizza_grade_band') === 'lower') ? 'lower' : 'upper',
+                    // A6: โหมดฝึก (ไม่จับเวลา ไม่หักคะแนน ไม่ส่งเข้า leaderboard)
+                    practice: false
                 };
 
                 // Visual systems
@@ -1328,6 +1352,7 @@
                 document.getElementById('btn-serve-0').addEventListener('click', () => this.checkOrder());
 
                 this.highScoreManager.display('leaderboard-list');
+                this.reflectSetupUI();
                 this.resize();
                 requestAnimationFrame((t) => this.loop(t));
             }
@@ -1442,7 +1467,8 @@
                     score: 0, combo: 0, maxCombo: 0, level: null,
                     isServing: false, deliveryStreak: 0,
                     isFever: false, hasShield: false,
-                    totalServed: 0, totalWrong: 0
+                    totalServed: 0, totalWrong: 0,
+                    missLog: {}   // E1: นับว่าพลาดเศษส่วนไหนบ้าง { '4/8': 2 }
                 };
                 this.effects = [];
                 this.confetti = [];
@@ -1487,6 +1513,27 @@
                 this.updateUI();
             }
 
+            /* --- A4/A6: ตัวเลือกก่อนเริ่ม (ระดับชั้น + โหมดฝึก) --- */
+            setGrade(band) {
+                this.state.gradeBand = band;
+                try { localStorage.setItem('pizza_grade_band', band); } catch (e) {}
+                this.reflectSetupUI();
+                this.sound.init(); this.sound.playSelect();
+            }
+            togglePractice() {
+                this.state.practice = !this.state.practice;
+                this.reflectSetupUI();
+                this.sound.init(); this.sound.playSelect();
+            }
+            reflectSetupUI() {
+                const gl = document.getElementById('grade-lower');
+                const gu = document.getElementById('grade-upper');
+                const pt = document.getElementById('practice-toggle');
+                if (gl) gl.classList.toggle('active', this.state.gradeBand === 'lower');
+                if (gu) gu.classList.toggle('active', this.state.gradeBand === 'upper');
+                if (pt) pt.classList.toggle('active', !!this.state.practice);
+            }
+
             /* --- Game Over --- */
             gameOver() {
                 this.state.isPlaying = false;
@@ -1497,7 +1544,10 @@
                     ? Math.round((this.player.totalServed / (this.player.totalServed + this.player.totalWrong)) * 100) : 0;
                 const waveReached = this.state.currentWave + 1;
 
-                if (!EMBED) {
+                // A6: โหมดฝึกไม่บันทึกคะแนน (ทั้ง local + เข้าระบบ) — กัน leaderboard เพี้ยน
+                if (this.state.practice) {
+                    // ไม่ส่งคะแนน
+                } else if (!EMBED) {
                     this.highScoreManager.saveScore(this.state.playerName, this.player.score);
                 } else {
                     try {
@@ -1515,7 +1565,9 @@
                                 accuracy: accuracy,
                                 total_served: this.player.totalServed,
                                 total_wrong: this.player.totalWrong,
-                                wave_reached: waveReached
+                                wave_reached: waveReached,
+                                grade_band: this.state.gradeBand,
+                                miss_log: this.player.missLog   // E1: พลาดเศษส่วนไหนบ้าง (ป้อนรายงานครู/diagnostic)
                             }
                         }, '*');
                     } catch (err) { /* parent gone */ }
@@ -1566,7 +1618,13 @@
 
             getWaveDenominators() {
                 const wave = CONFIG.waves[this.state.currentWave];
-                return wave ? wave.dens : [2, 4];
+                let dens = wave ? wave.dens : [2, 4];
+                // A4: ป.1-3 ใช้เศษส่วนง่าย ตัวส่วนไม่เกิน 4 (ครึ่ง/สาม/สี่) ทุกเวฟ
+                if (this.state.gradeBand === 'lower') {
+                    const easy = dens.filter(d => d <= 4);
+                    dens = easy.length ? easy : [2, 3, 4];
+                }
+                return dens;
             }
 
             getWaveRotMultiplier() {
@@ -1667,7 +1725,7 @@
                     let displayDenominator = orderDenominator;
                     
                     const g = this.gcd(orderNumerator, orderDenominator);
-                    if (g > 1 && this.state.mode !== 'half' && this.rng() < 0.6) {
+                    if (g > 1 && this.state.mode !== 'half' && this.state.gradeBand !== 'lower' && this.rng() < 0.6) {
                         displayNumerator = orderNumerator / g;
                         displayDenominator = orderDenominator / g;
                         if (equivBadge) equivBadge.classList.remove('hidden');
@@ -1847,6 +1905,10 @@
                         this.nextOrder();
                     } else {
                         // Wrong answer
+                        // E1: บันทึกว่าพลาดเศษส่วนไหน (นับทุกครั้งที่ผิด ไม่ว่ามีโล่หรือไม่)
+                        const missKey = `${lvl.numerator}/${lvl.denominator}`;
+                        this.player.missLog[missKey] = (this.player.missLog[missKey] || 0) + 1;
+
                         if (this.player.hasShield) {
                             // Shield absorbs the penalty
                             this.player.hasShield = false;
@@ -1860,7 +1922,8 @@
                             this.sound.setTempo(120);
                             document.body.classList.remove('fever-bg');
                             this.sound.playWrong();
-                            this.state.timeLeft = Math.max(0, this.state.timeLeft - 10);
+                            // A6: โหมดฝึกไม่หักเวลา
+                            if (!this.state.practice) this.state.timeLeft = Math.max(0, this.state.timeLeft - 10);
 
                             // Angry customer visual
                             const customerEmoji = document.getElementById('customer-emoji-0');
@@ -1895,7 +1958,7 @@
                             this.reveal = { active: true, timer: 2.2, indices: revealIdx };
                         }
 
-                        this.spawnFloatingText('ผิดแล้ว! -10s', '#D32F2F');
+                        this.spawnFloatingText(this.state.practice ? 'ลองใหม่นะ!' : 'ผิดแล้ว! -10s', '#D32F2F');
                     }
 
                     this.updateUI();
@@ -2110,11 +2173,13 @@
                     return;
                 }
 
-                // Timer
-                this.state.timeLeft -= dt;
-                const curSec = Math.floor(this.state.timeLeft);
-                if (curSec < this.lastSecond) { this.lastSecond = curSec; if (curSec <= 10 && curSec > 0) this.sound.playTick(); }
-                if (this.state.timeLeft <= 0) { this.state.timeLeft = 0; this.gameOver(); return; }
+                // Timer (A6: โหมดฝึกไม่จับเวลา — ไม่ลดเวลา/ไม่จบเกม)
+                if (!this.state.practice) {
+                    this.state.timeLeft -= dt;
+                    const curSec = Math.floor(this.state.timeLeft);
+                    if (curSec < this.lastSecond) { this.lastSecond = curSec; if (curSec <= 10 && curSec > 0) this.sound.playTick(); }
+                    if (this.state.timeLeft <= 0) { this.state.timeLeft = 0; this.gameOver(); return; }
+                }
 
                 // Update circular timer
                 const timerRing = document.getElementById('timer-ring');
@@ -2127,11 +2192,13 @@
                     else if (this.player.isFever) timerRing.style.stroke = '#FF9800';
                     else timerRing.style.stroke = '#4CAF50';
                 }
-                if (timerText) timerText.textContent = Math.ceil(this.state.timeLeft);
+                if (timerText) timerText.textContent = this.state.practice ? '∞' : Math.ceil(this.state.timeLeft);
 
-                // Wave system (not for speed/mixed)
+                // Wave system (not for speed/mixed) — โหมดฝึกเลื่อนเวฟตามจำนวนที่ทำถูก
                 if (this.state.mode !== 'speed' && this.state.mode !== 'mixed') {
-                    const newWave = this.getCurrentWave();
+                    const newWave = this.state.practice
+                        ? Math.min(CONFIG.waves.length - 1, Math.floor(this.player.totalServed / 4))
+                        : this.getCurrentWave();
                     if (newWave !== this.state.currentWave) {
                         this.state.currentWave = newWave;
                         if (!this.state.waveShown[newWave]) {
