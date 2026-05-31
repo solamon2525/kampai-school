@@ -1302,6 +1302,9 @@
                 // Wrong answer mark
                 this.wrongMark = { active: false, timer: 0 };
 
+                // Reveal-on-wrong: ไฮไลต์ช่องที่ถูกชั่วคราวเมื่อตอบผิด (สอนเด็ก)
+                this.reveal = { active: false, timer: 0, indices: [] };
+
                 this.lastSecond = 0;
                 this.lastTime = 0;
 
@@ -1875,12 +1878,21 @@
                             const got = selectedCount;
                             if (this.state.mode !== 'mixed') {
                                 this.showFeedback(
-                                    `ลูกค้าสั่ง ${expected}/${lvl.denominator} → ต้องเลือก ${expected} ชิ้น แต่หนูเลือกมา ${got} ชิ้น`,
+                                    `ลูกค้าสั่ง ${expected}/${lvl.denominator} → ต้องเลือก ${expected} ชิ้น แต่หนูเลือกมา ${got} ชิ้น (ดูช่องที่ถูกสีเขียว)`,
                                     'wrong'
                                 );
                             } else {
-                                this.showFeedback('ผิดแล้ว! ลองนับจำนวนชิ้นใหม่นะ', 'wrong');
+                                this.showFeedback('ผิดแล้ว! ดูช่องที่ถูก (สีเขียว) แล้วลองใหม่นะ', 'wrong');
                             }
+
+                            // เฉลยช่องที่ถูกแบบภาพ (ไฮไลต์เขียวชั่วคราว) — สอนเด็กจากที่พลาด
+                            const revealIdx = [];
+                            if (this.state.mode === 'half' && lvl.sliceToppings) {
+                                lvl.sliceToppings.forEach((t, idx) => { if (t === lvl.targetTopping) revealIdx.push(idx); });
+                            } else {
+                                for (let k = 0; k < lvl.numerator; k++) revealIdx.push(k);
+                            }
+                            this.reveal = { active: true, timer: 2.2, indices: revealIdx };
                         }
 
                         this.spawnFloatingText('ผิดแล้ว! -10s', '#D32F2F');
@@ -2224,6 +2236,10 @@
                     this.wrongMark.timer -= dt;
                     if (this.wrongMark.timer <= 0) this.wrongMark.active = false;
                 }
+                if (this.reveal.active) {
+                    this.reveal.timer -= dt;
+                    if (this.reveal.timer <= 0) this.reveal.active = false;
+                }
             }
 
             /* ============================================
@@ -2275,22 +2291,37 @@
                     this.drawPizza(p, layout.cx, layout.cy, layout.r);
                 }
 
-                // Draw selection counter in center of first pizza
-                if (this.pizzaLayouts[0]) {
-                    const lay = this.pizzaLayouts[0];
-                    const selCount = lvl.selected.filter(Boolean).length;
-                    const totalForDisplay = (this.state.mode === 'mixed') ? lvl.totalSlices : lvl.denominator;
+                // (เอาตัวเลขนับกลางถาดออก — เด็กต้องนับช่องเองจากการมอง = ฝึกจริง)
+
+                // Reveal-on-wrong: ไฮไลต์ช่องที่ถูกเป็นสีเขียวชั่วคราว (สอนจากที่พลาด)
+                if (this.reveal.active && this.reveal.indices.length) {
+                    const sc = lvl.sliceCount;
+                    const sliceAngle = (Math.PI * 2) / sc;
+                    const pulse = 0.45 + 0.35 * Math.abs(Math.sin(this.reveal.timer * 6));
+                    const fade = Math.min(1, this.reveal.timer);
                     ctx.save();
-                    ctx.fillStyle = 'rgba(0,0,0,0.6)';
-                    ctx.beginPath();
-                    ctx.arc(lay.cx, lay.cy, Math.max(18, lay.r * 0.15), 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.fillStyle = '#fff';
-                    ctx.font = `bold ${Math.max(12, lay.r * 0.12)}px 'Kanit', sans-serif`;
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(`${selCount}/${totalForDisplay}`, lay.cx, lay.cy);
+                    for (const gi of this.reveal.indices) {
+                        const p = Math.floor(gi / sc);
+                        const li = gi % sc;
+                        const lay = this.pizzaLayouts[p];
+                        if (!lay) continue;
+                        const a0 = lvl.rotation + li * sliceAngle;
+                        const a1 = a0 + sliceAngle;
+                        ctx.globalAlpha = fade * 0.32;
+                        ctx.beginPath();
+                        ctx.moveTo(lay.cx, lay.cy);
+                        ctx.arc(lay.cx, lay.cy, lay.r, a0, a1);
+                        ctx.closePath();
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.fill();
+                        ctx.globalAlpha = fade * pulse;
+                        ctx.strokeStyle = '#2E7D32';
+                        ctx.lineWidth = 5;
+                        ctx.lineJoin = 'round';
+                        ctx.stroke();
+                    }
                     ctx.restore();
+                    ctx.globalAlpha = 1;
                 }
 
                 // Draw wrong mark
