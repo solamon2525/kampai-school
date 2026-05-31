@@ -55,7 +55,7 @@ const Plus = _mkIcon('Plus'), Minus = _mkIcon('Minus'), X = _mkIcon('X'), Divide
   Lightbulb = _mkIcon('Lightbulb'), CheckCircle = _mkIcon('CheckCircle'), XCircle = _mkIcon('XCircle'),
   Trophy = _mkIcon('Trophy'), ArrowRight = _mkIcon('ArrowRight'), Star = _mkIcon('Star'),
   TrendingUp = _mkIcon('TrendingUp'), Volume2 = _mkIcon('Volume2'), VolumeX = _mkIcon('VolumeX'),
-  Map = _mkIcon('Map'), Lock = _mkIcon('Lock'), Heart = _mkIcon('Heart'), Clock = _mkIcon('Clock'),
+  MapIcon = _mkIcon('Map'), Lock = _mkIcon('Lock'), Heart = _mkIcon('Heart'), Clock = _mkIcon('Clock'),
   ShieldAlert = _mkIcon('ShieldAlert'), Swords = _mkIcon('Swords'), ChevronLeft = _mkIcon('ChevronLeft'),
   Award = _mkIcon('Award'), Home = _mkIcon('Home');
 
@@ -481,7 +481,7 @@ function MathDetectiveApp() {
           {[
             { id: 'wizard', icon: Lightbulb, label: 'เครื่องช่วยคิด', color: 'text-amber-600', activeBorder: 'border-amber-400' },
             { id: 'reference', icon: BookOpen, label: 'คลังคำศัพท์', color: 'text-blue-600', activeBorder: 'border-blue-400' },
-            { id: 'campaign', icon: Map, label: 'แฟ้มคดีปริศนา', color: 'text-purple-600', activeBorder: 'border-purple-400' }
+            { id: 'campaign', icon: MapIcon, label: 'แฟ้มคดีปริศนา', color: 'text-purple-600', activeBorder: 'border-purple-400' }
           ].map((tab) => (
             <button
               key={tab.id}
@@ -835,7 +835,7 @@ function MathDetectiveApp() {
                   
                   <div className="flex flex-col gap-4">
                     <button onClick={() => { setCampaignView(currentLevelId === 'boss' ? 'map' : 'caseDetails'); playSound('click'); }} className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-4 px-10 rounded-full shadow-lg transition flex items-center justify-center gap-2 text-xl active:scale-95 border-b-4 border-amber-700">
-                      <Map size={28} /> {currentLevelId === 'boss' ? 'กลับสู่แผนที่หลัก' : 'เลือกด่านต่อไป'}
+                      <MapIcon size={28} /> {currentLevelId === 'boss' ? 'กลับสู่แผนที่หลัก' : 'เลือกด่านต่อไป'}
                     </button>
                   </div>
                 </div>

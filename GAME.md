@@ -216,6 +216,7 @@ function navigateBack() {
 | `gameSlug: 'TODO-CHANGE-ME'` | `gameSlug: 'fishing'` ตรงกับ DB |
 | Save score ที่ localStorage แทน sendGameEnd | sendGameEnd ส่งคืน wrapper (wrapper บันทึก DB) |
 | เขียน lucide shim เอง map ผิด level (node 3-tuple) | ใช้ `_mkIcon` จาก `_template-react.html` (อ่าน `node[2]`) |
+| `const Map = _mkIcon('Map')` (ไอคอนชื่อชน JS global: Map/Set/Promise) | เปลี่ยนชื่อ binding → `MapIcon`/`SetIcon` — `const` ทับ global ใน lexical scope ที่แชร์ทุก script → Tailwind Play CDN เรียก `new Map().set()` พัง (`i.set is not a function`) → **ไม่มี CSS เลย** (เกมขึ้นแต่จอเบี้ยว ไม่ใช่จอดำ → render check ผ่าน จับไม่ได้ ต้องเปิด browser) |
 
 ---
 

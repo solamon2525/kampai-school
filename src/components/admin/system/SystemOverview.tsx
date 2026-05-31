@@ -280,6 +280,7 @@ const versionHistory = [
             'Port เป็น single-file Babel (React 18 UMD + _mkIcon shim) → public/games/math/detective.html, render Check 7 ผ่าน (DOM 7367 ตัวอักษร)',
             'ฝัง KAMPAI SDK: submitScore 4 จุดจบเกม (ด่านสำเร็จ/ล้มเหลว, บอสชนะ/หมดเวลา) + การ์ดสถิติฉัน + ตารางอันดับนักเรียนในจอแผนที่ + ปุ่มกลับหน้าหลัก',
             'Migration 108: ย้าย Storage → git (repoint external_url → /games/math/detective.html), verify:game 7/7',
+            'Fix จอเบี้ยว: ไอคอน lucide ชื่อ Map (const Map=...) ทับ global Map → Tailwind Play CDN พัง (i.set is not a function) ไม่มี CSS เลย — rename เป็น MapIcon (ยืนยันด้วย headless Chrome screenshot)',
         ],
     },
     {
