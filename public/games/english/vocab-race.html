@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>แข่งคำศัพท์ — Vocabulary Race (kampai)</title>
+<!--
+═══════════════════════════════════════════════════════════════════════════
+  KAMPAI-SCHOOL · เกม "แข่งคำศัพท์" (vocab-race) — วิชาภาษาอังกฤษ
+  Quiz Race คำศัพท์ ป.1–6: emoji + คำไทย → เลือกคำอังกฤษ (8 หมวดตามหลักสูตร)
+  โหมด: แข่งเร็ว · ฝึกหมวด · 🌐 ออนไลน์ (เฟรมเวิร์ก kampai-match — แข่งสด 60 วิ)
+═══════════════════════════════════════════════════════════════════════════
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Fredoka+One&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; font-family: 'Kanit', sans-serif; color: #fff; overflow: hidden; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+body { background: linear-gradient(180deg, #155e75 0%, #0f172a 100%); }
+#app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+
+/* HUD */
+#hud { display: none; align-items: center; justify-content: space-between; padding: 14px 18px; gap: 10px; }
+#hud.on { display: flex; }
+#score-container { font-size: 26px; font-weight: 700; color: #FFD700; text-shadow: 2px 2px 4px #000; background: rgba(0,0,0,0.35); padding: 4px 16px; border-radius: 999px; border: 2px solid rgba(255,215,0,0.5); transition: transform 0.15s; white-space: nowrap; }
+#score-container.pop { transform: scale(1.18); }
+#combo-badge { font-family: 'Fredoka One', cursive; font-size: 16px; color: #0f172a; background: linear-gradient(45deg,#fbbf24,#f59e0b); padding: 4px 12px; border-radius: 999px; opacity: 0; transform: scale(0.6); transition: all 0.18s; white-space: nowrap; }
+#combo-badge.on { opacity: 1; transform: scale(1); }
+#life-container { font-size: 24px; white-space: nowrap; }
+
+#timer-wrap { height: 10px; background: rgba(255,255,255,0.12); margin: 0 18px; border-radius: 999px; overflow: hidden; display: none; }
+#timer-wrap.on { display: block; }
+#timer-bar { height: 100%; width: 100%; background: linear-gradient(90deg,#4ade80,#22c55e); border-radius: 999px; transition: width 0.1s linear, background 0.3s; }
+#timer-bar.warn { background: linear-gradient(90deg,#f87171,#ef4444); }
+
+/* พื้นเล่น */
+#play { flex: 1; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 16px; gap: 18px; }
+#play.on { display: flex; }
+#q-emoji { font-size: clamp(72px, 22vw, 130px); line-height: 1; }
+#q-th { font-family: 'Fredoka One', cursive; font-size: clamp(26px, 7vw, 44px); color: #fde68a; }
+#feedback { height: 24px; font-size: 20px; font-weight: 600; }
+#feedback.good { color: #4ade80; }
+#feedback.bad { color: #f87171; }
+#answers { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 460px; }
+.ans { font-family: 'Fredoka One', cursive; font-size: clamp(20px, 5.5vw, 30px); padding: 18px 6px; border: none; border-radius: 16px; cursor: pointer; color: #1e293b; background: #f8fafc; box-shadow: 0 5px 0 #cbd5e1; transition: transform 0.08s, box-shadow 0.08s; word-break: break-word; }
+.ans:active { transform: translateY(4px); box-shadow: 0 1px 0 #cbd5e1; }
+.ans.correct { background: linear-gradient(135deg,#86efac,#22c55e); color: #052e16; box-shadow: 0 5px 0 #15803d; }
+.ans.wrong { background: linear-gradient(135deg,#fca5a5,#ef4444); color: #450a0a; box-shadow: 0 5px 0 #b91c1c; }
+.ans.dim { opacity: 0.45; }
+.ans .k { display: block; font-family: 'Kanit'; font-size: 11px; color: #94a3b8; margin-bottom: 2px; }
+
+/* จอ */
+.screen { position: absolute; inset: 0; background: rgba(15,23,42,0.94); backdrop-filter: blur(8px); display: none; flex-direction: column; align-items: center; justify-content: flex-start; z-index: 30; text-align: center; padding: 28px 22px; overflow-y: auto; }
+.screen.on { display: flex; }
+.screen h1 { font-family: 'Fredoka One', cursive; font-size: 36px; margin-bottom: 6px; background: linear-gradient(135deg, #FFD700, #FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.screen p { font-size: 16px; color: #cbd5e1; margin-bottom: 14px; line-height: 1.5; }
+#final-score { color: #FFD700; font-family: 'Fredoka One', cursive; font-size: 56px; margin: 4px 0 6px; }
+#final-detail { font-size: 15px; color: #cbd5e1; margin-bottom: 12px; }
+.btn { padding: 14px 30px; font-family: inherit; font-size: 19px; font-weight: 600; border-radius: 999px; border: none; cursor: pointer; margin: 6px; transition: transform 0.1s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; color: #fff; }
+.btn:active { transform: scale(0.95); }
+.btn-primary { background: linear-gradient(45deg, #f59e0b, #f97316); box-shadow: 0 4px 10px rgba(245,158,11,0.4); }
+.btn-blue { background: linear-gradient(45deg, #3b82f6, #2563eb); box-shadow: 0 4px 10px rgba(59,130,246,0.4); }
+.btn-ghost { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25); }
+.mode-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 8px; }
+#cat-picker { display: none; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 440px; margin: 4px auto 14px; }
+#cat-picker.on { display: flex; }
+.cchip { padding: 10px 16px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; }
+
+/* leaderboard + chip (เหมือน multiply-race) */
+.leaderboard-box { background: rgba(255,255,255,0.95); color: #2c3e50; border-radius: 12px; padding: 12px 15px; margin: 10px 0; width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.lb-title { font-family: 'Fredoka One', cursive; font-size: 1rem; margin: 0 0 8px 0; text-align: left; }
+.leaderboard-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.leaderboard-list li { display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-bottom: 1px dashed #dee2e6; }
+.leaderboard-list li:last-child { border-bottom: none; }
+.leaderboard-list li.is-me { background: #fff7e0; border-radius: 8px; }
+.lb-rank { font-family: 'Fredoka One', cursive; color: #f39c12; min-width: 26px; text-align: center; font-size: 1.1rem; }
+.lb-avatar, .lb-avatar-init { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #f39c12; flex-shrink: 0; }
+.lb-avatar-init { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.lb-info { display: flex; flex-direction: column; min-width: 0; flex: 1; text-align: left; }
+.lb-name { font-family: 'Fredoka One', cursive; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-sub { font-size: 0.72rem; color: #868e96; }
+.lb-loading { color: #868e96; text-align: center; padding: 8px; font-size: 0.85rem; }
+#player-chip { display: none; align-items: center; gap: 8px; background: rgba(255,255,255,0.1); padding: 4px 14px 4px 4px; border-radius: 999px; font-size: 14px; margin-bottom: 12px; }
+#player-chip img, #player-chip .pc-init { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+#player-chip .pc-init { background: linear-gradient(135deg,#6c5ce7,#a29bfe); display: flex; align-items: center; justify-content: center; font-weight: 700; }
+#player-chip .pc-best { color: #FFD700; font-weight: 700; }
+/* โหมดออนไลน์: lobby/countdown/scoreboard/อันดับ จัดการโดย kampai-match.js */
+</style>
+</head>
+<body>
+<div id="app">
+    <div id="hud">
+        <div id="score-container">⭐ <span id="score-value">0</span></div>
+        <div id="combo-badge">🔥 x1</div>
+        <div id="life-container">❤️❤️❤️</div>
+    </div>
+    <div id="timer-wrap"><div id="timer-bar"></div></div>
+
+    <div id="play">
+        <div id="q-emoji">🐱</div>
+        <div id="q-th">แมว</div>
+        <div id="feedback"></div>
+        <div id="answers"></div>
+    </div>
+</div>
+
+<!-- Start -->
+<div id="start" class="screen on">
+    <h1>🔤 แข่งคำศัพท์</h1>
+    <div id="player-chip"></div>
+    <p>ดูรูป + คำไทย แล้วเลือก<b>คำภาษาอังกฤษ</b>ที่ถูก!<br>ตอบไว ต่อเนื่อง ได้ตัวคูณคะแนน 🔥 — แตะ หรือกดเลข 1–4</p>
+    <div class="mode-grid">
+        <button class="btn btn-primary" onclick="chooseMode('race')">⚡ แข่งเร็ว</button>
+        <button class="btn btn-blue" onclick="openOnline()">🌐 ออนไลน์</button>
+        <button class="btn btn-ghost" onclick="chooseMode('practice')">📚 ฝึกหมวด</button>
+    </div>
+    <div id="cat-picker"></div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+    </div>
+</div>
+
+<!-- Game Over -->
+<div id="gameover" class="screen">
+    <h1>จบเกม!</h1>
+    <div id="final-score">0</div>
+    <div id="final-detail"></div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
+        <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นอีกครั้ง</button>
+        <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+    </div>
+</div>
+
+<!-- โหมดออนไลน์: จอ lobby/นับถอยหลัง/คะแนนสด/อันดับ render โดย kampai-match.js -->
+
+<!-- ═══ KAMPAI SDK (single source — อย่าแก้) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, online:{available:false,makeCode:function(){return'0000';},join:function(){return this;},send:function(){return this;},leave:function(){return this;}} };</script>
+<!-- ═══ KAMPAI Match — เฟรมเวิร์กเกมออนไลน์ (single source — อย่าแก้) ═══ -->
+<script src="/games/kampai-match.js"></script>
+<script>window.KampaiMatch = window.KampaiMatch || { create:function(){ return { available:false, openMenu:function(){ alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); }, report:function(){}, finish:function(){}, leave:function(){} }; } };</script>
+
+<script>
+/* ═══ SECTION A · ตั้งค่า ═══ */
+const GAME_SLUG = 'vocab-race';
+KAMPAI.setSlug(GAME_SLUG);
+const $ = (id) => document.getElementById(id);
+
+/* ═══ SECTION B · ข้อมูลนักเรียน + leaderboard (จาก KAMPAI) ═══ */
+function renderPlayer() {
+    const s = KAMPAI.student, st = KAMPAI.stats;
+    if (!s) return;
+    const chip = $('player-chip');
+    const av = s.photoUrl ? `<img src="${s.photoUrl}" alt="">` : `<div class="pc-init">${(s.displayName||'?')[0]}</div>`;
+    const best = st ? ` · <span class="pc-best">สถิติ ${st.personalBest.toLocaleString()}</span>` : '';
+    chip.innerHTML = av + `<span>${s.displayName}${best}</span>`;
+    chip.style.display = 'flex';
+}
+function renderLeaderboard(listId) {
+    const el = $(listId);
+    if (!el) return;
+    const rows = KAMPAI.leaderboard || [];
+    if (!rows.length) { el.innerHTML = '<li class="lb-loading">ยังไม่มีผู้เล่น — เป็นคนแรกสิ!</li>'; return; }
+    const medals = ['🥇','🥈','🥉'];
+    el.innerHTML = rows.slice(0, 5).map((r) => {
+        const av = r.photoUrl ? `<img class="lb-avatar" src="${r.photoUrl}" alt="">` : `<div class="lb-avatar-init">${(r.displayName||'?')[0]}</div>`;
+        return `<li class="${r.isMe ? 'is-me' : ''}">
+            <span class="lb-rank">${medals[r.rank-1] || r.rank}</span>${av}
+            <div class="lb-info"><div class="lb-name">${r.displayName}${r.isMe ? ' (คุณ)' : ''}</div>
+            <div class="lb-sub">${(r.personalBest||0).toLocaleString()} คะแนน · ${r.classLabel||''}</div></div>
+        </li>`;
+    }).join('');
+}
+KAMPAI.onReady(function () { renderPlayer(); renderLeaderboard('score-list'); });
+
+/* ═══ SECTION C · GAME LOGIC — คลังคำศัพท์ + ควิซ ═══ */
+// คลังคำศัพท์ตามหลักสูตร ป.1–6 (8 หมวด) — { th, en, emoji, cat }
+const CATS = [
+    { key: 'animals', label: '🐾 สัตว์' },
+    { key: 'colors',  label: '🎨 สี' },
+    { key: 'family',  label: '👪 ครอบครัว' },
+    { key: 'food',    label: '🍚 อาหาร' },
+    { key: 'body',    label: '🧍 ร่างกาย' },
+    { key: 'numbers', label: '🔢 ตัวเลข' },
+    { key: 'school',  label: '🏫 โรงเรียน' },
+    { key: 'fruits',  label: '🍎 ผลไม้' },
+];
+const WORDS = [
+    { th:'แมว', en:'cat', emoji:'🐱', cat:'animals' }, { th:'หมา', en:'dog', emoji:'🐶', cat:'animals' },
+    { th:'นก', en:'bird', emoji:'🐦', cat:'animals' }, { th:'ปลา', en:'fish', emoji:'🐟', cat:'animals' },
+    { th:'วัว', en:'cow', emoji:'🐄', cat:'animals' }, { th:'หมู', en:'pig', emoji:'🐷', cat:'animals' },
+    { th:'เป็ด', en:'duck', emoji:'🦆', cat:'animals' }, { th:'ช้าง', en:'elephant', emoji:'🐘', cat:'animals' },
+    { th:'เสือ', en:'tiger', emoji:'🐯', cat:'animals' }, { th:'ลิง', en:'monkey', emoji:'🐵', cat:'animals' },
+    { th:'กระต่าย', en:'rabbit', emoji:'🐰', cat:'animals' }, { th:'ม้า', en:'horse', emoji:'🐴', cat:'animals' },
+
+    { th:'สีแดง', en:'red', emoji:'🟥', cat:'colors' }, { th:'สีน้ำเงิน', en:'blue', emoji:'🟦', cat:'colors' },
+    { th:'สีเขียว', en:'green', emoji:'🟩', cat:'colors' }, { th:'สีเหลือง', en:'yellow', emoji:'🟨', cat:'colors' },
+    { th:'สีดำ', en:'black', emoji:'⬛', cat:'colors' }, { th:'สีขาว', en:'white', emoji:'⬜', cat:'colors' },
+    { th:'สีส้ม', en:'orange', emoji:'🟧', cat:'colors' }, { th:'สีม่วง', en:'purple', emoji:'🟪', cat:'colors' },
+    { th:'สีชมพู', en:'pink', emoji:'🌸', cat:'colors' }, { th:'สีน้ำตาล', en:'brown', emoji:'🟫', cat:'colors' },
+
+    { th:'พ่อ', en:'father', emoji:'👨', cat:'family' }, { th:'แม่', en:'mother', emoji:'👩', cat:'family' },
+    { th:'พี่ชาย/น้องชาย', en:'brother', emoji:'👦', cat:'family' }, { th:'พี่สาว/น้องสาว', en:'sister', emoji:'👧', cat:'family' },
+    { th:'เด็กทารก', en:'baby', emoji:'👶', cat:'family' }, { th:'ปู่/ตา', en:'grandfather', emoji:'👴', cat:'family' },
+    { th:'ย่า/ยาย', en:'grandmother', emoji:'👵', cat:'family' }, { th:'ครอบครัว', en:'family', emoji:'👪', cat:'family' },
+
+    { th:'ข้าว', en:'rice', emoji:'🍚', cat:'food' }, { th:'ไข่', en:'egg', emoji:'🥚', cat:'food' },
+    { th:'นม', en:'milk', emoji:'🥛', cat:'food' }, { th:'ขนมปัง', en:'bread', emoji:'🍞', cat:'food' },
+    { th:'น้ำ', en:'water', emoji:'💧', cat:'food' }, { th:'ไก่', en:'chicken', emoji:'🍗', cat:'food' },
+    { th:'ก๋วยเตี๋ยว', en:'noodle', emoji:'🍜', cat:'food' }, { th:'ซุป', en:'soup', emoji:'🥣', cat:'food' },
+
+    { th:'ตา', en:'eye', emoji:'👁️', cat:'body' }, { th:'หู', en:'ear', emoji:'👂', cat:'body' },
+    { th:'จมูก', en:'nose', emoji:'👃', cat:'body' }, { th:'ปาก', en:'mouth', emoji:'👄', cat:'body' },
+    { th:'มือ', en:'hand', emoji:'✋', cat:'body' }, { th:'เท้า', en:'foot', emoji:'🦶', cat:'body' },
+    { th:'ขา', en:'leg', emoji:'🦵', cat:'body' }, { th:'ฟัน', en:'tooth', emoji:'🦷', cat:'body' },
+
+    { th:'หนึ่ง', en:'one', emoji:'1️⃣', cat:'numbers' }, { th:'สอง', en:'two', emoji:'2️⃣', cat:'numbers' },
+    { th:'สาม', en:'three', emoji:'3️⃣', cat:'numbers' }, { th:'สี่', en:'four', emoji:'4️⃣', cat:'numbers' },
+    { th:'ห้า', en:'five', emoji:'5️⃣', cat:'numbers' }, { th:'หก', en:'six', emoji:'6️⃣', cat:'numbers' },
+    { th:'เจ็ด', en:'seven', emoji:'7️⃣', cat:'numbers' }, { th:'แปด', en:'eight', emoji:'8️⃣', cat:'numbers' },
+    { th:'เก้า', en:'nine', emoji:'9️⃣', cat:'numbers' }, { th:'สิบ', en:'ten', emoji:'🔟', cat:'numbers' },
+
+    { th:'หนังสือ', en:'book', emoji:'📖', cat:'school' }, { th:'ปากกา', en:'pen', emoji:'🖊️', cat:'school' },
+    { th:'ดินสอ', en:'pencil', emoji:'✏️', cat:'school' }, { th:'กระเป๋า', en:'bag', emoji:'🎒', cat:'school' },
+    { th:'ไม้บรรทัด', en:'ruler', emoji:'📏', cat:'school' }, { th:'กรรไกร', en:'scissors', emoji:'✂️', cat:'school' },
+    { th:'นาฬิกา', en:'clock', emoji:'🕐', cat:'school' }, { th:'สีเทียน', en:'crayon', emoji:'🖍️', cat:'school' },
+
+    { th:'แอปเปิล', en:'apple', emoji:'🍎', cat:'fruits' }, { th:'กล้วย', en:'banana', emoji:'🍌', cat:'fruits' },
+    { th:'ส้ม', en:'orange', emoji:'🍊', cat:'fruits' }, { th:'มะม่วง', en:'mango', emoji:'🥭', cat:'fruits' },
+    { th:'องุ่น', en:'grape', emoji:'🍇', cat:'fruits' }, { th:'แตงโม', en:'watermelon', emoji:'🍉', cat:'fruits' },
+    { th:'สตรอว์เบอร์รี', en:'strawberry', emoji:'🍓', cat:'fruits' }, { th:'สับปะรด', en:'pineapple', emoji:'🍍', cat:'fruits' },
+    { th:'มะพร้าว', en:'coconut', emoji:'🥥', cat:'fruits' }, { th:'มะนาว', en:'lemon', emoji:'🍋', cat:'fruits' },
+];
+
+let score = 0, lives = 3, streak = 0, maxStreak = 0, correctCount = 0, answered = 0;
+let mode = 'race';                 // 'race' | 'practice' | 'online'
+let selectedCat = null;
+let curWord = null, curEn = '';
+let qStart = 0, qLimit = 0, rafId = 0, locked = false, started = false;
+
+// seeded PRNG (mulberry32) — โหมดออนไลน์ให้คำตรงกันทุกเครื่อง; default = Math.random
+let qrand = Math.random;
+function seedRng(seed) {
+    let a = (seed >>> 0) || 1;
+    qrand = function () {
+        a |= 0; a = (a + 0x6D2B79F5) | 0;
+        let t = Math.imul(a ^ (a >>> 15), 1 | a);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+}
+
+function chooseMode(m) {
+    mode = m;
+    const picker = $('cat-picker');
+    if (m === 'practice') {
+        picker.innerHTML = CATS.map(c => `<button class="cchip" onclick="startGame('${c.key}')">${c.label}</button>`).join('');
+        picker.classList.add('on');
+        picker.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+        picker.classList.remove('on');
+        startGame(null);
+    }
+}
+
+function startGame(cat) {
+    if (started) return;
+    started = true;
+    selectedCat = cat;
+    score = 0; lives = 3; streak = 0; maxStreak = 0; correctCount = 0; answered = 0;
+    $('start').classList.remove('on');
+    $('hud').classList.add('on');
+    $('play').classList.add('on');
+    if (mode === 'race') { $('life-container').style.display = ''; $('timer-wrap').classList.add('on'); }
+    else { $('life-container').style.display = 'none'; $('timer-wrap').classList.remove('on'); }
+    setScore(0); setLives(3); updateCombo();
+    nextQuestion();
+}
+
+function pool() {
+    return (mode === 'practice' && selectedCat) ? WORDS.filter(w => w.cat === selectedCat) : WORDS;
+}
+
+function nextQuestion() {
+    locked = false;
+    const p = pool();
+    curWord = p[(qrand() * p.length) | 0];
+    curEn = curWord.en;
+
+    $('q-emoji').textContent = curWord.emoji;
+    $('q-th').textContent = curWord.th;
+    $('feedback').textContent = '';
+    $('feedback').className = '';
+
+    // ตัวลวง: คำอังกฤษอื่นในหมวดเดียวกัน (กันง่าย/ยากเกิน) เติมจากทั้งคลังถ้าไม่พอ
+    const same = WORDS.filter(w => w.cat === curWord.cat && w.en !== curEn);
+    const opts = new Set([curEn]);
+    while (opts.size < 4 && same.length) { opts.add(same.splice((Math.random()*same.length)|0, 1)[0].en); }
+    const others = WORDS.filter(w => !opts.has(w.en));
+    while (opts.size < 4 && others.length) { opts.add(others.splice((Math.random()*others.length)|0, 1)[0].en); }
+    const list = [...opts].sort(() => Math.random() - 0.5);
+
+    $('answers').innerHTML = list.map((en, i) =>
+        `<button class="ans" data-v="${en}" onclick="answer(this)"><span class="k">กด ${i+1}</span>${en}</button>`
+    ).join('');
+
+    if (mode === 'race') {
+        qLimit = Math.max(2600, 6000 - correctCount * 120);
+        qStart = performance.now();
+        $('timer-bar').classList.remove('warn');
+        cancelAnimationFrame(rafId);
+        tickTimer();
+    }
+}
+
+function tickTimer() {
+    const elapsed = performance.now() - qStart;
+    const frac = Math.max(0, 1 - elapsed / qLimit);
+    const bar = $('timer-bar');
+    bar.style.width = (frac * 100) + '%';
+    if (frac < 0.33) bar.classList.add('warn');
+    if (frac <= 0) { timeUp(); return; }
+    rafId = requestAnimationFrame(tickTimer);
+}
+function timeUp() {
+    if (locked) return;
+    locked = true;
+    cancelAnimationFrame(rafId);
+    streak = 0; updateCombo();
+    revealCorrect();
+    flash('หมดเวลา! ⏱️', false);
+    setLives(lives - 1);
+    if (lives > 0) setTimeout(nextQuestion, 900);
+}
+
+function answer(btn) {
+    if (locked) return;
+    locked = true;
+    cancelAnimationFrame(rafId);
+    answered++;
+    const v = btn.dataset.v;
+    const online = mode === 'online';
+
+    if (v === curEn) {
+        btn.classList.add('correct');
+        correctCount++;
+        streak++; maxStreak = Math.max(maxStreak, streak);
+        const mult = comboMult();
+        let gained = 10;
+        if (mode === 'race') {
+            const frac = Math.max(0, 1 - (performance.now() - qStart) / qLimit);
+            gained += Math.round(frac * 10);   // โบนัสความเร็ว (ออนไลน์ไม่มี — แข่งที่จำนวนข้อ)
+        }
+        gained *= mult;
+        setScore(score + gained);
+        updateCombo();
+        flash(`+${gained}` + (mult > 1 ? `  (x${mult})` : '') + ' ✓', true);
+        if (online) { match.report(score, { correct: correctCount }); scheduleNext(340); }
+        else setTimeout(nextQuestion, mode === 'practice' ? 600 : 520);
+    } else {
+        btn.classList.add('wrong');
+        revealCorrect();
+        streak = 0; updateCombo();
+        flash(`ผิด! คำตอบคือ "${curEn}"`, false);
+        if (mode === 'race') {
+            setLives(lives - 1);
+            if (lives > 0) setTimeout(nextQuestion, 1200);
+        } else if (online) {
+            match.report(score, { correct: correctCount }); scheduleNext(760);
+        } else {
+            setTimeout(nextQuestion, 1200);
+        }
+    }
+}
+function scheduleNext(ms) { setTimeout(() => { if (!onlineEnded) nextQuestion(); }, ms); }
+
+function revealCorrect() {
+    document.querySelectorAll('.ans').forEach(b => {
+        if (b.dataset.v === curEn) b.classList.add('correct');
+        else b.classList.add('dim');
+    });
+}
+function comboMult() { return Math.min(5, 1 + Math.floor(streak / 5)); }
+function updateCombo() {
+    const badge = $('combo-badge');
+    const m = comboMult();
+    if (streak >= 3) { badge.textContent = `🔥 x${m} · ${streak} ต่อ`; badge.classList.add('on'); }
+    else badge.classList.remove('on');
+}
+function flash(msg, good) { const f = $('feedback'); f.textContent = msg; f.className = good ? 'good' : 'bad'; }
+function setScore(n) {
+    score = Math.max(0, n);
+    $('score-value').textContent = score;
+    const w = $('score-container'); w.classList.add('pop'); setTimeout(() => w.classList.remove('pop'), 150);
+}
+function setLives(n) {
+    lives = Math.max(0, n);
+    let str = ''; for (let i = 0; i < 3; i++) str += (i < lives) ? '❤️' : '🖤';
+    $('life-container').textContent = str;
+    if (lives <= 0) endGame();
+}
+
+let isGameOver = false;
+function endGame() {
+    if (isGameOver) return;
+    isGameOver = true;
+    cancelAnimationFrame(rafId);
+    if (mode === 'race') {
+        KAMPAI.submitScore(score, { mode: 'normal', correct: correctCount, maxStreak: maxStreak });
+    }
+    $('hud').classList.remove('on');
+    $('timer-wrap').classList.remove('on');
+    $('play').classList.remove('on');
+    $('final-score').textContent = score;
+    $('final-detail').textContent = `ตอบถูก ${correctCount} คำ · สูงสุด ${maxStreak} ต่อเนื่อง` +
+        (mode === 'practice' ? ' · (โหมดฝึก ไม่นับอันดับ)' : '');
+    $('gameover').classList.add('on');
+    renderLeaderboard('score-list-gameover');
+}
+
+/* ═══ โหมดออนไลน์ — เฟรมเวิร์ก KampaiMatch (lobby/นับถอยหลัง/คะแนนสด/อันดับ) ═══ */
+let match = null, onlineEnded = false;
+function ensureMatch() {
+    if (match) return match;
+    match = KampaiMatch.create({
+        duration: 60,
+        title: 'แข่งคำศัพท์',
+        onPlay: ({ rng }) => startOnlineQuiz(rng),
+        onEnd: () => { onlineEnded = true; locked = true; },
+    });
+    return match;
+}
+function openOnline() { ensureMatch().openMenu(); }
+function startOnlineQuiz(rng) {
+    mode = 'online'; qrand = rng; onlineEnded = false;
+    score = 0; streak = 0; maxStreak = 0; correctCount = 0;
+    started = true; locked = false;
+    $('start').classList.remove('on');
+    $('gameover').classList.remove('on');
+    $('hud').classList.add('on');
+    $('life-container').style.display = 'none';
+    $('timer-wrap').classList.remove('on');
+    $('play').classList.add('on');
+    setScore(0); updateCombo();
+    nextQuestion();
+}
+
+/* ── คีย์บอร์ด 1–4 ── */
+window.addEventListener('keydown', (e) => {
+    if (!started || isGameOver || locked) return;
+    const idx = ['1','2','3','4'].indexOf(e.key);
+    if (idx < 0) return;
+    const btn = document.querySelectorAll('.ans')[idx];
+    if (btn) answer(btn);
+});
+</script>
+</body>
+</html>
