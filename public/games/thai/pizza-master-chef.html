@@ -949,6 +949,7 @@
                     <div id="order-bubble-0" class="order-bubble">
                         <div style="font-weight: bold; color: #555; font-size: 0.85rem;">ออเดอร์</div>
                         <div class="order-fraction" id="fraction-display-0">1/2</div>
+                        <div id="frac-visual" style="display:none"></div>
                         <div id="equivalent-badge" class="equivalent-badge hidden">💡 เศษส่วนสมมูล!</div>
                         <div id="topping-label-0" style="font-size: 1rem; font-weight: bold; color: var(--veggie-green); margin-top: 3px;"></div>
                     </div>
@@ -965,6 +966,14 @@
           .btn-opt:hover { background:rgba(255,255,255,0.28); }
           .btn-opt.active { background:#fff; color:var(--primary-red); border-color:#fff; box-shadow:0 4px 12px rgba(0,0,0,0.2); }
           .btn-practice.active { background:#4CAF50; color:#fff; border-color:#4CAF50; }
+          /* A7 diagnostic (จอจบเกม) */
+          .gameover-diagnostic { margin-top:12px; width:100%; max-width:360px; }
+          .diag-title { font-weight:700; color:#666; margin-bottom:4px; }
+          .diag-row { font-size:1.05rem; font-weight:700; padding:7px 12px; border-radius:10px; margin:4px 0; }
+          .diag-good { background:#E8F5E9; color:#2E7D32; }
+          .diag-practice { background:#FFF3E0; color:#E65100; }
+          /* A5 รูปเศษส่วน (วงกลม) ข้างตั๋วออเดอร์ */
+          #frac-visual { width:54px; height:54px; border-radius:50%; margin:6px auto 0; border:3px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,0.2); }
         </style>
 
         <!-- ============================================
@@ -984,6 +993,7 @@
                     <button type="button" class="btn-opt" id="grade-upper" onclick="game.setGrade('upper')">ป.4-6</button>
                 </div>
                 <button type="button" class="btn-opt btn-practice" id="practice-toggle" onclick="game.togglePractice()">🧪 ฝึกซ้อม (ไม่จับเวลา)</button>
+                <button type="button" class="btn-opt" id="visual-toggle" onclick="game.toggleVisual()">🖼️ แสดงรูปเศษส่วน</button>
             </div>
 
             <div class="mode-container">
@@ -1017,6 +1027,12 @@
                     <span class="mode-desc">สั่งเยอะ 2 ถาด!</span>
                     <span class="mode-diff">⭐⭐⭐</span>
                 </button>
+                <button class="btn-mode" onclick="game.start('equivalent')">
+                    <span class="mode-icon">🟰</span>
+                    <span class="mode-name">เศษส่วนสมมูล</span>
+                    <span class="mode-desc">เช่น 1/2 = 4/8</span>
+                    <span class="mode-diff">⭐⭐</span>
+                </button>
                 <button class="btn-mode" onclick="game.start('daily')">
                     <span class="mode-icon">📅</span>
                     <span class="mode-name">Daily Challenge</span>
@@ -1046,7 +1062,8 @@
             <div class="gameover-stars" id="gameover-stars"></div>
             <div class="gameover-score">คะแนนรวม: <span id="final-score">0</span></div>
             <div class="gameover-stats" id="gameover-stats"></div>
-            
+            <div class="gameover-diagnostic" id="gameover-diagnostic"></div>
+
             <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 15px; width: 100%;">
                 <button class="btn-restart" onclick="game.start(game.state.mode)" style="margin-top: 0;">🔄 เล่นอีกครั้ง</button>
                 <button class="btn-restart btn-sys-green" onclick="game.showStartScreen()" style="margin-top: 0; font-size: 1.1rem; padding: 8px 30px;">🏠 กลับหน้าเมนูหลักเกม</button>
@@ -1237,6 +1254,7 @@
                 delivery: { time: 60, name: "ส่งด่วน",    points: 10, bonus: 0, rotSpeed: 0.05 },
                 speed:    { time: 30, name: "โหมดสปีด",   points: 10, bonus: 8, rotSpeed: 0.8 },
                 mixed:    { time: 60, name: "จำนวนคละ",   points: 25, bonus: 8, rotSpeed: 0.1 },
+                equivalent:{ time: 60, name: "เศษส่วนสมมูล", points: 18, bonus: 6, rotSpeed: 0.1 },
                 daily:    { time: 60, name: "Daily",      points: 12, bonus: 5, rotSpeed: 0.15 }
             },
             waves: [
@@ -1288,7 +1306,8 @@
                     isServing: false, deliveryStreak: 0,
                     isFever: false, hasShield: false,
                     totalServed: 0, totalWrong: 0,
-                    missLog: {}   // E1: นับว่าพลาดเศษส่วนไหนบ้าง { '4/8': 2 }
+                    missLog: {},  // E1: นับว่าพลาดเศษส่วนไหนบ้าง { '4/8': 2 }
+                    hitLog: {}    // A7: นับว่าทำถูกเศษส่วนไหนบ้าง (ใช้สรุป diagnostic)
                 };
                 this.state = {
                     timeLeft: 0, maxTime: 60, isPlaying: false, mode: 'classic', playerName: '',
@@ -1296,7 +1315,9 @@
                     // A4: ระดับชั้น (lower = ป.1-3 ตัวส่วน ≤4 ไม่ลดรูป / upper = ป.4-6 เต็ม) จำใน localStorage
                     gradeBand: (localStorage.getItem('pizza_grade_band') === 'lower') ? 'lower' : 'upper',
                     // A6: โหมดฝึก (ไม่จับเวลา ไม่หักคะแนน ไม่ส่งเข้า leaderboard)
-                    practice: false
+                    practice: false,
+                    // A5: โชว์รูปวงกลมเศษส่วนข้างตั๋ว (default เปิด — ช่วยเชื่อมสัญลักษณ์↔ภาพ)
+                    showVisual: (localStorage.getItem('pizza_show_visual') !== '0')
                 };
 
                 // Visual systems
@@ -1468,7 +1489,8 @@
                     isServing: false, deliveryStreak: 0,
                     isFever: false, hasShield: false,
                     totalServed: 0, totalWrong: 0,
-                    missLog: {}   // E1: นับว่าพลาดเศษส่วนไหนบ้าง { '4/8': 2 }
+                    missLog: {},  // E1: นับว่าพลาดเศษส่วนไหนบ้าง { '4/8': 2 }
+                    hitLog: {}    // A7: นับว่าทำถูกเศษส่วนไหนบ้าง (ใช้สรุป diagnostic)
                 };
                 this.effects = [];
                 this.confetti = [];
@@ -1525,13 +1547,33 @@
                 this.reflectSetupUI();
                 this.sound.init(); this.sound.playSelect();
             }
+            toggleVisual() {
+                this.state.showVisual = !this.state.showVisual;
+                try { localStorage.setItem('pizza_show_visual', this.state.showVisual ? '1' : '0'); } catch (e) {}
+                this.reflectSetupUI();
+                this.renderFractionVisual();
+                this.sound.init(); this.sound.playSelect();
+            }
             reflectSetupUI() {
                 const gl = document.getElementById('grade-lower');
                 const gu = document.getElementById('grade-upper');
                 const pt = document.getElementById('practice-toggle');
+                const vt = document.getElementById('visual-toggle');
                 if (gl) gl.classList.toggle('active', this.state.gradeBand === 'lower');
                 if (gu) gu.classList.toggle('active', this.state.gradeBand === 'upper');
                 if (pt) pt.classList.toggle('active', !!this.state.practice);
+                if (vt) vt.classList.toggle('active', !!this.state.showVisual);
+            }
+            /* --- A5: วาดรูปวงกลมเศษส่วนข้างตั๋วออเดอร์ (conic-gradient) --- */
+            renderFractionVisual() {
+                const el = document.getElementById('frac-visual');
+                if (!el) return;
+                const f = this.player.level && this.player.level.displayFrac;
+                if (!this.state.showVisual || !f || !f.d) { el.style.display = 'none'; return; }
+                const pct = Math.max(0, Math.min(100, (f.n / f.d) * 100));
+                // ระบายส่วนที่เป็นเศษส่วนสีแดง ที่เหลือสีครีม
+                el.style.background = `conic-gradient(#C0392B 0 ${pct}%, #FBE9D0 ${pct}% 100%)`;
+                el.style.display = 'block';
             }
 
             /* --- Game Over --- */
@@ -1593,8 +1635,35 @@
                     <div class="stat-card"><div class="stat-value">W${waveReached}</div><div class="stat-label">🌊 Wave ที่ถึง</div></div>
                 `;
 
+                // A7: สรุป diagnostic — เก่งเศษส่วนไหน / ควรฝึกไหน (จาก hitLog + missLog)
+                this.renderDiagnostic();
+
                 document.getElementById('gameover-screen').classList.remove('hidden');
                 document.getElementById('hud-bar').classList.add('hidden');
+            }
+
+            /* --- A7: สรุป diagnostic (เก่งเศษส่วนไหน / ควรฝึกไหน) --- */
+            renderDiagnostic() {
+                const el = document.getElementById('gameover-diagnostic');
+                if (!el) return;
+                const reduce = (key) => {
+                    const [n, d] = key.split('/').map(Number);
+                    const g = this.gcd(n, d) || 1;
+                    return `${n / g}/${d / g}`;
+                };
+                const miss = this.player.missLog || {};
+                const hit = this.player.hitLog || {};
+                const practice = [...new Set(Object.keys(miss).sort((a, b) => miss[b] - miss[a]).map(reduce))].slice(0, 3);
+                const good = [...new Set(
+                    Object.keys(hit).filter(k => (hit[k] || 0) > (miss[k] || 0)).sort((a, b) => hit[b] - hit[a]).map(reduce)
+                )].filter(f => !practice.includes(f)).slice(0, 3);
+
+                if (!good.length && !practice.length) { el.style.display = 'none'; return; }
+                el.style.display = 'block';
+                let html = '<div class="diag-title">📊 สรุปการเรียนรู้</div>';
+                if (good.length) html += `<div class="diag-row diag-good">✅ เก่งแล้ว: ${good.join('   ')}</div>`;
+                if (practice.length) html += `<div class="diag-row diag-practice">📚 ฝึกเพิ่ม: ${practice.join('   ')}</div>`;
+                el.innerHTML = html;
             }
 
             /* --- Fraction HTML Helper --- */
@@ -1712,10 +1781,25 @@
                 let orderNumerator, orderDenominator;
                 let isGolden = this.rng() < 0.12;
 
+                let visFrac = null;   // A5: เศษส่วนที่จะวาดเป็นรูปวงกลม (null = ไม่โชว์)
                 if (this.state.mode === 'mixed') {
                     orderDenominator = pizzaSlices;
                     orderNumerator = pizzaSlices + (Math.floor(this.rng() * (pizzaSlices - 1)) + 1);
                     fractionText.innerHTML = `1 ${this.getFractionHTML(orderNumerator - pizzaSlices, orderDenominator)}`;
+                    // จำนวนคละ = 1 เต็ม + เศษ → ไม่โชว์รูปวงกลมเดี่ยว
+                } else if (this.state.mode === 'equivalent') {
+                    // A3: โชว์เศษส่วน "ตัวลด" แต่หั่นพิซซ่าเป็น "ตัวเต็ม" → เด็กต้องเลือกให้สมมูล
+                    const baseSet = (this.state.gradeBand === 'lower')
+                        ? [[1, 2], [1, 3], [2, 3]]
+                        : [[1, 2], [1, 3], [2, 3], [1, 4], [3, 4]];
+                    const [bn, bd] = baseSet[Math.floor(this.rng() * baseSet.length)];
+                    const k = (this.state.gradeBand === 'lower') ? 2 : [2, 3][Math.floor(this.rng() * 2)];
+                    orderDenominator = bd * k;
+                    orderNumerator = bn * k;
+                    pizzaSlices = orderDenominator;
+                    fractionText.innerHTML = this.getFractionHTML(bn, bd);
+                    if (equivBadge) equivBadge.classList.remove('hidden');
+                    visFrac = { n: bn, d: bd };
                 } else {
                     orderDenominator = pizzaSlices;
                     orderNumerator = Math.floor(this.rng() * (pizzaSlices - 1)) + 1;
@@ -1723,7 +1807,7 @@
                     // Equivalent Fractions Logic! (Skip in half mode, and apply when reducible)
                     let displayNumerator = orderNumerator;
                     let displayDenominator = orderDenominator;
-                    
+
                     const g = this.gcd(orderNumerator, orderDenominator);
                     if (g > 1 && this.state.mode !== 'half' && this.state.gradeBand !== 'lower' && this.rng() < 0.6) {
                         displayNumerator = orderNumerator / g;
@@ -1732,6 +1816,7 @@
                     }
 
                     fractionText.innerHTML = this.getFractionHTML(displayNumerator, displayDenominator);
+                    visFrac = { n: displayNumerator, d: displayDenominator };
                 }
 
                 this.player.level = {
@@ -1742,8 +1827,10 @@
                     selected: new Array((this.state.mode === 'mixed') ? pizzaSlices * 2 : pizzaSlices).fill(false),
                     rotation: -Math.PI / 2,
                     isGolden: isGolden,
-                    cheeseBubbles: this.generateCheeseBubbles(pizzaSlices)
+                    cheeseBubbles: this.generateCheeseBubbles(pizzaSlices),
+                    displayFrac: visFrac   // A5
                 };
+                this.renderFractionVisual();
 
                 // Toppings
                 const toppingTypes = ['pepperoni','basil','mushroom','shrimp','crabstick','pineapple','bacon','corn'];
@@ -1832,6 +1919,9 @@
                         this.player.combo++;
                         if (this.player.combo > this.player.maxCombo) this.player.maxCombo = this.player.combo;
                         this.player.totalServed++;
+                        // A7: บันทึกว่าทำถูกเศษส่วนไหน
+                        const hitKey = `${lvl.numerator}/${lvl.denominator}`;
+                        this.player.hitLog[hitKey] = (this.player.hitLog[hitKey] || 0) + 1;
 
                         this.sound.playCorrect();
 
