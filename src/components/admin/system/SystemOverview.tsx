@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.44.0 (เกม "แข่งสูตรคูณ" + โหมดออนไลน์เรียลไทม์ คนละเครื่อง)',
+        version: 'v1.45.0 (เฟรมเวิร์กเกมออนไลน์หลายคน kampai-match — โครงสร้างกลางสำหรับเกมอนาคต)',
         date: 'ล่าสุด',
+        badge: 'bg-indigo-600',
+        items: [
+            'ยกระบบ lobby/นับถอยหลัง/แถบคะแนนสด/จัดอันดับ ขึ้นเป็นเฟรมเวิร์กกลาง drop-in `public/games/kampai-match.js` — เกมในอนาคตทำ "นักเรียนเล่นด้วยกัน" ได้ด้วยโค้ดไม่กี่บรรทัด',
+            'เกมเขียนแค่: KampaiMatch.create({duration,onPlay,onEnd}) + ปุ่ม openMenu() + report(score) ตอนได้คะแนน — ที่เหลือเฟรมเวิร์กจัดการ (สร้าง/เข้าห้อง รหัส 4 หลัก, presence สด, ซิงค์เริ่ม, seeded RNG ให้โจทย์ตรงกัน, submit คะแนน)',
+            'Refactor multiply-race มาใช้เฟรมเวิร์ก (โค้ดสั้นลง ~40%) + เพิ่ม starter `_template-online.html` + อัปเดต GAME.md / GAME-PROMPT.md',
+        ],
+    },
+    {
+        version: 'v1.44.0 (เกม "แข่งสูตรคูณ" + โหมดออนไลน์เรียลไทม์ คนละเครื่อง)',
+        date: '',
         badge: 'bg-indigo-600',
         items: [
             'เกมใหม่ multiply-race (Quiz Race สูตรคูณ 2–12): โหมดแข่งเร็ว (แถบเวลา+3ชีวิต+combo) + ฝึกแม่เจาะจง + ปก 16:9 — เก็บคะแนน/XP/อันดับผ่าน KAMPAI SDK',

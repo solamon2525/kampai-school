@@ -24,10 +24,11 @@
 
 ```
 เริ่มเกมใหม่
-├─ สร้างจากศูนย์         → cp _template-full.html  (มี leaderboard ครบ)
-├─ ไม่อยาก leaderboard   → cp _template.html       (basic version)
-├─ เกมเป็น React component → cp _template-react.html (JSX/lucide-react → single-file)
-└─ มีไฟล์เกมเก่าอยู่แล้ว    → /integrate-game <path>  (Claude slash command)
+├─ สร้างจากศูนย์         → cp _template-full.html   (มี leaderboard ครบ)
+├─ เล่นหลายคนออนไลน์     → cp _template-online.html (kampai-match: lobby+แข่งสด+อันดับ)
+├─ ไม่อยาก leaderboard   → cp _template.html        (basic version)
+├─ เกมเป็น React component → cp _template-react.html  (JSX/lucide-react → single-file)
+└─ มีไฟล์เกมเก่าอยู่แล้ว    → /integrate-game <path>   (Claude slash command)
 
 แก้ไขเกมเดิม
 ├─ ตรวจสอบสถานะ        → pnpm verify:game <path>   (รวม Check 7 render smoke-test)
@@ -63,9 +64,46 @@
 | `KAMPAI.online.send(event,payload)` | broadcast event ให้ทุกคนในห้อง → ปลายทางได้ผ่าน `onEvent(event,payload,fromKey)` |
 | `KAMPAI.online.leave()` | ออกจากห้อง |
 
-> **โหมดออนไลน์ (multiplayer):** ใช้ Supabase Realtime **broadcast + presence** ที่ wrapper รีเลย์ผ่าน postMessage —
-> ไม่ต้องสร้างตาราง/migration และไม่ฝัง key ในไฟล์เกม. `onPresence(members)` = รายชื่อสดในห้อง, `onEvent` = event ที่คนอื่น `send`.
-> นักเรียนเล่นเกม**ไม่ได้ login** → channel ใช้ anon key (broadcast/presence default เปิด). ตัวอย่างเต็ม: `math/multiply-race.html` (โหมด 🌐 ออนไลน์ — แข่ง 60 วิ seed จากรหัสห้อง).
+> **`KAMPAI.online` = ระดับล่าง** (join/send/leave ดิบ ๆ). เกมส่วนใหญ่ **ไม่ต้องเรียกเอง** — ใช้เฟรมเวิร์ก
+> `kampai-match.js` ด้านล่างที่ห่อ logic+UI ให้ครบแล้ว.
+
+---
+
+## 🤝 Online Multiplayer Framework (`kampai-match.js`)
+
+เกม "นักเรียนเล่นด้วยกัน" (แข่งสดต่างเครื่อง) — **อย่าเขียน lobby/presence/นับถอยหลัง/scoreboard เอง**.
+โหลด `/games/kampai-match.js` (สร้างบน `KAMPAI.online`) แล้วเรียก `KampaiMatch.create()` ครั้งเดียว.
+เฟรมเวิร์กจัดการให้: **สร้าง/เข้าห้อง (รหัส 4 หลัก) · lobby + presence สด · ซิงค์เริ่มพร้อมกัน ·
+นับถอยหลัง · นาฬิกา · แถบคะแนนคู่แข่งสด · จัดอันดับผู้ชนะ · seeded RNG (โจทย์ตรงกัน) · submitScore(mode:'online')**.
+
+```html
+<script src="/games/kampai-sdk.js"></script>
+<script src="/games/kampai-match.js"></script>
+<script>window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){alert('เล่นผ่านระบบเท่านั้น');},report:function(){},finish:function(){},leave:function(){}};} };</script>
+```
+
+```js
+const match = KampaiMatch.create({
+  duration: 60,                         // วินาที (โหมด race ตามเวลา)
+  title: 'แข่งสูตรคูณ',
+  onPlay: ({ rng, seed, room }) => startMyGame(rng),  // GO! เริ่มเล่นจริง — ใช้ rng ให้โจทย์ตรงกันทุกเครื่อง
+  onEnd:  () => stopMyGame(),                          // หมดเวลา → หยุดรับ input (เฟรมเวิร์กคิดอันดับเอง)
+});
+// ปุ่ม "ออนไลน์": onclick = () => match.openMenu();
+// ตอนได้คะแนน:   match.report(score, { correct });   // อัปเดตคะแนนสด (เรียงอันดับด้วย correct → score)
+```
+
+| API | ใช้ทำอะไร |
+|---|---|
+| `KampaiMatch.create(opts)` | สร้าง controller (1 ครั้ง). opts: `duration, title, onPlay, onEnd, autoSubmit=true` |
+| `match.openMenu()` | เปิดจอสร้าง/เข้าห้อง (ปุ่ม "ออนไลน์" เรียกตัวนี้) |
+| `match.report(score,{correct})` | อัปเดตคะแนนสดของฉัน → broadcast + scoreboard (เรียกทุกครั้งที่ได้คะแนน) |
+| `match.available` | `true` ถ้าเล่นผ่าน /play (standalone = false → ปุ่มแจ้งเล่นผ่านระบบ) |
+| `onPlay({rng,seed,room})` | callback ตอน GO — **ใช้ `rng`** (mulberry32 จากรหัสห้อง) สร้างโจทย์ให้ตรงกันทุกเครื่อง |
+
+> **ไม่ต้องแก้ wrapper/SDK/migration** — relay (`live:<gameSlug>:<room>`) namespaced ตาม slug อัตโนมัติ.
+> ตัวอย่างจริง: `math/multiply-race.html` (โหมด 🌐 ออนไลน์). starter: `_template-online.html`.
+> ข้อจำกัดปัจจุบัน: รองรับ **race ตามเวลา** (host ออกห้องไม่มี reassign — ยอมรับได้ในห้องเรียน).
 
 **Prompt สำหรับสั่ง AI เจ้าอื่นสร้างเกม:** `public/GAME-PROMPT.md` (served ที่ `/GAME-PROMPT.md`) —
 แอดมินมีปุ่ม "คัดลอก Prompt" + ดาวน์โหลดเทมเพลตที่ เมนูเกม HTML (GamesTab).
@@ -315,6 +353,7 @@ WHERE id = 'UUID-OF-ITEM';
 
 **Template files (copy เป็นจุดเริ่มต้น):**
 - `public/games/_template-full.html` — kampai + leaderboard + score HUD + lives HUD (canvas-based ตัวอย่าง)
+- `public/games/_template-online.html` — เกมออนไลน์หลายคน (kampai-match: lobby+แข่งสด+อันดับ — เขียนแค่ gameplay)
 - `public/games/_template.html` — basic kampai integration (ไม่มี leaderboard)
 - `public/games/_template-react.html` — React 18 + Babel + lucide shim ที่ถูกต้อง (สำหรับเกม React component)
 

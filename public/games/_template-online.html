@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>เกมออนไลน์ — Template (kampai-match)</title>
+<!--
+═══════════════════════════════════════════════════════════════════════════
+  KAMPAI-SCHOOL · TEMPLATE เกมออนไลน์หลายคน (single-file)
+  ใช้เฟรมเวิร์ก kampai-match.js — lobby/นับถอยหลัง/คะแนนสด/อันดับ จัดการให้หมด
+
+  วิธีใช้:
+  1. cp ไฟล์นี้ → public/games/{subject}/{slug}.html
+  2. แก้ GAME_SLUG = '{slug}' (1 ที่)
+  3. เขียนเกมของคุณใน SECTION C — ใช้ rng ที่ onPlay ส่งมา (โจทย์ตรงกันทุกเครื่อง)
+     + เรียก match.report(score,{correct}) ทุกครั้งที่ได้คะแนน
+  4. migration: supabase/migrations/NNN_seed_{slug}_game.sql
+  5. pnpm verify:game public/games/{subject}/{slug}.html
+
+  เฟรมเวิร์กรับผิดชอบ: สร้าง/เข้าห้อง · presence · ซิงค์เริ่ม · นาฬิกา · scoreboard สด ·
+  อันดับผู้ชนะ · submitScore(mode:'online'). เกมเขียนแค่ "การเล่นจริง".
+═══════════════════════════════════════════════════════════════════════════
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; font-family: 'Kanit', sans-serif; color: #fff; overflow: hidden; }
+body { background: linear-gradient(180deg, #1e3a8a, #0f172a); }
+#app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+#hud { display: none; align-items: center; justify-content: space-between; padding: 14px 18px; }
+#hud.on { display: flex; }
+#score { font-size: 26px; font-weight: 700; color: #FFD700; background: rgba(0,0,0,.35); padding: 4px 16px; border-radius: 999px; }
+#play { flex: 1; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 22px; padding: 16px; }
+#play.on { display: flex; }
+#q { font-size: clamp(44px, 12vw, 80px); font-weight: 700; }
+#ans { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; max-width: 440px; }
+.a { font-size: clamp(28px, 8vw, 40px); font-weight: 700; padding: 22px 0; border: none; border-radius: 18px; cursor: pointer; color: #1e293b; background: #f8fafc; box-shadow: 0 5px 0 #cbd5e1; }
+.a:active { transform: translateY(4px); box-shadow: 0 1px 0 #cbd5e1; }
+.a.correct { background: linear-gradient(135deg,#86efac,#22c55e); }
+.a.wrong { background: linear-gradient(135deg,#fca5a5,#ef4444); }
+#start { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; padding: 24px; background: rgba(15,23,42,.9); }
+#start.off { display: none; }
+h1 { font-size: 34px; background: linear-gradient(135deg,#FFD700,#FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.btn { padding: 14px 30px; font-family: inherit; font-size: 19px; font-weight: 600; border: none; border-radius: 999px; color: #fff; cursor: pointer; }
+.btn-online { background: linear-gradient(45deg,#3b82f6,#2563eb); }
+</style>
+</head>
+<body>
+<div id="app">
+    <div id="hud"><div id="score">⭐ <span id="score-v">0</span></div></div>
+    <div id="play"><div id="q">2 + 3</div><div id="ans"></div></div>
+</div>
+
+<div id="start">
+    <h1>🌐 เกมออนไลน์ (Template)</h1>
+    <p style="color:#cbd5e1">แข่งกับเพื่อนต่างเครื่อง — กดเพื่อสร้าง/เข้าห้อง</p>
+    <button class="btn btn-online" onclick="match.openMenu()">🌐 เล่นออนไลน์</button>
+</div>
+
+<!-- ═══ KAMPAI SDK + Match framework (single source — อย่าแก้) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>window.KAMPAI = window.KAMPAI || { isEmbed:false, ready:true, student:null, stats:null, leaderboard:[], onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, online:{available:false,makeCode:function(){return'0000';},join:function(){return this;},send:function(){return this;},leave:function(){return this;}} };</script>
+<script src="/games/kampai-match.js"></script>
+<script>window.KampaiMatch = window.KampaiMatch || { create:function(){ return { available:false, openMenu:function(){ alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); }, report:function(){}, finish:function(){}, leave:function(){} }; } };</script>
+
+<script>
+/* ═══ SECTION A · ตั้งค่า ═══ */
+const GAME_SLUG = 'placeholder-online';   // ⚠️ TODO: เปลี่ยนเป็น slug จริง
+KAMPAI.setSlug(GAME_SLUG);
+const $ = (id) => document.getElementById(id);
+
+/* ═══ SECTION B · เชื่อมเฟรมเวิร์กออนไลน์ (เขียนแค่ 3 จุด) ═══ */
+const match = KampaiMatch.create({
+    duration: 60,
+    title: 'เกมออนไลน์',
+    onPlay: ({ rng }) => startMatch(rng),   // GO! — เริ่มเล่นด้วย rng (โจทย์ตรงกันทุกเครื่อง)
+    onEnd: () => { locked = true; },        // หมดเวลา → หยุดรับคำตอบ
+});
+
+/* ═══ SECTION C · GAME LOGIC (แทนที่ด้วยเกมของคุณ — ตัวอย่าง: ควิซบวกเลข) ═══ */
+let qrand = Math.random, score = 0, correct = 0, a = 0, b = 0, ans = 0, locked = false;
+
+function startMatch(rng) {
+    qrand = rng; score = 0; correct = 0; locked = false;
+    $('start').classList.add('off');
+    $('hud').classList.add('on');
+    $('play').classList.add('on');
+    $('score-v').textContent = 0;
+    nextQ();
+}
+function nextQ() {
+    locked = false;
+    a = 1 + (qrand() * 9 | 0); b = 1 + (qrand() * 9 | 0); ans = a + b;
+    $('q').textContent = `${a} + ${b}`;
+    const opts = new Set([ans]);
+    while (opts.size < 4) { const r = ans + ((Math.random() * 7 | 0) - 3); if (r > 0) opts.add(r); }
+    $('ans').innerHTML = [...opts].sort(() => Math.random() - 0.5)
+        .map((v) => `<button class="a" onclick="answer(${v},this)">${v}</button>`).join('');
+}
+function answer(v, btn) {
+    if (locked) return; locked = true;
+    if (v === ans) {
+        btn.classList.add('correct'); correct++; score += 10;
+        $('score-v').textContent = score;
+        match.report(score, { correct });    // ⬅️ อัปเดตคะแนนสดให้คู่แข่งเห็น (สำคัญ!)
+        setTimeout(nextQ, 350);
+    } else {
+        btn.classList.add('wrong');
+        match.report(score, { correct });
+        setTimeout(nextQ, 700);
+    }
+}
+</script>
+</body>
+</html>
