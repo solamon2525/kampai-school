@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>แข่งสูตรคูณ — Multiply Race (kampai)</title>
+<!--
+═══════════════════════════════════════════════════════════════════════════
+  KAMPAI-SCHOOL · เกม "แข่งสูตรคูณ" (multiply-race)
+  Quiz Race สูตรคูณ 2–12 เน้นเร็ว/คล่อง — เลือก 4 ตัวเลือก + combo + แถบเวลา
+  โหมด: แข่งเร็ว (นับคะแนน เข้าอันดับ) · ฝึกแม่ (เลือกแม่เจาะจง ไม่ส่งคะแนน)
+  Pre-wired ผ่าน KAMPAI SDK: เก็บคะแนน + ผูกนักเรียน + leaderboard ในเกม
+═══════════════════════════════════════════════════════════════════════════
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Fredoka+One&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; font-family: 'Kanit', sans-serif; color: #fff; overflow: hidden; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+body { background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); }
+#app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+
+/* ── HUD ── */
+#hud { display: none; align-items: center; justify-content: space-between; padding: 14px 18px; gap: 10px; }
+#hud.on { display: flex; }
+#score-container { font-size: 26px; font-weight: 700; color: #FFD700; text-shadow: 2px 2px 4px #000; background: rgba(0,0,0,0.35); padding: 4px 16px; border-radius: 999px; border: 2px solid rgba(255,215,0,0.5); transition: transform 0.15s; white-space: nowrap; }
+#score-container.pop { transform: scale(1.18); }
+#combo-badge { font-family: 'Fredoka One', cursive; font-size: 16px; color: #0f172a; background: linear-gradient(45deg,#fbbf24,#f59e0b); padding: 4px 12px; border-radius: 999px; opacity: 0; transform: scale(0.6); transition: all 0.18s; white-space: nowrap; }
+#combo-badge.on { opacity: 1; transform: scale(1); }
+#life-container { font-size: 24px; white-space: nowrap; }
+
+/* ── แถบเวลา ── */
+#timer-wrap { height: 10px; background: rgba(255,255,255,0.12); margin: 0 18px; border-radius: 999px; overflow: hidden; display: none; }
+#timer-wrap.on { display: block; }
+#timer-bar { height: 100%; width: 100%; background: linear-gradient(90deg,#4ade80,#22c55e); border-radius: 999px; transition: width 0.1s linear, background 0.3s; }
+#timer-bar.warn { background: linear-gradient(90deg,#f87171,#ef4444); }
+
+/* ── พื้นเล่น ── */
+#play { flex: 1; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 16px; gap: 22px; }
+#play.on { display: flex; }
+#question { font-family: 'Fredoka One', cursive; font-size: clamp(44px, 12vw, 84px); text-shadow: 3px 3px 0 rgba(0,0,0,0.25); letter-spacing: 2px; }
+#feedback { height: 26px; font-size: 22px; font-weight: 600; }
+#feedback.good { color: #4ade80; }
+#feedback.bad { color: #f87171; }
+#answers { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; max-width: 460px; }
+.ans { font-family: 'Fredoka One', cursive; font-size: clamp(28px, 8vw, 40px); padding: 22px 0; border: none; border-radius: 18px; cursor: pointer; color: #1e293b; background: #f8fafc; box-shadow: 0 5px 0 #cbd5e1; transition: transform 0.08s, box-shadow 0.08s; }
+.ans:active { transform: translateY(4px); box-shadow: 0 1px 0 #cbd5e1; }
+.ans.correct { background: linear-gradient(135deg,#86efac,#22c55e); color: #052e16; box-shadow: 0 5px 0 #15803d; }
+.ans.wrong { background: linear-gradient(135deg,#fca5a5,#ef4444); color: #450a0a; box-shadow: 0 5px 0 #b91c1c; }
+.ans.dim { opacity: 0.45; }
+.ans .k { display: block; font-family: 'Kanit'; font-size: 12px; color: #94a3b8; margin-bottom: 2px; }
+
+/* ── จอ (เริ่ม / จบ) ── */
+.screen { position: absolute; inset: 0; background: rgba(15,23,42,0.94); backdrop-filter: blur(8px); display: none; flex-direction: column; align-items: center; justify-content: flex-start; z-index: 30; text-align: center; padding: 28px 22px; overflow-y: auto; }
+.screen.on { display: flex; }
+.screen h1 { font-family: 'Fredoka One', cursive; font-size: 38px; margin-bottom: 6px; background: linear-gradient(135deg, #FFD700, #FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.screen p { font-size: 16px; color: #cbd5e1; margin-bottom: 14px; line-height: 1.5; }
+#final-score { color: #FFD700; font-family: 'Fredoka One', cursive; font-size: 56px; margin: 4px 0 6px; }
+#final-detail { font-size: 15px; color: #cbd5e1; margin-bottom: 12px; }
+.btn { padding: 14px 30px; font-family: inherit; font-size: 19px; font-weight: 600; border-radius: 999px; border: none; cursor: pointer; margin: 6px; transition: transform 0.1s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; color: #fff; }
+.btn:active { transform: scale(0.95); }
+.btn-primary { background: linear-gradient(45deg, #f59e0b, #f97316); box-shadow: 0 4px 10px rgba(245,158,11,0.4); }
+.btn-blue { background: linear-gradient(45deg, #3b82f6, #2563eb); box-shadow: 0 4px 10px rgba(59,130,246,0.4); }
+.btn-ghost { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25); }
+
+/* mode + table picker */
+.mode-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 8px; }
+#table-picker { display: none; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 420px; margin: 4px auto 14px; }
+#table-picker.on { display: flex; }
+.tchip { width: 46px; height: 46px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); color: #fff; font-family: 'Fredoka One', cursive; font-size: 18px; cursor: pointer; }
+.tchip.sel { background: linear-gradient(135deg,#fbbf24,#f59e0b); color: #0f172a; border-color: #fbbf24; }
+
+/* leaderboard + stats (reuse template look) */
+.leaderboard-box { background: rgba(255,255,255,0.95); color: #2c3e50; border-radius: 12px; padding: 12px 15px; margin: 10px 0; width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.lb-title { font-family: 'Fredoka One', cursive; font-size: 1rem; margin: 0 0 8px 0; text-align: left; }
+.leaderboard-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.leaderboard-list li { display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-bottom: 1px dashed #dee2e6; }
+.leaderboard-list li:last-child { border-bottom: none; }
+.leaderboard-list li.is-me { background: #fff7e0; border-radius: 8px; }
+.lb-rank { font-family: 'Fredoka One', cursive; color: #f39c12; min-width: 26px; text-align: center; font-size: 1.1rem; }
+.lb-avatar, .lb-avatar-init { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #f39c12; flex-shrink: 0; }
+.lb-avatar-init { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.lb-info { display: flex; flex-direction: column; min-width: 0; flex: 1; text-align: left; }
+.lb-name { font-family: 'Fredoka One', cursive; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-sub { font-size: 0.72rem; color: #868e96; }
+.lb-loading { color: #868e96; text-align: center; padding: 8px; font-size: 0.85rem; }
+#player-chip { display: none; align-items: center; gap: 8px; background: rgba(255,255,255,0.1); padding: 4px 14px 4px 4px; border-radius: 999px; font-size: 14px; margin-bottom: 12px; }
+#player-chip img, #player-chip .pc-init { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+#player-chip .pc-init { background: linear-gradient(135deg,#6c5ce7,#a29bfe); display: flex; align-items: center; justify-content: center; font-weight: 700; }
+#player-chip .pc-best { color: #FFD700; font-weight: 700; }
+</style>
+</head>
+<body>
+<div id="app">
+    <!-- HUD -->
+    <div id="hud">
+        <div id="score-container">⭐ <span id="score-value">0</span></div>
+        <div id="combo-badge">🔥 x1</div>
+        <div id="life-container">❤️❤️❤️</div>
+    </div>
+    <div id="timer-wrap"><div id="timer-bar"></div></div>
+
+    <!-- พื้นเล่น -->
+    <div id="play">
+        <div id="question">7 × 8</div>
+        <div id="feedback"></div>
+        <div id="answers"></div>
+    </div>
+</div>
+
+<!-- Start screen -->
+<div id="start" class="screen on">
+    <h1>✖️ แข่งสูตรคูณ</h1>
+    <div id="player-chip"></div>
+    <p>ตอบให้เร็วและถูก! ยิ่งต่อเนื่องยิ่งได้ตัวคูณคะแนน 🔥<br>เลือก 4 ตัวเลือก — แตะ หรือกดเลข 1–4</p>
+    <div class="mode-grid">
+        <button class="btn btn-primary" onclick="chooseMode('race')">⚡ แข่งเร็ว</button>
+        <button class="btn btn-ghost" onclick="chooseMode('practice')">📚 ฝึกแม่</button>
+    </div>
+    <div id="table-picker"></div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+    </div>
+</div>
+
+<!-- Game Over screen -->
+<div id="gameover" class="screen">
+    <h1>จบเกม!</h1>
+    <div id="final-score">0</div>
+    <div id="final-detail"></div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
+        <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นอีกครั้ง</button>
+        <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+    </div>
+</div>
+
+<!-- ═══ KAMPAI SDK (single source — อย่าแก้) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+/* fallback stub: กันพังถ้าเปิด standalone แล้ว SDK โหลดไม่ได้ */
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}} };
+</script>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTION A · ตั้งค่า
+   ═══════════════════════════════════════════════════════════════════════════ */
+const GAME_SLUG = 'multiply-race';
+KAMPAI.setSlug(GAME_SLUG);
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTION B · แสดงข้อมูลนักเรียน + leaderboard (ดึงจาก KAMPAI)
+   ═══════════════════════════════════════════════════════════════════════════ */
+function renderPlayer() {
+    const s = KAMPAI.student, st = KAMPAI.stats;
+    if (!s) return;
+    const chip = document.getElementById('player-chip');
+    const av = s.photoUrl ? `<img src="${s.photoUrl}" alt="">` : `<div class="pc-init">${(s.displayName||'?')[0]}</div>`;
+    const best = st ? ` · <span class="pc-best">สถิติ ${st.personalBest.toLocaleString()}</span>` : '';
+    chip.innerHTML = av + `<span>${s.displayName}${best}</span>`;
+    chip.style.display = 'flex';
+}
+function renderLeaderboard(listId) {
+    const el = document.getElementById(listId);
+    if (!el) return;
+    const rows = KAMPAI.leaderboard || [];
+    if (!rows.length) { el.innerHTML = '<li class="lb-loading">ยังไม่มีผู้เล่น — เป็นคนแรกสิ!</li>'; return; }
+    const medals = ['🥇','🥈','🥉'];
+    el.innerHTML = rows.slice(0, 5).map((r) => {
+        const av = r.photoUrl ? `<img class="lb-avatar" src="${r.photoUrl}" alt="">` : `<div class="lb-avatar-init">${(r.displayName||'?')[0]}</div>`;
+        return `<li class="${r.isMe ? 'is-me' : ''}">
+            <span class="lb-rank">${medals[r.rank-1] || r.rank}</span>${av}
+            <div class="lb-info"><div class="lb-name">${r.displayName}${r.isMe ? ' (คุณ)' : ''}</div>
+            <div class="lb-sub">${(r.personalBest||0).toLocaleString()} คะแนน · ${r.classLabel||''}</div></div>
+        </li>`;
+    }).join('');
+}
+KAMPAI.onReady(function () { renderPlayer(); renderLeaderboard('score-list'); });
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTION C · GAME LOGIC — Quiz Race สูตรคูณ
+   ═══════════════════════════════════════════════════════════════════════════ */
+const TABLES = [2,3,4,5,6,7,8,9,10,11,12];   // แม่สูตรคูณ
+const FACTORS = [2,3,4,5,6,7,8,9,10,11,12];   // ตัวคูณที่สุ่มเจอ
+
+let score = 0, lives = 3, streak = 0, maxStreak = 0, correctCount = 0, answered = 0;
+let mode = 'race';                 // 'race' | 'practice'
+let selectedTable = null;          // ใช้เฉพาะ practice
+let curA = 0, curB = 0, curAns = 0;
+let qStart = 0, qLimit = 0, rafId = 0, locked = false, started = false;
+
+const $ = (id) => document.getElementById(id);
+
+/* ── เลือกโหมด ── */
+function chooseMode(m) {
+    mode = m;
+    const picker = $('table-picker');
+    if (m === 'practice') {
+        // โชว์ตัวเลือกแม่; เลือกแล้วเริ่มทันที
+        picker.innerHTML = TABLES.map(t => `<button class="tchip" onclick="startGame(${t})">${t}</button>`).join('');
+        picker.classList.add('on');
+        picker.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+        picker.classList.remove('on');
+        startGame(null);
+    }
+}
+
+/* ── เริ่มเกม ── */
+function startGame(tbl) {
+    if (started) return;
+    started = true;
+    selectedTable = tbl;
+    score = 0; lives = 3; streak = 0; maxStreak = 0; correctCount = 0; answered = 0;
+    $('start').classList.remove('on');
+    $('hud').classList.add('on');
+    $('play').classList.add('on');
+    if (mode === 'race') { $('life-container').style.display = ''; $('timer-wrap').classList.add('on'); }
+    else { $('life-container').style.display = 'none'; $('timer-wrap').classList.remove('on'); }   // ฝึก = ไม่กดดันเวลา/ไม่เสียชีวิต
+    setScore(0); setLives(3); updateCombo();
+    nextQuestion();
+}
+
+/* ── สุ่มโจทย์ + ตัวเลือก ── */
+function nextQuestion() {
+    locked = false;
+    curA = (mode === 'practice' && selectedTable) ? selectedTable : TABLES[(Math.random()*TABLES.length)|0];
+    curB = FACTORS[(Math.random()*FACTORS.length)|0];
+    curAns = curA * curB;
+
+    $('question').textContent = `${curA} × ${curB}`;
+    $('feedback').textContent = '';
+    $('feedback').className = '';
+
+    // ตัวลวง: ใกล้เคียงคำตอบจริง (บวก/ลบ ตัวคูณ, off-by-one ของผลคูณ)
+    const set = new Set([curAns]);
+    const cands = [curAns + curA, curAns - curA, curAns + curB, curAns - curB,
+                   curAns + 1, curAns - 1, curA * (curB + 1), curA * (curB - 1)];
+    for (const c of cands) { if (c > 0 && c !== curAns) set.add(c); if (set.size >= 4) break; }
+    while (set.size < 4) { const r = curAns + ((Math.random()*9|0) - 4); if (r > 0) set.add(r); }
+    const opts = [...set].slice(0, 4).sort(() => Math.random() - 0.5);
+
+    const wrap = $('answers');
+    wrap.innerHTML = opts.map((v, i) =>
+        `<button class="ans" data-v="${v}" onclick="answer(${v}, this)"><span class="k">กด ${i+1}</span>${v}</button>`
+    ).join('');
+
+    // แถบเวลา (race เท่านั้น) — เร็วขึ้นตามจำนวนข้อที่ตอบถูก
+    if (mode === 'race') {
+        qLimit = Math.max(2600, 6000 - correctCount * 130);   // 6.0s → ต่ำสุด 2.6s
+        qStart = performance.now();
+        $('timer-bar').classList.remove('warn');
+        cancelAnimationFrame(rafId);
+        tickTimer();
+    }
+}
+
+function tickTimer() {
+    const elapsed = performance.now() - qStart;
+    const frac = Math.max(0, 1 - elapsed / qLimit);
+    const bar = $('timer-bar');
+    bar.style.width = (frac * 100) + '%';
+    if (frac < 0.33) bar.classList.add('warn');
+    if (frac <= 0) { timeUp(); return; }
+    rafId = requestAnimationFrame(tickTimer);
+}
+
+function timeUp() {
+    if (locked) return;
+    locked = true;
+    cancelAnimationFrame(rafId);
+    streak = 0; updateCombo();
+    revealCorrect();
+    flash('หมดเวลา! ⏱️', false);
+    setLives(lives - 1);
+    if (lives > 0) setTimeout(nextQuestion, 900);
+}
+
+/* ── ตอบ ── */
+function answer(v, btn) {
+    if (locked) return;
+    locked = true;
+    cancelAnimationFrame(rafId);
+    answered++;
+
+    if (v === curAns) {
+        btn.classList.add('correct');
+        correctCount++;
+        streak++; maxStreak = Math.max(maxStreak, streak);
+        const mult = comboMult();
+        let gained = 10;
+        if (mode === 'race') {
+            const frac = Math.max(0, 1 - (performance.now() - qStart) / qLimit);
+            gained += Math.round(frac * 10);   // โบนัสความเร็ว 0–10
+        }
+        gained *= mult;
+        setScore(score + gained);
+        updateCombo();
+        flash(`+${gained}` + (mult > 1 ? `  (x${mult})` : '') + ' ✓', true);
+        setTimeout(nextQuestion, mode === 'practice' ? 550 : 480);
+    } else {
+        btn.classList.add('wrong');
+        revealCorrect();
+        streak = 0; updateCombo();
+        flash(`ผิด! คำตอบคือ ${curAns}`, false);
+        if (mode === 'race') {
+            setLives(lives - 1);
+            if (lives > 0) setTimeout(nextQuestion, 1100);
+        } else {
+            setTimeout(nextQuestion, 1100);   // ฝึก = ไม่เสียชีวิต เล่นต่อไปเรื่อย ๆ
+        }
+    }
+}
+
+function revealCorrect() {
+    document.querySelectorAll('.ans').forEach(b => {
+        if (Number(b.dataset.v) === curAns) b.classList.add('correct');
+        else b.classList.add('dim');
+    });
+}
+
+function comboMult() {
+    const m = 1 + Math.floor(streak / 5);   // ทุก 5 ข้อต่อเนื่อง +1
+    return Math.min(5, m);
+}
+function updateCombo() {
+    const badge = $('combo-badge');
+    const m = comboMult();
+    if (streak >= 3) { badge.textContent = `🔥 x${m} · ${streak} ต่อ`; badge.classList.add('on'); }
+    else badge.classList.remove('on');
+}
+
+function flash(msg, good) {
+    const f = $('feedback');
+    f.textContent = msg;
+    f.className = good ? 'good' : 'bad';
+}
+
+function setScore(n) {
+    score = Math.max(0, n);
+    $('score-value').textContent = score;
+    const w = $('score-container');
+    w.classList.add('pop'); setTimeout(() => w.classList.remove('pop'), 150);
+}
+function setLives(n) {
+    lives = Math.max(0, n);
+    let str = ''; for (let i = 0; i < 3; i++) str += (i < lives) ? '❤️' : '🖤';
+    $('life-container').textContent = str;
+    if (lives <= 0) endGame();
+}
+
+/* ⚠️ ต้องเรียก KAMPAI.submitScore() ตอนจบเกม (เฉพาะโหมดแข่ง — ฝึกไม่นับคะแนน) */
+let isGameOver = false;
+function endGame() {
+    if (isGameOver) return;
+    isGameOver = true;
+    cancelAnimationFrame(rafId);
+    if (mode === 'race') {
+        KAMPAI.submitScore(score, { mode: 'normal', correct: correctCount, maxStreak: maxStreak });
+    }
+    $('hud').classList.remove('on');
+    $('timer-wrap').classList.remove('on');
+    $('play').classList.remove('on');
+    $('final-score').textContent = score;
+    $('final-detail').textContent = `ตอบถูก ${correctCount} ข้อ · สูงสุด ${maxStreak} ต่อเนื่อง` +
+        (mode === 'practice' ? ' · (โหมดฝึก ไม่นับอันดับ)' : '');
+    $('gameover').classList.add('on');
+    renderLeaderboard('score-list-gameover');
+}
+
+/* ── คีย์บอร์ด 1–4 (desktop) ── */
+window.addEventListener('keydown', (e) => {
+    if (!started || isGameOver || locked) return;
+    const idx = ['1','2','3','4'].indexOf(e.key);
+    if (idx < 0) return;
+    const btns = document.querySelectorAll('.ans');
+    const btn = btns[idx];
+    if (btn) answer(Number(btn.dataset.v), btn);
+});
+</script>
+</body>
+</html>
