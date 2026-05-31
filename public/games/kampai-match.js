@@ -126,7 +126,7 @@
         '<button class="km-btn km-btn-ghost km-leave" type="button">← ออกจากห้อง</button></div>' +
       '<div class="km-screen km-result"><div class="km-h km-result-title">จบการแข่ง!</div>' +
         '<div class="km-place"></div><div class="km-list km-result-list"></div>' +
-        '<button class="km-btn km-btn-primary km-again" type="button">🔄 แข่งใหม่</button></div>' +
+        '<button class="km-btn km-btn-primary km-bank" type="button">รับ XP →</button></div>' +
       '</div>';
     document.body.appendChild(root);
 
@@ -144,8 +144,8 @@
 
     // ─── state ─────────────────────────────────────────────────────────────
     var room = null, isHost = false, myId = null, members = {};
-    var started = false, ended = false, resultShown = false;
-    var endsAt = 0, rafId = 0, sendTs = 0, finishTimer = 0, lastScore = 0, lastCorrect = 0;
+    var started = false, ended = false, resultShown = false, submitted = false;
+    var endsAt = 0, rafId = 0, sendTs = 0, finishTimer = 0, bankTimer = 0, lastScore = 0, lastCorrect = 0;
 
     // ─── wire UI ───────────────────────────────────────────────────────────
     $('.km-close').onclick = function () { root.style.display = 'none'; };
@@ -161,7 +161,7 @@
       beginRace(startAt);
     };
     $('.km-leave').onclick = leave;
-    $('.km-again').onclick = function () { location.reload(); };
+    $('.km-bank').onclick = bankXp;
 
     function showScreen(name) {
       ['menu', 'lobby', 'result'].forEach(function (n) { $('.km-' + n).classList.toggle('on', n === name); });
@@ -281,12 +281,18 @@
       cancelAnimationFrame(rafId);
       if (members[myId]) { members[myId].score = lastScore; members[myId].correct = lastCorrect; members[myId].done = true; }
       if (online()) online().send('done', { score: lastScore, correct: lastCorrect });
-      if (autoSubmit && window.KAMPAI && window.KAMPAI.submitScore) {
-        window.KAMPAI.submitScore(lastScore, { mode: 'online', correct: lastCorrect, room: room });
-      }
       if (opts.onEnd) try { opts.onEnd(); } catch (e) { /* */ }
-      finishTimer = setTimeout(showResult, 2000);   // รอผลคนอื่นสั้น ๆ
+      finishTimer = setTimeout(showResult, 2000);   // โชว์อันดับ/ผู้ชนะก่อน — XP รับทีหลัง
       maybeFinish();
+    }
+
+    // บันทึก XP — ยิง gameEnd → wrapper ขึ้นจอ "+XP" (ทับ overlay นี้). เรียกตอนกด "รับ XP" หรือ auto กันลืม
+    function bankXp() {
+      if (submitted) return; submitted = true;
+      clearTimeout(bankTimer);
+      var ok = false;
+      try { ok = !!(window.KAMPAI && window.KAMPAI.submitScore && window.KAMPAI.submitScore(lastScore, { mode: 'online', correct: lastCorrect, room: room })); } catch (e) { /* */ }
+      if (!ok) location.reload();   // standalone/ไม่มีนักเรียน → ไม่มีจอ wrapper → เริ่มใหม่
     }
 
     // จบก่อนเวลา (สำหรับเกมที่อยากจบเอง) — race ปกติไม่ต้องเรียก
@@ -315,6 +321,8 @@
       $('.km-place').textContent = myRank > 0 ? ('คุณได้อันดับ ' + myRank + ' จาก ' + ranked.length) : '';
       renderResult('.km-result-list', ranked);
       showScreen('result');
+      // กันลืมรับ: ถ้าไม่กดปุ่มภายใน 20 วิ → บันทึก XP อัตโนมัติ (autoSubmit เปิดอยู่)
+      if (autoSubmit) { clearTimeout(bankTimer); bankTimer = setTimeout(bankXp, 20000); }
     }
 
     function renderList(sel, withScore) {

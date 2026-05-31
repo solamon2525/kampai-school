@@ -74,7 +74,9 @@
 เกม "นักเรียนเล่นด้วยกัน" (แข่งสดต่างเครื่อง) — **อย่าเขียน lobby/presence/นับถอยหลัง/scoreboard เอง**.
 โหลด `/games/kampai-match.js` (สร้างบน `KAMPAI.online`) แล้วเรียก `KampaiMatch.create()` ครั้งเดียว.
 เฟรมเวิร์กจัดการให้: **สร้าง/เข้าห้อง (รหัส 4 หลัก) · lobby + presence สด · ซิงค์เริ่มพร้อมกัน ·
-นับถอยหลัง · นาฬิกา · แถบคะแนนคู่แข่งสด · จัดอันดับผู้ชนะ · seeded RNG (โจทย์ตรงกัน) · submitScore(mode:'online')**.
+นับถอยหลัง · นาฬิกา · แถบคะแนนคู่แข่งสด · จัดอันดับผู้ชนะ · seeded RNG (โจทย์ตรงกัน)**.
+จบแมต → **โชว์จออันดับ/ผู้ชนะก่อน → ปุ่ม "รับ XP →"** ค่อยยิง `submitScore(mode:'online')` (= wrapper ขึ้นจอ +XP).
+ถ้าไม่กดภายใน 20 วิ → บันทึกอัตโนมัติ (กันลืมรับ XP).
 
 ```html
 <script src="/games/kampai-sdk.js"></script>
@@ -95,7 +97,7 @@ const match = KampaiMatch.create({
 
 | API | ใช้ทำอะไร |
 |---|---|
-| `KampaiMatch.create(opts)` | สร้าง controller (1 ครั้ง). opts: `duration, title, onPlay, onEnd, autoSubmit=true` |
+| `KampaiMatch.create(opts)` | สร้าง controller (1 ครั้ง). opts: `duration, title, onPlay, onEnd, autoSubmit=true` (autoSubmit=auto บันทึก XP หลังโชว์ผล 20 วิ ถ้าไม่กดปุ่ม) |
 | `match.openMenu()` | เปิดจอสร้าง/เข้าห้อง (ปุ่ม "ออนไลน์" เรียกตัวนี้) |
 | `match.report(score,{correct})` | อัปเดตคะแนนสดของฉัน → broadcast + scoreboard (เรียกทุกครั้งที่ได้คะแนน) |
 | `match.available` | `true` ถ้าเล่นผ่าน /play (standalone = false → ปุ่มแจ้งเล่นผ่านระบบ) |
