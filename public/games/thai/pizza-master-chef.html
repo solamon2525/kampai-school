@@ -956,6 +956,12 @@
                 </div>
                 <button id="btn-serve-0" class="btn-serve">เสิร์ฟ!</button>
             </div>
+            <!-- A1: ปุ่มเปรียบเทียบ (โชว์เฉพาะโหมดเทียบเศษส่วน) -->
+            <div id="compare-controls" class="compare-controls hidden">
+                <button type="button" class="btn-compare" onclick="game.answerCompare('>')">&gt;<span>ซ้ายมากกว่า</span></button>
+                <button type="button" class="btn-compare btn-compare-eq" onclick="game.answerCompare('=')">=<span>เท่ากัน</span></button>
+                <button type="button" class="btn-compare" onclick="game.answerCompare('<')">&lt;<span>ขวามากกว่า</span></button>
+            </div>
         </div>
 
         <style>
@@ -974,6 +980,13 @@
           .diag-practice { background:#FFF3E0; color:#E65100; }
           /* A5 รูปเศษส่วน (วงกลม) ข้างตั๋วออเดอร์ */
           #frac-visual { width:54px; height:54px; border-radius:50%; margin:6px auto 0; border:3px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,0.2); }
+          /* A1 ปุ่มเทียบเศษส่วน */
+          .compare-controls { position:fixed; left:50%; bottom:22px; transform:translateX(-50%); display:flex; gap:12px; z-index:40; }
+          .compare-controls.hidden { display:none; }
+          .btn-compare { min-width:96px; min-height:64px; padding:8px 10px; border:none; border-radius:16px; background:#C0392B; color:#fff; font-size:2rem; font-weight:800; font-family:inherit; cursor:pointer; box-shadow:0 6px 0 #8e2a20; line-height:1; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+          .btn-compare.btn-compare-eq { background:#2E7D32; box-shadow:0 6px 0 #1b5e20; }
+          .btn-compare span { font-size:0.8rem; font-weight:600; margin-top:5px; }
+          .btn-compare:active { transform:translateY(4px); box-shadow:0 2px 0 #8e2a20; }
         </style>
 
         <!-- ============================================
@@ -1031,6 +1044,12 @@
                     <span class="mode-icon">🟰</span>
                     <span class="mode-name">เศษส่วนสมมูล</span>
                     <span class="mode-desc">เช่น 1/2 = 4/8</span>
+                    <span class="mode-diff">⭐⭐</span>
+                </button>
+                <button class="btn-mode" onclick="game.start('compare')">
+                    <span class="mode-icon">⚖️</span>
+                    <span class="mode-name">เทียบเศษส่วน</span>
+                    <span class="mode-desc">มากกว่า/น้อยกว่า/เท่ากัน</span>
                     <span class="mode-diff">⭐⭐</span>
                 </button>
                 <button class="btn-mode" onclick="game.start('daily')">
@@ -1255,6 +1274,7 @@
                 speed:    { time: 30, name: "โหมดสปีด",   points: 10, bonus: 8, rotSpeed: 0.8 },
                 mixed:    { time: 60, name: "จำนวนคละ",   points: 25, bonus: 8, rotSpeed: 0.1 },
                 equivalent:{ time: 60, name: "เศษส่วนสมมูล", points: 18, bonus: 6, rotSpeed: 0.1 },
+                compare:  { time: 60, name: "เทียบเศษส่วน", points: 15, bonus: 5, rotSpeed: 0 },
                 daily:    { time: 60, name: "Daily",      points: 12, bonus: 5, rotSpeed: 0.15 }
             },
             waves: [
@@ -1397,6 +1417,16 @@
 
             updatePizzaLayout() {
                 this.pizzaLayouts = [];
+                // A1: โหมดเทียบ → วางถาดซ้าย-ขวาเสมอ (ตรงกับปุ่ม ซ้าย/ขวา) เว้นที่ล่างให้ป้าย+ปุ่ม
+                if (this.state.mode === 'compare') {
+                    const navHc = (EMBED ? 0 : 44);
+                    const availH = this.height - navHc;
+                    const r = Math.max(40, Math.min(this.width * 0.21, availH * 0.24));
+                    const cy = navHc + availH * 0.44;
+                    this.pizzaLayouts.push({ cx: this.width * 0.28, cy, r });
+                    this.pizzaLayouts.push({ cx: this.width * 0.72, cy, r });
+                    return;
+                }
                 const pCount = (this.state.mode === 'mixed') ? 2 : 1;
                 const navH = (EMBED ? 0 : 44);
                 for (let p = 0; p < pCount; p++) {
@@ -1521,9 +1551,14 @@
                 document.getElementById('p1-area').classList.remove('hidden');
                 document.getElementById('hud-bar').classList.remove('hidden');
 
+                // A1: โหมดเทียบ → ซ่อนปุ่มเสิร์ฟ โชว์ปุ่มเปรียบเทียบ; โหมดอื่นกลับด้าน
+                const isCompare = modeName === 'compare';
+                document.getElementById('btn-serve-0').classList.toggle('hidden', isCompare);
+                document.getElementById('compare-controls').classList.toggle('hidden', !isCompare);
+
                 // Show wave badge for applicable modes
                 const waveBadge = document.getElementById('wave-badge');
-                if (modeName === 'speed' || modeName === 'mixed') {
+                if (modeName === 'speed' || modeName === 'mixed' || modeName === 'compare') {
                     waveBadge.classList.add('hidden');
                 } else {
                     waveBadge.classList.remove('hidden');
@@ -1736,6 +1771,7 @@
 
             /* --- Next Order --- */
             nextOrder() {
+                if (this.state.mode === 'compare') { this.nextCompareOrder(); return; }
                 const fractionText = document.getElementById('fraction-display-0');
                 const toppingLabel = document.getElementById('topping-label-0');
                 const emoji = document.getElementById('customer-emoji-0');
@@ -1894,6 +1930,107 @@
                     }
                 }
                 return bubbles;
+            }
+
+            /* --- A1: โหมดเทียบเศษส่วน (มากกว่า/น้อยกว่า/เท่ากัน) --- */
+            nextCompareOrder() {
+                this.autoHintActive = false;
+                this.wrongMark = { active: false, timer: 0 };
+                this.reveal = { active: false, timer: 0, indices: [] };
+
+                const dens = (this.state.gradeBand === 'lower') ? [2, 3, 4] : [2, 3, 4, 6, 8];
+                const pick = () => {
+                    const d = dens[Math.floor(this.rng() * dens.length)];
+                    return { n: 1 + Math.floor(this.rng() * (d - 1)), d };
+                };
+                let L = pick(), R = pick();
+                // ~30% บังคับเท่ากัน (สมมูล) เพื่อฝึกเครื่องหมาย =
+                if (this.rng() < 0.3) {
+                    const k = [2, 3][Math.floor(this.rng() * 2)];
+                    R = (L.d * k <= 12) ? { n: L.n * k, d: L.d * k } : { n: L.n, d: L.d };
+                }
+                const lv = L.n / L.d, rv = R.n / R.d;
+                const answer = Math.abs(lv - rv) < 1e-9 ? '=' : (lv > rv ? '>' : '<');
+                this.player.compare = { L, R, answer };
+
+                document.getElementById('fraction-display-0').innerHTML = '⚖️ เทียบกัน';
+                document.getElementById('topping-label-0').innerHTML = 'ถาดไหนมากกว่า? เลือกเครื่องหมาย';
+                const eb = document.getElementById('equivalent-badge'); if (eb) eb.classList.add('hidden');
+                const fv = document.getElementById('frac-visual'); if (fv) fv.style.display = 'none';
+                document.getElementById('customer-emoji-0').innerText = CONFIG.customers[Math.floor(this.rng() * CONFIG.customers.length)];
+
+                // level เปล่า ให้ draw()/layout ทำงานได้ (ไม่มีการเลือก slice)
+                this.player.level = {
+                    numerator: 0, denominator: 1, sliceCount: 1, totalSlices: 1,
+                    selected: [], rotation: -Math.PI / 2, isGolden: false,
+                    cheeseBubbles: [], displayFrac: null, compare: true
+                };
+                this.updateUI();
+            }
+
+            answerCompare(sign) {
+                if (!this.state.isPlaying || this.state.isPaused || this.player.isServing || this.state.mode !== 'compare') return;
+                const c = this.player.compare;
+                if (!c) return;
+                this.player.isServing = true;
+                try {
+                    const modeConfig = CONFIG.modes.compare;
+                    if (sign === c.answer) {
+                        this.player.combo++;
+                        if (this.player.combo > this.player.maxCombo) this.player.maxCombo = this.player.combo;
+                        this.player.totalServed++;
+                        this.sound.playCorrect();
+                        const pts = modeConfig.points * (this.player.isFever ? 2 : 1);
+                        this.player.score += pts;
+                        if (!this.state.practice) this.state.timeLeft = Math.min(this.state.timeLeft + modeConfig.bonus, this.state.maxTime + 15);
+                        if (this.player.combo >= 3) { this.spawnConfetti(); this.sound.playCombo(); }
+                        if (this.player.combo >= CONFIG.comboThreshold && !this.player.isFever) {
+                            this.player.isFever = true; this.sound.setTempo(180); document.body.classList.add('fever-bg');
+                            this.spawnFloatingText('🔥 FEVER x2 🔥', '#FF5722');
+                        }
+                        const ce = document.getElementById('customer-emoji-0'); ce.innerText = '😋'; ce.classList.add('bounce');
+                        this.spawnFloatingText(`+${pts} ${CONFIG.compliments[Math.floor(Math.random() * CONFIG.compliments.length)]}`, '#4CAF50');
+                        this.nextOrder();
+                    } else {
+                        this.player.combo = 0; this.player.isFever = false; this.player.totalWrong++;
+                        this.sound.setTempo(120); document.body.classList.remove('fever-bg'); this.sound.playWrong();
+                        if (!this.state.practice) this.state.timeLeft = Math.max(0, this.state.timeLeft - 10);
+                        this.shakeScreen();
+                        const sym = { '>': 'มากกว่า', '<': 'น้อยกว่า', '=': 'เท่ากับ' };
+                        this.showFeedback(`ที่ถูกคือ ${c.L.n}/${c.L.d} ${c.answer} ${c.R.n}/${c.R.d} (ซ้าย${sym[c.answer]}ขวา)`, 'wrong');
+                        this.spawnFloatingText(this.state.practice ? 'ลองใหม่นะ!' : 'ผิดแล้ว! -10s', '#D32F2F');
+                        const ce = document.getElementById('customer-emoji-0'); ce.innerText = '😤'; ce.classList.add('angry');
+                        setTimeout(() => ce.classList.remove('angry'), 600);
+                    }
+                    this.updateUI();
+                } catch (err) { console.error(err); }
+                finally { setTimeout(() => { this.player.isServing = false; }, 300); }
+            }
+
+            drawComparePizzas() {
+                const c = this.player.compare;
+                if (!c || this.pizzaLayouts.length < 2) return;
+                this.drawComparePizza(this.pizzaLayouts[0], c.L.n, c.L.d, `${c.L.n}/${c.L.d}`);
+                this.drawComparePizza(this.pizzaLayouts[1], c.R.n, c.R.d, `${c.R.n}/${c.R.d}`);
+            }
+
+            drawComparePizza(lay, n, d, label) {
+                const ctx = this.ctx;
+                const { cx, cy, r } = lay;
+                const sliceAngle = (Math.PI * 2) / d;
+                const start = -Math.PI / 2;
+                for (let i = 0; i < d; i++) {
+                    const s = start + i * sliceAngle, e = s + sliceAngle;
+                    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, r, s, e); ctx.closePath();
+                    ctx.fillStyle = (i < n) ? '#E8B909' : '#FBE9D0';   // ระบาย n ช่องแรก (เศษส่วน)
+                    ctx.fill();
+                    ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.stroke();
+                }
+                ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
+                ctx.strokeStyle = '#C0793A'; ctx.lineWidth = 6; ctx.stroke();
+                ctx.fillStyle = '#5a3a1a'; ctx.font = `bold ${Math.max(18, r * 0.32)}px 'Kanit', sans-serif`;
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(label, cx, cy + r + Math.max(22, r * 0.3));
             }
 
             /* --- Check Order (Serve) --- */
@@ -2102,7 +2239,8 @@
                     }
                 }
 
-                // Pizza slice selection
+                // Pizza slice selection (โหมดเทียบใช้ปุ่ม ไม่ใช่แตะถาด)
+                if (this.state.mode === 'compare') return;
                 this.updatePizzaLayout();
                 for (let pIdx = 0; pIdx < this.pizzaLayouts.length; pIdx++) {
                     const layout = this.pizzaLayouts[pIdx];
@@ -2126,6 +2264,7 @@
 
             /* --- Power-Up System --- */
             spawnPowerUp() {
+                if (this.state.mode === 'compare') return;   // โหมดเทียบไม่มี power-up (hint ไม่มีความหมาย)
                 const types = ['time', 'shield', 'hint'];
                 const emojis = { time: '⏰', shield: '🛡️', hint: '🎯' };
                 const type = types[Math.floor(Math.random() * types.length)];
@@ -2284,8 +2423,8 @@
                 }
                 if (timerText) timerText.textContent = this.state.practice ? '∞' : Math.ceil(this.state.timeLeft);
 
-                // Wave system (not for speed/mixed) — โหมดฝึกเลื่อนเวฟตามจำนวนที่ทำถูก
-                if (this.state.mode !== 'speed' && this.state.mode !== 'mixed') {
+                // Wave system (not for speed/mixed/compare) — โหมดฝึกเลื่อนเวฟตามจำนวนที่ทำถูก
+                if (this.state.mode !== 'speed' && this.state.mode !== 'mixed' && this.state.mode !== 'compare') {
                     const newWave = this.state.practice
                         ? Math.min(CONFIG.waves.length - 1, Math.floor(this.player.totalServed / 4))
                         : this.getCurrentWave();
@@ -2443,9 +2582,13 @@
                 const lvl = this.player.level;
                 if (!lvl) return;
 
-                for (let p = 0; p < this.pizzaLayouts.length; p++) {
-                    const layout = this.pizzaLayouts[p];
-                    this.drawPizza(p, layout.cx, layout.cy, layout.r);
+                if (this.state.mode === 'compare') {
+                    this.drawComparePizzas();
+                } else {
+                    for (let p = 0; p < this.pizzaLayouts.length; p++) {
+                        const layout = this.pizzaLayouts[p];
+                        this.drawPizza(p, layout.cx, layout.cy, layout.r);
+                    }
                 }
 
                 // (เอาตัวเลขนับกลางถาดออก — เด็กต้องนับช่องเองจากการมอง = ฝึกจริง)
