@@ -272,8 +272,20 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.41.4 (เทมเพลตเกม + AI Prompt — blueprint โครงสร้างหน้าจอ + การ์ดสถิติฉัน)',
+        version: 'v1.42.0 (ข่าวอัตโนมัติจาก Facebook — sync โพสต์เพจ → หน้าข่าว)',
         date: 'ล่าสุด',
+        badge: 'bg-[#1877F2]',
+        items: [
+            'Edge function facebook-fetch: เมื่อเปิด toggle "แปลงโพสต์เป็นข่าวอัตโนมัติ" → แปลงโพสต์ใหม่จากเพจเป็น row ในตาราง news (published ทันที, หมวด "ข่าวจาก Facebook") โผล่หน้า /news เอง',
+            'รูปปกถูกดาวน์โหลดจาก Facebook CDN แล้ว re-host ใน bucket school-images/facebook/ (กัน URL หมดอายุ) + แนบลิงก์ "ดูบน Facebook" ใน external_links',
+            'Idempotency ผ่าน facebook_posts.news_synced — ลบข่าวที่ไม่ต้องการได้ ระบบจะไม่สร้างซ้ำ; กันโพสต์ซ้ำด้วย unique index news.source_fb_post_id',
+            'อัตโนมัติจริง: Vercel Cron /api/sync-facebook (รายวัน) เรียก edge function ผ่าน x-cron-secret โดยไม่ต้องรอแอดมินเปิดเว็บ (เดิม stale-while-revalidate เท่านั้น)',
+            'Migration 107 + toggle ใน หน้าแอดมิน → ฟีดข่าว Facebook; ต้องตั้ง Long-Lived Page Access Token + secret CRON_SECRET (Supabase + Vercel) ก่อนใช้งาน',
+        ],
+    },
+    {
+        version: 'v1.41.4 (เทมเพลตเกม + AI Prompt — blueprint โครงสร้างหน้าจอ + การ์ดสถิติฉัน)',
+        date: '',
         badge: 'bg-purple-600',
         items: [
             'GAME-PROMPT.md (ปุ่ม "คัดลอก Prompt" + "ดู Prompt"): เพิ่ม section "โครงสร้างหน้าจอมาตรฐาน (ต้องมีครบ)" — จอเริ่ม (การ์ดสถิติฉัน + ตารางอันดับ, ห้ามช่องกรอกชื่อ) / HUD / จอจบ (อันดับ + เล่นใหม่ + goHome) / มือถือ + เพิ่ม playsCount ใน k.stats',

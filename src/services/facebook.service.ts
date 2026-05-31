@@ -23,6 +23,7 @@ export type FacebookFeedMeta = {
   refresh_interval_hours: number;
   last_fetched_at: string | null;
   last_status: FacebookFeedStatus | null;
+  sync_to_news: boolean;
 };
 
 export type RefreshResult = {

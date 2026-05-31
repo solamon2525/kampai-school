@@ -23,6 +23,7 @@ import type { FacebookFeedStatus } from '@/services/facebook.service';
 
 const schema = z.object({
   enabled: z.boolean(),
+  sync_to_news: z.boolean(),
   page_id: z.string().trim().regex(/^\d{5,}$/u, 'Page ID ต้องเป็นตัวเลข (Facebook Page numeric ID)'),
   page_name: z.string().trim().max(80, 'ไม่เกิน 80 ตัวอักษร').optional().or(z.literal('')),
   page_url: z.string().trim().url('ต้องเป็น URL').refine(
@@ -57,6 +58,7 @@ export const FacebookFeedSettingsCard = () => {
     resolver: zodResolver(schema),
     defaultValues: {
       enabled: true,
+      sync_to_news: false,
       page_id: '',
       page_name: '',
       page_url: '',
@@ -70,6 +72,7 @@ export const FacebookFeedSettingsCard = () => {
     if (!config) return;
     form.reset({
       enabled: config.enabled,
+      sync_to_news: config.sync_to_news ?? false,
       page_id: config.page_id,
       page_name: config.page_name ?? '',
       page_url: config.page_url ?? '',
@@ -90,6 +93,7 @@ export const FacebookFeedSettingsCard = () => {
         page_url: values.page_url || null,
         access_token: values.access_token,
         enabled: values.enabled,
+        sync_to_news: values.sync_to_news,
         posts_count: values.posts_count,
         refresh_interval_hours: values.refresh_interval_hours,
       });
@@ -173,6 +177,25 @@ export const FacebookFeedSettingsCard = () => {
                       <FormLabel>แสดงฟีด Facebook บนหน้าแรก</FormLabel>
                       <FormDescription className="text-xs">
                         ปิดสวิตช์เพื่อซ่อน widget โดยไม่ลบการตั้งค่า
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="sync_to_news"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                    <div>
+                      <FormLabel>แปลงโพสต์เป็นข่าวอัตโนมัติ</FormLabel>
+                      <FormDescription className="text-xs">
+                        เปิดเพื่อให้โพสต์ใหม่จากเพจกลายเป็นข่าวเผยแพร่ในหน้า "ข่าวสาร" โดยอัตโนมัติ
+                        (หมวด "ข่าวจาก Facebook") — ลบข่าวที่ไม่ต้องการได้ภายหลัง
                       </FormDescription>
                     </div>
                     <FormControl>

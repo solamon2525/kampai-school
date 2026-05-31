@@ -2023,6 +2023,7 @@ export type Database = {
           page_url: string | null
           posts_count: number
           refresh_interval_hours: number
+          sync_to_news: boolean
           updated_at: string
         }
         Insert: {
@@ -2038,6 +2039,7 @@ export type Database = {
           page_url?: string | null
           posts_count?: number
           refresh_interval_hours?: number
+          sync_to_news?: boolean
           updated_at?: string
         }
         Update: {
@@ -2053,6 +2055,7 @@ export type Database = {
           page_url?: string | null
           posts_count?: number
           refresh_interval_hours?: number
+          sync_to_news?: boolean
           updated_at?: string
         }
         Relationships: []
@@ -2065,6 +2068,7 @@ export type Database = {
           full_picture: string | null
           id: string
           message: string | null
+          news_synced: boolean
           permalink_url: string
         }
         Insert: {
@@ -2074,6 +2078,7 @@ export type Database = {
           full_picture?: string | null
           id: string
           message?: string | null
+          news_synced?: boolean
           permalink_url: string
         }
         Update: {
@@ -2083,6 +2088,7 @@ export type Database = {
           full_picture?: string | null
           id?: string
           message?: string | null
+          news_synced?: boolean
           permalink_url?: string
         }
         Relationships: []
@@ -2959,6 +2965,8 @@ export type Database = {
           published_at: string | null
           show_in_ticker: boolean
           sort_order: number | null
+          source: string | null
+          source_fb_post_id: string | null
           ticker_order: number | null
           title: string
           updated_at: string
@@ -2978,6 +2986,8 @@ export type Database = {
           published_at?: string | null
           show_in_ticker?: boolean
           sort_order?: number | null
+          source?: string | null
+          source_fb_post_id?: string | null
           ticker_order?: number | null
           title: string
           updated_at?: string
@@ -2997,6 +3007,8 @@ export type Database = {
           published_at?: string | null
           show_in_ticker?: boolean
           sort_order?: number | null
+          source?: string | null
+          source_fb_post_id?: string | null
           ticker_order?: number | null
           title?: string
           updated_at?: string
@@ -5989,6 +6001,7 @@ export type Database = {
           page_url: string
           posts_count: number
           refresh_interval_hours: number
+          sync_to_news: boolean
         }[]
       }
       get_game_leaderboard: {
