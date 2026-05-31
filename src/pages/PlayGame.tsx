@@ -11,6 +11,8 @@ import {
   Lock,
   RotateCcw,
   Menu,
+  Maximize,
+  Minimize,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -64,9 +66,25 @@ const PlayGame = () => {
   const [result, setResult] = useState<RecordSessionResult | null>(null);
   const [prevLevel, setPrevLevel] = useState<LevelInfo | null>(null);
   const [showExitMenu, setShowExitMenu] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const gameContainerRef = useRef<HTMLDivElement | null>(null);
   const sessionSubmittedRef = useRef(false);
+
+  // ─── fullscreen: ขยายเกมเต็มจอจริง (iframe มี allow="fullscreen" อยู่แล้ว) ───
+  const toggleFullscreen = useCallback(() => {
+    const el = gameContainerRef.current;
+    if (!el) return;
+    if (document.fullscreenElement) document.exitFullscreen?.();
+    else el.requestFullscreen?.();
+  }, []);
+
+  useEffect(() => {
+    const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', onFsChange);
+    return () => document.removeEventListener('fullscreenchange', onFsChange);
+  }, []);
 
   // game metadata
   const gameQuery = useQuery({
@@ -325,7 +343,7 @@ const PlayGame = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className={cn('bg-background', phase === 'playing' ? 'flex h-[100dvh] flex-col overflow-hidden' : 'min-h-screen')}>
       {/* header */}
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 p-4">
@@ -356,7 +374,7 @@ const PlayGame = () => {
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl p-4 sm:p-6">
+      <main className={cn('mx-auto w-full', phase === 'playing' ? 'min-h-0 flex-1 max-w-none p-0' : 'max-w-5xl p-4 sm:p-6')}>
         {phase === 'lookup' && (
           <LookupPanel
             value={codeInput}
@@ -389,18 +407,28 @@ const PlayGame = () => {
         )}
 
         {phase === 'playing' && iframeUrl && (
-          <div className="relative">
+          <div ref={gameContainerRef} className="relative h-full bg-background">
             <PlayingPanel iframeRef={iframeRef} url={iframeUrl} onLoad={handleIframeLoad} />
 
-            {/* Floating Exit Button — มุมบนขวาของ game container */}
-            <button
-              onClick={() => setShowExitMenu(true)}
-              className="absolute top-3 right-3 z-10 flex items-center gap-1.5 rounded-full bg-black/50 px-3 py-1.5 text-sm font-medium text-white backdrop-blur-sm hover:bg-black/70 transition-colors"
-              title="เมนู / ออกจากเกม"
-            >
-              <Menu className="h-4 w-4" />
-              <span className="hidden sm:inline">เมนู</span>
-            </button>
+            {/* Floating controls — มุมบนขวาของ game container */}
+            <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
+              <button
+                onClick={toggleFullscreen}
+                className="flex items-center gap-1.5 rounded-full bg-black/50 px-3 py-1.5 text-sm font-medium text-white backdrop-blur-sm hover:bg-black/70 transition-colors"
+                title={isFullscreen ? 'ออกจากเต็มจอ' : 'เต็มจอ'}
+              >
+                {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+                <span className="hidden sm:inline">{isFullscreen ? 'ย่อ' : 'เต็มจอ'}</span>
+              </button>
+              <button
+                onClick={() => setShowExitMenu(true)}
+                className="flex items-center gap-1.5 rounded-full bg-black/50 px-3 py-1.5 text-sm font-medium text-white backdrop-blur-sm hover:bg-black/70 transition-colors"
+                title="เมนู / ออกจากเกม"
+              >
+                <Menu className="h-4 w-4" />
+                <span className="hidden sm:inline">เมนู</span>
+              </button>
+            </div>
 
             {/* Exit Menu Dialog — 4 ตัวเลือก */}
             <Dialog open={showExitMenu} onOpenChange={setShowExitMenu}>
@@ -889,8 +917,8 @@ const PlayingPanel = ({
 
   if (!iframeSrc) {
     return (
-      <Card className="overflow-hidden">
-        <div className="flex h-[80vh] items-center justify-center gap-2">
+      <Card className="h-full overflow-hidden rounded-none border-0">
+        <div className="flex h-full items-center justify-center gap-2">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           <span className="text-sm text-muted-foreground">กำลังโหลดเกม...</span>
         </div>
@@ -899,13 +927,13 @@ const PlayingPanel = ({
   }
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="h-full overflow-hidden rounded-none border-0">
       <iframe
         ref={iframeRef}
         src={iframeSrc}
         onLoad={onLoad}
         title="game"
-        className="block h-[80vh] w-full border-0"
+        className="block h-full w-full border-0"
         sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-modals"
         allow="pointer-lock; fullscreen; autoplay; cross-origin-isolated; camera; microphone"
       />

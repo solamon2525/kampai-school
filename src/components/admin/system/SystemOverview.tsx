@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.42.1 (เกม "นักสืบโจทย์ปัญหา" — port React ดิบ → เล่นได้ + เก็บคะแนน)',
+        version: 'v1.42.2 (เล่นเกมเต็มจอ — ปุ่ม Fullscreen + ขยายเต็มพื้นที่ ทุกเกม)',
         date: 'ล่าสุด',
+        badge: 'bg-purple-600',
+        items: [
+            'PlayGame wrapper: ตอนเล่น หน้าเป็น flex เต็ม viewport (h-100dvh) → iframe เต็มความกว้าง + สูงเท่าที่เหลือจาก header (เดิม max-w-5xl + h-80vh ทำให้ต้องสกอลหน้า/หาปุ่ม)',
+            'เพิ่มปุ่ม "เต็มจอ" (Fullscreen API — iframe มี allow=fullscreen อยู่แล้ว) ข้างปุ่มเมนู → ขยายเต็มหน้าจอจริง ซ่อน header+แถบเบราว์เซอร์, กด ESC/ปุ่มย่อกลับ',
+            'มีผลกับทุกเกม (อยู่ที่ wrapper) — build ผ่าน',
+        ],
+    },
+    {
+        version: 'v1.42.1 (เกม "นักสืบโจทย์ปัญหา" — port React ดิบ → เล่นได้ + เก็บคะแนน)',
+        date: '',
         badge: 'bg-purple-600',
         items: [
             'mathdetective.html เดิมเป็น React/TSX ดิบ (import lucide-react) รันใน iframe ไม่ได้ → จอเปล่า เล่นไม่ได้',
