@@ -272,8 +272,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.42.0 (ข่าวอัตโนมัติจาก Facebook — sync โพสต์เพจ → หน้าข่าว)',
+        version: 'v1.42.1 (เกม "นักสืบโจทย์ปัญหา" — port React ดิบ → เล่นได้ + เก็บคะแนน)',
         date: 'ล่าสุด',
+        badge: 'bg-purple-600',
+        items: [
+            'mathdetective.html เดิมเป็น React/TSX ดิบ (import lucide-react) รันใน iframe ไม่ได้ → จอเปล่า เล่นไม่ได้',
+            'Port เป็น single-file Babel (React 18 UMD + _mkIcon shim) → public/games/math/detective.html, render Check 7 ผ่าน (DOM 7367 ตัวอักษร)',
+            'ฝัง KAMPAI SDK: submitScore 4 จุดจบเกม (ด่านสำเร็จ/ล้มเหลว, บอสชนะ/หมดเวลา) + การ์ดสถิติฉัน + ตารางอันดับนักเรียนในจอแผนที่ + ปุ่มกลับหน้าหลัก',
+            'Migration 108: ย้าย Storage → git (repoint external_url → /games/math/detective.html), verify:game 7/7',
+        ],
+    },
+    {
+        version: 'v1.42.0 (ข่าวอัตโนมัติจาก Facebook — sync โพสต์เพจ → หน้าข่าว)',
+        date: '',
         badge: 'bg-[#1877F2]',
         items: [
             'Edge function facebook-fetch: เมื่อเปิด toggle "แปลงโพสต์เป็นข่าวอัตโนมัติ" → แปลงโพสต์ใหม่จากเพจเป็น row ในตาราง news (published ทันที, หมวด "ข่าวจาก Facebook") โผล่หน้า /news เอง',

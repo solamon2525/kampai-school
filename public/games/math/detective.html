@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>นักสืบโจทย์ปัญหา</title>
+<!--
+═══════════════════════════════════════════════════════════════════════════
+  KAMPAI-SCHOOL · นักสืบโจทย์ปัญหา (detective) — React 18 + Babel single-file
+  Ported จาก React/TSX ดิบ (import lucide-react) → รันใน iframe ได้ + เก็บคะแนน
+  ผ่าน KAMPAI SDK + แสดง leaderboard/สถิติในจอแผนที่. ดู GAME.md.
+═══════════════════════════════════════════════════════════════════════════
+-->
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Sarabun:wght@400;600&display=swap');
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; font-family: 'Kanit', 'Sarabun', sans-serif; background: #fffbeb; -webkit-tap-highlight-color: transparent; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- ═══ KAMPAI SDK (single source — อย่าแก้) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}} };
+</script>
+
+<script type="text/babel">
+/* ═══ SECTION A · ตั้งค่า ═══ */
+const GAME_SLUG = 'detective';   // ตรงกับ educational_hub_items.game_slug
+KAMPAI.setSlug(GAME_SLUG);
+
+/* ═══ SECTION B · React + lucide-react shim (อย่าแก้ logic — ใช้ _mkIcon) ═══ */
+const { useState, useEffect, useRef } = React;
+const _ICONS = (window.lucide && (window.lucide.icons || window.lucide)) || {};
+const _mkIcon = (name) => (p = {}) => {
+  // lucide IconNode = ["svg", attrs, [["path",{...}], ...]] — drawing children = index 2
+  const node = _ICONS[name];
+  const paths = (node && Array.isArray(node[2])) ? node[2] : [];
+  const sz = p.size || 24;
+  return React.createElement('svg', {
+    xmlns: 'http://www.w3.org/2000/svg', width: sz, height: sz, viewBox: '0 0 24 24',
+    fill: p.fill || 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round',
+    strokeLinejoin: 'round', className: p.className, style: p.style,
+  }, paths.map((c, i) => React.createElement(c[0], { key: i, ...c[1] })));
+};
+const Plus = _mkIcon('Plus'), Minus = _mkIcon('Minus'), X = _mkIcon('X'), Divide = _mkIcon('Divide'),
+  RefreshCw = _mkIcon('RefreshCw'), HelpCircle = _mkIcon('HelpCircle'), BookOpen = _mkIcon('BookOpen'),
+  Lightbulb = _mkIcon('Lightbulb'), CheckCircle = _mkIcon('CheckCircle'), XCircle = _mkIcon('XCircle'),
+  Trophy = _mkIcon('Trophy'), ArrowRight = _mkIcon('ArrowRight'), Star = _mkIcon('Star'),
+  TrendingUp = _mkIcon('TrendingUp'), Volume2 = _mkIcon('Volume2'), VolumeX = _mkIcon('VolumeX'),
+  Map = _mkIcon('Map'), Lock = _mkIcon('Lock'), Heart = _mkIcon('Heart'), Clock = _mkIcon('Clock'),
+  ShieldAlert = _mkIcon('ShieldAlert'), Swords = _mkIcon('Swords'), ChevronLeft = _mkIcon('ChevronLeft'),
+  Award = _mkIcon('Award'), Home = _mkIcon('Home');
+
+/* ═══ SECTION C · KAMPAI panels (สถิติฉัน + อันดับนักเรียน — โชว์ในจอแผนที่) ═══ */
+function MyStats({ stats }) {
+  if (!stats) return null;
+  return (
+    <div className="flex gap-3 w-full max-w-sm mx-auto mb-4">
+      <div className="flex-1 bg-amber-100 border-2 border-amber-300 rounded-2xl p-3 text-center">
+        <div className="text-2xl font-black text-amber-600 leading-tight">{(stats.personalBest || 0).toLocaleString()}</div>
+        <div className="text-xs text-amber-700 font-bold">คะแนนสูงสุด</div>
+      </div>
+      <div className="flex-1 bg-purple-100 border-2 border-purple-300 rounded-2xl p-3 text-center">
+        <div className="text-2xl font-black text-purple-600 leading-tight">{(stats.playsCount || 0).toLocaleString()}</div>
+        <div className="text-xs text-purple-700 font-bold">เล่นไปแล้ว (ครั้ง)</div>
+      </div>
+    </div>
+  );
+}
+
+function Leaderboard({ rows }) {
+  if (!rows || !rows.length) return null;
+  const medals = ['🥇', '🥈', '🥉'];
+  return (
+    <div className="bg-white rounded-2xl p-3 w-full max-w-sm mx-auto shadow-lg border-2 border-amber-200 text-slate-800">
+      <div className="font-bold text-sm mb-2 flex items-center justify-center gap-1"><Trophy className="w-4 h-4 text-amber-500" /> อันดับนักเรียน</div>
+      <ul className="space-y-1">
+        {rows.slice(0, 5).map((r) => (
+          <li key={r.studentId || r.rank} className={`flex items-center gap-2 px-1.5 py-1 rounded-lg ${r.isMe ? 'bg-amber-100' : ''}`}>
+            <span className="w-6 text-center font-bold text-amber-600">{medals[r.rank - 1] || r.rank}</span>
+            {r.photoUrl
+              ? <img src={r.photoUrl} alt="" className="w-7 h-7 rounded-full object-cover" />
+              : <div className="w-7 h-7 rounded-full bg-violet-400 text-white flex items-center justify-center text-xs font-bold">{(r.displayName || '?')[0]}</div>}
+            <div className="flex-1 min-w-0 text-left">
+              <div className="text-sm font-semibold truncate">{r.displayName}{r.isMe ? ' (คุณ)' : ''}</div>
+              <div className="text-[11px] text-slate-500">{(r.personalBest || 0).toLocaleString()} คะแนน · {r.classLabel || ''}</div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function MathDetectiveApp() {
+  const [activeTab, setActiveTab] = useState('wizard'); // 'wizard', 'reference', 'campaign'
+
+  // --- AUDIO SYSTEM STATE ---
+  const [isMuted, setIsMuted] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
+
+  const audioRefs = useRef({
+    bgm: new Audio('https://assets.mixkit.co/music/preview/mixkit-game-level-music-689.mp3'),
+    correct: new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3'),
+    wrong: new Audio('https://assets.mixkit.co/active_storage/sfx/2955/2955-preview.mp3'),
+    click: new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3'),
+    success: new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3'),
+    rankUp: new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3')
+  });
+
+  useEffect(() => {
+    audioRefs.current.bgm.loop = true;
+    audioRefs.current.bgm.volume = 0.3;
+    return () => {
+      Object.values(audioRefs.current).forEach(audio => {
+        audio.pause();
+        audio.currentTime = 0;
+      });
+    };
+  }, []);
+
+  useEffect(() => {
+    Object.values(audioRefs.current).forEach(audio => {
+      audio.muted = isMuted;
+    });
+
+    if (!isMuted && hasInteracted) {
+      const playPromise = audioRefs.current.bgm.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(e => console.log("Auto-play prevented", e));
+      }
+    } else {
+      audioRefs.current.bgm.pause();
+    }
+  }, [isMuted, hasInteracted]);
+
+  const playSound = (soundKey) => {
+    if (!isMuted && audioRefs.current[soundKey]) {
+      const sound = audioRefs.current[soundKey].cloneNode();
+      sound.volume = soundKey === 'bgm' ? 0.3 : 1.0;
+      sound.play().catch(e => console.log("Sound play error", e));
+    }
+  };
+
+  const handleInteraction = () => {
+    if (!hasInteracted) setHasInteracted(true);
+  };
+
+  const toggleMute = (e) => {
+    e.stopPropagation();
+    handleInteraction();
+    setIsMuted(!isMuted);
+  };
+
+  // --- WIZARD STATE ---
+  const [wizardStep, setWizardStep] = useState(0);
+  const [direction, setDirection] = useState(null);
+  const [grouping, setGrouping] = useState(null);
+
+  // --- RANK & LEVEL SYSTEM ---
+  const [totalXP, setTotalXP] = useState(0);
+  const defaultProg = { '1-1': 0, '1-2': 0, '1-3': 0, '2-1': 0, '2-2': 0, '2-3': 0, '3-1': 0, '3-2': 0, '3-3': 0 };
+  const [levelProgress, setLevelProgress] = useState(defaultProg); // Stores stars (0-3)
+
+  const RANKS = [
+    { name: 'เด็กฝึกงาน', minXP: 0, icon: '🐣', color: 'text-gray-500', bg: 'bg-gray-100' },
+    { name: 'สายสืบฝึกหัด', minXP: 50, icon: '🔎', color: 'text-blue-500', bg: 'bg-blue-100' },
+    { name: 'ยอดนักสืบ', minXP: 150, icon: '🕵️‍♂️', color: 'text-purple-500', bg: 'bg-purple-100' },
+    { name: 'สารวัตรนักคิด', minXP: 300, icon: '🎖️', color: 'text-amber-500', bg: 'bg-amber-100' },
+    { name: 'ปรมาจารย์ตัวเลข', minXP: 600, icon: '👑', color: 'text-rose-500', bg: 'bg-rose-100' }
+  ];
+
+  useEffect(() => {
+    const savedXP = localStorage.getItem('mathDetectiveXP');
+    const savedProgress = localStorage.getItem('mathDetectiveProgress');
+    if (savedXP) setTotalXP(parseInt(savedXP, 10));
+    if (savedProgress) {
+      const parsed = JSON.parse(savedProgress);
+      // Migrate old progress format to the new sub-level format securely
+      if (parsed[1] !== undefined && parsed['1-1'] === undefined) parsed['1-1'] = parsed[1];
+      if (parsed[2] !== undefined && parsed['2-1'] === undefined) parsed['2-1'] = parsed[2];
+      if (parsed[3] !== undefined && parsed['3-1'] === undefined) parsed['3-1'] = parsed[3];
+      setLevelProgress({ ...defaultProg, ...parsed });
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('mathDetectiveXP', totalXP.toString());
+    localStorage.setItem('mathDetectiveProgress', JSON.stringify(levelProgress));
+  }, [totalXP, levelProgress]);
+
+  const getCurrentRank = () => [...RANKS].reverse().find(r => totalXP >= r.minXP) || RANKS[0];
+  const getNextRank = () => RANKS.find(r => r.minXP > totalXP) || null;
+  const currentRank = getCurrentRank();
+  const nextRank = getNextRank();
+
+  const getProgressToNextRank = () => {
+    if (!nextRank) return 100;
+    const progress = totalXP - currentRank.minXP;
+    const totalNeeded = nextRank.minXP - currentRank.minXP;
+    return Math.min(100, Math.max(0, (progress / totalNeeded) * 100));
+  };
+
+  // --- CAMPAIGN (GAME) STATE ---
+  const [campaignView, setCampaignView] = useState('map'); // 'map', 'caseDetails', 'playing', 'result', 'gameOver'
+  const [selectedCase, setSelectedCase] = useState(null); // 1, 2, or 3
+  const [currentLevelId, setCurrentLevelId] = useState(null); // '1-1', 'boss', etc.
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [score, setScore] = useState(0);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [isCorrect, setIsCorrect] = useState(null);
+  const [randomizedQuestions, setRandomizedQuestions] = useState([]);
+  
+  // Game Mechanics State
+  const [lives, setLives] = useState(3);
+  const [timeLeft, setTimeLeft] = useState(60);
+  const [bossHp, setBossHp] = useState(100);
+
+  // --- KAMPAI (นักเรียน / สถิติ / อันดับ จาก wrapper) ---
+  const [kStats, setKStats] = useState(null);
+  const [kBoard, setKBoard] = useState([]);
+  useEffect(() => {
+    if (window.KAMPAI && KAMPAI.onReady) {
+      KAMPAI.onReady((k) => { setKStats(k.stats); setKBoard(k.leaderboard || []); });
+    }
+  }, []);
+
+  // Timer for Boss Mode
+  useEffect(() => {
+    let timer = null;
+    if (campaignView === 'playing' && currentLevelId === 'boss' && timeLeft > 0 && !selectedAnswer) {
+      timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
+    } else if (timeLeft <= 0 && campaignView === 'playing' && currentLevelId === 'boss') {
+      playSound('wrong');
+      KAMPAI.submitScore(score * 10, { mode: 'test', level: 'boss', result: 'timeout' });
+      setCampaignView('gameOver');
+    }
+    return () => clearInterval(timer);
+  }, [campaignView, currentLevelId, timeLeft, selectedAnswer]);
+
+  // --- DATA: QUIZ QUESTIONS (40 Questions) ---
+  const quizPool = [
+    // ADDITION
+    { id: 'a1', text: 'แม่มีเงิน 500 บาท พ่อให้อีก 200 บาท แม่มีเงินรวมทั้งหมดกี่บาท?', type: 'plus', hint: 'มีเงินอยู่แล้ว และได้มาเพิ่มอีก (รวม)' },
+    { id: 'a2', text: 'โรงงานผลิตน้ำดื่มได้ 2,500 ขวด ผลิตน้ำผลไม้ได้ 1,200 ขวด รวมผลิตเครื่องดื่มได้ทั้งหมดกี่ขวด?', type: 'plus', hint: 'นำจำนวนสองอย่างมารวมกัน' },
+    { id: 'a3', text: 'เดือนมกราคมเก็บเงินได้ 5,000 บาท เดือนกุมภาพันธ์เก็บได้มากกว่าเดือนมกราคม 1,500 บาท เดือนกุมภาพันธ์เก็บเงินได้กี่บาท?', type: 'plus', hint: 'หาค่าของเดือนกุมภาพันธ์ ซึ่ง "มากกว่า" เดือนแรก (เพิ่มค่า)' },
+    { id: 'a4', text: 'ห้องสมุดมีหนังสือไทย 3,400 เล่ม มีหนังสือต่างประเทศ 1,250 เล่ม ห้องสมุดมีหนังสือทั้งหมดกี่เล่ม?', type: 'plus', hint: 'รวมจำนวนหนังสือทั้งหมด' },
+    { id: 'a5', text: 'พ่อซื้อตู้เย็น 8,900 บาท และซื้อเครื่องซักผ้า 6,500 บาท พ่อต้องจ่ายเงินรวมกี่บาท?', type: 'plus', hint: 'ราคาสิ่งของมารวมกัน' },
+    { id: 'a6', text: 'จังหวัด A มีประชากรชาย 450,000 คน มีประชากรหญิง 480,000 คน จังหวัดนี้มีประชากรรวมกี่คน?', type: 'plus', hint: 'หาจำนวนประชากรทั้งหมด' },
+    { id: 'a7', text: 'วันนี้วิ่งได้ 3.5 กิโลเมตร พรุ่งนี้วิ่งเพิ่มอีก 1.2 กิโลเมตร รวมสองวันวิ่งได้ระยะทางเท่าไร?', type: 'plus', hint: 'ระยะทางมารวมกัน' },
+    { id: 'a8', text: 'ชาวสวนขายทุเรียนได้ 45,000 บาท ขายมังคุดได้ 32,000 บาท ชาวสวนมีรายได้รวมทั้งหมดเท่าไร?', type: 'plus', hint: 'รายได้มารวมกัน' },
+    { id: 'a9', text: 'ถังใบแรกจุน้ำได้ 150 ลิตร ถังใบที่สองจุได้มากกว่าใบแรก 50 ลิตร ถังใบที่สองจุน้ำได้กี่ลิตร?', type: 'plus', hint: 'หาค่าถังที่สอง ที่มีค่า "มากกว่า" ถังแรก' },
+    { id: 'a10', text: 'ยอดผู้เข้าชมงานวันแรก 1,200 คน วันที่สองมีมากกว่าวันแรก 300 คน วันที่สองมีผู้เข้าชมกี่คน?', type: 'plus', hint: 'วันแรก + ส่วนที่เพิ่ม = วันที่สอง' },
+    // SUBTRACTION
+    { id: 's1', text: 'มีเงินอยู่ 1,000 บาท ซื้อของไป 350 บาท จะเหลือเงินกี่บาท?', type: 'minus', hint: 'มีเงินแล้วใช้ไป (ค่าลดลง)' },
+    { id: 's2', text: 'ถนนยาว 500 กม. ลาดยางไปแล้ว 320 กม. เหลือระยะทางที่ยังไม่ได้ลาดยางกี่ กม.?', type: 'minus', hint: 'หาความแตกต่างระหว่างทั้งหมดกับส่วนที่ทำแล้ว' },
+    { id: 's3', text: 'ตึก A สูง 150 เมตร ตึก B สูง 120 เมตร ตึก A สูงกว่าตึก B เท่าไร?', type: 'minus', hint: 'เปรียบเทียบความสูง (หาความต่าง)' },
+    { id: 's4', text: 'ปีนี้บริษัทมีกำไร 850,000 บาท ปีที่แล้วมีกำไร 600,000 บาท ปีนี้กำไรมากกว่าปีที่แล้วเท่าไร?', type: 'minus', hint: 'เปรียบเทียบกำไรสองปี (หาความต่าง)' },
+    { id: 's5', text: 'แม่ค้ามีไข่ไก่ 500 ฟอง ขายไป 420 ฟอง แม่ค้าเหลือไข่ไก่อยู่กี่ฟอง?', type: 'minus', hint: 'ของที่มีอยู่ หายไปบางส่วน (เหลือ)' },
+    { id: 's6', text: 'ต้องการซื้อจักรยาน 4,500 บาท แต่มีเงินอยู่ 3,000 บาท ต้องเก็บเงินเพิ่มอีกกี่บาท?', type: 'minus', hint: 'หาผลต่างของราคาของกับเงินที่มี' },
+    { id: 's7', text: 'ถังใหญ่จุ 2,000 ลิตร ถังเล็กจุ 1,500 ลิตร ถังเล็กจุน้ำได้น้อยกว่าถังใหญ่เท่าไร?', type: 'minus', hint: 'เปรียบเทียบปริมาตร (หาความต่าง)' },
+    { id: 's8', text: 'ระยะทาง 15 กม. เดินทางไปแล้ว 8 กม. เหลือระยะทางอีกเท่าไรจึงจะถึง?', type: 'minus', hint: 'ระยะทางทั้งหมด ลบด้วยที่เดินไปแล้ว' },
+    { id: 's9', text: 'หนังสือมี 250 หน้า อ่านไปแล้ว 120 หน้า เหลือหน้าที่ยังไม่ได้อ่านอีกกี่หน้า?', type: 'minus', hint: 'จำนวนหน้าทั้งหมด ลบด้วยที่อ่านแล้ว' },
+    { id: 's10', text: 'เสื้อราคาปกติ 590 บาท ลดราคาเหลือ 390 บาท ร้านค้าลดราคาให้กี่บาท?', type: 'minus', hint: 'ราคาเดิม ลบด้วย ราคาใหม่' },
+    // MULTIPLICATION
+    { id: 'm1', text: 'จัดเก้าอี้ในห้องประชุม 15 แถว แถวละ 20 ตัว มีเก้าอี้ทั้งหมดกี่ตัว?', type: 'multiply', hint: 'เพิ่มขึ้นทีละเท่าๆ กัน (15 กลุ่ม ของ 20)' },
+    { id: 'm2', text: 'สมุดราคาเล่มละ 25 บาท ซื้อ 12 เล่ม ต้องจ่ายเงินทั้งหมดกี่บาท?', type: 'multiply', hint: 'ราคาเท่ากันหลายๆ ชิ้น' },
+    { id: 'm3', text: 'รถบรรทุกขนทรายเที่ยวละ 5 ตัน ขนทั้งหมด 8 เที่ยว จะได้ทรายทั้งหมดกี่ตัน?', type: 'multiply', hint: 'ปริมาณเท่ากันในแต่ละเที่ยว' },
+    { id: 'm4', text: 'มานะวิ่งวันละ 400 เมตร เป็นเวลา 7 วัน มานะวิ่งได้ระยะทางรวมทั้งหมดกี่เมตร?', type: 'multiply', hint: 'ระยะทางซ้ำๆ กันทุกวัน' },
+    { id: 'm5', text: 'กล่องใส่ส้ม 50 กล่อง แต่ละกล่องมีส้ม 24 ผล มีส้มรวมทั้งหมดกี่ผล?', type: 'multiply', hint: 'จำนวนกลุ่ม คูณ จำนวนสมาชิกในกลุ่ม' },
+    { id: 'm6', text: 'จ้างคนงาน 5 คน จ่ายค่าแรงคนละ 450 บาทต่อวัน ต้องจ่ายค่าแรงรวมวันละเท่าไร?', type: 'multiply', hint: 'คนหลายคน ได้เงินเท่าๆ กัน' },
+    { id: 'm7', text: 'ผลิตตุ๊กตาได้วันละ 300 ตัว ในเวลา 30 วัน จะผลิตได้ทั้งหมดกี่ตัว?', type: 'multiply', hint: 'จำนวนต่อวัน คูณ จำนวนวัน' },
+    { id: 'm8', text: 'ผ้าเมตรละ 150 บาท ต้องการซื้อ 4 เมตร ต้องจ่ายเงินกี่บาท?', type: 'multiply', hint: 'ราคาต่อหน่วย คูณ จำนวนหน่วย' },
+    { id: 'm9', text: 'กระเบื้องกล่องละ 12 แผ่น ซื้อมา 20 กล่อง ได้กระเบื้องทั้งหมดกี่แผ่น?', type: 'multiply', hint: 'กลุ่มของสิ่งของที่เท่ากัน' },
+    { id: 'm10', text: 'ที่ดินรูปสี่เหลี่ยมผืนผ้า กว้าง 20 เมตร ยาว 40 เมตร ที่ดินแปลงนี้มีพื้นที่กี่ตารางเมตร?', type: 'multiply', hint: 'การหาพื้นที่ (กว้าง × ยาว)' },
+    // DIVISION
+    { id: 'd1', text: 'มีเงิน 1,000 บาท แบ่งให้ลูก 4 คน คนละเท่าๆ กัน ลูกจะได้รับเงินคนละกี่บาท?', type: 'divide', hint: 'แบ่งจำนวนทั้งหมด ออกเป็นกลุ่มเท่าๆ กัน' },
+    { id: 'd2', text: 'ดินสอ 144 แท่ง จัดใส่กล่อง กล่องละ 12 แท่ง จะจัดได้ทั้งหมดกี่กล่อง?', type: 'divide', hint: 'แบ่งของทั้งหมด ออกเป็นกองละเท่าๆ กัน' },
+    { id: 'd3', text: 'ข้าว 3,500 กิโลกรัม แบ่งใส่กระสอบ กระสอบละ 50 กิโลกรัม จะได้ข้าวกี่กระสอบ?', type: 'divide', hint: 'การแบ่งบรรจุ (Measurement Division)' },
+    { id: 'd4', text: 'ซื้อผ้ามา 30 เมตร ตัดเป็นผืน ผืนละ 1.5 เมตร จะตัดได้กี่ผืน?', type: 'divide', hint: 'แบ่งความยาวทั้งหมดออกเป็นส่วนๆ' },
+    { id: 'd5', text: 'รถวิ่งระยะทาง 500 กม. ใช้เวลา 5 ชั่วโมง รถวิ่งด้วยความเร็วเฉลี่ยชั่วโมงละกี่ กม.?', type: 'divide', hint: 'หาค่าเฉลี่ยต่อหนึ่งหน่วยเวลา' },
+    { id: 'd6', text: 'คอมพิวเตอร์ 20 เครื่อง ราคา 400,000 บาท ราคาเฉลี่ยเครื่องละกี่บาท?', type: 'divide', hint: 'ราคารวม หารด้วย จำนวนเครื่อง' },
+    { id: 'd7', text: 'เชือกยาว 50 เมตร ตัดแบ่งเป็น 10 เส้นเท่าๆ กัน แต่ละเส้นยาวกี่เมตร?', type: 'divide', hint: 'แบ่งความยาว (Partitive Division)' },
+    { id: 'd8', text: 'มีขนม 150 ชิ้น จัดใส่ถุง ถุงละ 5 ชิ้น จะจัดได้กี่ถุง?', type: 'divide', hint: 'แบ่งของออกทีละเท่าๆ กัน' },
+    { id: 'd9', text: 'จ่ายค่าเช่าบ้าน 1 ปี (12 เดือน) รวม 60,000 บาท ค่าเช่าเฉลี่ยเดือนละกี่บาท?', type: 'divide', hint: 'หาค่าเฉลี่ยต่อเดือน' },
+    { id: 'd10', text: 'น้ำดื่ม 1 แพ็ค มี 12 ขวด ราคา 60 บาท ตกราคาขวดละกี่บาท?', type: 'divide', hint: 'ราคาของทั้งแพ็ค หารด้วย จำนวนชิ้น' },
+  ];
+
+  // --- WIZARD METHODS ---
+  const resetWizard = () => { handleInteraction(); playSound('click'); setWizardStep(0); setDirection(null); setGrouping(null); };
+  const handleDirectionSelect = (dir) => { handleInteraction(); playSound('click'); setDirection(dir); setWizardStep(1); };
+  const handleGroupingSelect = (grp) => { handleInteraction(); playSound('success'); setGrouping(grp); setWizardStep(2); };
+  const getResult = () => {
+    if (direction === 'increase') {
+      if (grouping === 'equal') return { op: 'คูณ (×)', icon: <X size={48} />, color: 'bg-blue-100 text-blue-600 border-blue-400', bg: 'bg-blue-50', desc: 'จำนวนเพิ่มขึ้น ทีละเท่าๆ กัน', example: 'เช่น มีขนม 5 ถุง ถุงละ 4 ชิ้น (5 × 4)' };
+      return { op: 'บวก (+)', icon: <Plus size={48} />, color: 'bg-green-100 text-green-600 border-green-400', bg: 'bg-green-50', desc: 'จำนวนเพิ่มขึ้น หรือ นำมารวมกัน', example: 'เช่น มีเงิน 10 บาท แม่ให้เพิ่ม 5 บาท (10 + 5)' };
+    } else {
+      if (grouping === 'equal') return { op: 'หาร (÷)', icon: <Divide size={48} />, color: 'bg-purple-100 text-purple-600 border-purple-400', bg: 'bg-purple-50', desc: 'ลดลงทีละเท่าๆ กัน หรือ แบ่งกลุ่ม', example: 'เช่น มีขนม 20 ชิ้น แบ่งให้เด็ก 4 คน (20 ÷ 4)' };
+      return { op: 'ลบ (-)', icon: <Minus size={48} />, color: 'bg-red-100 text-red-600 border-red-400', bg: 'bg-red-50', desc: 'จำนวนลดลง หรือ หาความต่าง', example: 'เช่น มีเงิน 20 บาท ซื้อขนม 5 บาท (20 - 5)' };
+    }
+  };
+  const result = wizardStep === 2 ? getResult() : null;
+
+  // --- CAMPAIGN (GAME) METHODS ---
+  const startLevel = (levelId) => {
+    handleInteraction();
+    playSound('click');
+    let pool = [];
+    if (levelId === 'boss') {
+      pool = [...quizPool];
+    } else {
+      const caseId = levelId.split('-')[0];
+      if (caseId === '1') pool = quizPool.filter(q => q.type === 'plus' || q.type === 'minus');
+      else if (caseId === '2') pool = quizPool.filter(q => q.type === 'multiply' || q.type === 'divide');
+      else pool = [...quizPool];
+    }
+
+    const shuffled = pool.sort(() => 0.5 - Math.random());
+    setRandomizedQuestions(levelId === 'boss' ? shuffled.slice(0, 30) : shuffled.slice(0, 10)); // Boss gets 30 qs
+
+    setCurrentLevelId(levelId);
+    setCurrentQuestionIndex(0);
+    setScore(0);
+    setLives(3);
+    setTimeLeft(60);
+    setBossHp(100);
+    setSelectedAnswer(null);
+    setIsCorrect(null);
+    setCampaignView('playing');
+  };
+
+  const handleAnswerClick = (type) => {
+    if (selectedAnswer || campaignView !== 'playing') return;
+    handleInteraction();
+    setSelectedAnswer(type);
+
+    const correct = type === randomizedQuestions[currentQuestionIndex].type;
+    setIsCorrect(correct);
+
+    if (correct) {
+      playSound('correct');
+      setScore(s => s + 1);
+      setTotalXP(prev => prev + 10);
+      
+      if (currentLevelId === 'boss') {
+        const newHp = bossHp - 10;
+        setBossHp(newHp);
+        if (newHp <= 0) {
+          KAMPAI.submitScore((score + 1) * 10 + timeLeft * 2, { mode: 'test', level: 'boss', result: 'win' });
+          setTimeout(() => { playSound('success'); setCampaignView('result'); }, 1000);
+        }
+      }
+    } else {
+      playSound('wrong');
+      if (currentLevelId !== 'boss') {
+        const newLives = lives - 1;
+        setLives(newLives);
+        if (newLives <= 0) {
+          KAMPAI.submitScore(score * 10, { mode: 'test', level: currentLevelId, result: 'lose' });
+          setTimeout(() => { playSound('wrong'); setCampaignView('gameOver'); }, 1200);
+        }
+      }
+      // Note: In boss mode, wrong answer just wastes time, no lives lost.
+    }
+  };
+
+  const nextQuestion = () => {
+    handleInteraction();
+    playSound('click');
+    if (currentQuestionIndex < randomizedQuestions.length - 1) {
+      setCurrentQuestionIndex(prev => prev + 1);
+      setSelectedAnswer(null);
+      setIsCorrect(null);
+    } else if (currentLevelId !== 'boss') {
+      // Standard level finished successfully
+      playSound('success');
+      
+      // Save progress (Lives remaining = Stars earned)
+      const starsEarned = lives;
+      setLevelProgress(prev => {
+        const newProg = { ...prev };
+        if (starsEarned > newProg[currentLevelId]) {
+          newProg[currentLevelId] = starsEarned;
+        }
+        return newProg;
+      });
+
+      KAMPAI.submitScore(score * 10 + lives * 20, { mode: 'test', level: currentLevelId, result: 'win', stars: lives });
+      setCampaignView('result');
+    }
+  };
+  
+  const handleTabChange = (tabId) => {
+    handleInteraction();
+    playSound('click');
+    setActiveTab(tabId);
+    if (tabId === 'campaign') {
+        setCampaignView('map');
+        setSelectedCase(null);
+    }
+  }
+
+  // Check Locks & Helpers
+  const isBossUnlocked = totalXP >= 150; // ยอดนักสืบ
+
+  const getCaseStars = (caseNum) => {
+     return (levelProgress[`${caseNum}-1`] || 0) + (levelProgress[`${caseNum}-2`] || 0) + (levelProgress[`${caseNum}-3`] || 0);
+  };
+
+  const caseData = {
+    1: { title: 'ตลาดสดอลเวง', icon: '🛒', color: 'green', desc: 'เน้นโจทย์ บวก/ลบ', bg: 'bg-green-100', border: 'border-green-400' },
+    2: { title: 'โรงงานหรรษา', icon: '🏭', color: 'blue', desc: 'เน้นโจทย์ คูณ/หาร', bg: 'bg-blue-100', border: 'border-blue-400' },
+    3: { title: 'ธนาคารปริศนา', icon: '🏦', color: 'purple', desc: 'โจทย์ระคน (สุ่มทุกแบบ)', bg: 'bg-purple-100', border: 'border-purple-400' }
+  };
+
+  // --- REFERENCE DATA ---
+  const keywordsData = [
+    { symbol: <Plus size={24} />, op: 'บวก (+)', color: 'border-green-300 text-green-700 bg-green-50', keywords: ['รวมทั้งหมด', 'เพิ่มขึ้น', 'ได้รับมาเพิ่ม', 'รวมกับ', 'พ่อให้มา', 'สะสมได้'] },
+    { symbol: <Minus size={24} />, op: 'ลบ (-)', color: 'border-red-300 text-red-700 bg-red-50', keywords: ['ต่างกันเท่าไร', 'เหลืออยู่', 'ลดราคา', 'มากกว่า/น้อยกว่าอยู่เท่าไร', 'ใช้ไป', 'ขายไป'] },
+    { symbol: <X size={24} />, op: 'คูณ (×)', color: 'border-blue-300 text-blue-700 bg-blue-50', keywords: ['ของ (เช่น 20% ของ...)', 'เป็น...เท่าของ', 'หาพื้นที่', 'ทั้งหมด (เมื่อรู้จำนวนย่อยที่เท่ากัน)'] },
+    { symbol: <Divide size={24} />, op: 'หาร (÷)', color: 'border-purple-300 text-purple-700 bg-purple-50', keywords: ['แบ่งเท่าๆ กัน', 'เฉลี่ย', 'ราคาต่อหน่วย', 'จัดใส่ถุง/กล่องละเท่าๆ กัน'] }
+  ];
+
+  return (
+    <div className="min-h-screen bg-amber-50 font-sans p-4 md:p-8" style={{ backgroundImage: 'radial-gradient(#fcd34d 1px, transparent 1px)', backgroundSize: '20px 20px' }} onClick={handleInteraction}>
+      <div className="max-w-4xl mx-auto bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden border-4 border-amber-200">
+        
+        {/* Header & Rank Profile */}
+        <header className="bg-amber-400 p-6 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+             <div className="absolute top-2 left-4 text-5xl">➕</div>
+             <div className="absolute bottom-2 right-4 text-5xl">➗</div>
+          </div>
+
+          <button onClick={toggleMute} className="absolute top-4 right-4 z-20 bg-white/20 p-2 rounded-full text-white hover:bg-white/30 transition shadow-sm" title={isMuted ? "เปิดเสียง" : "ปิดเสียง"}>
+            {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+          </button>
+
+          <button onClick={() => window.KAMPAI && KAMPAI.goHome()} className="absolute top-4 right-16 z-20 bg-white/20 p-2 rounded-full text-white hover:bg-white/30 transition shadow-sm" title="กลับหน้าหลัก">
+            <Home size={20} />
+          </button>
+
+          <div className="flex flex-col md:flex-row justify-between items-center relative z-10 gap-4">
+            <div className="text-center md:text-left">
+               <h1 className="text-3xl md:text-4xl font-extrabold text-white drop-shadow-md flex items-center justify-center md:justify-start gap-3">
+                  <span className="text-4xl drop-shadow-lg">🕵️‍♂️</span> นักสืบโจทย์ปัญหา
+               </h1>
+               <p className="text-amber-800 font-bold mt-1 text-base opacity-80">ตอน: แปลงร่างสัญลักษณ์</p>
+            </div>
+
+            <div className="bg-white/95 rounded-2xl p-3 shadow-lg flex items-center gap-4 min-w-[280px] max-w-sm w-full md:w-auto transform transition hover:scale-105 duration-300">
+               <div className={`p-3 rounded-full text-3xl shadow-inner ${currentRank.bg}`}>
+                  {currentRank.icon}
+               </div>
+               <div className="flex-1">
+                  <div className="flex justify-between items-center mb-1">
+                     <span className={`font-black text-sm uppercase ${currentRank.color}`}>{currentRank.name}</span>
+                     <span className="text-xs font-bold text-gray-400">{totalXP} XP</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                     <div className="bg-gradient-to-r from-amber-400 to-orange-500 h-2.5 rounded-full transition-all duration-700 ease-out" style={{ width: `${getProgressToNextRank()}%` }}></div>
+                  </div>
+                  <div className="text-xs text-gray-400 mt-1 text-right">
+                     {nextRank ? `อีก ${nextRank.minXP - totalXP} XP เลื่อนยศ` : 'สูงสุดแล้ว!'}
+                  </div>
+               </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Navigation Tabs */}
+        <div className="flex border-b-4 border-amber-100 overflow-x-auto bg-white">
+          {[
+            { id: 'wizard', icon: Lightbulb, label: 'เครื่องช่วยคิด', color: 'text-amber-600', activeBorder: 'border-amber-400' },
+            { id: 'reference', icon: BookOpen, label: 'คลังคำศัพท์', color: 'text-blue-600', activeBorder: 'border-blue-400' },
+            { id: 'campaign', icon: Map, label: 'แฟ้มคดีปริศนา', color: 'text-purple-600', activeBorder: 'border-purple-400' }
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => handleTabChange(tab.id)}
+              className={`flex-1 py-4 px-6 text-lg font-bold flex items-center justify-center gap-2 transition-all whitespace-nowrap ${
+                activeTab === tab.id ? `bg-white ${tab.color} border-b-4 ${tab.activeBorder}` : 'bg-gray-50 text-gray-400 border-b-4 border-transparent hover:bg-gray-100'
+              }`}
+            >
+              <tab.icon size={24} />
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Content Area */}
+        <div className="p-6 md:p-8 min-h-[500px]">
+          
+          {/* --- WIZARD MODE --- */}
+          {activeTab === 'wizard' && (
+             <div className="animate-fade-in max-w-2xl mx-auto">
+              <div className="flex justify-between items-center mb-8">
+                <h2 className="text-2xl font-bold text-gray-700 flex items-center gap-2">
+                  <HelpCircle className="text-amber-500" size={28} /> ตอบคำถามเพื่อหาเครื่องหมาย
+                </h2>
+                {wizardStep > 0 && (
+                  <button onClick={resetWizard} className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-2 rounded-full flex items-center gap-1 transition font-bold">
+                    <RefreshCw size={16} /> เริ่มใหม่
+                  </button>
+                )}
+              </div>
+
+              {wizardStep === 0 && (
+                <div className="space-y-8 text-center">
+                  <p className="text-3xl font-bold text-gray-800 leading-relaxed">
+                    "คำตอบที่หนูต้องการหา... <br className="md:hidden"/>น่าจะ <span className="text-amber-500 underline decoration-4 decoration-amber-300">มาก</span> หรือ <span className="text-amber-500 underline decoration-4 decoration-amber-300">น้อย</span> กว่าเดิม?"
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <button onClick={() => handleDirectionSelect('increase')} className="p-8 bg-gradient-to-br from-green-50 to-green-100 border-b-8 border-green-300 rounded-3xl hover:-translate-y-1 transition-all group active:border-b-0 active:translate-y-1 shadow-lg">
+                      <div className="text-7xl mb-4 group-hover:scale-110 transition-transform">📈</div>
+                      <h3 className="text-3xl font-extrabold text-green-700">มากขึ้น (เพิ่ม)</h3>
+                      <p className="text-green-600 mt-3 font-medium text-lg">รวมกัน, ได้มาอีก, ทวีคูณ</p>
+                    </button>
+                    <button onClick={() => handleDirectionSelect('decrease')} className="p-8 bg-gradient-to-br from-red-50 to-red-100 border-b-8 border-red-300 rounded-3xl hover:-translate-y-1 transition-all group active:border-b-0 active:translate-y-1 shadow-lg">
+                      <div className="text-7xl mb-4 group-hover:scale-110 transition-transform">📉</div>
+                      <h3 className="text-3xl font-extrabold text-red-700">น้อยลง (ลด)</h3>
+                      <p className="text-red-600 mt-3 font-medium text-lg">แบ่งออก, หายไป, หาความต่าง</p>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {wizardStep === 1 && (
+                <div className="space-y-8 text-center animate-slide-up">
+                  <p className="text-3xl font-bold text-gray-800 leading-relaxed">
+                    "แล้วจำนวนที่ {direction === 'increase' ? 'เพิ่มเข้ามา' : 'หายไป'} นั้น... <br className="md:hidden"/><span className="text-blue-500 underline decoration-4 decoration-blue-300">เท่ากันทุกกลุ่ม</span> หรือไม่?"
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <button onClick={() => handleGroupingSelect('equal')} className="p-8 bg-gradient-to-br from-blue-50 to-blue-100 border-b-8 border-blue-300 rounded-3xl hover:-translate-y-1 transition-all active:border-b-0 active:translate-y-1 shadow-lg">
+                      <div className="text-6xl mb-4 flex justify-center gap-2"><span className="bg-white/80 rounded-lg p-2 text-xl shadow-sm">🍎🍎</span><span className="bg-white/80 rounded-lg p-2 text-xl shadow-sm">🍎🍎</span></div>
+                      <h3 className="text-2xl font-extrabold text-blue-700">เท่ากันทุกกลุ่ม</h3>
+                      <p className="text-blue-600 mt-3 font-medium">ซ้ำๆ กัน, แบ่งเท่าๆ กัน</p>
+                    </button>
+                    <button onClick={() => handleGroupingSelect('unequal')} className="p-8 bg-gradient-to-br from-orange-50 to-orange-100 border-b-8 border-orange-300 rounded-3xl hover:-translate-y-1 transition-all active:border-b-0 active:translate-y-1 shadow-lg">
+                      <div className="text-6xl mb-4 flex justify-center gap-2 items-end"><span className="bg-white/80 rounded-lg p-2 text-xl shadow-sm">🍎</span><span className="bg-white/80 rounded-lg p-2 text-xl shadow-sm">🍎🍎🍎</span></div>
+                      <h3 className="text-2xl font-extrabold text-orange-700">ไม่เท่ากัน / ครั้งเดียว</h3>
+                      <p className="text-orange-600 mt-3 font-medium">เพิ่มมาแค่ก้อนเดียว, ต่างกันแค่คู่เดียว</p>
+                    </button>
+                  </div>
+                  <button onClick={() => setWizardStep(0)} className="text-gray-400 underline mt-6 hover:text-gray-600 font-bold">กลับไปข้อที่แล้ว</button>
+                </div>
+              )}
+
+              {wizardStep === 2 && result && (
+                <div className="text-center animate-pop-in">
+                  <h3 className="text-xl text-gray-500 font-bold mb-6">ยอดเยี่ยม! เครื่องหมายที่ควรใช้คือ...</h3>
+                  <div className={`mx-auto max-w-sm p-10 rounded-3xl border-4 ${result.color} ${result.bg} shadow-2xl mb-8 transform transition-all hover:scale-105 relative`}>
+                    <div className="absolute -top-6 -right-6 bg-yellow-400 text-yellow-900 font-bold py-2 px-4 rounded-full shadow-md transform rotate-12">คำตอบคือ!</div>
+                    <div className="flex justify-center mb-6 animate-bounce">{result.icon}</div>
+                    <h2 className="text-6xl font-black mb-4 tracking-tight">{result.op}</h2>
+                    <p className="text-xl font-bold opacity-90 mb-6">{result.desc}</p>
+                    <div className="bg-white/80 p-4 rounded-2xl text-base font-medium border-2 border-black/5 shadow-inner">{result.example}</div>
+                  </div>
+                  <button onClick={resetWizard} className="mt-8 bg-gray-800 hover:bg-black text-white font-bold py-4 px-10 rounded-full shadow-xl transition-transform active:scale-95 flex items-center gap-2 mx-auto text-lg"><RefreshCw size={24} /> ลองโจทย์ข้อใหม่</button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* --- REFERENCE MODE --- */}
+          {activeTab === 'reference' && (
+            <div className="animate-fade-in">
+               <h2 className="text-2xl font-bold text-gray-700 flex items-center gap-2 mb-6"><BookOpen className="text-amber-500" size={28} /> คลังคำศัพท์นักสืบ (Keywords)</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {keywordsData.map((item, index) => (
+                  <div key={index} className={`p-6 rounded-3xl border-4 shadow-md ${item.color} relative overflow-hidden group hover:shadow-lg transition-all`}>
+                    <div className="absolute -right-4 -top-4 opacity-10 transform rotate-12 group-hover:scale-110 transition-transform">{React.cloneElement(item.symbol, { size: 120 })}</div>
+                    <div className="flex items-center gap-4 mb-4 pb-4 border-b border-black/10 relative z-10">
+                      <div className={`p-3 rounded-2xl bg-white shadow-sm`}>{React.cloneElement(item.symbol, { size: 32 })}</div>
+                      <h3 className="text-2xl font-black tracking-tight">{item.op}</h3>
+                    </div>
+                    <div className="flex flex-wrap gap-2 relative z-10">
+                      {item.keywords.map((kw, k) => <span key={k} className="px-3 py-1.5 bg-white/80 backdrop-blur-sm border border-black/5 rounded-lg text-base font-bold text-gray-700 shadow-sm">{kw}</span>)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* --- CAMPAIGN MODE --- */}
+          {activeTab === 'campaign' && (
+            <div className="animate-fade-in w-full">
+              
+              {/* MAP VIEW - MAIN CASES */}
+              {campaignView === 'map' && (
+                <div className="text-center py-6">
+                  <div className="mb-8 relative inline-block">
+                    <div className="text-6xl mb-2">🗺️</div>
+                    <h2 className="text-4xl font-black text-gray-800 mb-2">แผนที่คดีปริศนา</h2>
+                    <p className="text-lg text-gray-600">เลือกคดีที่คุณต้องการสืบสวนได้ตามใจชอบ!</p>
+                  </div>
+
+                  {/* สถิติฉัน + อันดับนักเรียน (จาก KAMPAI — โชว์เฉพาะตอนเล่นในระบบ) */}
+                  <MyStats stats={kStats} />
+                  <Leaderboard rows={kBoard} />
+
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-10">
+                    {[1, 2, 3].map(caseNum => {
+                      const data = caseData[caseNum];
+                      const totalCaseStars = getCaseStars(caseNum);
+                      const isPerfect = totalCaseStars === 9;
+                      return (
+                        <button key={caseNum} onClick={() => { setSelectedCase(caseNum); setCampaignView('caseDetails'); playSound('click'); }} className={`bg-white rounded-[2rem] p-6 shadow-xl border-b-8 ${data.border} hover:-translate-y-2 transition-all group relative overflow-hidden flex flex-col items-center cursor-pointer`}>
+                          <div className={`absolute top-0 right-0 w-24 h-24 ${data.bg} rounded-bl-full -z-0 opacity-50 group-hover:scale-110 transition-transform`}></div>
+                          
+                          {isPerfect && (
+                            <div className="absolute -left-2 top-4 bg-yellow-400 text-yellow-900 text-xs font-black px-4 py-1 rounded-r-xl shadow-md z-20 flex items-center gap-1 transform -rotate-12">
+                              <Award size={14}/> แฟ้มสมบูรณ์!
+                            </div>
+                          )}
+
+                          <div className="text-5xl mb-4 relative z-10">{data.icon}</div>
+                          <h3 className="text-xl font-black text-gray-800 mb-2 relative z-10">คดีที่ {caseNum}: {data.title}</h3>
+                          <p className={`text-sm font-bold text-${data.color}-600 bg-${data.color}-50 px-3 py-1 rounded-lg mb-4 relative z-10`}>{data.desc}</p>
+                          
+                          <div className="w-full bg-gray-100 rounded-full h-3 mb-2 relative z-10 overflow-hidden">
+                            <div className="bg-yellow-400 h-3 rounded-full" style={{width: `${(totalCaseStars / 9) * 100}%`}}></div>
+                          </div>
+                          <div className="flex justify-between w-full text-xs font-bold text-gray-500 relative z-10">
+                            <span>ความคืบหน้า</span>
+                            <span className="flex items-center gap-1 text-yellow-500"><Star size={12} fill="currentColor"/> {totalCaseStars} / 9</span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* BOSS STAGE */}
+                  <div className="max-w-2xl mx-auto relative group mt-8">
+                     {!isBossUnlocked && (
+                        <div className="absolute inset-0 bg-gray-900/80 backdrop-blur-sm rounded-[2.5rem] z-20 flex flex-col items-center justify-center border-4 border-dashed border-gray-600">
+                          <Lock className="text-gray-400 mb-2" size={40} />
+                          <p className="text-lg font-bold text-white px-4 text-center">ต้องเลื่อนยศเป็น "ยอดนักสืบ" <br/><span className="text-amber-400 text-sm">(150 XP) เพื่อปลดล็อก</span></p>
+                        </div>
+                     )}
+                     <button onClick={() => isBossUnlocked && startLevel('boss')} disabled={!isBossUnlocked} className={`w-full bg-gradient-to-r from-slate-800 to-slate-900 rounded-[2.5rem] p-8 shadow-2xl border-b-8 border-red-600 transition-all flex items-center gap-6 text-left ${isBossUnlocked ? 'hover:-translate-y-2 cursor-pointer hover:shadow-red-500/30' : ''}`}>
+                       <div className="bg-red-500/20 p-4 rounded-full border-2 border-red-500/50">
+                         <Swords className="text-red-400" size={48} />
+                       </div>
+                       <div className="flex-1">
+                          <h3 className="text-2xl font-black text-white mb-2 flex items-center gap-2">
+                            <ShieldAlert className="text-amber-400"/> โหมดพิเศษ: ปะทะ ดร. ความสับสน
+                          </h3>
+                          <p className="text-gray-400 font-medium">โหมดจับเวลา 60 วินาที! ตอบคำถามเพื่อลดเลือดบอส (100 HP) ไม่มีหัวใจห้ามพลาด!</p>
+                       </div>
+                     </button>
+                  </div>
+                </div>
+              )}
+
+              {/* CASE DETAILS VIEW (SUB-LEVELS) */}
+              {campaignView === 'caseDetails' && selectedCase && (
+                 <div className="max-w-4xl mx-auto py-4 animate-fade-in">
+                    <button onClick={() => { setCampaignView('map'); playSound('click'); }} className="flex items-center gap-2 text-gray-500 font-bold hover:text-gray-800 transition mb-6 bg-gray-100 px-4 py-2 rounded-full w-max">
+                      <ChevronLeft size={20} /> ย้อนกลับไปแผนที่
+                    </button>
+
+                    <div className="text-center mb-10">
+                      <div className="text-6xl mb-4">{caseData[selectedCase].icon}</div>
+                      <h2 className="text-3xl font-black text-gray-800 mb-2">แฟ้มคดี: {caseData[selectedCase].title}</h2>
+                      <p className={`text-${caseData[selectedCase].color}-600 font-bold text-lg`}>{caseData[selectedCase].desc}</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {[1, 2, 3].map(subLevel => {
+                        const levelId = `${selectedCase}-${subLevel}`;
+                        const prevLevelId = `${selectedCase}-${subLevel - 1}`;
+                        // Unlock logic: SubLevel 1 is always unlocked. Others require 3 stars from previous sub-level.
+                        const isUnlocked = subLevel === 1 || (levelProgress[prevLevelId] >= 3);
+                        const stars = levelProgress[levelId] || 0;
+
+                        return (
+                          <div key={subLevel} className="relative group">
+                            {!isUnlocked && (
+                               <div className="absolute inset-0 bg-white/70 backdrop-blur-sm rounded-[2rem] z-20 flex flex-col items-center justify-center border-4 border-dashed border-gray-300">
+                                 <Lock className="text-gray-400 mb-2" size={32} />
+                                 <p className="text-sm font-bold text-gray-500 px-4 text-center">ต้องได้ 3 ดาว<br/>จากด่าน {subLevel - 1} ก่อน</p>
+                               </div>
+                            )}
+                            <button onClick={() => isUnlocked && startLevel(levelId)} disabled={!isUnlocked} className={`w-full h-full bg-white rounded-[2rem] p-8 shadow-lg border-b-8 border-gray-200 transition-all flex flex-col items-center ${isUnlocked ? 'hover:-translate-y-2 cursor-pointer border-amber-400 hover:shadow-amber-200/50' : 'opacity-80'}`}>
+                              <h3 className="text-2xl font-black text-gray-800 mb-4">ด่าน {selectedCase}.{subLevel}</h3>
+                              
+                              <div className="flex gap-2 mb-6">
+                                {[1,2,3].map(s => <Star key={s} size={32} className={s <= stars ? "text-yellow-400 fill-yellow-400 drop-shadow-sm" : "text-gray-200 fill-gray-200"} />)}
+                              </div>
+
+                              <span className="text-gray-500 font-bold text-sm bg-gray-100 px-4 py-2 rounded-full">
+                                {isUnlocked ? 'คลิกเพื่อลุย!' : 'ยังไม่ปลดล็อก'}
+                              </span>
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                 </div>
+              )}
+
+              {/* PLAYING VIEW */}
+              {campaignView === 'playing' && (
+                <div className="max-w-3xl mx-auto animate-fade-in">
+                  
+                  {/* Top Status Bar */}
+                  <div className="flex justify-between items-end mb-4 border-b-2 border-gray-100 pb-4">
+                    {currentLevelId !== 'boss' ? (
+                       <>
+                         <div className="font-bold text-gray-500 text-lg flex items-center gap-2">
+                           <span className="bg-amber-100 text-amber-700 px-3 py-1 rounded-lg">ด่าน {currentLevelId.replace('-', '.')}</span>
+                           <span>ข้อที่ {currentQuestionIndex + 1} / 10</span>
+                         </div>
+                         <div className="flex items-center gap-2">
+                           <span className="font-bold text-gray-400 text-sm mr-2 hidden sm:inline">พลังชีวิต:</span>
+                           {[...Array(3)].map((_, i) => (
+                             <Heart key={i} size={28} className={`${i < lives ? 'text-red-500 fill-red-500 animate-pulse drop-shadow-sm' : 'text-gray-200 fill-gray-200'} transition-all`} />
+                           ))}
+                         </div>
+                       </>
+                    ) : (
+                       <div className="w-full flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-900 p-4 rounded-2xl border-4 border-slate-700">
+                          {/* Timer */}
+                          <div className={`flex items-center gap-3 font-black text-3xl px-4 py-2 rounded-xl ${timeLeft <= 10 ? 'bg-red-500 text-white animate-pulse' : 'bg-slate-800 text-amber-400'}`}>
+                             <Clock size={32} /> {timeLeft}s
+                          </div>
+                          {/* Boss HP */}
+                          <div className="flex-1 w-full pl-0 md:pl-4 border-t md:border-t-0 md:border-l border-slate-700 pt-3 md:pt-0">
+                             <div className="flex justify-between text-sm text-gray-400 font-bold mb-1">
+                               <span>HP ดร. ความสับสน</span>
+                               <span>{bossHp} / 100</span>
+                             </div>
+                             <div className="w-full bg-slate-800 rounded-full h-4 overflow-hidden shadow-inner">
+                               <div className="bg-red-500 h-4 rounded-full transition-all duration-300" style={{ width: `${bossHp}%` }}></div>
+                             </div>
+                          </div>
+                       </div>
+                    )}
+                  </div>
+
+                  {/* Question Card */}
+                  <div className="bg-white border-b-8 border-gray-200 p-8 md:p-12 rounded-[2rem] shadow-lg text-center mb-8 min-h-[200px] flex items-center justify-center relative">
+                    <div className="absolute top-4 left-6 text-6xl opacity-5 text-gray-400 font-serif">"</div>
+                    <h3 className="text-2xl md:text-3xl font-bold text-gray-800 leading-normal">
+                      {randomizedQuestions[currentQuestionIndex].text}
+                    </h3>
+                    <div className="absolute bottom-4 right-6 text-6xl opacity-5 text-gray-400 font-serif rotate-180">"</div>
+                  </div>
+
+                  {/* Options */}
+                  <div className="grid grid-cols-2 gap-4 md:gap-6 mb-8">
+                    {[
+                      { type: 'plus', icon: Plus, label: 'บวก (+)', color: 'green' },
+                      { type: 'minus', icon: Minus, label: 'ลบ (-)', color: 'red' },
+                      { type: 'multiply', icon: X, label: 'คูณ (×)', color: 'blue' },
+                      { type: 'divide', icon: Divide, label: 'หาร (÷)', color: 'purple' }
+                    ].map((opt) => (
+                      <button
+                        key={opt.type}
+                        onClick={() => handleAnswerClick(opt.type)}
+                        disabled={selectedAnswer !== null}
+                        className={`
+                          p-6 rounded-2xl border-b-8 transition-all duration-200 flex flex-col items-center justify-center gap-3 relative overflow-hidden
+                          ${selectedAnswer === null ? `bg-white border-${opt.color}-200 text-gray-600 hover:bg-${opt.color}-50 hover:border-${opt.color}-300 hover:-translate-y-1 hover:shadow-md cursor-pointer` : ''}
+                          ${selectedAnswer !== null && randomizedQuestions[currentQuestionIndex].type === opt.type ? `bg-${opt.color}-100 border-${opt.color}-500 ring-4 ring-${opt.color}-200 scale-105 z-10` : ''}
+                          ${selectedAnswer !== null && selectedAnswer === opt.type && randomizedQuestions[currentQuestionIndex].type !== opt.type ? 'bg-gray-100 border-gray-300 opacity-50' : ''}
+                          ${selectedAnswer !== null && selectedAnswer !== opt.type && randomizedQuestions[currentQuestionIndex].type !== opt.type ? 'opacity-30 grayscale' : ''}
+                        `}
+                      >
+                         {selectedAnswer !== null && randomizedQuestions[currentQuestionIndex].type === opt.type && (
+                            <div className="absolute top-2 right-2 text-green-600 bg-white rounded-full p-1 shadow-sm animate-pop-in"><CheckCircle size={24} /></div>
+                         )}
+                        <opt.icon size={40} className={`text-${opt.color}-500`} />
+                        <span className={`text-2xl font-black text-${opt.color}-700`}>{opt.label}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Feedback Area */}
+                  {selectedAnswer && (
+                    <div className="animate-slide-up bg-white rounded-2xl p-2 shadow-lg border border-gray-100">
+                      <div className={`p-6 rounded-xl mb-2 text-center border-l-8 ${isCorrect ? 'bg-green-50 border-green-500' : 'bg-red-50 border-red-500'}`}>
+                        <div className={`flex items-center justify-center gap-3 font-black text-2xl mb-2 ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>
+                          {isCorrect ? <CheckCircle size={32}/> : <XCircle size={32}/>}
+                          {isCorrect ? 'ถูกต้องนะคร้าบ! (+10 XP)' : (currentLevelId === 'boss' ? 'พลาดแล้ว! รีบตอบข้อต่อไปเร็วเข้า!' : 'ยังไม่ถูกนะ เสียหัวใจ 1 ดวง 💔')}
+                        </div>
+                        {currentLevelId !== 'boss' && <p className="text-lg text-gray-700 font-medium">{randomizedQuestions[currentQuestionIndex].hint}</p>}
+                      </div>
+                      <button onClick={nextQuestion} className="w-full py-4 bg-gray-900 text-white rounded-xl font-bold text-xl flex items-center justify-center gap-3 hover:bg-black transition shadow-lg active:scale-[0.99]">
+                        ลุยต่อ! <ArrowRight size={24} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* RESULT VIEW (SUCCESS) */}
+              {campaignView === 'result' && (
+                <div className="text-center py-10 animate-pop-in bg-white rounded-[3rem] p-10 shadow-2xl border-b-8 border-green-200 max-w-2xl mx-auto">
+                  <div className="text-8xl mb-6">🏆</div>
+                  <h2 className="text-4xl font-black text-green-600 mb-4">
+                    {currentLevelId === 'boss' ? 'ปราบด็อกเตอร์สำเร็จ!' : 'ปิดคดีสำเร็จ!'}
+                  </h2>
+                  
+                  {currentLevelId !== 'boss' ? (
+                     <div className="mb-8">
+                       <p className="text-xl text-gray-500 font-medium mb-4">หัวใจที่เหลืออยู่ = ดาวที่ได้รับ</p>
+                       <div className="flex justify-center gap-4">
+                         {[1, 2, 3].map(s => (
+                           <Star key={s} size={64} className={`${s <= lives ? 'text-yellow-400 fill-yellow-400 animate-bounce' : 'text-gray-200 fill-gray-200'} transition-all`} style={{animationDelay: `${s * 0.1}s`}}/>
+                         ))}
+                       </div>
+                     </div>
+                  ) : (
+                     <div className="mb-8 bg-slate-900 p-6 rounded-2xl text-amber-400 font-bold text-2xl border-4 border-slate-700">
+                       เวลาเหลือ: {timeLeft} วินาที ⏳
+                     </div>
+                  )}
+
+                  <div className="bg-purple-50 p-4 rounded-xl inline-flex items-center gap-2 mb-8 border border-purple-200">
+                     <TrendingUp className="text-purple-600" />
+                     <span className="font-bold text-purple-700 text-lg">ได้รับค่าประสบการณ์สะสมเรียบร้อยแล้ว</span>
+                  </div>
+                  
+                  <div className="flex flex-col gap-4">
+                    <button onClick={() => { setCampaignView(currentLevelId === 'boss' ? 'map' : 'caseDetails'); playSound('click'); }} className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-4 px-10 rounded-full shadow-lg transition flex items-center justify-center gap-2 text-xl active:scale-95 border-b-4 border-amber-700">
+                      <Map size={28} /> {currentLevelId === 'boss' ? 'กลับสู่แผนที่หลัก' : 'เลือกด่านต่อไป'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* GAME OVER VIEW */}
+              {campaignView === 'gameOver' && (
+                <div className="text-center py-10 animate-pop-in bg-white rounded-[3rem] p-10 shadow-2xl border-b-8 border-red-200 max-w-2xl mx-auto">
+                  <div className="text-8xl mb-6">🚨</div>
+                  <h2 className="text-4xl font-black text-red-600 mb-4">
+                    {currentLevelId === 'boss' ? 'หมดเวลา!' : 'คดีล้มเหลว! หัวใจหมด'}
+                  </h2>
+                  <p className="text-xl text-gray-600 font-medium mb-10">
+                    {currentLevelId === 'boss' ? 'ดร. ความสับสน หนีรอดไปได้... เอาใหม่คราวหน้านะ' : 'สืบสวนพลาดไปนิดเดียว กลับไปฝึกฝนและลองใหม่อีกครั้งนะ ยอดนักสืบ!'}
+                  </p>
+                  
+                  <div className="flex flex-col gap-4">
+                    <button onClick={() => startLevel(currentLevelId)} className="w-full bg-gray-900 hover:bg-black text-white font-bold py-4 px-10 rounded-full shadow-lg transition flex items-center justify-center gap-2 text-xl active:scale-95">
+                      <RefreshCw size={24} /> เริ่มด่านนี้ใหม่
+                    </button>
+                    <button onClick={() => { setCampaignView(currentLevelId === 'boss' ? 'map' : 'caseDetails'); playSound('click'); }} className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-4 px-10 rounded-full transition flex items-center justify-center gap-2 text-lg active:scale-95">
+                      ย้อนกลับ
+                    </button>
+                  </div>
+                </div>
+              )}
+
+            </div>
+          )}
+
+        </div>
+      </div>
+      
+      {/* Footer / Credits */}
+      <div className="text-center mt-8 text-amber-800/60 text-sm font-medium">
+        <p>สื่อการสอนคณิตศาสตร์ ป.5 | พัฒนาเพื่อการเรียนรู้ Active Learning</p>
+      </div>
+
+      <style>{`
+        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slide-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pop-in { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        .animate-fade-in { animation: fade-in 0.4s ease-out; }
+        .animate-slide-up { animation: slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .animate-pop-in { animation: pop-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+      `}</style>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<MathDetectiveApp />);
+</script>
+</body>
+</html>
