@@ -229,36 +229,41 @@ function audioCtx() {
     } catch (e) { return null; }
     return actx;
 }
-function tone(freq, offset, dur, vol, type) {
+// เสียงแบบมีมิติ: envelope นุ่ม (attack/decay exp → ไม่มีคลิก) + โน้ตเลเยอร์ (fundamental + octave เบา)
+function blip(freq, t0, dur, vol, type) {
     const c = actx; if (!c) return;
-    const t0 = c.currentTime + offset;
     const osc = c.createOscillator(), g = c.createGain();
-    osc.type = type || 'triangle';
-    osc.frequency.setValueAtTime(freq, t0);
-    g.gain.setValueAtTime(vol, t0);
+    osc.type = type || 'sine'; osc.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(vol, t0 + 0.012);
     g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
     osc.connect(g); g.connect(c.destination);
-    osc.start(t0); osc.stop(t0 + dur);
+    osc.start(t0); osc.stop(t0 + dur + 0.02);
 }
-function sfxCorrect() { if (!sfxOn || !audioCtx()) return; tone(660,0,0.12,0.12); tone(880,0.08,0.12,0.11); tone(1175,0.16,0.18,0.10); }
-function sfxWrong()   { if (!sfxOn || !audioCtx()) return; tone(220,0,0.18,0.13,'square'); tone(150,0.12,0.22,0.12,'square'); }
-function sfxTimeUp()  { if (!sfxOn || !audioCtx()) return; tone(200,0,0.30,0.12,'sawtooth'); }
-function sfxGameOver(){ if (!sfxOn || !audioCtx()) return; [523,440,349,262].forEach((f,i) => tone(f, i*0.14, 0.30, 0.11)); }
+function note(freq, off, dur, vol) { const t0 = actx.currentTime + off; blip(freq, t0, dur, vol, 'sine'); blip(freq*2, t0, dur*0.7, vol*0.35, 'sine'); }
+function sfxCorrect() { if (!sfxOn || !audioCtx()) return; [[784,0],[988,0.07],[1319,0.14]].forEach(([f,o]) => note(f,o,0.22,0.16)); }
+function sfxWrong()   { if (!sfxOn || !audioCtx()) return; const t = actx.currentTime; blip(311,t,0.18,0.17,'triangle'); blip(233,t+0.12,0.26,0.17,'triangle'); }
+function sfxTimeUp()  { if (!sfxOn || !audioCtx()) return; const t = actx.currentTime; blip(196,t,0.34,0.16,'triangle'); blip(146,t+0.18,0.40,0.16,'triangle'); }
+function sfxGameOver(){ if (!sfxOn || !audioCtx()) return; [[523,0],[659,0.14],[784,0.28],[1047,0.42]].forEach(([f,o]) => note(f,o,0.34,0.15)); }
 
-let thaiVoice = null;
-function pickVoice() { try { thaiVoice = window.speechSynthesis.getVoices().find(v => /^th/i.test(v.lang)) || null; } catch (e) { /* */ } }
+let thaiVoice = null, enVoice = null;
+function bestVoice(prefix) { try { const vs = window.speechSynthesis.getVoices().filter(v => v.lang && v.lang.toLowerCase().startsWith(prefix)); if (!vs.length) return null; const score = v => (/(google|natural|enhanced|premium|neural|siri)/i.test(v.name) ? 2 : 0) + (v.localService === false ? 1 : 0); return vs.slice().sort((a,b) => score(b) - score(a))[0]; } catch (e) { return null; } }
+function pickVoice() { thaiVoice = bestVoice('th'); enVoice = bestVoice('en'); }
 if ('speechSynthesis' in window) { pickVoice(); window.speechSynthesis.onvoiceschanged = pickVoice; }
-
-function speakQuestion() {
+function speak(text, lang) {
     if (!ttsOn || mode === 'online' || !('speechSynthesis' in window)) return;
     try {
         window.speechSynthesis.cancel();   // กันคิวสะสม/ทับซ้อน
-        const u = new SpeechSynthesisUtterance(`${curA} คูณ ${curB}`);
-        u.lang = 'th-TH'; u.rate = 0.95;
-        if (thaiVoice) u.voice = thaiVoice;
+        const isEn = !!(lang && lang.toLowerCase().startsWith('en'));
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = lang || 'th-TH';
+        u.rate = isEn ? 0.85 : 0.92; u.pitch = 1.06;
+        const v = isEn ? enVoice : thaiVoice;
+        if (v) u.voice = v;
         window.speechSynthesis.speak(u);
     } catch (e) { /* อุปกรณ์ไม่รองรับ → เงียบ */ }
 }
+function speakQuestion() { speak(`${curA} คูณ ${curB}`, 'th-TH'); }
 function stopSpeak() { try { window.speechSynthesis.cancel(); } catch (e) { /* */ } }
 
 function flashFx(good) {
