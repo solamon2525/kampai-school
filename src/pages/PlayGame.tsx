@@ -13,6 +13,7 @@ import {
   Menu,
   Maximize,
   Minimize,
+  X,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -52,7 +53,7 @@ const ICON = (name: string | null | undefined) =>
   (name && Icons[name]) || Sparkles;
 
 // ─── Page state ──────────────────────────────────────────────────────────────
-type Phase = 'lookup' | 'confirm' | 'pre-game' | 'playing' | 'result';
+type Phase = 'lookup' | 'confirm' | 'pre-game' | 'playing';
 
 // ============================================================================
 const PlayGame = () => {
@@ -69,12 +70,23 @@ const PlayGame = () => {
   const [result, setResult] = useState<RecordSessionResult | null>(null);
   const [prevLevel, setPrevLevel] = useState<LevelInfo | null>(null);
   const [showExitMenu, setShowExitMenu] = useState(false);
+  const [showReward, setShowReward] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const gameContainerRef = useRef<HTMLDivElement | null>(null);
   const sessionSubmittedRef = useRef(false);
+  const rewardDelayRef = useRef<number | null>(null);
   const rtChannelRef = useRef<RealtimeChannel | null>(null);
+
+  // เคลียร์ timer หน่วงเด้งการ์ด XP (กันค้าง/รั่ว)
+  const clearRewardDelay = useCallback(() => {
+    if (rewardDelayRef.current !== null) {
+      clearTimeout(rewardDelayRef.current);
+      rewardDelayRef.current = null;
+    }
+  }, []);
+  useEffect(() => clearRewardDelay, [clearRewardDelay]);
 
   // ─── fullscreen: ขยายเกมเต็มจอจริง (iframe มี allow="fullscreen" อยู่แล้ว) ───
   const toggleFullscreen = useCallback(() => {
@@ -184,15 +196,22 @@ const PlayGame = () => {
   const handleStart = useCallback(() => {
     setPrevLevel(levelInfo);
     setResult(null);
+    setShowReward(false);
+    clearRewardDelay();
     sessionSubmittedRef.current = false;
     setPhase('playing');
-  }, [levelInfo]);
+  }, [levelInfo, clearRewardDelay]);
 
   // ─── send init to iframe once loaded ───────────────────────────────────────
   // ส่งทั้ง studentCode (เดิม — เกมเก่าใช้ได้) + student/stats/leaderboard (ใหม่ — KAMPAI SDK
   // เอาไปโชว์ชื่อ/คะแนน/อันดับในหน้าเกม โดยไม่ต้องยิง Supabase เอง)
   const handleIframeLoad = useCallback(() => {
     if (!student || !iframeRef.current?.contentWindow) return;
+    // เกม (re)load — รวมกรณีกดปุ่ม "🔄 เล่นอีกครั้ง" ในเกม (location.reload) → เริ่มรอบใหม่สะอาด
+    clearRewardDelay();
+    setShowReward(false);
+    setResult(null);
+    sessionSubmittedRef.current = false;
     const s = statsQuery.data;
     iframeRef.current.contentWindow.postMessage(
       {
@@ -222,7 +241,7 @@ const PlayGame = () => {
       },
       '*',
     );
-  }, [student, codeInput, statsQuery.data, levelInfo.level, leaderboardQuery.data]);
+  }, [student, codeInput, statsQuery.data, levelInfo.level, leaderboardQuery.data, clearRewardDelay]);
 
   // ─── auto-login จาก localStorage (ลดเวลากรอกรหัสเมื่อเปลี่ยนเกม) ────────
   useEffect(() => {
@@ -275,7 +294,11 @@ const PlayGame = () => {
         statsQuery.refetch();
         unlockedQuery.refetch();
         leaderboardQuery.refetch();
-        setPhase('result');
+        // ไม่สลับ phase (เกมโชว์จอจบของตัวเองต่อ) — หน่วงแล้วเด้งการ์ด XP ลอยทับแทน
+        // ออนไลน์: ผู้เล่นกด "รับ XP" เอง (เห็นอันดับก่อนแล้ว) → เด้งทันที
+        const delayMs = data.mode === 'online' ? 0 : 5000;
+        clearRewardDelay();
+        rewardDelayRef.current = window.setTimeout(() => setShowReward(true), delayMs);
       } catch (err) {
         const msg = (err as Error).message ?? '';
         if (msg.includes('rate_limited')) {
@@ -296,7 +319,7 @@ const PlayGame = () => {
     };
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
-  }, [phase, student, codeInput, gameSlug, toast, statsQuery, unlockedQuery]);
+  }, [phase, student, codeInput, gameSlug, toast, statsQuery, unlockedQuery, leaderboardQuery, clearRewardDelay]);
 
   // ─── realtime relay: ห้องออนไลน์ของเกม (broadcast + presence) ──────────────
   // เกมใน iframe ไม่มี anon key → wrapper เปิด channel ให้ แล้วรีเลย์ผ่าน postMessage
@@ -363,18 +386,22 @@ const PlayGame = () => {
 
   const handlePlayAgain = useCallback(() => {
     setResult(null);
+    setShowReward(false);
+    clearRewardDelay();
     setPrevLevel(levelInfo);
     sessionSubmittedRef.current = false;
     setPhase('pre-game');
-  }, [levelInfo]);
+  }, [levelInfo, clearRewardDelay]);
 
   const handleSwitchStudent = useCallback(() => {
     setStudent(null);
     setCodeInput('');
     setResult(null);
+    setShowReward(false);
+    clearRewardDelay();
     setLookupError(null);
     setPhase('lookup');
-  }, []);
+  }, [clearRewardDelay]);
 
   // ─── derive iframe url (append ?embed=1 + cache-buster) ───────────────────
   // cache-buster t= บังคับ fresh fetch ทุก mount — bypass browser/edge cache เก่า
@@ -562,17 +589,19 @@ const PlayGame = () => {
                 </div>
               </DialogContent>
             </Dialog>
-          </div>
-        )}
 
-        {phase === 'result' && student && result && (
-          <ResultPanel
-            student={student}
-            result={result}
-            prevLevel={prevLevel}
-            onPlayAgain={handlePlayAgain}
-            onExit={handleSwitchStudent}
-          />
+            {/* การ์ด XP ลอยมุมล่าง — ไม่บังจอเกม ไม่มี backdrop (เด้งหลังหน่วง / ออนไลน์ทันที) */}
+            {showReward && student && result && (
+              <RewardPopup
+                student={student}
+                result={result}
+                prevLevel={prevLevel}
+                onPlayAgain={() => { setShowReward(false); handlePlayAgain(); }}
+                onExit={handleSwitchStudent}
+                onClose={() => setShowReward(false)}
+              />
+            )}
+          </div>
         )}
       </main>
     </div>
@@ -1012,106 +1041,124 @@ const PlayingPanel = ({
   );
 };
 
-const ResultPanel = ({
+/**
+ * RewardPopup — การ์ด XP เล็ก ๆ ลอยมุมล่าง บนจอจบเกมของเกมเอง
+ * ไม่ใช่ shadcn Dialog (เลี่ยง backdrop ทึบที่บังจอเกม) — เป็น Card ลอยล้วน
+ * auto-hide ~8 วิ และหยุดนับเมื่อ hover (กันหายระหว่างกำลังจะกด)
+ */
+const REWARD_AUTO_HIDE_MS = 8000;
+
+const RewardPopup = ({
   student,
   result,
   prevLevel,
   onPlayAgain,
   onExit,
+  onClose,
 }: {
   student: StudentLookup;
   result: RecordSessionResult;
   prevLevel: LevelInfo | null;
   onPlayAgain: () => void;
   onExit: () => void;
+  onClose: () => void;
 }) => {
   const newLevel = useMemo(() => levelFromXp(result.total_xp), [result.total_xp]);
   const leveledUp = !!prevLevel && newLevel.level > prevLevel.level;
 
+  // celebrate ตอนการ์ดโผล่ (จังหวะตรงกับที่ผู้เล่นเห็น XP)
   useEffect(() => {
-    // 1. Confetti celebration
-    confetti({
-      particleCount: 80,
-      spread: 60,
-      origin: { y: 0.65 }
-    });
-
+    confetti({ particleCount: 80, spread: 60, origin: { y: 0.65 } });
     if (result.unlocked.length > 0 || leveledUp) {
-      setTimeout(() => {
-        confetti({
-          particleCount: 120,
-          spread: 80,
-          origin: { y: 0.6 }
-        });
-      }, 300);
+      setTimeout(() => confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } }), 300);
     }
-
-    // 2. Synthesize audio chime
-    if (leveledUp) {
-      playCelebrationSound('levelUp');
-    } else if (result.xp_earned > 0) {
-      playCelebrationSound('personalBest');
-    }
+    if (leveledUp) playCelebrationSound('levelUp');
+    else if (result.xp_earned > 0) playCelebrationSound('personalBest');
   }, [result, leveledUp]);
 
+  // auto-hide หลัง ~8 วิ — หยุดนับเมื่อชี้เมาส์ค้าง, นับใหม่เมื่อปล่อย
+  const hideTimerRef = useRef<number | null>(null);
+  const clearHide = useCallback(() => {
+    if (hideTimerRef.current !== null) { clearTimeout(hideTimerRef.current); hideTimerRef.current = null; }
+  }, []);
+  const startHide = useCallback(() => {
+    clearHide();
+    hideTimerRef.current = window.setTimeout(onClose, REWARD_AUTO_HIDE_MS);
+  }, [clearHide, onClose]);
+  useEffect(() => {
+    startHide();
+    return clearHide;
+  }, [startHide, clearHide]);
+
   return (
-    <Card className="mx-auto mt-4 max-w-lg">
-      <CardContent className="space-y-5 p-6 text-center sm:p-8">
-        <div className="flex justify-center">
-          <PersonAvatar
-            name={student.display_name}
-            photoUrl={student.photo_url}
-            size="lg"
-            className="h-20 w-20 ring-4 ring-primary/20"
-          />
-        </div>
-        <div>
-          <p className="text-sm text-muted-foreground">เก่งมาก {student.display_name}!</p>
-          <p className="mt-1 text-4xl font-bold text-primary">+{result.xp_earned.toLocaleString('th-TH')} XP</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            รวม {result.total_xp.toLocaleString('th-TH')} XP · Lv.{newLevel.level}
-          </p>
-        </div>
-
-        {leveledUp && (
-          <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 animate-pulse">
-            <p className="text-sm font-semibold text-primary">🎉 เลเวลอัพ! → Lv.{newLevel.level}</p>
+    <div
+      className="absolute bottom-3 left-1/2 z-20 w-[min(92vw,360px)] -translate-x-1/2 sm:left-auto sm:right-4 sm:translate-x-0"
+      onPointerEnter={clearHide}
+      onPointerLeave={startHide}
+    >
+      <Card className="relative border-primary/30 shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <button
+          onClick={onClose}
+          className="absolute right-2 top-2 rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          title="ปิด"
+        >
+          <X className="h-4 w-4" />
+        </button>
+        <CardContent className="space-y-3 p-4 text-center">
+          <div className="flex items-center justify-center gap-3">
+            <PersonAvatar
+              name={student.display_name}
+              photoUrl={student.photo_url}
+              size="sm"
+              className="h-11 w-11 ring-2 ring-primary/20"
+            />
+            <div className="text-left">
+              <p className="text-2xl font-bold leading-none text-primary">
+                +{result.xp_earned.toLocaleString('th-TH')} XP
+              </p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                รวม {result.total_xp.toLocaleString('th-TH')} XP · Lv.{newLevel.level}
+              </p>
+            </div>
           </div>
-        )}
 
-        {result.unlocked.length > 0 && (
-          <div className="space-y-2">
-            <p className="text-sm font-semibold text-foreground">ปลดล็อกป้ายใหม่</p>
-            <div className="flex flex-wrap justify-center gap-2">
+          {leveledUp && (
+            <div className="rounded-lg border border-primary/30 bg-primary/5 p-2 animate-pulse">
+              <p className="text-sm font-semibold text-primary">🎉 เลเวลอัพ! → Lv.{newLevel.level}</p>
+            </div>
+          )}
+
+          {result.unlocked.length > 0 && (
+            <div className="flex flex-wrap justify-center gap-1.5">
               {result.unlocked.map((u: UnlockedBadge) => {
                 const Icon = ICON(u.icon);
                 return (
                   <div
                     key={u.code}
-                    className="flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-3 py-1.5 animate-bounce"
+                    className="flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-2.5 py-1 animate-bounce"
                   >
-                    <Icon className="h-4 w-4 text-primary" />
-                    <span className="text-xs font-medium text-foreground">{u.title}</span>
+                    <Icon className="h-3.5 w-3.5 text-primary" />
+                    <span className="text-[11px] font-medium text-foreground">{u.title}</span>
                     {u.xp_bonus > 0 && (
-                      <span className="text-xs text-muted-foreground">+{u.xp_bonus}</span>
+                      <span className="text-[11px] text-muted-foreground">+{u.xp_bonus}</span>
                     )}
                   </div>
                 );
               })}
             </div>
-          </div>
-        )}
+          )}
 
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <Button className="h-12 flex-1 text-base" onClick={onPlayAgain}>
-            <RotateCcw className="mr-2 h-4 w-4" />
-            เล่นอีกรอบ
-          </Button>
-          <Button variant="outline" className="h-12 flex-1 text-base" onClick={onExit}>
-            ออก
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+          <div className="flex gap-2">
+            <Button className="h-10 flex-1 text-sm" onClick={onPlayAgain}>
+              <RotateCcw className="mr-1.5 h-4 w-4" />
+              เล่นซ้ำ
+            </Button>
+            <Button variant="outline" className="h-10 flex-1 text-sm" onClick={onExit}>
+              ออก
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
