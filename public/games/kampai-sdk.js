@@ -103,7 +103,10 @@
         level: d.stats.level | 0,
       };
       if (Array.isArray(d.leaderboard)) K.leaderboard = d.leaderboard;
-      if (d.audio && d.audio.bgm) { _bgmFromInit = true; if (K.sound) K.sound.setBgm(d.audio.bgm); }   // เพลงรายเกมจากหลังบ้าน
+      if (d.audio && K.sound) {   // เพลงรายเกมจากหลังบ้าน: mp3 อัปโหลด (ก่อน) > synth preset
+        if (d.audio.bgmUrl) { _bgmFromInit = true; K.sound.setBgmUrl(d.audio.bgmUrl); }
+        else if (d.audio.bgm) { _bgmFromInit = true; K.sound.setBgm(d.audio.bgm); }
+      }
       K._startTs = Date.now();
       fireReady();
     });
@@ -242,6 +245,7 @@
   var _bgmOn = localStorage.getItem('mr_bgm') !== '0';
   var _actx = null, _thaiVoice = null, _enVoice = null;
   var _bgmTimer = null, _bgmGain = null, _bgmStep = 0, _bgmFromInit = false, _fxEl = null;
+  var _bgmUrl = null, _bgmAudio = null;   // เพลงอัปโหลด (mp3) — ถ้ามี = เล่นแทน synth
   var BGM_PRESETS = {
     none:     null,
     cheerful: { root: 261.63, bpm: 104, wave: 'triangle' },   // C สดใส
@@ -286,9 +290,22 @@
     stopSpeak: function () { try { window.speechSynthesis.cancel(); } catch (e) { /* */ } },
     fxFlash: function (good) { var el = _ensureFx(); if (!el) return; el.classList.remove('good', 'bad'); void el.offsetWidth; el.classList.add(good ? 'good' : 'bad'); setTimeout(function () { el.classList.remove('good', 'bad'); }, 160); },
     setBgm: function (preset) { if (typeof preset === 'string') { if (Object.prototype.hasOwnProperty.call(BGM_PRESETS, preset)) _bgmCfg = BGM_PRESETS[preset]; } else if (preset && typeof preset === 'object') { _bgmCfg = preset; } return Sound; },
+    setBgmUrl: function (url) { _bgmUrl = url || null; return Sound; },   // เพลงอัปโหลด (mp3) — มีค่า = เล่นแทน synth
     defaultBgm: function (preset) { if (!_bgmFromInit) Sound.setBgm(preset); return Sound; },   // ใช้ก็ต่อเมื่อหลังบ้านไม่ได้กำหนด
-    bgmStart: function () { if (!_bgmOn || !_bgmCfg || _bgmTimer || !_bgmEnsure()) return; var t = _actx.currentTime; _bgmGain.gain.cancelScheduledValues(t); _bgmGain.gain.setValueAtTime(0.0001, t); _bgmGain.gain.linearRampToValueAtTime(0.07, t + 0.8); _bgmStep = 0; _bgmTick(); _bgmTimer = setInterval(_bgmTick, (60 / _bgmCfg.bpm / 2) * 1000); },
-    bgmStop: function () { if (_bgmTimer) { clearInterval(_bgmTimer); _bgmTimer = null; } if (_bgmGain && _actx) { try { var t = _actx.currentTime; _bgmGain.gain.cancelScheduledValues(t); _bgmGain.gain.setValueAtTime(_bgmGain.gain.value, t); _bgmGain.gain.linearRampToValueAtTime(0.0001, t + 0.4); } catch (e) { /* */ } } },
+    bgmStart: function () {
+      if (!_bgmOn) return;
+      if (_bgmUrl) {   // โหมด mp3 (เพลงอัปโหลด)
+        try { _ac(); if (!_bgmAudio) { _bgmAudio = new Audio(_bgmUrl); _bgmAudio.loop = true; _bgmAudio.volume = 0.45; } var p = _bgmAudio.play(); if (p && p.catch) p.catch(function () { /* autoplay ถูกบล็อก */ }); } catch (e) { /* */ }
+        return;
+      }
+      if (!_bgmCfg || _bgmTimer || !_bgmEnsure()) return;   // โหมด synth
+      var t = _actx.currentTime; _bgmGain.gain.cancelScheduledValues(t); _bgmGain.gain.setValueAtTime(0.0001, t); _bgmGain.gain.linearRampToValueAtTime(0.07, t + 0.8); _bgmStep = 0; _bgmTick(); _bgmTimer = setInterval(_bgmTick, (60 / _bgmCfg.bpm / 2) * 1000);
+    },
+    bgmStop: function () {
+      if (_bgmAudio) { try { _bgmAudio.pause(); } catch (e) { /* */ } }
+      if (_bgmTimer) { clearInterval(_bgmTimer); _bgmTimer = null; }
+      if (_bgmGain && _actx) { try { var t = _actx.currentTime; _bgmGain.gain.cancelScheduledValues(t); _bgmGain.gain.setValueAtTime(_bgmGain.gain.value, t); _bgmGain.gain.linearRampToValueAtTime(0.0001, t + 0.4); } catch (e) { /* */ } }
+    },
     mountToggles: function () {
       _injectCss();
       var build = function () {

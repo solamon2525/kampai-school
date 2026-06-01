@@ -50,9 +50,22 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import {
     educationalHubService,
+    bgmTracksService,
     type EduHubItem,
+    type BgmTrack,
 } from '@/services/educational-hub.service';
 import { gamePlayService } from '@/services/game-play.service';
+
+/** preset เพลงสังเคราะห์ (ตรงกับ BGM_PRESETS ใน kampai-sdk.js) */
+const BGM_PRESETS: { key: string; label: string }[] = [
+    { key: 'cheerful', label: 'สดใส (โทน C)' },
+    { key: 'calm', label: 'นุ่ม สงบ (โทน D)' },
+    { key: 'warm', label: 'อบอุ่น (โทน A)' },
+    { key: 'playful', label: 'สดใส เล่น ๆ (โทน E)' },
+    { key: 'bright', label: 'สว่าง (โทน F)' },
+    { key: 'mellow', label: 'ช้า ผ่อนคลาย (โทน G)' },
+    { key: 'none', label: 'ปิดเพลง' },
+];
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
@@ -313,6 +326,7 @@ export const GamesTab = () => {
         | { mode: 'create' }
         | { mode: 'replace'; item: EduHubItem }
         | { mode: 'settings'; item: EduHubItem }
+        | { mode: 'bgm' }
         | null
     >(null);
     const [confirmAction, setConfirmAction] = useState<
@@ -421,9 +435,14 @@ export const GamesTab = () => {
                         จัดการเกมทุกประเภท — Storage (อัพเดท v.2 ได้) และ Git legacy (ตั้งค่า/ลบ DB record ได้)
                     </p>
                 </div>
-                <Button onClick={() => setDialog({ mode: 'create' })} disabled={!gamesCategoryId}>
-                    <Plus className="h-4 w-4 mr-1" /> อัพโหลดเกมใหม่
-                </Button>
+                <div className="flex items-center gap-2">
+                    <Button variant="outline" onClick={() => setDialog({ mode: 'bgm' })}>
+                        🎵 คลังเพลง
+                    </Button>
+                    <Button onClick={() => setDialog({ mode: 'create' })} disabled={!gamesCategoryId}>
+                        <Plus className="h-4 w-4 mr-1" /> อัพโหลดเกมใหม่
+                    </Button>
+                </div>
             </div>
 
             <AiGameKit />
@@ -572,7 +591,7 @@ export const GamesTab = () => {
 
             <Dialog open={!!dialog} onOpenChange={(open) => !open && setDialog(null)}>
                 <DialogContent className={cn(
-                    dialog?.mode === 'settings' ? 'max-w-md' : 'max-w-2xl',
+                    (dialog?.mode === 'settings' || dialog?.mode === 'bgm') ? 'max-w-md' : 'max-w-2xl',
                     'overflow-y-auto max-h-[90vh]',
                 )}>
                     {dialog?.mode === 'create' && gamesCategoryId && (
@@ -598,6 +617,9 @@ export const GamesTab = () => {
                             onSaved={handleSaved}
                             onCancel={() => setDialog(null)}
                         />
+                    )}
+                    {dialog?.mode === 'bgm' && (
+                        <BgmLibraryDialog onClose={() => setDialog(null)} />
                     )}
                 </DialogContent>
             </Dialog>
@@ -641,17 +663,33 @@ const GameSettingsDialog = ({
     const [gameSlug, setGameSlug] = useState(item.game_slug ?? '');
     const [tracked, setTracked] = useState(item.tracked_game);
     const [published, setPublished] = useState(item.is_published);
-    const [bgmPreset, setBgmPreset] = useState(item.bgm_preset ?? '__default__');
+    // value-encoded: '__default__' | 'preset:<key>' | 'track:<url>'
+    const [bgmSel, setBgmSel] = useState(
+        item.bgm_url ? `track:${item.bgm_url}` : item.bgm_preset ? `preset:${item.bgm_preset}` : '__default__',
+    );
     const [saving, setSaving] = useState(false);
+
+    const { data: tracks } = useQuery({
+        queryKey: ['bgm-tracks'],
+        queryFn: async () => {
+            const { data } = await bgmTracksService.list();
+            return (data ?? []) as BgmTrack[];
+        },
+    });
 
     const handleSave = async () => {
         setSaving(true);
         try {
+            const bgm = bgmSel.startsWith('track:')
+                ? { bgm_url: bgmSel.slice(6), bgm_preset: null }
+                : bgmSel.startsWith('preset:')
+                    ? { bgm_url: null, bgm_preset: bgmSel.slice(7) }
+                    : { bgm_url: null, bgm_preset: null };
             const { error } = await educationalHubService.updateItem(item.id, {
                 game_slug: gameSlug.trim() || null,
                 tracked_game: tracked,
                 is_published: published,
-                bgm_preset: bgmPreset === '__default__' ? null : bgmPreset,
+                ...bgm,
             });
             if (error) throw error;
             onSaved();
@@ -706,21 +744,24 @@ const GameSettingsDialog = ({
 
                 <div className="space-y-1.5">
                     <label className="text-sm font-medium">🎵 เพลงประกอบ</label>
-                    <Select value={bgmPreset} onValueChange={setBgmPreset}>
+                    <Select value={bgmSel} onValueChange={setBgmSel}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="__default__">ค่าเริ่มต้นของเกม</SelectItem>
-                            <SelectItem value="cheerful">สดใส (โทน C)</SelectItem>
-                            <SelectItem value="calm">นุ่ม สงบ (โทน D)</SelectItem>
-                            <SelectItem value="warm">อบอุ่น (โทน A)</SelectItem>
-                            <SelectItem value="playful">สดใส เล่น ๆ (โทน E)</SelectItem>
-                            <SelectItem value="bright">สว่าง (โทน F)</SelectItem>
-                            <SelectItem value="mellow">ช้า ผ่อนคลาย (โทน G)</SelectItem>
-                            <SelectItem value="none">ปิดเพลง</SelectItem>
+                            {(tracks ?? []).length > 0 && (
+                                <div className="px-2 py-1 text-[10px] font-medium text-muted-foreground">— เพลงที่อัปโหลด (mp3) —</div>
+                            )}
+                            {(tracks ?? []).map((t) => (
+                                <SelectItem key={t.id} value={`track:${t.url}`}>🎶 {t.title}</SelectItem>
+                            ))}
+                            <div className="px-2 py-1 text-[10px] font-medium text-muted-foreground">— เพลงสังเคราะห์ —</div>
+                            {BGM_PRESETS.map((p) => (
+                                <SelectItem key={p.key} value={`preset:${p.key}`}>{p.label}</SelectItem>
+                            ))}
                         </SelectContent>
                     </Select>
                     <p className="text-xs text-muted-foreground">
-                        ใช้ได้กับเกมที่เชื่อม KAMPAI SDK (ระบบเสียงรวม) — ผู้เล่นยังกดปิด 🎵 เองได้
+                        เพลงอัปโหลดมาก่อนเพลงสังเคราะห์ · จัดการคลังเพลงที่ปุ่ม "🎵 คลังเพลง" · ผู้เล่นยังกดปิด 🎵 เองได้
                     </p>
                 </div>
             </div>
@@ -730,6 +771,98 @@ const GameSettingsDialog = ({
                 <Button onClick={handleSave} disabled={saving}>
                     {saving ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> บันทึก...</> : 'บันทึก'}
                 </Button>
+            </DialogFooter>
+        </>
+    );
+};
+
+// ─── คลังเพลงประกอบกลาง (อัปโหลด mp3 → ใช้ซ้ำรายเกม) ─────────────────────────
+const MAX_AUDIO_SIZE = 50 * 1024 * 1024;   // 50 MB (sync กับ bucket educational-hub)
+
+const BgmLibraryDialog = ({ onClose }: { onClose: () => void }) => {
+    const { toast } = useToast();
+    const queryClient = useQueryClient();
+    const [title, setTitle] = useState('');
+    const [file, setFile] = useState<File | null>(null);
+    const [busy, setBusy] = useState(false);
+
+    const { data: tracks, isLoading } = useQuery({
+        queryKey: ['bgm-tracks'],
+        queryFn: async () => {
+            const { data, error } = await bgmTracksService.list();
+            if (error) throw error;
+            return (data ?? []) as BgmTrack[];
+        },
+    });
+
+    const handleUpload = async () => {
+        if (!file) { toast({ title: 'เลือกไฟล์เพลงก่อน', variant: 'destructive' }); return; }
+        if (!file.type.startsWith('audio/')) { toast({ title: 'รองรับเฉพาะไฟล์เสียง (mp3)', variant: 'destructive' }); return; }
+        if (file.size > MAX_AUDIO_SIZE) { toast({ title: 'ไฟล์ใหญ่เกิน 50 MB', variant: 'destructive' }); return; }
+        setBusy(true);
+        try {
+            const { error } = await bgmTracksService.upload(title || file.name.replace(/\.[^.]+$/, ''), file);
+            if (error) throw error;
+            setTitle(''); setFile(null);
+            queryClient.invalidateQueries({ queryKey: ['bgm-tracks'] });
+            toast({ title: 'อัปโหลดเพลงสำเร็จ' });
+        } catch (err) {
+            toast({ title: 'อัปโหลดไม่สำเร็จ', description: err instanceof Error ? err.message : 'เกิดข้อผิดพลาด', variant: 'destructive' });
+        } finally { setBusy(false); }
+    };
+
+    const handleDelete = async (t: BgmTrack) => {
+        try {
+            const { error } = await bgmTracksService.remove(t.id, t.storage_path);
+            if (error) throw error;
+            queryClient.invalidateQueries({ queryKey: ['bgm-tracks'] });
+            toast({ title: 'ลบเพลงแล้ว', description: t.title });
+        } catch (err) {
+            toast({ title: 'ลบไม่สำเร็จ', description: err instanceof Error ? err.message : 'เกิดข้อผิดพลาด', variant: 'destructive' });
+        }
+    };
+
+    return (
+        <>
+            <DialogHeader>
+                <DialogTitle>🎵 คลังเพลงประกอบ</DialogTitle>
+                <DialogDescription>
+                    อัปโหลด mp3 เข้าคลังกลาง แล้วเลือกใช้รายเกมได้ที่ "ตั้งค่า" ของแต่ละเกม
+                </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+                <div className="space-y-2 rounded-md border border-border p-3">
+                    <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="ชื่อเพลง (เว้นว่าง = ใช้ชื่อไฟล์)" />
+                    <Input type="file" accept="audio/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+                    <Button onClick={handleUpload} disabled={busy || !file} className="w-full">
+                        {busy ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> กำลังอัปโหลด...</> : <><Plus className="h-4 w-4 mr-1" /> อัปโหลดเพลง</>}
+                    </Button>
+                </div>
+
+                {isLoading ? (
+                    <p className="text-center text-sm text-muted-foreground py-4">กำลังโหลด...</p>
+                ) : (tracks ?? []).length === 0 ? (
+                    <p className="text-center text-sm text-muted-foreground py-4">ยังไม่มีเพลงในคลัง</p>
+                ) : (
+                    <ul className="space-y-2 max-h-[40vh] overflow-y-auto">
+                        {tracks!.map((t) => (
+                            <li key={t.id} className="flex items-center gap-2 rounded-md border border-border p-2">
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium truncate">{t.title}</p>
+                                    <audio controls preload="none" src={t.url} className="mt-1 h-8 w-full" />
+                                </div>
+                                <Button variant="ghost" size="sm" className="text-destructive shrink-0" onClick={() => handleDelete(t)}>
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </div>
+
+            <DialogFooter>
+                <Button variant="ghost" onClick={onClose}>ปิด</Button>
             </DialogFooter>
         </>
     );

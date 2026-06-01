@@ -54,9 +54,20 @@ export type EduHubItem = {
     is_published: boolean;
     game_slug: string | null;
     tracked_game: boolean;
-    bgm_preset: string | null;   // เพลงประกอบรายเกม (preset key ใน KAMPAI.sound) — null = ใช้ default ของเกม
+    bgm_preset: string | null;   // เพลงประกอบรายเกม (preset key สังเคราะห์ใน KAMPAI.sound) — null = ใช้ default ของเกม
+    bgm_url: string | null;      // เพลงอัปโหลด (mp3) — ถ้ามี = เล่นแทน synth
     created_at: string;
     updated_at: string;
+};
+
+/** เพลงในคลังเพลงกลาง (game_bgm_tracks) — อัปครั้งเดียว เลือกใช้รายเกม */
+export type BgmTrack = {
+    id: string;
+    title: string;
+    storage_path: string;
+    url: string;
+    created_by: string | null;
+    created_at: string;
 };
 
 export type EduHubTeacherCard = {
@@ -388,4 +399,37 @@ export const formatFileSize = (bytes: number | null | undefined): string => {
         i++;
     }
     return `${v.toFixed(v < 10 && i > 0 ? 1 : 0)} ${units[i]}`;
+};
+
+// ─── คลังเพลงประกอบกลาง (game_bgm_tracks) ────────────────────────────────────
+// อัปไฟล์ mp3 เข้า bucket educational-hub (โฟลเดอร์ bgm/) แล้วเก็บ row ไว้เลือกใช้รายเกม
+export const bgmTracksService = {
+    list: () =>
+        supabase
+            .from('game_bgm_tracks' as never)
+            .select('*')
+            .order('created_at', { ascending: false }),
+
+    /** อัปโหลด mp3 → Storage → insert row คลังเพลง */
+    upload: async (title: string, file: File): Promise<{ track: BgmTrack | null; error: Error | null }> => {
+        const up = await educationalHubService.uploadFile('bgm', file);
+        if (up.error) return { track: null, error: up.error };
+        const { data, error } = await supabase
+            .from('game_bgm_tracks' as never)
+            .insert({ title: title.trim() || file.name, storage_path: up.path, url: up.url } as never)
+            .select()
+            .single();
+        if (error) {
+            await educationalHubService.removeFile(up.path);   // rollback ไฟล์ถ้า insert ล้ม
+            return { track: null, error: error as Error };
+        }
+        return { track: data as unknown as BgmTrack, error: null };
+    },
+
+    /** ลบเพลงออกจากคลัง (ไฟล์ + row) */
+    remove: async (id: string, storagePath: string): Promise<{ error: Error | null }> => {
+        await educationalHubService.removeFile(storagePath);
+        const { error } = await supabase.from('game_bgm_tracks' as never).delete().eq('id', id);
+        return { error: (error as Error | null) ?? null };
+    },
 };

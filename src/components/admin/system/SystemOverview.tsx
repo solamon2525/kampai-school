@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.48.1 (หลังบ้านเลือกเพลงประกอบรายเกมได้)',
+        version: 'v1.48.2 (อัปโหลดเพลง mp3 เอง → คลังเพลงกลาง → เลือกใช้รายเกม)',
         date: 'ล่าสุด',
+        badge: 'bg-violet-600',
+        items: [
+            'เพิ่ม "คลังเพลงประกอบ" ในหน้า admin (คลังเกม) — อัปโหลด mp3 (เก็บใน bucket educational-hub) ฟังตัวอย่าง/ลบได้ · ตาราง game_bgm_tracks (migration 114)',
+            'dropdown เพลงประกอบรายเกมรวมเป็นที่เดียว: ค่าเริ่มต้น / เพลงที่อัปโหลด (mp3) / เพลงสังเคราะห์ 7 แบบ — mp3 เล่นผ่าน KAMPAI.sound (HTMLAudio loop) มาก่อน synth',
+            'wrapper ส่ง init.audio.bgmUrl → SDK เล่นไฟล์จริง · ผู้เล่นยังกดปิด 🎵 เองได้ · เลือก "ปิดเพลง" ต่อเกมได้',
+        ],
+    },
+    {
+        version: 'v1.48.1 (หลังบ้านเลือกเพลงประกอบรายเกมได้)',
+        date: '',
         badge: 'bg-violet-600',
         items: [
             'เพิ่มคอลัมน์ educational_hub_items.bgm_preset (migration 113) + dropdown "🎵 เพลงประกอบ" ในหน้า ตั้งค่าเกม (admin)',

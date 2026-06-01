@@ -227,11 +227,12 @@ const PlayGame = () => {
           isMe: r.student_id === student.id,
         })),
         // เพลงประกอบรายเกม (ตั้งจากหลังบ้าน) → KAMPAI.sound override default ของเกม
-        audio: { bgm: gameQuery.data?.bgm_preset ?? null },
+        // bgmUrl (mp3 อัปโหลด) มาก่อน synth preset
+        audio: { bgm: gameQuery.data?.bgm_preset ?? null, bgmUrl: gameQuery.data?.bgm_url ?? null },
       },
       '*',
     );
-  }, [student, codeInput, statsQuery.data, levelInfo.level, leaderboardQuery.data, gameQuery.data?.bgm_preset]);
+  }, [student, codeInput, statsQuery.data, levelInfo.level, leaderboardQuery.data, gameQuery.data?.bgm_preset, gameQuery.data?.bgm_url]);
 
   // ─── auto-login จาก localStorage (ลดเวลากรอกรหัสเมื่อเปลี่ยนเกม) ────────
   useEffect(() => {

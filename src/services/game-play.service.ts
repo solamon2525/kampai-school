@@ -219,7 +219,7 @@ export const trackedGamesService = {
   getBySlug: (gameSlug: string) =>
     supabase
       .from('educational_hub_items')
-      .select('id, title, external_url, subject, game_slug, tracked_game, thumbnail_url, bgm_preset')
+      .select('id, title, external_url, subject, game_slug, tracked_game, thumbnail_url, bgm_preset, bgm_url')
       .eq('game_slug', gameSlug)
       .eq('tracked_game', true)
       .eq('is_published', true)
