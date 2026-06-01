@@ -88,9 +88,30 @@ body { background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); }
 #player-chip .pc-init { background: linear-gradient(135deg,#6c5ce7,#a29bfe); display: flex; align-items: center; justify-content: center; font-weight: 700; }
 #player-chip .pc-best { color: #FFD700; font-weight: 700; }
 /* โหมดออนไลน์: lobby/countdown/scoreboard/อันดับ จัดการโดย kampai-match.js (เฟรมเวิร์กกลาง) */
+
+/* ── ปุ่มเปิด/ปิดเสียง (มุมซ้ายบน เข้าถึงได้ทุกจอ) ── */
+#snd-toggles { position: fixed; top: 10px; left: 10px; z-index: 40; display: flex; gap: 8px; }
+.stog { width: 40px; height: 40px; border: none; border-radius: 50%; cursor: pointer; font-size: 19px; line-height: 1; background: rgba(15,23,42,0.55); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); box-shadow: 0 2px 8px rgba(0,0,0,0.35); transition: opacity 0.15s, transform 0.1s; }
+.stog:active { transform: scale(0.9); }
+.stog.off { opacity: 0.4; }
+
+/* ── เอฟเฟกต์ตอบถูก/ผิด (transform/opacity = GPU, เบา) ── */
+@keyframes mr-shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-9px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(4px)} }
+#play.shake { animation: mr-shake 0.4s ease; }
+@keyframes mr-bump { 0%{transform:scale(1)} 35%{transform:scale(1.22)} 100%{transform:scale(1)} }
+#question.bump { animation: mr-bump 0.25s ease; }
+#fx-flash { position: fixed; inset: 0; pointer-events: none; opacity: 0; z-index: 25; transition: opacity 0.12s ease; }
+#fx-flash.fx-good { opacity: 1; background: radial-gradient(circle at 50% 60%, rgba(34,197,94,0.28), transparent 65%); }
+#fx-flash.fx-bad { opacity: 1; background: radial-gradient(circle at 50% 60%, rgba(239,68,68,0.30), transparent 65%); }
 </style>
 </head>
 <body>
+<!-- ปุ่มเปิด/ปิดเสียง (เอฟเฟกต์ / อ่านโจทย์) -->
+<div id="snd-toggles">
+    <button id="btn-sfx" class="stog" onclick="toggleSfx()" title="เสียงเอฟเฟกต์">🔊</button>
+    <button id="btn-tts" class="stog" onclick="toggleTts()" title="เสียงอ่านโจทย์">🗣️</button>
+</div>
+<div id="fx-flash"></div>
 <div id="app">
     <!-- HUD -->
     <div id="hud">
@@ -194,6 +215,69 @@ function renderLeaderboard(listId) {
 KAMPAI.onReady(function () { renderPlayer(); renderLeaderboard('score-list'); });
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   SECTION B2 · เสียง (Web Audio synth) + อ่านโจทย์ (Web Speech) + เอฟเฟกต์จอ
+   เบามาก: AudioContext เดียว, oscillator สั้น auto-stop, TTS off-main-thread, CSS GPU
+   ═══════════════════════════════════════════════════════════════════════════ */
+let sfxOn = localStorage.getItem('mr_sfx') !== '0';   // default เปิด
+let ttsOn = localStorage.getItem('mr_tts') !== '0';   // default เปิด
+let actx = null;
+
+function audioCtx() {
+    try {
+        if (!actx) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; actx = new AC(); }
+        if (actx.state === 'suspended') actx.resume();
+    } catch (e) { return null; }
+    return actx;
+}
+function tone(freq, offset, dur, vol, type) {
+    const c = actx; if (!c) return;
+    const t0 = c.currentTime + offset;
+    const osc = c.createOscillator(), g = c.createGain();
+    osc.type = type || 'triangle';
+    osc.frequency.setValueAtTime(freq, t0);
+    g.gain.setValueAtTime(vol, t0);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    osc.connect(g); g.connect(c.destination);
+    osc.start(t0); osc.stop(t0 + dur);
+}
+function sfxCorrect() { if (!sfxOn || !audioCtx()) return; tone(660,0,0.12,0.12); tone(880,0.08,0.12,0.11); tone(1175,0.16,0.18,0.10); }
+function sfxWrong()   { if (!sfxOn || !audioCtx()) return; tone(220,0,0.18,0.13,'square'); tone(150,0.12,0.22,0.12,'square'); }
+function sfxTimeUp()  { if (!sfxOn || !audioCtx()) return; tone(200,0,0.30,0.12,'sawtooth'); }
+function sfxGameOver(){ if (!sfxOn || !audioCtx()) return; [523,440,349,262].forEach((f,i) => tone(f, i*0.14, 0.30, 0.11)); }
+
+let thaiVoice = null;
+function pickVoice() { try { thaiVoice = window.speechSynthesis.getVoices().find(v => /^th/i.test(v.lang)) || null; } catch (e) { /* */ } }
+if ('speechSynthesis' in window) { pickVoice(); window.speechSynthesis.onvoiceschanged = pickVoice; }
+
+function speakQuestion() {
+    if (!ttsOn || mode === 'online' || !('speechSynthesis' in window)) return;
+    try {
+        window.speechSynthesis.cancel();   // กันคิวสะสม/ทับซ้อน
+        const u = new SpeechSynthesisUtterance(`${curA} คูณ ${curB}`);
+        u.lang = 'th-TH'; u.rate = 0.95;
+        if (thaiVoice) u.voice = thaiVoice;
+        window.speechSynthesis.speak(u);
+    } catch (e) { /* อุปกรณ์ไม่รองรับ → เงียบ */ }
+}
+function stopSpeak() { try { window.speechSynthesis.cancel(); } catch (e) { /* */ } }
+
+function flashFx(good) {
+    const el = document.getElementById('fx-flash'); if (!el) return;
+    el.classList.remove('fx-good', 'fx-bad'); void el.offsetWidth;
+    el.classList.add(good ? 'fx-good' : 'fx-bad');
+    setTimeout(() => el.classList.remove('fx-good', 'fx-bad'), 160);
+}
+
+function updateSndUI() {
+    const bs = document.getElementById('btn-sfx'), bt = document.getElementById('btn-tts');
+    if (bs) { bs.textContent = sfxOn ? '🔊' : '🔇'; bs.classList.toggle('off', !sfxOn); }
+    if (bt) { bt.textContent = ttsOn ? '🗣️' : '🤫'; bt.classList.toggle('off', !ttsOn); }
+}
+function toggleSfx() { sfxOn = !sfxOn; localStorage.setItem('mr_sfx', sfxOn ? '1' : '0'); updateSndUI(); if (sfxOn) sfxCorrect(); }
+function toggleTts() { ttsOn = !ttsOn; localStorage.setItem('mr_tts', ttsOn ? '1' : '0'); updateSndUI(); if (!ttsOn) stopSpeak(); }
+updateSndUI();
+
+/* ═══════════════════════════════════════════════════════════════════════════
    SECTION C · GAME LOGIC — Quiz Race สูตรคูณ
    ═══════════════════════════════════════════════════════════════════════════ */
 const TABLES = [2,3,4,5,6,7,8,9,10,11,12];   // แม่สูตรคูณ
@@ -221,6 +305,7 @@ const $ = (id) => document.getElementById(id);
 
 /* ── เลือกโหมด ── */
 function chooseMode(m) {
+    audioCtx();   // ปลุกเสียงด้วย user gesture (autoplay policy)
     mode = m;
     const picker = $('table-picker');
     if (m === 'practice') {
@@ -259,6 +344,7 @@ function nextQuestion() {
     $('question').textContent = `${curA} × ${curB}`;
     $('feedback').textContent = '';
     $('feedback').className = '';
+    speakQuestion();   // อ่านโจทย์ (ข้ามโหมดออนไลน์/ถ้าปิด TTS)
 
     // ตัวลวง: ใกล้เคียงคำตอบจริง (บวก/ลบ ตัวคูณ, off-by-one ของผลคูณ)
     const set = new Set([curAns]);
@@ -297,6 +383,8 @@ function timeUp() {
     if (locked) return;
     locked = true;
     cancelAnimationFrame(rafId);
+    sfxTimeUp(); flashFx(false);
+    const pl = $('play'); pl.classList.add('shake'); setTimeout(() => pl.classList.remove('shake'), 420);
     streak = 0; updateCombo();
     revealCorrect();
     flash('หมดเวลา! ⏱️', false);
@@ -315,6 +403,8 @@ function answer(v, btn) {
 
     if (v === curAns) {
         btn.classList.add('correct');
+        sfxCorrect(); flashFx(true);
+        const q = $('question'); q.classList.add('bump'); setTimeout(() => q.classList.remove('bump'), 250);
         correctCount++;
         streak++; maxStreak = Math.max(maxStreak, streak);
         const mult = comboMult();
@@ -331,6 +421,8 @@ function answer(v, btn) {
         else setTimeout(nextQuestion, mode === 'practice' ? 550 : 480);
     } else {
         btn.classList.add('wrong');
+        sfxWrong(); flashFx(false);
+        const pl = $('play'); pl.classList.add('shake'); setTimeout(() => pl.classList.remove('shake'), 420);
         revealCorrect();
         streak = 0; updateCombo();
         flash(`ผิด! คำตอบคือ ${curAns}`, false);
@@ -389,6 +481,7 @@ function endGame() {
     if (isGameOver) return;
     isGameOver = true;
     cancelAnimationFrame(rafId);
+    stopSpeak(); sfxGameOver();
     if (mode === 'race') {
         KAMPAI.submitScore(score, { mode: 'normal', correct: correctCount, maxStreak: maxStreak });
     }
@@ -417,9 +510,10 @@ function ensureMatch() {
     });
     return match;
 }
-function openOnline() { ensureMatch().openMenu(); }
+function openOnline() { audioCtx(); ensureMatch().openMenu(); }
 
 function startOnlineQuiz(rng) {
+    stopSpeak();
     mode = 'online'; qrand = rng; onlineEnded = false;
     score = 0; streak = 0; maxStreak = 0; correctCount = 0;
     started = true; locked = false;
