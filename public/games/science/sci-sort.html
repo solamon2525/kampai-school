@@ -164,12 +164,13 @@ KAMPAI.onReady(function () { renderPlayer(); renderLeaderboard('score-list'); })
 // แต่ละหัวข้อ: cats = กลุ่มคำตอบ, items = {emoji, th, ans(∈cats)}
 const TOPICS = [
     { key:'living', label:'🌱 สิ่งมีชีวิต', q:'จัดอยู่กลุ่มใด?',
-      cats:['พืช','สัตว์','สิ่งไม่มีชีวิต'],
+      cats:['พืช','สัตว์','มนุษย์','สิ่งไม่มีชีวิต'],
       items:[
         {emoji:'🐶',th:'สุนัข',ans:'สัตว์'},{emoji:'🌳',th:'ต้นไม้',ans:'พืช'},{emoji:'🪨',th:'ก้อนหิน',ans:'สิ่งไม่มีชีวิต'},
         {emoji:'🌻',th:'ดอกทานตะวัน',ans:'พืช'},{emoji:'🐟',th:'ปลา',ans:'สัตว์'},{emoji:'🚗',th:'รถยนต์',ans:'สิ่งไม่มีชีวิต'},
         {emoji:'🦋',th:'ผีเสื้อ',ans:'สัตว์'},{emoji:'🌵',th:'กระบองเพชร',ans:'พืช'},{emoji:'🪑',th:'เก้าอี้',ans:'สิ่งไม่มีชีวิต'},
         {emoji:'🐦',th:'นก',ans:'สัตว์'},{emoji:'🌾',th:'ต้นข้าว',ans:'พืช'},{emoji:'⚽',th:'ลูกบอล',ans:'สิ่งไม่มีชีวิต'},
+        {emoji:'👶',th:'ทารก',ans:'มนุษย์'},{emoji:'🧑',th:'คน',ans:'มนุษย์'},{emoji:'👵',th:'คุณยาย',ans:'มนุษย์'},
       ] },
     { key:'matter', label:'🧊 สถานะสสาร', q:'เป็นสถานะใด?',
       cats:['ของแข็ง','ของเหลว','แก๊ส'],
@@ -180,14 +181,17 @@ const TOPICS = [
         {emoji:'🪵',th:'ท่อนไม้',ans:'ของแข็ง'},{emoji:'🛢️',th:'น้ำมัน',ans:'ของเหลว'},
       ] },
     { key:'habitat', label:'🌍 ที่อยู่อาศัย', q:'อาศัยอยู่ที่ไหน?',
-      cats:['บนบก','ในน้ำ','บนฟ้า'],
+      cats:['บนบก','ในน้ำ','บนฟ้า','ใต้ดิน'],
       items:[
         {emoji:'🦁',th:'สิงโต',ans:'บนบก'},{emoji:'🐬',th:'โลมา',ans:'ในน้ำ'},{emoji:'🦅',th:'นกอินทรี',ans:'บนฟ้า'},
         {emoji:'🐘',th:'ช้าง',ans:'บนบก'},{emoji:'🦈',th:'ฉลาม',ans:'ในน้ำ'},{emoji:'🦋',th:'ผีเสื้อ',ans:'บนฟ้า'},
         {emoji:'🐍',th:'งู',ans:'บนบก'},{emoji:'🐙',th:'ปลาหมึก',ans:'ในน้ำ'},{emoji:'🐝',th:'ผึ้ง',ans:'บนฟ้า'},
         {emoji:'🐅',th:'เสือ',ans:'บนบก'},{emoji:'🐠',th:'ปลาการ์ตูน',ans:'ในน้ำ'},
+        {emoji:'🪱',th:'ไส้เดือน',ans:'ใต้ดิน'},{emoji:'🐜',th:'มด',ans:'ใต้ดิน'},{emoji:'🐀',th:'หนู (ขุดรู)',ans:'ใต้ดิน'},
       ] },
 ];
+
+const ALL_CATS = [...new Set(TOPICS.flatMap(t => t.cats))];
 
 let score = 0, lives = 3, streak = 0, maxStreak = 0, correctCount = 0;
 let mode = 'race', selectedTopic = null;
@@ -243,11 +247,15 @@ function nextQuestion() {
     $('q-hint').textContent = curTopic.q;
     $('feedback').textContent = ''; $('feedback').className = '';
 
-    // ตัวเลือก = คำตอบถูก + กลุ่มอื่นในหัวข้อเดียวกัน (สูงสุด 4)
-    const others = curTopic.cats.filter(c => c !== curAns);
+    // ตัวเลือก 4 ปุ่มเสมอ: คำตอบถูก + กลุ่มอื่นในหัวข้อเดียวกันก่อน เติมตัวลวงจากหัวข้ออื่นจนครบ 4
     const opts = new Set([curAns]);
-    while (opts.size < 4 && others.length) { opts.add(others.splice((Math.random()*others.length)|0, 1)[0]); }
-    const list = [...opts].sort(() => Math.random() - 0.5);
+    const within = curTopic.cats.filter(c => c !== curAns).sort(() => qrand() - 0.5);
+    while (opts.size < 4 && within.length) opts.add(within.shift());
+    if (opts.size < 4) {
+        const extra = ALL_CATS.filter(c => !opts.has(c)).sort(() => qrand() - 0.5);
+        while (opts.size < 4 && extra.length) opts.add(extra.shift());
+    }
+    const list = [...opts].sort(() => qrand() - 0.5);
 
     $('answers').innerHTML = list.map((c, i) =>
         `<button class="ans" data-v="${c}" onclick="answer(this)"><span class="k">กด ${i+1}</span>${c}</button>`

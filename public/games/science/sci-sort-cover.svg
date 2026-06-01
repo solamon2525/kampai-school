@@ -23,13 +23,14 @@
   <text x="640" y="290" font-size="124" font-weight="800" fill="url(#gold)" text-anchor="middle" dominant-baseline="middle" filter="url(#sh)" letter-spacing="2">จำแนกวิทย์</text>
   <text x="640" y="378" font-size="38" font-weight="700" fill="#cbd5e1" text-anchor="middle" dominant-baseline="middle">ดูสิ่งของ → จัดกลุ่มให้ถูก</text>
 
-  <!-- example: item + category chips -->
+  <!-- example: item + 4 category chips -->
   <g transform="translate(640,520)">
-    <text x="-300" y="0" font-size="92" text-anchor="middle" dominant-baseline="middle">🐶</text>
-    <g dominant-baseline="middle" text-anchor="middle" font-size="32" font-weight="700">
-      <rect x="-150" y="-40" width="150" height="80" rx="18" fill="#f8fafc"/><text x="-75" y="4" fill="#1e293b">พืช</text>
-      <rect x="10" y="-40" width="150" height="80" rx="18" fill="url(#gold)" stroke="#fff7e0" stroke-width="4"/><text x="85" y="4" fill="#0f172a">สัตว์</text>
-      <rect x="170" y="-40" width="160" height="80" rx="18" fill="#f8fafc"/><text x="250" y="4" fill="#1e293b" font-size="24">ไม่มีชีวิต</text>
+    <text x="-380" y="0" font-size="86" text-anchor="middle" dominant-baseline="middle">🐶</text>
+    <g dominant-baseline="middle" text-anchor="middle" font-weight="700">
+      <rect x="-300" y="-38" width="118" height="76" rx="16" fill="#f8fafc"/><text x="-241" y="4" fill="#1e293b" font-size="30">พืช</text>
+      <rect x="-174" y="-38" width="118" height="76" rx="16" fill="url(#gold)" stroke="#fff7e0" stroke-width="4"/><text x="-115" y="4" fill="#0f172a" font-size="30">สัตว์</text>
+      <rect x="-48" y="-38" width="118" height="76" rx="16" fill="#f8fafc"/><text x="11" y="4" fill="#1e293b" font-size="28">มนุษย์</text>
+      <rect x="78" y="-38" width="138" height="76" rx="16" fill="#f8fafc"/><text x="147" y="4" fill="#1e293b" font-size="22">ไม่มีชีวิต</text>
     </g>
   </g>
   <g transform="translate(640,642)">
