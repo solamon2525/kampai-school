@@ -54,6 +54,7 @@ export type EduHubItem = {
     is_published: boolean;
     game_slug: string | null;
     tracked_game: boolean;
+    bgm_preset: string | null;   // เพลงประกอบรายเกม (preset key ใน KAMPAI.sound) — null = ใช้ default ของเกม
     created_at: string;
     updated_at: string;
 };

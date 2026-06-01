@@ -226,10 +226,12 @@ const PlayGame = () => {
           personalBest: r.personal_best,
           isMe: r.student_id === student.id,
         })),
+        // เพลงประกอบรายเกม (ตั้งจากหลังบ้าน) → KAMPAI.sound override default ของเกม
+        audio: { bgm: gameQuery.data?.bgm_preset ?? null },
       },
       '*',
     );
-  }, [student, codeInput, statsQuery.data, levelInfo.level, leaderboardQuery.data]);
+  }, [student, codeInput, statsQuery.data, levelInfo.level, leaderboardQuery.data, gameQuery.data?.bgm_preset]);
 
   // ─── auto-login จาก localStorage (ลดเวลากรอกรหัสเมื่อเปลี่ยนเกม) ────────
   useEffect(() => {

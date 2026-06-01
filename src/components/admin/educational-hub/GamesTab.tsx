@@ -641,6 +641,7 @@ const GameSettingsDialog = ({
     const [gameSlug, setGameSlug] = useState(item.game_slug ?? '');
     const [tracked, setTracked] = useState(item.tracked_game);
     const [published, setPublished] = useState(item.is_published);
+    const [bgmPreset, setBgmPreset] = useState(item.bgm_preset ?? '__default__');
     const [saving, setSaving] = useState(false);
 
     const handleSave = async () => {
@@ -650,6 +651,7 @@ const GameSettingsDialog = ({
                 game_slug: gameSlug.trim() || null,
                 tracked_game: tracked,
                 is_published: published,
+                bgm_preset: bgmPreset === '__default__' ? null : bgmPreset,
             });
             if (error) throw error;
             onSaved();
@@ -700,6 +702,26 @@ const GameSettingsDialog = ({
                         <p className="text-xs text-muted-foreground">ปิดเพื่อซ่อนจากคลังเกมของนักเรียน</p>
                     </div>
                     <Switch checked={published} onCheckedChange={setPublished} />
+                </div>
+
+                <div className="space-y-1.5">
+                    <label className="text-sm font-medium">🎵 เพลงประกอบ</label>
+                    <Select value={bgmPreset} onValueChange={setBgmPreset}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__default__">ค่าเริ่มต้นของเกม</SelectItem>
+                            <SelectItem value="cheerful">สดใส (โทน C)</SelectItem>
+                            <SelectItem value="calm">นุ่ม สงบ (โทน D)</SelectItem>
+                            <SelectItem value="warm">อบอุ่น (โทน A)</SelectItem>
+                            <SelectItem value="playful">สดใส เล่น ๆ (โทน E)</SelectItem>
+                            <SelectItem value="bright">สว่าง (โทน F)</SelectItem>
+                            <SelectItem value="mellow">ช้า ผ่อนคลาย (โทน G)</SelectItem>
+                            <SelectItem value="none">ปิดเพลง</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">
+                        ใช้ได้กับเกมที่เชื่อม KAMPAI SDK (ระบบเสียงรวม) — ผู้เล่นยังกดปิด 🎵 เองได้
+                    </p>
                 </div>
             </div>
 

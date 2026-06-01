@@ -1746,6 +1746,7 @@ export type Database = {
       }
       educational_hub_items: {
         Row: {
+          bgm_preset: string | null
           body_html: string | null
           category_id: string
           created_at: string
@@ -1773,6 +1774,7 @@ export type Database = {
           youtube_id: string | null
         }
         Insert: {
+          bgm_preset?: string | null
           body_html?: string | null
           category_id: string
           created_at?: string
@@ -1800,6 +1802,7 @@ export type Database = {
           youtube_id?: string | null
         }
         Update: {
+          bgm_preset?: string | null
           body_html?: string | null
           category_id?: string
           created_at?: string
