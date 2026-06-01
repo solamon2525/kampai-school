@@ -253,7 +253,7 @@ if ('speechSynthesis' in window) { pickVoice(); window.speechSynthesis.onvoicesc
 function speak(text, lang) {
     if (!ttsOn || mode === 'online' || !('speechSynthesis' in window)) return;
     try {
-        window.speechSynthesis.cancel();   // กันคิวสะสม/ทับซ้อน
+        if (window.speechSynthesis.speaking || window.speechSynthesis.pending) return;   // ปล่อยอันเดิมอ่านจบก่อน (กันโอเวอร์แลป/อ่านรัว)
         const isEn = !!(lang && lang.toLowerCase().startsWith('en'));
         const u = new SpeechSynthesisUtterance(text);
         u.lang = lang || 'th-TH';
