@@ -1058,7 +1058,7 @@ const RewardPopup = ({
   }, [result, leveledUp]);
 
   return (
-    <div className="absolute bottom-3 left-1/2 z-20 w-[min(92vw,360px)] -translate-x-1/2 sm:left-auto sm:right-4 sm:translate-x-0">
+    <div className="absolute bottom-4 left-1/2 z-20 w-[min(94vw,420px)] -translate-x-1/2 sm:bottom-6">
       <Card className="relative border-primary/30 shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-300">
         <button
           onClick={onClose}
