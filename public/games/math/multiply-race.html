@@ -89,30 +89,14 @@ body { background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); }
 #player-chip .pc-best { color: #FFD700; font-weight: 700; }
 /* โหมดออนไลน์: lobby/countdown/scoreboard/อันดับ จัดการโดย kampai-match.js (เฟรมเวิร์กกลาง) */
 
-/* ── ปุ่มเปิด/ปิดเสียง (มุมซ้ายบน เข้าถึงได้ทุกจอ) ── */
-#snd-toggles { position: fixed; top: 10px; left: 10px; z-index: 40; display: flex; gap: 8px; }
-.stog { width: 40px; height: 40px; border: none; border-radius: 50%; cursor: pointer; font-size: 19px; line-height: 1; background: rgba(15,23,42,0.55); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); box-shadow: 0 2px 8px rgba(0,0,0,0.35); transition: opacity 0.15s, transform 0.1s; }
-.stog:active { transform: scale(0.9); }
-.stog.off { opacity: 0.4; }
-
-/* ── เอฟเฟกต์ตอบถูก/ผิด (transform/opacity = GPU, เบา) ── */
+/* ── เอฟเฟกต์ตอบถูก/ผิด (transform/opacity = GPU) — ปุ่มเสียง+แฟลช จัดการโดย SDK (kampai-sound) ── */
 @keyframes mr-shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-9px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(4px)} }
 #play.shake { animation: mr-shake 0.4s ease; }
 @keyframes mr-bump { 0%{transform:scale(1)} 35%{transform:scale(1.22)} 100%{transform:scale(1)} }
 #question.bump { animation: mr-bump 0.25s ease; }
-#fx-flash { position: fixed; inset: 0; pointer-events: none; opacity: 0; z-index: 25; transition: opacity 0.12s ease; }
-#fx-flash.fx-good { opacity: 1; background: radial-gradient(circle at 50% 60%, rgba(34,197,94,0.28), transparent 65%); }
-#fx-flash.fx-bad { opacity: 1; background: radial-gradient(circle at 50% 60%, rgba(239,68,68,0.30), transparent 65%); }
 </style>
 </head>
 <body>
-<!-- ปุ่มเปิด/ปิดเสียง (เอฟเฟกต์ / อ่านโจทย์) -->
-<div id="snd-toggles">
-    <button id="btn-sfx" class="stog" onclick="toggleSfx()" title="เสียงเอฟเฟกต์">🔊</button>
-    <button id="btn-tts" class="stog" onclick="toggleTts()" title="เสียงอ่านโจทย์">🗣️</button>
-    <button id="btn-bgm" class="stog" onclick="toggleBgm()" title="เพลงประกอบ">🎵</button>
-</div>
-<div id="fx-flash"></div>
 <div id="app">
     <!-- HUD -->
     <div id="hud">
@@ -169,7 +153,7 @@ body { background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); }
 <script src="/games/kampai-sdk.js"></script>
 <script>
 /* fallback stub: กันพังถ้าเปิด standalone แล้ว SDK โหลดไม่ได้ */
-window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, online:{available:false,makeCode:function(){return'0000';},join:function(){return this;},send:function(){return this;},leave:function(){return this;}} };
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, online:{available:false,makeCode:function(){return'0000';},join:function(){return this;},send:function(){return this;},leave:function(){return this;}}, sound:{unlock:function(){return this;},correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},setBgm:function(){return this;},defaultBgm:function(){return this;},bgmStart:function(){},bgmStop:function(){},mountToggles:function(){return this;}} };
 </script>
 
 <!-- ═══ KAMPAI Match — เฟรมเวิร์กเกมออนไลน์หลายคน (single source — อย่าแก้) ═══ -->
@@ -215,86 +199,19 @@ function renderLeaderboard(listId) {
 }
 KAMPAI.onReady(function () { renderPlayer(); renderLeaderboard('score-list'); });
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   SECTION B2 · เสียง (Web Audio synth) + อ่านโจทย์ (Web Speech) + เอฟเฟกต์จอ
-   เบามาก: AudioContext เดียว, oscillator สั้น auto-stop, TTS off-main-thread, CSS GPU
-   ═══════════════════════════════════════════════════════════════════════════ */
-let sfxOn = localStorage.getItem('mr_sfx') !== '0';   // default เปิด
-let ttsOn = localStorage.getItem('mr_tts') !== '0';   // default เปิด
-let bgmOn = localStorage.getItem('mr_bgm') !== '0';   // เพลงประกอบ default เปิด
-let actx = null;
-
-function audioCtx() {
-    try {
-        if (!actx) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; actx = new AC(); }
-        if (actx.state === 'suspended') actx.resume();
-    } catch (e) { return null; }
-    return actx;
-}
-// เสียงแบบมีมิติ: envelope นุ่ม (attack/decay exp → ไม่มีคลิก) + โน้ตเลเยอร์ (fundamental + octave เบา)
-function blip(freq, t0, dur, vol, type) {
-    const c = actx; if (!c) return;
-    const osc = c.createOscillator(), g = c.createGain();
-    osc.type = type || 'sine'; osc.frequency.value = freq;
-    g.gain.setValueAtTime(0.0001, t0);
-    g.gain.exponentialRampToValueAtTime(vol, t0 + 0.012);
-    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-    osc.connect(g); g.connect(c.destination);
-    osc.start(t0); osc.stop(t0 + dur + 0.02);
-}
-function note(freq, off, dur, vol) { const t0 = actx.currentTime + off; blip(freq, t0, dur, vol, 'sine'); blip(freq*2, t0, dur*0.7, vol*0.35, 'sine'); }
-function sfxCorrect() { if (!sfxOn || !audioCtx()) return; [[784,0],[988,0.07],[1319,0.14]].forEach(([f,o]) => note(f,o,0.22,0.16)); }
-function sfxWrong()   { if (!sfxOn || !audioCtx()) return; const t = actx.currentTime; blip(311,t,0.18,0.17,'triangle'); blip(233,t+0.12,0.26,0.17,'triangle'); }
-function sfxTimeUp()  { if (!sfxOn || !audioCtx()) return; const t = actx.currentTime; blip(196,t,0.34,0.16,'triangle'); blip(146,t+0.18,0.40,0.16,'triangle'); }
-function sfxGameOver(){ if (!sfxOn || !audioCtx()) return; [[523,0],[659,0.14],[784,0.28],[1047,0.42]].forEach(([f,o]) => note(f,o,0.34,0.15)); }
-
-/* เพลงแบ็กกราวด์สังเคราะห์ — อาร์เพจจิโอ chord progression (I–V–vi–IV) วนลูป เบา ๆ */
-const BGM_CFG = { root: 261.63, bpm: 104, wave: 'triangle' };   // C4 สดใส (คณิต)
-const BGM_PROG = [[0,4,7,12],[7,11,14,19],[9,12,16,21],[5,9,12,17]];
-let bgmTimer = null, bgmGain = null, bgmStep = 0;
-function bgmEnsure() { if (!audioCtx()) return null; if (!bgmGain) { bgmGain = actx.createGain(); bgmGain.gain.value = 0.0001; const lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2000; bgmGain.connect(lp); lp.connect(actx.destination); } return bgmGain; }
-function bgmNote(freq, t, dur, vol, wave) { const osc = actx.createOscillator(), g = actx.createGain(); osc.type = wave; osc.frequency.value = freq; g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); osc.connect(g); g.connect(bgmGain); osc.start(t); osc.stop(t + dur + 0.02); }
-function bgmTick() { if (!bgmEnsure()) return; const SPC = 8, chord = BGM_PROG[Math.floor(bgmStep / SPC) % BGM_PROG.length], w = bgmStep % SPC, t = actx.currentTime; if (w === 0) bgmNote(BGM_CFG.root * Math.pow(2, (chord[0]-12)/12), t, 0.55, 0.6, 'sine'); bgmNote(BGM_CFG.root * Math.pow(2, chord[w % chord.length]/12), t, 0.28, 0.4, BGM_CFG.wave); bgmStep++; }
-function bgmStart() { if (!bgmOn || bgmTimer || !bgmEnsure()) return; const t = actx.currentTime; bgmGain.gain.cancelScheduledValues(t); bgmGain.gain.setValueAtTime(0.0001, t); bgmGain.gain.linearRampToValueAtTime(0.07, t + 0.8); bgmStep = 0; bgmTick(); bgmTimer = setInterval(bgmTick, (60 / BGM_CFG.bpm / 2) * 1000); }
-function bgmStop() { if (bgmTimer) { clearInterval(bgmTimer); bgmTimer = null; } if (bgmGain) { try { const t = actx.currentTime; bgmGain.gain.cancelScheduledValues(t); bgmGain.gain.setValueAtTime(bgmGain.gain.value, t); bgmGain.gain.linearRampToValueAtTime(0.0001, t + 0.4); } catch (e) { /* */ } } }
-function toggleBgm() { bgmOn = !bgmOn; localStorage.setItem('mr_bgm', bgmOn ? '1' : '0'); updateSndUI(); if (bgmOn) { audioCtx(); if (started && !isGameOver) bgmStart(); } else bgmStop(); }
-
-let thaiVoice = null, enVoice = null;
-function bestVoice(prefix) { try { const vs = window.speechSynthesis.getVoices().filter(v => v.lang && v.lang.toLowerCase().startsWith(prefix)); if (!vs.length) return null; const score = v => (/(google|natural|enhanced|premium|neural|siri)/i.test(v.name) ? 2 : 0) + (v.localService === false ? 1 : 0); return vs.slice().sort((a,b) => score(b) - score(a))[0]; } catch (e) { return null; } }
-function pickVoice() { thaiVoice = bestVoice('th'); enVoice = bestVoice('en'); }
-if ('speechSynthesis' in window) { pickVoice(); window.speechSynthesis.onvoiceschanged = pickVoice; }
-function speak(text, lang) {
-    if (!ttsOn || mode === 'online' || !('speechSynthesis' in window)) return;
-    try {
-        if (window.speechSynthesis.speaking || window.speechSynthesis.pending) return;   // ปล่อยอันเดิมอ่านจบก่อน (กันโอเวอร์แลป/อ่านรัว)
-        const isEn = !!(lang && lang.toLowerCase().startsWith('en'));
-        const u = new SpeechSynthesisUtterance(text);
-        u.lang = lang || 'th-TH';
-        u.rate = isEn ? 0.85 : 0.92; u.pitch = 1.06;
-        const v = isEn ? enVoice : thaiVoice;
-        if (v) u.voice = v;
-        window.speechSynthesis.speak(u);
-    } catch (e) { /* อุปกรณ์ไม่รองรับ → เงียบ */ }
-}
-function speakQuestion() { speak(`${curA} คูณ ${curB}`, 'th-TH'); }
-function stopSpeak() { try { window.speechSynthesis.cancel(); } catch (e) { /* */ } }
-
-function flashFx(good) {
-    const el = document.getElementById('fx-flash'); if (!el) return;
-    el.classList.remove('fx-good', 'fx-bad'); void el.offsetWidth;
-    el.classList.add(good ? 'fx-good' : 'fx-bad');
-    setTimeout(() => el.classList.remove('fx-good', 'fx-bad'), 160);
-}
-
-function updateSndUI() {
-    const bs = document.getElementById('btn-sfx'), bt = document.getElementById('btn-tts'), bg = document.getElementById('btn-bgm');
-    if (bs) { bs.textContent = sfxOn ? '🔊' : '🔇'; bs.classList.toggle('off', !sfxOn); }
-    if (bt) { bt.textContent = ttsOn ? '🗣️' : '🤫'; bt.classList.toggle('off', !ttsOn); }
-    if (bg) { bg.textContent = bgmOn ? '🎵' : '🔇'; bg.classList.toggle('off', !bgmOn); }
-}
-function toggleSfx() { sfxOn = !sfxOn; localStorage.setItem('mr_sfx', sfxOn ? '1' : '0'); updateSndUI(); if (sfxOn) sfxCorrect(); }
-function toggleTts() { ttsOn = !ttsOn; localStorage.setItem('mr_tts', ttsOn ? '1' : '0'); updateSndUI(); if (!ttsOn) stopSpeak(); }
-updateSndUI();
+/* ═══ SECTION B2 · เสียง/เอฟเฟกต์ ผ่าน KAMPAI.sound (single source ใน SDK) ═══ */
+function audioCtx() { return KAMPAI.sound.unlock(); }   // ปลุก AudioContext ด้วย user gesture
+function sfxCorrect() { KAMPAI.sound.correct(); }
+function sfxWrong()   { KAMPAI.sound.wrong(); }
+function sfxTimeUp()  { KAMPAI.sound.timeUp(); }
+function sfxGameOver(){ KAMPAI.sound.gameOver(); }
+function flashFx(good){ KAMPAI.sound.fxFlash(good); }
+function speakQuestion() { if (mode !== 'online') KAMPAI.sound.speak(`${curA} คูณ ${curB}`, 'th-TH'); }
+function stopSpeak()  { KAMPAI.sound.stopSpeak(); }
+function bgmStart()   { KAMPAI.sound.bgmStart(); }
+function bgmStop()    { KAMPAI.sound.bgmStop(); }
+KAMPAI.sound.mountToggles();
+KAMPAI.sound.defaultBgm('cheerful');   // หลังบ้านกำหนดเพลงรายเกม override ได้
 
 /* ═══════════════════════════════════════════════════════════════════════════
    SECTION C · GAME LOGIC — Quiz Race สูตรคูณ

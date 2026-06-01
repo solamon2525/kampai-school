@@ -103,6 +103,7 @@
         level: d.stats.level | 0,
       };
       if (Array.isArray(d.leaderboard)) K.leaderboard = d.leaderboard;
+      if (d.audio && d.audio.bgm) { _bgmFromInit = true; if (K.sound) K.sound.setBgm(d.audio.bgm); }   // เพลงรายเกมจากหลังบ้าน
       K._startTs = Date.now();
       fireReady();
     });
@@ -231,6 +232,80 @@
     /** ออกจากห้อง */
     leave: function () { parentMsg({ type: 'rtLeave' }); K._online = { room: null, onJoined: null, onPresence: null, onEvent: null }; return K.online; },
   };
+
+  // ═══ AUDIO — SFX(synth) + TTS + BGM + ปุ่มเปิด/ปิด (single source ทุกเกมใช้ร่วม) ═══
+  // เกมเรียก: KAMPAI.sound.mountToggles(); .defaultBgm('calm'); + correct()/wrong()/timeUp()/
+  // gameOver()/speak(text,lang)/stopSpeak()/fxFlash(good)/bgmStart()/bgmStop()/unlock()
+  // เพลงรายเกมตั้งจากหลังบ้านได้: wrapper ส่ง init.audio.bgm → override default ของเกม
+  var _sfxOn = localStorage.getItem('mr_sfx') !== '0';
+  var _ttsOn = localStorage.getItem('mr_tts') !== '0';
+  var _bgmOn = localStorage.getItem('mr_bgm') !== '0';
+  var _actx = null, _thaiVoice = null, _enVoice = null;
+  var _bgmTimer = null, _bgmGain = null, _bgmStep = 0, _bgmFromInit = false, _fxEl = null;
+  var BGM_PRESETS = {
+    none:     null,
+    cheerful: { root: 261.63, bpm: 104, wave: 'triangle' },   // C สดใส
+    calm:     { root: 293.66, bpm: 88,  wave: 'sine' },        // D นุ่ม สงบ
+    warm:     { root: 220.00, bpm: 96,  wave: 'triangle' },    // A อุ่น
+    playful:  { root: 329.63, bpm: 110, wave: 'triangle' },    // E สดใส
+    bright:   { root: 349.23, bpm: 100, wave: 'triangle' },    // F
+    mellow:   { root: 196.00, bpm: 82,  wave: 'sine' },        // G ช้า ผ่อนคลาย
+  };
+  var _bgmCfg = BGM_PRESETS.cheerful;
+  var BGM_PROG = [[0,4,7,12],[7,11,14,19],[9,12,16,21],[5,9,12,17]];
+
+  function _ac() { try { if (!_actx) { var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; _actx = new AC(); } if (_actx.state === 'suspended') _actx.resume(); } catch (e) { return null; } return _actx; }
+  function _blip(freq, t0, dur, vol, type) { var c = _actx; if (!c) return; var o = c.createOscillator(), g = c.createGain(); o.type = type || 'sine'; o.frequency.value = freq; g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol, t0 + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur); o.connect(g); g.connect(c.destination); o.start(t0); o.stop(t0 + dur + 0.02); }
+  function _note(freq, off, dur, vol) { var t0 = _actx.currentTime + off; _blip(freq, t0, dur, vol, 'sine'); _blip(freq * 2, t0, dur * 0.7, vol * 0.35, 'sine'); }
+  function _vscore(v) { return (/(google|natural|enhanced|premium|neural|siri)/i.test(v.name) ? 2 : 0) + (v.localService === false ? 1 : 0); }
+  function _bestVoice(prefix) { try { var vs = window.speechSynthesis.getVoices().filter(function (v) { return v.lang && v.lang.toLowerCase().indexOf(prefix) === 0; }); if (!vs.length) return null; vs.sort(function (a, b) { return _vscore(b) - _vscore(a); }); return vs[0]; } catch (e) { return null; } }
+  function _pickVoices() { _thaiVoice = _bestVoice('th'); _enVoice = _bestVoice('en'); }
+  if ('speechSynthesis' in window) { _pickVoices(); try { window.speechSynthesis.onvoiceschanged = _pickVoices; } catch (e) { /* */ } }
+  function _bgmEnsure() { if (!_ac()) return null; if (!_bgmGain) { _bgmGain = _actx.createGain(); _bgmGain.gain.value = 0.0001; var lp = _actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2000; _bgmGain.connect(lp); lp.connect(_actx.destination); } return _bgmGain; }
+  function _bgmNote(freq, t, dur, vol, wave) { var o = _actx.createOscillator(), g = _actx.createGain(); o.type = wave; o.frequency.value = freq; g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); o.connect(g); g.connect(_bgmGain); o.start(t); o.stop(t + dur + 0.02); }
+  function _bgmTick() { if (!_bgmCfg || !_bgmEnsure()) return; var SPC = 8, chord = BGM_PROG[Math.floor(_bgmStep / SPC) % BGM_PROG.length], w = _bgmStep % SPC, t = _actx.currentTime; if (w === 0) _bgmNote(_bgmCfg.root * Math.pow(2, (chord[0] - 12) / 12), t, 0.55, 0.6, 'sine'); _bgmNote(_bgmCfg.root * Math.pow(2, chord[w % chord.length] / 12), t, 0.28, 0.4, _bgmCfg.wave); _bgmStep++; }
+  function _ensureFx() { if (_fxEl && _fxEl.isConnected) return _fxEl; _fxEl = document.getElementById('kampai-fx'); if (!_fxEl && document.body) { _fxEl = document.createElement('div'); _fxEl.id = 'kampai-fx'; document.body.appendChild(_fxEl); } return _fxEl; }
+  function _injectCss() { if (document.getElementById('kampai-sound-css')) return; var s = document.createElement('style'); s.id = 'kampai-sound-css'; s.textContent =
+    '#kampai-snd{position:fixed;top:10px;left:10px;z-index:40;display:flex;gap:8px}' +
+    '.ksnd{width:40px;height:40px;border:none;border-radius:50%;cursor:pointer;font-size:19px;line-height:1;background:rgba(15,23,42,.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);box-shadow:0 2px 8px rgba(0,0,0,.35);transition:opacity .15s,transform .1s}' +
+    '.ksnd:active{transform:scale(.9)}.ksnd.off{opacity:.4}' +
+    '#kampai-fx{position:fixed;inset:0;pointer-events:none;opacity:0;z-index:25;transition:opacity .12s ease}' +
+    '#kampai-fx.good{opacity:1;background:radial-gradient(circle at 50% 60%,rgba(34,197,94,.28),transparent 65%)}' +
+    '#kampai-fx.bad{opacity:1;background:radial-gradient(circle at 50% 60%,rgba(239,68,68,.30),transparent 65%)}';
+    (document.head || document.documentElement).appendChild(s); }
+  function _updateBtns() { [['kbtn-sfx', _sfxOn, '🔊'], ['kbtn-tts', _ttsOn, '🗣️'], ['kbtn-bgm', _bgmOn, '🎵']].forEach(function (d) { var el = document.getElementById(d[0]); if (el) { el.textContent = d[1] ? d[2] : '🔇'; el.classList.toggle('off', !d[1]); } }); }
+
+  var Sound = {
+    available: true,
+    unlock: function () { _ac(); return Sound; },
+    correct: function () { if (!_sfxOn || !_ac()) return; [[784, 0], [988, 0.07], [1319, 0.14]].forEach(function (a) { _note(a[0], a[1], 0.22, 0.16); }); },
+    wrong: function () { if (!_sfxOn || !_ac()) return; var t = _actx.currentTime; _blip(311, t, 0.18, 0.17, 'triangle'); _blip(233, t + 0.12, 0.26, 0.17, 'triangle'); },
+    timeUp: function () { if (!_sfxOn || !_ac()) return; var t = _actx.currentTime; _blip(196, t, 0.34, 0.16, 'triangle'); _blip(146, t + 0.18, 0.40, 0.16, 'triangle'); },
+    gameOver: function () { if (!_sfxOn || !_ac()) return; [[523, 0], [659, 0.14], [784, 0.28], [1047, 0.42]].forEach(function (a) { _note(a[0], a[1], 0.34, 0.15); }); },
+    speak: function (text, lang) { if (!_ttsOn || !('speechSynthesis' in window)) return; try { if (window.speechSynthesis.speaking || window.speechSynthesis.pending) return; var isEn = !!(lang && lang.toLowerCase().indexOf('en') === 0); var u = new SpeechSynthesisUtterance(text); u.lang = lang || 'th-TH'; u.rate = isEn ? 0.85 : 0.92; u.pitch = 1.06; var v = isEn ? _enVoice : _thaiVoice; if (v) u.voice = v; window.speechSynthesis.speak(u); } catch (e) { /* */ } },
+    stopSpeak: function () { try { window.speechSynthesis.cancel(); } catch (e) { /* */ } },
+    fxFlash: function (good) { var el = _ensureFx(); if (!el) return; el.classList.remove('good', 'bad'); void el.offsetWidth; el.classList.add(good ? 'good' : 'bad'); setTimeout(function () { el.classList.remove('good', 'bad'); }, 160); },
+    setBgm: function (preset) { if (typeof preset === 'string') { if (Object.prototype.hasOwnProperty.call(BGM_PRESETS, preset)) _bgmCfg = BGM_PRESETS[preset]; } else if (preset && typeof preset === 'object') { _bgmCfg = preset; } return Sound; },
+    defaultBgm: function (preset) { if (!_bgmFromInit) Sound.setBgm(preset); return Sound; },   // ใช้ก็ต่อเมื่อหลังบ้านไม่ได้กำหนด
+    bgmStart: function () { if (!_bgmOn || !_bgmCfg || _bgmTimer || !_bgmEnsure()) return; var t = _actx.currentTime; _bgmGain.gain.cancelScheduledValues(t); _bgmGain.gain.setValueAtTime(0.0001, t); _bgmGain.gain.linearRampToValueAtTime(0.07, t + 0.8); _bgmStep = 0; _bgmTick(); _bgmTimer = setInterval(_bgmTick, (60 / _bgmCfg.bpm / 2) * 1000); },
+    bgmStop: function () { if (_bgmTimer) { clearInterval(_bgmTimer); _bgmTimer = null; } if (_bgmGain && _actx) { try { var t = _actx.currentTime; _bgmGain.gain.cancelScheduledValues(t); _bgmGain.gain.setValueAtTime(_bgmGain.gain.value, t); _bgmGain.gain.linearRampToValueAtTime(0.0001, t + 0.4); } catch (e) { /* */ } } },
+    mountToggles: function () {
+      _injectCss();
+      var build = function () {
+        _ensureFx();
+        if (document.getElementById('kampai-snd')) { _updateBtns(); return; }
+        var wrap = document.createElement('div'); wrap.id = 'kampai-snd';
+        var mk = function (id, title, icon, fn) { var b = document.createElement('button'); b.type = 'button'; b.id = id; b.className = 'ksnd'; b.title = title; b.textContent = icon; b.onclick = fn; return b; };
+        wrap.appendChild(mk('kbtn-sfx', 'เสียงเอฟเฟกต์', '🔊', function () { _sfxOn = !_sfxOn; localStorage.setItem('mr_sfx', _sfxOn ? '1' : '0'); _updateBtns(); if (_sfxOn) Sound.correct(); }));
+        wrap.appendChild(mk('kbtn-tts', 'เสียงพูด', '🗣️', function () { _ttsOn = !_ttsOn; localStorage.setItem('mr_tts', _ttsOn ? '1' : '0'); _updateBtns(); if (!_ttsOn) Sound.stopSpeak(); }));
+        wrap.appendChild(mk('kbtn-bgm', 'เพลงประกอบ', '🎵', function () { _bgmOn = !_bgmOn; localStorage.setItem('mr_bgm', _bgmOn ? '1' : '0'); _updateBtns(); if (_bgmOn) { _ac(); Sound.bgmStart(); } else Sound.bgmStop(); }));
+        document.body.appendChild(wrap); _updateBtns();
+      };
+      if (document.body) build(); else document.addEventListener('DOMContentLoaded', build);
+      return Sound;
+    },
+  };
+  K.sound = Sound;
 
   window.KAMPAI = K;
 })();
