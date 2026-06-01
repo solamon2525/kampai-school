@@ -76,17 +76,7 @@ const PlayGame = () => {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const gameContainerRef = useRef<HTMLDivElement | null>(null);
   const sessionSubmittedRef = useRef(false);
-  const rewardDelayRef = useRef<number | null>(null);
   const rtChannelRef = useRef<RealtimeChannel | null>(null);
-
-  // เคลียร์ timer หน่วงเด้งการ์ด XP (กันค้าง/รั่ว)
-  const clearRewardDelay = useCallback(() => {
-    if (rewardDelayRef.current !== null) {
-      clearTimeout(rewardDelayRef.current);
-      rewardDelayRef.current = null;
-    }
-  }, []);
-  useEffect(() => clearRewardDelay, [clearRewardDelay]);
 
   // ─── fullscreen: ขยายเกมเต็มจอจริง (iframe มี allow="fullscreen" อยู่แล้ว) ───
   const toggleFullscreen = useCallback(() => {
@@ -197,10 +187,9 @@ const PlayGame = () => {
     setPrevLevel(levelInfo);
     setResult(null);
     setShowReward(false);
-    clearRewardDelay();
     sessionSubmittedRef.current = false;
     setPhase('playing');
-  }, [levelInfo, clearRewardDelay]);
+  }, [levelInfo]);
 
   // ─── send init to iframe once loaded ───────────────────────────────────────
   // ส่งทั้ง studentCode (เดิม — เกมเก่าใช้ได้) + student/stats/leaderboard (ใหม่ — KAMPAI SDK
@@ -208,7 +197,6 @@ const PlayGame = () => {
   const handleIframeLoad = useCallback(() => {
     if (!student || !iframeRef.current?.contentWindow) return;
     // เกม (re)load — รวมกรณีกดปุ่ม "🔄 เล่นอีกครั้ง" ในเกม (location.reload) → เริ่มรอบใหม่สะอาด
-    clearRewardDelay();
     setShowReward(false);
     setResult(null);
     sessionSubmittedRef.current = false;
@@ -241,7 +229,7 @@ const PlayGame = () => {
       },
       '*',
     );
-  }, [student, codeInput, statsQuery.data, levelInfo.level, leaderboardQuery.data, clearRewardDelay]);
+  }, [student, codeInput, statsQuery.data, levelInfo.level, leaderboardQuery.data]);
 
   // ─── auto-login จาก localStorage (ลดเวลากรอกรหัสเมื่อเปลี่ยนเกม) ────────
   useEffect(() => {
@@ -294,11 +282,8 @@ const PlayGame = () => {
         statsQuery.refetch();
         unlockedQuery.refetch();
         leaderboardQuery.refetch();
-        // ไม่สลับ phase (เกมโชว์จอจบของตัวเองต่อ) — หน่วงแล้วเด้งการ์ด XP ลอยทับแทน
-        // ออนไลน์: ผู้เล่นกด "รับ XP" เอง (เห็นอันดับก่อนแล้ว) → เด้งทันที
-        const delayMs = data.mode === 'online' ? 0 : 5000;
-        clearRewardDelay();
-        rewardDelayRef.current = window.setTimeout(() => setShowReward(true), delayMs);
+        // ไม่สลับ phase (เกมโชว์จอจบของตัวเองต่อ) — เด้งการ์ด XP ลอยทับทันที แล้วค้างไว้จนกดปิด/เล่นซ้ำ
+        setShowReward(true);
       } catch (err) {
         const msg = (err as Error).message ?? '';
         if (msg.includes('rate_limited')) {
@@ -319,7 +304,7 @@ const PlayGame = () => {
     };
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
-  }, [phase, student, codeInput, gameSlug, toast, statsQuery, unlockedQuery, leaderboardQuery, clearRewardDelay]);
+  }, [phase, student, codeInput, gameSlug, toast, statsQuery, unlockedQuery, leaderboardQuery]);
 
   // ─── realtime relay: ห้องออนไลน์ของเกม (broadcast + presence) ──────────────
   // เกมใน iframe ไม่มี anon key → wrapper เปิด channel ให้ แล้วรีเลย์ผ่าน postMessage
@@ -387,21 +372,19 @@ const PlayGame = () => {
   const handlePlayAgain = useCallback(() => {
     setResult(null);
     setShowReward(false);
-    clearRewardDelay();
     setPrevLevel(levelInfo);
     sessionSubmittedRef.current = false;
     setPhase('pre-game');
-  }, [levelInfo, clearRewardDelay]);
+  }, [levelInfo]);
 
   const handleSwitchStudent = useCallback(() => {
     setStudent(null);
     setCodeInput('');
     setResult(null);
     setShowReward(false);
-    clearRewardDelay();
     setLookupError(null);
     setPhase('lookup');
-  }, [clearRewardDelay]);
+  }, []);
 
   // ─── derive iframe url (append ?embed=1 + cache-buster) ───────────────────
   // cache-buster t= บังคับ fresh fetch ทุก mount — bypass browser/edge cache เก่า
@@ -1044,10 +1027,8 @@ const PlayingPanel = ({
 /**
  * RewardPopup — การ์ด XP เล็ก ๆ ลอยมุมล่าง บนจอจบเกมของเกมเอง
  * ไม่ใช่ shadcn Dialog (เลี่ยง backdrop ทึบที่บังจอเกม) — เป็น Card ลอยล้วน
- * auto-hide ~8 วิ และหยุดนับเมื่อ hover (กันหายระหว่างกำลังจะกด)
+ * ค้างไว้จนผู้เล่นกดปิด/เล่นซ้ำ/ออก (ไม่ auto-hide)
  */
-const REWARD_AUTO_HIDE_MS = 8000;
-
 const RewardPopup = ({
   student,
   result,
@@ -1076,26 +1057,8 @@ const RewardPopup = ({
     else if (result.xp_earned > 0) playCelebrationSound('personalBest');
   }, [result, leveledUp]);
 
-  // auto-hide หลัง ~8 วิ — หยุดนับเมื่อชี้เมาส์ค้าง, นับใหม่เมื่อปล่อย
-  const hideTimerRef = useRef<number | null>(null);
-  const clearHide = useCallback(() => {
-    if (hideTimerRef.current !== null) { clearTimeout(hideTimerRef.current); hideTimerRef.current = null; }
-  }, []);
-  const startHide = useCallback(() => {
-    clearHide();
-    hideTimerRef.current = window.setTimeout(onClose, REWARD_AUTO_HIDE_MS);
-  }, [clearHide, onClose]);
-  useEffect(() => {
-    startHide();
-    return clearHide;
-  }, [startHide, clearHide]);
-
   return (
-    <div
-      className="absolute bottom-3 left-1/2 z-20 w-[min(92vw,360px)] -translate-x-1/2 sm:left-auto sm:right-4 sm:translate-x-0"
-      onPointerEnter={clearHide}
-      onPointerLeave={startHide}
-    >
+    <div className="absolute bottom-3 left-1/2 z-20 w-[min(92vw,360px)] -translate-x-1/2 sm:left-auto sm:right-4 sm:translate-x-0">
       <Card className="relative border-primary/30 shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-300">
         <button
           onClick={onClose}
