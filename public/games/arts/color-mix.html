@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ผสมสีให้ตรงเป้า — Color Mix (kampai)</title>
+<!--
+═══════════════════════════════════════════════════════════════════════════
+  KAMPAI-SCHOOL · เกม "ผสมสีให้ตรงเป้า" (color-mix) — วิชาศิลปะ ป.4–6
+  กลไกใหม่: ปรับสไลเดอร์แม่สี (แดง/เหลือง/น้ำเงิน) ผสมให้ได้สีตรงเป้า (subtractive)
+  คะแนน = ความใกล้ของสี × ความเร็ว · โหมด: แข่งเร็ว · ฝึก · 🌐 ออนไลน์
+═══════════════════════════════════════════════════════════════════════════
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Fredoka+One&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; font-family: 'Kanit', sans-serif; color: #fff; overflow: hidden; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+body { background: linear-gradient(180deg, #4c1d95 0%, #0f172a 100%); }
+#app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+#hud { display: none; align-items: center; justify-content: space-between; padding: 14px 18px; gap: 10px; }
+#hud.on { display: flex; }
+#score-container { font-size: 26px; font-weight: 700; color: #FFD700; text-shadow: 2px 2px 4px #000; background: rgba(0,0,0,0.35); padding: 4px 16px; border-radius: 999px; border: 2px solid rgba(255,215,0,0.5); transition: transform 0.15s; white-space: nowrap; }
+#score-container.pop { transform: scale(1.18); }
+#combo-badge { font-family: 'Fredoka One', cursive; font-size: 16px; color: #0f172a; background: linear-gradient(45deg,#fbbf24,#f59e0b); padding: 4px 12px; border-radius: 999px; opacity: 0; transform: scale(0.6); transition: all 0.18s; white-space: nowrap; }
+#combo-badge.on { opacity: 1; transform: scale(1); }
+#life-container { font-size: 24px; white-space: nowrap; }
+#timer-wrap { height: 10px; background: rgba(255,255,255,0.12); margin: 0 18px; border-radius: 999px; overflow: hidden; display: none; }
+#timer-wrap.on { display: block; }
+#timer-bar { height: 100%; width: 100%; background: linear-gradient(90deg,#4ade80,#22c55e); border-radius: 999px; transition: width 0.1s linear, background 0.3s; }
+#timer-bar.warn { background: linear-gradient(90deg,#f87171,#ef4444); }
+
+#play { flex: 1; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 16px; gap: 16px; }
+#play.on { display: flex; }
+#q-hint { font-size: 16px; color: #ddd6fe; font-weight: 600; }
+#swatches { display: flex; gap: 16px; align-items: center; }
+.swatch { width: clamp(96px, 30vw, 150px); height: clamp(96px, 30vw, 150px); border-radius: 22px; border: 4px solid rgba(255,255,255,0.85); box-shadow: 0 6px 18px rgba(0,0,0,0.45); }
+.swatch-wrap { text-align: center; }
+.swatch-wrap span { display: block; font-size: 13px; color: #cbd5e1; margin-top: 6px; }
+#mixers { width: 100%; max-width: 460px; display: flex; flex-direction: column; gap: 12px; }
+.mixer { display: flex; align-items: center; gap: 12px; }
+.mixer label { width: 64px; font-size: 15px; font-weight: 600; flex-shrink: 0; }
+.mixer .rng { flex: 1; }
+.mixer input[type=range] { width: 100%; height: 26px; -webkit-appearance: none; appearance: none; background: transparent; cursor: pointer; }
+.mixer input[type=range]::-webkit-slider-runnable-track { height: 14px; border-radius: 999px; }
+.mixer input[type=range]::-moz-range-track { height: 14px; border-radius: 999px; }
+.mixer input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 28px; height: 28px; border-radius: 50%; background: #fff; border: 3px solid #1e293b; margin-top: -7px; box-shadow: 0 2px 6px rgba(0,0,0,0.4); }
+.mixer input[type=range]::-moz-range-thumb { width: 28px; height: 28px; border-radius: 50%; background: #fff; border: 3px solid #1e293b; }
+.mixer.red   input::-webkit-slider-runnable-track { background: linear-gradient(90deg,#3f1010,#dc2626); }
+.mixer.red   input::-moz-range-track { background: linear-gradient(90deg,#3f1010,#dc2626); }
+.mixer.yel   input::-webkit-slider-runnable-track { background: linear-gradient(90deg,#3f3a10,#facc15); }
+.mixer.yel   input::-moz-range-track { background: linear-gradient(90deg,#3f3a10,#facc15); }
+.mixer.blu   input::-webkit-slider-runnable-track { background: linear-gradient(90deg,#10203f,#2563eb); }
+.mixer.blu   input::-moz-range-track { background: linear-gradient(90deg,#10203f,#2563eb); }
+#feedback { height: 24px; font-size: 19px; font-weight: 600; }
+#feedback.good { color: #4ade80; } #feedback.bad { color: #f87171; }
+#lock-btn { font-family: 'Fredoka One', cursive; font-size: 24px; padding: 13px 42px; border: none; border-radius: 16px; cursor: pointer; color: #052e16; background: linear-gradient(135deg,#86efac,#22c55e); box-shadow: 0 5px 0 #15803d; }
+#lock-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #15803d; }
+#lock-btn:disabled { opacity: 0.5; }
+
+.screen { position: absolute; inset: 0; background: rgba(15,23,42,0.94); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); display: none; flex-direction: column; align-items: center; justify-content: flex-start; z-index: 30; text-align: center; padding: 28px 22px; overflow-y: auto; }
+.screen.on { display: flex; }
+.screen h1 { font-family: 'Fredoka One', cursive; font-size: 36px; margin-bottom: 6px; background: linear-gradient(135deg,#FFD700,#FFA500); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.screen p { font-size: 15px; color: #cbd5e1; margin-bottom: 14px; line-height: 1.5; }
+#final-score { color: #FFD700; font-family: 'Fredoka One', cursive; font-size: 56px; margin: 4px 0 6px; }
+#final-detail { font-size: 15px; color: #cbd5e1; margin-bottom: 12px; }
+.btn { padding: 14px 30px; font-family: inherit; font-size: 19px; font-weight: 600; border-radius: 999px; border: none; cursor: pointer; margin: 6px; transition: transform 0.1s; color: #fff; }
+.btn:active { transform: scale(0.95); }
+.btn-primary { background: linear-gradient(45deg,#f59e0b,#f97316); box-shadow: 0 4px 10px rgba(245,158,11,0.4); }
+.btn-blue { background: linear-gradient(45deg,#3b82f6,#2563eb); box-shadow: 0 4px 10px rgba(59,130,246,0.4); }
+.btn-ghost { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25); }
+.mode-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 8px; }
+#tier-picker { display: none; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 440px; margin: 4px auto 14px; }
+#tier-picker.on { display: flex; }
+.tchip { padding: 10px 16px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); color: #fff; font-size: 15px; cursor: pointer; }
+.leaderboard-box { background: rgba(255,255,255,0.95); color: #2c3e50; border-radius: 12px; padding: 12px 15px; margin: 10px 0; width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.lb-title { font-family: 'Fredoka One', cursive; font-size: 1rem; margin: 0 0 8px 0; text-align: left; }
+.leaderboard-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.leaderboard-list li { display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-bottom: 1px dashed #dee2e6; }
+.leaderboard-list li:last-child { border-bottom: none; }
+.leaderboard-list li.is-me { background: #fff7e0; border-radius: 8px; }
+.lb-rank { font-family: 'Fredoka One', cursive; color: #f39c12; min-width: 26px; text-align: center; font-size: 1.1rem; }
+.lb-avatar, .lb-avatar-init { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #f39c12; flex-shrink: 0; }
+.lb-avatar-init { background: linear-gradient(135deg,#6c5ce7,#a29bfe); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.lb-info { display: flex; flex-direction: column; min-width: 0; flex: 1; text-align: left; }
+.lb-name { font-family: 'Fredoka One', cursive; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-sub { font-size: 0.72rem; color: #868e96; }
+.lb-loading { color: #868e96; text-align: center; padding: 8px; font-size: 0.85rem; }
+#player-chip { display: none; align-items: center; gap: 8px; background: rgba(255,255,255,0.1); padding: 4px 14px 4px 4px; border-radius: 999px; font-size: 14px; margin-bottom: 12px; }
+#player-chip img, #player-chip .pc-init { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+#player-chip .pc-init { background: linear-gradient(135deg,#6c5ce7,#a29bfe); display: flex; align-items: center; justify-content: center; font-weight: 700; }
+#player-chip .pc-best { color: #FFD700; font-weight: 700; }
+</style>
+</head>
+<body>
+<div id="app">
+    <div id="hud">
+        <div id="score-container">⭐ <span id="score-value">0</span></div>
+        <div id="combo-badge">🔥 x1</div>
+        <div id="life-container">❤️❤️❤️</div>
+    </div>
+    <div id="timer-wrap"><div id="timer-bar"></div></div>
+    <div id="play">
+        <div id="q-hint">ผสมให้ได้สีตรงเป้า 🎨</div>
+        <div id="swatches">
+            <div class="swatch-wrap"><div id="target-sw" class="swatch"></div><span>สีเป้า</span></div>
+            <div class="swatch-wrap"><div id="mix-sw" class="swatch"></div><span>สีของเรา</span></div>
+        </div>
+        <div id="mixers">
+            <div class="mixer red"><label>🔴 แดง</label><span class="rng"><input id="r-red" type="range" min="0" max="100" value="0" oninput="onMix()"></span></div>
+            <div class="mixer yel"><label>🟡 เหลือง</label><span class="rng"><input id="r-yel" type="range" min="0" max="100" value="0" oninput="onMix()"></span></div>
+            <div class="mixer blu"><label>🔵 น้ำเงิน</label><span class="rng"><input id="r-blu" type="range" min="0" max="100" value="0" oninput="onMix()"></span></div>
+        </div>
+        <div id="feedback"></div>
+        <button id="lock-btn" onclick="lockAnswer()">ตรวจสี!</button>
+    </div>
+</div>
+
+<div id="start" class="screen on">
+    <h1>🎨 ผสมสีให้ตรงเป้า</h1>
+    <div id="player-chip"></div>
+    <p>ปรับ<b>แม่สี</b> แดง·เหลือง·น้ำเงิน ผสมให้ได้สีตรงกับ "สีเป้า" ที่สุด!<br>เหลือง+น้ำเงิน=เขียว · แดง+เหลือง=ส้ม · แดง+น้ำเงิน=ม่วง</p>
+    <div class="mode-grid">
+        <button class="btn btn-primary" onclick="chooseMode('race')">⚡ แข่งเร็ว</button>
+        <button class="btn btn-blue" onclick="openOnline()">🌐 ออนไลน์</button>
+        <button class="btn btn-ghost" onclick="chooseMode('practice')">📚 ฝึกระดับ</button>
+    </div>
+    <div id="tier-picker"></div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+    </div>
+</div>
+
+<div id="gameover" class="screen">
+    <h1>จบเกม!</h1>
+    <div id="final-score">0</div>
+    <div id="final-detail"></div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
+        <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นอีกครั้ง</button>
+        <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+    </div>
+</div>
+
+<!-- ═══ KAMPAI SDK + Match (single source — อย่าแก้) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, online:{available:false,makeCode:function(){return'0000';},join:function(){return this;},send:function(){return this;},leave:function(){return this;}}, sound:{unlock:function(){return this;},correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},setBgm:function(){return this;},defaultBgm:function(){return this;},bgmStart:function(){},bgmStop:function(){},mountToggles:function(){return this;}} };</script>
+<script src="/games/kampai-match.js"></script>
+<script>window.KampaiMatch = window.KampaiMatch || { create:function(){ return { available:false, openMenu:function(){ alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); }, report:function(){}, finish:function(){}, leave:function(){} }; } };</script>
+
+<script>
+/* ═══ SECTION A · ตั้งค่า ═══ */
+const GAME_SLUG = 'color-mix';
+KAMPAI.setSlug(GAME_SLUG);
+const $ = (id) => document.getElementById(id);
+
+/* ═══ SECTION B · นักเรียน + leaderboard ═══ */
+function renderPlayer() {
+    const s = KAMPAI.student, st = KAMPAI.stats;
+    if (!s) return;
+    const chip = $('player-chip');
+    const av = s.photoUrl ? `<img src="${s.photoUrl}" alt="">` : `<div class="pc-init">${(s.displayName||'?')[0]}</div>`;
+    const best = st ? ` · <span class="pc-best">สถิติ ${st.personalBest.toLocaleString()}</span>` : '';
+    chip.innerHTML = av + `<span>${s.displayName}${best}</span>`;
+    chip.style.display = 'flex';
+}
+function renderLeaderboard(listId) {
+    const el = $(listId); if (!el) return;
+    const rows = KAMPAI.leaderboard || [];
+    if (!rows.length) { el.innerHTML = '<li class="lb-loading">ยังไม่มีผู้เล่น — เป็นคนแรกสิ!</li>'; return; }
+    const medals = ['🥇','🥈','🥉'];
+    el.innerHTML = rows.slice(0, 5).map((r) => {
+        const av = r.photoUrl ? `<img class="lb-avatar" src="${r.photoUrl}" alt="">` : `<div class="lb-avatar-init">${(r.displayName||'?')[0]}</div>`;
+        return `<li class="${r.isMe ? 'is-me' : ''}"><span class="lb-rank">${medals[r.rank-1] || r.rank}</span>${av}
+            <div class="lb-info"><div class="lb-name">${r.displayName}${r.isMe ? ' (คุณ)' : ''}</div>
+            <div class="lb-sub">${(r.personalBest||0).toLocaleString()} คะแนน · ${r.classLabel||''}</div></div></li>`;
+    }).join('');
+}
+KAMPAI.onReady(function () { renderPlayer(); renderLeaderboard('score-list'); KAMPAI.sound.mountToggles(); KAMPAI.sound.defaultBgm('playful'); });
+
+/* ═══ SECTION C · GAME LOGIC — color mix (subtractive RYB) ═══ */
+// โมเดลผสมเม็ดสี: แต่ละแม่สี = ฟิลเตอร์ที่ "ดูดกลืน" บางช่อง → คูณกันแบบ subtractive
+const PIG = { red:{r:1.0,g:0.18,b:0.18}, yel:{r:1.0,g:1.0,b:0.18}, blu:{r:0.18,g:0.45,b:1.0} };
+function cf(f, a) { return 1 - a * (1 - f); }                 // ฟิลเตอร์ตามปริมาณ a (0..1)
+function mixRGB(r, y, b) {                                     // r,y,b ∈ 0..1 → [R,G,B] 0..255
+    const R = 255 * cf(PIG.red.r, r) * cf(PIG.yel.r, y) * cf(PIG.blu.r, b);
+    const G = 255 * cf(PIG.red.g, r) * cf(PIG.yel.g, y) * cf(PIG.blu.g, b);
+    const B = 255 * cf(PIG.red.b, r) * cf(PIG.yel.b, y) * cf(PIG.blu.b, b);
+    return [Math.round(R), Math.round(G), Math.round(B)];
+}
+const rgbCss = (a) => `rgb(${a[0]},${a[1]},${a[2]})`;
+const TOL = 0.16;   // ระยะสี (0..1) ที่ยังถือว่า "ใกล้" = ได้คะแนน
+
+const TIERS = ['primary', 'secondary', 'mix'];
+const TIER_LABEL = { primary:'แม่สี (ง่าย)', secondary:'สีรอง (กลาง)', mix:'ผสม 3 สี (ยาก)' };
+
+let qrand = Math.random;
+function seedRng(seed) { let a = (seed >>> 0) || 1; qrand = function () { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+
+let score = 0, lives = 3, streak = 0, maxStreak = 0, hitCount = 0;
+let mode = 'race', selectedTier = null;
+let target = [0,0,0];     // RGB เป้า
+let qStart = 0, qLimit = 0, rafId = 0, locked = false, started = false, isGameOver = false;
+
+function chooseMode(m) {
+    KAMPAI.sound.unlock();
+    mode = m;
+    const picker = $('tier-picker');
+    if (m === 'practice') {
+        picker.innerHTML = TIERS.map(t => `<button class="tchip" onclick="startGame('${t}')">${TIER_LABEL[t]}</button>`).join('');
+        picker.classList.add('on');
+        picker.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else { picker.classList.remove('on'); startGame(null); }
+}
+
+function startGame(tier) {
+    if (started) return;
+    started = true; selectedTier = tier;
+    score = 0; lives = 3; streak = 0; maxStreak = 0; hitCount = 0;
+    $('start').classList.remove('on'); $('hud').classList.add('on'); $('play').classList.add('on');
+    if (mode === 'race') { $('life-container').style.display = ''; $('timer-wrap').classList.add('on'); }
+    else { $('life-container').style.display = 'none'; $('timer-wrap').classList.remove('on'); }
+    setScore(0); setLives(3); updateCombo();
+    KAMPAI.sound.bgmStart();
+    nextRound();
+}
+
+/* สุ่มปริมาณแม่สีตามระดับ → คำนวณ RGB เป้า (การันตีผสมได้จริง) */
+function makeTarget(tier) {
+    const rr = () => 0.45 + qrand() * 0.55;   // ปริมาณเด่น 0.45–1.0
+    const lo = () => qrand() * 0.25;            // เจือเล็กน้อย
+    let r = 0, y = 0, b = 0;
+    if (tier === 'primary') { const k = (qrand() * 3) | 0; const v = rr(); if (k === 0) r = v; else if (k === 1) y = v; else b = v; }
+    else if (tier === 'secondary') { const k = (qrand() * 3) | 0; if (k === 0) { r = rr(); y = rr(); } else if (k === 1) { y = rr(); b = rr(); } else { r = rr(); b = rr(); } }
+    else { r = rr() * 0.8 + lo(); y = rr() * 0.8 + lo(); b = rr() * 0.8 + lo(); }
+    return mixRGB(r, y, b);
+}
+
+function nextRound() {
+    locked = false;
+    $('feedback').textContent = ''; $('feedback').className = '';
+    $('lock-btn').disabled = false;
+    const tier = (mode === 'practice' && selectedTier) ? selectedTier : TIERS[(qrand() * TIERS.length) | 0];
+    target = makeTarget(tier);
+    $('target-sw').style.background = rgbCss(target);
+    $('r-red').value = 0; $('r-yel').value = 0; $('r-blu').value = 0;
+    onMix();
+    if (mode === 'race') {
+        qLimit = Math.max(5000, 11000 - hitCount * 200);
+        qStart = performance.now();
+        $('timer-bar').classList.remove('warn');
+        cancelAnimationFrame(rafId); tickTimer();
+    }
+}
+
+function curMix() { return mixRGB(+$('r-red').value / 100, +$('r-yel').value / 100, +$('r-blu').value / 100); }
+function onMix() { $('mix-sw').style.background = rgbCss(curMix()); }
+
+function colorDist(a, b) {   // ระยะสีถ่วงน้ำหนัก (ประมาณการรับรู้) → 0..1
+    const dr = (a[0] - b[0]) / 255, dg = (a[1] - b[1]) / 255, db = (a[2] - b[2]) / 255;
+    return Math.sqrt((0.30 * dr * dr + 0.59 * dg * dg + 0.11 * db * db));
+}
+
+function tickTimer() {
+    const fr = Math.max(0, 1 - (performance.now() - qStart) / qLimit);
+    const bar = $('timer-bar'); bar.style.width = (fr * 100) + '%';
+    if (fr < 0.33) bar.classList.add('warn');
+    if (fr <= 0) { timeUp(); return; }
+    rafId = requestAnimationFrame(tickTimer);
+}
+function timeUp() {
+    if (locked) return; locked = true; cancelAnimationFrame(rafId);
+    $('lock-btn').disabled = true;
+    KAMPAI.sound.timeUp(); KAMPAI.sound.fxFlash(false);
+    streak = 0; updateCombo();
+    flash('หมดเวลา! ⏱️', false);
+    setLives(lives - 1);
+    if (lives > 0) setTimeout(nextRound, 1100);
+}
+
+function lockAnswer() {
+    if (locked || !started || isGameOver) return;
+    locked = true; cancelAnimationFrame(rafId);
+    $('lock-btn').disabled = true;
+    const dist = colorDist(curMix(), target);
+    const online = mode === 'online';
+    let pts = Math.max(0, Math.round(100 * (1 - dist / TOL)));
+    const hit = dist < TOL;
+    const perfect = dist < 0.05;
+    if (hit) {
+        hitCount++; streak++; maxStreak = Math.max(maxStreak, streak);
+        const mult = comboMult();
+        if (mode === 'race') { const tf = Math.max(0, 1 - (performance.now() - qStart) / qLimit); pts += Math.round(tf * 15); }
+        pts = Math.round(pts * mult);
+        setScore(score + pts); updateCombo();
+        KAMPAI.sound.correct(); KAMPAI.sound.fxFlash(true);
+        flash((perfect ? 'เป๊ะมาก! ' : 'ใกล้แล้ว! ') + '+' + pts + (mult > 1 ? ' (x' + mult + ')' : ''), true);
+        if (online) { match.report(score, { correct: hitCount }); scheduleNext(620); }
+        else setTimeout(nextRound, mode === 'practice' ? 800 : 640);
+    } else {
+        streak = 0; updateCombo();
+        KAMPAI.sound.wrong(); KAMPAI.sound.fxFlash(false);
+        flash('ยังเพี้ยน — ลองปรับใหม่นะ', false);
+        if (mode === 'race') { setLives(lives - 1); if (lives > 0) setTimeout(nextRound, 1300); }
+        else if (online) { match.report(score, { correct: hitCount }); scheduleNext(1000); }
+        else setTimeout(nextRound, 1300);
+    }
+}
+function scheduleNext(ms) { setTimeout(() => { if (!onlineEnded) nextRound(); }, ms); }
+
+function comboMult() { return Math.min(5, 1 + Math.floor(streak / 3)); }
+function updateCombo() {
+    const badge = $('combo-badge'); const m = comboMult();
+    if (streak >= 2) { badge.textContent = `🔥 x${m} · ${streak} ตรงติด`; badge.classList.add('on'); } else badge.classList.remove('on');
+}
+function flash(msg, good) { const f = $('feedback'); f.textContent = msg; f.className = good ? 'good' : 'bad'; }
+function setScore(n) { score = Math.max(0, n); $('score-value').textContent = score; const w = $('score-container'); w.classList.add('pop'); setTimeout(() => w.classList.remove('pop'), 150); }
+function setLives(n) { lives = Math.max(0, n); let s = ''; for (let i = 0; i < 3; i++) s += (i < lives) ? '❤️' : '🖤'; $('life-container').textContent = s; if (lives <= 0) endGame(); }
+
+function endGame() {
+    if (isGameOver) return; isGameOver = true;
+    cancelAnimationFrame(rafId);
+    KAMPAI.sound.gameOver(); KAMPAI.sound.bgmStop();
+    if (mode === 'race') KAMPAI.submitScore(score, { mode: 'normal', hits: hitCount, maxStreak: maxStreak });
+    $('hud').classList.remove('on'); $('timer-wrap').classList.remove('on'); $('play').classList.remove('on');
+    $('final-score').textContent = score;
+    $('final-detail').textContent = `ผสมตรง ${hitCount} ครั้ง · สูงสุด ${maxStreak} ตรงติด` + (mode === 'practice' ? ' · (โหมดฝึก ไม่นับอันดับ)' : '');
+    $('gameover').classList.add('on');
+    renderLeaderboard('score-list-gameover');
+}
+
+/* ═══ โหมดออนไลน์ — เฟรมเวิร์ก KampaiMatch ═══ */
+let match = null, onlineEnded = false;
+function ensureMatch() {
+    if (match) return match;
+    match = KampaiMatch.create({ duration: 60, title: 'ผสมสีให้ตรงเป้า', onPlay: ({ rng }) => startOnline(rng), onEnd: () => { onlineEnded = true; locked = true; $('lock-btn').disabled = true; } });
+    return match;
+}
+function openOnline() { KAMPAI.sound.unlock(); ensureMatch().openMenu(); }
+function startOnline(rng) {
+    mode = 'online'; qrand = rng; onlineEnded = false; selectedTier = null;
+    score = 0; streak = 0; maxStreak = 0; hitCount = 0; started = true; locked = false;
+    $('start').classList.remove('on'); $('gameover').classList.remove('on');
+    $('hud').classList.add('on'); $('life-container').style.display = 'none';
+    $('timer-wrap').classList.remove('on'); $('play').classList.add('on');
+    setScore(0); updateCombo(); KAMPAI.sound.bgmStart(); nextRound();
+}
+</script>
+</body>
+</html>
