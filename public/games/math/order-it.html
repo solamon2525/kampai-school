@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>เรียงให้ถูกลำดับ — Order It (kampai)</title>
+<!--
+═══════════════════════════════════════════════════════════════════════════
+  KAMPAI-SCHOOL · เกม "เรียงให้ถูกลำดับ" (order-it) — บูรณาการ ป.4–6
+  กลไกใหม่: แตะการ์ด 2 ใบเพื่อสลับ → เรียงให้ถูกลำดับ แล้วกด "ตรวจ"
+  ชุด: เรียงจำนวน (คณิต) · ไทม์ไลน์ประวัติศาสตร์ (สังคม) · ขั้นตอน (วิทย์)
+  โหมด: แข่งเร็ว · ฝึก · 🌐 ออนไลน์ (kampai-match)
+═══════════════════════════════════════════════════════════════════════════
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Fredoka+One&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; font-family: 'Kanit', sans-serif; color: #fff; overflow: hidden; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+body { background: linear-gradient(180deg, #0e7490 0%, #0f172a 100%); }
+#app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+#hud { display: none; align-items: center; justify-content: space-between; padding: 14px 18px; gap: 10px; }
+#hud.on { display: flex; }
+#score-container { font-size: 26px; font-weight: 700; color: #FFD700; text-shadow: 2px 2px 4px #000; background: rgba(0,0,0,0.35); padding: 4px 16px; border-radius: 999px; border: 2px solid rgba(255,215,0,0.5); transition: transform 0.15s; white-space: nowrap; }
+#score-container.pop { transform: scale(1.18); }
+#combo-badge { font-family: 'Fredoka One', cursive; font-size: 16px; color: #0f172a; background: linear-gradient(45deg,#fbbf24,#f59e0b); padding: 4px 12px; border-radius: 999px; opacity: 0; transform: scale(0.6); transition: all 0.18s; white-space: nowrap; }
+#combo-badge.on { opacity: 1; transform: scale(1); }
+#life-container { font-size: 24px; white-space: nowrap; }
+#timer-wrap { height: 10px; background: rgba(255,255,255,0.12); margin: 0 18px; border-radius: 999px; overflow: hidden; display: none; }
+#timer-wrap.on { display: block; }
+#timer-bar { height: 100%; width: 100%; background: linear-gradient(90deg,#4ade80,#22c55e); border-radius: 999px; transition: width 0.1s linear, background 0.3s; }
+#timer-bar.warn { background: linear-gradient(90deg,#f87171,#ef4444); }
+
+#play { flex: 1; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 16px; gap: 16px; }
+#play.on { display: flex; }
+#q-prompt { font-family: 'Fredoka One', cursive; font-size: clamp(22px, 6vw, 38px); text-align: center; text-shadow: 2px 2px 0 rgba(0,0,0,0.25); }
+#q-hint { font-size: 14px; color: #cbd5e1; margin-top: -8px; }
+#cards { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; width: 100%; max-width: 620px; }
+.card { font-family: 'Kanit'; font-size: clamp(15px, 4vw, 20px); font-weight: 600; min-height: 56px; padding: 12px 16px; border: 3px solid rgba(255,255,255,0.25); border-radius: 16px; cursor: pointer; color: #0f172a; background: #f8fafc; box-shadow: 0 4px 0 #94a3b8; transition: transform 0.1s, box-shadow 0.1s, border-color 0.1s; display: flex; align-items: center; gap: 8px; }
+.card .num { font-family: 'Fredoka One', cursive; color: #0e7490; font-size: 0.85em; }
+.card:active { transform: translateY(3px); box-shadow: 0 1px 0 #94a3b8; }
+.card.sel { border-color: #fbbf24; box-shadow: 0 4px 0 #f59e0b; transform: translateY(-3px) scale(1.04); }
+.card.ok { background: linear-gradient(135deg,#86efac,#22c55e); color: #052e16; box-shadow: 0 4px 0 #15803d; }
+.card.no { background: linear-gradient(135deg,#fca5a5,#ef4444); color: #450a0a; box-shadow: 0 4px 0 #b91c1c; }
+#feedback { height: 24px; font-size: 19px; font-weight: 600; }
+#feedback.good { color: #4ade80; } #feedback.bad { color: #f87171; }
+#check-btn { font-family: 'Fredoka One', cursive; font-size: 24px; padding: 13px 42px; border: none; border-radius: 16px; cursor: pointer; color: #052e16; background: linear-gradient(135deg,#86efac,#22c55e); box-shadow: 0 5px 0 #15803d; }
+#check-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #15803d; }
+#check-btn:disabled { opacity: 0.5; }
+
+.screen { position: absolute; inset: 0; background: rgba(15,23,42,0.94); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); display: none; flex-direction: column; align-items: center; justify-content: flex-start; z-index: 30; text-align: center; padding: 28px 22px; overflow-y: auto; }
+.screen.on { display: flex; }
+.screen h1 { font-family: 'Fredoka One', cursive; font-size: 34px; margin-bottom: 6px; background: linear-gradient(135deg,#FFD700,#FFA500); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.screen p { font-size: 15px; color: #cbd5e1; margin-bottom: 14px; line-height: 1.5; }
+#final-score { color: #FFD700; font-family: 'Fredoka One', cursive; font-size: 56px; margin: 4px 0 6px; }
+#final-detail { font-size: 15px; color: #cbd5e1; margin-bottom: 12px; }
+.btn { padding: 14px 30px; font-family: inherit; font-size: 19px; font-weight: 600; border-radius: 999px; border: none; cursor: pointer; margin: 6px; transition: transform 0.1s; color: #fff; }
+.btn:active { transform: scale(0.95); }
+.btn-primary { background: linear-gradient(45deg,#f59e0b,#f97316); box-shadow: 0 4px 10px rgba(245,158,11,0.4); }
+.btn-blue { background: linear-gradient(45deg,#3b82f6,#2563eb); box-shadow: 0 4px 10px rgba(59,130,246,0.4); }
+.btn-ghost { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25); }
+.mode-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 8px; }
+#topic-picker { display: none; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 440px; margin: 4px auto 14px; }
+#topic-picker.on { display: flex; }
+.tchip { padding: 10px 16px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); color: #fff; font-size: 15px; cursor: pointer; }
+.leaderboard-box { background: rgba(255,255,255,0.95); color: #2c3e50; border-radius: 12px; padding: 12px 15px; margin: 10px 0; width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.lb-title { font-family: 'Fredoka One', cursive; font-size: 1rem; margin: 0 0 8px 0; text-align: left; }
+.leaderboard-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.leaderboard-list li { display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-bottom: 1px dashed #dee2e6; }
+.leaderboard-list li:last-child { border-bottom: none; }
+.leaderboard-list li.is-me { background: #fff7e0; border-radius: 8px; }
+.lb-rank { font-family: 'Fredoka One', cursive; color: #f39c12; min-width: 26px; text-align: center; font-size: 1.1rem; }
+.lb-avatar, .lb-avatar-init { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #f39c12; flex-shrink: 0; }
+.lb-avatar-init { background: linear-gradient(135deg,#6c5ce7,#a29bfe); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.lb-info { display: flex; flex-direction: column; min-width: 0; flex: 1; text-align: left; }
+.lb-name { font-family: 'Fredoka One', cursive; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-sub { font-size: 0.72rem; color: #868e96; }
+.lb-loading { color: #868e96; text-align: center; padding: 8px; font-size: 0.85rem; }
+#player-chip { display: none; align-items: center; gap: 8px; background: rgba(255,255,255,0.1); padding: 4px 14px 4px 4px; border-radius: 999px; font-size: 14px; margin-bottom: 12px; }
+#player-chip img, #player-chip .pc-init { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+#player-chip .pc-init { background: linear-gradient(135deg,#6c5ce7,#a29bfe); display: flex; align-items: center; justify-content: center; font-weight: 700; }
+#player-chip .pc-best { color: #FFD700; font-weight: 700; }
+</style>
+</head>
+<body>
+<div id="app">
+    <div id="hud">
+        <div id="score-container">⭐ <span id="score-value">0</span></div>
+        <div id="combo-badge">🔥 x1</div>
+        <div id="life-container">❤️❤️❤️</div>
+    </div>
+    <div id="timer-wrap"><div id="timer-bar"></div></div>
+    <div id="play">
+        <div id="q-prompt">เรียงให้ถูกลำดับ</div>
+        <div id="q-hint">แตะการ์ด 2 ใบเพื่อสลับที่</div>
+        <div id="cards"></div>
+        <div id="feedback"></div>
+        <button id="check-btn" onclick="checkOrder()">ตรวจ!</button>
+    </div>
+</div>
+
+<div id="start" class="screen on">
+    <h1>🔢 เรียงให้ถูกลำดับ</h1>
+    <div id="player-chip"></div>
+    <p>แตะการ์ด 2 ใบเพื่อสลับที่ → เรียงให้ถูกลำดับ แล้วกด "ตรวจ"!<br>เรียงจำนวน · ไทม์ไลน์ประวัติศาสตร์ · ขั้นตอนวิทยาศาสตร์</p>
+    <div class="mode-grid">
+        <button class="btn btn-primary" onclick="chooseMode('race')">⚡ แข่งเร็ว</button>
+        <button class="btn btn-blue" onclick="openOnline()">🌐 ออนไลน์</button>
+        <button class="btn btn-ghost" onclick="chooseMode('practice')">📚 ฝึกหัวข้อ</button>
+    </div>
+    <div id="topic-picker"></div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+    </div>
+</div>
+
+<div id="gameover" class="screen">
+    <h1>จบเกม!</h1>
+    <div id="final-score">0</div>
+    <div id="final-detail"></div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
+        <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นอีกครั้ง</button>
+        <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+    </div>
+</div>
+
+<!-- ═══ KAMPAI SDK + Match (single source — อย่าแก้) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, online:{available:false,makeCode:function(){return'0000';},join:function(){return this;},send:function(){return this;},leave:function(){return this;}}, sound:{unlock:function(){return this;},correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},setBgm:function(){return this;},defaultBgm:function(){return this;},bgmStart:function(){},bgmStop:function(){},mountToggles:function(){return this;}} };</script>
+<script src="/games/kampai-match.js"></script>
+<script>window.KampaiMatch = window.KampaiMatch || { create:function(){ return { available:false, openMenu:function(){ alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); }, report:function(){}, finish:function(){}, leave:function(){} }; } };</script>
+
+<script>
+/* ═══ SECTION A · ตั้งค่า ═══ */
+const GAME_SLUG = 'order-it';
+KAMPAI.setSlug(GAME_SLUG);
+const $ = (id) => document.getElementById(id);
+
+/* ═══ SECTION B · นักเรียน + leaderboard ═══ */
+function renderPlayer() {
+    const s = KAMPAI.student, st = KAMPAI.stats;
+    if (!s) return;
+    const chip = $('player-chip');
+    const av = s.photoUrl ? `<img src="${s.photoUrl}" alt="">` : `<div class="pc-init">${(s.displayName||'?')[0]}</div>`;
+    const best = st ? ` · <span class="pc-best">สถิติ ${st.personalBest.toLocaleString()}</span>` : '';
+    chip.innerHTML = av + `<span>${s.displayName}${best}</span>`;
+    chip.style.display = 'flex';
+}
+function renderLeaderboard(listId) {
+    const el = $(listId); if (!el) return;
+    const rows = KAMPAI.leaderboard || [];
+    if (!rows.length) { el.innerHTML = '<li class="lb-loading">ยังไม่มีผู้เล่น — เป็นคนแรกสิ!</li>'; return; }
+    const medals = ['🥇','🥈','🥉'];
+    el.innerHTML = rows.slice(0, 5).map((r) => {
+        const av = r.photoUrl ? `<img class="lb-avatar" src="${r.photoUrl}" alt="">` : `<div class="lb-avatar-init">${(r.displayName||'?')[0]}</div>`;
+        return `<li class="${r.isMe ? 'is-me' : ''}"><span class="lb-rank">${medals[r.rank-1] || r.rank}</span>${av}
+            <div class="lb-info"><div class="lb-name">${r.displayName}${r.isMe ? ' (คุณ)' : ''}</div>
+            <div class="lb-sub">${(r.personalBest||0).toLocaleString()} คะแนน · ${r.classLabel||''}</div></div></li>`;
+    }).join('');
+}
+KAMPAI.onReady(function () { renderPlayer(); renderLeaderboard('score-list'); KAMPAI.sound.mountToggles(); KAMPAI.sound.defaultBgm('calm'); });
+
+/* ═══ SECTION C · GAME LOGIC — เรียงลำดับ ═══ */
+const TOPICS = ['numbers', 'history', 'science'];
+const TOPIC_LABEL = { numbers:'🔢 เรียงจำนวน', history:'🏛️ ไทม์ไลน์ประวัติศาสตร์', science:'🔬 ขั้นตอนวิทยาศาสตร์' };
+const ORDER_HINT = { numbers:'น้อย → มาก', history:'เก่า → ใหม่', science:'ขั้นแรก → ขั้นสุดท้าย' };
+
+const HISTORY = [
+    { t:'ตั้งอาณาจักรสุโขทัย', k:1238 }, { t:'พ่อขุนรามคำแหงประดิษฐ์ลายสือไทย', k:1283 },
+    { t:'สถาปนากรุงศรีอยุธยา', k:1351 }, { t:'สมเด็จพระนเรศวรประกาศอิสรภาพ', k:1584 },
+    { t:'เสียกรุงศรีอยุธยาครั้งที่ 2', k:1767 }, { t:'สถาปนากรุงธนบุรี', k:1768 },
+    { t:'สถาปนากรุงรัตนโกสินทร์', k:1782 }, { t:'เปลี่ยนแปลงการปกครอง พ.ศ.2475', k:1932 },
+];
+const SCI_SEQS = [
+    { title:'วัฏจักรน้ำ', steps:['น้ำระเหยเป็นไอ','ไอน้ำควบแน่น','รวมตัวเป็นเมฆ','ฝนตกลงมา','ไหลสู่แม่น้ำ/ทะเล'] },
+    { title:'การเติบโตของพืช', steps:['เมล็ด','รากงอก','ต้นอ่อน','ออกดอก','ติดผล'] },
+    { title:'วงจรชีวิตผีเสื้อ', steps:['ไข่','หนอน','ดักแด้','ผีเสื้อ'] },
+    { title:'วงจรชีวิตกบ', steps:['ไข่','ลูกอ๊อด','ลูกอ๊อดมีขา','กบ'] },
+];
+const FRACS = [[1,5],[1,4],[1,3],[2,5],[1,2],[3,5],[2,3],[3,4],[5,6]];
+
+let qrand = Math.random;
+function seedRng(seed) { let a = (seed >>> 0) || 1; qrand = function () { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+function shuffle(arr) { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = (qrand() * (i + 1)) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function pickN(arr, n) { return shuffle(arr).slice(0, n); }
+
+let score = 0, lives = 3, streak = 0, maxStreak = 0, hitCount = 0;
+let mode = 'race', selectedTopic = null;
+let arr = [], sortedKeys = [], sel = null;   // arr = ลำดับปัจจุบัน (มี .t,.k), sortedKeys = key เรียงถูก
+let qStart = 0, qLimit = 0, rafId = 0, locked = false, started = false, isGameOver = false;
+
+function chooseMode(m) {
+    KAMPAI.sound.unlock();
+    mode = m;
+    const picker = $('topic-picker');
+    if (m === 'practice') {
+        picker.innerHTML = TOPICS.map(t => `<button class="tchip" onclick="startGame('${t}')">${TOPIC_LABEL[t]}</button>`).join('');
+        picker.classList.add('on');
+        picker.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else { picker.classList.remove('on'); startGame(null); }
+}
+
+function startGame(topic) {
+    if (started) return;
+    started = true; selectedTopic = topic;
+    score = 0; lives = 3; streak = 0; maxStreak = 0; hitCount = 0;
+    $('start').classList.remove('on'); $('hud').classList.add('on'); $('play').classList.add('on');
+    if (mode === 'race') { $('life-container').style.display = ''; $('timer-wrap').classList.add('on'); }
+    else { $('life-container').style.display = 'none'; $('timer-wrap').classList.remove('on'); }
+    setScore(0); setLives(3); updateCombo();
+    KAMPAI.sound.bgmStart();
+    nextRound();
+}
+
+/* สร้างชุดการ์ด (items มี .t = label, .k = sortKey) */
+function buildItems(topic) {
+    if (topic === 'history') return pickN(HISTORY, 4).map(e => ({ t: e.t, k: e.k }));
+    if (topic === 'science') { const s = SCI_SEQS[(qrand() * SCI_SEQS.length) | 0]; return s.steps.map((t, i) => ({ t, k: i })); }
+    // numbers: ทศนิยม หรือ เศษส่วน
+    if (qrand() < 0.5) {
+        const vals = []; let guard = 0;
+        while (vals.length < 4 && guard++ < 200) { const v = Math.round((0.2 + qrand() * 4.6) * 10) / 10; if (vals.every(x => Math.abs(x - v) >= 0.2)) vals.push(v); }
+        return vals.map(v => ({ t: v.toFixed(1), k: v }));
+    } else {
+        const picks = pickN(FRACS, 4);
+        return picks.map(p => ({ t: p[0] + '/' + p[1], k: p[0] / p[1] }));
+    }
+}
+
+function nextRound() {
+    locked = false; sel = null;
+    $('feedback').textContent = ''; $('feedback').className = '';
+    $('check-btn').disabled = false;
+    const topic = (mode === 'practice' && selectedTopic) ? selectedTopic : TOPICS[(qrand() * TOPICS.length) | 0];
+    let items = buildItems(topic);
+    sortedKeys = items.map(x => x.k).slice().sort((a, b) => a - b);
+    // สับให้ไม่ตรงลำดับตั้งแต่แรก
+    let tries = 0;
+    do { arr = shuffle(items); tries++; } while (tries < 12 && arr.every((x, i) => x.k === sortedKeys[i]));
+    $('q-prompt').textContent = 'เรียง: ' + ORDER_HINT[topic];
+    $('q-hint').textContent = TOPIC_LABEL[topic] + ' · แตะ 2 ใบเพื่อสลับ';
+    render();
+    if (mode === 'race') {
+        qLimit = Math.max(6000, 13000 - hitCount * 250);
+        qStart = performance.now();
+        $('timer-bar').classList.remove('warn');
+        cancelAnimationFrame(rafId); tickTimer();
+    }
+}
+
+function render() {
+    $('cards').innerHTML = arr.map((it, i) =>
+        `<button class="card${i === sel ? ' sel' : ''}" onclick="pickCard(${i})"><span class="num">${i + 1}.</span>${it.t}</button>`
+    ).join('');
+}
+function pickCard(i) {
+    if (locked) return;
+    if (sel === null) sel = i;
+    else if (sel === i) sel = null;
+    else { const tmp = arr[i]; arr[i] = arr[sel]; arr[sel] = tmp; sel = null; }
+    render();
+}
+
+function tickTimer() {
+    const fr = Math.max(0, 1 - (performance.now() - qStart) / qLimit);
+    const bar = $('timer-bar'); bar.style.width = (fr * 100) + '%';
+    if (fr < 0.33) bar.classList.add('warn');
+    if (fr <= 0) { timeUp(); return; }
+    rafId = requestAnimationFrame(tickTimer);
+}
+function timeUp() {
+    if (locked) return; locked = true; cancelAnimationFrame(rafId);
+    $('check-btn').disabled = true;
+    KAMPAI.sound.timeUp(); KAMPAI.sound.fxFlash(false);
+    streak = 0; updateCombo();
+    revealCorrect();
+    flash('หมดเวลา! ⏱️', false);
+    setLives(lives - 1);
+    if (lives > 0) setTimeout(nextRound, 1300);
+}
+
+function checkOrder() {
+    if (locked || !started || isGameOver) return;
+    locked = true; cancelAnimationFrame(rafId);
+    $('check-btn').disabled = true;
+    const N = arr.length;
+    let posCorrect = 0; for (let i = 0; i < N; i++) if (arr[i].k === sortedKeys[i]) posCorrect++;
+    let pairCorrect = 0; for (let i = 0; i < N - 1; i++) if (arr[i].k <= arr[i + 1].k) pairCorrect++;
+    const pct = Math.round((posCorrect / N) * 60 + (pairCorrect / (N - 1)) * 40);   // 0..100
+    const perfect = posCorrect === N;
+    const online = mode === 'online';
+    // ไฮไลต์การ์ดถูก/ผิดตามตำแหน่ง
+    document.querySelectorAll('.card').forEach((el, i) => { el.classList.add(arr[i].k === sortedKeys[i] ? 'ok' : 'no'); });
+
+    if (pct >= 50) {
+        hitCount++; streak++; maxStreak = Math.max(maxStreak, streak);
+        const mult = comboMult();
+        let pts = pct;
+        if (mode === 'race') { const tf = Math.max(0, 1 - (performance.now() - qStart) / qLimit); pts += Math.round(tf * 15); }
+        pts = Math.round(pts * (perfect ? mult : 1));
+        setScore(score + pts); updateCombo();
+        KAMPAI.sound.correct(); KAMPAI.sound.fxFlash(true);
+        flash((perfect ? 'ถูกหมดเลย! ' : 'เกือบครบ! ') + '+' + pts + (perfect && mult > 1 ? ' (x' + mult + ')' : ''), true);
+        if (online) { match.report(score, { correct: hitCount }); scheduleNext(900); }
+        else setTimeout(nextRound, mode === 'practice' ? 1100 : 950);
+    } else {
+        streak = 0; updateCombo();
+        KAMPAI.sound.wrong(); KAMPAI.sound.fxFlash(false);
+        flash('ยังไม่ถูกลำดับ — ลองใหม่!', false);
+        if (mode === 'race') { setLives(lives - 1); if (lives > 0) setTimeout(nextRound, 1500); }
+        else if (online) { match.report(score, { correct: hitCount }); scheduleNext(1200); }
+        else setTimeout(nextRound, 1500);
+    }
+}
+function scheduleNext(ms) { setTimeout(() => { if (!onlineEnded) nextRound(); }, ms); }
+
+function revealCorrect() {
+    // เรียงการ์ดให้ถูกแล้วโชว์เขียว (ช่วยให้เรียนรู้)
+    arr.sort((a, b) => a.k - b.k); render();
+    document.querySelectorAll('.card').forEach((el) => el.classList.add('ok'));
+}
+
+function comboMult() { return Math.min(5, 1 + Math.floor(streak / 3)); }
+function updateCombo() {
+    const badge = $('combo-badge'); const m = comboMult();
+    if (streak >= 2) { badge.textContent = `🔥 x${m} · ${streak} ครบติด`; badge.classList.add('on'); } else badge.classList.remove('on');
+}
+function flash(msg, good) { const f = $('feedback'); f.textContent = msg; f.className = good ? 'good' : 'bad'; }
+function setScore(n) { score = Math.max(0, n); $('score-value').textContent = score; const w = $('score-container'); w.classList.add('pop'); setTimeout(() => w.classList.remove('pop'), 150); }
+function setLives(n) { lives = Math.max(0, n); let s = ''; for (let i = 0; i < 3; i++) s += (i < lives) ? '❤️' : '🖤'; $('life-container').textContent = s; if (lives <= 0) endGame(); }
+
+function endGame() {
+    if (isGameOver) return; isGameOver = true;
+    cancelAnimationFrame(rafId);
+    KAMPAI.sound.gameOver(); KAMPAI.sound.bgmStop();
+    if (mode === 'race') KAMPAI.submitScore(score, { mode: 'normal', hits: hitCount, maxStreak: maxStreak });
+    $('hud').classList.remove('on'); $('timer-wrap').classList.remove('on'); $('play').classList.remove('on');
+    $('final-score').textContent = score;
+    $('final-detail').textContent = `เรียงสำเร็จ ${hitCount} ชุด · สูงสุด ${maxStreak} ครบติด` + (mode === 'practice' ? ' · (โหมดฝึก ไม่นับอันดับ)' : '');
+    $('gameover').classList.add('on');
+    renderLeaderboard('score-list-gameover');
+}
+
+/* ═══ โหมดออนไลน์ — เฟรมเวิร์ก KampaiMatch ═══ */
+let match = null, onlineEnded = false;
+function ensureMatch() {
+    if (match) return match;
+    match = KampaiMatch.create({ duration: 75, title: 'เรียงให้ถูกลำดับ', onPlay: ({ rng }) => startOnline(rng), onEnd: () => { onlineEnded = true; locked = true; $('check-btn').disabled = true; } });
+    return match;
+}
+function openOnline() { KAMPAI.sound.unlock(); ensureMatch().openMenu(); }
+function startOnline(rng) {
+    mode = 'online'; qrand = rng; onlineEnded = false; selectedTopic = null;
+    score = 0; streak = 0; maxStreak = 0; hitCount = 0; started = true; locked = false;
+    $('start').classList.remove('on'); $('gameover').classList.remove('on');
+    $('hud').classList.add('on'); $('life-container').style.display = 'none';
+    $('timer-wrap').classList.remove('on'); $('play').classList.add('on');
+    setScore(0); updateCombo(); KAMPAI.sound.bgmStart(); nextRound();
+}
+</script>
+</body>
+</html>
