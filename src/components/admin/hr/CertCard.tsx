@@ -16,6 +16,7 @@ const TYPE_COLORS: Record<string, string> = {
     'สัมมนา': 'border-blue-300 bg-blue-50/40',
     'ศึกษาดูงาน': 'border-emerald-300 bg-emerald-50/40',
     'ประชุมวิชาการ': 'border-amber-300 bg-amber-50/40',
+    'รางวัล/เกียรติยศ': 'border-rose-300 bg-rose-50/40',
 };
 
 /**
@@ -78,10 +79,14 @@ export const CertCard = ({ record, big, onClick, showStaff = true }: Props) => {
                 </h3>
                 <div className="flex items-center gap-1.5 flex-wrap">
                     <Badge variant="outline" className="text-[10px] h-5">{record.training_type}</Badge>
-                    <span className="text-[10px] text-muted-foreground font-medium">
-                        {record.hours} ชม.
-                    </span>
-                    <span className="text-[10px] text-muted-foreground">·</span>
+                    {record.hours > 0 && (
+                        <>
+                            <span className="text-[10px] text-muted-foreground font-medium">
+                                {record.hours} ชม.
+                            </span>
+                            <span className="text-[10px] text-muted-foreground">·</span>
+                        </>
+                    )}
                     <span className="text-[10px] text-muted-foreground">
                         {formatThaiDateMedium(record.start_date)}
                     </span>

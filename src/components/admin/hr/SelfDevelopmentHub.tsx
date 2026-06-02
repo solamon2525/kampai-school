@@ -62,7 +62,7 @@ interface UnifiedRecord {
     minutes_url?: string | null;
 }
 
-const TRAINING_TYPES = ['อบรม', 'สัมมนา', 'ศึกษาดูงาน', 'ประชุมวิชาการ'];
+const TRAINING_TYPES = ['อบรม', 'สัมมนา', 'ศึกษาดูงาน', 'ประชุมวิชาการ', 'รางวัล/เกียรติยศ'];
 
 export function SelfDevelopmentHub() {
     const { staffId: currentStaffId, isAdmin } = useAuth();

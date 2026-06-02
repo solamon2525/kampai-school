@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.49.4 (เกมใหม่ "ร้านค้าทอนเงิน" — ครบเกมทั้ง 8 กลุ่มสาระ! 🎉)',
+        version: 'v1.50.0 (ลงเกียรติบัตรครูจาก CLI ด้วย AI vision + หมวด "รางวัล/เกียรติยศ")',
         date: 'ล่าสุด',
+        badge: 'bg-rose-700',
+        items: [
+            'scripts/import-cert.mjs: drop รูปเกียรติบัตรใน Claude Code → อ่านด้วย vision → จับคู่ staff_id อัตโนมัติ + อัปรูปเข้า school-images/training-certificates/ + insert training_records (status=ผ่านการอบรม) — ลดเวลากรอกฟอร์มมือ ~10 field/ใบ',
+            'หมวดประเภทใหม่ "รางวัล/เกียรติยศ" (training_type) — รองรับเกียรติบัตรรางวัลที่ไม่ใช่การอบรม (เช่น ผู้กำกับลูกเสือดีเด่น) แสดงใน showcase สีกุหลาบ + filter chip',
+            'migration 094: ตั้ง CHECK constraint training_type ครบ 5 ค่า (แก้ schema drift — prod ไม่เคยมี constraint) · CertCard ซ่อน "0 ชม." เมื่อไม่ระบุชั่วโมง',
+        ],
+    },
+    {
+        version: 'v1.49.4 (เกมใหม่ "ร้านค้าทอนเงิน" — ครบเกมทั้ง 8 กลุ่มสาระ! 🎉)',
+        date: '',
         badge: 'bg-amber-700',
         items: [
             'เกมใหม่ cashier (การงานอาชีพ ป.4-6): หยอดเหรียญ/แบงก์ไทยให้ตรงเป้า — กลไก "ประกอบจำนวนเงิน" (หยิบเงินพอดี/คิดเงินทอน) ฝึกทักษะค้าขาย',

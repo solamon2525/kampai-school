@@ -82,7 +82,7 @@ const supabase = createClient(SUPABASE_URL, SERVICE_ROLE, {
 
 const BUCKET = 'school-images';
 const FOLDER = 'training-certificates';
-const TRAINING_TYPES = ['อบรม', 'สัมมนา', 'ศึกษาดูงาน', 'ประชุมวิชาการ'];
+const TRAINING_TYPES = ['อบรม', 'สัมมนา', 'ศึกษาดูงาน', 'ประชุมวิชาการ', 'รางวัล/เกียรติยศ'];
 const CONTENT_TYPES = {
     '.jpg': 'image/jpeg',
     '.jpeg': 'image/jpeg',

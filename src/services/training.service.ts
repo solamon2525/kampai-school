@@ -4,7 +4,7 @@
  */
 import { supabase } from '@/integrations/supabase/client';
 
-export type TrainingType = 'อบรม' | 'สัมมนา' | 'ศึกษาดูงาน' | 'ประชุมวิชาการ';
+export type TrainingType = 'อบรม' | 'สัมมนา' | 'ศึกษาดูงาน' | 'ประชุมวิชาการ' | 'รางวัล/เกียรติยศ';
 export type TrainingStatus = 'สมัครแล้ว' | 'กำลังอบรม' | 'ผ่านการอบรม' | 'ไม่ผ่าน';
 
 export type TrainingRecord = {

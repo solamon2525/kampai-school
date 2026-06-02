@@ -32,7 +32,7 @@ interface Props {
     loading: boolean;
 }
 
-const TRAINING_TYPES = ['อบรม', 'สัมมนา', 'ศึกษาดูงาน', 'ประชุมวิชาการ'];
+const TRAINING_TYPES = ['อบรม', 'สัมมนา', 'ศึกษาดูงาน', 'ประชุมวิชาการ', 'รางวัล/เกียรติยศ'];
 const CURRENT_YEAR_BE = new Date().getFullYear() + 543;
 const ALL = '__all__';
 

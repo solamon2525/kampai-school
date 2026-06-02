@@ -27,7 +27,7 @@ import { PolaroidWallView } from '@/components/admin/hr/views/PolaroidWallView';
 import { TimelineHorizontalView } from '@/components/admin/hr/views/TimelineHorizontalView';
 import type { ViewMode } from '@/components/admin/hr/views/types';
 
-const TRAINING_TYPES = ['อบรม', 'สัมมนา', 'ศึกษาดูงาน', 'ประชุมวิชาการ'];
+const TRAINING_TYPES = ['อบรม', 'สัมมนา', 'ศึกษาดูงาน', 'ประชุมวิชาการ', 'รางวัล/เกียรติยศ'];
 const ALL = '__all__';
 
 const fmtNum = (n: number) => Number(n).toLocaleString('th-TH');
@@ -38,6 +38,7 @@ const TYPE_RING: Record<string, string> = {
     'สัมมนา': 'border-blue-300',
     'ศึกษาดูงาน': 'border-emerald-300',
     'ประชุมวิชาการ': 'border-amber-300',
+    'รางวัล/เกียรติยศ': 'border-rose-300',
 };
 
 /** Adapter: TrainingPublicRow → TrainingRecord shape (staff=null for anonymized) */

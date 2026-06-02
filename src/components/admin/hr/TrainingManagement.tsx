@@ -28,7 +28,7 @@ import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
 
 interface Staff { id: string; name: string; }
 
-const TRAINING_TYPES = ['อบรม', 'สัมมนา', 'ศึกษาดูงาน', 'ประชุมวิชาการ'];
+const TRAINING_TYPES = ['อบรม', 'สัมมนา', 'ศึกษาดูงาน', 'ประชุมวิชาการ', 'รางวัล/เกียรติยศ'];
 const STATUSES = ['สมัครแล้ว', 'กำลังอบรม', 'ผ่านการอบรม', 'ไม่ผ่าน'];
 
 const statusVariant = (s: string) => {
