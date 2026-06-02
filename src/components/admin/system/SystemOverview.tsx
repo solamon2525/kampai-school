@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.50.0 (ลงเกียรติบัตรครูจาก CLI ด้วย AI vision + หมวด "รางวัล/เกียรติยศ")',
+        version: 'v1.51.0 (วิวแสดงเกียรติบัตรใหม่ 4 แบบ + แอดมินล็อกวิวให้ทุกคน)',
         date: 'ล่าสุด',
+        badge: 'bg-violet-700',
+        items: [
+            'วิวใหม่ 4 แบบในหน้าเกียรติบัตร (training showcase + หน้าครู): รายการ (List/แถวแน่น), เมสันรี (Masonry/Pinterest), เส้นเวลาแนวตั้ง (Vertical Timeline), โคฟเวอร์โฟลว์ 3D — รวมเป็น 9 วิว',
+            'แอดมินล็อกวิว (soft-lock): หน้า "ภาพรวม" กดปุ่ม 🔒 "ตั้งเป็นค่าเริ่มต้นของทุกคน" → ผู้เข้าชมทุกคนเห็นวิวนั้นตอนเข้า (เก็บใน school_settings.cert_default_view) แต่ปุ่มสลับยังอยู่ กดเปลี่ยนชั่วคราวได้ · ปุ่ม "ปลด" คืนค่า auto',
+            'migration 095 (seed cert_default_view) · ViewModeSwitcher isDark เป็น optional (แก้ TS error แฝงใน StaffDetail)',
+        ],
+    },
+    {
+        version: 'v1.50.0 (ลงเกียรติบัตรครูจาก CLI ด้วย AI vision + หมวด "รางวัล/เกียรติยศ")',
+        date: '',
         badge: 'bg-rose-700',
         items: [
             'scripts/import-cert.mjs: drop รูปเกียรติบัตรใน Claude Code → อ่านด้วย vision → จับคู่ staff_id อัตโนมัติ + อัปรูปเข้า school-images/training-certificates/ + insert training_records (status=ผ่านการอบรม) — ลดเวลากรอกฟอร์มมือ ~10 field/ใบ',

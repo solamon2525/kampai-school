@@ -1,20 +1,25 @@
-import { LayoutGrid, Boxes, Maximize2, Image, GanttChart, Sun, Moon } from 'lucide-react';
+import { LayoutGrid, Boxes, Maximize2, Image, GanttChart, List, GalleryVertical, LayoutPanelLeft, GalleryThumbnails, Sun, Moon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { ViewMode } from './types';
 
 interface Props {
     value: ViewMode;
     onChange: (v: ViewMode) => void;
-    isDark: boolean;
-    onToggleDark: () => void;
+    /** dark-mode toggle — optional (หน้าที่ไม่มี dark mode เช่น StaffDetail ไม่ต้องส่ง) */
+    isDark?: boolean;
+    onToggleDark?: () => void;
 }
 
 const MODES: { id: ViewMode; label: string; icon: typeof LayoutGrid }[] = [
     { id: 'grid', label: 'กริด', icon: LayoutGrid },
     { id: 'bento', label: 'เบนโตะ', icon: Boxes },
+    { id: 'masonry', label: 'เมสันรี', icon: LayoutPanelLeft },
+    { id: 'list', label: 'รายการ', icon: List },
     { id: 'spotlight', label: 'ไฮไลท์', icon: Maximize2 },
+    { id: 'coverflow', label: 'โคฟเวอร์โฟลว์', icon: GalleryThumbnails },
     { id: 'polaroid', label: 'โพลารอยด์', icon: Image },
     { id: 'timeline', label: 'ไทม์ไลน์', icon: GanttChart },
+    { id: 'vtimeline', label: 'เส้นเวลา', icon: GalleryVertical },
 ];
 
 export const ViewModeSwitcher = ({ value, onChange, isDark, onToggleDark }: Props) => {
@@ -45,15 +50,17 @@ export const ViewModeSwitcher = ({ value, onChange, isDark, onToggleDark }: Prop
                     );
                 })}
             </div>
-            <button
-                type="button"
-                onClick={onToggleDark}
-                aria-label={isDark ? 'โหมดสว่าง' : 'โหมดมืด'}
-                title={isDark ? 'โหมดสว่าง' : 'โหมดมืด'}
-                className="inline-flex items-center justify-center h-9 w-9 rounded-md border bg-card text-muted-foreground hover:text-foreground hover:bg-muted transition"
-            >
-                {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            </button>
+            {onToggleDark && (
+                <button
+                    type="button"
+                    onClick={onToggleDark}
+                    aria-label={isDark ? 'โหมดสว่าง' : 'โหมดมืด'}
+                    title={isDark ? 'โหมดสว่าง' : 'โหมดมืด'}
+                    className="inline-flex items-center justify-center h-9 w-9 rounded-md border bg-card text-muted-foreground hover:text-foreground hover:bg-muted transition"
+                >
+                    {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                </button>
+            )}
         </div>
     );
 };

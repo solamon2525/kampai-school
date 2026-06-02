@@ -1,6 +1,6 @@
 import type { TrainingRecord } from '@/services/training.service';
 
-export type ViewMode = 'grid' | 'bento' | 'spotlight' | 'polaroid' | 'timeline';
+export type ViewMode = 'grid' | 'bento' | 'spotlight' | 'polaroid' | 'timeline' | 'list' | 'vtimeline' | 'masonry' | 'coverflow';
 
 export interface ViewProps {
     records: TrainingRecord[];

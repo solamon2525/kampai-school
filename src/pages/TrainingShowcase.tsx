@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
 import Zoom from 'yet-another-react-lightbox/plugins/zoom';
@@ -25,7 +25,12 @@ import { BentoGridView } from '@/components/admin/hr/views/BentoGridView';
 import { SpotlightView } from '@/components/admin/hr/views/SpotlightView';
 import { PolaroidWallView } from '@/components/admin/hr/views/PolaroidWallView';
 import { TimelineHorizontalView } from '@/components/admin/hr/views/TimelineHorizontalView';
+import { ListView } from '@/components/admin/hr/views/ListView';
+import { MasonryView } from '@/components/admin/hr/views/MasonryView';
+import { VerticalTimelineView } from '@/components/admin/hr/views/VerticalTimelineView';
+import { CoverflowView } from '@/components/admin/hr/views/CoverflowView';
 import type { ViewMode } from '@/components/admin/hr/views/types';
+import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 
 const TRAINING_TYPES = ['อบรม', 'สัมมนา', 'ศึกษาดูงาน', 'ประชุมวิชาการ', 'รางวัล/เกียรติยศ'];
 const ALL = '__all__';
@@ -68,6 +73,8 @@ export default function TrainingShowcasePublic() {
     const [filterType, setFilterType] = useState<string>(ALL);
     const [lightboxIndex, setLightboxIndex] = useState<number>(-1);
     const [viewMode, setViewMode] = useState<ViewMode>('grid');
+    const { settings } = useSchoolSettings();
+    const userTouchedView = useRef(false);
     const [isDark, setIsDark] = useState<boolean>(
         () => typeof localStorage !== 'undefined' && localStorage.getItem('training-showcase-dark') === '1',
     );
@@ -75,6 +82,12 @@ export default function TrainingShowcasePublic() {
     useEffect(() => {
         try { localStorage.setItem('training-showcase-dark', isDark ? '1' : '0'); } catch {/* noop */}
     }, [isDark]);
+
+    // วิวเริ่มต้นที่แอดมินตั้งไว้ (soft-lock) — ใช้เป็นค่าเริ่มต้นจนกว่าผู้ใช้จะกดสลับเอง
+    useEffect(() => {
+        const v = settings.cert_default_view;
+        if (!userTouchedView.current && v && v !== 'auto') setViewMode(v as ViewMode);
+    }, [settings.cert_default_view]);
 
     useEffect(() => {
         (async () => {
@@ -200,7 +213,7 @@ export default function TrainingShowcasePublic() {
                             </h2>
                             <ViewModeSwitcher
                                 value={viewMode}
-                                onChange={setViewMode}
+                                onChange={(v) => { userTouchedView.current = true; setViewMode(v); }}
                                 isDark={isDark}
                                 onToggleDark={() => setIsDark((v) => !v)}
                             />
@@ -224,12 +237,20 @@ export default function TrainingShowcasePublic() {
                             switch (viewMode) {
                                 case 'bento':
                                     return <BentoGridView records={adapted} showStaff={false} onSelect={onSelect} stats={aggStats} />;
+                                case 'masonry':
+                                    return <MasonryView records={adapted} showStaff={false} onSelect={onSelect} />;
+                                case 'list':
+                                    return <ListView records={adapted} showStaff={false} onSelect={onSelect} />;
                                 case 'spotlight':
                                     return <SpotlightView records={adapted} showStaff={false} onSelect={onSelect} />;
+                                case 'coverflow':
+                                    return <CoverflowView records={adapted} showStaff={false} onSelect={onSelect} />;
                                 case 'polaroid':
                                     return <PolaroidWallView records={adapted} showStaff={false} onSelect={onSelect} />;
                                 case 'timeline':
                                     return <TimelineHorizontalView records={adapted} showStaff={false} onSelect={onSelect} />;
+                                case 'vtimeline':
+                                    return <VerticalTimelineView records={adapted} showStaff={false} onSelect={onSelect} />;
                                 default:
                                     return <AsymGridView records={adapted} showStaff={false} onSelect={onSelect} />;
                             }

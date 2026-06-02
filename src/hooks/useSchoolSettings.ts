@@ -114,6 +114,9 @@ export interface SchoolSettings {
     ticker_speed_seconds: string;
     ticker_gap_px: string;
     ticker_pause_on_hover: string;
+
+    // หน้าเกียรติบัตร — วิวเริ่มต้นที่แอดมินตั้งให้ทุกคน ('auto' = ใช้ค่าเริ่มต้นเดิมของแต่ละหน้า)
+    cert_default_view: string;
 }
 
 const defaultSettings: SchoolSettings = {
@@ -209,6 +212,7 @@ const defaultSettings: SchoolSettings = {
     ticker_speed_seconds: '30',
     ticker_gap_px: '60',
     ticker_pause_on_hover: 'true',
+    cert_default_view: 'auto',
 };
 
 const CACHE_KEY = 'school_settings_cache';

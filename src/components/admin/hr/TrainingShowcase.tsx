@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
-import { GraduationCap, Clock, Users, Banknote, FileDown, Sparkles } from 'lucide-react';
+import { GraduationCap, Clock, Users, Banknote, FileDown, Sparkles, Lock, LockOpen } from 'lucide-react';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { HoursGauge } from './HoursGauge';
 import { printTranscript } from './TrainingTranscriptPDF';
@@ -22,9 +22,16 @@ import { BentoGridView } from './views/BentoGridView';
 import { SpotlightView } from './views/SpotlightView';
 import { PolaroidWallView } from './views/PolaroidWallView';
 import { TimelineHorizontalView } from './views/TimelineHorizontalView';
+import { ListView } from './views/ListView';
+import { MasonryView } from './views/MasonryView';
+import { VerticalTimelineView } from './views/VerticalTimelineView';
+import { CoverflowView } from './views/CoverflowView';
 import { CursorFollower } from './views/CursorFollower';
 import { useConfettiOnHover } from './views/useConfettiOnHover';
 import type { ViewMode } from './views/types';
+import { supabase } from '@/integrations/supabase/client';
+import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 interface Props {
@@ -40,6 +47,20 @@ const fmtBaht = (n: number) => Number(n).toLocaleString('th-TH');
 
 export function TrainingShowcase({ records, loading }: Props) {
     const { settings } = useSchoolSettings();
+    const queryClient = useQueryClient();
+    const lockedView = settings.cert_default_view && settings.cert_default_view !== 'auto'
+        ? (settings.cert_default_view as ViewMode)
+        : null;
+    const saveDefaultView = async (v: string) => {
+        const { error } = await supabase
+            .from('school_settings')
+            .upsert([{ key: 'cert_default_view', value: v }], { onConflict: 'key' });
+        if (error) { toast.error('บันทึกไม่สำเร็จ: ' + error.message); return; }
+        queryClient.invalidateQueries({ queryKey: ['school-settings'] });
+        toast.success(v === 'auto'
+            ? 'ปลดล็อกแล้ว — ผู้เข้าชมเห็นวิวเริ่มต้นเดิม'
+            : 'ตั้งเป็นวิวเริ่มต้นของผู้เข้าชมทุกคนแล้ว');
+    };
     const [filterYear, setFilterYear] = useState<string>(String(CURRENT_YEAR_BE));
     const [filterType, setFilterType] = useState<string>(ALL);
     const [filterStaff, setFilterStaff] = useState<string>(ALL);
@@ -316,12 +337,35 @@ export function TrainingShowcase({ records, loading }: Props) {
                             <GraduationCap className="w-5 h-5 text-violet-600 dark:text-violet-400" />
                             เกียรติบัตร ({filtered.length})
                         </h2>
-                        <ViewModeSwitcher
-                            value={viewMode}
-                            onChange={setViewMode}
-                            isDark={isDark}
-                            onToggleDark={() => setIsDark((v) => !v)}
-                        />
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <ViewModeSwitcher
+                                value={viewMode}
+                                onChange={setViewMode}
+                                isDark={isDark}
+                                onToggleDark={() => setIsDark((v) => !v)}
+                            />
+                            <Button
+                                size="sm"
+                                variant={lockedView === viewMode ? 'default' : 'outline'}
+                                onClick={() => saveDefaultView(viewMode)}
+                                title="ตั้งวิวที่กำลังดูเป็นค่าเริ่มต้นของผู้เข้าชมทุกคน (หน้าเกียรติบัตร + หน้าครู)"
+                                className="h-9"
+                            >
+                                <Lock className="w-3.5 h-3.5 mr-1" />
+                                {lockedView === viewMode ? 'เป็นค่าเริ่มต้นแล้ว' : 'ตั้งเป็นค่าเริ่มต้นของทุกคน'}
+                            </Button>
+                            {lockedView && (
+                                <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => saveDefaultView('auto')}
+                                    title="ปลดล็อก — ให้ผู้เข้าชมเห็นวิวเริ่มต้นเดิม"
+                                    className="h-9 text-muted-foreground"
+                                >
+                                    <LockOpen className="w-3.5 h-3.5 mr-1" /> ปลด
+                                </Button>
+                            )}
+                        </div>
                     </div>
 
                     {loading ? (
@@ -346,14 +390,26 @@ export function TrainingShowcase({ records, loading }: Props) {
                                     stats={{ totalHours: stats.totalHours, totalCount: stats.totalCount, uniqueStaff: stats.uniqueStaff }}
                                 />
                             )}
+                            {viewMode === 'masonry' && (
+                                <MasonryView records={filtered} showStaff onSelect={setLightboxIndex} onHoverRecord={handleHover} />
+                            )}
+                            {viewMode === 'list' && (
+                                <ListView records={filtered} showStaff onSelect={setLightboxIndex} onHoverRecord={handleHover} />
+                            )}
                             {viewMode === 'spotlight' && (
                                 <SpotlightView records={filtered} showStaff onSelect={setLightboxIndex} onHoverRecord={handleHover} />
+                            )}
+                            {viewMode === 'coverflow' && (
+                                <CoverflowView records={filtered} showStaff onSelect={setLightboxIndex} onHoverRecord={handleHover} />
                             )}
                             {viewMode === 'polaroid' && (
                                 <PolaroidWallView records={filtered} showStaff onSelect={setLightboxIndex} onHoverRecord={handleHover} />
                             )}
                             {viewMode === 'timeline' && (
                                 <TimelineHorizontalView records={filtered} showStaff onSelect={setLightboxIndex} onHoverRecord={handleHover} />
+                            )}
+                            {viewMode === 'vtimeline' && (
+                                <VerticalTimelineView records={filtered} showStaff onSelect={setLightboxIndex} onHoverRecord={handleHover} />
                             )}
                         </>
                     )}
