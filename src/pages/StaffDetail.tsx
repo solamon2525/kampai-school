@@ -144,7 +144,7 @@ export default function StaffDetailPage() {
             />
             <SiteHeader />
 
-            <div className="max-w-screen-2xl mx-auto w-full flex-grow flex flex-col px-4 md:px-8 py-6 md:py-10">
+            <div className="max-w-screen-2xl mx-auto w-full flex-grow flex flex-col px-4 md:px-8 py-3 md:py-5">
                 {/* Back link */}
                 <Link
                     to="/staff"
@@ -164,7 +164,7 @@ export default function StaffDetailPage() {
                 ) : (
                     <>
                         {/* HERO */}
-                        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-violet-950 text-white px-6 md:px-10 py-8 md:py-12 mb-6">
+                        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-violet-950 text-white px-5 md:px-8 py-5 md:py-7 mb-4">
                             <div
                                 className="absolute inset-0 opacity-[0.05] pointer-events-none"
                                 style={{
@@ -172,19 +172,19 @@ export default function StaffDetailPage() {
                                     backgroundSize: '24px 24px',
                                 }}
                             />
-                            <div className="relative flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8">
+                            <div className="relative flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-6">
                                 <PersonAvatar
                                     name={staff.name}
                                     photoUrl={staff.photo_url}
                                     size="lg"
-                                    className="h-32 w-32 md:h-40 md:w-40 text-4xl md:text-5xl ring-4 ring-amber-400/60 shadow-2xl shrink-0"
+                                    className="h-24 w-24 md:h-28 md:w-28 text-3xl md:text-4xl ring-4 ring-amber-400/60 shadow-2xl shrink-0"
                                 />
                                 <div className="flex-1 min-w-0 text-center md:text-left">
                                     <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-amber-300 mb-1.5 justify-center md:justify-start">
                                         <Sparkles className="w-3.5 h-3.5" />
                                         {staff.staff_type === 'teaching' ? 'ครูผู้สอน' : 'บุคลากรสนับสนุน'}
                                     </div>
-                                    <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight leading-tight">
+                                    <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight leading-tight">
                                         {staff.name}
                                     </h1>
                                     <p className="text-sm md:text-base text-violet-200/90 mt-1 font-medium">
@@ -235,8 +235,8 @@ export default function StaffDetailPage() {
 
                         {/* PROFILE INFO */}
                         {(staff.degree || staff.major || staff.education || staff.experience || extras.length > 0) && (
-                            <Card className="mb-6">
-                                <CardContent className="p-5 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                            <Card className="mb-4">
+                                <CardContent className="p-4 md:p-5 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2.5">
                                     {(staff.degree || staff.major) && (
                                         <ProfileRow label="วุฒิ / วิชาเอก" value={[staff.degree, staff.major].filter(Boolean).join(' · ')} />
                                     )}
@@ -250,7 +250,7 @@ export default function StaffDetailPage() {
                         )}
 
                         {/* STATS */}
-                        <div className="grid grid-cols-3 gap-3 md:gap-4 mb-6">
+                        <div className="grid grid-cols-3 gap-3 mb-4">
                             <StatTile
                                 icon={<Award className="w-4 h-4" />}
                                 label="เกียรติบัตร"
@@ -276,7 +276,7 @@ export default function StaffDetailPage() {
 
                         {/* CERTIFICATE SHOWCASE */}
                         <section>
-                            <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+                            <div className="flex items-center justify-between mb-3 flex-wrap gap-3">
                                 <h2 className="font-bold text-lg md:text-xl flex items-center gap-2">
                                     <GraduationCap className="w-5 h-5 text-violet-600" />
                                     เกียรติบัตรการอบรม
@@ -360,14 +360,14 @@ function StatTile({
 }) {
     return (
         <div className={cn(
-            'rounded-xl border bg-gradient-to-br p-3 md:p-4',
+            'rounded-xl border bg-gradient-to-br px-3 py-2.5',
             accent,
         )}>
             <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-semibold opacity-80 mb-1">
                 {icon}
                 <span>{label}</span>
             </div>
-            <div className="font-extrabold text-xl md:text-3xl tabular-nums leading-none">
+            <div className="font-extrabold text-lg md:text-2xl tabular-nums leading-none">
                 {value}
             </div>
             {suffix && (
