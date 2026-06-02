@@ -98,8 +98,8 @@ if (!existsSync(absImage)) {
     process.exit(1);
 }
 const ext = extname(absImage).toLowerCase();
-if (!CONTENT_TYPES[ext]) {
-    console.error(`✗ นามสกุลรูปไม่รองรับ: ${ext} (รองรับ ${Object.keys(CONTENT_TYPES).join(', ')})`);
+if (ext !== '.pdf' && !CONTENT_TYPES[ext]) {
+    console.error(`✗ นามสกุลไม่รองรับ: ${ext} (รองรับ ${Object.keys(CONTENT_TYPES).join(', ')}, .pdf)`);
     process.exit(1);
 }
 
@@ -211,14 +211,28 @@ if (dryRun) {
     process.exit(0);
 }
 
-// ─── 2. อัปรูป ───────────────────────────────────────────────────────────────
-const fileBuf = readFileSync(absImage);
-const storagePath = `${FOLDER}/${Date.now()}_${randomBytes(4).toString('hex')}${ext}`;
+// ─── 2. เตรียมรูป (PDF → render หน้าแรกเป็น PNG ด้วย mupdf) + อัป ──────────────
+let fileBuf;
+let uploadExt = ext;
+let contentType = CONTENT_TYPES[ext];
+if (ext === '.pdf') {
+    const mupdf = await import('mupdf');
+    const doc = mupdf.Document.openDocument(readFileSync(absImage), 'application/pdf');
+    const page = doc.loadPage(0); // หน้าแรก
+    const pix = page.toPixmap(mupdf.Matrix.scale(2, 2), mupdf.ColorSpace.DeviceRGB, false);
+    fileBuf = Buffer.from(pix.asPNG());
+    uploadExt = '.png';
+    contentType = 'image/png';
+    console.log('  ✓ แปลง PDF → PNG (หน้าแรก @2x)');
+} else {
+    fileBuf = readFileSync(absImage);
+}
+const storagePath = `${FOLDER}/${Date.now()}_${randomBytes(4).toString('hex')}${uploadExt}`;
 
 const { error: upErr } = await supabase.storage
     .from(BUCKET)
     .upload(storagePath, fileBuf, {
-        contentType: CONTENT_TYPES[ext],
+        contentType,
         cacheControl: '3600',
         upsert: false,
     });
