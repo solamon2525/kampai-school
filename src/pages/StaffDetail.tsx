@@ -144,7 +144,7 @@ export default function StaffDetailPage() {
             />
             <SiteHeader />
 
-            <div className="max-w-6xl mx-auto w-full flex-grow flex flex-col px-4 md:px-8 py-6 md:py-10">
+            <div className="max-w-screen-2xl mx-auto w-full flex-grow flex flex-col px-4 md:px-8 py-6 md:py-10">
                 {/* Back link */}
                 <Link
                     to="/staff"

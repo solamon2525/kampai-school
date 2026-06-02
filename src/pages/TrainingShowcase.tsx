@@ -129,7 +129,7 @@ export default function TrainingShowcasePublic() {
                 description="สรุปการอบรม สัมมนา และศึกษาดูงานของบุคลากรโรงเรียนคำไผ่"
             />
             <SiteHeader />
-            <div className="max-w-7xl mx-auto w-full bg-background flex-grow flex flex-col">
+            <div className="max-w-screen-2xl mx-auto w-full bg-background flex-grow flex flex-col">
                 {/* HERO BAND */}
                 <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-violet-900 text-white py-10 md:py-14 px-4 md:px-8">
                     <div
