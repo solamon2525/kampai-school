@@ -111,6 +111,7 @@ export const BentoGridView = ({ records, showStaff, onSelect, stats, onHoverReco
                             <CertCard
                                 record={r}
                                 big={isBig}
+                                fill
                                 showStaff={showStaff}
                                 onClick={() => onSelect(item.originalIdx)}
                             />

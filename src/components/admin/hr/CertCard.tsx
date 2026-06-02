@@ -9,6 +9,8 @@ interface Props {
     big?: boolean;
     onClick?: () => void;
     showStaff?: boolean;
+    /** เติมเต็มความสูงของ container แทน aspect-ratio (ใช้ใน BentoGridView ที่ row สูงคงที่ — กันรูปล้นทะลุช่อง) */
+    fill?: boolean;
 }
 
 const TYPE_COLORS: Record<string, string> = {
@@ -26,7 +28,7 @@ const TYPE_COLORS: Record<string, string> = {
  * - overlay gradient ล่าง + PersonAvatar + ชื่อครู (ถ้า showStaff)
  * - ใต้รูป: course_name + Badge ประเภท + ชม. + วันที่
  */
-export const CertCard = ({ record, big, onClick, showStaff = true }: Props) => {
+export const CertCard = ({ record, big, onClick, showStaff = true, fill = false }: Props) => {
     const colorRing = TYPE_COLORS[record.training_type] || 'border-border';
     return (
         <button
@@ -37,10 +39,11 @@ export const CertCard = ({ record, big, onClick, showStaff = true }: Props) => {
                 'hover:shadow-xl hover:-translate-y-0.5 hover:ring-2 hover:ring-violet-400',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400',
                 colorRing,
-                big && 'lg:col-span-2 lg:row-span-2',
+                fill && 'h-full flex flex-col',
+                !fill && big && 'lg:col-span-2 lg:row-span-2',
             )}
         >
-            <div className={cn('relative overflow-hidden bg-muted', big ? 'aspect-[16/10]' : 'aspect-[4/3]')}>
+            <div className={cn('relative overflow-hidden bg-muted', fill ? 'flex-1 min-h-0' : big ? 'aspect-[16/10]' : 'aspect-[4/3]')}>
                 {record.certificate_url ? (
                     <img
                         src={record.certificate_url}
