@@ -236,7 +236,7 @@ export default function StaffDetailPage() {
                         {/* PROFILE INFO */}
                         {(staff.degree || staff.major || staff.education || staff.experience || extras.length > 0) && (
                             <Card className="mb-4">
-                                <CardContent className="p-4 md:p-5 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2.5">
+                                <CardContent className="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-2">
                                     {(staff.degree || staff.major) && (
                                         <ProfileRow label="วุฒิ / วิชาเอก" value={[staff.degree, staff.major].filter(Boolean).join(' · ')} />
                                     )}
