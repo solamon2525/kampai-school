@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.55.0 (เกมใหม่ "พลเมืองดี" — สังคมศึกษา ป.4-6)',
+        version: 'v1.55.1 (อัปเกรด "ฟังแล้วสะกด" — คลังคำ + เลือกหมวด)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'เกม "ฟังแล้วสะกด" (listen-spell) — ขยายคลังคำ 60 → 124 คำ และจัดเป็น 6 หมวดธีม: 🐾 สัตว์ · 🍎 อาหาร · 🏫 โรงเรียน · 🌳 ธรรมชาติ · 🚗 สิ่งของ · 🧍 ร่างกาย',
+            'เพิ่มแถบเลือกหมวดในหน้าเริ่ม (ปุ่ม 🌈 ทั้งหมด + 6 หมวด แสดงจำนวนคำ) — เล่นเจาะหมวดที่อยากฝึกได้ · recent-word cap ปรับ adaptive ตามขนาดหมวด (กันคำซ้ำในหมวดเล็ก)',
+            'fix: TDZ bug — เดิม renderCats() ถูกเรียกใน onReady ก่อน const CATEGORIES init (จอขาวเฉพาะโหมด standalone) · verify:game 8/8 + jsdom DOM playthrough 30 คำจริง',
+        ],
+    },
+    {
+        version: 'v1.55.0 (เกมใหม่ "พลเมืองดี" — สังคมศึกษา ป.4-6)',
+        date: '',
         badge: 'bg-indigo-700',
         items: [
             'เกมใหม่ "พลเมืองดี" (Good Citizen) ที่ /games/social/good-citizen.html — judgment game: เห็นสถานการณ์ + การกระทำ → ตัดสิน 👍 ควรทำ / 👎 ไม่ควรทำ พร้อมเหตุผลสอนทุกข้อ (กลไกต่างจาก social-quiz MCQ และ order-it timeline)',
