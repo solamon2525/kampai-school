@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>พลเมืองดี — Good Citizen (kampai)</title>
+<!--
+═══════════════════════════════════════════════════════════════════════════
+  KAMPAI-SCHOOL · เกม "พลเมืองดี" (good-citizen) — วิชาสังคมศึกษา ป.4-6
+  Judgment game: เห็นสถานการณ์ + การกระทำ → ตัดสิน 👍 ควรทำ / 👎 ไม่ควรทำ + เหตุผล
+  หมวด: มารยาทไทย · กฎกติกา/หน้าที่พลเมือง · น้ำใจ · ประชาธิปไตย · ส่วนรวม · ซื่อสัตย์
+  โหมด: ⚡ แข่งเวลา 60 วิ · 📚 ฝึก 3 ชีวิต  (กลไกต่างจาก social-quiz MCQ)
+═══════════════════════════════════════════════════════════════════════════
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Fredoka+One&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; font-family: 'Kanit', sans-serif; color: #fff; overflow: hidden; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+body { background: linear-gradient(180deg, #3730a3 0%, #1e1b4b 55%, #0f172a 100%); }
+#app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+#hud { display: none; align-items: center; justify-content: space-between; padding: 14px 18px; gap: 10px; }
+#hud.on { display: flex; }
+#score-container { font-size: 26px; font-weight: 700; color: #FFD700; text-shadow: 2px 2px 4px #000; background: rgba(0,0,0,0.35); padding: 4px 16px; border-radius: 999px; border: 2px solid rgba(255,215,0,0.5); transition: transform 0.15s; white-space: nowrap; }
+#score-container.pop { transform: scale(1.18); }
+#combo-badge { font-family: 'Fredoka One', cursive; font-size: 16px; color: #0f172a; background: linear-gradient(45deg,#fbbf24,#f59e0b); padding: 4px 12px; border-radius: 999px; opacity: 0; transform: scale(0.6); transition: all 0.18s; white-space: nowrap; }
+#combo-badge.on { opacity: 1; transform: scale(1); }
+#life-container { font-size: 24px; white-space: nowrap; }
+#timer-wrap { height: 10px; background: rgba(255,255,255,0.12); margin: 0 18px; border-radius: 999px; overflow: hidden; display: none; }
+#timer-wrap.on { display: block; }
+#timer-bar { height: 100%; width: 100%; background: linear-gradient(90deg,#4ade80,#22c55e); border-radius: 999px; transition: width 0.1s linear, background 0.3s; }
+#timer-bar.warn { background: linear-gradient(90deg,#f87171,#ef4444); }
+
+#play { flex: 1; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 16px; gap: 12px; }
+#play.on { display: flex; }
+#cat-tag { font-size: 14px; font-weight: 600; color: #c7d2fe; background: rgba(255,255,255,0.1); padding: 4px 14px; border-radius: 999px; }
+#scene-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 22px; padding: 18px 18px 20px; width: 100%; max-width: 460px; text-align: center; }
+#scene-emoji { font-size: clamp(56px, 18vw, 96px); line-height: 1.1; }
+#scene-text { font-size: clamp(15px, 4.2vw, 19px); color: #cbd5e1; margin-top: 4px; }
+#action-text { font-family: 'Fredoka One', cursive; font-size: clamp(20px, 6vw, 30px); color: #fde68a; margin-top: 10px; line-height: 1.3; }
+#feedback { min-height: 44px; font-size: 15px; font-weight: 600; text-align: center; max-width: 460px; line-height: 1.4; padding: 0 6px; }
+#feedback.good { color: #4ade80; }
+#feedback.bad { color: #f87171; }
+#judge { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 460px; }
+.jbtn { font-family: 'Kanit'; font-weight: 700; font-size: clamp(18px, 5vw, 24px); padding: 20px 6px; border: none; border-radius: 18px; cursor: pointer; color: #fff; transition: transform 0.08s, box-shadow 0.08s, opacity 0.1s; }
+.jbtn:active { transform: translateY(4px); }
+.jbtn.bad  { background: linear-gradient(135deg,#fb7185,#e11d48); box-shadow: 0 5px 0 #9f1239; }
+.jbtn.good { background: linear-gradient(135deg,#4ade80,#16a34a); box-shadow: 0 5px 0 #15803d; }
+.jbtn.lock { pointer-events: none; opacity: 0.55; }
+.jbtn.pick-correct { outline: 4px solid #fde047; }
+.jbtn.pick-wrong { outline: 4px solid #fff; opacity: 0.4; }
+
+.screen { position: absolute; inset: 0; background: rgba(15,23,42,0.94); backdrop-filter: blur(8px); display: none; flex-direction: column; align-items: center; justify-content: flex-start; z-index: 30; text-align: center; padding: 28px 22px; overflow-y: auto; }
+.screen.on { display: flex; }
+.screen h1 { font-family: 'Fredoka One', cursive; font-size: 36px; margin-bottom: 6px; background: linear-gradient(135deg, #FFD700, #FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.screen p { font-size: 16px; color: #cbd5e1; margin-bottom: 14px; line-height: 1.5; }
+#final-score { color: #FFD700; font-family: 'Fredoka One', cursive; font-size: 56px; margin: 4px 0 6px; }
+#final-detail { font-size: 15px; color: #cbd5e1; margin-bottom: 12px; }
+.btn { padding: 14px 30px; font-family: inherit; font-size: 19px; font-weight: 600; border-radius: 999px; border: none; cursor: pointer; margin: 6px; transition: transform 0.1s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; color: #fff; }
+.btn:active { transform: scale(0.95); }
+.btn-primary { background: linear-gradient(45deg, #6366f1, #4f46e5); box-shadow: 0 4px 10px rgba(99,102,241,0.4); }
+.btn-blue { background: linear-gradient(45deg, #3b82f6, #2563eb); box-shadow: 0 4px 10px rgba(59,130,246,0.4); }
+.btn-ghost { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25); }
+.mode-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 8px; }
+.leaderboard-box { background: rgba(255,255,255,0.95); color: #2c3e50; border-radius: 12px; padding: 12px 15px; margin: 10px 0; width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.lb-title { font-family: 'Fredoka One', cursive; font-size: 1rem; margin: 0 0 8px 0; text-align: left; }
+.leaderboard-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.leaderboard-list li { display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-bottom: 1px dashed #dee2e6; }
+.leaderboard-list li:last-child { border-bottom: none; }
+.leaderboard-list li.is-me { background: #fff7e0; border-radius: 8px; }
+.lb-rank { font-family: 'Fredoka One', cursive; color: #f39c12; min-width: 26px; text-align: center; font-size: 1.1rem; }
+.lb-avatar, .lb-avatar-init { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #f39c12; flex-shrink: 0; }
+.lb-avatar-init { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.lb-info { display: flex; flex-direction: column; min-width: 0; flex: 1; text-align: left; }
+.lb-name { font-family: 'Fredoka One', cursive; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-sub { font-size: 0.72rem; color: #868e96; }
+.lb-loading { color: #868e96; text-align: center; padding: 8px; font-size: 0.85rem; }
+#player-chip { display: none; align-items: center; gap: 8px; background: rgba(255,255,255,0.1); padding: 4px 14px 4px 4px; border-radius: 999px; font-size: 14px; margin-bottom: 12px; }
+#player-chip img, #player-chip .pc-init { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+#player-chip .pc-init { background: linear-gradient(135deg,#6c5ce7,#a29bfe); display: flex; align-items: center; justify-content: center; font-weight: 700; }
+#player-chip .pc-best { color: #FFD700; font-weight: 700; }
+@keyframes gc-bump { 0%{transform:scale(1)} 35%{transform:scale(1.18)} 100%{transform:scale(1)} }
+#scene-emoji.bump { animation: gc-bump 0.25s ease; }
+@keyframes gc-shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 50%{transform:translateX(7px)} 75%{transform:translateX(-5px)} }
+#scene-card.shake { animation: gc-shake 0.4s ease; }
+</style>
+</head>
+<body>
+<div id="app">
+    <div id="hud">
+        <div id="score-container">⭐ <span id="score-value">0</span></div>
+        <div id="combo-badge">🔥 x1</div>
+        <div id="life-container">❤️❤️❤️</div>
+    </div>
+    <div id="timer-wrap"><div id="timer-bar"></div></div>
+    <div id="play">
+        <div id="cat-tag">—</div>
+        <div id="scene-card">
+            <div id="scene-emoji">🤝</div>
+            <div id="scene-text">—</div>
+            <div id="action-text">—</div>
+        </div>
+        <div id="feedback"></div>
+        <div id="judge">
+            <button class="jbtn bad" id="btn-bad" onclick="answer(false)">👎 ไม่ควรทำ</button>
+            <button class="jbtn good" id="btn-good" onclick="answer(true)">👍 ควรทำ</button>
+        </div>
+    </div>
+</div>
+
+<div id="start" class="screen on">
+    <h1>🤝 พลเมืองดี</h1>
+    <div id="player-chip"></div>
+    <p>ดูสถานการณ์ แล้วตัดสินว่า<b>การกระทำนั้น "ควรทำ" หรือ "ไม่ควรทำ"</b> 👍👎<br>ตอบถูกต่อเนื่องได้ตัวคูณคะแนน 🔥 · กดเลข 1=ไม่ควร / 2=ควร ก็ได้</p>
+    <div class="mode-grid">
+        <button class="btn btn-primary" onclick="startGame('race')">⚡ แข่งเวลา</button>
+        <button class="btn btn-ghost" onclick="startGame('practice')">📚 ฝึก</button>
+    </div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+    </div>
+</div>
+
+<div id="gameover" class="screen">
+    <h1>จบเกม! 🤝</h1>
+    <div id="final-score">0</div>
+    <div id="final-detail"></div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
+        <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นอีกครั้ง</button>
+        <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+    </div>
+</div>
+
+<!-- ═══ KAMPAI SDK (single source — อย่าแก้) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{unlock:function(){return this;},correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},setBgm:function(){return this;},defaultBgm:function(){return this;},bgmStart:function(){},bgmStop:function(){},mountToggles:function(){return this;}} };</script>
+
+<script>
+/* ═══ SECTION A · ตั้งค่า ═══ */
+const GAME_SLUG = 'good-citizen';
+KAMPAI.setSlug(GAME_SLUG);
+const $ = (id) => document.getElementById(id);
+
+/* ═══ SECTION B · นักเรียน + leaderboard ═══ */
+function renderPlayer() {
+    const s = KAMPAI.student, st = KAMPAI.stats;
+    if (!s) return;
+    const chip = $('player-chip');
+    const av = s.photoUrl ? `<img src="${s.photoUrl}" alt="">` : `<div class="pc-init">${(s.displayName||'?')[0]}</div>`;
+    const best = st ? ` · <span class="pc-best">สถิติ ${st.personalBest.toLocaleString()}</span>` : '';
+    chip.innerHTML = av + `<span>${s.displayName}${best}</span>`;
+    chip.style.display = 'flex';
+}
+function renderLeaderboard(listId) {
+    const el = $(listId); if (!el) return;
+    const rows = KAMPAI.leaderboard || [];
+    if (!rows.length) { el.innerHTML = '<li class="lb-loading">ยังไม่มีผู้เล่น — เป็นคนแรกสิ!</li>'; return; }
+    const medals = ['🥇','🥈','🥉'];
+    el.innerHTML = rows.slice(0, 5).map((r) => {
+        const av = r.photoUrl ? `<img class="lb-avatar" src="${r.photoUrl}" alt="">` : `<div class="lb-avatar-init">${(r.displayName||'?')[0]}</div>`;
+        return `<li class="${r.isMe ? 'is-me' : ''}"><span class="lb-rank">${medals[r.rank-1] || r.rank}</span>${av}
+            <div class="lb-info"><div class="lb-name">${r.displayName}${r.isMe ? ' (คุณ)' : ''}</div>
+            <div class="lb-sub">${(r.personalBest||0).toLocaleString()} คะแนน · ${r.classLabel||''}</div></div></li>`;
+    }).join('');
+}
+KAMPAI.onReady(function () { renderPlayer(); renderLeaderboard('score-list'); });
+
+/* ═══ SECTION B2 · เสียง (KAMPAI.sound) ═══ */
+KAMPAI.sound.mountToggles();
+KAMPAI.sound.defaultBgm('warm');
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTION C · GAME LOGIC — พลเมืองดี (good-citizen judgment)
+   ═══════════════════════════════════════════════════════════════════════════ */
+// แต่ละการ์ด: { cat, emoji, scene, action, good(true=ควรทำ), why }
+const CARDS = [
+  { cat:'🙏 มารยาทไทย', emoji:'👵', scene:'บนรถเมล์มีผู้สูงอายุยืนอยู่', action:'ลุกให้ท่านนั่ง', good:true,  why:'มีน้ำใจ เอื้อเฟื้อที่นั่งแก่ผู้สูงอายุ' },
+  { cat:'🙏 มารยาทไทย', emoji:'👵', scene:'ผู้สูงอายุยืนบนรถเมล์', action:'แกล้งหลับ ไม่ลุกให้', good:false, why:'ควรเอื้อเฟื้อที่นั่งแก่ผู้สูงอายุ' },
+  { cat:'🙏 มารยาทไทย', emoji:'🙏', scene:'พบคุณครูที่โรงเรียน', action:'ยกมือไหว้ทักทาย', good:true,  why:'แสดงความเคารพตามมารยาทไทย' },
+  { cat:'🤫 มารยาทไทย', emoji:'📚', scene:'อยู่ในห้องสมุด', action:'อ่านหนังสือเงียบ ๆ', good:true,  why:'สำรวม เคารพสถานที่และผู้อื่น' },
+  { cat:'🤫 มารยาทไทย', emoji:'🤫', scene:'อยู่ในห้องสมุด', action:'พูดคุยเสียงดัง', good:false, why:'ห้องสมุดต้องสำรวม ไม่รบกวนผู้อื่น' },
+  { cat:'🚦 หน้าที่พลเมือง', emoji:'🚦', scene:'ไฟจราจรสีแดง ก่อนข้ามถนน', action:'หยุดรอสัญญาณไฟ', good:true,  why:'เคารพกฎจราจรเพื่อความปลอดภัย' },
+  { cat:'🚦 หน้าที่พลเมือง', emoji:'🏃', scene:'ไฟแดง รถกำลังวิ่งมา', action:'วิ่งข้ามถนนทันที', good:false, why:'ต้องรอไฟเขียว/ทางม้าลาย อันตรายมาก' },
+  { cat:'🛒 หน้าที่พลเมือง', emoji:'🛒', scene:'ต่อแถวซื้อของที่ร้านค้า', action:'เข้าแถวตามลำดับ', good:true,  why:'เคารพกติกา ไม่เอาเปรียบผู้อื่น' },
+  { cat:'🛒 หน้าที่พลเมือง', emoji:'🙅', scene:'มีคนต่อแถวอยู่ก่อนแล้ว', action:'แซงคิวไปข้างหน้า', good:false, why:'ควรเข้าแถวตามลำดับ ไม่แซงคิว' },
+  { cat:'🇹🇭 หน้าที่พลเมือง', emoji:'🇹🇭', scene:'เพลงชาติดังขึ้นตอน 8 โมง', action:'ยืนตรงเคารพธงชาติ', good:true,  why:'แสดงความเคารพต่อชาติ' },
+  { cat:'🇹🇭 หน้าที่พลเมือง', emoji:'🚶', scene:'เพลงชาติกำลังบรรเลง', action:'เดินเล่นคุยกันต่อ', good:false, why:'ควรหยุดยืนตรงเคารพเพลงชาติ' },
+  { cat:'🤝 น้ำใจ', emoji:'✏️', scene:'เพื่อนทำดินสอหล่นใต้โต๊ะ', action:'ช่วยเก็บให้เพื่อน', good:true,  why:'มีน้ำใจช่วยเหลือกัน' },
+  { cat:'🤝 น้ำใจ', emoji:'🧑‍🦯', scene:'พบคนตาบอดจะข้ามถนน', action:'อาสาพาท่านข้ามถนน', good:true,  why:'ช่วยเหลือผู้พิการด้วยน้ำใจ' },
+  { cat:'🤝 น้ำใจ', emoji:'🧒', scene:'มีเพื่อนใหม่ยังไม่มีกลุ่มเล่น', action:'ชวนมาเล่นด้วยกัน', good:true,  why:'มีน้ำใจ ไม่แบ่งแยกเพื่อน' },
+  { cat:'🤝 น้ำใจ', emoji:'🌧️', scene:'ฝนตก เพื่อนไม่มีร่ม', action:'แบ่งร่มเดินไปด้วยกัน', good:true,  why:'มีน้ำใจ รู้จักแบ่งปัน' },
+  { cat:'🤝 น้ำใจ', emoji:'🧒', scene:'เห็นรุ่นน้องถูกเพื่อนแกล้ง', action:'ยืนดูเฉย ๆ ไม่ช่วย', good:false, why:'ควรช่วยห้าม หรือแจ้งคุณครู' },
+  { cat:'🗳️ ประชาธิปไตย', emoji:'🗳️', scene:'ห้องลงมติเลือกหัวหน้าห้อง', action:'ยอมรับผลเสียงข้างมาก', good:true,  why:'เคารพกติกาประชาธิปไตย' },
+  { cat:'🗳️ ประชาธิปไตย', emoji:'😤', scene:'ผู้ที่เราเลือกแพ้โหวต', action:'งอน โวยวาย ไม่ยอมรับผล', good:false, why:'ประชาธิปไตยต้องเคารพเสียงข้างมาก' },
+  { cat:'🗣️ ประชาธิปไตย', emoji:'🗣️', scene:'เพื่อนกำลังแสดงความคิดเห็น', action:'ตั้งใจฟังจนเพื่อนพูดจบ', good:true,  why:'เคารพสิทธิการแสดงความคิดเห็น' },
+  { cat:'🌳 ส่วนรวม', emoji:'🗑️', scene:'กินขนมเสร็จ มีเปลือกในมือ', action:'ทิ้งลงถังขยะ', good:true,  why:'รักษาความสะอาดส่วนรวม' },
+  { cat:'🌳 ส่วนรวม', emoji:'🍂', scene:'กินขนมเสร็จ ไม่มีถังใกล้ ๆ', action:'ทิ้งเปลือกลงพื้นถนน', good:false, why:'ควรถือไว้จนเจอถังขยะ ไม่ทิ้งเรี่ยราด' },
+  { cat:'🌳 ส่วนรวม', emoji:'🧹', scene:'ถึงเวรทำความสะอาดห้องเรียน', action:'ช่วยกันทำเวรจนเสร็จ', good:true,  why:'รับผิดชอบหน้าที่ส่วนรวม' },
+  { cat:'🌳 ส่วนรวม', emoji:'🏃', scene:'ถึงเวรของตนเอง', action:'หนีเวร ปล่อยให้เพื่อนทำ', good:false, why:'ต้องรับผิดชอบหน้าที่ของตน' },
+  { cat:'💧 ส่วนรวม', emoji:'💧', scene:'กำลังแปรงฟันในห้องน้ำ', action:'ปิดก๊อกน้ำระหว่างแปรง', good:true,  why:'ประหยัดน้ำ ใช้ทรัพยากรอย่างรู้คุณค่า' },
+  { cat:'💡 ส่วนรวม', emoji:'💡', scene:'ออกจากห้องเรียนเป็นคนสุดท้าย', action:'ปิดไฟและพัดลม', good:true,  why:'ประหยัดพลังงานส่วนรวม' },
+  { cat:'🌳 ส่วนรวม', emoji:'🌼', scene:'เห็นเพื่อนเด็ดดอกไม้ในสวนสาธารณะ', action:'เตือนเพื่อนว่าไม่ควรทำ', good:true,  why:'ช่วยกันดูแลสมบัติส่วนรวม' },
+  { cat:'📵 หน้าที่พลเมือง', emoji:'👩‍🏫', scene:'คุณครูกำลังสอนหน้าชั้น', action:'ตั้งใจฟังครู', good:true,  why:'เคารพครูและให้ความสำคัญกับการเรียน' },
+  { cat:'📵 หน้าที่พลเมือง', emoji:'📱', scene:'คุณครูกำลังสอน', action:'แอบเล่นโทรศัพท์', good:false, why:'ควรตั้งใจเรียน เคารพคุณครู' },
+  { cat:'💰 ซื่อสัตย์', emoji:'👛', scene:'เก็บกระเป๋าเงินได้ที่โรงเรียน', action:'นำไปส่งคุณครู', good:true,  why:'ซื่อสัตย์ คืนของที่ไม่ใช่ของตน' },
+  { cat:'💰 ซื่อสัตย์', emoji:'🤑', scene:'เก็บเงินของคนอื่นได้', action:'เก็บไว้ใช้เอง', good:false, why:'ควรคืนเจ้าของ — ความซื่อสัตย์สำคัญ' },
+  { cat:'♿ สิทธิ', emoji:'♿', scene:'ที่จอดรถสำหรับคนพิการว่างอยู่', action:'เว้นไว้ ไม่จอดรถของเรา', good:true,  why:'เคารพสิทธิของผู้พิการ' },
+  { cat:'🐶 ส่วนรวม', emoji:'🐶', scene:'พาสุนัขเดินเล่น มันถ่ายบนทางเท้า', action:'เก็บมูลทิ้งให้เรียบร้อย', good:true,  why:'รับผิดชอบต่อส่วนรวม' },
+  { cat:'😡 หน้าที่พลเมือง', emoji:'😡', scene:'เพื่อนพูดล้อแรง ๆ ใส่เรา', action:'ชวนเพื่อนชกต่อยกัน', good:false, why:'ควรใช้เหตุผล/บอกครู ไม่ใช้ความรุนแรง' },
+  { cat:'🚌 หน้าที่พลเมือง', emoji:'🚌', scene:'รอขึ้นรถรับส่งนักเรียน', action:'เบียดแซงเพื่อนขึ้นก่อน', good:false, why:'ควรเข้าแถวขึ้นรถตามลำดับ' },
+  { cat:'🔥 หน้าที่พลเมือง', emoji:'🧨', scene:'อยากเล่นประทัดใกล้บ้านคน', action:'จุดเสียงดังรบกวนเพื่อนบ้าน', good:false, why:'ไม่สร้างเสียง/อันตรายรบกวนผู้อื่น' },
+  { cat:'🏞️ หน้าที่พลเมือง', emoji:'🐟', scene:'มีป้าย "ห้ามให้อาหารสัตว์" ในสวนสัตว์', action:'แอบให้อาหารปลา', good:false, why:'ควรปฏิบัติตามกฎของสถานที่' },
+];
+
+let mode = 'race', scored = true, isGameOver = false;
+let score = 0, combo = 0, lives = 3, locked = false;
+let queue = [], curIdx = -1, cur = null, answered = 0;
+let timeLeft = 60, timerId = null;
+
+function setScore(n) {
+    score = Math.max(0, Math.round(n));
+    $('score-value').innerText = score;
+    const w = $('score-container'); w.classList.add('pop'); setTimeout(() => w.classList.remove('pop'), 150);
+}
+function setCombo(n) {
+    combo = n;
+    const b = $('combo-badge');
+    if (combo >= 2) { b.innerText = `🔥 x${combo}`; b.classList.add('on'); } else b.classList.remove('on');
+}
+function setLives(n) {
+    lives = Math.max(0, n);
+    let s = ''; for (let i = 0; i < 3; i++) s += (i < lives) ? '❤️' : '🖤';
+    $('life-container').innerText = s;
+}
+
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+function startGame(m) {
+    mode = m; scored = true; isGameOver = false;
+    score = 0; combo = 0; answered = 0; locked = false;
+    setScore(0); setCombo(0);
+    $('start').classList.remove('on');
+    $('hud').classList.add('on');
+    $('play').classList.add('on');
+    KAMPAI.sound.unlock();
+    KAMPAI.sound.bgmStart();
+    queue = shuffle(CARDS.slice()); curIdx = -1;
+    if (m === 'race') {
+        $('life-container').style.display = 'none';
+        $('timer-wrap').classList.add('on');
+        timeLeft = 60; updateTimer();
+        timerId = setInterval(tick, 100);
+    } else {
+        $('life-container').style.display = '';
+        $('timer-wrap').classList.remove('on');
+        setLives(3);
+    }
+    nextCard();
+}
+
+function tick() {
+    timeLeft -= 0.1;
+    if (timeLeft <= 0) { timeLeft = 0; updateTimer(); endGame(); return; }
+    updateTimer();
+}
+function updateTimer() {
+    const bar = $('timer-bar');
+    const pct = (timeLeft / 60) * 100;
+    bar.style.width = pct + '%';
+    bar.classList.toggle('warn', timeLeft <= 10);
+}
+
+function nextCard() {
+    locked = false;
+    curIdx++;
+    if (curIdx >= queue.length) { queue = shuffle(CARDS.slice()); curIdx = 0; }
+    cur = queue[curIdx];
+    $('cat-tag').innerText = cur.cat;
+    $('scene-emoji').innerText = cur.emoji;
+    $('scene-text').innerText = cur.scene;
+    $('action-text').innerText = '“' + cur.action + '”';
+    $('feedback').className = ''; $('feedback').innerText = '';
+    const bg = $('btn-good'), bb = $('btn-bad');
+    [bg, bb].forEach(b => b.classList.remove('lock', 'pick-correct', 'pick-wrong'));
+    KAMPAI.sound.speak(cur.scene + ' ... ' + cur.action, 'th-TH');
+}
+
+function answer(choice) {
+    if (locked || isGameOver || !cur) return;
+    locked = true;
+    answered++;
+    const correct = (choice === cur.good);
+    const bg = $('btn-good'), bb = $('btn-bad');
+    [bg, bb].forEach(b => b.classList.add('lock'));
+    const picked = choice ? bg : bb;
+    const fb = $('feedback');
+    if (correct) {
+        picked.classList.add('pick-correct');
+        setCombo(combo + 1);
+        const gain = 10 * Math.max(1, combo);
+        setScore(score + gain);
+        KAMPAI.sound.correct(); KAMPAI.sound.fxFlash(true);
+        $('scene-emoji').classList.add('bump'); setTimeout(() => $('scene-emoji').classList.remove('bump'), 250);
+        fb.className = 'good';
+        fb.innerText = (cur.good ? '✅ ใช่ ควรทำ! ' : '✅ ถูก ไม่ควรทำ! ') + cur.why;
+        setTimeout(() => { if (!isGameOver) nextCard(); }, 950);
+    } else {
+        picked.classList.add('pick-wrong');
+        (cur.good ? bg : bb).classList.add('pick-correct');
+        setCombo(0);
+        KAMPAI.sound.wrong(); KAMPAI.sound.fxFlash(false);
+        $('scene-card').classList.add('shake'); setTimeout(() => $('scene-card').classList.remove('shake'), 420);
+        fb.className = 'bad';
+        fb.innerText = (cur.good ? '❌ ที่จริง "ควรทำ" — ' : '❌ ที่จริง "ไม่ควรทำ" — ') + cur.why;
+        if (mode === 'practice') {
+            setLives(lives - 1);
+            if (lives <= 0) { setTimeout(() => endGame(), 1100); return; }
+        }
+        setTimeout(() => { if (!isGameOver) nextCard(); }, 1500);
+    }
+}
+
+// คีย์บอร์ด: 1/← = ไม่ควร, 2/→ = ควร
+window.addEventListener('keydown', (e) => {
+    if (!$('play').classList.contains('on')) return;
+    if (e.key === '1' || e.key === 'ArrowLeft') answer(false);
+    else if (e.key === '2' || e.key === 'ArrowRight') answer(true);
+});
+
+function endGame() {
+    if (isGameOver) return;
+    isGameOver = true;
+    if (timerId) { clearInterval(timerId); timerId = null; }
+    KAMPAI.sound.bgmStop(); KAMPAI.sound.gameOver();
+    $('play').classList.remove('on');
+    $('hud').classList.remove('on');
+    $('timer-wrap').classList.remove('on');
+    KAMPAI.submitScore(score, { mode, answered });
+    $('final-score').innerText = score;
+    $('final-detail').innerText = (mode === 'race' ? 'โหมดแข่งเวลา' : 'โหมดฝึก') + ` · ตัดสินไป ${answered} สถานการณ์ — เป็นพลเมืองดี! 🤝`;
+    $('gameover').classList.add('on');
+    renderLeaderboard('score-list-gameover');
+}
+</script>
+</body>
+</html>
