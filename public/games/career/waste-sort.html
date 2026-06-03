@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>แยกขยะ 4 ถัง — Waste Sort (kampai SDK)</title>
+<!--
+  KAMPAI-SCHOOL · GAME "แยกขยะ 4 ถัง" (waste-sort) — การงานอาชีพ ป.4-6
+  ดูขยะที่ปรากฏ → แตะถังให้ถูกตามสีถังขยะมาตรฐานไทย (เขียว/เหลือง/น้ำเงิน/แดง)
+  ฝึก: การคัดแยกขยะ + รักษาสิ่งแวดล้อม (กลไก fixed-bins ต่างจาก cashier ที่ทอนเงิน)
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Fredoka+One&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; font-family: 'Kanit', sans-serif; color: #fff; overflow: hidden; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+body { background: linear-gradient(180deg, #065f46 0%, #0f172a 100%); }
+#app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+
+/* HUD */
+#hud { display: none; align-items: center; justify-content: space-between; padding: 12px 16px; gap: 10px; }
+#hud.on { display: flex; }
+#score-container { font-size: 24px; font-weight: 700; color: #FFD700; text-shadow: 2px 2px 4px #000; background: rgba(0,0,0,0.35); padding: 4px 14px; border-radius: 999px; border: 2px solid rgba(255,215,0,0.5); transition: transform 0.15s; white-space: nowrap; }
+#score-container.pop { transform: scale(1.18); }
+#combo-badge { font-family: 'Fredoka One', cursive; font-size: 15px; color: #0f172a; background: linear-gradient(45deg,#fbbf24,#f59e0b); padding: 4px 12px; border-radius: 999px; opacity: 0; transform: scale(0.6); transition: all 0.18s; white-space: nowrap; }
+#combo-badge.on { opacity: 1; transform: scale(1); }
+#life-container { font-size: 22px; white-space: nowrap; }
+#player-chip { display: none; align-items: center; gap: 8px; background: rgba(255,255,255,0.1); padding: 4px 14px 4px 4px; border-radius: 999px; font-size: 14px; margin-bottom: 12px; }
+#player-chip img, #player-chip .pc-init { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+#player-chip .pc-init { background: linear-gradient(135deg,#6c5ce7,#a29bfe); display: flex; align-items: center; justify-content: center; font-weight: 700; }
+#player-chip .pc-best { color: #FFD700; font-weight: 700; }
+
+/* timer */
+#timer-wrap { height: 10px; background: rgba(255,255,255,0.12); margin: 0 16px; border-radius: 999px; overflow: hidden; display: none; }
+#timer-wrap.on { display: block; }
+#timer-bar { height: 100%; width: 100%; background: linear-gradient(90deg,#4ade80,#22c55e); border-radius: 999px; transition: width 0.1s linear, background 0.3s; }
+#timer-bar.warn { background: linear-gradient(90deg,#f87171,#ef4444); }
+
+/* Play */
+#play { flex: 1; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 10px 14px 18px; gap: 10px; }
+#play.on { display: flex; }
+#item-card { display: flex; flex-direction: column; align-items: center; gap: 4px; transition: transform 0.15s; }
+#item-emoji { font-size: clamp(64px, 19vw, 120px); line-height: 1; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5)); }
+#item-th { font-family: 'Fredoka One', cursive; font-size: clamp(22px, 6vw, 38px); color: #fde68a; }
+#hint { font-size: clamp(14px, 3.6vw, 18px); color: #cbd5e1; }
+#feedback { height: 40px; font-size: 15px; font-weight: 600; text-align: center; line-height: 1.25; padding: 0 8px; }
+#feedback.good { color: #4ade80; }
+#feedback.bad { color: #fca5a5; }
+
+/* 4 bins (2x2) */
+#bins { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 460px; }
+.bin { font-family: inherit; border: none; border-radius: 16px; padding: 12px 8px 14px; cursor: pointer; color: #fff; display: flex; flex-direction: column; align-items: center; gap: 2px; box-shadow: 0 5px 0 rgba(0,0,0,0.35); transition: transform 0.08s, box-shadow 0.08s, filter 0.15s; }
+.bin:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0,0,0,0.35); }
+.bin .b-ico { font-size: 34px; line-height: 1; }
+.bin .b-label { font-weight: 700; font-size: clamp(14px, 3.8vw, 17px); }
+.bin .b-sub { font-size: 11px; opacity: 0.9; }
+.bin .b-key { font-size: 10px; opacity: 0.7; }
+.bin.green  { background: linear-gradient(160deg,#22c55e,#15803d); }
+.bin.yellow { background: linear-gradient(160deg,#facc15,#ca8a04); color: #1e293b; }
+.bin.blue   { background: linear-gradient(160deg,#3b82f6,#1d4ed8); }
+.bin.red    { background: linear-gradient(160deg,#ef4444,#b91c1c); }
+.bin.correct { animation: bin-pop 0.4s ease; filter: brightness(1.25); outline: 4px solid #fff; }
+.bin.wrong { filter: brightness(0.6) grayscale(0.4); }
+@keyframes bin-pop { 0%{transform:scale(1)} 40%{transform:scale(1.08)} 100%{transform:scale(1)} }
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(7px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(3px)} }
+#item-card.shake { animation: shake 0.4s ease; }
+@keyframes bump { 0%{transform:scale(1)} 35%{transform:scale(1.15)} 100%{transform:scale(1)} }
+#item-card.bump { animation: bump 0.25s ease; }
+
+/* Screens */
+.screen { position: absolute; inset: 0; background: rgba(6,40,30,0.95); backdrop-filter: blur(8px); display: none; flex-direction: column; align-items: center; justify-content: flex-start; z-index: 30; text-align: center; padding: 26px 22px; overflow-y: auto; }
+.screen.on { display: flex; }
+.screen h1 { font-family: 'Fredoka One', cursive; font-size: 36px; margin-bottom: 6px; background: linear-gradient(135deg, #86efac, #FFD700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.screen p { font-size: 16px; color: #cbd5e1; margin-bottom: 12px; line-height: 1.5; }
+#final-score { color: #FFD700; font-family: 'Fredoka One', cursive; font-size: 54px; margin: 4px 0 6px; }
+#final-detail { font-size: 15px; color: #cbd5e1; margin-bottom: 12px; }
+.btn { padding: 14px 28px; font-family: inherit; font-size: 18px; font-weight: 600; border-radius: 999px; border: none; cursor: pointer; margin: 6px; transition: transform 0.1s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; color: #fff; }
+.btn:active { transform: scale(0.95); }
+.btn-primary { background: linear-gradient(45deg, #22c55e, #16a34a); box-shadow: 0 4px 10px rgba(34,197,94,0.4); }
+.btn-blue { background: linear-gradient(45deg, #3b82f6, #2563eb); box-shadow: 0 4px 10px rgba(59,130,246,0.4); }
+.btn-ghost { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25); }
+.mode-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 8px; }
+.legend { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; max-width: 420px; margin: 0 auto 14px; }
+.legend .lg { display: flex; align-items: center; gap: 7px; font-size: 13px; background: rgba(255,255,255,0.06); border-radius: 10px; padding: 6px 10px; text-align: left; }
+.legend .dot { width: 16px; height: 16px; border-radius: 5px; flex-shrink: 0; }
+
+/* Leaderboard */
+.leaderboard-box { background: rgba(255,255,255,0.95); color: #2c3e50; border-radius: 12px; padding: 12px 15px; margin: 10px 0; width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.lb-title { font-family: 'Fredoka One', cursive; font-size: 1rem; margin: 0 0 8px 0; text-align: left; }
+.leaderboard-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.leaderboard-list li { display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-bottom: 1px dashed #dee2e6; }
+.leaderboard-list li:last-child { border-bottom: none; }
+.leaderboard-list li.is-me { background: #fff7e0; border-radius: 8px; }
+.lb-rank { font-family: 'Fredoka One', cursive; color: #f39c12; min-width: 26px; text-align: center; font-size: 1.1rem; }
+.lb-avatar, .lb-avatar-init { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #f39c12; flex-shrink: 0; }
+.lb-avatar-init { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.lb-info { display: flex; flex-direction: column; min-width: 0; flex: 1; text-align: left; }
+.lb-name { font-family: 'Fredoka One', cursive; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-sub { font-size: 0.72rem; color: #868e96; }
+.lb-loading { color: #868e96; text-align: center; padding: 8px; font-size: 0.85rem; }
+</style>
+</head>
+<body>
+<div id="app">
+    <div id="hud">
+        <div id="score-container">⭐ <span id="score-value">0</span></div>
+        <div id="combo-badge">🔥 x1</div>
+        <div id="life-container">❤️❤️❤️</div>
+    </div>
+    <div id="timer-wrap"><div id="timer-bar"></div></div>
+    <div id="play">
+        <div id="item-card">
+            <div id="item-emoji">🍌</div>
+            <div id="item-th">เปลือกกล้วย</div>
+        </div>
+        <div id="hint">ทิ้งลงถังไหน?</div>
+        <div id="feedback"></div>
+        <div id="bins"></div>
+    </div>
+</div>
+
+<!-- Start screen -->
+<div id="start" class="screen on">
+    <h1>♻️ แยกขยะ 4 ถัง</h1>
+    <div id="player-chip"></div>
+    <p>ดูขยะที่ปรากฏ แล้ว<b>แตะถังให้ถูกสี</b> ตามถังขยะมาตรฐาน!<br>ตอบไวต่อเนื่องได้ตัวคูณคะแนน 🔥 · กดเลข 1–4 ก็ได้</p>
+    <div class="legend">
+        <div class="lg"><span class="dot" style="background:#22c55e"></span>เขียว — ขยะเปียก/ย่อยสลายได้</div>
+        <div class="lg"><span class="dot" style="background:#facc15"></span>เหลือง — ขยะรีไซเคิล</div>
+        <div class="lg"><span class="dot" style="background:#3b82f6"></span>น้ำเงิน — ขยะทั่วไป</div>
+        <div class="lg"><span class="dot" style="background:#ef4444"></span>แดง — ขยะอันตราย</div>
+    </div>
+    <div class="mode-grid">
+        <button class="btn btn-primary" onclick="chooseMode('race')">⚡ แข่งเวลา</button>
+        <button class="btn btn-ghost" onclick="chooseMode('practice')">📚 ฝึก (3 ชีวิต)</button>
+    </div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+    </div>
+</div>
+
+<!-- Game Over -->
+<div id="gameover" class="screen">
+    <h1>จบเกม!</h1>
+    <div id="final-score">0</div>
+    <div id="final-detail"></div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
+        <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นอีกครั้ง</button>
+        <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+    </div>
+</div>
+
+<!-- ═══ KAMPAI SDK (single source — อย่าแก้) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+/* fallback stub: กันพังถ้าเปิด standalone แล้ว SDK โหลดไม่ได้ */
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+</script>
+
+<script>
+/* ═══ SECTION A · ตั้งค่า ═══ */
+const GAME_SLUG = 'waste-sort';
+KAMPAI.setSlug(GAME_SLUG);
+KAMPAI.sound.defaultBgm('bright');
+const $ = (id) => document.getElementById(id);
+
+/* ═══ SECTION B · นักเรียน + leaderboard (จาก KAMPAI) ═══ */
+function renderPlayer() {
+    const s = KAMPAI.student, st = KAMPAI.stats;
+    if (!s) return;
+    const chip = $('player-chip');
+    const av = s.photoUrl ? `<img src="${s.photoUrl}" alt="">` : `<div class="pc-init">${(s.displayName||'?')[0]}</div>`;
+    const best = st ? ` · <span class="pc-best">สถิติ ${st.personalBest.toLocaleString()}</span>` : '';
+    chip.innerHTML = av + `<span>${s.displayName}${best}</span>`;
+    chip.style.display = 'flex';
+}
+function renderLeaderboard(listId) {
+    const el = $(listId); if (!el) return;
+    const rows = KAMPAI.leaderboard || [];
+    if (!rows.length) { el.innerHTML = '<li class="lb-loading">ยังไม่มีผู้เล่น — เป็นคนแรกสิ!</li>'; return; }
+    const medals = ['🥇','🥈','🥉'];
+    el.innerHTML = rows.slice(0, 5).map((r) => {
+        const av = r.photoUrl ? `<img class="lb-avatar" src="${r.photoUrl}" alt="">` : `<div class="lb-avatar-init">${(r.displayName||'?')[0]}</div>`;
+        return `<li class="${r.isMe ? 'is-me' : ''}"><span class="lb-rank">${medals[r.rank-1] || r.rank}</span>${av}
+            <div class="lb-info"><div class="lb-name">${r.displayName}${r.isMe ? ' (คุณ)' : ''}</div>
+            <div class="lb-sub">${(r.personalBest||0).toLocaleString()} คะแนน · ${r.classLabel||''}</div></div></li>`;
+    }).join('');
+}
+KAMPAI.onReady(function () { renderPlayer(); renderLeaderboard('score-list'); });
+KAMPAI.sound.mountToggles();
+
+/* ═══ SECTION C · GAME LOGIC — แยกขยะลงถัง 4 สี ═══ */
+// ถังขยะมาตรฐานไทย 4 สี
+const BINS = [
+    { key:'green',  ico:'🟢', label:'เปียก',     sub:'ย่อยสลายได้', cls:'green' },
+    { key:'yellow', ico:'🟡', label:'รีไซเคิล',  sub:'นำกลับใช้ใหม่', cls:'yellow' },
+    { key:'blue',   ico:'🔵', label:'ทั่วไป',    sub:'ย่อยสลายยาก', cls:'blue' },
+    { key:'red',    ico:'🔴', label:'อันตราย',   sub:'มีสารพิษ', cls:'red' },
+];
+const BIN_NAME = { green:'ถังเขียว (เปียก)', yellow:'ถังเหลือง (รีไซเคิล)', blue:'ถังน้ำเงิน (ทั่วไป)', red:'ถังแดง (อันตราย)' };
+
+// ขยะ: {emoji, th, bin, tip}
+const ITEMS = [
+    // 🟢 เปียก / ย่อยสลายได้
+    {emoji:'🍌',th:'เปลือกกล้วย',bin:'green',tip:'เศษอาหารย่อยสลายได้ ทำปุ๋ยหมักได้'},
+    {emoji:'🍚',th:'เศษข้าว',bin:'green',tip:'เศษอาหารเหลือ → ถังเปียก'},
+    {emoji:'🥬',th:'เศษผัก',bin:'green',tip:'พืชผักย่อยสลายเองได้ตามธรรมชาติ'},
+    {emoji:'🍂',th:'ใบไม้แห้ง',bin:'green',tip:'ใบไม้ย่อยสลายได้ ทำปุ๋ยใบไม้'},
+    {emoji:'🐟',th:'ก้างปลา',bin:'green',tip:'เศษอาหารจากสัตว์ ย่อยสลายได้'},
+    {emoji:'🥚',th:'เปลือกไข่',bin:'green',tip:'เปลือกไข่ย่อยสลายได้ บำรุงดินด้วย'},
+    {emoji:'☕',th:'กากกาแฟ',bin:'green',tip:'กากกาแฟย่อยสลายได้ ทำปุ๋ยได้'},
+    {emoji:'🍊',th:'เปลือกส้ม',bin:'green',tip:'เปลือกผลไม้ย่อยสลายได้'},
+    {emoji:'🌽',th:'ซังข้าวโพด',bin:'green',tip:'เศษพืชย่อยสลายได้ตามธรรมชาติ'},
+    {emoji:'🍉',th:'เปลือกแตงโม',bin:'green',tip:'เปลือกผลไม้ → ถังเปียก'},
+    {emoji:'🍞',th:'ขนมปังเก่า',bin:'green',tip:'อาหารเหลือทิ้ง ย่อยสลายได้'},
+
+    // 🟡 รีไซเคิล
+    {emoji:'🧴',th:'ขวดพลาสติก',bin:'yellow',tip:'ล้างให้สะอาดแล้วรีไซเคิลได้'},
+    {emoji:'🥫',th:'กระป๋องอะลูมิเนียม',bin:'yellow',tip:'โลหะนำกลับมาหลอมใช้ใหม่ได้'},
+    {emoji:'📄',th:'กระดาษ',bin:'yellow',tip:'กระดาษรีไซเคิลเป็นกระดาษใหม่ได้'},
+    {emoji:'📦',th:'กล่องกระดาษ',bin:'yellow',tip:'พับแล้วส่งรีไซเคิลได้'},
+    {emoji:'🗞️',th:'หนังสือพิมพ์',bin:'yellow',tip:'กระดาษเก่ารีไซเคิลได้'},
+    {emoji:'🍾',th:'ขวดแก้ว',bin:'yellow',tip:'แก้วหลอมขึ้นรูปใหม่ได้ไม่จำกัด'},
+    {emoji:'🧃',th:'กล่องนม UHT',bin:'yellow',tip:'ล้างแล้วรีไซเคิลทำหลังคาเขียวได้'},
+    {emoji:'🔩',th:'เศษเหล็ก',bin:'yellow',tip:'โลหะรีไซเคิลได้มีมูลค่า'},
+    {emoji:'📰',th:'นิตยสารเก่า',bin:'yellow',tip:'กระดาษ → ถังรีไซเคิล'},
+
+    // 🔵 ทั่วไป (ย่อยสลายยาก แต่ไม่อันตราย)
+    {emoji:'🛍️',th:'ถุงพลาสติก',bin:'blue',tip:'เปื้อนอาหาร รีไซเคิลยาก → ถังทั่วไป'},
+    {emoji:'🧻',th:'ทิชชู่ใช้แล้ว',bin:'blue',tip:'เปื้อนแล้วรีไซเคิลไม่ได้'},
+    {emoji:'🥤',th:'แก้วน้ำพลาสติก',bin:'blue',tip:'แก้ว+หลอดเปื้อน → ถังทั่วไป'},
+    {emoji:'🍬',th:'ซองขนม',bin:'blue',tip:'ซองหลายชั้นรีไซเคิลไม่ได้'},
+    {emoji:'🪥',th:'แปรงสีฟันเก่า',bin:'blue',tip:'พลาสติกผสม รีไซเคิลยาก'},
+    {emoji:'🧦',th:'ถุงเท้าขาด',bin:'blue',tip:'เศษผ้าเก่า → ถังทั่วไป'},
+    {emoji:'🍢',th:'ไม้เสียบลูกชิ้น',bin:'blue',tip:'เปื้อนอาหาร ทิ้งถังทั่วไป'},
+    {emoji:'🧽',th:'ฟองน้ำเก่า',bin:'blue',tip:'ฟองน้ำใช้แล้ว → ถังทั่วไป'},
+    {emoji:'🩹',th:'พลาสเตอร์ใช้แล้ว',bin:'blue',tip:'ของใช้ส่วนตัวใช้แล้ว → ถังทั่วไป'},
+
+    // 🔴 อันตราย
+    {emoji:'🔋',th:'ถ่านไฟฉาย',bin:'red',tip:'มีโลหะหนัก ห้ามทิ้งปนขยะทั่วไป'},
+    {emoji:'💡',th:'หลอดไฟ',bin:'red',tip:'หลอดมีสารปรอท เป็นขยะอันตราย'},
+    {emoji:'💊',th:'ยาหมดอายุ',bin:'red',tip:'ยาเก่าปนเปื้อนสิ่งแวดล้อมได้'},
+    {emoji:'💉',th:'เข็มฉีดยา',bin:'red',tip:'ของมีคมติดเชื้อ ต้องแยกทิ้ง'},
+    {emoji:'🌡️',th:'ปรอทวัดไข้',bin:'red',tip:'ปรอทเป็นสารพิษอันตรายมาก'},
+    {emoji:'🪫',th:'แบตเตอรี่',bin:'red',tip:'มีสารเคมีอันตราย ต้องแยกทิ้ง'},
+    {emoji:'☠️',th:'ยาฆ่าแมลง',bin:'red',tip:'สารเคมีพิษ เป็นขยะอันตราย'},
+    {emoji:'🧪',th:'น้ำยาเคมี',bin:'red',tip:'สารเคมี ห้ามเททิ้งทั่วไป'},
+    {emoji:'📱',th:'มือถือเก่า',bin:'red',tip:'ขยะอิเล็กทรอนิกส์ มีโลหะหนัก'},
+];
+
+let score = 0, lives = 3, streak = 0, maxStreak = 0, correctCount = 0;
+let mode = 'race', cur = null, recent = [];
+let qStart = 0, qLimit = 0, rafId = 0, locked = false, started = false, isGameOver = false;
+
+function shuffle(a){ a = a.slice(); for(let i=a.length-1;i>0;i--){ const j=(Math.random()*(i+1))|0; [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+function renderBins() {
+    $('bins').innerHTML = BINS.map((b, i) =>
+        `<button class="bin ${b.cls}" data-bin="${b.key}" onclick="chooseBin('${b.key}')">
+            <span class="b-ico">🗑️</span>
+            <span class="b-label">${b.label}</span>
+            <span class="b-sub">${b.sub}</span>
+            <span class="b-key">กด ${i+1}</span>
+        </button>`
+    ).join('');
+}
+
+function chooseMode(m) {
+    KAMPAI.sound.unlock();
+    mode = m;
+    if (started) return;
+    started = true;
+    score = 0; lives = 3; streak = 0; maxStreak = 0; correctCount = 0; recent = [];
+    $('start').classList.remove('on');
+    $('hud').classList.add('on');
+    $('play').classList.add('on');
+    $('player-chip').style.display = 'none';
+    if (mode === 'race') { $('timer-wrap').classList.add('on'); }
+    else { $('timer-wrap').classList.remove('on'); }
+    renderBins();
+    setScore(0); setLives(3); updateCombo();
+    KAMPAI.sound.bgmStart();
+    nextItem();
+}
+
+function nextItem() {
+    if (isGameOver) return;
+    locked = false;
+    let pool = ITEMS.filter(x => !recent.includes(x.th));
+    if (!pool.length) { recent = []; pool = ITEMS; }
+    cur = pool[(Math.random() * pool.length) | 0];
+    recent.push(cur.th); while (recent.length > 10) recent.shift();
+
+    $('item-emoji').textContent = cur.emoji;
+    $('item-th').textContent = cur.th;
+    $('feedback').textContent = ''; $('feedback').className = '';
+    document.querySelectorAll('.bin').forEach(b => b.classList.remove('correct','wrong'));
+
+    if (mode === 'race') {
+        qLimit = Math.max(2800, 6500 - correctCount * 130);
+        qStart = performance.now();
+        $('timer-bar').classList.remove('warn');
+        cancelAnimationFrame(rafId);
+        tickTimer();
+    }
+}
+
+function tickTimer() {
+    const frac = Math.max(0, 1 - (performance.now() - qStart) / qLimit);
+    const bar = $('timer-bar'); bar.style.width = (frac * 100) + '%';
+    if (frac < 0.33) bar.classList.add('warn');
+    if (frac <= 0) { timeUp(); return; }
+    rafId = requestAnimationFrame(tickTimer);
+}
+function timeUp() {
+    if (locked) return; locked = true;
+    cancelAnimationFrame(rafId);
+    KAMPAI.sound.timeUp(); KAMPAI.sound.fxFlash(false); shakeItem();
+    streak = 0; updateCombo(); revealCorrect();
+    flash('หมดเวลา! ⏱️ ' + cur.th + ' → ' + BIN_NAME[cur.bin], false);
+    setLives(lives - 1);
+    if (lives > 0) setTimeout(nextItem, 1100);
+}
+
+function chooseBin(key) {
+    if (locked || !cur) return; locked = true;
+    cancelAnimationFrame(rafId);
+    const btn = document.querySelector('.bin[data-bin="' + key + '"]');
+    if (key === cur.bin) {
+        if (btn) btn.classList.add('correct');
+        KAMPAI.sound.correct(); KAMPAI.sound.fxFlash(true); bumpItem();
+        correctCount++; streak++; maxStreak = Math.max(maxStreak, streak);
+        const mult = comboMult();
+        let gained = 10;
+        if (mode === 'race') { const frac = Math.max(0, 1 - (performance.now() - qStart) / qLimit); gained += Math.round(frac * 10); }
+        gained *= mult;
+        setScore(score + gained); updateCombo();
+        flash('+' + gained + (mult > 1 ? '  (x' + mult + ')' : '') + ' ✓ ' + cur.tip, true);
+        setTimeout(nextItem, mode === 'practice' ? 850 : 700);
+    } else {
+        if (btn) btn.classList.add('wrong');
+        revealCorrect();
+        KAMPAI.sound.wrong(); KAMPAI.sound.fxFlash(false); shakeItem();
+        streak = 0; updateCombo();
+        flash('❌ ' + cur.th + ' ทิ้ง ' + BIN_NAME[cur.bin] + ' — ' + cur.tip, false);
+        setLives(lives - 1);
+        if (lives > 0) setTimeout(nextItem, 1500);
+    }
+}
+
+function revealCorrect() {
+    document.querySelectorAll('.bin').forEach(b => { if (b.dataset.bin === cur.bin) b.classList.add('correct'); });
+}
+function comboMult() { return Math.min(5, 1 + Math.floor(streak / 5)); }
+function updateCombo() {
+    const badge = $('combo-badge'); const m = comboMult();
+    if (streak >= 3) { badge.textContent = '🔥 x' + m + ' · ' + streak + ' ต่อ'; badge.classList.add('on'); } else badge.classList.remove('on');
+}
+function flash(msg, good) { const f = $('feedback'); f.textContent = msg; f.className = good ? 'good' : 'bad'; }
+function setScore(n) { score = Math.max(0, n); $('score-value').textContent = score; const w = $('score-container'); w.classList.add('pop'); setTimeout(() => w.classList.remove('pop'), 150); }
+function setLives(n) { lives = Math.max(0, n); let s = ''; for (let i = 0; i < 3; i++) s += (i < lives) ? '❤️' : '🖤'; $('life-container').textContent = s; if (lives <= 0) endGame(); }
+function bumpItem() { const c = $('item-card'); c.classList.add('bump'); setTimeout(() => c.classList.remove('bump'), 250); }
+function shakeItem() { const c = $('item-card'); c.classList.add('shake'); setTimeout(() => c.classList.remove('shake'), 420); }
+
+function endGame() {
+    if (isGameOver) return; isGameOver = true;
+    cancelAnimationFrame(rafId);
+    KAMPAI.sound.gameOver(); KAMPAI.sound.bgmStop();
+    KAMPAI.submitScore(score, { mode: mode === 'race' ? 'normal' : 'tutorial', correct: correctCount, maxStreak: maxStreak });
+    $('hud').classList.remove('on'); $('timer-wrap').classList.remove('on'); $('play').classList.remove('on');
+    $('final-score').textContent = score;
+    $('final-detail').textContent = 'แยกถูก ' + correctCount + ' ชิ้น · สูงสุด ' + maxStreak + ' ต่อเนื่อง · โหมด ' + (mode === 'race' ? 'แข่งเวลา' : 'ฝึก');
+    $('gameover').classList.add('on');
+    renderLeaderboard('score-list-gameover');
+}
+
+window.addEventListener('keydown', (e) => {
+    if (!started || isGameOver || locked) return;
+    const idx = ['1','2','3','4'].indexOf(e.key);
+    if (idx < 0) return;
+    const b = BINS[idx]; if (b) chooseBin(b.key);
+});
+
+renderBins();
+</script>
+</body>
+</html>
