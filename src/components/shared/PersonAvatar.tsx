@@ -26,7 +26,7 @@ interface PersonAvatarProps {
  */
 export const PersonAvatar = ({ name, photoUrl, size = 'sm', className }: PersonAvatarProps) => (
     <Avatar className={cn(SIZE_CLASS[size], className)} aria-label={name}>
-        {photoUrl ? <AvatarImage src={photoUrl} alt={name} /> : null}
+        {photoUrl ? <AvatarImage src={photoUrl} alt={name} className="object-cover" /> : null}
         <AvatarFallback className="font-semibold text-muted-foreground">
             {getInitials(name)}
         </AvatarFallback>

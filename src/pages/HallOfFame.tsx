@@ -120,7 +120,7 @@ const HallOfFame = () => {
 
       {/* Hero band */}
       <section className="bg-gradient-to-br from-primary/10 via-primary/5 to-background border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 py-10 sm:py-14 text-center">
+        <div className="max-w-7xl mx-auto px-4 py-5 md:py-8 text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-yellow-400/20 mb-4">
             <Trophy className="w-8 h-8 text-yellow-500" />
           </div>
@@ -131,9 +131,9 @@ const HallOfFame = () => {
         </div>
       </section>
 
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-6 sm:py-8">
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-4 md:py-6">
         {/* Filter bar */}
-        <Card className="mb-6">
+        <Card className="mb-4">
           <CardContent className="pt-6">
             <div className="flex flex-wrap items-end gap-3">
               <div className="space-y-1">
@@ -201,7 +201,7 @@ const HallOfFame = () => {
                           {idx + 1}
                         </div>
                         <Avatar className="w-20 h-20 mx-auto mb-3 ring-2 ring-offset-2 ring-offset-background ring-primary/20">
-                          {row.photoUrl ? <AvatarImage src={row.photoUrl} alt={row.name} /> : null}
+                          {row.photoUrl ? <AvatarImage src={row.photoUrl} alt={row.name} className="object-cover" /> : null}
                           <AvatarFallback className="text-lg">{initials(row.name)}</AvatarFallback>
                         </Avatar>
                         <p className="font-semibold text-lg leading-tight">{row.name}</p>
@@ -231,7 +231,7 @@ const HallOfFame = () => {
                               {rank + 1}
                             </div>
                             <Avatar className="w-10 h-10 flex-shrink-0">
-                              {row.photoUrl ? <AvatarImage src={row.photoUrl} alt={row.name} /> : null}
+                              {row.photoUrl ? <AvatarImage src={row.photoUrl} alt={row.name} className="object-cover" /> : null}
                               <AvatarFallback>{initials(row.name)}</AvatarFallback>
                             </Avatar>
                             <div className="flex-1 min-w-0">
@@ -279,7 +279,7 @@ const HallOfFame = () => {
                             {idx + 1}
                           </div>
                           <Avatar className="w-8 h-8 flex-shrink-0">
-                            {row.photoUrl ? <AvatarImage src={row.photoUrl} alt={row.name} /> : null}
+                            {row.photoUrl ? <AvatarImage src={row.photoUrl} alt={row.name} className="object-cover" /> : null}
                             <AvatarFallback className="text-xs">{initials(row.name)}</AvatarFallback>
                           </Avatar>
                           <p className="flex-1 min-w-0 text-sm font-medium truncate">{row.name}</p>
@@ -304,7 +304,7 @@ const HallOfFame = () => {
                     <CardContent className="pt-4 pb-4">
                       <div className="flex items-start gap-3">
                         <Avatar className="w-10 h-10 flex-shrink-0">
-                          {r.students?.photo_url ? <AvatarImage src={r.students.photo_url} alt={r.students.name} /> : null}
+                          {r.students?.photo_url ? <AvatarImage src={r.students.photo_url} alt={r.students.name} className="object-cover" /> : null}
                           <AvatarFallback>{initials(r.students?.name ?? '')}</AvatarFallback>
                         </Avatar>
                         <div className="flex-1 min-w-0">
