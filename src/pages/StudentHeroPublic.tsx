@@ -285,23 +285,26 @@ export default function StudentHeroPublic() {
     }
   }, [studentId]);
 
-  // 1. Fetch Student Info if ID selected
+  // 1. Fetch Student Info if identifier selected (รับได้ทั้งรหัสนักเรียน + UUID)
   const { data: student, isLoading: isStudentLoading } = useQuery({
     queryKey: ['public-student', selectedStudentId],
     enabled: !!selectedStudentId,
     queryFn: async () => {
-      const { data, error } = await studentsService.getById(selectedStudentId!);
+      const { data, error } = await studentsService.getByCodeOrId(selectedStudentId!);
       if (error) throw error;
       return data;
     }
   });
 
-  // 2. Fetch Hero Profile calculation if ID selected
+  // UUID จริงของนักเรียน — ใช้ป้อน query ที่ต้องการ student_id (URL อาจเป็นรหัสนักเรียน)
+  const realStudentId = student?.id ?? null;
+
+  // 2. Fetch Hero Profile calculation if student resolved
   const { data: profile, isLoading: isProfileLoading } = useQuery({
-    queryKey: ['public-hero-profile', selectedStudentId],
-    enabled: !!selectedStudentId,
+    queryKey: ['public-hero-profile', realStudentId],
+    enabled: !!realStudentId,
     queryFn: async () => {
-      return await conductService.getHeroProfile(selectedStudentId!);
+      return await conductService.getHeroProfile(realStudentId!);
     }
   });
 
@@ -365,7 +368,7 @@ export default function StudentHeroPublic() {
           title: 'ค้นหาสำเร็จ 🎉',
           description: 'พบประวัติฮีโร่ความดีของนักเรียนแล้ว'
         });
-        navigate(`/hero/${data.id}`);
+        navigate(`/hero/${searchCode.trim()}`);
       } else {
         toast({
           variant: 'destructive',
@@ -440,7 +443,7 @@ export default function StudentHeroPublic() {
       />
       <SiteHeader />
 
-      <main className="flex-grow w-full max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <main className="flex-grow w-full max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
         <AnimatePresence mode="wait">
           
           {/* ════════════════════════════════════════════════════════════
@@ -860,11 +863,19 @@ export default function StudentHeroPublic() {
                                   KAMPAI HERO CERTIFICATE
                                 </span>
                                 <h3 className="text-xl font-black text-slate-800">เกียรติบัตรทำความดี</h3>
-                                <p className="text-[9px] text-slate-500">โรงเรียนบ้านคำไผ่ สพป.กาฬสินธุ์ เขต 3</p>
+                                <p className="text-[9px] text-slate-500">โรงเรียนบ้านคำไผ่ สพป.อุดรธานี เขต 2</p>
                               </div>
 
-                              <div className="w-16 h-16 rounded-full border-2 border-amber-300 p-1 bg-card shadow">
-                                <PersonAvatar name={student.name} photoUrl={student.photo_url} size="md" className="rounded-full" />
+                              <div className="w-32 h-44 rounded-xl border-2 border-amber-300 p-1 bg-card shadow flex items-center justify-center overflow-hidden">
+                                {student.photo_url ? (
+                                  <img
+                                    src={student.photo_url}
+                                    alt={student.name}
+                                    className="max-h-full max-w-full object-contain rounded-lg"
+                                  />
+                                ) : (
+                                  <PersonAvatar name={student.name} photoUrl={null} size="lg" className="h-full w-full rounded-lg" />
+                                )}
                               </div>
 
                               <div className="space-y-1">
@@ -903,7 +914,8 @@ export default function StudentHeroPublic() {
                                     title: 'แชร์เกียรติบัตรสำเร็จ 🌟',
                                     description: 'คัดลอกลิงก์ประวัติของนักเรียนไปยังคลิปบอร์ดแล้ว'
                                   });
-                                  navigator.clipboard.writeText(window.location.href);
+                                  const slug = student.student_code || student.id;
+                                  navigator.clipboard.writeText(`${window.location.origin}/hero/${slug}`);
                                 }}
                                 className="flex-1 rounded-2xl font-bold bg-primary hover:bg-primary-deep text-white"
                               >

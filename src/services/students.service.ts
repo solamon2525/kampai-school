@@ -83,6 +83,14 @@ export const studentsService = {
   getById: (id: string) =>
     supabase.from('students').select('*').eq('id', id).single(),
 
+  /** ดึงนักเรียนจากรหัสนักเรียน หรือ UUID (รองรับ URL สั้น /hero/<code>) */
+  getByCodeOrId: (identifier: string) => {
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
+    return isUuid
+      ? supabase.from('students').select('*').eq('id', identifier).maybeSingle()
+      : supabase.from('students').select('*').eq('student_code', identifier).maybeSingle();
+  },
+
   /** เพิ่มนักเรียนใหม่ */
   insert: (data: Partial<StudentRow>) =>
     supabase.from('students').insert(data as never),
