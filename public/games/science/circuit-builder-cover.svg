@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" font-family="'Kanit','Sarabun','Segoe UI',sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1e3a8a"/><stop offset="0.55" stop-color="#1e293b"/><stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fde68a"/><stop offset="0.5" stop-color="#FFD700"/><stop offset="1" stop-color="#f59e0b"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.4" r="0.5">
+      <stop offset="0" stop-color="#fbbf24" stop-opacity="0.30"/><stop offset="1" stop-color="#fbbf24" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="bulbglow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fde047" stop-opacity="0.9"/><stop offset="1" stop-color="#fde047" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000" flood-opacity="0.45"/></filter>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <ellipse cx="640" cy="300" rx="640" ry="360" fill="url(#glow)"/>
+  <text x="180" y="600" font-size="240" opacity="0.07" text-anchor="middle" dominant-baseline="middle">⚡</text>
+  <text x="1110" y="170" font-size="200" opacity="0.07" text-anchor="middle" dominant-baseline="middle">🔋</text>
+
+  <g transform="translate(640,118)">
+    <rect x="-200" y="-26" width="400" height="52" rx="26" fill="#ffffff" opacity="0.12"/>
+    <text x="0" y="2" font-size="26" font-weight="600" fill="#e2e8f0" text-anchor="middle" dominant-baseline="middle">⚡ KAMPAI · วิทยาศาสตร์ ป.4-6</text>
+  </g>
+  <text x="640" y="290" font-size="118" font-weight="800" fill="url(#gold)" text-anchor="middle" dominant-baseline="middle" filter="url(#sh)" letter-spacing="2">ต่อวงจรไฟฟ้า</text>
+  <text x="640" y="378" font-size="38" font-weight="700" fill="#cbd5e1" text-anchor="middle" dominant-baseline="middle">วางชิ้นส่วนให้ครบวงจร → หลอดสว่าง</text>
+
+  <!-- mini circuit illustration -->
+  <g transform="translate(640,540)" stroke="#d97706" stroke-width="9" stroke-linecap="round" fill="none">
+    <polyline points="-260,60 -260,-60 -60,-60"/>
+    <polyline points="60,-60 260,-60 260,60 -260,60"/>
+  </g>
+  <g transform="translate(640,540)">
+    <!-- battery -->
+    <rect x="-60" y="40" width="120" height="42" rx="8" fill="#1e293b" stroke="#fbbf24" stroke-width="5"/>
+    <text x="0" y="63" font-size="34" text-anchor="middle" dominant-baseline="central">🔋</text>
+    <!-- bulb (lit) -->
+    <circle cx="0" cy="-60" r="58" fill="url(#bulbglow)"/>
+    <circle cx="0" cy="-60" r="34" fill="#fde047" stroke="#f59e0b" stroke-width="4"/>
+    <text x="0" y="-58" font-size="40" text-anchor="middle" dominant-baseline="central">💡</text>
+    <!-- slot to fill -->
+    <rect x="-200" y="-22" width="86" height="64" rx="10" fill="rgba(56,189,248,0.15)" stroke="#38bdf8" stroke-width="4" stroke-dasharray="10 7"/>
+    <text x="-157" y="12" font-size="42" text-anchor="middle" fill="#7dd3fc">＋</text>
+  </g>
+  <g transform="translate(640,668)">
+    <rect x="-280" y="-24" width="560" height="48" rx="24" fill="#f59e0b" opacity="0.18"/>
+    <text x="0" y="2" font-size="23" font-weight="700" fill="#fcd34d" text-anchor="middle" dominant-baseline="middle">วงปิด · สวิตช์ · ตัวนำ/ฉนวน · อนุกรม · ขนาน</text>
+  </g>
+</svg>

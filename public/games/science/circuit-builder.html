@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ต่อวงจรไฟฟ้า — Circuit Builder (kampai)</title>
+<!--
+═══════════════════════════════════════════════════════════════════════════
+  KAMPAI-SCHOOL · เกม "ต่อวงจรไฟฟ้า" (circuit-builder) — วิชาวิทยาศาสตร์ ป.4-6
+  วางชิ้นส่วน (สายไฟ/สวิตช์/วัสดุ) ลงช่องว่างให้ครบวงจร → หลอดสว่าง
+  6 ด่าน: วงปิด · สวิตช์ · ตัวนำ/ฉนวน · อนุกรม · ขนาน · ขนาน+สวิตช์
+  โหมด: ⚡ ผจญภัย (เก็บคะแนน) · 📚 ฝึก (เรียนรู้)
+  Engine: ตรวจ closed-loop จริงด้วย graph BFS (รองรับ series + parallel)
+═══════════════════════════════════════════════════════════════════════════
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Fredoka+One&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; font-family: 'Kanit', sans-serif; color: #fff; overflow: hidden; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+body { background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); }
+#app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+
+/* HUD */
+#hud { display: none; align-items: center; justify-content: space-between; padding: 12px 16px; gap: 10px; }
+#hud.on { display: flex; }
+#score-container { font-size: 24px; font-weight: 700; color: #FFD700; text-shadow: 2px 2px 4px #000; background: rgba(0,0,0,0.35); padding: 4px 16px; border-radius: 999px; border: 2px solid rgba(255,215,0,0.5); transition: transform 0.15s; white-space: nowrap; }
+#score-container.pop { transform: scale(1.18); }
+#level-pill { font-family: 'Fredoka One', cursive; font-size: 15px; color: #0f172a; background: linear-gradient(45deg,#7dd3fc,#38bdf8); padding: 6px 14px; border-radius: 999px; white-space: nowrap; }
+#btn-home { font-size: 22px; background: rgba(255,255,255,0.1); border: none; color: #fff; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; }
+
+/* Play area */
+#play { flex: 1; display: none; flex-direction: column; align-items: center; justify-content: flex-start; padding: 4px 14px 14px; gap: 10px; overflow-y: auto; }
+#play.on { display: flex; }
+#goal { font-family: 'Fredoka One', cursive; font-size: clamp(17px, 4.6vw, 24px); color: #fde68a; text-align: center; line-height: 1.3; }
+#board-wrap { width: 100%; max-width: 440px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 18px; padding: 8px; }
+#board svg { width: 100%; height: auto; display: block; }
+.slot-box { cursor: pointer; }
+#feedback { min-height: 22px; font-size: 16px; font-weight: 600; text-align: center; }
+#feedback.bad { color: #fca5a5; }
+#feedback.good { color: #86efac; }
+
+/* Tray */
+#tray { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; width: 100%; max-width: 440px; }
+.piece { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 78px; padding: 8px 10px; border-radius: 14px; border: 2px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.08); color: #fff; font-family: 'Kanit'; font-weight: 600; font-size: 13px; cursor: pointer; transition: transform 0.08s, border-color 0.1s, background 0.1s; }
+.piece:active { transform: scale(0.94); }
+.piece .pe { font-size: 26px; line-height: 1; }
+.piece.held { border-color: #fbbf24; background: rgba(251,191,36,0.22); box-shadow: 0 0 0 3px rgba(251,191,36,0.25); }
+#tools { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.mini { padding: 8px 16px; font-family: inherit; font-size: 14px; font-weight: 600; border-radius: 999px; border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.08); color: #fff; cursor: pointer; }
+
+/* Win banner */
+#win { display: none; flex-direction: column; align-items: center; gap: 8px; width: 100%; max-width: 440px; background: linear-gradient(135deg, rgba(34,197,94,0.18), rgba(16,185,129,0.12)); border: 2px solid rgba(74,222,128,0.5); border-radius: 18px; padding: 14px; text-align: center; }
+#win.on { display: flex; }
+#win .wt { font-family: 'Fredoka One', cursive; font-size: 22px; color: #4ade80; }
+#win .wtip { font-size: 14px; color: #d1fae5; line-height: 1.45; }
+
+/* Screens */
+.screen { position: absolute; inset: 0; background: rgba(15,23,42,0.94); backdrop-filter: blur(8px); display: none; flex-direction: column; align-items: center; justify-content: flex-start; z-index: 30; text-align: center; padding: 28px 22px; overflow-y: auto; }
+.screen.on { display: flex; }
+.screen h1 { font-family: 'Fredoka One', cursive; font-size: 34px; margin-bottom: 6px; background: linear-gradient(135deg, #FFD700, #FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.screen p { font-size: 16px; color: #cbd5e1; margin-bottom: 14px; line-height: 1.5; }
+#final-score { color: #FFD700; font-family: 'Fredoka One', cursive; font-size: 56px; margin: 4px 0 6px; }
+#final-detail { font-size: 15px; color: #cbd5e1; margin-bottom: 12px; }
+.btn { padding: 14px 30px; font-family: inherit; font-size: 19px; font-weight: 600; border-radius: 999px; border: none; cursor: pointer; margin: 6px; transition: transform 0.1s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; color: #fff; }
+.btn:active { transform: scale(0.95); }
+.btn-primary { background: linear-gradient(45deg, #f59e0b, #f97316); box-shadow: 0 4px 10px rgba(245,158,11,0.4); }
+.btn-blue { background: linear-gradient(45deg, #3b82f6, #2563eb); box-shadow: 0 4px 10px rgba(59,130,246,0.4); }
+.btn-ghost { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25); }
+.mode-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 8px; }
+.leaderboard-box { background: rgba(255,255,255,0.95); color: #2c3e50; border-radius: 12px; padding: 12px 15px; margin: 10px 0; width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.lb-title { font-family: 'Fredoka One', cursive; font-size: 1rem; margin: 0 0 8px 0; text-align: left; }
+.leaderboard-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.leaderboard-list li { display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-bottom: 1px dashed #dee2e6; }
+.leaderboard-list li:last-child { border-bottom: none; }
+.leaderboard-list li.is-me { background: #fff7e0; border-radius: 8px; }
+.lb-rank { font-family: 'Fredoka One', cursive; color: #f39c12; min-width: 26px; text-align: center; font-size: 1.1rem; }
+.lb-avatar, .lb-avatar-init { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #f39c12; flex-shrink: 0; }
+.lb-avatar-init { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.lb-info { display: flex; flex-direction: column; min-width: 0; flex: 1; text-align: left; }
+.lb-name { font-family: 'Fredoka One', cursive; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-sub { font-size: 0.72rem; color: #868e96; }
+.lb-loading { color: #868e96; text-align: center; padding: 8px; font-size: 0.85rem; }
+#player-chip { display: none; align-items: center; gap: 8px; background: rgba(255,255,255,0.1); padding: 4px 14px 4px 4px; border-radius: 999px; font-size: 14px; margin-bottom: 12px; }
+#player-chip img, #player-chip .pc-init { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+#player-chip .pc-init { background: linear-gradient(135deg,#6c5ce7,#a29bfe); display: flex; align-items: center; justify-content: center; font-weight: 700; }
+#player-chip .pc-best { color: #FFD700; font-weight: 700; }
+</style>
+</head>
+<body>
+<div id="app">
+    <div id="hud">
+        <div id="score-container">⭐ <span id="score-value">0</span></div>
+        <div id="level-pill">ด่าน 1/6</div>
+        <button id="btn-home" onclick="KAMPAI.goHome()">🏠</button>
+    </div>
+    <div id="play">
+        <div id="goal">—</div>
+        <div id="board-wrap"><div id="board"></div></div>
+        <div id="feedback"></div>
+        <div id="tray"></div>
+        <div id="tools">
+            <button class="mini" onclick="resetLevel()">↺ ล้างด่านนี้</button>
+        </div>
+        <div id="win">
+            <div class="wt">⚡ วงจรครบ! หลอดสว่าง</div>
+            <div class="wtip" id="win-tip"></div>
+            <button class="btn btn-primary" id="win-next" onclick="nextLevel()">ด่านต่อไป →</button>
+        </div>
+    </div>
+</div>
+
+<div id="start" class="screen on">
+    <h1>🔌 ต่อวงจรไฟฟ้า</h1>
+    <div id="player-chip"></div>
+    <p>วาง<b>สายไฟ · สวิตช์ · วัสดุ</b>ลงช่องว่าง ให้วงจร<b>ปิดครบรอบ</b> หลอดจะสว่าง! 💡<br>แตะชิ้นส่วนด้านล่าง แล้วแตะช่องว่างในวงจร</p>
+    <div class="mode-grid">
+        <button class="btn btn-primary" onclick="startGame('adventure')">⚡ ผจญภัย</button>
+        <button class="btn btn-ghost" onclick="startGame('practice')">📚 ฝึก</button>
+    </div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+    </div>
+</div>
+
+<div id="gameover" class="screen">
+    <h1>จบเกม! ⚡</h1>
+    <div id="final-score">0</div>
+    <div id="final-detail"></div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
+        <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นอีกครั้ง</button>
+        <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+    </div>
+</div>
+
+<!-- ═══ KAMPAI SDK (single source — อย่าแก้) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{unlock:function(){return this;},correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},setBgm:function(){return this;},defaultBgm:function(){return this;},bgmStart:function(){},bgmStop:function(){},mountToggles:function(){return this;}} };</script>
+
+<script>
+/* ═══ SECTION A · ตั้งค่า ═══ */
+const GAME_SLUG = 'circuit-builder';
+KAMPAI.setSlug(GAME_SLUG);
+const $ = (id) => document.getElementById(id);
+
+/* ═══ SECTION B · นักเรียน + leaderboard (ดึงจาก KAMPAI) ═══ */
+function renderPlayer() {
+    const s = KAMPAI.student, st = KAMPAI.stats;
+    if (!s) return;
+    const chip = $('player-chip');
+    const av = s.photoUrl ? `<img src="${s.photoUrl}" alt="">` : `<div class="pc-init">${(s.displayName||'?')[0]}</div>`;
+    const best = st ? ` · <span class="pc-best">สถิติ ${st.personalBest.toLocaleString()}</span>` : '';
+    chip.innerHTML = av + `<span>${s.displayName}${best}</span>`;
+    chip.style.display = 'flex';
+}
+function renderLeaderboard(listId) {
+    const el = $(listId); if (!el) return;
+    const rows = KAMPAI.leaderboard || [];
+    if (!rows.length) { el.innerHTML = '<li class="lb-loading">ยังไม่มีผู้เล่น — เป็นคนแรกสิ!</li>'; return; }
+    const medals = ['🥇','🥈','🥉'];
+    el.innerHTML = rows.slice(0, 5).map((r) => {
+        const av = r.photoUrl ? `<img class="lb-avatar" src="${r.photoUrl}" alt="">` : `<div class="lb-avatar-init">${(r.displayName||'?')[0]}</div>`;
+        return `<li class="${r.isMe ? 'is-me' : ''}"><span class="lb-rank">${medals[r.rank-1] || r.rank}</span>${av}
+            <div class="lb-info"><div class="lb-name">${r.displayName}${r.isMe ? ' (คุณ)' : ''}</div>
+            <div class="lb-sub">${(r.personalBest||0).toLocaleString()} คะแนน · ${r.classLabel||''}</div></div></li>`;
+    }).join('');
+}
+KAMPAI.onReady(function () { renderPlayer(); renderLeaderboard('score-list'); });
+
+/* ═══ SECTION B2 · เสียง/เอฟเฟกต์ (KAMPAI.sound — single source) ═══ */
+KAMPAI.sound.mountToggles();
+KAMPAI.sound.defaultBgm('calm');
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTION C · GAME LOGIC — ต่อวงจรไฟฟ้า (circuit builder)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+// ── ชิ้นส่วน (tray pieces) ──
+//   conducts:true = นำไฟฟ้า · type 'switch' = นำไฟฟ้าเฉพาะตอน "ต่อ" (closed)
+const PIECE = {
+    copper:  { type:'wire',      label:'สายทองแดง', emoji:'🟠', conducts:true },
+    iron:    { type:'wire',      label:'ตะปูเหล็ก',  emoji:'🔩', conducts:true },
+    switch:  { type:'switch',    label:'สวิตช์',     emoji:'🔘', conducts:true },
+    plastic: { type:'insulator', label:'พลาสติก',    emoji:'🟦', conducts:false },
+    wood:    { type:'insulator', label:'ไม้',        emoji:'🪵', conducts:false },
+};
+
+// ── ด่าน ──
+//   nodes: พิกัด [x,y] ใน viewBox · battery: [P(+), N(-)] (ขั้วแบตเตอรี่)
+//   edges: { a, b, kind:'wire'|'bulb'|'slot', id? } · tray: รายชื่อ key ใน PIECE
+const SERIES_VB = '0 0 100 62';
+const LADDER_VB = '0 0 100 74';
+const LEVELS = [
+  { // 1 — วงปิด
+    vb: SERIES_VB,
+    goal: 'วางสายไฟปิดวงจร ให้หลอดสว่าง',
+    tip: '⚡ วงจรต้องเป็น "วงปิด" ครบรอบ ไฟฟ้าจึงไหลได้',
+    nodes: { P:[34,52], N:[66,52], TL:[14,12], TM:[50,12], TR:[86,12] },
+    battery: ['P','N'],
+    edges: [
+      { a:'P', b:'TL', kind:'wire' },
+      { a:'TL', b:'TM', kind:'slot', id:'s1' },
+      { a:'TM', b:'TR', kind:'bulb', id:'b1' },
+      { a:'TR', b:'N', kind:'wire' },
+    ],
+    tray: ['copper'],
+  },
+  { // 2 — สวิตช์
+    vb: SERIES_VB,
+    goal: 'วางสวิตช์ แล้วแตะเพื่อ "ต่อ" วงจร',
+    tip: '🔘 สวิตช์คือตัวเปิด/ปิดทางเดินไฟ — "ต่อ" ไฟไหล, "ตัด" ไฟดับ',
+    nodes: { P:[34,52], N:[66,52], TL:[14,12], TM:[50,12], TR:[86,12] },
+    battery: ['P','N'],
+    edges: [
+      { a:'P', b:'TL', kind:'wire' },
+      { a:'TL', b:'TM', kind:'slot', id:'s1' },
+      { a:'TM', b:'TR', kind:'bulb', id:'b1' },
+      { a:'TR', b:'N', kind:'wire' },
+    ],
+    tray: ['switch', 'plastic'],
+  },
+  { // 3 — ตัวนำ vs ฉนวน
+    vb: SERIES_VB,
+    goal: 'เลือกวัสดุที่ "นำไฟฟ้า" มาต่อวงจร',
+    tip: '🔩 โลหะ (ทองแดง/เหล็ก) นำไฟฟ้า — พลาสติก/ไม้ เป็นฉนวน ไม่นำไฟ',
+    nodes: { P:[34,52], N:[66,52], TL:[14,12], M1:[38,12], M2:[62,12], TR:[86,12] },
+    battery: ['P','N'],
+    edges: [
+      { a:'P', b:'TL', kind:'wire' },
+      { a:'TL', b:'M1', kind:'bulb', id:'b1' },
+      { a:'M1', b:'M2', kind:'slot', id:'s1' },
+      { a:'M2', b:'TR', kind:'wire' },
+      { a:'TR', b:'N', kind:'wire' },
+    ],
+    tray: ['plastic', 'copper', 'wood', 'iron'],
+  },
+  { // 4 — อนุกรม 2 หลอด
+    vb: SERIES_VB,
+    goal: 'ต่อวงจรอนุกรม ให้หลอดทั้งสองสว่าง',
+    tip: '➿ วงจรอนุกรม = ทางเดินเดียว กระแสไหลผ่านทุกหลอด',
+    nodes: { P:[34,52], N:[66,52], TL:[14,12], M1:[38,12], M2:[62,12], TR:[86,12] },
+    battery: ['P','N'],
+    edges: [
+      { a:'P', b:'TL', kind:'wire' },
+      { a:'TL', b:'M1', kind:'bulb', id:'b1' },
+      { a:'M1', b:'M2', kind:'slot', id:'s1' },
+      { a:'M2', b:'TR', kind:'bulb', id:'b2' },
+      { a:'TR', b:'N', kind:'wire' },
+    ],
+    tray: ['copper'],
+  },
+  { // 5 — ขนาน 2 หลอด
+    vb: LADDER_VB,
+    goal: 'ต่อวงจรขนาน ให้หลอดทั้งสองสว่าง',
+    tip: '🪜 วงจรขนาน = แต่ละหลอดมีทางเดินไฟของตัวเอง',
+    nodes: { Lt:[20,12], Rt:[80,12], Lm:[20,38], Rm:[80,38], Lb:[20,64], Rb:[80,64], A1:[50,12], A2:[50,38] },
+    battery: ['Lb','Rb'],
+    edges: [
+      { a:'Lt', b:'Lm', kind:'wire' },
+      { a:'Lm', b:'Lb', kind:'wire' },
+      { a:'Rt', b:'Rm', kind:'wire' },
+      { a:'Rm', b:'Rb', kind:'wire' },
+      { a:'Lt', b:'A1', kind:'slot', id:'s1' },
+      { a:'A1', b:'Rt', kind:'bulb', id:'b1' },
+      { a:'Lm', b:'A2', kind:'bulb', id:'b2' },
+      { a:'A2', b:'Rm', kind:'slot', id:'s2' },
+    ],
+    tray: ['copper', 'copper'],
+  },
+  { // 6 — ขนาน + สวิตช์ (กิ่งอิสระ)
+    vb: LADDER_VB,
+    goal: 'ต่อ & เปิดสวิตช์ ให้หลอดทั้งสองสว่าง',
+    tip: '🪜 ในวงจรขนาน แต่ละกิ่งอิสระ — สวิตช์กิ่งหนึ่งไม่ดับอีกกิ่ง',
+    nodes: { Lt:[20,12], Rt:[80,12], Lm:[20,38], Rm:[80,38], Lb:[20,64], Rb:[80,64], A1:[50,12], A2:[50,38] },
+    battery: ['Lb','Rb'],
+    edges: [
+      { a:'Lt', b:'Lm', kind:'wire' },
+      { a:'Lm', b:'Lb', kind:'wire' },
+      { a:'Rt', b:'Rm', kind:'wire' },
+      { a:'Rm', b:'Rb', kind:'wire' },
+      { a:'Lt', b:'A1', kind:'wire' },
+      { a:'A1', b:'Rt', kind:'bulb', id:'b1' },
+      { a:'Lm', b:'A2', kind:'bulb', id:'b2' },
+      { a:'A2', b:'Rm', kind:'slot', id:'s2' },
+    ],
+    tray: ['switch'],
+  },
+];
+
+// ── state ──
+let mode = 'adventure', scored = true;
+let levelIdx = 0, total = 0;
+let pieces = [];      // [{uid, key, ...PIECE, closed?, placedSlot}]
+let slotFill = {};    // slotId -> uid|null
+let held = null;      // uid ที่หยิบอยู่
+let levelStartTs = 0, misses = 0, levelSolved = false, isGameOver = false;
+
+function setScore(n) {
+    total = Math.max(0, Math.round(n));
+    $('score-value').innerText = total;
+    const w = $('score-container');
+    w.classList.add('pop'); setTimeout(() => w.classList.remove('pop'), 150);
+}
+const pieceByUid = (uid) => pieces.find(p => p.uid === uid);
+
+function startGame(m) {
+    mode = m; scored = (m === 'adventure');
+    total = 0; setScore(0); levelIdx = 0; isGameOver = false;
+    $('start').classList.remove('on');
+    $('hud').classList.add('on');
+    $('play').classList.add('on');
+    KAMPAI.sound.unlock();
+    loadLevel(0);
+}
+
+function loadLevel(i) {
+    levelIdx = i;
+    const L = LEVELS[i];
+    pieces = L.tray.map((key, k) => ({ uid: 'p' + k, key, ...PIECE[key], closed: false, placedSlot: null }));
+    slotFill = {};
+    L.edges.forEach(e => { if (e.kind === 'slot') slotFill[e.id] = null; });
+    held = null; misses = 0; levelSolved = false;
+    levelStartTs = Date.now();
+    $('goal').innerText = L.goal;
+    $('level-pill').innerText = `ด่าน ${i + 1}/${LEVELS.length}`;
+    $('win').classList.remove('on');
+    $('feedback').className = '';
+    $('feedback').innerText = '';
+    refresh();
+}
+
+function resetLevel() { loadLevel(levelIdx); }
+
+function nextLevel() {
+    if (levelIdx + 1 < LEVELS.length) loadLevel(levelIdx + 1);
+    else endGame();
+}
+
+// ── การประเมินวงจร (graph) ──
+function conductingEdges() {
+    const L = LEVELS[levelIdx];
+    const out = [];
+    out.push({ a: L.battery[0], b: L.battery[1], battery: true });
+    for (const e of L.edges) {
+        if (e.kind === 'wire') out.push({ a: e.a, b: e.b });
+        else if (e.kind === 'bulb') out.push({ a: e.a, b: e.b, bulb: e.id });
+        else if (e.kind === 'slot') {
+            const p = pieceByUid(slotFill[e.id]);
+            if (p && p.conducts && (p.type !== 'switch' || p.closed)) out.push({ a: e.a, b: e.b });
+        }
+    }
+    return out;
+}
+function buildAdj(edges) {
+    const adj = {};
+    const add = (x, y) => { (adj[x] = adj[x] || []).push(y); };
+    for (const e of edges) { add(e.a, e.b); add(e.b, e.a); }
+    return adj;
+}
+function reach(adj, start, goal) {
+    if (start === goal) return true;
+    const seen = { [start]: true }, q = [start];
+    while (q.length) {
+        const n = q.shift();
+        for (const m of (adj[n] || [])) { if (!seen[m]) { if (m === goal) return true; seen[m] = true; q.push(m); } }
+    }
+    return false;
+}
+// หลอดติด = มีกระแสไหลผ่าน (อยู่ใน loop ที่ผ่านแบตเตอรี่)
+function litBulbs() {
+    const L = LEVELS[levelIdx];
+    const edges = conductingEdges();
+    const B = edges.find(e => e.battery);
+    const P = L.battery[0], N = L.battery[1];
+    const lit = new Set();
+    for (const e of edges) {
+        if (!e.bulb) continue;
+        const sub = edges.filter(x => x !== e && x !== B); // ตัดหลอดนี้ + แบต ออก แล้วหาทางอ้อม
+        const adj = buildAdj(sub);
+        if ((reach(adj, e.a, P) && reach(adj, e.b, N)) || (reach(adj, e.a, N) && reach(adj, e.b, P))) lit.add(e.bulb);
+    }
+    return lit;
+}
+
+// ── SVG ──
+function mid(L, a, b) { const A = L.nodes[a], B = L.nodes[b]; return [(A[0] + B[0]) / 2, (A[1] + B[1]) / 2]; }
+function bulbGlyph(x, y, on) {
+    if (on) return `<g><circle cx="${x}" cy="${y}" r="9.5" fill="#fde047" opacity="0.28"/>
+        <circle cx="${x}" cy="${y}" r="5.5" fill="#fde047" stroke="#f59e0b" stroke-width="0.8"/>
+        <line x1="${x-1.6}" y1="${y+1}" x2="${x}" y2="${y-1.8}" stroke="#b45309" stroke-width="0.7"/>
+        <line x1="${x}" y1="${y-1.8}" x2="${x+1.6}" y2="${y+1}" stroke="#b45309" stroke-width="0.7"/>
+        <rect x="${x-1.6}" y="${y+4.6}" width="3.2" height="2.2" rx="0.5" fill="#94a3b8"/></g>`;
+    return `<g><circle cx="${x}" cy="${y}" r="5.5" fill="#334155" stroke="#475569" stroke-width="0.8"/>
+        <rect x="${x-1.6}" y="${y+4.6}" width="3.2" height="2.2" rx="0.5" fill="#475569"/></g>`;
+}
+function slotGlyph(L, e) {
+    const [x, y] = mid(L, e.a, e.b);
+    const p = pieceByUid(slotFill[e.id]);
+    if (!p) {
+        const pulse = held != null ? '<animate attributeName="opacity" values="0.5;1;0.5" dur="1s" repeatCount="indefinite"/>' : '';
+        return `<g class="slot-box" data-slot="${e.id}">
+            <rect x="${x-9}" y="${y-7}" width="18" height="14" rx="3" fill="rgba(56,189,248,0.12)" stroke="#38bdf8" stroke-width="0.9" stroke-dasharray="2.5 2">${pulse}</rect>
+            <text x="${x}" y="${y+0.5}" font-size="8" text-anchor="middle" dominant-baseline="central" fill="#7dd3fc">＋</text></g>`;
+    }
+    const on = p.type === 'switch' ? p.closed : true;
+    const stroke = p.type === 'switch' ? (p.closed ? '#4ade80' : '#fca5a5') : (p.conducts ? '#fbbf24' : '#fca5a5');
+    const sub = p.type === 'switch' ? (p.closed ? 'ต่อ' : 'ตัด') : '';
+    return `<g class="slot-box" data-slot="${e.id}">
+        <rect x="${x-9}" y="${y-7}" width="18" height="14" rx="3" fill="rgba(255,255,255,0.08)" stroke="${stroke}" stroke-width="1.1"/>
+        <text x="${x}" y="${sub ? y-1.5 : y}" font-size="7.5" text-anchor="middle" dominant-baseline="central">${p.emoji}</text>
+        ${sub ? `<text x="${x}" y="${y+4}" font-size="3.6" text-anchor="middle" fill="${stroke}">${sub}</text>` : ''}</g>`;
+}
+function buildSVG() {
+    const L = LEVELS[levelIdx];
+    const lit = litBulbs();
+    let wires = '', bulbs = '', slots = '', dots = '';
+    const seg = (a, b) => { const A = L.nodes[a], B = L.nodes[b]; return `<line x1="${A[0]}" y1="${A[1]}" x2="${B[0]}" y2="${B[1]}" stroke="#b45309" stroke-width="2.4" stroke-linecap="round"/>`; };
+    // เส้นลวดพื้น (ทุก segment รวม slot/bulb เพื่อให้ดูต่อเนื่อง)
+    wires += seg(L.battery[0], L.battery[1]);
+    for (const e of L.edges) wires += seg(e.a, e.b);
+    // junction dots
+    for (const k in L.nodes) { const [x, y] = L.nodes[k]; dots += `<circle cx="${x}" cy="${y}" r="1.4" fill="#fbbf24"/>`; }
+    // bulbs + slots
+    for (const e of L.edges) {
+        if (e.kind === 'bulb') { const [x, y] = mid(L, e.a, e.b); bulbs += bulbGlyph(x, y, lit.has(e.id)); }
+        else if (e.kind === 'slot') slots += slotGlyph(L, e);
+    }
+    // battery
+    const [bx, by] = mid(L, L.battery[0], L.battery[1]);
+    const Pp = L.nodes[L.battery[0]], Nn = L.nodes[L.battery[1]];
+    const battery = `<g>
+        <rect x="${bx-10}" y="${by-6}" width="20" height="12" rx="2.5" fill="#1e293b" stroke="#fbbf24" stroke-width="1"/>
+        <text x="${bx}" y="${by+0.5}" font-size="7.5" text-anchor="middle" dominant-baseline="central">🔋</text>
+        <text x="${Pp[0]}" y="${Pp[1]-3}" font-size="6" text-anchor="middle" fill="#fca5a5" font-weight="700">＋</text>
+        <text x="${Nn[0]}" y="${Nn[1]-3}" font-size="6" text-anchor="middle" fill="#93c5fd" font-weight="700">－</text></g>`;
+    return `<svg viewBox="${L.vb}" xmlns="http://www.w3.org/2000/svg">${wires}${dots}${battery}${bulbs}${slots}</svg>`;
+}
+
+function renderTray() {
+    const el = $('tray');
+    const avail = pieces.filter(p => p.placedSlot == null);
+    if (!avail.length) { el.innerHTML = '<div style="color:#94a3b8;font-size:13px;padding:6px">วางครบแล้ว — แตะสวิตช์/ชิ้นส่วนในวงจรเพื่อปรับ</div>'; return; }
+    el.innerHTML = avail.map(p => `<button class="piece ${held === p.uid ? 'held' : ''}" data-piece="${p.uid}">
+        <span class="pe">${p.emoji}</span><span>${p.label}</span></button>`).join('');
+}
+
+function refresh() {
+    const lit = litBulbs();
+    $('board').innerHTML = buildSVG();
+    renderTray();
+    // ตรวจชนะ: ทุกหลอดติด
+    const L = LEVELS[levelIdx];
+    const totalBulbs = L.edges.filter(e => e.kind === 'bulb').length;
+    const fb = $('feedback');
+    if (lit.size === totalBulbs && !levelSolved) { onSolve(); return; }
+    if (!levelSolved) {
+        // feedback ระหว่างเล่น
+        const placedInsulator = pieces.some(p => p.placedSlot && !p.conducts);
+        const openSwitch = pieces.some(p => p.placedSlot && p.type === 'switch' && !p.closed);
+        if (placedInsulator) { fb.className = 'bad'; fb.innerText = '❌ ฉนวนไฟฟ้าไม่นำไฟ — ลองวัสดุที่นำไฟฟ้า'; }
+        else if (openSwitch) { fb.className = ''; fb.innerText = '💡 แตะสวิตช์เพื่อ "ต่อ" วงจร'; }
+        else { fb.className = ''; fb.innerText = ''; }
+    }
+}
+
+function onSlotClick(slotId) {
+    if (levelSolved) return;
+    const uid = slotFill[slotId];
+    if (uid == null) {
+        if (held == null) return;
+        const p = pieceByUid(held);
+        slotFill[slotId] = held; p.placedSlot = slotId;
+        if (p.type === 'switch') p.closed = false;
+        if (!p.conducts) { misses++; KAMPAI.sound.wrong(); } else { KAMPAI.sound.unlock(); }
+        held = null;
+    } else {
+        const p = pieceByUid(uid);
+        if (p.type === 'switch') { p.closed = !p.closed; }
+        else { slotFill[slotId] = null; p.placedSlot = null; }
+    }
+    refresh();
+}
+function onPieceClick(uid) {
+    if (levelSolved) return;
+    const p = pieceByUid(uid);
+    if (!p || p.placedSlot != null) return;
+    held = (held === uid) ? null : uid;
+    refresh();
+}
+
+function onSolve() {
+    levelSolved = true;
+    held = null;
+    $('board').innerHTML = buildSVG();
+    renderTray();
+    KAMPAI.sound.correct();
+    KAMPAI.sound.fxFlash(true);
+    const L = LEVELS[levelIdx];
+    $('feedback').className = 'good';
+    $('feedback').innerText = '✅ สำเร็จ!';
+    $('win-tip').innerText = L.tip;
+    $('win-next').innerText = (levelIdx + 1 < LEVELS.length) ? 'ด่านต่อไป →' : '🎉 จบเกม';
+    $('win').classList.add('on');
+    if (scored) {
+        const secs = Math.floor((Date.now() - levelStartTs) / 1000);
+        const timeBonus = Math.max(0, 60 - secs);
+        const perfect = misses === 0 ? 30 : 0;
+        const gained = 100 + timeBonus + perfect;
+        setScore(total + gained);
+        $('win-tip').innerText = L.tip + `\n+${gained} คะแนน (เร็ว ${timeBonus} · ${perfect ? 'ไร้พลาด +30' : 'ลองวัสดุผิด'})`;
+    }
+}
+
+function endGame() {
+    if (isGameOver) return;
+    isGameOver = true;
+    $('play').classList.remove('on');
+    $('hud').classList.remove('on');
+    if (scored) {
+        KAMPAI.submitScore(total, { mode: 'adventure', levels: LEVELS.length });
+        $('final-score').innerText = total;
+        $('final-detail').innerText = `ผ่านครบ ${LEVELS.length} ด่าน — ต่อวงจรเป็นแล้ว! ⚡`;
+    } else {
+        $('final-score').innerText = '⚡';
+        $('final-detail').innerText = `เล่นจบโหมดฝึกครบ ${LEVELS.length} ด่าน — เก่งมาก!`;
+    }
+    KAMPAI.sound.gameOver();
+    $('gameover').classList.add('on');
+    renderLeaderboard('score-list-gameover');
+}
+
+// event delegation
+$('board').addEventListener('click', (e) => { const g = e.target.closest('[data-slot]'); if (g) onSlotClick(g.dataset.slot); });
+$('tray').addEventListener('click', (e) => { const b = e.target.closest('[data-piece]'); if (b) onPieceClick(b.dataset.piece); });
+</script>
+</body>
+</html>
