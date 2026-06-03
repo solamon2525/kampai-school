@@ -69,6 +69,7 @@ Client check = UX เท่านั้น **ความปลอดภัย�
 
 ## Gotchas
 
+- **รูปคนบีบ/ไม่สมส่วน:** แสดงรูป ครู/นักเรียน/ผู้บริหาร ต้องใช้ `<PersonAvatar>` เท่านั้น — base `AvatarImage` (`components/ui/avatar.tsx`) มี `object-cover` แล้ว + ESLint `no-restricted-imports` ห้าม import `@/components/ui/avatar` ตรง (ยกเว้น `PersonAvatar.tsx`). ถ้าจำเป็นต้องใช้ `<img>` raw กับรูปคน → **ใส่ `object-cover` เสมอ** (DESIGN.md Rule 14.13)
 - **Vercel webhook หลุดเงียบ:** push แล้วไม่ deploy → กู้ด้วย `vercel deploy --prod --yes`
 - **Git worktree:** cwd อาจกลับไป worktree → ใช้ absolute path
 - **LINE Notify ปิด** (1 เม.ย. 2025) → ใช้ LINE Messaging API แทน

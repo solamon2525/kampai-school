@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.52.0 (ระบบกล้องวงจรปิด CCTV — มินิแมพสำหรับครู)',
+        version: 'v1.52.1 (ใบเกียรติบัตรฮีโร่ + กันรูปคนบีบไม่สมส่วนถาวร)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-700',
+        items: [
+            'ใบเกียรติบัตรฮีโร่ความดี (/hero): รูปนักเรียนเป็นกรอบเต็มตัวไม่ครอป, แก้สังกัดเป็น "สพป.อุดรธานี เขต 2", URL สั้นด้วยรหัสนักเรียน (/hero/<รหัส>) + QR สแกนได้จริงเปิดหน้าประวัติ',
+            'แก้รูป ครู/นักเรียน ถูกบีบยืดไม่สมส่วน: base AvatarImage (shadcn) ใส่ object-cover → รูปไม่จัตุรัส crop กึ่งกลางพอดี ไม่บิด มีผลทุก avatar ทั้งระบบ',
+            'Guardrail กันเกิดซ้ำ: ESLint no-restricted-imports ห้าม import @/components/ui/avatar ตรง (ยกเว้น PersonAvatar) → บังคับ avatar คนทุกตัวผ่าน <PersonAvatar> จับตอน build + migrate HallOfFame เข้า PersonAvatar',
+        ],
+    },
+    {
+        version: 'v1.52.0 (ระบบกล้องวงจรปิด CCTV — มินิแมพสำหรับครู)',
+        date: '',
         badge: 'bg-sky-700',
         items: [
             'หน้าใหม่ /teacher/cctv (เมนู "กล้องวงจรปิด" ใน Portal ครู): มินิแมพ Leaflet + หมุดกล้อง + รายชื่อกล้อง คลิกดูภาพสด (HLS) ในโมดอล — ดูได้เฉพาะครู/แอดมิน ไม่ public เพื่อความเป็นส่วนตัวนักเรียน (PDPA)',

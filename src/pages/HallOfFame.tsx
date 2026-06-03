@@ -9,7 +9,7 @@ import { SEOHead } from '@/components/SEOHead';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -45,11 +45,6 @@ type LeaderRow = {
   photoUrl: string | null;
   total: number;
   count: number;
-};
-
-const initials = (name: string) => {
-  const cleaned = name.replace(/^(ด\.ช\.|ด\.ญ\.|นาย|นางสาว|นาง)\s*/, '');
-  return cleaned.slice(0, 2) || '?';
 };
 
 const medalColor = (rank: number) => {
@@ -200,10 +195,7 @@ const HallOfFame = () => {
                         <div className={cn('inline-flex items-center justify-center w-10 h-10 rounded-full mb-3 text-lg font-bold', medalColor(idx))}>
                           {idx + 1}
                         </div>
-                        <Avatar className="w-20 h-20 mx-auto mb-3 ring-2 ring-offset-2 ring-offset-background ring-primary/20">
-                          {row.photoUrl ? <AvatarImage src={row.photoUrl} alt={row.name} className="object-cover" /> : null}
-                          <AvatarFallback className="text-lg">{initials(row.name)}</AvatarFallback>
-                        </Avatar>
+                        <PersonAvatar name={row.name} photoUrl={row.photoUrl} size="lg" className="w-20 h-20 mx-auto mb-3 ring-2 ring-offset-2 ring-offset-background ring-primary/20 text-lg" />
                         <p className="font-semibold text-lg leading-tight">{row.name}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">{row.class}</p>
                         <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 mt-1">
@@ -230,10 +222,7 @@ const HallOfFame = () => {
                             <div className="w-8 h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-sm font-semibold flex-shrink-0">
                               {rank + 1}
                             </div>
-                            <Avatar className="w-10 h-10 flex-shrink-0">
-                              {row.photoUrl ? <AvatarImage src={row.photoUrl} alt={row.name} className="object-cover" /> : null}
-                              <AvatarFallback>{initials(row.name)}</AvatarFallback>
-                            </Avatar>
+                            <PersonAvatar name={row.name} photoUrl={row.photoUrl} size="md" className="w-10 h-10 flex-shrink-0" />
                             <div className="flex-1 min-w-0">
                               <p className="font-medium truncate">{row.name}</p>
                               <div className="flex items-center gap-2 mt-0.5 flex-wrap">
@@ -278,10 +267,7 @@ const HallOfFame = () => {
                           <div className={cn('w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0', medalColor(idx))}>
                             {idx + 1}
                           </div>
-                          <Avatar className="w-8 h-8 flex-shrink-0">
-                            {row.photoUrl ? <AvatarImage src={row.photoUrl} alt={row.name} className="object-cover" /> : null}
-                            <AvatarFallback className="text-xs">{initials(row.name)}</AvatarFallback>
-                          </Avatar>
+                          <PersonAvatar name={row.name} photoUrl={row.photoUrl} size="sm" className="w-8 h-8 flex-shrink-0" />
                           <p className="flex-1 min-w-0 text-sm font-medium truncate">{row.name}</p>
                           <span className="text-sm font-bold text-primary flex-shrink-0">+{row.total}</span>
                         </div>
@@ -303,10 +289,7 @@ const HallOfFame = () => {
                   <Card key={r.id}>
                     <CardContent className="pt-4 pb-4">
                       <div className="flex items-start gap-3">
-                        <Avatar className="w-10 h-10 flex-shrink-0">
-                          {r.students?.photo_url ? <AvatarImage src={r.students.photo_url} alt={r.students.name} className="object-cover" /> : null}
-                          <AvatarFallback>{initials(r.students?.name ?? '')}</AvatarFallback>
-                        </Avatar>
+                        <PersonAvatar name={r.students?.name ?? ''} photoUrl={r.students?.photo_url} size="md" className="w-10 h-10 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <p className="font-semibold">{r.students?.name ?? '—'}</p>

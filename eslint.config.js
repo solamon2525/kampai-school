@@ -21,6 +21,18 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
       "@typescript-eslint/no-unused-vars": "off",
+      // กันรูปคนบีบ: ห้าม import shadcn avatar primitive ตรง — ต้องใช้ <PersonAvatar> (DESIGN.md Rule 14.13)
+      "no-restricted-imports": ["error", {
+        paths: [{
+          name: "@/components/ui/avatar",
+          message: "ใช้ <PersonAvatar> จาก @/components/shared/PersonAvatar แทน (กันรูปคนบีบ + initials fallback + a11y) — DESIGN.md Rule 14.13",
+        }],
+      }],
     },
+  },
+  // PersonAvatar คือไฟล์เดียวที่ได้รับอนุญาตให้ใช้ avatar primitive
+  {
+    files: ["src/components/shared/PersonAvatar.tsx"],
+    rules: { "no-restricted-imports": "off" },
   },
 );

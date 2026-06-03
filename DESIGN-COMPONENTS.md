@@ -98,7 +98,7 @@ import { PersonAvatar } from '@/components/shared/PersonAvatar';
 - `lg` = 56px (header / profile)
 
 **Behavior:**
-- มี `photoUrl` → render `<AvatarImage>` (Radix)
+- มี `photoUrl` → render `<AvatarImage>` (Radix) ที่ใส่ `object-cover` แล้ว → รูปไม่จัตุรัส crop กึ่งกลางพอดี ไม่ยืดบิด
 - ไม่มี / null → fallback ตัวอักษรแรก 2 ตัว (`getInitials` จาก `@/lib/avatars`)
 - `aria-label={name}` set ให้อัตโนมัติ
 
@@ -434,7 +434,7 @@ import { PushPermissionBanner } from '@/components/shared/PushPermissionBanner';
 8. **ไฟล์ใน `src/components/ui/`** (shadcn) ห้ามแก้ — ถ้าต้อง custom ให้ wrap component ใหม่
 9. **Icon** import จาก `lucide-react` เท่านั้น
 10. **Card** ใช้ `<Card>` จาก shadcn — ห้าม build div+border เอง
-10a. **Person display** ทุกที่ที่ render ชื่อครู/ผู้บริหาร/นักเรียน ต้องใช้ `<PersonAvatar>` คู่ชื่อเสมอ (DESIGN.md Rule 14.13) — ห้ามใช้ shadcn `<Avatar>` ตรง
+10a. **Person display** ทุกที่ที่ render ชื่อครู/ผู้บริหาร/นักเรียน ต้องใช้ `<PersonAvatar>` คู่ชื่อเสมอ (DESIGN.md Rule 14.13) — ห้ามใช้ shadcn `<Avatar>`/`<AvatarImage>` ตรง **บังคับด้วย ESLint** `no-restricted-imports` (ห้าม import `@/components/ui/avatar` ทุกที่ ยกเว้น `PersonAvatar.tsx`) — กันรูปคนบีบ/ลืม object-cover
 
 ### กฎ data
 11. **State management** ใช้ TanStack Query v5 (`useQuery`/`useMutation`) — ไม่ใช่ `useState` + `useEffect` + `fetch`

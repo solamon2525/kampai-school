@@ -19,7 +19,8 @@ const AvatarImage = React.forwardRef<
   React.ElementRef<typeof AvatarPrimitive.Image>,
   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>
 >(({ className, ...props }, ref) => (
-  <AvatarPrimitive.Image ref={ref} className={cn("aspect-square h-full w-full", className)} {...props} />
+  // kampai: object-cover บังคับ — กันรูปคนที่ไม่ใช่จัตุรัสถูกยืดบิด (DESIGN.md Rule 14.13)
+  <AvatarPrimitive.Image ref={ref} className={cn("aspect-square h-full w-full object-cover", className)} {...props} />
 ));
 AvatarImage.displayName = AvatarPrimitive.Image.displayName;
 

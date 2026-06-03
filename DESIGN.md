@@ -487,8 +487,13 @@ import { PersonAvatar } from '@/components/shared/PersonAvatar';
 
 **ห้าม:**
 - ❌ Render `<span>{name}</span>` เดี่ยว ๆ ใน list/dropdown/header
-- ❌ ใช้ shadcn `<Avatar>` ตรง — ต้องใช้ `<PersonAvatar>` (เพื่อให้ a11y label + initials fallback เป็น single API)
-- ❌ Hardcode `<img src={photo}/>` แบบ raw — ไม่มี fallback เมื่อรูปหาย
+- ❌ ใช้ shadcn `<Avatar>`/`<AvatarImage>` ตรง — ต้องใช้ `<PersonAvatar>` (เพื่อให้ a11y label + initials fallback เป็น single API)
+- ❌ Hardcode `<img src={photo}/>` แบบ raw — ไม่มี fallback เมื่อรูปหาย + เสี่ยงรูปบีบถ้าลืม `object-cover`
+
+**กันรูปบีบ/ไม่สมส่วน (บังคับเชิงโครงสร้าง):**
+- base `AvatarImage` (`components/ui/avatar.tsx`) ใส่ `object-cover` ถาวร → รูปคนที่ไม่ใช่จัตุรัสจะ crop กึ่งกลางพอดี ไม่ยืดบิด (ข้อยกเว้นที่ตั้งใจของกฎ "ห้ามแก้ ui" — มี comment กำกับ)
+- ESLint `no-restricted-imports` ห้าม import `@/components/ui/avatar` ทุกที่ ยกเว้น `PersonAvatar.tsx` → บังคับให้ avatar คนทุกตัวผ่าน `<PersonAvatar>` (จับตอน `pnpm lint`/build)
+- ถ้าต้อง render รูปคนด้วย `<img>` raw (เช่น ID card / กรอบพิเศษ) → **ต้องใส่ `object-cover`** (หรือ `object-contain` ถ้าตั้งใจให้เห็นเต็มภาพ) เสมอ
 
 **เหตุผล:** ชื่อไทยซ้ำกันบ่อย (สมชาย, สมหญิง) — รูปช่วย recognition ทันที + สอดคล้องกับ pattern ที่ HallOfFame, HomeRightSidebar leaderboard, Staff directory ใช้แล้ว v1.12.0 audit พบ Scores/Attendance/Conduct/RecorderSelect/ParentViews/TeacherList แสดงชื่อเดียวไม่มีรูป → refactor ผ่าน `<PersonAvatar>` primitive ครั้งเดียวจบ
 
