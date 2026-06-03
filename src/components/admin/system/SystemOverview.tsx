@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.51.0 (วิวแสดงเกียรติบัตรใหม่ 4 แบบ + แอดมินล็อกวิวให้ทุกคน)',
+        version: 'v1.52.0 (ระบบกล้องวงจรปิด CCTV — มินิแมพสำหรับครู)',
         date: 'ล่าสุด',
+        badge: 'bg-sky-700',
+        items: [
+            'หน้าใหม่ /teacher/cctv (เมนู "กล้องวงจรปิด" ใน Portal ครู): มินิแมพ Leaflet + หมุดกล้อง + รายชื่อกล้อง คลิกดูภาพสด (HLS) ในโมดอล — ดูได้เฉพาะครู/แอดมิน ไม่ public เพื่อความเป็นส่วนตัวนักเรียน (PDPA)',
+            'กล้อง Tapo/Vigi → media relay (MediaMTX/go2rtc) แปลง RTSP เป็น HLS แล้วเปิดผ่าน Cloudflare Tunnel → เก็บ HLS URL ต่อกล้องในตาราง cctv_cameras',
+            'migration 120: ตาราง cctv_cameras (name/location/lat/lng/hls_url) + RLS อ่านเฉพาะ is_teacher(), จัดการเฉพาะ is_admin() · deps ใหม่ leaflet + react-leaflet@4 (React 18) + hls.js (แยก leaflet-vendor chunk)',
+        ],
+    },
+    {
+        version: 'v1.51.0 (วิวแสดงเกียรติบัตรใหม่ 4 แบบ + แอดมินล็อกวิวให้ทุกคน)',
+        date: '',
         badge: 'bg-violet-700',
         items: [
             'วิวใหม่ 4 แบบในหน้าเกียรติบัตร (training showcase + หน้าครู): รายการ (List/แถวแน่น), เมสันรี (Masonry/Pinterest), เส้นเวลาแนวตั้ง (Vertical Timeline), โคฟเวอร์โฟลว์ 3D — รวมเป็น 9 วิว',

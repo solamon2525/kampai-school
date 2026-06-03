@@ -44,6 +44,8 @@ export default defineConfig(() => ({
           "query-vendor": ["@tanstack/react-query"],
           "motion-vendor": ["framer-motion"],
           "supabase-vendor": ["@supabase/supabase-js"],
+          // CCTV: leaflet + hls แยก vendor chunk ของตัวเอง (self-contained, ไม่ co-bundle กับ d3/recharts)
+          "leaflet-vendor": ["leaflet", "react-leaflet"],
         },
       },
     },

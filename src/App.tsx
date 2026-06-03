@@ -73,6 +73,7 @@ const TeacherAttendance = lazyWithRetry(() => import("./pages/teacher/TeacherAtt
 const TeacherScores = lazyWithRetry(() => import("./pages/teacher/TeacherScores"));
 const TeacherRewardsApproval = lazyWithRetry(() => import("./pages/teacher/TeacherRewardsApproval"));
 const TeacherEduHubManager = lazyWithRetry(() => import("./pages/teacher/TeacherEduHubManager"));
+const TeacherCctv = lazyWithRetry(() => import("./pages/teacher/TeacherCctv"));
 const ParentDashboard = lazyWithRetry(() => import("./pages/parent/ParentDashboard"));
 const ParentChildView = lazyWithRetry(() => import("./pages/parent/ParentChildView"));
 const PdpaSelfView = lazyWithRetry(() => import("./components/parent/PdpaSelfView").then(m => ({ default: m.PdpaSelfView })));
@@ -202,6 +203,9 @@ const App = () => (
             } />
             <Route path="/teacher/edu-hub" element={
               <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherEduHubManager /></PortalProtectedRoute>
+            } />
+            <Route path="/teacher/cctv" element={
+              <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherCctv /></PortalProtectedRoute>
             } />
             <Route path="/teacher/chat" element={
               <PortalProtectedRoute allow={['teacher', 'admin']}><ChatPage /></PortalProtectedRoute>

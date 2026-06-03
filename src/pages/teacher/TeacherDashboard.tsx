@@ -1,4 +1,4 @@
-import { LayoutDashboard, ClipboardCheck, PenLine, Calendar, Gift, FolderOpen, SlidersHorizontal, QrCode } from 'lucide-react';
+import { LayoutDashboard, ClipboardCheck, PenLine, Calendar, Gift, FolderOpen, SlidersHorizontal, QrCode, Video } from 'lucide-react';
 import { RolePortalLayout } from '@/components/portal/RolePortalLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { useLinkedRecord } from '@/hooks/useLinkedRecord';
@@ -16,6 +16,7 @@ const MENU = [
     { id: 'scores', label: 'คะแนน', icon: PenLine, path: '/teacher/scores' },
     { id: 'rewards', label: 'อนุมัติรางวัล', icon: Gift, path: '/teacher/rewards-approval' },
     { id: 'edu-hub', label: 'คลังสื่อของฉัน', icon: FolderOpen, path: '/teacher/edu-hub' },
+    { id: 'cctv', label: 'กล้องวงจรปิด', icon: Video, path: '/teacher/cctv' },
     { id: 'scan', label: 'สแกนด่วน', icon: QrCode, path: '/admin/dashboard/scan' },
 ];
 
