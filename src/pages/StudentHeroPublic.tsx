@@ -20,6 +20,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import QRCode from 'react-qr-code';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
@@ -891,15 +892,14 @@ export default function StudentHeroPublic() {
                                 </span>
                               </div>
 
-                              {/* Virtual QR code link */}
+                              {/* QR code link — สแกนเปิดหน้าประวัติ /hero/<รหัสนักเรียน> */}
                               <div className="flex flex-col items-center space-y-1 pt-1">
                                 <div className="p-2 bg-card rounded-lg border border-border">
-                                  {/* Custom QR representation */}
-                                  <div className="w-16 h-16 bg-slate-900 flex items-center justify-center text-[10px] text-white font-bold p-1 rounded">
-                                    <span className="border-4 border-white p-0.5 text-center leading-none text-[7px]">
-                                      KAMPAI<br />HERO<br />QR
-                                    </span>
-                                  </div>
+                                  <QRCode
+                                    value={`${window.location.origin}/hero/${student.student_code || student.id}`}
+                                    size={64}
+                                    className="h-16 w-16"
+                                  />
                                 </div>
                                 <span className="text-[8px] text-slate-400 font-bold">
                                   สแกนรหัสตรวจสอบประวัติความประพฤติสาธารณะ
