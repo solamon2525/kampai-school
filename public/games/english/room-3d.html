@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ห้องคำศัพท์ 3 มิติ — Room 3D (kampai)</title>
+<!--
+═══════════════════════════════════════════════════════════════════════════
+  KAMPAI-SCHOOL · เกม "ห้องคำศัพท์ 3 มิติ" (room-3d) — วิชาภาษาอังกฤษ ป.4–6
+  เกม 3D (Three.js): ห้องจำลองมีสิ่งของ 10 อย่าง (สร้างจาก primitive) →
+  ลาก/หมุนดูรอบห้อง → โจทย์โชว์คำศัพท์อังกฤษ → แตะสิ่งของให้ถูก (raycasting)
+  โหมด: แข่งเวลา · ฝึก · คอมโบ + โบนัสเร็ว
+═══════════════════════════════════════════════════════════════════════════
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Fredoka+One&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; font-family: 'Kanit', sans-serif; color: #fff; overflow: hidden; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+body { background: radial-gradient(circle at 50% 25%, #7c3aed 0%, #0f172a 70%); }
+#app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+#hud { display: none; align-items: center; justify-content: space-between; padding: 12px 18px; gap: 10px; }
+#hud.on { display: flex; }
+#score-container { font-size: 26px; font-weight: 700; color: #FFD700; text-shadow: 2px 2px 4px #000; background: rgba(0,0,0,0.35); padding: 4px 16px; border-radius: 999px; border: 2px solid rgba(255,215,0,0.5); transition: transform 0.15s; white-space: nowrap; }
+#score-container.pop { transform: scale(1.18); }
+#combo-badge { font-family: 'Fredoka One', cursive; font-size: 16px; color: #0f172a; background: linear-gradient(45deg,#fbbf24,#f59e0b); padding: 4px 12px; border-radius: 999px; opacity: 0; transform: scale(0.6); transition: all 0.18s; white-space: nowrap; }
+#combo-badge.on { opacity: 1; transform: scale(1); }
+#life-container { font-size: 24px; white-space: nowrap; }
+#timer-wrap { height: 10px; background: rgba(255,255,255,0.12); margin: 0 18px; border-radius: 999px; overflow: hidden; display: none; }
+#timer-wrap.on { display: block; }
+#timer-bar { height: 100%; width: 100%; background: linear-gradient(90deg,#4ade80,#22c55e); border-radius: 999px; transition: width 0.1s linear, background 0.3s; }
+#timer-bar.warn { background: linear-gradient(90deg,#f87171,#ef4444); }
+
+#play { flex: 1; display: none; flex-direction: column; align-items: center; padding: 4px 12px 14px; gap: 8px; min-height: 0; }
+#play.on { display: flex; }
+#prompt { font-size: 17px; font-weight: 600; color: #ede9fe; text-align: center; }
+#prompt b { font-size: 26px; color: #fff; }
+#stage { flex: 1; width: 100%; max-width: 620px; min-height: 0; position: relative; cursor: grab; }
+#stage:active { cursor: grabbing; }
+#stage canvas { display: block; width: 100% !important; height: 100% !important; }
+#drag-hint { position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); font-size: 13px; color: #cbd5e1; background: rgba(0,0,0,0.3); padding: 3px 12px; border-radius: 999px; pointer-events: none; }
+#feedback { height: 24px; font-size: 18px; font-weight: 600; text-align: center; }
+#feedback.good { color: #4ade80; } #feedback.bad { color: #f87171; }
+
+.screen { position: absolute; inset: 0; background: rgba(15,23,42,0.94); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); display: none; flex-direction: column; align-items: center; justify-content: flex-start; z-index: 30; text-align: center; padding: 28px 22px; overflow-y: auto; }
+.screen.on { display: flex; }
+.screen h1 { font-family: 'Fredoka One', cursive; font-size: 34px; margin-bottom: 6px; background: linear-gradient(135deg,#c084fc,#f0abfc); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.screen p { font-size: 15px; color: #cbd5e1; margin-bottom: 14px; line-height: 1.5; }
+#final-score { color: #FFD700; font-family: 'Fredoka One', cursive; font-size: 56px; margin: 4px 0 6px; }
+#final-detail { font-size: 15px; color: #cbd5e1; margin-bottom: 12px; }
+.btn { padding: 14px 30px; font-family: inherit; font-size: 19px; font-weight: 600; border-radius: 999px; border: none; cursor: pointer; margin: 6px; transition: transform 0.1s; color: #fff; }
+.btn:active { transform: scale(0.95); }
+.btn-primary { background: linear-gradient(45deg,#8b5cf6,#7c3aed); box-shadow: 0 4px 10px rgba(124,58,237,0.4); }
+.btn-ghost { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25); }
+.mode-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 8px; }
+.leaderboard-box { background: rgba(255,255,255,0.95); color: #2c3e50; border-radius: 12px; padding: 12px 15px; margin: 10px 0; width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.lb-title { font-family: 'Fredoka One', cursive; font-size: 1rem; margin: 0 0 8px 0; text-align: left; }
+.leaderboard-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.leaderboard-list li { display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-bottom: 1px dashed #dee2e6; }
+.leaderboard-list li:last-child { border-bottom: none; }
+.leaderboard-list li.is-me { background: #fff7e0; border-radius: 8px; }
+.lb-rank { font-family: 'Fredoka One', cursive; color: #f39c12; min-width: 26px; text-align: center; font-size: 1.1rem; }
+.lb-avatar, .lb-avatar-init { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #f39c12; flex-shrink: 0; }
+.lb-avatar-init { background: linear-gradient(135deg,#6c5ce7,#a29bfe); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.lb-info { display: flex; flex-direction: column; min-width: 0; flex: 1; text-align: left; }
+.lb-name { font-family: 'Fredoka One', cursive; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-sub { font-size: 0.72rem; color: #868e96; }
+.lb-loading { color: #868e96; text-align: center; padding: 8px; font-size: 0.85rem; }
+#player-chip { display: none; align-items: center; gap: 8px; background: rgba(255,255,255,0.1); padding: 4px 14px 4px 4px; border-radius: 999px; font-size: 14px; margin-bottom: 12px; }
+#player-chip img, #player-chip .pc-init { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+#player-chip .pc-init { background: linear-gradient(135deg,#6c5ce7,#a29bfe); display: flex; align-items: center; justify-content: center; font-weight: 700; }
+#player-chip .pc-best { color: #FFD700; font-weight: 700; }
+</style>
+</head>
+<body>
+<div id="app">
+    <div id="hud">
+        <div id="score-container">⭐ <span id="score-value">0</span></div>
+        <div id="combo-badge">🔥 x1</div>
+        <div id="life-container">❤️❤️❤️</div>
+    </div>
+    <div id="timer-wrap"><div id="timer-bar"></div></div>
+    <div id="play">
+        <div id="prompt"></div>
+        <div id="stage"><div id="drag-hint">ลากเพื่อหมุนห้อง 🔄 · แตะสิ่งของ</div></div>
+        <div id="feedback"></div>
+    </div>
+</div>
+
+<div id="start" class="screen on">
+    <h1>🚪 ห้องคำศัพท์ 3 มิติ</h1>
+    <div id="player-chip"></div>
+    <p>หมุนดู<b>ห้อง 3 มิติ</b>รอบด้าน · อ่านคำศัพท์<br>ภาษาอังกฤษ แล้ว<b>แตะสิ่งของ</b>ให้ถูก!</p>
+    <div class="mode-grid">
+        <button class="btn btn-primary" id="btn-race">⚡ แข่งเวลา</button>
+        <button class="btn btn-ghost" id="btn-practice">📚 ฝึก</button>
+    </div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+    </div>
+</div>
+
+<div id="gameover" class="screen">
+    <h1>จบเกม!</h1>
+    <div id="final-score">0</div>
+    <div id="final-detail"></div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
+        <button class="btn btn-primary" id="btn-replay">🔄 เล่นอีกครั้ง</button>
+        <button class="btn btn-ghost" id="btn-home">🎮 เลือกเกมใหม่</button>
+    </div>
+</div>
+
+<!-- ═══ KAMPAI SDK (single source — อย่าแก้) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{unlock:function(){return this;},correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},setBgm:function(){return this;},defaultBgm:function(){return this;},bgmStart:function(){},bgmStop:function(){},mountToggles:function(){return this;}} };</script>
+<!-- Three.js (UMD global THREE · classic script กัน verify Check 7 พังจาก import) -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.126.0/build/three.min.js"></script>
+<script>
+/* ═══ SECTION A · ตั้งค่า ═══ */
+const GAME_SLUG = 'room-3d';
+const KAMPAI = window.KAMPAI;
+KAMPAI.setSlug(GAME_SLUG);
+const $ = (id) => document.getElementById(id);
+
+/* ═══ SECTION B · นักเรียน + leaderboard ═══ */
+function renderPlayer() {
+    const s = KAMPAI.student, st = KAMPAI.stats;
+    if (!s) return;
+    const chip = $('player-chip');
+    const av = s.photoUrl ? `<img src="${s.photoUrl}" alt="">` : `<div class="pc-init">${(s.displayName||'?')[0]}</div>`;
+    const best = st ? ` · <span class="pc-best">สถิติ ${st.personalBest.toLocaleString()}</span>` : '';
+    chip.innerHTML = av + `<span>${s.displayName}${best}</span>`;
+    chip.style.display = 'flex';
+}
+function renderLeaderboard(listId) {
+    const el = $(listId); if (!el) return;
+    const rows = KAMPAI.leaderboard || [];
+    if (!rows.length) { el.innerHTML = '<li class="lb-loading">ยังไม่มีผู้เล่น — เป็นคนแรกสิ!</li>'; return; }
+    const medals = ['🥇','🥈','🥉'];
+    el.innerHTML = rows.slice(0, 5).map((r) => {
+        const av = r.photoUrl ? `<img class="lb-avatar" src="${r.photoUrl}" alt="">` : `<div class="lb-avatar-init">${(r.displayName||'?')[0]}</div>`;
+        return `<li class="${r.isMe ? 'is-me' : ''}"><span class="lb-rank">${medals[r.rank-1] || r.rank}</span>${av}
+            <div class="lb-info"><div class="lb-name">${r.displayName}${r.isMe ? ' (คุณ)' : ''}</div>
+            <div class="lb-sub">${(r.personalBest||0).toLocaleString()} คะแนน · ${r.classLabel||''}</div></div></li>`;
+    }).join('');
+}
+KAMPAI.onReady(function () { renderPlayer(); renderLeaderboard('score-list'); KAMPAI.sound.mountToggles(); KAMPAI.sound.defaultBgm('playful'); });
+
+/* ═══ SECTION C · คำศัพท์ + การสร้างสิ่งของ (Three.js) ═══ */
+let scene, camera, renderer, world, raycaster, rafId = 0, stageEl;
+const objGroups = {};      // key → THREE.Group
+const clickables = [];     // groups ที่แตะได้
+
+function M(color) { return new THREE.MeshStandardMaterial({ color, roughness: 0.7, metalness: 0.05 }); }
+function box(w, h, d, color) { return new THREE.Mesh(new THREE.BoxGeometry(w, h, d), M(color)); }
+function cyl(rt, rb, h, color, s) { return new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, s || 22), M(color)); }
+function sph(r, color) { return new THREE.Mesh(new THREE.SphereGeometry(r, 22, 16), M(color)); }
+const put = (m, x, y, z) => { m.position.set(x, y, z); return m; };
+
+// แต่ละ build คืน Group ฐานวางที่ y=0
+const BUILD = {
+    chair: () => { const g = new THREE.Group(); g.add(put(box(0.72, 0.1, 0.72, 0xf59e0b), 0, 0.46, 0)); g.add(put(box(0.72, 0.7, 0.1, 0xf59e0b), 0, 0.82, -0.31));[[-0.3,-0.3],[0.3,-0.3],[-0.3,0.3],[0.3,0.3]].forEach(([x,z])=>g.add(put(box(0.09,0.46,0.09,0xb45309),x,0.23,z))); return g; },
+    ball: () => { const g = new THREE.Group(); g.add(put(sph(0.42, 0xf8fafc), 0, 0.42, 0)); g.add(put(sph(0.13, 0x1f2937), -0.16, 0.5, 0.3)); g.add(put(sph(0.13, 0x1f2937), 0.2, 0.36, 0.28)); return g; },
+    book: () => { const g = new THREE.Group(); g.add(put(box(0.7, 0.13, 0.5, 0xef4444), 0, 0.065, 0)); g.add(put(box(0.66, 0.13, 0.48, 0x3b82f6), 0, 0.2, 0)); g.add(put(box(0.6, 0.13, 0.46, 0x22c55e), 0, 0.33, 0)); return g; },
+    cup: () => { const g = new THREE.Group(); g.add(put(cyl(0.27, 0.21, 0.46, 0xf1f5f9), 0, 0.23, 0)); g.add(put(cyl(0.2, 0.18, 0.06, 0x7c3aed), 0, 0.45, 0)); return g; },
+    bag: () => { const g = new THREE.Group(); g.add(put(box(0.56, 0.66, 0.3, 0x6366f1), 0, 0.36, 0)); g.add(put(box(0.56, 0.2, 0.32, 0x4f46e5), 0, 0.6, 0.01)); g.add(put(box(0.12, 0.34, 0.06, 0x4338ca), 0, 0.78, -0.13)); return g; },
+    plant: () => { const g = new THREE.Group(); g.add(put(cyl(0.3, 0.22, 0.38, 0xb45309), 0, 0.19, 0)); g.add(put(sph(0.4, 0x22c55e), 0, 0.62, 0)); return g; },
+    lamp: () => { const g = new THREE.Group(); g.add(put(cyl(0.3, 0.3, 0.07, 0x334155), 0, 0.035, 0)); g.add(put(cyl(0.05, 0.05, 1.0, 0x94a3b8), 0, 0.55, 0)); g.add(put(cyl(0.16, 0.4, 0.42, 0xfbbf24), 0, 1.18, 0)); return g; },
+    bed: () => { const g = new THREE.Group(); g.add(put(box(1.7, 0.3, 1.05, 0x92400e), 0, 0.15, 0)); g.add(put(box(1.6, 0.22, 0.98, 0xbfdbfe), 0, 0.4, 0)); g.add(put(box(0.5, 0.18, 0.44, 0xf8fafc), -0.5, 0.56, 0)); return g; },
+    clock: () => { const g = new THREE.Group(); const d = cyl(0.4, 0.4, 0.07, 0xf8fafc, 30); d.rotation.x = Math.PI / 2; g.add(d); g.add(put(box(0.04, 0.28, 0.02, 0x0f172a), 0, 0.08, 0.05)); g.add(put(box(0.22, 0.04, 0.02, 0x0f172a), 0.07, 0, 0.05)); return g; },
+    door: () => { const g = new THREE.Group(); g.add(put(box(1.0, 2.4, 0.12, 0x7c2d12), 0, 1.2, 0)); g.add(put(sph(0.07, 0xfbbf24), 0.36, 1.2, 0.09)); return g; },
+};
+// คำศัพท์ + ตำแหน่ง [x,y,z]
+const OBJECTS = [
+    { key:'chair', en:'chair', th:'เก้าอี้',  emoji:'🪑', pos:[-2.3,0,1.3] },
+    { key:'ball',  en:'ball',  th:'ลูกบอล',   emoji:'⚽', pos:[1.6,0,2.1] },
+    { key:'book',  en:'book',  th:'หนังสือ',  emoji:'📚', pos:[0.1,0,2.5] },
+    { key:'cup',   en:'cup',   th:'ถ้วย',     emoji:'☕', pos:[2.7,0,0.7] },
+    { key:'bag',   en:'bag',   th:'กระเป๋า',  emoji:'🎒', pos:[-0.9,0,2.0] },
+    { key:'plant', en:'plant', th:'ต้นไม้',   emoji:'🪴', pos:[2.9,0,-1.4] },
+    { key:'lamp',  en:'lamp',  th:'โคมไฟ',    emoji:'💡', pos:[-2.9,0,-1.1] },
+    { key:'bed',   en:'bed',   th:'เตียง',    emoji:'🛏️', pos:[-1.6,0,-2.4] },
+    { key:'clock', en:'clock', th:'นาฬิกา',   emoji:'🕐', pos:[0,2.7,-3.85] },
+    { key:'door',  en:'door',  th:'ประตู',    emoji:'🚪', pos:[2.8,0,-3.9] },
+];
+
+let qrand = Math.random;
+const ri = (n) => Math.floor(qrand() * n);
+const pick = (arr) => arr[ri(arr.length)];
+function makeQuestion() { return pick(OBJECTS); }
+
+function setEmissive(group, hex) { group.traverse(o => { if (o.isMesh && o.material && o.material.emissive && !o.material.wireframe) o.material.emissive.setHex(hex); }); }
+function clearHighlights() { for (const k in objGroups) setEmissive(objGroups[k], 0x000000); }
+
+/* ═══ SECTION D · ฉาก 3D + ห้อง ═══ */
+let pDown = false, moved = 0, lastX = 0, lastY = 0;
+
+function initThree() {
+    stageEl = $('stage');
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+    camera.position.set(0, 4.6, 8.6); camera.lookAt(0, 1, 0);
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    stageEl.appendChild(renderer.domElement);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.82));
+    const dir = new THREE.DirectionalLight(0xffffff, 0.8); dir.position.set(5, 8, 6); scene.add(dir);
+    const dir2 = new THREE.DirectionalLight(0xddd6fe, 0.3); dir2.position.set(-5, 3, -4); scene.add(dir2);
+    raycaster = new THREE.Raycaster();
+    world = new THREE.Group(); world.rotation.y = 0.1; scene.add(world);
+    // ห้อง: พื้น + ผนังหลัง + ผนังซ้าย
+    world.add(put(box(8, 0.2, 8, 0xd6b48f), 0, -0.1, 0));
+    world.add(put(box(8, 4, 0.2, 0xe2e8f0), 0, 2, -4));
+    world.add(put(box(0.2, 4, 8, 0xcbd5e1), -4, 2, 0));
+    // สิ่งของ
+    for (const o of OBJECTS) {
+        const g = BUILD[o.key](); g.position.set(o.pos[0], o.pos[1], o.pos[2]);
+        g.userData.key = o.key; objGroups[o.key] = g; clickables.push(g); world.add(g);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+    stageEl.addEventListener('pointerdown', (e) => { pDown = true; moved = 0; lastX = e.clientX; lastY = e.clientY; });
+    window.addEventListener('pointermove', (e) => {
+        if (!pDown) return;
+        const dx = e.clientX - lastX, dy = e.clientY - lastY; lastX = e.clientX; lastY = e.clientY;
+        moved += Math.abs(dx) + Math.abs(dy);
+        world.rotation.y += dx * 0.008;
+        world.rotation.x = Math.max(-0.15, Math.min(0.6, world.rotation.x + dy * 0.005));
+    });
+    window.addEventListener('pointerup', (e) => { if (!pDown) return; pDown = false; if (moved < 10) tapAt(e.clientX, e.clientY); });
+}
+function resize() {
+    if (!renderer || !stageEl) return;
+    const w = stageEl.clientWidth || 1, h = stageEl.clientHeight || 1;
+    camera.aspect = w / h; camera.updateProjectionMatrix();
+    renderer.setSize(w, h, false);
+}
+function tapAt(clientX, clientY) {
+    if (locked || !started || isGameOver) return;
+    const rect = renderer.domElement.getBoundingClientRect();
+    const ndc = new THREE.Vector2(((clientX - rect.left) / rect.width) * 2 - 1, -((clientY - rect.top) / rect.height) * 2 + 1);
+    raycaster.setFromCamera(ndc, camera);
+    const hits = raycaster.intersectObjects(clickables, true);
+    if (!hits.length) return;
+    let o = hits[0].object; while (o && !o.userData.key) o = o.parent;
+    if (o && o.userData.key) selectKey(o.userData.key);
+}
+function animate() { rafId = requestAnimationFrame(animate); renderer.render(scene, camera); }
+
+/* ═══ SECTION E · ลูปเกม ═══ */
+let score = 0, lives = 3, streak = 0, maxStreak = 0, solved = 0;
+let mode = 'race';
+let started = false, isGameOver = false, locked = false;
+let qStart = 0, qLimit = 0, tRaf = 0, cur = null;
+
+function chooseMode(m) { KAMPAI.sound.unlock(); mode = m; startGame(); }
+
+function startGame() {
+    if (started) return;
+    started = true;
+    score = 0; lives = 3; streak = 0; maxStreak = 0; solved = 0; isGameOver = false;
+    $('start').classList.remove('on'); $('hud').classList.add('on'); $('play').classList.add('on');
+    if (mode === 'race') { $('life-container').style.display = ''; $('timer-wrap').classList.add('on'); }
+    else { $('life-container').style.display = 'none'; $('timer-wrap').classList.remove('on'); }
+    setScore(0); setLives(3); updateCombo();
+    if (!renderer) initThree(); else resize();
+    cancelAnimationFrame(rafId); animate();
+    KAMPAI.sound.bgmStart();
+    nextRound();
+}
+
+function nextRound() {
+    locked = false;
+    clearHighlights();
+    $('feedback').textContent = ''; $('feedback').className = '';
+    cur = makeQuestion();
+    $('prompt').innerHTML = `แตะให้ถูก: ${cur.emoji} <b>${cur.en}</b> (${cur.th})`;
+    if (mode === 'race') {
+        qLimit = Math.max(6000, 11000 - solved * 200);
+        qStart = performance.now();
+        $('timer-bar').classList.remove('warn');
+        cancelAnimationFrame(tRaf); tickTimer();
+    }
+}
+
+function tickTimer() {
+    const fr = Math.max(0, 1 - (performance.now() - qStart) / qLimit);
+    const bar = $('timer-bar'); bar.style.width = (fr * 100) + '%';
+    if (fr < 0.33) bar.classList.add('warn');
+    if (fr <= 0) { timeUp(); return; }
+    tRaf = requestAnimationFrame(tickTimer);
+}
+function timeUp() {
+    if (locked) return; locked = true; cancelAnimationFrame(tRaf);
+    setEmissive(objGroups[cur.key], 0x15803d);
+    KAMPAI.sound.timeUp(); KAMPAI.sound.fxFlash(false);
+    streak = 0; updateCombo(); flash('หมดเวลา! ⏱️ นี่คือ ' + cur.en, false);
+    setLives(lives - 1);
+    if (lives > 0) setTimeout(nextRound, 1400);
+}
+
+function selectKey(key) {
+    if (locked || !started || isGameOver) return;
+    locked = true; cancelAnimationFrame(tRaf);
+    const correct = key === cur.key;
+    if (correct) {
+        setEmissive(objGroups[key], 0x16a34a);
+        solved++; streak++; maxStreak = Math.max(maxStreak, streak);
+        const mult = comboMult();
+        let pts = 50;
+        if (mode === 'race') { const tf = Math.max(0, 1 - (performance.now() - qStart) / qLimit); pts += Math.round(tf * 25); }
+        pts = Math.round(pts * mult);
+        setScore(score + pts); updateCombo();
+        KAMPAI.sound.correct(); KAMPAI.sound.fxFlash(true);
+        flash('ถูกต้อง! ' + cur.en + ' = ' + cur.th + ' +' + pts + (mult > 1 ? ' (x' + mult + ')' : ''), true);
+        setTimeout(nextRound, mode === 'practice' ? 900 : 800);
+    } else {
+        setEmissive(objGroups[key], 0x7f1d1d);
+        setEmissive(objGroups[cur.key], 0x15803d);
+        streak = 0; updateCombo();
+        KAMPAI.sound.wrong(); KAMPAI.sound.fxFlash(false);
+        flash('ยังไม่ใช่ — ' + cur.en + ' คืออันที่เรืองเขียว', false);
+        if (mode === 'race') { setLives(lives - 1); if (lives > 0) setTimeout(nextRound, 1700); }
+        else setTimeout(nextRound, 1700);
+    }
+}
+
+function comboMult() { return Math.min(5, 1 + Math.floor(streak / 3)); }
+function updateCombo() {
+    const badge = $('combo-badge'); const m = comboMult();
+    if (streak >= 2) { badge.textContent = `🔥 x${m} · ${streak} ถูกติด`; badge.classList.add('on'); } else badge.classList.remove('on');
+}
+function flash(msg, good) { const f = $('feedback'); f.textContent = msg; f.className = good ? 'good' : 'bad'; }
+function setScore(n) { score = Math.max(0, n); $('score-value').textContent = score; const w = $('score-container'); w.classList.add('pop'); setTimeout(() => w.classList.remove('pop'), 150); }
+function setLives(n) { lives = Math.max(0, n); let s = ''; for (let i = 0; i < 3; i++) s += (i < lives) ? '❤️' : '🖤'; $('life-container').textContent = s; if (lives <= 0) endGame(); }
+
+function endGame() {
+    if (isGameOver) return; isGameOver = true;
+    cancelAnimationFrame(tRaf); cancelAnimationFrame(rafId);
+    KAMPAI.sound.gameOver(); KAMPAI.sound.bgmStop();
+    if (mode === 'race') KAMPAI.submitScore(score, { mode: 'normal', solved: solved, maxStreak: maxStreak });
+    $('hud').classList.remove('on'); $('timer-wrap').classList.remove('on'); $('play').classList.remove('on');
+    $('final-score').textContent = score;
+    $('final-detail').textContent = `จำคำศัพท์ได้ ${solved} คำ · สูงสุด ${maxStreak} ถูกติด` + (mode === 'practice' ? ' · (โหมดฝึก ไม่นับอันดับ)' : '');
+    $('gameover').classList.add('on');
+    renderLeaderboard('score-list-gameover');
+}
+
+/* ═══ ปุ่ม ═══ */
+$('btn-race').addEventListener('click', () => chooseMode('race'));
+$('btn-practice').addEventListener('click', () => chooseMode('practice'));
+$('btn-replay').addEventListener('click', () => location.reload());
+$('btn-home').addEventListener('click', () => KAMPAI.goHome());
+</script>
+</body>
+</html>
