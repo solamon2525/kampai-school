@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ลูกโลก 3 มิติ — Globe 3D (kampai)</title>
+<!--
+═══════════════════════════════════════════════════════════════════════════
+  KAMPAI-SCHOOL · เกม "ลูกโลก 3 มิติ" (globe-3d) — วิชาสังคมศึกษา ป.4–6
+  เกม 3D (Three.js): ลูกโลกหมุนได้ (CanvasTexture วาดทวีปเอง ไม่พึ่งรูปนอก) →
+  ทวีปเป้าหมายเรืองแสงสีทอง → ทายชื่อทวีป (MCQ) · ลาก/หมุนดูรอบโลกได้
+  โหมด: แข่งเวลา · ฝึก · คอมโบ + โบนัสเร็ว
+═══════════════════════════════════════════════════════════════════════════
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Fredoka+One&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; font-family: 'Kanit', sans-serif; color: #fff; overflow: hidden; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+body { background: radial-gradient(circle at 50% 25%, #0c4a6e 0%, #0f172a 70%); }
+#app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+#hud { display: none; align-items: center; justify-content: space-between; padding: 12px 18px; gap: 10px; }
+#hud.on { display: flex; }
+#score-container { font-size: 26px; font-weight: 700; color: #FFD700; text-shadow: 2px 2px 4px #000; background: rgba(0,0,0,0.35); padding: 4px 16px; border-radius: 999px; border: 2px solid rgba(255,215,0,0.5); transition: transform 0.15s; white-space: nowrap; }
+#score-container.pop { transform: scale(1.18); }
+#combo-badge { font-family: 'Fredoka One', cursive; font-size: 16px; color: #0f172a; background: linear-gradient(45deg,#fbbf24,#f59e0b); padding: 4px 12px; border-radius: 999px; opacity: 0; transform: scale(0.6); transition: all 0.18s; white-space: nowrap; }
+#combo-badge.on { opacity: 1; transform: scale(1); }
+#life-container { font-size: 24px; white-space: nowrap; }
+#timer-wrap { height: 10px; background: rgba(255,255,255,0.12); margin: 0 18px; border-radius: 999px; overflow: hidden; display: none; }
+#timer-wrap.on { display: block; }
+#timer-bar { height: 100%; width: 100%; background: linear-gradient(90deg,#4ade80,#22c55e); border-radius: 999px; transition: width 0.1s linear, background 0.3s; }
+#timer-bar.warn { background: linear-gradient(90deg,#f87171,#ef4444); }
+
+#play { flex: 1; display: none; flex-direction: column; align-items: center; padding: 4px 12px 14px; gap: 8px; min-height: 0; }
+#play.on { display: flex; }
+#stage { flex: 1; width: 100%; max-width: 560px; min-height: 0; position: relative; cursor: grab; }
+#stage:active { cursor: grabbing; }
+#stage canvas { display: block; width: 100% !important; height: 100% !important; }
+#drag-hint { position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); font-size: 13px; color: #cbd5e1; background: rgba(0,0,0,0.3); padding: 3px 12px; border-radius: 999px; pointer-events: none; }
+#q-text { font-size: 20px; font-weight: 700; color: #fff; text-align: center; min-height: 28px; }
+#answers { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 480px; }
+.ans { padding: 13px 10px; font-family: 'Kanit',sans-serif; font-size: 18px; font-weight: 600; border-radius: 14px; border: 3px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.1); color: #fff; cursor: pointer; transition: transform .08s, background .15s; }
+.ans:active { transform: scale(0.96); }
+.ans.correct { background: linear-gradient(135deg,#86efac,#22c55e); color: #052e16; border-color: #16a34a; }
+.ans.wrong { background: linear-gradient(135deg,#fca5a5,#ef4444); color: #450a0a; border-color: #b91c1c; }
+.ans:disabled { cursor: default; }
+#feedback { height: 22px; font-size: 17px; font-weight: 600; text-align: center; }
+#feedback.good { color: #4ade80; } #feedback.bad { color: #f87171; }
+
+.screen { position: absolute; inset: 0; background: rgba(15,23,42,0.94); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); display: none; flex-direction: column; align-items: center; justify-content: flex-start; z-index: 30; text-align: center; padding: 28px 22px; overflow-y: auto; }
+.screen.on { display: flex; }
+.screen h1 { font-family: 'Fredoka One', cursive; font-size: 34px; margin-bottom: 6px; background: linear-gradient(135deg,#38bdf8,#22d3ee); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.screen p { font-size: 15px; color: #cbd5e1; margin-bottom: 14px; line-height: 1.5; }
+#final-score { color: #FFD700; font-family: 'Fredoka One', cursive; font-size: 56px; margin: 4px 0 6px; }
+#final-detail { font-size: 15px; color: #cbd5e1; margin-bottom: 12px; }
+.btn { padding: 14px 30px; font-family: inherit; font-size: 19px; font-weight: 600; border-radius: 999px; border: none; cursor: pointer; margin: 6px; transition: transform 0.1s; color: #fff; }
+.btn:active { transform: scale(0.95); }
+.btn-primary { background: linear-gradient(45deg,#0ea5e9,#0284c7); box-shadow: 0 4px 10px rgba(2,132,199,0.4); }
+.btn-ghost { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25); }
+.mode-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 8px; }
+.leaderboard-box { background: rgba(255,255,255,0.95); color: #2c3e50; border-radius: 12px; padding: 12px 15px; margin: 10px 0; width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.lb-title { font-family: 'Fredoka One', cursive; font-size: 1rem; margin: 0 0 8px 0; text-align: left; }
+.leaderboard-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.leaderboard-list li { display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-bottom: 1px dashed #dee2e6; }
+.leaderboard-list li:last-child { border-bottom: none; }
+.leaderboard-list li.is-me { background: #fff7e0; border-radius: 8px; }
+.lb-rank { font-family: 'Fredoka One', cursive; color: #f39c12; min-width: 26px; text-align: center; font-size: 1.1rem; }
+.lb-avatar, .lb-avatar-init { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #f39c12; flex-shrink: 0; }
+.lb-avatar-init { background: linear-gradient(135deg,#6c5ce7,#a29bfe); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.lb-info { display: flex; flex-direction: column; min-width: 0; flex: 1; text-align: left; }
+.lb-name { font-family: 'Fredoka One', cursive; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-sub { font-size: 0.72rem; color: #868e96; }
+.lb-loading { color: #868e96; text-align: center; padding: 8px; font-size: 0.85rem; }
+#player-chip { display: none; align-items: center; gap: 8px; background: rgba(255,255,255,0.1); padding: 4px 14px 4px 4px; border-radius: 999px; font-size: 14px; margin-bottom: 12px; }
+#player-chip img, #player-chip .pc-init { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+#player-chip .pc-init { background: linear-gradient(135deg,#6c5ce7,#a29bfe); display: flex; align-items: center; justify-content: center; font-weight: 700; }
+#player-chip .pc-best { color: #FFD700; font-weight: 700; }
+</style>
+</head>
+<body>
+<div id="app">
+    <div id="hud">
+        <div id="score-container">⭐ <span id="score-value">0</span></div>
+        <div id="combo-badge">🔥 x1</div>
+        <div id="life-container">❤️❤️❤️</div>
+    </div>
+    <div id="timer-wrap"><div id="timer-bar"></div></div>
+    <div id="play">
+        <div id="stage"><div id="drag-hint">ลากเพื่อหมุนโลก 🌍</div></div>
+        <div id="q-text"></div>
+        <div id="answers"></div>
+        <div id="feedback"></div>
+    </div>
+</div>
+
+<div id="start" class="screen on">
+    <h1>🌍 ลูกโลก 3 มิติ</h1>
+    <div id="player-chip"></div>
+    <p>หมุนดู<b>ลูกโลก</b>รอบด้าน · ทวีปที่<b>เรืองแสงสีทอง</b><br>คือทวีปอะไร? เลือกให้ถูก!</p>
+    <div class="mode-grid">
+        <button class="btn btn-primary" id="btn-race">⚡ แข่งเวลา</button>
+        <button class="btn btn-ghost" id="btn-practice">📚 ฝึก</button>
+    </div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+    </div>
+</div>
+
+<div id="gameover" class="screen">
+    <h1>จบเกม!</h1>
+    <div id="final-score">0</div>
+    <div id="final-detail"></div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
+        <button class="btn btn-primary" id="btn-replay">🔄 เล่นอีกครั้ง</button>
+        <button class="btn btn-ghost" id="btn-home">🎮 เลือกเกมใหม่</button>
+    </div>
+</div>
+
+<!-- ═══ KAMPAI SDK (single source — อย่าแก้) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{unlock:function(){return this;},correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},setBgm:function(){return this;},defaultBgm:function(){return this;},bgmStart:function(){},bgmStop:function(){},mountToggles:function(){return this;}} };</script>
+<!-- Three.js (UMD global THREE · classic script กัน verify Check 7 พังจาก import) -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.126.0/build/three.min.js"></script>
+<script>
+/* ═══ SECTION A · ตั้งค่า ═══ */
+const GAME_SLUG = 'globe-3d';
+const KAMPAI = window.KAMPAI;
+KAMPAI.setSlug(GAME_SLUG);
+const $ = (id) => document.getElementById(id);
+
+/* ═══ SECTION B · นักเรียน + leaderboard ═══ */
+function renderPlayer() {
+    const s = KAMPAI.student, st = KAMPAI.stats;
+    if (!s) return;
+    const chip = $('player-chip');
+    const av = s.photoUrl ? `<img src="${s.photoUrl}" alt="">` : `<div class="pc-init">${(s.displayName||'?')[0]}</div>`;
+    const best = st ? ` · <span class="pc-best">สถิติ ${st.personalBest.toLocaleString()}</span>` : '';
+    chip.innerHTML = av + `<span>${s.displayName}${best}</span>`;
+    chip.style.display = 'flex';
+}
+function renderLeaderboard(listId) {
+    const el = $(listId); if (!el) return;
+    const rows = KAMPAI.leaderboard || [];
+    if (!rows.length) { el.innerHTML = '<li class="lb-loading">ยังไม่มีผู้เล่น — เป็นคนแรกสิ!</li>'; return; }
+    const medals = ['🥇','🥈','🥉'];
+    el.innerHTML = rows.slice(0, 5).map((r) => {
+        const av = r.photoUrl ? `<img class="lb-avatar" src="${r.photoUrl}" alt="">` : `<div class="lb-avatar-init">${(r.displayName||'?')[0]}</div>`;
+        return `<li class="${r.isMe ? 'is-me' : ''}"><span class="lb-rank">${medals[r.rank-1] || r.rank}</span>${av}
+            <div class="lb-info"><div class="lb-name">${r.displayName}${r.isMe ? ' (คุณ)' : ''}</div>
+            <div class="lb-sub">${(r.personalBest||0).toLocaleString()} คะแนน · ${r.classLabel||''}</div></div></li>`;
+    }).join('');
+}
+KAMPAI.onReady(function () { renderPlayer(); renderLeaderboard('score-list'); KAMPAI.sound.mountToggles(); KAMPAI.sound.defaultBgm('playful'); });
+
+/* ═══ SECTION C · ข้อมูลทวีป + โจทย์ ═══ */
+// [lon,lat] โดยประมาณ (stylized) · c=ศูนย์กลางทวีป (สำหรับหันโลก)
+const CONTINENTS = [
+    { key:'asia',       name:'เอเชีย',        color:'#fbbf24', c:[100,45], pts:[[40,40],[55,72],[100,75],[140,72],[150,55],[135,45],[143,30],[122,25],[122,12],[105,8],[100,20],[95,8],[80,8],[78,22],[60,25],[45,32]] },
+    { key:'europe',     name:'ยุโรป',         color:'#f472b6', c:[18,55],  pts:[[-10,45],[0,60],[12,66],[30,68],[40,60],[40,46],[28,40],[12,38],[0,43]] },
+    { key:'africa',     name:'แอฟริกา',       color:'#34d399', c:[20,2],   pts:[[-12,33],[12,35],[33,32],[44,12],[50,-12],[35,-35],[18,-35],[12,-18],[8,4],[-12,8],[-17,16]] },
+    { key:'namerica',   name:'อเมริกาเหนือ',  color:'#60a5fa', c:[-100,45],pts:[[-160,68],[-120,71],[-90,68],[-60,60],[-55,47],[-72,42],[-80,25],[-97,16],[-107,22],[-125,40],[-130,55]] },
+    { key:'samerica',   name:'อเมริกาใต้',    color:'#a78bfa', c:[-60,-20],pts:[[-78,8],[-60,10],[-50,0],[-35,-8],[-40,-23],[-58,-40],[-70,-53],[-73,-40],[-70,-18],[-80,-5]] },
+    { key:'australia',  name:'ออสเตรเลีย',    color:'#fb923c', c:[134,-25],pts:[[115,-22],[130,-12],[143,-12],[151,-25],[150,-37],[138,-38],[120,-34],[113,-26]] },
+    { key:'antarctica', name:'แอนตาร์กติกา',  color:'#e5e7eb', c:[0,-80],  pts:[[-180,-71],[180,-71],[180,-90],[-180,-90]] },
+];
+
+let qrand = Math.random;
+const ri = (n) => Math.floor(qrand() * n);
+const pick = (arr) => arr[ri(arr.length)];
+function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = ri(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+function makeQuestion() {
+    const target = pick(CONTINENTS);
+    const others = shuffle(CONTINENTS.filter(c => c.key !== target.key)).slice(0, 3).map(c => c.name);
+    return { target, qText: 'ทวีปสีทองคือทวีปอะไร?', answer: target.name, options: shuffle([target.name, ...others]) };
+}
+
+/* ═══ SECTION D · ฉาก 3D ลูกโลก (Three.js + CanvasTexture) ═══ */
+const TW = 1024, TH = 512;
+const TX = (lon) => (lon + 180) / 360 * TW;
+const TY = (lat) => (90 - lat) / 180 * TH;
+let mapCanvas, mapCtx, texture, scene, camera, renderer, globe, rafId = 0, stageEl;
+let dragging = false, lastX = 0, lastY = 0, velY = 0.0035;
+
+function drawMap(highlightKey) {
+    mapCtx.fillStyle = '#1d4ed8'; mapCtx.fillRect(0, 0, TW, TH);
+    for (const ct of CONTINENTS) {
+        mapCtx.beginPath();
+        ct.pts.forEach(([lo, la], i) => { const x = TX(lo), y = TY(la); i ? mapCtx.lineTo(x, y) : mapCtx.moveTo(x, y); });
+        mapCtx.closePath();
+        mapCtx.fillStyle = ct.key === highlightKey ? '#FFD700' : ct.color;
+        mapCtx.fill();
+        mapCtx.lineWidth = 3; mapCtx.strokeStyle = '#0f172a'; mapCtx.stroke();
+        if (ct.key === highlightKey) { mapCtx.lineWidth = 8; mapCtx.strokeStyle = '#b45309'; mapCtx.stroke(); }
+    }
+    if (texture) texture.needsUpdate = true;
+}
+
+function initThree() {
+    stageEl = $('stage');
+    mapCanvas = document.createElement('canvas'); mapCanvas.width = TW; mapCanvas.height = TH;
+    mapCtx = mapCanvas.getContext('2d');
+    drawMap(null);
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(46, 1, 0.1, 100);
+    camera.position.set(0, 0, 4.6);
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    stageEl.appendChild(renderer.domElement);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.85));
+    const dir = new THREE.DirectionalLight(0xffffff, 0.7); dir.position.set(3, 2, 4); scene.add(dir);
+    texture = new THREE.CanvasTexture(mapCanvas);
+    globe = new THREE.Mesh(
+        new THREE.SphereGeometry(1.7, 54, 36),
+        new THREE.MeshStandardMaterial({ map: texture, roughness: 0.95, metalness: 0.0 })
+    );
+    scene.add(globe);
+    resize();
+    window.addEventListener('resize', resize);
+    stageEl.addEventListener('pointerdown', (e) => { dragging = true; lastX = e.clientX; lastY = e.clientY; });
+    window.addEventListener('pointermove', (e) => {
+        if (!dragging) return;
+        const dx = e.clientX - lastX, dy = e.clientY - lastY; lastX = e.clientX; lastY = e.clientY;
+        globe.rotation.y += dx * 0.01; globe.rotation.x += dy * 0.01;
+    });
+    window.addEventListener('pointerup', () => { dragging = false; });
+}
+function resize() {
+    if (!renderer || !stageEl) return;
+    const w = stageEl.clientWidth || 1, h = stageEl.clientHeight || 1;
+    camera.aspect = w / h; camera.updateProjectionMatrix();
+    renderer.setSize(w, h, false);
+}
+// หันโลกให้ทวีปเป้าหมายมาอยู่ด้านหน้ากล้อง (best-effort)
+function orientTo(ct) {
+    const phi = (ct.c[0] + 180) / 360 * Math.PI * 2;
+    globe.rotation.set((ct.c[1]) * Math.PI / 180, (Math.PI / 2 - phi), 0);
+}
+function animate() {
+    rafId = requestAnimationFrame(animate);
+    if (globe && !dragging) globe.rotation.y += velY;
+    renderer.render(scene, camera);
+}
+
+/* ═══ SECTION E · ลูปเกม ═══ */
+let score = 0, lives = 3, streak = 0, maxStreak = 0, solved = 0;
+let mode = 'race';
+let started = false, isGameOver = false, locked = false;
+let qStart = 0, qLimit = 0, tRaf = 0, cur = null;
+
+function chooseMode(m) { KAMPAI.sound.unlock(); mode = m; startGame(); }
+
+function startGame() {
+    if (started) return;
+    started = true;
+    score = 0; lives = 3; streak = 0; maxStreak = 0; solved = 0; isGameOver = false;
+    $('start').classList.remove('on'); $('hud').classList.add('on'); $('play').classList.add('on');
+    if (mode === 'race') { $('life-container').style.display = ''; $('timer-wrap').classList.add('on'); }
+    else { $('life-container').style.display = 'none'; $('timer-wrap').classList.remove('on'); }
+    setScore(0); setLives(3); updateCombo();
+    if (!renderer) initThree(); else resize();
+    cancelAnimationFrame(rafId); animate();
+    KAMPAI.sound.bgmStart();
+    nextRound();
+}
+
+function nextRound() {
+    locked = false;
+    $('feedback').textContent = ''; $('feedback').className = '';
+    cur = makeQuestion();
+    drawMap(cur.target.key);
+    orientTo(cur.target);
+    $('q-text').textContent = cur.qText;
+    const ans = $('answers');
+    ans.innerHTML = cur.options.map((o, i) => `<button class="ans" data-i="${i}">${o}</button>`).join('');
+    ans.querySelectorAll('.ans').forEach(b => b.addEventListener('click', () => answer(b, cur.answer === cur.options[+b.dataset.i])));
+    if (mode === 'race') {
+        qLimit = Math.max(6000, 11000 - solved * 250);
+        qStart = performance.now();
+        $('timer-bar').classList.remove('warn');
+        cancelAnimationFrame(tRaf); tickTimer();
+    }
+}
+
+function tickTimer() {
+    const fr = Math.max(0, 1 - (performance.now() - qStart) / qLimit);
+    const bar = $('timer-bar'); bar.style.width = (fr * 100) + '%';
+    if (fr < 0.33) bar.classList.add('warn');
+    if (fr <= 0) { timeUp(); return; }
+    tRaf = requestAnimationFrame(tickTimer);
+}
+function timeUp() {
+    if (locked) return; locked = true; cancelAnimationFrame(tRaf);
+    revealCorrect();
+    KAMPAI.sound.timeUp(); KAMPAI.sound.fxFlash(false);
+    streak = 0; updateCombo(); flash('หมดเวลา! ⏱️', false);
+    setLives(lives - 1);
+    if (lives > 0) setTimeout(nextRound, 1200);
+}
+
+function answer(btn, correct) {
+    if (locked || !started || isGameOver) return;
+    locked = true; cancelAnimationFrame(tRaf);
+    $('answers').querySelectorAll('.ans').forEach(b => b.disabled = true);
+    if (correct) {
+        btn.classList.add('correct');
+        solved++; streak++; maxStreak = Math.max(maxStreak, streak);
+        const mult = comboMult();
+        let pts = 50;
+        if (mode === 'race') { const tf = Math.max(0, 1 - (performance.now() - qStart) / qLimit); pts += Math.round(tf * 25); }
+        pts = Math.round(pts * mult);
+        setScore(score + pts); updateCombo();
+        KAMPAI.sound.correct(); KAMPAI.sound.fxFlash(true);
+        flash('ถูกต้อง! +' + pts + (mult > 1 ? ' (x' + mult + ')' : ''), true);
+        setTimeout(nextRound, mode === 'practice' ? 850 : 700);
+    } else {
+        btn.classList.add('wrong'); revealCorrect();
+        streak = 0; updateCombo();
+        KAMPAI.sound.wrong(); KAMPAI.sound.fxFlash(false);
+        flash('ยังไม่ใช่ — คำตอบคือ ' + cur.answer, false);
+        if (mode === 'race') { setLives(lives - 1); if (lives > 0) setTimeout(nextRound, 1500); }
+        else setTimeout(nextRound, 1500);
+    }
+}
+function revealCorrect() {
+    $('answers').querySelectorAll('.ans').forEach(b => {
+        b.disabled = true;
+        if (cur.options[+b.dataset.i] === cur.answer) b.classList.add('correct');
+    });
+}
+
+function comboMult() { return Math.min(5, 1 + Math.floor(streak / 3)); }
+function updateCombo() {
+    const badge = $('combo-badge'); const m = comboMult();
+    if (streak >= 2) { badge.textContent = `🔥 x${m} · ${streak} ถูกติด`; badge.classList.add('on'); } else badge.classList.remove('on');
+}
+function flash(msg, good) { const f = $('feedback'); f.textContent = msg; f.className = good ? 'good' : 'bad'; }
+function setScore(n) { score = Math.max(0, n); $('score-value').textContent = score; const w = $('score-container'); w.classList.add('pop'); setTimeout(() => w.classList.remove('pop'), 150); }
+function setLives(n) { lives = Math.max(0, n); let s = ''; for (let i = 0; i < 3; i++) s += (i < lives) ? '❤️' : '🖤'; $('life-container').textContent = s; if (lives <= 0) endGame(); }
+
+function endGame() {
+    if (isGameOver) return; isGameOver = true;
+    cancelAnimationFrame(tRaf); cancelAnimationFrame(rafId);
+    KAMPAI.sound.gameOver(); KAMPAI.sound.bgmStop();
+    if (mode === 'race') KAMPAI.submitScore(score, { mode: 'normal', solved: solved, maxStreak: maxStreak });
+    $('hud').classList.remove('on'); $('timer-wrap').classList.remove('on'); $('play').classList.remove('on');
+    $('final-score').textContent = score;
+    $('final-detail').textContent = `ตอบถูก ${solved} ข้อ · สูงสุด ${maxStreak} ถูกติด` + (mode === 'practice' ? ' · (โหมดฝึก ไม่นับอันดับ)' : '');
+    $('gameover').classList.add('on');
+    renderLeaderboard('score-list-gameover');
+}
+
+/* ═══ ปุ่ม ═══ */
+$('btn-race').addEventListener('click', () => chooseMode('race'));
+$('btn-practice').addEventListener('click', () => chooseMode('practice'));
+$('btn-replay').addEventListener('click', () => location.reload());
+$('btn-home').addEventListener('click', () => KAMPAI.goHome());
+</script>
+</body>
+</html>
