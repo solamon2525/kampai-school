@@ -396,4 +396,43 @@ PlayGame wrapper ทำสิ่งเหล่านี้ — เกม HTML *
 
 ---
 
+## 🎨 มาตรฐานปกเกม (Game Cover Standard)
+
+> ปกเกม = `educational_hub_items.thumbnail_url` · ขนาด **16:9 (1280×720)** · แสดงด้วย `object-contain`
+> (ไม่ครอป) ในการ์ดเกม/Educational Hub/ตารางแอดมิน · ไฟล์อยู่ `public/games/{subject}/{slug}-cover.{png|svg}`
+
+**4 หลักการ (+ เพิ่มเติม):**
+1. **สดใสระดับประถม** — โทนสีสดใส พื้นหลังไล่เฉดสว่าง + ประกายดาว/ไอคอนธีมวิชา
+2. **มีเด็กนักเรียนเป็นตัวเอก** — chibi หัวโตน่ารัก **ใส่ชุดนักเรียนไทย** (เสื้อขาว/กรมท่า) ยิ้มสดใส
+3. **ภาพประกอบ + ฉากเด่น** — เด็กกำลังทำกิจกรรมของเกม ฉากเด่นชัดเป็นจุดสนใจกลางภาพ
+4. **ปกตรงกับเกม สื่อความหมายจากรูป** — มองรูปแล้วเดาได้ว่าเกมเกี่ยวกับอะไร
+- **ตัวหนังสือ:** ชื่อเกมไทยตัวใหญ่อ่านชัด (ไม่ถูกภาพบัง) + ป้ายเล็ก `{วิชา} {ระดับชั้น}` · โทนสีตามวิชา
+
+**ตัวอย่างที่ทำตามมาตรฐานนี้:**
+
+| ต่อวงจรไฟฟ้า (วิทยาศาสตร์) | เติมลายสมมาตร (ศิลปะ) |
+|---|---|
+| ![circuit-builder](public/games/science/circuit-builder-cover.png) | ![symmetry-art](public/games/arts/symmetry-art-cover.png) |
+
+**Prompt คัดลอกใช้:** `public/COVER-PROMPT.md` (served `/COVER-PROMPT.md` — มีปุ่ม "คัดลอก Prompt ปก" ใน GamesTab)
+เติม `{ชื่อเกม}/{วิชา}/{ระดับชั้น}/{ฉาก}/{โทนสี}` แล้ววางใน Canva (YouTube Thumbnail) หรือ AI สร้างภาพอื่น
+
+**Workflow ทำปกด้วย Canva (Claude Code + Canva MCP):**
+```
+1. generate-design  design_type='youtube_thumbnail'  query=<prompt ตาม COVER-PROMPT.md>  → 4 candidates
+2. create-design-from-candidate (job_id + candidate_id) ทีละอัน
+3. start-editing-transaction (design_id) → ได้ thumbnail preview + element_ids  → เลือกอันสวย/ธีมตรง
+4. perform-editing-operations แก้ตัวหนังสือไทยให้ถูก (AI มักหล่นคำ):
+     replace_text · resize_element (text ใส่แค่ width) · position_element · format_text
+5. commit-editing-transaction
+6. export-design  type=png 1280×720 export_quality=pro  → curl download URL ลง public/games/{subj}/{slug}-cover.png
+7. migration NNN เปลี่ยน thumbnail_url เป็น '.png' (+ apply remote) · ลบไฟล์ปกเก่า
+```
+> Canva **export ได้แค่ PNG/JPG (ไม่มี SVG)** · candidate thumbnail URL (design.canva.ai) เปิดตรงไม่ได้
+> ต้อง create+start-transaction ถึงเห็นภาพ · **verify ด้วยตาเสมอ** (Read PNG) ตรวจตัวหนังสือไทย + 16:9 ไม่เพี้ยน
+
+**Checklist ก่อนใช้ปก:** [ ] 16:9 · [ ] เด็กนักเรียน + ฉากตรงเกม · [ ] ชื่อไทยถูก+อ่านชัด · [ ] สีสดใส · [ ] verify ด้วยตา
+
+---
+
 *v1.41.0 — KAMPAI SDK (/games/kampai-sdk.js) + in-game leaderboard ผ่าน init + D-pad มือถือ + GAME-PROMPT.md + ปุ่มดาวน์โหลดเทมเพลตใน admin. v1.40.6 — Check 7 render smoke-test + _template-react.html. อัปเดตล่าสุดดู `src/components/admin/system/SystemOverview.tsx`*

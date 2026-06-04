@@ -22,7 +22,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink, Plus, RefreshCw, AlertTriangle, Loader2, Trash2, RotateCcw, Settings, Code2, ChevronDown, Copy, Check, Download } from 'lucide-react';
+import { ExternalLink, Plus, RefreshCw, AlertTriangle, Loader2, Trash2, RotateCcw, Settings, Code2, ChevronDown, Copy, Check, Download, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -229,6 +229,80 @@ function AiGameKit() {
                     <Button asChild size="sm" variant="ghost">
                         <a href="/GAME-PROMPT.md" target="_blank" rel="noreferrer">
                             <ExternalLink className="h-3.5 w-3.5 mr-1" /> ดู Prompt
+                        </a>
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
+
+function CoverStandardKit() {
+    const { toast } = useToast();
+    const [copied, setCopied] = useState(false);
+
+    const copyCoverPrompt = async () => {
+        try {
+            const res = await fetch('/COVER-PROMPT.md');
+            const text = await res.text();
+            await navigator.clipboard.writeText(text);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1500);
+            toast({ title: 'คัดลอก Prompt ปกแล้ว', description: 'วางใน Canva (เลือก YouTube Thumbnail = 16:9) หรือ AI สร้างภาพ พร้อมเติมชื่อเกม + ฉาก' });
+        } catch {
+            toast({ title: 'คัดลอกไม่สำเร็จ', variant: 'destructive' });
+        }
+    };
+
+    return (
+        <Card className="border-primary/20 bg-primary/5">
+            <CardContent className="p-4 space-y-3">
+                <div className="flex items-center gap-2">
+                    <ImageIcon className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-semibold text-foreground">🎨 มาตรฐานปกเกม</span>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                    ปกทุกเกมใช้แนวเดียวกันเพื่อความสม่ำเสมอ — คัดลอก Prompt → เติมชื่อเกม/ฉาก → วางใน
+                    Canva (เลือก "YouTube Thumbnail" = 16:9) หรือ AI สร้างภาพ → ได้ปก PNG → อัปโหลดที่ช่อง "รูปปก"
+                </p>
+                <ul className="text-[11px] text-muted-foreground space-y-0.5 list-disc list-inside">
+                    <li>สดใสระดับประถม สีสันสดใส</li>
+                    <li>มีเด็กนักเรียน (ชุดนักเรียน) เป็นตัวเอก</li>
+                    <li>ภาพประกอบ + ฉากเด่นที่สื่อ gameplay</li>
+                    <li>ปกตรงกับเกม + ชื่อไทยตัวใหญ่อ่านชัด</li>
+                </ul>
+                <div className="grid grid-cols-2 gap-2">
+                    <figure className="space-y-1">
+                        <div className="aspect-video w-full overflow-hidden rounded-md border border-border bg-muted">
+                            <img
+                                src="/games/science/circuit-builder-cover.png"
+                                alt="ตัวอย่างปกเกม ต่อวงจรไฟฟ้า"
+                                className="w-full h-full object-contain"
+                                loading="lazy"
+                            />
+                        </div>
+                        <figcaption className="text-[10px] text-muted-foreground text-center">ต่อวงจรไฟฟ้า (วิทยาศาสตร์)</figcaption>
+                    </figure>
+                    <figure className="space-y-1">
+                        <div className="aspect-video w-full overflow-hidden rounded-md border border-border bg-muted">
+                            <img
+                                src="/games/arts/symmetry-art-cover.png"
+                                alt="ตัวอย่างปกเกม เติมลายสมมาตร"
+                                className="w-full h-full object-contain"
+                                loading="lazy"
+                            />
+                        </div>
+                        <figcaption className="text-[10px] text-muted-foreground text-center">เติมลายสมมาตร (ศิลปะ)</figcaption>
+                    </figure>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                    <Button size="sm" onClick={copyCoverPrompt}>
+                        {copied ? <Check className="h-3.5 w-3.5 mr-1" /> : <Copy className="h-3.5 w-3.5 mr-1" />}
+                        คัดลอก Prompt ปก
+                    </Button>
+                    <Button asChild size="sm" variant="ghost">
+                        <a href="/COVER-PROMPT.md" target="_blank" rel="noreferrer">
+                            <ExternalLink className="h-3.5 w-3.5 mr-1" /> ดู Prompt ปก
                         </a>
                     </Button>
                 </div>
@@ -446,6 +520,7 @@ export const GamesTab = () => {
             </div>
 
             <AiGameKit />
+            <CoverStandardKit />
             <DeveloperCheatsheet />
 
             {isLoading ? (
