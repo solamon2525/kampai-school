@@ -25,15 +25,19 @@
 
 <!-- HUD -->
 <div id="score-container">⭐ <span id="score-value">0</span></div>
+<div id="timer-container">⏱️ <span id="timer-value">60</span></div>
 <div id="life-container">❤️❤️❤️</div>
+<div id="level-badge">เลเวล 1</div>
+<div id="combo-badge"></div>
 <div id="player-chip"></div>
+<div id="toast"></div>
 
 <canvas id="game-canvas"></canvas>
 
 <!-- Start screen -->
 <div id="blocker">
     <h1>🧺 เกมตัวอย่าง</h1>
-    <p>ขยับตะกร้าซ้าย–ขวารับดาว — มือถือใช้ปุ่มลูกศร, เดสก์ท็อปใช้ ← →</p>
+    <p>รับ ⭐ ให้ได้คะแนน · เลี่ยง 💣 · คว้า 💎 โบนัส<br>ลาก/ปุ่มลูกศร/← → เลื่อนตะกร้า · รับติดกันได้คอมโบ 🔥</p>
     <div id="my-stats">
         <div class="ms-cell"><div class="ms-val" id="ms-best">0</div><div class="ms-label">คะแนนสูงสุด</div></div>
         <div class="ms-cell"><div class="ms-val" id="ms-plays">0</div><div class="ms-label">เล่นไปแล้ว (ครั้ง)</div></div>
@@ -43,7 +47,8 @@
         <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
     </div>
     <div class="mode-row">
-        <button class="btn btn-primary" onclick="startGame()">▶ เริ่มเกม</button>
+        <button class="btn btn-primary" onclick="startGame('adventure')">🗺️ ผจญภัย (3 ชีวิต)</button>
+        <button class="btn btn-blue" onclick="startGame('time')">⏱️ แข่งเวลา 60 วิ</button>
         <button class="btn btn-ghost" id="online-btn" onclick="openOnline()" style="display:none">🌐 ออนไลน์</button>
     </div>
 </div>
@@ -51,8 +56,9 @@
 <!-- Game Over screen -->
 <div id="gameover-screen">
     <h1>จบเกม!</h1>
-    <p>คะแนนสุดท้าย</p>
+    <div id="go-stars">☆☆☆</div>
     <div id="final-score">0</div>
+    <p id="go-summary"></p>
     <div class="leaderboard-box">
         <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
         <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
