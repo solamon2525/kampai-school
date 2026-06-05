@@ -162,7 +162,7 @@ export const EduHubItemCard = ({
                 style={sortableStyle}
                 onClick={handleClick}
                 className={cn(
-                    'group cursor-pointer overflow-hidden hover:shadow-md transition-all hover:-translate-y-0.5 relative',
+                    'group cursor-pointer overflow-hidden hover:shadow-md transition-all hover:-translate-y-0.5 relative flex flex-col h-full',
                     isSpotlight && 'shadow-sm',
                     sortable.isDragging && 'ring-2 ring-primary',
                 )}
@@ -218,7 +218,7 @@ export const EduHubItemCard = ({
                 <ItemThumbnail item={item} />
 
                 {/* Body */}
-                <div className={cn('p-3 space-y-1', isSpotlight && 'p-4 space-y-2')}>
+                <div className={cn('p-3 space-y-1 flex-1 flex flex-col', isSpotlight && 'p-4 space-y-2')}>
                     <div className="flex items-start justify-between gap-2">
                         <h4 className={cn(
                             'font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors',
@@ -257,28 +257,34 @@ export const EduHubItemCard = ({
                         <ActionStat item={item} />
                     </div>
 
-                    {/* Leaderboard strip — top-5 players for tracked games */}
-                    {item.tracked_game && item.game_slug && (leaders?.length ?? 0) > 0 && (
-                        <div className="mt-2 pt-2 border-t border-border">
-                            <div className="flex items-end justify-around">
-                                {leaders!.map((row, i) => (
-                                    <div
-                                        key={row.student_id}
-                                        className="flex flex-col items-center gap-0.5 min-w-0"
-                                        title={`${i + 1}. ${row.display_name} — ${row.personal_best.toLocaleString('th-TH')} คะแนน`}
-                                    >
-                                        <div className="relative">
-                                            <PersonAvatar name={row.display_name} photoUrl={row.photo_url} size="xs" />
-                                            <span className="absolute -top-1 -left-1 text-[8px] font-bold bg-primary text-primary-foreground rounded-full w-3.5 h-3.5 flex items-center justify-center leading-none shadow-sm">
-                                                {i + 1}
+                    {/* Leaderboard strip — top-5 players; pin ล่างสุด (mt-auto) + กันแถวไว้เสมอ → ทุกการ์ดอยู่แนวเดียวกัน */}
+                    {item.tracked_game && item.game_slug && (
+                        <div className="mt-auto pt-2 border-t border-border min-h-[2.75rem] flex items-center">
+                            {(leaders?.length ?? 0) > 0 ? (
+                                <div className="flex items-end justify-around w-full">
+                                    {leaders!.map((row, i) => (
+                                        <div
+                                            key={row.student_id}
+                                            className="flex flex-col items-center gap-0.5 min-w-0"
+                                            title={`${i + 1}. ${row.display_name} — ${row.personal_best.toLocaleString('th-TH')} คะแนน`}
+                                        >
+                                            <div className="relative">
+                                                <PersonAvatar name={row.display_name} photoUrl={row.photo_url} size="xs" />
+                                                <span className="absolute -top-1 -left-1 text-[8px] font-bold bg-primary text-primary-foreground rounded-full w-3.5 h-3.5 flex items-center justify-center leading-none shadow-sm">
+                                                    {i + 1}
+                                                </span>
+                                            </div>
+                                            <span className="text-[8px] text-muted-foreground font-medium leading-none">
+                                                {row.personal_best.toLocaleString('th-TH')}
                                             </span>
                                         </div>
-                                        <span className="text-[8px] text-muted-foreground font-medium leading-none">
-                                            {row.personal_best.toLocaleString('th-TH')}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <span className="w-full text-center text-[10px] text-muted-foreground/60">
+                                    ยังไม่มีผู้เล่น — เป็นคนแรกเลย!
+                                </span>
+                            )}
                         </div>
                     )}
                 </div>

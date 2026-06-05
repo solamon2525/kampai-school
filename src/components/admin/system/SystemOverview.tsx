@@ -272,8 +272,17 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.65.0 (เกม RPG "ภารกิจกอบกู้อาณาจักร" — บูรณาการ ไทย+คณิต ป.4-5)',
+        version: 'v1.65.1 (จัดแถวรูปนักเรียนในการ์ดเกมให้อยู่แนวเดียวกัน)',
         date: 'ล่าสุด',
+        badge: 'bg-slate-600',
+        items: [
+            'EduHubItemCard (grid/spotlight): แก้ mini-leaderboard (รูปนักเรียน Top 5) ที่อยู่คนละระดับเพราะแท็ก 1 vs 2 บรรทัดดันตำแหน่ง → การ์ดเป็น flex-col h-full + pin แถวรูปไปล่างสุด (mt-auto) → ทุกการ์ดในแถวรูปอยู่แนวเดียวกัน ช่องว่างไปอยู่โซนแท็กด้านบนแทน',
+            'reserve แถว leaderboard ไว้เสมอสำหรับเกม tracked (min-h + placeholder "ยังไม่มีผู้เล่น") → เกมที่ยังไม่มีคะแนนก็ไม่ทำให้แถวเหลื่อม',
+        ],
+    },
+    {
+        version: 'v1.65.0 (เกม RPG "ภารกิจกอบกู้อาณาจักร" — บูรณาการ ไทย+คณิต ป.4-5)',
+        date: '',
         badge: 'bg-purple-700',
         items: [
             'นำเข้า + ปรับเกม RPG ผลัดตา "ภารกิจกอบกู้อาณาจักร" (thai-edu-rpg) ที่ /games/thai/thai-edu-rpg.html — ตอบคำถามคณิต+ไทยเพื่อโจมตีบอส 15 ตัว 5 โซน · เลือกอาชีพ (นักรบ/เวทย์/บวช) · เลเวล/สแตตัส/การ์ดสกิล/fever/ร้านค้า/achievements/lore/daily quest · เสียง+particle ในตัว',
