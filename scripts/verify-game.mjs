@@ -14,7 +14,7 @@
  *   1 = ขาด integration หรือมี anti-pattern
  */
 
-import { readFileSync, existsSync, readdirSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync, writeFileSync, mkdirSync, statSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { resolve, basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -36,17 +36,39 @@ if (!targetArg) {
     process.exit(1);
 }
 
-const filePath = resolve(REPO_ROOT, targetArg);
+// รองรับ "เกมโฟลเดอร์" (5 ไฟล์): ชี้ที่โฟลเดอร์ → ใช้ index.html ข้างใน
+let filePath = resolve(REPO_ROOT, targetArg);
+if (existsSync(filePath) && statSync(filePath).isDirectory()) filePath = join(filePath, 'index.html');
 if (!existsSync(filePath)) {
     console.error(`${FAIL} ไม่พบไฟล์: ${filePath}`);
     process.exit(1);
 }
 
+const gameDir = dirname(filePath);
+const isFolderGame = basename(filePath).toLowerCase() === 'index.html';
 const html = readFileSync(filePath, 'utf8');
-const fileName = basename(filePath, '.html');
+const fileName = isFolderGame ? basename(gameDir) : basename(filePath, '.html');
+
+/**
+ * เกมโฟลเดอร์แตก logic/data/config เป็น <script src="relative.js"> sibling —
+ * static checks ต้องเห็นโค้ดครบ → ต่อเนื้อไฟล์ sibling (relative เท่านั้น = ไฟล์ของเกมเอง)
+ * เข้ากับ html. ข้าม CDN + local-absolute (/games/kampai-*.js = framework ไม่ใช่โค้ดเกม
+ * — กัน submitScore ของ framework ทำให้ Check 5 ผ่านปลอม)
+ */
+function collectGameScripts(src, dir) {
+    let extra = '';
+    for (const m of src.matchAll(/<script\b[^>]*\ssrc=["']([^"']+)["'][^>]*><\/script>/g)) {
+        const s = m[1];
+        if (/^https?:/.test(s) || /^\/\//.test(s) || /^\//.test(s)) continue; // CDN/framework → ข้าม
+        const p = join(dir, s);
+        if (existsSync(p)) { try { extra += `\n/* ${s} */\n` + readFileSync(p, 'utf8'); } catch { /* */ } }
+    }
+    return extra ? src + extra : src;
+}
+const scanSource = collectGameScripts(html, gameDir);
 
 // เกมที่ใช้ KAMPAI SDK (/games/kampai-sdk.js) — integration อยู่ใน SDK ไม่ใช่ในไฟล์เกม
-const usesSdk = /kampai-sdk\.js/.test(html) || /KAMPAI\s*\.\s*(submitScore|setSlug|onReady|goHome)/.test(html);
+const usesSdk = /kampai-sdk\.js/.test(html) || /KAMPAI\s*\.\s*(submitScore|setSlug|onReady|goHome)/.test(scanSource);
 
 console.log(`\n${BOLD}${CYAN}🎮 Verify Game Integration${RESET}`);
 console.log(`${CYAN}File:${RESET} ${targetArg}\n`);
@@ -55,7 +77,10 @@ const issues = [];
 const warnings = [];
 
 // ─── Check 1: GAME_SLUG ─────────────────────────────────────────────────────
-const slugMatch = html.match(/const\s+GAME_SLUG\s*=\s*['"]([^'"]+)['"]/);
+// รับได้ทั้ง `const GAME_SLUG='x'` (ไฟล์เดียว) และ `SLUG:'x'` (config.js เกมโฟลเดอร์) / `setSlug('x')`
+const slugMatch = scanSource.match(/const\s+GAME_SLUG\s*=\s*['"]([^'"]+)['"]/)
+    || scanSource.match(/\bSLUG\s*:\s*['"]([^'"]+)['"]/)
+    || scanSource.match(/setSlug\(\s*['"]([^'"]+)['"]\s*\)/);
 let detectedSlug = null;
 if (!slugMatch) {
     issues.push({
@@ -77,7 +102,7 @@ if (!slugMatch) {
 }
 
 // ─── Check 2: score-submit available (SDK: KAMPAI.submitScore | legacy: sendGameEnd) ──
-if (!(usesSdk || /function\s+sendGameEnd\s*\(/.test(html))) {
+if (!(usesSdk || /function\s+sendGameEnd\s*\(/.test(scanSource))) {
     issues.push({
         check: 'sendGameEnd',
         msg:   'ไม่พบ `KAMPAI.submitScore` (SDK) หรือ `function sendGameEnd(...)` — โหลด /games/kampai-sdk.js หรือ copy EMBED block',
@@ -88,7 +113,7 @@ if (!(usesSdk || /function\s+sendGameEnd\s*\(/.test(html))) {
 }
 
 // ─── Check 3: กลับหน้าหลัก (SDK: KAMPAI.goHome | legacy: navigateBack | a[target=_top]) ──
-if (!(usesSdk || /function\s+navigateBack\s*\(/.test(html) || /target=["']_top["']/.test(html))) {
+if (!(usesSdk || /function\s+navigateBack\s*\(/.test(scanSource) || /target=["']_top["']/.test(scanSource))) {
     issues.push({
         check: 'navigateBack',
         msg:   'ไม่พบทางกลับหน้าหลัก — `KAMPAI.goHome()` (SDK) หรือ `function navigateBack()` หรือ <a target="_top">',
@@ -99,7 +124,7 @@ if (!(usesSdk || /function\s+navigateBack\s*\(/.test(html) || /target=["']_top["
 }
 
 // ─── Check 4: รับข้อมูลนักเรียน (SDK จัดการ init ให้ | legacy: init listener) ──────────
-const hasInitListener = /addEventListener\s*\(\s*['"]message['"][\s\S]{0,500}type\s*===?\s*['"]init['"]/.test(html);
+const hasInitListener = /addEventListener\s*\(\s*['"]message['"][\s\S]{0,500}type\s*===?\s*['"]init['"]/.test(scanSource);
 if (!(usesSdk || hasInitListener)) {
     issues.push({
         check: 'init listener',
@@ -111,8 +136,8 @@ if (!(usesSdk || hasInitListener)) {
 }
 
 // ─── Check 5: ต้อง "เรียก" submit จริง (SDK: KAMPAI.submitScore( | legacy: sendGameEnd ≥2) ──
-const sdkSubmitCalls = (html.match(/KAMPAI\s*\.\s*submitScore\s*\(/g) || []).length;
-const sendCalls = (html.match(/sendGameEnd\s*\(/g) || []).length;
+const sdkSubmitCalls = (scanSource.match(/KAMPAI\s*\.\s*submitScore\s*\(/g) || []).length;
+const sendCalls = (scanSource.match(/sendGameEnd\s*\(/g) || []).length;
 const submitCalled = usesSdk ? sdkSubmitCalls >= 1 : sendCalls >= 2;
 if (!submitCalled) {
     issues.push({
@@ -154,8 +179,8 @@ if (!detectedSlug || detectedSlug === 'placeholder-slug') {
 }
 
 // ─── Anti-patterns (warnings) ───────────────────────────────────────────────
-if (/firebase|firestore/i.test(html)) {
-    if (/firebasejs|getFirestore|signInAnonymously/.test(html) && !/\/\/.*firebase/i.test(html)) {
+if (/firebase|firestore/i.test(scanSource)) {
+    if (/firebasejs|getFirestore|signInAnonymously/.test(scanSource) && !/\/\/.*firebase/i.test(scanSource)) {
         warnings.push({
             check: 'anti-pattern',
             msg:   'พบ Firebase SDK ที่ยังไม่ comment ออก — ระบบ kampai ใช้ Supabase แทน',
@@ -163,14 +188,14 @@ if (/firebase|firestore/i.test(html)) {
         console.log(`${WARN} Anti-pattern: Firebase SDK ยัง active`);
     }
 }
-if (/id\s*=\s*['"]player[-_]?name['"]/i.test(html)) {
+if (/id\s*=\s*['"]player[-_]?name['"]/i.test(scanSource)) {
     warnings.push({
         check: 'anti-pattern',
         msg:   'พบ <input id="player-name"> — ลบออกแล้วใช้ DISPLAY_NAME_INIT แทน',
     });
     console.log(`${WARN} Anti-pattern: input ชื่อผู้เล่นยังอยู่`);
 }
-if (/window\.location\.href\s*=\s*['"][^/]*\.\.?\/index/.test(html)) {
+if (/window\.location\.href\s*=\s*['"][^/]*\.\.?\/index/.test(scanSource)) {
     warnings.push({
         check: 'anti-pattern',
         msg:   'พบ window.location.href ที่ navigate ไป ../index.html — ใช้ navigateBack() แทน',
@@ -182,7 +207,7 @@ if (/window\.location\.href\s*=\s*['"][^/]*\.\.?\/index/.test(html)) {
 // static checks ข้างบนเคยปล่อยเกมจอดำผ่าน (เคส wizard-thai) เพราะไม่เคย render จริง
 const isReactGame = /<script\s+type="text\/babel">/.test(html);
 if (isReactGame || usesSdk) {
-    const r = await renderSmokeTest(html);
+    const r = await renderSmokeTest(html, gameDir);
     if (r.status === 'pass') {
         console.log(`${PASS} Check 7 — render: เกมโหลด+render สำเร็จ${r.size ? ` (DOM ${r.size} ตัวอักษร)` : ''}`);
     } else if (r.status === 'skip') {
@@ -208,11 +233,11 @@ const JS_GLOBALS = [
 ];
 const shadowed = new Set();
 // (ก) X = _mkIcon('...')  — icon factory ของเทมเพลต
-for (const m of html.matchAll(/\b([A-Z][A-Za-z0-9_]*)\s*=\s*_mkIcon\b/g)) {
+for (const m of scanSource.matchAll(/\b([A-Z][A-Za-z0-9_]*)\s*=\s*_mkIcon\b/g)) {
     if (JS_GLOBALS.includes(m[1])) shadowed.add(m[1]);
 }
 // (ข) const { A, Map, B } = ...lucide...  — destructure ไอคอนตามชื่อ global
-for (const m of html.matchAll(/(?:const|let|var)\s*\{([^}]*)\}\s*=\s*[^;]*lucide/gi)) {
+for (const m of scanSource.matchAll(/(?:const|let|var)\s*\{([^}]*)\}\s*=\s*[^;]*lucide/gi)) {
     m[1].split(',').map((s) => s.trim().split(':').pop().trim()).forEach((n) => {
         if (JS_GLOBALS.includes(n)) shadowed.add(n);
     });
@@ -262,7 +287,7 @@ process.exit(issues.length > 0 ? 1 : 0);
  * + (React) render ขึ้น — จับ "จอดำ"/crash ที่ static regex มองไม่เห็น
  * คืน { status: 'pass'|'fail'|'skip', ... }
  */
-async function renderSmokeTest(html) {
+async function renderSmokeTest(html, gameDir) {
     let JSDOM, VirtualConsole, Babel;
     try {
         ({ JSDOM, VirtualConsole } = await import('jsdom'));
@@ -292,6 +317,10 @@ async function renderSmokeTest(html) {
                     if (existsSync(lp)) steps.push({ kind: 'eval', code: readFileSync(lp, 'utf8') });
                 } else if (/(^|\/)react(-dom)?[@./]|lucide/i.test(src) && !/babel|tailwind/i.test(src)) {
                     steps.push({ kind: 'eval', code: await fetchCached(src, cacheDir) });
+                } else if (!/^https?:/.test(src) && !/^\/\//.test(src)) {
+                    // relative sibling (เกมโฟลเดอร์): config.js / data.js / game.js — อ่านจาก dir เกม
+                    const lp = join(gameDir, src);
+                    if (existsSync(lp)) steps.push({ kind: 'eval', code: readFileSync(lp, 'utf8') });
                 }
                 // ข้าม tailwind/babel CDN (ไม่ต้องตอน runtime)
             } else if (isBabel) {

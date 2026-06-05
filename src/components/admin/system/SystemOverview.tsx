@@ -272,8 +272,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.63.1 (sync วัฒนธรรมเกม — GAME.md + GAME-PROMPT.md + เทมเพลต)',
+        version: 'v1.64.0 (วัฒนธรรมเกม v2 — โครงสร้างโฟลเดอร์ 5 ไฟล์ + โหมดออนไลน์)',
         date: 'ล่าสุด',
+        badge: 'bg-teal-600',
+        items: [
+            'โครงสร้างเกมแบบโฟลเดอร์ (แทนไฟล์ HTML เดียวหลายร้อยบรรทัด): แยก index.html + style.css + config.js (พารามิเตอร์) + data.js (เนื้อหา) + game.js (ลอจิก) → แอดมิน/ครูปรับ ระบบ/ภาพ/เสียง/พารามิเตอร์ ทีละส่วนได้ง่าย · เทมเพลต cp -r _template-folder · เกมเก่า ~30 เกมคงไฟล์เดียว ค่อยทยอยย้าย',
+            'โหมดออนไลน์ "ถามก่อนสร้าง": ทุกเกมที่เหมาะ (เก็บแต้ม/แข่งเวลา) ควรมีโหมดแข่งสดต่างเครื่อง (kampai-match) — GAME.md/GAME-PROMPT.md เพิ่มกฎถามก่อน + ตารางเกมที่เหมาะ/ไม่เหมาะ',
+            'นำร่อง: ย้าย "ฟังแล้วสะกด" (listen-spell) เป็นโฟลเดอร์ 5 ไฟล์ + เพิ่มปุ่ม 🌐 ออนไลน์ (race seeded rng) · migration 137 (apply remote แล้ว) · ปกย้ายเข้าโฟลเดอร์',
+            'verify:game อัปเกรดรองรับเกมโฟลเดอร์ (resolve โฟลเดอร์→index.html, inline sibling scripts เข้า static checks, eval relative siblings ใน render, slug จาก config) — เกมไฟล์เดียวเดิมยังผ่าน 8/8 (regression)',
+        ],
+    },
+    {
+        version: 'v1.63.1 (sync วัฒนธรรมเกม — GAME.md + GAME-PROMPT.md + เทมเพลต)',
+        date: '',
         badge: 'bg-slate-600',
         items: [
             'sync เอกสาร "วัฒนธรรมเกม" ให้ตรงของจริงที่ ship อยู่: GAME.md เพิ่ม "เช็กลิสต์วัฒนธรรมมาตรฐานจุดเดียว" (จอเริ่ม/HUD/จอจบ/เสียง/มือถือ) + ตาราง KAMPAI.sound.* ใน SDK API + หมวด "🎥 เกม AR/กล้อง" (getUserMedia, allow=camera, jsdelivr pose, แตะสำรอง) อิง vocab-move',

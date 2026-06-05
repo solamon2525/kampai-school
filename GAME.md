@@ -23,13 +23,16 @@
 ## 🧭 Decision Tree
 
 ```
+ก่อนเริ่ม → ถามผู้ใช้: "ทำโหมดออนไลน์ไหม?" (ดู §"🌐 ก่อนสร้างเกม")
+
 เริ่มเกมใหม่
-├─ สร้างจากศูนย์         → cp _template-full.html   (มี leaderboard + sound ครบ)
-├─ เล่นหลายคนออนไลน์     → cp _template-online.html (kampai-match: lobby+แข่งสด+อันดับ)
-├─ ไม่อยาก leaderboard   → cp _template.html        (basic version)
-├─ เกมเป็น React component → cp _template-react.html  (JSX/lucide-react → single-file)
+├─ สร้างจากศูนย์ (แนะนำ)   → cp -r _template-folder    (โครงสร้าง 5 ไฟล์ + online — ดู §"📁 โครงสร้างโฟลเดอร์")
+├─ เกมเล็ก/ไฟล์เดียว        → cp _template-full.html    (single-file + leaderboard + sound)
+├─ เล่นหลายคนออนไลน์อย่างเดียว → cp _template-online.html (kampai-match: lobby+แข่งสด+อันดับ)
+├─ ไม่อยาก leaderboard      → cp _template.html         (basic version)
+├─ เกมเป็น React component   → cp _template-react.html   (JSX/lucide-react → single-file)
 ├─ ใช้กล้อง/ตรวจจับร่างกาย (AR) → อ่าน §"🎥 เกม AR / กล้อง" + อิง english/vocab-move.html
-└─ มีไฟล์เกมเก่าอยู่แล้ว    → /integrate-game <path>   (Claude slash command)
+└─ มีไฟล์เกมเก่าอยู่แล้ว     → /integrate-game <path>   (Claude slash command)
 
 แก้ไขเกมเดิม
 ├─ ตรวจสอบสถานะ        → pnpm verify:game <path>   (รวม Check 7 render smoke-test)
@@ -54,6 +57,46 @@
 ⚠️ gotcha: ปุ่มเสียง `#kampai-snd` (จาก `mountToggles`) อยู่ **มุมบนซ้าย z-index 40** — ถ้า HUD เกมก็อยู่ซ้ายบน
 จะทับกัน → override ตำแหน่ง เช่น `#kampai-snd{ top:auto !important; bottom:14px !important; left:12px !important }`
 (ตัวอย่าง `english/vocab-move.html` ย้ายปุ่มเสียงลงล่างซ้าย)
+
+---
+
+## 🌐 ก่อนสร้างเกม: ถามโหมดออนไลน์
+
+**ทุกครั้งที่จะสร้างเกมใหม่ → ถามผู้ใช้ก่อนว่า "ทำโหมดออนไลน์ (แข่งสดต่างเครื่อง) ด้วยไหม?"**
+ถ้าเกมเหมาะ ให้ทำตั้งแต่แรก (ใช้ `kampai-match.js` — ไม่ต้องเขียน lobby/realtime เอง):
+
+| เหมาะกับออนไลน์ ✅ | ไม่เหมาะ ❌ (ข้ามได้) |
+|---|---|
+| เก็บแต้ม / แข่งเวลา / ถาม-ตอบ / สะกดคำ / คณิตเร็ว | AR/กล้อง (เคลื่อนไหวร่างกาย) |
+| โจทย์สุ่มได้จาก seed (ใช้ `rng` ให้ตรงทุกเครื่อง) | อุปกรณ์เดียว/ผลัดกันเล่น · วาดภาพอิสระ · ปริศนายาว |
+
+วิธีทำ: เปิด `ENABLE_ONLINE: true` ใน `config.js` (เทมเพลตโฟลเดอร์ wire ให้แล้ว) หรือดู §"🤝 Online
+Multiplayer Framework". ตัวอย่างจริง: `english/listen-spell/` (มีปุ่ม 🌐), `math/multiply-race.html`
+
+---
+
+## 📁 โครงสร้างโฟลเดอร์ต่อเกม (5 ไฟล์ — แนะนำสำหรับเกมใหม่)
+
+เกมไฟล์เดียวหลายร้อยบรรทัดแก้ยาก → แตกเป็นโฟลเดอร์ `public/games/{subject}/{slug}/` แยกหน้าที่:
+
+| ไฟล์ | หน้าที่ | แก้เมื่อ |
+|---|---|---|
+| `index.html` | โครง markup + โหลด script ตามลำดับ | เพิ่ม/ลบ element |
+| `style.css` | หน้าตา/ธีม/สี | ปรับดีไซน์ |
+| `config.js` | `window.GAME_CONFIG` — **พารามิเตอร์** (เวลา/คะแนน/ชีวิต/bgm/online) | จูนความยาก, เปิดออนไลน์ |
+| `data.js` | `window.GAME_DATA` — **เนื้อหา** (คลังคำ/โจทย์/ด่าน) | เพิ่ม/แก้เนื้อหา |
+| `game.js` | **ลอจิก** อ่านจาก config/data + SDK/leaderboard/sound | แก้กลไกเกม |
+| `cover.{png,svg}` | ปก 16:9 | — |
+
+**กฎ:**
+- โหลดด้วย **plain `<script src>` เรียงลำดับ** (`config → data → game`) — **ห้าม `import/export`** (แชร์ global
+  scope; verifier + เบราว์เซอร์ eval ตามลำดับ). ค่าส่งผ่าน global: `window.GAME_CONFIG`/`window.GAME_DATA`
+- `external_url` ใน DB = `/games/{subject}/{slug}/index.html` · `thumbnail_url` = `…/{slug}/cover.png`
+- `verify:game` รองรับแล้ว: `pnpm verify:game public/games/{subject}/{slug}` (หรือ `…/index.html`) — รวม
+  sibling เข้าตรวจ static + render
+- **เฉพาะเกมใน repo** (`public/games/`) — เกมอัปโหลดผ่าน Storage (ครู) ยังต้องไฟล์เดียว (โหลดผ่าน Blob → relative พัง)
+- เกมเดิม ~30 เกมยังเป็นไฟล์เดียวได้ (ทั้ง 2 แบบอยู่ร่วมกัน) — ค่อยทยอยย้ายทีละเกม
+- เริ่ม: `cp -r public/games/_template-folder public/games/{subject}/{slug}` · นำร่อง: `english/listen-spell/`
 
 ---
 
@@ -423,6 +466,7 @@ Supabase MCP `apply_migration` (project `lkpqssbqxxpasidfqhpb`) หรือ `su
 > `node_modules/.cache/game-verify/`. ถ้า offline/ไม่มี deps → WARN skip (ไม่ทำให้ verifier fail).
 
 **Template files (copy เป็นจุดเริ่มต้น):**
+- `public/games/_template-folder/` — **แนะนำ** · โครงสร้าง 5 ไฟล์ (index/style/config/data/game) + sound + leaderboard + online (`cp -r`)
 - `public/games/_template-full.html` — kampai + leaderboard + score HUD + lives HUD (canvas-based ตัวอย่าง)
 - `public/games/_template-online.html` — เกมออนไลน์หลายคน (kampai-match: lobby+แข่งสด+อันดับ — เขียนแค่ gameplay)
 - `public/games/_template.html` — basic kampai integration (ไม่มี leaderboard)
@@ -504,4 +548,4 @@ PlayGame wrapper ทำสิ่งเหล่านี้ — เกม HTML *
 
 ---
 
-*v1.63.x — sync วัฒนธรรมเกม: เช็กลิสต์มาตรฐานจุดเดียว + sound API ในตาราง SDK + หมวด AR/กล้อง + migration pattern (idempotent + apply remote) + 8/8 checks. v1.41.0 — KAMPAI SDK (/games/kampai-sdk.js) + in-game leaderboard ผ่าน init + D-pad มือถือ + GAME-PROMPT.md. v1.40.6 — Check 7 render smoke-test + _template-react.html. อัปเดตล่าสุดดู `src/components/admin/system/SystemOverview.tsx`*
+*v1.64.0 — วัฒนธรรมเกม v2: โครงสร้างโฟลเดอร์ 5 ไฟล์ (`_template-folder` + นำร่อง `english/listen-spell/`) + โหมดออนไลน์ "ถามก่อนสร้าง" + verify รองรับเกมโฟลเดอร์ (inline siblings). v1.63.x — sync วัฒนธรรมเกม: เช็กลิสต์มาตรฐานจุดเดียว + sound API ในตาราง SDK + หมวด AR/กล้อง + migration pattern (idempotent + apply remote) + 8/8 checks. v1.41.0 — KAMPAI SDK (/games/kampai-sdk.js) + in-game leaderboard ผ่าน init + D-pad มือถือ + GAME-PROMPT.md. v1.40.6 — Check 7 render smoke-test + _template-react.html. อัปเดตล่าสุดดู `src/components/admin/system/SystemOverview.tsx`*
