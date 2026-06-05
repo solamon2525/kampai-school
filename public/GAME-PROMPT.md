@@ -15,7 +15,7 @@
   ```html
   <script src="/games/kampai-sdk.js"></script>
   <script>
-  window.KAMPAI = window.KAMPAI || { isEmbed:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}} };
+  window.KAMPAI = window.KAMPAI || { isEmbed:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
   </script>
   ```
   (บรรทัด `window.KAMPAI = window.KAMPAI || {...}` คือ fallback ให้เปิดไฟล์ทดสอบเดี่ยว ๆ ได้ไม่พัง)
@@ -38,10 +38,18 @@
   บนจอให้อัตโนมัติ (เฉพาะอุปกรณ์ touch) แล้วอ่านสถานะที่ `KAMPAI.input.left/right/up/down/a/b`
   (ปุ่มเหล่านี้ผูกกับคีย์บอร์ดให้ด้วย — เขียนเกมอ่านจาก `KAMPAI.input` ที่เดียวพอ)
 - ถ้าเกมเป็นแบบ "แตะเลย" (tap) ก็ใช้ `pointerdown`/`touchstart` ได้ตามปกติ ไม่ต้อง mount controls
+- **เกมที่ใช้กล้อง (AR/ตรวจจับร่างกาย):** ต้องมี **แตะสำรอง** เสมอ — กล้อง/สิทธิ์อาจล้ม ต้องเล่นได้แม้ไม่มีกล้อง
 - เลย์เอาต์ต้อง responsive เต็มจอทั้งแนวตั้ง/แนวนอน
 - **มือถือ (สำคัญ):** เนื้อหาต้องพอดีจอแคบ **~360px โดยไม่ล้นแนวนอน** (ห้ามมี horizontal scroll) —
   ใช้ `flex-col`/`grid-cols-1` บนจอเล็ก, ตัวอักษร/ปุ่ม responsive, ปุ่มกด **ใหญ่พอนิ้ว (≥44px)**,
   ปุ่มสำคัญต้องเห็นโดย **ไม่ต้องเลื่อนหา**. อย่าใส่ความกว้างคงที่ (`width:600px`) — ใช้ `max-w-*` + `w-full`
+
+## เสียง (ระบบเสียงรวม — แนะนำให้ใส่ทุกเกม)
+ระบบมีเสียงสำเร็จรูป ไม่ต้องหาไฟล์เสียงเอง — เรียกผ่าน `KAMPAI.sound`:
+- ตอนเริ่มเกม: `KAMPAI.sound.defaultBgm('cheerful')` (เพลงพื้นหลัง: cheerful/calm/warm/playful/bright/mellow)
+  + `KAMPAI.sound.mountToggles()` (วางปุ่ม 🔊/🗣️/🎵 ให้ผู้เล่นเปิด/ปิดเอง) + `KAMPAI.sound.bgmStart()`
+- ตามเหตุการณ์: `KAMPAI.sound.correct()` (ตอบถูก) · `wrong()` (ผิด) · `timeUp()` (หมดเวลา) · `gameOver()` (จบเกม)
+- **เกมภาษา (อังกฤษ/คำศัพท์):** `KAMPAI.sound.speak('apple','en-US')` อ่านออกเสียงคำ (TTS) — ช่วยฝึกการฟัง
 
 ## โครงสร้างหน้าจอมาตรฐาน (ต้องมีครบ)
 เกมทุกเกมในระบบนี้มีโครงสร้างเหมือนกัน — สร้างให้ครบทั้ง 4 จอ/ส่วน:

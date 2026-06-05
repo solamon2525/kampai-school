@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.63.0 (เกม AR กล้อง "เดินตอบศัพท์" — อังกฤษ ป.4-6)',
+        version: 'v1.63.1 (sync วัฒนธรรมเกม — GAME.md + GAME-PROMPT.md + เทมเพลต)',
         date: 'ล่าสุด',
+        badge: 'bg-slate-600',
+        items: [
+            'sync เอกสาร "วัฒนธรรมเกม" ให้ตรงของจริงที่ ship อยู่: GAME.md เพิ่ม "เช็กลิสต์วัฒนธรรมมาตรฐานจุดเดียว" (จอเริ่ม/HUD/จอจบ/เสียง/มือถือ) + ตาราง KAMPAI.sound.* ใน SDK API + หมวด "🎥 เกม AR/กล้อง" (getUserMedia, allow=camera, jsdelivr pose, แตะสำรอง) อิง vocab-move',
+            'แก้ความไม่สอดคล้อง: verify 6/6 → 8/8 ทุกจุด · migration pattern เก่า (UPDATE WHERE id) → idempotent DO $$ block จริง (อิง 136) + ย้ำขั้นตอน "apply เข้า remote" · อัป footer version',
+            'กระจายระบบเสียงเข้าเทมเพลต/prompt ที่ตกหล่น: GAME-PROMPT.md (fallback stub + section เสียง + TTS) · _template-full.html (defaultBgm + mountToggles + correct/wrong/gameOver/bgm) — เกมใหม่จากเทมเพลต/AI จะมีเสียงครบโดยไม่ตกวัฒนธรรม · gotcha #kampai-snd ทับ HUD',
+        ],
+    },
+    {
+        version: 'v1.63.0 (เกม AR กล้อง "เดินตอบศัพท์" — อังกฤษ ป.4-6)',
+        date: '',
         badge: 'bg-amber-600',
         items: [
             'นำเข้า + ปรับเกม AR กล้อง "เดินตอบศัพท์" (vocab-move) ที่ /games/english/vocab-move.html — MediaPipe Pose ตรวจจับร่างกาย: เห็นคำศัพท์อังกฤษ → เดินซ้าย/ขวาหน้ากล้องไปยืนฝั่งคำแปลที่ถูก (ยืนค้าง 1 วิ = ตอบ) · กลไก "ขยับร่างกายจริง" เกมแรกของระบบ',

@@ -111,7 +111,7 @@ html, body { height: 100%; font-family: 'Kanit', sans-serif; background: #0f172a
 <script src="/games/kampai-sdk.js"></script>
 <script>
 /* fallback stub: กันพังถ้าเปิด standalone แล้ว SDK โหลดไม่ได้ */
-window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}} };
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
 </script>
 
 <script>
@@ -120,6 +120,7 @@ window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, stu
    ═══════════════════════════════════════════════════════════════════════════ */
 const GAME_SLUG = 'placeholder-slug';   // ⚠️ TODO: เปลี่ยนเป็น slug จริง (ตรงกับ educational_hub_items.game_slug)
 KAMPAI.setSlug(GAME_SLUG);
+KAMPAI.sound.defaultBgm('cheerful');    // เพลงพื้นหลังเริ่มต้น (หลังบ้าน override ได้): cheerful/calm/warm/playful/bright/mellow
 
 /* ═══════════════════════════════════════════════════════════════════════════
    SECTION B · แสดงข้อมูลนักเรียน + leaderboard ในเกม (ดึงจาก KAMPAI — ไม่ต้องยิง DB เอง)
@@ -161,6 +162,9 @@ KAMPAI.onReady(function () { renderPlayer(); renderMyStats(); renderLeaderboard(
 // ปุ่มควบคุมบนมือถือ (D-pad ซ้าย/ขวาใช้ในเกมนี้) + คีย์บอร์ด desktop อัตโนมัติ
 KAMPAI.controls.mount({ dpad: true, buttons: [] });
 
+// ปุ่มเสียง 🔊/🗣️/🎵 (มาตรฐานวัฒนธรรมเกม — เกมจริงต้องมี)
+KAMPAI.sound.mountToggles();
+
 /* ═══════════════════════════════════════════════════════════════════════════
    SECTION C · GAME LOGIC (เขียนเกมของคุณตรงนี้ — ตัวอย่าง: ตะกร้ารับดาว)
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -183,6 +187,7 @@ function setLives(n) {
 function endGame() {
     if (isGameOver) return;
     isGameOver = true;
+    KAMPAI.sound.bgmStop(); KAMPAI.sound.gameOver();
     KAMPAI.submitScore(score, { mode: 'normal', stars: score / 10 });
     document.getElementById('final-score').innerText = score;
     document.getElementById('gameover-screen').style.display = 'flex';
@@ -200,6 +205,7 @@ function startGame() {
     if (started) return;
     started = true;
     basketX = cw / 2;
+    KAMPAI.sound.unlock(); KAMPAI.sound.bgmStart();
     document.getElementById('blocker').style.display = 'none';
     requestAnimationFrame(loop);
 }
@@ -217,8 +223,8 @@ function loop(ts) {
     for (let i = stars.length - 1; i >= 0; i--) {
         const s = stars[i]; s.y += s.v;
         ctx.font = '32px serif'; ctx.fillText('⭐', s.x - 16, s.y);
-        if (s.y > basketY - 20 && Math.abs(s.x - basketX) < 50) { setScore(score + 10); stars.splice(i, 1); }
-        else if (s.y > ch) { stars.splice(i, 1); setLives(lives - 1); }
+        if (s.y > basketY - 20 && Math.abs(s.x - basketX) < 50) { setScore(score + 10); KAMPAI.sound.correct(); stars.splice(i, 1); }
+        else if (s.y > ch) { stars.splice(i, 1); setLives(lives - 1); KAMPAI.sound.wrong(); }
     }
     ctx.font = '48px serif'; ctx.fillText('🧺', basketX - 24, basketY + 16);
     requestAnimationFrame(loop);

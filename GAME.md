@@ -12,10 +12,10 @@
 2.  แก้ GAME_SLUG = '{slug}'  (1 ที่ใน <script>)
 3.  เขียน game logic ใน SECTION C
 4.  สร้าง supabase/migrations/NNN_seed_{slug}_game.sql
-5.  pnpm verify:game public/games/{subject}/{slug}.html   # ต้องผ่าน 6/6 checks
+5.  pnpm verify:game public/games/{subject}/{slug}.html   # ต้องผ่าน 8/8 checks
 ```
 
-มีแล้ว: kampai postMessage + Supabase leaderboard + Score HUD + Lives HUD
+มีแล้ว: kampai postMessage + Supabase leaderboard + Score HUD + Lives HUD + ระบบเสียงรวม (SFX/TTS/BGM)
 ห้ามทำ: input ชื่อผู้เล่น, Firebase SDK, `window.location.href` ตรง ๆ
 
 ---
@@ -24,10 +24,11 @@
 
 ```
 เริ่มเกมใหม่
-├─ สร้างจากศูนย์         → cp _template-full.html   (มี leaderboard ครบ)
+├─ สร้างจากศูนย์         → cp _template-full.html   (มี leaderboard + sound ครบ)
 ├─ เล่นหลายคนออนไลน์     → cp _template-online.html (kampai-match: lobby+แข่งสด+อันดับ)
 ├─ ไม่อยาก leaderboard   → cp _template.html        (basic version)
 ├─ เกมเป็น React component → cp _template-react.html  (JSX/lucide-react → single-file)
+├─ ใช้กล้อง/ตรวจจับร่างกาย (AR) → อ่าน §"🎥 เกม AR / กล้อง" + อิง english/vocab-move.html
 └─ มีไฟล์เกมเก่าอยู่แล้ว    → /integrate-game <path>   (Claude slash command)
 
 แก้ไขเกมเดิม
@@ -35,6 +36,24 @@
 ├─ Claude ช่วย integrate → /integrate-game <path>
 └─ แก้เอง              → อ่าน Section "EMBED Block" + "postMessage Protocol"
 ```
+
+---
+
+## ✅ วัฒนธรรมเกมมาตรฐาน (ทุกเกมต้องมีครบ)
+
+> เช็กลิสต์จุดเดียว — เกมในระบบนี้หน้าตา/พฤติกรรมเหมือนกันหมด. เทมเพลต `_template-full.html` มีให้ครบแล้ว
+
+| ส่วน | ต้องมี |
+|---|---|
+| **จอเริ่ม (title)** | การ์ด "สถิติฉัน" (`personalBest`+`playsCount`) + ตารางอันดับ Top 5 (`leaderboard`, ไฮไลต์ `isMe`) + ปุ่มเริ่ม · **ไม่มี input ชื่อ** (ไม่มีข้อมูล → ซ่อนการ์ด) |
+| **ระหว่างเล่น (HUD)** | คะแนน + ชีวิต/เวลา + ป้ายผู้เล่น (`student.displayName`+รูป) |
+| **จอจบ (game over)** | คะแนนรอบนี้ + ตารางอันดับ (ชุดเดียวกัน) + ปุ่มเล่นใหม่ + `KAMPAI.goHome()` + **เรียก `KAMPAI.submitScore(...)`** |
+| **เสียง** | `KAMPAI.sound.defaultBgm(preset)` + `mountToggles()` ตอนเริ่ม · `correct()/wrong()/timeUp()/gameOver()` ตามเหตุการณ์ · `speak(word,lang)` สำหรับ**เกมภาษา** (TTS) |
+| **มือถือ** | `controls.mount()` หรือ tap · responsive ~360px **ไม่ล้นแนวนอน** · ปุ่ม ≥44px |
+
+⚠️ gotcha: ปุ่มเสียง `#kampai-snd` (จาก `mountToggles`) อยู่ **มุมบนซ้าย z-index 40** — ถ้า HUD เกมก็อยู่ซ้ายบน
+จะทับกัน → override ตำแหน่ง เช่น `#kampai-snd{ top:auto !important; bottom:14px !important; left:12px !important }`
+(ตัวอย่าง `english/vocab-move.html` ย้ายปุ่มเสียงลงล่างซ้าย)
 
 ---
 
@@ -58,6 +77,12 @@
 | `KAMPAI.submitScore(score,{mode,...meta})` | ส่งคะแนนตอนจบเกม (= gameEnd เดิม) — **ต้องเรียก** |
 | `KAMPAI.goHome()` | ปุ่มกลับหน้าหลัก (= navigate เดิม) |
 | `KAMPAI.controls.mount({dpad,buttons,onTap})` | วาด D-pad+ปุ่มบนมือถือ + sync คีย์บอร์ด → อ่าน `KAMPAI.input{up,down,left,right,a,b}` |
+| `KAMPAI.sound.mountToggles()` | วางปุ่ม 🔊/🗣️/🎵 (เปิด/ปิด SFX·TTS·BGM) มุมบนซ้าย — เรียกตอนเริ่ม |
+| `KAMPAI.sound.defaultBgm('preset')` | ตั้งเพลงพื้นหลังเริ่มต้น (cheerful/calm/warm/playful/bright/mellow) ถ้าหลังบ้านไม่กำหนด |
+| `KAMPAI.sound.bgmStart()` / `bgmStop()` | เริ่ม/หยุดเพลง (เรียกตอน startGame / endGame) |
+| `KAMPAI.sound.correct()` / `wrong()` / `timeUp()` / `gameOver()` | เสียงเอฟเฟกต์ตามเหตุการณ์ |
+| `KAMPAI.sound.speak(text, lang)` | TTS อ่านออกเสียง (เกมภาษา เช่น `speak('apple','en-US')`) · `stopSpeak()` หยุด |
+| `KAMPAI.sound.fxFlash(good)` | แฟลชจอเขียว(ถูก)/แดง(ผิด) · `unlock()` ปลดล็อก audio ตอน gesture แรก |
 | `KAMPAI.online.available` | `true` ถ้าเล่นใน embed (standalone เล่นออนไลน์ไม่ได้) |
 | `KAMPAI.online.makeCode()` | สุ่มรหัสห้อง 4 หลัก |
 | `KAMPAI.online.join(room,{onJoined,onPresence,onEvent})` | เข้าห้อง realtime — wrapper เปิด Supabase channel ให้ (เกมไม่ต้องมี anon key). meta presence ดึงจาก `KAMPAI.student` อัตโนมัติ |
@@ -259,6 +284,24 @@ function navigateBack() {
 
 ---
 
+## 🎥 เกม AR / กล้อง (camera-permission)
+
+เกมที่ใช้กล้อง + ตรวจจับร่างกาย (เช่น เดินซ้าย/ขวาตอบ) — มี pattern เฉพาะ. **ไม่มีเทมเพลตแยก**
+→ อิงไฟล์จริง `public/games/english/vocab-move.html` (ใช้ KAMPAI SDK เต็ม + AR)
+
+- **สิทธิ์กล้องในระบบ:** iframe wrapper เปิดให้แล้ว — `allow="...camera; microphone"`
+  (`src/pages/PlayGame.tsx`) → กล้องทำงานในโหมด embed ได้ ไม่ต้องตั้งค่าเพิ่ม
+- **เปิดกล้อง:** `getUserMedia({ video:{ facingMode:'user' } })` · mirror วิดีโอด้วย CSS `transform: scaleX(-1)`
+  แล้ว **flip landmark x** (`1 - x`) ให้ภาพกับพิกัดตรงกัน
+- **pose:** โหลด `@mediapipe/pose` จาก **jsdelivr ตัวเดียว**
+  (`https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.x/pose.js`) — ⚠️ อย่าโหลด `pose.js` จาก cdnjs ก่อน (มัก 404)
+- **บังคับมี input fallback:** กล้อง/permission/pose **อาจล้มได้** (อุปกรณ์โรงเรียน) → ต้องเล่นได้เสมอ
+  ด้วย **แตะ zone/ปุ่ม**. กรณี `getUserMedia` reject → สลับเข้าโหมดแตะอัตโนมัติ (ดู `initCamera` catch ใน vocab-move)
+- **verify:** Check 7 (render) ผ่านได้ เพราะกล้อง init เฉพาะตอน **user gesture** (กดเริ่ม) ไม่ใช่ตอน load —
+  MediaPipe จึงไม่ถูกเรียกใน jsdom. แต่ **ต้องเปิด browser จริงที่มีกล้อง** เพื่อทดสอบ gameplay
+
+---
+
 ## ❌ Anti-Patterns (ห้ามทำ)
 
 | ❌ ผิด | ✅ ถูก |
@@ -277,22 +320,48 @@ function navigateBack() {
 
 ## 🗄️ DB Migration Pattern
 
-สร้างไฟล์ `supabase/migrations/NNN_seed_{slug}_game.sql`:
+สร้างไฟล์ `supabase/migrations/NNN_seed_{slug}_game.sql` — **idempotent** (re-run ได้ไม่ซ้ำ):
+keyed ที่ staff(เจ้าของ) + external_url, `INSERT ... WHERE NOT EXISTS` แล้ว `UPDATE` flags ทุกครั้ง
+(ตัวอย่างจริง: `supabase/migrations/136_seed_vocab_move_game.sql`)
 
 ```sql
 -- NNN_seed_{slug}_game.sql
-UPDATE educational_hub_items
-SET
-    external_url  = '/games/{subject}/{slug}.html',
-    game_slug     = '{slug}',
-    tracked_game  = true,
-    is_published  = true,
-    updated_at    = now()
-WHERE id = 'UUID-OF-ITEM';
--- หา UUID: SELECT id, name FROM educational_hub_items WHERE name ILIKE '%ชื่อเกม%';
+DO $$
+DECLARE
+  v_staff_id  UUID;
+  v_cat_games UUID;
+  v_url       TEXT := '/games/{subject}/{slug}.html';
+BEGIN
+  SELECT id INTO v_staff_id FROM public.staff
+  WHERE name LIKE '%ณัฐพงศ์%สิงห์ชมภู%' AND staff_type = 'teaching'
+  ORDER BY created_at LIMIT 1;
+  IF v_staff_id IS NULL THEN RAISE EXCEPTION 'staff not found'; END IF;
+
+  SELECT id INTO v_cat_games FROM public.educational_hub_categories WHERE category_key = 'games';
+  IF v_cat_games IS NULL THEN RAISE EXCEPTION 'category games not found (migration 061)'; END IF;
+
+  INSERT INTO public.educational_hub_profiles (staff_id, is_hub_active)
+  VALUES (v_staff_id, true) ON CONFLICT (staff_id) DO NOTHING;
+
+  INSERT INTO public.educational_hub_items
+    (owner_staff_id, category_id, item_type, title, external_url, subject, sort_order)
+  SELECT v_staff_id, v_cat_games, 'link', '{ชื่อไทย}', v_url, '{วิชา}', {sort}
+  WHERE NOT EXISTS (
+    SELECT 1 FROM public.educational_hub_items
+    WHERE owner_staff_id = v_staff_id AND external_url = v_url
+  );
+
+  UPDATE public.educational_hub_items
+  SET game_slug = '{slug}', tracked_game = true, is_published = true,
+      thumbnail_url = '/games/{subject}/{slug}-cover.svg', bgm_preset = 'playful', updated_at = now()
+  WHERE owner_staff_id = v_staff_id AND external_url = v_url;
+END $$;
 ```
 
 ดู NNN ถัดไปจาก `ls supabase/migrations/ | tail`
+
+⚠️ **ต้อง apply เข้า remote ด้วย** (ไฟล์ migration อย่างเดียวไม่พอ — DB จริงต้องมี row) ผ่าน
+Supabase MCP `apply_migration` (project `lkpqssbqxxpasidfqhpb`) หรือ `supabase db push`
 
 ---
 
@@ -368,7 +437,7 @@ WHERE id = 'UUID-OF-ITEM';
 
 ## ✅ Pre-Commit Checklist
 
-รัน `pnpm verify:game <file>` — ต้องผ่าน 6/6 + ไม่มี anti-pattern warning
+รัน `pnpm verify:game <file>` — ต้องผ่าน 8/8 + ไม่มี anti-pattern warning
 
 หรือเช็คด้วยตา:
 - [ ] `GAME_SLUG` ตรงกับ `game_slug` ใน DB (ไม่ใช่ placeholder)
@@ -435,4 +504,4 @@ PlayGame wrapper ทำสิ่งเหล่านี้ — เกม HTML *
 
 ---
 
-*v1.41.0 — KAMPAI SDK (/games/kampai-sdk.js) + in-game leaderboard ผ่าน init + D-pad มือถือ + GAME-PROMPT.md + ปุ่มดาวน์โหลดเทมเพลตใน admin. v1.40.6 — Check 7 render smoke-test + _template-react.html. อัปเดตล่าสุดดู `src/components/admin/system/SystemOverview.tsx`*
+*v1.63.x — sync วัฒนธรรมเกม: เช็กลิสต์มาตรฐานจุดเดียว + sound API ในตาราง SDK + หมวด AR/กล้อง + migration pattern (idempotent + apply remote) + 8/8 checks. v1.41.0 — KAMPAI SDK (/games/kampai-sdk.js) + in-game leaderboard ผ่าน init + D-pad มือถือ + GAME-PROMPT.md. v1.40.6 — Check 7 render smoke-test + _template-react.html. อัปเดตล่าสุดดู `src/components/admin/system/SystemOverview.tsx`*
