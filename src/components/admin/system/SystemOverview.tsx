@@ -272,8 +272,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.64.1 (ยกระดับเกมตัวอย่างในเทมเพลต — baseline เกมใหม่ทุกตัว)',
+        version: 'v1.65.0 (เกม RPG "ภารกิจกอบกู้อาณาจักร" — บูรณาการ ไทย+คณิต ป.4-5)',
         date: 'ล่าสุด',
+        badge: 'bg-purple-700',
+        items: [
+            'นำเข้า + ปรับเกม RPG ผลัดตา "ภารกิจกอบกู้อาณาจักร" (thai-edu-rpg) ที่ /games/thai/thai-edu-rpg.html — ตอบคำถามคณิต+ไทยเพื่อโจมตีบอส 15 ตัว 5 โซน · เลือกอาชีพ (นักรบ/เวทย์/บวช) · เลเวล/สแตตัส/การ์ดสกิล/fever/ร้านค้า/achievements/lore/daily quest · เสียง+particle ในตัว',
+            'เข้าวัฒนธรรม kampai (port ไฟล์เดียว): KAMPAI SDK + ส่งคะแนน power score ทุกครั้งที่ชนะบอส + ป้ายผู้เล่น + leaderboard + ปุ่มกลับ hub บนจอ title',
+            'ตัดระบบที่ชน/ซ้ำ + anti-pattern ออก: Online PvP (Firebase SDK) · Live Class (BroadcastChannel) · Teacher Mode dashboard ในเกม — เหลือ RPG เล่นเดี่ยวสะอาด ใช้ leaderboard/นักเรียนของ kampai',
+            'ขยายคลังคำถาม 12+12 → 40+40 (คณิต: ตัวประกอบ/จำนวนเฉพาะ/ห.ร.ม./ค.ร.น./เศษส่วน/ทศนิยม/เลขยกกำลัง · ไทย: ไวพจน์/ชนิดคำ/คำเป็นคำตาย/ราชาศัพท์) · migration 138 (apply remote แล้ว) · ปก SVG ชั่วคราว · verify:game 8/8 + jsdom playthrough (navigate+battle+answer) ไม่มี error',
+        ],
+    },
+    {
+        version: 'v1.64.1 (ยกระดับเกมตัวอย่างในเทมเพลต — baseline เกมใหม่ทุกตัว)',
+        date: '',
         badge: 'bg-cyan-700',
         items: [
             'ปรับเกมตัวอย่างใน _template-folder (รับดาว) ให้เป็น reference คุณภาพสูง — เกมใหม่ทุกตัว cp -r ไป = ได้ baseline สูงขึ้น แล้วแค่สลับเนื้อหา (คงโครงวัฒนธรรม SDK/leaderboard/เสียง/ออนไลน์ + คอมเมนต์ // [JUICE]/[MODE] ให้ลอกง่าย)',

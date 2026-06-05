@@ -1,0 +1,2047 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ภารกิจกอบกู้อาณาจักร v3</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700;900&family=Sarabun:wght@300;400;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#f5c842;--gold2:#c9962a;--red:#e63946;--blue:#4cc9f0;--green:#57cc99;
+  --purple:#9b5de5;--orange:#ff9a3c;--bg:#0a0a18;--bg2:#12122a;--bg3:#1a1a32;
+  --bg4:#222240;--text:#e8e8f0;--dim:#9999bb;--border:#2a2a48;
+  --fire:#ff6b35;--ice:#89d4f5;--thunder:#ffe566;--nature:#7be495;--dark:#c084fc;
+}
+/* Emoji font fix — ป้องกัน tofu box */
+@font-face{font-family:'EmojiFont';src:local('Apple Color Emoji'),local('Segoe UI Emoji'),local('Noto Color Emoji'),local('Android Emoji')}
+html{font-size:16px}
+body{font-family:'Kanit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+/* Force emoji rendering everywhere */
+.scard-icon,.hero-sp,.enemy-sp,.cc-icon,.ach-icon,.lore-icon,.dialogue-avatar,
+.lvup-icon,.res-icon,.hud-stat .v,.daily-quest .qcheck,
+canvas{font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji','Twemoji Mozilla',sans-serif}
+
+/* Stars */
+body::before{content:'';position:fixed;inset:0;
+  background:radial-gradient(1px 1px at 8% 12%,rgba(255,255,255,.5) 0%,transparent 100%),
+  radial-gradient(1px 1px at 72% 8%,rgba(255,255,255,.35) 0%,transparent 100%),
+  radial-gradient(1px 1px at 35% 60%,rgba(255,255,255,.4) 0%,transparent 100%),
+  radial-gradient(1px 1px at 88% 45%,rgba(255,255,255,.3) 0%,transparent 100%),
+  radial-gradient(1px 1px at 20% 80%,rgba(255,255,255,.35) 0%,transparent 100%),
+  radial-gradient(1px 1px at 55% 25%,rgba(255,255,255,.25) 0%,transparent 100%),
+  radial-gradient(2px 2px at 42% 70%,rgba(245,200,66,.18) 0%,transparent 100%),
+  radial-gradient(1px 1px at 65% 85%,rgba(76,201,240,.15) 0%,transparent 100%),
+  radial-gradient(1px 1px at 92% 20%,rgba(155,93,229,.12) 0%,transparent 100%);
+  pointer-events:none;z-index:0}
+
+/* SCREENS */
+.screen{display:none;position:relative;z-index:1;min-height:100vh}
+.screen.active{display:flex;flex-direction:column;align-items:center;padding:16px}
+
+/* ===== BUTTONS ===== */
+.btn{border:none;font-family:'Kanit',sans-serif;font-weight:700;cursor:pointer;transition:all .2s;border-radius:50px;padding:13px 36px;font-size:17px}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a0800;box-shadow:0 4px 18px rgba(245,200,66,.3)}
+.btn-gold:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(245,200,66,.5)}
+.btn-outline{background:transparent;color:var(--gold);border:2px solid var(--gold)}
+.btn-outline:hover{background:rgba(245,200,66,.1)}
+.btn-purple{background:linear-gradient(135deg,#9b5de5,#7b2ff7);color:#fff;box-shadow:0 4px 18px rgba(155,93,229,.3)}
+.btn-purple:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(155,93,229,.5)}
+.btn-sm{padding:9px 20px;font-size:14px;border-radius:20px}
+.btn-red{background:linear-gradient(135deg,var(--red),#c1121f);color:#fff}
+
+/* ===== TITLE ===== */
+#s-title{justify-content:center;background:radial-gradient(ellipse at 50% 35%,#150d38 0%,var(--bg) 70%)}
+.logo{text-align:center;margin-bottom:32px}
+.logo-eyebrow{font-size:15px;letter-spacing:8px;color:var(--gold);text-transform:uppercase;margin-bottom:10px}
+.logo-h{font-size:clamp(36px,9vw,72px);font-weight:900;line-height:1.05;
+  background:linear-gradient(135deg,#f5c842 0%,#ff9a3c 40%,#f5c842 80%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 28px rgba(245,200,66,.35))}
+.logo-sub{font-size:14px;color:var(--dim);margin-top:8px}
+.feat-pills{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:16px 0}
+.pill{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:20px;
+  padding:5px 14px;font-size:15px;color:var(--dim)}
+.pill.hot{border-color:var(--gold);color:var(--gold)}
+.title-btns{display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;max-width:300px}
+.title-btns .btn{width:100%}
+
+/* Hero HUD on title */
+.hero-hud{background:var(--bg3);border:1px solid var(--border);border-radius:14px;
+  padding:14px 18px;margin-bottom:20px;width:100%;max-width:320px}
+.hero-hud-top{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.hero-avatar{font-size:36px}
+.hero-hud-info h3{font-size:16px;font-weight:700}
+.hero-hud-info .lv{font-size:15px;color:var(--gold)}
+.exp-bar-wrap{margin-top:4px}
+.exp-bar-bg{background:rgba(255,255,255,.07);border-radius:4px;height:6px;overflow:hidden}
+.exp-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--orange));border-radius:4px;transition:width .5s}
+.exp-lbl{font-size:15px;color:var(--dim);margin-top:2px}
+.hero-hud-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.hud-stat{text-align:center;background:rgba(255,255,255,.04);border-radius:8px;padding:6px}
+.hud-stat .v{font-size:17px;font-weight:700;color:var(--gold)}
+.hud-stat .l{font-size:15px;color:var(--dim)}
+.daily-banner{background:rgba(245,200,66,.08);border:1px solid rgba(245,200,66,.2);
+  border-radius:10px;padding:10px 14px;width:100%;max-width:320px;margin-bottom:12px}
+.daily-banner h4{font-size:14px;color:var(--gold);margin-bottom:6px}
+.daily-quest{display:flex;align-items:center;gap:8px;font-size:14px;margin:4px 0}
+.daily-quest .qcheck{font-size:16px}
+.daily-quest.done{opacity:.5;text-decoration:line-through}
+
+/* ===== CLASS SELECT ===== */
+#s-class{padding-top:32px}
+.section-hdr{text-align:center;margin-bottom:22px}
+.section-hdr h2{font-size:24px;font-weight:700;color:var(--gold)}
+.section-hdr p{font-size:15px;color:var(--dim);margin-top:4px;font-family:'Sarabun',sans-serif}
+.class-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;width:100%;max-width:660px;margin-bottom:20px}
+.cc{background:var(--bg3);border:2px solid var(--border);border-radius:14px;padding:20px;cursor:pointer;transition:all .25s;text-align:center;position:relative;overflow:hidden}
+.cc::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .25s;border-radius:12px}
+.cc.warrior::before{background:radial-gradient(circle,rgba(230,57,70,.15),transparent)}
+.cc.mage::before{background:radial-gradient(circle,rgba(76,201,240,.15),transparent)}
+.cc.healer::before{background:radial-gradient(circle,rgba(87,204,153,.15),transparent)}
+.cc:hover{transform:translateY(-4px);border-color:var(--gold)}
+.cc:hover::before,.cc.sel::before{opacity:1}
+.cc.sel{border-color:var(--gold);box-shadow:0 0 20px rgba(245,200,66,.3)}
+.cc-icon{font-size:44px;margin-bottom:8px;display:block}
+.cc-name{font-size:18px;font-weight:700;margin-bottom:5px}
+.cc.warrior .cc-name{color:var(--red)}.cc.mage .cc-name{color:var(--blue)}.cc.healer .cc-name{color:var(--green)}
+.cc-desc{font-size:15px;color:var(--dim);line-height:1.5;margin-bottom:10px;font-family:'Sarabun',sans-serif}
+.srow{display:flex;align-items:center;gap:6px;margin:3px 0}
+.slbl{font-size:15px;color:var(--dim);width:28px;text-align:right}
+.sbg{flex:1;background:rgba(255,255,255,.07);border-radius:3px;height:6px;overflow:hidden}
+.sfill{height:100%;border-radius:3px}
+.sfill.hp{background:linear-gradient(90deg,#e63946,#ff6b6b)}
+.sfill.mp{background:linear-gradient(90deg,#4361ee,#4cc9f0)}
+.sfill.atk{background:linear-gradient(90deg,#f5c842,#ffa500)}
+
+/* ===== WORLD MAP ===== */
+#s-map{padding-top:20px}
+.map-wrap{width:100%;max-width:680px;position:relative}
+.map-title{text-align:center;margin-bottom:14px}
+.map-title h2{font-size:22px;font-weight:700;color:var(--gold)}
+.map-title p{font-size:14px;color:var(--dim)}
+
+/* Map SVG canvas */
+.world-map-svg{width:100%;border-radius:16px;background:linear-gradient(160deg,#0a1628 0%,#0d2010 40%,#1a0d28 100%);
+  border:1px solid var(--border);overflow:visible}
+.zone-label{font-family:'Kanit',sans-serif;font-size:15px;font-weight:700;fill:rgba(255,255,255,.8);text-anchor:middle}
+.path-line{stroke-dasharray:8 4;stroke-linecap:round;opacity:.5}
+.map-node{cursor:pointer;transition:all .2s}
+.map-node:hover .node-circle{filter:brightness(1.3)}
+.node-circle{transition:all .25s}
+.node-label{font-family:'Kanit',sans-serif;font-size:15px;fill:rgba(255,255,255,.85);text-anchor:middle;pointer-events:none}
+.node-lock{font-family:'Kanit',sans-serif;font-size:14px;text-anchor:middle;dominant-baseline:central}
+.node-star{font-family:'Kanit',sans-serif;font-size:9px;fill:var(--gold);text-anchor:middle}
+.player-icon{font-size:18px;transition:all .5s}
+
+/* Zones panel */
+.zone-info{background:var(--bg3);border:1px solid var(--border);border-radius:12px;
+  padding:14px 16px;margin-top:12px;width:100%}
+.zone-info h3{font-size:16px;font-weight:700;color:var(--gold);margin-bottom:4px}
+.zone-info p{font-size:14px;color:var(--dim);font-family:'Sarabun',sans-serif;line-height:1.5}
+.zone-info .zone-stats{display:flex;gap:16px;margin-top:8px;font-size:14px;flex-wrap:wrap}
+.zone-info .zone-stat{color:var(--dim)}
+.zone-info .zone-stat span{color:var(--text);font-weight:600}
+
+/* ===== BOSS DIALOGUE ===== */
+.dialogue-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;
+  display:flex;align-items:flex-end;justify-content:center;padding:20px;pointer-events:none;opacity:0;
+  transition:opacity .4s}
+.dialogue-overlay.show{opacity:1;pointer-events:all}
+.dialogue-box{background:var(--bg3);border:2px solid var(--border);border-radius:16px;
+  padding:20px;max-width:560px;width:100%;position:relative;transform:translateY(30px);transition:transform .4s}
+.dialogue-overlay.show .dialogue-box{transform:translateY(0)}
+.dialogue-speaker{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.dialogue-avatar{font-size:48px;background:rgba(255,255,255,.06);border-radius:12px;padding:8px;min-width:64px;text-align:center}
+.dialogue-name{font-size:16px;font-weight:700;color:var(--gold)}
+.dialogue-role{font-size:15px;color:var(--dim)}
+.dialogue-text{font-family:'Sarabun',sans-serif;font-size:15px;line-height:1.7;color:var(--text);
+  min-height:60px;border-left:3px solid var(--gold);padding-left:14px;margin-bottom:14px}
+.dialogue-cursor{animation:blink .7s infinite;display:inline}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.dialogue-btn{float:right}
+
+/* ===== BATTLE SCREEN ===== */
+#s-battle{padding:10px;max-width:700px;margin:0 auto;width:100%}
+
+/* Timer */
+.timer-wrap{width:100%;margin-bottom:8px}
+.timer-bg{background:rgba(255,255,255,.06);border-radius:5px;height:7px;overflow:hidden}
+.timer-fill{height:100%;border-radius:5px;transition:width .1s linear}
+.timer-fill.ok{background:linear-gradient(90deg,#57cc99,#a8ff78)}
+.timer-fill.warn{background:linear-gradient(90deg,var(--orange),#ffcc02)}
+.timer-fill.danger{background:linear-gradient(90deg,var(--red),#ff6b6b);animation:tPulse .5s infinite alternate}
+@keyframes tPulse{from{opacity:1}to{opacity:.55}}
+.timer-txt{font-size:15px;color:var(--dim);text-align:right;margin-top:2px}
+.timer-txt.danger{color:var(--red);font-weight:700}
+
+/* Topbar */
+.topbar{width:100%;display:flex;align-items:center;gap:8px;margin-bottom:10px;
+  padding:9px 13px;background:var(--bg3);border-radius:11px;border:1px solid var(--border)}
+.tb-coins{color:var(--gold);font-weight:700;font-size:16px}
+.tb-wave{color:var(--dim);font-size:14px;flex:1;text-align:center}
+.tb-btn{padding:6px 13px;border-radius:8px;border:1px solid;font-family:'Kanit',sans-serif;
+  font-size:15px;font-weight:600;cursor:pointer;transition:all .2s}
+.tb-btn.gold{background:rgba(245,200,66,.1);border-color:var(--gold);color:var(--gold)}
+.tb-btn.gold:hover{background:rgba(245,200,66,.22)}
+.tb-btn.dim{background:rgba(255,255,255,.04);border-color:var(--dim);color:var(--dim)}
+.tb-btn.dim:hover{border-color:var(--red);color:var(--red)}
+
+/* Fever */
+.fever-bar{display:none;width:100%;height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;margin-bottom:6px}
+.fever-fill{height:100%;background:linear-gradient(90deg,var(--orange),var(--gold),var(--orange));background-size:200%;animation:fShimmer 1s linear infinite}
+@keyframes fShimmer{0%{background-position:0 0}100%{background-position:200% 0}}
+.fever-lbl{display:none;text-align:center;font-size:15px;color:var(--orange);font-weight:700;letter-spacing:3px;margin-bottom:5px;animation:tPulse .6s infinite alternate}
+
+/* Battle field */
+.bf{width:100%;border-radius:13px;border:1px solid var(--border);height:165px;
+  position:relative;overflow:hidden;margin-bottom:10px}
+.bf::after{content:'';position:absolute;bottom:36px;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(245,200,66,.2),transparent)}
+.hero-sp,.enemy-sp{position:absolute;bottom:38px;font-size:54px;line-height:1;
+  transition:transform .3s;filter:drop-shadow(0 4px 8px rgba(0,0,0,.6))}
+.hero-sp{left:8%}
+.enemy-sp{right:9%;transform:scaleX(-1)}
+.boss-phase-badge{position:absolute;top:8px;left:10px;font-size:15px;padding:4px 11px;
+  border-radius:10px;font-weight:700;background:rgba(230,57,70,.3);color:var(--red);border:1px solid rgba(230,57,70,.4)}
+.weak-badge{position:absolute;top:8px;right:10px;font-size:15px;padding:4px 11px;
+  border-radius:10px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.15)}
+.dmg-txt{position:absolute;font-size:24px;font-weight:900;pointer-events:none;animation:dmgF 1.2s ease forwards;z-index:10}
+.dmg-txt.pd{color:#ff6b6b;right:20%;top:24px}
+.dmg-txt.ed{color:var(--gold);left:18%;top:24px}
+.dmg-txt.ed.wk{color:var(--fire);font-size:30px}
+@keyframes dmgF{0%{opacity:1;transform:translateY(0) scale(1)}60%{opacity:1;transform:translateY(-44px) scale(1.2)}100%{opacity:0;transform:translateY(-72px) scale(.8)}}
+
+/* Status bars */
+.stat-row{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.sbox{background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:10px 12px}
+.sbox-nm{font-size:14px;font-weight:700;margin-bottom:6px}
+.sbox-nm span{font-size:15px;color:var(--dim);font-weight:400;margin-left:4px}
+.brow{margin:4px 0}
+.blbl{font-size:15px;color:var(--dim);display:flex;justify-content:space-between;margin-bottom:2px}
+.bo{background:rgba(255,255,255,.07);border-radius:4px;height:9px;overflow:hidden}
+.bi{height:100%;border-radius:4px;transition:width .5s}
+.bi.hp{background:linear-gradient(90deg,#e63946,#ff6b6b)}
+.bi.mp{background:linear-gradient(90deg,#4361ee,#4cc9f0)}
+.bi.ehp{background:linear-gradient(90deg,var(--purple),#c77dff)}
+
+/* Card hand */
+.cards-wrap{width:100%;margin-bottom:8px}
+.cards-lbl{font-size:15px;color:var(--gold);letter-spacing:1px;margin-bottom:6px;font-weight:600}
+.cards-row{display:flex;gap:7px;flex-wrap:wrap}
+.scard{background:var(--bg3);border:2px solid var(--border);border-radius:9px;
+  padding:9px 12px;cursor:pointer;transition:all .2s;text-align:center;min-width:76px}
+.scard:hover{border-color:var(--gold);transform:translateY(-3px)}
+.scard.fire{border-color:rgba(255,107,53,.5)}.scard.ice{border-color:rgba(137,212,245,.5)}
+.scard.thunder{border-color:rgba(255,229,102,.5)}.scard.nature{border-color:rgba(123,228,149,.5)}
+.scard.dark{border-color:rgba(192,132,252,.5)}.scard.shield{border-color:rgba(147,197,253,.5)}
+.scard-icon{font-size:24px;display:block;font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif}
+.scard-nm{font-size:15px;color:var(--dim);margin-top:3px;line-height:1.3}
+.cards-empty{font-size:15px;color:var(--dim);font-style:italic;padding:6px}
+
+/* Combo */
+.combo-d{text-align:center;font-size:14px;color:var(--dim);min-height:20px;margin-bottom:5px}
+.combo-d.on{color:var(--gold);font-weight:700;font-size:16px;animation:cPulse .4s ease}
+@keyframes cPulse{from{transform:scale(1.3)}to{transform:scale(1)}}
+
+/* Question */
+.qbox{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:13px;padding:16px;margin-bottom:10px}
+.qlbl{font-size:15px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.weak-hint{font-size:15px;padding:3px 10px;border-radius:10px;font-weight:700}
+.weak-hint.on{background:rgba(255,107,53,.2);color:var(--fire);border:1px solid rgba(255,107,53,.3)}
+.qtxt{font-size:20px;font-weight:600;line-height:1.7;margin-bottom:14px;font-family:'Sarabun',sans-serif}
+.qtxt .kw{color:var(--gold);font-weight:700;font-size:22px;font-family:'Kanit',sans-serif}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.cbtn{background:rgba(255,255,255,.05);border:2px solid var(--border);color:var(--text);
+  padding:13px 14px;font-family:'Kanit',sans-serif;font-size:16px;font-weight:600;
+  border-radius:10px;cursor:pointer;transition:all .18s;text-align:center}
+.cbtn:hover:not(:disabled){border-color:var(--gold);background:rgba(245,200,66,.1);transform:translateY(-2px)}
+.cbtn.correct{border-color:var(--green);background:rgba(87,204,153,.2);color:var(--green)}
+.cbtn.wrong{border-color:var(--red);background:rgba(230,57,70,.2);color:var(--red)}
+.cbtn:disabled{cursor:not-allowed;opacity:.6;transform:none}
+
+/* Battle actions */
+.bacts{width:100%;display:flex;gap:7px}
+.bact{flex:1;padding:12px;border-radius:10px;border:2px solid;font-family:'Kanit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
+.bact.shop{background:rgba(245,200,66,.08);border-color:var(--gold);color:var(--gold)}
+.bact.shop:hover{background:rgba(245,200,66,.22)}
+.bact.skill{background:rgba(76,201,240,.08);border-color:var(--blue);color:var(--blue)}
+.bact.skill:hover{background:rgba(76,201,240,.2)}
+.bact.flee{background:rgba(255,255,255,.04);border-color:var(--dim);color:var(--dim)}
+.bact.flee:hover{border-color:var(--red);color:var(--red)}
+
+/* ===== LEVEL UP OVERLAY ===== */
+.lvup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:600;
+  display:flex;align-items:center;justify-content:center;padding:20px;display:none}
+.lvup-box{background:var(--bg3);border:2px solid var(--gold);border-radius:20px;padding:32px;
+  max-width:380px;width:100%;text-align:center;box-shadow:0 0 60px rgba(245,200,66,.3),0 0 120px rgba(245,200,66,.1)}
+.lvup-icon{font-size:72px;margin-bottom:12px;display:block;animation:lvRotate 1s ease}
+@keyframes lvRotate{0%{transform:scale(0) rotate(-180deg)}100%{transform:scale(1) rotate(0)}}
+.lvup-title{font-size:28px;font-weight:900;color:var(--gold);margin-bottom:6px}
+.lvup-sub{font-size:14px;color:var(--dim);margin-bottom:20px;font-family:'Sarabun',sans-serif}
+.stat-pts{font-size:16px;margin-bottom:16px;color:var(--text)}
+.stat-btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px}
+.stat-btn{background:var(--bg4);border:2px solid var(--border);border-radius:10px;
+  padding:14px 6px;cursor:pointer;text-align:center;transition:all .2s;font-family:'Kanit',sans-serif}
+.stat-btn:hover{border-color:var(--gold);background:rgba(245,200,66,.08)}
+.stat-btn .stat-icon{font-size:28px;display:block;margin-bottom:5px;font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif}
+.stat-btn .stat-name{font-size:14px;font-weight:700}
+.stat-btn .stat-val{font-size:15px;color:var(--dim)}
+
+/* ===== ACHIEVEMENTS ===== */
+#s-achievements{padding-top:24px}
+.ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;width:100%;max-width:680px;margin-bottom:20px}
+.ach-card{background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:14px;text-align:center;transition:all .2s}
+.ach-card.unlocked{border-color:var(--gold);box-shadow:0 0 12px rgba(245,200,66,.15)}
+.ach-card.locked{opacity:.45}
+.ach-icon{font-size:32px;margin-bottom:6px;display:block}
+.ach-name{font-size:14px;font-weight:700;margin-bottom:4px}
+.ach-desc{font-size:15px;color:var(--dim);font-family:'Sarabun',sans-serif;line-height:1.4}
+.ach-progress{margin-top:6px;background:rgba(255,255,255,.07);border-radius:3px;height:4px;overflow:hidden}
+.ach-prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--orange));border-radius:3px;transition:width .5s}
+
+/* ===== LIBRARY (LORE) ===== */
+#s-library{padding-top:24px}
+.lore-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;width:100%;max-width:680px}
+.lore-card{background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:16px;
+  cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.lore-card.locked{opacity:.35;cursor:default}
+.lore-card:not(.locked):hover{border-color:var(--gold);transform:translateY(-3px)}
+.lore-icon{font-size:28px;margin-bottom:8px;display:block}
+.lore-title{font-size:14px;font-weight:700;margin-bottom:5px}
+.lore-preview{font-size:15px;color:var(--dim);line-height:1.5;font-family:'Sarabun',sans-serif}
+.lore-lock-badge{position:absolute;top:8px;right:8px;font-size:16px}
+
+/* Lore modal */
+.lore-modal{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:400;
+  display:none;align-items:center;justify-content:center;padding:20px}
+.lore-modal.open{display:flex}
+.lore-content{background:var(--bg3);border:2px solid var(--gold);border-radius:18px;
+  padding:28px;max-width:460px;width:100%;box-shadow:0 0 40px rgba(245,200,66,.15)}
+.lore-content h3{font-size:22px;font-weight:700;color:var(--gold);margin-bottom:12px}
+.lore-content p{font-family:'Sarabun',sans-serif;font-size:16px;line-height:1.9;color:var(--text)}
+
+/* ===== TEACHER MODE ===== */
+#s-teacher{padding-top:20px}
+.teacher-tabs{display:flex;gap:8px;margin-bottom:16px;width:100%;max-width:680px;overflow-x:auto}
+.ttab{padding:10px 20px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);
+  font-family:'Kanit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;color:var(--dim);white-space:nowrap;transition:all .2s}
+.ttab.active{background:rgba(245,200,66,.12);border-color:var(--gold);color:var(--gold)}
+.teacher-panel{display:none;width:100%;max-width:680px}
+.teacher-panel.active{display:block}
+
+/* Dashboard */
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+.dash-card{background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:16px;text-align:center}
+.dash-card .big{font-size:32px;font-weight:900;color:var(--gold)}
+.dash-card .lbl{font-size:15px;color:var(--dim);margin-top:4px}
+.student-table{width:100%;border-collapse:collapse;margin-bottom:16px}
+.student-table th{text-align:left;padding:9px 10px;font-size:15px;color:var(--dim);border-bottom:1px solid var(--border);font-weight:600}
+.student-table td{padding:10px 10px;font-size:14px;border-bottom:1px solid rgba(255,255,255,.04)}
+.student-table tr:hover td{background:rgba(255,255,255,.03)}
+.accuracy-bar{background:rgba(255,255,255,.07);border-radius:3px;height:6px;overflow:hidden;margin-top:3px}
+.accuracy-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--red),var(--green))}
+
+/* Question Editor */
+.qeditor{background:var(--bg3);border:1px solid var(--border);border-radius:13px;padding:18px;margin-bottom:12px}
+.qeditor h4{font-size:16px;font-weight:700;color:var(--gold);margin-bottom:14px}
+.fe-group{margin-bottom:13px}
+.fe-group label{font-size:15px;color:var(--dim);display:block;margin-bottom:5px;font-weight:600}
+.fe-input,.fe-select,.fe-textarea{width:100%;background:var(--bg2);border:1px solid var(--border);
+  color:var(--text);padding:11px 14px;font-family:'Kanit',sans-serif;font-size:15px;
+  border-radius:8px;outline:none;transition:border-color .2s}
+.fe-input:focus,.fe-select:focus,.fe-textarea:focus{border-color:var(--gold)}
+.fe-textarea{min-height:80px;resize:vertical;font-family:'Sarabun',sans-serif;font-size:15px}
+.choices-editor{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.choice-wrap{display:flex;gap:6px;align-items:center}
+.choice-wrap input[type=radio]{accent-color:var(--gold)}
+.qlist{margin-bottom:16px}
+.qitem{background:var(--bg4);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px}
+.qitem-num{background:rgba(245,200,66,.12);color:var(--gold);border-radius:6px;padding:4px 8px;font-size:15px;font-weight:700;white-space:nowrap;min-width:32px;text-align:center}
+.qitem-txt{flex:1;font-family:'Sarabun',sans-serif;font-size:14px;line-height:1.6}
+.qitem-actions{display:flex;gap:5px}
+.qitem-btn{padding:5px 12px;border-radius:6px;border:1px solid;font-family:'Kanit',sans-serif;font-size:15px;cursor:pointer;transition:all .2s}
+.qitem-btn.del{border-color:var(--red);color:var(--red);background:transparent}
+.qitem-btn.del:hover{background:rgba(230,57,70,.15)}
+
+/* Weak spot questions highlight */
+.problem-list{margin-top:12px}
+.problem-item{display:flex;align-items:center;gap:10px;padding:8px 12px;
+  background:rgba(230,57,70,.08);border:1px solid rgba(230,57,70,.2);border-radius:8px;margin-bottom:6px}
+.problem-pct{color:var(--red);font-weight:700;font-size:16px;min-width:44px}
+.problem-txt{font-size:14px;font-family:'Sarabun',sans-serif;flex:1}
+
+/* ===== SHOP OVERLAY ===== */
+.shop-ov{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;display:none;align-items:center;justify-content:center;padding:16px}
+.shop-ov.open{display:flex}
+.shop-pan{background:var(--bg2);border:2px solid var(--gold);border-radius:18px;padding:24px;max-width:440px;width:100%;box-shadow:0 0 40px rgba(245,200,66,.18);max-height:90vh;overflow-y:auto}
+.shop-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.shop-hdr h3{font-size:20px;font-weight:700;color:var(--gold)}
+.shop-close{background:none;border:1px solid var(--border);color:var(--dim);padding:6px 13px;border-radius:7px;cursor:pointer;font-size:15px;font-family:'Kanit',sans-serif}
+.shop-close:hover{border-color:var(--red);color:var(--red)}
+.sitem{display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;margin-bottom:7px;cursor:pointer;transition:all .2s}
+.sitem:hover:not(.dis){border-color:var(--gold);background:rgba(245,200,66,.04)}
+.sitem.dis{opacity:.45;cursor:not-allowed}
+.si-icon{font-size:28px;min-width:36px;text-align:center}
+.si-info{flex:1}
+.si-name{font-size:16px;font-weight:700}
+.si-desc{font-size:15px;color:var(--dim);margin-top:2px;font-family:'Sarabun',sans-serif}
+.si-price{background:rgba(245,200,66,.1);border:1px solid var(--gold);color:var(--gold);padding:5px 12px;border-radius:6px;font-size:14px;font-weight:700;white-space:nowrap}
+
+/* ===== RESULT ===== */
+#s-result{justify-content:center}
+.res-box{background:var(--bg3);border:2px solid var(--gold);border-radius:20px;padding:36px 30px;max-width:400px;width:100%;box-shadow:0 0 50px rgba(245,200,66,.15)}
+.res-icon{font-size:68px;margin-bottom:12px;display:block;text-align:center}
+.res-title{font-size:26px;font-weight:900;margin-bottom:5px;text-align:center}
+.res-title.win{color:var(--gold)}.res-title.lose{color:var(--red)}
+.res-xp{text-align:center;color:var(--blue);font-size:16px;margin-bottom:16px}
+.res-stats{padding:14px;background:rgba(255,255,255,.04);border-radius:10px;margin-bottom:16px}
+.res-stat{display:flex;justify-content:space-between;padding:6px 0;font-size:15px;border-bottom:1px solid rgba(255,255,255,.05)}
+.res-stat:last-child{border-bottom:none}
+.res-stat .v{color:var(--gold);font-weight:700}
+.res-achs{margin-bottom:14px}
+.res-ach{display:flex;align-items:center;gap:8px;background:rgba(245,200,66,.08);border:1px solid rgba(245,200,66,.2);border-radius:8px;padding:10px 14px;margin-bottom:6px;animation:achPop .5s ease}
+@keyframes achPop{0%{transform:scale(0.8);opacity:0}100%{transform:scale(1);opacity:1}}
+.res-ach-icon{font-size:24px;font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif}
+.res-ach-info{flex:1}
+.res-ach-name{font-size:14px;font-weight:700;color:var(--gold)}
+.res-ach-desc{font-size:15px;color:var(--dim)}
+
+/* Toast */
+#toast{position:fixed;top:14px;left:50%;transform:translateX(-50%) translateY(-80px);
+  background:var(--bg3);border:1px solid var(--gold);color:var(--text);
+  padding:11px 24px;border-radius:50px;font-size:15px;font-weight:600;z-index:800;
+  transition:transform .4s cubic-bezier(.34,1.56,.64,1);pointer-events:none;
+  white-space:nowrap;max-width:92vw;text-align:center}
+#toast.show{transform:translateX(-50%) translateY(0)}
+
+/* Shake */
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+.shake{animation:shake .3s ease}
+
+/* Parallax BG zones */
+.bf-zone{position:absolute;inset:0;transition:opacity .5s}
+.bf-zone.forest{background:linear-gradient(180deg,#0a1f0f 0%,#0d2810 50%,#071510 100%)}
+.bf-zone.castle{background:linear-gradient(180deg,#0f0f28 0%,#181830 50%,#0a0a1a 100%)}
+.bf-zone.volcano{background:linear-gradient(180deg,#200808 0%,#2d0f05 50%,#150505 100%)}
+.bf-zone.dark{background:linear-gradient(180deg,#080815 0%,#100820 50%,#050510 100%)}
+.bf-zone.tower{background:linear-gradient(180deg,#15081f 0%,#1f0d2a 50%,#0c0415 100%)}
+.bf-deco{position:absolute;font-size:22px;opacity:.12;pointer-events:none}
+
+/* Back button */
+.back-btn{position:absolute;top:14px;left:14px;background:rgba(255,255,255,.07);border:1px solid var(--border);
+  color:var(--dim);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:14px;font-family:'Kanit',sans-serif;transition:all .2s}
+.back-btn:hover{border-color:var(--gold);color:var(--gold)}
+
+@media(max-width:480px){
+  .class-grid{grid-template-columns:1fr}
+  .stat-row{grid-template-columns:1fr 1fr}
+  .choices{grid-template-columns:1fr 1fr}
+  .bf{height:140px}
+  .hero-sp,.enemy-sp{font-size:42px}
+  .dash-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== TITLE ===== -->
+<div id="s-title" class="screen active">
+  <div class="logo">
+    <div class="logo-eyebrow">⚔️ Thai EduRPG · ป.4–ป.5</div>
+    <div class="logo-h">ภารกิจ<br>กอบกู้อาณาจักร</div>
+    <div class="logo-sub">ตอบคำถาม · เก็บการ์ด · ปราบบอส · กอบกู้โลก</div>
+    <div class="feat-pills">
+      <span class="pill hot">🗺️ World Map</span><span class="pill hot">💬 Boss Dialogue</span>
+      <span class="pill hot">⭐ Achievements</span><span class="pill hot">📚 Lore Cards</span>
+      <span class="pill hot">🔊 Web Audio</span><span class="pill hot">✨ Particles</span>
+    </div>
+  </div>
+  <div id="kampai-player" style="display:none;align-items:center;gap:8px;justify-content:center;margin:2px 0 8px;font-family:'Kanit',sans-serif;font-size:14px;color:var(--gold);background:rgba(245,200,66,.08);border:1px solid rgba(245,200,66,.25);border-radius:999px;padding:4px 14px 4px 6px;width:fit-content;margin-left:auto;margin-right:auto"></div>
+  <div class="hero-hud" id="hero-hud"></div>
+  <div class="daily-banner" id="daily-banner"></div>
+  <div data-kampai-lb style="width:100%;max-width:420px;margin:0 auto 6px"></div>
+  <div class="title-btns">
+    <button class="btn btn-gold" onclick="show('s-class')">▶ เริ่มผจญภัย</button>
+    <button class="btn btn-outline" onclick="show('s-map')">🗺️ แผนที่โลก</button>
+    <button class="btn btn-purple" onclick="show('s-achievements')">🏅 Achievements</button>
+    <button class="btn btn-outline" onclick="show('s-library')">📚 หอสมุดลับ</button>
+    <button class="btn btn-outline btn-sm" id="music-btn" onclick="toggleMusic()" style="border-color:var(--dim);color:var(--dim)">🔇 เปิดเสียง</button>
+    <button class="btn btn-outline btn-sm" onclick="KAMPAI.goHome()" style="border-color:var(--dim);color:var(--dim)">🏠 ออกจากเกม</button>
+  </div>
+</div>
+
+<!-- ===== CLASS SELECT ===== -->
+<div id="s-class" class="screen">
+  <button class="back-btn" onclick="show('s-title')">← กลับ</button>
+  <div class="section-hdr" style="margin-top:30px">
+    <h2>⚔️ เลือกสายอาชีพ</h2>
+    <p>แต่ละสายมีจุดแข็งต่างกัน · เลือกสไตล์ที่ใช่</p>
+  </div>
+  <div class="class-grid">
+    <div class="cc warrior" onclick="pickClass('warrior',this)">
+      <span class="cc-icon">🛡️</span><div class="cc-name">นักรบ</div>
+      <div class="cc-desc">HP สูง บล็อก 30%<br>ทนแรง เหมาะมือใหม่</div>
+      <div class="srow"><span class="slbl">HP</span><div class="sbg"><div class="sfill hp" style="width:90%"></div></div></div>
+      <div class="srow"><span class="slbl">MP</span><div class="sbg"><div class="sfill mp" style="width:40%"></div></div></div>
+      <div class="srow"><span class="slbl">ATK</span><div class="sbg"><div class="sfill atk" style="width:55%"></div></div></div>
+    </div>
+    <div class="cc mage" onclick="pickClass('mage',this)">
+      <span class="cc-icon">🔮</span><div class="cc-name">นักเวทย์</div>
+      <div class="cc-desc">Combo ดาเมจ ×2<br>ระเบิดสูง สายทำเวลา</div>
+      <div class="srow"><span class="slbl">HP</span><div class="sbg"><div class="sfill hp" style="width:40%"></div></div></div>
+      <div class="srow"><span class="slbl">MP</span><div class="sbg"><div class="sfill mp" style="width:90%"></div></div></div>
+      <div class="srow"><span class="slbl">ATK</span><div class="sbg"><div class="sfill atk" style="width:82%"></div></div></div>
+    </div>
+    <div class="cc healer" onclick="pickClass('healer',this)">
+      <span class="cc-icon">✨</span><div class="cc-name">นักบวช</div>
+      <div class="cc-desc">สมดุล ฮีล HP ได้<br>สกิลตัดตัวเลือกผิด</div>
+      <div class="srow"><span class="slbl">HP</span><div class="sbg"><div class="sfill hp" style="width:66%"></div></div></div>
+      <div class="srow"><span class="slbl">MP</span><div class="sbg"><div class="sfill mp" style="width:75%"></div></div></div>
+      <div class="srow"><span class="slbl">ATK</span><div class="sbg"><div class="sfill atk" style="width:64%"></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== WORLD MAP ===== -->
+<div id="s-map" class="screen">
+  <button class="back-btn" onclick="show('s-title')">← กลับ</button>
+  <div class="map-wrap" style="margin-top:30px">
+    <div class="map-title">
+      <h2>🗺️ แผนที่อาณาจักร</h2>
+      <p>เลือกด่านที่ต้องการผจญภัย · ★★★ = ผ่านสมบูรณ์แบบ</p>
+    </div>
+    <svg class="world-map-svg" viewBox="0 0 640 420" id="map-svg"></svg>
+    <div class="zone-info" id="zone-info">
+      <h3 id="zone-name">คลิกด่านที่ต้องการ</h3>
+      <p id="zone-desc">เลือกด่านจากแผนที่เพื่อดูรายละเอียด</p>
+      <div class="zone-stats" id="zone-stats"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== BATTLE SCREEN ===== -->
+<div id="s-battle" class="screen">
+  <div class="timer-wrap"><div class="timer-bg"><div class="timer-fill ok" id="tbar"></div></div><div class="timer-txt" id="ttxt">12 วิ</div></div>
+  <div class="fever-bar" id="fever-bar"><div class="fever-fill"></div></div>
+  <div class="fever-lbl" id="fever-lbl">🔥 FEVER MODE! 🔥</div>
+  <div class="topbar">
+    <span class="tb-coins">🪙<span id="coins-d">0</span></span>
+    <span class="tb-wave" id="wave-d">ด่าน 1</span>
+    <button class="tb-btn gold" onclick="openShop()">🏪</button>
+    <button class="tb-btn dim" onclick="exitBattle()">✕</button>
+  </div>
+  <div class="bf" id="bf">
+    <div class="bf-zone" id="bf-zone"></div>
+    <div class="boss-phase-badge" id="phase-badge" style="display:none">⚡ PHASE 2</div>
+    <div class="weak-badge" id="weak-badge" style="display:none"></div>
+    <div class="hero-sp" id="hero-sp">🔮</div>
+    <div class="enemy-sp" id="enemy-sp">👹</div>
+    <canvas id="particle-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:20"></canvas>
+  </div>
+  <div class="stat-row">
+    <div class="sbox">
+      <div class="sbox-nm" id="hero-nm">ฮีโร่ <span>LV.1</span></div>
+      <div class="brow"><div class="blbl"><span>❤️ HP</span><span id="hp-t">100/100</span></div><div class="bo"><div class="bi hp" id="hp-bar" style="width:100%"></div></div></div>
+      <div class="brow"><div class="blbl"><span>💧 MP</span><span id="mp-t">50/50</span></div><div class="bo"><div class="bi mp" id="mp-bar" style="width:100%"></div></div></div>
+    </div>
+    <div class="sbox">
+      <div class="sbox-nm" id="enemy-nm">มอนสเตอร์</div>
+      <div class="brow"><div class="blbl"><span>💜 HP</span><span id="ehp-t">80/80</span></div><div class="bo"><div class="bi ehp" id="ehp-bar" style="width:100%"></div></div></div>
+    </div>
+  </div>
+  <div class="cards-wrap"><div class="cards-lbl">🎴 SKILL CARDS — คลิกใช้ก่อนตอบ</div><div class="cards-row" id="cards-row"></div></div>
+  <div class="combo-d" id="combo-d"></div>
+  <div class="qbox">
+    <div class="qlbl">❓ <span id="q-node-name">ด่าน</span> <span class="weak-hint" id="weak-hint" style="display:none">💥 ตรงจุดอ่อน! ×2.5</span></div>
+    <div class="qtxt" id="qtxt">กำลังโหลด...</div>
+    <div class="choices" id="choices"></div>
+  </div>
+  <div class="bacts">
+    <button class="bact flee" onclick="exitBattle()">🚪 ออก</button>
+    <button class="bact skill" id="skill-btn" onclick="useSkill()">⚡ สกิล</button>
+    <button class="bact shop" onclick="openShop()">🏪 ร้านค้า</button>
+  </div>
+</div>
+
+
+
+
+<!-- ===== ACHIEVEMENTS ===== -->
+<div id="s-achievements" class="screen">
+  <button class="back-btn" onclick="show('s-title')">← กลับ</button>
+  <div class="section-hdr" style="margin-top:30px"><h2>🏅 Achievements</h2><p>ปลดล็อคเหรียญตรา · สะสมความภาคภูมิใจ</p></div>
+  <div class="ach-grid" id="ach-grid"></div>
+</div>
+
+<!-- ===== LIBRARY ===== -->
+<div id="s-library" class="screen">
+  <button class="back-btn" onclick="show('s-title')">← กลับ</button>
+  <div class="section-hdr" style="margin-top:30px"><h2>📚 หอสมุดลับ</h2><p>บัตรความรู้ที่ปลดล็อคจากการเล่น · <span id="lore-count">0</span> / 15 ใบ</p></div>
+  <div class="lore-grid" id="lore-grid"></div>
+</div>
+<div class="lore-modal" id="lore-modal">
+  <div class="lore-content">
+    <h3 id="lore-modal-title"></h3>
+    <p id="lore-modal-body" style="margin-bottom:20px"></p>
+    <button class="btn btn-outline btn-sm" onclick="closeLoreModal()">✕ ปิด</button>
+  </div>
+</div>
+
+
+<!-- ===== RESULT ===== -->
+<div id="s-result" class="screen">
+  <div class="res-box">
+    <span class="res-icon" id="res-icon"></span>
+    <div class="res-title" id="res-title"></div>
+    <div class="res-xp" id="res-xp"></div>
+    <div class="res-stats" id="res-stats"></div>
+    <div class="res-achs" id="res-achs"></div>
+    <button class="btn btn-gold" style="width:100%;margin-bottom:8px" onclick="show('s-map')">🗺️ กลับแผนที่</button>
+    <button class="btn btn-outline" style="width:100%" onclick="show('s-title')">🏠 หน้าหลัก</button>
+  </div>
+</div>
+
+<!-- SHOP -->
+<div class="shop-ov" id="shop-ov">
+  <div class="shop-pan">
+    <div class="shop-hdr"><h3>🏪 ร้านค้า</h3><span style="color:var(--gold);font-weight:700">🪙<span id="shop-coins">0</span></span><button class="shop-close" onclick="closeShop()">✕ ปิด</button></div>
+    <div id="shop-items"></div>
+  </div>
+</div>
+
+<!-- BOSS DIALOGUE -->
+<div class="dialogue-overlay" id="dialogue-overlay">
+  <div class="dialogue-box">
+    <div class="dialogue-speaker">
+      <div class="dialogue-avatar" id="dlg-avatar">👹</div>
+      <div><div class="dialogue-name" id="dlg-name">มอนสเตอร์</div><div class="dialogue-role" id="dlg-role">ผู้พิทักษ์ปราสาท</div></div>
+    </div>
+    <div class="dialogue-text" id="dlg-text"></div>
+    <button class="btn btn-gold btn-sm dialogue-btn" id="dlg-btn" onclick="closeDialogue()">▶ เริ่มต่อสู้!</button>
+  </div>
+</div>
+
+<!-- LEVEL UP -->
+<div class="lvup-overlay" id="lvup-overlay">
+  <div class="lvup-box">
+    <span class="lvup-icon">⭐</span>
+    <div class="lvup-title">LEVEL UP!</div>
+    <div class="lvup-sub" id="lvup-sub">ยินดีด้วย! คุณเลื่อนระดับเป็น LV.<span id="lvup-new-lv">2</span></div>
+    <div class="stat-pts">🎯 แจก Stat Point 1 แต้ม — เลือกเพิ่มด้านไหน?</div>
+    <div class="stat-btns">
+      <div class="stat-btn" onclick="allocateStat('hp')"><span class="stat-icon">❤️</span><div class="stat-name">HP</div><div class="stat-val">+20</div></div>
+      <div class="stat-btn" onclick="allocateStat('atk')"><span class="stat-icon">⚔️</span><div class="stat-name">ATK</div><div class="stat-val">+8</div></div>
+      <div class="stat-btn" onclick="allocateStat('mp')"><span class="stat-icon">💧</span><div class="stat-name">MP</div><div class="stat-val">+15</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ═══ KAMPAI SDK (วัฒนธรรม kampai-school) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>window.KAMPAI = window.KAMPAI || { isEmbed:false,isTouch:false,ready:true,student:null,stats:null,leaderboard:[],input:{},onReady:function(cb){cb(this);},setSlug:function(){return this;},submitScore:function(){return false;},goHome:function(){location.href='/h/nattapong';},exit:function(){location.href='/h/nattapong';},controls:{mount:function(){return this;}},sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };</script>
+<script src="/games/kampai-leaderboard.js"></script>
+
+<script>
+// ======================================================
+// KAMPAI integration (วัฒนธรรม)
+// ======================================================
+const GAME_SLUG = 'thai-edu-rpg';
+KAMPAI.setSlug(GAME_SLUG);
+KAMPAI.onReady(function(){
+  const s = KAMPAI.student, chip = document.getElementById('kampai-player');
+  if(s && chip){
+    const av = s.photoUrl ? `<img src="${s.photoUrl}" style="width:26px;height:26px;border-radius:50%;object-fit:cover">` : '<span>🧑‍🎓</span>';
+    chip.innerHTML = av + `<span>${s.displayName||'ผู้เล่น'}</span>`;
+    chip.style.display = 'flex';
+  }
+});
+
+// ======================================================
+// DATA
+// ======================================================
+
+const QB = {
+  math:[
+    {q:"เลข <span class='kw'>12</span> มีตัวประกอบใด?",ch:["3","5","7","11"],a:0,el:"thunder"},
+    {q:"ตัวประกอบของ <span class='kw'>18</span> คือ?",ch:["4","6","8","10"],a:1,el:"thunder"},
+    {q:"<span class='kw'>24 ÷ ?</span> = 4 ตัวเลขคือ?",ch:["5","6","7","8"],a:1,el:"fire"},
+    {q:"ตัวประกอบของ <span class='kw'>36</span>?",ch:["5","7","9","11"],a:2,el:"ice"},
+    {q:"<span class='kw'>ห.ร.ม.</span> ของ 12 กับ 18?",ch:["4","6","9","12"],a:1,el:"nature"},
+    {q:"<span class='kw'>ค.ร.น.</span> ของ 4 กับ 6?",ch:["8","10","12","16"],a:2,el:"fire"},
+    {q:"จำนวนคู่ใดเป็นจำนวนเฉพาะ?",ch:["2","4","6","8"],a:0,el:"thunder"},
+    {q:"เศษส่วน <span class='kw'>6/8</span> เท่ากับ?",ch:["1/2","2/3","3/4","4/5"],a:2,el:"ice"},
+    {q:"ข้อใดไม่ใช่ตัวประกอบของ <span class='kw'>20</span>?",ch:["2","4","6","10"],a:2,el:"nature"},
+    {q:"<span class='kw'>15</span> เป็น ค.ร.น. ของ?",ch:["3 และ 5","3 และ 4","4 และ 5","2 และ 5"],a:0,el:"fire"},
+    {q:"<span class='kw'>2³</span> มีค่าเท่าไหร่?",ch:["4","6","8","16"],a:2,el:"thunder"},
+    {q:"ผลคูณของ <span class='kw'>ตัวประกอบเฉพาะ</span> ของ 12 คือ?",ch:["2×2×3","2×6","3×4","1×12"],a:0,el:"ice"},
+    {q:"<span class='kw'>24</span> มีตัวประกอบกี่ตัว?",ch:["6","8","10","12"],a:1,el:"nature"},
+    {q:"จำนวนเฉพาะระหว่าง <span class='kw'>10–20</span> มีกี่ตัว?",ch:["2","3","4","5"],a:2,el:"thunder"},
+    {q:"<span class='kw'>ห.ร.ม.</span> ของ 24 กับ 36?",ch:["6","8","12","18"],a:2,el:"fire"},
+    {q:"<span class='kw'>ค.ร.น.</span> ของ 6 กับ 8?",ch:["12","24","36","48"],a:1,el:"ice"},
+    {q:"เศษส่วน <span class='kw'>9/12</span> ลดรูปได้เป็น?",ch:["2/3","3/4","4/5","1/2"],a:1,el:"nature"},
+    {q:"<span class='kw'>0.5 + 0.25</span> = ?",ch:["0.7","0.75","0.8","1.0"],a:1,el:"thunder"},
+    {q:"<span class='kw'>3/4 + 1/4</span> = ?",ch:["1","1/2","2/4","4/8"],a:0,el:"fire"},
+    {q:"<span class='kw'>2⁴</span> มีค่าเท่าไหร่?",ch:["8","12","16","32"],a:2,el:"ice"},
+    {q:"<span class='kw'>5²</span> มีค่าเท่าไหร่?",ch:["10","15","25","50"],a:2,el:"nature"},
+    {q:"จำนวนเฉพาะ <span class='kw'>ตัวแรก</span> คือ?",ch:["1","2","3","5"],a:1,el:"thunder"},
+    {q:"ตัวประกอบเฉพาะของ <span class='kw'>30</span> คือ?",ch:["2, 3, 5","2, 5, 6","3, 5, 10","1, 30"],a:0,el:"fire"},
+    {q:"<span class='kw'>ค.ร.น.</span> ของ 3, 4, 6?",ch:["6","12","24","36"],a:1,el:"ice"},
+    {q:"<span class='kw'>ห.ร.ม.</span> ของ 16 กับ 20?",ch:["2","4","8","10"],a:1,el:"nature"},
+    {q:"<span class='kw'>7/10</span> เขียนเป็นทศนิยมคือ?",ch:["0.07","0.7","7.0","0.17"],a:1,el:"thunder"},
+    {q:"<span class='kw'>2/5</span> เท่ากับกี่ส่วนร้อย?",ch:["20/100","25/100","40/100","50/100"],a:2,el:"fire"},
+    {q:"<span class='kw'>3² + 4²</span> = ?",ch:["12","25","49","7"],a:1,el:"ice"},
+    {q:"จำนวนใดหารด้วย <span class='kw'>3</span> ลงตัว?",ch:["20","25","27","32"],a:2,el:"nature"},
+    {q:"ตัวประกอบร่วมของ <span class='kw'>12 และ 8</span> คือ?",ch:["1, 2, 4","1, 3, 6","2, 4, 8","1, 2, 3"],a:0,el:"thunder"},
+    {q:"<span class='kw'>1/2</span> ของ 48 = ?",ch:["12","24","16","32"],a:1,el:"fire"},
+    {q:"<span class='kw'>3/5</span> ของ 20 = ?",ch:["10","12","15","9"],a:1,el:"ice"},
+    {q:"ข้อใดเป็น <span class='kw'>เศษเกิน</span>?",ch:["2/3","3/4","7/4","1/2"],a:2,el:"nature"},
+    {q:"ค่าประจำหลักของ <span class='kw'>3</span> ใน 4,350 คือ?",ch:["3","30","300","3000"],a:2,el:"thunder"},
+    {q:"<span class='kw'>0.6</span> เท่ากับเศษส่วนใด?",ch:["3/5","6/100","1/6","2/3"],a:0,el:"fire"},
+    {q:"จำนวนคู่ที่เป็น <span class='kw'>จำนวนเฉพาะ</span> คือ?",ch:["2","4","8","ไม่มี"],a:0,el:"ice"},
+    {q:"<span class='kw'>ค.ร.น.</span> ของ 5 กับ 10?",ch:["5","10","15","50"],a:1,el:"nature"},
+    {q:"<span class='kw'>ห.ร.ม.</span> ของ 18 กับ 27?",ch:["3","6","9","18"],a:2,el:"thunder"},
+    {q:"<span class='kw'>100 ÷ 4</span> = ?",ch:["20","25","40","50"],a:1,el:"fire"},
+    {q:"<span class='kw'>12 × 8</span> = ?",ch:["84","96","108","88"],a:1,el:"ice"},
+  ],
+  thai:[
+    {q:"คำไวพจน์ของ <span class='kw'>ช้าง</span>?",ch:["กุญชร","มาศ","สินธุ","หงส์"],a:0,el:"nature"},
+    {q:"คำไวพจน์ของ <span class='kw'>น้ำ</span>?",ch:["วารี","เมฆ","ดาว","ไฟ"],a:0,el:"ice"},
+    {q:"<span class='kw'>วาริน</span> หมายถึง?",ch:["น้ำ","ฟ้า","ดิน","ลม"],a:0,el:"ice"},
+    {q:"คำไวพจน์ของ <span class='kw'>ดวงอาทิตย์</span>?",ch:["จันทร์","รวิ","ดารา","เมฆ"],a:1,el:"fire"},
+    {q:"<span class='kw'>หัตถี</span> คือ?",ch:["ม้า","ช้าง","วัว","เสือ"],a:1,el:"nature"},
+    {q:"<span class='kw'>อัศวะ</span> หมายถึง?",ch:["ช้าง","วัว","ม้า","เสือ"],a:2,el:"thunder"},
+    {q:"คำไวพจน์ของ <span class='kw'>ดาว</span>?",ch:["ดารา","วารี","รวิ","จันทร์"],a:0,el:"thunder"},
+    {q:"<span class='kw'>บรรพต</span> หมายถึง?",ch:["แม่น้ำ","ภูเขา","ทะเล","ป่า"],a:1,el:"nature"},
+    {q:"<span class='kw'>วนา</span> หมายถึง?",ch:["น้ำ","ป่า","ฟ้า","ดิน"],a:1,el:"nature"},
+    {q:"<span class='kw'>ชลาลัย</span> หมายถึง?",ch:["วัด","ทะเล/แม่น้ำ","ภูเขา","ป่า"],a:1,el:"ice"},
+    {q:"<span class='kw'>สุริยา</span> คือคำไวพจน์ของ?",ch:["ดาว","จันทร์","ดวงอาทิตย์","ฟ้า"],a:2,el:"fire"},
+    {q:"<span class='kw'>มารดา</span> คำไวพจน์คือ?",ch:["บิดา","มาตา","ธิดา","บุตร"],a:1,el:"nature"},
+    {q:"คำไวพจน์ของ <span class='kw'>ป่า</span>?",ch:["วนา","ธารา","คีรี","นที"],a:0,el:"nature"},
+    {q:"คำไวพจน์ของ <span class='kw'>ภูเขา</span>?",ch:["คีรี","วารี","สินธุ","ทินกร"],a:0,el:"nature"},
+    {q:"คำไวพจน์ของ <span class='kw'>พระจันทร์</span>?",ch:["ศศิ","รวิ","ทินกร","ภาสกร"],a:0,el:"ice"},
+    {q:"คำไวพจน์ของ <span class='kw'>ดอกไม้</span>?",ch:["บุปผา","พฤกษา","ผลา","ลดา"],a:0,el:"nature"},
+    {q:"คำไวพจน์ของ <span class='kw'>ทอง</span>?",ch:["สุวรรณ","รัตน์","มณี","ไพฑูรย์"],a:0,el:"fire"},
+    {q:"<span class='kw'>นที</span> หมายถึง?",ch:["แม่น้ำ","ภูเขา","ป่า","ทะเล"],a:0,el:"ice"},
+    {q:"<span class='kw'>ทินกร</span> หมายถึง?",ch:["พระอาทิตย์","พระจันทร์","ดาว","เมฆ"],a:0,el:"fire"},
+    {q:"คำไวพจน์ของ <span class='kw'>ผู้หญิง</span>?",ch:["นารี","บุรุษ","ชาย","กุมาร"],a:0,el:"nature"},
+    {q:"คำไวพจน์ของ <span class='kw'>นก</span>?",ch:["วิหค","มัจฉา","คชา","สุนัข"],a:0,el:"thunder"},
+    {q:"คำไวพจน์ของ <span class='kw'>ปลา</span>?",ch:["มัจฉา","วิหค","คชา","อาชา"],a:0,el:"ice"},
+    {q:"คำไวพจน์ของ <span class='kw'>ท้องฟ้า</span>?",ch:["นภา","ธรณี","สาคร","คีรี"],a:0,el:"ice"},
+    {q:"<span class='kw'>ธรณี</span> หมายถึง?",ch:["แผ่นดิน","ท้องฟ้า","ทะเล","ไฟ"],a:0,el:"nature"},
+    {q:"คำไวพจน์ของ <span class='kw'>พระราชา</span>?",ch:["นฤบดี","อำมาตย์","เสนา","ราษฎร"],a:0,el:"fire"},
+    {q:"<span class='kw'>สินธพ</span> เป็นคำไวพจน์ของ?",ch:["ม้า","ช้าง","วัว","เสือ"],a:0,el:"thunder"},
+    {q:"<span class='kw'>วิ่ง</span> เป็นคำชนิดใด?",ch:["คำนาม","คำกริยา","คำวิเศษณ์","คำสรรพนาม"],a:1,el:"thunder"},
+    {q:"<span class='kw'>สวย</span> เป็นคำชนิดใด?",ch:["คำนาม","คำกริยา","คำวิเศษณ์","คำบุพบท"],a:2,el:"nature"},
+    {q:"<span class='kw'>ฉัน เธอ เขา</span> เป็นคำชนิดใด?",ch:["คำนาม","คำสรรพนาม","คำกริยา","คำวิเศษณ์"],a:1,el:"ice"},
+    {q:"<span class='kw'>โต๊ะ บ้าน ครู</span> เป็นคำชนิดใด?",ch:["คำนาม","คำกริยา","คำสรรพนาม","คำวิเศษณ์"],a:0,el:"fire"},
+    {q:"<span class='kw'>ใน บน ใต้</span> เป็นคำชนิดใด?",ch:["คำบุพบท","คำสันธาน","คำอุทาน","คำนาม"],a:0,el:"thunder"},
+    {q:"<span class='kw'>และ แต่ หรือ</span> เป็นคำชนิดใด?",ch:["คำสันธาน","คำบุพบท","คำอุทาน","คำกริยา"],a:0,el:"ice"},
+    {q:"<span class='kw'>โอ๊ย! อุ๊ย!</span> เป็นคำชนิดใด?",ch:["คำอุทาน","คำสันธาน","คำนาม","คำกริยา"],a:0,el:"fire"},
+    {q:"คำใดเป็น <span class='kw'>คำตาย</span>?",ch:["นก","นา","มือ","ดี"],a:0,el:"nature"},
+    {q:"คำใดเป็น <span class='kw'>คำเป็น</span>?",ch:["กา","กบ","มด","นก"],a:0,el:"thunder"},
+    {q:"ราชาศัพท์ของ <span class='kw'>กิน</span> (พระมหากษัตริย์) คือ?",ch:["เสวย","ฉัน","รับประทาน","ทาน"],a:0,el:"fire"},
+    {q:"ราชาศัพท์ของ <span class='kw'>นอน</span> คือ?",ch:["บรรทม","ประทับ","เสด็จ","ตรัส"],a:0,el:"ice"},
+    {q:"ราชาศัพท์ของ <span class='kw'>พูด</span> คือ?",ch:["ตรัส","บรรทม","เสวย","ทอดพระเนตร"],a:0,el:"thunder"},
+    {q:"ราชาศัพท์ของ <span class='kw'>ดู/มอง</span> คือ?",ch:["ทอดพระเนตร","สดับ","ตรัส","เสวย"],a:0,el:"nature"},
+  ]
+};
+
+// World Map Nodes (15 nodes: 5 zones × 3 stages)
+const MAP_ZONES = [
+  {id:"forest",name:"ป่าเวทมนตร์",color:"#1a5c2a",accent:"#57cc99",icon:"🌲",bg:"forest",
+    desc:"ดินแดนป่าโบราณที่เต็มไปด้วยสิ่งมีชีวิตลึกลับ เหมาะสำหรับนักผจญภัยมือใหม่",
+    difficulty:"⭐ ง่าย",subject:"ทั้งสองวิชา"},
+  {id:"castle",name:"ปราสาทน้ำแข็ง",color:"#1a3a5c",accent:"#4cc9f0",icon:"🏰",bg:"castle",
+    desc:"ปราสาทแช่แข็งที่ปกคลุมด้วยหิมะนิรันดร์ บอสผู้พิทักษ์ใช้เวทย์แห่งความหนาว",
+    difficulty:"⭐⭐ ปานกลาง",subject:"คณิตศาสตร์"},
+  {id:"volcano",name:"ภูเขาไฟมังกร",color:"#5c1a1a",accent:"#ff6b35",icon:"🌋",bg:"volcano",
+    desc:"ภูเขาไฟที่เป็นที่อยู่ของมังกรไฟแสนดุ อุณหภูมิสูงจนทำให้สติปัญญาต้องทำงานหนักขึ้น",
+    difficulty:"⭐⭐⭐ ยาก",subject:"ภาษาไทย"},
+  {id:"dark",name:"ดินแดนมืด",color:"#2a1a5c",accent:"#c084fc",icon:"🌑",bg:"dark",
+    desc:"อาณาจักรแห่งความมืดที่ซ่อนความลับโบราณ บอสที่นี่รู้จักจุดอ่อนของนักผจญภัย",
+    difficulty:"⭐⭐⭐⭐ ยากมาก",subject:"ทั้งสองวิชา"},
+  {id:"tower",name:"หอคอยสุดท้าย",color:"#3a0a4a",accent:"#f5c842",icon:"🗼",bg:"tower",
+    desc:"หอคอยแห่งชะตากรรม ที่ซึ่งราชาปีศาจรอการมาถึงของฮีโร่ผู้กล้า",
+    difficulty:"⭐⭐⭐⭐⭐ โหด",subject:"ทั้งสองวิชา"},
+];
+
+const BOSSES = [
+  // Forest
+  {name:"เจ้ากบยักษ์",sp:"🐸",hp:60,atk:12,weak:"fire",zone:"forest",
+    dialog:{intro:"กบ บบ บบ! ถ้าจะผ่านป่าของข้า ต้องตอบคำถามข้าก่อน!",hurt:"โอ้โห... แกเก่งเกินไป!",dead:"กบ... บบ... ข้าแพ้แล้ว ไปได้เลย..."},
+    lore:0},
+  {name:"หมาป่าเวทมนตร์",sp:"🐺",hp:75,atk:15,weak:"thunder",zone:"forest",
+    dialog:{intro:"โอ้วววว! ข้าเป็นผู้พิทักษ์ป่านี้ ใครกล้าผ่านมา?",hurt:"เจ็บ! แต่ข้ายังไม่ยอมแพ้!",dead:"อูวว... ข้าพ่ายแพ้แล้ว... ไปซะ..."},
+    lore:1},
+  {name:"ราชาต้นไม้",sp:"🌳",hp:90,atk:18,weak:"fire",zone:"forest",
+    dialog:{intro:"ข้าคือจิตวิญญาณแห่งป่าโบราณ! แสดงสติปัญญาของเจ้ามาเถิด!",hurt:"ใบไม้ร่วง... ข้าอ่อนแอลงแล้ว",dead:"ป่าจะเป็นอิสระแล้ว... ไปตามทางของเจ้าเถิด"},
+    lore:2},
+  // Castle
+  {name:"ยักษ์หิมะ",sp:"⛄",hp:100,atk:22,weak:"fire",zone:"castle",
+    dialog:{intro:"Brr! ยินดีต้อนรับสู่ปราสาทน้ำแข็ง! ถ้าอยากผ่าน... ต้องแข่งปัญญากับข้า!",hurt:"ร้อน! ทำไมมันร้อนจัง!",dead:"น้ำแข็งละลาย... ข้าแพ้แล้ว... หวีด"},
+    lore:3},
+  {name:"อัศวินน้ำแข็ง",sp:"🧊",hp:115,atk:25,weak:"fire",zone:"castle",
+    dialog:{intro:"ฉัน Lord of Ice จะไม่ยอมให้ผ่านง่ายๆ! เตรียมรับความเย็น!",hurt:"เปลวไฟ?! นั่นคือจุดอ่อนข้า!",dead:"ปราสาทจะค่อยๆ ละลาย... เจ้าเก่งจริงๆ"},
+    lore:4},
+  {name:"ราชินีน้ำแข็ง",sp:"👸",hp:130,atk:28,weak:"fire",zone:"castle",
+    dialog:{intro:"ข้าผู้เป็นราชินีแห่งน้ำแข็ง! ไม่มีใครชนะข้าได้!",hurt:"เป็นไปไม่ได้! ข้าไม่เคยโดนสวน!",dead:"ปราสาทของข้า... สลายไปแล้ว... เจ้าคือฮีโร่"},
+    lore:5},
+  // Volcano
+  {name:"ปีศาจไฟ",sp:"🔥",hp:120,atk:30,weak:"ice",zone:"volcano",
+    dialog:{intro:"เฮ้อะฮะ! มีใครกล้าเข้ามาในภูเขาไฟของข้า? มาลองดูกัน!",hurt:"เย็น! ข้าไม่ชอบความเย็น!",dead:"เปลวไฟดับ... ข้าแพ้..."},
+    lore:6},
+  {name:"มังกรไฟ",sp:"🐲",hp:140,atk:33,weak:"ice",zone:"volcano",
+    dialog:{intro:"ROARRR! ข้าคือมังกรผู้ยิ่งใหญ่! กล้าท้าข้าหรือ?!",hurt:"น้ำแข็ง?! ข้าเจ็บ!",dead:"มังกรผู้ยิ่งใหญ่... แพ้ต่อสติปัญญา... น่าเคารพ"},
+    lore:7},
+  {name:"เจ้าแห่งเปลวไฟ",sp:"🌋",hp:160,atk:36,weak:"ice",zone:"volcano",
+    dialog:{intro:"ข้าคือเจ้าแห่งภูเขาไฟ! ความร้อนของข้าจะเผาผลาญทุกอย่าง!",hurt:"ไม่ได้เรื่อง... เจ้าเก่งเกินไป!",dead:"ภูเขาไฟสงบลงแล้ว... ขอบคุณที่ปลดปล่อยข้า"},
+    lore:8},
+  // Dark
+  {name:"เจ้าปีศาจเงา",sp:"👾",hp:150,atk:38,weak:"thunder",zone:"dark",
+    dialog:{intro:"มืด... มืด... ข้าคือความมืดมิด! เจ้าจะแพ้แน่นอน!",hurt:"แสงสว่าง! ข้าอ่อนแอ!",dead:"ความมืดสลายไป... แสงสว่างชนะแล้ว"},
+    lore:9},
+  {name:"ราชาวิญญาณ",sp:"👻",hp:165,atk:40,weak:"fire",zone:"dark",
+    dialog:{intro:"Woooooo! ข้าผีผู้ยิ่งใหญ่! เจ้าจะหนีไม่พ้นข้า!",hurt:"ไม่ได้เรื่อง! ข้าไม่เคยโดนโจมตีได้!",dead:"ผีก็แพ้ได้... เพราะสติปัญญาของเจ้า..."},
+    lore:10},
+  {name:"เจ้าแห่งความมืด",sp:"🌑",hp:180,atk:43,weak:"thunder",zone:"dark",
+    dialog:{intro:"HA HA HA! ข้าคือความมืดที่ไม่มีวันสิ้นสุด! มาลองดูกันเลย!",hurt:"เป็นไปไม่ได้! ข้าผู้ยิ่งใหญ่โดนโจมตีได้?!",dead:"ความมืดพ่ายแพ้ต่อความรู้... นับถือเจ้า"},
+    lore:11},
+  // Tower
+  {name:"ปีศาจชั้น 1",sp:"😈",hp:170,atk:42,weak:"nature",zone:"tower",
+    dialog:{intro:"ยินดีต้อนรับสู่หอคอยสุดท้าย! ข้าเป็นด่านแรก ยังห่างไกลราชา!",hurt:"เจ้าแข็งแกร่งกว่าที่คิด!",dead:"ด่านแรกผ่านแล้ว... แต่ยังเหลืออีกมาก!"},
+    lore:12},
+  {name:"นายพลปีศาจ",sp:"🧟",hp:190,atk:45,weak:"thunder",zone:"tower",
+    dialog:{intro:"ข้าคือนายพลของราชา! ถ้าอยากเจอราชา ต้องผ่านข้าก่อน!",hurt:"เจ้า... เก่งจริงๆ นะ!",dead:"นายพลแพ้แล้ว... ทางเปิดแล้ว... ระวังตัวด้วย!"},
+    lore:13},
+  {name:"ราชาปีศาจ",sp:"👑",hp:220,atk:50,weak:"fire",zone:"tower",
+    dialog:{intro:"HA HA HA! ในที่สุดก็มีผู้กล้ามาถึงที่นี่! ข้าคือราชาปีศาจ ผู้ปกครองทุกความมืด! มาดูสิว่าความรู้ของเจ้าจะเอาชนะข้าได้หรือไม่!",hurt:"เจ้า... เจ้าคือฮีโร่ที่แท้จริง!",dead:"ข้าแพ้แล้ว... อาณาจักรได้รับการกอบกู้แล้ว... เจ้าคือฮีโร่แห่งยุค!"},
+    lore:14},
+];
+
+const SKILL_CARDS = [
+  {id:"fire",icon:"🔥",nm:"ลูกไฟ\n+80% DMG",el:"fire",eff:"dmg",v:1.8},
+  {id:"thunder",icon:"⚡",nm:"ฟ้าผ่า\n+60% DMG",el:"thunder",eff:"dmg",v:1.6},
+  {id:"ice",icon:"❄️",nm:"หยุดเวลา\n+5 วินาที",el:"ice",eff:"freeze",v:5},
+  {id:"nature",icon:"🌿",nm:"ธรรมชาติ\nฮีล+25 HP",el:"nature",eff:"heal",v:25},
+  {id:"shield",icon:"🛡️",nm:"โล่เวทย์\nบล็อก 1 ครั้ง",el:"shield",eff:"shield",v:1},
+  {id:"crit",icon:"🌟",nm:"คริติคัล\nDMG ×3",el:"dark",eff:"crit",v:3},
+];
+
+const ACHIEVEMENTS = [
+  {id:"first_win",icon:"🏆",nm:"ชัยชนะแรก",desc:"ชนะด่านแรก",type:"wins",threshold:1},
+  {id:"five_wins",icon:"⚔️",nm:"นักรบผู้ทรงพลัง",desc:"ชนะ 5 ด่าน",type:"wins",threshold:5},
+  {id:"ten_wins",icon:"👑",nm:"ราชาสนามรบ",desc:"ชนะ 10 ด่าน",type:"wins",threshold:10},
+  {id:"combo5",icon:"⚡",nm:"สายฟ้า",desc:"Combo 5 ครั้งในด่านเดียว",type:"max_combo",threshold:5},
+  {id:"combo10",icon:"🌟",nm:"ราชา Combo",desc:"Combo 10 ครั้ง!",type:"max_combo",threshold:10},
+  {id:"correct50",icon:"📚",nm:"นักเรียนขยัน",desc:"ตอบถูก 50 ข้อ",type:"total_correct",threshold:50},
+  {id:"correct100",icon:"🎓",nm:"เซียนวิชา",desc:"ตอบถูก 100 ข้อ",type:"total_correct",threshold:100},
+  {id:"thai50",icon:"📜",nm:"นักภาษาไทย",desc:"ตอบไวพจน์ถูก 30 ข้อ",type:"thai_correct",threshold:30},
+  {id:"math50",icon:"🔢",nm:"นักคณิตศาสตร์",desc:"ตอบคณิตฯ ถูก 30 ข้อ",type:"math_correct",threshold:30},
+  {id:"perfect",icon:"💎",nm:"สมบูรณ์แบบ",desc:"ชนะโดยไม่พลาดเลย",type:"perfect_wins",threshold:1},
+  {id:"fever",icon:"🔥",nm:"FEVER KING",desc:"เข้า Fever Mode",type:"fever_count",threshold:1},
+  {id:"cards5",icon:"🎴",nm:"นักสะสมการ์ด",desc:"ใช้การ์ดสกิล 5 ใบ",type:"cards_used",threshold:5},
+  {id:"lv5",icon:"⬆️",nm:"ฮีโร่ Level 5",desc:"เลื่อนระดับถึง LV.5",type:"level",threshold:5},
+  {id:"all_zones",icon:"🗺️",nm:"นักสำรวจ",desc:"ชนะทุก 5 โซน",type:"zones_cleared",threshold:5},
+  {id:"boss_slayer",icon:"💀",nm:"นักล่าบอส",desc:"ปราบบอสทั้ง 15 ตัว",type:"bosses_killed",threshold:15},
+];
+
+const LORE_CARDS = [
+  {icon:"🌲",title:"ป่าเวทมนตร์",body:"ป่าโบราณที่มีชื่อในตำนานว่า 'วนาอัศจรรย์' ที่นี่ต้นไม้ทุกต้นมีจิตวิญญาณ ตามความเชื่อไทยโบราณ ป่าใหญ่มักเป็นที่สิงสถิตของ 'นางไม้' หรือเทพผู้พิทักษ์ธรรมชาติ"},
+  {icon:"🐺",title:"หมาป่าเวทมนตร์",body:"ในวรรณคดีไทย สัตว์ที่แปลงร่างได้มักเรียกว่า 'มายา' หรือ 'อสูร' คำว่า 'ป่า' มาจากสันสกฤต 'วน' หรือ 'อรัณย์' ซึ่งหมายถึงที่รกร้างที่มีต้นไม้ปกคลุม"},
+  {icon:"🌳",title:"จิตวิญญาณแห่งป่า",body:"ตัวประกอบของจำนวน คือ จำนวนที่หารลงตัวโดยไม่มีเศษ เช่น 12 มีตัวประกอบคือ 1, 2, 3, 4, 6, 12 ส่วนตัวประกอบเฉพาะคือ 2 และ 3 เท่านั้น"},
+  {icon:"🏰",title:"ปราสาทน้ำแข็ง",body:"ในภาษาไทย คำว่า 'ปราสาท' มาจากภาษาสันสกฤต 'ปราสาท' หมายถึงอาคารหลังใหญ่ ในสมัยโบราณมีปราสาทหินที่สร้างโดยชาวขอม เช่น ปราสาทหินพิมาย ในนครราชสีมา"},
+  {icon:"❄️",title:"เวทย์แห่งน้ำแข็ง",body:"ค.ร.น. (ค่าจำนวนร่วมน้อย) คือจำนวนเต็มบวกน้อยที่สุดที่หารด้วยจำนวนทุกตัวได้ลงตัว เช่น ค.ร.น. ของ 4 และ 6 คือ 12 เพราะ 12 ÷ 4 = 3 และ 12 ÷ 6 = 2"},
+  {icon:"👸",title:"ราชินีน้ำแข็ง",body:"ห.ร.ม. (หารร่วมมาก) คือจำนวนมากที่สุดที่หารจำนวนทุกตัวได้ลงตัว เช่น ห.ร.ม. ของ 12 และ 18 คือ 6 เพราะ 6 คือตัวประกอบร่วมที่ใหญ่ที่สุดของทั้งสองจำนวน"},
+  {icon:"🌋",title:"ตำนานภูเขาไฟ",body:"คำว่า 'อัศวะ' ในภาษาสันสกฤตแปลว่า 'ม้า' ม้าเป็นสัตว์ที่มีบทบาทสำคัญในวรรณคดีไทย เช่น 'อุศุภราช' หรือ 'สินธพ' ล้วนเป็นคำไวพจน์ของม้าทั้งสิ้น"},
+  {icon:"🐲",title:"ตำนานมังกรไทย",body:"ในวรรณคดีไทย 'นาค' คือสัตว์มีพลังวิเศษคล้ายงูขนาดยักษ์ ต่างจากมังกรจีน คำไวพจน์ของน้ำ ได้แก่ วารี สลิล ชล อุทก ธารา ทั้งหมดมาจากรากภาษาสันสกฤต"},
+  {icon:"☀️",title:"เทพแห่งดวงอาทิตย์",body:"คำว่า 'รวิ' หรือ 'สุริยา' เป็นคำไวพจน์ของดวงอาทิตย์ มาจากภาษาสันสกฤต 'รวิ' หมายถึง ผู้ส่องแสง ในปฏิทินไทยโบราณ วันอาทิตย์มาจาก 'อาทิตย์' ซึ่งเป็นอีกคำไวพจน์"},
+  {icon:"👾",title:"ปีศาจแห่งความมืด",body:"จำนวนเฉพาะ (Prime Number) คือจำนวนที่มีตัวประกอบเพียง 2 ตัวคือ 1 กับตัวมันเอง จำนวนเฉพาะน้อยสุดคือ 2 ซึ่งเป็นจำนวนเฉพาะเพียงตัวเดียวที่เป็นจำนวนคู่"},
+  {icon:"👻",title:"ราชาแห่งวิญญาณ",body:"คำว่า 'กุญชร' และ 'หัตถี' เป็นคำไวพจน์ของช้าง มาจากภาษาสันสกฤต ช้างมีบทบาทสำคัญในวัฒนธรรมไทย ทั้งในพิธีกรรมและสงคราม คำว่า 'หัตถี' ยังใช้เป็นชื่อวันพฤหัสบดีในภาษาไทยเก่า"},
+  {icon:"🌑",title:"ความลับแห่งความมืด",body:"ในวรรณคดีไทยโบราณ คำว่า 'บรรพต' หรือ 'ศิขร' หมายถึงภูเขา ส่วน 'วนา' หมายถึงป่า และ 'ชลาลัย' หมายถึงทะเลหรือแหล่งน้ำขนาดใหญ่ ล้วนมาจากภาษาสันสกฤตและบาลี"},
+  {icon:"😈",title:"ตำนานหอคอย",body:"หอคอยในตำนานไทยมักเรียกว่า 'เมรุ' หรือ 'เขาพระสุเมรุ' ซึ่งเป็นศูนย์กลางจักรวาลตามคติพราหมณ์ ใน 'รามเกียรติ์' พระรามต้องผ่านด่านยักษ์หลายตนก่อนจะถึงกรุงลงกา"},
+  {icon:"🧟",title:"นายพลและสงคราม",body:"เลขยกกำลัง 2³ = 8 ในระบบตัวเลขไบนารี (Binary) ที่คอมพิวเตอร์ใช้ ตัวเลขทุกตัวสร้างจากฐาน 2 ยกกำลัง เช่น 8 = 2³, 16 = 2⁴, 32 = 2⁵ ซึ่งเป็นพื้นฐานของเทคโนโลยีดิจิทัล"},
+  {icon:"👑",title:"ราชาปีศาจผู้ยิ่งใหญ่",body:"🎉 ยินดีด้วย! คุณปลดล็อค Lore Card ครบทั้ง 15 ใบ! คุณคือ 'ฮีโร่แห่งอาณาจักร' ผู้ที่รวบรวมความรู้ทั้งด้านภาษาไทยและคณิตศาสตร์ได้อย่างสมบูรณ์ ความรู้คือพลังที่แท้จริง!"},
+];
+
+const CLASSES_CFG = {
+  warrior:{nm:"นักรบ",sp:"⚔️",maxHp:150,maxMp:30,atk:35,skill:"ลด ATK ศัตรู -10",cost:15},
+  mage:{nm:"นักเวทย์",sp:"🔮",maxHp:80,maxMp:80,atk:50,skill:"เวทพายุ+60%",cost:20},
+  healer:{nm:"นักบวช",sp:"✨",maxHp:110,maxMp:70,atk:40,skill:"ตัดตัวเลือก",cost:25},
+};
+
+// ======================================================
+// SAVE / LOAD
+// ======================================================
+function loadSave(){
+  try{ return JSON.parse(localStorage.getItem('edu_rpg_save')||'null'); }catch(e){ return null; }
+}
+function save(data){ localStorage.setItem('edu_rpg_save',JSON.stringify(data)); }
+
+function getProgress(){
+  let p = loadSave();
+  if(!p) p = {
+    heroClass:'mage', heroLevel:1, heroExp:0, heroMaxExp:100,
+    heroHp:80, heroMp:80, heroAtk:50,
+    statBonus:{hp:0,atk:0,mp:0},
+    coins:0, totalWins:0, totalCorrect:0, totalWrong:0,
+    mathCorrect:0, thaiCorrect:0,
+    maxCombo:0, perfectWins:0, feverCount:0, cardsUsed:0,
+    bossesKilled:0, zonesCleared:new Set(),
+    achievements:[], loreUnlocked:[],
+    nodeStars:{}, customQuestions:[],
+    students:[], studentData:{},
+    dailyDate:'', dailyProgress:[false,false,false],
+    dailyCoins:0,
+  };
+  if(!(p.zonesCleared instanceof Set)) p.zonesCleared = new Set(p.zonesCleared||[]);
+  if(!p.nodeStars) p.nodeStars = {};
+  if(!p.customQuestions) p.customQuestions = [];
+  if(!p.students) p.students = [];
+  if(!p.studentData) p.studentData = {};
+  if(!p.dailyDate) p.dailyDate = '';
+  if(!p.dailyProgress) p.dailyProgress = [false,false,false];
+  if(!p.dailyCoins) p.dailyCoins = 0;
+  if(!p.statBonus) p.statBonus = {hp:0,atk:0,mp:0};
+  return p;
+}
+
+function saveProgress(p){
+  const copy = {...p, zonesCleared: [...p.zonesCleared]};
+  save(copy);
+}
+
+// ======================================================
+// GAME STATE
+// ======================================================
+let P = getProgress(); // persistent progress
+let G = {};            // current battle state
+
+// ======================================================
+// DAILY QUESTS
+// ======================================================
+const DAILY_QUESTS_POOL = [
+  {txt:"ตอบถูก 5 ข้อ",type:"correct",goal:5},
+  {txt:"Combo 3 ครั้งในด่านเดียว",type:"combo",goal:3},
+  {txt:"ชนะ 1 ด่านโดยไม่พลาด",type:"perfect",goal:1},
+  {txt:"ใช้สกิลการ์ด 2 ใบ",type:"cards",goal:2},
+  {txt:"ตอบถูกวิชาคณิตฯ 3 ข้อ",type:"math",goal:3},
+  {txt:"ตอบถูกวิชาภาษาไทย 3 ข้อ",type:"thai",goal:3},
+];
+
+function getDailyQuests(){
+  const today = new Date().toDateString();
+  if(P.dailyDate !== today){
+    P.dailyDate = today;
+    P.dailyProgress = [false,false,false];
+    const seed = today.split(' ').map(c=>c.charCodeAt(0)).reduce((a,b)=>a+b,0);
+    P.dailyQuestIds = [(seed)%6,(seed+2)%6,(seed+4)%6];
+    saveProgress(P);
+  }
+  return (P.dailyQuestIds||[0,1,2]).map(i=>DAILY_QUESTS_POOL[i]);
+}
+
+// ======================================================
+// TITLE / HUD
+// ======================================================
+function renderTitleHUD(){
+  const cls = CLASSES_CFG[P.heroClass]||CLASSES_CFG.mage;
+  const expPct = (P.heroExp/P.heroMaxExp)*100;
+  document.getElementById('hero-hud').innerHTML = `
+    <div class="hero-hud-top">
+      <div class="hero-avatar">${cls.sp}</div>
+      <div class="hero-hud-info">
+        <h3>ฮีโร่ ${cls.nm}</h3>
+        <div class="lv">⭐ LV.${P.heroLevel} — ${P.heroExp}/${P.heroMaxExp} EXP</div>
+        <div class="exp-bar-wrap"><div class="exp-bar-bg"><div class="exp-bar-fill" style="width:${expPct}%"></div></div></div>
+      </div>
+    </div>
+    <div class="hero-hud-stats">
+      <div class="hud-stat"><div class="v">🏆${P.totalWins}</div><div class="l">ด่านที่ชนะ</div></div>
+      <div class="hud-stat"><div class="v">✅${P.totalCorrect}</div><div class="l">ตอบถูก</div></div>
+      <div class="hud-stat"><div class="v">🪙${P.coins}</div><div class="l">เหรียญ</div></div>
+    </div>`;
+
+  const quests = getDailyQuests();
+  document.getElementById('daily-banner').innerHTML = `
+    <h4>📅 Daily Quest วันนี้</h4>
+    ${quests.map((q,i)=>`<div class="daily-quest ${P.dailyProgress[i]?'done':''}">
+      <span class="qcheck">${P.dailyProgress[i]?'✅':'⭕'}</span>
+      <span>${q.txt}</span>${P.dailyProgress[i]?'':' <span style="color:var(--gold);font-size:13px">+30🪙</span>'}
+    </div>`).join('')}`;
+}
+
+// ======================================================
+// SCREEN MANAGEMENT
+// ======================================================
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  // Cleanup on navigate away from battle
+  if(id!=='s-battle'){ stopBGM(); particles=[]; if(pAnimId){ cancelAnimationFrame(pAnimId); pAnimId=null; } }
+  if(id==='s-title') renderTitleHUD();
+  if(id==='s-map') renderMap();
+  if(id==='s-achievements') renderAchievements();
+  if(id==='s-library') renderLibrary();
+}
+
+function pickClass(cls, el){
+  P.heroClass = cls;
+  const c = CLASSES_CFG[cls];
+  P.heroHp = c.maxHp + P.statBonus.hp;
+  P.heroMp = c.maxMp + P.statBonus.mp;
+  P.heroAtk = c.atk + P.statBonus.atk;
+  saveProgress(P);
+  document.querySelectorAll('.cc').forEach(e=>e.classList.remove('sel'));
+  el.classList.add('sel');
+  setTimeout(()=>show('s-map'),300);
+}
+
+// ======================================================
+// WORLD MAP
+// ======================================================
+const MAP_LAYOUT = [
+  // [nodeIndex, x, y, zoneIdx, stageInZone, paths_to]
+  {i:0,x:80,y:340,z:0,s:0,to:[1]},
+  {i:1,x:160,y:280,z:0,s:1,to:[2]},
+  {i:2,x:240,y:320,z:0,s:2,to:[3,4]},
+  {i:3,x:310,y:240,z:1,s:0,to:[5]},
+  {i:4,x:340,y:360,z:1,s:0,to:[6]},  // branch
+  {i:5,x:390,y:180,z:1,s:1,to:[7]},
+  {i:6,x:420,y:310,z:1,s:2,to:[7]},
+  {i:7,x:470,y:240,z:2,s:0,to:[8]},
+  {i:8,x:520,y:170,z:2,s:1,to:[9]},
+  {i:9,x:550,y:100,z:2,s:2,to:[10]},
+  {i:10,x:540,y:300,z:3,s:0,to:[11]},
+  {i:11,x:490,y:380,z:3,s:1,to:[12]},
+  {i:12,x:570,y:350,z:3,s:2,to:[13]},
+  {i:13,x:600,y:200,z:4,s:0,to:[14]},
+  {i:14,x:610,y:50,z:4,s:1,to:[]},   // final boss (index 14 = BOSSES[14])
+];
+
+function isNodeUnlocked(i){
+  if(i===0) return true;
+  const node = MAP_LAYOUT[i];
+  // unlocked if any predecessor is cleared
+  return MAP_LAYOUT.some(n=>n.to.includes(i) && P.nodeStars[n.i]!==undefined);
+}
+
+let selectedNode = null;
+
+function renderMap(){
+  const svg = document.getElementById('map-svg');
+  svg.innerHTML = '';
+
+  // Zone background regions (simplified)
+  const zoneBgs = [
+    {x:30,y:220,w:260,h:180,z:0},{x:280,y:140,w:200,h:240,z:1},
+    {x:440,y:60,w:160,h:200,z:2},{x:460,y:260,w:150,h:140,z:3},
+    {x:560,y:30,w:70,h:190,z:4}
+  ];
+  zoneBgs.forEach(zb=>{
+    const z = MAP_ZONES[zb.z];
+    const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    rect.setAttribute('x',zb.x); rect.setAttribute('y',zb.y);
+    rect.setAttribute('width',zb.w); rect.setAttribute('height',zb.h);
+    rect.setAttribute('rx','12');
+    rect.setAttribute('fill',z.color); rect.setAttribute('opacity','0.3');
+    svg.appendChild(rect);
+    const lbl = document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x',zb.x+zb.w/2); lbl.setAttribute('y',zb.y+18);
+    lbl.setAttribute('class','zone-label'); lbl.setAttribute('font-size','10');
+    lbl.setAttribute('fill',z.accent); lbl.textContent = z.icon+' '+z.name;
+    svg.appendChild(lbl);
+  });
+
+  // Draw paths
+  MAP_LAYOUT.forEach(node=>{
+    node.to.forEach(toI=>{
+      const to = MAP_LAYOUT[toI];
+      const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+      line.setAttribute('x1',node.x); line.setAttribute('y1',node.y);
+      line.setAttribute('x2',to.x); line.setAttribute('y2',to.y);
+      line.setAttribute('class','path-line');
+      const locked = !isNodeUnlocked(toI);
+      line.setAttribute('stroke', locked ? '#333' : MAP_ZONES[to.z].accent);
+      line.setAttribute('stroke-width','2');
+      svg.appendChild(line);
+    });
+  });
+
+  // Draw nodes
+  MAP_LAYOUT.forEach(node=>{
+    const boss = BOSSES[node.i];
+    const zone = MAP_ZONES[node.z];
+    const unlocked = isNodeUnlocked(node.i);
+    const stars = P.nodeStars[node.i]||0;
+    const cleared = stars > 0;
+
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('class','map-node');
+    g.setAttribute('transform',`translate(${node.x},${node.y})`);
+
+    // Circle
+    const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    circle.setAttribute('r','18');
+    circle.setAttribute('class','node-circle');
+    circle.setAttribute('fill', cleared ? zone.accent : unlocked ? zone.color : '#1a1a30');
+    circle.setAttribute('stroke', cleared ? zone.accent : unlocked ? '#555' : '#333');
+    circle.setAttribute('stroke-width', cleared ? '3' : '1.5');
+    if(cleared) circle.setAttribute('filter','url(#glow)');
+    g.appendChild(circle);
+
+    // Emoji / lock
+    const em = document.createElementNS('http://www.w3.org/2000/svg','text');
+    em.setAttribute('class','node-lock');
+    em.setAttribute('y','1');
+    em.setAttribute('font-size', unlocked ? '16' : '13');
+    em.textContent = unlocked ? boss.sp : '🔒';
+    g.appendChild(em);
+
+    // Stars
+    if(stars>0){
+      const starTxt = document.createElementNS('http://www.w3.org/2000/svg','text');
+      starTxt.setAttribute('class','node-star'); starTxt.setAttribute('y','28');
+      starTxt.textContent = '★'.repeat(stars);
+      g.appendChild(starTxt);
+    }
+
+    if(unlocked){
+      g.addEventListener('click',()=>selectMapNode(node.i, boss, zone));
+    }
+    svg.appendChild(g);
+  });
+
+  // Player position
+  const lastCleared = Math.max(0,...Object.keys(P.nodeStars).map(Number),-1);
+  const pNode = MAP_LAYOUT[Math.min(lastCleared+1, MAP_LAYOUT.length-1)];
+  const playerEl = document.createElementNS('http://www.w3.org/2000/svg','text');
+  playerEl.setAttribute('class','player-icon');
+  playerEl.setAttribute('x',pNode.x-10); playerEl.setAttribute('y',pNode.y-22);
+  playerEl.textContent = '🧙';
+  svg.appendChild(playerEl);
+
+  // Glow filter
+  const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
+  defs.innerHTML = `<filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`;
+  svg.appendChild(defs);
+}
+
+function selectMapNode(nodeI, boss, zone){
+  selectedNode = nodeI;
+  const stars = P.nodeStars[nodeI]||0;
+  document.getElementById('zone-name').textContent = `${boss.sp} ${boss.name}`;
+  document.getElementById('zone-desc').textContent = `${zone.desc}`;
+  document.getElementById('zone-stats').innerHTML = `
+    <span class="zone-stat">⚔️ ATK: <span>${boss.atk}</span></span>
+    <span class="zone-stat">💜 HP: <span>${boss.hp}</span></span>
+    <span class="zone-stat">🌟 Stars: <span>${'★'.repeat(stars)||'ยังไม่ผ่าน'}</span></span>
+    <span class="zone-stat">🎯 จุดอ่อน: <span>${{fire:'🔥ไฟ',ice:'❄️น้ำแข็ง',thunder:'⚡ฟ้า',nature:'🌿ธรรมชาติ'}[boss.weak]}</span></span>
+    &nbsp;<button class="btn btn-gold btn-sm" onclick="startNodeBattle(${nodeI})" style="margin-top:4px">⚔️ เข้าสู่ด่าน!</button>`;
+}
+
+function startNodeBattle(nodeI){
+  if(!P.heroClass){ toast('⚠️ เลือกสายอาชีพก่อน!'); show('s-class'); return; }
+  G = initBattle(nodeI);
+  setupBattleUI();
+  show('s-battle');
+  showBossDialogue(nodeI, 'intro');
+}
+
+// ======================================================
+// BATTLE INIT
+// ======================================================
+function initBattle(nodeI){
+  const boss = BOSSES[nodeI];
+  const cls = CLASSES_CFG[P.heroClass];
+  return {
+    nodeI, boss,
+    hp: cls.maxHp + (P.statBonus.hp||0),
+    maxHp: cls.maxHp + (P.statBonus.hp||0),
+    mp: cls.maxMp + (P.statBonus.mp||0),
+    maxMp: cls.maxMp + (P.statBonus.mp||0),
+    atk: cls.atk + (P.statBonus.atk||0),
+    enemyHp: boss.hp, enemyMaxHp: boss.hp, enemyAtk: boss.atk,
+    enemyPhase2: false,
+    coins: 0, combo:0, maxCombo:0, streak:0,
+    correct:0, wrong:0, cardsHeld:[], cardsUsed:0,
+    pendingCard:null, shieldActive:false,
+    fever:false, feverTime:0, feverTimer:null,
+    locked:false, usedQ:new Set(),
+    subject: boss.zone==='castle'?'math': boss.zone==='volcano'?'thai': Math.random()<.5?'math':'thai',
+    perfect:true, sessionCorrect:0, sessionMath:0, sessionThai:0,
+    inventory:{potion:2,glasses:1,weapon:0,mp:0},
+  };
+}
+
+function setupBattleUI(){
+  const cls = CLASSES_CFG[P.heroClass];
+  const boss = G.boss;
+  const zone = MAP_ZONES.find(z=>z.id===boss.zone)||MAP_ZONES[0];
+  document.getElementById('hero-sp').textContent = cls.sp;
+  document.getElementById('hero-nm').innerHTML = `ฮีโร่ <span>LV.${P.heroLevel}</span>`;
+  document.getElementById('skill-btn').textContent = `⚡ ${cls.skill}`;
+  document.getElementById('enemy-sp').textContent = boss.sp;
+  document.getElementById('enemy-nm').innerHTML = `${boss.name}`;
+  document.getElementById('wave-d').textContent = `${boss.name} · ${zone.name}`;
+  document.getElementById('bf-zone').className = 'bf-zone '+boss.zone;
+  const wb = document.getElementById('weak-badge');
+  const wIcons = {fire:'🔥ไฟ',ice:'❄️น้ำแข็ง',thunder:'⚡ฟ้า',nature:'🌿ธรรมชาติ'};
+  wb.style.display='block'; wb.textContent='อ่อนแอต่อ '+wIcons[boss.weak];
+  document.getElementById('phase-badge').style.display='none';
+  updateBars();
+  renderCards();
+  // Init particle canvas after DOM settles
+  setTimeout(()=>initParticleCanvas(), 100);
+  // Start BGM if music on
+  if(musicEnabled){ stopBGM(); startBGM(); }
+  loadQuestion();
+  startTimer();
+}
+
+// ======================================================
+// BOSS DIALOGUE
+// ======================================================
+let dialogueCallback = null;
+function showBossDialogue(nodeI, phase, cb){
+  const boss = BOSSES[nodeI];
+  const txt = boss.dialog[phase]||'';
+  if(!txt){ if(cb) cb(); return; }
+  dialogueCallback = cb||null;
+  document.getElementById('dlg-avatar').textContent = boss.sp;
+  document.getElementById('dlg-name').textContent = boss.name;
+  document.getElementById('dlg-role').textContent = MAP_ZONES.find(z=>z.id===boss.zone)?.name||'';
+  document.getElementById('dlg-btn').textContent = phase==='dead'?'✓ รับรู้':'▶ เริ่มต่อสู้!';
+  // Typewriter
+  const el = document.getElementById('dlg-text');
+  el.innerHTML = '';
+  let i=0;
+  const interval = setInterval(()=>{
+    el.innerHTML = txt.slice(0,i) + '<span class="dialogue-cursor">|</span>';
+    i++;
+    if(i>txt.length){ clearInterval(interval); el.innerHTML = txt; }
+  }, 30);
+  document.getElementById('dialogue-overlay').classList.add('show');
+}
+
+function closeDialogue(){
+  document.getElementById('dialogue-overlay').classList.remove('show');
+  if(dialogueCallback){ dialogueCallback(); dialogueCallback=null; }
+}
+
+// ======================================================
+// TIMER
+// ======================================================
+const TIMER_MAX = 12;
+let timerVal = TIMER_MAX, timerInt = null;
+
+function startTimer(){
+  timerVal = TIMER_MAX; updateTimerUI();
+  timerInt = setInterval(()=>{
+    timerVal -= 0.1; updateTimerUI();
+    if(timerVal<=3 && timerVal>2.9) sfx('timer_warn');
+    if(timerVal<=0){ stopTimer(); onTimerOut(); }
+  },100);
+}
+function stopTimer(){ clearInterval(timerInt); timerInt=null; }
+function updateTimerUI(){
+  const pct = (timerVal/TIMER_MAX)*100;
+  const bar = document.getElementById('tbar');
+  const txt = document.getElementById('ttxt');
+  bar.style.width = pct+'%';
+  txt.textContent = Math.ceil(timerVal)+' วิ';
+  bar.className = 'timer-fill '+(pct>55?'ok':pct>25?'warn':'danger');
+  txt.className = 'timer-txt'+(pct<=25?' danger':'');
+}
+function onTimerOut(){
+  if(G.locked) return;
+  G.locked=true;
+  const allBtns = Array.from(document.querySelectorAll('.cbtn'));
+  allBtns.forEach(b=>b.disabled=true);
+  if(G.correctIdx!==undefined && allBtns[G.correctIdx]) allBtns[G.correctIdx].classList.add('correct');
+  const dmg = G.shieldActive ? 0 : G.enemyAtk;
+  G.shieldActive=false;
+  G.hp=Math.max(0,G.hp-dmg);
+  G.combo=0; G.streak=0; G.perfect=false;
+  shakeField(); animSp('hero-sp','hurt');
+  floatDmg(dmg,'pd'); toast('⏰ หมดเวลา! -'+dmg+' HP');
+  updateBars();
+  if(G.hp<=0){ setTimeout(()=>endBattle(false),800); return; }
+  setTimeout(()=>{ G.locked=false; loadQuestion(); },1200);
+}
+
+// ======================================================
+// QUESTION
+// ======================================================
+function loadQuestion(){
+  if(G.locked) return;
+  stopTimer();
+  const allQ = [...QB[G.subject], ...(P.customQuestions||[]).filter(q=>q.subj===G.subject)];
+  let idx, tries=0;
+  do{ idx=Math.floor(Math.random()*allQ.length); tries++; }
+  while(G.usedQ.has(idx) && tries<20 && G.usedQ.size<allQ.length);
+  if(G.usedQ.size>=allQ.length) G.usedQ.clear();
+  G.usedQ.add(idx);
+  G.currentQ = allQ[idx];
+
+  const isWeak = G.currentQ.el===G.boss.weak;
+  document.getElementById('weak-hint').style.display = isWeak?'inline':'none';
+  document.getElementById('q-node-name').textContent = G.boss.name;
+  document.getElementById('qtxt').innerHTML = G.currentQ.q;
+
+  const raw = G.currentQ.ch.map((c,i)=>({t:c,orig:i}));
+  const shuffled = [...raw].sort(()=>Math.random()-.5);
+  G.shuffled = shuffled;
+  G.correctIdx = shuffled.findIndex(c=>c.orig===G.currentQ.a);
+
+  const grid = document.getElementById('choices');
+  grid.innerHTML = '';
+  shuffled.forEach((ch,i)=>{
+    const btn = document.createElement('button');
+    btn.className='cbtn'; btn.textContent=ch.t;
+    btn.onclick=()=>handleAnswer(i===G.correctIdx, btn, i);
+    grid.appendChild(btn);
+  });
+  G.locked=false;
+  startTimer();
+}
+
+// ======================================================
+// ANSWER
+// ======================================================
+function handleAnswer(correct, btn, idx){
+  if(G.locked) return;
+  G.locked=true; stopTimer();
+  document.querySelectorAll('.cbtn').forEach(b=>b.disabled=true);
+  const isWeak = G.currentQ.el===G.boss.weak;
+  let dmg = G.atk;
+  if(G.pendingCard){ const c=G.pendingCard; G.pendingCard=null; G.cardsUsed++;
+    if(c.eff==='dmg'||c.eff==='crit') dmg=Math.floor(dmg*c.v); }
+  if(P.heroClass==='mage'&&G.combo>=2) dmg=Math.floor(dmg*(1+G.combo*.15));
+  if(isWeak&&correct) dmg=Math.floor(dmg*2.5);
+  if(G.fever) dmg=Math.floor(dmg*1.5);
+
+  if(correct){
+    btn.classList.add('correct');
+    G.combo++; G.streak++;
+    if(G.combo>G.maxCombo) G.maxCombo=G.combo;
+    G.correct++; G.sessionCorrect++;
+    if(G.subject==='math') G.sessionMath++; else G.sessionThai++;
+    G.coins += G.fever?20:10;
+    G.enemyHp=Math.max(0,G.enemyHp-dmg);
+    animSp('hero-sp','atk');
+    setTimeout(()=>{ animSp('enemy-sp','hurt'); spawnHitParticles('enemy'); },250);
+    floatDmg(dmg,'ed',isWeak);
+    if(P.heroClass==='healer'&&G.combo%3===0) G.hp=Math.min(G.maxHp,G.hp+15);
+    toast('✅ '+(isWeak?'💥WEAKNESS×2.5! ':'')+'ดาเมจ '+dmg+(G.fever?' 🔥FEVER!':''));
+    // SFX
+    if(isWeak){ sfx('weakness'); spawnWeaknessParticles(); }
+    else if(G.combo>=2){ sfx('combo'); spawnParticleBurst(); }
+    else sfx('correct');
+    // Combo display
+    const cd=document.getElementById('combo-d');
+    if(G.combo>=2){ cd.textContent=`⚡ COMBO ×${G.combo}!`; cd.className='combo-d on'; }
+    // Streak card
+    if(G.streak>0&&G.streak%3===0) giveCard();
+    // Fever
+    if(G.streak===5&&!G.fever) activateFever();
+    // Phase 2
+    if(!G.enemyPhase2&&G.enemyHp<=G.boss.hp*.5){
+      G.enemyPhase2=true; G.enemyAtk=Math.floor(G.boss.atk*1.4);
+      document.getElementById('phase-badge').style.display='block';
+      toast('⚠️ '+G.boss.name+' เข้าสู่ PHASE 2! ATK เพิ่มขึ้น!');
+    }
+    updateBars();
+    if(G.enemyHp<=0){ stopTimer(); setTimeout(()=>winBattle(),800); return; }
+  } else {
+    // Highlight correct answer safely from the rendered buttons
+    const allBtns = Array.from(document.querySelectorAll('.cbtn'));
+    if(allBtns[G.correctIdx]) allBtns[G.correctIdx].classList.add('correct');
+    btn.classList.add('wrong');
+    G.combo=0; G.streak=0; G.wrong++; G.perfect=false;
+    const block = P.heroClass==='warrior'&&!G.shieldActive ? Math.floor(G.enemyAtk*.3):0;
+    const rdmg = G.shieldActive?0:G.enemyAtk-block;
+    G.shieldActive=false;
+    G.hp=Math.max(0,G.hp-rdmg);
+    animSp('hero-sp','hurt'); shakeField(); floatDmg(rdmg,'pd');
+    sfx('wrong'); spawnWrongParticles(); spawnHitParticles('hero');
+    toast('❌ ผิด! -'+rdmg+' HP'+(block>0?` (บล็อก${block})`:''));
+    document.getElementById('combo-d').textContent='';
+    document.getElementById('combo-d').className='combo-d';
+    G.mp=Math.min(G.maxMp,G.mp+5);
+    updateBars();
+    if(G.hp<=0){ stopTimer(); setTimeout(()=>endBattle(false),800); return; }
+  }
+  setTimeout(()=>{ G.locked=false; loadQuestion(); },1300);
+}
+
+// ======================================================
+// WIN / LOSE
+// ======================================================
+function winBattle(){
+  stopTimer(); if(G.feverTimer) clearInterval(G.feverTimer);
+  sfx('fanfare'); spawnParticleBurst(null, true);
+  showBossDialogue(G.nodeI,'dead',()=>{
+    // Calc stars
+    const stars = G.perfect?3: G.wrong===0?3: G.wrong<=2?2:1;
+    P.nodeStars[G.nodeI] = Math.max(P.nodeStars[G.nodeI]||0, stars);
+    // Update persistent
+    P.totalWins++;
+    P.totalCorrect += G.sessionCorrect;
+    P.mathCorrect += G.sessionMath;
+    P.thaiCorrect += G.sessionThai;
+    if(G.maxCombo>P.maxCombo) P.maxCombo=G.maxCombo;
+    if(G.perfect) P.perfectWins++;
+    P.cardsUsed += G.cardsUsed;
+    P.bossesKilled++;
+    P.coins += G.coins;
+    // Zone clear
+    const zone = BOSSES[G.nodeI].zone;
+    const zoneNodes = MAP_LAYOUT.filter(n=>MAP_ZONES[n.z].id===zone);
+    if(zoneNodes.every(n=>P.nodeStars[n.i]>0)) P.zonesCleared.add(zone);
+    // EXP
+    const xpGain = 30 + G.sessionCorrect*3 + (G.perfect?20:0) + G.maxCombo*2;
+    P.heroExp += xpGain;
+    // Lore card
+    const loreIdx = BOSSES[G.nodeI].lore;
+    if(stars===3&&!P.loreUnlocked.includes(loreIdx)) P.loreUnlocked.push(loreIdx);
+    // Daily quest check
+    checkDailyQuests();
+    // Level up
+    let lvUp=false;
+    while(P.heroExp>=P.heroMaxExp){ P.heroExp-=P.heroMaxExp; P.heroLevel++; P.heroMaxExp=Math.floor(P.heroMaxExp*1.4); lvUp=true; }
+    // Achievements
+    const newAchs = checkAchievements();
+    saveProgress(P);
+    // [KAMPAI] ส่งคะแนนความก้าวหน้า (power score) ทุกครั้งที่ชนะบอส → leaderboard
+    KAMPAI.submitScore(P.totalCorrect*10 + P.bossesKilled*50 + P.heroLevel*20, { mode:'normal', allowResubmit:true, stars, bosses:P.bossesKilled, level:P.heroLevel, correct:P.totalCorrect });
+    showResult(true, xpGain, newAchs, stars);
+    if(lvUp) setTimeout(()=>showLvUp(),500);
+  });
+}
+
+function endBattle(win){
+  stopTimer(); if(G.feverTimer) clearInterval(G.feverTimer);
+  if(!win){ showBossDialogue(G.nodeI,'hurt',()=>{ showResult(false,0,[]); }); }
+}
+
+function checkDailyQuests(){
+  const quests = getDailyQuests();
+  quests.forEach((q,i)=>{
+    if(P.dailyProgress[i]) return;
+    let done=false;
+    if(q.type==='correct'&&G.sessionCorrect>=q.goal) done=true;
+    if(q.type==='combo'&&G.maxCombo>=q.goal) done=true;
+    if(q.type==='perfect'&&G.perfect) done=true;
+    if(q.type==='cards'&&G.cardsUsed>=q.goal) done=true;
+    if(q.type==='math'&&G.sessionMath>=q.goal) done=true;
+    if(q.type==='thai'&&G.sessionThai>=q.goal) done=true;
+    if(done){ P.dailyProgress[i]=true; P.coins+=30; toast('📅 Daily Quest ✅ +30🪙'); }
+  });
+}
+
+function checkAchievements(){
+  const newAchs=[];
+  ACHIEVEMENTS.forEach(ach=>{
+    if(P.achievements.includes(ach.id)) return;
+    const v = {wins:P.totalWins,max_combo:P.maxCombo,total_correct:P.totalCorrect,
+      thai_correct:P.thaiCorrect,math_correct:P.mathCorrect,perfect_wins:P.perfectWins,
+      fever_count:P.feverCount,cards_used:P.cardsUsed,level:P.heroLevel,
+      zones_cleared:P.zonesCleared.size,bosses_killed:P.bossesKilled}[ach.type]||0;
+    if(v>=ach.threshold){ P.achievements.push(ach.id); newAchs.push(ach); }
+  });
+  return newAchs;
+}
+
+function showResult(win, xp, newAchs, stars=0){
+  document.getElementById('res-icon').textContent = win?'🏆':'💀';
+  document.getElementById('res-title').textContent = win?'🎉 ชนะ! อาณาจักรปลอดภัย!':'💀 แพ้... ลองใหม่!';
+  document.getElementById('res-title').className = 'res-title '+(win?'win':'lose');
+  document.getElementById('res-xp').textContent = win?`+${xp} EXP ${stars>0?'★'.repeat(stars):''}`:'-';
+  document.getElementById('res-stats').innerHTML = `
+    <div class="res-stat"><span>ตอบถูก</span><span class="v">${G.sessionCorrect}</span></div>
+    <div class="res-stat"><span>ตอบผิด</span><span class="v">${G.wrong}</span></div>
+    <div class="res-stat"><span>เหรียญ</span><span class="v">${G.coins}🪙</span></div>
+    <div class="res-stat"><span>Combo สูงสุด</span><span class="v">${G.maxCombo}×</span></div>
+    <div class="res-stat"><span>การ์ดที่ใช้</span><span class="v">${G.cardsUsed}</span></div>
+    ${win&&G.perfect?'<div class="res-stat"><span>⭐ Perfect!</span><span class="v">+Lore Card</span></div>':''}`;
+  document.getElementById('res-achs').innerHTML = newAchs.map(a=>`
+    <div class="res-ach"><span class="res-ach-icon">${a.icon}</span>
+    <div class="res-ach-info"><div class="res-ach-name">🏅 ${a.nm}</div><div class="res-ach-desc">${a.desc}</div></div></div>`).join('');
+  show('s-result');
+}
+
+function showLvUp(){
+  sfx('levelup');
+  document.getElementById('lvup-new-lv').textContent = P.heroLevel;
+  document.getElementById('lvup-sub').textContent = `ยินดีด้วย! ฮีโร่เลื่อนระดับเป็น LV.${P.heroLevel}`;
+  document.getElementById('lvup-overlay').style.display='flex';
+}
+
+function allocateStat(stat){
+  if(stat==='hp'){ P.statBonus.hp=(P.statBonus.hp||0)+20; }
+  else if(stat==='atk'){ P.statBonus.atk=(P.statBonus.atk||0)+8; }
+  else if(stat==='mp'){ P.statBonus.mp=(P.statBonus.mp||0)+15; }
+  saveProgress(P);
+  document.getElementById('lvup-overlay').style.display='none';
+  toast(`⭐ สถิติ${stat.toUpperCase()} เพิ่มขึ้น!`);
+}
+
+// ======================================================
+// SKILL & CARDS
+// ======================================================
+function giveCard(){
+  if(G.cardsHeld.length>=3) return;
+  const card = SKILL_CARDS[Math.floor(Math.random()*SKILL_CARDS.length)];
+  G.cardsHeld.push(card);
+  renderCards();
+  toast('🎴 การ์ดใหม่: '+card.icon+' '+card.nm.split('\n')[0]);
+}
+
+function renderCards(){
+  const row = document.getElementById('cards-row');
+  if(G.cardsHeld.length===0){ row.innerHTML=`<div class="cards-empty">ตอบถูก 3 ครั้งติดกัน → ได้การ์ดสกิล!</div>`; return; }
+  row.innerHTML='';
+  G.cardsHeld.forEach((c,i)=>{
+    const d=document.createElement('div');
+    d.className=`scard ${c.el}`; d.innerHTML=`<span class="scard-icon">${c.icon}</span><div class="scard-nm">${c.nm}</div>`;
+    d.onclick=()=>activateCard(i);
+    row.appendChild(d);
+  });
+}
+
+function activateCard(i){
+  if(G.locked){ toast('⚠️ ใช้ก่อนกดตอบ!'); return; }
+  const card = G.cardsHeld.splice(i,1)[0];
+  renderCards();
+  if(card.eff==='freeze'){ timerVal=Math.min(TIMER_MAX,timerVal+card.v); toast('❄️ +'+card.v+' วิ!'); }
+  else if(card.eff==='heal'){ G.hp=Math.min(G.maxHp,G.hp+card.v); updateBars(); toast('🌿 ฮีล HP +'+card.v); }
+  else if(card.eff==='shield'){ G.shieldActive=true; toast('🛡️ โล่ป้องกัน!'); }
+  else { G.pendingCard=card; toast(card.icon+' '+card.nm.split('\n')[0]+' พร้อม!'); }
+}
+
+function useSkill(){
+  const cls = CLASSES_CFG[P.heroClass];
+  if(!cls){ toast('⚠️ เลือกสายอาชีพก่อน!'); return; }
+  const cost = cls.cost||20;
+  if(G.mp<cost){ toast('⚠️ MP ไม่พอ! (ต้องการ '+cost+')'); return; }
+  G.mp-=cost;
+  if(P.heroClass==='healer'){
+    const btns = Array.from(document.querySelectorAll('#choices .cbtn')).filter(b=>!b.disabled);
+    // Remove one wrong answer (not the correct one)
+    const wrongBtns = btns.filter((_,i)=>i!==G.correctIdx);
+    if(wrongBtns.length>0){ wrongBtns[0].style.opacity='.15'; wrongBtns[0].disabled=true; toast('✨ ตัดตัวเลือกผิด!'); }
+    else toast('⚠️ ไม่มีตัวเลือกให้ตัดแล้ว');
+  } else if(P.heroClass==='mage'){
+    G.pendingCard={eff:'dmg',v:1.6}; toast('🔮 เวทพายุ! +60% DMG');
+  } else {
+    G.enemyAtk=Math.max(5,G.enemyAtk-10); toast('🛡️ ATK ศัตรู -10!');
+  }
+  updateBars();
+}
+
+// ======================================================
+// FEVER
+// ======================================================
+function activateFever(){
+  G.fever=true; G.feverTime=30; P.feverCount++;
+  document.getElementById('fever-bar').style.display='block';
+  document.getElementById('fever-lbl').style.display='block';
+  sfx('fever'); spawnFeverParticles();
+  toast('🔥🔥 FEVER MODE! ×1.5 DMG + ×2 เหรียญ 30 วิ!');
+  G.feverTimer=setInterval(()=>{
+    G.feverTime--;
+    const pct=(G.feverTime/30)*100;
+    document.querySelector('.fever-fill').style.width=pct+'%';
+    if(G.feverTime<=0){ G.fever=false; clearInterval(G.feverTimer);
+      document.getElementById('fever-bar').style.display='none';
+      document.getElementById('fever-lbl').style.display='none';
+      toast('🌙 Fever Mode หมด'); }
+  },1000);
+}
+
+// ======================================================
+// SHOP
+// ======================================================
+const SHOP_CFG = [
+  {id:"potion",nm:"💊 ยาฟื้นฟู",desc:"ฟื้นฟู HP +30",price:30,max:5},
+  {id:"mp",nm:"💧 คริสตัล MP",desc:"ฟื้นฟู MP +30",price:25,max:5},
+  {id:"weapon",nm:"⬆️ อัปเกรดอาวุธ",desc:"ATK +10 ถาวร (ครั้งนี้)",price:80,max:3},
+  {id:"glasses",nm:"🔍 แว่นปัญญา",desc:"ตัดตัวเลือกผิด 1 ข้อ",price:50,max:2},
+  {id:"card",nm:"🎴 สุ่มการ์ดสกิล",desc:"ได้การ์ดสกิลสุ่ม 1 ใบ",price:40,max:5},
+];
+
+function openShop(){
+  document.getElementById('shop-coins').textContent = G.coins||P.coins;
+  const c=document.getElementById('shop-items'); c.innerHTML='';
+  SHOP_CFG.forEach(item=>{
+    const owned=G.inventory?.[item.id]||0;
+    const coins=G.coins!==undefined?G.coins:P.coins;
+    const can=coins>=item.price&&owned<item.max;
+    const d=document.createElement('div');
+    d.className='sitem '+(can?'':'dis');
+    d.innerHTML=`<span class="si-icon">${item.nm.split(' ')[0]}</span><div class="si-info"><div class="si-name">${item.nm.split(' ').slice(1).join(' ')}</div><div class="si-desc">${item.desc}</div><div style="font-size:13px;color:var(--dim)">มี:${owned}/${item.max}</div></div><span class="si-price">${item.price}🪙</span>`;
+    if(can) d.onclick=()=>buyItem(item);
+    c.appendChild(d);
+  });
+  document.getElementById('shop-ov').classList.add('open');
+}
+
+function buyItem(item){
+  const coins = G.coins!==undefined?G.coins:P.coins;
+  if(coins<item.price) return;
+  if(G.coins!==undefined) G.coins-=item.price; else P.coins-=item.price;
+  if(G.inventory) G.inventory[item.id]=(G.inventory[item.id]||0)+1;
+  if(item.id==='potion'&&G.hp!==undefined){ G.hp=Math.min(G.maxHp,G.hp+30); toast('💊 HP +30!'); }
+  else if(item.id==='mp'&&G.mp!==undefined){ G.mp=Math.min(G.maxMp,G.mp+30); toast('💧 MP +30!'); }
+  else if(item.id==='weapon'&&G.atk!==undefined){ G.atk+=10; toast('⬆️ ATK +10!'); }
+  else if(item.id==='card'&&G.cardsHeld!==undefined){ giveCard(); }
+  else if(item.id==='glasses'&&G.locked!==undefined){
+    const btns=Array.from(document.querySelectorAll('#choices .cbtn')).filter(b=>!b.disabled);
+    const wrongBtns=btns.filter((_,i)=>i!==G.correctIdx);
+    if(wrongBtns.length>0){ wrongBtns[0].style.opacity='.15'; wrongBtns[0].disabled=true; toast('🔍 ตัดตัวเลือกผิด!'); }
+    else toast('⚠️ ไม่มีตัวเลือกให้ตัด');
+  }
+  updateBars(); openShop();
+}
+
+function closeShop(){ document.getElementById('shop-ov').classList.remove('open'); }
+
+// ======================================================
+// UI HELPERS
+// ======================================================
+function updateBars(){
+  if(!G.hp) return;
+  const p=(v,m)=>Math.max(0,(v/m)*100)+'%';
+  document.getElementById('hp-bar').style.width=p(G.hp,G.maxHp);
+  document.getElementById('mp-bar').style.width=p(G.mp,G.maxMp);
+  document.getElementById('ehp-bar').style.width=p(Math.max(0,G.enemyHp),G.enemyMaxHp);
+  document.getElementById('hp-t').textContent=G.hp+'/'+G.maxHp;
+  document.getElementById('mp-t').textContent=G.mp+'/'+G.maxMp;
+  document.getElementById('ehp-t').textContent=Math.max(0,G.enemyHp)+'/'+G.enemyMaxHp;
+  document.getElementById('coins-d').textContent=G.coins;
+}
+
+function animSp(id,cls){
+  const el=document.getElementById(id);
+  el.style.animation='none'; void el.offsetWidth;
+  const kf = cls==='atk'?'hAtk':cls==='hurt'?'hHurt':'';
+  if(id==='enemy-sp'){ el.style.animation=cls==='atk'?'none':'eHurt .5s ease'; return; }
+  el.style.animation=`${kf} .5s ease`;
+}
+
+function shakeField(){
+  const bf=document.getElementById('bf');
+  bf.classList.remove('shake'); void bf.offsetWidth; bf.classList.add('shake');
+  setTimeout(()=>bf.classList.remove('shake'),350);
+}
+
+function floatDmg(v,cls,weak=false){
+  const bf=document.getElementById('bf');
+  const el=document.createElement('div');
+  el.className=`dmg-txt ${cls}${weak?' wk':''}`;
+  el.textContent='-'+v+(weak?' 💥':'');
+  bf.appendChild(el);
+  setTimeout(()=>el.remove(),1200);
+}
+
+let toastT;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>el.classList.remove('show'),2400);
+}
+
+function exitBattle(){
+  stopTimer();
+  if(G.feverTimer) clearInterval(G.feverTimer);
+  stopBGM();
+  show('s-map');
+}
+
+// ======================================================
+// ACHIEVEMENTS
+// ======================================================
+function renderAchievements(){
+  const grid=document.getElementById('ach-grid'); grid.innerHTML='';
+  ACHIEVEMENTS.forEach(ach=>{
+    const unlocked=P.achievements.includes(ach.id);
+    const val={wins:P.totalWins,max_combo:P.maxCombo,total_correct:P.totalCorrect,
+      thai_correct:P.thaiCorrect,math_correct:P.mathCorrect,perfect_wins:P.perfectWins,
+      fever_count:P.feverCount,cards_used:P.cardsUsed,level:P.heroLevel,
+      zones_cleared:P.zonesCleared.size,bosses_killed:P.bossesKilled}[ach.type]||0;
+    const pct=Math.min(100,(val/ach.threshold)*100);
+    const d=document.createElement('div');
+    d.className='ach-card '+(unlocked?'unlocked':'locked');
+    d.innerHTML=`<span class="ach-icon">${ach.icon}</span><div class="ach-name">${ach.nm}</div><div class="ach-desc">${ach.desc}</div>${!unlocked?`<div class="ach-progress"><div class="ach-prog-fill" style="width:${pct}%"></div></div><div style="font-size:13px;color:var(--dim);margin-top:3px">${Math.min(val,ach.threshold)}/${ach.threshold}</div>`:''}`;
+    grid.appendChild(d);
+  });
+}
+
+// ======================================================
+// LIBRARY
+// ======================================================
+function renderLibrary(){
+  document.getElementById('lore-count').textContent=P.loreUnlocked.length;
+  const grid=document.getElementById('lore-grid'); grid.innerHTML='';
+  LORE_CARDS.forEach((lc,i)=>{
+    const unlocked=P.loreUnlocked.includes(i);
+    const d=document.createElement('div');
+    d.className='lore-card '+(unlocked?'':'locked');
+    d.innerHTML=`<span class="lore-icon">${lc.icon}</span><div class="lore-title">${unlocked?lc.title:'???'}</div><div class="lore-preview">${unlocked?lc.body.slice(0,60)+'...':'ปลดล็อคได้จากการชนะสมบูรณ์แบบ ★★★'}</div>${!unlocked?'<div class="lore-lock-badge">🔒</div>':''}`;
+    if(unlocked) d.onclick=()=>openLore(i);
+    grid.appendChild(d);
+  });
+}
+
+function openLore(i){
+  document.getElementById('lore-modal-title').textContent=LORE_CARDS[i].icon+' '+LORE_CARDS[i].title;
+  document.getElementById('lore-modal-body').textContent=LORE_CARDS[i].body;
+  document.getElementById('lore-modal').classList.add('open');
+}
+function closeLoreModal(){ document.getElementById('lore-modal').classList.remove('open'); }
+
+
+// ======================================================
+// WEB AUDIO ENGINE
+// ======================================================
+let audioCtx = null;
+let musicEnabled = false;
+let bgmNodes = {};
+let bgmInterval = null;
+
+function getAudioCtx(){
+  if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==='suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+function toggleMusic(){
+  musicEnabled = !musicEnabled;
+  const btn = document.getElementById('music-btn');
+  if(musicEnabled){
+    btn.textContent='🔊 ปิดเสียง'; btn.style.borderColor='var(--gold)'; btn.style.color='var(--gold)';
+    startBGM();
+  } else {
+    btn.textContent='🔇 เปิดเสียง'; btn.style.borderColor='var(--dim)'; btn.style.color='var(--dim)';
+    stopBGM();
+  }
+}
+
+// SFX Functions
+function sfx(type){
+  if(!musicEnabled) return;
+  try{
+    const ctx = getAudioCtx();
+    const master = ctx.createGain(); master.gain.value=0.35; master.connect(ctx.destination);
+    const t = ctx.currentTime;
+    switch(type){
+      case 'correct': {
+        // Rising arpeggio chord
+        [[523,0],[659,.08],[784,.16],[1047,.24]].forEach(([f,d])=>{
+          const o=ctx.createOscillator(), g=ctx.createGain();
+          o.type='sine'; o.frequency.value=f;
+          g.gain.setValueAtTime(0,t+d); g.gain.linearRampToValueAtTime(.4,t+d+.04);
+          g.gain.exponentialRampToValueAtTime(.001,t+d+.35);
+          o.connect(g); g.connect(master); o.start(t+d); o.stop(t+d+.4);
+        }); break;
+      }
+      case 'wrong': {
+        const o=ctx.createOscillator(), g=ctx.createGain();
+        o.type='sawtooth'; o.frequency.setValueAtTime(300,t); o.frequency.linearRampToValueAtTime(150,t+.3);
+        g.gain.setValueAtTime(.3,t); g.gain.exponentialRampToValueAtTime(.001,t+.35);
+        o.connect(g); g.connect(master); o.start(t); o.stop(t+.4); break;
+      }
+      case 'combo': {
+        const freqs=[784,1047,1319]; const n=Math.min(G.combo||1,3);
+        freqs.slice(0,n).forEach((f,i)=>{
+          const o=ctx.createOscillator(), g=ctx.createGain();
+          o.type='square'; o.frequency.value=f;
+          g.gain.setValueAtTime(0,t+i*.06); g.gain.linearRampToValueAtTime(.25,t+i*.06+.04);
+          g.gain.exponentialRampToValueAtTime(.001,t+i*.06+.25);
+          o.connect(g); g.connect(master); o.start(t+i*.06); o.stop(t+i*.06+.3);
+        }); break;
+      }
+      case 'weakness': {
+        [[880,0],[1109,.06],[1397,.12],[1760,.18]].forEach(([f,d])=>{
+          const o=ctx.createOscillator(), g=ctx.createGain();
+          o.type='triangle'; o.frequency.value=f;
+          g.gain.setValueAtTime(0,t+d); g.gain.linearRampToValueAtTime(.5,t+d+.03);
+          g.gain.exponentialRampToValueAtTime(.001,t+d+.3);
+          o.connect(g); g.connect(master); o.start(t+d); o.stop(t+d+.35);
+        }); break;
+      }
+      case 'hit': {
+        // Percussion hit
+        const buf=ctx.createBuffer(1,ctx.sampleRate*.15,ctx.sampleRate);
+        const d=buf.getChannelData(0);
+        for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,2);
+        const src=ctx.createBufferSource(), g=ctx.createGain();
+        src.buffer=buf; g.gain.value=.4;
+        src.connect(g); g.connect(master); src.start(t); break;
+      }
+      case 'levelup': case 'fanfare': {
+        const melody=[523,659,784,659,784,1047];
+        melody.forEach((f,i)=>{
+          const o=ctx.createOscillator(), g=ctx.createGain();
+          o.type='square'; o.frequency.value=f;
+          g.gain.setValueAtTime(0,t+i*.12); g.gain.linearRampToValueAtTime(.3,t+i*.12+.05);
+          g.gain.exponentialRampToValueAtTime(.001,t+i*.12+.35);
+          o.connect(g); g.connect(master); o.start(t+i*.12); o.stop(t+i*.12+.4);
+        }); break;
+      }
+      case 'timer_warn': {
+        const o=ctx.createOscillator(), g=ctx.createGain();
+        o.type='sine'; o.frequency.value=440;
+        g.gain.setValueAtTime(.2,t); g.gain.exponentialRampToValueAtTime(.001,t+.1);
+        o.connect(g); g.connect(master); o.start(t); o.stop(t+.15); break;
+      }
+      case 'fever': {
+        [523,659,784,1047,1319,1568].forEach((f,i)=>{
+          const o=ctx.createOscillator(), g=ctx.createGain();
+          o.type='sawtooth'; o.frequency.value=f;
+          g.gain.setValueAtTime(0,t+i*.05); g.gain.linearRampToValueAtTime(.2,t+i*.05+.04);
+          g.gain.exponentialRampToValueAtTime(.001,t+i*.05+.2);
+          o.connect(g); g.connect(master); o.start(t+i*.05); o.stop(t+i*.05+.25);
+        }); break;
+      }
+    }
+  } catch(e){}
+}
+
+// ======================================================
+// ADAPTIVE BGM
+// ======================================================
+// Simple generative chiptune — 4-bar loop, adapts to HP
+const SCALES = {
+  normal:  [261,294,330,349,392,440,494,523], // C major
+  danger:  [261,277,311,349,369,415,466,523], // C minor
+  fever:   [261,329,392,523,659,784],          // C pentatonic major
+};
+let bgmStep=0, bgmTempo=320, bgmRunning=false;
+
+function startBGM(){
+  if(bgmRunning) return;
+  bgmRunning=true;
+  bgmLoop();
+}
+
+function stopBGM(){
+  bgmRunning=false;
+  if(bgmInterval){ clearTimeout(bgmInterval); bgmInterval=null; }
+}
+
+function bgmLoop(){
+  if(!bgmRunning||!musicEnabled) return;
+  let tempo = bgmTempo;
+  try{
+    const ctx=getAudioCtx();
+    // Adapt tempo + scale to HP
+    let scale = SCALES.normal;
+    if(G&&G.hp!==undefined){
+      const hpPct = G.hp/G.maxHp;
+      if(G.fever){ scale=SCALES.fever; tempo=180; }
+      else if(hpPct<.25){ scale=SCALES.danger; tempo=240; }
+      else if(hpPct<.5){ scale=SCALES.danger; tempo=280; }
+      else tempo=340;
+    }
+    // Bass pattern: root + fifth
+    const bassNotes=[scale[0]/2, scale[4]/2, scale[0]/2, scale[2]/2];
+    const bassFreq = bassNotes[bgmStep%4];
+    // Melody: semi-random from scale
+    const seedNote = scale[Math.floor((bgmStep*7+13)%scale.length)];
+    // Play bass
+    const master=ctx.createGain(); master.gain.value=0.12; master.connect(ctx.destination);
+    const t=ctx.currentTime;
+    const oB=ctx.createOscillator(), gB=ctx.createGain();
+    oB.type='square'; oB.frequency.value=bassFreq;
+    gB.gain.setValueAtTime(.4,t); gB.gain.exponentialRampToValueAtTime(.001,t+tempo/1000*.8);
+    oB.connect(gB); gB.connect(master); oB.start(t); oB.stop(t+tempo/1000);
+    // Play melody every other step
+    if(bgmStep%2===0){
+      const oM=ctx.createOscillator(), gM=ctx.createGain();
+      oM.type='triangle'; oM.frequency.value=seedNote;
+      gM.gain.setValueAtTime(.25,t); gM.gain.exponentialRampToValueAtTime(.001,t+tempo/1000*.6);
+      oM.connect(gM); gM.connect(master); oM.start(t); oM.stop(t+tempo/1000);
+    }
+    bgmStep++;
+  } catch(e){}
+  bgmInterval = setTimeout(bgmLoop, tempo||bgmTempo);
+}
+
+// ======================================================
+// CANVAS PARTICLE SYSTEM
+// ======================================================
+let pCanvas=null, pCtx=null, particles=[], pAnimId=null;
+
+function initParticleCanvas(){
+  pCanvas = document.getElementById('particle-canvas');
+  if(!pCanvas) return;
+  pCtx = pCanvas.getContext('2d');
+  const bf = document.getElementById('bf');
+  pCanvas.width = bf.offsetWidth||340;
+  pCanvas.height = bf.offsetHeight||165;
+  if(!pAnimId) pAnimate();
+}
+
+window.addEventListener('resize',()=>{
+  if(pCanvas){ const bf=document.getElementById('bf'); if(bf){ pCanvas.width=bf.offsetWidth||340; pCanvas.height=bf.offsetHeight||165; } }
+});
+
+function pAnimate(){
+  if(!pCtx){ pAnimId=null; return; }
+  pCtx.clearRect(0,0,pCanvas.width,pCanvas.height);
+  particles = particles.filter(p=>{
+    p.x+=p.vx; p.y+=p.vy; p.vy+=p.gravity;
+    p.life-=p.decay; p.r=Math.max(0,p.r-p.shrink);
+    if(p.life<=0||p.r<=0) return false;
+    pCtx.save();
+    pCtx.globalAlpha=Math.min(1,p.life);
+    if(p.type==='star'){
+      pCtx.font=`${p.r*2}px serif`;
+      pCtx.fillText(p.emoji||'⭐',p.x-p.r,p.y+p.r);
+    } else {
+      pCtx.beginPath();
+      pCtx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      pCtx.fillStyle=p.color;
+      pCtx.fill();
+    }
+    pCtx.restore();
+    return true;
+  });
+  pAnimId = requestAnimationFrame(pAnimate);
+}
+
+function spawnParticleBurst(originEl, isCelebration=false){
+  if(!pCanvas) initParticleCanvas();
+  if(!pCtx) return;
+  const count = isCelebration?60:24;
+  const cx = isCelebration?pCanvas.width/2:(pCanvas.width*.65);
+  const cy = isCelebration?pCanvas.height/2:(pCanvas.height*.35);
+  const colors = isCelebration
+    ? ['#f5c842','#ff9a3c','#57cc99','#4cc9f0','#c084fc','#ff6b6b']
+    : ['#f5c842','#ffcc00','#ffffff','#ffa500'];
+  for(let i=0;i<count;i++){
+    const angle = (Math.PI*2/count)*i + (Math.random()-.5)*.5;
+    const speed = isCelebration? 2+Math.random()*5 : 1.5+Math.random()*3.5;
+    particles.push({
+      x:cx, y:cy,
+      vx:Math.cos(angle)*speed, vy:Math.sin(angle)*speed-2,
+      gravity:0.12, color:colors[i%colors.length],
+      r:isCelebration?4+Math.random()*5:3+Math.random()*4,
+      life:1, decay:isCelebration?.012:.018, shrink:.04,
+      type:'circle',
+    });
+  }
+  if(isCelebration){
+    ['⭐','🌟','✨','💫','🎉','🏆'].forEach((em,i)=>{
+      setTimeout(()=>{
+        particles.push({x:Math.random()*pCanvas.width,y:pCanvas.height*.8,vx:(Math.random()-.5)*3,vy:-3-Math.random()*4,gravity:.08,r:14,life:1,decay:.008,shrink:.15,type:'star',emoji:em});
+      },i*120);
+    });
+  }
+}
+
+function spawnHitParticles(side='enemy'){
+  if(!pCanvas) initParticleCanvas();
+  if(!pCtx) return;
+  const cx = side==='enemy'?pCanvas.width*.72:pCanvas.width*.18;
+  const cy = pCanvas.height*.4;
+  const colors = side==='enemy'?['#ff6b35','#ff9a3c','#ffcc00']:['#ff6b6b','#e63946','#ff4444'];
+  for(let i=0;i<16;i++){
+    const angle = Math.random()*Math.PI*2;
+    const speed = .8+Math.random()*2.5;
+    particles.push({
+      x:cx+(Math.random()-0.5)*20, y:cy+(Math.random()-0.5)*20,
+      vx:Math.cos(angle)*speed, vy:Math.sin(angle)*speed,
+      gravity:0.08, color:colors[i%colors.length],
+      r:2+Math.random()*4, life:1, decay:.035, shrink:.06, type:'circle',
+    });
+  }
+}
+
+function spawnWrongParticles(){
+  if(!pCanvas) initParticleCanvas();
+  if(!pCtx) return;
+  const cx = pCanvas.width*.22, cy = pCanvas.height*.45;
+  for(let i=0;i<12;i++){
+    particles.push({
+      x:cx, y:cy, vx:(Math.random()-.5)*2, vy:-Math.random()*2,
+      gravity:.06, color:'#555577',
+      r:2+Math.random()*3, life:1, decay:.03, shrink:.05, type:'circle',
+    });
+  }
+}
+
+function spawnWeaknessParticles(){
+  if(!pCanvas) initParticleCanvas();
+  if(!pCtx) return;
+  const cx=pCanvas.width*.65, cy=pCanvas.height*.3;
+  ['🔥','💥','⚡'].forEach((em,i)=>{
+    setTimeout(()=>particles.push({
+      x:cx+(i-1)*30,y:cy,vx:(Math.random()-.5)*2,vy:-2-Math.random(),
+      gravity:.05,r:16,life:1,decay:.015,shrink:.2,type:'star',emoji:em
+    }),i*80);
+  });
+}
+
+function spawnFeverParticles(){
+  if(!pCanvas) initParticleCanvas();
+  if(!pCtx) return;
+  for(let i=0;i<30;i++){
+    setTimeout(()=>{
+      const em=['🔥','⭐','✨'][i%3];
+      particles.push({
+        x:Math.random()*pCanvas.width,y:pCanvas.height+10,
+        vx:(Math.random()-.5)*3,vy:-2-Math.random()*4,
+        gravity:-.02,r:14,life:1,decay:.01,shrink:.1,type:'star',emoji:em
+      });
+    },i*40);
+  }
+}
+
+
+// ======================================================
+// ANIMATIONS CSS injection for sprites
+// ======================================================
+const styleEl = document.createElement('style');
+styleEl.textContent=`
+@keyframes hAtk{0%{transform:translateX(0)}30%{transform:translateX(32px) scale(1.15)}100%{transform:translateX(0)}}
+@keyframes hHurt{0%,100%{transform:translateX(0)}50%{transform:translateX(-10px);filter:drop-shadow(0 0 12px rgba(230,57,70,.9))}}
+@keyframes eHurt{0%,100%{transform:scaleX(-1) translateX(0)}35%{transform:scaleX(-1) translateX(14px);filter:drop-shadow(0 0 16px rgba(255,100,0,.9))}}
+.hero-sp[style*="hAtk"]{animation:hAtk .5s ease}`;
+document.head.appendChild(styleEl);
+
+// Override animSp to use proper css
+function animSp(id,cls){
+  const el=document.getElementById(id);
+  if(!el) return;
+  const isEnemy=id==='enemy-sp';
+  const kfs={atk:'hAtk',hurt:isEnemy?'eHurt':'hHurt'};
+  el.style.animation='none';
+  void el.offsetWidth;
+  el.style.animation=`${kfs[cls]} .5s ease`;
+  setTimeout(()=>{ if(el) el.style.animation=''; },600);
+}
+
+// ======================================================
+// INIT
+// ======================================================
+window.addEventListener('DOMContentLoaded',()=>{
+  P = getProgress();
+  renderTitleHUD();
+  // Unlock lore if any nodes 3-starred
+  Object.keys(P.nodeStars).forEach(i=>{
+    if(P.nodeStars[i]===3){
+      const loreIdx=BOSSES[parseInt(i)].lore;
+      if(!P.loreUnlocked.includes(loreIdx)) P.loreUnlocked.push(loreIdx);
+    }
+  });
+});
+</script>
+</body>
+</html>
