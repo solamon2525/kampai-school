@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.65.1 (จัดแถวรูปนักเรียนในการ์ดเกมให้อยู่แนวเดียวกัน)',
+        version: 'v1.65.2 (อัปเกรดเกม AR "อัจฉริยะสองภาษา" — เวอร์ชันปรับปรุง)',
         date: 'ล่าสุด',
+        badge: 'bg-cyan-700',
+        items: [
+            'นำเข้าเวอร์ชันปรับปรุงของเกม AI Hand Gesture (ai-hand-gesture-game) ที่ /games/thai/ai-hand-gesture-game.html — เกมโบกมือ MediaPipe Hands สองภาษา: ไทย (มาตรา/ไวยากรณ์/ประโยค/คำพ้อง/คำควบกล้ำ) + อังกฤษ (classic/translation/spelling) · ทูทอเรียลแบบโต้ตอบ · พจนานุกรมในเกม · โหมดเมาส์/สัมผัส fallback',
+            'เข้าวัฒนธรรม kampai (port ไฟล์เดียว, slug เดิม): ถอด bg เป็นไฟล์ PNG แยก (828KB→113KB), KAMPAI SDK + submitScore ตอนหมดเวลา + ป้ายผู้เล่น + ปุ่มออกเกมบนจอ title/game-over',
+            'guard MediaPipe: ถ้า CDN โหลดไม่ได้ (เครื่องโรงเรียน/offline) → shim no-op เกมเล่นโหมดเมาส์ได้ ไม่ crash · ใช้ slug เดิมเก็บ leaderboard history (migration 139 apply remote แล้ว) · verify:game 8/8',
+        ],
+    },
+    {
+        version: 'v1.65.1 (จัดแถวรูปนักเรียนในการ์ดเกมให้อยู่แนวเดียวกัน)',
+        date: '',
         badge: 'bg-slate-600',
         items: [
             'EduHubItemCard (grid/spotlight): แก้ mini-leaderboard (รูปนักเรียน Top 5) ที่อยู่คนละระดับเพราะแท็ก 1 vs 2 บรรทัดดันตำแหน่ง → การ์ดเป็น flex-col h-full + pin แถวรูปไปล่างสุด (mt-auto) → ทุกการ์ดในแถวรูปอยู่แนวเดียวกัน ช่องว่างไปอยู่โซนแท็กด้านบนแทน',

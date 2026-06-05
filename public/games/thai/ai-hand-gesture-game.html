@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>AI Hand Gesture Game: อัจฉริยะสองภาษา</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;800&family=Mali:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body { font-family: 'Kanit', sans-serif; margin: 0; overflow: hidden; background-color: #0f172a; touch-action: none; user-select: none; }
+        .font-mali { font-family: 'Mali', cursive; }
+        canvas { width: 100vw; height: 100vh; object-fit: cover; position: absolute; top: 0; left: 0; z-index: 1; }
+        .ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; }
+        .interactive { pointer-events: auto; }
+        .text-outline { text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; }
+        .glass-panel { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px); border: 2px solid rgba(255, 255, 255, 0.2); }
+        ::-webkit-scrollbar { height: 12px; width: 12px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: rgba(34, 211, 238, 0.6); border-radius: 10px; border: 2px solid #0f172a; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(34, 211, 238, 0.9); }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
+        .title-stroke { -webkit-text-stroke: 3px #ffffff; text-shadow: 0px 8px 15px rgba(0,0,0,0.3); }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* ===== NEW: Tutorial Interactive Styles ===== */
+        @keyframes tutRingGrow { from { stroke-dashoffset: 263.9; } }
+        @keyframes successPop { 0%,100%{transform:translate(-50%,-50%) scale(1)} 40%{transform:translate(-50%,-50%) scale(1.3)} }
+        @keyframes stepFadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes correctFlash { 0%,100%{border-color:rgba(255,255,255,0.15)} 50%{border-color:#4ade80; box-shadow:0 0 40px rgba(74,222,128,0.4)} }
+
+        .tut-step-enter { animation: stepFadeIn 0.4s ease-out forwards; }
+        .tut-success-border { animation: correctFlash 0.6s ease-in-out 2; }
+        #tutRing { transition: stroke-dashoffset 0.06s linear, stroke 0.25s ease; }
+        #tutCard { transition: border-color 0.3s ease, box-shadow 0.3s ease; }
+
+        /* ===== NEW: Gesture HUD badge ===== */
+        .gesture-hud { position: fixed; bottom: 80px; left: 16px; z-index: 20; pointer-events: none; }
+
+        /* ===== NEW: Performance loading overlay ===== */
+        #modelLoadBar { transition: width 0.4s ease; }
+    </style>
+</head>
+<body>
+
+    <video id="videoElement" style="display: none;" autoplay playsinline muted></video>
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Hand cursor for UI -->
+    <div id="uiCursor" class="fixed z-[100] pointer-events-none hidden" style="left: 0; top: 0; transform: translate(-50%, -50%);">
+        <div id="uiCursorIcon" class="text-5xl" style="filter: drop-shadow(0px 0px 8px rgba(34,211,238,0.8));">👆</div>
+    </div>
+
+    <!-- BGM Button -->
+    <button onclick="toggleBGM()" id="globalBgmBtn" class="fixed top-4 right-4 z-[200] bg-slate-800/80 hover:bg-slate-700 text-white p-3 md:p-4 rounded-full shadow-lg border-2 border-white/20 interactive transition-transform hover:scale-110">
+        <span id="bgmBtnIcon" class="text-2xl md:text-3xl">🔇</span>
+    </button>
+
+    <!-- 1. Title Screen — uses generated game cover as background -->
+    <div id="titleScreen" class="absolute inset-0 z-[60] interactive overflow-hidden" style="background:#060918;">
+
+        <!-- Cover image fills entire screen -->
+        <img src="ai-hand-gesture-game-bg.png"
+             alt="อัจฉริยะสองภาษา cover"
+             class="absolute inset-0 w-full h-full object-cover select-none"
+             draggable="false"
+             style="object-position: center center;">
+
+        <!-- Very subtle dark scrim so buttons stay readable -->
+        <div class="absolute inset-0" style="background:linear-gradient(to top, rgba(6,9,24,0.72) 0%, rgba(6,9,24,0.10) 50%, rgba(6,9,24,0.20) 100%);"></div>
+
+        <!-- KAMPAI: ป้ายผู้เล่น + ปุ่มกลับคลัง (วัฒนธรรม) -->
+        <div class="absolute top-3 left-3 right-3 z-20 flex items-center justify-between pointer-events-none">
+            <div id="kampai-player" style="display:none" class="pointer-events-auto items-center gap-2 bg-black/45 backdrop-blur rounded-full pl-1.5 pr-3 py-1 text-white text-sm font-medium"></div>
+            <button onclick="KAMPAI.goHome()" class="pointer-events-auto bg-black/45 backdrop-blur rounded-full px-3 py-1.5 text-white/90 text-sm hover:bg-black/65 transition" style="font-family:'Kanit',sans-serif">🏠 ออกเกม</button>
+        </div>
+
+        <!-- Centered interactive layer -->
+        <div class="absolute inset-0 flex flex-col items-center justify-end pb-16 md:pb-20 px-4">
+
+            <!-- Play button — floats over the cover art's lower area -->
+            <button onclick="startFromTitle()"
+                    class="group relative px-14 py-5 rounded-full text-white font-black text-4xl border-4 border-white/80
+                           transform transition-all hover:scale-110 active:scale-95
+                           shadow-[0_0_60px_rgba(34,211,238,0.45),0_10px_0_rgba(20,184,166,0.6)]
+                           hover:shadow-[0_0_90px_rgba(34,211,238,0.65),0_12px_0_rgba(20,184,166,0.7)]"
+                    style="background: linear-gradient(135deg, #14b8a6 0%, #22d3ee 50%, #8b5cf6 100%);
+                           font-family: 'Kanit', sans-serif;">
+                ▶ เริ่มเล่นเลย!
+            </button>
+
+            <p class="mt-4 text-white/45 text-sm md:text-base tracking-widest font-medium"
+               style="font-family:'Kanit',sans-serif; letter-spacing:0.12em;">
+                🖱️ เมาส์/สัมผัส &nbsp;·&nbsp; 📷 กล้อง AI ถ้าอนุญาต
+            </p>
+        </div>
+    </div>
+
+    <!-- 2. Main Menu -->
+    <div id="categoryMenu" class="absolute inset-0 hidden bg-slate-900/95 z-[55] interactive flex-col py-8 overflow-y-auto overflow-x-hidden">
+        <div class="px-4 md:px-8 mb-6 flex justify-between items-center w-full max-w-7xl mx-auto shrink-0">
+            <button onclick="goToTitle()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-2 px-6 rounded-full shadow-lg border-2 border-slate-600 transition-colors flex items-center gap-2 text-lg md:text-xl z-10">🏠 กลับหน้าแรก</button>
+            <p class="text-sm md:text-xl text-slate-300 bg-slate-800/80 py-2 px-6 rounded-full hidden sm:block">✊ <b>กำมือ</b> เพื่อคลิก / 🖐️ <b>แบมือ</b> แล้วปัดเพื่อเลื่อน</p>
+        </div>
+        <div class="w-full max-w-7xl mx-auto px-4 md:px-8 flex flex-col gap-10 pb-20">
+            <div>
+                <h2 class="text-3xl md:text-4xl font-black text-cyan-400 text-outline mb-6 border-b-4 border-cyan-400/30 pb-2 flex items-center gap-3">🇹🇭 โหมดเกมภาษาไทย</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                    <button onclick="startGame('matra')" class="bg-gradient-to-b from-blue-500 to-indigo-700 h-[250px] md:h-[300px] rounded-3xl shadow-xl border-4 border-white/20 flex flex-col items-center justify-center p-4 group transition-transform hover:-translate-y-2">
+                        <div class="text-6xl md:text-7xl mb-4 group-hover:animate-bounce">🧺</div>
+                        <h2 class="text-2xl md:text-3xl font-black text-white text-outline mb-2">แยกมาตรา</h2>
+                        <p class="text-white/90 text-sm md:text-base font-medium text-center">จับคำศัพท์ใส่ตะกร้าให้ถูกต้อง</p>
+                    </button>
+                    <button onclick="startGame('grammar')" class="bg-gradient-to-b from-emerald-500 to-teal-700 h-[250px] md:h-[300px] rounded-3xl shadow-xl border-4 border-white/20 flex flex-col items-center justify-center p-4 group transition-transform hover:-translate-y-2">
+                        <div class="text-6xl md:text-7xl mb-4 group-hover:animate-bounce">📝</div>
+                        <h2 class="text-2xl md:text-3xl font-black text-white text-outline mb-2">เติมประโยค</h2>
+                        <p class="text-white/90 text-sm md:text-base font-medium text-center">หาชนิดของคำเติมในช่องว่าง</p>
+                    </button>
+                    <button onclick="startGame('sentence')" class="bg-gradient-to-b from-amber-500 to-orange-700 h-[250px] md:h-[300px] rounded-3xl shadow-xl border-4 border-white/20 flex flex-col items-center justify-center p-4 group transition-transform hover:-translate-y-2">
+                        <div class="text-6xl md:text-7xl mb-4 group-hover:animate-bounce">🧩</div>
+                        <h2 class="text-2xl md:text-3xl font-black text-white text-outline mb-2">เรียงประโยค</h2>
+                        <p class="text-white/90 text-sm md:text-base font-medium text-center">ลากคำมาเรียงเป็นประโยค</p>
+                    </button>
+                    <button onclick="startGame('synonym')" class="bg-gradient-to-b from-rose-500 to-red-700 h-[250px] md:h-[300px] rounded-3xl shadow-xl border-4 border-white/20 flex flex-col items-center justify-center p-4 group transition-transform hover:-translate-y-2">
+                        <div class="text-6xl md:text-7xl mb-4 group-hover:animate-bounce">🔄</div>
+                        <h2 class="text-2xl md:text-3xl font-black text-white text-outline mb-2">พ้อง/ตรงข้าม</h2>
+                        <p class="text-white/90 text-sm md:text-base font-medium text-center">จับคู่คำพ้องและตรงข้าม</p>
+                    </button>
+                    <button onclick="startGame('cluster')" class="bg-gradient-to-b from-purple-500 to-fuchsia-700 h-[250px] md:h-[300px] rounded-3xl shadow-xl border-4 border-white/20 flex flex-col items-center justify-center p-4 group transition-transform hover:-translate-y-2">
+                        <div class="text-6xl md:text-7xl mb-4 group-hover:animate-bounce">🔠</div>
+                        <h2 class="text-2xl md:text-3xl font-black text-white text-outline mb-2">อักษรนำ</h2>
+                        <p class="text-white/90 text-sm md:text-base font-medium text-center">แยกคำควบกล้ำ/อักษรนำ</p>
+                    </button>
+                </div>
+            </div>
+            <div>
+                <h2 class="text-3xl md:text-4xl font-black text-emerald-400 text-outline mb-6 border-b-4 border-emerald-400/30 pb-2 flex items-center gap-3">🇬🇧 เรียนรู้คำศัพท์ (Vocabulary)</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" id="engCategoryButtons"></div>
+            </div>
+            <div>
+                <h2 class="text-3xl md:text-4xl font-black text-purple-400 text-outline mb-6 border-b-4 border-purple-400/30 pb-2 flex items-center gap-3">🛠️ เครื่องมือและคลังความรู้</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button onclick="showDictionary()" class="bg-gradient-to-b from-cyan-500 to-blue-700 h-[150px] rounded-3xl shadow-xl border-4 border-white/20 flex items-center justify-center p-4 group transition-transform hover:-translate-y-2 gap-6">
+                        <div class="text-6xl group-hover:animate-bounce">📖</div>
+                        <div class="text-left"><h2 class="text-3xl font-black text-white text-outline mb-1">คลังคำศัพท์</h2><p class="text-white/90 font-medium">ดูคำศัพท์และประโยคทั้งหมด</p></div>
+                    </button>
+                    <button onclick="showTutorial()" class="bg-gradient-to-b from-slate-600 to-slate-800 h-[150px] rounded-3xl shadow-xl border-4 border-white/20 flex items-center justify-center p-4 group transition-transform hover:-translate-y-2 gap-6">
+                        <div class="text-6xl group-hover:animate-bounce">🖐️</div>
+                        <div class="text-left"><h2 class="text-3xl font-black text-white text-outline mb-1">ฝึกท่าทาง</h2><p class="text-white/90 font-medium">ฝึกท่ามือ จีบ · กำ · แบ แบบ Interactive</p></div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. English Study Screen -->
+    <div id="engStudyScreen" class="absolute inset-0 hidden items-center justify-start bg-slate-900/95 z-[55] interactive flex-col py-8 overflow-hidden relative">
+        <div class="text-center mb-6 shrink-0 w-full relative px-8">
+            <button onclick="showMenu()" class="absolute left-8 top-0 bg-slate-800 text-white font-bold py-3 px-6 rounded-full shadow-lg border-2 border-slate-600 text-xl flex items-center gap-2 hover:bg-slate-700 z-10">⬅️ กลับเมนูหลัก</button>
+            <h1 class="text-5xl font-black text-emerald-400 text-outline mb-2" id="engStudyTitle">Study Room</h1>
+            <p class="text-lg text-slate-300">✊ กำมือที่รูปเพื่อฟังเสียง</p>
+        </div>
+        <div class="w-full max-w-7xl px-8 overflow-y-auto pb-32" id="engStudyScroll">
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4" id="engStudyGrid"></div>
+        </div>
+        <div class="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-slate-950 via-slate-900 to-transparent flex justify-center">
+            <button onclick="showEngModeMenu()" class="bg-gradient-to-r from-emerald-400 to-teal-600 hover:from-emerald-300 hover:to-teal-500 text-white font-black text-3xl py-4 px-16 rounded-full shadow-[0_0_30px_rgba(52,211,153,0.4)] transform hover:scale-105 transition-all border-4 border-white/30 animate-bounce">
+                🎮 เล่นเกมหมวดนี้!
+            </button>
+        </div>
+    </div>
+
+    <!-- 4. English Mode Menu -->
+    <div id="engModeMenu" class="absolute inset-0 hidden items-center justify-center bg-slate-900/95 z-[60] interactive flex-col py-10 relative">
+        <button onclick="showEngStudyScreen()" class="absolute top-8 left-8 bg-slate-800 text-white font-bold py-3 px-6 rounded-full shadow-lg border-2 border-slate-600 text-xl flex items-center gap-2 hover:bg-slate-700 z-50">⬅️ กลับไปดูศัพท์</button>
+        <button onclick="showMenu()" class="absolute top-8 left-48 bg-slate-800 text-white font-bold py-3 px-6 rounded-full shadow-lg border-2 border-slate-600 text-xl flex items-center gap-2 hover:bg-slate-700 z-50">🏠 เมนูหลัก</button>
+        <div class="text-center mb-10 shrink-0 relative w-full px-4">
+            <h1 class="text-6xl font-black text-emerald-400 text-outline mb-4 mt-8">Choose Game Mode</h1>
+            <p class="text-2xl text-slate-300">เลือกโหมดการเล่นภาษาอังกฤษ</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl px-8">
+            <button onclick="startGame('classic')" class="bg-gradient-to-b from-indigo-500 to-blue-700 h-[350px] rounded-[3rem] shadow-xl border-4 border-white/20 flex flex-col items-center justify-center group transition-transform hover:-translate-y-4">
+                <div class="text-8xl mb-4 group-hover:animate-bounce">🖼️</div><h2 class="text-3xl font-black text-white text-outline mb-2">จับคู่รูปภาพ</h2><p class="text-white/80 font-medium">ลากศัพท์ไปใส่รูปภาพ</p>
+            </button>
+            <button onclick="startGame('translation')" class="bg-gradient-to-b from-emerald-500 to-teal-700 h-[350px] rounded-[3rem] shadow-xl border-4 border-white/20 flex flex-col items-center justify-center group transition-transform hover:-translate-y-4">
+                <div class="text-8xl mb-4 group-hover:animate-bounce">🇹🇭</div><h2 class="text-3xl font-black text-white text-outline mb-2">แปลภาษา</h2><p class="text-white/80 font-medium">ลากศัพท์ไปใส่คำแปลไทย</p>
+            </button>
+            <button onclick="startGame('spelling')" class="bg-gradient-to-b from-rose-500 to-pink-700 h-[350px] rounded-[3rem] shadow-xl border-4 border-white/20 flex flex-col items-center justify-center group transition-transform hover:-translate-y-4">
+                <div class="text-8xl mb-4 group-hover:animate-bounce">🔤</div><h2 class="text-3xl font-black text-white text-outline mb-2">ฝึกสะกดคำ</h2><p class="text-white/80 font-medium">ลากตัวอักษรเรียงให้ถูกต้อง</p>
+            </button>
+        </div>
+    </div>
+
+    <!-- 5. Dictionary Screen -->
+    <div id="dictionaryScreen" class="absolute inset-0 hidden items-center justify-start bg-slate-900/95 z-[55] interactive flex-col py-10 px-4 md:px-10 overflow-hidden">
+        <button onclick="showMenu()" class="absolute top-8 left-8 bg-slate-800 text-white font-bold py-3 px-6 rounded-full shadow-lg border-2 border-slate-600 text-xl flex items-center gap-2 hover:bg-slate-700 z-10">⬅️ กลับเมนูหลัก</button>
+        <h1 class="text-5xl font-black text-cyan-400 text-outline mb-6 mt-4">คลังคำศัพท์สองภาษา</h1>
+        <div class="flex overflow-x-auto hide-scroll gap-4 mb-6 z-10 interactive w-full max-w-6xl px-4 py-2 justify-start md:justify-center" id="dictTabsContainer"></div>
+        <div id="dictContent" class="w-full max-w-6xl overflow-y-auto bg-slate-800/50 rounded-3xl p-6 border-2 border-slate-600 pb-20 pointer-events-auto interactive"></div>
+    </div>
+
+    <!-- =================== NEW: Interactive Tutorial Screen =================== -->
+    <div id="tutInteractive" class="absolute inset-0 hidden z-[65]" style="background: rgba(5, 10, 25, 0.88);">
+        <div class="absolute inset-0 flex flex-col items-center justify-center px-4 py-8">
+
+            <!-- Top row: Title + Skip -->
+            <div class="flex items-center justify-between w-full max-w-md mb-6 shrink-0">
+                <h2 class="text-2xl font-black text-white">🖐️ ฝึกท่าทางมือ</h2>
+                <button onclick="skipTutInteractive()" class="interactive bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white px-5 py-2 rounded-full text-base font-semibold border border-slate-700 transition-all">
+                    ข้าม ↗
+                </button>
+            </div>
+
+            <!-- Step dots -->
+            <div class="flex gap-3 mb-8 shrink-0" id="tutDots"></div>
+
+            <!-- Main card -->
+            <div id="tutCard" class="glass-panel rounded-3xl p-8 max-w-sm w-full text-center mb-6 shadow-2xl" style="border-color:rgba(255,255,255,0.15); box-shadow: 0 0 0 rgba(74,222,128,0);">
+
+                <!-- Circular progress ring -->
+                <div class="relative w-40 h-40 mx-auto mb-6">
+                    <svg class="w-full h-full" style="transform: rotate(-90deg);" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="7"/>
+                        <circle id="tutRing" cx="50" cy="50" r="42" fill="none" stroke="#4ade80" stroke-width="7"
+                                stroke-dasharray="263.9" stroke-dashoffset="263.9" stroke-linecap="round"/>
+                    </svg>
+                    <!-- Gesture emoji -->
+                    <div id="tutEmoji" class="absolute inset-0 flex items-center justify-center text-7xl select-none" style="transform: none;"></div>
+                </div>
+
+                <h2 id="tutStepName" class="text-4xl font-black text-white mb-2 tut-step-enter"></h2>
+                <p id="tutStepDesc" class="text-lg text-slate-300 mb-1"></p>
+                <p id="tutStepUse" class="text-sm text-slate-400 bg-slate-800/60 rounded-full px-4 py-1 inline-block mt-2"></p>
+            </div>
+
+            <!-- Status text -->
+            <p id="tutStatus" class="text-xl text-slate-300 font-semibold text-center mb-4 min-h-[2rem]"></p>
+
+            <!-- Hint: camera label -->
+            <p class="text-sm text-slate-500 text-center">กล้องแสดงอยู่ด้านหลัง · มือคุณปรากฏบนหน้าจอ</p>
+        </div>
+    </div>
+
+    <!-- 6. Game UI (during play) -->
+    <div id="gameUI" class="ui-layer hidden flex justify-between items-start px-4 md:px-8 pt-4 md:pt-8 w-full">
+        <div class="flex gap-4">
+            <button onclick="exitGameToMenu()" class="glass-panel px-4 py-2 rounded-2xl shadow-lg hover:bg-red-500/80 interactive text-xl md:text-2xl font-bold text-white border-2 border-white/20 transition-all hover:scale-105">
+                🚪 ออกจากเกม
+            </button>
+            <div class="glass-panel px-6 py-2 rounded-2xl shadow-lg flex flex-col items-center">
+                <span class="text-slate-300 text-xs md:text-sm font-bold">SCORE</span>
+                <span id="scoreDisplay" class="text-yellow-400 text-2xl md:text-4xl font-black text-outline">0</span>
+            </div>
+        </div>
+        <div class="glass-panel px-6 py-2 rounded-2xl shadow-lg flex flex-col items-center">
+            <span class="text-slate-300 text-xs md:text-sm font-bold">TIME</span>
+            <span id="timeDisplay" class="text-green-400 text-2xl md:text-4xl font-black text-outline">60</span>
+        </div>
+    </div>
+
+    <!-- Loading Screen (improved with progress bar) -->
+    <div id="loadingMsg" class="absolute inset-0 hidden items-center justify-center bg-slate-900/98 text-white z-[70] flex-col gap-6 interactive">
+        <div class="w-24 h-24 border-4 border-cyan-400 rounded-full border-t-transparent animate-spin"></div>
+        <p class="text-cyan-400 text-2xl font-bold mt-2">กำลังโหลด AI และกล้อง...</p>
+        <!-- Progress bar -->
+        <div class="w-72 h-3 bg-slate-700 rounded-full overflow-hidden">
+            <div id="modelLoadBar" class="h-full bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full" style="width: 0%"></div>
+        </div>
+        <p id="loadingSubtext" class="text-slate-400 text-base font-medium">โหลด MediaPipe Hands (lite)...</p>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="gameOverScreen" class="absolute inset-0 hidden items-center justify-center bg-slate-900/90 z-40 interactive flex-col overflow-y-auto py-10">
+        <div class="bg-gradient-to-b from-indigo-600 to-purple-800 p-8 rounded-3xl shadow-[0_0_50px_rgba(79,70,229,0.5)] border-4 border-indigo-400 text-center transform transition-transform scale-95 w-11/12 max-w-2xl my-auto">
+            <h1 class="text-6xl font-black text-white text-outline mb-2">หมดเวลา!</h1>
+            <p class="text-3xl text-indigo-200 mb-6 font-semibold">ยอดเยี่ยมมาก! นี่คือคะแนนของคุณ</p>
+            <div class="bg-black/30 rounded-3xl p-6 mb-8">
+                <p class="text-8xl font-black text-yellow-400 text-outline" id="finalScoreDisplay">0</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button onclick="restartCurrentGame()" class="bg-gradient-to-r from-green-400 to-emerald-600 hover:from-green-300 hover:to-emerald-500 text-white font-bold text-xl py-3 px-6 rounded-full shadow-lg transform hover:scale-105 transition-all border-2 border-white/50 w-full col-span-1 md:col-span-2">🎮 เล่นอีกครั้ง</button>
+                <button onclick="exitGameToMenu()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold text-lg py-3 px-6 rounded-full shadow-lg transform hover:scale-105 transition-all border-2 border-slate-500 w-full">🏠 กลับเมนูหลัก</button>
+                <button onclick="goToTitle()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold text-lg py-3 px-6 rounded-full shadow-lg transform hover:scale-105 transition-all border border-slate-600 w-full">หน้าแรกสุด</button>
+                <button onclick="KAMPAI.goHome()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold text-lg py-3 px-6 rounded-full shadow-lg transform hover:scale-105 transition-all border border-slate-600 w-full">🏠 ออกจากเกม</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ KAMPAI SDK (วัฒนธรรม kampai-school) ═══ -->
+    <script src="/games/kampai-sdk.js"></script>
+    <script>window.KAMPAI = window.KAMPAI || { isEmbed:false,isTouch:false,ready:true,student:null,stats:null,leaderboard:[],input:{},onReady:function(cb){cb(this);},setSlug:function(){return this;},submitScore:function(){return false;},goHome:function(){location.href='/h/nattapong';},exit:function(){location.href='/h/nattapong';},controls:{mount:function(){return this;}},sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };</script>
+    <script src="/games/kampai-leaderboard.js"></script>
+
+    <script>
+        // ==================== KAMPAI integration (วัฒนธรรม) ====================
+        const GAME_SLUG = 'ai-hand-gesture-game';
+        KAMPAI.setSlug(GAME_SLUG);
+        KAMPAI.onReady(function () {
+            const s = KAMPAI.student, chip = document.getElementById('kampai-player');
+            if (s && chip) {
+                const av = s.photoUrl ? `<img src="${s.photoUrl}" style="width:24px;height:24px;border-radius:50%;object-fit:cover">` : '<span>🧑‍🎓</span>';
+                chip.innerHTML = av + `<span>${s.displayName || 'ผู้เล่น'}</span>`;
+                chip.style.display = 'flex';
+            }
+        });
+
+        // ==================== DEVICE & PERFORMANCE SETUP ====================
+        // ✅ NEW: Detect mobile once, use everywhere
+        const isMobile = /Mobi|Android|iPad|iPhone/i.test(navigator.userAgent) || window.innerWidth < 768;
+
+        // ==================== CANVAS SETUP ====================
+        const video = document.getElementById('videoElement');
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const timeDisplay = document.getElementById('timeDisplay');
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        window.addEventListener('orientationchange', () => setTimeout(resize, 300)); // ✅ NEW: orientation fix
+        resize();
+
+        // ==================== AUDIO SYSTEM ====================
+        const synth = window.speechSynthesis;
+        function speakWord(text, lang = 'en-US') {
+            if (synth.speaking) synth.cancel();
+            const utterThis = new SpeechSynthesisUtterance(text);
+            utterThis.lang = lang; utterThis.rate = 0.9;
+            synth.speak(utterThis);
+        }
+
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+        function initAudio() { if (!audioCtx) audioCtx = new AudioContext(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+
+        let bgmInterval; let isBgmPlaying = false;
+        const bgmNotes = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63];
+        let bgmIndex = 0;
+
+        function toggleBGM(forcePlay = false) {
+            initAudio();
+            if (forcePlay) isBgmPlaying = true; else isBgmPlaying = !isBgmPlaying;
+            document.getElementById('bgmBtnIcon').innerText = isBgmPlaying ? '🔊' : '🔇';
+            if (isBgmPlaying) { clearInterval(bgmInterval); bgmInterval = setInterval(playBGMNote, 300); }
+            else clearInterval(bgmInterval);
+        }
+        function playBGMNote() {
+            if (!audioCtx || audioCtx.state === 'suspended') return;
+            const osc = audioCtx.createOscillator(); const gainNode = audioCtx.createGain();
+            osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+            osc.type = 'triangle'; osc.frequency.value = bgmNotes[bgmIndex];
+            const now = audioCtx.currentTime;
+            gainNode.gain.setValueAtTime(0.015, now); gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+            osc.start(now); osc.stop(now + 0.2);
+            bgmIndex = (bgmIndex + 1) % bgmNotes.length;
+        }
+        function playSound(type) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator(); const gainNode = audioCtx.createGain();
+            osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+            if (type === 'grab') { osc.type = 'sine'; osc.frequency.setValueAtTime(400, now); osc.frequency.exponentialRampToValueAtTime(600, now + 0.1); gainNode.gain.setValueAtTime(0.3, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1); osc.start(now); osc.stop(now + 0.1); }
+            else if (type === 'correct') { osc.type = 'triangle'; osc.frequency.setValueAtTime(440, now); osc.frequency.setValueAtTime(659.25, now + 0.2); gainNode.gain.setValueAtTime(0.5, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.5); osc.start(now); osc.stop(now + 0.5); }
+            else if (type === 'wrong') { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(300, now); osc.frequency.exponentialRampToValueAtTime(100, now + 0.3); gainNode.gain.setValueAtTime(0.5, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3); osc.start(now); osc.stop(now + 0.3); }
+        }
+
+        // ==================== THAI DATA ====================
+        const thaiData = {
+            matra: [
+                { cat: "แม่กง", color: "#3b82f6", words: ["ช้าง", "กางเกง", "ร้องเพลง", "มะม่วง", "เตียง", "กลอง", "ลิง", "กุ้ง", "แมลง", "กล่อง", "ยาง", "ล้าง", "หาง", "กาง", "บาง", "คาง", "จาง", "นาง", "ฟาง", "ย่าง", "ร่าง", "ล่าง", "อ่าง", "วิ่ง", "ยิง", "ชิง", "ทิ้ง", "หญิง", "ขึง", "ตึง"] },
+                { cat: "แม่กน", color: "#10b981", words: ["นอน", "ช้อน", "เพื่อน", "ถนน", "บ้าน", "ฟัน", "หมอน", "แหวน", "ปืน", "จาน", "กิน", "บิน", "ดิน", "หิน", "ริน", "สิน", "ชิ้น", "ดิ้น", "ขน", "คน", "จน", "ชน", "ซน", "ตน", "ทน", "บน", "ปน", "ผล", "มน", "สน"] },
+                { cat: "แม่กม", color: "#f59e0b", words: ["ผม", "ส้ม", "ร่ม", "นม", "ลม", "ฉลาม", "สาม", "ยิ้ม", "พัดลม", "ชาม", "ดม", "ตม", "สม", "อม", "ขม", "คม", "จม", "ชม", "ปม", "ชิม", "ริม", "พิมพ์", "ซ่อม", "ผอม", "หอม", "ดอม", "ตอม", "ปลอม", "ยอม", "ล้อม"] },
+                { cat: "แม่เกย", color: "#ec4899", words: ["กล้วย", "สวย", "ยาย", "เนย", "ถ้วย", "หอย", "ไฟฉาย", "ป้าย", "กระต่าย", "ควาย", "ขาย", "คาย", "ชาย", "ดาย", "ตาย", "ทาย", "นาย", "พาย", "ลาย", "สาย", "หาย", "อาย", "เคย", "เงย", "เชย", "เตย", "โกย", "โปรย", "โรย", "คุย"] },
+                { cat: "แม่เกอว", color: "#8b5cf6", words: ["แมว", "แก้ว", "ดาว", "ข้าว", "นิ้ว", "หิว", "มะพร้าว", "มะนาว", "ว่าว", "ไข่เจียว", "ขาว", "คาว", "ฉาว", "สาว", "หาว", "อาว", "ก้าว", "เค้า", "ท้าว", "เท้า", "ห้าว", "คิ้ว", "จิ๋ว", "ชิว", "ทิว", "ปลิว", "ผิว", "พริ้ว", "ริ้ว", "สิว"] },
+                { cat: "แม่กบ", color: "#ef4444", words: ["กบ", "รูป", "ภาพ", "ทัพพี", "กรอบ", "หลับ", "โทรศัพท์", "ธูป", "ยีราฟ", "ตลับ", "ขบ", "คบ", "จบ", "ซบ", "ตบ", "ทบ", "พบ", "รบ", "ลบ", "สบ", "อบ", "จับ", "ขับ", "คับ", "ดับ", "ตับ", "ทับ", "นับ", "พับ", "รับ"] },
+                { cat: "แม่กก", color: "#0ea5e9", words: ["นก", "หมวก", "เด็ก", "เลข", "สุนัข", "เมฆ", "พริก", "กระจก", "ตุ๊กตา", "ผัก", "กก", "ชก", "ตก", "บก", "ปก", "พก", "รก", "วก", "หก", "อก", "รัก", "ลัก", "ฟัก", "มัก", "ยัก", "ชัก", "ซัก", "ดัก", "ตัก", "ทัก"] },
+                { cat: "แม่กด", color: "#eab308", words: ["มด", "เป็ด", "ขวด", "ตำรวจ", "รถ", "ก๊าซ", "เพชร", "สมุด", "ไม้กวาด", "เสื้อเชิ้ต", "กด", "ขด", "จด", "ปด", "ผด", "รด", "ลด", "สด", "หด", "อด", "กัด", "ขัด", "จัด", "ชัด", "ดัด", "ตัด", "นัด", "ปัด", "ผัด", "พัด"] }
+            ],
+            cluster: [
+                { cat: "ควบกล้ำ ร", color: "#f43f5e", words: ["กราบ", "พริก", "ครู", "ตรง", "พร้อม", "โกรธ", "กรง", "ขรุขระ", "ปราบ", "ปรับ", "กริ่ง", "ตรวจ", "ตราบ", "พราย", "ใคร"] },
+                { cat: "ควบกล้ำ ล", color: "#8b5cf6", words: ["กลอง", "ปลา", "กล้วย", "คลอง", "พลอย", "เปล", "ขลุ่ย", "เกล็ด", "คลาน", "เพลง", "กลม", "กลืน", "ปลูก", "คลุก", "โคลน"] },
+                { cat: "ควบกล้ำ ว", color: "#0ea5e9", words: ["กวาง", "ควาย", "ขวาน", "ควัน", "กวาด", "ขวา", "ความ", "คว่ำ", "แกว่ง", "แขวน", "กว้าง", "ขวิด", "ควัก", "คว้า", "กวัด"] },
+                { cat: "อักษรนำ (ห)", color: "#10b981", words: ["หมอ", "หนู", "หมี", "หมา", "หมู", "หญิง", "หน้า", "หนอน", "หลับ", "หวาน", "หยิบ", "หลอก", "เหม็น", "หวี", "หงาย"] },
+                { cat: "อักษรนำ (อ)", color: "#f59e0b", words: ["อย่า", "อยู่", "อย่าง", "อยาก"] }
+            ],
+            synonym: [
+                { mainWord: "ใหญ่", relation: "คำตรงข้าม", correct: "เล็ก", wrong: ["โต", "ยักษ์", "กว้าง"], ansColor: "#ef4444" },
+                { mainWord: "สวย", relation: "คำพ้องความหมาย", correct: "งาม", wrong: ["น่าเกลียด", "ดำ", "เลว"], ansColor: "#ec4899" },
+                { mainWord: "รวดเร็ว", relation: "คำตรงข้าม", correct: "ช้า", wrong: ["ไว", "ด่วน", "วิ่ง"], ansColor: "#ef4444" },
+                { mainWord: "กิน", relation: "คำพ้องความหมาย", correct: "ทาน", wrong: ["นอน", "เดิน", "เล่น"], ansColor: "#ec4899" },
+                { mainWord: "ดีใจ", relation: "คำตรงข้าม", correct: "เสียใจ", wrong: ["ปลื้ม", "สุข", "ยิ้ม"], ansColor: "#ef4444" },
+                { mainWord: "มืด", relation: "คำตรงข้าม", correct: "สว่าง", wrong: ["ดำ", "เทา", "คล้ำ"], ansColor: "#ef4444" },
+                { mainWord: "พูด", relation: "คำพ้องความหมาย", correct: "กล่าว", wrong: ["ฟัง", "เขียน", "คิด"], ansColor: "#ec4899" },
+                { mainWord: "รวย", relation: "คำตรงข้าม", correct: "จน", wrong: ["มี", "เงิน", "ทอง"], ansColor: "#ef4444" },
+                { mainWord: "ยาว", relation: "คำตรงข้าม", correct: "สั้น", wrong: ["สูง", "ไกล", "ยืด"], ansColor: "#ef4444" },
+                { mainWord: "ร้อน", relation: "คำตรงข้าม", correct: "เย็น", wrong: ["อุ่น", "ไฟ", "ไหม้"], ansColor: "#ef4444" },
+                { mainWord: "มอง", relation: "คำพ้องความหมาย", correct: "ดู", wrong: ["หลับ", "เมิน", "ตา"], ansColor: "#ec4899" },
+                { mainWord: "หอม", relation: "คำตรงข้าม", correct: "เหม็น", wrong: ["ฟุ้ง", "กลิ่น", "ดม"], ansColor: "#ef4444" },
+                { mainWord: "มากมาย", relation: "คำพ้องความหมาย", correct: "เยอะ", wrong: ["น้อย", "ขาด", "นิด"], ansColor: "#ec4899" },
+                { mainWord: "หัวเราะ", relation: "คำตรงข้าม", correct: "ร้องไห้", wrong: ["ยิ้ม", "ขำ", "ฮา"], ansColor: "#ef4444" }
+            ],
+            sentence: [
+                { words: ["ฉัน", "กิน", "ข้าว"], color: "#3b82f6" },
+                { words: ["นก", "บิน", "บน", "ฟ้า"], color: "#10b981" },
+                { words: ["พ่อ", "ขับ", "รถ", "ยนต์"], color: "#f59e0b" },
+                { words: ["น้อง", "นอน", "หลับ", "สบาย"], color: "#8b5cf6" },
+                { words: ["ฝน", "ตก", "หนัก", "มาก"], color: "#6366f1" },
+                { words: ["แม่", "ไป", "ซื้อ", "ของ", "ที่ตลาด"], color: "#ec4899" },
+                { words: ["หมา", "วิ่ง", "ไล่", "แมว"], color: "#f43f5e" },
+                { words: ["พี่", "อ่าน", "หนังสือ", "นิทาน"], color: "#0ea5e9" },
+                { words: ["ปู่", "รด", "น้ำ", "ต้น", "ไม้"], color: "#14b8a6" },
+                { words: ["เรา", "ช่วย", "กัน", "ทำ", "ความสะอาด"], color: "#eab308" },
+                { words: ["ปลา", "ว่าย", "น้ำ", "ใน", "คลอง"], color: "#8b5cf6" },
+                { words: ["ลิง", "ปีน", "ต้น", "ไม้", "เก่ง"], color: "#f59e0b" },
+                { words: ["ครู", "สอน", "หนังสือ", "สนุก", "มาก"], color: "#10b981" }
+            ],
+            grammar: [
+                { sentence: "คุณแม่ไปซื้อ ___ ที่ตลาด", correct: "ผลไม้", wrong: ["วิ่ง", "สวย", "เขา"], type: "นาม", ansColor: "#10b981" },
+                { sentence: "___ กำลังทำการบ้าน", correct: "ฉัน", wrong: ["โต๊ะ", "กระโดด", "สีแดง"], type: "สรรพนาม", ansColor: "#3b82f6" },
+                { sentence: "น้องชอบ ___ เพลงเสียงดัง", correct: "ร้อง", wrong: ["หนังสือ", "เรา", "หอม"], type: "กริยา", ansColor: "#f59e0b" },
+                { sentence: "สุนัขตัวใหญ่ ___ คนแปลกหน้า", correct: "เห่า", wrong: ["จาน", "เธอ", "เร็ว"], type: "กริยา", ansColor: "#f59e0b" },
+                { sentence: "คุณครูแจก ___ ให้นักเรียน", correct: "ดินสอ", wrong: ["เดิน", "สะอาด", "พวกเรา"], type: "นาม", ansColor: "#10b981" },
+                { sentence: "พรุ่งนี้ ___ จะไปเที่ยวทะเล", correct: "พวกเรา", wrong: ["ต้นไม้", "ว่ายน้ำ", "อร่อย"], type: "สรรพนาม", ansColor: "#3b82f6" },
+                { sentence: "พ่อ ___ รถไปทำงานทุกเช้า", correct: "ขับ", wrong: ["กระเป๋า", "มัน", "สูง"], type: "กริยา", ansColor: "#f59e0b" },
+                { sentence: "___ สีแดงจอดอยู่หน้าบ้าน", correct: "รถยนต์", wrong: ["ร้อง", "กระโดด", "เตะ"], type: "นาม", ansColor: "#10b981" },
+                { sentence: "ในสวนมี ___ สวยงามมากมาย", correct: "ดอกไม้", wrong: ["พวกเขา", "ล้าง", "ฉัน"], type: "นาม", ansColor: "#10b981" },
+                { sentence: "___ รักแม่มากที่สุด", correct: "หนู", wrong: ["สวย", "เตียง", "ขยัน"], type: "สรรพนาม", ansColor: "#3b82f6" },
+                { sentence: "นก ___ อยู่บนกิ่งไม้", correct: "เกาะ", wrong: ["รัง", "หนอน", "เขา"], type: "กริยา", ansColor: "#f59e0b" },
+                { sentence: "___ กำลังทำอะไรอยู่", correct: "คุณ", wrong: ["ดินสอ", "บ้าน", "เก้าอี้"], type: "สรรพนาม", ansColor: "#3b82f6" },
+                { sentence: "ฝน ___ ลงมาอย่างหนัก", correct: "ตก", wrong: ["ร่ม", "เย็น", "เมฆ"], type: "กริยา", ansColor: "#f59e0b" },
+                { sentence: "ชาวประมงออกเรือไปจับ ___", correct: "ปลา", wrong: ["กิน", "สีฟ้า", "ฉัน"], type: "นาม", ansColor: "#10b981" },
+                { sentence: "สุนัขตัวนั้น ___ ดุมาก", correct: "มัน", wrong: ["วิ่ง", "เห่า", "ต้นไม้"], type: "สรรพนาม", ansColor: "#3b82f6" }
+            ]
+        };
+
+        // ==================== ENGLISH DATA ====================
+        const engCategories = {
+            animals: { name: "Animals (สัตว์)", icon: "🦁", colorClass: "from-amber-400 to-orange-500", words: [{ word: "Elephant", image: "🐘", color: "#64748b", thai: "ช้าง" }, { word: "Monkey", image: "🐒", color: "#8b5cf6", thai: "ลิง" }, { word: "Tiger", image: "🐅", color: "#f97316", thai: "เสือ" }, { word: "Rabbit", image: "🐇", color: "#ec4899", thai: "กระต่าย" }, { word: "Dog", image: "🐕", color: "#d97706", thai: "สุนัข" }, { word: "Cat", image: "🐈", color: "#f59e0b", thai: "แมว" }, { word: "Lion", image: "🦁", color: "#eab308", thai: "สิงโต" }, { word: "Bear", image: "🐻", color: "#a16207", thai: "หมี" }, { word: "Pig", image: "🐷", color: "#f472b6", thai: "หมู" }, { word: "Cow", image: "🐄", color: "#1e293b", thai: "วัว" }, { word: "Horse", image: "🐎", color: "#b45309", thai: "ม้า" }, { word: "Sheep", image: "🐑", color: "#94a3b8", thai: "แกะ" }, { word: "Panda", image: "🐼", color: "#334155", thai: "แพนด้า" }, { word: "Fox", image: "🦊", color: "#ea580c", thai: "จิ้งจอก" }, { word: "Frog", image: "🐸", color: "#4ade80", thai: "กบ" }, { word: "Snake", image: "🐍", color: "#22c55e", thai: "งู" }] },
+            food: { name: "Food (อาหาร)", icon: "🍔", colorClass: "from-rose-400 to-red-500", words: [{ word: "Apple", image: "🍎", color: "#ef4444", thai: "แอปเปิล" }, { word: "Banana", image: "🍌", color: "#eab308", thai: "กล้วย" }, { word: "Pizza", image: "🍕", color: "#f97316", thai: "พิซซ่า" }, { word: "Burger", image: "🍔", color: "#b45309", thai: "เบอร์เกอร์" }, { word: "Ice Cream", image: "🍦", color: "#fbcfe8", thai: "ไอศกรีม" }, { word: "Donut", image: "🍩", color: "#f472b6", thai: "โดนัท" }, { word: "Bread", image: "🍞", color: "#fcd34d", thai: "ขนมปัง" }, { word: "Cheese", image: "🧀", color: "#fde047", thai: "ชีส" }, { word: "Cake", image: "🍰", color: "#fda4af", thai: "เค้ก" }, { word: "Egg", image: "🍳", color: "#fef08a", thai: "ไข่" }, { word: "Soup", image: "🍲", color: "#f97316", thai: "ซุป" }, { word: "Salad", image: "🥗", color: "#22c55e", thai: "สลัด" }, { word: "Grape", image: "🍇", color: "#a855f7", thai: "องุ่น" }, { word: "Orange", image: "🍊", color: "#f97316", thai: "ส้ม" }, { word: "Mango", image: "🥭", color: "#fbbf24", thai: "มะม่วง" }, { word: "Watermelon", image: "🍉", color: "#ef4444", thai: "แตงโม" }] },
+            vehicles: { name: "Vehicles (พาหนะ)", icon: "🚗", colorClass: "from-blue-400 to-indigo-600", words: [{ word: "Car", image: "🚗", color: "#ef4444", thai: "รถยนต์" }, { word: "Train", image: "🚂", color: "#3b82f6", thai: "รถไฟ" }, { word: "Airplane", image: "✈️", color: "#94a3b8", thai: "เครื่องบิน" }, { word: "Bicycle", image: "🚲", color: "#22c55e", thai: "จักรยาน" }, { word: "Bus", image: "🚌", color: "#eab308", thai: "รถบัส" }, { word: "Ship", image: "🚢", color: "#0ea5e9", thai: "เรือ" }, { word: "Truck", image: "🚚", color: "#2563eb", thai: "รถบรรทุก" }, { word: "Motorcycle", image: "🏍️", color: "#dc2626", thai: "มอเตอร์ไซค์" }, { word: "Helicopter", image: "🚁", color: "#64748b", thai: "เฮลิคอปเตอร์" }, { word: "Scooter", image: "🛴", color: "#10b981", thai: "สกู๊ตเตอร์" }, { word: "Taxi", image: "🚕", color: "#eab308", thai: "แท็กซี่" }, { word: "Van", image: "🚐", color: "#64748b", thai: "รถตู้" }] },
+            nature: { name: "Nature (ธรรมชาติ)", icon: "🌳", colorClass: "from-emerald-400 to-green-600", words: [{ word: "Sun", image: "☀️", color: "#fbbf24", thai: "พระอาทิตย์" }, { word: "Moon", image: "🌙", color: "#cbd5e1", thai: "พระจันทร์" }, { word: "Tree", image: "🌳", color: "#22c55e", thai: "ต้นไม้" }, { word: "Flower", image: "🌸", color: "#ec4899", thai: "ดอกไม้" }, { word: "Fire", image: "🔥", color: "#ef4444", thai: "ไฟ" }, { word: "Water", image: "💧", color: "#3b82f6", thai: "น้ำ" }, { word: "Star", image: "⭐", color: "#facc15", thai: "ดวงดาว" }, { word: "Cloud", image: "☁️", color: "#f1f5f9", thai: "เมฆ" }, { word: "Earth", image: "🌍", color: "#10b981", thai: "โลก" }, { word: "Mountain", image: "⛰️", color: "#64748b", thai: "ภูเขา" }, { word: "Ocean", image: "🌊", color: "#0284c7", thai: "มหาสมุทร" }, { word: "Rainbow", image: "🌈", color: "#ec4899", thai: "รุ้ง" }] },
+            occupations: { name: "Jobs (อาชีพ)", icon: "👨‍🚀", colorClass: "from-fuchsia-400 to-purple-600", words: [{ word: "Police", image: "👮", color: "#3b82f6", thai: "ตำรวจ" }, { word: "Doctor", image: "👨‍⚕️", color: "#10b981", thai: "หมอ" }, { word: "Teacher", image: "👩‍🏫", color: "#f59e0b", thai: "คุณครู" }, { word: "Chef", image: "👨‍🍳", color: "#ef4444", thai: "พ่อครัว" }, { word: "Farmer", image: "👨‍🌾", color: "#84cc16", thai: "ชาวนา" }, { word: "Astronaut", image: "👨‍🚀", color: "#6366f1", thai: "นักบินอวกาศ" }, { word: "Nurse", image: "👩‍⚕️", color: "#f472b6", thai: "พยาบาล" }, { word: "Pilot", image: "👨‍✈️", color: "#0ea5e9", thai: "นักบิน" }, { word: "Judge", image: "👨‍⚖️", color: "#1e293b", thai: "ผู้พิพากษา" }, { word: "Artist", image: "👨‍🎨", color: "#ec4899", thai: "ศิลปิน" }, { word: "Singer", image: "👨‍🎤", color: "#d946ef", thai: "นักร้อง" }, { word: "Detective", image: "🕵️‍♂️", color: "#64748b", thai: "นักสืบ" }] },
+            school: { name: "School (โรงเรียน)", icon: "🎒", colorClass: "from-cyan-400 to-blue-500", words: [{ word: "Book", image: "📚", color: "#3b82f6", thai: "หนังสือ" }, { word: "Pencil", image: "✏️", color: "#eab308", thai: "ดินสอ" }, { word: "Pen", image: "🖊️", color: "#2563eb", thai: "ปากกา" }, { word: "Ruler", image: "📏", color: "#ec4899", thai: "ไม้บรรทัด" }, { word: "Scissors", image: "✂️", color: "#ef4444", thai: "กรรไกร" }, { word: "Backpack", image: "🎒", color: "#10b981", thai: "กระเป๋าเป้" }, { word: "Notebook", image: "📓", color: "#8b5cf6", thai: "สมุด" }, { word: "Paper", image: "📄", color: "#94a3b8", thai: "กระดาษ" }, { word: "Desk", image: "🪑", color: "#b45309", thai: "โต๊ะเรียน" }, { word: "Computer", image: "💻", color: "#64748b", thai: "คอมพิวเตอร์" }, { word: "Calculator", image: "🧮", color: "#f97316", thai: "เครื่องคิดเลข" }, { word: "Map", image: "🗺️", color: "#10b981", thai: "แผนที่" }] },
+            sports: { name: "Sports (กีฬา)", icon: "⚽", colorClass: "from-red-400 to-orange-600", words: [{ word: "Soccer", image: "⚽", color: "#1e293b", thai: "ฟุตบอล" }, { word: "Basketball", image: "🏀", color: "#f97316", thai: "บาสเกตบอล" }, { word: "Baseball", image: "⚾", color: "#ef4444", thai: "เบสบอล" }, { word: "Tennis", image: "🎾", color: "#a3e635", thai: "เทนนิส" }, { word: "Volleyball", image: "🏐", color: "#fbbf24", thai: "วอลเลย์บอล" }, { word: "Ping Pong", image: "🏓", color: "#dc2626", thai: "ปิงปอง" }, { word: "Badminton", image: "🏸", color: "#3b82f6", thai: "แบดมินตัน" }, { word: "Boxing", image: "🥊", color: "#ef4444", thai: "ชกมวย" }, { word: "Golf", image: "⛳", color: "#22c55e", thai: "กอล์ฟ" }, { word: "Swimming", image: "🏊", color: "#2563eb", thai: "ว่ายน้ำ" }, { word: "Running", image: "🏃", color: "#3b82f6", thai: "วิ่ง" }, { word: "Cycling", image: "🚴", color: "#ea580c", thai: "ปั่นจักรยาน" }] },
+            clothes: { name: "Clothes (เสื้อผ้า)", icon: "👕", colorClass: "from-pink-400 to-rose-600", words: [{ word: "Shirt", image: "👕", color: "#3b82f6", thai: "เสื้อเชิ้ต" }, { word: "Pants", image: "👖", color: "#1d4ed8", thai: "กางเกงขายาว" }, { word: "Dress", image: "👗", color: "#f472b6", thai: "ชุดกระโปรง" }, { word: "Shoes", image: "👞", color: "#78350f", thai: "รองเท้า" }, { word: "Hat", image: "🎩", color: "#64748b", thai: "หมวก" }, { word: "Glasses", image: "👓", color: "#1e293b", thai: "แว่นตา" }, { word: "Socks", image: "🧦", color: "#10b981", thai: "ถุงเท้า" }, { word: "Coat", image: "🧥", color: "#b45309", thai: "เสื้อโค้ต" }, { word: "Shorts", image: "🩳", color: "#f97316", thai: "กางเกงขาสั้น" }, { word: "Tie", image: "👔", color: "#dc2626", thai: "เนกไท" }, { word: "Scarf", image: "🧣", color: "#ef4444", thai: "ผ้าพันคอ" }, { word: "Ring", image: "💍", color: "#fde047", thai: "แหวน" }] },
+            places: { name: "Places (สถานที่)", icon: "🏥", colorClass: "from-indigo-400 to-purple-600", words: [{ word: "House", image: "🏠", color: "#f59e0b", thai: "บ้าน" }, { word: "School", image: "🏫", color: "#ef4444", thai: "โรงเรียน" }, { word: "Hospital", image: "🏥", color: "#dc2626", thai: "โรงพยาบาล" }, { word: "Bank", image: "🏦", color: "#10b981", thai: "ธนาคาร" }, { word: "Store", image: "🏪", color: "#3b82f6", thai: "ร้านค้า" }, { word: "Park", image: "🏞️", color: "#16a34a", thai: "สวนสาธารณะ" }, { word: "Hotel", image: "🏨", color: "#8b5cf6", thai: "โรงแรม" }, { word: "Factory", image: "🏭", color: "#64748b", thai: "โรงงาน" }, { word: "Museum", image: "🏛️", color: "#d97706", thai: "พิพิธภัณฑ์" }, { word: "Beach", image: "🏖️", color: "#facc15", thai: "ชายหาด" }, { word: "Restaurant", image: "🍽️", color: "#f97316", thai: "ร้านอาหาร" }, { word: "Airport", image: "✈️", color: "#0ea5e9", thai: "สนามบิน" }] },
+            home: { name: "Home (บ้าน)", icon: "🛏️", colorClass: "from-teal-400 to-emerald-600", words: [{ word: "Bed", image: "🛏️", color: "#3b82f6", thai: "เตียงนอน" }, { word: "Sofa", image: "🛋️", color: "#ef4444", thai: "โซฟา" }, { word: "Chair", image: "🪑", color: "#b45309", thai: "เก้าอี้" }, { word: "Door", image: "🚪", color: "#78350f", thai: "ประตู" }, { word: "TV", image: "📺", color: "#1e293b", thai: "โทรทัศน์" }, { word: "Clock", image: "⏰", color: "#ef4444", thai: "นาฬิกา" }, { word: "Window", image: "🪟", color: "#38bdf8", thai: "หน้าต่าง" }, { word: "Toilet", image: "🚽", color: "#e2e8f0", thai: "ชักโครก" }, { word: "Shower", image: "🚿", color: "#0ea5e9", thai: "ฝักบัว" }, { word: "Soap", image: "🧼", color: "#ec4899", thai: "สบู่" }, { word: "Broom", image: "🧹", color: "#d97706", thai: "ไม้กวาด" }, { word: "Trash", image: "🗑️", color: "#64748b", thai: "ถังขยะ" }] },
+            body: { name: "Body (ร่างกาย)", icon: "💪", colorClass: "from-orange-300 to-amber-500", words: [{ word: "Eye", image: "👁️", color: "#3b82f6", thai: "ดวงตา" }, { word: "Ear", image: "👂", color: "#f59e0b", thai: "หู" }, { word: "Nose", image: "👃", color: "#ef4444", thai: "จมูก" }, { word: "Mouth", image: "👄", color: "#ec4899", thai: "ปาก" }, { word: "Hand", image: "✋", color: "#facc15", thai: "มือ" }, { word: "Foot", image: "🦶", color: "#d97706", thai: "เท้า" }, { word: "Tooth", image: "🦷", color: "#e2e8f0", thai: "ฟัน" }, { word: "Tongue", image: "👅", color: "#f43f5e", thai: "ลิ้น" }, { word: "Leg", image: "🦵", color: "#b45309", thai: "ขา" }, { word: "Arm", image: "💪", color: "#f97316", thai: "แขน" }, { word: "Bone", image: "🦴", color: "#94a3b8", thai: "กระดูก" }, { word: "Heart", image: "❤️", color: "#dc2626", thai: "หัวใจ" }] },
+            music: { name: "Music (ดนตรี)", icon: "🎸", colorClass: "from-violet-400 to-fuchsia-500", words: [{ word: "Guitar", image: "🎸", color: "#ef4444", thai: "กีตาร์" }, { word: "Piano", image: "🎹", color: "#0f172a", thai: "เปียโน" }, { word: "Drum", image: "🥁", color: "#f97316", thai: "กลอง" }, { word: "Violin", image: "🎻", color: "#b45309", thai: "ไวโอลิน" }, { word: "Trumpet", image: "🎺", color: "#facc15", thai: "ทรัมเป็ต" }, { word: "Microphone", image: "🎤", color: "#64748b", thai: "ไมโครโฟน" }, { word: "Saxophone", image: "🎷", color: "#eab308", thai: "แซกโซโฟน" }, { word: "Flute", image: "🪈", color: "#94a3b8", thai: "ขลุ่ย" }, { word: "Headphones", image: "🎧", color: "#1e293b", thai: "หูฟัง" }, { word: "Radio", image: "📻", color: "#10b981", thai: "วิทยุ" }, { word: "Speaker", image: "🔊", color: "#475569", thai: "ลำโพง" }, { word: "Music Note", image: "🎵", color: "#ec4899", thai: "ตัวโน้ต" }] }
+        };
+
+        // ==================== GAME STATE ====================
+        let gameState = 'title';
+        let currentGameMode = '', currentEngCategory = '', currentEngVocabulary = [];
+        let score = 0, timeLeft = 60, timerInterval;
+        let targetAreas = [], draggables = [], heldItem = null;
+        let floatingParticles = [], floatingTexts = [];
+        let spellingTargetWord = '', spellingProgress = 0;
+        let usedWords = new Set();
+        let currentSentenceData = null, sentenceProgress = 0;
+        let isTransitioning = false;
+
+        // Hand tracking state
+        let handCursor = { x: 0, y: 0, smoothX: 0, smoothY: 0 };
+        let currentGesture = 'none', lastGesture = 'none';
+        let isSwiping = false, swipeStartX = 0, menuScrollStartX = 0, activeScrollContainer = null;
+        let isCameraInitialized = false;
+
+        // ==================== UI FLOW ====================
+        function startFromTitle() {
+            if (!isBgmPlaying) toggleBGM(true);
+            document.getElementById('titleScreen').style.display = 'none';
+            // ✅ Always start in mouse mode immediately — no loading screen needed
+            enableMouseMode();
+            // ✅ Try camera silently in background; upgrade if it works
+            tryUpgradeToCamera();
+        }
+
+        // ✅ Silent background camera attempt — upgrades from mouse → camera if allowed
+        function tryUpgradeToCamera() {
+            if (isCameraInitialized) return;
+            const videoConstraints = {
+                width:  { ideal: isMobile ? 640 : 1280 },
+                height: { ideal: isMobile ? 480 : 720 },
+                facingMode: 'user'
+            };
+            navigator.mediaDevices.getUserMedia({ video: videoConstraints })
+            .then(stream => {
+                isCameraInitialized = true;
+                mouseMode = false;
+                if (_rafId) { cancelAnimationFrame(_rafId); _rafId = null; }
+                const old = document.getElementById('modeBadge');
+                if (old) old.remove();
+                const badge = document.createElement('div');
+                badge.id = 'modeBadge';
+                badge.style.cssText = 'position:fixed;bottom:16px;right:70px;z-index:200;background:rgba(15,23,42,0.85);border:1px solid rgba(74,222,128,0.3);border-radius:999px;padding:6px 14px;font-size:13px;color:#4ade80;font-family:Kanit,sans-serif;pointer-events:none;transition:opacity 1s;';
+                badge.innerText = '📷 AI มือ ON';
+                document.body.appendChild(badge);
+                setTimeout(() => { badge.style.opacity = '0.35'; }, 3000);
+
+                video.srcObject = stream;
+                video.onloadedmetadata = () => {
+                    video.play().then(() => {
+                        let frameCount = 0;
+                        async function predictLoop() {
+                            frameCount++;
+                            const shouldProcess = !isMobile || (frameCount % 2 === 0);
+                            if (shouldProcess && video.readyState >= 2 && video.videoWidth > 0) {
+                                try { await hands.send({ image: video }); } catch(e) { /* silent */ }
+                            }
+                            requestAnimationFrame(predictLoop);
+                        }
+                        predictLoop();
+                    }).catch(() => {});
+                };
+            })
+            .catch(() => {
+                // Camera failed silently — already in mouse mode, no error shown
+                console.info('Camera not available — running in mouse/touch mode');
+            });
+        }
+
+        function hideAllScreens() {
+            ['titleScreen','categoryMenu','dictionaryScreen','tutInteractive','gameUI','gameOverScreen','loadingMsg','engStudyScreen','engModeMenu'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+            document.getElementById('gameUI').classList.add('hidden');
+        }
+
+        function showMenu() {
+            initAudio(); hideAllScreens(); gameState = 'menu';
+            buildEngCategoryMenu();
+            document.getElementById('categoryMenu').style.display = 'flex';
+            activeScrollContainer = document.getElementById('categoryMenu');
+        }
+
+        function goToTitle() {
+            gameState = 'title'; clearInterval(timerInterval); hideAllScreens();
+            document.getElementById('titleScreen').style.display = 'flex';
+        }
+
+        function buildEngCategoryMenu() {
+            const container = document.getElementById('engCategoryButtons');
+            if (container.children.length > 0) return;
+            container.innerHTML = '';
+            for (const [key, category] of Object.entries(engCategories)) {
+                const btn = document.createElement('button');
+                btn.className = `bg-gradient-to-br ${category.colorClass} hover:scale-105 transition-transform p-4 md:p-5 rounded-3xl shadow-xl border-4 border-white/20 flex flex-col md:flex-row items-center justify-center md:justify-start gap-2 md:gap-4 text-center md:text-left w-full group`;
+                btn.onclick = () => selectEngCategory(key);
+                btn.innerHTML = `<div class="text-5xl md:text-6xl group-hover:animate-bounce pointer-events-none shrink-0">${category.icon}</div><div class="pointer-events-none flex-1 overflow-hidden"><h2 class="text-lg md:text-xl font-bold text-white text-outline leading-tight truncate w-full">${category.name}</h2><p class="text-white/80 text-sm font-medium">${category.words.length} Words</p></div>`;
+                container.appendChild(btn);
+            }
+        }
+
+        function selectEngCategory(key) {
+            initAudio(); currentEngCategory = key; currentEngVocabulary = engCategories[key].words;
+            showEngStudyScreen();
+        }
+
+        function showEngStudyScreen() {
+            gameState = 'engStudy'; hideAllScreens();
+            document.getElementById('engStudyTitle').innerText = `${engCategories[currentEngCategory].name} ${engCategories[currentEngCategory].icon}`;
+            const grid = document.getElementById('engStudyGrid'); grid.innerHTML = '';
+            currentEngVocabulary.forEach(item => {
+                const btn = document.createElement('button');
+                btn.className = "study-card bg-white/10 hover:bg-white/20 backdrop-blur-md p-4 rounded-3xl border-2 border-white/10 hover:border-emerald-400/50 flex flex-col items-center justify-center aspect-square shadow-xl relative group transition-transform hover:scale-105";
+                btn.onclick = () => { initAudio(); speakWord(item.word, 'en-US'); };
+                btn.innerHTML = `<div class="text-6xl md:text-7xl mb-3 group-hover:animate-bounce pointer-events-none">${item.image}</div><div class="font-black text-xl md:text-2xl text-white pointer-events-none truncate w-full px-2">${item.word}</div><div class="text-emerald-300 font-semibold text-lg pointer-events-none truncate w-full px-2">${item.thai}</div>`;
+                grid.appendChild(btn);
+            });
+            document.getElementById('engStudyScreen').style.display = 'flex';
+            activeScrollContainer = document.getElementById('engStudyScroll');
+        }
+
+        function showEngModeMenu() {
+            initAudio(); gameState = 'engModeMenu'; hideAllScreens();
+            document.getElementById('engModeMenu').style.display = 'flex';
+            activeScrollContainer = null;
+        }
+
+        // ==================== DICTIONARY ====================
+        function showDictionary() {
+            initAudio(); hideAllScreens(); gameState = 'dict';
+            document.getElementById('dictionaryScreen').style.display = 'flex';
+            renderDictionary('matra');
+        }
+
+        function renderDictionary(tab) {
+            initAudio();
+            const content = document.getElementById('dictContent');
+            const tabsContainer = document.getElementById('dictTabsContainer');
+            const tabs = ['matra','cluster','grammar','synonym','sentence','english'];
+            const labels = ['มาตราตัวสะกด','ควบกล้ำ/อักษรนำ','เติมประโยค','พ้อง/ตรงข้าม','เรียงประโยค','Eng Vocab'];
+            tabsContainer.innerHTML = '';
+            tabs.forEach((t, i) => {
+                const btn = document.createElement('button');
+                btn.onclick = () => renderDictionary(t);
+                btn.className = t === tab ? `px-6 py-3 rounded-full text-lg md:text-xl font-bold bg-blue-500 text-white border-2 border-white shadow-lg transition-transform scale-105 pointer-events-auto shrink-0`
+                    : `px-6 py-3 rounded-full text-lg md:text-xl font-bold bg-slate-700 text-white border-2 border-transparent shadow-lg transition-transform hover:scale-105 pointer-events-auto shrink-0`;
+                btn.innerText = labels[i];
+                tabsContainer.appendChild(btn);
+            });
+            content.innerHTML = '';
+            content.className = "w-full max-w-6xl overflow-y-auto bg-slate-800/50 rounded-3xl p-6 border-2 border-slate-600 pb-20 pointer-events-auto interactive";
+            activeScrollContainer = content;
+            if (tab === 'matra' || tab === 'cluster') {
+                content.classList.add('grid','grid-cols-1','md:grid-cols-2','gap-6');
+                (tab === 'matra' ? thaiData.matra : thaiData.cluster).forEach(c => {
+                    let wordsHtml = c.words.map(w => `<span class="inline-block bg-slate-700 text-cyan-300 px-3 py-1 rounded-lg m-1 font-medium">${w}</span>`).join('');
+                    content.innerHTML += `<div class="bg-slate-800 rounded-2xl p-5 border-2 border-slate-600 shadow-lg"><h3 class="text-2xl font-bold mb-3 text-outline border-b-2 border-slate-600 pb-2" style="color:${c.color||'#3b82f6'}">${c.cat} <span class="text-sm text-slate-400 font-normal">(${c.words.length} คำ)</span></h3><div class="flex flex-wrap">${wordsHtml}</div></div>`;
+                });
+            } else if (tab === 'grammar') {
+                content.classList.add('flex','flex-col','gap-4');
+                thaiData.grammar.forEach(item => {
+                    let full = item.sentence.replace("___", `<span class="text-yellow-400 underline decoration-2">${item.correct}</span>`);
+                    content.innerHTML += `<div class="bg-slate-800 rounded-2xl p-5 border-2 border-slate-600 shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4"><div class="flex-1 overflow-hidden"><p class="text-xl md:text-2xl text-white font-medium mb-1 break-words">${full}</p><p class="text-sm text-slate-400">หมวด: <span style="color:${item.ansColor}">${item.type}</span> | ตัวลวง: ${item.wrong.join(', ')}</p></div><button onclick="initAudio();speakWord('${item.sentence.replace('___', item.correct)}','th-TH')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-3 rounded-xl flex items-center gap-2 shrink-0 font-bold transition-transform hover:scale-105 shadow-md">🔊 ฟังเสียง</button></div>`;
+                });
+            } else if (tab === 'synonym') {
+                content.classList.add('grid','grid-cols-1','md:grid-cols-2','gap-4');
+                thaiData.synonym.forEach(item => {
+                    content.innerHTML += `<div class="bg-slate-800 rounded-2xl p-5 border-2 border-slate-600 shadow-lg flex justify-between items-center overflow-hidden"><div><p class="text-sm text-slate-400">${item.relation}</p><p class="text-2xl md:text-3xl text-white font-bold truncate">${item.mainWord} = <span class="text-yellow-400">${item.correct}</span></p></div><button onclick="initAudio();speakWord('${item.mainWord} หมายถึง ${item.correct}','th-TH')" class="bg-indigo-600 hover:bg-indigo-500 text-white p-3 rounded-xl font-bold shrink-0 transition-transform hover:scale-105 shadow-md">🔊</button></div>`;
+                });
+            } else if (tab === 'sentence') {
+                content.classList.add('flex','flex-col','gap-4');
+                thaiData.sentence.forEach(item => {
+                    let wordsHtml = item.words.map(w => `<span class="inline-block bg-slate-700 text-yellow-300 px-3 py-1 rounded-xl mx-1 font-bold text-lg md:text-xl">${w}</span>`).join('➕');
+                    content.innerHTML += `<div class="bg-slate-800 rounded-2xl p-5 border-2 border-slate-600 shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4"><div class="flex-1 overflow-x-auto hide-scroll whitespace-nowrap py-2">${wordsHtml} <span class="text-white text-2xl mx-2">👉</span> <span class="text-white text-xl md:text-2xl font-bold">${item.words.join('')}</span></div><button onclick="initAudio();speakWord('${item.words.join(' ')}','th-TH')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl shrink-0 font-bold transition-transform hover:scale-105 shadow-md">🔊 ฟังเสียง</button></div>`;
+                });
+            } else if (tab === 'english') {
+                content.classList.add('flex','flex-col','gap-6');
+                for (const [, category] of Object.entries(engCategories)) {
+                    let wordsHtml = category.words.map(w => `<button onclick="initAudio();speakWord('${w.word}','en-US')" class="inline-flex flex-col items-center bg-slate-700 hover:bg-slate-600 p-3 rounded-xl m-1 transition-transform hover:scale-105 w-24"><span class="text-4xl mb-1">${w.image}</span><span class="text-white font-bold text-sm truncate w-full">${w.word}</span><span class="text-emerald-300 text-xs truncate w-full">${w.thai}</span></button>`).join('');
+                    content.innerHTML += `<div class="bg-slate-800 rounded-2xl p-5 border-2 border-slate-600 shadow-lg"><h3 class="text-2xl md:text-3xl font-black mb-3 text-outline border-b-2 border-slate-600 pb-2" style="color:#4ade80">${category.icon} ${category.name} <span class="text-sm text-slate-400 font-normal">(${category.words.length} Words)</span></h3><div class="flex flex-wrap">${wordsHtml}</div></div>`;
+                }
+            }
+        }
+
+        // ==================== NEW: INTERACTIVE TUTORIAL ====================
+        const TUT_STEPS = [
+            { gesture: 'pinch', emoji: '🤏', name: 'จีบนิ้ว (Pinch)', desc: 'โป้ง + ชี้เข้าหากัน', use: '✋ หยิบและลากคำศัพท์', color: '#facc15', ring: '#facc15' },
+            { gesture: 'fist',  emoji: '✊', name: 'กำมือ (Fist)',   desc: 'กำนิ้วทั้งสี่แน่น', use: '🖱️ คลิกปุ่มในเมนู', color: '#fb923c', ring: '#fb923c' },
+            { gesture: 'open',  emoji: '🖐️', name: 'แบมือ (Open)',   desc: 'แบนิ้วทุกนิ้วออก',  use: '🔄 ยกเลิก / ปัดเลื่อน', color: '#38bdf8', ring: '#38bdf8' },
+        ];
+        let tutStep = 0, tutHold = 0, tutLastGesture = '';
+        const TUT_HOLD_FRAMES = 38; // ~1.3s at 30fps
+
+        function showTutorial() {
+            if (!isCameraInitialized) { return; } // camera not ready, do nothing
+            initAudio();
+            gameState = 'tutorial';
+            tutStep = 0; tutHold = 0; tutLastGesture = '';
+            hideAllScreens();
+            document.getElementById('tutInteractive').style.display = 'block';
+            renderTutStep();
+        }
+
+        function renderTutStep() {
+            const dots = document.getElementById('tutDots');
+            dots.innerHTML = TUT_STEPS.map((_, i) =>
+                `<div style="width:14px;height:14px;border-radius:50%;transition:all 0.3s;background:${i < tutStep ? '#4ade80' : i === tutStep ? '#ffffff' : 'rgba(255,255,255,0.2)'}"></div>`
+            ).join('');
+
+            if (tutStep >= TUT_STEPS.length) {
+                // All done!
+                document.getElementById('tutEmoji').innerText = '🎉';
+                document.getElementById('tutStepName').innerText = 'เก่งมากเลย!';
+                document.getElementById('tutStepDesc').innerText = 'คุณพร้อมเล่นเกมแล้ว';
+                document.getElementById('tutStepUse').innerText = '🚀 กำลังนำไปหน้าเมนู...';
+                document.getElementById('tutStatus').innerText = '';
+                setTutRing(1, '#4ade80');
+                confetti({ particleCount: 60, spread: 80, origin: { x: 0.5, y: 0.5 } });
+                setTimeout(() => {
+                    document.getElementById('tutInteractive').style.display = 'none';
+                    showMenu();
+                }, 1800);
+                return;
+            }
+
+            const step = TUT_STEPS[tutStep];
+            document.getElementById('tutEmoji').innerText = step.emoji;
+            document.getElementById('tutStepName').innerText = step.name;
+            document.getElementById('tutStepDesc').innerText = step.desc;
+            document.getElementById('tutStepUse').innerText = step.use;
+            document.getElementById('tutStatus').innerText = `ทำท่า "${step.name.split(' ')[0]}" แล้วค้างไว้สักครู่`;
+            document.getElementById('tutCard').style.borderColor = 'rgba(255,255,255,0.15)';
+            document.getElementById('tutCard').style.boxShadow = '0 0 0 rgba(74,222,128,0)';
+            setTutRing(0, step.ring);
+            tutHold = 0;
+        }
+
+        function setTutRing(progress, color) {
+            const circ = 263.9;
+            const ring = document.getElementById('tutRing');
+            ring.setAttribute('stroke-dashoffset', (circ * (1 - progress)).toFixed(2));
+            ring.setAttribute('stroke', color);
+        }
+
+        // Called from hands.onResults when gameState === 'tutorial'
+        function updateTutGesture(gesture) {
+            if (tutStep >= TUT_STEPS.length) return;
+            const step = TUT_STEPS[tutStep];
+            const isCorrect = (gesture === step.gesture);
+
+            if (isCorrect) {
+                if (tutLastGesture !== gesture) { initAudio(); playSound('grab'); }
+                tutHold = Math.min(tutHold + 1, TUT_HOLD_FRAMES);
+            } else {
+                tutHold = Math.max(tutHold - 2, 0);
+            }
+            tutLastGesture = gesture;
+
+            const progress = tutHold / TUT_HOLD_FRAMES;
+            setTutRing(progress, isCorrect ? step.ring : 'rgba(255,255,255,0.3)');
+
+            const card = document.getElementById('tutCard');
+            if (isCorrect && tutHold > 0) {
+                const glow = `0 0 ${30 * progress}px ${step.ring}66`;
+                card.style.borderColor = step.color;
+                card.style.boxShadow = glow;
+                document.getElementById('tutStatus').innerText = progress > 0.6
+                    ? '✨ ถูกต้อง! ค้างไว้อีกนิด...'
+                    : `ดี! ทำท่า "${step.name.split(' ')[0]}" ต่อไป`;
+            } else {
+                card.style.borderColor = 'rgba(255,255,255,0.15)';
+                card.style.boxShadow = '0 0 0 rgba(0,0,0,0)';
+                if (tutHold === 0) document.getElementById('tutStatus').innerText = `ทำท่า "${step.name.split(' ')[0]}" แล้วค้างไว้สักครู่`;
+            }
+
+            if (tutHold >= TUT_HOLD_FRAMES) {
+                initAudio(); playSound('correct');
+                tutStep++;
+                tutHold = 0;
+                tutLastGesture = '';
+                setTimeout(renderTutStep, 500);
+            }
+        }
+
+        function skipTutInteractive() {
+            document.getElementById('tutInteractive').style.display = 'none';
+            showMenu();
+        }
+
+        // ==================== GAME SETUP ====================
+        function startGame(mode) {
+            initAudio(); currentGameMode = mode; score = 0; timeLeft = 60; usedWords.clear();
+            scoreDisplay.innerText = score; updateTimeDisplay();
+            hideAllScreens();
+            document.getElementById('gameUI').classList.remove('hidden');
+            gameState = 'playing'; activeScrollContainer = null; isTransitioning = false;
+            startTimer(); nextRound();
+        }
+        function restartCurrentGame() { startGame(currentGameMode); }
+        function exitGameToMenu() { showMenu(); }
+        function endGame() {
+            gameState = 'gameover'; clearInterval(timerInterval);
+            document.getElementById('gameUI').classList.add('hidden');
+            document.getElementById('finalScoreDisplay').innerText = score;
+            document.getElementById('gameOverScreen').style.display = 'flex';
+            // [KAMPAI] ส่งคะแนนเข้าระบบ (เล่นได้หลายโหมด/หลายรอบต่อ session → allowResubmit)
+            KAMPAI.submitScore(score, { mode: 'normal', allowResubmit: true, gameMode: currentGameMode });
+        }
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (gameState !== 'playing') return;
+                timeLeft--; updateTimeDisplay();
+                if (timeLeft <= 0) endGame();
+            }, 1000);
+        }
+        function updateTimeDisplay() {
+            timeDisplay.innerText = timeLeft;
+            timeDisplay.className = timeLeft <= 10
+                ? 'text-red-500 text-2xl md:text-4xl font-black text-outline animate-ping'
+                : 'text-green-400 text-2xl md:text-4xl font-black text-outline';
+        }
+        function getAvailable(pool, keyFn, count = 1) {
+            let available = pool.filter(item => !usedWords.has(keyFn(item)));
+            if (available.length < count) { pool.forEach(item => usedWords.delete(keyFn(item))); available = pool.filter(item => !usedWords.has(keyFn(item))); }
+            return available;
+        }
+
+        // ✅ IMPROVED: Mobile-aware game positions
+        function getGameY(fraction) {
+            // ✅ On mobile, avoid browser chrome at bottom; clamp target zone
+            const safeBottom = isMobile ? 0.72 : 0.80;
+            const topArea = isMobile ? 0.25 : 0.30;
+            if (fraction >= 0.75) return canvas.height * safeBottom;
+            if (fraction <= 0.35) return canvas.height * topArea;
+            return canvas.height * fraction;
+        }
+
+        function nextRound() {
+            if (gameState !== 'playing') return;
+            isTransitioning = false;
+            draggables = []; targetAreas = []; heldItem = null;
+
+            // ✅ Responsive radius: larger hit zone on desktop, tighter on mobile
+            const baseRadius = isMobile ? 55 : 75;
+            const basketRadius = isMobile ? 90 : 120;
+
+            if (['matra', 'cluster'].includes(currentGameMode)) {
+                const dataArr = currentGameMode === 'matra' ? thaiData.matra : thaiData.cluster;
+                let [cat1, cat2] = [...dataArr].sort(() => 0.5 - Math.random());
+                const basketY = getGameY(0.30);
+                targetAreas.push({ type: 'basket', text: cat1.cat, matchId: cat1.cat, x: canvas.width * 0.3, y: basketY, radius: basketRadius, color: cat1.color||'#3b82f6', isHovered: false });
+                targetAreas.push({ type: 'basket', text: cat2.cat, matchId: cat2.cat, x: canvas.width * 0.7, y: basketY, radius: basketRadius, color: cat2.color||'#10b981', isHovered: false });
+                let w1 = [...getAvailable(cat1.words, w => w)].sort(() => 0.5 - Math.random()).slice(0, 2);
+                let w2 = [...getAvailable(cat2.words, w => w)].sort(() => 0.5 - Math.random()).slice(0, 2);
+                w1.forEach(w => usedWords.add(w)); w2.forEach(w => usedWords.add(w));
+                let allWords = [...w1.map(w => ({w, cat: cat1.cat})), ...w2.map(w => ({w, cat: cat2.cat}))].sort(() => 0.5 - Math.random());
+                const spacing = canvas.width / 5;
+                const dragY = getGameY(0.80);
+                allWords.forEach((item, i) => {
+                    const sx = spacing * (i + 1);
+                    draggables.push({ text: item.w, matchId: item.cat, x: sx, y: dragY, startX: sx, startY: dragY, radius: baseRadius, isDragged: false, faded: false, type: 'word', scale: 1 });
+                });
+            }
+            else if (['grammar', 'synonym'].includes(currentGameMode)) {
+                const dataArr = currentGameMode === 'grammar' ? thaiData.grammar : thaiData.synonym;
+                let available = getAvailable(dataArr, q => q.sentence || q.mainWord, 1);
+                let q = available[Math.floor(Math.random() * available.length)];
+                usedWords.add(q.sentence || q.mainWord);
+                const tW = Math.min(canvas.width * 0.9, 800);
+                targetAreas.push({ type: currentGameMode === 'grammar' ? 'sentence' : 'synonym', text: currentGameMode === 'grammar' ? q.sentence : `${q.relation}:\n${q.mainWord}`, matchId: q.correct, x: canvas.width / 2, y: getGameY(0.30), width: tW, height: 140, color: q.ansColor, isHovered: false });
+                let choices = [q.correct, ...q.wrong.slice(0,2)].sort(() => 0.5 - Math.random());
+                const spacing = canvas.width / 4;
+                const dragY = getGameY(0.80);
+                choices.forEach((choice, i) => {
+                    const sx = spacing * (i + 1);
+                    draggables.push({ text: choice, matchId: choice, x: sx, y: dragY, startX: sx, startY: dragY, radius: baseRadius + 5, isDragged: false, faded: false, type: 'word', scale: 1 });
+                });
+            }
+            else if (currentGameMode === 'sentence') {
+                let available = getAvailable(thaiData.sentence, q => q.words.join(''), 1);
+                currentSentenceData = available[Math.floor(Math.random() * available.length)];
+                usedWords.add(currentSentenceData.words.join(''));
+                sentenceProgress = 0;
+                const tW = Math.min(canvas.width * 0.95, 900);
+                targetAreas.push({ type: 'builder', text: currentSentenceData.words.map(() => "___").join(" "), matchId: 'builder', x: canvas.width / 2, y: getGameY(0.30), width: tW, height: 120, color: currentSentenceData.color, isHovered: false });
+                let choices = [...currentSentenceData.words].sort(() => 0.5 - Math.random());
+                const spacing = canvas.width / (choices.length + 1);
+                const dragY = getGameY(0.80);
+                choices.forEach((choice, i) => {
+                    const sx = spacing * (i + 1);
+                    draggables.push({ text: choice, matchId: choice, x: sx, y: dragY, startX: sx, startY: dragY, radius: baseRadius, isDragged: false, faded: false, type: 'word', scale: 1 });
+                });
+            }
+            else if (['classic', 'translation'].includes(currentGameMode)) {
+                let correctItem = getAvailable(currentEngVocabulary, w => w.word, 1)[Math.floor(Math.random() * Math.min(3, currentEngVocabulary.length))];
+                correctItem = getAvailable(currentEngVocabulary, w => w.word)[0];
+                usedWords.add(correctItem.word);
+                let distractors = currentEngVocabulary.filter(w => w.word !== correctItem.word).sort(() => 0.5 - Math.random()).slice(0, 2);
+                let selected = [correctItem, ...distractors].sort(() => 0.5 - Math.random());
+                const spacing = canvas.width / 4;
+                const targetRadius = isMobile ? 60 : (currentGameMode === 'translation' ? 100 : 90);
+                const targetY = getGameY(0.30);
+                selected.forEach((item, i) => {
+                    const sx = spacing * (i + 1);
+                    targetAreas.push({ type: 'engTarget', text: currentGameMode === 'classic' ? item.image : item.thai, matchId: item.word, baseColor: item.color, x: sx, baseX: sx, y: targetY, baseY: targetY, radius: targetRadius, isHovered: false, floatOffset: Math.random() * Math.PI * 2 });
+                });
+                const dragR = isMobile ? 70 : 130;
+                const dragY = getGameY(0.80);
+                draggables.push({ text: correctItem.word, matchId: correctItem.word, color: correctItem.color, x: canvas.width / 2, y: dragY, startX: canvas.width / 2, startY: dragY, radius: dragR, isDragged: false, scale: 1, type: 'word' });
+            }
+            else if (currentGameMode === 'spelling') {
+                let correctItem = getAvailable(currentEngVocabulary, w => w.word)[0];
+                usedWords.add(correctItem.word);
+                spellingTargetWord = correctItem.word.toUpperCase();
+                spellingProgress = 0;
+                const tgtR = isMobile ? 65 : 100;
+                const tgtY = getGameY(0.25);
+                targetAreas.push({ type: 'engSpellingTarget', text: correctItem.image, matchId: 'spell', baseColor: correctItem.color, word: spellingTargetWord, x: canvas.width / 2, baseX: canvas.width / 2, y: tgtY, baseY: tgtY, radius: tgtR, isHovered: false, floatOffset: Math.random() * Math.PI * 2 });
+                let letters = spellingTargetWord.split('').sort(() => 0.5 - Math.random());
+                const maxW = canvas.width * 0.9, baseR = isMobile ? 32 : 45, baseS = isMobile ? 8 : 14;
+                const totalW = letters.length * (baseR * 2 + baseS);
+                const scale = totalW > maxW ? maxW / totalW : 1;
+                const r = baseR * scale, ls = (baseR * 2 + baseS) * scale;
+                const startX = (canvas.width - (ls * (letters.length - 1))) / 2;
+                const dragY = getGameY(0.80);
+                letters.forEach((char, i) => {
+                    const sx = startX + i * ls;
+                    draggables.push({ text: char, matchId: char, color: correctItem.color, x: sx, y: dragY, startX: sx, startY: dragY, radius: r, isDragged: false, scale: 1, type: 'letter' });
+                });
+            }
+        }
+
+        // ==================== MEDIAPIPE (OPTIMIZED) ====================
+        // [KAMPAI] guard MediaPipe: ถ้า CDN โหลดไม่ได้ (เครื่องโรงเรียน/offline) → shim no-op
+        // เกมยังเล่นได้ด้วยเมาส์/สัมผัส (กล้องจะไม่ตรวจมือ แต่ไม่ crash)
+        if (typeof Hands === 'undefined') {
+            window.Hands = function () { return { setOptions() {}, onResults() {}, send() { return Promise.resolve(); }, close() {} }; };
+        }
+        const hands = new Hands({ locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}` });
+
+        // ✅ KEY PERFORMANCE WIN: modelComplexity 0 (lite model, ~50% faster)
+        hands.setOptions({
+            maxNumHands: 1,
+            modelComplexity: 0,          // was 1 → now 0 (lite model)
+            minDetectionConfidence: 0.65,
+            minTrackingConfidence: 0.65
+        });
+
+        function analyzeHandGestures(landmarks) {
+            const [thumbTip, indexTip, middleTip, ringTip, pinkyTip] = [landmarks[4], landmarks[8], landmarks[12], landmarks[16], landmarks[20]];
+            const [thumbIP, indexPIP, middlePIP, ringPIP, pinkyPIP] = [landmarks[3], landmarks[6], landmarks[10], landmarks[14], landmarks[18]];
+            const wrist = landmarks[0];
+            const isIndexUp = indexTip.y < indexPIP.y, isMiddleUp = middleTip.y < middlePIP.y;
+            const isRingUp = ringTip.y < ringPIP.y, isPinkyUp = pinkyTip.y < pinkyPIP.y;
+            const distThumbIndex = Math.hypot(thumbTip.x - indexTip.x, thumbTip.y - indexTip.y);
+            const handSize = Math.hypot(wrist.x - middlePIP.x, wrist.y - middlePIP.y);
+            if (distThumbIndex < handSize * 0.4 && !isMiddleUp && !isRingUp) return 'pinch';
+            if (isIndexUp && isMiddleUp && isRingUp && isPinkyUp && distThumbIndex > handSize * 0.5) return 'open';
+            if (!isIndexUp && !isMiddleUp && !isRingUp && !isPinkyUp) return 'fist';
+            return 'none';
+        }
+
+        // ✅ NEW: Frame skip counter (skip every 2nd frame on mobile for perf)
+        let _frameCount = 0;
+
+        hands.onResults((results) => {
+            if (mouseMode) return; // mouse loop handles rendering
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save(); ctx.scale(-1, 1); ctx.drawImage(results.image, -canvas.width, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.6)'; ctx.fillRect(-canvas.width, 0, canvas.width, canvas.height);
+            ctx.restore();
+
+            let handDetected = false, gesture = 'none';
+
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                handDetected = true;
+                const landmarks = results.multiHandLandmarks[0];
+                const targetX = (1 - landmarks[9].x) * canvas.width;
+                const targetY = landmarks[9].y * canvas.height;
+                const smooth = 0.4;
+                handCursor.smoothX += (targetX - handCursor.smoothX) * smooth;
+                handCursor.smoothY += (targetY - handCursor.smoothY) * smooth;
+                gesture = analyzeHandGestures(landmarks);
+
+                const uiCursor = document.getElementById('uiCursor');
+                const uiIcon = document.getElementById('uiCursorIcon');
+                uiCursor.style.left = `${handCursor.smoothX}px`;
+                uiCursor.style.top = `${handCursor.smoothY}px`;
+                uiCursor.style.display = 'block';
+                if (gesture === 'pinch') uiIcon.innerText = '🤏';
+                else if (gesture === 'open') uiIcon.innerText = '🖐️';
+                else if (gesture === 'fist') uiIcon.innerText = '✊';
+                else uiIcon.innerText = '👆';
+
+                // ✅ Draw hand skeleton in both playing and tutorial states
+                if (gameState === 'playing' || gameState === 'tutorial') {
+                    drawHandTracking(landmarks, gesture);
+                }
+
+                // ✅ Tutorial gesture update
+                if (gameState === 'tutorial') {
+                    updateTutGesture(gesture);
+                }
+            } else {
+                document.getElementById('uiCursor').style.display = 'none';
+            }
+
+            // Global click (menus only, not tutorial/playing)
+            if (['menu','engStudy','engModeMenu','dict'].includes(gameState) && handDetected && ((gesture === 'fist' && lastGesture !== 'fist') || (gesture === 'pinch' && lastGesture !== 'pinch'))) {
+                const el = document.elementFromPoint(handCursor.smoothX, handCursor.smoothY);
+                if (el) {
+                    const btn = el.closest('button');
+                    if (btn) {
+                        initAudio(); btn.click();
+                        const cur = document.getElementById('uiCursor');
+                        cur.style.transform = 'translate(-50%, -50%) scale(0.6)';
+                        setTimeout(() => cur.style.transform = 'translate(-50%, -50%) scale(1)', 150);
+                    }
+                }
+            }
+
+            // Allow gesture clicks in tutorial for "ข้าม" button
+            if (gameState === 'tutorial' && handDetected && ((gesture === 'fist' && lastGesture !== 'fist') || (gesture === 'pinch' && lastGesture !== 'pinch'))) {
+                const el = document.elementFromPoint(handCursor.smoothX, handCursor.smoothY);
+                if (el) { const btn = el.closest('button[onclick]'); if (btn && btn.getAttribute('onclick')?.includes('skipTut')) { initAudio(); btn.click(); } }
+            }
+
+            // Swipe (menus only)
+            if (activeScrollContainer && !['playing','tutorial'].includes(gameState)) {
+                if (gesture === 'open') {
+                    if (!isSwiping) { isSwiping = true; swipeStartX = handCursor.smoothX; menuScrollStartX = activeScrollContainer.scrollLeft; activeScrollContainer._startY = handCursor.smoothY; activeScrollContainer._startScrollTop = activeScrollContainer.scrollTop; }
+                    const dY = (activeScrollContainer._startY || 0) - handCursor.smoothY;
+                    activeScrollContainer.scrollTop = (activeScrollContainer._startScrollTop || 0) + dY * 2;
+                    activeScrollContainer.scrollLeft = menuScrollStartX + (swipeStartX - handCursor.smoothX) * 2;
+                } else {
+                    isSwiping = false;
+                    activeScrollContainer._startY = handCursor.smoothY;
+                    activeScrollContainer._startScrollTop = activeScrollContainer.scrollTop;
+                }
+            }
+
+            // Game logic
+            if (gameState === 'playing') {
+                if (handDetected) {
+                    if (gesture === 'open' && heldItem) { heldItem.isDragged = false; heldItem = null; createFloatingText("ยกเลิก!", handCursor.smoothX, handCursor.smoothY, "#ffffff", 30); }
+                    if ((gesture === 'pinch' || gesture === 'fist') && !heldItem) {
+                        for (let d of draggables) {
+                            if (!d.faded && Math.hypot(handCursor.smoothX - d.x, handCursor.smoothY - d.y) < d.radius * 1.5) {
+                                d.isDragged = true; heldItem = d; initAudio(); playSound('grab'); createParticles(d.x, d.y, 10, '#facc15'); break;
+                            }
+                        }
+                    } else if (gesture !== 'pinch' && gesture !== 'fist' && heldItem && gesture !== 'open') {
+                        checkDropZone(); if (heldItem) { heldItem.isDragged = false; heldItem = null; }
+                    }
+                    if (heldItem) { heldItem.x += (handCursor.smoothX - heldItem.x) * 0.4; heldItem.y += (handCursor.smoothY - heldItem.y) * 0.4; }
+                } else {
+                    if (heldItem) { heldItem.isDragged = false; heldItem = null; }
+                }
+
+                draggables.forEach(d => { if (!d.isDragged) { d.x += (d.startX - d.x) * 0.15; d.y += (d.startY - d.y) * 0.15; } });
+
+                const time = Date.now() / 500;
+                targetAreas.forEach(t => {
+                    if (t.type === 'engTarget' || t.type === 'engSpellingTarget') { t.x = t.baseX + Math.sin(time + t.floatOffset) * 15; t.y = t.baseY + Math.cos(time * 0.8 + t.floatOffset) * 10; }
+                    if (heldItem) {
+                        if (['basket','engTarget','engSpellingTarget'].includes(t.type)) t.isHovered = Math.hypot(heldItem.x - t.x, heldItem.y - t.y) < t.radius * 1.5;
+                        else if (['sentence','synonym','builder'].includes(t.type)) t.isHovered = Math.abs(heldItem.x - t.x) < t.width/2 && Math.abs(heldItem.y - t.y) < t.height/2;
+                    } else t.isHovered = false;
+                });
+
+                targetAreas.forEach(t => drawTargetArea(t));
+                draggables.forEach(d => { if (!d.faded || d.isDragged) drawDraggable(d); });
+
+                // ✅ NEW: Gesture HUD indicator
+                drawGestureHUD(gesture, false);
+
+                updateParticles(); drawParticles(); updateAndDrawFloatingTexts();
+            }
+
+            lastGesture = gesture;
+        });
+
+        // ==================== GAME RULES ====================
+        function checkDropZone() {
+            let hitTarget = null;
+            for (let t of targetAreas) {
+                if (['basket','engTarget','engSpellingTarget'].includes(t.type) && Math.hypot(heldItem.x - t.x, heldItem.y - t.y) < t.radius * 1.8) hitTarget = t;
+                else if (['sentence','synonym','builder'].includes(t.type) && Math.abs(heldItem.x - t.x) < t.width/2 && Math.abs(heldItem.y - t.y) < t.height/2) hitTarget = t;
+            }
+            if (!hitTarget) return;
+
+            if (currentGameMode === 'sentence') {
+                let expected = currentSentenceData.words[sentenceProgress];
+                if (heldItem.text === expected) {
+                    sentenceProgress++; score += 10; scoreDisplay.innerText = score;
+                    playSound('correct'); createParticles(heldItem.x, heldItem.y, 10, '#4ade80');
+                    draggables = draggables.filter(d => d !== heldItem);
+                    let displayArr = currentSentenceData.words.map((w, i) => i < sentenceProgress ? w : "___");
+                    hitTarget.text = displayArr.join(" ");
+                    if (sentenceProgress === currentSentenceData.words.length) {
+                        score += 20; scoreDisplay.innerText = score;
+                        speakWord(currentSentenceData.words.join(" "), 'th-TH');
+                        createFloatingText('+30', hitTarget.x, hitTarget.y - 80, '#4ade80', 50);
+                        confetti({ particleCount: 50, spread: 70, origin: { x: hitTarget.x/canvas.width, y: hitTarget.y/canvas.height } });
+                        if (!isTransitioning) { isTransitioning = true; setTimeout(nextRound, 2500); }
+                    } else speakWord(expected, 'th-TH');
+                } else triggerFail();
+            }
+            else if (currentGameMode === 'spelling') {
+                let expected = spellingTargetWord[spellingProgress];
+                if (heldItem.text === expected) {
+                    spellingProgress++; score += 10; scoreDisplay.innerText = score;
+                    playSound('correct'); createParticles(hitTarget.x, hitTarget.y, 10, '#4ade80');
+                    draggables = draggables.filter(d => d !== heldItem);
+                    speakWord(expected, 'en-US');
+                    if (spellingProgress === spellingTargetWord.length) {
+                        score += 20; scoreDisplay.innerText = score;
+                        speakWord(spellingTargetWord, 'en-US');
+                        createFloatingText('+30', hitTarget.x, hitTarget.y - 80, '#4ade80', 50);
+                        confetti({ particleCount: 50, spread: 70, origin: { x: hitTarget.x/canvas.width, y: hitTarget.y/canvas.height }, colors: [hitTarget.baseColor, '#fff'] });
+                        if (!isTransitioning) { isTransitioning = true; setTimeout(nextRound, 1500); }
+                    }
+                } else triggerFail();
+            }
+            else {
+                if (hitTarget.matchId === heldItem.matchId) {
+                    if (currentGameMode === 'grammar') hitTarget.text = hitTarget.text.replace("___", heldItem.text);
+                    else if (currentGameMode === 'synonym') { let p = hitTarget.text.split("\n"); hitTarget.text = `${p[0]}\n${p[1]} = ${heldItem.text}`; }
+                    triggerWin(heldItem, hitTarget);
+                    draggables = draggables.filter(d => d !== heldItem);
+                    if (['grammar','synonym','classic','translation'].includes(currentGameMode)) {
+                        draggables.forEach(d => d.faded = true);
+                        const delay = ['classic','translation'].includes(currentGameMode) ? 1000 : Math.max(2000, hitTarget.text.length * 50);
+                        if (!isTransitioning) { isTransitioning = true; setTimeout(nextRound, delay); }
+                    } else if (draggables.length === 0) {
+                        if (!isTransitioning) { isTransitioning = true; setTimeout(nextRound, 800); }
+                    }
+                } else triggerFail();
+            }
+        }
+
+        function triggerWin(item, target) {
+            score += 20; scoreDisplay.innerText = score; playSound('correct');
+            let textToSpeak = item.text;
+            if (['grammar','synonym','matra','cluster','sentence'].includes(currentGameMode)) {
+                if (currentGameMode === 'grammar') textToSpeak = target.text;
+                else if (currentGameMode === 'synonym') textToSpeak = target.text.replace('\n', ' หมายถึง ');
+                speakWord(textToSpeak, 'th-TH');
+            } else {
+                if (currentGameMode === 'classic') speakWord(item.text, 'en-US');
+                else if (currentGameMode === 'translation') speakWord(target.text, 'th-TH');
+            }
+            createFloatingText('+20', target.x, target.y - 80, '#4ade80', 50);
+            confetti({ particleCount: 50, spread: 70, origin: { x: target.x/canvas.width, y: target.y/canvas.height }, colors: [target.color || target.baseColor || '#4ade80', '#fff'] });
+        }
+
+        function triggerFail() {
+            playSound('wrong');
+            createFloatingText('❌ ผิด!', heldItem.x, heldItem.y - 50, '#ef4444', 40);
+            canvas.style.transform = 'translate(15px, 0)';
+            setTimeout(() => canvas.style.transform = 'translate(-15px, 0)', 50);
+            setTimeout(() => canvas.style.transform = 'translate(0, 0)', 100);
+            heldItem.x = heldItem.startX; heldItem.y = heldItem.startY;
+        }
+
+        // ==================== RENDERERS ====================
+        function drawHandTracking(landmarks, gesture) {
+            ctx.save(); ctx.scale(-1, 1); ctx.translate(-canvas.width, 0);
+            ctx.strokeStyle = gesture === 'pinch' ? '#facc15' : gesture === 'open' ? '#38bdf8' : gesture === 'fist' ? '#f97316' : '#ffffff';
+            ctx.lineWidth = 4;
+            const conn = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[17,18],[18,19],[19,20],[0,17]];
+            ctx.beginPath();
+            for (let c of conn) { ctx.moveTo(landmarks[c[0]].x * canvas.width, landmarks[c[0]].y * canvas.height); ctx.lineTo(landmarks[c[1]].x * canvas.width, landmarks[c[1]].y * canvas.height); }
+            ctx.stroke();
+            [4,8,12,16,20].forEach(idx => { ctx.beginPath(); ctx.arc(landmarks[idx].x * canvas.width, landmarks[idx].y * canvas.height, 8, 0, Math.PI*2); ctx.fillStyle = idx === 8 ? '#facc15' : '#ffffff'; ctx.fill(); });
+            ctx.restore();
+        }
+
+        function drawTargetArea(t) {
+            ctx.save(); ctx.translate(t.x, t.y);
+            if (t.type === 'basket' || t.type === 'engTarget') {
+                const cr = t.isHovered ? t.radius * 1.1 : t.radius;
+                ctx.beginPath(); ctx.arc(0, 0, cr, 0, Math.PI * 2);
+                const grad = ctx.createRadialGradient(0,0,cr*0.2,0,0,cr);
+                grad.addColorStop(0, 'rgba(255,255,255,0.9)');
+                grad.addColorStop(1, t.isHovered ? (t.color||t.baseColor) : 'rgba(255,255,255,0.3)');
+                ctx.fillStyle = grad; ctx.fill();
+                ctx.lineWidth = t.isHovered ? 6 : 4; ctx.strokeStyle = t.isHovered ? '#ffffff' : (t.color||t.baseColor); ctx.stroke();
+                ctx.fillStyle = '#0f172a';
+                let fs = t.isHovered ? cr * 0.9 : cr * 0.8;
+                ctx.font = `bold ${fs}px Kanit`;
+                const maxW = cr * 1.6;
+                if (ctx.measureText(t.text).width > maxW) { fs = fs * (maxW / ctx.measureText(t.text).width); ctx.font = `bold ${fs}px Kanit`; }
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(t.text, 0, 0);
+                if (t.type === 'basket' && t.isHovered) { ctx.font = '50px Arial'; ctx.fillText("📥", 0, -cr * 0.6); }
+            }
+            else if (t.type === 'engSpellingTarget') {
+                const cr = t.isHovered ? t.radius * 1.1 : t.radius;
+                ctx.beginPath(); ctx.arc(0, 0, cr, 0, Math.PI * 2);
+                const grad = ctx.createRadialGradient(0,0,cr*0.2,0,0,cr);
+                grad.addColorStop(0, 'rgba(255,255,255,0.9)'); grad.addColorStop(1, t.baseColor);
+                ctx.fillStyle = grad; ctx.fill(); ctx.lineWidth = 4; ctx.strokeStyle = t.baseColor; ctx.stroke();
+                ctx.font = `${cr*1.2}px Arial`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(t.text, 0, cr*0.1);
+                // Letter slots
+                const lw = isMobile ? 28 : 46, ls = isMobile ? 8 : 12;
+                const maxW = canvas.width * 0.85;
+                const word = t.word || spellingTargetWord;
+                const totalW = word.length * (lw + ls);
+                const sc = totalW > maxW ? maxW / totalW : 1;
+                const lws = lw * sc, lss = ls * sc;
+                const startX = -(totalW * sc) / 2 + lws / 2;
+                const cy = cr + (isMobile ? 22 : 30);
+                ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.font = `bold ${lws}px Kanit`;
+                for (let i = 0; i < word.length; i++) {
+                    const lx = startX + i * (lws + lss);
+                    ctx.beginPath(); ctx.moveTo(lx - lws/2, cy + 8*sc); ctx.lineTo(lx + lws/2, cy + 8*sc);
+                    ctx.lineWidth = 3*sc; ctx.strokeStyle = i === spellingProgress ? '#facc15' : 'rgba(255,255,255,0.4)'; ctx.stroke();
+                    if (i < spellingProgress) { ctx.fillStyle = '#4ade80'; ctx.strokeStyle = '#000'; ctx.lineWidth = 2*sc; ctx.strokeText(word[i], lx, cy+4*sc); ctx.fillText(word[i], lx, cy+4*sc); }
+                }
+            }
+            else if (['sentence','synonym','builder'].includes(t.type)) {
+                ctx.beginPath(); ctx.roundRect(-t.width/2, -t.height/2, t.width, t.height, 30);
+                ctx.fillStyle = t.isHovered ? t.color : 'rgba(30, 41, 59, 0.9)';
+                ctx.lineWidth = 6; ctx.strokeStyle = t.color; ctx.fill(); ctx.stroke();
+                ctx.fillStyle = '#ffffff';
+                if (t.type === 'sentence' || t.type === 'builder') {
+                    let displayTxt = t.text;
+                    if (t.isHovered && heldItem) displayTxt = displayTxt.replace("___", `[ ${heldItem.text} ]`);
+                    let fs = 40; ctx.font = `bold ${fs}px Kanit`;
+                    const maxW = t.width * 0.9;
+                    if (ctx.measureText(displayTxt).width > maxW) { fs = fs * (maxW / ctx.measureText(displayTxt).width); ctx.font = `bold ${fs}px Kanit`; }
+                    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(displayTxt, 0, 0);
+                } else if (t.type === 'synonym') {
+                    const parts = t.text.split("\n");
+                    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                    if (parts.length > 1) {
+                        ctx.font = 'bold 28px Kanit'; ctx.fillStyle = '#cbd5e1'; ctx.fillText(parts[0], 0, -20);
+                        let fs = 45; ctx.font = `bold ${fs}px Kanit`; ctx.fillStyle = '#ffffff';
+                        const maxW = t.width * 0.9;
+                        if (ctx.measureText(parts[1].trim()).width > maxW) { fs = fs * (maxW / ctx.measureText(parts[1].trim()).width); ctx.font = `bold ${fs}px Kanit`; }
+                        ctx.fillText(parts[1].trim(), 0, 25);
+                    } else { ctx.font = 'bold 40px Kanit'; ctx.fillText(t.text, 0, 0); }
+                }
+            }
+            ctx.restore();
+        }
+
+        function drawDraggable(w) {
+            if (w.faded) return;
+            if (w.scale === undefined) w.scale = 1;
+            ctx.save(); ctx.translate(w.x, w.y);
+            if (w.isDragged) { w.scale += (1.1 - w.scale) * 0.2; ctx.rotate(Math.sin(Date.now()/100)*0.1); }
+            else w.scale += (1 - w.scale) * 0.2;
+            ctx.scale(w.scale, w.scale);
+            const bw = w.radius * 2, bh = w.type === 'letter' ? w.radius * 2 : (isMobile ? 56 : 90);
+            ctx.beginPath(); ctx.roundRect(-bw/2, -bh/2, bw, bh, w.type === 'letter' ? 15 : 20);
+            const grad = ctx.createLinearGradient(0, -bh/2, 0, bh/2);
+            if (w.isDragged) { grad.addColorStop(0, '#fef08a'); grad.addColorStop(1, '#eab308'); }
+            else { grad.addColorStop(0, '#ffffff'); grad.addColorStop(1, '#e2e8f0'); }
+            ctx.fillStyle = grad;
+            ctx.shadowColor = w.isDragged ? (w.color || 'rgba(0,0,0,0.5)') : 'rgba(0,0,0,0.5)';
+            ctx.shadowBlur = w.isDragged ? 20 : 10; ctx.shadowOffsetY = w.isDragged ? 10 : 5;
+            ctx.fill(); ctx.shadowColor = 'transparent';
+            ctx.lineWidth = 4; ctx.strokeStyle = w.color || '#0f172a'; ctx.stroke();
+            ctx.fillStyle = '#0f172a';
+            let fs = w.type === 'letter' ? w.radius * 1.2 : (isMobile ? 24 : 36);
+            ctx.font = `bold ${fs}px Kanit`;
+            const maxW = bw * 0.85;
+            if (ctx.measureText(w.text).width > maxW) { fs = fs * (maxW / ctx.measureText(w.text).width); ctx.font = `bold ${fs}px Kanit`; }
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(w.text, 0, 5);
+            ctx.restore();
+        }
+
+        // ✅ NEW: Gesture HUD - small indicator bottom-left during gameplay
+        function drawGestureHUD(gesture, isMouseMode) {
+            const icons = { pinch: '🤏', fist: '✊', open: '🖐️', none: isMouseMode ? '🖱️' : '👆' };
+            const names = { pinch: 'จีบ', fist: isMouseMode ? 'คลิก' : 'กำ', open: 'แบ', none: isMouseMode ? 'เมาส์' : 'ชี้' };
+            const colors = { pinch: '#facc15', fist: '#fb923c', open: '#38bdf8', none: '#94a3b8' };
+            const g = gesture || 'none';
+            const x = 16, y = canvas.height - (isMobile ? 100 : 80);
+            ctx.save();
+            ctx.fillStyle = 'rgba(0,0,0,0.45)';
+            ctx.beginPath(); ctx.roundRect(x, y, 84, 38, 10); ctx.fill();
+            ctx.font = '22px Arial'; ctx.fillText(icons[g], x + 6, y + 28);
+            ctx.font = `bold 14px Kanit`; ctx.fillStyle = colors[g];
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.fillText(names[g], x + 36, y + 19);
+            ctx.restore();
+        }
+
+        // ==================== VISUAL EFFECTS ====================
+        function createParticles(x, y, count, color) { for (let i = 0; i < count; i++) floatingParticles.push({ x: x+(Math.random()-0.5)*40, y: y+(Math.random()-0.5)*40, vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10, life: 1, color }); }
+        function updateParticles() { for (let i = floatingParticles.length - 1; i >= 0; i--) { const p = floatingParticles[i]; p.x += p.vx; p.y += p.vy; p.life -= 0.03; if (p.life <= 0) floatingParticles.splice(i, 1); } }
+        function drawParticles() { floatingParticles.forEach(p => { ctx.globalAlpha = p.life; ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, p.life * 8, 0, Math.PI*2); ctx.fill(); }); ctx.globalAlpha = 1; }
+        function createFloatingText(text, x, y, color, size) { floatingTexts.push({ text, x, y, color, size, life: 1, vy: -2 }); }
+        function updateAndDrawFloatingTexts() {
+            for (let i = floatingTexts.length - 1; i >= 0; i--) {
+                const ft = floatingTexts[i]; ft.y += ft.vy; ft.life -= 0.02;
+                ctx.save(); ctx.globalAlpha = Math.max(0, ft.life);
+                ctx.fillStyle = ft.color; ctx.font = `bold ${ft.size + (1-ft.life)*10}px Kanit`;
+                ctx.textAlign = 'center'; ctx.lineWidth = 4; ctx.strokeStyle = '#000';
+                ctx.strokeText(ft.text, ft.x, ft.y); ctx.fillText(ft.text, ft.x, ft.y);
+                ctx.restore(); if (ft.life <= 0) floatingTexts.splice(i, 1);
+            }
+        }
+
+        // ==================== CAMERA INIT (OPTIMIZED) ====================
+        function initCamera() {
+            if (isCameraInitialized) return;
+
+            const videoConstraints = {
+                width:  { ideal: isMobile ? 640 : 1280 },
+                height: { ideal: isMobile ? 480 : 720 },
+                facingMode: 'user'
+            };
+
+            navigator.mediaDevices.getUserMedia({ video: videoConstraints })
+            .then(stream => {
+                isCameraInitialized = true;
+                video.srcObject = stream;
+                video.onloadedmetadata = () => {
+                    video.play().then(() => {
+                        let frameCount = 0;
+                        async function predictLoop() {
+                            frameCount++;
+                            const shouldProcess = !isMobile || (frameCount % 2 === 0);
+                            if (shouldProcess && video.readyState >= 2 && video.videoWidth > 0) {
+                                try { await hands.send({ image: video }); } catch(e) { /* silent */ }
+                            }
+                            requestAnimationFrame(predictLoop);
+                        }
+                        predictLoop();
+                    }).catch(e => console.error("Video play error:", e));
+                };
+            })
+            .catch(err => {
+                console.error("Camera error:", err);
+                const isPermDenied = err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError';
+                document.getElementById('loadingMsg').innerHTML = `
+                    <div class="text-6xl mb-4">${isPermDenied ? '🔒' : '📷❌'}</div>
+                    <div class="text-center px-6 max-w-lg">
+                        <p class="text-2xl font-bold text-red-400 mb-3">
+                            ${isPermDenied ? 'กล้องถูกบล็อก' : 'ไม่สามารถเปิดกล้องได้'}
+                        </p>
+                        ${isPermDenied ? `
+                        <div class="bg-slate-800 rounded-2xl p-5 mb-5 text-left border border-slate-600">
+                            <p class="text-white font-bold mb-3 text-lg">📋 วิธีอนุญาตกล้อง:</p>
+                            <p class="text-slate-300 text-sm mb-1">🔵 <b>Chrome:</b> คลิกไอคอน 🔒 ซ้ายของ URL → กล้อง → อนุญาต</p>
+                            <p class="text-slate-300 text-sm mb-1">🟠 <b>Firefox:</b> คลิกไอคอนกล้องข้าง URL → อนุญาต</p>
+                            <p class="text-slate-300 text-sm">🍎 <b>Safari:</b> การตั้งค่า → เว็บไซต์ → กล้อง → อนุญาต</p>
+                        </div>` : ''}
+                        <p class="text-slate-400 text-base mb-6">หรือเล่นแบบ <b class="text-white">เมาส์/สัมผัส</b> ได้เลยโดยไม่ต้องใช้กล้อง</p>
+                        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                            <button onclick="location.reload()"
+                                class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-8 rounded-full border-2 border-slate-500 transition-transform hover:scale-105 text-lg">
+                                🔄 รีเฟรชและลองใหม่
+                            </button>
+                            <button onclick="enableMouseMode()"
+                                class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold py-3 px-8 rounded-full border-2 border-white/20 transition-transform hover:scale-105 text-lg shadow-lg">
+                                🖱️ เล่นแบบเมาส์/สัมผัส
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // ==================== MOUSE / TOUCH FALLBACK MODE ====================
+        let mouseMode = false;
+        let mouseDown = false;
+        let _rafId = null;
+
+        function enableMouseMode() {
+            mouseMode = true;
+            isCameraInitialized = true; // treat as ready so tutorial skip works
+            document.getElementById('loadingMsg').style.display = 'none';
+
+            // Show persistent mode badge
+            const badge = document.createElement('div');
+            badge.id = 'modeBadge';
+            badge.style.cssText = 'position:fixed;bottom:16px;right:70px;z-index:200;background:rgba(15,23,42,0.85);border:1px solid rgba(255,255,255,0.15);border-radius:999px;padding:6px 14px;font-size:13px;color:#94a3b8;font-family:Kanit,sans-serif;pointer-events:none;';
+            badge.innerText = '🖱️ โหมดเมาส์';
+            document.body.appendChild(badge);
+
+            showMenu();
+            startMouseLoop();
+            setupPointerEvents();
+        }
+
+        function setupPointerEvents() {
+            // ── Mouse ──
+            window.addEventListener('mousemove', e => {
+                handCursor.smoothX = e.clientX;
+                handCursor.smoothY = e.clientY;
+            });
+            window.addEventListener('mousedown', e => {
+                if (e.button !== 0) return;
+                mouseDown = true;
+                if (gameState !== 'playing') {
+                    // Menu click via mouse
+                    const el = document.elementFromPoint(e.clientX, e.clientY);
+                    if (el) { const btn = el.closest('button'); if (btn) { initAudio(); btn.click(); } }
+                }
+            });
+            window.addEventListener('mouseup', () => { mouseDown = false; });
+
+            // ── Touch ──
+            window.addEventListener('touchmove', e => {
+                e.preventDefault();
+                handCursor.smoothX = e.touches[0].clientX;
+                handCursor.smoothY = e.touches[0].clientY;
+            }, { passive: false });
+            window.addEventListener('touchstart', e => {
+                handCursor.smoothX = e.touches[0].clientX;
+                handCursor.smoothY = e.touches[0].clientY;
+                mouseDown = true;
+                if (gameState !== 'playing') {
+                    const el = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+                    if (el) { const btn = el.closest('button'); if (btn) { initAudio(); btn.click(); } }
+                }
+            }, { passive: true });
+            window.addEventListener('touchend', () => { mouseDown = false; });
+        }
+
+        function startMouseLoop() {
+            if (_rafId) cancelAnimationFrame(_rafId);
+
+            function loop() {
+                if (!mouseMode) return;
+                _rafId = requestAnimationFrame(loop);
+
+                // Draw background (no camera feed)
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                // subtle dot grid
+                ctx.fillStyle = 'rgba(255,255,255,0.025)';
+                for (let gx = 0; gx < canvas.width; gx += 40)
+                    for (let gy = 0; gy < canvas.height; gy += 40)
+                        { ctx.beginPath(); ctx.arc(gx, gy, 1.5, 0, Math.PI*2); ctx.fill(); }
+
+                // Update cursor icon
+                const uiCursor = document.getElementById('uiCursor');
+                const uiIcon  = document.getElementById('uiCursorIcon');
+                uiCursor.style.left = `${handCursor.smoothX}px`;
+                uiCursor.style.top  = `${handCursor.smoothY}px`;
+                uiCursor.style.display = 'block';
+                uiIcon.innerText = mouseDown ? '✊' : '👆';
+
+                if (gameState === 'playing') {
+                    // Pick up
+                    if (mouseDown && !heldItem) {
+                        for (let d of draggables) {
+                            if (!d.faded && Math.hypot(handCursor.smoothX - d.x, handCursor.smoothY - d.y) < d.radius * 1.5) {
+                                d.isDragged = true; heldItem = d;
+                                initAudio(); playSound('grab');
+                                createParticles(d.x, d.y, 10, '#facc15');
+                                break;
+                            }
+                        }
+                    }
+                    // Release / drop
+                    if (!mouseDown && heldItem) {
+                        checkDropZone();
+                        if (heldItem) { heldItem.isDragged = false; heldItem = null; }
+                    }
+                    // Drag
+                    if (heldItem && mouseDown) {
+                        heldItem.x += (handCursor.smoothX - heldItem.x) * 0.4;
+                        heldItem.y += (handCursor.smoothY - heldItem.y) * 0.4;
+                    }
+
+                    draggables.forEach(d => { if (!d.isDragged) { d.x += (d.startX - d.x) * 0.15; d.y += (d.startY - d.y) * 0.15; } });
+
+                    const time = Date.now() / 500;
+                    targetAreas.forEach(t => {
+                        if (t.type === 'engTarget' || t.type === 'engSpellingTarget') {
+                            t.x = t.baseX + Math.sin(time + t.floatOffset) * 15;
+                            t.y = t.baseY + Math.cos(time * 0.8 + t.floatOffset) * 10;
+                        }
+                        if (heldItem) {
+                            if (['basket','engTarget','engSpellingTarget'].includes(t.type))
+                                t.isHovered = Math.hypot(heldItem.x - t.x, heldItem.y - t.y) < t.radius * 1.5;
+                            else if (['sentence','synonym','builder'].includes(t.type))
+                                t.isHovered = Math.abs(heldItem.x - t.x) < t.width/2 && Math.abs(heldItem.y - t.y) < t.height/2;
+                        } else t.isHovered = false;
+                    });
+
+                    targetAreas.forEach(t => drawTargetArea(t));
+                    draggables.forEach(d => { if (!d.faded || d.isDragged) drawDraggable(d); });
+                    drawGestureHUD(mouseDown ? 'fist' : 'none', true);
+                    updateParticles(); drawParticles(); updateAndDrawFloatingTexts();
+                }
+            }
+            loop();
+        }
+
+    </script>
+</body>
+</html>
