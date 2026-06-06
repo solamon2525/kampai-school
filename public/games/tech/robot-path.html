@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>หุ่นยนต์ทำตามคำสั่ง — Robot Path (kampai)</title>
+<!--
+═══════════════════════════════════════════════════════════════════════════
+  KAMPAI-SCHOOL · เกม "หุ่นยนต์ทำตามคำสั่ง" (robot-path) — เทคโนโลยี (วิทยาการคำนวณ) ป.4-6
+  วางลำดับคำสั่ง ⬆️⬇️⬅️➡️ (+ ทำซ้ำทั้งชุด ×N) ให้หุ่นเดินบน grid หลบสิ่งกีดขวาง เก็บดาว ถึงธง
+  กด ▶️ รัน → หุ่นเดินทีละช่อง · ชนกำแพง/ออกนอกตาราง = พลาด แก้แล้วรันใหม่ได้ (debug)
+  แกนวิชา: การคิดเชิงคำนวณ · ขั้นตอนวิธี (algorithm) · ลูป · การแก้จุดบกพร่อง
+  โหมด: แข่งด่าน (3 ชีวิต + คอมโบ นับอันดับ) · ฝึกหัด (ไม่กดดัน)
+  Pre-wired ผ่าน KAMPAI SDK: เก็บคะแนน + ผูกนักเรียน + leaderboard ในเกม
+═══════════════════════════════════════════════════════════════════════════
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Fredoka+One&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; font-family: 'Kanit', sans-serif; color: #fff; overflow: hidden; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+body { background: linear-gradient(180deg, #1e293b 0%, #0f172a 60%, #020617 100%); }
+#app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+
+/* ── HUD ── */
+#hud { display: none; align-items: center; justify-content: space-between; padding: 10px 14px; gap: 6px; }
+#hud.on { display: flex; }
+#score-container { font-size: 22px; font-weight: 700; color: #FFD700; text-shadow: 2px 2px 4px #000; background: rgba(0,0,0,0.3); padding: 3px 12px; border-radius: 999px; border: 2px solid rgba(255,215,0,0.5); transition: transform 0.15s; white-space: nowrap; }
+#score-container.pop { transform: scale(1.18); }
+#combo-badge { font-family: 'Fredoka One', cursive; font-size: 14px; color: #0f172a; background: linear-gradient(45deg,#fbbf24,#f59e0b); padding: 3px 10px; border-radius: 999px; opacity: 0; transform: scale(0.6); transition: all 0.18s; white-space: nowrap; }
+#combo-badge.on { opacity: 1; transform: scale(1); }
+#level-badge { font-size: 14px; font-weight: 600; color: #a5b4fc; background: rgba(99,102,241,0.2); padding: 3px 12px; border-radius: 999px; white-space: nowrap; }
+#life-container { font-size: 20px; white-space: nowrap; }
+#finish-btn { display: none; font-family: inherit; font-size: 13px; font-weight: 600; color: #fff; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.25); border-radius: 999px; padding: 4px 12px; cursor: pointer; white-space: nowrap; }
+
+/* ── พื้นเล่น ── */
+#play { flex: 1; display: none; flex-direction: column; align-items: center; justify-content: flex-start; padding: 6px 12px 14px; gap: 8px; overflow-y: auto; }
+#play.on { display: flex; }
+#level-info { text-align: center; font-size: 13.5px; color: #cbd5e1; line-height: 1.4; }
+#level-info b { color: #fde047; }
+
+/* ตาราง grid */
+#grid-wrap { position: relative; width: 100%; max-width: 320px; margin: 2px auto; }
+#grid { display: grid; gap: 4px; width: 100%; }
+.cell { aspect-ratio: 1 / 1; border-radius: 9px; background: rgba(148,163,184,0.12); border: 1px solid rgba(148,163,184,0.18); display: flex; align-items: center; justify-content: center; font-size: 22px; position: relative; }
+.cell.wall { background: linear-gradient(135deg,#7c2d12,#431407); border-color: #92400e; }
+.cell.goal { background: linear-gradient(135deg,#15803d,#166534); border-color: #22c55e; }
+.cell.star.taken .star-emo { opacity: 0; transform: scale(0.2); }
+.star-emo { transition: opacity 0.25s, transform 0.25s; }
+.cell.start-cell { outline: 2px dashed rgba(125,211,252,0.5); outline-offset: -3px; }
+#robot { position: absolute; left: 0; top: 0; display: flex; align-items: center; justify-content: center; font-size: 26px; transition: left 0.28s ease, top 0.28s ease, transform 0.12s; z-index: 5; pointer-events: none; }
+#robot.bump { transform: scale(0.82); }
+#robot.win { animation: rp-win 0.6s ease; }
+@keyframes rp-win { 0%,100%{transform:scale(1) rotate(0)} 30%{transform:scale(1.3) rotate(-12deg)} 60%{transform:scale(1.3) rotate(12deg)} }
+
+/* แถบโปรแกรม (ลำดับคำสั่ง) */
+#prog-wrap { width: 100%; max-width: 340px; }
+#prog { display: flex; flex-wrap: wrap; gap: 4px; min-height: 40px; padding: 6px 8px; background: rgba(15,23,42,0.6); border: 1px dashed rgba(148,163,184,0.35); border-radius: 12px; align-content: flex-start; }
+#prog:empty::before { content: 'เพิ่มคำสั่งให้หุ่นเดิน…'; color: #64748b; font-size: 13px; }
+.cmd-chip { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg,#6366f1,#4338ca); display: flex; align-items: center; justify-content: center; font-size: 17px; box-shadow: 0 2px 0 #312e81; }
+.cmd-chip.running { background: linear-gradient(135deg,#fbbf24,#f59e0b); box-shadow: 0 2px 0 #b45309; transform: scale(1.12); }
+
+/* แผงปุ่ม */
+#pad { display: grid; grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(2, 46px); gap: 6px; justify-content: center; }
+.pad-btn { font-family: inherit; font-size: 22px; border: none; border-radius: 12px; cursor: pointer; color: #fff; background: linear-gradient(135deg,#334155,#1e293b); box-shadow: 0 4px 0 #0f172a; display: flex; align-items: center; justify-content: center; transition: transform 0.07s, box-shadow 0.07s; }
+.pad-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #0f172a; }
+.pad-up { grid-column: 2; grid-row: 1; }
+.pad-left { grid-column: 1; grid-row: 2; }
+.pad-down { grid-column: 2; grid-row: 2; }
+.pad-right { grid-column: 3; grid-row: 2; }
+
+#loop-row { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #e2e8f0; }
+.loop-step { width: 32px; height: 32px; border-radius: 50%; border: none; background: #475569; color: #fff; font-size: 20px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.loop-step:active { transform: scale(0.9); }
+#loop-n { font-family: 'Fredoka One', cursive; font-size: 20px; color: #fde047; min-width: 26px; text-align: center; }
+
+#actions { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.act-btn { font-family: inherit; font-size: 15px; font-weight: 600; border: none; border-radius: 999px; cursor: pointer; color: #fff; padding: 9px 16px; display: inline-flex; align-items: center; gap: 5px; transition: transform 0.1s; }
+.act-btn:active { transform: scale(0.94); }
+.act-run { background: linear-gradient(45deg,#22c55e,#16a34a); box-shadow: 0 4px 10px rgba(34,197,94,0.4); }
+.act-undo { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.22); }
+.act-clear { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.22); }
+.act-btn:disabled { opacity: 0.45; pointer-events: none; }
+
+#feedback { height: 22px; font-size: 15px; font-weight: 600; text-align: center; }
+#feedback.good { color: #4ade80; }
+#feedback.bad { color: #fca5a5; }
+
+/* ── จอ (เริ่ม / จบ) ── */
+.screen { position: absolute; inset: 0; background: rgba(2,6,23,0.94); backdrop-filter: blur(8px); display: none; flex-direction: column; align-items: center; justify-content: flex-start; z-index: 30; text-align: center; padding: 26px 20px; overflow-y: auto; }
+.screen.on { display: flex; }
+.screen h1 { font-family: 'Fredoka One', cursive; font-size: 32px; margin-bottom: 6px; background: linear-gradient(135deg, #818cf8, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.screen p { font-size: 14.5px; color: #cbd5e1; margin-bottom: 12px; line-height: 1.55; }
+.screen p .k { display: inline-block; background: rgba(99,102,241,0.3); border-radius: 6px; padding: 0 6px; margin: 0 1px; }
+#final-score { color: #fde047; font-family: 'Fredoka One', cursive; font-size: 52px; margin: 4px 0; }
+#final-detail { font-size: 14px; color: #cbd5e1; margin-bottom: 12px; }
+.btn { padding: 12px 26px; font-family: inherit; font-size: 17px; font-weight: 600; border-radius: 999px; border: none; cursor: pointer; margin: 5px; transition: transform 0.1s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; color: #fff; }
+.btn:active { transform: scale(0.95); }
+.btn-primary { background: linear-gradient(45deg, #6366f1, #4f46e5); box-shadow: 0 4px 10px rgba(99,102,241,0.4); }
+.btn-blue { background: linear-gradient(45deg, #3b82f6, #2563eb); box-shadow: 0 4px 10px rgba(59,130,246,0.4); }
+.btn-ghost { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); }
+.mode-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 10px; }
+
+/* leaderboard + player chip (reuse template look) */
+.leaderboard-box { background: rgba(255,255,255,0.95); color: #2c3e50; border-radius: 12px; padding: 12px 15px; margin: 10px 0; width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.lb-title { font-family: 'Fredoka One', cursive; font-size: 1rem; margin: 0 0 8px 0; text-align: left; }
+.leaderboard-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.leaderboard-list li { display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-bottom: 1px dashed #dee2e6; }
+.leaderboard-list li:last-child { border-bottom: none; }
+.leaderboard-list li.is-me { background: #fff7e0; border-radius: 8px; }
+.lb-rank { font-family: 'Fredoka One', cursive; color: #f39c12; min-width: 26px; text-align: center; font-size: 1.1rem; }
+.lb-avatar, .lb-avatar-init { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #f39c12; flex-shrink: 0; }
+.lb-avatar-init { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.lb-info { display: flex; flex-direction: column; min-width: 0; flex: 1; text-align: left; }
+.lb-name { font-family: 'Fredoka One', cursive; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-sub { font-size: 0.72rem; color: #868e96; }
+.lb-loading { color: #868e96; text-align: center; padding: 8px; font-size: 0.85rem; }
+#player-chip { display: none; align-items: center; gap: 8px; background: rgba(255,255,255,0.12); padding: 4px 14px 4px 4px; border-radius: 999px; font-size: 14px; margin-bottom: 12px; }
+#player-chip img, #player-chip .pc-init { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+#player-chip .pc-init { background: linear-gradient(135deg,#6c5ce7,#a29bfe); display: flex; align-items: center; justify-content: center; font-weight: 700; }
+#player-chip .pc-best { color: #FFD700; font-weight: 700; }
+</style>
+</head>
+<body>
+<div id="app">
+    <!-- HUD -->
+    <div id="hud">
+        <div id="score-container">⭐ <span id="score-value">0</span></div>
+        <div id="combo-badge">🔥 x1</div>
+        <div id="level-badge">ด่าน <span id="hud-lv">1</span></div>
+        <div id="life-container">❤️❤️❤️</div>
+        <button id="finish-btn" onclick="endGame()">🏁 จบ</button>
+    </div>
+
+    <!-- พื้นเล่น -->
+    <div id="play">
+        <div id="level-info"></div>
+        <div id="grid-wrap"><div id="grid"></div><div id="robot">🤖</div></div>
+        <div id="prog-wrap"><div id="prog"></div></div>
+        <div id="pad">
+            <button class="pad-btn pad-up" onclick="addCmd('up')">⬆️</button>
+            <button class="pad-btn pad-left" onclick="addCmd('left')">⬅️</button>
+            <button class="pad-btn pad-down" onclick="addCmd('down')">⬇️</button>
+            <button class="pad-btn pad-right" onclick="addCmd('right')">➡️</button>
+        </div>
+        <div id="loop-row">🔁 ทำซ้ำทั้งชุด:
+            <button class="loop-step" onclick="changeLoop(-1)">−</button>
+            <span id="loop-n">×1</span>
+            <button class="loop-step" onclick="changeLoop(1)">+</button>
+        </div>
+        <div id="actions">
+            <button class="act-btn act-undo" onclick="undoCmd()">⬅️ ลบ</button>
+            <button class="act-btn act-clear" onclick="clearCmd()">🗑️ ล้าง</button>
+            <button class="act-btn act-run" id="run-btn" onclick="runAnim()">▶️ รัน</button>
+        </div>
+        <div id="feedback"></div>
+    </div>
+</div>
+
+<!-- Start screen -->
+<div id="start" class="screen on">
+    <h1>🤖 หุ่นยนต์ทำตามคำสั่ง</h1>
+    <div id="player-chip"></div>
+    <p>วางลำดับคำสั่ง <span class="k">⬆️</span><span class="k">⬇️</span><span class="k">⬅️</span><span class="k">➡️</span> ให้หุ่นเดินถึง <b>ธง 🏁</b><br>
+       หลบ <b>กำแพง 🧱</b> · เก็บ <b>ดาว ⭐</b> ให้ครบ · ใช้ <b>🔁 ทำซ้ำ</b> ช่วยให้สั้นลง!<br>
+       กด <span class="k">▶️ รัน</span> เพื่อดูหุ่นเดิน — ชนแล้วแก้คำสั่งใหม่ได้</p>
+    <div class="mode-grid">
+        <button class="btn btn-primary" onclick="chooseMode('race')">⚡ แข่งด่าน</button>
+        <button class="btn btn-ghost" onclick="chooseMode('practice')">📚 ฝึกหัด</button>
+    </div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+    </div>
+</div>
+
+<!-- Game Over screen -->
+<div id="gameover" class="screen">
+    <h1>จบเกม!</h1>
+    <div id="final-score">0</div>
+    <div id="final-detail"></div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
+        <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นอีกครั้ง</button>
+        <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+    </div>
+</div>
+
+
+<!-- ═══ KAMPAI SDK (single source — อย่าแก้) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+/* fallback stub: กันพังถ้าเปิด standalone แล้ว SDK โหลดไม่ได้ */
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, online:{available:false,makeCode:function(){return'0000';},join:function(){return this;},send:function(){return this;},leave:function(){return this;}}, sound:{unlock:function(){return this;},correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},setBgm:function(){return this;},defaultBgm:function(){return this;},bgmStart:function(){},bgmStop:function(){},mountToggles:function(){return this;}} };
+</script>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTION A · ตั้งค่า
+   ═══════════════════════════════════════════════════════════════════════════ */
+const GAME_SLUG = 'robot-path';
+KAMPAI.setSlug(GAME_SLUG);
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTION B · แสดงข้อมูลนักเรียน + leaderboard (ดึงจาก KAMPAI)
+   ═══════════════════════════════════════════════════════════════════════════ */
+function renderPlayer() {
+    const s = KAMPAI.student, st = KAMPAI.stats;
+    if (!s) return;
+    const chip = document.getElementById('player-chip');
+    const av = s.photoUrl ? `<img src="${s.photoUrl}" alt="">` : `<div class="pc-init">${(s.displayName||'?')[0]}</div>`;
+    const best = st ? ` · <span class="pc-best">สถิติ ${st.personalBest.toLocaleString()}</span>` : '';
+    chip.innerHTML = av + `<span>${s.displayName}${best}</span>`;
+    chip.style.display = 'flex';
+}
+function renderLeaderboard(listId) {
+    const el = document.getElementById(listId);
+    if (!el) return;
+    const rows = KAMPAI.leaderboard || [];
+    if (!rows.length) { el.innerHTML = '<li class="lb-loading">ยังไม่มีผู้เล่น — เป็นคนแรกสิ!</li>'; return; }
+    const medals = ['🥇','🥈','🥉'];
+    el.innerHTML = rows.slice(0, 5).map((r) => {
+        const av = r.photoUrl ? `<img class="lb-avatar" src="${r.photoUrl}" alt="">` : `<div class="lb-avatar-init">${(r.displayName||'?')[0]}</div>`;
+        return `<li class="${r.isMe ? 'is-me' : ''}">
+            <span class="lb-rank">${medals[r.rank-1] || r.rank}</span>${av}
+            <div class="lb-info"><div class="lb-name">${r.displayName}${r.isMe ? ' (คุณ)' : ''}</div>
+            <div class="lb-sub">${(r.personalBest||0).toLocaleString()} คะแนน · ${r.classLabel||''}</div></div>
+        </li>`;
+    }).join('');
+}
+KAMPAI.onReady(function () { renderPlayer(); renderLeaderboard('score-list'); });
+
+/* ═══ SECTION B2 · เสียง/เอฟเฟกต์ ผ่าน KAMPAI.sound (single source ใน SDK) ═══ */
+function audioCtx() { return KAMPAI.sound.unlock(); }
+function sfxCorrect() { KAMPAI.sound.correct(); }
+function sfxWrong()   { KAMPAI.sound.wrong(); }
+function sfxGameOver(){ KAMPAI.sound.gameOver(); }
+function flashFx(good){ KAMPAI.sound.fxFlash(good); }
+function bgmStart()   { KAMPAI.sound.bgmStart(); }
+function bgmStop()    { KAMPAI.sound.bgmStop(); }
+KAMPAI.sound.mountToggles();
+KAMPAI.sound.defaultBgm('playful');
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTION C · GAME LOGIC — หุ่นยนต์เดินตามลำดับคำสั่ง (algorithm + loop + debug)
+   ═══════════════════════════════════════════════════════════════════════════ */
+// ทิศ (พิกัด x=คอลัมน์, y=แถว · y เพิ่ม = ลงล่าง)
+const DIRS = {
+    up:    { dx: 0, dy: -1, arrow: '⬆️' },
+    down:  { dx: 0, dy:  1, arrow: '⬇️' },
+    left:  { dx: -1, dy: 0, arrow: '⬅️' },
+    right: { dx: 1, dy:  0, arrow: '➡️' },
+};
+
+// ด่าน: cols/rows, start, goal, walls[[x,y]], stars[[x,y]], par = จำนวนคำสั่งที่เหมาะ (ไม่นับการขยายลูป)
+// hint = คำใบ้สั้น ๆ · solution (คอมเมนต์) ใช้ใน test ยืนยันว่าผ่านได้
+const LEVELS = [
+    { // 1 — เส้นตรง (อุ่นเครื่อง)
+        cols: 5, rows: 3, start: [0,1], goal: [4,1], walls: [], stars: [], par: 4,
+        hint: 'เดินตรงไปทางขวาให้ถึงธง',
+    },
+    { // 2 — หักมุม L
+        cols: 5, rows: 4, start: [0,3], goal: [4,0], walls: [], stars: [], par: 7,
+        hint: 'ขึ้นบนก่อน แล้วไปทางขวา',
+    },
+    { // 3 — อ้อมกำแพง
+        cols: 5, rows: 4, start: [0,3], goal: [4,3], walls: [[2,3],[2,2]], stars: [], par: 8,
+        hint: 'มีกำแพงขวางอยู่ — ต้องอ้อมขึ้นไปด้านบน',
+    },
+    { // 4 — เก็บดาว 1 ดวง
+        cols: 5, rows: 4, start: [0,0], goal: [4,3], walls: [[2,1],[2,2]], stars: [[2,0]], par: 8,
+        hint: 'แวะเก็บดาว ⭐ ให้ครบก่อนเข้าธง',
+    },
+    { // 5 — บันได (ใช้ลูป!) : ทำซ้ำ [⬆️ ➡️] ×5
+        cols: 6, rows: 6, start: [0,5], goal: [5,0], walls: [], stars: [], par: 2,
+        hint: 'รูปแบบซ้ำ ๆ! เขียน ⬆️➡️ ครั้งเดียว แล้วตั้ง 🔁 ทำซ้ำ ×5',
+    },
+    { // 6 — เขาวงกตเล็ก
+        cols: 6, rows: 5, start: [0,4], goal: [5,0],
+        walls: [[1,4],[1,3],[1,2],[3,0],[3,1],[3,2]], stars: [], par: 13,
+        hint: 'หาทางลัดเลาะกำแพงให้ถึงมุมขวาบน',
+    },
+    { // 7 — ดาว 2 ดวง
+        cols: 6, rows: 5, start: [0,4], goal: [5,4],
+        walls: [[2,3],[3,3]], stars: [[1,1],[4,1]], par: 11,
+        hint: 'อย่าเดินตรง! เลาะขึ้นไปเก็บดาว 2 ดวงบนแถวบน แล้วค่อยลงเข้าธง',
+    },
+    { // 8 — บันไดยาว + ลูป : ทำซ้ำ [➡️ ⬇️] ×5
+        cols: 6, rows: 6, start: [0,0], goal: [5,5], walls: [], stars: [], par: 2,
+        hint: 'บันไดลง! ➡️⬇️ ครั้งเดียว แล้ว 🔁 ทำซ้ำ ×5',
+    },
+];
+
+/* ── แกนลอจิกบริสุทธิ์ (ไม่พึ่ง DOM) — ทดสอบใน scripts/test-robot-path.mjs ── */
+function runProgram(level, tiles, loopN) {
+    const walls = new Set((level.walls || []).map(([x,y]) => x + ',' + y));
+    const starSet = new Set((level.stars || []).map(([x,y]) => x + ',' + y));
+    const totalStars = starSet.size;
+    let pos = { x: level.start[0], y: level.start[1] };
+    const path = [];
+    let collected = 0;
+    const seq = [];
+    for (let r = 0; r < loopN; r++) for (const t of tiles) seq.push(t);
+    for (const t of seq) {
+        const d = DIRS[t];
+        const nx = pos.x + d.dx, ny = pos.y + d.dy;
+        if (nx < 0 || ny < 0 || nx >= level.cols || ny >= level.rows || walls.has(nx + ',' + ny)) {
+            return { outcome: 'crash', path, crashFrom: { ...pos }, crashDir: d,
+                     starsCollected: collected, totalStars, usedTiles: tiles.length };
+        }
+        pos = { x: nx, y: ny };
+        let gotStar = false;
+        const key = nx + ',' + ny;
+        if (starSet.has(key)) { starSet.delete(key); collected++; gotStar = true; }
+        path.push({ x: nx, y: ny, star: gotStar });
+        if (pos.x === level.goal[0] && pos.y === level.goal[1] && collected === totalStars) {
+            return { outcome: 'goal', path, crashFrom: null, crashDir: null,
+                     starsCollected: collected, totalStars, usedTiles: tiles.length };
+        }
+    }
+    return { outcome: 'incomplete', path, crashFrom: null, crashDir: null,
+             starsCollected: collected, totalStars, usedTiles: tiles.length };
+}
+
+/* ── สถานะเกม ── */
+let score = 0, lives = 3, combo = 0, maxCombo = 0;
+let mode = 'race';                  // 'race' | 'practice'
+let levelIdx = 0, levelsCleared = 0;
+let program = [];                   // เช่น ['up','right',...]
+let loopN = 1;
+let triedThisLevel = false;         // เคยรันพลาดในด่านนี้แล้วหรือยัง (คุมคอมโบ)
+let started = false, isGameOver = false, running = false;
+let cellSize = 60;
+
+const $ = (id) => document.getElementById(id);
+
+function chooseMode(m) { audioCtx(); mode = m; startGame(); }
+
+function startGame() {
+    if (started) return;
+    started = true; isGameOver = false;
+    score = 0; lives = 3; combo = 0; maxCombo = 0; levelIdx = 0; levelsCleared = 0;
+    $('start').classList.remove('on');
+    $('hud').classList.add('on');
+    $('play').classList.add('on');
+    if (mode === 'race') {
+        $('life-container').style.display = '';
+        $('finish-btn').style.display = 'none';
+    } else {
+        $('life-container').style.display = 'none';
+        $('finish-btn').style.display = '';
+    }
+    setScore(0); setLives(3); updateCombo();
+    bgmStart();
+    loadLevel(0);
+}
+
+function curLevel() { return LEVELS[levelIdx % LEVELS.length]; }
+
+function loadLevel(idx) {
+    levelIdx = idx;
+    program = []; loopN = 1; triedThisLevel = false; running = false;
+    const lv = curLevel();
+    $('hud-lv').textContent = (idx + 1);
+    const starTxt = (lv.stars && lv.stars.length) ? ` · ⭐ ×${lv.stars.length}` : '';
+    $('level-info').innerHTML = `<b>ด่าน ${idx + 1}</b> — ${lv.hint}${starTxt}`;
+    $('feedback').textContent = ''; $('feedback').className = '';
+    renderProgram(); updateLoopLabel();
+    renderGrid();
+    setControlsEnabled(true);
+}
+
+/* ── วาดตาราง + วางหุ่น ── */
+function renderGrid() {
+    const lv = curLevel();
+    const grid = $('grid');
+    grid.style.gridTemplateColumns = `repeat(${lv.cols}, 1fr)`;
+    const wallSet = new Set((lv.walls || []).map(([x,y]) => x + ',' + y));
+    const starSet = new Set((lv.stars || []).map(([x,y]) => x + ',' + y));
+    let html = '';
+    for (let y = 0; y < lv.rows; y++) {
+        for (let x = 0; x < lv.cols; x++) {
+            const key = x + ',' + y;
+            let cls = 'cell', inner = '';
+            if (wallSet.has(key)) { cls += ' wall'; inner = '🧱'; }
+            else if (x === lv.goal[0] && y === lv.goal[1]) { cls += ' goal'; inner = '🏁'; }
+            else if (starSet.has(key)) { cls += ' star'; inner = '<span class="star-emo">⭐</span>'; }
+            if (x === lv.start[0] && y === lv.start[1]) cls += ' start-cell';
+            html += `<div class="${cls}" data-xy="${key}">${inner}</div>`;
+        }
+    }
+    grid.innerHTML = html;
+    // คำนวณขนาดช่อง แล้ววางหุ่นที่จุดเริ่ม
+    requestAnimationFrame(() => placeRobot(lv.start[0], lv.start[1], true));
+}
+
+function placeRobot(x, y, instant) {
+    const grid = $('grid');
+    const lv = curLevel();
+    const w = grid.clientWidth || 300;
+    const gap = 4;
+    cellSize = (w - gap * (lv.cols - 1)) / lv.cols;
+    const robot = $('robot');
+    robot.style.width = cellSize + 'px';
+    robot.style.height = cellSize + 'px';
+    robot.style.fontSize = Math.round(cellSize * 0.5) + 'px';
+    if (instant) robot.style.transition = 'none';
+    robot.style.left = (x * (cellSize + gap)) + 'px';
+    robot.style.top = (y * (cellSize + gap)) + 'px';
+    if (instant) { void robot.offsetWidth; robot.style.transition = ''; }
+}
+window.addEventListener('resize', () => { if (started && !isGameOver) placeRobot(curLevel().start[0], curLevel().start[1], true); });
+
+/* ── สร้าง/แก้ลำดับคำสั่ง ── */
+function renderProgram() {
+    const prog = $('prog');
+    prog.innerHTML = program.map((t, i) => `<div class="cmd-chip" data-i="${i}">${DIRS[t].arrow}</div>`).join('');
+}
+function addCmd(dir) {
+    if (running || isGameOver) return;
+    if (program.length >= 24) { flash('คำสั่งยาวเกินไปแล้ว', false); return; }
+    audioCtx();
+    program.push(dir);
+    renderProgram();
+}
+function undoCmd() { if (running) return; program.pop(); renderProgram(); }
+function clearCmd() { if (running) return; program = []; renderProgram(); }
+function changeLoop(d) {
+    if (running) return;
+    loopN = Math.max(1, Math.min(5, loopN + d));
+    updateLoopLabel();
+}
+function updateLoopLabel() { $('loop-n').textContent = '×' + loopN; }
+
+function setControlsEnabled(on) {
+    document.querySelectorAll('.pad-btn, .loop-step, .act-btn').forEach((b) => { b.disabled = !on; });
+}
+
+/* ── รันโปรแกรม + อนิเมชัน ── */
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+async function runAnim() {
+    if (running || isGameOver) return;
+    if (!program.length) { flash('เพิ่มคำสั่งให้หุ่นก่อน', false); return; }
+    audioCtx();
+    running = true;
+    setControlsEnabled(false);
+    $('feedback').textContent = ''; $('feedback').className = '';
+
+    const lv = curLevel();
+    // รีเซ็ตหุ่น + ดาว ก่อนเริ่มเดิน
+    renderGrid();
+    await sleep(180);
+
+    const res = runProgram(lv, program, loopN);
+    const expanded = [];
+    for (let r = 0; r < loopN; r++) for (const t of program) expanded.push(t);
+
+    // เดินตาม path (เฉพาะก้าวที่ขยับสำเร็จ)
+    const gap = 4;
+    for (let i = 0; i < res.path.length; i++) {
+        const step = res.path[i];
+        highlightChip(i);
+        placeRobot(step.x, step.y, false);
+        await sleep(300);
+        if (step.star) {
+            const cell = $('grid').querySelector(`[data-xy="${step.x},${step.y}"]`);
+            if (cell) cell.classList.add('taken');
+            KAMPAI.sound.correct();
+        }
+    }
+    clearChipHighlight();
+
+    if (res.outcome === 'goal') {
+        await levelSuccess(res);
+    } else {
+        // crash หรือ incomplete → เด้งหัวให้เห็นจุดพลาด
+        const robot = $('robot');
+        if (res.outcome === 'crash') {
+            robot.classList.add('bump');
+            await sleep(160);
+            robot.classList.remove('bump');
+            flash('ชน! 🧱 หุ่นไปต่อไม่ได้ — แก้คำสั่งแล้วลองใหม่', false);
+        } else {
+            const need = res.totalStars - res.starsCollected;
+            flash(need > 0 ? `ยังเก็บดาวไม่ครบ (เหลือ ${need}) — ลองใหม่` : 'ยังไปไม่ถึงธง 🏁 — ลองเพิ่ม/แก้คำสั่ง', false);
+        }
+        sfxWrong(); flashFx(false);
+        triedThisLevel = true;
+        if (mode === 'race') {
+            combo = 0; updateCombo();
+            setLives(lives - 1);
+        }
+        running = false;
+        if (!isGameOver) setControlsEnabled(true);
+    }
+}
+
+function highlightChip(i) {
+    clearChipHighlight();
+    // chip index = i % program.length (เพราะ path เดินตาม seq ที่ขยายลูปแล้ว)
+    const ci = program.length ? (i % program.length) : 0;
+    const chip = $('prog').querySelector(`[data-i="${ci}"]`);
+    if (chip) chip.classList.add('running');
+}
+function clearChipHighlight() { document.querySelectorAll('.cmd-chip.running').forEach((c) => c.classList.remove('running')); }
+
+async function levelSuccess(res) {
+    const lv = curLevel();
+    $('robot').classList.add('win');
+    sfxCorrect(); flashFx(true);
+    levelsCleared++;
+
+    // คะแนน: ผ่านด่าน 20 + ดาว×5 + โบนัสประหยัดคำสั่ง 10 (ใช้ ≤ par) + คอมโบ (race)
+    let gain = 20 + res.starsCollected * 5;
+    const efficient = res.usedTiles <= lv.par;
+    if (efficient) gain += 10;
+    let mult = 1;
+    if (mode === 'race') {
+        if (!triedThisLevel) { combo++; maxCombo = Math.max(maxCombo, combo); }
+        mult = comboMult();
+        gain *= mult;
+    }
+    setScore(score + gain);
+    updateCombo();
+    flash(`ผ่านด่าน! +${gain}` + (efficient ? ' ⚡ประหยัดคำสั่ง' : '') + (mult > 1 ? ` (x${mult})` : ''), true);
+
+    await sleep(950);
+    $('robot').classList.remove('win');
+    running = false;
+    if (isGameOver) return;
+
+    const next = levelIdx + 1;
+    if (mode === 'practice' && next >= LEVELS.length) {
+        // ฝึกหัด: เล่นครบทุกด่าน → จบ (ไม่นับอันดับ)
+        endGame();
+        return;
+    }
+    loadLevel(next);
+}
+
+function comboMult() { return Math.min(5, 1 + Math.floor(combo / 2)); }   // ทุก 2 ด่านไร้พลาด +1
+function updateCombo() {
+    const badge = $('combo-badge');
+    const m = comboMult();
+    if (mode === 'race' && combo >= 1 && m > 1) { badge.textContent = `🔥 x${m} · ${combo} ด่าน`; badge.classList.add('on'); }
+    else badge.classList.remove('on');
+}
+
+function flash(msg, good) {
+    const f = $('feedback');
+    f.textContent = msg;
+    f.className = good ? 'good' : 'bad';
+}
+
+function setScore(n) {
+    score = Math.max(0, Math.round(n));
+    $('score-value').textContent = score;
+    const w = $('score-container');
+    w.classList.add('pop'); setTimeout(() => w.classList.remove('pop'), 150);
+}
+function setLives(n) {
+    lives = Math.max(0, n);
+    let str = ''; for (let i = 0; i < 3; i++) str += (i < lives) ? '❤️' : '🖤';
+    $('life-container').textContent = str;
+    if (lives <= 0) endGame();
+}
+
+/* ⚠️ ต้องเรียก KAMPAI.submitScore() ตอนจบเกม (เฉพาะโหมดแข่ง — ฝึกไม่นับคะแนน) */
+function endGame() {
+    if (isGameOver) return;
+    isGameOver = true;
+    running = true;
+    sfxGameOver(); bgmStop();
+    if (mode === 'race') {
+        KAMPAI.submitScore(score, { mode: 'normal', levels: levelsCleared, maxCombo: maxCombo });
+    }
+    $('hud').classList.remove('on');
+    $('play').classList.remove('on');
+    $('final-score').textContent = score;
+    $('final-detail').textContent = `ผ่าน ${levelsCleared} ด่าน · คอมโบสูงสุด ${maxCombo} ด่านติด` +
+        (mode === 'practice' ? ' · (โหมดฝึก ไม่นับอันดับ)' : '');
+    $('gameover').classList.add('on');
+    renderLeaderboard('score-list-gameover');
+}
+
+/* ── คีย์บอร์ด (desktop): ลูกศร = เพิ่มคำสั่ง · Enter = รัน · Backspace = ลบ ── */
+window.addEventListener('keydown', (e) => {
+    if (!started || isGameOver || running) return;
+    if (e.key === 'ArrowUp') { addCmd('up'); e.preventDefault(); }
+    else if (e.key === 'ArrowDown') { addCmd('down'); e.preventDefault(); }
+    else if (e.key === 'ArrowLeft') { addCmd('left'); e.preventDefault(); }
+    else if (e.key === 'ArrowRight') { addCmd('right'); e.preventDefault(); }
+    else if (e.key === 'Enter') { runAnim(); }
+    else if (e.key === 'Backspace') { undoCmd(); e.preventDefault(); }
+});
+</script>
+</body>
+</html>
