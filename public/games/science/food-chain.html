@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ห่วงโซ่อาหาร — Food Chain (kampai)</title>
+<!--
+═══════════════════════════════════════════════════════════════════════════
+  KAMPAI-SCHOOL · เกม "ห่วงโซ่อาหาร" (food-chain) — วิทยาศาสตร์ ป.4-6
+  เรียงการ์ดสิ่งมีชีวิตตามการไหลของพลังงาน: ผู้ผลิต → ผู้บริโภค → ผู้ล่าสูงสุด
+  การ์ดสลับมั่ว → แตะตามลำดับ 1→N · หลายห่วงโซ่ (3–5 ตัว) จากระบบนิเวศไทย
+  reuse กลไก ordering จาก handwash-order · KAMPAI SDK เต็ม · 2 โหมด (แข่ง/ฝึก)
+═══════════════════════════════════════════════════════════════════════════
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Fredoka+One&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; font-family: 'Kanit', sans-serif; color: #fff; overflow: hidden; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+body { background: linear-gradient(180deg, #15803d 0%, #166534 55%, #052e16 100%); }
+#app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+
+#hud { display: none; align-items: center; justify-content: space-between; padding: 12px 16px; gap: 8px; }
+#hud.on { display: flex; }
+#score-container { font-size: 24px; font-weight: 700; color: #FFD700; text-shadow: 2px 2px 4px #000; background: rgba(0,0,0,0.3); padding: 4px 14px; border-radius: 999px; border: 2px solid rgba(255,215,0,0.5); transition: transform 0.15s; white-space: nowrap; }
+#score-container.pop { transform: scale(1.18); }
+#combo-badge { font-family: 'Fredoka One', cursive; font-size: 15px; color: #052e16; background: linear-gradient(45deg,#86efac,#22c55e); padding: 4px 12px; border-radius: 999px; opacity: 0; transform: scale(0.6); transition: all 0.18s; white-space: nowrap; }
+#combo-badge.on { opacity: 1; transform: scale(1); }
+#life-container { font-size: 22px; white-space: nowrap; }
+#timer-wrap { height: 8px; background: rgba(255,255,255,0.12); margin: 0 16px; border-radius: 999px; overflow: hidden; display: none; }
+#timer-wrap.on { display: block; }
+#timer-bar { height: 100%; width: 100%; background: linear-gradient(90deg,#a3e635,#65a30d); border-radius: 999px; transition: width 0.1s linear; }
+
+#play { flex: 1; display: none; flex-direction: column; align-items: center; justify-content: flex-start; padding: 10px 14px 18px; gap: 12px; overflow-y: auto; }
+#play.on { display: flex; }
+#eco-tag { font-size: 14px; font-weight: 600; color: #bbf7d0; background: rgba(255,255,255,0.1); padding: 4px 14px; border-radius: 999px; }
+#prompt { text-align: center; font-size: 15px; color: #dcfce7; line-height: 1.4; }
+#prompt b { color: #fde047; }
+
+/* ราง: ห่วงโซ่ที่เรียงแล้ว (ซ้าย→ขวา = พลังงานไหล) */
+#track { display: flex; gap: 2px; flex-wrap: wrap; justify-content: center; align-items: center; max-width: 470px; }
+.slot { width: 56px; height: 64px; border-radius: 12px; border: 2px dashed rgba(255,255,255,0.35); background: rgba(255,255,255,0.06); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; position: relative; }
+.slot.filled { border-style: solid; border-color: #4ade80; background: linear-gradient(135deg,#bbf7d0,#4ade80); color: #052e16; }
+.slot .sn { position: absolute; top: -8px; left: -6px; width: 18px; height: 18px; border-radius: 50%; background: #052e16; color: #fde047; font-size: 11px; display: flex; align-items: center; justify-content: center; font-family: 'Fredoka One', cursive; }
+.slot .se { font-size: 24px; line-height: 1; }
+.slot .sr { font-size: 8px; font-weight: 700; color: #166534; text-align: center; line-height: 1; padding: 0 1px; }
+.arrow { color: #fde047; font-size: 18px; font-weight: 800; }
+
+#feedback { height: 24px; font-size: 16px; font-weight: 600; text-align: center; }
+#feedback.good { color: #4ade80; }
+#feedback.bad { color: #fca5a5; }
+
+/* คลังการ์ดสลับมั่ว */
+#pool { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; max-width: 460px; }
+@media (min-width: 520px) { #pool { grid-template-columns: repeat(3, 1fr); } }
+.card { position: relative; font-family: inherit; border: none; border-radius: 16px; cursor: pointer; color: #14532d; background: #f0fdf4; box-shadow: 0 5px 0 #bbf7d0; padding: 12px 8px 10px; transition: transform 0.08s, box-shadow 0.08s, opacity 0.2s; display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 96px; justify-content: center; }
+.card:active { transform: translateY(4px); box-shadow: 0 1px 0 #bbf7d0; }
+.card .emo { font-size: 40px; line-height: 1; }
+.card .lab { font-size: 13.5px; font-weight: 600; text-align: center; line-height: 1.2; }
+.card.done { background: linear-gradient(135deg,#bbf7d0,#4ade80); color: #052e16; box-shadow: 0 5px 0 #15803d; cursor: default; pointer-events: none; }
+.card.done .order { position: absolute; top: -10px; right: -8px; width: 26px; height: 26px; border-radius: 50%; background: #052e16; color: #fde047; font-family: 'Fredoka One', cursive; font-size: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+.card.bad { animation: fc-shake 0.4s ease; }
+@keyframes fc-shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(7px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(3px)} }
+
+.screen { position: absolute; inset: 0; background: rgba(5,46,22,0.94); backdrop-filter: blur(8px); display: none; flex-direction: column; align-items: center; justify-content: flex-start; z-index: 30; text-align: center; padding: 26px 20px; overflow-y: auto; }
+.screen.on { display: flex; }
+.screen h1 { font-family: 'Fredoka One', cursive; font-size: 32px; margin-bottom: 6px; background: linear-gradient(135deg, #fde047, #84cc16); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.screen p { font-size: 15px; color: #dcfce7; margin-bottom: 12px; line-height: 1.55; }
+.screen p b { color: #fde047; }
+#final-score { color: #fde047; font-family: 'Fredoka One', cursive; font-size: 54px; margin: 4px 0; }
+#final-detail { font-size: 14px; color: #dcfce7; margin-bottom: 12px; }
+.btn { padding: 13px 28px; font-family: inherit; font-size: 18px; font-weight: 600; border-radius: 999px; border: none; cursor: pointer; margin: 5px; transition: transform 0.1s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; color: #fff; }
+.btn:active { transform: scale(0.95); }
+.btn-primary { background: linear-gradient(45deg, #22c55e, #16a34a); box-shadow: 0 4px 10px rgba(34,197,94,0.4); }
+.btn-blue { background: linear-gradient(45deg, #3b82f6, #2563eb); box-shadow: 0 4px 10px rgba(59,130,246,0.4); }
+.btn-ghost { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); }
+.mode-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 10px; }
+.leaderboard-box { background: rgba(255,255,255,0.95); color: #2c3e50; border-radius: 12px; padding: 12px 15px; margin: 10px 0; width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.lb-title { font-family: 'Fredoka One', cursive; font-size: 1rem; margin: 0 0 8px 0; text-align: left; }
+.leaderboard-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.leaderboard-list li { display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-bottom: 1px dashed #dee2e6; }
+.leaderboard-list li:last-child { border-bottom: none; }
+.leaderboard-list li.is-me { background: #fff7e0; border-radius: 8px; }
+.lb-rank { font-family: 'Fredoka One', cursive; color: #f39c12; min-width: 26px; text-align: center; font-size: 1.1rem; }
+.lb-avatar, .lb-avatar-init { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #f39c12; flex-shrink: 0; }
+.lb-avatar-init { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.lb-info { display: flex; flex-direction: column; min-width: 0; flex: 1; text-align: left; }
+.lb-name { font-family: 'Fredoka One', cursive; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-sub { font-size: 0.72rem; color: #868e96; }
+.lb-loading { color: #868e96; text-align: center; padding: 8px; font-size: 0.85rem; }
+#player-chip { display: none; align-items: center; gap: 8px; background: rgba(255,255,255,0.12); padding: 4px 14px 4px 4px; border-radius: 999px; font-size: 14px; margin-bottom: 12px; }
+#player-chip img, #player-chip .pc-init { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+#player-chip .pc-init { background: linear-gradient(135deg,#6c5ce7,#a29bfe); display: flex; align-items: center; justify-content: center; font-weight: 700; }
+#player-chip .pc-best { color: #FFD700; font-weight: 700; }
+</style>
+</head>
+<body>
+<div id="app">
+    <div id="hud">
+        <div id="score-container">⭐ <span id="score-value">0</span></div>
+        <div id="combo-badge">🔥 x1</div>
+        <div id="life-container">❤️❤️❤️</div>
+    </div>
+    <div id="timer-wrap"><div id="timer-bar"></div></div>
+    <div id="play">
+        <div id="eco-tag">—</div>
+        <div id="prompt">แตะสิ่งมีชีวิตเรียง <b>ผู้ผลิต → ผู้ล่าสูงสุด</b> (พลังงานไหลตามลูกศร)<br>ตัวต่อไป: <b>ลำดับที่ <span id="next-n">1</span></b></div>
+        <div id="track"></div>
+        <div id="feedback"></div>
+        <div id="pool"></div>
+    </div>
+</div>
+
+<div id="start" class="screen on">
+    <h1>🌿 ห่วงโซ่อาหาร</h1>
+    <div id="player-chip"></div>
+    <p>เรียงสิ่งมีชีวิตตาม <b>การไหลของพลังงาน</b> 🌿→🦗→🐸→🐍→🦅<br>เริ่มจาก <b>ผู้ผลิต</b> (พืช) ไปจน <b>ผู้ล่าสูงสุด</b> — แตะทีละตัวตามลำดับ</p>
+    <div class="mode-grid">
+        <button class="btn btn-primary" onclick="chooseMode('race')">⚡ แข่งเร็ว</button>
+        <button class="btn btn-ghost" onclick="chooseMode('practice')">📚 ฝึกหัด</button>
+    </div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+    </div>
+</div>
+
+<div id="gameover" class="screen">
+    <h1>จบเกม! 🌿</h1>
+    <div id="final-score">0</div>
+    <div id="final-detail"></div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
+        <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นอีกครั้ง</button>
+        <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+    </div>
+</div>
+
+<!-- ═══ KAMPAI SDK (single source — อย่าแก้) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{unlock:function(){return this;},correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},setBgm:function(){return this;},defaultBgm:function(){return this;},bgmStart:function(){},bgmStop:function(){},mountToggles:function(){return this;}} };</script>
+
+<script>
+/* ═══ SECTION A · ตั้งค่า ═══ */
+const GAME_SLUG = 'food-chain';
+KAMPAI.setSlug(GAME_SLUG);
+const $ = (id) => document.getElementById(id);
+
+/* ═══ SECTION B · นักเรียน + leaderboard ═══ */
+function renderPlayer() {
+    const s = KAMPAI.student, st = KAMPAI.stats;
+    if (!s) return;
+    const chip = $('player-chip');
+    const av = s.photoUrl ? `<img src="${s.photoUrl}" alt="">` : `<div class="pc-init">${(s.displayName||'?')[0]}</div>`;
+    const best = st ? ` · <span class="pc-best">สถิติ ${st.personalBest.toLocaleString()}</span>` : '';
+    chip.innerHTML = av + `<span>${s.displayName}${best}</span>`;
+    chip.style.display = 'flex';
+}
+function renderLeaderboard(listId) {
+    const el = $(listId); if (!el) return;
+    const rows = KAMPAI.leaderboard || [];
+    if (!rows.length) { el.innerHTML = '<li class="lb-loading">ยังไม่มีผู้เล่น — เป็นคนแรกสิ!</li>'; return; }
+    const medals = ['🥇','🥈','🥉'];
+    el.innerHTML = rows.slice(0, 5).map((r) => {
+        const av = r.photoUrl ? `<img class="lb-avatar" src="${r.photoUrl}" alt="">` : `<div class="lb-avatar-init">${(r.displayName||'?')[0]}</div>`;
+        return `<li class="${r.isMe ? 'is-me' : ''}"><span class="lb-rank">${medals[r.rank-1] || r.rank}</span>${av}
+            <div class="lb-info"><div class="lb-name">${r.displayName}${r.isMe ? ' (คุณ)' : ''}</div>
+            <div class="lb-sub">${(r.personalBest||0).toLocaleString()} คะแนน · ${r.classLabel||''}</div></div></li>`;
+    }).join('');
+}
+KAMPAI.onReady(function () { renderPlayer(); renderLeaderboard('score-list'); });
+
+/* ═══ SECTION B2 · เสียง ═══ */
+function sfxCorrect() { KAMPAI.sound.correct(); }
+function sfxWrong()   { KAMPAI.sound.wrong(); }
+function flashFx(g)   { KAMPAI.sound.fxFlash(g); }
+KAMPAI.sound.mountToggles();
+KAMPAI.sound.defaultBgm('playful');
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTION C · GAME LOGIC — ห่วงโซ่อาหาร (เรียงตามการไหลของพลังงาน)
+   ═══════════════════════════════════════════════════════════════════════════ */
+// ห่วงโซ่อาหาร: เรียงจากผู้ผลิต (index 0) → ผู้ล่าสูงสุด (index สุดท้าย) · ระบบนิเวศไทย
+const CHAINS = [
+    { eco:'🌾 นาข้าว',   steps:[ {e:'🌾',name:'ต้นข้าว'}, {e:'🦗',name:'ตั๊กแตน'}, {e:'🐸',name:'กบ'}, {e:'🐍',name:'งู'}, {e:'🦅',name:'เหยี่ยว'} ] },
+    { eco:'🌻 ทุ่งหญ้า', steps:[ {e:'🌿',name:'หญ้า'}, {e:'🐰',name:'กระต่าย'}, {e:'🦊',name:'จิ้งจอก'}, {e:'🦅',name:'เหยี่ยว'} ] },
+    { eco:'🌳 ป่าไม้',   steps:[ {e:'🍃',name:'ใบไม้'}, {e:'🦌',name:'กวาง'}, {e:'🐅',name:'เสือ'} ] },
+    { eco:'🌊 ทะเล',     steps:[ {e:'🦠',name:'แพลงก์ตอน'}, {e:'🐟',name:'ปลาเล็ก'}, {e:'🐙',name:'ปลาหมึก'}, {e:'🦈',name:'ฉลาม'} ] },
+    { eco:'🪷 บ่อน้ำ',   steps:[ {e:'🌱',name:'สาหร่าย'}, {e:'🦐',name:'กุ้งฝอย'}, {e:'🐟',name:'ปลาเล็ก'}, {e:'🐦',name:'นกกระสา'} ] },
+    { eco:'🥬 สวนผัก',   steps:[ {e:'🥬',name:'ผักกาด'}, {e:'🐌',name:'หอยทาก'}, {e:'🐔',name:'ไก่'}, {e:'🦊',name:'จิ้งจอก'} ] },
+    { eco:'🌸 สวนดอกไม้', steps:[ {e:'🌸',name:'ดอกไม้'}, {e:'🐝',name:'ผึ้ง'}, {e:'🕷️',name:'แมงมุม'}, {e:'🐦',name:'นก'} ] },
+    { eco:'🌳 สวนหลังบ้าน', steps:[ {e:'🍂',name:'ใบไม้'}, {e:'🐛',name:'หนอน'}, {e:'🐦',name:'นก'}, {e:'🐱',name:'แมว'} ] },
+    { eco:'🏜️ ทะเลทราย', steps:[ {e:'🌵',name:'กระบองเพชร'}, {e:'🐜',name:'มด'}, {e:'🦎',name:'จิ้งเหลน'}, {e:'🦂',name:'แมงป่อง'} ] },
+    { eco:'🐊 หนองน้ำ',  steps:[ {e:'🌾',name:'ต้นกก'}, {e:'🐌',name:'หอย'}, {e:'🐟',name:'ปลา'}, {e:'🐊',name:'จระเข้'} ] },
+];
+
+// ชื่อบทบาทตามตำแหน่งใน N (โชว์หลังวางถูก)
+function roleName(i, N) {
+    if (i === 0) return 'ผู้ผลิต';
+    if (i === N - 1) return 'ผู้ล่าสูงสุด';
+    return 'ผู้บริโภค ' + i;
+}
+
+let score = 0, lives = 3, roundStreak = 0, maxStreak = 0, roundsDone = 0, correctCount = 0;
+let mode = 'race';
+let chain = null, N = 0, nextExpected = 1, mistakesThisRound = 0;
+let roundStart = 0, rafId = 0, locked = false, started = false, isGameOver = false;
+let ROUND_BONUS_MS = 16000;
+
+function shuffled(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [a[i], a[j]] = [a[j], a[i]]; }
+    return a;
+}
+
+function chooseMode(m) { KAMPAI.sound.unlock(); mode = m; startGame(); }
+
+function startGame() {
+    if (started) return;
+    started = true; isGameOver = false;
+    score = 0; lives = 3; roundStreak = 0; maxStreak = 0; roundsDone = 0; correctCount = 0;
+    $('start').classList.remove('on');
+    $('hud').classList.add('on');
+    $('play').classList.add('on');
+    if (mode === 'race') { $('life-container').style.display = ''; $('timer-wrap').classList.add('on'); }
+    else { $('life-container').style.display = 'none'; $('timer-wrap').classList.remove('on'); }
+    setScore(0); setLives(3); updateCombo();
+    KAMPAI.sound.bgmStart();
+    newRound();
+}
+
+function newRound() {
+    locked = false;
+    chain = CHAINS[(Math.random() * CHAINS.length) | 0];
+    N = chain.steps.length;
+    nextExpected = 1; mistakesThisRound = 0;
+    ROUND_BONUS_MS = 4000 + N * 2800;
+    $('eco-tag').textContent = 'ระบบนิเวศ: ' + chain.eco;
+    setNextHint();
+    $('feedback').textContent = ''; $('feedback').className = '';
+
+    // ราง N ช่อง + ลูกศรคั่น
+    const track = $('track');
+    track.innerHTML = '';
+    for (let i = 1; i <= N; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'slot';
+        slot.id = 'slot-' + i;
+        slot.innerHTML = `<span class="sn">${i}</span>`;
+        track.appendChild(slot);
+        if (i < N) { const ar = document.createElement('div'); ar.className = 'arrow'; ar.textContent = '➜'; track.appendChild(ar); }
+    }
+
+    // คลังการ์ดสลับมั่ว (ord = ลำดับถูกต้อง 1..N · ไม่โชว์บทบาทบนการ์ดเพื่อไม่ให้เฉลย)
+    const pool = $('pool');
+    pool.innerHTML = '';
+    const order = shuffled(chain.steps.map((s, i) => ({ e: s.e, name: s.name, ord: i + 1 })));
+    order.forEach((s) => {
+        const b = document.createElement('button');
+        b.className = 'card';
+        b.dataset.step = s.ord;
+        b.onclick = () => tapCard(s.ord, b);
+        b.innerHTML = `<span class="emo">${s.e}</span><span class="lab">${s.name}</span>`;
+        pool.appendChild(b);
+    });
+
+    if (mode === 'race') { roundStart = performance.now(); cancelAnimationFrame(rafId); tickTimer(); }
+}
+
+function setNextHint() {
+    $('next-n').textContent = nextExpected + (nextExpected === 1 ? ' (ผู้ผลิต)' : (nextExpected === N ? ' (ผู้ล่าสูงสุด)' : ''));
+}
+
+function tickTimer() {
+    if (mode !== 'race' || locked) return;
+    const frac = Math.max(0, 1 - (performance.now() - roundStart) / ROUND_BONUS_MS);
+    $('timer-bar').style.width = (frac * 100) + '%';
+    rafId = requestAnimationFrame(tickTimer);
+}
+
+function tapCard(stepN, btn) {
+    if (locked || isGameOver) return;
+    if (btn.classList.contains('done')) return;
+
+    if (stepN === nextExpected) {
+        btn.classList.add('done');
+        const order = document.createElement('span'); order.className = 'order'; order.textContent = nextExpected; btn.appendChild(order);
+        const slot = $('slot-' + nextExpected);
+        const step = chain.steps[stepN - 1];
+        if (slot) { slot.classList.add('filled'); slot.innerHTML = `<span class="sn">${nextExpected}</span><span class="se">${step.e}</span><span class="sr">${roleName(stepN - 1, N)}</span>`; }
+        sfxCorrect(); flashFx(true);
+        correctCount++;
+        setScore(score + 5);
+        nextExpected++;
+        setNextHint();
+        flash('ถูกต้อง! พลังงานไหลต่อ ✓', true);
+        if (nextExpected > N) roundComplete();
+    } else {
+        btn.classList.add('bad'); setTimeout(() => btn.classList.remove('bad'), 420);
+        sfxWrong(); flashFx(false);
+        const need = chain.steps[nextExpected - 1];
+        flash(`ยังไม่ใช่ — ลำดับที่ ${nextExpected} ${nextExpected === 1 ? 'คือผู้ผลิต (พืช)' : 'กินตัวก่อนหน้า'}`, false);
+        if (mode === 'race') { mistakesThisRound++; setLives(lives - 1); }
+    }
+}
+
+function roundComplete() {
+    locked = true;
+    cancelAnimationFrame(rafId);
+    roundsDone++;
+    let bonus = 12;
+    if (mode === 'race') {
+        const frac = Math.max(0, 1 - (performance.now() - roundStart) / ROUND_BONUS_MS);
+        bonus += Math.round(frac * 15);
+    }
+    if (mistakesThisRound === 0) { roundStreak++; maxStreak = Math.max(maxStreak, roundStreak); }
+    else roundStreak = 0;
+    const mult = comboMult();
+    bonus *= mult;
+    setScore(score + bonus);
+    updateCombo();
+    flash(`เยี่ยม! ครบห่วงโซ่ +${bonus}` + (mult > 1 ? ` (x${mult})` : ''), true);
+    setTimeout(() => { if (!isGameOver) newRound(); }, 1000);
+}
+
+function comboMult() { return Math.min(5, 1 + Math.floor(roundStreak / 2)); }
+function updateCombo() {
+    const badge = $('combo-badge');
+    const m = comboMult();
+    if (roundStreak >= 1 && m > 1) { badge.textContent = `🔥 x${m} · ${roundStreak} ห่วงโซ่`; badge.classList.add('on'); }
+    else badge.classList.remove('on');
+}
+
+function flash(msg, good) { const f = $('feedback'); f.textContent = msg; f.className = good ? 'good' : 'bad'; }
+
+function setScore(n) {
+    score = Math.max(0, Math.round(n));
+    $('score-value').textContent = score;
+    const w = $('score-container'); w.classList.add('pop'); setTimeout(() => w.classList.remove('pop'), 150);
+}
+function setLives(n) {
+    lives = Math.max(0, n);
+    let s = ''; for (let i = 0; i < 3; i++) s += (i < lives) ? '❤️' : '🖤';
+    $('life-container').textContent = s;
+    if (lives <= 0) endGame();
+}
+
+function endGame() {
+    if (isGameOver) return;
+    isGameOver = true; locked = true;
+    cancelAnimationFrame(rafId);
+    KAMPAI.sound.gameOver(); KAMPAI.sound.bgmStop();
+    if (mode === 'race') KAMPAI.submitScore(score, { mode: 'normal', rounds: roundsDone, maxStreak });
+    $('hud').classList.remove('on');
+    $('timer-wrap').classList.remove('on');
+    $('play').classList.remove('on');
+    $('final-score').textContent = score;
+    $('final-detail').textContent = `เรียงครบ ${roundsDone} ห่วงโซ่ · ดีที่สุด ${maxStreak} ติด` + (mode === 'practice' ? ' · (โหมดฝึก ไม่นับอันดับ)' : '');
+    $('gameover').classList.add('on');
+    renderLeaderboard('score-list-gameover');
+}
+</script>
+</body>
+</html>

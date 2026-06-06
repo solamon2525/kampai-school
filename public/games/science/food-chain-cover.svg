@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" font-family="'Kanit','Sarabun','Segoe UI',sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#15803d"/><stop offset="0.55" stop-color="#166534"/><stop offset="1" stop-color="#052e16"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fde68a"/><stop offset="0.5" stop-color="#FFD700"/><stop offset="1" stop-color="#f59e0b"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.42" r="0.55">
+      <stop offset="0" stop-color="#a3e635" stop-opacity="0.28"/><stop offset="1" stop-color="#a3e635" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000" flood-opacity="0.45"/></filter>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <ellipse cx="640" cy="300" rx="660" ry="380" fill="url(#glow)"/>
+  <text x="150" y="600" font-size="200" opacity="0.06" text-anchor="middle" dominant-baseline="middle">🌿</text>
+  <text x="1130" y="170" font-size="160" opacity="0.06" text-anchor="middle" dominant-baseline="middle">🦅</text>
+
+  <g transform="translate(640,104)">
+    <rect x="-230" y="-26" width="460" height="52" rx="26" fill="#ffffff" opacity="0.12"/>
+    <text x="0" y="2" font-size="26" font-weight="600" fill="#bbf7d0" text-anchor="middle" dominant-baseline="middle">⚡ KAMPAI · วิทยาศาสตร์ ป.4–6 · ระบบนิเวศ</text>
+  </g>
+  <text x="640" y="260" font-size="118" font-weight="800" fill="url(#gold)" text-anchor="middle" dominant-baseline="middle" filter="url(#sh)" letter-spacing="1">ห่วงโซ่อาหาร</text>
+  <text x="640" y="338" font-size="32" font-weight="700" fill="#bbf7d0" text-anchor="middle" dominant-baseline="middle">เรียงพลังงาน : ผู้ผลิต → ผู้บริโภค → ผู้ล่าสูงสุด</text>
+
+  <!-- ห่วงโซ่ 🌾 → 🦗 → 🐸 → 🐍 → 🦅 -->
+  <g transform="translate(640,512)" text-anchor="middle">
+    <g font-size="64">
+      <g transform="translate(-460,0)"><circle cx="0" cy="0" r="56" fill="#f0fdf4" stroke="#4ade80" stroke-width="4" filter="url(#sh)"/><text x="0" y="6" dominant-baseline="central">🌾</text><text x="0" y="86" font-size="22" font-weight="700" fill="#bbf7d0">ผู้ผลิต</text></g>
+      <g transform="translate(-230,0)"><circle cx="0" cy="0" r="56" fill="#f0fdf4" stroke="#4ade80" stroke-width="4" filter="url(#sh)"/><text x="0" y="6" dominant-baseline="central">🦗</text></g>
+      <g transform="translate(0,0)"><circle cx="0" cy="0" r="56" fill="#f0fdf4" stroke="#4ade80" stroke-width="4" filter="url(#sh)"/><text x="0" y="6" dominant-baseline="central">🐸</text></g>
+      <g transform="translate(230,0)"><circle cx="0" cy="0" r="56" fill="#f0fdf4" stroke="#4ade80" stroke-width="4" filter="url(#sh)"/><text x="0" y="6" dominant-baseline="central">🐍</text></g>
+      <g transform="translate(460,0)"><circle cx="0" cy="0" r="56" fill="#fef9c3" stroke="#fde047" stroke-width="5" filter="url(#sh)"/><text x="0" y="6" dominant-baseline="central">🦅</text><text x="0" y="92" font-size="22" font-weight="700" fill="#fde047">ผู้ล่าสูงสุด</text></g>
+    </g>
+    <!-- ลูกศรพลังงาน -->
+    <g fill="#fde047" font-size="44" font-weight="800">
+      <text x="-345" y="8" dominant-baseline="central">➜</text>
+      <text x="-115" y="8" dominant-baseline="central">➜</text>
+      <text x="115" y="8" dominant-baseline="central">➜</text>
+      <text x="345" y="8" dominant-baseline="central">➜</text>
+    </g>
+  </g>
+
+  <g transform="translate(640,672)">
+    <rect x="-300" y="-24" width="600" height="48" rx="24" fill="#22c55e" opacity="0.20"/>
+    <text x="0" y="2" font-size="22" font-weight="700" fill="#bbf7d0" text-anchor="middle" dominant-baseline="middle">การ์ดสลับมั่ว → แตะเรียงตามการไหลของพลังงาน · 10 ห่วงโซ่</text>
+  </g>
+</svg>
