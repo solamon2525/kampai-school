@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>สวนผักพอเพียง — Veggie Garden (kampai)</title>
+<!--
+═══════════════════════════════════════════════════════════════════════════
+  KAMPAI-SCHOOL · เกม "สวนผักพอเพียง" (veggie-garden) — การงานอาชีพ ป.4-6
+  เรียงลำดับขั้นการปลูกผักให้ถูก: เตรียมดิน → เพาะเมล็ด → รดน้ำ → ดูแล → เก็บเกี่ยว
+  การ์ดสลับมั่ว → แตะตามลำดับ 1→N · ต้นไม้ค่อย ๆ โต · 8 ชนิดผัก (4–5 ขั้น)
+  3 โหมด (แข่งเร็ว/ฝึกหัด/🌐 ออนไลน์) · reuse กลไก ordering · KAMPAI SDK เต็ม
+═══════════════════════════════════════════════════════════════════════════
+-->
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- HUD -->
+<div id="score-container">⭐ <span id="score-value">0</span></div>
+<div id="life-container">❤️❤️❤️</div>
+<div id="combo-badge"></div>
+<div id="player-chip"></div>
+<div id="timer-wrap"><div id="timer-bar"></div></div>
+
+<!-- เวทีเล่น -->
+<div id="play">
+    <div id="crop-tag">🌱 กำลังปลูก: —</div>
+    <div id="growth">🟫</div>
+    <div id="prompt">แตะเรียง <b>ขั้นการปลูก</b> ตั้งแต่เตรียมดิน → เก็บเกี่ยว<br>ขั้นต่อไป: <b>ลำดับที่ <span id="next-n">1</span></b></div>
+    <div id="track"></div>
+    <div id="feedback"></div>
+    <div id="pool"></div>
+</div>
+
+<!-- จอเริ่ม -->
+<div id="start" class="screen on">
+    <h1>🌱 สวนผักพอเพียง</h1>
+    <div id="player-chip-start"></div>
+    <p>เรียงลำดับ <b>ขั้นการปลูกผัก</b> ให้ถูก<br>⛏️ เตรียมดิน → 🌰 เพาะเมล็ด → 💧 รดน้ำ → 🌿 ดูแล → 🧺 เก็บเกี่ยว</p>
+    <div id="my-stats">
+        <div class="ms-cell"><div class="ms-val" id="ms-best">0</div><div class="ms-label">คะแนนสูงสุด</div></div>
+        <div class="ms-cell"><div class="ms-val" id="ms-plays">0</div><div class="ms-label">เล่นไปแล้ว (ครั้ง)</div></div>
+    </div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+    </div>
+    <div class="mode-row">
+        <button class="btn btn-primary" onclick="chooseMode('race')">⚡ แข่งเร็ว</button>
+        <button class="btn btn-blue" onclick="chooseMode('practice')">📚 ฝึกหัด</button>
+        <button class="btn btn-ghost" id="online-btn" onclick="openOnline()" style="display:none">🌐 ออนไลน์</button>
+    </div>
+</div>
+
+<!-- จอจบ -->
+<div id="gameover" class="screen">
+    <h1>จบเกม! 🌾</h1>
+    <div id="final-score">0</div>
+    <div id="final-detail"></div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
+        <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นใหม่</button>
+        <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+    </div>
+</div>
+
+<!-- ═══ KAMPAI SDK + Online framework (single source — อย่าแก้) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+/* fallback stub: กันพังถ้าเปิด standalone แล้ว SDK โหลดไม่ได้ */
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{unlock:function(){return this;},correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},setBgm:function(){return this;},defaultBgm:function(){return this;},bgmStart:function(){},bgmStop:function(){},mountToggles:function(){return this;}} };
+</script>
+<script src="/games/kampai-match.js"></script>
+<script>
+/* fallback stub สำหรับโหมดออนไลน์ */
+window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){alert('โหมดออนไลน์เล่นผ่านระบบเท่านั้น');},report:function(){},finish:function(){},leave:function(){}};} };
+</script>
+
+<!-- ═══ เกม (config → data → game · โหลดตามลำดับ แชร์ global scope · ไม่ใช้ import/export) ═══ -->
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
