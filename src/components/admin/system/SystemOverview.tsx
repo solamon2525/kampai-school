@@ -272,8 +272,17 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.66.0 (เกม "ล้างมือ 7 ขั้น" — สุขศึกษา ป.4-6 + โหมดออนไลน์)',
+        version: 'v1.67.0 (เกม "พิกัด 3 มิติ" — คณิตศาสตร์ ป.4-6, 3D Three.js)',
         date: 'ล่าสุด',
+        badge: 'bg-cyan-700',
+        items: [
+            'เกมใหม่ "พิกัด 3 มิติ" (coord-3d) ที่ /games/math/coord-3d.html — ระบบพิกัด 3 มิติ (Three.js): จุดเป้าหมายบนแกน X(แนวนอน)/Y(แนวตั้ง)/Z(ลึก) ลากเพื่อหมุนกล้องดูรอบด้าน แล้วเลือกพิกัด (x, y, z) ที่ถูกต้องแบบ MCQ — ต่อยอดตระกูลเกม 3D คณิต (solid-3d/net-3d/block-3d)',
+            'เข้าวัฒนธรรม kampai เต็ม: KAMPAI SDK + submitScore + ป้ายผู้เล่น + leaderboard ในเกม + ระบบเสียง · migration 141 (apply remote แล้ว, sort 26, bgm playful) · ปก SVG ธีม cyan + แกน isometric · verify:game 8/8 + scripts/test-coord-3d.mjs (logic test makeQuestion 6000 รอบ: 4 ตัวเลือกไม่ซ้ำ + มีคำตอบ + พิกัดในช่วง)',
+        ],
+    },
+    {
+        version: 'v1.66.0 (เกม "ล้างมือ 7 ขั้น" — สุขศึกษา ป.4-6 + โหมดออนไลน์)',
+        date: '',
         badge: 'bg-teal-700',
         items: [
             'เกมใหม่ "ล้างมือ 7 ขั้น" (handwash-order) ที่ /games/health/handwash-order.html — เรียงลำดับขั้นตอนล้างมือ 7 ขั้นให้ถูก: การ์ด 7 ใบสลับมั่ว (ฝ่ามือถูฝ่ามือ → ซอกนิ้ว → ประสานนิ้ว → หลังนิ้ว → หัวแม่มือ → ปลายนิ้ว → ข้อมือ) แตะตามลำดับ 1→7 ลงราง เติมวิชาสุขศึกษาที่ยังมีเกมน้อย (1→2 เกม)',
