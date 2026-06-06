@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ตรรกะสวิตช์ไฟ — Logic Gates (kampai)</title>
+<!--
+═══════════════════════════════════════════════════════════════════════════
+  KAMPAI-SCHOOL · เกม "ตรรกะสวิตช์ไฟ" (logic-gates) — เทคโนโลยี (วิทยาการคำนวณ) ป.6
+  วงจรเกตตรรกะ (AND/OR/NOT/XOR/NAND/NOR): สวิตช์ป้อนเข้า → เกต → หลอดไฟ 💡
+  โจทย์ (กันมั่ว): กำหนดค่าสวิตช์มาให้ → ทำนายว่าหลอดไฟ "ติด" หรือ "ดับ" (ปุ่ม 2 ตัว)
+  สอนตรรกะ boolean (AND/OR/NOT) · KAMPAI SDK เต็ม · 2 โหมด (แข่งเวลา/ฝึก)
+═══════════════════════════════════════════════════════════════════════════
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Fredoka+One&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; font-family: 'Kanit', sans-serif; color: #fff; overflow: hidden; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+body { background: linear-gradient(180deg, #064e3b 0%, #022c22 55%, #021410 100%); }
+#app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+#hud { display: none; align-items: center; justify-content: space-between; padding: 14px 18px; gap: 10px; }
+#hud.on { display: flex; }
+#score-container { font-size: 26px; font-weight: 700; color: #FFD700; text-shadow: 2px 2px 4px #000; background: rgba(0,0,0,0.35); padding: 4px 16px; border-radius: 999px; border: 2px solid rgba(255,215,0,0.5); transition: transform 0.15s; white-space: nowrap; }
+#score-container.pop { transform: scale(1.18); }
+#combo-badge { font-family: 'Fredoka One', cursive; font-size: 16px; color: #022c22; background: linear-gradient(45deg,#86efac,#22c55e); padding: 4px 12px; border-radius: 999px; opacity: 0; transform: scale(0.6); transition: all 0.18s; white-space: nowrap; }
+#combo-badge.on { opacity: 1; transform: scale(1); }
+#life-container { font-size: 24px; white-space: nowrap; }
+#timer-wrap { height: 10px; background: rgba(255,255,255,0.12); margin: 0 18px; border-radius: 999px; overflow: hidden; display: none; }
+#timer-wrap.on { display: block; }
+#timer-bar { height: 100%; width: 100%; background: linear-gradient(90deg,#34d399,#10b981); border-radius: 999px; transition: width 0.1s linear, background 0.3s; }
+#timer-bar.warn { background: linear-gradient(90deg,#f87171,#ef4444); }
+
+#play { flex: 1; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 12px; gap: 12px; }
+#play.on { display: flex; }
+#q-type { font-size: 14px; font-weight: 600; color: #a7f3d0; background: rgba(255,255,255,0.1); padding: 4px 14px; border-radius: 999px; }
+#prompt { text-align: center; font-size: clamp(15px, 4.4vw, 19px); color: #d1fae5; line-height: 1.4; }
+#prompt b { color: #fde047; }
+#circuit-wrap { width: 100%; max-width: 360px; background: rgba(2,20,16,0.5); border: 1px solid rgba(16,185,129,0.25); border-radius: 16px; padding: 8px; }
+#circuit { width: 100%; display: block; }
+#judge { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 360px; }
+.jbtn { font-family: 'Kanit'; font-weight: 700; font-size: clamp(17px, 4.8vw, 22px); padding: 18px 6px; border: none; border-radius: 16px; cursor: pointer; color: #fff; transition: transform 0.08s, box-shadow 0.08s, opacity 0.1s; }
+.jbtn:active { transform: translateY(4px); }
+.jbtn.off { background: linear-gradient(135deg,#64748b,#334155); box-shadow: 0 5px 0 #1e293b; }
+.jbtn.on  { background: linear-gradient(135deg,#fbbf24,#f59e0b); box-shadow: 0 5px 0 #b45309; color: #422006; }
+.jbtn.lock { pointer-events: none; opacity: 0.55; }
+.jbtn.pick-correct { outline: 4px solid #4ade80; }
+.jbtn.pick-wrong { outline: 4px solid #f87171; opacity: 0.45; }
+#feedback { min-height: 40px; font-size: 15px; font-weight: 600; text-align: center; max-width: 420px; line-height: 1.35; padding: 0 6px; }
+#feedback.good { color: #4ade80; }
+#feedback.bad { color: #f87171; }
+
+.screen { position: absolute; inset: 0; background: rgba(2,20,16,0.95); backdrop-filter: blur(8px); display: none; flex-direction: column; align-items: center; justify-content: flex-start; z-index: 30; text-align: center; padding: 26px 22px; overflow-y: auto; }
+.screen.on { display: flex; }
+.screen h1 { font-family: 'Fredoka One', cursive; font-size: 30px; margin-bottom: 6px; background: linear-gradient(135deg, #6ee7b7, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.screen p { font-size: 14.5px; color: #d1fae5; margin-bottom: 12px; line-height: 1.55; }
+.screen p b { color: #fde047; }
+.screen p .k { display: inline-block; background: rgba(16,185,129,0.3); border-radius: 6px; padding: 0 6px; margin: 0 1px; font-weight: 600; }
+.legend { font-size: 13px; color: #a7f3d0; margin-bottom: 14px; line-height: 1.7; max-width: 420px; }
+#final-score { color: #FFD700; font-family: 'Fredoka One', cursive; font-size: 56px; margin: 4px 0 6px; }
+#final-detail { font-size: 15px; color: #d1fae5; margin-bottom: 12px; }
+.btn { padding: 13px 28px; font-family: inherit; font-size: 18px; font-weight: 600; border-radius: 999px; border: none; cursor: pointer; margin: 6px; transition: transform 0.1s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; color: #fff; }
+.btn:active { transform: scale(0.95); }
+.btn-primary { background: linear-gradient(45deg, #10b981, #059669); box-shadow: 0 4px 10px rgba(16,185,129,0.4); }
+.btn-blue { background: linear-gradient(45deg, #3b82f6, #2563eb); box-shadow: 0 4px 10px rgba(59,130,246,0.4); }
+.btn-ghost { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25); }
+.mode-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 8px; }
+.leaderboard-box { background: rgba(255,255,255,0.95); color: #2c3e50; border-radius: 12px; padding: 12px 15px; margin: 10px 0; width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.lb-title { font-family: 'Fredoka One', cursive; font-size: 1rem; margin: 0 0 8px 0; text-align: left; }
+.leaderboard-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.leaderboard-list li { display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-bottom: 1px dashed #dee2e6; }
+.leaderboard-list li:last-child { border-bottom: none; }
+.leaderboard-list li.is-me { background: #fff7e0; border-radius: 8px; }
+.lb-rank { font-family: 'Fredoka One', cursive; color: #f39c12; min-width: 26px; text-align: center; font-size: 1.1rem; }
+.lb-avatar, .lb-avatar-init { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #f39c12; flex-shrink: 0; }
+.lb-avatar-init { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.lb-info { display: flex; flex-direction: column; min-width: 0; flex: 1; text-align: left; }
+.lb-name { font-family: 'Fredoka One', cursive; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-sub { font-size: 0.72rem; color: #868e96; }
+.lb-loading { color: #868e96; text-align: center; padding: 8px; font-size: 0.85rem; }
+#player-chip { display: none; align-items: center; gap: 8px; background: rgba(255,255,255,0.1); padding: 4px 14px 4px 4px; border-radius: 999px; font-size: 14px; margin-bottom: 12px; }
+#player-chip img, #player-chip .pc-init { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+#player-chip .pc-init { background: linear-gradient(135deg,#6c5ce7,#a29bfe); display: flex; align-items: center; justify-content: center; font-weight: 700; }
+#player-chip .pc-best { color: #FFD700; font-weight: 700; }
+@keyframes lg-shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-7px)} 50%{transform:translateX(6px)} 75%{transform:translateX(-4px)} }
+#circuit-wrap.shake { animation: lg-shake 0.4s ease; }
+</style>
+</head>
+<body>
+<div id="app">
+    <div id="hud">
+        <div id="score-container">⭐ <span id="score-value">0</span></div>
+        <div id="combo-badge">🔥 x1</div>
+        <div id="life-container">❤️❤️❤️</div>
+    </div>
+    <div id="timer-wrap"><div id="timer-bar"></div></div>
+    <div id="play">
+        <div id="q-type">—</div>
+        <div id="prompt">หลอดไฟ 💡 จะ <b>ติด</b> หรือ <b>ดับ</b>?</div>
+        <div id="circuit-wrap"><svg id="circuit" viewBox="0 0 360 240" preserveAspectRatio="xMidYMid meet"></svg></div>
+        <div id="judge">
+            <button class="jbtn off" id="btn-off" onclick="answer(false)">⚫ ดับ (0)</button>
+            <button class="jbtn on" id="btn-on" onclick="answer(true)">💡 ติด (1)</button>
+        </div>
+        <div id="feedback"></div>
+    </div>
+</div>
+
+<div id="start" class="screen on">
+    <h1>💡 ตรรกะสวิตช์ไฟ</h1>
+    <div id="player-chip"></div>
+    <p>วงจรมี <b>สวิตช์</b> (เปิด=1 / ปิด=0) ต่อผ่าน <b>เกตตรรกะ</b> ไปยังหลอดไฟ 💡<br>
+       ดูค่าสวิตช์ที่กำหนด แล้วทำนายว่าหลอดไฟ <span class="k">ติด</span> หรือ <span class="k">ดับ</span></p>
+    <div class="legend">
+        <b style="color:#fde047">กติกาเกต:</b><br>
+        <b>AND</b> ติดเมื่อ<u>ทุก</u>สวิตช์เปิด · <b>OR</b> ติดเมื่อ<u>อย่างน้อยหนึ่ง</u>เปิด · <b>NOT</b> กลับค่า (เปิด→ปิด)<br>
+        <b>XOR</b> ติดเมื่อเปิด<u>ต่างกัน</u> · <b>NAND</b>=ตรงข้าม AND · <b>NOR</b>=ตรงข้าม OR
+    </div>
+    <div class="mode-grid">
+        <button class="btn btn-primary" onclick="startGame('race')">⚡ แข่งเวลา</button>
+        <button class="btn btn-ghost" onclick="startGame('practice')">📚 ฝึก</button>
+    </div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+    </div>
+</div>
+
+<div id="gameover" class="screen">
+    <h1>จบเกม! 💡</h1>
+    <div id="final-score">0</div>
+    <div id="final-detail"></div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
+        <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นอีกครั้ง</button>
+        <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+    </div>
+</div>
+
+<!-- ═══ KAMPAI SDK (single source — อย่าแก้) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{unlock:function(){return this;},correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},setBgm:function(){return this;},defaultBgm:function(){return this;},bgmStart:function(){},bgmStop:function(){},mountToggles:function(){return this;}} };</script>
+
+<script>
+/* ═══ SECTION A · ตั้งค่า ═══ */
+const GAME_SLUG = 'logic-gates';
+KAMPAI.setSlug(GAME_SLUG);
+const $ = (id) => document.getElementById(id);
+
+/* ═══ SECTION B · นักเรียน + leaderboard ═══ */
+function renderPlayer() {
+    const s = KAMPAI.student, st = KAMPAI.stats;
+    if (!s) return;
+    const chip = $('player-chip');
+    const av = s.photoUrl ? `<img src="${s.photoUrl}" alt="">` : `<div class="pc-init">${(s.displayName||'?')[0]}</div>`;
+    const best = st ? ` · <span class="pc-best">สถิติ ${st.personalBest.toLocaleString()}</span>` : '';
+    chip.innerHTML = av + `<span>${s.displayName}${best}</span>`;
+    chip.style.display = 'flex';
+}
+function renderLeaderboard(listId) {
+    const el = $(listId); if (!el) return;
+    const rows = KAMPAI.leaderboard || [];
+    if (!rows.length) { el.innerHTML = '<li class="lb-loading">ยังไม่มีผู้เล่น — เป็นคนแรกสิ!</li>'; return; }
+    const medals = ['🥇','🥈','🥉'];
+    el.innerHTML = rows.slice(0, 5).map((r) => {
+        const av = r.photoUrl ? `<img class="lb-avatar" src="${r.photoUrl}" alt="">` : `<div class="lb-avatar-init">${(r.displayName||'?')[0]}</div>`;
+        return `<li class="${r.isMe ? 'is-me' : ''}"><span class="lb-rank">${medals[r.rank-1] || r.rank}</span>${av}
+            <div class="lb-info"><div class="lb-name">${r.displayName}${r.isMe ? ' (คุณ)' : ''}</div>
+            <div class="lb-sub">${(r.personalBest||0).toLocaleString()} คะแนน · ${r.classLabel||''}</div></div></li>`;
+    }).join('');
+}
+KAMPAI.onReady(function () { renderPlayer(); renderLeaderboard('score-list'); });
+
+/* ═══ SECTION B2 · เสียง ═══ */
+KAMPAI.sound.mountToggles();
+KAMPAI.sound.defaultBgm('playful');
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTION C · GAME LOGIC — ตรรกะสวิตช์ไฟ (logic-gates)
+   ═══════════════════════════════════════════════════════════════════════════ */
+// ── แกนลอจิกบริสุทธิ์ (ทดสอบใน scripts/test-logic-gates.mjs) ──
+function gate(type, ins) {
+    switch (type) {
+        case 'AND':  return ins.every((v) => v === 1) ? 1 : 0;
+        case 'OR':   return ins.some((v) => v === 1) ? 1 : 0;
+        case 'NOT':  return ins[0] === 1 ? 0 : 1;
+        case 'XOR':  return (ins.filter((v) => v === 1).length % 2 === 1) ? 1 : 0;
+        case 'NAND': return ins.every((v) => v === 1) ? 0 : 1;
+        case 'NOR':  return ins.some((v) => v === 1) ? 0 : 1;
+        default:     return 0;
+    }
+}
+// evalCircuit(level, state) → boolean (หลอดไฟติดไหม) · nodes เรียงให้ input มาก่อน gate ที่ใช้
+function evalCircuit(level, state) {
+    const val = {};
+    for (const n of level.nodes) {
+        if (n.type === 'IN') val[n.id] = state[n.id] ? 1 : 0;
+        else val[n.id] = gate(n.type, n.in.map((r) => val[r]));
+    }
+    return val[level.out] === 1;
+}
+
+// วงจร: nodes มี IN (สวิตช์) + เกต · col/row = ตำแหน่งวาด · out = id ที่ต่อหลอดไฟ
+const LEVELS = [
+    { name:'AND', tier:1, switches:['A','B'], out:'g',
+      nodes:[ {id:'A',type:'IN',col:0,row:0}, {id:'B',type:'IN',col:0,row:2}, {id:'g',type:'AND',in:['A','B'],col:1,row:1} ] },
+    { name:'OR', tier:1, switches:['A','B'], out:'g',
+      nodes:[ {id:'A',type:'IN',col:0,row:0}, {id:'B',type:'IN',col:0,row:2}, {id:'g',type:'OR',in:['A','B'],col:1,row:1} ] },
+    { name:'NOT', tier:1, switches:['A'], out:'g',
+      nodes:[ {id:'A',type:'IN',col:0,row:1}, {id:'g',type:'NOT',in:['A'],col:1,row:1} ] },
+    { name:'XOR', tier:1, switches:['A','B'], out:'g',
+      nodes:[ {id:'A',type:'IN',col:0,row:0}, {id:'B',type:'IN',col:0,row:2}, {id:'g',type:'XOR',in:['A','B'],col:1,row:1} ] },
+    { name:'NAND', tier:1, switches:['A','B'], out:'g',
+      nodes:[ {id:'A',type:'IN',col:0,row:0}, {id:'B',type:'IN',col:0,row:2}, {id:'g',type:'NAND',in:['A','B'],col:1,row:1} ] },
+    { name:'NOR', tier:1, switches:['A','B'], out:'g',
+      nodes:[ {id:'A',type:'IN',col:0,row:0}, {id:'B',type:'IN',col:0,row:2}, {id:'g',type:'NOR',in:['A','B'],col:1,row:1} ] },
+    { name:'A AND (NOT B)', tier:2, switches:['A','B'], out:'g2',
+      nodes:[ {id:'A',type:'IN',col:0,row:0}, {id:'B',type:'IN',col:0,row:2},
+              {id:'g1',type:'NOT',in:['B'],col:1,row:2}, {id:'g2',type:'AND',in:['A','g1'],col:2,row:1} ] },
+    { name:'(NOT A) OR B', tier:2, switches:['A','B'], out:'g2',
+      nodes:[ {id:'A',type:'IN',col:0,row:0}, {id:'B',type:'IN',col:0,row:2},
+              {id:'g1',type:'NOT',in:['A'],col:1,row:0}, {id:'g2',type:'OR',in:['g1','B'],col:2,row:1} ] },
+    { name:'(A AND B) OR C', tier:2, switches:['A','B','C'], out:'g2',
+      nodes:[ {id:'A',type:'IN',col:0,row:0}, {id:'B',type:'IN',col:0,row:1}, {id:'C',type:'IN',col:0,row:2.4},
+              {id:'g1',type:'AND',in:['A','B'],col:1,row:0.5}, {id:'g2',type:'OR',in:['g1','C'],col:2,row:1.3} ] },
+    { name:'(A OR B) AND C', tier:2, switches:['A','B','C'], out:'g2',
+      nodes:[ {id:'A',type:'IN',col:0,row:0}, {id:'B',type:'IN',col:0,row:1}, {id:'C',type:'IN',col:0,row:2.4},
+              {id:'g1',type:'OR',in:['A','B'],col:1,row:0.5}, {id:'g2',type:'AND',in:['g1','C'],col:2,row:1.3} ] },
+    { name:'(A XOR B) AND C', tier:2, switches:['A','B','C'], out:'g2',
+      nodes:[ {id:'A',type:'IN',col:0,row:0}, {id:'B',type:'IN',col:0,row:1}, {id:'C',type:'IN',col:0,row:2.4},
+              {id:'g1',type:'XOR',in:['A','B'],col:1,row:0.5}, {id:'g2',type:'AND',in:['g1','C'],col:2,row:1.3} ] },
+];
+
+/* ── สถานะเกม ── */
+let mode = 'race', isGameOver = false, locked = false;
+let score = 0, combo = 0, lives = 3, answered = 0;
+let timeLeft = 60, timerId = null;
+let level = null, state = {}, answerVal = false;
+
+function setScore(n) {
+    score = Math.max(0, Math.round(n));
+    $('score-value').innerText = score;
+    const w = $('score-container'); w.classList.add('pop'); setTimeout(() => w.classList.remove('pop'), 150);
+}
+function setCombo(n) {
+    combo = n;
+    const b = $('combo-badge');
+    if (combo >= 2) { b.innerText = `🔥 x${combo}`; b.classList.add('on'); } else b.classList.remove('on');
+}
+function setLives(n) {
+    lives = Math.max(0, n);
+    let s = ''; for (let i = 0; i < 3; i++) s += (i < lives) ? '❤️' : '🖤';
+    $('life-container').innerText = s;
+}
+function comboMult() { return Math.max(1, combo); }
+function rnd(n) { return Math.floor(Math.random() * n); }
+
+function startGame(m) {
+    mode = m; isGameOver = false;
+    score = 0; combo = 0; answered = 0; locked = false;
+    setScore(0); setCombo(0);
+    $('start').classList.remove('on');
+    $('hud').classList.add('on');
+    $('play').classList.add('on');
+    KAMPAI.sound.unlock();
+    KAMPAI.sound.bgmStart();
+    if (m === 'race') {
+        $('life-container').style.display = 'none';
+        $('timer-wrap').classList.add('on');
+        timeLeft = 60; updateTimer();
+        timerId = setInterval(tick, 100);
+    } else {
+        $('life-container').style.display = '';
+        $('timer-wrap').classList.remove('on');
+        setLives(3);
+    }
+    nextRound();
+}
+
+function tick() {
+    timeLeft -= 0.1;
+    if (timeLeft <= 0) { timeLeft = 0; updateTimer(); endGame(); return; }
+    updateTimer();
+}
+function updateTimer() {
+    const bar = $('timer-bar');
+    bar.style.width = (timeLeft / 60 * 100) + '%';
+    bar.classList.toggle('warn', timeLeft <= 10);
+}
+
+function pickLevel() {
+    const pool = (answered >= 5) ? LEVELS : LEVELS.filter((l) => l.tier === 1);
+    return pool[rnd(pool.length)];
+}
+
+function nextRound() {
+    locked = false;
+    level = pickLevel();
+    // สุ่มค่าสวิตช์ — เลี่ยงรอบที่ "ทุกตัวเหมือนกันจนตอบเดาง่ายซ้ำ ๆ" ไม่จำเป็น แค่สุ่มปกติ
+    state = {};
+    level.switches.forEach((s) => { state[s] = rnd(2); });
+    answerVal = evalCircuit(level, state);
+    $('q-type').innerText = '🔌 วงจร ' + level.name;
+    $('feedback').className = ''; $('feedback').innerText = '';
+    const bo = $('btn-on'), bf = $('btn-off');
+    [bo, bf].forEach((b) => b.classList.remove('lock', 'pick-correct', 'pick-wrong'));
+    renderCircuit(false);
+}
+
+/* ── วาดวงจรเป็น SVG (layered: สวิตช์ซ้าย → เกต → หลอดไฟขวา) ── */
+const COLW = 96, ROWH = 64, OX = 40, OY = 44;
+function colX(c) { return OX + c * COLW; }
+function rowY(r) { return OY + r * ROWH; }
+
+function renderCircuit(reveal) {
+    const svg = $('circuit');
+    const pos = {};
+    let maxCol = 0, maxRow = 0;
+    level.nodes.forEach((n) => { pos[n.id] = { x: colX(n.col), y: rowY(n.row) }; maxCol = Math.max(maxCol, n.col); maxRow = Math.max(maxRow, n.row); });
+    const bulbX = colX(maxCol + 1);
+    const outPos = pos[level.out];
+    const W = bulbX + 40;
+    const H = rowY(maxRow) + 50;
+    svg.setAttribute('viewBox', `0 0 ${W} ${Math.max(H, 130)}`);
+
+    const GW = 60, GH = 44, SW = 54, SH = 40;   // gate/switch ขนาด
+    let wires = '', boxes = '';
+
+    // เส้นสาย: จาก input แต่ละตัว → เกต (เข้าด้านซ้ายของเกต, กระจาย y)
+    level.nodes.forEach((n) => {
+        if (n.type === 'IN') return;
+        const gp = pos[n.id];
+        const k = n.in.length;
+        n.in.forEach((src, j) => {
+            const sp = pos[src];
+            const sx = sp.x + (level.nodes.find((m) => m.id === src).type === 'IN' ? SW / 2 : GW / 2);
+            const sy = sp.y;
+            const ty = gp.y - (k - 1) * 9 + j * 18;
+            const tx = gp.x - GW / 2;
+            const midx = (sx + tx) / 2;
+            const lit = reveal ? '' : '';
+            wires += `<path d="M ${sx} ${sy} H ${midx} V ${ty} H ${tx}" fill="none" stroke="#10b981" stroke-width="2.5" opacity="0.75"/>`;
+        });
+    });
+    // เส้นสาย: เกต out → หลอดไฟ
+    wires += `<path d="M ${outPos.x + GW / 2} ${outPos.y} H ${bulbX - 22}" fill="none" stroke="#10b981" stroke-width="2.5" opacity="0.75"/>`;
+
+    // กล่อง: สวิตช์ + เกต
+    level.nodes.forEach((n) => {
+        const p = pos[n.id];
+        if (n.type === 'IN') {
+            const on = state[n.id] === 1;
+            const fill = on ? '#fbbf24' : '#1e293b';
+            const stroke = on ? '#fde047' : '#475569';
+            const txt = on ? '#422006' : '#cbd5e1';
+            boxes += `<g>
+                <rect x="${p.x - SW/2}" y="${p.y - SH/2}" width="${SW}" height="${SH}" rx="10" fill="${fill}" stroke="${stroke}" stroke-width="2.5"/>
+                <text x="${p.x}" y="${p.y - 2}" font-size="15" font-weight="700" fill="${txt}" text-anchor="middle" dominant-baseline="middle" font-family="Kanit,sans-serif">${n.id}=${on ? 1 : 0}</text>
+                <text x="${p.x}" y="${p.y + 12}" font-size="9" fill="${txt}" text-anchor="middle" dominant-baseline="middle" font-family="Kanit,sans-serif">${on ? 'เปิด' : 'ปิด'}</text>
+            </g>`;
+        } else {
+            boxes += `<g>
+                <rect x="${p.x - GW/2}" y="${p.y - GH/2}" width="${GW}" height="${GH}" rx="9" fill="#065f46" stroke="#34d399" stroke-width="2.5"/>
+                <text x="${p.x}" y="${p.y}" font-size="15" font-weight="800" fill="#d1fae5" text-anchor="middle" dominant-baseline="central" font-family="Kanit,sans-serif">${n.type}</text>
+            </g>`;
+        }
+    });
+
+    // หลอดไฟ
+    let bulbFill = '#0b3b30', bulbStroke = '#475569', bulbEmoji = '❓';
+    if (reveal) {
+        if (answerVal) { bulbFill = 'url(#lgLit)'; bulbStroke = '#fde047'; bulbEmoji = '💡'; }
+        else { bulbFill = '#1e293b'; bulbStroke = '#475569'; bulbEmoji = '⚫'; }
+    }
+    const by = outPos.y;
+    boxes += `<g>
+        <circle cx="${bulbX}" cy="${by}" r="22" fill="${bulbFill}" stroke="${bulbStroke}" stroke-width="3"/>
+        <text x="${bulbX}" y="${by + 1}" font-size="24" text-anchor="middle" dominant-baseline="central">${bulbEmoji}</text>
+    </g>`;
+
+    svg.innerHTML = `<defs><radialGradient id="lgLit" cx="0.5" cy="0.35" r="0.7"><stop offset="0" stop-color="#fff7cc"/><stop offset="1" stop-color="#fbbf24"/></radialGradient></defs>${wires}${boxes}`;
+}
+
+function answer(choice) {
+    if (locked || isGameOver) return;
+    locked = true;
+    answered++;
+    const bo = $('btn-on'), bf = $('btn-off');
+    [bo, bf].forEach((b) => b.classList.add('lock'));
+    const picked = choice ? bo : bf;
+    const correct = (choice === answerVal);
+    renderCircuit(true);   // เผยหลอดไฟ
+    if (correct) {
+        picked.classList.add('pick-correct');
+        setCombo(combo + 1);
+        setScore(score + 10 * comboMult());
+        KAMPAI.sound.correct(); KAMPAI.sound.fxFlash(true);
+        $('feedback').className = 'good';
+        $('feedback').innerText = `✅ ถูกต้อง! หลอดไฟ${answerVal ? 'ติด 💡' : 'ดับ ⚫'}`;
+        setTimeout(() => { if (!isGameOver) nextRound(); }, 1050);
+    } else {
+        picked.classList.add('pick-wrong');
+        (answerVal ? bo : bf).classList.add('pick-correct');
+        setCombo(0);
+        KAMPAI.sound.wrong(); KAMPAI.sound.fxFlash(false);
+        $('circuit-wrap').classList.add('shake'); setTimeout(() => $('circuit-wrap').classList.remove('shake'), 420);
+        $('feedback').className = 'bad';
+        $('feedback').innerText = `❌ ที่ถูกคือ "${answerVal ? 'ติด 💡' : 'ดับ ⚫'}" — ลองดูกติกาเกต ${level.name}`;
+        if (mode === 'practice') {
+            setLives(lives - 1);
+            if (lives <= 0) { setTimeout(() => endGame(), 1200); return; }
+        }
+        setTimeout(() => { if (!isGameOver) nextRound(); }, 1700);
+    }
+}
+
+// คีย์บอร์ด: 1/← = ดับ, 2/→ = ติด
+window.addEventListener('keydown', (e) => {
+    if (!$('play').classList.contains('on')) return;
+    if (e.key === '1' || e.key === 'ArrowLeft') answer(false);
+    else if (e.key === '2' || e.key === 'ArrowRight') answer(true);
+});
+
+function endGame() {
+    if (isGameOver) return;
+    isGameOver = true;
+    if (timerId) { clearInterval(timerId); timerId = null; }
+    KAMPAI.sound.bgmStop(); KAMPAI.sound.gameOver();
+    $('play').classList.remove('on');
+    $('hud').classList.remove('on');
+    $('timer-wrap').classList.remove('on');
+    KAMPAI.submitScore(score, { mode: 'normal', answered });
+    $('final-score').innerText = score;
+    $('final-detail').innerText = (mode === 'race' ? 'โหมดแข่งเวลา' : 'โหมดฝึก') + ` · ทำนายไป ${answered} วงจร — เก่งตรรกะ! 💡`;
+    $('gameover').classList.add('on');
+    renderLeaderboard('score-list-gameover');
+}
+</script>
+</body>
+</html>
