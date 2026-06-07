@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" font-family="'Sarabun','Leelawadee UI','Tahoma',sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5eead4"/>
+      <stop offset="0.45" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#0369a1"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.32" r="0.7">
+      <stop offset="0" stop-color="#ecfeff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ecfeff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="title" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fffbeb"/>
+      <stop offset="0.5" stop-color="#fde047"/>
+      <stop offset="1" stop-color="#f59e0b"/>
+    </linearGradient>
+    <radialGradient id="bub" cx="0.35" cy="0.3" r="0.75">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.95"/>
+      <stop offset="0.6" stop-color="#cffafe" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#a5f3fc" stop-opacity="0.18"/>
+    </radialGradient>
+    <linearGradient id="shirt" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#dbeafe"/>
+    </linearGradient>
+    <linearGradient id="basin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f1f5f9"/>
+      <stop offset="1" stop-color="#cbd5e1"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#bae6fd"/>
+      <stop offset="1" stop-color="#38bdf8"/>
+    </linearGradient>
+    <filter id="ds" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="7" stdDeviation="7" flood-color="#0c4a6e" flood-opacity="0.45"/>
+    </filter>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0c4a6e" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- background -->
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <ellipse cx="640" cy="250" rx="760" ry="420" fill="url(#glow)"/>
+
+  <!-- floating bubbles -->
+  <g>
+    <circle cx="140" cy="180" r="62" fill="url(#bub)"/><circle cx="120" cy="160" r="12" fill="#ffffff" opacity="0.85"/>
+    <circle cx="1130" cy="150" r="78" fill="url(#bub)"/><circle cx="1105" cy="125" r="15" fill="#ffffff" opacity="0.85"/>
+    <circle cx="1190" cy="470" r="48" fill="url(#bub)"/><circle cx="1175" cy="455" r="10" fill="#ffffff" opacity="0.8"/>
+    <circle cx="80" cy="430" r="44" fill="url(#bub)"/><circle cx="68" cy="416" r="9" fill="#ffffff" opacity="0.8"/>
+    <circle cx="1040" cy="560" r="30" fill="url(#bub)"/>
+    <circle cx="210" cy="560" r="26" fill="url(#bub)"/>
+  </g>
+
+  <!-- subject badge -->
+  <g filter="url(#soft)">
+    <rect x="56" y="52" rx="28" ry="28" width="356" height="58" fill="#0f172a" opacity="0.6"/>
+  </g>
+  <text x="84" y="90" font-size="30" font-weight="700" fill="#e0f2fe">สุขศึกษา · ป.4-6</text>
+
+  <!-- ===== CHILD washing hands ===== -->
+  <g filter="url(#soft)">
+    <!-- shirt / torso -->
+    <path d="M548,470 Q548,438 596,432 L684,432 Q732,438 732,470 L744,620 Q640,648 536,620 Z" fill="url(#shirt)" stroke="#bfdbfe" stroke-width="3"/>
+    <!-- collar -->
+    <path d="M610,436 L640,470 L670,436 Z" fill="#1e3a8a"/>
+    <path d="M624,434 L640,452 L656,434 Z" fill="#3b82f6"/>
+    <!-- neck -->
+    <rect x="620" y="404" width="40" height="42" rx="14" fill="#fcd9b6"/>
+    <!-- arms reaching down to basin -->
+    <path d="M566,476 Q540,540 600,566" fill="none" stroke="#fcd9b6" stroke-width="34" stroke-linecap="round"/>
+    <path d="M714,476 Q740,540 680,566" fill="none" stroke="#fcd9b6" stroke-width="34" stroke-linecap="round"/>
+    <!-- head -->
+    <circle cx="640" cy="332" r="92" fill="#fde0c2" stroke="#f4c89e" stroke-width="2"/>
+    <!-- ears -->
+    <circle cx="552" cy="344" r="16" fill="#fde0c2"/><circle cx="728" cy="344" r="16" fill="#fde0c2"/>
+    <!-- hair -->
+    <path d="M548,344 C540,236 740,236 732,344 C732,312 712,300 700,308 C690,286 660,278 640,278 C620,278 590,286 580,308 C568,300 548,312 548,344 Z" fill="#27313f"/>
+    <path d="M640,278 C604,280 582,300 576,330" fill="none" stroke="#1b2430" stroke-width="6" stroke-linecap="round"/>
+    <!-- eyes -->
+    <ellipse cx="606" cy="342" rx="15" ry="20" fill="#27313f"/>
+    <circle cx="601" cy="335" r="5.5" fill="#ffffff"/>
+    <ellipse cx="674" cy="342" rx="15" ry="20" fill="#27313f"/>
+    <circle cx="669" cy="335" r="5.5" fill="#ffffff"/>
+    <!-- eyebrows -->
+    <path d="M590,312 Q606,305 622,311" fill="none" stroke="#27313f" stroke-width="5" stroke-linecap="round"/>
+    <path d="M658,311 Q674,305 690,312" fill="none" stroke="#27313f" stroke-width="5" stroke-linecap="round"/>
+    <!-- cheeks -->
+    <circle cx="578" cy="372" r="14" fill="#fb7185" opacity="0.45"/>
+    <circle cx="702" cy="372" r="14" fill="#fb7185" opacity="0.45"/>
+    <!-- smile -->
+    <path d="M616,372 Q640,398 664,372 Q640,386 616,372 Z" fill="#be123c"/>
+  </g>
+
+  <!-- ===== SINK in front ===== -->
+  <g filter="url(#soft)">
+    <!-- pedestal -->
+    <path d="M600,612 L680,612 L668,700 L612,700 Z" fill="url(#basin)"/>
+    <!-- basin -->
+    <ellipse cx="640" cy="600" rx="190" ry="52" fill="url(#basin)" stroke="#94a3b8" stroke-width="3"/>
+    <ellipse cx="640" cy="596" rx="158" ry="38" fill="#e2e8f0"/>
+    <ellipse cx="640" cy="598" rx="120" ry="26" fill="url(#water)" opacity="0.85"/>
+  </g>
+  <!-- faucet -->
+  <g filter="url(#soft)">
+    <path d="M812,512 L812,470 Q812,452 792,452 L700,452" fill="none" stroke="#cbd5e1" stroke-width="16" stroke-linecap="round"/>
+    <path d="M812,512 L812,470 Q812,452 792,452 L700,452" fill="none" stroke="#f1f5f9" stroke-width="6" stroke-linecap="round"/>
+  </g>
+  <!-- water stream -->
+  <path d="M700,460 Q694,510 660,548" fill="none" stroke="url(#water)" stroke-width="13" stroke-linecap="round" opacity="0.9"/>
+  <!-- soap foam over hands -->
+  <g filter="url(#soft)">
+    <path d="M600,548 q-26,-6 -22,18 q-22,2 -10,22 q-4,20 20,18 q10,16 30,6 q16,14 34,0 q22,8 30,-12 q22,-4 10,-24 q10,-20 -14,-24 q-4,-22 -28,-14 q-18,-14 -38,0 q-14,-4 -22,14 Z" fill="#ffffff"/>
+    <circle cx="596" cy="556" r="7" fill="#f0f9ff"/>
+    <circle cx="648" cy="548" r="6" fill="#f0f9ff"/>
+    <circle cx="624" cy="572" r="6" fill="#e0f2fe"/>
+  </g>
+  <!-- tiny rising bubbles from foam -->
+  <circle cx="600" cy="520" r="9" fill="url(#bub)"/>
+  <circle cx="668" cy="512" r="7" fill="url(#bub)"/>
+  <circle cx="636" cy="498" r="6" fill="url(#bub)"/>
+
+  <!-- ===== TITLE ===== -->
+  <text x="640" y="158" text-anchor="middle" font-size="116" font-weight="800" fill="url(#title)" stroke="#0c4a6e" stroke-width="4" paint-order="stroke" filter="url(#ds)" letter-spacing="1">ล้างมือ 7 ขั้น</text>
+  <text x="640" y="216" text-anchor="middle" font-size="36" font-weight="700" fill="#ecfeff">เรียงลำดับขั้นตอนล้างมือให้สะอาด!</text>
+
+  <!-- ===== 7 STEP DOTS ===== -->
+  <g>
+    <line x1="250" y1="672" x2="1030" y2="672" stroke="#ffffff" stroke-width="5" stroke-dasharray="2 16" stroke-linecap="round" opacity="0.7"/>
+    <g font-size="28" font-weight="800" text-anchor="middle">
+      <g><circle cx="250" cy="672" r="31" fill="#ffffff" stroke="#0369a1" stroke-width="4" filter="url(#soft)"/><text x="250" y="682" fill="#0369a1">1</text></g>
+      <g><circle cx="380" cy="672" r="31" fill="#ffffff" stroke="#0369a1" stroke-width="4" filter="url(#soft)"/><text x="380" y="682" fill="#0369a1">2</text></g>
+      <g><circle cx="510" cy="672" r="31" fill="#ffffff" stroke="#0369a1" stroke-width="4" filter="url(#soft)"/><text x="510" y="682" fill="#0369a1">3</text></g>
+      <g><circle cx="640" cy="672" r="31" fill="#ffffff" stroke="#0369a1" stroke-width="4" filter="url(#soft)"/><text x="640" y="682" fill="#0369a1">4</text></g>
+      <g><circle cx="770" cy="672" r="31" fill="#ffffff" stroke="#0369a1" stroke-width="4" filter="url(#soft)"/><text x="770" y="682" fill="#0369a1">5</text></g>
+      <g><circle cx="900" cy="672" r="31" fill="#ffffff" stroke="#0369a1" stroke-width="4" filter="url(#soft)"/><text x="900" y="682" fill="#0369a1">6</text></g>
+      <g><circle cx="1030" cy="672" r="34" fill="#fde047" stroke="#f59e0b" stroke-width="5" filter="url(#soft)"/>
+         <path d="M1016,672 l9,10 l18,-20" fill="none" stroke="#0369a1" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></g>
+    </g>
+  </g>
+</svg>
