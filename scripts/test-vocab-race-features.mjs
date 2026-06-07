@@ -73,5 +73,23 @@ ok(just.includes('first_play'), 'evalBadges ครั้งแรก → ปล�
 ok(window.getBadges().first_play === 1, 'เหรียญถูกบันทึก');
 ok(window.evalBadges().length === 0, 'evalBadges ซ้ำ → ไม่ปลดเหรียญเดิมอีก');
 
+// 7) แข่งเร็ว เลือกหมวด (รวม/แยก/ผสม)
+window.chooseMode('race');
+const allCount = window.pool().length;
+ok(allCount > 50, `race default (รวม) → ทุกคำ (${allCount})`);
+ok($('race-picker').classList.contains('on'), 'race → เปิด race-picker');
+ok(!!$('race-chips').querySelector('.rp-all.on'), 'default → ชิป "รวมทั้งหมด" ติด');
+window.toggleRaceCat('animals');
+let rp = window.pool();
+ok(rp.length === 12 && rp.every(w => w.cat === 'animals'), `เลือก animals → 12 คำเฉพาะหมวด (${rp.length})`);
+ok(!$('race-chips').querySelector('.rp-all.on'), 'เลือกหมวด → "รวม" ดับ');
+window.toggleRaceCat('colors');
+rp = window.pool();
+ok(rp.every(w => w.cat === 'animals' || w.cat === 'colors') && rp.some(w => w.cat === 'colors'), `ผสม animals+colors (${rp.length} คำ)`);
+window.toggleRaceAll();
+ok(window.pool().length === allCount, 'แตะรวมทั้งหมด → กลับเป็นทุกคำ');
+window.toggleRaceCat('jobs'); window.toggleRaceCat('jobs');
+ok(window.pool().length === allCount, 'เปิดหมวดแล้วปิดจนว่าง → auto กลับรวมทั้งหมด');
+
 console.log(`\n${fail === 0 ? '✨ ผ่านทุก check' : '⚠️ มี fail'} — pass ${pass}, fail ${fail}`);
 process.exit(fail === 0 ? 0 : 1);
