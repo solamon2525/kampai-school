@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.72.0 (เกม "ตรรกะสวิตช์ไฟ" — เทคโนโลยี/วิทยาการคำนวณ ป.6 · ครบชุด 4 เกม)',
+        version: 'v1.72.1 (แก้บั๊กเสียงอ่านคำหายตอนตอบถูก — เกม "แข่งคำศัพท์")',
         date: 'ล่าสุด',
+        badge: 'bg-sky-700',
+        items: [
+            'เกม "แข่งคำศัพท์" (vocab-race): ตอบถูกแล้วเสียงอ่านคำอังกฤษหาย (โดยเฉพาะตอนเล่นเร็ว) — เพราะ KAMPAI.sound.speak() มี guard ทิ้งเสียงใหม่ถ้ามีเสียงเก่าค้างอยู่ (เสียงไทยของโจทย์ยังพูดไม่จบ → เสียงอังกฤษโดนทิ้ง)',
+            'แก้ที่ SDK: เพิ่ม param ตัวที่ 3 speak(text, lang, interrupt) — interrupt=true จะ cancel เสียงค้างก่อนแล้วพูดคำใหม่ (เสียงล่าสุดชนะ). ค่า default เดิม = guard กันทับ → เกมอื่นทุกตัว (เรียกแบบ 2 args) ไม่กระทบ',
+            'vocab-race: speakQuestion()/speakAnswerEn() ส่ง interrupt=true → ตอบถูกได้ยินคำอังกฤษทุกครั้ง + ขึ้นโจทย์ใหม่ได้ยินคำไทยเสมอ · scripts/test-vocab-race-speak.mjs (6 เคส โหลด SDK จริง: guard/interrupt/regression)',
+        ],
+    },
+    {
+        version: 'v1.72.0 (เกม "ตรรกะสวิตช์ไฟ" — เทคโนโลยี/วิทยาการคำนวณ ป.6 · ครบชุด 4 เกม)',
+        date: '',
         badge: 'bg-emerald-700',
         items: [
             'เกมใหม่ "ตรรกะสวิตช์ไฟ" (logic-gates) ที่ /games/tech/logic-gates.html — วงจรเกตตรรกะ (AND/OR/NOT/XOR/NAND/NOR): สวิตช์ป้อนเข้า → เกต → หลอดไฟ 💡 วาดเป็นไดอะแกรม SVG. โจทย์กันมั่ว: กำหนดค่าสวิตช์มาให้ → ทำนายว่าหลอดไฟ "ติด" หรือ "ดับ" — สอนตรรกะ boolean (ป.6)',

@@ -189,8 +189,8 @@ function sfxWrong()   { KAMPAI.sound.wrong(); }
 function sfxTimeUp()  { KAMPAI.sound.timeUp(); }
 function sfxGameOver(){ KAMPAI.sound.gameOver(); }
 function flashFx(good){ KAMPAI.sound.fxFlash(good); }
-function speakQuestion() { if (curWord && mode !== 'online') KAMPAI.sound.speak(curWord.th, 'th-TH'); }   // อ่านคำไทย (โจทย์)
-function speakAnswerEn() { if (curWord && mode !== 'online') KAMPAI.sound.speak(curWord.en, 'en-US'); }     // ตอบถูก → อ่านคำอังกฤษ (ฝึกออกเสียง)
+function speakQuestion() { if (curWord && mode !== 'online') KAMPAI.sound.speak(curWord.th, 'th-TH', true); }   // อ่านคำไทย (โจทย์) — interrupt เสียงค้าง
+function speakAnswerEn() { if (curWord && mode !== 'online') KAMPAI.sound.speak(curWord.en, 'en-US', true); }     // ตอบถูก → อ่านคำอังกฤษ (interrupt เสียงไทยที่ค้าง ไม่ให้เสียงหาย)
 function stopSpeak()  { KAMPAI.sound.stopSpeak(); }
 function bgmStart()   { KAMPAI.sound.bgmStart(); }
 function bgmStop()    { KAMPAI.sound.bgmStop(); }
