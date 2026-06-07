@@ -7,8 +7,10 @@
 <!--
 ═══════════════════════════════════════════════════════════════════════════
   KAMPAI-SCHOOL · เกม "แข่งคำศัพท์" (vocab-race) — วิชาภาษาอังกฤษ
-  Quiz Race คำศัพท์ ป.1–6: emoji + คำไทย → เลือกคำอังกฤษ (8 หมวดตามหลักสูตร)
-  โหมด: แข่งเร็ว · ฝึกหมวด · 🌐 ออนไลน์ (เฟรมเวิร์ก kampai-match — แข่งสด 60 วิ)
+  คำศัพท์ ป.1–6: 12 หมวด ~110 คำ (มีระดับ ป.1-3/ป.4-6 + ประโยคตัวอย่าง)
+  ชนิดคำถาม: ไทย→อังกฤษ · อังกฤษ→ไทย · ฟังเสียง→เลือกภาพ
+  โหมด: แข่งเร็ว · ฝึกหมวด · 📖 ฝึกอ่าน(บัตรคำ) · 📕 ทบทวนคำที่พลาด · 🌐 ออนไลน์(kampai-match 60 วิ)
+  + คำประจำวัน · ดาว 1-3 + สรุปคำพลาดจบเกม · เหรียญสะสม · juice ตอบถูก
 ═══════════════════════════════════════════════════════════════════════════
 -->
 <style>
@@ -105,6 +107,57 @@ body { background: linear-gradient(180deg, #155e75 0%, #0f172a 100%); }
 .fc-arrow:active { transform: scale(0.9); }
 .fc-arrow:disabled { opacity: 0.3; cursor: default; }
 #fc-progress { font-family: 'Fredoka One', cursive; font-size: 19px; color: #fde68a; min-width: 70px; }
+#fc-ex { font-size: 16px; color: #0369a1; font-style: italic; cursor: pointer; padding: 4px 8px; border-radius: 8px; background: rgba(3,105,161,0.08); }
+#fc-ex:active { background: rgba(3,105,161,0.18); }
+
+/* ── โจทย์: อังกฤษ→ไทย / ฟังเสียง ── */
+#q-emoji.tap { cursor: pointer; }
+#q-th.en { font-family: 'Fredoka One', cursive; color: #7dd3fc; text-transform: lowercase; }
+#answers.listen-grid .ans { font-size: clamp(40px, 12vw, 64px); padding: 10px 6px; }
+.ans-emoji { font-size: 1em; }
+
+/* ── ระดับชั้น ── */
+.grade-row { display: flex; align-items: center; gap: 6px; justify-content: center; margin-bottom: 10px; flex-wrap: wrap; }
+.grade-label { font-size: 14px; color: #cbd5e1; }
+.grade-chip { padding: 6px 14px; border-radius: 999px; border: 2px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.06); color: #e2e8f0; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.grade-chip.on { background: linear-gradient(45deg,#0ea5e9,#2563eb); border-color: transparent; color: #fff; }
+
+/* ── คำประจำวัน ── */
+#daily-card { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 360px; margin: 0 auto 12px; padding: 10px 14px; border-radius: 16px; background: linear-gradient(135deg, rgba(250,204,21,0.18), rgba(59,130,246,0.16)); border: 1px solid rgba(255,255,255,0.18); }
+#daily-card:empty { display: none; }
+.dw-emoji { font-size: 44px; line-height: 1; }
+.dw-info { flex: 1; text-align: left; min-width: 0; }
+.dw-en { font-family: 'Fredoka One', cursive; font-size: 22px; color: #fde68a; }
+.dw-th { font-size: 14px; color: #e2e8f0; }
+.dw-ex { font-size: 12px; color: #94a3b8; font-style: italic; }
+.dw-speak { width: 44px; height: 44px; border-radius: 50%; border: none; background: rgba(59,130,246,0.4); color: #fff; font-size: 20px; cursor: pointer; flex-shrink: 0; }
+
+/* ── ปุ่มทบทวน + เหรียญ ── */
+.btn-review { background: linear-gradient(45deg,#db2777,#9d174d); box-shadow: 0 4px 10px rgba(219,39,119,0.4); margin-top: 6px; }
+.badges-row { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 10px 0 2px; }
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,0.12); border: 1px solid rgba(253,224,71,0.4); font-size: 13px; color: #fde68a; }
+.bd-none { font-size: 12px; color: #64748b; }
+
+/* ── จบเกม: ดาว / สรุปคำพลาด / เหรียญใหม่ ── */
+#stars { font-size: 44px; letter-spacing: 4px; margin-bottom: 2px; }
+#new-badges { margin: 4px 0 8px; }
+.nb-title { font-size: 14px; color: #fde68a; margin-bottom: 4px; }
+#new-badges .badge { animation: nb-pop 0.4s ease; }
+@keyframes nb-pop { 0%{transform:scale(0.4);opacity:0} 60%{transform:scale(1.15)} 100%{transform:scale(1);opacity:1} }
+#missed-summary { width: 100%; max-width: 420px; margin: 4px auto 8px; }
+.ms-title { font-size: 14px; color: #f87171; text-align: left; margin-bottom: 4px; }
+.ms-row { display: flex; align-items: center; gap: 8px; font-size: 15px; padding: 3px 6px; border-bottom: 1px dashed rgba(255,255,255,0.12); color: #e2e8f0; }
+.ms-emoji { font-size: 20px; }
+.ms-row b { color: #fde68a; }
+.ms-th { color: #94a3b8; margin-left: auto; }
+.ms-perfect { font-size: 16px; color: #4ade80; }
+
+/* ── juice: particle + คะแนนลอย ── */
+#fx-layer { position: fixed; inset: 0; pointer-events: none; z-index: 60; overflow: hidden; }
+.particle { position: fixed; width: 10px; height: 10px; border-radius: 50%; transform: translate(-50%,-50%); animation: pt 0.6s ease-out forwards; }
+@keyframes pt { 0%{opacity:1; transform:translate(-50%,-50%)} 100%{opacity:0; transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.3)} }
+.float-gain { position: fixed; transform: translateX(-50%); font-family: 'Fredoka One', cursive; font-size: 26px; color: #4ade80; text-shadow: 0 2px 6px rgba(0,0,0,0.6); animation: fg 0.8s ease-out forwards; pointer-events: none; }
+@keyframes fg { 0%{opacity:0; transform:translate(-50%,4px) scale(0.7)} 25%{opacity:1; transform:translate(-50%,-6px) scale(1.1)} 100%{opacity:0; transform:translate(-50%,-38px) scale(1)} }
 </style>
 </head>
 <body>
@@ -117,25 +170,38 @@ body { background: linear-gradient(180deg, #155e75 0%, #0f172a 100%); }
     <div id="timer-wrap"><div id="timer-bar"></div></div>
 
     <div id="play">
-        <div id="q-emoji">🐱</div>
+        <div id="q-emoji" onclick="replayPrompt()" title="แตะเพื่อฟังอีกครั้ง">🐱</div>
         <div id="q-th">แมว</div>
         <div id="feedback"></div>
         <div id="answers"></div>
     </div>
 </div>
+<div id="fx-layer"></div>
 
 <!-- Start -->
 <div id="start" class="screen on">
     <h1>🔤 แข่งคำศัพท์</h1>
     <div id="player-chip"></div>
-    <p>ดูรูป + คำไทย แล้วเลือก<b>คำภาษาอังกฤษ</b>ที่ถูก!<br>ตอบไว ต่อเนื่อง ได้ตัวคูณคะแนน 🔥 — แตะ หรือกดเลข 1–4</p>
+    <p>ดูรูป/ฟังเสียง แล้วเลือกคำที่ถูก!<br>ตอบไว ต่อเนื่อง ได้ตัวคูณคะแนน 🔥 — แตะ หรือกดเลข 1–4</p>
+
+    <div id="daily-card"></div>
+
+    <div class="grade-row">
+        <span class="grade-label">ระดับ:</span>
+        <button class="grade-chip on" data-g="all" onclick="setGrade('all')">ทั้งหมด</button>
+        <button class="grade-chip" data-g="1" onclick="setGrade(1)">ป.1-3</button>
+        <button class="grade-chip" data-g="2" onclick="setGrade(2)">ป.4-6</button>
+    </div>
+
     <div class="mode-grid">
         <button class="btn btn-primary" onclick="chooseMode('race')">⚡ แข่งเร็ว</button>
         <button class="btn btn-blue" onclick="openOnline()">🌐 ออนไลน์</button>
         <button class="btn btn-ghost" onclick="chooseMode('practice')">📚 ฝึกหมวด</button>
     </div>
     <button class="btn btn-learn" onclick="openStudyPicker()">📖 ฝึกอ่าน — เรียนคำก่อนเล่น</button>
+    <button class="btn btn-review" id="review-btn" style="display:none" onclick="openReview()">📕 ทบทวนคำที่พลาด</button>
     <div id="cat-picker"></div>
+    <div id="start-badges" class="badges-row"></div>
     <div class="leaderboard-box">
         <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
         <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
@@ -145,8 +211,11 @@ body { background: linear-gradient(180deg, #155e75 0%, #0f172a 100%); }
 <!-- Game Over -->
 <div id="gameover" class="screen">
     <h1>จบเกม!</h1>
+    <div id="stars">☆☆☆</div>
     <div id="final-score">0</div>
     <div id="final-detail"></div>
+    <div id="new-badges"></div>
+    <div id="missed-summary"></div>
     <div class="leaderboard-box">
         <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
         <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
@@ -164,6 +233,7 @@ body { background: linear-gradient(180deg, #155e75 0%, #0f172a 100%); }
         <div id="fc-emoji">🐱</div>
         <div id="fc-en">cat</div>
         <div id="fc-th">แมว</div>
+        <div id="fc-ex" onclick="speakStudyEx()" title="แตะเพื่อฟังประโยค">The cat is small.</div>
         <button id="fc-speak" class="btn btn-blue" onclick="speakStudy()">🔊 ฟังเสียงอ่าน</button>
     </div>
     <div id="fc-nav">
@@ -218,6 +288,7 @@ function renderLeaderboard(listId) {
     }).join('');
 }
 KAMPAI.onReady(function () { renderPlayer(); renderLeaderboard('score-list'); });
+// renderDaily/Review/Badges เรียกท้ายสคริปต์ (หลังนิยาม WORDS/ฟังก์ชันครบ — กัน TDZ)
 
 /* ═══ SECTION B2 · เสียง/เอฟเฟกต์ ผ่าน KAMPAI.sound (single source ใน SDK) ═══ */
 function audioCtx() { return KAMPAI.sound.unlock(); }
@@ -237,69 +308,105 @@ KAMPAI.sound.mountToggles();
 KAMPAI.sound.defaultBgm('playful');   // หลังบ้านกำหนดเพลงรายเกม override ได้
 
 /* ═══ SECTION C · GAME LOGIC — คลังคำศัพท์ + ควิซ ═══ */
-// คลังคำศัพท์ตามหลักสูตร ป.1–6 (8 หมวด) — { th, en, emoji, cat }
+// คลังคำศัพท์ตามหลักสูตร ป.1–6 (12 หมวด) — { th, en, emoji, cat, g, ex }
+//   g = ระดับ: 1 = ป.1-3 (พื้นฐาน) · 2 = ป.4-6 (ขั้นสูง)   ·   ex = ประโยคตัวอย่าง
 const CATS = [
-    { key: 'animals', label: '🐾 สัตว์' },
-    { key: 'colors',  label: '🎨 สี' },
-    { key: 'family',  label: '👪 ครอบครัว' },
-    { key: 'food',    label: '🍚 อาหาร' },
-    { key: 'body',    label: '🧍 ร่างกาย' },
-    { key: 'numbers', label: '🔢 ตัวเลข' },
-    { key: 'school',  label: '🏫 โรงเรียน' },
-    { key: 'fruits',  label: '🍎 ผลไม้' },
+    { key: 'animals',   label: '🐾 สัตว์' },
+    { key: 'colors',    label: '🎨 สี' },
+    { key: 'family',    label: '👪 ครอบครัว' },
+    { key: 'food',      label: '🍚 อาหาร' },
+    { key: 'body',      label: '🧍 ร่างกาย' },
+    { key: 'numbers',   label: '🔢 ตัวเลข' },
+    { key: 'school',    label: '🏫 โรงเรียน' },
+    { key: 'fruits',    label: '🍎 ผลไม้' },
+    { key: 'verbs',     label: '🏃 คำกริยา' },
+    { key: 'weather',   label: '🌦️ อากาศ' },
+    { key: 'jobs',      label: '👩‍🏫 อาชีพ' },
+    { key: 'transport', label: '🚗 ยานพาหนะ' },
 ];
 const WORDS = [
-    { th:'แมว', en:'cat', emoji:'🐱', cat:'animals' }, { th:'หมา', en:'dog', emoji:'🐶', cat:'animals' },
-    { th:'นก', en:'bird', emoji:'🐦', cat:'animals' }, { th:'ปลา', en:'fish', emoji:'🐟', cat:'animals' },
-    { th:'วัว', en:'cow', emoji:'🐄', cat:'animals' }, { th:'หมู', en:'pig', emoji:'🐷', cat:'animals' },
-    { th:'เป็ด', en:'duck', emoji:'🦆', cat:'animals' }, { th:'ช้าง', en:'elephant', emoji:'🐘', cat:'animals' },
-    { th:'เสือ', en:'tiger', emoji:'🐯', cat:'animals' }, { th:'ลิง', en:'monkey', emoji:'🐵', cat:'animals' },
-    { th:'กระต่าย', en:'rabbit', emoji:'🐰', cat:'animals' }, { th:'ม้า', en:'horse', emoji:'🐴', cat:'animals' },
+    { th:'แมว', en:'cat', emoji:'🐱', cat:'animals', g:1, ex:'The cat is small.' }, { th:'หมา', en:'dog', emoji:'🐶', cat:'animals', g:1, ex:'The dog can run.' },
+    { th:'นก', en:'bird', emoji:'🐦', cat:'animals', g:1, ex:'A bird can fly.' }, { th:'ปลา', en:'fish', emoji:'🐟', cat:'animals', g:1, ex:'A fish lives in water.' },
+    { th:'วัว', en:'cow', emoji:'🐄', cat:'animals', g:1, ex:'The cow gives milk.' }, { th:'หมู', en:'pig', emoji:'🐷', cat:'animals', g:1, ex:'The pig is pink.' },
+    { th:'เป็ด', en:'duck', emoji:'🦆', cat:'animals', g:1, ex:'The duck can swim.' }, { th:'ช้าง', en:'elephant', emoji:'🐘', cat:'animals', g:2, ex:'The elephant is big.' },
+    { th:'เสือ', en:'tiger', emoji:'🐯', cat:'animals', g:2, ex:'The tiger is strong.' }, { th:'ลิง', en:'monkey', emoji:'🐵', cat:'animals', g:2, ex:'The monkey likes bananas.' },
+    { th:'กระต่าย', en:'rabbit', emoji:'🐰', cat:'animals', g:2, ex:'The rabbit has long ears.' }, { th:'ม้า', en:'horse', emoji:'🐴', cat:'animals', g:2, ex:'The horse can run fast.' },
 
-    { th:'สีแดง', en:'red', emoji:'🟥', cat:'colors' }, { th:'สีน้ำเงิน', en:'blue', emoji:'🟦', cat:'colors' },
-    { th:'สีเขียว', en:'green', emoji:'🟩', cat:'colors' }, { th:'สีเหลือง', en:'yellow', emoji:'🟨', cat:'colors' },
-    { th:'สีดำ', en:'black', emoji:'⬛', cat:'colors' }, { th:'สีขาว', en:'white', emoji:'⬜', cat:'colors' },
-    { th:'สีส้ม', en:'orange', emoji:'🟧', cat:'colors' }, { th:'สีม่วง', en:'purple', emoji:'🟪', cat:'colors' },
-    { th:'สีชมพู', en:'pink', emoji:'🌸', cat:'colors' }, { th:'สีน้ำตาล', en:'brown', emoji:'🟫', cat:'colors' },
+    { th:'สีแดง', en:'red', emoji:'🟥', cat:'colors', g:1, ex:'The apple is red.' }, { th:'สีน้ำเงิน', en:'blue', emoji:'🟦', cat:'colors', g:1, ex:'The sky is blue.' },
+    { th:'สีเขียว', en:'green', emoji:'🟩', cat:'colors', g:1, ex:'The leaf is green.' }, { th:'สีเหลือง', en:'yellow', emoji:'🟨', cat:'colors', g:1, ex:'The sun is yellow.' },
+    { th:'สีดำ', en:'black', emoji:'⬛', cat:'colors', g:1, ex:'The cat is black.' }, { th:'สีขาว', en:'white', emoji:'⬜', cat:'colors', g:1, ex:'The milk is white.' },
+    { th:'สีส้ม', en:'orange', emoji:'🟧', cat:'colors', g:1, ex:'The ball is orange.' }, { th:'สีม่วง', en:'purple', emoji:'🟪', cat:'colors', g:2, ex:'The grape is purple.' },
+    { th:'สีชมพู', en:'pink', emoji:'🌸', cat:'colors', g:1, ex:'The flower is pink.' }, { th:'สีน้ำตาล', en:'brown', emoji:'🟫', cat:'colors', g:2, ex:'The bear is brown.' },
 
-    { th:'พ่อ', en:'father', emoji:'👨', cat:'family' }, { th:'แม่', en:'mother', emoji:'👩', cat:'family' },
-    { th:'พี่ชาย/น้องชาย', en:'brother', emoji:'👦', cat:'family' }, { th:'พี่สาว/น้องสาว', en:'sister', emoji:'👧', cat:'family' },
-    { th:'เด็กทารก', en:'baby', emoji:'👶', cat:'family' }, { th:'ปู่/ตา', en:'grandfather', emoji:'👴', cat:'family' },
-    { th:'ย่า/ยาย', en:'grandmother', emoji:'👵', cat:'family' }, { th:'ครอบครัว', en:'family', emoji:'👪', cat:'family' },
+    { th:'พ่อ', en:'father', emoji:'👨', cat:'family', g:1, ex:'My father is tall.' }, { th:'แม่', en:'mother', emoji:'👩', cat:'family', g:1, ex:'My mother is kind.' },
+    { th:'พี่ชาย/น้องชาย', en:'brother', emoji:'👦', cat:'family', g:1, ex:'I have one brother.' }, { th:'พี่สาว/น้องสาว', en:'sister', emoji:'👧', cat:'family', g:1, ex:'She is my sister.' },
+    { th:'เด็กทารก', en:'baby', emoji:'👶', cat:'family', g:1, ex:'The baby is cute.' }, { th:'ปู่/ตา', en:'grandfather', emoji:'👴', cat:'family', g:2, ex:'My grandfather is old.' },
+    { th:'ย่า/ยาย', en:'grandmother', emoji:'👵', cat:'family', g:2, ex:'My grandmother loves me.' }, { th:'ครอบครัว', en:'family', emoji:'👪', cat:'family', g:1, ex:'I love my family.' },
 
-    { th:'ข้าว', en:'rice', emoji:'🍚', cat:'food' }, { th:'ไข่', en:'egg', emoji:'🥚', cat:'food' },
-    { th:'นม', en:'milk', emoji:'🥛', cat:'food' }, { th:'ขนมปัง', en:'bread', emoji:'🍞', cat:'food' },
-    { th:'น้ำ', en:'water', emoji:'💧', cat:'food' }, { th:'ไก่', en:'chicken', emoji:'🍗', cat:'food' },
-    { th:'ก๋วยเตี๋ยว', en:'noodle', emoji:'🍜', cat:'food' }, { th:'ซุป', en:'soup', emoji:'🥣', cat:'food' },
+    { th:'ข้าว', en:'rice', emoji:'🍚', cat:'food', g:1, ex:'I eat rice every day.' }, { th:'ไข่', en:'egg', emoji:'🥚', cat:'food', g:1, ex:'The egg is white.' },
+    { th:'นม', en:'milk', emoji:'🥛', cat:'food', g:1, ex:'I drink milk.' }, { th:'ขนมปัง', en:'bread', emoji:'🍞', cat:'food', g:1, ex:'I like to eat bread.' },
+    { th:'น้ำ', en:'water', emoji:'💧', cat:'food', g:1, ex:'I drink water.' }, { th:'ไก่', en:'chicken', emoji:'🍗', cat:'food', g:1, ex:'The chicken is hot.' },
+    { th:'ก๋วยเตี๋ยว', en:'noodle', emoji:'🍜', cat:'food', g:2, ex:'I eat noodles.' }, { th:'ซุป', en:'soup', emoji:'🥣', cat:'food', g:1, ex:'The soup is hot.' },
 
-    { th:'ตา', en:'eye', emoji:'👁️', cat:'body' }, { th:'หู', en:'ear', emoji:'👂', cat:'body' },
-    { th:'จมูก', en:'nose', emoji:'👃', cat:'body' }, { th:'ปาก', en:'mouth', emoji:'👄', cat:'body' },
-    { th:'มือ', en:'hand', emoji:'✋', cat:'body' }, { th:'เท้า', en:'foot', emoji:'🦶', cat:'body' },
-    { th:'ขา', en:'leg', emoji:'🦵', cat:'body' }, { th:'ฟัน', en:'tooth', emoji:'🦷', cat:'body' },
+    { th:'ตา', en:'eye', emoji:'👁️', cat:'body', g:1, ex:'I see with my eyes.' }, { th:'หู', en:'ear', emoji:'👂', cat:'body', g:1, ex:'I hear with my ears.' },
+    { th:'จมูก', en:'nose', emoji:'👃', cat:'body', g:1, ex:'I smell with my nose.' }, { th:'ปาก', en:'mouth', emoji:'👄', cat:'body', g:1, ex:'I eat with my mouth.' },
+    { th:'มือ', en:'hand', emoji:'✋', cat:'body', g:1, ex:'I have two hands.' }, { th:'เท้า', en:'foot', emoji:'🦶', cat:'body', g:1, ex:'I kick with my foot.' },
+    { th:'ขา', en:'leg', emoji:'🦵', cat:'body', g:1, ex:'My leg is strong.' }, { th:'ฟัน', en:'tooth', emoji:'🦷', cat:'body', g:2, ex:'I have a white tooth.' },
 
-    { th:'หนึ่ง', en:'one', emoji:'1️⃣', cat:'numbers' }, { th:'สอง', en:'two', emoji:'2️⃣', cat:'numbers' },
-    { th:'สาม', en:'three', emoji:'3️⃣', cat:'numbers' }, { th:'สี่', en:'four', emoji:'4️⃣', cat:'numbers' },
-    { th:'ห้า', en:'five', emoji:'5️⃣', cat:'numbers' }, { th:'หก', en:'six', emoji:'6️⃣', cat:'numbers' },
-    { th:'เจ็ด', en:'seven', emoji:'7️⃣', cat:'numbers' }, { th:'แปด', en:'eight', emoji:'8️⃣', cat:'numbers' },
-    { th:'เก้า', en:'nine', emoji:'9️⃣', cat:'numbers' }, { th:'สิบ', en:'ten', emoji:'🔟', cat:'numbers' },
+    { th:'หนึ่ง', en:'one', emoji:'1️⃣', cat:'numbers', g:1, ex:'I have one cat.' }, { th:'สอง', en:'two', emoji:'2️⃣', cat:'numbers', g:1, ex:'I see two birds.' },
+    { th:'สาม', en:'three', emoji:'3️⃣', cat:'numbers', g:1, ex:'There are three apples.' }, { th:'สี่', en:'four', emoji:'4️⃣', cat:'numbers', g:1, ex:'I have four pens.' },
+    { th:'ห้า', en:'five', emoji:'5️⃣', cat:'numbers', g:1, ex:'I count to five.' }, { th:'หก', en:'six', emoji:'6️⃣', cat:'numbers', g:1, ex:'There are six eggs.' },
+    { th:'เจ็ด', en:'seven', emoji:'7️⃣', cat:'numbers', g:2, ex:'A week has seven days.' }, { th:'แปด', en:'eight', emoji:'8️⃣', cat:'numbers', g:1, ex:'I see eight stars.' },
+    { th:'เก้า', en:'nine', emoji:'9️⃣', cat:'numbers', g:2, ex:'She is nine years old.' }, { th:'สิบ', en:'ten', emoji:'🔟', cat:'numbers', g:1, ex:'I have ten fingers.' },
 
-    { th:'หนังสือ', en:'book', emoji:'📖', cat:'school' }, { th:'ปากกา', en:'pen', emoji:'🖊️', cat:'school' },
-    { th:'ดินสอ', en:'pencil', emoji:'✏️', cat:'school' }, { th:'กระเป๋า', en:'bag', emoji:'🎒', cat:'school' },
-    { th:'ไม้บรรทัด', en:'ruler', emoji:'📏', cat:'school' }, { th:'กรรไกร', en:'scissors', emoji:'✂️', cat:'school' },
-    { th:'นาฬิกา', en:'clock', emoji:'🕐', cat:'school' }, { th:'สีเทียน', en:'crayon', emoji:'🖍️', cat:'school' },
+    { th:'หนังสือ', en:'book', emoji:'📖', cat:'school', g:1, ex:'I read a book.' }, { th:'ปากกา', en:'pen', emoji:'🖊️', cat:'school', g:1, ex:'I write with a pen.' },
+    { th:'ดินสอ', en:'pencil', emoji:'✏️', cat:'school', g:1, ex:'This is my pencil.' }, { th:'กระเป๋า', en:'bag', emoji:'🎒', cat:'school', g:1, ex:'My bag is big.' },
+    { th:'ไม้บรรทัด', en:'ruler', emoji:'📏', cat:'school', g:2, ex:'I use a ruler.' }, { th:'กรรไกร', en:'scissors', emoji:'✂️', cat:'school', g:2, ex:'Cut it with scissors.' },
+    { th:'นาฬิกา', en:'clock', emoji:'🕐', cat:'school', g:2, ex:'The clock is on the wall.' }, { th:'สีเทียน', en:'crayon', emoji:'🖍️', cat:'school', g:2, ex:'I color with a crayon.' },
 
-    { th:'แอปเปิล', en:'apple', emoji:'🍎', cat:'fruits' }, { th:'กล้วย', en:'banana', emoji:'🍌', cat:'fruits' },
-    { th:'ส้ม', en:'orange', emoji:'🍊', cat:'fruits' }, { th:'มะม่วง', en:'mango', emoji:'🥭', cat:'fruits' },
-    { th:'องุ่น', en:'grape', emoji:'🍇', cat:'fruits' }, { th:'แตงโม', en:'watermelon', emoji:'🍉', cat:'fruits' },
-    { th:'สตรอว์เบอร์รี', en:'strawberry', emoji:'🍓', cat:'fruits' }, { th:'สับปะรด', en:'pineapple', emoji:'🍍', cat:'fruits' },
-    { th:'มะพร้าว', en:'coconut', emoji:'🥥', cat:'fruits' }, { th:'มะนาว', en:'lemon', emoji:'🍋', cat:'fruits' },
+    { th:'แอปเปิล', en:'apple', emoji:'🍎', cat:'fruits', g:1, ex:'I eat a red apple.' }, { th:'กล้วย', en:'banana', emoji:'🍌', cat:'fruits', g:1, ex:'The banana is yellow.' },
+    { th:'ส้ม', en:'orange', emoji:'🍊', cat:'fruits', g:1, ex:'The orange is sweet.' }, { th:'มะม่วง', en:'mango', emoji:'🥭', cat:'fruits', g:1, ex:'I like mango.' },
+    { th:'องุ่น', en:'grape', emoji:'🍇', cat:'fruits', g:2, ex:'Grapes are purple.' }, { th:'แตงโม', en:'watermelon', emoji:'🍉', cat:'fruits', g:2, ex:'Watermelon is sweet.' },
+    { th:'สตรอว์เบอร์รี', en:'strawberry', emoji:'🍓', cat:'fruits', g:2, ex:'The strawberry is red.' }, { th:'สับปะรด', en:'pineapple', emoji:'🍍', cat:'fruits', g:2, ex:'Pineapple is yellow.' },
+    { th:'มะพร้าว', en:'coconut', emoji:'🥥', cat:'fruits', g:2, ex:'The coconut is brown.' }, { th:'มะนาว', en:'lemon', emoji:'🍋', cat:'fruits', g:2, ex:'The lemon is sour.' },
+
+    { th:'วิ่ง', en:'run', emoji:'🏃', cat:'verbs', g:1, ex:'I can run fast.' }, { th:'กิน', en:'eat', emoji:'🍽️', cat:'verbs', g:1, ex:'I eat breakfast.' },
+    { th:'ดื่ม', en:'drink', emoji:'🥤', cat:'verbs', g:1, ex:'I drink water.' }, { th:'นอน', en:'sleep', emoji:'😴', cat:'verbs', g:1, ex:'I sleep at night.' },
+    { th:'อ่าน', en:'read', emoji:'📕', cat:'verbs', g:1, ex:'I read a book.' }, { th:'เขียน', en:'write', emoji:'✍️', cat:'verbs', g:2, ex:'I write my name.' },
+    { th:'เดิน', en:'walk', emoji:'🚶', cat:'verbs', g:1, ex:'I walk to school.' }, { th:'กระโดด', en:'jump', emoji:'🤸', cat:'verbs', g:1, ex:'I can jump high.' },
+    { th:'ร้องเพลง', en:'sing', emoji:'🎤', cat:'verbs', g:2, ex:'I sing a song.' }, { th:'ว่ายน้ำ', en:'swim', emoji:'🏊', cat:'verbs', g:2, ex:'I can swim.' },
+    { th:'เล่น', en:'play', emoji:'⚽', cat:'verbs', g:1, ex:'I play football.' }, { th:'เต้น', en:'dance', emoji:'💃', cat:'verbs', g:2, ex:'I like to dance.' },
+
+    { th:'ดวงอาทิตย์', en:'sun', emoji:'☀️', cat:'weather', g:1, ex:'The sun is hot.' }, { th:'ฝน', en:'rain', emoji:'🌧️', cat:'weather', g:1, ex:'I see the rain.' },
+    { th:'เมฆ', en:'cloud', emoji:'☁️', cat:'weather', g:1, ex:'The cloud is white.' }, { th:'ลม', en:'wind', emoji:'🌬️', cat:'weather', g:2, ex:'The wind is cold.' },
+    { th:'หิมะ', en:'snow', emoji:'❄️', cat:'weather', g:2, ex:'Snow is white and cold.' }, { th:'พายุ', en:'storm', emoji:'⛈️', cat:'weather', g:2, ex:'The storm is loud.' },
+    { th:'รุ้ง', en:'rainbow', emoji:'🌈', cat:'weather', g:2, ex:'The rainbow is beautiful.' }, { th:'ร้อน', en:'hot', emoji:'🥵', cat:'weather', g:1, ex:'Today is hot.' },
+    { th:'หนาว', en:'cold', emoji:'🥶', cat:'weather', g:1, ex:'Today is cold.' },
+
+    { th:'ครู', en:'teacher', emoji:'👩‍🏫', cat:'jobs', g:1, ex:'My teacher is kind.' }, { th:'หมอ', en:'doctor', emoji:'👨‍⚕️', cat:'jobs', g:2, ex:'The doctor helps people.' },
+    { th:'พยาบาล', en:'nurse', emoji:'👩‍⚕️', cat:'jobs', g:2, ex:'The nurse is nice.' }, { th:'ตำรวจ', en:'police', emoji:'👮', cat:'jobs', g:2, ex:'The police is brave.' },
+    { th:'ชาวนา', en:'farmer', emoji:'🧑‍🌾', cat:'jobs', g:2, ex:'The farmer grows rice.' }, { th:'พ่อครัว', en:'cook', emoji:'👨‍🍳', cat:'jobs', g:1, ex:'The cook makes food.' },
+    { th:'นักบิน', en:'pilot', emoji:'👨‍✈️', cat:'jobs', g:2, ex:'The pilot flies a plane.' }, { th:'คนขับรถ', en:'driver', emoji:'🚕', cat:'jobs', g:2, ex:'The driver drives a car.' },
+    { th:'นักร้อง', en:'singer', emoji:'🧑‍🎤', cat:'jobs', g:2, ex:'The singer can sing.' },
+
+    { th:'รถยนต์', en:'car', emoji:'🚗', cat:'transport', g:1, ex:'The car is red.' }, { th:'รถบัส', en:'bus', emoji:'🚌', cat:'transport', g:1, ex:'I go by bus.' },
+    { th:'จักรยาน', en:'bike', emoji:'🚲', cat:'transport', g:1, ex:'I ride a bike.' }, { th:'รถไฟ', en:'train', emoji:'🚆', cat:'transport', g:2, ex:'The train is fast.' },
+    { th:'เรือ', en:'boat', emoji:'⛵', cat:'transport', g:1, ex:'The boat is on the water.' }, { th:'เครื่องบิน', en:'airplane', emoji:'✈️', cat:'transport', g:2, ex:'The airplane can fly.' },
+    { th:'มอเตอร์ไซค์', en:'motorcycle', emoji:'🏍️', cat:'transport', g:2, ex:'He rides a motorcycle.' }, { th:'รถบรรทุก', en:'truck', emoji:'🚚', cat:'transport', g:2, ex:'The truck is big.' },
 ];
+WORDS.forEach((w, i) => { w.id = i; });   // id ไม่ซ้ำ (กัน 'orange' สี/ผลไม้ ชนกัน)
 
 let score = 0, lives = 3, streak = 0, maxStreak = 0, correctCount = 0, answered = 0;
 let mode = 'race';                 // 'race' | 'practice' | 'online'
 let selectedCat = null;
 let curWord = null, curEn = '';
 let qStart = 0, qLimit = 0, rafId = 0, locked = false, started = false;
+let qKind = 'th2en';               // ชนิดคำถาม: 'th2en' (ไทย→อังกฤษ) | 'en2th' (อังกฤษ→ไทย) | 'listen' (ฟังเสียง→เลือกภาพ)
+let gradeFilter = 'all';           // 'all' | 1 (ป.1-3) | 2 (ป.4-6)
+let customPool = null;             // โหมดทบทวน: ชุดคำเฉพาะ (คำที่พลาด)
+let reviewing = false;             // อยู่ในโหมดทบทวนคำที่พลาด
+let missedThisGame = [];           // คำที่พลาดในเกมนี้ (สำหรับสรุปจบเกม)
+const STAR_THRESHOLDS = [0.5, 0.7, 0.88];   // ความแม่น → ได้ 1/2/3 ดาว
 
 // seeded PRNG (mulberry32) — โหมดออนไลน์ให้คำตรงกันทุกเครื่อง; default = Math.random
 let qrand = Math.random;
@@ -338,6 +445,7 @@ function openStudyPicker() {   // แตะ "📖 ฝึกอ่าน" → เ
     picker.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 function openStudy(cat) {
+    reviewing = false; customPool = null;
     studyCat = cat;
     studyWords = WORDS.filter(w => w.cat === cat);
     studyIdx = 0; studyOpen = true;
@@ -354,6 +462,7 @@ function renderCard(dir) {
     $('fc-emoji').textContent = w.emoji;
     $('fc-en').textContent = w.en;
     $('fc-th').textContent = w.th;
+    $('fc-ex').textContent = w.ex || '';
     $('fc-progress').textContent = `${studyIdx + 1} / ${studyWords.length}`;
     const arrows = $('study').querySelectorAll('.fc-arrow');
     arrows[0].disabled = (studyIdx === 0);
@@ -363,17 +472,20 @@ function renderCard(dir) {
     card.classList.remove('flip'); void card.offsetWidth; card.classList.add('flip');
     speakStudy();
 }
-function speakStudy() { const w = studyWords[studyIdx]; if (w) KAMPAI.sound.speak(w.en, 'en-US', true); }   // อ่านคำอังกฤษ (interrupt → ปัดเร็วเสียงไม่หาย)
+function speakStudy()   { const w = studyWords[studyIdx]; if (w) KAMPAI.sound.speak(w.en, 'en-US', true); }   // อ่านคำอังกฤษ (interrupt → ปัดเร็วเสียงไม่หาย)
+function speakStudyEx() { const w = studyWords[studyIdx]; if (w && w.ex) KAMPAI.sound.speak(w.ex, 'en-US', true); }   // อ่านประโยคตัวอย่าง
 function studyNext() { if (studyIdx < studyWords.length - 1) { studyIdx++; renderCard(1); } }
 function studyPrev() { if (studyIdx > 0) { studyIdx--; renderCard(-1); } }
-function studyPlay() {   // เรียนเสร็จ → เล่นโหมดฝึกหมวดเดิมทันที
+function studyPlay() {   // เรียนเสร็จ → เล่นต่อทันที (หมวดเดิม หรือ ชุดทบทวน)
     studyOpen = false;
     $('study').classList.remove('on');
-    mode = 'practice'; selectedCat = studyCat;
-    startGame(studyCat);
+    mode = 'practice';
+    if (reviewing) { customPool = studyWords.slice(); selectedCat = null; }
+    else { customPool = null; selectedCat = studyCat; }
+    startGame(selectedCat);
 }
 function closeStudy() {   // กลับไปเลือกหมวดใหม่
-    studyOpen = false;
+    studyOpen = false; reviewing = false; customPool = null;
     $('study').classList.remove('on');
     $('start').classList.add('on');
     openStudyPicker();
@@ -405,7 +517,14 @@ function startGame(cat) {
 }
 
 function pool() {
-    return (mode === 'practice' && selectedCat) ? WORDS.filter(w => w.cat === selectedCat) : WORDS;
+    if (customPool && customPool.length) return customPool;   // โหมดทบทวน
+    let p = (mode === 'practice' && selectedCat) ? WORDS.filter(w => w.cat === selectedCat) : WORDS;
+    if (gradeFilter !== 'all') { const g = p.filter(w => w.g === gradeFilter); if (g.length >= 4) p = g; }   // กรองตามระดับชั้น (กันคำไม่พอ)
+    return p;
+}
+function pickKind() {   // สุ่มชนิดคำถาม (online ใช้ qrand ให้ตรงกันทุกเครื่อง)
+    const r = (mode === 'online' ? qrand() : Math.random());
+    return r < 0.5 ? 'th2en' : (r < 0.8 ? 'en2th' : 'listen');
 }
 
 function nextQuestion() {
@@ -413,24 +532,23 @@ function nextQuestion() {
     const p = pool();
     curWord = p[(qrand() * p.length) | 0];
     curEn = curWord.en;
+    qKind = pickKind();
 
-    $('q-emoji').textContent = curWord.emoji;
-    $('q-th').textContent = curWord.th;
-    $('feedback').textContent = '';
-    $('feedback').className = '';
-    speakQuestion();
+    // ตัวเลือก 4 ตัว (ไม่ซ้ำ id) — หมวดเดียวกันก่อน เติมจากทั้งคลังถ้าไม่พอ
+    const opts = [curWord], ids = new Set([curWord.id]);
+    const same = WORDS.filter(w => w.cat === curWord.cat && !ids.has(w.id));
+    while (opts.length < 4 && same.length) { const w = same.splice((Math.random()*same.length)|0, 1)[0]; opts.push(w); ids.add(w.id); }
+    const others = WORDS.filter(w => !ids.has(w.id));
+    while (opts.length < 4 && others.length) { const w = others.splice((Math.random()*others.length)|0, 1)[0]; opts.push(w); ids.add(w.id); }
+    opts.sort(() => Math.random() - 0.5);
 
-    // ตัวลวง: คำอังกฤษอื่นในหมวดเดียวกัน (กันง่าย/ยากเกิน) เติมจากทั้งคลังถ้าไม่พอ
-    const same = WORDS.filter(w => w.cat === curWord.cat && w.en !== curEn);
-    const opts = new Set([curEn]);
-    while (opts.size < 4 && same.length) { opts.add(same.splice((Math.random()*same.length)|0, 1)[0].en); }
-    const others = WORDS.filter(w => !opts.has(w.en));
-    while (opts.size < 4 && others.length) { opts.add(others.splice((Math.random()*others.length)|0, 1)[0].en); }
-    const list = [...opts].sort(() => Math.random() - 0.5);
-
-    $('answers').innerHTML = list.map((en, i) =>
-        `<button class="ans" data-v="${en}" onclick="answer(this)"><span class="k">กด ${i+1}</span>${en}</button>`
-    ).join('');
+    renderPrompt();
+    $('answers').className = (qKind === 'listen') ? 'listen-grid' : '';
+    $('answers').innerHTML = opts.map((w, i) => {
+        const face = qKind === 'th2en' ? w.en : (qKind === 'en2th' ? w.th : `<span class="ans-emoji">${w.emoji}</span>`);
+        return `<button class="ans" data-id="${w.id}" onclick="answer(this)"><span class="k">กด ${i+1}</span>${face}</button>`;
+    }).join('');
+    $('feedback').textContent = ''; $('feedback').className = '';
 
     if (mode === 'race') {
         qLimit = Math.max(2600, 6000 - correctCount * 120);
@@ -439,6 +557,28 @@ function nextQuestion() {
         cancelAnimationFrame(rafId);
         tickTimer();
     }
+}
+function renderPrompt() {
+    const q = $('q-emoji'), th = $('q-th');
+    th.classList.toggle('en', qKind === 'en2th');
+    if (qKind === 'listen') {
+        q.textContent = '🔊'; q.classList.add('tap');
+        th.textContent = '👂 ฟังเสียง แล้วเลือกภาพ';
+        KAMPAI.sound.speak(curWord.en, 'en-US', true);
+    } else if (qKind === 'en2th') {
+        q.textContent = curWord.emoji; q.classList.remove('tap');
+        th.textContent = curWord.en;
+        KAMPAI.sound.speak(curWord.en, 'en-US', true);
+    } else {
+        q.textContent = curWord.emoji; q.classList.remove('tap');
+        th.textContent = curWord.th;
+        KAMPAI.sound.speak(curWord.th, 'th-TH', true);
+    }
+}
+function replayPrompt() {   // แตะรูป/ลำโพง = ฟังซ้ำ
+    if (!curWord) return;
+    if (qKind === 'th2en') KAMPAI.sound.speak(curWord.th, 'th-TH', true);
+    else KAMPAI.sound.speak(curWord.en, 'en-US', true);
 }
 
 function tickTimer() {
@@ -456,6 +596,7 @@ function timeUp() {
     cancelAnimationFrame(rafId);
     sfxTimeUp(); flashFx(false); shakePlay();
     streak = 0; updateCombo();
+    addMissed(curWord);
     revealCorrect();
     flash('หมดเวลา! ⏱️', false);
     setLives(lives - 1);
@@ -467,13 +608,13 @@ function answer(btn) {
     locked = true;
     cancelAnimationFrame(rafId);
     answered++;
-    const v = btn.dataset.v;
     const online = mode === 'online';
 
-    if (v === curEn) {
+    if (parseInt(btn.dataset.id, 10) === curWord.id) {
         btn.classList.add('correct');
-        sfxCorrect(); flashFx(true); bumpEmoji(); speakAnswerEn();
-        correctCount++;
+        sfxCorrect(); flashFx(true); bumpEmoji(); speakAnswerEn(); juiceBurst(btn);
+        if (reviewing) clearMissedWord(curWord);
+        correctCount++; bumpTotalCorrect();
         streak++; maxStreak = Math.max(maxStreak, streak);
         const mult = comboMult();
         let gained = 10;
@@ -483,6 +624,7 @@ function answer(btn) {
         }
         gained *= mult;
         setScore(score + gained);
+        floatGain(gained, mult);
         updateCombo();
         flash(`+${gained}` + (mult > 1 ? `  (x${mult})` : '') + ' ✓', true);
         if (online) { match.report(score, { correct: correctCount }); scheduleNext(340); }
@@ -490,16 +632,17 @@ function answer(btn) {
     } else {
         btn.classList.add('wrong');
         sfxWrong(); flashFx(false); shakePlay();
+        addMissed(curWord);
         revealCorrect();
         streak = 0; updateCombo();
-        flash(`ผิด! คำตอบคือ "${curEn}"`, false);
+        flash(`ผิด! คำตอบคือ "${curWord.en}" (${curWord.th})`, false);
         if (mode === 'race') {
             setLives(lives - 1);
-            if (lives > 0) setTimeout(nextQuestion, 1200);
+            if (lives > 0) setTimeout(nextQuestion, 1300);
         } else if (online) {
             match.report(score, { correct: correctCount }); scheduleNext(760);
         } else {
-            setTimeout(nextQuestion, 1200);
+            setTimeout(nextQuestion, 1300);
         }
     }
 }
@@ -507,7 +650,7 @@ function scheduleNext(ms) { setTimeout(() => { if (!onlineEnded) nextQuestion();
 
 function revealCorrect() {
     document.querySelectorAll('.ans').forEach(b => {
-        if (b.dataset.v === curEn) b.classList.add('correct');
+        if (parseInt(b.dataset.id, 10) === curWord.id) b.classList.add('correct');
         else b.classList.add('dim');
     });
 }
@@ -544,10 +687,116 @@ function endGame() {
     $('timer-wrap').classList.remove('on');
     $('play').classList.remove('on');
     $('final-score').textContent = score;
-    $('final-detail').textContent = `ตอบถูก ${correctCount} คำ · สูงสุด ${maxStreak} ต่อเนื่อง` +
+    // ดาว 1-3 ตามความแม่น
+    const stars = starsFor();
+    $('stars').textContent = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
+    $('final-detail').textContent = `ตอบถูก ${correctCount}/${answered} คำ · สูงสุด ${maxStreak} ต่อเนื่อง` +
         (mode === 'practice' ? ' · (โหมดฝึก ไม่นับอันดับ)' : '');
+    renderMissedSummary();
+    renderNewBadges(evalBadges());
     $('gameover').classList.add('on');
     renderLeaderboard('score-list-gameover');
+}
+function starsFor() {
+    if (!answered) return 0;
+    const acc = correctCount / answered;
+    let s = 0; for (const t of STAR_THRESHOLDS) if (acc >= t) s++;
+    if (correctCount > 0 && s === 0) s = 1;   // ตอบถูกอย่างน้อย ได้ 1 ดาว
+    return s;
+}
+function renderMissedSummary() {
+    const el = $('missed-summary'); if (!el) return;
+    const seen = new Set(), mw = [];
+    for (const w of missedThisGame) { if (!seen.has(w.id)) { seen.add(w.id); mw.push(w); } }
+    el.innerHTML = mw.length
+        ? '<div class="ms-title">📕 คำที่ควรทบทวน</div>' + mw.slice(0, 8).map(w => `<div class="ms-row"><span class="ms-emoji">${w.emoji}</span><b>${w.en}</b><span class="ms-th">${w.th}</span></div>`).join('')
+        : '<div class="ms-perfect">เก่งมาก! ไม่พลาดเลย 🎉</div>';
+}
+
+/* ═══ SECTION C3 · คลังคำที่พลาด · เหรียญ · juice · คำประจำวัน ═══ */
+function missedKey(w) { return w.cat + ':' + w.en; }
+function getMissed() { try { return JSON.parse(localStorage.getItem('vr_missed') || '[]'); } catch (e) { return []; } }
+function saveMissed(a) { try { localStorage.setItem('vr_missed', JSON.stringify(a.slice(-60))); } catch (e) { /* */ } }
+function addMissed(w) { if (!w) return; missedThisGame.push(w); const a = getMissed(), k = missedKey(w); if (!a.includes(k)) { a.push(k); saveMissed(a); } }
+function clearMissedWord(w) { saveMissed(getMissed().filter(k => k !== missedKey(w))); }
+function missedWords() { const s = new Set(getMissed()); return WORDS.filter(w => s.has(missedKey(w))); }
+function bumpTotalCorrect() { try { localStorage.setItem('vr_total_correct', String(getTotalCorrect() + 1)); } catch (e) { /* */ } }
+function getTotalCorrect() { try { return parseInt(localStorage.getItem('vr_total_correct') || '0', 10) || 0; } catch (e) { return 0; } }
+
+const BADGE_DEF = { first_play:['🎮','นักผจญภัย'], streak10:['🔥','ถูกติด 10'], score200:['🏆','200 คะแนน'], perfect:['💯','แม่นเต็มร้อย'], words50:['📚','สะสม 50 คำ'] };
+function getBadges() { try { return JSON.parse(localStorage.getItem('vr_badges') || '{}'); } catch (e) { return {}; } }
+function saveBadges(o) { try { localStorage.setItem('vr_badges', JSON.stringify(o)); } catch (e) { /* */ } }
+function evalBadges() {
+    const b = getBadges(), just = [];
+    const add = (k) => { if (!b[k]) { b[k] = 1; just.push(k); } };
+    add('first_play');
+    if (maxStreak >= 10) add('streak10');
+    if (score >= 200) add('score200');
+    if (answered >= 5 && correctCount === answered) add('perfect');
+    if (getTotalCorrect() >= 50) add('words50');
+    saveBadges(b);
+    return just;
+}
+function renderNewBadges(just) {
+    const el = $('new-badges'); if (!el) return;
+    el.innerHTML = just.length ? '<div class="nb-title">🎖️ ได้เหรียญใหม่!</div>' + just.map(k => `<span class="badge">${BADGE_DEF[k][0]} ${BADGE_DEF[k][1]}</span>`).join('') : '';
+}
+function renderStartBadges() {
+    const el = $('start-badges'); if (!el) return;
+    const b = getBadges(), keys = Object.keys(BADGE_DEF).filter(k => b[k]);
+    el.innerHTML = keys.length ? keys.map(k => `<span class="badge" title="${BADGE_DEF[k][1]}">${BADGE_DEF[k][0]}</span>`).join('') : '<span class="bd-none">ยังไม่มีเหรียญ — เริ่มเล่นเลย!</span>';
+}
+
+function juiceBurst(el) {
+    const layer = $('fx-layer'); if (!layer || !el || !el.getBoundingClientRect) return;
+    const r = el.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    const cols = ['#fde047', '#34d399', '#60a5fa', '#f472b6'];
+    for (let i = 0; i < 8; i++) {
+        const p = document.createElement('span'); p.className = 'particle';
+        const ang = (Math.PI * 2 * i) / 8 + Math.random() * 0.5, d = 40 + Math.random() * 28;
+        p.style.left = cx + 'px'; p.style.top = cy + 'px';
+        p.style.setProperty('--dx', Math.cos(ang) * d + 'px');
+        p.style.setProperty('--dy', Math.sin(ang) * d + 'px');
+        p.style.background = cols[i % 4];
+        layer.appendChild(p); setTimeout(() => p.remove(), 640);
+    }
+}
+function floatGain(n, mult) {
+    const layer = $('fx-layer'), sc = $('score-container'); if (!layer || !sc || !sc.getBoundingClientRect) return;
+    const r = sc.getBoundingClientRect(), t = document.createElement('div');
+    t.className = 'float-gain'; t.textContent = '+' + n + (mult > 1 ? ` x${mult}` : '');
+    t.style.left = (r.left + r.width / 2) + 'px'; t.style.top = r.bottom + 'px';
+    layer.appendChild(t); setTimeout(() => t.remove(), 800);
+}
+
+function setGrade(g) {
+    gradeFilter = g;
+    document.querySelectorAll('.grade-chip').forEach(c => c.classList.toggle('on', c.dataset.g === String(g)));
+}
+
+function dailyWord() {
+    const d = new Date(), seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+    let a = seed >>> 0; a = Math.imul(a ^ (a >>> 15), 1 | a); a = (a + Math.imul(a ^ (a >>> 7), 61 | a)) ^ a;
+    return WORDS[((a ^ (a >>> 14)) >>> 0) % WORDS.length];
+}
+function renderDaily() {
+    const w = dailyWord(), el = $('daily-card'); if (!el) return;
+    el.innerHTML = `<div class="dw-emoji">${w.emoji}</div><div class="dw-info"><div class="dw-en">${w.en}</div><div class="dw-th">${w.th}</div><div class="dw-ex">${w.ex}</div></div>` +
+        `<button class="dw-speak" onclick="audioCtx();KAMPAI.sound.speak('${w.en}','en-US',true)">🔊</button>`;
+}
+function renderReviewBtn() {
+    const el = $('review-btn'); if (!el) return;
+    const n = missedWords().length;
+    if (n > 0) { el.style.display = ''; el.textContent = `📕 ทบทวนคำที่พลาด (${n})`; } else el.style.display = 'none';
+}
+function openReview() {
+    audioCtx();
+    const mw = missedWords(); if (!mw.length) return;
+    reviewing = true; customPool = null; studyCat = null; studyWords = mw; studyIdx = 0; studyOpen = true;
+    $('start').classList.remove('on'); $('cat-picker').classList.remove('on');
+    $('study').classList.add('on');
+    $('study-cat-label').textContent = '📕 ทบทวนคำที่พลาด';
+    renderCard(1);
 }
 
 /* ═══ โหมดออนไลน์ — เฟรมเวิร์ก KampaiMatch (lobby/นับถอยหลัง/คะแนนสด/อันดับ) ═══ */
@@ -594,6 +843,9 @@ window.addEventListener('keydown', (e) => {
     const btn = document.querySelectorAll('.ans')[idx];
     if (btn) answer(btn);
 });
+
+/* เริ่มต้นหน้าแรก — เรียกหลังนิยามข้อมูล/ฟังก์ชันครบ (กัน TDZ ของ WORDS) */
+renderDaily(); renderReviewBtn(); renderStartBadges();
 </script>
 </body>
 </html>
