@@ -89,6 +89,22 @@ body { background: linear-gradient(180deg, #155e75 0%, #0f172a 100%); }
 #play.shake { animation: mr-shake 0.4s ease; }
 @keyframes mr-bump { 0%{transform:scale(1)} 35%{transform:scale(1.22)} 100%{transform:scale(1)} }
 #q-emoji.bump { animation: mr-bump 0.25s ease; }
+
+/* ── ฝึกอ่าน (บัตรคำ) ── */
+.btn-learn { background: linear-gradient(45deg,#10b981,#059669); box-shadow: 0 4px 10px rgba(16,185,129,0.4); margin-top: 2px; }
+#study-cat-label { font-family: 'Fredoka One', cursive; font-size: 22px; color: #fde68a; margin-bottom: 12px; }
+#flashcard { width: 100%; max-width: 340px; background: linear-gradient(160deg,#ffffff,#e0f2fe); color: #0f172a; border-radius: 24px; padding: 22px 18px 18px; box-shadow: 0 12px 30px rgba(0,0,0,0.45); display: flex; flex-direction: column; align-items: center; gap: 6px; touch-action: pan-y; }
+#flashcard.flip { animation: fc-in 0.22s ease; }
+@keyframes fc-in { 0%{transform:translateX(var(--fc-dir,18px)) scale(0.97); opacity:0.3} 100%{transform:translateX(0) scale(1); opacity:1} }
+#fc-emoji { font-size: clamp(84px, 26vw, 130px); line-height: 1; }
+#fc-en { font-family: 'Fredoka One', cursive; font-size: clamp(34px, 9vw, 50px); color: #155e75; letter-spacing: 0.5px; }
+#fc-th { font-size: clamp(22px, 6vw, 30px); color: #475569; margin-bottom: 4px; }
+#fc-speak { padding: 10px 22px; font-size: 17px; margin: 4px 0 0; }
+#fc-nav { display: flex; align-items: center; justify-content: center; gap: 18px; margin: 14px 0 2px; }
+.fc-arrow { width: 56px; height: 56px; border-radius: 50%; border: none; background: rgba(255,255,255,0.14); color: #fff; font-size: 24px; cursor: pointer; transition: transform 0.1s, opacity 0.15s; }
+.fc-arrow:active { transform: scale(0.9); }
+.fc-arrow:disabled { opacity: 0.3; cursor: default; }
+#fc-progress { font-family: 'Fredoka One', cursive; font-size: 19px; color: #fde68a; min-width: 70px; }
 </style>
 </head>
 <body>
@@ -118,6 +134,7 @@ body { background: linear-gradient(180deg, #155e75 0%, #0f172a 100%); }
         <button class="btn btn-blue" onclick="openOnline()">🌐 ออนไลน์</button>
         <button class="btn btn-ghost" onclick="chooseMode('practice')">📚 ฝึกหมวด</button>
     </div>
+    <button class="btn btn-learn" onclick="openStudyPicker()">📖 ฝึกอ่าน — เรียนคำก่อนเล่น</button>
     <div id="cat-picker"></div>
     <div class="leaderboard-box">
         <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
@@ -137,6 +154,26 @@ body { background: linear-gradient(180deg, #155e75 0%, #0f172a 100%); }
     <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
         <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นอีกครั้ง</button>
         <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+    </div>
+</div>
+
+<!-- ฝึกอ่าน — บัตรคำ (เรียนก่อนเล่น) -->
+<div id="study" class="screen">
+    <div id="study-cat-label">เรียนคำศัพท์</div>
+    <div id="flashcard">
+        <div id="fc-emoji">🐱</div>
+        <div id="fc-en">cat</div>
+        <div id="fc-th">แมว</div>
+        <button id="fc-speak" class="btn btn-blue" onclick="speakStudy()">🔊 ฟังเสียงอ่าน</button>
+    </div>
+    <div id="fc-nav">
+        <button class="fc-arrow" onclick="studyPrev()" aria-label="ก่อนหน้า">◀</button>
+        <span id="fc-progress">1 / 12</span>
+        <button class="fc-arrow" onclick="studyNext()" aria-label="ถัดไป">▶</button>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:6px; margin-top:6px;">
+        <button class="btn btn-primary" onclick="studyPlay()">▶ เล่นเกมหมวดนี้เลย!</button>
+        <button class="btn btn-ghost" onclick="closeStudy()">↩ เปลี่ยนหมวด</button>
     </div>
 </div>
 
@@ -289,6 +326,68 @@ function chooseMode(m) {
         startGame(null);
     }
 }
+
+/* ═══ SECTION C2 · โหมดฝึกอ่าน (บัตรคำ เรียนก่อนเล่น) ═══ */
+let studyCat = null, studyWords = [], studyIdx = 0, studyOpen = false, _fcTouchX = 0;
+
+function openStudyPicker() {   // แตะ "📖 ฝึกอ่าน" → เลือกหมวด (route ไป openStudy)
+    audioCtx();
+    const picker = $('cat-picker');
+    picker.innerHTML = CATS.map(c => `<button class="cchip" onclick="openStudy('${c.key}')">${c.label}</button>`).join('');
+    picker.classList.add('on');
+    picker.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+function openStudy(cat) {
+    studyCat = cat;
+    studyWords = WORDS.filter(w => w.cat === cat);
+    studyIdx = 0; studyOpen = true;
+    $('cat-picker').classList.remove('on');
+    $('start').classList.remove('on');
+    $('study').classList.add('on');
+    const c = CATS.find(x => x.key === cat);
+    $('study-cat-label').textContent = c ? `เรียนคำ: ${c.label}` : 'เรียนคำศัพท์';
+    renderCard(1);
+}
+function renderCard(dir) {
+    const w = studyWords[studyIdx];
+    if (!w) return;
+    $('fc-emoji').textContent = w.emoji;
+    $('fc-en').textContent = w.en;
+    $('fc-th').textContent = w.th;
+    $('fc-progress').textContent = `${studyIdx + 1} / ${studyWords.length}`;
+    const arrows = $('study').querySelectorAll('.fc-arrow');
+    arrows[0].disabled = (studyIdx === 0);
+    arrows[1].disabled = (studyIdx === studyWords.length - 1);
+    const card = $('flashcard');
+    card.style.setProperty('--fc-dir', dir < 0 ? '-18px' : '18px');
+    card.classList.remove('flip'); void card.offsetWidth; card.classList.add('flip');
+    speakStudy();
+}
+function speakStudy() { const w = studyWords[studyIdx]; if (w) KAMPAI.sound.speak(w.en, 'en-US', true); }   // อ่านคำอังกฤษ (interrupt → ปัดเร็วเสียงไม่หาย)
+function studyNext() { if (studyIdx < studyWords.length - 1) { studyIdx++; renderCard(1); } }
+function studyPrev() { if (studyIdx > 0) { studyIdx--; renderCard(-1); } }
+function studyPlay() {   // เรียนเสร็จ → เล่นโหมดฝึกหมวดเดิมทันที
+    studyOpen = false;
+    $('study').classList.remove('on');
+    mode = 'practice'; selectedCat = studyCat;
+    startGame(studyCat);
+}
+function closeStudy() {   // กลับไปเลือกหมวดใหม่
+    studyOpen = false;
+    $('study').classList.remove('on');
+    $('start').classList.add('on');
+    openStudyPicker();
+}
+/* ปัดนิ้วซ้าย/ขวาเปลี่ยนการ์ด */
+(function () {
+    const card = document.getElementById('flashcard');
+    if (!card) return;
+    card.addEventListener('touchstart', (e) => { _fcTouchX = e.changedTouches[0].clientX; }, { passive: true });
+    card.addEventListener('touchend', (e) => {
+        const dx = e.changedTouches[0].clientX - _fcTouchX;
+        if (Math.abs(dx) > 45) { if (dx < 0) studyNext(); else studyPrev(); }
+    }, { passive: true });
+})();
 
 function startGame(cat) {
     if (started) return;
@@ -482,6 +581,13 @@ function startOnlineQuiz(rng) {
 
 /* ── คีย์บอร์ด 1–4 ── */
 window.addEventListener('keydown', (e) => {
+    if (studyOpen) {   // จอฝึกอ่าน: ←→ เปลี่ยนคำ · space/enter ฟังเสียง · esc กลับ (กันเลข 1-4 ไปตอบควิซ)
+        if (e.key === 'ArrowRight') studyNext();
+        else if (e.key === 'ArrowLeft') studyPrev();
+        else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); speakStudy(); }
+        else if (e.key === 'Escape') closeStudy();
+        return;
+    }
     if (!started || isGameOver || locked) return;
     const idx = ['1','2','3','4'].indexOf(e.key);
     if (idx < 0) return;
