@@ -53,5 +53,12 @@ ok(hasOn('play'), 'studyPlay → เข้าจอเล่น (#play .on)');
 const answers = $('answers').querySelectorAll('.ans');
 ok(answers.length === 4, `studyPlay → มี 4 ตัวเลือก (ได้ ${answers.length})`);
 
+// 6) คำแปลไทย + เสียงไทย ในบัตรเรียน
+window.openStudy('food');
+ok((txt('fc-th') || '').length > 0, 'บัตรเรียนมีคำแปลไทย (fc-th)');
+ok(/[ก-๙]/.test(txt('fc-ex') ? txt('fc-ex-th') : ''), 'บัตรเรียนมีประโยคแปลไทย (fc-ex-th เป็นไทย)');
+ok(/[A-Za-z]/.test(txt('fc-ex') || ''), 'บัตรเรียนมีประโยคอังกฤษ (fc-ex)');
+ok(typeof window.speakStudyTh === 'function' && typeof window.speakStudyExTh === 'function' && typeof window.speakStudyAuto === 'function', 'มีฟังก์ชันเสียงไทย speakStudyTh/speakStudyExTh + auto');
+
 console.log(`\n${fail === 0 ? '✨ ผ่านทุก check' : '⚠️ มี fail'} — pass ${pass}, fail ${fail}`);
 process.exit(fail === 0 ? 0 : 1);

@@ -109,6 +109,11 @@ body { background: linear-gradient(180deg, #155e75 0%, #0f172a 100%); }
 #fc-progress { font-family: 'Fredoka One', cursive; font-size: 19px; color: #fde68a; min-width: 70px; }
 #fc-ex { font-size: 16px; color: #0369a1; font-style: italic; cursor: pointer; padding: 4px 8px; border-radius: 8px; background: rgba(3,105,161,0.08); }
 #fc-ex:active { background: rgba(3,105,161,0.18); }
+#fc-th { cursor: pointer; }
+#fc-ex-th { font-size: 14px; color: #166534; cursor: pointer; padding: 3px 8px; border-radius: 8px; background: rgba(22,101,52,0.08); }
+#fc-ex-th:active { background: rgba(22,101,52,0.18); }
+.fc-speak-row { display: flex; gap: 8px; margin-top: 8px; }
+.fc-speak-row .btn { padding: 10px 18px; font-size: 16px; margin: 0; }
 
 /* ── โจทย์: อังกฤษ→ไทย / ฟังเสียง ── */
 #q-emoji.tap { cursor: pointer; }
@@ -232,9 +237,13 @@ body { background: linear-gradient(180deg, #155e75 0%, #0f172a 100%); }
     <div id="flashcard">
         <div id="fc-emoji">🐱</div>
         <div id="fc-en">cat</div>
-        <div id="fc-th">แมว</div>
-        <div id="fc-ex" onclick="speakStudyEx()" title="แตะเพื่อฟังประโยค">The cat is small.</div>
-        <button id="fc-speak" class="btn btn-blue" onclick="speakStudy()">🔊 ฟังเสียงอ่าน</button>
+        <div id="fc-th" onclick="speakStudyTh()" title="แตะฟังเสียงไทย">แมว</div>
+        <div id="fc-ex" onclick="speakStudyEx()" title="แตะฟังประโยคอังกฤษ">The cat is small.</div>
+        <div id="fc-ex-th" onclick="speakStudyExTh()" title="แตะฟังประโยคไทย">แมวตัวเล็ก</div>
+        <div class="fc-speak-row">
+            <button class="btn btn-blue" onclick="speakStudy()">🔊 อังกฤษ</button>
+            <button class="btn btn-learn" onclick="speakStudyTh()">🗣️ ไทย</button>
+        </div>
     </div>
     <div id="fc-nav">
         <button class="fc-arrow" onclick="studyPrev()" aria-label="ก่อนหน้า">◀</button>
@@ -325,74 +334,74 @@ const CATS = [
     { key: 'transport', label: '🚗 ยานพาหนะ' },
 ];
 const WORDS = [
-    { th:'แมว', en:'cat', emoji:'🐱', cat:'animals', g:1, ex:'The cat is small.' }, { th:'หมา', en:'dog', emoji:'🐶', cat:'animals', g:1, ex:'The dog can run.' },
-    { th:'นก', en:'bird', emoji:'🐦', cat:'animals', g:1, ex:'A bird can fly.' }, { th:'ปลา', en:'fish', emoji:'🐟', cat:'animals', g:1, ex:'A fish lives in water.' },
-    { th:'วัว', en:'cow', emoji:'🐄', cat:'animals', g:1, ex:'The cow gives milk.' }, { th:'หมู', en:'pig', emoji:'🐷', cat:'animals', g:1, ex:'The pig is pink.' },
-    { th:'เป็ด', en:'duck', emoji:'🦆', cat:'animals', g:1, ex:'The duck can swim.' }, { th:'ช้าง', en:'elephant', emoji:'🐘', cat:'animals', g:2, ex:'The elephant is big.' },
-    { th:'เสือ', en:'tiger', emoji:'🐯', cat:'animals', g:2, ex:'The tiger is strong.' }, { th:'ลิง', en:'monkey', emoji:'🐵', cat:'animals', g:2, ex:'The monkey likes bananas.' },
-    { th:'กระต่าย', en:'rabbit', emoji:'🐰', cat:'animals', g:2, ex:'The rabbit has long ears.' }, { th:'ม้า', en:'horse', emoji:'🐴', cat:'animals', g:2, ex:'The horse can run fast.' },
+    { th:'แมว', en:'cat', emoji:'🐱', cat:'animals', g:1, ex:'The cat is small.', exTh:'แมวตัวเล็ก' }, { th:'หมา', en:'dog', emoji:'🐶', cat:'animals', g:1, ex:'The dog can run.', exTh:'หมาวิ่งได้' },
+    { th:'นก', en:'bird', emoji:'🐦', cat:'animals', g:1, ex:'A bird can fly.', exTh:'นกบินได้' }, { th:'ปลา', en:'fish', emoji:'🐟', cat:'animals', g:1, ex:'A fish lives in water.', exTh:'ปลาอาศัยอยู่ในน้ำ' },
+    { th:'วัว', en:'cow', emoji:'🐄', cat:'animals', g:1, ex:'The cow gives milk.', exTh:'วัวให้นม' }, { th:'หมู', en:'pig', emoji:'🐷', cat:'animals', g:1, ex:'The pig is pink.', exTh:'หมูสีชมพู' },
+    { th:'เป็ด', en:'duck', emoji:'🦆', cat:'animals', g:1, ex:'The duck can swim.', exTh:'เป็ดว่ายน้ำได้' }, { th:'ช้าง', en:'elephant', emoji:'🐘', cat:'animals', g:2, ex:'The elephant is big.', exTh:'ช้างตัวใหญ่' },
+    { th:'เสือ', en:'tiger', emoji:'🐯', cat:'animals', g:2, ex:'The tiger is strong.', exTh:'เสือแข็งแรง' }, { th:'ลิง', en:'monkey', emoji:'🐵', cat:'animals', g:2, ex:'The monkey likes bananas.', exTh:'ลิงชอบกล้วย' },
+    { th:'กระต่าย', en:'rabbit', emoji:'🐰', cat:'animals', g:2, ex:'The rabbit has long ears.', exTh:'กระต่ายมีหูยาว' }, { th:'ม้า', en:'horse', emoji:'🐴', cat:'animals', g:2, ex:'The horse can run fast.', exTh:'ม้าวิ่งเร็วได้' },
 
-    { th:'สีแดง', en:'red', emoji:'🟥', cat:'colors', g:1, ex:'The apple is red.' }, { th:'สีน้ำเงิน', en:'blue', emoji:'🟦', cat:'colors', g:1, ex:'The sky is blue.' },
-    { th:'สีเขียว', en:'green', emoji:'🟩', cat:'colors', g:1, ex:'The leaf is green.' }, { th:'สีเหลือง', en:'yellow', emoji:'🟨', cat:'colors', g:1, ex:'The sun is yellow.' },
-    { th:'สีดำ', en:'black', emoji:'⬛', cat:'colors', g:1, ex:'The cat is black.' }, { th:'สีขาว', en:'white', emoji:'⬜', cat:'colors', g:1, ex:'The milk is white.' },
-    { th:'สีส้ม', en:'orange', emoji:'🟧', cat:'colors', g:1, ex:'The ball is orange.' }, { th:'สีม่วง', en:'purple', emoji:'🟪', cat:'colors', g:2, ex:'The grape is purple.' },
-    { th:'สีชมพู', en:'pink', emoji:'🌸', cat:'colors', g:1, ex:'The flower is pink.' }, { th:'สีน้ำตาล', en:'brown', emoji:'🟫', cat:'colors', g:2, ex:'The bear is brown.' },
+    { th:'สีแดง', en:'red', emoji:'🟥', cat:'colors', g:1, ex:'The apple is red.', exTh:'แอปเปิลสีแดง' }, { th:'สีน้ำเงิน', en:'blue', emoji:'🟦', cat:'colors', g:1, ex:'The sky is blue.', exTh:'ท้องฟ้าสีฟ้า' },
+    { th:'สีเขียว', en:'green', emoji:'🟩', cat:'colors', g:1, ex:'The leaf is green.', exTh:'ใบไม้สีเขียว' }, { th:'สีเหลือง', en:'yellow', emoji:'🟨', cat:'colors', g:1, ex:'The sun is yellow.', exTh:'ดวงอาทิตย์สีเหลือง' },
+    { th:'สีดำ', en:'black', emoji:'⬛', cat:'colors', g:1, ex:'The cat is black.', exTh:'แมวสีดำ' }, { th:'สีขาว', en:'white', emoji:'⬜', cat:'colors', g:1, ex:'The milk is white.', exTh:'นมสีขาว' },
+    { th:'สีส้ม', en:'orange', emoji:'🟧', cat:'colors', g:1, ex:'The ball is orange.', exTh:'ลูกบอลสีส้ม' }, { th:'สีม่วง', en:'purple', emoji:'🟪', cat:'colors', g:2, ex:'The grape is purple.', exTh:'องุ่นสีม่วง' },
+    { th:'สีชมพู', en:'pink', emoji:'🌸', cat:'colors', g:1, ex:'The flower is pink.', exTh:'ดอกไม้สีชมพู' }, { th:'สีน้ำตาล', en:'brown', emoji:'🟫', cat:'colors', g:2, ex:'The bear is brown.', exTh:'หมีสีน้ำตาล' },
 
-    { th:'พ่อ', en:'father', emoji:'👨', cat:'family', g:1, ex:'My father is tall.' }, { th:'แม่', en:'mother', emoji:'👩', cat:'family', g:1, ex:'My mother is kind.' },
-    { th:'พี่ชาย/น้องชาย', en:'brother', emoji:'👦', cat:'family', g:1, ex:'I have one brother.' }, { th:'พี่สาว/น้องสาว', en:'sister', emoji:'👧', cat:'family', g:1, ex:'She is my sister.' },
-    { th:'เด็กทารก', en:'baby', emoji:'👶', cat:'family', g:1, ex:'The baby is cute.' }, { th:'ปู่/ตา', en:'grandfather', emoji:'👴', cat:'family', g:2, ex:'My grandfather is old.' },
-    { th:'ย่า/ยาย', en:'grandmother', emoji:'👵', cat:'family', g:2, ex:'My grandmother loves me.' }, { th:'ครอบครัว', en:'family', emoji:'👪', cat:'family', g:1, ex:'I love my family.' },
+    { th:'พ่อ', en:'father', emoji:'👨', cat:'family', g:1, ex:'My father is tall.', exTh:'พ่อของฉันสูง' }, { th:'แม่', en:'mother', emoji:'👩', cat:'family', g:1, ex:'My mother is kind.', exTh:'แม่ของฉันใจดี' },
+    { th:'พี่ชาย/น้องชาย', en:'brother', emoji:'👦', cat:'family', g:1, ex:'I have one brother.', exTh:'ฉันมีพี่ชายหนึ่งคน' }, { th:'พี่สาว/น้องสาว', en:'sister', emoji:'👧', cat:'family', g:1, ex:'She is my sister.', exTh:'เธอเป็นน้องสาวของฉัน' },
+    { th:'เด็กทารก', en:'baby', emoji:'👶', cat:'family', g:1, ex:'The baby is cute.', exTh:'เด็กทารกน่ารัก' }, { th:'ปู่/ตา', en:'grandfather', emoji:'👴', cat:'family', g:2, ex:'My grandfather is old.', exTh:'ปู่ของฉันแก่แล้ว' },
+    { th:'ย่า/ยาย', en:'grandmother', emoji:'👵', cat:'family', g:2, ex:'My grandmother loves me.', exTh:'ย่าของฉันรักฉัน' }, { th:'ครอบครัว', en:'family', emoji:'👪', cat:'family', g:1, ex:'I love my family.', exTh:'ฉันรักครอบครัวของฉัน' },
 
-    { th:'ข้าว', en:'rice', emoji:'🍚', cat:'food', g:1, ex:'I eat rice every day.' }, { th:'ไข่', en:'egg', emoji:'🥚', cat:'food', g:1, ex:'The egg is white.' },
-    { th:'นม', en:'milk', emoji:'🥛', cat:'food', g:1, ex:'I drink milk.' }, { th:'ขนมปัง', en:'bread', emoji:'🍞', cat:'food', g:1, ex:'I like to eat bread.' },
-    { th:'น้ำ', en:'water', emoji:'💧', cat:'food', g:1, ex:'I drink water.' }, { th:'ไก่', en:'chicken', emoji:'🍗', cat:'food', g:1, ex:'The chicken is hot.' },
-    { th:'ก๋วยเตี๋ยว', en:'noodle', emoji:'🍜', cat:'food', g:2, ex:'I eat noodles.' }, { th:'ซุป', en:'soup', emoji:'🥣', cat:'food', g:1, ex:'The soup is hot.' },
+    { th:'ข้าว', en:'rice', emoji:'🍚', cat:'food', g:1, ex:'I eat rice every day.', exTh:'ฉันกินข้าวทุกวัน' }, { th:'ไข่', en:'egg', emoji:'🥚', cat:'food', g:1, ex:'The egg is white.', exTh:'ไข่สีขาว' },
+    { th:'นม', en:'milk', emoji:'🥛', cat:'food', g:1, ex:'I drink milk.', exTh:'ฉันดื่มนม' }, { th:'ขนมปัง', en:'bread', emoji:'🍞', cat:'food', g:1, ex:'I like to eat bread.', exTh:'ฉันชอบกินขนมปัง' },
+    { th:'น้ำ', en:'water', emoji:'💧', cat:'food', g:1, ex:'I drink water.', exTh:'ฉันดื่มน้ำ' }, { th:'ไก่', en:'chicken', emoji:'🍗', cat:'food', g:1, ex:'The chicken is hot.', exTh:'ไก่ร้อน' },
+    { th:'ก๋วยเตี๋ยว', en:'noodle', emoji:'🍜', cat:'food', g:2, ex:'I eat noodles.', exTh:'ฉันกินก๋วยเตี๋ยว' }, { th:'ซุป', en:'soup', emoji:'🥣', cat:'food', g:1, ex:'The soup is hot.', exTh:'ซุปร้อน' },
 
-    { th:'ตา', en:'eye', emoji:'👁️', cat:'body', g:1, ex:'I see with my eyes.' }, { th:'หู', en:'ear', emoji:'👂', cat:'body', g:1, ex:'I hear with my ears.' },
-    { th:'จมูก', en:'nose', emoji:'👃', cat:'body', g:1, ex:'I smell with my nose.' }, { th:'ปาก', en:'mouth', emoji:'👄', cat:'body', g:1, ex:'I eat with my mouth.' },
-    { th:'มือ', en:'hand', emoji:'✋', cat:'body', g:1, ex:'I have two hands.' }, { th:'เท้า', en:'foot', emoji:'🦶', cat:'body', g:1, ex:'I kick with my foot.' },
-    { th:'ขา', en:'leg', emoji:'🦵', cat:'body', g:1, ex:'My leg is strong.' }, { th:'ฟัน', en:'tooth', emoji:'🦷', cat:'body', g:2, ex:'I have a white tooth.' },
+    { th:'ตา', en:'eye', emoji:'👁️', cat:'body', g:1, ex:'I see with my eyes.', exTh:'ฉันมองด้วยตา' }, { th:'หู', en:'ear', emoji:'👂', cat:'body', g:1, ex:'I hear with my ears.', exTh:'ฉันฟังด้วยหู' },
+    { th:'จมูก', en:'nose', emoji:'👃', cat:'body', g:1, ex:'I smell with my nose.', exTh:'ฉันดมด้วยจมูก' }, { th:'ปาก', en:'mouth', emoji:'👄', cat:'body', g:1, ex:'I eat with my mouth.', exTh:'ฉันกินด้วยปาก' },
+    { th:'มือ', en:'hand', emoji:'✋', cat:'body', g:1, ex:'I have two hands.', exTh:'ฉันมีสองมือ' }, { th:'เท้า', en:'foot', emoji:'🦶', cat:'body', g:1, ex:'I kick with my foot.', exTh:'ฉันเตะด้วยเท้า' },
+    { th:'ขา', en:'leg', emoji:'🦵', cat:'body', g:1, ex:'My leg is strong.', exTh:'ขาของฉันแข็งแรง' }, { th:'ฟัน', en:'tooth', emoji:'🦷', cat:'body', g:2, ex:'I have a white tooth.', exTh:'ฉันมีฟันสีขาว' },
 
-    { th:'หนึ่ง', en:'one', emoji:'1️⃣', cat:'numbers', g:1, ex:'I have one cat.' }, { th:'สอง', en:'two', emoji:'2️⃣', cat:'numbers', g:1, ex:'I see two birds.' },
-    { th:'สาม', en:'three', emoji:'3️⃣', cat:'numbers', g:1, ex:'There are three apples.' }, { th:'สี่', en:'four', emoji:'4️⃣', cat:'numbers', g:1, ex:'I have four pens.' },
-    { th:'ห้า', en:'five', emoji:'5️⃣', cat:'numbers', g:1, ex:'I count to five.' }, { th:'หก', en:'six', emoji:'6️⃣', cat:'numbers', g:1, ex:'There are six eggs.' },
-    { th:'เจ็ด', en:'seven', emoji:'7️⃣', cat:'numbers', g:2, ex:'A week has seven days.' }, { th:'แปด', en:'eight', emoji:'8️⃣', cat:'numbers', g:1, ex:'I see eight stars.' },
-    { th:'เก้า', en:'nine', emoji:'9️⃣', cat:'numbers', g:2, ex:'She is nine years old.' }, { th:'สิบ', en:'ten', emoji:'🔟', cat:'numbers', g:1, ex:'I have ten fingers.' },
+    { th:'หนึ่ง', en:'one', emoji:'1️⃣', cat:'numbers', g:1, ex:'I have one cat.', exTh:'ฉันมีแมวหนึ่งตัว' }, { th:'สอง', en:'two', emoji:'2️⃣', cat:'numbers', g:1, ex:'I see two birds.', exTh:'ฉันเห็นนกสองตัว' },
+    { th:'สาม', en:'three', emoji:'3️⃣', cat:'numbers', g:1, ex:'There are three apples.', exTh:'มีแอปเปิลสามลูก' }, { th:'สี่', en:'four', emoji:'4️⃣', cat:'numbers', g:1, ex:'I have four pens.', exTh:'ฉันมีปากกาสี่ด้าม' },
+    { th:'ห้า', en:'five', emoji:'5️⃣', cat:'numbers', g:1, ex:'I count to five.', exTh:'ฉันนับถึงห้า' }, { th:'หก', en:'six', emoji:'6️⃣', cat:'numbers', g:1, ex:'There are six eggs.', exTh:'มีไข่หกฟอง' },
+    { th:'เจ็ด', en:'seven', emoji:'7️⃣', cat:'numbers', g:2, ex:'A week has seven days.', exTh:'หนึ่งสัปดาห์มีเจ็ดวัน' }, { th:'แปด', en:'eight', emoji:'8️⃣', cat:'numbers', g:1, ex:'I see eight stars.', exTh:'ฉันเห็นดาวแปดดวง' },
+    { th:'เก้า', en:'nine', emoji:'9️⃣', cat:'numbers', g:2, ex:'She is nine years old.', exTh:'เธออายุเก้าขวบ' }, { th:'สิบ', en:'ten', emoji:'🔟', cat:'numbers', g:1, ex:'I have ten fingers.', exTh:'ฉันมีสิบนิ้ว' },
 
-    { th:'หนังสือ', en:'book', emoji:'📖', cat:'school', g:1, ex:'I read a book.' }, { th:'ปากกา', en:'pen', emoji:'🖊️', cat:'school', g:1, ex:'I write with a pen.' },
-    { th:'ดินสอ', en:'pencil', emoji:'✏️', cat:'school', g:1, ex:'This is my pencil.' }, { th:'กระเป๋า', en:'bag', emoji:'🎒', cat:'school', g:1, ex:'My bag is big.' },
-    { th:'ไม้บรรทัด', en:'ruler', emoji:'📏', cat:'school', g:2, ex:'I use a ruler.' }, { th:'กรรไกร', en:'scissors', emoji:'✂️', cat:'school', g:2, ex:'Cut it with scissors.' },
-    { th:'นาฬิกา', en:'clock', emoji:'🕐', cat:'school', g:2, ex:'The clock is on the wall.' }, { th:'สีเทียน', en:'crayon', emoji:'🖍️', cat:'school', g:2, ex:'I color with a crayon.' },
+    { th:'หนังสือ', en:'book', emoji:'📖', cat:'school', g:1, ex:'I read a book.', exTh:'ฉันอ่านหนังสือ' }, { th:'ปากกา', en:'pen', emoji:'🖊️', cat:'school', g:1, ex:'I write with a pen.', exTh:'ฉันเขียนด้วยปากกา' },
+    { th:'ดินสอ', en:'pencil', emoji:'✏️', cat:'school', g:1, ex:'This is my pencil.', exTh:'นี่คือดินสอของฉัน' }, { th:'กระเป๋า', en:'bag', emoji:'🎒', cat:'school', g:1, ex:'My bag is big.', exTh:'กระเป๋าของฉันใบใหญ่' },
+    { th:'ไม้บรรทัด', en:'ruler', emoji:'📏', cat:'school', g:2, ex:'I use a ruler.', exTh:'ฉันใช้ไม้บรรทัด' }, { th:'กรรไกร', en:'scissors', emoji:'✂️', cat:'school', g:2, ex:'Cut it with scissors.', exTh:'ตัดด้วยกรรไกร' },
+    { th:'นาฬิกา', en:'clock', emoji:'🕐', cat:'school', g:2, ex:'The clock is on the wall.', exTh:'นาฬิกาอยู่บนผนัง' }, { th:'สีเทียน', en:'crayon', emoji:'🖍️', cat:'school', g:2, ex:'I color with a crayon.', exTh:'ฉันระบายสีด้วยสีเทียน' },
 
-    { th:'แอปเปิล', en:'apple', emoji:'🍎', cat:'fruits', g:1, ex:'I eat a red apple.' }, { th:'กล้วย', en:'banana', emoji:'🍌', cat:'fruits', g:1, ex:'The banana is yellow.' },
-    { th:'ส้ม', en:'orange', emoji:'🍊', cat:'fruits', g:1, ex:'The orange is sweet.' }, { th:'มะม่วง', en:'mango', emoji:'🥭', cat:'fruits', g:1, ex:'I like mango.' },
-    { th:'องุ่น', en:'grape', emoji:'🍇', cat:'fruits', g:2, ex:'Grapes are purple.' }, { th:'แตงโม', en:'watermelon', emoji:'🍉', cat:'fruits', g:2, ex:'Watermelon is sweet.' },
-    { th:'สตรอว์เบอร์รี', en:'strawberry', emoji:'🍓', cat:'fruits', g:2, ex:'The strawberry is red.' }, { th:'สับปะรด', en:'pineapple', emoji:'🍍', cat:'fruits', g:2, ex:'Pineapple is yellow.' },
-    { th:'มะพร้าว', en:'coconut', emoji:'🥥', cat:'fruits', g:2, ex:'The coconut is brown.' }, { th:'มะนาว', en:'lemon', emoji:'🍋', cat:'fruits', g:2, ex:'The lemon is sour.' },
+    { th:'แอปเปิล', en:'apple', emoji:'🍎', cat:'fruits', g:1, ex:'I eat a red apple.', exTh:'ฉันกินแอปเปิลสีแดง' }, { th:'กล้วย', en:'banana', emoji:'🍌', cat:'fruits', g:1, ex:'The banana is yellow.', exTh:'กล้วยสีเหลือง' },
+    { th:'ส้ม', en:'orange', emoji:'🍊', cat:'fruits', g:1, ex:'The orange is sweet.', exTh:'ส้มหวาน' }, { th:'มะม่วง', en:'mango', emoji:'🥭', cat:'fruits', g:1, ex:'I like mango.', exTh:'ฉันชอบมะม่วง' },
+    { th:'องุ่น', en:'grape', emoji:'🍇', cat:'fruits', g:2, ex:'Grapes are purple.', exTh:'องุ่นสีม่วง' }, { th:'แตงโม', en:'watermelon', emoji:'🍉', cat:'fruits', g:2, ex:'Watermelon is sweet.', exTh:'แตงโมหวาน' },
+    { th:'สตรอว์เบอร์รี', en:'strawberry', emoji:'🍓', cat:'fruits', g:2, ex:'The strawberry is red.', exTh:'สตรอว์เบอร์รีสีแดง' }, { th:'สับปะรด', en:'pineapple', emoji:'🍍', cat:'fruits', g:2, ex:'Pineapple is yellow.', exTh:'สับปะรดสีเหลือง' },
+    { th:'มะพร้าว', en:'coconut', emoji:'🥥', cat:'fruits', g:2, ex:'The coconut is brown.', exTh:'มะพร้าวสีน้ำตาล' }, { th:'มะนาว', en:'lemon', emoji:'🍋', cat:'fruits', g:2, ex:'The lemon is sour.', exTh:'มะนาวเปรี้ยว' },
 
-    { th:'วิ่ง', en:'run', emoji:'🏃', cat:'verbs', g:1, ex:'I can run fast.' }, { th:'กิน', en:'eat', emoji:'🍽️', cat:'verbs', g:1, ex:'I eat breakfast.' },
-    { th:'ดื่ม', en:'drink', emoji:'🥤', cat:'verbs', g:1, ex:'I drink water.' }, { th:'นอน', en:'sleep', emoji:'😴', cat:'verbs', g:1, ex:'I sleep at night.' },
-    { th:'อ่าน', en:'read', emoji:'📕', cat:'verbs', g:1, ex:'I read a book.' }, { th:'เขียน', en:'write', emoji:'✍️', cat:'verbs', g:2, ex:'I write my name.' },
-    { th:'เดิน', en:'walk', emoji:'🚶', cat:'verbs', g:1, ex:'I walk to school.' }, { th:'กระโดด', en:'jump', emoji:'🤸', cat:'verbs', g:1, ex:'I can jump high.' },
-    { th:'ร้องเพลง', en:'sing', emoji:'🎤', cat:'verbs', g:2, ex:'I sing a song.' }, { th:'ว่ายน้ำ', en:'swim', emoji:'🏊', cat:'verbs', g:2, ex:'I can swim.' },
-    { th:'เล่น', en:'play', emoji:'⚽', cat:'verbs', g:1, ex:'I play football.' }, { th:'เต้น', en:'dance', emoji:'💃', cat:'verbs', g:2, ex:'I like to dance.' },
+    { th:'วิ่ง', en:'run', emoji:'🏃', cat:'verbs', g:1, ex:'I can run fast.', exTh:'ฉันวิ่งเร็วได้' }, { th:'กิน', en:'eat', emoji:'🍽️', cat:'verbs', g:1, ex:'I eat breakfast.', exTh:'ฉันกินข้าวเช้า' },
+    { th:'ดื่ม', en:'drink', emoji:'🥤', cat:'verbs', g:1, ex:'I drink water.', exTh:'ฉันดื่มน้ำ' }, { th:'นอน', en:'sleep', emoji:'😴', cat:'verbs', g:1, ex:'I sleep at night.', exTh:'ฉันนอนตอนกลางคืน' },
+    { th:'อ่าน', en:'read', emoji:'📕', cat:'verbs', g:1, ex:'I read a book.', exTh:'ฉันอ่านหนังสือ' }, { th:'เขียน', en:'write', emoji:'✍️', cat:'verbs', g:2, ex:'I write my name.', exTh:'ฉันเขียนชื่อของฉัน' },
+    { th:'เดิน', en:'walk', emoji:'🚶', cat:'verbs', g:1, ex:'I walk to school.', exTh:'ฉันเดินไปโรงเรียน' }, { th:'กระโดด', en:'jump', emoji:'🤸', cat:'verbs', g:1, ex:'I can jump high.', exTh:'ฉันกระโดดสูงได้' },
+    { th:'ร้องเพลง', en:'sing', emoji:'🎤', cat:'verbs', g:2, ex:'I sing a song.', exTh:'ฉันร้องเพลง' }, { th:'ว่ายน้ำ', en:'swim', emoji:'🏊', cat:'verbs', g:2, ex:'I can swim.', exTh:'ฉันว่ายน้ำได้' },
+    { th:'เล่น', en:'play', emoji:'⚽', cat:'verbs', g:1, ex:'I play football.', exTh:'ฉันเล่นฟุตบอล' }, { th:'เต้น', en:'dance', emoji:'💃', cat:'verbs', g:2, ex:'I like to dance.', exTh:'ฉันชอบเต้น' },
 
-    { th:'ดวงอาทิตย์', en:'sun', emoji:'☀️', cat:'weather', g:1, ex:'The sun is hot.' }, { th:'ฝน', en:'rain', emoji:'🌧️', cat:'weather', g:1, ex:'I see the rain.' },
-    { th:'เมฆ', en:'cloud', emoji:'☁️', cat:'weather', g:1, ex:'The cloud is white.' }, { th:'ลม', en:'wind', emoji:'🌬️', cat:'weather', g:2, ex:'The wind is cold.' },
-    { th:'หิมะ', en:'snow', emoji:'❄️', cat:'weather', g:2, ex:'Snow is white and cold.' }, { th:'พายุ', en:'storm', emoji:'⛈️', cat:'weather', g:2, ex:'The storm is loud.' },
-    { th:'รุ้ง', en:'rainbow', emoji:'🌈', cat:'weather', g:2, ex:'The rainbow is beautiful.' }, { th:'ร้อน', en:'hot', emoji:'🥵', cat:'weather', g:1, ex:'Today is hot.' },
-    { th:'หนาว', en:'cold', emoji:'🥶', cat:'weather', g:1, ex:'Today is cold.' },
+    { th:'ดวงอาทิตย์', en:'sun', emoji:'☀️', cat:'weather', g:1, ex:'The sun is hot.', exTh:'ดวงอาทิตย์ร้อน' }, { th:'ฝน', en:'rain', emoji:'🌧️', cat:'weather', g:1, ex:'I see the rain.', exTh:'ฉันเห็นฝน' },
+    { th:'เมฆ', en:'cloud', emoji:'☁️', cat:'weather', g:1, ex:'The cloud is white.', exTh:'เมฆสีขาว' }, { th:'ลม', en:'wind', emoji:'🌬️', cat:'weather', g:2, ex:'The wind is cold.', exTh:'ลมหนาว' },
+    { th:'หิมะ', en:'snow', emoji:'❄️', cat:'weather', g:2, ex:'Snow is white and cold.', exTh:'หิมะสีขาวและเย็น' }, { th:'พายุ', en:'storm', emoji:'⛈️', cat:'weather', g:2, ex:'The storm is loud.', exTh:'พายุเสียงดัง' },
+    { th:'รุ้ง', en:'rainbow', emoji:'🌈', cat:'weather', g:2, ex:'The rainbow is beautiful.', exTh:'รุ้งสวยงาม' }, { th:'ร้อน', en:'hot', emoji:'🥵', cat:'weather', g:1, ex:'Today is hot.', exTh:'วันนี้อากาศร้อน' },
+    { th:'หนาว', en:'cold', emoji:'🥶', cat:'weather', g:1, ex:'Today is cold.', exTh:'วันนี้อากาศหนาว' },
 
-    { th:'ครู', en:'teacher', emoji:'👩‍🏫', cat:'jobs', g:1, ex:'My teacher is kind.' }, { th:'หมอ', en:'doctor', emoji:'👨‍⚕️', cat:'jobs', g:2, ex:'The doctor helps people.' },
-    { th:'พยาบาล', en:'nurse', emoji:'👩‍⚕️', cat:'jobs', g:2, ex:'The nurse is nice.' }, { th:'ตำรวจ', en:'police', emoji:'👮', cat:'jobs', g:2, ex:'The police is brave.' },
-    { th:'ชาวนา', en:'farmer', emoji:'🧑‍🌾', cat:'jobs', g:2, ex:'The farmer grows rice.' }, { th:'พ่อครัว', en:'cook', emoji:'👨‍🍳', cat:'jobs', g:1, ex:'The cook makes food.' },
-    { th:'นักบิน', en:'pilot', emoji:'👨‍✈️', cat:'jobs', g:2, ex:'The pilot flies a plane.' }, { th:'คนขับรถ', en:'driver', emoji:'🚕', cat:'jobs', g:2, ex:'The driver drives a car.' },
-    { th:'นักร้อง', en:'singer', emoji:'🧑‍🎤', cat:'jobs', g:2, ex:'The singer can sing.' },
+    { th:'ครู', en:'teacher', emoji:'👩‍🏫', cat:'jobs', g:1, ex:'My teacher is kind.', exTh:'ครูของฉันใจดี' }, { th:'หมอ', en:'doctor', emoji:'👨‍⚕️', cat:'jobs', g:2, ex:'The doctor helps people.', exTh:'หมอช่วยเหลือผู้คน' },
+    { th:'พยาบาล', en:'nurse', emoji:'👩‍⚕️', cat:'jobs', g:2, ex:'The nurse is nice.', exTh:'พยาบาลใจดี' }, { th:'ตำรวจ', en:'police', emoji:'👮', cat:'jobs', g:2, ex:'The police is brave.', exTh:'ตำรวจกล้าหาญ' },
+    { th:'ชาวนา', en:'farmer', emoji:'🧑‍🌾', cat:'jobs', g:2, ex:'The farmer grows rice.', exTh:'ชาวนาปลูกข้าว' }, { th:'พ่อครัว', en:'cook', emoji:'👨‍🍳', cat:'jobs', g:1, ex:'The cook makes food.', exTh:'พ่อครัวทำอาหาร' },
+    { th:'นักบิน', en:'pilot', emoji:'👨‍✈️', cat:'jobs', g:2, ex:'The pilot flies a plane.', exTh:'นักบินขับเครื่องบิน' }, { th:'คนขับรถ', en:'driver', emoji:'🚕', cat:'jobs', g:2, ex:'The driver drives a car.', exTh:'คนขับขับรถ' },
+    { th:'นักร้อง', en:'singer', emoji:'🧑‍🎤', cat:'jobs', g:2, ex:'The singer can sing.', exTh:'นักร้องร้องเพลงได้' },
 
-    { th:'รถยนต์', en:'car', emoji:'🚗', cat:'transport', g:1, ex:'The car is red.' }, { th:'รถบัส', en:'bus', emoji:'🚌', cat:'transport', g:1, ex:'I go by bus.' },
-    { th:'จักรยาน', en:'bike', emoji:'🚲', cat:'transport', g:1, ex:'I ride a bike.' }, { th:'รถไฟ', en:'train', emoji:'🚆', cat:'transport', g:2, ex:'The train is fast.' },
-    { th:'เรือ', en:'boat', emoji:'⛵', cat:'transport', g:1, ex:'The boat is on the water.' }, { th:'เครื่องบิน', en:'airplane', emoji:'✈️', cat:'transport', g:2, ex:'The airplane can fly.' },
-    { th:'มอเตอร์ไซค์', en:'motorcycle', emoji:'🏍️', cat:'transport', g:2, ex:'He rides a motorcycle.' }, { th:'รถบรรทุก', en:'truck', emoji:'🚚', cat:'transport', g:2, ex:'The truck is big.' },
+    { th:'รถยนต์', en:'car', emoji:'🚗', cat:'transport', g:1, ex:'The car is red.', exTh:'รถยนต์สีแดง' }, { th:'รถบัส', en:'bus', emoji:'🚌', cat:'transport', g:1, ex:'I go by bus.', exTh:'ฉันไปโดยรถบัส' },
+    { th:'จักรยาน', en:'bike', emoji:'🚲', cat:'transport', g:1, ex:'I ride a bike.', exTh:'ฉันขี่จักรยาน' }, { th:'รถไฟ', en:'train', emoji:'🚆', cat:'transport', g:2, ex:'The train is fast.', exTh:'รถไฟเร็ว' },
+    { th:'เรือ', en:'boat', emoji:'⛵', cat:'transport', g:1, ex:'The boat is on the water.', exTh:'เรืออยู่บนน้ำ' }, { th:'เครื่องบิน', en:'airplane', emoji:'✈️', cat:'transport', g:2, ex:'The airplane can fly.', exTh:'เครื่องบินบินได้' },
+    { th:'มอเตอร์ไซค์', en:'motorcycle', emoji:'🏍️', cat:'transport', g:2, ex:'He rides a motorcycle.', exTh:'เขาขี่มอเตอร์ไซค์' }, { th:'รถบรรทุก', en:'truck', emoji:'🚚', cat:'transport', g:2, ex:'The truck is big.', exTh:'รถบรรทุกคันใหญ่' },
 ];
 WORDS.forEach((w, i) => { w.id = i; });   // id ไม่ซ้ำ (กัน 'orange' สี/ผลไม้ ชนกัน)
 
@@ -435,7 +444,7 @@ function chooseMode(m) {
 }
 
 /* ═══ SECTION C2 · โหมดฝึกอ่าน (บัตรคำ เรียนก่อนเล่น) ═══ */
-let studyCat = null, studyWords = [], studyIdx = 0, studyOpen = false, _fcTouchX = 0;
+let studyCat = null, studyWords = [], studyIdx = 0, studyOpen = false, _fcTouchX = 0, studyAudioTimer = 0;
 
 function openStudyPicker() {   // แตะ "📖 ฝึกอ่าน" → เลือกหมวด (route ไป openStudy)
     audioCtx();
@@ -463,6 +472,7 @@ function renderCard(dir) {
     $('fc-en').textContent = w.en;
     $('fc-th').textContent = w.th;
     $('fc-ex').textContent = w.ex || '';
+    $('fc-ex-th').textContent = w.exTh || '';
     $('fc-progress').textContent = `${studyIdx + 1} / ${studyWords.length}`;
     const arrows = $('study').querySelectorAll('.fc-arrow');
     arrows[0].disabled = (studyIdx === 0);
@@ -470,14 +480,23 @@ function renderCard(dir) {
     const card = $('flashcard');
     card.style.setProperty('--fc-dir', dir < 0 ? '-18px' : '18px');
     card.classList.remove('flip'); void card.offsetWidth; card.classList.add('flip');
-    speakStudy();
+    speakStudyAuto();
 }
-function speakStudy()   { const w = studyWords[studyIdx]; if (w) KAMPAI.sound.speak(w.en, 'en-US', true); }   // อ่านคำอังกฤษ (interrupt → ปัดเร็วเสียงไม่หาย)
-function speakStudyEx() { const w = studyWords[studyIdx]; if (w && w.ex) KAMPAI.sound.speak(w.ex, 'en-US', true); }   // อ่านประโยคตัวอย่าง
+function speakStudyAuto() {   // เปลี่ยนการ์ด → อ่านอังกฤษ แล้วตามด้วยไทยอัตโนมัติ
+    const w = studyWords[studyIdx]; if (!w) return;
+    KAMPAI.sound.speak(w.en, 'en-US', true);
+    if (studyAudioTimer) clearTimeout(studyAudioTimer);
+    studyAudioTimer = setTimeout(() => { if (studyOpen && studyWords[studyIdx] === w) KAMPAI.sound.speak(w.th, 'th-TH', true); }, 1200);
+}
+function speakStudy()     { const w = studyWords[studyIdx]; if (w) KAMPAI.sound.speak(w.en, 'en-US', true); }   // คำอังกฤษ (interrupt → ปัดเร็วเสียงไม่หาย)
+function speakStudyTh()   { const w = studyWords[studyIdx]; if (w) KAMPAI.sound.speak(w.th, 'th-TH', true); }   // คำแปลไทย (เสียงไทย)
+function speakStudyEx()   { const w = studyWords[studyIdx]; if (w && w.ex) KAMPAI.sound.speak(w.ex, 'en-US', true); }   // ประโยคอังกฤษ
+function speakStudyExTh() { const w = studyWords[studyIdx]; if (w && w.exTh) KAMPAI.sound.speak(w.exTh, 'th-TH', true); }   // ประโยคไทย
 function studyNext() { if (studyIdx < studyWords.length - 1) { studyIdx++; renderCard(1); } }
 function studyPrev() { if (studyIdx > 0) { studyIdx--; renderCard(-1); } }
 function studyPlay() {   // เรียนเสร็จ → เล่นต่อทันที (หมวดเดิม หรือ ชุดทบทวน)
     studyOpen = false;
+    if (studyAudioTimer) clearTimeout(studyAudioTimer);
     $('study').classList.remove('on');
     mode = 'practice';
     if (reviewing) { customPool = studyWords.slice(); selectedCat = null; }
@@ -486,6 +505,7 @@ function studyPlay() {   // เรียนเสร็จ → เล่นต�
 }
 function closeStudy() {   // กลับไปเลือกหมวดใหม่
     studyOpen = false; reviewing = false; customPool = null;
+    if (studyAudioTimer) clearTimeout(studyAudioTimer);
     $('study').classList.remove('on');
     $('start').classList.add('on');
     openStudyPicker();
