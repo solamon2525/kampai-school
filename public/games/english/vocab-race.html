@@ -21,13 +21,14 @@ body { background: linear-gradient(180deg, #155e75 0%, #0f172a 100%); }
 #app { position: fixed; inset: 0; display: flex; flex-direction: column; }
 
 /* HUD */
-#hud { display: none; align-items: center; justify-content: space-between; padding: 14px 18px; gap: 10px; }
+/* padding-top สูง = เว้น "แถบบนของระบบ" (ปุ่มเสียง SDK ซ้ายบน + ปุ่มเต็มจอ/เมนู ของ wrapper ขวาบน) ไม่ให้ทับ HUD */
+#hud { display: none; align-items: center; justify-content: space-between; padding: 56px 12px 6px; gap: 8px; }
 #hud.on { display: flex; }
-#score-container { font-size: 26px; font-weight: 700; color: #FFD700; text-shadow: 2px 2px 4px #000; background: rgba(0,0,0,0.35); padding: 4px 16px; border-radius: 999px; border: 2px solid rgba(255,215,0,0.5); transition: transform 0.15s; white-space: nowrap; }
+#score-container { font-size: 22px; font-weight: 700; color: #FFD700; text-shadow: 2px 2px 4px #000; background: rgba(0,0,0,0.35); padding: 4px 14px; border-radius: 999px; border: 2px solid rgba(255,215,0,0.5); transition: transform 0.15s; white-space: nowrap; }
 #score-container.pop { transform: scale(1.18); }
 #combo-badge { font-family: 'Fredoka One', cursive; font-size: 16px; color: #0f172a; background: linear-gradient(45deg,#fbbf24,#f59e0b); padding: 4px 12px; border-radius: 999px; opacity: 0; transform: scale(0.6); transition: all 0.18s; white-space: nowrap; }
 #combo-badge.on { opacity: 1; transform: scale(1); }
-#life-container { font-size: 24px; white-space: nowrap; }
+#life-container { font-size: 20px; white-space: nowrap; }
 
 #timer-wrap { height: 10px; background: rgba(255,255,255,0.12); margin: 0 18px; border-radius: 999px; overflow: hidden; display: none; }
 #timer-wrap.on { display: block; }
@@ -51,7 +52,7 @@ body { background: linear-gradient(180deg, #155e75 0%, #0f172a 100%); }
 .ans .k { display: block; font-family: 'Kanit'; font-size: 11px; color: #94a3b8; margin-bottom: 2px; }
 
 /* จอ */
-.screen { position: absolute; inset: 0; background: rgba(15,23,42,0.94); backdrop-filter: blur(8px); display: none; flex-direction: column; align-items: center; justify-content: flex-start; z-index: 30; text-align: center; padding: 28px 22px; overflow-y: auto; }
+.screen { position: absolute; inset: 0; background: rgba(15,23,42,0.94); backdrop-filter: blur(8px); display: none; flex-direction: column; align-items: center; justify-content: flex-start; z-index: 30; text-align: center; padding: 58px 20px 28px; overflow-y: auto; }
 .screen.on { display: flex; }
 .screen h1 { font-family: 'Fredoka One', cursive; font-size: 36px; margin-bottom: 6px; background: linear-gradient(135deg, #FFD700, #FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 .screen p { font-size: 16px; color: #cbd5e1; margin-bottom: 14px; line-height: 1.5; }
@@ -171,6 +172,28 @@ body { background: linear-gradient(180deg, #155e75 0%, #0f172a 100%); }
 @keyframes pt { 0%{opacity:1; transform:translate(-50%,-50%)} 100%{opacity:0; transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.3)} }
 .float-gain { position: fixed; transform: translateX(-50%); font-family: 'Fredoka One', cursive; font-size: 26px; color: #4ade80; text-shadow: 0 2px 6px rgba(0,0,0,0.6); animation: fg 0.8s ease-out forwards; pointer-events: none; }
 @keyframes fg { 0%{opacity:0; transform:translate(-50%,4px) scale(0.7)} 25%{opacity:1; transform:translate(-50%,-6px) scale(1.1)} 100%{opacity:0; transform:translate(-50%,-38px) scale(1)} }
+
+/* ── มือถือ: จัดให้พอดีจอ กดง่าย ── */
+@media (max-width: 480px) {
+    .screen { padding: 56px 14px 24px; }
+    .screen h1 { font-size: 30px; }
+    .screen p { font-size: 14px; margin-bottom: 10px; }
+    #daily-card { margin-bottom: 8px; padding: 8px 12px; gap: 10px; }
+    .dw-emoji { font-size: 38px; }
+    .grade-row { margin-bottom: 6px; }
+    .mode-grid { gap: 8px; margin-bottom: 6px; }
+    .btn { padding: 12px 22px; font-size: 17px; margin: 4px; }
+    #cat-picker, #race-chips { gap: 6px; }
+    .cchip { padding: 9px 13px; font-size: 15px; }
+    #play { padding: 10px; gap: 12px; }
+    #answers { gap: 10px; }
+}
+/* จอเตี้ย (มือถือแนวนอน) — ย่อโจทย์ไม่ให้ดันตัวเลือกตกจอ */
+@media (max-height: 460px) {
+    #q-emoji { font-size: clamp(48px, 14vh, 80px); }
+    #hud { padding-top: 50px; }
+    #play { gap: 8px; padding: 8px; }
+}
 </style>
 </head>
 <body>
