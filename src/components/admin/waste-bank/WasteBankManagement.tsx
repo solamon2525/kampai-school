@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Trash2, Plus, Edit2, Save, X, Package, Users, List, Gift, ClipboardCheck, QrCode } from 'lucide-react';
+import { Trash2, Plus, Edit2, Save, X, Package, Users, List, Gift, ClipboardCheck, QrCode, LayoutGrid } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,6 +28,7 @@ import { WasteStudentSummaryTab } from './WasteStudentSummaryTab';
 import { StudentQRScanner } from '@/components/shared/StudentQRScanner';
 import { useAuth } from '@/contexts/AuthProvider';
 import { TermBanner } from './TermBanner';
+import { QuickStudentPicker } from './QuickStudentPicker';
 import { RecorderSelect, EMPTY_RECORDER, type RecorderValue } from '@/components/admin/shared/RecorderSelect';
 import { formatThaiDateFull } from '@/lib/thaiDate';
 import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
@@ -72,6 +73,18 @@ export const WasteBankManagement = () => {
   // Student selector
   const [studentOptions, setStudentOptions] = useState<StudentOption[]>([]);
   const [selectedStudentId, setSelectedStudentId] = useState<string>('');
+  const [loadingStudents, setLoadingStudents] = useState(false);
+
+  // Quick mode toggle (persisted in localStorage)
+  const [quickMode, setQuickMode] = useState(
+    () => localStorage.getItem('waste_quick_mode') === '1'
+  );
+  const toggleQuickMode = () =>
+    setQuickMode((prev) => {
+      const next = !prev;
+      localStorage.setItem('waste_quick_mode', next ? '1' : '0');
+      return next;
+    });
 
   const today = new Date().toISOString().split('T')[0];
 
@@ -129,9 +142,11 @@ export const WasteBankManagement = () => {
   // Fetch students when class changes
   useEffect(() => {
     if (form.student_class) {
+      setLoadingStudents(true);
       (async () => {
         const { data } = await studentsService.getByClass(form.student_class);
         setStudentOptions((data || []).map(s => ({ id: s.id, name: s.name, class: s.class, photo_url: s.photo_url ?? null })));
+        setLoadingStudents(false);
       })();
     } else {
       setStudentOptions([]);
@@ -387,6 +402,19 @@ export const WasteBankManagement = () => {
                   />
                   <span><span className="font-semibold">โหมดต่อเนื่อง</span></span>
                 </label>
+                <button
+                  type="button"
+                  onClick={toggleQuickMode}
+                  className={cn(
+                    'flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors',
+                    quickMode
+                      ? 'bg-primary/10 border-primary text-primary'
+                      : 'border-border text-muted-foreground hover:bg-muted'
+                  )}
+                >
+                  <LayoutGrid className="w-3.5 h-3.5" />
+                  โหมดเลือกเร็ว
+                </button>
                 <Button variant="outline" size="sm" onClick={() => setShowQRScanner(true)} className="gap-2">
                   <QrCode className="w-4 h-4" /> สแกน QR นักเรียน
                 </Button>
@@ -394,64 +422,83 @@ export const WasteBankManagement = () => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {/* Class selector first */}
-                <div className="space-y-1">
-                  <Label>ชั้น <span className="text-destructive">*</span></Label>
-                  <Select value={form.student_class} onValueChange={(v) => handleFormChange('student_class', v)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="เลือกชั้น" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CLASSES.map((cls) => (
-                        <SelectItem key={cls} value={cls}>{cls}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Student selector — loads after class selected */}
-                <div className="space-y-1">
-                  <Label>นักเรียน <span className="text-destructive">*</span></Label>
-                  {form.student_class && studentOptions.length > 0 ? (
-                    <Select
-                      value={selectedStudentId}
-                      onValueChange={(id) => {
-                        const s = studentOptions.find(x => x.id === id);
-                        if (s) {
-                          setSelectedStudentId(s.id);
-                          setForm(prev => ({ ...prev, student_name: s.name }));
-                        }
+                {quickMode ? (
+                  <div className="md:col-span-2 lg:col-span-3">
+                    <QuickStudentPicker
+                      classes={CLASSES}
+                      selectedClass={form.student_class}
+                      onClassChange={(v) => handleFormChange('student_class', v)}
+                      students={studentOptions}
+                      loadingStudents={loadingStudents}
+                      selectedStudentId={selectedStudentId}
+                      onStudentSelect={(id, name) => {
+                        setSelectedStudentId(id);
+                        setForm((prev) => ({ ...prev, student_name: name }));
                       }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="เลือกนักเรียน" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {studentOptions.map((s) => (
-                          <SelectItem key={s.id} value={s.id}>
-                            <div className="flex items-center gap-2">
-                              {s.photo_url ? (
-                                <img src={s.photo_url} alt={s.name} className="w-6 h-6 rounded-full object-cover" />
-                              ) : (
-                                <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary">
-                                  {s.name.slice(0, 1)}
-                                </div>
-                              )}
-                              <span>{s.name}</span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <Input
-                      placeholder={form.student_class ? 'ไม่พบนักเรียนในชั้นนี้' : 'เลือกชั้นก่อน'}
-                      value={form.student_name}
-                      onChange={(e) => handleFormChange('student_name', e.target.value)}
-                      disabled={!!form.student_class && studentOptions.length === 0 && !form.student_name}
                     />
-                  )}
-                </div>
+                  </div>
+                ) : (
+                  <>
+                    {/* Class selector */}
+                    <div className="space-y-1">
+                      <Label>ชั้น <span className="text-destructive">*</span></Label>
+                      <Select value={form.student_class} onValueChange={(v) => handleFormChange('student_class', v)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="เลือกชั้น" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {CLASSES.map((cls) => (
+                            <SelectItem key={cls} value={cls}>{cls}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Student selector — loads after class selected */}
+                    <div className="space-y-1">
+                      <Label>นักเรียน <span className="text-destructive">*</span></Label>
+                      {form.student_class && studentOptions.length > 0 ? (
+                        <Select
+                          value={selectedStudentId}
+                          onValueChange={(id) => {
+                            const s = studentOptions.find(x => x.id === id);
+                            if (s) {
+                              setSelectedStudentId(s.id);
+                              setForm(prev => ({ ...prev, student_name: s.name }));
+                            }
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="เลือกนักเรียน" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {studentOptions.map((s) => (
+                              <SelectItem key={s.id} value={s.id}>
+                                <div className="flex items-center gap-2">
+                                  {s.photo_url ? (
+                                    <img src={s.photo_url} alt={s.name} className="w-6 h-6 rounded-full object-cover" />
+                                  ) : (
+                                    <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary">
+                                      {s.name.slice(0, 1)}
+                                    </div>
+                                  )}
+                                  <span>{s.name}</span>
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <Input
+                          placeholder={form.student_class ? 'ไม่พบนักเรียนในชั้นนี้' : 'เลือกชั้นก่อน'}
+                          value={form.student_name}
+                          onChange={(e) => handleFormChange('student_name', e.target.value)}
+                          disabled={!!form.student_class && studentOptions.length === 0 && !form.student_name}
+                        />
+                      )}
+                    </div>
+                  </>
+                )}
 
                 {/* ─── Multi-row: ประเภทขยะ + จำนวน + แต้ม ─── */}
                 <div className="md:col-span-2 lg:col-span-3 space-y-2">
