@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BookOpen, Save, Search, BarChart3, ClipboardList, Download } from 'lucide-react';
+import { RecorderSelect, RecorderValue, EMPTY_RECORDER } from '@/components/admin/shared/RecorderSelect';
 import { downloadCSV } from '@/lib/export';
 import { useToast } from '@/hooks/use-toast';
 import { TableSkeleton } from '@/components/ui/loading-skeletons';
@@ -23,7 +24,7 @@ const SUBJECTS = [
     'คอมพิวเตอร์', 'ดนตรี',
 ];
 
-const SCORE_TYPES = ['เก็บ', 'กลางภาค', 'ปลายภาค'] as const;
+const SCORE_TYPES = ['เก็บ', 'กลางภาค', 'ปลายภาค', 'อื่นๆ'] as const;
 type ScoreType = typeof SCORE_TYPES[number];
 
 const currentYear = (new Date().getFullYear() + 543).toString();
@@ -111,7 +112,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
     const [maxScore, setMaxScore] = useState('100');
     const [semester, setSemester] = useState('1');
     const [academicYear, setAcademicYear] = useState(currentYear);
-    const [recordedBy, setRecordedBy] = useState('');
+    const [recorderValue, setRecorderValue] = useState<RecorderValue>(EMPTY_RECORDER);
     const [rows, setRows] = useState<ScoreRow[]>([]);
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -171,7 +172,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                 max_score: max,
                 semester,
                 academic_year: academicYear,
-                recorded_by: recordedBy || null,
+                recorded_by: recorderValue.name || null,
                 updated_at: new Date().toISOString(),
             }));
 
@@ -234,9 +235,8 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                             <Input placeholder={currentYear} value={academicYear} onChange={e => setAcademicYear(e.target.value)} />
                         </div>
                     </div>
-                    <div className="mt-3">
-                        <Label>ผู้บันทึก (ชื่อครู)</Label>
-                        <Input className="mt-1 max-w-xs" placeholder="ชื่อครูผู้บันทึก" value={recordedBy} onChange={e => setRecordedBy(e.target.value)} />
+                    <div className="mt-3 max-w-xs">
+                        <RecorderSelect value={recorderValue} onChange={setRecorderValue} />
                     </div>
                 </CardContent>
             </Card>
