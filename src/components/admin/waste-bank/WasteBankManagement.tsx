@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Trash2, Plus, Edit2, Save, X, Package, Users, List, Gift, ClipboardCheck, QrCode, LayoutGrid } from 'lucide-react';
+import { Trash2, Plus, Edit2, Save, X, Package, Users, List, Gift, ClipboardCheck, QrCode, LayoutGrid, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,6 +34,24 @@ import { formatThaiDateFull } from '@/lib/thaiDate';
 import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
 
 const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
+
+const ROW_COLORS = [
+  { bg: 'bg-blue-50',    border: 'border-blue-300',    text: 'text-blue-700',    badge: 'bg-blue-100 text-blue-700',    dot: 'bg-blue-400'    },
+  { bg: 'bg-emerald-50', border: 'border-emerald-300', text: 'text-emerald-700', badge: 'bg-emerald-100 text-emerald-700', dot: 'bg-emerald-400' },
+  { bg: 'bg-violet-50',  border: 'border-violet-300',  text: 'text-violet-700',  badge: 'bg-violet-100 text-violet-700',  dot: 'bg-violet-400'  },
+  { bg: 'bg-amber-50',   border: 'border-amber-300',   text: 'text-amber-700',   badge: 'bg-amber-100 text-amber-700',   dot: 'bg-amber-400'   },
+  { bg: 'bg-rose-50',    border: 'border-rose-300',    text: 'text-rose-700',    badge: 'bg-rose-100 text-rose-700',    dot: 'bg-rose-400'    },
+  { bg: 'bg-cyan-50',    border: 'border-cyan-300',    text: 'text-cyan-700',    badge: 'bg-cyan-100 text-cyan-700',    dot: 'bg-cyan-400'    },
+] as const;
+
+const COLOR_KEY_MAP: Record<string, number> = {
+  blue: 0, emerald: 1, violet: 2, amber: 3, rose: 4, cyan: 5,
+};
+
+const COLOR_SWATCH: Record<string, string> = {
+  blue: 'bg-blue-400', emerald: 'bg-emerald-400', violet: 'bg-violet-400',
+  amber: 'bg-amber-400', rose: 'bg-rose-400', cyan: 'bg-cyan-400',
+};
 
 interface StudentOption {
   id: string;
@@ -75,6 +93,14 @@ export const WasteBankManagement = () => {
   const [selectedStudentId, setSelectedStudentId] = useState<string>('');
   const [loadingStudents, setLoadingStudents] = useState(false);
 
+  // Expand/collapse rows
+  const [expandedRow, setExpandedRow] = useState<number>(0);
+
+  const getRowColor = (cat: WasteCategory | undefined, i: number) => {
+    const idx = cat?.color ? (COLOR_KEY_MAP[cat.color] ?? i) : i;
+    return ROW_COLORS[idx % ROW_COLORS.length];
+  };
+
   // Quick mode toggle (persisted in localStorage)
   const [quickMode, setQuickMode] = useState(
     () => localStorage.getItem('waste_quick_mode') === '1'
@@ -103,7 +129,10 @@ export const WasteBankManagement = () => {
     const defaultCat = categories.find(
       (c) => c.name.includes('ขวดพลาสติกเล็ก') || c.name.includes('ขวดเล็ก')
     );
-    setRows((rs) => [...rs, { category_id: defaultCat?.id || '', quantity: '1' }]);
+    setRows((rs) => {
+      setExpandedRow(rs.length);
+      return [...rs, { category_id: defaultCat?.id || '', quantity: '1' }];
+    });
   };
   const removeRow = (i: number) =>
     setRows((rs) => (rs.length === 1 ? rs : rs.filter((_, idx) => idx !== i)));
@@ -248,6 +277,7 @@ export const WasteBankManagement = () => {
       (c) => c.name.includes('ขวดพลาสติกเล็ก') || c.name.includes('ขวดเล็ก')
     );
     setRows([{ category_id: defaultCat?.id || '', quantity: '1' }]);
+    setExpandedRow(0);
     setForm({ student_name: '', student_class: '', transaction_date: today, notes: '' });
     // recorder ไม่ reset — auto-fill ของ login user คงอยู่ บันทึกรายการต่อๆ ได้เลย
     setSelectedStudentId('');
@@ -508,87 +538,148 @@ export const WasteBankManagement = () => {
                       <Plus className="w-3.5 h-3.5" /> เพิ่มประเภท
                     </Button>
                   </div>
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {rows.map((row, i) => {
                       const cat = categories.find((c) => c.id === row.category_id);
                       const qty = parseInt(row.quantity, 10);
                       const rowPoints = cat && qty > 0 ? qty * cat.points_per_item : null;
-                      return (
-                        <div
-                          key={i}
-                          className="space-y-4 p-4 rounded-xl border border-border bg-muted/10 relative"
-                        >
-                          {rows.length > 1 && (
-                            <div className="flex justify-between items-center border-b border-border pb-2 mb-2">
-                              <span className="text-xs font-bold text-muted-foreground">ประเภทที่ {i + 1}</span>
-                              <Button
-                                type="button"
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => removeRow(i)}
-                                className="text-destructive h-7 px-2 gap-1 hover:bg-destructive/10"
-                              >
-                                <X className="w-3.5 h-3.5" /> ลบรายการนี้
-                              </Button>
-                            </div>
-                          )}
+                      const color = getRowColor(cat, i);
+                      const isExpanded = expandedRow === i;
 
-                          {/* Category Radio Grid */}
-                          <div className="space-y-2">
-                            <Label className="text-xs text-muted-foreground font-semibold">เลือกประเภทขยะ</Label>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-                              {categories.map((c) => {
-                                const isSelected = row.category_id === c.id;
-                                return (
-                                  <button
-                                    key={c.id}
-                                    type="button"
-                                    onClick={() => updateRow(i, { category_id: c.id })}
-                                    className={cn(
-                                      "flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all text-center gap-1.5 cursor-pointer relative",
-                                      isSelected
-                                        ? "border-primary bg-primary/5 text-primary shadow-sm scale-102 font-semibold"
-                                        : "border-border bg-card text-muted-foreground hover:bg-muted/50 hover:text-foreground"
-                                    )}
-                                  >
-                                    {isSelected && (
-                                      <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary" />
-                                    )}
-                                    <span className="text-2xl leading-none">{c.icon || '♻️'}</span>
-                                    <div className="space-y-0.5 min-w-0 w-full">
-                                      <div className="text-xs font-bold truncate">{c.name}</div>
-                                      <div className="text-[10px] opacity-80">{c.points_per_item} แต้ม</div>
-                                    </div>
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </div>
-
-                          <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                            <div className="w-full sm:w-32 space-y-1">
-                              <Label className="text-xs text-muted-foreground font-semibold">จำนวน (ชิ้น)</Label>
+                      if (!isExpanded) {
+                        // ─── Collapsed row ───
+                        return (
+                          <div
+                            key={i}
+                            className={cn('flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 cursor-pointer hover:opacity-90 transition-opacity', color.border, color.bg)}
+                            onClick={() => setExpandedRow(i)}
+                          >
+                            <span className={cn('w-2 h-5 rounded-full shrink-0', color.dot)} />
+                            <span className="text-lg shrink-0 leading-none">{cat?.icon || '♻️'}</span>
+                            <span className={cn('text-sm font-semibold flex-1 truncate', color.text)}>
+                              {cat?.name || 'ยังไม่ได้เลือกประเภท'}
+                            </span>
+                            <div
+                              className="flex items-center gap-1 shrink-0"
+                              onClick={(e) => e.stopPropagation()}
+                            >
                               <Input
                                 type="number"
                                 min="1"
                                 step="1"
-                                placeholder="0"
                                 value={row.quantity}
                                 onChange={(e) => updateRow(i, { quantity: e.target.value })}
-                                className="font-semibold text-base"
+                                className="w-16 h-7 text-center text-sm px-1"
                               />
+                              <span className="text-xs text-muted-foreground">ชิ้น</span>
                             </div>
-                            <div className="flex-1 space-y-1">
-                              <Label className="text-xs text-muted-foreground font-semibold">แต้มที่ได้รับ</Label>
-                              <div
-                                className={cn(
-                                  'h-10 flex items-center justify-end px-3 rounded-md border text-sm font-medium tabular-nums',
-                                  rowPoints !== null
-                                    ? 'bg-emerald-50 border-emerald-300 text-foreground font-bold dark:bg-emerald-950/40 dark:text-emerald-200'
-                                    : 'bg-muted border-border text-muted-foreground',
-                                )}
+                            {rowPoints !== null && (
+                              <span className={cn('text-xs font-bold px-2 py-1 rounded-lg shrink-0 tabular-nums', color.badge)}>
+                                +{rowPoints}
+                              </span>
+                            )}
+                            <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
+                            {rows.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); removeRow(i); }}
+                                className="text-destructive hover:bg-destructive/10 rounded p-1 shrink-0"
                               >
-                                {rowPoints !== null ? `+${rowPoints} แต้ม` : '—'}
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        );
+                      }
+
+                      // ─── Expanded row ───
+                      return (
+                        <div key={i} className={cn('rounded-xl border-2 overflow-hidden', color.border)}>
+                          {/* Colored header */}
+                          <div className={cn('px-4 py-2 flex items-center justify-between', color.bg)}>
+                            <span className={cn('text-xs font-bold', color.text)}>ประเภทที่ {i + 1}</span>
+                            <div className="flex items-center gap-2">
+                              {rows.length > 1 && (
+                                <button
+                                  type="button"
+                                  onClick={() => setExpandedRow(-1)}
+                                  className={cn('flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-md hover:bg-black/10 transition-colors', color.text)}
+                                >
+                                  <ChevronUp className="w-3 h-3" /> ย่อ
+                                </button>
+                              )}
+                              {rows.length > 1 && (
+                                <button
+                                  type="button"
+                                  onClick={() => removeRow(i)}
+                                  className="text-destructive hover:bg-destructive/10 rounded px-2 py-0.5 text-xs font-medium flex items-center gap-1 transition-colors"
+                                >
+                                  <X className="w-3 h-3" /> ลบ
+                                </button>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Body */}
+                          <div className="p-4 space-y-4 bg-card">
+                            {/* Category Radio Grid */}
+                            <div className="space-y-2">
+                              <Label className="text-xs text-muted-foreground font-semibold">เลือกประเภทขยะ</Label>
+                              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+                                {categories.map((c) => {
+                                  const isSelected = row.category_id === c.id;
+                                  return (
+                                    <button
+                                      key={c.id}
+                                      type="button"
+                                      onClick={() => updateRow(i, { category_id: c.id })}
+                                      className={cn(
+                                        'flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all text-center gap-1.5 cursor-pointer relative',
+                                        isSelected
+                                          ? cn('shadow-sm scale-102 font-semibold', color.border, color.bg, color.text)
+                                          : 'border-border bg-card text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                                      )}
+                                    >
+                                      {isSelected && (
+                                        <span className={cn('absolute top-2 right-2 w-2 h-2 rounded-full', color.dot)} />
+                                      )}
+                                      {!isSelected && c.color && COLOR_SWATCH[c.color] && (
+                                        <span className={cn('absolute top-2 right-2 w-2 h-2 rounded-full opacity-40', COLOR_SWATCH[c.color])} />
+                                      )}
+                                      <span className="text-2xl leading-none">{c.icon || '♻️'}</span>
+                                      <div className="space-y-0.5 min-w-0 w-full">
+                                        <div className="text-xs font-bold truncate">{c.name}</div>
+                                        <div className="text-[10px] opacity-80">{c.points_per_item} แต้ม</div>
+                                      </div>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                              <div className="w-full sm:w-32 space-y-1">
+                                <Label className="text-xs text-muted-foreground font-semibold">จำนวน (ชิ้น)</Label>
+                                <Input
+                                  type="number"
+                                  min="1"
+                                  step="1"
+                                  placeholder="0"
+                                  value={row.quantity}
+                                  onChange={(e) => updateRow(i, { quantity: e.target.value })}
+                                  className="font-semibold text-base"
+                                />
+                              </div>
+                              <div className="flex-1 space-y-1">
+                                <Label className="text-xs text-muted-foreground font-semibold">แต้มที่ได้รับ</Label>
+                                <div className={cn(
+                                  'h-10 flex items-center justify-end px-3 rounded-md border-2 text-sm font-bold tabular-nums',
+                                  rowPoints !== null
+                                    ? cn(color.bg, color.border, color.text)
+                                    : 'bg-muted border-border text-muted-foreground',
+                                )}>
+                                  {rowPoints !== null ? `+${rowPoints} แต้ม` : '—'}
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -768,12 +859,35 @@ export const WasteBankManagement = () => {
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label>สี (hex)</Label>
-                    <Input
-                      placeholder="เช่น #60a5fa"
-                      value={categoryForm.color}
-                      onChange={(e) => setCategoryForm((p) => ({ ...p, color: e.target.value }))}
-                    />
+                    <Label>สีประจำประเภท</Label>
+                    <div className="flex items-center gap-2 flex-wrap pt-1">
+                      {Object.entries(COLOR_SWATCH).map(([key, cls]) => (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => setCategoryForm((p) => ({ ...p, color: key }))}
+                          className={cn(
+                            'w-7 h-7 rounded-full border-2 transition-all',
+                            cls,
+                            categoryForm.color === key
+                              ? 'border-foreground scale-110 shadow'
+                              : 'border-transparent hover:border-foreground/40'
+                          )}
+                          title={key}
+                        />
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => setCategoryForm((p) => ({ ...p, color: '' }))}
+                        className={cn(
+                          'w-7 h-7 rounded-full border-2 border-dashed border-border text-muted-foreground text-xs flex items-center justify-center hover:bg-muted transition-colors',
+                          !categoryForm.color && 'border-foreground/50'
+                        )}
+                        title="ไม่มีสี"
+                      >
+                        ✕
+                      </button>
+                    </div>
                   </div>
                 </div>
                 <div className="mt-4 flex gap-2 justify-end">
@@ -815,12 +929,11 @@ export const WasteBankManagement = () => {
                           <td className="px-4 py-3 font-medium">{cat.name}</td>
                           <td className="px-4 py-3 text-right">{cat.points_per_item}</td>
                           <td className="px-4 py-3">
-                            {cat.color ? (
-                              <span className="flex items-center gap-2">
-                                <span className="inline-block w-4 h-4 rounded-full border border-border" style={{ backgroundColor: cat.color }} />
-                                {cat.color}
-                              </span>
-                            ) : '—'}
+                            {cat.color && COLOR_SWATCH[cat.color] ? (
+                              <span className={cn('inline-block w-5 h-5 rounded-full', COLOR_SWATCH[cat.color])} title={cat.color} />
+                            ) : (
+                              <span className="text-muted-foreground">—</span>
+                            )}
                           </td>
                           <td className="px-4 py-3">
                             <div className="flex gap-1 justify-end">
