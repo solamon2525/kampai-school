@@ -11,7 +11,9 @@ import {
   QrCode,
   Database,
   UserCheck,
+  LayoutGrid,
 } from 'lucide-react';
+import { QuickStudentPicker } from '@/components/admin/waste-bank/QuickStudentPicker';
 import { cn } from '@/lib/utils';
 import { BackupsTabContent } from './BackupsTabContent';
 import { TeacherSummaryTab } from './TeacherSummaryTab';
@@ -84,6 +86,16 @@ export const SavingsBankManagement = () => {
     notes: '',
   });
   const [studentOptions, setStudentOptions] = useState<StudentOption[]>([]);
+  const [loadingStudents, setLoadingStudents] = useState(false);
+  const [quickMode, setQuickMode] = useState(
+    () => localStorage.getItem('savings_quick_mode') === '1'
+  );
+  const toggleQuickMode = () =>
+    setQuickMode((prev) => {
+      const next = !prev;
+      localStorage.setItem('savings_quick_mode', next ? '1' : '0');
+      return next;
+    });
   const [recorder, setRecorder] = useState<RecorderValue>(EMPTY_RECORDER);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [scannerOpen, setScannerOpen] = useState(false);
@@ -105,6 +117,7 @@ export const SavingsBankManagement = () => {
       setForm((p) => ({ ...p, student_id: '', student_name: '' }));
       return;
     }
+    setLoadingStudents(true);
     (async () => {
       const { data } = await studentsService.getByClass(form.student_class);
       const opts = (data || []).map((s) => ({
@@ -114,6 +127,7 @@ export const SavingsBankManagement = () => {
         photo_url: s.photo_url ?? null,
       }));
       setStudentOptions(opts);
+      setLoadingStudents(false);
       // เก็บ student_id เดิมไว้ถ้ายังอยู่ในชั้นใหม่ (กรณี QR scan ที่ set ทั้ง class+id พร้อมกัน)
       setForm((p) => {
         const stillValid = p.student_id && opts.some((o) => o.id === p.student_id);
@@ -371,8 +385,21 @@ export const SavingsBankManagement = () => {
       {/* ─── Tab 1: Record ────────────────────────────────────────────── */}
       {activeTab === 'record' && (
         <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200">
-          <div className="px-5 md:px-6 py-4 border-b border-slate-200">
+          <div className="px-5 md:px-6 py-4 border-b border-slate-200 flex items-center justify-between gap-3 flex-wrap">
             <h3 className="text-base font-extrabold text-slate-900">บันทึกฝาก/ถอนเงิน</h3>
+            <button
+              type="button"
+              onClick={toggleQuickMode}
+              className={cn(
+                'flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors',
+                quickMode
+                  ? 'bg-primary/10 border-primary text-primary'
+                  : 'border-border text-muted-foreground hover:bg-muted'
+              )}
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+              โหมดเลือกเร็ว
+            </button>
           </div>
 
           <div className="p-5 md:p-6 space-y-5">
@@ -429,54 +456,68 @@ export const SavingsBankManagement = () => {
             </div>
 
             {/* Class + Student */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">ชั้น</Label>
-                <Select
-                  value={form.student_class}
-                  onValueChange={(v) => setForm((p) => ({ ...p, student_class: v }))}
-                >
-                  <SelectTrigger className="border-slate-300">
-                    <SelectValue placeholder="เลือกชั้น" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CLASSES.map((c) => (
-                      <SelectItem key={c} value={c}>
-                        {c}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            {quickMode ? (
+              <QuickStudentPicker
+                classes={CLASSES}
+                selectedClass={form.student_class}
+                onClassChange={(v) => setForm((p) => ({ ...p, student_class: v }))}
+                students={studentOptions}
+                loadingStudents={loadingStudents}
+                selectedStudentId={form.student_id}
+                onStudentSelect={(id, name) =>
+                  setForm((p) => ({ ...p, student_id: id, student_name: name }))
+                }
+              />
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">ชั้น</Label>
+                  <Select
+                    value={form.student_class}
+                    onValueChange={(v) => setForm((p) => ({ ...p, student_class: v }))}
+                  >
+                    <SelectTrigger className="border-slate-300">
+                      <SelectValue placeholder="เลือกชั้น" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CLASSES.map((c) => (
+                        <SelectItem key={c} value={c}>
+                          {c}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">นักเรียน</Label>
+                  <Select
+                    value={form.student_id}
+                    onValueChange={(v) => setForm((p) => ({ ...p, student_id: v }))}
+                    disabled={!form.student_class}
+                  >
+                    <SelectTrigger className="border-slate-300">
+                      <SelectValue placeholder={form.student_class ? 'เลือกนักเรียน' : 'เลือกชั้นก่อน'} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {studentOptions.map((s) => (
+                        <SelectItem key={s.id} value={s.id}>
+                          <div className="flex items-center gap-2">
+                            {s.photo_url ? (
+                              <img src={s.photo_url} alt={s.name} className="w-6 h-6 rounded-full object-cover" />
+                            ) : (
+                              <div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-700">
+                                {s.name.slice(0, 1)}
+                              </div>
+                            )}
+                            <span>{s.name}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">นักเรียน</Label>
-                <Select
-                  value={form.student_id}
-                  onValueChange={(v) => setForm((p) => ({ ...p, student_id: v }))}
-                  disabled={!form.student_class}
-                >
-                  <SelectTrigger className="border-slate-300">
-                    <SelectValue placeholder={form.student_class ? 'เลือกนักเรียน' : 'เลือกชั้นก่อน'} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {studentOptions.map((s) => (
-                      <SelectItem key={s.id} value={s.id}>
-                        <div className="flex items-center gap-2">
-                          {s.photo_url ? (
-                            <img src={s.photo_url} alt={s.name} className="w-6 h-6 rounded-full object-cover" />
-                          ) : (
-                            <div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-700">
-                              {s.name.slice(0, 1)}
-                            </div>
-                          )}
-                          <span>{s.name}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+            )}
 
             {/* Amount + Date */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
