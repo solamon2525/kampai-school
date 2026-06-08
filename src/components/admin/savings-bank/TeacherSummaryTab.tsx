@@ -16,7 +16,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 const fmtBaht = (n: number) =>
-  n.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ฿';
+  n.toLocaleString('th-TH', { maximumFractionDigits: 0 }) + ' ฿';
 
 export const TeacherSummaryTab = () => {
   const { toast } = useToast();

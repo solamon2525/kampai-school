@@ -262,7 +262,7 @@ export const BackupsTabContent = ({ summaries, fetchSummaries }: Props) => {
           s.student_code || '—',
           s.full_name || '—',
           s.class_name || '—',
-          Number(s.current_balance ?? 0).toFixed(2),
+          String(Math.round(Number(s.current_balance ?? 0))),
           String(s.total_transactions ?? 0)
         ])
       );

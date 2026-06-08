@@ -33,7 +33,7 @@ const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 
 const CLASS_ORDER = Object.fromEntries(CLASSES.map((c, i) => [c, i]));
 
 const fmtBaht = (n: number) =>
-  n.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ฿';
+  n.toLocaleString('th-TH', { maximumFractionDigits: 0 }) + ' ฿';
 
 const SORT_LABELS: Record<SavingsSummarySortBy, string> = {
   balance: 'ยอดคงเหลือ (มาก→น้อย)',
@@ -141,10 +141,10 @@ export const StudentSummaryTab = ({ summaries }: Props) => {
         s.class_name ?? '',
         s.student_code ?? '',
         String(s.deposit_count ?? 0),
-        Number(s.total_deposits ?? 0).toFixed(2),
+        String(Math.round(Number(s.total_deposits ?? 0))),
         String(s.withdraw_count ?? 0),
-        Number(s.total_withdrawals ?? 0).toFixed(2),
-        Number(s.current_balance ?? 0).toFixed(2),
+        String(Math.round(Number(s.total_withdrawals ?? 0))),
+        String(Math.round(Number(s.current_balance ?? 0))),
         String(s.total_transactions ?? 0),
       ]),
     );
@@ -165,9 +165,9 @@ export const StudentSummaryTab = ({ summaries }: Props) => {
         <td style="text-align:center">${s.student_code || '—'}</td>
         <td style="font-weight:600">${s.full_name || '—'}</td>
         <td style="text-align:center">${s.class_name || '—'}</td>
-        <td class="num">${Number(s.total_deposits ?? 0).toLocaleString('th-TH', { minimumFractionDigits: 2 })}</td>
-        <td class="num">${Number(s.total_withdrawals ?? 0).toLocaleString('th-TH', { minimumFractionDigits: 2 })}</td>
-        <td class="num" style="font-weight:700">${Number(s.current_balance ?? 0).toLocaleString('th-TH', { minimumFractionDigits: 2 })}</td>
+        <td class="num">${Number(s.total_deposits ?? 0).toLocaleString('th-TH', { maximumFractionDigits: 0 })}</td>
+        <td class="num">${Number(s.total_withdrawals ?? 0).toLocaleString('th-TH', { maximumFractionDigits: 0 })}</td>
+        <td class="num" style="font-weight:700">${Number(s.current_balance ?? 0).toLocaleString('th-TH', { maximumFractionDigits: 0 })}</td>
         <td style="text-align:center">${s.total_transactions ?? 0}</td>
       </tr>`,
       )
@@ -195,9 +195,9 @@ tr:nth-child(even){background:#f8fafc}
 <div class="subtitle">โรงเรียนบ้านคำไผ่ · ข้อมูลอัปเดต ณ วันที่ ${new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}</div></div></div>
 <div class="kpi-container">
 <div class="kpi-card"><div class="kpi-label">จำนวนผู้ออมทั้งหมด</div><div class="kpi-value">${totalSavers}<span class="unit">คน</span></div></div>
-<div class="kpi-card"><div class="kpi-label">ยอดเงินฝากรวม</div><div class="kpi-value">${totalDeposits.toLocaleString('th-TH', { minimumFractionDigits: 2 })}<span class="unit">฿</span></div></div>
-<div class="kpi-card"><div class="kpi-label">ยอดเงินถอนรวม</div><div class="kpi-value">${totalWithdrawals.toLocaleString('th-TH', { minimumFractionDigits: 2 })}<span class="unit">฿</span></div></div>
-<div class="kpi-card hero"><div class="kpi-label" style="color:#92400e">ยอดเงินออมคงเหลือสุทธิ</div><div class="kpi-value" style="color:#92400e">${totalBalance.toLocaleString('th-TH', { minimumFractionDigits: 2 })}<span class="unit" style="color:#92400e">฿</span></div></div>
+<div class="kpi-card"><div class="kpi-label">ยอดเงินฝากรวม</div><div class="kpi-value">${totalDeposits.toLocaleString('th-TH', { maximumFractionDigits: 0 })}<span class="unit">฿</span></div></div>
+<div class="kpi-card"><div class="kpi-label">ยอดเงินถอนรวม</div><div class="kpi-value">${totalWithdrawals.toLocaleString('th-TH', { maximumFractionDigits: 0 })}<span class="unit">฿</span></div></div>
+<div class="kpi-card hero"><div class="kpi-label" style="color:#92400e">ยอดเงินออมคงเหลือสุทธิ</div><div class="kpi-value" style="color:#92400e">${totalBalance.toLocaleString('th-TH', { maximumFractionDigits: 0 })}<span class="unit" style="color:#92400e">฿</span></div></div>
 </div>
 <table><thead><tr><th style="width:50px">ลำดับ</th><th style="width:100px">รหัสนักเรียน</th><th>ชื่อ-นามสกุล</th><th style="width:80px">ชั้นเรียน</th>
 <th style="width:120px">ยอดฝากรวม (บาท)</th><th style="width:120px">ยอดถอนรวม (บาท)</th><th style="width:130px">ยอดคงเหลือสุทธิ (บาท)</th><th style="width:100px">จำนวนธุรกรรม</th>

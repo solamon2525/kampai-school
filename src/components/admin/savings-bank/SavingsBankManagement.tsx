@@ -63,7 +63,7 @@ type ActiveTab = 'record' | 'summary' | 'history' | 'backups' | 'teachers';
 
 const fmtBaht = (n: number | null | undefined) => {
   if (n == null) return '—';
-  return `${n.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿`;
+  return `${n.toLocaleString('th-TH', { maximumFractionDigits: 0 })} ฿`;
 };
 
 const fmtCount = (n: number | null | undefined) =>
