@@ -94,6 +94,35 @@ body { background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); }
 #play.shake { animation: mr-shake 0.4s ease; }
 @keyframes mr-bump { 0%{transform:scale(1)} 35%{transform:scale(1.22)} 100%{transform:scale(1)} }
 #question.bump { animation: mr-bump 0.25s ease; }
+
+/* ── Power-ups (HUD แถวล่าง) ── */
+#powerups { display: none; justify-content: center; gap: 10px; padding: 4px 18px 0; }
+#powerups.on { display: flex; }
+.pwr { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 64px; height: 44px; padding: 0 10px; border: 2px solid rgba(255,255,255,0.18); border-radius: 12px; background: rgba(255,255,255,0.08); color: #fff; font-family: 'Kanit'; font-size: 11px; line-height: 1.1; cursor: pointer; transition: transform 0.08s, opacity 0.15s; }
+.pwr:active { transform: scale(0.94); }
+.pwr .pic { font-size: 18px; }
+.pwr:disabled, .pwr.used { opacity: 0.35; cursor: not-allowed; }
+
+/* ── Boss mode ── */
+body.boss { background: linear-gradient(180deg, #7f1d1d 0%, #0f172a 100%); }
+#boss-popup { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 50; pointer-events: none; }
+#boss-popup.on { display: flex; }
+#boss-popup .pop { font-family: 'Fredoka One', cursive; font-size: 64px; color: #fff; text-shadow: 0 0 24px #ef4444, 4px 4px 0 rgba(0,0,0,0.4); animation: boss-pop 1.2s ease forwards; }
+@keyframes boss-pop { 0%{transform:scale(0.3);opacity:0} 30%{transform:scale(1.2);opacity:1} 70%{transform:scale(1);opacity:1} 100%{transform:scale(1.1);opacity:0} }
+#question.boss-q { color: #fecaca; text-shadow: 0 0 18px #ef4444, 3px 3px 0 rgba(0,0,0,0.3); }
+
+/* ── Confetti ── */
+#confetti-layer { position: fixed; inset: 0; pointer-events: none; z-index: 45; overflow: hidden; }
+.cfetti { position: absolute; width: 10px; height: 14px; top: 30%; left: 50%; opacity: 0.95; animation: cfetti-fall 1.4s ease-out forwards; }
+@keyframes cfetti-fall { 0%{transform:translate(0,0) rotate(0deg);opacity:1} 100%{transform:translate(var(--dx),100vh) rotate(720deg);opacity:0} }
+
+/* ── Wrong-answer review (จอจบ) ── */
+.review-box { background: rgba(255,255,255,0.95); color: #2c3e50; border-radius: 12px; padding: 12px 15px; margin: 10px 0; width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.review-box h3 { font-family: 'Fredoka One', cursive; font-size: 1rem; margin: 0 0 8px; text-align: left; }
+.review-list { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.review-list li { background: #fff7e0; border: 2px solid #fbbf24; border-radius: 10px; padding: 6px 10px; font-family: 'Fredoka One', cursive; color: #92400e; font-size: 15px; }
+.review-list li .a { color: #b45309; font-size: 12px; margin-left: 4px; }
+.review-empty { text-align: center; color: #16a34a; font-size: 14px; }
 </style>
 </head>
 <body>
@@ -105,6 +134,13 @@ body { background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); }
         <div id="life-container">❤️❤️❤️</div>
     </div>
     <div id="timer-wrap"><div id="timer-bar"></div></div>
+    <!-- Power-ups (race/endless เท่านั้น) -->
+    <div id="powerups">
+        <button class="pwr" id="pwr-fifty" onclick="use5050()" title="ตัดตัวเลือกผิด 2 ข้อ"><span class="pic">🎯</span>50/50</button>
+        <button class="pwr" id="pwr-freeze" onclick="useFreeze()" title="เพิ่มเวลา 3 วินาที"><span class="pic">⏱️</span>+3s</button>
+        <button class="pwr" id="pwr-skip" onclick="useSkip()" title="ข้ามข้อนี้"><span class="pic">⏭️</span>Skip</button>
+        <button class="pwr" id="pwr-stop" onclick="endGame()" title="จบเกมและบันทึกคะแนน" style="display:none"><span class="pic">🏁</span>จบ</button>
+    </div>
 
     <!-- พื้นเล่น -->
     <div id="play">
@@ -113,6 +149,9 @@ body { background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); }
         <div id="answers"></div>
     </div>
 </div>
+<!-- Boss popup + Confetti layer (fixed overlay) -->
+<div id="boss-popup"><div class="pop">🔥 BOSS!</div></div>
+<div id="confetti-layer"></div>
 
 <!-- Start screen -->
 <div id="start" class="screen on">
@@ -122,6 +161,7 @@ body { background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); }
     <div class="mode-grid">
         <button class="btn btn-primary" onclick="chooseMode('race')">⚡ แข่งเร็ว</button>
         <button class="btn btn-blue" onclick="openOnline()">🌐 ออนไลน์</button>
+        <button class="btn btn-ghost" onclick="chooseMode('endless')">♾️ ไม่จำกัด</button>
         <button class="btn btn-ghost" onclick="chooseMode('practice')">📚 ฝึกแม่</button>
     </div>
     <div id="table-picker"></div>
@@ -136,6 +176,14 @@ body { background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); }
     <h1>จบเกม!</h1>
     <div id="final-score">0</div>
     <div id="final-detail"></div>
+    <!-- ที่ควรฝึก: โจทย์ที่พลาด/หมดเวลาในรอบนี้ -->
+    <div class="review-box" id="review-wrap" style="display:none">
+        <h3>📝 ที่ควรฝึกซ้ำ</h3>
+        <ul id="review-list" class="review-list"></ul>
+        <div style="text-align:center; margin-top:8px;">
+            <button class="btn btn-ghost" onclick="practiceWrong()" style="font-size:14px; padding:8px 18px;">🔁 ฝึกข้อที่พลาด</button>
+        </div>
+    </div>
     <div class="leaderboard-box">
         <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
         <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
@@ -216,14 +264,20 @@ KAMPAI.sound.defaultBgm('cheerful');   // หลังบ้านกำหน�
 /* ═══════════════════════════════════════════════════════════════════════════
    SECTION C · GAME LOGIC — Quiz Race สูตรคูณ
    ═══════════════════════════════════════════════════════════════════════════ */
-const TABLES = [2,3,4,5,6,7,8,9,10,11,12];   // แม่สูตรคูณ
-const FACTORS = [2,3,4,5,6,7,8,9,10,11,12];   // ตัวคูณที่สุ่มเจอ
+const TABLES = [2,3,4,5,6,7,8,9,10,11,12];        // แม่สูตรคูณ
+const FACTORS = [2,3,4,5,6,7,8,9,10,11,12];        // ตัวคูณที่สุ่มเจอ
+const BOSS_TABLES = [7,8,9,11,12];                  // boss เลือกจากแม่ยาก
+const BOSS_INTERVAL = 10;                           // ทุก 10 ข้อถูก = boss
 
 let score = 0, lives = 3, streak = 0, maxStreak = 0, correctCount = 0, answered = 0;
-let mode = 'race';                 // 'race' | 'practice' | 'online'
+let mode = 'race';                 // 'race' | 'practice' | 'online' | 'endless'
 let selectedTable = null;          // ใช้เฉพาะ practice
 let curA = 0, curB = 0, curAns = 0;
 let qStart = 0, qLimit = 0, rafId = 0, locked = false, started = false;
+let isBoss = false;                                  // โจทย์นี้เป็น boss?
+let wrongQuestions = [];                             // [{a,b,ans,userAns}] เก็บไว้ review จบเกม
+let powerups = { fifty: 1, freeze: 1, skip: 1 };     // ครั้งต่อเกม
+let practicePool = null, practicePoolOrig = null;    // ใช้ตอนกด "ฝึกข้อที่พลาด" (loop)
 
 // seeded PRNG (mulberry32) — ใช้ในโหมดออนไลน์ให้โจทย์เหมือนกันทุกเครื่อง; default = Math.random
 let qrand = Math.random;
@@ -255,17 +309,35 @@ function chooseMode(m) {
     }
 }
 
+/* ── ฝึกข้อที่พลาด — เรียกจากปุ่มในจอ game-over ── */
+function practiceWrong() {
+    if (!wrongQuestions.length) return;
+    // unique pairs
+    const seen = new Set();
+    practicePoolOrig = wrongQuestions.filter(q => { const k = `${q.a}x${q.b}`; if (seen.has(k)) return false; seen.add(k); return true; });
+    practicePool = practicePoolOrig.slice();
+    mode = 'practice';
+    isGameOver = false; started = false;
+    $('gameover').classList.remove('on');
+    startGame(null);
+}
+
 /* ── เริ่มเกม ── */
 function startGame(tbl) {
     if (started) return;
     started = true;
     selectedTable = tbl;
     score = 0; lives = 3; streak = 0; maxStreak = 0; correctCount = 0; answered = 0;
+    isBoss = false; wrongQuestions = [];
+    powerups = { fifty: 1, freeze: 1, skip: 1 };
+    document.body.classList.remove('boss');
     $('start').classList.remove('on');
     $('hud').classList.add('on');
     $('play').classList.add('on');
-    if (mode === 'race') { $('life-container').style.display = ''; $('timer-wrap').classList.add('on'); }
-    else { $('life-container').style.display = 'none'; $('timer-wrap').classList.remove('on'); }   // ฝึก = ไม่กดดันเวลา/ไม่เสียชีวิต
+    if (mode === 'race') { $('life-container').style.display = ''; $('timer-wrap').classList.add('on'); $('powerups').classList.add('on'); $('pwr-stop').style.display = 'none'; }
+    else if (mode === 'endless') { $('life-container').style.display = 'none'; $('timer-wrap').classList.add('on'); $('powerups').classList.add('on'); $('pwr-stop').style.display = ''; }
+    else { $('life-container').style.display = 'none'; $('timer-wrap').classList.remove('on'); $('powerups').classList.remove('on'); }   // ฝึก = ไม่กดดันเวลา/ไม่เสียชีวิต
+    refreshPowerups();
     setScore(0); setLives(3); updateCombo();
     bgmStart();
     nextQuestion();
@@ -274,14 +346,34 @@ function startGame(tbl) {
 /* ── สุ่มโจทย์ + ตัวเลือก ── */
 function nextQuestion() {
     locked = false;
-    curA = (mode === 'practice' && selectedTable) ? selectedTable : TABLES[(qrand()*TABLES.length)|0];
-    curB = FACTORS[(qrand()*FACTORS.length)|0];
+
+    // Boss: ทุก BOSS_INTERVAL ข้อถูกในโหมด race/endless → โจทย์ใหญ่ + x3 คะแนน
+    isBoss = (mode === 'race' || mode === 'endless') && correctCount > 0 && correctCount % BOSS_INTERVAL === 0;
+    if (isBoss) showBossPopup();
+
+    // เลือกโจทย์
+    if (practicePool && practicePool.length) {
+        const p = practicePool.shift();
+        if (!practicePool.length) practicePool = practicePoolOrig.slice();   // loop ไม่ให้หมด
+        curA = p.a; curB = p.b;
+    } else if (mode === 'practice' && selectedTable) {
+        curA = selectedTable;
+        curB = FACTORS[(qrand()*FACTORS.length)|0];
+    } else if (isBoss) {
+        curA = BOSS_TABLES[(qrand()*BOSS_TABLES.length)|0];
+        curB = BOSS_TABLES[(qrand()*BOSS_TABLES.length)|0];
+    } else {
+        curA = TABLES[(qrand()*TABLES.length)|0];
+        curB = FACTORS[(qrand()*FACTORS.length)|0];
+    }
     curAns = curA * curB;
 
-    $('question').textContent = `${curA} × ${curB}`;
+    const q = $('question');
+    q.textContent = `${curA} × ${curB}`;
+    q.classList.toggle('boss-q', isBoss);
     $('feedback').textContent = '';
     $('feedback').className = '';
-    speakQuestion();   // อ่านโจทย์ (ข้ามโหมดออนไลน์/ถ้าปิด TTS)
+    speakQuestion();
 
     // ตัวลวง: ใกล้เคียงคำตอบจริง (บวก/ลบ ตัวคูณ, off-by-one ของผลคูณ)
     const set = new Set([curAns]);
@@ -298,9 +390,11 @@ function nextQuestion() {
         `<button class="ans" data-v="${v}" onclick="answer(${v}, this)"><span class="k">กด ${i+1}</span>${v}</button>`
     ).join('');
 
-    // แถบเวลา (race เท่านั้น) — เร็วขึ้นตามจำนวนข้อที่ตอบถูก
-    if (mode === 'race') {
-        qLimit = Math.max(2600, 6000 - correctCount * 130);   // 6.0s → ต่ำสุด 2.6s
+    // แถบเวลา — race บีบลง / endless คงที่ / boss ใจดี +2s
+    if (mode === 'race' || mode === 'endless') {
+        let base = (mode === 'endless') ? 6000 : Math.max(2600, 6000 - correctCount * 130);
+        if (isBoss) base += 2000;
+        qLimit = base;
         qStart = performance.now();
         $('timer-bar').classList.remove('warn');
         cancelAnimationFrame(rafId);
@@ -327,8 +421,13 @@ function timeUp() {
     streak = 0; updateCombo();
     revealCorrect();
     flash('หมดเวลา! ⏱️', false);
-    setLives(lives - 1);
-    if (lives > 0) setTimeout(nextQuestion, 900);
+    wrongQuestions.push({ a: curA, b: curB, ans: curAns, userAns: null });
+    if (mode === 'race') {
+        setLives(lives - 1);
+        if (lives > 0) setTimeout(nextQuestion, 900);
+    } else {
+        setTimeout(nextQuestion, 900);   // endless: ไม่หัก lives
+    }
 }
 
 /* ── ตอบ ── */
@@ -348,14 +447,22 @@ function answer(v, btn) {
         streak++; maxStreak = Math.max(maxStreak, streak);
         const mult = comboMult();
         let gained = 10;
-        if (mode === 'race') {
+        if (mode === 'race' || mode === 'endless') {
             const frac = Math.max(0, 1 - (performance.now() - qStart) / qLimit);
-            gained += Math.round(frac * 10);   // โบนัสความเร็ว 0–10 (ออนไลน์ไม่มี — แข่งที่จำนวนข้อ)
+            gained += Math.round(frac * 10);   // โบนัสความเร็ว 0–10
         }
         gained *= mult;
+        if (isBoss) gained *= 3;   // boss = x3 คะแนน
+        // Streak milestones — confetti + bonus
+        if (streak === 5 || streak === 10 || streak === 20) {
+            spawnConfetti(streak === 20 ? 28 : streak === 10 ? 18 : 10);
+            if (streak === 10) gained += 50;
+            if (streak === 20) gained += 100;
+        }
         setScore(score + gained);
         updateCombo();
-        flash(`+${gained}` + (mult > 1 ? `  (x${mult})` : '') + ' ✓', true);
+        const tag = isBoss ? ' 🔥' : '';
+        flash(`+${gained}` + (mult > 1 ? `  (x${mult})` : '') + ' ✓' + tag, true);
         if (online) { match.report(score, { correct: correctCount }); scheduleNext(340); }
         else setTimeout(nextQuestion, mode === 'practice' ? 550 : 480);
     } else {
@@ -365,13 +472,14 @@ function answer(v, btn) {
         revealCorrect();
         streak = 0; updateCombo();
         flash(`ผิด! คำตอบคือ ${curAns}`, false);
+        if (mode !== 'online') wrongQuestions.push({ a: curA, b: curB, ans: curAns, userAns: v });
         if (mode === 'race') {
             setLives(lives - 1);
             if (lives > 0) setTimeout(nextQuestion, 1100);
         } else if (online) {
-            match.report(score, { correct: correctCount }); scheduleNext(680);   // ออนไลน์ = ไม่เสียชีวิต ไปข้อถัดไป
+            match.report(score, { correct: correctCount }); scheduleNext(680);
         } else {
-            setTimeout(nextQuestion, 1100);   // ฝึก = ไม่เสียชีวิต เล่นต่อไปเรื่อย ๆ
+            setTimeout(nextQuestion, 1100);   // practice/endless = ไม่เสียชีวิต
         }
     }
 }
@@ -401,6 +509,65 @@ function flash(msg, good) {
     f.className = good ? 'good' : 'bad';
 }
 
+/* ── Power-ups ── */
+function refreshPowerups() {
+    $('pwr-fifty').classList.toggle('used', powerups.fifty <= 0);
+    $('pwr-freeze').classList.toggle('used', powerups.freeze <= 0);
+    $('pwr-skip').classList.toggle('used', powerups.skip <= 0);
+    $('pwr-fifty').disabled = powerups.fifty <= 0;
+    $('pwr-freeze').disabled = powerups.freeze <= 0;
+    $('pwr-skip').disabled = powerups.skip <= 0;
+}
+function use5050() {
+    if (powerups.fifty <= 0 || locked || !started) return;
+    powerups.fifty--;
+    const btns = [...document.querySelectorAll('.ans')].filter(b => Number(b.dataset.v) !== curAns && !b.classList.contains('dim'));
+    btns.sort(() => Math.random() - 0.5).slice(0, 2).forEach(b => { b.classList.add('dim'); b.disabled = true; });
+    refreshPowerups();
+}
+function useFreeze() {
+    if (powerups.freeze <= 0 || locked || !started) return;
+    if (mode !== 'race' && mode !== 'endless') return;
+    powerups.freeze--;
+    qStart += 3000;   // ดัน timer reference อนาคต → bar เด้งกลับ ~50%
+    flash('⏱️ +3s', true);
+    refreshPowerups();
+}
+function useSkip() {
+    if (powerups.skip <= 0 || locked || !started) return;
+    powerups.skip--;
+    cancelAnimationFrame(rafId);
+    locked = true;
+    refreshPowerups();
+    setTimeout(nextQuestion, 200);
+}
+
+/* ── Boss popup ── */
+function showBossPopup() {
+    document.body.classList.add('boss');
+    const p = $('boss-popup');
+    p.classList.add('on');
+    const span = p.querySelector('.pop');
+    span.style.animation = 'none'; void span.offsetWidth; span.style.animation = 'boss-pop 1.2s ease forwards';
+    setTimeout(() => p.classList.remove('on'), 1200);
+}
+
+/* ── Confetti ── */
+function spawnConfetti(n) {
+    const layer = $('confetti-layer'); if (!layer) return;
+    const colors = ['#fbbf24','#22c55e','#3b82f6','#ef4444','#a855f7','#06b6d4'];
+    for (let i = 0; i < n; i++) {
+        const el = document.createElement('div');
+        el.className = 'cfetti';
+        el.style.background = colors[(Math.random()*colors.length)|0];
+        el.style.left = (40 + Math.random()*20) + '%';
+        el.style.setProperty('--dx', ((Math.random() - 0.5) * 600) + 'px');
+        el.style.animationDelay = (Math.random()*0.2) + 's';
+        layer.appendChild(el);
+        setTimeout(() => el.remove(), 1700);
+    }
+}
+
 function setScore(n) {
     score = Math.max(0, n);
     $('score-value').textContent = score;
@@ -423,15 +590,33 @@ function endGame() {
     stopSpeak(); sfxGameOver(); bgmStop();
     if (mode === 'race') {
         KAMPAI.submitScore(score, { mode: 'normal', correct: correctCount, maxStreak: maxStreak });
+    } else if (mode === 'endless') {
+        KAMPAI.submitScore(score, { mode: 'endless', correct: correctCount, maxStreak: maxStreak });
     }
     $('hud').classList.remove('on');
     $('timer-wrap').classList.remove('on');
+    $('powerups').classList.remove('on');
     $('play').classList.remove('on');
+    document.body.classList.remove('boss');
     $('final-score').textContent = score;
     $('final-detail').textContent = `ตอบถูก ${correctCount} ข้อ · สูงสุด ${maxStreak} ต่อเนื่อง` +
         (mode === 'practice' ? ' · (โหมดฝึก ไม่นับอันดับ)' : '');
+    renderWrongReview();
     $('gameover').classList.add('on');
     renderLeaderboard('score-list-gameover');
+}
+
+/* ── สรุปข้อที่ผิด/หมดเวลา (top 5 ที่พลาดบ่อย) ── */
+function renderWrongReview() {
+    const wrap = $('review-wrap'); const ul = $('review-list');
+    if (!wrongQuestions.length || mode === 'online') { wrap.style.display = 'none'; return; }
+    // นับซ้ำ (a,b) แล้วเรียงตามจำนวน
+    const counts = {};
+    wrongQuestions.forEach(q => { const k = `${q.a}x${q.b}`; counts[k] = (counts[k]||{ a:q.a, b:q.b, ans:q.ans, n:0 }); counts[k].n++; });
+    const list = Object.values(counts).sort((x,y) => y.n - x.n).slice(0, 5);
+    if (!list.length) { wrap.style.display = 'none'; return; }
+    ul.innerHTML = list.map(q => `<li>${q.a} × ${q.b}<span class="a">= ${q.ans}</span>${q.n > 1 ? ` <span class="a">(×${q.n})</span>` : ''}</li>`).join('');
+    wrap.style.display = '';
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
