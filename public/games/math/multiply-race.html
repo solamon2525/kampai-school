@@ -289,7 +289,9 @@ function nextQuestion() {
                    curAns + 1, curAns - 1, curA * (curB + 1), curA * (curB - 1)];
     for (const c of cands) { if (c > 0 && c !== curAns) set.add(c); if (set.size >= 4) break; }
     while (set.size < 4) { const r = curAns + ((Math.random()*9|0) - 4); if (r > 0) set.add(r); }
-    const opts = [...set].slice(0, 4).sort(() => Math.random() - 0.5);
+    const arr = [...set].slice(0, 4);
+    for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(qrand() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; }
+    const opts = arr;
 
     const wrap = $('answers');
     wrap.innerHTML = opts.map((v, i) =>

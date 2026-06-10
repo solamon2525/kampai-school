@@ -175,6 +175,7 @@
     function joinRoom(code) {
       if (!available) { $('.km-msg').textContent = 'โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'; return; }
       room = String(code);
+      started = false; submitted = false;
       var st = (window.KAMPAI && window.KAMPAI.student) || {};
       myId = st.id || ('me-' + Math.random().toString(36).slice(2, 7));
       members = {};
