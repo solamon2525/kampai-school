@@ -116,6 +116,13 @@ body.boss { background: linear-gradient(180deg, #7f1d1d 0%, #0f172a 100%); }
 .cfetti { position: absolute; width: 10px; height: 14px; top: 30%; left: 50%; opacity: 0.95; animation: cfetti-fall 1.4s ease-out forwards; }
 @keyframes cfetti-fall { 0%{transform:translate(0,0) rotate(0deg);opacity:1} 100%{transform:translate(var(--dx),100vh) rotate(720deg);opacity:0} }
 
+/* ── Mastery badges (Phase 2) ── */
+#mastery-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+.mbadge { background: #f1f5f9; color: #94a3b8; border-radius: 10px; padding: 6px 4px; text-align: center; border: 2px solid transparent; }
+.mbadge.on { background: #fff7e0; color: #92400e; border-color: #fbbf24; }
+.mb-num { font-family: 'Fredoka One', cursive; font-size: 16px; line-height: 1; }
+.mb-medal { font-size: 14px; line-height: 1.2; }
+
 /* ── Wrong-answer review (จอจบ) ── */
 .review-box { background: rgba(255,255,255,0.95); color: #2c3e50; border-radius: 12px; padding: 12px 15px; margin: 10px 0; width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
 .review-box h3 { font-family: 'Fredoka One', cursive; font-size: 1rem; margin: 0 0 8px; text-align: left; }
@@ -165,6 +172,11 @@ body.boss { background: linear-gradient(180deg, #7f1d1d 0%, #0f172a 100%); }
         <button class="btn btn-ghost" onclick="chooseMode('practice')">📚 ฝึกแม่</button>
     </div>
     <div id="table-picker"></div>
+    <!-- Mastery badges (Phase 2) — โชว์ตราเก่งรายแม่สูตรคูณ -->
+    <div class="leaderboard-box" id="mastery-box" style="display:none">
+        <h3 class="lb-title">🎖️ ตราเก่งแม่สูตรคูณ</h3>
+        <div id="mastery-grid"></div>
+    </div>
     <div class="leaderboard-box">
         <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
         <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
@@ -201,7 +213,7 @@ body.boss { background: linear-gradient(180deg, #7f1d1d 0%, #0f172a 100%); }
 <script src="/games/kampai-sdk.js"></script>
 <script>
 /* fallback stub: กันพังถ้าเปิด standalone แล้ว SDK โหลดไม่ได้ */
-window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, online:{available:false,makeCode:function(){return'0000';},join:function(){return this;},send:function(){return this;},leave:function(){return this;}}, sound:{unlock:function(){return this;},correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},setBgm:function(){return this;},defaultBgm:function(){return this;},bgmStart:function(){},bgmStop:function(){},mountToggles:function(){return this;}} };
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], gameData:null, input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, online:{available:false,makeCode:function(){return'0000';},join:function(){return this;},send:function(){return this;},leave:function(){return this;}}, sound:{unlock:function(){return this;},correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},setBgm:function(){return this;},defaultBgm:function(){return this;},bgmStart:function(){},bgmStop:function(){},mountToggles:function(){return this;}} };
 </script>
 
 <!-- ═══ KAMPAI Match — เฟรมเวิร์กเกมออนไลน์หลายคน (single source — อย่าแก้) ═══ -->
@@ -245,7 +257,51 @@ function renderLeaderboard(listId) {
         </li>`;
     }).join('');
 }
-KAMPAI.onReady(function () { renderPlayer(); renderLeaderboard('score-list'); });
+KAMPAI.onReady(function () { renderPlayer(); renderLeaderboard('score-list'); loadMastery(); });
+// gameData อาจมาหลัง onReady ครั้งแรก (wrapper init มาช้า) — รับ init ซ้ำ refresh badges/weights
+window.addEventListener('message', function (e) { if (e.data && e.data.type === 'init') setTimeout(loadMastery, 50); });
+
+/* ═══ Phase 2 · Mastery / Adaptive ═══ */
+function loadMastery() {
+    const m = KAMPAI.gameData && Array.isArray(KAMPAI.gameData.mastery) ? KAMPAI.gameData.mastery : [];
+    tableWeights = {}; tableBadges = {};
+    m.forEach(r => { tableWeights[r.table_num] = r.weight || 1; tableBadges[r.table_num] = r.badge_level || 0; });
+    renderMasteryBadges();
+}
+function renderMasteryBadges() {
+    const wrap = $('mastery-grid'); if (!wrap) return;
+    const medals = ['', '🥉', '🥈', '🥇'];
+    const hasAny = Object.values(tableBadges).some(v => v > 0);
+    if (!hasAny && !Object.keys(tableBadges).length) { wrap.parentElement.style.display = 'none'; return; }
+    wrap.parentElement.style.display = '';
+    wrap.innerHTML = TABLES.map(t => {
+        const lvl = tableBadges[t] || 0;
+        return `<div class="mbadge ${lvl ? 'on' : ''}"><div class="mb-num">${t}</div><div class="mb-medal">${medals[lvl] || '·'}</div></div>`;
+    }).join('');
+}
+function pickTableWeighted() {
+    // weighted random ใน TABLES — fallback uniform ถ้าไม่มี weights
+    const keys = TABLES;
+    const weights = keys.map(k => tableWeights[k] || 1);
+    const total = weights.reduce((a, b) => a + b, 0);
+    let r = qrand() * total;
+    for (let i = 0; i < keys.length; i++) { r -= weights[i]; if (r <= 0) return keys[i]; }
+    return keys[keys.length - 1];
+}
+function recordPerTable(tableNum, isCorrect, ms) {
+    if (!perTableStats[tableNum]) perTableStats[tableNum] = { correct: 0, wrong: 0, totalMs: 0 };
+    const s = perTableStats[tableNum];
+    if (isCorrect) { s.correct++; s.totalMs += ms; }
+    else { s.wrong++; }
+}
+function buildPerTablePayload() {
+    return Object.entries(perTableStats).map(([table, s]) => ({
+        table: Number(table),
+        correct: s.correct,
+        wrong: s.wrong,
+        avgMs: s.correct > 0 ? Math.round(s.totalMs / s.correct) : undefined,
+    })).filter(x => x.correct > 0 || x.wrong > 0);
+}
 
 /* ═══ SECTION B2 · เสียง/เอฟเฟกต์ ผ่าน KAMPAI.sound (single source ใน SDK) ═══ */
 function audioCtx() { return KAMPAI.sound.unlock(); }   // ปลุก AudioContext ด้วย user gesture
@@ -278,6 +334,12 @@ let isBoss = false;                                  // โจทย์นี้
 let wrongQuestions = [];                             // [{a,b,ans,userAns}] เก็บไว้ review จบเกม
 let powerups = { fifty: 1, freeze: 1, skip: 1 };     // ครั้งต่อเกม
 let practicePool = null, practicePoolOrig = null;    // ใช้ตอนกด "ฝึกข้อที่พลาด" (loop)
+
+// Phase 2: Adaptive + Mastery
+let tableWeights = {};                                // {2:1, 3:1, ...} — weight per แม่ (1..9)
+let tableBadges = {};                                 // {2:0, ...} — 0..3 (🥉🥈🥇)
+let perTableStats = {};                               // {7:{correct:3, wrong:1, totalMs:7200}, ...}
+let qStartedAt = 0;                                   // ms timestamp ของโจทย์ปัจจุบัน
 
 // seeded PRNG (mulberry32) — ใช้ในโหมดออนไลน์ให้โจทย์เหมือนกันทุกเครื่อง; default = Math.random
 let qrand = Math.random;
@@ -330,6 +392,7 @@ function startGame(tbl) {
     score = 0; lives = 3; streak = 0; maxStreak = 0; correctCount = 0; answered = 0;
     isBoss = false; wrongQuestions = [];
     powerups = { fifty: 1, freeze: 1, skip: 1 };
+    perTableStats = {};
     document.body.classList.remove('boss');
     $('start').classList.remove('on');
     $('hud').classList.add('on');
@@ -362,11 +425,17 @@ function nextQuestion() {
     } else if (isBoss) {
         curA = BOSS_TABLES[(qrand()*BOSS_TABLES.length)|0];
         curB = BOSS_TABLES[(qrand()*BOSS_TABLES.length)|0];
-    } else {
+    } else if (mode === 'online') {
+        // ออนไลน์: ต้องเหมือนกันทุกเครื่อง — uniform เสมอ (ไม่ใช้ adaptive ของแต่ละคน)
         curA = TABLES[(qrand()*TABLES.length)|0];
+        curB = FACTORS[(qrand()*FACTORS.length)|0];
+    } else {
+        // race / endless: ใช้ adaptive (แม่ที่ผิดบ่อยโผล่บ่อยขึ้น)
+        curA = pickTableWeighted();
         curB = FACTORS[(qrand()*FACTORS.length)|0];
     }
     curAns = curA * curB;
+    qStartedAt = performance.now();
 
     const q = $('question');
     q.textContent = `${curA} × ${curB}`;
@@ -422,6 +491,7 @@ function timeUp() {
     revealCorrect();
     flash('หมดเวลา! ⏱️', false);
     wrongQuestions.push({ a: curA, b: curB, ans: curAns, userAns: null });
+    if (mode !== 'online') recordPerTable(curA, false, qLimit);
     if (mode === 'race') {
         setLives(lives - 1);
         if (lives > 0) setTimeout(nextQuestion, 900);
@@ -439,7 +509,9 @@ function answer(v, btn) {
 
     const online = mode === 'online';
 
+    const ms = Math.round(performance.now() - qStartedAt);
     if (v === curAns) {
+        if (mode !== 'online') recordPerTable(curA, true, ms);
         btn.classList.add('correct');
         sfxCorrect(); flashFx(true);
         const q = $('question'); q.classList.add('bump'); setTimeout(() => q.classList.remove('bump'), 250);
@@ -472,7 +544,7 @@ function answer(v, btn) {
         revealCorrect();
         streak = 0; updateCombo();
         flash(`ผิด! คำตอบคือ ${curAns}`, false);
-        if (mode !== 'online') wrongQuestions.push({ a: curA, b: curB, ans: curAns, userAns: v });
+        if (mode !== 'online') { wrongQuestions.push({ a: curA, b: curB, ans: curAns, userAns: v }); recordPerTable(curA, false, ms); }
         if (mode === 'race') {
             setLives(lives - 1);
             if (lives > 0) setTimeout(nextQuestion, 1100);
@@ -589,9 +661,9 @@ function endGame() {
     cancelAnimationFrame(rafId);
     stopSpeak(); sfxGameOver(); bgmStop();
     if (mode === 'race') {
-        KAMPAI.submitScore(score, { mode: 'normal', correct: correctCount, maxStreak: maxStreak });
+        KAMPAI.submitScore(score, { mode: 'normal', correct: correctCount, maxStreak: maxStreak, perTable: buildPerTablePayload() });
     } else if (mode === 'endless') {
-        KAMPAI.submitScore(score, { mode: 'endless', correct: correctCount, maxStreak: maxStreak });
+        KAMPAI.submitScore(score, { mode: 'endless', correct: correctCount, maxStreak: maxStreak, perTable: buildPerTablePayload() });
     }
     $('hud').classList.remove('on');
     $('timer-wrap').classList.remove('on');

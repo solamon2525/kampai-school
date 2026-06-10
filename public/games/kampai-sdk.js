@@ -22,6 +22,7 @@
     student: null,    // {id, code, displayName, photoUrl, classLabel}
     stats: null,      // {playsCount, personalBest, totalXp, level}
     leaderboard: [],  // [{rank, studentId, displayName, photoUrl, classLabel, personalBest, isMe}]
+    gameData: null,   // per-game data จาก wrapper (เช่น multiply-race.mastery)
     input: { up: false, down: false, left: false, right: false, a: false, b: false },
     _slug: null,
     _startTs: Date.now(),
@@ -103,6 +104,7 @@
         level: d.stats.level | 0,
       };
       if (Array.isArray(d.leaderboard)) K.leaderboard = d.leaderboard;
+      if (d.gameData && typeof d.gameData === 'object') K.gameData = d.gameData;
       if (d.audio && K.sound) {   // เพลงรายเกมจากหลังบ้าน: mp3 อัปโหลด (ก่อน) > synth preset
         if (d.audio.bgmUrl) { _bgmFromInit = true; K.sound.setBgmUrl(d.audio.bgmUrl); }
         else if (d.audio.bgm) { _bgmFromInit = true; K.sound.setBgm(d.audio.bgm); }

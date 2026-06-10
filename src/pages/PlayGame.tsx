@@ -45,6 +45,7 @@ import {
   type UnlockedBadge,
   type LevelInfo,
 } from '@/services/game-play.service';
+import { multiplyRaceService, type PerTableStats } from '@/services/multiply-race.service';
 
 // ─── Lucide icon resolver ────────────────────────────────────────────────────
 type LucideMap = Record<string, React.ComponentType<{ className?: string }>>;
@@ -159,6 +160,16 @@ const PlayGame = () => {
     enabled: !!gameSlug,
   });
 
+  // Phase 2: per-table mastery สำหรับ multiply-race (adaptive + badges)
+  const masteryQuery = useQuery({
+    queryKey: ['multiply-race-mastery', codeInput],
+    queryFn: async () => {
+      if (gameSlug !== 'multiply-race' || !codeInput) return [];
+      return await multiplyRaceService.getStudentMastery(codeInput.trim());
+    },
+    enabled: gameSlug === 'multiply-race' && !!student && !!codeInput,
+  });
+
   // ─── lookup handler ────────────────────────────────────────────────────────
   const handleLookup = useCallback(async (overrideCode?: string) => {
     const code = (overrideCode ?? codeInput).trim();
@@ -229,10 +240,12 @@ const PlayGame = () => {
         // เพลงประกอบรายเกม (ตั้งจากหลังบ้าน) → KAMPAI.sound override default ของเกม
         // bgmUrl (mp3 อัปโหลด) มาก่อน synth preset
         audio: { bgm: gameQuery.data?.bgm_preset ?? null, bgmUrl: gameQuery.data?.bgm_url ?? null },
+        // Phase 2: per-game data (เกมตัดสินใจใช้หรือไม่)
+        gameData: gameSlug === 'multiply-race' ? { mastery: masteryQuery.data ?? [] } : undefined,
       },
       '*',
     );
-  }, [student, codeInput, statsQuery.data, levelInfo.level, leaderboardQuery.data, gameQuery.data?.bgm_preset, gameQuery.data?.bgm_url]);
+  }, [student, codeInput, statsQuery.data, levelInfo.level, leaderboardQuery.data, gameQuery.data?.bgm_preset, gameQuery.data?.bgm_url, gameSlug, masteryQuery.data]);
 
   // ─── auto-login จาก localStorage (ลดเวลากรอกรหัสเมื่อเปลี่ยนเกม) ────────
   useEffect(() => {
@@ -285,6 +298,14 @@ const PlayGame = () => {
         statsQuery.refetch();
         unlockedQuery.refetch();
         leaderboardQuery.refetch();
+        // Phase 2: บันทึก per-table mastery (multiply-race)
+        if (gameSlug === 'multiply-race' && Array.isArray(data.metadata?.perTable)) {
+          const perTable = (data.metadata.perTable as PerTableStats[]) ?? [];
+          try {
+            await multiplyRaceService.updateMastery(codeInput.trim(), perTable);
+            masteryQuery.refetch();
+          } catch (e) { /* mastery บันทึกพลาดไม่กระทบเกม */ console.warn('mastery update failed', e); }
+        }
         // ไม่สลับ phase (เกมโชว์จอจบของตัวเองต่อ) — เด้งการ์ด XP ลอยทับทันที แล้วค้างไว้จนกดปิด/เล่นซ้ำ
         setShowReward(true);
       } catch (err) {
