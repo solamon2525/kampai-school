@@ -76,7 +76,7 @@
       '.km-wait{font-size:13px;color:#94a3b8;margin:8px 0}',
       '.km-place{font-size:19px;font-weight:700;color:#FFD700;margin-bottom:10px}',
       // live scoreboard panel (ระหว่างแข่ง)
-      '.km-board{position:fixed;top:54px;right:10px;width:210px;max-width:46vw;z-index:99990;font-family:Sarabun,Kanit,system-ui,sans-serif}',
+      '.km-board{position:fixed;bottom:10px;right:10px;width:210px;max-width:46vw;z-index:99990;font-family:Sarabun,Kanit,system-ui,sans-serif}',
       '.km-board-box{background:rgba(15,23,42,.8);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:9px 11px;color:#fff}',
       '.km-board-title{font-size:13px;color:#cbd5e1;font-weight:700;margin-bottom:6px}',
       '.km-clock{color:#FFD700;font-weight:800}',
@@ -132,7 +132,7 @@
 
     var board = document.createElement('div');
     board.className = 'km-board'; board.style.display = 'none';
-    board.innerHTML = '<div class="km-board-box"><div class="km-board-title">🏁 คู่แข่งสด · <span class="km-clock">0:00</span></div><div class="km-list km-board-list" style="max-height:50vh;margin:0"></div></div>';
+    board.innerHTML = '<div class="km-board-box"><div class="km-board-title">🏁 คู่แข่งสด · <span class="km-clock">0:00</span></div><div class="km-list km-board-list" style="max-height:40vh;margin:0"></div></div>';
     document.body.appendChild(board);
 
     var cd = document.createElement('div');

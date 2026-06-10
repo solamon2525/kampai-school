@@ -494,23 +494,23 @@ const PlayGame = () => {
           <div ref={gameContainerRef} className="relative h-full bg-background">
             <PlayingPanel iframeRef={iframeRef} url={iframeUrl} onLoad={handleIframeLoad} />
 
-            {/* Floating controls — มุมบนขวาของ game container */}
+            {/* Floating controls — มุมบนขวาของ game container (icon-only กันบัง HUD) */}
             <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
               <button
                 onClick={toggleFullscreen}
-                className="flex items-center gap-1.5 rounded-full bg-black/50 px-3 py-1.5 text-sm font-medium text-white backdrop-blur-sm hover:bg-black/70 transition-colors"
+                className="rounded-full bg-black/50 p-2 text-white backdrop-blur-sm hover:bg-black/70 transition-colors"
                 title={isFullscreen ? 'ออกจากเต็มจอ' : 'เต็มจอ'}
+                aria-label={isFullscreen ? 'ออกจากเต็มจอ' : 'เต็มจอ'}
               >
                 {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
-                <span className="hidden sm:inline">{isFullscreen ? 'ย่อ' : 'เต็มจอ'}</span>
               </button>
               <button
                 onClick={() => setShowExitMenu(true)}
-                className="flex items-center gap-1.5 rounded-full bg-black/50 px-3 py-1.5 text-sm font-medium text-white backdrop-blur-sm hover:bg-black/70 transition-colors"
+                className="rounded-full bg-black/50 p-2 text-white backdrop-blur-sm hover:bg-black/70 transition-colors"
                 title="เมนู / ออกจากเกม"
+                aria-label="เมนู / ออกจากเกม"
               >
                 <Menu className="h-4 w-4" />
-                <span className="hidden sm:inline">เมนู</span>
               </button>
             </div>
 
