@@ -156,9 +156,8 @@
       isHost = false; joinRoom(v);
     };
     $('.km-start').onclick = function () {
-      var startAt = Date.now() + 3500;
-      online().send('start', { startAt: startAt });
-      beginRace(startAt);
+      online().send('start', { countdown: 3500 });
+      beginRace(3500);
     };
     $('.km-leave').onclick = leave;
     $('.km-bank').onclick = bankXp;
@@ -216,7 +215,7 @@
     }
 
     function onEvent(ev, data, fromKey) {
-      if (ev === 'start') { beginRace(data && data.startAt); return; }
+      if (ev === 'start') { beginRace(data && (data.countdown || 3500)); return; }
       if (!fromKey) return;
       var m = members[fromKey] || (members[fromKey] = { name: '?', photoUrl: null, classLabel: null, done: false });
       if (ev === 'score') { m.score = data.score | 0; m.correct = data.correct | 0; }
@@ -225,17 +224,18 @@
       if (ev === 'done') maybeFinish();
     }
 
-    function beginRace(startAt) {
+    function beginRace(countdown) {
       if (started) return;
       started = true; ended = false; resultShown = false; lastScore = 0; lastCorrect = 0;
       if (members[myId]) { members[myId].score = 0; members[myId].correct = 0; members[myId].done = false; }
-      endsAt = (startAt || Date.now()) + duration * 1000;   // absolute → จบพร้อมกันทุกเครื่อง
+      var delay = Math.max(400, countdown || 3500);
       var seed = parseInt(room, 10) || 1;
       var rng = mulberry32(seed);
       root.style.display = 'none';            // ปิด lobby — เปิดทางให้เกมเล่น
       board.style.display = '';
       renderBoard();
-      runCountdown(Math.max(0, (startAt || Date.now()) - Date.now()), function () {
+      runCountdown(delay, function () {
+        endsAt = Date.now() + duration * 1000;   // local clock at GO — ไม่มี clock skew ข้ามเครื่อง
         if (opts.onPlay) try { opts.onPlay({ rng: rng, seed: seed, room: room, endsAt: endsAt }); } catch (e) { /* */ }
         tick();
       });
