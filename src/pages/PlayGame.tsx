@@ -491,14 +491,12 @@ const PlayGame = () => {
         )}
 
         {phase === 'playing' && iframeUrl && (
-          <div ref={gameContainerRef} className="relative h-full bg-background">
-            <PlayingPanel iframeRef={iframeRef} url={iframeUrl} onLoad={handleIframeLoad} />
-
-            {/* Floating controls — มุมบนขวาของ game container (icon-only กันบัง HUD) */}
-            <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
+          <div ref={gameContainerRef} className="relative h-full bg-background flex flex-col">
+            {/* Toolbar แถบบาง — กินพื้นที่ของตัวเอง ไม่ overlay บน iframe */}
+            <div className="shrink-0 flex items-center justify-end gap-2 px-2 py-1.5 bg-black/60 backdrop-blur-sm border-b border-white/10">
               <button
                 onClick={toggleFullscreen}
-                className="rounded-full bg-black/50 p-2 text-white backdrop-blur-sm hover:bg-black/70 transition-colors"
+                className="rounded-full bg-white/10 p-1.5 text-white hover:bg-white/20 transition-colors"
                 title={isFullscreen ? 'ออกจากเต็มจอ' : 'เต็มจอ'}
                 aria-label={isFullscreen ? 'ออกจากเต็มจอ' : 'เต็มจอ'}
               >
@@ -506,12 +504,16 @@ const PlayGame = () => {
               </button>
               <button
                 onClick={() => setShowExitMenu(true)}
-                className="rounded-full bg-black/50 p-2 text-white backdrop-blur-sm hover:bg-black/70 transition-colors"
+                className="rounded-full bg-white/10 p-1.5 text-white hover:bg-white/20 transition-colors"
                 title="เมนู / ออกจากเกม"
                 aria-label="เมนู / ออกจากเกม"
               >
                 <Menu className="h-4 w-4" />
               </button>
+            </div>
+            {/* iframe กินพื้นที่ที่เหลือ */}
+            <div className="flex-1 min-h-0 relative">
+              <PlayingPanel iframeRef={iframeRef} url={iframeUrl} onLoad={handleIframeLoad} />
             </div>
 
             {/* Exit Menu Dialog — 4 ตัวเลือก */}
