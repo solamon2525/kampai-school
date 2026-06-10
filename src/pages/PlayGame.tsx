@@ -170,6 +170,25 @@ const PlayGame = () => {
     enabled: gameSlug === 'multiply-race' && !!student && !!codeInput,
   });
 
+  // Phase 3a: Daily Challenge สำหรับ multiply-race
+  const dailyStatusQuery = useQuery({
+    queryKey: ['multiply-race-daily-status', codeInput],
+    queryFn: async () => {
+      if (gameSlug !== 'multiply-race' || !codeInput) return null;
+      return await multiplyRaceService.getDailyStatus(codeInput.trim());
+    },
+    enabled: gameSlug === 'multiply-race' && !!student && !!codeInput,
+  });
+
+  const dailyLeaderboardQuery = useQuery({
+    queryKey: ['multiply-race-daily-lb', codeInput],
+    queryFn: async () => {
+      if (gameSlug !== 'multiply-race' || !codeInput) return [];
+      return await multiplyRaceService.getDailyLeaderboard(codeInput.trim(), 'multiply-race', 10);
+    },
+    enabled: gameSlug === 'multiply-race' && !!student && !!codeInput,
+  });
+
   // ─── lookup handler ────────────────────────────────────────────────────────
   const handleLookup = useCallback(async (overrideCode?: string) => {
     const code = (overrideCode ?? codeInput).trim();
@@ -240,12 +259,18 @@ const PlayGame = () => {
         // เพลงประกอบรายเกม (ตั้งจากหลังบ้าน) → KAMPAI.sound override default ของเกม
         // bgmUrl (mp3 อัปโหลด) มาก่อน synth preset
         audio: { bgm: gameQuery.data?.bgm_preset ?? null, bgmUrl: gameQuery.data?.bgm_url ?? null },
-        // Phase 2: per-game data (เกมตัดสินใจใช้หรือไม่)
-        gameData: gameSlug === 'multiply-race' ? { mastery: masteryQuery.data ?? [] } : undefined,
+        // Phase 2/3: per-game data (เกมตัดสินใจใช้หรือไม่)
+        gameData: gameSlug === 'multiply-race' ? {
+          mastery: masteryQuery.data ?? [],
+          daily: {
+            status: dailyStatusQuery.data ?? null,
+            leaderboard: dailyLeaderboardQuery.data ?? [],
+          },
+        } : undefined,
       },
       '*',
     );
-  }, [student, codeInput, statsQuery.data, levelInfo.level, leaderboardQuery.data, gameQuery.data?.bgm_preset, gameQuery.data?.bgm_url, gameSlug, masteryQuery.data]);
+  }, [student, codeInput, statsQuery.data, levelInfo.level, leaderboardQuery.data, gameQuery.data?.bgm_preset, gameQuery.data?.bgm_url, gameSlug, masteryQuery.data, dailyStatusQuery.data, dailyLeaderboardQuery.data]);
 
   // ─── auto-login จาก localStorage (ลดเวลากรอกรหัสเมื่อเปลี่ยนเกม) ────────
   useEffect(() => {
@@ -305,6 +330,16 @@ const PlayGame = () => {
             await multiplyRaceService.updateMastery(codeInput.trim(), perTable);
             masteryQuery.refetch();
           } catch (e) { /* mastery บันทึกพลาดไม่กระทบเกม */ console.warn('mastery update failed', e); }
+        }
+        // Phase 3a: บันทึก Daily Challenge (multiply-race) — เฉพาะตอน mode='daily'
+        if (gameSlug === 'multiply-race' && data.mode === 'daily') {
+          const correct = typeof data.metadata?.correct === 'number' ? (data.metadata.correct as number) : 0;
+          const durationSec = typeof data.metadata?.duration === 'number' ? (data.metadata.duration as number) : null;
+          try {
+            await multiplyRaceService.submitDailyScore(codeInput.trim(), data.score, correct, durationSec);
+            dailyStatusQuery.refetch();
+            dailyLeaderboardQuery.refetch();
+          } catch (e) { console.warn('daily submit failed', e); }
         }
         // ไม่สลับ phase (เกมโชว์จอจบของตัวเองต่อ) — เด้งการ์ด XP ลอยทับทันที แล้วค้างไว้จนกดปิด/เล่นซ้ำ
         setShowReward(true);

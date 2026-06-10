@@ -168,6 +168,7 @@ body.boss { background: linear-gradient(180deg, #7f1d1d 0%, #0f172a 100%); }
     <div class="mode-grid">
         <button class="btn btn-primary" onclick="chooseMode('race')">⚡ แข่งเร็ว</button>
         <button class="btn btn-blue" onclick="openOnline()">🌐 ออนไลน์</button>
+        <button class="btn btn-blue" id="btn-daily" onclick="startDaily()">📅 ชาเลนจ์วันนี้</button>
         <button class="btn btn-ghost" onclick="chooseMode('endless')">♾️ ไม่จำกัด</button>
         <button class="btn btn-ghost" onclick="chooseMode('practice')">📚 ฝึกแม่</button>
     </div>
@@ -176,6 +177,11 @@ body.boss { background: linear-gradient(180deg, #7f1d1d 0%, #0f172a 100%); }
     <div class="leaderboard-box" id="mastery-box" style="display:none">
         <h3 class="lb-title">🎖️ ตราเก่งแม่สูตรคูณ</h3>
         <div id="mastery-grid"></div>
+    </div>
+    <!-- Daily Challenge leaderboard (Phase 3a) -->
+    <div class="leaderboard-box" id="daily-box" style="display:none">
+        <h3 class="lb-title">📅 ชาเลนจ์วันนี้ <span id="daily-date" style="font-size:11px;color:#94a3b8;font-weight:normal"></span></h3>
+        <ul id="daily-list" class="leaderboard-list"></ul>
     </div>
     <div class="leaderboard-box">
         <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
@@ -257,9 +263,9 @@ function renderLeaderboard(listId) {
         </li>`;
     }).join('');
 }
-KAMPAI.onReady(function () { renderPlayer(); renderLeaderboard('score-list'); loadMastery(); });
-// gameData อาจมาหลัง onReady ครั้งแรก (wrapper init มาช้า) — รับ init ซ้ำ refresh badges/weights
-window.addEventListener('message', function (e) { if (e.data && e.data.type === 'init') setTimeout(loadMastery, 50); });
+KAMPAI.onReady(function () { renderPlayer(); renderLeaderboard('score-list'); loadMastery(); loadDaily(); });
+// gameData อาจมาหลัง onReady ครั้งแรก (wrapper init มาช้า) — รับ init ซ้ำ refresh badges/weights/daily
+window.addEventListener('message', function (e) { if (e.data && e.data.type === 'init') setTimeout(function(){ loadMastery(); loadDaily(); }, 50); });
 
 /* ═══ Phase 2 · Mastery / Adaptive ═══ */
 function loadMastery() {
@@ -303,6 +309,60 @@ function buildPerTablePayload() {
     })).filter(x => x.correct > 0 || x.wrong > 0);
 }
 
+/* ═══ Phase 3a · Daily Challenge ═══ */
+function loadDaily() {
+    const g = KAMPAI.gameData;
+    if (!g || !g.daily) { $('daily-box').style.display = 'none'; return; }
+    dailyStatus = g.daily.status || null;
+    dailyLeaderboard = g.daily.leaderboard || [];
+    renderDailyBox();
+}
+function renderDailyBox() {
+    const box = $('daily-box'); const dateEl = $('daily-date'); const list = $('daily-list');
+    if (!dailyStatus) { box.style.display = 'none'; return; }
+    box.style.display = '';
+    dateEl.textContent = dailyStatus.challenge_date || '';
+    // ปุ่ม Daily: เปลี่ยน label ถ้าเล่นแล้ว
+    const btn = $('btn-daily');
+    if (btn) {
+        if (dailyStatus.played) { btn.textContent = `✓ ชาเลนจ์วันนี้ (${dailyStatus.score})`; btn.classList.add('done'); }
+        else { btn.textContent = '📅 ชาเลนจ์วันนี้'; btn.classList.remove('done'); }
+    }
+    if (!dailyLeaderboard.length) { list.innerHTML = '<li class="lb-loading">ยังไม่มีผู้เล่นวันนี้ — เป็นคนแรกสิ!</li>'; return; }
+    const medals = ['🥇','🥈','🥉'];
+    list.innerHTML = dailyLeaderboard.slice(0, 5).map(r => {
+        const av = r.photo_url ? `<img class="lb-avatar" src="${r.photo_url}" alt="">` : `<div class="lb-avatar-init">${(r.display_name||'?')[0]}</div>`;
+        return `<li class="${r.is_me ? 'is-me' : ''}">
+            <span class="lb-rank">${medals[r.rank-1] || r.rank}</span>${av}
+            <div class="lb-info"><div class="lb-name">${r.display_name}${r.is_me ? ' (คุณ)' : ''}</div>
+            <div class="lb-sub">${r.score} คะแนน · ตอบถูก ${r.correct_count}/10</div></div>
+        </li>`;
+    }).join('');
+}
+function startDaily() {
+    audioCtx();
+    if (started) return;
+    if (dailyStatus && dailyStatus.played) {
+        flash2(`เล่นชาเลนจ์วันนี้แล้ว · คะแนน ${dailyStatus.score} · ตอบถูก ${dailyStatus.correct_count}/10`);
+        return;
+    }
+    // seed RNG ด้วยวันที่ → โจทย์เหมือนกันทุกคน (yyyymmdd → number)
+    const dateStr = (dailyStatus && dailyStatus.challenge_date) || new Date().toISOString().slice(0,10);
+    const seed = parseInt(dateStr.replace(/-/g, ''), 10) || 1;
+    seedRng(seed);
+    mode = 'daily';
+    dailyQIndex = 0;
+    startGame(null);
+}
+function flash2(msg) {
+    // ใช้ toast-like แบบเร็ว ๆ — แสดงบน start screen
+    const f = document.createElement('div');
+    f.textContent = msg;
+    f.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(15,23,42,.9);color:#fff;padding:14px 22px;border-radius:14px;z-index:1000;font-size:15px;box-shadow:0 6px 24px rgba(0,0,0,.5);max-width:90vw;text-align:center';
+    document.body.appendChild(f);
+    setTimeout(() => f.remove(), 3500);
+}
+
 /* ═══ SECTION B2 · เสียง/เอฟเฟกต์ ผ่าน KAMPAI.sound (single source ใน SDK) ═══ */
 function audioCtx() { return KAMPAI.sound.unlock(); }   // ปลุก AudioContext ด้วย user gesture
 function sfxCorrect() { KAMPAI.sound.correct(); }
@@ -324,6 +384,7 @@ const TABLES = [2,3,4,5,6,7,8,9,10,11,12];        // แม่สูตรคู
 const FACTORS = [2,3,4,5,6,7,8,9,10,11,12];        // ตัวคูณที่สุ่มเจอ
 const BOSS_TABLES = [7,8,9,11,12];                  // boss เลือกจากแม่ยาก
 const BOSS_INTERVAL = 10;                           // ทุก 10 ข้อถูก = boss
+const DAILY_TOTAL = 10;                             // Daily Challenge: 10 ข้อ
 
 let score = 0, lives = 3, streak = 0, maxStreak = 0, correctCount = 0, answered = 0;
 let mode = 'race';                 // 'race' | 'practice' | 'online' | 'endless'
@@ -340,6 +401,10 @@ let tableWeights = {};                                // {2:1, 3:1, ...} — wei
 let tableBadges = {};                                 // {2:0, ...} — 0..3 (🥉🥈🥇)
 let perTableStats = {};                               // {7:{correct:3, wrong:1, totalMs:7200}, ...}
 let qStartedAt = 0;                                   // ms timestamp ของโจทย์ปัจจุบัน
+// Phase 3a: Daily Challenge
+let dailyStatus = null;                               // { challenge_date, played, score, correct_count }
+let dailyLeaderboard = [];
+let dailyQIndex = 0;                                  // 0..9 — ข้อปัจจุบันใน daily
 
 // seeded PRNG (mulberry32) — ใช้ในโหมดออนไลน์ให้โจทย์เหมือนกันทุกเครื่อง; default = Math.random
 let qrand = Math.random;
@@ -399,6 +464,7 @@ function startGame(tbl) {
     $('play').classList.add('on');
     if (mode === 'race') { $('life-container').style.display = ''; $('timer-wrap').classList.add('on'); $('powerups').classList.add('on'); $('pwr-stop').style.display = 'none'; }
     else if (mode === 'endless') { $('life-container').style.display = 'none'; $('timer-wrap').classList.add('on'); $('powerups').classList.add('on'); $('pwr-stop').style.display = ''; }
+    else if (mode === 'daily') { $('life-container').style.display = ''; $('timer-wrap').classList.add('on'); $('powerups').classList.remove('on'); }
     else { $('life-container').style.display = 'none'; $('timer-wrap').classList.remove('on'); $('powerups').classList.remove('on'); }   // ฝึก = ไม่กดดันเวลา/ไม่เสียชีวิต
     refreshPowerups();
     setScore(0); setLives(3); updateCombo();
@@ -425,8 +491,8 @@ function nextQuestion() {
     } else if (isBoss) {
         curA = BOSS_TABLES[(qrand()*BOSS_TABLES.length)|0];
         curB = BOSS_TABLES[(qrand()*BOSS_TABLES.length)|0];
-    } else if (mode === 'online') {
-        // ออนไลน์: ต้องเหมือนกันทุกเครื่อง — uniform เสมอ (ไม่ใช้ adaptive ของแต่ละคน)
+    } else if (mode === 'online' || mode === 'daily') {
+        // ออนไลน์ / daily: ต้องเหมือนกันทุกเครื่อง — uniform เสมอ
         curA = TABLES[(qrand()*TABLES.length)|0];
         curB = FACTORS[(qrand()*FACTORS.length)|0];
     } else {
@@ -459,9 +525,9 @@ function nextQuestion() {
         `<button class="ans" data-v="${v}" onclick="answer(${v}, this)"><span class="k">กด ${i+1}</span>${v}</button>`
     ).join('');
 
-    // แถบเวลา — race บีบลง / endless คงที่ / boss ใจดี +2s
-    if (mode === 'race' || mode === 'endless') {
-        let base = (mode === 'endless') ? 6000 : Math.max(2600, 6000 - correctCount * 130);
+    // แถบเวลา — race บีบลง / endless+daily คงที่ / boss ใจดี +2s
+    if (mode === 'race' || mode === 'endless' || mode === 'daily') {
+        let base = (mode === 'endless' || mode === 'daily') ? 6000 : Math.max(2600, 6000 - correctCount * 130);
         if (isBoss) base += 2000;
         qLimit = base;
         qStart = performance.now();
@@ -469,6 +535,8 @@ function nextQuestion() {
         cancelAnimationFrame(rafId);
         tickTimer();
     }
+    // Daily: แสดง progress (เช่น "3/10") ใน feedback หรือ #question annotation
+    if (mode === 'daily') $('feedback').textContent = `ข้อ ${Math.min(answered + 1, DAILY_TOTAL)}/${DAILY_TOTAL}`;
 }
 
 function tickTimer() {
@@ -492,9 +560,12 @@ function timeUp() {
     flash('หมดเวลา! ⏱️', false);
     wrongQuestions.push({ a: curA, b: curB, ans: curAns, userAns: null });
     if (mode !== 'online') recordPerTable(curA, false, qLimit);
+    answered++;
     if (mode === 'race') {
         setLives(lives - 1);
         if (lives > 0) setTimeout(nextQuestion, 900);
+    } else if (mode === 'daily') {
+        nextOrEndDaily(900);
     } else {
         setTimeout(nextQuestion, 900);   // endless: ไม่หัก lives
     }
@@ -536,6 +607,7 @@ function answer(v, btn) {
         const tag = isBoss ? ' 🔥' : '';
         flash(`+${gained}` + (mult > 1 ? `  (x${mult})` : '') + ' ✓' + tag, true);
         if (online) { match.report(score, { correct: correctCount }); scheduleNext(340); }
+        else if (mode === 'daily') nextOrEndDaily(480);
         else setTimeout(nextQuestion, mode === 'practice' ? 550 : 480);
     } else {
         btn.classList.add('wrong');
@@ -550,12 +622,20 @@ function answer(v, btn) {
             if (lives > 0) setTimeout(nextQuestion, 1100);
         } else if (online) {
             match.report(score, { correct: correctCount }); scheduleNext(680);
+        } else if (mode === 'daily') {
+            nextOrEndDaily(1100);
         } else {
             setTimeout(nextQuestion, 1100);   // practice/endless = ไม่เสียชีวิต
         }
     }
 }
 function scheduleNext(ms) { setTimeout(() => { if (!onlineEnded) nextQuestion(); }, ms); }
+function nextOrEndDaily(ms) {
+    setTimeout(() => {
+        if (mode === 'daily' && answered >= DAILY_TOTAL) endGame();
+        else nextQuestion();
+    }, ms);
+}
 
 function revealCorrect() {
     document.querySelectorAll('.ans').forEach(b => {
@@ -664,6 +744,8 @@ function endGame() {
         KAMPAI.submitScore(score, { mode: 'normal', correct: correctCount, maxStreak: maxStreak, perTable: buildPerTablePayload() });
     } else if (mode === 'endless') {
         KAMPAI.submitScore(score, { mode: 'endless', correct: correctCount, maxStreak: maxStreak, perTable: buildPerTablePayload() });
+    } else if (mode === 'daily') {
+        KAMPAI.submitScore(score, { mode: 'daily', correct: correctCount, maxStreak: maxStreak });
     }
     $('hud').classList.remove('on');
     $('timer-wrap').classList.remove('on');
