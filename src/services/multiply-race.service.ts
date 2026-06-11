@@ -46,6 +46,31 @@ export type DailyChallengeLeaderRow = {
   is_me: boolean;
 };
 
+// ─── Phase 4: Teacher Dashboard ────────────────────────────────────────────
+export type ClassOverviewRow = {
+  student_id: string;
+  student_code: string;
+  display_name: string;
+  class_label: string | null;
+  total_correct: number;
+  total_wrong: number;
+  badge_bronze: number;
+  badge_silver: number;
+  badge_gold: number;
+  weakest_table: number | null;
+  last_played_at: string | null;
+  daily_played_today: boolean;
+  daily_score_today: number;
+};
+
+export type TableHeatmapRow = {
+  table_num: number;
+  total_correct: number;
+  total_wrong: number;
+  total_attempts: number;
+  wrong_pct: number;
+};
+
 export const multiplyRaceService = {
   getStudentMastery: async (studentCode: string): Promise<MultiplyRaceMasteryRow[]> => {
     const { data, error } = await supabase.rpc('get_multiply_race_mastery', { p_student_code: studentCode });
@@ -97,5 +122,18 @@ export const multiplyRaceService = {
     });
     if (error) throw error;
     return (data as unknown as DailyChallengeLeaderRow[]) ?? [];
+  },
+
+  // Phase 4: teacher dashboard
+  getClassOverview: async (classFilter: string | null = null): Promise<ClassOverviewRow[]> => {
+    const { data, error } = await supabase.rpc('get_multiply_race_class_overview', { p_class_filter: classFilter });
+    if (error) throw error;
+    return (data as unknown as ClassOverviewRow[]) ?? [];
+  },
+
+  getTableHeatmap: async (classFilter: string | null = null): Promise<TableHeatmapRow[]> => {
+    const { data, error } = await supabase.rpc('get_multiply_race_table_heatmap', { p_class_filter: classFilter });
+    if (error) throw error;
+    return (data as unknown as TableHeatmapRow[]) ?? [];
   },
 };
