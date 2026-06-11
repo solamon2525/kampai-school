@@ -153,6 +153,8 @@
     var endsAt = 0, rafId = 0, sendTs = 0, finishTimer = 0, bankTimer = 0, lastScore = 0, lastCorrect = 0;
     // Tournament state (Phase 3c) — tournamentMaxRounds declared earlier
     var tournamentRound = 0, eliminated = {};
+    // อันดับสุดท้ายของฉัน (เก็บตอน showResult → ส่งใน bankXp ให้ระบบเหรียญนับแชมป์)
+    var lastRank = 0, lastPlayers = 0;
 
     // ─── wire UI ───────────────────────────────────────────────────────────
     $('.km-close').onclick = function () { root.style.display = 'none'; };
@@ -357,7 +359,13 @@
       clearTimeout(bankTimer);
       if (isSpectator) { location.reload(); return; }   // ผู้ชม: ไม่บันทึก กลับหน้าหลัก
       var ok = false;
-      try { ok = !!(window.KAMPAI && window.KAMPAI.submitScore && window.KAMPAI.submitScore(lastScore, { mode: 'online', correct: lastCorrect, room: room })); } catch (e) { /* */ }
+      try {
+        ok = !!(window.KAMPAI && window.KAMPAI.submitScore && window.KAMPAI.submitScore(lastScore, {
+          mode: 'online', correct: lastCorrect, room: room,
+          rank: lastRank, players: lastPlayers,
+          tournament: !!(tournamentEnabled && tournamentRound > 0),
+        }));
+      } catch (e) { /* */ }
       if (!ok) location.reload();   // standalone/ไม่มีนักเรียน → ไม่มีจอ wrapper → เริ่มใหม่
     }
 
@@ -383,6 +391,7 @@
       var ranked = rankMembers();
       var myRank = 0;
       for (var i = 0; i < ranked.length; i++) { if (ranked[i].id === myId) { myRank = i + 1; break; } }
+      lastRank = myRank; lastPlayers = ranked.length;   // เก็บไว้ส่งใน bankXp (เหรียญแชมป์/เจ้าลีก)
       // Tournament: ระหว่างรอบ → แสดง 'ผ่านเข้ารอบ' + ปุ่มถัดไป (host) แทน final
       var isTourMid = tournamentEnabled && tournamentRound > 0 && tournamentRound < tournamentMaxRounds;
       if (isTourMid) {
