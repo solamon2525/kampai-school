@@ -99,6 +99,8 @@
     var duration = opts.duration || 60;
     var title = opts.title || 'แข่งออนไลน์';
     var autoSubmit = opts.autoSubmit !== false;
+    var tournamentEnabled = !!opts.tournament;        // Phase 3c: ลีก 2 รอบ — eliminate bottom half หลังรอบแรก
+    var tournamentMaxRounds = 2;                       // ใช้ใน DOM template (ต้องประกาศก่อน build)
     var online = function () { return (window.KAMPAI && window.KAMPAI.online) || null; };
     var available = !!(online() && online().available);
 
@@ -117,12 +119,14 @@
         '<button class="km-btn km-btn-ghost km-spectate" type="button" style="font-size:14px;padding:8px 18px">👀 เข้าดู (ไม่เล่น)</button>' +
         '<div class="km-p" style="margin:2px 0">มีรหัสห้องแล้ว? กรอกรหัส 4 หลักเพื่อเข้าร่วม</div>' +
         '<div class="km-msg"></div></div>' +
-      '<div class="km-screen km-lobby"><div class="km-h">ห้องแข่ง</div>' +
+      '<div class="km-screen km-lobby"><div class="km-h km-lobby-title">ห้องแข่ง</div>' +
         '<div class="km-p" style="margin:0">บอกรหัสนี้ให้เพื่อนเข้าร่วม</div>' +
         '<div class="km-code">----</div>' +
+        '<div class="km-tour-info" style="display:none;font-size:13px;color:#fbbf24;margin:8px 0">🏆 โหมดลีก: รอบที่ <span class="km-tour-round">1</span>/<span class="km-tour-max">2</span></div>' +
         '<div class="km-members-title">👥 ผู้เล่น (<span class="km-count">0</span>)</div>' +
         '<div class="km-list km-lobby-list"></div>' +
         '<button class="km-btn km-btn-primary km-start" type="button" style="display:none">🚀 เริ่มแข่ง</button>' +
+        (tournamentEnabled ? '<button class="km-btn km-btn-primary km-tour-start" type="button" style="display:none">🏆 เริ่มลีก (' + tournamentMaxRounds + ' รอบ)</button>' : '') +
         '<div class="km-wait" style="display:none">รอเจ้าของห้องเริ่มเกม...</div>' +
         '<button class="km-btn km-btn-ghost km-leave" type="button">← ออกจากห้อง</button></div>' +
       '<div class="km-screen km-result"><div class="km-h km-result-title">จบการแข่ง!</div>' +
@@ -147,6 +151,8 @@
     var room = null, isHost = false, isSpectator = false, myId = null, members = {};
     var started = false, ended = false, resultShown = false, submitted = false;
     var endsAt = 0, rafId = 0, sendTs = 0, finishTimer = 0, bankTimer = 0, lastScore = 0, lastCorrect = 0;
+    // Tournament state (Phase 3c) — tournamentMaxRounds declared earlier
+    var tournamentRound = 0, eliminated = {};
 
     // ─── wire UI ───────────────────────────────────────────────────────────
     $('.km-close').onclick = function () { root.style.display = 'none'; };
@@ -165,6 +171,16 @@
       online().send('start', { countdown: 3500 });
       beginRace(3500);
     };
+    if (tournamentEnabled) {
+      var tourBtn = $('.km-tour-start');
+      if (tourBtn) tourBtn.onclick = function () {
+        var n = Object.keys(members).length;
+        if (n < 2) { $('.km-msg').textContent = 'ต้องมีผู้เล่น 2 คนขึ้นไป'; return; }
+        // กระจายเหตุการณ์เริ่มลีก + เริ่ม R1
+        online().send('tournamentStart', { round: 1, maxRounds: tournamentMaxRounds, countdown: 3500 });
+        startTournamentRound(1, 3500);
+      };
+    }
     $('.km-leave').onclick = leave;
     $('.km-bank').onclick = bankXp;
 
@@ -190,8 +206,12 @@
         members[myId] = { name: st.displayName || 'ฉัน', photoUrl: st.photoUrl || null, classLabel: st.classLabel || null, score: 0, correct: 0, done: false, me: true };
       }
       $('.km-code').textContent = room;
-      $('.km-start').style.display = (isHost && !isSpectator) ? '' : 'none';
-      $('.km-wait').style.display = (isHost && !isSpectator) ? 'none' : '';
+      // host เห็นทั้งปุ่ม 'เริ่มแข่ง' (1 รอบ) + 'เริ่มลีก' (หลายรอบ) ถ้า tournamentEnabled
+      var canHost = isHost && !isSpectator;
+      $('.km-start').style.display = canHost ? '' : 'none';
+      var tourBtn = $('.km-tour-start');
+      if (tourBtn) tourBtn.style.display = (canHost && tournamentEnabled) ? '' : 'none';
+      $('.km-wait').style.display = canHost ? 'none' : '';
       var wait = $('.km-wait');
       if (wait && wait.style.display !== 'none') wait.textContent = isSpectator ? '👀 โหมดผู้ชม — รอเจ้าของห้องเริ่ม...' : 'รอเจ้าของห้องเริ่มเกม...';
       showScreen('lobby');
@@ -228,12 +248,41 @@
 
     function onEvent(ev, data, fromKey) {
       if (ev === 'start') { beginRace(data && (data.countdown || 3500)); return; }
+      // Tournament: รับการประกาศจาก host
+      if (ev === 'tournamentStart') {
+        tournamentRound = (data && data.round) || 1;
+        tournamentMaxRounds = (data && data.maxRounds) || 2;
+        eliminated = {};
+        startTournamentRound(tournamentRound, (data && data.countdown) || 3500);
+        return;
+      }
+      if (ev === 'tournamentNext') {
+        // host ประกาศ eliminated + เริ่มรอบถัดไป
+        eliminated = (data && data.eliminated) || {};
+        tournamentRound = (data && data.round) || tournamentRound + 1;
+        startTournamentRound(tournamentRound, (data && data.countdown) || 3500);
+        return;
+      }
       if (!fromKey) return;
       var m = members[fromKey] || (members[fromKey] = { name: '?', photoUrl: null, classLabel: null, done: false });
       if (ev === 'score') { m.score = data.score | 0; m.correct = data.correct | 0; }
       else if (ev === 'done') { m.score = data.score | 0; m.correct = data.correct | 0; m.done = true; }
       if (started) renderBoard();
       if (ev === 'done') maybeFinish();
+    }
+
+    function startTournamentRound(round, countdown) {
+      tournamentRound = round;
+      // คนถูก eliminated = spectator ในรอบนี้
+      var amEliminated = !!eliminated[myId];
+      var wasSpectator = isSpectator;
+      isSpectator = wasSpectator || amEliminated;
+      // reset match state สำหรับรอบใหม่
+      started = false; ended = false; resultShown = false; submitted = false; lastScore = 0; lastCorrect = 0;
+      Object.keys(members).forEach(function (id) {
+        members[id].score = 0; members[id].correct = 0; members[id].done = !!eliminated[id];   // eliminated ถือว่า 'done' = ไม่นับใน maybeFinish
+      });
+      beginRace(countdown);
     }
 
     function beginRace(countdown) {
@@ -334,19 +383,56 @@
       var ranked = rankMembers();
       var myRank = 0;
       for (var i = 0; i < ranked.length; i++) { if (ranked[i].id === myId) { myRank = i + 1; break; } }
-      if (isSpectator) {
-        $('.km-result-title').textContent = '👀 จบการแข่ง';
+      // Tournament: ระหว่างรอบ → แสดง 'ผ่านเข้ารอบ' + ปุ่มถัดไป (host) แทน final
+      var isTourMid = tournamentEnabled && tournamentRound > 0 && tournamentRound < tournamentMaxRounds;
+      if (isTourMid) {
+        var nextEliminated = computeNextEliminated(ranked);
+        $('.km-result-title').textContent = '🏆 จบรอบ ' + tournamentRound + ' — ' + (Object.keys(eliminated).length + Object.keys(nextEliminated).length) + ' คนตกรอบ';
+        var amOut = !!nextEliminated[myId] || !!eliminated[myId];
+        $('.km-place').textContent = amOut ? '😢 คุณตกรอบนี้ (ดูเฉยๆ รอบหน้า)' : '✨ ผ่านเข้ารอบ ' + (tournamentRound + 1) + '!';
+        renderResult('.km-result-list', ranked);
+        // เปลี่ยนปุ่ม 'รับ XP' เป็น 'ถัดไป' สำหรับ host เท่านั้น
+        var bankBtn = $('.km-bank');
+        if (isHost) {
+          bankBtn.textContent = '▶ รอบ ' + (tournamentRound + 1);
+          bankBtn.onclick = function () {
+            // รวม eliminated เก่า + ใหม่
+            var allOut = {};
+            Object.keys(eliminated).forEach(function (k) { allOut[k] = true; });
+            Object.keys(nextEliminated).forEach(function (k) { allOut[k] = true; });
+            online().send('tournamentNext', { round: tournamentRound + 1, eliminated: allOut, countdown: 3500 });
+            eliminated = allOut;
+            startTournamentRound(tournamentRound + 1, 3500);
+          };
+        } else {
+          bankBtn.textContent = '⏳ รอเจ้าของห้อง...';
+          bankBtn.disabled = true;
+        }
+        showScreen('result');
+        return;
+      }
+      // Tournament จบ (รอบสุดท้าย) หรือ race ปกติ
+      if (isSpectator || eliminated[myId]) {
+        $('.km-result-title').textContent = tournamentEnabled ? '🏆 จบลีก' : '👀 จบการแข่ง';
         $('.km-place').textContent = ranked.length ? ('ผู้ชนะ: ' + ranked[0].name) : '';
-        // เปลี่ยน label ปุ่มสำหรับผู้ชม
         $('.km-bank').textContent = '← กลับ';
       } else {
-        $('.km-result-title').textContent = (myRank === 1 && ranked.length > 1) ? '🏆 คุณชนะ!' : 'จบการแข่ง!';
+        $('.km-result-title').textContent = (myRank === 1 && ranked.length > 1) ? (tournamentEnabled ? '🏆 แชมป์!' : '🏆 คุณชนะ!') : 'จบการแข่ง!';
         $('.km-place').textContent = myRank > 0 ? ('คุณได้อันดับ ' + myRank + ' จาก ' + ranked.length) : '';
       }
       renderResult('.km-result-list', ranked);
       showScreen('result');
-      // กันลืมรับ: ถ้าไม่กดปุ่มภายใน 20 วิ → บันทึก XP อัตโนมัติ (autoSubmit เปิดอยู่)
+      // กันลืมรับ: ถ้าไม่กดปุ่มภายใน 20 วิ → บันทึก XP อัตโนมัติ
       if (autoSubmit) { clearTimeout(bankTimer); bankTimer = setTimeout(bankXp, 20000); }
+    }
+
+    // คำนวณคนตกรอบจาก ranked list — ครึ่งหลัง (ปัดลงให้ผ่านง่ายเมื่อจำนวนคี่)
+    function computeNextEliminated(ranked) {
+      var alive = ranked.filter(function (r) { return !eliminated[r.id]; });
+      var keep = Math.max(1, Math.ceil(alive.length / 2));
+      var out = {};
+      alive.slice(keep).forEach(function (r) { out[r.id] = true; });
+      return out;
     }
 
     function renderList(sel, withScore) {

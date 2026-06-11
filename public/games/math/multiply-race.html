@@ -783,6 +783,7 @@ function ensureMatch() {
     match = KampaiMatch.create({
         duration: 60,
         title: 'แข่งสูตรคูณ',
+        tournament: true,   // เปิดโหมดลีก 2 รอบ (เลือกได้จาก lobby)
         onPlay: ({ rng, role }) => startOnlineQuiz(rng, { role: role }),
         onEnd: () => { onlineEnded = true; locked = true; },
     });
