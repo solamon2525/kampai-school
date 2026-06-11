@@ -777,33 +777,43 @@ function renderWrongReview() {
    โหมดออนไลน์ — ใช้เฟรมเวิร์กกลาง KampaiMatch (lobby/นับถอยหลัง/คะแนนสด/อันดับ)
    เกมเขียนแค่: openMenu + onPlay(เริ่มเล่นด้วย rng) + report(ตอนได้คะแนน) + onEnd(หยุด)
    ═══════════════════════════════════════════════════════════════════════════ */
-let match = null, onlineEnded = false;
+let match = null, onlineEnded = false, isSpectatorMode = false;
 function ensureMatch() {
     if (match) return match;
     match = KampaiMatch.create({
         duration: 60,
         title: 'แข่งสูตรคูณ',
-        onPlay: ({ rng }) => startOnlineQuiz(rng),   // GO! — เริ่มควิซด้วย rng (โจทย์ตรงกันทุกเครื่อง)
-        onEnd: () => { onlineEnded = true; locked = true; },   // หมดเวลา → หยุดรับคำตอบ
+        onPlay: ({ rng, role }) => startOnlineQuiz(rng, { role: role }),
+        onEnd: () => { onlineEnded = true; locked = true; },
     });
     return match;
 }
 function openOnline() { audioCtx(); ensureMatch().openMenu(); }
 
-function startOnlineQuiz(rng) {
+function startOnlineQuiz(rng, opts) {
     stopSpeak();
+    isSpectatorMode = !!(opts && opts.role === 'spectator');
     mode = 'online'; qrand = rng; onlineEnded = false;
     score = 0; streak = 0; maxStreak = 0; correctCount = 0;
-    started = true; locked = false;
+    started = true; locked = isSpectatorMode;   // ผู้ชม: lock ตอบทันที
     $('start').classList.remove('on');
     $('gameover').classList.remove('on');
     $('hud').classList.add('on');
-    $('life-container').style.display = 'none';   // ออนไลน์ = ไม่มีชีวิต (นาฬิกาอยู่ที่ scoreboard ของเฟรมเวิร์ก)
+    $('life-container').style.display = 'none';
     $('timer-wrap').classList.remove('on');
+    $('powerups').classList.remove('on');
     $('play').classList.add('on');
     setScore(0); updateCombo();
-    bgmStart();
-    nextQuestion();
+    if (isSpectatorMode) {
+        // โหมดผู้ชม: ไม่อ่านโจทย์ ไม่โชว์ตัวเลือก ดูแต่ score คู่แข่งใน km-board มุมล่างขวา
+        $('question').textContent = '👀 ผู้ชม';
+        $('feedback').textContent = 'ดูคะแนนคู่แข่งสดที่มุมล่างขวา';
+        $('feedback').className = 'good';
+        $('answers').innerHTML = '';
+    } else {
+        bgmStart();
+        nextQuestion();
+    }
 }
 
 /* ── คีย์บอร์ด 1–4 (desktop) ── */

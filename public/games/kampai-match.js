@@ -114,6 +114,7 @@
         '<button class="km-btn km-btn-primary km-create" type="button">➕ สร้างห้อง</button>' +
         '<div class="km-join"><input class="km-input" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="รหัส">' +
         '<button class="km-btn km-btn-blue km-joinbtn" type="button">เข้าร่วม</button></div>' +
+        '<button class="km-btn km-btn-ghost km-spectate" type="button" style="font-size:14px;padding:8px 18px">👀 เข้าดู (ไม่เล่น)</button>' +
         '<div class="km-p" style="margin:2px 0">มีรหัสห้องแล้ว? กรอกรหัส 4 หลักเพื่อเข้าร่วม</div>' +
         '<div class="km-msg"></div></div>' +
       '<div class="km-screen km-lobby"><div class="km-h">ห้องแข่ง</div>' +
@@ -143,17 +144,22 @@
     var $ = function (sel) { return root.querySelector(sel); };
 
     // ─── state ─────────────────────────────────────────────────────────────
-    var room = null, isHost = false, myId = null, members = {};
+    var room = null, isHost = false, isSpectator = false, myId = null, members = {};
     var started = false, ended = false, resultShown = false, submitted = false;
     var endsAt = 0, rafId = 0, sendTs = 0, finishTimer = 0, bankTimer = 0, lastScore = 0, lastCorrect = 0;
 
     // ─── wire UI ───────────────────────────────────────────────────────────
     $('.km-close').onclick = function () { root.style.display = 'none'; };
-    $('.km-create').onclick = function () { isHost = true; joinRoom(online().makeCode()); };
+    $('.km-create').onclick = function () { isHost = true; isSpectator = false; joinRoom(online().makeCode()); };
     $('.km-joinbtn').onclick = function () {
       var v = ($('.km-input').value || '').trim();
       if (!/^\d{4}$/.test(v)) { $('.km-msg').textContent = 'กรอกรหัส 4 หลัก'; return; }
-      isHost = false; joinRoom(v);
+      isHost = false; isSpectator = false; joinRoom(v);
+    };
+    $('.km-spectate').onclick = function () {
+      var v = ($('.km-input').value || '').trim();
+      if (!/^\d{4}$/.test(v)) { $('.km-msg').textContent = 'กรอกรหัส 4 หลักก่อนเข้าดู'; return; }
+      isHost = false; isSpectator = true; joinRoom(v);
     };
     $('.km-start').onclick = function () {
       online().send('start', { countdown: 3500 });
@@ -179,10 +185,15 @@
       var st = (window.KAMPAI && window.KAMPAI.student) || {};
       myId = st.id || ('me-' + Math.random().toString(36).slice(2, 7));
       members = {};
-      members[myId] = { name: st.displayName || 'ฉัน', photoUrl: st.photoUrl || null, classLabel: st.classLabel || null, score: 0, correct: 0, done: false, me: true };
+      // spectator ไม่อยู่ใน members[] — ไม่เข้า scoreboard/ranking ไม่ submit
+      if (!isSpectator) {
+        members[myId] = { name: st.displayName || 'ฉัน', photoUrl: st.photoUrl || null, classLabel: st.classLabel || null, score: 0, correct: 0, done: false, me: true };
+      }
       $('.km-code').textContent = room;
-      $('.km-start').style.display = isHost ? '' : 'none';
-      $('.km-wait').style.display = isHost ? 'none' : '';
+      $('.km-start').style.display = (isHost && !isSpectator) ? '' : 'none';
+      $('.km-wait').style.display = (isHost && !isSpectator) ? 'none' : '';
+      var wait = $('.km-wait');
+      if (wait && wait.style.display !== 'none') wait.textContent = isSpectator ? '👀 โหมดผู้ชม — รอเจ้าของห้องเริ่ม...' : 'รอเจ้าของห้องเริ่มเกม...';
       showScreen('lobby');
       renderList('.km-lobby-list', false);
       online().join(room, { onPresence: onPresence, onEvent: onEvent });
@@ -237,7 +248,8 @@
       renderBoard();
       runCountdown(delay, function () {
         endsAt = Date.now() + duration * 1000;   // local clock at GO — ไม่มี clock skew ข้ามเครื่อง
-        if (opts.onPlay) try { opts.onPlay({ rng: rng, seed: seed, room: room, endsAt: endsAt }); } catch (e) { /* */ }
+        var role = isSpectator ? 'spectator' : 'player';
+        if (opts.onPlay) try { opts.onPlay({ rng: rng, seed: seed, room: room, endsAt: endsAt, role: role }); } catch (e) { /* */ }
         tick();
       });
     }
@@ -268,6 +280,7 @@
     }
 
     function report(score, info) {
+      if (isSpectator) return;   // ผู้ชม: ไม่ส่งคะแนน
       info = info || {};
       lastScore = score | 0; lastCorrect = info.correct | 0;
       if (members[myId]) { members[myId].score = lastScore; members[myId].correct = lastCorrect; }
@@ -280,8 +293,10 @@
       if (ended) return;
       ended = true;
       cancelAnimationFrame(rafId);
-      if (members[myId]) { members[myId].score = lastScore; members[myId].correct = lastCorrect; members[myId].done = true; }
-      if (online()) online().send('done', { score: lastScore, correct: lastCorrect });
+      if (!isSpectator) {
+        if (members[myId]) { members[myId].score = lastScore; members[myId].correct = lastCorrect; members[myId].done = true; }
+        if (online()) online().send('done', { score: lastScore, correct: lastCorrect });
+      }
       if (opts.onEnd) try { opts.onEnd(); } catch (e) { /* */ }
       finishTimer = setTimeout(showResult, 2000);   // โชว์อันดับ/ผู้ชนะก่อน — XP รับทีหลัง
       maybeFinish();
@@ -291,6 +306,7 @@
     function bankXp() {
       if (submitted) return; submitted = true;
       clearTimeout(bankTimer);
+      if (isSpectator) { location.reload(); return; }   // ผู้ชม: ไม่บันทึก กลับหน้าหลัก
       var ok = false;
       try { ok = !!(window.KAMPAI && window.KAMPAI.submitScore && window.KAMPAI.submitScore(lastScore, { mode: 'online', correct: lastCorrect, room: room })); } catch (e) { /* */ }
       if (!ok) location.reload();   // standalone/ไม่มีนักเรียน → ไม่มีจอ wrapper → เริ่มใหม่
@@ -318,8 +334,15 @@
       var ranked = rankMembers();
       var myRank = 0;
       for (var i = 0; i < ranked.length; i++) { if (ranked[i].id === myId) { myRank = i + 1; break; } }
-      $('.km-result-title').textContent = (myRank === 1 && ranked.length > 1) ? '🏆 คุณชนะ!' : 'จบการแข่ง!';
-      $('.km-place').textContent = myRank > 0 ? ('คุณได้อันดับ ' + myRank + ' จาก ' + ranked.length) : '';
+      if (isSpectator) {
+        $('.km-result-title').textContent = '👀 จบการแข่ง';
+        $('.km-place').textContent = ranked.length ? ('ผู้ชนะ: ' + ranked[0].name) : '';
+        // เปลี่ยน label ปุ่มสำหรับผู้ชม
+        $('.km-bank').textContent = '← กลับ';
+      } else {
+        $('.km-result-title').textContent = (myRank === 1 && ranked.length > 1) ? '🏆 คุณชนะ!' : 'จบการแข่ง!';
+        $('.km-place').textContent = myRank > 0 ? ('คุณได้อันดับ ' + myRank + ' จาก ' + ranked.length) : '';
+      }
       renderResult('.km-result-list', ranked);
       showScreen('result');
       // กันลืมรับ: ถ้าไม่กดปุ่มภายใน 20 วิ → บันทึก XP อัตโนมัติ (autoSubmit เปิดอยู่)
