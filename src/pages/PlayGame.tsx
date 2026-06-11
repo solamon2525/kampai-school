@@ -46,6 +46,8 @@ import {
   type LevelInfo,
 } from '@/services/game-play.service';
 import { multiplyRaceService, type PerTableStats } from '@/services/multiply-race.service';
+import { HonorWall } from '@/components/games/HonorWall';
+import { TIER_STYLES, type MedalTier } from '@/services/gamification.service';
 
 // ─── Lucide icon resolver ────────────────────────────────────────────────────
 type LucideMap = Record<string, React.ComponentType<{ className?: string }>>;
@@ -534,16 +536,20 @@ const PlayGame = () => {
         )}
 
         {phase === 'pre-game' && student && (
-          <PreGamePanel
-            student={student}
-            stats={statsQuery.data}
-            levelInfo={levelInfo}
-            catalog={catalogQuery.data ?? []}
-            unlockedIds={unlockedIds}
-            onStart={handleStart}
-            leaderboard={leaderboardQuery.data}
-            leaderboardLoading={leaderboardQuery.isLoading}
-          />
+          <div className="space-y-4">
+            {/* โปรไฟล์ XP รวม + เหรียญล่าสุด (gamification กลาง) */}
+            <HonorWall studentCode={codeInput} variant="compact" />
+            <PreGamePanel
+              student={student}
+              stats={statsQuery.data}
+              levelInfo={levelInfo}
+              catalog={catalogQuery.data ?? []}
+              unlockedIds={unlockedIds}
+              onStart={handleStart}
+              leaderboard={leaderboardQuery.data}
+              leaderboardLoading={leaderboardQuery.isLoading}
+            />
+          </div>
         )}
 
         {phase === 'playing' && iframeUrl && (
@@ -1155,13 +1161,23 @@ const RewardPopup = ({
           {result.unlocked.length > 0 && (
             <div className="flex flex-wrap justify-center gap-1.5">
               {result.unlocked.map((u: UnlockedBadge) => {
+                // เหรียญใหม่ (155+) icon เป็น emoji + มี tier — เหรียญเก่าเป็นชื่อ lucide
+                const isEmoji = !!u.icon && !/^[A-Za-z]/.test(u.icon);
                 const Icon = ICON(u.icon);
+                const tierStyle = TIER_STYLES[(u.tier as MedalTier) ?? 'bronze'] ?? TIER_STYLES.bronze;
                 return (
                   <div
                     key={u.code}
-                    className="flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-2.5 py-1 animate-bounce"
+                    className={cn(
+                      'flex items-center gap-1.5 rounded-full border border-primary/30 px-2.5 py-1 animate-bounce ring-2',
+                      tierStyle.bg, tierStyle.ring,
+                    )}
                   >
-                    <Icon className="h-3.5 w-3.5 text-primary" />
+                    {isEmoji ? (
+                      <span className="text-sm leading-none">{u.icon}</span>
+                    ) : (
+                      <Icon className="h-3.5 w-3.5 text-primary" />
+                    )}
                     <span className="text-[11px] font-medium text-foreground">{u.title}</span>
                     {u.xp_bonus > 0 && (
                       <span className="text-[11px] text-muted-foreground">+{u.xp_bonus}</span>

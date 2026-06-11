@@ -38,6 +38,7 @@ export type UnlockedBadge = {
   title: string;
   icon: string | null;
   xp_bonus: number;
+  tier?: string;   // bronze | silver | gold | diamond (migration 156+)
 };
 
 export type RecordSessionResult = {
