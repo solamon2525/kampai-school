@@ -215,8 +215,8 @@ function buildItems() {
             if (r < acc) { type = k; break; }
         }
         const el = document.createElement('div');
-        el.className = 'item-box';
-        el.textContent = '🎁';
+        el.className = 'item-box item-' + type;
+        el.textContent = DATA.ITEMS[type].e;
         el.style.left = (pos / CFG.TRACK_LEN * 86) + '%';
         $('item-layer').appendChild(el);
         items.push({ pos, type, el });
@@ -282,7 +282,7 @@ function startRace(m, opts) {
     const rv = mode === 'online' ? DATA.RIVALS.online : DATA.RIVALS[difficulty];
     rival = { dist: 0, speed: CFG.BASE_SPEED, slowUntil: 0 };
     $('rival-name').textContent = `${rv.car} ${rv.name}`;
-    $('rival-car').childNodes[0].nodeValue = rv.car;
+    $('rival-car').innerHTML = rv.carSvg || rv.car;
     $('player-car').classList.remove('has-shield', 'has-star', 'smoke', 'slowed');
     $('rival-car').classList.remove('slowed');
     document.querySelectorAll('.lane').forEach((l) => l.classList.add('racing'));
@@ -394,6 +394,21 @@ function finishRace(won) {
     endGame(won, finalScore);
 }
 
+function spawnConfetti() {
+    const layer = $('confetti-layer'); if (!layer) return;
+    const colors = ['#fbbf24','#22c55e','#3b82f6','#ef4444','#a855f7','#06b6d4','#f97316'];
+    for (let i = 0; i < 55; i++) {
+        const el = document.createElement('div');
+        el.className = 'cfetti';
+        el.style.background = colors[(Math.random() * colors.length) | 0];
+        el.style.left = (25 + Math.random() * 50) + '%';
+        el.style.setProperty('--dx', ((Math.random() - 0.5) * 560) + 'px');
+        el.style.animationDelay = (Math.random() * 0.5) + 's';
+        layer.appendChild(el);
+        setTimeout(() => el.remove(), 2200);
+    }
+}
+
 /* ⚠️ ต้องเรียก KAMPAI.submitScore() ตอนจบ (vs คอม) — ออนไลน์ kampai-match submit ให้เอง */
 function endGame(won, finalScore) {
     if (isGameOver) return;
@@ -405,6 +420,7 @@ function endGame(won, finalScore) {
         mode: 'normal', correct, maxStreak, won,
         difficulty, table: selectedTable || 'mix', lightning, wrong: wrongCount,
     });
+    if (won) spawnConfetti();
     $('go-title').textContent = won ? '🏆 ชนะแล้ว!' : 'จบเกม!';
     $('go-result').textContent = won ? '🥇🏁' : '🏁';
     $('final-score').textContent = finalScore.toLocaleString();
