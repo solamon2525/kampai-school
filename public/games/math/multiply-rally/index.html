@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🏎️ รถซิ่งสูตรคูณ — Multiply Rally (kampai)</title>
+<!--
+═══════════════════════════════════════════════════════════════════════════
+  KAMPAI-SCHOOL · เกม "รถซิ่งสูตรคูณ" (multiply-rally)
+  Racing duel 2 เลน: ตอบสูตรคูณถูก → รถพุ่ง · ผิด → รถช้า · ถึงเส้นชัยก่อนชนะ
+  โหมด: 🤖 แข่งกับคอม (3 ระดับ) · 🌐 ออนไลน์ (kampai-match — ถึงเส้นชัยก่อนจบรอบ)
+  ไอเทมบนถนน: 🚀 นิโทร · 🛡️ โล่ · ⭐ ดาวคะแนน×2 · 🐢 เต่า (vs คอมเท่านั้น)
+  ตอบ: แตะ/คลิก หรือคีย์ลูกศร ↑←→↓ ตาม layout เพชร (+ เลข 1-4)
+  โครงโฟลเดอร์ 5 ไฟล์ตาม GAME.md — config.js / data.js / game.js / style.css
+═══════════════════════════════════════════════════════════════════════════
+-->
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="app">
+    <!-- HUD (เว้นซ้ายให้ปุ่มเสียง SDK top-left z40) -->
+    <div id="hud">
+        <div id="hud-spacer"></div>
+        <div id="timer-container">⏱️ <span id="timer-value">--</span></div>
+        <div id="combo-badge"></div>
+        <div id="score-container">⭐ <span id="score-value">0</span></div>
+    </div>
+
+    <!-- สนามแข่ง 2 เลน -->
+    <div id="track">
+        <div class="lane" id="lane-rival">
+            <div class="lane-name" id="rival-name">🤖 คู่แข่ง</div>
+            <div class="road"><div class="stripes"></div></div>
+            <div class="car" id="rival-car">🚙</div>
+            <div class="lane-pct" id="rival-pct">0%</div>
+        </div>
+        <div class="finish-line">🏁</div>
+        <div class="lane" id="lane-player">
+            <div class="lane-name" id="lane-player-name">🏎️ ฉัน</div>
+            <div class="road"><div class="stripes"></div></div>
+            <div id="item-layer"></div>
+            <div class="car" id="player-car">🏎️<span id="shield-badge" class="car-badge">🛡️</span><span id="star-badge" class="car-badge">⭐</span></div>
+            <div class="lane-pct" id="player-pct">0%</div>
+        </div>
+    </div>
+
+    <!-- โจทย์ + ปุ่มตอบ layout เพชร -->
+    <div id="quiz">
+        <div id="question">7 × 8</div>
+        <div id="q-timer"><div id="q-timer-bar"></div></div>
+        <div id="feedback"></div>
+        <div id="answers">
+            <button class="ans ans-up"    data-i="0"><span class="k">↑</span><span class="v"></span></button>
+            <button class="ans ans-left"  data-i="1"><span class="k">←</span><span class="v"></span></button>
+            <button class="ans ans-right" data-i="2"><span class="k">→</span><span class="v"></span></button>
+            <button class="ans ans-down"  data-i="3"><span class="k">↓</span><span class="v"></span></button>
+        </div>
+    </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- Start screen -->
+<div id="blocker">
+    <h1>🏎️ รถซิ่งสูตรคูณ</h1>
+    <div id="player-chip"></div>
+    <p>ตอบสูตรคูณถูก รถพุ่ง! ตอบผิด รถช้า 🐌<br>เก็บไอเทมบนถนน 🚀🛡️⭐ — ถึงเส้นชัยก่อนชนะ 🏁</p>
+    <div id="my-stats">
+        <div class="ms-cell"><div class="ms-val" id="ms-best">0</div><div class="ms-label">คะแนนสูงสุด</div></div>
+        <div class="ms-cell"><div class="ms-val" id="ms-plays">0</div><div class="ms-label">เล่นไปแล้ว (ครั้ง)</div></div>
+    </div>
+    <div class="pick-label">แม่สูตรคูณ:</div>
+    <div id="table-picker"></div>
+    <div class="mode-row">
+        <button class="btn btn-primary" onclick="startCpu('easy')">🤖 ง่าย</button>
+        <button class="btn btn-primary" onclick="startCpu('mid')">🤖 กลาง</button>
+        <button class="btn btn-primary" onclick="startCpu('hard')">🤖 โหด</button>
+        <button class="btn btn-blue" id="online-btn" onclick="openOnline()" style="display:none">🌐 ออนไลน์</button>
+    </div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+    </div>
+</div>
+
+<!-- Game Over screen -->
+<div id="gameover-screen">
+    <h1 id="go-title">จบเกม!</h1>
+    <div id="go-result"></div>
+    <div id="final-score">0</div>
+    <p id="go-summary"></p>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
+        <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นใหม่</button>
+        <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+    </div>
+</div>
+
+<!-- ═══ KAMPAI SDK + Online framework (single source — อย่าแก้) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+/* fallback stub: กันพังถ้าเปิด standalone แล้ว SDK โหลดไม่ได้ */
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, online:{available:false,makeCode:function(){return'0000';},join:function(){return this;},send:function(){return this;},leave:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){return this;},defaultBgm:function(){return this;},setBgm:function(){return this;},setBgmUrl:function(){return this;},bgmStart:function(){},bgmStop:function(){},unlock:function(){return this;}} };
+</script>
+<script src="/games/kampai-match.js"></script>
+<script>
+/* fallback stub สำหรับโหมดออนไลน์ */
+window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){alert('โหมดออนไลน์เล่นผ่านระบบเท่านั้น');},report:function(){},finish:function(){},leave:function(){}};} };
+</script>
+
+<!-- ═══ เกม (config → data → game · โหลดตามลำดับ แชร์ global scope) ═══ -->
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

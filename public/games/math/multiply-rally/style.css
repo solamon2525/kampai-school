@@ -1,0 +1,137 @@
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Fredoka+One&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; font-family: 'Kanit', sans-serif; background: #0f172a; color: #fff; overflow: hidden; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+body { background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); }
+
+#app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+
+/* ── HUD (แถวบน — เว้นซ้าย 140px ให้ปุ่มเสียง SDK top:10 left:10) ── */
+#hud { display: flex; align-items: center; gap: 8px; padding: 10px 14px 4px; min-height: 56px; }
+#hud-spacer { width: 132px; flex-shrink: 0; }   /* พื้นที่ปุ่มเสียง 🔊🗣️🎵 */
+#timer-container { font-size: 18px; font-weight: 700; background: rgba(0,0,0,0.4); padding: 4px 14px; border-radius: 999px; white-space: nowrap; }
+#timer-container.low { color: #ef4444; animation: pulse 0.5s ease-in-out infinite; }
+@keyframes pulse { 50% { transform: scale(1.1); } }
+#combo-badge { flex: 1; text-align: center; font-size: 15px; font-weight: 700; color: #fb923c; text-shadow: 0 2px 6px rgba(0,0,0,0.6); min-height: 20px; transition: transform 0.12s; }
+#combo-badge.bump { transform: scale(1.25); }
+#score-container { font-size: 20px; font-weight: 700; color: #FFD700; text-shadow: 2px 2px 4px #000; background: rgba(0,0,0,0.35); padding: 4px 14px; border-radius: 999px; border: 2px solid rgba(255,215,0,0.5); transition: transform 0.15s; white-space: nowrap; }
+#score-container.pop { transform: scale(1.15); }
+
+/* ── สนามแข่ง 2 เลน ── */
+#track { position: relative; margin: 4px 12px; border-radius: 16px; overflow: hidden; background: #334155; border: 2px solid rgba(255,255,255,0.15); }
+.lane { position: relative; height: 86px; }
+#lane-rival { border-bottom: 3px dashed rgba(255,255,255,0.35); }
+.road { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, #3f4a5f 0 40px, #46536a 40px 80px); opacity: 0.6; }
+.stripes { position: absolute; left: 0; right: 0; top: 50%; height: 4px; margin-top: -2px;
+  background: repeating-linear-gradient(90deg, #facc15 0 26px, transparent 26px 52px);
+  animation: roadmove 0.8s linear infinite; opacity: 0.55; }
+@keyframes roadmove { to { transform: translateX(-52px); } }
+.lane.racing .stripes { animation-duration: 0.45s; }
+.lane-name { position: absolute; top: 4px; left: 8px; z-index: 3; font-size: 12px; font-weight: 600; background: rgba(0,0,0,0.45); padding: 1px 10px; border-radius: 999px; max-width: 60%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lane-pct { position: absolute; bottom: 4px; right: 8px; z-index: 3; font-family: 'Fredoka One', cursive; font-size: 13px; color: #FFD700; text-shadow: 1px 1px 2px #000; }
+.finish-line { position: absolute; top: 0; bottom: 0; right: 6px; width: 26px; z-index: 2; display: flex; align-items: center; justify-content: center; font-size: 22px;
+  background: repeating-conic-gradient(#fff 0 25%, #1f2937 0 50%) 0 0/12px 12px; opacity: 0.85; border-radius: 4px; }
+
+/* รถ — เลื่อนด้วย left% (JS) + transition สั้นให้ลื่น */
+.car { position: absolute; top: 50%; left: 0%; z-index: 4; font-size: 38px; line-height: 1; transform: translateY(-50%); transition: left 0.25s linear; filter: drop-shadow(2px 3px 3px rgba(0,0,0,0.5)); }
+.car.boost { animation: carboost 0.4s ease; }
+@keyframes carboost { 30% { transform: translateY(-50%) scale(1.25) rotate(-4deg); } }
+.car.smoke::before { content: '💨'; position: absolute; left: -22px; top: 2px; font-size: 20px; animation: smokefade 0.5s ease infinite; }
+@keyframes smokefade { 50% { opacity: 0.4; transform: translateX(-6px); } }
+.car.slowed { filter: grayscale(0.7) drop-shadow(2px 3px 3px rgba(0,0,0,0.5)); }
+.car-badge { position: absolute; top: -14px; font-size: 15px; display: none; }
+#shield-badge { left: -4px; }
+#star-badge { right: -4px; animation: starspin 1s linear infinite; }
+@keyframes starspin { 50% { transform: scale(1.3); } }
+.car.has-shield #shield-badge, .car.has-star #star-badge { display: block; }
+
+/* กล่องไอเทมบนถนน */
+#item-layer { position: absolute; inset: 0; z-index: 2; }
+.item-box { position: absolute; top: 50%; transform: translateY(-50%); font-size: 22px; animation: itembob 0.9s ease-in-out infinite alternate; }
+@keyframes itembob { to { transform: translateY(-66%); } }
+
+/* ── โจทย์ + ปุ่มเพชร ── */
+#quiz { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6px 14px 14px; gap: 4px; min-height: 0; }
+#question { font-family: 'Fredoka One', cursive; font-size: clamp(36px, 9vw, 64px); text-shadow: 3px 3px 0 rgba(0,0,0,0.25); letter-spacing: 2px; }
+#question.bump { animation: qbump 0.25s ease; }
+@keyframes qbump { 35% { transform: scale(1.18); } }
+#feedback { min-height: 24px; font-size: 18px; font-weight: 600; }
+#feedback.good { color: #4ade80; }
+#feedback.bad { color: #f87171; }
+
+#answers { display: grid; width: 100%; max-width: 430px;
+  grid-template-areas: ". up ." "left . right" ". down .";
+  grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+.ans { display: flex; align-items: center; justify-content: center; gap: 7px; min-height: 52px; border: none; border-radius: 14px; cursor: pointer;
+  font-family: 'Fredoka One', cursive; font-size: clamp(20px, 5.5vw, 28px); color: #1e293b; background: #f8fafc; box-shadow: 0 4px 0 #cbd5e1; transition: transform 0.08s, box-shadow 0.08s; }
+.ans:active { transform: translateY(3px); box-shadow: 0 1px 0 #cbd5e1; }
+.ans .k { font-family: 'Kanit'; font-size: 13px; color: #94a3b8; }
+.ans-up { grid-area: up; } .ans-left { grid-area: left; } .ans-right { grid-area: right; } .ans-down { grid-area: down; }
+.ans.correct { background: linear-gradient(135deg,#86efac,#22c55e); color: #052e16; box-shadow: 0 4px 0 #15803d; }
+.ans.wrong { background: linear-gradient(135deg,#fca5a5,#ef4444); color: #450a0a; box-shadow: 0 4px 0 #b91c1c; }
+.ans.dim { opacity: 0.45; }
+/* แถบเวลาต่อข้อ (วงรอบโจทย์แบบเส้นใต้) */
+#q-timer { height: 6px; width: 100%; max-width: 430px; background: rgba(255,255,255,0.12); border-radius: 999px; overflow: hidden; }
+#q-timer-bar { height: 100%; width: 100%; background: linear-gradient(90deg,#4ade80,#22c55e); border-radius: 999px; }
+#q-timer-bar.warn { background: linear-gradient(90deg,#f87171,#ef4444); }
+
+/* ── จอเริ่ม / จอจบ (วัฒนธรรมมาตรฐาน) ── */
+#blocker, #gameover-screen { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.93); backdrop-filter: blur(8px); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; z-index: 30; text-align: center; padding: 26px 20px; overflow-y: auto; }
+#gameover-screen { display: none; }
+#blocker h1, #gameover-screen h1 { font-size: 36px; margin-bottom: 8px; background: linear-gradient(135deg, #FFD700, #FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+#blocker p, #gameover-screen p { font-size: 16px; color: #cbd5e1; margin-bottom: 10px; line-height: 1.5; }
+#go-result { font-size: 50px; margin: 2px 0; }
+#final-score { color: #FFD700; font-family: 'Fredoka One', cursive; font-size: 48px; margin: 2px 0 8px; }
+.btn { padding: 13px 26px; font-family: inherit; font-size: 18px; font-weight: 600; border-radius: 999px; border: none; cursor: pointer; margin: 5px; transition: transform 0.1s; display: inline-flex; align-items: center; gap: 8px; color: #fff; }
+.btn:active { transform: scale(0.95); }
+.btn-primary { background: linear-gradient(45deg, #f59e0b, #f97316); box-shadow: 0 4px 10px rgba(245,158,11,0.4); }
+.btn-blue { background: linear-gradient(45deg, #3b82f6, #2563eb); box-shadow: 0 4px 10px rgba(59,130,246,0.4); }
+.btn-ghost { background: rgba(255,255,255,0.12); }
+.mode-row { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-bottom: 8px; }
+
+/* เลือกแม่สูตรคูณ */
+.pick-label { font-size: 13px; color: #94a3b8; margin-bottom: 4px; }
+#table-picker { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; max-width: 430px; margin: 0 auto 12px; }
+.tchip { min-width: 42px; height: 42px; border-radius: 11px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); color: #fff; font-family: 'Fredoka One', cursive; font-size: 16px; cursor: pointer; padding: 0 8px; }
+.tchip.sel { background: linear-gradient(135deg,#fbbf24,#f59e0b); color: #0f172a; border-color: #fbbf24; }
+
+/* Leaderboard + สถิติฉัน (วัฒนธรรมมาตรฐาน) */
+.leaderboard-box { background: rgba(255,255,255,0.95); color: #2c3e50; border-radius: 12px; padding: 12px 15px; margin: 10px 0; width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.lb-title { font-family: 'Fredoka One', cursive; font-size: 1rem; margin: 0 0 8px 0; text-align: left; }
+.leaderboard-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.leaderboard-list li { display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-bottom: 1px dashed #dee2e6; border-radius: 8px; }
+.leaderboard-list li:last-child { border-bottom: none; }
+.leaderboard-list li.is-me { background: #fff7e0; }
+.lb-rank { font-family: 'Fredoka One', cursive; color: #f39c12; min-width: 26px; text-align: center; font-size: 1.1rem; }
+.lb-avatar, .lb-avatar-init { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #f39c12; flex-shrink: 0; }
+.lb-avatar-init { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.lb-info { display: flex; flex-direction: column; min-width: 0; flex: 1; text-align: left; }
+.lb-name { font-family: 'Fredoka One', cursive; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-sub { font-size: 0.72rem; color: #868e96; }
+.lb-loading { color: #868e96; text-align: center; padding: 8px; font-size: 0.85rem; }
+#my-stats { display: none; gap: 10px; margin: 4px 0 10px; width: 100%; max-width: 420px; }
+#my-stats .ms-cell { flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 10px; }
+#my-stats .ms-val { font-family: 'Fredoka One', cursive; font-size: 1.6rem; color: #FFD700; line-height: 1.1; }
+#my-stats .ms-label { font-size: 0.72rem; color: #cbd5e1; }
+#player-chip { display: none; align-items: center; gap: 8px; background: rgba(255,255,255,0.1); padding: 4px 14px 4px 4px; border-radius: 999px; font-size: 14px; margin-bottom: 10px; }
+#player-chip img, #player-chip .pc-init { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+#player-chip .pc-init { background: linear-gradient(135deg,#6c5ce7,#a29bfe); display: flex; align-items: center; justify-content: center; font-weight: 700; }
+#player-chip .pc-best { color: #FFD700; font-weight: 700; }
+
+/* toast กลางจอ (เก็บไอเทม/เหตุการณ์) */
+#toast { position: fixed; top: 42%; left: 50%; transform: translate(-50%,-50%) scale(0.6); z-index: 41; font-family: 'Fredoka One', cursive; font-size: 30px; color: #FFD700; text-shadow: 0 4px 12px rgba(0,0,0,0.7); opacity: 0; pointer-events: none; max-width: 90vw; text-align: center; }
+#toast.show { animation: toastPop 1.1s ease-out; }
+@keyframes toastPop { 0%{opacity:0;transform:translate(-50%,-50%) scale(0.5)} 22%{opacity:1;transform:translate(-50%,-50%) scale(1.08)} 78%{opacity:1;transform:translate(-50%,-50%) scale(1)} 100%{opacity:0;transform:translate(-50%,-50%) scale(1)} }
+
+/* มือถือเตี้ย/แคบ */
+@media (max-width: 420px) {
+  #hud-spacer { width: 118px; }
+  .lane { height: 70px; }
+  .car { font-size: 30px; }
+  #question { letter-spacing: 1px; }
+  .ans { min-height: 46px; }
+}
+@media (max-height: 600px) {
+  .lane { height: 58px; }
+  #quiz { gap: 2px; }
+  #question { font-size: clamp(30px, 7vw, 44px); }
+}

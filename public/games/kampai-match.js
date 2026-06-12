@@ -101,6 +101,7 @@
     var autoSubmit = opts.autoSubmit !== false;
     var tournamentEnabled = !!opts.tournament;        // Phase 3c: ลีก 2 รอบ — eliminate bottom half หลังรอบแรก
     var tournamentMaxRounds = 2;                       // ใช้ใน DOM template (ต้องประกาศก่อน build)
+    var rankBy = opts.rankBy === 'score' ? 'score' : 'correct';   // เกม race จัดอันดับตามระยะ/score แทนจำนวนข้อถูก
     var online = function () { return (window.KAMPAI && window.KAMPAI.online) || null; };
     var available = !!(online() && online().available);
 
@@ -245,7 +246,7 @@
       }
       $('.km-count').textContent = Object.keys(members).length;
       renderList('.km-lobby-list', false);
-      if (started) renderBoard();
+      if (started) { renderBoard(); notifyOpponents(); }
     }
 
     function onEvent(ev, data, fromKey) {
@@ -269,7 +270,7 @@
       var m = members[fromKey] || (members[fromKey] = { name: '?', photoUrl: null, classLabel: null, done: false });
       if (ev === 'score') { m.score = data.score | 0; m.correct = data.correct | 0; }
       else if (ev === 'done') { m.score = data.score | 0; m.correct = data.correct | 0; m.done = true; }
-      if (started) renderBoard();
+      if (started) { renderBoard(); notifyOpponents(); }
       if (ev === 'done') maybeFinish();
     }
 
@@ -381,7 +382,21 @@
     function rankMembers() {
       return Object.keys(members).map(function (id) {
         var m = members[id]; return { id: id, name: m.name, photoUrl: m.photoUrl, classLabel: m.classLabel, score: m.score || 0, correct: m.correct || 0, done: m.done, me: m.me };
-      }).sort(function (a, b) { return (b.correct - a.correct) || (b.score - a.score); });
+      }).sort(function (a, b) {
+        if (rankBy === 'score') return (b.score - a.score) || (b.correct - a.correct);
+        return (b.correct - a.correct) || (b.score - a.score);
+      });
+    }
+
+    // แจ้งเกมว่าคะแนน/ระยะคู่แข่งเปลี่ยน (เกม race ใช้ขยับรถคู่แข่ง real-time) — optional
+    function notifyOpponents() {
+      if (!opts.onOpponent) return;
+      try {
+        opts.onOpponent(Object.keys(members).map(function (id) {
+          var m = members[id];
+          return { id: id, name: m.name, photoUrl: m.photoUrl, score: m.score || 0, correct: m.correct || 0, done: !!m.done, me: !!m.me };
+        }));
+      } catch (e) { /* */ }
     }
 
     function showResult() {
