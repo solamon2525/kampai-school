@@ -7,7 +7,8 @@
  * ข้อมูลจาก get_student_honor_profile (RPC) — mobile-first
  */
 import { useQuery } from '@tanstack/react-query';
-import { Loader2 } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
+import { Loader2, Medal } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
@@ -42,16 +43,29 @@ const LevelRing = ({ level, progress, size = 72 }: { level: number; progress: nu
   );
 };
 
+// icon ใน catalog มี 2 แบบ: emoji (เหรียญใหม่ 156+) กับชื่อ lucide เช่น "Pizza" (เหรียญเก่า)
+// → ถ้าขึ้นต้นด้วย A-Z ให้ resolve เป็น lucide component, ไม่งั้น render เป็น emoji
+type LucideMap = Record<string, React.ComponentType<{ className?: string }>>;
+const Icons = LucideIcons as unknown as LucideMap;
+
+const MedalIcon = ({ icon, small }: { icon: string | null; small?: boolean }) => {
+  if (icon && /^[A-Za-z]/.test(icon)) {
+    const Icon = Icons[icon] ?? Medal;
+    return <Icon className={cn('text-amber-600 shrink-0', small ? 'h-4 w-4' : 'h-6 w-6')} />;
+  }
+  return <span className={cn('leading-none', small ? 'text-lg' : 'text-2xl')}>{icon ?? '🏅'}</span>;
+};
+
 const MedalChip = ({ medal, small }: { medal: HonorMedal; small?: boolean }) => {
   const t = TIER_STYLES[medal.tier] ?? TIER_STYLES.bronze;
   return (
     <div
-      className={cn('flex flex-col items-center justify-center rounded-xl ring-2 text-center', t.ring, t.bg,
+      className={cn('flex flex-col items-center justify-center gap-0.5 overflow-hidden rounded-xl ring-2 text-center', t.ring, t.bg,
         small ? 'w-12 h-12' : 'w-full aspect-square p-1')}
       title={`${medal.title} (${t.label})`}
     >
-      <span className={small ? 'text-lg' : 'text-2xl'}>{medal.icon ?? '🏅'}</span>
-      {!small && <span className="text-[9px] leading-tight text-foreground/80 line-clamp-2">{medal.title}</span>}
+      <MedalIcon icon={medal.icon} small={small} />
+      {!small && <span className="w-full text-[9px] leading-tight text-foreground/80 line-clamp-2 break-words">{medal.title}</span>}
     </div>
   );
 };
