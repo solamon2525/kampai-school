@@ -1,7 +1,8 @@
 /**
  * GameRankings — อันดับ XP กระตุ้นการแข่งขัน (ทุกเกมรวมกัน)
  *
- * แท็บ: สัปดาห์นี้ (รีเซ็ตทุกจันทร์ — เด็กใหม่มีลุ้น) · รวม · คณิต · ไทย · อังกฤษ
+ * แท็บ: สัปดาห์นี้ (รีเซ็ตทุกจันทร์ — เด็กใหม่มีลุ้น) · รวม · รายวิชา
+ * แท็บรายวิชา = chip strip 8 กลุ่มสาระ (วิชาหลัก คณิต/ไทย/อังกฤษ ขึ้นก่อน)
  * ใช้ PersonAvatar คู่ชื่อตามกฎ 14.13 — mobile-first
  */
 import { useState } from 'react';
@@ -12,7 +13,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { cn } from '@/lib/utils';
-import { gamificationService } from '@/services/gamification.service';
+import { gamificationService, ALL_SUBJECTS, SUBJECT_LABELS } from '@/services/gamification.service';
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 
@@ -64,6 +65,7 @@ const RankList = ({ rows, loading }: { rows: Row[]; loading: boolean }) => {
 
 export const GameRankings = ({ studentCode }: { studentCode: string | null }) => {
   const [tab, setTab] = useState('weekly');
+  const [subjectKey, setSubjectKey] = useState<string>('math');
   const code = studentCode?.trim() || null;
 
   const weeklyQ = useQuery({
@@ -76,11 +78,10 @@ export const GameRankings = ({ studentCode }: { studentCode: string | null }) =>
     queryFn: () => gamificationService.getGlobalLeaderboard(10, code),
     enabled: tab === 'global',
   });
-  const subjectKey = ['math', 'thai', 'english'].includes(tab) ? tab : null;
   const subjectQ = useQuery({
     queryKey: ['rank-subject', subjectKey, code],
-    queryFn: () => gamificationService.getSubjectLeaderboard(subjectKey!, 10, code),
-    enabled: !!subjectKey,
+    queryFn: () => gamificationService.getSubjectLeaderboard(subjectKey, 10, code),
+    enabled: tab === 'subject',
   });
 
   const weeklyRows: Row[] = (weeklyQ.data ?? []).map((r) => ({
@@ -90,25 +91,40 @@ export const GameRankings = ({ studentCode }: { studentCode: string | null }) =>
     ...r, xp: r.total_xp, sub: `${r.games_played} เกม · ${r.medals_count} เหรียญ`,
   }));
   const subjectRows: Row[] = (subjectQ.data ?? []).map((r) => ({
-    ...r, xp: r.xp, sub: 'XP สะสมในวิชานี้',
+    ...r, xp: r.xp, sub: `XP วิชา${SUBJECT_LABELS[subjectKey] ?? ''}`,
   }));
 
   return (
     <Card className="bg-card">
       <CardContent className="p-3 sm:p-4">
         <Tabs value={tab} onValueChange={setTab}>
-          <TabsList className="grid w-full grid-cols-5 h-9">
-            <TabsTrigger value="weekly" className="text-xs px-1">สัปดาห์นี้</TabsTrigger>
-            <TabsTrigger value="global" className="text-xs px-1">รวม</TabsTrigger>
-            <TabsTrigger value="math" className="text-xs px-1">คณิต</TabsTrigger>
-            <TabsTrigger value="thai" className="text-xs px-1">ไทย</TabsTrigger>
-            <TabsTrigger value="english" className="text-xs px-1">อังกฤษ</TabsTrigger>
+          <TabsList className="grid h-9 w-full grid-cols-3">
+            <TabsTrigger value="weekly" className="text-xs">สัปดาห์นี้</TabsTrigger>
+            <TabsTrigger value="global" className="text-xs">รวม</TabsTrigger>
+            <TabsTrigger value="subject" className="text-xs">รายวิชา</TabsTrigger>
           </TabsList>
           <TabsContent value="weekly" className="mt-3"><RankList rows={weeklyRows} loading={weeklyQ.isLoading} /></TabsContent>
           <TabsContent value="global" className="mt-3"><RankList rows={globalRows} loading={globalQ.isLoading} /></TabsContent>
-          <TabsContent value="math" className="mt-3"><RankList rows={subjectRows} loading={subjectQ.isLoading} /></TabsContent>
-          <TabsContent value="thai" className="mt-3"><RankList rows={subjectRows} loading={subjectQ.isLoading} /></TabsContent>
-          <TabsContent value="english" className="mt-3"><RankList rows={subjectRows} loading={subjectQ.isLoading} /></TabsContent>
+          <TabsContent value="subject" className="mt-3 space-y-3">
+            {/* chip strip 8 กลุ่มสาระ — scroll แนวนอนบนมือถือ */}
+            <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
+              {ALL_SUBJECTS.map((k) => (
+                <button
+                  key={k}
+                  onClick={() => setSubjectKey(k)}
+                  className={cn(
+                    'shrink-0 rounded-full border px-3 py-1 text-xs font-medium transition-colors',
+                    subjectKey === k
+                      ? 'border-amber-500 bg-amber-100 text-amber-800'
+                      : 'border-border bg-muted text-muted-foreground hover:bg-accent',
+                  )}
+                >
+                  {SUBJECT_LABELS[k]}
+                </button>
+              ))}
+            </div>
+            <RankList rows={subjectRows} loading={subjectQ.isLoading} />
+          </TabsContent>
         </Tabs>
       </CardContent>
     </Card>

@@ -126,8 +126,17 @@ export const SUBJECT_LABELS: Record<string, string> = {
   math: 'คณิตศาสตร์',
   thai: 'ภาษาไทย',
   english: 'ภาษาอังกฤษ',
+  science: 'วิทย์-เทคโนโลยี',
+  social: 'สังคมศึกษา',
+  health: 'สุขศึกษา-พละ',
+  arts: 'ศิลปะ',
+  career: 'การงานอาชีพ',
   other: 'วิชาอื่น ๆ',
 };
+
+// วิชาหลัก (ladder เหรียญ 3 ชั้น + เน้นใน UI) — วิชารองตามหลัง
+export const FOCUS_SUBJECTS = ['math', 'thai', 'english'] as const;
+export const ALL_SUBJECTS = ['math', 'thai', 'english', 'science', 'social', 'health', 'arts', 'career'] as const;
 
 // ─── RPC wrappers ───────────────────────────────────────────────────────
 export const gamificationService = {

@@ -19,6 +19,7 @@ import {
   computeNextMedals,
   TIER_STYLES,
   SUBJECT_LABELS,
+  ALL_SUBJECTS,
   type HonorMedal,
 } from '@/services/gamification.service';
 
@@ -144,13 +145,16 @@ export const HonorWall = ({ studentCode, variant = 'full' }: { studentCode: stri
           {profile.streak_days >= 2 && (
             <span className="rounded-full bg-orange-100 px-2.5 py-1 font-medium text-orange-700">🔥 {profile.streak_days} วันติด</span>
           )}
-          {(['math', 'thai', 'english'] as const).map((k) =>
-            profile.subject_xp[k] ? (
+          {/* วิชาที่มี XP — top 4 ตาม XP มาก→น้อย (กันแถวยาวบนมือถือ) */}
+          {ALL_SUBJECTS
+            .filter((k) => (profile.subject_xp[k] ?? 0) > 0)
+            .sort((a, b) => (profile.subject_xp[b] ?? 0) - (profile.subject_xp[a] ?? 0))
+            .slice(0, 4)
+            .map((k) => (
               <span key={k} className="rounded-full bg-muted px-2.5 py-1 text-foreground">
                 {SUBJECT_LABELS[k]} {profile.subject_xp[k].toLocaleString()}
               </span>
-            ) : null,
-          )}
+            ))}
         </div>
 
         {/* เหรียญสากล */}
