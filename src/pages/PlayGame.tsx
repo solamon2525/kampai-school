@@ -930,7 +930,7 @@ const PreGamePanel = ({
             </div>
             <div className="text-right">
               <p className="text-3xl font-bold text-primary">Lv.{levelInfo.level}</p>
-              <p className="text-xs text-muted-foreground">{(stats?.total_xp ?? 0).toLocaleString('th-TH')} XP</p>
+              <p className="text-xs text-muted-foreground">{(stats?.total_xp ?? 0).toLocaleString('th-TH')} XP ในเกมนี้</p>
             </div>
           </div>
           <div className="space-y-1">
@@ -989,6 +989,8 @@ const BadgeGrid = ({
       </div>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {catalog.map((a) => {
+          // เหรียญใหม่ (migration 156+) icon เป็น emoji — เหรียญเก่าเป็นชื่อ lucide
+          const isEmoji = !!a.icon && !/^[A-Za-z]/.test(a.icon);
           const Icon = ICON(a.icon);
           const unlocked = unlockedIds.has(a.id);
           return (
@@ -1002,10 +1004,12 @@ const BadgeGrid = ({
               )}
               title={a.description_th ?? ''}
             >
-              {unlocked ? (
-                <Icon className="h-7 w-7 text-primary" />
-              ) : (
+              {!unlocked ? (
                 <Lock className="h-7 w-7 text-muted-foreground" />
+              ) : isEmoji ? (
+                <span className="text-[26px] leading-7">{a.icon}</span>
+              ) : (
+                <Icon className="h-7 w-7 text-primary" />
               )}
               <p className="text-xs font-medium leading-tight text-foreground">{a.title_th}</p>
             </div>
