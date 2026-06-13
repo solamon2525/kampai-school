@@ -11,5 +11,7 @@ window.GAME_CONFIG = {
   P_COLS: [
     { body: '#d4856a', tummy: '#f5c8a8', nose: '#8b4040', balloon: '#ff6b6b' },
     { body: '#6a8fd4', tummy: '#b8d0f5', nose: '#2a2a80', balloon: '#4d96ff' }
-  ]
+  ],
+  ENABLE_ONLINE: true,
+  ONLINE_DURATION: 60
 };

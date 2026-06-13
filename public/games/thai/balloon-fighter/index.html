@@ -47,6 +47,10 @@
         };
     </script>
     <script src="/games/kampai-leaderboard.js"></script>
+    <script src="/games/kampai-match.js"></script>
+    <script>
+        window.KampaiMatch = window.KampaiMatch || { create:function(){ return { available:false, openMenu:function(){ alert('โหมดออนไลน์เล่นผ่านระบบเท่านั้น'); }, report:function(){}, finish:function(){}, leave:function(){} }; } };
+    </script>
     <script src="config.js"></script>
     <script src="data.js"></script>
     <script src="game.js"></script>

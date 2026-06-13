@@ -268,7 +268,7 @@ function darken(hex, a) { return `rgb(${Math.max(0, parseInt(hex.slice(1, 3), 16
 const keys = {};
 let gs = 'menu', pCount = 1, gMode = 'coop', cat = 'raja', monsters = [], players = [], score = [0, 0], lives = [3, 3], level = 1, prevLevel = 1;
 let parts = [], ftexts = [], used = [], curQ = null, spikes = [], clouds = [], lightnings = [], items = [], itemTimer = 360;
-let screenFlashA = 0, screenFlashCol = '#fff', weather = 'normal', windSpeed = 0, boss = null;
+let screenFlashA = 0, screenFlashCol = '#fff', weather = 'normal', windSpeed = 0, boss = null, onlineRng = null, match = null;
 
 // Key Listeners
 document.addEventListener('keydown', e => {
@@ -300,9 +300,10 @@ cv.addEventListener('click', e => {
   else if (gs === 'modeSelect') {
     if (mx > cv.width / 2 - 120 && mx < cv.width / 2 + 120) {
       if (my > cv.height * .3 && my < cv.height * .3 + 50) { pCount = 1; gMode = 'coop'; setGs('catSelect'); }
-      if (my > cv.height * .42 && my < cv.height * .42 + 50) { pCount = 2; gMode = 'coop'; setGs('catSelect'); }
-      if (my > cv.height * .54 && my < cv.height * .54 + 50) { pCount = 2; gMode = 'versus'; setGs('catSelect'); }
-      if (my > cv.height * .7 && my < cv.height * .7 + 40) setGs('menu'); // Back
+      if (my > cv.height * .41 && my < cv.height * .41 + 50) { pCount = 2; gMode = 'coop'; setGs('catSelect'); }
+      if (my > cv.height * .52 && my < cv.height * .52 + 50) { pCount = 2; gMode = 'versus'; setGs('catSelect'); }
+      if (my > cv.height * .63 && my < cv.height * .63 + 50) { openOnline(); }
+      if (my > cv.height * .75 && my < cv.height * .75 + 40) setGs('menu'); // Back
     }
   }
   else if (gs === 'catSelect') {
@@ -346,14 +347,21 @@ function setGs(s) {
   else if (s === 'gameover') stopBGM();
 }
 
-function shuf(a) { return [...a].sort(() => Math.random() - 0.5) }
+function shuf(a) {
+  const rnd = onlineRng || Math.random;
+  return [...a].sort(() => rnd() - 0.5);
+}
 
 function newQ() {
+  const rnd = onlineRng || Math.random;
   if (used.length >= curVocab.length) used = [];
   let avail = curVocab.filter(v => !used.includes(v));
-  let ok = avail[Math.floor(Math.random() * avail.length)];
+  let ok = avail[Math.floor(rnd() * avail.length)];
   used.push(ok);
-  return { correct: ok, options: shuf([ok, ...shuf(curVocab.filter(v => v !== ok)).slice(0, 3)]) };
+  const filtered = curVocab.filter(v => v !== ok);
+  const distractors = shuf(filtered).slice(0, 3);
+  const options = shuf([ok, ...distractors]);
+  return { correct: ok, options: options };
 }
 
 // ============================================================ ENTITIES
@@ -520,6 +528,9 @@ class Boss {
             setTimeout(() => this.spawnOptions(newQ()), 1000);
           } else {
             sfxBossDie(); score[p.id] += 1000;
+            if (gMode === 'online' && match) {
+              match.report(score[p.id], { correct: level - 1 });
+            }
             addFText(this.x, this.y, '🎉 ปราบบอสสำเร็จ! +1000', '#6bcb77');
             addParts(this.x, this.y, '#ff0', 50);
             boss = null;
@@ -711,6 +722,14 @@ function start() {
 
 function playerHit(p, msg) {
   if (p.inv > 0 || p.eff.sh > 0) return;
+  if (gMode === 'online') {
+    score[p.id] = Math.max(0, score[p.id] - 150);
+    if (msg) addFText(p.x, p.y, msg, '#f44');
+    addFText(p.x, p.y - 20, '-150', '#f44');
+    if (match) match.report(score[p.id], { correct: level - 1 });
+    lives[p.id] = 3; p.x = cv.width / 2; p.y = 50; p.inv = 120; p.vx = 0; p.vy = 0;
+    return;
+  }
   lives[p.id]--; p.inv = 100;
   if (msg) addFText(p.x, p.y, msg, '#f44');
   
@@ -736,6 +755,14 @@ function playerHit(p, msg) {
 
 function playerTakeDamage(p, msg, col) {
   if (p.inv > 0 || p.eff.sh > 0) return;
+  if (gMode === 'online') {
+    score[p.id] = Math.max(0, score[p.id] - 150);
+    if (msg) addFText(p.x, p.y, msg, col || '#f44');
+    addFText(p.x, p.y - 20, '-150', '#f44');
+    if (match) match.report(score[p.id], { correct: level - 1 });
+    lives[p.id] = 3; p.x = cv.width / 2; p.y = 50; p.inv = 120; p.vx = 0; p.vy = 0;
+    return;
+  }
   lives[p.id]--; p.inv = 100;
   if (msg) addFText(p.x, p.y, msg, col);
   
@@ -779,7 +806,11 @@ function drawHUD() {
   players.forEach((p, i) => {
     const hx = i === 0 ? 8 : cv.width - 160, hy = 8;
     ctx.fillStyle = 'rgba(0,0,20,.7)'; ctx.beginPath(); ctx.roundRect(hx, hy, 152, 70, 10); ctx.fill();
-    ctx.fillStyle = p.bc.balloon; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'left'; ctx.fillText(`P${i + 1} ${gMode === 'versus' ? '⚔️' : ''}`, hx + 10, hy + 20);
+    let name = `P${i + 1} ${gMode === 'versus' ? '⚔️' : ''}`;
+    if (gMode === 'online' && i === 0 && window.KAMPAI && window.KAMPAI.student) {
+      name = window.KAMPAI.student.displayName.split(' ')[0];
+    }
+    ctx.fillStyle = p.bc.balloon; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'left'; ctx.fillText(name, hx + 10, hy + 20);
     ctx.fillStyle = '#ffd93d'; ctx.fillText(`${score[i]} pts`, hx + 10, hy + 40);
     ctx.font = '14px sans-serif'; let h = ''; for (let j = 0; j < 3; j++) h += j < lives[i] ? '❤️' : '🖤'; ctx.fillText(h, hx + 10, hy + 60);
     if (p.combo > 1) { ctx.fillStyle = '#ff922b'; ctx.font = 'bold 16px sans-serif'; ctx.fillText(`${p.combo}x Combo!`, hx + 10, hy + 90); }
@@ -817,9 +848,10 @@ function loop() {
   else if (gs === 'modeSelect') {
     drawMenuBase('เลือกโหมดการเล่น', '');
     drawBtn(cv.height * .3, '🐻 1 Player', '#3498db', '#2980b9');
-    drawBtn(cv.height * .42, '🤝 2P Co-op', '#9b59b6', '#8e44ad');
-    drawBtn(cv.height * .54, '⚔️ 2P Versus', '#e74c3c', '#c0392b');
-    drawBtn(cv.height * .7, 'กลับ', '#7f8c8d', '#95a5a6');
+    drawBtn(cv.height * .41, '🤝 2P Co-op', '#9b59b6', '#8e44ad');
+    drawBtn(cv.height * .52, '⚔️ 2P Versus', '#e74c3c', '#c0392b');
+    drawBtn(cv.height * .63, '🌐 เล่นออนไลน์', '#2ecc71', '#27ae60');
+    drawBtn(cv.height * .75, 'กลับ', '#7f8c8d', '#95a5a6');
   }
   else if (gs === 'catSelect') {
     drawMenuBase('เลือกหมวดหมู่คำศัพท์', '');
@@ -903,6 +935,9 @@ function loop() {
               if (m.isCorrect) {
                 p.combo++;
                 const pts = (100 + level * 50) * p.combo; score[p.id] += pts; sfxCorrect();
+                if (gMode === 'online' && match) {
+                  match.report(score[p.id], { correct: level - 1 });
+                }
                 addFText(m.x, m.y, `+${pts} (${p.combo}x)`, `#6bcb77`);
                 
                 // ออกเสียงสะกดคำผ่าน TTS SDK
@@ -961,4 +996,30 @@ if (window.KAMPAI) {
       };
     }
   });
+}
+
+// ============================================================ KAMPAI ONLINE MATCHMAKING
+if (config.ENABLE_ONLINE && window.KampaiMatch) {
+  match = KampaiMatch.create({
+    duration: config.ONLINE_DURATION || 60,
+    title: 'แข่งสะกดคำบอลลูน',
+    onPlay: function ({ rng }) {
+      onlineRng = rng;
+      pCount = 1;
+      gMode = 'online';
+      
+      // สุ่มเลือกหมวดคำศัพท์ด้วย rng เพื่อให้ตรงกันทุกเครื่อง
+      const cats = ['raja', 'idiom', 'eng'];
+      cat = cats[Math.floor(rng() * cats.length)];
+      
+      start();
+    },
+    onEnd: function () {
+      setGs('gameover');
+    }
+  });
+}
+
+function openOnline() {
+  if (match) match.openMenu();
 }
