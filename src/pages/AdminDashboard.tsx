@@ -58,6 +58,7 @@ const TeacherListManagement = lazy(() => import('@/components/admin/teachers/Tea
 const EduHubManagement = lazy(() => import('@/components/admin/educational-hub/EduHubManagement').then(m => ({ default: m.EduHubManagement })));
 const GamePlayDashboard = lazy(() => import('@/components/admin/games/GamePlayDashboard').then(m => ({ default: m.GamePlayDashboard })));
 const DailyQuestAdmin = lazy(() => import('@/components/admin/games/DailyQuestAdmin').then(m => ({ default: m.DailyQuestAdmin })));
+const OnlineMatchDashboard = lazy(() => import('@/components/admin/games/OnlineMatchDashboard').then(m => ({ default: m.OnlineMatchDashboard })));
 const ScanRecorder = lazy(() => import('./admin/ScanRecorder'));
 const AiAssistPanel = lazy(() => import('@/components/admin/ai-assist/AiAssistPanel').then(m => ({ default: m.AiAssistPanel })));
 const LineFollowersManager = lazy(() => import('@/components/admin/line/LineFollowersManager').then(m => ({ default: m.LineFollowersManager })));
@@ -176,6 +177,7 @@ const AdminDashboard = () => {
             <Route path="educational-hub" element={<PermissionGuard menuId="educational-hub"><EduHubManagement /></PermissionGuard>} />
             <Route path="games" element={<PermissionGuard menuId="games"><GamePlayDashboard /></PermissionGuard>} />
             <Route path="daily-quest" element={<PermissionGuard menuId="daily-quest"><DailyQuestAdmin /></PermissionGuard>} />
+            <Route path="online-stats" element={<PermissionGuard menuId="online-stats"><OnlineMatchDashboard /></PermissionGuard>} />
             <Route path="analytics" element={<PermissionGuard menuId="analytics"><AnalyticsManagement /></PermissionGuard>} />
             {/* อื่นๆ */}
             <Route path="admissions" element={<AdmissionsManagement />} />

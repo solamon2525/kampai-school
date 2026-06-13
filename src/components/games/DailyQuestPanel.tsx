@@ -64,7 +64,7 @@ export const DailyQuestPanel = ({
 
   if (!data || data.required_count === 0) return null;
 
-  const { subjects, completed_count, required_count, all_complete, bonus_points, streak_days, total_points } = data;
+  const { subjects, completed_count, required_count, all_complete, bonus_points, streak_days, total_points, target_points } = data;
 
   return (
     <Card className={cn('overflow-hidden border-border', className)}>
@@ -78,7 +78,7 @@ export const DailyQuestPanel = ({
             <div>
               <h3 className="text-sm font-bold leading-tight text-foreground">ภารกิจประจำวัน</h3>
               {variant === 'full' && (
-                <p className="text-[11px] text-muted-foreground">เล่นครบทุกวิชา รับคะแนนพิเศษ +{bonus_points || 50} แต้ม</p>
+                <p className="text-[11px] text-muted-foreground">เล่นครบทุกวิชา รับคะแนนพิเศษ +{(target_points || bonus_points).toLocaleString('th-TH')} แต้ม</p>
               )}
             </div>
           </div>

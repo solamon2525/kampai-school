@@ -75,6 +75,7 @@ export const DEFAULT_MENU_ITEMS: MenuItem[] = [
     { id: 'savings-bank', label: 'ธนาคารพอเพียง', href: '/savings-bank', icon: 'Wallet', parent: 'services', order: 2 },
     { id: 'documents', label: 'เอกสาร/แบบฟอร์ม', href: '/documents', icon: 'FileText', parent: 'services', order: 3 },
     { id: 'enrollment', label: 'สมัครเรียน', href: '/enrollment', icon: 'UserCog', parent: 'services', order: 4 },
+    { id: 'daily-quest-stats', label: 'ภารกิจประจำวัน', href: '/games/daily-quest', icon: 'Award', parent: 'services', order: 5 },
 ];
 
 export const DEFAULT_MENU_CONFIG: MenuConfig = {

@@ -25,6 +25,8 @@ export type DailyQuestStatus = {
   bonus_xp: number;
   streak_days: number;
   total_points: number;   // คะแนนพิเศษสะสมทั้งหมด
+  target_points: number;  // ค่าโบนัสเป้าหมายเมื่อทำครบ (จาก config)
+  target_xp: number;
 };
 
 export type QuestOverviewSubject = {
@@ -77,6 +79,8 @@ const EMPTY_STATUS: DailyQuestStatus = {
   bonus_xp: 0,
   streak_days: 0,
   total_points: 0,
+  target_points: 0,
+  target_xp: 0,
 };
 
 export const dailyQuestService = {

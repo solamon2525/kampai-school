@@ -61,6 +61,7 @@ const RewardsCatalog = lazyWithRetry(() => import("./pages/RewardsCatalog"));
 const SavingsBank = lazyWithRetry(() => import("./pages/SavingsBank"));
 const HallOfFame = lazyWithRetry(() => import("./pages/HallOfFame"));
 const DailyQuestStats = lazyWithRetry(() => import("./pages/DailyQuestStats"));
+const OnlineArena = lazyWithRetry(() => import("./pages/OnlineArena"));
 const TrainingShowcasePublic = lazyWithRetry(() => import("./pages/TrainingShowcase"));
 const EducationalHub = lazyWithRetry(() => import("./pages/EducationalHub"));
 const EducationalHubTeacher = lazyWithRetry(() => import("./pages/EducationalHubTeacher"));
@@ -176,6 +177,7 @@ const App = () => (
             <Route path="/savings-bank" element={<SavingsBank />} />
             <Route path="/hall-of-fame" element={<HallOfFame />} />
             <Route path="/games/daily-quest" element={<DailyQuestStats />} />
+            <Route path="/games/arena" element={<OnlineArena />} />
             <Route path="/training-showcase" element={<TrainingShowcasePublic />} />
             <Route path="/educational-hub" element={<EducationalHub />} />
             <Route path="/educational-hub/:staffId" element={<EducationalHubTeacher />} />

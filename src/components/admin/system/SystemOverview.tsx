@@ -272,8 +272,20 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.78.0 (ระบบ Daily Quest — ภารกิจประจำวันแยกตามวิชาแกน)',
+        version: 'v1.79.0 (สถิติแข่งออนไลน์ Win/Loss + สังเวียนแชมป์)',
         date: 'ล่าสุด',
+        badge: 'bg-rose-600',
+        items: [
+            'ตารางเก็บแมตช์แข่งออนไลน์ (online_matches + online_match_participants) — reconstruct จาก game_sessions (mode=online) จับกลุ่ม (game_slug, room, ≤30 นาที) จัดอันดับด้วย score (migration 162)',
+            'AFTER INSERT trigger process_online_match บน game_sessions (ไม่ต้องแก้เกม/SDK/kampai-match) + backfill ข้อมูลเก่า — รองรับ head-to-head ใครชนะใคร',
+            'แดชบอร์ดแอดมิน /admin/dashboard/online-stats: วิเคราะห์เกม (ความนิยม/การมีส่วนร่วม/อัตราเล่นคนเดียว/ความสูสี + flag เกมควรปรับปรุง) · นักเรียน W/L + ตัวต่อตัวรายคู่ · ประวัติแมตช์',
+            'หน้าสาธารณะ "สังเวียนแชมป์" /games/arena: KPI + leaderboard wins/win-rate (podium) + แมตช์ล่าสุด + เกมยอดนิยม (recharts)',
+            'RPC public: get_online_overview/game_stats/student_leaderboard/head_to_head/match_log — ใช้วิเคราะห์ว่าเกมใดนิยม/ควรพัฒนาต่อ',
+        ],
+    },
+    {
+        version: 'v1.78.0 (ระบบ Daily Quest — ภารกิจประจำวันแยกตามวิชาแกน)',
+        date: '',
         badge: 'bg-indigo-600',
         items: [
             'เดลี่เควสแยกวิชาแกน คณิต/ไทย/อังกฤษ: เล่นเกมในวิชานั้นให้ได้คะแนนถึงเกณฑ์ขั้นต่ำ = ผ่านเควสวันนั้น — เพิ่มวิชาอื่นได้จากหลังบ้าน (migration 161)',

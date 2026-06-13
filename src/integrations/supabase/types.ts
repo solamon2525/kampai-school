@@ -3450,6 +3450,139 @@ export type Database = {
         }
         Relationships: []
       }
+      online_match_participants: {
+        Row: {
+          correct: number
+          is_winner: boolean
+          match_id: string
+          rank: number
+          score: number
+          session_id: string | null
+          student_id: string
+        }
+        Insert: {
+          correct?: number
+          is_winner?: boolean
+          match_id: string
+          rank?: number
+          score?: number
+          session_id?: string | null
+          student_id: string
+        }
+        Update: {
+          correct?: number
+          is_winner?: boolean
+          match_id?: string
+          rank?: number
+          score?: number
+          session_id?: string | null
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "online_match_participants_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "online_matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "online_match_participants_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "game_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "online_match_participants_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "savings_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "online_match_participants_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "online_match_participants_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "waste_student_summary"
+            referencedColumns: ["student_id"]
+          },
+        ]
+      }
+      online_matches: {
+        Row: {
+          created_at: string
+          finished_at: string
+          game_slug: string
+          id: string
+          is_decisive: boolean
+          is_tournament: boolean
+          player_count: number
+          room_code: string
+          score_spread: number
+          started_at: string
+          top_score: number
+          winner_student_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          finished_at: string
+          game_slug: string
+          id?: string
+          is_decisive?: boolean
+          is_tournament?: boolean
+          player_count?: number
+          room_code: string
+          score_spread?: number
+          started_at: string
+          top_score?: number
+          winner_student_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          finished_at?: string
+          game_slug?: string
+          id?: string
+          is_decisive?: boolean
+          is_tournament?: boolean
+          player_count?: number
+          room_code?: string
+          score_spread?: number
+          started_at?: string
+          top_score?: number
+          winner_student_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "online_matches_winner_student_id_fkey"
+            columns: ["winner_student_id"]
+            isOneToOne: false
+            referencedRelation: "savings_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "online_matches_winner_student_id_fkey"
+            columns: ["winner_student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "online_matches_winner_student_id_fkey"
+            columns: ["winner_student_id"]
+            isOneToOne: false
+            referencedRelation: "waste_student_summary"
+            referencedColumns: ["student_id"]
+          },
+        ]
+      }
       orders_announcements: {
         Row: {
           attachment_url: string | null
@@ -6572,6 +6705,65 @@ export type Database = {
           score: number
         }[]
       }
+      get_online_game_stats: {
+        Args: { p_days?: number }
+        Returns: {
+          avg_players: number
+          avg_score_spread: number
+          blowout_rate: number
+          decisive_matches: number
+          game_slug: string
+          last_played_at: string
+          matches: number
+          repeat_rate: number
+          solo_rate: number
+          title: string
+          total_participants: number
+          unique_players: number
+        }[]
+      }
+      get_online_head_to_head: {
+        Args: { p_student_id: string }
+        Returns: {
+          class: string
+          losses: number
+          matches: number
+          name: string
+          opponent_id: string
+          photo_url: string
+          wins: number
+        }[]
+      }
+      get_online_match_log: {
+        Args: { p_game_slug?: string; p_limit?: number }
+        Returns: {
+          finished_at: string
+          game_slug: string
+          is_decisive: boolean
+          is_tournament: boolean
+          match_id: string
+          player_count: number
+          room_code: string
+          standings: Json
+          title: string
+        }[]
+      }
+      get_online_overview: { Args: { p_days?: number }; Returns: Json }
+      get_online_student_leaderboard: {
+        Args: { p_days?: number; p_limit?: number }
+        Returns: {
+          class: string
+          distinct_opponents: number
+          last_played: string
+          losses: number
+          matches: number
+          name: string
+          photo_url: string
+          student_id: string
+          win_rate: number
+          wins: number
+        }[]
+      }
       get_savings_history: {
         Args: { p_code: string; p_limit?: number }
         Returns: {
@@ -6728,6 +6920,10 @@ export type Database = {
           p_session_id: string
         }
         Returns: string
+      }
+      recompute_online_match: {
+        Args: { p_match_id: string }
+        Returns: undefined
       }
       record_game_session: {
         Args: {
