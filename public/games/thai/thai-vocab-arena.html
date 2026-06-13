@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ลานประลองคำศัพท์ภาษาไทย</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        .choice-btn { transition: all 0.2s ease-in-out; }
+        .choice-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .choice-btn:active:not(:disabled) { transform: translateY(1px); }
+
+        .category-card { transition: all 0.2s ease; cursor: pointer; }
+        .category-card:hover:not(.disabled-card) { transform: translateY(-5px) scale(1.02); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .disabled-card { opacity: 0.6; cursor: not-allowed; filter: grayscale(100%); }
+
+        @keyframes bounce-in {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.5); opacity: 1; }
+            70% { transform: scale(0.9); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+
+        @keyframes popUp {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .pop-up { animation: popUp 0.4s ease-out forwards; }
+
+        .star { display: inline-block; font-size: 4rem; opacity: 0; animation-fill-mode: forwards; }
+        .star-gold { color: #FFD700; text-shadow: 0 0 15px rgba(255, 215, 0, 0.6); }
+        .star-empty { color: #cbd5e1; text-shadow: none; }
+
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slide-up { animation: slideUp 0.3s ease-out forwards; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* แจ้งเตือน Pop-up (Toast) */
+        .toast-enter { animation: slideInRight 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .toast-leave { animation: slideOutRight 0.5s ease-in forwards; }
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        /* ซ่อน Scrollbar */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4">
+
+    <!-- เสียงดนตรีพื้นหลัง -->
+    <button id="bgm-toggle" onclick="toggleBGM()" class="fixed top-4 right-4 sm:top-6 sm:right-6 bg-white/90 p-3 rounded-full shadow-md z-40 text-2xl hover:bg-gray-50 hover:scale-110 transition-transform duration-200">
+        🔇
+    </button>
+    <audio id="bgm-audio" loop>
+        <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Popup แจ้งเตือนทั่วไป (Toast) -->
+    <div id="toast-message" class="fixed top-4 right-4 sm:top-6 sm:right-20 bg-white border-l-4 border-yellow-400 rounded-xl shadow-2xl p-4 flex items-center z-50 transform translate-x-[150%] opacity-0 transition-all">
+        <div id="toast-icon" class="text-4xl mr-3">🏆</div>
+        <div>
+            <p id="toast-subtitle" class="text-xs font-bold uppercase tracking-wider text-gray-500">แจ้งเตือน</p>
+            <h4 id="toast-title" class="font-bold text-gray-800">ข้อความ</h4>
+        </div>
+    </div>
+
+    <!-- Modal ตั้งชื่อผู้เล่น -->
+    <div id="name-modal" class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden fade-in">
+        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center mx-4">
+            <div class="text-6xl mb-4">👋</div>
+            <h2 class="text-2xl font-bold text-indigo-900 mb-2">ยินดีต้อนรับ!</h2>
+            <p class="text-gray-600 mb-6">กรุณาตั้งชื่อผู้เล่นของคุณเพื่อเริ่มสะสมคะแนนและความสำเร็จ</p>
+            <input type="text" id="player-name-input" placeholder="พิมพ์ชื่อของคุณที่นี่..." class="w-full border-2 border-indigo-200 rounded-xl px-4 py-3 mb-6 focus:outline-none focus:border-indigo-500 text-center font-medium text-lg">
+            <button onclick="savePlayerName()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-3 rounded-xl shadow-lg hover:shadow-xl transform transition duration-200">
+                เข้าสู่เกม 🚀
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal ห้องสมุดคำศัพท์ -->
+    <div id="library-modal" class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden fade-in">
+        <div class="bg-white rounded-3xl shadow-2xl p-6 max-w-2xl w-full mx-4 max-h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center mb-2">
+                <h2 class="text-2xl font-bold text-blue-900 flex items-center"><span class="text-3xl mr-2">📚</span> ห้องสมุดคำศัพท์</h2>
+                <button onclick="closeLibraryModal()" class="text-gray-400 hover:text-red-500 text-3xl font-bold">&times;</button>
+            </div>
+            <p class="text-sm text-gray-500 mb-4 font-semibold text-center bg-blue-50 py-2 rounded-lg">คำศัพท์ที่ปลดล็อกแล้ว: <span id="library-progress" class="text-blue-700">0/50</span> คำ</p>
+            <div id="library-list-container" class="overflow-y-auto pr-2 flex-grow no-scrollbar grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- รายการห้องสมุดจะถูกสร้างที่นี่ -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal ดูความสำเร็จทั้งหมด -->
+    <div id="achievements-modal" class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden fade-in">
+        <div class="bg-white rounded-3xl shadow-2xl p-6 max-w-md w-full mx-4 max-h-[80vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-yellow-600 flex items-center"><span class="text-3xl mr-2">🏅</span> ผลงานของคุณ</h2>
+                <button onclick="closeAchievementsModal()" class="text-gray-400 hover:text-red-500 text-3xl font-bold">&times;</button>
+            </div>
+            <div id="achievements-list-container" class="overflow-y-auto pr-2 space-y-3 flex-grow no-scrollbar">
+                <!-- รายการความสำเร็จจะถูกสร้างที่นี่ -->
+            </div>
+        </div>
+    </div>
+
+    <div id="game-container" class="bg-white rounded-3xl shadow-2xl p-6 sm:p-8 max-w-xl w-full text-center relative overflow-hidden">
+        
+        <!-- หน้าเริ่มเกม -->
+        <div id="start-screen" class="fade-in">
+            <!-- ปุ่มกลับหน้าหลักครู -->
+            <div class="flex justify-start mb-4">
+                <a href="/h/nattapong" target="_top" class="inline-flex items-center text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition">
+                    ⬅️ กลับคลังสื่อครูณัฐพงศ์
+                </a>
+            </div>
+
+            <!-- ข้อมูลผู้เล่น (Profile) -->
+            <div class="bg-indigo-50 rounded-2xl p-4 mb-6 flex flex-col sm:flex-row justify-between items-center border border-indigo-100 shadow-sm gap-4">
+                <div class="text-left flex items-center w-full sm:w-auto">
+                    <div class="bg-white p-2 rounded-full shadow-sm text-3xl mr-3">👤</div>
+                    <div>
+                        <h2 class="font-bold text-indigo-900 flex items-center">
+                            <span id="display-player-name" class="truncate max-w-[120px]">ผู้เล่น</span>
+                            <button onclick="openNameModal()" class="ml-2 text-xs text-gray-400 hover:text-indigo-600">✏️</button>
+                        </h2>
+                        <p class="text-xs text-indigo-600 font-semibold">เลเวล: <span id="display-player-level" class="text-sm">1</span> | XP: <span id="display-player-exp">0</span></p>
+                    </div>
+                </div>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <button onclick="openLibraryModal()" class="flex-1 sm:flex-none bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold py-2 px-3 rounded-xl text-sm transition shadow-sm flex items-center justify-center">
+                        📚 <span class="ml-1 text-xs sm:text-sm">คำศัพท์</span>
+                    </button>
+                    <button onclick="openAchievementsModal()" class="flex-1 sm:flex-none bg-yellow-100 hover:bg-yellow-200 text-yellow-700 font-bold py-2 px-3 rounded-xl text-sm transition shadow-sm flex items-center justify-center">
+                        🏅 <span class="ml-1 text-xs sm:text-sm">ผลงาน</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="text-5xl mb-2">🇹🇭</div>
+            <h1 class="text-3xl sm:text-4xl font-bold text-indigo-900 mb-2 tracking-tight">ลานประลองคำศัพท์</h1>
+            <p class="text-gray-600 mb-6 text-sm">เลือกหมวดหมู่ที่คุณต้องการท้าทายความสามารถ!</p>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 text-left">
+                <div onclick="startGame('spelling')" class="category-card bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 p-3 rounded-2xl flex items-center">
+                    <div class="text-3xl mr-3">📝</div>
+                    <div>
+                        <h3 class="font-bold text-blue-900">หมวดสะกดคำ</h3>
+                        <p class="text-blue-600 text-[10px]">คำที่มักเขียนผิดบ่อยๆ</p>
+                    </div>
+                </div>
+                <div onclick="startGame('royal')" class="category-card bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 p-3 rounded-2xl flex items-center">
+                    <div class="text-3xl mr-3">👑</div>
+                    <div>
+                        <h3 class="font-bold text-purple-900">คำราชาศัพท์</h3>
+                        <p class="text-purple-600 text-[10px]">คำที่ใช้กับพระมหากษัตริย์</p>
+                    </div>
+                </div>
+                <div onclick="startGame('idiom')" class="category-card bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 p-3 rounded-2xl flex items-center">
+                    <div class="text-3xl mr-3">🐸</div>
+                    <div>
+                        <h3 class="font-bold text-green-900">สำนวนสุภาษิต</h3>
+                        <p class="text-green-600 text-[10px]">คำพังเพยและข้อคิดสอนใจ</p>
+                    </div>
+                </div>
+                <div onclick="startGame('all')" class="category-card bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-orange-200 p-3 rounded-2xl flex items-center">
+                    <div class="text-3xl mr-3">🎲</div>
+                    <div>
+                        <h3 class="font-bold text-orange-900">สุ่มทั้งหมด</h3>
+                        <p class="text-orange-600 text-[10px]">ทดสอบความรู้ทุกหมวดรวมกัน</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- หมวดพิเศษ: ด่านซ่อมเสริม -->
+            <div id="review-mode-btn" onclick="startGame('review')" class="category-card bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-200 p-3 rounded-2xl flex items-center justify-between text-left mt-2">
+                <div class="flex items-center">
+                    <div class="text-3xl mr-3">🔧</div>
+                    <div>
+                        <h3 class="font-bold text-red-900">ด่านซ่อมเสริม (ทบทวนข้อผิด)</h3>
+                        <p id="mistakes-count-text" class="text-red-600 text-[10px]">มีข้อที่ต้องแก้มือ: 0 ข้อ</p>
+                    </div>
+                </div>
+                <div class="text-red-500 font-bold px-2">▶</div>
+            </div>
+
+            <!-- ตารางอันดับ (Leaderboard) -->
+            <div data-kampai-lb class="mt-6 text-left"></div>
+        </div>
+
+        <!-- หน้าเล่นเกม (คำถาม) -->
+        <div id="quiz-screen" class="hidden">
+            <div class="flex justify-between items-center mb-4">
+                <div id="lives-display" class="text-2xl tracking-widest text-red-500">❤️❤️❤️</div>
+                <div class="flex items-center space-x-2">
+                    <div id="combo-display" class="hidden font-bold text-orange-500 bg-orange-50 px-3 py-1 rounded-full text-sm border border-orange-200 pop-up">🔥 Combo x2</div>
+                    <div class="font-bold text-indigo-700 bg-indigo-50 px-4 py-1 rounded-full border border-indigo-100">
+                        คะแนน: <span id="score-display">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full bg-gray-100 rounded-full h-2 mb-2">
+                <div id="quiz-progress-bar" class="bg-gradient-to-r from-green-400 to-blue-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+            
+            <div class="w-full bg-gray-200 rounded-full h-1.5 mb-6 overflow-hidden">
+                <div id="timer-bar" class="bg-green-500 h-1.5 rounded-full transition-all duration-100" style="width: 100%"></div>
+            </div>
+            
+            <div class="relative min-h-[5rem] mb-6 flex flex-col items-center justify-center">
+                <span id="category-badge" class="absolute -top-4 bg-gray-200 text-gray-600 text-xs px-2 py-0.5 rounded-full uppercase tracking-wider font-semibold">หมวดหมู่</span>
+                <h2 id="question-text" class="text-xl sm:text-2xl font-bold text-gray-800 leading-relaxed mt-2">
+                    กำลังโหลดคำถาม...
+                </h2>
+            </div>
+
+            <div id="choices-container" class="space-y-3 mb-4">
+                <!-- ปุ่มตัวเลือกจะถูกสร้างด้วย JavaScript -->
+            </div>
+
+            <div id="explanation-box" class="hidden bg-blue-50 border-2 border-blue-100 rounded-2xl p-5 text-left slide-up mt-4">
+                <div class="flex items-center mb-2">
+                    <span id="explanation-icon" class="text-2xl mr-2">💡</span>
+                    <h3 id="explanation-title" class="font-bold text-lg text-blue-900">เกร็ดความรู้</h3>
+                </div>
+                <p id="explanation-text" class="text-gray-700 text-sm leading-relaxed mb-4"></p>
+                <button onclick="nextQuestion()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-xl transition duration-200 shadow-md">
+                    ไปข้อต่อไป ➡️
+                </button>
+            </div>
+        </div>
+
+        <!-- หน้าสรุปผล -->
+        <div id="result-screen" class="hidden fade-in">
+            <div id="result-icon" class="text-6xl mb-4">🏆</div>
+            <h2 id="result-title" class="text-3xl font-bold text-indigo-900 mb-2">สรุปผลคะแนน!</h2>
+            
+            <div class="bg-gray-50 rounded-xl p-4 mb-4 border border-gray-100 flex justify-around">
+                <div>
+                    <p class="text-xs text-gray-500 font-bold uppercase">ตอบถูก</p>
+                    <p class="text-xl font-bold text-indigo-700"><span id="final-score-text">0</span>/<span id="total-score-text">5</span></p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 font-bold uppercase">EXP ที่ได้</p>
+                    <p class="text-xl font-bold text-green-600">+<span id="earned-exp-text">0</span></p>
+                </div>
+            </div>
+            
+            <div id="star-display" class="flex justify-center space-x-2 mb-4 min-h-[5rem]"></div>
+            <p id="feedback-message" class="text-base font-medium text-blue-600 mb-4 px-4"></p>
+
+            <div class="flex flex-col sm:flex-row gap-3 justify-center mt-6">
+                <button onclick="replayGame()" class="bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition duration-200 flex-1">
+                    เล่นอีกรอบ 🔄
+                </button>
+                <button onclick="resetToHome()" class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition duration-200 flex-1">
+                    รับรางวัล & กลับหน้าหลัก 🏠
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- KAMPAI Game SDK & Leaderboard Integration -->
+    <script src="/games/kampai-sdk.js"></script>
+    <script>
+        window.KAMPAI = window.KAMPAI || {
+            isEmbed: false,
+            isTouch: false,
+            ready: true,
+            student: null,
+            stats: null,
+            leaderboard: [],
+            input: { up: false, down: false, left: false, right: false, a: false, b: false },
+            onReady: function(cb) { cb(this); },
+            setSlug: function() { return this; },
+            submitScore: function() { return false; },
+            goHome: function() { location.href = '/h/nattapong'; },
+            exit: function() { location.href = '/h/nattapong'; },
+            controls: { mount: function() { return this; } },
+            sound: {
+                unlock: function() { return this; },
+                correct: function() {},
+                wrong: function() {},
+                timeUp: function() {},
+                gameOver: function() {},
+                speak: function() {},
+                stopSpeak: function() {},
+                fxFlash: function() {},
+                setBgm: function() { return this; },
+                defaultBgm: function() { return this; },
+                bgmStart: function() {},
+                bgmStop: function() {},
+                mountToggles: function() { return this; }
+            }
+        };
+    </script>
+    <script src="/games/kampai-leaderboard.js"></script>
+
+    <script>
+        // --- ฐานข้อมูลคำถามทั้งหมด ---
+        // เพิ่ม id ลงไปเพื่อให้ระบบอ้างอิงตอนบันทึกข้อผิด/ห้องสมุดได้ง่ายขึ้น
+        const rawQuestions = [
+            // หมวดสะกดคำ (0-29)
+            { question: "คำในข้อใดหมายถึง 'คาดคะเนไว้ก่อน' และเขียนได้ถูกต้อง?", choices: ["สันนิษฐาน", "สันนิฐาน", "สัณนิษฐาน", "สัณนิฐาน"], answer: 0, explanation: "คำว่า 'สันนิษฐาน' ใช้ น.หนู และ ษ.ฤๅษี สะกด" },
+            { question: "ดวงตาของเธอช่างแวววาวและ.......ตลอดเวลา", choices: ["กระพริบ", "กะพริบ", "กะพริป", "กระพริป"], answer: 1, explanation: "'กะพริบ' เขียนด้วย ก.ไก่ สระอะ (ไม่มี ร.เรือ)" },
+            { question: "กรุณา.......ความผิดปกติของเครื่องจักรให้ดี", choices: ["สังเกตุ", "สังเกต", "สัณเกต", "สังเกรต"], answer: 1, explanation: "'สังเกต' สะกดด้วย ต.เต่า เพียวๆ ไม่มีสระอุแอบซ่อนอยู่" },
+            { question: "ห้ามสูบบุหรี่ก่อนได้รับ.......", choices: ["อนุญาติ", "อนุญาต", "อนุณาต", "อนุญาตร"], answer: 1, explanation: "จำง่ายๆ 'ญาติพี่น้องมีสระอิ แต่ขออนุญาตไม่ต้องมีสระอิ'" },
+            { question: "สุริยุปราคาเป็น.......ธรรมชาติที่สวยงาม", choices: ["ปรากฏการ", "ปรากฏการณ์", "ปรากฎการณ์", "ปรากฎการ"], answer: 1, explanation: "'ปรากฏการณ์' ใช้ ฏ.ปฏัก (หยัก 2 ที) และต้องมี ณ์ การันต์ต่อท้ายเสมอ" },
+            { question: "อาหารไทยที่โด่งดังคือ ผัดไทย และ ข้าว.......หมูกรอบ", choices: ["กระเพรา", "กะเพา", "กะเพรา", "กระเพา"], answer: 2, explanation: "'กะเพรา' กะ ไม่มี ร.เรือ ส่วน เพรา มี ร.เรือควบกล้ำ" },
+            { question: "เมื่อล้มเจ็บ เขาต้องทนทุกข์.......อย่างมาก", choices: ["ทรมาน", "ทรมาณ", "ทรมาร", "ทนมาน"], answer: 0, explanation: "'ทรมาน' สะกดด้วย น.หนู ครับ แม้จะอ่านออกเสียงเหมือน น. สะกดก็ตาม" },
+            { question: "เขาเป็นคนมี.......ดีมาก", choices: ["อัธยาศัย", "อัธยาศัยย์", "อัธยาไศย", "อัทธยาศัย"], answer: 0, explanation: "'อัธยาศัย' เขียนแบบนี้เลยครับ ไม่มี ย.ยักษ์ การันต์" },
+            { question: "หมวกกันน็อกช่วยป้องกันอันตรายที่.......", choices: ["ศรีษะ", "ศีรษะ", "ศริษะ", "สีสะ"], answer: 1, explanation: "'ศีรษะ' สระอี ต้องอยู่บน ศ.ศาลา เท่านั้น (ศ + ี + ร + ษ + ะ)" },
+            { question: "ดอก.......มีสีม่วงครามสวยงาม นำมาต้มน้ำดื่มได้", choices: ["อัญชัน", "อัญชัญ", "อัณชัน", "อันชัน"], answer: 0, explanation: "'อัญชัน' ใช้ ญ.หญิง ในพยางค์แรก และ น.หนู ในพยางค์หลัง" },
+            { question: "คนไทยไม่.......คนต่างชาติ", choices: ["รังเกลียด", "รังเกียจ", "รังเกียด", "รังเกลียจ"], answer: 1, explanation: "'รังเกียจ' สะกดด้วย จ.จาน ส่วน เกลียด (ชัง) จึงจะสะกดด้วย ด.เด็ก" },
+            { question: "ขอ.......ให้ฉันได้อธิบายความจริงบ้าง", choices: ["โอกาศ", "โอกาส", "โอการ", "โอกาษ"], answer: 1, explanation: "'โอกาส' ใช้ ส.เสือ สะกดเท่านั้น (โอกาส = ส.เสือ, อากาศ = ศ.ศาลา)" },
+            { question: "เมนูโปรดของฉันคือ.......กุ้งสด", choices: ["ผัดไทย", "ผัดไท", "ผัตไทย", "ผัดทัย"], answer: 0, explanation: "'ผัดไทย' ต้องมี ย.ยักษ์ เสมอ เพราะตั้งชื่อจากคำว่า 'ไทย'" },
+            { question: "ผลงานชิ้นนี้มี.......คุ้มครอง ห้ามลอกเลียนแบบ", choices: ["ลิขสิทธิ", "ลิขสิทธิ์", "ลิขสิทธ์", "ลิขสิทธ"], answer: 1, explanation: "'ลิขสิทธิ์' ต้องมี ท.ทหาร สระอิ และการันต์ (ธิ์)" },
+            { question: "ประตูบานนี้เปิด-ปิด.......", choices: ["อัตโนมัติ", "อัตโนมัต", "อัติโนมัติ", "อัฒโนมัติ"], answer: 0, explanation: "'อัตโนมัติ' ต้องมี สระอิ ที่ ต.เต่า" },
+            { question: "พรุ่งนี้ฉันมี.......งานตอนเช้า", choices: ["สัมภาษ", "สัมภาษณ์", "สัมพาศ", "สัมภาสน์"], answer: 1, explanation: "'สัมภาษณ์' ต้องมี ณ์ (ณ.เณร การันต์) ต่อท้ายเสมอ" },
+            { question: "ชานม.......ร้านนี้อร่อยมาก", choices: ["ไข่มุก", "ไข่มุข", "ไข่มุกข์", "ไข่มุค"], answer: 0, explanation: "'ไข่มุก' ใช้ ก.ไก่ สะกด (ส่วน มุข ข.ไข่ หมายถึง ส่วนหน้าที่ยื่นออกมา)" },
+            { question: "เขาพาสุนัขไปรักษาที่.......สัตว์", choices: ["คลีนิค", "คลินิค", "คลินิก", "คลีนิก"], answer: 2, explanation: "'คลินิก' เป็นคำทับศัพท์ที่ถูกต้องตามราชบัณฑิตยสภา" },
+            { question: "ทุกคนต้องปฏิบัติตาม.......อย่างเคร่งครัด", choices: ["กฎหมาย", "กฏหมาย", "กดหมาย", "กะฎหมาย"], answer: 0, explanation: "'กฎหมาย' ต้องใช้ ฎ.ชฎา (หยักเดียว) เท่านั้น" },
+            { question: "แกงชามนี้มี.......กลมกล่อม", choices: ["รสชาด", "รสชาติ", "รสชาดิ", "รศชาติ"], answer: 1, explanation: "'รสชาติ' ต้องมี ต.เต่า สระอิ (ติ) ต่อท้ายเสมอ" },
+            { question: "บ้านพักตากอากาศหลังนี้อยู่ติดกับ.......", choices: ["ทะเลสาป", "ทะเลสาบ", "ทะเลสาพ", "ทะเลศาป"], answer: 1, explanation: "'ทะเลสาบ' ต้องสะกดด้วย บ.ใบไม้" },
+            { question: "เขาชอบพูด.......ให้เพื่อนๆ หัวเราะเสมอ", choices: ["มุกตลก", "มุขตลก", "มุขตล๊ก", "มุคตลก"], answer: 0, explanation: "'มุกตลก' ใช้ ก.ไก่ สะกดเหมือนไข่มุก" },
+            { question: "อย่า.......ไปหน่อยเลย รีบทำงานให้เสร็จเถอะ", choices: ["ผลัดวันประกันพรุ่ง", "ผัดวันประกันพรุ่ง", "ผัดวันประกันพุ่ง", "ผลัดวันประกันพุ่ง"], answer: 1, explanation: "'ผัดวันประกันพรุ่ง' ใช้ ผ.ผึ้ง (ผัด = ขอเลื่อนเวลา)" },
+            { question: "เอกสารฉบับนี้ขาด.......ของผู้มีอำนาจ", choices: ["ลายเซ็นต์", "ลายเซน", "ลายเซ็น", "ลายเซนต์"], answer: 2, explanation: "'ลายเซ็น' ไม่ต้องมี ต.เต่า การันต์ มาจากคำว่า sign" },
+            { question: "ความรักความ.......ของครอบครัวนี้เหนียวแน่นมาก", choices: ["ผูกพันธ์", "ผูกพัน", "ผูกพรรณ", "ผูกพันธ"], answer: 1, explanation: "'ผูกพัน' ไม่ต้องมี ธ์ การันต์ (คำที่มี ธ์ คือ สัมพันธ์)" },
+            { question: "วันนี้เราจะไปดู.......ที่ห้างสรรพสินค้า", choices: ["ภาพยนต์", "ภาพยนตร์", "ภาพยนต์ร", "ภาพยนต์ร์"], answer: 1, explanation: "'ภาพยนตร์' ต้องมี ต.เต่า ร.เรือ การันต์" },
+            { question: "โลกยุคปัจจุบันเข้าสู่ยุค.......อย่างเต็มตัว", choices: ["โลกาภิวัฒน์", "โลกาภิวัตน์", "โลกาภิวัตร", "โลกาภิวัฒ"], answer: 1, explanation: "'โลกาภิวัตน์' ใช้ ต.เต่า น.หนู การันต์" },
+            { question: "ข้อมูลใน.......นี้มีความน่าเชื่อถือสูงมาก", choices: ["เว็บไซต์", "เวปไซด์", "เว็ปไซต์", "เว็บไซด์"], answer: 0, explanation: "'เว็บไซต์' สะกดด้วย บ.ใบไม้ และ ไซต์ ใช้ ต.เต่า การันต์" },
+            { question: "กระเป๋าใบนี้มีขนาด.......พกพาสะดวก", choices: ["กระทัดรัด", "กะทัดรัด", "กระธัดรัด", "กะทัตสัด"], answer: 1, explanation: "'กะทัดรัด' ไม่ต้องมี ร.เรือ ควบกล้ำที่คำว่า กะ" },
+            { question: "บริษัทจัด.......เพื่อพัฒนาศักยภาพพนักงาน", choices: ["สัมมนา", "สัมนา", "สัมนาร์", "สัมมณาร์"], answer: 0, explanation: "'สัมมนา' ต้องมี ม.ม้า 2 ตัว (สัม-มะ-นา)" },
+            
+            // หมวดราชาศัพท์ (30-39)
+            { question: "คำราชาศัพท์หมวดร่างกาย 'พระโอษฐ์' หมายถึงอวัยวะใด?", choices: ["ตา", "จมูก", "ปาก", "หู"], answer: 2, explanation: "'พระโอษฐ์' แปลว่า ปาก (พระเนตร=ตา, พระนาสิก=จมูก, พระกรรณ=หู)" },
+            { question: "คำว่า 'บรรทม' เป็นคำราชาศัพท์ มีความหมายตรงกับข้อใด?", choices: ["กิน", "นอน", "นั่ง", "เดิน"], answer: 1, explanation: "'บรรทม' หมายถึง นอน (กิน=เสวย, นั่ง=ประทับ)" },
+            { question: "หากต้องการใช้คำว่า 'ป่วย' กับพระมหากษัตริย์ ต้องใช้คำราชาศัพท์ข้อใด?", choices: ["ประชวร", "สวรรคต", "ทรงพระกันแสง", "ประทับ"], answer: 0, explanation: "'ประชวร' หมายถึง ป่วย/ไม่สบาย" },
+            { question: "คำราชาศัพท์หมวดของใช้ 'ฉลองพระเนตร' หมายถึงสิ่งใด?", choices: ["รองเท้า", "หมวก", "แว่นตา", "แหวน"], answer: 2, explanation: "'ฉลองพระเนตร' แปลว่า แว่นตา" },
+            { question: "คำราชาศัพท์ข้อใดมีความหมายว่า 'ร้องไห้'?", choices: ["ทรงพระสรวล", "ทรงพระกันแสง", "ทรงพระอักษร", "ทรงพระดำเนิน"], answer: 1, explanation: "'ทรงพระกันแสง' หมายถึง ร้องไห้ (ทรงพระสรวล=หัวเราะ)" },
+            { question: "สำหรับพระสงฆ์ คำว่า 'สรงน้ำ' มีความหมายตรงกับข้อใด?", choices: ["กินข้าว", "นอนหลับ", "อาบน้ำ", "สวดมนต์"], answer: 2, explanation: "พระสงฆ์ใช้คำว่า 'สรงน้ำ' แทนคำว่า อาบน้ำ (กินข้าว=ฉัน)" },
+            { question: "คำราชาศัพท์หมวดเครือญาติ 'พระอัยกา' หมายถึงใคร?", choices: ["ปู่ หรือ ตา", "ย่า หรือ ยาย", "ลุง", "พี่ชาย"], answer: 0, explanation: "'พระอัยกา' หมายถึง ปู่ หรือ ตา (ย่า หรือ ยาย = พระอัยยิกา)" },
+            { question: "คำว่า 'จดหมาย' ในคำราชาศัพท์ใช้คำว่าอะไร?", choices: ["พระบรมราโชวาท", "พระราชดำรัส", "พระราชหัตถเลขา", "พระราชโองการ"], answer: 2, explanation: "'พระราชหัตถเลขา' หมายถึง จดหมายที่เขียนด้วยพระองค์เอง" },
+            { question: "คำราชาศัพท์ 'ทรงม้า' มีความหมายว่าอย่างไร?", choices: ["ขี่ม้า", "ให้อาหารม้า", "ซื้อม้า", "เลี้ยงม้า"], answer: 0, explanation: "การเติม 'ทรง' นำหน้าคำนาม มักหมายถึงการทำสิ่งนั้น" },
+            { question: "คำใดใช้แทนคำว่า 'ให้' เมื่อผู้ใหญ่มอบสิ่งของให้ผู้น้อย?", choices: ["ถวาย", "ทูลเกล้าฯ", "พระราชทาน", "น้อมเกล้าฯ"], answer: 2, explanation: "'พระราชทาน' หมายถึง การให้ (ผู้ใหญ่ให้ผู้น้อย)" },
+            
+            // หมวดสุภาษิต (40-49)
+            { question: "สำนวน 'รำไม่ดี.......' ควรเติมคำใดลงในช่องว่าง?", choices: ["โทษปี่โทษกลอง", "โทษฟ้าโทษฝน", "โทษน้ำโทษดิน", "โทษคนอื่น"], answer: 0, explanation: "'รำไม่ดีโทษปี่โทษกลอง' ทำผิดพลาดเองแต่กลับไปปัดความผิดโทษสิ่งอื่น" },
+            { question: "สำนวนใดมีความหมายว่า 'คนที่ไม่รู้คุณค่าของสิ่งมีค่าที่ตนมีอยู่'?", choices: ["สีซอให้ควายฟัง", "ไก่ได้พลอย", "วัวหายล้อมคอก", "กบในกะลา"], answer: 1, explanation: "'ไก่ได้พลอย' หมายถึง ผู้ที่ได้ของมีค่าแต่ไม่รู้คุณค่า" },
+            { question: "เมื่อมีโอกาสดีๆ เข้ามาแล้วต้องรีบคว้าไว้ ตรงกับสำนวนใด?", choices: ["น้ำลดตอผุด", "น้ำขึ้นให้รีบตัก", "น้ำเชี่ยวอย่าขวางเรือ", "น้ำท่วมทุ่ง ผักบุ้งโหรงเหรง"], answer: 1, explanation: "'น้ำขึ้นให้รีบตัก' หมายถึง เมื่อมีโอกาสดีๆ ควรรีบฉวยไว้" },
+            { question: "สำนวน 'จับปลาสองมือ' มีความหมายตรงกับข้อใด?", choices: ["คนที่เก่งทำได้หลายอย่าง", "คนที่โลภมากอยากได้ทั้งสองอย่างจนอาจไม่ได้อะไรเลย", "คนที่ชอบจับปลาเป็นอาชีพ", "คนที่ขยันขันแข็ง"], answer: 1, explanation: "มุ่งหวังจะเอาทั้งสองอย่างในเวลาเดียวกัน ซึ่งอาจพลาดทั้งสองอย่าง" },
+            { question: "เกิดเรื่องเสียหายขึ้นแล้วค่อยคิดหาทางป้องกัน ตรงกับสำนวนใด?", choices: ["วัวหายล้อมคอก", "ตีงูให้กากิน", "ขี่ช้างจับตั๊กแตน", "ชี้โพรงให้กระรอก"], answer: 0, explanation: "'วัวหายล้อมคอก' เรื่องเกิดขึ้นแล้วถึงเพิ่งจะคิดหาทางป้องกัน" },
+            { question: "สำนวน '.......ผ่าซาก' หมายถึงการพูดจาตรงเกินไปจนไม่เกรงใจใคร?", choices: ["มีด", "ดาบ", "ขวาน", "ไม้"], answer: 2, explanation: "'ขวานผ่าซาก' หมายถึง พูดจาโผงผาง ตรงไปตรงมาโดยไม่เกรงใจ" },
+            { question: "การไปสอนสิ่งที่เขามีความชำนาญอยู่แล้ว ตรงกับสำนวนใด?", choices: ["สอนจระเข้ว่ายน้ำ", "สีซอให้ควายฟัง", "เอาพร้าวห้าวไปขายสระ", "เอามะพร้าวห้าวไปขายสวน"], answer: 0, explanation: "'สอนจระเข้ว่ายน้ำ' การไปสอนผู้ที่มีความรู้ดีอยู่แล้ว" },
+            { question: "ปล่อยงานให้คั่งค้างพอกพูนขึ้นเรื่อยๆ จนแก้ได้ยาก ตรงกับสำนวนใด?", choices: ["ดินพอกหางหมู", "หนีเสือปะจระเข้", "ฝนตกไม่ทั่วฟ้า", "เข็นครกขึ้นภูเขา"], answer: 0, explanation: "'ดินพอกหางหมู' งานที่ปล่อยทิ้งไว้สะสมจนมากมาย" },
+            { question: "สำนวน 'กบในกะลาครอบ' มีความหมายว่าอย่างไร?", choices: ["คนที่มีความรู้มาก", "คนที่ชอบอยู่คนเดียว", "คนที่มีความรู้และประสบการณ์น้อยแต่คิดว่าตัวเองรู้มาก", "คนที่ชอบเลี้ยงสัตว์"], answer: 2, explanation: "ผู้ที่ไม่มีความรู้กว้างขวาง แต่หลงคิดว่าตัวเองรู้มาก" },
+            { question: "ทำอะไรตามคนใหญ่คนโต ทั้งที่ตัวเองไม่มีกำลังทรัพย์พอ ตรงกับสำนวนใด?", choices: ["ขี่ช้างจับตั๊กแตน", "เห็นช้างขี้ ขี้ตามช้าง", "ช้างตายทั้งตัวเอาใบบัวมาปิด", "ช้างเหยียบนา พระยาเหยียบเมือง"], answer: 1, explanation: "'เห็นช้างขี้ ขี้ตามช้าง' ทำเลียนแบบคนที่มีฐานะโดยไม่ดูตัวเอง" }
+        ];
+
+        // แทรก id ให้อัตโนมัติเพื่อใช้เป็นฐานอ้างอิง
+        const allQuestionsWithIds = rawQuestions.map((q, id) => ({ ...q, id }));
+
+        // --- ระบบผู้เล่น และ ความสำเร็จ (Player Data & Achievements) ---
+        let playerProfile = {
+            name: "",
+            exp: 0,
+            level: 1,
+            gamesPlayed: 0,
+            achievements: [], 
+            mistakes: [],    // เก็บ ID ข้อที่เคยตอบผิด (ด่านซ่อมเสริม)
+            unlockedVocab: [] // เก็บ ID ข้อที่เคยตอบถูก (ห้องสมุดคำศัพท์)
+        };
+
+        const ACHIEVEMENTS_LIST = [
+            { id: 'first_blood', name: 'ก้าวแรกสู่สังเวียน', desc: 'เล่นเกมจนจบเป็นครั้งแรก', icon: '🐣', color: 'yellow' },
+            { id: 'perfect_run', name: 'ราชบัณฑิต', desc: 'ตอบถูกทุกข้อในรอบนั้น โดยไม่เสียหัวใจ', icon: '👑', color: 'purple' },
+            { id: 'combo_master', name: 'คอมโบไฟลุก', desc: 'ทำคอมโบสะสม x3 ขึ้นไป', icon: '🔥', color: 'orange' },
+            { id: 'survivor', name: 'ผู้รอดชีวิต', desc: 'ผ่านด่านโดยเหลือหัวใจแค่ 1 ดวง', icon: '❤️‍🩹', color: 'red' },
+            { id: 'scholar', name: 'หนอนหนังสือ', desc: 'ปลดล็อกคำศัพท์ในห้องสมุดครบ 10 คำ', icon: '📖', color: 'blue' }
+        ];
+
+        // โหลดข้อมูลจาก LocalStorage
+        function loadPlayerData() {
+            const savedData = localStorage.getItem('thaiVocabPlayer');
+            if (savedData) {
+                // ผสานข้อมูลเก่ากับโครงสร้างใหม่ (ป้องกันพังกรณีคนเคยเล่นแล้ว)
+                playerProfile = { ...playerProfile, ...JSON.parse(savedData) };
+                playerProfile.mistakes = playerProfile.mistakes || [];
+                playerProfile.unlockedVocab = playerProfile.unlockedVocab || [];
+            }
+            
+            // ใช้ชื่อนักเรียนจากระบบ KAMPAI ถ้ามี
+            if (window.KAMPAI && window.KAMPAI.student && window.KAMPAI.student.displayName) {
+                playerProfile.name = window.KAMPAI.student.displayName;
+            }
+            
+            updateProfileUI();
+            
+            // ถ้าไม่มีชื่อ และไม่ใช่โหมด embed ค่อยให้พิมพ์ชื่อ
+            if (!playerProfile.name && (!window.KAMPAI || !window.KAMPAI.isEmbed)) {
+                document.getElementById('name-modal').classList.remove('hidden');
+            }
+        }
+
+        function savePlayerData() {
+            localStorage.setItem('thaiVocabPlayer', JSON.stringify(playerProfile));
+            updateProfileUI();
+        }
+
+        function savePlayerName() {
+            const nameInput = document.getElementById('player-name-input').value.trim();
+            if (nameInput !== "") {
+                playerProfile.name = nameInput;
+                savePlayerData();
+                document.getElementById('name-modal').classList.add('hidden');
+            }
+        }
+
+        function openNameModal() {
+            document.getElementById('player-name-input').value = playerProfile.name;
+            document.getElementById('name-modal').classList.remove('hidden');
+        }
+
+        function updateProfileUI() {
+            document.getElementById('display-player-name').innerText = playerProfile.name || "ผู้เล่น";
+            playerProfile.level = Math.floor(playerProfile.exp / 100) + 1;
+            document.getElementById('display-player-level').innerText = playerProfile.level;
+            document.getElementById('display-player-exp').innerText = playerProfile.exp;
+
+            // อัปเดตปุ่มซ่อมเสริม
+            const reviewBtn = document.getElementById('review-mode-btn');
+            const mistakesCountText = document.getElementById('mistakes-count-text');
+            if (playerProfile.mistakes.length > 0) {
+                reviewBtn.classList.remove('disabled-card');
+                mistakesCountText.innerText = `มีข้อที่ต้องแก้มือ: ${playerProfile.mistakes.length} ข้อ`;
+                mistakesCountText.classList.replace('text-gray-500', 'text-red-600');
+            } else {
+                reviewBtn.classList.add('disabled-card');
+                mistakesCountText.innerText = `ไม่มีข้อผิดค้างไว้ เก่งมาก!`;
+                mistakesCountText.classList.replace('text-red-600', 'text-gray-500');
+            }
+        }
+
+        // ระบบ Toast กลางสำหรับแจ้งเตือนทุกอย่าง
+        function showToast(title, message, icon="🔔", color="yellow") {
+            const toast = document.getElementById('toast-message');
+            document.getElementById('toast-icon').innerText = icon;
+            document.getElementById('toast-subtitle').innerText = title;
+            document.getElementById('toast-subtitle').className = `text-xs font-bold uppercase tracking-wider text-${color}-600`;
+            document.getElementById('toast-title').innerText = message;
+            toast.className = `fixed top-4 right-4 sm:top-6 sm:right-20 bg-white border-l-4 border-${color}-400 rounded-xl shadow-2xl p-4 flex items-center z-50 transform translate-x-[150%] opacity-0 transition-all toast-enter`;
+            
+            setTimeout(() => {
+                toast.classList.replace('toast-enter', 'toast-leave');
+            }, 3000);
+        }
+
+        function checkAchievements(type, data = {}) {
+            let unlockedAny = false;
+            const unlock = (id) => {
+                if (!playerProfile.achievements.includes(id)) {
+                    playerProfile.achievements.push(id);
+                    const ach = ACHIEVEMENTS_LIST.find(a => a.id === id);
+                    playSound('achievement');
+                    showToast("ปลดล็อกความสำเร็จ!", ach.name, ach.icon, "yellow");
+                    unlockedAny = true;
+                }
+            };
+
+            if (type === 'endgame') {
+                if (playerProfile.gamesPlayed >= 1) unlock('first_blood');
+                if (data.score === data.total && data.lives === 3) unlock('perfect_run');
+                if (data.score >= Math.ceil(data.total/2) && data.lives === 1) unlock('survivor');
+            } else if (type === 'ingame') {
+                if (data.combo >= 3) unlock('combo_master');
+            } else if (type === 'library') {
+                if (playerProfile.unlockedVocab.length >= 10) unlock('scholar');
+            }
+            if (unlockedAny) savePlayerData();
+        }
+
+        // --- ระบบห้องสมุดคำศัพท์ (Vocabulary Library) ---
+        function openLibraryModal() {
+            const container = document.getElementById('library-list-container');
+            container.innerHTML = '';
+            
+            document.getElementById('library-progress').innerText = `${playerProfile.unlockedVocab.length}/${allQuestionsWithIds.length}`;
+
+            allQuestionsWithIds.forEach(q => {
+                const isUnlocked = playerProfile.unlockedVocab.includes(q.id);
+                // ดึงคำศัพท์จากคำตอบที่ถูก
+                const word = q.choices[q.answer]; 
+                
+                if (isUnlocked) {
+                    container.innerHTML += `
+                        <div class="border border-blue-200 bg-blue-50 p-3 rounded-xl shadow-sm flex flex-col justify-center">
+                            <h4 class="font-bold text-blue-900 text-lg">✅ ${word}</h4>
+                            <p class="text-xs text-gray-600 mt-1">${q.explanation}</p>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML += `
+                        <div class="border border-gray-200 bg-gray-50 p-3 rounded-xl flex items-center justify-center h-full opacity-60">
+                            <h4 class="font-bold text-gray-400 text-xl tracking-widest">???</h4>
+                        </div>
+                    `;
+                }
+            });
+            document.getElementById('library-modal').classList.remove('hidden');
+        }
+        function closeLibraryModal() { document.getElementById('library-modal').classList.add('hidden'); }
+
+        // --- ระบบความสำเร็จ ---
+        function openAchievementsModal() {
+            const container = document.getElementById('achievements-list-container');
+            container.innerHTML = '';
+            ACHIEVEMENTS_LIST.forEach(ach => {
+                const isUnlocked = playerProfile.achievements.includes(ach.id);
+                const bgClass = isUnlocked ? `bg-gradient-to-r from-${ach.color}-50 to-white border-${ach.color}-200` : 'bg-gray-50 border-gray-200 opacity-60 grayscale';
+                const iconClass = isUnlocked ? 'text-3xl' : 'text-3xl opacity-50';
+                const lockIcon = isUnlocked ? '' : '🔒 ';
+                container.innerHTML += `
+                    <div class="border p-3 rounded-xl flex items-center ${bgClass}">
+                        <div class="${iconClass} mr-4">${ach.icon}</div>
+                        <div>
+                            <h4 class="font-bold text-gray-800">${lockIcon}${ach.name}</h4>
+                            <p class="text-xs text-gray-500">${ach.desc}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('achievements-modal').classList.remove('hidden');
+        }
+        function closeAchievementsModal() { document.getElementById('achievements-modal').classList.add('hidden'); }
+
+        // --- การตั้งค่าเกมเพลย์ ---
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let lives = 3;
+        let timeLeft = 100;
+        let timerInterval;
+        let isAnswered = false;
+        let comboStreak = 0;
+        let isReviewMode = false;
+
+        const screens = { start: document.getElementById('start-screen'), quiz: document.getElementById('quiz-screen'), result: document.getElementById('result-screen') };
+        const ui = {
+            lives: document.getElementById('lives-display'), score: document.getElementById('score-display'), combo: document.getElementById('combo-display'),
+            progressBar: document.getElementById('quiz-progress-bar'), timerBar: document.getElementById('timer-bar'), categoryBadge: document.getElementById('category-badge'),
+            question: document.getElementById('question-text'), choices: document.getElementById('choices-container'), explanationBox: document.getElementById('explanation-box'),
+            explanationTitle: document.getElementById('explanation-title'), explanationText: document.getElementById('explanation-text'), explanationIcon: document.getElementById('explanation-icon'),
+            resultIcon: document.getElementById('result-icon'), resultTitle: document.getElementById('result-title'), finalScoreText: document.getElementById('final-score-text'),
+            totalScoreText: document.getElementById('total-score-text'), earnedExpText: document.getElementById('earned-exp-text'), starDisplay: document.getElementById('star-display')
+        };
+
+        // --- ระบบเสียง ---
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        let isBgmPlaying = false;
+        const bgmAudio = document.getElementById('bgm-audio');
+        bgmAudio.volume = 0.15; 
+        function toggleBGM() {
+            const btn = document.getElementById('bgm-toggle');
+            if (isBgmPlaying) { bgmAudio.pause(); btn.innerText = '🔇'; } 
+            else { bgmAudio.play().catch(e => console.log("รอผู้เล่นคลิก")); btn.innerText = '🔊'; }
+            isBgmPlaying = !isBgmPlaying;
+        }
+
+        function playSound(type) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+
+            if (type === 'correct') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(880, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.1); 
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3); osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'combo') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime); osc.frequency.setValueAtTime(1318.51, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3); osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(300, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3); osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'star') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5); osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+            } else if (type === 'tick') {
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1); osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+            } else if (type === 'achievement') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2); osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.6); osc.start(); osc.stop(audioCtx.currentTime + 0.6);
+            }
+        }
+
+        // --- Game Logic ---
+        function startGame(category) {
+            initAudio();
+            if (!isBgmPlaying && document.getElementById('bgm-toggle').innerText === '🔇') toggleBGM();
+
+            isReviewMode = false;
+            let filteredQuestions = [];
+            let badgeText = "";
+            let badgeColor = "";
+
+            if (category === 'review') {
+                if (playerProfile.mistakes.length === 0) {
+                    showToast("เก่งมาก!", "คุณไม่มีข้อผิดค้างไว้เลย ลองเล่นหมวดอื่นดูนะ", "🎉", "green");
+                    return;
+                }
+                isReviewMode = true;
+                // ดึงเฉพาะข้อที่เคยผิดมาสร้างเป็นโหมดซ่อมเสริม (ดึงมาสูงสุด 10 ข้อ)
+                filteredQuestions = playerProfile.mistakes.map(id => allQuestionsWithIds[id]);
+                badgeText = "ด่านซ่อมเสริม"; badgeColor = "bg-red-100 text-red-700";
+            }
+            else if (category === 'spelling') { filteredQuestions = allQuestionsWithIds.slice(0, 30); badgeText = "หมวดสะกดคำ"; badgeColor = "bg-blue-100 text-blue-700"; }
+            else if (category === 'royal') { filteredQuestions = allQuestionsWithIds.slice(30, 40); badgeText = "หมวดราชาศัพท์"; badgeColor = "bg-purple-100 text-purple-700"; }
+            else if (category === 'idiom') { filteredQuestions = allQuestionsWithIds.slice(40, 50); badgeText = "หมวดสุภาษิต"; badgeColor = "bg-green-100 text-green-700"; }
+            else { filteredQuestions = [...allQuestionsWithIds]; badgeText = "สุ่มทั้งหมด"; badgeColor = "bg-orange-100 text-orange-700"; }
+
+            // สุ่มจำนวนข้อ (5 ข้อปกติ หรือตามจำนวนที่ผิดถ้าไม่ถึง 5)
+            let limit = isReviewMode ? Math.min(filteredQuestions.length, 10) : 5;
+            currentQuestions = filteredQuestions.sort(() => 0.5 - Math.random()).slice(0, limit);
+            
+            ui.categoryBadge.innerText = badgeText;
+            ui.categoryBadge.className = `absolute -top-4 text-xs px-3 py-1 rounded-full uppercase tracking-wider font-semibold shadow-sm ${badgeColor}`;
+
+            currentQuestionIndex = 0; score = 0; lives = 3; comboStreak = 0;
+            ui.combo.classList.add('hidden');
+            screens.start.classList.add('hidden'); screens.result.classList.add('hidden'); screens.quiz.classList.remove('hidden');
+            
+            updateHeader(); loadQuestion();
+        }
+
+        function updateHeader() {
+            ui.score.innerText = score;
+            let hearts = '';
+            for(let i=0; i<3; i++) hearts += (i < lives) ? '❤️' : '🖤';
+            ui.lives.innerText = hearts;
+            const progressPct = (currentQuestionIndex / currentQuestions.length) * 100;
+            ui.progressBar.style.width = `${progressPct}%`;
+        }
+
+        function loadQuestion() {
+            isAnswered = false; ui.explanationBox.classList.add('hidden');
+            const q = currentQuestions[currentQuestionIndex];
+            ui.question.innerText = q.question;
+            ui.choices.innerHTML = '';
+            q.choices.forEach((choice, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn w-full bg-white border-2 border-gray-200 text-gray-700 font-medium py-4 px-6 rounded-xl text-lg text-left outline-none';
+                btn.innerText = choice;
+                btn.onclick = () => handleAnswer(index, btn);
+                ui.choices.appendChild(btn);
+            });
+            startTimer();
+        }
+
+        function startTimer() {
+            timeLeft = 100; ui.timerBar.style.width = '100%'; ui.timerBar.className = 'bg-green-500 h-1.5 rounded-full transition-all duration-100'; 
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if(isAnswered) { clearInterval(timerInterval); return; }
+                timeLeft--; const pct = (timeLeft / 100) * 100; ui.timerBar.style.width = `${pct}%`;
+                if(pct < 30) {
+                    ui.timerBar.classList.replace('bg-green-500', 'bg-red-500'); ui.timerBar.classList.replace('bg-yellow-400', 'bg-red-500');
+                    if(timeLeft % 10 === 0 && timeLeft > 0) playSound('tick');
+                } else if(pct < 60) { ui.timerBar.classList.replace('bg-green-500', 'bg-yellow-400'); }
+                if (timeLeft <= 0) { clearInterval(timerInterval); handleAnswer(-1, null); }
+            }, 100); 
+        }
+
+        function handleAnswer(selectedIndex, buttonElement) {
+            if (isAnswered) return;
+            isAnswered = true; clearInterval(timerInterval);
+            const q = currentQuestions[currentQuestionIndex];
+            const allButtons = ui.choices.querySelectorAll('button');
+            allButtons.forEach(btn => { btn.disabled = true; btn.classList.add('opacity-80', 'cursor-not-allowed'); });
+
+            let isCorrect = (selectedIndex === q.answer);
+
+            if (isCorrect) {
+                comboStreak++; score += 1;
+                
+                // ปลดล็อกห้องสมุดคำศัพท์ 
+                if (!playerProfile.unlockedVocab.includes(q.id)) {
+                    playerProfile.unlockedVocab.push(q.id);
+                    checkAchievements('library');
+                }
+                // ลบออกจากประวัติข้อผิด (ถ้ามี)
+                playerProfile.mistakes = playerProfile.mistakes.filter(id => id !== q.id);
+
+                if (comboStreak >= 2) {
+                    playSound('combo'); ui.combo.innerText = `🔥 Combo x${comboStreak}`;
+                    ui.combo.classList.remove('hidden', 'pop-up'); void ui.combo.offsetWidth; ui.combo.classList.add('pop-up');
+                } else { playSound('correct'); }
+                checkAchievements('ingame', { combo: comboStreak });
+
+                buttonElement.classList.remove('border-gray-200'); buttonElement.classList.add('bg-green-500', 'text-white', 'border-green-600', 'opacity-100');
+                showExplanation("ถูกต้อง! เก่งมาก", q.explanation, "correct");
+            } else {
+                comboStreak = 0; ui.combo.classList.add('hidden'); playSound('wrong'); lives--;
+                ui.question.parentElement.classList.add('shake'); setTimeout(() => ui.question.parentElement.classList.remove('shake'), 400);
+
+                // บันทึกข้อที่ผิด (ถ้ายังไม่มีในลิสต์)
+                if (!playerProfile.mistakes.includes(q.id)) {
+                    playerProfile.mistakes.push(q.id);
+                }
+
+                if (selectedIndex >= 0) { buttonElement.classList.remove('border-gray-200'); buttonElement.classList.add('bg-red-500', 'text-white', 'border-red-600', 'opacity-100'); }
+                allButtons[q.answer].classList.remove('border-gray-200', 'opacity-80'); allButtons[q.answer].classList.add('bg-green-500', 'text-white', 'border-green-600', 'ring-4', 'ring-green-200');
+                showExplanation(selectedIndex === -1 ? "หมดเวลา!" : "อ๊ะ! ยังไม่ถูกนะ", q.explanation, "wrong");
+            }
+            savePlayerData(); updateHeader();
+        }
+
+        function showExplanation(title, text, type) {
+            ui.explanationBox.classList.remove('hidden'); ui.explanationTitle.innerText = title; ui.explanationText.innerText = text;
+            if (type === 'correct') {
+                ui.explanationBox.className = 'bg-green-50 border-2 border-green-200 rounded-2xl p-5 text-left slide-up mt-4 block';
+                ui.explanationTitle.className = 'font-bold text-lg text-green-800'; ui.explanationIcon.innerText = '✅';
+            } else {
+                ui.explanationBox.className = 'bg-red-50 border-2 border-red-200 rounded-2xl p-5 text-left slide-up mt-4 block';
+                ui.explanationTitle.className = 'font-bold text-lg text-red-800'; ui.explanationIcon.innerText = '❌';
+            }
+        }
+
+        function nextQuestion() {
+            if (lives <= 0) { endGame(false); return; }
+            currentQuestionIndex++;
+            if (currentQuestionIndex < currentQuestions.length) { loadQuestion(); updateHeader(); } 
+            else { endGame(true); }
+        }
+
+        function endGame(isSuccess) {
+            screens.quiz.classList.add('hidden'); screens.result.classList.remove('hidden');
+            ui.starDisplay.innerHTML = ''; ui.progressBar.style.width = `100%`;
+            playerProfile.gamesPlayed += 1;
+            
+            let gainedExp = (score * 10) + (lives * 5);
+            let earnedStars = 0;
+            let totalQ = currentQuestions.length;
+
+            ui.totalScoreText.innerText = totalQ;
+
+            if (!isSuccess) {
+                ui.resultIcon.innerText = '💔'; ui.resultTitle.innerText = "เกมโอเวอร์!"; ui.resultTitle.className = "text-3xl font-bold text-red-600 mb-2";
+                ui.finalScoreText.innerText = score;
+                document.getElementById('feedback-message').innerText = "ไม่เป็นไรนะ ลองตั้งสติแล้วลุยใหม่! สู้ๆ ✌️";
+                document.getElementById('feedback-message').className = "text-base font-medium text-red-500 mb-4 px-4";
+            } else {
+                ui.resultIcon.innerText = '🏆'; ui.resultTitle.innerText = "ภารกิจสำเร็จ!"; ui.resultTitle.className = "text-3xl font-bold text-indigo-900 mb-2";
+                ui.finalScoreText.innerText = score;
+                
+                // คำนวณดาวแบบยืดหยุ่น (ขึ้นอยู่กับจำนวนข้อ)
+                earnedStars = (score >= totalQ) ? 3 : (score >= Math.ceil(totalQ/2)) ? 2 : 1;
+                gainedExp += (earnedStars * 10); 
+                
+                if (earnedStars === 3) {
+                    document.getElementById('feedback-message').innerText = "ยอดเยี่ยม! ไร้ที่ติเลย ✨"; document.getElementById('feedback-message').className = "text-base font-medium text-green-600 mb-4 px-4";
+                } else if (earnedStars === 2) {
+                    document.getElementById('feedback-message').innerText = "เก่งมาก! อีกนิดเดียวก็เพอร์เฟกต์แล้ว 👍"; document.getElementById('feedback-message').className = "text-base font-medium text-blue-600 mb-4 px-4";
+                } else {
+                    document.getElementById('feedback-message').innerText = "รอดมาได้! ฝึกบ่อยๆ จะเก่งขึ้นแน่นอน 📚"; document.getElementById('feedback-message').className = "text-base font-medium text-indigo-600 mb-4 px-4";
+                }
+
+                for (let i = 1; i <= 3; i++) {
+                    const starSpan = document.createElement('span'); starSpan.innerText = '⭐';
+                    starSpan.className = (i <= earnedStars) ? 'star star-gold' : 'star star-empty';
+                    ui.starDisplay.appendChild(starSpan);
+                    setTimeout(() => {
+                        starSpan.style.animation = 'bounce-in 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
+                        if (i <= earnedStars) playSound('star');
+                    }, i * 400);
+                }
+            }
+
+            ui.earnedExpText.innerText = gainedExp; playerProfile.exp += gainedExp;
+            checkAchievements('endgame', { score: score, total: totalQ, lives: lives, isSuccess: isSuccess });
+            savePlayerData();
+
+            // ส่งคะแนนไประบบ KAMPAI SDK
+            if (window.KAMPAI) {
+                window.KAMPAI.submitScore(score, {
+                    mode: isReviewMode ? 'review' : 'normal',
+                    allowResubmit: true,
+                    duration: Math.max(1, Math.floor((Date.now() - window.KAMPAI._startTs) / 1000)),
+                    lives_remaining: lives,
+                    is_success: isSuccess
+                });
+            }
+        }
+
+        function resetToHome() {
+            if (window.KAMPAI && window.KAMPAI.isEmbed) {
+                window.KAMPAI.goHome();
+            } else {
+                screens.result.classList.add('hidden'); screens.start.classList.remove('hidden');
+                updateProfileUI(); 
+            }
+        }
+
+        function replayGame() {
+            screens.result.classList.add('hidden'); screens.start.classList.remove('hidden');
+            updateProfileUI();
+        }
+
+        // --- การเริ่มต้นระบบร่วมกับ KAMPAI SDK ---
+        if (window.KAMPAI) {
+            window.KAMPAI.setSlug('thai-vocab-arena');
+            window.KAMPAI.onReady(function(k) {
+                // เมื่อ SDK พร้อม ให้ทำการโหลดข้อมูลผู้เล่น
+                loadPlayerData();
+                
+                // หากรันใน iframe ของระบบ ให้ซ่อนปุ่มปรับแต่งชื่อ
+                if (k.isEmbed) {
+                    const editNameBtn = document.querySelector('button[onclick="openNameModal()"]');
+                    if (editNameBtn) editNameBtn.style.display = 'none';
+                }
+            });
+        } else {
+            window.onload = loadPlayerData;
+        }
+    </script>
+</body>
+</html>

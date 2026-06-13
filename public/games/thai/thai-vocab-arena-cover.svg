@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" font-family="'Kanit','Sarabun','Segoe UI',sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4f46e5"/>
+      <stop offset="0.55" stop-color="#1e1b4b"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fde68a"/>
+      <stop offset="0.5" stop-color="#FFD700"/>
+      <stop offset="1" stop-color="#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="correctGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6ee7b7"/>
+      <stop offset="1" stop-color="#059669"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.42" r="0.5">
+      <stop offset="0" stop-color="#fbbf24" stop-opacity="0.3"/>
+      <stop offset="1" stop-color="#fbbf24" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <!-- background -->
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <ellipse cx="640" cy="300" rx="620" ry="360" fill="url(#glow)"/>
+
+  <!-- faint watermark Thai characters -->
+  <text x="1080" y="600" font-size="520" font-weight="800" fill="#ffffff" opacity="0.04" text-anchor="middle" dominant-baseline="middle">ก</text>
+  <text x="200" y="150" font-size="280" font-weight="800" fill="#ffffff" opacity="0.03" text-anchor="middle" dominant-baseline="middle">ไทย</text>
+
+  <!-- stars / sparkles -->
+  <path d="M150 250 l10 -20 10 20 20 10 -20 10 -10 20 -10 -20 -20 -10 z" fill="url(#gold)" opacity="0.8" filter="url(#sh)"/>
+  <path d="M1100 220 l15 -30 15 30 30 15 -30 15 -15 30 -15 -30 -30 -15 z" fill="url(#gold)" opacity="0.8" filter="url(#sh)"/>
+
+  <!-- top pill -->
+  <g transform="translate(640,120)">
+    <rect x="-160" y="-26" width="320" height="52" rx="26" fill="#ffffff" opacity="0.12"/>
+    <text x="0" y="2" font-size="26" font-weight="600" fill="#e2e8f0" text-anchor="middle" dominant-baseline="middle">🇹🇭 KAMPAI · ภาษาไทย</text>
+  </g>
+
+  <!-- title -->
+  <text x="640" y="300" font-size="140" font-weight="800" fill="url(#gold)" text-anchor="middle" dominant-baseline="middle" filter="url(#sh)" letter-spacing="1">ลานประลองคำศัพท์</text>
+
+  <!-- subtitle -->
+  <text x="640" y="395" font-size="36" font-weight="600" fill="#cbd5e1" text-anchor="middle" dominant-baseline="middle">หมวดสะกดคำ · คำราชาศัพท์ · สำนวนสุภาษิต</text>
+
+  <!-- question and answers simulation -->
+  <g transform="translate(640,520)">
+    <!-- Question card background -->
+    <rect x="-350" y="-45" width="700" height="90" rx="20" fill="#ffffff" opacity="0.08" stroke="#ffffff" stroke-opacity="0.15" stroke-width="2"/>
+    <text x="-120" y="2" font-size="38" font-weight="700" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">ดวงตาของเธอช่างแวววาวและ.......</text>
+    
+    <!-- choices -->
+    <g transform="translate(230,0)" dominant-baseline="middle" text-anchor="middle" font-size="32" font-weight="700">
+      <!-- choice 1 (wrong) -->
+      <g transform="translate(-140, 0)">
+        <rect x="-100" y="-30" width="200" height="60" rx="15" fill="#f8fafc"/>
+        <text x="0" y="2" fill="#1e293b">กระพริบ</text>
+      </g>
+      <!-- choice 2 (correct) -->
+      <g transform="translate(80, 0)">
+        <rect x="-100" y="-30" width="200" height="60" rx="15" fill="url(#correctGrad)" stroke="#6ee7b7" stroke-width="3"/>
+        <text x="0" y="2" fill="#ffffff" filter="url(#sh)">กะพริบ</text>
+        <!-- checkmark -->
+        <circle cx="85" cy="-25" r="14" fill="#059669" stroke="#ffffff" stroke-width="2"/>
+        <path d="M79 -27 l4 4 l8 -8" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- info ribbon bottom -->
+  <g transform="translate(640,640)">
+    <rect x="-240" y="-24" width="480" height="48" rx="24" fill="#f59e0b" opacity="0.18"/>
+    <text x="0" y="2" font-size="24" font-weight="700" fill="#fcd34d" text-anchor="middle" dominant-baseline="middle">📚 สะสม EXP ปลดล็อกความสำเร็จและคลังคำศัพท์</text>
+  </g>
+</svg>
