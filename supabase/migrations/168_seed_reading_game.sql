@@ -53,4 +53,20 @@ BEGIN
       thumbnail_url = '/games/thai/reading-game/cover.svg',
       updated_at = now()
   WHERE owner_staff_id = v_staff_id AND external_url = v_url;
+
+  -- 6. Seed game documentation (game_docs)
+  INSERT INTO public.game_docs (item_id, owner_staff_id, game_format, features, version, notes)
+  SELECT i.id, i.owner_staff_id,
+         'ตอบคำถาม/เรียงประโยค/จับใจความ',
+         ARRAY['จับคู่คำพ้องสระ','เรียงประโยค','เลือกการอ่านที่ถูกต้อง','ปริศนาหาคำ','อ่านจับใจความ'],
+         'v1.0.0',
+         'สร้างเกมครั้งแรก'
+  FROM public.educational_hub_items i
+  WHERE i.owner_staff_id = v_staff_id AND i.external_url = v_url
+  ON CONFLICT (item_id) DO UPDATE
+    SET game_format = EXCLUDED.game_format,
+        features    = EXCLUDED.features,
+        version     = EXCLUDED.version,
+        notes       = EXCLUDED.notes,
+        updated_at  = now();
 END $$;
