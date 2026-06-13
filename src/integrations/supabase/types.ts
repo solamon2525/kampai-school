@@ -1342,6 +1342,51 @@ export type Database = {
         }
         Relationships: []
       }
+      curriculum_indicators: {
+        Row: {
+          created_at: string
+          description: string
+          grade: string
+          id: string
+          indicator_code: string
+          is_active: boolean
+          sort_order: number
+          standard_code: string | null
+          strand_no: string | null
+          strand_title: string | null
+          subject_key: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          grade: string
+          id?: string
+          indicator_code: string
+          is_active?: boolean
+          sort_order?: number
+          standard_code?: string | null
+          strand_no?: string | null
+          strand_title?: string | null
+          subject_key: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          grade?: string
+          id?: string
+          indicator_code?: string
+          is_active?: boolean
+          sort_order?: number
+          standard_code?: string | null
+          strand_no?: string | null
+          strand_title?: string | null
+          subject_key?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       curriculum_programs: {
         Row: {
           careers: string[] | null
@@ -2967,6 +3012,72 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_educational_hub_teachers"
             referencedColumns: ["staff_id"]
+          },
+        ]
+      }
+      indicator_games: {
+        Row: {
+          created_at: string
+          edu_hub_item_id: string
+          indicator_id: string
+        }
+        Insert: {
+          created_at?: string
+          edu_hub_item_id: string
+          indicator_id: string
+        }
+        Update: {
+          created_at?: string
+          edu_hub_item_id?: string
+          indicator_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "indicator_games_edu_hub_item_id_fkey"
+            columns: ["edu_hub_item_id"]
+            isOneToOne: false
+            referencedRelation: "educational_hub_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "indicator_games_indicator_id_fkey"
+            columns: ["indicator_id"]
+            isOneToOne: false
+            referencedRelation: "curriculum_indicators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      indicator_lesson_plans: {
+        Row: {
+          created_at: string
+          indicator_id: string
+          lesson_plan_id: string
+        }
+        Insert: {
+          created_at?: string
+          indicator_id: string
+          lesson_plan_id: string
+        }
+        Update: {
+          created_at?: string
+          indicator_id?: string
+          lesson_plan_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "indicator_lesson_plans_indicator_id_fkey"
+            columns: ["indicator_id"]
+            isOneToOne: false
+            referencedRelation: "curriculum_indicators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "indicator_lesson_plans_lesson_plan_id_fkey"
+            columns: ["lesson_plan_id"]
+            isOneToOne: false
+            referencedRelation: "lesson_plans"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -5228,6 +5339,149 @@ export type Database = {
           },
         ]
       }
+      student_indicator_assessments: {
+        Row: {
+          academic_year: string
+          assessed_by: string | null
+          created_at: string
+          id: string
+          indicator_id: string
+          level: number | null
+          note: string | null
+          semester: string | null
+          source: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          academic_year: string
+          assessed_by?: string | null
+          created_at?: string
+          id?: string
+          indicator_id: string
+          level?: number | null
+          note?: string | null
+          semester?: string | null
+          source?: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          academic_year?: string
+          assessed_by?: string | null
+          created_at?: string
+          id?: string
+          indicator_id?: string
+          level?: number | null
+          note?: string | null
+          semester?: string | null
+          source?: string
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_indicator_assessments_indicator_id_fkey"
+            columns: ["indicator_id"]
+            isOneToOne: false
+            referencedRelation: "curriculum_indicators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_indicator_assessments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "savings_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "student_indicator_assessments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_indicator_assessments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "waste_student_summary"
+            referencedColumns: ["student_id"]
+          },
+        ]
+      }
+      student_indicator_events: {
+        Row: {
+          created_at: string
+          event_date: string
+          game_slug: string | null
+          id: string
+          indicator_id: string
+          passed: boolean
+          score: number | null
+          session_id: string | null
+          student_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_date?: string
+          game_slug?: string | null
+          id?: string
+          indicator_id: string
+          passed?: boolean
+          score?: number | null
+          session_id?: string | null
+          student_id: string
+        }
+        Update: {
+          created_at?: string
+          event_date?: string
+          game_slug?: string | null
+          id?: string
+          indicator_id?: string
+          passed?: boolean
+          score?: number | null
+          session_id?: string | null
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_indicator_events_indicator_id_fkey"
+            columns: ["indicator_id"]
+            isOneToOne: false
+            referencedRelation: "curriculum_indicators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_indicator_events_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "game_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_indicator_events_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "savings_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "student_indicator_events_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_indicator_events_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "waste_student_summary"
+            referencedColumns: ["student_id"]
+          },
+        ]
+      }
       student_meal_budget: {
         Row: {
           academic_year: number
@@ -6566,6 +6820,20 @@ export type Database = {
         }
         Relationships: []
       }
+      v_student_indicator_mastery: {
+        Row: {
+          any_passed: boolean | null
+          assessed_level: number | null
+          assessed_source: string | null
+          attempts: number | null
+          best_score: number | null
+          indicator_id: string | null
+          last_event: string | null
+          status: string | null
+          student_id: string | null
+        }
+        Relationships: []
+      }
       v_urgent_documents: {
         Row: {
           badge: string | null
@@ -6897,6 +7165,7 @@ export type Database = {
           weekly_xp: number
         }[]
       }
+      grade_from_class: { Args: { p_class: string }; Returns: string }
       has_menu_permission: { Args: { menu_id: string }; Returns: boolean }
       increment_ehi_download: { Args: { p_id: string }; Returns: undefined }
       increment_ehi_view: { Args: { p_id: string }; Returns: undefined }
