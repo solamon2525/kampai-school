@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>มาตราตัวสะกด ✨ v4 - เกมภาษาไทย ป.5</title>
+<!-- ═══ KAMPAI SDK (single source — อย่าแก้) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+</script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap');
+
+:root{
+  --sky:#00C9FF;--sun:#FFD700;--pink:#FF6B9D;--purple:#A855F7;
+  --orange:#FF8C42;--red:#FF4757;--teal:#2ECEC9;--green:#00E676;
+  --bg:#0A1628;--card:rgba(255,255,255,0.06);
+  --bg-top:#020818;--bg-bot:#0A1628;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Sarabun',sans-serif;min-height:100vh;overflow-x:hidden;
+  background:linear-gradient(180deg,var(--bg-top) 0%,var(--bg-bot) 100%);
+  transition:background 2.5s ease;}
+
+/* ── SCENES ── */
+body.scene-night  {--bg-top:#020818;--bg-bot:#0A1628;}
+body.scene-dawn   {--bg-top:#1a0533;--bg-bot:#4a1a6e;}
+body.scene-sunrise{--bg-top:#ff6b35;--bg-bot:#ffab40;}
+body.scene-morning{--bg-top:#1565C0;--bg-bot:#42A5F5;}
+body.scene-noon   {--bg-top:#0288D1;--bg-bot:#4FC3F7;}
+body.scene-afternoon{--bg-top:#E65100;--bg-bot:#FF8F00;}
+body.scene-sunset {--bg-top:#B71C1C;--bg-bot:#FF6D00;}
+
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0;transition:opacity 2s;}
+.star{position:absolute;background:#fff;border-radius:50%;animation:twinkle 2s infinite alternate;}
+@keyframes twinkle{from{opacity:.2;transform:scale(1)}to{opacity:1;transform:scale(1.4)}}
+
+.cloud-layer{position:fixed;top:0;left:0;width:100%;height:60%;pointer-events:none;z-index:0;overflow:hidden;}
+.cloud{position:absolute;border-radius:50%;filter:blur(24px);opacity:.12;animation:cloudDrift linear infinite;}
+@keyframes cloudDrift{from{transform:translateX(-200px)}to{transform:translateX(calc(100vw + 200px))}}
+
+.ground{position:fixed;bottom:0;left:0;width:100%;height:80px;pointer-events:none;z-index:0;transition:background 2.5s;}
+body.scene-night .ground   {background:linear-gradient(180deg,transparent,#0d1f3c);}
+body.scene-dawn .ground    {background:linear-gradient(180deg,transparent,#2d0a45);}
+body.scene-sunrise .ground {background:linear-gradient(180deg,transparent,#7b3a00);}
+body.scene-morning .ground {background:linear-gradient(180deg,transparent,#0d47a1);}
+body.scene-noon .ground    {background:linear-gradient(180deg,transparent,#0277bd);}
+body.scene-afternoon .ground{background:linear-gradient(180deg,transparent,#bf360c);}
+body.scene-sunset .ground  {background:linear-gradient(180deg,transparent,#880e0e);}
+
+.sky-body{position:fixed;pointer-events:none;z-index:0;transition:all 2.5s ease;border-radius:50%;}
+#sky-sun{width:80px;height:80px;background:radial-gradient(circle,#FFE082,#FFD700,#FF8F00);box-shadow:0 0 60px 20px rgba(255,200,0,.4);bottom:-100px;left:10%;}
+#sky-moon{width:60px;height:60px;background:radial-gradient(circle,#E8EAF6,#C5CAE9,#9FA8DA);box-shadow:0 0 40px 10px rgba(200,210,255,.3);top:40px;right:10%;}
+.scene-transition{position:fixed;inset:0;z-index:999;pointer-events:none;opacity:0;background:radial-gradient(circle,rgba(255,200,0,.25),transparent);transition:opacity .5s;}
+
+/* ── MASCOT ── */
+.mascot-svg{width:120px;height:120px;filter:drop-shadow(0 8px 20px rgba(0,0,0,.4));transition:transform .3s;}
+.mascot-svg.idle{animation:mascotFloat 2.5s ease-in-out infinite alternate;}
+@keyframes mascotDance{0%{transform:translateY(0) rotate(0)}20%{transform:translateY(-22px) rotate(-18deg)}40%{transform:translateY(0) rotate(12deg)}60%{transform:translateY(-16px) rotate(-12deg)}80%{transform:translateY(0) rotate(8deg)}100%{transform:translateY(0) rotate(0)}}
+@keyframes mascotFloat{from{transform:translateY(0) rotate(-2deg)}to{transform:translateY(-12px) rotate(2deg)}}
+.mascot-svg.happy{animation:mascotHappy .5s cubic-bezier(.34,1.56,.64,1);}
+@keyframes mascotHappy{0%{transform:scale(1)}40%{transform:scale(1.25) rotate(-8deg)}70%{transform:scale(1.1) rotate(5deg)}100%{transform:scale(1)}}
+.mascot-svg.sad{animation:mascotSad .5s ease;}
+@keyframes mascotSad{0%{transform:scale(1)}25%{transform:scale(.9) translateY(8px)}100%{transform:scale(1) translateY(0)}}
+.mascot-svg.combo{animation:mascotCombo .6s cubic-bezier(.34,1.56,.64,1);}
+@keyframes mascotCombo{0%{transform:scale(1) rotate(0)}30%{transform:scale(1.3) rotate(-15deg)}60%{transform:scale(1.2) rotate(10deg)}100%{transform:scale(1) rotate(0)}}
+.mascot-svg.levelup{animation:mascotLevelUp .8s cubic-bezier(.34,1.56,.64,1);}
+@keyframes mascotLevelUp{0%{transform:scale(1)}30%{transform:scale(1.4) translateY(-20px)}80%{transform:scale(1.1) translateY(-5px)}100%{transform:scale(1) translateY(0)}}
+.speech-bubble{position:absolute;top:-52px;left:50%;transform:translateX(-50%);background:#fff;border-radius:16px;padding:8px 16px;font-size:14px;font-weight:800;color:#0A1628;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.25);opacity:0;pointer-events:none;z-index:10;}
+.speech-bubble::after{content:'';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);border:8px solid transparent;border-top-color:#fff;border-bottom:none;}
+.speech-bubble.show{animation:bubblePop 2.5s ease forwards;}
+@keyframes bubblePop{0%{opacity:0;transform:translateX(-50%) scale(.5)}15%{opacity:1;transform:translateX(-50%) scale(1.05)}20%{transform:translateX(-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translateX(-50%) scale(.8)}}
+
+/* ── SCREENS ── */
+.screen{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;background:rgba(5,10,22,.94);backdrop-filter:blur(14px);overflow-y:auto;}
+.screen.hidden{display:none;}
+.rainbow-title{font-size:clamp(28px,6vw,50px);font-weight:900;background:linear-gradient(135deg,#FFD700,#FF8C42,#FF6B9D,#A855F7,#00C9FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 20px rgba(255,215,0,.4));line-height:1.2;}
+.screen>p{color:rgba(255,255,255,.7);font-size:16px;line-height:1.8;margin-bottom:16px;}
+
+/* Sound toggle */
+.sound-toggle{position:fixed;top:14px;right:14px;z-index:300;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);border-radius:99px;padding:8px 14px;color:#fff;font-size:18px;cursor:pointer;transition:all .2s;backdrop-filter:blur(10px);}
+.sound-toggle:hover{background:rgba(255,255,255,.15);}
+
+/* ── HOME SCREEN ── */
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:620px;width:100%;margin:16px 0 10px;}
+.mode-card{background:var(--card);border:2px solid rgba(255,255,255,.12);border-radius:20px;padding:18px 14px;cursor:pointer;transition:all .25s;text-align:left;position:relative;overflow:hidden;}
+.mode-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .3s;}
+.mode-card:hover{transform:translateY(-4px) scale(1.03);border-color:rgba(255,255,255,.3);box-shadow:0 12px 40px rgba(0,0,0,.4);}
+.mode-card:hover::before{opacity:1;}
+.mode-card.mode-time::before{background:linear-gradient(135deg,rgba(255,140,66,.15),rgba(255,215,0,.1));}
+.mode-card.mode-select::before{background:linear-gradient(135deg,rgba(0,201,255,.15),rgba(46,206,201,.1));}
+.mode-card.mode-level::before{background:linear-gradient(135deg,rgba(168,85,247,.15),rgba(99,102,241,.1));}
+.mode-card.mode-reverse::before{background:linear-gradient(135deg,rgba(255,107,157,.15),rgba(255,71,87,.1));}
+.mode-icon{font-size:32px;margin-bottom:6px;display:block;}
+.mode-name{color:#fff;font-size:18px;font-weight:700;display:block;margin-bottom:3px;}
+.mode-desc{color:rgba(255,255,255,.55);font-size:13px;line-height:1.7;}
+.mode-badge{position:absolute;top:10px;right:10px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;}
+
+/* ── CATEGORY FILTER (Home) ── */
+.cat-section{max-width:620px;width:100%;margin-bottom:4px;}
+.cat-section-label{color:rgba(255,255,255,.5);font-size:13px;text-align:left;margin-bottom:8px;letter-spacing:.5px;}
+.cat-filters{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;}
+.cat-btn{padding:8px 16px;border-radius:99px;border:2px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:rgba(255,255,255,.6);font-family:'Sarabun',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px;}
+.cat-btn.on{border-color:transparent;color:#fff;}
+.cat-btn:hover{transform:translateY(-2px);}
+.cat-btn-daily.on   {background:linear-gradient(135deg,#4CAF50,#00E676);}
+.cat-btn-literature.on{background:linear-gradient(135deg,#FF8C42,#FFD700);}
+.cat-btn-loanword.on{background:linear-gradient(135deg,#00C9FF,#2ECEC9);}
+.cat-btn-tricky.on  {background:linear-gradient(135deg,#FF4757,#FF6B9D);}
+.cat-count{font-size:11px;background:rgba(255,255,255,.2);padding:1px 7px;border-radius:99px;}
+
+/* Maatra Select */
+.maatra-select-grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:560px;margin:16px 0 24px;}
+.ms-btn{padding:10px 20px;border-radius:99px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:rgba(255,255,255,.7);font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;}
+.ms-btn.picked{color:#fff;border-color:transparent;box-shadow:0 0 15px rgba(255,255,255,.2);}
+.ms-btn:hover{transform:translateY(-2px);}
+.ms-all{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.3);color:#fff;}
+
+/* ── GAME UI ── */
+#app{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:14px 14px 40px;}
+.top-bar{display:flex;align-items:center;gap:8px;width:100%;max-width:740px;margin-bottom:10px;flex-wrap:wrap;}
+.back-btn{background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);border-radius:99px;padding:7px 14px;color:rgba(255,255,255,.7);font-family:'Sarabun',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
+.back-btn:hover{background:rgba(255,255,255,.15);color:#fff;}
+.mode-label{padding:5px 12px;border-radius:99px;font-size:12px;font-weight:800;color:#fff;}
+.scene-label{font-size:11px;color:rgba(255,255,255,.4);}
+
+.game-mascot-area{display:flex;align-items:flex-end;gap:16px;width:100%;max-width:740px;margin-bottom:10px;}
+.mascot-small{width:80px;height:80px;flex-shrink:0;position:relative;}
+.mascot-small .mascot-svg{width:80px;height:80px;}
+.mascot-small .speech-bubble{top:-44px;font-size:12px;padding:6px 12px;}
+.hud{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;flex:1;}
+.hud-box{background:rgba(0,0,0,.25);border:2px solid rgba(255,255,255,.12);border-radius:14px;padding:7px 14px;text-align:center;min-width:82px;backdrop-filter:blur(10px);}
+.hud-lbl{color:rgba(255,255,255,.45);font-size:10px;}
+.hud-val{color:#fff;font-size:21px;font-weight:800;}
+.timer-wrap{position:relative;width:68px;height:68px;flex-shrink:0;}
+.timer-svg{transform:rotate(-90deg);width:68px;height:68px;}
+.timer-bg{fill:none;stroke:rgba(255,255,255,.1);stroke-width:5;}
+.timer-arc{fill:none;stroke-width:5;stroke-linecap:round;transition:stroke-dashoffset .1s linear,stroke .5s;}
+.timer-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:900;color:#fff;}
+@keyframes timerPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.timer-urgent .timer-text{animation:timerPulse .5s infinite;color:#FF4757;}
+
+.prog-wrap{width:100%;max-width:740px;margin-bottom:12px;}
+.prog-info{display:flex;justify-content:space-between;color:rgba(255,255,255,.5);font-size:11px;margin-bottom:4px;}
+.prog-bar{height:9px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--purple));border-radius:99px;transition:width .5s;position:relative;overflow:hidden;}
+.prog-fill::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);animation:shimmer 2s infinite;}
+@keyframes shimmer{to{left:100%}}
+
+.tabs-strip{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;width:100%;max-width:740px;margin-bottom:12px;}
+.tab{padding:6px 12px;border-radius:99px;border:2px solid rgba(255,255,255,.13);background:rgba(0,0,0,.2);color:rgba(255,255,255,.55);font-family:'Sarabun',sans-serif;font-size:12px;font-weight:700;cursor:default;backdrop-filter:blur(8px);}
+.tab.active-tab{border-color:transparent;color:var(--bg)!important;font-weight:800;}
+
+/* ── GAME CARD ── */
+.game-card{background:rgba(0,0,0,.28);border:2px solid rgba(255,255,255,.1);border-radius:26px;padding:24px;width:100%;max-width:740px;backdrop-filter:blur(24px);box-shadow:0 20px 60px rgba(0,0,0,.5);}
+@keyframes cardIn{from{opacity:0;transform:scale(.95) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.card-anim{animation:cardIn .35s cubic-bezier(.34,1.3,.64,1);}
+
+/* Card top row: badges */
+.card-top{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+.mattra-badge{display:inline-block;padding:5px 16px;border-radius:99px;font-size:13px;font-weight:800;letter-spacing:.5px;}
+
+/* Category badge */
+.cat-badge{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:99px;font-size:12px;font-weight:700;border:1.5px solid rgba(255,255,255,.2);color:rgba(255,255,255,.75);}
+.cat-badge.daily    {border-color:#00E676;color:#00E676;}
+.cat-badge.literature{border-color:#FFD700;color:#FFD700;}
+.cat-badge.loanword {border-color:#00C9FF;color:#00C9FF;}
+.cat-badge.tricky   {border-color:#FF4757;color:#FF4757;}
+
+/* Difficulty stars */
+.diff-stars{font-size:13px;letter-spacing:1px;}
+
+/* Tricky warning */
+.tricky-alert{background:rgba(255,71,87,.15);border:1.5px solid rgba(255,71,87,.4);border-radius:10px;padding:7px 12px;font-size:12px;color:#FF6B9D;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+
+.word-display{font-size:clamp(44px,10vw,78px);font-weight:800;color:#fff;text-align:center;width:100%;display:block;letter-spacing:5px;text-shadow:0 0 40px rgba(255,255,255,.25);line-height:1.5;}
+@keyframes wordPop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+.word-anim{animation:wordPop .4s cubic-bezier(.34,1.56,.64,1);}
+.q-prompt{text-align:center;color:rgba(255,255,255,.5);font-size:16px;margin:8px 0 20px;}
+
+.answers-4{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.answers-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.ans-btn{background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.15);border-radius:16px;padding:14px 10px;color:#fff;font-family:'Sarabun',sans-serif;font-size:18px;font-weight:700;cursor:pointer;transition:all .2s;min-height:64px;display:flex;align-items:center;justify-content:center;gap:7px;text-align:center;line-height:1.5;}
+.ans-btn:hover:not(:disabled){background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.3);transform:translateY(-3px) scale(1.02);box-shadow:0 8px 25px rgba(0,0,0,.3);}
+.ans-btn:active:not(:disabled){transform:scale(.97);}
+.ans-btn.correct{background:linear-gradient(135deg,#00E676,#00BFA5)!important;border-color:#00E676!important;animation:correctPop .5s ease;box-shadow:0 0 30px rgba(0,230,118,.5)!important;}
+.ans-btn.wrong{background:linear-gradient(135deg,#FF4757,#FF6B9D)!important;border-color:#FF4757!important;animation:wrongShake .4s ease;box-shadow:0 0 30px rgba(255,71,87,.4)!important;}
+@keyframes correctPop{0%{transform:scale(1)}50%{transform:scale(1.1)}100%{transform:scale(1)}}
+@keyframes wrongShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+
+.word-choice-btn{background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.15);border-radius:16px;padding:16px;color:#fff;font-family:'Sarabun',sans-serif;font-size:clamp(22px,5vw,34px);font-weight:900;cursor:pointer;transition:all .2s;text-align:center;min-height:76px;display:flex;align-items:center;justify-content:center;letter-spacing:3px;}
+.word-choice-btn:hover:not(:disabled){background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.3);transform:translateY(-3px) scale(1.02);}
+
+.type-input-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:4px;}
+.type-input{background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.2);border-radius:16px;padding:14px 22px;color:#fff;font-family:'Sarabun',sans-serif;font-size:24px;font-weight:800;text-align:center;outline:none;width:100%;max-width:320px;letter-spacing:3px;transition:border-color .2s;}
+.type-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(46,206,201,.2);}
+.type-input.correct-border{border-color:#00E676;box-shadow:0 0 0 3px rgba(0,230,118,.3);}
+.type-input.wrong-border{border-color:#FF4757;box-shadow:0 0 0 3px rgba(255,71,87,.3);}
+.type-submit{background:linear-gradient(135deg,var(--purple),#6366F1);border:none;border-radius:99px;padding:12px 34px;color:#fff;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:800;cursor:pointer;transition:all .2s;}
+.type-submit:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(168,85,247,.4);}
+.type-hint{color:rgba(255,255,255,.4);font-size:12px;margin-top:2px;}
+
+.feedback{text-align:center;font-size:19px;font-weight:800;margin-top:16px;min-height:28px;}
+.correct-msg{color:var(--green);}
+.wrong-msg{color:var(--pink);}
+.explanation{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:13px 16px;margin-top:12px;color:rgba(255,255,255,.8);font-size:15px;line-height:2;display:none;}
+.explanation.show{display:block;animation:cardIn .3s ease;}
+.next-btn{display:none;margin:16px auto 0;background:linear-gradient(135deg,var(--purple),#6366F1);border:none;border-radius:99px;padding:12px 36px;color:#fff;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:800;cursor:pointer;transition:all .2s;box-shadow:0 8px 25px rgba(168,85,247,.35);}
+.next-btn.show{display:block;animation:cardIn .3s ease;}
+.next-btn:hover{transform:translateY(-2px);}
+
+.level-indicator{display:flex;gap:7px;align-items:center;margin-bottom:12px;}
+.level-dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;border:2px solid transparent;}
+.level-dot.done{background:linear-gradient(135deg,var(--teal),var(--purple));color:#fff;}
+.level-dot.active{background:var(--card);border-color:var(--sun);color:var(--sun);}
+.level-dot.todo{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.15);color:rgba(255,255,255,.3);}
+.level-label{color:rgba(255,255,255,.6);font-size:12px;margin-left:4px;}
+
+/* ── END SCREEN ── */
+.final-score-big{font-size:76px;font-weight:900;color:var(--sun);line-height:1;}
+.stars-row{font-size:40px;margin:8px 0;}
+.result-table{background:rgba(255,255,255,.06);border-radius:16px;overflow:hidden;width:100%;max-width:500px;margin:12px 0;}
+.result-row{display:flex;justify-content:space-between;align-items:center;padding:9px 16px;border-bottom:1px solid rgba(255,255,255,.06);font-size:14px;color:rgba(255,255,255,.8);}
+.result-row:last-child{border-bottom:none;}
+.result-val{font-weight:800;color:#fff;}
+.result-val.good{color:var(--green);}
+.result-val.bad{color:var(--pink);}
+
+/* Category stats */
+.cat-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:500px;margin-bottom:10px;}
+.cat-stat-box{background:rgba(255,255,255,.06);border-radius:14px;padding:10px 14px;display:flex;align-items:center;gap:8px;}
+.cat-stat-bar-wrap{flex:1;height:8px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden;}
+.cat-stat-bar{height:100%;border-radius:99px;transition:width 1s ease;}
+.cat-stat-label{font-size:12px;color:rgba(255,255,255,.7);font-weight:700;}
+.cat-stat-pct{font-size:13px;font-weight:800;}
+
+/* Buttons */
+.big-btn{padding:14px 40px;border-radius:99px;border:none;font-family:'Sarabun',sans-serif;font-size:19px;font-weight:800;cursor:pointer;transition:all .2s;}
+.big-btn:hover{transform:translateY(-3px) scale(1.04);}
+.btn-gold{background:linear-gradient(135deg,#FFD700,#FF8C42);color:var(--bg);}
+.btn-teal{background:linear-gradient(135deg,var(--teal),var(--purple));color:#fff;}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:14px;}
+.sm-btn{padding:10px 24px;border-radius:99px;border:none;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all .2s;}
+.sm-btn:hover{transform:translateY(-2px);}
+
+/* Particles / popups */
+.particle{position:fixed;pointer-events:none;font-size:22px;animation:floatUp 1.5s ease-out forwards;z-index:999;}
+@keyframes floatUp{0%{transform:translateY(0) scale(1) rotate(0deg);opacity:1}100%{transform:translateY(-130px) scale(.2) rotate(180deg);opacity:0}}
+.score-pop{position:fixed;pointer-events:none;color:var(--sun);font-size:28px;font-weight:900;z-index:999;animation:scoreFloat 1s ease-out forwards;text-shadow:0 2px 10px rgba(0,0,0,.5);}
+@keyframes scoreFloat{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-80px) scale(1.3);opacity:0}}
+.levelup-banner{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);z-index:500;background:linear-gradient(135deg,#A855F7,#6366F1);border-radius:24px;padding:22px 44px;text-align:center;pointer-events:none;box-shadow:0 20px 60px rgba(168,85,247,.5);}
+.levelup-banner.show{animation:bannerPop 2s cubic-bezier(.34,1.3,.64,1) forwards;}
+@keyframes bannerPop{0%{transform:translate(-50%,-50%) scale(0);opacity:0}15%{transform:translate(-50%,-50%) scale(1.05);opacity:1}25%,75%{transform:translate(-50%,-50%) scale(1);opacity:1}90%,100%{transform:translate(-50%,-50%) scale(.8);opacity:0}}
+.levelup-banner h2{color:#fff;font-size:30px;font-weight:900;}
+.levelup-banner p{color:rgba(255,255,255,.8);font-size:15px;margin-top:4px;}
+.combo-fire{position:fixed;pointer-events:none;z-index:500;font-size:48px;animation:firePop 1.2s cubic-bezier(.34,1.56,.64,1) forwards;}
+@keyframes firePop{0%{transform:translateY(0) scale(0);opacity:1}40%{transform:translateY(-40px) scale(1.4);opacity:1}100%{transform:translateY(-100px) scale(.5);opacity:0}}
+
+/* Maatra colors */
+.c-กก{background:linear-gradient(135deg,#FF6B9D,#FF4757);}
+.c-กน{background:linear-gradient(135deg,#FF8C42,#FFD700);}
+.c-กด{background:linear-gradient(135deg,#A855F7,#6366F1);}
+.c-กบ{background:linear-gradient(135deg,#00C9FF,#2ECEC9);}
+.c-กม{background:linear-gradient(135deg,#4CAF50,#00E676);}
+.c-เกย{background:linear-gradient(135deg,#FF6B9D,#A855F7);}
+.c-เกอว{background:linear-gradient(135deg,#FFD700,#4CAF50);}
+.c-กง{background:linear-gradient(135deg,#2ECEC9,#6366F1);}
+
+@media(max-width:500px){
+  .mode-grid{grid-template-columns:1fr;}
+  .answers-4,.answers-2{grid-template-columns:1fr;}
+  .cat-stats{grid-template-columns:1fr;}
+  .kc-grid{grid-template-columns:1fr;}
+}
+
+/* ── TTS BUTTON & INDICATOR ── */
+.tts-btn{background:rgba(46,206,201,.15);border:1.5px solid rgba(46,206,201,.35);border-radius:99px;padding:7px 14px;cursor:pointer;font-size:16px;transition:all .2s;flex-shrink:0;color:var(--teal);font-family:'Sarabun',sans-serif;font-weight:700;font-size:13px;}
+.tts-btn:hover{background:rgba(46,206,201,.3);transform:scale(1.08);}
+.tts-btn.speaking{background:rgba(46,206,201,.4);border-color:var(--teal);animation:ttsGlow .5s infinite alternate;}
+@keyframes ttsGlow{from{box-shadow:0 0 0 0 rgba(46,206,201,.3)}to{box-shadow:0 0 0 8px rgba(46,206,201,.0)}}
+.word-row{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;}
+.word-display-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;}
+
+/* ── REVIEW BADGE & ALERT ── */
+.review-badge-inline{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;background:linear-gradient(135deg,#FF8C42,#FFD700);color:#0A1628;font-size:11px;font-weight:800;}
+.review-alert{background:rgba(255,140,66,.15);border:1.5px solid rgba(255,140,66,.4);border-radius:10px;padding:7px 12px;font-size:12px;color:#FFAB40;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.sr-count-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:99px;background:rgba(255,140,66,.2);border:1.5px solid rgba(255,140,66,.4);color:#FFD700;font-size:11px;font-weight:800;}
+
+/* ── PROGRESS LABEL ── */
+.prog-label-span{color:rgba(255,255,255,.5);font-size:11px;}
+.prog-fill.review{background:linear-gradient(90deg,#FF8C42,#FFD700);}
+
+/* ── KNOWLEDGE CARD MODAL ── */
+.modal-overlay{position:fixed;inset:0;z-index:400;background:rgba(2,8,24,.95);backdrop-filter:blur(18px);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:18px;overflow-y:auto;gap:14px;}
+.modal-overlay.hidden{display:none;}
+.modal-header{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:940px;}
+.modal-title{font-size:clamp(18px,4vw,28px);font-weight:900;color:#fff;}
+.modal-sub{color:rgba(255,255,255,.5);font-size:12px;margin-top:2px;}
+.kc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;width:100%;max-width:940px;}
+.kc-card{border-radius:18px;padding:16px;border:1.5px solid rgba(255,255,255,.1);position:relative;}
+.kc-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.kc-name{font-size:19px;font-weight:900;color:#fff;}
+.kc-final{font-size:11px;color:rgba(255,255,255,.55);margin-bottom:8px;line-height:1.5;}
+.kc-final strong{color:rgba(255,255,255,.85);}
+.kc-words{display:flex;flex-wrap:wrap;gap:6px;}
+.kc-word{background:rgba(255,255,255,.1);border-radius:99px;padding:5px 12px;font-size:15px;font-weight:800;color:#fff;cursor:pointer;transition:all .2s;border:1px solid rgba(255,255,255,.12);}
+.kc-word:hover{background:rgba(255,255,255,.22);transform:scale(1.06);}
+.kc-word.kw-tricky{border-color:rgba(255,71,87,.5);color:#FF8A80;}
+.kc-bg-กก{background:rgba(255,71,87,.12);}
+.kc-bg-กน{background:rgba(255,140,66,.12);}
+.kc-bg-กด{background:rgba(168,85,247,.12);}
+.kc-bg-กบ{background:rgba(0,201,255,.12);}
+.kc-bg-กม{background:rgba(76,175,80,.12);}
+.kc-bg-เกย{background:rgba(255,107,157,.12);}
+.kc-bg-เกอว{background:rgba(255,215,0,.12);}
+.kc-bg-กง{background:rgba(46,206,201,.12);}
+.kc-btn{padding:5px 12px;border-radius:99px;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);font-family:'Sarabun',sans-serif;font-size:12px;font-weight:800;cursor:pointer;transition:all .2s;}
+.kc-btn:hover{background:rgba(255,255,255,.18);}
+
+/* ── SR BANNER ── */
+.sr-banner{position:fixed;inset:0;z-index:350;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(2,8,24,.96);backdrop-filter:blur(20px);text-align:center;padding:30px;}
+.sr-banner.hidden{display:none;}
+.sr-banner-icon{font-size:68px;margin-bottom:8px;animation:srBounce 1s ease-in-out infinite alternate;}
+@keyframes srBounce{from{transform:translateY(0) rotate(-3deg)}to{transform:translateY(-10px) rotate(3deg)}}
+.sr-banner-title{font-size:clamp(22px,5vw,36px);font-weight:900;color:#fff;margin-bottom:6px;}
+.sr-banner-sub{color:rgba(255,255,255,.6);font-size:15px;line-height:1.7;margin-bottom:20px;}
+.sr-wrong-list{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-bottom:22px;max-width:480px;}
+.sr-word-chip{background:rgba(255,71,87,.2);border:1.5px solid rgba(255,71,87,.5);border-radius:99px;padding:5px 15px;font-size:16px;font-weight:800;color:#FF8A80;}
+
+/* ── TYPE SUGGESTIONS ── */
+.type-suggestions{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:4px;}
+.type-sug{padding:5px 12px;border-radius:99px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.65);font-family:'Sarabun',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
+.type-sug:hover{background:rgba(255,255,255,.16);color:#fff;transform:translateY(-1px);}
+
+/* ── SR END SUMMARY ── */
+.sr-summary{background:rgba(255,140,66,.1);border:1.5px solid rgba(255,140,66,.3);border-radius:14px;padding:12px 16px;width:100%;max-width:500px;margin:8px 0;text-align:left;}
+.sr-summary-title{color:#FFD700;font-size:13px;font-weight:800;margin-bottom:7px;}
+.sr-summary-words{display:flex;flex-wrap:wrap;gap:6px;}
+.sr-chip-mastered{background:rgba(0,230,118,.15);border:1px solid rgba(0,230,118,.4);color:#00E676;padding:4px 12px;border-radius:99px;font-size:13px;font-weight:800;}
+.sr-chip-retry{background:rgba(255,71,87,.15);border:1px solid rgba(255,71,87,.4);color:#FF8A80;padding:4px 12px;border-radius:99px;font-size:13px;font-weight:800;}
+</style>
+</head>
+<body class="scene-night">
+
+<!-- Control bar -->
+<div style="position:fixed;top:12px;right:12px;z-index:300;display:flex;gap:7px;">
+  <button class="sound-toggle" id="tts-toggle" onclick="toggleTTS()" title="อ่านออกเสียงคำ" style="font-size:13px;padding:8px 13px;">🔊 อ่านเสียง</button>
+  <button class="sound-toggle" id="sound-toggle" onclick="toggleSound()" title="เปิด/ปิดดนตรี">🎵</button>
+</div>
+
+<!-- Knowledge Card Modal -->
+<div class="modal-overlay hidden" id="kc-modal">
+  <div class="modal-header">
+    <div>
+      <div class="modal-title">📖 บัตรความรู้มาตราตัวสะกด</div>
+      <div class="modal-sub">กดที่คำใดก็ได้เพื่อฟังเสียง • <span style="color:#FF8A80;">สีแดง</span> = คำน่าสับสน</div>
+    </div>
+    <button class="big-btn btn-teal" style="padding:10px 20px;font-size:14px;" onclick="closeKC()">✕ ปิด</button>
+  </div>
+  <div class="kc-grid" id="kc-grid"></div>
+</div>
+
+<!-- Spaced Repetition Banner -->
+<div class="sr-banner hidden" id="sr-banner">
+  <div class="sr-banner-icon">🔁</div>
+  <div style="display:inline-flex;align-items:center;gap:5px;padding:4px 14px;border-radius:99px;background:linear-gradient(135deg,#FF8C42,#FFD700);color:#0A1628;font-size:12px;font-weight:800;margin-bottom:10px;">📚 รอบทบทวน</div>
+  <div class="sr-banner-title" id="sr-banner-title">ทบทวนคำที่เคยตอบผิด!</div>
+  <div class="sr-banner-sub">มาฝึกซ้ำอีกครั้ง — ครั้งนี้จะจำได้แน่นอน! 💪</div>
+  <div class="sr-wrong-list" id="sr-wrong-list"></div>
+  <div class="btn-row">
+    <button class="big-btn btn-gold" onclick="startSRRound()">🎯 เริ่มรอบทบทวน!</button>
+    <button class="sm-btn" style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.6);" onclick="skipSR()">ข้ามไปหน้าสรุป</button>
+  </div>
+</div>
+
+<div class="stars" id="stars"></div>
+<div class="cloud-layer" id="cloud-layer"></div>
+<div class="ground"></div>
+<div class="sky-body" id="sky-sun"></div>
+<div class="sky-body" id="sky-moon"></div>
+<div class="scene-transition" id="scene-transition"></div>
+<div class="levelup-banner" id="levelup-banner"><h2 id="lu-title">🏆 ด่านใหม่!</h2><p id="lu-sub">เก่งมากเลย!</p></div>
+
+<!-- ══ HOME ══ -->
+<div class="screen" id="screen-home">
+  <div style="position:relative;margin-bottom:8px;">
+    <div class="speech-bubble show" id="home-bubble" style="position:relative;top:auto;left:auto;transform:none;display:inline-block;opacity:1;animation:none;">สวัสดี! เลือกโหมดและหมวดคำได้เลย! 🎉</div>
+  </div>
+  <div style="margin-bottom:10px;">
+    <svg style="width:90px;height:90px;filter:drop-shadow(0 6px 16px rgba(0,0,0,.4));" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" class="mascot-svg idle">
+      <circle cx="60" cy="72" r="28" fill="#FF8C42"/><circle cx="60" cy="60" r="38" fill="#E65100" opacity=".85"/>
+      <circle cx="60" cy="60" r="32" fill="#FF8C42"/><circle cx="60" cy="62" r="26" fill="#FFCC80"/>
+      <ellipse cx="50" cy="57" rx="5" ry="6" fill="#1a1a2e"/><ellipse cx="70" cy="57" rx="5" ry="6" fill="#1a1a2e"/>
+      <circle cx="52" cy="55" r="2" fill="#fff"/><circle cx="72" cy="55" r="2" fill="#fff"/>
+      <ellipse cx="60" cy="66" rx="4" ry="3" fill="#e64a19"/>
+      <path d="M50 72 Q60 80 70 72" stroke="#e64a19" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <circle cx="28" cy="34" r="12" fill="#E65100"/><circle cx="28" cy="34" r="7" fill="#FFCC80"/>
+      <circle cx="92" cy="34" r="12" fill="#E65100"/><circle cx="92" cy="34" r="7" fill="#FFCC80"/>
+      <text x="52" y="100" font-size="16">⭐</text>
+    </svg>
+  </div>
+  <div class="rainbow-title">มาตราตัวสะกด</div>
+  <p style="margin-top:6px;">เกมภาษาไทย ป.5 — เลือกหมวดคำและโหมดได้เลย!</p>
+
+  <!-- Category Filter -->
+  <div class="cat-section">
+    <div class="cat-section-label">📂 เลือกหมวดคำที่ต้องการฝึก:</div>
+    <div class="cat-filters">
+      <button class="cat-btn cat-btn-daily on" onclick="toggleCat('daily',this)">🏠 ชีวิตประจำวัน <span class="cat-count" id="cnt-daily"></span></button>
+      <button class="cat-btn cat-btn-literature on" onclick="toggleCat('literature',this)">📜 วรรณคดี <span class="cat-count" id="cnt-literature"></span></button>
+      <button class="cat-btn cat-btn-loanword on" onclick="toggleCat('loanword',this)">🌐 คำทับศัพท์ <span class="cat-count" id="cnt-loanword"></span></button>
+      <button class="cat-btn cat-btn-tricky on" onclick="toggleCat('tricky',this)">⚠️ คำน่าสับสน <span class="cat-count" id="cnt-tricky"></span></button>
+    </div>
+    <div style="margin-top:8px;color:rgba(255,255,255,.4);font-size:12px;" id="cat-total-lbl"></div>
+  </div>
+
+  <div class="mode-grid">
+    <div class="mode-card mode-time" onclick="openMode('time')">
+      <span class="mode-badge" style="background:linear-gradient(135deg,#FF8C42,#FFD700);color:#0A1628;">⏱️ เร็ว</span>
+      <span class="mode-icon">⏰</span><span class="mode-name">โหมดจับเวลา</span>
+      <span class="mode-desc">ตอบภายใน 10 วินาที ยิ่งเร็วยิ่งได้คะแนนมาก!</span>
+    </div>
+    <div class="mode-card mode-select" onclick="openMode('select')">
+      <span class="mode-badge" style="background:linear-gradient(135deg,var(--teal),var(--sky));color:#0A1628;">🎯 เลือกได้</span>
+      <span class="mode-icon">🗂️</span><span class="mode-name">โหมดเลือกมาตรา</span>
+      <span class="mode-desc">เลือกฝึกเฉพาะมาตราที่ยังอ่อนอยู่!</span>
+    </div>
+    <div class="mode-card mode-level" onclick="openMode('level')">
+      <span class="mode-badge" style="background:linear-gradient(135deg,var(--purple),#6366F1);color:#fff;">🔥 ท้าทาย</span>
+      <span class="mode-icon">🏔️</span><span class="mode-name">โหมดยากขึ้นเรื่อยๆ</span>
+      <span class="mode-desc">2 ตัวเลือก → 4 ตัวเลือก → พิมพ์เอง</span>
+    </div>
+    <div class="mode-card mode-reverse" onclick="openMode('reverse')">
+      <span class="mode-badge" style="background:linear-gradient(135deg,var(--pink),var(--red));color:#fff;">🔄 กลับกัน</span>
+      <span class="mode-icon">🔀</span><span class="mode-name">โหมดกลับกัน</span>
+      <span class="mode-desc">โชว์ชื่อมาตรา แล้วเลือกคำที่ถูกต้อง!</span>
+    </div>
+  </div>
+  <button class="sm-btn" style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.85);margin-top:6px;" onclick="openKC()">📖 ดูบัตรความรู้มาตราตัวสะกดทั้ง 8</button>
+  <button class="sm-btn" style="background:rgba(255,255,255,.15);color:#fff;margin-top:10px;" onclick="window.KAMPAI.goHome()">🏠 ออกไปหน้าพอร์ทัล</button>
+</div>
+
+<!-- ══ MAATRA SELECT ══ -->
+<div class="screen hidden" id="screen-select">
+  <div class="rainbow-title" style="font-size:clamp(22px,5vw,36px)">🗂️ เลือกมาตราที่จะฝึก</div>
+  <p style="margin-top:6px;">เลือกได้มากกว่า 1 มาตรา</p>
+  <div class="maatra-select-grid" id="ms-grid"></div>
+  <div class="btn-row">
+    <button class="big-btn btn-gold" onclick="startSelectMode()">🎮 เริ่มเล่น!</button>
+    <button class="sm-btn" style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.6);" onclick="showScreen('screen-home')">← กลับ</button>
+  </div>
+</div>
+
+<!-- ══ END ══ -->
+<div class="screen hidden" id="screen-end">
+  <div style="position:relative;display:inline-block;margin-bottom:8px;">
+    <svg class="mascot-svg" id="end-mascot" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="60" cy="72" r="28" fill="#FF8C42"/><circle cx="60" cy="60" r="38" fill="#E65100" opacity=".85"/>
+      <circle cx="60" cy="60" r="32" fill="#FF8C42"/><circle cx="60" cy="62" r="26" fill="#FFCC80"/>
+      <g id="end-eyes"><ellipse cx="50" cy="57" rx="5" ry="6" fill="#1a1a2e"/><ellipse cx="70" cy="57" rx="5" ry="6" fill="#1a1a2e"/>
+      <circle cx="52" cy="55" r="2" fill="#fff"/><circle cx="72" cy="55" r="2" fill="#fff"/></g>
+      <ellipse cx="60" cy="66" rx="4" ry="3" fill="#e64a19"/>
+      <path id="end-mouth" d="M50 72 Q60 80 70 72" stroke="#e64a19" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <circle cx="28" cy="34" r="12" fill="#E65100"/><circle cx="28" cy="34" r="7" fill="#FFCC80"/>
+      <circle cx="92" cy="34" r="12" fill="#E65100"/><circle cx="92" cy="34" r="7" fill="#FFCC80"/>
+    </svg>
+  </div>
+  <div class="rainbow-title" id="end-title">จบเกมแล้ว!</div>
+  <div class="final-score-big" id="end-score">0</div>
+  <div class="stars-row" id="end-stars">⭐⭐⭐</div>
+  <div class="sr-summary hidden" id="sr-summary">
+    <div class="sr-summary-title">📚 สรุปรอบทบทวน</div>
+    <div class="sr-summary-words" id="sr-summary-words"></div>
+  </div>
+  <div class="cat-stats" id="cat-stats"></div>
+  <div class="result-table" id="result-table"></div>
+  <p id="end-msg"></p>
+  <div class="btn-row">
+    <button class="big-btn btn-teal" onclick="replayGame()">🔄 เล่นใหม่</button>
+    <button class="big-btn btn-gold" onclick="showScreen('screen-home')">🏠 เมนูหลัก</button>
+  </div>
+</div>
+
+<!-- ══ GAME ══ -->
+<div id="app" style="display:none;">
+  <div class="top-bar">
+    <button class="back-btn" onclick="confirmBack()">← เมนู</button>
+    <div class="mode-label" id="mode-lbl">โหมด</div>
+    <div class="scene-label" id="scene-label">🌙 กลางคืน</div>
+    <span class="sr-count-badge" id="sr-count-badge" style="display:none;"></span>
+    <button class="kc-btn" onclick="openKC()" style="margin-left:auto;">📖 บัตรความรู้</button>
+  </div>
+  <div class="game-mascot-area">
+    <div class="mascot-small" id="game-mascot-wrap">
+      <div class="speech-bubble" id="game-bubble"></div>
+      <svg class="mascot-svg idle" id="game-mascot" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="60" cy="72" r="28" fill="#FF8C42"/><circle cx="60" cy="60" r="38" fill="#E65100" opacity=".85"/>
+        <circle cx="60" cy="60" r="32" fill="#FF8C42"/><circle cx="60" cy="62" r="26" fill="#FFCC80"/>
+        <g id="game-eyes"><ellipse cx="50" cy="57" rx="5" ry="6" fill="#1a1a2e"/><ellipse cx="70" cy="57" rx="5" ry="6" fill="#1a1a2e"/>
+        <circle cx="52" cy="55" r="2" fill="#fff"/><circle cx="72" cy="55" r="2" fill="#fff"/></g>
+        <ellipse cx="60" cy="66" rx="4" ry="3" fill="#e64a19"/>
+        <path id="game-mouth" d="M50 72 Q60 80 70 72" stroke="#e64a19" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <circle cx="28" cy="34" r="12" fill="#E65100"/><circle cx="28" cy="34" r="7" fill="#FFCC80"/>
+        <circle cx="92" cy="34" r="12" fill="#E65100"/><circle cx="92" cy="34" r="7" fill="#FFCC80"/>
+      </svg>
+    </div>
+    <div class="hud">
+      <div class="hud-box"><div class="hud-lbl">คะแนน</div><div class="hud-val" id="h-score" style="color:var(--sun)">0</div></div>
+      <div class="hud-box"><div class="hud-lbl">ชีวิต</div><div class="hud-val" id="h-lives">❤️❤️❤️</div></div>
+      <div class="hud-box"><div class="hud-lbl">คอมโบ</div><div class="hud-val" id="h-combo" style="color:var(--teal)">x0</div></div>
+      <div class="hud-box"><div class="hud-lbl">ข้อ</div><div class="hud-val" id="h-qnum" style="color:var(--sky)">1/20</div></div>
+      <div class="timer-wrap" id="hud-timer" style="display:none;">
+        <svg class="timer-svg" viewBox="0 0 72 72">
+          <circle class="timer-bg" cx="36" cy="36" r="30"/>
+          <circle class="timer-arc" id="timer-arc" cx="36" cy="36" r="30" stroke-dasharray="188.5" stroke-dashoffset="0" stroke="#FFD700"/>
+        </svg>
+        <div class="timer-text" id="timer-text">10</div>
+      </div>
+    </div>
+  </div>
+  <div class="prog-wrap">
+    <div class="prog-info"><span class="prog-label-span" id="prog-label">ความคืบหน้า</span><span id="prog-pct">0%</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div class="tabs-strip" id="tabs-strip"></div>
+  <div class="game-card card-anim" id="game-card">
+    <div class="level-indicator" id="level-indicator" style="display:none;">
+      <div class="level-dot" id="ld1">1</div>
+      <div style="width:18px;height:2px;background:rgba(255,255,255,.15);border-radius:99px;"></div>
+      <div class="level-dot" id="ld2">2</div>
+      <div style="width:18px;height:2px;background:rgba(255,255,255,.15);border-radius:99px;"></div>
+      <div class="level-dot" id="ld3">3</div>
+      <span class="level-label" id="level-label-txt"></span>
+    </div>
+    <div class="card-top" id="card-top">
+      <div id="mattra-badge" class="mattra-badge">แม่กก</div>
+      <div id="cat-badge-el" class="cat-badge daily">🏠 ชีวิตประจำวัน</div>
+      <div id="diff-stars-el" class="diff-stars">⭐</div>
+    </div>
+    <div class="tricky-alert" id="tricky-alert" style="display:none;">⚠️ <strong>คำน่าสับสน!</strong> อ่านตัวสะกดให้ดีก่อนตอบ</div>
+    <div class="review-alert" id="review-alert" style="display:none;">🔁 <strong>รอบทบทวน</strong> — คำนี้เคยตอบผิดมาก่อน ลองอีกครั้ง!</div>
+    <div class="word-row">
+      <span class="word-display word-anim" id="word-display">คำ</span>
+      <button class="tts-btn" id="tts-btn" onclick="ttsSpeakCurrent()" title="อ่านออกเสียง">🔊 ฟัง</button>
+    </div>
+    <div class="q-prompt" id="q-prompt"></div>
+    <div id="answers-area"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="explanation" id="explanation"></div>
+    <button class="next-btn" id="next-btn" onclick="nextQuestion()">ถัดไป →</button>
+  </div>
+</div>
+
+<script>
+const GAME_SLUG = 'thai-spelling';
+if (window.KAMPAI) {
+  window.KAMPAI.setSlug(GAME_SLUG);
+  window.KAMPAI.sound.defaultBgm('cheerful');
+}
+
+// ══════════════════════════════════════════════════════════
+//  AUDIO
+// ══════════════════════════════════════════════════════════
+let audioCtx=null,soundOn=true,bgmNodes=null;
+function getCtx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx;}
+function playTone(f,type='sine',dur=.15,vol=.3,delay=0){if(!soundOn)return;try{const c=getCtx(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type=type;o.frequency.value=f;const t=c.currentTime+delay;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+dur);o.start(t);o.stop(t+dur+.05);}catch(e){}}
+function sfxCorrect(){
+  if(window.KAMPAI && window.KAMPAI.sound && window.KAMPAI.sound.available) {
+    window.KAMPAI.sound.correct();
+  } else {
+    [523,659,784,1047].forEach((f,i)=>playTone(f,'sine',.3,.18,i*.04));
+    setTimeout(()=>playTone(1047,'sine',.4,.15),180);
+  }
+}
+function sfxWrong(){
+  if(window.KAMPAI && window.KAMPAI.sound && window.KAMPAI.sound.available) {
+    window.KAMPAI.sound.wrong();
+  } else {
+    playTone(200,'sawtooth',.1,.2);
+    setTimeout(()=>playTone(150,'sawtooth',.15,.2),120);
+  }
+}
+function sfxCombo(){[523,659,784,1047,1319].forEach((f,i)=>playTone(f,'sine',.15,.22,i*.06));}
+function sfxLevelUp(){[523,587,659,784,880,1047].forEach((f,i)=>playTone(f,'sine',.2,.2,i*.08));}
+function sfxTimeout(){
+  if(window.KAMPAI && window.KAMPAI.sound && window.KAMPAI.sound.available) {
+    window.KAMPAI.sound.timeUp();
+  } else {
+    [400,300,200].forEach((f,i)=>playTone(f,'sawtooth',.1,.2,i*.1));
+  }
+}
+function sfxClick(){playTone(800,'sine',.05,.1);}
+function sfxGameOver(){
+  if(window.KAMPAI && window.KAMPAI.sound && window.KAMPAI.sound.available) {
+    window.KAMPAI.sound.gameOver();
+  } else {
+    [400,350,300,250].forEach((f,i)=>playTone(f,'sawtooth',.18,.2,i*.12));
+  }
+}
+function sfxVictory(){[523,659,784,523,659,784,1047].forEach((f,i)=>playTone(f,'sine',.2,.18,i*.1));}
+function sfxTricky(){playTone(440,'triangle',.08,.15);setTimeout(()=>playTone(330,'triangle',.08,.15),100);}
+function sfxReview(){[392,440,494].forEach((f,i)=>playTone(f,'sine',.18,.18,i*.1));}
+function startBGM(){
+  if(window.KAMPAI && window.KAMPAI.sound && window.KAMPAI.sound.available) {
+    window.KAMPAI.sound.bgmStart();
+  } else {
+    if(!soundOn)return;
+    stopBGM();
+    const c=getCtx();
+    const n=[261,329,392,329];
+    let i=0;
+    function p(){
+      if(!soundOn){stopBGM();return;}
+      try{
+        const o=c.createOscillator(),g=c.createGain(),f=c.createBiquadFilter();
+        f.type='lowpass';
+        f.frequency.value=600;
+        o.connect(g);
+        g.connect(f);
+        f.connect(c.destination);
+        o.type='triangle';
+        o.frequency.value=n[i%n.length];
+        const t=c.currentTime;
+        g.gain.setValueAtTime(0,t);
+        g.gain.linearRampToValueAtTime(.06,t+.05);
+        g.gain.exponentialRampToValueAtTime(.001,t+.55);
+        o.start(t);
+        o.stop(t+.6);
+        i++;
+      }catch(e){}
+    }
+    p();
+    bgmNodes={interval:setInterval(p,600)};
+  }
+}
+function stopBGM(){
+  if(window.KAMPAI && window.KAMPAI.sound && window.KAMPAI.sound.available) {
+    window.KAMPAI.sound.bgmStop();
+  } else {
+    if(bgmNodes){clearInterval(bgmNodes.interval);bgmNodes=null;}
+  }
+}
+function toggleSound(){
+  soundOn=!soundOn;
+  document.getElementById('sound-toggle').textContent=soundOn?'🎵':'🔕';
+  if(soundOn){startBGM();sfxClick();}else stopBGM();
+}
+
+
+// ══════════════════════════════════════════════════════════
+//  SCENES
+// ══════════════════════════════════════════════════════════
+const SCENES=[
+  {id:'night',  label:'🌙 กลางคืน',  star:1,  sunY:'130%',moonY:'40px'},
+  {id:'dawn',   label:'🌅 รุ่งอรุณ',  star:.5, sunY:'90%', moonY:'30px'},
+  {id:'sunrise',label:'🌄 พระอาทิตย์ขึ้น',star:.1,sunY:'65%',moonY:'-110px'},
+  {id:'morning',label:'☀️ เช้า',     star:0,  sunY:'22%', moonY:'-110px'},
+  {id:'noon',   label:'☀️ กลางวัน', star:0,  sunY:'6%',  moonY:'-110px'},
+  {id:'afternoon',label:'🌇 บ่าย',   star:0,  sunY:'32%', moonY:'-110px'},
+  {id:'sunset', label:'🌆 พระอาทิตย์ตก',star:.05,sunY:'78%',moonY:'55px'},
+];
+let curScene=-1;
+function setScene(i){
+  if(i===curScene)return;curScene=i;
+  const s=SCENES[i];
+  document.body.className='scene-'+s.id;
+  document.getElementById('stars').style.opacity=s.star;
+  const sun=document.getElementById('sky-sun');sun.style.bottom=s.sunY;sun.style.opacity=i>=1&&i<=6?1:0;
+  const moon=document.getElementById('sky-moon');moon.style.top=s.moonY;moon.style.opacity=i<=1?1:0;
+  document.getElementById('scene-label').textContent=s.label;
+  const ov=document.getElementById('scene-transition');ov.style.opacity='.4';setTimeout(()=>ov.style.opacity='0',500);
+}
+function updateSceneByPct(p){
+  const t=[0,.15,.29,.43,.58,.72,.86];let sc=0;
+  for(let i=t.length-1;i>=0;i--){if(p>=t[i]){sc=i;break;}}
+  setScene(sc);
+}
+
+// ══════════════════════════════════════════════════════════
+//  MASCOT
+// ══════════════════════════════════════════════════════════
+function setMascotExpr(id,expr){/* replaced by _setMascotBase below */}
+function showBubble(id,text,bg='#FFD700'){
+  const b=document.getElementById(id);if(!b)return;
+  b.textContent=text;b.style.background=bg;
+  b.style.color=(bg==='#FFD700'||bg==='#00E676')?'#0A1628':'#fff';
+  b.className='speech-bubble';
+  requestAnimationFrame(()=>b.className='speech-bubble show');
+}
+
+// ══════════════════════════════════════════════════════════
+//  STARS & CLOUDS
+// ══════════════════════════════════════════════════════════
+(()=>{
+  const c=document.getElementById('stars');
+  for(let i=0;i<80;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*3+1;s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-delay:${Math.random()*3}s;animation-duration:${1.5+Math.random()*2}s;`;c.appendChild(s);}
+  const cl=document.getElementById('cloud-layer');
+  for(let i=0;i<5;i++){const cloud=document.createElement('div');cloud.className='cloud';const w=80+Math.random()*120,h=40+Math.random()*60;cloud.style.cssText=`width:${w}px;height:${h}px;top:${5+Math.random()*30}%;left:${Math.random()*100}%;background:rgba(255,255,255,.1);animation-duration:${30+Math.random()*40}s;animation-delay:${-Math.random()*30}s;`;cl.appendChild(cloud);}
+})();
+
+// ══════════════════════════════════════════════════════════
+//  QUESTION DATABASE  (85 คำ)
+// ══════════════════════════════════════════════════════════
+// cat: 'daily' | 'literature' | 'loanword' | 'tricky'
+// diff: 1=ง่าย 2=ปานกลาง 3=ยาก
+// tricky: true = แสดงป้าย ⚠️
+
+const QUESTIONS = [
+  // ─── แม่กก ─────────────────────────────
+  {word:'นก',      matra:'แม่กก', cat:'daily',      diff:1, explain:'"นก" สะกดด้วย ก → แม่กก'},
+  {word:'รัก',     matra:'แม่กก', cat:'daily',      diff:1, explain:'"รัก" สะกดด้วย ก → แม่กก'},
+  {word:'ออก',     matra:'แม่กก', cat:'daily',      diff:1, explain:'"ออก" สะกดด้วย ก → แม่กก'},
+  {word:'จาก',     matra:'แม่กก', cat:'daily',      diff:1, explain:'"จาก" สะกดด้วย ก → แม่กก'},
+  {word:'หนัก',    matra:'แม่กก', cat:'daily',      diff:1, explain:'"หนัก" สะกดด้วย ก → แม่กก'},
+  {word:'โชค',     matra:'แม่กก', cat:'tricky',     diff:2, tricky:true, explain:'"โชค" สะกดด้วย ค ซึ่งออกเสียงเหมือน ก → แม่กก ❌ ไม่ใช่แม่กด!'},
+  {word:'เมฆ',     matra:'แม่กก', cat:'tricky',     diff:2, tricky:true, explain:'"เมฆ" สะกดด้วย ฆ ซึ่งออกเสียงเหมือน ก → แม่กก'},
+  {word:'เลข',     matra:'แม่กก', cat:'tricky',     diff:2, tricky:true, explain:'"เลข" สะกดด้วย ข ซึ่งออกเสียงเหมือน ก → แม่กก'},
+  {word:'สุข',     matra:'แม่กก', cat:'tricky',     diff:2, tricky:true, explain:'"สุข" สะกดด้วย ข ซึ่งออกเสียงเหมือน ก → แม่กก ❌ ไม่ใช่แม่กด!'},
+  {word:'โรค',     matra:'แม่กก', cat:'tricky',     diff:2, tricky:true, explain:'"โรค" สะกดด้วย ค ซึ่งออกเสียงเหมือน ก → แม่กก'},
+  {word:'จักร',    matra:'แม่กก', cat:'literature', diff:3, explain:'"จักร" สะกดด้วย ก (ร ไม่ออกเสียง) → แม่กก'},
+  {word:'พิทักษ์', matra:'แม่กก', cat:'tricky',     diff:3, tricky:true, explain:'"พิทักษ์" สะกดด้วย ก (ษ์ ไม่ออกเสียง) → แม่กก'},
+  {word:'ช็อก',    matra:'แม่กก', cat:'loanword',   diff:2, explain:'"ช็อก" (shock) สะกดด้วย ก → แม่กก'},
+  {word:'แฮก',     matra:'แม่กก', cat:'loanword',   diff:2, explain:'"แฮก" (hack) สะกดด้วย ก → แม่กก'},
+
+  // ─── แม่กน ─────────────────────────────
+  {word:'คน',      matra:'แม่กน', cat:'daily',      diff:1, explain:'"คน" สะกดด้วย น → แม่กน'},
+  {word:'ฝน',      matra:'แม่กน', cat:'daily',      diff:1, explain:'"ฝน" สะกดด้วย น → แม่กน'},
+  {word:'บ้าน',    matra:'แม่กน', cat:'daily',      diff:1, explain:'"บ้าน" สะกดด้วย น → แม่กน'},
+  {word:'ดิน',     matra:'แม่กน', cat:'daily',      diff:1, explain:'"ดิน" สะกดด้วย น → แม่กน'},
+  {word:'เดิน',    matra:'แม่กน', cat:'daily',      diff:1, explain:'"เดิน" สะกดด้วย น → แม่กน'},
+  {word:'กาล',     matra:'แม่กน', cat:'tricky',     diff:2, tricky:true, explain:'"กาล" สะกดด้วย ล ซึ่งออกเสียงเหมือน น → แม่กน ❌ ไม่ใช่ตัวสะกดอื่น!'},
+  {word:'วรรณ',    matra:'แม่กน', cat:'tricky',     diff:3, tricky:true, explain:'"วรรณ" สะกดด้วย ณ ซึ่งออกเสียงเหมือน น → แม่กน'},
+  {word:'ไพร',     matra:'แม่กน', cat:'literature', diff:3, tricky:true, explain:'"ไพร" (ป่า) สะกดด้วย ร ซึ่งออกเสียงเหมือน น → แม่กน'},
+  {word:'อินทร์',  matra:'แม่กน', cat:'literature', diff:3, explain:'"อินทร์" สะกดด้วย น (ทร์ ไม่ออกเสียง) → แม่กน'},
+  {word:'กุมาร',   matra:'แม่กน', cat:'literature', diff:2, explain:'"กุมาร" สะกดด้วย ร ออกเสียงเหมือน น → แม่กน'},
+  {word:'ฟุตบอล',  matra:'แม่กน', cat:'loanword',   diff:2, explain:'"ฟุตบอล" (football) สะกดด้วย ล ออกเสียงเหมือน น → แม่กน'},
+  {word:'บิล',     matra:'แม่กน', cat:'loanword',   diff:2, explain:'"บิล" (bill) สะกดด้วย ล ออกเสียงเหมือน น → แม่กน'},
+  {word:'แชนแนล',  matra:'แม่กน', cat:'loanword',   diff:2, explain:'"แชนแนล" (channel) สะกดด้วย ล ออกเสียงเหมือน น → แม่กน'},
+
+  // ─── แม่กด ─────────────────────────────
+  {word:'กฎ',      matra:'แม่กด', cat:'tricky',     diff:2, tricky:true, explain:'"กฎ" สะกดด้วย ฎ ซึ่งออกเสียงเหมือน ด → แม่กด'},
+  {word:'รถ',      matra:'แม่กด', cat:'daily',      diff:1, explain:'"รถ" สะกดด้วย ถ ออกเสียงเหมือน ด → แม่กด'},
+  {word:'ราช',     matra:'แม่กด', cat:'literature', diff:2, explain:'"ราช" สะกดด้วย ช ออกเสียงเหมือน ด → แม่กด'},
+  {word:'มาตร',    matra:'แม่กด', cat:'tricky',     diff:3, tricky:true, explain:'"มาตร" สะกดด้วย ต (ร ไม่ออกเสียง) ออกเสียงเหมือน ด → แม่กด'},
+  {word:'ปราชญ์',  matra:'แม่กด', cat:'literature', diff:3, tricky:true, explain:'"ปราชญ์" สะกดด้วย ช (ญ์ ไม่ออกเสียง) ออกเสียงเหมือน ด → แม่กด'},
+  {word:'กษัตริย์',matra:'แม่กด', cat:'tricky',     diff:3, tricky:true, explain:'"กษัตริย์" ออกเสียง กะ-สัด ตัวสะกดคือ ต ออกเสียงเหมือน ด → แม่กด'},
+  {word:'วิทยาศาสตร์',matra:'แม่กด',cat:'tricky',   diff:3, tricky:true, explain:'"วิทยาศาสตร์" ตัวสะกดคือ ต (ร์ ไม่ออกเสียง) ออกเสียงเหมือน ด → แม่กด'},
+  {word:'ประวัติ', matra:'แม่กด', cat:'tricky',     diff:3, tricky:true, explain:'"ประวัติ" สะกดด้วย ต (ิ เป็นสระ) ออกเสียงเหมือน ด → แม่กด'},
+  {word:'เน็ต',    matra:'แม่กด', cat:'loanword',   diff:1, explain:'"เน็ต" (net) สะกดด้วย ต ออกเสียงเหมือน ด → แม่กด'},
+  {word:'โน้ต',    matra:'แม่กด', cat:'loanword',   diff:2, explain:'"โน้ต" (note) สะกดด้วย ต ออกเสียงเหมือน ด → แม่กด'},
+  {word:'บาส',     matra:'แม่กด', cat:'loanword',   diff:2, explain:'"บาส" (bass/basketball) สะกดด้วย ส ออกเสียงเหมือน ด → แม่กด'},
+  {word:'ฮิต',     matra:'แม่กด', cat:'loanword',   diff:1, explain:'"ฮิต" (hit) สะกดด้วย ต ออกเสียงเหมือน ด → แม่กด'},
+  {word:'เทศกาล',  matra:'แม่กน', cat:'daily',      diff:2, explain:'"เทศกาล" สะกดด้วย ล ออกเสียงเหมือน น → แม่กน'},
+
+  // ─── แม่กบ ─────────────────────────────
+  {word:'ทับ',     matra:'แม่กบ', cat:'daily',      diff:1, explain:'"ทับ" สะกดด้วย บ → แม่กบ'},
+  {word:'กลับ',    matra:'แม่กบ', cat:'daily',      diff:1, explain:'"กลับ" สะกดด้วย บ → แม่กบ'},
+  {word:'บาป',     matra:'แม่กบ', cat:'daily',      diff:2, explain:'"บาป" สะกดด้วย ป ออกเสียงเหมือน บ → แม่กบ'},
+  {word:'ภาพ',     matra:'แม่กบ', cat:'daily',      diff:2, explain:'"ภาพ" สะกดด้วย พ ออกเสียงเหมือน บ → แม่กบ'},
+  {word:'ลาภ',     matra:'แม่กบ', cat:'tricky',     diff:2, tricky:true, explain:'"ลาภ" สะกดด้วย ภ ซึ่งออกเสียงเหมือน บ → แม่กบ'},
+  {word:'สาป',     matra:'แม่กบ', cat:'tricky',     diff:2, tricky:true, explain:'"สาป" สะกดด้วย ป ออกเสียงเหมือน บ → แม่กบ'},
+  {word:'กาพย์',   matra:'แม่กบ', cat:'literature', diff:3, tricky:true, explain:'"กาพย์" สะกดด้วย พ (ย์ ไม่ออกเสียง) ออกเสียงเหมือน บ → แม่กบ'},
+  {word:'ทรัพย์',  matra:'แม่กบ', cat:'tricky',     diff:3, tricky:true, explain:'"ทรัพย์" สะกดด้วย พ (ย์ ไม่ออกเสียง) ออกเสียงเหมือน บ → แม่กบ'},
+  {word:'กราฟ',    matra:'แม่กบ', cat:'loanword',   diff:2, explain:'"กราฟ" (graph) สะกดด้วย ฟ ออกเสียงเหมือน บ → แม่กบ'},
+  {word:'แมพ',     matra:'แม่กบ', cat:'loanword',   diff:1, explain:'"แมพ" (map) สะกดด้วย พ ออกเสียงเหมือน บ → แม่กบ'},
+  {word:'คลิป',    matra:'แม่กบ', cat:'loanword',   diff:1, explain:'"คลิป" (clip) สะกดด้วย ป ออกเสียงเหมือน บ → แม่กบ'},
+
+  // ─── แม่กม ─────────────────────────────
+  {word:'งาม',     matra:'แม่กม', cat:'daily',      diff:1, explain:'"งาม" สะกดด้วย ม → แม่กม'},
+  {word:'สาม',     matra:'แม่กม', cat:'daily',      diff:1, explain:'"สาม" สะกดด้วย ม → แม่กม'},
+  {word:'ยิ้ม',    matra:'แม่กม', cat:'daily',      diff:1, explain:'"ยิ้ม" สะกดด้วย ม → แม่กม'},
+  {word:'เดิม',    matra:'แม่กม', cat:'daily',      diff:1, explain:'"เดิม" สะกดด้วย ม → แม่กม'},
+  {word:'ตาม',     matra:'แม่กม', cat:'daily',      diff:1, explain:'"ตาม" สะกดด้วย ม → แม่กม'},
+  {word:'สงคราม',  matra:'แม่กม', cat:'literature', diff:2, explain:'"สงคราม" สะกดด้วย ม → แม่กม'},
+  {word:'อารยธรรม',matra:'แม่กม', cat:'literature', diff:3, explain:'"อารยธรรม" สะกดด้วย ม → แม่กม'},
+  {word:'วัฒนธรรม',matra:'แม่กม', cat:'literature', diff:3, explain:'"วัฒนธรรม" สะกดด้วย ม → แม่กม'},
+  {word:'เกม',     matra:'แม่กม', cat:'loanword',   diff:1, explain:'"เกม" (game) สะกดด้วย ม → แม่กม'},
+  {word:'ฟอร์ม',   matra:'แม่กม', cat:'loanword',   diff:2, explain:'"ฟอร์ม" (form) สะกดด้วย ม → แม่กม'},
+  {word:'สตรีม',   matra:'แม่กม', cat:'loanword',   diff:2, explain:'"สตรีม" (stream) สะกดด้วย ม → แม่กม'},
+
+  // ─── แม่เกย ─────────────────────────────
+  {word:'สาย',     matra:'แม่เกย', cat:'daily',     diff:1, explain:'"สาย" สะกดด้วย ย → แม่เกย'},
+  {word:'เลย',     matra:'แม่เกย', cat:'daily',     diff:1, explain:'"เลย" สะกดด้วย ย → แม่เกย'},
+  {word:'ขาย',     matra:'แม่เกย', cat:'daily',     diff:1, explain:'"ขาย" สะกดด้วย ย → แม่เกย'},
+  {word:'น้อย',    matra:'แม่เกย', cat:'daily',     diff:1, explain:'"น้อย" สะกดด้วย ย → แม่เกย'},
+  {word:'กระจาย',  matra:'แม่เกย', cat:'daily',     diff:1, explain:'"กระจาย" สะกดด้วย ย → แม่เกย'},
+  {word:'พระราย',  matra:'แม่เกย', cat:'literature',diff:2, explain:'"พระราย" สะกดด้วย ย → แม่เกย'},
+  {word:'วิลัย',   matra:'แม่เกย', cat:'literature',diff:3, explain:'"วิลัย" สะกดด้วย ย → แม่เกย'},
+  {word:'เซย์',    matra:'แม่เกย', cat:'loanword',  diff:2, explain:'"เซย์" (say) สะกดด้วย ย → แม่เกย'},
+
+  // ─── แม่เกอว ─────────────────────────────
+  {word:'ดาว',     matra:'แม่เกอว', cat:'daily',    diff:1, explain:'"ดาว" สะกดด้วย ว → แม่เกอว'},
+  {word:'แมว',     matra:'แม่เกอว', cat:'daily',    diff:1, explain:'"แมว" สะกดด้วย ว → แม่เกอว'},
+  {word:'แก้ว',    matra:'แม่เกอว', cat:'daily',    diff:1, explain:'"แก้ว" สะกดด้วย ว → แม่เกอว'},
+  {word:'ผิว',     matra:'แม่เกอว', cat:'daily',    diff:1, explain:'"ผิว" สะกดด้วย ว → แม่เกอว'},
+  {word:'ยาว',     matra:'แม่เกอว', cat:'daily',    diff:1, explain:'"ยาว" สะกดด้วย ว → แม่เกอว'},
+  {word:'เนื้อว',  matra:'แม่เกอว', cat:'daily',    diff:2, explain:'"เนื้อ(ว)" สะกดด้วย ว → แม่เกอว'},
+  {word:'ชาว',     matra:'แม่เกอว', cat:'literature',diff:2, explain:'"ชาว" สะกดด้วย ว → แม่เกอว'},
+  {word:'เทพนาว',  matra:'แม่เกอว', cat:'literature',diff:3, explain:'"เทพนาว" สะกดด้วย ว → แม่เกอว'},
+
+  // ─── แม่กง ─────────────────────────────
+  {word:'หลัง',    matra:'แม่กง', cat:'daily',      diff:1, explain:'"หลัง" สะกดด้วย ง → แม่กง'},
+  {word:'ยาง',     matra:'แม่กง', cat:'daily',      diff:1, explain:'"ยาง" สะกดด้วย ง → แม่กง'},
+  {word:'ร้อง',    matra:'แม่กง', cat:'daily',      diff:1, explain:'"ร้อง" สะกดด้วย ง → แม่กง'},
+  {word:'เพลง',    matra:'แม่กง', cat:'daily',      diff:1, explain:'"เพลง" สะกดด้วย ง → แม่กง'},
+  {word:'นาง',     matra:'แม่กง', cat:'daily',      diff:1, explain:'"นาง" สะกดด้วย ง → แม่กง'},
+  {word:'สรรเสริญ',matra:'แม่กน', cat:'literature', diff:3, tricky:true, explain:'"สรรเสริญ" สะกดด้วย ญ ซึ่งออกเสียงเหมือน น → แม่กน'},
+  {word:'ยศยิ่ง',  matra:'แม่กง', cat:'literature', diff:2, explain:'"ยิ่ง" สะกดด้วย ง → แม่กง'},
+  {word:'พิง',     matra:'แม่กง', cat:'literature', diff:2, explain:'"พิง" สะกดด้วย ง → แม่กง'},
+  {word:'บึง',     matra:'แม่กง', cat:'daily',      diff:1, explain:'"บึง" สะกดด้วย ง → แม่กง'},
+  {word:'วง',      matra:'แม่กง', cat:'daily',      diff:1, explain:'"วง" สะกดด้วย ง → แม่กง'},
+];
+
+// ══════════════════════════════════════════════════════════
+//  CATEGORY CONFIG
+// ══════════════════════════════════════════════════════════
+const CAT_INFO = {
+  daily:      {label:'ชีวิตประจำวัน', icon:'🏠', color:'#00E676'},
+  literature: {label:'วรรณคดี',       icon:'📜', color:'#FFD700'},
+  loanword:   {label:'คำทับศัพท์',   icon:'🌐', color:'#00C9FF'},
+  tricky:     {label:'คำน่าสับสน',   icon:'⚠️', color:'#FF4757'},
+};
+
+const DIFF_LABEL = {1:'⭐',2:'⭐⭐',3:'⭐⭐⭐'};
+const DIFF_COLOR = {1:'#00E676',2:'#FFD700',3:'#FF4757'};
+
+// Selected categories filter
+let selectedCats = new Set(['daily','literature','loanword','tricky']);
+
+// Update category counts on home screen
+function updateCatCounts(){
+  Object.keys(CAT_INFO).forEach(cat=>{
+    const n = QUESTIONS.filter(q=>q.cat===cat).length;
+    const el = document.getElementById('cnt-'+cat);
+    if(el) el.textContent = n;
+  });
+  const total = QUESTIONS.filter(q=>selectedCats.has(q.cat)).length;
+  const lbl = document.getElementById('cat-total-lbl');
+  if(lbl) lbl.textContent = `คำถามที่เลือก: ${total} คำ`;
+}
+
+function toggleCat(cat, btn){
+  sfxClick();
+  if(selectedCats.has(cat)){
+    if(selectedCats.size<=1) return; // keep at least 1
+    selectedCats.delete(cat);
+    btn.classList.remove('on');
+  } else {
+    selectedCats.add(cat);
+    btn.classList.add('on');
+  }
+  updateCatCounts();
+}
+
+// ══════════════════════════════════════════════════════════
+//  MATRA CONFIG
+// ══════════════════════════════════════════════════════════
+const MATRA_LIST=['แม่กก','แม่กน','แม่กด','แม่กบ','แม่กม','แม่เกย','แม่เกอว','แม่กง'];
+const MATRA_KEY={'แม่กก':'กก','แม่กน':'กน','แม่กด':'กด','แม่กบ':'กบ','แม่กม':'กม','แม่เกย':'เกย','แม่เกอว':'เกอว','แม่กง':'กง'};
+const MATRA_FINAL={'แม่กก':'ก/ข/ค/ฆ','แม่กน':'น/ณ/ร/ล/ฬ','แม่กด':'ด/ต/จ/ช/ซ/ฏ/ฐ/ถ/ท/ธ/ศ/ษ/ส','แม่กบ':'บ/ป/พ/ฟ/ภ','แม่กม':'ม','แม่เกย':'ย','แม่เกอว':'ว','แม่กง':'ง'};
+
+// ══════════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════════
+let G={mode:'',questions:[],qi:0,score:0,lives:3,combo:0,
+  answered:false,timeLeft:10,timerInterval:null,
+  correct:0,wrong:0,level:1,levelQi:0,
+  selectedMatra:[],lastMode:'',isReviewRound:false,
+  catStats:{daily:{c:0,t:0},literature:{c:0,t:0},loanword:{c:0,t:0},tricky:{c:0,t:0}}};
+
+function shuffle(a){return [...a].sort(()=>Math.random()-.5);}
+
+// ══════════════════════════════════════════════════════════
+//  SCREENS
+// ══════════════════════════════════════════════════════════
+function showScreen(id){
+  ['screen-home','screen-select','screen-end'].forEach(s=>document.getElementById(s).classList.toggle('hidden',s!==id));
+  document.getElementById('app').style.display='none';
+  if(id==='app'){
+    document.getElementById('app').style.display='flex';
+    ['screen-home','screen-select','screen-end'].forEach(s=>document.getElementById(s).classList.add('hidden'));
+  }
+  if(id==='screen-home'){stopBGM();setScene(0);}
+}
+
+function openMode(m){
+  sfxClick();
+  if(m==='select'){buildMatraSelect();showScreen('screen-select');return;}
+  G.lastMode=m;
+  launchGame(m,null);
+}
+
+function buildMatraSelect(){
+  G.selectedMatra=[...MATRA_LIST];
+  const grid=document.getElementById('ms-grid');
+  grid.innerHTML=`<button class="ms-btn ms-all" onclick="toggleAll()">✅ ทั้งหมด</button>`;
+  MATRA_LIST.forEach(m=>{
+    const btn=document.createElement('button');
+    btn.className='ms-btn picked c-'+MATRA_KEY[m];
+    btn.textContent=m;btn.dataset.matra=m;
+    btn.onclick=()=>toggleMatra(m,btn);
+    grid.appendChild(btn);
+  });
+}
+function toggleAll(){sfxClick();G.selectedMatra=[...MATRA_LIST];document.querySelectorAll('.ms-btn[data-matra]').forEach(b=>b.classList.add('picked','c-'+MATRA_KEY[b.dataset.matra]));}
+function toggleMatra(m,btn){sfxClick();if(G.selectedMatra.includes(m)){if(G.selectedMatra.length<=1)return;G.selectedMatra=G.selectedMatra.filter(x=>x!==m);btn.classList.remove('picked','c-'+MATRA_KEY[m]);}else{G.selectedMatra.push(m);btn.classList.add('picked','c-'+MATRA_KEY[m]);}}
+function startSelectMode(){sfxClick();launchGame('select',G.selectedMatra);}
+
+// ══════════════════════════════════════════════════════════
+//  LAUNCH GAME
+// ══════════════════════════════════════════════════════════
+function launchGame(mode,matraFilter){
+  clearTimer();stopBGM();SR.reset();
+  // Filter by both category and matra
+  let pool = QUESTIONS.filter(q=>selectedCats.has(q.cat));
+  if(matraFilter) pool=pool.filter(q=>matraFilter.includes(q.matra));
+  if(pool.length<8) pool=QUESTIONS; // fallback
+
+  G={mode,questions:shuffle(pool).slice(0,20),
+    qi:0,score:0,lives:3,combo:0,answered:false,
+    timeLeft:10,timerInterval:null,
+    correct:0,wrong:0,level:1,levelQi:0,
+    selectedMatra:matraFilter||[...MATRA_LIST],lastMode:mode,isReviewRound:false,
+    catStats:{daily:{c:0,t:0},literature:{c:0,t:0},loanword:{c:0,t:0},tricky:{c:0,t:0}}};
+
+  const mi={
+    time:{lbl:'⏰ โหมดจับเวลา',bg:'linear-gradient(135deg,#FF8C42,#FFD700)',tc:'#0A1628'},
+    select:{lbl:'🗂️ โหมดเลือกมาตรา',bg:'linear-gradient(135deg,var(--teal),var(--sky))',tc:'#0A1628'},
+    level:{lbl:'🏔️ โหมดยากขึ้นเรื่อยๆ',bg:'linear-gradient(135deg,#A855F7,#6366F1)',tc:'#fff'},
+    reverse:{lbl:'🔀 โหมดกลับกัน',bg:'linear-gradient(135deg,var(--pink),var(--red))',tc:'#fff'},
+  }[mode];
+  const lbl=document.getElementById('mode-lbl');lbl.textContent=mi.lbl;lbl.style.background=mi.bg;lbl.style.color=mi.tc;
+  document.getElementById('hud-timer').style.display=mode==='time'?'flex':'none';
+  document.getElementById('level-indicator').style.display=mode==='level'?'flex':'none';
+  document.getElementById('prog-fill').classList.remove('review');
+  document.getElementById('prog-label').textContent='ความคืบหน้า';
+  document.getElementById('sr-count-badge').style.display='none';
+  setScene(0);buildTabs();showScreen('app');
+  setTimeout(()=>{startBGM();showBubble('game-bubble','มาเริ่มกันเลย! 🚀','#FFD700');setMascotExpr('game-mascot','happy');},400);
+  loadQuestion();
+}
+function confirmBack(){
+  clearTimer();stopBGM();window.speechSynthesis?.cancel();
+  if (window.KAMPAI) {
+    window.KAMPAI.goHome();
+  } else {
+    showScreen('screen-home');
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  TABS
+// ══════════════════════════════════════════════════════════
+function buildTabs(){
+  const strip=document.getElementById('tabs-strip');
+  const show=G.mode==='select'?G.selectedMatra:MATRA_LIST;
+  strip.innerHTML='';
+  show.forEach(m=>{const t=document.createElement('div');t.className='tab';t.textContent=m;t.dataset.m=m;strip.appendChild(t);});
+}
+function highlightTab(m){
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.classList.remove('active-tab','c-'+MATRA_KEY[t.dataset.m]);
+    if(t.dataset.m===m)t.classList.add('active-tab','c-'+MATRA_KEY[m]);
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+//  HUD
+// ══════════════════════════════════════════════════════════
+function updateHUD(){
+  document.getElementById('h-score').textContent=G.score;
+  document.getElementById('h-lives').textContent='❤️'.repeat(Math.max(0,G.lives))+'🖤'.repeat(Math.max(0,3-G.lives));
+  document.getElementById('h-combo').textContent='x'+G.combo;
+  document.getElementById('h-qnum').textContent=(G.qi+1)+'/'+G.questions.length;
+  const p=G.qi/G.questions.length;
+  document.getElementById('prog-fill').style.width=(p*100)+'%';
+  document.getElementById('prog-pct').textContent=Math.round(p*100)+'%';
+  updateSceneByPct(p);
+  if(G.mode==='level')updateLevelDots();
+}
+function updateLevelDots(){
+  [1,2,3].forEach(i=>{const d=document.getElementById('ld'+i);d.className='level-dot '+(i<G.level?'done':i===G.level?'active':'todo');});
+  const n={1:'2 ตัวเลือก',2:'4 ตัวเลือก',3:'พิมพ์ตอบเอง'};
+  document.getElementById('level-label-txt').textContent='ด่าน '+G.level+': '+n[G.level];
+}
+
+// ══════════════════════════════════════════════════════════
+//  LOAD QUESTION
+// ══════════════════════════════════════════════════════════
+function loadQuestion(){
+  clearTimer();
+  if(G.qi>=G.questions.length){
+    if(!G.isReviewRound && SR.hasReview()){ showSRBanner(); return; }
+    endGame(); return;
+  }
+  G.answered=false;
+  const q=G.questions[G.qi];
+  highlightTab(q.matra);
+
+  const badge=document.getElementById('mattra-badge');
+  if(G.mode==='reverse'){badge.className='mattra-badge c-'+MATRA_KEY[q.matra];badge.textContent=q.matra;badge.style.display='inline-block';}
+  else{badge.style.display='none';}
+
+  const ci=CAT_INFO[q.cat]||CAT_INFO.daily;
+  const cb=document.getElementById('cat-badge-el');cb.className='cat-badge '+q.cat;cb.textContent=ci.icon+' '+ci.label;
+  const ds=document.getElementById('diff-stars-el');ds.textContent=DIFF_LABEL[q.diff]||'⭐';ds.style.color=DIFF_COLOR[q.diff]||'#00E676';
+
+  document.getElementById('tricky-alert').style.display=q.tricky?'flex':'none';
+  document.getElementById('review-alert').style.display=q._srRetry?'flex':'none';
+
+  const wd=document.getElementById('word-display');
+  const ttsBtn=document.getElementById('tts-btn');
+  if(G.mode==='reverse'){
+    wd.textContent='?';wd.style.fontSize='clamp(30px,7vw,50px)';wd.style.letterSpacing='2px';
+    document.getElementById('q-prompt').textContent='คำใดอยู่ใน "'+q.matra+'"?';
+    ttsBtn.style.display='none'; ttsCurrentWord='';
+  } else {
+    wd.textContent=q.word;wd.style.fontSize='clamp(38px,9vw,68px)';wd.style.letterSpacing='4px';
+    document.getElementById('q-prompt').textContent='"'+q.word+'" อยู่ในมาตราใด?';
+    ttsBtn.style.display=''; ttsBtn.classList.remove('speaking');
+    ttsCurrentWord=q.word;
+    if(ttsEnabled) setTimeout(()=>speakWord(q.word),500);
+  }
+  wd.style.animation='none';requestAnimationFrame(()=>wd.style.animation='wordPop .4s cubic-bezier(.34,1.56,.64,1)');
+  document.getElementById('feedback').textContent='';
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('explanation').className='explanation';
+  document.getElementById('next-btn').className='next-btn';
+  setMascotExpr('game-mascot','idle');
+  buildAnswers(q);updateHUD();updateSRBadge();
+  if(G.mode==='time')startTimer(q);
+}
+
+// ══════════════════════════════════════════════════════════
+//  BUILD ANSWERS  — FIXED: smarter reverse distractors + type suggestions
+// ══════════════════════════════════════════════════════════
+function buildAnswers(q){
+  const area=document.getElementById('answers-area');area.innerHTML='';
+  if(G.mode==='reverse'){
+    // ── FIXED: ใช้คำจากมาตราที่มักสับสนกัน เป็น distractor ──
+    const confusedMatras=MATRA_CONFUSED[q.matra]||[];
+    let wrongWords=[];
+    confusedMatras.forEach(cm=>{
+      const pool=QUESTIONS.filter(x=>x.matra===cm&&x.word!==q.word&&selectedCats.has(x.cat));
+      if(pool.length) wrongWords.push(shuffle(pool)[0].word);
+    });
+    if(wrongWords.length<3){
+      const extra=shuffle(QUESTIONS.filter(x=>x.matra!==q.matra&&!wrongWords.includes(x.word)&&selectedCats.has(x.cat)));
+      while(wrongWords.length<3&&extra.length) wrongWords.push(extra.shift().word);
+    }
+    const opts=shuffle([q.word,...wrongWords.slice(0,3)]);
+    const g=document.createElement('div');g.className='answers-4';
+    opts.forEach(w=>{
+      const b=document.createElement('button');b.className='word-choice-btn';b.textContent=w;
+      b.onclick=()=>{speakWord(w);setTimeout(()=>checkReverse(w,q,b),180);};
+      g.appendChild(b);
+    });
+    area.appendChild(g);return;
+  }
+  if(G.mode==='level'&&G.level===3){buildTypeInput(q);return;}
+  const n=(G.mode==='level'&&G.level===1)?2:4;
+  const wrong=shuffle(MATRA_LIST.filter(m=>m!==q.matra)).slice(0,n-1);
+  const opts=shuffle([q.matra,...wrong]);
+  const g=document.createElement('div');g.className=n===2?'answers-2':'answers-4';
+  const em=['🌟','🎯','🎪','🚀','💡','🎈'];
+  opts.forEach((o,i)=>{const b=document.createElement('button');b.className='ans-btn';b.innerHTML=`<span>${em[i]}</span> ${o}`;b.onclick=()=>checkMCQ(o,q,b);g.appendChild(b);});
+  area.appendChild(g);
+}
+
+function buildTypeInput(q){
+  const wrap=document.createElement('div');wrap.className='type-input-wrap';
+  const hint=document.createElement('div');hint.className='type-hint';hint.textContent='ตัวสะกดในมาตรานี้: '+MATRA_FINAL[q.matra];
+  const inp=document.createElement('input');inp.className='type-input';inp.id='type-inp';
+  inp.placeholder='พิมพ์ชื่อมาตรา หรือแค่ "กก"';inp.autocomplete='off';
+  inp.onkeydown=e=>{if(e.key==='Enter')submitType(q);};
+  // Quick-pick suggestion buttons
+  const sugsDiv=document.createElement('div');sugsDiv.className='type-suggestions';
+  shuffle(MATRA_LIST).slice(0,4).forEach(m=>{
+    const s=document.createElement('button');s.className='type-sug';s.textContent=m;
+    s.onclick=()=>{inp.value=m;inp.focus();};sugsDiv.appendChild(s);
+  });
+  const btn=document.createElement('button');btn.className='type-submit';btn.textContent='✅ ยืนยันคำตอบ';btn.onclick=()=>submitType(q);
+  wrap.appendChild(hint);wrap.appendChild(inp);wrap.appendChild(sugsDiv);wrap.appendChild(btn);
+  document.getElementById('answers-area').appendChild(wrap);
+  setTimeout(()=>inp.focus(),100);
+}
+
+// ── FIXED: normalize input — รับทั้ง "แม่กก" และ "กก" ──
+function normalizeMatraInput(val){
+  val=val.trim().replace(/\s+/g,'');
+  for(const m of MATRA_LIST){
+    if(val===m) return m;
+    const k=MATRA_KEY[m];
+    if(val===k||val==='แม่'+k) return m;
+  }
+  return val;
+}
+
+// ══════════════════════════════════════════════════════════
+//  TIMER
+// ══════════════════════════════════════════════════════════
+function startTimer(q){
+  G.timeLeft=10;const arc=document.getElementById('timer-arc'),tw=document.getElementById('hud-timer'),txt=document.getElementById('timer-text'),C=188.5;
+  function upd(){const f=G.timeLeft/10;arc.style.strokeDashoffset=C*(1-f);arc.style.stroke=f>.4?'#FFD700':f>.2?'#FF8C42':'#FF4757';txt.textContent=Math.ceil(G.timeLeft);tw.classList.toggle('timer-urgent',G.timeLeft<=3);}
+  upd();G.timerInterval=setInterval(()=>{G.timeLeft-=.1;upd();if(G.timeLeft<=0){clearTimer();if(!G.answered)timeOut(q);}},100);
+}
+function clearTimer(){clearInterval(G.timerInterval);G.timerInterval=null;document.getElementById('hud-timer')?.classList.remove('timer-urgent');}
+function timeOut(q){
+  G.answered=true;G.combo=0;G.lives--;
+  SR.addWrong(q);
+  document.querySelectorAll('.ans-btn,.word-choice-btn').forEach(b=>{b.disabled=true;if(b.textContent.includes(q.matra))b.classList.add('correct');});
+  setMascotExpr('game-mascot','sad');showBubble('game-bubble','⏰ หมดเวลา...','#FF4757');sfxTimeout();
+  document.getElementById('feedback').textContent='⏰ หมดเวลา!';document.getElementById('feedback').className='feedback wrong-msg';
+  document.getElementById('explanation').textContent=q.explain;document.getElementById('explanation').className='explanation show';
+  document.getElementById('next-btn').className='next-btn show';updateHUD();updateSRBadge();
+  if(G.lives<=0)setTimeout(endGame,1600);
+}
+
+// ══════════════════════════════════════════════════════════
+//  CHECK ANSWERS
+// ══════════════════════════════════════════════════════════
+function checkMCQ(sel,q,btn){if(G.answered)return;clearTimer();G.answered=true;document.querySelectorAll('.ans-btn').forEach(b=>{b.disabled=true;if(b.textContent.includes(q.matra))b.classList.add('correct');});resolveAnswer(sel===q.matra,q,btn);}
+function checkReverse(w,q,btn){if(G.answered)return;G.answered=true;document.querySelectorAll('.word-choice-btn').forEach(b=>{b.disabled=true;if(b.textContent===q.word)b.classList.add('correct');});resolveAnswer(w===q.word,q,btn);}
+function submitType(q){
+  if(G.answered)return;const inp=document.getElementById('type-inp');if(!inp)return;
+  const normalized=normalizeMatraInput(inp.value);
+  const ok=normalized===q.matra;
+  inp.value=normalized;inp.disabled=true;inp.classList.add(ok?'correct-border':'wrong-border');
+  document.querySelector('.type-submit')?.setAttribute('disabled','true');
+  G.answered=true;resolveAnswer(ok,q,inp);
+}
+
+
+// ── OLD resolveAnswer removed — see new resolveAnswer below ──
+
+function advanceLevel(){
+  G.levelQi++;const t={1:5,2:10};
+  if(G.level<3&&G.levelQi>=t[G.level]){
+    G.level++;G.levelQi=0;sfxLevelUp();setMascotExpr('game-mascot','levelup');
+    showBubble('game-bubble','🏆 ด่าน '+G.level+'!','#A855F7');
+    const n={2:'4 ตัวเลือก',3:'พิมพ์ตอบเอง'};
+    const ban=document.getElementById('levelup-banner');
+    document.getElementById('lu-title').textContent='🏆 ขึ้นด่าน '+G.level+'!';
+    document.getElementById('lu-sub').textContent='ตอนนี้: '+n[G.level];
+    ban.className='levelup-banner show';setTimeout(()=>ban.className='levelup-banner',2200);
+  }
+}
+
+
+function nextQuestion(){sfxClick();G.qi++;const c=document.getElementById('game-card');c.style.animation='none';requestAnimationFrame(()=>c.style.animation='cardIn .35s cubic-bezier(.34,1.3,.64,1)');loadQuestion();}
+
+// ── Particles ──
+function replayGame(){sfxClick();if(G.lastMode==='select')showScreen('screen-select');else launchGame(G.lastMode,null);}
+function spawnParticles(el,ok){
+  const r=el?.getBoundingClientRect?.()??{left:window.innerWidth/2,top:window.innerHeight/2,width:0};
+  const em=ok?['⭐','🌟','✨','🎉','🎊','💫']:['💨','😅','🌀','💦'];
+  for(let i=0;i<(ok?8:4);i++){
+    const p=document.createElement('div');p.className='particle';p.textContent=em[Math.floor(Math.random()*em.length)];
+    p.style.left=(r.left+r.width/2+(Math.random()-.5)*100)+'px';p.style.top=(r.top+(Math.random()-.5)*30)+'px';p.style.animationDelay=(Math.random()*.3)+'s';
+    document.body.appendChild(p);setTimeout(()=>p.remove(),1800);
+  }
+}
+function showScorePop(el,txt){
+  const r=el?.getBoundingClientRect?.()??{left:window.innerWidth/2-30,top:window.innerHeight/2};
+  const p=document.createElement('div');p.className='score-pop';p.textContent=txt;
+  p.style.left=(r.left+r.width/2-30)+'px';p.style.top=(r.top-10)+'px';
+  document.body.appendChild(p);setTimeout(()=>p.remove(),1200);
+}
+function spawnComboFire(){
+  const p=document.createElement('div');p.className='combo-fire';p.textContent='🔥';
+  p.style.left=(window.innerWidth/2-24)+'px';p.style.top=(window.innerHeight*.4)+'px';
+  document.body.appendChild(p);setTimeout(()=>p.remove(),1300);
+}
+function getOk(){return['ถูกต้อง! 🎉','เก่งมาก! ⭐','ยอดเยี่ยม! 🏆','สุดยอด! 🌟','ถูกเลย! 💯'][Math.floor(Math.random()*5)];}
+function getFail(){return['ผิดแล้ว... 😅','ลองใหม่นะ! 💪','เกือบแล้ว! 🤔','ไม่เป็นไร! 📚'][Math.floor(Math.random()*4)];}
+
+// ══════════════════════════════════════════════════════════
+//  MATRA CONFUSED MAP  (smarter reverse distractors)
+// ══════════════════════════════════════════════════════════
+const MATRA_CONFUSED={
+  'แม่กก':['แม่กด','แม่กน'],
+  'แม่กน':['แม่กม','แม่กง'],
+  'แม่กด':['แม่กก','แม่กบ'],
+  'แม่กบ':['แม่กด','แม่กก'],
+  'แม่กม':['แม่กน','แม่กง'],
+  'แม่เกย':['แม่เกอว','แม่กน'],
+  'แม่เกอว':['แม่เกย','แม่กม'],
+  'แม่กง':['แม่กน','แม่กม'],
+};
+
+// ══════════════════════════════════════════════════════════
+//  TTS  (Web Speech API)
+// ══════════════════════════════════════════════════════════
+let ttsEnabled=true, ttsCurrentWord='';
+function toggleTTS(){
+  ttsEnabled=!ttsEnabled;
+  const btn=document.getElementById('tts-toggle');
+  btn.textContent=ttsEnabled?'🔊 อ่านเสียง':'🔇 ปิดเสียง';
+  btn.style.borderColor=ttsEnabled?'rgba(46,206,201,.5)':'rgba(255,255,255,.15)';
+  sfxClick();
+  if(ttsEnabled&&ttsCurrentWord) speakWord(ttsCurrentWord);
+}
+function speakWord(word){
+  ttsCurrentWord=word;
+  const btn=document.getElementById('tts-btn');
+  if(btn) btn.classList.add('speaking');
+  
+  if(window.KAMPAI && window.KAMPAI.sound && window.KAMPAI.sound.available) {
+    window.KAMPAI.sound.speak(word, 'th-TH', true);
+    setTimeout(()=>{
+      if(btn) btn.classList.remove('speaking');
+    }, 1500);
+  } else {
+    if(!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const utt=new SpeechSynthesisUtterance(word);
+    const voices=window.speechSynthesis.getVoices();
+    const thVoice=voices.find(v=>v.lang.startsWith('th'));
+    if(thVoice) utt.voice=thVoice;
+    utt.lang='th-TH'; utt.rate=0.82; utt.pitch=1.1; utt.volume=0.9;
+    utt.onend=utt.onerror=()=>{if(btn)btn.classList.remove('speaking');};
+    window.speechSynthesis.speak(utt);
+  }
+}
+function ttsSpeakCurrent(){sfxClick();if(ttsCurrentWord)speakWord(ttsCurrentWord);}
+if(window.speechSynthesis){
+  window.speechSynthesis.onvoiceschanged=()=>window.speechSynthesis.getVoices();
+  window.speechSynthesis.getVoices();
+}
+
+// ══════════════════════════════════════════════════════════
+//  SPACED REPETITION
+// ══════════════════════════════════════════════════════════
+const SR={
+  wrongPool:[],
+  masteredWords:[],
+  reviewRound:0,
+  maxReviewRounds:2,
+  reset(){this.wrongPool=[];this.masteredWords=[];this.reviewRound=0;},
+  addWrong(q){if(!this.wrongPool.find(x=>x.word===q.word))this.wrongPool.push({...q,_srRetry:true});},
+  removeWrong(word){const i=this.wrongPool.findIndex(x=>x.word===word);if(i>=0){this.masteredWords.push(word);this.wrongPool.splice(i,1);}},
+  hasReview(){return this.wrongPool.length>0&&this.reviewRound<this.maxReviewRounds;},
+  buildReviewQuestions(){return shuffle([...this.wrongPool]);}
+};
+
+function showSRBanner(){
+  const banner=document.getElementById('sr-banner');
+  const list=document.getElementById('sr-wrong-list');
+  list.innerHTML=SR.wrongPool.map(q=>`<div class="sr-word-chip">${q.word}</div>`).join('');
+  document.getElementById('sr-banner-title').textContent=`ทบทวนคำที่ผิด ${SR.wrongPool.length} คำ`;
+  banner.classList.remove('hidden');
+  setMascotExpr('game-mascot','review');
+  showBubble('game-bubble','ทบทวนกันเถอะ! 🔁','#FF8C42');
+}
+function startSRRound(){
+  sfxClick();
+  document.getElementById('sr-banner').classList.add('hidden');
+  SR.reviewRound++;
+  G.questions=SR.buildReviewQuestions();
+  G.qi=0; G.answered=false; G.isReviewRound=true;
+  document.getElementById('prog-fill').classList.add('review');
+  document.getElementById('prog-label').textContent='🔁 รอบทบทวน '+SR.reviewRound;
+  loadQuestion();
+}
+function skipSR(){sfxClick();document.getElementById('sr-banner').classList.add('hidden');endGame();}
+function updateSRBadge(){
+  const b=document.getElementById('sr-count-badge');
+  if(!b) return;
+  if(SR.wrongPool.length>0){b.style.display='inline-flex';b.textContent='🔁 ผิด '+SR.wrongPool.length+' คำ';}
+  else b.style.display='none';
+}
+
+// ══════════════════════════════════════════════════════════
+//  KNOWLEDGE CARDS
+// ══════════════════════════════════════════════════════════
+const KC_DATA={
+  'แม่กก':{final:'ก / ข / ค / ฆ',examples:[{w:'นก',t:false},{w:'รัก',t:false},{w:'โชค',t:true},{w:'เมฆ',t:true},{w:'สุข',t:true},{w:'เลข',t:true},{w:'จักร',t:false}]},
+  'แม่กน':{final:'น / ณ / ร / ล / ฬ',examples:[{w:'คน',t:false},{w:'บ้าน',t:false},{w:'กาล',t:true},{w:'วรรณ',t:true},{w:'ไพร',t:true},{w:'ฟุตบอล',t:false}]},
+  'แม่กด':{final:'ด / ต / จ / ช / ษ / ส / ฯลฯ',examples:[{w:'รถ',t:false},{w:'กฎ',t:true},{w:'ราช',t:false},{w:'กษัตริย์',t:true},{w:'วิทยาศาสตร์',t:true},{w:'เน็ต',t:false}]},
+  'แม่กบ':{final:'บ / ป / พ / ฟ / ภ',examples:[{w:'ทับ',t:false},{w:'ภาพ',t:false},{w:'ลาภ',t:true},{w:'กาพย์',t:true},{w:'ทรัพย์',t:true},{w:'กราฟ',t:false}]},
+  'แม่กม':{final:'ม',examples:[{w:'งาม',t:false},{w:'สาม',t:false},{w:'สงคราม',t:false},{w:'วัฒนธรรม',t:false},{w:'เกม',t:false}]},
+  'แม่เกย':{final:'ย',examples:[{w:'สาย',t:false},{w:'ขาย',t:false},{w:'น้อย',t:false},{w:'พระราย',t:false},{w:'วิลัย',t:false}]},
+  'แม่เกอว':{final:'ว',examples:[{w:'ดาว',t:false},{w:'แมว',t:false},{w:'แก้ว',t:false},{w:'ยาว',t:false},{w:'ชาว',t:false}]},
+  'แม่กง':{final:'ง',examples:[{w:'หลัง',t:false},{w:'เพลง',t:false},{w:'ร้อง',t:false},{w:'บึง',t:false},{w:'วง',t:false}]},
+};
+function openKC(){
+  sfxClick();
+  const grid=document.getElementById('kc-grid');grid.innerHTML='';
+  MATRA_LIST.forEach(m=>{
+    const k=MATRA_KEY[m],d=KC_DATA[m];
+    const card=document.createElement('div');card.className=`kc-card kc-bg-${k}`;
+    const words=d.examples.map(e=>`<span class="kc-word${e.t?' kw-tricky':''}" onclick="speakWord('${e.w}');this.style.transform='scale(1.2)';setTimeout(()=>this.style.transform='',300);" title="กดฟังเสียง">${e.w}</span>`).join('');
+    card.innerHTML=`
+      <div class="kc-header">
+        <span class="mattra-badge c-${k}" style="padding:4px 12px;font-size:14px;">${m}</span>
+      </div>
+      <div class="kc-final"><strong>ตัวสะกด:</strong> ${d.final}</div>
+      <div class="kc-words">${words}</div>`;
+    grid.appendChild(card);
+  });
+  document.getElementById('kc-modal').classList.remove('hidden');
+}
+function closeKC(){sfxClick();document.getElementById('kc-modal').classList.add('hidden');}
+
+// ══════════════════════════════════════════════════════════
+//  ACHIEVEMENTS
+// ══════════════════════════════════════════════════════════
+const ACHIEVEMENTS=[
+  {id:'first_correct',icon:'🎯',name:'ก้าวแรก',desc:'ตอบถูกครั้งแรก'},
+  {id:'combo5',icon:'🔥',name:'คอมโบ x5',desc:'คอมโบ 5 ติดต่อกัน'},
+  {id:'combo10',icon:'💫',name:'คอมโบ x10',desc:'คอมโบ 10 ติดต่อกัน'},
+  {id:'tricky_master',icon:'🧠',name:'นักสืบคำยาก',desc:'ตอบถูกคำน่าสับสน 5 คำ'},
+  {id:'no_miss',icon:'👑',name:'ไม่มีผิดเลย',desc:'จบเกมโดยไม่เสียชีวิต'},
+  {id:'score500',icon:'💎',name:'500 คะแนน',desc:'ทำคะแนนได้ 500 ขึ้นไป'},
+  {id:'sr_mastered',icon:'📚',name:'จำได้แล้ว!',desc:'ทบทวนผ่านคำที่เคยผิด'},
+  {id:'all_matra',icon:'🌈',name:'ครบทุกมาตรา',desc:'เจอคำจากทุกมาตราใน 1 รอบ'},
+];
+let unlockedAch=new Set(JSON.parse(localStorage.getItem('thai_ach')||'[]'));
+let sessionAch=[];
+let trickyCorrect=0;
+
+function checkAch(id){
+  if(unlockedAch.has(id))return;
+  unlockedAch.add(id);
+  localStorage.setItem('thai_ach',JSON.stringify([...unlockedAch]));
+  const a=ACHIEVEMENTS.find(x=>x.id===id);
+  if(a){sessionAch.push(a);showAchToast(a);}
+}
+function showAchToast(a){
+  const toast=document.createElement('div');
+  toast.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);z-index:600;background:linear-gradient(135deg,#A855F7,#6366F1);border-radius:16px;padding:12px 22px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(168,85,247,.4);transition:transform .4s cubic-bezier(.34,1.56,.64,1);color:#fff;font-family:Sarabun,sans-serif;font-weight:800;white-space:nowrap;';
+  toast.innerHTML=`<span style="font-size:24px">${a.icon}</span><div><div style="font-size:13px;opacity:.7">🏆 Achievement!</div><div style="font-size:15px">${a.name}</div></div>`;
+  document.body.appendChild(toast);
+  requestAnimationFrame(()=>toast.style.transform='translateX(-50%) translateY(0)');
+  setTimeout(()=>{toast.style.transform='translateX(-50%) translateY(80px)';setTimeout(()=>toast.remove(),400);},3000);
+}
+
+// ══════════════════════════════════════════════════════════
+//  LEADERBOARD
+// ══════════════════════════════════════════════════════════
+function saveScore(score,mode){
+  const key='thai_lb';
+  let lb=JSON.parse(localStorage.getItem(key)||'[]');
+  const entry={score,mode,date:new Date().toLocaleDateString('th-TH',{day:'numeric',month:'short'})};
+  lb.push(entry);
+  lb.sort((a,b)=>b.score-a.score);
+  lb=lb.slice(0,5);
+  localStorage.setItem(key,JSON.stringify(lb));
+  return lb;
+}
+function buildLeaderboard(){
+  const lb=JSON.parse(localStorage.getItem('thai_lb')||'[]');
+  if(lb.length===0) return '<div style="color:rgba(255,255,255,.4);font-size:13px;padding:12px;">ยังไม่มีข้อมูลคะแนน เล่นเพื่อบันทึก!</div>';
+  const medals=['🥇','🥈','🥉','4️⃣','5️⃣'];
+  const mn={time:'⏰',select:'🗂️',level:'🏔️',reverse:'🔀'};
+  return lb.map((e,i)=>`
+    <div class="result-row">
+      <span>${medals[i]} ${mn[e.mode]||''} ${e.date}</span>
+      <span class="result-val" style="color:var(--sun)">${e.score}</span>
+    </div>`).join('');
+}
+
+// Override endGame to add SR summary, leaderboard, achievements
+const _origEndGame = endGame;
+function endGame(){
+  clearTimer();stopBGM();window.speechSynthesis?.cancel();
+  // Check no-miss achievement
+  if(G.lives===3&&G.correct>0) checkAch('no_miss');
+  if(G.score>=500) checkAch('score500');
+  // Check all matra
+  const matrasSeen=new Set(G.questions.slice(0,G.qi).map(q=>q.matra));
+  if(matrasSeen.size>=8) checkAch('all_matra');
+  if(SR.masteredWords.length>0) checkAch('sr_mastered');
+
+  saveScore(G.score, G.mode);
+
+  const p=G.correct/Math.max(G.questions.length,1);
+  if (window.KAMPAI) {
+    const starsCount = p >= 0.8 ? 3 : (p >= 0.5 ? 2 : 1);
+    window.KAMPAI.submitScore(G.score, { mode: G.mode, stars: starsCount });
+  }
+  let stars,msg,expr;
+  if(p>=.8){stars='⭐⭐⭐';msg='เก่งมากเลย! ทำได้ดีมาก! 🏆';expr='happy';sfxVictory();}
+  else if(p>=.5){stars='⭐⭐';msg='ทำได้ดีนะ! ลองฝึกอีกหน่อย! 📚';expr='happy';}
+  else{stars='⭐';msg='ไม่เป็นไร! ลองฝึกใหม่อีกครั้งนะ! 💪';expr='sad';sfxGameOver();}
+  setTimeout(()=>setMascotExpr('end-mascot',expr),300);
+  document.getElementById('end-score').textContent=G.score;
+  document.getElementById('end-stars').textContent=stars;
+  document.getElementById('end-msg').textContent=msg;
+  const mn={time:'⏰ จับเวลา',select:'🗂️ เลือกมาตรา',level:'🏔️ ยากขึ้น',reverse:'🔀 กลับกัน'};
+  document.getElementById('end-title').textContent='จบ'+mn[G.mode]+'!';
+
+  // SR Summary
+  const srSum=document.getElementById('sr-summary');
+  const srWords=document.getElementById('sr-summary-words');
+  if(SR.masteredWords.length>0||SR.wrongPool.length>0){
+    srSum.classList.remove('hidden');srWords.innerHTML='';
+    SR.masteredWords.forEach(w=>{const c=document.createElement('span');c.className='sr-chip-mastered';c.textContent='✅ '+w;srWords.appendChild(c);});
+    SR.wrongPool.forEach(q=>{const c=document.createElement('span');c.className='sr-chip-retry';c.textContent='🔁 '+q.word;srWords.appendChild(c);});
+  } else {srSum.classList.add('hidden');}
+
+  // Cat stats
+  const cs=document.getElementById('cat-stats');cs.innerHTML='';
+  Object.entries(G.catStats).forEach(([cat,st])=>{
+    if(st.t===0)return;
+    const ci=CAT_INFO[cat];const pct=Math.round(st.c/st.t*100);
+    const box=document.createElement('div');box.className='cat-stat-box';
+    box.innerHTML=`<div style="font-size:16px;">${ci.icon}</div><div style="flex:1"><div class="cat-stat-label">${ci.label}</div><div class="cat-stat-bar-wrap"><div class="cat-stat-bar" style="width:0%;background:${ci.color};" data-pct="${pct}"></div></div></div><div class="cat-stat-pct" style="color:${ci.color}">${pct}%</div>`;
+    cs.appendChild(box);
+  });
+  setTimeout(()=>{document.querySelectorAll('.cat-stat-bar').forEach(b=>b.style.width=b.dataset.pct+'%');},200);
+
+  // Result + leaderboard
+  document.getElementById('result-table').innerHTML=`
+    <div class="result-row"><span>ตอบถูก</span><span class="result-val good">${G.correct} ข้อ</span></div>
+    <div class="result-row"><span>ตอบผิด</span><span class="result-val bad">${G.wrong} ข้อ</span></div>
+    <div class="result-row"><span>รอบทบทวน</span><span class="result-val" style="color:#FFD700">${SR.reviewRound} รอบ</span></div>
+    <div class="result-row"><span>คะแนนรวม</span><span class="result-val" style="color:var(--sun);font-size:22px">${G.score}</span></div>
+    ${G.mode==='level'?`<div class="result-row"><span>ด่านสูงสุด</span><span class="result-val" style="color:var(--purple)">ด่าน ${G.level}</span></div>`:''}
+    <div style="padding:10px 16px;font-size:13px;color:rgba(255,255,255,.5);border-top:1px solid rgba(255,255,255,.08);margin-top:4px;">🏆 Top 5 คะแนนสูงสุด</div>
+    ${buildLeaderboard()}
+  `;
+  // Achievements row
+  if(sessionAch.length>0){
+    const abox=document.createElement('div');
+    abox.style.cssText='display:flex;flex-wrap:wrap;gap:7px;justify-content:center;max-width:500px;margin:6px 0;';
+    sessionAch.forEach(a=>{
+      const chip=document.createElement('div');
+      chip.style.cssText='background:rgba(168,85,247,.2);border:1px solid rgba(168,85,247,.4);border-radius:99px;padding:5px 14px;font-size:13px;font-weight:800;color:#C084FC;';
+      chip.textContent=a.icon+' '+a.name;
+      abox.appendChild(chip);
+    });
+    document.getElementById('result-table').before(abox);
+  }
+  showScreen('screen-end');setScene(6);trickyCorrect=0;sessionAch=[];
+}
+
+// ══════════════════════════════════════════════════════════
+//  PATCH resolveAnswer to add SR + Achievement hooks
+// ══════════════════════════════════════════════════════════
+const _origResolve = resolveAnswer;
+function resolveAnswer(ok,q,el){
+  G.catStats[q.cat].t++;
+  const fb=document.getElementById('feedback'),expl=document.getElementById('explanation');
+  if(ok){
+    G.catStats[q.cat].c++;
+    if(q._srRetry) SR.removeWrong(q.word);
+    let pts=10;
+    if(G.mode==='time') pts=10+Math.round(G.timeLeft*3);
+    pts+=(q.diff-1)*3;
+    G.combo++;const tot=G.combo>=3?pts+G.combo*2:pts;G.score+=tot;G.correct++;
+    el?.classList?.add('correct');
+    // Achievement checks
+    if(G.correct===1) checkAch('first_correct');
+    if(G.combo>=5) checkAch('combo5');
+    if(G.combo>=10) checkAch('combo10');
+    if(q.cat==='tricky'||q.tricky){trickyCorrect++;if(trickyCorrect>=5)checkAch('tricky_master');}
+    if(G.combo>=5) sfxCombo(); else sfxCorrect();
+    if(G.combo>=10){
+      setMascotExpr('game-mascot','dance');
+      showBubble('game-bubble','🕺 x10 สุดยอดมาก!!','#A855F7');
+      spawnComboFire(); spawnComboFire();
+    } else if(G.combo>=3){
+      setMascotExpr('game-mascot','combo');showBubble('game-bubble','🔥 คอมโบ x'+G.combo+'!','#FF8C42');spawnComboFire();
+    } else {
+      setMascotExpr('game-mascot','happy');
+      const b=q._srRetry?['จำได้แล้ว! 🎓','ทบทวนผ่านแล้ว! 💪']:['ถูกต้อง! 🎉','เก่งมาก! ⭐','ยอดเยี่ยม! 🏆','สุดยอด! 🌟'];
+      showBubble('game-bubble',b[Math.floor(Math.random()*b.length)],'#00E676');
+    }
+    if(q.tricky) setTimeout(()=>showBubble('game-bubble','💪 คำยากก็ตอบถูก!','#A855F7'),600);
+    fb.textContent=getOk()+(G.combo>=3?' 🔥 x'+G.combo:'')+(q._srRetry?' ✅ ทบทวนผ่าน':'');
+    fb.className='feedback correct-msg';
+    spawnParticles(el,true);showScorePop(el,'+'+tot+(q.diff===3?'🌟':''));
+    if(G.mode==='level') advanceLevel();
+  } else {
+    G.combo=0;G.lives--;G.wrong++;el?.classList?.add('wrong');sfxWrong();
+    SR.addWrong(q);
+    setMascotExpr('game-mascot','sad');
+    const b=['ผิดแล้ว... 😅','ลองใหม่นะ! 💪','ไม่เป็นไร! 📚'];showBubble('game-bubble',b[Math.floor(Math.random()*b.length)],'#FF4757');
+    fb.textContent=getFail();fb.className='feedback wrong-msg';spawnParticles(el,false);
+  }
+  expl.textContent=q.explain;expl.className='explanation show';
+  document.getElementById('next-btn').className='next-btn show';
+  updateHUD();updateSRBadge();
+  if(G.lives<=0) setTimeout(endGame,1600);
+}
+
+// ══════════════════════════════════════════════════════════
+//  DANCE ANIMATION for mascot (combo 10+)
+// ══════════════════════════════════════════════════════════
+// Patch dance into existing setMascotExpr by overwriting with new version
+const _setMascotBase=(id,expr)=>{
+  const m=document.getElementById(id);if(!m)return;
+  const eid=id.replace('mascot','eyes'),mid=id.replace('mascot','mouth');
+  const eyes=document.getElementById(eid),mouth=document.getElementById(mid);
+  if(!eyes||!mouth)return;
+  if(expr==='dance'){
+    m.className='mascot-svg';
+    m.style.animation='mascotDance .9s cubic-bezier(.34,1.56,.64,1)';
+    eyes.innerHTML=`<text x="40" y="65" font-size="22">🤩</text>`;
+    if(mouth)mouth.setAttribute('d','M46 72 Q60 86 74 72');
+    setTimeout(()=>{m.style.animation='';_setMascotBase(id,'idle');},950);
+    return;
+  }
+  m.className='mascot-svg '+expr;
+  if(expr==='happy'||expr==='idle'){
+    eyes.innerHTML=`<ellipse cx="50" cy="57" rx="5" ry="6" fill="#1a1a2e"/><ellipse cx="70" cy="57" rx="5" ry="6" fill="#1a1a2e"/><circle cx="52" cy="55" r="2" fill="#fff"/><circle cx="72" cy="55" r="2" fill="#fff"/>`;
+    mouth.setAttribute('d','M50 72 Q60 80 70 72');
+  } else if(expr==='combo'){
+    eyes.innerHTML=`<text x="43" y="63" font-size="14">⭐</text><text x="63" y="63" font-size="14">⭐</text>`;
+    mouth.setAttribute('d','M48 72 Q60 83 72 72');
+  } else if(expr==='sad'){
+    eyes.innerHTML=`<ellipse cx="50" cy="60" rx="5" ry="4" fill="#1a1a2e"/><ellipse cx="70" cy="60" rx="5" ry="4" fill="#1a1a2e"/><ellipse cx="42" cy="54" rx="4" ry="2" fill="rgba(255,150,100,.6)"/><ellipse cx="78" cy="54" rx="4" ry="2" fill="rgba(255,150,100,.6)"/>`;
+    mouth.setAttribute('d','M50 76 Q60 70 70 76');
+  } else if(expr==='surprised'){
+    eyes.innerHTML=`<circle cx="50" cy="57" r="7" fill="#1a1a2e"/><circle cx="70" cy="57" r="7" fill="#1a1a2e"/><circle cx="52" cy="55" r="2.5" fill="#fff"/><circle cx="72" cy="55" r="2.5" fill="#fff"/>`;
+    mouth.setAttribute('d','M54 74 Q60 80 66 74');
+  } else if(expr==='levelup'){
+    eyes.innerHTML=`<text x="40" y="65" font-size="20">🤩</text>`;
+    mouth.setAttribute('d','M47 72 Q60 84 73 72');
+  } else if(expr==='review'){
+    eyes.innerHTML=`<text x="40" y="65" font-size="20">🤔</text>`;
+    mouth.setAttribute('d','M50 73 Q60 79 70 73');
+  }
+  if(expr!=='idle') setTimeout(()=>_setMascotBase(id,'idle'),1100);
+};
+function setMascotExpr(id,expr){_setMascotBase(id,expr);}
+
+// Init
+updateCatCounts();
+if (window.KAMPAI) {
+  window.KAMPAI.onReady(function() {
+    window.KAMPAI.sound.mountToggles();
+    if (window.KAMPAI.isEmbed) {
+      const ttsT = document.getElementById('tts-toggle');
+      const sndT = document.getElementById('sound-toggle');
+      if (ttsT) ttsT.style.display = 'none';
+      if (sndT) sndT.style.display = 'none';
+    }
+  });
+}
+</script>
+</body>
+</html>

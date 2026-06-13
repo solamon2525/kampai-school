@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" font-family="'Kanit','Sarabun','Segoe UI',sans-serif">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#020818"/>
+      <stop offset="0.5" stop-color="#0b162c"/>
+      <stop offset="1" stop-color="#1b0833"/>
+    </linearGradient>
+    
+    <!-- Title Gold Gradient -->
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFE082"/>
+      <stop offset="0.5" stop-color="#FFB300"/>
+      <stop offset="1" stop-color="#FF8F00"/>
+    </linearGradient>
+
+    <!-- Rainbow Text/Accent Gradient -->
+    <linearGradient id="rainbow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#00C9FF"/>
+      <stop offset="0.3" stop-color="#2ECEC9"/>
+      <stop offset="0.6" stop-color="#FFD700"/>
+      <stop offset="0.8" stop-color="#FF6B9D"/>
+      <stop offset="1" stop-color="#A855F7"/>
+    </linearGradient>
+
+    <!-- Glowing effect behind mascot -->
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#FFB300" stop-opacity="0.25"/>
+      <stop offset="1" stop-color="#FFB300" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Shadow filter -->
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  
+  <!-- Radial Glows -->
+  <circle cx="640" cy="360" r="450" fill="url(#glow)"/>
+
+  <!-- Twinkling Stars / Grid -->
+  <g fill="#fff" opacity="0.6">
+    <circle cx="150" cy="120" r="2" />
+    <circle cx="340" cy="220" r="1.5" />
+    <circle cx="1150" cy="180" r="2" />
+    <circle cx="950" cy="140" r="1.5" />
+    <circle cx="250" cy="480" r="2" />
+    <circle cx="1100" cy="520" r="2" />
+    <circle cx="80" cy="350" r="1.5" />
+    <circle cx="1200" cy="380" r="1.5" />
+  </g>
+
+  <!-- Decorative Floating Thai Alphabet Characters with subtle glow -->
+  <g fill="#fff" filter="url(#sh)">
+    <text x="180" y="240" font-size="72" opacity="0.12" fill="#00C9FF" text-anchor="middle" font-weight="900">ก</text>
+    <text x="1080" y="220" font-size="80" opacity="0.15" fill="#FF6B9D" text-anchor="middle" font-weight="900">ง</text>
+    <text x="220" y="550" font-size="64" opacity="0.10" fill="#FFD700" text-anchor="middle" font-weight="900">ม</text>
+    <text x="1040" y="520" font-size="76" opacity="0.12" fill="#A855F7" text-anchor="middle" font-weight="900">ย</text>
+    <text x="500" y="600" font-size="52" opacity="0.08" fill="#2ECEC9" text-anchor="middle" font-weight="900">ว</text>
+    <text x="780" y="130" font-size="56" opacity="0.08" fill="#FF8C42" text-anchor="middle" font-weight="900">ด</text>
+    <text x="120" y="400" font-size="48" opacity="0.07" fill="#ffffff" text-anchor="middle" font-weight="900">บ</text>
+    <text x="1160" y="360" font-size="58" opacity="0.09" fill="#00E676" text-anchor="middle" font-weight="900">น</text>
+  </g>
+
+  <!-- Badge / Subject header -->
+  <g transform="translate(640, 110)">
+    <rect x="-220" y="-26" width="440" height="52" rx="26" fill="#ffffff" opacity="0.08"/>
+    <text x="0" y="2" font-size="24" font-weight="700" fill="#FFCC80" text-anchor="middle" dominant-baseline="middle" letter-spacing="1.5">✨ มาตราตัวสะกด ป.5 ✨</text>
+  </g>
+
+  <!-- Main Title -->
+  <text x="640" y="225" font-size="96" font-weight="900" fill="url(#gold)" text-anchor="middle" dominant-baseline="middle" filter="url(#sh)" letter-spacing="2">มาตราตัวสะกด</text>
+  <text x="640" y="295" font-size="28" font-weight="700" fill="#B39DDB" text-anchor="middle" dominant-baseline="middle" letter-spacing="1">สนุกกับคำศัพท์ · ตะลุยด่านสะกดคำ</text>
+
+  <!-- Game Mascot (Centered, scaled up) -->
+  <g transform="translate(640, 470) scale(2.2) translate(-60, -60)" filter="url(#sh)">
+    <!-- Mascot SVG template -->
+    <circle cx="60" cy="72" r="28" fill="#FF8C42"/>
+    <circle cx="60" cy="60" r="38" fill="#E65100" opacity=".85"/>
+    <circle cx="60" cy="60" r="32" fill="#FF8C42"/>
+    <circle cx="60" cy="62" r="26" fill="#FFCC80"/>
+    <ellipse cx="50" cy="57" rx="5" ry="6" fill="#1a1a2e"/>
+    <ellipse cx="70" cy="57" rx="5" ry="6" fill="#1a1a2e"/>
+    <circle cx="52" cy="55" r="2" fill="#fff"/>
+    <circle cx="72" cy="55" r="2" fill="#fff"/>
+    <ellipse cx="60" cy="66" rx="4" ry="3" fill="#e64a19"/>
+    <path d="M50 72 Q60 80 70 72" stroke="#e64a19" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <circle cx="28" cy="34" r="12" fill="#E65100"/>
+    <circle cx="28" cy="34" r="7" fill="#FFCC80"/>
+    <circle cx="92" cy="34" r="12" fill="#E65100"/>
+    <circle cx="92" cy="34" r="7" fill="#FFCC80"/>
+  </g>
+
+  <!-- Feature Tags / Bottom Banner -->
+  <g transform="translate(640, 645)">
+    <rect x="-380" y="-24" width="760" height="48" rx="24" fill="url(#rainbow)" opacity="0.18"/>
+    <text x="0" y="2" font-size="22" font-weight="700" fill="#ffffff" text-anchor="middle" dominant-baseline="middle" opacity="0.95">⏱️ จับเวลา · 🗂️ เลือกมาตรา · 🏔️ ยากขึ้นเรื่อยๆ · 🔄 โหมดกลับกัน</text>
+  </g>
+</svg>
