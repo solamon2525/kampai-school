@@ -197,57 +197,76 @@ const ui = {
     totalScoreText: document.getElementById('total-score-text'), earnedExpText: document.getElementById('earned-exp-text'), starDisplay: document.getElementById('star-display')
 };
 
-// --- ระบบเสียง ---
-let audioCtx;
-function initAudio() {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-}
-
-let isBgmPlaying = false;
-const bgmAudio = document.getElementById('bgm-audio');
-if (bgmAudio) bgmAudio.volume = config.BGM_VOLUME; 
-
-function toggleBGM() {
-    const btn = document.getElementById('bgm-toggle');
-    if (!bgmAudio) return;
-    if (isBgmPlaying) { bgmAudio.pause(); btn.innerText = '🔇'; } 
-    else { bgmAudio.play().catch(e => console.log("รอผู้เล่นคลิก")); btn.innerText = '🔊'; }
-    isBgmPlaying = !isBgmPlaying;
-}
-
+// --- ระบบเสียง (เชื่อมโยงกับ KAMPAI SDK) ---
 function playSound(type) {
-    if (!audioCtx) return;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain); gain.connect(audioCtx.destination);
+    if (window.KAMPAI && window.KAMPAI.sound) {
+        if (type === 'correct') { window.KAMPAI.sound.correct(); return; }
+        if (type === 'wrong') { window.KAMPAI.sound.wrong(); return; }
+        if (type === 'tick') { window.KAMPAI.sound.fxFlash(false); return; }
+        if (type === 'achievement') { window.KAMPAI.sound.correct(); return; }
+    }
+    // Fallback สำหรับเล่น standalone
+    try {
+        let audioCtx = window._localAudioCtx;
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            window._localAudioCtx = audioCtx;
+        }
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        if (type === 'correct') {
+            osc.type = 'sine'; osc.frequency.setValueAtTime(880, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.1); 
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3); osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        } else if (type === 'combo') {
+            osc.type = 'square'; osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime); osc.frequency.setValueAtTime(1318.51, audioCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3); osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        } else if (type === 'wrong') {
+            osc.type = 'sawtooth'; osc.frequency.setValueAtTime(300, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3); osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        } else if (type === 'star') {
+            osc.type = 'sine'; osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5); osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+        } else if (type === 'tick') {
+            osc.type = 'triangle'; osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1); osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+        } else if (type === 'achievement') {
+            osc.type = 'sine'; osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2); osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.3);
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.6); osc.start(); osc.stop(audioCtx.currentTime + 0.6);
+        }
+    } catch(e) { console.log(e); }
+}
 
-    if (type === 'correct') {
-        osc.type = 'sine'; osc.frequency.setValueAtTime(880, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.1); 
-        gain.gain.setValueAtTime(0.3, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3); osc.start(); osc.stop(audioCtx.currentTime + 0.3);
-    } else if (type === 'combo') {
-        osc.type = 'square'; osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime); osc.frequency.setValueAtTime(1318.51, audioCtx.currentTime + 0.1);
-        gain.gain.setValueAtTime(0.2, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3); osc.start(); osc.stop(audioCtx.currentTime + 0.3);
-    } else if (type === 'wrong') {
-        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(300, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.3);
-        gain.gain.setValueAtTime(0.2, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3); osc.start(); osc.stop(audioCtx.currentTime + 0.3);
-    } else if (type === 'star') {
-        osc.type = 'sine'; osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.3, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5); osc.start(); osc.stop(audioCtx.currentTime + 0.5);
-    } else if (type === 'tick') {
-        osc.type = 'triangle'; osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1); osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-    } else if (type === 'achievement') {
-        osc.type = 'sine'; osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2); osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.3);
-        gain.gain.setValueAtTime(0.3, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.6); osc.start(); osc.stop(audioCtx.currentTime + 0.6);
+// --- ระบบ Text-to-Speech ---
+function speakExplanation() {
+    const q = currentQuestions[currentQuestionIndex];
+    if (!q) return;
+    const correctWord = q.choices[q.answer];
+    if (window.KAMPAI && window.KAMPAI.sound) {
+        // สั่งพูดสะกดคำศัพท์ที่ถูกต้อง
+        window.KAMPAI.sound.speak(correctWord, 'th-TH', true);
+    }
+}
+
+// --- Confetti Visual Effect ---
+function triggerConfetti() {
+    if (window.confetti) {
+        confetti({
+            particleCount: 150,
+            spread: 85,
+            origin: { y: 0.6 },
+            zIndex: 9999
+        });
     }
 }
 
 // --- Game Logic ---
 function startGame(category) {
-    initAudio();
-    const bgmToggleBtn = document.getElementById('bgm-toggle');
-    if (bgmToggleBtn && !isBgmPlaying && bgmToggleBtn.innerText === '🔇') toggleBGM();
+    if (window.KAMPAI && window.KAMPAI.sound) {
+        window.KAMPAI.sound.unlock();
+        window.KAMPAI.sound.bgmStart();
+    }
 
     isReviewMode = false;
     let filteredQuestions = [];
@@ -345,6 +364,7 @@ function handleAnswer(selectedIndex, buttonElement) {
 
         buttonElement.classList.remove('border-gray-200'); buttonElement.classList.add('bg-green-500', 'text-white', 'border-green-600', 'opacity-100');
         showExplanation("ถูกต้อง! เก่งมาก", q.explanation, "correct");
+        speakExplanation();
     } else {
         comboStreak = 0; ui.combo.classList.add('hidden'); playSound('wrong'); lives--;
         ui.question.parentElement.classList.add('shake'); setTimeout(() => ui.question.parentElement.classList.remove('shake'), 400);
@@ -356,6 +376,7 @@ function handleAnswer(selectedIndex, buttonElement) {
         if (selectedIndex >= 0) { buttonElement.classList.remove('border-gray-200'); buttonElement.classList.add('bg-red-500', 'text-white', 'border-red-600', 'opacity-100'); }
         allButtons[q.answer].classList.remove('border-gray-200', 'opacity-80'); allButtons[q.answer].classList.add('bg-green-500', 'text-white', 'border-green-600', 'ring-4', 'ring-green-200');
         showExplanation(selectedIndex === -1 ? "หมดเวลา!" : "อ๊ะ! ยังไม่ถูกนะ", q.explanation, "wrong");
+        speakExplanation();
     }
     savePlayerData(); updateHeader();
 }
@@ -379,6 +400,9 @@ function nextQuestion() {
 }
 
 function endGame(isSuccess) {
+    if (window.KAMPAI && window.KAMPAI.sound) {
+        window.KAMPAI.sound.bgmStop();
+    }
     screens.quiz.classList.add('hidden'); screens.result.classList.remove('hidden');
     ui.starDisplay.innerHTML = ''; ui.progressBar.style.width = `100%`;
     playerProfile.gamesPlayed += 1;
@@ -390,11 +414,13 @@ function endGame(isSuccess) {
     ui.totalScoreText.innerText = totalQ;
 
     if (!isSuccess) {
+        if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.gameOver();
         ui.resultIcon.innerText = '💔'; ui.resultTitle.innerText = "เกมโอเวอร์!"; ui.resultTitle.className = "text-3xl font-bold text-red-600 mb-2";
         ui.finalScoreText.innerText = score;
         document.getElementById('feedback-message').innerText = "ไม่เป็นไรนะ ลองตั้งสติแล้วลุยใหม่! สู้ๆ ✌️";
         document.getElementById('feedback-message').className = "text-base font-medium text-red-500 mb-4 px-4";
     } else {
+        if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.correct();
         ui.resultIcon.innerText = '🏆'; ui.resultTitle.innerText = "ภารกิจสำเร็จ!"; ui.resultTitle.className = "text-3xl font-bold text-indigo-900 mb-2";
         ui.finalScoreText.innerText = score;
         
@@ -407,6 +433,10 @@ function endGame(isSuccess) {
             document.getElementById('feedback-message').innerText = "เก่งมาก! อีกนิดเดียวก็เพอร์เฟกต์แล้ว 👍"; document.getElementById('feedback-message').className = "text-base font-medium text-blue-600 mb-4 px-4";
         } else {
             document.getElementById('feedback-message').innerText = "รอดมาได้! ฝึกบ่อยๆ จะเก่งขึ้นแน่นอน 📚"; document.getElementById('feedback-message').className = "text-base font-medium text-indigo-600 mb-4 px-4";
+        }
+
+        if (earnedStars >= 2) {
+            triggerConfetti();
         }
 
         for (let i = 1; i <= 3; i++) {
@@ -455,6 +485,11 @@ if (window.KAMPAI) {
     window.KAMPAI.setSlug(config.SLUG);
     window.KAMPAI.onReady(function(k) {
         loadPlayerData();
+        
+        if (k.sound) {
+            k.sound.mountToggles();
+            k.sound.defaultBgm('playful');
+        }
         
         if (k.isEmbed) {
             const editNameBtn = document.querySelector('button[onclick="openNameModal()"]');

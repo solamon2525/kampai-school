@@ -61,5 +61,5 @@ window.GAME_DATA = {
 
 // แก้ไขสะกดคำผิดในคลัง
 if (window.GAME_DATA && window.GAME_DATA.questions[9]) {
-    window.GAME_DATA.questions[9].choices[1] = "อัญชัน";
+    window.GAME_DATA.questions[9].choices[1] = "อัญชัญ";
 }
