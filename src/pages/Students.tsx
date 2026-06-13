@@ -154,7 +154,7 @@ const Students = () => {
         {/* Grade Distribution */}
         <section className="py-4 md:py-8">
           <div className="container mx-auto px-4">
-            <div className="text-center max-w-2xl mx-auto mb-5">
+            <div className="text-center max-w-2xl mx-auto mb-4">
               <span className="inline-block text-accent font-semibold mb-1 text-sm uppercase tracking-wider">สถิติ</span>
               <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
                 จำนวนนักเรียนแยกตามระดับชั้น
@@ -201,7 +201,7 @@ const Students = () => {
         {/* Achievements */}
         <section className="py-4 md:py-6 bg-secondary/30">
           <div className="container mx-auto px-4">
-            <div className="text-center max-w-2xl mx-auto mb-5">
+            <div className="text-center max-w-2xl mx-auto mb-4">
               <span className="inline-block text-accent font-semibold mb-1 text-sm uppercase tracking-wider">ความสำเร็จ</span>
               <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
                 ผลงานนักเรียนดีเด่น
@@ -232,7 +232,7 @@ const Students = () => {
         {/* Activities */}
         <section className="py-4 md:py-8">
           <div className="container mx-auto px-4">
-            <div className="text-center max-w-2xl mx-auto mb-5">
+            <div className="text-center max-w-2xl mx-auto mb-4">
               <span className="inline-block text-accent font-semibold mb-1 text-sm uppercase tracking-wider">กิจกรรม</span>
               <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
                 ชมรมและกิจกรรมนักเรียน

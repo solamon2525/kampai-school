@@ -88,7 +88,7 @@ const About = () => {
       <div className="max-w-7xl mx-auto w-full bg-background">
         <main>
           {/* Hero — Modern & Compact Gradient */}
-          <section className="bg-gradient-to-br from-primary via-primary/95 to-primary/90 py-5 md:py-10 shadow-inner">
+          <section className="bg-gradient-to-br from-primary via-primary/95 to-primary/90 py-5 md:py-8 shadow-inner">
             <div className="container mx-auto px-4 text-center">
               <span className="inline-block text-xs md:text-sm font-bold uppercase tracking-wider text-accent mb-1.5">
                 เกี่ยวกับเรา
@@ -207,9 +207,9 @@ const About = () => {
           </section>
 
           {/* GPS-Model & PDCA — Compact spacing and grids */}
-          <section className="py-5 md:py-10 bg-background">
+          <section className="py-4 md:py-8 bg-background">
             <div className="container mx-auto px-4">
-              <div className="text-center max-w-2xl mx-auto mb-5 md:mb-8">
+              <div className="text-center max-w-2xl mx-auto mb-4 md:mb-5">
                 <span className="inline-block text-primary font-semibold mb-1 uppercase tracking-widest text-xs md:text-sm">นวัตกรรมการบริหาร</span>
                 <h2 className="text-lg md:text-3xl font-extrabold text-foreground mb-1">GPS-Model</h2>
                 <p className="text-foreground/75 text-xs md:text-base leading-relaxed">
@@ -219,7 +219,7 @@ const About = () => {
               </div>
 
               {/* G · P · S cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-5 mb-5 md:mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-5 mb-4 md:mb-5">
                 {[
                   {
                     letter: 'G',
@@ -284,9 +284,9 @@ const About = () => {
           </section>
 
           {/* History Timeline — Tightened margins for mobile */}
-          <section className="py-5 md:py-10 bg-secondary/15">
+          <section className="py-4 md:py-8 bg-secondary/15">
             <div className="container mx-auto px-4">
-              <div className="text-center mb-5 md:mb-8">
+              <div className="text-center mb-4 md:mb-5">
                 <span className="inline-block text-primary font-semibold mb-1.5 uppercase tracking-widest text-xs md:text-sm">ประวัติความเป็นมา</span>
                 <h2 className="text-lg md:text-3xl font-extrabold text-foreground">
                   เส้นทางแห่งความสำเร็จ
@@ -317,9 +317,9 @@ const About = () => {
           </section>
 
           {/* Facilities — Compact 2x2 Grid on Mobile to save 50% scroll space */}
-          <section className="py-5 md:py-10 bg-background">
+          <section className="py-4 md:py-8 bg-background">
             <div className="container mx-auto px-4">
-              <div className="text-center mb-5 md:mb-8">
+              <div className="text-center mb-4 md:mb-5">
                 <span className="inline-block text-primary font-semibold mb-1.5 uppercase tracking-widest text-xs md:text-sm">สิ่งอำนวยความสะดวก</span>
                 <h2 className="text-lg md:text-3xl font-extrabold text-foreground">
                   สถานที่และอุปกรณ์

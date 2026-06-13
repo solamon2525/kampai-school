@@ -233,46 +233,50 @@ export default function StaffDetailPage() {
                             </div>
                         </section>
 
-                        {/* PROFILE INFO */}
-                        {(staff.degree || staff.major || staff.education || staff.experience || extras.length > 0) && (
-                            <Card className="mb-3">
-                                <CardContent className="px-4 py-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-2">
-                                    {(staff.degree || staff.major) && (
-                                        <ProfileRow label="วุฒิ / วิชาเอก" value={[staff.degree, staff.major].filter(Boolean).join(' · ')} />
-                                    )}
-                                    {staff.education && <ProfileRow label="การศึกษา" value={staff.education} />}
-                                    {staff.experience && <ProfileRow label="ประสบการณ์" value={staff.experience} />}
-                                    {extras.map((it, i) => (
-                                        <ProfileRow key={i} label={it.label || '—'} value={it.value || '—'} />
-                                    ))}
-                                </CardContent>
-                            </Card>
-                        )}
-
-                        {/* STATS */}
-                        <div className="grid grid-cols-3 gap-3 mb-3">
-                            <StatTile
-                                icon={<Award className="w-4 h-4" />}
-                                label="เกียรติบัตร"
-                                value={fmtNum(stats.totalCount)}
-                                suffix="ใบ"
-                                accent="from-amber-50 to-amber-100 border-amber-200 text-amber-900"
-                            />
-                            <StatTile
-                                icon={<Clock className="w-4 h-4" />}
-                                label="ชั่วโมงรวม"
-                                value={fmtNum(stats.totalHours)}
-                                suffix="ชม."
-                                accent="from-violet-50 to-violet-100 border-violet-200 text-violet-900"
-                            />
-                            <StatTile
-                                icon={<BookOpenCheck className="w-4 h-4" />}
-                                label="ประเภท"
-                                value={fmtNum(stats.uniqueTypes)}
-                                suffix="ประเภท"
-                                accent="from-emerald-50 to-emerald-100 border-emerald-200 text-emerald-900"
-                            />
-                        </div>
+                        {/* PROFILE INFO + STATS — แถบเดียว */}
+                        <Card className="mb-3">
+                            <CardContent className="px-4 py-3 flex flex-col lg:flex-row lg:items-stretch gap-4">
+                                {/* ซ้าย: ข้อมูลครู */}
+                                {(staff.degree || staff.major || staff.education || staff.experience || extras.length > 0) && (
+                                    <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-2 content-start">
+                                        {(staff.degree || staff.major) && (
+                                            <ProfileRow label="วุฒิ / วิชาเอก" value={[staff.degree, staff.major].filter(Boolean).join(' · ')} />
+                                        )}
+                                        {staff.education && <ProfileRow label="การศึกษา" value={staff.education} />}
+                                        {staff.experience && <ProfileRow label="ประสบการณ์" value={staff.experience} />}
+                                        {extras.map((it, i) => (
+                                            <ProfileRow key={i} label={it.label || '—'} value={it.value || '—'} />
+                                        ))}
+                                    </div>
+                                )}
+                                {/* เส้นคั่น (เฉพาะจอกว้าง) */}
+                                <div className="hidden lg:block w-px bg-border self-stretch" />
+                                {/* ขวา: stat chips */}
+                                <div className="flex flex-row lg:flex-col gap-2 shrink-0">
+                                    <StatTile
+                                        icon={<Award className="w-4 h-4" />}
+                                        label="เกียรติบัตร"
+                                        value={fmtNum(stats.totalCount)}
+                                        suffix="ใบ"
+                                        accent="from-amber-50 to-amber-100 border-amber-200 text-amber-900"
+                                    />
+                                    <StatTile
+                                        icon={<Clock className="w-4 h-4" />}
+                                        label="ชั่วโมงรวม"
+                                        value={fmtNum(stats.totalHours)}
+                                        suffix="ชม."
+                                        accent="from-violet-50 to-violet-100 border-violet-200 text-violet-900"
+                                    />
+                                    <StatTile
+                                        icon={<BookOpenCheck className="w-4 h-4" />}
+                                        label="ประเภท"
+                                        value={fmtNum(stats.uniqueTypes)}
+                                        suffix="ประเภท"
+                                        accent="from-emerald-50 to-emerald-100 border-emerald-200 text-emerald-900"
+                                    />
+                                </div>
+                            </CardContent>
+                        </Card>
 
                         {/* CERTIFICATE SHOWCASE */}
                         <section>
@@ -344,7 +348,7 @@ function ProfileRow({ label, value }: { label: string; value: string }) {
     return (
         <div>
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-0.5">{label}</p>
-            <p className="text-sm text-foreground leading-relaxed">{value}</p>
+            <p className="text-sm text-foreground leading-snug">{value}</p>
         </div>
     );
 }
@@ -360,19 +364,14 @@ function StatTile({
 }) {
     return (
         <div className={cn(
-            'rounded-xl border bg-gradient-to-br px-3 py-2',
+            'flex items-center gap-2 rounded-lg border bg-gradient-to-br px-3 py-1.5',
             accent,
         )}>
-            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-semibold opacity-80 mb-0.5">
-                {icon}
-                <span>{label}</span>
-            </div>
-            <div className="font-extrabold text-lg md:text-xl tabular-nums leading-none">
-                {value}
-            </div>
-            {suffix && (
-                <div className="text-[10px] opacity-70 mt-1 font-medium">{suffix}</div>
-            )}
+            {icon}
+            <span className="font-extrabold text-lg tabular-nums leading-none">{value}</span>
+            <span className="text-[10px] opacity-75 font-medium leading-tight">
+                {label}{suffix ? ` · ${suffix}` : ''}
+            </span>
         </div>
     );
 }

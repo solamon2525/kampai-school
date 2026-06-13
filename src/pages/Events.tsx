@@ -111,7 +111,7 @@ const Events = () => {
                                 </CardContent>
                             </Card>
                         ) : (
-                            <div className="space-y-6">
+                            <div className="space-y-4">
                                 {events.map((event) => (
                                     <Card key={event.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                                         <div className="md:flex">

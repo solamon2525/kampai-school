@@ -310,8 +310,8 @@ export default function SavingsBank() {
 
         {/* ─── HALL OF SAVERS ─────────────────────────────────────────────── */}
         <section id="leaderboard" className="bg-slate-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-            <div className="text-center mb-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6">
+            <div className="text-center mb-4">
               <div className="text-xs font-bold uppercase tracking-[0.15em] text-amber-600 mb-1.5">
                 Hall of Savers
               </div>
@@ -324,7 +324,7 @@ export default function SavingsBank() {
             </div>
 
             {/* Class filter chips */}
-            <div className="flex flex-wrap justify-center gap-2 mb-6">
+            <div className="flex flex-wrap justify-center gap-2 mb-4">
               <ClassChip active={classFilter === 'all'} onClick={() => setClassFilter('all')}>
                 รวมทุกชั้น
               </ClassChip>
@@ -400,7 +400,7 @@ export default function SavingsBank() {
 
         {/* ─── RECENT ACTIVITY (timeline) ─────────────────────────────────── */}
         <section className="bg-background">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6">
             <div className="mb-5">
               <div className="text-xs font-bold uppercase tracking-[0.15em] text-amber-600 mb-1.5">
                 Live Activity
@@ -466,7 +466,7 @@ export default function SavingsBank() {
 
         {/* ─── LOOKUP (private balance check) ─────────────────────────────── */}
         <section id="lookup" className="bg-slate-50">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6">
             <div className="bg-card rounded-2xl shadow-lg ring-1 ring-border overflow-hidden">
               <div className="bg-slate-900 px-4 md:px-6 py-4">
                 <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-amber-400 mb-0.5">

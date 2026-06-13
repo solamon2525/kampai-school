@@ -722,12 +722,12 @@ const WasteBank = () => {
       </section>
 
       {/* ─── How It Works ─────────────────────────────────────────────── */}
-      <section className="bg-green-50 border-t border-green-100 py-8 px-4">
+      <section className="bg-green-50 border-t border-green-100 py-6 px-4">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-xl font-bold text-center text-foreground mb-1">
             วิธีการเข้าร่วมโครงการ
           </h2>
-          <p className="text-center text-muted-foreground text-xs mb-6">ง่ายแค่ 3 ขั้นตอน</p>
+          <p className="text-center text-muted-foreground text-xs mb-4">ง่ายแค่ 3 ขั้นตอน</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {HOW_IT_WORKS.map((item) => (
               <div

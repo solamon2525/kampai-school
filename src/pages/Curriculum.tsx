@@ -220,7 +220,7 @@ const Curriculum = () => {
         {/* Activities */}
         <section className="py-4 md:py-8 bg-secondary/30">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-6 md:mb-8">
+            <div className="text-center mb-4 md:mb-5">
               <span className="inline-block text-accent font-semibold mb-4">กิจกรรมเสริมหลักสูตร</span>
               <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
                 พัฒนาทักษะรอบด้าน

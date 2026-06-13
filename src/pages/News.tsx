@@ -150,7 +150,7 @@ const News = () => {
           </Button>
 
           <article className="max-w-4xl mx-auto">
-            <div className="flex items-center gap-4 mb-6">
+            <div className="flex items-center gap-4 mb-4">
               <Badge className={categoryColors[selectedNews.category] || 'bg-secondary'}>
                 {selectedNews.category}
               </Badge>
@@ -164,7 +164,7 @@ const News = () => {
               </span>
             </div>
 
-            <h1 className="text-4xl font-bold text-foreground mb-8">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
               {selectedNews.title}
             </h1>
 
@@ -172,7 +172,7 @@ const News = () => {
               <img
                 src={selectedNews.cover_image_url}
                 alt={selectedNews.title}
-                className="w-full h-96 object-cover rounded-2xl mb-8"
+                className="w-full h-96 object-cover rounded-2xl mb-5"
               />
             )}
 

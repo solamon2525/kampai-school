@@ -131,7 +131,7 @@ export default function TrainingShowcasePublic() {
             <SiteHeader />
             <div className="max-w-7xl mx-auto w-full bg-background flex-grow flex flex-col">
                 {/* HERO BAND */}
-                <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-violet-900 text-white py-10 md:py-14 px-4 md:px-8">
+                <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-violet-900 text-white py-5 md:py-8 px-4 md:px-8">
                     <div
                         className="absolute inset-0 opacity-[0.04]"
                         style={{
@@ -151,7 +151,7 @@ export default function TrainingShowcasePublic() {
                         </p>
 
                         {aggregate && (
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mt-7 md:mt-10">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mt-4 md:mt-5">
                                 <KpiBox icon={<Clock className="w-4 h-4" />} label="ชั่วโมงรวม" value={fmtNum(aggregate.total_hours)} suffix="ชม." />
                                 <KpiBox icon={<GraduationCap className="w-4 h-4" />} label="รายการอบรม" value={fmtNum(aggregate.total_count)} suffix="รายการ" />
                                 <KpiBox icon={<Users className="w-4 h-4" />} label="บุคลากร" value={fmtNum(aggregate.total_staff)} suffix="คน" />
@@ -173,7 +173,7 @@ export default function TrainingShowcasePublic() {
                 </div>
 
                 {/* Filter + Grid */}
-                <div className="px-4 md:px-8 py-6 md:py-10 space-y-6">
+                <div className="px-4 md:px-8 py-4 md:py-6 space-y-4">
                     {aggregate && (
                         <TrainingCharts byYear={aggregate.by_year} byType={aggregate.by_type} />
                     )}

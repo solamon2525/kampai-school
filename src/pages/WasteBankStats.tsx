@@ -376,7 +376,7 @@ const WasteBankStats = () => {
         {/* ─── 3-Tab View ──────────────────────────────────────────────── */}
         <section className="px-4 pb-10">
           <Tabs defaultValue="students">
-            <TabsList className="w-full max-w-md mx-auto grid grid-cols-3 mb-6">
+            <TabsList className="w-full max-w-md mx-auto grid grid-cols-3 mb-4">
               <TabsTrigger value="students" className="gap-1.5">
                 <Trophy className="w-4 h-4" />
                 นักเรียน
@@ -401,7 +401,7 @@ const WasteBankStats = () => {
                 <>
                   {/* Podium 2-1-3 */}
                   {top3.length > 0 && (
-                    <div className="grid grid-cols-3 gap-2 md:gap-3 mb-6 items-end max-w-2xl mx-auto">
+                    <div className="grid grid-cols-3 gap-2 md:gap-3 mb-4 items-end max-w-2xl mx-auto">
                       {podiumOrder.map((s, pos) => {
                         if (!s) return <div key={pos} />;
                         const idx = podiumRankIdx[pos];

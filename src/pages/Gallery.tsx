@@ -127,9 +127,9 @@ const Gallery = () => {
       <div className="min-h-screen flex flex-col bg-background">
         <SiteHeader />
         <div className="max-w-7xl mx-auto w-full bg-background flex-grow flex flex-col">
-        <main className="flex-grow container mx-auto px-4 py-8">
+        <main className="flex-grow container mx-auto px-4 py-6">
           {/* Back button + album title */}
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex items-center gap-4 mb-4">
             <button
               onClick={() => setSelectedAlbum(null)}
               className="flex items-center gap-2 text-primary font-semibold hover:opacity-80 transition-opacity"
@@ -138,7 +138,7 @@ const Gallery = () => {
               กลับรายการอัลบั้ม
             </button>
           </div>
-          <h2 className="text-3xl font-bold text-primary mb-6">{selectedAlbum.name}</h2>
+          <h2 className="text-2xl font-bold text-primary mb-4">{selectedAlbum.name}</h2>
 
           {/* Masonry photo grid */}
           <MasonryPhotoAlbum
@@ -168,9 +168,9 @@ const Gallery = () => {
       <SiteHeader />
       <div className="max-w-7xl mx-auto w-full bg-background flex-grow flex flex-col">
       <main className="flex-grow container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold text-center mb-8 text-primary">คลังภาพกิจกรรม</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-center mb-4 text-primary">คลังภาพกิจกรรม</h1>
 
-        <div className="flex flex-wrap justify-center gap-2 mb-8">
+        <div className="flex flex-wrap justify-center gap-2 mb-4">
           {categories.map((category) => (
             <Badge
               key={category}

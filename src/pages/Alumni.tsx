@@ -80,7 +80,7 @@ const Alumni = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <SiteHeader />
-      <main className="flex-1 max-w-6xl mx-auto w-full p-4 md:p-8 space-y-6">
+      <main className="flex-1 max-w-6xl mx-auto w-full p-4 md:p-6 space-y-4">
         <div className="text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-amber-100 text-amber-700 mb-3">
             <GraduationCap className="w-8 h-8" />
