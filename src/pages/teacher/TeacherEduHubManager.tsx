@@ -31,6 +31,7 @@ import {
 } from '@/services/educational-hub.service';
 import { EduHubItemForm } from '@/components/admin/educational-hub/EduHubItemForm';
 import { SortableItemsTable } from '@/components/admin/educational-hub/SortableItemsTable';
+import { GameDocsDialog } from '@/components/admin/educational-hub/GameDocsDialog';
 import { staffService } from '@/services/staff.service';
 import TeacherGameAnalytics from './TeacherGameAnalytics';
 
@@ -100,6 +101,7 @@ const MyItemsTab = ({ staffId }: { staffId: string }) => {
     const queryClient = useQueryClient();
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editing, setEditing] = useState<EduHubItem | null>(null);
+    const [docsItem, setDocsItem] = useState<EduHubItem | null>(null);
 
     const { data: items, isLoading } = useQuery({
         queryKey: ['edu-hub', 'items', 'mine', staffId],
@@ -181,6 +183,7 @@ const MyItemsTab = ({ staffId }: { staffId: string }) => {
                                         items={list}
                                         invalidateKeys={invalidateKeys}
                                         onEdit={(item) => { setEditing(item); setDialogOpen(true); }}
+                                        onDocs={(item) => setDocsItem(item)}
                                     />
                                 )}
                             </div>
@@ -202,6 +205,14 @@ const MyItemsTab = ({ staffId }: { staffId: string }) => {
                             onSaved={() => setDialogOpen(false)}
                             onCancel={() => setDialogOpen(false)}
                         />
+                    )}
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={!!docsItem} onOpenChange={(open) => !open && setDocsItem(null)}>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    {docsItem && (
+                        <GameDocsDialog item={docsItem} onClose={() => setDocsItem(null)} />
                     )}
                 </DialogContent>
             </Dialog>

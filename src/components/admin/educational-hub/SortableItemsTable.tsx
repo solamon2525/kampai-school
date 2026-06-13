@@ -26,7 +26,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import {
-    GripVertical, Edit, Trash2, Eye, EyeOff,
+    GripVertical, Edit, Trash2, Eye, EyeOff, ClipboardList,
     FileText, ExternalLink as LinkIcon, Youtube, Type, Loader2,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -38,6 +38,7 @@ import { cn } from '@/lib/utils';
 import {
     educationalHubService,
     formatFileSize,
+    isGameItem,
     type EduHubItem,
     type EduHubItemType,
 } from '@/services/educational-hub.service';
@@ -61,9 +62,11 @@ interface Props {
     /** Query keys to invalidate after publish/delete/reorder */
     invalidateKeys: readonly (readonly unknown[])[];
     onEdit: (item: EduHubItem) => void;
+    /** เปิด dialog รายละเอียดเกม — แสดงปุ่มเฉพาะรายการที่เป็นเกม (optional) */
+    onDocs?: (item: EduHubItem) => void;
 }
 
-export const SortableItemsTable = ({ items, invalidateKeys, onEdit }: Props) => {
+export const SortableItemsTable = ({ items, invalidateKeys, onEdit, onDocs }: Props) => {
     const { toast } = useToast();
     const queryClient = useQueryClient();
     const [orderedItems, setOrderedItems] = useState(items);
@@ -157,6 +160,7 @@ export const SortableItemsTable = ({ items, invalidateKeys, onEdit }: Props) => 
                                         item={item}
                                         onTogglePublished={togglePublished}
                                         onEdit={onEdit}
+                                        onDocs={onDocs}
                                         onDelete={handleDelete}
                                     />
                                 ))}
@@ -175,11 +179,13 @@ const SortableRow = ({
     item,
     onTogglePublished,
     onEdit,
+    onDocs,
     onDelete,
 }: {
     item: EduHubItem;
     onTogglePublished: (item: EduHubItem) => void;
     onEdit: (item: EduHubItem) => void;
+    onDocs?: (item: EduHubItem) => void;
     onDelete: (item: EduHubItem) => void;
 }) => {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
@@ -243,6 +249,17 @@ const SortableRow = ({
                     <Button variant="ghost" size="sm" onClick={() => onEdit(item)}>
                         <Edit className="h-4 w-4" />
                     </Button>
+                    {onDocs && isGameItem(item) && (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-violet-600"
+                            title="รายละเอียดเกม"
+                            onClick={() => onDocs(item)}
+                        >
+                            <ClipboardList className="h-4 w-4" />
+                        </Button>
+                    )}
                     <Button variant="ghost" size="sm" className="text-destructive" onClick={() => onDelete(item)}>
                         <Trash2 className="h-4 w-4" />
                     </Button>

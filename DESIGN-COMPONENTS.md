@@ -346,7 +346,7 @@ import { DailyQuestPanel } from '@/components/games/DailyQuestPanel';
 ### GameDocsDialog (admin — games)
 
 Dialog ดู/แก้ **รายละเอียดเกม** (รูปแบบ / ฟีเจอร์ / เวอร์ชันบิลด์ / notes) — สเปกเดียวต่อเกม (แก้ทับ).
-อยู่ใน `src/components/admin/educational-hub/GamesTab.tsx` (เปิดจากปุ่ม "รายละเอียด" 🗒️ ในการ์ดเกม).
+ไฟล์ใช้ร่วมกัน `src/components/admin/educational-hub/GameDocsDialog.tsx` — เปิดจาก **GamesTab** (admin, ปุ่ม "รายละเอียด" ในการ์ดเกม) และ **TeacherEduHubManager** (เจ้าของเกม, ปุ่มไอคอน 🗒️ ในตารางรายการ — เฉพาะแถวที่เป็นเกม ตรวจด้วย `isGameItem()`).
 
 ```tsx
 // dialog mode 'docs' ใน GamesTab — internal component

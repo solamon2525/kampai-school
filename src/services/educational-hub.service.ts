@@ -402,6 +402,15 @@ export const youtubeThumbnail = (id: string, quality: 'default' | 'hq' | 'max' =
     return `https://i.ytimg.com/vi/${id}/${q}.jpg`;
 };
 
+/**
+ * เป็น "เกม" หรือไม่ — item_type=link + external_url ชี้ไปไฟล์เกม
+ * (Storage `/edu-hub-games/...` หรือ git `/games/...`) — sync กับ filter ใน GamesTab
+ */
+export const isGameItem = (item: Pick<EduHubItem, 'item_type' | 'external_url'>): boolean =>
+    item.item_type === 'link' &&
+    !!item.external_url &&
+    (item.external_url.includes('/edu-hub-games/') || item.external_url.includes('/games/'));
+
 /** Format file size for display (e.g., "2.4 MB") */
 export const formatFileSize = (bytes: number | null | undefined): string => {
     if (!bytes || bytes <= 0) return '';
