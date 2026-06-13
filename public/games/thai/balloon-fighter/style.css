@@ -1,0 +1,27 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+body {
+  background: #04041a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  font-family: 'Prompt', sans-serif;
+}
+
+canvas {
+  display: block;
+}
+
+/* ปรับตำแหน่งปุ่มควบคุมเสียงของ KAMPAI SDK เพื่อไม่ให้ทับซ้อนกับ HUD คะแนนผู้เล่น */
+#kampai-snd {
+  top: auto !important;
+  bottom: 16px !important;
+  left: 16px !important;
+}

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balloon Fighter – Ultimate Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="c"></canvas>
+
+    <!-- KAMPAI Game SDK & Leaderboard Integration -->
+    <script src="/games/kampai-sdk.js"></script>
+    <script>
+        window.KAMPAI = window.KAMPAI || {
+            isEmbed: false,
+            isTouch: false,
+            ready: true,
+            student: null,
+            stats: null,
+            leaderboard: [],
+            input: { up: false, down: false, left: false, right: false, a: false, b: false },
+            onReady: function(cb) { cb(this); },
+            setSlug: function() { return this; },
+            submitScore: function() { return false; },
+            goHome: function() { location.href = '/h/nattapong'; },
+            exit: function() { location.href = '/h/nattapong'; },
+            controls: { mount: function() { return this; } },
+            sound: {
+                unlock: function() { return this; },
+                correct: function() {},
+                wrong: function() {},
+                timeUp: function() {},
+                gameOver: function() {},
+                speak: function() {},
+                stopSpeak: function() {},
+                fxFlash: function() {},
+                setBgm: function() { return this; },
+                defaultBgm: function() { return this; },
+                bgmStart: function() {},
+                bgmStop: function() {},
+                mountToggles: function() { return this; }
+            }
+        };
+    </script>
+    <script src="/games/kampai-leaderboard.js"></script>
+    <script src="config.js"></script>
+    <script src="data.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
