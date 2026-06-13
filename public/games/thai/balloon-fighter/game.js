@@ -765,6 +765,8 @@ function playerHit(p, msg) {
     if (finalScore > saved.hs) saved.hs = finalScore;
     saveData();
     
+    sfxGameover();
+    
     // ส่งแต้มเข้าระบบโรงเรียน
     if (window.KAMPAI) {
       window.KAMPAI.submitScore(finalScore, {
@@ -775,7 +777,7 @@ function playerHit(p, msg) {
       });
     }
     
-    setTimeout(() => setGs('gameover'), 1000);
+    setTimeout(() => setGs('gameover'), 3000);
   }
 }
 
@@ -798,15 +800,17 @@ function playerTakeDamage(p, msg, col) {
     if (finalScore > saved.hs) saved.hs = finalScore;
     saveData();
     
+    sfxGameover();
+    
     if (window.parent && window.KAMPAI) {
-      window.KAMPAI.submitScore(finalScore, {
+      window.parent.window.KAMPAI.submitScore(finalScore, {
         mode: 'normal',
         allowResubmit: true,
         level_reached: level,
         is_success: false
       });
     }
-    setTimeout(() => setGs('gameover'), 1000);
+    setTimeout(() => setGs('gameover'), 3000);
   }
 }
 
@@ -971,7 +975,10 @@ function loop() {
                   window.KAMPAI.sound.speak(m.opt.r, 'th-TH', true);
                 }
                 
-                setTimeout(() => { monsters = []; level++; sfxLevelUp(); if (level % 5 !== 0) { spawnMonsters(newQ()); spawnHazards(); } }, 500);
+                // ทำให้มอนสเตอร์ตัวอื่น ๆ หายไปทันทีเพื่อความปลอดภัยของผู้เล่นขณะฟังเสียงอ่านคำศัพท์
+                monsters.forEach(otherM => otherM.popped = true);
+                
+                setTimeout(() => { monsters = []; level++; sfxLevelUp(); if (level % 5 !== 0) { spawnMonsters(newQ()); spawnHazards(); } }, 2200);
               } else { sfxWrong(); addFText(m.x, m.y, '✗ ผิด!', '#f44'); playerHit(p, ''); }
             }
             // Hit by monster
