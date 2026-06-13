@@ -2,8 +2,8 @@
 -- Migration 165: Seed "ลานประลองคำศัพท์ภาษาไทย" (thai-vocab-arena)
 -- ============================================================================
 -- Owner: ครูณัฐพงศ์ สิงห์ชมภู
--- Path: public/games/thai/thai-vocab-arena.html
--- Cover: public/games/thai/thai-vocab-arena-cover.svg
+-- Path: public/games/thai/thai-vocab-arena/index.html
+-- Cover: public/games/thai/thai-vocab-arena/cover.svg
 -- Idempotent: re-run keeps count stable
 -- ============================================================================
 
@@ -11,7 +11,7 @@ DO $$
 DECLARE
   v_staff_id  UUID;
   v_cat_games UUID;
-  v_url       TEXT := '/games/thai/thai-vocab-arena.html';
+  v_url       TEXT := '/games/thai/thai-vocab-arena/index.html';
 BEGIN
   -- 1. Resolve staff_id
   SELECT id INTO v_staff_id
@@ -50,7 +50,7 @@ BEGIN
   SET game_slug = 'thai-vocab-arena',
       tracked_game = true,
       is_published = true,
-      thumbnail_url = '/games/thai/thai-vocab-arena-cover.svg',
+      thumbnail_url = '/games/thai/thai-vocab-arena/cover.svg',
       updated_at = now()
   WHERE owner_staff_id = v_staff_id AND external_url = v_url;
 END $$;

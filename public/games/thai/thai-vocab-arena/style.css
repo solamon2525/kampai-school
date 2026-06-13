@@ -1,0 +1,69 @@
+body {
+    font-family: 'Prompt', sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+}
+
+.choice-btn { transition: all 0.2s ease-in-out; }
+.choice-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+.choice-btn:active:not(:disabled) { transform: translateY(1px); }
+
+.category-card { transition: all 0.2s ease; cursor: pointer; }
+.category-card:hover:not(.disabled-card) { transform: translateY(-5px) scale(1.02); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+.disabled-card { opacity: 0.6; cursor: not-allowed; filter: grayscale(100%); }
+
+@keyframes bounce-in {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.5); opacity: 1; }
+    70% { transform: scale(0.9); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+}
+.shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+
+@keyframes popUp {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+.pop-up { animation: popUp 0.4s ease-out forwards; }
+
+.star { display: inline-block; font-size: 4rem; opacity: 0; animation-fill-mode: forwards; }
+.star-gold { color: #FFD700; text-shadow: 0 0 15px rgba(255, 215, 0, 0.6); }
+.star-empty { color: #cbd5e1; text-shadow: none; }
+
+.fade-in { animation: fadeIn 0.4s ease-out forwards; }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-up { animation: slideUp 0.3s ease-out forwards; }
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* แจ้งเตือน Pop-up (Toast) */
+.toast-enter { animation: slideInRight 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+.toast-leave { animation: slideOutRight 0.5s ease-in forwards; }
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+@keyframes slideOutRight {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+}
+
+/* ซ่อน Scrollbar */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

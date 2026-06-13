@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ลานประลองคำศัพท์ภาษาไทย</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="flex items-center justify-center p-4">
+
+    <!-- เสียงดนตรีพื้นหลัง -->
+    <button id="bgm-toggle" onclick="toggleBGM()" class="fixed top-4 right-4 sm:top-6 sm:right-6 bg-white/90 p-3 rounded-full shadow-md z-40 text-2xl hover:bg-gray-50 hover:scale-110 transition-transform duration-200">
+        🔇
+    </button>
+    <audio id="bgm-audio" loop>
+        <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Popup แจ้งเตือนทั่วไป (Toast) -->
+    <div id="toast-message" class="fixed top-4 right-4 sm:top-6 sm:right-20 bg-white border-l-4 border-yellow-400 rounded-xl shadow-2xl p-4 flex items-center z-50 transform translate-x-[150%] opacity-0 transition-all">
+        <div id="toast-icon" class="text-4xl mr-3">🏆</div>
+        <div>
+            <p id="toast-subtitle" class="text-xs font-bold uppercase tracking-wider text-gray-500">แจ้งเตือน</p>
+            <h4 id="toast-title" class="font-bold text-gray-800">ข้อความ</h4>
+        </div>
+    </div>
+
+    <!-- Modal ตั้งชื่อผู้เล่น -->
+    <div id="name-modal" class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden fade-in">
+        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center mx-4">
+            <div class="text-6xl mb-4">👋</div>
+            <h2 class="text-2xl font-bold text-indigo-900 mb-2">ยินดีต้อนรับ!</h2>
+            <p class="text-gray-600 mb-6">กรุณาตั้งชื่อผู้เล่นของคุณเพื่อเริ่มสะสมคะแนนและความสำเร็จ</p>
+            <input type="text" id="player-name-input" placeholder="พิมพ์ชื่อของคุณที่นี่..." class="w-full border-2 border-indigo-200 rounded-xl px-4 py-3 mb-6 focus:outline-none focus:border-indigo-500 text-center font-medium text-lg">
+            <button onclick="savePlayerName()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-3 rounded-xl shadow-lg hover:shadow-xl transform transition duration-200">
+                เข้าสู่เกม 🚀
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal ห้องสมุดคำศัพท์ -->
+    <div id="library-modal" class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden fade-in">
+        <div class="bg-white rounded-3xl shadow-2xl p-6 max-w-2xl w-full mx-4 max-h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center mb-2">
+                <h2 class="text-2xl font-bold text-blue-900 flex items-center"><span class="text-3xl mr-2">📚</span> ห้องสมุดคำศัพท์</h2>
+                <button onclick="closeLibraryModal()" class="text-gray-400 hover:text-red-500 text-3xl font-bold">&times;</button>
+            </div>
+            <p class="text-sm text-gray-500 mb-4 font-semibold text-center bg-blue-50 py-2 rounded-lg">คำศัพท์ที่ปลดล็อกแล้ว: <span id="library-progress" class="text-blue-700">0/50</span> คำ</p>
+            <div id="library-list-container" class="overflow-y-auto pr-2 flex-grow no-scrollbar grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- รายการห้องสมุดจะถูกสร้างที่นี่ -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal ดูความสำเร็จทั้งหมด -->
+    <div id="achievements-modal" class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden fade-in">
+        <div class="bg-white rounded-3xl shadow-2xl p-6 max-w-md w-full mx-4 max-h-[80vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-yellow-600 flex items-center"><span class="text-3xl mr-2">🏅</span> ผลงานของคุณ</h2>
+                <button onclick="closeAchievementsModal()" class="text-gray-400 hover:text-red-500 text-3xl font-bold">&times;</button>
+            </div>
+            <div id="achievements-list-container" class="overflow-y-auto pr-2 space-y-3 flex-grow no-scrollbar">
+                <!-- รายการความสำเร็จจะถูกสร้างที่นี่ -->
+            </div>
+        </div>
+    </div>
+
+    <div id="game-container" class="bg-white rounded-3xl shadow-2xl p-6 sm:p-8 max-w-xl w-full text-center relative overflow-hidden">
+        
+        <!-- หน้าเริ่มเกม -->
+        <div id="start-screen" class="fade-in">
+            <!-- ปุ่มกลับหน้าหลักครู -->
+            <div class="flex justify-start mb-4">
+                <a href="/h/nattapong" target="_top" class="inline-flex items-center text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition">
+                    ⬅️ กลับคลังสื่อครูณัฐพงศ์
+                </a>
+            </div>
+
+            <!-- ข้อมูลผู้เล่น (Profile) -->
+            <div class="bg-indigo-50 rounded-2xl p-4 mb-6 flex flex-col sm:flex-row justify-between items-center border border-indigo-100 shadow-sm gap-4">
+                <div class="text-left flex items-center w-full sm:w-auto">
+                    <div class="bg-white p-2 rounded-full shadow-sm text-3xl mr-3">👤</div>
+                    <div>
+                        <h2 class="font-bold text-indigo-900 flex items-center">
+                            <span id="display-player-name" class="truncate max-w-[120px]">ผู้เล่น</span>
+                            <button onclick="openNameModal()" class="ml-2 text-xs text-gray-400 hover:text-indigo-600">✏️</button>
+                        </h2>
+                        <p class="text-xs text-indigo-600 font-semibold">เลเวล: <span id="display-player-level" class="text-sm">1</span> | XP: <span id="display-player-exp">0</span></p>
+                    </div>
+                </div>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <button onclick="openLibraryModal()" class="flex-1 sm:flex-none bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold py-2 px-3 rounded-xl text-sm transition shadow-sm flex items-center justify-center">
+                        📚 <span class="ml-1 text-xs sm:text-sm">คำศัพท์</span>
+                    </button>
+                    <button onclick="openAchievementsModal()" class="flex-1 sm:flex-none bg-yellow-100 hover:bg-yellow-200 text-yellow-700 font-bold py-2 px-3 rounded-xl text-sm transition shadow-sm flex items-center justify-center">
+                        🏅 <span class="ml-1 text-xs sm:text-sm">ผลงาน</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="text-5xl mb-2">🇹🇭</div>
+            <h1 class="text-3xl sm:text-4xl font-bold text-indigo-900 mb-2 tracking-tight">ลานประลองคำศัพท์</h1>
+            <p class="text-gray-600 mb-6 text-sm">เลือกหมวดหมู่ที่คุณต้องการท้าทายความสามารถ!</p>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 text-left">
+                <div onclick="startGame('spelling')" class="category-card bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 p-3 rounded-2xl flex items-center">
+                    <div class="text-3xl mr-3">📝</div>
+                    <div>
+                        <h3 class="font-bold text-blue-900">หมวดสะกดคำ</h3>
+                        <p class="text-blue-600 text-[10px]">คำที่มักเขียนผิดบ่อยๆ</p>
+                    </div>
+                </div>
+                <div onclick="startGame('royal')" class="category-card bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 p-3 rounded-2xl flex items-center">
+                    <div class="text-3xl mr-3">👑</div>
+                    <div>
+                        <h3 class="font-bold text-purple-900">คำราชาศัพท์</h3>
+                        <p class="text-purple-600 text-[10px]">คำที่ใช้กับพระมหากษัตริย์</p>
+                    </div>
+                </div>
+                <div onclick="startGame('idiom')" class="category-card bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 p-3 rounded-2xl flex items-center">
+                    <div class="text-3xl mr-3">🐸</div>
+                    <div>
+                        <h3 class="font-bold text-green-900">สำนวนสุภาษิต</h3>
+                        <p class="text-green-600 text-[10px]">คำพังเพยและข้อคิดสอนใจ</p>
+                    </div>
+                </div>
+                <div onclick="startGame('all')" class="category-card bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-orange-200 p-3 rounded-2xl flex items-center">
+                    <div class="text-3xl mr-3">🎲</div>
+                    <div>
+                        <h3 class="font-bold text-orange-900">สุ่มทั้งหมด</h3>
+                        <p class="text-orange-600 text-[10px]">ทดสอบความรู้ทุกหมวดรวมกัน</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- หมวดพิเศษ: ด่านซ่อมเสริม -->
+            <div id="review-mode-btn" onclick="startGame('review')" class="category-card bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-200 p-3 rounded-2xl flex items-center justify-between text-left mt-2">
+                <div class="flex items-center">
+                    <div class="text-3xl mr-3">🔧</div>
+                    <div>
+                        <h3 class="font-bold text-red-900">ด่านซ่อมเสริม (ทบทวนข้อผิด)</h3>
+                        <p id="mistakes-count-text" class="text-red-600 text-[10px]">มีข้อที่ต้องแก้มือ: 0 ข้อ</p>
+                    </div>
+                </div>
+                <div class="text-red-500 font-bold px-2">▶</div>
+            </div>
+
+            <!-- ตารางอันดับ (Leaderboard) -->
+            <div data-kampai-lb class="mt-6 text-left"></div>
+        </div>
+
+        <!-- หน้าเล่นเกม (คำถาม) -->
+        <div id="quiz-screen" class="hidden">
+            <div class="flex justify-between items-center mb-4">
+                <div id="lives-display" class="text-2xl tracking-widest text-red-500">❤️❤️❤️</div>
+                <div class="flex items-center space-x-2">
+                    <div id="combo-display" class="hidden font-bold text-orange-500 bg-orange-50 px-3 py-1 rounded-full text-sm border border-orange-200 pop-up">🔥 Combo x2</div>
+                    <div class="font-bold text-indigo-700 bg-indigo-50 px-4 py-1 rounded-full border border-indigo-100">
+                        คะแนน: <span id="score-display">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full bg-gray-100 rounded-full h-2 mb-2">
+                <div id="quiz-progress-bar" class="bg-gradient-to-r from-green-400 to-blue-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+            
+            <div class="w-full bg-gray-200 rounded-full h-1.5 mb-6 overflow-hidden">
+                <div id="timer-bar" class="bg-green-500 h-1.5 rounded-full transition-all duration-100" style="width: 100%"></div>
+            </div>
+            
+            <div class="relative min-h-[5rem] mb-6 flex flex-col items-center justify-center">
+                <span id="category-badge" class="absolute -top-4 bg-gray-200 text-gray-600 text-xs px-2 py-0.5 rounded-full uppercase tracking-wider font-semibold">หมวดหมู่</span>
+                <h2 id="question-text" class="text-xl sm:text-2xl font-bold text-gray-800 leading-relaxed mt-2">
+                    กำลังโหลดคำถาม...
+                </h2>
+            </div>
+
+            <div id="choices-container" class="space-y-3 mb-4">
+                <!-- ปุ่มตัวเลือกจะถูกสร้างด้วย JavaScript -->
+            </div>
+
+            <div id="explanation-box" class="hidden bg-blue-50 border-2 border-blue-100 rounded-2xl p-5 text-left slide-up mt-4">
+                <div class="flex items-center mb-2">
+                    <span id="explanation-icon" class="text-2xl mr-2">💡</span>
+                    <h3 id="explanation-title" class="font-bold text-lg text-blue-900">เกร็ดความรู้</h3>
+                </div>
+                <p id="explanation-text" class="text-gray-700 text-sm leading-relaxed mb-4"></p>
+                <button onclick="nextQuestion()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-xl transition duration-200 shadow-md">
+                    ไปข้อต่อไป ➡️
+                </button>
+            </div>
+        </div>
+
+        <!-- หน้าสรุปผล -->
+        <div id="result-screen" class="hidden fade-in">
+            <div id="result-icon" class="text-6xl mb-4">🏆</div>
+            <h2 id="result-title" class="text-3xl font-bold text-indigo-900 mb-2">สรุปผลคะแนน!</h2>
+            
+            <div class="bg-gray-50 rounded-xl p-4 mb-4 border border-gray-100 flex justify-around">
+                <div>
+                    <p class="text-xs text-gray-500 font-bold uppercase">ตอบถูก</p>
+                    <p class="text-xl font-bold text-indigo-700"><span id="final-score-text">0</span>/<span id="total-score-text">5</span></p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 font-bold uppercase">EXP ที่ได้</p>
+                    <p class="text-xl font-bold text-green-600">+<span id="earned-exp-text">0</span></p>
+                </div>
+            </div>
+            
+            <div id="star-display" class="flex justify-center space-x-2 mb-4 min-h-[5rem]"></div>
+            <p id="feedback-message" class="text-base font-medium text-blue-600 mb-4 px-4"></p>
+
+            <div class="flex flex-col sm:flex-row gap-3 justify-center mt-6">
+                <button onclick="replayGame()" class="bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition duration-200 flex-1">
+                    เล่นอีกรอบ 🔄
+                </button>
+                <button onclick="resetToHome()" class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition duration-200 flex-1">
+                    รับรางวัล & กลับหน้าหลัก 🏠
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- KAMPAI Game SDK & Leaderboard Integration -->
+    <script src="/games/kampai-sdk.js"></script>
+    <script>
+        window.KAMPAI = window.KAMPAI || {
+            isEmbed: false,
+            isTouch: false,
+            ready: true,
+            student: null,
+            stats: null,
+            leaderboard: [],
+            input: { up: false, down: false, left: false, right: false, a: false, b: false },
+            onReady: function(cb) { cb(this); },
+            setSlug: function() { return this; },
+            submitScore: function() { return false; },
+            goHome: function() { location.href = '/h/nattapong'; },
+            exit: function() { location.href = '/h/nattapong'; },
+            controls: { mount: function() { return this; } },
+            sound: {
+                unlock: function() { return this; },
+                correct: function() {},
+                wrong: function() {},
+                timeUp: function() {},
+                gameOver: function() {},
+                speak: function() {},
+                stopSpeak: function() {},
+                fxFlash: function() {},
+                setBgm: function() { return this; },
+                defaultBgm: function() { return this; },
+                bgmStart: function() {},
+                bgmStop: function() {},
+                mountToggles: function() { return this; }
+            }
+        };
+    </script>
+    <script src="/games/kampai-leaderboard.js"></script>
+    <script src="config.js"></script>
+    <script src="data.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
