@@ -455,7 +455,7 @@ class Monster {
     ctx.fillStyle = grad; ctx.beginPath(); ctx.ellipse(bx, by, br, br * 1.1, 0, 0, Math.PI * 2); ctx.fill();
     ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.ellipse(bx, by, br, br * 1.1, 0, 0, Math.PI * 2); ctx.stroke();
     
-    ctx.fillStyle = '#fff'; ctx.font = `bold 13px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(this.opt.r, bx, by);
+    ctx.fillStyle = '#000'; ctx.font = `bold 13px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(this.opt.r, bx, by);
     // String
     ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.beginPath(); ctx.moveTo(bx, by + br); ctx.lineTo(mx, my - this.bodyR * DS - 6); ctx.stroke();
     
@@ -561,7 +561,7 @@ class Boss {
       if (o.popped) return;
       ctx.fillStyle = o.col; ctx.beginPath(); ctx.ellipse(o.bx, o.by, o.br, o.br * 1.15, 0, 0, Math.PI * 2); ctx.fill();
       ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(o.bx, o.by + o.br * 1.15); ctx.lineTo(this.x, this.y - 40); ctx.stroke();
-      ctx.fillStyle = '#fff'; ctx.font = `bold 14px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(o.opt.r, o.bx, o.by);
+      ctx.fillStyle = '#000'; ctx.font = `bold 14px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(o.opt.r, o.bx, o.by);
     });
   }
 }
@@ -654,6 +654,31 @@ class Player {
 
     // Body
     ctx.translate(cx, by2); ctx.scale(DS / this.sq * this.st, DS * this.sq / this.st);
+    
+    // Draw Legs swinging with floating bobbing
+    const swingLeft = this.onGnd
+      ? (Math.abs(this.vx) > 0.3 ? Math.sin(this.t * 3.5) * 0.6 : 0)
+      : Math.sin(this.t * 2.0) * 0.35 + 0.1;
+    const swingRight = this.onGnd
+      ? (Math.abs(this.vx) > 0.3 ? -Math.sin(this.t * 3.5) * 0.6 : 0)
+      : Math.sin(this.t * 2.0 + Math.PI) * 0.35 - 0.1;
+
+    ctx.strokeStyle = this.bc.body; ctx.lineWidth = 6; ctx.lineCap = 'round';
+    
+    // Left Leg
+    const lx1 = -6, ly1 = -10;
+    const lx2 = lx1 + Math.sin(swingLeft) * 12, ly2 = ly1 + Math.cos(swingLeft) * 12;
+    ctx.beginPath(); ctx.moveTo(lx1, ly1); ctx.lineTo(lx2, ly2); ctx.stroke();
+    // Left Foot
+    ctx.fillStyle = this.bc.nose; ctx.beginPath(); ctx.arc(lx2, ly2, 3.5, 0, Math.PI * 2); ctx.fill();
+
+    // Right Leg
+    const rx1 = 6, ry1 = -10;
+    const rx2 = rx1 + Math.sin(swingRight) * 12, ry2 = ry1 + Math.cos(swingRight) * 12;
+    ctx.beginPath(); ctx.moveTo(rx1, ry1); ctx.lineTo(rx2, ry2); ctx.stroke();
+    // Right Foot
+    ctx.fillStyle = this.bc.nose; ctx.beginPath(); ctx.arc(rx2, ry2, 3.5, 0, Math.PI * 2); ctx.fill();
+
     ctx.fillStyle = this.bc.body; ctx.beginPath(); ctx.ellipse(0, -28, 18, 22, 0, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = this.bc.tummy; ctx.beginPath(); ctx.ellipse(0, -26, 11, 14, 0, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = this.bc.body; ctx.beginPath(); ctx.ellipse(0, -54, 17, 16, 0, 0, Math.PI * 2); ctx.fill();
@@ -722,6 +747,7 @@ function start() {
 
 function playerHit(p, msg) {
   if (p.inv > 0 || p.eff.sh > 0) return;
+  sfxZap();
   if (gMode === 'online') {
     score[p.id] = Math.max(0, score[p.id] - 150);
     if (msg) addFText(p.x, p.y, msg, '#f44');
@@ -949,7 +975,7 @@ function loop() {
               } else { sfxWrong(); addFText(m.x, m.y, '✗ ผิด!', '#f44'); playerHit(p, ''); }
             }
             // Hit by monster
-            if (m.checkHitP(p)) { sfxZap(); playerHit(p, '💥 บอลลูนแตก!'); }
+            if (m.checkHitP(p)) { playerHit(p, '💥 บอลลูนแตก!'); }
           });
         }
       });
