@@ -60,6 +60,20 @@ export type EduHubItem = {
     updated_at: string;
 };
 
+/** รายละเอียดเกม (game_docs) — สเปกเดียวต่อเกม แก้ทับได้ เห็นเฉพาะเจ้าของ+admin (RLS) */
+export type GameDoc = {
+    id: string;
+    item_id: string;
+    owner_staff_id: string;
+    game_format: string | null;   // รูปแบบเกม (quiz/จับคู่/platformer/ลากวาง ฯลฯ)
+    features: string[];            // ฟีเจอร์ในเกม
+    version: string | null;        // เวอร์ชันบิลด์ล่าสุด
+    notes: string | null;          // บันทึก/changelog ย่อ
+    updated_by: string | null;
+    created_at: string;
+    updated_at: string;
+};
+
 /** เพลงในคลังเพลงกลาง (game_bgm_tracks) — อัปครั้งเดียว เลือกใช้รายเกม */
 export type BgmTrack = {
     id: string;
@@ -432,4 +446,24 @@ export const bgmTracksService = {
         const { error } = await supabase.from('game_bgm_tracks' as never).delete().eq('id', id);
         return { error: (error as Error | null) ?? null };
     },
+};
+
+// ─── รายละเอียดเกม (game_docs) ────────────────────────────────────────────────
+// สเปกเดียวต่อเกม (1:1 กับ educational_hub_items, แก้ทับได้) — RLS เห็นเฉพาะเจ้าของ+admin
+export const gameDocsService = {
+    getByItem: (itemId: string) =>
+        supabase
+            .from('game_docs' as never)
+            .select('*')
+            .eq('item_id', itemId)
+            .maybeSingle(),
+
+    upsert: (
+        data: Partial<GameDoc> & { item_id: string; owner_staff_id: string },
+    ) =>
+        supabase
+            .from('game_docs' as never)
+            .upsert({ ...data, updated_at: new Date().toISOString() } as never, {
+                onConflict: 'item_id',
+            }),
 };

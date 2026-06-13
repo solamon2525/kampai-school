@@ -525,6 +525,24 @@ import { PersonAvatar } from '@/components/shared/PersonAvatar';
 - ❌ trust `student_id` จาก iframe โดยตรง — server resolve เองจาก `student_code` ใน RPC
 - ❌ INSERT `game_sessions` ตรง ๆ จาก client — ผ่าน SECURITY DEFINER RPC เท่านั้น (RLS ปิด INSERT ทุก policy)
 
+### Rule 14.43 — Game Docs Registry (รายละเอียดเกม — บันทึกทุกครั้งที่สร้าง/แก้)
+
+ทุกเกมต้องมี **รายละเอียดเกม** เก็บใน `game_docs` (migration 168, 1:1 กับ `educational_hub_items`):
+**รูปแบบเกม / ฟีเจอร์ / เวอร์ชันบิลด์ / notes** — สเปกเดียวต่อเกม (แก้ทับ ไม่เก็บประวัติทุกแถว;
+จด changelog ย่อใน `notes` ได้).
+
+**Visibility model (สำคัญ):**
+- เห็นเฉพาะ **เจ้าของเกม (`owner_staff_id`) + ผู้ดูแลระบบ (`is_admin()`)** ผ่าน RLS — **ไม่มี public read**
+- ไม่ล็อกอิน / ไม่ใช่เจ้าของ / ไม่ใช่ admin → query คืน 0 แถว
+- **ห้ามย้ายฟิลด์เหล่านี้ไปเป็นคอลัมน์ใน `educational_hub_items`** — ตารางนั้นมี policy `public_read_ehi`
+  เปิดอ่านทั้งแถวต่อสาธารณะสำหรับเกม published (RLS คุมระดับคอลัมน์ไม่ได้) = รายละเอียดจะหลุด
+
+**UI:** ปุ่ม "รายละเอียด" ในการ์ดเกมที่ `GamesTab.tsx` → `GameDocsDialog` (ดู/แก้). service = `gameDocsService`.
+
+**กฎบันทึก (Documentation Discipline — ผูกกับ Rule 14.9):** ทุกครั้งที่ seed เกมใหม่หรือแก้เกม
+ต้อง upsert `game_docs` (`ON CONFLICT (item_id) DO UPDATE`) **ใน migration เดียวกัน** + เด้งเวอร์ชัน
+(เทมเพลตใน `GAME.md` → "DB Migration Pattern").
+
 ### Rule 14.15 — Color Contrast & Surface-Aware Palette (สีต้องตัดกับพื้นเสมอ)
 
 **บังคับ:** ก่อนเขียน component ใหม่หรือเปลี่ยนสีใดๆ ต้องทำ **Contrast Pre-Check** ทุกครั้ง

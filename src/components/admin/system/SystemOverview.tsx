@@ -272,8 +272,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.79.0 (สถิติแข่งออนไลน์ Win/Loss + สังเวียนแชมป์)',
+        version: 'v1.80.0 (รายละเอียดเกม — Game Docs registry ต่อเกม)',
         date: 'ล่าสุด',
+        badge: 'bg-violet-600',
+        items: [
+            'ตาราง game_docs (migration 168, 1:1 กับ educational_hub_items) เก็บ รูปแบบเกม / ฟีเจอร์ / เวอร์ชันบิลด์ / notes — สเปกเดียวต่อเกม (แก้ทับ)',
+            'RLS เห็นเฉพาะเจ้าของเกม (owner_staff_id) + ผู้ดูแลระบบ (is_admin) — ไม่มี public read · ไม่ล็อกอิน = ไม่เห็น (แยกตารางเพราะ educational_hub_items เปิดอ่านสาธารณะทั้งแถว)',
+            'ปุ่ม "รายละเอียด" ในการ์ดเกม GamesTab → GameDocsDialog ดู/แก้ได้ในหลังบ้าน',
+            'กฎใหม่ (DESIGN.md Rule 14.43): ทุกครั้งที่สร้าง/แก้เกม ต้อง upsert game_docs ใน migration เดียวกัน + เด้งเวอร์ชัน (เทมเพลตใน GAME.md)',
+        ],
+    },
+    {
+        version: 'v1.79.0 (สถิติแข่งออนไลน์ Win/Loss + สังเวียนแชมป์)',
+        date: '',
         badge: 'bg-rose-600',
         items: [
             'ตารางเก็บแมตช์แข่งออนไลน์ (online_matches + online_match_participants) — reconstruct จาก game_sessions (mode=online) จับกลุ่ม (game_slug, room, ≤30 นาที) จัดอันดับด้วย score (migration 162)',

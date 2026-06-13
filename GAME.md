@@ -11,9 +11,13 @@
 1.  cp public/games/_template-full.html  public/games/{subject}/{slug}.html
 2.  แก้ GAME_SLUG = '{slug}'  (1 ที่ใน <script>)
 3.  เขียน game logic ใน SECTION C
-4.  สร้าง supabase/migrations/NNN_seed_{slug}_game.sql
+4.  สร้าง supabase/migrations/NNN_seed_{slug}_game.sql  (รวม upsert game_docs — รูปแบบ/ฟีเจอร์/เวอร์ชัน, บังคับ)
 5.  pnpm verify:game public/games/{subject}/{slug}.html   # ต้องผ่าน 8/8 checks
 ```
+
+> 🔖 **บังคับทุกเกม:** ทุกครั้งที่สร้าง/แก้เกม ต้องเขียน/อัปเดต `game_docs` (รูปแบบ + ฟีเจอร์ + เวอร์ชัน)
+> ใน migration เดียวกัน + เด้งเวอร์ชัน — ดูเทมเพลตใน "🗄️ DB Migration Pattern". เห็นในหลังบ้านที่ปุ่ม
+> "รายละเอียด" ในการ์ดเกม GamesTab (เฉพาะเจ้าของ+admin)
 
 มีแล้ว: kampai postMessage + Supabase leaderboard + Score HUD + Lives HUD + ระบบเสียงรวม (SFX/TTS/BGM)
 ห้ามทำ: input ชื่อผู้เล่น, Firebase SDK, `window.location.href` ตรง ๆ
@@ -398,6 +402,23 @@ BEGIN
   SET game_slug = '{slug}', tracked_game = true, is_published = true,
       thumbnail_url = '/games/{subject}/{slug}-cover.svg', bgm_preset = 'playful', updated_at = now()
   WHERE owner_staff_id = v_staff_id AND external_url = v_url;
+
+  -- 🔖 บังคับ: รายละเอียดเกม (game_docs) — รูปแบบ/ฟีเจอร์/เวอร์ชัน (สเปกเดียวต่อเกม, แก้ทับ)
+  --    เห็นเฉพาะเจ้าของ+admin · ต้องอัปเดต + เด้งเวอร์ชันทุกครั้งที่สร้าง/แก้เกม (CLAUDE.md)
+  INSERT INTO public.game_docs (item_id, owner_staff_id, game_format, features, version, notes)
+  SELECT i.id, i.owner_staff_id,
+         '{รูปแบบ เช่น ตอบคำถาม/quiz}',
+         ARRAY['{ฟีเจอร์ 1}','{ฟีเจอร์ 2}','{ฟีเจอร์ 3}'],
+         'v1.0.0',
+         'สร้างครั้งแรก'
+  FROM public.educational_hub_items i
+  WHERE i.owner_staff_id = v_staff_id AND i.external_url = v_url
+  ON CONFLICT (item_id) DO UPDATE
+    SET game_format = EXCLUDED.game_format,
+        features    = EXCLUDED.features,
+        version     = EXCLUDED.version,
+        notes       = EXCLUDED.notes,
+        updated_at  = now();
 END $$;
 ```
 

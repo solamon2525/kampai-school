@@ -343,6 +343,24 @@ import { DailyQuestPanel } from '@/components/games/DailyQuestPanel';
 
 ---
 
+### GameDocsDialog (admin — games)
+
+Dialog ดู/แก้ **รายละเอียดเกม** (รูปแบบ / ฟีเจอร์ / เวอร์ชันบิลด์ / notes) — สเปกเดียวต่อเกม (แก้ทับ).
+อยู่ใน `src/components/admin/educational-hub/GamesTab.tsx` (เปิดจากปุ่ม "รายละเอียด" 🗒️ ในการ์ดเกม).
+
+```tsx
+// dialog mode 'docs' ใน GamesTab — internal component
+<GameDocsDialog item={item} onClose={() => setDialog(null)} />
+```
+
+- ข้อมูลจาก `gameDocsService.getByItem(item.id)` (table `game_docs`, migration 168) · queryKey `['game-docs', item.id]`
+- บันทึก: `gameDocsService.upsert({ item_id, owner_staff_id: item.owner_staff_id, ... })` → `invalidateQueries(['game-docs', item.id])`
+- **Visibility = RLS เท่านั้น:** เห็นเฉพาะเจ้าของเกม + `is_admin()` · ไม่ล็อกอิน/ไม่ใช่เจ้าของ = query คืน `null` → โชว์ค่าว่าง (DESIGN.md Rule 14.43)
+- ฟีเจอร์ = `text[]` กรอกแบบ textarea บรรทัดละ 1 ฟีเจอร์ · ปุ่ม "รายละเอียด" สี `violet` แยกจาก "ตั้งค่า" (sky)
+- **กฎ:** ทุกครั้งที่สร้าง/แก้เกม ต้องอัปเดต game_docs + เด้งเวอร์ชัน (ดู GAME.md / CLAUDE.md)
+
+---
+
 ## 3. Replacement Mapping (Purple → Green tokens)
 
 ใช้ตารางนี้เมื่อ refactor ไฟล์ที่มี hardcoded purple:

@@ -2567,6 +2567,67 @@ export type Database = {
         }
         Relationships: []
       }
+      game_docs: {
+        Row: {
+          created_at: string
+          features: string[]
+          game_format: string | null
+          id: string
+          item_id: string
+          notes: string | null
+          owner_staff_id: string
+          updated_at: string
+          updated_by: string | null
+          version: string | null
+        }
+        Insert: {
+          created_at?: string
+          features?: string[]
+          game_format?: string | null
+          id?: string
+          item_id: string
+          notes?: string | null
+          owner_staff_id: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: string | null
+        }
+        Update: {
+          created_at?: string
+          features?: string[]
+          game_format?: string | null
+          id?: string
+          item_id?: string
+          notes?: string | null
+          owner_staff_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_docs_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: true
+            referencedRelation: "educational_hub_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_docs_owner_staff_id_fkey"
+            columns: ["owner_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_docs_owner_staff_id_fkey"
+            columns: ["owner_staff_id"]
+            isOneToOne: false
+            referencedRelation: "v_educational_hub_teachers"
+            referencedColumns: ["staff_id"]
+          },
+        ]
+      }
       game_score_baseline: {
         Row: {
           game_slug: string

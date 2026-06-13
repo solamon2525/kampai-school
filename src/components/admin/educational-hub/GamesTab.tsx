@@ -22,7 +22,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink, Plus, RefreshCw, AlertTriangle, Loader2, Trash2, RotateCcw, Settings, Code2, ChevronDown, Copy, Check, Download, Image as ImageIcon } from 'lucide-react';
+import { ExternalLink, Plus, RefreshCw, AlertTriangle, Loader2, Trash2, RotateCcw, Settings, Code2, ChevronDown, Copy, Check, Download, Image as ImageIcon, ClipboardList } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -51,8 +51,10 @@ import { supabase } from '@/integrations/supabase/client';
 import {
     educationalHubService,
     bgmTracksService,
+    gameDocsService,
     type EduHubItem,
     type BgmTrack,
+    type GameDoc,
 } from '@/services/educational-hub.service';
 import { gamePlayService } from '@/services/game-play.service';
 
@@ -400,6 +402,7 @@ export const GamesTab = () => {
         | { mode: 'create' }
         | { mode: 'replace'; item: EduHubItem }
         | { mode: 'settings'; item: EduHubItem }
+        | { mode: 'docs'; item: EduHubItem }
         | { mode: 'bgm' }
         | null
     >(null);
@@ -634,6 +637,14 @@ export const GamesTab = () => {
                                                         >
                                                             <Settings className="h-3 w-3 mr-1" /> ตั้งค่า
                                                         </Button>
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="text-violet-600 border-violet-200 hover:bg-violet-50"
+                                                            onClick={() => setDialog({ mode: 'docs', item })}
+                                                        >
+                                                            <ClipboardList className="h-3 w-3 mr-1" /> รายละเอียด
+                                                        </Button>
                                                         {item.game_slug && (
                                                             <Button
                                                                 variant="outline"
@@ -691,6 +702,12 @@ export const GamesTab = () => {
                             item={dialog.item}
                             onSaved={handleSaved}
                             onCancel={() => setDialog(null)}
+                        />
+                    )}
+                    {dialog?.mode === 'docs' && (
+                        <GameDocsDialog
+                            item={dialog.item}
+                            onClose={() => setDialog(null)}
                         />
                     )}
                     {dialog?.mode === 'bgm' && (
@@ -844,6 +861,145 @@ const GameSettingsDialog = ({
             <DialogFooter>
                 <Button variant="ghost" onClick={onCancel} disabled={saving}>ยกเลิก</Button>
                 <Button onClick={handleSave} disabled={saving}>
+                    {saving ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> บันทึก...</> : 'บันทึก'}
+                </Button>
+            </DialogFooter>
+        </>
+    );
+};
+
+// ─── รายละเอียดเกม (Game Docs) ────────────────────────────────────────────────
+// สเปกเดียวต่อเกม แก้ทับได้ — เห็นเฉพาะเจ้าของเกม + admin (RLS); ไม่ล็อกอิน = ได้ 0 แถว
+const GameDocsDialog = ({
+    item,
+    onClose,
+}: {
+    item: EduHubItem;
+    onClose: () => void;
+}) => {
+    const { toast } = useToast();
+    const queryClient = useQueryClient();
+    const [format, setFormat] = useState('');
+    const [featuresText, setFeaturesText] = useState('');
+    const [version, setVersion] = useState('');
+    const [notes, setNotes] = useState('');
+    const [saving, setSaving] = useState(false);
+
+    const { data: doc, isLoading } = useQuery({
+        queryKey: ['game-docs', item.id],
+        queryFn: async () => {
+            const { data, error } = await gameDocsService.getByItem(item.id);
+            if (error) throw error;
+            return (data as GameDoc | null) ?? null;
+        },
+    });
+
+    // เติมค่าเดิมเมื่อโหลดเสร็จ
+    useEffect(() => {
+        if (doc) {
+            setFormat(doc.game_format ?? '');
+            setFeaturesText((doc.features ?? []).join('\n'));
+            setVersion(doc.version ?? '');
+            setNotes(doc.notes ?? '');
+        }
+    }, [doc]);
+
+    const handleSave = async () => {
+        setSaving(true);
+        try {
+            const features = featuresText
+                .split('\n')
+                .map((f) => f.trim())
+                .filter(Boolean);
+            const { error } = await gameDocsService.upsert({
+                item_id: item.id,
+                owner_staff_id: item.owner_staff_id,
+                game_format: format.trim() || null,
+                features,
+                version: version.trim() || null,
+                notes: notes.trim() || null,
+            });
+            if (error) throw error;
+            queryClient.invalidateQueries({ queryKey: ['game-docs', item.id] });
+            toast({ title: 'บันทึกรายละเอียดเกมสำเร็จ' });
+            onClose();
+        } catch (err) {
+            toast({
+                title: 'บันทึกไม่สำเร็จ',
+                description: err instanceof Error ? err.message : 'เกิดข้อผิดพลาด',
+                variant: 'destructive',
+            });
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    return (
+        <>
+            <DialogHeader>
+                <DialogTitle>รายละเอียดเกม — {item.title}</DialogTitle>
+                <DialogDescription>
+                    บันทึกรูปแบบ ฟีเจอร์ และเวอร์ชันของเกม — เห็นเฉพาะเจ้าของเกมและผู้ดูแลระบบ
+                    (ต้องอัปเดตทุกครั้งที่สร้าง/แก้เกม)
+                </DialogDescription>
+            </DialogHeader>
+
+            {isLoading ? (
+                <div className="py-10 text-center text-muted-foreground">
+                    <Loader2 className="h-5 w-5 mx-auto animate-spin" />
+                </div>
+            ) : (
+                <div className="space-y-4">
+                    <div className="space-y-1.5">
+                        <label className="text-sm font-medium">รูปแบบเกม</label>
+                        <Input
+                            value={format}
+                            onChange={(e) => setFormat(e.target.value)}
+                            placeholder="เช่น ตอบคำถาม/quiz, จับคู่, platformer, ลากวาง"
+                        />
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="text-sm font-medium">ฟีเจอร์ในเกม</label>
+                        <Textarea
+                            value={featuresText}
+                            onChange={(e) => setFeaturesText(e.target.value)}
+                            rows={5}
+                            placeholder={'บรรทัดละ 1 ฟีเจอร์ เช่น\nเสียงไทย TTS\nโหมดศึกษา\nเล่นออนไลน์'}
+                        />
+                        <p className="text-xs text-muted-foreground">บรรทัดละ 1 ฟีเจอร์</p>
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="text-sm font-medium">เวอร์ชันบิลด์ล่าสุด</label>
+                        <Input
+                            value={version}
+                            onChange={(e) => setVersion(e.target.value)}
+                            placeholder="เช่น v1.2.0"
+                        />
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="text-sm font-medium">บันทึก / changelog ย่อ (ไม่บังคับ)</label>
+                        <Textarea
+                            value={notes}
+                            onChange={(e) => setNotes(e.target.value)}
+                            rows={3}
+                            placeholder="สรุปสิ่งที่เปลี่ยนในเวอร์ชันนี้"
+                        />
+                    </div>
+
+                    {doc?.updated_at && (
+                        <p className="text-[11px] text-muted-foreground">
+                            แก้ไขล่าสุด: {new Date(doc.updated_at).toLocaleString('th-TH')}
+                        </p>
+                    )}
+                </div>
+            )}
+
+            <DialogFooter>
+                <Button variant="ghost" onClick={onClose} disabled={saving}>ยกเลิก</Button>
+                <Button onClick={handleSave} disabled={saving || isLoading}>
                     {saving ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> บันทึก...</> : 'บันทึก'}
                 </Button>
             </DialogFooter>
