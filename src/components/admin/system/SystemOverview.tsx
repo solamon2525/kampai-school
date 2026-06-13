@@ -272,8 +272,21 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.77.0 (เกมใหม่ "รถซิ่งสูตรคูณ" — racing duel 2 เลน)',
+        version: 'v1.78.0 (ระบบ Daily Quest — ภารกิจประจำวันแยกตามวิชาแกน)',
         date: 'ล่าสุด',
+        badge: 'bg-indigo-600',
+        items: [
+            'เดลี่เควสแยกวิชาแกน คณิต/ไทย/อังกฤษ: เล่นเกมในวิชานั้นให้ได้คะแนนถึงเกณฑ์ขั้นต่ำ = ผ่านเควสวันนั้น — เพิ่มวิชาอื่นได้จากหลังบ้าน (migration 161)',
+            'Credit อัตโนมัติผ่าน trigger บน game_sessions (ไม่แตะ record_game_session) → รองรับ mode online: 2 คนเล่นด้วยกันได้เครดิตเควสทั้งคู่',
+            'ทำครบทุกวิชา/วัน = คะแนนพิเศษเก็บแยก (quest points) + นับ streak 🔥 + โบนัส XP เข้าระบบ gamification เดิม (ตั้งค่าจำนวนได้จากหลังบ้าน)',
+            'แจ้งผู้เล่น: DailyQuestPanel โชว์เควสที่เหลือ — หน้า pre-game (PlayGame) + หน้าฮับเกม + celebrate ตอนผ่านเควส/ครบทุกวิชา',
+            'แดชบอร์ดสถิติ: หน้าแอดมิน /admin/dashboard/daily-quest (participation รายวัน + กรองชั้น + แนวโน้ม + streak + ตั้งค่าวิชา/โบนัส/เกณฑ์ต่อเกม) + หน้าสาธารณะจอใหญ่ /games/daily-quest (recharts)',
+            'เกณฑ์คะแนนต่อเกม: educational_hub_items.quest_min_score (NULL = auto 50% ของ median) · RPC get_daily_quest_status/overview/trend/participation/streak_leaderboard',
+        ],
+    },
+    {
+        version: 'v1.77.0 (เกมใหม่ "รถซิ่งสูตรคูณ" — racing duel 2 เลน)',
+        date: '',
         badge: 'bg-orange-600',
         items: [
             'เกมใหม่ multiply-rally (คณิตศาสตร์): แข่งรถ 2 เลน ตอบสูตรคูณถูกรถพุ่ง ผิดรถช้า+ควัน ถึงเส้นชัยก่อนชนะ 🏁 — โฟลเดอร์ 5 ไฟล์ตาม GAME.md, verify:game 8/8',

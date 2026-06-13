@@ -125,6 +125,7 @@ const menuItems: MenuItem[] = [
     { type: 'item', id: 'documents', label: 'จัดการเอกสาร', icon: FolderOpen, path: '/admin/dashboard/documents', adminOnly: true },
     { type: 'item', id: 'educational-hub', label: 'คลังสื่อ/เกม', icon: Sparkles, path: '/admin/dashboard/educational-hub', adminOnly: true },
     { type: 'item', id: 'games', label: 'การเล่นเกม', icon: Gamepad2, path: '/admin/dashboard/games', adminOnly: true },
+    { type: 'item', id: 'daily-quest', label: 'ภารกิจประจำวัน', icon: Target, path: '/admin/dashboard/daily-quest', adminOnly: true },
     { type: 'item', id: 'analytics', label: 'Analytics', icon: BarChart2, path: '/admin/dashboard/analytics', adminOnly: true },
     { type: 'item', id: 'page-builder', label: 'Page Builder', icon: LayoutTemplate, path: '/admin/page-builder', adminOnly: true },
     { type: 'section', label: 'อื่นๆ' },

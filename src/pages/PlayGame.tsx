@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as LucideIcons from 'lucide-react';
 import {
   ArrowLeft,
@@ -47,6 +47,8 @@ import {
 } from '@/services/game-play.service';
 import { multiplyRaceService, type PerTableStats } from '@/services/multiply-race.service';
 import { HonorWall } from '@/components/games/HonorWall';
+import { DailyQuestPanel, dailyQuestQueryKey } from '@/components/games/DailyQuestPanel';
+import { dailyQuestService, type DailyQuestStatus } from '@/services/daily-quest.service';
 import { TIER_STYLES, type MedalTier } from '@/services/gamification.service';
 
 // ─── Lucide icon resolver ────────────────────────────────────────────────────
@@ -64,6 +66,7 @@ const PlayGame = () => {
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const [phase, setPhase] = useState<Phase>('lookup');
   const [codeInput, setCodeInput] = useState('');
@@ -80,6 +83,7 @@ const PlayGame = () => {
   const gameContainerRef = useRef<HTMLDivElement | null>(null);
   const sessionSubmittedRef = useRef(false);
   const rtChannelRef = useRef<RealtimeChannel | null>(null);
+  const prevQuestRef = useRef<DailyQuestStatus | null>(null);
 
   // ─── fullscreen: ขยายเกมเต็มจอจริง (iframe มี allow="fullscreen" อยู่แล้ว) ───
   const toggleFullscreen = useCallback(() => {
@@ -162,6 +166,14 @@ const PlayGame = () => {
     enabled: !!gameSlug,
   });
 
+  // Daily Quest: สถานะเควสประจำวันของผู้เล่น (ข้ามเกม — key ที่ student code)
+  const trimmedCode = codeInput.trim();
+  const questQuery = useQuery({
+    queryKey: dailyQuestQueryKey(trimmedCode),
+    queryFn: () => dailyQuestService.getStatus(trimmedCode),
+    enabled: !!student && !!trimmedCode,
+  });
+
   // Phase 2: per-table mastery สำหรับ multiply-race (adaptive + badges)
   const masteryQuery = useQuery({
     queryKey: ['multiply-race-mastery', codeInput],
@@ -217,11 +229,12 @@ const PlayGame = () => {
   // ─── start game ────────────────────────────────────────────────────────────
   const handleStart = useCallback(() => {
     setPrevLevel(levelInfo);
+    prevQuestRef.current = questQuery.data ?? null;
     setResult(null);
     setShowReward(false);
     sessionSubmittedRef.current = false;
     setPhase('playing');
-  }, [levelInfo]);
+  }, [levelInfo, questQuery.data]);
 
   // ─── send init to iframe once loaded ───────────────────────────────────────
   // ส่งทั้ง studentCode (เดิม — เกมเก่าใช้ได้) + student/stats/leaderboard (ใหม่ — KAMPAI SDK
@@ -343,6 +356,33 @@ const PlayGame = () => {
             dailyLeaderboardQuery.refetch();
           } catch (e) { console.warn('daily submit failed', e); }
         }
+        // Daily Quest: trigger ฝั่ง DB เครดิตเควสให้แล้วตอน insert session → refetch สถานะ + celebrate
+        try {
+          const before = prevQuestRef.current;
+          const refreshed = await queryClient.fetchQuery({
+            queryKey: dailyQuestQueryKey(codeInput.trim()),
+            queryFn: () => dailyQuestService.getStatus(codeInput.trim()),
+          });
+          if (refreshed) {
+            const beforeDone = new Set((before?.subjects ?? []).filter((s) => s.done).map((s) => s.key));
+            const newlyDone = refreshed.subjects.filter((s) => s.done && !beforeDone.has(s.key));
+            const justAllComplete = refreshed.all_complete && !before?.all_complete;
+            if (justAllComplete) {
+              confetti({ particleCount: 160, spread: 90, origin: { y: 0.6 } });
+              toast({
+                title: '🎉 ครบทุกวิชาประจำวันแล้ว!',
+                description: `รับ +${refreshed.bonus_points} แต้มพิเศษ · ทำต่อเนื่อง ${refreshed.streak_days} วัน 🔥`,
+              });
+            } else if (newlyDone.length > 0) {
+              toast({
+                title: `✅ ผ่านเควส ${newlyDone.map((s) => s.label).join(' + ')}!`,
+                description: `เหลืออีก ${refreshed.required_count - refreshed.completed_count} วิชาวันนี้`,
+              });
+            }
+          }
+        } catch (e) {
+          console.warn('daily quest refresh failed', e);
+        }
         // ไม่สลับ phase (เกมโชว์จอจบของตัวเองต่อ) — เด้งการ์ด XP ลอยทับทันที แล้วค้างไว้จนกดปิด/เล่นซ้ำ
         setShowReward(true);
       } catch (err) {
@@ -365,7 +405,7 @@ const PlayGame = () => {
     };
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
-  }, [phase, student, codeInput, gameSlug, toast, statsQuery, unlockedQuery, leaderboardQuery]);
+  }, [phase, student, codeInput, gameSlug, toast, statsQuery, unlockedQuery, leaderboardQuery, queryClient]);
 
   // ─── realtime relay: ห้องออนไลน์ของเกม (broadcast + presence) ──────────────
   // เกมใน iframe ไม่มี anon key → wrapper เปิด channel ให้ แล้วรีเลย์ผ่าน postMessage
@@ -539,6 +579,8 @@ const PlayGame = () => {
           <div className="space-y-4">
             {/* โปรไฟล์ XP รวม + เหรียญล่าสุด (gamification กลาง) */}
             <HonorWall studentCode={codeInput} variant="compact" />
+            {/* ภารกิจประจำวัน — เหลือเควสวิชาอะไรบ้างวันนี้ */}
+            <DailyQuestPanel studentCode={codeInput} variant="full" />
             <PreGamePanel
               student={student}
               stats={statsQuery.data}

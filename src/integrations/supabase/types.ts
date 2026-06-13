@@ -733,6 +733,42 @@ export type Database = {
           },
         ]
       }
+      cctv_cameras: {
+        Row: {
+          created_at: string
+          hls_url: string
+          id: string
+          is_active: boolean
+          lat: number | null
+          lng: number | null
+          location_label: string | null
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          hls_url: string
+          id?: string
+          is_active?: boolean
+          lat?: number | null
+          lng?: number | null
+          location_label?: string | null
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          hls_url?: string
+          id?: string
+          is_active?: boolean
+          lat?: number | null
+          lng?: number | null
+          location_label?: string | null
+          name?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           attachment_type: string | null
@@ -1348,6 +1384,226 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_challenge_scores: {
+        Row: {
+          challenge_date: string
+          completed_at: string
+          correct_count: number
+          duration_sec: number | null
+          game_slug: string
+          score: number
+          student_id: string
+          total_questions: number
+        }
+        Insert: {
+          challenge_date: string
+          completed_at?: string
+          correct_count: number
+          duration_sec?: number | null
+          game_slug?: string
+          score: number
+          student_id: string
+          total_questions?: number
+        }
+        Update: {
+          challenge_date?: string
+          completed_at?: string
+          correct_count?: number
+          duration_sec?: number | null
+          game_slug?: string
+          score?: number
+          student_id?: string
+          total_questions?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_challenge_scores_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "savings_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "daily_challenge_scores_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_challenge_scores_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "waste_student_summary"
+            referencedColumns: ["student_id"]
+          },
+        ]
+      }
+      daily_quest_completions: {
+        Row: {
+          challenge_date: string
+          completed_at: string
+          game_slug: string | null
+          score: number
+          session_id: string | null
+          student_id: string
+          subject_key: string
+        }
+        Insert: {
+          challenge_date: string
+          completed_at?: string
+          game_slug?: string | null
+          score: number
+          session_id?: string | null
+          student_id: string
+          subject_key: string
+        }
+        Update: {
+          challenge_date?: string
+          completed_at?: string
+          game_slug?: string | null
+          score?: number
+          session_id?: string | null
+          student_id?: string
+          subject_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_quest_completions_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "game_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_quest_completions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "savings_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "daily_quest_completions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_quest_completions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "waste_student_summary"
+            referencedColumns: ["student_id"]
+          },
+        ]
+      }
+      daily_quest_config: {
+        Row: {
+          all_complete_points: number
+          all_complete_xp: number
+          id: boolean
+          updated_at: string
+        }
+        Insert: {
+          all_complete_points?: number
+          all_complete_xp?: number
+          id?: boolean
+          updated_at?: string
+        }
+        Update: {
+          all_complete_points?: number
+          all_complete_xp?: number
+          id?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      daily_quest_days: {
+        Row: {
+          all_complete: boolean
+          bonus_points: number
+          bonus_xp: number
+          challenge_date: string
+          completed_at: string | null
+          completed_count: number
+          required_count: number
+          streak_days: number
+          student_id: string
+        }
+        Insert: {
+          all_complete?: boolean
+          bonus_points?: number
+          bonus_xp?: number
+          challenge_date: string
+          completed_at?: string | null
+          completed_count?: number
+          required_count?: number
+          streak_days?: number
+          student_id: string
+        }
+        Update: {
+          all_complete?: boolean
+          bonus_points?: number
+          bonus_xp?: number
+          challenge_date?: string
+          completed_at?: string | null
+          completed_count?: number
+          required_count?: number
+          streak_days?: number
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_quest_days_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "savings_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "daily_quest_days_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_quest_days_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "waste_student_summary"
+            referencedColumns: ["student_id"]
+          },
+        ]
+      }
+      daily_quest_subjects: {
+        Row: {
+          created_at: string
+          icon: string | null
+          is_active: boolean
+          label_th: string
+          sort_order: number
+          subject_key: string
+        }
+        Insert: {
+          created_at?: string
+          icon?: string | null
+          is_active?: boolean
+          label_th: string
+          sort_order?: number
+          subject_key: string
+        }
+        Update: {
+          created_at?: string
+          icon?: string | null
+          is_active?: boolean
+          label_th?: string
+          sort_order?: number
+          subject_key?: string
+        }
+        Relationships: []
+      }
       data_access_logs: {
         Row: {
           action: string
@@ -1764,6 +2020,7 @@ export type Database = {
           is_published: boolean
           item_type: Database["public"]["Enums"]["edu_hub_item_type"]
           owner_staff_id: string
+          quest_min_score: number | null
           sort_order: number
           subject: string | null
           tags: string[]
@@ -1793,6 +2050,7 @@ export type Database = {
           is_published?: boolean
           item_type: Database["public"]["Enums"]["edu_hub_item_type"]
           owner_staff_id: string
+          quest_min_score?: number | null
           sort_order?: number
           subject?: string | null
           tags?: string[]
@@ -1822,6 +2080,7 @@ export type Database = {
           is_published?: boolean
           item_type?: Database["public"]["Enums"]["edu_hub_item_type"]
           owner_staff_id?: string
+          quest_min_score?: number | null
           sort_order?: number
           subject?: string | null
           tags?: string[]
@@ -2238,12 +2497,14 @@ export type Database = {
           code: string
           created_at: string
           description_th: string | null
-          game_slug: string
+          game_slug: string | null
           icon: string | null
           id: string
           sort_order: number
+          subject_key: string | null
           threshold_kind: string
           threshold_value: number | null
+          tier: string
           title_th: string
           xp_bonus: number
         }
@@ -2251,12 +2512,14 @@ export type Database = {
           code: string
           created_at?: string
           description_th?: string | null
-          game_slug: string
+          game_slug?: string | null
           icon?: string | null
           id?: string
           sort_order?: number
+          subject_key?: string | null
           threshold_kind: string
           threshold_value?: number | null
+          tier?: string
           title_th: string
           xp_bonus?: number
         }
@@ -2264,14 +2527,70 @@ export type Database = {
           code?: string
           created_at?: string
           description_th?: string | null
-          game_slug?: string
+          game_slug?: string | null
           icon?: string | null
           id?: string
           sort_order?: number
+          subject_key?: string | null
           threshold_kind?: string
           threshold_value?: number | null
+          tier?: string
           title_th?: string
           xp_bonus?: number
+        }
+        Relationships: []
+      }
+      game_bgm_tracks: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          storage_path: string
+          title: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          storage_path: string
+          title: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          storage_path?: string
+          title?: string
+          url?: string
+        }
+        Relationships: []
+      }
+      game_score_baseline: {
+        Row: {
+          game_slug: string
+          median_score: number | null
+          p75_score: number | null
+          p90_score: number | null
+          sample_count: number
+          updated_at: string
+        }
+        Insert: {
+          game_slug: string
+          median_score?: number | null
+          p75_score?: number | null
+          p90_score?: number | null
+          sample_count?: number
+          updated_at?: string
+        }
+        Update: {
+          game_slug?: string
+          median_score?: number | null
+          p75_score?: number | null
+          p90_score?: number | null
+          sample_count?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -2955,6 +3274,58 @@ export type Database = {
           year?: string
         }
         Relationships: []
+      }
+      multiply_race_mastery: {
+        Row: {
+          badge_level: number
+          correct_count: number
+          fastest_avg_ms: number | null
+          last_practiced_at: string
+          student_id: string
+          table_num: number
+          wrong_count: number
+        }
+        Insert: {
+          badge_level?: number
+          correct_count?: number
+          fastest_avg_ms?: number | null
+          last_practiced_at?: string
+          student_id: string
+          table_num: number
+          wrong_count?: number
+        }
+        Update: {
+          badge_level?: number
+          correct_count?: number
+          fastest_avg_ms?: number | null
+          last_practiced_at?: string
+          student_id?: string
+          table_num?: number
+          wrong_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "multiply_race_mastery_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "savings_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "multiply_race_mastery_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "multiply_race_mastery_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "waste_student_summary"
+            referencedColumns: ["student_id"]
+          },
+        ]
       }
       news: {
         Row: {
@@ -5742,6 +6113,39 @@ export type Database = {
         }
         Relationships: []
       }
+      student_global_profile: {
+        Row: {
+          active_days: number | null
+          games_played: number | null
+          last_played_at: string | null
+          plays_count: number | null
+          student_id: string | null
+          total_xp: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_sessions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "savings_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "game_sessions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_sessions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "waste_student_summary"
+            referencedColumns: ["student_id"]
+          },
+        ]
+      }
       student_latest_growth: {
         Row: {
           bmi: number | null
@@ -5767,6 +6171,36 @@ export type Database = {
           },
           {
             foreignKeyName: "student_growth_measurements_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "waste_student_summary"
+            referencedColumns: ["student_id"]
+          },
+        ]
+      }
+      student_subject_xp: {
+        Row: {
+          student_id: string | null
+          subject_key: string | null
+          xp: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_sessions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "savings_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "game_sessions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_sessions_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "waste_student_summary"
@@ -5991,10 +6425,63 @@ export type Database = {
       }
       approve_reward_claim: { Args: { p_claim_id: string }; Returns: undefined }
       auth_role: { Args: never; Returns: string }
+      bkk_today: { Args: never; Returns: string }
       can_approve_reward: { Args: { p_reward_id: string }; Returns: boolean }
       claim_reward: {
         Args: { p_code: string; p_quantity?: number; p_reward_id: string }
         Returns: string
+      }
+      get_daily_challenge_leaderboard: {
+        Args: { p_game_slug: string; p_limit?: number; p_student_code?: string }
+        Returns: {
+          class_label: string
+          completed_at: string
+          correct_count: number
+          display_name: string
+          duration_sec: number
+          is_me: boolean
+          photo_url: string
+          rank: number
+          score: number
+          student_id: string
+        }[]
+      }
+      get_daily_quest_overview: { Args: { p_date?: string }; Returns: Json }
+      get_daily_quest_participation: {
+        Args: { p_date?: string }
+        Returns: {
+          all_complete: boolean
+          class: string
+          completed_count: number
+          name: string
+          photo_url: string
+          required_count: number
+          student_id: string
+          subjects_done: string[]
+        }[]
+      }
+      get_daily_quest_status: {
+        Args: { p_student_code: string }
+        Returns: Json
+      }
+      get_daily_quest_streak_leaderboard: {
+        Args: { p_limit?: number }
+        Returns: {
+          class: string
+          current_streak: number
+          name: string
+          photo_url: string
+          student_id: string
+          total_points: number
+        }[]
+      }
+      get_daily_quest_trend: {
+        Args: { p_days?: number }
+        Returns: {
+          all_complete_count: number
+          d: string
+          participants: number
+        }[]
       }
       get_db_size: { Args: never; Returns: number }
       get_facebook_feed_meta: {
@@ -6021,6 +6508,68 @@ export type Database = {
           plays_count: number
           student_id: string
           total_xp: number
+        }[]
+      }
+      get_global_xp_leaderboard: {
+        Args: { p_limit?: number; p_student_code?: string }
+        Returns: {
+          class_label: string
+          display_name: string
+          games_played: number
+          is_me: boolean
+          medals_count: number
+          photo_url: string
+          rank: number
+          student_id: string
+          total_xp: number
+        }[]
+      }
+      get_multiply_race_class_overview: {
+        Args: { p_class_filter?: string }
+        Returns: {
+          badge_bronze: number
+          badge_gold: number
+          badge_silver: number
+          class_label: string
+          daily_played_today: boolean
+          daily_score_today: number
+          display_name: string
+          last_played_at: string
+          student_code: string
+          student_id: string
+          total_correct: number
+          total_wrong: number
+          weakest_table: number
+        }[]
+      }
+      get_multiply_race_mastery: {
+        Args: { p_student_code: string }
+        Returns: {
+          badge_level: number
+          correct_count: number
+          fastest_avg_ms: number
+          table_num: number
+          weight: number
+          wrong_count: number
+        }[]
+      }
+      get_multiply_race_table_heatmap: {
+        Args: { p_class_filter?: string }
+        Returns: {
+          table_num: number
+          total_attempts: number
+          total_correct: number
+          total_wrong: number
+          wrong_pct: number
+        }[]
+      }
+      get_my_daily_status: {
+        Args: { p_game_slug: string; p_student_code: string }
+        Returns: {
+          challenge_date: string
+          correct_count: number
+          played: boolean
+          score: number
         }[]
       }
       get_savings_history: {
@@ -6061,7 +6610,40 @@ export type Database = {
           status: Database["public"]["Enums"]["reward_claim_status"]
         }[]
       }
+      get_student_honor_profile: {
+        Args: { p_student_code: string }
+        Returns: Json
+      }
+      get_subject_leaderboard: {
+        Args: {
+          p_limit?: number
+          p_student_code?: string
+          p_subject_key: string
+        }
+        Returns: {
+          class_label: string
+          display_name: string
+          is_me: boolean
+          photo_url: string
+          rank: number
+          student_id: string
+          xp: number
+        }[]
+      }
       get_training_public_aggregate: { Args: never; Returns: Json }
+      get_weekly_xp_leaderboard: {
+        Args: { p_limit?: number; p_student_code?: string }
+        Returns: {
+          class_label: string
+          display_name: string
+          is_me: boolean
+          photo_url: string
+          rank: number
+          student_id: string
+          weekly_plays: number
+          weekly_xp: number
+        }[]
+      }
       has_menu_permission: { Args: { menu_id: string }; Returns: boolean }
       increment_ehi_download: { Args: { p_id: string }; Returns: undefined }
       increment_ehi_view: { Args: { p_id: string }; Returns: undefined }
@@ -6158,8 +6740,33 @@ export type Database = {
         }
         Returns: Json
       }
+      refresh_game_score_baseline: {
+        Args: { p_game_slug: string }
+        Returns: undefined
+      }
       reject_reward_claim: {
         Args: { p_claim_id: string; p_reason?: string }
+        Returns: undefined
+      }
+      subject_keys: { Args: { p_subject: string }; Returns: string[] }
+      submit_daily_challenge_score: {
+        Args: {
+          p_correct: number
+          p_duration_sec?: number
+          p_game_slug: string
+          p_score: number
+          p_student_code: string
+          p_total?: number
+        }
+        Returns: {
+          challenge_date: string
+          correct_count: number
+          score: number
+          was_first: boolean
+        }[]
+      }
+      update_multiply_race_mastery: {
+        Args: { p_per_table: Json; p_student_code: string }
         Returns: undefined
       }
     }

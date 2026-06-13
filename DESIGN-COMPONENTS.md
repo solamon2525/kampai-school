@@ -327,6 +327,20 @@ import { PushPermissionBanner } from '@/components/shared/PushPermissionBanner';
 { title: string, body: string, url?: string, icon?: string, tag?: string }
 ```
 
+### DailyQuestPanel (games — shared)
+
+ภารกิจประจำวันของผู้เล่น: โชว์เควสวิชาแกน (คณิต/ไทย/อังกฤษ) ว่าวันนี้ผ่าน/เหลือวิชาอะไร + progress + streak 🔥 + คะแนนพิเศษสะสม. Self-fetching ผ่าน `student_code` (anon) — drop-in ได้ทุกที่ที่มีรหัสนักเรียน
+
+```tsx
+import { DailyQuestPanel } from '@/components/games/DailyQuestPanel';
+<DailyQuestPanel studentCode={code} variant="full" />   // hub / หน้าแรกนักเรียน
+<DailyQuestPanel studentCode={code} variant="compact" /> // pre-game
+```
+
+- ข้อมูลจาก `dailyQuestService.getStatus(code)` → RPC `get_daily_quest_status` · queryKey จาก `dailyQuestQueryKey(code)` (share cache กับ PlayGame เพื่อ celebrate ตอนผ่านเควส)
+- สี: ผ่าน = `emerald-500/10` + `text-emerald-700`, ยังไม่ผ่าน = `bg-muted/40` + `text-muted-foreground` · streak = `amber`. ใช้ CSS vars + `cn()` (light-only) ห้าม hardcode
+- คืน `null` ถ้าไม่มี `studentCode` หรือ `required_count === 0` (แอดมินปิดวิชาแกนทั้งหมด)
+
 ---
 
 ## 3. Replacement Mapping (Purple → Green tokens)

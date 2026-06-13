@@ -30,6 +30,7 @@ import {
 import { CategoryChipStrip } from '@/components/educational-hub/CategoryChipStrip';
 import { CategorySection } from '@/components/educational-hub/CategorySection';
 import { HonorWall } from '@/components/games/HonorWall';
+import { DailyQuestPanel } from '@/components/games/DailyQuestPanel';
 import { GameRankings } from '@/components/games/GameRankings';
 import {
     SectionToolbar,
@@ -343,6 +344,11 @@ const EducationalHubTeacher = () => {
                             <p className="text-xs text-muted-foreground">เล่นหลายเกม หลายแบบ สะสม XP ปลดล็อกเหรียญ — อันดับสัปดาห์รีเซ็ตทุกวันจันทร์</p>
                         </div>
                     </header>
+                    {hubStudentCode && (
+                        <div className="mb-4">
+                            <DailyQuestPanel studentCode={hubStudentCode} variant="full" />
+                        </div>
+                    )}
                     <div className="grid gap-4 lg:grid-cols-2">
                         <GameRankings studentCode={hubStudentCode} />
                         {hubStudentCode && <HonorWall studentCode={hubStudentCode} variant="full" />}
