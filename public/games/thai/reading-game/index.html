@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ผจญภัยอ่านสนุก</title>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700;800;900&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============ MAIN MENU ============ -->
+<div id="menuScreen" class="screen active">
+  <!-- ปุ่มกลับหน้าหลักครู -->
+  <div style="width: 100%; max-width: 600px; display: flex; justify-content: flex-start; margin-bottom: 10px;">
+    <a href="/h/nattapong" target="_top" style="display: inline-flex; align-items: center; font-size: 0.8rem; font-weight: 600; color: var(--purple); text-decoration: none;">
+      ⬅️ กลับคลังสื่อครูณัฐพงศ์
+    </a>
+  </div>
+  
+  <div class="game-title">🌟 ผจญภัยอ่านสนุก 🌟</div>
+  <div class="game-subtitle">เกมฝึกอ่านภาษาไทยสำหรับ ป.4</div>
+  <div class="total-stars">
+    <span class="star-icon">⭐</span>
+    <span id="totalStars">0</span> / 75 ดาว
+  </div>
+  <div class="levels-grid" id="levelsGrid"></div>
+  <div class="btn-group">
+    <button class="btn btn-secondary" onclick="showInstructions()">📖 วิธีเล่น</button>
+    <button class="btn btn-primary" onclick="resetGame()">🔄 เริ่มใหม่</button>
+  </div>
+  
+  <!-- ตารางอันดับ (Leaderboard) -->
+  <div data-kampai-lb style="width: 100%; max-width: 600px; margin-top: 25px;"></div>
+</div>
+
+<!-- ============ INSTRUCTIONS ============ -->
+<div id="instructionsScreen" class="screen">
+  <div style="font-size:1.8rem;font-weight:800;margin:20px 0;color:var(--purple); text-align: center;">📖 วิธีเล่น</div>
+  <div class="instructions-card" style="margin: 0 auto 20px;">
+    <h3>🧩 จับคู่คำพ้องสระ</h3>
+    <p>เลือกคำที่มีเสียงสระเหมือนกับคำที่กำหนด ตอบให้เร็วจะได้ดาวมากขึ้น!</p>
+    <h3>📝 เรียงประโยค</h3>
+    <p>กดคำตามลำดับที่ถูกต้องเพื่อเรียงเป็นประโยค กดคำที่เรียงแล้วเพื่อเอาออก</p>
+    <h3>🗣️ เลือกการอ่านที่ถูกต้อง</h3>
+    <p>อ่านคำที่แสดง แล้วเลือกวิธีอ่านออกเสียงที่ถูกต้อง</p>
+    <h3>🔍 ปริศนาหาคำ</h3>
+    <p>อ่านคำใบ้แล้วเลือกคำตอบที่ถูกต้องจากตัวเลือก</p>
+    <h3>📚 อ่านจับใจความ</h3>
+    <p>อ่านเรื่องสั้นแล้วตอบคำถามให้ถูกต้อง</p>
+    <h3>⭐ ระบบดาว</h3>
+    <p>ทุกด่านให้ 1-3 ดาว ต้องได้อย่างน้อย 2 ดาวเพื่อปลดล็อกด่านถัดไป</p>
+  </div>
+  <div style="text-align: center;">
+    <button class="btn btn-primary" onclick="showMenu()" style="margin-top:16px;">🏠 กลับหน้าหลัก</button>
+  </div>
+</div>
+
+<!-- ============ GAME SCREEN ============ -->
+<div id="gameScreen" class="screen">
+  <div class="game-header">
+    <button class="btn btn-back" onclick="exitLevel()">← กลับ</button>
+    <div class="game-info">
+      <div class="info-badge round-badge">📋 <span id="roundInfo">1/4</span></div>
+      <div class="info-badge score-badge">⭐ <span id="scoreInfo">0</span></div>
+      <div class="info-badge timer-badge" id="timerBadge">⏱️ <span id="timerInfo">60</span></div>
+    </div>
+  </div>
+  <div class="progress-container"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  <div class="puzzle-area" id="puzzleArea"></div>
+  <div class="btn-group" id="actionButtons"></div>
+</div>
+
+<!-- ============ FEEDBACK OVERLAY ============ -->
+<div class="feedback-overlay" id="feedbackOverlay">
+  <div class="feedback-card" id="feedbackCard"></div>
+</div>
+
+<!-- KAMPAI Game SDK & Leaderboard Integration -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+    window.KAMPAI = window.KAMPAI || {
+        isEmbed: false,
+        isTouch: false,
+        ready: true,
+        student: null,
+        stats: null,
+        leaderboard: [],
+        input: { up: false, down: false, left: false, right: false, a: false, b: false },
+        onReady: function(cb) { cb(this); },
+        setSlug: function() { return this; },
+        submitScore: function() { return false; },
+        goHome: function() { location.href = '/h/nattapong'; },
+        exit: function() { location.href = '/h/nattapong'; },
+        controls: { mount: function() { return this; } },
+        sound: {
+            unlock: function() { return this; },
+            correct: function() {},
+            wrong: function() {},
+            timeUp: function() {},
+            gameOver: function() {},
+            speak: function() {},
+            stopSpeak: function() {},
+            fxFlash: function() {},
+            setBgm: function() { return this; },
+            defaultBgm: function() { return this; },
+            bgmStart: function() {},
+            bgmStop: function() {},
+            mountToggles: function() { return this; }
+        }
+    };
+</script>
+<script src="/games/kampai-leaderboard.js"></script>
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
