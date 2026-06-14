@@ -169,5 +169,34 @@ window.GAME_DATA = {
       displayStr: displayStr,
       choices: choices
     };
+  },
+
+  // ฟังก์ชันสุ่มประเภทมอนสเตอร์ (รองรับ seed RNG โหมดออนไลน์)
+  generateMonsterType: function(customRng = null) {
+    const random = () => {
+      if (customRng && typeof customRng.next === 'function') {
+        return customRng.next();
+      }
+      return Math.random();
+    };
+    const types = ['goomba', 'koopa', 'spiny'];
+    return types[Math.floor(random() * types.length)];
+  },
+
+  // ฟังก์ชันสุ่มประเภทไอเทม (รองรับ seed RNG โหมดออนไลน์)
+  generateItemType: function(customRng = null) {
+    const random = () => {
+      if (customRng && typeof customRng.next === 'function') {
+        return customRng.next();
+      }
+      return Math.random();
+    };
+    const r = random();
+    if (r < 0.25) return 'mushroom'; // เห็ดขยายตัว/เกราะ
+    if (r < 0.35) return 'star';     // ดาวอมตะ
+    if (r < 0.55) return 'poison';   // เห็ดพิษสับสน
+    if (r < 0.75) return 'lightning';// สายฟ้าสโลว์
+    if (r < 0.90) return 'egg';      // ไข่โบนัสแต้ม
+    return 'heart';                  // หัวใจฟื้นชีวิต
   }
 };

@@ -17,6 +17,15 @@ window.GAME_CONFIG = {
   WRONG_PENALTY: 5,           // หักคะแนนตอบผิด
   STAR_THRESHOLDS: [80, 200, 400], // คะแนนขั้นต่ำสำหรับ 1 / 2 / 3 ดาว
 
+  // ── มอนสเตอร์ และ ไอเทม ──
+  MONSTER_SPAWN_CHANCE: 0.35,  // โอกาสเกิดมอนสเตอร์เมื่อเปลี่ยนโจทย์ (35%)
+  ITEM_SPAWN_CHANCE: 0.25,     // โอกาสเกิดไอเทมตามเลน (25%)
+  ITEM_POP_CHANCE: 0.30,       // โอกาสที่ไอเทมจะเด้งออกจากบล็อกคำตอบที่ถูก (30%)
+  
+  BUFF_INVINCIBLE_DURATION: 8, // ระยะเวลาอมตะ (วินาที)
+  DEBUFF_SLOW_DURATION: 5,     // ระยะเวลาเชื่องช้า (วินาที)
+  DEBUFF_CONFUSED_DURATION: 5, // ระยะเวลาควบคุมกลับด้าน (วินาที)
+
   // ── ออนไลน์ ──
   ENABLE_ONLINE: true,        // เปิดปุ่มออนไลน์
   ONLINE_DURATION: 60,        // เวลาแข่งโหมดออนไลน์ (วินาที)
