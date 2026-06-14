@@ -552,7 +552,7 @@ p.subtitle {
 /* ── Player Chip P2 (2P mode split screen) ── */
 #player-chip-p2 {
   position: fixed;
-  top: calc(50vh + 76px);
+  top: 124px;
   left: 20px;
   z-index: 20;
   display: none;

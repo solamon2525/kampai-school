@@ -182,24 +182,20 @@ function getTierByScore(val) {
 }
 
 function generateNewQuestion(playerIndex = 1) {
-  const tier = getTierByScore(playerIndex === 2 ? p2Score : score);
+  let tierScore = score;
+  if (mode === 'local_2p') {
+    tierScore = Math.max(p1Score, p2Score);
+  }
+  const tier = getTierByScore(tierScore);
   const q = window.GAME_DATA.generateProblem(currentMathMode, tier, isEquationMode, onlineRng);
   
-  if (mode === 'local_2p') {
-    if (playerIndex === 1) {
-      p1Question = q;
-      p1Blocks = spawnBlocksForQuestion(q);
-      spawnMonstersAndItemsForQuestion(1, q);
-    } else {
-      p2Question = q;
-      p2Blocks = spawnBlocksForQuestion(q);
-      spawnMonstersAndItemsForQuestion(2, q);
-    }
-  } else {
-    activeQuestion = q;
-    floatBlocks = spawnBlocksForQuestion(q);
-    spawnMonstersAndItemsForQuestion(1, q);
-    $('math-problem-bar').innerText = q.displayStr;
+  activeQuestion = q;
+  floatBlocks = spawnBlocksForQuestion(q);
+  spawnMonstersAndItemsForQuestion(1, q);
+  
+  const bar = $('math-problem-bar');
+  if (bar) {
+    bar.innerText = q.displayStr;
   }
 }
 
@@ -506,17 +502,16 @@ function handleTouchInput(e) {
     const ty = touch.clientY;
 
     if (mode === 'local_2p') {
-      const sh = ch / 2;
       if (tx < cw / 2) {
         // ฝั่ง P1 (ซ้าย)
         if (tx > p1X + 25) p1TouchMoveDirX = 1;
         else if (tx < p1X - 25) p1TouchMoveDirX = -1;
         
-        // แบ่ง Y เป็น 3 เลน (เลน 0, 1, 2) ในครึ่งจอบน
-        if (ty < sh * 0.40) {
+        // แบ่ง Y เป็น 3 เลน (เลน 0, 1, 2) ทั่วหน้าจอเต็ม
+        if (ty < ch * 0.40) {
           const dir = (p1ConfusedTime > 0) ? 2 : 0;
           targetP1Lane = dir === 2 ? 2 : 0;
-        } else if (ty < sh * 0.70) {
+        } else if (ty < ch * 0.70) {
           targetP1Lane = 1;
         } else {
           const dir = (p1ConfusedTime > 0) ? 0 : 2;
@@ -527,12 +522,11 @@ function handleTouchInput(e) {
         if (tx > p2X + 25) p2TouchMoveDirX = 1;
         else if (tx < p2X - 25) p2TouchMoveDirX = -1;
         
-        // แบ่ง Y เป็น 3 เลนในครึ่งจอล่าง
-        const relativeTy = ty - sh;
-        if (relativeTy < sh * 0.40) {
+        // แบ่ง Y เป็น 3 เลน ทั่วหน้าจอเต็ม
+        if (ty < ch * 0.40) {
           const dir = (p2ConfusedTime > 0) ? 2 : 0;
           targetP2Lane = dir === 2 ? 2 : 0;
-        } else if (relativeTy < sh * 0.70) {
+        } else if (ty < ch * 0.70) {
           targetP2Lane = 1;
         } else {
           const dir = (p2ConfusedTime > 0) ? 0 : 2;
@@ -1486,12 +1480,7 @@ function spawnMonstersAndItemsForQuestion(playerIndex, q) {
         hitResolved: false
       };
       
-      if (mode === 'local_2p') {
-        if (playerIndex === 1) p1Monsters.push(monsterObj);
-        else p2Monsters.push(monsterObj);
-      } else {
-        activeMonsters.push(monsterObj);
-      }
+      activeMonsters.push(monsterObj);
     }
   }
 
@@ -1506,12 +1495,7 @@ function spawnMonstersAndItemsForQuestion(playerIndex, q) {
       isPopped: false
     };
 
-    if (mode === 'local_2p') {
-      if (playerIndex === 1) p1Items.push(itemObj);
-      else p2Items.push(itemObj);
-    } else {
-      activeItems.push(itemObj);
-    }
+    activeItems.push(itemObj);
   }
 }
 
@@ -1555,8 +1539,16 @@ function loop() {
   if (p2SlowTime > 0) p2SlowTime--;
   if (p2ConfusedTime > 0) p2ConfusedTime--;
 
-  const p1Speed = (p1SlowTime > 0) ? p1BlockSpeed * 0.65 : p1BlockSpeed;
-  const p2Speed = (p2SlowTime > 0) ? p2BlockSpeed * 0.65 : p2BlockSpeed;
+  let blockSpeed = p1BlockSpeed;
+  if (mode === 'local_2p') {
+    const maxSpeedStep = Math.max(p1SpeedStep, p2SpeedStep);
+    blockSpeed = Math.min(CFG.BLOCK_MAX_SPEED, CFG.BLOCK_START_SPEED + maxSpeedStep * 1.2);
+  } else {
+    blockSpeed = (p1SlowTime > 0) ? p1BlockSpeed * 0.65 : p1BlockSpeed;
+  }
+
+  const p1Speed = blockSpeed;
+  const p2Speed = blockSpeed;
 
   const forwardBaseSpeed = 6.5;
   const backwardBaseSpeed = 3.5;
@@ -1584,13 +1576,7 @@ function loop() {
     playerX = Math.max(20, Math.min(cw - 20, playerX));
   }
 
-  if (mode === 'local_2p') {
-    p1BgOffset += p1Speed;
-    p2BgOffset += p2Speed;
-  } else {
-    bgOffset += p1Speed;
-  }
-
+  bgOffset += blockSpeed;
   ctx.clearRect(0, 0, cw, ch);
 
   if (mode === 'local_2p') {
@@ -2224,6 +2210,7 @@ function startSinglePlayer(m) {
   const chip2 = $('player-chip-p2');
   if (chip2) chip2.style.display = 'none';
 
+  $('score-container').style.display = 'block';
   $('score-value').innerText = 0;
   $('level-badge').innerText = 'ด่าน 1';
   $('blocker').style.display = 'none';
@@ -2373,7 +2360,7 @@ function launchLocalTwoPlayer() {
   p1X = cw * 0.2;
   p2Lane = 1;
   targetP2Lane = 1;
-  p2X = cw * 0.2;
+  p2X = cw * 0.25;
   level = 1;
   p1SpeedStep = 0;
   p1BlockSpeed = CFG.BLOCK_START_SPEED;
@@ -2381,17 +2368,18 @@ function launchLocalTwoPlayer() {
   p2SpeedStep = 0;
   p2BlockSpeed = CFG.BLOCK_START_SPEED;
   p2CorrectAnswersCount = 0;
-  p1Monsters = [];
-  p2Monsters = [];
-  p1Items = [];
-  p2Items = [];
+  floatBlocks = [];
+  activeMonsters = [];
+  activeItems = [];
   p1InvincibleTime = 0; p1SlowTime = 0; p1ConfusedTime = 0; p1IsGiant = false;
   p2InvincibleTime = 0; p2SlowTime = 0; p2ConfusedTime = 0; p2IsGiant = false;
-  p1BgOffset = 0;
-  p2BgOffset = 0;
+  bgOffset = 0;
 
   $('blocker').style.display = 'none';
-  $('hud-container').style.display = 'none'; // ซ่อน HUD บน เพราะแบ่งเขียนจอในแคนวาสตรงๆ
+  $('hud-container').style.display = 'flex';
+  $('score-container').style.display = 'none';
+  $('life-container').style.display = 'none';
+  $('timer-container').style.display = 'none';
 
   // แสดงผลโปรไฟล์ชิป P1 & P2
   renderPlayerChips2P();
@@ -2402,7 +2390,6 @@ function launchLocalTwoPlayer() {
 
   onlineRng = null;
   generateNewQuestion(1);
-  generateNewQuestion(2);
   
   if (animationFrameId) {
     cancelAnimationFrame(animationFrameId);
@@ -2476,6 +2463,7 @@ function startGame(onlineMode, opts) {
   const chip2 = $('player-chip-p2');
   if (chip2) chip2.style.display = 'none';
 
+  $('score-container').style.display = 'block';
   $('score-value').innerText = 0;
   $('level-badge').innerText = 'ด่าน 1';
   $('blocker').style.display = 'none';
