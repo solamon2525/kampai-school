@@ -246,10 +246,11 @@ function setupTouchZones() {
   const setupTap = (id, action) => {
     const el = $(id);
     if (el) {
-      el.onclick = (e) => {
+      // ใช้ pointerdown เพื่อการตอบสนองที่ฉับไว ไร้ดีเลย์ 300ms บนมือถือ
+      el.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         action();
-      };
+      });
     }
   };
   
@@ -262,10 +263,20 @@ function setupTouchZones() {
     else targetPlayerLane = Math.min(2, targetPlayerLane + 1);
   });
   setupTap('p2-touch-up', () => {
-    if (mode === 'local_2p') targetP2Lane = Math.max(0, targetP2Lane - 1);
+    if (mode === 'local_2p') {
+      targetP2Lane = Math.max(0, targetP2Lane - 1);
+    } else {
+      // โหมดผู้เล่นคนเดียว/ออนไลน์ ให้ปุ่มฝั่งขวาเคลื่อนย้ายผู้เล่นหลักได้ด้วย เพื่อลบล้าง Dead Zone
+      targetPlayerLane = Math.max(0, targetPlayerLane - 1);
+    }
   });
   setupTap('p2-touch-down', () => {
-    if (mode === 'local_2p') targetP2Lane = Math.min(2, targetP2Lane + 1);
+    if (mode === 'local_2p') {
+      targetP2Lane = Math.min(2, targetP2Lane + 1);
+    } else {
+      // โหมดผู้เล่นคนเดียว/ออนไลน์
+      targetPlayerLane = Math.min(2, targetPlayerLane + 1);
+    }
   });
 }
 setupTouchZones();
@@ -427,28 +438,83 @@ function drawChibiPlayer(ctx, x, y, frame, colorHead, colorBody) {
 }
 
 // วาดบล็อกคำถามสีทอง (? Box) สำหรับเลือกคำตอบ
-function drawQuestionBlock(ctx, x, y, value, isCorrect) {
+function drawQuestionBlock(ctx, x, y, value, isCorrect, isChosen, hitResolved) {
   ctx.save();
   ctx.translate(x, y);
 
-  // บล็อกสี่เหลี่ยมสีทองขอบมน
-  ctx.fillStyle = '#fcb42c';
-  ctx.strokeStyle = '#000';
-  ctx.lineWidth = 3.5;
-  ctx.beginPath();
-  ctx.roundRect(-24, -24, 48, 48, 8);
-  ctx.fill();
-  ctx.stroke();
+  if (hitResolved) {
+    if (isChosen) {
+      if (isCorrect) {
+        // ตอบถูก: แสดงบล็อกสีเขียว และมีเครื่องหมายถูก
+        ctx.fillStyle = '#2ecc71';
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.roundRect(-24, -24, 48, 48, 8);
+        ctx.fill();
+        ctx.stroke();
 
-  // รายละเอียดจุดสี่สีมุมบล็อก
-  ctx.fillStyle = '#b87c04';
-  ctx.fillRect(-19, -19, 4, 4);
-  ctx.fillRect(15, -19, 4, 4);
-  ctx.fillRect(-19, 15, 4, 4);
-  ctx.fillRect(15, 15, 4, 4);
+        // เครื่องหมายถูกสีขาว (Checkmark)
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 4.5;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(-10, 0);
+        ctx.lineTo(-2, 8);
+        ctx.lineTo(10, -6);
+        ctx.stroke();
+      } else {
+        // ตอบผิด: แสดงบล็อกสีแดง และมีเครื่องหมายกากบาท
+        ctx.fillStyle = '#ff4757';
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.roundRect(-24, -24, 48, 48, 8);
+        ctx.fill();
+        ctx.stroke();
 
-  // วาดค่าของตัวเลือกตัวเลข
-  ctx.fillStyle = '#000';
+        // เครื่องหมายกากบาทสีขาว (X)
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 4.5;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(-8, -8);
+        ctx.lineTo(8, 8);
+        ctx.moveTo(8, -8);
+        ctx.lineTo(-8, 8);
+        ctx.stroke();
+      }
+    } else {
+      // ตัวเลือกรองอื่นๆ ที่ไม่ได้เลือก: แสดงผลโปร่งใสจางๆ
+      ctx.globalAlpha = 0.25;
+      ctx.fillStyle = '#cccccc';
+      ctx.strokeStyle = '#666666';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.roundRect(-24, -24, 48, 48, 8);
+      ctx.fill();
+      ctx.stroke();
+    }
+  } else {
+    // บล็อกปกติที่รอให้วิ่งชน (สีทอง ? Block สไตล์มาริโอ้)
+    ctx.fillStyle = '#fcb42c';
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 3.5;
+    ctx.beginPath();
+    ctx.roundRect(-24, -24, 48, 48, 8);
+    ctx.fill();
+    ctx.stroke();
+
+    // รายละเอียดจุดสี่สีมุมบล็อก
+    ctx.fillStyle = '#b87c04';
+    ctx.fillRect(-19, -19, 4, 4);
+    ctx.fillRect(15, -19, 4, 4);
+    ctx.fillRect(-19, 15, 4, 4);
+    ctx.fillRect(15, 15, 4, 4);
+  }
+
+  // วาดค่าของตัวเลือกตัวเลข (แสดงแบบขาวเมื่อชนแล้ว และดำปกติเมื่อรอชน)
+  ctx.fillStyle = (hitResolved && isChosen) ? '#ffffff' : '#000000';
   ctx.font = 'bold 23px Fredoka One, Sarabun, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -519,12 +585,13 @@ function loop() {
       const b = p1Blocks[i];
       b.x -= blockSpeed;
       const by = getP1Y(b.lane);
-      drawQuestionBlock(ctx, b.x, by, b.value, b.isCorrect);
+      drawQuestionBlock(ctx, b.x, by, b.value, b.isCorrect, b.isChosen, b.hitResolved);
 
       // ตรวจสอบการชน (Collision)
       if (!b.hitResolved && b.x <= cw * 0.2 + 20 && b.x >= cw * 0.2 - 20) {
         b.hitResolved = true;
         if (p1Lane === b.lane) {
+          b.isChosen = true;
           resolveHit(1, b.isCorrect, b.x, by);
         }
       }
@@ -568,11 +635,12 @@ function loop() {
       const b = p2Blocks[i];
       b.x -= blockSpeed;
       const by = getP2Y(b.lane);
-      drawQuestionBlock(ctx, b.x, sh + by, b.value, b.isCorrect);
+      drawQuestionBlock(ctx, b.x, sh + by, b.value, b.isCorrect, b.isChosen, b.hitResolved);
 
       if (!b.hitResolved && b.x <= cw * 0.2 + 20 && b.x >= cw * 0.2 - 20) {
         b.hitResolved = true;
         if (p2Lane === b.lane) {
+          b.isChosen = true;
           resolveHit(2, b.isCorrect, b.x, sh + by);
         }
       }
@@ -639,12 +707,13 @@ function loop() {
       const b = floatBlocks[i];
       b.x -= blockSpeed;
       const by = getLanesY(b.lane);
-      drawQuestionBlock(ctx, b.x, by, b.value, b.isCorrect);
+      drawQuestionBlock(ctx, b.x, by, b.value, b.isCorrect, b.isChosen, b.hitResolved);
 
       // ชน
       if (!b.hitResolved && b.x <= cw * 0.2 + 20 && b.x >= cw * 0.2 - 20) {
         b.hitResolved = true;
         if (playerLane === b.lane) {
+          b.isChosen = true;
           resolveHit(1, b.isCorrect, b.x, by);
         }
       }
