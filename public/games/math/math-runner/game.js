@@ -119,17 +119,24 @@ let isGameOver = false, started = false;
 let gameTimeLeft = CFG.TIME_SECONDS;
 let timerIntervalId = null;
 
+let keysPressed = {};
+let speedStep = 0; // ขั้นบันไดสปีดเกม
+let touchMoveDirX = 0, p1TouchMoveDirX = 0, p2TouchMoveDirX = 0;
+
 // ข้อมูลสำหรับ 1 Player และ Online
 let playerLane = 1; // 0, 1, 2
 let targetPlayerLane = 1;
 let playerY = 0;
+let playerX = 0;
 let activeQuestion = null;
 let floatBlocks = []; // { x, y, lane, value, isCorrect }
 let blockSpeed = CFG.BLOCK_START_SPEED;
 
 // ข้อมูลสำหรับ Local 2 Players
 let p1Lane = 1, targetP1Lane = 1, p1Y = 0, p1Score = 0, p1Lives = 3;
+let p1X = 0;
 let p2Lane = 1, targetP2Lane = 1, p2Y = 0, p2Score = 0, p2Lives = 3;
+let p2X = 0;
 let p1Question = null, p2Question = null;
 let p1Blocks = [], p2Blocks = [];
 let p1Combo = 0, p2Combo = 0;
@@ -160,9 +167,10 @@ let p1BgOffset = 0;
 let p2BgOffset = 0;
 
 function getTierByScore(val) {
-  if (val > 300) return 4;
-  if (val > 150) return 3;
-  if (val > 60) return 2;
+  if (val > 350) return 5;
+  if (val > 220) return 4;
+  if (val > 120) return 3;
+  if (val > 50) return 2;
   return 1;
 }
 
@@ -205,6 +213,9 @@ function spawnBlocksForQuestion(q) {
 
 /* ── อินพุตการควบคุม ── */
 window.addEventListener('keydown', e => {
+  keysPressed[e.key.toLowerCase()] = true;
+  keysPressed[e.key] = true;
+
   if (!started || isGameOver) return;
   
   if (mode === 'local_2p') {
@@ -239,134 +250,340 @@ window.addEventListener('keydown', e => {
   }
 });
 
-// สัมผัสหน้าจอมือถือ (Swipes และ Taps)
-let touchStartY = 0;
-window.addEventListener('touchstart', e => {
-  touchStartY = e.touches[0].clientY;
-}, { passive: true });
+window.addEventListener('keyup', e => {
+  keysPressed[e.key.toLowerCase()] = false;
+  keysPressed[e.key] = false;
+});
 
-window.addEventListener('touchend', e => {
+// สัมผัสหน้าจอมือถือ (การควบคุมแบบสัมผัสสัมพัทธ์ Tap-to-Move)
+function handleTouchInput(e) {
   if (!started || isGameOver) return;
-  const touchEndY = e.changedTouches[0].clientY;
-  const diffY = touchEndY - touchStartY;
   
-  if (Math.abs(diffY) > 30) {
-    const isUp = diffY < 0;
+  // รีเซ็ตค่าทิศทางการเคลื่อนสัมผัสก่อน เพื่อคำนวณใหม่จากทุกนิ้วที่สัมผัสอยู่
+  touchMoveDirX = 0;
+  p1TouchMoveDirX = 0;
+  p2TouchMoveDirX = 0;
+
+  for (let i = 0; i < e.touches.length; i++) {
+    const touch = e.touches[i];
+    const tx = touch.clientX;
+    const ty = touch.clientY;
+
     if (mode === 'local_2p') {
-      const clientX = e.changedTouches[0].clientX;
-      if (clientX < cw / 2) {
-        const dir = (p1ConfusedTime > 0) ? -1 : 1;
-        targetP1Lane = isUp ? Math.max(0, Math.min(2, targetP1Lane - dir)) : Math.min(2, Math.max(0, targetP1Lane + dir));
+      const sh = ch / 2;
+      if (tx < cw / 2) {
+        // ฝั่ง P1 (ซ้าย)
+        if (tx > p1X + 25) p1TouchMoveDirX = 1;
+        else if (tx < p1X - 25) p1TouchMoveDirX = -1;
+        
+        // แบ่ง Y เป็น 3 เลน (เลน 0, 1, 2) ในครึ่งจอบน
+        if (ty < sh * 0.40) {
+          const dir = (p1ConfusedTime > 0) ? 2 : 0;
+          targetP1Lane = dir === 2 ? 2 : 0;
+        } else if (ty < sh * 0.70) {
+          targetP1Lane = 1;
+        } else {
+          const dir = (p1ConfusedTime > 0) ? 0 : 2;
+          targetP1Lane = dir;
+        }
       } else {
-        const dir = (p2ConfusedTime > 0) ? -1 : 1;
-        targetP2Lane = isUp ? Math.max(0, Math.min(2, targetP2Lane - dir)) : Math.min(2, Math.max(0, targetP2Lane + dir));
+        // ฝั่ง P2 (ขวา)
+        if (tx > p2X + 25) p2TouchMoveDirX = 1;
+        else if (tx < p2X - 25) p2TouchMoveDirX = -1;
+        
+        // แบ่ง Y เป็น 3 เลนในครึ่งจอล่าง
+        const relativeTy = ty - sh;
+        if (relativeTy < sh * 0.40) {
+          const dir = (p2ConfusedTime > 0) ? 2 : 0;
+          targetP2Lane = dir === 2 ? 2 : 0;
+        } else if (relativeTy < sh * 0.70) {
+          targetP2Lane = 1;
+        } else {
+          const dir = (p2ConfusedTime > 0) ? 0 : 2;
+          targetP2Lane = dir;
+        }
       }
     } else {
-      const dir = (p1ConfusedTime > 0) ? -1 : 1;
-      targetPlayerLane = isUp ? Math.max(0, Math.min(2, targetPlayerLane - dir)) : Math.min(2, Math.max(0, targetPlayerLane + dir));
+      // โหมดผู้เล่นคนเดียว (เต็มจอ)
+      if (tx > playerX + 35) touchMoveDirX = 1;
+      else if (tx < playerX - 35) touchMoveDirX = -1;
+      
+      // แบ่งจอตามแนวตั้งเป็น 3 ส่วนเพื่อเปลี่ยนเลน
+      if (ty < ch * 0.40) {
+        const dir = (p1ConfusedTime > 0) ? 2 : 0;
+        targetPlayerLane = dir === 2 ? 2 : 0;
+      } else if (ty < ch * 0.70) {
+        targetPlayerLane = 1;
+      } else {
+        const dir = (p1ConfusedTime > 0) ? 0 : 2;
+        targetPlayerLane = dir;
+      }
     }
   }
-}, { passive: true });
-
-// แทปปุ่ม Touch Zone
-function setupTouchZones() {
-  const setupTap = (id, action) => {
-    const el = $(id);
-    if (el) {
-      el.addEventListener('pointerdown', (e) => {
-        e.preventDefault();
-        action();
-      });
-    }
-  };
-  
-  setupTap('p1-touch-up', () => {
-    const dir = (p1ConfusedTime > 0) ? 1 : -1;
-    if (mode === 'local_2p') targetP1Lane = Math.max(0, Math.min(2, targetP1Lane + dir));
-    else targetPlayerLane = Math.max(0, Math.min(2, targetPlayerLane + dir));
-  });
-  setupTap('p1-touch-down', () => {
-    const dir = (p1ConfusedTime > 0) ? -1 : 1;
-    if (mode === 'local_2p') targetP1Lane = Math.max(0, Math.min(2, targetP1Lane + dir));
-    else targetPlayerLane = Math.max(0, Math.min(2, targetPlayerLane + dir));
-  });
-  setupTap('p2-touch-up', () => {
-    if (mode === 'local_2p') {
-      const dir = (p2ConfusedTime > 0) ? 1 : -1;
-      targetP2Lane = Math.max(0, Math.min(2, targetP2Lane + dir));
-    } else {
-      const dir = (p1ConfusedTime > 0) ? 1 : -1;
-      targetPlayerLane = Math.max(0, Math.min(2, targetPlayerLane + dir));
-    }
-  });
-  setupTap('p2-touch-down', () => {
-    if (mode === 'local_2p') {
-      const dir = (p2ConfusedTime > 0) ? -1 : 1;
-      targetP2Lane = Math.min(2, Math.max(0, targetP2Lane + dir));
-    } else {
-      const dir = (p1ConfusedTime > 0) ? -1 : 1;
-      targetPlayerLane = Math.max(0, Math.min(2, targetPlayerLane + dir));
-    }
-  });
 }
-setupTouchZones();
+
+window.addEventListener('touchstart', e => {
+  // ป้องกันเฉพาะเมื่อเกมกำลังรันอยู่เพื่อไม่ให้รบกวนหน้าเว็บหลัก
+  if (started && !isGameOver) {
+    e.preventDefault();
+    handleTouchInput(e);
+  }
+}, { passive: false });
+
+window.addEventListener('touchmove', e => {
+  if (started && !isGameOver) {
+    e.preventDefault();
+    handleTouchInput(e);
+  }
+}, { passive: false });
+
+window.addEventListener('touchend', e => {
+  if (started && !isGameOver) {
+    e.preventDefault();
+    handleTouchInput(e);
+  }
+}, { passive: false });
 
 /* ── แอนิเมชันวาดรูป ── */
 
 // วาดท้องฟ้าและสนามหญ้าอิฐดิน (สไตล์มาริโอ้)
-function drawRetroHills(ctx, cw, ch, offset, screenYOffset, screenHeight) {
+function drawRetroHills(ctx, cw, ch, offset, screenYOffset, screenHeight, currentLvl = 1) {
   ctx.save();
   ctx.translate(0, screenYOffset);
+
+  const lvl = Math.max(1, Math.min(5, currentLvl));
+
+  // 1. Sky Color
+  let skyColor = '#5c94fc';
+  if (lvl === 2) skyColor = '#d68910';
+  else if (lvl === 3) skyColor = '#121214';
+  else if (lvl === 4) skyColor = '#d5b8ff';
+  else if (lvl === 5) skyColor = '#210404';
   
-  // 1. Sky blue background
-  ctx.fillStyle = '#5c94fc';
+  ctx.fillStyle = skyColor;
   ctx.fillRect(0, 0, cw, screenHeight);
 
-  // 2. Clouds (ขยับช้าๆ)
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
-  const numClouds = Math.ceil(cw / 350) + 1;
-  for (let i = 0; i < numClouds; i++) {
-    const cx = i * 350 - (offset * 0.15) % 350 + 50;
-    const cy = screenHeight * 0.18;
+  // 2. Clouds / Sun / Stalactites / Ash
+  if (lvl === 1) {
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+    const numClouds = Math.ceil(cw / 350) + 1;
+    for (let i = 0; i < numClouds; i++) {
+      const cx = i * 350 - (offset * 0.15) % 350 + 50;
+      const cy = screenHeight * 0.18;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 25, 0, Math.PI * 2);
+      ctx.arc(cx + 20, cy - 10, 30, 0, Math.PI * 2);
+      ctx.arc(cx + 45, cy, 22, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else if (lvl === 2) {
+    ctx.fillStyle = '#f5b041';
     ctx.beginPath();
-    ctx.arc(cx, cy, 25, 0, Math.PI * 2);
-    ctx.arc(cx + 20, cy - 10, 30, 0, Math.PI * 2);
-    ctx.arc(cx + 45, cy, 22, 0, Math.PI * 2);
+    ctx.arc(cw * 0.8, screenHeight * 0.2, 40, 0, Math.PI * 2);
     ctx.fill();
+    ctx.fillStyle = 'rgba(245, 176, 65, 0.2)';
+    ctx.beginPath();
+    ctx.arc(cw * 0.8, screenHeight * 0.2, 60, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = 'rgba(186, 74, 0, 0.3)';
+    const numClouds = Math.ceil(cw / 400) + 1;
+    for (let i = 0; i < numClouds; i++) {
+      const cx = i * 400 - (offset * 0.1) % 400 + 100;
+      const cy = screenHeight * 0.15;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 20, 0, Math.PI * 2);
+      ctx.arc(cx + 30, cy, 25, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else if (lvl === 3) {
+    ctx.fillStyle = '#1b2631';
+    const numStalactites = Math.ceil(cw / 80) + 1;
+    for (let i = 0; i < numStalactites; i++) {
+      const sx = i * 80 - (offset * 0.05) % 80;
+      const shHeight = 15 + ((i % 3) * 12);
+      ctx.beginPath();
+      ctx.moveTo(sx, 0);
+      ctx.lineTo(sx + 20, shHeight);
+      ctx.lineTo(sx + 40, 0);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.fillStyle = '#16a085';
+    for (let i = 0; i < numStalactites; i++) {
+      if (i % 2 === 0) {
+        const sx = i * 80 - (offset * 0.05) % 80 + 20;
+        const shHeight = 15 + ((i % 3) * 12);
+        ctx.beginPath();
+        ctx.arc(sx, shHeight, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  } else if (lvl === 4) {
+    ctx.fillStyle = 'rgba(255, 235, 235, 0.8)';
+    const numClouds = Math.ceil(cw / 250) + 1;
+    for (let i = 0; i < numClouds; i++) {
+      const cx = i * 250 - (offset * 0.25) % 250;
+      const cy = screenHeight * 0.25;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 30, 0, Math.PI * 2);
+      ctx.arc(cx + 25, cy - 15, 35, 0, Math.PI * 2);
+      ctx.arc(cx + 50, cy, 25, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else if (lvl === 5) {
+    ctx.fillStyle = 'rgba(60, 60, 60, 0.7)';
+    const numClouds = Math.ceil(cw / 300) + 1;
+    for (let i = 0; i < numClouds; i++) {
+      const cx = i * 300 - (offset * 0.2) % 300;
+      const cy = screenHeight * 0.18;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 25, 0, Math.PI * 2);
+      ctx.arc(cx + 20, cy - 10, 30, 0, Math.PI * 2);
+      ctx.arc(cx + 40, cy, 22, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
 
-  // 3. Darker Green Hills (Layer หลังสุด)
-  ctx.fillStyle = '#008a00';
-  const numHills = Math.ceil(cw / 260) + 2;
-  for (let i = 0; i < numHills; i++) {
-    const hx = i * 260 - (offset * 0.3) % 260;
-    ctx.beginPath();
-    ctx.arc(hx, screenHeight - 20, 140, Math.PI, 0);
-    ctx.fill();
+  // 3 & 4. Hills / Pyramids / Rocks / Volcanoes
+  if (lvl === 1) {
+    ctx.fillStyle = '#008a00';
+    const numHills = Math.ceil(cw / 260) + 2;
+    for (let i = 0; i < numHills; i++) {
+      const hx = i * 260 - (offset * 0.3) % 260;
+      ctx.beginPath();
+      ctx.arc(hx, screenHeight - 20, 140, Math.PI, 0);
+      ctx.fill();
+    }
+    ctx.fillStyle = '#00a800';
+    for (let i = 0; i < numHills; i++) {
+      const hx = i * 260 - (offset * 0.5) % 260 + 130;
+      ctx.beginPath();
+      ctx.arc(hx, screenHeight - 10, 110, Math.PI, 0);
+      ctx.fill();
+    }
+  } else if (lvl === 2) {
+    ctx.fillStyle = '#ba4a00';
+    const numPyramids = Math.ceil(cw / 300) + 2;
+    for (let i = 0; i < numPyramids; i++) {
+      const px = i * 300 - (offset * 0.3) % 300;
+      ctx.beginPath();
+      ctx.moveTo(px - 50, screenHeight - 20);
+      ctx.lineTo(px + 70, screenHeight - 160);
+      ctx.lineTo(px + 190, screenHeight - 20);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.fillStyle = '#f5b041';
+    for (let i = 0; i < numPyramids; i++) {
+      const px = i * 300 - (offset * 0.5) % 300 + 150;
+      ctx.beginPath();
+      ctx.moveTo(px - 40, screenHeight - 15);
+      ctx.lineTo(px + 50, screenHeight - 110);
+      ctx.lineTo(px + 140, screenHeight - 15);
+      ctx.closePath();
+      ctx.fill();
+    }
+  } else if (lvl === 3) {
+    ctx.fillStyle = '#2c3e50';
+    const numRocks = Math.ceil(cw / 200) + 2;
+    for (let i = 0; i < numRocks; i++) {
+      const rx = i * 200 - (offset * 0.3) % 200;
+      ctx.beginPath();
+      ctx.moveTo(rx - 30, screenHeight - 20);
+      ctx.lineTo(rx + 40, screenHeight - 130);
+      ctx.lineTo(rx + 60, screenHeight - 110);
+      ctx.lineTo(rx + 110, screenHeight - 20);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.fillStyle = '#16a085';
+    for (let i = 0; i < numRocks; i++) {
+      const rx = i * 200 - (offset * 0.5) % 200 + 100;
+      ctx.beginPath();
+      ctx.moveTo(rx - 20, screenHeight - 10);
+      ctx.lineTo(rx + 30, screenHeight - 80);
+      ctx.lineTo(rx + 80, screenHeight - 10);
+      ctx.closePath();
+      ctx.fill();
+    }
+  } else if (lvl === 4) {
+    ctx.fillStyle = '#ebdef0';
+    const numHills = Math.ceil(cw / 240) + 2;
+    for (let i = 0; i < numHills; i++) {
+      const hx = i * 240 - (offset * 0.3) % 240;
+      ctx.beginPath();
+      ctx.arc(hx, screenHeight - 10, 110, Math.PI, 0);
+      ctx.fill();
+    }
+    ctx.fillStyle = '#f1948a';
+    for (let i = 0; i < numHills; i++) {
+      const hx = i * 240 - (offset * 0.5) % 240 + 120;
+      ctx.beginPath();
+      ctx.arc(hx, screenHeight - 5, 80, Math.PI, 0);
+      ctx.fill();
+    }
+  } else if (lvl === 5) {
+    ctx.fillStyle = '#5c0e0e';
+    const numVolcanoes = Math.ceil(cw / 280) + 2;
+    for (let i = 0; i < numVolcanoes; i++) {
+      const vx = i * 280 - (offset * 0.3) % 280;
+      ctx.beginPath();
+      ctx.moveTo(vx - 50, screenHeight - 20);
+      ctx.lineTo(vx + 40, screenHeight - 150);
+      ctx.lineTo(vx + 60, screenHeight - 150);
+      ctx.lineTo(vx + 150, screenHeight - 20);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#e74c3c';
+      ctx.beginPath();
+      ctx.ellipse(vx + 50, screenHeight - 150, 10, 3, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.fillStyle = '#1f1f1f';
+    for (let i = 0; i < numVolcanoes; i++) {
+      const fx = i * 280 - (offset * 0.5) % 280 + 140;
+      ctx.fillRect(fx - 30, screenHeight - 90, 60, 90);
+      ctx.clearRect(fx - 20, screenHeight - 90, 10, 10);
+      ctx.clearRect(fx, screenHeight - 90, 10, 10);
+      ctx.clearRect(fx + 20, screenHeight - 90, 10, 10);
+      
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(fx - 30, screenHeight - 90, 60, 90);
+    }
   }
 
-  // 4. Lighter Green Hills (Layer หน้า)
-  ctx.fillStyle = '#00a800';
-  for (let i = 0; i < numHills; i++) {
-    const hx = i * 260 - (offset * 0.5) % 260 + 130;
-    ctx.beginPath();
-    ctx.arc(hx, screenHeight - 10, 110, Math.PI, 0);
-    ctx.fill();
-  }
-
-  // 5. Lanes (3 เลน อิฐดินปูสนามหญ้า)
+  // 5. Lanes
   const laneHeight = screenHeight / 6.5;
   for (let l = 0; l < 3; l++) {
     const ly = screenHeight * 0.40 + l * laneHeight;
     
-    // บล็อกอิฐแดงส้ม
-    ctx.fillStyle = '#e45c10';
+    let brickColor = '#e45c10';
+    let brickTopColor = '#00a800';
+    
+    if (lvl === 2) {
+      brickColor = '#873600';
+      brickTopColor = '#ba4a00';
+    } else if (lvl === 3) {
+      brickColor = '#1b2631';
+      brickTopColor = '#16a085';
+    } else if (lvl === 4) {
+      brickColor = '#85c1e9';
+      brickTopColor = '#ffffff';
+    } else if (lvl === 5) {
+      brickColor = '#78281f';
+      brickTopColor = '#e74c3c';
+    }
+
+    ctx.fillStyle = brickColor;
     ctx.fillRect(0, ly, cw, 22);
     ctx.strokeStyle = '#000';
     ctx.lineWidth = 3;
     ctx.strokeRect(-5, ly, cw + 10, 22);
     
-    // รอยตารางอิฐบล็อก
     ctx.strokeStyle = 'rgba(0,0,0,0.3)';
     ctx.lineWidth = 2;
     for (let bx = 0; bx < cw + 50; bx += 40) {
@@ -376,8 +593,7 @@ function drawRetroHills(ctx, cw, ch, offset, screenYOffset, screenHeight) {
       ctx.stroke();
     }
 
-    // หญ้าสีเขียวสดบนเลน
-    ctx.fillStyle = '#00a800';
+    ctx.fillStyle = brickTopColor;
     ctx.fillRect(0, ly - 6, cw, 6);
     ctx.strokeStyle = '#000';
     ctx.strokeRect(-5, ly - 6, cw + 10, 6);
@@ -984,6 +1200,12 @@ function hitMonster(playerIndex, type, x, y) {
         addFloatingText(x, y, `💥 -${CFG.WRONG_PENALTY}!`, '#ff4757');
       }
     }
+
+    // สปีดลดลง (ขั้นบันได)
+    speedStep = Math.max(0, speedStep - 1);
+    correctAnswersCount = speedStep * 5;
+    blockSpeed = Math.min(CFG.BLOCK_MAX_SPEED, CFG.BLOCK_START_SPEED + speedStep * 1.2);
+    addFloatingText(x, y, '⚠️ สปีดลดลง!', '#ff4757');
   }
 }
 
@@ -1089,6 +1311,46 @@ function loop() {
   const p1Speed = (p1SlowTime > 0) ? blockSpeed * 0.65 : blockSpeed;
   const p2Speed = (p2SlowTime > 0) ? blockSpeed * 0.65 : blockSpeed;
 
+  // ความเร็วการเดินเคลื่อนที่ของตัวละคร ซ้าย-ขวา อิสระ
+  const forwardBaseSpeed = 6.5;
+  const backwardBaseSpeed = 3.5;
+  
+  const p1ForwardSpeed = (p1SlowTime > 0) ? forwardBaseSpeed * 0.65 : forwardBaseSpeed;
+  const p1BackwardSpeed = (p1SlowTime > 0) ? backwardBaseSpeed * 0.65 : backwardBaseSpeed;
+  
+  const p2ForwardSpeed = (p2SlowTime > 0) ? forwardBaseSpeed * 0.65 : forwardBaseSpeed;
+  const p2BackwardSpeed = (p2SlowTime > 0) ? backwardBaseSpeed * 0.65 : backwardBaseSpeed;
+  
+  const singleForwardSpeed = (p1SlowTime > 0) ? forwardBaseSpeed * 0.65 : forwardBaseSpeed;
+  const singleBackwardSpeed = (p1SlowTime > 0) ? backwardBaseSpeed * 0.65 : backwardBaseSpeed;
+
+  // อัปเดตตำแหน่ง X ของผู้เล่น
+  if (mode === 'local_2p') {
+    if (keysPressed['d'] || keysPressed['D'] || p1TouchMoveDirX === 1) {
+      p1X += p1ForwardSpeed;
+    }
+    if (keysPressed['a'] || keysPressed['A'] || p1TouchMoveDirX === -1) {
+      p1X -= p1BackwardSpeed;
+    }
+    p1X = Math.max(20, Math.min(cw - 20, p1X));
+
+    if (keysPressed['arrowright'] || keysPressed['ArrowRight'] || p2TouchMoveDirX === 1) {
+      p2X += p2ForwardSpeed;
+    }
+    if (keysPressed['arrowleft'] || keysPressed['ArrowLeft'] || p2TouchMoveDirX === -1) {
+      p2X -= p2BackwardSpeed;
+    }
+    p2X = Math.max(20, Math.min(cw - 20, p2X));
+  } else {
+    if (keysPressed['d'] || keysPressed['D'] || keysPressed['arrowright'] || keysPressed['ArrowRight'] || touchMoveDirX === 1) {
+      playerX += singleForwardSpeed;
+    }
+    if (keysPressed['a'] || keysPressed['A'] || keysPressed['arrowleft'] || keysPressed['ArrowLeft'] || touchMoveDirX === -1) {
+      playerX -= singleBackwardSpeed;
+    }
+    playerX = Math.max(20, Math.min(cw - 20, playerX));
+  }
+
   // ขยับฉากหลังตามความเร็วของผู้เล่น
   if (mode === 'local_2p') {
     p1BgOffset += p1Speed;
@@ -1109,7 +1371,7 @@ function loop() {
     const sh = ch / 2;
 
     // ── จอผู้เล่น 1 (ครึ่งบน) ──
-    drawRetroHills(ctx, cw, sh, p1BgOffset, 0, sh);
+    drawRetroHills(ctx, cw, sh, p1BgOffset, 0, sh, getTierByScore(p1Score));
     
     // คำนวณความสูงเลน P1
     const p1LHeight = sh / 6.5;
@@ -1117,7 +1379,7 @@ function loop() {
     p1Y += (getP1Y(targetP1Lane) - p1Y) * 0.25; // Smooth Y change
 
     // วาด P1 (หมวกแดง เสื้อแดง เอี๊ยมน้ำเงิน) พร้อมบัฟ
-    drawChibiPlayer(ctx, cw * 0.2, p1Y, p1BgOffset, '#FF4136', '#2b5c8f', p1IsGiant, p1InvincibleTime, p1SlowTime, p1ConfusedTime);
+    drawChibiPlayer(ctx, p1X, p1Y, p1BgOffset, '#FF4136', '#2b5c8f', p1IsGiant, p1InvincibleTime, p1SlowTime, p1ConfusedTime);
 
     // วาดและประมวลผลบล็อก P1
     for (let i = 0; i < p1Blocks.length; i++) {
@@ -1127,7 +1389,7 @@ function loop() {
       drawQuestionBlock(ctx, b.x, by, b.value, b.isCorrect, b.isChosen, b.hitResolved);
 
       // ตรวจสอบการชน (Collision)
-      if (!b.hitResolved && b.x <= cw * 0.2 + 20 && b.x >= cw * 0.2 - 20) {
+      if (!b.hitResolved && b.x <= p1X + 25 && b.x >= p1X - 25) {
         b.hitResolved = true;
         if (p1Lane === b.lane) {
           b.isChosen = true;
@@ -1143,7 +1405,7 @@ function loop() {
       const my = getP1Y(m.lane);
       drawMonster(ctx, m.x, my, m.type, p1BgOffset);
 
-      if (!m.hitResolved && m.x <= cw * 0.2 + 25 && m.x >= cw * 0.2 - 25) {
+      if (!m.hitResolved && m.x <= p1X + 28 && m.x >= p1X - 28) {
         if (p1Lane === m.lane) {
           m.hitResolved = true;
           hitMonster(1, m.type, m.x, my);
@@ -1160,7 +1422,7 @@ function loop() {
       const ity = getP1Y(it.lane);
       drawItem(ctx, it.x, ity, it.type, p1BgOffset);
 
-      if (!it.hitResolved && it.x <= cw * 0.2 + 25 && it.x >= cw * 0.2 - 25) {
+      if (!it.hitResolved && it.x <= p1X + 28 && it.x >= p1X - 28) {
         if (p1Lane === it.lane) {
           it.hitResolved = true;
           collectItem(1, it.type, it.x, ity);
@@ -1170,7 +1432,7 @@ function loop() {
     }
 
     // เกิดคำใหม่เมื่อผ่านพ้นตัวละครไปทั้งหมด
-    if (p1Blocks.length > 0 && p1Blocks[0].x < cw * 0.2 - 80) {
+    if (p1Blocks.length > 0 && p1Blocks[p1Blocks.length - 1].x < p1X - 80) {
       generateNewQuestion(1);
     }
 
@@ -1207,7 +1469,7 @@ function loop() {
     ctx.restore();
 
     // ── จอผู้เล่น 2 (ครึ่งล่าง) ──
-    drawRetroHills(ctx, cw, sh, p2BgOffset, sh, sh);
+    drawRetroHills(ctx, cw, sh, p2BgOffset, sh, sh, getTierByScore(p2Score));
     
     // คำนวณความสูงเลน P2
     const p2LHeight = sh / 6.5;
@@ -1215,7 +1477,7 @@ function loop() {
     p2Y += (getP2Y(targetP2Lane) - p2Y) * 0.25;
 
     // วาด P2 (หมวกเขียว เสื้อเขียว เอี๊ยมเขียวแก่) พร้อมบัฟ
-    drawChibiPlayer(ctx, cw * 0.2, sh + p2Y, p2BgOffset, '#2ecc70', '#006400', p2IsGiant, p2InvincibleTime, p2SlowTime, p2ConfusedTime);
+    drawChibiPlayer(ctx, p2X, sh + p2Y, p2BgOffset, '#2ecc70', '#006400', p2IsGiant, p2InvincibleTime, p2SlowTime, p2ConfusedTime);
 
     // วาดและประมวลผลบล็อก P2
     for (let i = 0; i < p2Blocks.length; i++) {
@@ -1224,7 +1486,7 @@ function loop() {
       const by = getP2Y(b.lane);
       drawQuestionBlock(ctx, b.x, sh + by, b.value, b.isCorrect, b.isChosen, b.hitResolved);
 
-      if (!b.hitResolved && b.x <= cw * 0.2 + 20 && b.x >= cw * 0.2 - 20) {
+      if (!b.hitResolved && b.x <= p2X + 25 && b.x >= p2X - 25) {
         b.hitResolved = true;
         if (p2Lane === b.lane) {
           b.isChosen = true;
@@ -1240,7 +1502,7 @@ function loop() {
       const my = getP2Y(m.lane);
       drawMonster(ctx, m.x, sh + my, m.type, p2BgOffset);
 
-      if (!m.hitResolved && m.x <= cw * 0.2 + 25 && m.x >= cw * 0.2 - 25) {
+      if (!m.hitResolved && m.x <= p2X + 28 && m.x >= p2X - 28) {
         if (p2Lane === m.lane) {
           m.hitResolved = true;
           hitMonster(2, m.type, m.x, sh + my);
@@ -1257,7 +1519,7 @@ function loop() {
       const ity = getP2Y(it.lane);
       drawItem(ctx, it.x, sh + ity, it.type, p2BgOffset);
 
-      if (!it.hitResolved && it.x <= cw * 0.2 + 25 && it.x >= cw * 0.2 - 25) {
+      if (!it.hitResolved && it.x <= p2X + 28 && it.x >= p2X - 28) {
         if (p2Lane === it.lane) {
           it.hitResolved = true;
           collectItem(2, it.type, it.x, sh + ity);
@@ -1266,7 +1528,7 @@ function loop() {
       if (it.x < -50) p2Items.splice(i, 1);
     }
 
-    if (p2Blocks.length > 0 && p2Blocks[0].x < cw * 0.2 - 80) {
+    if (p2Blocks.length > 0 && p2Blocks[p2Blocks.length - 1].x < p2X - 80) {
       generateNewQuestion(2);
     }
 
@@ -1327,7 +1589,7 @@ function loop() {
     //  โหมด 1 คน หรือ โหมดออนไลน์ (เต็มจอเดี่ยว)
     // ══════════════════════════════════════════════════════════
     
-    drawRetroHills(ctx, cw, ch, bgOffset, 0, ch);
+    drawRetroHills(ctx, cw, ch, bgOffset, 0, ch, getTierByScore(score));
     
     // คำนวณตำแหน่ง Y
     const laneHeight = ch / 6.5;
@@ -1335,7 +1597,7 @@ function loop() {
     playerY += (getLanesY(targetPlayerLane) - playerY) * 0.25;
 
     // วาดผู้เล่น (Red Cap) พร้อมบัฟ
-    drawChibiPlayer(ctx, cw * 0.2, playerY, bgOffset, '#FF4136', '#2b5c8f', p1IsGiant, p1InvincibleTime, p1SlowTime, p1ConfusedTime);
+    drawChibiPlayer(ctx, playerX, playerY, bgOffset, '#FF4136', '#2b5c8f', p1IsGiant, p1InvincibleTime, p1SlowTime, p1ConfusedTime);
 
     // วาดบล็อกชอยส์คำตอบ
     for (let i = 0; i < floatBlocks.length; i++) {
@@ -1345,7 +1607,7 @@ function loop() {
       drawQuestionBlock(ctx, b.x, by, b.value, b.isCorrect, b.isChosen, b.hitResolved);
 
       // ชน
-      if (!b.hitResolved && b.x <= cw * 0.2 + 20 && b.x >= cw * 0.2 - 20) {
+      if (!b.hitResolved && b.x <= playerX + 25 && b.x >= playerX - 25) {
         b.hitResolved = true;
         if (playerLane === b.lane) {
           b.isChosen = true;
@@ -1361,7 +1623,7 @@ function loop() {
       const my = getLanesY(m.lane);
       drawMonster(ctx, m.x, my, m.type, bgOffset);
 
-      if (!m.hitResolved && m.x <= cw * 0.2 + 25 && m.x >= cw * 0.2 - 25) {
+      if (!m.hitResolved && m.x <= playerX + 28 && m.x >= playerX - 28) {
         if (playerLane === m.lane) {
           m.hitResolved = true;
           hitMonster(1, m.type, m.x, my);
@@ -1378,7 +1640,7 @@ function loop() {
       const ity = getLanesY(it.lane);
       drawItem(ctx, it.x, ity, it.type, bgOffset);
 
-      if (!it.hitResolved && it.x <= cw * 0.2 + 25 && it.x >= cw * 0.2 - 25) {
+      if (!it.hitResolved && it.x <= playerX + 28 && it.x >= playerX - 28) {
         if (playerLane === it.lane) {
           it.hitResolved = true;
           collectItem(1, it.type, it.x, ity);
@@ -1387,7 +1649,7 @@ function loop() {
       if (it.x < -50) activeItems.splice(i, 1);
     }
 
-    if (floatBlocks.length > 0 && floatBlocks[0].x < cw * 0.2 - 80) {
+    if (floatBlocks.length > 0 && floatBlocks[floatBlocks.length - 1].x < playerX - 80) {
       generateNewQuestion(1);
     }
 
@@ -1470,6 +1732,7 @@ function resolveHit(playerIndex, isCorrect, x, y) {
     }
     
     if (mode === 'local_2p') {
+      correctAnswersCount++; // สะสมการตอบถูกร่วมกัน
       if (playerIndex === 1) {
         p1Combo++;
         const multiplier = Math.min(5, 1 + Math.floor(p1Combo / 3));
@@ -1507,10 +1770,13 @@ function resolveHit(playerIndex, isCorrect, x, y) {
       }
     }
 
-    // ไต่ระดับความเร็ว
-    if (blockSpeed < CFG.BLOCK_MAX_SPEED) {
-      blockSpeed += 0.05;
+    // ไต่ระดับความเร็วขั้นบันได
+    const newSpeedStep = Math.floor(correctAnswersCount / 5);
+    if (newSpeedStep > speedStep) {
+      speedStep = newSpeedStep;
+      addFloatingText(cw * 0.5, ch * 0.2, '⚡ สปีดอัป!', '#FFD700');
     }
+    blockSpeed = Math.min(CFG.BLOCK_MAX_SPEED, CFG.BLOCK_START_SPEED + speedStep * 1.2);
   } else {
     // ตอบผิด
     if (isInvincible) {
@@ -1558,8 +1824,11 @@ function resolveHit(playerIndex, isCorrect, x, y) {
       }
     }
 
-    // หน่วงความเร็วลงเล็กน้อย
-    blockSpeed = Math.max(CFG.BLOCK_START_SPEED, blockSpeed - 0.5);
+    // สปีดลดลง (ขั้นบันได)
+    speedStep = Math.max(0, speedStep - 1);
+    correctAnswersCount = speedStep * 5;
+    blockSpeed = Math.min(CFG.BLOCK_MAX_SPEED, CFG.BLOCK_START_SPEED + speedStep * 1.2);
+    addFloatingText(x, y, '⚠️ สปีดลดลง!', '#ff4757');
   }
 
   // อัปเกรดเลเวลตามระดับคะแนน/ด่าน
@@ -1586,9 +1855,10 @@ function startSinglePlayer(m) {
   floatBlocks = [];
   activeMonsters = [];
   activeItems = [];
-  p1InvincibleTime = 0; p1SlowTime = 0; p1ConfusedTime = 0; p1IsGiant = false;
   playerLane = 1;
   targetPlayerLane = 1;
+  playerX = cw * 0.2;
+  speedStep = 0;
   blockSpeed = CFG.BLOCK_START_SPEED;
   bgOffset = 0;
   
@@ -1636,9 +1906,12 @@ function startLocalTwoPlayer() {
   p2Combo = 0;
   p1Lane = 1;
   targetP1Lane = 1;
+  p1X = cw * 0.2;
   p2Lane = 1;
   targetP2Lane = 1;
+  p2X = cw * 0.2;
   level = 1;
+  speedStep = 0;
   blockSpeed = CFG.BLOCK_START_SPEED;
   p1Monsters = [];
   p2Monsters = [];
@@ -1691,6 +1964,8 @@ function startGame(onlineMode, opts) {
   p1InvincibleTime = 0; p1SlowTime = 0; p1ConfusedTime = 0; p1IsGiant = false;
   playerLane = 1;
   targetPlayerLane = 1;
+  playerX = cw * 0.2;
+  speedStep = 0;
   blockSpeed = CFG.BLOCK_START_SPEED;
   bgOffset = 0;
 
@@ -1829,7 +2104,11 @@ function resetGame() {
   correctAnswersCount = 0;
   lives = CFG.LIVES;
   level = 1;
+  speedStep = 0;
   blockSpeed = CFG.BLOCK_START_SPEED;
+  playerX = cw * 0.2;
+  p1X = cw * 0.2;
+  p2X = cw * 0.2;
   
   activeMonsters = [];
   activeItems = [];
