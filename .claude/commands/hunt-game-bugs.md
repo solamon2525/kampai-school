@@ -80,6 +80,22 @@ rtk pnpm verify:game <path>
 | AudioContext resume, กันส่ง score ซ้ำ, init listener, ready fallback 1.2s, TTS กันพูดซ้อน | **SDK** — จัดการแล้ว **ห้าม flag** (ดู STEP 3.5) |
 | Supabase realtime channel cleanup, ส่ง `init` | **wrapper (`PlayGame.tsx`)** — ไม่ใช่บัคในไฟล์เกม |
 
+### 🔁 เช็กแรกสุด — Lifecycle pairing (ของจริงที่เจอบ่อยสุดในเกมหลายโหมด)
+
+ก่อนไล่หัวข้ออื่น ให้ทำตารางคู่ **start ↔ stop** ก่อน: ทุกอย่างที่ "เปิด/เริ่ม/เพิ่ม" ต้องมีคู่
+"ปิด/หยุด/ถอด" ใน **ทุก exit path ของทุกโหมด** (race/endless/daily/online/practice + ออกกลางเกม):
+
+| เปิด/เริ่ม | ต้องมีคู่ | ตรวจทุก exit ไหม |
+|---|---|---|
+| `bgmStart()` | `bgmStop()` | จบเกม **ทุกโหมด** + online `onEnd` + goHome |
+| `requestAnimationFrame` | `cancelAnimationFrame` | จบ/ออก/เปลี่ยนข้อ |
+| `body.classList.add('x')` / โหมดพิเศษ | `.remove('x')` | เมื่อพ้นสถานะนั้น ไม่ใช่แค่ตอนจบเกม |
+| `setInterval` / `speak()` / `online.join()` | `clearInterval` / `stopSpeak()` / `online.leave()` | ออก/จบ |
+| UI element โชว์ (`display=''`) | ซ่อนหรือปรับตามโหมด | โหมดที่ไม่ใช้ element นั้น (เช่น lives ในโหมดที่ไม่หักชีวิต) |
+
+> ⚠️ เกมหลายโหมดเขียน exit path **แยกกันต่อโหมด** → cleanup มักหลุดไปบางโหมด. จุดที่เจอบ่อย:
+> online `onEnd` ลืม `bgmStop()`; โหมด timed ลืมจัดการตอนสลับแท็บ (rAF throttle); UI reuse ข้ามโหมด
+
 ### หัวข้อรีวิว
 
 - **Game state** — `score`/`level`/`lives`/`combo` ติดลบ, เกินลิมิต, overflow; เริ่มเกมใหม่แล้ว
