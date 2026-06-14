@@ -464,7 +464,7 @@ function startGame(tbl) {
     $('play').classList.add('on');
     if (mode === 'race') { $('life-container').style.display = ''; $('timer-wrap').classList.add('on'); $('powerups').classList.add('on'); $('pwr-stop').style.display = 'none'; }
     else if (mode === 'endless') { $('life-container').style.display = 'none'; $('timer-wrap').classList.add('on'); $('powerups').classList.add('on'); $('pwr-stop').style.display = ''; }
-    else if (mode === 'daily') { $('life-container').style.display = ''; $('timer-wrap').classList.add('on'); $('powerups').classList.remove('on'); }
+    else if (mode === 'daily') { $('life-container').style.display = 'none'; $('timer-wrap').classList.add('on'); $('powerups').classList.remove('on'); }
     else { $('life-container').style.display = 'none'; $('timer-wrap').classList.remove('on'); $('powerups').classList.remove('on'); }   // ฝึก = ไม่กดดันเวลา/ไม่เสียชีวิต
     refreshPowerups();
     setScore(0); setLives(3); updateCombo();
@@ -479,6 +479,7 @@ function nextQuestion() {
     // Boss: ทุก BOSS_INTERVAL ข้อถูกในโหมด race/endless → โจทย์ใหญ่ + x3 คะแนน
     isBoss = (mode === 'race' || mode === 'endless') && correctCount > 0 && correctCount % BOSS_INTERVAL === 0;
     if (isBoss) showBossPopup();
+    else document.body.classList.remove('boss');   // ถอดพื้นหลังแดงเมื่อพ้นข้อ boss (ไม่ให้ค้างทั้งเกม)
 
     // เลือกโจทย์
     if (practicePool && practicePool.length) {
@@ -785,7 +786,7 @@ function ensureMatch() {
         title: 'แข่งสูตรคูณ',
         tournament: true,   // เปิดโหมดลีก 2 รอบ (เลือกได้จาก lobby)
         onPlay: ({ rng, role }) => startOnlineQuiz(rng, { role: role }),
-        onEnd: () => { onlineEnded = true; locked = true; },
+        onEnd: () => { onlineEnded = true; locked = true; bgmStop(); stopSpeak(); sfxGameOver(); },
     });
     return match;
 }
@@ -825,6 +826,22 @@ window.addEventListener('keydown', (e) => {
     const btns = document.querySelectorAll('.ans');
     const btn = btns[idx];
     if (btn) answer(Number(btn.dataset.v), btn);
+});
+
+/* ── สลับแท็บ/ย่อจอ: หยุดนับเวลาตอนซ่อน แล้วชดเชยตอนกลับมา (ไม่นับเป็นหมดเวลา) ── */
+let hiddenAt = 0;
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        hiddenAt = performance.now();
+    } else if (hiddenAt) {
+        qStart += performance.now() - hiddenAt;   // เลื่อน reference เวลาไปข้างหน้าเท่าที่หายไป
+        hiddenAt = 0;
+        // rAF ถูก browser หยุดตอนแท็บซ่อน → restart tick ถ้ายังเล่นข้อที่จับเวลาอยู่
+        if (started && !locked && !isGameOver && (mode === 'race' || mode === 'endless' || mode === 'daily')) {
+            cancelAnimationFrame(rafId);
+            tickTimer();
+        }
+    }
 });
 </script>
 </body>

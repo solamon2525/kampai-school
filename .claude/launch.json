@@ -5,8 +5,7 @@
       "name": "dev",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["dev", "--host"],
-      "port": 8080,
-      "cwd": "D:\\kampai-school-main"
+      "port": 8080
     }
   ]
 }
