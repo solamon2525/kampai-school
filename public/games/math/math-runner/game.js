@@ -301,13 +301,25 @@ function isKeyBoundTo(key, player, action) {
   return bind.key.toLowerCase() === key.toLowerCase();
 }
 
+let menuMappingInterval = null;
 function openMappingModal() {
   $('control-mapping-modal').classList.remove('hidden');
   updateBindingButtonsUI();
+  
+  if (menuMappingInterval) clearInterval(menuMappingInterval);
+  menuMappingInterval = setInterval(() => {
+    if (mappingState.active) {
+      pollGamepadInputs();
+    }
+  }, 16);
 }
 
 function closeMappingModal() {
   $('control-mapping-modal').classList.add('hidden');
+  if (menuMappingInterval) {
+    clearInterval(menuMappingInterval);
+    menuMappingInterval = null;
+  }
 }
 
 function startBinding(player, action) {
@@ -369,7 +381,7 @@ function resetToDefaultControls() {
 }
 
 function pollGamepadInputs() {
-  if (!started || isGameOver) return;
+  if (!mappingState.active && (!started || isGameOver)) return;
 
   const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
   
@@ -445,13 +457,13 @@ window.addEventListener('keydown', e => {
   keysPressed[e.key] = true;
   keysPressed[e.key.toLowerCase()] = true;
 
-  if (!started || isGameOver) return;
-  
   if (mappingState.active) {
     e.preventDefault();
     bindKeyboardKey(e.key);
     return;
   }
+
+  if (!started || isGameOver) return;
   
   if (mode === 'local_2p') {
     if (isKeyBoundTo(e.key, 'p1', 'up')) {
@@ -1580,304 +1592,200 @@ function loop() {
   ctx.clearRect(0, 0, cw, ch);
 
   if (mode === 'local_2p') {
-    const sh = ch / 2;
+    // ══════════════════════════════════════════════════════════
+    //  โหมด 2 คน (เล่นจอเดียวกัน แบบแย่งกัน)
+    // ══════════════════════════════════════════════════════════
+    drawRetroHills(ctx, cw, ch, bgOffset, 0, ch, getTierByScore(Math.max(p1Score, p2Score)));
 
-    // ── จอผู้เล่น 1 (ครึ่งบน) ──
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(0, 0, cw, sh);
-    ctx.clip();
+    const laneHeight = ch / 6.5;
+    const getLanesY = (lane) => ch * 0.40 + lane * laneHeight;
 
-    drawRetroHills(ctx, cw, sh, p1BgOffset, 0, sh, getTierByScore(p1Score));
-    
-    const p1LHeight = sh / 6.5;
-    const getP1Y = (lane) => sh * 0.40 + lane * p1LHeight;
-    p1Y += (getP1Y(targetP1Lane) - p1Y) * 0.25;
+    // คำนวณตำแหน่ง Y ของผู้เล่น 1 และ 2
+    p1Y += (getLanesY(targetP1Lane) - p1Y) * 0.25;
+    p2Y += (getLanesY(targetP2Lane) - p2Y) * 0.25;
 
-    drawChibiPlayer(ctx, p1X, p1Y, p1BgOffset, '#FF4136', '#2b5c8f', p1IsGiant, p1InvincibleTime, p1SlowTime, p1ConfusedTime);
+    // วาดผู้เล่น 1 (สีแดง)
+    drawChibiPlayer(ctx, p1X, p1Y, bgOffset, '#FF4136', '#2b5c8f', p1IsGiant, p1InvincibleTime, p1SlowTime, p1ConfusedTime);
+    // วาดผู้เล่น 2 (สีเขียว)
+    drawChibiPlayer(ctx, p2X, p2Y, bgOffset, '#2ecc70', '#006400', p2IsGiant, p2InvincibleTime, p2SlowTime, p2ConfusedTime);
 
-    for (let i = 0; i < p1Blocks.length; i++) {
-      const b = p1Blocks[i];
-      b.x -= p1Speed;
-      const by = getP1Y(b.lane);
+    // วาดและประมวลผลกล่องคำถาม (ชอยส์คำตอบ)
+    for (let i = 0; i < floatBlocks.length; i++) {
+      const b = floatBlocks[i];
+      b.x -= blockSpeed;
+      const by = getLanesY(b.lane);
       drawQuestionBlock(ctx, b.x, by, b.value, b.isCorrect, b.isChosen, b.hitResolved);
 
+      // ชนสำหรับ P1
       if (!b.hitResolved && b.x <= p1X + 25 && b.x >= p1X - 25) {
-        b.hitResolved = true;
         if (p1Lane === b.lane) {
+          b.hitResolved = true;
           b.isChosen = true;
           resolveHit(1, b.isCorrect, b.x, by);
         }
       }
+      // ชนสำหรับ P2
+      if (!b.hitResolved && b.x <= p2X + 25 && b.x >= p2X - 25) {
+        if (p2Lane === b.lane) {
+          b.hitResolved = true;
+          b.isChosen = true;
+          resolveHit(2, b.isCorrect, b.x, by);
+        }
+      }
     }
 
-    for (let i = p1Monsters.length - 1; i >= 0; i--) {
-      const m = p1Monsters[i];
-      m.x -= p1Speed;
-      const my = getP1Y(m.lane);
-      drawMonster(ctx, m.x, my, m.type, p1BgOffset);
+    // วาดและประมวลผลมอนสเตอร์
+    for (let i = activeMonsters.length - 1; i >= 0; i--) {
+      const m = activeMonsters[i];
+      m.x -= blockSpeed;
+      const my = getLanesY(m.lane);
+      drawMonster(ctx, m.x, my, m.type, bgOffset);
 
+      // ชนสำหรับ P1
       if (!m.hitResolved && m.x <= p1X + 28 && m.x >= p1X - 28) {
         if (p1Lane === m.lane) {
           m.hitResolved = true;
           hitMonster(1, m.type, m.x, my);
         }
       }
-      if (m.x < -50) p1Monsters.splice(i, 1);
+      // ชนสำหรับ P2
+      if (!m.hitResolved && m.x <= p2X + 28 && m.x >= p2X - 28) {
+        if (p2Lane === m.lane) {
+          m.hitResolved = true;
+          hitMonster(2, m.type, m.x, my);
+        }
+      }
+      if (m.x < -50) activeMonsters.splice(i, 1);
     }
 
-    for (let i = p1Items.length - 1; i >= 0; i--) {
-      const it = p1Items[i];
-      const itSpeed = it.isPopped ? p1Speed * 1.35 : p1Speed;
+    // วาดและประมวลผลไอเทม
+    for (let i = activeItems.length - 1; i >= 0; i--) {
+      const it = activeItems[i];
+      const itSpeed = it.isPopped ? blockSpeed * 1.35 : blockSpeed;
       it.x -= itSpeed;
-      const ity = getP1Y(it.lane);
-      drawItem(ctx, it.x, ity, it.type, p1BgOffset);
+      const ity = getLanesY(it.lane);
+      drawItem(ctx, it.x, ity, it.type, bgOffset);
 
+      // ชนสำหรับ P1
       if (!it.hitResolved && it.x <= p1X + 28 && it.x >= p1X - 28) {
         if (p1Lane === it.lane) {
           it.hitResolved = true;
           collectItem(1, it.type, it.x, ity);
         }
       }
-      if (it.x < -50) p1Items.splice(i, 1);
-    }
-
-    if (p1Blocks.length > 0 && p1Blocks[p1Blocks.length - 1].x < p1X - 80) {
-      generateNewQuestion(1);
-    }
-
-    // วาดโจทย์ P1 ตรงมุมจอด้านซ้ายบน
-    ctx.save();
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.roundRect(15, 15, 300, 50, 15);
-    ctx.fill();
-    ctx.stroke();
-    
-    ctx.fillStyle = '#000';
-    ctx.font = 'bold 20px Fredoka One, Sarabun';
-    ctx.fillText(`P1 (W/S): ${p1Question ? p1Question.displayStr : ''}`, 30, 47);
-    ctx.fillStyle = '#FF5722';
-    ctx.fillText(`⭐ ${p1Score}`, 240, 47);
-    ctx.restore();
-
-    // วาดกล่องเวลา P1 ด้านบนขวา
-    ctx.save();
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.roundRect(cw - 165, 15, 150, 50, 15);
-    ctx.fill();
-    ctx.stroke();
-    ctx.fillStyle = '#000';
-    ctx.font = 'bold 20px Fredoka One, Sarabun';
-    ctx.textAlign = 'center';
-    ctx.fillText(`⏱️ ${gameTimeLeft} วิ`, cw - 90, 47);
-    ctx.restore(); // restore P1 timer box context
-
-    // วาดเหรียญ P1
-    for (let i = 0; i < coinParticles.length; i++) {
-      const c = coinParticles[i];
-      if (c.y < sh) {
-        ctx.save();
-        ctx.globalAlpha = Math.max(0, c.life);
-        ctx.fillStyle = '#FFD700';
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.arc(c.x, c.y, 6, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = '#FFB300';
-        ctx.beginPath();
-        ctx.arc(c.x, c.y, 3, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
-    }
-
-    // วาดอักษรคะแนนลอย P1
-    for (let i = 0; i < floatingTexts.length; i++) {
-      const f = floatingTexts[i];
-      if (f.y < sh) {
-        ctx.save();
-        ctx.globalAlpha = Math.max(0, f.alpha);
-        ctx.fillStyle = f.color;
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 3;
-        ctx.font = 'bold 26px Fredoka One, Sarabun';
-        ctx.textAlign = 'center';
-        ctx.strokeText(f.text, f.x, f.y);
-        ctx.fillText(f.text, f.x, f.y);
-        ctx.restore();
-      }
-    }
-
-    ctx.restore(); // restore P1 screen clip context
-
-    // ── จอผู้เล่น 2 (ครึ่งล่าง) ──
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(0, sh, cw, sh);
-    ctx.clip();
-
-    drawRetroHills(ctx, cw, sh, p2BgOffset, sh, sh, getTierByScore(p2Score));
-    
-    // คำนวณความสูงเลน P2
-    const p2LHeight = sh / 6.5;
-    const getP2Y = (lane) => sh * 0.40 + lane * p2LHeight;
-    p2Y += (getP2Y(targetP2Lane) - p2Y) * 0.25;
-
-    // วาด P2 (หมวกเขียว เสื้อเขียว เอี๊ยมเขียวแก่) พร้อมบัฟ
-    drawChibiPlayer(ctx, p2X, sh + p2Y, p2BgOffset, '#2ecc70', '#006400', p2IsGiant, p2InvincibleTime, p2SlowTime, p2ConfusedTime);
-
-    // วาดและประมวลผลบล็อก P2
-    for (let i = 0; i < p2Blocks.length; i++) {
-      const b = p2Blocks[i];
-      b.x -= p2Speed;
-      const by = getP2Y(b.lane);
-      drawQuestionBlock(ctx, b.x, sh + by, b.value, b.isCorrect, b.isChosen, b.hitResolved);
-
-      if (!b.hitResolved && b.x <= p2X + 25 && b.x >= p2X - 25) {
-        b.hitResolved = true;
-        if (p2Lane === b.lane) {
-          b.isChosen = true;
-          resolveHit(2, b.isCorrect, b.x, sh + by);
-        }
-      }
-    }
-
-    // วาดและประมวลผลมอนสเตอร์ P2
-    for (let i = p2Monsters.length - 1; i >= 0; i--) {
-      const m = p2Monsters[i];
-      m.x -= p2Speed;
-      const my = getP2Y(m.lane);
-      drawMonster(ctx, m.x, sh + my, m.type, p2BgOffset);
-
-      if (!m.hitResolved && m.x <= p2X + 28 && m.x >= p2X - 28) {
-        if (p2Lane === m.lane) {
-          m.hitResolved = true;
-          hitMonster(2, m.type, m.x, sh + my);
-        }
-      }
-      if (m.x < -50) p2Monsters.splice(i, 1);
-    }
-
-    // วาดและประมวลผลไอเทม P2
-    for (let i = p2Items.length - 1; i >= 0; i--) {
-      const it = p2Items[i];
-      const itSpeed = it.isPopped ? p2Speed * 1.35 : p2Speed;
-      it.x -= itSpeed;
-      const ity = getP2Y(it.lane);
-      drawItem(ctx, it.x, sh + ity, it.type, p2BgOffset);
-
+      // ชนสำหรับ P2
       if (!it.hitResolved && it.x <= p2X + 28 && it.x >= p2X - 28) {
         if (p2Lane === it.lane) {
           it.hitResolved = true;
-          collectItem(2, it.type, it.x, sh + ity);
+          collectItem(2, it.type, it.x, ity);
         }
       }
-      if (it.x < -50) p2Items.splice(i, 1);
+      if (it.x < -50) activeItems.splice(i, 1);
     }
 
-    if (p2Blocks.length > 0 && p2Blocks[p2Blocks.length - 1].x < p2X - 80) {
-      generateNewQuestion(2);
+    // เกิดโจทย์ถัดไปเมื่อคำถามเลื่อนผ่านพ้นตัวผู้เล่น
+    if (floatBlocks.length > 0 && floatBlocks[floatBlocks.length - 1].x < Math.max(p1X, p2X) - 80) {
+      generateNewQuestion(1);
     }
 
-    // วาดโจทย์ P2 ตรงมุมจอข้างซ้ายล่าง
+    // วาดการ์ดกระดานคะแนนและเวลาในแคนวาส (บนขวา)
+    // 🔴 P1 Score Card
     ctx.save();
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.fillStyle = 'rgba(255, 65, 54, 0.9)';
     ctx.strokeStyle = '#000';
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.roundRect(15, sh + 15, 300, 50, 15);
+    ctx.roundRect(cw - 360, 15, 110, 40, 10);
     ctx.fill();
     ctx.stroke();
-
-    ctx.fillStyle = '#000';
-    ctx.font = 'bold 20px Fredoka One, Sarabun';
-    ctx.fillText(`P2 (↑/↓): ${p2Question ? p2Question.displayStr : ''}`, 30, sh + 47);
-    ctx.fillStyle = '#FF9800';
-    ctx.fillText(`⭐ ${p2Score}`, 240, sh + 47);
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 15px Fredoka One, Sarabun';
+    ctx.textAlign = 'center';
+    ctx.fillText(`${p1Student.displayName}`, cw - 305, 33);
+    ctx.fillStyle = '#FFD700';
+    ctx.fillText(`⭐ ${p1Score}`, cw - 305, 50);
     ctx.restore();
 
-    // วาดกล่องเวลา P2 ด้านล่างขวา
+    // 🟢 P2 Score Card
+    ctx.save();
+    ctx.fillStyle = 'rgba(46, 204, 113, 0.9)';
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.roundRect(cw - 240, 15, 110, 40, 10);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 15px Fredoka One, Sarabun';
+    ctx.textAlign = 'center';
+    ctx.fillText(`${p2Student.displayName}`, cw - 185, 33);
+    ctx.fillStyle = '#FFD700';
+    ctx.fillText(`⭐ ${p2Score}`, cw - 185, 50);
+    ctx.restore();
+
+    // ⏱️ Timer Card
     ctx.save();
     ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
     ctx.strokeStyle = '#000';
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.roundRect(cw - 165, sh + 15, 150, 50, 15);
+    ctx.roundRect(cw - 120, 15, 105, 40, 10);
     ctx.fill();
     ctx.stroke();
     ctx.fillStyle = '#000';
-    ctx.font = 'bold 20px Fredoka One, Sarabun';
+    ctx.font = 'bold 16px Fredoka One, Sarabun';
     ctx.textAlign = 'center';
-    ctx.fillText(`⏱️ ${gameTimeLeft} วิ`, cw - 90, sh + 47);
-    ctx.restore(); // restore P2 timer box context
+    ctx.fillText(`⏱️ ${gameTimeLeft} วิ`, cw - 67, 40);
+    ctx.restore();
 
-    // วาดเหรียญ P2
+    // วาดเหรียญกระจาย
     for (let i = 0; i < coinParticles.length; i++) {
       const c = coinParticles[i];
-      if (c.y >= sh) {
-        ctx.save();
-        ctx.globalAlpha = Math.max(0, c.life);
-        ctx.fillStyle = '#FFD700';
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.arc(c.x, c.y, 6, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, c.life);
+      ctx.fillStyle = '#FFD700';
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
 
-        ctx.fillStyle = '#FFB300';
-        ctx.beginPath();
-        ctx.arc(c.x, c.y, 3, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
+      ctx.fillStyle = '#FFB300';
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
     }
 
-    // วาดอักษรคะแนนลอย P2
+    // วาดอักษรคะแนนลอย
     for (let i = 0; i < floatingTexts.length; i++) {
       const f = floatingTexts[i];
-      if (f.y >= sh) {
-        ctx.save();
-        ctx.globalAlpha = Math.max(0, f.alpha);
-        ctx.fillStyle = f.color;
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 3;
-        ctx.font = 'bold 26px Fredoka One, Sarabun';
-        ctx.textAlign = 'center';
-        ctx.strokeText(f.text, f.x, f.y);
-        ctx.fillText(f.text, f.x, f.y);
-        ctx.restore();
-      }
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, f.alpha);
+      ctx.fillStyle = f.color;
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 3;
+      ctx.font = 'bold 26px Fredoka One, Sarabun';
+      ctx.textAlign = 'center';
+      ctx.strokeText(f.text, f.x, f.y);
+      ctx.fillText(f.text, f.x, f.y);
+      ctx.restore();
     }
 
-    ctx.restore(); // restore P2 screen clip context
-
-    // เส้นแบ่งขีดกลางจอ
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, sh - 4, cw, 8);
-
-    // ซิงค์เลนปัจจุบันของ P1 และ P2
+    // ซิงค์เลนปัจจุบัน
     p1Lane = targetP1Lane;
     p2Lane = targetP2Lane;
 
-    // แฟลชจอแดงเมื่อชนผิด
+    // แฟลชหน้าจอฝั่งซ้ายเมื่อ P1 โดนดาเมจ, ฝั่งขวาเมื่อ P2 โดนดาเมจ
     if (p1RedFlash > 0) {
       ctx.fillStyle = `rgba(255, 0, 0, ${p1RedFlash})`;
-      ctx.fillRect(0, 0, cw, sh);
+      ctx.fillRect(0, 0, cw / 2, ch);
       p1RedFlash -= 0.04;
     }
     if (p2RedFlash > 0) {
       ctx.fillStyle = `rgba(255, 0, 0, ${p2RedFlash})`;
-      ctx.fillRect(0, sh, cw, sh);
+      ctx.fillRect(cw / 2, 0, cw / 2, ch);
       p2RedFlash -= 0.04;
     }
 
@@ -2360,7 +2268,7 @@ function launchLocalTwoPlayer() {
   p1X = cw * 0.2;
   p2Lane = 1;
   targetP2Lane = 1;
-  p2X = cw * 0.25;
+  p2X = cw * 0.2;
   level = 1;
   p1SpeedStep = 0;
   p1BlockSpeed = CFG.BLOCK_START_SPEED;

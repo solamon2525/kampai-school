@@ -121,7 +121,7 @@ body {
 }
 
 /* ── Blocker Screens ── */
-#blocker, #gameover-screen {
+#blocker, #gameover-screen, #p2-selector-modal, #control-mapping-modal {
   position: absolute;
   top: 0;
   left: 0;
