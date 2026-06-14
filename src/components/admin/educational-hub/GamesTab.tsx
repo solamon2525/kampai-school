@@ -22,7 +22,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink, Plus, RefreshCw, AlertTriangle, Loader2, Trash2, RotateCcw, Settings, Code2, ChevronDown, Copy, Check, Download, Image as ImageIcon, ClipboardList } from 'lucide-react';
+import { ExternalLink, Plus, RefreshCw, AlertTriangle, Loader2, Trash2, RotateCcw, Settings, Code2, ChevronDown, Copy, Check, Download, Image as ImageIcon, ClipboardList, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -56,6 +56,7 @@ import {
 } from '@/services/educational-hub.service';
 import { gamePlayService } from '@/services/game-play.service';
 import { GameDocsDialog } from './GameDocsDialog';
+import { GameIndicatorsDialog } from './GameIndicatorsDialog';
 
 /** preset เพลงสังเคราะห์ (ตรงกับ BGM_PRESETS ใน kampai-sdk.js) */
 const BGM_PRESETS: { key: string; label: string }[] = [
@@ -402,6 +403,7 @@ export const GamesTab = () => {
         | { mode: 'replace'; item: EduHubItem }
         | { mode: 'settings'; item: EduHubItem }
         | { mode: 'docs'; item: EduHubItem }
+        | { mode: 'indicators'; item: EduHubItem }
         | { mode: 'bgm' }
         | null
     >(null);
@@ -644,6 +646,14 @@ export const GamesTab = () => {
                                                         >
                                                             <ClipboardList className="h-3 w-3 mr-1" /> รายละเอียด
                                                         </Button>
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="text-emerald-600 border-emerald-200 hover:bg-emerald-50"
+                                                            onClick={() => setDialog({ mode: 'indicators', item })}
+                                                        >
+                                                            <Target className="h-3 w-3 mr-1" /> ตัวชี้วัด
+                                                        </Button>
                                                         {item.game_slug && (
                                                             <Button
                                                                 variant="outline"
@@ -705,6 +715,12 @@ export const GamesTab = () => {
                     )}
                     {dialog?.mode === 'docs' && (
                         <GameDocsDialog
+                            item={dialog.item}
+                            onClose={() => setDialog(null)}
+                        />
+                    )}
+                    {dialog?.mode === 'indicators' && (
+                        <GameIndicatorsDialog
                             item={dialog.item}
                             onClose={() => setDialog(null)}
                         />

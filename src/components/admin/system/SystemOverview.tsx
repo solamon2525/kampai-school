@@ -272,8 +272,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.80.0 (รายละเอียดเกม — Game Docs registry ต่อเกม)',
+        version: 'v1.81.0 (ตัวชี้วัดหลักสูตร — ผูกเกม↔ตัวชี้วัด + หลักฐานอัตโนมัติ)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'ปุ่ม "ตัวชี้วัด" ในการ์ดเกม GamesTab → GameIndicatorsDialog: เลือกตัวชี้วัดหลักสูตรแกนกลาง 2551 (แยกวิชา+ชั้น, เลือกข้ามชั้น/วิชาสะสมรวมกัน) ที่เกมนั้นฝึก → เขียนตาราง indicator_games',
+            'Phase 3 (migration 173): trigger trg_game_session_indicator_events บน game_sessions (AFTER INSERT, SECURITY DEFINER) → ทุกครั้งที่นักเรียนเล่น สร้างหลักฐาน student_indicator_events ให้ทุกตัวชี้วัดที่ผูกกับเกม (หา edu_hub_item จาก column ตรงหรือ fallback game_slug)',
+            'passed: derive จาก metadata (passed/won/cleared) ถ้าเกมส่งมา — ไม่ส่ง = นับเป็น attempt (practicing) ตามดีไซน์หลักฐานผสม เกม+ครู',
+            'ต่อยอดจาก Phase 1 (migration 170-172): ตัวชี้วัดภาษาไทย ป.1-6 (180 ตัวชี้วัด) + view v_student_indicator_mastery + curriculum.service.ts — service มี consumer แล้ว (listIndicators/listGameIndicatorIds/setGameIndicators)',
+        ],
+    },
+    {
+        version: 'v1.80.0 (รายละเอียดเกม — Game Docs registry ต่อเกม)',
+        date: '',
         badge: 'bg-violet-600',
         items: [
             'ตาราง game_docs (migration 168, 1:1 กับ educational_hub_items) เก็บ รูปแบบเกม / ฟีเจอร์ / เวอร์ชันบิลด์ / notes — สเปกเดียวต่อเกม (แก้ทับ)',
