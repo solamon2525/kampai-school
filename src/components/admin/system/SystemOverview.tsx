@@ -272,8 +272,20 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.83.0 (ตัวชี้วัดหลักสูตร — ผูกแผนการสอน↔ตัวชี้วัด)',
+        version: 'v1.84.0 (ตัวชี้วัดหลักสูตร — นำเข้าครบ 8 กลุ่มสาระ + สร้างเกมอิงตัวชี้วัด + Coverage)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'นำเข้าตัวชี้วัดทางการครบ 8 กลุ่มสาระ ป.1-6 จาก PDF สพฐ. (1,061 ตัวชี้วัด: ไทย180/คณิต116/วิทย์139/สังคม217/สุข120/ศิลปะ154/การงาน25/อังกฤษ110) — ตรงตารางสรุปหน้า 2 ทุกวิชา (mig 176-183)',
+            'เพิ่มมิติ "ระหว่างทาง/ปลายทาง" (indicator_kind, mig 175) ตรวจจากตำแหน่งคอลัมน์ใน PDF + checksum — แสดงเป็น badge ทุก dialog ตัวชี้วัด',
+            'ขยาย dropdown วิชาจาก 4 → 8 ครบทุกที่ (GameIndicatorsDialog/IndicatorMasteryTab/LessonPlanIndicatorsDialog) ผ่าน const กลาง src/lib/curriculumSubjects.ts',
+            'GamesTab: ปุ่ม "🎯 ใช้ตัวชี้วัดช่วยสร้าง" (IndicatorPromptDialog) เลือกตัวชี้วัด → แนบเข้า GAME-PROMPT.md ให้ AI + จำไว้ auto-map เข้าเกมหลังอัปโหลดอัตโนมัติ',
+            'GamesTab: badge "🎯 N ตัวชี้วัด" ต่อเกม + ปุ่ม "📊 ความครอบคลุมตัวชี้วัด" (IndicatorCoverageDialog) เห็นตัวชี้วัดไหนมีเกม/ยังขาด',
+        ],
+    },
+    {
+        version: 'v1.83.0 (ตัวชี้วัดหลักสูตร — ผูกแผนการสอน↔ตัวชี้วัด)',
+        date: '',
         badge: 'bg-emerald-600',
         items: [
             'LessonPlanManagement: ปุ่ม "ตัวชี้วัด" (🎯) ต่อแถวแผนการสอน → LessonPlanIndicatorsDialog เลือกตัวชี้วัดหลักสูตร 2551 ที่แผนนั้นครอบคลุม (ระบุ "ตัวชี้วัดที่เกี่ยวข้อง" ตามแบบแผนการสอนไทย) → เขียน indicator_lesson_plans (mig 170)',

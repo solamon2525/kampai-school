@@ -57,6 +57,9 @@ import {
 import { gamePlayService } from '@/services/game-play.service';
 import { GameDocsDialog } from './GameDocsDialog';
 import { GameIndicatorsDialog } from './GameIndicatorsDialog';
+import { IndicatorPromptDialog } from './IndicatorPromptDialog';
+import { IndicatorCoverageDialog } from './IndicatorCoverageDialog';
+import { curriculumService } from '@/services/curriculum.service';
 
 /** preset เพลงสังเคราะห์ (ตรงกับ BGM_PRESETS ใน kampai-sdk.js) */
 const BGM_PRESETS: { key: string; label: string }[] = [
@@ -184,7 +187,13 @@ function CommandBlock({ label, command, note }: CommandBlockProps) {
     );
 }
 
-function AiGameKit() {
+function AiGameKit({
+    onOpenPrompt,
+    pendingCount,
+}: {
+    onOpenPrompt: () => void;
+    pendingCount: number;
+}) {
     const { toast } = useToast();
     const [copied, setCopied] = useState(false);
 
@@ -213,6 +222,10 @@ function AiGameKit() {
                     ได้ไฟล์ HTML กลับมา → กด "อัพโหลดเกมใหม่" → ตั้ง game slug → เสร็จ
                     (เกมเชื่อมคะแนน + นักเรียน + leaderboard ผ่าน <code className="text-foreground">KAMPAI SDK</code> อัตโนมัติ)
                 </p>
+                <p className="text-xs text-primary leading-relaxed">
+                    💡 อยากให้เกมตรงหลักสูตร? กด <strong>"🎯 ใช้ตัวชี้วัดช่วยสร้าง"</strong> เลือกตัวชี้วัดที่อยากฝึก →
+                    Prompt จะแนบตัวชี้วัดให้ AI + เมื่ออัปโหลดเกม ระบบผูกตัวชี้วัดเข้าเกมให้อัตโนมัติ
+                </p>
                 <div className="flex flex-wrap gap-2">
                     <Button asChild size="sm" variant="outline">
                         <a href="/games/_template-full.html" download>
@@ -228,12 +241,26 @@ function AiGameKit() {
                         {copied ? <Check className="h-3.5 w-3.5 mr-1" /> : <Copy className="h-3.5 w-3.5 mr-1" />}
                         คัดลอก Prompt สำหรับ AI
                     </Button>
+                    <Button size="sm" variant="secondary" onClick={onOpenPrompt}>
+                        <Target className="h-3.5 w-3.5 mr-1" />
+                        🎯 ใช้ตัวชี้วัดช่วยสร้าง
+                        {pendingCount > 0 && (
+                            <Badge className="ml-1.5 h-4 px-1.5 text-[10px] bg-primary text-primary-foreground">
+                                {pendingCount}
+                            </Badge>
+                        )}
+                    </Button>
                     <Button asChild size="sm" variant="ghost">
                         <a href="/GAME-PROMPT.md" target="_blank" rel="noreferrer">
                             <ExternalLink className="h-3.5 w-3.5 mr-1" /> ดู Prompt
                         </a>
                     </Button>
                 </div>
+                {pendingCount > 0 && (
+                    <p className="text-[11px] text-emerald-700">
+                        ✓ จำตัวชี้วัด {pendingCount} ตัวไว้แล้ว — อัปโหลดเกมใหม่ตอนนี้เพื่อผูกอัตโนมัติ
+                    </p>
+                )}
             </CardContent>
         </Card>
     );
@@ -404,9 +431,13 @@ export const GamesTab = () => {
         | { mode: 'settings'; item: EduHubItem }
         | { mode: 'docs'; item: EduHubItem }
         | { mode: 'indicators'; item: EduHubItem }
+        | { mode: 'prompt' }
+        | { mode: 'coverage' }
         | { mode: 'bgm' }
         | null
     >(null);
+    // ตัวชี้วัดที่เลือกจาก IndicatorPromptDialog → auto-map เข้าเกมใหม่หลังอัปโหลด
+    const [pendingIndicatorIds, setPendingIndicatorIds] = useState<string[]>([]);
     const [confirmAction, setConfirmAction] = useState<
         | { type: 'delete'; item: EduHubItem }
         | { type: 'reset'; item: EduHubItem }
@@ -491,17 +522,39 @@ export const GamesTab = () => {
         },
     });
 
+    // จำนวนตัวชี้วัดที่ผูกต่อเกม (badge ในตาราง)
+    const { data: indicatorCounts } = useQuery({
+        queryKey: ['edu-hub', 'indicator-counts'],
+        queryFn: () => curriculumService.countIndicatorsByGame(),
+    });
+
     const teacherById = useMemo(() => {
         const map = new Map<string, Teacher>();
         (teachers ?? []).forEach((t) => map.set(t.id, t));
         return map;
     }, [teachers]);
 
-    const handleSaved = () => {
+    const handleSaved = async (newItemId?: string) => {
+        // auto-map ตัวชี้วัดที่เลือกไว้ (จาก IndicatorPromptDialog) เข้ากับเกมใหม่
+        if (newItemId && pendingIndicatorIds.length > 0) {
+            const { error } = await curriculumService.setGameIndicators(newItemId, pendingIndicatorIds);
+            if (error) {
+                toast({
+                    title: 'อัปโหลดสำเร็จ แต่ผูกตัวชี้วัดไม่สำเร็จ',
+                    description: error.message,
+                    variant: 'destructive',
+                });
+            } else {
+                toast({ title: `บันทึกเกม + ผูก ${pendingIndicatorIds.length} ตัวชี้วัดแล้ว` });
+                setPendingIndicatorIds([]);
+            }
+            queryClient.invalidateQueries({ queryKey: ['edu-hub', 'indicator-counts'] });
+        } else {
+            toast({ title: 'บันทึกสำเร็จ' });
+        }
         queryClient.invalidateQueries({ queryKey: ['edu-hub', 'all-games'] });
         queryClient.invalidateQueries({ queryKey: ['edu-hub'] });
         setDialog(null);
-        toast({ title: 'บันทึกสำเร็จ' });
     };
 
     return (
@@ -514,6 +567,9 @@ export const GamesTab = () => {
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
+                    <Button variant="outline" onClick={() => setDialog({ mode: 'coverage' })}>
+                        📊 ความครอบคลุมตัวชี้วัด
+                    </Button>
                     <Button variant="outline" onClick={() => setDialog({ mode: 'bgm' })}>
                         🎵 คลังเพลง
                     </Button>
@@ -523,7 +579,10 @@ export const GamesTab = () => {
                 </div>
             </div>
 
-            <AiGameKit />
+            <AiGameKit
+                onOpenPrompt={() => setDialog({ mode: 'prompt' })}
+                pendingCount={pendingIndicatorIds.length}
+            />
             <CoverStandardKit />
             <DeveloperCheatsheet />
 
@@ -579,6 +638,11 @@ export const GamesTab = () => {
                                                     )}
                                                     {item.game_slug && (
                                                         <p className="text-[10px] text-primary/70 truncate">slug: {item.game_slug}</p>
+                                                    )}
+                                                    {(indicatorCounts?.get(item.id) ?? 0) > 0 && (
+                                                        <span className="mt-0.5 inline-flex items-center gap-0.5 rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700">
+                                                            <Target className="h-2.5 w-2.5" /> {indicatorCounts!.get(item.id)} ตัวชี้วัด
+                                                        </span>
                                                     )}
                                                 </td>
                                                 <td className="px-4 py-3">
@@ -724,6 +788,15 @@ export const GamesTab = () => {
                             item={dialog.item}
                             onClose={() => setDialog(null)}
                         />
+                    )}
+                    {dialog?.mode === 'prompt' && (
+                        <IndicatorPromptDialog
+                            onApply={(ids) => setPendingIndicatorIds(ids)}
+                            onClose={() => setDialog(null)}
+                        />
+                    )}
+                    {dialog?.mode === 'coverage' && (
+                        <IndicatorCoverageDialog onClose={() => setDialog(null)} />
                     )}
                     {dialog?.mode === 'bgm' && (
                         <BgmLibraryDialog onClose={() => setDialog(null)} />
@@ -999,13 +1072,13 @@ type Props =
           mode: 'create';
           teachers: Teacher[];
           gamesCategoryId: string;
-          onSaved: () => void;
+          onSaved: (newItemId?: string) => void;
           onCancel: () => void;
       }
     | {
           mode: 'replace';
           item: EduHubItem;
-          onSaved: () => void;
+          onSaved: (newItemId?: string) => void;
           onCancel: () => void;
       };
 
@@ -1148,7 +1221,7 @@ const GameUploadDialog = (props: Props) => {
             const up = await educationalHubService.uploadGameHtml(values.subject, values.slug, file);
             if (up.error) throw up.error;
 
-            const { error: insErr } = await educationalHubService.insertItem({
+            const { data: inserted, error: insErr } = await educationalHubService.insertItem({
                 owner_staff_id: values.owner_staff_id,
                 category_id: props.gamesCategoryId,
                 item_type: 'link',
@@ -1164,7 +1237,7 @@ const GameUploadDialog = (props: Props) => {
                 is_published: true,
             });
             if (insErr) throw insErr;
-            props.onSaved();
+            props.onSaved((inserted as { id?: string } | null)?.id);
         } catch (err) {
             const msg = err instanceof Error ? err.message : 'อัพโหลดล้มเหลว';
             toast({ title: 'อัพโหลดล้มเหลว', description: msg, variant: 'destructive' });

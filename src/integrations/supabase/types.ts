@@ -1349,6 +1349,7 @@ export type Database = {
           grade: string
           id: string
           indicator_code: string
+          indicator_kind: string | null
           is_active: boolean
           sort_order: number
           standard_code: string | null
@@ -1363,6 +1364,7 @@ export type Database = {
           grade: string
           id?: string
           indicator_code: string
+          indicator_kind?: string | null
           is_active?: boolean
           sort_order?: number
           standard_code?: string | null
@@ -1377,6 +1379,7 @@ export type Database = {
           grade?: string
           id?: string
           indicator_code?: string
+          indicator_kind?: string | null
           is_active?: boolean
           sort_order?: number
           standard_code?: string | null

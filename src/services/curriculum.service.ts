@@ -16,6 +16,8 @@ export type CurriculumIndicator = {
     standard_code: string | null;
     indicator_code: string;
     description: string;
+    /** ระหว่างทาง (formative) | ปลายทาง (summative) — mig 175; null = ยังไม่จัดประเภท */
+    indicator_kind: 'ระหว่างทาง' | 'ปลายทาง' | null;
     sort_order: number;
     is_active: boolean;
 };
@@ -95,6 +97,59 @@ export const curriculumService = {
         }));
         const ins = await supabase.from('indicator_games' as never).insert(rows as never);
         return { error: (ins.error as Error | null) ?? null };
+    },
+
+    /** นับจำนวนตัวชี้วัดที่ผูกต่อเกม → Map(edu_hub_item_id → count) สำหรับ badge ในตาราง */
+    countIndicatorsByGame: async (): Promise<Map<string, number>> => {
+        const { data, error } = await supabase
+            .from('indicator_games' as never)
+            .select('edu_hub_item_id');
+        if (error) throw error;
+        const m = new Map<string, number>();
+        ((data ?? []) as { edu_hub_item_id: string }[]).forEach((r) => {
+            m.set(r.edu_hub_item_id, (m.get(r.edu_hub_item_id) ?? 0) + 1);
+        });
+        return m;
+    },
+
+    /**
+     * ความครอบคลุม: ตัวชี้วัดของวิชา+ชั้น → รายชื่อเกมที่ผูก (เห็นว่าตัวไหนยังไม่มีเกม)
+     * คืน indicator ทุกตัว (เรียง sort_order) พร้อม games[] (อาจว่าง)
+     */
+    gamesByIndicator: async (
+        subjectKey: string,
+        grade: string,
+    ): Promise<Array<CurriculumIndicator & { games: { id: string; title: string }[] }>> => {
+        const { data: inds, error: e1 } = await supabase
+            .from('curriculum_indicators' as never)
+            .select('*')
+            .eq('subject_key', subjectKey)
+            .eq('grade', grade)
+            .eq('is_active', true)
+            .order('sort_order', { ascending: true });
+        if (e1) throw e1;
+        const indicators = (inds as unknown as CurriculumIndicator[]) ?? [];
+        if (indicators.length === 0) return [];
+
+        const ids = indicators.map((i) => i.id);
+        const { data: maps, error: e2 } = await supabase
+            .from('indicator_games' as never)
+            .select('indicator_id, educational_hub_items(id, title)')
+            .in('indicator_id', ids);
+        if (e2) throw e2;
+
+        const byInd = new Map<string, { id: string; title: string }[]>();
+        ((maps ?? []) as {
+            indicator_id: string;
+            educational_hub_items: { id: string; title: string } | null;
+        }[]).forEach((r) => {
+            if (!r.educational_hub_items) return;
+            const arr = byInd.get(r.indicator_id) ?? [];
+            arr.push(r.educational_hub_items);
+            byInd.set(r.indicator_id, arr);
+        });
+
+        return indicators.map((ind) => ({ ...ind, games: byInd.get(ind.id) ?? [] }));
     },
 
     // ─── Mapping: แผนการเรียน ↔ ตัวชี้วัด ─────────────────────────────────────

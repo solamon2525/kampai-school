@@ -25,13 +25,8 @@ import {
     type StudentIndicatorMastery,
     type IndicatorMasteryStatus,
 } from '@/services/curriculum.service';
-
-const SUBJECT_OPTIONS = [
-    { key: 'thai', label: 'ภาษาไทย' },
-    { key: 'math', label: 'คณิตศาสตร์' },
-    { key: 'science', label: 'วิทยาศาสตร์' },
-    { key: 'english', label: 'ภาษาอังกฤษ' },
-];
+import { CURRICULUM_SUBJECTS as SUBJECT_OPTIONS } from '@/lib/curriculumSubjects';
+import { IndicatorKindBadge } from '@/components/admin/curriculum/IndicatorKindBadge';
 
 const STATUS_META: Record<IndicatorMasteryStatus, { label: string; cls: string }> = {
     not_started: { label: 'ยังไม่เริ่ม', cls: 'bg-muted text-muted-foreground' },
@@ -147,7 +142,7 @@ export const IndicatorMasteryTab = ({
         <div className="space-y-4">
             <div className="flex items-center gap-2">
                 <Select value={subjectKey} onValueChange={setSubjectKey}>
-                    <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="w-56"><SelectValue /></SelectTrigger>
                     <SelectContent>
                         {SUBJECT_OPTIONS.map((s) => (
                             <SelectItem key={s.key} value={s.key}>{s.label}</SelectItem>
@@ -180,7 +175,10 @@ export const IndicatorMasteryTab = ({
                                         <div key={ind.id} className="px-3 py-2.5">
                                             <div className="flex items-start gap-2">
                                                 <div className="min-w-0 flex-1">
-                                                    <p className="text-xs font-medium text-primary">{ind.indicator_code}</p>
+                                                    <p className="flex items-center gap-1.5 text-xs font-medium text-primary">
+                                                        {ind.indicator_code}
+                                                        <IndicatorKindBadge kind={ind.indicator_kind} />
+                                                    </p>
                                                     <p className="text-sm text-foreground">{ind.description}</p>
                                                 </div>
                                                 <Badge variant="outline" className={cn('shrink-0 text-[11px]', meta.cls)}>

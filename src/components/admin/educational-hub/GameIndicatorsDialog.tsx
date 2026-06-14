@@ -22,24 +22,12 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { curriculumService, type CurriculumIndicator } from '@/services/curriculum.service';
 import type { EduHubItem } from '@/services/educational-hub.service';
-
-/** subject folder (educational_hub_items.subject) → curriculum subject_key (mig 158/170) */
-const SUBJECT_KEY_FROM_FOLDER: Record<string, string> = {
-    thai: 'thai',
-    math: 'math',
-    tech: 'science',
-    english: 'english',
-};
-
-/** วิชาที่มีตัวชี้วัดในระบบ (seed ปัจจุบัน = ภาษาไทย ป.1-6) */
-const SUBJECT_OPTIONS = [
-    { key: 'thai', label: 'ภาษาไทย' },
-    { key: 'math', label: 'คณิตศาสตร์' },
-    { key: 'science', label: 'วิทยาศาสตร์' },
-    { key: 'english', label: 'ภาษาอังกฤษ' },
-];
-
-const GRADE_OPTIONS = ['ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
+import {
+    CURRICULUM_SUBJECTS as SUBJECT_OPTIONS,
+    GRADE_OPTIONS,
+    subjectKeyFromFolder,
+} from '@/lib/curriculumSubjects';
+import { IndicatorKindBadge } from '@/components/admin/curriculum/IndicatorKindBadge';
 
 export const GameIndicatorsDialog = ({
     item,
@@ -51,7 +39,7 @@ export const GameIndicatorsDialog = ({
     const { toast } = useToast();
     const queryClient = useQueryClient();
 
-    const defaultSubject = SUBJECT_KEY_FROM_FOLDER[item.subject ?? ''] ?? 'thai';
+    const defaultSubject = subjectKeyFromFolder(item.subject);
     const defaultGrade = (item.grade_levels ?? []).find((g) => GRADE_OPTIONS.includes(g)) ?? 'ป.1';
 
     const [subjectKey, setSubjectKey] = useState(defaultSubject);
@@ -118,7 +106,7 @@ export const GameIndicatorsDialog = ({
 
             <div className="flex items-center gap-2">
                 <Select value={subjectKey} onValueChange={setSubjectKey}>
-                    <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="w-56"><SelectValue /></SelectTrigger>
                     <SelectContent>
                         {SUBJECT_OPTIONS.map((s) => (
                             <SelectItem key={s.key} value={s.key}>{s.label}</SelectItem>
@@ -159,7 +147,10 @@ export const GameIndicatorsDialog = ({
                                 className="mt-0.5"
                             />
                             <div className="min-w-0">
-                                <p className="text-xs font-medium text-primary">{ind.indicator_code}</p>
+                                <p className="flex items-center gap-1.5 text-xs font-medium text-primary">
+                                    {ind.indicator_code}
+                                    <IndicatorKindBadge kind={ind.indicator_kind} />
+                                </p>
                                 <p className="text-sm text-foreground">{ind.description}</p>
                                 {ind.strand_title && (
                                     <p className="text-[11px] text-muted-foreground">
