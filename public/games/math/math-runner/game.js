@@ -121,6 +121,12 @@ let timerIntervalId = null;
 
 let keysPressed = {};
 let speedStep = 0; // ขั้นบันไดสปีดเกม
+let p1SpeedStep = 0;
+let p1BlockSpeed = CFG.BLOCK_START_SPEED;
+let p1CorrectAnswersCount = 0;
+let p2SpeedStep = 0;
+let p2BlockSpeed = CFG.BLOCK_START_SPEED;
+let p2CorrectAnswersCount = 0;
 let touchMoveDirX = 0, p1TouchMoveDirX = 0, p2TouchMoveDirX = 0;
 
 // ข้อมูลสำหรับ 1 Player และ Online
@@ -727,7 +733,7 @@ function drawChibiPlayer(ctx, x, y, frame, colorHead, colorBody, isGiant = false
 // วาดบล็อกคำถามสีทอง (? Box) สำหรับเลือกคำตอบ
 function drawQuestionBlock(ctx, x, y, value, isCorrect, isChosen, hitResolved) {
   ctx.save();
-  ctx.translate(x, y - 55);
+  ctx.translate(x, y - 38);
 
   if (hitResolved) {
     if (isChosen) {
@@ -1202,10 +1208,24 @@ function hitMonster(playerIndex, type, x, y) {
     }
 
     // สปีดลดลง (ขั้นบันได)
-    speedStep = Math.max(0, speedStep - 1);
-    correctAnswersCount = speedStep * 5;
-    blockSpeed = Math.min(CFG.BLOCK_MAX_SPEED, CFG.BLOCK_START_SPEED + speedStep * 1.2);
-    addFloatingText(x, y, '⚠️ สปีดลดลง!', '#ff4757');
+    if (mode === 'local_2p') {
+      if (playerIndex === 1) {
+        p1SpeedStep = Math.max(0, p1SpeedStep - 1);
+        p1CorrectAnswersCount = p1SpeedStep * 5;
+        p1BlockSpeed = Math.min(CFG.BLOCK_MAX_SPEED, CFG.BLOCK_START_SPEED + p1SpeedStep * 1.2);
+        addFloatingText(x, y, '⚠️ P1 สปีดลดลง!', '#ff4757');
+      } else {
+        p2SpeedStep = Math.max(0, p2SpeedStep - 1);
+        p2CorrectAnswersCount = p2SpeedStep * 5;
+        p2BlockSpeed = Math.min(CFG.BLOCK_MAX_SPEED, CFG.BLOCK_START_SPEED + p2SpeedStep * 1.2);
+        addFloatingText(x, y, '⚠️ P2 สปีดลดลง!', '#ff4757');
+      }
+    } else {
+      p1SpeedStep = Math.max(0, p1SpeedStep - 1);
+      p1CorrectAnswersCount = p1SpeedStep * 5;
+      p1BlockSpeed = Math.min(CFG.BLOCK_MAX_SPEED, CFG.BLOCK_START_SPEED + p1SpeedStep * 1.2);
+      addFloatingText(x, y, '⚠️ สปีดลดลง!', '#ff4757');
+    }
   }
 }
 
@@ -1245,7 +1265,6 @@ function spawnMonstersAndItemsForQuestion(playerIndex, q) {
     }
   }
 
-  // 2. สุ่มเกิดไอเทมลอยตามเลน
   if (random() < CFG.ITEM_SPAWN_CHANCE) {
     const itemLane = Math.floor(random() * 3);
     const iType = window.GAME_DATA.generateItemType(onlineRng);
@@ -1267,30 +1286,28 @@ function spawnMonstersAndItemsForQuestion(playerIndex, q) {
 }
 
 // เอฟเฟกต์ยิงเหรียญกระจาย (Coins Burst)
-function spawnCoins(x, y) {
+function spawnCoins(x, y, playerIndex) {
   for (let i = 0; i < 8; i++) {
     const angle = (Math.PI * 2 / 8) * i + Math.random() * 0.4;
     const speed = 3 + Math.random() * 4;
     coinParticles.push({
-      x: x,
-      y: y,
+      x: x, y: y,
       vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed - 2, // พุ่งขึ้นเล็กน้อย
-      life: 1.0,
-      decay: 0.03 + Math.random() * 0.02
+      vy: Math.sin(angle) * speed - 2,
+      life: 1.0, decay: 0.03 + Math.random() * 0.02,
+      playerIndex: playerIndex,
+      update: function() { this.x += this.vx; this.y += this.vy; this.vy += 0.2; this.life -= this.decay; },
+      draw: function(ctx) { ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.arc(this.x, this.y, 4, 0, Math.PI * 2); ctx.fill(); }
     });
   }
 }
 
 // เอฟเฟกต์ตัวอักษรลอยขึ้น
-function addFloatingText(x, y, text, color) {
+function addFloatingText(x, y, text, color, playerIndex) {
   floatingTexts.push({
-    x: x,
-    y: y,
-    text: text,
-    color: color,
-    vy: -2,
-    alpha: 1.0
+    x: x, y: y, text: text, color: color, vy: -2, alpha: 1.0, playerIndex: playerIndex,
+    update: function() { this.y += this.vy; this.alpha -= 0.02; },
+    draw: function(ctx) { ctx.globalAlpha = this.alpha; ctx.fillStyle = this.color; ctx.font = 'bold 24px Fredoka One'; ctx.fillText(this.text, this.x, this.y); ctx.globalAlpha = 1.0; }
   });
 }
 
@@ -1299,7 +1316,6 @@ function addFloatingText(x, y, text, color) {
 function loop() {
   if (isGameOver) return;
 
-  // ลดเวลากลุ่มบัฟ/ดีบัฟในแต่ละเฟรม (1 เฟรม = 1/60 วินาที)
   if (p1InvincibleTime > 0) p1InvincibleTime--;
   if (p1SlowTime > 0) p1SlowTime--;
   if (p1ConfusedTime > 0) p1ConfusedTime--;
@@ -1307,11 +1323,9 @@ function loop() {
   if (p2SlowTime > 0) p2SlowTime--;
   if (p2ConfusedTime > 0) p2ConfusedTime--;
 
-  // คำนวณความเร็วในการวิ่งของแต่ละคน
-  const p1Speed = (p1SlowTime > 0) ? blockSpeed * 0.65 : blockSpeed;
-  const p2Speed = (p2SlowTime > 0) ? blockSpeed * 0.65 : blockSpeed;
+  const p1Speed = (p1SlowTime > 0) ? p1BlockSpeed * 0.65 : p1BlockSpeed;
+  const p2Speed = (p2SlowTime > 0) ? p2BlockSpeed * 0.65 : p2BlockSpeed;
 
-  // ความเร็วการเดินเคลื่อนที่ของตัวละคร ซ้าย-ขวา อิสระ
   const forwardBaseSpeed = 6.5;
   const backwardBaseSpeed = 3.5;
   
@@ -1324,34 +1338,20 @@ function loop() {
   const singleForwardSpeed = (p1SlowTime > 0) ? forwardBaseSpeed * 0.65 : forwardBaseSpeed;
   const singleBackwardSpeed = (p1SlowTime > 0) ? backwardBaseSpeed * 0.65 : backwardBaseSpeed;
 
-  // อัปเดตตำแหน่ง X ของผู้เล่น
   if (mode === 'local_2p') {
-    if (keysPressed['d'] || keysPressed['D'] || p1TouchMoveDirX === 1) {
-      p1X += p1ForwardSpeed;
-    }
-    if (keysPressed['a'] || keysPressed['A'] || p1TouchMoveDirX === -1) {
-      p1X -= p1BackwardSpeed;
-    }
+    if (keysPressed['d'] || keysPressed['D'] || p1TouchMoveDirX === 1) p1X += p1ForwardSpeed;
+    if (keysPressed['a'] || keysPressed['A'] || p1TouchMoveDirX === -1) p1X -= p1BackwardSpeed;
     p1X = Math.max(20, Math.min(cw - 20, p1X));
 
-    if (keysPressed['arrowright'] || keysPressed['ArrowRight'] || p2TouchMoveDirX === 1) {
-      p2X += p2ForwardSpeed;
-    }
-    if (keysPressed['arrowleft'] || keysPressed['ArrowLeft'] || p2TouchMoveDirX === -1) {
-      p2X -= p2BackwardSpeed;
-    }
+    if (keysPressed['arrowright'] || keysPressed['ArrowRight'] || p2TouchMoveDirX === 1) p2X += p2ForwardSpeed;
+    if (keysPressed['arrowleft'] || keysPressed['ArrowLeft'] || p2TouchMoveDirX === -1) p2X -= p2BackwardSpeed;
     p2X = Math.max(20, Math.min(cw - 20, p2X));
   } else {
-    if (keysPressed['d'] || keysPressed['D'] || keysPressed['arrowright'] || keysPressed['ArrowRight'] || touchMoveDirX === 1) {
-      playerX += singleForwardSpeed;
-    }
-    if (keysPressed['a'] || keysPressed['A'] || keysPressed['arrowleft'] || keysPressed['ArrowLeft'] || touchMoveDirX === -1) {
-      playerX -= singleBackwardSpeed;
-    }
+    if (keysPressed['d'] || keysPressed['D'] || keysPressed['arrowright'] || keysPressed['ArrowRight'] || touchMoveDirX === 1) playerX += singleForwardSpeed;
+    if (keysPressed['a'] || keysPressed['A'] || keysPressed['arrowleft'] || keysPressed['ArrowLeft'] || touchMoveDirX === -1) playerX -= singleBackwardSpeed;
     playerX = Math.max(20, Math.min(cw - 20, playerX));
   }
 
-  // ขยับฉากหลังตามความเร็วของผู้เล่น
   if (mode === 'local_2p') {
     p1BgOffset += p1Speed;
     p2BgOffset += p2Speed;
@@ -1359,36 +1359,31 @@ function loop() {
     bgOffset += p1Speed;
   }
 
-  // ล้างภาพแคนวาส
   ctx.clearRect(0, 0, cw, ch);
 
   if (mode === 'local_2p') {
-    // ══════════════════════════════════════════════════════════
-    //  โหมด 2 คน (แบ่งจอแยกบน-ล่าง)
-    // ══════════════════════════════════════════════════════════
-    
-    // แบ่งจอครึ่งหนึ่ง
     const sh = ch / 2;
 
     // ── จอผู้เล่น 1 (ครึ่งบน) ──
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, 0, cw, sh);
+    ctx.clip();
+
     drawRetroHills(ctx, cw, sh, p1BgOffset, 0, sh, getTierByScore(p1Score));
     
-    // คำนวณความสูงเลน P1
     const p1LHeight = sh / 6.5;
     const getP1Y = (lane) => sh * 0.40 + lane * p1LHeight;
-    p1Y += (getP1Y(targetP1Lane) - p1Y) * 0.25; // Smooth Y change
+    p1Y += (getP1Y(targetP1Lane) - p1Y) * 0.25;
 
-    // วาด P1 (หมวกแดง เสื้อแดง เอี๊ยมน้ำเงิน) พร้อมบัฟ
     drawChibiPlayer(ctx, p1X, p1Y, p1BgOffset, '#FF4136', '#2b5c8f', p1IsGiant, p1InvincibleTime, p1SlowTime, p1ConfusedTime);
 
-    // วาดและประมวลผลบล็อก P1
     for (let i = 0; i < p1Blocks.length; i++) {
       const b = p1Blocks[i];
       b.x -= p1Speed;
       const by = getP1Y(b.lane);
       drawQuestionBlock(ctx, b.x, by, b.value, b.isCorrect, b.isChosen, b.hitResolved);
 
-      // ตรวจสอบการชน (Collision)
       if (!b.hitResolved && b.x <= p1X + 25 && b.x >= p1X - 25) {
         b.hitResolved = true;
         if (p1Lane === b.lane) {
@@ -1398,7 +1393,6 @@ function loop() {
       }
     }
 
-    // วาดและประมวลผลมอนสเตอร์ P1
     for (let i = p1Monsters.length - 1; i >= 0; i--) {
       const m = p1Monsters[i];
       m.x -= p1Speed;
@@ -1414,7 +1408,6 @@ function loop() {
       if (m.x < -50) p1Monsters.splice(i, 1);
     }
 
-    // วาดและประมวลผลไอเทม P1
     for (let i = p1Items.length - 1; i >= 0; i--) {
       const it = p1Items[i];
       const itSpeed = it.isPopped ? p1Speed * 1.35 : p1Speed;
@@ -1431,7 +1424,6 @@ function loop() {
       if (it.x < -50) p1Items.splice(i, 1);
     }
 
-    // เกิดคำใหม่เมื่อผ่านพ้นตัวละครไปทั้งหมด
     if (p1Blocks.length > 0 && p1Blocks[p1Blocks.length - 1].x < p1X - 80) {
       generateNewQuestion(1);
     }
@@ -1466,9 +1458,55 @@ function loop() {
     ctx.font = 'bold 20px Fredoka One, Sarabun';
     ctx.textAlign = 'center';
     ctx.fillText(`⏱️ ${gameTimeLeft} วิ`, cw - 90, 47);
-    ctx.restore();
+    ctx.restore(); // restore P1 timer box context
+
+    // วาดเหรียญ P1
+    for (let i = 0; i < coinParticles.length; i++) {
+      const c = coinParticles[i];
+      if (c.y < sh) {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, c.life);
+        ctx.fillStyle = '#FFD700';
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#FFB300';
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // วาดอักษรคะแนนลอย P1
+    for (let i = 0; i < floatingTexts.length; i++) {
+      const f = floatingTexts[i];
+      if (f.y < sh) {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, f.alpha);
+        ctx.fillStyle = f.color;
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 3;
+        ctx.font = 'bold 26px Fredoka One, Sarabun';
+        ctx.textAlign = 'center';
+        ctx.strokeText(f.text, f.x, f.y);
+        ctx.fillText(f.text, f.x, f.y);
+        ctx.restore();
+      }
+    }
+
+    ctx.restore(); // restore P1 screen clip context
 
     // ── จอผู้เล่น 2 (ครึ่งล่าง) ──
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, sh, cw, sh);
+    ctx.clip();
+
     drawRetroHills(ctx, cw, sh, p2BgOffset, sh, sh, getTierByScore(p2Score));
     
     // คำนวณความสูงเลน P2
@@ -1562,7 +1600,48 @@ function loop() {
     ctx.font = 'bold 20px Fredoka One, Sarabun';
     ctx.textAlign = 'center';
     ctx.fillText(`⏱️ ${gameTimeLeft} วิ`, cw - 90, sh + 47);
-    ctx.restore();
+    ctx.restore(); // restore P2 timer box context
+
+    // วาดเหรียญ P2
+    for (let i = 0; i < coinParticles.length; i++) {
+      const c = coinParticles[i];
+      if (c.y >= sh) {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, c.life);
+        ctx.fillStyle = '#FFD700';
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#FFB300';
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // วาดอักษรคะแนนลอย P2
+    for (let i = 0; i < floatingTexts.length; i++) {
+      const f = floatingTexts[i];
+      if (f.y >= sh) {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, f.alpha);
+        ctx.fillStyle = f.color;
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 3;
+        ctx.font = 'bold 26px Fredoka One, Sarabun';
+        ctx.textAlign = 'center';
+        ctx.strokeText(f.text, f.x, f.y);
+        ctx.fillText(f.text, f.x, f.y);
+        ctx.restore();
+      }
+    }
+
+    ctx.restore(); // restore P2 screen clip context
 
     // เส้นแบ่งขีดกลางจอ
     ctx.fillStyle = '#000';
@@ -1661,6 +1740,41 @@ function loop() {
       ctx.fillRect(0, 0, cw, ch);
       redFlashAlpha -= 0.04;
     }
+
+    // วาดเหรียญ 1P
+    for (let i = 0; i < coinParticles.length; i++) {
+      const c = coinParticles[i];
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, c.life);
+      ctx.fillStyle = '#FFD700'; // เหรียญสีทอง
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#FFB300';
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // วาดอักษรคะแนนลอย 1P
+    for (let i = 0; i < floatingTexts.length; i++) {
+      const f = floatingTexts[i];
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, f.alpha);
+      ctx.fillStyle = f.color;
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 3;
+      ctx.font = 'bold 26px Fredoka One, Sarabun';
+      ctx.textAlign = 'center';
+      ctx.strokeText(f.text, f.x, f.y);
+      ctx.fillText(f.text, f.x, f.y);
+      ctx.restore();
+    }
   }
 
   // ── เอฟเฟกต์ร่วม (เหรียญกระจาย + อักษรลอย) ──
@@ -1672,24 +1786,6 @@ function loop() {
     c.y += c.vy;
     c.vy += 0.2; // แรงโน้มถ่วง
     c.life -= c.decay;
-    
-    ctx.save();
-    ctx.globalAlpha = Math.max(0, c.life);
-    ctx.fillStyle = '#FFD700'; // เหรียญสีทอง
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.arc(c.x, c.y, 6, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-    
-    // รายละเอียดขอบเหรียญด้านใน
-    ctx.fillStyle = '#FFB300';
-    ctx.beginPath();
-    ctx.arc(c.x, c.y, 3, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-
     if (c.life <= 0) coinParticles.splice(i, 1);
   }
 
@@ -1698,18 +1794,6 @@ function loop() {
     const f = floatingTexts[i];
     f.y += f.vy;
     f.alpha -= 0.02;
-
-    ctx.save();
-    ctx.globalAlpha = Math.max(0, f.alpha);
-    ctx.fillStyle = f.color;
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = 3;
-    ctx.font = 'bold 26px Fredoka One, Sarabun';
-    ctx.textAlign = 'center';
-    ctx.strokeText(f.text, f.x, f.y);
-    ctx.fillText(f.text, f.x, f.y);
-    ctx.restore();
-
     if (f.alpha <= 0) floatingTexts.splice(i, 1);
   }
 
@@ -1771,12 +1855,30 @@ function resolveHit(playerIndex, isCorrect, x, y) {
     }
 
     // ไต่ระดับความเร็วขั้นบันได
-    const newSpeedStep = Math.floor(correctAnswersCount / 5);
-    if (newSpeedStep > speedStep) {
-      speedStep = newSpeedStep;
-      addFloatingText(cw * 0.5, ch * 0.2, '⚡ สปีดอัป!', '#FFD700');
+    if (mode === 'local_2p') {
+      if (playerIndex === 1) {
+        const newSpeedStep = Math.floor(p1CorrectAnswersCount / 5);
+        if (newSpeedStep > p1SpeedStep) {
+          p1SpeedStep = newSpeedStep;
+          addFloatingText(cw * 0.5, ch * 0.2, '⚡ P1 สปีดอัป!', '#FFD700');
+        }
+        p1BlockSpeed = Math.min(CFG.BLOCK_MAX_SPEED, CFG.BLOCK_START_SPEED + p1SpeedStep * 1.2);
+      } else {
+        const newSpeedStep = Math.floor(p2CorrectAnswersCount / 5);
+        if (newSpeedStep > p2SpeedStep) {
+          p2SpeedStep = newSpeedStep;
+          addFloatingText(cw * 0.5, ch * 0.7, '⚡ P2 สปีดอัป!', '#FFD700');
+        }
+        p2BlockSpeed = Math.min(CFG.BLOCK_MAX_SPEED, CFG.BLOCK_START_SPEED + p2SpeedStep * 1.2);
+      }
+    } else {
+      const newSpeedStep = Math.floor(p1CorrectAnswersCount / 5);
+      if (newSpeedStep > p1SpeedStep) {
+        p1SpeedStep = newSpeedStep;
+        addFloatingText(cw * 0.5, ch * 0.2, '⚡ สปีดอัป!', '#FFD700');
+      }
+      p1BlockSpeed = Math.min(CFG.BLOCK_MAX_SPEED, CFG.BLOCK_START_SPEED + p1SpeedStep * 1.2);
     }
-    blockSpeed = Math.min(CFG.BLOCK_MAX_SPEED, CFG.BLOCK_START_SPEED + speedStep * 1.2);
   } else {
     // ตอบผิด
     if (isInvincible) {
@@ -1825,10 +1927,24 @@ function resolveHit(playerIndex, isCorrect, x, y) {
     }
 
     // สปีดลดลง (ขั้นบันได)
-    speedStep = Math.max(0, speedStep - 1);
-    correctAnswersCount = speedStep * 5;
-    blockSpeed = Math.min(CFG.BLOCK_MAX_SPEED, CFG.BLOCK_START_SPEED + speedStep * 1.2);
-    addFloatingText(x, y, '⚠️ สปีดลดลง!', '#ff4757');
+    if (mode === 'local_2p') {
+      if (playerIndex === 1) {
+        p1SpeedStep = Math.max(0, p1SpeedStep - 1);
+        p1CorrectAnswersCount = p1SpeedStep * 5;
+        p1BlockSpeed = Math.min(CFG.BLOCK_MAX_SPEED, CFG.BLOCK_START_SPEED + p1SpeedStep * 1.2);
+        addFloatingText(x, y, '⚠️ P1 สปีดลดลง!', '#ff4757');
+      } else {
+        p2SpeedStep = Math.max(0, p2SpeedStep - 1);
+        p2CorrectAnswersCount = p2SpeedStep * 5;
+        p2BlockSpeed = Math.min(CFG.BLOCK_MAX_SPEED, CFG.BLOCK_START_SPEED + p2SpeedStep * 1.2);
+        addFloatingText(x, y, '⚠️ P2 สปีดลดลง!', '#ff4757');
+      }
+    } else {
+      p1SpeedStep = Math.max(0, p1SpeedStep - 1);
+      p1CorrectAnswersCount = p1SpeedStep * 5;
+      p1BlockSpeed = Math.min(CFG.BLOCK_MAX_SPEED, CFG.BLOCK_START_SPEED + p1SpeedStep * 1.2);
+      addFloatingText(x, y, '⚠️ สปีดลดลง!', '#ff4757');
+    }
   }
 
   // อัปเกรดเลเวลตามระดับคะแนน/ด่าน
@@ -1865,8 +1981,9 @@ function startSinglePlayer(m) {
   playerLane = 1;
   targetPlayerLane = 1;
   playerX = cw * 0.2;
-  speedStep = 0;
-  blockSpeed = CFG.BLOCK_START_SPEED;
+  p1SpeedStep = 0;
+  p1BlockSpeed = CFG.BLOCK_START_SPEED;
+  p1CorrectAnswersCount = 0;
   bgOffset = 0;
   
   $('score-value').innerText = 0;
@@ -1925,8 +2042,12 @@ function startLocalTwoPlayer() {
   targetP2Lane = 1;
   p2X = cw * 0.2;
   level = 1;
-  speedStep = 0;
-  blockSpeed = CFG.BLOCK_START_SPEED;
+  p1SpeedStep = 0;
+  p1BlockSpeed = CFG.BLOCK_START_SPEED;
+  p1CorrectAnswersCount = 0;
+  p2SpeedStep = 0;
+  p2BlockSpeed = CFG.BLOCK_START_SPEED;
+  p2CorrectAnswersCount = 0;
   p1Monsters = [];
   p2Monsters = [];
   p1Items = [];
@@ -1986,8 +2107,12 @@ function startGame(onlineMode, opts) {
   playerLane = 1;
   targetPlayerLane = 1;
   playerX = cw * 0.2;
-  speedStep = 0;
-  blockSpeed = CFG.BLOCK_START_SPEED;
+  p1SpeedStep = 0;
+  p1BlockSpeed = CFG.BLOCK_START_SPEED;
+  p1CorrectAnswersCount = 0;
+  p2SpeedStep = 0;
+  p2BlockSpeed = CFG.BLOCK_START_SPEED;
+  p2CorrectAnswersCount = 0;
   bgOffset = 0;
 
   $('score-value').innerText = 0;
@@ -2133,8 +2258,12 @@ function resetGame() {
   correctAnswersCount = 0;
   lives = CFG.LIVES;
   level = 1;
-  speedStep = 0;
-  blockSpeed = CFG.BLOCK_START_SPEED;
+  p1SpeedStep = 0;
+  p1BlockSpeed = CFG.BLOCK_START_SPEED;
+  p1CorrectAnswersCount = 0;
+  p2SpeedStep = 0;
+  p2BlockSpeed = CFG.BLOCK_START_SPEED;
+  p2CorrectAnswersCount = 0;
   playerX = cw * 0.2;
   p1X = cw * 0.2;
   p2X = cw * 0.2;
