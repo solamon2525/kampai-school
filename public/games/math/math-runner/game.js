@@ -2182,40 +2182,45 @@ function openP2Selector() {
 
   modal.classList.remove('hidden');
   
-  // โหลดรายชื่อเพื่อนร่วมชั้นจาก KAMPAI.leaderboard
-  const rows = KAMPAI.leaderboard || [];
+  // โหลดรายชื่อเพื่อนร่วมชั้นจาก KAMPAI.classmates (หากไม่มี ให้ใช้ leaderboard เป็น fallback)
+  const rows = (KAMPAI.classmates && KAMPAI.classmates.length > 0)
+    ? KAMPAI.classmates
+    : (KAMPAI.leaderboard || []);
   
   // กรองตัวเราออก (P1)
   const classmates = rows.filter(r => {
+    const rId = r.id || r.studentId;
     if (KAMPAI.student) {
-      return r.studentId !== KAMPAI.student.id;
+      return rId !== KAMPAI.student.id;
     }
     return true;
   });
 
   if (classmates.length === 0) {
-    listEl.innerHTML = '<li class="lb-loading">ไม่พบเพื่อนร่วมชั้นในระบบกระดานคะแนน (ป้อนชื่อเป็นผู้เยือนด้านล่างได้เลย)</li>';
+    listEl.innerHTML = '<li class="lb-loading">ไม่พบเพื่อนร่วมชั้นในระบบ (ป้อนชื่อเป็นผู้เยือนด้านล่างได้เลย)</li>';
   } else {
     listEl.innerHTML = classmates.map((c) => {
       const av = c.photoUrl 
         ? `<img class="classmate-avatar" src="${c.photoUrl}" alt="">` 
         : `<div class="classmate-avatar-init">${(c.displayName || '?')[0]}</div>`;
       
-      const pb = c.personalBest 
-        ? `<span class="classmate-pb">PB: ${c.personalBest}</span>`
-        : '';
+      const subText = c.classNumber 
+        ? `<span class="classmate-pb">เลขที่: ${c.classNumber}</span>`
+        : (c.personalBest ? `<span class="classmate-pb">PB: ${c.personalBest}</span>` : '');
 
       const escapedName = (c.displayName || '').replace(/'/g, "\\'");
+      const escapedCode = (c.studentCode || '').replace(/'/g, "\\'");
+      const cId = c.id || c.studentId || '';
 
-      return `<li class="classmate-item" onclick="selectClassmateP2('${escapedName}', '${c.photoUrl || ''}')">
+      return `<li class="classmate-item" onclick="selectClassmateP2('${escapedName}', '${c.photoUrl || ''}', '${escapedCode}', '${cId}')">
         <div class="classmate-avatar-row">
           ${av}
           <div>
             <div class="classmate-name">${c.displayName}</div>
-            <div class="classmate-class">${c.classLabel || ''}</div>
+            <div class="classmate-class">${c.studentCode || c.classLabel || ''}</div>
           </div>
         </div>
-        ${pb}
+        ${subText}
       </li>`;
     }).join('');
   }
@@ -2225,11 +2230,13 @@ function closeP2Selector() {
   $('p2-selector-modal').classList.add('hidden');
 }
 
-function selectClassmateP2(name, photoUrl) {
+function selectClassmateP2(name, photoUrl, studentCode = '', id = '') {
   p2Student = {
     displayName: name,
     photoUrl: photoUrl || null,
-    isGuest: false
+    studentCode: studentCode || null,
+    id: id || null,
+    isGuest: !studentCode
   };
   closeP2Selector();
   launchLocalTwoPlayer();
@@ -2465,6 +2472,12 @@ function endGame() {
       submitOpts.opponent = p2Student.displayName;
       submitOpts.opponent_score = p2Score;
       submitOpts.my_score = p1Score;
+      if (p2Student.studentCode) {
+        submitOpts.opponent_code = p2Student.studentCode;
+      }
+      if (p2Student.id) {
+        submitOpts.opponent_id = p2Student.id;
+      }
     }
     KAMPAI.submitScore(finalScore, submitOpts);
   } else if (match) {

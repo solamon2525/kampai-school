@@ -50,6 +50,7 @@ import { HonorWall } from '@/components/games/HonorWall';
 import { DailyQuestPanel, dailyQuestQueryKey } from '@/components/games/DailyQuestPanel';
 import { dailyQuestService, type DailyQuestStatus } from '@/services/daily-quest.service';
 import { TIER_STYLES, type MedalTier } from '@/services/gamification.service';
+import { studentsService } from '@/services/students.service';
 
 // ─── Lucide icon resolver ────────────────────────────────────────────────────
 type LucideMap = Record<string, React.ComponentType<{ className?: string }>>;
@@ -166,6 +167,18 @@ const PlayGame = () => {
     enabled: !!gameSlug,
   });
 
+  // classmates in same class
+  const classmatesQuery = useQuery({
+    queryKey: ['classmates', student?.class_label],
+    queryFn: async () => {
+      if (!student?.class_label) return [];
+      const { data, error } = await studentsService.getByClass(student.class_label);
+      if (error) throw error;
+      return data ?? [];
+    },
+    enabled: !!student && !!student.class_label,
+  });
+
   // Daily Quest: สถานะเควสประจำวันของผู้เล่น (ข้ามเกม — key ที่ student code)
   const trimmedCode = codeInput.trim();
   const questQuery = useQuery({
@@ -271,6 +284,13 @@ const PlayGame = () => {
           personalBest: r.personal_best,
           isMe: r.student_id === student.id,
         })),
+        classmates: (classmatesQuery.data ?? []).map(c => ({
+          id: c.id,
+          studentCode: c.student_code,
+          displayName: c.name,
+          photoUrl: c.photo_url,
+          classNumber: c.class_number,
+        })),
         // เพลงประกอบรายเกม (ตั้งจากหลังบ้าน) → KAMPAI.sound override default ของเกม
         // bgmUrl (mp3 อัปโหลด) มาก่อน synth preset
         audio: { bgm: gameQuery.data?.bgm_preset ?? null, bgmUrl: gameQuery.data?.bgm_url ?? null },
@@ -285,7 +305,7 @@ const PlayGame = () => {
       },
       '*',
     );
-  }, [student, codeInput, statsQuery.data, levelInfo.level, leaderboardQuery.data, gameQuery.data?.bgm_preset, gameQuery.data?.bgm_url, gameSlug, masteryQuery.data, dailyStatusQuery.data, dailyLeaderboardQuery.data]);
+  }, [student, codeInput, statsQuery.data, levelInfo.level, leaderboardQuery.data, classmatesQuery.data, gameQuery.data?.bgm_preset, gameQuery.data?.bgm_url, gameSlug, masteryQuery.data, dailyStatusQuery.data, dailyLeaderboardQuery.data]);
 
   // ─── auto-login จาก localStorage (ลดเวลากรอกรหัสเมื่อเปลี่ยนเกม) ────────
   useEffect(() => {
