@@ -1,0 +1,506 @@
+/* style.css — สไตล์ของเกม Math Runner สไตล์เรโทรน่ารักสดใส */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #5c94fc; /* สีฟ้าสกายบลูสไตล์มาริโอ้ */
+  font-family: 'Sarabun', 'Segoe UI', sans-serif;
+  touch-action: none;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* ── HUD ── */
+#hud-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 10px 20px;
+  z-index: 10;
+  pointer-events: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.hud-box {
+  background: rgba(255, 255, 255, 0.95);
+  border: 4px solid #000;
+  border-radius: 16px;
+  padding: 8px 16px;
+  font-family: 'Fredoka One', 'Sarabun', sans-serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: #333;
+  box-shadow: 0 6px 0px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  pointer-events: auto;
+}
+
+.hud-left, .hud-right {
+  display: flex;
+  gap: 10px;
+}
+
+#math-problem-bar {
+  background: #FFD700;
+  border: 4px solid #000;
+  border-radius: 40px;
+  padding: 10px 32px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 2.1rem;
+  font-weight: 900;
+  color: #d35400;
+  box-shadow: 0 6px 0px #e67e22, 0 10px 0px #000;
+  text-align: center;
+  z-index: 12;
+  white-space: nowrap;
+  pointer-events: auto;
+  animation: floatProblem 3s ease-in-out infinite;
+}
+
+@keyframes floatProblem {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0px); }
+}
+
+#combo-badge {
+  position: absolute;
+  top: 110px;
+  right: 20px;
+  background: linear-gradient(135deg, #FF5722, #FF9800);
+  color: white;
+  border: 3px solid #000;
+  border-radius: 12px;
+  padding: 4px 12px;
+  font-family: 'Fredoka One', sans-serif;
+  font-size: 0.9rem;
+  font-weight: bold;
+  box-shadow: 0 4px 0px #000;
+  z-index: 9;
+}
+
+#toast {
+  position: absolute;
+  top: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.85);
+  color: #fff;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.9rem;
+  z-index: 15;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ── Canvas ── */
+#game-canvas {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* ── Blocker Screens ── */
+#blocker, #gameover-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(92, 148, 252, 0.4); /* ท้องฟ้าเบลอ */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 20;
+  overflow-y: auto;
+  padding: 20px 0;
+}
+
+.menu-panel {
+  background: #fff8eb; /* สีครีมอุ่นสไตล์เรโทร */
+  border: 5px solid #000;
+  border-radius: 30px;
+  box-shadow: 0 16px 0px rgba(0,0,0,0.15), 0 24px 30px rgba(0,0,0,0.25);
+  padding: 30px 24px;
+  width: 380px;
+  max-width: 92%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+h1 {
+  font-family: 'Fredoka One', cursive;
+  font-size: 2.8rem;
+  color: #FFB300;
+  text-shadow: 4px 4px 0px #d35400, 4px 8px 0px #000;
+  margin-bottom: 5px;
+  text-align: center;
+  animation: titleBounce 2s infinite;
+}
+
+.red-title {
+  color: #FF2E93;
+  text-shadow: 4px 4px 0px #C60055, 4px 8px 0px #000 !important;
+}
+
+@keyframes titleBounce {
+  0%, 100% { transform: translateY(0) rotate(-1.5deg); }
+  50% { transform: translateY(-6px) rotate(1.5deg); }
+}
+
+p.subtitle {
+  color: #4f5b66;
+  font-size: 0.88rem;
+  text-align: center;
+  margin-bottom: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+/* Settings */
+.setting-section {
+  background: #fff;
+  border: 3px solid #000;
+  border-radius: 18px;
+  padding: 12px 14px;
+  width: 100%;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 0px rgba(0, 0, 0, 0.1);
+}
+
+.setting-label {
+  font-weight: 800;
+  font-size: 0.82rem;
+  color: #7f8c8d;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.button-group {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 4px;
+}
+
+/* Buttons */
+.mode-btn, .diff-btn {
+  flex: 1;
+  background: #f1f3f5;
+  border: 3px solid #000;
+  border-radius: 12px;
+  padding: 6px 4px;
+  font-family: 'Fredoka One', 'Sarabun', sans-serif;
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: #495057;
+  cursor: pointer;
+  box-shadow: 0 3px 0px rgba(0, 0, 0, 0.15);
+  transition: transform 0.05s;
+}
+
+.mode-btn.active, .diff-btn.active {
+  background: #FFC107;
+  color: #000;
+  box-shadow: 0 3px 0px #FF8F00, 0 3px 0px #000;
+  transform: translateY(1px);
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 0.82rem;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+}
+
+.checkbox-container input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* Personal Best Stats */
+#my-stats {
+  display: flex;
+  width: 100%;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.ms-cell {
+  flex: 1;
+  background: #fff;
+  border: 3px solid #000;
+  border-radius: 16px;
+  padding: 6px;
+  text-align: center;
+  box-shadow: 0 4px 0px rgba(0, 0, 0, 0.1);
+}
+
+.ms-val {
+  font-family: 'Fredoka One', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #2b5c8f;
+}
+
+.ms-label {
+  font-size: 0.68rem;
+  color: #7f8c8d;
+  font-weight: bold;
+  margin-top: 2px;
+}
+
+/* Leaderboard */
+.leaderboard-box {
+  background: #fff;
+  border: 3px solid #000;
+  border-radius: 20px;
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 0px rgba(0, 0, 0, 0.1);
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.lb-title {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.leaderboard-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.leaderboard-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid #f1f3f5;
+  padding-bottom: 4px;
+  font-size: 0.78rem;
+}
+
+.leaderboard-list li:last-child {
+  border-bottom: none;
+}
+
+.lb-entry {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.lb-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #000;
+}
+
+.lb-avatar-init {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #6c5ce7;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: bold;
+  border: 2px solid #000;
+}
+
+.lb-name {
+  font-weight: bold;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lb-score {
+  font-family: 'Fredoka One', sans-serif;
+  font-weight: bold;
+  color: #f39c12;
+}
+
+.lb-entry.me .lb-name {
+  color: #2ecc71;
+}
+
+.lb-loading {
+  text-align: center;
+  color: #7f8c8d;
+  font-style: italic;
+  padding: 10px 0;
+}
+
+/* Action Grid */
+.action-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.btn {
+  width: 100%;
+  border: 3px solid #000;
+  border-radius: 50px;
+  padding: 12px 18px;
+  font-family: 'Fredoka One', 'Sarabun', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 5px 0px #000;
+  transition: transform 0.1s, box-shadow 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0px #000;
+}
+
+.btn-primary {
+  background: #2ecc71; /* สีเขียวของหญ้า */
+  box-shadow: 0 5px 0px #27ae60, 0 5px 0px #000;
+}
+
+.btn-blue {
+  background: #3498db; /* สีฟ้าน้ำเงิน */
+  box-shadow: 0 5px 0px #2980b9, 0 5px 0px #000;
+}
+
+.btn-orange {
+  background: #e67e22; /* สีอิฐดินแดง */
+  box-shadow: 0 5px 0px #d35400, 0 5px 0px #000;
+}
+
+.btn-ghost {
+  background: #9b5de5;
+  box-shadow: 0 5px 0px #7b2cbf, 0 5px 0px #000;
+}
+
+/* Gameover Screen Specifically */
+#go-stars {
+  font-size: 2rem;
+  color: #FFD700;
+  margin: 10px 0;
+  letter-spacing: 4px;
+}
+
+#final-score {
+  font-family: 'Fredoka One', sans-serif;
+  font-size: 3rem;
+  font-weight: 900;
+  color: #e67e22;
+  text-shadow: 2px 2px 0px #000;
+  margin-bottom: 5px;
+}
+
+#go-summary {
+  font-weight: bold;
+  color: #555;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+}
+
+.action-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+/* Mobile Controls Overlay Zones */
+#mobile-control-zones {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.p1-touch-zone, .p2-touch-zone {
+  flex: 1;
+  pointer-events: auto;
+  opacity: 0;
+}
+
+/* Split screen: left half = P1, right half = P2 */
+/* Top quarter/Bottom quarter for Up/Down split inside P1/P2 zones */
+#p1-touch-up, #p2-touch-up {
+  position: absolute;
+  top: 0;
+  height: 50%;
+  width: 50%;
+}
+
+#p1-touch-down, #p2-touch-down {
+  position: absolute;
+  bottom: 0;
+  height: 50%;
+  width: 50%;
+}
+
+#p1-touch-up, #p1-touch-down {
+  left: 0;
+}
+
+#p2-touch-up, #p2-touch-down {
+  right: 0;
+}
+
+/* Custom Overrides for KAMPAI Sound Widget */
+#kampai-snd {
+  top: auto !important;
+  bottom: 14px !important;
+  left: 14px !important;
+  z-index: 45 !important;
+}
+
+.ksnd {
+  border: 3px solid #000 !important;
+  box-shadow: 0 4px 0px #000 !important;
+}

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Math Runner: วิ่งสู้สูตรคูณ</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- HUD Overlay -->
+<div id="hud-container">
+  <div class="hud-left">
+    <div id="life-container" class="hud-box">❤️ ❤️ ❤️</div>
+    <div id="level-badge" class="hud-box">ด่าน 1</div>
+  </div>
+  <div id="math-problem-bar"> Ready? </div>
+  <div class="hud-right">
+    <div id="score-container" class="hud-box">⭐ <span id="score-value">0</span></div>
+    <div id="timer-container" class="hud-box" style="display:none;">⏱️ <span id="timer-value">60</span></div>
+  </div>
+</div>
+
+<div id="combo-badge" class="hidden">COMBO x0</div>
+<div id="toast" class="hidden"></div>
+<div id="player-chip"></div>
+
+<!-- Mobile Touch Control Overlays (for split screen touch) -->
+<div id="mobile-control-zones">
+  <!-- P1 Zone (Left Half of screen for P1 in split-screen, or whole screen for Single Player) -->
+  <div class="p1-touch-zone" id="p1-touch-up"></div>
+  <div class="p1-touch-zone" id="p1-touch-down"></div>
+  <!-- P2 Zone (Right Half of screen for P2 in split-screen) -->
+  <div class="p2-touch-zone" id="p2-touch-up"></div>
+  <div class="p2-touch-zone" id="p2-touch-down"></div>
+</div>
+
+<!-- Canvas -->
+<canvas id="game-canvas"></canvas>
+
+<!-- Start Screen -->
+<div id="blocker">
+  <div class="menu-panel">
+    <h1>MATH RUNNER</h1>
+    <p class="subtitle">กระโดดเปลี่ยนเลนอิฐบล็อก วิ่งชนกล่องคำตอบที่ถูกต้อง! 🧱</p>
+    
+    <!-- Math Mode -->
+    <div class="setting-section">
+      <div class="setting-label">🧮 เครื่องหมายคณิตศาสตร์</div>
+      <div class="button-group" id="math-mode-group">
+        <button class="mode-btn" data-val="add" onclick="selectMathMode('add')">+</button>
+        <button class="mode-btn" data-val="sub" onclick="selectMathMode('sub')">-</button>
+        <button class="mode-btn active" data-val="mul" onclick="selectMathMode('mul')">×</button>
+        <button class="mode-btn" data-val="div" onclick="selectMathMode('div')">÷</button>
+        <button class="mode-btn" data-val="mix" onclick="selectMathMode('mix')">Mix</button>
+      </div>
+      
+      <label class="checkbox-container">
+        <input type="checkbox" id="equation-mode">
+        <span>โหมดสมการ ? (เช่น ? × 4 = 12)</span>
+      </label>
+    </div>
+
+    <!-- Difficulty -->
+    <div class="setting-section">
+      <div class="setting-label">🏔️ ระดับความยาก</div>
+      <div class="button-group" id="diff-group">
+        <button class="diff-btn" data-val="very_easy" onclick="selectDifficulty('very_easy')">ง่ายมาก</button>
+        <button class="diff-btn active" data-val="easy" onclick="selectDifficulty('easy')">ง่าย</button>
+        <button class="diff-btn" data-val="hard" onclick="selectDifficulty('hard')">ยาก</button>
+      </div>
+    </div>
+
+    <!-- Personal Stats -->
+    <div id="my-stats">
+      <div class="ms-cell"><div class="ms-val" id="ms-best">0</div><div class="ms-label">คะแนนสูงสุด</div></div>
+      <div class="ms-cell"><div class="ms-val" id="ms-plays">0</div><div class="ms-label">เล่นไปแล้ว (ครั้ง)</div></div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="leaderboard-box">
+      <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+      <ul id="score-list" class="leaderboard-list">
+        <li class="lb-loading">กำลังโหลดอันดับ...</li>
+      </ul>
+    </div>
+
+    <!-- Start Actions -->
+    <div class="action-grid">
+      <button class="btn btn-primary" onclick="startSinglePlayer('adventure')">👤 1 คน (ผจญภัย - 3 ชีวิต)</button>
+      <button class="btn btn-blue" onclick="startSinglePlayer('time')">⏱️ 1 คน (แข่งเวลา 60 วิ)</button>
+      <button class="btn btn-orange" onclick="startLocalTwoPlayer()">👥 2 คน (เล่นจอเดียวกัน)</button>
+      <button class="btn btn-ghost" id="online-btn" onclick="openOnlineMultiplayer()" style="display:none;">🌐 ออนไลน์ (แข่งหลายคน)</button>
+    </div>
+  </div>
+</div>
+
+<!-- Game Over Screen -->
+<div id="gameover-screen" class="hidden">
+  <div class="menu-panel">
+    <h1 class="red-title">GAME OVER!</h1>
+    <div id="go-stars">⭐⭐⭐</div>
+    <div id="final-score">0</div>
+    <p id="go-summary">เก่งมาก! วิ่งคว้าดาวคณิตศาสตร์สำเร็จ</p>
+    
+    <div class="leaderboard-box">
+      <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+      <ul id="score-list-gameover" class="leaderboard-list">
+        <li class="lb-loading">—</li>
+      </ul>
+    </div>
+    
+    <div class="action-row">
+      <button class="btn btn-primary" onclick="restartGame()">🔄 เล่นอีกครั้ง</button>
+      <button class="btn btn-blue" onclick="KAMPAI.goHome()">🏠 กลับพอร์ทัล</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ KAMPAI SDK + Online Framework ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+/* Fallback stub */
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+</script>
+<script src="/games/kampai-match.js"></script>
+<script>
+/* Fallback match */
+window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){alert('โหมดออนไลน์เล่นผ่านระบบเท่านั้น');},report:function(){},finish:function(){},leave:function(){}};} };
+</script>
+
+<!-- Game scripts -->
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

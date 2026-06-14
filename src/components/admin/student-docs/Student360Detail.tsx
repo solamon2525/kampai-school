@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import {
     ArrowLeft, User, Trophy, Star, ClipboardCheck, Heart, Home,
-    ExternalLink, Utensils, Wallet, FileText, Calendar, Gamepad2,
+    ExternalLink, Utensils, Wallet, FileText, Calendar, Gamepad2, Target,
 } from 'lucide-react';
 import { student360Service, type Student360Profile } from '@/services/student-360.service';
 import { attendanceService, type AttendanceStatus } from '@/services/attendance.service';
@@ -20,11 +20,12 @@ import { SdqTab } from './SdqForm';
 import { MealBudgetTab } from './MealBudgetForm';
 import { GeneralDocsTab } from './GeneralDocsTab';
 import { GamesSummary } from './GamesSummary';
+import { IndicatorMasteryTab } from './IndicatorMasteryTab';
 import { KampaiHeroDashboard } from '../conduct/KampaiHeroDashboard';
 
 type TabKey =
     | 'profile' | 'scores' | 'conduct' | 'attendance' | 'support'
-    | 'home_visit' | 'sdq' | 'meal' | 'banks' | 'docs' | 'games';
+    | 'home_visit' | 'sdq' | 'meal' | 'banks' | 'docs' | 'games' | 'indicators';
 
 interface TabDef { key: TabKey; label: string; icon: typeof User }
 
@@ -39,6 +40,7 @@ const TABS: TabDef[] = [
     { key: 'meal',       label: 'อาหาร/นม',    icon: Utensils },
     { key: 'banks',      label: 'ธนาคาร',      icon: Wallet },
     { key: 'games',      label: 'เกมการศึกษา', icon: Gamepad2 },
+    { key: 'indicators', label: 'ตัวชี้วัด',    icon: Target },
     { key: 'docs',       label: 'ไฟล์แนบ',     icon: FileText },
 ];
 
@@ -141,6 +143,7 @@ export const Student360Detail = ({ studentId, onBack }: Student360DetailProps) =
                 {tab === 'meal' && <MealBudgetTab studentId={studentId} />}
                 {tab === 'banks' && <BanksSummary studentId={studentId} />}
                 {tab === 'games' && <GamesSummary studentId={studentId} />}
+                {tab === 'indicators' && <IndicatorMasteryTab studentId={studentId} classroom={profile?.classroom ?? null} />}
                 {tab === 'docs' && <GeneralDocsTab studentId={studentId} />}
             </div>
         </div>
