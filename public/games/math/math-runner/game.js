@@ -193,7 +193,7 @@ function spawnBlocksForQuestion(q) {
   // วางตัวเลือกใน 3 เลน (0, 1, 2)
   for (let l = 0; l < 3; l++) {
     blocks.push({
-      x: cw + 50 + l * 40, // วางห่างกันเล็กน้อยเพื่อความมิติ
+      x: cw + 50 + l * 220, // วางห่างกันเพื่อให้ผู้เล่นมีเวลาหลบและเปลี่ยนเลน
       lane: l,
       value: q.choices[l],
       isCorrect: q.choices[l] === q.Target,
@@ -389,7 +389,8 @@ function drawRetroHills(ctx, cw, ch, offset, screenYOffset, screenHeight) {
 // วาดตัวละคร P1/P2 Chibi Retro Runner พร้อมบัฟ/ดีบัฟ
 function drawChibiPlayer(ctx, x, y, frame, colorHead, colorBody, isGiant = false, invincibleTime = 0, slowTime = 0, confusedTime = 0) {
   ctx.save();
-  ctx.translate(x, y);
+  const yOffset = isGiant ? -45 : -33;
+  ctx.translate(x, y + yOffset);
 
   // 1. ขนาดตัวขยายใหญ่ (Mega Size)
   if (isGiant) {
@@ -510,7 +511,7 @@ function drawChibiPlayer(ctx, x, y, frame, colorHead, colorBody, isGiant = false
 // วาดบล็อกคำถามสีทอง (? Box) สำหรับเลือกคำตอบ
 function drawQuestionBlock(ctx, x, y, value, isCorrect, isChosen, hitResolved) {
   ctx.save();
-  ctx.translate(x, y);
+  ctx.translate(x, y - 55);
 
   if (hitResolved) {
     if (isChosen) {
@@ -596,7 +597,11 @@ function drawQuestionBlock(ctx, x, y, value, isCorrect, isChosen, hitResolved) {
 // วาดมอนสเตอร์ กุมบ้า กระดองเต่า เต่าหนาม
 function drawMonster(ctx, x, y, type, frame) {
   ctx.save();
-  ctx.translate(x, y);
+  let yOffset = 0;
+  if (type === 'goomba') yOffset = -24;
+  else if (type === 'koopa') yOffset = -22;
+  else if (type === 'spiny') yOffset = -20;
+  ctx.translate(x, y + yOffset);
 
   if (type === 'goomba') {
     // ขาเดินสลับ
@@ -707,7 +712,14 @@ function drawMonster(ctx, x, y, type, frame) {
 // วาดไอเทมประเภทต่างๆ
 function drawItem(ctx, x, y, type, frame) {
   ctx.save();
-  ctx.translate(x, y);
+  let yOffset = 0;
+  if (type === 'mushroom') yOffset = -22;
+  else if (type === 'star') yOffset = -38;
+  else if (type === 'poison') yOffset = -22;
+  else if (type === 'lightning') yOffset = -30;
+  else if (type === 'egg') yOffset = -22;
+  else if (type === 'heart') yOffset = -30;
+  ctx.translate(x, y + yOffset);
 
   if (type === 'mushroom') {
     // ก้านเห็ดขาวครีม
