@@ -1053,7 +1053,7 @@ const BgmLibraryDialog = ({ onClose }: { onClose: () => void }) => {
 const createSchema = z.object({
     owner_staff_id: z.string().uuid('กรุณาเลือกครูเจ้าของ'),
     title: z.string().min(1, 'กรุณากรอกชื่อเกม').max(200),
-    subject: z.enum(['math', 'tech', 'thai']),
+    subject: z.enum(['thai', 'math', 'tech', 'social', 'health', 'arts', 'career', 'english']),
     slug: z
         .string()
         .min(1, 'กรุณากรอก slug')

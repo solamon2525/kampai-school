@@ -127,9 +127,9 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(92, 148, 252, 0.4); /* ท้องฟ้าเบลอ */
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: radial-gradient(circle, rgba(15, 23, 42, 0.75) 0%, rgba(30, 41, 59, 0.92) 100%); /* ท้องฟ้าเบลอสีเนวี่พรีเมียม */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -139,10 +139,10 @@ body {
 }
 
 .menu-panel {
-  background: #fff8eb; /* สีครีมอุ่นสไตล์เรโทร */
-  border: 5px solid #000;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); /* การ์ดสีน้ำเงินเนวี่ไล่ระดับ */
+  border: 4px solid #ffd700; /* ขอบทองหรูหรา */
   border-radius: 30px;
-  box-shadow: 0 16px 0px rgba(0,0,0,0.15), 0 24px 30px rgba(0,0,0,0.25);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.2), 0 10px 0px #ab811f, 0 16px 30px rgba(0,0,0,0.5);
   padding: 30px 24px;
   width: 380px;
   max-width: 92%;
@@ -153,18 +153,18 @@ body {
 }
 
 h1 {
-  font-family: 'Fredoka One', cursive;
+  font-family: 'Fredoka One', 'Sarabun', cursive;
   font-size: 2.8rem;
-  color: #FFB300;
-  text-shadow: 4px 4px 0px #d35400, 4px 8px 0px #000;
+  color: #ffd700; /* สีทองอร่าม */
+  text-shadow: 3px 3px 0px #ab811f, 4px 6px 0px #000;
   margin-bottom: 5px;
   text-align: center;
   animation: titleBounce 2s infinite;
 }
 
 .red-title {
-  color: #FF2E93;
-  text-shadow: 4px 4px 0px #C60055, 4px 8px 0px #000 !important;
+  color: #ff2e93;
+  text-shadow: 3px 3px 0px #c60055, 4px 6px 0px #000 !important;
 }
 
 @keyframes titleBounce {
@@ -173,29 +173,29 @@ h1 {
 }
 
 p.subtitle {
-  color: #4f5b66;
+  color: #94a3b8; /* สีเทาสว่างถนอมสายตา */
   font-size: 0.88rem;
   text-align: center;
   margin-bottom: 15px;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.4;
 }
 
 /* Settings */
 .setting-section {
-  background: #fff;
-  border: 3px solid #000;
+  background: #1e293b; /* แผงควบคุมดีไซน์มืดเนวี่ */
+  border: 3px solid #ffd700;
   border-radius: 18px;
   padding: 12px 14px;
   width: 100%;
   margin-bottom: 12px;
-  box-shadow: 0 4px 0px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 0px rgba(0, 0, 0, 0.2);
 }
 
 .setting-label {
   font-weight: 800;
   font-size: 0.82rem;
-  color: #7f8c8d;
+  color: #ffd700; /* ตัวหนังสือสีทอง */
   margin-bottom: 8px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -212,24 +212,31 @@ p.subtitle {
 /* Buttons */
 .mode-btn, .diff-btn {
   flex: 1;
-  background: #f1f3f5;
-  border: 3px solid #000;
+  background: #334155; /* เทากลางปุ่มกด */
+  border: 2px solid #ffd700;
   border-radius: 12px;
   padding: 6px 4px;
   font-family: 'Fredoka One', 'Sarabun', sans-serif;
   font-size: 0.95rem;
   font-weight: bold;
-  color: #495057;
+  color: #cbd5e1;
   cursor: pointer;
-  box-shadow: 0 3px 0px rgba(0, 0, 0, 0.15);
-  transition: transform 0.05s;
+  box-shadow: 0 3px 0px #ab811f;
+  transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.mode-btn:hover, .diff-btn:hover {
+  background: #475569;
+  color: #fff;
+  transform: translateY(-1px);
 }
 
 .mode-btn.active, .diff-btn.active {
-  background: #FFC107;
-  color: #000;
-  box-shadow: 0 3px 0px #FF8F00, 0 3px 0px #000;
+  background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%); /* สีทองเรืองแสงปุ่มแอ็คทีฟ */
+  color: #0f172a;
+  box-shadow: 0 3px 0px #d35400, 0 3px 0px #000;
   transform: translateY(1px);
+  border-color: #fff;
 }
 
 .checkbox-container {
@@ -239,7 +246,7 @@ p.subtitle {
   margin-top: 10px;
   font-size: 0.82rem;
   font-weight: bold;
-  color: #333;
+  color: #cbd5e1; /* เทาถนอมสายตา */
   cursor: pointer;
 }
 
@@ -259,45 +266,59 @@ p.subtitle {
 
 .ms-cell {
   flex: 1;
-  background: #fff;
-  border: 3px solid #000;
+  background: #1e293b;
+  border: 3px solid #ffd700;
   border-radius: 16px;
   padding: 6px;
   text-align: center;
-  box-shadow: 0 4px 0px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 0px rgba(0, 0, 0, 0.2);
 }
 
 .ms-val {
   font-family: 'Fredoka One', sans-serif;
   font-size: 1.25rem;
   font-weight: 800;
-  color: #2b5c8f;
+  color: #ffd700;
 }
 
 .ms-label {
   font-size: 0.68rem;
-  color: #7f8c8d;
+  color: #94a3b8;
   font-weight: bold;
   margin-top: 2px;
 }
 
 /* Leaderboard */
 .leaderboard-box {
-  background: #fff;
-  border: 3px solid #000;
+  background: #1e293b;
+  border: 3px solid #ffd700;
   border-radius: 20px;
   width: 100%;
   padding: 12px 14px;
   margin-bottom: 16px;
-  box-shadow: 0 4px 0px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 0px rgba(0, 0, 0, 0.2);
   max-height: 150px;
   overflow-y: auto;
+}
+
+.leaderboard-box::-webkit-scrollbar {
+  width: 10px;
+}
+.leaderboard-box::-webkit-scrollbar-track {
+  background: #1e293b;
+  border-left: 2px solid #ffd700;
+  border-radius: 0 16px 16px 0;
+}
+.leaderboard-box::-webkit-scrollbar-thumb {
+  background: #ffd700;
+  border: 2px solid #1e293b;
+  border-radius: 4px;
 }
 
 .lb-title {
   font-size: 0.88rem;
   font-weight: 800;
-  color: #333;
+  color: #ffd700;
   margin-bottom: 8px;
 }
 
@@ -312,9 +333,10 @@ p.subtitle {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 2px solid #f1f3f5;
+  border-bottom: 2px solid #334155;
   padding-bottom: 4px;
   font-size: 0.78rem;
+  color: #cbd5e1;
 }
 
 .leaderboard-list li:last-child {
@@ -352,7 +374,7 @@ p.subtitle {
 
 .lb-name {
   font-weight: bold;
-  color: #333;
+  color: #f1f5f9;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -394,11 +416,16 @@ p.subtitle {
   color: #fff;
   cursor: pointer;
   box-shadow: 0 5px 0px #000;
-  transition: transform 0.1s, box-shadow 0.1s;
+  transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.15s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+}
+
+.btn:hover {
+  transform: scale(1.02) translateY(-2px);
+  box-shadow: 0 7px 0px #000;
 }
 
 .btn:active {
@@ -407,23 +434,35 @@ p.subtitle {
 }
 
 .btn-primary {
-  background: #2ecc71; /* สีเขียวของหญ้า */
-  box-shadow: 0 5px 0px #27ae60, 0 5px 0px #000;
+  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+  box-shadow: 0 5px 0px #1e7e43, 0 5px 0px #000;
+}
+.btn-primary:hover {
+  box-shadow: 0 7px 0px #1e7e43, 0 7px 0px #000;
 }
 
 .btn-blue {
-  background: #3498db; /* สีฟ้าน้ำเงิน */
-  box-shadow: 0 5px 0px #2980b9, 0 5px 0px #000;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  box-shadow: 0 5px 0px #1d6fa5, 0 5px 0px #000;
+}
+.btn-blue:hover {
+  box-shadow: 0 7px 0px #1d6fa5, 0 7px 0px #000;
 }
 
 .btn-orange {
-  background: #e67e22; /* สีอิฐดินแดง */
-  box-shadow: 0 5px 0px #d35400, 0 5px 0px #000;
+  background: linear-gradient(135deg, #f39c12 0%, #d35400 100%);
+  box-shadow: 0 5px 0px #a04000, 0 5px 0px #000;
+}
+.btn-orange:hover {
+  box-shadow: 0 7px 0px #a04000, 0 7px 0px #000;
 }
 
 .btn-ghost {
-  background: #9b5de5;
-  box-shadow: 0 5px 0px #7b2cbf, 0 5px 0px #000;
+  background: linear-gradient(135deg, #9b5de5 0%, #6c5ce7 100%);
+  box-shadow: 0 5px 0px #4834d4, 0 5px 0px #000;
+}
+.btn-ghost:hover {
+  box-shadow: 0 7px 0px #4834d4, 0 7px 0px #000;
 }
 
 /* Gameover Screen Specifically */
@@ -585,15 +624,15 @@ p.subtitle {
 
 /* ── Controls Guide on Start screen ── */
 .controls-guide {
-  background: rgba(0, 0, 0, 0.05);
-  border: 2px dashed #000;
+  background: #1e293b;
+  border: 2px dashed #ffd700;
   border-radius: 12px;
   padding: 8px 12px;
   margin-bottom: 12px;
   text-align: left;
   font-size: 0.8rem;
   line-height: 1.4;
-  color: #555;
+  color: #cbd5e1;
 }
 .guide-item {
   margin-bottom: 4px;
@@ -608,14 +647,28 @@ p.subtitle {
   max-width: 95%;
 }
 .classmate-list-box {
-  background: #fff;
-  border: 3px solid #000;
+  background: #1e293b;
+  border: 3px solid #ffd700;
   border-radius: 16px;
   height: 220px;
   overflow-y: auto;
   margin-bottom: 15px;
   padding: 8px;
 }
+.classmate-list-box::-webkit-scrollbar {
+  width: 10px;
+}
+.classmate-list-box::-webkit-scrollbar-track {
+  background: #1e293b;
+  border-left: 2px solid #ffd700;
+  border-radius: 0 16px 16px 0;
+}
+.classmate-list-box::-webkit-scrollbar-thumb {
+  background: #ffd700;
+  border: 2px solid #1e293b;
+  border-radius: 4px;
+}
+
 .classmate-list {
   list-style: none;
   padding: 0;
@@ -629,16 +682,16 @@ p.subtitle {
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px;
-  border: 2px solid #000;
+  border: 2px solid #ffd700;
   border-radius: 12px;
   cursor: pointer;
-  background: #fff8eb;
+  background: #334155;
   transition: all 0.12s ease;
 }
 .classmate-item:hover {
-  background: #ffeaa7;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 0px #000;
+  background: #475569;
+  transform: scale(1.01) translateY(-2px);
+  box-shadow: 0 4px 0px #ffd700;
 }
 .classmate-avatar-row {
   display: flex;
@@ -649,13 +702,13 @@ p.subtitle {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  border: 2px solid #000;
+  border: 2px solid #ffd700;
 }
 .classmate-avatar-init {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  border: 2px solid #000;
+  border: 2px solid #ffd700;
   background: linear-gradient(135deg, #9b5de5, #f15bb5);
   color: #fff;
   display: flex;
@@ -667,17 +720,17 @@ p.subtitle {
 .classmate-name {
   font-weight: bold;
   font-size: 0.85rem;
-  color: #000;
+  color: #fff;
 }
 .classmate-class {
   font-size: 0.75rem;
-  color: #666;
+  color: #94a3b8;
 }
 .classmate-pb {
   font-size: 0.8rem;
   font-weight: 800;
-  color: #d35400;
-  background: rgba(211, 84, 0, 0.1);
+  color: #ffd700;
+  background: rgba(255, 215, 0, 0.1);
   padding: 2px 8px;
   border-radius: 8px;
 }
@@ -685,7 +738,7 @@ p.subtitle {
   display: flex;
   align-items: center;
   text-align: center;
-  color: #666;
+  color: #94a3b8;
   margin-bottom: 12px;
   font-size: 0.8rem;
   font-weight: bold;
@@ -693,7 +746,7 @@ p.subtitle {
 .or-divider::before, .or-divider::after {
   content: '';
   flex: 1;
-  border-bottom: 2px solid #ddd;
+  border-bottom: 2px solid #334155;
 }
 .or-divider:not(:empty)::before {
   margin-right: .5em;
@@ -708,13 +761,18 @@ p.subtitle {
 }
 .guest-input-row input {
   flex: 1;
-  border: 3px solid #000;
+  background: #1e293b;
+  border: 3px solid #ffd700;
+  color: #fff;
   border-radius: 12px;
   padding: 8px 12px;
   font-family: inherit;
   font-weight: bold;
   outline: none;
   font-size: 0.9rem;
+}
+.guest-input-row input::placeholder {
+  color: #64748b;
 }
 
 /* ── Control & Gamepad Mapping Settings Modal ── */
@@ -737,10 +795,10 @@ p.subtitle {
   font-size: 0.9rem;
   font-weight: 800;
   text-align: center;
-  border-bottom: 3px solid #000;
+  border-bottom: 3px solid #ffd700;
   padding-bottom: 4px;
   margin-bottom: 4px;
-  color: #333;
+  color: #ffd700;
 }
 .mapping-table {
   width: 100%;
@@ -754,7 +812,7 @@ p.subtitle {
 }
 .mapping-table tr td:first-child {
   text-align: left;
-  color: #555;
+  color: #cbd5e1;
 }
 .mapping-table tr td:last-child {
   text-align: right;
