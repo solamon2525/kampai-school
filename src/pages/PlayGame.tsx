@@ -317,6 +317,11 @@ const PlayGame = () => {
       const data = e.data as
         | { type?: string; score?: number; mode?: string; metadata?: Record<string, unknown> }
         | undefined;
+      if (data?.type === 'gameStart') {
+        setShowReward(false);
+        sessionSubmittedRef.current = false;
+        return;
+      }
       if (data?.type !== 'gameEnd') return;
       if (sessionSubmittedRef.current) return;
       sessionSubmittedRef.current = true;

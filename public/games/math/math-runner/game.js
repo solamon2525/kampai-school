@@ -1844,6 +1844,13 @@ function resolveHit(playerIndex, isCorrect, x, y) {
 /* ── ฟังก์ชันเริ่ม/จบ เกม ── */
 
 function startSinglePlayer(m) {
+  if (window.KAMPAI) {
+    window.KAMPAI._submitted = false;
+  }
+  if (window.parent && typeof window.parent.postMessage === 'function') {
+    window.parent.postMessage({ type: 'gameStart' }, '*');
+  }
+
   mode = m;
   started = true;
   isGameOver = false;
@@ -1897,6 +1904,13 @@ function startSinglePlayer(m) {
 }
 
 function startLocalTwoPlayer() {
+  if (window.KAMPAI) {
+    window.KAMPAI._submitted = false;
+  }
+  if (window.parent && typeof window.parent.postMessage === 'function') {
+    window.parent.postMessage({ type: 'gameStart' }, '*');
+  }
+
   mode = 'local_2p';
   started = true;
   isGameOver = false;
@@ -1951,6 +1965,13 @@ function startLocalTwoPlayer() {
 }
 
 function startGame(onlineMode, opts) {
+  if (window.KAMPAI) {
+    window.KAMPAI._submitted = false;
+  }
+  if (window.parent && typeof window.parent.postMessage === 'function') {
+    window.parent.postMessage({ type: 'gameStart' }, '*');
+  }
+
   mode = onlineMode;
   started = true;
   isGameOver = false;
@@ -2053,7 +2074,8 @@ function endGame() {
       mode: mode,
       correct: correctAnswersCount,
       stars: starCount,
-      level: level
+      level: level,
+      allowResubmit: true
     });
   } else if (match) {
     // ออนไลน์ให้ KampaiMatch ทำหน้าที่อัปโหลดคะแนน (หลังแสดงผล XP สำเร็จ)
@@ -2076,6 +2098,13 @@ function restartGame() {
 }
 
 function resetGame() {
+  if (window.KAMPAI) {
+    window.KAMPAI._submitted = false;
+  }
+  if (window.parent && typeof window.parent.postMessage === 'function') {
+    window.parent.postMessage({ type: 'gameStart' }, '*');
+  }
+
   $('gameover-screen').classList.add('hidden');
   $('hud-container').style.display = 'none';
   $('blocker').style.display = 'flex';
