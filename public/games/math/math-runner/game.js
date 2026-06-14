@@ -50,6 +50,7 @@ KAMPAI.onReady(function () {
   renderPlayer();
   renderMyStats();
   renderLeaderboard('score-list');
+  loadControlBindings();
 });
 
 // ติดตั้งระบบควบคุมปุ่มลัด
@@ -217,39 +218,268 @@ function spawnBlocksForQuestion(q) {
   return blocks;
 }
 
+/* ── บันทึกการแมปปุ่มควบคุม (Keyboard / Gamepad) ── */
+const DEFAULT_BINDINGS = {
+  p1: {
+    up: { type: 'keyboard', key: 'ArrowUp', label: 'ArrowUp' },
+    down: { type: 'keyboard', key: 'ArrowDown', label: 'ArrowDown' },
+    left: { type: 'keyboard', key: 'ArrowLeft', label: 'ArrowLeft' },
+    right: { type: 'keyboard', key: 'ArrowRight', label: 'ArrowRight' }
+  },
+  p2: {
+    up: { type: 'keyboard', key: 'w', label: 'W' },
+    down: { type: 'keyboard', key: 's', label: 'S' },
+    left: { type: 'keyboard', key: 'a', label: 'A' },
+    right: { type: 'keyboard', key: 'd', label: 'D' }
+  }
+};
+
+let controlBindings = JSON.parse(JSON.stringify(DEFAULT_BINDINGS));
+let mappingState = { active: false, player: null, action: null };
+let prevGamepadState = {
+  p1: { up: false, down: false, left: false, right: false },
+  p2: { up: false, down: false, left: false, right: false }
+};
+
+function loadControlBindings() {
+  const saved = localStorage.getItem('math_runner_bindings');
+  if (saved) {
+    try {
+      controlBindings = JSON.parse(saved);
+    } catch (e) {
+      controlBindings = JSON.parse(JSON.stringify(DEFAULT_BINDINGS));
+    }
+  }
+  updateBindingButtonsUI();
+}
+
+function saveControlBindings() {
+  localStorage.setItem('math_runner_bindings', JSON.stringify(controlBindings));
+  updateBindingButtonsUI();
+}
+
+function updateBindingButtonsUI() {
+  ['p1', 'p2'].forEach(p => {
+    ['up', 'down', 'left', 'right'].forEach(act => {
+      const btn = document.getElementById(`bind-${p}-${act}`);
+      if (btn) {
+        const bind = controlBindings[p][act];
+        btn.innerText = bind ? bind.label : '...';
+      }
+    });
+  });
+}
+
+function isActionPressed(player, action) {
+  const bind = controlBindings[player][action];
+  if (!bind) return false;
+
+  if (bind.type === 'keyboard') {
+    return keysPressed[bind.key] || keysPressed[bind.key.toLowerCase()] || keysPressed[bind.key.toUpperCase()];
+  }
+
+  if (bind.type === 'gamepad') {
+    const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
+    const gp = gamepads[bind.padIndex];
+    if (gp) {
+      if (bind.subType === 'button') {
+        const btn = gp.buttons[bind.index];
+        return btn && btn.pressed;
+      }
+      if (bind.subType === 'axis') {
+        const val = gp.axes[bind.index];
+        if (bind.direction === 'positive') {
+          return val > 0.5;
+        } else {
+          return val < -0.5;
+        }
+      }
+    }
+  }
+  return false;
+}
+
+function isKeyBoundTo(key, player, action) {
+  const bind = controlBindings[player][action];
+  if (!bind || bind.type !== 'keyboard') return false;
+  return bind.key.toLowerCase() === key.toLowerCase();
+}
+
+function openMappingModal() {
+  $('control-mapping-modal').classList.remove('hidden');
+  updateBindingButtonsUI();
+}
+
+function closeMappingModal() {
+  $('control-mapping-modal').classList.add('hidden');
+}
+
+function startBinding(player, action) {
+  mappingState.active = true;
+  mappingState.player = player;
+  mappingState.action = action;
+  $('binding-overlay').classList.remove('hidden');
+}
+
+function bindKeyboardKey(key) {
+  let displayLabel = key;
+  if (key === ' ') displayLabel = 'Space';
+  else if (key === 'ArrowUp') displayLabel = '▲';
+  else if (key === 'ArrowDown') displayLabel = '▼';
+  else if (key === 'ArrowLeft') displayLabel = '◀';
+  else if (key === 'ArrowRight') displayLabel = '▶';
+
+  controlBindings[mappingState.player][mappingState.action] = {
+    type: 'keyboard',
+    key: key,
+    label: displayLabel
+  };
+
+  saveControlBindings();
+  completeBinding();
+}
+
+function bindGamepadButton(padIndex, subType, index, direction = '') {
+  let displayLabel = `J${padIndex + 1}-`;
+  if (subType === 'button') {
+    displayLabel += `B${index}`;
+  } else if (subType === 'axis') {
+    displayLabel += `A${index}${direction === 'positive' ? '+' : '-'}`;
+  }
+
+  controlBindings[mappingState.player][mappingState.action] = {
+    type: 'gamepad',
+    padIndex: padIndex,
+    subType: subType,
+    index: index,
+    direction: direction,
+    label: displayLabel
+  };
+
+  saveControlBindings();
+  completeBinding();
+}
+
+function completeBinding() {
+  mappingState.active = false;
+  mappingState.player = null;
+  mappingState.action = null;
+  $('binding-overlay').classList.add('hidden');
+}
+
+function resetToDefaultControls() {
+  controlBindings = JSON.parse(JSON.stringify(DEFAULT_BINDINGS));
+  saveControlBindings();
+}
+
+function pollGamepadInputs() {
+  if (!started || isGameOver) return;
+
+  const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
+  
+  if (mappingState.active) {
+    for (let i = 0; i < gamepads.length; i++) {
+      const gp = gamepads[i];
+      if (!gp) continue;
+
+      for (let b = 0; b < gp.buttons.length; b++) {
+        if (gp.buttons[b] && gp.buttons[b].pressed) {
+          bindGamepadButton(i, 'button', b);
+          return;
+        }
+      }
+
+      for (let a = 0; a < gp.axes.length; a++) {
+        const val = gp.axes[a];
+        if (val > 0.6) {
+          bindGamepadButton(i, 'axis', a, 'positive');
+          return;
+        }
+        if (val < -0.6) {
+          bindGamepadButton(i, 'axis', a, 'negative');
+          return;
+        }
+      }
+    }
+    return;
+  }
+
+  ['p1', 'p2'].forEach(p => {
+    ['up', 'down', 'left', 'right'].forEach(act => {
+      const isPressed = isActionPressed(p, act);
+      const wasPressed = prevGamepadState[p][act];
+
+      prevGamepadState[p][act] = isPressed;
+
+      if (isPressed && !wasPressed) {
+        if (mode === 'local_2p') {
+          if (p === 'p1') {
+            if (act === 'up') {
+              const dir = (p1ConfusedTime > 0) ? 1 : -1;
+              targetP1Lane = Math.max(0, Math.min(2, targetP1Lane + dir));
+            } else if (act === 'down') {
+              const dir = (p1ConfusedTime > 0) ? -1 : 1;
+              targetP1Lane = Math.max(0, Math.min(2, targetP1Lane + dir));
+            }
+          } else {
+            if (act === 'up') {
+              const dir = (p2ConfusedTime > 0) ? 1 : -1;
+              targetP2Lane = Math.max(0, Math.min(2, targetP2Lane + dir));
+            } else if (act === 'down') {
+              const dir = (p2ConfusedTime > 0) ? -1 : 1;
+              targetP2Lane = Math.max(0, Math.min(2, targetP2Lane + dir));
+            }
+          }
+        } else {
+          if (act === 'up') {
+            const dir = (p1ConfusedTime > 0) ? 1 : -1;
+            targetPlayerLane = Math.max(0, Math.min(2, targetPlayerLane + dir));
+          } else if (act === 'down') {
+            const dir = (p1ConfusedTime > 0) ? -1 : 1;
+            targetPlayerLane = Math.max(0, Math.min(2, targetPlayerLane + dir));
+          }
+        }
+      }
+    });
+  });
+}
+
 /* ── อินพุตการควบคุม ── */
 window.addEventListener('keydown', e => {
-  keysPressed[e.key.toLowerCase()] = true;
   keysPressed[e.key] = true;
+  keysPressed[e.key.toLowerCase()] = true;
 
   if (!started || isGameOver) return;
   
+  if (mappingState.active) {
+    e.preventDefault();
+    bindKeyboardKey(e.key);
+    return;
+  }
+  
   if (mode === 'local_2p') {
-    // P1: W (ขึ้น), S (ลง)
-    if (e.key === 'w' || e.key === 'W') {
+    if (isKeyBoundTo(e.key, 'p1', 'up')) {
       const dir = (p1ConfusedTime > 0) ? 1 : -1;
       targetP1Lane = Math.max(0, Math.min(2, targetP1Lane + dir));
     }
-    if (e.key === 's' || e.key === 'S') {
+    if (isKeyBoundTo(e.key, 'p1', 'down')) {
       const dir = (p1ConfusedTime > 0) ? -1 : 1;
       targetP1Lane = Math.max(0, Math.min(2, targetP1Lane + dir));
     }
-    // P2: ArrowUp, ArrowDown
-    if (e.key === 'ArrowUp') {
+    if (isKeyBoundTo(e.key, 'p2', 'up')) {
       const dir = (p2ConfusedTime > 0) ? 1 : -1;
       targetP2Lane = Math.max(0, Math.min(2, targetP2Lane + dir));
     }
-    if (e.key === 'ArrowDown') {
+    if (isKeyBoundTo(e.key, 'p2', 'down')) {
       const dir = (p2ConfusedTime > 0) ? -1 : 1;
       targetP2Lane = Math.max(0, Math.min(2, targetP2Lane + dir));
     }
   } else {
-    // Single / Online: W, S หรือ ArrowUp, ArrowDown
-    if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+    if (isKeyBoundTo(e.key, 'p1', 'up') || isKeyBoundTo(e.key, 'p2', 'up')) {
       const dir = (p1ConfusedTime > 0) ? 1 : -1;
       targetPlayerLane = Math.max(0, Math.min(2, targetPlayerLane + dir));
     }
-    if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
+    if (isKeyBoundTo(e.key, 'p1', 'down') || isKeyBoundTo(e.key, 'p2', 'down')) {
       const dir = (p1ConfusedTime > 0) ? -1 : 1;
       targetPlayerLane = Math.max(0, Math.min(2, targetPlayerLane + dir));
     }
@@ -1316,6 +1546,8 @@ function addFloatingText(x, y, text, color, playerIndex) {
 function loop() {
   if (isGameOver) return;
 
+  pollGamepadInputs();
+
   if (p1InvincibleTime > 0) p1InvincibleTime--;
   if (p1SlowTime > 0) p1SlowTime--;
   if (p1ConfusedTime > 0) p1ConfusedTime--;
@@ -1339,16 +1571,16 @@ function loop() {
   const singleBackwardSpeed = (p1SlowTime > 0) ? backwardBaseSpeed * 0.65 : backwardBaseSpeed;
 
   if (mode === 'local_2p') {
-    if (keysPressed['d'] || keysPressed['D'] || p1TouchMoveDirX === 1) p1X += p1ForwardSpeed;
-    if (keysPressed['a'] || keysPressed['A'] || p1TouchMoveDirX === -1) p1X -= p1BackwardSpeed;
+    if (isActionPressed('p1', 'right') || p1TouchMoveDirX === 1) p1X += p1ForwardSpeed;
+    if (isActionPressed('p1', 'left') || p1TouchMoveDirX === -1) p1X -= p1BackwardSpeed;
     p1X = Math.max(20, Math.min(cw - 20, p1X));
 
-    if (keysPressed['arrowright'] || keysPressed['ArrowRight'] || p2TouchMoveDirX === 1) p2X += p2ForwardSpeed;
-    if (keysPressed['arrowleft'] || keysPressed['ArrowLeft'] || p2TouchMoveDirX === -1) p2X -= p2BackwardSpeed;
+    if (isActionPressed('p2', 'right') || p2TouchMoveDirX === 1) p2X += p2ForwardSpeed;
+    if (isActionPressed('p2', 'left') || p2TouchMoveDirX === -1) p2X -= p2BackwardSpeed;
     p2X = Math.max(20, Math.min(cw - 20, p2X));
   } else {
-    if (keysPressed['d'] || keysPressed['D'] || keysPressed['arrowright'] || keysPressed['ArrowRight'] || touchMoveDirX === 1) playerX += singleForwardSpeed;
-    if (keysPressed['a'] || keysPressed['A'] || keysPressed['arrowleft'] || keysPressed['ArrowLeft'] || touchMoveDirX === -1) playerX -= singleBackwardSpeed;
+    if (isActionPressed('p1', 'right') || isActionPressed('p2', 'right') || touchMoveDirX === 1) playerX += singleForwardSpeed;
+    if (isActionPressed('p1', 'left') || isActionPressed('p2', 'left') || touchMoveDirX === -1) playerX -= singleBackwardSpeed;
     playerX = Math.max(20, Math.min(cw - 20, playerX));
   }
 
@@ -1819,12 +2051,14 @@ function resolveHit(playerIndex, isCorrect, x, y) {
       correctAnswersCount++; // สะสมการตอบถูกร่วมกัน
       if (playerIndex === 1) {
         p1Combo++;
+        p1CorrectAnswersCount++;
         const multiplier = Math.min(5, 1 + Math.floor(p1Combo / 3));
         const gain = base * multiplier;
         p1Score += gain;
         addFloatingText(x, y, `+${gain} P1! ${isInvincible ? '⭐x2' : ''}`, '#FFD700');
       } else {
         p2Combo++;
+        p2CorrectAnswersCount++;
         const multiplier = Math.min(5, 1 + Math.floor(p2Combo / 3));
         const gain = base * multiplier;
         p2Score += gain;
@@ -1833,6 +2067,7 @@ function resolveHit(playerIndex, isCorrect, x, y) {
     } else {
       combo++;
       correctAnswersCount++;
+      p1CorrectAnswersCount++;
       const multiplier = Math.min(5, 1 + Math.floor(combo / 3));
       const gain = base * multiplier;
       score += gain;
@@ -1986,6 +2221,9 @@ function startSinglePlayer(m) {
   p1CorrectAnswersCount = 0;
   bgOffset = 0;
   
+  const chip2 = $('player-chip-p2');
+  if (chip2) chip2.style.display = 'none';
+
   $('score-value').innerText = 0;
   $('level-badge').innerText = 'ด่าน 1';
   $('blocker').style.display = 'none';
@@ -2020,12 +2258,107 @@ function startSinglePlayer(m) {
   animationFrameId = requestAnimationFrame(loop);
 }
 
+let p1Student = { displayName: 'ผู้เล่น 1', photoUrl: null, isGuest: true };
+let p2Student = { displayName: 'ผู้เล่น 2', photoUrl: null, isGuest: true };
+
 function startLocalTwoPlayer() {
-  if (window.KAMPAI) {
-    window.KAMPAI._submitted = false;
-  }
   if (window.parent && typeof window.parent.postMessage === 'function') {
     window.parent.postMessage({ type: 'gameStart' }, '*');
+  }
+
+  // ตั้งค่าข้อมูล P1
+  if (KAMPAI.student) {
+    p1Student = {
+      displayName: KAMPAI.student.displayName || 'ผู้เล่น 1',
+      photoUrl: KAMPAI.student.photoUrl || null,
+      isGuest: false
+    };
+  } else {
+    p1Student = { displayName: 'ผู้เล่น 1', photoUrl: null, isGuest: true };
+  }
+
+  openP2Selector();
+}
+
+function openP2Selector() {
+  const modal = $('p2-selector-modal');
+  const listEl = $('p2-classmate-list');
+  if (!modal || !listEl) return;
+
+  modal.classList.remove('hidden');
+  
+  // โหลดรายชื่อเพื่อนร่วมชั้นจาก KAMPAI.leaderboard
+  const rows = KAMPAI.leaderboard || [];
+  
+  // กรองตัวเราออก (P1)
+  const classmates = rows.filter(r => {
+    if (KAMPAI.student) {
+      return r.studentId !== KAMPAI.student.id;
+    }
+    return true;
+  });
+
+  if (classmates.length === 0) {
+    listEl.innerHTML = '<li class="lb-loading">ไม่พบเพื่อนร่วมชั้นในระบบกระดานคะแนน (ป้อนชื่อเป็นผู้เยือนด้านล่างได้เลย)</li>';
+  } else {
+    listEl.innerHTML = classmates.map((c) => {
+      const av = c.photoUrl 
+        ? `<img class="classmate-avatar" src="${c.photoUrl}" alt="">` 
+        : `<div class="classmate-avatar-init">${(c.displayName || '?')[0]}</div>`;
+      
+      const pb = c.personalBest 
+        ? `<span class="classmate-pb">PB: ${c.personalBest}</span>`
+        : '';
+
+      const escapedName = (c.displayName || '').replace(/'/g, "\\'");
+
+      return `<li class="classmate-item" onclick="selectClassmateP2('${escapedName}', '${c.photoUrl || ''}')">
+        <div class="classmate-avatar-row">
+          ${av}
+          <div>
+            <div class="classmate-name">${c.displayName}</div>
+            <div class="classmate-class">${c.classLabel || ''}</div>
+          </div>
+        </div>
+        ${pb}
+      </li>`;
+    }).join('');
+  }
+}
+
+function closeP2Selector() {
+  $('p2-selector-modal').classList.add('hidden');
+}
+
+function selectClassmateP2(name, photoUrl) {
+  p2Student = {
+    displayName: name,
+    photoUrl: photoUrl || null,
+    isGuest: false
+  };
+  closeP2Selector();
+  launchLocalTwoPlayer();
+}
+
+function confirmGuestPlayer() {
+  const input = $('p2-guest-name');
+  let name = input ? input.value.trim() : '';
+  if (!name) name = 'ผู้เล่น 2 (Guest)';
+  
+  p2Student = {
+    displayName: name,
+    photoUrl: null,
+    isGuest: true
+  };
+  
+  if (input) input.value = ''; // เคลียร์ฟอร์ม
+  closeP2Selector();
+  launchLocalTwoPlayer();
+}
+
+function launchLocalTwoPlayer() {
+  if (window.KAMPAI) {
+    window.KAMPAI._submitted = false;
   }
 
   mode = 'local_2p';
@@ -2060,6 +2393,9 @@ function startLocalTwoPlayer() {
   $('blocker').style.display = 'none';
   $('hud-container').style.display = 'none'; // ซ่อน HUD บน เพราะแบ่งเขียนจอในแคนวาสตรงๆ
 
+  // แสดงผลโปรไฟล์ชิป P1 & P2
+  renderPlayerChips2P();
+
   KAMPAI.sound.unlock();
   KAMPAI.sound.bgmStop();
   KAMPAI.sound.bgmStart();
@@ -2074,7 +2410,7 @@ function startLocalTwoPlayer() {
   }
   animationFrameId = requestAnimationFrame(loop);
   
-  // โหมด 2 คนในจอเดียวจะแข่งเวลากัน 60 วินาที
+  // โหมด 2 คนในจอเดียวจะแข่งเวลากัน 60 วินาท
   gameTimeLeft = CFG.TIME_SECONDS;
   if (timerIntervalId) clearInterval(timerIntervalId);
   timerIntervalId = setInterval(() => {
@@ -2083,6 +2419,28 @@ function startLocalTwoPlayer() {
       endGame();
     }
   }, 1000);
+}
+
+function renderPlayerChips2P() {
+  // P1 Chip
+  const chip1 = $('player-chip');
+  if (chip1) {
+    const av = p1Student.photoUrl 
+      ? `<img src="${p1Student.photoUrl}" alt="">` 
+      : `<div class="pc-init">${p1Student.displayName[0]}</div>`;
+    chip1.innerHTML = av + `<span>${p1Student.displayName} (P1)</span>`;
+    chip1.style.display = 'flex';
+  }
+
+  // P2 Chip
+  const chip2 = $('player-chip-p2');
+  if (chip2) {
+    const av = p2Student.photoUrl 
+      ? `<img src="${p2Student.photoUrl}" alt="">` 
+      : `<div class="pc-init">${p2Student.displayName[0]}</div>`;
+    chip2.innerHTML = av + `<span>${p2Student.displayName} (P2)</span>`;
+    chip2.style.display = 'flex';
+  }
 }
 
 function startGame(onlineMode, opts) {
@@ -2114,6 +2472,9 @@ function startGame(onlineMode, opts) {
   p2BlockSpeed = CFG.BLOCK_START_SPEED;
   p2CorrectAnswersCount = 0;
   bgOffset = 0;
+
+  const chip2 = $('player-chip-p2');
+  if (chip2) chip2.style.display = 'none';
 
   $('score-value').innerText = 0;
   $('level-badge').innerText = 'ด่าน 1';
@@ -2171,12 +2532,14 @@ function endGame() {
   
   if (mode === 'local_2p') {
     finalScore = Math.max(p1Score, p2Score);
+    const p1Name = p1Student.displayName || 'ผู้เล่น 1';
+    const p2Name = p2Student.displayName || 'ผู้เล่น 2';
     if (p1Score > p2Score) {
-      summary = `🏆 ผู้เล่น 1 (สีแดง) ชนะ! ด้วยคะแนน ${p1Score} ต่อ ${p2Score}`;
+      summary = `🏆 ${p1Name} ชนะ! ด้วยคะแนน ${p1Score} ต่อ ${p2Score}`;
     } else if (p2Score > p1Score) {
-      summary = `🏆 ผู้เล่น 2 (สีเขียว) ชนะ! ด้วยคะแนน ${p2Score} ต่อ ${p1Score}`;
+      summary = `🏆 ${p2Name} ชนะ! ด้วยคะแนน ${p2Score} ต่อ ${p1Score}`;
     } else {
-      summary = `🤝 เสมอกัน! ด้วยคะแนน ${p1Score} เท่ากัน`;
+      summary = `🤝 เสมอกัน! ${p1Name} และ ${p2Name} ด้วยคะแนน ${p1Score} เท่ากัน`;
     }
   } else {
     summary = `คุณตอบถูกไปทั้งหมด ${correctAnswersCount} ข้อ เลเวลสูงสุดคือด่าน ${level}`;
@@ -2195,13 +2558,19 @@ function endGame() {
   // ส่งแต้มคะแนนขึ้นระบบพอร์ทัล
   if (mode !== 'online') {
     const starCount = stars.split('⭐').length - 1;
-    KAMPAI.submitScore(finalScore, {
+    const submitOpts = {
       mode: mode,
       correct: correctAnswersCount,
       stars: starCount,
       level: level,
       allowResubmit: true
-    });
+    };
+    if (mode === 'local_2p') {
+      submitOpts.opponent = p2Student.displayName;
+      submitOpts.opponent_score = p2Score;
+      submitOpts.my_score = p1Score;
+    }
+    KAMPAI.submitScore(finalScore, submitOpts);
   } else if (match) {
     // ออนไลน์ให้ KampaiMatch ทำหน้าที่อัปโหลดคะแนน (หลังแสดงผล XP สำเร็จ)
     match.finish();
@@ -2234,6 +2603,12 @@ function resetGame() {
   $('hud-container').style.display = 'none';
   $('blocker').style.display = 'flex';
   $('combo-badge').classList.add('hidden');
+  
+  const chip2 = $('player-chip-p2');
+  if (chip2) {
+    chip2.style.display = 'none';
+  }
+  p2Student = { displayName: 'ผู้เล่น 2', photoUrl: null, isGuest: true };
   
   started = false;
   isGameOver = false;

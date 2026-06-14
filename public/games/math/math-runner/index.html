@@ -25,6 +25,7 @@
 <div id="combo-badge" class="hidden">COMBO x0</div>
 <div id="toast" class="hidden"></div>
 <div id="player-chip"></div>
+<div id="player-chip-p2"></div>
 
 <!-- Mobile Touch Control Overlays (for split screen touch) -->
 <div id="mobile-control-zones">
@@ -44,6 +45,12 @@
   <div class="menu-panel">
     <h1>MATH RUNNER</h1>
     <p class="subtitle">กระโดดเปลี่ยนเลนอิฐบล็อก วิ่งชนกล่องคำตอบที่ถูกต้อง! 🧱</p>
+    
+    <!-- Rules / Controls Guide -->
+    <div class="controls-guide">
+      <div class="guide-item">🔴 <b>ผู้เล่น 1</b>: ปุ่มลูกศร ◀ ▶ (ซ้าย/ขวา) / ▲ ▼ (สลับเลน) หรือจอยเกม 1</div>
+      <div class="guide-item">🟢 <b>ผู้เล่น 2</b>: ปุ่ม W A S D (ขึ้น/ซ้าย/ลง/ขวา) หรือจอยเกม 2</div>
+    </div>
     
     <!-- Math Mode -->
     <div class="setting-section">
@@ -91,6 +98,7 @@
       <button class="btn btn-primary" onclick="startSinglePlayer('adventure')">👤 1 คน (ผจญภัย - 3 ชีวิต)</button>
       <button class="btn btn-blue" onclick="startSinglePlayer('time')">⏱️ 1 คน (แข่งเวลา 60 วิ)</button>
       <button class="btn btn-orange" onclick="startLocalTwoPlayer()">👥 2 คน (เล่นจอเดียวกัน)</button>
+      <button class="btn btn-dark" onclick="openMappingModal()">🎮 ตั้งค่าจอยเกม & ปุ่มควบคุม</button>
       <button class="btn btn-ghost" id="online-btn" onclick="openOnlineMultiplayer()" style="display:none;">🌐 ออนไลน์ (แข่งหลายคน)</button>
     </div>
   </div>
@@ -114,6 +122,74 @@
     <div class="action-row">
       <button class="btn btn-primary" onclick="restartGame()">🔄 เล่นอีกครั้ง</button>
       <button class="btn btn-blue" onclick="exitGame()">🏠 กลับพอร์ทัล</button>
+    </div>
+  </div>
+</div>
+
+<!-- Player 2 Selection Modal -->
+<div id="p2-selector-modal" class="hidden">
+  <div class="menu-panel select-panel">
+    <h1>👥 เลือกผู้เล่นที่ 2</h1>
+    <p class="subtitle">เลือกเพื่อนร่วมชั้นเรียนเพื่อเข้าแข่งท้าดวล หรือเล่นเป็นผู้เยือน</p>
+    
+    <div class="classmate-list-box">
+      <ul id="p2-classmate-list" class="classmate-list">
+        <li class="lb-loading">กำลังโหลดรายชื่อเพื่อนร่วมชั้น...</li>
+      </ul>
+    </div>
+    
+    <div class="or-divider"><span>หรือ เล่นเป็นผู้เยือน (Guest)</span></div>
+    
+    <div class="guest-input-row">
+      <input type="text" id="p2-guest-name" placeholder="ป้อนชื่อเล่น P2 (สูงสุด 10 ตัวอักษร)" maxlength="10">
+      <button class="btn btn-blue" onclick="confirmGuestPlayer()">🎮 เล่นเลย (Guest)</button>
+    </div>
+    
+    <button class="btn btn-ghost" onclick="closeP2Selector()">❌ ยกเลิก</button>
+  </div>
+</div>
+
+<!-- Control & Gamepad Mapping Settings Modal -->
+<div id="control-mapping-modal" class="hidden">
+  <div class="menu-panel mapping-panel">
+    <h1>🎮 ตั้งค่าจอยเกม & ปุ่มควบคุม</h1>
+    <p class="subtitle">คลิกปุ่มสีส้มที่ต้องการตั้งค่า แล้วกดปุ่มบนคีย์บอร์ด หรือจอยเพื่อบันทึก</p>
+    
+    <div class="mapping-tables">
+      <!-- Player 1 -->
+      <div class="mapping-col">
+        <h3>🔴 ผู้เล่น 1 (P1 - จอบน)</h3>
+        <table class="mapping-table">
+          <tr><td>วิ่งขึ้น / เลนซ้าย</td><td><button class="bind-btn" id="bind-p1-up" onclick="startBinding('p1', 'up')">...</button></td></tr>
+          <tr><td>วิ่งลง / เลนขวา</td><td><button class="bind-btn" id="bind-p1-down" onclick="startBinding('p1', 'down')">...</button></td></tr>
+          <tr><td>เดินหน้า (ขวา)</td><td><button class="bind-btn" id="bind-p1-left" onclick="startBinding('p1', 'left')">...</button></td></tr>
+          <tr><td>ถอยหลัง (ซ้าย)</td><td><button class="bind-btn" id="bind-p1-right" onclick="startBinding('p1', 'right')">...</button></td></tr>
+        </table>
+      </div>
+      
+      <!-- Player 2 -->
+      <div class="mapping-col">
+        <h3>🟢 ผู้เล่น 2 (P2 - จอล่าง)</h3>
+        <table class="mapping-table">
+          <tr><td>วิ่งขึ้น / เลนซ้าย</td><td><button class="bind-btn" id="bind-p2-up" onclick="startBinding('p2', 'up')">...</button></td></tr>
+          <tr><td>วิ่งลง / เลนขวา</td><td><button class="bind-btn" id="bind-p2-down" onclick="startBinding('p2', 'down')">...</button></td></tr>
+          <tr><td>เดินหน้า (ขวา)</td><td><button class="bind-btn" id="bind-p2-left" onclick="startBinding('p2', 'left')">...</button></td></tr>
+          <tr><td>ถอยหลัง (ซ้าย)</td><td><button class="bind-btn" id="bind-p2-right" onclick="startBinding('p2', 'right')">...</button></td></tr>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Binding Overlay -->
+    <div id="binding-overlay" class="hidden">
+      <div class="overlay-content">
+        <p class="blink">📢 กำลังรอรับปุ่มอินพุต...</p>
+        <p class="desc">กดปุ่มบนคีย์บอร์ด หรือปุ่มใดๆ บนจอยเกมที่เชื่อมต่ออยู่</p>
+      </div>
+    </div>
+    
+    <div class="action-row" style="margin-top: 15px;">
+      <button class="btn btn-ghost" onclick="resetToDefaultControls()">🔄 รีเซ็ตปุ่มเริ่มต้น</button>
+      <button class="btn btn-primary" onclick="closeMappingModal()">✅ บันทึก & ปิด</button>
     </div>
   </div>
 </div>

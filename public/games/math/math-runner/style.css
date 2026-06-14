@@ -548,3 +548,275 @@ p.subtitle {
   color: #d35400;
   font-weight: 800;
 }
+
+/* ── Player Chip P2 (2P mode split screen) ── */
+#player-chip-p2 {
+  position: fixed;
+  top: calc(50vh + 76px);
+  left: 20px;
+  z-index: 20;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 3px solid #000;
+  padding: 4px 12px 4px 4px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #000;
+  box-shadow: 0 4px 0px rgba(0, 0, 0, 0.15);
+}
+#player-chip-p2 img, #player-chip-p2 .pc-init {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #000;
+}
+#player-chip-p2 .pc-init {
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+
+/* ── Controls Guide on Start screen ── */
+.controls-guide {
+  background: rgba(0, 0, 0, 0.05);
+  border: 2px dashed #000;
+  border-radius: 12px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  text-align: left;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: #555;
+}
+.guide-item {
+  margin-bottom: 4px;
+}
+.guide-item:last-child {
+  margin-bottom: 0;
+}
+
+/* ── P2 Selector Modal ── */
+.select-panel {
+  width: 420px;
+  max-width: 95%;
+}
+.classmate-list-box {
+  background: #fff;
+  border: 3px solid #000;
+  border-radius: 16px;
+  height: 220px;
+  overflow-y: auto;
+  margin-bottom: 15px;
+  padding: 8px;
+}
+.classmate-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.classmate-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border: 2px solid #000;
+  border-radius: 12px;
+  cursor: pointer;
+  background: #fff8eb;
+  transition: all 0.12s ease;
+}
+.classmate-item:hover {
+  background: #ffeaa7;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 0px #000;
+}
+.classmate-avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.classmate-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #000;
+}
+.classmate-avatar-init {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #000;
+  background: linear-gradient(135deg, #9b5de5, #f15bb5);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+.classmate-name {
+  font-weight: bold;
+  font-size: 0.85rem;
+  color: #000;
+}
+.classmate-class {
+  font-size: 0.75rem;
+  color: #666;
+}
+.classmate-pb {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #d35400;
+  background: rgba(211, 84, 0, 0.1);
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+.or-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: #666;
+  margin-bottom: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+.or-divider::before, .or-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 2px solid #ddd;
+}
+.or-divider:not(:empty)::before {
+  margin-right: .5em;
+}
+.or-divider:not(:empty)::after {
+  margin-left: .5em;
+}
+.guest-input-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+.guest-input-row input {
+  flex: 1;
+  border: 3px solid #000;
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-family: inherit;
+  font-weight: bold;
+  outline: none;
+  font-size: 0.9rem;
+}
+
+/* ── Control & Gamepad Mapping Settings Modal ── */
+.mapping-panel {
+  width: 580px;
+  max-width: 95%;
+}
+.mapping-tables {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+.mapping-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.mapping-col h3 {
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-align: center;
+  border-bottom: 3px solid #000;
+  padding-bottom: 4px;
+  margin-bottom: 4px;
+  color: #333;
+}
+.mapping-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.mapping-table td {
+  padding: 5px 2px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  vertical-align: middle;
+}
+.mapping-table tr td:first-child {
+  text-align: left;
+  color: #555;
+}
+.mapping-table tr td:last-child {
+  text-align: right;
+  width: 120px;
+}
+.bind-btn {
+  width: 100%;
+  background: #ff9800;
+  border: 2px solid #000;
+  border-radius: 8px;
+  padding: 5px;
+  font-family: 'Fredoka One', 'Sarabun', sans-serif;
+  font-size: 0.75rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 3px 0px #000;
+  transition: all 0.1s ease;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  color: #fff;
+  text-align: center;
+}
+.bind-btn:hover {
+  background: #ffa726;
+}
+.bind-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0px #000;
+}
+#binding-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.85);
+  z-index: 100;
+  border-radius: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+}
+.overlay-content {
+  text-align: center;
+  padding: 20px;
+}
+.overlay-content .blink {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #ffaa00;
+  margin-bottom: 8px;
+  animation: blinkText 1s infinite;
+}
+.overlay-content .desc {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+@keyframes blinkText {
+  0% { opacity: 0.3; }
+  50% { opacity: 1; }
+  100% { opacity: 0.3; }
+}
+
