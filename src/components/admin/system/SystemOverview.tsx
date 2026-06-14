@@ -281,6 +281,7 @@ const versionHistory = [
             'ขยาย dropdown วิชาจาก 4 → 8 ครบทุกที่ (GameIndicatorsDialog/IndicatorMasteryTab/LessonPlanIndicatorsDialog) ผ่าน const กลาง src/lib/curriculumSubjects.ts',
             'GamesTab: ปุ่ม "🎯 ใช้ตัวชี้วัดช่วยสร้าง" (IndicatorPromptDialog) เลือกตัวชี้วัด → แนบเข้า GAME-PROMPT.md ให้ AI + จำไว้ auto-map เข้าเกมหลังอัปโหลดอัตโนมัติ',
             'GamesTab: badge "🎯 N ตัวชี้วัด" ต่อเกม + ปุ่ม "📊 ความครอบคลุมตัวชี้วัด" (IndicatorCoverageDialog) เห็นตัวชี้วัดไหนมีเกม/ยังขาด',
+            'ฟอร์มอัปโหลดเกมรองรับครบ 8 หมวด (เดิม 3: คณิต/วิทย์/ไทย) → ไทย/คณิต/วิทย์/สังคม/สุข/ศิลปะ/การงาน/อังกฤษ ตรงกับ 8 กลุ่มสาระตัวชี้วัด',
         ],
     },
     {
