@@ -143,6 +143,7 @@ let p1RedFlash = 0, p2RedFlash = 0;
 
 // Seeded RNG สำหรับออนไลน์
 let onlineRng = null;
+let animationFrameId = null;
 
 // มอนสเตอร์ และ ไอเทม
 let activeMonsters = []; // สำหรับ 1P / Online
@@ -957,7 +958,7 @@ function hitMonster(playerIndex, type, x, y) {
       redFlashAlpha = 0.55;
 
       if (mode === 'adventure') {
-        lives--;
+        if (lives > 0) lives--;
         let s = '';
         for (let i = 0; i < CFG.LIVES; i++) s += (i < lives) ? '❤️' : '🖤';
         $('life-container').innerText = s;
@@ -1178,6 +1179,21 @@ function loop() {
     ctx.fillText(`⭐ ${p1Score}`, 240, 47);
     ctx.restore();
 
+    // วาดกล่องเวลา P1 ด้านบนขวา
+    ctx.save();
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.roundRect(cw - 165, 15, 150, 50, 15);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 20px Fredoka One, Sarabun';
+    ctx.textAlign = 'center';
+    ctx.fillText(`⏱️ ${gameTimeLeft} วิ`, cw - 90, 47);
+    ctx.restore();
+
     // ── จอผู้เล่น 2 (ครึ่งล่าง) ──
     drawRetroHills(ctx, cw, sh, p2BgOffset, sh, sh);
     
@@ -1257,6 +1273,21 @@ function loop() {
     ctx.fillText(`P2 (↑/↓): ${p2Question ? p2Question.displayStr : ''}`, 30, sh + 47);
     ctx.fillStyle = '#FF9800';
     ctx.fillText(`⭐ ${p2Score}`, 240, sh + 47);
+    ctx.restore();
+
+    // วาดกล่องเวลา P2 ด้านล่างขวา
+    ctx.save();
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.roundRect(cw - 165, sh + 15, 150, 50, 15);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 20px Fredoka One, Sarabun';
+    ctx.textAlign = 'center';
+    ctx.fillText(`⏱️ ${gameTimeLeft} วิ`, cw - 90, sh + 47);
     ctx.restore();
 
     // เส้นแบ่งขีดกลางจอ
@@ -1408,11 +1439,13 @@ function loop() {
     if (f.alpha <= 0) floatingTexts.splice(i, 1);
   }
 
-  requestAnimationFrame(loop);
+  animationFrameId = requestAnimationFrame(loop);
 }
 
 // ตรวจสอบผลการชนเลือกคำตอบ
 function resolveHit(playerIndex, isCorrect, x, y) {
+  const isInvincible = playerIndex === 2 ? (p2InvincibleTime > 0) : (p1InvincibleTime > 0);
+
   if (isCorrect) {
     // ตอบถูก
     KAMPAI.sound.correct();
@@ -1420,6 +1453,9 @@ function resolveHit(playerIndex, isCorrect, x, y) {
     spawnCoins(x, y);
 
     let base = CFG.CORRECT_POINTS;
+    if (isInvincible) {
+      base *= 2;
+    }
     
     if (mode === 'local_2p') {
       if (playerIndex === 1) {
@@ -1427,13 +1463,13 @@ function resolveHit(playerIndex, isCorrect, x, y) {
         const multiplier = Math.min(5, 1 + Math.floor(p1Combo / 3));
         const gain = base * multiplier;
         p1Score += gain;
-        addFloatingText(x, y, `+${gain} P1!`, '#FFD700');
+        addFloatingText(x, y, `+${gain} P1! ${isInvincible ? '⭐x2' : ''}`, '#FFD700');
       } else {
         p2Combo++;
         const multiplier = Math.min(5, 1 + Math.floor(p2Combo / 3));
         const gain = base * multiplier;
         p2Score += gain;
-        addFloatingText(x, y, `+${gain} P2!`, '#FFD700');
+        addFloatingText(x, y, `+${gain} P2! ${isInvincible ? '⭐x2' : ''}`, '#FFD700');
       }
     } else {
       combo++;
@@ -1451,7 +1487,7 @@ function resolveHit(playerIndex, isCorrect, x, y) {
         b.classList.add('hidden');
       }
       
-      addFloatingText(x, y, `+${gain}`, '#FFD700');
+      addFloatingText(x, y, `+${gain} ${isInvincible ? '⭐x2' : ''}`, '#FFD700');
       
       // อัปเดตคะแนนสดโหมดออนไลน์
       if (mode === 'online' && match) {
@@ -1465,6 +1501,13 @@ function resolveHit(playerIndex, isCorrect, x, y) {
     }
   } else {
     // ตอบผิด
+    if (isInvincible) {
+      // อมตะ: ไม่มีผลเสียเมื่อตอบผิด
+      KAMPAI.sound.correct();
+      addFloatingText(x, y, '⭐ อมตะป้องกัน!', '#FFD700');
+      return;
+    }
+
     KAMPAI.sound.wrong();
     KAMPAI.sound.fxFlash(false);
     
@@ -1486,7 +1529,7 @@ function resolveHit(playerIndex, isCorrect, x, y) {
       redFlashAlpha = 0.55;
 
       if (mode === 'adventure') {
-        lives--;
+        if (lives > 0) lives--;
         let s = '';
         for (let i = 0; i < CFG.LIVES; i++) s += (i < lives) ? '❤️' : '🖤';
         $('life-container').innerText = s;
@@ -1558,11 +1601,17 @@ function startSinglePlayer(m) {
   }
 
   KAMPAI.sound.unlock();
+  KAMPAI.sound.bgmStop();
   KAMPAI.sound.bgmStart();
   
   onlineRng = null;
   generateNewQuestion(1);
-  requestAnimationFrame(loop);
+  
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
+  }
+  animationFrameId = requestAnimationFrame(loop);
 }
 
 function startLocalTwoPlayer() {
@@ -1592,12 +1641,18 @@ function startLocalTwoPlayer() {
   $('hud-container').style.display = 'none'; // ซ่อน HUD บน เพราะแบ่งเขียนจอในแคนวาสตรงๆ
 
   KAMPAI.sound.unlock();
+  KAMPAI.sound.bgmStop();
   KAMPAI.sound.bgmStart();
 
   onlineRng = null;
   generateNewQuestion(1);
   generateNewQuestion(2);
-  requestAnimationFrame(loop);
+  
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
+  }
+  animationFrameId = requestAnimationFrame(loop);
   
   // โหมด 2 คนในจอเดียวจะแข่งเวลากัน 60 วินาที
   gameTimeLeft = CFG.TIME_SECONDS;
@@ -1635,6 +1690,7 @@ function startGame(onlineMode, opts) {
   $('timer-container').style.display = 'none';
 
   KAMPAI.sound.unlock();
+  KAMPAI.sound.bgmStop();
   KAMPAI.sound.bgmStart();
 
   // จัดการ Seeded RNG โหมดออนไลน์
@@ -1652,7 +1708,12 @@ function startGame(onlineMode, opts) {
   }
 
   generateNewQuestion(1);
-  requestAnimationFrame(loop);
+  
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
+  }
+  animationFrameId = requestAnimationFrame(loop);
 }
 
 function tickTimer() {
@@ -1731,16 +1792,62 @@ function resetGame() {
   $('gameover-screen').classList.add('hidden');
   $('hud-container').style.display = 'none';
   $('blocker').style.display = 'flex';
+  $('combo-badge').classList.add('hidden');
+  
   started = false;
   isGameOver = false;
   ctx.clearRect(0, 0, cw, ch);
   renderLeaderboard('score-list');
+  
+  if (timerIntervalId) {
+    clearInterval(timerIntervalId);
+    timerIntervalId = null;
+  }
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
+  }
+  
+  score = 0;
+  p1Score = 0;
+  p2Score = 0;
+  combo = 0;
+  p1Combo = 0;
+  p2Combo = 0;
+  correctAnswersCount = 0;
+  lives = CFG.LIVES;
+  level = 1;
+  blockSpeed = CFG.BLOCK_START_SPEED;
+  
   activeMonsters = [];
   activeItems = [];
-  p1Monsters = []; p2Monsters = [];
-  p1Items = []; p2Items = [];
+  p1Monsters = [];
+  p2Monsters = [];
+  p1Items = [];
+  p2Items = [];
+  floatBlocks = [];
+  p1Blocks = [];
+  p2Blocks = [];
+  coinParticles = [];
+  floatingTexts = [];
+  
   p1InvincibleTime = 0; p1SlowTime = 0; p1ConfusedTime = 0; p1IsGiant = false;
   p2InvincibleTime = 0; p2SlowTime = 0; p2ConfusedTime = 0; p2IsGiant = false;
+  
+  playerLane = 1;
+  targetPlayerLane = 1;
+  p1Lane = 1;
+  targetP1Lane = 1;
+  p2Lane = 1;
+  targetP2Lane = 1;
+  
+  bgOffset = 0;
+  p1BgOffset = 0;
+  p2BgOffset = 0;
+  
+  redFlashAlpha = 0;
+  p1RedFlash = 0;
+  p2RedFlash = 0;
 }
 
 // ตรวจสอบสมการ
@@ -1751,3 +1858,37 @@ if (eqBox) {
     KAMPAI.sound.correct();
   });
 }
+
+// ฟังก์ชันออกจากเกมและทำความสะอาดสเตทและ PvP
+function exitGame() {
+  if (timerIntervalId) {
+    clearInterval(timerIntervalId);
+    timerIntervalId = null;
+  }
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
+  }
+  KAMPAI.sound.bgmStop();
+  if (match) {
+    try {
+      match.leave();
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  KAMPAI.goHome();
+}
+
+window.exitGame = exitGame;
+
+// ล้าง Match เมื่อผู้เล่นปิดหน้าต่างหรือนำทางออกไป
+window.addEventListener('beforeunload', () => {
+  if (match) {
+    try {
+      match.leave();
+    } catch (e) {
+      console.error(e);
+    }
+  }
+});
