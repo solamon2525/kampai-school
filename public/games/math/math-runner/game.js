@@ -2692,6 +2692,19 @@ function exitGame() {
   KAMPAI.goHome();
 }
 
+window.selectMathMode = selectMathMode;
+window.selectDifficulty = selectDifficulty;
+window.startSinglePlayer = startSinglePlayer;
+window.startLocalTwoPlayer = startLocalTwoPlayer;
+window.openOnlineMultiplayer = openOnlineMultiplayer;
+window.openMappingModal = openMappingModal;
+window.closeMappingModal = closeMappingModal;
+window.confirmGuestPlayer = confirmGuestPlayer;
+window.selectClassmateP2 = selectClassmateP2;
+window.closeP2Selector = closeP2Selector;
+window.resetToDefaultControls = resetToDefaultControls;
+window.startBinding = startBinding;
+window.restartGame = restartGame;
 window.exitGame = exitGame;
 
 // ล้าง Match เมื่อผู้เล่นปิดหน้าต่างหรือนำทางออกไป
