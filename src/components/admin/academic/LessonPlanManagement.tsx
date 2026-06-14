@@ -9,7 +9,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Pencil, Trash2, Search, FileText } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, FileText, Target } from 'lucide-react';
+import { LessonPlanIndicatorsDialog } from './LessonPlanIndicatorsDialog';
 
 interface LessonPlan {
   id: string;
@@ -56,6 +57,7 @@ export const LessonPlanManagement = () => {
   const [filterStatus, setFilterStatus] = useState('ทั้งหมด');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<LessonPlan | null>(null);
+  const [indicatorPlan, setIndicatorPlan] = useState<LessonPlan | null>(null);
   const [form, setForm] = useState({ ...emptyForm });
   const { toast } = useToast();
 
@@ -192,6 +194,7 @@ export const LessonPlanManagement = () => {
                   </td>
                   <td className="px-3 py-2">
                     <div className="flex gap-1 justify-end">
+                      <Button size="icon" variant="ghost" className="h-6 w-6 text-emerald-600" title="ตัวชี้วัดที่เกี่ยวข้อง" onClick={() => setIndicatorPlan(p)}><Target className="w-3 h-3" /></Button>
                       <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => openEdit(p)}><Pencil className="w-3 h-3" /></Button>
                       <Button size="icon" variant="ghost" className="h-6 w-6 text-red-500" onClick={() => handleDelete(p.id)}><Trash2 className="w-3 h-3" /></Button>
                     </div>
@@ -280,6 +283,17 @@ export const LessonPlanManagement = () => {
             <Button variant="outline" onClick={() => setDialogOpen(false)}>ยกเลิก</Button>
             <Button onClick={handleSubmit}>บันทึก</Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!indicatorPlan} onOpenChange={(open) => !open && setIndicatorPlan(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          {indicatorPlan && (
+            <LessonPlanIndicatorsDialog
+              plan={{ id: indicatorPlan.id, subject: indicatorPlan.subject, grade: indicatorPlan.grade }}
+              onClose={() => setIndicatorPlan(null)}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>

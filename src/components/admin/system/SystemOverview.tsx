@@ -272,8 +272,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.82.0 (ตัวชี้วัดหลักสูตร — แท็บความก้าวหน้ารายนักเรียน + ประเมินครู)',
+        version: 'v1.83.0 (ตัวชี้วัดหลักสูตร — ผูกแผนการสอน↔ตัวชี้วัด)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'LessonPlanManagement: ปุ่ม "ตัวชี้วัด" (🎯) ต่อแถวแผนการสอน → LessonPlanIndicatorsDialog เลือกตัวชี้วัดหลักสูตร 2551 ที่แผนนั้นครอบคลุม (ระบุ "ตัวชี้วัดที่เกี่ยวข้อง" ตามแบบแผนการสอนไทย) → เขียน indicator_lesson_plans (mig 170)',
+            'subject ของแผน (ข้อความไทย) map เป็น subject_key อัตโนมัติ (คณิต/วิทย์/อังกฤษ/ไทย); เลือกข้ามชั้น/วิชาได้ (สะสมรวมกัน) เผื่อ subject ไม่ตรง',
+            'consumer ที่ 3 ของ curriculum.service (setLessonPlanIndicators + listLessonPlanIndicatorIds) — ครบทั้ง mapping เกม + แผนการสอน',
+            'ไม่แตะ pattern เดิมของ LessonPlanManagement (useState/useEffect) — เพิ่มเฉพาะปุ่ม+dialog แยก',
+        ],
+    },
+    {
+        version: 'v1.82.0 (ตัวชี้วัดหลักสูตร — แท็บความก้าวหน้ารายนักเรียน + ประเมินครู)',
+        date: '',
         badge: 'bg-emerald-600',
         items: [
             'Student 360° แท็บใหม่ "ตัวชี้วัด" (IndicatorMasteryTab): แสดงตัวชี้วัดทั้งหมดของวิชา+ชั้นนักเรียน (จัดกลุ่มตามสาระ) พร้อมสถานะรวม ยังไม่เริ่ม/กำลังฝึก/ผ่าน/เชี่ยวชาญ จาก v_student_indicator_mastery',
