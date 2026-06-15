@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Angle Castle: ศึกปราสาทมุมองศา</title>
+    <!-- Google Fonts: Kanit & Sarabun -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700&family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- SDK Fallback & Loading -->
+    <script src="/games/kampai-sdk.js"></script>
+    <script>
+    window.KAMPAI = window.KAMPAI || {
+        isEmbed: false,
+        ready: true,
+        student: null,
+        stats: null,
+        leaderboard: [],
+        input: { up: false, down: false, left: false, right: false, a: false, b: false },
+        onReady: function(cb){ cb(this); },
+        setSlug: function(){ return this; },
+        submitScore: function(){ return false; },
+        goHome: function(){ location.href = '/'; },
+        controls: { mount: function(){ return this; } },
+        sound: {
+            correct: function(){}, wrong: function(){}, timeUp: function(){}, gameOver: function(){},
+            speak: function(){}, stopSpeak: function(){}, fxFlash: function(){}, mountToggles: function(){},
+            defaultBgm: function(){}, bgmStart: function(){}, bgmStop: function(){}, unlock: function(){}
+        }
+    };
+    </script>
+    
+    <!-- KampaiMatch Multiplayer Support -->
+    <script src="/games/kampai-match.js"></script>
+    <script>
+    window.KampaiMatch = window.KampaiMatch || {
+        create: function(){
+            return {
+                available: false,
+                openMenu: function(){ alert('กรุณาเล่นผ่านระบบเพื่อจับคู่แข่งขัน'); },
+                report: function(){}, finish: function(){}, leave: function(){}
+            };
+        }
+    };
+    </script>
+</head>
+<body>
+    <!-- Canvas พื้นหลังหลักของเกม -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- UI Layer ด้านบนสุด -->
+    <div id="ui-layer">
+        <div class="hud-bar">
+            <!-- ข้อมูลทางซ้าย: เลือด / คทา -->
+            <div class="hud-left">
+                <div class="hud-panel" id="player-status">
+                    <span class="hud-label">🛡️ พลังเกราะ</span>
+                    <div id="shield-bar" class="shield-container">
+                        <div class="shield-cell filled"></div>
+                        <div class="shield-cell filled"></div>
+                        <div class="shield-cell filled"></div>
+                    </div>
+                </div>
+                
+                <div class="hud-panel select-wand-btn" id="wand-status">
+                    <span class="hud-label">🔮 คทาที่ใช้</span>
+                    <span id="current-wand-val">คทาสะท้อนดวงดาว</span>
+                </div>
+            </div>
+            
+            <!-- เป้าหมายองศาตรงกลาง -->
+            <div class="hud-center">
+                <div class="hud-panel target-indicator" id="target-box">
+                    <span class="hud-label">🎯 กำจัดศัตรูสีแดงด้วย</span>
+                    <div class="target-angle-text" id="target-val">--° (ไม่มีเป้าหมาย)</div>
+                </div>
+                <div class="hud-panel angle-indicator" id="angle-aim-box" style="display: none;">
+                    <span class="hud-label">📐 องศาการเล็งปัจจุบัน</span>
+                    <div class="current-angle-text" id="angle-aim-val">0° (มุมแหลม)</div>
+                </div>
+            </div>
+            
+            <!-- คะแนนทางขวา -->
+            <div class="hud-right">
+                <div class="hud-panel" id="score-box">
+                    <span class="hud-label">✨ คะแนน</span>
+                    <span class="hud-val" id="score-val">0</span>
+                </div>
+                <button class="hud-btn" id="trivia-btn" onclick="openTrivia()">📖 เกร็ดมุม</button>
+            </div>
+        </div>
+        
+        <!-- แถบบันทึกคอมโบด้านล่างเป้าหมาย -->
+        <div id="combo-tag" style="display: none;">COMBO x1</div>
+    </div>
+
+    <!-- ── 1. หน้าต่างเมนูเริ่มเกม (Start Screen) ── -->
+    <div class="modal-overlay" id="start-screen">
+        <div class="glass-card start-card">
+            <h1 class="game-title">🏰 ANGLE CASTLE</h1>
+            <p class="game-subtitle">ศึกปราสาทมุมองศา</p>
+            
+            <!-- ข้อมูลผู้เล่นและสถิติส่วนตัว -->
+            <div class="player-profile-chip" id="player-chip" style="display: none;">
+                <!-- แทรกรหัสโปรไฟล์ผู้เล่น -->
+            </div>
+            
+            <div class="stats-grid" id="my-stats" style="display: none;">
+                <div class="stat-card">
+                    <div class="sc-label">คะแนนสูงสุด</div>
+                    <div class="sc-val" id="ms-best">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="sc-label">จำนวนการเล่น</div>
+                    <div class="sc-val" id="ms-plays">0</div>
+                </div>
+            </div>
+            
+            <!-- โหมดเกม -->
+            <div class="mode-select-area">
+                <button class="btn btn-primary" onclick="selectMode('adventure')">🏰 โหมดตะลุยปราสาท (ป.4-ป.6)</button>
+                <button class="btn btn-secondary" onclick="selectMode('endless')">🔥 โหมดท้าทายไม่มีสิ้นสุด (เอาชีวิตรอด)</button>
+                <button class="btn btn-online" id="online-btn" onclick="openOnline()" style="display: none;">⚔️ แข่งขันแบบออนไลน์ (Realtime)</button>
+            </div>
+
+            <!-- เมนูลำโพงปิดเสียงสำเร็จรูป -->
+            <div class="audio-controls-row" id="audio-panel">
+                <!-- ระบบ SDK จะฝังปุ่มเปิดปิด BGM / TTS 🔊 ตรงนี้ผ่าน mountToggles -->
+            </div>
+
+            <!-- ตารางคะแนน Leaderboard -->
+            <div class="leaderboard-section">
+                <h3>🏆 อันดับผู้กล้าวัดมุม (Top 5)</h3>
+                <ul class="score-list" id="score-list">
+                    <li class="lb-loading">กำลังโหลดอันดับ...</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── 2. หน้าต่างจบเกม (Game Over Screen) ── -->
+    <div class="modal-overlay" id="game-over-screen" style="display: none;">
+        <div class="glass-card end-card">
+            <h2 id="go-title" class="go-header">🛡️ สิ้นสุดการเดินทาง</h2>
+            <p class="go-subheader" id="go-desc">เกราะมนตราแตกกระจายกลางปราสาท</p>
+            
+            <div class="score-summary-circle">
+                <span class="ss-label">คะแนนที่ได้</span>
+                <span class="ss-val" id="go-score">0</span>
+            </div>
+
+            <div class="go-buttons-row">
+                <button class="btn btn-primary" onclick="restartGame()">🎮 เล่นอีกครั้ง</button>
+                <button class="btn btn-secondary" onclick="KAMPAI.goHome()">🏰 กลับหน้าหลัก</button>
+            </div>
+
+            <!-- บอร์ดคะแนนด้านล่าง -->
+            <div class="leaderboard-section" style="margin-top: 25px;">
+                <h3>🏆 อันดับผู้กล้าล่าแต้ม</h3>
+                <ul class="score-list" id="go-score-list">
+                    <!-- โชว์ Top 5 ยืนยันผลคะแนน -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── 3. หน้าต่างเกร็ดความรู้ (Trivia / Guide) ── -->
+    <div class="modal-overlay" id="trivia-modal" style="display: none;" onclick="closeTrivia()">
+        <div class="glass-card trivia-card" onclick="event.stopPropagation()">
+            <div class="trivia-header">
+                <h2>📖 มหัศจรรย์มุมองศา</h2>
+                <button class="close-x" onclick="closeTrivia()">×</button>
+            </div>
+            <div class="trivia-body" id="trivia-content">
+                <!-- แทรกรวมเกร็ดความรู้ของชนิดมุมแต่ละประเภท -->
+            </div>
+            <button class="btn btn-secondary" style="margin-top: 15px; width: 100%;" onclick="closeTrivia()">เข้าใจแล้ว</button>
+        </div>
+    </div>
+
+    <!-- แผงเลือกคทา (Wand Chooser Wheel) -->
+    <div class="wand-overlay" id="wand-modal" style="display: none;" onclick="closeWandModal()">
+        <div class="glass-card wand-card" onclick="event.stopPropagation()">
+            <h2>🔮 อัญเชิญคทามนตรา</h2>
+            <p style="font-size: 14px; color: #b0bec5; margin-bottom: 20px;">คลิกเลือกคทาที่ต้องการสวมใส่</p>
+            <div class="wand-selector-list" id="wand-selector-grid">
+                <!-- เติมรายการคทาจาก config.js -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ป้ายบอกเตือนคำสั่งลอย (Toast Notification) -->
+    <div id="hud-toast" style="display: none;"></div>
+
+    <script src="config.js"></script>
+    <script src="data.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>

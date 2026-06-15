@@ -802,7 +802,8 @@
     function updateGameLoop(currentTime) {
         if (!GameState.isPlaying) return;
         
-        const deltaTime = currentTime - GameState.lastTime; 
+        // clamp กัน deltaTime พุ่ง (สลับแท็บ/rAF ถูกพัก) ไม่ให้คำศัพท์ตกทะลุจอรวดเดียวจนเกมจบทันที
+        const deltaTime = Math.min(currentTime - GameState.lastTime, 100);
         GameState.lastTime = currentTime;
 
         // Mode specific logic
@@ -1131,8 +1132,9 @@
     }
 
     function endGame(reason) {
-        GameState.isPlaying = false; 
-        wordInput.disabled = true; 
+        if (!GameState.isPlaying) return; // กันเรียกซ้ำในเฟรมเดียว (คำตกหลายตัว/deltaTime ใหญ่) → ส่งคะแนนซ้ำ
+        GameState.isPlaying = false;
+        wordInput.disabled = true;
         wordInput.value = ''; 
         Sound.stopBGM();
         

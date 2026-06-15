@@ -391,8 +391,8 @@ function endGame(isSuccess) {
             ui.feedback.className = "text-base font-medium text-indigo-600 mb-4 px-4";
         }
         
-        if (earnedStars >= 2) {
-            triggerConfetti();
+        if (earnedStars >= 2 && window.confetti) {
+            window.confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
         }
         
         for (let i = 1; i <= 3; i++) {

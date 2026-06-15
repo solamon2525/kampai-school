@@ -1,0 +1,791 @@
+/* style.css — สไตล์ของเกม Angle Castle: ศึกปราสาทมุมองศา */
+
+:root {
+    --bg-dark: #0a0b10;
+    --bg-glass: rgba(13, 16, 27, 0.75);
+    --border-glass: rgba(255, 255, 255, 0.08);
+    --color-primary: #00e5ff; /* นีออนฟ้า */
+    --color-accent: #ff4081; /* นีออนชมพู */
+    --color-green: #00e676; /* นีออนเขียว */
+    --color-yellow: #ffeb3b; /* นีออนเหลือง */
+    --color-purple: #e040fb; /* นีออนม่วง */
+    --color-orange: #ff9100; /* นีออนส้ม */
+    --font-kanit: 'Kanit', sans-serif;
+    --font-sarabun: 'Sarabun', sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--bg-dark);
+    font-family: var(--font-sarabun);
+    color: #eceff1;
+}
+
+/* ── Canvas สภาพแวดล้อมฉากหลัง ── */
+#game-canvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(circle at center, #1b1e2c 0%, #08090f 100%);
+    touch-action: none;
+    z-index: 1;
+}
+
+/* ── UI Layer ── */
+#ui-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 12px 16px;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.hud-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.hud-left, .hud-center, .hud-right {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: auto;
+}
+
+.hud-left { align-items: flex-start; }
+.hud-center { align-items: center; max-width: 40%; }
+.hud-right { align-items: flex-end; }
+
+/* แผง HUD แบบกระจกเงาแก้ว (Glassmorphism) */
+.hud-panel {
+    background: var(--bg-glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border-glass);
+    padding: 8px 16px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    min-width: 120px;
+}
+
+.hud-label {
+    font-size: 11px;
+    color: #90a4ae;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
+.hud-val {
+    font-family: var(--font-kanit);
+    font-size: 20px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+/* หลอดเกราะป้องกัน */
+.shield-container {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.shield-cell {
+    width: 20px;
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.shield-cell.filled {
+    background: var(--color-accent);
+    box-shadow: 0 0 8px var(--color-accent);
+    border-color: transparent;
+}
+
+/* ป้ายสถานะคทา */
+.select-wand-btn {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.select-wand-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--color-primary);
+}
+
+#current-wand-val {
+    font-family: var(--font-kanit);
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--color-primary);
+    margin-top: 2px;
+}
+
+/* เป้ายิงบอส / ทิศทางองศา */
+.target-indicator {
+    align-items: center;
+    border: 1px solid rgba(255, 64, 129, 0.2);
+    min-width: 220px;
+}
+
+.target-angle-text {
+    font-family: var(--font-kanit);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-accent);
+    text-align: center;
+    text-shadow: 0 0 6px rgba(255, 64, 129, 0.4);
+}
+
+.angle-indicator {
+    align-items: center;
+    border: 1px solid rgba(0, 229, 255, 0.2);
+    min-width: 220px;
+}
+
+.current-angle-text {
+    font-family: var(--font-kanit);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-primary);
+    text-align: center;
+}
+
+/* ปุ่มเกร็ดมุม */
+.hud-btn {
+    background: var(--bg-glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border-glass);
+    padding: 8px 16px;
+    border-radius: 12px;
+    color: #ffffff;
+    font-family: var(--font-kanit);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    pointer-events: auto;
+}
+
+.hud-btn:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+/* คอมโบแท็ก */
+#combo-tag {
+    position: absolute;
+    top: 92px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #ff3d00, #ff9100);
+    color: white;
+    font-family: var(--font-kanit);
+    font-weight: 800;
+    font-size: 13px;
+    padding: 2px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 4px 15px rgba(255,61,0,0.3);
+    animation: pulse 1s infinite alternate;
+}
+
+@keyframes pulse {
+    0% { transform: translateX(-50%) scale(1); }
+    100% { transform: translateX(-50%) scale(1.08); }
+}
+
+/* ── Overlays & Modals ── */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(4, 5, 8, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.glass-card {
+    background: rgba(15, 18, 32, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.05);
+    border-radius: 24px;
+    padding: 35px;
+    width: 90%;
+    max-width: 500px;
+    text-align: center;
+    position: relative;
+    overflow-y: auto;
+    max-height: 90vh;
+}
+
+/* จอเริ่มเกม */
+.game-title {
+    font-family: var(--font-kanit);
+    font-size: 38px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 20px rgba(0, 229, 255, 0.25);
+    margin-bottom: 2px;
+}
+
+.game-subtitle {
+    font-family: var(--font-kanit);
+    font-size: 16px;
+    font-weight: 500;
+    color: #90a4ae;
+    letter-spacing: 4px;
+    margin-bottom: 25px;
+}
+
+.player-profile-chip {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 8px 16px;
+    border-radius: 50px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    max-width: 100%;
+}
+
+.player-profile-chip img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--color-primary);
+}
+
+.pc-init {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: #0c0d14;
+    font-family: var(--font-kanit);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.pc-best {
+    color: var(--color-yellow);
+    font-weight: 600;
+}
+
+/* กล่องสถิติฉัน */
+.stats-grid {
+    display: grid;
+    grid-template-cols: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 16px;
+    padding: 12px;
+}
+
+.sc-label {
+    font-size: 12px;
+    color: #b0bec5;
+}
+
+.sc-val {
+    font-family: var(--font-kanit);
+    font-size: 22px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-top: 4px;
+}
+
+/* เลือกโหมดปุ่ม */
+.mode-select-area {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.btn {
+    border: none;
+    border-radius: 14px;
+    padding: 14px 24px;
+    font-family: var(--font-kanit);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+    outline: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--color-primary), #00b0ff);
+    color: #07090e;
+    box-shadow: 0 4px 15px rgba(0, 229, 255, 0.25);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 229, 255, 0.4);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+    border: 1px solid rgba(255,255,255,0.06);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255,255,255,0.2);
+}
+
+.btn-online {
+    background: linear-gradient(135deg, var(--color-purple), #7c4dff);
+    color: white;
+    box-shadow: 0 4px 15px rgba(224, 64, 251, 0.25);
+}
+
+.btn-online:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(224, 64, 251, 0.4);
+}
+
+/* สปีกเกอร์ปรับเสียง */
+.audio-controls-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 25px;
+    pointer-events: auto;
+}
+
+/* ลีดเดอร์บอร์ด */
+.leaderboard-section {
+    text-align: left;
+}
+
+.leaderboard-section h3 {
+    font-family: var(--font-kanit);
+    font-size: 14px;
+    font-weight: 600;
+    color: #b0bec5;
+    margin-bottom: 12px;
+    padding-left: 4px;
+}
+
+.score-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.score-list li {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+}
+
+.score-list li.is-me {
+    background: rgba(0, 229, 255, 0.05);
+    border-color: rgba(0, 229, 255, 0.15);
+}
+
+.lb-rank {
+    font-family: var(--font-kanit);
+    font-weight: 700;
+    font-size: 14px;
+    width: 25px;
+}
+
+.lb-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    margin-right: 8px;
+    object-fit: cover;
+}
+
+.lb-avatar-init {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    color: white;
+    font-family: var(--font-kanit);
+    font-weight: 700;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+}
+
+.lb-info {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.lb-name {
+    font-weight: 500;
+    color: #cfd8dc;
+}
+
+.score-list li.is-me .lb-name {
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+.lb-sub {
+    font-family: var(--font-kanit);
+    font-weight: 600;
+    color: #cfd8dc;
+}
+
+.lb-loading {
+    color: #90a4ae;
+    text-align: center;
+    justify-content: center;
+    padding: 15px !important;
+    font-style: italic;
+}
+
+/* จอจบเกม */
+.go-header {
+    font-family: var(--font-kanit);
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--color-accent);
+    text-shadow: 0 0 15px rgba(255,64,129,0.3);
+}
+
+.go-subheader {
+    font-size: 14px;
+    color: #b0bec5;
+    margin-bottom: 20px;
+}
+
+.score-summary-circle {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    border: 3px solid var(--color-primary);
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 25px auto;
+}
+
+.ss-label {
+    font-size: 11px;
+    color: #90a4ae;
+    text-transform: uppercase;
+}
+
+.ss-val {
+    font-family: var(--font-kanit);
+    font-size: 36px;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.go-buttons-row {
+    display: flex;
+    gap: 15px;
+}
+
+/* เกณฑ์ความรู้สารพัน */
+.trivia-card {
+    max-width: 600px;
+    text-align: left;
+}
+
+.trivia-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding-bottom: 12px;
+}
+
+.trivia-header h2 {
+    font-family: var(--font-kanit);
+    font-size: 20px;
+    color: var(--color-primary);
+}
+
+.close-x {
+    background: transparent;
+    border: none;
+    color: #90a4ae;
+    font-size: 26px;
+    cursor: pointer;
+    outline: none;
+}
+
+.close-x:hover { color: white; }
+
+.trivia-body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-height: 55vh;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+.trivia-item {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+    padding: 12px 16px;
+}
+
+.ti-title {
+    font-family: var(--font-kanit);
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 4px;
+}
+
+.ti-desc {
+    font-size: 13px;
+    color: #b0bec5;
+    line-height: 1.5;
+}
+
+/* เลือกคทาแผง */
+.wand-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(4, 5, 8, 0.75);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 120;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.wand-card {
+    max-width: 440px;
+}
+
+.wand-selector-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.wand-item-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 12px 16px;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+}
+
+.wand-item-row:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: var(--color-primary);
+}
+
+.wand-item-row.active {
+    background: rgba(0, 229, 255, 0.06);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.15);
+}
+
+.wi-icon {
+    font-size: 28px;
+}
+
+.wi-info {
+    flex: 1;
+}
+
+.wi-name {
+    font-family: var(--font-kanit);
+    font-weight: 700;
+    font-size: 14px;
+    color: #ffffff;
+}
+
+.wi-desc {
+    font-size: 11px;
+    color: #b0bec5;
+    margin-top: 2px;
+    line-height: 1.4;
+}
+
+/* ป้ายข้อความลอย */
+#hud-toast {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(13, 16, 27, 0.9);
+    border: 1px solid var(--color-primary);
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.25);
+    color: white;
+    padding: 10px 24px;
+    border-radius: 30px;
+    font-family: var(--font-kanit);
+    font-weight: 600;
+    font-size: 14px;
+    z-index: 50;
+    animation: slideUp 0.3s ease-out;
+    pointer-events: none;
+}
+
+@keyframes slideUp {
+    0% { bottom: 10px; opacity: 0; }
+    100% { bottom: 40px; opacity: 1; }
+}
+
+/* ── Touch Controls (มือถือ/แท็บเล็ต) ── */
+#touchControls {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    pointer-events: none;
+    display: none;
+}
+
+#touchControls.show {
+    display: block;
+}
+
+.tc-base {
+    position: absolute;
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.05);
+    border: 2px solid rgba(255,255,255,.15);
+    display: none;
+    transform: translate(-50%, -50%);
+}
+
+.tc-base.active {
+    display: block;
+}
+
+.tc-thumb {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 60px;
+    height: 60px;
+    margin: -30px 0 0 -30px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.25);
+    border: 2px solid rgba(255,255,255,.4);
+}
+
+.tc-hint {
+    position: absolute;
+    bottom: 24px;
+    font-size: 13px;
+    font-weight: 700;
+    color: rgba(255,255,255,.35);
+    font-family: var(--font-kanit);
+    user-select: none;
+}
+
+.tc-hint.left { left: 40px; }
+.tc-hint.right { right: 40px; }
+
+/* ปรับปรุง Responsive สำหรับจอมือถือขนาดเล็ก */
+@media (max-width: 600px) {
+    .hud-bar {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .hud-center {
+        order: 3;
+        max-width: 100%;
+        width: 100%;
+        margin-top: 4px;
+    }
+    
+    .hud-left, .hud-right {
+        max-width: 48%;
+    }
+    
+    .hud-panel {
+        padding: 6px 10px;
+        min-width: 100px;
+    }
+    
+    .target-indicator, .angle-indicator {
+        min-width: 100%;
+    }
+    
+    .glass-card {
+        padding: 20px;
+        border-radius: 16px;
+    }
+    
+    .game-title {
+        font-size: 28px;
+    }
+}

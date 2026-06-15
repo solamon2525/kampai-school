@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="100%" height="100%">
+  <!-- ฉากหลังอวกาศ/ปราสาทมืดไล่เฉด -->
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="50%" r="75%">
+      <stop offset="0%" stop-color="#141a29"/>
+      <stop offset="60%" stop-color="#090a12"/>
+      <stop offset="100%" stop-color="#040508"/>
+    </radialGradient>
+    
+    <!-- เรืองแสงสีฟ้า (Cyan Neon Glow) -->
+    <filter id="glowCyan" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <!-- เรืองแสงสีชมพู (Pink Neon Glow) -->
+    <filter id="glowPink" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <!-- เรืองแสงสีเหลือง (Yellow Neon Glow) -->
+    <filter id="glowYellow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="5" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- 1. ภาพพื้นหลัง -->
+  <rect width="800" height="500" fill="url(#bgGlow)"/>
+
+  <!-- ลวดลายโครงสร้างกริดเรืองแสงจาง ๆ -->
+  <path d="M 0,100 L 800,100 M 0,200 L 800,200 M 0,300 L 800,300 M 0,400 L 800,400 M 100,0 L 100,500 M 200,0 L 200,500 M 300,0 L 300,500 M 400,0 L 400,500 M 500,0 L 500,500 M 600,0 L 600,500 M 700,0 L 700,500" stroke="#1d2238" stroke-width="1"/>
+
+  <!-- 2. ปราสาท/สิ่งกีดขวางบล็อกสะท้อนแสงสองฝั่ง -->
+  <rect x="50" y="50" width="80" height="80" rx="10" fill="#202435" stroke="#313954" stroke-width="3"/>
+  <rect x="50" y="370" width="80" height="80" rx="10" fill="#202435" stroke="#313954" stroke-width="3"/>
+  <rect x="670" y="50" width="80" height="80" rx="10" fill="#202435" stroke="#313954" stroke-width="3"/>
+  <rect x="670" y="370" width="80" height="80" rx="10" fill="#202435" stroke="#313954" stroke-width="3"/>
+
+  <!-- บล็อกกระจกสะท้อนแนวนอนนีออน (Cyan Mirror) -->
+  <rect x="250" y="50" width="300" height="20" rx="6" fill="#0d1f30" stroke="#00e5ff" stroke-width="2" filter="url(#glowCyan)" />
+  <line x1="250" y1="60" x2="550" y2="60" stroke="#ffffff" stroke-width="3" filter="url(#glowCyan)"/>
+
+  <!-- 3. วงกลมไม้โพรแทรกเตอร์ (Protractor Overlay) ในจุดศูนย์กลาง -->
+  <circle cx="400" cy="270" r="140" fill="none" stroke="rgba(255, 255, 255, 0.08)" stroke-width="3"/>
+  <circle cx="400" cy="270" r="140" fill="none" stroke="#00e5ff" stroke-width="2" stroke-dasharray="8 6" filter="url(#glowCyan)"/>
+  
+  <!-- ขีดสเกลหลักรอบวงกลมโพรแทรกเตอร์ -->
+  <!-- 0 องศา -->
+  <line x1="530" y1="270" x2="540" y2="270" stroke="#00e5ff" stroke-width="3" filter="url(#glowCyan)"/>
+  <text x="560" y="274" fill="#00e5ff" font-family="Kanit" font-size="12" font-weight="bold" text-anchor="middle">0°</text>
+  <!-- 90 องศา -->
+  <line x1="400" y1="130" x2="400" y2="140" stroke="#00e676" stroke-width="3" filter="url(#glowCyan)"/>
+  <text x="400" y="115" fill="#00e676" font-family="Kanit" font-size="12" font-weight="bold" text-anchor="middle">90°</text>
+  <!-- 180 องศา -->
+  <line x1="260" y1="270" x2="270" y2="270" stroke="#ff4081" stroke-width="3" filter="url(#glowPink)"/>
+  <text x="240" y="274" fill="#ff4081" font-family="Kanit" font-size="12" font-weight="bold" text-anchor="middle">180°</text>
+  <!-- 270 องศา -->
+  <line x1="400" y1="400" x2="400" y2="410" stroke="#ff9100" stroke-width="3" filter="url(#glowCyan)"/>
+  <text x="400" y="430" fill="#ff9100" font-family="Kanit" font-size="12" font-weight="bold" text-anchor="middle">270°</text>
+
+  <!-- 4. เส้นลำแสงเลเซอร์ชิ่งสะท้อน (Reflection Rays) -->
+  <!-- จุดเริ่มต้นยิงจากอัศวินที่เยื้องซ้ายเล็กน้อยชิ่งขึ้นบนและเด้งลงล่างเป็นมุมตกกระทบ = มุมสะท้อน -->
+  <path d="M 280,310 L 400,60 L 520,380 L 670,260" fill="none" stroke="#ffeb3b" stroke-width="5" filter="url(#glowYellow)" stroke-linejoin="round"/>
+  <path d="M 280,310 L 400,60 L 520,380 L 670,260" fill="none" stroke="#ffffff" stroke-width="2" stroke-linejoin="round"/>
+
+  <!-- ลูกบอลแสงเวทมนตร์กำลังเด้งสะท้อน -->
+  <circle cx="400" cy="60" r="10" fill="#ffffff" filter="url(#glowYellow)"/>
+  <circle cx="520" cy="380" r="10" fill="#ffffff" filter="url(#glowYellow)"/>
+
+  <!-- 5. รูปจำลองอัศวิน (Knight Shield) ตรงแกนกลาง -->
+  <g transform="translate(280, 310)">
+    <circle cx="0" cy="0" r="30" fill="#131722" stroke="#ffeb3b" stroke-width="4" filter="url(#glowYellow)"/>
+    <!-- โล่เกราะทองคทา -->
+    <path d="M -15,-10 L 15,-10 L 15,5 C 15,15 0,25 0,25 C 0,25 -15,15 -15,5 Z" fill="#ffeb3b" />
+    <path d="M -12,-7 L 12,-7 L 12,4 C 12,12 0,20 0,20 C 0,20 -12,12 -12,4 Z" fill="#131722" />
+    <circle cx="0" cy="0" r="6" fill="#00e5ff" filter="url(#glowCyan)"/>
+  </g>
+
+  <!-- 6. สัตว์ประหลาดเป้าหมายขวาบนที่แพ้ทางมุมสะท้อน -->
+  <g transform="translate(670, 260)">
+    <circle cx="0" cy="0" r="28" fill="#181a26" stroke="#ff4081" stroke-width="3" filter="url(#glowPink)"/>
+    <circle cx="0" cy="0" r="34" fill="none" stroke="#ffd54f" stroke-width="2" stroke-dasharray="6 4" />
+    <!-- ตาปีศาจเรืองแสง -->
+    <ellipse cx="-10" cy="-6" rx="5" ry="3" fill="#ff4081" />
+    <ellipse cx="10" cy="-6" rx="5" ry="3" fill="#ff4081" />
+    <path d="M -8,10 Q 0,15 8,10" fill="none" stroke="#ff4081" stroke-width="2"/>
+    <text x="0" y="-38" fill="#ffffff" font-family="Kanit" font-weight="bold" font-size="12" text-anchor="middle">135°</text>
+  </g>
+
+  <!-- 7. ข้อความชื่อเกม -->
+  <text x="400" y="245" font-family="Kanit" font-size="44" font-weight="900" letter-spacing="4" fill="#ffffff" text-anchor="middle" filter="drop-shadow(0px 4px 10px rgba(0,0,0,0.5))">ANGLE CASTLE</text>
+  <text x="400" y="295" font-family="Kanit" font-size="18" font-weight="bold" letter-spacing="8" fill="#90a4ae" text-anchor="middle">ศึกปราสาทมุมองศา</text>
+</svg>
