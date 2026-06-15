@@ -217,14 +217,20 @@ export const gameAchievementsService = {
 
 // ─── Find tracked game by slug (used by wrapper page) ────────────────────────
 export const trackedGamesService = {
-  getBySlug: (gameSlug: string) =>
-    supabase
+  getBySlug: (gameSlug: string) => {
+    let query = supabase
       .from('educational_hub_items')
       .select('id, title, external_url, subject, game_slug, tracked_game, thumbnail_url, bgm_preset, bgm_url')
-      .eq('game_slug', gameSlug)
       .eq('tracked_game', true)
-      .eq('is_published', true)
-      .maybeSingle(),
+      .eq('is_published', true);
+
+    if (gameSlug === 'math-rally') {
+      query = query.or('game_slug.eq.math-rally,game_slug.eq.multiply-rally');
+    } else {
+      query = query.eq('game_slug', gameSlug);
+    }
+    return query.maybeSingle();
+  },
 
   listTracked: () =>
     supabase

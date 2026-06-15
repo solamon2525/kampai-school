@@ -112,36 +112,38 @@ const PlayGame = () => {
     enabled: !!gameSlug,
   });
 
+  const resolvedSlug = gameQuery.data?.game_slug || gameSlug;
+
   // per-student stats (loaded once we have a student)
   const statsQuery = useQuery({
-    queryKey: ['game-stats', student?.id, gameSlug],
+    queryKey: ['game-stats', student?.id, resolvedSlug],
     queryFn: async () => {
       if (!student) return null;
-      const { data } = await gameStatsService.getForStudent(student.id, gameSlug);
+      const { data } = await gameStatsService.getForStudent(student.id, resolvedSlug);
       return data;
     },
-    enabled: !!student && !!gameSlug,
+    enabled: !!student && !!resolvedSlug,
   });
 
   // badge catalog
   const catalogQuery = useQuery({
-    queryKey: ['game-catalog', gameSlug],
+    queryKey: ['game-catalog', resolvedSlug],
     queryFn: async () => {
-      const { data } = await gameAchievementsService.getCatalog(gameSlug);
+      const { data } = await gameAchievementsService.getCatalog(resolvedSlug);
       return data ?? [];
     },
-    enabled: !!gameSlug,
+    enabled: !!resolvedSlug,
   });
 
   // unlocked badges for this student
   const unlockedQuery = useQuery({
-    queryKey: ['game-unlocked', student?.id, gameSlug],
+    queryKey: ['game-unlocked', student?.id, resolvedSlug],
     queryFn: async () => {
       if (!student) return [];
-      const { data } = await gameAchievementsService.getUnlocked(student.id, gameSlug);
+      const { data } = await gameAchievementsService.getUnlocked(student.id, resolvedSlug);
       return data ?? [];
     },
-    enabled: !!student && !!gameSlug,
+    enabled: !!student && !!resolvedSlug,
   });
 
   const unlockedIds = useMemo(() => {
@@ -161,11 +163,11 @@ const PlayGame = () => {
 
   // leaderboard for this game
   const leaderboardQuery = useQuery({
-    queryKey: ['game-leaderboard', gameSlug],
+    queryKey: ['game-leaderboard', resolvedSlug],
     queryFn: async () => {
-      return await gamePlayService.getLeaderboard(gameSlug, 10);
+      return await gamePlayService.getLeaderboard(resolvedSlug, 10);
     },
-    enabled: !!gameSlug,
+    enabled: !!resolvedSlug,
   });
 
   // classmates in same class
@@ -306,9 +308,10 @@ const PlayGame = () => {
       },
       '*',
     );
-  }, [student, codeInput, statsQuery.data, levelInfo.level, leaderboardQuery.data, classmatesQuery.data, gameQuery.data?.bgm_preset, gameQuery.data?.bgm_url, gameSlug, masteryQuery.data, dailyStatusQuery.data, dailyLeaderboardQuery.data]);
+  }, [student, codeInput, statsQuery.data, levelInfo.level, leaderboardQuery.data, classmatesQuery.data, gameQuery.data?.bgm_preset, gameQuery.data?.bgm_url, resolvedSlug, masteryQuery.data, dailyStatusQuery.data, dailyLeaderboardQuery.data]);
 
   // ─── auto-login จาก localStorage (ลดเวลากรอกรหัสเมื่อเปลี่ยนเกม) ────────
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const saved = localStorage.getItem('kampai_student_code');
     if (saved) {
@@ -351,7 +354,7 @@ const PlayGame = () => {
       try {
         const submitted = await gamePlayService.recordSession({
           studentCode: codeInput.trim(),
-          gameSlug,
+          gameSlug: resolvedSlug,
           score: data.score,
           mode: data.mode ?? null,
           durationSec:
@@ -431,7 +434,7 @@ const PlayGame = () => {
     };
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
-  }, [phase, student, codeInput, gameSlug, toast, statsQuery, unlockedQuery, leaderboardQuery, queryClient]);
+  }, [phase, student, codeInput, resolvedSlug, toast, statsQuery, unlockedQuery, leaderboardQuery, queryClient]);
 
   // ─── realtime relay: ห้องออนไลน์ของเกม (broadcast + presence) ──────────────
   // เกมใน iframe ไม่มี anon key → wrapper เปิด channel ให้ แล้วรีเลย์ผ่าน postMessage
@@ -458,7 +461,7 @@ const PlayGame = () => {
       if (d.type === 'rtJoin' && typeof d.room === 'string') {
         teardown(); // ออกจากห้องเก่าก่อน (ถ้ามี)
         const meta = { ...(d.meta ?? {}), id: student.id };
-        const channel = supabase.channel(`live:${gameSlug}:${d.room}`, {
+        const channel = supabase.channel(`live:${resolvedSlug}:${d.room}`, {
           config: { presence: { key: student.id }, broadcast: { self: false } },
         });
         channel
@@ -494,7 +497,7 @@ const PlayGame = () => {
       window.removeEventListener('message', relay);
       teardown();
     };
-  }, [phase, student, gameSlug]);
+  }, [phase, student, resolvedSlug]);
 
   const handlePlayAgain = useCallback(() => {
     setResult(null);
