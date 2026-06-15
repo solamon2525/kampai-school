@@ -56,9 +56,33 @@ if (CFG.ENABLE_ONLINE && window.KampaiMatch) {
         rankBy: 'score',                                   // อันดับตามระยะ/score ไม่ใช่จำนวนข้อถูก
         onPlay: (o) => startRace('online', o),             // GO! — rng โจทย์+ไอเทมตรงกันทุกเครื่อง
         onOpponent: onOpponentUpdate,                      // ระยะคู่แข่งสด → ขยับรถเลนบน
-        onEnd: () => { onlineEnded = true; locked = true; },
+        onEnd: () => { 
+            onlineEnded = true; 
+            locked = true; 
+            isGameOver = true;
+            cancelAnimationFrame(rafId);
+            KAMPAI.sound.stopSpeak();
+            KAMPAI.sound.bgmStop();
+        },
     });
     $('online-btn').style.display = '';
+
+    // Monkey-patch close button to reset state when leaving online lobby
+    const closeBtn = document.querySelector('.km-close');
+    if (closeBtn) {
+        const originalClick = closeBtn.onclick;
+        closeBtn.onclick = function (e) {
+            if (originalClick) originalClick.call(this, e);
+            if (raceDone || isGameOver || started) {
+                started = false;
+                isGameOver = false;
+                raceDone = false;
+                $('blocker').style.display = 'flex';
+                KAMPAI.sound.bgmStop();
+                cancelAnimationFrame(rafId);
+            }
+        };
+    }
 }
 function openOnline() { KAMPAI.sound.unlock(); if (match) match.openMenu(); }
 
@@ -72,6 +96,9 @@ let player, rival, items = [];
 let curA = 0, curB = 0, curAns = 0, curOpts = [], qShownAt = 0, locked = false;
 let qrand = Math.random;
 let cpuNextAt = 0, raceEndAt = 0, rafId = 0, lastTs = 0;
+let starTimeoutId = null;
+let turtleTimeoutId = null;
+let wrongTimeoutId = null;
 
 function comboMult() { return Math.min(CFG.COMBO_MAX_MULT, 1 + Math.floor(streak / CFG.COMBO_STEP) * 0.5); }
 
@@ -242,7 +269,8 @@ function answer(i) {
             player.lockUntil = now + CFG.WRONG_LOCK_MS;
             const car = $('player-car');
             car.classList.add('smoke', 'slowed');
-            setTimeout(() => car.classList.remove('smoke', 'slowed'), CFG.WRONG_LOCK_MS);
+            clearTimeout(wrongTimeoutId);
+            wrongTimeoutId = setTimeout(() => car.classList.remove('smoke', 'slowed'), CFG.WRONG_LOCK_MS);
             setTimeout(nextQuestion, CFG.WRONG_LOCK_MS);
         }
     }
@@ -293,11 +321,13 @@ function collectItem(it) {
         player.shield = true; $('player-car').classList.add('has-shield');
     } else if (it.type === 'star') {
         player.starUntil = now + CFG.STAR_MS; $('player-car').classList.add('has-star');
-        setTimeout(() => $('player-car').classList.remove('has-star'), CFG.STAR_MS);
+        clearTimeout(starTimeoutId);
+        starTimeoutId = setTimeout(() => $('player-car').classList.remove('has-star'), CFG.STAR_MS);
     } else if (it.type === 'turtle') {
         rival.slowUntil = now + CFG.TURTLE_MS;
         $('rival-car').classList.add('slowed');
-        setTimeout(() => $('rival-car').classList.remove('slowed'), CFG.TURTLE_MS);
+        clearTimeout(turtleTimeoutId);
+        turtleTimeoutId = setTimeout(() => $('rival-car').classList.remove('slowed'), CFG.TURTLE_MS);
     }
 }
 
@@ -331,6 +361,9 @@ function startCpu(diff) {
 }
 function startRace(m, opts) {
     if (started && m !== 'online') return;
+    clearTimeout(starTimeoutId);
+    clearTimeout(turtleTimeoutId);
+    clearTimeout(wrongTimeoutId);
     mode = m;
     isSpectator = !!(opts && opts.role === 'spectator');
     qrand = (opts && opts.rng) ? opts.rng : Math.random;
@@ -523,6 +556,7 @@ document.querySelectorAll('.ans').forEach((b) => {
     b.addEventListener('click', () => answer(Number(b.dataset.i)));
 });
 window.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
     const map = { ArrowUp: 0, ArrowLeft: 1, ArrowRight: 2, ArrowDown: 3, '1': 0, '2': 1, '3': 2, '4': 3 };
     if (!(e.key in map)) return;
     e.preventDefault();
