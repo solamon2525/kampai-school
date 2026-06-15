@@ -420,31 +420,35 @@ function pollGamepadInputs() {
       prevGamepadState[p][act] = isPressed;
 
       if (isPressed && !wasPressed) {
-        if (mode === 'local_2p') {
-          if (p === 'p1') {
-            if (act === 'up') {
-              const dir = (p1ConfusedTime > 0) ? 1 : -1;
-              targetP1Lane = Math.max(0, Math.min(3, targetP1Lane + dir));
-            } else if (act === 'down') {
-              const dir = (p1ConfusedTime > 0) ? -1 : 1;
-              targetP1Lane = Math.max(0, Math.min(3, targetP1Lane + dir));
+        // จำกัดการสลับเลนตรงนี้เฉพาะจอยเกม (Gamepad) เพื่อป้องกันการทริกเกอร์ซ้ำซ้อนกับคีย์บอร์ดใน keydown
+        const bind = controlBindings[p][act];
+        if (bind && bind.type === 'gamepad') {
+          if (mode === 'local_2p') {
+            if (p === 'p1') {
+              if (act === 'up') {
+                const dir = (p1ConfusedTime > 0) ? 1 : -1;
+                targetP1Lane = Math.max(0, Math.min(3, targetP1Lane + dir));
+              } else if (act === 'down') {
+                const dir = (p1ConfusedTime > 0) ? -1 : 1;
+                targetP1Lane = Math.max(0, Math.min(3, targetP1Lane + dir));
+              }
+            } else {
+              if (act === 'up') {
+                const dir = (p2ConfusedTime > 0) ? 1 : -1;
+                targetP2Lane = Math.max(0, Math.min(3, targetP2Lane + dir));
+              } else if (act === 'down') {
+                const dir = (p2ConfusedTime > 0) ? -1 : 1;
+                targetP2Lane = Math.max(0, Math.min(3, targetP2Lane + dir));
+              }
             }
           } else {
             if (act === 'up') {
-              const dir = (p2ConfusedTime > 0) ? 1 : -1;
-              targetP2Lane = Math.max(0, Math.min(3, targetP2Lane + dir));
+              const dir = (p1ConfusedTime > 0) ? 1 : -1;
+              targetPlayerLane = Math.max(0, Math.min(3, targetPlayerLane + dir));
             } else if (act === 'down') {
-              const dir = (p2ConfusedTime > 0) ? -1 : 1;
-              targetP2Lane = Math.max(0, Math.min(3, targetP2Lane + dir));
+              const dir = (p1ConfusedTime > 0) ? -1 : 1;
+              targetPlayerLane = Math.max(0, Math.min(3, targetPlayerLane + dir));
             }
-          }
-        } else {
-          if (act === 'up') {
-            const dir = (p1ConfusedTime > 0) ? 1 : -1;
-            targetPlayerLane = Math.max(0, Math.min(3, targetPlayerLane + dir));
-          } else if (act === 'down') {
-            const dir = (p1ConfusedTime > 0) ? -1 : 1;
-            targetPlayerLane = Math.max(0, Math.min(3, targetPlayerLane + dir));
           }
         }
       }
@@ -456,6 +460,9 @@ function pollGamepadInputs() {
 window.addEventListener('keydown', e => {
   keysPressed[e.key] = true;
   keysPressed[e.key.toLowerCase()] = true;
+
+  // ป้องกันการทริกเกอร์ซ้ำเมื่อกดปุ่มค้างไว้ (Key Repeat) เพื่อให้ขยับทีละ 1 เลนเท่านั้นต่อการกด
+  if (e.repeat) return;
 
   if (mappingState.active) {
     e.preventDefault();
