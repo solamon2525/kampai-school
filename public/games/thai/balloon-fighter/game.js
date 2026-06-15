@@ -525,7 +525,7 @@ class Boss {
   
   spawnOptions(q) {
     curQ = q; this.options = [];
-    const w = 240, sp = w / 4;
+    const w = 300, sp = w / 4;
     q.options.forEach((opt, i) => {
       ctx.font = 'bold 14px sans-serif';
       const br = Math.max(22, ctx.measureText(opt.r).width / 2 + 8);
@@ -558,7 +558,7 @@ class Boss {
           addFText(this.x, this.y, `💥 บอสโดนโจมตี! (เหลือ ${this.hp})`, '#ffcc00');
           
           if (window.KAMPAI && window.KAMPAI.sound) {
-            window.KAMPAI.sound.speak(o.opt.r, 'th-TH', true);
+            window.KAMPAI.sound.speak(o.opt.r, cat === 'eng' ? 'en-US' : 'th-TH', true);
           }
           
           if (this.hp > 0) {
@@ -579,7 +579,7 @@ class Boss {
             setTimeout(() => { level++; spawnMonsters(newQ()); spawnHazards(); }, 2000);
           }
         } else {
-          sfxWrong(); addFText(o.bx, o.by, '✗ ผิด! -1♥', '#ff6b6b'); playerTakeDamage(p, '', '#ff6b6b');
+          sfxWrong(); addFText(o.bx, o.by, '✗ ผิด! -1♥', '#ff6b6b'); playerHit(p, '', '#ff6b6b');
         }
       }
     });
@@ -1051,49 +1051,16 @@ function addFText(x, y, txt, col) { ftexts.push({ x, y, txt, col, vy: -2, life: 
 
 function start() {
   monsters = []; parts = []; ftexts = []; score = [0, 0]; lives = [3, 3]; level = 1; used = []; items = []; spikes = []; clouds = []; lightnings = []; boss = null;
+  itemTimer = 360; screenFlashA = 0;
+  if (gMode !== 'online') onlineRng = null;
   curVocab = VOCAB[cat];
   players = [new Player(0, cv.width * .3)]; if (pCount === 2) players.push(new Player(1, cv.width * .7));
   spawnMonsters(newQ()); spawnHazards(); setGs('playing');
 }
 
-function playerHit(p, msg) {
+function playerHit(p, msg, col) {
   if (p.inv > 0 || p.eff.sh > 0) return;
   sfxZap();
-  if (gMode === 'online') {
-    score[p.id] = Math.max(0, score[p.id] - 150);
-    if (msg) addFText(p.x, p.y, msg, '#f44');
-    addFText(p.x, p.y - 20, '-150', '#f44');
-    if (match) match.report(score[p.id], { correct: level - 1 });
-    lives[p.id] = 3; p.x = cv.width / 2; p.y = 50; p.inv = 120; p.vx = 0; p.vy = 0;
-    return;
-  }
-  lives[p.id]--; p.inv = 100;
-  if (msg) addFText(p.x, p.y, msg, '#f44');
-  
-  if ((pCount === 1 && lives[0] <= 0) || (pCount === 2 && lives[0] <= 0 && lives[1] <= 0)) {
-    saved.coins += Math.floor((score[0] + score[1]) / 10);
-    const finalScore = Math.max(score[0], score[1]);
-    if (finalScore > saved.hs) saved.hs = finalScore;
-    saveData();
-    
-    sfxGameover();
-    
-    // ส่งแต้มเข้าระบบโรงเรียน
-    if (window.KAMPAI) {
-      window.KAMPAI.submitScore(finalScore, {
-        mode: 'normal',
-        allowResubmit: true,
-        level_reached: level,
-        is_success: false
-      });
-    }
-    
-    setTimeout(() => setGs('gameover'), 3000);
-  }
-}
-
-function playerTakeDamage(p, msg, col) {
-  if (p.inv > 0 || p.eff.sh > 0) return;
   if (gMode === 'online') {
     score[p.id] = Math.max(0, score[p.id] - 150);
     if (msg) addFText(p.x, p.y, msg, col || '#f44');
@@ -1103,24 +1070,26 @@ function playerTakeDamage(p, msg, col) {
     return;
   }
   lives[p.id]--; p.inv = 100;
-  if (msg) addFText(p.x, p.y, msg, col);
-  
+  if (msg) addFText(p.x, p.y, msg, col || '#f44');
+
   if ((pCount === 1 && lives[0] <= 0) || (pCount === 2 && lives[0] <= 0 && lives[1] <= 0)) {
     saved.coins += Math.floor((score[0] + score[1]) / 10);
     const finalScore = Math.max(score[0], score[1]);
     if (finalScore > saved.hs) saved.hs = finalScore;
     saveData();
-    
+
     sfxGameover();
-    
-    if (window.parent && window.KAMPAI) {
-      window.parent.window.KAMPAI.submitScore(finalScore, {
+
+    // ส่งแต้มเข้าระบบโรงเรียน
+    if (window.KAMPAI) {
+      window.KAMPAI.submitScore(finalScore, {
         mode: 'normal',
         allowResubmit: true,
         level_reached: level,
         is_success: false
       });
     }
+
     setTimeout(() => setGs('gameover'), 3000);
   }
 }
@@ -1291,7 +1260,7 @@ function loop() {
                 
                 // ออกเสียงสะกดคำผ่าน TTS SDK
                 if (window.KAMPAI && window.KAMPAI.sound) {
-                  window.KAMPAI.sound.speak(m.opt.r, 'th-TH', true);
+                  window.KAMPAI.sound.speak(m.opt.r, cat === 'eng' ? 'en-US' : 'th-TH', true);
                 }
                 
                 // ทำให้มอนสเตอร์ตัวอื่น ๆ หายไปทันทีเพื่อความปลอดภัยของผู้เล่นขณะฟังเสียงอ่านคำศัพท์

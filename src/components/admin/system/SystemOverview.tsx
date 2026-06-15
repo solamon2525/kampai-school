@@ -272,8 +272,20 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.85.0 (Educational Hub — ย่อบล็อก "อันดับ & เหรียญ" เป็นแถบสรุป+แท็บกดขยาย)',
+        version: 'v1.86.0 (คณิตคิดเร็วตกใส่ตะกร้า — เกมใหม่ Math Catcher)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'สร้างเกมคณิตคิดเร็วตกใส่ตะกร้า (Math Catcher) ในรูปแบบ 5 ไฟล์ (index.html, style.css, config.js, data.js, game.js) บนระบบ HTML5 Canvas และฟิสิกส์หล่นลงตะกร้า',
+            'เพิ่มระบบไอเทมพิเศษพรีเมียมช่วยเหลือผู้เล่น: แช่แข็งสโลว์ (Freeze ❄️), โล่กันพลาด (Shield 🛡️), แม่เหล็กดูดเลขถูก (Magnet 🧲), และโหมดคะแนนดับเบิล (Fever ✨)',
+            'ใช้ระบบเสียงสังเคราะห์คำพูด TTS อ่านออกเสียงโจทย์ภาษาไทยอัตโนมัติผ่าน KAMPAI.sound.speak เพื่อช่วยทักษะการฟังของเด็กๆ',
+            'รองรับการแข่งออนไลน์แบบเรียลไทม์โดยซิงโครไนซ์โจทย์และตำแหน่งสิ่งของตกด้วย Seeded RNG (RNG เฉพาะห้อง) ผ่าน KampaiMatch ทำให้แข่งได้อย่างยุติธรรม',
+            'สร้าง Migration 188_seed_math_catcher_game.sql สำหรับผูกเกมเข้าระบบ Educational Hub ของครูณัฐพงศ์ สิงห์ชมภู พร้อม upsert ตาราง game_docs (รูปแบบ/เวอร์ชัน/ฟีเจอร์)',
+        ],
+    },
+    {
+        version: 'v1.85.0 (Educational Hub — ย่อบล็อก "อันดับ & เหรียญ" เป็นแถบสรุป+แท็บกดขยาย)',
+        date: '',
         badge: 'bg-emerald-600',
         items: [
             'รวม 3 การ์ด (DailyQuestPanel + GameRankings + HonorWall) ที่เคยซ้อนแนวตั้งกินพื้นที่ ~1,000px → GamificationHub การ์ดเดียว: แถบสรุปย่อ 1 แถว (LV ring + ชื่อ + XP bar + chips 🎮/🏅/🔥/🎯) สูงเหลือ ~143px (เดสก์ท็อป) / ~188px (มือถือ)',

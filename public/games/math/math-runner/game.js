@@ -147,6 +147,8 @@ let p2X = 0;
 let p1Question = null, p2Question = null;
 let p1Blocks = [], p2Blocks = [];
 let p1Combo = 0, p2Combo = 0;
+// โหมด 2 คน: ธงว่าผู้เล่นแต่ละคนตอบโจทย์ปัจจุบันไปแล้วหรือยัง (แยกกันเพื่อไม่ให้คนหนึ่งล็อกอีกคน)
+let p1Answered = false, p2Answered = false;
 
 // อิลลัสเตเตอร์/ฉากหลังเคลื่อนไหว
 let bgOffset = 0;
@@ -199,7 +201,10 @@ function generateNewQuestion(playerIndex = 1) {
   activeQuestion = q;
   floatBlocks = spawnBlocksForQuestion(q);
   spawnMonstersAndItemsForQuestion(1, q);
-  
+  // โจทย์ใหม่ = เปิดให้ผู้เล่นทั้งสองตอบได้อีกครั้ง (โหมด 2 คน)
+  p1Answered = false;
+  p2Answered = false;
+
   const bar = $('math-problem-bar');
   if (bar) {
     bar.innerText = q.displayStr;
@@ -1990,18 +1995,18 @@ function loop() {
       const by = getLanesY(b.lane);
       drawQuestionBlock(ctx, b.x, by, b.value, b.isCorrect, b.isChosen, b.hitResolved);
 
-      // ชนสำหรับ P1
-      if (!b.hitResolved && b.x <= p1X + 25 && b.x >= p1X - 25) {
+      // ชนสำหรับ P1 (ใช้ธง p1Answered แยกผู้เล่น — การตอบของ P1 ไม่ล็อก P2)
+      if (!p1Answered && b.x <= p1X + 25 && b.x >= p1X - 25) {
         if (p1Lane === b.lane) {
-          b.hitResolved = true;
+          p1Answered = true;
           b.isChosen = true;
           resolveHit(1, b.isCorrect, b.x, by);
         }
       }
       // ชนสำหรับ P2
-      if (!b.hitResolved && b.x <= p2X + 25 && b.x >= p2X - 25) {
+      if (!p2Answered && b.x <= p2X + 25 && b.x >= p2X - 25) {
         if (p2Lane === b.lane) {
-          b.hitResolved = true;
+          p2Answered = true;
           b.isChosen = true;
           resolveHit(2, b.isCorrect, b.x, by);
         }
@@ -2393,9 +2398,12 @@ function loop() {
 function resolveHit(playerIndex, isCorrect, x, y) {
   const isInvincible = playerIndex === 2 ? (p2InvincibleTime > 0) : (p1InvincibleTime > 0);
 
-  // ทำเครื่องหมายว่าคำถามได้รับการแก้ไขแล้วสำหรับทุกบล็อก เพื่อป้องกันการชนซ้ำและให้เลือกรองอื่นจางลงทันที
-  for (let i = 0; i < floatBlocks.length; i++) {
-    floatBlocks[i].hitResolved = true;
+  // โหมดเดี่ยว/ออนไลน์: ตอบได้ครั้งเดียวต่อข้อ → มาร์กทุกบล็อกว่า resolved + ให้ตัวเลือกอื่นจางลงทันที
+  // โหมด 2 คน: ใช้ธง p1Answered/p2Answered แยกผู้เล่นแทน (มาร์กตรงนี้จะล็อกอีกฝ่ายออกจากโจทย์เดียวกัน)
+  if (mode !== 'local_2p') {
+    for (let i = 0; i < floatBlocks.length; i++) {
+      floatBlocks[i].hitResolved = true;
+    }
   }
 
   if (isCorrect) {
@@ -2756,6 +2764,7 @@ function launchLocalTwoPlayer() {
   p2Score = 0;
   p1Combo = 0;
   p2Combo = 0;
+  correctAnswersCount = 0;
   p1Lane = 1;
   targetP1Lane = 1;
   p1X = cw * 0.2;
@@ -2810,6 +2819,8 @@ function launchLocalTwoPlayer() {
   gameTimeLeft = CFG.TIME_SECONDS;
   if (timerIntervalId) clearInterval(timerIntervalId);
   timerIntervalId = setInterval(() => {
+    // หยุดนับเวลาขณะแท็บถูกซ่อน (สอดคล้องกับ rAF ที่ถูกพัก)
+    if (document.hidden) return;
     gameTimeLeft--;
     if (gameTimeLeft <= 0) {
       endGame();
@@ -2916,6 +2927,8 @@ function startGame(onlineMode, opts) {
 }
 
 function tickTimer() {
+  // หยุดนับเวลาขณะแท็บถูกซ่อน (rAF ถูก browser พักอยู่แล้ว — ให้นาฬิกาหยุดตามเพื่อไม่ให้เวลาหายตอนเล่นไม่ได้)
+  if (document.hidden) return;
   gameTimeLeft--;
   $('timer-value').innerText = gameTimeLeft;
   if (gameTimeLeft <= 0) {
@@ -3000,97 +3013,6 @@ function restartGame() {
   } else {
     location.reload();
   }
-}
-
-function resetGame() {
-  if (window.KAMPAI) {
-    window.KAMPAI._submitted = false;
-  }
-  if (window.parent && typeof window.parent.postMessage === 'function') {
-    window.parent.postMessage({ type: 'gameStart' }, '*');
-  }
-
-  $('gameover-screen').classList.add('hidden');
-  $('hud-container').style.display = 'none';
-  $('blocker').style.display = 'flex';
-  $('combo-badge').classList.add('hidden');
-  
-  const chip2 = $('player-chip-p2');
-  if (chip2) {
-    chip2.style.display = 'none';
-  }
-  p2Student = { displayName: 'ผู้เล่น 2', photoUrl: null, isGuest: true };
-  
-  started = false;
-  isGameOver = false;
-  ctx.clearRect(0, 0, cw, ch);
-  renderLeaderboard('score-list');
-  
-  if (timerIntervalId) {
-    clearInterval(timerIntervalId);
-    timerIntervalId = null;
-  }
-  if (animationFrameId) {
-    cancelAnimationFrame(animationFrameId);
-    animationFrameId = null;
-  }
-  
-  score = 0;
-  p1Score = 0;
-  p2Score = 0;
-  combo = 0;
-  p1Combo = 0;
-  p2Combo = 0;
-  correctAnswersCount = 0;
-  lives = CFG.LIVES;
-  level = 1;
-  p1SpeedStep = 0;
-  p1BlockSpeed = CFG.BLOCK_START_SPEED;
-  p1CorrectAnswersCount = 0;
-  p2SpeedStep = 0;
-  p2BlockSpeed = CFG.BLOCK_START_SPEED;
-  p2CorrectAnswersCount = 0;
-  playerX = cw * 0.2;
-  p1X = cw * 0.2;
-  p2X = cw * 0.2;
-  
-  activeMonsters = [];
-  activeItems = [];
-  p1Monsters = [];
-  p2Monsters = [];
-  p1Items = [];
-  p2Items = [];
-  floatBlocks = [];
-  p1Blocks = [];
-  p2Blocks = [];
-  coinParticles = [];
-  floatingTexts = [];
-  
-  p1InvincibleTime = 0; p1SlowTime = 0; p1ConfusedTime = 0; p1IsGiant = false;
-  p2InvincibleTime = 0; p2SlowTime = 0; p2ConfusedTime = 0; p2IsGiant = false;
-  p1HasShield = false;
-  p2HasShield = false;
-  playerTrail = [];
-  p1Trail = [];
-  p2Trail = [];
-  lastPlayerLane = 1;
-  lastP1Lane = 1;
-  lastP2Lane = 1;
-  
-  playerLane = 1;
-  targetPlayerLane = 1;
-  p1Lane = 1;
-  targetP1Lane = 1;
-  p2Lane = 1;
-  targetP2Lane = 1;
-  
-  bgOffset = 0;
-  p1BgOffset = 0;
-  p2BgOffset = 0;
-  
-  redFlashAlpha = 0;
-  p1RedFlash = 0;
-  p2RedFlash = 0;
 }
 
 // ตรวจสอบสมการ
