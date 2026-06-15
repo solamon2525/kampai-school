@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Bio-Defense — ศึกภูมิคุ้มกันร่างกาย</title>
+<!--
+═══════════════════════════════════════════════════════════════════════════
+  KAMPAI-SCHOOL · BIO-DEFENSE (TOWER DEFENSE)
+  index.html (โครง) · style.css (หน้าตา) · config.js (พารามิเตอร์) ·
+  data.js (เนื้อหา) · game.js (ลอจิก)
+═══════════════════════════════════════════════════════════════════════════
+-->
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- HUD Top -->
+<div id="score-container">⭐ <span id="score-value">0</span></div>
+<div id="energy-container">🔋 <span id="energy-value">150</span></div>
+<div id="life-container">❤️ <span id="life-value">20</span>/20</div>
+<div id="wave-badge">เวฟ 1/5</div>
+<div id="player-chip"></div>
+<div id="toast"></div>
+
+<!-- Sidebar Control Panel (Right Side) -->
+<div id="control-panel">
+    <h2>🧬 เมนูป้องกัน</h2>
+    
+    <div class="panel-section">
+        <h3>🛡️ เลือกเม็ดเลือดขาว</h3>
+        <div class="tower-selectors">
+            <!-- Neutrophil selector -->
+            <div class="tower-card selected" id="sel-neutrophil" onclick="selectTowerType('neutrophil')">
+                <div class="tc-icon">🛡️</div>
+                <div class="tc-info">
+                    <div class="tc-name">นิวโทรฟิล</div>
+                    <div class="tc-desc">ยิงไว โจมตีเป้าหมายเดี่ยว</div>
+                    <div class="tc-cost">🔋 50</div>
+                </div>
+            </div>
+            
+            <!-- Macrophage selector -->
+            <div class="tower-card" id="sel-macrophage" onclick="selectTowerType('macrophage')">
+                <div class="tc-icon">🌀</div>
+                <div class="tc-info">
+                    <div class="tc-name">แมคโครฟาจ</div>
+                    <div class="tc-desc">กลืนกินรอบตัว รัศมีแคบแต่แรง</div>
+                    <div class="tc-cost">🔋 100</div>
+                </div>
+            </div>
+            
+            <!-- B-Cell selector -->
+            <div class="tower-card" id="sel-bcell" onclick="selectTowerType('bcell')">
+                <div class="tc-icon">🧬</div>
+                <div class="tc-info">
+                    <div class="tc-name">บีเซลล์</div>
+                    <div class="tc-desc">ยิงแอนติบอดี สโลว์ความเร็ว 40%</div>
+                    <div class="tc-cost">🔋 150</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="panel-section">
+        <h3>⚡ ท่าไม้ตาย</h3>
+        <button class="btn-action" id="ultimate-btn" onclick="triggerUltimateSkill()">
+            <span class="act-icon">💊</span>
+            <span class="act-label">ระเบิดยาปฏิชีวนะ</span>
+            <span class="act-cooldown" id="ult-cooldown-text">พร้อมใช้งาน</span>
+        </button>
+    </div>
+
+    <div class="panel-section">
+        <h3>❓ ภารกิจวิชาการ</h3>
+        <button class="btn-action btn-pulse" id="trivia-btn" onclick="openTriviaModal()">
+            <span class="act-icon">🧠</span>
+            <span class="act-label">ตอบคำถามรับพลังงาน</span>
+            <span class="act-reward">+🔋 50</span>
+        </button>
+    </div>
+    
+    <div class="panel-bottom">
+        <button class="btn btn-green w-full" id="wave-btn" onclick="startNextWave()">⚔️ เริ่มเวฟถัดไป</button>
+    </div>
+</div>
+
+<!-- Main Game Canvas Area -->
+<div id="canvas-container">
+    <canvas id="game-canvas"></canvas>
+    <!-- Notification Overlay for Wave Ready -->
+    <div id="wave-notice" class="hidden">เวฟถัดไปพร้อมแล้ว!</div>
+</div>
+
+<!-- Trivia Question Modal overlay -->
+<div id="trivia-overlay" class="modal-overlay">
+    <div class="modal-card">
+        <div class="modal-header">
+            <span class="mh-icon">🧠</span>
+            <h2>ควิซสุขศึกษาชิงพลังงาน</h2>
+        </div>
+        <div class="modal-body">
+            <p id="trivia-question">คำถามกำลังโหลด...</p>
+            <div class="trivia-options" id="trivia-options-box">
+                <!-- Buttons injected dynamically -->
+            </div>
+        </div>
+        <div class="modal-footer" id="trivia-feedback">
+            ตอบคำถามเพื่อรับพลังงาน 🔋 50 ไปสร้างป้อมเพิ่ม!
+        </div>
+    </div>
+</div>
+
+<!-- Tower Upgrade / Sell Circular UI Overlay (Positioned dynamically in game.js) -->
+<div id="tower-action-menu" class="hidden">
+    <div class="tam-option tam-upgrade" onclick="upgradeSelectedTower()">
+        <span class="tamo-icon">⚡</span>
+        <span class="tamo-label">อัปเกรด</span>
+        <span class="tamo-cost" id="tam-upgrade-cost">🔋 60</span>
+    </div>
+    <div class="tam-option tam-sell" onclick="sellSelectedTower()">
+        <span class="tamo-icon">💰</span>
+        <span class="tamo-label">ขาย</span>
+        <span class="tamo-refund" id="tam-sell-refund">🔋 30</span>
+    </div>
+    <div class="tam-close" onclick="closeTowerActionMenu()">❌</div>
+</div>
+
+<!-- Start screen -->
+<div id="blocker">
+    <h1>🛡️ Bio-Defense: ศึกภูมิคุ้มกันร่างกาย</h1>
+    <p>วางป้อม <b>"เซลล์เม็ดเลือดขาว"</b> ตามแนวกายวิภาคเพื่อทำลายเชื้อโรคที่บุกรุกเข้าสู่ร่างกาย!<br>
+    ตอบคำถามสุขศึกษาเพื่อรับพลังงาน 🔋 มาสร้างป้อมเพิ่ม หรือใช้ท่าไม้ตาย 💊 ระเบิดยาปฏิชีวนะเพื่อกวาดล้างเชื้อโรคในวิกฤต!</p>
+    
+    <div id="my-stats">
+        <div class="ms-cell"><div class="ms-val" id="ms-best">0</div><div class="ms-label">คะแนนสูงสุด</div></div>
+        <div class="ms-cell"><div class="ms-val" id="ms-plays">0</div><div class="ms-label">เล่นไปแล้ว (ครั้ง)</div></div>
+    </div>
+    
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+    </div>
+    
+    <div class="mode-row">
+        <button class="btn btn-primary" onclick="startGame('adventure')">🗺️ ผจญภัย (5 เวฟ)</button>
+        <button class="btn btn-blue" onclick="startGame('time')">⏱️ โหมดแข่งเวลาเอาชีวิตรอด</button>
+        <button class="btn btn-ghost" id="online-btn" onclick="openOnline()" style="display:none">🌐 ออนไลน์</button>
+    </div>
+</div>
+
+<!-- Game Over screen -->
+<div id="gameover-screen">
+    <h1>จบเกม!</h1>
+    <div id="go-stars">☆☆☆</div>
+    <div id="final-score">0</div>
+    <p id="go-summary"></p>
+    
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+    
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
+        <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นใหม่</button>
+        <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+    </div>
+</div>
+
+<!-- ═══ KAMPAI SDK + Online framework (single source — อย่าแก้) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+/* fallback stub */
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+</script>
+<script src="/games/kampai-match.js"></script>
+<script>
+/* fallback stub สำหรับออนไลน์ */
+window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){alert('โหมดออนไลน์เล่นผ่านระบบเท่านั้น');},report:function(){},finish:function(){},leave:function(){}};} };
+</script>
+
+<!-- ═══ เกม (config → data → game) ═══ -->
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
