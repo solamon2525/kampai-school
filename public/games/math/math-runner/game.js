@@ -503,26 +503,41 @@ window.addEventListener('keyup', e => {
 function handleTouchInput(e) {
   if (!started || isGameOver) return;
   
-  // รีเซ็ตค่าทิศทางการเคลื่อนสัมผัสก่อน เพื่อคำนวณใหม่จากทุกนิ้วที่สัมผัสอยู่
+  // 1. คำนวณความเร็วเคลื่อนที่แนวนอน (แกน X) จากทุกนิ้วที่สัมผัสค้างอยู่
   touchMoveDirX = 0;
   p1TouchMoveDirX = 0;
   p2TouchMoveDirX = 0;
 
-  const isNewTouch = (e.type === 'touchstart');
-
   for (let i = 0; i < e.touches.length; i++) {
     const touch = e.touches[i];
     const tx = touch.clientX;
-    const ty = touch.clientY;
 
     if (mode === 'local_2p') {
       if (tx < cw / 2) {
-        // ฝั่ง P1 (ซ้าย)
         if (tx > p1X + 25) p1TouchMoveDirX = 1;
         else if (tx < p1X - 25) p1TouchMoveDirX = -1;
-        
-        // สลับเลนในแนวตั้ง (สัมผัสบริเวณบน/ล่างของฝั่งตัวเอง เพื่อขยับขึ้น/ลง ทีละเลน)
-        if (isNewTouch) {
+      } else {
+        if (tx > p2X + 25) p2TouchMoveDirX = 1;
+        else if (tx < p2X - 25) p2TouchMoveDirX = -1;
+      }
+    } else {
+      if (tx > playerX + 35) touchMoveDirX = 1;
+      else if (tx < playerX - 35) touchMoveDirX = -1;
+    }
+  }
+
+  // 2. การเปลี่ยนเลนในแนวตั้ง
+  if (mode === 'local_2p') {
+    // ในโหมด 2 คน: ให้ขยับทีละ 1 ช่องเฉพาะเมื่อเริ่มจิ้มสัมผัสพิกัดใหม่ (touchstart) 
+    // โดยใช้ e.changedTouches เพื่อป้องกันบั๊กการกดครั้งเดียวจั้มข้ามช่องเมื่อมีนิ้วของอีกผู้เล่นสัมผัสค้างอยู่
+    if (e.type === 'touchstart' && e.changedTouches) {
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        const touch = e.changedTouches[i];
+        const tx = touch.clientX;
+        const ty = touch.clientY;
+
+        if (tx < cw / 2) {
+          // P1 ขยับเลน
           if (ty < ch / 2) {
             const dir = (p1ConfusedTime > 0) ? 1 : -1;
             targetP1Lane = Math.max(0, Math.min(3, targetP1Lane + dir));
@@ -530,14 +545,8 @@ function handleTouchInput(e) {
             const dir = (p1ConfusedTime > 0) ? -1 : 1;
             targetP1Lane = Math.max(0, Math.min(3, targetP1Lane + dir));
           }
-        }
-      } else {
-        // ฝั่ง P2 (ขวา)
-        if (tx > p2X + 25) p2TouchMoveDirX = 1;
-        else if (tx < p2X - 25) p2TouchMoveDirX = -1;
-        
-        // สลับเลนในแนวตั้งสำหรับ P2
-        if (isNewTouch) {
+        } else {
+          // P2 ขยับเลน
           if (ty < ch / 2) {
             const dir = (p2ConfusedTime > 0) ? 1 : -1;
             targetP2Lane = Math.max(0, Math.min(3, targetP2Lane + dir));
@@ -547,10 +556,12 @@ function handleTouchInput(e) {
           }
         }
       }
-    } else {
-      // โหมดผู้เล่นคนเดียว (เต็มจอ) - แบ่งจอตามแนวตั้งเป็น 4 ส่วนเพื่อสลับเลนแบบสัมบูรณ์ (Absolute)
-      if (tx > playerX + 35) touchMoveDirX = 1;
-      else if (tx < playerX - 35) touchMoveDirX = -1;
+    }
+  } else {
+    // ในโหมดคนเดียว: ปล่อยให้ลากนิ้วเลื่อนเลนตามตำแหน่งแกน Y ได้เรียลไทม์ (Absolute Y Mapping)
+    for (let i = 0; i < e.touches.length; i++) {
+      const touch = e.touches[i];
+      const ty = touch.clientY;
       
       let laneIndex = 1;
       if (ty < ch * 0.40) {
@@ -564,7 +575,7 @@ function handleTouchInput(e) {
       }
       
       if (p1ConfusedTime > 0) {
-        laneIndex = 3 - laneIndex; // กลับทิศเมื่อติดสถานะสับสน
+        laneIndex = 3 - laneIndex;
       }
       targetPlayerLane = laneIndex;
     }
