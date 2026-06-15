@@ -1,14 +1,21 @@
 /* data.js — คลังโจทย์และตัวสร้างสมการสำหรับ Math Runner */
 window.GAME_DATA = {
-  // ฟังก์ชันสุ่มตัวเลือกปลอกหลอก (Distractors) สำหรับ 3 เลน (1 ถูก, 2 ผิด)
-  generateChoices: function(target) {
+  // ฟังก์ชันสุ่มตัวเลือกปลอกหลอก (Distractors) สำหรับ 4 เลน (1 ถูก, 3 ผิด)
+  generateChoices: function(target, customRng = null) {
+    const random = () => {
+      if (customRng && typeof customRng.next === 'function') {
+        return customRng.next();
+      }
+      return Math.random();
+    };
+
     const distractors = new Set();
     const targetStr = target.toString();
     
     // 1. สุ่มบวกหรือลบเล็กน้อย (เช่น ±1 ถึง ±5)
-    while (distractors.size < 4) {
-      const diff = Math.floor(Math.random() * 5) + 1;
-      const sign = Math.random() < 0.5 ? 1 : -1;
+    while (distractors.size < 5) {
+      const diff = Math.floor(random() * 5) + 1;
+      const sign = random() < 0.5 ? 1 : -1;
       const fake = target + (diff * sign);
       if (fake > 0 && fake !== target) {
         distractors.add(fake);
@@ -16,7 +23,7 @@ window.GAME_DATA = {
     }
     
     // 2. สุ่มแบบบวกสิบ (±10)
-    const fakeTen = target + (Math.random() < 0.5 ? 10 : -10);
+    const fakeTen = target + (random() < 0.5 ? 10 : -10);
     if (fakeTen > 0 && fakeTen !== target) {
       distractors.add(fakeTen);
     }
@@ -31,7 +38,7 @@ window.GAME_DATA = {
     
     // ปลดลอคตัวเลขอื่นๆ เพื่อกันกรณีไม่มีตัวเลือกพอ
     let fallback = 1;
-    while (distractors.size < 4) {
+    while (distractors.size < 5) {
       const fake = target + fallback;
       if (fake > 0 && fake !== target) {
         distractors.add(fake);
@@ -42,11 +49,11 @@ window.GAME_DATA = {
     // เอาเฉพาะตัวเลือกที่มีค่ามากกว่า 0
     const list = Array.from(distractors).filter(x => x > 0 && x !== target);
     
-    // สุ่มหยิบมา 2 ตัวผสมกับ target เพื่อให้ได้ 3 ตัวเลือกสำหรับ 3 เลน
-    const finalChoices = [target, list[0], list[1]];
+    // สุ่มหยิบมา 3 ตัวผสมกับ target เพื่อให้ได้ 4 ตัวเลือกสำหรับ 4 เลน
+    const finalChoices = [target, list[0], list[1], list[2]];
     
     // สับการ์ดสลับตำแหน่ง (Shuffle)
-    return finalChoices.sort(() => Math.random() - 0.5);
+    return finalChoices.sort(() => random() - 0.5);
   },
 
   // ฟังก์ชันสร้างโจทย์คณิตศาสตร์
@@ -157,8 +164,8 @@ window.GAME_DATA = {
       }
     }
 
-    // สร้างตัวเลือก 3 ตัว
-    const choices = this.generateChoices(Target);
+    // สร้างตัวเลือก 4 ตัว
+    const choices = this.generateChoices(Target, customRng);
 
     return {
       A: A,

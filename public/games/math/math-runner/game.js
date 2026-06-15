@@ -201,8 +201,8 @@ function generateNewQuestion(playerIndex = 1) {
 
 function spawnBlocksForQuestion(q) {
   const blocks = [];
-  // วางตัวเลือกใน 3 เลน (0, 1, 2)
-  for (let l = 0; l < 3; l++) {
+  // วางตัวเลือกใน 4 เลน (0, 1, 2, 3)
+  for (let l = 0; l < 4; l++) {
     blocks.push({
       x: cw + 50 + l * 220, // วางห่างกันเพื่อให้ผู้เล่นมีเวลาหลบและเปลี่ยนเลน
       lane: l,
@@ -424,27 +424,27 @@ function pollGamepadInputs() {
           if (p === 'p1') {
             if (act === 'up') {
               const dir = (p1ConfusedTime > 0) ? 1 : -1;
-              targetP1Lane = Math.max(0, Math.min(2, targetP1Lane + dir));
+              targetP1Lane = Math.max(0, Math.min(3, targetP1Lane + dir));
             } else if (act === 'down') {
               const dir = (p1ConfusedTime > 0) ? -1 : 1;
-              targetP1Lane = Math.max(0, Math.min(2, targetP1Lane + dir));
+              targetP1Lane = Math.max(0, Math.min(3, targetP1Lane + dir));
             }
           } else {
             if (act === 'up') {
               const dir = (p2ConfusedTime > 0) ? 1 : -1;
-              targetP2Lane = Math.max(0, Math.min(2, targetP2Lane + dir));
+              targetP2Lane = Math.max(0, Math.min(3, targetP2Lane + dir));
             } else if (act === 'down') {
               const dir = (p2ConfusedTime > 0) ? -1 : 1;
-              targetP2Lane = Math.max(0, Math.min(2, targetP2Lane + dir));
+              targetP2Lane = Math.max(0, Math.min(3, targetP2Lane + dir));
             }
           }
         } else {
           if (act === 'up') {
             const dir = (p1ConfusedTime > 0) ? 1 : -1;
-            targetPlayerLane = Math.max(0, Math.min(2, targetPlayerLane + dir));
+            targetPlayerLane = Math.max(0, Math.min(3, targetPlayerLane + dir));
           } else if (act === 'down') {
             const dir = (p1ConfusedTime > 0) ? -1 : 1;
-            targetPlayerLane = Math.max(0, Math.min(2, targetPlayerLane + dir));
+            targetPlayerLane = Math.max(0, Math.min(3, targetPlayerLane + dir));
           }
         }
       }
@@ -468,28 +468,28 @@ window.addEventListener('keydown', e => {
   if (mode === 'local_2p') {
     if (isKeyBoundTo(e.key, 'p1', 'up')) {
       const dir = (p1ConfusedTime > 0) ? 1 : -1;
-      targetP1Lane = Math.max(0, Math.min(2, targetP1Lane + dir));
+      targetP1Lane = Math.max(0, Math.min(3, targetP1Lane + dir));
     }
     if (isKeyBoundTo(e.key, 'p1', 'down')) {
       const dir = (p1ConfusedTime > 0) ? -1 : 1;
-      targetP1Lane = Math.max(0, Math.min(2, targetP1Lane + dir));
+      targetP1Lane = Math.max(0, Math.min(3, targetP1Lane + dir));
     }
     if (isKeyBoundTo(e.key, 'p2', 'up')) {
       const dir = (p2ConfusedTime > 0) ? 1 : -1;
-      targetP2Lane = Math.max(0, Math.min(2, targetP2Lane + dir));
+      targetP2Lane = Math.max(0, Math.min(3, targetP2Lane + dir));
     }
     if (isKeyBoundTo(e.key, 'p2', 'down')) {
       const dir = (p2ConfusedTime > 0) ? -1 : 1;
-      targetP2Lane = Math.max(0, Math.min(2, targetP2Lane + dir));
+      targetP2Lane = Math.max(0, Math.min(3, targetP2Lane + dir));
     }
   } else {
     if (isKeyBoundTo(e.key, 'p1', 'up') || isKeyBoundTo(e.key, 'p2', 'up')) {
       const dir = (p1ConfusedTime > 0) ? 1 : -1;
-      targetPlayerLane = Math.max(0, Math.min(2, targetPlayerLane + dir));
+      targetPlayerLane = Math.max(0, Math.min(3, targetPlayerLane + dir));
     }
     if (isKeyBoundTo(e.key, 'p1', 'down') || isKeyBoundTo(e.key, 'p2', 'down')) {
       const dir = (p1ConfusedTime > 0) ? -1 : 1;
-      targetPlayerLane = Math.max(0, Math.min(2, targetPlayerLane + dir));
+      targetPlayerLane = Math.max(0, Math.min(3, targetPlayerLane + dir));
     }
   }
 });
@@ -508,6 +508,8 @@ function handleTouchInput(e) {
   p1TouchMoveDirX = 0;
   p2TouchMoveDirX = 0;
 
+  const isNewTouch = (e.type === 'touchstart');
+
   for (let i = 0; i < e.touches.length; i++) {
     const touch = e.touches[i];
     const tx = touch.clientX;
@@ -519,47 +521,52 @@ function handleTouchInput(e) {
         if (tx > p1X + 25) p1TouchMoveDirX = 1;
         else if (tx < p1X - 25) p1TouchMoveDirX = -1;
         
-        // แบ่ง Y เป็น 3 เลน (เลน 0, 1, 2) ทั่วหน้าจอเต็ม
-        if (ty < ch * 0.40) {
-          const dir = (p1ConfusedTime > 0) ? 2 : 0;
-          targetP1Lane = dir === 2 ? 2 : 0;
-        } else if (ty < ch * 0.70) {
-          targetP1Lane = 1;
-        } else {
-          const dir = (p1ConfusedTime > 0) ? 0 : 2;
-          targetP1Lane = dir;
+        // สลับเลนในแนวตั้ง (สัมผัสบริเวณบน/ล่างของฝั่งตัวเอง เพื่อขยับขึ้น/ลง ทีละเลน)
+        if (isNewTouch) {
+          if (ty < ch / 2) {
+            const dir = (p1ConfusedTime > 0) ? 1 : -1;
+            targetP1Lane = Math.max(0, Math.min(3, targetP1Lane + dir));
+          } else {
+            const dir = (p1ConfusedTime > 0) ? -1 : 1;
+            targetP1Lane = Math.max(0, Math.min(3, targetP1Lane + dir));
+          }
         }
       } else {
         // ฝั่ง P2 (ขวา)
         if (tx > p2X + 25) p2TouchMoveDirX = 1;
         else if (tx < p2X - 25) p2TouchMoveDirX = -1;
         
-        // แบ่ง Y เป็น 3 เลน ทั่วหน้าจอเต็ม
-        if (ty < ch * 0.40) {
-          const dir = (p2ConfusedTime > 0) ? 2 : 0;
-          targetP2Lane = dir === 2 ? 2 : 0;
-        } else if (ty < ch * 0.70) {
-          targetP2Lane = 1;
-        } else {
-          const dir = (p2ConfusedTime > 0) ? 0 : 2;
-          targetP2Lane = dir;
+        // สลับเลนในแนวตั้งสำหรับ P2
+        if (isNewTouch) {
+          if (ty < ch / 2) {
+            const dir = (p2ConfusedTime > 0) ? 1 : -1;
+            targetP2Lane = Math.max(0, Math.min(3, targetP2Lane + dir));
+          } else {
+            const dir = (p2ConfusedTime > 0) ? -1 : 1;
+            targetP2Lane = Math.max(0, Math.min(3, targetP2Lane + dir));
+          }
         }
       }
     } else {
-      // โหมดผู้เล่นคนเดียว (เต็มจอ)
+      // โหมดผู้เล่นคนเดียว (เต็มจอ) - แบ่งจอตามแนวตั้งเป็น 4 ส่วนเพื่อสลับเลนแบบสัมบูรณ์ (Absolute)
       if (tx > playerX + 35) touchMoveDirX = 1;
       else if (tx < playerX - 35) touchMoveDirX = -1;
       
-      // แบ่งจอตามแนวตั้งเป็น 3 ส่วนเพื่อเปลี่ยนเลน
+      let laneIndex = 1;
       if (ty < ch * 0.40) {
-        const dir = (p1ConfusedTime > 0) ? 2 : 0;
-        targetPlayerLane = dir === 2 ? 2 : 0;
+        laneIndex = 0;
+      } else if (ty < ch * 0.55) {
+        laneIndex = 1;
       } else if (ty < ch * 0.70) {
-        targetPlayerLane = 1;
+        laneIndex = 2;
       } else {
-        const dir = (p1ConfusedTime > 0) ? 0 : 2;
-        targetPlayerLane = dir;
+        laneIndex = 3;
       }
+      
+      if (p1ConfusedTime > 0) {
+        laneIndex = 3 - laneIndex; // กลับทิศเมื่อติดสถานะสับสน
+      }
+      targetPlayerLane = laneIndex;
     }
   }
 }
@@ -800,7 +807,7 @@ function drawRetroHills(ctx, cw, ch, offset, screenYOffset, screenHeight, curren
 
   // 5. Lanes
   const laneHeight = screenHeight / 6.5;
-  for (let l = 0; l < 3; l++) {
+  for (let l = 0; l < 4; l++) {
     const ly = screenHeight * 0.40 + l * laneHeight;
     
     let brickColor = '#e45c10';
@@ -1477,7 +1484,7 @@ function spawnMonstersAndItemsForQuestion(playerIndex, q) {
   // 1. สุ่มเกิดมอนสเตอร์ (ต้องเกิดในเลนที่คำตอบผิดเพื่อไม่ให้ดักขวางคำตอบที่ถูก)
   if (random() < CFG.MONSTER_SPAWN_CHANCE) {
     const wrongLanes = [];
-    for (let l = 0; l < 3; l++) {
+    for (let l = 0; l < 4; l++) {
       if (q.choices[l] !== q.Target) {
         wrongLanes.push(l);
       }
@@ -1497,7 +1504,7 @@ function spawnMonstersAndItemsForQuestion(playerIndex, q) {
   }
 
   if (random() < CFG.ITEM_SPAWN_CHANCE) {
-    const itemLane = Math.floor(random() * 3);
+    const itemLane = Math.floor(random() * 4);
     const iType = window.GAME_DATA.generateItemType(onlineRng);
     const itemObj = {
       x: cw + 250 + Math.floor(random() * 200),
