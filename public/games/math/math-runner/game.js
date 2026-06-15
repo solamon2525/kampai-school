@@ -201,10 +201,24 @@ function generateNewQuestion(playerIndex = 1) {
 
 function spawnBlocksForQuestion(q) {
   const blocks = [];
-  // วางตัวเลือกใน 4 เลน (0, 1, 2, 3)
+  const random = () => {
+    if (onlineRng && typeof onlineRng.next === 'function') {
+      return onlineRng.next();
+    }
+    return Math.random();
+  };
+
+  // สร้างลำดับ X offsets แบบสุ่ม (0, 1, 2, 3) เพื่อให้ลำดับเวลาของกล่องคำตอบที่ลอยมาในแต่ละเลนไม่ซ้ำกัน
+  const xOrder = [0, 1, 2, 3];
+  for (let i = xOrder.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [xOrder[i], xOrder[j]] = [xOrder[j], xOrder[i]];
+  }
+
+  // วางตัวเลือกใน 4 เลน (0, 1, 2, 3) ตามลำดับ X ที่สุ่มได้
   for (let l = 0; l < 4; l++) {
     blocks.push({
-      x: cw + 50 + l * 220, // วางห่างกันเพื่อให้ผู้เล่นมีเวลาหลบและเปลี่ยนเลน
+      x: cw + 50 + xOrder[l] * 220, // สุ่มลำดับ X เพื่อไม่ให้ออกมาเฉลียงมุมเดิมตลอด
       lane: l,
       value: q.choices[l],
       isCorrect: q.choices[l] === q.Target,
