@@ -2182,17 +2182,9 @@ function loop() {
     p1Lane = targetP1Lane;
     p2Lane = targetP2Lane;
 
-    // แฟลชหน้าจอฝั่งซ้ายเมื่อ P1 โดนดาเมจ, ฝั่งขวาเมื่อ P2 โดนดาเมจ
-    if (p1RedFlash > 0) {
-      ctx.fillStyle = `rgba(255, 0, 0, ${p1RedFlash})`;
-      ctx.fillRect(0, 0, cw / 2, ch);
-      p1RedFlash -= 0.04;
-    }
-    if (p2RedFlash > 0) {
-      ctx.fillStyle = `rgba(255, 0, 0, ${p2RedFlash})`;
-      ctx.fillRect(cw / 2, 0, cw / 2, ch);
-      p2RedFlash -= 0.04;
-    }
+    // อัปเดตสถานะแฟลชแดงแบบไม่แสดงผลทางภาพ
+    if (p1RedFlash > 0) p1RedFlash -= 0.04;
+    if (p2RedFlash > 0) p2RedFlash -= 0.04;
 
   } else {
     // ══════════════════════════════════════════════════════════
@@ -2333,10 +2325,8 @@ function loop() {
 
     playerLane = targetPlayerLane;
 
-    // แฟลชจอแดงเต็มจอ
+    // อัปเดตสถานะแฟลชแดงแบบไม่แสดงผลทางภาพ
     if (redFlashAlpha > 0) {
-      ctx.fillStyle = `rgba(255, 0, 0, ${redFlashAlpha})`;
-      ctx.fillRect(0, 0, cw, ch);
       redFlashAlpha -= 0.04;
     }
 
