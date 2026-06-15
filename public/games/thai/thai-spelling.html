@@ -1103,7 +1103,7 @@ function normalizeMatraInput(val){
 function startTimer(q){
   G.timeLeft=10;const arc=document.getElementById('timer-arc'),tw=document.getElementById('hud-timer'),txt=document.getElementById('timer-text'),C=188.5;
   function upd(){const f=G.timeLeft/10;arc.style.strokeDashoffset=C*(1-f);arc.style.stroke=f>.4?'#FFD700':f>.2?'#FF8C42':'#FF4757';txt.textContent=Math.ceil(G.timeLeft);tw.classList.toggle('timer-urgent',G.timeLeft<=3);}
-  upd();G.timerInterval=setInterval(()=>{G.timeLeft-=.1;upd();if(G.timeLeft<=0){clearTimer();if(!G.answered)timeOut(q);}},100);
+  upd();G.timerInterval=setInterval(()=>{if(document.hidden)return;G.timeLeft-=.1;upd();if(G.timeLeft<=0){clearTimer();if(!G.answered)timeOut(q);}},100);
 }
 function clearTimer(){clearInterval(G.timerInterval);G.timerInterval=null;document.getElementById('hud-timer')?.classList.remove('timer-urgent');}
 function timeOut(q){

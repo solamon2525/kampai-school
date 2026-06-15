@@ -241,11 +241,43 @@
             background: #1976D2;
         }
 
+        /* ── Touch Controls (มือถือ/แท็บเล็ต) ── */
+        #gameCanvas { touch-action: none; }
+        #touchControls {
+            position: fixed; inset: 0; z-index: 30;
+            pointer-events: none; display: none;
+        }
+        #touchControls.show { display: block; }
+        .tc-base {
+            position: absolute; width: 150px; height: 150px; border-radius: 50%;
+            background: rgba(255,255,255,.07); border: 3px solid rgba(255,255,255,.22);
+            display: none; transform: translate(-50%, -50%);
+        }
+        .tc-base.active { display: block; }
+        .tc-thumb {
+            position: absolute; left: 50%; top: 50%; width: 70px; height: 70px;
+            margin: -35px 0 0 -35px; border-radius: 50%;
+            background: rgba(255,255,255,.32); border: 2px solid rgba(255,255,255,.55);
+        }
+        .tc-hint {
+            position: absolute; bottom: 26px; font-size: 14px; font-weight: 700;
+            color: rgba(255,255,255,.45); font-family: 'Sarabun', sans-serif; user-select: none;
+        }
+        .tc-hint.left { left: 50px; }
+        .tc-hint.right { right: 50px; }
     </style>
 </head>
 <body>
 
     <canvas id="gameCanvas"></canvas>
+
+    <!-- Touch Controls: ซ้าย = เดิน / ขวา = เล็ง+ยิง (floating twin-stick) -->
+    <div id="touchControls">
+        <div class="tc-hint left">🕹️ เดิน</div>
+        <div class="tc-hint right">🔫 เล็ง+ยิง</div>
+        <div class="tc-base" id="tcMoveBase"><div class="tc-thumb" id="tcMoveThumb"></div></div>
+        <div class="tc-base" id="tcFireBase"><div class="tc-thumb" id="tcFireThumb"></div></div>
+    </div>
 
     <div id="ui-layer">
         <div class="hud-top">
@@ -1445,10 +1477,15 @@
                 if (players.every(p => !p.active)) {
                     gameOver();
                 } else {
-                    updateHUD(); 
+                    updateHUD();
                 }
             }
-            animationId = requestAnimationFrame(gameLoop);
+            // หยุดลูปเมื่อไม่ได้อยู่ในสถานะเล่น (จบเกม/เมนู) — กัน idle rAF วนทิ้งไว้เปลือง CPU/แบต
+            if (gameState === 'PLAYING') {
+                animationId = requestAnimationFrame(gameLoop);
+            } else {
+                animationId = null;
+            }
         }
 
         function createExplosion(x, y, color) {

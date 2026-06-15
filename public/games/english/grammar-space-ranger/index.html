@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Grammar Space Ranger — ยานยิงพิชิตไวยากรณ์</title>
+<!--
+═══════════════════════════════════════════════════════════════════════════
+  KAMPAI-SCHOOL · GRAMMAR SPACE RANGER (SPACE SHOOTER)
+  index.html (โครง) · style.css (หน้าตา) · config.js (พารามิเตอร์) ·
+  data.js (เนื้อหา) · game.js (ลอจิก)
+═══════════════════════════════════════════════════════════════════════════
+-->
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- HUD Top -->
+<div id="score-container">⭐ <span id="score-value">0</span></div>
+<div id="shield-container">🛡️ <span id="shield-value">3</span>/3</div>
+<div id="level-badge">เลเวล 1</div>
+<div id="combo-badge"></div>
+<div id="player-chip"></div>
+<div id="toast"></div>
+
+<!-- Target Grammatical Category Box (Top Center) -->
+<div id="target-container">
+    <div class="target-title">SHOOT ONLY</div>
+    <div id="target-text">NOUNS</div>
+</div>
+
+<!-- Active Power-up status displays (Bottom-right) -->
+<div id="powerups-container">
+    <div id="pw-spread" class="pw-badge hidden">⚡ กระสุนกระจาย <span>6.0</span>s</div>
+    <div id="pw-slow" class="pw-badge hidden">⏱️ สโลว์เวลา <span>6.0</span>s</div>
+    <div id="pw-fever" class="pw-badge hidden">✨ ฟีเวอร์ x2 <span>7.0</span>s</div>
+</div>
+
+<canvas id="game-canvas"></canvas>
+
+<!-- Start screen -->
+<div id="blocker">
+    <h1>🚀 Grammar Space Ranger</h1>
+    <p>บังคับยานรบอวกาศ ยิงทำลายเอเลี่ยนที่ถือ <b>"คำศัพท์ภาษาอังกฤษ"</b> ตรงตามประเภทไวยากรณ์ด้านบน!<br>
+    หลบหลีกยานเอเลี่ยน 🛸 และชนเก็บผลึกไอเทมพิเศษเพื่อปลดปล่อยพลังทำลายล้างคู่ต่อสู้!<br>
+    ควบคุม: ลากตามนิ้ว / ปุ่มลูกศร / ← → / ปุ่ม D-pad (ยานยิงกระสุนอัตโนมัติ)</p>
+    
+    <div id="my-stats">
+        <div class="ms-cell"><div class="ms-val" id="ms-best">0</div><div class="ms-label">คะแนนสูงสุด</div></div>
+        <div class="ms-cell"><div class="ms-val" id="ms-plays">0</div><div class="ms-label">เล่นไปแล้ว (ครั้ง)</div></div>
+    </div>
+    
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+    </div>
+    
+    <div class="mode-row">
+        <button class="btn btn-primary" onclick="startGame('adventure')">🗺️ โหมดผจญภัย (5 เซกเตอร์)</button>
+        <button class="btn btn-blue" onclick="startGame('time')">⏱️ แข่งเวลาเอาชีวิตรอด</button>
+        <button class="btn btn-ghost" id="online-btn" onclick="openOnline()" style="display:none">🌐 ออนไลน์</button>
+    </div>
+</div>
+
+<!-- Game Over screen -->
+<div id="gameover-screen">
+    <h1>จบเกม!</h1>
+    <div id="go-stars">☆☆☆</div>
+    <div id="final-score">0</div>
+    <p id="go-summary"></p>
+    
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+    
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
+        <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นใหม่</button>
+        <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+    </div>
+</div>
+
+<!-- ═══ KAMPAI SDK + Online framework (single source — อย่าแก้) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+/* fallback stub */
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+</script>
+<script src="/games/kampai-match.js"></script>
+<script>
+/* fallback stub สำหรับออนไลน์ */
+window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){alert('โหมดออนไลน์เล่นผ่านระบบเท่านั้น');},report:function(){},finish:function(){},leave:function(){}};} };
+</script>
+
+<!-- ═══ เกม (config → data → game) ═══ -->
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

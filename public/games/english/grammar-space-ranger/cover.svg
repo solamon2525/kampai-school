@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" font-family="'Kanit','Sarabun','Segoe UI',sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#02020f"/><stop offset="0.55" stop-color="#0a0a2e"/><stop offset="1" stop-color="#120e2e"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f43f5e"/><stop offset="0.5" stop-color="#ec4899"/><stop offset="1" stop-color="#db2777"/>
+    </linearGradient>
+    <linearGradient id="textGold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fde68a"/><stop offset="0.5" stop-color="#FFD700"/><stop offset="1" stop-color="#f59e0b"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.4" r="0.5">
+      <stop offset="0" stop-color="#818cf8" stop-opacity="0.35"/><stop offset="1" stop-color="#818cf8" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000" flood-opacity="0.6"/></filter>
+  </defs>
+  
+  <!-- พื้นหลังธีมอวกาศ -->
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <ellipse cx="640" cy="300" rx="640" ry="360" fill="url(#glow)"/>
+  
+  <!-- ดวงดาวเรืองแสงขนาดเล็ก -->
+  <circle cx="100" cy="150" r="2" fill="#fff" opacity="0.6"/>
+  <circle cx="300" cy="220" r="3" fill="#fff" opacity="0.4"/>
+  <circle cx="1150" cy="180" r="1.5" fill="#fff" opacity="0.8"/>
+  <circle cx="950" cy="500" r="2.5" fill="#fff" opacity="0.5"/>
+  <circle cx="200" cy="480" r="3" fill="#fff" opacity="0.7"/>
+
+  <!-- แถบประดับหัวบน -->
+  <g transform="translate(640,116)">
+    <rect x="-210" y="-26" width="420" height="52" rx="26" fill="#ffffff" opacity="0.12"/>
+    <text x="0" y="2" font-size="26" font-weight="600" fill="#dbeafe" text-anchor="middle" dominant-baseline="middle">⚡ KAMPAI · ภาษาอังกฤษ ป.1-ป.6 · Parts of Speech</text>
+  </g>
+  
+  <!-- ชื่อเกมหลัก -->
+  <text x="640" y="278" font-size="114" font-weight="800" fill="url(#textGold)" text-anchor="middle" dominant-baseline="middle" filter="url(#sh)" letter-spacing="1">Grammar Space Ranger</text>
+  <text x="640" y="374" font-size="44" font-weight="700" fill="url(#gold)" text-anchor="middle" dominant-baseline="middle" filter="url(#sh)">ยานยิงพิชิตไวยากรณ์</text>
+
+  <!-- รายละเอียดคำเป้าหมายจำลอง -->
+  <g transform="translate(640, 480)" filter="url(#sh)">
+    <rect x="-160" y="-30" width="320" height="60" rx="15" fill="#08081a" stroke="#a78bfa" stroke-width="3"/>
+    <text x="0" y="-14" font-size="12" font-weight="700" fill="#a78bfa" letter-spacing="3" text-anchor="middle">TARGET CATEGORY</text>
+    <text x="0" y="16" font-size="28" font-weight="800" fill="#ffffff" letter-spacing="2" text-anchor="middle">VERBS (คำกริยา)</text>
+  </g>
+
+  <!-- มอนสเตอร์คำศัพท์เอเลี่ยนรอบข้าง -->
+  <!-- 👽 เอเลี่ยน 1 (คำว่า run - ถูกต้อง) -->
+  <g transform="translate(320, 520)" filter="url(#sh)">
+    <ellipse cx="0" cy="0" rx="60" ry="20" fill="rgba(167,139,250,0.15)" stroke="#a78bfa" stroke-width="2.5"/>
+    <circle cx="0" cy="-10" r="12" fill="#60a5fa"/>
+    <text x="0" y="2" font-size="18" font-weight="800" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">run</text>
+    <circle cx="-50" cy="0" r="4" fill="#a78bfa" opacity="0.6"/>
+    <circle cx="50" cy="0" r="4" fill="#a78bfa" opacity="0.6"/>
+  </g>
+
+  <!-- 👽 เอเลี่ยน 2 (คำว่า beautiful - ผิด) -->
+  <g transform="translate(960, 480)" filter="url(#sh)">
+    <ellipse cx="0" cy="0" rx="72" ry="20" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+    <circle cx="0" cy="-10" r="10" fill="#475569"/>
+    <text x="0" y="2" font-size="18" font-weight="800" fill="#cbd5e1" text-anchor="middle" dominant-baseline="middle">beautiful</text>
+  </g>
+
+  <!-- ยานรบผู้เล่นยิงแสงเลเซอร์พุ่งขึ้น -->
+  <g transform="translate(640,610)" filter="url(#sh)">
+    <!-- ลำแสงยิง -->
+    <line x1="0" y1="-50" x2="0" y2="-150" stroke="#ef4444" stroke-width="8" stroke-linecap="round" opacity="0.8"/>
+    <line x1="0" y1="-50" x2="0" y2="-150" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+    
+    <!-- เวกเตอร์ยานรบ -->
+    <path d="M 0,-34 L 28,20 L 10,10 L -10,10 L -28,20 Z" fill="#1e1b4b" stroke="#818cf8" stroke-width="3"/>
+    <!-- ไอพ่นเปลวไฟ -->
+    <path d="M -8,10 L 8,10 L 0,28 Z" fill="#f43f5e"/>
+  </g>
+
+  <!-- ไอเทมพิเศษลอยด้านข้าง -->
+  <!-- ⚡ spread -->
+  <text x="180" y="360" font-size="54" text-anchor="middle" dominant-baseline="middle" filter="url(#sh)">⚡</text>
+  <!-- 🛡️ shield -->
+  <text x="1100" y="340" font-size="54" text-anchor="middle" dominant-baseline="middle" filter="url(#sh)">🛡️</text>
+  <!-- ⏱️ slow -->
+  <text x="1150" y="580" font-size="50" text-anchor="middle" dominant-baseline="middle" filter="url(#sh)">⏱️</text>
+  <!-- ☄️ asteroid -->
+  <text x="140" y="580" font-size="58" text-anchor="middle" dominant-baseline="middle" filter="url(#sh)">☄️</text>
+
+  <!-- คำโฆษณาแท็บล่างสุด -->
+  <g transform="translate(640,680)" opacity="0.85">
+    <rect x="-310" y="-22" width="620" height="44" rx="22" fill="#f43f5e" opacity="0.16"/>
+    <text x="0" y="2" font-size="19" font-weight="700" fill="#fecdd3" text-anchor="middle" dominant-baseline="middle">ยิงสะสมคะแนนไวยากรณ์อวกาศ · ออกเสียงอ่านคำศัพท์ (TTS) 🗣️ · ซิงค์แข่งออนไลน์ 🌐</text>
+  </g>
+</svg>

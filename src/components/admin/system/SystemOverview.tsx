@@ -272,8 +272,21 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.87.0 (Bio-Defense — เกมใหม่แนววางแผนสร้างป้อม)',
+        version: 'v1.88.0 (Grammar Space Ranger — เกมใหม่แนว Space Shooter)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'สร้างเกมยิงอวกาศแนว Space Shooter คัดแยกไวยากรณ์ ชื่อ Grammar Space Ranger (ยานยิงพิชิตไวยากรณ์) ในรูปแบบ 5 ไฟล์ (index.html, style.css, config.js, data.js, game.js) บน Canvas',
+            'เป้าหมายการเล่น: ยิงทำลายยานศัตรูที่ถือศัพท์คำภาษาอังกฤษตรงตามหมวดหมู่ไวยากรณ์ที่กำหนด (Nouns, Verbs, Adjectives, Adverbs)',
+            'ใช้เสียงพูดภาษาอังกฤษสำเนียงดั้งเดิม (en-US TTS) อ่านคำศัพท์หลังทำลายยานเพื่อฝึกทักษะการฟังและการออกเสียง',
+            'ผูกระบบไอเทมพิเศษตกสะสม: ปืนกระจาย 3 ทิศ ⚡, โล่เติมพลัง 🛡️, สโลว์อวกาศชะลอศัตรู ⏱️, และโหมดฟีเวอร์คูณสอง ✨',
+            'ออกแบบ Starfield Parallax พื้นหลังเคลื่อนไหวหลายเลเยอร์สร้างมิติความลึกในอวกาศ พร้อมระเบิดเศษยานเป็นอนุภาคกระจาย',
+            'สร้าง Migration 190_seed_grammar_space_ranger_game.sql สำหรับผูกเกมเข้าระบบ Educational Hub ในหมวดวิชาภาษาต่างประเทศ ของครูณัฐพงศ์ สิงห์ชมภู',
+        ],
+    },
+    {
+        version: 'v1.87.0 (Bio-Defense — เกมใหม่แนววางแผนสร้างป้อม)',
+        date: '',
         badge: 'bg-emerald-600',
         items: [
             'สร้างเกมแนววางแผนป้องกันฐาน (Tower Defense) ชื่อ Bio-Defense (ศึกภูมิคุ้มกันร่างกาย) ในรูปแบบ 5 ไฟล์ (index.html, style.css, config.js, data.js, game.js) บน HTML5 Canvas',
