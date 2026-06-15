@@ -168,6 +168,13 @@ let p1Items = [], p2Items = [];       // สำหรับ 2P
 // บัฟ / ดีบัฟ (เฟรมคงเหลือ)
 let p1InvincibleTime = 0, p1SlowTime = 0, p1ConfusedTime = 0, p1IsGiant = false;
 let p2InvincibleTime = 0, p2SlowTime = 0, p2ConfusedTime = 0, p2IsGiant = false;
+let p1HasShield = false;
+let p2HasShield = false;
+let lastPlayerLane = 1, lastP1Lane = 1, lastP2Lane = 1;
+let playerTrail = [];
+let p1Trail = [];
+let p2Trail = [];
+let synthAudioContext = null;
 
 // ฉากหลังเคลื่อนแยกกันสำหรับ 2P เพื่อรองรับการสโลว์ต่างกัน
 let p1BgOffset = 0;
@@ -722,6 +729,19 @@ function drawRetroHills(ctx, cw, ch, offset, screenYOffset, screenHeight, curren
 
   // 3 & 4. Hills / Pyramids / Rocks / Volcanoes
   if (lvl === 1) {
+    // Distant mountain range (Layer 2)
+    ctx.fillStyle = '#1e5e1e';
+    const numFarMountains = Math.ceil(cw / 320) + 2;
+    for (let i = 0; i < numFarMountains; i++) {
+      const mx = i * 320 - (offset * 0.12) % 320;
+      ctx.beginPath();
+      ctx.moveTo(mx - 80, screenHeight - 20);
+      ctx.lineTo(mx + 80, screenHeight - 180);
+      ctx.lineTo(mx + 240, screenHeight - 20);
+      ctx.closePath();
+      ctx.fill();
+    }
+
     ctx.fillStyle = '#008a00';
     const numHills = Math.ceil(cw / 260) + 2;
     for (let i = 0; i < numHills; i++) {
@@ -738,6 +758,19 @@ function drawRetroHills(ctx, cw, ch, offset, screenYOffset, screenHeight, curren
       ctx.fill();
     }
   } else if (lvl === 2) {
+    // Distant giant pyramids (Layer 2)
+    ctx.fillStyle = '#7e5109';
+    const numFarPyramids = Math.ceil(cw / 360) + 2;
+    for (let i = 0; i < numFarPyramids; i++) {
+      const px = i * 360 - (offset * 0.12) % 360;
+      ctx.beginPath();
+      ctx.moveTo(px - 100, screenHeight - 20);
+      ctx.lineTo(px + 80, screenHeight - 220);
+      ctx.lineTo(px + 260, screenHeight - 20);
+      ctx.closePath();
+      ctx.fill();
+    }
+
     ctx.fillStyle = '#ba4a00';
     const numPyramids = Math.ceil(cw / 300) + 2;
     for (let i = 0; i < numPyramids; i++) {
@@ -760,6 +793,19 @@ function drawRetroHills(ctx, cw, ch, offset, screenYOffset, screenHeight, curren
       ctx.fill();
     }
   } else if (lvl === 3) {
+    // Distant cavern pillars (Layer 2)
+    ctx.fillStyle = '#1b2631';
+    const numPillars = Math.ceil(cw / 240) + 2;
+    for (let i = 0; i < numPillars; i++) {
+      const px = i * 240 - (offset * 0.12) % 240;
+      ctx.beginPath();
+      ctx.moveTo(px - 40, screenHeight - 20);
+      ctx.lineTo(px + 20, screenHeight - 180);
+      ctx.lineTo(px + 80, screenHeight - 20);
+      ctx.closePath();
+      ctx.fill();
+    }
+
     ctx.fillStyle = '#2c3e50';
     const numRocks = Math.ceil(cw / 200) + 2;
     for (let i = 0; i < numRocks; i++) {
@@ -783,6 +829,19 @@ function drawRetroHills(ctx, cw, ch, offset, screenYOffset, screenHeight, curren
       ctx.fill();
     }
   } else if (lvl === 4) {
+    // Distant purple mountains (Layer 2)
+    ctx.fillStyle = '#5b2c6f';
+    const numFarMountains = Math.ceil(cw / 320) + 2;
+    for (let i = 0; i < numFarMountains; i++) {
+      const mx = i * 320 - (offset * 0.12) % 320;
+      ctx.beginPath();
+      ctx.moveTo(mx - 80, screenHeight - 20);
+      ctx.lineTo(mx + 80, screenHeight - 180);
+      ctx.lineTo(mx + 240, screenHeight - 20);
+      ctx.closePath();
+      ctx.fill();
+    }
+
     ctx.fillStyle = '#ebdef0';
     const numHills = Math.ceil(cw / 240) + 2;
     for (let i = 0; i < numHills; i++) {
@@ -799,6 +858,19 @@ function drawRetroHills(ctx, cw, ch, offset, screenYOffset, screenHeight, curren
       ctx.fill();
     }
   } else if (lvl === 5) {
+    // Distant red volcanic peaks (Layer 2)
+    ctx.fillStyle = '#4a1212';
+    const numFarPeaks = Math.ceil(cw / 340) + 2;
+    for (let i = 0; i < numFarPeaks; i++) {
+      const px = i * 340 - (offset * 0.12) % 340;
+      ctx.beginPath();
+      ctx.moveTo(px - 90, screenHeight - 20);
+      ctx.lineTo(px + 70, screenHeight - 200);
+      ctx.lineTo(px + 230, screenHeight - 20);
+      ctx.closePath();
+      ctx.fill();
+    }
+
     ctx.fillStyle = '#5c0e0e';
     const numVolcanoes = Math.ceil(cw / 280) + 2;
     for (let i = 0; i < numVolcanoes; i++) {
@@ -878,7 +950,7 @@ function drawRetroHills(ctx, cw, ch, offset, screenYOffset, screenHeight, curren
 }
 
 // วาดตัวละคร P1/P2 Chibi Retro Runner พร้อมบัฟ/ดีบัฟ
-function drawChibiPlayer(ctx, x, y, frame, colorHead, colorBody, isGiant = false, invincibleTime = 0, slowTime = 0, confusedTime = 0) {
+function drawChibiPlayer(ctx, x, y, frame, colorHead, colorBody, isGiant = false, invincibleTime = 0, slowTime = 0, confusedTime = 0, hasShield = false, isGhost = false) {
   ctx.save();
   const yOffset = isGiant ? -45 : -33;
   ctx.translate(x, y + yOffset);
@@ -987,13 +1059,29 @@ function drawChibiPlayer(ctx, x, y, frame, colorHead, colorBody, isGiant = false
   }
 
   // 4. แสดงสัญลักษณ์หัวหมุน 🌀 เมื่อติดดีบัฟ Confused
-  if (confusedTime > 0) {
+  if (!isGhost && confusedTime > 0) {
     ctx.fillStyle = '#000';
     ctx.font = '24px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
     const bounceY = Math.sin(frame * 0.15) * 4;
     ctx.fillText('🌀', 0, -36 + bounceY);
+  }
+
+  // 5. วาดออร่าบาเรียโล่ป้องกันครอบตัวละคร
+  if (!isGhost && hasShield) {
+    const pulse = Math.sin(frame * 0.15) * 3;
+    ctx.strokeStyle = 'rgba(0, 210, 255, 0.75)';
+    ctx.lineWidth = 4 + pulse * 0.5;
+    ctx.beginPath();
+    ctx.arc(0, -10, 28 + pulse, 0, Math.PI * 2);
+    ctx.stroke();
+    
+    // ไอคอนเกราะลอยเหนือบาเรีย
+    ctx.fillStyle = '#00d2ff';
+    ctx.font = '12px Fredoka One, Sarabun';
+    ctx.textAlign = 'center';
+    ctx.fillText('🛡️', 0, -42);
   }
 
   ctx.restore();
@@ -1083,6 +1171,81 @@ function drawQuestionBlock(ctx, x, y, value, isCorrect, isChosen, hitResolved) {
   ctx.fillText(value, 0, 0);
 
   ctx.restore();
+}
+
+// เล่นเสียงเอฟเฟกต์สังเคราะห์สไตล์ 8-bit (Web Audio API)
+function playSynthSFX(type) {
+  if (localStorage.getItem('mr_sfx') === '0') return;
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+    if (!synthAudioContext) {
+      synthAudioContext = new AudioContextClass();
+    }
+    if (synthAudioContext.state === 'suspended') {
+      synthAudioContext.resume();
+    }
+    const ctx = synthAudioContext;
+    const now = ctx.currentTime;
+
+    if (type === 'jump') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(280, now);
+      osc.frequency.exponentialRampToValueAtTime(650, now + 0.12);
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.12);
+    } else if (type === 'warning') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(140, now);
+      osc.frequency.setValueAtTime(170, now + 0.08);
+      gain.gain.setValueAtTime(0.06, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.15);
+    } else if (type === 'shield_collect') {
+      const freqs = [523.25, 659.25, 783.99, 1046.5];
+      freqs.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.05);
+        gain.gain.setValueAtTime(0.04, now + idx * 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.05 + 0.12);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + idx * 0.05);
+        osc.stop(now + idx * 0.05 + 0.12);
+      });
+    } else if (type === 'shield_break') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(700, now);
+      osc.frequency.linearRampToValueAtTime(180, now + 0.35);
+      gain.gain.setValueAtTime(0.07, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'highpass';
+      filter.frequency.setValueAtTime(900, now);
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.35);
+    }
+  } catch (e) {
+    console.error("Synth SFX failed", e);
+  }
 }
 
 // วาดไอคอนตกใจแจ้งเตือนมอนสเตอร์กำลังมาสวนเลน
@@ -1244,6 +1407,7 @@ function drawItem(ctx, x, y, type, frame) {
   let yOffset = 0;
   if (type === 'mushroom') yOffset = -22;
   else if (type === 'star') yOffset = -38;
+  else if (type === 'shield') yOffset = -28;
   else if (type === 'poison') yOffset = -22;
   else if (type === 'lightning') yOffset = -30;
   else if (type === 'egg') yOffset = -22;
@@ -1357,6 +1521,35 @@ function drawItem(ctx, x, y, type, frame) {
     ctx.arc(2, -8, 2.5, 0, Math.PI * 2);
     ctx.fill();
   } 
+  else if (type === 'shield') {
+    const pulse = Math.sin(frame * 0.15) * 4;
+    ctx.shadowColor = '#00d2ff';
+    ctx.shadowBlur = 8 + pulse;
+    ctx.fillStyle = '#00d2ff';
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(0, -18);
+    ctx.lineTo(14, -12);
+    ctx.lineTo(12, 4);
+    ctx.quadraticCurveTo(0, 16, 0, 18);
+    ctx.quadraticCurveTo(0, 16, -12, 4);
+    ctx.lineTo(-14, -12);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.moveTo(0, -12);
+    ctx.lineTo(8, -8);
+    ctx.lineTo(6, 2);
+    ctx.quadraticCurveTo(0, 10, 0, 12);
+    ctx.quadraticCurveTo(0, 10, -6, 2);
+    ctx.lineTo(-8, -8);
+    ctx.closePath();
+    ctx.fill();
+  }
   else if (type === 'heart') {
     ctx.fillStyle = '#e74c3c';
     ctx.strokeStyle = '#000000';
@@ -1386,6 +1579,10 @@ function collectItem(playerIndex, type, x, y) {
       p1InvincibleTime = CFG.BUFF_INVINCIBLE_DURATION * 60;
       addFloatingText(x, y, '⭐ ร่างอมตะ!', '#FFD700');
       KAMPAI.sound.correct();
+    } else if (type === 'shield') {
+      p1HasShield = true;
+      addFloatingText(x, y, '🛡️ โล่ป้องกัน!', '#00d2ff');
+      playSynthSFX('shield_collect');
     } else if (type === 'poison') {
       p1ConfusedTime = CFG.DEBUFF_CONFUSED_DURATION * 60;
       p1Combo = 0;
@@ -1431,6 +1628,10 @@ function collectItem(playerIndex, type, x, y) {
       p2InvincibleTime = CFG.BUFF_INVINCIBLE_DURATION * 60;
       addFloatingText(x, y, '⭐ P2 อมตะ!', '#FFD700');
       KAMPAI.sound.correct();
+    } else if (type === 'shield') {
+      p2HasShield = true;
+      addFloatingText(x, y, '🛡️ P2 โล่ป้องกัน!', '#00d2ff');
+      playSynthSFX('shield_collect');
     } else if (type === 'poison') {
       p2ConfusedTime = CFG.DEBUFF_CONFUSED_DURATION * 60;
       p2Combo = 0;
@@ -1460,6 +1661,7 @@ function collectItem(playerIndex, type, x, y) {
 function hitMonster(playerIndex, type, x, y) {
   const isInvincible = playerIndex === 2 ? (p2InvincibleTime > 0) : (p1InvincibleTime > 0);
   const isGiant = playerIndex === 2 ? p2IsGiant : p1IsGiant;
+  const hasShield = playerIndex === 2 ? p2HasShield : p1HasShield;
 
   if (isInvincible) {
     // อมตะ: วิ่งชนมอนสเตอร์ปลิว
@@ -1478,6 +1680,12 @@ function hitMonster(playerIndex, type, x, y) {
     addFloatingText(x, y, '💥 หดตัว!', '#ff4757');
     KAMPAI.sound.wrong();
     if (playerIndex === 1) p1RedFlash = 0.45; else p2RedFlash = 0.45;
+  } else if (hasShield) {
+    // โล่ป้องกัน: ดูดซับความเสียหายแล้วแตกออก
+    if (playerIndex === 1) p1HasShield = false; else p2HasShield = false;
+    addFloatingText(x, y, '🛡️ เกราะแตก!', '#00d2ff');
+    playSynthSFX('shield_break');
+    if (playerIndex === 1) p1RedFlash = 0.35; else p2RedFlash = 0.35;
   } else {
     // โดนชนจังๆ
     KAMPAI.sound.wrong();
@@ -1621,6 +1829,23 @@ function loop() {
 
   pollGamepadInputs();
 
+  // ตรวจสอบการเปลี่ยนเลนเพื่อเล่นเสียง SFX
+  if (mode === 'local_2p') {
+    if (targetP1Lane !== lastP1Lane) {
+      playSynthSFX('jump');
+      lastP1Lane = targetP1Lane;
+    }
+    if (targetP2Lane !== lastP2Lane) {
+      playSynthSFX('jump');
+      lastP2Lane = targetP2Lane;
+    }
+  } else {
+    if (targetPlayerLane !== lastPlayerLane) {
+      playSynthSFX('jump');
+      lastPlayerLane = targetPlayerLane;
+    }
+  }
+
   if (p1InvincibleTime > 0) p1InvincibleTime--;
   if (p1SlowTime > 0) p1SlowTime--;
   if (p1ConfusedTime > 0) p1ConfusedTime--;
@@ -1632,8 +1857,12 @@ function loop() {
   if (mode === 'local_2p') {
     const maxSpeedStep = Math.max(p1SpeedStep, p2SpeedStep);
     blockSpeed = Math.min(CFG.BLOCK_MAX_SPEED, CFG.BLOCK_START_SPEED + maxSpeedStep * 1.2);
+    // เพิ่มความเร็วตามคอมโบสูงสุดในโหมด 2P
+    blockSpeed += Math.min(3.0, Math.max(p1Combo, p2Combo) * 0.4);
   } else {
     blockSpeed = (p1SlowTime > 0) ? p1BlockSpeed * 0.65 : p1BlockSpeed;
+    // เพิ่มความเร็วตามคอมโบในโหมด 1P
+    blockSpeed += Math.min(3.0, combo * 0.4);
   }
 
   const p1Speed = blockSpeed;
@@ -1681,10 +1910,78 @@ function loop() {
     p1Y += (getLanesY(targetP1Lane) - p1Y) * 0.25;
     p2Y += (getLanesY(targetP2Lane) - p2Y) * 0.25;
 
+    // บันทึกรอยเท้าผู้เล่นเพื่อทำเงาตามตัว
+    p1Trail.push({ x: p1X, y: p1Y });
+    if (p1Trail.length > 15) p1Trail.shift();
+    p2Trail.push({ x: p2X, y: p2Y });
+    if (p2Trail.length > 15) p2Trail.shift();
+
+    // วาดเงาตามหลัง (Ghost Trails) P1
+    if (p1Combo >= 5) {
+      ctx.save();
+      ctx.globalAlpha = 0.25;
+      if (p1Trail.length >= 6) {
+        const pt = p1Trail[p1Trail.length - 6];
+        drawChibiPlayer(ctx, pt.x, pt.y, bgOffset, '#FF4136', '#2b5c8f', p1IsGiant, p1InvincibleTime, p1SlowTime, p1ConfusedTime, p1HasShield, true);
+      }
+      ctx.globalAlpha = 0.12;
+      if (p1Trail.length >= 12) {
+        const pt = p1Trail[p1Trail.length - 12];
+        drawChibiPlayer(ctx, pt.x, pt.y, bgOffset, '#FF4136', '#2b5c8f', p1IsGiant, p1InvincibleTime, p1SlowTime, p1ConfusedTime, p1HasShield, true);
+      }
+      ctx.restore();
+    }
+
+    // วาดเงาตามหลัง (Ghost Trails) P2
+    if (p2Combo >= 5) {
+      ctx.save();
+      ctx.globalAlpha = 0.25;
+      if (p2Trail.length >= 6) {
+        const pt = p2Trail[p2Trail.length - 6];
+        drawChibiPlayer(ctx, pt.x, pt.y, bgOffset, '#2ecc70', '#006400', p2IsGiant, p2InvincibleTime, p2SlowTime, p2ConfusedTime, p2HasShield, true);
+      }
+      ctx.globalAlpha = 0.12;
+      if (p2Trail.length >= 12) {
+        const pt = p2Trail[p2Trail.length - 12];
+        drawChibiPlayer(ctx, pt.x, pt.y, bgOffset, '#2ecc70', '#006400', p2IsGiant, p2InvincibleTime, p2SlowTime, p2ConfusedTime, p2HasShield, true);
+      }
+      ctx.restore();
+    }
+
     // วาดผู้เล่น 1 (สีแดง)
-    drawChibiPlayer(ctx, p1X, p1Y, bgOffset, '#FF4136', '#2b5c8f', p1IsGiant, p1InvincibleTime, p1SlowTime, p1ConfusedTime);
+    drawChibiPlayer(ctx, p1X, p1Y, bgOffset, '#FF4136', '#2b5c8f', p1IsGiant, p1InvincibleTime, p1SlowTime, p1ConfusedTime, p1HasShield);
     // วาดผู้เล่น 2 (สีเขียว)
-    drawChibiPlayer(ctx, p2X, p2Y, bgOffset, '#2ecc70', '#006400', p2IsGiant, p2InvincibleTime, p2SlowTime, p2ConfusedTime);
+    drawChibiPlayer(ctx, p2X, p2Y, bgOffset, '#2ecc70', '#006400', p2IsGiant, p2InvincibleTime, p2SlowTime, p2ConfusedTime, p2HasShield);
+
+    // วาดข้อความ Combo เหนือหัวผู้เล่นเมื่อได้ Combo >= 3
+    if (p1Combo >= 3) {
+      ctx.save();
+      ctx.fillStyle = '#FF4136';
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 3;
+      ctx.font = 'bold 15px Fredoka One, Sarabun';
+      ctx.textAlign = 'center';
+      ctx.shadowColor = '#000';
+      ctx.shadowBlur = 4;
+      const pulse = Math.sin(bgOffset * 0.2) * 3;
+      ctx.fillText(`🔥 COMBO x${p1Combo}`, p1X, p1Y - (p1IsGiant ? 90 : 70) + pulse);
+      ctx.strokeText(`🔥 COMBO x${p1Combo}`, p1X, p1Y - (p1IsGiant ? 90 : 70) + pulse);
+      ctx.restore();
+    }
+    if (p2Combo >= 3) {
+      ctx.save();
+      ctx.fillStyle = '#2ecc70';
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 3;
+      ctx.font = 'bold 15px Fredoka One, Sarabun';
+      ctx.textAlign = 'center';
+      ctx.shadowColor = '#000';
+      ctx.shadowBlur = 4;
+      const pulse = Math.sin(bgOffset * 0.2) * 3;
+      ctx.fillText(`🔥 COMBO x${p2Combo}`, p2X, p2Y - (p2IsGiant ? 90 : 70) + pulse);
+      ctx.strokeText(`🔥 COMBO x${p2Combo}`, p2X, p2Y - (p2IsGiant ? 90 : 70) + pulse);
+      ctx.restore();
+    }
 
     // วาดและประมวลผลกล่องคำถาม (ชอยส์คำตอบ)
     for (let i = 0; i < floatBlocks.length; i++) {
@@ -1719,6 +2016,10 @@ function loop() {
       if (m.warningTicks > 0) {
         m.warningTicks--;
         m.x = m.spawnSide === 'right' ? cw + 100 : -100; // ล็อคให้อยู่ด้านนอกระหว่างแจ้งเตือน
+        
+        if (m.warningTicks % 30 === 0) {
+          playSynthSFX('warning');
+        }
         
         // วาดไอคอนแจ้งเตือนตรงขอบจอตามฝั่งที่มันจะวิ่งออกมา
         const wx = m.spawnSide === 'right' ? cw - 45 : 45;
@@ -1900,8 +2201,44 @@ function loop() {
     const getLanesY = (lane) => ch * 0.40 + lane * laneHeight;
     playerY += (getLanesY(targetPlayerLane) - playerY) * 0.25;
 
+    // บันทึกรอยเท้าเพื่อทำเงาตามตัว
+    playerTrail.push({ x: playerX, y: playerY });
+    if (playerTrail.length > 15) playerTrail.shift();
+
+    // วาดเงาตามหลัง (Ghost Trails)
+    if (combo >= 5) {
+      ctx.save();
+      ctx.globalAlpha = 0.25;
+      if (playerTrail.length >= 6) {
+        const pt = playerTrail[playerTrail.length - 6];
+        drawChibiPlayer(ctx, pt.x, pt.y, bgOffset, '#FF4136', '#2b5c8f', p1IsGiant, p1InvincibleTime, p1SlowTime, p1ConfusedTime, p1HasShield, true);
+      }
+      ctx.globalAlpha = 0.12;
+      if (playerTrail.length >= 12) {
+        const pt = playerTrail[playerTrail.length - 12];
+        drawChibiPlayer(ctx, pt.x, pt.y, bgOffset, '#FF4136', '#2b5c8f', p1IsGiant, p1InvincibleTime, p1SlowTime, p1ConfusedTime, p1HasShield, true);
+      }
+      ctx.restore();
+    }
+
     // วาดผู้เล่น (Red Cap) พร้อมบัฟ
-    drawChibiPlayer(ctx, playerX, playerY, bgOffset, '#FF4136', '#2b5c8f', p1IsGiant, p1InvincibleTime, p1SlowTime, p1ConfusedTime);
+    drawChibiPlayer(ctx, playerX, playerY, bgOffset, '#FF4136', '#2b5c8f', p1IsGiant, p1InvincibleTime, p1SlowTime, p1ConfusedTime, p1HasShield);
+
+    // วาดข้อความ Combo เหนือหัวผู้เล่นเมื่อได้ Combo >= 3
+    if (combo >= 3) {
+      ctx.save();
+      ctx.fillStyle = '#FFD700';
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 3;
+      ctx.font = 'bold 16px Fredoka One, Sarabun';
+      ctx.textAlign = 'center';
+      ctx.shadowColor = '#000';
+      ctx.shadowBlur = 4;
+      const pulse = Math.sin(bgOffset * 0.2) * 3;
+      ctx.fillText(`🔥 COMBO x${combo}`, playerX, playerY - (p1IsGiant ? 90 : 70) + pulse);
+      ctx.strokeText(`🔥 COMBO x${combo}`, playerX, playerY - (p1IsGiant ? 90 : 70) + pulse);
+      ctx.restore();
+    }
 
     // วาดบล็อกชอยส์คำตอบ
     for (let i = 0; i < floatBlocks.length; i++) {
@@ -1928,6 +2265,10 @@ function loop() {
       if (m.warningTicks > 0) {
         m.warningTicks--;
         m.x = m.spawnSide === 'right' ? cw + 100 : -100; // ล็อคให้อยู่ด้านนอกระหว่างแจ้งเตือน
+        
+        if (m.warningTicks % 30 === 0) {
+          playSynthSFX('warning');
+        }
         
         // วาดไอคอนแจ้งเตือนตรงขอบจอตามฝั่งที่มันจะวิ่งออกมา
         const wx = m.spawnSide === 'right' ? cw - 45 : 45;
@@ -2138,6 +2479,16 @@ function resolveHit(playerIndex, isCorrect, x, y) {
       return;
     }
 
+    const hasShield = playerIndex === 2 ? p2HasShield : p1HasShield;
+    if (hasShield) {
+      // โล่ป้องกัน: ดูดซับผลการตอบผิด
+      if (playerIndex === 1) p1HasShield = false; else p2HasShield = false;
+      addFloatingText(x, y, '🛡️ เกราะแตก ป้องกันเสียหาย!', '#00d2ff');
+      playSynthSFX('shield_break');
+      if (playerIndex === 1) p1RedFlash = 0.35; else p2RedFlash = 0.35;
+      return;
+    }
+
     KAMPAI.sound.wrong();
     KAMPAI.sound.fxFlash(false);
     
@@ -2228,6 +2579,14 @@ function startSinglePlayer(m) {
   floatBlocks = [];
   activeMonsters = [];
   activeItems = [];
+  p1HasShield = false;
+  p2HasShield = false;
+  playerTrail = [];
+  p1Trail = [];
+  p2Trail = [];
+  lastPlayerLane = 1;
+  lastP1Lane = 1;
+  lastP2Lane = 1;
   playerLane = 1;
   targetPlayerLane = 1;
   playerX = cw * 0.2;
@@ -2409,6 +2768,14 @@ function launchLocalTwoPlayer() {
   activeItems = [];
   p1InvincibleTime = 0; p1SlowTime = 0; p1ConfusedTime = 0; p1IsGiant = false;
   p2InvincibleTime = 0; p2SlowTime = 0; p2ConfusedTime = 0; p2IsGiant = false;
+  p1HasShield = false;
+  p2HasShield = false;
+  playerTrail = [];
+  p1Trail = [];
+  p2Trail = [];
+  lastPlayerLane = 1;
+  lastP1Lane = 1;
+  lastP2Lane = 1;
   bgOffset = 0;
 
   $('blocker').style.display = 'none';
@@ -2485,6 +2852,14 @@ function startGame(onlineMode, opts) {
   activeMonsters = [];
   activeItems = [];
   p1InvincibleTime = 0; p1SlowTime = 0; p1ConfusedTime = 0; p1IsGiant = false;
+  p1HasShield = false;
+  p2HasShield = false;
+  playerTrail = [];
+  p1Trail = [];
+  p2Trail = [];
+  lastPlayerLane = 1;
+  lastP1Lane = 1;
+  lastP2Lane = 1;
   playerLane = 1;
   targetPlayerLane = 1;
   playerX = cw * 0.2;
@@ -2687,6 +3062,14 @@ function resetGame() {
   
   p1InvincibleTime = 0; p1SlowTime = 0; p1ConfusedTime = 0; p1IsGiant = false;
   p2InvincibleTime = 0; p2SlowTime = 0; p2ConfusedTime = 0; p2IsGiant = false;
+  p1HasShield = false;
+  p2HasShield = false;
+  playerTrail = [];
+  p1Trail = [];
+  p2Trail = [];
+  lastPlayerLane = 1;
+  lastP1Lane = 1;
+  lastP2Lane = 1;
   
   playerLane = 1;
   targetPlayerLane = 1;

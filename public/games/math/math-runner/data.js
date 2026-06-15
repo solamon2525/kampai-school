@@ -199,11 +199,12 @@ window.GAME_DATA = {
       return Math.random();
     };
     const r = random();
-    if (r < 0.25) return 'mushroom'; // เห็ดขยายตัว/เกราะ
-    if (r < 0.35) return 'star';     // ดาวอมตะ
+    if (r < 0.20) return 'mushroom'; // เห็ดขยายตัว/เกราะ
+    if (r < 0.30) return 'star';     // ดาวอมตะ
+    if (r < 0.40) return 'shield';   // โล่ป้องกัน
     if (r < 0.55) return 'poison';   // เห็ดพิษสับสน
-    if (r < 0.75) return 'lightning';// สายฟ้าสโลว์
-    if (r < 0.90) return 'egg';      // ไข่โบนัสแต้ม
+    if (r < 0.70) return 'lightning';// สายฟ้าสโลว์
+    if (r < 0.85) return 'egg';      // ไข่โบนัสแต้ม
     return 'heart';                  // หัวใจฟื้นชีวิต
   }
 };
