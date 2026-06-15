@@ -1085,6 +1085,44 @@ function drawQuestionBlock(ctx, x, y, value, isCorrect, isChosen, hitResolved) {
   ctx.restore();
 }
 
+// วาดไอคอนตกใจแจ้งเตือนมอนสเตอร์กำลังมาสวนเลน
+function drawWarningIcon(ctx, x, y, spawnSide, ticks) {
+  ctx.save();
+  ctx.translate(x, y - 10); // จัดให้อยู่กลางเลนแนวตั้ง
+
+  // ความโปร่งใสกระพริบตาม ticks
+  const alpha = 0.4 + Math.sin(ticks * 0.25) * 0.4;
+  ctx.globalAlpha = alpha;
+
+  // วาดวงกลมแจ้งเตือนสีแดงขอบดำ
+  ctx.fillStyle = '#ff3333';
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(0, 0, 18, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  // วาดเครื่องหมายตกใจตรงกลาง
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 24px Fredoka One, Sarabun';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('!', 0, 0);
+
+  // วาดลูกศรชี้บอกทิศทางกระพริบเข้าหาจอ
+  ctx.fillStyle = '#ffffff';
+  if (spawnSide === 'right') {
+    // วิ่งมาจากขวา -> ลูกศรชี้ซ้าย ◀
+    ctx.fillText('◀', -30 + Math.sin(ticks * 0.3) * 5, 0);
+  } else {
+    // วิ่งมาจากซ้าย -> ลูกศรชี้ขวา ▶
+    ctx.fillText('▶', 30 - Math.sin(ticks * 0.3) * 5, 0);
+  }
+
+  ctx.restore();
+}
+
 // วาดมอนสเตอร์ กุมบ้า กระดองเต่า เต่าหนาม
 function drawMonster(ctx, x, y, type, frame) {
   ctx.save();
@@ -1518,11 +1556,17 @@ function spawnMonstersAndItemsForQuestion(playerIndex, q) {
     if (wrongLanes.length > 0) {
       const chosenLane = wrongLanes[Math.floor(random() * wrongLanes.length)];
       const mType = window.GAME_DATA.generateMonsterType(onlineRng);
+      
+      // สุ่มฝั่งที่จะวิ่งออกมา (ซ้าย หรือ ขวา)
+      const spawnSide = random() < 0.5 ? 'right' : 'left';
+      
       const monsterObj = {
-        x: cw + 150 + Math.floor(random() * 150),
+        spawnSide: spawnSide,
         lane: chosenLane,
         type: mType,
-        hitResolved: false
+        hitResolved: false,
+        warningTicks: 90, // แฟลชไฟเตือน 90 เฟรม (1.5 วินาที) ก่อนที่จะวิ่งออกมา
+        x: spawnSide === 'right' ? cw + 100 : -100 // จอดรอด้านนอก
       };
       
       activeMonsters.push(monsterObj);
@@ -1670,25 +1714,47 @@ function loop() {
     // วาดและประมวลผลมอนสเตอร์
     for (let i = activeMonsters.length - 1; i >= 0; i--) {
       const m = activeMonsters[i];
-      m.x -= blockSpeed;
       const my = getLanesY(m.lane);
-      drawMonster(ctx, m.x, my, m.type, bgOffset);
 
-      // ชนสำหรับ P1
-      if (!m.hitResolved && m.x <= p1X + 28 && m.x >= p1X - 28) {
-        if (p1Lane === m.lane) {
-          m.hitResolved = true;
-          hitMonster(1, m.type, m.x, my);
+      if (m.warningTicks > 0) {
+        m.warningTicks--;
+        m.x = m.spawnSide === 'right' ? cw + 100 : -100; // ล็อคให้อยู่ด้านนอกระหว่างแจ้งเตือน
+        
+        // วาดไอคอนแจ้งเตือนตรงขอบจอตามฝั่งที่มันจะวิ่งออกมา
+        const wx = m.spawnSide === 'right' ? cw - 45 : 45;
+        drawWarningIcon(ctx, wx, my, m.spawnSide, m.warningTicks);
+      } else {
+        // วิ่งสวนเลนเข้าหาผู้เล่น (ขวาไปซ้าย หรือ ซ้ายไปขวา)
+        if (m.spawnSide === 'right') {
+          m.x -= (blockSpeed + 4.5); // สปีดวิ่งเร็วสวนเลนมาทางซ้าย
+        } else {
+          m.x += 4.5; // วิ่งตามหลังมาเพื่อแซงขวากลับไปชน
+        }
+        
+        drawMonster(ctx, m.x, my, m.type, bgOffset);
+
+        // ชนสำหรับ P1
+        if (!m.hitResolved && m.x <= p1X + 28 && m.x >= p1X - 28) {
+          if (p1Lane === m.lane) {
+            m.hitResolved = true;
+            hitMonster(1, m.type, m.x, my);
+          }
+        }
+        // ชนสำหรับ P2
+        if (!m.hitResolved && m.x <= p2X + 28 && m.x >= p2X - 28) {
+          if (p2Lane === m.lane) {
+            m.hitResolved = true;
+            hitMonster(2, m.type, m.x, my);
+          }
         }
       }
-      // ชนสำหรับ P2
-      if (!m.hitResolved && m.x <= p2X + 28 && m.x >= p2X - 28) {
-        if (p2Lane === m.lane) {
-          m.hitResolved = true;
-          hitMonster(2, m.type, m.x, my);
-        }
+
+      // ลบมอนสเตอร์เมื่อหลุดหน้าจอตามทิศทางของมัน
+      if (m.spawnSide === 'right' && m.x < -100) {
+        activeMonsters.splice(i, 1);
+      } else if (m.spawnSide === 'left' && m.x > cw + 100) {
+        activeMonsters.splice(i, 1);
       }
-      if (m.x < -50) activeMonsters.splice(i, 1);
     }
 
     // วาดและประมวลผลไอเทม
@@ -1857,17 +1923,39 @@ function loop() {
     // วาดและประมวลผลมอนสเตอร์ 1P
     for (let i = activeMonsters.length - 1; i >= 0; i--) {
       const m = activeMonsters[i];
-      m.x -= p1Speed;
       const my = getLanesY(m.lane);
-      drawMonster(ctx, m.x, my, m.type, bgOffset);
 
-      if (!m.hitResolved && m.x <= playerX + 28 && m.x >= playerX - 28) {
-        if (playerLane === m.lane) {
-          m.hitResolved = true;
-          hitMonster(1, m.type, m.x, my);
+      if (m.warningTicks > 0) {
+        m.warningTicks--;
+        m.x = m.spawnSide === 'right' ? cw + 100 : -100; // ล็อคให้อยู่ด้านนอกระหว่างแจ้งเตือน
+        
+        // วาดไอคอนแจ้งเตือนตรงขอบจอตามฝั่งที่มันจะวิ่งออกมา
+        const wx = m.spawnSide === 'right' ? cw - 45 : 45;
+        drawWarningIcon(ctx, wx, my, m.spawnSide, m.warningTicks);
+      } else {
+        // วิ่งสวนเลนเข้าหาผู้เล่น (ขวาไปซ้าย หรือ ซ้ายไปขวา)
+        if (m.spawnSide === 'right') {
+          m.x -= (p1Speed + 4.5); // สปีดวิ่งเร็วสวนเลนมาทางซ้าย
+        } else {
+          m.x += 4.5; // วิ่งตามหลังมาเพื่อแซงขวากลับไปชน
+        }
+        
+        drawMonster(ctx, m.x, my, m.type, bgOffset);
+
+        if (!m.hitResolved && m.x <= playerX + 28 && m.x >= playerX - 28) {
+          if (playerLane === m.lane) {
+            m.hitResolved = true;
+            hitMonster(1, m.type, m.x, my);
+          }
         }
       }
-      if (m.x < -50) activeMonsters.splice(i, 1);
+
+      // ลบมอนสเตอร์เมื่อหลุดหน้าจอตามทิศทางของมัน
+      if (m.spawnSide === 'right' && m.x < -100) {
+        activeMonsters.splice(i, 1);
+      } else if (m.spawnSide === 'left' && m.x > cw + 100) {
+        activeMonsters.splice(i, 1);
+      }
     }
 
     // วาดและประมวลผลไอเทม 1P
