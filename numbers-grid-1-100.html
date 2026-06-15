@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Numbers 1–100</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;background:#1565C0;overflow:hidden;user-select:none}
+
+#wrap{display:flex;flex-direction:column;width:100vw;height:100vh}
+
+/* Top word banner */
+#word{
+  flex:0 0 24vh;
+  display:flex;align-items:center;justify-content:center;
+  padding:0 2vw;
+}
+#word-text{
+  font-family:'TH Sarabun New',Sarabun,Arial,sans-serif;
+  font-size:16vh;font-weight:700;line-height:1;
+  color:#FFE082;letter-spacing:0.02em;white-space:nowrap;
+}
+
+/* Grid — numbers only, 2 col × 5 row, column-major order */
+#grid{
+  flex:1;
+  padding:0.4vh 0.5vw;
+  display:grid;
+  grid-template-rows:repeat(5,1fr);
+  grid-template-columns:1fr 1fr;
+  grid-auto-flow:column;
+  gap:0.5vh 0.8vw;
+}
+.cell{
+  display:flex;align-items:center;justify-content:center;
+  border-radius:8px;
+  border:1.5px solid rgba(255,255,255,0.18);
+  background:rgba(255,255,255,0.04);
+  transition:background 0.1s,border-color 0.1s;
+}
+.cell.hl{background:#FFD700;border-color:#FF8F00}
+.cell .num{
+  font-family:'TH Sarabun New',Sarabun,Arial,sans-serif;
+  font-size:12vh;font-weight:700;line-height:1;color:#fff;
+}
+.cell.hl .num{color:#1A237E}
+
+/* Bottom bar */
+#bottom{
+  flex:0 0 5.5vh;
+  display:flex;align-items:center;
+  padding:0 1.5vw 0.8vh;
+  position:relative;
+}
+#dots{
+  position:absolute;left:50%;transform:translateX(-50%);
+  display:flex;gap:7px;align-items:center;
+}
+.dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,0.25);transition:background 0.2s}
+.dot.active{background:#FFD700}
+
+/* Speed controls — right side */
+#speed{
+  margin-left:auto;
+  display:flex;align-items:center;gap:4px;
+}
+#speed label{
+  font-family:Arial,sans-serif;font-size:1.6vh;
+  color:rgba(255,255,255,0.45);margin-right:2px;
+}
+.spd{
+  font-family:Arial,sans-serif;font-size:1.6vh;
+  padding:2px 9px;border-radius:4px;cursor:pointer;
+  border:1px solid rgba(255,255,255,0.28);
+  background:rgba(255,255,255,0.08);
+  color:rgba(255,255,255,0.65);
+  transition:background 0.12s,color 0.12s,border-color 0.12s;
+}
+.spd:hover{background:rgba(255,255,255,0.18)}
+.spd.on{background:#FFD700;border-color:#FF8F00;color:#1A237E;font-weight:700}
+
+/* Progress bar */
+#bar-wrap{position:fixed;top:0;left:0;width:100%;height:3px;z-index:20;background:rgba(255,255,255,0.1)}
+#bar{height:100%;background:#FFD700;transition:width 0.25s linear}
+</style>
+</head>
+<body>
+<div id="bar-wrap"><div id="bar" style="width:100%"></div></div>
+
+<div id="wrap">
+  <div id="word"><span id="word-text"></span></div>
+  <div id="grid"></div>
+  <div id="bottom">
+    <div id="dots"></div>
+    <div id="speed">
+      <label>Speed</label>
+      <button class="spd" data-ms="2000">2s</button>
+      <button class="spd on" data-ms="1500">1.5s</button>
+      <button class="spd" data-ms="1000">1s</button>
+      <button class="spd" data-ms="500">0.5s</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const NUMS=[
+  [1,"One"],[2,"Two"],[3,"Three"],[4,"Four"],[5,"Five"],
+  [6,"Six"],[7,"Seven"],[8,"Eight"],[9,"Nine"],[10,"Ten"],
+  [11,"Eleven"],[12,"Twelve"],[13,"Thirteen"],[14,"Fourteen"],[15,"Fifteen"],
+  [16,"Sixteen"],[17,"Seventeen"],[18,"Eighteen"],[19,"Nineteen"],[20,"Twenty"],
+  [21,"Twenty-one"],[22,"Twenty-two"],[23,"Twenty-three"],[24,"Twenty-four"],[25,"Twenty-five"],
+  [26,"Twenty-six"],[27,"Twenty-seven"],[28,"Twenty-eight"],[29,"Twenty-nine"],[30,"Thirty"],
+  [31,"Thirty-one"],[32,"Thirty-two"],[33,"Thirty-three"],[34,"Thirty-four"],[35,"Thirty-five"],
+  [36,"Thirty-six"],[37,"Thirty-seven"],[38,"Thirty-eight"],[39,"Thirty-nine"],[40,"Forty"],
+  [41,"Forty-one"],[42,"Forty-two"],[43,"Forty-three"],[44,"Forty-four"],[45,"Forty-five"],
+  [46,"Forty-six"],[47,"Forty-seven"],[48,"Forty-eight"],[49,"Forty-nine"],[50,"Fifty"],
+  [51,"Fifty-one"],[52,"Fifty-two"],[53,"Fifty-three"],[54,"Fifty-four"],[55,"Fifty-five"],
+  [56,"Fifty-six"],[57,"Fifty-seven"],[58,"Fifty-eight"],[59,"Fifty-nine"],[60,"Sixty"],
+  [61,"Sixty-one"],[62,"Sixty-two"],[63,"Sixty-three"],[64,"Sixty-four"],[65,"Sixty-five"],
+  [66,"Sixty-six"],[67,"Sixty-seven"],[68,"Sixty-eight"],[69,"Sixty-nine"],[70,"Seventy"],
+  [71,"Seventy-one"],[72,"Seventy-two"],[73,"Seventy-three"],[74,"Seventy-four"],[75,"Seventy-five"],
+  [76,"Seventy-six"],[77,"Seventy-seven"],[78,"Seventy-eight"],[79,"Seventy-nine"],[80,"Eighty"],
+  [81,"Eighty-one"],[82,"Eighty-two"],[83,"Eighty-three"],[84,"Eighty-four"],[85,"Eighty-five"],
+  [86,"Eighty-six"],[87,"Eighty-seven"],[88,"Eighty-eight"],[89,"Eighty-nine"],[90,"Ninety"],
+  [91,"Ninety-one"],[92,"Ninety-two"],[93,"Ninety-three"],[94,"Ninety-four"],[95,"Ninety-five"],
+  [96,"Ninety-six"],[97,"Ninety-seven"],[98,"Ninety-eight"],[99,"Ninety-nine"],[100,"One Hundred"],
+];
+
+const grid    = document.getElementById('grid');
+const wordTxt = document.getElementById('word-text');
+const bar     = document.getElementById('bar');
+const dotsEl  = document.getElementById('dots');
+
+let cellMs = 1500;
+let curSlide = 0, curCell = 0, timer = null;
+
+// Pre-build cell elements for all slides
+const slides = NUMS.reduce((acc, [n, en], i) => {
+  const s = Math.floor(i / 10);
+  if (!acc[s]) acc[s] = [];
+  const el = document.createElement('div');
+  el.className = 'cell';
+  el.innerHTML = `<span class="num">${n}</span>`;
+  el.dataset.en = en;
+  acc[s].push(el);
+  return acc;
+}, []);
+
+// Build dots
+slides.forEach(() => {
+  const d = document.createElement('div');
+  d.className = 'dot';
+  dotsEl.appendChild(d);
+});
+const dotEls = dotsEl.querySelectorAll('.dot');
+
+function updateBar(remaining10ths) {
+  bar.style.width = (remaining10ths / 10 * 100) + '%';
+}
+
+function setHl(sIdx, cIdx) {
+  slides[sIdx].forEach((c, i) => c.classList.toggle('hl', i === cIdx));
+  wordTxt.textContent = slides[sIdx][cIdx].dataset.en;
+  updateBar(10 - cIdx);
+}
+
+function renderSlide(sIdx) {
+  grid.innerHTML = '';
+  slides[sIdx].forEach(c => grid.appendChild(c));
+}
+
+function goTo(idx) {
+  dotEls[curSlide].classList.remove('active');
+  curSlide = ((idx % 10) + 10) % 10;
+  curCell = 0;
+  dotEls[curSlide].classList.add('active');
+  renderSlide(curSlide);
+  setHl(curSlide, 0);
+  startTimer();
+}
+
+function startTimer() {
+  clearInterval(timer);
+  timer = setInterval(() => {
+    curCell++;
+    if (curCell >= 10) { goTo(curSlide + 1); return; }
+    setHl(curSlide, curCell);
+  }, cellMs);
+}
+
+// Speed buttons
+document.querySelectorAll('.spd').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    document.querySelectorAll('.spd').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    cellMs = +btn.dataset.ms;
+    startTimer(); // restart with new interval, keep current cell position
+  });
+});
+
+// Keys
+document.addEventListener('keydown', e => {
+  if (e.key==='ArrowRight'||e.key===' '||e.key==='PageDown') { e.preventDefault(); goTo(curSlide+1); }
+  else if (e.key==='ArrowLeft'||e.key==='PageUp') { e.preventDefault(); goTo(curSlide-1); }
+  else if (e.key==='f'||e.key==='F') {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+  }
+});
+
+// Click to advance (not on speed buttons)
+document.getElementById('wrap').addEventListener('click', e => {
+  if (!e.target.closest('#speed')) goTo(curSlide + 1);
+});
+
+goTo(0);
+</script>
+</body>
+</html>
