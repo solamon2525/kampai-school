@@ -21,7 +21,15 @@ function loadPlayerData() {
     if (window.KAMPAI && window.KAMPAI.student && window.KAMPAI.student.displayName) {
         playerProfile.name = window.KAMPAI.student.displayName;
     }
-    
+
+    // ในระบบโรงเรียน (embed) ใช้สถิติจริงจาก KAMPAI.stats — ไม่ใช่ตัวนับ localStorage (กันโชว์คนละชุด/ข้ามเครื่องเป็น 0)
+    if (window.KAMPAI && window.KAMPAI.stats) {
+        const s = window.KAMPAI.stats;
+        playerProfile.personalBest = s.personalBest || 0;
+        playerProfile.gamesPlayed = s.playsCount || 0;
+        playerProfile.exp = s.totalXp || 0;
+    }
+
     updateProfileUI();
     
     if (!playerProfile.name && (!window.KAMPAI || !window.KAMPAI.isEmbed)) {
@@ -80,6 +88,7 @@ let round = 0;
 let fishArr = [];
 let spawnTimer = null;
 let combo = 0;
+let maxCombo = 0;
 let isHookCasting = false;
 let isGameActive = false;
 
@@ -92,7 +101,6 @@ const screens = {
 const ui = {
     lives: document.getElementById('lives-display'),
     score: document.getElementById('score-display'),
-    combo: document.getElementById('combo-display'),
     progressBar: document.getElementById('round-progress-bar'),
     targetBadge: document.getElementById('target-badge'),
     levelHud: document.getElementById('level-hud'),
@@ -122,6 +130,7 @@ function startGamePlay() {
     lives = config.LIVES_LIMIT;
     round = 0;
     combo = 0;
+    maxCombo = 0;
     fishArr = [];
     isHookCasting = false;
     
@@ -250,12 +259,14 @@ function castHook(targetX, targetY, callback) {
 }
 
 function clickFish(el, isCorrect, word) {
+    if (!el.parentNode) return; // ปลาถูก auto-despawn ระหว่างสายเบ็ดกำลังลง — ไม่นับคะแนน
     el.style.pointerEvents = "none";
     
     if (isCorrect) {
         el.classList.add("correct");
         score += 10 * (combo + 1);
         combo++;
+        if (combo > maxCombo) maxCombo = combo;
         
         if (window.KAMPAI && window.KAMPAI.sound) {
             window.KAMPAI.sound.correct();
@@ -289,11 +300,13 @@ function clickFish(el, isCorrect, word) {
         area.classList.add("shake");
         setTimeout(() => area.classList.remove("shake"), 400);
         
+        // ลบปลาผิดทิ้งหลังเอฟเฟกต์ — กันกดซ้ำตัวเดิมรัว ๆ แล้วเสียชีวิตหมดจากปลาตัวเดียว
         setTimeout(() => {
             el.classList.remove("wrong");
-            el.style.pointerEvents = "auto";
+            if (el.parentNode) el.remove();
+            fishArr = fishArr.filter(f => f !== el);
         }, 400);
-        
+
         if (lives <= 0) {
             endGame(false);
         }
@@ -363,7 +376,8 @@ function endGame(isSuccess) {
         ui.resultTitle.innerText = "ภารกิจสำเร็จ!";
         ui.resultTitle.className = "text-3xl font-bold text-indigo-900 mb-2";
         
-        earnedStars = (score >= 220) ? 3 : (score >= 140) ? 2 : 1;
+        const th = config.STAR_THRESHOLDS; // [1★, 2★, 3★] — อ่านจาก config กัน drift
+        earnedStars = (score >= th[2]) ? 3 : (score >= th[1]) ? 2 : 1;
         gainedExp += (earnedStars * 15);
         
         if (earnedStars === 3) {
@@ -407,7 +421,7 @@ function endGame(isSuccess) {
             allowResubmit: true,
             lives_remaining: lives,
             is_success: isSuccess,
-            max_combo: combo
+            max_combo: maxCombo
         });
     }
 }

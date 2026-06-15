@@ -1140,8 +1140,12 @@
             document.getElementById('p2Stats').style.display = (numPlayers === 2) ? 'block' : 'none';
             gameState = 'PLAYING';
             init();
-            
-            if (animationId) cancelAnimationFrame(animationId); 
+
+            // แสดง touch control เฉพาะแท็บเล็ต/มือถือ + โหมด 1 คน (2 คนบนจอสัมผัสเดียวเล่นไม่ได้)
+            const tc = document.getElementById('touchControls');
+            if (IS_TOUCH && numPlayers === 1) tc.classList.add('show'); else tc.classList.remove('show');
+
+            if (animationId) cancelAnimationFrame(animationId);
             gameLoop();
         }
 
@@ -1535,6 +1539,8 @@
 
         function gameOver() {
             gameState = 'GAMEOVER';
+            document.getElementById('touchControls').classList.remove('show');
+            if (window._tcReset) window._tcReset();
             playSound('gameover');
             document.getElementById('gameOverScreen').style.display = 'flex';
             
@@ -1583,8 +1589,94 @@
 
         function restartGame() {
             document.getElementById('gameOverScreen').style.display = 'none';
-            document.getElementById('startScreen').style.display = 'flex'; 
+            document.getElementById('startScreen').style.display = 'flex';
         }
+
+        // ═══ Touch Controls — twin-stick (ซ้าย=เดิน, ขวา=เล็ง+ยิง) สำหรับแท็บเล็ต/มือถือ ═══
+        const IS_TOUCH = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+        (function setupTouchControls() {
+            if (!IS_TOUCH) return;
+            const moveBase = document.getElementById('tcMoveBase'), moveThumb = document.getElementById('tcMoveThumb');
+            const fireBase = document.getElementById('tcFireBase'), fireThumb = document.getElementById('tcFireThumb');
+            const MAX = 55, DEAD = 16;
+            let moveId = null, moveOX = 0, moveOY = 0;
+            let fireId = null, fireOX = 0, fireOY = 0;
+
+            function placeBase(base, x, y) { base.style.left = x + 'px'; base.style.top = y + 'px'; base.classList.add('active'); }
+            function clampThumb(thumb, dx, dy) {
+                const len = Math.hypot(dx, dy);
+                if (len > MAX) { dx = dx / len * MAX; dy = dy / len * MAX; }
+                thumb.style.transform = `translate(${dx}px, ${dy}px)`;
+                return len;
+            }
+            function setMove(dx, dy, len) {
+                keys.w = keys.a = keys.s = keys.d = false;
+                if (len < DEAD) return;
+                if (dy < -DEAD * 0.5) keys.w = true;
+                if (dy >  DEAD * 0.5) keys.s = true;
+                if (dx < -DEAD * 0.5) keys.a = true;
+                if (dx >  DEAD * 0.5) keys.d = true;
+            }
+            function setFire(dx, dy, len) {
+                if (len < DEAD || !players[0]) { mouse.isDown = false; return; }
+                const ang = Math.atan2(dy, dx);
+                mouse.x = players[0].x + Math.cos(ang) * 400;
+                mouse.y = players[0].y + Math.sin(ang) * 400;
+                mouse.isDown = true;
+            }
+
+            canvas.addEventListener('touchstart', e => {
+                if (gameState !== 'PLAYING') return;
+                initAudio();
+                const half = window.innerWidth / 2;
+                for (const t of e.changedTouches) {
+                    if (t.clientX < half && moveId === null) {
+                        moveId = t.identifier; moveOX = t.clientX; moveOY = t.clientY;
+                        placeBase(moveBase, moveOX, moveOY); clampThumb(moveThumb, 0, 0);
+                    } else if (t.clientX >= half && fireId === null) {
+                        fireId = t.identifier; fireOX = t.clientX; fireOY = t.clientY;
+                        placeBase(fireBase, fireOX, fireOY); clampThumb(fireThumb, 0, 0);
+                    }
+                }
+                e.preventDefault();
+            }, { passive: false });
+
+            canvas.addEventListener('touchmove', e => {
+                if (gameState !== 'PLAYING') return;
+                for (const t of e.changedTouches) {
+                    if (t.identifier === moveId) {
+                        const dx = t.clientX - moveOX, dy = t.clientY - moveOY;
+                        setMove(dx, dy, clampThumb(moveThumb, dx, dy));
+                    } else if (t.identifier === fireId) {
+                        const dx = t.clientX - fireOX, dy = t.clientY - fireOY;
+                        setFire(dx, dy, clampThumb(fireThumb, dx, dy));
+                    }
+                }
+                e.preventDefault();
+            }, { passive: false });
+
+            function endTouch(e) {
+                for (const t of e.changedTouches) {
+                    if (t.identifier === moveId) {
+                        moveId = null; moveThumb.style.transform = 'translate(0,0)';
+                        moveBase.classList.remove('active'); keys.w = keys.a = keys.s = keys.d = false;
+                    } else if (t.identifier === fireId) {
+                        fireId = null; fireThumb.style.transform = 'translate(0,0)';
+                        fireBase.classList.remove('active'); mouse.isDown = false;
+                    }
+                }
+            }
+            canvas.addEventListener('touchend', endTouch);
+            canvas.addEventListener('touchcancel', endTouch);
+
+            // รีเซ็ตสติ๊ก/อินพุตเมื่อจบเกมหรือออกเมนู
+            window._tcReset = function () {
+                moveId = fireId = null;
+                keys.w = keys.a = keys.s = keys.d = false; mouse.isDown = false;
+                moveThumb.style.transform = fireThumb.style.transform = 'translate(0,0)';
+                moveBase.classList.remove('active'); fireBase.classList.remove('active');
+            };
+        })();
     </script>
 </body>
 </html>
