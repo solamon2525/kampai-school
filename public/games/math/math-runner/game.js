@@ -558,26 +558,20 @@ function handleTouchInput(e) {
       }
     }
   } else {
-    // ในโหมดคนเดียว: ปล่อยให้ลากนิ้วเลื่อนเลนตามตำแหน่งแกน Y ได้เรียลไทม์ (Absolute Y Mapping)
-    for (let i = 0; i < e.touches.length; i++) {
-      const touch = e.touches[i];
-      const ty = touch.clientY;
-      
-      let laneIndex = 1;
-      if (ty < ch * 0.40) {
-        laneIndex = 0;
-      } else if (ty < ch * 0.55) {
-        laneIndex = 1;
-      } else if (ty < ch * 0.70) {
-        laneIndex = 2;
-      } else {
-        laneIndex = 3;
+    // ในโหมดคนเดียว: ขยับเลนขึ้น/ลงทีละ 1 ช่องสัมพัทธ์เมื่อเริ่มจิ้มสัมผัสพิกัดใหม่ (touchstart) ห้ามข้ามเลนทางลัด
+    if (e.type === 'touchstart' && e.changedTouches) {
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        const touch = e.changedTouches[i];
+        const ty = touch.clientY;
+        
+        if (ty < ch / 2) {
+          const dir = (p1ConfusedTime > 0) ? 1 : -1;
+          targetPlayerLane = Math.max(0, Math.min(3, targetPlayerLane + dir));
+        } else {
+          const dir = (p1ConfusedTime > 0) ? -1 : 1;
+          targetPlayerLane = Math.max(0, Math.min(3, targetPlayerLane + dir));
+        }
       }
-      
-      if (p1ConfusedTime > 0) {
-        laneIndex = 3 - laneIndex;
-      }
-      targetPlayerLane = laneIndex;
     }
   }
 }
