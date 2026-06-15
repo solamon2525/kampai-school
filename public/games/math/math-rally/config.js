@@ -1,6 +1,6 @@
 /* config.js — พารามิเตอร์เกม "รถซิ่งสูตรคูณ" (แก้ค่าตรงนี้ที่เดียว ไม่ต้องแตะ game.js) */
 window.GAME_CONFIG = {
-  SLUG: 'multiply-rally',
+  SLUG: 'math-rally',
   BGM: 'playful',
 
   // ── สนามแข่ง ──

@@ -1,5 +1,5 @@
-/* game.js — "รถซิ่งสูตรคูณ" (multiply-rally)
-   Racing duel 2 เลน: ตอบสูตรคูณถูก → รถพุ่ง · ผิด → รถช้า · ถึงเส้นชัยก่อนชนะ
+/* game.js — "รถซิ่งคณิตศาสตร์" (math-rally)
+   Racing duel 2 เลน: ตอบคำถามคณิตศาสตร์ถูก → รถพุ่ง · ผิด → รถช้า · ถึงเส้นชัยก่อนชนะ
    โหมด vs คอม (AI 3 ระดับ) + ออนไลน์ (kampai-match: rankBy 'score' + onOpponent ขยับรถคู่แข่งสด) */
 
 /* ═══ ตั้งค่า KAMPAI จาก config (วัฒนธรรมมาตรฐาน) ═══ */
@@ -51,7 +51,7 @@ let match = null;
 if (CFG.ENABLE_ONLINE && window.KampaiMatch) {
     match = KampaiMatch.create({
         duration: CFG.ONLINE_DURATION,
-        title: 'รถซิ่งสูตรคูณ',
+        title: 'รถซิ่งคณิตศาสตร์',
         tournament: true,
         rankBy: 'score',                                   // อันดับตามระยะ/score ไม่ใช่จำนวนข้อถูก
         onPlay: (o) => startRace('online', o),             // GO! — rng โจทย์+ไอเทมตรงกันทุกเครื่อง
@@ -65,7 +65,7 @@ function openOnline() { KAMPAI.sound.unlock(); if (match) match.openMenu(); }
 /* ═══════════════════════════════════════════════════════════════════════════
    GAME LOGIC — race loop
    ═══════════════════════════════════════════════════════════════════════════ */
-let mode = 'cpu', difficulty = 'easy', selectedTable = null;
+let mode = 'cpu', difficulty = 'easy', selectedMode = 'mix';
 let started = false, isGameOver = false, isSpectator = false, onlineEnded = false, raceDone = false;
 let score = 0, correct = 0, wrongCount = 0, streak = 0, maxStreak = 0, lightning = 0;
 let player, rival, items = [];
@@ -88,37 +88,87 @@ function renderCombo() {
 function toast(text) { const t = $('toast'); t.textContent = text; t.classList.remove('show'); void t.offsetWidth; t.classList.add('show'); }
 function flash(msg, good) { const f = $('feedback'); f.textContent = msg; f.className = good ? 'good' : 'bad'; }
 
-/* ── เลือกแม่สูตรคูณ (chip: ผสม + 2..12) ── */
-(function buildTablePicker() {
+/* ── เลือกโหมดคณิตศาสตร์ (chip: ผสม, บวก, ลบ, คูณ, หาร) ── */
+(function buildModePicker() {
     const picker = $('table-picker');
-    const chips = ['ผสม', ...DATA.TABLES];
-    picker.innerHTML = chips.map((t, i) =>
-        `<button class="tchip${i === 0 ? ' sel' : ''}" data-t="${i === 0 ? '' : t}">${t}</button>`).join('');
+    const modes = [
+        { label: 'ผสม', val: 'mix' },
+        { label: 'บวก ➕', val: 'add' },
+        { label: 'ลบ ➖', val: 'sub' },
+        { label: 'คูณ ✖️', val: 'mul' },
+        { label: 'หาร ➗', val: 'div' }
+    ];
+    picker.innerHTML = modes.map((m, i) =>
+        `<button class="tchip${i === 0 ? ' sel' : ''}" data-m="${m.val}">${m.label}</button>`).join('');
     picker.addEventListener('click', (e) => {
         const btn = e.target.closest('.tchip'); if (!btn) return;
         picker.querySelectorAll('.tchip').forEach((c) => c.classList.remove('sel'));
         btn.classList.add('sel');
-        selectedTable = btn.dataset.t ? Number(btn.dataset.t) : null;
+        selectedMode = btn.dataset.m;
     });
 })();
 
-/* ── โจทย์ + ตัวลวง (สูตรเดียวกับ multiply-race) ── */
+/* ── โจทย์ + ตัวลวง ── */
 function nextQuestion() {
     locked = false;
-    curA = selectedTable || DATA.TABLES[(qrand() * DATA.TABLES.length) | 0];
-    curB = DATA.FACTORS[(qrand() * DATA.FACTORS.length) | 0];
-    curAns = curA * curB;
+    let op = selectedMode;
+    if (op === 'mix') {
+        const ops = ['add', 'sub', 'mul', 'div'];
+        op = ops[(qrand() * ops.length) | 0];
+    }
+
+    let qText = '';
+    let cands = [];
+
+    if (op === 'add') {
+        // Addition: 2-digit + 1-digit/2-digit
+        const a = Math.floor(qrand() * 70) + 15; // 15 to 84
+        const b = Math.floor(qrand() * 25) + 5;  // 5 to 29
+        curAns = a + b;
+        qText = `${a} + ${b}`;
+        cands = [curAns + 10, curAns - 10, curAns + 1, curAns - 1, curAns + 2, curAns - 2, curAns + 11, curAns - 9];
+    } else if (op === 'sub') {
+        // Subtraction: 2-digit - 1-digit/2-digit (always positive)
+        const a = Math.floor(qrand() * 70) + 25; // 25 to 94
+        const b = Math.floor(qrand() * (a - 10)) + 5; // 5 to a-6
+        curAns = a - b;
+        qText = `${a} − ${b}`;
+        cands = [curAns + 10, curAns - 10, curAns + 1, curAns - 1, curAns + 2, curAns - 2, curAns + 9, curAns - 11];
+    } else if (op === 'mul') {
+        // Multiplication: 2-12 tables
+        const a = Math.floor(qrand() * 11) + 2; // 2 to 12
+        const b = Math.floor(qrand() * 11) + 2; // 2 to 12
+        curAns = a * b;
+        qText = `${a} × ${b}`;
+        cands = [curAns + a, curAns - a, curAns + b, curAns - b, curAns + 1, curAns - 1, a * (b + 1), a * (b - 1)];
+    } else {
+        // Division: quotients 2-12, divisors 2-12
+        const ans = Math.floor(qrand() * 11) + 2; // 2 to 12
+        const b = Math.floor(qrand() * 11) + 2;   // 2 to 12
+        const a = ans * b;
+        curAns = ans;
+        qText = `${a} ÷ ${b}`;
+        cands = [curAns + 1, curAns - 1, curAns + 2, curAns - 2, curAns + 3, curAns - 3, curAns + 4, curAns - 4];
+    }
+
     const set = new Set([curAns]);
-    const cands = [curAns + curA, curAns - curA, curAns + curB, curAns - curB,
-                   curAns + 1, curAns - 1, curA * (curB + 1), curA * (curB - 1)];
-    for (const c of cands) { if (c > 0 && c !== curAns) set.add(c); if (set.size >= 4) break; }
-    while (set.size < 4) { const r = curAns + ((qrand() * 9 | 0) - 4); if (r > 0) set.add(r); }
+    for (const c of cands) {
+        if (c > 0 && c !== curAns) set.add(c);
+        if (set.size >= 4) break;
+    }
+    while (set.size < 4) {
+        const r = curAns + ((qrand() * 9 | 0) - 4);
+        if (r > 0) set.add(r);
+    }
     const arr = [...set].slice(0, 4);
-    for (let i = arr.length - 1; i > 0; i--) { const j = (qrand() * (i + 1)) | 0; [arr[i], arr[j]] = [arr[j], arr[i]]; }
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = (qrand() * (i + 1)) | 0;
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
     curOpts = arr;
 
     const q = $('question');
-    q.textContent = `${curA} × ${curB}`;
+    q.textContent = qText;
     q.classList.add('bump'); setTimeout(() => q.classList.remove('bump'), 250);
     $('feedback').textContent = ''; $('feedback').className = '';
     document.querySelectorAll('.ans').forEach((b, i) => {
@@ -128,7 +178,15 @@ function nextQuestion() {
     });
     $('q-timer-bar').classList.remove('warn');
     qShownAt = performance.now();
-    if (mode !== 'online') KAMPAI.sound.speak(`${curA} คูณ ${curB}`, 'th-TH');
+    
+    if (mode !== 'online') {
+        let speakText = '';
+        if (op === 'add') speakText = qText.replace('+', 'บวก');
+        else if (op === 'sub') speakText = qText.replace('−', 'ลบ');
+        else if (op === 'mul') speakText = qText.replace('×', 'คูณ');
+        else if (op === 'div') speakText = qText.replace('÷', 'หารด้วย');
+        KAMPAI.sound.speak(speakText, 'th-TH');
+    }
 }
 
 function revealAnswer() {
@@ -317,6 +375,16 @@ function loop(ts) {
     lastTs = ts;
     const now = performance.now();
 
+    const finishLine = document.querySelector('.finish-line');
+    const trackWidth = $('track').clientWidth;
+    const finishLeft = finishLine ? finishLine.offsetLeft : trackWidth - 32;
+    const playerCar = $('player-car');
+    const rivalCar = $('rival-car');
+    const pCarWidth = playerCar.offsetWidth || 64;
+    const rCarWidth = rivalCar.offsetWidth || 64;
+    const pMaxLeft = finishLeft - pCarWidth;
+    const rMaxLeft = finishLeft - rCarWidth;
+
     if (!raceDone) {
         // ผู้เล่น: วิ่ง + decay
         const pSlow = now < player.slowUntil ? 0.5 : 1;
@@ -351,17 +419,37 @@ function loop(ts) {
 
         reportOnline();
 
-        // ถึงเส้นชัย
-        if (player.dist >= CFG.TRACK_LEN) finishRace(true);
-        else if (mode === 'cpu' && rival.dist >= CFG.TRACK_LEN) finishRace(false);
-        else if (mode === 'cpu' && now >= raceEndAt) finishRace(player.dist > rival.dist);   // หมดเวลา → เทียบระยะ
+        // Lock at max distance once reached logically
+        if (player.dist >= CFG.TRACK_LEN) {
+            player.dist = CFG.TRACK_LEN;
+            locked = true; // Stop accepting further answers once crossing logically
+        }
+        if (rival.dist >= CFG.TRACK_LEN) {
+            rival.dist = CFG.TRACK_LEN;
+        }
+
+        // Only trigger finish when the car physically touches the finish line visually
+        const playerTouched = (player.dist >= CFG.TRACK_LEN) && (playerCar.offsetLeft + pCarWidth >= finishLeft);
+        const rivalTouched = (rival.dist >= CFG.TRACK_LEN) && (rivalCar.offsetLeft + rCarWidth >= finishLeft);
+
+        if (playerTouched) {
+            finishRace(true);
+        } else if (mode === 'cpu' && rivalTouched) {
+            finishRace(false);
+        } else if (mode === 'cpu' && now >= raceEndAt) {
+            // Time up: compare distance
+            finishRace(player.dist > rival.dist);
+        }
     }
 
     // วาด
     const pPct = Math.min(100, player.dist / CFG.TRACK_LEN * 100);
     const rPct = Math.min(100, rival.dist / CFG.TRACK_LEN * 100);
-    $('player-car').style.left = (pPct * 0.86) + '%';
-    $('rival-car').style.left = (rPct * 0.86) + '%';
+    
+    // Position cars dynamically in pixels so they align perfectly with the finish line at 100%
+    playerCar.style.left = (pPct / 100 * pMaxLeft) + 'px';
+    rivalCar.style.left = (rPct / 100 * rMaxLeft) + 'px';
+    
     $('player-pct').textContent = Math.floor(pPct) + '%';
     $('rival-pct').textContent = Math.floor(rPct) + '%';
     const qFrac = isSpectator ? 1 : Math.max(0, 1 - (now - qShownAt) / CFG.Q_TIME_MS);
@@ -418,7 +506,7 @@ function endGame(won, finalScore) {
     setScore(finalScore);
     KAMPAI.submitScore(finalScore, {
         mode: 'normal', correct, maxStreak, won,
-        difficulty, table: selectedTable || 'mix', lightning, wrong: wrongCount,
+        difficulty, table: selectedMode, lightning, wrong: wrongCount,
     });
     if (won) spawnConfetti();
     $('go-title').textContent = won ? '🏆 ชนะแล้ว!' : 'จบเกม!';

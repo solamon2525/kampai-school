@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>🏎️ รถซิ่งสูตรคูณ — Multiply Rally (kampai)</title>
+<title>🏎️ รถซิ่งคณิตศาสตร์ — Math Rally (kampai)</title>
 <!--
 ═══════════════════════════════════════════════════════════════════════════
-  KAMPAI-SCHOOL · เกม "รถซิ่งสูตรคูณ" (multiply-rally)
-  Racing duel 2 เลน: ตอบสูตรคูณถูก → รถพุ่ง · ผิด → รถช้า · ถึงเส้นชัยก่อนชนะ
+  KAMPAI-SCHOOL · เกม "รถซิ่งคณิตศาสตร์" (math-rally)
+  Racing duel 2 เลน: ตอบคำถามคณิตศาสตร์ถูก → รถพุ่ง · ผิด → รถช้า · ถึงเส้นชัยก่อนชนะ
   โหมด: 🤖 แข่งกับคอม (3 ระดับ) · 🌐 ออนไลน์ (kampai-match — ถึงเส้นชัยก่อนจบรอบ)
   ไอเทมบนถนน: 🚀 นิโทร · 🛡️ โล่ · ⭐ ดาวคะแนน×2 · 🐢 เต่า (vs คอมเท่านั้น)
   ตอบ: แตะ/คลิก หรือคีย์ลูกศร ↑←→↓ ตาม layout เพชร (+ เลข 1-4)
@@ -63,14 +63,14 @@
 
 <!-- Start screen -->
 <div id="blocker">
-    <h1>🏎️ รถซิ่งสูตรคูณ</h1>
+    <h1>🏎️ รถซิ่งคณิตศาสตร์</h1>
     <div id="player-chip"></div>
-    <p>ตอบสูตรคูณถูก รถพุ่ง! ตอบผิด รถช้า 🐌<br>เก็บไอเทมบนถนน 🚀🛡️⭐ — ถึงเส้นชัยก่อนชนะ 🏁</p>
+    <p>ตอบคำถามคณิตศาสตร์ถูก รถพุ่ง! ตอบผิด รถช้า 🐌<br>เก็บไอเทมบนถนน 🚀🛡️⭐ — ถึงเส้นชัยก่อนชนะ 🏁</p>
     <div id="my-stats">
         <div class="ms-cell"><div class="ms-val" id="ms-best">0</div><div class="ms-label">คะแนนสูงสุด</div></div>
         <div class="ms-cell"><div class="ms-val" id="ms-plays">0</div><div class="ms-label">เล่นไปแล้ว (ครั้ง)</div></div>
     </div>
-    <div class="pick-label">แม่สูตรคูณ:</div>
+    <div class="pick-label">โหมดคณิตศาสตร์:</div>
     <div id="table-picker"></div>
     <div class="mode-row">
         <button class="btn btn-primary" onclick="startCpu('easy')">🤖 ง่าย</button>
