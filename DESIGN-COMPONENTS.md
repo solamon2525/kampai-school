@@ -343,6 +343,24 @@ import { DailyQuestPanel } from '@/components/games/DailyQuestPanel';
 
 ---
 
+### GamificationHub (games — Educational Hub)
+
+รวม **อันดับ + เหรียญ + ภารกิจ** เป็นการ์ดเดียวบนหน้า hub เพื่อให้ "เปิดมาเห็นภาพปกเกมทันที" — แทนการวาง `DailyQuestPanel` + `GameRankings` + `HonorWall` ซ้อนแนวตั้ง (เคยกินพื้นที่ ~1,000px ดันปกเกมตกใต้ fold)
+
+```tsx
+import { GamificationHub } from '@/components/games/GamificationHub';
+<GamificationHub studentCode={hubStudentCode} />   // ใช้ใน EducationalHubTeacher.tsx
+```
+
+- **แถบสรุป (เห็นเสมอ ~143px เดสก์ท็อป):** `LevelRing size={44}` + ชื่อ/ชั้น (PersonAvatar) + XP bar + chips `🎮 เกม · 🏅 เหรียญ · 🔥 streak · 🎯 ภารกิจ` — match สไตล์ chip เดิม (`rounded-full bg-muted px-2 py-0.5`)
+- **ปุ่มแท็บ 3 อัน collapsed by default** — state `openTab: 'rank'|'medals'|'quest'|null`; กดซ้ำ = ปิด, กดอื่น = สลับ. active = `border-amber-500 bg-amber-100 text-amber-800` (เหมือน chip strip GameRankings)
+- พาเนลขยาย **reuse component เดิม** เป็นการ์ดของตัวเอง (ไม่ซ้อนการ์ด): `rank → <GameRankings>` · `medals → <HonorWall variant="medals">` (ในการ์ด wrap) · `quest → <DailyQuestPanel variant="full">`
+- ใช้ `queryKey` เดียวกับ HonorWall/DailyQuestPanel (`['honor-profile', code]` / `dailyQuestQueryKey`) → react-query แชร์ cache **ไม่ยิงซ้ำ**
+- ไม่มี `studentCode` = แถบสรุปโชว์หัวข้อ "🏆 อันดับ & เหรียญเกียรติยศ" + โชว์เฉพาะปุ่ม "อันดับ" (leaderboard ดูได้แบบ anon)
+- คู่กับ **HonorWall variant="medals"** (ใหม่): render เฉพาะ `MedalsSection` (เหรียญสากล + รายเกม + ใกล้ปลดล็อก) ไม่มี Card/หัวโปรไฟล์ เพราะแถบสรุปแสดงโปรไฟล์ให้แล้ว · `LevelRing` ถูก export เพื่อใช้ร่วม
+
+---
+
 ### GameDocsDialog (admin — games)
 
 Dialog ดู/แก้ **รายละเอียดเกม** (รูปแบบ / ฟีเจอร์ / เวอร์ชันบิลด์ / notes) — สเปกเดียวต่อเกม (แก้ทับ).

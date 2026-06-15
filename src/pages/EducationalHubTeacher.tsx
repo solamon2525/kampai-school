@@ -29,9 +29,7 @@ import {
 } from '@/services/educational-hub.service';
 import { CategoryChipStrip } from '@/components/educational-hub/CategoryChipStrip';
 import { CategorySection } from '@/components/educational-hub/CategorySection';
-import { HonorWall } from '@/components/games/HonorWall';
-import { DailyQuestPanel } from '@/components/games/DailyQuestPanel';
-import { GameRankings } from '@/components/games/GameRankings';
+import { GamificationHub } from '@/components/games/GamificationHub';
 import {
     SectionToolbar,
     EMPTY_FILTER,
@@ -333,26 +331,9 @@ const EducationalHubTeacher = () => {
                     counts={teacher.counts_by_category ?? {}}
                 />
 
-                {/* 🏆 อันดับ & เหรียญ — gamification กลาง (ทุกเกม) */}
-                <section className="px-4 pt-8 space-y-4 max-w-5xl mx-auto">
-                    <header className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-                            <span className="text-xl">🏆</span>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <h2 className="text-lg sm:text-xl font-bold text-foreground">อันดับ & เหรียญเกียรติยศ</h2>
-                            <p className="text-xs text-muted-foreground">เล่นหลายเกม หลายแบบ สะสม XP ปลดล็อกเหรียญ — อันดับสัปดาห์รีเซ็ตทุกวันจันทร์</p>
-                        </div>
-                    </header>
-                    {hubStudentCode && (
-                        <div className="mb-4">
-                            <DailyQuestPanel studentCode={hubStudentCode} variant="full" />
-                        </div>
-                    )}
-                    <div className="grid gap-4 lg:grid-cols-2">
-                        <GameRankings studentCode={hubStudentCode} />
-                        {hubStudentCode && <HonorWall studentCode={hubStudentCode} variant="full" />}
-                    </div>
+                {/* 🏆 อันดับ & เหรียญ — gamification กลาง (ย่อเป็นแถบสรุป+แท็บ ให้เห็นปกเกมทันที) */}
+                <section className="px-4 pt-6 max-w-5xl mx-auto">
+                    <GamificationHub studentCode={hubStudentCode} />
                 </section>
 
                 {/* Category sections */}

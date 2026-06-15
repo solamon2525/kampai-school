@@ -272,8 +272,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.84.0 (ตัวชี้วัดหลักสูตร — นำเข้าครบ 8 กลุ่มสาระ + สร้างเกมอิงตัวชี้วัด + Coverage)',
+        version: 'v1.85.0 (Educational Hub — ย่อบล็อก "อันดับ & เหรียญ" เป็นแถบสรุป+แท็บกดขยาย)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'รวม 3 การ์ด (DailyQuestPanel + GameRankings + HonorWall) ที่เคยซ้อนแนวตั้งกินพื้นที่ ~1,000px → GamificationHub การ์ดเดียว: แถบสรุปย่อ 1 แถว (LV ring + ชื่อ + XP bar + chips 🎮/🏅/🔥/🎯) สูงเหลือ ~143px (เดสก์ท็อป) / ~188px (มือถือ)',
+            'ปุ่มแท็บ 3 อัน (🏆 อันดับ / 🎖️ เหรียญ / 🎯 ภารกิจ) collapsed by default — กดขยายดูเนื้อหาเต็ม, กดซ้ำ/สลับแท็บได้ → เปิดหน้า hub เห็นภาพปกเกมทันทีโดยไม่ต้องเลื่อนผ่าน gamification',
+            'HonorWall เพิ่ม variant "medals" (ตู้เหรียญล้วน ไม่มีหัวโปรไฟล์ซ้ำ) + export LevelRing ใช้ร่วมกับแถบสรุป — reuse logic เดิมทั้งหมด ไม่เขียนตรรกะอันดับ/เหรียญ/quest ใหม่',
+            'GamificationHub ใช้ queryKey เดียวกับ HonorWall/DailyQuestPanel (honor-profile / daily-quest-status) → react-query แชร์ cache ไม่ยิงซ้ำ; ไม่มี student code = โชว์เฉพาะแท็บ "อันดับ"',
+        ],
+    },
+    {
+        version: 'v1.84.0 (ตัวชี้วัดหลักสูตร — นำเข้าครบ 8 กลุ่มสาระ + สร้างเกมอิงตัวชี้วัด + Coverage)',
+        date: '',
         badge: 'bg-emerald-600',
         items: [
             'นำเข้าตัวชี้วัดทางการครบ 8 กลุ่มสาระ ป.1-6 จาก PDF สพฐ. (1,061 ตัวชี้วัด: ไทย180/คณิต116/วิทย์139/สังคม217/สุข120/ศิลปะ154/การงาน25/อังกฤษ110) — ตรงตารางสรุปหน้า 2 ทุกวิชา (mig 176-183)',

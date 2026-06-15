@@ -21,9 +21,10 @@ import {
   SUBJECT_LABELS,
   ALL_SUBJECTS,
   type HonorMedal,
+  type HonorProfile,
 } from '@/services/gamification.service';
 
-const LevelRing = ({ level, progress, size = 72 }: { level: number; progress: number; size?: number }) => {
+export const LevelRing = ({ level, progress, size = 72 }: { level: number; progress: number; size?: number }) => {
   const r = (size - 8) / 2;
   const c = 2 * Math.PI * r;
   return (
@@ -71,7 +72,64 @@ const MedalChip = ({ medal, small }: { medal: HonorMedal; small?: boolean }) => 
   );
 };
 
-export const HonorWall = ({ studentCode, variant = 'full' }: { studentCode: string | null; variant?: 'full' | 'compact' }) => {
+// ตู้เหรียญ: สากล + รายเกม + ใกล้ปลดล็อก — ใช้ร่วมกัน variant 'full' (ในการ์ด) และ 'medals' (ใน GamificationHub)
+const MedalsSection = ({ profile }: { profile: HonorProfile }) => {
+  const universal = profile.medals.filter((m) => !m.game_slug);
+  const perGame = profile.medals.filter((m) => !!m.game_slug);
+  const nextMedals = computeNextMedals(profile, 3);
+
+  return (
+    <div className="space-y-4">
+      {/* เหรียญสากล */}
+      {universal.length > 0 && (
+        <div>
+          <div className="mb-2 text-sm font-semibold text-foreground">🌐 เหรียญเกียรติยศ</div>
+          <div className="grid grid-cols-5 gap-2 sm:grid-cols-8">
+            {universal.map((m) => <MedalChip key={m.code} medal={m} />)}
+          </div>
+        </div>
+      )}
+
+      {/* เหรียญรายเกม */}
+      {perGame.length > 0 && (
+        <div>
+          <div className="mb-2 text-sm font-semibold text-foreground">🎮 เหรียญประจำเกม</div>
+          <div className="grid grid-cols-5 gap-2 sm:grid-cols-8">
+            {perGame.slice(0, 16).map((m) => <MedalChip key={m.code + m.game_slug} medal={m} />)}
+          </div>
+          {perGame.length > 16 && (
+            <div className="mt-1 text-[10px] text-muted-foreground">และอีก {perGame.length - 16} ใบ</div>
+          )}
+        </div>
+      )}
+
+      {/* ใกล้ปลดล็อก */}
+      {nextMedals.length > 0 && (
+        <div>
+          <div className="mb-2 text-sm font-semibold text-foreground">✨ ใกล้ปลดล็อก</div>
+          <div className="space-y-2">
+            {nextMedals.map(({ medal, current, target, progress }) => (
+              <div key={medal.code} className="flex items-center gap-2">
+                <span className="w-7 text-center text-lg opacity-60">{medal.icon ?? '🏅'}</span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex justify-between text-xs">
+                    <span className="truncate text-foreground">{medal.title}</span>
+                    <span className="shrink-0 text-muted-foreground">{Math.min(current, target).toLocaleString()}/{target.toLocaleString()}</span>
+                  </div>
+                  <div className="mt-0.5 h-1.5 overflow-hidden rounded-full bg-muted">
+                    <div className="h-full rounded-full bg-emerald-500" style={{ width: `${Math.round(progress * 100)}%` }} />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export const HonorWall = ({ studentCode, variant = 'full' }: { studentCode: string | null; variant?: 'full' | 'compact' | 'medals' }) => {
   const profileQuery = useQuery({
     queryKey: ['honor-profile', studentCode],
     queryFn: () => gamificationService.getHonorProfile(studentCode!.trim()),
@@ -90,8 +148,11 @@ export const HonorWall = ({ studentCode, variant = 'full' }: { studentCode: stri
   if (!profile) return null;
 
   const lvl = globalLevelFromXp(profile.total_xp);
-  const universal = profile.medals.filter((m) => !m.game_slug);
-  const perGame = profile.medals.filter((m) => !!m.game_slug);
+
+  // variant 'medals' — เฉพาะตู้เหรียญ (ไม่มีการ์ด/หัวโปรไฟล์) สำหรับ GamificationHub ที่มีแถบสรุปอยู่แล้ว
+  if (variant === 'medals') {
+    return <MedalsSection profile={profile} />;
+  }
 
   if (variant === 'compact') {
     return (
@@ -116,8 +177,6 @@ export const HonorWall = ({ studentCode, variant = 'full' }: { studentCode: stri
       </Card>
     );
   }
-
-  const nextMedals = computeNextMedals(profile, 3);
 
   return (
     <Card className="bg-card">
@@ -157,51 +216,8 @@ export const HonorWall = ({ studentCode, variant = 'full' }: { studentCode: stri
             ))}
         </div>
 
-        {/* เหรียญสากล */}
-        {universal.length > 0 && (
-          <div>
-            <div className="mb-2 text-sm font-semibold text-foreground">🌐 เหรียญเกียรติยศ</div>
-            <div className="grid grid-cols-5 gap-2 sm:grid-cols-8">
-              {universal.map((m) => <MedalChip key={m.code} medal={m} />)}
-            </div>
-          </div>
-        )}
-
-        {/* เหรียญรายเกม */}
-        {perGame.length > 0 && (
-          <div>
-            <div className="mb-2 text-sm font-semibold text-foreground">🎮 เหรียญประจำเกม</div>
-            <div className="grid grid-cols-5 gap-2 sm:grid-cols-8">
-              {perGame.slice(0, 16).map((m) => <MedalChip key={m.code + m.game_slug} medal={m} />)}
-            </div>
-            {perGame.length > 16 && (
-              <div className="mt-1 text-[10px] text-muted-foreground">และอีก {perGame.length - 16} ใบ</div>
-            )}
-          </div>
-        )}
-
-        {/* ใกล้ปลดล็อก */}
-        {nextMedals.length > 0 && (
-          <div>
-            <div className="mb-2 text-sm font-semibold text-foreground">✨ ใกล้ปลดล็อก</div>
-            <div className="space-y-2">
-              {nextMedals.map(({ medal, current, target, progress }) => (
-                <div key={medal.code} className="flex items-center gap-2">
-                  <span className="w-7 text-center text-lg opacity-60">{medal.icon ?? '🏅'}</span>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex justify-between text-xs">
-                      <span className="truncate text-foreground">{medal.title}</span>
-                      <span className="shrink-0 text-muted-foreground">{Math.min(current, target).toLocaleString()}/{target.toLocaleString()}</span>
-                    </div>
-                    <div className="mt-0.5 h-1.5 overflow-hidden rounded-full bg-muted">
-                      <div className="h-full rounded-full bg-emerald-500" style={{ width: `${Math.round(progress * 100)}%` }} />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* ตู้เหรียญ (สากล + รายเกม + ใกล้ปลดล็อก) */}
+        <MedalsSection profile={profile} />
       </CardContent>
     </Card>
   );
