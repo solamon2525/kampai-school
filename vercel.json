@@ -3,6 +3,13 @@
     "buildCommand": "npm run build",
     "outputDirectory": "dist",
     "framework": "vite",
+    "redirects": [
+        {
+            "source": "/games/math/multiply-rally/:path*",
+            "destination": "/games/math/math-rally/:path*",
+            "permanent": false
+        }
+    ],
     "rewrites": [
         {
             "source": "/((?!api/|games/).*)",

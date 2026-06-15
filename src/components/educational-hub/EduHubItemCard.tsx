@@ -35,12 +35,21 @@ interface Props {
 }
 
 export const EduHubItemCard = ({
-    item,
+    item: originalItem,
     viewMode = 'grid',
     isFavorite = false,
     onToggleFavorite,
     editable = false,
 }: Props) => {
+    // Redefine item with backward compatibility mapping
+    const item = originalItem.game_slug === 'multiply-rally' || originalItem.external_url?.includes('/multiply-rally/')
+        ? {
+            ...originalItem,
+            game_slug: originalItem.game_slug === 'multiply-rally' ? 'math-rally' : originalItem.game_slug,
+            external_url: originalItem.external_url?.replace('/multiply-rally/', '/math-rally/') || null,
+            thumbnail_url: originalItem.thumbnail_url?.replace('/multiply-rally/', '/math-rally/') || null,
+          }
+        : originalItem;
     const [openDialog, setOpenDialog] = useState(false);
     const [embedOpen, setEmbedOpen] = useState(false);
     const navigate = useNavigate();

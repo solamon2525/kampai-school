@@ -63,7 +63,8 @@ type Phase = 'lookup' | 'confirm' | 'pre-game' | 'playing';
 
 // ============================================================================
 const PlayGame = () => {
-  const { gameSlug = '' } = useParams<{ gameSlug: string }>();
+  const { gameSlug: originalSlug = '' } = useParams<{ gameSlug: string }>();
+  const gameSlug = originalSlug === 'multiply-rally' ? 'math-rally' : originalSlug;
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const navigate = useNavigate();
