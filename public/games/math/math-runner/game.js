@@ -1984,7 +1984,7 @@ function loop() {
     }
 
     // วาดและประมวลผลกล่องคำถาม (ชอยส์คำตอบ)
-    for (let i = 0; i < floatBlocks.length; i++) {
+    for (let i = floatBlocks.length - 1; i >= 0; i--) {
       const b = floatBlocks[i];
       b.x -= blockSpeed;
       const by = getLanesY(b.lane);
@@ -2005,6 +2005,11 @@ function loop() {
           b.isChosen = true;
           resolveHit(2, b.isCorrect, b.x, by);
         }
+      }
+
+      // ลบบล็อกเมื่อวิ่งเลยขอบจอซ้ายไปแล้วทีละกล่องอย่างอิสระ
+      if (b.x < -50) {
+        floatBlocks.splice(i, 1);
       }
     }
 
@@ -2083,8 +2088,8 @@ function loop() {
       if (it.x < -50) activeItems.splice(i, 1);
     }
 
-    // เกิดโจทย์ถัดไปเมื่อคำถามเลื่อนผ่านพ้นตัวผู้เล่น
-    if (floatBlocks.length > 0 && floatBlocks[floatBlocks.length - 1].x < Math.max(p1X, p2X) - 80) {
+    // เกิดโจทย์ถัดไปเมื่อคำถามลอยเลยขอบจอซ้ายไปแล้วทั้งหมด
+    if (started && !isGameOver && floatBlocks.length === 0) {
       generateNewQuestion(1);
     }
 
@@ -2241,7 +2246,7 @@ function loop() {
     }
 
     // วาดบล็อกชอยส์คำตอบ
-    for (let i = 0; i < floatBlocks.length; i++) {
+    for (let i = floatBlocks.length - 1; i >= 0; i--) {
       const b = floatBlocks[i];
       b.x -= p1Speed;
       const by = getLanesY(b.lane);
@@ -2254,6 +2259,11 @@ function loop() {
           b.isChosen = true;
           resolveHit(1, b.isCorrect, b.x, by);
         }
+      }
+
+      // ลบบล็อกเมื่อวิ่งเลยขอบจอซ้ายไปแล้วทีละกล่องอย่างอิสระ
+      if (b.x < -50) {
+        floatBlocks.splice(i, 1);
       }
     }
 
@@ -2316,7 +2326,8 @@ function loop() {
       if (it.x < -50) activeItems.splice(i, 1);
     }
 
-    if (floatBlocks.length > 0 && floatBlocks[floatBlocks.length - 1].x < playerX - 80) {
+    // เกิดโจทย์ถัดไปเมื่อคำถามลอยเลยขอบจอซ้ายไปแล้วทั้งหมด
+    if (started && !isGameOver && floatBlocks.length === 0) {
       generateNewQuestion(1);
     }
 
@@ -2391,6 +2402,11 @@ function loop() {
 // ตรวจสอบผลการชนเลือกคำตอบ
 function resolveHit(playerIndex, isCorrect, x, y) {
   const isInvincible = playerIndex === 2 ? (p2InvincibleTime > 0) : (p1InvincibleTime > 0);
+
+  // ทำเครื่องหมายว่าคำถามได้รับการแก้ไขแล้วสำหรับทุกบล็อก เพื่อป้องกันการชนซ้ำและให้เลือกรองอื่นจางลงทันที
+  for (let i = 0; i < floatBlocks.length; i++) {
+    floatBlocks[i].hitResolved = true;
+  }
 
   if (isCorrect) {
     // ตอบถูก
