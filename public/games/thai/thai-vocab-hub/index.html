@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🇹🇭 คลังคำศัพท์ภาษาไทย ป.4 (Thai Vocab Hub)</title>
+<!--
+  KAMPAI-SCHOOL · GAME "Thai Vocab Hub" (คลังคำศัพท์ภาษาไทย ป.4) — ภาษาไทย ป.4
+-->
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="bar-wrap"><div id="bar" style="width:0"></div></div>
+
+<!-- HUB VIEW (Category select) -->
+<div id="hub-view">
+    <div id="hub-title">คลังคำศัพท์ภาษาไทย ป.4</div>
+    <div id="hub-sub">ฝึกฝนทักษะการอ่าน การเขียนตามคำบอก และความหมายของคำศัพท์</div>
+    <div id="hub-grid">
+        <!-- populated dynamically -->
+    </div>
+</div>
+
+<!-- TOPIC VIEW (Interactive Flashcards and Modes) -->
+<div id="topic-view" style="display:none">
+    <!-- Word Card Section -->
+    <div id="word-area">
+        <button id="btn-say" title="ฟังเสียงอ่าน">🔊</button>
+        <div id="tcard" onclick="flipCard()">
+            <div class="tface tfront">
+                <div class="front-col">
+                    <span id="wfront-emoji">📝</span>
+                    <span id="wfront-word">คำศัพท์</span>
+                    <span id="wfront-cat" class="card-cat-label">หมวดหมู่</span>
+                </div>
+            </div>
+            <div class="tface tback">
+                <div class="back-col">
+                    <span id="wback-reading">คำอ่าน: [ — ]</span>
+                    <span id="wback-meaning">ความหมาย...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mode views (injected here) -->
+    <div id="play-area">
+        <!-- 1. Grid of words (Topic List mode) -->
+        <div id="words-grid" class="words-grid"></div>
+
+        <!-- 2. Dictation (เขียนตามคำบอก) -->
+        <div id="dictation-mode" class="mode-panel" style="display:none">
+            <div class="dictation-card">
+                <button class="voice-btn" onclick="playVoiceOnly()">🔊 ฟังเสียงคำถามอีกครั้ง</button>
+                <p class="dictation-hint">พิมพ์คำศัพท์ภาษาไทยที่คุณได้ยินลงในช่องด้านล่าง สะกดให้ถูกต้อง!</p>
+                <div class="input-row">
+                    <input type="text" id="dictation-input" placeholder="พิมพ์สะกดคำศัพท์ที่นี่..." autocomplete="off" onkeydown="handleDictationKey(event)">
+                    <button class="btn btn-primary" onclick="checkDictation()">ส่งคำตอบ</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Choice Quiz (ทายคำ) -->
+        <div id="choice-mode" class="mode-panel" style="display:none">
+            <div class="choice-card">
+                <div id="choice-question-text" class="choice-q">ความหมายของคำศัพท์...</div>
+                <div id="choice-options" class="options-grid"></div>
+            </div>
+        </div>
+
+        <!-- 4. Matching (จับคู่) -->
+        <div id="match-mode" class="mode-panel" style="display:none">
+            <div class="match-container">
+                <div id="match-left" class="match-column"></div>
+                <div id="match-right" class="match-column"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Toolbar -->
+    <div id="bottom-bar">
+        <div id="controls-row">
+            <button class="cbtn" id="btn-home" onclick="returnToHub()">← คลังหัวข้อ</button>
+            <button class="cbtn mbtn active" id="m-auto" onclick="switchMode('auto')">▶ ทบทวนคำศัพท์</button>
+            <button class="cbtn mbtn" id="m-dictation" onclick="switchMode('dictation')">✍️ เขียนตามคำบอก</button>
+            <button class="cbtn mbtn" id="m-choice" onclick="switchMode('choice')">🎯 ทายความหมาย</button>
+            <button class="cbtn mbtn" id="m-match" onclick="switchMode('match')">🔗 จับคู่คำอ่าน</button>
+        </div>
+        <div id="dots"></div>
+        <div id="score-display">คะแนน: <strong id="score-val">0</strong></div>
+    </div>
+</div>
+
+<!-- Game Over screen -->
+<div id="gameover-screen" style="display:none">
+    <h1 id="go-title">🎉 เก่งมาก!</h1>
+    <div id="star-display"></div>
+    <p>คะแนนสะสมสูงสุดของคุณ</p>
+    <div id="final-score">0</div>
+    <p id="go-summary" style="font-size:15px"></p>
+    
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
+        <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นใหม่</button>
+        <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+    </div>
+</div>
+
+<!-- Confetti canvas -->
+<canvas id="confetti-canvas"></canvas>
+
+<!-- ═══ Toast feedback ═══ -->
+<div id="toast" class="toast">แจ้งเตือน</div>
+
+<!-- ═══ KAMPAI SDK + Online framework (single source) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+</script>
+<script src="/games/kampai-match.js"></script>
+<script>
+window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){alert('โหมดออนไลน์เล่นผ่านระบบเท่านั้น');},report:function(){},finish:function(){},leave:function(){}};} };
+</script>
+
+<!-- ═══ เกม (5 ไฟล์): config → data → game ═══ -->
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
