@@ -99,6 +99,11 @@ html,body{width:100%;height:100%;background:#1565C0;overflow:hidden;user-select:
   font-size:7vh;font-weight:700;line-height:1;
   color:rgba(255,224,130,0.7);white-space:nowrap;margin-top:0.3em;
 }
+#wback-mean{
+  font-size:5vh;font-weight:700;line-height:1;
+  color:#ffffff;white-space:nowrap;margin-top:0.25em;
+}
+#wback-mean:empty{display:none}
 .back-col{display:flex;flex-direction:column;align-items:center}
 #btn-say{
   position:absolute;top:1vh;right:2vw;z-index:5;
@@ -181,6 +186,7 @@ html,body{width:100%;height:100%;background:#1565C0;overflow:hidden;user-select:
   transition:background 0.12s,border-color 0.12s,transform 0.1s;
 }
 .opt .opt-emoji{font-size:7vh;line-height:1}
+.opt .opt-swatch{width:8vh;height:8vh;border-radius:16px;border:2px solid rgba(255,255,255,0.6)}
 .opt:hover{background:rgba(255,255,255,0.16)}
 .opt.ok{border-color:#43A047;background:rgba(67,160,71,0.35);color:#C8E6C9}
 .opt.bad{border-color:#E53935;background:rgba(229,57,53,0.35)}
@@ -349,6 +355,7 @@ html,body{width:100%;height:100%;background:#1565C0;overflow:hidden;user-select:
         <div class="back-col">
           <span id="wback-en"></span>
           <span id="wback-th"></span>
+          <span id="wback-mean"></span>
         </div>
       </div>
     </div>
@@ -608,6 +615,7 @@ const wfront    = document.getElementById('wfront');
 const wfrontSub = document.getElementById('wfront-sub');
 const wbackEn   = document.getElementById('wback-en');
 const wbackTh   = document.getElementById('wback-th');
+const wbackMean = document.getElementById('wback-mean');
 const barEl     = document.getElementById('bar');
 const dotsEl    = document.getElementById('dots');
 const speedDiv  = document.getElementById('speed');
@@ -897,6 +905,7 @@ function setBannerQuiz(item){
   wfrontSub.textContent='';                    // โหมดสุ่ม: หน้า '?' ไม่โชว์คำแปล
   wbackEn.textContent=item.en; wbackEn.style.fontSize=backEnFontSize(item.en);
   wbackTh.textContent='('+item.th+')';
+  wbackMean.textContent=item.meaning || '';   // เฉลยเพิ่มคำแปลไทย (หมวดที่มี)
   revealed=false; btnReveal.style.display=''; btnNext.classList.remove('show');
   quizCtrl.classList.add('show');
 }
@@ -927,7 +936,11 @@ function startQuizGame(){
 }
 const startChoice = startQuizGame;
 const startListen = startQuizGame;
-function glyph(item){ return item.emoji ? `<span class="opt-emoji">${item.emoji}</span>` : item.label; }
+function glyph(item){
+  if(item.emoji)   return `<span class="opt-emoji">${item.emoji}</span>`;
+  if(item.bgColor) return `<span class="opt-swatch" style="background:${item.bgColor}"></span>`;  // หมวดสี: ตัวเลือกเป็นช่องสี
+  return item.label;
+}
 // โจทย์ทายคำ = cue ที่ "ไม่ใช่คำอังกฤษ" → ให้เด็กเลือกคำอังกฤษเอง (กันโจทย์เฉลยคำตอบตรงตัว)
 function quizPrompt(item){
   if(item.emoji)   return `<span class="qp-emoji">${item.emoji}</span>`;        // รูป (สัตว์/ผลไม้/ร่างกาย/รูปทรง/ครอบครัว)
@@ -966,6 +979,7 @@ function renderQuestion(){
     const b=document.createElement('div');
     b.className='opt';
     b.innerHTML = isListen ? glyph(it) : it.en;
+    b._item = it;
     b.addEventListener('click',()=>pickQuiz(it,target,b));
     optWrap.appendChild(b);
   });
@@ -985,8 +999,7 @@ function pickQuiz(choice,target,btn){
     streak=0; btn.classList.add('bad'); sWrong();
     toast(false, mode==='listen' ? ('คำตอบคือ '+target.label) : ('คำตอบคือ '+target.en));
     [...document.querySelectorAll('.opt')].forEach(o=>{
-      const ok = mode==='listen' ? (o.innerHTML===glyph(target)) : (o.textContent===target.en);
-      if(ok) o.classList.add('ok');
+      if(o._item===target) o.classList.add('ok');   // เทียบด้วย item ตรง ๆ (รองรับ emoji/สี/ข้อความ)
     });
   }
   setScore(`ข้อ <b>${qPos+1}</b>/${qLen} · ถูก <b>${score}</b> · สตรีค ${streak}🔥`);
