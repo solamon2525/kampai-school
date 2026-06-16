@@ -113,7 +113,7 @@ body {
 }
 
 #hub-title {
-  font-size: 32px;
+  font-size: 40px;
   font-weight: 700;
   color: #f97316;
   text-shadow: 0 0 15px rgba(249,115,22,0.25);
@@ -122,7 +122,7 @@ body {
 }
 
 #hub-sub {
-  font-size: 15px;
+  font-size: 19px;
   color: #94a3b8;
   text-align: center;
   margin-bottom: 30px;
@@ -161,13 +161,13 @@ body {
 }
 
 .hc-th {
-  font-size: 15px;
+  font-size: 19px;
   font-weight: 700;
   color: #f1f5f9;
 }
 
 .hc-desc {
-  font-size: 11px;
+  font-size: 14px;
   color: #64748b;
   line-height: 1.4;
 }
@@ -265,11 +265,11 @@ body {
 }
 
 #wfront-emoji {
-  font-size: 32px;
+  font-size: 48px;
 }
 
 #wfront-word {
-  font-size: 36px;
+  font-size: 56px;
   font-weight: 700;
   color: #fbbf24;
 }
@@ -283,7 +283,7 @@ body {
 }
 
 #wback-reading {
-  font-size: 22px;
+  font-size: 32px;
   font-weight: 700;
   color: #ffffff;
   border-bottom: 2px dashed rgba(255,255,255,0.4);
@@ -291,7 +291,7 @@ body {
 }
 
 #wback-meaning {
-  font-size: 15px;
+  font-size: 22px;
   color: #ffedd5;
   line-height: 1.5;
   max-width: 420px;
@@ -322,7 +322,7 @@ body {
   padding: 12px 6px;
   text-align: center;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 600;
   color: #cbd5e1;
   transition: all 0.15s;
@@ -364,7 +364,7 @@ body {
   color: white;
   border: none;
   font-family: inherit;
-  font-size: 16px;
+  font-size: 20px;
   font-weight: 700;
   padding: 12px 28px;
   border-radius: 99px;
@@ -380,7 +380,7 @@ body {
 }
 
 .dictation-hint {
-  font-size: 13px;
+  font-size: 16px;
   color: #94a3b8;
   margin-bottom: 20px;
 }
@@ -398,7 +398,7 @@ body {
   border-radius: 12px;
   color: white;
   font-family: inherit;
-  font-size: 16px;
+  font-size: 24px;
   padding: 10px 16px;
   text-align: center;
   outline: none;
@@ -420,7 +420,7 @@ body {
 }
 
 .choice-q {
-  font-size: 18px;
+  font-size: 26px;
   font-weight: 600;
   text-align: center;
   margin-bottom: 20px;
@@ -440,7 +440,7 @@ body {
   padding: 12px 20px;
   border-radius: 12px;
   font-family: inherit;
-  font-size: 16px;
+  font-size: 22px;
   font-weight: 500;
   text-align: left;
   cursor: pointer;
@@ -485,7 +485,7 @@ body {
   border-radius: 10px;
   padding: 10px 14px;
   text-align: center;
-  font-size: 15px;
+  font-size: 20px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
@@ -845,7 +845,7 @@ body {
     flex: 0 0 160px;
   }
   #wfront-word {
-    font-size: 28px;
+    font-size: 42px;
   }
   #bottom-bar {
     flex-direction: column;
