@@ -93,20 +93,20 @@
 
 <!-- Game Over screen -->
 <div id="gameover-screen" style="display:none">
-    <h1 id="go-title">🎉 เก่งมาก!</h1>
-    <div id="star-display"></div>
-    <p>คะแนนสะสมสูงสุดของคุณ</p>
-    <div id="final-score">0</div>
+    <h1 id="go-title">🎉 ทบทวนสำเร็จ!</h1>
+    <div id="star-display" style="display:none"></div>
+    <p style="display:none">คะแนนสะสมสูงสุดของคุณ</p>
+    <div id="final-score" style="display:none">0</div>
     <p id="go-summary" style="font-size:15px"></p>
     
-    <div class="leaderboard-box">
+    <div class="leaderboard-box" style="display:none">
         <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
         <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
     </div>
 
     <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
-        <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นใหม่</button>
-        <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+        <button class="btn btn-primary" onclick="location.reload()">🔄 ฝึกซ้อมใหม่</button>
+        <button class="btn btn-blue" onclick="returnToHub()">← กลับหน้าสารบัญ</button>
     </div>
 </div>
 

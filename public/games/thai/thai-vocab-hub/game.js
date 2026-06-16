@@ -524,6 +524,7 @@ function returnToHub() {
   document.getElementById('hub-view').style.display = 'flex';
   document.getElementById('topic-view').style.display = 'none';
   document.getElementById('hud').style.display = 'none';
+  document.getElementById('gameover-screen').style.display = 'none';
 }
 
 function updateHUD() {
@@ -552,7 +553,7 @@ function endGame() {
   else if (currentScore >= CONFIG.STAR_THRESHOLDS[1]) stars = 2;
   else if (currentScore >= CONFIG.STAR_THRESHOLDS[0]) stars = 1;
 
-  KAMPAI.submitScore(currentScore, { stars: stars });
+  // KAMPAI.submitScore(currentScore, { stars: stars });
 
   const starDisplay = document.getElementById('star-display');
   let starStr = '';
@@ -563,11 +564,11 @@ function endGame() {
 
   const summaryEl = document.getElementById('go-summary');
   if (currentLives <= 0) {
-    summaryEl.textContent = `สะกดผิดเกินกำหนดจนหัวใจหมด! คะแนนที่คุณทำได้คือ ${currentScore} คะแนน`;
-    document.getElementById('go-title').textContent = 'เกมโอเวอร์!';
+    summaryEl.textContent = `สะกดผิดเกินกำหนดจนหัวใจหมด! พยายามฝึกฝนเพิ่มเติมนะครับ`;
+    document.getElementById('go-title').textContent = 'พยายามอีกครั้ง!';
   } else {
-    summaryEl.textContent = `ยอดเยี่ยม! คุณเรียนรู้คำศัพท์สำเร็จทำคะแนนได้ ${currentScore} คะแนน`;
-    document.getElementById('go-title').textContent = 'สำเร็จ!';
+    summaryEl.textContent = `ยอดเยี่ยม! คุณได้ทบทวนและทำกิจกรรมคำศัพท์หมวดหมู่นี้สำเร็จแล้ว`;
+    document.getElementById('go-title').textContent = 'ทบทวนสำเร็จ!';
   }
 
   document.getElementById('final-score').textContent = currentScore;
@@ -579,7 +580,7 @@ function endGame() {
     initConfetti();
   }
 
-  renderLeaderboard(KAMPAI.leaderboard, 'score-list-gameover');
+  // renderLeaderboard(KAMPAI.leaderboard, 'score-list-gameover');
 }
 
 // แสดง Toast ข้อความเล็ก
