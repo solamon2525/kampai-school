@@ -583,10 +583,10 @@ const TOPICS = {
     {label:'Circle',    en:'Circle',    th:'เซอร์เคิล',  meaning:'วงกลม',           emoji:'🔵'},
     {label:'Square',    en:'Square',    th:'สแควร์',     meaning:'สี่เหลี่ยมจัตุรัส', emoji:'🟦'},
     {label:'Triangle',  en:'Triangle',  th:'ไทรแอนเกิล', meaning:'สามเหลี่ยม',       emoji:'🔺'},
-    {label:'Rectangle', en:'Rectangle', th:'เรกแทงเกิล', meaning:'สี่เหลี่ยมผืนผ้า',  emoji:'▭'},
+    {label:'Rectangle', en:'Rectangle', th:'เรกแทงเกิล', meaning:'สี่เหลี่ยมผืนผ้า',  emoji:'<svg width="1em" height="1em" viewBox="0 0 24 24"><rect x="2.5" y="6.5" width="19" height="11" rx="2" fill="#26C6DA"/></svg>'},
     {label:'Star',      en:'Star',      th:'สตาร์',      meaning:'ดาว',             emoji:'⭐'},
     {label:'Heart',     en:'Heart',     th:'ฮาร์ท',      meaning:'หัวใจ',           emoji:'❤️'},
-    {label:'Oval',      en:'Oval',      th:'โอเวิล',     meaning:'วงรี',            emoji:'🥚'},
+    {label:'Oval',      en:'Oval',      th:'โอเวิล',     meaning:'วงรี',            emoji:'<svg width="1em" height="1em" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="6.5" fill="#BA68C8"/></svg>'},
     {label:'Diamond',   en:'Diamond',   th:'ไดมอนด์',    meaning:'ข้าวหลามตัด',      emoji:'🔷'},
   ],
   family: [
@@ -797,7 +797,7 @@ function buildCell(item){
   const el=document.createElement('div');
   el.className='cell'+(isColorTopic?' color-cell':'');
   if(isColorTopic&&item.bgColor){ el.style.background=item.bgColor; el.style.borderColor='rgba(255,255,255,0.28)'; }
-  if(item.emoji){ const em=document.createElement('span'); em.className='emoji'; em.textContent=item.emoji; el.appendChild(em); }
+  if(item.emoji){ const em=document.createElement('span'); em.className='emoji'; em.innerHTML=item.emoji; el.appendChild(em); }
   const lbl=document.createElement('span');
   lbl.className='lbl'; lbl.textContent=item.label;
   lbl.style.fontSize = item.emoji ? '3.4vh' : cellFontSize(item.label);
@@ -983,7 +983,7 @@ function renderQuestion(){
   opts.forEach(it=>{
     const b=document.createElement('div');
     b.className='opt';
-    b.innerHTML = isListen ? glyph(it) : it.en;
+    b.innerHTML = isListen ? glyph(it) : optLabel(it);
     b._item = it;
     b.addEventListener('click',()=>pickQuiz(it,target,b));
     optWrap.appendChild(b);
@@ -1027,7 +1027,7 @@ function startMatch(){
 }
 function matchCardInner(item, side){
   if(side==='l'){ return item.emoji ? `<span class="mc-emoji">${item.emoji}</span><span>${item.label}</span>` : item.label; }
-  return item.meaning || item.th;   // ขวา = คำแปลไทย (ถ้ามี) มิฉะนั้นคำอ่าน (ตัวเลข/ตัวอักษร)
+  return item.meaning || (currentSlug==='numbers' ? item.en : item.th);   // ขวา = คำแปล / numbers=คำอังกฤษ / alphabet=คำอ่าน
 }
 function renderMatchRound(){
   const round=mRounds[mRi];
