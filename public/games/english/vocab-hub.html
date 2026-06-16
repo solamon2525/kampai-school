@@ -85,6 +85,12 @@ html,body{width:100%;height:100%;background:#1565C0;overflow:hidden;user-select:
   color:#FFE082;white-space:nowrap;letter-spacing:0.02em;
 }
 #wfront .wf-emoji{margin-right:0.18em}
+.front-col{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1vh}
+#wfront-sub{
+  font-size:6.5vh;font-weight:700;line-height:1;
+  color:#ffffff;white-space:nowrap;
+}
+#wfront-sub:empty{display:none}
 #wback-en{
   font-size:10vh;font-weight:700;line-height:1;
   color:#FFE082;white-space:nowrap;
@@ -336,7 +342,7 @@ html,body{width:100%;height:100%;background:#1565C0;overflow:hidden;user-select:
   <div id="word">
     <button id="btn-say" title="ฟังเสียงอ่าน">🔊</button>
     <div id="tcard">
-      <div class="tface tfront"><span id="wfront"></span></div>
+      <div class="tface tfront"><div class="front-col"><span id="wfront"></span><span id="wfront-sub"></span></div></div>
       <div class="tface tback">
         <div class="back-col">
           <span id="wback-en"></span>
@@ -597,6 +603,7 @@ const gridEl    = document.getElementById('grid');
 const playEl    = document.getElementById('play');
 const tcard     = document.getElementById('tcard');
 const wfront    = document.getElementById('wfront');
+const wfrontSub = document.getElementById('wfront-sub');
 const wbackEn   = document.getElementById('wback-en');
 const wbackTh   = document.getElementById('wback-th');
 const barEl     = document.getElementById('bar');
@@ -851,6 +858,7 @@ function setBannerAuto(item){
   tcard.classList.remove('flipped');
   wfront.textContent=item.en;
   wfront.style.fontSize=bannerFontSize(item.en);
+  wfrontSub.textContent=item.meaning || '';   // คำแปลไทยใต้คำอังกฤษ (ถ้ามี)
 }
 function setHl(sIdx,cIdx){
   applyHl(sIdx,cIdx);
@@ -884,6 +892,7 @@ function startTimer(){
 function setBannerQuiz(item){
   tcard.classList.remove('flipped');
   wfront.textContent='?'; wfront.style.fontSize='14vh';
+  wfrontSub.textContent='';                    // โหมดสุ่ม: หน้า '?' ไม่โชว์คำแปล
   wbackEn.textContent=item.en; wbackEn.style.fontSize=backEnFontSize(item.en);
   wbackTh.textContent='('+item.th+')';
   revealed=false; btnReveal.style.display=''; btnNext.classList.remove('show');
