@@ -164,6 +164,8 @@ html,body{width:100%;height:100%;background:#1565C0;overflow:hidden;user-select:
 }
 .q-prompt .qp-emoji{font-size:18vh;line-height:1}
 .q-prompt .qp-label{font-size:9vh;font-weight:700;color:#FFE082;line-height:1}
+.q-prompt .qp-mean{font-size:9vh;font-weight:700;color:#FFE082;line-height:1.05;text-align:center;padding:0 2vw}
+.q-prompt .qp-swatch{width:26vh;height:26vh;border-radius:24px;border:3px solid rgba(255,255,255,0.55);box-shadow:0 8px 24px rgba(0,0,0,0.35)}
 .q-listen{
   font-size:9vh;width:22vh;height:22vh;border-radius:50%;cursor:pointer;
   border:3px solid #FFD700;background:rgba(255,215,0,0.18);color:#FFE082;
@@ -926,6 +928,13 @@ function startQuizGame(){
 const startChoice = startQuizGame;
 const startListen = startQuizGame;
 function glyph(item){ return item.emoji ? `<span class="opt-emoji">${item.emoji}</span>` : item.label; }
+// โจทย์ทายคำ = cue ที่ "ไม่ใช่คำอังกฤษ" → ให้เด็กเลือกคำอังกฤษเอง (กันโจทย์เฉลยคำตอบตรงตัว)
+function quizPrompt(item){
+  if(item.emoji)   return `<span class="qp-emoji">${item.emoji}</span>`;        // รูป (สัตว์/ผลไม้/ร่างกาย/รูปทรง/ครอบครัว)
+  if(item.bgColor) return `<span class="qp-swatch" style="background:${item.bgColor}"></span>`; // ช่องสี (สี)
+  if(item.meaning) return `<span class="qp-mean">${item.meaning}</span>`;        // คำแปลไทย (วัน/เดือน)
+  return `<span class="qp-label">${item.label}</span>`;                          // ตัวเลข (5) / ตัวอักษร (A)
+}
 function renderQuestion(){
   if(qPos>=qLen){
     const pct=Math.round(score/qLen*100);
@@ -945,9 +954,7 @@ function renderQuestion(){
   if(isListen){
     promptHtml=`<button class="q-listen" id="q-play">🔊</button>`;
   } else {
-    promptHtml=`<div class="q-prompt">`+
-      (target.emoji?`<span class="qp-emoji">${target.emoji}</span>`:'')+
-      `<span class="qp-label">${target.label}</span></div>`;
+    promptHtml=`<div class="q-prompt">${quizPrompt(target)}</div>`;
   }
   playEl.innerHTML=
     `<div class="play-wrap">`+
@@ -1002,7 +1009,7 @@ function startMatch(){
 }
 function matchCardInner(item, side){
   if(side==='l'){ return item.emoji ? `<span class="mc-emoji">${item.emoji}</span><span>${item.label}</span>` : item.label; }
-  return item.th;
+  return item.meaning || item.th;   // ขวา = คำแปลไทย (ถ้ามี) มิฉะนั้นคำอ่าน (ตัวเลข/ตัวอักษร)
 }
 function renderMatchRound(){
   const round=mRounds[mRi];
