@@ -831,6 +831,74 @@ body {
   font-size: 18px;
 }
 
+/* Autoplay Controls Bar */
+.autoplay-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin: 12px auto;
+  padding: 8px 20px;
+  background: rgba(30, 41, 59, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 99px;
+  width: fit-content;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn-autoplay {
+  background: #f97316;
+  color: white;
+  border: none;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 6px 18px;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.25);
+}
+
+.btn-autoplay:hover {
+  background: #ea580c;
+  transform: scale(1.03);
+}
+
+.btn-autoplay.playing {
+  background: #10b981;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+}
+
+.autoplay-speed-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.speed-label {
+  font-size: 14px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.speed-select {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  color: white;
+  font-family: inherit;
+  font-size: 14px;
+  padding: 4px 10px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.speed-select:focus {
+  border-color: #f97316;
+}
+
 /* Responsive styles */
 @media (max-width: 768px) {
   .match-container {

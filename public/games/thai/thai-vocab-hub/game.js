@@ -13,6 +13,9 @@ let quizList = [];
 let matchedPairsCount = 0;
 let selectedMatchLeft = null;
 let selectedMatchRight = null;
+let autoplayInterval = null;
+let isAutoplayActive = false;
+let autoplaySpeed = 3000;
 
 const CONFIG = window.GAME_CONFIG;
 const CATEGORIES = window.GAME_DATA.categories;
@@ -109,6 +112,9 @@ function switchMode(mode) {
   currentMode = mode;
   isAnswered = false;
 
+  // หยุดการเล่นอัตโนมัติทุกครั้งที่เปลี่ยนโหมด
+  stopAutoplay();
+
   // จัดการแท็บปุ่ม
   const btns = document.querySelectorAll('.mbtn');
   btns.forEach(btn => btn.classList.remove('active'));
@@ -126,13 +132,19 @@ function switchMode(mode) {
   const card = document.getElementById('tcard');
   card.classList.remove('flipped');
 
+  // จัดการแผงควบคุมการเล่นอัตโนมัติ
+  const autoplayControls = document.getElementById('autoplay-controls');
+
   // รีเซ็ตตัวกรองการทอยคำอ่าน
   if (mode === 'auto') {
+    if (autoplayControls) autoplayControls.style.display = 'flex';
     document.getElementById('words-grid').style.display = 'grid';
     renderWordsGrid();
     loadWord(0);
-  } else if (mode === 'dictation') {
-    document.getElementById('dictation-mode').style.display = 'block';
+  } else {
+    if (autoplayControls) autoplayControls.style.display = 'none';
+    if (mode === 'dictation') {
+      document.getElementById('dictation-mode').style.display = 'block';
     // สุ่มเรียงคำศัพท์เพื่อฝึกฝน
     quizList = shuffle([...categoryWords]);
     currentWordIndex = 0;
@@ -197,6 +209,11 @@ function loadWord(index) {
   // อัปเดตหลอดความค้าวหน้า
   const pct = ((index + 1) / categoryWords.length) * 100;
   document.getElementById('bar').style.width = `${pct}%`;
+
+  // รีเซ็ตเวลาเล่นอัตโนมัติใหม่หากเปิดใช้งานอยู่เพื่อไม่ให้เลื่อนข้ามเร็วกว่ากำหนด
+  if (isAutoplayActive) {
+    startAutoplay();
+  }
 }
 
 function flipCard() {
@@ -521,6 +538,7 @@ function returnToHub() {
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel();
   }
+  stopAutoplay();
   document.getElementById('hub-view').style.display = 'flex';
   document.getElementById('topic-view').style.display = 'none';
   document.getElementById('hud').style.display = 'none';
@@ -693,3 +711,56 @@ window.addEventListener('resize', () => {
     canvasConf.height = window.innerHeight;
   }
 });
+
+// ═══ AUTOPLAY CONTROL FUNCTIONS ═══
+
+function toggleAutoplay() {
+  if (isAutoplayActive) {
+    stopAutoplay();
+  } else {
+    startAutoplay();
+  }
+}
+
+function startAutoplay() {
+  isAutoplayActive = true;
+  const toggleBtn = document.getElementById('btn-autoplay-toggle');
+  if (toggleBtn) {
+    toggleBtn.textContent = '⏸ หยุดเล่น';
+    toggleBtn.classList.add('playing');
+  }
+
+  // Clear any existing interval
+  if (autoplayInterval) clearInterval(autoplayInterval);
+
+  // Set interval to advance word
+  autoplayInterval = setInterval(() => {
+    let nextIndex = currentWordIndex + 1;
+    if (nextIndex >= categoryWords.length) {
+      nextIndex = 0; // wrap around
+    }
+    loadWord(nextIndex);
+  }, autoplaySpeed);
+}
+
+function stopAutoplay() {
+  isAutoplayActive = false;
+  const toggleBtn = document.getElementById('btn-autoplay-toggle');
+  if (toggleBtn) {
+    toggleBtn.textContent = '▶ เล่นอัตโนมัติ';
+    toggleBtn.classList.remove('playing');
+  }
+
+  if (autoplayInterval) {
+    clearInterval(autoplayInterval);
+    autoplayInterval = null;
+  }
+}
+
+function changeAutoplaySpeed(speed) {
+  autoplaySpeed = parseInt(speed, 10);
+  if (isAutoplayActive) {
+    // Restart interval with new speed
+    startAutoplay();
+  }
+}

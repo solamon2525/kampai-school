@@ -43,6 +43,19 @@
         </div>
     </div>
 
+    <!-- Autoplay controls (only visible in auto mode) -->
+    <div id="autoplay-controls" class="autoplay-bar" style="display:none">
+        <button id="btn-autoplay-toggle" class="btn-autoplay" onclick="toggleAutoplay()">▶ เล่นอัตโนมัติ</button>
+        <div class="autoplay-speed-group">
+            <span class="speed-label">ความเร็ว:</span>
+            <select id="autoplay-speed-select" class="speed-select" onchange="changeAutoplaySpeed(this.value)">
+                <option value="5000">ช้า (5 วิ)</option>
+                <option value="3000" selected>ปานกลาง (3 วิ)</option>
+                <option value="1500">เร็ว (1.5 วิ)</option>
+            </select>
+        </div>
+    </div>
+
     <!-- Mode views (injected here) -->
     <div id="play-area">
         <!-- 1. Grid of words (Topic List mode) -->
