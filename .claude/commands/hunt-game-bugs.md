@@ -1,5 +1,5 @@
 ---
-description: หาบัคในเกม HTML/JS แบบ evidence-first ไล่ทีละระบบ + กัน false-positive — list ก่อนแก้
+description: หาบัคในเกม HTML/JS แบบ evidence-first ไล่ทีละระบบ + reproduce จริงในเบราว์เซอร์ + กัน false-positive — list ก่อนแก้
 argument-hint: <path-to-game.html|folder> [อาการ/ขอบเขตที่อยากให้เน้น]
 ---
 
@@ -17,11 +17,18 @@ argument-hint: <path-to-game.html|folder> [อาการ/ขอบเขตท
 2. **Evidence-first** — ทุก finding ต้องมีครบ:
    - (ก) `file:line` + **quote โค้ดจริง** ที่คุณเปิดอ่านมากับตา (ไม่ใช่จำ/เดา)
    - (ข) **trigger** — เล่นยังไง/กดอะไรถึงเจออาการ
-   - (ค) **tag ความมั่นใจ**: `[ยืนยันจากโค้ด]` (เห็นชัดในโค้ด) หรือ `[ต้องลองใน browser]` (สงสัย ต้องรันจริงยืนยัน)
+   - (ค) **tag ความมั่นใจ** (3 ระดับ — เลือกให้ตรง):
+     - `[ยืนยันจากโค้ด]` — เห็น **root cause** ชัดในโค้ด (logic ผิดแน่ ๆ ไม่ต้องรันก็รู้)
+     - `[ยืนยันจาก browser]` — เปิดเกมจริงแล้ว **reproduce อาการได้** (ดู STEP 4) + quote console/state
+     - `[ต้องลองใน browser]` — สงสัย ยังไม่ได้ลอง/reproduce ไม่ได้ → ต้องไปลอง หรือแยกบล็อก "ยังไม่ยืนยัน"
+   - ⚠️ อาการกลุ่ม **canvas / เสียง / timing / visibility** ห้ามตีเป็น `[ยืนยันจากโค้ด]` เด็ดขาด — อย่างน้อย `[ต้องลองใน browser]`; ถ้ามี preview tool ต้องเอาไป reproduce ให้เป็น `[ยืนยันจาก browser]` ก่อน
    - ❌ ห้าม assert บัคที่ยังไม่ได้เปิดไฟล์อ่านบรรทัดนั้นจริง
 3. **Scope guard** — รีวิว **เฉพาะระบบที่เจอ signature จริง** (ดู STEP 1) ระบบไหนเกมไม่มี → ข้าม ห้ามเดาบัค
 4. **Self-check ก่อน output** (STEP 5) — ไล่ยืนยันทุกบรรทัดที่อ้าง + เทียบกับ "ห้าม flag list" →
    ตัด finding ที่ยืนยันไม่ได้หรือชนกับ guard ทิ้ง
+5. **Root cause ไม่ใช่ symptom** — ชี้ไป **ต้นเหตุที่ต้องแก้** ไม่ใช่ที่อาการโผล่. `วิธีแก้` ต้องระบุ
+   **จุดแก้เป๊ะ + การแก้ที่เล็กที่สุด** (ไม่ใช่คำแนะนำลอย ๆ เช่น "ควรจัดการให้ดี"). หลาย finding
+   ที่มาจาก root เดียวกัน → **ยุบเป็นข้อเดียว** (อย่าปั๊มจำนวนข้อให้ดูเยอะ)
 
 ---
 
@@ -118,49 +125,78 @@ rtk pnpm verify:game <path>
 
 สิ่งเหล่านี้ "เหมือนบัค" แต่ SDK **ตั้งใจทำ** — ถ้าจะรายงาน ให้หยุดแล้วตัดทิ้ง:
 
-- `submitScore` คืน `false` ตอน standalone หรือ `!K.student` → **no-op สำหรับเทสต์** (sdk:55) ✋
-- กันส่ง score ซ้ำด้วยธง `_submitted` แล้ว (sdk:56) → **อย่าเตือน "submit ซ้ำ"** ✋
-- `_ac()` resume `AudioContext` ให้เอง + มี `unlock()` (sdk:263) → **เกมไม่ต้องจัด autoplay policy เอง** ✋
-- BGM mp3 ใช้ `.play().catch()` กัน autoplay ถูกบล็อกแล้ว (sdk:300) ✋
-- `setTimeout(fireReady, 1200)` = กันค้างถ้า init ไม่มา → **ตั้งใจ ไม่ใช่ leak** (sdk:133) ✋
-- `window.parent.postMessage(..., '*')` = wire format มาตรฐานของระบบ → **ไม่ใช่ช่องโหว่ที่ต้องแก้ในเกม** ✋
-- TTS `speak()` early-return เมื่อกำลังพูดอยู่ = กันพูดซ้อน (sdk:291); `correct/wrong/...` no-op เมื่อ toggle ปิด → **ตั้งใจ** ✋
+> 📌 **อ้างอิง SDK ด้วยชื่อ symbol ไม่ใช่เลขบรรทัด** — เลขบรรทัด `kampai-sdk.js` เปลี่ยนทุกครั้งที่ SDK แก้
+> ทำให้อ้างผิด. ถ้าจำเป็นต้องใส่เลขบรรทัดใน finding ให้ `grep -n "<symbol>" public/games/kampai-sdk.js`
+> เอาเลข **ปัจจุบัน** มา ห้าม copy เลขเก่าจากสกิลนี้
 
-> ⚠️ ถ้าจะรายงานเรื่องที่เกี่ยวกับ SDK ให้ **เปิด [kampai-sdk.js](public/games/kampai-sdk.js) อ่านยืนยันก่อน**
+- `K.submitScore` → คืน `false` (no-op) ตอน standalone / `!K.student` → **ปกติสำหรับเทสต์** ✋
+- ธง `K._submitted` กันส่ง score ซ้ำแล้ว (ยกเว้น `opts.allowResubmit`) → **อย่าเตือน "submit ซ้ำ"** ✋
+- `_ac()` resume `AudioContext` ให้เอง + มี `Sound.unlock()` → **เกมไม่ต้องจัด autoplay policy เอง** ✋
+- BGM mp3 `_bgmAudio.play().catch()` กัน autoplay ถูกบล็อกแล้ว ✋
+- `setTimeout(fireReady, 1200)` = fallback กันค้างถ้า init ไม่มา → **ตั้งใจ ไม่ใช่ leak** ✋
+- `window.parent.postMessage(..., '*')` = wire format มาตรฐานของระบบ → **ไม่ใช่ช่องโหว่ที่ต้องแก้ในเกม** ✋
+- `Sound.speak()` early-return เมื่อ `speaking||pending` = กันพูดซ้อน; `correct/wrong/timeUp/...` no-op เมื่อ `_sfxOn` ปิด → **ตั้งใจ** ✋
+
+> ⚠️ ถ้าจะรายงานเรื่องที่เกี่ยวกับ SDK ให้ **เปิด [kampai-sdk.js](public/games/kampai-sdk.js) grep หา symbol อ่านยืนยันก่อน**
 > ว่า SDK ไม่ได้จัดการให้แล้ว — มิฉะนั้นถือเป็น false positive
 
 ---
 
-## STEP 4 — Persona test "เด็ก ป.4 กดมั่ว ๆ"
+## STEP 4 — Reproduce จริงในเบราว์เซอร์ (ยืนยัน ไม่ใช่เดา)
 
-จำลองพฤติกรรมเด็กกดมั่ว แล้วชี้จุดพังจริง (ผูกกับ **state/loop ของเกม** ไม่ใช่ SDK guard):
-- **กดคำตอบ/Start รัว ๆ** → นับคะแนนซ้ำ? เริ่มเกมซ้อน? เสียงรัว?
-- **กด goHome / ย้อนกลับกลางเกม** → timer/rAF loop/BGM ของเกมยังทำงานต่อหลังออกไหม (ลืม stop/cancel)?
-- **ปิด/เปิดแท็บ (visibilitychange)** → กลับมาแล้ว timer กระโดด / loop ซ้อน / state เพี้ยน?
-- **กดตอบก่อนข้อมูลมา (`KAMPAI.ready` ยัง false)** → พังไหม?
-- **submit ซ้ำ** → ดู STEP 3.5 (SDK กันให้แล้ว) — รายงานเฉพาะถ้าเกมส่งคะแนนซ้ำ **ก่อน**ถึง SDK (เช่น loop คำนวณผิด)
+ทุก finding ที่ tag `[ต้องลองใน browser]` (canvas/เสียง/timing/persona) **ต้องเอาไป reproduce จริง** ถ้ามี preview tool —
+นี่คือจุดที่ทำให้ "แม่นยำ": เปลี่ยนข้อสงสัยเป็นหลักฐาน หรือตัดทิ้งถ้าไม่จริง
+
+1. `preview_start` (ชื่อ `dev`) → เกมถูก serve ที่
+   `http://localhost:<port>/games/<subject>/<slug>/index.html` (เช่น `/games/math/math-runner/index.html`)
+   · เกมไฟล์เดียวที่ root = `/<file>.html`
+2. `preview_console_logs` (level error) ตอนโหลด + ตอนเล่น — exception/error = หลักฐานแข็งสุด
+3. จำลอง **"เด็ก ป.4 กดมั่ว"** ด้วย `preview_click` / `preview_eval` (ผูกกับ state/loop ของเกม ไม่ใช่ SDK guard):
+   - **กดคำตอบ/Start รัว ๆ** → คะแนนนับซ้ำ? เริ่มเกมซ้อน? — `preview_eval` อ่านตัวแปร score/state ก่อน-หลัง
+   - **กด goHome/ย้อนกลับกลางเกม** → `preview_eval` เช็ก rAF/timer/BGM ยังวิ่งต่อไหม
+     (เช่น hook `requestAnimationFrame` นับ active loop, อ่าน `speechSynthesis.speaking`, ดู interval ids)
+   - **visibilitychange (สลับแท็บ)** → `preview_eval` dispatch event แล้วดู timer กระโดด/loop ซ้อน
+   - **ตอบก่อน ready (`KAMPAI.ready` ยัง false)** → reproduce แล้วดู error
+   - **submit ซ้ำ** → SDK กันให้แล้ว (STEP 3.5) — flag เฉพาะถ้าเกมคำนวณ/ส่งซ้ำ **ก่อน**ถึง SDK
+4. สรุปผล: reproduce **ได้** → upgrade เป็น `[ยืนยันจาก browser]` พร้อม quote console/state จริง ·
+   reproduce **ไม่ได้** → **ตัดทิ้ง** หรือย้ายไปบล็อก "ยังไม่ยืนยัน" (ห้ามเคลมว่าเป็นบัค)
+
+> ไม่มี preview tool ในเซสชันนี้? → คง tag `[ต้องลองใน browser]` แล้วแยกใส่บล็อก **"ยังไม่ยืนยัน (ต้องลองเอง)"**
+> ตอน output — ห้ามปนกับ finding ที่ยืนยันแล้ว
 
 ---
 
 ## STEP 5 — Self-check แล้วค่อย output
 
 **ก่อนพิมพ์ผลลัพธ์ ทำ self-check เงียบ ๆ:**
-1. ทุก finding มี `file:line` + quote จริงไหม? เปิดอ่านบรรทัดนั้นซ้ำ ยืนยันว่ามีจริง
+1. ทุก finding มี `file:line` + quote จริงไหม? เปิดอ่านบรรทัดนั้นซ้ำ ยืนยันว่ามีจริง (SDK = grep symbol เอาเลขปัจจุบัน)
 2. ชนกับ FALSE-POSITIVE GUARD ไหม? ถ้าชน → ตัดทิ้ง
 3. โทษถูกตัวตาม "ตารางความรับผิดชอบ" ไหม?
-4. ติด tag ความมั่นใจถูกไหม (canvas/เสียง = `[ต้องลองใน browser]`)?
+4. ติด tag ความมั่นใจถูกไหม? (canvas/เสียง/timing ที่ยัง reproduce ไม่ได้ ≠ `[ยืนยันจากโค้ด]`)
+5. **`วิธีแก้` ชี้ root cause + จุดเป๊ะ + แก้เล็กสุด** ไหม? (ไม่ใช่อาการ ไม่ใช่คำแนะนำลอย ๆ)
+6. **finding ซ้ำ root เดียวกัน ยุบแล้วยัง?** — นับเฉพาะบัคที่ต่างต้นเหตุจริง
 
 **รูปแบบ output** — list เรียงตามความรุนแรง (🔴 พังจริง → 🟡 ควรแก้ → 🟢 ปรับให้ดีขึ้น):
 
 ```
-🔴 [ระบบ] path/to/file.js:123 — ฟังก์ชัน endGame()   [ยืนยันจากโค้ด]
+🔴 [ระบบ] path/to/file.js:123 — ฟังก์ชัน endGame()   [ยืนยันจาก browser]
    โค้ด:    requestAnimationFrame(loop);   // ← ไม่เคยเก็บ id ไว้ cancel
    อาการ:   กด "เล่นอีกครั้ง" → loop เก่ายังวิ่ง ซ้อนลูปใหม่ เกมเร็วขึ้นทุกรอบ
+   หลักฐาน: preview_eval นับ active rAF = 3 หลังกด replay 3 ครั้ง (ควรเป็น 1)
    เจ้าของ: เกม
-   วิธีแก้:  เก็บ id = requestAnimationFrame(...) แล้ว cancelAnimationFrame(id) ตอน endGame/goHome
+   วิธีแก้:  เก็บ `let rafId; rafId = requestAnimationFrame(loop)` → `cancelAnimationFrame(rafId)` ใน endGame() + goHome()
+```
+
+> บรรทัด `หลักฐาน:` ใส่เฉพาะ finding ที่ tag `[ยืนยันจาก browser]` (quote console/state ที่ reproduce ได้)
+
+**ถ้ามี finding ที่ยัง reproduce ไม่ได้** → แยกท้าย list อย่าปนกับที่ยืนยันแล้ว:
+
+```
+### ⚪ ยังไม่ยืนยัน (ต้องลองเอง) — [ต้องลองใน browser]
+- [ระบบ] file:line — สงสัย … · trigger ที่ต้องลอง: …
 ```
 
 ปิดท้าย:
-> เจอ N จุด (🔴 x / 🟡 y / 🟢 z) — อยากให้ลงมือแก้ข้อไหน? (บอกเลขข้อ หรือ "ทั้งหมด")
+> ยืนยันแล้ว N จุด (🔴 x / 🟡 y / 🟢 z) + ยังไม่ยืนยัน M — อยากให้ลงมือแก้ข้อไหน? (บอกเลขข้อ หรือ "ทั้งหมด")
 
 **ย้ำ: รอบนี้แค่ลิสต์ — ห้ามแก้โค้ดจนกว่า user จะเลือกข้อ**
