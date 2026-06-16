@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>📚 นิทานโต้ตอบ — Interactive Thai Story (kampai SDK)</title>
+<!--
+  KAMPAI-SCHOOL · GAME "นิทานโต้ตอบ" (thai-story) — ภาษาไทย ป.3-6
+  อ่านนิทานสอนใจ ตอบคำถามจับใจความ เลือกทางตัดสินใจดำเนินเนื้อเรื่องที่แตกแขนง
+-->
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- HUD -->
+<div id="hud" style="display:none">
+    <div id="score-container">⭐ <span id="score-value">0</span></div>
+    <div id="life-container">❤️❤️❤️</div>
+    <div id="player-chip"></div>
+</div>
+
+<!-- Play Area -->
+<div id="play" style="display:none">
+    <!-- Story Book Container -->
+    <div id="book-container">
+        <!-- Progress Dots -->
+        <div id="chapter-dots"></div>
+
+        <!-- CSS Scene Illustration -->
+        <div id="scene-illustration">
+            <div id="scene-elements"></div>
+        </div>
+
+        <!-- Story Text -->
+        <div id="story-board">
+            <h2 id="story-title-chapter"></h2>
+            <div id="story-text"></div>
+        </div>
+
+        <!-- Listen / Speak Button -->
+        <button id="listen-btn" onclick="sayStory()">🔊 อ่านออกเสียง</button>
+    </div>
+
+    <!-- Actions area -->
+    <div id="action-area">
+        <button id="next-btn" class="btn btn-primary" onclick="handleNextClick()">📖 ตอบคำถาม</button>
+    </div>
+
+    <!-- Quiz overlay card -->
+    <div id="quiz-card" style="display:none">
+        <div class="quiz-content">
+            <h3 id="quiz-question"></h3>
+            <div id="quiz-options"></div>
+        </div>
+    </div>
+
+    <!-- Branching choice overlay card -->
+    <div id="choice-card" style="display:none">
+        <div class="choice-content">
+            <h3 id="choice-prompt">🤔 คุณจะช่วยกระต่ายอย่างไรดี?</h3>
+            <div id="choice-options"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Start Screen -->
+<div id="blocker">
+    <h1>📚 นิทานโต้ตอบ</h1>
+    <p class="subtitle">Interactive Thai Story</p>
+    <p>อ่านนิทานจับใจความภาษาไทย แสนสนุก<br>ตอบคำถามและเลือกเส้นทางการผจญภัย เพื่อเรียนรู้ข้อคิดสอนใจ</p>
+
+    <div id="my-stats">
+        <div class="ms-cell"><div class="ms-val" id="ms-best">0</div><div class="ms-label">คะแนนสูงสุด</div></div>
+        <div class="ms-cell"><div class="ms-val" id="ms-plays">0</div><div class="ms-label">เล่นไปแล้ว (ครั้ง)</div></div>
+    </div>
+
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+    </div>
+
+    <div class="story-label">เลือกนิทานที่จะอ่าน</div>
+    <div id="story-grid" class="story-grid"></div>
+</div>
+
+<!-- Game Over screen -->
+<div id="gameover-screen">
+    <h1 id="go-title">🎉 จบนิทานแล้ว!</h1>
+    <div id="star-display"></div>
+    
+    <!-- Moral lesson board with gold frame -->
+    <div id="moral-box">
+        <div class="moral-title">💡 ข้อคิดสอนใจจากเรื่องนี้</div>
+        <div id="moral-text"></div>
+    </div>
+
+    <p>คะแนนสุดท้าย</p>
+    <div id="final-score">0</div>
+    <p id="go-summary" style="font-size:15px"></p>
+    
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+    
+    <div class="go-buttons">
+        <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นใหม่</button>
+        <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+    </div>
+</div>
+
+<!-- Confetti canvas -->
+<canvas id="confetti-canvas"></canvas>
+
+<!-- ═══ KAMPAI SDK + Online framework (single source) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+</script>
+<script src="/games/kampai-match.js"></script>
+<script>
+window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){alert('โหมดออนไลน์เล่นผ่านระบบเท่านั้น');},report:function(){},finish:function(){},leave:function(){}};} };
+</script>
+
+<!-- ═══ เกม (5 ไฟล์): config → data → game ═══ -->
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

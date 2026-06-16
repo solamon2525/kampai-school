@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" font-family="'Playfair Display','Kanit','Sarabun',serif">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fdfbf7"/>
+      <stop offset="0.6" stop-color="#f5ede0"/>
+      <stop offset="1" stop-color="#eadaa6"/>
+    </linearGradient>
+    
+    <!-- Title Gold Gradient -->
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#78350f"/>
+      <stop offset="0.5" stop-color="#b45309"/>
+      <stop offset="1" stop-color="#78350f"/>
+    </linearGradient>
+
+    <!-- Shadow filter -->
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#2c251e" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="url(#bg)"/>
+
+  <!-- Vintage ornaments in background corner -->
+  <rect x="20" y="20" width="1240" height="680" fill="none" stroke="#d4c9b4" stroke-width="2" rx="10"/>
+  <rect x="28" y="28" width="1224" height="664" fill="none" stroke="#d4c9b4" stroke-width="1" rx="8"/>
+
+  <!-- Open Book Graphic -->
+  <g transform="translate(640, 240)" filter="url(#shadow)">
+    <!-- Book Pages Backing -->
+    <path d="M-280,100 C-180,80 -80,100 0,110 C80,100 180,80 280,100 L280,-100 C180,-120 80,-100 0,-90 C-80,-100 -180,-120 -280,-100 Z" fill="#fffdfa" stroke="#d4c9b4" stroke-width="3"/>
+    
+    <!-- Left page text lines representation -->
+    <line x1="-240" y1="-60" x2="-60" y2="-60" stroke="#78716c" stroke-width="4" stroke-linecap="round"/>
+    <line x1="-240" y1="-30" x2="-100" y2="-30" stroke="#78716c" stroke-width="4" stroke-linecap="round"/>
+    <line x1="-240" y1="0" x2="-40" y2="0" stroke="#78716c" stroke-width="4" stroke-linecap="round"/>
+    <line x1="-240" y1="30" x2="-80" y2="30" stroke="#2563eb" stroke-width="4" stroke-linecap="round"/> <!-- blue vocab word representation -->
+    <line x1="-240" y1="60" x2="-120" y2="60" stroke="#78716c" stroke-width="4" stroke-linecap="round"/>
+
+    <!-- Right page scene representation -->
+    <rect x="40" y="-70" width="200" height="110" rx="12" fill="#e0f2fe" stroke="#bae6fd" stroke-width="2"/>
+    <text x="140" y="5" font-size="44" text-anchor="middle">🌳🐶☀️</text>
+    <text x="140" y="80" font-size="16" font-weight="bold" fill="#78350f" text-anchor="middle" font-family="'Kanit', sans-serif">The Lost Puppy</text>
+  </g>
+
+  <!-- Title / Typography -->
+  <g filter="url(#shadow)" transform="translate(640, 480)">
+    <text x="0" y="0" fill="url(#gold)" font-size="82" font-weight="900" text-anchor="middle" letter-spacing="1">📖 Reading Quest</text>
+    <text x="0" y="55" fill="#78350f" font-size="32" font-weight="bold" text-anchor="middle" letter-spacing="4" font-family="'Kanit', sans-serif">อ่านผจญภัยภาษาอังกฤษ</text>
+    <text x="0" y="105" fill="#78716c" font-size="22" font-weight="bold" text-anchor="middle" font-family="'Kanit', sans-serif">กลุ่มสาระการเรียนรู้ภาษาต่างประเทศ (ภาษาอังกฤษ)</text>
+  </g>
+</svg>

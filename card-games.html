@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>เกมการ์ดความรู้ ป.4-6</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;background:#1565C0;overflow:hidden;user-select:none;
+  font-family:'TH Sarabun New',Sarabun,Arial,sans-serif}
+
+/* ===== HUB ===== */
+#hub-view{display:none;flex-direction:column;width:100vw;height:100vh;padding:3vh 4vw 2.5vh}
+#hub-view.show{display:flex}
+#hub-title{text-align:center;font-size:5vh;font-weight:700;color:#FFE082;letter-spacing:0.03em}
+#hub-sub{text-align:center;font-size:2vh;color:rgba(255,224,130,0.55);margin:0.5vh 0 2.5vh}
+#hub-grid{
+  flex:1;display:grid;
+  grid-template-columns:repeat(2,1fr);
+  grid-template-rows:repeat(2,1fr);
+  gap:2.2vh 2.2vw;
+}
+.hub-card{
+  display:flex;align-items:center;gap:2vw;
+  border-radius:18px;cursor:pointer;padding:2vh 2.5vw;
+  border:2px solid rgba(255,255,255,0.16);
+  background:rgba(255,255,255,0.07);
+  transition:background 0.14s,transform 0.12s,border-color 0.14s;
+}
+.hub-card:hover{background:rgba(255,255,255,0.18);border-color:rgba(255,215,0,0.55);transform:scale(1.03)}
+.hub-card .hc-icon{font-size:8vh;line-height:1;flex:0 0 auto}
+.hub-card .hc-body{display:flex;flex-direction:column;gap:0.5vh;min-width:0}
+.hub-card .hc-title{font-size:3.4vh;font-weight:700;color:#FFE082;line-height:1.1}
+.hub-card .hc-sub{font-size:2vh;color:rgba(255,255,255,0.7);line-height:1.15}
+.hub-card .hc-meta{display:flex;gap:0.6vw;margin-top:0.4vh;flex-wrap:wrap}
+.hc-tag{font-size:1.5vh;padding:0.2vh 0.8vw;border-radius:20px;font-weight:700}
+.hc-tag.subj{background:rgba(255,215,0,0.18);color:#FFE082}
+.hc-tag.mech{background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.75)}
+.hc-tag.code{background:rgba(0,0,0,0.2);color:rgba(255,255,255,0.55)}
+
+/* ===== GAME SHELL ===== */
+#game-view{display:none;flex-direction:column;width:100vw;height:100vh}
+#game-view.show{display:flex}
+#ghead{
+  flex:0 0 7vh;display:flex;align-items:center;gap:1.2vw;
+  padding:0 2vw;border-bottom:1px solid rgba(255,255,255,0.12);
+}
+#g-home{
+  font-size:2vh;font-weight:700;padding:0.7vh 1.6vw;border-radius:9px;cursor:pointer;
+  border:1.5px solid rgba(255,224,130,0.3);background:rgba(255,255,255,0.06);color:rgba(255,224,130,0.85);
+}
+#g-home:hover{background:rgba(255,224,130,0.15)}
+#g-title{font-size:3vh;font-weight:700;color:#FFE082;line-height:1.05}
+#g-title small{display:block;font-size:1.7vh;color:rgba(255,255,255,0.6);font-weight:400}
+#g-right{margin-left:auto;display:flex;align-items:center;gap:1.2vw}
+#g-score{font-size:2.4vh;font-weight:700;color:#fff}
+#g-score b{color:#FFD700}
+#g-restart{
+  font-size:1.9vh;font-weight:700;padding:0.7vh 1.4vw;border-radius:9px;cursor:pointer;
+  border:1.5px solid rgba(255,255,255,0.28);background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.75);
+}
+#g-restart:hover{background:rgba(255,255,255,0.18)}
+#stage{flex:1;position:relative;overflow:hidden;padding:2vh 3vw}
+
+/* ===== MATCHING ===== */
+.match-wrap{display:flex;flex-direction:column;height:100%}
+.match-hint{text-align:center;font-size:2vh;color:rgba(255,255,255,0.6);margin-bottom:1.5vh}
+.match-hint b{color:#FFE082}
+.match-cols{flex:1;display:flex;gap:4vw;justify-content:center}
+.mcol{flex:1;max-width:40vw;display:flex;flex-direction:column;gap:1.3vh;justify-content:center}
+.mcard{
+  display:flex;align-items:center;justify-content:center;gap:1vw;
+  border-radius:14px;cursor:pointer;padding:1vh 1.4vw;min-height:11vh;
+  border:2.5px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);
+  color:#fff;font-size:3vh;font-weight:700;text-align:center;line-height:1.1;
+  transition:background 0.12s,border-color 0.12s,transform 0.1s;
+}
+.mcard:hover{background:rgba(255,255,255,0.16)}
+.mcard.sel{border-color:#FFD700;background:rgba(255,215,0,0.22);transform:scale(1.03)}
+.mcard.matched{border-color:#43A047;background:rgba(67,160,71,0.28);color:#C8E6C9;cursor:default;pointer-events:none}
+.mcard.wrong{border-color:#E53935;background:rgba(229,57,53,0.3);animation:shake 0.4s}
+.mcard img{height:7vh;width:auto;border-radius:4px;box-shadow:0 1px 6px rgba(0,0,0,0.4);display:block}
+.mcard .mc-lab{display:flex;flex-direction:column;align-items:center;gap:0.4vh}
+.mcard .mc-lab small{font-size:2.2vh;font-weight:700;color:#FFE082}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-7px)}80%{transform:translateX(7px)}}
+
+/* ===== SORT ===== */
+.sort-wrap{display:flex;flex-direction:column;height:100%;align-items:center;justify-content:center;gap:3vh}
+.sort-hint{font-size:2.2vh;color:rgba(255,255,255,0.65)}
+.sort-card{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1vh;
+  width:34vw;height:34vh;border-radius:22px;
+  border:3px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.1);
+  transition:transform 0.15s;
+}
+.sort-card.ok{border-color:#43A047;background:rgba(67,160,71,0.3)}
+.sort-card.bad{border-color:#E53935;background:rgba(229,57,53,0.3);animation:shake 0.4s}
+.sort-card .sc-emoji{font-size:16vh;line-height:1}
+.sort-card .sc-name{font-size:4.5vh;font-weight:700;color:#FFE082}
+.sort-groups{display:flex;gap:1.4vw;flex-wrap:wrap;justify-content:center;max-width:92vw}
+.gbtn{
+  display:flex;flex-direction:column;align-items:center;gap:0.4vh;
+  min-width:15vw;padding:1.4vh 1vw;border-radius:14px;cursor:pointer;
+  border:2px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.08);
+  transition:background 0.12s,transform 0.1s,border-color 0.12s;
+}
+.gbtn:hover{background:rgba(255,255,255,0.18);transform:translateY(-3px)}
+.gbtn.ok{border-color:#43A047;background:rgba(67,160,71,0.4)}
+.gbtn.bad{border-color:#E53935;background:rgba(229,57,53,0.4)}
+.gbtn .gb-icon{font-size:5vh;line-height:1}
+.gbtn .gb-lab{font-size:2.2vh;font-weight:700;color:#fff;text-align:center;line-height:1.05}
+.gbtn .gb-key{font-size:1.4vh;color:rgba(255,255,255,0.45)}
+
+/* ===== TIMELINE ===== */
+.tl-wrap{display:flex;flex-direction:column;height:100%;gap:2vh}
+.tl-hint{text-align:center;font-size:2.1vh;color:rgba(255,255,255,0.65)}
+.tl-hint b{color:#FFE082}
+.tl-pool{flex:0 0 auto;display:flex;gap:1.6vw;justify-content:center;flex-wrap:wrap;min-height:22vh;align-items:center}
+.tl-card{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.6vh;
+  width:20vw;min-height:20vh;border-radius:18px;cursor:pointer;padding:1.5vh 1vw;
+  border:3px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.1);
+  transition:background 0.12s,transform 0.12s,border-color 0.12s;
+}
+.tl-card:hover{background:rgba(255,255,255,0.18);transform:scale(1.03)}
+.tl-card.wrong{border-color:#E53935;background:rgba(229,57,53,0.3);animation:shake 0.4s}
+.tl-card .tc-name{font-size:3.6vh;font-weight:700;color:#FFE082;text-align:center;line-height:1.05}
+.tl-card .tc-sub{font-size:1.8vh;color:rgba(255,255,255,0.6);text-align:center}
+.tl-track{
+  flex:1;display:flex;align-items:center;justify-content:flex-start;gap:0;
+  padding:1vh 1vw;border-top:2px dashed rgba(255,255,255,0.2);overflow-x:auto;
+}
+.tl-slot{
+  flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.4vh;
+  width:18vw;min-height:18vh;border-radius:16px;
+  border:3px solid #43A047;background:rgba(67,160,71,0.22);padding:1vh;
+  animation:pop 0.3s;
+}
+.tl-slot .ts-order{font-size:1.8vh;font-weight:700;color:#A5D6A7}
+.tl-slot .ts-name{font-size:3.2vh;font-weight:700;color:#FFE082;text-align:center;line-height:1.05}
+.tl-slot .ts-year{font-size:2.4vh;font-weight:700;color:#fff}
+.tl-slot .ts-sub{font-size:1.6vh;color:rgba(255,255,255,0.6);text-align:center}
+.tl-arrow{flex:0 0 auto;font-size:4vh;color:rgba(255,215,0,0.7);padding:0 0.6vw}
+@keyframes pop{0%{transform:scale(0.6);opacity:0}100%{transform:scale(1);opacity:1}}
+
+/* ===== TOAST + WIN ===== */
+#toast{
+  position:fixed;top:12vh;left:50%;transform:translateX(-50%) translateY(-20px);
+  font-size:3.2vh;font-weight:700;padding:1.2vh 3vw;border-radius:14px;
+  opacity:0;pointer-events:none;transition:opacity 0.18s,transform 0.18s;z-index:50;
+  backdrop-filter:blur(4px);
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.ok{background:rgba(67,160,71,0.9);color:#fff}
+#toast.bad{background:rgba(229,57,53,0.9);color:#fff}
+#win{
+  position:fixed;inset:0;z-index:60;display:none;flex-direction:column;
+  align-items:center;justify-content:center;gap:3vh;background:rgba(13,71,161,0.92);
+}
+#win.show{display:flex}
+#win .win-emoji{font-size:16vh;line-height:1;animation:pop 0.5s}
+#win .win-text{font-size:5vh;font-weight:700;color:#FFE082}
+#win .win-score{font-size:3vh;color:#fff}
+#win .win-btns{display:flex;gap:2vw;margin-top:2vh}
+.win-btn{
+  font-size:3vh;font-weight:700;padding:1.2vh 3.5vw;border-radius:14px;cursor:pointer;
+  border:2px solid rgba(255,255,255,0.35);background:rgba(255,255,255,0.1);color:#fff;
+  transition:background 0.14s,transform 0.1s;
+}
+.win-btn:hover{background:rgba(255,255,255,0.22);transform:scale(1.04)}
+.win-btn.primary{border-color:#FFD700;background:rgba(255,215,0,0.25);color:#FFE082}
+</style>
+</head>
+<body>
+
+<!-- HUB -->
+<div id="hub-view">
+  <div id="hub-title">เกมการ์ดความรู้</div>
+  <div id="hub-sub">หลักสูตรแกนกลาง ป.4-6 &nbsp;|&nbsp; เลือกเกม &nbsp;|&nbsp; F = เต็มจอ</div>
+  <div id="hub-grid"></div>
+</div>
+
+<!-- GAME -->
+<div id="game-view">
+  <div id="ghead">
+    <button id="g-home">← หน้าหลัก</button>
+    <div id="g-title"></div>
+    <div id="g-right">
+      <div id="g-score"></div>
+      <button id="g-restart">↻ เริ่มใหม่</button>
+    </div>
+  </div>
+  <div id="stage"></div>
+</div>
+
+<div id="toast"></div>
+
+<div id="win">
+  <div class="win-emoji">🎉</div>
+  <div class="win-text">เก่งมาก!</div>
+  <div class="win-score"></div>
+  <div class="win-btns">
+    <button class="win-btn primary" id="win-again">▶ เล่นอีกครั้ง</button>
+    <button class="win-btn" id="win-home">← หน้าหลัก</button>
+  </div>
+</div>
+
+<script>
+// =====================================================================
+// DATA — สำรับการ์ด (author เอง จากตัวชี้วัด)
+// =====================================================================
+const DECKS = [
+  {
+    id:'asean', icon:'🌏', mech:'match',
+    title:'จับคู่อาเซียน', sub:'ธงชาติ + เมืองหลวง 10 ประเทศ',
+    subject:'สังคม ป.6', code:'ส 4.2 ป.6/2',
+    hint:'จับคู่ <b>ธงชาติ/ประเทศ</b> กับ <b>เมืองหลวง</b>',
+    pairs:[
+      {a:{flag:'th', text:'ไทย'},        b:{text:'กรุงเทพมหานคร'}},
+      {a:{flag:'la', text:'ลาว'},        b:{text:'เวียงจันทน์'}},
+      {a:{flag:'kh', text:'กัมพูชา'},     b:{text:'พนมเปญ'}},
+      {a:{flag:'mm', text:'เมียนมา'},     b:{text:'เนปยีดอ'}},
+      {a:{flag:'vn', text:'เวียดนาม'},    b:{text:'ฮานอย'}},
+      {a:{flag:'ph', text:'ฟิลิปปินส์'},  b:{text:'มะนิลา'}},
+      {a:{flag:'sg', text:'สิงคโปร์'},    b:{text:'สิงคโปร์'}},
+      {a:{flag:'bn', text:'บรูไน'},       b:{text:'บันดาร์เสรีเบกาวัน'}},
+      {a:{flag:'id', text:'อินโดนีเซีย'}, b:{text:'จาการ์ตา'}},
+      {a:{flag:'my', text:'มาเลเซีย'},    b:{text:'กัวลาลัมเปอร์'}},
+    ],
+  },
+  {
+    id:'animals', icon:'🦁', mech:'sort',
+    title:'แยกสัตว์ 5 กลุ่ม', sub:'สัตว์มีกระดูกสันหลัง',
+    subject:'วิทย์ ป.4', code:'ว 1.3 ป.4/3-4',
+    hint:'สัตว์ตัวนี้อยู่กลุ่มไหน?',
+    groups:[
+      {key:'fish',  icon:'🐟', label:'ปลา'},
+      {key:'amph',  icon:'🐸', label:'สะเทินน้ำสะเทินบก'},
+      {key:'rept',  icon:'🐍', label:'เลื้อยคลาน'},
+      {key:'bird',  icon:'🦅', label:'นก'},
+      {key:'mam',   icon:'🐘', label:'เลี้ยงลูกด้วยนม'},
+    ],
+    items:[
+      {name:'ปลาทอง', emoji:'🐟', group:'fish'},
+      {name:'ฉลาม',   emoji:'🦈', group:'fish'},
+      {name:'ม้าน้ำ',  emoji:'🐠', group:'fish'},
+      {name:'ปลากระเบน', emoji:'🐟', group:'fish'},
+      {name:'กบ',     emoji:'🐸', group:'amph'},
+      {name:'คางคก',  emoji:'🐸', group:'amph'},
+      {name:'เขียด',  emoji:'🐸', group:'amph'},
+      {name:'อึ่งอ่าง', emoji:'🐸', group:'amph'},
+      {name:'งู',     emoji:'🐍', group:'rept'},
+      {name:'จระเข้',  emoji:'🐊', group:'rept'},
+      {name:'เต่า',    emoji:'🐢', group:'rept'},
+      {name:'กิ้งก่า', emoji:'🦎', group:'rept'},
+      {name:'ไก่',    emoji:'🐔', group:'bird'},
+      {name:'เป็ด',    emoji:'🦆', group:'bird'},
+      {name:'นกฮูก',  emoji:'🦉', group:'bird'},
+      {name:'นกแก้ว', emoji:'🦜', group:'bird'},
+      {name:'ช้าง',   emoji:'🐘', group:'mam'},
+      {name:'วาฬ',    emoji:'🐳', group:'mam'},
+      {name:'ค้างคาว', emoji:'🦇', group:'mam'},
+      {name:'ลิง',    emoji:'🐵', group:'mam'},
+    ],
+  },
+  {
+    id:'rachasap', icon:'👑', mech:'match',
+    title:'คำราชาศัพท์', sub:'จับคู่คำสามัญ ↔ ราชาศัพท์',
+    subject:'ไทย ป.5', code:'ท 4.1 ป.5/4',
+    hint:'จับคู่ <b>คำสามัญ</b> กับ <b>ราชาศัพท์</b>',
+    pairs:[
+      {a:{text:'กิน'},  b:{text:'เสวย'}},
+      {a:{text:'นอน'},  b:{text:'บรรทม'}},
+      {a:{text:'พูด'},  b:{text:'ตรัส'}},
+      {a:{text:'ป่วย'}, b:{text:'ประชวร'}},
+      {a:{text:'ตาย'},  b:{text:'สวรรคต'}},
+      {a:{text:'ให้'},  b:{text:'พระราชทาน'}},
+      {a:{text:'ผม (เส้นผม)'}, b:{text:'พระเกศา'}},
+      {a:{text:'หน้า'}, b:{text:'พระพักตร์'}},
+      {a:{text:'มือ'},  b:{text:'พระหัตถ์'}},
+      {a:{text:'เท้า'}, b:{text:'พระบาท'}},
+      {a:{text:'ตา'},   b:{text:'พระเนตร'}},
+      {a:{text:'ปาก'},  b:{text:'พระโอษฐ์'}},
+      {a:{text:'พ่อ'},  b:{text:'พระราชบิดา'}},
+      {a:{text:'แม่'},  b:{text:'พระราชมารดา'}},
+    ],
+  },
+  {
+    id:'kingdoms', icon:'🏛️', mech:'timeline',
+    title:'ลำดับอาณาจักรไทย', sub:'เรียงตามยุคสมัย ก่อน → หลัง',
+    subject:'สังคม ป.4-6', code:'ส 4.3',
+    hint:'คลิกการ์ดเรียงจาก <b>อาณาจักรเก่าสุด → ใหม่สุด</b>',
+    items:[
+      {name:'สุโขทัย',     year:'พ.ศ. 1792', sub:'ราชธานีแห่งแรก',          order:1},
+      {name:'อยุธยา',      year:'พ.ศ. 1893', sub:'รุ่งเรือง 417 ปี',         order:2},
+      {name:'ธนบุรี',      year:'พ.ศ. 2310', sub:'สมเด็จพระเจ้าตากสิน',     order:3},
+      {name:'รัตนโกสินทร์', year:'พ.ศ. 2325', sub:'ราชธานีปัจจุบัน',         order:4},
+    ],
+  },
+];
+const MECH_LABEL = { match:'🔗 จับคู่', sort:'🗂️ แยกหมวด', timeline:'⏳ เรียงลำดับ' };
+
+// =====================================================================
+// DOM
+// =====================================================================
+const hubView  = document.getElementById('hub-view');
+const hubGrid  = document.getElementById('hub-grid');
+const gameView = document.getElementById('game-view');
+const gTitle   = document.getElementById('g-title');
+const gScore   = document.getElementById('g-score');
+const stage    = document.getElementById('stage');
+const toastEl  = document.getElementById('toast');
+const winEl    = document.getElementById('win');
+const winText  = winEl.querySelector('.win-text');
+const winEmoji = winEl.querySelector('.win-emoji');
+const winScore = winEl.querySelector('.win-score');
+
+let currentDeck = null;
+
+// =====================================================================
+// SOUND (WebAudio, no assets)
+// =====================================================================
+let actx = null;
+function ac(){ if(!actx){ try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(_){}} return actx; }
+function tone(freq, start, dur, type='sine', vol=0.18){
+  const c = ac(); if(!c) return;
+  const o = c.createOscillator(), g = c.createGain();
+  o.type = type; o.frequency.value = freq;
+  o.connect(g); g.connect(c.destination);
+  const t = c.currentTime + start;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol, t+0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+  o.start(t); o.stop(t+dur+0.02);
+}
+function sCorrect(){ tone(660,0,0.12,'sine'); tone(880,0.1,0.16,'sine'); }
+function sWrong(){ tone(180,0,0.25,'square',0.14); }
+function sWin(){ [523,659,784,1047].forEach((f,i)=>tone(f,i*0.12,0.22,'triangle',0.16)); }
+
+// =====================================================================
+// HELPERS
+// =====================================================================
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+function chunkEven(arr, maxPer){
+  const n=Math.max(1,Math.ceil(arr.length/maxPer));
+  const size=Math.ceil(arr.length/n);
+  const out=[];
+  for(let i=0;i<arr.length;i+=size) out.push(arr.slice(i,i+size));
+  return out;
+}
+let toastTimer=null;
+function toast(ok, text){
+  clearTimeout(toastTimer);
+  toastEl.className = (ok?'ok':'bad')+' show';
+  toastEl.textContent = (ok?'✓ ':'✗ ')+text;
+  toastTimer=setTimeout(()=>toastEl.classList.remove('show'), 900);
+}
+function setScore(html){ gScore.innerHTML = html; }
+function flagImg(code, h){
+  return `<img src="https://flagcdn.com/w160/${code}.png" alt="" onerror="this.style.display='none'">`;
+}
+
+// =====================================================================
+// HUB
+// =====================================================================
+function buildHub(){
+  hubGrid.innerHTML='';
+  DECKS.forEach(d=>{
+    const c=document.createElement('div');
+    c.className='hub-card';
+    c.innerHTML =
+      `<div class="hc-icon">${d.icon}</div>`+
+      `<div class="hc-body">`+
+        `<div class="hc-title">${d.title}</div>`+
+        `<div class="hc-sub">${d.sub}</div>`+
+        `<div class="hc-meta">`+
+          `<span class="hc-tag subj">${d.subject}</span>`+
+          `<span class="hc-tag mech">${MECH_LABEL[d.mech]}</span>`+
+          `<span class="hc-tag code">${d.code}</span>`+
+        `</div>`+
+      `</div>`;
+    c.addEventListener('click', ()=>{ location.hash='#'+d.id; });
+    hubGrid.appendChild(c);
+  });
+}
+function showHub(){
+  currentDeck=null;
+  hubView.classList.add('show');
+  gameView.classList.remove('show');
+  winEl.classList.remove('show');
+  toastEl.classList.remove('show');
+  document.title='เกมการ์ดความรู้ ป.4-6';
+}
+
+// =====================================================================
+// GAME SHELL
+// =====================================================================
+function startDeck(deck){
+  currentDeck=deck;
+  hubView.classList.remove('show');
+  gameView.classList.add('show');
+  winEl.classList.remove('show');
+  gTitle.innerHTML = `${deck.icon} ${deck.title}<small>${deck.subject} · ${deck.code}</small>`;
+  document.title = deck.title;
+  if(deck.mech==='match') initMatch(deck);
+  else if(deck.mech==='sort') initSort(deck);
+  else if(deck.mech==='timeline') initTimeline(deck);
+}
+function showWin(emoji, text, scoreHtml){
+  winEmoji.textContent = emoji;
+  winText.textContent = text;
+  winScore.innerHTML = scoreHtml||'';
+  winEl.classList.add('show');
+  sWin();
+}
+
+// =====================================================================
+// MECHANIC B — MATCHING
+// =====================================================================
+let mState=null;
+function initMatch(deck){
+  const rounds = chunkEven(shuffle(deck.pairs), 6);
+  mState = { rounds, ri:0, matched:0, total:deck.pairs.length, sel:{l:null,r:null}, lock:false };
+  setScore(`จับคู่แล้ว <b>0</b>/${mState.total}`);
+  renderMatchRound();
+}
+function cardInner(face){
+  if(face.flag){
+    return `<div class="mc-lab">${flagImg(face.flag)}<small>${face.text}</small></div>`;
+  }
+  return face.text;
+}
+function renderMatchRound(){
+  const round = mState.rounds[mState.ri];
+  mState.sel={l:null,r:null};
+  const lefts = round.map((p,i)=>({p,i}));
+  const rights = shuffle(round.map((p,i)=>({p,i})));
+  stage.innerHTML =
+    `<div class="match-wrap">`+
+      `<div class="match-hint">${currentDeck.hint} &nbsp;·&nbsp; รอบ ${mState.ri+1}/${mState.rounds.length}</div>`+
+      `<div class="match-cols">`+
+        `<div class="mcol" id="mcol-l"></div>`+
+        `<div class="mcol" id="mcol-r"></div>`+
+      `</div>`+
+    `</div>`;
+  const colL=document.getElementById('mcol-l'), colR=document.getElementById('mcol-r');
+  lefts.forEach(({p,i})=>{
+    const el=document.createElement('div');
+    el.className='mcard'; el.dataset.pid=i; el.dataset.side='l';
+    el.innerHTML=cardInner(p.a);
+    el.addEventListener('click',()=>pickMatch(el));
+    colL.appendChild(el);
+  });
+  rights.forEach(({p,i})=>{
+    const el=document.createElement('div');
+    el.className='mcard'; el.dataset.pid=i; el.dataset.side='r';
+    el.innerHTML=cardInner(p.b);
+    el.addEventListener('click',()=>pickMatch(el));
+    colR.appendChild(el);
+  });
+}
+function pickMatch(el){
+  if(mState.lock || el.classList.contains('matched')) return;
+  const side=el.dataset.side, pid=+el.dataset.pid;
+  const cur=mState.sel[side];
+  // toggle off if re-click same
+  if(cur && cur.el===el){ el.classList.remove('sel'); mState.sel[side]=null; return; }
+  // re-pick same side
+  if(cur){ cur.el.classList.remove('sel'); }
+  el.classList.add('sel');
+  mState.sel[side]={pid,el};
+  // evaluate when both sides chosen
+  if(mState.sel.l && mState.sel.r){
+    const L=mState.sel.l, R=mState.sel.r;
+    if(L.pid===R.pid){
+      L.el.classList.remove('sel'); R.el.classList.remove('sel');
+      L.el.classList.add('matched'); R.el.classList.add('matched');
+      mState.sel={l:null,r:null};
+      mState.matched++;
+      setScore(`จับคู่แล้ว <b>${mState.matched}</b>/${mState.total}`);
+      sCorrect();
+      // round complete?
+      if([...stage.querySelectorAll('.mcard.matched')].length === mState.rounds[mState.ri].length*2){
+        if(mState.ri < mState.rounds.length-1){
+          mState.lock=true;
+          toast(true,'รอบนี้ผ่าน!');
+          setTimeout(()=>{ mState.ri++; mState.lock=false; renderMatchRound(); }, 900);
+        } else {
+          showWin('🎉','จับคู่ครบแล้ว!', `ครบทั้ง <b style="color:#FFD700">${mState.total}</b> คู่`);
+        }
+      }
+    } else {
+      mState.lock=true;
+      L.el.classList.add('wrong'); R.el.classList.add('wrong');
+      L.el.classList.remove('sel'); R.el.classList.remove('sel');
+      sWrong();
+      setTimeout(()=>{
+        L.el.classList.remove('wrong'); R.el.classList.remove('wrong');
+        mState.sel={l:null,r:null}; mState.lock=false;
+      }, 500);
+    }
+  }
+}
+
+// =====================================================================
+// MECHANIC C — SORT / CLASSIFY
+// =====================================================================
+let sState=null;
+function initSort(deck){
+  sState={ order:shuffle(deck.items), idx:0, correct:0, total:deck.items.length, lock:false };
+  renderSortShell(deck);
+  renderSortItem();
+}
+function renderSortShell(deck){
+  stage.innerHTML =
+    `<div class="sort-wrap">`+
+      `<div class="sort-hint">${deck.hint}</div>`+
+      `<div class="sort-card" id="sort-card"></div>`+
+      `<div class="sort-groups" id="sort-groups"></div>`+
+    `</div>`;
+  const gw=document.getElementById('sort-groups');
+  deck.groups.forEach((g,i)=>{
+    const b=document.createElement('div');
+    b.className='gbtn'; b.dataset.key=g.key;
+    b.innerHTML=`<div class="gb-icon">${g.icon}</div><div class="gb-lab">${g.label}</div><div class="gb-key">[${i+1}]</div>`;
+    b.addEventListener('click',()=>pickSort(g.key,b));
+    gw.appendChild(b);
+  });
+}
+function renderSortItem(){
+  setScore(`ข้อ <b>${Math.min(sState.idx+1,sState.total)}</b>/${sState.total} · ถูก <b>${sState.correct}</b>`);
+  if(sState.idx>=sState.total){
+    const pct=Math.round(sState.correct/sState.total*100);
+    showWin(pct>=80?'🏆':'👍','เล่นจบแล้ว!', `ตอบถูก <b style="color:#FFD700">${sState.correct}</b>/${sState.total} (${pct}%)`);
+    return;
+  }
+  const it=sState.order[sState.idx];
+  const card=document.getElementById('sort-card');
+  card.className='sort-card';
+  card.innerHTML=`<div class="sc-emoji">${it.emoji}</div><div class="sc-name">${it.name}</div>`;
+}
+function pickSort(key, btn){
+  if(sState.lock || sState.idx>=sState.total) return;
+  sState.lock=true;
+  const it=sState.order[sState.idx];
+  const card=document.getElementById('sort-card');
+  const correct = key===it.group;
+  if(correct){
+    sState.correct++; btn.classList.add('ok'); card.classList.add('ok');
+    toast(true,'ถูกต้อง!'); sCorrect();
+  } else {
+    btn.classList.add('bad'); card.classList.add('bad');
+    const right=currentDeck.groups.find(g=>g.key===it.group);
+    toast(false,'อยู่กลุ่ม '+right.label); sWrong();
+    // highlight correct group
+    const rb=[...document.querySelectorAll('.gbtn')].find(b=>b.dataset.key===it.group);
+    if(rb) rb.classList.add('ok');
+  }
+  setTimeout(()=>{
+    document.querySelectorAll('.gbtn').forEach(b=>b.classList.remove('ok','bad'));
+    sState.idx++; sState.lock=false; renderSortItem();
+  }, correct?650:1150);
+}
+
+// =====================================================================
+// MECHANIC D — TIMELINE / SEQUENCE
+// =====================================================================
+let tState=null;
+function initTimeline(deck){
+  const solution=[...deck.items].sort((a,b)=>a.order-b.order);
+  tState={ solution, pool:shuffle(deck.items), pos:0, total:deck.items.length };
+  stage.innerHTML =
+    `<div class="tl-wrap">`+
+      `<div class="tl-hint">${deck.hint}</div>`+
+      `<div class="tl-pool" id="tl-pool"></div>`+
+      `<div class="tl-track" id="tl-track"></div>`+
+    `</div>`;
+  setScore(`เรียงแล้ว <b>0</b>/${tState.total}`);
+  renderPool();
+}
+function renderPool(){
+  const pool=document.getElementById('tl-pool');
+  pool.innerHTML='';
+  tState.pool.forEach(it=>{
+    const el=document.createElement('div');
+    el.className='tl-card';
+    el.innerHTML=`<div class="tc-name">${it.name}</div><div class="tc-sub">คลิกถ้าคิดว่ามาก่อน</div>`;
+    el.addEventListener('click',()=>pickTimeline(it,el));
+    pool.appendChild(el);
+  });
+}
+function pickTimeline(it, el){
+  const expected=tState.solution[tState.pos];
+  if(it.order===expected.order){
+    // place into track
+    tState.pool=tState.pool.filter(x=>x!==it);
+    const track=document.getElementById('tl-track');
+    if(tState.pos>0){
+      const arr=document.createElement('div'); arr.className='tl-arrow'; arr.textContent='→';
+      track.appendChild(arr);
+    }
+    const slot=document.createElement('div');
+    slot.className='tl-slot';
+    slot.innerHTML=`<div class="ts-order">ลำดับ ${tState.pos+1}</div><div class="ts-name">${it.name}</div>`+
+                   `<div class="ts-year">${it.year}</div><div class="ts-sub">${it.sub}</div>`;
+    track.appendChild(slot);
+    tState.pos++;
+    setScore(`เรียงแล้ว <b>${tState.pos}</b>/${tState.total}`);
+    sCorrect();
+    renderPool();
+    if(tState.pos>=tState.total){
+      showWin('🏆','เรียงถูกทั้งหมด!', `ลำดับอาณาจักรไทยถูกต้อง 👏`);
+    }
+  } else {
+    el.classList.add('wrong'); sWrong(); toast(false,'ยังไม่ใช่ ลองดูปีอีกที');
+    setTimeout(()=>el.classList.remove('wrong'),450);
+  }
+}
+
+// =====================================================================
+// CONTROLS
+// =====================================================================
+document.getElementById('g-home').addEventListener('click',()=>{ location.hash=''; });
+document.getElementById('g-restart').addEventListener('click',()=>{ if(currentDeck) startDeck(currentDeck); });
+document.getElementById('win-again').addEventListener('click',()=>{ winEl.classList.remove('show'); if(currentDeck) startDeck(currentDeck); });
+document.getElementById('win-home').addEventListener('click',()=>{ location.hash=''; });
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='f'||e.key==='F'){
+    if(!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+    return;
+  }
+  if(e.key==='Escape'){ location.hash=''; return; }
+  // number keys 1-5 for sort
+  if(currentDeck && currentDeck.mech==='sort' && /^[1-5]$/.test(e.key) && !winEl.classList.contains('show')){
+    const btn=document.querySelectorAll('.gbtn')[+e.key-1];
+    if(btn) btn.click();
+  }
+});
+
+// =====================================================================
+// ROUTING + INIT
+// =====================================================================
+function route(){
+  const h=(location.hash||'').replace(/^#/,'');
+  const deck=DECKS.find(d=>d.id===h);
+  if(deck) startDeck(deck);
+  else showHub();
+}
+window.addEventListener('hashchange',route);
+buildHub();
+route();
+</script>
+</body>
+</html>

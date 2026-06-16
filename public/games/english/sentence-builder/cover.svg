@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" font-family="'Kanit','Sarabun','Segoe UI',sans-serif">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="0.6" stop-color="#1e1b4b"/>
+      <stop offset="1" stop-color="#311042"/>
+    </linearGradient>
+    
+    <!-- Title Gold Gradient -->
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fffbeb"/>
+      <stop offset="0.5" stop-color="#fbbf24"/>
+      <stop offset="1" stop-color="#d97706"/>
+    </linearGradient>
+
+    <!-- Card Gradients -->
+    <linearGradient id="cardGlow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0.02"/>
+    </linearGradient>
+
+    <!-- Shadow filter -->
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000000" flood-opacity="0.55"/>
+    </filter>
+
+    <filter id="neonBlue" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#3b82f6" flood-opacity="0.8"/>
+    </filter>
+    <filter id="neonGreen" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#10b981" flood-opacity="0.8"/>
+    </filter>
+    <filter id="neonPurple" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#a855f7" flood-opacity="0.8"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="url(#bg)"/>
+
+  <!-- Geometric Grid Accent -->
+  <path d="M0,120 L1280,120 M0,240 L1280,240 M0,360 L1280,360 M0,480 L1280,480 M0,600 L1280,600" stroke="rgba(255,255,255,0.03)" stroke-width="2"/>
+  <path d="M160,0 L160,720 M320,0 L320,720 M480,0 L480,720 M640,0 L640,720 M800,0 L800,720 M960,0 L960,720 M1120,0 L1120,720" stroke="rgba(255,255,255,0.03)" stroke-width="2"/>
+
+  <!-- Dotted slots (target zone representation) -->
+  <g transform="translate(180, 200)" filter="url(#shadow)">
+    <!-- Slot 1 -->
+    <rect x="0" y="0" width="160" height="74" rx="16" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3" stroke-dasharray="8 6"/>
+    <!-- Slot 2 -->
+    <rect x="180" y="0" width="180" height="74" rx="16" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3" stroke-dasharray="8 6"/>
+    <!-- Slot 3 (Filled) -->
+    <g transform="translate(380, 0)" filter="url(#neonPurple)">
+      <rect x="0" y="0" width="220" height="74" rx="16" fill="url(#cardGlow)" stroke="#a855f7" stroke-width="3"/>
+      <text x="110" y="47" fill="#ffffff" font-size="28" font-weight="bold" text-anchor="middle" font-family="'Fredoka One', sans-serif">football</text>
+    </g>
+    <!-- Slot 4 (Filled) -->
+    <g transform="translate(620, 0)" filter="url(#neonBlue)">
+      <rect x="0" y="0" width="240" height="74" rx="16" fill="url(#cardGlow)" stroke="#3b82f6" stroke-width="3"/>
+      <text x="120" y="47" fill="#ffffff" font-size="28" font-weight="bold" text-anchor="middle" font-family="'Fredoka One', sans-serif">every day.</text>
+    </g>
+  </g>
+
+  <!-- Word Bank Cards floating -->
+  <g filter="url(#shadow)">
+    <!-- 'I' Noun Card -->
+    <g transform="translate(250, 340)" filter="url(#neonBlue)">
+      <rect x="0" y="0" width="100" height="70" rx="16" fill="url(#cardGlow)" stroke="#3b82f6" stroke-width="3"/>
+      <text x="50" y="44" fill="#ffffff" font-size="28" font-weight="bold" text-anchor="middle" font-family="'Fredoka One', sans-serif">I</text>
+    </g>
+    
+    <!-- 'play' Verb Card -->
+    <g transform="translate(400, 360)" filter="url(#neonGreen)">
+      <rect x="0" y="0" width="150" height="70" rx="16" fill="url(#cardGlow)" stroke="#10b981" stroke-width="3"/>
+      <text x="75" y="44" fill="#ffffff" font-size="28" font-weight="bold" text-anchor="middle" font-family="'Fredoka One', sans-serif">play</text>
+    </g>
+    
+    <!-- Extra Distractor Cards in background -->
+    <g transform="translate(720, 350)" opacity="0.3">
+      <rect x="0" y="0" width="130" height="70" rx="16" fill="none" stroke="#ffffff" stroke-width="2"/>
+      <text x="65" y="44" fill="#ffffff" font-size="24" font-weight="bold" text-anchor="middle" font-family="'Fredoka One', sans-serif">goes</text>
+    </g>
+    
+    <g transform="translate(900, 330)" opacity="0.3">
+      <rect x="0" y="0" width="140" height="70" rx="16" fill="none" stroke="#ffffff" stroke-width="2"/>
+      <text x="70" y="44" fill="#ffffff" font-size="24" font-weight="bold" text-anchor="middle" font-family="'Fredoka One', sans-serif">played</text>
+    </g>
+  </g>
+
+  <!-- Connecting line with pulse dot -->
+  <path d="M 300 340 Q 250 280 250 274" fill="none" stroke="#3b82f6" stroke-width="3" stroke-dasharray="6 4" opacity="0.6"/>
+  <circle cx="250" cy="274" r="5" fill="#3b82f6" filter="url(#neonBlue)"/>
+
+  <path d="M 475 360 Q 470 280 470 274" fill="none" stroke="#10b981" stroke-width="3" stroke-dasharray="6 4" opacity="0.6"/>
+  <circle cx="470" cy="274" r="5" fill="#10b981" filter="url(#neonGreen)"/>
+
+  <!-- Logo Banner -->
+  <g filter="url(#shadow)" transform="translate(640, 520)">
+    <text x="0" y="0" fill="url(#gold)" font-size="82" font-weight="900" text-anchor="middle" stroke="#1e1b4b" stroke-width="6" stroke-linejoin="round" letter-spacing="2">🔤 Sentence Builder</text>
+    <text x="0" y="55" fill="#a5b4fc" font-size="32" font-weight="bold" text-anchor="middle" letter-spacing="4">ฝึกต่อประโยคภาษาอังกฤษ</text>
+    <text x="0" y="105" fill="#94a3b8" font-size="22" font-weight="bold" text-anchor="middle">กลุ่มสาระการเรียนรู้ภาษาต่างประเทศ (ภาษาอังกฤษ)</text>
+  </g>
+</svg>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>💰 Coin Exchange — แลกเหรียญทอนเงิน (kampai SDK)</title>
+<!--
+  KAMPAI-SCHOOL · GAME "Coin Exchange" (แลกเหรียญและทอนเงิน) — คณิตศาสตร์ ป.1-6
+-->
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- HUD -->
+<div id="hud" style="display:none">
+    <div id="score-container">⭐ <span id="score-value">0</span></div>
+    <div id="life-container">❤️❤️❤️</div>
+    <div id="level-container">ลูกค้าคนแรก <span id="level-value">1</span>/10</div>
+    <div id="player-chip"></div>
+</div>
+
+<!-- Play Area -->
+<div id="play" style="display:none">
+    <div class="game-container">
+        <!-- Left Column: Currency Drawer (ลิ้นชักเงินทอน) -->
+        <div class="drawer-panel">
+            <h3>🏦 ลิ้นชักเงินสด (Money Drawer)</h3>
+            <p class="panel-hint">แตะธนบัตรหรือเหรียญเพื่อนำไปใส่ถาดเงินทอน</p>
+            
+            <div class="notes-grid">
+                <button class="cash-btn note-500" onclick="addMoney(500)">฿500</button>
+                <button class="cash-btn note-100" onclick="addMoney(100)">฿100</button>
+                <button class="cash-btn note-50" onclick="addMoney(50)">฿50</button>
+                <button class="cash-btn note-20" onclick="addMoney(20)">฿20</button>
+            </div>
+
+            <div class="coins-grid">
+                <button class="cash-btn coin-10" onclick="addMoney(10)">฿10</button>
+                <button class="cash-btn coin-5" onclick="addMoney(5)">฿5</button>
+                <button class="cash-btn coin-2" onclick="addMoney(2)">฿2</button>
+                <button class="cash-btn coin-1" onclick="addMoney(1)">฿1</button>
+            </div>
+        </div>
+
+        <!-- Right Column: Customer & Tray Area -->
+        <div class="checkout-panel">
+            <!-- Customer Card -->
+            <div class="customer-card">
+                <div class="customer-avatar">🧑‍🎓</div>
+                <div class="customer-bubble">
+                    <p>ซื้อ: <strong id="cust-items">—</strong></p>
+                    <p>ราคารวม: <strong id="cust-price">—</strong> บาท</p>
+                    <p>จ่ายเงินมา: <strong id="cust-paid">—</strong> บาท</p>
+                    <p class="change-hint">ต้องทอนเงินทั้งหมด: <span id="target-change" class="text-yellow">—</span> บาท</p>
+                </div>
+            </div>
+
+            <!-- Change Tray -->
+            <div class="tray-card">
+                <div class="tray-header">
+                    <span>📥 ถาดเงินทอน (Change Tray)</span>
+                    <span class="tray-total">รวม: <strong id="tray-total-val">0</strong> บาท</span>
+                </div>
+                
+                <!-- Placed money list -->
+                <div id="tray-money" class="tray-money-row">
+                    <!-- Added money items go here -->
+                </div>
+
+                <div class="tray-actions">
+                    <button class="btn btn-primary" onclick="submitChange()">💸 ส่งเงินทอน</button>
+                    <button class="btn btn-danger btn-sm" onclick="clearTray()">🧹 ล้างถาด</button>
+                </div>
+            </div>
+
+            <!-- Feedback Overlay -->
+            <div id="feedback-overlay" class="feedback-overlay" style="display:none">
+                <h3 id="feedback-title">ทอนเงินถูกต้อง!</h3>
+                <p id="feedback-desc">คำอธิบาย...</p>
+                <button class="btn btn-primary" onclick="nextQuestion()">ถัดไป ➡️</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Start screen -->
+<div id="blocker">
+    <h1>💰 Coin Exchange</h1>
+    <p class="subtitle">แลกเหรียญและฝึกทอนเงินไทย</p>
+    <p>สวมบทบาทเป็นแคชเชียร์ร้านค้าสหกรณ์โรงเรียนคำนวณและทอนเงินให้เพื่อนๆ<br>แตะเงินทอนในลิ้นชักใส่ถาดให้ได้มูลค่าเงินทอนที่ถูกต้อง!</p>
+
+    <div id="my-stats">
+        <div class="ms-cell"><div class="ms-val" id="ms-best">0</div><div class="ms-label">คะแนนสูงสุด</div></div>
+        <div class="ms-cell"><div class="ms-val" id="ms-plays">0</div><div class="ms-label">เล่นไปแล้ว (ครั้ง)</div></div>
+    </div>
+
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+    </div>
+
+    <button class="btn btn-primary btn-lg" onclick="startGame()">🚀 เริ่มเปิดร้านสหกรณ์</button>
+</div>
+
+<!-- Game Over screen -->
+<div id="gameover-screen">
+    <h1 id="go-title">🎉 ปิดร้านค้าสหกรณ์แล้ว!</h1>
+    <div id="star-display"></div>
+    <p>คะแนนรวมสุดท้าย</p>
+    <div id="final-score">0</div>
+    <p id="go-summary" style="font-size:15px"></p>
+    
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
+        <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นใหม่</button>
+        <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+    </div>
+</div>
+
+<!-- Confetti canvas -->
+<canvas id="confetti-canvas"></canvas>
+
+<!-- ═══ KAMPAI SDK + Online framework (single source) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+</script>
+<script src="/games/kampai-match.js"></script>
+<script>
+window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){alert('โหมดออนไลน์เล่นผ่านระบบเท่านั้น');},report:function(){},finish:function(){},leave:function(){}};} };
+</script>
+
+<!-- ═══ เกม (5 ไฟล์): config → data → game ═══ -->
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

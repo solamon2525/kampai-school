@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>📏 Measure Up! — วัดและเปรียบเทียบ (kampai SDK)</title>
+<!--
+  KAMPAI-SCHOOL · GAME "Measure Up!" (วัดและเปรียบเทียบแสนสนุก) — คณิตศาสตร์ ป.1-6
+-->
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- HUD -->
+<div id="hud" style="display:none">
+    <div id="score-container">⭐ <span id="score-value">0</span></div>
+    <div id="life-container">❤️❤️❤️</div>
+    <div id="level-container">ข้อ <span id="level-value">1</span>/10</div>
+    <div id="player-chip"></div>
+</div>
+
+<!-- Play Area -->
+<div id="play" style="display:none">
+    <div class="game-container">
+        <!-- Interactive Canvas Area -->
+        <div class="canvas-panel">
+            <div class="canvas-wrapper">
+                <canvas id="interactive-canvas" width="400" height="300"></canvas>
+            </div>
+            <div id="drag-hint" class="drag-hint">ลากทาบไม้บรรทัดเพื่อวัดสิ่งของ 📏</div>
+        </div>
+
+        <!-- Question and Options Area -->
+        <div class="question-panel">
+            <div class="question-card">
+                <div id="q-title" class="q-title">วัดความยาว 📏</div>
+                <div id="q-text" class="q-text">คำถามกำลังโหลด...</div>
+                
+                <div id="options-grid" class="options-grid">
+                    <!-- Options buttons populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Answer Feedback Overlay -->
+            <div id="feedback-overlay" class="feedback-overlay" style="display:none">
+                <h3 id="feedback-title">ถูกต้อง!</h3>
+                <p id="feedback-desc">คำอธิบาย...</p>
+                <button class="btn btn-primary" onclick="nextQuestion()">ถัดไป ➡️</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Start screen -->
+<div id="blocker">
+    <h1>📏 Measure Up!</h1>
+    <p class="subtitle">วัดและเปรียบเทียบแสนสนุก</p>
+    <p>ฝึกทักษะการวัดความยาว น้ำหนัก และปริมาตร<br>โดยลากไม้บรรทัดทาบวัดสิ่งของและอ่านค่าวัดจากตาชั่งและบีกเกอร์!</p>
+
+    <div id="my-stats">
+        <div class="ms-cell"><div class="ms-val" id="ms-best">0</div><div class="ms-label">คะแนนสูงสุด</div></div>
+        <div class="ms-cell"><div class="ms-val" id="ms-plays">0</div><div class="ms-label">เล่นไปแล้ว (ครั้ง)</div></div>
+    </div>
+
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+    </div>
+
+    <button class="btn btn-primary btn-lg" onclick="startGame()">🚀 เริ่มทดสอบและเปรียบเทียบ</button>
+</div>
+
+<!-- Game Over screen -->
+<div id="gameover-screen">
+    <h1 id="go-title">🎉 สำเร็จแล้ว!</h1>
+    <div id="star-display"></div>
+    <p>คะแนนรวมสุดท้าย</p>
+    <div id="final-score">0</div>
+    <p id="go-summary" style="font-size:15px"></p>
+    
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
+        <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นใหม่</button>
+        <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+    </div>
+</div>
+
+<!-- Confetti canvas -->
+<canvas id="confetti-canvas"></canvas>
+
+<!-- ═══ KAMPAI SDK + Online framework (single source) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+</script>
+<script src="/games/kampai-match.js"></script>
+<script>
+window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){alert('โหมดออนไลน์เล่นผ่านระบบเท่านั้น');},report:function(){},finish:function(){},leave:function(){}};} };
+</script>
+
+<!-- ═══ เกม (5 ไฟล์): config → data → game ═══ -->
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

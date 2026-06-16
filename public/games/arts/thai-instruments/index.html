@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🎭 Thai Instruments — เครื่องดนตรีไทย (kampai SDK)</title>
+<!--
+  KAMPAI-SCHOOL · GAME "Thai Instruments" (เครื่องดนตรีไทยแสนสนุก) — ศิลปะ/ดนตรี ป.3-6
+-->
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- HUD -->
+<div id="hud" style="display:none">
+    <div id="score-container">⭐ <span id="score-value">0</span></div>
+    <div id="mode-display"><span id="mode-text">ทำความรู้จัก</span></div>
+    <div id="life-container">❤️❤️❤️</div>
+    <div id="player-chip"></div>
+</div>
+
+<!-- Main Area -->
+<div id="main-area" style="display:none">
+    <!-- Tabs -->
+    <div class="tabs">
+        <button id="tab-explore" class="tab-btn active" onclick="switchTab('explore')">🔍 ทำความรู้จัก</button>
+        <button id="tab-quiz" class="tab-btn" onclick="switchTab('quiz')">🎵 ทายเสียงปริศนา</button>
+    </div>
+
+    <!-- TAB 1: Explore View -->
+    <div id="explore-view" class="view-panel">
+        <div class="explore-layout">
+            <!-- Left Side: Instrument Selector by Category -->
+            <div class="list-column">
+                <div class="category-filters">
+                    <button class="filter-btn active" onclick="filterCategory('ทั้งหมด', this)">ทั้งหมด</button>
+                    <button class="filter-btn" onclick="filterCategory('ดีด', this)">ดีด</button>
+                    <button class="filter-btn" onclick="filterCategory('สี', this)">สี</button>
+                    <button class="filter-btn" onclick="filterCategory('ตี', this)">ตี</button>
+                    <button class="filter-btn" onclick="filterCategory('เป่า', this)">เป่า</button>
+                </div>
+                <div id="instruments-grid" class="instruments-grid">
+                    <!-- Cards will be populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Right Side: Details & Mini-Synth -->
+            <div class="details-column">
+                <div class="detail-card info-card">
+                    <div id="inst-emoji" class="inst-emoji">🎵</div>
+                    <h2 id="inst-title">เลือกเครื่องดนตรี</h2>
+                    <div class="inst-meta">หมวดหมู่: <span id="inst-cat">—</span></div>
+                    <p id="inst-desc" class="inst-desc">เลือกเครื่องดนตรีทางซ้ายมือ เพื่อแสดงข้อมูลประวัติและทดลองเล่นเสียงคีย์โน้ตดนตรีไทย!</p>
+                </div>
+
+                <!-- Interactive Keypad (Mini Synth) -->
+                <div class="detail-card synth-card">
+                    <h3>🎹 คีย์บอร์ดทดลองเสียง</h3>
+                    <p class="synth-hint">แตะคีย์บอร์ดด้านล่างเพื่อฟังเสียงโน้ตดนตรีจำลอง</p>
+                    <div class="keys-container">
+                        <button class="music-key" onpointerdown="playNote('C4')"><span>โด</span><span class="note-name">C4</span></button>
+                        <button class="music-key" onpointerdown="playNote('D4')"><span>เร</span><span class="note-name">D4</span></button>
+                        <button class="music-key" onpointerdown="playNote('E4')"><span>มี</span><span class="note-name">E4</span></button>
+                        <button class="music-key" onpointerdown="playNote('F4')"><span>ฟา</span><span class="note-name">F4</span></button>
+                        <button class="music-key" onpointerdown="playNote('G4')"><span>ซอล</span><span class="note-name">G4</span></button>
+                        <button class="music-key" onpointerdown="playNote('A4')"><span>ลา</span><span class="note-name">A4</span></button>
+                        <button class="music-key" onpointerdown="playNote('B4')"><span>ที</span><span class="note-name">B4</span></button>
+                        <button class="music-key" onpointerdown="playNote('C5')"><span>โด๊</span><span class="note-name">C5</span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: Quiz View -->
+    <div id="quiz-view" class="view-panel" style="display:none">
+        <div class="quiz-container">
+            <div class="quiz-progress-bar">
+                <div id="progress-fill" style="width: 0%"></div>
+            </div>
+            
+            <div class="question-card">
+                <div class="question-header">คำถามที่ <span id="q-index">1</span>/<span id="q-total">10</span></div>
+                <div id="question-text" class="question-text">เสียงเครื่องดนตรีข้อใดจัดอยู่ในประเภทที่ดีด?</div>
+                
+                <!-- Sound Player for sound questions -->
+                <div id="sound-player-area" class="sound-player-area" style="display:none">
+                    <button class="play-sound-btn" onclick="playQuizSound()">
+                        🔊 ฟังเสียงดนตรีปริศนา
+                    </button>
+                    <p class="play-hint">กดปุ่มเพื่อฟังเสียงเครื่องดนตรีจำลอง</p>
+                </div>
+
+                <div id="quiz-options" class="options-grid">
+                    <!-- Option buttons -->
+                </div>
+            </div>
+
+            <!-- Feedback Overlay -->
+            <div id="quiz-feedback" class="feedback-overlay" style="display:none">
+                <h3 id="feedback-title">ถูกต้อง!</h3>
+                <p id="feedback-explanation">คำอธิบาย...</p>
+                <button class="btn btn-primary" onclick="nextQuestion()">ถัดไป ➡️</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Start screen -->
+<div id="blocker">
+    <h1>🎭 เครื่องดนตรีไทย</h1>
+    <p class="subtitle">จำแนกประเภทและฝึกทักษะการฟังเสียง</p>
+    <p>ทำความรู้จักประวัติเครื่องดนตรีหมวด ดีด สี ตี เป่า บรรเลงเสียงคีย์บอร์ดไทย<br>แล้วเข้าสู่โหมดทดสอบทักษะการแยกประเภทและทายเสียงสะสมคะแนนกัน!</p>
+
+    <div id="my-stats">
+        <div class="ms-cell"><div class="ms-val" id="ms-best">0</div><div class="ms-label">คะแนนสูงสุด</div></div>
+        <div class="ms-cell"><div class="ms-val" id="ms-plays">0</div><div class="ms-label">เล่นไปแล้ว (ครั้ง)</div></div>
+    </div>
+
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+    </div>
+
+    <button class="btn btn-primary btn-lg" onclick="startGame()">🚀 เริ่มเรียนรู้และทายเสียง</button>
+</div>
+
+<!-- Game Over screen -->
+<div id="gameover-screen">
+    <h1 id="go-title">🎉 สำเร็จแล้ว!</h1>
+    <div id="star-display"></div>
+    <p>คะแนนรวมสุดท้าย</p>
+    <div id="final-score">0</div>
+    <p id="go-summary" style="font-size:15px"></p>
+    
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
+        <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นใหม่</button>
+        <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+    </div>
+</div>
+
+<!-- Confetti canvas -->
+<canvas id="confetti-canvas"></canvas>
+
+<!-- ═══ KAMPAI SDK + Online framework (single source) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+</script>
+<script src="/games/kampai-match.js"></script>
+<script>
+window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){alert('โหมดออนไลน์เล่นผ่านระบบเท่านั้น');},report:function(){},finish:function(){},leave:function(){}};} };
+</script>
+
+<!-- ═══ เกม (5 ไฟล์): config → data → game ═══ -->
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

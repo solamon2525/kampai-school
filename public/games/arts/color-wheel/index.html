@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🎨 Color Wheel Explorer — วงล้อสีทฤษฎี (kampai SDK)</title>
+<!--
+  KAMPAI-SCHOOL · GAME "Color Wheel Explorer" (วงล้อสีแสนสนุก) — ศิลปะ ป.4-6
+-->
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- HUD -->
+<div id="hud" style="display:none">
+    <div id="score-container">⭐ <span id="score-value">0</span></div>
+    <div id="mode-display"><span id="mode-text">โหมดสำรวจ</span></div>
+    <div id="life-container">❤️❤️❤️</div>
+    <div id="player-chip"></div>
+</div>
+
+<!-- Main Area -->
+<div id="main-area" style="display:none">
+    <!-- Tab Controls -->
+    <div class="tabs">
+        <button id="tab-explore" class="tab-btn active" onclick="switchTab('explore')">🌐 สำรวจวงล้อสี</button>
+        <button id="tab-quiz" class="tab-btn" onclick="switchTab('quiz')">❓ เล่นเกมตอบคำถาม</button>
+    </div>
+
+    <!-- TAB 1: Explore & Palette -->
+    <div id="explore-view" class="view-panel">
+        <div class="explore-grid">
+            <!-- Left Side: Interactive Wheel -->
+            <div class="wheel-column">
+                <div class="wheel-container">
+                    <svg id="svg-wheel" viewBox="-180 -180 360 360" width="100%" height="100%">
+                        <!-- Segments and lines will be injected by JavaScript -->
+                        <g id="wheel-segments"></g>
+                        <g id="wheel-overlays"></g>
+                        <circle cx="0" cy="0" r="35" fill="#1e293b" stroke="#334155" stroke-width="2"/>
+                        <circle cx="0" cy="0" r="10" fill="#f8fafc"/>
+                    </svg>
+                </div>
+                <div class="color-theory-selectors">
+                    <button class="theory-btn active" data-theory="none">อิสระ (Free)</button>
+                    <button class="theory-btn" data-theory="complementary">คู่ตรงข้าม (Complementary)</button>
+                    <button class="theory-btn" data-theory="analogous">ข้างเคียง (Analogous)</button>
+                    <button class="theory-btn" data-theory="triadic">สามมุม (Triadic)</button>
+                </div>
+            </div>
+
+            <!-- Right Side: Details & Palette Builder -->
+            <div class="details-column">
+                <!-- Color Info Card -->
+                <div class="detail-card info-card">
+                    <h3 id="info-title">เลือกสีบนวงล้อ</h3>
+                    <div id="info-color-preview" class="color-block"></div>
+                    <div class="info-specs">
+                        <p><strong>ชื่อภาษาไทย:</strong> <span id="info-name-th">—</span></p>
+                        <p><strong>English:</strong> <span id="info-name-en">—</span></p>
+                        <p><strong>รหัสสี (Hex):</strong> <span id="info-hex">—</span></p>
+                        <p><strong>ประเภทแม่สี:</strong> <span id="info-level">—</span></p>
+                        <p><strong>วรรณะสี:</strong> <span id="info-tone">—</span></p>
+                    </div>
+                </div>
+
+                <!-- Color Theory Description Card -->
+                <div class="detail-card theory-card">
+                    <h3 id="theory-title">ทฤษฎีสี</h3>
+                    <p id="theory-desc">แตะปุ่มทฤษฎีสีด้านล่างวงล้อเพื่อแสดงโครงร่างสีคู่ตรงข้าม สีข้างเคียง หรือสีสามมุม</p>
+                </div>
+
+                <!-- Palette Builder -->
+                <div class="detail-card palette-card">
+                    <h3>🎨 พาเลทสีของฉัน</h3>
+                    <div id="palette-colors" class="palette-colors-row"></div>
+                    <div class="palette-actions">
+                        <button class="btn btn-primary btn-sm" onclick="addToPalette()">➕ เพิ่มสีนี้</button>
+                        <button class="btn btn-danger btn-sm" onclick="clearPalette()">🧹 ล้างทั้งหมด</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: Quiz Panel -->
+    <div id="quiz-view" class="view-panel" style="display:none">
+        <div class="quiz-container">
+            <div class="quiz-progress-bar">
+                <div id="progress-fill" style="width: 0%"></div>
+            </div>
+            
+            <div class="question-card">
+                <div class="question-header">คำถามที่ <span id="q-index">1</span>/<span id="q-total">10</span></div>
+                <div id="question-text" class="question-text">คำถามกำลังโหลด...</div>
+                
+                <div id="quiz-options" class="options-grid">
+                    <!-- Option buttons generated dynamically -->
+                </div>
+            </div>
+
+            <!-- Feedback & Explanation overlay -->
+            <div id="quiz-feedback" class="feedback-overlay" style="display:none">
+                <h3 id="feedback-title">ถูกต้อง!</h3>
+                <p id="feedback-explanation">คำอธิบายข้อนี้...</p>
+                <button class="btn btn-primary" onclick="nextQuestion()">ถัดไป ➡️</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Start screen -->
+<div id="blocker">
+    <h1>🎨 Color Wheel Explorer</h1>
+    <p class="subtitle">วงล้อสีและทฤษฎีศิลปะแสนสนุก</p>
+    <p>เรียนรู้ทฤษฎีแม่สี วรรณะสีร้อน/เย็น สีคู่ตรงข้าม<br>แล้วเข้าสู่โหมดตอบคำถามเพื่อทดสอบและเก็บคะแนนสะสมกันเลย!</p>
+
+    <div id="my-stats">
+        <div class="ms-cell"><div class="ms-val" id="ms-best">0</div><div class="ms-label">คะแนนสูงสุด</div></div>
+        <div class="ms-cell"><div class="ms-val" id="ms-plays">0</div><div class="ms-label">เล่นไปแล้ว (ครั้ง)</div></div>
+    </div>
+
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+    </div>
+
+    <button class="btn btn-primary btn-lg" onclick="startGame()">🚀 เริ่มเรียนรู้และเล่นเกม</button>
+</div>
+
+<!-- Game Over screen -->
+<div id="gameover-screen">
+    <h1 id="go-title">🎉 เก่งมาก!</h1>
+    <div id="star-display"></div>
+    <p>คะแนนสุดท้าย</p>
+    <div id="final-score">0</div>
+    <p id="go-summary" style="font-size:15px"></p>
+    
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
+        <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นใหม่</button>
+        <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+    </div>
+</div>
+
+<!-- Confetti canvas -->
+<canvas id="confetti-canvas"></canvas>
+
+<!-- ═══ KAMPAI SDK + Online framework (single source) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+</script>
+<script src="/games/kampai-match.js"></script>
+<script>
+window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){alert('โหมดออนไลน์เล่นผ่านระบบเท่านั้น');},report:function(){},finish:function(){},leave:function(){}};} };
+</script>
+
+<!-- ═══ เกม (5 ไฟล์): config → data → game ═══ -->
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

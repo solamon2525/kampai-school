@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🗣️ Phonics Pop — เสียงพาสนุก</title>
+<!--
+  KAMPAI-SCHOOL · GAME "Phonics Pop" (เสียงพาสนุก) — ภาษาอังกฤษ phonics
+  โครงสร้างโฟลเดอร์ (5 ไฟล์): index.html + style.css + config.js + data.js + game.js
+  3 โหมด: Letters (a-z) / Blends (ch, sh, th…) / Words (CVC: cat, dog, sun…)
+  ฟัง phonics → แตะลูกโป่งที่ตรง → ลูกโป่งแตก!
+-->
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ═══ HUD ═══ -->
+<div id="hud">
+  <div id="score-container">⭐ <span id="score-value">0</span></div>
+  <div id="level-badge">Lv <span id="level-value">1</span></div>
+  <div id="life-container">❤️❤️❤️❤️❤️</div>
+</div>
+<div id="combo-badge"></div>
+<div id="player-chip"></div>
+
+<!-- ═══ Game canvas area ═══ -->
+<div id="game-area">
+  <!-- Clouds (decorative) -->
+  <div class="cloud cloud-1"></div>
+  <div class="cloud cloud-2"></div>
+  <div class="cloud cloud-3"></div>
+
+  <!-- Sound prompt -->
+  <div id="sound-prompt">
+    <div id="sound-wave">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <button id="replay-btn" onclick="replaySound()">🔊</button>
+  </div>
+
+  <!-- Emoji hint (for Words mode) -->
+  <div id="emoji-hint"></div>
+
+  <!-- Balloon container -->
+  <div id="balloon-container"></div>
+</div>
+
+<!-- ═══ Start screen ═══ -->
+<div id="blocker">
+  <div class="start-balloons">
+    <div class="deco-balloon db1">A</div>
+    <div class="deco-balloon db2">B</div>
+    <div class="deco-balloon db3">C</div>
+    <div class="deco-balloon db4">sh</div>
+    <div class="deco-balloon db5">🐱</div>
+  </div>
+  <h1>🗣️ Phonics Pop</h1>
+  <p class="subtitle">เสียงพาสนุก</p>
+  <p>ฟังเสียง phonics แล้วแตะลูกโป่งที่ถูกต้อง!<br>ตอบเร็ว ตอบถูก คะแนนพุ่ง 🎈</p>
+
+  <div id="my-stats">
+    <div class="ms-cell"><div class="ms-val" id="ms-best">0</div><div class="ms-label">คะแนนสูงสุด</div></div>
+    <div class="ms-cell"><div class="ms-val" id="ms-plays">0</div><div class="ms-label">เล่นไปแล้ว (ครั้ง)</div></div>
+  </div>
+
+  <div class="leaderboard-box">
+    <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+    <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+  </div>
+
+  <div class="mode-label">เลือกโหมด</div>
+  <div class="mode-row">
+    <button class="btn btn-mode" data-mode="letters" onclick="startGame('letters')">
+      <span class="mode-icon">🔤</span>
+      <span class="mode-name">Letters</span>
+      <span class="mode-desc">ตัวอักษร a-z</span>
+    </button>
+    <button class="btn btn-mode" data-mode="blends" onclick="startGame('blends')">
+      <span class="mode-icon">🔗</span>
+      <span class="mode-name">Blends</span>
+      <span class="mode-desc">เสียงผสม ch, sh…</span>
+    </button>
+    <button class="btn btn-mode" data-mode="words" onclick="startGame('words')">
+      <span class="mode-icon">📖</span>
+      <span class="mode-name">Words</span>
+      <span class="mode-desc">คำ CVC: cat, dog…</span>
+    </button>
+  </div>
+</div>
+
+<!-- ═══ Game Over screen ═══ -->
+<div id="gameover-screen">
+  <div class="go-content">
+    <h1>🎉 จบเกม!</h1>
+    <p>คะแนนสุดท้าย</p>
+    <div id="final-score">0</div>
+    <div id="star-row"></div>
+    <p id="go-summary" style="font-size:15px"></p>
+    <div class="leaderboard-box">
+      <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+      <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+    <div class="go-buttons">
+      <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นใหม่</button>
+      <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Confetti canvas ═══ -->
+<canvas id="confetti-canvas"></canvas>
+
+<!-- ═══ KAMPAI SDK + Online framework ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+/* fallback stub: กันพังถ้าเปิด standalone แล้ว SDK โหลดไม่ได้ */
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+</script>
+<script src="/games/kampai-match.js"></script>
+<script>
+window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){alert('โหมดออนไลน์เล่นผ่านระบบเท่านั้น');},report:function(){},finish:function(){},leave:function(){}};} };
+</script>
+
+<!-- ═══ เกม (5 ไฟล์): config → data → game ═══ -->
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ตัวชี้วัดหลักสูตร ป.4-6</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;background:#1565C0;overflow:hidden;user-select:none;
+  font-family:'TH Sarabun New',Sarabun,Arial,sans-serif}
+
+/* ===== LOADING / ERROR ===== */
+#overlay{
+  position:fixed;inset:0;z-index:100;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:#1565C0;gap:2.5vh;
+}
+#overlay.hide{display:none}
+.spinner{
+  width:7vh;height:7vh;border-radius:50%;
+  border:0.7vh solid rgba(255,224,130,0.25);
+  border-top-color:#FFD700;
+  animation:spin 0.9s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+#ov-text{font-size:3vh;color:#FFE082;font-weight:700}
+#ov-sub{font-size:2vh;color:rgba(255,224,130,0.6);text-align:center;max-width:70vw;line-height:1.5}
+#ov-retry{
+  display:none;margin-top:1vh;
+  font-size:2.4vh;font-weight:700;padding:1vh 4vw;border-radius:10px;cursor:pointer;
+  border:2px solid #FFD700;background:rgba(255,215,0,0.15);color:#FFE082;
+}
+#ov-retry:hover{background:rgba(255,215,0,0.3)}
+
+/* ===== HUB ===== */
+#hub-view{
+  display:none;flex-direction:column;
+  width:100vw;height:100vh;
+  padding:2.5vh 3vw 2vh;
+}
+#hub-view.show{display:flex}
+#hub-title{
+  text-align:center;font-size:5vh;font-weight:700;
+  color:#FFE082;letter-spacing:0.04em;margin-bottom:0.4vh;
+}
+#hub-sub{
+  text-align:center;font-size:2vh;
+  color:rgba(255,224,130,0.55);margin-bottom:1.6vh;
+}
+/* grade toggle */
+#grade-bar{
+  display:flex;justify-content:center;gap:1.2vw;margin-bottom:2vh;
+}
+.grade-btn{
+  font-size:2.6vh;font-weight:700;
+  padding:0.7vh 3.5vw;border-radius:10px;cursor:pointer;
+  border:2px solid rgba(255,255,255,0.25);
+  background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.7);
+  transition:background 0.14s,color 0.14s,border-color 0.14s,transform 0.1s;
+}
+.grade-btn:hover{background:rgba(255,255,255,0.16)}
+.grade-btn.on{background:#FFD700;border-color:#FF8F00;color:#1A237E}
+#hub-grid{
+  flex:1;display:grid;
+  grid-template-columns:repeat(4,1fr);
+  grid-template-rows:repeat(2,1fr);
+  gap:1.6vh 1.4vw;
+}
+.hub-card{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border-radius:14px;
+  border:2px solid rgba(255,255,255,0.18);
+  background:rgba(255,255,255,0.07);
+  cursor:pointer;gap:0.6vh;padding:1vh 0.5vw;
+  transition:background 0.14s,transform 0.12s,border-color 0.14s;
+}
+.hub-card:hover{
+  background:rgba(255,255,255,0.18);
+  border-color:rgba(255,215,0,0.55);transform:scale(1.04);
+}
+.hub-card .hc-icon{font-size:5vh;line-height:1.1}
+.hub-card .hc-th{font-size:3vh;font-weight:700;color:#FFE082;text-align:center}
+.hub-card .hc-count{font-size:1.7vh;color:rgba(255,215,0,0.55)}
+
+/* ===== STRAND PICKER ===== */
+#strand-view{
+  display:none;flex-direction:column;
+  width:100vw;height:100vh;padding:2.5vh 4vw 2.5vh;
+}
+#strand-view.show{display:flex}
+#strand-head{
+  display:flex;align-items:center;gap:1.5vw;margin-bottom:2.2vh;
+}
+#strand-back{
+  font-size:2.2vh;font-weight:700;padding:0.7vh 2vw;border-radius:9px;cursor:pointer;
+  border:1.5px solid rgba(255,224,130,0.3);background:rgba(255,255,255,0.06);
+  color:rgba(255,224,130,0.85);flex:0 0 auto;
+}
+#strand-back:hover{background:rgba(255,224,130,0.15)}
+#strand-title{font-size:4vh;font-weight:700;color:#FFE082}
+#strand-title small{font-size:2.6vh;color:rgba(255,224,130,0.6);font-weight:400;margin-left:1vw}
+#strand-grid{
+  flex:1;display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(22vw,1fr));
+  grid-auto-rows:minmax(0,1fr);
+  gap:1.6vh 1.4vw;align-content:center;
+}
+.strand-card{
+  display:flex;flex-direction:column;justify-content:center;
+  border-radius:14px;padding:2vh 2vw;cursor:pointer;gap:0.8vh;
+  border:2px solid rgba(255,255,255,0.18);
+  background:rgba(255,255,255,0.07);
+  transition:background 0.14s,transform 0.12s,border-color 0.14s;
+}
+.strand-card:hover{
+  background:rgba(255,255,255,0.18);
+  border-color:rgba(255,215,0,0.55);transform:scale(1.03);
+}
+.strand-card .sc-no{font-size:2.2vh;color:rgba(255,215,0,0.7);font-weight:700}
+.strand-card .sc-title{font-size:3.2vh;font-weight:700;color:#FFE082;line-height:1.15}
+.strand-card .sc-count{font-size:1.9vh;color:rgba(255,255,255,0.55)}
+
+/* ===== TOPIC (FLASHCARD) VIEW ===== */
+#topic-view{display:none;flex-direction:column;width:100vw;height:100vh}
+#topic-view.show{display:flex}
+
+/* Banner */
+#word{
+  flex:0 0 32vh;perspective:1100px;
+  display:flex;align-items:center;justify-content:center;
+  padding:1.5vh 4vw 0;
+}
+#tcard{
+  position:relative;width:100%;height:100%;
+  transform-style:preserve-3d;transition:transform 0.5s ease;
+}
+#tcard.flipped{transform:rotateY(180deg)}
+.tface{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  border-radius:16px;
+}
+.tface.tback{
+  transform:rotateY(180deg);
+  background:rgba(255,255,255,0.06);border:2px solid rgba(255,215,0,0.3);
+}
+.bcol{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  width:100%;height:100%;padding:1.5vh 3vw;text-align:center;
+}
+.code-line{
+  font-size:2.4vh;font-weight:700;color:#FFD700;
+  letter-spacing:0.02em;margin-bottom:1.2vh;
+}
+#front-desc{
+  font-size:6vh;font-weight:700;line-height:1.18;
+  color:#FFE082;max-width:100%;
+}
+#back-desc{
+  font-size:5vh;font-weight:700;line-height:1.2;
+  color:#fff;max-width:100%;
+}
+
+/* Grid */
+#grid{
+  flex:1;padding:0.6vh 0.8vw;
+  display:grid;grid-template-columns:1fr 1fr;
+  grid-auto-flow:column;gap:0.6vh 0.9vw;
+}
+.cell{
+  position:relative;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:10px;
+  border:1.5px solid rgba(255,255,255,0.18);
+  background:rgba(255,255,255,0.04);
+  transition:border-color 0.1s,box-shadow 0.1s,background 0.1s;
+  overflow:hidden;
+}
+.cell.hl{background:#FFD700;border-color:#FF8F00}
+.cell .num{
+  font-size:9vh;font-weight:700;line-height:1;color:#fff;
+}
+.cell.hl .num{color:#1A237E}
+.cell .code{
+  position:absolute;top:0.6vh;left:0.8vw;
+  font-size:1.7vh;font-weight:700;color:rgba(255,255,255,0.45);
+}
+.cell.hl .code{color:rgba(26,35,126,0.6)}
+
+/* Bottom bar */
+#bottom{
+  flex:0 0 5.5vh;display:flex;align-items:center;
+  padding:0 1.5vw 0.8vh;position:relative;
+}
+#dots{
+  position:absolute;left:50%;transform:translateX(-50%);
+  display:flex;gap:7px;align-items:center;
+}
+.dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,0.25);transition:background 0.2s}
+.dot.active{background:#FFD700}
+#lctrl{display:flex;align-items:center;gap:5px}
+.cbtn{
+  font-size:1.55vh;padding:3px 9px;border-radius:4px;cursor:pointer;
+  border:1px solid rgba(255,255,255,0.28);
+  background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.65);
+  transition:background 0.12s,color 0.12s;
+}
+.cbtn:hover{background:rgba(255,255,255,0.18)}
+.cbtn.on{background:#FFD700;border-color:#FF8F00;color:#1A237E;font-weight:700}
+#btn-home{color:rgba(255,224,130,0.7);border-color:rgba(255,224,130,0.3)}
+#btn-home:hover{background:rgba(255,224,130,0.15);color:#FFE082}
+#speed{margin-left:auto;display:flex;align-items:center;gap:4px}
+#speed label{font-size:1.55vh;color:rgba(255,255,255,0.45);margin-right:2px}
+.spd{
+  font-size:1.55vh;padding:3px 9px;border-radius:4px;cursor:pointer;
+  border:1px solid rgba(255,255,255,0.28);
+  background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.65);
+  transition:background 0.12s,color 0.12s;
+}
+.spd:hover{background:rgba(255,255,255,0.18)}
+.spd.on{background:#FFD700;border-color:#FF8F00;color:#1A237E;font-weight:700}
+
+/* Quiz overlay */
+#quiz-ctrl{
+  display:none;position:fixed;bottom:9vh;left:50%;transform:translateX(-50%);
+  gap:20px;z-index:30;
+}
+#quiz-ctrl.show{display:flex}
+.qbtn{
+  font-size:3.2vh;font-weight:700;padding:0.7vh 5vw;border-radius:12px;cursor:pointer;
+  border:2px solid rgba(255,255,255,0.35);
+  background:rgba(0,0,0,0.4);color:#fff;backdrop-filter:blur(6px);
+  transition:background 0.15s,transform 0.1s;
+}
+.qbtn:hover{background:rgba(0,0,0,0.6);transform:scale(1.05)}
+#btn-reveal{border-color:#FFD700;color:#FFE082}
+#btn-reveal:hover{background:rgba(255,215,0,0.3)}
+#btn-next{display:none}
+#btn-next.show{display:block}
+
+/* Progress bar */
+#bar-wrap{position:fixed;top:0;left:0;width:100%;height:3px;z-index:20;background:rgba(255,255,255,0.1)}
+#bar{height:100%;background:#FFD700;transition:width 0.25s linear}
+</style>
+</head>
+<body>
+<div id="bar-wrap"><div id="bar" style="width:0"></div></div>
+
+<!-- LOADING / ERROR -->
+<div id="overlay">
+  <div class="spinner" id="ov-spin"></div>
+  <div id="ov-text">กำลังโหลดตัวชี้วัด…</div>
+  <div id="ov-sub">ดึงข้อมูลหลักสูตรจากฐานข้อมูล</div>
+  <button id="ov-retry">ลองใหม่</button>
+</div>
+
+<!-- HUB -->
+<div id="hub-view">
+  <div id="hub-title">ตัวชี้วัดหลักสูตรแกนกลาง</div>
+  <div id="hub-sub">เลือกชั้น &amp; วิชา &nbsp;|&nbsp; F = เต็มจอ</div>
+  <div id="grade-bar"></div>
+  <div id="hub-grid"></div>
+</div>
+
+<!-- STRAND PICKER -->
+<div id="strand-view">
+  <div id="strand-head">
+    <button id="strand-back">← วิชา</button>
+    <div id="strand-title"></div>
+  </div>
+  <div id="strand-grid"></div>
+</div>
+
+<!-- FLASHCARD -->
+<div id="topic-view">
+  <div id="word">
+    <div id="tcard">
+      <div class="tface tfront">
+        <div class="bcol">
+          <span class="code-line" id="front-code"></span>
+          <span id="front-desc"></span>
+        </div>
+      </div>
+      <div class="tface tback">
+        <div class="bcol">
+          <span class="code-line" id="back-code"></span>
+          <span id="back-desc"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="grid"></div>
+  <div id="bottom">
+    <div id="lctrl">
+      <button class="cbtn" id="btn-home">← สาระ</button>
+      <button class="cbtn on" id="btn-auto">▶ อัตโนมัติ</button>
+      <button class="cbtn" id="btn-qmode">🎲 สุ่ม</button>
+    </div>
+    <div id="dots"></div>
+    <div id="speed">
+      <label>ความเร็ว</label>
+      <button class="spd" data-ms="4000">4s</button>
+      <button class="spd" data-ms="3000">3s</button>
+      <button class="spd on" data-ms="2500">2.5s</button>
+      <button class="spd" data-ms="2000">2s</button>
+      <button class="spd" data-ms="1500">1.5s</button>
+    </div>
+  </div>
+</div>
+
+<div id="quiz-ctrl">
+  <button class="qbtn" id="btn-reveal">เฉลย</button>
+  <button class="qbtn" id="btn-next">ถัดไป ›</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// =====================================================================
+// CONFIG
+// =====================================================================
+const SUPABASE_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrcHFzc2JxeHhwYXNpZGZxaHBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NjUyMjgsImV4cCI6MjA5MTI0MTIyOH0.X7YsSlrgYl9ifLWvgyZI04PtebK572pacadfNlmNO-A';
+const CACHE_KEY = 'indicator_cards_data_v1';
+
+const SUBJECTS = [
+  { key:'thai',    icon:'📖', title:'ภาษาไทย' },
+  { key:'math',    icon:'🔢', title:'คณิตศาสตร์' },
+  { key:'science', icon:'🔬', title:'วิทยาศาสตร์' },
+  { key:'social',  icon:'🌏', title:'สังคมศึกษา' },
+  { key:'health',  icon:'💪', title:'สุขศึกษาฯ' },
+  { key:'arts',    icon:'🎨', title:'ศิลปะ' },
+  { key:'career',  icon:'🔧', title:'การงานอาชีพ' },
+  { key:'english', icon:'🌐', title:'ภาษาอังกฤษ' },
+];
+const GRADES = [
+  { code:'p4', label:'ป.4' },
+  { code:'p5', label:'ป.5' },
+  { code:'p6', label:'ป.6' },
+];
+const GRADE_CODE  = { 'ป.4':'p4', 'ป.5':'p5', 'ป.6':'p6' };
+const GRADE_LABEL = { p4:'ป.4', p5:'ป.5', p6:'ป.6' };
+const SUBJECT_TITLE = Object.fromEntries(SUBJECTS.map(s => [s.key, s.title]));
+
+// DATA[subjectKey][gradeCode][strandNo] = { title, items:[{code, desc}] }
+let DATA = null;
+let selectedGrade = 'p4';
+
+// =====================================================================
+// DOM
+// =====================================================================
+const overlay   = document.getElementById('overlay');
+const ovSpin    = document.getElementById('ov-spin');
+const ovText    = document.getElementById('ov-text');
+const ovSub     = document.getElementById('ov-sub');
+const ovRetry   = document.getElementById('ov-retry');
+
+const hubView   = document.getElementById('hub-view');
+const gradeBar  = document.getElementById('grade-bar');
+const hubGrid   = document.getElementById('hub-grid');
+
+const strandView  = document.getElementById('strand-view');
+const strandTitle = document.getElementById('strand-title');
+const strandGrid  = document.getElementById('strand-grid');
+const strandBack  = document.getElementById('strand-back');
+
+const topicView = document.getElementById('topic-view');
+const gridEl    = document.getElementById('grid');
+const tcard     = document.getElementById('tcard');
+const frontCode = document.getElementById('front-code');
+const frontDesc = document.getElementById('front-desc');
+const backCode  = document.getElementById('back-code');
+const backDesc  = document.getElementById('back-desc');
+const barEl     = document.getElementById('bar');
+const dotsEl    = document.getElementById('dots');
+const speedDiv  = document.getElementById('speed');
+const quizCtrl  = document.getElementById('quiz-ctrl');
+const btnReveal = document.getElementById('btn-reveal');
+const btnNext   = document.getElementById('btn-next');
+const btnAuto   = document.getElementById('btn-auto');
+const btnQmode  = document.getElementById('btn-qmode');
+const btnHome   = document.getElementById('btn-home');
+
+// =====================================================================
+// STATE (flashcard)
+// =====================================================================
+let cellMs   = 2500;
+let curSlide = 0, curCell = 0, timer = null;
+let isQuiz   = false;
+let quizOrder = [], quizPos = 0, revealed = false;
+
+let curSubj = '', curGradeCode = '', curStrand = '';
+let allItems = [], slides = [], slideEls = [], dotElArr = [];
+let ips = 10;
+
+// =====================================================================
+// HELPERS
+// =====================================================================
+function shortCode(code){
+  // "ศ 1.1 ป.4/1" -> "ศ1.1/1"
+  const m = code.match(/^(\S+)\s+(\S+)\s+.*\/([^/\s]+)$/);
+  return m ? (m[1] + m[2] + '/' + m[3]) : code;
+}
+
+function descFontSize(text){
+  const n = text.length;
+  if (n <= 18) return '7vh';
+  if (n <= 32) return '5.6vh';
+  if (n <= 55) return '4.6vh';
+  if (n <= 85) return '3.9vh';
+  if (n <= 120) return '3.3vh';
+  return '2.9vh';
+}
+
+function subjectCount(key, gradeCode){
+  const g = DATA?.[key]?.[gradeCode];
+  if (!g) return 0;
+  return Object.values(g).reduce((sum, s) => sum + s.items.length, 0);
+}
+
+function strandList(key, gradeCode){
+  const g = DATA?.[key]?.[gradeCode] || {};
+  return Object.keys(g)
+    .sort((a, b) => (+a) - (+b))
+    .map(no => ({ no, title: g[no].title, items: g[no].items }));
+}
+
+// =====================================================================
+// DATA LOAD
+// =====================================================================
+function buildGroups(rows){
+  const g = {};
+  for (const r of rows){
+    const gc = GRADE_CODE[r.grade];
+    if (!gc) continue;
+    (g[r.subject_key] ??= {});
+    (g[r.subject_key][gc] ??= {});
+    const s = g[r.subject_key][gc];
+    (s[r.strand_no] ??= { title: r.strand_title, items: [] });
+    s[r.strand_no].items.push({ code: r.indicator_code, desc: (r.description || '').trim() });
+  }
+  return g;
+}
+
+async function loadData(){
+  const cached = sessionStorage.getItem(CACHE_KEY);
+  if (cached){ DATA = JSON.parse(cached); return; }
+
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const { data, error } = await sb
+    .from('curriculum_indicators')
+    .select('subject_key,grade,strand_no,strand_title,indicator_code,description,sort_order')
+    .in('grade', ['ป.4', 'ป.5', 'ป.6'])
+    .eq('is_active', true)
+    .order('subject_key', { ascending: true })
+    .order('grade',       { ascending: true })
+    .order('strand_no',   { ascending: true })
+    .order('sort_order',  { ascending: true });
+
+  if (error) throw error;
+  if (!data || !data.length) throw new Error('ไม่พบข้อมูลตัวชี้วัด');
+
+  DATA = buildGroups(data);
+  try { sessionStorage.setItem(CACHE_KEY, JSON.stringify(DATA)); } catch (_) {}
+}
+
+// =====================================================================
+// OVERLAY
+// =====================================================================
+function showLoading(){
+  overlay.classList.remove('hide');
+  ovSpin.style.display = '';
+  ovText.textContent = 'กำลังโหลดตัวชี้วัด…';
+  ovSub.textContent  = 'ดึงข้อมูลหลักสูตรจากฐานข้อมูล';
+  ovRetry.style.display = 'none';
+}
+function showError(msg){
+  overlay.classList.remove('hide');
+  ovSpin.style.display = 'none';
+  ovText.textContent = 'โหลดข้อมูลไม่สำเร็จ';
+  ovSub.textContent  = msg + ' — ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่';
+  ovRetry.style.display = '';
+}
+function hideOverlay(){ overlay.classList.add('hide'); }
+ovRetry.addEventListener('click', init);
+
+// =====================================================================
+// HUB
+// =====================================================================
+function buildGradeBar(){
+  gradeBar.innerHTML = '';
+  GRADES.forEach(g => {
+    const b = document.createElement('button');
+    b.className = 'grade-btn' + (g.code === selectedGrade ? ' on' : '');
+    b.textContent = g.label;
+    b.addEventListener('click', () => {
+      selectedGrade = g.code;
+      buildGradeBar();
+      renderHubCards();
+    });
+    gradeBar.appendChild(b);
+  });
+}
+
+function renderHubCards(){
+  hubGrid.innerHTML = '';
+  SUBJECTS.forEach(s => {
+    const cnt = subjectCount(s.key, selectedGrade);
+    const c = document.createElement('div');
+    c.className = 'hub-card';
+    c.innerHTML =
+      `<div class="hc-icon">${s.icon}</div>` +
+      `<div class="hc-th">${s.title}</div>` +
+      `<div class="hc-count">${cnt} ตัวชี้วัด</div>`;
+    c.addEventListener('click', () => { location.hash = '#' + s.key + '-' + selectedGrade; });
+    hubGrid.appendChild(c);
+  });
+}
+
+function showHub(){
+  clearInterval(timer);
+  curSubj = curGradeCode = curStrand = '';
+  buildGradeBar();
+  renderHubCards();
+  hideOverlay();
+  hubView.classList.add('show');
+  strandView.classList.remove('show');
+  topicView.classList.remove('show');
+  quizCtrl.classList.remove('show');
+  barEl.style.width = '0';
+  document.title = 'ตัวชี้วัดหลักสูตร ป.4-6';
+}
+
+// =====================================================================
+// STRAND PICKER
+// =====================================================================
+function showStrands(subj, gradeCode){
+  clearInterval(timer);
+  selectedGrade = gradeCode;
+  curSubj = subj; curGradeCode = gradeCode; curStrand = '';
+
+  const list = strandList(subj, gradeCode);
+  strandTitle.innerHTML =
+    `${SUBJECT_TITLE[subj] || subj} <small>${GRADE_LABEL[gradeCode] || ''}</small>`;
+
+  strandGrid.innerHTML = '';
+  list.forEach(s => {
+    const c = document.createElement('div');
+    c.className = 'strand-card';
+    c.innerHTML =
+      `<div class="sc-no">สาระที่ ${s.no}</div>` +
+      `<div class="sc-title">${s.title}</div>` +
+      `<div class="sc-count">${s.items.length} ตัวชี้วัด</div>`;
+    c.addEventListener('click', () => {
+      location.hash = '#' + subj + '-' + gradeCode + '-' + s.no;
+    });
+    strandGrid.appendChild(c);
+  });
+
+  hideOverlay();
+  hubView.classList.remove('show');
+  strandView.classList.add('show');
+  topicView.classList.remove('show');
+  quizCtrl.classList.remove('show');
+  barEl.style.width = '0';
+  document.title = (SUBJECT_TITLE[subj] || subj) + ' ' + (GRADE_LABEL[gradeCode] || '');
+}
+
+strandBack.addEventListener('click', () => { location.hash = ''; });
+
+// =====================================================================
+// FLASHCARD GRID
+// =====================================================================
+function getIps(count){
+  if (count <= 10) return count;
+  return 10;
+}
+
+function buildCell(item, absIdx){
+  const el = document.createElement('div');
+  el.className = 'cell';
+  const code = document.createElement('span');
+  code.className = 'code';
+  code.textContent = shortCode(item.code);
+  const num = document.createElement('span');
+  num.className = 'num';
+  num.textContent = String(absIdx + 1);
+  el.appendChild(code);
+  el.appendChild(num);
+  el._item = item;
+  return el;
+}
+
+function showCards(subj, gradeCode, strandNo){
+  const strand = DATA?.[subj]?.[gradeCode]?.[strandNo];
+  if (!strand){ location.hash = '#' + subj + '-' + gradeCode; return; }
+
+  clearInterval(timer);
+  selectedGrade = gradeCode;
+  curSubj = subj; curGradeCode = gradeCode; curStrand = strandNo;
+  isQuiz = false; curSlide = 0; curCell = 0; revealed = false;
+
+  btnAuto.classList.add('on');
+  btnQmode.classList.remove('on');
+
+  allItems = strand.items;
+  ips = getIps(allItems.length);
+
+  slides = [];
+  for (let i = 0; i < allItems.length; i += ips) slides.push(allItems.slice(i, i + ips));
+  slideEls = slides.map((s, sIdx) => s.map((item, cIdx) => buildCell(item, sIdx * ips + cIdx)));
+
+  dotsEl.innerHTML = '';
+  slides.forEach(() => {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    dotsEl.appendChild(d);
+  });
+  dotElArr = Array.from(dotsEl.querySelectorAll('.dot'));
+
+  speedDiv.style.display = slides.length > 1 ? '' : 'none';
+
+  const rows = Math.max(1, Math.ceil(ips / 2));
+  gridEl.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+
+  document.title = (SUBJECT_TITLE[subj] || subj) + ' ' + (GRADE_LABEL[gradeCode] || '') +
+                   ' · ' + strand.title;
+
+  hideOverlay();
+  hubView.classList.remove('show');
+  strandView.classList.remove('show');
+  topicView.classList.add('show');
+  quizCtrl.classList.remove('show');
+
+  goTo(0);
+}
+
+// =====================================================================
+// CORE
+// =====================================================================
+function shuffle(arr){
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function renderSlide(sIdx){
+  gridEl.innerHTML = '';
+  slideEls[sIdx].forEach(el => gridEl.appendChild(el));
+}
+
+function applyHl(sIdx, cIdx){
+  slideEls[sIdx].forEach((el, i) => el.classList.toggle('hl', i === cIdx));
+}
+
+function setBannerAuto(item){
+  tcard.classList.remove('flipped');
+  frontCode.style.display = '';
+  frontCode.textContent = item.code;
+  frontDesc.textContent = item.desc;
+  frontDesc.style.fontSize = descFontSize(item.desc);
+  quizCtrl.classList.remove('show');
+}
+
+function setBannerQuiz(item){
+  tcard.classList.remove('flipped');
+  frontCode.style.display = 'none';
+  frontDesc.textContent = '?';
+  frontDesc.style.fontSize = '14vh';
+  backCode.textContent = item.code;
+  backDesc.textContent = item.desc;
+  backDesc.style.fontSize = descFontSize(item.desc);
+  revealed = false;
+  btnReveal.style.display = '';
+  btnNext.classList.remove('show');
+  quizCtrl.classList.add('show');
+}
+
+function setHl(sIdx, cIdx){
+  applyHl(sIdx, cIdx);
+  setBannerAuto(slides[sIdx][cIdx]);
+  barEl.style.width = ((cIdx + 1) / slides[sIdx].length * 100) + '%';
+}
+
+function setQuizNumber(absIdx){
+  const sIdx = Math.floor(absIdx / ips);
+  const cIdx = absIdx % ips;
+  if (sIdx !== curSlide){
+    dotElArr[curSlide]?.classList.remove('active');
+    curSlide = sIdx;
+    dotElArr[curSlide]?.classList.add('active');
+    renderSlide(curSlide);
+  }
+  applyHl(curSlide, cIdx);
+  setBannerQuiz(slides[curSlide][cIdx]);
+  barEl.style.width = ((quizPos + 1) / allItems.length * 100) + '%';
+}
+
+function goTo(idx){
+  dotElArr[curSlide]?.classList.remove('active');
+  curSlide = ((idx % slides.length) + slides.length) % slides.length;
+  curCell = 0;
+  dotElArr[curSlide]?.classList.add('active');
+  renderSlide(curSlide);
+  setHl(curSlide, 0);
+  startTimer();
+}
+
+function startTimer(){
+  clearInterval(timer);
+  if (isQuiz) return;
+  timer = setInterval(() => {
+    curCell++;
+    if (curCell >= slides[curSlide].length){ goTo(curSlide + 1); return; }
+    setHl(curSlide, curCell);
+  }, cellMs);
+}
+
+// =====================================================================
+// BUTTONS
+// =====================================================================
+btnReveal.addEventListener('click', e => {
+  e.stopPropagation();
+  if (revealed) return;
+  revealed = true;
+  tcard.classList.add('flipped');
+  btnReveal.style.display = 'none';
+  btnNext.classList.add('show');
+});
+
+btnNext.addEventListener('click', e => {
+  e.stopPropagation();
+  quizPos++;
+  if (quizPos >= quizOrder.length){
+    quizOrder = shuffle([...Array(allItems.length).keys()]);
+    quizPos = 0;
+  }
+  setQuizNumber(quizOrder[quizPos]);
+});
+
+btnAuto.addEventListener('click', e => {
+  e.stopPropagation();
+  if (!isQuiz) return;
+  isQuiz = false;
+  btnAuto.classList.add('on');
+  btnQmode.classList.remove('on');
+  if (slides.length > 1) speedDiv.style.display = '';
+  quizCtrl.classList.remove('show');
+  clearInterval(timer);
+  curCell = 0;
+  setHl(curSlide, 0);
+  startTimer();
+});
+
+btnQmode.addEventListener('click', e => {
+  e.stopPropagation();
+  if (isQuiz) return;
+  isQuiz = true;
+  btnQmode.classList.add('on');
+  btnAuto.classList.remove('on');
+  speedDiv.style.display = 'none';
+  clearInterval(timer);
+  quizOrder = shuffle([...Array(allItems.length).keys()]);
+  quizPos = 0;
+  setQuizNumber(quizOrder[0]);
+});
+
+btnHome.addEventListener('click', e => {
+  e.stopPropagation();
+  location.hash = '#' + curSubj + '-' + curGradeCode;
+});
+
+document.querySelectorAll('.spd').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    document.querySelectorAll('.spd').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    cellMs = +btn.dataset.ms;
+    if (!isQuiz) startTimer();
+  });
+});
+
+topicView.addEventListener('click', e => {
+  if (e.target.closest('#lctrl') || e.target.closest('#speed') || e.target.closest('#dots')) return;
+  if (!isQuiz) goTo(curSlide + 1);
+});
+
+// =====================================================================
+// KEYBOARD
+// =====================================================================
+document.addEventListener('keydown', e => {
+  if (e.key === 'f' || e.key === 'F'){
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+    return;
+  }
+  if (!topicView.classList.contains('show')) return;
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown'){
+    e.preventDefault();
+    if (isQuiz){ if (!revealed) btnReveal.click(); else btnNext.click(); }
+    else goTo(curSlide + 1);
+  } else if (e.key === 'ArrowLeft' || e.key === 'PageUp'){
+    e.preventDefault();
+    if (!isQuiz) goTo(curSlide - 1);
+  } else if (e.key === 'Escape'){
+    location.hash = '#' + curSubj + '-' + curGradeCode;
+  }
+});
+
+// =====================================================================
+// ROUTING
+// =====================================================================
+function route(){
+  if (!DATA) return;
+  const h = (location.hash || '').replace(/^#/, '');
+  if (!h || h === 'home'){ showHub(); return; }
+  const parts = h.split('-');
+  const subj = parts[0];
+  if (!DATA[subj]){ showHub(); return; }
+  if (parts.length === 2 && GRADE_LABEL[parts[1]]){ showStrands(subj, parts[1]); return; }
+  if (parts.length === 3 && GRADE_LABEL[parts[1]]){ showCards(subj, parts[1], parts[2]); return; }
+  showHub();
+}
+
+// =====================================================================
+// INIT
+// =====================================================================
+async function init(){
+  showLoading();
+  try {
+    await loadData();
+  } catch (e){
+    showError(e?.message || String(e));
+    return;
+  }
+  window.removeEventListener('hashchange', route);
+  window.addEventListener('hashchange', route);
+  route();
+}
+
+init();
+</script>
+</body>
+</html>

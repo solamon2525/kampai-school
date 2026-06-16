@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" font-family="'Kanit','Sarabun','Segoe UI',sans-serif">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1e1b4b"/>
+      <stop offset="0.6" stop-color="#0f0b29"/>
+      <stop offset="1" stop-color="#090514"/>
+    </linearGradient>
+    
+    <!-- Title Gold Gradient -->
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fffbeb"/>
+      <stop offset="0.5" stop-color="#fbbf24"/>
+      <stop offset="1" stop-color="#d97706"/>
+    </linearGradient>
+
+    <!-- Card Gradients -->
+    <linearGradient id="cardGlow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.1"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0.02"/>
+    </linearGradient>
+
+    <!-- Shadow filter -->
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+
+    <filter id="neonBlue" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#3b82f6" flood-opacity="0.8"/>
+    </filter>
+    <filter id="neonGreen" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#10b981" flood-opacity="0.8"/>
+    </filter>
+    <filter id="neonOrange" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#f59e0b" flood-opacity="0.8"/>
+    </filter>
+    <filter id="neonPink" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#ec4899" flood-opacity="0.8"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="url(#bg)"/>
+
+  <!-- Thai watermark patterns (abstract lines/leaves) -->
+  <path d="M0,0 Q320,180 640,0 T1280,0" fill="none" stroke="rgba(251,191,36,0.04)" stroke-width="3"/>
+  <path d="M0,720 Q320,540 640,720 T1280,720" fill="none" stroke="rgba(251,191,36,0.04)" stroke-width="3"/>
+
+  <!-- Drop slots -->
+  <g transform="translate(240, 200)" filter="url(#shadow)">
+    <!-- Slot 1 (Filled - ประธาน) -->
+    <g transform="translate(0, 0)" filter="url(#neonBlue)">
+      <rect x="0" y="0" width="160" height="74" rx="16" fill="url(#cardGlow)" stroke="#3b82f6" stroke-width="3"/>
+      <text x="80" y="47" fill="#ffffff" font-size="30" font-weight="bold" text-anchor="middle">ฉัน</text>
+    </g>
+    <!-- Slot 2 (Filled - กริยา) -->
+    <g transform="translate(180, 0)" filter="url(#neonGreen)">
+      <rect x="0" y="0" width="160" height="74" rx="16" fill="url(#cardGlow)" stroke="#10b981" stroke-width="3"/>
+      <text x="80" y="47" fill="#ffffff" font-size="30" font-weight="bold" text-anchor="middle">ไป</text>
+    </g>
+    <!-- Slot 3 (Filled - กรรม) -->
+    <g transform="translate(360, 0)" filter="url(#neonOrange)">
+      <rect x="0" y="0" width="220" height="74" rx="16" fill="url(#cardGlow)" stroke="#f59e0b" stroke-width="3"/>
+      <text x="110" y="47" fill="#ffffff" font-size="30" font-weight="bold" text-anchor="middle">โรงเรียน</text>
+    </g>
+    <!-- Slot 4 (Dotted Slot - ส่วนขยาย) -->
+    <rect x="600" y="0" width="200" height="74" rx="16" fill="none" stroke="rgba(251,191,36,0.3)" stroke-width="3" stroke-dasharray="8 6"/>
+  </g>
+
+  <!-- Word Bank Cards below -->
+  <g filter="url(#shadow)" transform="translate(0, 10)">
+    <!-- 'ทุกวัน' Modifier Card -->
+    <g transform="translate(840, 340)" filter="url(#neonPink)">
+      <rect x="0" y="0" width="200" height="70" rx="16" fill="url(#cardGlow)" stroke="#ec4899" stroke-width="3"/>
+      <text x="100" y="44" fill="#ffffff" font-size="28" font-weight="bold" text-anchor="middle">ทุกวัน</text>
+    </g>
+    
+    <!-- Distractors -->
+    <g transform="translate(240, 340)" opacity="0.3">
+      <rect x="0" y="0" width="160" height="70" rx="16" fill="none" stroke="#ffffff" stroke-width="2"/>
+      <text x="80" y="44" fill="#ffffff" font-size="26" font-weight="bold" text-anchor="middle">ทำการบ้าน</text>
+    </g>
+    <g transform="translate(420, 340)" opacity="0.3">
+      <rect x="0" y="0" width="160" height="70" rx="16" fill="none" stroke="#ffffff" stroke-width="2"/>
+      <text x="80" y="44" fill="#ffffff" font-size="26" font-weight="bold" text-anchor="middle">กินข้าว</text>
+    </g>
+    <g transform="translate(600, 340)" opacity="0.3">
+      <rect x="0" y="0" width="220" height="70" rx="16" fill="none" stroke="#ffffff" stroke-width="2"/>
+      <text x="110" y="44" fill="#ffffff" font-size="26" font-weight="bold" text-anchor="middle">วิชาคณิตศาสตร์</text>
+    </g>
+  </g>
+
+  <!-- Connecting line -->
+  <path d="M 940 350 Q 840 280 840 274" fill="none" stroke="#ec4899" stroke-width="3" stroke-dasharray="6 4" opacity="0.6"/>
+  <circle cx="840" cy="274" r="5" fill="#ec4899" filter="url(#neonPink)"/>
+
+  <!-- Logo Banner -->
+  <g filter="url(#shadow)" transform="translate(640, 520)">
+    <text x="0" y="0" fill="url(#gold)" font-size="82" font-weight="900" text-anchor="middle" stroke="#0f0a24" stroke-width="6" stroke-linejoin="round" letter-spacing="2">📝 แต่งประโยค</text>
+    <text x="0" y="55" fill="#cbd5e1" font-size="32" font-weight="bold" text-anchor="middle" letter-spacing="4">สร้างประโยคภาษาไทยแสนสนุก</text>
+    <text x="0" y="105" fill="#94a3b8" font-size="22" font-weight="bold" text-anchor="middle">กลุ่มสาระการเรียนรู้ภาษาไทย</text>
+  </g>
+</svg>

@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" font-family="'Kanit','Sarabun','Segoe UI',sans-serif">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fdf6e2"/>
+      <stop offset="0.75" stop-color="#f5e0a6"/>
+      <stop offset="1" stop-color="#e2cd8a"/>
+    </linearGradient>
+    
+    <!-- Title Gold Gradient -->
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b45309"/>
+      <stop offset="0.5" stop-color="#d97706"/>
+      <stop offset="1" stop-color="#78350f"/>
+    </linearGradient>
+
+    <!-- Card Gradients -->
+    <linearGradient id="cardGlow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.8"/>
+      <stop offset="1" stop-color="#fffdf3" stop-opacity="0.5"/>
+    </linearGradient>
+
+    <!-- Shadow filter -->
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#5c4331" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="url(#bg)"/>
+
+  <!-- Vintage border frame -->
+  <rect x="25" y="25" width="1230" height="670" fill="none" stroke="#d97706" stroke-width="3" rx="14"/>
+  <rect x="35" y="35" width="1210" height="650" fill="none" stroke="#d97706" stroke-width="1" rx="10" stroke-dasharray="8 6"/>
+
+  <!-- Ornamental leaves in background center -->
+  <circle cx="640" cy="240" r="140" fill="none" stroke="rgba(217,119,6,0.15)" stroke-width="4"/>
+  <circle cx="640" cy="240" r="160" fill="none" stroke="rgba(217,119,6,0.08)" stroke-width="2" stroke-dasharray="10 6"/>
+
+  <!-- Floating story fables representation -->
+  <g filter="url(#shadow)" transform="translate(180, 0)">
+    <!-- Fable 1: Elephant and Buffalo -->
+    <g transform="translate(140, 160)">
+      <rect x="0" y="0" width="160" height="150" rx="20" fill="url(#cardGlow)" stroke="#d97706" stroke-width="2"/>
+      <text x="80" y="75" font-size="52" text-anchor="middle">🐘</text>
+      <text x="80" y="125" font-size="16" font-weight="bold" fill="#78350f" text-anchor="middle">ลูกช้างกับควาย</text>
+    </g>
+
+    <!-- Fable 2: Rabbit and Crow -->
+    <g transform="translate(340, 160)">
+      <rect x="0" y="0" width="160" height="150" rx="20" fill="url(#cardGlow)" stroke="#d97706" stroke-width="2"/>
+      <text x="80" y="75" font-size="52" text-anchor="middle">🐰</text>
+      <text x="80" y="125" font-size="16" font-weight="bold" fill="#78350f" text-anchor="middle">กระต่ายกับนกกระจอก</text>
+    </g>
+
+    <!-- Fable 3: Bird and Tree (branching) -->
+    <g transform="translate(540, 160)">
+      <rect x="0" y="0" width="160" height="150" rx="20" fill="url(#cardGlow)" stroke="#d97706" stroke-width="3"/>
+      <!-- Choice Indicator -->
+      <circle cx="140" cy="20" r="18" fill="#ef4444"/>
+      <text x="140" y="25" fill="#ffffff" font-size="14" font-weight="bold" text-anchor="middle">?</text>
+      
+      <text x="80" y="75" font-size="52" text-anchor="middle">🐦🌳</text>
+      <text x="80" y="125" font-size="16" font-weight="bold" fill="#78350f" text-anchor="middle">นกน้อยกับต้นไม้ใหญ่</text>
+    </g>
+  </g>
+
+  <!-- Logo Banner -->
+  <g filter="url(#shadow)" transform="translate(640, 490)">
+    <text x="0" y="0" fill="url(#gold)" font-size="82" font-weight="900" text-anchor="middle" stroke="#fff" stroke-width="2" letter-spacing="2">📚 นิทานโต้ตอบ</text>
+    <text x="0" y="55" fill="#78350f" font-size="32" font-weight="bold" text-anchor="middle" letter-spacing="4">อ่านนิทานจับใจความและเลือกตอบคำถาม</text>
+    <text x="0" y="105" fill="#78716c" font-size="22" font-weight="bold" text-anchor="middle">กลุ่มสาระการเรียนรู้ภาษาไทย</text>
+  </g>
+</svg>

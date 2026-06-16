@@ -175,6 +175,9 @@ let playerTrail = [];
 let p1Trail = [];
 let p2Trail = [];
 let synthAudioContext = null;
+let windForce = 0; // -1 (ซ้าย), 0 (สงบ), 1 (ขวา)
+let windTimer = 600; // 10 วินาที (60 FPS)
+let windParticles = [];
 
 // ฉากหลังเคลื่อนแยกกันสำหรับ 2P เพื่อรองรับการสโลว์ต่างกัน
 let p1BgOffset = 0;
@@ -1173,6 +1176,131 @@ function drawQuestionBlock(ctx, x, y, value, isCorrect, isChosen, hitResolved) {
   ctx.restore();
 }
 
+// อัปเดตแรงลมและอนุภาคสายลม
+function updateWind() {
+  if (!started || isGameOver) return;
+
+  // 1. อัปเดตระบบแรงลมเปลี่ยนทุก 10 วินาที
+  windTimer--;
+  if (windTimer <= 0) {
+    windTimer = 600;
+    const forces = [-1, 0, 1];
+    const prevForce = windForce;
+    let nextForce;
+    do {
+      nextForce = forces[Math.floor(Math.random() * forces.length)];
+    } while (nextForce === prevForce && forces.length > 1);
+    
+    windForce = nextForce;
+
+    // แจ้งเตือนทางตัวอักษรลอย
+    let msg = '';
+    let color = '#ffffff';
+    if (windForce === 0) {
+      msg = '💨 ลมสงบลงแล้ว';
+      color = '#e2e8f0';
+    } else if (windForce === 1) {
+      msg = '💨 ลมพัดแรงไปทางขวา (วิ่งเร็วขึ้น!)';
+      color = '#38bdf8';
+    } else if (windForce === -1) {
+      msg = '💨 ลมพัดแรงไปทางซ้าย (วิ่งเร็วขึ้น!)';
+      color = '#f87171';
+    }
+
+    addFloatingText(cw * 0.5, ch * 0.4, msg, color);
+  }
+
+  // 2. สปอนอนุภาคสายลม
+  if (windForce !== 0 && Math.random() < 0.15 && windParticles.length < 30) {
+    const pY = ch * 0.35 + Math.random() * (ch * 0.55);
+    const pLength = 40 + Math.random() * 40;
+    const pAlpha = 0.08 + Math.random() * 0.15; // จางๆ สบายตา
+    const pVx = windForce * (6 + Math.random() * 4);
+    const pX = windForce === 1 ? -pLength : cw;
+    windParticles.push({
+      x: pX,
+      y: pY,
+      vx: pVx,
+      length: pLength,
+      alpha: pAlpha
+    });
+  }
+
+  // 3. อัปเดตตำแหน่งอนุภาค
+  for (let i = windParticles.length - 1; i >= 0; i--) {
+    const p = windParticles[i];
+    p.x += p.vx;
+    if ((p.vx > 0 && p.x > cw + 50) || (p.vx < 0 && p.x < -p.length - 50)) {
+      windParticles.splice(i, 1);
+    }
+  }
+}
+
+// วาดสายลมจางๆ บนฉากหลัง
+function drawWindParticles(ctx) {
+  ctx.save();
+  ctx.lineWidth = 1.5;
+  for (let i = 0; i < windParticles.length; i++) {
+    const p = windParticles[i];
+    ctx.strokeStyle = `rgba(255, 255, 255, ${p.alpha})`;
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+    ctx.lineTo(p.x + p.length * (p.vx > 0 ? 1 : -1), p.y);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+// วาดแผงแสดงแรงลมที่ด้านบนของจอ
+function drawWindIndicator(ctx) {
+  if (!started || isGameOver) return;
+
+  ctx.save();
+  
+  const w = 180;
+  const h = 34;
+  const x = cw * 0.5 - w * 0.5;
+  const y = 90;
+  
+  // Glassmorphic dark container
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.65)';
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(x, y, w, h, 17);
+  ctx.fill();
+  ctx.stroke();
+
+  // Draw Text
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  
+  const cycle = Math.floor(Date.now() / 250) % 3;
+  let text = '';
+  let textColor = '#ffffff';
+
+  if (windForce === 0) {
+    text = '💨 ลมสงบ';
+    textColor = '#cbd5e1';
+  } else if (windForce === 1) {
+    const arrows = cycle === 0 ? '  ' : cycle === 1 ? '▶ ' : '▶▶';
+    text = `💨 ${arrows}`;
+    textColor = '#38bdf8';
+  } else if (windForce === -1) {
+    const arrows = cycle === 0 ? '  ' : cycle === 1 ? ' ◀' : '◀◀';
+    text = `${arrows} 💨`;
+    textColor = '#f87171';
+  }
+
+  ctx.shadowColor = textColor;
+  ctx.shadowBlur = 4;
+  ctx.fillStyle = textColor;
+  ctx.font = 'bold 15px Fredoka One, Sarabun, sans-serif';
+  ctx.fillText(text, cw * 0.5, y + h * 0.5);
+
+  ctx.restore();
+}
+
 // เล่นเสียงเอฟเฟกต์สังเคราะห์สไตล์ 8-bit (Web Audio API)
 function playSynthSFX(type) {
   if (localStorage.getItem('mr_sfx') === '0') return;
@@ -1853,6 +1981,8 @@ function loop() {
   if (p2SlowTime > 0) p2SlowTime--;
   if (p2ConfusedTime > 0) p2ConfusedTime--;
 
+  updateWind();
+
   let blockSpeed = p1BlockSpeed;
   if (mode === 'local_2p') {
     const maxSpeedStep = Math.max(p1SpeedStep, p2SpeedStep);
@@ -1871,14 +2001,14 @@ function loop() {
   const forwardBaseSpeed = 6.5;
   const backwardBaseSpeed = 3.5;
   
-  const p1ForwardSpeed = (p1SlowTime > 0) ? forwardBaseSpeed * 0.65 : forwardBaseSpeed;
-  const p1BackwardSpeed = (p1SlowTime > 0) ? backwardBaseSpeed * 0.65 : backwardBaseSpeed;
+  const p1ForwardSpeed = ((p1SlowTime > 0) ? forwardBaseSpeed * 0.65 : forwardBaseSpeed) + (windForce === 1 ? 2.0 : 0);
+  const p1BackwardSpeed = ((p1SlowTime > 0) ? backwardBaseSpeed * 0.65 : backwardBaseSpeed) + (windForce === -1 ? 1.5 : 0);
   
-  const p2ForwardSpeed = (p2SlowTime > 0) ? forwardBaseSpeed * 0.65 : forwardBaseSpeed;
-  const p2BackwardSpeed = (p2SlowTime > 0) ? backwardBaseSpeed * 0.65 : backwardBaseSpeed;
+  const p2ForwardSpeed = ((p2SlowTime > 0) ? forwardBaseSpeed * 0.65 : forwardBaseSpeed) + (windForce === 1 ? 2.0 : 0);
+  const p2BackwardSpeed = ((p2SlowTime > 0) ? backwardBaseSpeed * 0.65 : backwardBaseSpeed) + (windForce === -1 ? 1.5 : 0);
   
-  const singleForwardSpeed = (p1SlowTime > 0) ? forwardBaseSpeed * 0.65 : forwardBaseSpeed;
-  const singleBackwardSpeed = (p1SlowTime > 0) ? backwardBaseSpeed * 0.65 : backwardBaseSpeed;
+  const singleForwardSpeed = ((p1SlowTime > 0) ? forwardBaseSpeed * 0.65 : forwardBaseSpeed) + (windForce === 1 ? 2.0 : 0);
+  const singleBackwardSpeed = ((p1SlowTime > 0) ? backwardBaseSpeed * 0.65 : backwardBaseSpeed) + (windForce === -1 ? 1.5 : 0);
 
   if (mode === 'local_2p') {
     if (isActionPressed('p1', 'right') || p1TouchMoveDirX === 1) p1X += p1ForwardSpeed;
@@ -1902,6 +2032,7 @@ function loop() {
     //  โหมด 2 คน (เล่นจอเดียวกัน แบบแย่งกัน)
     // ══════════════════════════════════════════════════════════
     drawRetroHills(ctx, cw, ch, bgOffset, 0, ch, getTierByScore(Math.max(p1Score, p2Score)));
+    drawWindParticles(ctx);
 
     const laneHeight = ch / 6.5;
     const getLanesY = (lane) => ch * 0.40 + lane * laneHeight;
@@ -2178,6 +2309,8 @@ function loop() {
       ctx.restore();
     }
 
+    drawWindIndicator(ctx);
+
     // ซิงค์เลนปัจจุบัน
     p1Lane = targetP1Lane;
     p2Lane = targetP2Lane;
@@ -2192,6 +2325,7 @@ function loop() {
     // ══════════════════════════════════════════════════════════
     
     drawRetroHills(ctx, cw, ch, bgOffset, 0, ch, getTierByScore(score));
+    drawWindParticles(ctx);
     
     // คำนวณตำแหน่ง Y
     const laneHeight = ch / 6.5;
@@ -2364,6 +2498,8 @@ function loop() {
       ctx.fillText(f.text, f.x, f.y);
       ctx.restore();
     }
+
+    drawWindIndicator(ctx);
   }
 
   // ── เอฟเฟกต์ร่วม (เหรียญกระจาย + อักษรลอย) ──
@@ -2593,6 +2729,9 @@ function startSinglePlayer(m) {
   lastPlayerLane = 1;
   lastP1Lane = 1;
   lastP2Lane = 1;
+  windForce = 0;
+  windTimer = 600;
+  windParticles = [];
   playerLane = 1;
   targetPlayerLane = 1;
   playerX = cw * 0.2;
@@ -2782,6 +2921,9 @@ function launchLocalTwoPlayer() {
   lastPlayerLane = 1;
   lastP1Lane = 1;
   lastP2Lane = 1;
+  windForce = 0;
+  windTimer = 600;
+  windParticles = [];
   bgOffset = 0;
 
   $('blocker').style.display = 'none';
@@ -2866,6 +3008,9 @@ function startGame(onlineMode, opts) {
   lastPlayerLane = 1;
   lastP1Lane = 1;
   lastP2Lane = 1;
+  windForce = 0;
+  windTimer = 600;
+  windParticles = [];
   playerLane = 1;
   targetPlayerLane = 1;
   playerX = cw * 0.2;
@@ -3076,6 +3221,9 @@ function resetGame() {
   lastPlayerLane = 1;
   lastP1Lane = 1;
   lastP2Lane = 1;
+  windForce = 0;
+  windTimer = 600;
+  windParticles = [];
   
   playerLane = 1;
   targetPlayerLane = 1;

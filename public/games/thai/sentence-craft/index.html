@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>📝 แต่งประโยค — Sentence Craft (kampai SDK)</title>
+<!--
+  KAMPAI-SCHOOL · GAME "แต่งประโยค" (sentence-craft) — ภาษาไทย ป.3-6
+  โครงสร้างโฟลเดอร์ (5 ไฟล์): index.html + style.css + config.js + data.js + game.js
+  เรียงลำดับคำภาษาไทยเพื่อสร้างประโยคตามไวยากรณ์ (ประธาน กริยา กรรม ส่วนขยาย)
+-->
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- HUD -->
+<div id="hud" style="display:none">
+    <div id="score-container">⭐ <span id="score-value">0</span></div>
+    <div id="timer-container">⏱️ <span id="timer-value">90</span></div>
+    <div id="combo-badge"></div>
+    <div id="player-chip"></div>
+</div>
+
+<!-- Play area -->
+<div id="play">
+    <!-- Progress bar -->
+    <div id="progress-bar-wrap">
+        <div id="progress-bar"></div>
+        <span id="progress-text">0 / 8</span>
+    </div>
+
+    <!-- Sentence line (drop zone) -->
+    <div id="sentence-zone">
+      <div id="sentence-label">⬇️ วางคำเพื่อแต่งประโยคตรงนี้</div>
+      <div id="sentence-slots"></div>
+    </div>
+
+    <!-- Hint area -->
+    <div id="hint-area">
+        <button id="hint-btn" onclick="useHint()">💡 คำใบ้แรก <span id="hint-cost"></span></button>
+    </div>
+
+    <!-- Word bank -->
+    <div id="word-bank-label">แตะคำด้านล่างเพื่อเรียงเป็นประโยคที่ถูกต้อง 👇</div>
+    <div id="word-bank"></div>
+</div>
+
+<!-- Start screen -->
+<div id="blocker">
+    <h1>📝 แต่งประโยค</h1>
+    <p>เรียงคำภาษาไทยให้ถูกต้องตามโครงสร้างประโยค<br>ฝึกแต่งประโยคบอกเล่า, คำถาม, ปฏิเสธ, และขอร้อง</p>
+    <div id="my-stats">
+        <div class="ms-cell"><div class="ms-val" id="ms-best">0</div><div class="ms-label">คะแนนสูงสุด</div></div>
+        <div class="ms-cell"><div class="ms-val" id="ms-plays">0</div><div class="ms-label">เล่นไปแล้ว (ครั้ง)</div></div>
+    </div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+    </div>
+    <div class="cat-label">เลือกหมวดหมู่ประโยค</div>
+    <div id="cat-row" class="cat-row"></div>
+    <div class="mode-row">
+        <button class="btn btn-primary" onclick="startGame('timed')">⏱️ แข่งเวลา 90 วิ</button>
+        <button class="btn btn-blue" onclick="startGame('practice')">🧠 ฝึกซ้อมแต่งคำ</button>
+    </div>
+</div>
+
+<!-- Game Over screen -->
+<div id="gameover-screen">
+    <h1>🎉 จบเกม!</h1>
+    <div id="star-display"></div>
+    <p>คะแนนสุดท้าย</p>
+    <div id="final-score">0</div>
+    <p id="go-summary" style="font-size:15px"></p>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+    <div class="go-buttons">
+        <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นใหม่</button>
+        <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+    </div>
+</div>
+
+<!-- Confetti canvas -->
+<canvas id="confetti-canvas"></canvas>
+
+<!-- ═══ KAMPAI SDK + Online framework (single source — อย่าแก้) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+/* fallback stub: กันพังถ้าเปิด standalone แล้ว SDK โหลดไม่ได้ */
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+</script>
+<script src="/games/kampai-match.js"></script>
+<script>
+window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){alert('โหมดออนไลน์เล่นผ่านระบบเท่านั้น');},report:function(){},finish:function(){},leave:function(){}};} };
+</script>
+
+<!-- ═══ เกม (5 ไฟล์): config → data → game (โหลดตามลำดับ แชร์ global scope) ═══ -->
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

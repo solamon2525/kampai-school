@@ -939,7 +939,12 @@ const startListen = startQuizGame;
 function glyph(item){
   if(item.emoji)   return `<span class="opt-emoji">${item.emoji}</span>`;
   if(item.bgColor) return `<span class="opt-swatch" style="background:${item.bgColor}"></span>`;  // หมวดสี: ตัวเลือกเป็นช่องสี
-  return item.label;
+  return currentSlug==='months' ? item.en : item.label;   // months: ชื่อเต็ม (label เป็นตัวย่อ)
+}
+// ตัวเลือกทายคำ — alphabet โชว์คำตัวอย่าง (Apple) ไม่ใช่ "A – Apple" (กันตัวอักษรโจทย์โผล่ในคำตอบ)
+function optLabel(item){
+  if(currentSlug==='alphabet'){ return item.en.split('–').pop().trim(); }
+  return item.en;
 }
 // โจทย์ทายคำ = cue ที่ "ไม่ใช่คำอังกฤษ" → ให้เด็กเลือกคำอังกฤษเอง (กันโจทย์เฉลยคำตอบตรงตัว)
 function quizPrompt(item){
