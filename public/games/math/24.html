@@ -447,7 +447,7 @@
         <div class="modal-card">
             <div style="font-size: 72px; margin-bottom: 8px;">🏆</div>
             <h1 class="modal-title">หมดเวลา!</h1>
-            <p class="modal-sub">เก่งมาก! เล่นได้อย่างยอดเยี่ยม คะแนนสอบของคุณได้รับการส่งและ persistence ลงในระบบโรงเรียนเรียบร้อยแล้ว</p>
+            <p class="modal-sub" id="gameover-sub">เก่งมาก! เล่นได้อย่างยอดเยี่ยม</p>
             <div class="score-val-big" id="final-score">0</div>
             <button class="btn-start" onclick="location.reload()">🔄 เล่นใหม่อีกครั้ง</button>
             <a href="/h/nattapong" target="_top" class="btn-secondary">🎮 เลือกเกมอื่น</a>
@@ -459,6 +459,7 @@
         /* ============================================================================
            SECTION A · KAMPAI INTEGRATION BOILERPLATE
            ============================================================================ */
+        const GAME_SLUG = 'math-24';
         const EMBED = (window.parent !== window) || (new URLSearchParams(location.search).get('embed') === '1');
         let STUDENT_CODE = null;
         let SESSION_START_TS = 0;
@@ -471,18 +472,27 @@
                     SESSION_START_TS = Date.now();
                 }
             });
+            // (navigation interceptor รวมไว้ที่ IIFE ท้ายไฟล์แล้ว — กันดักซ้ำ)
+        }
 
-            // Click interceptor for target="_top" anchors
-            document.addEventListener('click', (e) => {
-                const a = e.target.closest('a[target="_top"]');
-                if (!a) return;
-                const href = a.getAttribute('href');
-                if (!href) return;
-                e.preventDefault();
-                try {
-                    window.parent.postMessage({ type: 'navigate', to: href }, '*');
-                } catch (_err) { }
-            });
+        // ส่งคะแนนเข้าระบบโรงเรียน (รูปแบบ gameEnd มาตรฐาน — wrapper รับที่ PlayGame.tsx)
+        // กัน STUDENT_CODE ว่าง: standalone/ก่อน init มา จะไม่ยิง (คืน false)
+        function sendGameEnd(finalScore, mode, extra) {
+            if (!EMBED || !STUDENT_CODE) return false;
+            try {
+                window.parent.postMessage({
+                    type: 'gameEnd',
+                    gameSlug: GAME_SLUG,
+                    studentCode: STUDENT_CODE,
+                    score: Math.round(finalScore),
+                    mode: mode || 'normal',
+                    metadata: {
+                        duration: Math.max(1, Math.floor((Date.now() - SESSION_START_TS) / 1000)),
+                        ...(extra || {})
+                    }
+                }, '*');
+                return true;
+            } catch (_err) { return false; }
         }
 
         /* ============================================================================
@@ -637,9 +647,9 @@
             return null; // not solvable
         }
 
-        // generate solvable numbers set
+        // generate solvable numbers set (bounded — กันค้างถ้า solver พังในอนาคต)
         function generateSolvableSet() {
-            while (true) {
+            for (let attempt = 0; attempt < 500; attempt++) {
                 const nums = [
                     Math.floor(Math.random() * 9) + 1,
                     Math.floor(Math.random() * 9) + 1,
@@ -651,6 +661,9 @@
                     return { nums, sol };
                 }
             }
+            // fallback ชุดที่แก้ได้แน่นอน (3 × 8 × 1 × 1 = 24)
+            const fallback = [3, 8, 1, 1];
+            return { nums: fallback, sol: solve24(fallback) };
         }
 
         /* ============================================================================
@@ -661,6 +674,8 @@
         let level = 1;
         let timerInterval = null;
         let isGameOver = false;
+        let boardLocked = false;   // ล็อก input ระหว่างหน่วงเปลี่ยนข้อ (กันกดมั่วทับ transition)
+        let cardIdCounter = 1000;  // counter id การ์ดที่ยุบรวม — กัน id ชนจาก Date.now()
 
         let activeNumbers = []; // elements like { id, val }
         let currentSolution = "";
@@ -676,7 +691,8 @@
             timeLeft = 90;
             level = 1;
             isGameOver = false;
-            
+            boardLocked = false;
+
             document.getElementById('score-val').innerText = score;
             document.getElementById('timer-val').innerText = timeLeft;
             document.getElementById('level-val').innerText = level;
@@ -697,6 +713,7 @@
         }
 
         function loadNewSet() {
+            boardLocked = false;
             const data = generateSolvableSet();
             originalSet = [...data.nums];
             currentSolution = data.sol;
@@ -717,7 +734,7 @@
             activeNumbers.forEach((n) => {
                 const card = document.createElement('div');
                 card.className = `num-card ${selectedIndices.includes(n.id) ? 'selected' : ''}`;
-                card.innerText = Math.round(n.val * 100) / 100; // print rounded to 2 decimals if fraction
+                card.innerText = Number.isInteger(n.val) ? n.val : '≈' + (Math.round(n.val * 100) / 100); // เศษส่วน = โชว์ค่าประมาณ (engine คิดค่าเต็ม)
                 card.onclick = () => selectCard(n.id);
                 box.appendChild(card);
             });
@@ -728,6 +745,7 @@
         }
 
         function selectCard(id) {
+            if (boardLocked) return;
             playSfx('tap');
             const numObj = activeNumbers.find(n => n.id === id);
             if (!numObj) return;
@@ -773,7 +791,7 @@
                     
                     // replace the two cards with one new card
                     activeNumbers = activeNumbers.filter(n => n.id !== selectedIndices[0] && n.id !== id);
-                    const newId = Date.now(); // random unique id
+                    const newId = ++cardIdCounter; // counter ขึ้นเรื่อย ๆ — กัน id ชน
                     activeNumbers.push({ id: newId, val: result });
                     
                     selectedIndices = [];
@@ -795,6 +813,7 @@
         }
 
         function selectOperator(op) {
+            if (boardLocked) return;
             if (selectedIndices.length !== 1) {
                 playSfx('wrong');
                 showNotice('⚠️ กรุณาเลือกตัวเลขการ์ดตัวแรกก่อน!', true);
@@ -829,15 +848,18 @@
                     showFloatingText('+100');
                     spawnConfetti();
                     showNotice('🎉 สุดยอดมาก! ได้ 24 แต้มพอดีเป๊ะ!', false);
-                    
+
+                    boardLocked = true; // ล็อก input ระหว่างหน่วงก่อนเปลี่ยนข้อ
                     setTimeout(() => {
-                        loadNewSet();
+                        loadNewSet(); // loadNewSet ปลดล็อกให้เอง
                     }, 1500);
                 } else {
                     // Failed
                     playSfx('wrong');
-                    showNotice(`😢 ผลลัพธ์สุดท้ายคือ ${Math.round(finalVal * 100) / 100} ซึ่งไม่ใช่ 24 ลองใหม่อีกครั้งนะ!`, true);
+                    showNotice(`😢 ผลลัพธ์สุดท้ายคือ ${Number.isInteger(finalVal) ? finalVal : '≈' + (Math.round(finalVal * 100) / 100)} ซึ่งไม่ใช่ 24 ลองใหม่อีกครั้งนะ!`, true);
+                    boardLocked = true; // ล็อก input ระหว่างหน่วงก่อนล้างกระดาน
                     setTimeout(() => {
+                        boardLocked = false; // ปลดล็อกก่อนเรียก resetBoard ภายใน (ไม่ให้ guard บล็อก)
                         resetBoard();
                     }, 1800);
                 }
@@ -847,6 +869,7 @@
         }
 
         function resetBoard() {
+            if (boardLocked) return;
             playSfx('tap');
             activeNumbers = originalSet.map((n, i) => ({ id: i, val: n }));
             selectedIndices = [];
@@ -858,6 +881,7 @@
         }
 
         function showHint() {
+            if (boardLocked) return;
             playSfx('hint');
             const hintBox = document.getElementById('instruct');
             hintBox.className = 'instruction-box highlight';
@@ -865,6 +889,7 @@
         }
 
         function skipQuestion() {
+            if (boardLocked) return;
             playSfx('tap');
             score = Math.max(0, score - 20); // skip costs 20 pts
             document.getElementById('score-val').innerText = score;
@@ -928,24 +953,13 @@
             isGameOver = true;
             clearInterval(timerInterval);
 
-            // postMessage to parent wrapper
-            if (EMBED) {
-                try {
-                    window.parent.postMessage({
-                        type: 'gameEnd',
-                        gameSlug: 'math-24',
-                        studentCode: STUDENT_CODE,
-                        score: score,
-                        mode: 'normal',
-                        metadata: {
-                            duration: Math.max(1, Math.floor((Date.now() - SESSION_START_TS) / 1000)),
-                            solved_levels: level - 1
-                        }
-                    }, '*');
-                } catch (err) { }
-            }
+            const saved = sendGameEnd(score, 'normal', { solved_levels: level - 1 });
 
             document.getElementById('final-score').innerText = score;
+            const subEl = document.getElementById('gameover-sub');
+            if (subEl) subEl.innerText = saved
+                ? 'เก่งมาก! คะแนนของคุณถูกบันทึกลงระบบโรงเรียนเรียบร้อยแล้ว'
+                : 'เก่งมาก! เล่นได้ยอดเยี่ยมเลย (โหมดทดลอง — ไม่บันทึกคะแนน)';
             document.getElementById('gameover-screen').classList.remove('hidden');
         }
     </script>
