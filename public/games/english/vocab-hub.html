@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>คำศัพท์ภาษาอังกฤษ</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;background:#1565C0;overflow:hidden;user-select:none;
+  font-family:'TH Sarabun New',Sarabun,Arial,sans-serif}
+
+/* ===== HUB ===== */
+#hub-view{
+  display:flex;flex-direction:column;
+  width:100vw;height:100vh;
+  padding:2.5vh 3vw 2vh;
+}
+#hub-title{
+  text-align:center;
+  font-size:5.5vh;font-weight:700;
+  color:#FFE082;letter-spacing:0.06em;
+  margin-bottom:0.6vh;
+}
+#hub-sub{
+  text-align:center;font-size:2.2vh;
+  color:rgba(255,224,130,0.55);
+  margin-bottom:2vh;
+}
+#hub-grid{
+  flex:1;
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  grid-template-rows:repeat(2,1fr);
+  gap:1.4vh 1.2vw;
+}
+.hub-card{
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  border-radius:14px;
+  border:2px solid rgba(255,255,255,0.18);
+  background:rgba(255,255,255,0.07);
+  cursor:pointer;
+  gap:0.5vh;
+  padding:1vh 0.5vw;
+  transition:background 0.14s,transform 0.12s,border-color 0.14s;
+}
+.hub-card:hover{
+  background:rgba(255,255,255,0.18);
+  border-color:rgba(255,215,0,0.55);
+  transform:scale(1.04);
+}
+.hub-card .hc-icon{font-size:4vh;line-height:1.1}
+.hub-card .hc-th{font-size:7.8vh;font-weight:700;color:#FFE082;text-align:center;line-height:1.05}
+.hub-card .hc-en{font-size:1.6vh;color:rgba(255,255,255,0.55);text-align:center}
+.hub-card .hc-count{font-size:1.4vh;color:rgba(255,215,0,0.4)}
+
+/* ===== TOPIC VIEW ===== */
+#topic-view{
+  display:none;flex-direction:column;
+  width:100vw;height:100vh;
+}
+#topic-view.show{display:flex}
+
+/* Banner */
+#word{
+  flex:0 0 24vh;
+  perspective:900px;position:relative;
+  display:flex;align-items:center;justify-content:center;
+  padding:0 2vw;
+}
+#tcard{
+  position:relative;width:92%;height:90%;
+  transform-style:preserve-3d;
+  transition:transform 0.5s ease;
+}
+#tcard.flipped{transform:rotateY(180deg)}
+.tface{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
+}
+.tface.tback{transform:rotateY(180deg)}
+#wfront{
+  font-size:14vh;font-weight:700;line-height:1;
+  color:#FFE082;white-space:nowrap;letter-spacing:0.02em;
+}
+#wfront .wf-emoji{margin-right:0.18em}
+#wback-en{
+  font-size:10vh;font-weight:700;line-height:1;
+  color:#FFE082;white-space:nowrap;
+}
+#wback-th{
+  font-size:7vh;font-weight:700;line-height:1;
+  color:rgba(255,224,130,0.7);white-space:nowrap;margin-top:0.3em;
+}
+.back-col{display:flex;flex-direction:column;align-items:center}
+#btn-say{
+  position:absolute;top:1vh;right:2vw;z-index:5;
+  font-size:2.8vh;width:6vh;height:6vh;border-radius:50%;cursor:pointer;
+  border:2px solid rgba(255,224,130,0.4);background:rgba(0,0,0,0.25);color:#FFE082;
+  transition:background 0.12s,transform 0.1s;
+}
+#btn-say:hover{background:rgba(255,215,0,0.3);transform:scale(1.08)}
+
+/* Grid */
+#grid{
+  flex:1;
+  padding:0.4vh 0.5vw;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  grid-auto-flow:column;
+  gap:0.5vh 0.8vw;
+}
+.cell{
+  position:relative;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2vh;
+  border-radius:8px;
+  border:1.5px solid rgba(255,255,255,0.18);
+  background:rgba(255,255,255,0.04);
+  transition:border-color 0.15s,box-shadow 0.15s,transform 0.15s,background 0.15s;
+  overflow:hidden;
+}
+.cell .emoji{font-size:6vh;line-height:1}
+/* Default highlight (non-color topics) */
+.cell.hl{
+  background:#FFD700;
+  border-color:#FF8F00;
+  transform:scale(1.05);
+  z-index:5;
+  box-shadow:0 8px 24px rgba(0,0,0,0.4);
+}
+.cell.hl .lbl{color:#1A237E}
+/* Color-cell keeps its bgColor; highlight = border glow */
+.cell.color-cell{border-color:rgba(255,255,255,0.28)}
+.cell.color-cell.hl{
+  background:inherit;
+  transform:scale(1.06);
+  z-index:5;
+  border-color:#ffffff !important;
+  box-shadow:0 0 0 4px #ffffff, 0 0 0 7px #000000, 0 12px 28px rgba(0,0,0,0.5) !important;
+}
+.cell.color-cell.hl .lbl{color:inherit}
+.lbl{
+  font-size:7vh;font-weight:700;line-height:1;
+  color:#fff;text-align:center;padding:0 0.3em;
+  white-space:nowrap;
+}
+
+/* ===== PLAY AREA (choice / match / listen) ===== */
+#play{display:none;flex:1;flex-direction:column;padding:1.5vh 3vw}
+#play.show{display:flex}
+
+/* choice + listen */
+.play-wrap{display:flex;flex-direction:column;height:100%;gap:2vh}
+.q-prompt{
+  flex:0 0 30vh;display:flex;align-items:center;justify-content:center;gap:1.5vw;
+  border-radius:18px;border:2px solid rgba(255,255,255,0.16);background:rgba(255,255,255,0.06);
+}
+.q-prompt .qp-emoji{font-size:18vh;line-height:1}
+.q-prompt .qp-label{font-size:9vh;font-weight:700;color:#FFE082;line-height:1}
+.q-listen{
+  font-size:9vh;width:22vh;height:22vh;border-radius:50%;cursor:pointer;
+  border:3px solid #FFD700;background:rgba(255,215,0,0.18);color:#FFE082;
+  transition:background 0.12s,transform 0.1s;
+}
+.q-listen:hover{background:rgba(255,215,0,0.32);transform:scale(1.05)}
+.q-options{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:1.6vh 2vw}
+.opt{
+  display:flex;align-items:center;justify-content:center;gap:1vw;
+  border-radius:14px;cursor:pointer;padding:1vh 1.4vw;
+  border:2.5px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);
+  color:#fff;font-size:5vh;font-weight:700;text-align:center;line-height:1.05;
+  transition:background 0.12s,border-color 0.12s,transform 0.1s;
+}
+.opt .opt-emoji{font-size:7vh;line-height:1}
+.opt:hover{background:rgba(255,255,255,0.16)}
+.opt.ok{border-color:#43A047;background:rgba(67,160,71,0.35);color:#C8E6C9}
+.opt.bad{border-color:#E53935;background:rgba(229,57,53,0.35)}
+
+/* match */
+.match-cols{flex:1;display:flex;gap:4vw;justify-content:center;align-items:center}
+.mcol{flex:1;max-width:40vw;display:flex;flex-direction:column;gap:1.2vh;justify-content:center}
+.mcard{
+  position:relative;
+  display:flex;align-items:center;justify-content:center;gap:1vw;
+  border-radius:14px;cursor:pointer;padding:1vh 1.2vw;min-height:10vh;
+  border:2.5px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);
+  color:#fff;font-size:4vh;font-weight:700;text-align:center;line-height:1.05;
+  transition:background 0.12s,border-color 0.12s,transform 0.12s,box-shadow 0.12s;
+}
+.mcard .mc-emoji{font-size:6vh;line-height:1}
+.mcard:hover{background:rgba(255,255,255,0.16)}
+.mcard.sel{
+  border-color:#ffffff !important;
+  box-shadow:0 0 0 4px #ffffff, 0 0 0 7px #000000, 0 8px 20px rgba(0,0,0,0.4) !important;
+  transform:scale(1.04);
+  z-index:2;
+}
+.mcard.matched{border-color:#43A047;background:rgba(67,160,71,0.28);color:#C8E6C9;pointer-events:none}
+.mcard.wrong{border-color:#E53935;background:rgba(229,57,53,0.3);animation:shake 0.4s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(9px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+
+/* spell (สะกดคำ) */
+.spell-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3vh;cursor:pointer}
+.sp-visual{height:18vh;display:flex;align-items:center;justify-content:center}
+.sp-visual .sp-emoji{font-size:16vh;line-height:1}
+.sp-visual .sp-swatch{width:18vh;height:18vh;border-radius:50%;border:3px solid rgba(255,255,255,0.4);box-shadow:0 8px 24px rgba(0,0,0,0.4)}
+.sp-letters{display:flex;gap:1.4vw;justify-content:center;flex-wrap:wrap;max-width:94vw}
+.sp-letter{
+  min-width:10vh;height:13vh;padding:0 1vh;
+  display:flex;align-items:center;justify-content:center;
+  font-size:8vh;font-weight:700;line-height:1;text-transform:uppercase;
+  border-radius:14px;border:2.5px solid rgba(255,255,255,0.2);
+  background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.4);
+  opacity:0.5;transform:scale(0.92);
+  transition:opacity 0.18s,transform 0.18s,background 0.18s,border-color 0.18s,color 0.18s;
+}
+.sp-letter.done{opacity:1;transform:scale(1);color:#FFE082;border-color:rgba(255,224,130,0.45)}
+.sp-letter.on{
+  opacity:1;transform:scale(1.1);z-index:2;
+  background:#FFD700;border-color:#FF8F00;color:#1A237E;
+  box-shadow:0 10px 26px rgba(0,0,0,0.45);
+}
+.sp-read,.sp-mean{font-size:5vh;font-weight:700;line-height:1.1;text-align:center;opacity:0;transition:opacity 0.35s}
+.sp-read{color:#fff}
+.sp-read b{color:#FFD700}
+.sp-mean{color:#FFE082}
+.sp-mean b{color:#FFD700}
+.sp-read.show,.sp-mean.show{opacity:1}
+
+/* Bottom bar */
+#bottom{
+  flex:0 0 6vh;
+  display:flex;align-items:center;
+  padding:0 1.5vw 0.8vh;
+  position:relative;gap:5px;
+}
+#dots{
+  position:absolute;left:50%;transform:translateX(-50%);
+  display:flex;gap:7px;align-items:center;
+}
+.dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,0.25);transition:background 0.2s}
+.dot.active{background:#FFD700}
+#lctrl{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.cbtn{
+  font-size:1.55vh;
+  padding:3px 8px;border-radius:5px;cursor:pointer;
+  border:1px solid rgba(255,255,255,0.28);
+  background:rgba(255,255,255,0.08);
+  color:rgba(255,255,255,0.65);
+  transition:background 0.12s,color 0.12s;
+}
+.cbtn:hover{background:rgba(255,255,255,0.18)}
+.cbtn.on{background:#FFD700;border-color:#FF8F00;color:#1A237E;font-weight:700}
+#btn-home{color:rgba(255,224,130,0.7);border-color:rgba(255,224,130,0.3)}
+#btn-home:hover{background:rgba(255,224,130,0.15);color:#FFE082}
+#score{margin-left:auto;font-size:2vh;font-weight:700;color:#fff;white-space:nowrap}
+#score b{color:#FFD700}
+#speed{
+  display:flex;align-items:center;gap:4px;margin-left:1vw;
+}
+#speed label{font-size:1.55vh;color:rgba(255,255,255,0.45);margin-right:2px}
+.spd{
+  font-size:1.55vh;
+  padding:3px 9px;border-radius:5px;cursor:pointer;
+  border:1px solid rgba(255,255,255,0.28);
+  background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.65);
+  transition:background 0.12s,color 0.12s;
+}
+.spd:hover{background:rgba(255,255,255,0.18)}
+.spd.on{background:#FFD700;border-color:#FF8F00;color:#1A237E;font-weight:700}
+
+/* Quiz (flash) overlay */
+#quiz-ctrl{
+  display:none;position:fixed;bottom:9vh;left:50%;transform:translateX(-50%);
+  gap:20px;z-index:30;
+}
+#quiz-ctrl.show{display:flex}
+.qbtn{
+  font-size:3.2vh;font-weight:700;
+  padding:0.7vh 5vw;border-radius:12px;cursor:pointer;
+  border:2px solid rgba(255,255,255,0.35);
+  background:rgba(0,0,0,0.4);color:#fff;
+  backdrop-filter:blur(6px);
+  transition:background 0.15s,transform 0.1s;
+}
+.qbtn:hover{background:rgba(0,0,0,0.6);transform:scale(1.05)}
+#btn-reveal{border-color:#FFD700;color:#FFE082}
+#btn-reveal:hover{background:rgba(255,215,0,0.3)}
+#btn-next{display:none}
+#btn-next.show{display:block}
+
+/* Progress bar */
+#bar-wrap{position:fixed;top:0;left:0;width:100%;height:3px;z-index:20;background:rgba(255,255,255,0.1)}
+#bar{height:100%;background:#FFD700;transition:width 0.25s linear}
+
+/* Toast */
+#toast{
+  position:fixed;top:11vh;left:50%;transform:translateX(-50%) translateY(-20px);
+  font-size:3vh;font-weight:700;padding:1vh 3vw;border-radius:14px;
+  opacity:0;pointer-events:none;transition:opacity 0.18s,transform 0.18s;z-index:50;backdrop-filter:blur(4px);
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.ok{background:rgba(67,160,71,0.92);color:#fff}
+#toast.bad{background:rgba(229,57,53,0.92);color:#fff}
+
+/* Win overlay */
+#win{position:fixed;inset:0;z-index:60;display:none;flex-direction:column;align-items:center;justify-content:center;gap:2.5vh;background:rgba(13,71,161,0.92)}
+#win.show{display:flex}
+#win .win-emoji{font-size:16vh;line-height:1;animation:pop 0.5s}
+@keyframes pop{0%{transform:scale(0.6);opacity:0}100%{transform:scale(1);opacity:1}}
+#win .win-text{font-size:5vh;font-weight:700;color:#FFE082}
+#win .win-stars{font-size:6vh;line-height:1}
+#win .win-score{font-size:2.8vh;color:#fff}
+#win .win-btns{display:flex;gap:2vw;margin-top:1vh}
+.win-btn{font-size:3vh;font-weight:700;padding:1.1vh 3.5vw;border-radius:14px;cursor:pointer;
+  border:2px solid rgba(255,255,255,0.35);background:rgba(255,255,255,0.1);color:#fff;transition:background 0.14s,transform 0.1s}
+.win-btn:hover{background:rgba(255,255,255,0.22);transform:scale(1.04)}
+.win-btn.primary{border-color:#FFD700;background:rgba(255,215,0,0.25);color:#FFE082}
+
+#cfx{position:fixed;inset:0;z-index:70;pointer-events:none;display:none}
+</style>
+</head>
+<body>
+<div id="bar-wrap"><div id="bar" style="width:0"></div></div>
+
+<!-- HUB -->
+<div id="hub-view">
+  <div id="hub-title">คำศัพท์ภาษาอังกฤษ</div>
+  <div id="hub-sub">English Vocabulary — เลือกหัวข้อ &nbsp;|&nbsp; F = เต็มจอ</div>
+  <div id="hub-grid"></div>
+</div>
+
+<!-- TOPIC -->
+<div id="topic-view">
+  <div id="word">
+    <button id="btn-say" title="ฟังเสียงอ่าน">🔊</button>
+    <div id="tcard">
+      <div class="tface tfront"><span id="wfront"></span></div>
+      <div class="tface tback">
+        <div class="back-col">
+          <span id="wback-en"></span>
+          <span id="wback-th"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="grid"></div>
+  <div id="play"></div>
+  <div id="bottom">
+    <div id="lctrl">
+      <button class="cbtn" id="btn-home">← หน้าหลัก</button>
+      <button class="cbtn mbtn on" id="m-auto">▶ อัตโนมัติ</button>
+      <button class="cbtn mbtn" id="m-flash">🎲 สุ่ม</button>
+      <button class="cbtn mbtn" id="m-choice">🎯 ทายคำ</button>
+      <button class="cbtn mbtn" id="m-match">🔗 จับคู่</button>
+      <button class="cbtn mbtn" id="m-listen">🎧 ฟังเสียง</button>
+      <button class="cbtn mbtn" id="m-spell">🔤 สะกดคำ</button>
+      <button class="cbtn" id="btn-sound">🔊 เสียง</button>
+    </div>
+    <div id="dots"></div>
+    <div id="score"></div>
+    <div id="speed">
+      <label>Speed</label>
+      <button class="spd" data-ms="2000">2s</button>
+      <button class="spd on" data-ms="1500">1.5s</button>
+      <button class="spd" data-ms="1000">1s</button>
+      <button class="spd" data-ms="500">0.5s</button>
+    </div>
+  </div>
+</div>
+
+<div id="quiz-ctrl">
+  <button class="qbtn" id="btn-reveal">เฉลย</button>
+  <button class="qbtn" id="btn-next">ถัดไป ›</button>
+</div>
+
+<div id="toast"></div>
+<div id="win">
+  <div class="win-emoji">🎉</div>
+  <div class="win-text">เก่งมาก!</div>
+  <div class="win-stars"></div>
+  <div class="win-score"></div>
+  <div class="win-btns">
+    <button class="win-btn primary" id="win-again">▶ เล่นอีกครั้ง</button>
+    <button class="win-btn" id="win-home">← หน้าหลัก</button>
+  </div>
+</div>
+<canvas id="cfx"></canvas>
+
+<script>
+// =====================================================================
+// TOPIC METADATA (for hub cards)
+// =====================================================================
+const TOPIC_META = [
+  { slug:'numbers',  title:'ตัวเลข',          en:'Numbers 1–100',    icon:'🔢', count:100 },
+  { slug:'colors',   title:'สี',               en:'Colors',           icon:'🎨', count:12  },
+  { slug:'days',     title:'วันในสัปดาห์',     en:'Days of the Week', icon:'📅', count:7   },
+  { slug:'months',   title:'เดือน',            en:'Months',           icon:'🗓️', count:12  },
+  { slug:'alphabet', title:'ตัวอักษร A–Z',     en:'Alphabet',         icon:'🔤', count:26  },
+  { slug:'animals',  title:'สัตว์',            en:'Animals',          icon:'🐾', count:12  },
+  { slug:'fruits',   title:'ผลไม้',            en:'Fruits',           icon:'🍎', count:10  },
+  { slug:'body',     title:'ส่วนของร่างกาย',   en:'Body Parts',       icon:'🫀', count:10  },
+  { slug:'shapes',   title:'รูปทรง',           en:'Shapes',           icon:'🔷', count:8   },
+  { slug:'family',   title:'ครอบครัว',         en:'Family',           icon:'👨‍👩‍👧', count:8   },
+];
+
+// =====================================================================
+// VOCABULARY DATA  { label, en, th, [emoji, bgColor, darkText] }
+// =====================================================================
+const TOPICS = {
+  numbers: [
+    {label:'1',  en:'One',          th:'วัน'},          {label:'2',  en:'Two',          th:'ทู'},
+    {label:'3',  en:'Three',        th:'ทรี'},           {label:'4',  en:'Four',         th:'โฟร์'},
+    {label:'5',  en:'Five',         th:'ไฟว์'},          {label:'6',  en:'Six',          th:'ซิกซ์'},
+    {label:'7',  en:'Seven',        th:'เซเว่น'},        {label:'8',  en:'Eight',        th:'เอท'},
+    {label:'9',  en:'Nine',         th:'ไนน์'},          {label:'10', en:'Ten',          th:'เทน'},
+    {label:'11', en:'Eleven',       th:'อีเลฟเว่น'},    {label:'12', en:'Twelve',       th:'ทเวลฟ์'},
+    {label:'13', en:'Thirteen',     th:'เธอร์ทีน'},     {label:'14', en:'Fourteen',     th:'โฟร์ทีน'},
+    {label:'15', en:'Fifteen',      th:'ฟิฟทีน'},       {label:'16', en:'Sixteen',      th:'ซิกซ์ทีน'},
+    {label:'17', en:'Seventeen',    th:'เซเว่นทีน'},    {label:'18', en:'Eighteen',     th:'เอทีน'},
+    {label:'19', en:'Nineteen',     th:'ไนน์ทีน'},      {label:'20', en:'Twenty',       th:'ทเวนตี้'},
+    {label:'21', en:'Twenty-one',   th:'ทเวนตี้วัน'},   {label:'22', en:'Twenty-two',   th:'ทเวนตี้ทู'},
+    {label:'23', en:'Twenty-three', th:'ทเวนตี้ทรี'},   {label:'24', en:'Twenty-four',  th:'ทเวนตี้โฟร์'},
+    {label:'25', en:'Twenty-five',  th:'ทเวนตี้ไฟว์'},  {label:'26', en:'Twenty-six',   th:'ทเวนตี้ซิกซ์'},
+    {label:'27', en:'Twenty-seven', th:'ทเวนตี้เซเว่น'},{label:'28', en:'Twenty-eight', th:'ทเวนตี้เอท'},
+    {label:'29', en:'Twenty-nine',  th:'ทเวนตี้ไนน์'},  {label:'30', en:'Thirty',       th:'เธอร์ตี้'},
+    {label:'31', en:'Thirty-one',   th:'เธอร์ตี้วัน'},  {label:'32', en:'Thirty-two',   th:'เธอร์ตี้ทู'},
+    {label:'33', en:'Thirty-three', th:'เธอร์ตี้ทรี'},  {label:'34', en:'Thirty-four',  th:'เธอร์ตี้โฟร์'},
+    {label:'35', en:'Thirty-five',  th:'เธอร์ตี้ไฟว์'}, {label:'36', en:'Thirty-six',   th:'เธอร์ตี้ซิกซ์'},
+    {label:'37', en:'Thirty-seven', th:'เธอร์ตี้เซเว่น'},{label:'38',en:'Thirty-eight', th:'เธอร์ตี้เอท'},
+    {label:'39', en:'Thirty-nine',  th:'เธอร์ตี้ไนน์'}, {label:'40', en:'Forty',        th:'โฟร์ตี้'},
+    {label:'41', en:'Forty-one',    th:'โฟร์ตี้วัน'},   {label:'42', en:'Forty-two',    th:'โฟร์ตี้ทู'},
+    {label:'43', en:'Forty-three',  th:'โฟร์ตี้ทรี'},   {label:'44', en:'Forty-four',   th:'โฟร์ตี้โฟร์'},
+    {label:'45', en:'Forty-five',   th:'โฟร์ตี้ไฟว์'},  {label:'46', en:'Forty-six',    th:'โฟร์ตี้ซิกซ์'},
+    {label:'47', en:'Forty-seven',  th:'โฟร์ตี้เซเว่น'},{label:'48', en:'Forty-eight',  th:'โฟร์ตี้เอท'},
+    {label:'49', en:'Forty-nine',   th:'โฟร์ตี้ไนน์'},  {label:'50', en:'Fifty',        th:'ฟิฟตี้'},
+    {label:'51', en:'Fifty-one',    th:'ฟิฟตี้วัน'},    {label:'52', en:'Fifty-two',    th:'ฟิฟตี้ทู'},
+    {label:'53', en:'Fifty-three',  th:'ฟิฟตี้ทรี'},    {label:'54', en:'Fifty-four',   th:'ฟิฟตี้โฟร์'},
+    {label:'55', en:'Fifty-five',   th:'ฟิฟตี้ไฟว์'},   {label:'56', en:'Fifty-six',    th:'ฟิฟตี้ซิกซ์'},
+    {label:'57', en:'Fifty-seven',  th:'ฟิฟตี้เซเว่น'}, {label:'58', en:'Fifty-eight',  th:'ฟิฟตี้เอท'},
+    {label:'59', en:'Fifty-nine',   th:'ฟิฟตี้ไนน์'},   {label:'60', en:'Sixty',        th:'ซิกซ์ตี้'},
+    {label:'61', en:'Sixty-one',    th:'ซิกซ์ตี้วัน'},  {label:'62', en:'Sixty-two',    th:'ซิกซ์ตี้ทู'},
+    {label:'63', en:'Sixty-three',  th:'ซิกซ์ตี้ทรี'},  {label:'64', en:'Sixty-four',   th:'ซิกซ์ตี้โฟร์'},
+    {label:'65', en:'Sixty-five',   th:'ซิกซ์ตี้ไฟว์'}, {label:'66', en:'Sixty-six',    th:'ซิกซ์ตี้ซิกซ์'},
+    {label:'67', en:'Sixty-seven',  th:'ซิกซ์ตี้เซเว่น'},{label:'68',en:'Sixty-eight',  th:'ซิกซ์ตี้เอท'},
+    {label:'69', en:'Sixty-nine',   th:'ซิกซ์ตี้ไนน์'}, {label:'70', en:'Seventy',      th:'เซเว่นตี้'},
+    {label:'71', en:'Seventy-one',  th:'เซเว่นตี้วัน'},  {label:'72', en:'Seventy-two',  th:'เซเว่นตี้ทู'},
+    {label:'73', en:'Seventy-three',th:'เซเว่นตี้ทรี'},  {label:'74', en:'Seventy-four', th:'เซเว่นตี้โฟร์'},
+    {label:'75', en:'Seventy-five', th:'เซเว่นตี้ไฟว์'}, {label:'76', en:'Seventy-six',  th:'เซเว่นตี้ซิกซ์'},
+    {label:'77', en:'Seventy-seven',th:'เซเว่นตี้เซเว่น'},{label:'78',en:'Seventy-eight',th:'เซเว่นตี้เอท'},
+    {label:'79', en:'Seventy-nine', th:'เซเว่นตี้ไนน์'}, {label:'80', en:'Eighty',       th:'เอทตี้'},
+    {label:'81', en:'Eighty-one',   th:'เอทตี้วัน'},     {label:'82', en:'Eighty-two',   th:'เอทตี้ทู'},
+    {label:'83', en:'Eighty-three', th:'เอทตี้ทรี'},     {label:'84', en:'Eighty-four',  th:'เอทตี้โฟร์'},
+    {label:'85', en:'Eighty-five',  th:'เอทตี้ไฟว์'},    {label:'86', en:'Eighty-six',   th:'เอทตี้ซิกซ์'},
+    {label:'87', en:'Eighty-seven', th:'เอทตี้เซเว่น'},  {label:'88', en:'Eighty-eight', th:'เอทตี้เอท'},
+    {label:'89', en:'Eighty-nine',  th:'เอทตี้ไนน์'},    {label:'90', en:'Ninety',       th:'ไนน์ตี้'},
+    {label:'91', en:'Ninety-one',   th:'ไนน์ตี้วัน'},    {label:'92', en:'Ninety-two',   th:'ไนน์ตี้ทู'},
+    {label:'93', en:'Ninety-three', th:'ไนน์ตี้ทรี'},    {label:'94', en:'Ninety-four',  th:'ไนน์ตี้โฟร์'},
+    {label:'95', en:'Ninety-five',  th:'ไนน์ตี้ไฟว์'},   {label:'96', en:'Ninety-six',   th:'ไนน์ตี้ซิกซ์'},
+    {label:'97', en:'Ninety-seven', th:'ไนน์ตี้เซเว่น'}, {label:'98', en:'Ninety-eight', th:'ไนน์ตี้เอท'},
+    {label:'99', en:'Ninety-nine',  th:'ไนน์ตี้ไนน์'},   {label:'100',en:'One Hundred',  th:'วันฮันเดรด'},
+  ],
+  colors: [
+    {label:'Red',       en:'Red',       th:'เรด',         meaning:'สีแดง',     bgColor:'#C62828'},
+    {label:'Orange',    en:'Orange',    th:'ออเรนจ์',     meaning:'สีส้ม',     bgColor:'#E65100'},
+    {label:'Yellow',    en:'Yellow',    th:'เยลโล่',      meaning:'สีเหลือง',  bgColor:'#F9A825', darkText:true},
+    {label:'Green',     en:'Green',     th:'กรีน',        meaning:'สีเขียว',   bgColor:'#2E7D32'},
+    {label:'Blue',      en:'Blue',      th:'บลู',         meaning:'สีน้ำเงิน', bgColor:'#0D47A1'},
+    {label:'Purple',    en:'Purple',    th:'เพอร์เพิล',   meaning:'สีม่วง',    bgColor:'#6A1B9A'},
+    {label:'Pink',      en:'Pink',      th:'พิงค์',       meaning:'สีชมพู',    bgColor:'#AD1457'},
+    {label:'Brown',     en:'Brown',     th:'บราวน์',      meaning:'สีน้ำตาล',  bgColor:'#4E342E'},
+    {label:'Black',     en:'Black',     th:'แบล็ก',       meaning:'สีดำ',      bgColor:'#212121'},
+    {label:'White',     en:'White',     th:'ไวท์',        meaning:'สีขาว',     bgColor:'#E0E0E0', darkText:true},
+    {label:'Gray',      en:'Gray',      th:'เกรย์',       meaning:'สีเทา',     bgColor:'#546E7A'},
+    {label:'Gold',      en:'Gold',      th:'โกลด์',       meaning:'สีทอง',     bgColor:'#F57F17', darkText:true},
+  ],
+  days: [
+    {label:'Monday',    en:'Monday',    th:'มันเดย์',      meaning:'วันจันทร์'},
+    {label:'Tuesday',   en:'Tuesday',   th:'ทิวส์เดย์',    meaning:'วันอังคาร'},
+    {label:'Wednesday', en:'Wednesday', th:'เวนส์เดย์',    meaning:'วันพุธ'},
+    {label:'Thursday',  en:'Thursday',  th:'เธอส์เดย์',    meaning:'วันพฤหัสบดี'},
+    {label:'Friday',    en:'Friday',    th:'ไฟรเดย์',      meaning:'วันศุกร์'},
+    {label:'Saturday',  en:'Saturday',  th:'แซทเทอร์เดย์', meaning:'วันเสาร์'},
+    {label:'Sunday',    en:'Sunday',    th:'ซันเดย์',      meaning:'วันอาทิตย์'},
+  ],
+  months: [
+    {label:'Jan',  en:'January',   th:'แจนนิวแอรี่',  meaning:'มกราคม'},
+    {label:'Feb',  en:'February',  th:'เฟบรูแอรี่',   meaning:'กุมภาพันธ์'},
+    {label:'Mar',  en:'March',     th:'มาร์ช',        meaning:'มีนาคม'},
+    {label:'Apr',  en:'April',     th:'เอพริล',       meaning:'เมษายน'},
+    {label:'May',  en:'May',       th:'เมย์',         meaning:'พฤษภาคม'},
+    {label:'Jun',  en:'June',      th:'จูน',          meaning:'มิถุนายน'},
+    {label:'Jul',  en:'July',      th:'จูลาย',        meaning:'กรกฎาคม'},
+    {label:'Aug',  en:'August',    th:'ออกัสต์',      meaning:'สิงหาคม'},
+    {label:'Sep',  en:'September', th:'เซปเทมเบอร์',  meaning:'กันยายน'},
+    {label:'Oct',  en:'October',   th:'ออคโตเบอร์',   meaning:'ตุลาคม'},
+    {label:'Nov',  en:'November',  th:'โนเวมเบอร์',   meaning:'พฤศจิกายน'},
+    {label:'Dec',  en:'December',  th:'ดีเซมเบอร์',   meaning:'ธันวาคม'},
+  ],
+  alphabet: [
+    {label:'A', en:'A – Apple',    th:'เอ'},
+    {label:'B', en:'B – Ball',     th:'บี'},
+    {label:'C', en:'C – Cat',      th:'ซี'},
+    {label:'D', en:'D – Dog',      th:'ดี'},
+    {label:'E', en:'E – Egg',      th:'อี'},
+    {label:'F', en:'F – Fish',     th:'เอฟ'},
+    {label:'G', en:'G – Goat',     th:'จี'},
+    {label:'H', en:'H – Hat',      th:'เอช'},
+    {label:'I', en:'I – Ice',      th:'ไอ'},
+    {label:'J', en:'J – Jar',      th:'เจ'},
+    {label:'K', en:'K – Kite',     th:'เค'},
+    {label:'L', en:'L – Lion',     th:'แอล'},
+    {label:'M', en:'M – Monkey',   th:'เอ็ม'},
+    {label:'N', en:'N – Net',      th:'เอ็น'},
+    {label:'O', en:'O – Orange',   th:'โอ'},
+    {label:'P', en:'P – Pig',      th:'พี'},
+    {label:'Q', en:'Q – Queen',    th:'คิว'},
+    {label:'R', en:'R – Rabbit',   th:'อาร์'},
+    {label:'S', en:'S – Sun',      th:'เอส'},
+    {label:'T', en:'T – Tiger',    th:'ที'},
+    {label:'U', en:'U – Umbrella', th:'ยู'},
+    {label:'V', en:'V – Van',      th:'วี'},
+    {label:'W', en:'W – Water',    th:'ดับเบิ้ลยู'},
+    {label:'X', en:'X – X-ray',   th:'เอ็กซ์'},
+    {label:'Y', en:'Y – Yacht',    th:'วาย'},
+    {label:'Z', en:'Z – Zoo',      th:'ซี'},
+  ],
+  animals: [
+    {label:'Dog',      en:'Dog',      th:'ด็อก',         meaning:'หมา',      emoji:'🐶'},
+    {label:'Cat',      en:'Cat',      th:'แคท',          meaning:'แมว',      emoji:'🐱'},
+    {label:'Bird',     en:'Bird',     th:'เบิร์ด',       meaning:'นก',       emoji:'🐦'},
+    {label:'Fish',     en:'Fish',     th:'ฟิช',          meaning:'ปลา',      emoji:'🐟'},
+    {label:'Rabbit',   en:'Rabbit',   th:'แรบบิท',       meaning:'กระต่าย',  emoji:'🐰'},
+    {label:'Elephant', en:'Elephant', th:'เอเลเฟิ่นท์',  meaning:'ช้าง',     emoji:'🐘'},
+    {label:'Tiger',    en:'Tiger',    th:'ไทเกอร์',      meaning:'เสือ',     emoji:'🐯'},
+    {label:'Monkey',   en:'Monkey',   th:'มังกี้',       meaning:'ลิง',      emoji:'🐵'},
+    {label:'Cow',      en:'Cow',      th:'เคาว์',        meaning:'วัว',      emoji:'🐮'},
+    {label:'Horse',    en:'Horse',    th:'ฮอร์ส',        meaning:'ม้า',      emoji:'🐴'},
+    {label:'Frog',     en:'Frog',     th:'ฟร็อก',        meaning:'กบ',       emoji:'🐸'},
+    {label:'Snake',    en:'Snake',    th:'สเนก',         meaning:'งู',       emoji:'🐍'},
+  ],
+  fruits: [
+    {label:'Apple',      en:'Apple',      th:'แอปเปิล',       meaning:'แอปเปิล',       emoji:'🍎'},
+    {label:'Banana',     en:'Banana',     th:'บานานา',        meaning:'กล้วย',         emoji:'🍌'},
+    {label:'Mango',      en:'Mango',      th:'แมงโก้',        meaning:'มะม่วง',        emoji:'🥭'},
+    {label:'Orange',     en:'Orange',     th:'ออเรนจ์',       meaning:'ส้ม',           emoji:'🍊'},
+    {label:'Grape',      en:'Grape',      th:'เกรป',          meaning:'องุ่น',         emoji:'🍇'},
+    {label:'Watermelon', en:'Watermelon', th:'วอเทอร์เมลอน',  meaning:'แตงโม',         emoji:'🍉'},
+    {label:'Pineapple',  en:'Pineapple',  th:'ไพน์แอปเปิล',   meaning:'สับปะรด',       emoji:'🍍'},
+    {label:'Strawberry', en:'Strawberry', th:'สตรอว์เบอร์รี่', meaning:'สตรอว์เบอร์รี', emoji:'🍓'},
+    {label:'Coconut',    en:'Coconut',    th:'โคโคนัท',       meaning:'มะพร้าว',       emoji:'🥥'},
+    {label:'Papaya',     en:'Papaya',     th:'ปาปาย่า',       meaning:'มะละกอ',        emoji:'🍈'},
+  ],
+  body: [
+    {label:'Head',  en:'Head',  th:'เฮด',    meaning:'หัว',   emoji:'😀'},
+    {label:'Eye',   en:'Eye',   th:'อาย',    meaning:'ตา',    emoji:'👁️'},
+    {label:'Ear',   en:'Ear',   th:'เอียร์', meaning:'หู',    emoji:'👂'},
+    {label:'Nose',  en:'Nose',  th:'โนส',    meaning:'จมูก',  emoji:'👃'},
+    {label:'Mouth', en:'Mouth', th:'เมาธ์',  meaning:'ปาก',   emoji:'👄'},
+    {label:'Hand',  en:'Hand',  th:'แฮนด์',  meaning:'มือ',   emoji:'✋'},
+    {label:'Foot',  en:'Foot',  th:'ฟุท',    meaning:'เท้า',  emoji:'🦶'},
+    {label:'Arm',   en:'Arm',   th:'อาร์ม',  meaning:'แขน',   emoji:'💪'},
+    {label:'Leg',   en:'Leg',   th:'เลก',    meaning:'ขา',    emoji:'🦵'},
+    {label:'Back',  en:'Back',  th:'แบก',    meaning:'หลัง'},
+  ],
+  shapes: [
+    {label:'Circle',    en:'Circle',    th:'เซอร์เคิล',  meaning:'วงกลม',           emoji:'🔵'},
+    {label:'Square',    en:'Square',    th:'สแควร์',     meaning:'สี่เหลี่ยมจัตุรัส', emoji:'🟦'},
+    {label:'Triangle',  en:'Triangle',  th:'ไทรแอนเกิล', meaning:'สามเหลี่ยม',       emoji:'🔺'},
+    {label:'Rectangle', en:'Rectangle', th:'เรกแทงเกิล', meaning:'สี่เหลี่ยมผืนผ้า',  emoji:'▭'},
+    {label:'Star',      en:'Star',      th:'สตาร์',      meaning:'ดาว',             emoji:'⭐'},
+    {label:'Heart',     en:'Heart',     th:'ฮาร์ท',      meaning:'หัวใจ',           emoji:'❤️'},
+    {label:'Oval',      en:'Oval',      th:'โอเวิล',     meaning:'วงรี',            emoji:'🥚'},
+    {label:'Diamond',   en:'Diamond',   th:'ไดมอนด์',    meaning:'ข้าวหลามตัด',      emoji:'🔷'},
+  ],
+  family: [
+    {label:'Father',      en:'Father',      th:'ฟาเธอร์',     meaning:'พ่อ',   emoji:'👨'},
+    {label:'Mother',      en:'Mother',      th:'มาเธอร์',     meaning:'แม่',   emoji:'👩'},
+    {label:'Brother',     en:'Brother',     th:'บราเธอร์',    meaning:'พี่ชาย', emoji:'👦'},
+    {label:'Sister',      en:'Sister',      th:'ซิสเทอร์',    meaning:'พี่สาว', emoji:'👧'},
+    {label:'Grandfather', en:'Grandfather', th:'แกรนฟาเธอร์', meaning:'ปู่',   emoji:'👴'},
+    {label:'Grandmother', en:'Grandmother', th:'แกรนมาเธอร์', meaning:'ย่า',   emoji:'👵'},
+    {label:'Uncle',       en:'Uncle',       th:'อังเกิล',     meaning:'ลุง',   emoji:'🧔'},
+    {label:'Aunt',        en:'Aunt',        th:'อาน์ท',       meaning:'ป้า',   emoji:'👩‍🦰'},
+  ],
+};
+
+// =====================================================================
+// DOM REFS
+// =====================================================================
+const hubView   = document.getElementById('hub-view');
+const topicView = document.getElementById('topic-view');
+const hubGrid   = document.getElementById('hub-grid');
+const wordEl    = document.getElementById('word');
+const gridEl    = document.getElementById('grid');
+const playEl    = document.getElementById('play');
+const tcard     = document.getElementById('tcard');
+const wfront    = document.getElementById('wfront');
+const wbackEn   = document.getElementById('wback-en');
+const wbackTh   = document.getElementById('wback-th');
+const barEl     = document.getElementById('bar');
+const dotsEl    = document.getElementById('dots');
+const speedDiv  = document.getElementById('speed');
+const scoreEl   = document.getElementById('score');
+const quizCtrl  = document.getElementById('quiz-ctrl');
+const btnReveal = document.getElementById('btn-reveal');
+const btnNext   = document.getElementById('btn-next');
+const btnHome   = document.getElementById('btn-home');
+const btnSay    = document.getElementById('btn-say');
+const btnSound  = document.getElementById('btn-sound');
+const toastEl   = document.getElementById('toast');
+const winEl     = document.getElementById('win');
+const cfx       = document.getElementById('cfx');
+const modeBtns  = {
+  auto:   document.getElementById('m-auto'),
+  flash:  document.getElementById('m-flash'),
+  choice: document.getElementById('m-choice'),
+  match:  document.getElementById('m-match'),
+  listen: document.getElementById('m-listen'),
+  spell:  document.getElementById('m-spell'),
+};
+
+// =====================================================================
+// STATE
+// =====================================================================
+let mode = 'auto';                       // auto | flash | choice | match | listen | spell
+let cellMs = 1500, curSlide = 0, curCell = 0, timer = null;
+let quizOrder = [], quizPos = 0, revealed = false;     // flash
+let currentSlug = '', allItems = [], slides = [], slideEls = [], dotElArr = [];
+let isColorTopic = false, ips = 10, curItem = null;
+let audioOn = true;
+// choice/listen
+let qOrder = [], qPos = 0, qLen = 0, score = 0, streak = 0, qLock = false;
+// match
+let mRounds = [], mRi = 0, mMatched = 0, mTotal = 0, mSel = {l:null,r:null}, mLock = false;
+// spell (สะกดคำ)
+let spOrder = [], spPos = 0, spStepTimer = null;
+
+// =====================================================================
+// AUDIO — TTS + WebAudio sfx
+// =====================================================================
+let enVoice = null;
+function loadVoices(){
+  const vs = (window.speechSynthesis ? speechSynthesis.getVoices() : []) || [];
+  enVoice = vs.find(v=>/en[-_]US/i.test(v.lang)) || vs.find(v=>/^en/i.test(v.lang)) || null;
+}
+if (window.speechSynthesis){ speechSynthesis.onvoiceschanged = loadVoices; loadVoices(); }
+function sayText(item){ return (item.en || item.label).replace(/\s*–\s*/g, ' for '); }
+function speak(item){
+  if (!audioOn || !window.speechSynthesis) return;
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(sayText(item));
+    u.lang = 'en-US'; if (enVoice) u.voice = enVoice; u.rate = 0.9;
+    speechSynthesis.speak(u);
+  } catch(_){}
+}
+// อ่านชื่อตัวอักษรทีละตัว — ไม่ cancel (queue ต่อกัน กันตัดเสียงตัวก่อนหน้า)
+function speakLetter(ch){
+  if(!audioOn || !window.speechSynthesis) return;
+  try {
+    const u = new SpeechSynthesisUtterance(ch);
+    u.lang='en-US'; if(enVoice) u.voice=enVoice; u.rate=0.8;
+    speechSynthesis.speak(u);
+  } catch(_){}
+}
+let actx = null;
+function ac(){ if(!actx){ try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(_){}} return actx; }
+function tone(freq, start, dur, type='sine', vol=0.16){
+  if(!audioOn) return;
+  const c = ac(); if(!c) return;
+  const o=c.createOscillator(), g=c.createGain();
+  o.type=type; o.frequency.value=freq; o.connect(g); g.connect(c.destination);
+  const t=c.currentTime+start;
+  g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(vol,t+0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.start(t); o.stop(t+dur+0.02);
+}
+function sCorrect(){ tone(660,0,0.12); tone(880,0.1,0.16); }
+function sWrong(){ tone(170,0,0.25,'square',0.13); }
+function sWin(){ [523,659,784,1047].forEach((f,i)=>tone(f,i*0.12,0.22,'triangle',0.15)); }
+
+// =====================================================================
+// HELPERS
+// =====================================================================
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+function cellFontSize(label){
+  const n=label.length;
+  if(n<=4) return '10vh';
+  if(n<=7) return '7.5vh';
+  if(n<=10) return '6vh';
+  return '4.8vh';
+}
+function bannerFontSize(text){
+  const n=text.length;
+  if(n<=7) return '14vh';
+  if(n<=11) return '10vh';
+  if(n<=14) return '8vh';
+  return '6.5vh';
+}
+function backEnFontSize(text){
+  const n=text.length;
+  if(n<=7) return '10vh';
+  if(n<=11) return '8vh';
+  if(n<=14) return '6.5vh';
+  return '5.5vh';
+}
+let toastTimer=null;
+function toast(ok,text){
+  clearTimeout(toastTimer);
+  toastEl.className=(ok?'ok':'bad')+' show';
+  toastEl.textContent=(ok?'✓ ':'✗ ')+text;
+  toastTimer=setTimeout(()=>toastEl.classList.remove('show'),900);
+}
+function confetti(){
+  const ctx=cfx.getContext('2d'); cfx.width=innerWidth; cfx.height=innerHeight; cfx.style.display='block';
+  const cols=['#FFD700','#FF6F61','#4FC3F7','#81C784','#BA68C8','#FFFFFF'], parts=[];
+  for(let i=0;i<140;i++) parts.push({x:innerWidth/2,y:innerHeight*0.35,vx:(Math.random()-0.5)*15,vy:Math.random()*-13-3,c:cols[i%cols.length],s:6+Math.random()*7,rot:Math.random()*6,vr:(Math.random()-0.5)*0.4});
+  let f=0;
+  (function step(){
+    f++; ctx.clearRect(0,0,cfx.width,cfx.height);
+    parts.forEach(p=>{ p.vy+=0.4; p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.fillStyle=p.c; ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s); ctx.restore(); });
+    if(f<95) requestAnimationFrame(step); else { ctx.clearRect(0,0,cfx.width,cfx.height); cfx.style.display='none'; }
+  })();
+}
+function showWin(emoji,text,scoreHtml,stars){
+  winEl.querySelector('.win-emoji').textContent=emoji;
+  winEl.querySelector('.win-text').textContent=text;
+  winEl.querySelector('.win-stars').textContent=stars||'';
+  winEl.querySelector('.win-score').innerHTML=scoreHtml||'';
+  winEl.classList.add('show');
+  sWin(); confetti();
+}
+
+// =====================================================================
+// HUB
+// =====================================================================
+function buildHub(){
+  hubGrid.innerHTML='';
+  TOPIC_META.forEach(meta=>{
+    const c=document.createElement('div');
+    c.className='hub-card';
+    c.innerHTML=
+      `<div class="hc-icon">${meta.icon}</div>`+
+      `<div class="hc-th">${meta.title}</div>`+
+      `<div class="hc-en">${meta.en}</div>`+
+      `<div class="hc-count">${meta.count} คำ</div>`;
+    c.addEventListener('click',()=>{ location.hash='#'+meta.slug; });
+    hubGrid.appendChild(c);
+  });
+}
+function showHub(){
+  clearInterval(timer);
+  clearTimeout(spStepTimer);
+  if(window.speechSynthesis) speechSynthesis.cancel();
+  currentSlug='';
+  hubView.style.display='';
+  topicView.classList.remove('show');
+  quizCtrl.classList.remove('show');
+  winEl.classList.remove('show');
+  barEl.style.width='0';
+  document.title='คำศัพท์ภาษาอังกฤษ';
+}
+
+// =====================================================================
+// TOPIC SETUP
+// =====================================================================
+function getIps(count){
+  if(count<=10) return count;
+  if(count<=12) return 6;
+  return 10;
+}
+function buildCell(item){
+  const el=document.createElement('div');
+  el.className='cell'+(isColorTopic?' color-cell':'');
+  if(isColorTopic&&item.bgColor){ el.style.background=item.bgColor; el.style.borderColor='rgba(255,255,255,0.28)'; }
+  if(item.emoji){ const em=document.createElement('span'); em.className='emoji'; em.textContent=item.emoji; el.appendChild(em); }
+  const lbl=document.createElement('span');
+  lbl.className='lbl'; lbl.textContent=item.label;
+  lbl.style.fontSize = item.emoji ? '3.4vh' : cellFontSize(item.label);
+  if(isColorTopic&&item.darkText) lbl.style.color='#1A237E';
+  el.appendChild(lbl); el._item=item;
+  return el;
+}
+function showTopic(slug){
+  const items=TOPICS[slug];
+  if(!items) return;
+  clearInterval(timer);
+  curSlide=0; curCell=0;
+  currentSlug=slug; allItems=items;
+  isColorTopic = slug==='colors';
+  ips=getIps(items.length);
+  slides=[];
+  for(let i=0;i<items.length;i+=ips) slides.push(items.slice(i,i+ips));
+  slideEls=slides.map(s=>s.map(buildCell));
+  dotsEl.innerHTML='';
+  slides.forEach(()=>{ const d=document.createElement('div'); d.className='dot'; dotsEl.appendChild(d); });
+  dotElArr=Array.from(dotsEl.querySelectorAll('.dot'));
+  const rows=Math.ceil(ips/2);
+  gridEl.style.gridTemplateRows=`repeat(${rows}, 1fr)`;
+  const meta=TOPIC_META.find(m=>m.slug===slug);
+  document.title=meta?meta.title:slug;
+  hubView.style.display='none';
+  topicView.classList.add('show');
+  // โหมดสะกดคำ — เฉพาะหมวดที่เป็นคำ (ยกเว้นตัวเลข/ตัวอักษร)
+  modeBtns.spell.style.display = (slug==='numbers'||slug==='alphabet') ? 'none' : '';
+  setMode('auto');
+}
+
+// =====================================================================
+// MODE SWITCH
+// =====================================================================
+function showBoards(on){ wordEl.style.display=on?'':'none'; gridEl.style.display=on?'':'none'; }
+function setScore(html){ scoreEl.innerHTML=html||''; }
+function setMode(m){
+  mode=m;
+  clearInterval(timer);
+  clearTimeout(spStepTimer);
+  if(window.speechSynthesis) speechSynthesis.cancel();
+  Object.keys(modeBtns).forEach(k=>modeBtns[k].classList.toggle('on',k===m));
+  quizCtrl.classList.remove('show');
+  winEl.classList.remove('show');
+  tcard.classList.remove('flipped');
+  playEl.classList.remove('show'); playEl.innerHTML='';
+  setScore('');
+  const board = (m==='auto'||m==='flash');
+  showBoards(board);
+  dotsEl.style.display = board ? '' : 'none';
+  btnSay.style.display = board ? '' : 'none';
+  speedDiv.style.display = (m==='auto' && slides.length>1) ? '' : 'none';
+  if(m==='auto'){ curCell=0; goTo(curSlide); }
+  else if(m==='flash'){ startFlash(); }
+  else if(m==='choice'){ startChoice(); }
+  else if(m==='match'){ startMatch(); }
+  else if(m==='listen'){ startListen(); }
+  else if(m==='spell'){ startSpell(); }
+}
+
+// =====================================================================
+// AUTO MODE
+// =====================================================================
+function renderSlide(sIdx){ gridEl.innerHTML=''; slideEls[sIdx].forEach(el=>gridEl.appendChild(el)); }
+function applyHl(sIdx,cIdx){ slideEls[sIdx].forEach((el,i)=>el.classList.toggle('hl',i===cIdx)); }
+function setBannerAuto(item){
+  tcard.classList.remove('flipped');
+  wfront.textContent=item.en;
+  wfront.style.fontSize=bannerFontSize(item.en);
+}
+function setHl(sIdx,cIdx){
+  applyHl(sIdx,cIdx);
+  curItem=slides[sIdx][cIdx];
+  setBannerAuto(curItem);
+  speak(curItem);
+  barEl.style.width=((cIdx+1)/ips*100)+'%';
+}
+function goTo(idx){
+  dotElArr[curSlide]?.classList.remove('active');
+  curSlide=((idx%slides.length)+slides.length)%slides.length;
+  curCell=0;
+  dotElArr[curSlide]?.classList.add('active');
+  renderSlide(curSlide);
+  setHl(curSlide,0);
+  startTimer();
+}
+function startTimer(){
+  clearInterval(timer);
+  if(mode!=='auto') return;
+  timer=setInterval(()=>{
+    curCell++;
+    if(curCell>=slides[curSlide].length){ goTo(curSlide+1); return; }
+    setHl(curSlide,curCell);
+  }, cellMs);
+}
+
+// =====================================================================
+// FLASH MODE (สุ่ม) — card flip reveal
+// =====================================================================
+function setBannerQuiz(item){
+  tcard.classList.remove('flipped');
+  wfront.textContent='?'; wfront.style.fontSize='14vh';
+  wbackEn.textContent=item.en; wbackEn.style.fontSize=backEnFontSize(item.en);
+  wbackTh.textContent='('+item.th+')';
+  revealed=false; btnReveal.style.display=''; btnNext.classList.remove('show');
+  quizCtrl.classList.add('show');
+}
+function setQuizNumber(absIdx){
+  const sIdx=Math.floor(absIdx/ips), cIdx=absIdx%ips;
+  if(sIdx!==curSlide){ dotElArr[curSlide]?.classList.remove('active'); curSlide=sIdx; dotElArr[curSlide]?.classList.add('active'); }
+  renderSlide(curSlide);
+  applyHl(curSlide,cIdx);
+  curItem=slides[curSlide][cIdx];
+  setBannerQuiz(curItem);
+  barEl.style.width=((quizPos+1)/allItems.length*100)+'%';
+}
+function startFlash(){
+  quizOrder=shuffle([...Array(allItems.length).keys()]); quizPos=0;
+  setQuizNumber(quizOrder[0]);
+}
+
+// =====================================================================
+// CHOICE + LISTEN MODES (multiple choice w/ score)
+// =====================================================================
+function startQuizGame(){
+  qOrder=shuffle([...Array(allItems.length).keys()]);
+  qLen=Math.min(allItems.length,15);
+  qOrder=qOrder.slice(0,qLen);
+  qPos=0; score=0; streak=0; qLock=false;
+  playEl.classList.add('show');
+  renderQuestion();
+}
+const startChoice = startQuizGame;
+const startListen = startQuizGame;
+function glyph(item){ return item.emoji ? `<span class="opt-emoji">${item.emoji}</span>` : item.label; }
+function renderQuestion(){
+  if(qPos>=qLen){
+    const pct=Math.round(score/qLen*100);
+    const stars = pct>=90?'⭐⭐⭐':pct>=60?'⭐⭐':'⭐';
+    showWin(pct>=80?'🏆':'👍','เล่นจบแล้ว!',`ตอบถูก <b>${score}</b>/${qLen} (${pct}%)`,stars);
+    return;
+  }
+  qLock=false;
+  const target=allItems[qOrder[qPos]];
+  curItem=target;
+  setScore(`ข้อ <b>${qPos+1}</b>/${qLen} · ถูก <b>${score}</b> · สตรีค ${streak}🔥`);
+  // build 4 options
+  const others=shuffle(allItems.filter(x=>x!==target)).slice(0,3);
+  const opts=shuffle([target,...others]);
+  const isListen = mode==='listen';
+  let promptHtml;
+  if(isListen){
+    promptHtml=`<button class="q-listen" id="q-play">🔊</button>`;
+  } else {
+    promptHtml=`<div class="q-prompt">`+
+      (target.emoji?`<span class="qp-emoji">${target.emoji}</span>`:'')+
+      `<span class="qp-label">${target.label}</span></div>`;
+  }
+  playEl.innerHTML=
+    `<div class="play-wrap">`+
+      promptHtml+
+      `<div class="q-options" id="q-opts"></div>`+
+    `</div>`;
+  const optWrap=document.getElementById('q-opts');
+  opts.forEach(it=>{
+    const b=document.createElement('div');
+    b.className='opt';
+    b.innerHTML = isListen ? glyph(it) : it.en;
+    b.addEventListener('click',()=>pickQuiz(it,target,b));
+    optWrap.appendChild(b);
+  });
+  if(isListen){
+    const pb=document.getElementById('q-play');
+    pb.addEventListener('click',()=>speak(target));
+    speak(target);
+  } else {
+    speak(target);
+  }
+}
+function pickQuiz(choice,target,btn){
+  if(qLock) return; qLock=true;
+  if(choice===target){
+    score++; streak++; btn.classList.add('ok'); toast(true,'ถูกต้อง!'); sCorrect(); speak(target);
+  } else {
+    streak=0; btn.classList.add('bad'); sWrong();
+    toast(false, mode==='listen' ? ('คำตอบคือ '+target.label) : ('คำตอบคือ '+target.en));
+    [...document.querySelectorAll('.opt')].forEach(o=>{
+      const ok = mode==='listen' ? (o.innerHTML===glyph(target)) : (o.textContent===target.en);
+      if(ok) o.classList.add('ok');
+    });
+  }
+  setScore(`ข้อ <b>${qPos+1}</b>/${qLen} · ถูก <b>${score}</b> · สตรีค ${streak}🔥`);
+  setTimeout(()=>{ qPos++; renderQuestion(); }, choice===target?700:1250);
+}
+
+// =====================================================================
+// MATCH MODE
+// =====================================================================
+function chunkEven(arr,maxPer){
+  const n=Math.max(1,Math.ceil(arr.length/maxPer)), size=Math.ceil(arr.length/n), out=[];
+  for(let i=0;i<arr.length;i+=size) out.push(arr.slice(i,i+size));
+  return out;
+}
+function startMatch(){
+  const picks=shuffle(allItems).slice(0, Math.min(allItems.length,12));
+  mRounds=chunkEven(picks,6); mRi=0; mMatched=0; mTotal=picks.length; mLock=false;
+  playEl.classList.add('show');
+  renderMatchRound();
+}
+function matchCardInner(item, side){
+  if(side==='l'){ return item.emoji ? `<span class="mc-emoji">${item.emoji}</span><span>${item.label}</span>` : item.label; }
+  return item.th;
+}
+function renderMatchRound(){
+  const round=mRounds[mRi];
+  mSel={l:null,r:null};
+  const lefts=round.map((it,i)=>({it,i}));
+  const rights=shuffle(round.map((it,i)=>({it,i})));
+  setScore(`จับคู่ <b>${mMatched}</b>/${mTotal} · รอบ ${mRi+1}/${mRounds.length}`);
+  playEl.innerHTML=`<div class="match-cols"><div class="mcol" id="mc-l"></div><div class="mcol" id="mc-r"></div></div>`;
+  const colL=document.getElementById('mc-l'), colR=document.getElementById('mc-r');
+  lefts.forEach(({it,i})=>{
+    const el=document.createElement('div'); el.className='mcard'; el.dataset.pid=i; el.dataset.side='l';
+    if(isColorTopic&&it.bgColor){ el.style.background=it.bgColor; }
+    el.innerHTML=matchCardInner(it,'l');
+    el.addEventListener('click',()=>pickMatch(el)); colL.appendChild(el);
+  });
+  rights.forEach(({it,i})=>{
+    const el=document.createElement('div'); el.className='mcard'; el.dataset.pid=i; el.dataset.side='r';
+    el.innerHTML=matchCardInner(it,'r');
+    el.addEventListener('click',()=>pickMatch(el)); colR.appendChild(el);
+  });
+}
+function pickMatch(el){
+  if(mLock||el.classList.contains('matched')) return;
+  const side=el.dataset.side, pid=+el.dataset.pid, cur=mSel[side];
+  if(cur&&cur.el===el){ el.classList.remove('sel'); mSel[side]=null; return; }
+  if(cur) cur.el.classList.remove('sel');
+  el.classList.add('sel'); mSel[side]={pid,el};
+  if(mSel.l&&mSel.r){
+    const L=mSel.l, R=mSel.r;
+    if(L.pid===R.pid){
+      L.el.classList.remove('sel'); R.el.classList.remove('sel');
+      L.el.classList.add('matched'); R.el.classList.add('matched');
+      mSel={l:null,r:null}; mMatched++;
+      setScore(`จับคู่ <b>${mMatched}</b>/${mTotal} · รอบ ${mRi+1}/${mRounds.length}`);
+      sCorrect();
+      if([...playEl.querySelectorAll('.mcard.matched')].length === mRounds[mRi].length*2){
+        if(mRi<mRounds.length-1){ mLock=true; toast(true,'รอบนี้ผ่าน!'); setTimeout(()=>{ mRi++; mLock=false; renderMatchRound(); },900); }
+        else showWin('🎉','จับคู่ครบแล้ว!',`ครบทั้ง <b>${mTotal}</b> คู่`,'⭐⭐⭐');
+      }
+    } else {
+      mLock=true; L.el.classList.add('wrong'); R.el.classList.add('wrong');
+      L.el.classList.remove('sel'); R.el.classList.remove('sel'); sWrong();
+      setTimeout(()=>{ L.el.classList.remove('wrong'); R.el.classList.remove('wrong'); mSel={l:null,r:null}; mLock=false; },500);
+    }
+  }
+}
+
+// =====================================================================
+// SPELL MODE (สะกดคำ) — สาธิตอัตโนมัติ: สะกดทีละตัว → อ่าน + แปล → คำถัดไป
+// =====================================================================
+function startSpell(){
+  spOrder = shuffle([...Array(allItems.length).keys()]);
+  spPos = 0;
+  playEl.classList.add('show');
+  renderSpell();
+}
+function spellNext(){ clearTimeout(spStepTimer); spPos++; renderSpell(); }
+function renderSpell(){
+  clearTimeout(spStepTimer);
+  if(window.speechSynthesis) speechSynthesis.cancel();
+  if(spPos>=spOrder.length) spPos=0;                 // วน loop
+  const item = allItems[spOrder[spPos]];
+  curItem = item;
+  const word = item.en || item.label;
+  const letters = [...word];
+  barEl.style.width = ((spPos+1)/spOrder.length*100)+'%';
+
+  let visual='';
+  if(item.bgColor) visual = `<span class="sp-swatch" style="background:${item.bgColor}"></span>`;
+  else if(item.emoji) visual = `<span class="sp-emoji">${item.emoji}</span>`;
+
+  const lettersHtml = letters.map((ch,i)=>`<span class="sp-letter" data-i="${i}">${ch}</span>`).join('');
+  playEl.innerHTML =
+    `<div class="spell-wrap">`+
+      `<div class="sp-visual">${visual}</div>`+
+      `<div class="sp-letters">${lettersHtml}</div>`+
+      `<div class="sp-read" id="sp-read">อ่านว่า <b>${item.th}</b></div>`+
+      (item.meaning ? `<div class="sp-mean" id="sp-mean">แปลว่า <b>${item.meaning}</b></div>` : '')+
+    `</div>`;
+  playEl.querySelector('.spell-wrap').addEventListener('click', spellNext);
+
+  const boxes = [...playEl.querySelectorAll('.sp-letter')];
+  let i = 0;
+  function step(){
+    if(i>0){ boxes[i-1].classList.remove('on'); boxes[i-1].classList.add('done'); }
+    if(i<boxes.length){
+      boxes[i].classList.add('on');
+      speakLetter(letters[i].toUpperCase());
+      i++;
+      spStepTimer = setTimeout(step, 760);
+    } else {
+      speak(item);                                   // อ่านคำเต็ม
+      document.getElementById('sp-read')?.classList.add('show');
+      document.getElementById('sp-mean')?.classList.add('show');
+      spStepTimer = setTimeout(()=>{ spPos++; renderSpell(); }, 2600);
+    }
+  }
+  spStepTimer = setTimeout(step, 450);
+}
+
+// =====================================================================
+// BUTTONS
+// =====================================================================
+btnReveal.addEventListener('click',e=>{
+  e.stopPropagation();
+  if(revealed) return;
+  revealed=true; tcard.classList.add('flipped');
+  btnReveal.style.display='none'; btnNext.classList.add('show');
+  if(curItem) speak(curItem);
+});
+btnNext.addEventListener('click',e=>{
+  e.stopPropagation();
+  quizPos++;
+  if(quizPos>=quizOrder.length){ quizOrder=shuffle([...Array(allItems.length).keys()]); quizPos=0; }
+  setQuizNumber(quizOrder[quizPos]);
+});
+Object.keys(modeBtns).forEach(k=>{
+  modeBtns[k].addEventListener('click',e=>{ e.stopPropagation(); if(mode!==k) setMode(k); });
+});
+btnHome.addEventListener('click',e=>{ e.stopPropagation(); location.hash=''; showHub(); });
+btnSay.addEventListener('click',e=>{ e.stopPropagation(); if(curItem) speak(curItem); });
+btnSound.addEventListener('click',e=>{
+  e.stopPropagation();
+  audioOn=!audioOn;
+  btnSound.textContent = audioOn ? '🔊 เสียง' : '🔇 ปิดเสียง';
+  btnSound.classList.toggle('on',audioOn);
+  if(!audioOn && window.speechSynthesis) speechSynthesis.cancel();
+});
+document.querySelectorAll('.spd').forEach(btn=>{
+  btn.addEventListener('click',e=>{
+    e.stopPropagation();
+    document.querySelectorAll('.spd').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on'); cellMs=+btn.dataset.ms;
+    if(mode==='auto') startTimer();
+  });
+});
+topicView.addEventListener('click',e=>{
+  if(e.target.closest('#bottom')||e.target.closest('#play')||e.target.closest('#word')) return;
+  if(mode==='auto') goTo(curSlide+1);
+});
+document.getElementById('win-again').addEventListener('click',()=>{ winEl.classList.remove('show'); setMode(mode); });
+document.getElementById('win-home').addEventListener('click',()=>{ location.hash=''; showHub(); });
+
+// =====================================================================
+// KEYBOARD
+// =====================================================================
+document.addEventListener('keydown',e=>{
+  if(e.key==='f'||e.key==='F'){
+    if(!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen();
+    return;
+  }
+  if(!currentSlug) return;
+  if(e.key==='Escape'){ location.hash=''; showHub(); return; }
+  if(mode==='auto'){
+    if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){ e.preventDefault(); goTo(curSlide+1); }
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); goTo(curSlide-1); }
+  } else if(mode==='flash'){
+    if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){ e.preventDefault(); if(!revealed) btnReveal.click(); else btnNext.click(); }
+  } else if(mode==='choice'||mode==='listen'){
+    if(/^[1-4]$/.test(e.key)){ const o=document.querySelectorAll('.opt')[+e.key-1]; if(o) o.click(); }
+  } else if(mode==='spell'){
+    if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){ e.preventDefault(); spellNext(); }
+  }
+});
+
+// =====================================================================
+// HASH ROUTING + INIT
+// =====================================================================
+function route(){
+  const h=(location.hash||'').replace('#','');
+  if(!h||h==='home'){ showHub(); return; }
+  if(TOPICS[h]){ showTopic(h); return; }
+  showHub();
+}
+window.addEventListener('hashchange',route);
+buildHub();
+route();
+</script>
+</body>
+</html>
