@@ -1,10 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap');
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
   height: 100%;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'Sarabun', sans-serif;
   background: linear-gradient(135deg, #1e3a8a 0%, #0d1b2a 100%);
   color: #f8fafc;
   overflow: hidden;
