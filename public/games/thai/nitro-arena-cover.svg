@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a"/>
+      <stop offset="50%" style="stop-color:#1e293b"/>
+      <stop offset="100%" style="stop-color:#0f172a"/>
+    </linearGradient>
+    <linearGradient id="glow1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#34d399;stop-opacity:0.6"/>
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="glow2" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#a855f7;stop-opacity:0.5"/>
+      <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="zapGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#facc15"/>
+      <stop offset="100%" style="stop-color:#f59e0b"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glowBig" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="20" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1280" height="720" fill="url(#bg)"/>
+
+  <!-- Grid pattern -->
+  <g opacity="0.06">
+    <pattern id="gridPat" width="40" height="40" patternUnits="userSpaceOnUse">
+      <rect width="40" height="40" fill="none" stroke="#94a3b8" stroke-width="0.5"/>
+    </pattern>
+    <rect width="1280" height="720" fill="url(#gridPat)"/>
+  </g>
+
+  <!-- Glow orbs -->
+  <circle cx="300" cy="360" r="300" fill="url(#glow1)"/>
+  <circle cx="980" cy="360" r="280" fill="url(#glow2)"/>
+
+  <!-- Snake P1 (green) -->
+  <g filter="url(#glow)">
+    <rect x="180" y="340" width="36" height="36" rx="10" fill="#059669" stroke="#34d399" stroke-width="3"/>
+    <circle cx="192" cy="356" r="4" fill="white"/>
+    <circle cx="204" cy="356" r="4" fill="white"/>
+    <rect x="220" y="342" width="32" height="32" rx="8" fill="#10b981" opacity="0.9"/>
+    <rect x="256" y="344" width="32" height="32" rx="8" fill="#10b981" opacity="0.8"/>
+    <rect x="292" y="346" width="32" height="32" rx="8" fill="#10b981" opacity="0.7"/>
+    <rect x="328" y="348" width="32" height="32" rx="8" fill="#10b981" opacity="0.6"/>
+    <rect x="364" y="350" width="32" height="32" rx="8" fill="#10b981" opacity="0.5"/>
+  </g>
+
+  <!-- Snake P2 (purple) -->
+  <g filter="url(#glow)">
+    <rect x="1060" y="340" width="36" height="36" rx="10" fill="#9333ea" stroke="#c084fc" stroke-width="3"/>
+    <circle cx="1072" cy="356" r="4" fill="white"/>
+    <circle cx="1084" cy="356" r="4" fill="white"/>
+    <rect x="1020" y="342" width="32" height="32" rx="8" fill="#a855f7" opacity="0.9"/>
+    <rect x="984" y="344" width="32" height="32" rx="8" fill="#a855f7" opacity="0.8"/>
+    <rect x="948" y="346" width="32" height="32" rx="8" fill="#a855f7" opacity="0.7"/>
+    <rect x="912" y="348" width="32" height="32" rx="8" fill="#a855f7" opacity="0.6"/>
+    <rect x="876" y="350" width="32" height="32" rx="8" fill="#a855f7" opacity="0.5"/>
+  </g>
+
+  <!-- Lightning bolt center -->
+  <g filter="url(#glowBig)" transform="translate(610, 280)">
+    <polygon points="30,0 0,40 22,40 18,70 60,25 35,25 40,0" fill="url(#zapGrad)" stroke="#fef08a" stroke-width="2"/>
+  </g>
+
+  <!-- Word bubbles -->
+  <g font-family="'Noto Sans Thai', sans-serif" font-weight="900" font-size="18">
+    <rect x="420" y="180" width="80" height="44" rx="12" fill="#34d399"/>
+    <text x="460" y="208" fill="white" text-anchor="middle">ช้าง</text>
+
+    <rect x="780" y="180" width="80" height="44" rx="12" fill="#60a5fa"/>
+    <text x="820" y="208" fill="white" text-anchor="middle">บ้าน</text>
+
+    <rect x="440" y="480" width="80" height="44" rx="12" fill="#fbbf24"/>
+    <text x="480" y="508" fill="white" text-anchor="middle">กลม</text>
+
+    <rect x="760" y="480" width="80" height="44" rx="12" fill="#fb7185"/>
+    <text x="800" y="508" fill="white" text-anchor="middle">ตำรวจ</text>
+
+    <rect x="540" y="260" width="80" height="44" rx="12" fill="#818cf8"/>
+    <text x="580" y="288" fill="white" text-anchor="middle">สุข</text>
+
+    <rect x="660" y="420" width="80" height="44" rx="12" fill="#e879f9"/>
+    <text x="700" y="448" fill="white" text-anchor="middle">รูป</text>
+  </g>
+
+  <!-- Title -->
+  <g font-family="Inter, sans-serif">
+    <text x="640" y="620" fill="white" font-size="64" font-weight="900" text-anchor="middle"
+          font-style="italic" letter-spacing="-3" opacity="0.95">NITRO ARENA</text>
+    <text x="640" y="660" fill="#94a3b8" font-size="18" font-weight="700" text-anchor="middle"
+          letter-spacing="4" text-transform="uppercase" font-family="'Noto Sans Thai', sans-serif">งูล่ามาตราตัวสะกด</text>
+  </g>
+
+  <!-- VS badge -->
+  <g transform="translate(600, 320)">
+    <circle cx="40" cy="30" r="32" fill="#0f172a" stroke="#facc15" stroke-width="3"/>
+    <text x="40" y="39" fill="#facc15" font-size="28" font-weight="900" text-anchor="middle" font-family="Inter, sans-serif">VS</text>
+  </g>
+
+  <!-- Player labels -->
+  <g font-family="Inter, sans-serif" font-weight="900" font-size="14" letter-spacing="2">
+    <rect x="155" y="390" width="100" height="28" rx="8" fill="#059669"/>
+    <text x="205" y="409" fill="white" text-anchor="middle">PLAYER 1</text>
+    <rect x="1035" y="390" width="80" height="28" rx="8" fill="#9333ea"/>
+    <text x="1075" y="409" fill="white" text-anchor="middle">AI / P2</text>
+  </g>
+</svg>

@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <script src="/games/kampai-sdk.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nitro Arena – งูล่ามาตราตัวสะกด</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;700;900&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --emerald-400: #34d399; --emerald-500: #10b981; --emerald-600: #059669; --emerald-800: #065f46;
+            --purple-400: #c084fc; --purple-500: #a855f7; --purple-600: #9333ea;
+            --yellow-400: #facc15; --yellow-600: #ca8a04;
+            --red-500: #ef4444; --red-600: #dc2626;
+            --slate-50: #f8fafc; --slate-100: #f1f5f9; --slate-200: #e2e8f0;
+            --slate-400: #94a3b8; --slate-500: #64748b; --slate-700: #334155;
+            --slate-800: #1e293b; --slate-900: #0f172a; --slate-950: #020617;
+            --white: #ffffff;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'Noto Sans Thai', sans-serif;
+            background: var(--slate-200);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; padding: 16px; overflow: hidden;
+            user-select: none; -webkit-user-select: none;
+        }
+
+        /* ===== Main Container ===== */
+        #app {
+            width: 100%; max-width: 1152px; height: 92vh;
+            background: var(--white); border-radius: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,.25);
+            display: flex; flex-direction: column; overflow: hidden;
+            position: relative; border: 8px solid var(--slate-900);
+            transition: transform 75ms;
+        }
+        #app.shake { transform: translateX(4px); }
+
+        /* ===== Header HUD ===== */
+        .hud {
+            background: var(--slate-900); color: var(--white);
+            padding: 14px 24px; display: flex; justify-content: space-between;
+            align-items: center; border-bottom: 2px solid var(--slate-700);
+            z-index: 50; flex-shrink: 0;
+        }
+        .hud-left { display: flex; gap: 48px; }
+        .player-col { min-width: 140px; }
+        .player-col .label { font-size: 10px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: .1em; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+        .player-col .label.p1 { color: var(--emerald-400); }
+        .player-col .label.p2 { color: var(--purple-400); }
+        .hearts { display: flex; gap: 3px; margin-bottom: 6px; }
+        .heart { width: 14px; height: 14px; }
+        .heart-full-p1 { color: var(--emerald-500); }
+        .heart-full-p2 { color: var(--purple-500); }
+        .heart-empty { color: var(--slate-700); }
+        .pts { font-size: 1.5rem; font-weight: 900; }
+        .pts small { font-size: 10px; opacity: .4; }
+
+        .hud-center { display: flex; align-items: center; gap: 8px;
+            background: var(--slate-800); padding: 8px 16px; border-radius: 1rem;
+            border: 1px solid var(--slate-700); }
+        .hud-center .clock-icon { width: 18px; height: 18px; }
+        .hud-center .time { font-size: 1.25rem; font-weight: 900; }
+        .hud-center .time.danger { color: var(--red-500); animation: pulse-text 1s infinite; }
+
+        .hud-right { text-align: right; border-left: 1px solid var(--slate-700);
+            padding-left: 24px; font-size: 10px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: .05em; color: var(--slate-500); }
+        .hud-right .refresh-line { color: #fb923c; font-weight: 900; display: flex; align-items: center; gap: 4px; justify-content: flex-end; }
+        .hud-right .zap-line { color: var(--yellow-400); font-style: italic; opacity: .5; font-size: 9px; display: flex; align-items: center; gap: 4px; justify-content: flex-end; margin-top: 2px; }
+
+        /* ===== Target Bar ===== */
+        .target-bar {
+            background: var(--slate-100); padding: 14px 0; display: flex;
+            justify-content: center; border-bottom: 1px solid var(--slate-200);
+            z-index: 50; flex-shrink: 0;
+        }
+        .target-bar-inner { display: flex; align-items: center; gap: 20px; }
+        .target-bar .target-label { font-size: 14px; font-weight: 900; color: var(--slate-500);
+            text-transform: uppercase; letter-spacing: .1em; }
+        .target-pill {
+            padding: 10px 48px; border-radius: 1rem; display: flex; align-items: center; gap: 16px;
+            background: var(--slate-800); border: 4px solid var(--white);
+            box-shadow: 0 0 0 8px var(--slate-100), 0 20px 25px -5px rgba(0,0,0,.1);
+        }
+        .target-pill .target-icon { color: var(--emerald-400); animation: pulse-text 2s infinite; width: 28px; height: 28px; }
+        .target-pill .target-name { font-size: 1.75rem; font-weight: 900; color: var(--white);
+            text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,.3); }
+
+        /* ===== Game Board ===== */
+        .board-wrap {
+            flex: 1; position: relative; margin: 8px;
+            background: var(--white); border-radius: 2rem;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,.06);
+            overflow: hidden; border: 4px solid var(--slate-800);
+        }
+        .board-grid {
+            position: absolute; inset: 0; opacity: .04; pointer-events: none;
+            display: grid; grid-template-columns: repeat(32, 1fr); grid-template-rows: repeat(32, 1fr);
+        }
+        .board-grid .cell { border: 1px solid var(--slate-900); }
+
+        /* ===== Game Entities ===== */
+        .entity {
+            position: absolute; transition: left 150ms linear, top 150ms linear;
+            z-index: 20;
+        }
+        .snake-seg {
+            border-radius: 6px; transform: scale(.95);
+        }
+        .snake-head {
+            z-index: 30; border-radius: 10px; transform: scale(1.25);
+            box-shadow: 0 0 15px rgba(0,0,0,.2);
+        }
+        .snake-head-p1 { background: var(--emerald-600); box-shadow: 0 0 20px rgba(16,185,129,.5); outline: 2px solid var(--emerald-400); }
+        .snake-head-p2 { background: var(--purple-600); box-shadow: 0 0 15px rgba(168,85,247,.4); outline: 2px solid var(--purple-400); }
+        .snake-body-p1 { background: var(--emerald-500); }
+        .snake-body-p2 { background: var(--purple-500); }
+        .snake-ghost { opacity: .4; animation: pulse-text 1s infinite; }
+        .snake-stun { position: relative; }
+        .snake-stun::after {
+            content: attr(data-stun); position: absolute; inset: 0;
+            background: rgba(250,204,21,.4); border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; font-weight: 900; color: var(--white);
+            text-shadow: 0 1px 2px rgba(0,0,0,.5); animation: pulse-text 1s infinite;
+        }
+        .head-eyes {
+            width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; gap: 2px;
+        }
+        .eye { width: 5px; height: 5px; background: var(--white); border-radius: 50%; }
+        .eye-small { width: 4px; height: 4px; }
+        .head-label {
+            position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+            font-size: 8px; font-weight: 900; padding: 2px 6px; border-radius: 4px;
+            white-space: nowrap; z-index: 50; border: 1px solid var(--white);
+            box-shadow: 0 2px 4px rgba(0,0,0,.2);
+        }
+        .head-label-p1 { background: var(--emerald-600); color: var(--white); }
+        .head-label-p2 { background: var(--purple-600); color: var(--white); }
+
+        /* Lightning */
+        .lightning-item {
+            z-index: 40; transition: all 300ms;
+        }
+        .lightning-inner {
+            width: 100%; height: 100%; background: var(--yellow-400);
+            border-radius: 8px; border: 2px solid var(--white);
+            box-shadow: 0 0 15px rgba(250,204,21,.8);
+            display: flex; align-items: center; justify-content: center;
+            animation: pulse-text 1s infinite; transform: scale(1.25);
+        }
+        .lightning-timer {
+            position: absolute; bottom: -14px; left: 50%; transform: translateX(-50%);
+            font-size: 8px; font-weight: 900; color: var(--yellow-600);
+            background: rgba(255,255,255,.8); padding: 0 4px; border-radius: 4px;
+        }
+
+        /* Bird */
+        .bird-entity {
+            z-index: 40;
+        }
+        .bird-inner {
+            width: 100%; height: 100%; background: var(--red-600);
+            border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,.2); border: 2px solid var(--white);
+            animation: bounce-anim 1s infinite;
+        }
+
+        /* Words */
+        .word-item {
+            z-index: 10; border-radius: 10px; font-weight: 900;
+            box-shadow: 0 4px 0 rgba(0,0,0,.2); border: 2px solid var(--white);
+            display: flex; align-items: center; justify-content: center;
+            text-align: center; padding: 2px; overflow: hidden;
+            color: var(--white); outline: 1px solid rgba(0,0,0,.1);
+            transition: transform 150ms;
+        }
+        .word-item:hover { transform: scale(1.05); }
+        .word-text { filter: drop-shadow(0 1px 1px rgba(0,0,0,.2)); }
+
+        /* Word color gradients */
+        .wc-0 { background: linear-gradient(to bottom, #34d399, #059669); }
+        .wc-1 { background: linear-gradient(to bottom, #fb7185, #e11d48); }
+        .wc-2 { background: linear-gradient(to bottom, #60a5fa, #2563eb); }
+        .wc-3 { background: linear-gradient(to bottom, #fbbf24, #d97706); }
+        .wc-4 { background: linear-gradient(to bottom, #818cf8, #4f46e5); }
+        .wc-5 { background: linear-gradient(to bottom, #22d3ee, #0891b2); }
+        .wc-6 { background: linear-gradient(to bottom, #e879f9, #c026d3); }
+        .wc-7 { background: linear-gradient(to bottom, #94a3b8, #475569); }
+
+        /* Respawn indicator */
+        .respawn-indicator {
+            position: absolute; z-index: 50; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; font-weight: 900;
+            animation: ping-anim 1s infinite;
+        }
+        .respawn-indicator.p1 { color: var(--emerald-500); left: 25%; top: 50%; transform: translate(-50%,-50%); }
+        .respawn-indicator.p2 { color: var(--purple-400); left: 75%; top: 50%; transform: translate(-50%,-50%); }
+        .respawn-indicator .spin-icon { animation: spin-anim 1s linear infinite; }
+        .respawn-indicator .count { font-size: 1.25rem; }
+
+        /* ===== MENU SCREEN ===== */
+        .screen { position: absolute; inset: 0; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; padding: 32px; text-align: center; }
+        .screen-menu { background: var(--slate-50); gap: 48px; }
+        .menu-logo {
+            width: 176px; height: 176px; background: var(--slate-900);
+            border-radius: 4rem; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,.25);
+            border: 4px solid var(--emerald-500); animation: pulse-text 2s infinite;
+            position: relative;
+        }
+        .menu-logo .zap-badge {
+            position: absolute; top: -16px; right: -32px;
+            background: var(--yellow-400); color: var(--slate-900);
+            font-size: 13px; font-weight: 900; padding: 8px 24px;
+            border-radius: 9999px; text-transform: uppercase;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,.1);
+            transform: rotate(12deg); border: 4px solid var(--white);
+            letter-spacing: .1em; z-index: 20; animation: bounce-anim 2s infinite;
+        }
+        .menu-title { font-size: 3.5rem; font-weight: 900; line-height: 1;
+            letter-spacing: -.05em; text-transform: uppercase; font-style: italic;
+            color: var(--slate-900); }
+        .menu-desc { color: var(--slate-500); font-weight: 700; text-transform: uppercase;
+            letter-spacing: .1em; font-size: 13px; line-height: 1.8; }
+        .menu-buttons { display: flex; gap: 24px; width: 100%; max-width: 640px; }
+        .btn-mode {
+            flex: 1; padding: 32px 16px; background: var(--slate-900); color: var(--white);
+            border-radius: 2.5rem; font-weight: 900; font-size: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,.1);
+            border: none; border-bottom: 8px solid var(--slate-950);
+            cursor: pointer; display: flex; flex-direction: column;
+            align-items: center; gap: 8px; transition: all 200ms;
+            font-family: inherit;
+        }
+        .btn-mode:hover { transform: translateY(-2px); }
+        .btn-mode.single:hover { background: var(--emerald-600); }
+        .btn-mode.duo:hover { background: var(--purple-600); }
+        .btn-mode .mode-icon { transition: transform 200ms; }
+        .btn-mode:hover .mode-icon { transform: scale(1.1); }
+
+        /* ===== NAME ENTRY ===== */
+        .screen-name { background: var(--slate-50); gap: 40px; }
+        .name-title { font-size: 2.5rem; font-weight: 900; color: var(--slate-900);
+            text-transform: uppercase; font-style: italic; letter-spacing: -.05em; }
+        .name-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px;
+            width: 100%; max-width: 800px; }
+        .name-card {
+            padding: 40px; border-radius: 3rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,.1);
+            background: var(--white); display: flex; flex-direction: column; gap: 16px;
+        }
+        .name-card.p1 { border: 4px solid var(--emerald-400); }
+        .name-card.p2 { border: 4px solid var(--purple-400); }
+        .name-card.disabled { border-color: var(--slate-200); opacity: .5; }
+        .name-card .card-label { font-weight: 900; text-transform: uppercase;
+            letter-spacing: .1em; text-align: center; font-size: 13px; }
+        .name-card .card-label.p1 { color: var(--emerald-500); }
+        .name-card .card-label.p2 { color: var(--purple-500); }
+        .name-input {
+            width: 100%; text-align: center; font-size: 1.75rem; font-weight: 900;
+            padding: 16px; border: none; border-bottom: 4px solid var(--slate-100);
+            outline: none; color: var(--slate-900); background: var(--slate-50);
+            border-radius: 12px; font-family: inherit;
+        }
+        .name-input:focus { border-bottom-color: var(--emerald-400); }
+        .name-input.p2:focus { border-bottom-color: var(--purple-400); }
+        .btn-start {
+            width: 100%; max-width: 400px; padding: 32px; background: var(--slate-900);
+            color: var(--white); border-radius: 2.5rem; font-weight: 900;
+            font-size: 2rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,.25);
+            border: none; border-bottom: 8px solid var(--slate-950);
+            cursor: pointer; transition: all 200ms; font-family: inherit;
+        }
+        .btn-start:hover { background: var(--slate-800); transform: translateY(-2px); }
+
+        /* ===== GAME OVER ===== */
+        .screen-over { background: rgba(255,255,255,.95); backdrop-filter: blur(20px); gap: 24px; }
+        .over-icon {
+            width: 128px; height: 128px; background: var(--slate-900);
+            border-radius: 3rem; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,.25);
+            border: 4px solid var(--slate-200); margin-bottom: 8px;
+        }
+        .over-title { font-size: 3.5rem; font-weight: 900; color: var(--slate-900);
+            text-transform: uppercase; font-style: italic; letter-spacing: -.05em; }
+        .over-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px;
+            width: 100%; max-width: 700px; margin-bottom: 16px; }
+        .over-card {
+            padding: 40px; border-radius: 3rem; display: flex; flex-direction: column;
+            align-items: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,.1);
+        }
+        .over-card.winner { transform: scale(1.05); }
+        .over-card.winner.p1 { background: #ecfdf5; border: 4px solid var(--emerald-400); }
+        .over-card.winner.p2 { background: #faf5ff; border: 4px solid var(--purple-400); }
+        .over-card.loser { background: var(--slate-50); border: 4px solid var(--slate-200); opacity: .6; }
+        .over-card .oc-name { font-weight: 900; text-transform: uppercase; font-size: 12px; margin-bottom: 8px; }
+        .over-card .oc-name.p1 { color: var(--emerald-500); }
+        .over-card .oc-name.p2 { color: var(--purple-500); }
+        .over-card .oc-score { font-size: 3rem; font-weight: 900; }
+        .over-card .oc-score.p1 { color: var(--emerald-600); }
+        .over-card .oc-score.p2 { color: var(--purple-600); }
+        .over-card .oc-score small { font-size: 12px; font-weight: 400; opacity: .5; }
+        .btn-again {
+            width: 100%; max-width: 400px; padding: 32px; background: var(--emerald-600);
+            color: var(--white); border-radius: 3rem; font-weight: 900;
+            font-size: 2rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,.25);
+            border: none; border-bottom: 8px solid var(--emerald-800);
+            cursor: pointer; transition: all 200ms; font-family: inherit;
+        }
+        .btn-again:hover { background: var(--emerald-500); }
+        .btn-again:active { transform: scale(.95); }
+        .btn-home {
+            margin-top: 12px; background: none; border: none; color: var(--slate-400);
+            font-weight: 700; text-transform: uppercase; cursor: pointer;
+            display: flex; align-items: center; gap: 8px; font-size: 14px;
+            font-family: inherit; transition: color 200ms;
+        }
+        .btn-home:hover { color: var(--slate-600); }
+
+        /* Exit button */
+        .btn-exit {
+            position: absolute; top: 16px; right: 16px; z-index: 100;
+            background: rgba(0,0,0,.6); color: var(--white);
+            border: 2px solid rgba(255,255,255,.3); border-radius: 12px;
+            padding: 8px 16px; font-weight: 700; font-size: 12px;
+            cursor: pointer; backdrop-filter: blur(8px);
+            font-family: inherit; transition: all 200ms; text-transform: uppercase;
+        }
+        .btn-exit:hover { background: var(--red-500); border-color: var(--red-500); }
+
+        /* D-pad mobile controls */
+        .dpad {
+            position: fixed; bottom: 20px; left: 20px; z-index: 200;
+            display: none; /* shown via JS on touch devices */
+        }
+        .dpad-btn {
+            position: absolute; width: 56px; height: 56px;
+            background: rgba(0,0,0,.35); border: 2px solid rgba(255,255,255,.3);
+            border-radius: 14px; color: white; font-size: 22px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; backdrop-filter: blur(4px);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .dpad-btn:active { background: rgba(16,185,129,.6); }
+        .dpad-up { left: 60px; top: 0; }
+        .dpad-down { left: 60px; top: 120px; }
+        .dpad-left { left: 0; top: 60px; }
+        .dpad-right { left: 120px; top: 60px; }
+
+        /* Animations */
+        @keyframes pulse-text { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+        @keyframes bounce-anim {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes ping-anim {
+            0% { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+            75% { opacity: 0; transform: translate(-50%,-50%) scale(1.5); }
+            100% { opacity: 0; transform: translate(-50%,-50%) scale(1.5); }
+        }
+        @keyframes spin-anim { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* SVG icons inline */
+        .icon { display: inline-block; vertical-align: middle; }
+
+        /* Hide things */
+        .hidden { display: none !important; }
+
+        /* Responsive: show dpad on touch */
+        @media (hover: none) and (pointer: coarse) {
+            .dpad { display: block; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <!-- MENU SCREEN -->
+    <div id="screen-menu" class="screen screen-menu">
+        <button class="btn-exit" onclick="exitGame()" style="position:absolute;top:16px;right:16px;">✕ EXIT</button>
+        <div class="menu-logo">
+            <svg class="icon" width="90" height="90" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <div class="zap-badge">ZAP ITEM!</div>
+        </div>
+        <div>
+            <h1 class="menu-title">NITRO ARENA</h1>
+            <p class="menu-desc">
+                เก็บไอเทมสายฟ้าเพื่อชอตคู่ต่อสู้ให้หยุดนิ่ง 5 วินาที!<br>
+                ระวังหมวดคำเปลี่ยนทุก 20 วินาที
+            </p>
+        </div>
+        <div class="menu-buttons">
+            <button class="btn-mode single" onclick="selectMode('AI')">
+                <svg class="mode-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>SINGLE vs AI</span>
+            </button>
+            <button class="btn-mode duo" onclick="selectMode('PVP')">
+                <svg class="mode-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span>DUO PVP</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- NAME ENTRY SCREEN -->
+    <div id="screen-name" class="screen screen-name hidden">
+        <button class="btn-exit" onclick="exitGame()">✕ EXIT</button>
+        <h2 class="name-title">Confirm Fighters</h2>
+        <div class="name-grid">
+            <div class="name-card p1">
+                <div class="card-label p1">PLAYER 1 (Arrows)</div>
+                <input id="p1-name" class="name-input" type="text" value="Player 1" maxlength="12">
+            </div>
+            <div id="p2-card" class="name-card p2">
+                <div id="p2-label" class="card-label p2">PLAYER 2 (WASD)</div>
+                <input id="p2-name" class="name-input p2" type="text" value="Player 2" maxlength="12">
+            </div>
+        </div>
+        <button class="btn-start" onclick="startGame()">START DUEL</button>
+    </div>
+
+    <!-- GAME SCREEN (HUD + Board) -->
+    <div id="screen-game" class="hidden" style="display:none;flex-direction:column;height:100%;">
+        <div class="hud">
+            <div class="hud-left">
+                <div class="player-col">
+                    <div class="label p1">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <span id="hud-p1-name">Player 1</span>
+                    </div>
+                    <div class="hearts" id="hud-p1-hearts"></div>
+                    <div class="pts"><span id="hud-p1-score">0</span> <small>pts</small></div>
+                </div>
+                <div class="player-col">
+                    <div class="label p2">
+                        <svg id="hud-p2-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        <span id="hud-p2-name">AI Rivals</span>
+                    </div>
+                    <div class="hearts" id="hud-p2-hearts"></div>
+                    <div class="pts"><span id="hud-p2-score">0</span> <small>pts</small></div>
+                </div>
+            </div>
+            <div class="hud-center">
+                <svg class="clock-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span id="hud-time" class="time">5:00</span>
+            </div>
+            <div class="hud-right">
+                <div class="refresh-line">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                    <span id="hud-refresh">20</span>s
+                </div>
+                <div class="zap-line">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    Zap Opponent!
+                </div>
+            </div>
+        </div>
+        <div class="target-bar">
+            <div class="target-bar-inner">
+                <span class="target-label">Target:</span>
+                <div class="target-pill">
+                    <svg class="target-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                    <span id="target-name" class="target-name">มาตรากง</span>
+                </div>
+            </div>
+        </div>
+        <div class="board-wrap" id="board">
+            <div class="board-grid" id="board-grid"></div>
+            <!-- Entities rendered here by JS -->
+        </div>
+        <button class="btn-exit" onclick="exitGame()" style="position:absolute;top:16px;right:16px;z-index:100;">✕ EXIT</button>
+    </div>
+
+    <!-- GAME OVER SCREEN -->
+    <div id="screen-over" class="screen screen-over hidden">
+        <button class="btn-exit" onclick="exitGame()">✕ EXIT</button>
+        <div class="over-icon" id="over-icon-wrap"></div>
+        <h2 class="over-title" id="over-title">Draw Duel!</h2>
+        <div class="over-grid">
+            <div class="over-card" id="over-card-p1">
+                <div class="oc-name p1" id="over-p1-name">Player 1</div>
+                <div class="hearts" id="over-p1-hearts"></div>
+                <div class="oc-score p1"><span id="over-p1-score">0</span> <small>pts</small></div>
+            </div>
+            <div class="over-card" id="over-card-p2">
+                <div class="oc-name p2" id="over-p2-name">AI Rivals</div>
+                <div class="hearts" id="over-p2-hearts"></div>
+                <div class="oc-score p2"><span id="over-p2-score">0</span> <small>pts</small></div>
+            </div>
+        </div>
+        <button class="btn-again" onclick="startGame()">BATTLE AGAIN</button>
+        <button class="btn-home" onclick="showScreen('menu')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Home
+        </button>
+    </div>
+</div>
+
+<!-- D-pad for mobile -->
+<div class="dpad" id="dpad">
+    <div class="dpad-btn dpad-up" data-dir="up">▲</div>
+    <div class="dpad-btn dpad-down" data-dir="down">▼</div>
+    <div class="dpad-btn dpad-left" data-dir="left">◀</div>
+    <div class="dpad-btn dpad-right" data-dir="right">▶</div>
+</div>
+
+<script>
+// ===== KAMPAI SDK INTEGRATION =====
+const GAME_SLUG = 'nitro-arena';
+if (window.KAMPAI) {
+    window.KAMPAI.setSlug(GAME_SLUG);
+}
+
+function exitGame() { if (window.KAMPAI) window.KAMPAI.goHome(); }
+
+// ===== GAME CONSTANTS =====
+var GRID = 32;
+var BASE_SPEED = 200;
+var INITIAL_TIME = 300;
+var TIME_BONUS = 5;
+var CORRECT_COUNT = 5;
+var WRONG_COUNT = 7;
+var ITEM_MIN_DIST = 4;
+var BIRD_TICK = 4;
+var AI_TICK = 2;
+var AUTO_REFRESH = 20;
+var COMBAT_MIN = 5;
+var RESPAWN_DELAY = 3;
+var STUN_DUR = 3;
+var ZAP_STUN = 5;
+var ZAP_LIFE = 8;
+
+// ===== PATTERNS =====
+var PATTERNS = {
+    KONG: { name: "มาตรากง", words: ["ดง","กรง","โรง","ทรง","ช้าง","ระฆัง","ทอง","วัง","กางเกง","มะม่วง"] },
+    KOD:  { name: "มาตรากด", words: ["มด","กวาด","ตำรวจ","อากาศ","บวช","ครุฑ","แก๊ส","กระดาษ","เสร็จ","พาสปอร์ต"] },
+    KON:  { name: "มาตรากน", words: ["บ้าน","เพลิน","เรียน","นอน","เขียน","วานร","ปลาวาฬ","ทหาร","วิญญาณ","โบราณ"] },
+    KOM:  { name: "มาตรากม", words: ["กลม","ยิ้ม","ซ่อม","แก้ม","หอม","ชิม","ดุม","พัดลม","สนาม","มะขาม"] },
+    KOK:  { name: "มาตรากก", words: ["รัก","นก","เลข","เมฆ","พรรค","โชค","สุข","ปาก","เชือก","วิหค"] },
+    KOB:  { name: "มาตรากบ", words: ["กบ","ดาบ","ลาภ","รูป","ภาพ","ศพ","ลพบุรี","สาป","ทับ","หมอบ"] }
+};
+var PKEYS = Object.keys(PATTERNS);
+var WORD_COLORS = 8;
+
+// ===== GAME STATE =====
+var state = {
+    screen: 'menu', mode: 'AI',
+    p1Name: 'Player 1', p2Name: 'Player 2',
+    targetKey: 'KONG',
+    words: [],
+    lightning: { x:0, y:0, alive:false, life:0 },
+    zapNextSpawn: 15,
+    s1: [], score1: 0, lives1: 5, s1Alive: false, s1Respawn: 0, s1Stun: 0,
+    s2: [], score2: 0, lives2: 5, s2Alive: false, s2Respawn: 0, s2Stun: 0,
+    timeLeft: INITIAL_TIME,
+    refreshTimer: AUTO_REFRESH,
+    bird: { x:0, y:0, alive:false }, birdRespawn: 0,
+    moveCounter: 0,
+    p1Dir: {x:0,y:-1}, p2Dir: {x:0,y:1},
+    gameInterval: null, timerInterval: null,
+    gameOverHandled: false
+};
+
+// ===== SOUND =====
+function sfx(type) {
+    try {
+        var ac = new (window.AudioContext||window.webkitAudioContext)();
+        var osc = ac.createOscillator(), gain = ac.createGain();
+        osc.connect(gain); gain.connect(ac.destination);
+        if (type==='move') {
+            osc.type='sine'; osc.frequency.setValueAtTime(200,ac.currentTime);
+            gain.gain.setValueAtTime(0.01,ac.currentTime);
+            osc.start(); osc.stop(ac.currentTime+0.03);
+        } else if (type==='correct'||type==='zap') {
+            osc.type='triangle'; osc.frequency.setValueAtTime(type==='zap'?800:523.25,ac.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1500,ac.currentTime+0.15);
+            gain.gain.setValueAtTime(0.08,ac.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01,ac.currentTime+0.3);
+            osc.start(); osc.stop(ac.currentTime+0.3);
+        } else if (type==='hurt') {
+            osc.type='sawtooth'; osc.frequency.setValueAtTime(120,ac.currentTime);
+            osc.frequency.linearRampToValueAtTime(40,ac.currentTime+0.5);
+            gain.gain.setValueAtTime(0.2,ac.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01,ac.currentTime+0.5);
+            osc.start(); osc.stop(ac.currentTime+0.5);
+        }
+    } catch(e){}
+}
+
+// ===== UTILITIES =====
+function dist(a,b) { return Math.sqrt(Math.pow(a.x-b.x,2)+Math.pow(a.y-b.y,2)); }
+
+function randPos(s1,s2,items,large) {
+    var bound = large ? GRID-2 : GRID-1;
+    for (var i=0;i<200;i++) {
+        var p = { x: Math.floor(Math.random()*(bound-2))+1, y: Math.floor(Math.random()*(bound-2))+1 };
+        var onS1 = (s1||[]).some(function(s){ return s && s.x===p.x && s.y===p.y; });
+        var onS2 = (s2||[]).some(function(s){ return s && s.x===p.x && s.y===p.y; });
+        var tooClose = (items||[]).some(function(it){ return it && dist(it,p)<ITEM_MIN_DIST; });
+        if (!onS1 && !onS2 && !tooClose) return p;
+    }
+    return { x: Math.floor(Math.random()*20)+5, y: Math.floor(Math.random()*20)+5 };
+}
+
+function makeWord(s1,s2,existing,patKey) {
+    if (!patKey) patKey = PKEYS[Math.floor(Math.random()*PKEYS.length)];
+    var pos = randPos(s1,s2,existing,true);
+    var pat = PATTERNS[patKey];
+    var text = pat.words[Math.floor(Math.random()*pat.words.length)];
+    var ci = Math.floor(Math.random()*WORD_COLORS);
+    return { x:pos.x, y:pos.y, text:text, patternKey:patKey, ci:ci };
+}
+
+function spawnWords(s1,s2,target) {
+    var ws = [];
+    for (var i=0;i<CORRECT_COUNT;i++) ws.push(makeWord(s1,s2,ws,target));
+    var others = PKEYS.filter(function(k){return k!==target;});
+    for (var j=0;j<WRONG_COUNT;j++) {
+        var rk = others[Math.floor(Math.random()*others.length)];
+        ws.push(makeWord(s1,s2,ws,rk));
+    }
+    state.words = ws;
+}
+
+function shuffleTarget() {
+    state.targetKey = PKEYS[Math.floor(Math.random()*PKEYS.length)];
+    return state.targetKey;
+}
+
+function shake() {
+    var app = document.getElementById('app');
+    app.classList.add('shake');
+    setTimeout(function(){ app.classList.remove('shake'); }, 200);
+}
+
+// ===== SCREEN MANAGEMENT =====
+function showScreen(name) {
+    ['menu','name','game','over'].forEach(function(s){
+        var el = document.getElementById('screen-'+s);
+        if (s===name) {
+            el.classList.remove('hidden');
+            if (s==='game') el.style.display='flex';
+        } else {
+            el.classList.add('hidden');
+            if (s==='game') el.style.display='none';
+        }
+    });
+    state.screen = name;
+}
+
+function selectMode(mode) {
+    state.mode = mode;
+    var card = document.getElementById('p2-card');
+    var label = document.getElementById('p2-label');
+    var input = document.getElementById('p2-name');
+    if (mode==='AI') {
+        card.classList.add('disabled');
+        label.textContent = 'AI Rivals';
+        input.value = 'AI Rivals'; input.disabled = true;
+    } else {
+        card.classList.remove('disabled');
+        label.textContent = 'PLAYER 2 (WASD)';
+        input.value = 'Player 2'; input.disabled = false;
+    }
+    showScreen('name');
+}
+
+// ===== RENDER =====
+function renderHearts(containerId, count, cls) {
+    var el = document.getElementById(containerId);
+    var h = '';
+    for (var i=0;i<5;i++) {
+        if (i < count) {
+            h += '<svg class="heart '+cls+'" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+        } else {
+            h += '<svg class="heart heart-empty" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+        }
+    }
+    el.innerHTML = h;
+}
+
+function renderHUD() {
+    document.getElementById('hud-p1-name').textContent = state.p1Name;
+    document.getElementById('hud-p2-name').textContent = state.mode==='AI' ? 'AI Rivals' : state.p2Name;
+    document.getElementById('hud-p1-score').textContent = state.score1;
+    document.getElementById('hud-p2-score').textContent = state.score2;
+    renderHearts('hud-p1-hearts', state.lives1, 'heart-full-p1');
+    renderHearts('hud-p2-hearts', state.lives2, 'heart-full-p2');
+    var m = Math.floor(state.timeLeft/60), s = (state.timeLeft%60).toString();
+    if (s.length<2) s='0'+s;
+    var timeEl = document.getElementById('hud-time');
+    timeEl.textContent = m+':'+s;
+    timeEl.className = 'time' + (state.timeLeft < 60 ? ' danger' : '');
+    document.getElementById('hud-refresh').textContent = state.refreshTimer;
+    document.getElementById('target-name').textContent = PATTERNS[state.targetKey].name;
+}
+
+function pct(v) { return (v/GRID*100)+'%'; }
+function sz() { return (100/GRID)+'%'; }
+
+function renderBoard() {
+    var board = document.getElementById('board');
+    // Remove old entities
+    var old = board.querySelectorAll('.entity,.respawn-indicator');
+    old.forEach(function(e){ e.remove(); });
+
+    // Lightning
+    if (state.lightning.alive) {
+        var le = document.createElement('div');
+        le.className = 'entity lightning-item';
+        le.style.left = pct(state.lightning.x); le.style.top = pct(state.lightning.y);
+        le.style.width = sz(); le.style.height = sz();
+        le.innerHTML = '<div class="lightning-inner"><svg width="14" height="14" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="lightning-timer">'+state.lightning.life+'s</div>';
+        board.appendChild(le);
+    }
+
+    // Bird
+    if (state.bird.alive) {
+        var be = document.createElement('div');
+        be.className = 'entity bird-entity';
+        be.style.left = pct(state.bird.x); be.style.top = pct(state.bird.y);
+        be.style.width = sz(); be.style.height = sz();
+        be.innerHTML = '<div class="bird-inner"><svg width="14" height="14" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2"><path d="M16 7h.01"/><path d="M3.4 18H12a8 8 0 0 0 8-8V7a4 4 0 0 0-7.28-2.3L2 20"/><path d="m20 7 2 .5-2 .5"/><path d="M10 18v3"/><path d="M14 17.75V21"/><path d="M7 18a6 6 0 0 0 3.84-10.61"/></svg></div>';
+        board.appendChild(be);
+    }
+
+    // Snake 2
+    if (state.s2Alive && state.s2.length>0) {
+        var ghostS2 = state.s2.length < COMBAT_MIN;
+        state.s2.forEach(function(seg,i) {
+            if (!seg) return;
+            var el = document.createElement('div');
+            var cls = 'entity snake-seg';
+            if (i===0) cls += ' snake-head snake-head-p2';
+            else cls += ' snake-body-p2';
+            if (ghostS2) cls += ' snake-ghost';
+            if (i===0 && state.s2Stun>0) cls += ' snake-stun';
+            el.className = cls;
+            if (i===0 && state.s2Stun>0) el.setAttribute('data-stun', state.s2Stun);
+            el.style.left = pct(seg.x); el.style.top = pct(seg.y);
+            el.style.width = sz(); el.style.height = sz();
+            if (i===0) {
+                var labelText = state.mode==='AI' ? 'AI' : state.p2Name;
+                if (ghostS2) labelText += ' 👻';
+                if (state.s2Stun>0) labelText += ' ⚡'+state.s2Stun;
+                el.innerHTML = '<div class="head-eyes"><div class="eye eye-small"></div><div class="eye eye-small"></div></div><div class="head-label head-label-p2">'+labelText+'</div>';
+            }
+            board.appendChild(el);
+        });
+    } else if (state.s2Respawn>0) {
+        var ri2 = document.createElement('div');
+        ri2.className = 'respawn-indicator p2';
+        ri2.innerHTML = '<svg class="spin-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg><span class="count">'+state.s2Respawn+'</span>';
+        board.appendChild(ri2);
+    }
+
+    // Snake 1
+    if (state.s1Alive && state.s1.length>0) {
+        var ghostS1 = state.s1.length < COMBAT_MIN;
+        state.s1.forEach(function(seg,i) {
+            if (!seg) return;
+            var el = document.createElement('div');
+            var cls = 'entity snake-seg';
+            if (i===0) cls += ' snake-head snake-head-p1';
+            else cls += ' snake-body-p1';
+            if (ghostS1) cls += ' snake-ghost';
+            if (i===0 && state.s1Stun>0) cls += ' snake-stun';
+            el.className = cls;
+            if (i===0 && state.s1Stun>0) el.setAttribute('data-stun', state.s1Stun);
+            el.style.left = pct(seg.x); el.style.top = pct(seg.y);
+            el.style.width = sz(); el.style.height = sz();
+            if (i===0) {
+                var labelText = state.p1Name;
+                if (ghostS1) labelText += ' 👻';
+                if (state.s1Stun>0) labelText += ' ⚡'+state.s1Stun;
+                el.innerHTML = '<div class="head-eyes"><div class="eye"></div><div class="eye"></div></div><div class="head-label head-label-p1">'+labelText+'</div>';
+            }
+            board.appendChild(el);
+        });
+    } else if (state.s1Respawn>0) {
+        var ri1 = document.createElement('div');
+        ri1.className = 'respawn-indicator p1';
+        ri1.innerHTML = '<svg class="spin-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg><span class="count">'+state.s1Respawn+'</span>';
+        board.appendChild(ri1);
+    }
+
+    // Words
+    state.words.forEach(function(w,i) {
+        if (!w) return;
+        var el = document.createElement('div');
+        el.className = 'entity word-item wc-'+w.ci;
+        el.style.left = pct(w.x); el.style.top = pct(w.y);
+        el.style.width = (200/GRID)+'%'; el.style.height = (200/GRID)+'%';
+        el.style.fontSize = w.text.length>7 ? '10px' : '14px';
+        el.innerHTML = '<span class="word-text">'+w.text+'</span>';
+        board.appendChild(el);
+    });
+}
+
+// ===== GAME OVER =====
+function gameOver() {
+    if (state.gameOverHandled) return;
+    state.gameOverHandled = true;
+    clearInterval(state.gameInterval);
+    clearInterval(state.timerInterval);
+    sfx('hurt');
+
+    // Submit score
+    if (window.KAMPAI) {
+        var finalScore = state.score1;
+        window.KAMPAI.submitScore(Math.floor(finalScore), { mode: state.mode==='AI' ? 'vs-ai' : 'pvp' });
+    }
+
+    // Render game over screen
+    var l1 = state.lives1, l2 = state.lives2;
+    var iconEl = document.getElementById('over-icon-wrap');
+    if (l1>l2) {
+        iconEl.innerHTML = '<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2"><circle cx="12" cy="8" r="7"/><path d="M8.21 13.89 7 23l5-3 5 3-1.21-9.12"/></svg>';
+    } else if (l2>l1) {
+        iconEl.innerHTML = '<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M8 15h8s-1.5 3-4 3-4-3-4-3"/><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/></svg>';
+    } else {
+        iconEl.innerHTML = '<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>';
+    }
+
+    var title = document.getElementById('over-title');
+    if (l1>l2) title.textContent = state.p1Name + ' Wins!';
+    else if (l2>l1) title.textContent = (state.mode==='AI' ? 'AI Rivals' : state.p2Name) + ' Wins!';
+    else title.textContent = 'Draw Duel!';
+
+    document.getElementById('over-p1-name').textContent = state.p1Name;
+    document.getElementById('over-p2-name').textContent = state.mode==='AI' ? 'AI Rivals' : state.p2Name;
+    document.getElementById('over-p1-score').textContent = state.score1;
+    document.getElementById('over-p2-score').textContent = state.score2;
+    renderHearts('over-p1-hearts', l1, 'heart-full-p1');
+    renderHearts('over-p2-hearts', l2, 'heart-full-p2');
+
+    var c1 = document.getElementById('over-card-p1');
+    var c2 = document.getElementById('over-card-p2');
+    c1.className = 'over-card ' + (l1>=l2 ? 'winner p1' : 'loser');
+    c2.className = 'over-card ' + (l2>=l1 ? 'winner p2' : 'loser');
+
+    showScreen('over');
+}
+
+function loseLife1() {
+    state.lives1--;
+    if (state.lives1 <= 0) { gameOver(); return; }
+    state.s1Alive = false; state.s1Respawn = RESPAWN_DELAY;
+}
+function loseLife2() {
+    state.lives2--;
+    if (state.lives2 <= 0) { gameOver(); return; }
+    state.s2Alive = false; state.s2Respawn = RESPAWN_DELAY;
+}
+
+// ===== START GAME =====
+function startGame() {
+    state.p1Name = (document.getElementById('p1-name').value || 'Player 1').substring(0,12);
+    state.p2Name = state.mode==='AI' ? 'AI Rivals' : (document.getElementById('p2-name').value || 'Player 2').substring(0,12);
+
+    var t = shuffleTarget();
+    state.p1Dir = {x:0,y:-1}; state.p2Dir = {x:0,y:1};
+    state.s1 = [{x:6,y:16},{x:6,y:17}]; state.s2 = [{x:25,y:16},{x:25,y:15}];
+    state.score1=0; state.score2=0; state.lives1=5; state.lives2=5;
+    state.s1Alive=true; state.s2Alive=true;
+    state.s1Respawn=0; state.s2Respawn=0;
+    state.s1Stun=0; state.s2Stun=0;
+    state.lightning={x:0,y:0,alive:false,life:0}; state.zapNextSpawn=15;
+    state.timeLeft=INITIAL_TIME; state.refreshTimer=AUTO_REFRESH;
+    state.bird={x:0,y:0,alive:false}; state.birdRespawn=0;
+    state.moveCounter=0; state.gameOverHandled=false;
+
+    spawnWords(state.s1, state.s2, t);
+
+    // Init grid cells once
+    var gridEl = document.getElementById('board-grid');
+    if (gridEl.children.length===0) {
+        var frag = document.createDocumentFragment();
+        for (var i=0;i<GRID*GRID;i++) {
+            var c = document.createElement('div');
+            c.className = 'cell';
+            frag.appendChild(c);
+        }
+        gridEl.appendChild(frag);
+    }
+
+    clearInterval(state.gameInterval);
+    clearInterval(state.timerInterval);
+
+    showScreen('game');
+    renderHUD(); renderBoard();
+
+    // Timer (1s)
+    state.timerInterval = setInterval(function() {
+        if (state.screen !== 'game') return;
+
+        state.timeLeft--;
+        if (state.timeLeft<=0) { gameOver(); return; }
+
+        // Refresh timer
+        state.refreshTimer--;
+        if (state.refreshTimer<=0) {
+            var nt = shuffleTarget();
+            spawnWords(state.s1, state.s2, nt);
+            state.refreshTimer = AUTO_REFRESH;
+        }
+
+        // Lightning spawn
+        state.zapNextSpawn--;
+        if (state.zapNextSpawn<=0 && !state.lightning.alive) {
+            var lp = randPos(state.s1, state.s2, state.words);
+            state.lightning = {x:lp.x,y:lp.y,alive:true,life:ZAP_LIFE};
+            state.zapNextSpawn = Math.floor(Math.random()*10)+15;
+        }
+        if (state.lightning.alive) {
+            state.lightning.life--;
+            if (state.lightning.life<=0) state.lightning.alive=false;
+        }
+
+        // Stun timers
+        if (state.s1Stun>0) state.s1Stun--;
+        if (state.s2Stun>0) state.s2Stun--;
+
+        // Respawn P1
+        if (state.s1Respawn>0) {
+            state.s1Respawn--;
+            if (state.s1Respawn===0) {
+                var rp1 = randPos([], state.s2, state.words);
+                state.s1 = [{x:rp1.x,y:rp1.y},{x:rp1.x,y:(rp1.y+1)%GRID}];
+                state.s1Alive=true; state.s1Stun=0;
+                state.p1Dir={x:0,y:-1};
+            }
+        }
+        // Respawn P2
+        if (state.s2Respawn>0) {
+            state.s2Respawn--;
+            if (state.s2Respawn===0) {
+                var rp2 = randPos(state.s1, [], state.words);
+                state.s2 = [{x:rp2.x,y:rp2.y},{x:rp2.x,y:(rp2.y-1+GRID)%GRID}];
+                state.s2Alive=true; state.s2Stun=0;
+                state.p2Dir={x:0,y:1};
+            }
+        }
+        // Respawn bird
+        if (state.birdRespawn>0) {
+            state.birdRespawn--;
+            if (state.birdRespawn===0) {
+                var bp = randPos(state.s1, state.s2, state.words);
+                state.bird = {x:bp.x,y:bp.y,alive:true};
+            }
+        }
+
+        renderHUD();
+    }, 1000);
+
+    // Game loop
+    state.gameInterval = setInterval(function() {
+        if (state.screen !== 'game' || state.gameOverHandled) return;
+        sfx('move');
+        state.moveCounter++;
+
+        // Move S2
+        if (state.s2Alive && state.s2Stun===0 && state.s2.length>0) {
+            var dir2 = {x:state.p2Dir.x,y:state.p2Dir.y};
+            if (state.mode==='AI' && state.moveCounter%AI_TICK===0) {
+                var h2 = state.s2[0];
+                var targets = state.words.filter(function(w){return w&&w.patternKey===state.targetKey;});
+                if (targets.length>0) {
+                    var tgt = targets[0];
+                    var ddx = tgt.x-h2.x, ddy = tgt.y-h2.y;
+                    dir2 = Math.abs(ddx)>Math.abs(ddy) ? {x:ddx>0?1:-1,y:0} : {x:0,y:ddy>0?1:-1};
+                    state.p2Dir = dir2;
+                }
+            }
+            var head2 = state.s2[0];
+            var nh2 = {x:(head2.x+dir2.x+GRID)%GRID, y:(head2.y+dir2.y+GRID)%GRID};
+            // Self collision
+            if (state.s2.some(function(s){return s.x===nh2.x&&s.y===nh2.y;})) {
+                shake(); sfx('hurt'); loseLife2();
+            } else {
+                var ns2 = [nh2].concat(state.s2);
+                // Lightning pickup
+                if (state.lightning.alive && nh2.x===state.lightning.x && nh2.y===state.lightning.y) {
+                    sfx('zap'); state.lightning.alive=false; state.s1Stun=ZAP_STUN;
+                }
+                // Word collision
+                var eIdx2 = -1;
+                for (var wi=0;wi<state.words.length;wi++) {
+                    var w = state.words[wi];
+                    if (w && nh2.x>=w.x && nh2.x<w.x+2 && nh2.y>=w.y && nh2.y<w.y+2) { eIdx2=wi; break; }
+                }
+                if (eIdx2!==-1) {
+                    var ew2 = state.words[eIdx2];
+                    var remaining = state.words.filter(function(_,i){return i!==eIdx2;});
+                    state.words[eIdx2] = makeWord(state.s1, ns2, remaining);
+                    if (ew2.patternKey===state.targetKey) {
+                        state.score2++; state.s2=ns2;
+                    } else {
+                        shake(); sfx('hurt'); state.s2Stun=STUN_DUR;
+                        loseLife2();
+                    }
+                } else {
+                    state.s2 = ns2.slice(0,-1);
+                }
+            }
+        }
+
+        // Move S1
+        if (state.s1Alive && state.s1Stun===0 && state.s1.length>0) {
+            var head1 = state.s1[0];
+            var nh1 = {x:(head1.x+state.p1Dir.x+GRID)%GRID, y:(head1.y+state.p1Dir.y+GRID)%GRID};
+            // Self collision
+            if (state.s1.some(function(s){return s.x===nh1.x&&s.y===nh1.y;})) {
+                shake(); sfx('hurt'); loseLife1();
+            } else {
+                var ns1 = [nh1].concat(state.s1);
+                // Lightning pickup
+                if (state.lightning.alive && nh1.x===state.lightning.x && nh1.y===state.lightning.y) {
+                    sfx('zap'); state.lightning.alive=false; state.s2Stun=ZAP_STUN;
+                }
+                // Combat
+                if (state.s2Alive && state.s2.length>0 && state.s2Stun===0) {
+                    var hitS2 = state.s2.some(function(s){return s.x===nh1.x&&s.y===nh1.y;});
+                    if (hitS2 && state.s1.length>=COMBAT_MIN && state.s2.length>=COMBAT_MIN) {
+                        if (state.s1.length>=state.s2.length) {
+                            sfx('correct'); shake(); state.score1+=5; loseLife2();
+                        } else {
+                            loseLife1();
+                            renderHUD(); renderBoard(); return;
+                        }
+                    }
+                }
+                // Word collision
+                var eIdx1 = -1;
+                for (var wj=0;wj<state.words.length;wj++) {
+                    var ww = state.words[wj];
+                    if (ww && nh1.x>=ww.x && nh1.x<ww.x+2 && nh1.y>=ww.y && nh1.y<ww.y+2) { eIdx1=wj; break; }
+                }
+                if (eIdx1!==-1) {
+                    var ew1 = state.words[eIdx1];
+                    var rem1 = state.words.filter(function(_,i){return i!==eIdx1;});
+                    state.words[eIdx1] = makeWord(ns1, state.s2, rem1);
+                    if (ew1.patternKey===state.targetKey) {
+                        sfx('correct'); state.score1++; state.timeLeft+=TIME_BONUS;
+                        state.s1 = ns1;
+                    } else {
+                        shake(); sfx('hurt'); state.s1Stun=STUN_DUR;
+                        loseLife1();
+                    }
+                } else {
+                    state.s1 = ns1.slice(0,-1);
+                }
+            }
+        }
+
+        // Move bird
+        if (state.bird.alive && state.moveCounter%BIRD_TICK===0) {
+            var targetP = (state.s1Alive && state.s1Stun===0 && state.s1.length>0) ? state.s1[0] :
+                          (state.s2Alive && state.s2Stun===0 && state.s2.length>0) ? state.s2[0] : null;
+            if (targetP) {
+                var bx = state.bird.x, by = state.bird.y;
+                var bdx = targetP.x-bx, bdy = targetP.y-by;
+                if (Math.abs(bdx)>Math.abs(bdy)) bx += bdx>0?1:-1;
+                else by += bdy>0?1:-1;
+                // Hit S1?
+                if (state.s1Alive && state.s1.some(function(s){return s.x===bx&&s.y===by;})) {
+                    loseLife1(); shake(); state.bird.alive=false; state.birdRespawn=5;
+                }
+                // Hit S2?
+                else if (state.s2Alive && state.s2.some(function(s){return s.x===bx&&s.y===by;})) {
+                    loseLife2(); shake(); state.bird.alive=false; state.birdRespawn=5;
+                }
+                else { state.bird.x=bx; state.bird.y=by; }
+            }
+        }
+
+        renderHUD(); renderBoard();
+    }, BASE_SPEED);
+}
+
+// ===== INPUT =====
+document.addEventListener('keydown', function(e) {
+    if (state.screen==='game') {
+        var key = e.key;
+        if (state.s1Alive && state.s1Stun===0) {
+            if (key==='ArrowUp' && state.p1Dir.y===0) state.p1Dir={x:0,y:-1};
+            if (key==='ArrowDown' && state.p1Dir.y===0) state.p1Dir={x:0,y:1};
+            if (key==='ArrowLeft' && state.p1Dir.x===0) state.p1Dir={x:-1,y:0};
+            if (key==='ArrowRight' && state.p1Dir.x===0) state.p1Dir={x:1,y:0};
+        }
+        if (state.s2Alive && state.s2Stun===0 && state.mode==='PVP') {
+            var c = key.toLowerCase();
+            if (c==='w' && state.p2Dir.y===0) state.p2Dir={x:0,y:-1};
+            if (c==='s' && state.p2Dir.y===0) state.p2Dir={x:0,y:1};
+            if (c==='a' && state.p2Dir.x===0) state.p2Dir={x:-1,y:0};
+            if (c==='d' && state.p2Dir.x===0) state.p2Dir={x:1,y:0};
+        }
+        e.preventDefault();
+    } else if (e.key==='Enter') {
+        if (state.screen==='menu') selectMode('AI');
+        else if (state.screen==='name' || state.screen==='over') startGame();
+    }
+});
+
+// D-pad touch
+document.querySelectorAll('.dpad-btn').forEach(function(btn) {
+    var handler = function(e) {
+        e.preventDefault();
+        var dir = btn.getAttribute('data-dir');
+        if (state.s1Alive && state.s1Stun===0) {
+            if (dir==='up' && state.p1Dir.y===0) state.p1Dir={x:0,y:-1};
+            if (dir==='down' && state.p1Dir.y===0) state.p1Dir={x:0,y:1};
+            if (dir==='left' && state.p1Dir.x===0) state.p1Dir={x:-1,y:0};
+            if (dir==='right' && state.p1Dir.x===0) state.p1Dir={x:1,y:0};
+        }
+    };
+    btn.addEventListener('touchstart', handler, {passive:false});
+    btn.addEventListener('mousedown', handler);
+});
+
+// Init: show menu
+showScreen('menu');
+</script>
+</body>
+</html>
