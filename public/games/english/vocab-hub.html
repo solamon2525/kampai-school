@@ -664,7 +664,7 @@ let qOrder = [], qPos = 0, qLen = 0, score = 0, streak = 0, qLock = false;
 // match
 let mRounds = [], mRi = 0, mMatched = 0, mTotal = 0, mSel = {l:null,r:null}, mLock = false;
 // spell (สะกดคำ)
-let spOrder = [], spPos = 0, spStepTimer = null;
+let spOrder = [], spPos = 0, spStepTimer = null, spGen = 0;
 
 // =====================================================================
 // AUDIO — TTS + WebAudio sfx
@@ -679,14 +679,15 @@ function sayText(item){
   if (currentSlug === 'alphabet') return item.label;   // อ่านชื่อตัวอักษรเดี่ยว (A) ไม่อ่านคำตัวอย่าง (A for Apple)
   return (item.en || item.label).replace(/\s*–\s*/g, ' for ');
 }
-function speak(item){
-  if (!audioOn || !window.speechSynthesis) return;
+function speak(item, onDone){
+  if (!audioOn || !window.speechSynthesis){ if(onDone) onDone(); return; }
   try {
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(sayText(item));
     u.lang = 'en-US'; if (enVoice) u.voice = enVoice; u.rate = 0.9;
+    if(onDone){ u.onend=onDone; u.onerror=onDone; }
     speechSynthesis.speak(u);
-  } catch(_){}
+  } catch(_){ if(onDone) onDone(); }
 }
 // อ่านชื่อตัวอักษรทีละตัว — ไม่ cancel (queue ต่อกัน กันตัดเสียงตัวก่อนหน้า)
 function speakLetter(ch){
@@ -1131,6 +1132,7 @@ function spellNext(){ clearTimeout(spStepTimer); spPos++; renderSpell(); }
 function renderSpell(){
   clearTimeout(spStepTimer);
   if(window.speechSynthesis) speechSynthesis.cancel();
+  spGen++; const myGen = spGen;
   if(spPos>=spOrder.length) spPos=0;                 // วน loop
   const item = allItems[spOrder[spPos]];
   curItem = item;
@@ -1162,10 +1164,11 @@ function renderSpell(){
       i++;
       spStepTimer = setTimeout(step, 760);
     } else {
-      speak(item);                                   // อ่านคำเต็ม
       document.getElementById('sp-read')?.classList.add('show');
       document.getElementById('sp-mean')?.classList.add('show');
-      spStepTimer = setTimeout(()=>{ spPos++; renderSpell(); }, 2600);
+      const advance=()=>{ if(mode!=='spell'||myGen!==spGen) return; spStepTimer=setTimeout(()=>{ spPos++; renderSpell(); }, 1500); };
+      const fallback=setTimeout(advance, 6000);      // กันค้างถ้า onend ไม่ยิง
+      speak(item, ()=>{ clearTimeout(fallback); advance(); });   // รอเสียงอ่านคำเต็มจบจริงก่อนค่อยไปคำถัดไป
     }
   }
   spStepTimer = setTimeout(step, 450);
