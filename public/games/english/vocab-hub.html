@@ -294,11 +294,23 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
 }
 .spd:hover{background:rgba(255,255,255,0.18)}
 .spd.on{background:#FFD700;border-color:#FF8F00;color:#1A237E;font-weight:700}
+#flash-variant{display:none;align-items:center;gap:4px;margin-left:1vw}
+#flash-variant label{font-size:1.55vh;color:rgba(255,255,255,0.45);margin-right:2px}
+.fv{
+  font-size:1.55vh;
+  padding:3px 9px;border-radius:5px;cursor:pointer;
+  border:1px solid rgba(255,255,255,0.28);
+  background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.65);
+  transition:background 0.12s,color 0.12s;
+}
+.fv:hover{background:rgba(255,255,255,0.18)}
+.fv.on{background:#FFD700;border-color:#FF8F00;color:#1A237E;font-weight:700}
+#wfront .wf-swatch{display:inline-block;width:18vh;height:18vh;border-radius:24px;border:3px solid rgba(255,255,255,0.55);box-shadow:0 8px 24px rgba(0,0,0,0.35);vertical-align:middle}
 
-/* Quiz (flash) overlay */
+/* Quiz (flash) controls — in-flow row ใต้การ์ด เหนือแถบล่าง */
 #quiz-ctrl{
-  display:none;position:fixed;bottom:9vh;left:50%;transform:translateX(-50%);
-  gap:20px;z-index:30;
+  display:none;flex:0 0 auto;justify-content:center;align-items:center;
+  gap:20px;padding:1.2vh 2vw;z-index:30;
 }
 #quiz-ctrl.show{display:flex}
 .qbtn{
@@ -314,6 +326,12 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
 #btn-reveal:hover{background:rgba(255,215,0,0.3)}
 #btn-next{display:none}
 #btn-next.show{display:block}
+#btn-know,#btn-review{display:none}
+#btn-know.show,#btn-review.show{display:block}
+#btn-know{border-color:#43A047;color:#C8E6C9}
+#btn-know:hover{background:rgba(67,160,71,0.3)}
+#btn-review{border-color:#FFD700;color:#FFE082}
+#btn-review:hover{background:rgba(255,215,0,0.3)}
 
 /* Progress bar */
 #bar-wrap{position:fixed;top:0;left:0;width:100%;height:3px;z-index:20;background:rgba(255,255,255,0.1)}
@@ -403,9 +421,11 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   #dotsnav{position:static;transform:none;justify-content:center;order:2}
   #score{margin-left:0;text-align:center;font-size:14px;order:3}
   #speed{margin-left:0;justify-content:center;order:4}
+  #flash-variant{margin-left:0;justify-content:center;flex-wrap:wrap;order:4}
   .cbtn{font-size:13px;padding:7px 11px}
   .spd{font-size:13px;padding:7px 11px}
-  #speed label{font-size:13px}
+  .fv{font-size:13px;padding:7px 11px}
+  #speed label,#flash-variant label{font-size:13px}
   .cbtn,.spd,.opt,.mcard,.hub-card,.win-btn,.qbtn,.cell,.q-listen{touch-action:manipulation}
 
   /* OVERLAYS */
@@ -455,6 +475,12 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   </div>
   <div id="grid"></div>
   <div id="play"></div>
+  <div id="quiz-ctrl">
+    <button class="qbtn" id="btn-reveal">เฉลย</button>
+    <button class="qbtn" id="btn-next">ถัดไป ›</button>
+    <button class="qbtn" id="btn-know">✅ รู้แล้ว</button>
+    <button class="qbtn" id="btn-review">🔁 ทบทวน</button>
+  </div>
   <div id="bottom">
     <div id="lctrl">
       <button class="cbtn" id="btn-home">← หน้าหลัก</button>
@@ -480,12 +506,15 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
       <button class="spd" data-ms="1000">1s</button>
       <button class="spd" data-ms="500">0.5s</button>
     </div>
+    <div id="flash-variant">
+      <label>การ์ด</label>
+      <button class="fv on" data-v="en2th" title="อังกฤษ → ไทย">A→ก</button>
+      <button class="fv" data-v="th2en" title="ไทย → อังกฤษ">ก→A</button>
+      <button class="fv" data-v="pic2word" title="รูป/สี → คำ">รูป</button>
+      <button class="fv" data-v="audio2word" title="ฟังเสียง → คำ">🔊</button>
+      <button class="fv" data-v="mixed" title="สุ่มสลับทุกแบบ">🎲</button>
+    </div>
   </div>
-</div>
-
-<div id="quiz-ctrl">
-  <button class="qbtn" id="btn-reveal">เฉลย</button>
-  <button class="qbtn" id="btn-next">ถัดไป ›</button>
 </div>
 
 <div id="toast"></div>
@@ -721,6 +750,9 @@ const scoreEl   = document.getElementById('score');
 const quizCtrl  = document.getElementById('quiz-ctrl');
 const btnReveal = document.getElementById('btn-reveal');
 const btnNext   = document.getElementById('btn-next');
+const btnKnow   = document.getElementById('btn-know');
+const btnReview = document.getElementById('btn-review');
+const flashVarDiv = document.getElementById('flash-variant');
 const btnHome   = document.getElementById('btn-home');
 const btnSay    = document.getElementById('btn-say');
 const btnSound  = document.getElementById('btn-sound');
@@ -745,7 +777,12 @@ const btnNextSlide = document.getElementById('btn-next-slide');
 let mode = 'auto';                       // auto | flash | choice | match | listen | spell
 let cellMs = 1500, curSlide = 0, curCell = 0, timer = null;
 let autoPaused = false;                  // หยุดชั่วคราวในโหมดอัตโนมัติ (ปุ่ม pause หรือคลิกคำเอง)
-let quizOrder = [], quizPos = 0, revealed = false;     // flash
+let revealed = false;     // flash
+// flash (สุ่ม) — flashcard หลายทิศ + deck รู้แล้ว/ทบทวน
+let flashVariant = 'en2th';     // en2th | th2en | pic2word | audio2word | mixed
+let flashDeck = [], flashKnown = new Set(), flashTotal = 0, flashRevealVariant = 'en2th';
+const thSide = it => it.meaning || it.label;       // ฝั่งไทย/คำตอบ: meaning ถ้ามี ไม่งั้น label (numbers=เลข, alphabet=ตัวอักษร)
+const hasVisual = it => !!(it.emoji || it.bgColor);
 let currentSlug = '', allItems = [], slides = [], slideEls = [], dotElArr = [];
 let isColorTopic = false, ips = 10, curItem = null;
 let audioOn = true;
@@ -963,14 +1000,27 @@ function setMode(m){
   setScore('');
   const board = (m==='auto'||m==='flash');
   const isAuto = (m==='auto');
+  const isFlash = (m==='flash');
   showBoards(board);
-  dotsEl.style.display = board ? '' : 'none';
+  wordEl.style.flex = isFlash ? '1' : '';   // flash: การ์ดขยายเต็มพื้นที่ (กริดถูกซ่อน) ให้ใหญ่+อยู่กลาง
+  gridEl.style.display = isAuto ? '' : 'none';   // กริดเฉพาะอัตโนมัติ — flash ซ่อนกันเฉลยคำตอบโผล่
+  dotsEl.style.display = isAuto ? '' : 'none';
   btnSay.style.display = board ? '' : 'none';
   speedDiv.style.display = (isAuto || m==='spell') ? '' : 'none';   // โชว์ในโหมดอัตโนมัติ + สะกดคำ (คุมจังหวะเลื่อนตัวอักษร)
+  flashVarDiv.style.display = isFlash ? 'flex' : 'none';
   btnPause.style.display = isAuto ? '' : 'none';
   btnPrevSlide.style.display = isAuto ? '' : 'none';
   btnNextSlide.style.display = isAuto ? '' : 'none';
   gridEl.classList.toggle('interactive', isAuto);   // โหมดอัตโนมัติ: คลิกคำในกริดได้
+  if(isFlash){
+    // ปุ่ม "รูป" โชว์เฉพาะหมวดที่ทุกคำมี emoji/สี ; ถ้าทิศปัจจุบันเป็นรูปแต่หมวดนี้ไม่มี → ถอยไป en2th
+    const topicVisual = allItems.every(hasVisual);
+    document.querySelector('.fv[data-v="pic2word"]').style.display = topicVisual ? '' : 'none';
+    if(flashVariant==='pic2word' && !topicVisual){
+      flashVariant='en2th';
+      document.querySelectorAll('.fv').forEach(x=>x.classList.toggle('on',x.dataset.v==='en2th'));
+    }
+  }
   if(isAuto){
     autoPaused=false; btnPause.textContent='⏸'; btnPause.classList.remove('on');
     curCell=0; goTo(curSlide);
@@ -1032,30 +1082,50 @@ function resumeAuto(){
 }
 
 // =====================================================================
-// FLASH MODE (สุ่ม) — card flip reveal
+// FLASH MODE (สุ่ม) — flashcard หลายทิศ + deck รู้แล้ว/ทบทวน
 // =====================================================================
-function setBannerQuiz(item){
-  tcard.classList.remove('flipped');
-  wfront.textContent='?'; wfront.style.fontSize='14vh';
-  wfrontSub.textContent='';                    // โหมดสุ่ม: หน้า '?' ไม่โชว์คำแปล
-  wbackEn.textContent=item.en; wbackEn.style.fontSize=backEnFontSize(item.en);
-  wbackTh.textContent='('+item.th+')';
-  wbackMean.textContent=item.meaning || '';   // เฉลยเพิ่มคำแปลไทย (หมวดที่มี)
-  revealed=false; btnReveal.style.display=''; btnNext.classList.remove('show');
-  quizCtrl.classList.add('show');
+function pickVariant(it){
+  if(flashVariant!=='mixed') return flashVariant;
+  const pool=['en2th','th2en','audio2word']; if(hasVisual(it)) pool.push('pic2word');
+  return pool[Math.floor(Math.random()*pool.length)];
 }
-function setQuizNumber(absIdx){
-  const sIdx=Math.floor(absIdx/ips), cIdx=absIdx%ips;
-  if(sIdx!==curSlide){ dotElArr[curSlide]?.classList.remove('active'); curSlide=sIdx; dotElArr[curSlide]?.classList.add('active'); }
-  renderSlide(curSlide);
-  applyHl(curSlide,cIdx);
-  curItem=slides[curSlide][cIdx];
-  setBannerQuiz(curItem);
-  barEl.style.width=((quizPos+1)/allItems.length*100)+'%';
+function renderFlashCard(){
+  // ข้ามใบที่ "รู้แล้ว" ออกจากหัวกอง — กองหมด = ฉลอง
+  while(flashDeck.length && flashKnown.has(flashDeck[0])) flashDeck.shift();
+  if(!flashDeck.length){
+    quizCtrl.classList.remove('show');
+    showWin('🎉','เก่งมาก!',`รู้แล้วครบ <b>${flashTotal}</b> คำ`, '⭐⭐⭐');
+    return;
+  }
+  const it = allItems[flashDeck[0]]; curItem=it;
+  const v = flashRevealVariant = pickVariant(it);
+  tcard.classList.remove('flipped'); revealed=false;
+  // ----- FRONT (โจทย์ตามทิศ) -----
+  if(v==='th2en'){ wfront.textContent=thSide(it); wfront.style.fontSize=bannerFontSize(thSide(it)); }
+  else if(v==='pic2word'){
+    wfront.innerHTML = it.emoji
+      ? `<span class="wf-emoji">${it.emoji}</span>`
+      : `<span class="wf-swatch" style="background:${it.bgColor}"></span>`;
+    wfront.style.fontSize='14vh';
+  }
+  else if(v==='audio2word'){ wfront.textContent='🔊'; wfront.style.fontSize='14vh'; speak(it); }  // ฟัง→ทาย: เล่นเสียงทันที
+  else { wfront.textContent=it.en; wfront.style.fontSize=bannerFontSize(it.en); }                  // en2th
+  wfrontSub.textContent='';
+  // ----- BACK (เฉลย: คำเต็ม + คำอ่าน + ไทย) -----
+  wbackEn.textContent=it.en; wbackEn.style.fontSize=backEnFontSize(it.en);
+  wbackTh.textContent='('+it.th+')';
+  wbackMean.textContent=thSide(it);
+  // ----- controls + progress -----
+  btnReveal.style.display=''; btnNext.classList.remove('show');
+  btnKnow.classList.remove('show'); btnReview.classList.remove('show');
+  quizCtrl.classList.add('show');
+  setScore(`รู้แล้ว <b>${flashKnown.size}</b>/${flashTotal} · เหลือ ${flashTotal-flashKnown.size}`);
+  barEl.style.width=(flashKnown.size/flashTotal*100)+'%';
 }
 function startFlash(){
-  quizOrder=shuffle([...Array(allItems.length).keys()]); quizPos=0;
-  setQuizNumber(quizOrder[0]);
+  flashDeck = shuffle([...Array(allItems.length).keys()]);
+  flashKnown = new Set(); flashTotal = allItems.length;
+  renderFlashCard();
 }
 
 // =====================================================================
@@ -1280,15 +1350,28 @@ btnReveal.addEventListener('click',e=>{
   e.stopPropagation();
   if(revealed) return;
   revealed=true; tcard.classList.add('flipped');
-  btnReveal.style.display='none'; btnNext.classList.add('show');
+  btnReveal.style.display='none';
+  btnKnow.classList.add('show'); btnReview.classList.add('show');   // เฉลยแล้ว → ให้ตัดสินรู้แล้ว/ทบทวน
   if(curItem) speak(curItem);
 });
-btnNext.addEventListener('click',e=>{
+btnKnow.addEventListener('click',e=>{
   e.stopPropagation();
-  quizPos++;
-  if(quizPos>=quizOrder.length){ quizOrder=shuffle([...Array(allItems.length).keys()]); quizPos=0; }
-  setQuizNumber(quizOrder[quizPos]);
+  if(!revealed) return;
+  flashKnown.add(flashDeck.shift());     // รู้แล้ว: เอาออกจากกอง
+  renderFlashCard();
 });
+btnReview.addEventListener('click',e=>{
+  e.stopPropagation();
+  if(!revealed) return;
+  flashDeck.push(flashDeck.shift());     // ทบทวน: ดันไปท้ายกอง ให้วนกลับมา
+  renderFlashCard();
+});
+document.querySelectorAll('.fv').forEach(b=>b.addEventListener('click',e=>{
+  e.stopPropagation();
+  document.querySelectorAll('.fv').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); flashVariant=b.dataset.v;
+  if(mode==='flash') renderFlashCard();   // เปลี่ยนทิศใบปัจจุบันทันที (ไม่รีเซ็ตกอง/คะแนน)
+}));
 Object.keys(modeBtns).forEach(k=>{
   modeBtns[k].addEventListener('click',e=>{ e.stopPropagation(); if(mode!==k) setMode(k); });
 });
@@ -1333,7 +1416,13 @@ document.addEventListener('keydown',e=>{
     if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){ e.preventDefault(); goTo(curSlide+1); }
     else if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); goTo(curSlide-1); }
   } else if(mode==='flash'){
-    if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){ e.preventDefault(); if(!revealed) btnReveal.click(); else btnNext.click(); }
+    if(!revealed){
+      if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){ e.preventDefault(); btnReveal.click(); }
+    } else {
+      if(e.key==='1'||e.key==='k'||e.key==='K'){ btnKnow.click(); }
+      else if(e.key==='2'||e.key==='r'||e.key==='R'){ btnReview.click(); }
+      else if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){ e.preventDefault(); btnKnow.click(); }
+    }
   } else if(mode==='choice'||mode==='listen'){
     if(/^[1-4]$/.test(e.key)){ const o=document.querySelectorAll('.opt')[+e.key-1]; if(o) o.click(); }
     else { const m='abcd'.indexOf(e.key.toLowerCase()); if(m>=0){ const o=document.querySelectorAll('.opt')[m]; if(o) o.click(); } }
