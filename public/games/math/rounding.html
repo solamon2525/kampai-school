@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สื่อการสอนคณิตศาสตร์ - ค่าประมาณเต็มสิบ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* ─── Reset & Base ─────────────────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background: linear-gradient(135deg, #60a5fa 0%, #67e8f9 50%, #bfdbfe 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        /* ─── Main Container ───────────────────────────────────────────── */
+        .main-container {
+            width: 100%;
+            max-width: 1152px;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(4px);
+            border-radius: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.5);
+            height: 90vh;
+            min-height: 600px;
+        }
+        @media (min-width: 768px) {
+            .main-container {
+                flex-direction: row;
+                height: 85vh;
+            }
+        }
+
+        /* ─── Sidebar ──────────────────────────────────────────────────── */
+        .sidebar {
+            background: #1e3a8a;
+            color: #fff;
+            padding: 24px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 12px rgba(0,0,0,0.15);
+            z-index: 10;
+            flex-shrink: 0;
+        }
+        @media (min-width: 768px) {
+            .sidebar {
+                width: 320px;
+                padding: 32px;
+            }
+        }
+
+        .sidebar h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #93c5fd;
+            margin-bottom: 8px;
+        }
+
+        .field-group { margin-bottom: 16px; }
+        .field-group.grow { flex-grow: 1; }
+
+        /* ─── Inputs & Selects ─────────────────────────────────────────── */
+        .input-field, .select-field {
+            width: 100%;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(96,165,250,0.3);
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #fff;
+            outline: none;
+            transition: all 0.2s;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        .input-field:focus, .select-field:focus {
+            box-shadow: 0 0 0 4px rgba(96,165,250,0.5);
+            background: rgba(255,255,255,0.2);
+        }
+        .input-field::placeholder { color: rgba(147,197,253,0.5); }
+        .input-field#num {
+            font-size: 2.25rem;
+            font-weight: 700;
+            text-align: center;
+        }
+        .select-field option { color: #1e293b; }
+
+        /* Hide number input spinners */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] { -moz-appearance: textfield; }
+
+        /* ─── Buttons ──────────────────────────────────────────────────── */
+        .btn-group { display: flex; flex-direction: column; gap: 12px; }
+
+        .btn {
+            width: 100%;
+            font-family: 'Sarabun', sans-serif;
+            font-weight: 700;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-size: 1.25rem;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            transform: translateY(0);
+        }
+        .btn:hover { transform: translateY(-4px); }
+        .btn:active { transform: translateY(0); }
+
+        .btn-random {
+            background: #f59e0b;
+            color: #fff;
+            box-shadow: 0 8px 16px rgba(245,158,11,0.3);
+        }
+        .btn-random:hover { background: #fbbf24; }
+        .btn-random:active { background: #d97706; }
+
+        .btn-answer {
+            background: #10b981;
+            color: #fff;
+            box-shadow: 0 8px 16px rgba(16,185,129,0.3);
+        }
+        .btn-answer:hover { background: #34d399; }
+        .btn-answer:active { background: #059669; }
+
+        .btn-fullscreen {
+            background: #334155;
+            color: #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .btn-fullscreen:hover { background: #475569; }
+        .btn-fullscreen:active { background: #1e293b; }
+
+        .btn-back {
+            background: rgba(255,255,255,0.1);
+            color: #93c5fd;
+            box-shadow: none;
+            font-size: 1rem;
+            padding: 10px 16px;
+            border: 1px solid rgba(96,165,250,0.3);
+        }
+        .btn-back:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+        /* ─── Display Area ─────────────────────────────────────────────── */
+        .display-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px;
+            position: relative;
+            background: radial-gradient(ellipse at center, #eff6ff 0%, #ffffff 100%);
+        }
+
+        .main-title {
+            position: absolute;
+            top: 24px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            padding: 0 16px;
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: #1e40af;
+            transition: all 0.3s;
+        }
+        @media (min-width: 768px) {
+            .main-title { font-size: 3rem; }
+        }
+
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            margin-top: 64px;
+        }
+        @media (min-width: 768px) {
+            .content-area { margin-top: 40px; }
+        }
+
+        .display-num {
+            font-size: 5rem;
+            line-height: 1;
+            font-weight: 700;
+            color: #2563eb;
+            filter: drop-shadow(0 4px 3px rgba(0,0,0,0.1));
+            transition: all 0.3s;
+        }
+        @media (min-width: 768px) {
+            .display-num { font-size: 8.75rem; }
+        }
+
+        .bounce-arrow {
+            font-size: 3.5rem;
+            color: #94a3b8;
+            margin: 16px 0;
+            animation: bounce 2s infinite;
+        }
+        @media (min-width: 768px) {
+            .bounce-arrow { font-size: 4.5rem; margin: 32px 0; }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-15px); }
+            60% { transform: translateY(-7px); }
+        }
+
+        /* ─── Answer ───────────────────────────────────────────────────── */
+        .answer-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+        .answer-container.show {
+            display: flex;
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .result-num {
+            font-size: 5rem;
+            line-height: 1;
+            font-weight: 700;
+            color: #10b981;
+            filter: drop-shadow(0 10px 8px rgba(0,0,0,0.08));
+        }
+        @media (min-width: 768px) {
+            .result-num { font-size: 8.75rem; }
+        }
+
+        .explain-box {
+            font-size: 1.25rem;
+            margin-top: 24px;
+            color: #334155;
+            text-align: center;
+            font-weight: 500;
+            background: #ecfdf5;
+            padding: 16px 32px;
+            border-radius: 16px;
+            border: 1px solid #d1fae5;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            line-height: 1.8;
+        }
+        @media (min-width: 768px) {
+            .explain-box { font-size: 1.5rem; }
+        }
+
+        .placeholder-text {
+            font-size: 1.5rem;
+            color: #cbd5e1;
+            font-weight: 500;
+            padding: 48px 0;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+        @media (min-width: 768px) {
+            .placeholder-text { font-size: 1.75rem; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .placeholder-text.hidden { display: none; }
+
+        /* ─── Footer ───────────────────────────────────────────────────── */
+        .footer {
+            position: absolute;
+            bottom: 24px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+        }
+        .footer span {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #94a3b8;
+            background: rgba(255,255,255,0.8);
+            padding: 8px 24px;
+            border-radius: 9999px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid #f1f5f9;
+        }
+        @media (min-width: 768px) {
+            .footer span { font-size: 1.125rem; }
+        }
+
+        /* ─── Utility colors for explain HTML ──────────────────────────── */
+        .c-blue { color: #2563eb; font-weight: 700; }
+        .c-slate { color: #64748b; }
+        .c-rose { color: #f43f5e; font-weight: 700; }
+        .c-emerald { color: #10b981; font-weight: 700; }
+        .c-emerald-dark { color: #059669; font-weight: 700; }
+    </style>
+</head>
+
+<body>
+
+    <!-- Main Container -->
+    <div class="main-container">
+
+        <!-- Sidebar Controls -->
+        <div class="sidebar">
+            <a href="/h/nattapong" class="btn btn-back" style="margin-bottom:16px; text-decoration:none; text-align:center;">
+                ← กลับคลังสื่อ
+            </a>
+
+            <h2><span>⚙️</span> แผงควบคุม</h2>
+
+            <div class="field-group">
+                <label for="num" class="field-label">กำหนดจำนวนเต็ม</label>
+                <input type="number" id="num" value="67" class="input-field" placeholder="ใส่ตัวเลข">
+            </div>
+
+            <!-- เมนูเรื่องที่สอน -->
+            <div class="field-group">
+                <label for="roundLevel" class="field-label">หาค่าประมาณเป็นจำนวน</label>
+                <select id="roundLevel" class="select-field">
+                    <option value="10">🔟 เต็มสิบ</option>
+                    <option value="100">💯 เต็มร้อย</option>
+                    <option value="1000">🇰 เต็มพัน</option>
+                </select>
+            </div>
+
+            <!-- เมนูเลือกระดับการสุ่ม -->
+            <div class="field-group grow">
+                <label for="digitLevel" class="field-label">ระดับการสุ่ม</label>
+                <select id="digitLevel" class="select-field">
+                    <option value="all">🎲 สุ่มทั้งหมด (10 - 9999)</option>
+                    <option value="10">🔟 หลักสิบ (10 - 99)</option>
+                    <option value="100">💯 หลักร้อย (100 - 999)</option>
+                    <option value="1000">🇰 หลักพัน (1000 - 9999)</option>
+                </select>
+            </div>
+
+            <div class="btn-group">
+                <button onclick="randomNumber()" class="btn btn-random">
+                    🎲 สุ่มโจทย์
+                </button>
+
+                <button onclick="showAnswer()" class="btn btn-answer">
+                    ✅ แสดงเฉลย
+                </button>
+
+                <button onclick="toggleFullscreen()" class="btn btn-fullscreen">
+                    🖥️ เต็มจอ
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Display Area -->
+        <div class="display-area">
+
+            <h1 id="mainTitle" class="main-title">
+                ค่าประมาณเป็นจำนวนเต็มสิบ
+            </h1>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Question Number -->
+                <div id="displayNum" class="display-num">67</div>
+
+                <!-- Arrow -->
+                <div class="bounce-arrow">↓</div>
+
+                <!-- Answer Container (Hidden initially) -->
+                <div id="answerContainer" class="answer-container">
+                    <div id="result" class="result-num">70</div>
+                    <div id="explain" class="explain-box">ปัดเศษจำนวนเต็มสิบ</div>
+                </div>
+
+                <!-- Placeholder when answer is hidden -->
+                <div id="placeholder" class="placeholder-text">
+                    รอการประมวลผล...
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <span>🏫 โรงเรียนบ้านคำไผ่</span>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const numInput = document.getElementById('num');
+        const displayNum = document.getElementById('displayNum');
+        const answerContainer = document.getElementById('answerContainer');
+        const placeholder = document.getElementById('placeholder');
+        const explain = document.getElementById('explain');
+        const roundLevelSelect = document.getElementById('roundLevel');
+        const mainTitle = document.getElementById('mainTitle');
+
+        // เปลี่ยนหัวข้อและรีเซ็ตหน้าจอเมื่อเปลี่ยนหลักการหาค่าประมาณ
+        roundLevelSelect.addEventListener('change', function() {
+            var level = roundLevelSelect.value;
+            if (level === '10') {
+                mainTitle.innerText = 'ค่าประมาณเป็นจำนวนเต็มสิบ';
+            } else if (level === '100') {
+                mainTitle.innerText = 'ค่าประมาณเป็นจำนวนเต็มร้อย';
+            } else if (level === '1000') {
+                mainTitle.innerText = 'ค่าประมาณเป็นจำนวนเต็มพัน';
+            }
+            hideAnswer();
+        });
+
+        // อัปเดตหน้าจอทันทีเมื่อพิมพ์ตัวเลขใหม่
+        numInput.addEventListener('input', function() {
+            var val = numInput.value;
+            displayNum.innerText = val === '' ? '?' : val;
+            hideAnswer();
+        });
+
+        function hideAnswer() {
+            answerContainer.classList.remove('show');
+            placeholder.classList.remove('hidden');
+        }
+
+        function showAnswer() {
+            if (numInput.value === '') return;
+
+            var n = parseInt(numInput.value);
+            var roundValue = parseInt(roundLevelSelect.value);
+
+            // ตรรกะการหาค่าประมาณตามหลักที่เลือก
+            var rounded = Math.round(n / roundValue) * roundValue;
+            var lower = Math.floor(n / roundValue) * roundValue;
+            var upper = lower + roundValue;
+
+            // หาชื่อหลักและตัวเลขที่จะต้องใช้พิจารณา
+            var digitName = "";
+            var digitValue = 0;
+
+            if (roundValue === 10) {
+                digitName = "หลักหน่วย";
+                digitValue = n % 10;
+            } else if (roundValue === 100) {
+                digitName = "หลักสิบ";
+                digitValue = Math.floor((n % 100) / 10);
+            } else if (roundValue === 1000) {
+                digitName = "หลักร้อย";
+                digitValue = Math.floor((n % 1000) / 100);
+            }
+
+            // อัปเดตข้อมูล
+            document.getElementById('result').innerText = rounded;
+
+            // สร้างคำอธิบายให้สอดคล้องกับหลักคณิตศาสตร์
+            var explainText = '';
+            if (n % roundValue === 0) {
+                var labelText = roundValue === 10 ? 'สิบ' : roundValue === 100 ? 'ร้อย' : 'พัน';
+                explainText = '<span class="c-blue">' + n + '</span> เป็นจำนวนเต็ม' + labelText + 'อยู่แล้ว';
+            } else if (digitValue < 5) {
+                explainText = '<span class="c-blue">' + n + '</span> อยู่ระหว่าง <span class="c-slate">' + lower + '</span> และ <span class="c-slate">' + upper + '</span><br>' + digitName + 'คือ <span class="c-rose">' + digitValue + '</span> (น้อยกว่า 5) จึงปัดลงเป็น <span class="c-emerald-dark">' + rounded + '</span>';
+            } else {
+                explainText = '<span class="c-blue">' + n + '</span> อยู่ระหว่าง <span class="c-slate">' + lower + '</span> และ <span class="c-slate">' + upper + '</span><br>' + digitName + 'คือ <span class="c-emerald">' + digitValue + '</span> (ตั้งแต่ 5 ขึ้นไป) จึงปัดขึ้นเป็น <span class="c-emerald-dark">' + rounded + '</span>';
+            }
+            explain.innerHTML = explainText;
+
+            // แสดงผลพร้อมแอนิเมชัน
+            placeholder.classList.add('hidden');
+            answerContainer.classList.add('show');
+        }
+
+        function randomNumber() {
+            var level = document.getElementById('digitLevel').value;
+            var n = 0;
+
+            if (level === '10') {
+                n = Math.floor(Math.random() * 90) + 10;
+            } else if (level === '100') {
+                n = Math.floor(Math.random() * 900) + 100;
+            } else if (level === '1000') {
+                n = Math.floor(Math.random() * 9000) + 1000;
+            } else {
+                n = Math.floor(Math.random() * 9990) + 10;
+            }
+
+            numInput.value = n;
+            displayNum.innerText = n;
+
+            // รีเซ็ตแอนิเมชัน
+            displayNum.style.transform = 'scale(0.8)';
+            setTimeout(function() { displayNum.style.transform = 'scale(1)'; }, 50);
+
+            hideAnswer();
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(function(err) {
+                    console.log('Error attempting to enable fullscreen: ' + err.message);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        // Initialize state on first load
+        hideAnswer();
+    </script>
+</body>
+</html>
