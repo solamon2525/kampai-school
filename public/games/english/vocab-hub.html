@@ -1073,7 +1073,7 @@ function fmtTime(ms){
   return m + ':' + String(s%60).padStart(2,'0');
 }
 let currentSlug = '', allItems = [], slides = [], slideEls = [], dotElArr = [];
-let isColorTopic = false, ips = 10, curItem = null;
+let isColorTopic = false, ips = 10, curItem = null, cellLabelFs = '10vh';
 let audioOn = true;
 // choice/listen
 let qOrder = [], qPos = 0, qLen = 0, score = 0, streak = 0, qLock = false;
@@ -1140,10 +1140,11 @@ function shuffle(arr){
   return a;
 }
 function hubTitleFontSize(title){
+  // เพดาน vh ต่ำพอให้ ไอคอน+ชื่อ+en+count พอดีการ์ด (grid-auto-rows 15vh) — กันชื่อสั้นตัวใหญ่ล้นการ์ด
   const n=title.length;
-  if(n<=3)  return 'min(7vh,9vw)';
-  if(n<=5)  return 'min(5.6vh,7vw)';
-  if(n<=7)  return 'min(4.2vh,5.4vw)';
+  if(n<=3)  return 'min(3.6vh,9vw)';
+  if(n<=5)  return 'min(3.6vh,7vw)';
+  if(n<=7)  return 'min(3.4vh,5.4vw)';
   if(n<=9)  return 'min(3.3vh,4.2vw)';
   if(n<=12) return 'min(2.6vh,3.3vw)';
   if(n<=14) return 'min(2.2vh,2.8vw)';
@@ -1243,7 +1244,7 @@ function buildCell(item, sIdx, cIdx){
   if(item.emoji){ const em=document.createElement('span'); em.className='emoji'; em.innerHTML=item.emoji; el.appendChild(em); }
   const lbl=document.createElement('span');
   lbl.className='lbl'; lbl.textContent=item.label;
-  lbl.style.fontSize = item.emoji ? '3.4vh' : cellFontSize(item.label);
+  lbl.style.fontSize = item.emoji ? '3.4vh' : cellLabelFs;
   if(isColorTopic&&item.darkText) lbl.style.color='#1A237E';
   el.appendChild(lbl); el._item=item;
   // โหมดอัตโนมัติ: คลิกคำไหนก็ได้เพื่อหยุดและดู/ฟังคำนั้นทันที (กดเองได้ ไม่ต้องรอ)
@@ -1264,6 +1265,9 @@ function showTopic(slug){
   currentSlug=slug; allItems=items;
   isColorTopic = slug==='colors';
   ips=getIps(items.length);
+  // ขนาดตัวอักษรในเซลล์ = อิงคำที่ยาวสุดของหมวด → ทุกเซลล์เท่ากันทั้งจอ (กันตัวเล็กใหญ่ไม่เท่า)
+  const longest=items.reduce((a,it)=>(!it.emoji&&it.label.length>a.length)?it.label:a,'');
+  cellLabelFs = longest ? cellFontSize(longest) : '10vh';
   slides=[];
   for(let i=0;i<items.length;i+=ips) slides.push(items.slice(i,i+ips));
   slideEls=slides.map((s,sIdx)=>s.map((item,cIdx)=>buildCell(item,sIdx,cIdx)));
