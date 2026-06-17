@@ -690,13 +690,14 @@ function speak(item, onDone){
   } catch(_){ if(onDone) onDone(); }
 }
 // อ่านชื่อตัวอักษรทีละตัว — ไม่ cancel (queue ต่อกัน กันตัดเสียงตัวก่อนหน้า)
-function speakLetter(ch){
-  if(!audioOn || !window.speechSynthesis) return;
+function speakLetter(ch, onDone){
+  if(!audioOn || !window.speechSynthesis){ if(onDone) onDone(); return; }
   try {
     const u = new SpeechSynthesisUtterance(ch);
     u.lang='en-US'; if(enVoice) u.voice=enVoice; u.rate=0.8;
+    if(onDone){ u.onend=onDone; u.onerror=onDone; }
     speechSynthesis.speak(u);
-  } catch(_){}
+  } catch(_){ if(onDone) onDone(); }
 }
 let actx = null;
 function ac(){ if(!actx){ try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(_){}} return actx; }
@@ -875,7 +876,7 @@ function setMode(m){
   showBoards(board);
   dotsEl.style.display = board ? '' : 'none';
   btnSay.style.display = board ? '' : 'none';
-  speedDiv.style.display = isAuto ? '' : 'none';   // โชว์ทุกหมวดในโหมดอัตโนมัติ (ไล่อ่านทีละคำแม้สไลด์เดียว)
+  speedDiv.style.display = (isAuto || m==='spell') ? '' : 'none';   // โชว์ในโหมดอัตโนมัติ + สะกดคำ (คุมจังหวะเลื่อนตัวอักษร)
   btnPause.style.display = isAuto ? '' : 'none';
   btnPrevSlide.style.display = isAuto ? '' : 'none';
   btnNextSlide.style.display = isAuto ? '' : 'none';
@@ -1159,14 +1160,21 @@ function renderSpell(){
   function step(){
     if(i>0){ boxes[i-1].classList.remove('on'); boxes[i-1].classList.add('done'); }
     if(i<boxes.length){
-      boxes[i].classList.add('on');
-      speakLetter(letters[i].toUpperCase());
-      i++;
-      spStepTimer = setTimeout(step, 760);
+      const idx = i;
+      boxes[idx].classList.add('on');
+      let letterAdvanced=false;
+      const advanceLetter=()=>{
+        if(letterAdvanced) return; letterAdvanced=true;
+        if(mode!=='spell'||myGen!==spGen) return;
+        i++; spStepTimer = setTimeout(step, cellMs);
+      };
+      const letterFallback = setTimeout(advanceLetter, 1500);   // กันค้างถ้า onend ไม่ยิง
+      speakLetter(letters[idx].toUpperCase(), ()=>{ clearTimeout(letterFallback); advanceLetter(); });
     } else {
       document.getElementById('sp-read')?.classList.add('show');
       document.getElementById('sp-mean')?.classList.add('show');
-      const advance=()=>{ if(mode!=='spell'||myGen!==spGen) return; spStepTimer=setTimeout(()=>{ spPos++; renderSpell(); }, 1500); };
+      let wordAdvanced=false;
+      const advance=()=>{ if(wordAdvanced) return; wordAdvanced=true; if(mode!=='spell'||myGen!==spGen) return; spStepTimer=setTimeout(()=>{ spPos++; renderSpell(); }, 1500); };
       const fallback=setTimeout(advance, 6000);      // กันค้างถ้า onend ไม่ยิง
       speak(item, ()=>{ clearTimeout(fallback); advance(); });   // รอเสียงอ่านคำเต็มจบจริงก่อนค่อยไปคำถัดไป
     }
