@@ -7,6 +7,21 @@
  * wire format (init / gameEnd / navigate) เหมือนเดิม → เกมเก่าไม่กระทบ
  */
 (function () {
+  // เกมไม่ควรถูก Service Worker ของ SPA คุมเลย — ถ้ามี SW เก่าค้างคุมหน้านี้อยู่ (เคยเล่นก่อน
+  // games/** ถูกกันออกจาก precache) ให้ปลดทันที + รีโหลด 1 ครั้งเพื่อโหลดสดจาก network
+  // (กัน "ต้องฮาร์ดรีเฟรชถึงเห็นของใหม่" แบบถาวร ไม่ต้องพึ่ง ?reset_sw=1)
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function (regs) {
+      if (!regs.length) return;
+      var wasControlled = !!navigator.serviceWorker.controller;
+      regs.forEach(function (r) { r.unregister(); });
+      if (wasControlled && !sessionStorage.getItem('kampai_sw_unregistered')) {
+        sessionStorage.setItem('kampai_sw_unregistered', '1');
+        location.reload();
+      }
+    }).catch(function () {});
+  }
+
   if (window.KAMPAI && window.KAMPAI.__real) return; // กันโหลด/ประกาศซ้ำ
 
   var IS_EMBED = window.self !== window.top ||

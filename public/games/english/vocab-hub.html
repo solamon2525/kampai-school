@@ -4,6 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>คำศัพท์ภาษาอังกฤษ</title>
+<script>
+// เกมไม่ควรถูก Service Worker ของ SPA คุมเลย — ถ้ามี SW เก่าค้างคุมหน้านี้อยู่ (เคยเล่นก่อน fix)
+// ให้ปลดทันที + รีโหลด 1 ครั้งเพื่อให้โหลดสดจาก network (กัน "ต้องฮาร์ดรีเฟรชถึงเห็นของใหม่")
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(function (regs) {
+    if (!regs.length) return;
+    var wasControlled = !!navigator.serviceWorker.controller;
+    regs.forEach(function (r) { r.unregister(); });
+    if (wasControlled && !sessionStorage.getItem('kampai_sw_unregistered')) {
+      sessionStorage.setItem('kampai_sw_unregistered', '1');
+      location.reload();
+    }
+  }).catch(function () {});
+}
+</script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidden;user-select:none;
