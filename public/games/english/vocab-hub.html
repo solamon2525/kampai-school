@@ -181,11 +181,19 @@ html,body{width:100%;height:100%;background:#1565C0;overflow:hidden;user-select:
 .q-listen:hover{background:rgba(255,215,0,0.32);transform:scale(1.05)}
 .q-options{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:1.6vh 2vw}
 .opt{
-  display:flex;align-items:center;justify-content:center;gap:1vw;
+  display:flex;align-items:center;justify-content:flex-start;gap:1.5vw;
   border-radius:14px;cursor:pointer;padding:1vh 1.4vw;
-  border:2.5px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);
+  border:2.5px solid rgba(255,255,255,0.28);background:rgba(8,28,66,0.55);
   color:#fff;font-size:5vh;font-weight:700;text-align:center;line-height:1.05;
   transition:background 0.12s,border-color 0.12s,transform 0.1s;
+}
+.opt .opt-key{
+  flex:0 0 auto;
+  width:6.4vh;height:6.4vh;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  background:#FFD54F;color:#0D47A1;
+  font-size:4vh;font-weight:800;line-height:1;
+  box-shadow:0 2px 6px rgba(0,0,0,0.3);
 }
 .opt .opt-emoji{font-size:7vh;line-height:1}
 .opt .opt-swatch{width:8vh;height:8vh;border-radius:16px;border:2px solid rgba(255,255,255,0.6)}
@@ -1025,10 +1033,11 @@ function renderQuestion(){
       `<div class="q-options" id="q-opts"></div>`+
     `</div>`;
   const optWrap=document.getElementById('q-opts');
-  opts.forEach(it=>{
+  opts.forEach((it,idx)=>{
     const b=document.createElement('div');
     b.className='opt';
-    b.innerHTML = isListen ? glyph(it) : optLabel(it);
+    const key=String.fromCharCode(65+idx);   // A B C D
+    b.innerHTML = `<span class="opt-key">${key}</span>` + (isListen ? glyph(it) : optLabel(it));
     b._item = it;
     b.addEventListener('click',()=>pickQuiz(it,target,b));
     optWrap.appendChild(b);
@@ -1245,6 +1254,7 @@ document.addEventListener('keydown',e=>{
     if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){ e.preventDefault(); if(!revealed) btnReveal.click(); else btnNext.click(); }
   } else if(mode==='choice'||mode==='listen'){
     if(/^[1-4]$/.test(e.key)){ const o=document.querySelectorAll('.opt')[+e.key-1]; if(o) o.click(); }
+    else { const m='abcd'.indexOf(e.key.toLowerCase()); if(m>=0){ const o=document.querySelectorAll('.opt')[m]; if(o) o.click(); } }
   } else if(mode==='spell'){
     if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){ e.preventDefault(); spellNext(); }
   }
