@@ -26,6 +26,7 @@ export default defineConfig(() => ({
         globIgnores: ["games/**"],
       },
       devOptions: { enabled: false },
+      selfDestroying: true, // ← ปิด SW/PWA ชั่วคราว — เปิดกลับ: ลบบรรทัดนี้ออก
     }),
   ],
   resolve: {
