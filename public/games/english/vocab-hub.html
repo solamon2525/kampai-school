@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
+<script src="/games/kampai-sdk.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>คำศัพท์ภาษาอังกฤษ</title>
@@ -66,7 +67,8 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   transform:scale(1.04);
 }
 .hub-card .hc-icon{font-size:4vh;line-height:1.1}
-.hub-card .hc-th{font-size:7.8vh;font-weight:700;color:#FFE082;text-align:center;line-height:1.05}
+.hub-card .hc-th{width:100%;font-weight:700;color:#FFE082;text-align:center;line-height:1.05;
+  word-break:break-word;overflow-wrap:break-word}
 .hub-card .hc-en{font-size:1.6vh;color:rgba(255,255,255,0.55);text-align:center}
 .hub-card .hc-count{font-size:1.4vh;color:rgba(255,215,0,0.4)}
 
@@ -404,7 +406,6 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   #hub-title{font-size:26px}
   #hub-sub{font-size:13px}
   .hub-card .hc-icon{font-size:26px}
-  .hub-card .hc-th{font-size:30px}
 
   /* BANNER */
   #word{flex:0 0 auto;min-height:120px;padding:8px 3vw}
@@ -1138,6 +1139,16 @@ function shuffle(arr){
   for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
   return a;
 }
+function hubTitleFontSize(title){
+  const n=title.length;
+  if(n<=3)  return 'min(7vh,9vw)';
+  if(n<=5)  return 'min(5.6vh,7vw)';
+  if(n<=7)  return 'min(4.2vh,5.4vw)';
+  if(n<=9)  return 'min(3.3vh,4.2vw)';
+  if(n<=12) return 'min(2.6vh,3.3vw)';
+  if(n<=14) return 'min(2.2vh,2.8vw)';
+  return 'min(1.85vh,2.3vw)';
+}
 function cellFontSize(label){
   const n=label.length;
   if(n<=4) return '10vh';
@@ -1197,7 +1208,7 @@ function buildHub(){
     c.className='hub-card';
     c.innerHTML=
       `<div class="hc-icon">${meta.icon}</div>`+
-      `<div class="hc-th">${meta.title}</div>`+
+      `<div class="hc-th" style="font-size:${hubTitleFontSize(meta.title)}">${meta.title}</div>`+
       `<div class="hc-en">${meta.en}</div>`+
       `<div class="hc-count">${meta.count} คำ</div>`;
     c.addEventListener('click',()=>{ location.hash='#'+meta.slug; });
