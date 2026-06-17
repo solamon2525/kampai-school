@@ -853,7 +853,7 @@ function setMode(m){
   showBoards(board);
   dotsEl.style.display = board ? '' : 'none';
   btnSay.style.display = board ? '' : 'none';
-  speedDiv.style.display = (m==='auto' && slides.length>1) ? '' : 'none';
+  speedDiv.style.display = (m==='auto') ? '' : 'none';   // โชว์ทุกหมวดในโหมดอัตโนมัติ (ไล่อ่านทีละคำแม้สไลด์เดียว)
   if(m==='auto'){ curCell=0; goTo(curSlide); }
   else if(m==='flash'){ startFlash(); }
   else if(m==='choice'){ startChoice(); }
