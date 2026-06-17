@@ -151,6 +151,8 @@ html,body{width:100%;height:100%;background:#1565C0;overflow:hidden;user-select:
   box-shadow:0 0 0 4px #ffffff, 0 0 0 7px #000000, 0 12px 28px rgba(0,0,0,0.5) !important;
 }
 .cell.color-cell.hl .lbl{color:inherit}
+#grid.interactive .cell{cursor:pointer}
+#grid.interactive .cell:hover{border-color:rgba(255,215,0,0.55)}
 .lbl{
   font-size:7vh;font-weight:700;line-height:1;
   color:#fff;text-align:center;padding:0 0.3em;
@@ -249,10 +251,11 @@ html,body{width:100%;height:100%;background:#1565C0;overflow:hidden;user-select:
   padding:0 1.5vw 0.8vh;
   position:relative;gap:5px;
 }
-#dots{
+#dotsnav{
   position:absolute;left:50%;transform:translateX(-50%);
-  display:flex;gap:7px;align-items:center;
+  display:flex;gap:10px;align-items:center;
 }
+#dots{display:flex;gap:7px;align-items:center}
 .dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,0.25);transition:background 0.2s}
 .dot.active{background:#FFD700}
 #lctrl{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
@@ -366,6 +369,7 @@ html,body{width:100%;height:100%;background:#1565C0;overflow:hidden;user-select:
     <div id="lctrl">
       <button class="cbtn" id="btn-home">← หน้าหลัก</button>
       <button class="cbtn mbtn on" id="m-auto">▶ อัตโนมัติ</button>
+      <button class="cbtn" id="btn-pause" title="หยุดชั่วคราว / เล่นต่อ">⏸</button>
       <button class="cbtn mbtn" id="m-flash">🎲 สุ่ม</button>
       <button class="cbtn mbtn" id="m-choice">🎯 ทายคำ</button>
       <button class="cbtn mbtn" id="m-match">🔗 จับคู่</button>
@@ -373,7 +377,11 @@ html,body{width:100%;height:100%;background:#1565C0;overflow:hidden;user-select:
       <button class="cbtn mbtn" id="m-spell">🔤 สะกดคำ</button>
       <button class="cbtn" id="btn-sound">🔊 เสียง</button>
     </div>
-    <div id="dots"></div>
+    <div id="dotsnav">
+      <button class="cbtn" id="btn-prev-slide" title="หน้าก่อนหน้า">‹</button>
+      <div id="dots"></div>
+      <button class="cbtn" id="btn-next-slide" title="หน้าถัดไป">›</button>
+    </div>
     <div id="score"></div>
     <div id="speed">
       <label>Speed</label>
@@ -637,12 +645,16 @@ const modeBtns  = {
   listen: document.getElementById('m-listen'),
   spell:  document.getElementById('m-spell'),
 };
+const btnPause     = document.getElementById('btn-pause');
+const btnPrevSlide = document.getElementById('btn-prev-slide');
+const btnNextSlide = document.getElementById('btn-next-slide');
 
 // =====================================================================
 // STATE
 // =====================================================================
 let mode = 'auto';                       // auto | flash | choice | match | listen | spell
 let cellMs = 1500, curSlide = 0, curCell = 0, timer = null;
+let autoPaused = false;                  // หยุดชั่วคราวในโหมดอัตโนมัติ (ปุ่ม pause หรือคลิกคำเอง)
 let quizOrder = [], quizPos = 0, revealed = false;     // flash
 let currentSlug = '', allItems = [], slides = [], slideEls = [], dotElArr = [];
 let isColorTopic = false, ips = 10, curItem = null;
@@ -796,7 +808,7 @@ function getIps(count){
   if(count<=12) return 6;
   return 10;
 }
-function buildCell(item){
+function buildCell(item, sIdx, cIdx){
   const el=document.createElement('div');
   el.className='cell'+(isColorTopic?' color-cell':'');
   if(isColorTopic&&item.bgColor){ el.style.background=item.bgColor; el.style.borderColor='rgba(255,255,255,0.28)'; }
@@ -806,6 +818,14 @@ function buildCell(item){
   lbl.style.fontSize = item.emoji ? '3.4vh' : cellFontSize(item.label);
   if(isColorTopic&&item.darkText) lbl.style.color='#1A237E';
   el.appendChild(lbl); el._item=item;
+  // โหมดอัตโนมัติ: คลิกคำไหนก็ได้เพื่อหยุดและดู/ฟังคำนั้นทันที (กดเองได้ ไม่ต้องรอ)
+  el.addEventListener('click', e=>{
+    if(mode!=='auto') return;
+    e.stopPropagation();
+    pauseAuto();
+    curCell=cIdx;
+    setHl(sIdx,cIdx);
+  });
   return el;
 }
 function showTopic(slug){
@@ -818,7 +838,7 @@ function showTopic(slug){
   ips=getIps(items.length);
   slides=[];
   for(let i=0;i<items.length;i+=ips) slides.push(items.slice(i,i+ips));
-  slideEls=slides.map(s=>s.map(buildCell));
+  slideEls=slides.map((s,sIdx)=>s.map((item,cIdx)=>buildCell(item,sIdx,cIdx)));
   dotsEl.innerHTML='';
   slides.forEach(()=>{ const d=document.createElement('div'); d.className='dot'; dotsEl.appendChild(d); });
   dotElArr=Array.from(dotsEl.querySelectorAll('.dot'));
@@ -850,11 +870,19 @@ function setMode(m){
   playEl.classList.remove('show'); playEl.innerHTML='';
   setScore('');
   const board = (m==='auto'||m==='flash');
+  const isAuto = (m==='auto');
   showBoards(board);
   dotsEl.style.display = board ? '' : 'none';
   btnSay.style.display = board ? '' : 'none';
-  speedDiv.style.display = (m==='auto') ? '' : 'none';   // โชว์ทุกหมวดในโหมดอัตโนมัติ (ไล่อ่านทีละคำแม้สไลด์เดียว)
-  if(m==='auto'){ curCell=0; goTo(curSlide); }
+  speedDiv.style.display = isAuto ? '' : 'none';   // โชว์ทุกหมวดในโหมดอัตโนมัติ (ไล่อ่านทีละคำแม้สไลด์เดียว)
+  btnPause.style.display = isAuto ? '' : 'none';
+  btnPrevSlide.style.display = isAuto ? '' : 'none';
+  btnNextSlide.style.display = isAuto ? '' : 'none';
+  gridEl.classList.toggle('interactive', isAuto);   // โหมดอัตโนมัติ: คลิกคำในกริดได้
+  if(isAuto){
+    autoPaused=false; btnPause.textContent='⏸'; btnPause.classList.remove('on');
+    curCell=0; goTo(curSlide);
+  }
   else if(m==='flash'){ startFlash(); }
   else if(m==='choice'){ startChoice(); }
   else if(m==='match'){ startMatch(); }
@@ -891,12 +919,24 @@ function goTo(idx){
 }
 function startTimer(){
   clearInterval(timer);
-  if(mode!=='auto') return;
+  if(mode!=='auto'||autoPaused) return;
   timer=setInterval(()=>{
     curCell++;
     if(curCell>=slides[curSlide].length){ goTo(curSlide+1); return; }
     setHl(curSlide,curCell);
   }, cellMs);
+}
+function pauseAuto(){
+  if(mode!=='auto'||autoPaused) return;
+  autoPaused=true;
+  clearInterval(timer);
+  btnPause.textContent='▶'; btnPause.classList.add('on');
+}
+function resumeAuto(){
+  if(mode!=='auto'||!autoPaused) return;
+  autoPaused=false;
+  btnPause.textContent='⏸'; btnPause.classList.remove('on');
+  startTimer();
 }
 
 // =====================================================================
@@ -1152,6 +1192,9 @@ Object.keys(modeBtns).forEach(k=>{
 });
 btnHome.addEventListener('click',e=>{ e.stopPropagation(); location.hash=''; showHub(); });
 btnSay.addEventListener('click',e=>{ e.stopPropagation(); if(curItem) speak(curItem); });
+btnPause.addEventListener('click',e=>{ e.stopPropagation(); autoPaused ? resumeAuto() : pauseAuto(); });
+btnPrevSlide.addEventListener('click',e=>{ e.stopPropagation(); if(mode!=='auto') return; pauseAuto(); goTo(curSlide-1); });
+btnNextSlide.addEventListener('click',e=>{ e.stopPropagation(); if(mode!=='auto') return; pauseAuto(); goTo(curSlide+1); });
 btnSound.addEventListener('click',e=>{
   e.stopPropagation();
   audioOn=!audioOn;
