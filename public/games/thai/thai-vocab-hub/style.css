@@ -576,14 +576,85 @@ body {
 }
 
 #score-display {
-  display: none !important;
+  display: none;
+  align-items: center;
+  gap: 14px;
   font-size: 16px;
   font-weight: 700;
   color: #fff;
 }
 
-#score-display strong {
+#life-display {
+  font-size: 15px;
+  letter-spacing: 1px;
+}
+
+#score-display .sd-score strong {
   color: #fbbf24;
+}
+
+/* ปุ่มเลื่อนคำ ◀ ▶ ในโหมดทบทวน */
+.btn-nav {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f1f5f9;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  width: 38px;
+  height: 34px;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-nav:hover {
+  background: #f97316;
+  border-color: #fdba74;
+  transform: scale(1.05);
+}
+
+/* กล่องคำที่ควรทบทวนในจอสรุป */
+.missed-box {
+  width: 100%;
+  max-width: 440px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(249, 115, 22, 0.18);
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.missed-title {
+  font-size: 15px;
+  color: #fbbf24;
+  margin-bottom: 8px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.missed-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 180px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.missed-list li {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #e2e8f0;
+  line-height: 1.4;
+}
+
+.missed-list li strong {
+  color: #fff;
 }
 
 /* ═══ TOAST FEEDBACK ═══ */

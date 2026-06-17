@@ -12,6 +12,9 @@
 <body>
 <div id="bar-wrap"><div id="bar" style="width:0"></div></div>
 
+<!-- Player chip (shows student name when embedded) -->
+<div id="player-chip"></div>
+
 <!-- HUB VIEW (Category select) -->
 <div id="hub-view">
     <div id="hub-title">คลังคำศัพท์ภาษาไทย ป.4</div>
@@ -45,7 +48,9 @@
 
     <!-- Autoplay controls (only visible in auto mode) -->
     <div id="autoplay-controls" class="autoplay-bar" style="display:none">
+        <button class="btn-nav" onclick="prevWord()" title="คำก่อนหน้า (←)">◀</button>
         <button id="btn-autoplay-toggle" class="btn-autoplay" onclick="toggleAutoplay()">▶ เล่นอัตโนมัติ</button>
+        <button class="btn-nav" onclick="nextWord()" title="คำถัดไป (→)">▶</button>
         <div class="autoplay-speed-group">
             <span class="speed-label">ความเร็ว:</span>
             <select id="autoplay-speed-select" class="speed-select" onchange="changeAutoplaySpeed(this.value)">
@@ -100,7 +105,10 @@
             <button class="cbtn mbtn" id="m-match" onclick="switchMode('match')">🔗 จับคู่คำอ่าน</button>
         </div>
         <div id="dots"></div>
-        <div id="score-display">คะแนน: <strong id="score-val">0</strong></div>
+        <div id="score-display" style="display:none">
+            <span id="life-display">❤️❤️❤️❤️❤️</span>
+            <span class="sd-score">คะแนน <strong id="score-val">0</strong></span>
+        </div>
     </div>
 </div>
 
@@ -111,7 +119,13 @@
     <p style="display:none">คะแนนสะสมสูงสุดของคุณ</p>
     <div id="final-score" style="display:none">0</div>
     <p id="go-summary" style="font-size:15px"></p>
-    
+
+    <!-- คำที่ตอบผิด (ไว้ทบทวนซ้ำ) -->
+    <div id="missed-box" class="missed-box" style="display:none">
+        <h3 class="missed-title">📝 คำที่ควรทบทวน</h3>
+        <ul id="missed-list" class="missed-list"></ul>
+    </div>
+
     <div class="leaderboard-box" style="display:none">
         <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
         <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>

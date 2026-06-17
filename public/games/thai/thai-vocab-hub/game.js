@@ -17,44 +17,38 @@ let autoplayInterval = null;
 let isAutoplayActive = false;
 let autoplaySpeed = 3000;
 
+// สรุปผลรายรอบ (โหมดฝึก) — เก็บถูก/ทั้งหมด + คำที่พลาด
+let sessionCorrect = 0;
+let sessionTotal = 0;
+let missedWords = [];
+
+function resetSession() {
+  sessionCorrect = 0;
+  sessionTotal = 0;
+  missedWords = [];
+}
+
 const CONFIG = window.GAME_CONFIG;
 const CATEGORIES = window.GAME_DATA.categories;
 const ALL_WORDS = window.GAME_DATA.words;
 
 // โหลดข้อมูล SDK เมื่อหน้าพร้อมใช้งาน
 KAMPAI.onReady((sdk) => {
-  const bestScore = sdk.stats?.high_score || 0;
-  const playCount = sdk.stats?.play_count || 0;
-  
-  const bestEl = document.getElementById('ms-best');
-  const playsEl = document.getElementById('ms-plays');
-  if (bestEl) bestEl.textContent = bestScore;
-  if (playsEl) playsEl.textContent = playCount;
-
-  renderLeaderboard(sdk.leaderboard, 'score-list');
-
-  if (sdk.student) {
+  // แสดงชิปนักเรียนเมื่อเล่นผ่านระบบ (embedded)
+  const name = sdk.student && sdk.student.displayName;
+  if (name) {
     const chip = document.getElementById('player-chip');
     if (chip) {
       chip.style.display = 'flex';
-      chip.innerHTML = `
-        <div class="pc-init">${sdk.student.name.charAt(0)}</div>
-        <span>${sdk.student.name}</span>
-      `;
+      chip.innerHTML = `<div class="pc-init">${name.charAt(0)}</div><span>${name}</span>`;
     }
   }
 
-  sdk.sound.bgmStart(CONFIG.BGM);
-  
-  // แสดงรายการหัวใจเริ่มต้นสำหรับ HUD (แสดงเป็น DOM เผื่อไว้)
-  const hud = document.getElementById('hud');
-  if (hud) {
-    hud.innerHTML = `
-      <div id="score-container">⭐ <span id="score-val-hud">0</span></div>
-      <div id="life-container">❤️❤️❤️❤️❤️</div>
-      <div id="level-container">หมวด: <span id="cat-val-hud">—</span></div>
-      <div id="player-chip"></div>
-    `;
+  // เพลงพื้นหลัง + ปุ่มควบคุมเสียง 🔊 🗣️ 🎵 (คลังสื่อ ไม่นับคะแนน/ไม่มี leaderboard)
+  if (sdk.sound) {
+    if (sdk.sound.defaultBgm) sdk.sound.defaultBgm(CONFIG.BGM);
+    if (sdk.sound.bgmStart) sdk.sound.bgmStart();
+    if (sdk.sound.mountToggles) sdk.sound.mountToggles();
   }
 });
 
@@ -89,18 +83,15 @@ function selectCategory(slug) {
 
   if (categoryWords.length === 0) return;
 
-  // เปลี่ยนหน้าการแสดงผล
+  // เปลี่ยนหน้าการแสดงผล (ชื่อหมวดแสดงบนการ์ดอยู่แล้ว — ไม่มีแถบ HUD บนสุด)
   document.getElementById('hub-view').style.display = 'none';
   document.getElementById('topic-view').style.display = 'flex';
-  
-  // แสดง HUD
-  document.getElementById('hud').style.display = 'flex';
-  document.getElementById('cat-val-hud').textContent = activeCategory.title;
-  
+
   // รีเซ็ตค่าด่าน
   currentScore = 0;
   currentLives = CONFIG.LIVES;
   currentWordIndex = 0;
+  resetSession();
   updateHUD();
 
   // สลับเข้าสู่โหมดรีวิว (ทบทวน) เป็นอันดับแรก
@@ -114,6 +105,17 @@ function switchMode(mode) {
 
   // หยุดการเล่นอัตโนมัติทุกครั้งที่เปลี่ยนโหมด
   stopAutoplay();
+
+  // โหมดทบทวน (auto) = เปิดดูเฉย ๆ ไม่นับคะแนน/ชีวิต → ซ่อนแถบคะแนน
+  // โหมดฝึก (dictation/choice/match) = เริ่มรอบใหม่: รีเซ็ตชีวิต/คะแนน/สรุปผล
+  const sd = document.getElementById('score-display');
+  if (sd) sd.style.display = (mode === 'auto') ? 'none' : 'flex';
+  if (mode !== 'auto') {
+    currentScore = 0;
+    currentLives = CONFIG.LIVES;
+    resetSession();
+    updateHUD();
+  }
 
   // จัดการแท็บปุ่ม
   const btns = document.querySelectorAll('.mbtn');
@@ -135,7 +137,7 @@ function switchMode(mode) {
   // จัดการแผงควบคุมการเล่นอัตโนมัติ
   const autoplayControls = document.getElementById('autoplay-controls');
 
-  // รีเซ็ตตัวกรองการทอยคำอ่าน
+  // เลือกแผงตามโหมด
   if (mode === 'auto') {
     if (autoplayControls) autoplayControls.style.display = 'flex';
     document.getElementById('words-grid').style.display = 'grid';
@@ -145,18 +147,19 @@ function switchMode(mode) {
     if (autoplayControls) autoplayControls.style.display = 'none';
     if (mode === 'dictation') {
       document.getElementById('dictation-mode').style.display = 'block';
-    // สุ่มเรียงคำศัพท์เพื่อฝึกฝน
-    quizList = shuffle([...categoryWords]);
-    currentWordIndex = 0;
-    loadDictationWord();
-  } else if (mode === 'choice') {
-    document.getElementById('choice-mode').style.display = 'block';
-    quizList = shuffle([...categoryWords]);
-    currentWordIndex = 0;
-    loadChoiceWord();
-  } else if (mode === 'match') {
-    document.getElementById('match-mode').style.display = 'flex';
-    initMatchingGame();
+      // สุ่มเรียงคำศัพท์เพื่อฝึกฝน
+      quizList = shuffle([...categoryWords]);
+      currentWordIndex = 0;
+      loadDictationWord();
+    } else if (mode === 'choice') {
+      document.getElementById('choice-mode').style.display = 'block';
+      quizList = shuffle([...categoryWords]);
+      currentWordIndex = 0;
+      loadChoiceWord();
+    } else if (mode === 'match') {
+      document.getElementById('match-mode').style.display = 'flex';
+      initMatchingGame();
+    }
   }
 }
 
@@ -218,7 +221,17 @@ function loadWord(index) {
 
 function flipCard() {
   document.getElementById('tcard').classList.toggle('flipped');
-  KAMPAI.sound.fxFlash();
+}
+
+// เลื่อนคำถัดไป/ก่อนหน้าในโหมดทบทวน (ปุ่ม ◀ ▶ และลูกศรคีย์บอร์ด) วนรอบ
+function nextWord() {
+  if (currentMode !== 'auto' || categoryWords.length === 0) return;
+  loadWord((currentWordIndex + 1) % categoryWords.length);
+}
+
+function prevWord() {
+  if (currentMode !== 'auto' || categoryWords.length === 0) return;
+  loadWord((currentWordIndex - 1 + categoryWords.length) % categoryWords.length);
 }
 
 // ═══ MODE 2: DICTATION (เขียนตามคำบอก) ═══
@@ -279,8 +292,9 @@ function checkDictation() {
 
   if (answer === wordItem.word) {
     currentScore += CONFIG.BASE_SCORE;
+    recordAnswer(wordItem, true);
     showToast('ถูกต้องเก่งมาก! 🎉', 'correct');
-    
+
     // พลิกการ์ดเฉลยความหมายโดยอัตโนมัติ
     document.getElementById('wfront-word').textContent = wordItem.word;
     document.getElementById('wback-reading').textContent = `คำอ่าน: [ ${wordItem.reading} ]`;
@@ -294,6 +308,7 @@ function checkDictation() {
     KAMPAI.sound.correct();
   } else {
     currentLives--;
+    recordAnswer(wordItem, false);
     showToast('สะกดไม่ถูกต้องนะ 😢', 'wrong');
 
     // เฉลยคำศัพท์ที่ถูกต้องบนหน้าการ์ด
@@ -380,6 +395,7 @@ function selectChoiceAnswer(selectedOpt, clickedBtn) {
   if (selectedOpt === wordItem.meaning) {
     clickedBtn.classList.add('correct');
     currentScore += CONFIG.BASE_SCORE;
+    recordAnswer(wordItem, true);
     showToast('คำตอบถูกต้อง! 🎉', 'correct');
     KAMPAI.sound.correct();
   } else {
@@ -389,6 +405,7 @@ function selectChoiceAnswer(selectedOpt, clickedBtn) {
       if (btn.textContent === wordItem.meaning) btn.classList.add('correct');
     });
     currentLives--;
+    recordAnswer(wordItem, false);
     showToast('ยังไม่ถูกต้องนะ 😢', 'wrong');
     KAMPAI.sound.wrong();
   }
@@ -485,6 +502,7 @@ function selectMatch(id, cardElement, side) {
 
       currentScore += CONFIG.BASE_SCORE;
       matchedPairsCount++;
+      recordAnswer(categoryWords.find(w => w.word === leftNode.id), true);
       updateHUD();
       KAMPAI.sound.correct();
 
@@ -504,6 +522,7 @@ function selectMatch(id, cardElement, side) {
       rightNode.el.classList.add('error');
 
       currentLives--;
+      recordAnswer(categoryWords.find(w => w.word === leftNode.id), false);
       updateHUD();
       KAMPAI.sound.wrong();
 
@@ -522,6 +541,12 @@ function selectMatch(id, cardElement, side) {
 // ═══ WEB SPEECH TEXT-TO-SPEECH (ภาษาไทย) ═══
 
 function speakThai(text) {
+  // เล่นผ่าน SDK เมื่ออยู่ในระบบ → ปุ่ม 🗣️ (mountToggles) คุมเปิด/ปิดได้ + เลือกเสียงดีกว่า
+  if (KAMPAI.isEmbed && KAMPAI.sound && KAMPAI.sound.speak) {
+    KAMPAI.sound.speak(text, 'th-TH', true);
+    return;
+  }
+  // เปิดไฟล์ตรง ๆ (standalone) → ใช้ Web Speech ของเบราว์เซอร์
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel(); // ยกเลิกการพูดข้อความค้างเก่า
     const utterance = new SpeechSynthesisUtterance(text);
@@ -531,74 +556,108 @@ function speakThai(text) {
   }
 }
 
-// ═══ LEADERBOARD & STATS ═══
+// ═══ NAVIGATION & HUD ═══
 
 function returnToHub() {
-  // ยกเลิก BGM หรือ Synthesizer
+  // หยุดเสียงพูดและการเล่นอัตโนมัติ
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel();
   }
+  if (KAMPAI.sound && KAMPAI.sound.stopSpeak) KAMPAI.sound.stopSpeak();
   stopAutoplay();
   document.getElementById('hub-view').style.display = 'flex';
   document.getElementById('topic-view').style.display = 'none';
-  document.getElementById('hud').style.display = 'none';
   document.getElementById('gameover-screen').style.display = 'none';
+  const sd = document.getElementById('score-display');
+  if (sd) sd.style.display = 'none';
 }
 
 function updateHUD() {
   const scoreVal = document.getElementById('score-val');
   if (scoreVal) scoreVal.textContent = currentScore;
-  
-  const scoreHud = document.getElementById('score-val-hud');
-  if (scoreHud) scoreHud.textContent = currentScore;
 
   let hearts = '';
   for (let i = 0; i < CONFIG.LIVES; i++) {
     hearts += i < currentLives ? '❤️' : '🖤';
   }
-  const lifeHud = document.getElementById('life-container');
-  if (lifeHud) lifeHud.textContent = hearts;
+  const lifeDisplay = document.getElementById('life-display');
+  if (lifeDisplay) lifeDisplay.textContent = hearts;
 }
 
-// สรุปจบเกมส่งผลขึ้นบอร์ดคะแนนสะสม
+// บันทึกผลแต่ละข้อในรอบฝึก (ถูก/ผิด + เก็บคำที่พลาดไว้ทบทวน)
+function recordAnswer(wordItem, correct) {
+  sessionTotal++;
+  if (correct) {
+    sessionCorrect++;
+  } else if (wordItem && !missedWords.some(w => w.word === wordItem.word)) {
+    missedWords.push(wordItem);
+  }
+}
+
+// สรุปจบรอบฝึก (คลังสื่อ — ไม่ส่งคะแนนขึ้นระบบ)
 function endGame() {
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel();
   }
+  stopAutoplay();
+
+  const total = sessionTotal;
+  const correct = sessionCorrect;
+  const pct = total > 0 ? correct / total : 0;
 
   let stars = 0;
-  if (currentScore >= CONFIG.STAR_THRESHOLDS[2]) stars = 3;
-  else if (currentScore >= CONFIG.STAR_THRESHOLDS[1]) stars = 2;
-  else if (currentScore >= CONFIG.STAR_THRESHOLDS[0]) stars = 1;
-
-  // KAMPAI.submitScore(currentScore, { stars: stars });
+  if (total > 0) {
+    if (pct >= 0.9) stars = 3;
+    else if (pct >= 0.6) stars = 2;
+    else if (pct > 0) stars = 1;
+  }
 
   const starDisplay = document.getElementById('star-display');
-  let starStr = '';
-  for (let i = 1; i <= 3; i++) {
-    starStr += i <= stars ? '⭐' : '☆';
+  if (starDisplay) {
+    let starStr = '';
+    for (let i = 1; i <= 3; i++) starStr += i <= stars ? '⭐' : '☆';
+    starDisplay.textContent = starStr;
+    starDisplay.style.display = 'block';
   }
-  starDisplay.textContent = starStr;
+
+  // ส่งคะแนนรอบฝึกขึ้นระบบ (เฉพาะเมื่อมีการตอบอย่างน้อย 1 ข้อ — โหมดทบทวนไม่เรียก endGame)
+  if (total > 0 && KAMPAI.submitScore) {
+    KAMPAI.submitScore(currentScore, { stars: stars });
+  }
+
+  const titleEl = document.getElementById('go-title');
+  if (titleEl) titleEl.textContent = (currentLives <= 0) ? 'พยายามอีกครั้ง!' : 'ทบทวนสำเร็จ!';
 
   const summaryEl = document.getElementById('go-summary');
-  if (currentLives <= 0) {
-    summaryEl.textContent = `สะกดผิดเกินกำหนดจนหัวใจหมด! พยายามฝึกฝนเพิ่มเติมนะครับ`;
-    document.getElementById('go-title').textContent = 'พยายามอีกครั้ง!';
-  } else {
-    summaryEl.textContent = `ยอดเยี่ยม! คุณได้ทบทวนและทำกิจกรรมคำศัพท์หมวดหมู่นี้สำเร็จแล้ว`;
-    document.getElementById('go-title').textContent = 'ทบทวนสำเร็จ!';
+  if (summaryEl) {
+    summaryEl.textContent = total > 0 ? `ตอบถูก ${correct} / ${total} คำ` : 'จบรอบแล้ว';
   }
 
-  document.getElementById('final-score').textContent = currentScore;
+  // รายการคำที่ควรทบทวน (เฉพาะที่ตอบผิด)
+  const missedBox = document.getElementById('missed-box');
+  const missedList = document.getElementById('missed-list');
+  if (missedBox && missedList) {
+    if (missedWords.length > 0) {
+      missedList.innerHTML = '';
+      missedWords.forEach(w => {
+        const li = document.createElement('li');
+        li.innerHTML = `<strong>${w.word}</strong> [${w.reading}] — ${w.meaning}`;
+        missedList.appendChild(li);
+      });
+      missedBox.style.display = 'block';
+    } else {
+      missedBox.style.display = 'none';
+    }
+  }
+
   document.getElementById('gameover-screen').style.display = 'flex';
   document.getElementById('topic-view').style.display = 'none';
-  document.getElementById('hud').style.display = 'none';
+  const sd = document.getElementById('score-display');
+  if (sd) sd.style.display = 'none';
 
   if (stars >= 2) {
     initConfetti();
   }
-
-  // renderLeaderboard(KAMPAI.leaderboard, 'score-list-gameover');
 }
 
 // แสดง Toast ข้อความเล็ก
@@ -620,30 +679,6 @@ function shuffle(array) {
     [array[i], array[j]] = [array[j], array[i]];
   }
   return array;
-}
-
-function renderLeaderboard(leaderboardData, containerId) {
-  const listEl = document.getElementById(containerId);
-  if (!listEl) return;
-  
-  listEl.innerHTML = '';
-  
-  if (!leaderboardData || leaderboardData.length === 0) {
-    listEl.innerHTML = '<li class="lb-loading">ยังไม่มีประวัติคะแนน</li>';
-    return;
-  }
-
-  leaderboardData.forEach((row, i) => {
-    const isMe = KAMPAI.student && row.student_id === KAMPAI.student.id;
-    const li = document.createElement('li');
-    if (isMe) li.className = 'me';
-    
-    li.innerHTML = `
-      <span><strong>#${i + 1}</strong> ${row.student_name || 'เพื่อนนักเรียน'}</span>
-      <span>⭐ ${row.score}</span>
-    `;
-    listEl.appendChild(li);
-  });
 }
 
 // CONFETTI
@@ -764,3 +799,25 @@ function changeAutoplaySpeed(speed) {
     startAutoplay();
   }
 }
+
+// ═══ KEYBOARD CONTROLS ═══
+// ทบทวน: ← → เปลี่ยนคำ, Space พลิกการ์ด · ทายความหมาย: 1-4 เลือกตัวเลือก
+// (เขียนตามคำบอก: Enter จัดการที่ handleDictationKey ในช่อง input อยู่แล้ว)
+document.addEventListener('keydown', (e) => {
+  const topicView = document.getElementById('topic-view');
+  if (!topicView || topicView.style.display === 'none') return;
+
+  // อย่าแย่งคีย์จากช่องพิมพ์/ดรอปดาวน์ (เช่น ช่องเขียนตามคำบอก, ตัวเลือกความเร็ว)
+  const tag = (document.activeElement && document.activeElement.tagName) || '';
+  if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+
+  if (currentMode === 'auto') {
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prevWord(); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); nextWord(); }
+    else if (e.key === ' ') { e.preventDefault(); flipCard(); }
+  } else if (currentMode === 'choice' && e.key >= '1' && e.key <= '4') {
+    const btns = document.querySelectorAll('#choice-options .option-btn');
+    const btn = btns[parseInt(e.key, 10) - 1];
+    if (btn && !btn.disabled) btn.click();
+  }
+});
