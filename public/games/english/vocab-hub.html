@@ -30,7 +30,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   flex:1;
   display:grid;
   grid-template-columns:repeat(5,1fr);
-  grid-template-rows:repeat(2,1fr);
+  grid-template-rows:repeat(3,1fr);
   gap:1.4vh 1.2vw;
 }
 .hub-card{
@@ -104,6 +104,12 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   color:#ffffff;white-space:nowrap;margin-top:0.25em;
 }
 #wback-mean:empty{display:none}
+#wback-example{
+  font-size:2.4vh;font-style:italic;font-weight:400;
+  color:rgba(255,255,255,0.65);white-space:normal;text-align:center;
+  max-width:80vw;margin-top:0.4em;
+}
+#wback-example:empty{display:none}
 .back-col{display:flex;flex-direction:column;align-items:center}
 #btn-say{
   position:absolute;top:1vh;right:2vw;z-index:5;
@@ -391,6 +397,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   #wback-en{font-size:34px;white-space:normal;text-align:center}
   #wback-th{font-size:24px;white-space:normal;text-align:center}
   #wback-mean{font-size:18px;white-space:normal;text-align:center}
+  #wback-example{font-size:14px;white-space:normal;text-align:center}
   #btn-say{top:6px;right:8px;width:34px;height:34px;font-size:16px}
 
   /* AUTO GRID / CELLS */
@@ -478,6 +485,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
           <span id="wback-en"></span>
           <span id="wback-th"></span>
           <span id="wback-mean"></span>
+          <span id="wback-example"></span>
         </div>
       </div>
     </div>
@@ -556,6 +564,10 @@ const TOPIC_META = [
   { slug:'body',     title:'ส่วนของร่างกาย',   en:'Body Parts',       icon:'🫀', count:10  },
   { slug:'shapes',   title:'รูปทรง',           en:'Shapes',           icon:'🔷', count:8   },
   { slug:'family',   title:'ครอบครัว',         en:'Family',           icon:'👨‍👩‍👧', count:8   },
+  { slug:'food',     title:'อาหาร',            en:'Food',             icon:'🍽️', count:12  },
+  { slug:'jobs',     title:'อาชีพ',            en:'Occupations',      icon:'💼', count:12  },
+  { slug:'weather',  title:'อากาศ',            en:'Weather',          icon:'🌤️', count:10  },
+  { slug:'verbs',    title:'คำกริยา',          en:'Verbs',            icon:'🏃', count:12  },
 ];
 
 // =====================================================================
@@ -615,41 +627,41 @@ const TOPICS = {
     {label:'99', en:'Ninety-nine',  th:'ไนน์ตี้ไนน์'},   {label:'100',en:'One Hundred',  th:'วันฮันเดรด'},
   ],
   colors: [
-    {label:'Red',       en:'Red',       th:'เรด',         meaning:'สีแดง',     bgColor:'#C62828'},
-    {label:'Orange',    en:'Orange',    th:'ออเรนจ์',     meaning:'สีส้ม',     bgColor:'#E65100'},
-    {label:'Yellow',    en:'Yellow',    th:'เยลโล่',      meaning:'สีเหลือง',  bgColor:'#F9A825', darkText:true},
-    {label:'Green',     en:'Green',     th:'กรีน',        meaning:'สีเขียว',   bgColor:'#2E7D32'},
-    {label:'Blue',      en:'Blue',      th:'บลู',         meaning:'สีน้ำเงิน', bgColor:'#0D47A1'},
-    {label:'Purple',    en:'Purple',    th:'เพอร์เพิล',   meaning:'สีม่วง',    bgColor:'#6A1B9A'},
-    {label:'Pink',      en:'Pink',      th:'พิงค์',       meaning:'สีชมพู',    bgColor:'#AD1457'},
-    {label:'Brown',     en:'Brown',     th:'บราวน์',      meaning:'สีน้ำตาล',  bgColor:'#4E342E'},
-    {label:'Black',     en:'Black',     th:'แบล็ก',       meaning:'สีดำ',      bgColor:'#212121'},
-    {label:'White',     en:'White',     th:'ไวท์',        meaning:'สีขาว',     bgColor:'#E0E0E0', darkText:true},
-    {label:'Gray',      en:'Gray',      th:'เกรย์',       meaning:'สีเทา',     bgColor:'#546E7A'},
-    {label:'Gold',      en:'Gold',      th:'โกลด์',       meaning:'สีทอง',     bgColor:'#F57F17', darkText:true},
+    {label:'Red',       en:'Red',       th:'เรด',         meaning:'สีแดง',     bgColor:'#C62828', example:'The apple is red.'},
+    {label:'Orange',    en:'Orange',    th:'ออเรนจ์',     meaning:'สีส้ม',     bgColor:'#E65100', example:'She wore an orange dress.'},
+    {label:'Yellow',    en:'Yellow',    th:'เยลโล่',      meaning:'สีเหลือง',  bgColor:'#F9A825', darkText:true, example:'The sun is yellow.'},
+    {label:'Green',     en:'Green',     th:'กรีน',        meaning:'สีเขียว',   bgColor:'#2E7D32', example:'The grass is green.'},
+    {label:'Blue',      en:'Blue',      th:'บลู',         meaning:'สีน้ำเงิน', bgColor:'#0D47A1', example:'The sky is blue.'},
+    {label:'Purple',    en:'Purple',    th:'เพอร์เพิล',   meaning:'สีม่วง',    bgColor:'#6A1B9A', example:'She likes the purple flower.'},
+    {label:'Pink',      en:'Pink',      th:'พิงค์',       meaning:'สีชมพู',    bgColor:'#AD1457', example:'Her dress is pink.'},
+    {label:'Brown',     en:'Brown',     th:'บราวน์',      meaning:'สีน้ำตาล',  bgColor:'#4E342E', example:'The dog is brown.'},
+    {label:'Black',     en:'Black',     th:'แบล็ก',       meaning:'สีดำ',      bgColor:'#212121', example:'The cat is black.'},
+    {label:'White',     en:'White',     th:'ไวท์',        meaning:'สีขาว',     bgColor:'#E0E0E0', darkText:true, example:'The snow is white.'},
+    {label:'Gray',      en:'Gray',      th:'เกรย์',       meaning:'สีเทา',     bgColor:'#546E7A', example:'The elephant is gray.'},
+    {label:'Gold',      en:'Gold',      th:'โกลด์',       meaning:'สีทอง',     bgColor:'#F57F17', darkText:true, example:'She wore a gold necklace.'},
   ],
   days: [
-    {label:'Monday',    en:'Monday',    th:'มันเดย์',      meaning:'วันจันทร์'},
-    {label:'Tuesday',   en:'Tuesday',   th:'ทิวส์เดย์',    meaning:'วันอังคาร'},
-    {label:'Wednesday', en:'Wednesday', th:'เวนส์เดย์',    meaning:'วันพุธ'},
-    {label:'Thursday',  en:'Thursday',  th:'เธอส์เดย์',    meaning:'วันพฤหัสบดี'},
-    {label:'Friday',    en:'Friday',    th:'ไฟรเดย์',      meaning:'วันศุกร์'},
-    {label:'Saturday',  en:'Saturday',  th:'แซทเทอร์เดย์', meaning:'วันเสาร์'},
-    {label:'Sunday',    en:'Sunday',    th:'ซันเดย์',      meaning:'วันอาทิตย์'},
+    {label:'Monday',    en:'Monday',    th:'มันเดย์',      meaning:'วันจันทร์',   example:'I go to school on Monday.'},
+    {label:'Tuesday',   en:'Tuesday',   th:'ทิวส์เดย์',    meaning:'วันอังคาร',   example:'We have a test on Tuesday.'},
+    {label:'Wednesday', en:'Wednesday', th:'เวนส์เดย์',    meaning:'วันพุธ',      example:'Wednesday is the middle of the week.'},
+    {label:'Thursday',  en:'Thursday',  th:'เธอส์เดย์',    meaning:'วันพฤหัสบดี', example:'I play football on Thursday.'},
+    {label:'Friday',    en:'Friday',    th:'ไฟรเดย์',      meaning:'วันศุกร์',    example:'We rest on Friday night.'},
+    {label:'Saturday',  en:'Saturday',  th:'แซทเทอร์เดย์', meaning:'วันเสาร์',    example:'I visit my grandma on Saturday.'},
+    {label:'Sunday',    en:'Sunday',    th:'ซันเดย์',      meaning:'วันอาทิตย์',  example:'We go to the park on Sunday.'},
   ],
   months: [
-    {label:'Jan',  en:'January',   th:'แจนนิวแอรี่',  meaning:'มกราคม'},
-    {label:'Feb',  en:'February',  th:'เฟบรูแอรี่',   meaning:'กุมภาพันธ์'},
-    {label:'Mar',  en:'March',     th:'มาร์ช',        meaning:'มีนาคม'},
-    {label:'Apr',  en:'April',     th:'เอพริล',       meaning:'เมษายน'},
-    {label:'May',  en:'May',       th:'เมย์',         meaning:'พฤษภาคม'},
-    {label:'Jun',  en:'June',      th:'จูน',          meaning:'มิถุนายน'},
-    {label:'Jul',  en:'July',      th:'จูลาย',        meaning:'กรกฎาคม'},
-    {label:'Aug',  en:'August',    th:'ออกัสต์',      meaning:'สิงหาคม'},
-    {label:'Sep',  en:'September', th:'เซปเทมเบอร์',  meaning:'กันยายน'},
-    {label:'Oct',  en:'October',   th:'ออคโตเบอร์',   meaning:'ตุลาคม'},
-    {label:'Nov',  en:'November',  th:'โนเวมเบอร์',   meaning:'พฤศจิกายน'},
-    {label:'Dec',  en:'December',  th:'ดีเซมเบอร์',   meaning:'ธันวาคม'},
+    {label:'Jan',  en:'January',   th:'แจนนิวแอรี่',  meaning:'มกราคม',    example:'School starts in January.'},
+    {label:'Feb',  en:'February',  th:'เฟบรูแอรี่',   meaning:'กุมภาพันธ์', example:"Valentine's Day is in February."},
+    {label:'Mar',  en:'March',     th:'มาร์ช',        meaning:'มีนาคม',    example:'It rains a lot in March.'},
+    {label:'Apr',  en:'April',     th:'เอพริล',       meaning:'เมษายน',    example:'April is a warm month.'},
+    {label:'May',  en:'May',       th:'เมย์',         meaning:'พฤษภาคม',   example:'We have a holiday in May.'},
+    {label:'Jun',  en:'June',      th:'จูน',          meaning:'มิถุนายน',  example:'School ends in June.'},
+    {label:'Jul',  en:'July',      th:'จูลาย',        meaning:'กรกฎาคม',   example:'We go swimming in July.'},
+    {label:'Aug',  en:'August',    th:'ออกัสต์',      meaning:'สิงหาคม',   example:'August is very hot.'},
+    {label:'Sep',  en:'September', th:'เซปเทมเบอร์',  meaning:'กันยายน',   example:'School starts again in September.'},
+    {label:'Oct',  en:'October',   th:'ออคโตเบอร์',   meaning:'ตุลาคม',    example:'It gets cooler in October.'},
+    {label:'Nov',  en:'November',  th:'โนเวมเบอร์',   meaning:'พฤศจิกายน', example:'Leaves fall in November.'},
+    {label:'Dec',  en:'December',  th:'ดีเซมเบอร์',   meaning:'ธันวาคม',   example:'We celebrate New Year in December.'},
   ],
   alphabet: [
     {label:'A', en:'A – Apple',    th:'เอ'},
@@ -680,62 +692,116 @@ const TOPICS = {
     {label:'Z', en:'Z – Zoo',      th:'ซี'},
   ],
   animals: [
-    {label:'Dog',      en:'Dog',      th:'ด็อก',         meaning:'หมา',      emoji:'🐶'},
-    {label:'Cat',      en:'Cat',      th:'แคท',          meaning:'แมว',      emoji:'🐱'},
-    {label:'Bird',     en:'Bird',     th:'เบิร์ด',       meaning:'นก',       emoji:'🐦'},
-    {label:'Fish',     en:'Fish',     th:'ฟิช',          meaning:'ปลา',      emoji:'🐟'},
-    {label:'Rabbit',   en:'Rabbit',   th:'แรบบิท',       meaning:'กระต่าย',  emoji:'🐰'},
-    {label:'Elephant', en:'Elephant', th:'เอเลเฟิ่นท์',  meaning:'ช้าง',     emoji:'🐘'},
-    {label:'Tiger',    en:'Tiger',    th:'ไทเกอร์',      meaning:'เสือ',     emoji:'🐯'},
-    {label:'Monkey',   en:'Monkey',   th:'มังกี้',       meaning:'ลิง',      emoji:'🐵'},
-    {label:'Cow',      en:'Cow',      th:'เคาว์',        meaning:'วัว',      emoji:'🐮'},
-    {label:'Horse',    en:'Horse',    th:'ฮอร์ส',        meaning:'ม้า',      emoji:'🐴'},
-    {label:'Frog',     en:'Frog',     th:'ฟร็อก',        meaning:'กบ',       emoji:'🐸'},
-    {label:'Snake',    en:'Snake',    th:'สเนก',         meaning:'งู',       emoji:'🐍'},
+    {label:'Dog',      en:'Dog',      th:'ด็อก',         meaning:'หมา',      emoji:'🐶', example:'The dog runs in the park.'},
+    {label:'Cat',      en:'Cat',      th:'แคท',          meaning:'แมว',      emoji:'🐱', example:'The cat sleeps on the sofa.'},
+    {label:'Bird',     en:'Bird',     th:'เบิร์ด',       meaning:'นก',       emoji:'🐦', example:'The bird sings in the tree.'},
+    {label:'Fish',     en:'Fish',     th:'ฟิช',          meaning:'ปลา',      emoji:'🐟', example:'The fish swims in the water.'},
+    {label:'Rabbit',   en:'Rabbit',   th:'แรบบิท',       meaning:'กระต่าย',  emoji:'🐰', example:'The rabbit eats carrots.'},
+    {label:'Elephant', en:'Elephant', th:'เอเลเฟิ่นท์',  meaning:'ช้าง',     emoji:'🐘', example:'The elephant is very big.'},
+    {label:'Tiger',    en:'Tiger',    th:'ไทเกอร์',      meaning:'เสือ',     emoji:'🐯', example:'The tiger lives in the jungle.'},
+    {label:'Monkey',   en:'Monkey',   th:'มังกี้',       meaning:'ลิง',      emoji:'🐵', example:'The monkey climbs the tree.'},
+    {label:'Cow',      en:'Cow',      th:'เคาว์',        meaning:'วัว',      emoji:'🐮', example:'The cow gives us milk.'},
+    {label:'Horse',    en:'Horse',    th:'ฮอร์ส',        meaning:'ม้า',      emoji:'🐴', example:'The horse runs fast.'},
+    {label:'Frog',     en:'Frog',     th:'ฟร็อก',        meaning:'กบ',       emoji:'🐸', example:'The frog jumps into the pond.'},
+    {label:'Snake',    en:'Snake',    th:'สเนก',         meaning:'งู',       emoji:'🐍', example:'The snake has no legs.'},
   ],
   fruits: [
-    {label:'Apple',      en:'Apple',      th:'แอปเปิล',       meaning:'แอปเปิล',       emoji:'🍎'},
-    {label:'Banana',     en:'Banana',     th:'บานานา',        meaning:'กล้วย',         emoji:'🍌'},
-    {label:'Mango',      en:'Mango',      th:'แมงโก้',        meaning:'มะม่วง',        emoji:'🥭'},
-    {label:'Orange',     en:'Orange',     th:'ออเรนจ์',       meaning:'ส้ม',           emoji:'🍊'},
-    {label:'Grape',      en:'Grape',      th:'เกรป',          meaning:'องุ่น',         emoji:'🍇'},
-    {label:'Watermelon', en:'Watermelon', th:'วอเทอร์เมลอน',  meaning:'แตงโม',         emoji:'🍉'},
-    {label:'Pineapple',  en:'Pineapple',  th:'ไพน์แอปเปิล',   meaning:'สับปะรด',       emoji:'🍍'},
-    {label:'Strawberry', en:'Strawberry', th:'สตรอว์เบอร์รี่', meaning:'สตรอว์เบอร์รี', emoji:'🍓'},
-    {label:'Coconut',    en:'Coconut',    th:'โคโคนัท',       meaning:'มะพร้าว',       emoji:'🥥'},
-    {label:'Papaya',     en:'Papaya',     th:'ปาปาย่า',       meaning:'มะละกอ',        emoji:'🍈'},
+    {label:'Apple',      en:'Apple',      th:'แอปเปิล',       meaning:'แอปเปิล',       emoji:'🍎', example:'I eat an apple every day.'},
+    {label:'Banana',     en:'Banana',     th:'บานานา',        meaning:'กล้วย',         emoji:'🍌', example:'The monkey eats a banana.'},
+    {label:'Mango',      en:'Mango',      th:'แมงโก้',        meaning:'มะม่วง',        emoji:'🥭', example:'Mango is my favorite fruit.'},
+    {label:'Orange',     en:'Orange',     th:'ออเรนจ์',       meaning:'ส้ม',           emoji:'🍊', example:'She peels the orange.'},
+    {label:'Grape',      en:'Grape',      th:'เกรป',          meaning:'องุ่น',         emoji:'🍇', example:'We bought a bunch of grapes.'},
+    {label:'Watermelon', en:'Watermelon', th:'วอเทอร์เมลอน',  meaning:'แตงโม',         emoji:'🍉', example:'Watermelon is sweet and juicy.'},
+    {label:'Pineapple',  en:'Pineapple',  th:'ไพน์แอปเปิล',   meaning:'สับปะรด',       emoji:'🍍', example:'The pineapple is yellow inside.'},
+    {label:'Strawberry', en:'Strawberry', th:'สตรอว์เบอร์รี่', meaning:'สตรอว์เบอร์รี', emoji:'🍓', example:'I like strawberry ice cream.'},
+    {label:'Coconut',    en:'Coconut',    th:'โคโคนัท',       meaning:'มะพร้าว',       emoji:'🥥', example:'We drink coconut water.'},
+    {label:'Papaya',     en:'Papaya',     th:'ปาปาย่า',       meaning:'มะละกอ',        emoji:'🍈', example:'Papaya is good for your stomach.'},
   ],
   body: [
-    {label:'Head',  en:'Head',  th:'เฮด',    meaning:'หัว',   emoji:'😀'},
-    {label:'Eye',   en:'Eye',   th:'อาย',    meaning:'ตา',    emoji:'👁️'},
-    {label:'Ear',   en:'Ear',   th:'เอียร์', meaning:'หู',    emoji:'👂'},
-    {label:'Nose',  en:'Nose',  th:'โนส',    meaning:'จมูก',  emoji:'👃'},
-    {label:'Mouth', en:'Mouth', th:'เมาธ์',  meaning:'ปาก',   emoji:'👄'},
-    {label:'Hand',  en:'Hand',  th:'แฮนด์',  meaning:'มือ',   emoji:'✋'},
-    {label:'Foot',  en:'Foot',  th:'ฟุท',    meaning:'เท้า',  emoji:'🦶'},
-    {label:'Arm',   en:'Arm',   th:'อาร์ม',  meaning:'แขน',   emoji:'💪'},
-    {label:'Leg',   en:'Leg',   th:'เลก',    meaning:'ขา',    emoji:'🦵'},
-    {label:'Back',  en:'Back',  th:'แบก',    meaning:'หลัง'},
+    {label:'Head',  en:'Head',  th:'เฮด',    meaning:'หัว',   emoji:'😀', example:'I wear a hat on my head.'},
+    {label:'Eye',   en:'Eye',   th:'อาย',    meaning:'ตา',    emoji:'👁️', example:'She has big brown eyes.'},
+    {label:'Ear',   en:'Ear',   th:'เอียร์', meaning:'หู',    emoji:'👂', example:'He has small ears.'},
+    {label:'Nose',  en:'Nose',  th:'โนส',    meaning:'จมูก',  emoji:'👃', example:'My nose is itchy.'},
+    {label:'Mouth', en:'Mouth', th:'เมาธ์',  meaning:'ปาก',   emoji:'👄', example:'Open your mouth, please.'},
+    {label:'Hand',  en:'Hand',  th:'แฮนด์',  meaning:'มือ',   emoji:'✋', example:'Wash your hands before eating.'},
+    {label:'Foot',  en:'Foot',  th:'ฟุท',    meaning:'เท้า',  emoji:'🦶', example:'My foot hurts a little.'},
+    {label:'Arm',   en:'Arm',   th:'อาร์ม',  meaning:'แขน',   emoji:'💪', example:'He hurt his arm.'},
+    {label:'Leg',   en:'Leg',   th:'เลก',    meaning:'ขา',    emoji:'🦵', example:'She has long legs.'},
+    {label:'Back',  en:'Back',  th:'แบก',    meaning:'หลัง',  example:'My back hurts from sitting.'},
   ],
   shapes: [
-    {label:'Circle',    en:'Circle',    th:'เซอร์เคิล',  meaning:'วงกลม',           emoji:'🔵'},
-    {label:'Square',    en:'Square',    th:'สแควร์',     meaning:'สี่เหลี่ยมจัตุรัส', emoji:'🟦'},
-    {label:'Triangle',  en:'Triangle',  th:'ไทรแอนเกิล', meaning:'สามเหลี่ยม',       emoji:'🔺'},
-    {label:'Rectangle', en:'Rectangle', th:'เรกแทงเกิล', meaning:'สี่เหลี่ยมผืนผ้า',  emoji:'<svg width="1em" height="1em" viewBox="0 0 24 24"><rect x="2.5" y="6.5" width="19" height="11" rx="2" fill="#26C6DA"/></svg>'},
-    {label:'Star',      en:'Star',      th:'สตาร์',      meaning:'ดาว',             emoji:'⭐'},
-    {label:'Heart',     en:'Heart',     th:'ฮาร์ท',      meaning:'หัวใจ',           emoji:'❤️'},
-    {label:'Oval',      en:'Oval',      th:'โอเวิล',     meaning:'วงรี',            emoji:'<svg width="1em" height="1em" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="6.5" fill="#BA68C8"/></svg>'},
-    {label:'Diamond',   en:'Diamond',   th:'ไดมอนด์',    meaning:'ข้าวหลามตัด',      emoji:'🔷'},
+    {label:'Circle',    en:'Circle',    th:'เซอร์เคิล',  meaning:'วงกลม',           emoji:'🔵', example:'The clock is a circle.'},
+    {label:'Square',    en:'Square',    th:'สแควร์',     meaning:'สี่เหลี่ยมจัตุรัส', emoji:'🟦', example:'The box is a square.'},
+    {label:'Triangle',  en:'Triangle',  th:'ไทรแอนเกิล', meaning:'สามเหลี่ยม',       emoji:'🔺', example:'The roof is a triangle.'},
+    {label:'Rectangle', en:'Rectangle', th:'เรกแทงเกิล', meaning:'สี่เหลี่ยมผืนผ้า',  emoji:'<svg width="1em" height="1em" viewBox="0 0 24 24"><rect x="2.5" y="6.5" width="19" height="11" rx="2" fill="#26C6DA"/></svg>', example:'The door is a rectangle.'},
+    {label:'Star',      en:'Star',      th:'สตาร์',      meaning:'ดาว',             emoji:'⭐', example:'I drew a star in the sky.'},
+    {label:'Heart',     en:'Heart',     th:'ฮาร์ท',      meaning:'หัวใจ',           emoji:'❤️', example:'She drew a red heart.'},
+    {label:'Oval',      en:'Oval',      th:'โอเวิล',     meaning:'วงรี',            emoji:'<svg width="1em" height="1em" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="6.5" fill="#BA68C8"/></svg>', example:'The egg is an oval shape.'},
+    {label:'Diamond',   en:'Diamond',   th:'ไดมอนด์',    meaning:'ข้าวหลามตัด',      emoji:'🔷', example:'The ring has a diamond shape.'},
   ],
   family: [
-    {label:'Father',      en:'Father',      th:'ฟาเธอร์',     meaning:'พ่อ',   emoji:'👨'},
-    {label:'Mother',      en:'Mother',      th:'มาเธอร์',     meaning:'แม่',   emoji:'👩'},
-    {label:'Brother',     en:'Brother',     th:'บราเธอร์',    meaning:'พี่ชาย', emoji:'👦'},
-    {label:'Sister',      en:'Sister',      th:'ซิสเทอร์',    meaning:'พี่สาว', emoji:'👧'},
-    {label:'Grandfather', en:'Grandfather', th:'แกรนฟาเธอร์', meaning:'ปู่',   emoji:'👴'},
-    {label:'Grandmother', en:'Grandmother', th:'แกรนมาเธอร์', meaning:'ย่า',   emoji:'👵'},
-    {label:'Uncle',       en:'Uncle',       th:'อังเกิล',     meaning:'ลุง',   emoji:'🧔'},
-    {label:'Aunt',        en:'Aunt',        th:'อาน์ท',       meaning:'ป้า',   emoji:'👩‍🦰'},
+    {label:'Father',      en:'Father',      th:'ฟาเธอร์',     meaning:'พ่อ',    emoji:'👨', example:'My father works in the city.'},
+    {label:'Mother',      en:'Mother',      th:'มาเธอร์',     meaning:'แม่',    emoji:'👩', example:'My mother cooks dinner every night.'},
+    {label:'Brother',     en:'Brother',     th:'บราเธอร์',    meaning:'พี่ชาย', emoji:'👦', example:'My brother plays football.'},
+    {label:'Sister',      en:'Sister',      th:'ซิสเทอร์',    meaning:'พี่สาว', emoji:'👧', example:'My sister likes to read.'},
+    {label:'Grandfather', en:'Grandfather', th:'แกรนฟาเธอร์', meaning:'ปู่',    emoji:'👴', example:'My grandfather tells funny stories.'},
+    {label:'Grandmother', en:'Grandmother', th:'แกรนมาเธอร์', meaning:'ย่า',    emoji:'👵', example:'My grandmother bakes cookies.'},
+    {label:'Uncle',       en:'Uncle',       th:'อังเกิล',     meaning:'ลุง',    emoji:'🧔', example:'My uncle drives a truck.'},
+    {label:'Aunt',        en:'Aunt',        th:'อาน์ท',       meaning:'ป้า',    emoji:'👩‍🦰', example:'My aunt lives in Chiang Mai.'},
+  ],
+  food: [
+    {label:'Rice',      en:'Rice',      th:'ไรซ์',      meaning:'ข้าว',       emoji:'🍚', example:'I eat rice every day.'},
+    {label:'Bread',     en:'Bread',     th:'เบรด',      meaning:'ขนมปัง',     emoji:'🍞', example:'She eats bread for breakfast.'},
+    {label:'Egg',       en:'Egg',       th:'เอ็ก',      meaning:'ไข่',        emoji:'🥚', example:'He boiled an egg.'},
+    {label:'Milk',      en:'Milk',      th:'มิลค์',     meaning:'นม',         emoji:'🥛', example:'I drink milk every morning.'},
+    {label:'Noodles',   en:'Noodles',   th:'นูเดิลส์',  meaning:'ก๋วยเตี๋ยว', emoji:'🍜', example:'We had noodles for lunch.'},
+    {label:'Soup',      en:'Soup',      th:'ซุป',       meaning:'ซุป',        emoji:'🍲', example:'Mom made hot soup.'},
+    {label:'Chicken',   en:'Chicken',   th:'ชิคเก้น',   meaning:'ไก่',        emoji:'🍗', example:'I like fried chicken.'},
+    {label:'Meat',      en:'Meat',      th:'มีท',       meaning:'เนื้อ',      emoji:'🥩', example:"He doesn't eat meat."},
+    {label:'Cake',      en:'Cake',      th:'เค้ก',      meaning:'เค้ก',       emoji:'🍰', example:'We baked a birthday cake.'},
+    {label:'Ice Cream', en:'Ice Cream', th:'ไอศกรีม',   meaning:'ไอศกรีม',    emoji:'🍦', example:'The kids love ice cream.'},
+    {label:'Pizza',     en:'Pizza',     th:'พิซซ่า',    meaning:'พิซซ่า',     emoji:'🍕', example:"Let's order pizza tonight."},
+    {label:'Water',     en:'Water',     th:'วอเทอร์',   meaning:'น้ำ',        emoji:'💧', example:'Drink water every day.'},
+  ],
+  jobs: [
+    {label:'Teacher',        en:'Teacher',        th:'ทีชเชอร์',      meaning:'ครู',          emoji:'👩‍🏫', example:'She is my English teacher.'},
+    {label:'Doctor',         en:'Doctor',         th:'ด็อกเตอร์',     meaning:'หมอ',          emoji:'👨‍⚕️', example:'The doctor checked my arm.'},
+    {label:'Nurse',          en:'Nurse',          th:'เนิร์ส',        meaning:'พยาบาล',       emoji:'👩‍⚕️', example:'The nurse gave me medicine.'},
+    {label:'Police Officer', en:'Police Officer', th:'โพลิศออฟฟิเซอร์', meaning:'ตำรวจ',      emoji:'👮', example:'The police officer helped us.'},
+    {label:'Firefighter',    en:'Firefighter',    th:'ไฟร์ไฟเตอร์',   meaning:'นักดับเพลิง',  emoji:'👨‍🚒', example:'The firefighter put out the fire.'},
+    {label:'Farmer',         en:'Farmer',         th:'ฟาร์เมอร์',     meaning:'ชาวนา',        emoji:'👨‍🌾', example:'The farmer grows rice.'},
+    {label:'Chef',           en:'Chef',           th:'เชฟ',           meaning:'เชฟ',          emoji:'👨‍🍳', example:'The chef cooked dinner.'},
+    {label:'Pilot',          en:'Pilot',          th:'ไพลอท',         meaning:'นักบิน',       emoji:'👨‍✈️', example:'The pilot flies the plane.'},
+    {label:'Singer',         en:'Singer',         th:'ซิงเกอร์',      meaning:'นักร้อง',      emoji:'🎤', example:'She is a famous singer.'},
+    {label:'Artist',         en:'Artist',         th:'อาร์ทิสต์',     meaning:'ศิลปิน',       emoji:'🎨', example:'The artist painted a picture.'},
+    {label:'Dentist',        en:'Dentist',        th:'เด็นทิสต์',     meaning:'ทันตแพทย์',    emoji:'🦷', example:'I visit the dentist twice a year.'},
+    {label:'Driver',         en:'Driver',         th:'ไดรเวอร์',      meaning:'คนขับรถ',      emoji:'🚕', example:'The driver took us home.'},
+  ],
+  weather: [
+    {label:'Sunny',   en:'Sunny',   th:'ซันนี่',    meaning:'แดดจัด',     emoji:'☀️', example:'It is sunny today.'},
+    {label:'Rainy',   en:'Rainy',   th:'เรนนี่',    meaning:'ฝนตก',       emoji:'🌧️', example:'It is rainy outside.'},
+    {label:'Cloudy',  en:'Cloudy',  th:'คลาวดี้',   meaning:'มีเมฆมาก',   emoji:'☁️', example:'The sky is cloudy.'},
+    {label:'Windy',   en:'Windy',   th:'วินดี้',    meaning:'ลมแรง',      emoji:'🌬️', example:'It is windy on the beach.'},
+    {label:'Snowy',   en:'Snowy',   th:'สโนวี่',    meaning:'หิมะตก',     emoji:'❄️', example:'It is snowy in winter.'},
+    {label:'Stormy',  en:'Stormy',  th:'สตอร์มี่',  meaning:'มีพายุ',     emoji:'⛈️', example:'It is stormy tonight.'},
+    {label:'Hot',     en:'Hot',     th:'ฮอท',       meaning:'ร้อน',       emoji:'🥵', example:'It is hot in summer.'},
+    {label:'Cold',    en:'Cold',    th:'โคลด์',     meaning:'หนาว',       emoji:'🥶', example:'It is cold in the morning.'},
+    {label:'Foggy',   en:'Foggy',   th:'ฟ็อกกี้',   meaning:'มีหมอก',     emoji:'🌫️', example:'It is foggy this morning.'},
+    {label:'Rainbow', en:'Rainbow', th:'เรนโบว์',   meaning:'รุ้ง',       emoji:'🌈', example:'We saw a rainbow after the rain.'},
+  ],
+  verbs: [
+    {label:'Eat',   en:'Eat',   th:'อีท',     meaning:'กิน',       emoji:'🍽️', example:'I eat breakfast at seven.'},
+    {label:'Drink', en:'Drink', th:'ดริงก์',  meaning:'ดื่ม',      emoji:'🥤', example:'She drinks water every day.'},
+    {label:'Sleep', en:'Sleep', th:'สลีพ',    meaning:'นอน',       emoji:'😴', example:'The baby is sleeping.'},
+    {label:'Run',   en:'Run',   th:'รัน',     meaning:'วิ่ง',      emoji:'🏃', example:'He runs every morning.'},
+    {label:'Walk',  en:'Walk',  th:'วอล์ค',   meaning:'เดิน',      emoji:'🚶', example:'We walk to school.'},
+    {label:'Swim',  en:'Swim',  th:'สวิม',    meaning:'ว่ายน้ำ',   emoji:'🏊', example:'They swim in the pool.'},
+    {label:'Read',  en:'Read',  th:'รีด',     meaning:'อ่าน',      emoji:'📖', example:'I read a book at night.'},
+    {label:'Write', en:'Write', th:'ไรท์',    meaning:'เขียน',     emoji:'✍️', example:'She writes a letter.'},
+    {label:'Sing',  en:'Sing',  th:'ซิง',     meaning:'ร้องเพลง',  emoji:'🎤', example:'He sings every morning.'},
+    {label:'Dance', en:'Dance', th:'แดนซ์',   meaning:'เต้น',      emoji:'💃', example:'They dance at the party.'},
+    {label:'Cook',  en:'Cook',  th:'คุก',     meaning:'ทำอาหาร',   emoji:'🍳', example:'Mom cooks dinner.'},
+    {label:'Jump',  en:'Jump',  th:'จัมพ์',   meaning:'กระโดด',    emoji:'🤸', example:'The cat jumps over the fence.'},
   ],
 };
 
@@ -754,6 +820,7 @@ const wfrontSub = document.getElementById('wfront-sub');
 const wbackEn   = document.getElementById('wback-en');
 const wbackTh   = document.getElementById('wback-th');
 const wbackMean = document.getElementById('wback-mean');
+const wbackExample = document.getElementById('wback-example');
 const barEl     = document.getElementById('bar');
 const dotsEl    = document.getElementById('dots');
 const speedDiv  = document.getElementById('speed');
@@ -1174,6 +1241,7 @@ function renderFlashCard(){
   wbackEn.textContent=it.en; wbackEn.style.fontSize=backEnFontSize(it.en);
   wbackTh.textContent='('+it.th+')';
   wbackMean.textContent=thSide(it);
+  wbackExample.textContent=it.example || '';
   // ----- controls + progress -----
   btnReveal.style.display=''; btnNext.classList.remove('show');
   btnKnow.classList.remove('show'); btnReview.classList.remove('show');
