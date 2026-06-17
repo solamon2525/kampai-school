@@ -28,16 +28,25 @@ function resetSession() {
   missedWords = [];
 }
 
-const CONFIG = window.GAME_CONFIG;
-const CATEGORIES = window.GAME_DATA.categories;
-const ALL_WORDS = window.GAME_DATA.words;
+const CONFIG = window.GAME_CONFIG || {};
+const CATEGORIES = (window.GAME_DATA && window.GAME_DATA.categories) || [];
+const ALL_WORDS = (window.GAME_DATA && window.GAME_DATA.words) || {};
 
 // แสดงหน้าเลือกหัวข้อทันที — ไม่ผูกกับ SDK callback
-// (กัน hub ว่าง/ปุ่มตาย ถ้า onReady throw ก่อนถึงโค้ดส่วนนี้ → "เห็นหน้า แต่กดไม่ได้")
+// ใช้ requestAnimationFrame เพื่อมั่นใจว่า DOM render พร้อมจริงก่อนจัด layout
+function safeInitHubGrid() {
+  // ถ้ายังไม่มี categories (data.js ยังโหลดไม่เสร็จ) → ลองอีกครั้ง
+  if (CATEGORIES.length === 0 && window.GAME_DATA && window.GAME_DATA.categories) {
+    CATEGORIES.push(...window.GAME_DATA.categories);
+    Object.assign(ALL_WORDS, window.GAME_DATA.words || {});
+  }
+  requestAnimationFrame(initHubGrid);
+}
+
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initHubGrid);
+  document.addEventListener('DOMContentLoaded', safeInitHubGrid);
 } else {
-  initHubGrid();
+  safeInitHubGrid();
 }
 
 // โหลดข้อมูล SDK เมื่อหน้าพร้อมใช้งาน — ครอบ try/catch กันเสียง/ชิป/SDK ทำให้ทั้งเกมพัง

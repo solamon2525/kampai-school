@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap');
+/* ฟอนต์ Sarabun โหลดผ่าน <link> ใน index.html (ลด render-blocking) */
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
