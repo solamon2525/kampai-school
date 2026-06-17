@@ -32,30 +32,37 @@ const CONFIG = window.GAME_CONFIG;
 const CATEGORIES = window.GAME_DATA.categories;
 const ALL_WORDS = window.GAME_DATA.words;
 
-// โหลดข้อมูล SDK เมื่อหน้าพร้อมใช้งาน
-KAMPAI.onReady((sdk) => {
-  // แสดงชิปนักเรียนเมื่อเล่นผ่านระบบ (embedded)
-  const name = sdk.student && sdk.student.displayName;
-  if (name) {
-    const chip = document.getElementById('player-chip');
-    if (chip) {
-      chip.style.display = 'flex';
-      chip.innerHTML = `<div class="pc-init">${name.charAt(0)}</div><span>${name}</span>`;
-    }
-  }
+// แสดงหน้าเลือกหัวข้อทันที — ไม่ผูกกับ SDK callback
+// (กัน hub ว่าง/ปุ่มตาย ถ้า onReady throw ก่อนถึงโค้ดส่วนนี้ → "เห็นหน้า แต่กดไม่ได้")
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initHubGrid);
+} else {
+  initHubGrid();
+}
 
-  // เพลงพื้นหลัง + ปุ่มควบคุมเสียง 🔊 🗣️ 🎵 (คลังสื่อ ไม่นับคะแนน/ไม่มี leaderboard)
-  if (sdk.sound) {
-    if (sdk.sound.defaultBgm) sdk.sound.defaultBgm(CONFIG.BGM);
-    if (sdk.sound.bgmStart) sdk.sound.bgmStart();
-    if (sdk.sound.mountToggles) sdk.sound.mountToggles();
+// โหลดข้อมูล SDK เมื่อหน้าพร้อมใช้งาน — ครอบ try/catch กันเสียง/ชิป/SDK ทำให้ทั้งเกมพัง
+KAMPAI.onReady((sdk) => {
+  try {
+    // แสดงชิปนักเรียนเมื่อเล่นผ่านระบบ (embedded)
+    const name = sdk.student && sdk.student.displayName;
+    if (name) {
+      const chip = document.getElementById('player-chip');
+      if (chip) {
+        chip.style.display = 'flex';
+        chip.innerHTML = `<div class="pc-init">${name.charAt(0)}</div><span>${name}</span>`;
+      }
+    }
+
+    // เพลงพื้นหลัง + ปุ่มควบคุมเสียง 🔊 🗣️ 🎵 (คลังสื่อ ไม่นับคะแนน/ไม่มี leaderboard)
+    if (sdk.sound) {
+      if (sdk.sound.defaultBgm) sdk.sound.defaultBgm(CONFIG.BGM);
+      if (sdk.sound.bgmStart) sdk.sound.bgmStart();
+      if (sdk.sound.mountToggles) sdk.sound.mountToggles();
+    }
+  } catch (e) {
+    /* เสียง/ชิป/SDK ล้ม ต้องไม่ทำให้เกมเล่นไม่ได้ */
   }
 });
-
-// เริ่มเล่นแสดงหน้าเลือกหัวข้อ
-window.onload = () => {
-  initHubGrid();
-};
 
 // สร้างการ์ดหมวดหมู่ใน Hub
 function initHubGrid() {
