@@ -23,6 +23,7 @@ export default defineConfig(() => ({
       includeAssets: ["favicon.ico", "icons/apple-touch-icon-180x180.png"],
       injectManifest: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,woff,woff2}"],
+        globIgnores: ["games/**"],
       },
       devOptions: { enabled: false },
     }),
