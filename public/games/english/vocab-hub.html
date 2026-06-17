@@ -305,6 +305,14 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
 }
 .fv:hover{background:rgba(255,255,255,0.18)}
 .fv.on{background:#FFD700;border-color:#FF8F00;color:#1A237E;font-weight:700}
+#flash-reset{
+  font-size:1.7vh;line-height:1;
+  padding:3px 8px;border-radius:5px;cursor:pointer;margin-left:4px;
+  border:1px solid rgba(255,224,130,0.35);
+  background:rgba(255,224,130,0.1);color:rgba(255,224,130,0.8);
+  transition:background 0.12s,color 0.12s;
+}
+#flash-reset:hover{background:rgba(255,224,130,0.22);color:#FFE082}
 #wfront .wf-swatch{display:inline-block;width:18vh;height:18vh;border-radius:24px;border:3px solid rgba(255,255,255,0.55);box-shadow:0 8px 24px rgba(0,0,0,0.35);vertical-align:middle}
 
 /* Quiz (flash) controls — in-flow row ใต้การ์ด เหนือแถบล่าง */
@@ -425,6 +433,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   .cbtn{font-size:13px;padding:7px 11px}
   .spd{font-size:13px;padding:7px 11px}
   .fv{font-size:13px;padding:7px 11px}
+  #flash-reset{font-size:15px;padding:7px 10px}
   #speed label,#flash-variant label{font-size:13px}
   .cbtn,.spd,.opt,.mcard,.hub-card,.win-btn,.qbtn,.cell,.q-listen{touch-action:manipulation}
 
@@ -512,7 +521,9 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
       <button class="fv" data-v="th2en" title="ไทย → อังกฤษ">ก→A</button>
       <button class="fv" data-v="pic2word" title="รูป/สี → คำ">รูป</button>
       <button class="fv" data-v="audio2word" title="ฟังเสียง → คำ">🔊</button>
+      <button class="fv" data-v="spell2word" title="สะกด (ตัวอักษรสลับ) → คำ">สะกด</button>
       <button class="fv" data-v="mixed" title="สุ่มสลับทุกแบบ">🎲</button>
+      <button id="flash-reset" title="ล้างความคืบหน้า 'รู้แล้ว' ของหมวดนี้">↺</button>
     </div>
   </div>
 </div>
@@ -778,11 +789,42 @@ let mode = 'auto';                       // auto | flash | choice | match | list
 let cellMs = 1500, curSlide = 0, curCell = 0, timer = null;
 let autoPaused = false;                  // หยุดชั่วคราวในโหมดอัตโนมัติ (ปุ่ม pause หรือคลิกคำเอง)
 let revealed = false;     // flash
-// flash (สุ่ม) — flashcard หลายทิศ + deck รู้แล้ว/ทบทวน
-let flashVariant = 'en2th';     // en2th | th2en | pic2word | audio2word | mixed
+// flash (สุ่ม) — flashcard หลายทิศ + deck รู้แล้ว/ทบทวน + จำข้ามรอบ + จับเวลา/สถิติ
+let flashVariant = 'en2th';     // en2th | th2en | pic2word | audio2word | spell2word | mixed
 let flashDeck = [], flashKnown = new Set(), flashTotal = 0, flashRevealVariant = 'en2th';
+let flashReviewCount = {};       // index → จำนวนครั้งที่กด "ทบทวน" (สถิติคำที่ยังไม่แม่น)
+let flashStartTime = 0, flashTimer = null;   // จับเวลาต่อกอง
 const thSide = it => it.meaning || it.label;       // ฝั่งไทย/คำตอบ: meaning ถ้ามี ไม่งั้น label (numbers=เลข, alphabet=ตัวอักษร)
 const hasVisual = it => !!(it.emoji || it.bgColor);
+// จำ "รู้แล้ว" ข้ามรอบด้วย localStorage (คีย์ตามคำอังกฤษ กันพังเวลา index เลื่อน)
+const flashStoreKey = slug => 'kvh_known_' + slug;
+function loadKnownEns(slug){
+  try { return new Set(JSON.parse(localStorage.getItem(flashStoreKey(slug)) || '[]')); }
+  catch(_){ return new Set(); }
+}
+function saveKnownEns(){
+  try { localStorage.setItem(flashStoreKey(currentSlug),
+        JSON.stringify([...flashKnown].map(i => allItems[i].en))); } catch(_){}
+}
+// ทิศที่ใช้ได้ในหมวดปัจจุบัน (รูป=เฉพาะหมวดที่มีรูป/สี, สะกด=ยกเว้น alphabet)
+function applicableVariants(){
+  const v = ['en2th','th2en','audio2word'];
+  if(allItems.length && allItems.every(hasVisual)) v.push('pic2word');
+  if(currentSlug!=='alphabet') v.push('spell2word');
+  return v;
+}
+function scrambleWord(en){
+  const chars = en.replace(/[^A-Za-z]/g,'').toUpperCase().split('');
+  if(chars.length<2) return chars.join(' ');
+  let out, guard=0;
+  do { out = chars.slice().sort(()=>Math.random()-0.5); guard++; }
+  while(out.join('')===chars.join('') && guard<20);
+  return out.join(' ');
+}
+function fmtTime(ms){
+  const s = Math.floor(ms/1000), m = Math.floor(s/60);
+  return m + ':' + String(s%60).padStart(2,'0');
+}
 let currentSlug = '', allItems = [], slides = [], slideEls = [], dotElArr = [];
 let isColorTopic = false, ips = 10, curItem = null;
 let audioOn = true;
@@ -990,6 +1032,7 @@ function setScore(html){ scoreEl.innerHTML=html||''; }
 function setMode(m){
   mode=m;
   clearInterval(timer);
+  clearInterval(flashTimer); flashTimer=null;
   clearTimeout(spStepTimer);
   if(window.speechSynthesis) speechSynthesis.cancel();
   Object.keys(modeBtns).forEach(k=>modeBtns[k].classList.toggle('on',k===m));
@@ -1013,10 +1056,13 @@ function setMode(m){
   btnNextSlide.style.display = isAuto ? '' : 'none';
   gridEl.classList.toggle('interactive', isAuto);   // โหมดอัตโนมัติ: คลิกคำในกริดได้
   if(isFlash){
-    // ปุ่ม "รูป" โชว์เฉพาะหมวดที่ทุกคำมี emoji/สี ; ถ้าทิศปัจจุบันเป็นรูปแต่หมวดนี้ไม่มี → ถอยไป en2th
-    const topicVisual = allItems.every(hasVisual);
-    document.querySelector('.fv[data-v="pic2word"]').style.display = topicVisual ? '' : 'none';
-    if(flashVariant==='pic2word' && !topicVisual){
+    // โชว์เฉพาะปุ่มทิศที่ใช้ได้กับหมวดนี้ (รูป=หมวดมีรูป/สี, สะกด=ยกเว้น alphabet) ; mixed โชว์เสมอ
+    const ok = applicableVariants();
+    document.querySelectorAll('.fv').forEach(b=>{
+      const show = b.dataset.v==='mixed' || ok.includes(b.dataset.v);
+      b.style.display = show ? '' : 'none';
+    });
+    if(flashVariant!=='mixed' && !ok.includes(flashVariant)){   // ทิศปัจจุบันใช้ไม่ได้กับหมวดนี้ → ถอยไป en2th
       flashVariant='en2th';
       document.querySelectorAll('.fv').forEach(x=>x.classList.toggle('on',x.dataset.v==='en2th'));
     }
@@ -1086,17 +1132,29 @@ function resumeAuto(){
 // =====================================================================
 function pickVariant(it){
   if(flashVariant!=='mixed') return flashVariant;
-  const pool=['en2th','th2en','audio2word']; if(hasVisual(it)) pool.push('pic2word');
+  const pool = applicableVariants();
   return pool[Math.floor(Math.random()*pool.length)];
+}
+function updateFlashScore(){
+  const t = flashStartTime ? ' · ⏱ '+fmtTime(Date.now()-flashStartTime) : '';
+  setScore(`รู้แล้ว <b>${flashKnown.size}</b>/${flashTotal} · เหลือ ${flashTotal-flashKnown.size}${t}`);
+}
+function flashWin(){
+  quizCtrl.classList.remove('show');
+  clearInterval(flashTimer); flashTimer=null;
+  const took = flashStartTime ? fmtTime(Date.now()-flashStartTime) : '';
+  // สถิติ: คำที่กดทบทวนบ่อยสุด (ยังไม่แม่น)
+  const hard = Object.entries(flashReviewCount)
+    .filter(([,n])=>n>0).sort((a,b)=>b[1]-a[1]).slice(0,5)
+    .map(([i,n])=>`${allItems[i].en} (${n})`);
+  let html = `รู้แล้วครบ <b>${flashTotal}</b> คำ${took?` · ใช้เวลา <b>${took}</b>`:''}`;
+  if(hard.length) html += `<br><span style="font-size:0.8em;opacity:0.85">ทบทวนบ่อย: ${hard.join(' · ')}</span>`;
+  showWin('🎉','เก่งมาก!', html, '⭐⭐⭐');
 }
 function renderFlashCard(){
   // ข้ามใบที่ "รู้แล้ว" ออกจากหัวกอง — กองหมด = ฉลอง
   while(flashDeck.length && flashKnown.has(flashDeck[0])) flashDeck.shift();
-  if(!flashDeck.length){
-    quizCtrl.classList.remove('show');
-    showWin('🎉','เก่งมาก!',`รู้แล้วครบ <b>${flashTotal}</b> คำ`, '⭐⭐⭐');
-    return;
-  }
+  if(!flashDeck.length){ flashWin(); return; }
   const it = allItems[flashDeck[0]]; curItem=it;
   const v = flashRevealVariant = pickVariant(it);
   tcard.classList.remove('flipped'); revealed=false;
@@ -1109,6 +1167,7 @@ function renderFlashCard(){
     wfront.style.fontSize='14vh';
   }
   else if(v==='audio2word'){ wfront.textContent='🔊'; wfront.style.fontSize='14vh'; speak(it); }  // ฟัง→ทาย: เล่นเสียงทันที
+  else if(v==='spell2word'){ const sc=scrambleWord(it.en); wfront.textContent=sc; wfront.style.fontSize=bannerFontSize(sc.replace(/ /g,'')); }  // สะกด: ตัวอักษรสลับ
   else { wfront.textContent=it.en; wfront.style.fontSize=bannerFontSize(it.en); }                  // en2th
   wfrontSub.textContent='';
   // ----- BACK (เฉลย: คำเต็ม + คำอ่าน + ไทย) -----
@@ -1119,13 +1178,29 @@ function renderFlashCard(){
   btnReveal.style.display=''; btnNext.classList.remove('show');
   btnKnow.classList.remove('show'); btnReview.classList.remove('show');
   quizCtrl.classList.add('show');
-  setScore(`รู้แล้ว <b>${flashKnown.size}</b>/${flashTotal} · เหลือ ${flashTotal-flashKnown.size}`);
+  updateFlashScore();
   barEl.style.width=(flashKnown.size/flashTotal*100)+'%';
 }
 function startFlash(){
-  flashDeck = shuffle([...Array(allItems.length).keys()]);
-  flashKnown = new Set(); flashTotal = allItems.length;
+  flashTotal = allItems.length;
+  // โหลด "รู้แล้ว" ที่จำไว้ → เริ่มจากเฉพาะคำที่ยังไม่แม่น
+  const knownEns = loadKnownEns(currentSlug);
+  flashKnown = new Set(allItems.map((it,i)=>knownEns.has(it.en)?i:-1).filter(i=>i>=0));
+  flashDeck = shuffle([...Array(allItems.length).keys()].filter(i=>!flashKnown.has(i)));
+  if(!flashDeck.length){    // แม่นครบทุกคำแล้ว → เริ่มทบทวนทั้งหมดใหม่ (ไม่ล้างที่จำไว้ใน localStorage)
+    flashKnown = new Set();
+    flashDeck = shuffle([...Array(allItems.length).keys()]);
+  }
+  flashReviewCount = {};
+  flashStartTime = Date.now();
+  clearInterval(flashTimer);
+  flashTimer = setInterval(()=>{ if(mode==='flash') updateFlashScore(); }, 1000);
   renderFlashCard();
+}
+function resetFlashProgress(){
+  try { localStorage.removeItem(flashStoreKey(currentSlug)); } catch(_){}
+  flashKnown = new Set();
+  startFlash();
 }
 
 // =====================================================================
@@ -1358,13 +1433,20 @@ btnKnow.addEventListener('click',e=>{
   e.stopPropagation();
   if(!revealed) return;
   flashKnown.add(flashDeck.shift());     // รู้แล้ว: เอาออกจากกอง
+  saveKnownEns();                        // จำข้ามรอบ
   renderFlashCard();
 });
 btnReview.addEventListener('click',e=>{
   e.stopPropagation();
   if(!revealed) return;
-  flashDeck.push(flashDeck.shift());     // ทบทวน: ดันไปท้ายกอง ให้วนกลับมา
+  const idx = flashDeck.shift();
+  flashReviewCount[idx] = (flashReviewCount[idx]||0) + 1;   // นับสถิติคำที่ยังไม่แม่น
+  flashDeck.push(idx);                   // ทบทวน: ดันไปท้ายกอง ให้วนกลับมา
   renderFlashCard();
+});
+document.getElementById('flash-reset').addEventListener('click',e=>{
+  e.stopPropagation();
+  if(mode==='flash') resetFlashProgress();   // ล้าง "รู้แล้ว" ของหมวดนี้ แล้วเริ่มกองใหม่
 });
 document.querySelectorAll('.fv').forEach(b=>b.addEventListener('click',e=>{
   e.stopPropagation();
