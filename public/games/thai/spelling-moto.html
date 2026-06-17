@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>มอไซต์จอมลุยมาตรา (Spelling Moto Master)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- CSS: ส่วนตกแต่งหน้าตา --- */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #2c3e50;
+            font-family: 'Kanit', sans-serif;
+            overflow: hidden; 
+            touch-action: none; 
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(to bottom, #87CEEB, #E0F7FA);
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        /* UI: แถบภารกิจด้านบน */
+        .mission-bar {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: #FFD700;
+            padding: 10px 40px;
+            border-radius: 50px;
+            font-size: 28px;
+            font-weight: bold;
+            border: 3px solid white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            white-space: nowrap;
+            z-index: 10;
+            transition: transform 0.3s;
+        }
+
+        .mission-change-anim {
+            transform: translateX(-50%) scale(1.2);
+            background: #e74c3c;
+            color: white;
+        }
+
+        .sub-text {
+            display: block;
+            font-size: 16px;
+            color: #ddd;
+            text-align: center;
+            font-weight: normal;
+        }
+
+        /* UI: คะแนนและชีวิต */
+        .ui-layer {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .stat-box {
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            background: rgba(0,0,0,0.3);
+            padding: 5px 15px;
+            border-radius: 20px;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        /* --- UI: ปุ่มควบคุมสำหรับมือถือ (ใสพิเศษ) --- */
+        #mobile-controls {
+            position: absolute;
+            bottom: 40px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 40px;
+            box-sizing: border-box;
+            z-index: 15;
+            pointer-events: none;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 25px;
+            pointer-events: auto;
+        }
+
+        .control-btn {
+            width: 75px;
+            height: 75px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 32px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(1px);
+            -webkit-backdrop-filter: blur(1px);
+            touch-action: none;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .control-btn:active, .control-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            transform: scale(0.9);
+        }
+
+        .btn-jump {
+            width: 90px;
+            height: 90px;
+            font-size: 38px;
+            background: rgba(241, 196, 15, 0.1);
+            border-color: rgba(241, 196, 15, 0.2);
+            color: rgba(241, 196, 15, 0.4);
+        }
+
+        /* หน้าจอเริ่มเกม / จบเกม */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            z-index: 20;
+        }
+
+        .overlay h1 {
+            font-size: 6vw; 
+            margin: 0 0 10px 0;
+            color: #FFD700;
+            text-shadow: 4px 4px 0 #d35400;
+        }
+
+        .instruction-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: left;
+            border: 2px solid #FFD700;
+            max-width: 600px;
+            width: 85%;
+            font-size: 16px;
+        }
+
+        .btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 12px 50px;
+            font-size: 24px;
+            font-family: 'Kanit', sans-serif;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #1e8449;
+            font-weight: bold;
+        }
+
+        .hidden { display: none !important; }
+        .shake { animation: shake 0.4s; }
+        @keyframes shake {
+            0% { transform: translate(1px, 1px); }
+            20% { transform: translate(-3px, 0px); }
+            40% { transform: translate(1px, -1px); }
+            60% { transform: translate(-3px, 1px); }
+            80% { transform: translate(-1px, -1px); }
+            100% { transform: translate(1px, -2px); }
+        }
+    </style>
+    <!-- ═══ KAMPAI SDK (single source — อย่าแก้) ═══ -->
+    <script src="/games/kampai-sdk.js"></script>
+    <script>
+    window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+    </script>
+</head>
+<body>
+
+<div id="game-container">
+    <div class="mission-bar" id="mission-display">
+        ภารกิจ: เก็บแม่ ก กา
+        <span class="sub-text">(ไม่มีตัวสะกด)</span>
+    </div>
+
+    <div class="ui-layer">
+        <div class="stat-box">⭐ <span id="score">0</span></div>
+        <div class="stat-box">❤️ <span id="lives">3</span></div>
+    </div>
+
+    <div id="mobile-controls">
+        <div class="control-group left-group">
+            <div id="btn-left" class="control-btn">◀</div>
+            <div id="btn-right" class="control-btn">▶</div>
+        </div>
+        <div class="control-group right-group">
+            <div id="btn-jump" class="control-btn btn-jump">▲</div>
+        </div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <div id="start-screen" class="overlay">
+        <h1>มอไซต์จอมลุยมาตรา</h1>
+        <div class="instruction-box">
+            <p>🔊 <b>ระบบเสียง:</b> เพิ่มเสียงเครื่องยนต์และเพลงประกอบ 8-bit</p>
+            <p>🏁 <b>ภารกิจ:</b> ชนกล่องคำศัพท์ที่ถูกต้องตามมาตราสะกด</p>
+            <p>🎮 <b>ควบคุม:</b> ◀ ▶ ขยับรถ | ▲ ยกล้อกระโดด</p>
+        </div>
+        <button class="btn" onclick="startGame()">สตาร์ทเครื่อง!</button>
+        <button class="btn" onclick="if(window.KAMPAI)window.KAMPAI.goHome()" style="background:#7f8c8d; box-shadow:0 6px 0 #95a5a6; margin-top:10px;">← กลับหน้าหลัก</button>
+    </div>
+
+    <div id="game-over-screen" class="overlay hidden">
+        <h1 style="color: #e74c3c;">จบเกม!</h1>
+        <p>คะแนนสูงสุดของคุณคือ</p>
+        <div style="font-size: 60px; color: #FFD700; font-weight:bold; margin: 10px 0;">
+            <span id="final-score">0</span>
+        </div>
+        <button class="btn" onclick="startGame()">ลองอีกครั้ง</button>
+        <button class="btn" onclick="if(window.KAMPAI)window.KAMPAI.goHome()" style="background:#7f8c8d; box-shadow:0 6px 0 #95a5a6; margin-top:10px;">← กลับหน้าหลัก</button>
+    </div>
+</div>
+
+<script>
+    const GAME_SLUG = 'thai-spelling-moto';
+    if (window.KAMPAI) {
+        window.KAMPAI.setSlug(GAME_SLUG);
+    }
+
+    // ==========================================
+    // ส่วนที่ 0: ระบบเสียงแบบอัปเกรด (Enhanced Sound System)
+    // ==========================================
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let engineOsc = null;
+    let engineGain = null;
+    let musicInterval = null;
+
+    const SoundManager = {
+        resume: () => { if(audioCtx.state === 'suspended') audioCtx.resume(); },
+        
+        initEngine: () => {
+            if(engineOsc) return;
+            engineOsc = audioCtx.createOscillator();
+            engineGain = audioCtx.createGain();
+            engineOsc.type = 'sawtooth';
+            engineOsc.frequency.setValueAtTime(60, audioCtx.currentTime);
+            engineGain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+            engineOsc.connect(engineGain);
+            engineGain.connect(audioCtx.destination);
+            engineOsc.start();
+        },
+
+        updateEngine: (speedPercent) => {
+            if(!engineOsc) return;
+            const freq = 60 + (speedPercent * 60);
+            engineOsc.frequency.setTargetAtTime(freq, audioCtx.currentTime, 0.1);
+        },
+
+        playJump: () => {
+            const osc = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.1);
+            g.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            g.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2);
+            osc.connect(g); g.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+        },
+
+        playCollect: (combo = 0) => {
+            const osc = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            const freq = 800 + (combo * 100);
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(freq * 1.5, audioCtx.currentTime + 0.1);
+            g.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            g.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
+            osc.connect(g); g.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        },
+
+        playDamage: () => {
+            const osc = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(30, audioCtx.currentTime + 0.3);
+            g.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            g.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
+            osc.connect(g); g.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        },
+
+        playGameOver: () => {
+            const t = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(300, t);
+            osc.frequency.setValueAtTime(200, t + 0.4);
+            g.gain.setValueAtTime(0.15, t);
+            g.gain.linearRampToValueAtTime(0, t + 1.0);
+            osc.connect(g); g.connect(audioCtx.destination);
+            osc.start(); osc.stop(t + 1.0);
+        },
+
+        playMissionChange: () => {
+            const t = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(400, t);
+            osc.frequency.linearRampToValueAtTime(800, t + 0.3);
+            osc.frequency.linearRampToValueAtTime(400, t + 0.6);
+            g.gain.setValueAtTime(0.08, t);
+            g.gain.linearRampToValueAtTime(0, t + 0.6);
+            osc.connect(g); g.connect(audioCtx.destination);
+            osc.start(); osc.stop(t + 0.6);
+        },
+
+        startMusic: () => {
+            if(musicInterval) clearInterval(musicInterval);
+            let step = 0;
+            const notes = [110, 0, 110, 130, 147, 0, 110, 164]; 
+            musicInterval = setInterval(() => {
+                const note = notes[step % notes.length];
+                if(note > 0 && gameState === 'PLAYING') {
+                    const osc = audioCtx.createOscillator();
+                    const g = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(note, audioCtx.currentTime);
+                    g.gain.setValueAtTime(0.03, audioCtx.currentTime);
+                    g.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2);
+                    osc.connect(g); g.connect(audioCtx.destination);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+                }
+                step++;
+            }, 250);
+        }
+    };
+
+    // ==========================================
+    // ส่วนที่ 1: ฐานข้อมูลคำศัพท์
+    // ==========================================
+    const WORD_DATABASE = [
+        { text: "กา", ruleId: "koka" }, { text: "ไก่", ruleId: "koka" }, { text: "ปู", ruleId: "koka" },
+        { text: "ปลา", ruleId: "koka" }, { text: "เต่า", ruleId: "koka" }, { text: "งู", ruleId: "koka" },
+        { text: "หมี", ruleId: "koka" }, { text: "วัว", ruleId: "koka" }, { text: "ม้า", ruleId: "koka" },
+        { text: "ยา", ruleId: "koka" }, { text: "กะทิ", ruleId: "koka" }, { text: "มะลิ", ruleId: "koka" },
+        { text: "กิน", ruleId: "kon" }, { text: "นอน", ruleId: "kon" }, { text: "เดิน", ruleId: "kon" },
+        { text: "บ้าน", ruleId: "kon" }, { text: "ฝน", ruleId: "kon" }, { text: "ทหาร", ruleId: "kon" },
+        { text: "นก", ruleId: "kok" }, { text: "ปาก", ruleId: "kok" }, { text: "ลูก", ruleId: "kok" },
+        { text: "เมฆ", ruleId: "kok" }, { text: "เลข", ruleId: "kok" }, { text: "สุข", ruleId: "kok" },
+        { text: "ช้าง", ruleId: "kong" }, { text: "ทาง", ruleId: "kong" }, { text: "ลิง", ruleId: "kong" },
+        { text: "วิ่ง", ruleId: "kong" }, { text: "แดง", ruleId: "kong" }, { text: "ห้อง", ruleId: "kong" }
+    ];
+
+    const GAME_RULES = [
+        { id: "koka", title: "เก็บแม่ ก กา", desc: "(ไม่มีตัวสะกด)" },
+        { id: "kon",  title: "เก็บแม่ กน",    desc: "(สะกดด้วย น, ญ, ณ, ร, ล, ฬ)" },
+        { id: "kok",  title: "เก็บแม่ กก",    desc: "(สะกดด้วย ก, ข, ค, ฆ)" },
+        { id: "kong", title: "เก็บแม่ กง",    desc: "(สะกดด้วย ง)" }
+    ];
+
+    const CONFIG = {
+        scrollSpeed: 4,
+        spawnRate: 90,
+        gravity: 0.7,
+        jumpForce: -14,
+        moveSpeed: 6,
+        groundHeight: 120,      
+        platformSpawnRate: 130, 
+        missionDuration: 15
+    };
+
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const container = document.getElementById('game-container');
+    const missionDisplay = document.getElementById('mission-display');
+
+    let gameState = 'START';
+    let frames = 0;
+    let score = 0;
+    let lives = 3;
+    let currentRule = GAME_RULES[0];
+    let recentWords = []; 
+    let distanceTraveled = 0; 
+    let combo = 0;
+
+    const keys = { right: false, left: false, up: false };
+
+    let words = [];
+    let platforms = [];
+    let particles = [];
+    let floatingTexts = [];
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function getGroundY(worldX) {
+        const baseLevel = canvas.height - CONFIG.groundHeight;
+        const wave1 = Math.sin(worldX * 0.003) * 60; 
+        const wave2 = Math.sin(worldX * 0.01) * 15;
+        return baseLevel + wave1 + wave2;
+    }
+
+    // --- Floating Text Class ---
+    class FloatingText {
+        constructor(x, y, text, color) {
+            this.x = x; this.y = y; this.text = text; this.color = color;
+            this.opacity = 1; this.dy = -2;
+        }
+        update() { this.y += this.dy; this.opacity -= 0.02; }
+        draw() {
+            ctx.save();
+            ctx.globalAlpha = Math.max(0, this.opacity);
+            ctx.fillStyle = this.color;
+            ctx.font = "bold 28px Kanit";
+            ctx.textAlign = "center";
+            ctx.fillText(this.text, this.x, this.y);
+            ctx.restore();
+        }
+    }
+
+    // ==========================================
+    // ส่วนที่ 4: Player (Vector Art Character)
+    // ==========================================
+    const player = {
+        x: 100, y: 0, width: 90, height: 70,
+        dy: 0, dx: 0,
+        grounded: false, jumpCount: 0, maxJumps: 2,
+        facingRight: true,
+        slopeAngle: 0, wheelRotation: 0, bounceY: 0,
+
+        reset: function() {
+            this.x = 100;
+            this.y = getGroundY(100) - this.height;
+            this.dy = 0; this.dx = 0;
+            this.grounded = true;
+            this.jumpCount = 0;
+        },
+
+        jump: function() {
+            if (this.grounded || this.jumpCount < this.maxJumps) {
+                this.dy = CONFIG.jumpForce;
+                this.grounded = false;
+                this.jumpCount++;
+                SoundManager.playJump();
+                createParticles(this.x + 10, this.y + this.height - 10, 8, '#ddd');
+            }
+        },
+
+        update: function() {
+            if (keys.right) { this.dx = CONFIG.moveSpeed; this.facingRight = true; }
+            else if (keys.left) { this.dx = -CONFIG.moveSpeed; this.facingRight = false; }
+            else { this.dx = 0; }
+
+            this.x += this.dx;
+            if (this.x < 0) this.x = 0;
+            if (this.x + this.width > canvas.width) this.x = canvas.width - this.width;
+
+            this.dy += CONFIG.gravity;
+            this.y += this.dy;
+
+            this.wheelRotation += (CONFIG.scrollSpeed + Math.abs(this.dx)) * 0.05;
+
+            if(frames % 5 === 0) {
+                const smokeX = this.facingRight ? this.x : this.x + this.width;
+                createParticles(smokeX, this.y + this.height - 20, 1, 'rgba(150,150,150,0.5)');
+            }
+
+            const currentWorldX = distanceTraveled + this.x + this.width/2;
+            const groundYAtPlayer = getGroundY(currentWorldX);
+            const rearY = getGroundY(currentWorldX - 25);
+            const frontY = getGroundY(currentWorldX + 25);
+            const targetSlope = Math.atan2(frontY - rearY, 50); 
+
+            this.grounded = false; 
+            if (this.y + this.height >= groundYAtPlayer) {
+                this.y = groundYAtPlayer - this.height;
+                this.dy = 0; this.grounded = true; this.jumpCount = 0;
+                this.slopeAngle = targetSlope;
+            } else {
+                this.slopeAngle = this.dy < 0 ? -0.2 : 0.2;
+            }
+
+            if (this.dy > 0) { 
+                platforms.forEach(p => {
+                    if (this.x + this.width > p.x && this.x < p.x + p.width && this.y + this.height >= p.y && this.y + this.height <= p.y + p.height + 20) {
+                        this.y = p.y - this.height;
+                        this.dy = 0; this.grounded = true; this.jumpCount = 0;
+                        this.slopeAngle = 0; 
+                    }
+                });
+            }
+
+            const speedFactor = (Math.abs(this.dx) + (this.grounded ? 0 : 2)) / 10;
+            SoundManager.updateEngine(speedFactor);
+        },
+
+        draw: function() {
+            ctx.save();
+            // ย้ายจุดหมุนไปที่กึ่งกลางช่วงล่างของรถ
+            ctx.translate(this.x + this.width/2, this.y + this.height - 30 + (this.grounded ? Math.sin(frames*0.5)*1.5 : 0));
+            
+            if (!this.facingRight) ctx.scale(-1, 1);
+            ctx.rotate(this.slopeAngle);
+            
+            const ox = -this.width/2, oy = -this.height + 30;
+
+            // --- 1. Cape (ผ้าคลุมพริ้วไหว) ---
+            ctx.fillStyle = '#E74C3C';
+            ctx.beginPath();
+            let capeWave = Math.sin(frames * 0.2) * 8;
+            let cEndY = oy + 25 + (this.dy !== 0 ? -this.dy * 1.5 : capeWave);
+            ctx.moveTo(ox + 45, oy + 20); // คอคนขี่
+            ctx.quadraticCurveTo(ox - 5, cEndY - 10, ox - 35, cEndY); // ปลายผ้าคลุม
+            ctx.lineTo(ox - 35, cEndY + 20);
+            ctx.quadraticCurveTo(ox - 5, cEndY + 10, ox + 45, oy + 35);
+            ctx.fill();
+
+            // --- 2. Wheels (ล้อหน้า-หลัง) ---
+            this.drawWheel(ox + 20, oy + 55); // ล้อหลัง
+            this.drawWheel(ox + 70, oy + 55); // ล้อหน้า
+
+            // --- 3. Motorcycle Body (ตัวรถ) ---
+            ctx.fillStyle = '#F1C40F'; // สีตัวถัง
+            ctx.beginPath();
+            ctx.moveTo(ox + 25, oy + 35); // เบาะท้าย
+            ctx.lineTo(ox + 65, oy + 32); // ถังน้ำมัน
+            ctx.lineTo(ox + 75, oy + 50); // โช้คหน้า
+            ctx.lineTo(ox + 50, oy + 55); // ห้องเครื่อง
+            ctx.lineTo(ox + 25, oy + 50); // โช้คหลัง
+            ctx.closePath();
+            ctx.fill();
+            
+            // เบาะนั่ง
+            ctx.fillStyle = '#34495e';
+            ctx.beginPath();
+            ctx.roundRect(ox + 25, oy + 33, 30, 6, 3);
+            ctx.fill();
+            
+            // แฮนด์รถ
+            ctx.strokeStyle = '#95a5a6';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(ox + 60, oy + 35);
+            ctx.lineTo(ox + 55, oy + 18);
+            ctx.stroke();
+
+            // --- 4. Rider (คนขี่) ---
+            // ขา (ติดอยู่กับรถ)
+            ctx.strokeStyle = '#2980b9';
+            ctx.lineWidth = 8;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(ox + 40, oy + 35); // เอว
+            ctx.lineTo(ox + 50, oy + 45); // เข่า
+            ctx.lineTo(ox + 35, oy + 52); // เท้า
+            ctx.stroke();
+
+            // ลำตัว
+            ctx.fillStyle = '#E67E22';
+            ctx.beginPath();
+            // วาดตัวโน้มไปข้างหน้าเล็กน้อย
+            ctx.ellipse(ox + 45, oy + 22, 10, 16, 0.3, 0, Math.PI * 2);
+            ctx.fill();
+
+            // แขน (จับแฮนด์)
+            ctx.strokeStyle = '#E67E22';
+            ctx.lineWidth = 6;
+            ctx.beginPath();
+            ctx.moveTo(ox + 48, oy + 15); // ไหล่
+            ctx.lineTo(ox + 55, oy + 18); // มือจับแฮนด์
+            ctx.stroke();
+
+            // หัว + หมวก
+            ctx.fillStyle = '#3E2723';
+            ctx.beginPath();
+            ctx.arc(ox + 50, oy + 5, 12, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // หน้า
+            ctx.fillStyle = '#FFCCBC';
+            ctx.beginPath();
+            ctx.arc(ox + 52, oy + 7, 8, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // แว่นตา
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.roundRect(ox + 52, oy + 4, 10, 5, 2);
+            ctx.fill();
+
+            ctx.restore();
+        },
+
+        drawWheel: function(x, y) {
+            ctx.save(); ctx.translate(x, y); ctx.rotate(this.wheelRotation);
+            // ยาง
+            ctx.fillStyle = '#222'; ctx.beginPath(); ctx.arc(0, 0, 14, 0, Math.PI*2); ctx.fill();
+            // ล้อแม็ก
+            ctx.fillStyle = '#bdc3c7'; ctx.beginPath(); ctx.arc(0, 0, 9, 0, Math.PI*2); ctx.fill();
+            // ซี่ล้อ
+            ctx.strokeStyle = '#222'; ctx.lineWidth = 2; ctx.beginPath();
+            ctx.moveTo(-9,0); ctx.lineTo(9,0); ctx.moveTo(0,-9); ctx.lineTo(0,9);
+            ctx.stroke();
+            ctx.restore();
+        }
+    };
+
+    // --- Platform ---
+    class Platform {
+        constructor() {
+            this.width = Math.random() * 100 + 130;
+            this.height = 20; this.x = canvas.width;
+            const maxHill = canvas.height - CONFIG.groundHeight - 75;
+            this.y = Math.random() * (maxHill - 150) + 80;
+            this.markedForDeletion = false;
+        }
+        update() { this.x -= CONFIG.scrollSpeed; if (this.x + this.width < -50) this.markedForDeletion = true; }
+        draw() {
+            ctx.fillStyle = "#795548"; ctx.beginPath(); ctx.roundRect(this.x, this.y, this.width, this.height, 5); ctx.fill();
+            ctx.fillStyle = "#4CAF50"; ctx.beginPath(); ctx.roundRect(this.x - 5, this.y - 5, this.width + 10, 10, 5); ctx.fill();
+        }
+    }
+
+    // --- Word Obstacle ---
+    class WordObstacle {
+        constructor() {
+            const ruleIds = ['koka', 'kon', 'kok', 'kong'];
+            const rId = ruleIds[Math.floor(Math.random()*4)];
+            const pool = WORD_DATABASE.filter(w => w.ruleId === rId);
+            const data = pool[Math.floor(Math.random()*pool.length)];
+            this.text = data.text; this.ruleId = data.ruleId;
+            ctx.font = "bold 24px Kanit";
+            this.width = ctx.measureText(this.text).width + 30;
+            this.height = 42; this.x = canvas.width;
+            this.isOnGround = Math.random() > 0.5;
+            this.y = -100;
+            if (!this.isOnGround) {
+                this.y = Math.random() * (canvas.height/2);
+                for(let p of platforms) { if(Math.abs(this.y - p.y) < 50) this.y -= 60; }
+            }
+            this.markedForDeletion = false;
+        }
+        update() {
+            this.x -= CONFIG.scrollSpeed;
+            if (this.isOnGround) this.y = getGroundY(distanceTraveled + this.x + this.width/2) - this.height - 5;
+            if (this.x + this.width < -50) this.markedForDeletion = true;
+        }
+        draw() {
+            ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.roundRect(this.x, this.y, this.width, this.height, 10); ctx.fill();
+            ctx.lineWidth = 2; ctx.strokeStyle = "#95A5A6"; ctx.stroke();
+            ctx.fillStyle = "#2c3e50"; ctx.font = "bold 22px Kanit"; ctx.textAlign = "center";
+            ctx.fillText(this.text, this.x + this.width/2, this.y + 30);
+        }
+    }
+
+    // --- Particle ---
+    class Particle {
+        constructor(x, y, color) { this.x = x; this.y = y; this.color = color; this.size = Math.random()*5+2; this.speedX = Math.random()*4-2; this.speedY = Math.random()*-3-1; this.life = 1; }
+        update() { this.x += this.speedX; this.y += this.speedY; this.life -= 0.03; }
+        draw() { ctx.globalAlpha = Math.max(0, this.life); ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill(); ctx.globalAlpha = 1; }
+    }
+
+    // --- Game Logic ---
+    function startGame() {
+        SoundManager.resume();
+        SoundManager.initEngine();
+        SoundManager.startMusic();
+        score = 0; lives = 3; frames = 0; distanceTraveled = 0; combo = 0;
+        words = []; platforms = []; particles = []; floatingTexts = [];
+        player.reset(); recentWords = [];
+        gameState = 'PLAYING';
+        currentRule = GAME_RULES[Math.floor(Math.random()*GAME_RULES.length)];
+        missionDisplay.innerHTML = `${currentRule.title} <span class="sub-text">${currentRule.desc}</span>`;
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('game-over-screen').classList.add('hidden');
+        requestAnimationFrame(loop);
+    }
+
+    function createParticles(x, y, count, color) { for(let i=0; i<count; i++) particles.push(new Particle(x, y, color)); }
+
+    function loop() {
+        if (gameState !== 'PLAYING') return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        distanceTraveled += CONFIG.scrollSpeed;
+
+        // Background & Hills
+        let grad = ctx.createLinearGradient(0, 0, 0, canvas.height); grad.addColorStop(0, "#2980b9"); grad.addColorStop(1, "#87CEEB");
+        ctx.fillStyle = grad; ctx.fillRect(0,0,canvas.width, canvas.height);
+        ctx.fillStyle = "#5D4037"; ctx.beginPath(); ctx.moveTo(0, canvas.height);
+        for (let x = 0; x <= canvas.width + 20; x += 20) ctx.lineTo(x, getGroundY(distanceTraveled + x));
+        ctx.lineTo(canvas.width, canvas.height); ctx.fill();
+        ctx.strokeStyle = "#8BC34A"; ctx.lineWidth = 15; ctx.beginPath();
+        for (let x = -20; x <= canvas.width + 20; x += 20) { const y = getGroundY(distanceTraveled + x); if (x === -20) ctx.moveTo(x, y); else ctx.lineTo(x, y); }
+        ctx.stroke();
+
+        // Spawn logic
+        if (frames % (60 * CONFIG.missionDuration) === 0 && frames > 0) {
+            currentRule = GAME_RULES[Math.floor(Math.random()*GAME_RULES.length)];
+            missionDisplay.innerHTML = `${currentRule.title} <span class="sub-text">${currentRule.desc}</span>`;
+            missionDisplay.classList.add('mission-change-anim');
+            setTimeout(() => missionDisplay.classList.remove('mission-change-anim'), 500);
+            SoundManager.playMissionChange();
+        }
+        frames++;
+        if (frames % CONFIG.platformSpawnRate === 0) platforms.push(new Platform());
+        if (frames % CONFIG.spawnRate === 0) words.push(new WordObstacle());
+
+        platforms.forEach((p, i) => { p.update(); p.draw(); if(p.markedForDeletion) platforms.splice(i,1); });
+        words.forEach((w, i) => {
+            w.update(); w.draw();
+            // Collision
+            if (player.x < w.x + w.width && player.x + player.width > w.x && player.y < w.y + w.height && player.y + player.height > w.y) {
+                if (w.ruleId === currentRule.id) {
+                    score += 10; combo++; SoundManager.playCollect(combo);
+                    floatingTexts.push(new FloatingText(w.x + w.width/2, w.y, "+10", "#FFD700"));
+                    createParticles(w.x, w.y, 10, '#f1c40f');
+                } else {
+                    lives--; combo = 0; SoundManager.playDamage();
+                    floatingTexts.push(new FloatingText(w.x + w.width/2, w.y, "❌", "#FF0000"));
+                    container.classList.add('shake'); setTimeout(() => container.classList.remove('shake'), 400);
+                    if(lives <= 0) {
+                        gameState = 'GAMEOVER';
+                        SoundManager.playGameOver();
+                        document.getElementById('final-score').innerText = score;
+                        document.getElementById('game-over-screen').classList.remove('hidden');
+                        if (window.KAMPAI) {
+                            window.KAMPAI.submitScore(score, { mode: 'normal' });
+                        }
+                    }
+                }
+                document.getElementById('score').innerText = score; document.getElementById('lives').innerText = lives;
+                words.splice(i, 1);
+            }
+            if(w.markedForDeletion) words.splice(i, 1);
+        });
+
+        floatingTexts.forEach((ft, i) => { ft.update(); ft.draw(); if(ft.opacity <= 0) floatingTexts.splice(i, 1); });
+        player.update(); player.draw();
+        particles.forEach((p, i) => { p.update(); p.draw(); if(p.life <= 0) particles.splice(i,1); });
+
+        requestAnimationFrame(loop);
+    }
+
+    // Input Listeners
+    window.addEventListener('keydown', e => { if (e.code === 'ArrowRight') keys.right = true; if (e.code === 'ArrowLeft') keys.left = true; if (e.code === 'Space') { if(gameState !== 'PLAYING') startGame(); else player.jump(); e.preventDefault(); } });
+    window.addEventListener('keyup', e => { if (e.code === 'ArrowRight') keys.right = false; if (e.code === 'ArrowLeft') keys.left = false; });
+    
+    const btnL = document.getElementById('btn-left'), btnR = document.getElementById('btn-right'), btnJ = document.getElementById('btn-jump');
+    const tS = (k, b) => e => { e.preventDefault(); keys[k] = true; b.classList.add('active'); SoundManager.resume(); };
+    const tE = (k, b) => e => { e.preventDefault(); keys[k] = false; b.classList.remove('active'); };
+    btnL.addEventListener('touchstart', tS('left', btnL)); btnL.addEventListener('touchend', tE('left', btnL));
+    btnR.addEventListener('touchstart', tS('right', btnR)); btnR.addEventListener('touchend', tE('right', btnR));
+    btnJ.addEventListener('touchstart', e => { e.preventDefault(); btnJ.classList.add('active'); if(gameState !== 'PLAYING') startGame(); else player.jump(); setTimeout(()=>btnJ.classList.remove('active'), 150); });
+</script>
+</body>
+</html>
