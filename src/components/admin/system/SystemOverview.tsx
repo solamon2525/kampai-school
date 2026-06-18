@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.85.0 (Educational Hub — ย่อบล็อก "อันดับ & เหรียญ" เป็นแถบสรุป+แท็บกดขยาย)',
+        version: 'v1.86.0 (TeacherGameAnalytics — แท็บ "วิจัยในชั้นเรียน" เปรียบเทียบก่อน-หลังเรียน + สร้างเอกสารวิจัย 5 บท)',
         date: 'ล่าสุด',
+        badge: 'bg-violet-600',
+        items: [
+            'แท็บใหม่ในหน้าวิเคราะห์เกมของครู: เลือกช่วงวันที่ "ก่อนเรียน" + "หลังเรียน" → คำนวณคะแนนเฉลี่ยรายบุคคล/กลุ่ม (mean, SD, % ดีขึ้น) จาก game_sessions ที่มีอยู่แล้ว ไม่ต้อง migration ใหม่',
+            'ปุ่ม "สร้างเอกสารวิจัย" เปิดฟอร์มให้ครูกรอกชื่อเรื่อง/ความสำคัญของปัญหา/วัตถุประสงค์/ข้อเสนอแนะ แล้ว generate เอกสารวิจัยในชั้นเรียน 5 บทแบบพิมพ์ได้ (window.print) — บทที่ 3-4 (วิธีดำเนินการ/ผลการวิจัย) auto-fill จากข้อมูลจริง',
+            'Component ใหม่ ClassroomResearchTab.tsx + printClassroomResearchDoc.ts (mirror pattern จาก TrainingTranscriptPDF.tsx) — ใช้ sessionsQuery/studentsQuery เดิมของ TeacherGameAnalytics ไม่ query เพิ่ม',
+        ],
+    },
+    {
+        version: 'v1.85.0 (Educational Hub — ย่อบล็อก "อันดับ & เหรียญ" เป็นแถบสรุป+แท็บกดขยาย)',
+        date: '',
         badge: 'bg-emerald-600',
         items: [
             'รวม 3 การ์ด (DailyQuestPanel + GameRankings + HonorWall) ที่เคยซ้อนแนวตั้งกินพื้นที่ ~1,000px → GamificationHub การ์ดเดียว: แถบสรุปย่อ 1 แถว (LV ring + ชื่อ + XP bar + chips 🎮/🏅/🔥/🎯) สูงเหลือ ~143px (เดสก์ท็อป) / ~188px (มือถือ)',

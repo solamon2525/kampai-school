@@ -21,6 +21,7 @@ import {
   Copy,
   Radio,
   RefreshCw,
+  FlaskConical,
 } from 'lucide-react';
 import {
   BarChart,
@@ -68,6 +69,7 @@ import {
   type LevelInfo,
 } from '@/services/game-play.service';
 import { studentsService } from '@/services/students.service';
+import ClassroomResearchTab from '@/components/teacher/game-analytics/ClassroomResearchTab';
 
 const CLASS_OPTIONS = [
   'อ.1', 'อ.2', 'อ.3',
@@ -658,7 +660,7 @@ export default function TeacherGameAnalytics({ staffId }: { staffId: string }) {
 
       {/* Main Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 max-w-3xl">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 max-w-4xl">
           <TabsTrigger value="grading" className="gap-2">
             <UserCheck className="h-4 w-4" />
             สมุดโอนเกรดอัจฉริยะ
@@ -674,6 +676,10 @@ export default function TeacherGameAnalytics({ staffId }: { staffId: string }) {
           <TabsTrigger value="live" className="gap-2">
             <Radio className="h-4 w-4" />
             อันดับสด
+          </TabsTrigger>
+          <TabsTrigger value="research" className="gap-2">
+            <FlaskConical className="h-4 w-4" />
+            วิจัยในชั้นเรียน
           </TabsTrigger>
         </TabsList>
 
@@ -1145,6 +1151,18 @@ export default function TeacherGameAnalytics({ staffId }: { staffId: string }) {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* ────────── Tab 5: Classroom Action Research ────────── */}
+        <TabsContent value="research" className="mt-4">
+          <ClassroomResearchTab
+            sessions={sessionsQuery.data ?? []}
+            students={studentsQuery.data ?? []}
+            selectedGameTitle={selectedGameTitle}
+            selectedClass={selectedClass}
+            staffId={staffId}
+            isLoading={studentsQuery.isLoading || sessionsQuery.isLoading}
+          />
         </TabsContent>
       </Tabs>
 
