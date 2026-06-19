@@ -182,7 +182,7 @@ body {
 }
 
 #word-area {
-  flex: 0 0 clamp(200px, 26vh, 280px); /* scales with viewport height instead of one fixed value */
+  flex: 0 0 clamp(280px, 26vh, 320px); /* floor raised to fit front-face content (was overflowing below ~970px viewport height) */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -265,11 +265,11 @@ body {
 }
 
 #wfront-emoji {
-  font-size: 60px;
+  font-size: 64px;
 }
 
 #wfront-word {
-  font-size: 64px;
+  font-size: 68px;
   font-weight: 700;
   color: #fbbf24;
 }
@@ -283,7 +283,7 @@ body {
 }
 
 #wback-reading {
-  font-size: 38px;
+  font-size: 42px;
   font-weight: 700;
   color: #ffffff;
   border-bottom: 2px dashed rgba(255,255,255,0.4);
@@ -291,10 +291,10 @@ body {
 }
 
 #wback-meaning {
-  font-size: 24px;
+  font-size: 26px;
   color: #ffedd5;
   line-height: 1.5;
-  max-width: 520px;
+  max-width: 560px;
 }
 
 /* ═══ PLAY AREA (Modes Container) ═══ */
@@ -322,7 +322,7 @@ body {
   padding: 14px 8px;
   text-align: center;
   cursor: pointer;
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 600;
   color: #cbd5e1;
   transition: all 0.15s;
@@ -981,13 +981,26 @@ body {
     overflow-y: auto;
   }
   #word-area {
-    flex: 0 0 clamp(170px, 24vh, 220px);
+    flex: 0 0 clamp(250px, 24vh, 280px); /* floor raised to fit front-face content, same overflow fix as desktop */
+  }
+  #wfront-emoji {
+    font-size: 60px; /* pinned: desktop-only growth would re-introduce overflow on mobile's tighter margin */
   }
   #wfront-word {
     font-size: 48px;
   }
+  #wback-reading {
+    font-size: 38px; /* pinned, see #wfront-emoji */
+  }
+  #wback-meaning {
+    font-size: 24px; /* pinned, see #wfront-emoji */
+    max-width: 520px;
+  }
   .words-grid {
     grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
+  }
+  .word-cell {
+    font-size: 20px; /* pinned: 115px mobile cell floor is tighter than desktop's 155px */
   }
   #bottom-bar {
     flex-direction: column;
