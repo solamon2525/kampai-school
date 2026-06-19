@@ -2,6 +2,10 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+:root {
+  --font-scale: 1;
+}
+
 html, body {
   height: 100%;
   font-family: 'Sarabun', sans-serif;
@@ -47,7 +51,7 @@ body {
 }
 
 #score-container, #life-container, #level-container {
-  font-size: 16px;
+  font-size: calc(16px * var(--font-scale));
   font-weight: 700;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(249, 115, 22, 0.2);
@@ -81,7 +85,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.08);
   padding: 4px 12px;
   border-radius: 999px;
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale));
   color: #cbd5e1;
   backdrop-filter: blur(8px);
 }
@@ -100,6 +104,38 @@ body {
   font-weight: 700;
 }
 
+/* ═══ FONT-SIZE SLIDER (game-local, persisted via localStorage, not part of the shared SDK) ═══ */
+.tvh-fs-pill {
+  position: fixed;
+  top: 10px; right: 10px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(15, 23, 42, .55);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  border-radius: 999px;
+  padding: 6px 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.35);
+}
+
+.tvh-fs-icon {
+  line-height: 1;
+  color: #e2e8f0;
+  font-weight: 700;
+  user-select: none;
+}
+.tvh-fs-icon-sm { font-size: 11px; }
+.tvh-fs-icon-lg { font-size: 17px; }
+
+.tvh-fs-range {
+  width: 90px;
+  height: 4px;
+  cursor: pointer;
+  accent-color: #f97316;
+}
+
 /* ═══ HUB VIEW ═══ */
 #hub-view {
   flex: 1;
@@ -113,7 +149,7 @@ body {
 }
 
 #hub-title {
-  font-size: 40px;
+  font-size: calc(40px * var(--font-scale));
   font-weight: 700;
   color: #f97316;
   text-shadow: 0 0 15px rgba(249,115,22,0.25);
@@ -122,7 +158,7 @@ body {
 }
 
 #hub-sub {
-  font-size: 19px;
+  font-size: calc(19px * var(--font-scale));
   color: #94a3b8;
   text-align: center;
   margin-bottom: 30px;
@@ -156,18 +192,18 @@ body {
 }
 
 .hc-icon {
-  font-size: 36px;
+  font-size: calc(36px * var(--font-scale));
   filter: drop-shadow(0 4px 6px rgba(0,0,0,0.25));
 }
 
 .hc-th {
-  font-size: 19px;
+  font-size: calc(19px * var(--font-scale));
   font-weight: 700;
   color: #f1f5f9;
 }
 
 .hc-desc {
-  font-size: 14px;
+  font-size: calc(14px * var(--font-scale));
   color: #64748b;
   line-height: 1.4;
 }
@@ -182,7 +218,7 @@ body {
 }
 
 #word-area {
-  flex: 0 0 clamp(280px, 26vh, 320px); /* floor raised to fit front-face content (was overflowing below ~970px viewport height) */
+  flex: 0 0 clamp(calc(280px * var(--font-scale)), calc(26vh * var(--font-scale)), calc(320px * var(--font-scale))); /* floor raised to fit front-face content; all clamp terms scale with --font-scale so the margin stays proportional, not fixed */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -194,7 +230,7 @@ body {
   position: absolute;
   top: 10px; right: 20px;
   z-index: 10;
-  font-size: 20px;
+  font-size: 20px; /* fixed touch-target icon, intentionally excluded from --font-scale */
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -216,7 +252,7 @@ body {
 
 #tcard {
   width: 100%;
-  max-width: 640px;
+  max-width: calc(640px * var(--font-scale));
   height: 90%;
   perspective: 1000px;
   position: relative;
@@ -265,17 +301,17 @@ body {
 }
 
 #wfront-emoji {
-  font-size: 64px;
+  font-size: calc(64px * var(--font-scale));
 }
 
 #wfront-word {
-  font-size: 68px;
+  font-size: calc(68px * var(--font-scale));
   font-weight: 700;
   color: #fbbf24;
 }
 
 .card-cat-label {
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale));
   background: rgba(255,255,255,0.15);
   padding: 2px 10px;
   border-radius: 99px;
@@ -283,7 +319,7 @@ body {
 }
 
 #wback-reading {
-  font-size: 42px;
+  font-size: calc(42px * var(--font-scale));
   font-weight: 700;
   color: #ffffff;
   border-bottom: 2px dashed rgba(255,255,255,0.4);
@@ -291,10 +327,10 @@ body {
 }
 
 #wback-meaning {
-  font-size: 26px;
+  font-size: calc(26px * var(--font-scale));
   color: #ffedd5;
   line-height: 1.5;
-  max-width: 560px;
+  max-width: calc(560px * var(--font-scale));
 }
 
 /* ═══ PLAY AREA (Modes Container) ═══ */
@@ -322,7 +358,7 @@ body {
   padding: 14px 8px;
   text-align: center;
   cursor: pointer;
-  font-size: 22px;
+  font-size: calc(22px * var(--font-scale));
   font-weight: 600;
   color: #cbd5e1;
   transition: all 0.15s;
@@ -364,7 +400,7 @@ body {
   color: white;
   border: none;
   font-family: inherit;
-  font-size: 20px;
+  font-size: calc(20px * var(--font-scale));
   font-weight: 700;
   padding: 12px 28px;
   border-radius: 99px;
@@ -380,7 +416,7 @@ body {
 }
 
 .dictation-hint {
-  font-size: 16px;
+  font-size: calc(16px * var(--font-scale));
   color: #94a3b8;
   margin-bottom: 20px;
 }
@@ -398,7 +434,7 @@ body {
   border-radius: 12px;
   color: white;
   font-family: inherit;
-  font-size: 24px;
+  font-size: calc(24px * var(--font-scale));
   padding: 10px 16px;
   text-align: center;
   outline: none;
@@ -420,7 +456,7 @@ body {
 }
 
 .choice-q {
-  font-size: 26px;
+  font-size: calc(26px * var(--font-scale));
   font-weight: 600;
   text-align: center;
   margin-bottom: 20px;
@@ -440,7 +476,7 @@ body {
   padding: 12px 20px;
   border-radius: 12px;
   font-family: inherit;
-  font-size: 22px;
+  font-size: calc(22px * var(--font-scale));
   font-weight: 500;
   text-align: left;
   cursor: pointer;
@@ -485,7 +521,7 @@ body {
   border-radius: 10px;
   padding: 10px 14px;
   text-align: center;
-  font-size: 20px;
+  font-size: calc(20px * var(--font-scale));
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
@@ -547,7 +583,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: #94a3b8;
   font-family: inherit;
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale));
   font-weight: 600;
   padding: 6px 12px;
   border-radius: 8px;
@@ -579,13 +615,13 @@ body {
   display: none;
   align-items: center;
   gap: 14px;
-  font-size: 16px;
+  font-size: calc(16px * var(--font-scale));
   font-weight: 700;
   color: #fff;
 }
 
 #life-display {
-  font-size: 15px;
+  font-size: calc(15px * var(--font-scale));
   letter-spacing: 1px;
 }
 
@@ -599,7 +635,7 @@ body {
   color: #f1f5f9;
   border: 1px solid rgba(255, 255, 255, 0.12);
   font-family: inherit;
-  font-size: 15px;
+  font-size: calc(15px * var(--font-scale));
   font-weight: 700;
   width: 38px;
   height: 34px;
@@ -627,7 +663,7 @@ body {
 }
 
 .missed-title {
-  font-size: 15px;
+  font-size: calc(15px * var(--font-scale));
   color: #fbbf24;
   margin-bottom: 8px;
   font-weight: 700;
@@ -648,7 +684,7 @@ body {
   background: rgba(255, 255, 255, 0.03);
   padding: 7px 12px;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: calc(14px * var(--font-scale));
   color: #e2e8f0;
   line-height: 1.4;
 }
@@ -664,7 +700,7 @@ body {
   transform: translateX(-50%) translateY(-20px);
   padding: 8px 24px;
   border-radius: 8px;
-  font-size: 15px;
+  font-size: calc(15px * var(--font-scale));
   font-weight: 700;
   color: white;
   z-index: 90;
@@ -704,7 +740,7 @@ body {
 }
 
 #feedback-title {
-  font-size: 26px;
+  font-size: calc(26px * var(--font-scale));
   font-weight: 700;
   margin-bottom: 12px;
 }
@@ -713,7 +749,7 @@ body {
 #feedback-title.wrong { color: #ef4444; }
 
 #feedback-desc {
-  font-size: 15px;
+  font-size: calc(15px * var(--font-scale));
   color: #cbd5e1;
   margin-bottom: 20px;
   max-width: 400px;
@@ -736,7 +772,7 @@ body {
 }
 
 #blocker h1, #gameover-screen h1 {
-  font-size: 44px;
+  font-size: calc(44px * var(--font-scale));
   font-weight: 700;
   color: #ffffff;
   text-shadow: 0 0 20px rgba(249,115,22,0.4);
@@ -744,7 +780,7 @@ body {
 }
 
 .subtitle {
-  font-size: 18px;
+  font-size: calc(18px * var(--font-scale));
   color: #f97316;
   margin-bottom: 24px;
   font-weight: 500;
@@ -755,7 +791,11 @@ body {
   line-height: 1.6;
   margin-bottom: 24px;
   max-width: 500px;
-  font-size: 15px;
+  font-size: calc(15px * var(--font-scale));
+}
+
+#go-summary {
+  font-size: calc(15px * var(--font-scale));
 }
 
 /* My Stats */
@@ -774,13 +814,13 @@ body {
 }
 
 .ms-val {
-  font-size: 24px;
+  font-size: calc(24px * var(--font-scale));
   font-weight: 700;
   color: #f97316;
 }
 
 .ms-label {
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale));
   color: #94a3b8;
 }
 
@@ -796,7 +836,7 @@ body {
 }
 
 .lb-title {
-  font-size: 15px;
+  font-size: calc(15px * var(--font-scale));
   color: #f1f5f9;
   margin-bottom: 10px;
   font-weight: 600;
@@ -818,7 +858,7 @@ body {
   background: rgba(255,255,255,0.02);
   padding: 6px 12px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale));
 }
 
 .leaderboard-list li.me {
@@ -842,7 +882,7 @@ body {
 
 /* Star Display */
 #star-display {
-  font-size: 40px;
+  font-size: 40px; /* decorative rating glyphs, intentionally excluded from --font-scale */
   margin-bottom: 12px;
   color: #fbbf24;
   letter-spacing: 4px;
@@ -850,7 +890,7 @@ body {
 }
 
 #final-score {
-  font-size: 54px;
+  font-size: calc(54px * var(--font-scale));
   font-weight: 700;
   color: #fbbf24;
   margin-bottom: 20px;
@@ -860,7 +900,7 @@ body {
 /* Buttons */
 .btn {
   font-family: inherit;
-  font-size: 16px;
+  font-size: calc(16px * var(--font-scale));
   font-weight: 700;
   padding: 12px 28px;
   border-radius: 12px;
@@ -922,7 +962,7 @@ body {
   color: white;
   border: none;
   font-family: inherit;
-  font-size: 15px;
+  font-size: calc(15px * var(--font-scale));
   font-weight: 700;
   padding: 6px 18px;
   border-radius: 99px;
@@ -948,7 +988,7 @@ body {
 }
 
 .speed-label {
-  font-size: 14px;
+  font-size: calc(14px * var(--font-scale));
   color: #94a3b8;
   font-weight: 600;
 }
@@ -959,7 +999,7 @@ body {
   border-radius: 8px;
   color: white;
   font-family: inherit;
-  font-size: 14px;
+  font-size: calc(14px * var(--font-scale));
   padding: 4px 10px;
   outline: none;
   cursor: pointer;
@@ -981,31 +1021,34 @@ body {
     overflow-y: auto;
   }
   #word-area {
-    flex: 0 0 clamp(250px, 24vh, 280px); /* floor raised to fit front-face content, same overflow fix as desktop */
+    flex: 0 0 clamp(calc(250px * var(--font-scale)), calc(24vh * var(--font-scale)), calc(280px * var(--font-scale))); /* floor raised to fit front-face content, same overflow fix as desktop; scales with --font-scale */
   }
   #wfront-emoji {
-    font-size: 60px; /* pinned: desktop-only growth would re-introduce overflow on mobile's tighter margin */
+    font-size: calc(60px * var(--font-scale)); /* smaller base than desktop's 64px; both scale together via --font-scale */
   }
   #wfront-word {
-    font-size: 48px;
+    font-size: calc(48px * var(--font-scale));
   }
   #wback-reading {
-    font-size: 38px; /* pinned, see #wfront-emoji */
+    font-size: calc(38px * var(--font-scale)); /* smaller base than desktop, see #wfront-emoji */
   }
   #wback-meaning {
-    font-size: 24px; /* pinned, see #wfront-emoji */
-    max-width: 520px;
+    font-size: calc(24px * var(--font-scale)); /* smaller base than desktop, see #wfront-emoji */
+    max-width: calc(520px * var(--font-scale));
   }
   .words-grid {
     grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
   }
   .word-cell {
-    font-size: 20px; /* pinned: 115px mobile cell floor is tighter than desktop's 155px */
+    font-size: calc(20px * var(--font-scale)); /* smaller base than desktop's 22px: 115px mobile cell floor is tighter than desktop's 155px */
   }
   #bottom-bar {
     flex-direction: column;
     height: auto;
     gap: 8px;
     padding-bottom: 12px;
+  }
+  .tvh-fs-range {
+    width: 70px;
   }
 }

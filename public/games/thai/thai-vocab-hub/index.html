@@ -19,6 +19,14 @@
 <!-- Player chip (shows student name when embedded) -->
 <div id="player-chip"></div>
 
+<!-- Font-size slider (persisted to localStorage) -->
+<div id="tvh-fontsize" class="tvh-fs-pill">
+    <span class="tvh-fs-icon tvh-fs-icon-sm" aria-hidden="true">Aa</span>
+    <input type="range" id="tvh-fontsize-slider" class="tvh-fs-range"
+           min="0.85" max="1.30" step="0.05" value="1" aria-label="ขนาดตัวอักษร">
+    <span class="tvh-fs-icon tvh-fs-icon-lg" aria-hidden="true">Aa</span>
+</div>
+
 <!-- HUB VIEW (Category select) -->
 <div id="hub-view">
     <button class="cbtn" style="align-self:flex-start;margin-bottom:8px" onclick="KAMPAI.goHome()">← กลับหน้าหลัก</button>
@@ -123,7 +131,7 @@
     <div id="star-display" style="display:none"></div>
     <p style="display:none">คะแนนสะสมสูงสุดของคุณ</p>
     <div id="final-score" style="display:none">0</div>
-    <p id="go-summary" style="font-size:15px"></p>
+    <p id="go-summary"></p>
 
     <!-- คำที่ตอบผิด (ไว้ทบทวนซ้ำ) -->
     <div id="missed-box" class="missed-box" style="display:none">

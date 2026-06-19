@@ -49,6 +49,28 @@ if (document.readyState === 'loading') {
   safeInitHubGrid();
 }
 
+// ตัวขยาย/ย่อขนาดตัวอักษร — จำค่าไว้ใน localStorage (เฉพาะเกมนี้ ไม่เกี่ยวกับ SDK)
+const FS_KEY = 'tvh_font_scale';
+const FS_MIN = 0.85, FS_MAX = 1.30;
+
+function mountFontSizeSlider() {
+  const slider = document.getElementById('tvh-fontsize-slider');
+  if (!slider || slider.dataset.tvhBound) return;
+  slider.dataset.tvhBound = '1';
+
+  const saved = parseFloat(localStorage.getItem(FS_KEY));
+  const initial = (!isNaN(saved) && saved >= FS_MIN && saved <= FS_MAX) ? saved : 1;
+
+  document.documentElement.style.setProperty('--font-scale', String(initial));
+  slider.value = String(initial);
+
+  slider.addEventListener('input', () => {
+    const v = parseFloat(slider.value);
+    document.documentElement.style.setProperty('--font-scale', String(v));
+    localStorage.setItem(FS_KEY, String(v));
+  });
+}
+
 // โหลดข้อมูล SDK เมื่อหน้าพร้อมใช้งาน — ครอบ try/catch กันเสียง/ชิป/SDK ทำให้ทั้งเกมพัง
 KAMPAI.onReady((sdk) => {
   try {
@@ -68,6 +90,8 @@ KAMPAI.onReady((sdk) => {
       if (sdk.sound.bgmStart) sdk.sound.bgmStart();
       if (sdk.sound.mountToggles) sdk.sound.mountToggles();
     }
+
+    mountFontSizeSlider();
   } catch (e) {
     /* เสียง/ชิป/SDK ล้ม ต้องไม่ทำให้เกมเล่นไม่ได้ */
   }
