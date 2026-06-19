@@ -350,7 +350,14 @@ const PlayGame = () => {
       if (sessionSubmittedRef.current) return;
       sessionSubmittedRef.current = true;
 
-      if (!student || typeof data.score !== 'number') return;
+      if (!student || typeof data.score !== 'number') {
+        console.warn('[PlayGame] dropped gameEnd: missing student or invalid score', {
+          hasStudent: !!student,
+          scoreType: typeof data.score,
+          data,
+        });
+        return;
+      }
       try {
         const submitted = await gamePlayService.recordSession({
           studentCode: codeInput.trim(),

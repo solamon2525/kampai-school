@@ -65,12 +65,8 @@
   /** ตั้ง game slug (ต้องตรงกับ educational_hub_items.game_slug) */
   K.setSlug = function (slug) { K._slug = slug; return K; };
 
-  /** ส่งคะแนนตอนจบเกม — เรียกครั้งเดียวต่อรอบ. opts: { mode, ...metadata } */
-  K.submitScore = function (score, opts) {
-    opts = opts || {};
-    if (!IS_EMBED || !K.student) return false;        // standalone / ไม่มีนักเรียน → no-op (ทดสอบได้)
-    if (K._submitted && opts.allowResubmit !== true) return false;
-    K._submitted = true;
+  /** ส่ง gameEnd postMessage จริง (internal — เรียกจาก submitScore เมื่อ K.student พร้อมแล้ว) */
+  K._doSubmit = function (score, opts) {
     var metadata = {};
     for (var k in opts) {
       if (k === 'mode' || k === 'allowResubmit') continue;
@@ -88,7 +84,25 @@
         metadata: metadata,
       }, '*');
       return true;
-    } catch (e) { return false; }
+    } catch (e) { console.warn('[KAMPAI] submitScore postMessage failed', e); return false; }
+  };
+
+  /** ส่งคะแนนตอนจบเกม — เรียกครั้งเดียวต่อรอบ. opts: { mode, ...metadata } */
+  K.submitScore = function (score, opts) {
+    opts = opts || {};
+    if (!IS_EMBED) return false;        // standalone → no-op (ทดสอบได้)
+    if (K._submitted && opts.allowResubmit !== true) return false;
+    K._submitted = true;
+    if (!K.student) {
+      // เกมจบเร็วมาก (race) ก่อน init message มาถึง → คิวไว้ ส่งจริงตอน onReady (bound by setTimeout(fireReady,1200) ด้านล่าง)
+      console.warn('[KAMPAI] submitScore called before student ready — queued until onReady');
+      K.onReady(function () {
+        if (!K.student) { console.warn('[KAMPAI] submitScore dropped — no student after ready'); return; }
+        K._doSubmit(score, opts);
+      });
+      return true;
+    }
+    return K._doSubmit(score, opts);
   };
 
   /** กลับหน้าหลัก (iframe-safe) */
