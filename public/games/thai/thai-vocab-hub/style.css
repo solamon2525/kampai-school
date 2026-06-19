@@ -177,12 +177,12 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 20px;
+  padding: 16px;
   height: 100%;
 }
 
 #word-area {
-  flex: 0 0 180px; /* fixed height for card perspective */
+  flex: 0 0 clamp(200px, 26vh, 280px); /* scales with viewport height instead of one fixed value */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -216,7 +216,7 @@ body {
 
 #tcard {
   width: 100%;
-  max-width: 500px;
+  max-width: 640px;
   height: 90%;
   perspective: 1000px;
   position: relative;
@@ -265,17 +265,17 @@ body {
 }
 
 #wfront-emoji {
-  font-size: 48px;
+  font-size: 60px;
 }
 
 #wfront-word {
-  font-size: 56px;
+  font-size: 64px;
   font-weight: 700;
   color: #fbbf24;
 }
 
 .card-cat-label {
-  font-size: 11px;
+  font-size: 12px;
   background: rgba(255,255,255,0.15);
   padding: 2px 10px;
   border-radius: 99px;
@@ -283,7 +283,7 @@ body {
 }
 
 #wback-reading {
-  font-size: 32px;
+  font-size: 38px;
   font-weight: 700;
   color: #ffffff;
   border-bottom: 2px dashed rgba(255,255,255,0.4);
@@ -291,10 +291,10 @@ body {
 }
 
 #wback-meaning {
-  font-size: 22px;
+  font-size: 24px;
   color: #ffedd5;
   line-height: 1.5;
-  max-width: 420px;
+  max-width: 520px;
 }
 
 /* ═══ PLAY AREA (Modes Container) ═══ */
@@ -303,14 +303,14 @@ body {
   overflow-y: auto;
   padding: 10px 0;
   width: 100%;
-  max-width: 750px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
 /* 1. Words Grid View (Review Mode) */
 .words-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
   gap: 8px;
   width: 100%;
 }
@@ -319,10 +319,10 @@ body {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
-  padding: 12px 6px;
+  padding: 14px 8px;
   text-align: center;
   cursor: pointer;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
   color: #cbd5e1;
   transition: all 0.15s;
@@ -908,7 +908,7 @@ body {
   justify-content: center;
   align-items: center;
   gap: 16px;
-  margin: 12px auto;
+  margin: 8px auto;
   padding: 8px 20px;
   background: rgba(30, 41, 59, 0.45);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -981,10 +981,13 @@ body {
     overflow-y: auto;
   }
   #word-area {
-    flex: 0 0 160px;
+    flex: 0 0 clamp(170px, 24vh, 220px);
   }
   #wfront-word {
-    font-size: 42px;
+    font-size: 48px;
+  }
+  .words-grid {
+    grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
   }
   #bottom-bar {
     flex-direction: column;
