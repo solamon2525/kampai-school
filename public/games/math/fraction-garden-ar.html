@@ -1246,7 +1246,7 @@
             const video = document.getElementById('webcam');
             try {
                 STATE.webcamStream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+                    video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
                     audio: false
                 });
                 video.srcObject = STATE.webcamStream;
@@ -1279,10 +1279,6 @@
             const video = document.getElementById('webcam');
             const canvas = document.getElementById('motionCanvas');
             const ctx = canvas.getContext('2d');
-            
-            // Set canvas resolutions
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
 
             // Offscreen canvas for light computation
             const offW = 120;
@@ -1297,6 +1293,12 @@
 
             STATE.motionInterval = setInterval(() => {
                 if (!STATE.webcamActive || video.paused || video.ended) return;
+
+                // Sync main canvas resolution dynamically to match its actual layout size on screen
+                if (canvas.width !== canvas.offsetWidth || canvas.height !== canvas.offsetHeight) {
+                    canvas.width = canvas.offsetWidth;
+                    canvas.height = canvas.offsetHeight;
+                }
 
                 // Draw downsampled video frame to offscreen canvas
                 offCtx.drawImage(video, 0, 0, offW, offH);
