@@ -130,6 +130,103 @@ body.boss { background: linear-gradient(180deg, #7f1d1d 0%, #0f172a 100%); }
 .review-list li { background: #fff7e0; border: 2px solid #fbbf24; border-radius: 10px; padding: 6px 10px; font-family: 'Fredoka One', cursive; color: #92400e; font-size: 15px; }
 .review-list li .a { color: #b45309; font-size: 12px; margin-left: 4px; }
 .review-empty { text-align: center; color: #16a34a; font-size: 14px; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   โหมด 2 คน (Versus split-screen) — โมดูลแยก ไม่ชนสไตล์โหมดเดี่ยว
+   ══════════════════════════════════════════════════════════════════════════ */
+/* --- setup: เลือกคู่แข่ง + รูปแบบ --- */
+#versus-setup .vs-sub { font-size: 13px; color: #94a3b8; margin: 2px 0 10px; }
+.vs-p1chip { display: inline-flex; align-items: center; gap: 10px; background: rgba(59,130,246,0.18); border: 2px solid rgba(59,130,246,0.5); padding: 6px 16px 6px 6px; border-radius: 999px; margin-bottom: 6px; }
+.vs-p1chip img, .vs-p1chip .ini { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
+.vs-p1chip .ini { background: linear-gradient(135deg,#6c5ce7,#a29bfe); display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.vs-room { font-size: 13px; color: #cbd5e1; margin-bottom: 8px; }
+.vs-room b { color: #FFD700; }
+#vs-search { width: 100%; max-width: 420px; padding: 9px 14px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); color: #fff; font-family: 'Kanit'; font-size: 14px; margin: 4px auto 8px; display: block; }
+#vs-search::placeholder { color: #94a3b8; }
+.vs-roster { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; width: 100%; max-width: 460px; margin: 0 auto 12px; max-height: 230px; overflow-y: auto; padding: 2px; }
+.vs-card { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; border-radius: 14px; border: 2px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.06); cursor: pointer; transition: transform 0.08s, border-color 0.15s; }
+.vs-card:active { transform: scale(0.95); }
+.vs-card.sel { border-color: #f97316; background: rgba(249,115,22,0.18); }
+.vs-card img, .vs-card .ini { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+.vs-card .ini { background: linear-gradient(135deg,#f59e0b,#f97316); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 20px; }
+.vs-card .nm { font-size: 12px; line-height: 1.15; text-align: center; max-width: 88px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vs-card .no { font-size: 10px; color: #94a3b8; }
+.vs-empty { color: #94a3b8; font-size: 13px; padding: 16px; grid-column: 1/-1; text-align: center; }
+.vs-fmt { display: flex; gap: 8px; justify-content: center; margin: 4px 0 12px; }
+.vs-fmt button { padding: 8px 16px; border-radius: 999px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); color: #fff; font-family: 'Kanit'; font-size: 14px; cursor: pointer; }
+.vs-fmt button.sel { background: linear-gradient(135deg,#fbbf24,#f59e0b); color: #0f172a; border-color: #fbbf24; }
+.vs-legend { font-size: 12px; color: #cbd5e1; margin: 6px 0 10px; line-height: 1.7; }
+.vs-legend kbd { background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; padding: 1px 7px; font-family: 'Fredoka One', cursive; font-size: 12px; }
+
+/* --- play: split-screen --- */
+#versus { position: fixed; inset: 0; display: none; flex-direction: column; z-index: 25; background: linear-gradient(180deg,#0b1220 0%, #0f172a 100%); }
+#versus.on { display: flex; }
+#vs-topbar { display: flex; align-items: center; gap: 12px; padding: 8px 14px 6px; }
+#vs-clock { font-family: 'Fredoka One', cursive; font-size: 28px; color: #fff; min-width: 56px; text-align: center; text-shadow: 2px 2px 0 rgba(0,0,0,0.3); }
+#vs-clock.warn { color: #f87171; }
+#vs-timer-wrap { flex: 1; height: 12px; background: rgba(255,255,255,0.12); border-radius: 999px; overflow: hidden; }
+#vs-timer-bar { height: 100%; width: 100%; background: linear-gradient(90deg,#4ade80,#22c55e); transition: width 0.1s linear, background 0.3s; }
+#vs-timer-bar.warn { background: linear-gradient(90deg,#f87171,#ef4444); }
+#vs-round { font-family: 'Kanit'; font-size: 13px; color: #cbd5e1; white-space: nowrap; }
+.vs-arena { flex: 1; display: flex; min-height: 0; }
+.vs-panel { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 10px 12px 18px; min-width: 0; position: relative; }
+.vs-panel.p1 { background: linear-gradient(180deg, rgba(59,130,246,0.20), rgba(59,130,246,0.04)); }
+.vs-panel.p2 { background: linear-gradient(180deg, rgba(249,115,22,0.20), rgba(249,115,22,0.04)); }
+.vs-arena .vs-panel + .vs-panel { border-left: 2px solid rgba(255,255,255,0.12); }
+.vs-phead { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; margin-bottom: 4px; }
+.vs-phead img, .vs-phead .ini { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.vs-phead .ini { background: linear-gradient(135deg,#6c5ce7,#a29bfe); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+.vs-phead .nm { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 38vw; }
+.vs-pscore { font-family: 'Fredoka One', cursive; font-size: clamp(26px, 6vw, 40px); color: #FFD700; text-shadow: 2px 2px 0 rgba(0,0,0,0.3); line-height: 1.1; }
+.vs-pscore .cb { font-family: 'Kanit'; font-size: 13px; color: #fbbf24; margin-left: 6px; opacity: 0; }
+.vs-pscore .cb.on { opacity: 1; }
+.vs-q { font-family: 'Fredoka One', cursive; font-size: clamp(30px, 7vw, 54px); margin: 6px 0; text-shadow: 2px 2px 0 rgba(0,0,0,0.25); }
+.vs-fb { height: 20px; font-size: 15px; font-weight: 600; }
+.vs-fb.good { color: #4ade80; } .vs-fb.bad { color: #f87171; }
+/* diamond (3x3) — ปุ่มอยู่ทิศ บน/ซ้าย/ขวา/ล่าง ตรงกับลูกศร/WASD */
+.vs-diamond { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, auto); gap: 8px; width: 100%; max-width: 360px; margin-top: 6px; align-items: stretch; }
+.vs-diamond .vans { font-family: 'Fredoka One', cursive; font-size: clamp(20px, 5vw, 30px); padding: 14px 4px; border: none; border-radius: 14px; cursor: pointer; color: #1e293b; background: #f8fafc; box-shadow: 0 4px 0 #cbd5e1; transition: transform 0.07s, box-shadow 0.07s; }
+.vs-diamond .vans:active { transform: translateY(3px); box-shadow: 0 1px 0 #cbd5e1; }
+.vs-diamond .vans.correct { background: linear-gradient(135deg,#86efac,#22c55e); color: #052e16; box-shadow: 0 4px 0 #15803d; }
+.vs-diamond .vans.wrong { background: linear-gradient(135deg,#fca5a5,#ef4444); color: #450a0a; box-shadow: 0 4px 0 #b91c1c; }
+.vs-diamond .vans .vk { display: block; font-family: 'Kanit'; font-size: 10px; color: #94a3b8; }
+.vans-n { grid-area: 1 / 2 / 2 / 3; } .vans-w { grid-area: 2 / 1 / 3 / 2; }
+.vans-e { grid-area: 2 / 3 / 3 / 4; } .vans-s { grid-area: 3 / 2 / 4 / 3; }
+.vs-diamond .vmid { grid-area: 2 / 2 / 3 / 3; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #64748b; }
+@keyframes vs-shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+.vs-panel.shake { animation: vs-shake 0.35s ease; }
+.vs-hint-narrow { display: none; font-size: 12px; color: #fbbf24; text-align: center; padding: 6px; }
+@media (max-width: 560px) { .vs-hint-narrow { display: block; } }
+
+/* --- result --- */
+#versus-result .vr-winner { font-family: 'Fredoka One', cursive; font-size: 30px; margin: 6px 0; }
+.vr-scores { display: flex; gap: 14px; justify-content: center; align-items: stretch; margin: 8px 0 12px; flex-wrap: wrap; }
+.vr-pcard { background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.15); border-radius: 16px; padding: 12px 18px; min-width: 130px; }
+.vr-pcard.win { border-color: #FFD700; background: rgba(255,215,0,0.12); }
+.vr-pcard img, .vr-pcard .ini { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; margin: 0 auto; display: block; }
+.vr-pcard .ini { background: linear-gradient(135deg,#6c5ce7,#a29bfe); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 22px; }
+.vr-pcard .nm { font-size: 13px; margin-top: 4px; }
+.vr-pcard .sc { font-family: 'Fredoka One', cursive; font-size: 30px; color: #FFD700; }
+.vr-pcard .rd { font-size: 12px; color: #cbd5e1; }
+.vr-h2h { font-size: 14px; color: #cbd5e1; margin: 4px 0 10px; }
+.vr-h2h b { color: #FFD700; }
+.vr-pertable { background: rgba(255,255,255,0.95); color: #2c3e50; border-radius: 12px; padding: 10px 14px; max-width: 420px; width: 100%; margin: 4px 0 10px; }
+.vr-pertable h3 { font-family: 'Fredoka One', cursive; font-size: 0.95rem; margin: 0 0 6px; text-align: left; }
+.vr-pt-row { display: flex; align-items: center; gap: 6px; font-size: 12px; padding: 2px 0; }
+.vr-pt-tag { font-family: 'Fredoka One', cursive; min-width: 30px; }
+.vr-pt-tag.p1 { color: #2563eb; } .vr-pt-tag.p2 { color: #ea580c; }
+
+/* --- pad-config modal --- */
+#pad-config { position: fixed; inset: 0; background: rgba(15,23,42,0.92); backdrop-filter: blur(6px); z-index: 60; display: none; align-items: center; justify-content: center; padding: 16px; }
+#pad-config.on { display: flex; }
+.pc-box { background: #1e293b; border: 2px solid rgba(255,255,255,0.15); border-radius: 18px; padding: 18px 20px; max-width: 480px; width: 100%; max-height: 86vh; overflow-y: auto; }
+.pc-box h2 { font-family: 'Fredoka One', cursive; font-size: 20px; margin-bottom: 4px; }
+.pc-box .pc-note { font-size: 12px; color: #94a3b8; margin-bottom: 12px; }
+.pc-player { border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 10px 12px; margin-bottom: 10px; }
+.pc-player h4 { font-size: 14px; margin-bottom: 8px; }
+.pc-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 5px 0; font-size: 13px; }
+.pc-row select, .pc-bind { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25); border-radius: 8px; color: #fff; font-family: 'Kanit'; font-size: 13px; padding: 5px 10px; cursor: pointer; }
+.pc-bind.listening { background: #f59e0b; color: #0f172a; }
 </style>
 </head>
 <body>
@@ -167,6 +264,7 @@ body.boss { background: linear-gradient(180deg, #7f1d1d 0%, #0f172a 100%); }
     <p>ตอบให้เร็วและถูก! ยิ่งต่อเนื่องยิ่งได้ตัวคูณคะแนน 🔥<br>เลือก 4 ตัวเลือก — แตะ หรือกดเลข 1–4</p>
     <div class="mode-grid">
         <button class="btn btn-primary" onclick="chooseMode('race')">⚡ แข่งเร็ว</button>
+        <button class="btn btn-blue" onclick="openVersus()">👥 2 คน (จอเดียว)</button>
         <button class="btn btn-blue" onclick="openOnline()">🌐 ออนไลน์</button>
         <button class="btn btn-blue" id="btn-daily" onclick="startDaily()">📅 ชาเลนจ์วันนี้</button>
         <button class="btn btn-ghost" onclick="chooseMode('endless')">♾️ ไม่จำกัด</button>
@@ -209,6 +307,82 @@ body.boss { background: linear-gradient(180deg, #7f1d1d 0%, #0f172a 100%); }
     <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
         <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นอีกครั้ง</button>
         <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+    </div>
+</div>
+
+<!-- ═══ โหมด 2 คน (Versus) — เลือกคู่แข่ง ═══ -->
+<div id="versus-setup" class="screen">
+    <h1>👥 แข่ง 2 คน</h1>
+    <div class="vs-room">ห้อง <b id="vs-room-label">—</b> · จอเดียวกัน · คะแนนสูงกว่าใน 60 วิ ชนะ</div>
+    <div id="vs-p1chip" class="vs-p1chip"></div>
+    <div class="vs-sub">เลือกเพื่อนที่จะแข่ง (P2)</div>
+    <input id="vs-search" type="text" placeholder="🔍 ค้นหาชื่อ / รหัส" oninput="renderVersusRoster()" autocomplete="off">
+    <div id="vs-roster" class="vs-roster"><div class="vs-empty">กำลังโหลดรายชื่อ…</div></div>
+    <div class="vs-sub">รูปแบบการแข่ง</div>
+    <div class="vs-fmt" id="vs-fmt">
+        <button data-fmt="single" class="sel" onclick="vsSetFormat('single')">เดี่ยว</button>
+        <button data-fmt="bo3" onclick="vsSetFormat('bo3')">Best of 3</button>
+        <button data-fmt="bo5" onclick="vsSetFormat('bo5')">Best of 5</button>
+    </div>
+    <div class="vs-legend">
+        🔵 <b>P1</b> = <kbd>↑</kbd><kbd>←</kbd><kbd>→</kbd><kbd>↓</kbd> &nbsp;·&nbsp;
+        🟠 <b>P2</b> = <kbd>W</kbd><kbd>A</kbd><kbd>D</kbd><kbd>S</kbd><br>
+        🎮 จอยแพดเสียบเล่นได้เลย (จอย 1 = P1, จอย 2 = P2)
+    </div>
+    <!-- แชมป์ห้อง (จาก wrapper versusData) -->
+    <div class="leaderboard-box" id="vs-champ-box" style="display:none">
+        <h3 class="lb-title">🏆 แชมป์ห้อง (ชนะมากสุด)</h3>
+        <ul id="vs-champ-list" class="leaderboard-list"></ul>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
+        <button class="btn btn-primary" id="vs-start-btn" onclick="startVersus()" disabled>🚩 เริ่มแข่ง</button>
+        <button class="btn btn-ghost" onclick="openPadConfig()">⚙️ ตั้งค่าจอย</button>
+        <button class="btn btn-ghost" onclick="closeVersus()">↩️ กลับ</button>
+    </div>
+</div>
+
+<!-- ═══ โหมด 2 คน — พื้นเล่น split-screen ═══ -->
+<div id="versus">
+    <div id="vs-topbar">
+        <div id="vs-clock">60</div>
+        <div id="vs-timer-wrap"><div id="vs-timer-bar"></div></div>
+        <div id="vs-round"></div>
+    </div>
+    <div class="vs-arena">
+        <div class="vs-panel p1" id="vs-panel-1"></div>
+        <div class="vs-panel p2" id="vs-panel-2"></div>
+    </div>
+    <div class="vs-hint-narrow">เหมาะกับคอม/จอกว้าง — ใช้คีย์บอร์ดหรือจอยแพด</div>
+</div>
+
+<!-- ═══ โหมด 2 คน — จอผลแข่ง ═══ -->
+<div id="versus-result" class="screen">
+    <h1>จบแมตช์!</h1>
+    <div class="vr-winner" id="vr-winner">—</div>
+    <div class="vr-scores" id="vr-scores"></div>
+    <div class="vr-h2h" id="vr-h2h"></div>
+    <div class="vr-pertable" id="vr-pertable" style="display:none">
+        <h3>📊 สรุปรายแม่สูตรคูณ</h3>
+        <div id="vr-pertable-body"></div>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
+        <button class="btn btn-primary" onclick="rematchVersus()">🔄 แข่งใหม่</button>
+        <button class="btn btn-blue" onclick="changeOpponent()">👥 เปลี่ยนคู่</button>
+        <button class="btn btn-ghost" onclick="KAMPAI.goHome()">🏠 หน้าหลัก</button>
+    </div>
+</div>
+
+<!-- ═══ โหมด 2 คน — ตั้งค่าจอยแพด ═══ -->
+<div id="pad-config">
+    <div class="pc-box">
+        <h2>⚙️ ตั้งค่าจอยแพด</h2>
+        <div class="pc-note">เลือกจอยของแต่ละผู้เล่น แล้วกด "ตั้งปุ่ม" → กดปุ่มบนจอยเพื่อผูกกับแต่ละทิศ (บน/ซ้าย/ขวา/ล่าง = 4 ตัวเลือก) · ค่าเริ่มต้น = D-pad</div>
+        <div class="pc-player" id="pc-p1"></div>
+        <div class="pc-player" id="pc-p2"></div>
+        <div style="display:flex; gap:6px; justify-content:flex-end; margin-top:6px;">
+            <button class="btn btn-ghost" onclick="resetPadConfig()" style="font-size:14px;padding:8px 16px;">รีเซ็ตค่าเริ่มต้น</button>
+            <button class="btn btn-primary" onclick="closePadConfig()" style="font-size:14px;padding:8px 16px;">เสร็จ</button>
+        </div>
     </div>
 </div>
 
@@ -841,6 +1015,401 @@ document.addEventListener('visibilitychange', () => {
             cancelAnimationFrame(rafId);
             tickTimer();
         }
+    }
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   โหมด 2 คน (Versus) — split-screen local PvP บน PC
+   โมดูลแยกเอกเทศ: ไม่ใช้/ไม่แตะ global ของโหมดเดี่ยว (score/lives/mode/...)
+   - P1 = ลูกศร · P2 = WASD · จอยแพด (เสียบเล่นได้ + remap)
+   - แข่งเวลา 60 วิ คะแนนสูงกว่าชนะ · โจทย์ชุดเดียวกันสองฝั่ง (ยุติธรรม)
+   - Best-of-3/5 (ระบบยก) · per-table summary · head-to-head/แชมป์ห้อง (จาก wrapper)
+   ══════════════════════════════════════════════════════════════════════════ */
+const VS_DURATION = 60;     // วินาทีต่อ 1 ยก
+const VS_LOCK_MS  = 260;    // หน่วงหลังตอบก่อนข้อถัดไป
+const VS_DIRS = ['n','w','e','s'];
+const VS_KEYS = { 1:{n:'↑',w:'←',e:'→',s:'↓'}, 2:{n:'W',w:'A',e:'D',s:'S'} };
+
+let vsFormat = 'single';    // 'single' | 'bo3' | 'bo5'
+let vsRoundsTarget = 1;     // จำนวนยกที่ต้องชนะ
+let vsOpponent = null;      // {id, code, name, photo, no}
+let vsActive = false, vsRaf = 0, vsEndsAt = 0, vsRoundNo = 0, vsRoom = null;
+let vsQueue = [];
+let vsLastH2H = null, vsLastChamps = null;
+const vsP = { 1: vsBlankPlayer(), 2: vsBlankPlayer() };
+function vsBlankPlayer() {
+    return { name:'', photo:null, score:0, scoreTotal:0, streak:0, correct:0, answered:0,
+             roundsWon:0, qi:0, locked:false, cur:null, perTable:{} };
+}
+
+/* ── ตัวสร้างโจทย์ (pure) — ใช้ใน versus, ไม่แตะ nextQuestion() เดิม ── */
+function makeOptions(a, b, ans, rand) {
+    const set = new Set([ans]);
+    const cands = [ans+a, ans-a, ans+b, ans-b, ans+1, ans-1, a*(b+1), a*(b-1)];
+    for (const c of cands) { if (c > 0 && c !== ans) set.add(c); if (set.size >= 4) break; }
+    while (set.size < 4) { const r = ans + ((Math.random()*9|0) - 4); if (r > 0 && r !== ans) set.add(r); }
+    const arr = [...set].slice(0, 4);
+    for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; }
+    return arr;
+}
+function vsGenQueue(n) {
+    let a = ((Date.now() ^ (Math.random()*1e9)) >>> 0) || 1;
+    const rand = function(){ a|=0; a=(a+0x6D2B79F5)|0; let t=Math.imul(a^(a>>>15),1|a); t=(t+Math.imul(t^(t>>>7),61|t))^t; return ((t^(t>>>14))>>>0)/4294967296; };
+    const q = [];
+    for (let i = 0; i < n; i++) {
+        const A = TABLES[(rand()*TABLES.length)|0];
+        const B = FACTORS[(rand()*FACTORS.length)|0];
+        const ans = A*B;
+        q.push({ a:A, b:B, ans, opts: makeOptions(A,B,ans,rand) });
+    }
+    return q;
+}
+
+/* ── จอเลือกคู่แข่ง ── */
+function openVersus() {
+    audioCtx();
+    if (!KAMPAI.student) { flash2('ต้องเข้าด้วยรหัสนักเรียนก่อนถึงจะแข่ง 2 คนได้'); return; }
+    vsOpponent = null;
+    $('vs-room-label').textContent = (KAMPAI.student.classLabel || '—');
+    renderVersusP1();
+    renderVersusRoster();
+    updateVsStartBtn();
+    requestVersusData();
+    $('start').classList.remove('on');
+    $('gameover').classList.remove('on');
+    $('versus-result').classList.remove('on');
+    $('versus-setup').classList.add('on');
+}
+function closeVersus() {
+    $('versus-setup').classList.remove('on');
+    $('start').classList.add('on');
+}
+function renderVersusP1() {
+    const s = KAMPAI.student; if (!s) return;
+    const av = s.photoUrl ? `<img src="${s.photoUrl}" alt="">` : `<div class="ini">${(s.displayName||'?')[0]}</div>`;
+    $('vs-p1chip').innerHTML = av + `<span>🔵 ${s.displayName} <span style="color:#94a3b8;font-size:12px">(คุณ)</span></span>`;
+}
+function renderVersusRoster() {
+    const el = $('vs-roster'); if (!el) return;
+    const me = KAMPAI.student ? KAMPAI.student.id : null;
+    let list = (KAMPAI.classmates || []).filter(c => c.id !== me);
+    const q = (($('vs-search') && $('vs-search').value) || '').trim().toLowerCase();
+    if (q) list = list.filter(c => (c.displayName||'').toLowerCase().includes(q) || String(c.studentCode||'').includes(q));
+    if (!list.length) {
+        el.innerHTML = `<div class="vs-empty">${(KAMPAI.classmates||[]).length ? 'ไม่พบรายชื่อที่ค้นหา' : 'ยังไม่มีรายชื่อเพื่อนร่วมห้อง'}</div>`;
+        return;
+    }
+    el.innerHTML = list.map(c => {
+        const sel = vsOpponent && vsOpponent.id === c.id ? 'sel' : '';
+        const av = c.photoUrl ? `<img src="${c.photoUrl}" alt="">` : `<div class="ini">${(c.displayName||'?')[0]}</div>`;
+        const no = c.classNumber ? `<div class="no">เลขที่ ${c.classNumber}</div>` : '';
+        return `<div class="vs-card ${sel}" onclick="pickOpponent('${c.id}')">${av}<div class="nm">${c.displayName||''}</div>${no}</div>`;
+    }).join('');
+}
+function pickOpponent(id) {
+    const c = (KAMPAI.classmates||[]).find(x => x.id === id);
+    if (!c) return;
+    vsOpponent = { id:c.id, code:c.studentCode, name:c.displayName, photo:c.photoUrl, no:c.classNumber };
+    renderVersusRoster(); updateVsStartBtn(); requestVersusData();
+}
+function vsSetFormat(f) {
+    vsFormat = f;
+    vsRoundsTarget = f === 'bo5' ? 3 : f === 'bo3' ? 2 : 1;
+    [...document.querySelectorAll('#vs-fmt button')].forEach(b => b.classList.toggle('sel', b.dataset.fmt === f));
+}
+function updateVsStartBtn() { const b = $('vs-start-btn'); if (b) b.disabled = !vsOpponent; }
+function requestVersusData() {
+    if (!KAMPAI.isEmbed) return;
+    try { parent.postMessage({ type:'versusRequest', opponentId: vsOpponent ? vsOpponent.id : null }, '*'); } catch(e){}
+}
+
+/* ── เริ่ม series / ยก ── */
+function startVersus() {
+    if (!vsOpponent) return;
+    audioCtx();
+    vsRoom = 'vs-' + Date.now() + '-' + Math.floor(Math.random()*100000);
+    vsP[1] = vsBlankPlayer(); vsP[2] = vsBlankPlayer();
+    vsP[1].name = KAMPAI.student.displayName; vsP[1].photo = KAMPAI.student.photoUrl;
+    vsP[2].name = vsOpponent.name; vsP[2].photo = vsOpponent.photo;
+    vsRoundNo = 0;
+    $('versus-setup').classList.remove('on');
+    $('versus-result').classList.remove('on');
+    $('versus').classList.add('on');
+    bgmStart();
+    startVsRound();
+}
+function startVsRound() {
+    vsRoundNo++;
+    for (const p of [1,2]) { vsP[p].score = 0; vsP[p].streak = 0; vsP[p].qi = 0; vsP[p].locked = false; }
+    vsQueue = vsGenQueue(400);
+    renderVsRoundLabel();
+    buildVsPanel(1); buildVsPanel(2);
+    vsLoadQuestion(1); vsLoadQuestion(2);
+    vsActive = true;
+    vsEndsAt = performance.now() + VS_DURATION*1000;
+    cancelAnimationFrame(vsRaf); vsTick();
+}
+function renderVsRoundLabel() {
+    $('vs-round').textContent = vsFormat === 'single' ? '' : `ยก ${vsRoundNo} · ${vsP[1].roundsWon}–${vsP[2].roundsWon}`;
+}
+function buildVsPanel(p) {
+    const st = vsP[p]; const el = $('vs-panel-'+p);
+    const av = st.photo ? `<img src="${st.photo}" alt="">` : `<div class="ini">${(st.name||'?')[0]}</div>`;
+    el.innerHTML =
+        `<div class="vs-phead">${av}<span class="nm">${p===1?'🔵':'🟠'} ${st.name||('P'+p)}</span></div>
+         <div class="vs-pscore"><span class="sv">0</span><span class="cb"></span></div>
+         <div class="vs-q"></div><div class="vs-fb"></div><div class="vs-diamond"></div>`;
+}
+function vsLoadQuestion(p) {
+    const st = vsP[p]; st.locked = false;
+    const item = vsQueue[st.qi % vsQueue.length]; st.cur = item;
+    const panel = $('vs-panel-'+p);
+    panel.querySelector('.vs-q').textContent = `${item.a} × ${item.b}`;
+    const fb = panel.querySelector('.vs-fb'); fb.textContent=''; fb.className='vs-fb';
+    panel.querySelector('.vs-diamond').innerHTML = VS_DIRS.map((d,i) =>
+        `<button class="vans vans-${d}" data-v="${item.opts[i]}" onclick="vsAnswer(${p},${item.opts[i]})"><span class="vk">${VS_KEYS[p][d]}</span>${item.opts[i]}</button>`
+    ).join('') + `<div class="vmid">${VS_KEYS[p].n} ${VS_KEYS[p].w} ${VS_KEYS[p].e} ${VS_KEYS[p].s}</div>`;
+}
+function vsAnswer(p, v) {
+    const st = vsP[p];
+    if (!vsActive || st.locked) return;
+    st.locked = true; st.answered++;
+    const item = st.cur; const panel = $('vs-panel-'+p);
+    const btn = [...panel.querySelectorAll('.vans')].find(b => Number(b.dataset.v) === v);
+    if (v === item.ans) {
+        st.correct++; st.streak++;
+        vsRecordTable(st, item.a, true);
+        const mult = Math.min(5, 1 + Math.floor(st.streak/5));
+        const gained = 10 * mult;
+        st.score += gained; st.scoreTotal += gained;
+        if (btn) btn.classList.add('correct');
+        KAMPAI.sound.correct();
+        vsUpdateScore(p); vsFb(p, `+${gained}${mult>1?` x${mult}`:''} ✓`, true);
+        setTimeout(() => { st.qi++; if (vsActive) vsLoadQuestion(p); }, VS_LOCK_MS);
+    } else {
+        st.streak = 0;
+        vsRecordTable(st, item.a, false);
+        if (btn) btn.classList.add('wrong');
+        [...panel.querySelectorAll('.vans')].forEach(b => { if (Number(b.dataset.v) === item.ans) b.classList.add('correct'); });
+        KAMPAI.sound.wrong();
+        panel.classList.add('shake'); setTimeout(()=>panel.classList.remove('shake'),360);
+        vsUpdateScore(p); vsFb(p, `ผิด! = ${item.ans}`, false);
+        setTimeout(() => { st.qi++; if (vsActive) vsLoadQuestion(p); }, VS_LOCK_MS + 280);
+    }
+}
+function vsUpdateScore(p) {
+    const st = vsP[p]; const panel = $('vs-panel-'+p);
+    panel.querySelector('.sv').textContent = st.score;
+    const cb = panel.querySelector('.cb');
+    if (st.streak >= 3) { cb.textContent = `🔥 ${st.streak}`; cb.classList.add('on'); }
+    else cb.classList.remove('on');
+}
+function vsFb(p, msg, good) { const fb = $('vs-panel-'+p).querySelector('.vs-fb'); fb.textContent = msg; fb.className = 'vs-fb ' + (good?'good':'bad'); }
+function vsRecordTable(st, table, correct) {
+    if (!st.perTable[table]) st.perTable[table] = { c:0, w:0 };
+    if (correct) st.perTable[table].c++; else st.perTable[table].w++;
+}
+function vsPerTablePayload(p) { return Object.entries(vsP[p].perTable).map(([t,s]) => ({ table:Number(t), correct:s.c, wrong:s.w })); }
+
+function vsTick() {
+    const remain = Math.max(0, vsEndsAt - performance.now());
+    const frac = remain/(VS_DURATION*1000);
+    $('vs-timer-bar').style.width = (frac*100)+'%';
+    $('vs-clock').textContent = Math.ceil(remain/1000);
+    const warn = remain <= 10000;
+    $('vs-timer-bar').classList.toggle('warn', warn);
+    $('vs-clock').classList.toggle('warn', warn);
+    vsPollPads();
+    if (remain <= 0) { endVsRound(); return; }
+    vsRaf = requestAnimationFrame(vsTick);
+}
+function endVsRound() {
+    vsActive = false; cancelAnimationFrame(vsRaf);
+    vsP[1].locked = vsP[2].locked = true;
+    KAMPAI.sound.timeUp();
+    let rw = 0;
+    if (vsP[1].score > vsP[2].score) { vsP[1].roundsWon++; rw = 1; }
+    else if (vsP[2].score > vsP[1].score) { vsP[2].roundsWon++; rw = 2; }
+    const seriesOver = vsRoundsTarget === 1
+        || vsP[1].roundsWon >= vsRoundsTarget || vsP[2].roundsWon >= vsRoundsTarget
+        || (vsFormat === 'bo3' && vsRoundNo >= 3) || (vsFormat === 'bo5' && vsRoundNo >= 5);
+    if (seriesOver) { setTimeout(endVsSeries, 700); }
+    else { showVsRoundBanner(rw); setTimeout(startVsRound, 1700); }
+}
+function showVsRoundBanner(rw) {
+    const who = rw===1 ? vsP[1].name : rw===2 ? vsP[2].name : null;
+    flash2(`จบยก ${vsRoundNo} · ${who ? who+' ชนะยก' : 'เสมอยก'} (รวม ${vsP[1].roundsWon}–${vsP[2].roundsWon})`);
+    renderVsRoundLabel();
+}
+function endVsSeries() {
+    vsActive = false; cancelAnimationFrame(vsRaf); vsStopPads();
+    bgmStop(); KAMPAI.sound.gameOver();
+    $('versus').classList.remove('on');
+    let winner;
+    if (vsFormat === 'single') winner = vsP[1].scoreTotal > vsP[2].scoreTotal ? 1 : vsP[2].scoreTotal > vsP[1].scoreTotal ? 2 : 0;
+    else winner = vsP[1].roundsWon > vsP[2].roundsWon ? 1 : vsP[2].roundsWon > vsP[1].roundsWon ? 2 : 0;
+    renderVsResult(winner);
+    $('versus-result').classList.add('on');
+    reportVersus(winner);
+}
+function renderVsResult(winner) {
+    $('vr-winner').textContent = winner ? `🏆 ${vsP[winner].name} ชนะ!` : '🤝 เสมอ!';
+    const card = (p) => {
+        const st = vsP[p];
+        const av = st.photo ? `<img src="${st.photo}" alt="">` : `<div class="ini">${(st.name||'?')[0]}</div>`;
+        const rd = vsFormat==='single' ? `ตอบถูก ${st.correct} ข้อ` : `ชนะ ${st.roundsWon} ยก · ${st.scoreTotal} แต้มรวม`;
+        return `<div class="vr-pcard ${winner===p?'win':''}">${av}<div class="nm">${p===1?'🔵':'🟠'} ${st.name}</div>
+            <div class="sc">${vsFormat==='single'?st.scoreTotal:st.roundsWon}</div><div class="rd">${rd}</div></div>`;
+    };
+    $('vr-scores').innerHTML = card(1) + card(2);
+    renderVsPerTable(); renderVsH2H();
+}
+function renderVsPerTable() {
+    const tables = new Set([...Object.keys(vsP[1].perTable), ...Object.keys(vsP[2].perTable)].map(Number));
+    if (!tables.size) { $('vr-pertable').style.display='none'; return; }
+    $('vr-pertable-body').innerHTML = [...tables].sort((a,b)=>a-b).map(t => {
+        const a = vsP[1].perTable[t]||{c:0,w:0}, b = vsP[2].perTable[t]||{c:0,w:0};
+        return `<div class="vr-pt-row"><span class="vr-pt-tag">แม่ ${t}</span>
+            <span class="vr-pt-tag p1">🔵 ${a.c}✓${a.w?` ${a.w}✗`:''}</span>
+            <span class="vr-pt-tag p2">🟠 ${b.c}✓${b.w?` ${b.w}✗`:''}</span></div>`;
+    }).join('');
+    $('vr-pertable').style.display = '';
+}
+function renderVsH2H() {
+    const el = $('vr-h2h');
+    if (vsLastH2H && vsLastH2H.matches) el.innerHTML = `เจอกันมา <b>${vsLastH2H.matches}</b> ครั้ง · คุณชนะ <b>${vsLastH2H.wins}</b> · แพ้ <b>${vsLastH2H.losses}</b>`;
+    else el.textContent = '';
+}
+function renderVsChampions() {
+    const box = $('vs-champ-box'), list = $('vs-champ-list');
+    if (!box) return;
+    if (!vsLastChamps || !vsLastChamps.length) { box.style.display='none'; return; }
+    const medals = ['🥇','🥈','🥉'];
+    list.innerHTML = vsLastChamps.slice(0,5).map((r,i) => {
+        const av = r.photo_url ? `<img class="lb-avatar" src="${r.photo_url}" alt="">` : `<div class="lb-avatar-init">${(r.name||'?')[0]}</div>`;
+        return `<li><span class="lb-rank">${medals[i]||(i+1)}</span>${av}
+            <div class="lb-info"><div class="lb-name">${r.name}</div>
+            <div class="lb-sub">ชนะ ${r.wins} · ${r.matches} แมตช์</div></div></li>`;
+    }).join('');
+    box.style.display = '';
+}
+function reportVersus(winner) {
+    if (!KAMPAI.isEmbed || !vsOpponent) return;
+    try {
+        parent.postMessage({ type:'versusEnd', room: vsRoom, format: vsFormat, winner,
+            opponentId: vsOpponent.id, opponentCode: vsOpponent.code,
+            p1: { score: vsP[1].scoreTotal, correct: vsP[1].correct, roundsWon: vsP[1].roundsWon, perTable: vsPerTablePayload(1) },
+            p2: { score: vsP[2].scoreTotal, correct: vsP[2].correct, roundsWon: vsP[2].roundsWon, perTable: vsPerTablePayload(2) }
+        }, '*');
+    } catch(e){}
+}
+function rematchVersus() { $('versus-result').classList.remove('on'); startVersus(); }
+function changeOpponent() { $('versus-result').classList.remove('on'); openVersus(); }
+
+/* ── อินพุตคีย์บอร์ด (เฉพาะ vsActive — handler แยกจากเลข 1–4 เดิม) ── */
+window.addEventListener('keydown', function(e) {
+    if (!vsActive) return;
+    let p = 0, dir = null;
+    if (e.key === 'ArrowUp') { p=1; dir='n'; } else if (e.key === 'ArrowDown') { p=1; dir='s'; }
+    else if (e.key === 'ArrowLeft') { p=1; dir='w'; } else if (e.key === 'ArrowRight') { p=1; dir='e'; }
+    else if (e.code === 'KeyW') { p=2; dir='n'; } else if (e.code === 'KeyS') { p=2; dir='s'; }
+    else if (e.code === 'KeyA') { p=2; dir='w'; } else if (e.code === 'KeyD') { p=2; dir='e'; }
+    if (!p) return;
+    e.preventDefault();
+    vsPressDir(p, dir);
+});
+function vsPressDir(p, dir) {
+    const st = vsP[p];
+    if (!vsActive || st.locked) return;
+    const btn = $('vs-panel-'+p).querySelector('.vans-'+dir);
+    if (btn) vsAnswer(p, Number(btn.dataset.v));
+}
+
+/* ── จอยแพด ── */
+const PAD_DEFAULT = { n:12, w:14, e:15, s:13 };   // D-pad: up/left/right/down
+let vsPads = loadPadConfig();
+let vsPadPrev = { 1:{}, 2:{} };
+function loadPadConfig() {
+    try { const j = JSON.parse(localStorage.getItem('mr_vs_pads')||'null'); if (j && j.p1 && j.p2) return j; } catch(e){}
+    return { p1:{pad:0, btns:null}, p2:{pad:1, btns:null} };
+}
+function savePadConfig() { try { localStorage.setItem('mr_vs_pads', JSON.stringify(vsPads)); } catch(e){} }
+function vsPollPads() {
+    let pads; try { pads = navigator.getGamepads ? navigator.getGamepads() : []; } catch(e){ return; }
+    if (!pads) return;
+    for (const p of [1,2]) {
+        const cfg = vsPads['p'+p]; if (!cfg) continue;
+        const gp = pads[cfg.pad]; if (!gp) continue;
+        const map = cfg.btns || PAD_DEFAULT; const prev = vsPadPrev[p];
+        for (const dir of VS_DIRS) {
+            const idx = map[dir]; let pressed = false;
+            if (typeof idx === 'number' && gp.buttons[idx]) pressed = gp.buttons[idx].pressed || gp.buttons[idx].value > 0.5;
+            if (!cfg.btns) {
+                const ax0 = gp.axes[0]||0, ax1 = gp.axes[1]||0;
+                if (dir==='w' && ax0 < -0.6) pressed = true;
+                if (dir==='e' && ax0 >  0.6) pressed = true;
+                if (dir==='n' && ax1 < -0.6) pressed = true;
+                if (dir==='s' && ax1 >  0.6) pressed = true;
+            }
+            if (pressed && !prev[dir]) vsPressDir(p, dir);
+            prev[dir] = pressed;
+        }
+    }
+}
+function vsStopPads() { vsPadPrev = {1:{},2:{}}; }
+
+/* ── ตั้งค่าจอย ── */
+let padBindListen = null;
+function openPadConfig() { renderPadConfig(); $('pad-config').classList.add('on'); pollPadConfigLoop(); }
+function closePadConfig() { $('pad-config').classList.remove('on'); padBindListen = null; savePadConfig(); }
+function resetPadConfig() { vsPads = { p1:{pad:0,btns:null}, p2:{pad:1,btns:null} }; savePadConfig(); renderPadConfig(); }
+function setPadSlot(p, v) { vsPads['p'+p].pad = Number(v); savePadConfig(); }
+function bindPad(p, dir) { padBindListen = { player:p, dir }; renderPadConfig(); }
+function renderPadConfig() {
+    let pads = [];
+    try { pads = (navigator.getGamepads ? [...navigator.getGamepads()] : []).filter(Boolean); } catch(e){}
+    const opts = (sel) => (pads.length ? pads.map(g => `<option value="${g.index}" ${g.index===sel?'selected':''}>จอย ${g.index+1} (${(g.id||'').slice(0,18)})</option>`).join('') : `<option value="${sel}">ไม่พบจอย (ค่า ${sel+1})</option>`);
+    for (const p of [1,2]) {
+        const cfg = vsPads['p'+p];
+        const dirs = VS_DIRS.map(d => {
+            const b = cfg.btns ? cfg.btns[d] : PAD_DEFAULT[d];
+            const listening = padBindListen && padBindListen.player===p && padBindListen.dir===d;
+            const lab = listening ? 'กดปุ่ม…' : `${VS_KEYS[p][d]} = ปุ่ม ${b}`;
+            return `<button class="pc-bind ${listening?'listening':''}" onclick="bindPad(${p},'${d}')">${lab}</button>`;
+        }).join(' ');
+        $('pc-p'+p).innerHTML = `<h4>${p===1?'🔵 P1 (ลูกศร)':'🟠 P2 (WASD)'}</h4>
+            <div class="pc-row"><span>จอย</span><select onchange="setPadSlot(${p}, this.value)">${opts(cfg.pad)}</select></div>
+            <div class="pc-row" style="flex-wrap:wrap; gap:4px;">${dirs}</div>`;
+    }
+}
+function pollPadConfigLoop() {
+    if (!$('pad-config').classList.contains('on')) return;
+    if (padBindListen) {
+        let pads; try { pads = navigator.getGamepads ? navigator.getGamepads() : []; } catch(e){ pads=[]; }
+        const cfg = vsPads['p'+padBindListen.player]; const gp = pads[cfg.pad];
+        if (gp) for (let i=0;i<gp.buttons.length;i++) {
+            if (gp.buttons[i].pressed) {
+                if (!cfg.btns) cfg.btns = { ...PAD_DEFAULT };
+                cfg.btns[padBindListen.dir] = i;
+                padBindListen = null; savePadConfig(); renderPadConfig(); break;
+            }
+        }
+    }
+    requestAnimationFrame(pollPadConfigLoop);
+}
+window.addEventListener('gamepadconnected', () => { if ($('pad-config').classList.contains('on')) renderPadConfig(); });
+window.addEventListener('gamepaddisconnected', () => { if ($('pad-config').classList.contains('on')) renderPadConfig(); });
+
+/* ── รับข้อมูลสถิติจาก wrapper (head-to-head + แชมป์ห้อง) ── */
+window.addEventListener('message', function(e) {
+    const d = e.data; if (!d) return;
+    if (d.type === 'versusData') {
+        vsLastH2H = d.headToHead || null;
+        vsLastChamps = d.champions || null;
+        renderVsChampions(); renderVsH2H();
+    } else if (d.type === 'init') {
+        // classmates อาจมาช้า — refresh ถ้าจอเลือกคู่เปิดอยู่
+        setTimeout(function(){ if ($('versus-setup').classList.contains('on')) { renderVersusP1(); renderVersusRoster(); requestVersusData(); } }, 60);
     }
 });
 </script>

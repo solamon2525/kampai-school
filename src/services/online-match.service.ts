@@ -108,3 +108,76 @@ export const onlineMatchService = {
     return (data as unknown as MatchLogRow[]) ?? [];
   },
 };
+
+// ─── Local Versus (2 คนจอเดียว) — migration 207, source='local' ──────────────
+// RPC ใหม่ยังไม่อยู่ใน generated types → เรียกผ่าน alias loosely-typed (cast รวมที่นี่ที่เดียว)
+const sb = supabase as unknown as {
+  rpc: (fn: string, args?: Record<string, unknown>) => Promise<{ data: unknown; error: unknown }>;
+};
+
+export type VersusOverview = {
+  total_matches: number;
+  decisive_matches: number;
+  distinct_players: number;
+  last_played_at: string | null;
+};
+
+export type VersusStudentRow = {
+  student_id: string;
+  name: string;
+  class: string | null;
+  photo_url: string | null;
+  matches: number;
+  wins: number;
+  losses: number;
+  win_rate: number | null;
+  last_played: string | null;
+};
+
+export type VersusHeadToHead = { matches: number; wins: number; losses: number };
+
+export type VersusStanding = {
+  name: string;
+  class: string | null;
+  photo_url: string | null;
+  rank: number;
+  score: number;
+  rounds_won: number | null;
+  is_winner: boolean;
+};
+
+export type VersusMatchLogRow = {
+  match_id: string;
+  game_slug: string;
+  title: string;
+  player_count: number;
+  finished_at: string;
+  standings: VersusStanding[] | null;
+};
+
+export const versusMatchService = {
+  getOverview: async (days = 30): Promise<VersusOverview | null> => {
+    const { data, error } = await sb.rpc('get_versus_overview', { p_days: days });
+    if (error) throw error;
+    return (data as VersusOverview) ?? null;
+  },
+
+  getLeaderboard: async (className: string | null = null, days = 90, limit = 20): Promise<VersusStudentRow[]> => {
+    const { data, error } = await sb.rpc('get_versus_student_leaderboard', { p_class: className, p_days: days, p_limit: limit });
+    if (error) throw error;
+    return (data as VersusStudentRow[]) ?? [];
+  },
+
+  getHeadToHead: async (studentA: string, studentB: string): Promise<VersusHeadToHead | null> => {
+    const { data, error } = await sb.rpc('get_versus_head_to_head', { p_a: studentA, p_b: studentB });
+    if (error) throw error;
+    const rows = (data as VersusHeadToHead[]) ?? [];
+    return rows[0] ?? null;
+  },
+
+  getMatchLog: async (days = 30, limit = 50): Promise<VersusMatchLogRow[]> => {
+    const { data, error } = await sb.rpc('get_versus_match_log', { p_days: days, p_limit: limit });
+    if (error) throw error;
+    return (data as VersusMatchLogRow[]) ?? [];
+  },
+};

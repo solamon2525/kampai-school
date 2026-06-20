@@ -10,7 +10,7 @@ import { useQuery } from '@tanstack/react-query';
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
 } from 'recharts';
-import { Swords, Trophy, Users, AlertTriangle, Crown } from 'lucide-react';
+import { Swords, Trophy, Users, AlertTriangle, Crown, Monitor } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -25,6 +25,7 @@ import { th } from 'date-fns/locale';
 import { format } from 'date-fns';
 import {
   onlineMatchService,
+  versusMatchService,
   type OnlineGameStat,
   type OnlineStudentRow,
 } from '@/services/online-match.service';
@@ -75,6 +76,12 @@ export const OnlineMatchDashboard = () => {
     enabled: !!selectedStudent,
   });
 
+  // ─── Local Versus (2 คนจอเดียว) — source='local' ───
+  const vsOverviewQuery = useQuery({ queryKey: ['vs-overview', d], queryFn: () => versusMatchService.getOverview(d) });
+  const vsLbQuery = useQuery({ queryKey: ['vs-lb', d], queryFn: () => versusMatchService.getLeaderboard(null, d, 30) });
+  const vsLogQuery = useQuery({ queryKey: ['vs-log', d], queryFn: () => versusMatchService.getMatchLog(d, 80) });
+  const vsOverview = vsOverviewQuery.data;
+
   const overview = overviewQuery.data;
   const games = gamesQuery.data ?? [];
 
@@ -111,6 +118,7 @@ export const OnlineMatchDashboard = () => {
           <TabsTrigger value="games">วิเคราะห์เกม</TabsTrigger>
           <TabsTrigger value="students">นักเรียน W/L</TabsTrigger>
           <TabsTrigger value="log">ประวัติแมตช์</TabsTrigger>
+          <TabsTrigger value="local">ในห้อง (2 คน)</TabsTrigger>
         </TabsList>
 
         {/* ─── วิเคราะห์เกม ─── */}
@@ -266,6 +274,67 @@ export const OnlineMatchDashboard = () => {
               ))}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* ─── ในห้อง (2 คนจอเดียว) — Local Versus ─── */}
+        <TabsContent value="local" className="mt-4 space-y-4">
+          <div className="grid gap-3 sm:grid-cols-3">
+            <StatCard label="แมตช์ในห้อง (≥2 คน)" value={(vsOverview?.decisive_matches ?? 0).toLocaleString('th-TH')} icon={Monitor} accent />
+            <StatCard label="ผู้เล่น" value={(vsOverview?.distinct_players ?? 0).toLocaleString('th-TH')} icon={Users} />
+            <StatCard label="แมตช์ทั้งหมด" value={(vsOverview?.total_matches ?? 0).toLocaleString('th-TH')} icon={Swords} />
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2"><Crown className="h-4 w-4 text-amber-500" /> แชมป์ห้อง (ชนะมากสุด)</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-1">
+                {(vsLbQuery.data ?? []).length === 0 ? <p className="py-6 text-center text-sm text-muted-foreground">ยังไม่มีแมตช์ในห้อง</p>
+                : (vsLbQuery.data ?? []).map((s, i) => (
+                  <div key={s.student_id} className="flex w-full items-center gap-3 rounded-md border border-border px-3 py-1.5">
+                    <span className="w-5 text-center text-sm font-bold text-muted-foreground">{i + 1}</span>
+                    <PersonAvatar name={s.name} photoUrl={s.photo_url} size="sm" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{s.name}</p>
+                      <p className="text-[11px] text-muted-foreground">{s.class ?? '—'} · {s.matches} แมตช์</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-bold text-emerald-600">{s.wins}<span className="text-muted-foreground font-normal">W</span> · {s.losses}<span className="text-muted-foreground font-normal">L</span></p>
+                      <p className="text-[11px] text-muted-foreground">ชนะ {s.win_rate ?? 0}%</p>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader><CardTitle className="text-base">แมตช์ในห้องล่าสุด</CardTitle></CardHeader>
+              <CardContent className="space-y-2">
+                {(vsLogQuery.data ?? []).length === 0 ? <p className="py-6 text-center text-sm text-muted-foreground">ยังไม่มีแมตช์</p>
+                : (vsLogQuery.data ?? []).map((mt) => (
+                  <div key={mt.match_id} className="rounded-lg border border-border p-3">
+                    <div className="mb-1.5 flex items-center justify-between gap-2">
+                      <span className="text-sm font-semibold">{mt.title}</span>
+                      <span className="text-[11px] text-muted-foreground">{format(new Date(mt.finished_at), 'd MMM HH:mm', { locale: th })}</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {(mt.standings ?? []).map((p, idx) => (
+                        <div key={idx} className={cn('flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs',
+                          p.is_winner ? 'border-amber-400 bg-amber-50 font-semibold' : 'border-border')}>
+                          <span className="text-muted-foreground">{p.rank}.</span>
+                          <PersonAvatar name={p.name} photoUrl={p.photo_url} size="xs" />
+                          <span>{p.name}</span>
+                          <span className="text-muted-foreground">{p.rounds_won != null ? `${p.rounds_won} ยก` : p.score}</span>
+                          {p.is_winner && <span>👑</span>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </div>

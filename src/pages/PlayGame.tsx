@@ -51,6 +51,7 @@ import { DailyQuestPanel, dailyQuestQueryKey } from '@/components/games/DailyQue
 import { dailyQuestService, type DailyQuestStatus } from '@/services/daily-quest.service';
 import { TIER_STYLES, type MedalTier } from '@/services/gamification.service';
 import { studentsService } from '@/services/students.service';
+import { versusMatchService } from '@/services/online-match.service';
 
 // ─── Lucide icon resolver ────────────────────────────────────────────────────
 type LucideMap = Record<string, React.ComponentType<{ className?: string }>>;
@@ -442,6 +443,85 @@ const PlayGame = () => {
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
   }, [phase, student, codeInput, resolvedSlug, toast, statsQuery, unlockedQuery, leaderboardQuery, queryClient]);
+
+  // ─── โหมด 2 คน (Versus) — บันทึก 2 session + ส่ง head-to-head/แชมป์ห้องกลับเข้าเกม ──
+  useEffect(() => {
+    if (phase !== 'playing') return;
+    // ส่งสถิติ (แชมป์ห้อง + head-to-head) กลับเข้า iframe
+    const postVersusData = async (opponentId?: string | null) => {
+      if (!student || !iframeRef.current?.contentWindow) return;
+      try {
+        const [champions, headToHead] = await Promise.all([
+          versusMatchService.getLeaderboard(student.class_label, 90, 5),
+          opponentId ? versusMatchService.getHeadToHead(student.id, opponentId) : Promise.resolve(null),
+        ]);
+        iframeRef.current.contentWindow.postMessage(
+          {
+            type: 'versusData',
+            champions: champions.map((r) => ({ name: r.name, photo_url: r.photo_url, wins: r.wins, matches: r.matches })),
+            headToHead,
+          },
+          '*',
+        );
+      } catch (err) {
+        console.warn('versusData fetch failed', err);
+      }
+    };
+
+    const handler = async (e: MessageEvent) => {
+      const d = e.data as
+        | {
+            type?: string;
+            room?: string;
+            format?: string;
+            opponentId?: string | null;
+            opponentCode?: string | null;
+            p1?: { score?: number; correct?: number; roundsWon?: number; perTable?: unknown };
+            p2?: { score?: number; correct?: number; roundsWon?: number; perTable?: unknown };
+          }
+        | undefined;
+      if (!d) return;
+
+      if (d.type === 'versusRequest') {
+        await postVersusData(d.opponentId);
+        return;
+      }
+
+      if (d.type === 'versusEnd') {
+        if (!student) return;
+        const p1 = d.p1 ?? {};
+        const p2 = d.p2 ?? {};
+        const base = { room: d.room, format: d.format };
+        try {
+          await Promise.all([
+            gamePlayService.recordSession({
+              studentCode: codeInput.trim(),
+              gameSlug: resolvedSlug,
+              score: p1.score ?? 0,
+              mode: 'versus',
+              metadata: { ...base, correct: p1.correct ?? 0, roundsWon: p1.roundsWon ?? 0, opponent: d.opponentId, perTable: p1.perTable ?? [] },
+            }),
+            d.opponentCode
+              ? gamePlayService.recordSession({
+                  studentCode: String(d.opponentCode),
+                  gameSlug: resolvedSlug,
+                  score: p2.score ?? 0,
+                  mode: 'versus',
+                  metadata: { ...base, correct: p2.correct ?? 0, roundsWon: p2.roundsWon ?? 0, opponent: student.id, perTable: p2.perTable ?? [] },
+                })
+              : Promise.resolve(null),
+          ]);
+        } catch (err) {
+          console.warn('versus record failed', err);
+        }
+        // trigger สร้างแมตช์เสร็จแล้ว → ดึง head-to-head + แชมป์ห้องล่าสุดกลับเข้าเกม
+        await postVersusData(d.opponentId);
+        return;
+      }
+    };
+    window.addEventListener('message', handler);
+    return () => window.removeEventListener('message', handler);
+  }, [phase, student, codeInput, resolvedSlug]);
 
   // ─── realtime relay: ห้องออนไลน์ของเกม (broadcast + presence) ──────────────
   // เกมใน iframe ไม่มี anon key → wrapper เปิด channel ให้ แล้วรีเลย์ผ่าน postMessage
