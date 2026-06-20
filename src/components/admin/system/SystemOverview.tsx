@@ -272,8 +272,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.86.0 (TeacherGameAnalytics — แท็บ "วิจัยในชั้นเรียน" เปรียบเทียบก่อน-หลังเรียน + สร้างเอกสารวิจัย 5 บท)',
+        version: 'v1.87.0 (Tank Commander — เกมยิงรถถัง 2D ผสมควิซตอบคำถามวิชาวิทยาการคำนวณและเทคโนโลยี ม.1-3)',
         date: 'ล่าสุด',
+        badge: 'bg-indigo-600',
+        items: [
+            'เกมใหม่ "Tank Commander : Learning Edition" (tank-commander) ที่ /games/tech/tank-commander.html — ขับรถถังยิงต่อสู้ 2D Top-down ผสมผสานควิซคำถามวิทยาการคำนวณและทักษะการคิดเชิงคำนวณ ม.1-3',
+            'ระบบควิซคัทซีนตอบคำถาม 4 หัวข้อหลัก (Hardware, Data, Algorithms, Cyber Safety) ท้าทายผู้เล่นทุกๆ 10 ศัตรูที่เอาชนะได้ ปรับความยากควิซอัตโนมัติ (Adaptive Learning) ตามสถิติถูก/ผิด',
+            'ระบบอัพเกรดพารามิเตอร์พื้นฐาน (Damage, Speed, HP, Fire Rate, Crit) และสายพัฒนาความเชี่ยวชาญ (Assault, Engineer, Cyber Commander) เพื่อสู้กับบอสประจำ 4 ด่าน (CPU Destroyer, Data Corruptor, Logic Commander, Cyber Hacker King)',
+            'รายงานวิเคราะห์ผลสะท้อนการเรียนรู้และคำแนะนำรายบุคคล (Personalized Analytics Report) หลังจบเกม พร้อมอัพเดทตาราง `game_docs` (migration 207) และปกภาพประกอบไซไฟ'
+        ],
+    },
+    {
+        version: 'v1.86.0 (TeacherGameAnalytics — แท็บ "วิจัยในชั้นเรียน" เปรียบเทียบก่อน-หลังเรียน + สร้างเอกสารวิจัย 5 บท)',
+        date: '',
         badge: 'bg-violet-600',
         items: [
             'แท็บใหม่ในหน้าวิเคราะห์เกมของครู: เลือกช่วงวันที่ "ก่อนเรียน" + "หลังเรียน" → คำนวณคะแนนเฉลี่ยรายบุคคล/กลุ่ม (mean, SD, % ดีขึ้น) จาก game_sessions ที่มีอยู่แล้ว ไม่ต้อง migration ใหม่',
