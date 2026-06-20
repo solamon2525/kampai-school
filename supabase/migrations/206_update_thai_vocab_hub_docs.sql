@@ -23,10 +23,11 @@ BEGIN
     RAISE EXCEPTION 'staff "ครูณัฐพงศ์ สิงห์ชมภู" not found';
   END IF;
 
-  -- 2. Resolve item
+  -- 2. Resolve item (game_slug ว่าง — ผูกผ่าน external_url)
   SELECT id INTO v_item_id
   FROM public.educational_hub_items
-  WHERE owner_staff_id = v_staff_id AND game_slug = 'thai-vocab-hub';
+  WHERE owner_staff_id = v_staff_id
+    AND external_url = '/games/thai/thai-vocab-hub/index.html';
 
   IF v_item_id IS NULL THEN
     RAISE EXCEPTION 'item "thai-vocab-hub" not found';
