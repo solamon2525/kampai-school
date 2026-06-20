@@ -305,19 +305,46 @@ process.exit(issues.length > 0 ? 1 : 0);
 // Cover helpers (hoisted) — หาไฟล์ปก + อ่านขนาดจริง (sniff magic bytes ไม่เชื่อ extension)
 // ────────────────────────────────────────────────────────────────────────────
 
-/** หาไฟล์ปกในโฟลเดอร์เกม: `{slug}-cover.*` / `cover.*` (svg/png/jpg/webp) — คืน {name,w,h}|null */
+/**
+ * หาปก "ของเกมนี้" — คืน {name,w,h}|null
+ * 1) authoritative: `thumbnail_url` ใน migration ของ slug (ตรงสุด — ชื่อไฟล์ไม่ต้องตรง slug)
+ * 2) convention: `{slug}-cover.*` หรือ `cover.*` ใน gameDir
+ * ❌ ไม่ fallback ไปปกเกม "อื่น" — ถ้าไม่เจอของเกมนี้ → คืน null (Check 9 จะ WARN ไม่ใช่ผ่านหลอก)
+ */
 function findCover(dir, slugs) {
+    const norm = slugs.filter(Boolean).map((s) => String(s).toLowerCase());
+    const fromMig = coverFromMigration(norm[0]);
+    if (fromMig) return fromMig;
     let files;
     try { files = readdirSync(dir); } catch { return null; }
     const candidates = files.filter((n) => /(?:^cover|[-_]cover)\.(svg|png|jpe?g|webp)$/i.test(n));
-    if (!candidates.length) return null;
-    const norm = slugs.filter(Boolean).map((s) => String(s).toLowerCase());
     const pick =
         candidates.find((n) => norm.some((s) => n.toLowerCase().startsWith(s + '-cover'))) ||
-        candidates.find((n) => /^cover\./i.test(n)) ||
-        candidates[0];
+        candidates.find((n) => /^cover\./i.test(n));
+    if (!pick) return null;
     const size = readImageSize(join(dir, pick));
     return { name: pick, w: size?.w, h: size?.h };
+}
+
+/** ดึงไฟล์ปกจาก thumbnail_url ใน migration ของ slug (local path เท่านั้น) — คืน {name,w,h}|null */
+function coverFromMigration(slug) {
+    if (!slug) return null;
+    const migDir = join(REPO_ROOT, 'supabase', 'migrations');
+    let files;
+    try { files = readdirSync(migDir); } catch { return null; }
+    const slugNoDash = slug.replace(/-/g, '_');
+    const mig = files.find((f) => { const l = f.toLowerCase(); return l.includes(slug) || l.includes(slugNoDash); });
+    if (!mig) return null;
+    let txt;
+    try { txt = readFileSync(join(migDir, mig), 'utf8'); } catch { return null; }
+    const m = txt.match(/thumbnail_url\s*=\s*['"]([^'"]+)['"]/);
+    if (!m) return null;
+    const url = m[1].split('?')[0];
+    if (!url.startsWith('/')) return null;   // remote / non-local → ข้าม (ให้ convention หรือ WARN จัดการ)
+    const p = join(REPO_ROOT, 'public', url);
+    if (!existsSync(p)) return null;
+    const size = readImageSize(p);
+    return { name: basename(p), w: size?.w, h: size?.h };
 }
 
 /** อ่าน width/height จาก PNG/JPEG/SVG (ตรวจ magic bytes ก่อน — ไฟล์ .png ที่จริงเป็น JPEG ก็อ่านถูก) */
