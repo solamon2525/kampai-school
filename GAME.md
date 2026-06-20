@@ -12,7 +12,7 @@
 2.  แก้ GAME_SLUG = '{slug}'  (1 ที่ใน <script>)
 3.  เขียน game logic ใน SECTION C
 4.  สร้าง supabase/migrations/NNN_seed_{slug}_game.sql  (รวม upsert game_docs — รูปแบบ/ฟีเจอร์/เวอร์ชัน, บังคับ)
-5.  pnpm verify:game public/games/{subject}/{slug}.html   # ต้องผ่าน 8/8 checks
+5.  pnpm verify:game public/games/{subject}/{slug}.html   # ต้องผ่าน 9/9 checks (Check 9 = ปก 16:9)
 ```
 
 > 🔖 **บังคับทุกเกม:** ทุกครั้งที่สร้าง/แก้เกม ต้องเขียน/อัปเดต `game_docs` (รูปแบบ + ฟีเจอร์ + เวอร์ชัน)
@@ -532,8 +532,13 @@ PlayGame wrapper ทำสิ่งเหล่านี้ — เกม HTML *
 
 ## 🎨 มาตรฐานปกเกม (Game Cover Standard)
 
-> ปกเกม = `educational_hub_items.thumbnail_url` · ขนาด **16:9 (1280×720)** · แสดงด้วย `object-contain`
-> (ไม่ครอป) ในการ์ดเกม/Educational Hub/ตารางแอดมิน · ไฟล์อยู่ `public/games/{subject}/{slug}-cover.{png|svg}`
+> 🔒 **กฎบังคับ — ปกต้องเป็น 16:9 เต็มช่องเสมอ:** ปกเกม = `educational_hub_items.thumbnail_url`
+> **ต้องมีอัตราส่วน 16:9 (1280×720 พอดี)** ทุกครั้งที่สร้าง/เปลี่ยนปก — การ์ดเกม/Educational Hub/ตาราง
+> แอดมินใช้กรอบ `aspect-video` (16:9) + `object-contain` (ไม่ครอป) → **ถ้าปกไม่ใช่ 16:9 จะมีขอบขาว/ดำ
+> ไม่เต็มช่อง** (เคยพลาด: tank-commander ปกจัตุรัส 1024×1024). ไฟล์อยู่ `public/games/{subject}/{slug}-cover.{png|svg}`
+>
+> ✅ **บังคับด้วยอัตโนมัติ:** `pnpm verify:game <path>` **Check 9** จะ **fail** ถ้าปกไม่ใช่ 16:9 (±3%) —
+> ต้องผ่านก่อน ship. SVG: ตั้ง `viewBox="0 0 1280 720"` · PNG/JPG: export ที่ 1280×720
 
 **4 หลักการ (+ เพิ่มเติม):**
 1. **สดใสระดับประถม** — โทนสีสดใส พื้นหลังไล่เฉดสว่าง + ประกายดาว/ไอคอนธีมวิชา

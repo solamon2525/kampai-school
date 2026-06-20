@@ -253,6 +253,29 @@ if (shadowed.size) {
     console.log(`${PASS} Check 8 — global-shadow: ไม่มีไอคอนชื่อชน JS global`);
 }
 
+// ─── Check 9: ปกเกม 16:9 เต็มช่อง ───────────────────────────────────────────
+// การ์ดเกม/Educational Hub ใช้กรอบ aspect-video (16:9) + object-contain → ถ้าปกไม่ใช่ 16:9
+// จะมีขอบขาว/ดำ ไม่เต็มช่อง (เคส tank-commander). กฎ: ปกต้องเป็น 16:9 เสมอ (1280×720). ดู GAME.md
+const cover = findCover(gameDir, [detectedSlug, fileName]);
+if (!cover) {
+    warnings.push({ check: 'cover', msg: 'ไม่พบไฟล์ปก ({slug}-cover.svg/png) ในโฟลเดอร์เกม — ตรวจเองว่า thumbnail_url เป็น 16:9 (1280×720)' });
+    console.log(`${WARN} Check 9 — cover 16:9: ข้าม (ไม่พบไฟล์ปกในโฟลเดอร์)`);
+} else if (!cover.w || !cover.h) {
+    warnings.push({ check: 'cover', msg: `อ่านขนาดปก ${cover.name} ไม่ได้ — ตรวจเองว่าเป็น 16:9 (1280×720)` });
+    console.log(`${WARN} Check 9 — cover 16:9: ข้าม (อ่านขนาด ${cover.name} ไม่ได้)`);
+} else {
+    const ratio = cover.w / cover.h;
+    if (Math.abs(ratio - 16 / 9) <= 0.03) {
+        console.log(`${PASS} Check 9 — cover 16:9: ${cover.name} (${cover.w}×${cover.h})`);
+    } else {
+        issues.push({
+            check: 'cover',
+            msg: `ปก ${cover.name} ขนาด ${cover.w}×${cover.h} (≈${ratio.toFixed(2)}:1) ไม่ใช่ 16:9 → การ์ด aspect-video มีขอบ/ไม่เต็มช่อง. ทำใหม่ที่ 1280×720 (16:9)`,
+        });
+        console.log(`${FAIL} Check 9 — cover 16:9: ${cover.name} ${cover.w}×${cover.h} ไม่ใช่ 16:9 (ทำใหม่ 1280×720)`);
+    }
+}
+
 // ─── Summary ─────────────────────────────────────────────────────────────────
 console.log('');
 if (issues.length === 0 && warnings.length === 0) {
@@ -277,6 +300,60 @@ if (warnings.length > 0) {
 
 console.log(`${CYAN}💡 อ่าน GAME.md สำหรับ EMBED block + checklist เต็ม${RESET}\n`);
 process.exit(issues.length > 0 ? 1 : 0);
+
+// ────────────────────────────────────────────────────────────────────────────
+// Cover helpers (hoisted) — หาไฟล์ปก + อ่านขนาดจริง (sniff magic bytes ไม่เชื่อ extension)
+// ────────────────────────────────────────────────────────────────────────────
+
+/** หาไฟล์ปกในโฟลเดอร์เกม: `{slug}-cover.*` / `cover.*` (svg/png/jpg/webp) — คืน {name,w,h}|null */
+function findCover(dir, slugs) {
+    let files;
+    try { files = readdirSync(dir); } catch { return null; }
+    const candidates = files.filter((n) => /(?:^cover|[-_]cover)\.(svg|png|jpe?g|webp)$/i.test(n));
+    if (!candidates.length) return null;
+    const norm = slugs.filter(Boolean).map((s) => String(s).toLowerCase());
+    const pick =
+        candidates.find((n) => norm.some((s) => n.toLowerCase().startsWith(s + '-cover'))) ||
+        candidates.find((n) => /^cover\./i.test(n)) ||
+        candidates[0];
+    const size = readImageSize(join(dir, pick));
+    return { name: pick, w: size?.w, h: size?.h };
+}
+
+/** อ่าน width/height จาก PNG/JPEG/SVG (ตรวจ magic bytes ก่อน — ไฟล์ .png ที่จริงเป็น JPEG ก็อ่านถูก) */
+function readImageSize(path) {
+    let buf;
+    try { buf = readFileSync(path); } catch { return null; }
+    // PNG: 89 50 4E 47 … IHDR width@16 height@20 (BE)
+    if (buf.length >= 24 && buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47) {
+        return { w: buf.readUInt32BE(16), h: buf.readUInt32BE(20) };
+    }
+    // JPEG: FF D8 … สแกนหา SOF marker (C0–CF ยกเว้น C4/C8/CC) → height@+5 width@+7 (BE)
+    if (buf[0] === 0xff && buf[1] === 0xd8) {
+        let i = 2;
+        while (i + 9 < buf.length) {
+            if (buf[i] !== 0xff) { i++; continue; }
+            const m = buf[i + 1];
+            if (m >= 0xc0 && m <= 0xcf && m !== 0xc4 && m !== 0xc8 && m !== 0xcc) {
+                return { h: buf.readUInt16BE(i + 5), w: buf.readUInt16BE(i + 7) };
+            }
+            if (m === 0xd8 || m === 0xd9 || (m >= 0xd0 && m <= 0xd7)) { i += 2; continue; }
+            i += 2 + buf.readUInt16BE(i + 2);
+        }
+        return null;
+    }
+    // SVG (text): viewBox="0 0 W H" → ใช้ W,H ; ไม่งั้น width/height attr
+    const head = buf.slice(0, 4000).toString('utf8');
+    if (head.includes('<svg')) {
+        const text = buf.toString('utf8');
+        const vb = text.match(/viewBox\s*=\s*["']\s*[\d.+-]+\s+[\d.+-]+\s+([\d.]+)\s+([\d.]+)/i);
+        if (vb) return { w: parseFloat(vb[1]), h: parseFloat(vb[2]) };
+        const w = text.match(/\bwidth\s*=\s*["']?([\d.]+)/i);
+        const h = text.match(/\bheight\s*=\s*["']?([\d.]+)/i);
+        if (w && h) return { w: parseFloat(w[1]), h: parseFloat(h[1]) };
+    }
+    return null;
+}
 
 // ────────────────────────────────────────────────────────────────────────────
 // Render smoke-test helpers (hoisted)
