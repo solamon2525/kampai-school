@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>เกมคณิตศาสตร์ ยกมือตอบคำถาม - ยกมือทายถูกผิดสุดสนุก</title>
+    <meta name="description" content="เกมฝึกทักษะคณิตศาสตร์สำหรับเด็กประถมศึกษา ตอบคำถามโดยการยกมือทางซ้ายหรือขวาผ่านกล้องเว็บแคมด้วยเทคโนโลยี AI">
+
+    <!-- ใช้ Tailwind CSS สำหรับจัดรูปแบบ UI -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        if (typeof tailwind !== 'undefined') {
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            sans: ['Kanit', 'sans-serif'],
+                        }
+                    }
+                }
+            };
+        }
+    </script>
+
+    <!-- ใช้ Font Kanit ให้ดูอ่านง่ายและเหมาะกับเด็ก -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- โหลด MediaPipe สำหรับจับการเคลื่อนไหวของมือ -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <!-- โหลด canvas-confetti สำหรับเอฟเฟกต์พลุ -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Kanit', sans-serif;
+            margin: 0;
+            overflow: hidden;
+            background-color: #0f172a;
+            touch-action: none; /* ป้องกันการปัดหน้าจอบนมือถือ */
+            user-select: none;
+        }
+        /* พลิกภาพจากกล้องให้เหมือนกระจกเงา */
+        canvas {
+            transform: scaleX(-1);
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+        .ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none; /* ให้คลิกทะลุ UI ไปได้ */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        /* ข้อความโจทย์คณิตศาสตร์ มีขอบดำให้อ่านง่ายขึ้นเมื่อทับกับกล้อง */
+        .math-text {
+            text-shadow: 3px 3px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+        }
+        /* กล่องคำตอบซ้ายขวา */
+        .answer-zone {
+            width: 25%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            font-weight: 800;
+            color: white;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+            transition: all 0.2s ease-in-out;
+            pointer-events: auto;
+            cursor: pointer;
+        }
+        .zone-true {
+            left: 0;
+            border-right: 4px dashed rgba(255,255,255,0.4);
+        }
+        .zone-true:hover {
+            background-color: rgba(34, 197, 94, 0.1);
+        }
+        .zone-false {
+            right: 0;
+            border-left: 4px dashed rgba(255,255,255,0.4);
+        }
+        .zone-false:hover {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+        /* แถบหลอดพลังเมื่อเอาตัวไปอยู่ในโซน */
+        .progress-bar-bg {
+            position: absolute;
+            bottom: 30px;
+            width: 85%;
+            height: 24px;
+            background-color: rgba(255,255,255,0.25);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        /* ปุ่มและเมนูต่างๆ */
+        .interactive {
+            pointer-events: auto;
+        }
+        /* เอฟเฟกต์หน้าจอสั่นและจอแดงตอนตอบผิด */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-12px); }
+            20%, 40%, 60%, 80% { transform: translateX(12px); }
+        }
+        .shake-effect {
+            animation: shake 0.5s ease-in-out;
+        }
+        @keyframes flashRed {
+            0%, 100% { box-shadow: inset 0 0 0 rgba(239, 68, 68, 0); background-color: transparent; }
+            50% { box-shadow: inset 0 0 60px 30px rgba(239, 68, 68, 0.7); background-color: rgba(239, 68, 68, 0.15); }
+        }
+        .flash-red-effect {
+            animation: flashRed 0.5s ease-out;
+        }
+        .scanlines {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.08) 50%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 40;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- CRT Scanline Effect -->
+    <div class="scanlines"></div>
+
+    <!-- ซ่อน Video Element ไว้ ใช้ดึงภาพจากกล้องไปวาดลง Canvas แทน -->
+    <video id="videoElement" style="display: none;" autoplay playsinline muted></video>
+    
+    <!-- Canvas สำหรับวาดภาพกล้องและจุดตามร่างกาย -->
+    <canvas id="outputCanvas"></canvas>
+
+    <!-- UI ซ้อนทับบนหน้าจอ -->
+    <div class="ui-layer" id="uiContainer" style="display: none;">
+        
+        <!-- แถบบน: ปุ่มกลับ และ คะแนน -->
+        <div class="w-full flex justify-between items-center p-6 z-20">
+            <button id="btn-quit" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-full border-2 border-white interactive font-bold shadow-lg transition-transform hover:scale-105">
+                🏠 ออกเกม
+            </button>
+            <div class="bg-blue-600/90 text-white px-8 py-3 rounded-full text-3xl font-bold shadow-lg border-4 border-white math-text">
+                คะแนน: <span id="scoreDisplay">0</span>
+            </div>
+            <div class="w-[100px]"></div> <!-- Spacer to keep score centered -->
+        </div>
+
+        <!-- Student Profile chip (from KAMPAI SDK) -->
+        <div id="player-chip" class="absolute top-[85px] left-6 z-30 hidden items-center gap-2 bg-slate-900/80 border border-slate-600 px-3 py-1.5 rounded-full text-xs font-semibold text-white shadow-md">
+            <!-- Dynamic profile info -->
+        </div>
+
+        <!-- โซนตอบ ถูก (ด้านซ้ายของหน้าจอ) -->
+        <div class="answer-zone zone-true" id="zoneTrue">
+            <div class="flex flex-col items-center w-full">
+                <span class="text-green-400 math-text text-4xl md:text-6xl mb-4 select-none">✓ ถูก</span>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill bg-green-500" id="progressTrue"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- โซนตอบ ผิด (ด้านขวาของหน้าจอ) -->
+        <div class="answer-zone zone-false" id="zoneFalse">
+            <div class="flex flex-col items-center w-full">
+                <span class="text-red-400 math-text text-4xl md:text-6xl mb-4 select-none">✗ ผิด</span>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill bg-red-500" id="progressFalse"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ตรงกลาง: โจทย์ปัญหา -->
+        <div class="w-full flex-grow flex items-center justify-center z-20 flex-col px-[25%] pointer-events-none mb-16">
+            <div id="questionDisplay" class="text-6xl md:text-[6.5rem] font-black text-yellow-300 math-text tracking-wider text-center transition-transform duration-300 transform scale-100">
+                พร้อมไหม?
+            </div>
+            <div id="feedbackDisplay" class="text-4xl md:text-5xl font-bold text-white math-text mt-6 opacity-0 transition-opacity duration-300 text-center">
+                ยอดเยี่ยม!
+            </div>
+        </div>
+    </div>
+
+    <!-- หน้าจอเริ่มเกม และ โหลดดิ้ง -->
+    <div id="startScreen" class="absolute inset-0 bg-slate-900/95 flex flex-col items-center justify-center z-50 text-white interactive overflow-y-auto py-8 px-4">
+        <h1 class="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-pink-500 mb-6 drop-shadow-lg text-center leading-tight">
+            เกมคณิตคิดไว<br>ยกมือทายถูกผิด!
+        </h1>
+        
+        <div class="text-base md:text-xl mb-6 text-center max-w-2xl bg-slate-800/80 p-6 rounded-2xl border-2 border-slate-600 shadow-xl backdrop-blur-md">
+            <h2 class="text-yellow-400 font-bold text-lg md:text-2xl mb-3">🧠 วิธีเล่น (How to Play)</h2>
+            <ul class="text-left space-y-2.5 list-disc list-inside text-slate-200">
+                <li>ระบบจะแสดงโจทย์คณิตศาสตร์ขึ้นมาและอ่านเสียงโจทย์ให้ฟัง</li>
+                <li>ให้ผู้เล่น <strong class="text-white">ยกมือ 5 นิ้ว (แบมือ)</strong> ไว้ในโซนตอบคำถาม</li>
+                <li>ยกมือ <span class="text-green-400 font-bold">โซนซ้าย (✓ ถูก)</span> หรือ <span class="text-red-400 font-bold">โซนขวา (✗ ผิด)</span></li>
+                <li>ค้างมือไว้จนกว่าหลอดพลังจะเต็ม เพื่อส่งคำตอบ</li>
+                <li><strong class="text-yellow-300">ไม่มีกล้องเว็บแคม?</strong> สามารถคลิกหรือแตะโซนเพื่อเลือกคำตอบได้โดยตรง!</li>
+            </ul>
+        </div>
+        
+        <div id="loading-ai" class="flex flex-col items-center mb-6">
+            <svg id="startLoadingIcon" class="animate-spin h-10 w-10 text-yellow-400 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p id="systemStatusMsg" class="text-yellow-300 text-sm">ระบบกำลังโหลดตัวตรวจจับมือ AI...</p>
+        </div>
+
+        <div class="flex flex-col gap-4 items-center w-full max-w-sm">
+            <button id="startBtn" class="hidden w-full bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white text-2xl font-bold py-4 px-10 rounded-full shadow-[0_0_20px_rgba(74,222,128,0.4)] transform hover:scale-105 transition-all">
+                🎮 เล่นโดยใช้กล้อง (AI)
+            </button>
+            <button id="startBtnFallback" class="hidden w-full bg-slate-700 hover:bg-slate-600 text-white text-lg font-bold py-3 px-8 rounded-full border border-slate-500 transition-all hover:scale-105 shadow-md">
+                🖱️ เล่นด้วยเมาส์ / หน้าจอสัมผัส
+            </button>
+        </div>
+
+        <!-- Leaderboard on start screen -->
+        <div class="w-full max-w-sm mt-8 p-4 rounded-xl border border-slate-700 bg-slate-800/60 backdrop-blur-md text-left" id="leaderboardBox" style="display:none;">
+            <h3 class="text-yellow-400 font-bold text-sm mb-3 flex items-center gap-1.5">🏆 ลีดเดอร์บอร์ดระดับชั้น</h3>
+            <ul class="space-y-2 text-sm text-slate-300" id="leaderboardList">
+                <!-- Dynamic list -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- ─── KAMPAI SDK INTEGRATION ─── -->
+    <script src="/games/kampai-sdk.js"></script>
+    <script>
+        /* Fallback stub to prevent errors during standalone testing */
+        window.KAMPAI = window.KAMPAI || {
+            isEmbed: false,
+            isTouch: false,
+            ready: true,
+            student: null,
+            stats: null,
+            leaderboard: [],
+            input: {},
+            onReady: function(cb) { cb(this); },
+            setSlug: function() { return this; },
+            submitScore: function() { return false; },
+            goHome: function() { location.href = '/h/nattapong'; },
+            exit: function() { location.href = '/h/nattapong'; },
+            controls: { mount: function() { return this; } },
+            sound: {
+                correct: function() {},
+                wrong: function() {},
+                timeUp: function() {},
+                gameOver: function() {},
+                speak: function() {},
+                stopSpeak: function() {},
+                fxFlash: function() {},
+                mountToggles: function() {},
+                defaultBgm: function() {},
+                bgmStart: function() {},
+                bgmStop: function() {},
+                unlock: function() {}
+            }
+        };
+
+        const GAME_SLUG = 'math-hand-raising';
+        KAMPAI.setSlug(GAME_SLUG);
+        KAMPAI.sound.defaultBgm('playful');
+        KAMPAI.sound.mountToggles();
+
+        // Reposition sound toggles
+        const soundWrap = document.getElementById('kampai-snd');
+        if (soundWrap) {
+            soundWrap.style.top = 'auto';
+            soundWrap.style.bottom = '24px';
+            soundWrap.style.right = '24px';
+            soundWrap.style.left = 'auto';
+            soundWrap.style.zIndex = '100';
+        }
+
+        // --- ระบบเสียงและอ่านออกเสียง ---
+        const SoundFX = {
+            init: function() {
+                KAMPAI.sound.unlock();
+            },
+            toggleBGM: function() {
+                // Handled natively by KAMPAI SDK Sound panel
+            },
+            speak: function(text) {
+                if (window.KAMPAI && KAMPAI.sound && typeof KAMPAI.sound.speak === 'function') {
+                    KAMPAI.sound.speak(text);
+                } else if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'th-TH';
+                    utterance.rate = 1.0;
+                    utterance.pitch = 1.2;
+                    window.speechSynthesis.speak(utterance);
+                }
+            },
+            playCorrect: function(text) {
+                if (window.KAMPAI && KAMPAI.sound) {
+                    KAMPAI.sound.correct();
+                    KAMPAI.sound.fxFlash(true);
+                }
+                setTimeout(() => this.speak(text), 450);
+            },
+            playWrong: function(text) {
+                if (window.KAMPAI && KAMPAI.sound) {
+                    KAMPAI.sound.wrong();
+                    KAMPAI.sound.fxFlash(false);
+                }
+                setTimeout(() => this.speak(text), 650);
+            }
+        };
+
+        // --- ตัวแปรควบคุมเกม ---
+        let score = 0;
+        let currentQuestion = null;
+        let gameState = 'INIT'; // INIT, PLAYING, RESULT, COOLDOWN
+        let isFallbackMode = false;
+        
+        let holdProgress = 0;
+        const FRAMES_TO_CONFIRM = 20; 
+        let currentZone = null; 
+
+        let webcamStream = null;
+        let predictRafId = null;
+        let gameRafId = null;
+
+        function stopCamera() {
+            if (webcamStream) {
+                try {
+                    webcamStream.getTracks().forEach(t => t.stop());
+                } catch(e) {
+                    console.warn("Failed to stop tracks:", e);
+                }
+                webcamStream = null;
+            }
+            if (predictRafId) {
+                cancelAnimationFrame(predictRafId);
+                predictRafId = null;
+            }
+            if (gameRafId) {
+                cancelAnimationFrame(gameRafId);
+                gameRafId = null;
+            }
+        }
+
+        // คำชมและคำปลอบใจแบบสุ่ม
+        const correctPhrases = ["ถูกต้องจ้า", "เก่งมาก", "สุดยอด"];
+        const wrongPhrases = ["ตอบผิดจ้า", "พยายามเข้านะ", "ลองใหม่นะ"];
+
+        // UI Elements
+        const questionDisplay = document.getElementById('questionDisplay');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const feedbackDisplay = document.getElementById('feedbackDisplay');
+        const progressTrue = document.getElementById('progressTrue');
+        const progressFalse = document.getElementById('progressFalse');
+        const zoneTrueElement = document.getElementById('zoneTrue');
+        const zoneFalseElement = document.getElementById('zoneFalse');
+        const startScreen = document.getElementById('startScreen');
+        const uiContainer = document.getElementById('uiContainer');
+        const videoElement = document.getElementById('videoElement');
+        const canvasElement = document.getElementById('outputCanvas');
+        let canvasCtx = canvasElement.getContext('2d');
+
+        // Shim canvas contexts if null (JSDOM environment compatibility)
+        if (!canvasCtx) {
+            canvasCtx = new Proxy({}, {
+                get: (target, prop) => typeof target[prop] === 'function' ? target[prop] : () => {},
+                set: () => true
+            });
+        }
+        
+        function generateMathProblem() {
+            const operations = ['+', '-', '×', '÷'];
+            const opNames = { '+': 'บวก', '-': 'ลบ', '×': 'คูณ', '÷': 'หาร' }; 
+            const op = operations[Math.floor(Math.random() * operations.length)];
+            let num1, num2, realAnswer;
+
+            switch(op) {
+                case '+':
+                    num1 = Math.floor(Math.random() * 40) + 1;
+                    num2 = Math.floor(Math.random() * 40) + 1;
+                    realAnswer = num1 + num2;
+                    break;
+                case '-':
+                    num1 = Math.floor(Math.random() * 40) + 10;
+                    num2 = Math.floor(Math.random() * num1) + 1; 
+                    realAnswer = num1 - num2;
+                    break;
+                case '×':
+                    num1 = Math.floor(Math.random() * 11) + 2; 
+                    num2 = Math.floor(Math.random() * 11) + 2;
+                    realAnswer = num1 * num2;
+                    break;
+                case '÷':
+                    num2 = Math.floor(Math.random() * 11) + 2; 
+                    realAnswer = Math.floor(Math.random() * 11) + 2; 
+                    num1 = num2 * realAnswer; 
+                    break;
+            }
+
+            const isCorrect = Math.random() > 0.5;
+            let shownAnswer = realAnswer;
+            
+            if (!isCorrect) {
+                let errorMargin = Math.floor(Math.random() * 4) + 1;
+                errorMargin *= Math.random() > 0.5 ? 1 : -1;
+                shownAnswer = realAnswer + errorMargin;
+                if(shownAnswer < 0) shownAnswer = 0; 
+            }
+
+            return {
+                text: `${num1} ${op} ${num2} = ${shownAnswer}`,
+                spokenText: `${num1} ${opNames[op]} ${num2} เท่ากับ ${shownAnswer}`, 
+                isCorrect: isCorrect
+            };
+        }
+
+        function nextQuestion() {
+            currentQuestion = generateMathProblem();
+            questionDisplay.innerText = currentQuestion.text;
+            questionDisplay.className = "text-6xl md:text-[6.5rem] font-black text-yellow-300 math-text tracking-wider text-center transition-transform duration-300 transform scale-100";
+            feedbackDisplay.style.opacity = '0';
+            
+            holdProgress = 0;
+            currentZone = null;
+            updateProgressBar();
+            
+            gameState = 'COOLDOWN';
+            setTimeout(() => {
+                gameState = 'PLAYING';
+            }, 1000);
+
+            SoundFX.speak(currentQuestion.spokenText);
+        }
+
+        function updateProgressBar() {
+            const percentage = Math.min((holdProgress / FRAMES_TO_CONFIRM) * 100, 100);
+            if (currentZone === 'TRUE') {
+                progressTrue.style.width = `${percentage}%`;
+                progressFalse.style.width = '0%';
+                zoneTrueElement.style.backgroundColor = `rgba(34, 197, 94, ${percentage * 0.005})`; 
+                zoneFalseElement.style.backgroundColor = 'transparent';
+            } else if (currentZone === 'FALSE') {
+                progressFalse.style.width = `${percentage}%`;
+                progressTrue.style.width = '0%';
+                zoneFalseElement.style.backgroundColor = `rgba(239, 68, 68, ${percentage * 0.005})`; 
+                zoneTrueElement.style.backgroundColor = 'transparent';
+            } else {
+                progressTrue.style.width = '0%';
+                progressFalse.style.width = '0%';
+                zoneTrueElement.style.backgroundColor = 'transparent';
+                zoneFalseElement.style.backgroundColor = 'transparent';
+            }
+        }
+
+        function submitAnswer(userSelectedTrue) {
+            gameState = 'RESULT'; // Lock state to prevent double submission
+            
+            const isCorrect = (userSelectedTrue === currentQuestion.isCorrect);
+            
+            if (isCorrect) {
+                score += 10;
+                scoreDisplay.innerText = score;
+                questionDisplay.className = "text-6xl md:text-[6.5rem] font-black text-green-400 math-text tracking-wider text-center transform scale-110 transition-transform duration-300";
+                
+                // Submit score to database via SDK
+                if (window.KAMPAI) {
+                    KAMPAI.submitScore(score);
+                }
+
+                // Random correct phrase
+                const phrase = correctPhrases[Math.floor(Math.random() * correctPhrases.length)];
+                feedbackDisplay.innerText = phrase + "! 🌟";
+                feedbackDisplay.className = "text-4xl md:text-5xl font-bold text-green-400 math-text mt-6 transition-opacity duration-300 text-center opacity-100";
+                SoundFX.playCorrect(phrase);
+                
+                confetti({
+                    particleCount: 150,
+                    spread: 80,
+                    origin: { y: 0.6 },
+                    zIndex: 9999,
+                    colors: ['#22c55e', '#facc15', '#3b82f6', '#ec4899']
+                });
+            } else {
+                questionDisplay.className = "text-6xl md:text-[6.5rem] font-black text-red-500 math-text tracking-wider text-center transform scale-100";
+                
+                // Random wrong phrase
+                const phrase = wrongPhrases[Math.floor(Math.random() * wrongPhrases.length)];
+                feedbackDisplay.innerText = phrase + " ❌";
+                feedbackDisplay.className = "text-4xl md:text-5xl font-bold text-red-400 math-text mt-6 transition-opacity duration-300 text-center opacity-100";
+                SoundFX.playWrong(phrase);
+                
+                const ui = document.getElementById('uiContainer');
+                ui.classList.add('shake-effect', 'flash-red-effect');
+                setTimeout(() => ui.classList.remove('shake-effect', 'flash-red-effect'), 500);
+            }
+
+            holdProgress = 0;
+            updateProgressBar();
+
+            setTimeout(() => {
+                nextQuestion();
+            }, 3000);
+        }
+
+        // --- Touch / Mouse clicks to submit immediately ---
+        zoneTrueElement.addEventListener('click', (e) => {
+            if (gameState === 'PLAYING') {
+                submitAnswer(true);
+            }
+        });
+        zoneFalseElement.addEventListener('click', (e) => {
+            if (gameState === 'PLAYING') {
+                submitAnswer(false);
+            }
+        });
+
+        // --- ระบบ AI จับภาพมือ (MediaPipe Hands) ---
+        let isAILoaded = false;
+        let isPredicting = false; 
+
+        // [KAMPAI] guard MediaPipe: ถ้า CDN โหลดไม่ได้ (เครื่องโรงเรียน/offline/JSDOM) → shim no-op
+        if (typeof Hands === 'undefined') {
+            window.Hands = function () { return { initialize() { return Promise.resolve(); }, setOptions() {}, onResults() {}, send() { return Promise.resolve(); }, close() {} }; };
+        }
+        if (typeof Camera === 'undefined') {
+            window.Camera = function () { return { start() { return Promise.reject(new Error("Camera mocked")); }, stop() {} }; };
+        }
+
+        const hands = new Hands({locateFile: (file) => {
+            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+        }});
+        hands.setOptions({
+            maxNumHands: 2, 
+            modelComplexity: 0, 
+            minDetectionConfidence: 0.5, 
+            minTrackingConfidence: 0.5
+        });
+
+        // โหลด AI เตรียมไว้ตั้งแต่เนิ่นๆ
+        hands.initialize().then(() => {
+            isAILoaded = true;
+            document.getElementById('loading-ai').classList.add('hidden');
+            document.getElementById('startBtn').classList.remove('hidden');
+            document.getElementById('startBtnFallback').classList.remove('hidden');
+        });
+
+        hands.onResults(onResults);
+
+        function onResults(results) {
+            isPredicting = false;
+
+            if (canvasElement.width !== (videoElement.videoWidth || 640)) {
+                canvasElement.width = videoElement.videoWidth || 640;
+                canvasElement.height = videoElement.videoHeight || 480;
+            }
+
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+
+            let detectedZone = null;
+
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0 && gameState === 'PLAYING') {
+                for (const landmarks of results.multiHandLandmarks) {
+                    const l = landmarks;
+                    
+                    const isIndexOpen = l[8].y < l[6].y;
+                    const isMiddleOpen = l[12].y < l[10].y;
+                    const isRingOpen = l[16].y < l[14].y;
+                    const isPinkyOpen = l[20].y < l[18].y;
+                    
+                    const distThumbTip = Math.hypot(l[4].x - l[0].x, l[4].y - l[0].y);
+                    const distThumbIP = Math.hypot(l[3].x - l[0].x, l[3].y - l[0].y);
+                    const isThumbOpen = distThumbTip > distThumbIP;
+
+                    const isOpenHand = isIndexOpen && isMiddleOpen && isRingOpen && isPinkyOpen && isThumbOpen;
+
+                    for (let i = 0; i < landmarks.length; i++) {
+                        const x = landmarks[i].x * canvasElement.width;
+                        const y = landmarks[i].y * canvasElement.height;
+                        canvasCtx.beginPath();
+                        canvasCtx.arc(x, y, 5, 0, 2 * Math.PI);
+                        canvasCtx.fillStyle = isOpenHand ? '#22c55e' : '#facc15'; 
+                        canvasCtx.fill();
+                    }
+
+                    if (isOpenHand) {
+                        const palmX = l[9].x;
+                        const mirroredX = 1 - palmX; 
+
+                        if (mirroredX < 0.25) {
+                            detectedZone = 'TRUE';
+                            break; 
+                        } else if (mirroredX > 0.75) {
+                            detectedZone = 'FALSE';
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (detectedZone && gameState === 'PLAYING') {
+                currentZone = detectedZone;
+                holdProgress++;
+            } else {
+                currentZone = null;
+                holdProgress = 0;
+            }
+
+            if(gameState === 'PLAYING' || gameState === 'RESULT') {
+                updateProgressBar();
+            }
+
+            if (holdProgress >= FRAMES_TO_CONFIRM && gameState === 'PLAYING') {
+                submitAnswer(currentZone === 'TRUE');
+            }
+            
+            canvasCtx.restore();
+        }
+
+        async function predictLoop() {
+            if (isFallbackMode) return;
+            if (videoElement.readyState >= 2 && !isPredicting) {
+                isPredicting = true;
+                try {
+                    await hands.send({image: videoElement});
+                } catch(e) {
+                    /* Silent ignore frame issues */
+                }
+            }
+            predictRafId = requestAnimationFrame(predictLoop); 
+        }
+
+        // --- เริ่มเกมจริง ---
+        function startGameFlow() {
+            SoundFX.init();
+            KAMPAI.sound.bgmStart();
+            startScreen.style.display = 'none';
+            uiContainer.style.display = 'flex';
+            nextQuestion();
+        }
+
+        // --- ปุ่มเริ่มเกมแบบกล้อง ---
+        document.getElementById('startBtn').addEventListener('click', async () => {
+            if(!isAILoaded) {
+                alert("กรุณารอสักครู่ให้ AI โหลดเสร็จก่อนนะครับ!");
+                return;
+            }
+            
+            isFallbackMode = false;
+            startScreen.innerHTML = `<h1 class="text-4xl text-yellow-300 font-bold animate-pulse">กำลังเปิดกล้อง...</h1>`;
+
+            try {
+                let stream;
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } } 
+                    });
+                } catch (e) {
+                    console.warn("ไม่พบกล้องหน้า กำลังสลับไปใช้กล้องเริ่มต้น...");
+                    stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { width: { ideal: 640 }, height: { ideal: 480 } } 
+                    });
+                }
+                
+                webcamStream = stream;
+                videoElement.srcObject = stream;
+                
+                videoElement.onloadeddata = () => {
+                    videoElement.play();
+                    startGameFlow();
+                    predictLoop(); 
+                };
+
+            } catch (error) {
+                console.warn(error);
+                alert('ไม่สามารถเปิดกล้องได้ ย้ายเข้าสู่โหมดการแตะสัมผัสแทนครับ');
+                enableFallbackMode();
+            }
+        });
+
+        // --- ปุ่มเริ่มเกมแบบสัมผัส/เมาส์ ---
+        document.getElementById('startBtnFallback').addEventListener('click', () => {
+            enableFallbackMode();
+        });
+
+        function enableFallbackMode() {
+            isFallbackMode = true;
+            canvasElement.style.display = 'none';
+            startGameFlow();
+        }
+
+        // --- ปุ่มกลับหน้าแรก/ออกเกม ---
+        document.getElementById('btn-quit').addEventListener('click', () => {
+            stopCamera();
+            KAMPAI.sound.bgmStop();
+            KAMPAI.goHome();
+        });
+
+        // --- โหลดโปรไฟล์และลีดเดอร์บอร์ด ---
+        function loadPlayerProfile() {
+            const playerChip = document.getElementById('player-chip');
+            if (playerChip) {
+                const s = KAMPAI.student;
+                const st = KAMPAI.stats;
+                if (s) {
+                    playerChip.innerHTML = `
+                        <img src="${s.photoUrl || '/avatar-placeholder.png'}" class="w-6 h-6 rounded-full border border-yellow-400 object-cover" onerror="this.src='/avatar-placeholder.png'">
+                        <div class="flex flex-col text-left">
+                            <span class="text-white font-bold leading-none">${s.displayName}</span>
+                            <span class="text-yellow-400 text-[9px] leading-tight mt-0.5">ส่วนตัวสูงสุด: ${st?.personalBest || 0} คะแนน</span>
+                        </div>
+                    `;
+                    playerChip.classList.remove('hidden');
+                    playerChip.classList.add('flex');
+                }
+            }
+
+            const lbList = document.getElementById('leaderboardList');
+            const lbBox = document.getElementById('leaderboardBox');
+            if (lbList && lbBox && KAMPAI.leaderboard && KAMPAI.leaderboard.length > 0) {
+                lbList.innerHTML = KAMPAI.leaderboard.slice(0, 5).map(r => {
+                    return `
+                        <li class="flex justify-between items-center py-1 border-b border-slate-700/60 last:border-0 ${r.isMe ? 'bg-slate-700/40 px-2 rounded' : ''}">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-yellow-400">#${r.rank}</span>
+                                <span class="font-semibold truncate max-w-[150px] text-white">${r.displayName}${r.isMe ? ' (คุณ)' : ''}</span>
+                            </div>
+                            <span class="font-bold text-green-400">${r.personalBest} คะแนน</span>
+                        </li>
+                    `;
+                }).join('');
+                lbBox.style.display = 'block';
+            }
+        }
+
+        KAMPAI.onReady(() => {
+            loadPlayerProfile();
+        });
+
+        // Start render loop immediately for JSDOM / display
+        function gameLoop() {
+            if (!isFallbackMode) {
+                // Redraw skeleton or webcam if active
+            }
+            gameRafId = requestAnimationFrame(gameLoop);
+        }
+        gameRafId = requestAnimationFrame(gameLoop);
+
+    </script>
+</body>
+</html>
