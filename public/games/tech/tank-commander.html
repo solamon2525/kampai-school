@@ -1042,7 +1042,7 @@
             <div class="banner-art" id="menu-canvas-container">
                 <!-- Retro canvas-drawn art background will render here -->
             </div>
-            <button class="cyber-btn cyber-btn-accent" onclick="switchScreen('screen-chapters')" style="width: 260px; height: 50px;">
+            <button class="cyber-btn cyber-btn-accent" onclick="switchScreen('screen-modes')" style="width: 260px; height: 50px;">
                 🎮 เริ่มทำภารกิจ
             </button>
             <button class="cyber-btn" onclick="switchScreen('screen-upgrades')" style="width: 260px; height: 50px;">
@@ -1054,6 +1054,70 @@
             <button class="cyber-btn" onclick="switchScreen('screen-settings')" style="width: 260px; height: 50px;">
                 ⚙️ ตั้งค่าความปลอดภัย
             </button>
+        </div>
+    </div>
+
+    <!-- ================= PLAY MODE SELECT ================= -->
+    <div id="screen-modes" class="screen">
+        <div class="cyber-header">
+            <h1 class="cyber-title">SELECT MODE</h1>
+            <p class="cyber-subtitle">เลือกรูปแบบยุทธการขับรถถัง</p>
+        </div>
+        <div class="menu-container" style="gap: 20px;">
+            <button class="cyber-btn cyber-btn-accent" onclick="selectPlayMode('solo')" style="width: 320px; height: 60px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                👤 เล่นคนเดียว (Solo Mission)
+            </button>
+            <button class="cyber-btn" onclick="selectPlayMode('local')" style="width: 320px; height: 60px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                👥 เล่น 2 คนเครื่องเดียวกัน (Local Co-op)
+            </button>
+            <button class="cyber-btn" onclick="selectPlayMode('online')" style="width: 320px; height: 60px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                🌐 ช่วยกันเล่นออนไลน์ (Online Co-op)
+            </button>
+        </div>
+        <div class="screen-footer">
+            <button class="cyber-btn" onclick="switchScreen('screen-menu')">ย้อนกลับ</button>
+        </div>
+    </div>
+
+    <!-- ================= ONLINE LOBBY ================= -->
+    <div id="screen-online-lobby" class="screen">
+        <div class="cyber-header">
+            <h1 class="cyber-title">ONLINE LOBBY</h1>
+            <p class="cyber-subtitle">จัดตั้งกองกำลังช่วยเหลือออนไลน์</p>
+        </div>
+        <div class="menu-container" style="gap: 20px; max-width: 500px; width: 100%; padding: 20px; margin: 0 auto;">
+            <!-- Setup Actions -->
+            <div id="online-setup" style="display: flex; flex-direction: column; gap: 15px; width: 100%;">
+                <button class="cyber-btn cyber-btn-accent" onclick="createOnlineRoom()">➕ สร้างห้องเล่นใหม่</button>
+                <div style="display: flex; gap: 10px; width: 100%;">
+                    <input type="text" id="join-room-code" placeholder="รหัสห้อง 4 หลัก" maxlength="4" style="flex: 1; background: rgba(30, 41, 59, 0.6); border: 2px solid #0284c7; border-radius: 4px; color: white; text-align: center; font-size: 1.2rem; font-family: 'Orbitron', sans-serif; letter-spacing: 4px; outline: none;">
+                    <button class="cyber-btn" onclick="joinOnlineRoom()" style="padding: 12px 20px;">เข้าร่วม</button>
+                </div>
+                <div id="online-error-msg" class="neon-text-red" style="text-align: center; font-size: 0.9rem; min-height: 20px;"></div>
+            </div>
+
+            <!-- Active Lobby Info -->
+            <div id="online-active-lobby" style="display: none; flex-direction: column; gap: 15px; width: 100%; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(14, 165, 233, 0.3); padding: 20px; border-radius: 8px;">
+                <div style="text-align: center;">
+                    <span style="font-size: 0.9rem; color: #94a3b8;">รหัสห้องเชื่อมต่อ</span>
+                    <h2 class="neon-text-gold" id="lobby-code-display" style="font-size: 3rem; font-family: 'Orbitron', sans-serif; letter-spacing: 8px; margin-top: 5px;">----</h2>
+                </div>
+                
+                <div style="text-align: left;">
+                    <span style="font-size: 0.85rem; color: #94a3b8; font-weight: bold;">👥 ผู้ร่วมปฏิบัติภารกิจ:</span>
+                    <div id="lobby-players-list" style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+                        <!-- Players show here -->
+                    </div>
+                </div>
+
+                <button class="cyber-btn cyber-btn-accent" id="btn-start-online-game" style="display: none; width: 100%;" onclick="startOnlineGame()">🚀 เริ่มต้นทำภารกิจ</button>
+                <div id="lobby-wait-msg" class="neon-text-blue" style="text-align: center; font-size: 0.9rem; display: none;">รอโฮสต์กดเริ่มต้นเกม...</div>
+                
+                <button class="cyber-btn cyber-btn-danger" style="width: 100%; margin-top: 10px;" onclick="leaveOnlineLobby()">← ออกจากห้อง</button>
+            </div>
+        </div>
+        <div class="screen-footer" id="online-lobby-back-footer">
+            <button class="cyber-btn" onclick="switchScreen('screen-modes')">ย้อนกลับ</button>
         </div>
     </div>
 
@@ -1145,6 +1209,28 @@
                     </div>
                     <div class="status-bar-outer">
                         <div class="status-bar-inner sb-xp" id="bar-xp" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stats/Status Bars for Player 2 (shown in co-op only) -->
+            <div class="hud-status-bars" id="hud-p2-bars" style="left: auto; right: 20px; display: none;">
+                <div class="status-bar-row">
+                    <div class="status-bar-lbl">
+                        <span>เกราะ P2 (Shield)</span>
+                        <span id="txt-shield-p2">100/100</span>
+                    </div>
+                    <div class="status-bar-outer">
+                        <div class="status-bar-inner sb-shield" id="bar-shield-p2" style="width: 100%; background: #06b6d4;"></div>
+                    </div>
+                </div>
+                <div class="status-bar-row">
+                    <div class="status-bar-lbl">
+                        <span>เกราะรถถัง P2 (Armor HP)</span>
+                        <span id="txt-hp-p2">100/100</span>
+                    </div>
+                    <div class="status-bar-outer">
+                        <div class="status-bar-inner sb-hp" id="bar-hp-p2" style="width: 100%; background: #22c55e;"></div>
                     </div>
                 </div>
             </div>
@@ -1486,6 +1572,36 @@
     let currentScreen = 'screen-menu';
     let currentChapter = 1;
     let coins = 0;
+    
+    // Multiplayer & Online States
+    let playMode = 'solo'; // 'solo', 'local', 'online'
+    let isHost = true;
+    let roomCode = '';
+    let onlinePlayers = []; // [{ id, name, photoUrl }]
+    let lastPeerStateSent = 0;
+    let receivedGameOverEvent = false;
+    let hostSyncTimer = 0;
+    
+    let player2 = {
+        x: 850,
+        y: 800,
+        r: 22,
+        angle: 0,
+        turretAngle: 0,
+        vx: 0,
+        vy: 0,
+        hp: 100,
+        maxHp: 100,
+        shield: 100,
+        maxShield: 100,
+        level: 1,
+        lastShotTime: 0,
+        isHacked: false,
+        hackTimer: 0,
+        active: false,
+        displayName: 'Player 2',
+        doubleDamageTime: 0
+    };
     
     // Save progress variables
     let upgrades = {
@@ -1885,6 +2001,353 @@
             checkChapterUnlocks();
         }
     }
+
+    function selectPlayMode(mode) {
+        playMode = mode;
+        if (mode === 'solo') {
+            player2.active = false;
+            switchScreen('screen-chapters');
+        } else if (mode === 'local') {
+            player2.active = true;
+            player2.hp = 100;
+            player2.shield = 100;
+            player2.level = 1;
+            player2.doubleDamageTime = 0;
+            player2.displayName = "Player 2";
+            switchScreen('screen-chapters');
+        } else if (mode === 'online') {
+            document.getElementById('online-setup').style.display = 'flex';
+            document.getElementById('online-active-lobby').style.display = 'none';
+            document.getElementById('online-lobby-back-footer').style.display = 'block';
+            document.getElementById('online-error-msg').innerText = '';
+            switchScreen('screen-online-lobby');
+        }
+    }
+
+    // --- ONLINE MULTIPLAYER HANDLERS ---
+    function createOnlineRoom() {
+        if (!KAMPAI.student) {
+            document.getElementById('online-error-msg').innerText = "❌ กรุณารอระบบยืนยันตัวตนนักเรียนก่อนสร้างห้อง";
+            return;
+        }
+        isHost = true;
+        roomCode = KAMPAI.online.makeCode();
+        document.getElementById('lobby-code-display').innerText = roomCode;
+        
+        document.getElementById('online-setup').style.display = 'none';
+        document.getElementById('online-active-lobby').style.display = 'flex';
+        document.getElementById('online-lobby-back-footer').style.display = 'none';
+        document.getElementById('btn-start-online-game').style.display = 'none';
+        document.getElementById('lobby-wait-msg').style.display = 'block';
+        document.getElementById('lobby-wait-msg').innerText = "⏳ รอผู้เล่นคนที่สองเข้าสู้ห้อง...";
+
+        KAMPAI.online.join(roomCode, {
+            onJoined: (room) => {
+                console.log("Joined online room: " + room);
+                updateLobbyPlayersList();
+            },
+            onPresence: (members) => {
+                onlinePlayers = members;
+                updateLobbyPlayersList();
+                
+                if (members.length >= 2) {
+                    document.getElementById('btn-start-online-game').style.display = 'block';
+                    document.getElementById('lobby-wait-msg').style.display = 'none';
+                } else {
+                    document.getElementById('btn-start-online-game').style.display = 'none';
+                    document.getElementById('lobby-wait-msg').style.display = 'block';
+                    document.getElementById('lobby-wait-msg').innerText = "⏳ รอผู้เล่นคนที่สองเข้าสู้ห้อง...";
+                }
+            },
+            onEvent: handleOnlineEvent
+        });
+    }
+
+    function joinOnlineRoom() {
+        const codeInput = document.getElementById('join-room-code').value.trim();
+        if (codeInput.length !== 4 || isNaN(codeInput)) {
+            document.getElementById('online-error-msg').innerText = "❌ รหัสห้องต้องเป็นตัวเลข 4 หลัก";
+            return;
+        }
+        if (!KAMPAI.student) {
+            document.getElementById('online-error-msg').innerText = "❌ กรุณารอระบบยืนยันตัวตนนักเรียนก่อนเข้าร่วม";
+            return;
+        }
+        isHost = false;
+        roomCode = codeInput;
+        document.getElementById('lobby-code-display').innerText = roomCode;
+
+        document.getElementById('online-setup').style.display = 'none';
+        document.getElementById('online-active-lobby').style.display = 'flex';
+        document.getElementById('online-lobby-back-footer').style.display = 'none';
+        document.getElementById('btn-start-online-game').style.display = 'none';
+        document.getElementById('lobby-wait-msg').style.display = 'block';
+        document.getElementById('lobby-wait-msg').innerText = "⏳ เชื่อมต่อและรอโฮสต์กดเริ่มภารกิจ...";
+
+        KAMPAI.online.join(roomCode, {
+            onJoined: (room) => {
+                console.log("Client joined online room: " + room);
+                updateLobbyPlayersList();
+            },
+            onPresence: (members) => {
+                onlinePlayers = members;
+                updateLobbyPlayersList();
+            },
+            onEvent: handleOnlineEvent
+        });
+    }
+
+    function updateLobbyPlayersList() {
+        const list = document.getElementById('lobby-players-list');
+        list.innerHTML = "";
+
+        const renderPlayerRow = (name, isMe, avatarLetter) => {
+            const row = document.createElement('div');
+            row.style.display = 'flex';
+            row.style.alignItems = 'center';
+            row.style.gap = '10px';
+            row.style.background = isMe ? 'rgba(14, 165, 233, 0.15)' : 'rgba(30, 41, 59, 0.5)';
+            row.style.border = isMe ? '1px solid #0ea5e9' : '1px solid rgba(255,255,255,0.1)';
+            row.style.padding = '8px 12px';
+            row.style.borderRadius = '6px';
+            
+            row.innerHTML = `
+                <div class="player-avatar" style="width:28px; height:28px; font-size:0.8rem; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #0ea5e9, #6366f1); color: white; border-radius: 50%; font-weight: bold;">${avatarLetter}</div>
+                <span style="font-weight:600; font-size:0.9rem;">${name} ${isMe ? ' (คุณ)' : ''}</span>
+            `;
+            list.appendChild(row);
+        };
+
+        if (onlinePlayers.length === 0) {
+            const me = KAMPAI.student ? KAMPAI.student.displayName : 'Player';
+            renderPlayerRow(me, true, me[0]);
+        } else {
+            onlinePlayers.forEach(p => {
+                const isMe = KAMPAI.student && p.id === KAMPAI.student.id;
+                renderPlayerRow(p.name, isMe, (p.name || '?')[0]);
+            });
+        }
+    }
+
+    function leaveOnlineLobby() {
+        KAMPAI.online.leave();
+        roomCode = '';
+        onlinePlayers = [];
+        selectPlayMode('online');
+    }
+
+    function startOnlineGame() {
+        if (!isHost) return;
+        switchScreen('screen-chapters');
+    }
+
+    function handleOnlineEvent(event, payload, fromKey) {
+        if (event === 'start_game') {
+            currentChapter = payload.chapterId;
+            const opp = onlinePlayers.find(p => p.id === fromKey);
+            player2.displayName = opp ? opp.name : 'คู่หูออนไลน์';
+            player2.active = true;
+            player2.hp = 100;
+            player2.shield = 100;
+            player2.level = 1;
+            player2.doubleDamageTime = 0;
+            
+            startGameSession();
+        } else if (event === 'peer_state') {
+            player2.x = payload.x;
+            player2.y = payload.y;
+            player2.angle = payload.angle;
+            player2.turretAngle = payload.turretAngle;
+            player2.hp = payload.hp;
+            player2.shield = payload.shield;
+            player2.level = payload.level;
+            player2.doubleDamageTime = payload.doubleDamageTime;
+        } else if (event === 'shoot_bullet') {
+            projectiles.push({
+                x: payload.x,
+                y: payload.y,
+                vx: payload.vx,
+                vy: payload.vy,
+                isPlayer: true,
+                isPlasma: payload.isPlasma,
+                damage: payload.damage,
+                r: payload.r
+            });
+            playSynthSFX('shoot');
+        } else if (event === 'shoot_enemy_bullet') {
+            projectiles.push({
+                x: payload.x,
+                y: payload.y,
+                vx: payload.vx,
+                vy: payload.vy,
+                isPlayer: false,
+                isPlasma: false,
+                damage: payload.damage,
+                r: payload.r,
+                bulletColor: payload.bulletColor || '#f87171'
+            });
+            playSynthSFX('shoot');
+        } else if (event === 'trigger_enemy_emp_zap') {
+            playSynthSFX('hacked');
+            particles.push({
+                x: payload.x, y: payload.y,
+                r: 5,
+                maxR: 200,
+                alpha: 0.8,
+                decay: 0.05,
+                color: 'rgba(168, 85, 247, 0.4)',
+                type: 'ring'
+            });
+            
+            const dx = player.x - payload.x;
+            const dy = player.y - payload.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist <= 200) {
+                let dur = skillTree.cyber.empShield.unlocked ? 45 : 90;
+                player.isHacked = true;
+                player.hackTimer = dur;
+                document.getElementById('hud-emp').style.display = 'block';
+                spawnTextParticle(player.x, player.y - 40, "EMP SYSTEM OFFLINE!", "#a855f7", 16);
+                triggerScreenShake(12, 15);
+            }
+        } else if (event === 'spawn_enemy') {
+            const exist = enemies.some(e => e.id === payload.id);
+            if (!exist) {
+                enemies.push({
+                    id: payload.id,
+                    x: payload.x,
+                    y: payload.y,
+                    type: payload.type,
+                    vx: 0, vy: 0, angle: 0, turretAngle: 0,
+                    hp: payload.hp,
+                    maxHp: payload.maxHp,
+                    speed: payload.speed,
+                    r: payload.r,
+                    scoreVal: payload.scoreVal,
+                    lastShotTime: 0
+                });
+            }
+        } else if (event === 'kill_enemy') {
+            const idx = enemies.findIndex(e => e.id === payload.id);
+            if (idx !== -1) {
+                const e = enemies[idx];
+                spawnExplosionParticles(e.x, e.y, e.type === 'boss' ? 4 : (e.type === 'heavy' ? 1.5 : 1));
+                playSynthSFX('explosion');
+                
+                player.score += e.scoreVal || 100;
+                coins += 5;
+                player.totalEnemiesKilled++;
+                
+                document.getElementById('hud-coins').innerText = `🪙 ${coins}`;
+                document.getElementById('hud-score').innerText = `⭐ ${player.score}`;
+                
+                enemies.splice(idx, 1);
+            }
+        } else if (event === 'damage_enemy' && isHost) {
+            const e = enemies.find(x => x.id === payload.id);
+            if (e) {
+                e.hp -= payload.damage;
+                spawnTextParticle(e.x, e.y - 20, payload.isCrit ? `💥 ${payload.damage}` : `💥 ${payload.damage}`, payload.isCrit ? '#fbbf24' : '#ffffff', payload.isCrit ? 18 : 14);
+                playSynthSFX('hit');
+                if (e.hp <= 0) {
+                    handleEnemyDeath(e);
+                    KAMPAI.online.send('kill_enemy', { id: e.id });
+                    enemies = enemies.filter(x => x.id !== e.id);
+                }
+            }
+        } else if (event === 'sync_enemies') {
+            payload.enemies.forEach(sync => {
+                const e = enemies.find(x => x.id === sync.id);
+                if (e) {
+                    e.x = e.x * 0.4 + sync.x * 0.6;
+                    e.y = e.y * 0.4 + sync.y * 0.6;
+                    e.vx = sync.vx;
+                    e.vy = sync.vy;
+                    e.hp = sync.hp;
+                    e.angle = sync.angle;
+                    e.turretAngle = sync.turretAngle;
+                } else {
+                    enemies.push({
+                        id: sync.id,
+                        x: sync.x,
+                        y: sync.y,
+                        vx: sync.vx,
+                        vy: sync.vy,
+                        angle: sync.angle,
+                        turretAngle: sync.turretAngle,
+                        hp: sync.hp,
+                        maxHp: sync.hp,
+                        type: 'basic',
+                        speed: Math.hypot(sync.vx, sync.vy) || 1.4,
+                        r: 20,
+                        scoreVal: 100,
+                        lastShotTime: 0
+                    });
+                }
+            });
+            enemies = enemies.filter(e => payload.enemies.some(sync => sync.id === e.id));
+        } else if (event === 'quiz_trigger') {
+            triggerQuizOverlayDirect(payload.qCat, payload.qIdx);
+        } else if (event === 'quiz_solve') {
+            isPaused = false;
+            document.getElementById('quiz-overlay').style.display = 'none';
+            applyQuizCorrectBuffs();
+            spawnNotificationFloat(`🎖️ ${payload.solver} ตอบถูกสำเร็จ!`);
+            runGameLoop();
+        } else if (event === 'game_over') {
+            receivedGameOverEvent = true;
+            endGame(payload.isVictory);
+        }
+    }
+
+    function triggerQuizOverlayDirect(categoryKey, qIdx) {
+        isPaused = true;
+        stopGameLoop();
+        
+        const q = quizDatabase[categoryKey][qIdx];
+        activeQuestionObj = q;
+        selectedAnswer = null;
+
+        document.getElementById('quiz-lbl-cat').innerText = categoryKey.toUpperCase();
+        document.getElementById('quiz-lbl-diff').innerText = q.difficulty.toUpperCase();
+        
+        const diffBadge = document.getElementById('quiz-lbl-diff');
+        diffBadge.className = 'quiz-difficulty';
+        diffBadge.classList.add(`diff-${q.difficulty}`);
+
+        document.getElementById('quiz-txt-question').innerText = q.q;
+        
+        for (let i = 0; i < 4; i++) {
+            const btn = document.getElementById(`choice-${i}`);
+            btn.className = 'choice-btn';
+            document.getElementById(`choice-txt-${i}`).innerText = q.choices[i] || "";
+        }
+
+        document.getElementById('quiz-explanation').style.display = 'none';
+        document.getElementById('btn-next-quiz').style.display = 'none';
+        document.getElementById('quiz-overlay').style.display = 'flex';
+
+        if (soundSettings.tts) {
+            KAMPAI.sound.speak(q.q, 'th-TH', true);
+        }
+    }
+
+    function firePeerBullet() {
+        const bulletSpeed = 9;
+        projectiles.push({
+            x: player2.x + Math.cos(player2.turretAngle) * 25,
+            y: player2.y + Math.sin(player2.turretAngle) * 25,
+            vx: Math.cos(player2.turretAngle) * bulletSpeed,
+            vy: Math.sin(player2.turretAngle) * bulletSpeed,
+            isPlayer: true,
+            isPlasma: false,
+            damage: 10,
+            r: 4
+        });
+        playSynthSFX('shoot');
+    }
+
+    // Check Chapter 4 Unlock based on chapters completed (or local achievements)
 
     // Check Chapter 4 Unlock based on chapters completed (or local achievements)
     function checkChapterUnlocks() {
@@ -2363,8 +2826,15 @@
         if (!isGameRunning || isPaused) return;
 
         // 1. Camera logic
-        camera.x = player.x - canvas.width / 2;
-        camera.y = player.y - canvas.height / 2;
+        if (player2.active) {
+            const midX = (player.x + player2.x) / 2;
+            const midY = (player.y + player2.y) / 2;
+            camera.x = midX - canvas.width / 2;
+            camera.y = midY - canvas.height / 2;
+        } else {
+            camera.x = player.x - canvas.width / 2;
+            camera.y = player.y - canvas.height / 2;
+        }
         
         // Clamp camera to boundaries
         camera.x = Math.max(0, Math.min(camera.x, arenaWidth - canvas.width));
@@ -2413,6 +2883,42 @@
 
         // 10. Wave spawning manager
         manageWaves();
+
+        // 11. Online synchronization broadcasts
+        if (playMode === 'online') {
+            const now = Date.now();
+            if (now - lastPeerStateSent > 66) {
+                lastPeerStateSent = now;
+                KAMPAI.online.send('peer_state', {
+                    x: player.x,
+                    y: player.y,
+                    angle: player.angle,
+                    turretAngle: player.turretAngle,
+                    hp: player.hp,
+                    shield: player.shield,
+                    level: player.level,
+                    doubleDamageTime: player.doubleDamageTime
+                });
+            }
+
+            if (isHost) {
+                hostSyncTimer++;
+                if (hostSyncTimer >= 60) {
+                    hostSyncTimer = 0;
+                    const syncData = enemies.map(e => ({
+                        id: e.id,
+                        x: e.x,
+                        y: e.y,
+                        vx: e.vx,
+                        vy: e.vy,
+                        hp: e.hp,
+                        angle: e.angle,
+                        turretAngle: e.turretAngle
+                    }));
+                    KAMPAI.online.send('sync_enemies', { enemies: syncData });
+                }
+            }
+        }
     }
 
     function updatePlayerPhysics() {
@@ -2421,10 +2927,19 @@
         let ay = 0;
 
         // Keyboard control inputs
-        if (keys['w'] || keys['ArrowUp']) ay = -1;
-        if (keys['s'] || keys['ArrowDown']) ay = 1;
-        if (keys['a'] || keys['ArrowLeft']) ax = -1;
-        if (keys['d'] || keys['ArrowRight']) ax = 1;
+        if (playMode === 'local') {
+            // P1 only uses WASD in local co-op
+            if (keys['w']) ay = -1;
+            if (keys['s']) ay = 1;
+            if (keys['a']) ax = -1;
+            if (keys['d']) ax = 1;
+        } else {
+            // Solo or Online: local player uses WASD or Arrows
+            if (keys['w'] || keys['ArrowUp']) ay = -1;
+            if (keys['s'] || keys['ArrowDown']) ay = 1;
+            if (keys['a'] || keys['ArrowLeft']) ax = -1;
+            if (keys['d'] || keys['ArrowRight']) ax = 1;
+        }
 
         // Mobile joystick input overrides keyboard
         if (isMobile && joyDir.active) {
@@ -2512,8 +3027,17 @@
         const now = Date.now();
         const fireRateDelay = Math.max(100, 600 - (upgrades.firerate * 70)); // 600ms down to 250ms delay
         
-        // Auto shoot if mouse is down (PC click / Mobile touch)
-        if (mouse.isDown && !player.isHacked && (now - player.lastShotTime > fireRateDelay)) {
+        let shouldFireP1 = false;
+        if (playMode === 'local') {
+            // Local co-op: P1 shoots ONLY with mouse click/touch. Spacebar is reserved for P2.
+            shouldFireP1 = mouse.isDown && !keys[' ']; 
+        } else {
+            // Solo or Online: shoot with mouse click or spacebar
+            shouldFireP1 = mouse.isDown;
+        }
+
+        // Auto shoot if active
+        if (shouldFireP1 && !player.isHacked && (now - player.lastShotTime > fireRateDelay)) {
             firePlayerProjectile();
             player.lastShotTime = now;
         }
@@ -2538,6 +3062,127 @@
                 spawnTextParticle(player.x, player.y - 30, "+2 HP", "#4ade80");
             }
         }
+
+        // Update player 2 physics if local co-op
+        updatePlayer2Physics();
+    }
+
+    function updatePlayer2Physics() {
+        if (!player2.active) return;
+        
+        const now = Date.now();
+
+        if (playMode === 'local') {
+            let speed = 2.0 + (upgrades.speed * 0.25); // Share speed upgrades
+            let ax2 = 0;
+            let ay2 = 0;
+
+            // Player 2 uses Arrow Keys in local co-op
+            if (keys['ArrowUp']) ay2 = -1;
+            if (keys['ArrowDown']) ay2 = 1;
+            if (keys['ArrowLeft']) ax2 = -1;
+            if (keys['ArrowRight']) ax2 = 1;
+
+            let length2 = Math.sqrt(ax2 * ax2 + ay2 * ay2);
+            if (length2 > 0) {
+                ax2 = ax2 / length2;
+                ay2 = ay2 / length2;
+                player2.vx += ax2 * 0.35;
+                player2.vy += ay2 * 0.35;
+                player2.angle = Math.atan2(ay2, ax2);
+
+                if (Math.random() < 0.15) {
+                    particles.push({
+                        x: player2.x,
+                        y: player2.y,
+                        angle: player2.angle,
+                        alpha: 0.4,
+                        decay: 0.015,
+                        type: 'tread'
+                    });
+                }
+            }
+
+            player2.vx *= 0.88;
+            player2.vy *= 0.88;
+
+            player2.x += player2.vx;
+            player2.y += player2.vy;
+
+            player2.x = Math.max(player2.r, Math.min(player2.x, arenaWidth - player2.r));
+            player2.y = Math.max(player2.r, Math.min(player2.y, arenaHeight - player2.r));
+
+            // Wall collisions
+            mapWalls.forEach(wall => {
+                const check = checkCircleRectCollision(player2.x, player2.y, player2.r, wall.x, wall.y, wall.w, wall.h);
+                if (check.collided) {
+                    const dx = player2.x - check.closestX;
+                    const dy = player2.y - check.closestY;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    if (dist > 0) {
+                        player2.x = check.closestX + (dx / dist) * player2.r;
+                        player2.y = check.closestY + (dy / dist) * player2.r;
+                    } else {
+                        player2.x -= player2.vx * 1.5;
+                        player2.y -= player2.vy * 1.5;
+                    }
+                }
+            });
+
+            // Player 2 auto-aim at closest enemy
+            const p2Closest = getClosestEnemyTo(player2.x, player2.y);
+            if (p2Closest) {
+                player2.turretAngle = Math.atan2(p2Closest.y - player2.y, p2Closest.x - player2.x);
+            }
+
+            // Player 2 auto-shoot or manual shoot (Space/Enter)
+            const p2FireDelay = 500;
+            let p2ShouldFire = keys[' '] || keys['Enter'];
+            if (p2Closest) {
+                const dist = Math.hypot(p2Closest.x - player2.x, p2Closest.y - player2.y);
+                if (dist < 400) {
+                    p2ShouldFire = true;
+                }
+            }
+
+            if (p2ShouldFire && !player2.isHacked && (now - player2.lastShotTime > p2FireDelay)) {
+                const bulletSpeed = 9;
+                let dmg = 10 + (upgrades.damage * 4);
+                if (player2.doubleDamageTime > 0) dmg *= 2;
+                
+                projectiles.push({
+                    x: player2.x + Math.cos(player2.turretAngle) * 25,
+                    y: player2.y + Math.sin(player2.turretAngle) * 25,
+                    vx: Math.cos(player2.turretAngle) * bulletSpeed,
+                    vy: Math.sin(player2.turretAngle) * bulletSpeed,
+                    isPlayer: true,
+                    isPlasma: skillTree.assault.plasmaShells.unlocked,
+                    damage: dmg,
+                    r: skillTree.assault.plasmaShells.unlocked ? 8 : 4
+                });
+                playSynthSFX('shoot');
+                player2.lastShotTime = now;
+            }
+
+            // Shield Recharge logic
+            player2.shieldRegenTimer = (player2.shieldRegenTimer || 0) + 1;
+            const shieldDelay = skillTree.engineer.quickShield.unlocked ? 120 : 240;
+            if (player2.shieldRegenTimer > shieldDelay) {
+                if (player2.shield < player2.maxShield) {
+                    player2.shield = Math.min(player2.maxShield, player2.shield + 0.5);
+                    updateHudBars();
+                }
+            }
+
+            // Self repair logic
+            if (skillTree.engineer.selfRepair.unlocked && player2.shieldRegenTimer > 180) {
+                if (player2.shieldRegenTimer % 180 === 0 && player2.hp < player2.maxHp) {
+                    player2.hp = Math.min(player2.maxHp, player2.hp + 2);
+                    updateHudBars();
+                    spawnTextParticle(player2.x, player2.y - 30, "+2 HP", "#4ade80");
+                }
+            }
+        }
     }
 
     function firePlayerProjectile() {
@@ -2557,7 +3202,7 @@
             const dx = Math.cos(player.turretAngle + Math.PI/2) * offsetDist;
             const dy = Math.sin(player.turretAngle + Math.PI/2) * offsetDist;
 
-            projectiles.push({
+            const b1 = {
                 x: player.x + Math.cos(player.turretAngle) * 25 + dx,
                 y: player.y + Math.sin(player.turretAngle) * 25 + dy,
                 vx: Math.cos(player.turretAngle) * bulletSpeed,
@@ -2566,9 +3211,8 @@
                 isPlasma: isPlasma,
                 damage: dmg,
                 r: isPlasma ? 8 : 4
-            });
-
-            projectiles.push({
+            };
+            const b2 = {
                 x: player.x + Math.cos(player.turretAngle) * 25 - dx,
                 y: player.y + Math.sin(player.turretAngle) * 25 - dy,
                 vx: Math.cos(player.turretAngle) * bulletSpeed,
@@ -2577,9 +3221,17 @@
                 isPlasma: isPlasma,
                 damage: dmg,
                 r: isPlasma ? 8 : 4
-            });
+            };
+
+            projectiles.push(b1);
+            projectiles.push(b2);
+
+            if (playMode === 'online') {
+                KAMPAI.online.send('shoot_bullet', b1);
+                KAMPAI.online.send('shoot_bullet', b2);
+            }
         } else {
-            projectiles.push({
+            const b = {
                 x: player.x + Math.cos(player.turretAngle) * 25,
                 y: player.y + Math.sin(player.turretAngle) * 25,
                 vx: Math.cos(player.turretAngle) * bulletSpeed,
@@ -2588,8 +3240,29 @@
                 isPlasma: isPlasma,
                 damage: dmg,
                 r: isPlasma ? 8 : 4
-            });
+            };
+
+            projectiles.push(b);
+
+            if (playMode === 'online') {
+                KAMPAI.online.send('shoot_bullet', b);
+            }
         }
+    }
+
+    function getClosestEnemyTo(x, y) {
+        let minDist = Infinity;
+        let closest = null;
+        enemies.forEach(e => {
+            const dx = e.x - x;
+            const dy = e.y - y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist < minDist) {
+                minDist = dist;
+                closest = e;
+            }
+        });
+        return closest;
     }
 
     function getClosestEnemy() {
@@ -2684,26 +3357,45 @@
                     const dy = p.y - e.y;
                     const dist = Math.sqrt(dx*dx + dy*dy);
                     if (dist < p.r + e.r) {
-                        // Critical chance check
-                        const isCrit = Math.random() * 100 < (5 + upgrades.crit * 8); // Max 45% Crit
-                        let finalDmg = p.damage;
-                        if (isCrit) {
-                            finalDmg = Math.round(finalDmg * 1.8);
-                        }
+                        if (playMode === 'online' && !isHost) {
+                            // Client: send damage event to Host, do not decrement locally
+                            const isCrit = Math.random() * 100 < (5 + upgrades.crit * 8);
+                            let finalDmg = p.damage;
+                            if (isCrit) finalDmg = Math.round(finalDmg * 1.8);
+                            
+                            KAMPAI.online.send('damage_enemy', {
+                                id: e.id,
+                                damage: finalDmg,
+                                isCrit: isCrit
+                            });
+                            
+                            if (!p.isPlasma) {
+                                hitEnemy = true;
+                                break;
+                            }
+                        } else {
+                            // Solo, Local Co-op, or Host
+                            const isCrit = Math.random() * 100 < (5 + upgrades.crit * 8); // Max 45% Crit
+                            let finalDmg = p.damage;
+                            if (isCrit) finalDmg = Math.round(finalDmg * 1.8);
 
-                        e.hp -= finalDmg;
-                        spawnTextParticle(e.x, e.y - 20, isCrit ? `💥 ${finalDmg}` : `💥 ${finalDmg}`, isCrit ? '#fbbf24' : '#ffffff', isCrit ? 18 : 14);
-                        playSynthSFX('hit');
+                            e.hp -= finalDmg;
+                            spawnTextParticle(e.x, e.y - 20, isCrit ? `💥 ${finalDmg}` : `💥 ${finalDmg}`, isCrit ? '#fbbf24' : '#ffffff', isCrit ? 18 : 14);
+                            playSynthSFX('hit');
 
-                        // Dead check
-                        if (e.hp <= 0) {
-                            handleEnemyDeath(e);
-                            enemies.splice(j, 1);
-                        }
+                            // Dead check
+                            if (e.hp <= 0) {
+                                handleEnemyDeath(e);
+                                if (playMode === 'online' && isHost) {
+                                    KAMPAI.online.send('kill_enemy', { id: e.id });
+                                }
+                                enemies.splice(j, 1);
+                            }
 
-                        if (!p.isPlasma) {
-                            hitEnemy = true;
-                            break;
+                            if (!p.isPlasma) {
+                                hitEnemy = true;
+                                break;
+                            }
                         }
                     }
                 }
@@ -2711,12 +3403,30 @@
                     projectiles.splice(i, 1);
                 }
             } else {
-                // Collide with player
-                const dx = p.x - player.x;
-                const dy = p.y - player.y;
-                const dist = Math.sqrt(dx*dx + dy*dy);
-                if (dist < p.r + player.r) {
+                // Enemy projectile: collide with player(s)
+                let hitPlayer = false;
+
+                // Check collision with Player 1 (local)
+                const dx1 = p.x - player.x;
+                const dy1 = p.y - player.y;
+                const dist1 = Math.sqrt(dx1*dx1 + dy1*dy1);
+                if (dist1 < p.r + player.r) {
                     damagePlayer(p.damage);
+                    hitPlayer = true;
+                }
+
+                // Check collision with Player 2 (only in local co-op mode)
+                if (!hitPlayer && player2.active && playMode === 'local') {
+                    const dx2 = p.x - player2.x;
+                    const dy2 = p.y - player2.y;
+                    const dist2 = Math.sqrt(dx2*dx2 + dy2*dy2);
+                    if (dist2 < p.r + player2.r) {
+                        damagePlayer2(p.damage);
+                        hitPlayer = true;
+                    }
+                }
+
+                if (hitPlayer) {
                     projectiles.splice(i, 1);
                 }
             }
@@ -2756,6 +3466,32 @@
         }
     }
 
+    function damagePlayer2(dmg) {
+        triggerScreenShake(8, 10);
+        playSynthSFX('hit');
+        player2.shieldRegenTimer = 0; // Reset recharge delay
+
+        // Shield logic
+        if (player2.shield > 0) {
+            player2.shield -= dmg;
+            if (player2.shield < 0) {
+                player2.hp += player2.shield; // shield is negative
+                player2.shield = 0;
+            }
+        } else {
+            player2.hp -= dmg;
+        }
+
+        updateHudBars();
+        
+        // Game over check
+        if (player2.hp <= 0) {
+            player2.hp = 0;
+            updateHudBars();
+            endGame(false);
+        }
+    }
+
     function handleEnemyDeath(e) {
         spawnExplosionParticles(e.x, e.y, e.isBoss ? 4 : (e.type === 'heavy' ? 1.5 : 1));
         playSynthSFX('explosion');
@@ -2786,7 +3522,22 @@
             if (player.killsInQuizCycle >= 10) {
                 player.killsInQuizCycle = 0;
                 document.getElementById('hud-kills').innerText = `🤖 0/10`;
-                triggerQuizOverlay();
+                
+                if (playMode === 'online') {
+                    if (isHost) {
+                        const categoryKey = getChapterCategoryKey(currentChapter);
+                        const questionsList = quizDatabase[categoryKey];
+                        let pool = questionsList.filter(q => q.difficulty === learningState.difficulty);
+                        if (pool.length === 0) pool = questionsList;
+                        const pickedQ = pool[Math.floor(Math.random() * pool.length)];
+                        const qIdx = questionsList.indexOf(pickedQ);
+                        
+                        KAMPAI.online.send('quiz_trigger', { qCat: categoryKey, qIdx: qIdx });
+                        triggerQuizOverlayDirect(categoryKey, qIdx);
+                    }
+                } else {
+                    triggerQuizOverlay();
+                }
             }
         } else {
             // Boss killed, chapter complete victory!
@@ -2797,21 +3548,40 @@
     }
 
     function updateEnemies() {
+        if (playMode === 'online' && !isHost) {
+            // Client only runs basic physics integration from synchronized velocities
+            for (let e of enemies) {
+                e.x += e.vx;
+                e.y += e.vy;
+                
+                // Keep within borders
+                e.x = Math.max(e.r, Math.min(e.x, arenaWidth - e.r));
+                e.y = Math.max(e.r, Math.min(e.y, arenaHeight - e.r));
+            }
+            return;
+        }
+
         for (let e of enemies) {
-            // Wall collisions check for enemy tanks
             const prevX = e.x;
             const prevY = e.y;
 
-            // AI Steering towards player
-            const dx = player.x - e.x;
-            const dy = player.y - e.y;
+            // Target closest player
+            let targetPlayer = player;
+            if (player2.active) {
+                const d1 = Math.hypot(player.x - e.x, player.y - e.y);
+                const d2 = Math.hypot(player2.x - e.x, player2.y - e.y);
+                if (d2 < d1) {
+                    targetPlayer = player2;
+                }
+            }
+
+            const dx = targetPlayer.x - e.x;
+            const dy = targetPlayer.y - e.y;
             const dist = Math.sqrt(dx*dx + dy*dy);
             
             if (e.isBoss) {
-                // Boss attack logic
                 updateBossLogic(e, dx, dy, dist);
             } else {
-                // Normal enemy behavior
                 e.angle = Math.atan2(dy, dx);
                 
                 // Set moving velocities
@@ -2820,9 +3590,31 @@
                 
                 // Sniper tries to keep distance
                 if (e.type === 'sniper' && dist < 280) {
-                    // move backwards or slide sideways
                     e.vx = -Math.cos(e.angle) * e.speed;
                     e.vy = -Math.sin(e.angle) * e.speed;
+                }
+
+                // Obstacle avoidance look-ahead feeler (10 frames ahead)
+                let blockedWall = null;
+                for (let wall of mapWalls) {
+                    const check = checkCircleRectCollision(e.x + e.vx * 10, e.y + e.vy * 10, e.r, wall.x, wall.y, wall.w, wall.h);
+                    if (check.collided) {
+                        blockedWall = wall;
+                        break;
+                    }
+                }
+                
+                if (blockedWall) {
+                    const isHorizontal = blockedWall.w >= blockedWall.h;
+                    if (isHorizontal) {
+                        // Slide horizontally
+                        e.vx = (targetPlayer.x > e.x ? 1 : -1) * e.speed;
+                        e.vy = 0;
+                    } else {
+                        // Slide vertically
+                        e.vx = 0;
+                        e.vy = (targetPlayer.y > e.y ? 1 : -1) * e.speed;
+                    }
                 }
 
                 e.x += e.vx;
@@ -2837,8 +3629,8 @@
                     }
                 });
 
-                // Shoot logic
-                e.turretAngle = e.angle;
+                // Shoot logic (Aim turret at closest player)
+                e.turretAngle = Math.atan2(targetPlayer.y - e.y, targetPlayer.x - e.x);
                 const now = Date.now();
                 
                 if (e.type === 'basic' && now - e.lastShotTime > 1500 && dist < 400) {
@@ -2851,11 +3643,9 @@
                     fireEnemyProjectile(e, 15, 4.5, '#ef4444', 8);
                     e.lastShotTime = now;
                 } else if (e.type === 'sniper' && now - e.lastShotTime > 3000 && dist < 600) {
-                    // Long high-speed rail laser
                     fireEnemyProjectile(e, 12, 11, '#38bdf8', 4);
                     e.lastShotTime = now;
                 } else if (e.type === 'hacker' && now - e.lastEmpTime > 4000 && dist < 220) {
-                    // Hacker EMP zap ring
                     triggerEnemyEmpZap(e);
                     e.lastEmpTime = now;
                 }
@@ -2864,23 +3654,34 @@
     }
 
     function fireEnemyProjectile(e, damage, speed, color = '#f87171', r = 4) {
+        if (playMode === 'online' && !isHost) return;
+
+        const vx = Math.cos(e.turretAngle) * speed;
+        const vy = Math.sin(e.turretAngle) * speed;
+        const x = e.x + Math.cos(e.turretAngle) * (e.r + 5);
+        const y = e.y + Math.sin(e.turretAngle) * (e.r + 5);
+
         projectiles.push({
-            x: e.x + Math.cos(e.turretAngle) * (e.r + 5),
-            y: e.y + Math.sin(e.turretAngle) * (e.r + 5),
-            vx: Math.cos(e.turretAngle) * speed,
-            vy: Math.sin(e.turretAngle) * speed,
+            x, y, vx, vy,
             isPlayer: false,
             isPlasma: false,
             damage: damage,
             r: r,
             bulletColor: color
         });
+
+        if (playMode === 'online' && isHost) {
+            KAMPAI.online.send('shoot_enemy_bullet', {
+                x, y, vx, vy, damage, r, bulletColor: color
+            });
+        }
     }
 
     function triggerEnemyEmpZap(e) {
+        if (playMode === 'online' && !isHost) return;
+
         playSynthSFX('hacked');
         
-        // Draw expanding EMP shockwave ring visual
         particles.push({
             x: e.x, y: e.y,
             r: 5,
@@ -2891,30 +3692,93 @@
             type: 'ring'
         });
 
-        // Check if player inside EMP ring radius
-        const dx = player.x - e.x;
-        const dy = player.y - e.y;
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        if (dist <= 200) {
-            // Apply EMP Hack
-            let dur = skillTree.cyber.empShield.unlocked ? 45 : 90; // 0.75s vs 1.5s delay
-            player.isHacked = true;
-            player.hackTimer = dur;
-            
-            document.getElementById('hud-emp').style.display = 'block';
-            spawnTextParticle(player.x, player.y - 40, "EMP SYSTEM OFFLINE!", "#a855f7", 16);
-            triggerScreenShake(12, 15);
+        // Check players inside EMP ring
+        [player, player2].forEach(p => {
+            if (p === player || (p.active && playMode === 'local')) {
+                const dx = p.x - e.x;
+                const dy = p.y - e.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist <= 200) {
+                    let dur = skillTree.cyber.empShield.unlocked ? 45 : 90;
+                    p.isHacked = true;
+                    p.hackTimer = dur;
+                    
+                    if (p === player) {
+                        document.getElementById('hud-emp').style.display = 'block';
+                        spawnTextParticle(p.x, p.y - 40, "EMP SYSTEM OFFLINE!", "#a855f7", 16);
+                        triggerScreenShake(12, 15);
+                    }
+                }
+            }
+        });
+
+        if (playMode === 'online' && isHost) {
+            KAMPAI.online.send('trigger_enemy_emp_zap', { x: e.x, y: e.y });
+        }
+    }
+
+    function spawnEnemyBulletDirect(bullet) {
+        projectiles.push(bullet);
+        if (playMode === 'online' && isHost) {
+            KAMPAI.online.send('shoot_enemy_bullet', {
+                x: bullet.x,
+                y: bullet.y,
+                vx: bullet.vx,
+                vy: bullet.vy,
+                damage: bullet.damage,
+                r: bullet.r,
+                bulletColor: bullet.bulletColor || '#f87171'
+            });
         }
     }
 
     // Chapter Boss AI logics
     function updateBossLogic(boss, dx, dy, dist) {
-        // Slow rotation and movements
+        const prevX = boss.x;
+        const prevY = boss.y;
+
         boss.angle = Math.atan2(dy, dx);
         boss.vx = Math.cos(boss.angle) * boss.speed;
         boss.vy = Math.sin(boss.angle) * boss.speed;
+
+        // Obstacle avoidance look-ahead feeler (10 frames ahead) for Boss
+        let blockedWall = null;
+        for (let wall of mapWalls) {
+            const check = checkCircleRectCollision(boss.x + boss.vx * 10, boss.y + boss.vy * 10, boss.r, wall.x, wall.y, wall.w, wall.h);
+            if (check.collided) {
+                blockedWall = wall;
+                break;
+            }
+        }
+        
+        if (blockedWall) {
+            const isHorizontal = blockedWall.w >= blockedWall.h;
+            let targetPlayer = player;
+            if (player2.active) {
+                const d1 = Math.hypot(player.x - boss.x, player.y - boss.y);
+                const d2 = Math.hypot(player2.x - boss.x, player2.y - boss.y);
+                if (d2 < d1) targetPlayer = player2;
+            }
+            if (isHorizontal) {
+                boss.vx = (targetPlayer.x > boss.x ? 1 : -1) * boss.speed;
+                boss.vy = 0;
+            } else {
+                boss.vx = 0;
+                boss.vy = (targetPlayer.y > boss.y ? 1 : -1) * boss.speed;
+            }
+        }
+
         boss.x += boss.vx;
         boss.y += boss.vy;
+
+        // Restrict walls
+        mapWalls.forEach(wall => {
+            const check = checkCircleRectCollision(boss.x, boss.y, boss.r, wall.x, wall.y, wall.w, wall.h);
+            if (check.collided) {
+                boss.x = prevX;
+                boss.y = prevY;
+            }
+        });
 
         const now = Date.now();
         
@@ -2922,10 +3786,9 @@
         if (currentChapter === 1) {
             // Chapter 1: CPU Destroyer - Bullet hell circles
             if (now - boss.lastShotTime > 1800) {
-                // Shoot a 360 ring of 10 projectiles
                 for (let i = 0; i < 10; i++) {
                     const angle = (i * Math.PI * 2) / 10;
-                    projectiles.push({
+                    spawnEnemyBulletDirect({
                         x: boss.x,
                         y: boss.y,
                         vx: Math.cos(angle) * 4,
@@ -2941,10 +3804,9 @@
         } else if (currentChapter === 2) {
             // Chapter 2: Data Corruptor - Spawns 2 glitch tanks or fires homing shells
             if (now - boss.lastShotTime > 2400) {
-                // Shoot 3 heavy spread bullets
                 for (let i = -1; i <= 1; i++) {
                     const spreadAngle = boss.angle + (i * 0.25);
-                    projectiles.push({
+                    spawnEnemyBulletDirect({
                         x: boss.x + Math.cos(spreadAngle) * 70,
                         y: boss.y + Math.sin(spreadAngle) * 70,
                         vx: Math.cos(spreadAngle) * 5,
@@ -2960,11 +3822,10 @@
         } else if (currentChapter === 3) {
             // Chapter 3: Logic Commander - Shoots quick double lasers or walls
             if (now - boss.lastShotTime > 1400) {
-                // alternate dual turret firing
                 const d1 = boss.angle + 0.3;
                 const d2 = boss.angle - 0.3;
                 
-                projectiles.push({
+                spawnEnemyBulletDirect({
                     x: boss.x + Math.cos(d1) * 65,
                     y: boss.y + Math.sin(d1) * 65,
                     vx: Math.cos(boss.angle) * 7,
@@ -2973,7 +3834,7 @@
                     damage: 10,
                     r: 5
                 });
-                projectiles.push({
+                spawnEnemyBulletDirect({
                     x: boss.x + Math.cos(d2) * 65,
                     y: boss.y + Math.sin(d2) * 65,
                     vx: Math.cos(boss.angle) * 7,
@@ -2988,8 +3849,7 @@
         } else if (currentChapter === 4) {
             // Chapter 4: Cyber Hacker King - EMP burst ring + Phishing bombs
             if (now - boss.lastShotTime > 2000) {
-                // Fire a heavy EMP projectile that targets player
-                projectiles.push({
+                spawnEnemyBulletDirect({
                     x: boss.x + Math.cos(boss.angle) * 70,
                     y: boss.y + Math.sin(boss.angle) * 70,
                     vx: Math.cos(boss.angle) * 6,
@@ -2997,13 +3857,12 @@
                     isPlayer: false,
                     damage: 15,
                     r: 8,
-                    bulletColor: '#a855f7' // Purple EMP bomb
+                    bulletColor: '#a855f7'
                 });
                 boss.lastShotTime = now;
                 playSynthSFX('shoot');
             }
             
-            // Random EMP zap shockwave
             if (now - boss.lastEmpTime > 5000 && dist < 300) {
                 triggerEnemyEmpZap(boss);
                 boss.lastEmpTime = now;
@@ -3113,6 +3972,14 @@
         const xpReq = player.level * 100;
         document.getElementById('txt-xp').innerText = `${player.xp}/${xpReq} (LV.${player.level})`;
         document.getElementById('bar-xp').style.width = `${(player.xp / xpReq) * 100}%`;
+
+        // Update P2 HUD Bars
+        if (player2.active) {
+            document.getElementById('txt-shield-p2').innerText = `${Math.round(player2.shield)}/${player2.maxShield}`;
+            document.getElementById('bar-shield-p2').style.width = `${(player2.shield / player2.maxShield) * 100}%`;
+            document.getElementById('txt-hp-p2').innerText = `${Math.round(player2.hp)}/${player2.maxHp}`;
+            document.getElementById('bar-hp-p2').style.width = `${(player2.hp / player2.maxHp) * 100}%`;
+        }
     }
 
     // Spawning wave mechanics
@@ -3244,6 +4111,24 @@
             ctx.restore();
         }
 
+        // Draw Player 2 Tank
+        if (player2.active) {
+            drawTank(ctx, player2.x - camera.x, player2.y - camera.y, player2.r, player2.angle, player2.turretAngle, 'player2', player2.hp, player2.maxHp);
+            
+            // Draw player 2 active shield bubble if shield > 0
+            if (player2.shield > 0) {
+                ctx.save();
+                ctx.strokeStyle = `rgba(6, 182, 212, ${0.2 + (player2.shield / player2.maxShield) * 0.4})`;
+                ctx.lineWidth = 3;
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = '#06b6d4';
+                ctx.beginPath();
+                ctx.arc(player2.x - camera.x, player2.y - camera.y, player2.r + 8, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.restore();
+            }
+        }
+
         // Draw support drone orbit
         player.drones.forEach(d => {
             const orbitR = 50;
@@ -3310,7 +4195,10 @@
         let bodyColor = '#0284c7'; // Player blue
         let trimColor = '#38bdf8';
         
-        if (type === 'basic') { bodyColor = '#e2e8f0'; trimColor = '#cbd5e1'; }
+        if (type === 'player2') {
+            bodyColor = '#16a34a'; // Player 2 Green
+            trimColor = '#4ade80';
+        } else if (type === 'basic') { bodyColor = '#e2e8f0'; trimColor = '#cbd5e1'; }
         else if (type === 'fast') { bodyColor = '#fbbf24'; trimColor = '#fb923c'; r = 17; }
         else if (type === 'heavy') { bodyColor = '#991b1b'; trimColor = '#ef4444'; treadColor = '#1e293b'; }
         else if (type === 'sniper') { bodyColor = '#0d9488'; trimColor = '#2dd4bf'; }
@@ -3431,9 +4319,18 @@
         ctx.fillRect(-barW/2, barY, barW, barH);
         
         const hpPct = Math.max(0, hp / maxHp);
-        const hpColor = type === 'player' ? '#4ade80' : '#ef4444'; // Green for player, Red for enemies
+        const hpColor = (type === 'player' || type === 'player2') ? '#4ade80' : '#ef4444'; // Green for players, Red for enemies
         ctx.fillStyle = hpColor;
         ctx.fillRect(-barW/2, barY, barW * hpPct, barH);
+
+        // Draw player displayName
+        if (type === 'player' || type === 'player2') {
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '9px Orbitron, sans-serif';
+            ctx.textAlign = 'center';
+            const name = type === 'player' ? (KAMPAI.student ? KAMPAI.student.displayName : 'Player 1') : player2.displayName;
+            ctx.fillText(name, 0, barY - 6);
+        }
 
         ctx.restore();
     }
@@ -3496,6 +4393,27 @@
         player.isHacked = false;
         player.drones = [];
 
+        receivedGameOverEvent = false;
+        hostSyncTimer = 0;
+
+        if (playMode === 'local' || playMode === 'online') {
+            player2.active = true;
+            player2.hp = player2.maxHp;
+            player2.shield = player2.maxShield;
+            player2.x = 850;
+            player2.y = 800;
+            player2.vx = 0;
+            player2.vy = 0;
+            player2.angle = 0;
+            player2.turretAngle = 0;
+            player2.doubleDamageTime = 0;
+            player2.isHacked = false;
+            document.getElementById('hud-p2-bars').style.display = 'block';
+        } else {
+            player2.active = false;
+            document.getElementById('hud-p2-bars').style.display = 'none';
+        }
+
         enemies = [];
         projectiles = [];
         powerUps = [];
@@ -3525,6 +4443,10 @@
         
         KAMPAI.sound.unlock();
         KAMPAI.sound.bgmStart();
+
+        if (playMode === 'online' && isHost) {
+            KAMPAI.online.send('start_game', { chapterId: currentChapter });
+        }
 
         // Spawn first batch of minions
         spawnWaveMinions();
@@ -3653,6 +4575,12 @@
             
             // Buff awards
             applyQuizCorrectBuffs();
+
+            // Online broadcast solve event
+            if (playMode === 'online') {
+                const solverName = KAMPAI.student ? KAMPAI.student.displayName : 'คู่หูออนไลน์';
+                KAMPAI.online.send('quiz_solve', { solver: solverName });
+            }
         } else {
             choiceBtn.classList.add('wrong');
             
@@ -3728,9 +4656,20 @@
         // Recharge shield to full
         player.shield = player.maxShield;
 
+        // If Player 2 active, also buff P2!
+        if (player2.active) {
+            player2.doubleDamageTime = 900;
+            player2.shield = player2.maxShield;
+            player2.hp = player2.maxHp;
+        }
+
         // Visual notifications on screen
         spawnTextParticle(player.x, player.y - 30, `ACCESS GRANTED! +${xpBonus} XP`, "#4ade80");
         spawnTextParticle(player.x, player.y - 50, `🪙 +${coinBonus} COINS & DAMAGE UP!`, "#fbbf24", 16);
+        
+        if (player2.active) {
+            spawnTextParticle(player2.x, player2.y - 30, `P2 BUFFED!`, "#4ade80");
+        }
         
         document.getElementById('hud-coins').innerText = `🪙 ${coins}`;
         updateHudBars();
@@ -3894,6 +4833,10 @@
             }
         } else {
             playSynthSFX('gameOver');
+        }
+
+        if (playMode === 'online' && !receivedGameOverEvent) {
+            KAMPAI.online.send('game_over', { isVictory });
         }
 
         // Calculate and display report analytics
