@@ -11,7 +11,7 @@ const SUPABASE_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co';
 const SUPABASE_ANON_KEY =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrcHFzc2JxeHhwYXNpZGZxaHBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NjUyMjgsImV4cCI6MjA5MTI0MTIyOH0.X7YsSlrgYl9ifLWvgyZI04PtebK572pacadfNlmNO-A';
 const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta';
-const MODEL = 'gemini-2.5-flash-image-preview';
+const MODEL = 'gemini-2.5-flash-image';
 
 function buildPrompt(subject: string, scene: string, colors: string): string {
   return [
