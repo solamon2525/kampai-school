@@ -195,7 +195,10 @@
 
         /* ─── CAMERA / PLAY SCREEN ─── */
         #gameScreen {
-            position: relative;
+            /* ต้อง absolute (สืบ inset:0 จาก .screen) ให้เต็มจอ — ถ้าใช้ relative ความสูงจะ
+               ยุบเป็น 0 (inset ไม่มีผลกับ relative) ทำให้กล้อง/canvas/.lanes-container (inset:0)
+               ยุบตาม → ภาพกล้องหาย + แตะเลนตอบไม่ได้ */
+            position: absolute;
             background: #000;
             padding: 0;
             overflow: hidden;
@@ -1131,6 +1134,7 @@
             roundLogs: [], // Logs for result screen
             timer: 10, // 10 seconds per round
             timerInterval: null,
+            feedbackTimeout: null, // setTimeout หน่วงโชว์ feedback 2.5s ระหว่างข้อ
             isRoundActive: false,
             playerLane: 'center', // 'left' | 'center' | 'right'
             lastLane: 'center',
@@ -1740,7 +1744,7 @@
             relationSlot.classList.add('active');
 
             // Wait 2.5 seconds, then load next question or finish game
-            setTimeout(() => {
+            STATE.feedbackTimeout = setTimeout(() => {
                 hideFlashFeedback();
                 STATE.currentRound++;
                 if (STATE.currentRound < STATE.totalRounds) {
@@ -1859,12 +1863,16 @@
 
         // Quit / Back handlers
         document.getElementById('quitBtn').addEventListener('click', () => {
+            if (STATE.timerInterval) clearInterval(STATE.timerInterval);
+            if (STATE.feedbackTimeout) clearTimeout(STATE.feedbackTimeout);
             KAMPAI.sound.bgmStop();
             stopWebcam();
             KAMPAI.goHome();
         });
 
         document.getElementById('homeBtn').addEventListener('click', () => {
+            if (STATE.timerInterval) clearInterval(STATE.timerInterval);
+            if (STATE.feedbackTimeout) clearTimeout(STATE.feedbackTimeout);
             KAMPAI.sound.bgmStop();
             stopWebcam();
             KAMPAI.goHome();
