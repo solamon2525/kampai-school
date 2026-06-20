@@ -1243,8 +1243,17 @@
         // 4. WEBCAM MOTION DETECTION (Frame Differencing)
         // ==========================================
         async function startWebcam() {
+            // Clean up any existing stream/interval first to prevent duplicates
+            stopWebcam();
+            
             const video = document.getElementById('webcam');
+            if (!video) return;
+
             try {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    throw new Error("Webcam APIs not supported in this browser context.");
+                }
+                
                 STATE.webcamStream = await navigator.mediaDevices.getUserMedia({
                     video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
                     audio: false
@@ -1267,6 +1276,10 @@
             if (STATE.webcamStream) {
                 STATE.webcamStream.getTracks().forEach(track => track.stop());
                 STATE.webcamStream = null;
+            }
+            const video = document.getElementById('webcam');
+            if (video) {
+                video.srcObject = null;
             }
             if (STATE.motionInterval) {
                 clearInterval(STATE.motionInterval);
@@ -1294,11 +1307,23 @@
             STATE.motionInterval = setInterval(() => {
                 if (!STATE.webcamActive || video.paused || video.ended) return;
 
+                // Safety check: ensure video is ready and has dimensions before drawing to avoid console DOMExceptions
+                if (video.readyState < 2 || video.videoWidth === 0 || video.videoHeight === 0) return;
+
                 // Sync main canvas resolution dynamically to match its actual layout size on screen
-                if (canvas.width !== canvas.offsetWidth || canvas.height !== canvas.offsetHeight) {
+                if (canvas.offsetWidth > 0 && canvas.offsetHeight > 0 &&
+                    (canvas.width !== canvas.offsetWidth || canvas.height !== canvas.offsetHeight)) {
                     canvas.width = canvas.offsetWidth;
                     canvas.height = canvas.offsetHeight;
                 }
+
+                // Animate and fade existing particles
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.life -= 0.05; // Fade out over ~1.1 seconds
+                });
+                particles = particles.filter(p => p.life > 0);
 
                 // Draw downsampled video frame to offscreen canvas
                 offCtx.drawImage(video, 0, 0, offW, offH);
@@ -1343,8 +1368,8 @@
                         // Exponential smoothing for stability
                         STATE.smoothedCentroidX = STATE.smoothedCentroidX * 0.78 + targetCentroidX * 0.22;
                         
-                        // Set up rendering particles
-                        particles = motionPixels.filter(() => Math.random() < 0.25).map(p => ({
+                        // Generate and append new particles (using a lower probability since they accumulate)
+                        const newParticles = motionPixels.filter(() => Math.random() < 0.08).map(p => ({
                             // Map coordinates to main canvas scale (mirrored)
                             x: (1.0 - (p.x / offW)) * canvas.width,
                             y: (p.y / offH) * canvas.height,
@@ -1353,6 +1378,12 @@
                             vx: (Math.random() - 0.5) * 1.5,
                             vy: (Math.random() - 0.5) * 1.5
                         }));
+                        particles = particles.concat(newParticles);
+                        
+                        // Prevent particle overload
+                        if (particles.length > 200) {
+                            particles = particles.slice(particles.length - 200);
+                        }
                     }
                 }
 
@@ -1372,16 +1403,16 @@
         function drawMotionVisuals(ctx, W, H, newParticles) {
             ctx.clearRect(0, 0, W, H);
             
-            // Draw lane borders visually
+            // Draw lane borders visually (align to 1/3 and 2/3 columns)
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
             ctx.lineWidth = 2;
             ctx.setLineDash([8, 8]);
             
             ctx.beginPath();
-            ctx.moveTo(W * 0.40, 0);
-            ctx.lineTo(W * 0.40, H);
-            ctx.moveTo(W * 0.60, 0);
-            ctx.lineTo(W * 0.60, H);
+            ctx.moveTo(W * (1/3), 0);
+            ctx.lineTo(W * (1/3), H);
+            ctx.moveTo(W * (2/3), 0);
+            ctx.lineTo(W * (2/3), H);
             ctx.stroke();
             ctx.setLineDash([]); // Reset dash
 
@@ -1507,9 +1538,9 @@
         // ==========================================
         function processPlayerMovement() {
             let activeLaneKey = 'center';
-            if (STATE.smoothedCentroidX < 0.40) {
+            if (STATE.smoothedCentroidX < (1/3)) {
                 activeLaneKey = 'left';
-            } else if (STATE.smoothedCentroidX > 0.60) {
+            } else if (STATE.smoothedCentroidX > (2/3)) {
                 activeLaneKey = 'right';
             }
 
