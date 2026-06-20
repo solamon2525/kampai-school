@@ -96,7 +96,7 @@ if (!item) {
 {
     const { error } = await sb.from('educational_hub_items').update({
         game_slug: 'english-ar-quiz', tracked_game: true, is_published: true,
-        thumbnail_url: '/games/english/english-ar-quiz/cover.svg',
+        thumbnail_url: '/games/english/english-ar-quiz/cover.png',
         bgm_preset: 'playful', updated_at: new Date().toISOString(),
     }).eq('id', item.id);
     if (error) die('update item flags: ' + error.message);
