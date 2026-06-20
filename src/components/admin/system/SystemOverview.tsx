@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.89.0 (AR Game Scaffold — engine กลาง + เทมเพลต + read-first doc สำหรับเกมกล้อง/เคลื่อนไหว)',
+        version: 'v1.90.0 (ปก AI — ปุ่มสร้างปกเกมด้วย AI ในหลังบ้าน GamesTab)',
         date: 'ล่าสุด',
+        badge: 'bg-pink-600',
+        items: [
+            'ปุ่ม "🎨 ปก AI" ในการ์ดเกม (GamesTab) → กรอกฉาก/โทนสี → AI วาดภาพประกอบตามมาตรฐาน `public/COVER-PROMPT.md` (chibi เด็กไทย 16:9) → preview → "ใช้ปกนี้" เปลี่ยน thumbnail ทันที',
+            'ตัวอักษรไทย (ชื่อเกม/วิชา) overlay ฝั่ง client ด้วย canvas (ฟอนต์ Sarabun) → คมชัดถูกต้อง ไม่ถูก AI สะกดเพี้ยน + canvas ส่งออก 1280×720 การันตี 16:9',
+            'server `api/generate-cover.ts` (Vercel function) เรียก Gemini เฉพาะภาพล้วน + ตรวจสิทธิ admin/teacher ผ่าน auth_role() — ต้องตั้ง env `GEMINI_API_KEY` ใน Vercel',
+        ],
+    },
+    {
+        version: 'v1.89.0 (AR Game Scaffold — engine กลาง + เทมเพลต + read-first doc สำหรับเกมกล้อง/เคลื่อนไหว)',
+        date: '',
         badge: 'bg-emerald-600',
         items: [
             'AR engine กลาง `public/games/kampai-ar.js` (KampaiAR, single source แบบ kampai-sdk) — รวม camera/ตรวจจับ/zone-hold/fallback/cleanup; รองรับ 2 detector เลือกผ่าน config (frame-differencing / MediaPipe pose); แก้ engine ที่เดียว ทุกเกม AR ดีขึ้นพร้อมกัน',
