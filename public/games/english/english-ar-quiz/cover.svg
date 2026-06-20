@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" font-family="'Sarabun','Segoe UI',sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1e1b4b"/><stop offset="0.55" stop-color="#0f172a"/><stop offset="1" stop-color="#172554"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.42" r="0.6">
+      <stop offset="0" stop-color="#3b82f6" stop-opacity="0.32"/><stop offset="1" stop-color="#3b82f6" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fffbeb"/><stop offset="0.5" stop-color="#fbbf24"/><stop offset="1" stop-color="#d97706"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <rect width="1280" height="720" fill="url(#glow)"/>
+  <g stroke="#ffffff" stroke-opacity="0.10" stroke-width="3" stroke-dasharray="14 14">
+    <line x1="426" y1="120" x2="426" y2="720"/><line x1="853" y1="120" x2="853" y2="720"/>
+  </g>
+  <g text-anchor="middle" font-family="'Fredoka One','Sarabun',sans-serif">
+    <text x="213" y="610" font-size="110" fill="#93c5fd">A</text>
+    <text x="640" y="610" font-size="110" fill="#a5b4fc">B</text>
+    <text x="1066" y="610" font-size="110" fill="#60a5fa">C</text>
+  </g>
+  <g transform="translate(640,470)">
+    <circle cx="0" cy="-150" r="56" fill="#fcd9b6"/>
+    <rect x="-46" y="-96" width="92" height="120" rx="26" fill="#312e81"/>
+    <rect x="-58" y="-86" width="22" height="84" rx="11" fill="#fcd9b6" transform="rotate(-18)"/>
+    <rect x="36" y="-86" width="22" height="84" rx="11" fill="#fcd9b6" transform="rotate(18)"/>
+    <circle cx="-18" cy="-158" r="7" fill="#222"/><circle cx="18" cy="-158" r="7" fill="#222"/>
+    <path d="M -16 -136 Q 0 -124 16 -136" stroke="#222" stroke-width="5" fill="none" stroke-linecap="round"/>
+  </g>
+  <text x="200" y="280" font-size="120" fill="#fbbf24" opacity="0.9">🔤</text>
+  <text x="1080" y="280" font-size="100" fill="#93c5fd" opacity="0.85">🇬🇧</text>
+  <text x="640" y="100" text-anchor="middle" font-family="'Fredoka One','Sarabun',sans-serif" font-size="68" fill="url(#gold)" stroke="#0f172a" stroke-width="2">English AR Quiz</text>
+  <text x="640" y="155" text-anchor="middle" font-size="28" fill="#cbd5e1">ยืน (หรือแตะ) ซ้าย · กลาง · ขวา เลือกคำตอบ</text>
+  <rect x="980" y="40" width="260" height="46" rx="23" fill="#3b82f6" opacity="0.92"/>
+  <text x="1110" y="71" text-anchor="middle" font-size="24" fill="#eff6ff" font-weight="700">ภาษาอังกฤษ · ป.4</text>
+</svg>
