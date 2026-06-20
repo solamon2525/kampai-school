@@ -278,7 +278,7 @@ const versionHistory = [
         items: [
             'ปุ่ม "🎨 ปก AI" ในการ์ดเกม (GamesTab) → กรอกฉาก/โทนสี → AI วาดภาพประกอบตามมาตรฐาน `public/COVER-PROMPT.md` (chibi เด็กไทย 16:9) → preview → "ใช้ปกนี้" เปลี่ยน thumbnail ทันที',
             'ตัวอักษรไทย (ชื่อเกม/วิชา) overlay ฝั่ง client ด้วย canvas (ฟอนต์ Sarabun) → คมชัดถูกต้อง ไม่ถูก AI สะกดเพี้ยน + canvas ส่งออก 1280×720 การันตี 16:9',
-            'server `api/generate-cover.ts` (Vercel function) เรียก Gemini เฉพาะภาพล้วน + ตรวจสิทธิ admin/teacher ผ่าน auth_role() — ต้องตั้ง env `GEMINI_API_KEY` ใน Vercel',
+            'server `api/generate-cover.ts` (Vercel function) เรียก Pollinations (Flux ฟรี ไม่ต้องมี API key/billing) วาดเฉพาะภาพล้วน + ตรวจสิทธิ admin/teacher ผ่าน auth_role()',
         ],
     },
     {
