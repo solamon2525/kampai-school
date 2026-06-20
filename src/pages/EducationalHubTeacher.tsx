@@ -101,7 +101,8 @@ const EducationalHubTeacher = () => {
 
     // ─── Toolbar state: filters, sort, view mode, favorites ─────────────
     const [filter, setFilter] = useState<FilterState>(EMPTY_FILTER);
-    const [sort, setSort] = useState<SortMode>('default');
+    // ค่าพื้นฐาน: เรียง "ใหม่ล่าสุด" ก่อน (เกมที่เพิ่มล่าสุดขึ้นก่อน) — created_at desc
+    const [sort, setSort] = useState<SortMode>('newest');
     const { mode: viewMode, setMode: setViewMode } = useViewMode();
     const { favorites, toggle: toggleFav, isFavorite } = useFavorites();
 
