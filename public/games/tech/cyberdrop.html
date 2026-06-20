@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberDrop: Tech Vocab Hand Tracking - เกมฝึกพิมพ์และจำศัพท์วิทยาการคำนวณ</title>
+    <meta name="description" content="เกมท้าทายทักษะคำศัพท์วิทยาการคำนวณและไอทีระดับประถมโดยตรวจจับการเคลื่อนไหวของมือในการตอบคำถาม">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        if (typeof tailwind !== 'undefined') {
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            'neon-blue': '#00f3ff',
+                            'neon-purple': '#bc13fe',
+                            'neon-green': '#00ff66',
+                            'cyber-dark': '#0a0a1a',
+                        },
+                        fontFamily: {
+                            mono: ['"Courier New"', 'Courier', 'monospace'],
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- MediaPipe Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #0a0a1a;
+            color: #fff;
+            user-select: none;
+        }
+
+        .glassmorphism {
+            background: rgba(10, 10, 26, 0.72);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 243, 255, 0.25);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
+        }
+
+        .text-neon-blue {
+            text-shadow: 0 0 5px #00f3ff, 0 0 10px #00f3ff, 0 0 20px #00f3ff;
+        }
+
+        .text-neon-purple {
+            text-shadow: 0 0 5px #bc13fe, 0 0 10px #bc13fe, 0 0 20px #bc13fe;
+        }
+
+        .text-neon-green {
+            text-shadow: 0 0 5px #00ff66, 0 0 10px #00ff66, 0 0 20px #00ff66;
+        }
+
+        /* Screen Shake Animation */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
+        .shake {
+            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        .webcam-container {
+            transform: scaleX(-1); /* Mirror camera */
+        }
+
+        .scanlines {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.12) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+            z-index: 40;
+        }
+    </style>
+</head>
+<body class="font-mono">
+
+    <!-- CRT Scanline Effect -->
+    <div class="scanlines"></div>
+
+    <div id="game-container" class="relative w-screen h-screen">
+        
+        <!-- Main Game Canvas -->
+        <canvas id="gameCanvas" class="absolute inset-0 z-10 w-full h-full"></canvas>
+
+        <!-- HUD (Heads Up Display) -->
+        <div id="hud" class="absolute top-0 left-0 w-full p-6 z-20 flex justify-between items-start pointer-events-none hidden">
+            <div class="flex flex-col gap-2 pointer-events-auto">
+                <div class="flex items-center gap-3">
+                    <button id="btn-quit" class="bg-red-950/40 border border-red-700/60 hover:bg-red-900/60 text-red-400 px-3 py-1 rounded-full text-xs font-bold transition-all shadow-md">
+                        🏠 LEAVE
+                    </button>
+                    <div class="text-2xl font-bold text-neon-blue">STAGE: <span id="ui-stage">1</span></div>
+                </div>
+                <div class="text-xl text-neon-purple mt-1" id="ui-stage-name">Basic Hardware</div>
+            </div>
+            <div class="flex flex-col items-center gap-2">
+                <div class="text-4xl font-bold text-neon-green">SCORE: <span id="ui-score">0</span></div>
+                <div class="text-xl text-yellow-400 font-bold" id="ui-combo" style="opacity: 0; transition: opacity 0.2s;">COMBO x1</div>
+            </div>
+            <div class="flex flex-col items-end gap-2 text-2xl text-red-500 font-bold" id="ui-lives">
+                ❤️❤️❤️
+            </div>
+        </div>
+
+        <!-- Student Profile chip (from KAMPAI SDK) -->
+        <div id="player-chip" class="absolute top-[85px] left-6 z-30 hidden items-center gap-2 bg-black/65 border border-neon-blue/30 px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md">
+            <!-- Dynamic profile info -->
+        </div>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="absolute inset-0 z-50 flex flex-col items-center justify-center glassmorphism bg-cyber-dark/90">
+            <h1 class="text-7xl font-bold text-neon-blue mb-2 tracking-wider">CYBER<span class="text-neon-purple">DROP</span></h1>
+            <p class="text-xl text-gray-300 mb-6">Tech Vocab Hand Tracking</p>
+            
+            <div class="bg-black/60 p-6 rounded-lg border border-neon-blue/50 mb-6 max-w-xl text-center shadow-[0_0_15px_rgba(0,243,255,0.2)]">
+                <h2 class="text-neon-green text-2xl mb-4 font-bold">วิธีเล่น (How to Play)</h2>
+                <ul class="text-left text-gray-300 space-y-3 list-disc list-inside">
+                    <li>อนุญาตการใช้งาน <strong class="text-white">กล้องเว็บแคม</strong> เพื่อควบคุม</li>
+                    <li>ขยับมือเพื่อเลื่อนเป้าตรวจจับ (Crosshair)</li>
+                    <li><strong class="text-neon-purple">จีบนิ้วชี้และนิ้วโป้งเข้าหากัน</strong> เพื่อ "คลิก" เลือกคำตอบด้านล่าง</li>
+                    <li>เลือกคำศัพท์ภาษาอังกฤษให้ตรงกับไอคอนรูปภาพสัญลักษณ์ที่ตกลงมา</li>
+                    <li>ระวัง! ตอบผิดหรือปล่อยสัญลักษณ์ตกถึงพื้นจะเสียชีวิต ❤️</li>
+                    <li style="list-style-type: '🎮 ';"><strong class="text-neon-blue">ไม่มีกล้องเว็บแคม?</strong> สามารถขยับเมาส์คลิก หรือแตะสัมผัสหน้าจอโดยตรงเพื่อเล่นได้</li>
+                </ul>
+            </div>
+
+            <div id="loading-ai" class="flex flex-col items-center">
+                <div class="w-12 h-12 border-4 border-neon-blue border-t-transparent rounded-full animate-spin mb-4" id="spinner"></div>
+                <p class="text-neon-blue animate-pulse" id="loading-text">กำลังโหลด AI Model และเปิดกล้อง...</p>
+            </div>
+
+            <div class="flex flex-col items-center gap-4">
+                <button id="btn-start" class="hidden px-10 py-4 text-2xl font-bold rounded-lg border-2 border-neon-green text-neon-green hover:bg-neon-green hover:text-black transition-all duration-300 shadow-[0_0_20px_rgba(0,255,102,0.5)]">
+                    [ START HACKING ]
+                </button>
+                <button id="btn-start-fallback" class="hidden px-6 py-2 text-sm font-semibold rounded-lg border border-gray-500 text-gray-400 hover:text-white hover:border-white transition-all">
+                    เล่นโดยใช้เมาส์/สัมผัส (คลิกตรงนี้หากกล้องไม่ผ่าน)
+                </button>
+            </div>
+
+            <!-- Leaderboard on start screen -->
+            <div class="w-full max-w-sm mt-6 p-4 rounded-xl border border-neon-purple/40 bg-black/60 backdrop-blur-md text-left" id="leaderboardBox" style="display:none;">
+                <h3 class="text-neon-purple font-bold text-sm mb-3 flex items-center gap-1.5">🏆 HACKING LEADERBOARD</h3>
+                <ul class="space-y-2" id="leaderboardList">
+                    <!-- Dynamic list -->
+                </ul>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="game-over-screen" class="absolute inset-0 z-50 hidden flex-col items-center justify-center glassmorphism bg-black/95">
+            <h1 class="text-7xl font-bold text-red-500 mb-2 shadow-[0_0_20px_rgba(255,0,0,0.8)]">SYSTEM FAILURE</h1>
+            <p class="text-2xl text-gray-400 mb-8">CONNECTION LOST</p>
+            
+            <div class="bg-cyber-dark p-8 rounded-lg border-2 border-neon-purple shadow-[0_0_30px_rgba(188,19,254,0.4)] flex flex-col gap-4 text-center min-w-[400px]">
+                <div class="text-gray-400 text-lg">FINAL SCORE</div>
+                <div class="text-6xl font-bold text-neon-green" id="go-score">0</div>
+                
+                <div class="grid grid-cols-2 gap-4 mt-4 border-t border-gray-700 pt-4">
+                    <div>
+                        <div class="text-sm text-gray-400">MAX COMBO</div>
+                        <div class="text-2xl text-yellow-400 font-bold" id="go-combo">x0</div>
+                    </div>
+                    <div>
+                        <div class="text-sm text-gray-400">RANK</div>
+                        <div class="text-2xl font-bold text-neon-blue" id="go-rank">BRONZE</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-4 items-center">
+                <button id="btn-restart" class="mt-8 px-10 py-4 text-2xl font-bold rounded-lg border-2 border-neon-blue text-neon-blue hover:bg-neon-blue hover:text-black transition-all duration-300 shadow-[0_0_20px_rgba(0,243,255,0.5)]">
+                    [ REBOOT SYSTEM ]
+                </button>
+                <button id="btn-go-home" class="px-8 py-3 text-lg font-bold rounded-lg border border-red-700/60 text-red-400 hover:bg-red-950/40 transition-all">
+                    [ TERMINATE CONSOLE ]
+                </button>
+            </div>
+        </div>
+
+        <!-- Mini Webcam Feed -->
+        <div class="absolute bottom-6 left-6 z-30 w-64 h-48 rounded-lg overflow-hidden border-2 border-neon-blue shadow-[0_0_15px_rgba(0,243,255,0.5)] bg-black/50 backdrop-blur-md">
+            <video id="webcam" class="hidden" autoplay playsinline></video>
+            <canvas id="skeletonCanvas" class="w-full h-full object-cover webcam-container"></canvas>
+            <div class="absolute top-1 left-1 bg-black/70 text-xs px-2 py-1 text-neon-blue rounded">CAM FEED</div>
+        </div>
+
+    </div>
+
+    <!-- ─── KAMPAI SDK INTEGRATION ─── -->
+    <script src="/games/kampai-sdk.js"></script>
+    <script>
+        /* Fallback stub to prevent errors during standalone testing */
+        window.KAMPAI = window.KAMPAI || {
+            isEmbed: false,
+            isTouch: false,
+            ready: true,
+            student: null,
+            stats: null,
+            leaderboard: [],
+            input: {},
+            onReady: function(cb) { cb(this); },
+            setSlug: function() { return this; },
+            submitScore: function() { return false; },
+            goHome: function() { location.href = '/h/nattapong'; },
+            exit: function() { location.href = '/h/nattapong'; },
+            controls: { mount: function() { return this; } },
+            sound: {
+                correct: function() {},
+                wrong: function() {},
+                timeUp: function() {},
+                gameOver: function() {},
+                speak: function() {},
+                stopSpeak: function() {},
+                fxFlash: function() {},
+                mountToggles: function() {},
+                defaultBgm: function() {},
+                bgmStart: function() {},
+                bgmStop: function() {},
+                unlock: function() {}
+            }
+        };
+
+        const GAME_SLUG = 'cyberdrop';
+        KAMPAI.setSlug(GAME_SLUG);
+        KAMPAI.sound.defaultBgm('playful');
+        KAMPAI.sound.mountToggles();
+
+        // Reposition sound toggles
+        const soundWrap = document.getElementById('kampai-snd');
+        if (soundWrap) {
+            soundWrap.style.top = 'auto';
+            soundWrap.style.bottom = '24px';
+            soundWrap.style.right = '24px';
+            soundWrap.style.left = 'auto';
+            soundWrap.style.zIndex = '100';
+        }
+    </script>
+
+    <!-- ─── GAME CODE ─── -->
+    <script>
+        /**
+         * ==========================================
+         * 1. CONFIGURATION & VOCABULARY DATA
+         * ==========================================
+         */
+        const STAGE_DATA = {
+            1: {
+                name: "Basic Hardware",
+                speed: 1.5,
+                vocab: [
+                    { word: "Mouse", icon: "🖱️" },
+                    { word: "Keyboard", icon: "⌨️" },
+                    { word: "Monitor", icon: "🖥️" },
+                    { word: "Printer", icon: "🖨️" },
+                    { word: "Laptop", icon: "💻" },
+                    { word: "Headphones", icon: "🎧" }
+                ]
+            },
+            2: {
+                name: "Internal Components",
+                speed: 2.8,
+                vocab: [
+                    { word: "CPU", icon: "🧠" },
+                    { word: "Hard Drive", icon: "💽" },
+                    { word: "Battery", icon: "🔋" },
+                    { word: "Cooling Fan", icon: "🧊" },
+                    { word: "Microchip", icon: "🪲" },
+                    { word: "Cables", icon: "🔌" }
+                ]
+            },
+            3: {
+                name: "Software & Network",
+                speed: 4.5,
+                vocab: [
+                    { word: "Cloud", icon: "☁️" },
+                    { word: "Database", icon: "🗄️" },
+                    { word: "Network", icon: "🌐" },
+                    { word: "Security", icon: "🔒" },
+                    { word: "Bug", icon: "🐛" },
+                    { word: "Smartphone", icon: "📱" },
+                    { word: "Satellite", icon: "🛰️" }
+                ]
+            }
+        };
+
+        const GAME_CONFIG = {
+            pointsPerHit: 10,
+            penaltyMiss: -5,
+            lives: 3,
+            comboThreshold: 5, // ทุก 5 combo ตัวคูณเพิ่ม
+            stageThresholds: [0, 150, 400], // คะแนนที่จะอัพ Stage
+            pinchThreshold: 0.06 // ระยะห่างที่ถือว่าจีบนิ้ว
+        };
+
+        /**
+         * ==========================================
+         * 2. AUDIO SYSTEM (Mute-safe SDK sound routing)
+         * ==========================================
+         */
+        class AudioSynth {
+            constructor() {}
+            playHover() {
+                // Ignore or play subtle sound
+            }
+            playClick() {
+                // Click blip
+            }
+            playCorrect() {
+                KAMPAI.sound.correct();
+                KAMPAI.sound.fxFlash(true);
+            }
+            playWrong() {
+                KAMPAI.sound.wrong();
+                KAMPAI.sound.fxFlash(false);
+            }
+            playExplosion() {
+                KAMPAI.sound.wrong();
+            }
+            playLevelUp() {
+                KAMPAI.sound.correct();
+            }
+        }
+        const sfx = new AudioSynth();
+
+        /**
+         * ==========================================
+         * 3. STATE MANAGEMENT
+         * ==========================================
+         */
+        const state = {
+            status: 'menu', // menu, playing, gameover
+            score: 0,
+            lives: GAME_CONFIG.lives,
+            combo: 0,
+            maxCombo: 0,
+            stage: 1,
+            particles: [],
+            cursor: { x: -100, y: -100, isPinching: false, wasPinching: false },
+            canvasW: window.innerWidth,
+            canvasH: window.innerHeight,
+            shakeAmount: 0
+        };
+
+        let gameManager = null;
+        let isFallbackMode = false;
+
+        // DOM Elements
+        const mainCanvas = document.getElementById('gameCanvas');
+        let ctx = mainCanvas.getContext('2d');
+        const skelCanvas = document.getElementById('skeletonCanvas');
+        let skelCtx = skelCanvas.getContext('2d');
+
+        if (!ctx) {
+            ctx = new Proxy({}, {
+                get: (target, prop) => typeof target[prop] === 'function' ? target[prop] : () => {},
+                set: () => true
+            });
+        }
+        if (!skelCtx) {
+            skelCtx = new Proxy({}, {
+                get: (target, prop) => typeof target[prop] === 'function' ? target[prop] : () => {},
+                set: () => true
+            });
+        }
+        const videoElement = document.getElementById('webcam');
+
+        function resize() {
+            state.canvasW = window.innerWidth;
+            state.canvasH = window.innerHeight;
+            mainCanvas.width = state.canvasW;
+            mainCanvas.height = state.canvasH;
+            
+            // Adjust Choices position on resize
+            if(gameManager) gameManager.updateChoicesLayout();
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        /**
+         * ==========================================
+         * 4. HAND TRACKING (MediaPipe)
+         * ==========================================
+         */
+        let aiLoaded = false;
+        let cameraObj = null;
+        
+        function calculateDistance(p1, p2) {
+            return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+        }
+
+        function onResults(results) {
+            if (!aiLoaded) {
+                aiLoaded = true;
+                document.getElementById('loading-ai').classList.add('hidden');
+                document.getElementById('btn-start').classList.remove('hidden');
+                document.getElementById('btn-start-fallback').classList.remove('hidden');
+            }
+
+            // Draw Webcam Skeleton
+            skelCtx.save();
+            skelCtx.clearRect(0, 0, skelCanvas.width, skelCanvas.height);
+            skelCtx.drawImage(results.image, 0, 0, skelCanvas.width, skelCanvas.height);
+            
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0 && !isFallbackMode) {
+                const landmarks = results.multiHandLandmarks[0]; // Take first hand
+                
+                // Draw skeleton on mini canvas
+                drawConnectors(skelCtx, landmarks, HAND_CONNECTIONS, {color: '#00f3ff', lineWidth: 2});
+                drawLandmarks(skelCtx, landmarks, {color: '#bc13fe', lineWidth: 1, radius: 2});
+
+                // Get Thumb tip (4) and Index tip (8)
+                const thumb = landmarks[4];
+                const index = landmarks[8];
+
+                // Calculate midpoint in screen space (mirrored)
+                // Note: video is mirrored via CSS, so we flip X coordinate mathematically
+                const normX = 1 - ((thumb.x + index.x) / 2); 
+                const normY = (thumb.y + index.y) / 2;
+
+                // Smooth cursor position (Lerp)
+                const targetX = normX * state.canvasW;
+                const targetY = normY * state.canvasH;
+                
+                // Jump if cursor was off screen, else smooth
+                if(state.cursor.x < 0) {
+                    state.cursor.x = targetX; state.cursor.y = targetY;
+                } else {
+                    state.cursor.x += (targetX - state.cursor.x) * 0.4;
+                    state.cursor.y += (targetY - state.cursor.y) * 0.4;
+                }
+
+                // Check Pinch
+                const distance = calculateDistance(thumb, index);
+                state.cursor.wasPinching = state.cursor.isPinching;
+                state.cursor.isPinching = distance < GAME_CONFIG.pinchThreshold;
+
+            } else {
+                // Hand lost, move cursor off screen (unless in mouse fallback mode)
+                if (!isFallbackMode) {
+                    state.cursor.isPinching = false;
+                }
+            }
+            skelCtx.restore();
+        }
+
+        if (typeof Hands === 'undefined') {
+            window.Hands = function () { return { setOptions() {}, onResults() {}, send() { return Promise.resolve(); }, close() {} }; };
+        }
+        if (typeof Camera === 'undefined') {
+            window.Camera = function () { return { start() { return Promise.reject(new Error("Camera mocked")); }, stop() {} }; };
+        }
+
+        const hands = new Hands({locateFile: (file) => {
+            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+        }});
+        hands.setOptions({
+            maxNumHands: 1,
+            modelComplexity: 1,
+            minDetectionConfidence: 0.7,
+            minTrackingConfidence: 0.7
+        });
+        hands.onResults(onResults);
+
+        cameraObj = new Camera(videoElement, {
+            onFrame: async () => {
+                // Match mini canvas to video feed ratio
+                if(skelCanvas.width !== videoElement.videoWidth) {
+                    skelCanvas.width = videoElement.videoWidth;
+                    skelCanvas.height = videoElement.videoHeight;
+                }
+                await hands.send({image: videoElement});
+            },
+            width: 640,
+            height: 480
+        });
+
+        // Add Error Handling for Camera -> Fallback immediately
+        cameraObj.start().catch((err) => {
+            console.warn("Camera connection error, enabling fallback option:", err);
+            aiLoaded = true;
+            document.getElementById('loading-ai').classList.add('hidden');
+            document.getElementById('btn-start-fallback').classList.remove('hidden');
+            document.getElementById('btn-start-fallback').textContent = "[ เริ่มต้นกู้ระบบ (เมาส์ / แตะสัมผัส) ]";
+            isFallbackMode = true;
+        });
+
+        /**
+         * ==========================================
+         * 5. MOUSE/TOUCH FALLBACK INTERACTION
+         * ==========================================
+         */
+        function handleInteraction(clientX, clientY, isPress) {
+            const rect = mainCanvas.getBoundingClientRect();
+            state.cursor.x = clientX - rect.left;
+            state.cursor.y = clientY - rect.top;
+            
+            if (isPress && state.status === 'playing') {
+                // Check if any choice box is clicked
+                let clickedBox = null;
+                gameManager.choices.forEach(box => {
+                    if (box.contains(state.cursor.x, state.cursor.y)) {
+                        clickedBox = box;
+                    }
+                });
+                if (clickedBox) {
+                    if (clickedBox.isCorrect) {
+                        gameManager.handleCorrect();
+                    } else {
+                        gameManager.handleWrong(clickedBox);
+                    }
+                }
+            }
+        }
+
+        mainCanvas.addEventListener('mousedown', (e) => {
+            if (isFallbackMode) handleInteraction(e.clientX, e.clientY, true);
+        });
+        
+        mainCanvas.addEventListener('mousemove', (e) => {
+            if (isFallbackMode) handleInteraction(e.clientX, e.clientY, false);
+        });
+
+        mainCanvas.addEventListener('touchstart', (e) => {
+            if (isFallbackMode && e.touches.length > 0) {
+                handleInteraction(e.touches[0].clientX, e.touches[0].clientY, true);
+            }
+        }, { passive: true });
+
+        mainCanvas.addEventListener('touchmove', (e) => {
+            if (isFallbackMode && e.touches.length > 0) {
+                handleInteraction(e.touches[0].clientX, e.touches[0].clientY, false);
+            }
+        }, { passive: true });
+
+        /**
+         * ==========================================
+         * 6. GAME CLASSES
+         * ==========================================
+         */
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 15;
+                this.vy = (Math.random() - 0.5) * 15;
+                this.life = 1.0;
+                this.color = color;
+                this.size = Math.random() * 5 + 2;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.2; // gravity
+                this.life -= 0.02;
+            }
+            draw(ctx) {
+                ctx.globalAlpha = Math.max(0, this.life);
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+            }
+        }
+
+        class FallingIcon {
+            constructor(vocabObj, speed) {
+                this.vocab = vocabObj;
+                this.x = state.canvasW / 2;
+                this.y = -50;
+                this.speed = speed;
+                this.size = 80;
+                this.swaySpeed = Math.random() * 0.05 + 0.02;
+                this.swayAmp = Math.random() * 50 + 20;
+                this.time = 0;
+            }
+            update() {
+                this.y += this.speed;
+                this.time += this.swaySpeed;
+            }
+            draw(ctx) {
+                const drawX = this.x + Math.sin(this.time) * this.swayAmp;
+                
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = '#00f3ff';
+                ctx.font = `${this.size}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(this.vocab.icon, drawX, this.y);
+                ctx.shadowBlur = 0; // reset
+            }
+            getBounds() {
+                const drawX = this.x + Math.sin(this.time) * this.swayAmp;
+                return { x: drawX - this.size/2, y: this.y - this.size/2, w: this.size, h: this.size };
+            }
+        }
+
+        class ChoiceBox {
+            constructor(x, y, w, h, text, isCorrect) {
+                this.x = x;
+                this.y = y;
+                this.w = w;
+                this.h = h;
+                this.text = text;
+                this.isCorrect = isCorrect;
+                this.isHovered = false;
+                this.isWrongPulse = 0; // For flashing red
+            }
+            
+            draw(ctx) {
+                ctx.save();
+                
+                // Box Style
+                if (this.isWrongPulse > 0) {
+                    ctx.fillStyle = `rgba(255, 0, 0, ${this.isWrongPulse})`;
+                    ctx.strokeStyle = '#ff0000';
+                    ctx.shadowColor = '#ff0000';
+                    this.isWrongPulse -= 0.05;
+                } else if (this.isHovered) {
+                    ctx.fillStyle = 'rgba(188, 19, 254, 0.4)'; // neon purple hover
+                    ctx.strokeStyle = '#bc13fe';
+                    ctx.shadowColor = '#bc13fe';
+                } else {
+                    ctx.fillStyle = 'rgba(10, 10, 26, 0.8)';
+                    ctx.strokeStyle = '#00f3ff'; // neon blue normal
+                    ctx.shadowColor = '#00f3ff';
+                }
+
+                ctx.shadowBlur = this.isHovered || this.isWrongPulse > 0 ? 20 : 10;
+                ctx.lineWidth = 2;
+                
+                // Draw rounded rect
+                ctx.beginPath();
+                ctx.roundRect(this.x, this.y, this.w, this.h, 15);
+                ctx.fill();
+                ctx.stroke();
+
+                // Text
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 24px "Courier New"';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(this.text, this.x + this.w/2, this.y + this.h/2);
+
+                ctx.restore();
+            }
+
+            contains(px, py) {
+                return px >= this.x && px <= this.x + this.w && py >= this.y && py <= this.y + this.h;
+            }
+        }
+
+        /**
+         * ==========================================
+         * 7. MAIN GAME CONTROLLER
+         * ==========================================
+         */
+        class GameManager {
+            constructor() {
+                this.currentItem = null;
+                this.choices = [];
+                this.lastHovered = null;
+            }
+
+            start() {
+                state.status = 'playing';
+                state.score = 0;
+                state.lives = GAME_CONFIG.lives;
+                state.combo = 0;
+                state.stage = 1;
+                state.particles = [];
+                
+                this.updateUI();
+                
+                document.getElementById('start-screen').classList.add('hidden');
+                document.getElementById('game-over-screen').classList.add('hidden');
+                document.getElementById('hud').classList.remove('hidden');
+                
+                // Start BGM
+                KAMPAI.sound.bgmStart();
+
+                // Initialize first item
+                this.spawnNextItem();
+            }
+
+            gameOver() {
+                state.status = 'gameover';
+                sfx.playExplosion();
+                KAMPAI.sound.bgmStop();
+                
+                document.getElementById('hud').classList.add('hidden');
+                document.getElementById('game-over-screen').classList.remove('hidden');
+                document.getElementById('game-container').classList.add('shake');
+                setTimeout(() => document.getElementById('game-container').classList.remove('shake'), 500);
+
+                document.getElementById('go-score').innerText = state.score;
+                document.getElementById('go-combo').innerText = 'x' + state.maxCombo;
+                
+                let rank = "BRONZE";
+                if(state.score > 500) rank = "MASTER HACKER";
+                else if(state.score > 300) rank = "DIAMOND";
+                else if(state.score > 150) rank = "GOLD";
+                else if(state.score > 50) rank = "SILVER";
+                document.getElementById('go-rank').innerText = rank;
+
+                // Submit score via SDK
+                if (window.KAMPAI) {
+                    window.KAMPAI.submitScore(state.score, {
+                        mode: 'normal',
+                        maxCombo: state.maxCombo,
+                        stage: state.stage,
+                        rank: rank
+                    });
+                }
+            }
+
+            spawnNextItem() {
+                const currentData = STAGE_DATA[state.stage];
+                
+                // Pick random vocab for current item
+                const correctVocab = currentData.vocab[Math.floor(Math.random() * currentData.vocab.length)];
+                
+                // Determine speed (base + small variance + combo speedup)
+                const finalSpeed = currentData.speed + (Math.random()*0.5) + (state.combo * 0.05);
+                this.currentItem = new FallingIcon(correctVocab, finalSpeed);
+
+                // Generate choices
+                let allPossible = [];
+                // If stage > 1, mix in vocab from previous stages for distraction
+                for(let i=1; i<=state.stage; i++) {
+                    allPossible = allPossible.concat(STAGE_DATA[i].vocab);
+                }
+
+                // Filter out correct answer
+                const wrongOptions = allPossible.filter(v => v.word !== correctVocab.word);
+                // Shuffle and pick 2
+                wrongOptions.sort(() => 0.5 - Math.random());
+                const selectedWrong = wrongOptions.slice(0, 2);
+
+                const finalChoices = [
+                    { text: correctVocab.word, isCorrect: true },
+                    { text: selectedWrong[0].word, isCorrect: false },
+                    { text: selectedWrong[1].word, isCorrect: false }
+                ];
+                // Shuffle final choices
+                finalChoices.sort(() => 0.5 - Math.random());
+
+                this.generateChoiceBoxes(finalChoices);
+            }
+
+            generateChoiceBoxes(choicesData) {
+                this.choices = [];
+                const boxW = Math.min(250, state.canvasW / 3 - 40);
+                const boxH = 80;
+                const spacing = 20;
+                const totalW = (boxW * 3) + (spacing * 2);
+                const startX = (state.canvasW - totalW) / 2;
+                const yPos = state.canvasH - boxH - 40;
+
+                choicesData.forEach((data, index) => {
+                    const x = startX + (boxW + spacing) * index;
+                    this.choices.push(new ChoiceBox(x, yPos, boxW, boxH, data.text, data.isCorrect));
+                });
+            }
+
+            updateChoicesLayout() {
+                // Keep boxes centered on screen resize
+                if(this.choices.length === 3) {
+                    const choicesData = this.choices.map(c => ({text: c.text, isCorrect: c.isCorrect}));
+                    this.generateChoiceBoxes(choicesData);
+                }
+            }
+
+            createExplosion(x, y) {
+                const colors = ['#00f3ff', '#bc13fe', '#00ff66', '#ffffff'];
+                for(let i=0; i<30; i++) {
+                    state.particles.push(new Particle(x, y, colors[Math.floor(Math.random()*colors.length)]));
+                }
+            }
+
+            triggerShake() {
+                state.shakeAmount = 15;
+            }
+
+            handleCorrect() {
+                sfx.playCorrect();
+                const drawX = this.currentItem.x + Math.sin(this.currentItem.time) * this.currentItem.swayAmp;
+                this.createExplosion(drawX, this.currentItem.y);
+                
+                state.combo++;
+                if(state.combo > state.maxCombo) state.maxCombo = state.combo;
+                
+                // Calculate multiplier
+                const multiplier = 1 + Math.floor(state.combo / GAME_CONFIG.comboThreshold) * 0.5;
+                state.score += Math.floor(GAME_CONFIG.pointsPerHit * multiplier);
+                
+                this.checkLevelUp();
+                this.updateUI();
+                this.spawnNextItem();
+            }
+
+            handleWrong(choiceBox) {
+                sfx.playWrong();
+                this.triggerShake();
+                state.combo = 0;
+                state.score = Math.max(0, state.score + GAME_CONFIG.penaltyMiss);
+                choiceBox.isWrongPulse = 1.0;
+                this.updateUI();
+            }
+
+            handleMiss() {
+                sfx.playExplosion();
+                this.triggerShake();
+                state.combo = 0;
+                state.lives--;
+                this.updateUI();
+                
+                if (state.lives <= 0) {
+                    this.gameOver();
+                } else {
+                    this.spawnNextItem();
+                }
+            }
+
+            checkLevelUp() {
+                if (state.stage < 3 && state.score >= GAME_CONFIG.stageThresholds[state.stage]) {
+                    state.stage++;
+                    sfx.playLevelUp();
+                    // Visual feedback
+                    const stgEl = document.getElementById('ui-stage-name');
+                    stgEl.classList.add('animate-pulse', 'text-white');
+                    setTimeout(() => stgEl.classList.remove('animate-pulse', 'text-white'), 1000);
+                }
+            }
+
+            updateUI() {
+                document.getElementById('ui-score').innerText = state.score;
+                document.getElementById('ui-stage').innerText = state.stage;
+                document.getElementById('ui-stage-name').innerText = STAGE_DATA[state.stage].name;
+                
+                const comboEl = document.getElementById('ui-combo');
+                if (state.combo >= 2) {
+                    comboEl.innerText = `COMBO x${state.combo}!`;
+                    comboEl.style.opacity = 1;
+                } else {
+                    comboEl.style.opacity = 0;
+                }
+
+                let hearts = '';
+                for(let i=0; i<state.lives; i++) hearts += '❤️';
+                document.getElementById('ui-lives').innerText = hearts;
+            }
+
+            update() {
+                if (state.status !== 'playing') return;
+
+                // Update Item
+                if (this.currentItem) {
+                    this.currentItem.update();
+                    if (this.currentItem.y > state.canvasH + this.currentItem.size) {
+                        this.handleMiss();
+                    }
+                }
+
+                // Update Particles
+                for (let i = state.particles.length - 1; i >= 0; i--) {
+                    state.particles[i].update();
+                    if (state.particles[i].life <= 0) {
+                        state.particles.splice(i, 1);
+                    }
+                }
+
+                // Check Interactions (For both hands & mouse tracking)
+                let currentHover = null;
+                this.choices.forEach(box => {
+                    box.isHovered = false;
+                    if (box.contains(state.cursor.x, state.cursor.y)) {
+                        box.isHovered = true;
+                        currentHover = box;
+                    }
+                });
+
+                // Play hover sound once when entering a box
+                if (currentHover && currentHover !== this.lastHovered) {
+                    sfx.playHover();
+                }
+                this.lastHovered = currentHover;
+
+                // Handle Hand Pinch Hitting (Mouse clicks are already handled synchronously by listeners)
+                if (!isFallbackMode) {
+                    const justPinched = state.cursor.isPinching && !state.cursor.wasPinching;
+                    if (justPinched && currentHover) {
+                        sfx.playClick();
+                        if (currentHover.isCorrect) {
+                            this.handleCorrect();
+                        } else {
+                            this.handleWrong(currentHover);
+                        }
+                    }
+                }
+
+                // Shake update
+                if(state.shakeAmount > 0) state.shakeAmount -= 1;
+            }
+
+            draw() {
+                // Clear Canvas
+                ctx.fillStyle = '#0a0a1a';
+                ctx.fillRect(0, 0, state.canvasW, state.canvasH);
+
+                if (state.status !== 'playing') return;
+
+                // Apply Shake
+                ctx.save();
+                if (state.shakeAmount > 0) {
+                    const dx = (Math.random() - 0.5) * state.shakeAmount;
+                    const dy = (Math.random() - 0.5) * state.shakeAmount;
+                    ctx.translate(dx, dy);
+                }
+
+                // Draw Background Cyber Grid
+                ctx.strokeStyle = 'rgba(0, 243, 255, 0.05)';
+                ctx.lineWidth = 1;
+                const gridSize = 50;
+                ctx.beginPath();
+                for(let x=0; x<state.canvasW; x+=gridSize) { ctx.moveTo(x, 0); ctx.lineTo(x, state.canvasH); }
+                for(let y=0; y<state.canvasH; y+=gridSize) { ctx.moveTo(0, y); ctx.lineTo(state.canvasW, y); }
+                ctx.stroke();
+
+                // Draw Falling Items
+                if (this.currentItem) this.currentItem.draw(ctx);
+                
+                // Draw Particles
+                state.particles.forEach(p => p.draw(ctx));
+
+                // Draw Choice Box Cards
+                this.choices.forEach(c => c.draw(ctx));
+
+                ctx.restore(); // Restore shake
+
+                // Draw Cursor HUD
+                if (state.cursor.x > 0) {
+                    this.drawCursor();
+                }
+            }
+
+            drawCursor() {
+                const cx = state.cursor.x;
+                const cy = state.cursor.y;
+                
+                ctx.save();
+                
+                // Inner core
+                ctx.beginPath();
+                ctx.arc(cx, cy, state.cursor.isPinching ? 8 : 12, 0, Math.PI * 2);
+                ctx.fillStyle = state.cursor.isPinching ? '#00ff66' : '#bc13fe';
+                ctx.shadowColor = ctx.fillStyle;
+                ctx.shadowBlur = 15;
+                ctx.fill();
+
+                // Crosshair outer target
+                ctx.shadowBlur = 0;
+                ctx.strokeStyle = '#00f3ff';
+                ctx.lineWidth = 2;
+                const size = state.cursor.isPinching ? 15 : 25;
+                
+                ctx.beginPath();
+                // Top
+                ctx.moveTo(cx, cy - size); ctx.lineTo(cx, cy - size/2);
+                // Bottom
+                ctx.moveTo(cx, cy + size); ctx.lineTo(cx, cy + size/2);
+                // Left
+                ctx.moveTo(cx - size, cy); ctx.lineTo(cx - size/2, cy);
+                // Right
+                ctx.moveTo(cx + size, cy); ctx.lineTo(cx + size/2, cy);
+                ctx.stroke();
+
+                ctx.restore();
+            }
+        }
+
+        gameManager = new GameManager();
+
+        /**
+         * ==========================================
+         * 8. RENDER LOOP
+         * ==========================================
+         */
+        function gameLoop() {
+            gameManager.update();
+            gameManager.draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Start Loop
+        requestAnimationFrame(gameLoop);
+
+        // ==========================================
+        // 9. KAMPAI SDK CALLBACKS & UI
+        // ==========================================
+        function loadPlayerProfile() {
+            const s = KAMPAI.student;
+            const st = KAMPAI.stats;
+            const chip = document.getElementById('player-chip');
+            if (s && chip) {
+                const av = s.photoUrl ? `<img src="${s.photoUrl}" alt="" class="w-6 h-6 rounded-full object-cover">` : `<div class="pc-init w-6 h-6 rounded-full bg-gradient-to-tr from-neon-blue to-neon-purple flex items-center justify-center font-bold text-[10px] text-white">${(s.displayName||'?')[0]}</div>`;
+                const best = st ? ` · <span class="text-neon-green">สถิติสูงสุด ${st.personalBest} คะแนน</span>` : '';
+                chip.innerHTML = av + `<span>${s.displayName}${best}</span>`;
+                chip.style.display = 'flex';
+            }
+
+            // Render Leaderboard on start screen
+            const lbList = document.getElementById('leaderboardList');
+            const lbBox = document.getElementById('leaderboardBox');
+            if (lbList && lbBox && KAMPAI.leaderboard && KAMPAI.leaderboard.length > 0) {
+                lbBox.style.display = 'block';
+                const medals = ['🥇', '🥈', '🥉'];
+                lbList.innerHTML = KAMPAI.leaderboard.slice(0, 5).map(r => {
+                    const icon = medals[r.rank - 1] || `${r.rank}.`;
+                    return `
+                        <li class="flex items-center justify-between text-xs p-2 rounded bg-white/5 border border-white/10 ${r.isMe ? 'bg-neon-blue/10 border-neon-blue/30' : ''}">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm">${icon}</span>
+                                <span class="font-semibold truncate max-w-[150px]">${r.displayName}${r.isMe ? ' (คุณ)' : ''}</span>
+                            </div>
+                            <span class="font-bold text-neon-green">${r.personalBest} คะแนน</span>
+                        </li>
+                    `;
+                }).join('');
+            }
+        }
+
+        KAMPAI.onReady(() => {
+            loadPlayerProfile();
+        });
+
+        // Start button handlers
+        document.getElementById('btn-start').addEventListener('click', () => {
+            sfx.playClick();
+            KAMPAI.sound.unlock();
+            isFallbackMode = false;
+            gameManager.start();
+        });
+
+        document.getElementById('btn-start-fallback').addEventListener('click', () => {
+            sfx.playClick();
+            KAMPAI.sound.unlock();
+            isFallbackMode = true;
+            // Hide camera feed container
+            const camFeed = videoElement.parentElement;
+            if (camFeed) camFeed.style.display = 'none';
+            gameManager.start();
+        });
+
+        // Restart button handler
+        document.getElementById('btn-restart').addEventListener('click', () => {
+            sfx.playClick();
+            KAMPAI.sound.unlock();
+            gameManager.start();
+        });
+
+        // Exit / Back buttons handlers
+        document.getElementById('btn-quit').addEventListener('click', () => {
+            KAMPAI.sound.bgmStop();
+            KAMPAI.goHome();
+        });
+
+        document.getElementById('btn-go-home').addEventListener('click', () => {
+            KAMPAI.sound.bgmStop();
+            KAMPAI.goHome();
+        });
+
+    </script>
+</body>
+</html>
