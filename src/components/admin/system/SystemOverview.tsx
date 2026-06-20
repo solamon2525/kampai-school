@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.88.0 (Multiply Race — โหมด 2 คนจอเดียว split-screen บน PC + สถิติแมตช์ในห้อง)',
+        version: 'v1.89.0 (AR Game Scaffold — engine กลาง + เทมเพลต + read-first doc สำหรับเกมกล้อง/เคลื่อนไหว)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'AR engine กลาง `public/games/kampai-ar.js` (KampaiAR, single source แบบ kampai-sdk) — รวม camera/ตรวจจับ/zone-hold/fallback/cleanup; รองรับ 2 detector เลือกผ่าน config (frame-differencing / MediaPipe pose); แก้ engine ที่เดียว ทุกเกม AR ดีขึ้นพร้อมกัน',
+            'เทมเพลต `public/games/_template-ar/` + เกมตัวอย่างเล่นได้จริง `demo/ar-zone-quiz/` (ยืน/แตะ 3 โซน เลือกคำตอบ, browser-verified) + คู่มือ `AR-GAME.md` (อ่านก่อนทำ: สถาปัตยกรรม + pitfalls + ตารางจูน + Performance Tuning Log)',
+            'baked layout ที่ถูกต้อง (container กล้อง position:absolute กันบัค #gameScreen ยุบ 0px) + บังคับ tap fallback (เครื่องไม่มีกล้องเล่นได้) + verify:game Check 10 (AR) นำทางให้ใช้ engine',
+        ],
+    },
+    {
+        version: 'v1.88.0 (Multiply Race — โหมด 2 คนจอเดียว split-screen บน PC + สถิติแมตช์ในห้อง)',
+        date: '',
         badge: 'bg-amber-600',
         items: [
             'เกม "แข่งสูตรคูณ" (multiply-race) เพิ่มโหมด 2 คนเล่นจอเดียวกัน แบ่งครึ่งจอซ้าย/ขวา แข่งเวลา 60 วิ คะแนนสูงกว่าชนะ — P1 ใช้ปุ่มลูกศร, P2 ใช้ WASD (เลย์เอาต์คำตอบแบบเพชรตรงทิศปุ่ม)',

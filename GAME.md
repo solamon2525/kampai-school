@@ -35,7 +35,7 @@
 ├─ เล่นหลายคนออนไลน์อย่างเดียว → cp _template-online.html (kampai-match: lobby+แข่งสด+อันดับ)
 ├─ ไม่อยาก leaderboard      → cp _template.html         (basic version)
 ├─ เกมเป็น React component   → cp _template-react.html   (JSX/lucide-react → single-file)
-├─ ใช้กล้อง/ตรวจจับร่างกาย (AR) → อ่าน §"🎥 เกม AR / กล้อง" + อิง english/vocab-move.html
+├─ ใช้กล้อง/ตรวจจับร่างกาย (AR) → อ่าน AR-GAME.md + cp -r _template-ar (engine kampai-ar.js)
 └─ มีไฟล์เกมเก่าอยู่แล้ว     → /integrate-game <path>   (Claude slash command)
 
 แก้ไขเกมเดิม
@@ -333,8 +333,11 @@ function navigateBack() {
 
 ## 🎥 เกม AR / กล้อง (camera-permission)
 
-เกมที่ใช้กล้อง + ตรวจจับร่างกาย (เช่น เดินซ้าย/ขวาตอบ) — มี pattern เฉพาะ. **ไม่มีเทมเพลตแยก**
-→ อิงไฟล์จริง `public/games/english/vocab-move.html` (ใช้ KAMPAI SDK เต็ม + AR)
+> 📖 **อ่าน [`AR-GAME.md`](AR-GAME.md) ก่อนทำเกม AR ทุกครั้ง** (สถาปัตยกรรม + pitfalls + ตารางจูน + tuning log)
+> เกม AR มี **engine กลาง** `public/games/kampai-ar.js` (`KampaiAR`) + **เทมเพลต** `_template-ar/` แล้ว
+> → `cp -r public/games/_template-ar public/games/{subject}/{slug}` (เกมตัวอย่าง: `demo/ar-zone-quiz/`)
+
+เกมที่ใช้กล้อง + ตรวจจับร่างกาย — `game.js` ไม่มี camera code (อยู่ใน engine). จูนที่ `config.js` · pattern เฉพาะ:
 
 - **สิทธิ์กล้องในระบบ:** iframe wrapper เปิดให้แล้ว — `allow="...camera; microphone"`
   (`src/pages/PlayGame.tsx`) → กล้องทำงานในโหมด embed ได้ ไม่ต้องตั้งค่าเพิ่ม
