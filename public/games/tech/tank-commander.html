@@ -1,0 +1,4247 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Tank Commander : Learning Edition</title>
+<!-- 
+===========================================================================
+  TANK COMMANDER : LEARNING EDITION
+  วิทยาการคำนวณและเทคโนโลยี ม.1-3
+  เกมยิงรถถัง 2D Top-down + ระบบการเรียนรู้ควิซคิดเชิงคำนวณและไอที
+  KAMPAI Game SDK
+===========================================================================
+-->
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;800&family=Orbitron:wght@500;700;900&display=swap');
+    
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+        height: 100%;
+        font-family: 'Kanit', sans-serif;
+        background-color: #020617;
+        color: #f8fafc;
+        overflow: hidden;
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    /* --- Cyber Neon UI System --- */
+    .neon-text-blue {
+        color: #38bdf8;
+        text-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+    }
+    .neon-text-green {
+        color: #4ade80;
+        text-shadow: 0 0 10px rgba(74, 222, 128, 0.6);
+    }
+    .neon-text-red {
+        color: #f87171;
+        text-shadow: 0 0 10px rgba(248, 113, 113, 0.6);
+    }
+    .neon-text-gold {
+        color: #fbbf24;
+        text-shadow: 0 0 10px rgba(251, 191, 36, 0.6);
+    }
+
+    /* --- Screen container --- */
+    #app {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    .screen {
+        position: absolute;
+        inset: 0;
+        display: none;
+        flex-direction: column;
+        z-index: 10;
+        background-color: #030712;
+        background-image: 
+            radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.8) 0%, #030712 100%),
+            linear-gradient(rgba(14, 165, 233, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(14, 165, 233, 0.05) 1px, transparent 1px);
+        background-size: 100% 100%, 40px 40px, 40px 40px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .screen.active {
+        display: flex;
+        opacity: 1;
+    }
+
+    /* --- Header & Layouts --- */
+    .cyber-header {
+        text-align: center;
+        padding: 40px 20px 20px;
+        flex-shrink: 0;
+    }
+
+    .cyber-title {
+        font-family: 'Orbitron', sans-serif;
+        font-weight: 900;
+        font-size: clamp(2rem, 5vw, 3.5rem);
+        letter-spacing: 2px;
+        background: linear-gradient(135deg, #38bdf8, #0369a1);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        filter: drop-shadow(0 0 15px rgba(14, 165, 233, 0.3));
+        margin-bottom: 5px;
+    }
+
+    .cyber-subtitle {
+        font-family: 'Orbitron', sans-serif;
+        font-size: clamp(0.75rem, 2vw, 1.1rem);
+        letter-spacing: 4px;
+        color: #64748b;
+        text-transform: uppercase;
+        margin-bottom: 20px;
+    }
+
+    .cyber-btn {
+        position: relative;
+        padding: 12px 30px;
+        background: rgba(15, 23, 42, 0.6);
+        border: 2px solid #0284c7;
+        color: #38bdf8;
+        font-family: 'Kanit', sans-serif;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-shadow: 0 0 5px rgba(56, 189, 248, 0.4);
+        box-shadow: 0 0 10px rgba(2, 132, 199, 0.2);
+        overflow: hidden;
+    }
+
+    .cyber-btn:hover {
+        background: #0284c7;
+        color: #ffffff;
+        box-shadow: 0 0 20px rgba(14, 165, 233, 0.6);
+        transform: translateY(-2px);
+    }
+
+    .cyber-btn:active {
+        transform: translateY(1px);
+    }
+
+    .cyber-btn-accent {
+        border-color: #f59e0b;
+        color: #fbbf24;
+        text-shadow: 0 0 5px rgba(251, 191, 36, 0.4);
+    }
+
+    .cyber-btn-accent:hover {
+        background: #f59e0b;
+        box-shadow: 0 0 20px rgba(245, 158, 11, 0.6);
+    }
+
+    .cyber-btn-danger {
+        border-color: #ef4444;
+        color: #f87171;
+    }
+
+    .cyber-btn-danger:hover {
+        background: #ef4444;
+        box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+    }
+
+    /* --- Main Menu --- */
+    .menu-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        flex-grow: 1;
+        gap: 15px;
+        padding-bottom: 60px;
+    }
+
+    .banner-art {
+        width: 100%;
+        max-width: 480px;
+        height: 180px;
+        position: relative;
+        background: radial-gradient(circle, rgba(14, 165, 233, 0.15) 0%, transparent 70%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .player-profile-chip {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(30, 41, 59, 0.5);
+        border: 1px solid rgba(14, 165, 233, 0.3);
+        border-radius: 99px;
+        padding: 6px 16px 6px 6px;
+        margin-bottom: 10px;
+    }
+
+    .player-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #0ea5e9, #6366f1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-family: 'Orbitron', sans-serif;
+        color: white;
+    }
+
+    .player-name-text {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #e2e8f0;
+    }
+
+    /* --- Chapter Select --- */
+    .chapter-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 20px;
+        width: 100%;
+        max-width: 1000px;
+        margin: auto;
+        padding: 0 40px 40px;
+        overflow-y: auto;
+    }
+
+    .chapter-card {
+        background: rgba(15, 23, 42, 0.6);
+        border: 2px solid rgba(14, 165, 233, 0.2);
+        border-radius: 8px;
+        padding: 24px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .chapter-card:hover {
+        border-color: #38bdf8;
+        background: rgba(14, 165, 233, 0.05);
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(14, 165, 233, 0.15);
+    }
+
+    .chapter-card.locked {
+        opacity: 0.4;
+        cursor: not-allowed;
+        border-color: rgba(71, 85, 105, 0.2);
+    }
+
+    .chapter-card.locked:hover {
+        transform: none;
+        background: rgba(15, 23, 42, 0.6);
+        box-shadow: none;
+    }
+
+    .chapter-num {
+        font-family: 'Orbitron', sans-serif;
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: #0ea5e9;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .chapter-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #f1f5f9;
+    }
+
+    .chapter-desc {
+        font-size: 0.85rem;
+        color: #94a3b8;
+        line-height: 1.5;
+        flex-grow: 1;
+    }
+
+    .chapter-badge {
+        font-size: 0.75rem;
+        font-weight: 600;
+        background: rgba(14, 165, 233, 0.15);
+        color: #38bdf8;
+        padding: 4px 10px;
+        border-radius: 99px;
+        align-self: flex-start;
+        border: 1px solid rgba(14, 165, 233, 0.3);
+    }
+
+    /* --- Gameplay HUD --- */
+    #game-canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        background-color: #020617;
+    }
+
+    .game-hud {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 12;
+    }
+
+    .hud-bar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
+        background: linear-gradient(180deg, rgba(3, 7, 18, 0.9) 0%, rgba(3, 7, 18, 0) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+    }
+
+    .hud-stat-group {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .hud-stat {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(14, 165, 233, 0.3);
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-family: 'Orbitron', sans-serif;
+        font-weight: 700;
+        font-size: 1rem;
+    }
+
+    .hud-status-bars {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        background: rgba(3, 7, 18, 0.85);
+        border: 1px solid rgba(14, 165, 233, 0.3);
+        padding: 12px;
+        border-radius: 6px;
+        min-width: 220px;
+        pointer-events: auto;
+    }
+
+    .status-bar-row {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .status-bar-lbl {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: #94a3b8;
+    }
+
+    .status-bar-outer {
+        height: 8px;
+        background: #1e293b;
+        border-radius: 99px;
+        overflow: hidden;
+    }
+
+    .status-bar-inner {
+        height: 100%;
+        border-radius: 99px;
+        transition: width 0.2s ease-out;
+    }
+
+    .sb-hp { background: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
+    .sb-shield { background: #06b6d4; box-shadow: 0 0 8px rgba(6, 182, 212, 0.6); }
+    .sb-xp { background: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.6); }
+
+    .combo-multiplier-hud {
+        position: absolute;
+        top: 80px;
+        left: 20px;
+        font-family: 'Orbitron', sans-serif;
+        font-weight: 900;
+        font-size: 1.8rem;
+        color: #fbbf24;
+        text-shadow: 0 0 10px rgba(251, 191, 36, 0.8);
+        animation: pulse 1s infinite alternate;
+        display: none;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        100% { transform: scale(1.15); }
+    }
+
+    .emp-warning {
+        position: absolute;
+        top: 40%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-family: 'Orbitron', sans-serif;
+        font-weight: 900;
+        font-size: 2.2rem;
+        color: #ef4444;
+        text-shadow: 0 0 15px rgba(239, 68, 68, 0.8);
+        text-align: center;
+        background: rgba(3, 7, 18, 0.85);
+        border: 2px solid #ef4444;
+        padding: 10px 30px;
+        border-radius: 4px;
+        display: none;
+        animation: blink 0.3s infinite alternate;
+    }
+
+    @keyframes blink {
+        0% { opacity: 0.2; }
+        100% { opacity: 1; }
+    }
+
+    /* --- Quiz Overlay Screen --- */
+    .quiz-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(3, 7, 18, 0.9);
+        backdrop-filter: blur(10px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 20;
+        padding: 20px;
+    }
+
+    .quiz-box {
+        width: 100%;
+        max-width: 680px;
+        background: rgba(15, 23, 42, 0.95);
+        border: 2px solid #0ea5e9;
+        box-shadow: 0 0 30px rgba(14, 165, 233, 0.3);
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .quiz-header {
+        background: linear-gradient(90deg, #0c4a6e 0%, #0369a1 100%);
+        padding: 16px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-b: 1px solid rgba(14, 165, 233, 0.4);
+    }
+
+    .quiz-category {
+        font-family: 'Orbitron', sans-serif;
+        font-weight: 700;
+        font-size: 0.85rem;
+        letter-spacing: 2px;
+        color: #38bdf8;
+        text-transform: uppercase;
+    }
+
+    .quiz-difficulty {
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 2px 10px;
+        border-radius: 99px;
+    }
+
+    .diff-easy { background: rgba(74, 222, 128, 0.15); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.4); }
+    .diff-medium { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .diff-hard { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+
+    .quiz-body {
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .quiz-question {
+        font-size: 1.15rem;
+        font-weight: 600;
+        line-height: 1.6;
+        color: #f8fafc;
+    }
+
+    .quiz-choices {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .choice-btn {
+        background: rgba(30, 41, 59, 0.5);
+        border: 1px solid rgba(14, 165, 233, 0.3);
+        border-radius: 6px;
+        padding: 14px 20px;
+        color: #f1f5f9;
+        font-family: inherit;
+        font-size: 0.95rem;
+        font-weight: 500;
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .choice-btn:hover {
+        background: rgba(14, 165, 233, 0.15);
+        border-color: #38bdf8;
+    }
+
+    .choice-btn.correct {
+        background: rgba(16, 185, 129, 0.2);
+        border-color: #10b981;
+        color: #4ade80;
+    }
+
+    .choice-btn.wrong {
+        background: rgba(239, 68, 68, 0.2);
+        border-color: #ef4444;
+        color: #f87171;
+    }
+
+    .choice-letter {
+        font-family: 'Orbitron', sans-serif;
+        font-weight: 700;
+        color: #38bdf8;
+    }
+
+    .quiz-explanation-box {
+        background: rgba(30, 41, 59, 0.4);
+        border-left: 4px solid #f59e0b;
+        padding: 12px 16px;
+        border-radius: 0 6px 6px 0;
+        font-size: 0.88rem;
+        line-height: 1.5;
+        color: #94a3b8;
+        display: none;
+    }
+
+    .quiz-footer {
+        padding: 16px 24px;
+        background: rgba(15, 23, 42, 0.99);
+        border-top: 1px solid rgba(30, 41, 59, 0.8);
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    /* --- Upgrade Center Screen --- */
+    .upgrade-layout {
+        display: flex;
+        flex-grow: 1;
+        overflow: hidden;
+        padding: 20px 40px 40px;
+        gap: 30px;
+        max-width: 1200px;
+        margin: auto;
+        width: 100%;
+    }
+
+    .upgrade-stats-panel {
+        flex: 1;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(14, 165, 233, 0.2);
+        border-radius: 8px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        overflow-y: auto;
+    }
+
+    .upgrade-title-sec {
+        font-size: 1.15rem;
+        font-weight: 600;
+        color: #38bdf8;
+        border-bottom: 1px solid rgba(14, 165, 233, 0.2);
+        padding-bottom: 8px;
+        margin-bottom: 5px;
+    }
+
+    .upgrade-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(30, 41, 59, 0.3);
+        border-radius: 6px;
+        padding: 10px 14px;
+    }
+
+    .upgrade-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .upgrade-name {
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+
+    .upgrade-lvl {
+        font-size: 0.75rem;
+        color: #94a3b8;
+    }
+
+    .upgrade-cost-btn {
+        background: rgba(245, 158, 11, 0.1);
+        border: 1px solid #f59e0b;
+        color: #fbbf24;
+        font-weight: 600;
+        font-size: 0.85rem;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.15s ease;
+    }
+
+    .upgrade-cost-btn:hover {
+        background: #f59e0b;
+        color: black;
+    }
+
+    .upgrade-cost-btn:disabled {
+        border-color: rgba(71, 85, 105, 0.4);
+        color: #64748b;
+        background: transparent;
+        cursor: not-allowed;
+    }
+
+    .skill-tree-panel {
+        flex: 1.2;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(14, 165, 233, 0.2);
+        border-radius: 8px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        overflow-y: auto;
+    }
+
+    .skill-tabs {
+        display: flex;
+        gap: 8px;
+    }
+
+    .skill-tab {
+        flex: 1;
+        background: rgba(30, 41, 59, 0.5);
+        border: 1px solid rgba(14, 165, 233, 0.2);
+        padding: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #94a3b8;
+        cursor: pointer;
+        text-align: center;
+        border-radius: 4px;
+    }
+
+    .skill-tab.active {
+        background: rgba(14, 165, 233, 0.15);
+        border-color: #0ea5e9;
+        color: #38bdf8;
+    }
+
+    .skill-nodes-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        flex-grow: 1;
+    }
+
+    .skill-node {
+        background: rgba(30, 41, 59, 0.3);
+        border: 1px solid rgba(14, 165, 233, 0.15);
+        border-radius: 6px;
+        padding: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+    }
+
+    .skill-node.unlocked {
+        border-color: #10b981;
+        background: rgba(16, 185, 129, 0.05);
+    }
+
+    .skill-node.locked {
+        opacity: 0.6;
+    }
+
+    .skill-node-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .skill-node-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+
+    .skill-node-desc {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        max-width: 320px;
+    }
+
+    /* --- Achievements Screen --- */
+    .achievements-panel {
+        width: 100%;
+        max-width: 800px;
+        margin: auto;
+        padding: 0 20px 40px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .achievement-item {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(14, 165, 233, 0.2);
+        border-radius: 6px;
+        padding: 12px 18px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .achievement-item.unlocked {
+        border-color: #fbbf24;
+        background: rgba(251, 191, 36, 0.05);
+    }
+
+    .achievement-icon {
+        font-size: 2rem;
+        filter: grayscale(1);
+        opacity: 0.5;
+    }
+
+    .achievement-item.unlocked .achievement-icon {
+        filter: none;
+        opacity: 1;
+    }
+
+    .achievement-details {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        flex-grow: 1;
+    }
+
+    .achievement-name {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #e2e8f0;
+    }
+
+    .achievement-item.unlocked .achievement-name {
+        color: #fbbf24;
+    }
+
+    .achievement-desc {
+        font-size: 0.8rem;
+        color: #94a3b8;
+    }
+
+    .achievement-status-badge {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 2px 10px;
+        border-radius: 99px;
+        background: rgba(30, 41, 59, 0.5);
+        color: #64748b;
+    }
+
+    .achievement-item.unlocked .achievement-status-badge {
+        background: rgba(251, 191, 36, 0.15);
+        color: #fbbf24;
+        border: 1px solid rgba(251, 191, 36, 0.4);
+    }
+
+    /* --- Report / Game Over Panel --- */
+    .report-panel {
+        width: 100%;
+        max-width: 900px;
+        margin: auto;
+        padding: 0 40px 40px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .report-main-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 15px;
+    }
+
+    .report-stat-card {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(14, 165, 233, 0.2);
+        border-radius: 6px;
+        padding: 16px;
+        text-align: center;
+    }
+
+    .report-stat-val {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #38bdf8;
+    }
+
+    .report-stat-lbl {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        margin-top: 4px;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    .report-analytics-section {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .mastery-panel {
+        flex: 1.2;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(14, 165, 233, 0.2);
+        border-radius: 8px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        min-width: 280px;
+    }
+
+    .mastery-row {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .mastery-lbl-group {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .mastery-bar-outer {
+        height: 10px;
+        background: #1e293b;
+        border-radius: 99px;
+        overflow: hidden;
+    }
+
+    .mastery-bar-inner {
+        height: 100%;
+        border-radius: 99px;
+    }
+
+    .recs-panel {
+        flex: 1.5;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(14, 165, 233, 0.2);
+        border-radius: 8px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        min-width: 320px;
+    }
+
+    .rec-item {
+        background: rgba(30, 41, 59, 0.3);
+        border-left: 4px solid #0ea5e9;
+        border-radius: 0 6px 6px 0;
+        padding: 10px 14px;
+        font-size: 0.88rem;
+        line-height: 1.5;
+        color: #cbd5e1;
+    }
+
+    /* --- Setting sliders / lists --- */
+    .settings-panel {
+        width: 100%;
+        max-width: 500px;
+        margin: auto;
+        padding: 40px;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(14, 165, 233, 0.2);
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .settings-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .settings-lbl {
+        font-size: 1.05rem;
+        font-weight: 600;
+    }
+
+    /* Toggle switch style */
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 26px;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        inset: 0;
+        background-color: #475569;
+        transition: .4s;
+        border-radius: 34px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .slider {
+        background-color: #0ea5e9;
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(24px);
+    }
+
+    /* --- Mobile Overlay Joystick Controls --- */
+    #mobile-controls-overlay {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 15;
+        display: none;
+    }
+
+    .virtual-joystick-area {
+        position: absolute;
+        bottom: 40px;
+        left: 40px;
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: rgba(15, 23, 42, 0.3);
+        border: 2px dashed rgba(14, 165, 233, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: auto;
+        backdrop-filter: blur(2px);
+    }
+
+    .virtual-joystick-knob {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #0ea5e9, #0284c7);
+        box-shadow: 0 0 15px rgba(14, 165, 233, 0.6);
+        position: absolute;
+    }
+
+    .virtual-shoot-hint {
+        position: absolute;
+        bottom: 40px;
+        right: 40px;
+        font-size: 0.85rem;
+        background: rgba(3, 7, 18, 0.6);
+        border: 1px solid rgba(14, 165, 233, 0.3);
+        padding: 6px 14px;
+        border-radius: 99px;
+        color: #38bdf8;
+    }
+
+    /* footer links */
+    .screen-footer {
+        margin-top: auto;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-shrink: 0;
+    }
+</style>
+</head>
+<body>
+
+<div id="app">
+    
+    <!-- ================= MAIN MENU ================= -->
+    <div id="screen-menu" class="screen">
+        <div class="cyber-header">
+            <h1 class="cyber-title">TANK COMMANDER</h1>
+            <p class="cyber-subtitle">Learning Edition</p>
+            <div id="menu-profile" class="player-profile-chip" style="display:none"></div>
+        </div>
+        <div class="menu-container">
+            <div class="banner-art" id="menu-canvas-container">
+                <!-- Retro canvas-drawn art background will render here -->
+            </div>
+            <button class="cyber-btn cyber-btn-accent" onclick="switchScreen('screen-chapters')" style="width: 260px; height: 50px;">
+                🎮 เริ่มทำภารกิจ
+            </button>
+            <button class="cyber-btn" onclick="switchScreen('screen-upgrades')" style="width: 260px; height: 50px;">
+                🔧 อัพเกรด & สกิล
+            </button>
+            <button class="cyber-btn" onclick="switchScreen('screen-achievements')" style="width: 260px; height: 50px;">
+                🏆 เกียรติยศความสำเร็จ
+            </button>
+            <button class="cyber-btn" onclick="switchScreen('screen-settings')" style="width: 260px; height: 50px;">
+                ⚙️ ตั้งค่าความปลอดภัย
+            </button>
+        </div>
+    </div>
+
+    <!-- ================= CHAPTER SELECT ================= -->
+    <div id="screen-chapters" class="screen">
+        <div class="cyber-header">
+            <h1 class="cyber-title">SELECT MISSION</h1>
+            <p class="cyber-subtitle">เลือกฐานปฏิบัติการไซเบอร์</p>
+        </div>
+        
+        <div class="chapter-grid">
+            <!-- Chapter 1 -->
+            <div class="chapter-card" onclick="selectChapter(1)">
+                <div class="chapter-num">Chapter 1</div>
+                <div class="chapter-title neon-text-blue">Computer Base</div>
+                <div class="chapter-desc">ฐานทัพคอมพิวเตอร์พื้นฐาน เรียนรู้เรื่องโครงสร้างของ Hardware, CPU, RAM และอุปกรณ์บันทึกข้อมูลหลัก-สำรอง</div>
+                <div class="chapter-badge">บอส: CPU Destroyer</div>
+            </div>
+            <!-- Chapter 2 -->
+            <div class="chapter-card" onclick="selectChapter(2)">
+                <div class="chapter-num">Chapter 2</div>
+                <div class="chapter-title neon-text-green">Data City</div>
+                <div class="chapter-desc">มหานครข้อมูล เรียนรู้เรื่องโครงสร้างข้อมูล สารสนเทศ ฐานข้อมูล และเทคโนโลยี Big Data จัดการระบบอย่างปลอดภัย</div>
+                <div class="chapter-badge">บอส: Data Corruptor</div>
+            </div>
+            <!-- Chapter 3 -->
+            <div class="chapter-card" onclick="selectChapter(3)">
+                <div class="chapter-num">Chapter 3</div>
+                <div class="chapter-title neon-text-gold">Algorithm Valley</div>
+                <div class="chapter-desc">หุบเขาแห่งอัลกอริทึม ฝึกฝนทักษะการแก้ไขปัญหาเชิงคำนวณ การเขียนผังงาน (Flowchart) และออกแบบขั้นตอนวิธีที่เป็นระบบ</div>
+                <div class="chapter-badge">บอส: Logic Commander</div>
+            </div>
+            <!-- Chapter 4 -->
+            <div class="chapter-card animate-lock" id="chap-card-4" onclick="selectChapter(4)">
+                <div class="chapter-num">Chapter 4</div>
+                <div class="chapter-title neon-text-red">Cyber Fortress</div>
+                <div class="chapter-desc">ป้อมปราการต้านแฮกเกอร์ เรียนรู้ความปลอดภัยอินเทอร์เน็ต รหัสผ่าน มัลแวร์ การฟิชชิ่ง และการตอบโต้ภัยคุกคามทางไซเบอร์</div>
+                <div class="chapter-badge">บอส: Cyber Hacker King</div>
+            </div>
+        </div>
+
+        <div class="screen-footer">
+            <button class="cyber-btn" onclick="switchScreen('screen-menu')">ย้อนกลับ</button>
+        </div>
+    </div>
+
+    <!-- ================= GAMEPLAY SCREEN ================= -->
+    <div id="screen-game" class="screen">
+        <canvas id="game-canvas"></canvas>
+        
+        <!-- HUD -->
+        <div class="game-hud">
+            <div class="hud-bar">
+                <button class="cyber-btn cyber-btn-danger" style="padding: 6px 16px; font-size: 0.9rem;" onclick="pauseGame()">
+                    ⏸ เมนูหยุด
+                </button>
+                <div class="hud-stat-group">
+                    <div class="hud-stat neon-text-gold" id="hud-coins">🪙 0</div>
+                    <div class="hud-stat neon-text-blue" id="hud-kills">🤖 0/10</div>
+                    <div class="hud-stat neon-text-green" id="hud-score">⭐ 0</div>
+                    <div class="hud-stat" id="hud-wave" style="border-color:#fbbf24; color:#fbbf24">WAVE 1</div>
+                </div>
+            </div>
+
+            <!-- Stats/Status Bars (HP, Shield, XP) -->
+            <div class="hud-status-bars">
+                <div class="status-bar-row">
+                    <div class="status-bar-lbl">
+                        <span>เกราะพลังงาน (Shield)</span>
+                        <span id="txt-shield">100/100</span>
+                    </div>
+                    <div class="status-bar-outer">
+                        <div class="status-bar-inner sb-shield" id="bar-shield" style="width: 100%"></div>
+                    </div>
+                </div>
+                <div class="status-bar-row">
+                    <div class="status-bar-lbl">
+                        <span>โครงสร้างรถถัง (Armor HP)</span>
+                        <span id="txt-hp">100/100</span>
+                    </div>
+                    <div class="status-bar-outer">
+                        <div class="status-bar-inner sb-hp" id="bar-hp" style="width: 100%"></div>
+                    </div>
+                </div>
+                <div class="status-bar-row">
+                    <div class="status-bar-lbl">
+                        <span>เลเวลเก็บเกี่ยว (XP LV.1)</span>
+                        <span id="txt-xp">0/100</span>
+                    </div>
+                    <div class="status-bar-outer">
+                        <div class="status-bar-inner sb-xp" id="bar-xp" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Combo badge -->
+            <div class="combo-multiplier-hud" id="hud-combo">🔥 COMBO x1</div>
+
+            <!-- EMP warning banner -->
+            <div class="emp-warning" id="hud-emp">⚠️ SYSTEM HACKED: WEAPONS OFFLINE</div>
+        </div>
+
+        <!-- Virtual controls overlay for Touch screen -->
+        <div id="mobile-controls-overlay">
+            <div class="virtual-joystick-area" id="joy-area">
+                <div class="virtual-joystick-knob" id="joy-knob"></div>
+            </div>
+            <div class="virtual-shoot-hint">ลากฝั่งขวาเพื่อหันปืนและยิงอัตโนมัติ</div>
+        </div>
+    </div>
+
+    <!-- ================= QUIZ SCREEN ================= -->
+    <div id="quiz-overlay" class="quiz-overlay">
+        <div class="quiz-box">
+            <div class="quiz-header">
+                <span class="quiz-category" id="quiz-lbl-cat">Hardware</span>
+                <span class="quiz-difficulty diff-easy" id="quiz-lbl-diff">Easy</span>
+            </div>
+            <div class="quiz-body">
+                <div class="quiz-question" id="quiz-txt-question">คำถามแสดงตรงนี้?</div>
+                <div class="quiz-choices">
+                    <button class="choice-btn" onclick="submitAnswer(0)" id="choice-0">
+                        <span class="choice-letter">A</span> <span id="choice-txt-0">ตัวเลือกที่ 1</span>
+                    </button>
+                    <button class="choice-btn" onclick="submitAnswer(1)" id="choice-1">
+                        <span class="choice-letter">B</span> <span id="choice-txt-1">ตัวเลือกที่ 2</span>
+                    </button>
+                    <button class="choice-btn" onclick="submitAnswer(2)" id="choice-2">
+                        <span class="choice-letter">C</span> <span id="choice-txt-2">ตัวเลือกที่ 3</span>
+                    </button>
+                    <button class="choice-btn" onclick="submitAnswer(3)" id="choice-3">
+                        <span class="choice-letter">D</span> <span id="choice-txt-3">ตัวเลือกที่ 4</span>
+                    </button>
+                </div>
+                <div class="quiz-explanation-box" id="quiz-explanation">
+                    <strong>คำอธิบาย:</strong> <span id="quiz-txt-explanation">อธิบายคำตอบตรงนี้...</span>
+                </div>
+            </div>
+            <div class="quiz-footer">
+                <button class="cyber-btn" id="btn-next-quiz" style="display:none" onclick="nextQuizAction()">
+                    ดำเนินการเล่นต่อ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= UPGRADE CENTER SCREEN ================= -->
+    <div id="screen-upgrades" class="screen">
+        <div class="cyber-header">
+            <h1 class="cyber-title">UPGRADE CENTER</h1>
+            <p class="cyber-subtitle">อัพเกรดชิ้นส่วนรถถัง & ติดตั้งความสามารถทางทหาร</p>
+            <div style="font-size: 1.1rem; color: #fbbf24; font-weight: bold; margin-top: 10px;" id="upgrade-coins-lbl">
+                🪙 เหรียญไซเบอร์สะสม: 0
+            </div>
+        </div>
+
+        <div class="upgrade-layout">
+            <!-- Stats Upgrade Panel -->
+            <div class="upgrade-stats-panel">
+                <div class="upgrade-title-sec">🔧 พารามิเตอร์พื้นฐาน</div>
+                
+                <!-- Damage -->
+                <div class="upgrade-row">
+                    <div class="upgrade-info">
+                        <span class="upgrade-name">พลังทำลายล้าง (Damage)</span>
+                        <span class="upgrade-lvl" id="lvl-stat-damage">Lv.1/5</span>
+                    </div>
+                    <button class="upgrade-cost-btn" onclick="buyStatUpgrade('damage')" id="btn-upgrade-damage">
+                        🪙 <span id="cost-stat-damage">150</span>
+                    </button>
+                </div>
+
+                <!-- Fire Rate -->
+                <div class="upgrade-row">
+                    <div class="upgrade-info">
+                        <span class="upgrade-name">ความเร็วในการยิง (Fire Rate)</span>
+                        <span class="upgrade-lvl" id="lvl-stat-firerate">Lv.1/5</span>
+                    </div>
+                    <button class="upgrade-cost-btn" onclick="buyStatUpgrade('firerate')" id="btn-upgrade-firerate">
+                        🪙 <span id="cost-stat-firerate">150</span>
+                    </button>
+                </div>
+
+                <!-- Armor HP -->
+                <div class="upgrade-row">
+                    <div class="upgrade-info">
+                        <span class="upgrade-name">เกราะรถถัง (Max HP)</span>
+                        <span class="upgrade-lvl" id="lvl-stat-hp">Lv.1/5</span>
+                    </div>
+                    <button class="upgrade-cost-btn" onclick="buyStatUpgrade('hp')" id="btn-upgrade-hp">
+                        🪙 <span id="cost-stat-hp">150</span>
+                    </button>
+                </div>
+
+                <!-- Speed -->
+                <div class="upgrade-row">
+                    <div class="upgrade-info">
+                        <span class="upgrade-name">ความเร็วรถถัง (Speed)</span>
+                        <span class="upgrade-lvl" id="lvl-stat-speed">Lv.1/5</span>
+                    </div>
+                    <button class="upgrade-cost-btn" onclick="buyStatUpgrade('speed')" id="btn-upgrade-speed">
+                        🪙 <span id="cost-stat-speed">150</span>
+                    </button>
+                </div>
+
+                <!-- Critical Hit -->
+                <div class="upgrade-row">
+                    <div class="upgrade-info">
+                        <span class="upgrade-name">โอกาสคริติคอล (Crit Chance)</span>
+                        <span class="upgrade-lvl" id="lvl-stat-crit">Lv.1/5</span>
+                    </div>
+                    <button class="upgrade-cost-btn" onclick="buyStatUpgrade('crit')" id="btn-upgrade-crit">
+                        🪙 <span id="cost-stat-crit">200</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Skill Tree Panel -->
+            <div class="skill-tree-panel">
+                <div class="skill-tabs">
+                    <div class="skill-tab active" onclick="switchSkillTab('assault')" id="tab-skill-assault">Assault</div>
+                    <div class="skill-tab" onclick="switchSkillTab('engineer')" id="tab-skill-engineer">Engineer</div>
+                    <div class="skill-tab" onclick="switchSkillTab('cyber')" id="tab-skill-cyber">Cyber</div>
+                </div>
+
+                <div class="skill-nodes-container" id="skill-nodes-content">
+                    <!-- Dynamic nodes loaded based on tab selection -->
+                </div>
+            </div>
+        </div>
+
+        <div class="screen-footer">
+            <button class="cyber-btn" onclick="switchScreen('screen-menu')">กลับหน้าหลัก</button>
+        </div>
+    </div>
+
+    <!-- ================= ACHIEVEMENTS SCREEN ================= -->
+    <div id="screen-achievements" class="screen">
+        <div class="cyber-header">
+            <h1 class="cyber-title">CYBER DECORATIONS</h1>
+            <p class="cyber-subtitle">เกียรติยศความสำเร็จทางวิชาการและสมรภูมิ</p>
+        </div>
+
+        <div class="achievements-panel" id="achievements-list">
+            <!-- Dynamic achievements items will render here -->
+        </div>
+
+        <div class="screen-footer">
+            <button class="cyber-btn" onclick="switchScreen('screen-menu')">กลับหน้าหลัก</button>
+        </div>
+    </div>
+
+    <!-- ================= SETTINGS SCREEN ================= -->
+    <div id="screen-settings" class="screen">
+        <div class="cyber-header">
+            <h1 class="cyber-title">SYSTEM SETTINGS</h1>
+            <p class="cyber-subtitle">ตั้งค่าควบคุมเสียงและระบบช่วยเรียนรู้</p>
+        </div>
+
+        <div class="settings-panel">
+            <div class="settings-row">
+                <span class="settings-lbl">เสียงเอฟเฟกต์ (SFX)</span>
+                <label class="switch">
+                    <input type="checkbox" id="set-sfx" checked onchange="toggleSetting('sfx')">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="settings-row">
+                <span class="settings-lbl">เสียงบรรยายภาษาไทย (TTS Voice)</span>
+                <label class="switch">
+                    <input type="checkbox" id="set-tts" checked onchange="toggleSetting('tts')">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="settings-row">
+                <span class="settings-lbl">เพลงประกอบไซไฟ (BGM)</span>
+                <label class="switch">
+                    <input type="checkbox" id="set-bgm" checked onchange="toggleSetting('bgm')">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="screen-footer">
+            <button class="cyber-btn" onclick="switchScreen('screen-menu')">กลับหน้าหลัก</button>
+        </div>
+    </div>
+
+    <!-- ================= LEARNING ANALYTICS / END SCREEN ================= -->
+    <div id="screen-report" class="screen">
+        <div class="cyber-header">
+            <h1 class="cyber-title" id="report-title">MISSION COMPLETED</h1>
+            <p class="cyber-subtitle" id="report-subtitle">บันทึกผลการปฏิบัติภารกิจและการเรียนรู้</p>
+        </div>
+
+        <div class="report-panel">
+            <!-- Main Stats Grid -->
+            <div class="report-main-stats">
+                <div class="report-stat-card">
+                    <div class="report-stat-val text-yellow-400" id="rep-score">0</div>
+                    <div class="report-stat-lbl">คะแนนรวม</div>
+                </div>
+                <div class="report-stat-card">
+                    <div class="report-stat-val text-red-500" id="rep-kills">0</div>
+                    <div class="report-stat-lbl">ทำลายศัตรู</div>
+                </div>
+                <div class="report-stat-card">
+                    <div class="report-stat-val text-green-400" id="rep-accuracy">0%</div>
+                    <div class="report-stat-lbl">ตอบควิซแม่นยำ</div>
+                </div>
+                <div class="report-stat-card">
+                    <div class="report-stat-val text-cyan-400" id="rep-combo">0</div>
+                    <div class="report-stat-lbl">คอมโบตอบถูกสูงสุด</div>
+                </div>
+            </div>
+
+            <!-- Analytics charts and recommendations -->
+            <div class="report-analytics-section">
+                <!-- Category Mastery bars -->
+                <div class="mastery-panel">
+                    <div class="upgrade-title-sec">📊 สถิติความเข้าใจรายหัวข้อ</div>
+                    
+                    <div class="mastery-row">
+                        <div class="mastery-lbl-group">
+                            <span>คอมพิวเตอร์ฮาร์ดแวร์</span>
+                            <span id="rep-lbl-mast-hw">0%</span>
+                        </div>
+                        <div class="mastery-bar-outer">
+                            <div class="mastery-bar-inner" id="rep-bar-mast-hw" style="width: 0%; background: #38bdf8;"></div>
+                        </div>
+                    </div>
+
+                    <div class="mastery-row">
+                        <div class="mastery-lbl-group">
+                            <span>การจัดการข้อมูล & สารสนเทศ</span>
+                            <span id="rep-lbl-mast-data">0%</span>
+                        </div>
+                        <div class="mastery-bar-outer">
+                            <div class="mastery-bar-inner" id="rep-bar-mast-data" style="width: 0%; background: #4ade80;"></div>
+                        </div>
+                    </div>
+
+                    <div class="mastery-row">
+                        <div class="mastery-lbl-group">
+                            <span>การคิดเชิงอัลกอริทึม</span>
+                            <span id="rep-lbl-mast-algo">0%</span>
+                        </div>
+                        <div class="mastery-bar-outer">
+                            <div class="mastery-bar-inner" id="rep-bar-mast-algo" style="width: 0%; background: #fbbf24;"></div>
+                        </div>
+                    </div>
+
+                    <div class="mastery-row">
+                        <div class="mastery-lbl-group">
+                            <span>ความปลอดภัยบนไซเบอร์</span>
+                            <span id="rep-lbl-mast-safety">0%</span>
+                        </div>
+                        <div class="mastery-bar-outer">
+                            <div class="mastery-bar-inner" id="rep-bar-mast-safety" style="width: 0%; background: #ef4444;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI recommendations -->
+                <div class="recs-panel">
+                    <div class="upgrade-title-sec">💡 คำแนะนำเสริมสร้างการเรียนรู้</div>
+                    <div id="report-recs-container" style="display: flex; flex-direction: column; gap: 8px;">
+                        <!-- Recommended topics list will render here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="screen-footer">
+            <button class="cyber-btn cyber-btn-accent" onclick="retryChapter()">🔄 เล่นอีกครั้ง</button>
+            <button class="cyber-btn" onclick="switchScreen('screen-chapters')">🗺️ ไปแผนที่ด่าน</button>
+            <button class="cyber-btn" onclick="KAMPAI.goHome()">🚪 ออกไปยังคลังวิชา</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- ================= KAMPAI SDK ================= -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+    // Standalone fallback object if loaded outside of KAMPAI wrapper
+    window.KAMPAI = window.KAMPAI || {
+        isEmbed: false,
+        isTouch: false,
+        ready: true,
+        student: null,
+        stats: null,
+        leaderboard: [],
+        input: { up: false, down: false, left: false, right: false, a: false, b: false },
+        onReady: function(cb) { cb(this); },
+        setSlug: function() { return this; },
+        submitScore: function() { return false; },
+        goHome: function() { location.href = '/h/nattapong'; },
+        exit: function() { location.href = '/h/nattapong'; },
+        controls: { mount: function() { return this; } },
+        sound: {
+            unlock: function() { return this; },
+            correct: function() {},
+            wrong: function() {},
+            timeUp: function() {},
+            gameOver: function() {},
+            speak: function() {},
+            stopSpeak: function() {},
+            fxFlash: function() {},
+            setBgm: function() { return this; },
+            defaultBgm: function() { return this; },
+            bgmStart: function() {},
+            bgmStop: function() {},
+            mountToggles: function() { return this; }
+        }
+    };
+</script>
+
+<!-- ================= GAME CODE ================= -->
+<script>
+    // SDK Setup
+    const GAME_SLUG = 'tank-commander';
+    KAMPAI.setSlug(GAME_SLUG);
+    KAMPAI.sound.mountToggles();
+    KAMPAI.sound.defaultBgm('cheerful');
+
+    // System States
+    let currentScreen = 'screen-menu';
+    let currentChapter = 1;
+    let coins = 0;
+    
+    // Save progress variables
+    let upgrades = {
+        damage: 1,
+        firerate: 1,
+        hp: 1,
+        speed: 1,
+        crit: 1
+    };
+
+    let skillTree = {
+        assault: {
+            doubleShot: { unlocked: false, cost: 400, title: "ปืนแฝดจู่โจม (Double Shot)", desc: "ยิงกระสุนออกมาคู่ขนานกัน เพิ่มโอกาสจัดการศัตรู" },
+            plasmaShells: { unlocked: false, cost: 800, title: "กระสุนพลาสม่า (Plasma Shells)", desc: "กระสุนวิ่งทะลุรถถังศัตรูตัวเล็ก และมีระยะทำลายล้างกว้างขึ้น" }
+        },
+        engineer: {
+            quickShield: { unlocked: false, cost: 400, title: "ชาร์จเร่งด่วน (Quick Shield)", desc: "ลดระยะเวลาเริ่มฟื้นฟูเกราะหลังจากได้รับความเสียหายลง 50%" },
+            selfRepair: { unlocked: false, cost: 700, title: "ระบบฟื้นฟูอัตโนมัติ (Self Repair)", desc: "ฟื้นฟู HP 2 หน่วยทุกๆ 3 วินาทีเมื่อไม่โดนยิง" }
+        },
+        cyber: {
+            xpBonus: { unlocked: false, cost: 400, title: "ขโมยข้อมูลการประมวลผล (XP Hacker)", desc: "ได้รับค่า XP เพิ่มขึ้น 30% จากการกำจัดศัตรูทุกชนิด" },
+            empShield: { unlocked: false, cost: 600, title: "วัคซีนไซเบอร์ (Anti-EMP Shield)", desc: "ป้องกันสถานะระบบชะงัก (EMP) จาก Hacker Tank ลงครึ่งหนึ่ง" }
+        }
+    };
+    
+    let activeSkillTab = 'assault';
+
+    let achievements = [
+        { id: 'first_win', name: 'ชัยชนะครั้งแรก (First Victory)', desc: 'พิชิตด่านแรกสำเร็จและกำจัด CPU Destroyer', icon: '🎖️', unlocked: false },
+        { id: 'kills_100', name: 'จักรกลถล่มไซเบอร์ (Destroy 100 Enemies)', desc: 'กำจัดรถถังศัตรูรวมทั้งหมดสะสม 100 ลำขึ้นไป', icon: '⚔️', unlocked: false },
+        { id: 'perfect_quiz', name: 'สมองเพชรคอมพิวเตอร์ (Perfect Quiz)', desc: 'ตอบคำถามควิซวิทยาการคอมพิวเตอร์ถูกต้องครบถ้วนต่อเนื่อง 5 ข้อ', icon: '🧠', unlocked: false },
+        { id: 'combo_master', name: 'เทพเจ้าคอมโบ (Combo Master)', desc: 'ทำระดับคอมโบตอบควิซถูกสะสมครบ 8 ระดับขึ้นไป', icon: '🔥', unlocked: false },
+        { id: 'tank_elite', name: 'รถถังประจัญบาน (Tank Elite)', desc: 'อัพเกรดพารามิเตอร์พื้นฐานใดๆ จนเต็มระดับสูงสุด (Lv.5)', icon: '🛡️', unlocked: false },
+        { id: 'cyber_defender', name: 'ผู้พิทักษ์ข้อมูลข่าวสาร (Cyber Defender)', desc: 'ตอบคำถามความปลอดภัยอินเทอร์เน็ตถูกต้องครบ 10 ข้อสะสม', icon: '🛰️', unlocked: false },
+        { id: 'learning_hero', name: 'ฮีโร่วิชาการ (Learning Hero)', desc: 'ตอบควิซในโหมดการเรียนรู้ถูกสะสมรวมกัน 25 ข้อขึ้นไป', icon: '🎓', unlocked: false }
+    ];
+
+    // Load progress from localStorage
+    function loadSavedProgress() {
+        try {
+            const savedCoins = localStorage.getItem('tc_coins');
+            if (savedCoins !== null) coins = parseInt(savedCoins);
+            
+            const savedUpgrades = localStorage.getItem('tc_upgrades');
+            if (savedUpgrades) upgrades = JSON.parse(savedUpgrades);
+            
+            const savedSkills = localStorage.getItem('tc_skills');
+            if (savedSkills) skillTree = JSON.parse(savedSkills);
+            
+            const savedAchievements = localStorage.getItem('tc_achievements');
+            if (savedAchievements) {
+                const loadedAchs = JSON.parse(savedAchievements);
+                achievements.forEach(ach => {
+                    if (loadedAchs[ach.id]) ach.unlocked = true;
+                });
+            }
+        } catch(e) {
+            console.error("Failed to load local storage progress", e);
+        }
+    }
+
+    function saveProgress() {
+        try {
+            localStorage.setItem('tc_coins', coins.toString());
+            localStorage.setItem('tc_upgrades', JSON.stringify(upgrades));
+            localStorage.setItem('tc_skills', JSON.stringify(skillTree));
+            
+            const achObj = {};
+            achievements.forEach(ach => achObj[ach.id] = ach.unlocked);
+            localStorage.setItem('tc_achievements', JSON.stringify(achObj));
+        } catch(e) {
+            console.error("Failed to save progress to local storage", e);
+        }
+    }
+
+    // Connect Student profile data from SDK
+    function initProfileUI() {
+        const s = KAMPAI.student;
+        if (!s) return;
+        const chip = document.getElementById('menu-profile');
+        if (!chip) return;
+        
+        const avatarStr = s.photoUrl ? 
+            `<img src="${s.photoUrl}" style="width:32px; height:32px; border-radius:50%; object-fit:cover;">` : 
+            `<div class="player-avatar">${(s.displayName || '?')[0]}</div>`;
+        
+        chip.innerHTML = `${avatarStr}<span class="player-name-text">${s.displayName} (${s.classLabel || 'ม.ต้น'})</span>`;
+        chip.style.display = 'flex';
+    }
+
+    // Question Database
+    const quizDatabase = {
+        hardware: [
+            {
+                q: "CPU หรือหน่วยประมวลผลกลาง ทำหน้าที่หลักเปรียบเสมือนสิ่งใดในร่างกายมนุษย์?",
+                choices: ["หัวใจที่สูบฉีดเลือด", "สมองที่คอยคิดคำนวณและสั่งการ", "ปอดที่ช่วยฟอกอากาศ", "มือและเท้าที่ขยับร่างกาย"],
+                ans: 1,
+                exp: "CPU (Central Processing Unit) ทำหน้าที่ควบคุมการทำงาน คํานวณ และประมวลผลคำสั่งต่างๆ ของคอมพิวเตอร์ เปรียบเสมือนสมองของระบบ",
+                difficulty: "easy"
+            },
+            {
+                q: "หน่วยความจำประเภท RAM มีความแตกต่างจากฮาร์ดดิสก์ (Storage) อย่างไร?",
+                choices: [
+                    "RAM เก็บข้อมูลได้ถาวรกว่าฮาร์ดดิสก์",
+                    "RAM สามารถเก็บบันทึกข้อมูลได้ปริมาณเยอะกว่าหลายสิบเท่า",
+                    "RAM เก็บข้อมูลชั่วคราวขณะเครื่องเปิดทำงานและข้อมูลจะหายไปทันทีเมื่อปิดไฟ",
+                    "RAM ปลอดภัยจากการจู่โจมของไวรัสและมัลแวร์ทั้งหมด"
+                ],
+                ans: 2,
+                exp: "RAM (Random Access Memory) เป็นหน่วยความจำหลักแบบชั่วคราว (Volatile Memory) ข้อมูลจะหายไปเมื่อไม่มีกระแสไฟฟ้าเลี้ยง ต่างจากฮาร์ดดิสก์ที่เป็นความจำสำรองถาวร",
+                difficulty: "easy"
+            },
+            {
+                q: "เมื่อต้องการพิมรายงานวิชาเทคโนโลยี อุปกรณ์ใดต่อไปนี้จัดว่าเป็นอุปกรณ์นำเข้าข้อมูล (Input Device) ทั้งหมด?",
+                choices: ["แป้นพิมพ์ และ เมาส์", "จอภาพ และ เครื่องพิมพ์", "ลำโพง และ จอภาพแบบสัมผัส", "ฮาร์ดดิสก์ และ แฟลชไดรฟ์"],
+                ans: 0,
+                exp: "แป้นพิมพ์ (Keyboard) และเมาส์ (Mouse) เป็นอุปกรณ์ที่รับคำสั่งจากผู้ใช้เข้าสู่ระบบคอมพิวเตอร์ จึงจัดเป็นอุปกรณ์นำเข้าข้อมูล (Input Devices)",
+                difficulty: "easy"
+            },
+            {
+                q: "ในการแปลงสัญญาณเสียงดิจิทัลจากคอมพิวเตอร์ให้ออกมาเป็นเสียงทางลำโพง อุปกรณ์ใดทำหน้าที่แปลงสัญญาณนี้?",
+                choices: ["การ์ดจอ (Graphic Card)", "หน่วยควบคุมเครือข่าย (Network Chip)", "เมนบอร์ด (Motherboard)", "การ์ดเสียง (Sound Card / DAC)"],
+                ans: 3,
+                exp: "การ์ดเสียงหรือชิปประมวลผลเสียง ทำหน้าที่แปลงรหัสดิจิทัลเป็นคลื่นเสียงอะนาล็อกส่งไปที่ลำโพงเพื่อให้มนุษย์ได้ยิน",
+                difficulty: "medium"
+            },
+            {
+                q: "หน่วยความจำประเภท ROM (Read Only Memory) ทำหน้าที่อะไรในแผงวงจรหลัก?",
+                choices: [
+                    "จัดเก็บไฟล์เกมขนาดใหญ่เพื่อการดาวน์โหลดที่รวดเร็ว",
+                    "บันทึกไฟล์ชั่วคราวที่ดาวน์โหลดจากอินเทอร์เน็ต",
+                    "จัดเก็บชุดคำสั่งระบบบอร์ดเบื้องต้น (เช่น BIOS) สำหรับบูตสตาร์ทเครื่อง",
+                    "เพิ่มความเร็วในการประมวลผลกราฟิก 3 มิติของคอมพิวเตอร์"
+                ],
+                ans: 2,
+                exp: "ROM ทำหน้าที่เก็บบันทึกซอฟต์แวร์เริ่มต้นที่เรียกกันว่า BIOS/UEFI ซึ่งใช้ระบุสเตตัสและบูตเปิดระบบฮาร์ดแวร์พื้นฐานของบอร์ดคอมพิวเตอร์",
+                difficulty: "medium"
+            },
+            {
+                q: "สารกึ่งตัวนำ (Semiconductor) ชนิดใด ที่เป็นวัสดุหลักที่นำมาสลักวงจรทรานซิสเตอร์พันล้านตัวเพื่อทำชิป CPU?",
+                choices: ["ทองแดงบริสุทธิ์ (Copper)", "ซิลิคอน (Silicon)", "กราไฟต์ (Graphite)", "อะลูมิเนียม (Aluminium)"],
+                ans: 1,
+                exp: "ซิลิคอน (Silicon) ได้มาจากทราย มีคุณสมบัติเด่นของสารกึ่งตัวนำ จึงใช้เป็นแผ่นเวเฟอร์หลักในการผลิตชิปวงจรรวมและหน่วยประมวลผลหลัก",
+                difficulty: "hard"
+            }
+        ],
+        data: [
+            {
+                q: "ข้อใดต่อไปนี้จัดว่าเป็น 'สารสนเทศ' (Information) ที่ผ่านกระบวนการจัดการแล้ว?",
+                choices: [
+                    "ข้อมูลคะแนนสอบดิบของนักเรียนทุกคนในระดับชั้น ม.1",
+                    "ค่าตัวเลขอุณหภูมิรายชั่วโมงที่วัดได้จากสถานีตรวจวัดอากาศ",
+                    "รายงานเกรดเฉลี่ยสะสมรายเทอมของนักเรียนแต่ละคน",
+                    "รายการชื่อหนังสือทั้งหมดในหอสมุด"
+                ],
+                ans: 2,
+                exp: "สารสนเทศ (Information) คือข้อมูลที่ผ่านกระบวนการคัดกรอง เรียบเรียง คำนวณ วิเคราะห์ หรือสรุปผลจนเกิดความหมาย เช่น เกรดเฉลี่ย หรือรายงานวิเคราะห์สถิติ",
+                difficulty: "easy"
+            },
+            {
+                q: "การจัดเก็บข้อมูลในระบบจัดการฐานข้อมูล (DBMS) มีข้อดีที่เหนือกว่าการจัดเก็บลงเอกสารทั่วไปในข้อใดชัดเจนที่สุด?",
+                choices: [
+                    "ป้องกันไฟไหม้ที่ตู้เอกสารได้อย่างสมบูรณ์แบบ",
+                    "ช่วยลดความซ้ำซ้อนของข้อมูล ค้นหาง่าย และเข้าถึงข้อมูลพร้อมกันได้รวดเร็ว",
+                    "ทำให้ราคาเครื่องคอมพิวเตอร์ถูกลงอย่างมาก",
+                    "ไม่ต้องการการใช้กระแสไฟฟ้าหรือระบบเน็ตเวิร์กใดๆ"
+                ],
+                ans: 1,
+                exp: "ระบบฐานข้อมูลช่วยจัดการข้อมูลขนาดใหญ่ให้เป็นระบบ ป้องกันข้อมูลขัดแย้งกัน ลดความซ้ำซ้อน ค้นหาได้อย่างรวดเร็ว และแชร์ใช้งานพร้อมกันอย่างปลอดภัย",
+                difficulty: "easy"
+            },
+            {
+                q: "โครงสร้างข้อมูลแบบ 'คิว' (Queue) มีหลักการทำงานที่เป็นระเบียบอย่างไร?",
+                choices: ["เข้าทีหลังออกก่อน (Last-In First-Out)", "เข้าก่อนออกก่อน (First-In First-Out)", "เข้าและออกสุ่มพร้อมกัน (Random In-Out)", "ไม่มีการออก สามารถเข้าข้อมูลได้ทางเดียว"],
+                ans: 1,
+                exp: "คิว (Queue) เปรียบเหมือนแถวซื้อตั๋ว มีหลักการทำงานคือ First-In First-Out (FIFO) คนที่เข้าคิวก่อนจะมีสิทธิ์ทำรายการและออกจากคิวก่อน",
+                difficulty: "medium"
+            },
+            {
+                q: "การวิเคราะห์ข้อมูลขนาดใหญ่ (Big Data) มีคุณลักษณะสำคัญที่รู้จักกันในชื่อ 4Vs ข้อใดต่อไปนี้ไม่ใช่หนึ่งใน 4Vs?",
+                choices: [
+                    "Volume (ปริมาณข้อมูลมหาศาล)",
+                    "Velocity (ความเร็วในการรับส่งและวิเคราะห์)",
+                    "Vocabulary (ชุดคำศัพท์และไวยากรณ์)",
+                    "Variety (ความหลากหลายของโครงสร้างข้อมูล)"
+                ],
+                ans: 2,
+                exp: "4Vs ของ Big Data ประกอบด้วย Volume (ปริมาณ), Velocity (ความเร็ว), Variety (ความหลากหลาย) และ Value (คุณค่าของข้อมูล) หรือ Veracity (ความถูกต้อง) ไม่มี Vocabulary",
+                difficulty: "hard"
+            }
+        ],
+        algorithm: [
+            {
+                q: "สัญลักษณ์รูป 'สี่เหลี่ยมผืนผ้า' ในแผนภาพผังงาน (Flowchart) ใช้แสดงขั้นตอนการทำงานใด?",
+                choices: ["การประมวลผลข้อมูลหรือคำนวณ (Process)", "การตัดสินใจหรือเปรียบเทียบเงื่อนไข (Decision)", "จุดเริ่มต้นหรือจุดสิ้นสุด (Terminal)", "การแสดงผลข้อมูลทางจอภาพ (Display)"],
+                ans: 0,
+                exp: "รูปสี่เหลี่ยมผืนผ้า (Process) ใช้แทนขั้นตอนการทำงาน คำนวณ กำหนดค่า หรือกิจกรรมการประมวลผลเชิงเดี่ยวในอัลกอริทึม",
+                difficulty: "easy"
+            },
+            {
+                q: "ข้อใดอธิบายความหมายของ 'อัลกอริทึม' (Algorithm) ได้ถูกต้องและครอบคลุมที่สุด?",
+                choices: [
+                    "ภาษาคอมพิวเตอร์ขั้นสูงที่มีโครงสร้างโค้ดซับซ้อนและเขียนยากที่สุด",
+                    "ขั้นตอนวิธีในการแก้ปัญหาอย่างเป็นลำดับขั้นตอนชัดเจนเพื่อผลลัพธ์ที่ถูกต้อง",
+                    "ชื่อเรียกเครื่องคอมพิวเตอร์สเปกทหารโบราณ",
+                    "รหัสลับเฉพาะที่ใช้สำหรับเจาะทำลายระบบเซิร์ฟเวอร์เครือข่าย"
+                ],
+                ans: 1,
+                exp: "อัลกอริทึม (Algorithm) คือ ขั้นตอนการแก้ปัญหาอย่างชัดเจนเป็นขั้นๆ เพื่อแก้ปัญหาหรือทำงานเฉพาะด้านใดด้านหนึ่งจนบรรลุเป้าหมายที่ต้องการ",
+                difficulty: "easy"
+            },
+            {
+                q: "ในการออกแบบระบบคิดเงินร้านสะดวกซื้อ สัญลักษณ์รูป 'สี่เหลี่ยมข้าวหลามตัด' (Diamond) มีบทบาทอย่างไร?",
+                choices: [
+                    "ใช้แทนจุดเริ่มต้นเปิดโปรแกรมขายสินค้า",
+                    "ใช้รับข้อมูลจำนวนสินค้าที่ต้องการจากแป้นพิมพ์",
+                    "ใช้ตัดสินใจตรวจสอบเงื่อนไข เช่น ยอดซื้อรวมเกิน 500 บาทเพื่อลดราคาหรือไม่",
+                    "ใช้พิมพ์ใบเสร็จเงินสดออกจากระบบส่งให้ลูกค้า"
+                ],
+                ans: 2,
+                exp: "สัญลักษณ์ข้าวหลามตัด (Decision) ใช้ตรวจสอบสเตตัส เงื่อนไข หรือการเปรียบเทียบทางตรรกศาสตร์เพื่อให้โปรแกรมเลือกทำงานตามเส้นทาง TRUE หรือ FALSE",
+                difficulty: "medium"
+            },
+            {
+                q: "เสาหลักใดของการคิดเชิงคำนวณ (Computational Thinking) ที่มุ่งเน้นแบ่งปัญหาใหญ่ที่ซับซ้อนให้กลายเป็นปัญหาย่อยๆ เพื่อแก้ไขง่ายขึ้น?",
+                choices: [
+                    "Decomposition (การย่อยปัญหา)",
+                    "Pattern Recognition (การจดจำรูปแบบ)",
+                    "Abstraction (การคิดเชิงนามธรรม)",
+                    "Algorithm Design (การออกแบบอัลกอริทึม)"
+                ],
+                ans: 0,
+                exp: "Decomposition คือ การย่อยปัญหาหรือระบบขนาดใหญ่ออกเป็นส่วนเล็กๆ เพื่อความสะดวกในการแก้ไข วางแผน และวิเคราะห์รายละเอียดทีละขั้นตอน",
+                difficulty: "medium"
+            },
+            {
+                q: "กระบวนการใดในคิดเชิงคำนวณที่ทำการคัดแยกคุณสมบัติที่ไม่จำเป็นออกไป และเหลือไว้เฉพาะสาระสำคัญที่ใช้แก้ไขปัญหา?",
+                choices: [
+                    "การตรวจจับบั๊กในหน่วยความจำ",
+                    "Decomposition (การย่อยปัญหา)",
+                    "Pattern Recognition (การหารูปแบบ)",
+                    "Abstraction (การคิดเชิงนามธรรม)"
+                ],
+                ans: 3,
+                exp: "Abstraction (การคิดเชิงนามธรรม) คือ การตัดทอนรายละเอียดที่ไม่เกี่ยวข้องหรือรายละเอียดปลีกย่อยออกไป โดยดึงเอาเฉพาะข้อมูลที่เป็นแกนสารสำคัญสำหรับแก้ปัญหาขึ้นมาพิจารณา",
+                difficulty: "hard"
+            }
+        ],
+        safety: [
+            {
+                q: "พฤติกรรมการตั้งรหัสผ่านอีเมลในข้อใด ถือว่ามีความปลอดภัยสูงสุดต่อการป้องกันระบบโดนแฮกขโมย?",
+                choices: [
+                    "ตั้งรหัสผ่านเป็นหมายเลขโทรศัพท์มือถือของเราเพื่อให้ง่ายต่อการจำ",
+                    "ตั้งความยาวมากกว่า 8 ตัวอักษร ผสมตัวพิมพ์ใหญ่ ตัวพิมพ์เล็ก ตัวเลข และเครื่องหมายพิเศษเข้าด้วยกัน",
+                    "ตั้งเป็นวันเดือนปีเกิดของเราในรูปแบบ ค.ศ.",
+                    "ตั้งรหัสผ่านว่า 'password1234' และจดแปะไว้หลังคีย์บอร์ด"
+                ],
+                ans: 1,
+                exp: "การใช้อักขระที่หลากหลาย (ตัวพิมพ์ใหญ่ เล็ก ตัวเลข และสัญลักษณ์) และความยาวที่มากพอ ช่วยขัดขวางการเจาะรหัสประเภท Brute Force และเดารหัสได้ยากขึ้น",
+                difficulty: "easy"
+            },
+            {
+                q: "การโจมตีประเภท Phishing มีลักษณะการทำงานหลอกลวงผู้ใช้งานอย่างไร?",
+                choices: [
+                    "ส่งโปรแกรมมาทาง USB แล้วทำลายฮาร์ดแวร์โดยตรง",
+                    "แอบขโมยข้อมูลหน่วยความจำเครื่องจากระยะไกลโดยไม่ต้องใช้อินเทอร์เน็ต",
+                    "สร้างหน้าเว็บปลอมหรือส่งอีเมลหลอกลวงแนบลิงก์เพื่อให้ผู้ใช้เข้าใจผิดและกรอกรหัสผ่านหรือข้อมูลการเงิน",
+                    "การเจาะเข้ามาทำลายพัดลมระบายความร้อนของเคสคอมพิวเตอร์"
+                ],
+                ans: 2,
+                exp: "Phishing คือ วิศวกรรมสังคม (Social Engineering) รูปแบบหนึ่งที่ส่งอีเมล ข้อความ หรือเว็บปลอมเลียนแบบองค์กรน่าเชื่อถือ เพื่อตกทองล่อให้ผู้ใช้อัญเชิญรหัสผ่านหรือเลขบัตรส่งไปให้แฮกเกอร์",
+                difficulty: "easy"
+            },
+            {
+                q: "ภัยคุกคามประเภท Ransomware ส่งผลกระทบความเสียหายรุนแรงต่อไฟล์เอกสารในคอมพิวเตอร์เราอย่างไร?",
+                choices: [
+                    "สุ่มลบไฟล์ระบบเพื่อไม่ให้บูตเครื่องสตาร์ทวินโดวส์ได้อีกตลอดกาล",
+                    "คัดลอกไฟล์รูปถ่ายทั้งหมดโพสต์ลงสื่อสังคมออนไลน์สาธารณะอัตโนมัติ",
+                    "เข้ารหัสไฟล์สำคัญเพื่อสั่งล็อกข้อมูลและเรียกเงินค่าไถ่จากเหยื่อเพื่อแลกกับคีย์ถอดรหัสคืนไฟล์",
+                    "แปลงไฟล์เอกสารทั้งหมดให้กลายเป็นภาษาโปรแกรมมิ่ง C++"
+                ],
+                ans: 2,
+                exp: "Ransomware (มัลแวร์เรียกค่าไถ่) จะแฝงตัวเข้ามาเข้ารหัสลับไฟล์เอกสารและข้อมูลสำคัญ จนกระทั่งผู้ใช้ไม่สามารถเข้าถึงข้อมูลได้ จากนั้นจะแสดงประกาศเรียกเงินค่าไถ่แลกกับการให้คีย์สำหรับถอดรหัสคืนไฟล์",
+                difficulty: "medium"
+            },
+            {
+                q: "การหลอกขอรหัส OTP หรือรหัสส่วนตัวผ่านการปลอมตัวทางโทรศัพท์ จัดว่าเป็นการโจมตีหมวดหมู่ใด?",
+                choices: ["การโจมตีแบบ DDoS", "มัลแวร์ประเภทสปายแวร์ (Spyware)", "วิศวกรรมสังคม (Social Engineering)", "การเจาะเข้าทางช่องโหว่พอร์ตเครือข่าย"],
+                ans: 2,
+                exp: "Social Engineering (วิศวกรรมสังคม) คือ ศิลปะการใช้กลอุบายทางจิตวิทยาหลอกลวง โน้มน้าว หรือข่มขู่คนให้คายความลับหรือทำพฤติกรรมบางอย่างที่แฮกเกอร์ต้องการ โดยโจมตีช่องโหว่ของ 'คน' มากกว่าเทคโนโลยี",
+                difficulty: "hard"
+            }
+        ]
+    };
+
+    // Game Core Configs & Variables
+    let canvas, ctx;
+    let isGameRunning = false;
+    let isPaused = false;
+    let camera = { x: 0, y: 0 };
+    let arenaWidth = 1600;
+    let arenaHeight = 1600;
+    let gameLoopId = null;
+
+    // Player Tank State
+    let player = {
+        x: 800,
+        y: 800,
+        r: 22,
+        angle: 0,
+        turretAngle: 0,
+        vx: 0,
+        vy: 0,
+        hp: 100,
+        maxHp: 100,
+        shield: 100,
+        maxShield: 100,
+        xp: 0,
+        level: 1,
+        coinsCollected: 0,
+        killsInQuizCycle: 0,
+        totalEnemiesKilled: 0,
+        score: 0,
+        lastShotTime: 0,
+        combo: 0,
+        maxCombo: 0,
+        doubleDamageTime: 0, // Buff timer
+        shieldRegenTimer: 0,
+        isHacked: false, // Hacked status (EMP)
+        hackTimer: 0,
+        // Drones
+        drones: []
+    };
+
+    // Entities Arrays
+    let enemies = [];
+    let projectiles = [];
+    let powerUps = [];
+    let particles = [];
+    let mapWalls = [];
+    
+    // Wave state
+    let gameWave = 1;
+    let waveSpawnTimer = 0;
+    let isBossSpawned = false;
+    let bossInstance = null;
+
+    // Adaptive Learning State
+    let learningState = {
+        consecCorrect: 0,
+        consecWrong: 0,
+        difficulty: "easy",
+        // Stats category tracking
+        stats: {
+            hardware: { asked: 0, correct: 0 },
+            data: { asked: 0, correct: 0 },
+            algorithm: { asked: 0, correct: 0 },
+            safety: { asked: 0, correct: 0 }
+        }
+    };
+
+    // Controls
+    let keys = {};
+    let mouse = { x: 0, y: 0, isDown: false };
+    
+    // Mobile Virtual Joystick parameters
+    let joyTouchId = null;
+    let joyStart = { x: 0, y: 0 };
+    let joyCur = { x: 0, y: 0 };
+    let joyDir = { x: 0, y: 0, active: false };
+
+    let isMobile = KAMPAI.isTouch;
+
+    // Screen navigation
+    function switchScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(scr => {
+            scr.classList.remove('active');
+        });
+        const activeScr = document.getElementById(screenId);
+        activeScr.classList.add('active');
+        currentScreen = screenId;
+
+        // Cleanup game loop if navigating away
+        if (screenId !== 'screen-game') {
+            stopGameLoop();
+        }
+
+        // Initialize screens specifics
+        if (screenId === 'screen-menu') {
+            initProfileUI();
+            startMenuBackground();
+        } else if (screenId === 'screen-upgrades') {
+            renderUpgradesScreen();
+        } else if (screenId === 'screen-achievements') {
+            renderAchievementsScreen();
+        } else if (screenId === 'screen-chapters') {
+            checkChapterUnlocks();
+        }
+    }
+
+    // Check Chapter 4 Unlock based on chapters completed (or local achievements)
+    function checkChapterUnlocks() {
+        const hasFirstWin = achievements.find(a => a.id === 'first_win').unlocked;
+        const chap4Card = document.getElementById('chap-card-4');
+        if (hasFirstWin) {
+            chap4Card.classList.remove('locked');
+        } else {
+            chap4Card.classList.add('locked');
+        }
+    }
+
+    // Toggle sound/voice settings
+    let soundSettings = {
+        sfx: localStorage.getItem('mr_sfx') !== '0',
+        tts: localStorage.getItem('mr_tts') !== '0',
+        bgm: localStorage.getItem('mr_bgm') !== '0'
+    };
+
+    function initSettingsUI() {
+        document.getElementById('set-sfx').checked = soundSettings.sfx;
+        document.getElementById('set-tts').checked = soundSettings.tts;
+        document.getElementById('set-bgm').checked = soundSettings.bgm;
+    }
+
+    function toggleSetting(key) {
+        soundSettings[key] = !soundSettings[key];
+        localStorage.setItem('mr_' + key, soundSettings[key] ? '1' : '0');
+        if (key === 'bgm') {
+            if (soundSettings.bgm) {
+                KAMPAI.sound.unlock();
+                KAMPAI.sound.bgmStart();
+            } else {
+                KAMPAI.sound.bgmStop();
+            }
+        }
+        if (key === 'tts' && !soundSettings.tts) {
+            KAMPAI.sound.stopSpeak();
+        }
+    }
+
+    // Web Audio Synthesizer for Retro Military SFX
+    let audioCtx = null;
+    function getAudioContext() {
+        if (!audioCtx) {
+            const AC = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AC();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        return audioCtx;
+    }
+
+    function playSynthSFX(type) {
+        if (!soundSettings.sfx) return;
+        try {
+            const ctx = getAudioContext();
+            if (!ctx) return;
+            const t = ctx.currentTime;
+            
+            if (type === 'shoot') {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(440, t);
+                osc.frequency.exponentialRampToValueAtTime(80, t + 0.15);
+                gain.gain.setValueAtTime(0.2, t);
+                gain.gain.linearRampToValueAtTime(0.001, t + 0.15);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(t);
+                osc.stop(t + 0.16);
+            } else if (type === 'hit') {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(180, t);
+                osc.frequency.setValueAtTime(120, t + 0.05);
+                gain.gain.setValueAtTime(0.15, t);
+                gain.gain.linearRampToValueAtTime(0.001, t + 0.08);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(t);
+                osc.stop(t + 0.09);
+            } else if (type === 'explosion') {
+                // Noise buffer explosion
+                const bufferSize = ctx.sampleRate * 0.4;
+                const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                const noise = ctx.createBufferSource();
+                noise.buffer = buffer;
+                
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(800, t);
+                filter.frequency.exponentialRampToValueAtTime(80, t + 0.35);
+
+                const gain = ctx.createGain();
+                gain.gain.setValueAtTime(0.35, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.38);
+
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(ctx.destination);
+                noise.start(t);
+                noise.stop(t + 0.4);
+            } else if (type === 'hacked') {
+                // EMP zap sound
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(880, t);
+                osc.frequency.setValueAtTime(600, t + 0.05);
+                osc.frequency.setValueAtTime(900, t + 0.1);
+                gain.gain.setValueAtTime(0.2, t);
+                gain.gain.linearRampToValueAtTime(0.001, t + 0.2);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(t);
+                osc.stop(t + 0.21);
+            } else if (type === 'buff') {
+                // Healing or Powerup sound
+                const osc1 = ctx.createOscillator();
+                const osc2 = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc1.type = 'sine';
+                osc2.type = 'triangle';
+                osc1.frequency.setValueAtTime(523.25, t); // C5
+                osc1.frequency.setValueAtTime(659.25, t + 0.08); // E5
+                osc1.frequency.setValueAtTime(783.99, t + 0.16); // G5
+                osc1.frequency.setValueAtTime(1046.50, t + 0.24); // C6
+                osc2.frequency.setValueAtTime(523.25 * 2, t);
+                osc2.frequency.setValueAtTime(659.25 * 2, t + 0.08);
+                gain.gain.setValueAtTime(0.12, t);
+                gain.gain.linearRampToValueAtTime(0.001, t + 0.35);
+                osc1.connect(gain);
+                osc2.connect(gain);
+                gain.connect(ctx.destination);
+                osc1.start(t);
+                osc2.start(t);
+                osc1.stop(t + 0.36);
+                osc2.stop(t + 0.36);
+            } else if (type === 'warning') {
+                // Boss alarm siren
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(440, t);
+                osc.frequency.linearRampToValueAtTime(880, t + 0.25);
+                osc.frequency.linearRampToValueAtTime(440, t + 0.5);
+                gain.gain.setValueAtTime(0.2, t);
+                gain.gain.linearRampToValueAtTime(0.2, t + 0.4);
+                gain.gain.linearRampToValueAtTime(0.001, t + 0.5);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(t);
+                osc.stop(t + 0.51);
+            }
+        } catch(e) {}
+    }
+
+    // Draw Motherboard Obstacles (Walls)
+    function buildObstaclesMap() {
+        mapWalls = [];
+        
+        // Boundaries
+        // Outer boundaries are virtual limits, but we add physical components
+        // RAM slots in top right
+        addWall(1000, 200, 300, 30);
+        addWall(1000, 260, 300, 30);
+        addWall(1000, 320, 300, 30);
+        
+        // Large Capacitor blocks
+        addWall(250, 400, 80, 80, "capacitor");
+        addWall(250, 950, 80, 80, "capacitor");
+        addWall(1200, 1100, 100, 100, "capacitor");
+
+        // Motherboard heatsink blocks
+        addWall(500, 1100, 220, 80, "heatsink");
+        addWall(1100, 600, 150, 180, "heatsink");
+        
+        // Wire conduits
+        addWall(50, 600, 300, 15);
+        addWall(800, 1400, 400, 20);
+    }
+
+    function addWall(x, y, w, h, type = "wire") {
+        mapWalls.push({ x, y, w, h, type });
+    }
+
+    // Helper: Rect-Circle collision detection
+    function checkCircleRectCollision(cx, cy, r, rx, ry, rw, rh) {
+        // Nearest point on rectangle to circle
+        const closestX = Math.max(rx, Math.min(cx, rx + rw));
+        const closestY = Math.max(ry, Math.min(cy, ry + rh));
+
+        // Distance from closest point to circle center
+        const distanceX = cx - closestX;
+        const distanceY = cy - closestY;
+        const distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
+
+        return {
+            collided: distanceSquared < (r * r),
+            closestX: closestX,
+            closestY: closestY
+        };
+    }
+
+    // Canvas rendering for Motherboard components
+    function drawGrid(ctx) {
+        ctx.strokeStyle = "rgba(14, 165, 233, 0.06)";
+        ctx.lineWidth = 1;
+        const gridSize = 40;
+        
+        const startX = Math.floor(camera.x / gridSize) * gridSize;
+        const startY = Math.floor(camera.y / gridSize) * gridSize;
+        
+        for (let x = startX; x < startX + canvas.width + gridSize; x += gridSize) {
+            ctx.beginPath();
+            ctx.moveTo(x - camera.x, 0);
+            ctx.lineTo(x - camera.x, canvas.height);
+            ctx.stroke();
+        }
+        for (let y = startY; y < startY + canvas.height + gridSize; y += gridSize) {
+            ctx.beginPath();
+            ctx.moveTo(0, y - camera.y);
+            ctx.lineTo(canvas.width, y - camera.y);
+            ctx.stroke();
+        }
+        
+        // Arena Boundary outer border
+        ctx.strokeStyle = "rgba(239, 68, 68, 0.4)";
+        ctx.lineWidth = 4;
+        ctx.strokeRect(0 - camera.x, 0 - camera.y, arenaWidth, arenaHeight);
+    }
+
+    // Draw obstacle components
+    function drawObstacles(ctx) {
+        mapWalls.forEach(w => {
+            const rx = w.x - camera.x;
+            const ry = w.y - camera.y;
+            
+            if (w.type === "capacitor") {
+                // Cylindrical computer capacitor
+                ctx.fillStyle = "#1e293b";
+                ctx.strokeStyle = "#38bdf8";
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(rx + w.w/2, ry + w.h/2, w.w/2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+                
+                // Capacitor metal top lines
+                ctx.strokeStyle = "rgba(56, 189, 248, 0.5)";
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(rx + w.w/2 - 15, ry + w.h/2 - 15);
+                ctx.lineTo(rx + w.w/2 + 15, ry + w.h/2 + 15);
+                ctx.moveTo(rx + w.w/2 + 15, ry + w.h/2 - 15);
+                ctx.lineTo(rx + w.w/2 - 15, ry + w.h/2 + 15);
+                ctx.stroke();
+            } else if (w.type === "heatsink") {
+                // Heatsink block with cooling fins
+                ctx.fillStyle = "#0f172a";
+                ctx.strokeStyle = "#0084c7";
+                ctx.lineWidth = 2;
+                ctx.fillRect(rx, ry, w.w, w.h);
+                ctx.strokeRect(rx, ry, w.w, w.h);
+                
+                // Draw fins
+                ctx.fillStyle = "#334155";
+                const numFins = Math.floor(w.w / 16);
+                for (let i = 0; i < numFins; i++) {
+                    ctx.fillRect(rx + 4 + i * 16, ry + 4, 8, w.h - 8);
+                }
+            } else {
+                // Metallic wires trace lines
+                ctx.fillStyle = "#0f172a";
+                ctx.strokeStyle = "#4ade80";
+                ctx.lineWidth = 1;
+                ctx.fillRect(rx, ry, w.w, w.h);
+                ctx.strokeRect(rx, ry, w.w, w.h);
+                
+                // Wire inner glowing line
+                ctx.strokeStyle = "rgba(74, 222, 128, 0.7)";
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(rx + 2, ry + w.h/2);
+                ctx.lineTo(rx + w.w - 2, ry + w.h/2);
+                ctx.stroke();
+            }
+        });
+    }
+
+    // --- Entity Spawners ---
+    function spawnEnemy(type) {
+        let x, y;
+        // Spawn far enough from player
+        const distMin = 300;
+        let tries = 0;
+        while (tries < 100) {
+            x = 50 + Math.random() * (arenaWidth - 100);
+            y = 50 + Math.random() * (arenaHeight - 100);
+            
+            // Check distance to player
+            const dx = x - player.x;
+            const dy = y - player.y;
+            if (Math.sqrt(dx*dx + dy*dy) > distMin) {
+                // Check wall collision
+                let collidesWall = false;
+                for (let wall of mapWalls) {
+                    if (checkCircleRectCollision(x, y, 20, wall.x, wall.y, wall.w, wall.h).collided) {
+                        collidesWall = true;
+                        break;
+                    }
+                }
+                if (!collidesWall) break;
+            }
+            tries++;
+        }
+
+        let e = {
+            id: 'e_' + Date.now() + Math.random().toString(36).substr(2, 5),
+            x,
+            y,
+            type,
+            vx: 0,
+            vy: 0,
+            angle: 0,
+            turretAngle: 0,
+            lastShotTime: 0,
+            lastEmpTime: 0, // Hacker tank only
+            hp: 20,
+            maxHp: 20,
+            speed: 1.5,
+            scoreVal: 100,
+            r: 20
+        };
+
+        // Customise based on enemy type
+        if (type === 'basic') {
+            e.hp = 20; e.maxHp = 20; e.speed = 1.4; e.scoreVal = 100;
+        } else if (type === 'fast') {
+            e.hp = 12; e.maxHp = 12; e.speed = 2.4; e.scoreVal = 150; e.r = 17;
+        } else if (type === 'heavy') {
+            e.hp = 50; e.maxHp = 50; e.speed = 0.8; e.scoreVal = 250; e.r = 25;
+        } else if (type === 'sniper') {
+            e.hp = 15; e.maxHp = 15; e.speed = 1.2; e.scoreVal = 200; e.r = 18;
+        } else if (type === 'hacker') {
+            e.hp = 30; e.maxHp = 30; e.speed = 1.5; e.scoreVal = 300; e.r = 20;
+        } else if (type === 'boss') {
+            e.hp = 400 + currentChapter * 200;
+            e.maxHp = e.hp;
+            e.speed = 0.6;
+            e.scoreVal = 2000;
+            e.r = 60;
+            e.isBoss = true;
+            isBossSpawned = true;
+            bossInstance = e;
+            
+            // Show alert siren sound
+            playSynthSFX('warning');
+            triggerScreenShake(20);
+            
+            // Notification message particles
+            spawnNotificationFloat("🚨 WARNING: BOSS DESTROYER DETECTED! 🚨");
+        }
+
+        enemies.push(e);
+    }
+
+    function spawnPowerUp(x, y, forceType = null) {
+        // Randomly pick a powerup type
+        const types = ['xp', 'coin', 'heart', 'shield'];
+        const weights = [0.45, 0.35, 0.1, 0.1];
+        
+        let type = forceType;
+        if (!type) {
+            const r = Math.random();
+            let sum = 0;
+            for (let i = 0; i < types.length; i++) {
+                sum += weights[i];
+                if (r <= sum) {
+                    type = types[i];
+                    break;
+                }
+            }
+        }
+
+        powerUps.push({
+            x,
+            y,
+            type,
+            r: 12,
+            spawnTime: Date.now()
+        });
+    }
+
+    // Floats notifications or combat numbers
+    function spawnTextParticle(x, y, text, color = '#f8fafc', size = 14) {
+        particles.push({
+            x, y,
+            vx: (Math.random() - 0.5) * 1.5,
+            vy: -1.5 - Math.random() * 1.5,
+            text,
+            color,
+            size,
+            alpha: 1,
+            decay: 0.02,
+            type: 'text'
+        });
+    }
+
+    function spawnExplosionParticles(x, y, sizeMultiplier = 1) {
+        const count = 12 * sizeMultiplier;
+        for (let i = 0; i < count; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = (1 + Math.random() * 4) * sizeMultiplier;
+            particles.push({
+                x, y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                color: i % 2 === 0 ? '#f97316' : '#ef4444', // Orange / Red sparks
+                r: 2 + Math.random() * 4,
+                alpha: 1,
+                decay: 0.03 + Math.random() * 0.03,
+                type: 'spark'
+            });
+        }
+        
+        // EMP dust rings
+        if (sizeMultiplier > 2) {
+            particles.push({
+                x, y,
+                r: 5,
+                maxR: 90 * sizeMultiplier,
+                alpha: 0.8,
+                decay: 0.04,
+                color: 'rgba(56, 189, 248, 0.4)',
+                type: 'ring'
+            });
+        }
+    }
+
+    function spawnNotificationFloat(text) {
+        // Renders at top of the active area
+        particles.push({
+            x: player.x,
+            y: player.y - 120,
+            vx: 0,
+            vy: -0.5,
+            text,
+            color: '#ef4444',
+            size: 18,
+            alpha: 1,
+            decay: 0.015,
+            bold: true,
+            type: 'text'
+        });
+    }
+
+    // Trigger Screen Shake
+    let shakeDuration = 0;
+    let shakeIntensity = 0;
+    function triggerScreenShake(intensity = 8, duration = 15) {
+        shakeIntensity = intensity;
+        shakeDuration = duration;
+    }
+
+    // --- GAME LOOP & UPDATES ---
+    function updateGame() {
+        if (!isGameRunning || isPaused) return;
+
+        // 1. Camera logic
+        camera.x = player.x - canvas.width / 2;
+        camera.y = player.y - canvas.height / 2;
+        
+        // Clamp camera to boundaries
+        camera.x = Math.max(0, Math.min(camera.x, arenaWidth - canvas.width));
+        camera.y = Math.max(0, Math.min(camera.y, arenaHeight - canvas.height));
+        
+        // Add screen shake offset to camera
+        if (shakeDuration > 0) {
+            const ox = (Math.random() - 0.5) * shakeIntensity;
+            const oy = (Math.random() - 0.5) * shakeIntensity;
+            camera.x += ox;
+            camera.y += oy;
+            shakeDuration--;
+        }
+
+        // 2. Buff timers
+        if (player.doubleDamageTime > 0) {
+            player.doubleDamageTime--;
+        }
+
+        // 3. EMP Hack timers
+        if (player.isHacked) {
+            player.hackTimer--;
+            if (player.hackTimer <= 0) {
+                player.isHacked = false;
+                document.getElementById('hud-emp').style.display = 'none';
+            }
+        }
+
+        // 4. Update player physics
+        updatePlayerPhysics();
+
+        // 5. Update drones
+        updateDronesPhysics();
+
+        // 6. Update projectiles
+        updateProjectiles();
+
+        // 7. Update enemies
+        updateEnemies();
+
+        // 8. Update powerups
+        updatePowerups();
+
+        // 9. Update particles
+        updateParticles();
+
+        // 10. Wave spawning manager
+        manageWaves();
+    }
+
+    function updatePlayerPhysics() {
+        let speed = 2.0 + (upgrades.speed * 0.25);
+        let ax = 0;
+        let ay = 0;
+
+        // Keyboard control inputs
+        if (keys['w'] || keys['ArrowUp']) ay = -1;
+        if (keys['s'] || keys['ArrowDown']) ay = 1;
+        if (keys['a'] || keys['ArrowLeft']) ax = -1;
+        if (keys['d'] || keys['ArrowRight']) ax = 1;
+
+        // Mobile joystick input overrides keyboard
+        if (isMobile && joyDir.active) {
+            ax = joyDir.x;
+            ay = joyDir.y;
+        }
+
+        // Normalise vector
+        let length = Math.sqrt(ax * ax + ay * ay);
+        if (length > 0) {
+            ax = ax / length;
+            ay = ay / length;
+            player.vx += ax * 0.35;
+            player.vy += ay * 0.35;
+            
+            // Set base tank rotation angle towards movement direction
+            player.angle = Math.atan2(ay, ax);
+            
+            // Emit tread particles occasionally
+            if (Math.random() < 0.15) {
+                particles.push({
+                    x: player.x,
+                    y: player.y,
+                    angle: player.angle,
+                    alpha: 0.4,
+                    decay: 0.015,
+                    type: 'tread'
+                });
+            }
+        }
+
+        // Apply friction
+        player.vx *= 0.88;
+        player.vy *= 0.88;
+
+        // Update positions
+        player.x += player.vx;
+        player.y += player.vy;
+
+        // Border constraints
+        player.x = Math.max(player.r, Math.min(player.x, arenaWidth - player.r));
+        player.y = Math.max(player.r, Math.min(player.y, arenaHeight - player.r));
+
+        // Wall collisions
+        mapWalls.forEach(wall => {
+            const check = checkCircleRectCollision(player.x, player.y, player.r, wall.x, wall.y, wall.w, wall.h);
+            if (check.collided) {
+                // Push back player out of wall
+                const dx = player.x - check.closestX;
+                const dy = player.y - check.closestY;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist > 0) {
+                    player.x = check.closestX + (dx / dist) * player.r;
+                    player.y = check.closestY + (dy / dist) * player.r;
+                } else {
+                    player.x -= player.vx * 1.5;
+                    player.y -= player.vy * 1.5;
+                }
+            }
+        });
+
+        // Rotate Turret towards mouse or joystick aim
+        if (isMobile) {
+            // In mobile touch mode, turret turns in direction of joystick or tapping
+            // Auto aim nearest enemy if not dragging right side
+            if (mouse.isDown) {
+                const targetX = mouse.x + camera.x;
+                const targetY = mouse.y + camera.y;
+                player.turretAngle = Math.atan2(targetY - player.y, targetX - player.x);
+            } else {
+                // Auto-aim closest enemy
+                let closest = getClosestEnemy();
+                if (closest) {
+                    player.turretAngle = Math.atan2(closest.y - player.y, closest.x - player.x);
+                }
+            }
+        } else {
+            // PC: aim using cursor coordinate relative to camera
+            const targetX = mouse.x + camera.x;
+            const targetY = mouse.y + camera.y;
+            player.turretAngle = Math.atan2(targetY - player.y, targetX - player.x);
+        }
+
+        // Fire logic
+        const now = Date.now();
+        const fireRateDelay = Math.max(100, 600 - (upgrades.firerate * 70)); // 600ms down to 250ms delay
+        
+        // Auto shoot if mouse is down (PC click / Mobile touch)
+        if (mouse.isDown && !player.isHacked && (now - player.lastShotTime > fireRateDelay)) {
+            firePlayerProjectile();
+            player.lastShotTime = now;
+        }
+
+        // Shield Recharge logic
+        player.shieldRegenTimer++;
+        const shieldDelay = skillTree.engineer.quickShield.unlocked ? 120 : 240; // 2s vs 4s delay at 60fps
+        if (player.shieldRegenTimer > shieldDelay) {
+            if (player.shield < player.maxShield) {
+                // Regenerate 0.5 shield per frame
+                player.shield = Math.min(player.maxShield, player.shield + 0.5);
+                updateHudBars();
+            }
+        }
+
+        // Skill tree: self repair
+        if (skillTree.engineer.selfRepair.unlocked && player.shieldRegenTimer > 180) {
+            // every 3 seconds (180 frames)
+            if (player.shieldRegenTimer % 180 === 0 && player.hp < player.maxHp) {
+                player.hp = Math.min(player.maxHp, player.hp + 2);
+                updateHudBars();
+                spawnTextParticle(player.x, player.y - 30, "+2 HP", "#4ade80");
+            }
+        }
+    }
+
+    function firePlayerProjectile() {
+        let isDouble = skillTree.assault.doubleShot.unlocked;
+        let isPlasma = skillTree.assault.plasmaShells.unlocked;
+        
+        let dmg = 10 + (upgrades.damage * 4); // 14 to 30 damage
+        if (player.doubleDamageTime > 0) dmg *= 2; // Buff active
+
+        playSynthSFX('shoot');
+
+        const bulletSpeed = 9;
+        
+        if (isDouble) {
+            // Parallel double bullets offset
+            const offsetDist = 12;
+            const dx = Math.cos(player.turretAngle + Math.PI/2) * offsetDist;
+            const dy = Math.sin(player.turretAngle + Math.PI/2) * offsetDist;
+
+            projectiles.push({
+                x: player.x + Math.cos(player.turretAngle) * 25 + dx,
+                y: player.y + Math.sin(player.turretAngle) * 25 + dy,
+                vx: Math.cos(player.turretAngle) * bulletSpeed,
+                vy: Math.sin(player.turretAngle) * bulletSpeed,
+                isPlayer: true,
+                isPlasma: isPlasma,
+                damage: dmg,
+                r: isPlasma ? 8 : 4
+            });
+
+            projectiles.push({
+                x: player.x + Math.cos(player.turretAngle) * 25 - dx,
+                y: player.y + Math.sin(player.turretAngle) * 25 - dy,
+                vx: Math.cos(player.turretAngle) * bulletSpeed,
+                vy: Math.sin(player.turretAngle) * bulletSpeed,
+                isPlayer: true,
+                isPlasma: isPlasma,
+                damage: dmg,
+                r: isPlasma ? 8 : 4
+            });
+        } else {
+            projectiles.push({
+                x: player.x + Math.cos(player.turretAngle) * 25,
+                y: player.y + Math.sin(player.turretAngle) * 25,
+                vx: Math.cos(player.turretAngle) * bulletSpeed,
+                vy: Math.sin(player.turretAngle) * bulletSpeed,
+                isPlayer: true,
+                isPlasma: isPlasma,
+                damage: dmg,
+                r: isPlasma ? 8 : 4
+            });
+        }
+    }
+
+    function getClosestEnemy() {
+        let minDist = Infinity;
+        let closest = null;
+        enemies.forEach(e => {
+            const dx = e.x - player.x;
+            const dy = e.y - player.y;
+            const d = dx*dx + dy*dy;
+            if (d < minDist) {
+                minDist = d;
+                closest = e;
+            }
+        });
+        return closest;
+    }
+
+    function updateDronesPhysics() {
+        // Drones code: if Cyber Commander has auto drone
+        // Drones will be active if skill tree is unlocked or automatically spawned
+        // Let's create 1 support drone if Cyber tab unlocked double skill
+        const hasDrone = skillTree.cyber.empShield.unlocked; // Re-use lock check for drone spawn
+        if (hasDrone && player.drones.length === 0) {
+            player.drones.push({ angleOffset: 0, lastShot: 0 });
+        } else if (!hasDrone) {
+            player.drones = [];
+        }
+
+        player.drones.forEach(d => {
+            d.angleOffset += 0.04;
+            const orbitR = 50;
+            const dx = Math.cos(d.angleOffset) * orbitR;
+            const dy = Math.sin(d.angleOffset) * orbitR;
+            const droneX = player.x + dx;
+            const droneY = player.y + dy;
+
+            // Drone AI shoot nearest enemy
+            const now = Date.now();
+            if (now - d.lastShot > 800) {
+                let target = getClosestEnemy();
+                if (target) {
+                    const angle = Math.atan2(target.y - droneY, target.x - droneX);
+                    projectiles.push({
+                        x: droneX,
+                        y: droneY,
+                        vx: Math.cos(angle) * 7,
+                        vy: Math.sin(angle) * 7,
+                        isPlayer: true,
+                        isPlasma: false,
+                        damage: 8,
+                        r: 3
+                    });
+                    d.lastShot = now;
+                    playSynthSFX('hit');
+                }
+            }
+        });
+    }
+
+    function updateProjectiles() {
+        for (let i = projectiles.length - 1; i >= 0; i--) {
+            let p = projectiles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+
+            // Boundary clean up
+            if (p.x < 0 || p.x > arenaWidth || p.y < 0 || p.y > arenaHeight) {
+                projectiles.splice(i, 1);
+                continue;
+            }
+
+            // Obstacle wall collision
+            let hitWall = false;
+            for (let wall of mapWalls) {
+                if (checkCircleRectCollision(p.x, p.y, p.r, wall.x, wall.y, wall.w, wall.h).collided) {
+                    hitWall = true;
+                    break;
+                }
+            }
+            if (hitWall) {
+                projectiles.splice(i, 1);
+                continue;
+            }
+
+            // Hit target check
+            if (p.isPlayer) {
+                // Collide with enemies
+                let hitEnemy = false;
+                for (let j = enemies.length - 1; j >= 0; j--) {
+                    let e = enemies[j];
+                    const dx = p.x - e.x;
+                    const dy = p.y - e.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    if (dist < p.r + e.r) {
+                        // Critical chance check
+                        const isCrit = Math.random() * 100 < (5 + upgrades.crit * 8); // Max 45% Crit
+                        let finalDmg = p.damage;
+                        if (isCrit) {
+                            finalDmg = Math.round(finalDmg * 1.8);
+                        }
+
+                        e.hp -= finalDmg;
+                        spawnTextParticle(e.x, e.y - 20, isCrit ? `💥 ${finalDmg}` : `💥 ${finalDmg}`, isCrit ? '#fbbf24' : '#ffffff', isCrit ? 18 : 14);
+                        playSynthSFX('hit');
+
+                        // Dead check
+                        if (e.hp <= 0) {
+                            handleEnemyDeath(e);
+                            enemies.splice(j, 1);
+                        }
+
+                        if (!p.isPlasma) {
+                            hitEnemy = true;
+                            break;
+                        }
+                    }
+                }
+                if (hitEnemy) {
+                    projectiles.splice(i, 1);
+                }
+            } else {
+                // Collide with player
+                const dx = p.x - player.x;
+                const dy = p.y - player.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < p.r + player.r) {
+                    damagePlayer(p.damage);
+                    projectiles.splice(i, 1);
+                }
+            }
+        }
+    }
+
+    function damagePlayer(dmg) {
+        triggerScreenShake(8, 10);
+        playSynthSFX('hit');
+        player.shieldRegenTimer = 0; // Reset recharge delay
+
+        // Shield logic
+        if (player.shield > 0) {
+            player.shield -= dmg;
+            if (player.shield < 0) {
+                // Overflow damage goes to HP
+                player.hp += player.shield; // shield is negative
+                player.shield = 0;
+            }
+        } else {
+            player.hp -= dmg;
+        }
+
+        updateHudBars();
+        
+        // Reset quiz combo
+        if (player.combo > 0) {
+            player.combo = 0;
+            document.getElementById('hud-combo').style.display = 'none';
+        }
+
+        // Game over check
+        if (player.hp <= 0) {
+            player.hp = 0;
+            updateHudBars();
+            endGame(false);
+        }
+    }
+
+    function handleEnemyDeath(e) {
+        spawnExplosionParticles(e.x, e.y, e.isBoss ? 4 : (e.type === 'heavy' ? 1.5 : 1));
+        playSynthSFX('explosion');
+
+        // Drop loot items (XP, coins, power-ups)
+        const coinDrop = 5 + Math.floor(Math.random() * 6);
+        let xpGained = Math.round(e.scoreVal / 10);
+        if (skillTree.cyber.xpBonus.unlocked) {
+            xpGained = Math.round(xpGained * 1.3);
+        }
+
+        player.score += e.scoreVal;
+        coins += coinDrop;
+        player.coinsCollected += coinDrop;
+        player.totalEnemiesKilled++;
+        
+        // UI updates
+        document.getElementById('hud-coins').innerText = `🪙 ${coins}`;
+        document.getElementById('hud-score').innerText = `⭐ ${player.score}`;
+
+        // Drop visual power-up or XP crystal
+        spawnPowerUp(e.x, e.y);
+
+        // Track stats cycle for quiz
+        if (!e.isBoss) {
+            player.killsInQuizCycle++;
+            document.getElementById('hud-kills').innerText = `🤖 ${player.killsInQuizCycle}/10`;
+            if (player.killsInQuizCycle >= 10) {
+                player.killsInQuizCycle = 0;
+                document.getElementById('hud-kills').innerText = `🤖 0/10`;
+                triggerQuizOverlay();
+            }
+        } else {
+            // Boss killed, chapter complete victory!
+            isBossSpawned = false;
+            bossInstance = null;
+            endGame(true);
+        }
+    }
+
+    function updateEnemies() {
+        for (let e of enemies) {
+            // Wall collisions check for enemy tanks
+            const prevX = e.x;
+            const prevY = e.y;
+
+            // AI Steering towards player
+            const dx = player.x - e.x;
+            const dy = player.y - e.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            if (e.isBoss) {
+                // Boss attack logic
+                updateBossLogic(e, dx, dy, dist);
+            } else {
+                // Normal enemy behavior
+                e.angle = Math.atan2(dy, dx);
+                
+                // Set moving velocities
+                e.vx = Math.cos(e.angle) * e.speed;
+                e.vy = Math.sin(e.angle) * e.speed;
+                
+                // Sniper tries to keep distance
+                if (e.type === 'sniper' && dist < 280) {
+                    // move backwards or slide sideways
+                    e.vx = -Math.cos(e.angle) * e.speed;
+                    e.vy = -Math.sin(e.angle) * e.speed;
+                }
+
+                e.x += e.vx;
+                e.y += e.vy;
+
+                // Restrict walls
+                mapWalls.forEach(wall => {
+                    const check = checkCircleRectCollision(e.x, e.y, e.r, wall.x, wall.y, wall.w, wall.h);
+                    if (check.collided) {
+                        e.x = prevX;
+                        e.y = prevY;
+                    }
+                });
+
+                // Shoot logic
+                e.turretAngle = e.angle;
+                const now = Date.now();
+                
+                if (e.type === 'basic' && now - e.lastShotTime > 1500 && dist < 400) {
+                    fireEnemyProjectile(e, 5, 5, '#f97316');
+                    e.lastShotTime = now;
+                } else if (e.type === 'fast' && now - e.lastShotTime > 1000 && dist < 200) {
+                    fireEnemyProjectile(e, 4, 6, '#ef4444');
+                    e.lastShotTime = now;
+                } else if (e.type === 'heavy' && now - e.lastShotTime > 2500 && dist < 450) {
+                    fireEnemyProjectile(e, 15, 4.5, '#ef4444', 8);
+                    e.lastShotTime = now;
+                } else if (e.type === 'sniper' && now - e.lastShotTime > 3000 && dist < 600) {
+                    // Long high-speed rail laser
+                    fireEnemyProjectile(e, 12, 11, '#38bdf8', 4);
+                    e.lastShotTime = now;
+                } else if (e.type === 'hacker' && now - e.lastEmpTime > 4000 && dist < 220) {
+                    // Hacker EMP zap ring
+                    triggerEnemyEmpZap(e);
+                    e.lastEmpTime = now;
+                }
+            }
+        }
+    }
+
+    function fireEnemyProjectile(e, damage, speed, color = '#f87171', r = 4) {
+        projectiles.push({
+            x: e.x + Math.cos(e.turretAngle) * (e.r + 5),
+            y: e.y + Math.sin(e.turretAngle) * (e.r + 5),
+            vx: Math.cos(e.turretAngle) * speed,
+            vy: Math.sin(e.turretAngle) * speed,
+            isPlayer: false,
+            isPlasma: false,
+            damage: damage,
+            r: r,
+            bulletColor: color
+        });
+    }
+
+    function triggerEnemyEmpZap(e) {
+        playSynthSFX('hacked');
+        
+        // Draw expanding EMP shockwave ring visual
+        particles.push({
+            x: e.x, y: e.y,
+            r: 5,
+            maxR: 200,
+            alpha: 0.8,
+            decay: 0.05,
+            color: 'rgba(168, 85, 247, 0.4)',
+            type: 'ring'
+        });
+
+        // Check if player inside EMP ring radius
+        const dx = player.x - e.x;
+        const dy = player.y - e.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist <= 200) {
+            // Apply EMP Hack
+            let dur = skillTree.cyber.empShield.unlocked ? 45 : 90; // 0.75s vs 1.5s delay
+            player.isHacked = true;
+            player.hackTimer = dur;
+            
+            document.getElementById('hud-emp').style.display = 'block';
+            spawnTextParticle(player.x, player.y - 40, "EMP SYSTEM OFFLINE!", "#a855f7", 16);
+            triggerScreenShake(12, 15);
+        }
+    }
+
+    // Chapter Boss AI logics
+    function updateBossLogic(boss, dx, dy, dist) {
+        // Slow rotation and movements
+        boss.angle = Math.atan2(dy, dx);
+        boss.vx = Math.cos(boss.angle) * boss.speed;
+        boss.vy = Math.sin(boss.angle) * boss.speed;
+        boss.x += boss.vx;
+        boss.y += boss.vy;
+
+        const now = Date.now();
+        
+        // Multi-attacks patterns based on Chapters
+        if (currentChapter === 1) {
+            // Chapter 1: CPU Destroyer - Bullet hell circles
+            if (now - boss.lastShotTime > 1800) {
+                // Shoot a 360 ring of 10 projectiles
+                for (let i = 0; i < 10; i++) {
+                    const angle = (i * Math.PI * 2) / 10;
+                    projectiles.push({
+                        x: boss.x,
+                        y: boss.y,
+                        vx: Math.cos(angle) * 4,
+                        vy: Math.sin(angle) * 4,
+                        isPlayer: false,
+                        damage: 8,
+                        r: 5
+                    });
+                }
+                boss.lastShotTime = now;
+                playSynthSFX('shoot');
+            }
+        } else if (currentChapter === 2) {
+            // Chapter 2: Data Corruptor - Spawns 2 glitch tanks or fires homing shells
+            if (now - boss.lastShotTime > 2400) {
+                // Shoot 3 heavy spread bullets
+                for (let i = -1; i <= 1; i++) {
+                    const spreadAngle = boss.angle + (i * 0.25);
+                    projectiles.push({
+                        x: boss.x + Math.cos(spreadAngle) * 70,
+                        y: boss.y + Math.sin(spreadAngle) * 70,
+                        vx: Math.cos(spreadAngle) * 5,
+                        vy: Math.sin(spreadAngle) * 5,
+                        isPlayer: false,
+                        damage: 12,
+                        r: 6
+                    });
+                }
+                boss.lastShotTime = now;
+                playSynthSFX('shoot');
+            }
+        } else if (currentChapter === 3) {
+            // Chapter 3: Logic Commander - Shoots quick double lasers or walls
+            if (now - boss.lastShotTime > 1400) {
+                // alternate dual turret firing
+                const d1 = boss.angle + 0.3;
+                const d2 = boss.angle - 0.3;
+                
+                projectiles.push({
+                    x: boss.x + Math.cos(d1) * 65,
+                    y: boss.y + Math.sin(d1) * 65,
+                    vx: Math.cos(boss.angle) * 7,
+                    vy: Math.sin(boss.angle) * 7,
+                    isPlayer: false,
+                    damage: 10,
+                    r: 5
+                });
+                projectiles.push({
+                    x: boss.x + Math.cos(d2) * 65,
+                    y: boss.y + Math.sin(d2) * 65,
+                    vx: Math.cos(boss.angle) * 7,
+                    vy: Math.sin(boss.angle) * 7,
+                    isPlayer: false,
+                    damage: 10,
+                    r: 5
+                });
+                boss.lastShotTime = now;
+                playSynthSFX('shoot');
+            }
+        } else if (currentChapter === 4) {
+            // Chapter 4: Cyber Hacker King - EMP burst ring + Phishing bombs
+            if (now - boss.lastShotTime > 2000) {
+                // Fire a heavy EMP projectile that targets player
+                projectiles.push({
+                    x: boss.x + Math.cos(boss.angle) * 70,
+                    y: boss.y + Math.sin(boss.angle) * 70,
+                    vx: Math.cos(boss.angle) * 6,
+                    vy: Math.sin(boss.angle) * 6,
+                    isPlayer: false,
+                    damage: 15,
+                    r: 8,
+                    bulletColor: '#a855f7' // Purple EMP bomb
+                });
+                boss.lastShotTime = now;
+                playSynthSFX('shoot');
+            }
+            
+            // Random EMP zap shockwave
+            if (now - boss.lastEmpTime > 5000 && dist < 300) {
+                triggerEnemyEmpZap(boss);
+                boss.lastEmpTime = now;
+            }
+        }
+    }
+
+    function updatePowerups() {
+        for (let i = powerUps.length - 1; i >= 0; i--) {
+            let pw = powerUps[i];
+            
+            // Pick up check
+            const dx = player.x - pw.x;
+            const dy = player.y - pw.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist < player.r + pw.r) {
+                // Collect powerup
+                applyPowerup(pw.type);
+                powerUps.splice(i, 1);
+                continue;
+            }
+
+            // Expiry after 12s
+            if (Date.now() - pw.spawnTime > 12000) {
+                powerUps.splice(i, 1);
+            }
+        }
+    }
+
+    function applyPowerup(type) {
+        playSynthSFX('buff');
+        
+        if (type === 'xp') {
+            let xpGained = 20;
+            if (skillTree.cyber.xpBonus.unlocked) xpGained = Math.round(xpGained * 1.3);
+            player.xp += xpGained;
+            spawnTextParticle(player.x, player.y - 30, `+${xpGained} XP`, "#10b981");
+            
+            // Level up check
+            const xpReq = player.level * 100;
+            if (player.xp >= xpReq) {
+                player.xp -= xpReq;
+                player.level++;
+                player.maxHp = Math.round(player.maxHp * 1.1);
+                player.maxShield = Math.round(player.maxShield * 1.1);
+                player.hp = player.maxHp;
+                player.shield = player.maxShield;
+                
+                spawnTextParticle(player.x, player.y - 50, `LEVEL UP: LV.${player.level}!`, "#fbbf24", 20);
+                triggerScreenShake(15, 20);
+                playSynthSFX('buff');
+            }
+        } else if (type === 'coin') {
+            const drop = 10 + Math.floor(Math.random() * 11);
+            coins += drop;
+            player.coinsCollected += drop;
+            document.getElementById('hud-coins').innerText = `🪙 ${coins}`;
+            spawnTextParticle(player.x, player.y - 30, `+${drop} Coins`, "#fbbf24");
+        } else if (type === 'heart') {
+            const heal = Math.round(player.maxHp * 0.25);
+            player.hp = Math.min(player.maxHp, player.hp + heal);
+            spawnTextParticle(player.x, player.y - 30, `+${heal} HP REPAIR`, "#ef4444");
+        } else if (type === 'shield') {
+            const recharge = Math.round(player.maxShield * 0.4);
+            player.shield = Math.min(player.maxShield, player.shield + recharge);
+            spawnTextParticle(player.x, player.y - 30, `+${recharge} SHIELD CHARGE`, "#06b6d4");
+        }
+        
+        updateHudBars();
+    }
+
+    function updateParticles() {
+        for (let i = particles.length - 1; i >= 0; i--) {
+            let p = particles[i];
+            
+            if (p.type === 'spark') {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha -= p.decay;
+                if (p.alpha <= 0) particles.splice(i, 1);
+            } else if (p.type === 'text') {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha -= p.decay;
+                if (p.alpha <= 0) particles.splice(i, 1);
+            } else if (p.type === 'ring') {
+                p.r += (p.maxR - p.r) * 0.12;
+                p.alpha -= p.decay;
+                if (p.alpha <= 0) particles.splice(i, 1);
+            } else if (p.type === 'tread') {
+                p.alpha -= p.decay;
+                if (p.alpha <= 0) particles.splice(i, 1);
+            }
+        }
+    }
+
+    function updateHudBars() {
+        // Update Shield UI
+        document.getElementById('txt-shield').innerText = `${Math.round(player.shield)}/${player.maxShield}`;
+        document.getElementById('bar-shield').style.width = `${(player.shield / player.maxShield) * 100}%`;
+        
+        // Update HP UI
+        document.getElementById('txt-hp').innerText = `${Math.round(player.hp)}/${player.maxHp}`;
+        document.getElementById('bar-hp').style.width = `${(player.hp / player.maxHp) * 100}%`;
+        
+        // Update XP UI
+        const xpReq = player.level * 100;
+        document.getElementById('txt-xp').innerText = `${player.xp}/${xpReq} (LV.${player.level})`;
+        document.getElementById('bar-xp').style.width = `${(player.xp / xpReq) * 100}%`;
+    }
+
+    // Spawning wave mechanics
+    function manageWaves() {
+        if (isBossSpawned) return; // Wait for boss fight to complete
+
+        // Spawn timer checks
+        waveSpawnTimer++;
+        
+        // Check active enemies count
+        if (enemies.length === 0) {
+            // Wave progress check
+            // Wave 1-3: normal minions. Wave 4: Boss spawns
+            if (gameWave < 4) {
+                // Spawn next batch of wave minions immediately
+                gameWave++;
+                document.getElementById('hud-wave').innerText = `WAVE ${gameWave}`;
+                spawnWaveMinions();
+            } else {
+                // Spawn Chapter Boss
+                spawnEnemy('boss');
+            }
+        }
+    }
+
+    function spawnWaveMinions() {
+        let count = 4 + gameWave * 2;
+        const pool = ['basic'];
+        if (currentChapter >= 2) pool.push('fast');
+        if (currentChapter >= 3) { pool.push('heavy'); pool.push('sniper'); }
+        if (currentChapter >= 4) pool.push('hacker');
+
+        for (let i = 0; i < count; i++) {
+            const rType = pool[Math.floor(Math.random() * pool.length)];
+            spawnEnemy(rType);
+        }
+    }
+
+    // --- GAME DRAWING METHODS ---
+    function drawGame() {
+        if (!ctx) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        ctx.save();
+        
+        // Grid background
+        drawGrid(ctx);
+
+        // Tread marks on floor
+        particles.forEach(p => {
+            if (p.type === 'tread') {
+                ctx.fillStyle = `rgba(15, 23, 42, ${p.alpha})`;
+                ctx.save();
+                ctx.translate(p.x - camera.x, p.y - camera.y);
+                ctx.rotate(p.angle);
+                ctx.fillRect(-15, -12, 30, 4);
+                ctx.fillRect(-15, 8, 30, 4);
+                ctx.restore();
+            }
+        });
+
+        // Loot powerups
+        powerUps.forEach(pw => {
+            const rx = pw.x - camera.x;
+            const ry = pw.y - camera.y;
+            
+            ctx.save();
+            ctx.shadowBlur = 10;
+            
+            if (pw.type === 'xp') {
+                ctx.fillStyle = '#10b981'; // Green diamond crystal
+                ctx.shadowColor = '#10b981';
+                ctx.beginPath();
+                ctx.moveTo(rx, ry - pw.r);
+                ctx.lineTo(rx + pw.r, ry);
+                ctx.lineTo(rx, ry + pw.r);
+                ctx.lineTo(rx - pw.r, ry);
+                ctx.closePath();
+                ctx.fill();
+            } else if (pw.type === 'coin') {
+                ctx.fillStyle = '#fbbf24'; // Yellow gold circle
+                ctx.shadowColor = '#fbbf24';
+                ctx.beginPath();
+                ctx.arc(rx, ry, pw.r, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#d97706';
+                ctx.font = 'bold 11px Orbitron';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('$', rx, ry);
+            } else if (pw.type === 'heart') {
+                ctx.fillStyle = '#ef4444'; // Red heart
+                ctx.shadowColor = '#ef4444';
+                ctx.font = '16px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('❤️', rx, ry);
+            } else if (pw.type === 'shield') {
+                ctx.fillStyle = '#06b6d4'; // Cyan shield battery cylinder
+                ctx.shadowColor = '#06b6d4';
+                ctx.fillRect(rx - 7, ry - 9, 14, 18);
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(rx - 4, ry - 6, 8, 3);
+            }
+            ctx.restore();
+        });
+
+        // Obstacles walls
+        drawObstacles(ctx);
+
+        // Draw Enemies
+        enemies.forEach(e => {
+            drawTank(ctx, e.x - camera.x, e.y - camera.y, e.r, e.angle, e.turretAngle, e.type, e.hp, e.maxHp);
+        });
+
+        // Draw Player Tank
+        drawTank(ctx, player.x - camera.x, player.y - camera.y, player.r, player.angle, player.turretAngle, 'player', player.hp, player.maxHp);
+        
+        // Draw player active shield bubble if shield > 0
+        if (player.shield > 0) {
+            ctx.save();
+            ctx.strokeStyle = `rgba(6, 182, 212, ${0.2 + (player.shield / player.maxShield) * 0.4})`;
+            ctx.lineWidth = 3;
+            ctx.shadowBlur = 12;
+            ctx.shadowColor = '#06b6d4';
+            ctx.beginPath();
+            ctx.arc(player.x - camera.x, player.y - camera.y, player.r + 8, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        // Draw support drone orbit
+        player.drones.forEach(d => {
+            const orbitR = 50;
+            const dx = Math.cos(d.angleOffset) * orbitR;
+            const dy = Math.sin(d.angleOffset) * orbitR;
+            drawSupportDrone(ctx, player.x + dx - camera.x, player.y + dy - camera.y);
+        });
+
+        // Draw Projectiles
+        projectiles.forEach(p => {
+            ctx.save();
+            ctx.shadowBlur = 8;
+            if (p.isPlayer) {
+                ctx.fillStyle = p.isPlasma ? '#38bdf8' : '#e0f2fe';
+                ctx.shadowColor = '#0ea5e9';
+            } else {
+                ctx.fillStyle = p.bulletColor || '#f87171';
+                ctx.shadowColor = p.bulletColor || '#ef4444';
+            }
+            ctx.beginPath();
+            ctx.arc(p.x - camera.x, p.y - camera.y, p.r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        });
+
+        // Draw particles (sparks, ring rings, texts)
+        particles.forEach(p => {
+            if (p.type === 'spark') {
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.alpha;
+                ctx.beginPath();
+                ctx.arc(p.x - camera.x, p.y - camera.y, p.r, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (p.type === 'ring') {
+                ctx.strokeStyle = p.color;
+                ctx.lineWidth = 3;
+                ctx.globalAlpha = p.alpha;
+                ctx.beginPath();
+                ctx.arc(p.x - camera.x, p.y - camera.y, p.r, 0, Math.PI * 2);
+                ctx.stroke();
+            } else if (p.type === 'text') {
+                ctx.fillStyle = p.color;
+                ctx.font = `${p.bold ? 'bold' : ''} ${p.size}px Kanit`;
+                ctx.textAlign = 'center';
+                ctx.globalAlpha = p.alpha;
+                ctx.fillText(p.text, p.x - camera.x, p.y - camera.y);
+            }
+        });
+        
+        ctx.restore();
+    }
+
+    // Helper: Draw detailed 2D tank graphics
+    function drawTank(ctx, x, y, r, chassisAngle, turretAngle, type, hp, maxHp) {
+        ctx.save();
+        ctx.translate(x, y);
+
+        // 1. Draw treads
+        ctx.save();
+        ctx.rotate(chassisAngle);
+        
+        // Track colors
+        let treadColor = '#334155';
+        let bodyColor = '#0284c7'; // Player blue
+        let trimColor = '#38bdf8';
+        
+        if (type === 'basic') { bodyColor = '#e2e8f0'; trimColor = '#cbd5e1'; }
+        else if (type === 'fast') { bodyColor = '#fbbf24'; trimColor = '#fb923c'; r = 17; }
+        else if (type === 'heavy') { bodyColor = '#991b1b'; trimColor = '#ef4444'; treadColor = '#1e293b'; }
+        else if (type === 'sniper') { bodyColor = '#0d9488'; trimColor = '#2dd4bf'; }
+        else if (type === 'hacker') { bodyColor = '#6b21a8'; trimColor = '#a855f7'; }
+        else if (type === 'boss') { bodyColor = '#1e293b'; trimColor = '#dc2626'; }
+
+        // Draw left & right treads
+        ctx.fillStyle = treadColor;
+        ctx.fillRect(-r - 4, -r + 2, r * 2 + 8, 6);
+        ctx.fillRect(-r - 4, r - 8, r * 2 + 8, 6);
+        
+        // Tread teeth marks
+        ctx.fillStyle = '#1e293b';
+        for (let i = -r - 2; i < r + 4; i += 8) {
+            ctx.fillRect(i, -r + 2, 3, 2);
+            ctx.fillRect(i, r - 4, 3, 2);
+        }
+
+        // 2. Chassis body base shape
+        ctx.fillStyle = bodyColor;
+        ctx.strokeStyle = trimColor;
+        ctx.lineWidth = 2;
+        
+        if (type === 'fast') {
+            // hover/triangle speeder shape
+            ctx.beginPath();
+            ctx.moveTo(r, 0);
+            ctx.lineTo(-r, -r + 5);
+            ctx.lineTo(-r + 6, 0);
+            ctx.lineTo(-r, r - 5);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+        } else if (type === 'boss') {
+            // Massive boss hex chassis
+            ctx.beginPath();
+            ctx.arc(0, 0, r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            
+            // Core skull grid art
+            ctx.fillStyle = '#ef4444';
+            ctx.fillRect(-15, -15, 30, 30);
+        } else {
+            // Standard rounded military rectangle chassis
+            ctx.beginPath();
+            ctx.roundRect(-r + 2, -r + 5, r * 2 - 4, r * 2 - 10, 4);
+            ctx.fill();
+            ctx.stroke();
+        }
+        ctx.restore();
+
+        // 3. Draw Turret and Barrel
+        ctx.save();
+        ctx.rotate(turretAngle);
+        
+        ctx.fillStyle = bodyColor;
+        ctx.strokeStyle = trimColor;
+        ctx.lineWidth = 2;
+        
+        // Draw gun barrel
+        if (type === 'sniper') {
+            // Very long railgun barrel
+            ctx.fillStyle = '#115e59';
+            ctx.fillRect(0, -3, r * 1.8, 6);
+            ctx.strokeRect(0, -3, r * 1.8, 6);
+            // Rail energy cell capacitors
+            ctx.fillStyle = '#2dd4bf';
+            ctx.fillRect(r * 0.7, -4, 10, 8);
+        } else if (type === 'heavy') {
+            // Double thick tank barrel
+            ctx.fillRect(0, -6, r * 1.3, 12);
+            ctx.strokeRect(0, -6, r * 1.3, 12);
+            ctx.fillStyle = '#ef4444';
+            ctx.fillRect(r * 1.1, -8, 6, 16);
+        } else if (type === 'boss') {
+            // Giant plasma blaster barrel
+            ctx.fillStyle = '#dc2626';
+            ctx.fillRect(0, -10, r * 1.3, 20);
+            ctx.strokeRect(0, -10, r * 1.3, 20);
+        } else if (type === 'hacker') {
+            // EMP circular radar antenna instead of barrel
+            ctx.fillStyle = '#a855f7';
+            ctx.beginPath();
+            ctx.moveTo(0, -3);
+            ctx.lineTo(r * 1.1, -12);
+            ctx.lineTo(r * 1.1, 12);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+        } else {
+            // Normal player/basic barrel
+            ctx.fillRect(0, -3, r * 1.2, 6);
+            ctx.strokeRect(0, -3, r * 1.2, 6);
+        }
+
+        // Draw turret hatch dome
+        ctx.fillStyle = bodyColor;
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 0.65, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Turret neon details
+        ctx.fillStyle = trimColor;
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 0.3, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+
+        // 4. HP Bar above tank
+        const barW = r * 2;
+        const barH = 4;
+        const barY = -r - 12;
+        
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.6)';
+        ctx.fillRect(-barW/2, barY, barW, barH);
+        
+        const hpPct = Math.max(0, hp / maxHp);
+        const hpColor = type === 'player' ? '#4ade80' : '#ef4444'; // Green for player, Red for enemies
+        ctx.fillStyle = hpColor;
+        ctx.fillRect(-barW/2, barY, barW * hpPct, barH);
+
+        ctx.restore();
+    }
+
+    function drawSupportDrone(ctx, x, y) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.fillStyle = '#38bdf8';
+        ctx.strokeStyle = '#0ea5e9';
+        ctx.lineWidth = 1.5;
+        
+        // Triangle hover drone
+        ctx.beginPath();
+        ctx.moveTo(6, 0);
+        ctx.lineTo(-6, -5);
+        ctx.lineTo(-6, 5);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        
+        // Mini center glow
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(-2, 0, 1.5, 0, Math.PI*2);
+        ctx.fill();
+
+        ctx.restore();
+    }
+
+    // --- GAMEPLAY TRIGGERS ---
+    function selectChapter(chapId) {
+        if (chapId === 4) {
+            // Validate unlock
+            const hasFirstWin = achievements.find(a => a.id === 'first_win').unlocked;
+            if (!hasFirstWin) {
+                playSynthSFX('hit');
+                spawnNotificationFloat("🔒 CHAPTER LOCKED: ปลดล็อกด่าน 1-3 ก่อน!");
+                return;
+            }
+        }
+        currentChapter = chapId;
+        startGameSession();
+    }
+
+    function startGameSession() {
+        switchScreen('screen-game');
+        
+        // Reset states
+        player.hp = player.maxHp;
+        player.shield = player.maxShield;
+        player.xp = 0;
+        player.level = 1;
+        player.vx = 0;
+        player.vy = 0;
+        player.x = 800;
+        player.y = 800;
+        player.killsInQuizCycle = 0;
+        player.combo = 0;
+        player.doubleDamageTime = 0;
+        player.isHacked = false;
+        player.drones = [];
+
+        enemies = [];
+        projectiles = [];
+        powerUps = [];
+        particles = [];
+        
+        gameWave = 1;
+        isBossSpawned = false;
+        bossInstance = null;
+
+        document.getElementById('hud-kills').innerText = `🤖 0/10`;
+        document.getElementById('hud-coins').innerText = `🪙 ${coins}`;
+        document.getElementById('hud-score').innerText = `⭐ ${player.score}`;
+        document.getElementById('hud-wave').innerText = `WAVE 1`;
+        document.getElementById('hud-combo').style.display = 'none';
+        document.getElementById('hud-emp').style.display = 'none';
+        
+        updateHudBars();
+        buildObstaclesMap();
+
+        // Canvas Setup
+        canvas = document.getElementById('game-canvas');
+        ctx = canvas.getContext('2d');
+        resizeGameCanvas();
+
+        isGameRunning = true;
+        isPaused = false;
+        
+        KAMPAI.sound.unlock();
+        KAMPAI.sound.bgmStart();
+
+        // Spawn first batch of minions
+        spawnWaveMinions();
+
+        // Start game loop
+        stopGameLoop();
+        runGameLoop();
+    }
+
+    function resizeGameCanvas() {
+        if (canvas) {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+    }
+    window.addEventListener('resize', resizeGameCanvas);
+
+    function runGameLoop() {
+        function loop() {
+            updateGame();
+            drawGame();
+            if (isGameRunning && !isPaused) {
+                gameLoopId = requestAnimationFrame(loop);
+            }
+        }
+        gameLoopId = requestAnimationFrame(loop);
+    }
+
+    function stopGameLoop() {
+        if (gameLoopId) {
+            cancelAnimationFrame(gameLoopId);
+            gameLoopId = null;
+        }
+    }
+
+    function pauseGame() {
+        isPaused = true;
+        stopGameLoop();
+        
+        if (confirm("หยุดเกมชั่วคราว\nกด OK เพื่อเล่นต่อ หรือ Cancel เพื่อยอมแพ้ออกไปยังแผนที่หลัก")) {
+            isPaused = false;
+            runGameLoop();
+        } else {
+            endGame(false);
+        }
+    }
+
+    // --- QUIZ OVERLAY TRIGGERS ---
+    let activeQuestionObj = null;
+    let selectedAnswer = null;
+
+    function triggerQuizOverlay() {
+        // Pause gameplay loop
+        isPaused = true;
+        stopGameLoop();
+        
+        // Compile quiz question based on chapter focus & adaptive difficulty
+        const categoryKey = getChapterCategoryKey(currentChapter);
+        const questionsList = quizDatabase[categoryKey];
+        
+        // Filter by difficulty
+        let pool = questionsList.filter(q => q.difficulty === learningState.difficulty);
+        if (pool.length === 0) pool = questionsList; // Fallback
+
+        // Pick random question
+        activeQuestionObj = pool[Math.floor(Math.random() * pool.length)];
+        selectedAnswer = null;
+
+        // Render UI
+        document.getElementById('quiz-lbl-cat').innerText = categoryKey.toUpperCase();
+        document.getElementById('quiz-lbl-diff').innerText = learningState.difficulty.toUpperCase();
+        
+        // Difficulty badge style class
+        const diffBadge = document.getElementById('quiz-lbl-diff');
+        diffBadge.className = 'quiz-difficulty';
+        diffBadge.classList.add(`diff-${learningState.difficulty}`);
+
+        document.getElementById('quiz-txt-question').innerText = activeQuestionObj.q;
+        
+        // Populate choices
+        for (let i = 0; i < 4; i++) {
+            const btn = document.getElementById(`choice-${i}`);
+            btn.className = 'choice-btn'; // Reset classes
+            document.getElementById(`choice-txt-${i}`).innerText = activeQuestionObj.choices[i] || "";
+        }
+
+        // Hide explanation & next button initially
+        document.getElementById('quiz-explanation').style.display = 'none';
+        document.getElementById('btn-next-quiz').style.display = 'none';
+
+        // Show overlay screen
+        document.getElementById('quiz-overlay').style.display = 'flex';
+
+        // Text-to-speech audio speak question
+        if (soundSettings.tts) {
+            KAMPAI.sound.speak(activeQuestionObj.q, 'th-TH', true);
+        }
+    }
+
+    function getChapterCategoryKey(chap) {
+        if (chap === 1) return 'hardware';
+        if (chap === 2) return 'data';
+        if (chap === 3) return 'algorithm';
+        return 'safety'; // Chapter 4
+    }
+
+    function submitAnswer(choiceIdx) {
+        if (selectedAnswer !== null) return; // Answer already locked
+        selectedAnswer = choiceIdx;
+        
+        KAMPAI.sound.stopSpeak();
+
+        const correctIdx = activeQuestionObj.ans;
+        const isCorrect = choiceIdx === correctIdx;
+        
+        const cat = getChapterCategoryKey(currentChapter);
+        learningState.stats[cat].asked++;
+
+        // Render visual feedbacks
+        const choiceBtn = document.getElementById(`choice-${choiceIdx}`);
+        if (isCorrect) {
+            choiceBtn.classList.add('correct');
+            KAMPAI.sound.correct();
+            KAMPAI.sound.fxFlash(true);
+            learningState.stats[cat].correct++;
+            
+            // Buff awards
+            applyQuizCorrectBuffs();
+        } else {
+            choiceBtn.classList.add('wrong');
+            
+            // Glow the correct answer too
+            document.getElementById(`choice-${correctIdx}`).classList.add('correct');
+            KAMPAI.sound.wrong();
+            KAMPAI.sound.fxFlash(false);
+            
+            // Reset consecutive correct
+            learningState.consecCorrect = 0;
+            learningState.consecWrong++;
+            player.combo = 0;
+            document.getElementById('hud-combo').style.display = 'none';
+        }
+
+        // Handle adaptive learning parameters
+        if (isCorrect) {
+            learningState.consecCorrect++;
+            learningState.consecWrong = 0;
+            if (learningState.consecCorrect >= 5) {
+                // Raise difficulty
+                if (learningState.difficulty === 'easy') learningState.difficulty = 'medium';
+                else if (learningState.difficulty === 'medium') learningState.difficulty = 'hard';
+                learningState.consecCorrect = 0; // Reset
+            }
+        } else {
+            if (learningState.consecWrong >= 3) {
+                // Lower difficulty
+                if (learningState.difficulty === 'hard') learningState.difficulty = 'medium';
+                else if (learningState.difficulty === 'medium') learningState.difficulty = 'easy';
+                learningState.consecWrong = 0; // Reset
+            }
+        }
+
+        // Show detailed explanations
+        document.getElementById('quiz-txt-explanation').innerText = activeQuestionObj.exp;
+        document.getElementById('quiz-explanation').style.display = 'block';
+        document.getElementById('btn-next-quiz').style.display = 'block';
+
+        // TTS read explanation if enabled
+        if (soundSettings.tts) {
+            KAMPAI.sound.speak("คำอธิบาย " + activeQuestionObj.exp, 'th-TH');
+        }
+
+        // Save progress details immediately
+        saveProgress();
+    }
+
+    function applyQuizCorrectBuffs() {
+        player.combo++;
+        if (player.combo > player.maxCombo) {
+            player.maxCombo = player.combo;
+        }
+
+        // Show Combo HUD
+        if (player.combo >= 2) {
+            const comboHud = document.getElementById('hud-combo');
+            comboHud.innerText = `🔥 COMBO x${player.combo}`;
+            comboHud.style.display = 'block';
+        }
+
+        // XP & Coin bonus scales with combo
+        const xpBonus = 50 * player.combo;
+        const coinBonus = 30 * player.combo;
+        
+        player.xp += xpBonus;
+        coins += coinBonus;
+        player.coinsCollected += coinBonus;
+
+        // Apply Double Damage weapon buff for 15 seconds (900 frames)
+        player.doubleDamageTime = 900;
+        
+        // Recharge shield to full
+        player.shield = player.maxShield;
+
+        // Visual notifications on screen
+        spawnTextParticle(player.x, player.y - 30, `ACCESS GRANTED! +${xpBonus} XP`, "#4ade80");
+        spawnTextParticle(player.x, player.y - 50, `🪙 +${coinBonus} COINS & DAMAGE UP!`, "#fbbf24", 16);
+        
+        document.getElementById('hud-coins').innerText = `🪙 ${coins}`;
+        updateHudBars();
+    }
+
+    function nextQuizAction() {
+        KAMPAI.sound.stopSpeak();
+        document.getElementById('quiz-overlay').style.display = 'none';
+        
+        // Resume game loop
+        isPaused = false;
+        runGameLoop();
+    }
+
+    // --- UPGRADES & SKILL TREE SYSTEM ---
+    function renderUpgradesScreen() {
+        document.getElementById('upgrade-coins-lbl').innerText = `🪙 เหรียญไซเบอร์สะสม: ${coins}`;
+        
+        const statsKeys = ['damage', 'firerate', 'hp', 'speed', 'crit'];
+        const costs = { damage: 150, firerate: 150, hp: 150, speed: 150, crit: 200 };
+        
+        statsKeys.forEach(k => {
+            const lvl = upgrades[k];
+            document.getElementById(`lvl-stat-${k}`).innerText = `Lv.${lvl}/5`;
+            
+            const costBtn = document.getElementById(`btn-upgrade-${k}`);
+            if (lvl >= 5) {
+                costBtn.innerText = "MAX";
+                costBtn.disabled = true;
+            } else {
+                const currentCost = costs[k] * lvl;
+                document.getElementById(`cost-stat-${k}`).innerText = currentCost;
+                costBtn.disabled = coins < currentCost;
+            }
+        });
+
+        // Skill nodes load
+        renderSkillTreeNodes();
+    }
+
+    function buyStatUpgrade(key) {
+        const costs = { damage: 150, firerate: 150, hp: 150, speed: 150, crit: 200 };
+        const lvl = upgrades[key];
+        if (lvl >= 5) return;
+
+        const cost = costs[key] * lvl;
+        if (coins >= cost) {
+            coins -= cost;
+            upgrades[key]++;
+            playSynthSFX('buff');
+            
+            // Check Tank Elite achievement (Lv.5)
+            if (upgrades[key] === 5) {
+                unlockAchievement('tank_elite');
+            }
+
+            saveProgress();
+            renderUpgradesScreen();
+        }
+    }
+
+    function switchSkillTab(tabName) {
+        activeSkillTab = tabName;
+        
+        document.getElementById('tab-skill-assault').classList.remove('active');
+        document.getElementById('tab-skill-engineer').classList.remove('active');
+        document.getElementById('tab-skill-cyber').classList.remove('active');
+        
+        document.getElementById(`tab-skill-${tabName}`).classList.add('active');
+        
+        renderSkillTreeNodes();
+    }
+
+    function renderSkillTreeNodes() {
+        const container = document.getElementById('skill-nodes-content');
+        container.innerHTML = "";
+        
+        const branch = skillTree[activeSkillTab];
+        Object.keys(branch).forEach(nodeKey => {
+            const node = branch[nodeKey];
+            const div = document.createElement('div');
+            
+            // Classes
+            div.className = `skill-node ${node.unlocked ? 'unlocked' : 'locked'}`;
+            
+            const btnState = node.unlocked ? 
+                `<span class="neon-text-green" style="font-weight:bold;">UNLOCKED</span>` :
+                `<button class="upgrade-cost-btn" onclick="buySkillNode('${activeSkillTab}', '${nodeKey}')" ${coins < node.cost ? 'disabled' : ''}>🪙 ${node.cost}</button>`;
+            
+            div.innerHTML = `
+                <div class="skill-node-info">
+                    <span class="skill-node-title">${node.title}</span>
+                    <span class="skill-node-desc">${node.desc}</span>
+                </div>
+                ${btnState}
+            `;
+            
+            container.appendChild(div);
+        });
+    }
+
+    function buySkillNode(tabName, nodeKey) {
+        const node = skillTree[tabName][nodeKey];
+        if (node.unlocked) return;
+
+        if (coins >= node.cost) {
+            coins -= node.cost;
+            node.unlocked = true;
+            playSynthSFX('buff');
+            
+            saveProgress();
+            renderUpgradesScreen();
+        }
+    }
+
+    // --- ACHIEVEMENTS MANAGEMENT ---
+    function renderAchievementsScreen() {
+        const container = document.getElementById('achievements-list');
+        container.innerHTML = "";
+
+        achievements.forEach(ach => {
+            const div = document.createElement('div');
+            div.className = `achievement-item ${ach.unlocked ? 'unlocked' : ''}`;
+            
+            div.innerHTML = `
+                <div class="achievement-icon">${ach.icon}</div>
+                <div class="achievement-details">
+                    <span class="achievement-name">${ach.name}</span>
+                    <span class="achievement-desc">${ach.desc}</span>
+                </div>
+                <div class="achievement-status-badge">
+                    ${ach.unlocked ? 'สำร็จ' : 'ยังไม่ปลดล็อก'}
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function unlockAchievement(id) {
+        const ach = achievements.find(a => a.id === id);
+        if (ach && !ach.unlocked) {
+            ach.unlocked = true;
+            playSynthSFX('buff');
+            spawnNotificationFloat(`🏆 ACHIEVEMENT UNLOCKED: ${ach.name}!`);
+            saveProgress();
+        }
+    }
+
+    // --- GAME TERMINATION & ANALYTICS REPORT ---
+    function endGame(isVictory) {
+        isGameRunning = false;
+        stopGameLoop();
+        
+        KAMPAI.sound.bgmStop();
+        if (isVictory) {
+            playSynthSFX('buff');
+            
+            // Check First Win achievement
+            if (currentChapter === 1) {
+                unlockAchievement('first_win');
+            }
+        } else {
+            playSynthSFX('gameOver');
+        }
+
+        // Calculate and display report analytics
+        document.getElementById('report-title').innerText = isVictory ? "MISSION COMPLETED" : "TANK DESTROYED";
+        document.getElementById('report-title').className = isVictory ? "cyber-title neon-text-blue" : "cyber-title neon-text-red";
+        
+        document.getElementById('rep-score').innerText = player.score.toLocaleString();
+        document.getElementById('rep-kills').innerText = player.totalEnemiesKilled;
+        
+        // Total asked questions
+        let askedTotal = 0;
+        let correctTotal = 0;
+        Object.keys(learningState.stats).forEach(cat => {
+            askedTotal += learningState.stats[cat].asked;
+            correctTotal += learningState.stats[cat].correct;
+        });
+
+        const accPct = askedTotal > 0 ? Math.round((correctTotal / askedTotal) * 100) : 0;
+        document.getElementById('rep-accuracy').innerText = `${accPct}%`;
+        document.getElementById('rep-combo').innerText = player.maxCombo;
+
+        // Category mastery bars updates
+        const categories = ['hw', 'data', 'algo', 'safety'];
+        const keys = ['hardware', 'data', 'algorithm', 'safety'];
+        
+        categories.forEach((cat, idx) => {
+            const statKey = keys[idx];
+            const data = learningState.stats[statKey];
+            const pct = data.asked > 0 ? Math.round((data.correct / data.asked) * 100) : 0;
+            
+            document.getElementById(`rep-lbl-mast-${cat}`).innerText = `${pct}% (${data.correct}/${data.asked})`;
+            document.getElementById(`rep-bar-mast-${cat}`).style.width = `${pct}%`;
+        });
+
+        // AI Personalized Recommendations based on low accuracy scores
+        const recsContainer = document.getElementById('report-recs-container');
+        recsContainer.innerHTML = "";
+
+        let hasRecommendation = false;
+        
+        // Evaluate categories
+        keys.forEach(k => {
+            const data = learningState.stats[k];
+            const pct = data.asked > 0 ? (data.correct / data.asked) : 1; // default to 1 if not asked
+            
+            if (pct < 0.75) {
+                hasRecommendation = true;
+                const recDiv = document.createElement('div');
+                recDiv.className = 'rec-item';
+                
+                let recText = "";
+                if (k === 'hardware') {
+                    recText = "💡 **คำแนะนำฮาร์ดแวร์:** ทบทวนเรื่องหลักการทำงานของหน่วยประมวลผลกลาง (CPU) วงจรทรานซิสเตอร์ของซิลิคอน และข้อแตกต่างระหว่างหน่วยความจำหลักสำรอง (RAM vs Storage)";
+                } else if (k === 'data') {
+                    recText = "💡 **คำแนะนำระบบข้อมูล:** ศึกษาความสำคัญในการคัดกรองแปลงข้อมูลดิบให้กลายเป็น 'สารสนเทศ' และโครงสร้างจัดการข้อมูลแบบเข้าก่อนออกก่อน (Queue) / เข้าทีหลังออกก่อน (Stack)";
+                } else if (k === 'algorithm') {
+                    recText = "💡 **คำแนะนำอัลกอริทึม:** เพิ่มเติมเกี่ยวกับการคิดเชิงนามธรรม (Abstraction) เพื่อตัดทอนรายละเอียดที่ไม่สำคัญออก และฝึกฝนการเขียนทางเลือกเปรียบเทียบเงื่อนไข (Decision Diamond) ในผังงาน";
+                } else {
+                    recText = "💡 **คำแนะนำความปลอดภัยไซเบอร์:** ฝึกฝนวิธีวิเคราะห์หน้าเว็บหรืออีเมลปลอมเพื่อจับเท็จ Phishing และระมัดระวังกลอุบายแบบวิศวกรรมสังคม (Social Engineering) โทรหลอกลวงสวมสิทธิ์";
+                }
+                
+                // Parse markdown simple bold syntax to HTML
+                recDiv.innerHTML = recText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                recsContainer.appendChild(recDiv);
+            }
+        });
+
+        if (!hasRecommendation) {
+            const noRec = document.createElement('div');
+            noRec.className = 'rec-item';
+            noRec.style.borderLeftColor = '#10b981';
+            noRec.innerHTML = "🎉 **ยอดเยี่ยมมาก!** คุณมีความเข้าใจในบทเรียนวิทยาการคำนวณในระดับที่สูงมากแล้ว รักษาสมรรถนะการตอบคำถามอย่างต่อเนื่องเพื่อการจัดอันดับสูงสุดในโรงเรียน!";
+            recsContainer.appendChild(noRec);
+        }
+
+        // Achievements unlocks checks
+        if (player.totalEnemiesKilled >= 100) unlockAchievement('kills_100');
+        if (player.maxCombo >= 8) unlockAchievement('combo_master');
+        if (correctTotal >= 25) unlockAchievement('learning_hero');
+        if (learningState.stats.safety.correct >= 10) unlockAchievement('cyber_defender');
+
+        // Submit score to KAMPAI platform SDK wrapper
+        if (isVictory) {
+            KAMPAI.submitScore(player.score, {
+                mode: 'victory',
+                kills: player.totalEnemiesKilled,
+                accuracy: accPct,
+                combo: player.maxCombo,
+                chapter: currentChapter
+            });
+        } else {
+            KAMPAI.submitScore(player.score, {
+                mode: 'game_over',
+                kills: player.totalEnemiesKilled,
+                accuracy: accPct,
+                combo: player.maxCombo,
+                chapter: currentChapter
+            });
+        }
+
+        switchScreen('screen-report');
+    }
+
+    function retryChapter() {
+        startGameSession();
+    }
+
+    // --- MOBILE VIRTUAL JOYSTICK TOUCH HANDLERS ---
+    const joyArea = document.getElementById('joy-area');
+    const joyKnob = document.getElementById('joy-knob');
+    
+    if (isMobile) {
+        document.getElementById('mobile-controls-overlay').style.display = 'block';
+
+        // Joystick Area Touch Listeners
+        joyArea.addEventListener('touchstart', (e) => {
+            const touch = e.changedTouches[0];
+            joyTouchId = touch.identifier;
+            
+            const rect = joyArea.getBoundingClientRect();
+            joyStart.x = rect.left + rect.width / 2;
+            joyStart.y = rect.top + rect.height / 2;
+            
+            joyDir.active = true;
+        }, { passive: true });
+
+        window.addEventListener('touchmove', (e) => {
+            if (joyTouchId === null) return;
+            
+            // Find target touch
+            let targetTouch = null;
+            for (let i = 0; i < e.touches.length; i++) {
+                if (e.touches[i].identifier === joyTouchId) {
+                    targetTouch = e.touches[i];
+                    break;
+                }
+            }
+            if (!targetTouch) return;
+
+            const dx = targetTouch.clientX - joyStart.x;
+            const dy = targetTouch.clientY - joyStart.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            const maxRadius = 45;
+            if (dist > maxRadius) {
+                joyDir.x = dx / dist;
+                joyDir.y = dy / dist;
+                
+                // Lock knob inside boundary
+                joyKnob.style.left = `${maxRadius * joyDir.x + 35}px`;
+                joyKnob.style.top = `${maxRadius * joyDir.y + 35}px`;
+            } else {
+                joyDir.x = dist > 0 ? dx / maxRadius : 0;
+                joyDir.y = dist > 0 ? dy / maxRadius : 0;
+                
+                joyKnob.style.left = `${dx + 35}px`;
+                joyKnob.style.top = `${dy + 35}px`;
+            }
+        }, { passive: true });
+
+        const endTouchJoy = (e) => {
+            if (joyTouchId === null) return;
+            // Check if touch ended was our joystick touch
+            let ended = false;
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                if (e.changedTouches[i].identifier === joyTouchId) {
+                    ended = true;
+                    break;
+                }
+            }
+            if (!ended) return;
+
+            joyTouchId = null;
+            joyDir.active = false;
+            joyDir.x = 0;
+            joyDir.y = 0;
+            
+            joyKnob.style.left = '35px';
+            joyKnob.style.top = '35px';
+        };
+
+        window.addEventListener('touchend', endTouchJoy);
+        window.addEventListener('touchcancel', endTouchJoy);
+
+        // Tap/Drag right side to shoot & rotate turret
+        window.addEventListener('touchstart', (e) => {
+            // Ignore touches inside joystick area
+            const touch = e.changedTouches[0];
+            const rect = joyArea.getBoundingClientRect();
+            if (touch.clientX >= rect.left && touch.clientX <= rect.right &&
+                touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
+                return;
+            }
+            
+            mouse.isDown = true;
+            updateMousePosFromTouch(touch);
+        }, { passive: true });
+
+        window.addEventListener('touchmove', (e) => {
+            if (!mouse.isDown) return;
+            // Find active touch on right side
+            for (let i = 0; i < e.touches.length; i++) {
+                const t = e.touches[i];
+                if (t.identifier !== joyTouchId) {
+                    updateMousePosFromTouch(t);
+                    break;
+                }
+            }
+        }, { passive: true });
+
+        window.addEventListener('touchend', (e) => {
+            // Check if touches remaining are only joystick
+            let shootEnded = true;
+            for (let i = 0; i < e.touches.length; i++) {
+                if (e.touches[i].identifier !== joyTouchId) {
+                    shootEnded = false;
+                    break;
+                }
+            }
+            if (shootEnded) mouse.isDown = false;
+        });
+    }
+
+    function updateMousePosFromTouch(touch) {
+        mouse.x = touch.clientX;
+        mouse.y = touch.clientY;
+    }
+
+    // --- PC CONTROL INPUTS BINDINGS ---
+    window.addEventListener('keydown', (e) => {
+        keys[e.key] = true;
+        if (e.key === ' ') {
+            // Spacebar activates shoot
+            mouse.isDown = true;
+        }
+    });
+
+    window.addEventListener('keyup', (e) => {
+        keys[e.key] = false;
+        if (e.key === ' ') {
+            mouse.isDown = false;
+        }
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        const rect = canvas ? canvas.getBoundingClientRect() : { left: 0, top: 0 };
+        mouse.x = e.clientX - rect.left;
+        mouse.y = e.clientY - rect.top;
+    });
+
+    window.addEventListener('mousedown', (e) => {
+        // Prevent trigger during clicks inside menu overlay
+        if (currentScreen === 'screen-game' && !isPaused) {
+            mouse.isDown = true;
+        }
+    });
+
+    window.addEventListener('mouseup', () => {
+        mouse.isDown = false;
+    });
+
+    // --- MENU DECORATIVE BACKGROUND CANVAS ---
+    let menuCanvasId = null;
+    function startMenuBackground() {
+        const container = document.getElementById('menu-canvas-container');
+        if (!container) return;
+        
+        container.innerHTML = `<canvas id="menu-bg-canvas" style="width:100%; height:100%; background:transparent;"></canvas>`;
+        const mCanvas = document.getElementById('menu-bg-canvas');
+        mCanvas.width = container.clientWidth;
+        mCanvas.height = container.clientHeight;
+        const mCtx = mCanvas.getContext('2d');
+        if (!mCtx) return;
+        
+        if (menuCanvasId) cancelAnimationFrame(menuCanvasId);
+        
+        let angle = 0;
+        let particles = [];
+        for (let i = 0; i < 20; i++) {
+            particles.push({
+                x: Math.random() * mCanvas.width,
+                y: Math.random() * mCanvas.height,
+                vx: (Math.random() - 0.5) * 1.5,
+                vy: (Math.random() - 0.5) * 1.5,
+                r: 1 + Math.random() * 3
+            });
+        }
+
+        function loop() {
+            mCtx.clearRect(0, 0, mCanvas.width, mCanvas.height);
+            
+            // Draw grid in panel
+            mCtx.strokeStyle = "rgba(14, 165, 233, 0.05)";
+            mCtx.lineWidth = 1;
+            const size = 30;
+            for (let x = 0; x < mCanvas.width; x += size) {
+                mCtx.beginPath(); mCtx.moveTo(x, 0); mCtx.lineTo(x, mCanvas.height); mCtx.stroke();
+            }
+            for (let y = 0; y < mCanvas.height; y += size) {
+                mCtx.beginPath(); mCtx.moveTo(0, y); mCtx.lineTo(mCanvas.width, y); mCtx.stroke();
+            }
+
+            // Draw glowing tech particles
+            mCtx.fillStyle = 'rgba(56, 189, 248, 0.3)';
+            particles.forEach(p => {
+                p.x += p.vx; p.y += p.vy;
+                if (p.x < 0) p.x = mCanvas.width;
+                if (p.x > mCanvas.width) p.x = 0;
+                if (p.y < 0) p.y = mCanvas.height;
+                if (p.y > mCanvas.height) p.y = 0;
+                
+                mCtx.beginPath();
+                mCtx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+                mCtx.fill();
+            });
+
+            // Draw spinning holographic neon tank
+            angle += 0.015;
+            const tx = mCanvas.width / 2;
+            const ty = mCanvas.height / 2;
+            
+            mCtx.save();
+            mCtx.translate(tx, ty);
+            
+            // Neon pulse glow
+            mCtx.shadowBlur = 15;
+            mCtx.shadowColor = '#0ea5e9';
+            
+            drawTank(mCtx, 0, 0, 30, angle, angle * 1.5, 'player', 100, 100);
+            
+            mCtx.restore();
+            
+            menuCanvasId = requestAnimationFrame(loop);
+        }
+        loop();
+    }
+
+    // Initialize systems on load
+    window.addEventListener('DOMContentLoaded', () => {
+        loadSavedProgress();
+        initSettingsUI();
+        switchScreen('screen-menu');
+    });
+
+    KAMPAI.onReady(function() {
+        initProfileUI();
+    });
+</script>
+
+</body>
+</html>
