@@ -22,7 +22,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink, Plus, RefreshCw, AlertTriangle, Loader2, Trash2, RotateCcw, Settings, Code2, ChevronDown, Copy, Check, Download, Image as ImageIcon, ClipboardList, Target } from 'lucide-react';
+import { ExternalLink, Plus, RefreshCw, AlertTriangle, Loader2, Trash2, RotateCcw, Settings, Code2, ChevronDown, Copy, Check, Download, Image as ImageIcon, ClipboardList, Target, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -56,6 +56,7 @@ import {
 } from '@/services/educational-hub.service';
 import { gamePlayService } from '@/services/game-play.service';
 import { GameDocsDialog } from './GameDocsDialog';
+import { GameCoverAiDialog } from './GameCoverAiDialog';
 import { GameIndicatorsDialog } from './GameIndicatorsDialog';
 import { IndicatorPromptDialog } from './IndicatorPromptDialog';
 import { IndicatorCoverageDialog } from './IndicatorCoverageDialog';
@@ -430,6 +431,7 @@ export const GamesTab = () => {
         | { mode: 'replace'; item: EduHubItem }
         | { mode: 'settings'; item: EduHubItem }
         | { mode: 'docs'; item: EduHubItem }
+        | { mode: 'cover-ai'; item: EduHubItem }
         | { mode: 'indicators'; item: EduHubItem }
         | { mode: 'prompt' }
         | { mode: 'coverage' }
@@ -713,6 +715,14 @@ export const GamesTab = () => {
                                                         <Button
                                                             variant="outline"
                                                             size="sm"
+                                                            className="text-pink-600 border-pink-200 hover:bg-pink-50"
+                                                            onClick={() => setDialog({ mode: 'cover-ai', item })}
+                                                        >
+                                                            <Sparkles className="h-3 w-3 mr-1" /> ปก AI
+                                                        </Button>
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
                                                             className="text-emerald-600 border-emerald-200 hover:bg-emerald-50"
                                                             onClick={() => setDialog({ mode: 'indicators', item })}
                                                         >
@@ -781,6 +791,13 @@ export const GamesTab = () => {
                         <GameDocsDialog
                             item={dialog.item}
                             onClose={() => setDialog(null)}
+                        />
+                    )}
+                    {dialog?.mode === 'cover-ai' && (
+                        <GameCoverAiDialog
+                            item={dialog.item}
+                            onSaved={handleSaved}
+                            onCancel={() => setDialog(null)}
                         />
                     )}
                     {dialog?.mode === 'indicators' && (
