@@ -1,0 +1,70 @@
+/* style.css — ธีม/เลย์เอาต์ เกม AR "กระโดดเลขคู่-คี่" (2 ป้าย บน/ล่าง)
+   🔴 กฎเหล็ก: container กล้อง (.screen/#gameScreen) ต้องเต็มจอด้วย position:absolute; inset:0
+   ห้าม override #gameScreen เป็น position:relative — ความสูงยุบ 0px กล้อง/ป้ายหาย แตะไม่ได้
+   (บทเรียน fraction-garden-ar) ดู AR-GAME.md หัวข้อ Pitfalls */
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Sarabun:wght@400;600;700&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; width: 100%; overflow: hidden; font-family: 'Sarabun', sans-serif; color: #f8fafc; background: #0a0f1e; }
+
+/* ── จอ (ทุกจอ = เต็มหน้าจอ) ── */
+.screen { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 22px; z-index: 10; }
+.screen.active { display: flex; }
+#gameScreen { background: #000; padding: 0; overflow: hidden; }   /* ← ไม่ตั้ง position:relative */
+
+/* ── กล้อง + canvas (เต็มจอ) ── */
+#arVideo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); z-index: 1; }
+.ar-dim { position: absolute; inset: 0; background: rgba(10,15,30,0.6); z-index: 2; pointer-events: none; }
+#arCanvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; }
+
+/* ── 2 ป้าย (บน=กระโดด/คู่ · ล่าง=ย่อ/คี่) เต็มความสูง = tap target ── */
+.panels { position: absolute; inset: 0; display: flex; flex-direction: column; z-index: 5; }
+.panel { flex: 1; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: background 0.15s, transform 0.15s; border: 3px solid transparent; }
+.panel.jump  { background: rgba(59,130,246,0.14); border-bottom: 2px dashed rgba(255,255,255,0.12); }
+.panel.squat { background: rgba(236,72,153,0.14); }
+.panel .p-tag { font-size: clamp(18px, 3.4vw, 26px); font-weight: 700; color: #e2e8f0; }
+.panel .p-label { font-family: 'Fredoka One', cursive; font-size: clamp(30px, 6vw, 54px); }
+.panel.jump  .p-label { color: #93c5fd; }
+.panel.squat .p-label { color: #f9a8d4; }
+.panel.pulse { transform: scale(0.97); }
+.panel.correct { background: rgba(16,185,129,0.28); border-color: #34d399; }
+.panel.wrong   { background: rgba(239,68,68,0.28); border-color: #f87171; }
+
+/* ── HUD + โจทย์ ── */
+.hud { position: absolute; top: 16px; left: 16px; right: 16px; display: flex; justify-content: space-between; align-items: center; z-index: 20; gap: 8px; }
+.hud .pill { background: rgba(15,23,42,0.85); border: 1px solid rgba(255,255,255,0.14); border-radius: 999px; padding: 6px 14px; font-weight: 600; font-size: 15px; }
+.hud .score { color: #fbbf24; }
+.back-btn { background: rgba(15,23,42,0.85); border: 1px solid rgba(255,255,255,0.14); color: #f8fafc; border-radius: 999px; padding: 6px 14px; font-family: inherit; font-size: 14px; cursor: pointer; }
+/* โจทย์เลขก้อนใหญ่กลางจอ */
+#question { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 20; background: rgba(15,23,42,0.9); border: 2px solid rgba(255,255,255,0.18); border-radius: 24px; padding: 16px 40px; font-family: 'Fredoka One', cursive; font-size: clamp(48px, 12vw, 110px); text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+#status-tag { position: absolute; top: 60px; left: 50%; transform: translateX(-50%); z-index: 20; font-size: 13px; color: #94a3b8; }
+
+/* ── ปุ่ม + การ์ด ── */
+.btn { font-family: inherit; font-weight: 700; font-size: 20px; padding: 13px 38px; border: none; border-radius: 999px; cursor: pointer; color: #271a02; background: linear-gradient(135deg,#fbbf24,#f59e0b); box-shadow: 0 8px 22px rgba(251,191,36,0.35); }
+.btn.ghost { background: rgba(255,255,255,0.1); color: #f8fafc; border: 1px solid rgba(255,255,255,0.25); box-shadow: none; }
+.card { background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 22px; padding: 26px; max-width: 460px; width: 100%; text-align: center; backdrop-filter: blur(10px); }
+.logo { font-size: 64px; }
+h1.title { font-family: 'Fredoka One', cursive; font-size: 34px; color: #fbbf24; margin: 4px 0 6px; }
+.subtitle { color: #34d399; font-weight: 600; margin-bottom: 14px; }
+.hint { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 12px; font-size: 14px; color: #cbd5e1; line-height: 1.6; margin-bottom: 16px; text-align: left; }
+
+/* player chip + leaderboard */
+#player-chip { display: none; align-items: center; gap: 8px; justify-content: center; background: rgba(255,255,255,0.08); border-radius: 999px; padding: 5px 16px 5px 5px; margin: 0 auto 12px; width: fit-content; font-size: 14px; }
+#player-chip img, #player-chip .ini { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+#player-chip .ini { background: linear-gradient(135deg,#6c5ce7,#a29bfe); display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.lb-box { background: rgba(255,255,255,0.95); color: #2c3e50; border-radius: 14px; padding: 12px 14px; margin-top: 12px; text-align: left; }
+.lb-box h3 { font-family: 'Fredoka One', cursive; font-size: 1rem; margin-bottom: 8px; }
+.lb-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.lb-list li { display: flex; align-items: center; gap: 8px; padding: 3px 4px; border-bottom: 1px dashed #dee2e6; font-size: 14px; }
+.lb-list li:last-child { border-bottom: none; }
+.lb-list li.me { background: #fff7e0; border-radius: 8px; }
+.lb-rank { min-width: 26px; text-align: center; font-family: 'Fredoka One', cursive; color: #f39c12; }
+.lb-name { flex: 1; }
+.lb-score { color: #f39c12; font-weight: 700; }
+
+#final-score { font-family: 'Fredoka One', cursive; font-size: 56px; color: #fbbf24; }
+#final-detail { color: #cbd5e1; margin: 4px 0 14px; }
+.row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+
+/* loading */
+#loading { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(10,15,30,0.9); z-index: 50; font-size: 18px; }
+#loading.on { display: flex; }

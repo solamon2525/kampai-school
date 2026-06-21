@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.95.0 (AR Engine Tier 2 — ยกมือ/กระโดด/พลัง + เกม "ยกมือตอบ")',
+        version: 'v1.96.0 (เกม AR "กระโดดเลขคู่-คี่" — โชว์ gesture jump/squat)',
         date: 'ล่าสุด',
+        badge: 'bg-teal-600',
+        items: [
+            'เกม AR ตัวอย่างตัวที่ 2 ของ engine Tier 2 → "🦘 กระโดดเลขคู่-คี่" (`math/jump-even-odd`): กระโดด=เลขคู่ · ย่อตัว=เลขคี่ ใช้ `onGesture` (คอมมิตทันที ไม่ต้องค้าง) — แนวเคลื่อนไหวเต็มตัว เหมาะเล่นกลุ่ม/พละ',
+            'fallback แตะ 2 ป้าย (เครื่องไม่มีกล้องเล่นได้) · ตรวจ jump/squat ด้วย MediaPipe Pose (ความเร็วแกน Y สะโพก) · verify:game 9/9 + Check 10 AR',
+            'seed migration 215 + game_docs (apply remote แล้ว) — ต่อยอดจาก engine v1.1.0 (v1.95.0) โดยไม่แตะ engine เพิ่ม',
+        ],
+    },
+    {
+        version: 'v1.95.0 (AR Engine Tier 2 — ยกมือ/กระโดด/พลัง + เกม "ยกมือตอบ")',
+        date: '',
         badge: 'bg-teal-600',
         items: [
             'ขยาย engine `kampai-ar.js` v1.0.0 → v1.1.0: โหมด `hands` (ยกมือ ซ้าย/ขวา/สองมือ → เลือกคำตอบ, reuse hold→commit เดิม) + gesture `jump`/`squat` (onGesture) + พลังเคลื่อนไหว (onEnergy/ar.energy) + getters ar.y/ar.hands — backward compatible (เกม AR เดิมไม่กระทบ)',

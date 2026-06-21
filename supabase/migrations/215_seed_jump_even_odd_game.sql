@@ -1,0 +1,51 @@
+-- 215_seed_jump_even_odd_game.sql
+-- เกม "กระโดดเลขคู่-คี่" (jump-even-odd) — AR gesture: กระโดด=เลขคู่ · ย่อตัว=เลขคี่
+-- ไฟล์: public/games/math/jump-even-odd/ · KampaiAR v1.1.0 (Tier 2: gesture jump/squat) + KAMPAI SDK
+-- Idempotent: re-run ไม่เพิ่มซ้ำ + sync flags + game_docs
+DO $$
+DECLARE
+  v_staff_id  UUID;
+  v_cat_games UUID;
+  v_url       TEXT := '/games/math/jump-even-odd/index.html';
+BEGIN
+  SELECT id INTO v_staff_id FROM public.staff
+  WHERE name LIKE '%ณัฐพงศ์%สิงห์ชมภู%' AND staff_type = 'teaching'
+  ORDER BY created_at LIMIT 1;
+  IF v_staff_id IS NULL THEN RAISE EXCEPTION 'staff "ครูณัฐพงศ์ สิงห์ชมภู" not found'; END IF;
+
+  SELECT id INTO v_cat_games FROM public.educational_hub_categories WHERE category_key = 'games';
+  IF v_cat_games IS NULL THEN RAISE EXCEPTION 'category "games" not found (migration 061)'; END IF;
+
+  INSERT INTO public.educational_hub_profiles (staff_id, is_hub_active)
+  VALUES (v_staff_id, true) ON CONFLICT (staff_id) DO NOTHING;
+
+  INSERT INTO public.educational_hub_items
+    (owner_staff_id, category_id, item_type, title, external_url, subject, sort_order)
+  SELECT v_staff_id, v_cat_games, 'link', '🦘 กระโดดเลขคู่-คี่ (AR)', v_url, 'คณิตศาสตร์', 215
+  WHERE NOT EXISTS (
+    SELECT 1 FROM public.educational_hub_items
+    WHERE owner_staff_id = v_staff_id AND external_url = v_url
+  );
+
+  UPDATE public.educational_hub_items
+  SET game_slug = 'jump-even-odd', tracked_game = true, is_published = true,
+      thumbnail_url = '/games/math/jump-even-odd/cover.svg', bgm_preset = 'cheerful', updated_at = now()
+  WHERE owner_staff_id = v_staff_id AND external_url = v_url;
+
+  INSERT INTO public.game_docs (item_id, owner_staff_id, game_format, features, version, notes)
+  SELECT i.id, i.owner_staff_id,
+         'AR/กล้อง (gesture) — กระโดด=เลขคู่ · ย่อตัว=เลขคี่',
+         ARRAY[
+           'ตรวจจับ กระโดด/ย่อ ด้วย MediaPipe Pose (ความเร็วแกน Y ของสะโพก) — engine kampai-ar.js v1.1.0 onGesture',
+           'คอมมิตคำตอบทันทีเมื่อทำท่า (ไม่ต้องค้าง) · เหมาะเล่นเป็นกลุ่ม/พละ',
+           'fallback แตะ 2 ป้าย (เครื่องไม่มีกล้อง/ปฏิเสธสิทธิ์เล่นได้)',
+           'โจทย์เลขคู่-คี่ ป.1-3 (12 ข้อ สุ่ม 10 ข้อ/รอบ) — แก้โจทย์ที่ data.js · จูน jumpVel/squatVel ที่ config.js (AR-GAME.md)'
+         ],
+         'v1.0.0',
+         'กระโดดเลขคู่-คี่ — เกม AR ตัวอย่าง gesture ของ engine Tier 2 (kampai-ar.js v1.1.0, migration 215)'
+  FROM public.educational_hub_items i
+  WHERE i.owner_staff_id = v_staff_id AND i.external_url = v_url
+  ON CONFLICT (item_id) DO UPDATE
+    SET game_format = EXCLUDED.game_format, features = EXCLUDED.features,
+        version = EXCLUDED.version, notes = EXCLUDED.notes, updated_at = now();
+END $$;

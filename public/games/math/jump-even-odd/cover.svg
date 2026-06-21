@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1e3a8a"/>
+      <stop offset="0.55" stop-color="#4338ca"/>
+      <stop offset="1" stop-color="#831843"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.42" r="0.62">
+      <stop offset="0" stop-color="#a5b4fc" stop-opacity="0.4"/>
+      <stop offset="1" stop-color="#a5b4fc" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <rect width="1280" height="720" fill="url(#glow)"/>
+  <!-- แบ่ง บน(คู่)/ล่าง(คี่) -->
+  <line x1="60" y1="360" x2="1220" y2="360" stroke="#ffffff" stroke-opacity="0.18" stroke-width="3" stroke-dasharray="16 14"/>
+  <text x="1110" y="230" font-size="58" text-anchor="middle" fill="#93c5fd" font-family="'Sarabun',sans-serif" font-weight="700">⬆️ คู่</text>
+  <text x="1110" y="520" font-size="58" text-anchor="middle" fill="#f9a8d4" font-family="'Sarabun',sans-serif" font-weight="700">⬇️ คี่</text>
+  <!-- ตัวกระโดด -->
+  <text x="250" y="430" font-size="200" text-anchor="middle">🦘</text>
+  <!-- หัวเรื่อง -->
+  <text x="640" y="170" text-anchor="middle" font-family="'Fredoka One','Sarabun',sans-serif" font-size="104" font-weight="800" fill="#ffffff" stroke="#1e1b4b" stroke-width="8" paint-order="stroke">กระโดดเลขคู่-คี่</text>
+  <text x="600" y="600" text-anchor="middle" font-family="'Sarabun',sans-serif" font-size="44" font-weight="700" fill="#fde68a">กระโดด = เลขคู่ · ย่อตัว = เลขคี่</text>
+  <text x="600" y="656" text-anchor="middle" font-family="'Sarabun',sans-serif" font-size="29" fill="#c7d2fe">AR เคลื่อนไหวร่างกาย · เล่นเป็นกลุ่มหน้าจอใหญ่</text>
+</svg>

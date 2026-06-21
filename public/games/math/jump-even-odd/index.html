@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>กระโดดเลขคู่-คี่ — AR (kampai)</title>
+<!--
+  เกม AR "กระโดดเลขคู่-คี่" — กระโดด=เลขคู่ · ย่อตัว=เลขคี่ (gesture jump/squat)
+  ใช้ KAMPAI SDK + KampaiAR engine v1.1.0 (onGesture). โครงร่าง/วิธีทำ: AR-GAME.md
+-->
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ── จอเริ่ม ── -->
+<div class="screen active" id="startScreen">
+    <div class="card">
+        <div class="logo">🦘</div>
+        <h1 class="title">กระโดดเลขคู่-คี่</h1>
+        <div class="subtitle">กระโดด = เลขคู่ · ย่อตัว = เลขคี่</div>
+        <div id="player-chip"></div>
+        <div class="hint">
+            🎥 <b>กระโดด</b> ถ้าเป็น <b>เลขคู่</b> · <b>ย่อตัว</b> ถ้าเป็น <b>เลขคี่</b><br>
+            📱 ไม่มีกล้อง? <b>แตะ</b> ป้ายคำตอบได้เลย
+        </div>
+        <button class="btn" id="startBtn">▶️ เริ่มเล่น</button>
+        <div class="lb-box" id="lbBox" style="display:none">
+            <h3>🏆 อันดับ</h3>
+            <ul class="lb-list" id="lbList"></ul>
+        </div>
+    </div>
+</div>
+
+<!-- ── จอเล่น (เต็มจอ) ── -->
+<div class="screen" id="gameScreen">
+    <video id="arVideo" autoplay playsinline muted></video>
+    <div class="ar-dim"></div>
+    <canvas id="arCanvas"></canvas>
+
+    <!-- 2 ป้ายเลือก: บน=กระโดด(คู่) · ล่าง=ย่อ(คี่) (เป็น tap target ด้วย) -->
+    <div class="panels">
+        <div class="panel jump" id="panelJump">
+            <div class="p-tag">⬆️ กระโดด</div>
+            <div class="p-label">เลขคู่</div>
+        </div>
+        <div class="panel squat" id="panelSquat">
+            <div class="p-label">เลขคี่</div>
+            <div class="p-tag">⬇️ ย่อตัว</div>
+        </div>
+    </div>
+
+    <div class="hud">
+        <button class="back-btn" id="quitBtn">🏠 ออก</button>
+        <div style="display:flex; gap:8px;">
+            <span class="pill" id="roundPill">ข้อ 1/10</span>
+            <span class="pill score" id="scorePill">⭐ 0</span>
+        </div>
+    </div>
+    <div id="question">—</div>
+    <div id="status-tag"></div>
+    <div id="loading">กำลังเปิดกล้อง…</div>
+</div>
+
+<!-- ── จอจบ ── -->
+<div class="screen" id="resultScreen">
+    <div class="card">
+        <div class="logo">🎉</div>
+        <h1 class="title">จบเกม!</h1>
+        <div id="final-score">0</div>
+        <div id="final-detail"></div>
+        <div class="row">
+            <button class="btn" id="restartBtn">🔄 เล่นอีกครั้ง</button>
+            <button class="btn ghost" id="homeBtn">🏠 หน้าหลัก</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── โหลด: config → data → SDK → AR engine → game (เรียงลำดับ, ห้าม import/export) ── -->
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="/games/kampai-sdk.js"></script>
+<script>window.KAMPAI = window.KAMPAI || { isEmbed:false, ready:true, student:null, stats:null, leaderboard:[], onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, sound:{ unlock:function(){}, correct:function(){}, wrong:function(){}, timeUp:function(){}, gameOver:function(){}, speak:function(){}, stopSpeak:function(){}, fxFlash:function(){}, mountToggles:function(){}, defaultBgm:function(){}, bgmStart:function(){}, bgmStop:function(){} } };</script>
+<script src="/games/kampai-ar.js"></script>
+<script>window.KampaiAR = window.KampaiAR || { VERSION:'stub', create:function(){ return { start:function(){return Promise.resolve(false);}, stop:function(){}, setActive:function(){}, tap:function(){}, mode:'tap' }; } };</script>
+<script src="game.js"></script>
+</body>
+</html>
