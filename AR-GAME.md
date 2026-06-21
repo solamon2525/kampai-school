@@ -3,9 +3,10 @@
 > ⚠️ **อ่านไฟล์นี้ก่อนสร้าง/แก้เกม AR ทุกครั้ง** — กันบัคซ้ำเดิม (โดยเฉพาะ layout ยุบ + ไม่มี fallback)
 > เกม AR ใช้ engine กลาง `public/games/kampai-ar.js` (`window.KampaiAR`) — แก้ engine ที่เดียว ทุกเกม AR ดีขึ้นพร้อมกัน
 >
-> **Engine version:** `KampaiAR v1.0.0` · **Doc version:** v1.0.0
+> **Engine version:** `KampaiAR v1.1.0` · **Doc version:** v1.1.0
 
 ## Changelog
+- **v1.1.0** — Tier 2: เพิ่มโหมด `hands` (ยกมือ ซ้าย/ขวา/สองมือ → zones, reuse hold→commit), gesture `jump`/`squat` (`onGesture`), พลัง `onEnergy`/`ar.energy`, สัญญาณ `onSignals` + getters `ar.y`/`ar.hands`. **backward compatible** (default = horizontal). เกมตัวอย่าง `english/hands-up-quiz/`
 - **v1.0.0** (เริ่มต้น) — engine `kampai-ar.js` (framediff + pose), template `_template-ar/`, เกมตัวอย่าง `demo/ar-zone-quiz/`, verify Check 10
 
 ---
@@ -65,8 +66,19 @@ kampai-ar.js  (กล้อง/ตรวจจับ/zone/hold/fallback) ──�
 | `smoothing` | หน่วงตำแหน่ง (เก่า·s + ใหม่·(1-s)) | 0.6–0.88 | สูง=นิ่ง/หน่วง · ต่ำ=ไว/สั่น |
 | `intervalMs` | คาบ loop (framediff) | 40–80 | ต่ำ=ลื่น/กิน CPU · สูง=ประหยัด/หนืด |
 | `minConfidence` | ความมั่นใจขั้นต่ำ (pose) | 0.4–0.6 | ต่ำ=จับง่าย/หลอน · สูง=แม่น/หลุดบ่อย |
+| `handRaiseMargin` | ข้อมือต้องสูงกว่าไหล่เกินเท่าไร ถึงนับ "ยกมือ" (Tier 2) | 0.03–0.08 | ต่ำ=ยกนิดก็ติด · สูง=ต้องยกสูงชัด |
+| `jumpVel`/`squatVel` | ความเร็วแกน Y ของสะโพกที่นับเป็น กระโดด/ย่อ | 0.03–0.07 | ต่ำ=ไว/ false-fire · สูง=ต้องกระโดดแรง |
+| `gestureCooldownMs` | เว้นช่วงขั้นต่ำระหว่าง gesture | 500–900 | กัน double-fire |
 
 > ค่า default ของ engine = "ค่ากลางที่ดีที่สุดปัจจุบัน" — ปรับ default ที่ `kampai-ar.js` `DEFAULT_TUNING` = มีผลทุกเกม
+
+### Tier 2 — รูปแบบตรวจจับเพิ่ม (v1.1.0)
+| รูปแบบ | ใช้ยังไง | detector |
+|---|---|---|
+| **ยกมือ** (`mode:'hands'`) | zones = `['left','right','both']` (ยกมือซ้าย/ขวา/สองมือ) → onZone/hold/commit เดิม + `ar.tap('left'\|'right'\|'both')` | pose (framediff = best-effort) |
+| **กระโดด/ย่อ** | `onGesture('jump'\|'squat')` (discrete, ไม่ใช้ hold) | pose แนะนำ |
+| **พลังเคลื่อนไหว** | `onEnergy(0..1)` / `ar.energy` (วิ่งอยู่กับที่/เขย่า → เติม meter) | ทั้งสอง |
+> เกมอ้างอิงโหมด hands: `public/games/english/hands-up-quiz/`
 
 ## 6. Performance Tuning Log (append-only — สะสมความรู้ "ปรับเรื่อยๆ")
 
@@ -80,14 +92,19 @@ kampai-ar.js  (กล้อง/ตรวจจับ/zone/hold/fallback) ──�
 ```js
 const ar = KampaiAR.create({
   video:'#arVideo', canvas:'#arCanvas',
-  detector:'framediff'|'pose', zones:['left','center','right'], holdMs:2000, tuning:{...},
-  onZone(zone){}, onHoldProgress(zone,pct){}, onCommit(zone){}, onStatus(s){}  // 'camera-on'|'no-camera'|'pose-loading'|'error'
+  detector:'framediff'|'pose',
+  mode:'horizontal'|'hands',                   // v1.1.0 — 'hands' = zones จากการยกมือ (default 'horizontal')
+  zones:['left','center','right'], holdMs:2000, tuning:{...},
+  onZone(zone){}, onHoldProgress(zone,pct){}, onCommit(zone){}, onStatus(s){}, // 'camera-on'|'no-camera'|'pose-loading'|'error'
+  onSignals(s){}, // v1.1.0 ต่อเนื่อง: {x,y,energy,leftUp,rightUp,bothUp}
+  onGesture(g){}, // v1.1.0 discrete: 'jump' | 'squat'
+  onEnergy(level){} // v1.1.0 พลัง 0..1
 });
 await ar.start();   // ขอกล้อง (เรียกใน gesture) — reject → onStatus('no-camera') อัตโนมัติ
 ar.setActive(true); // เปิดรับ input ต่อรอบ (false ช่วง feedback)
-ar.tap('left');     // fallback แตะ → path เดียวกับ hold ครบ
+ar.tap('left');     // fallback แตะ → path เดียวกับ hold ครบ (โหมด hands ใช้ 'left'|'right'|'both')
 ar.stop();          // cleanup ครบ (track + loop + interval)
-// props: ar.mode ('camera'|'tap'), ar.x (0..1), ar.zone, ar.VERSION ผ่าน KampaiAR.VERSION
+// props: ar.mode ('camera'|'tap'), ar.x/ar.y (0..1), ar.energy (0..1), ar.hands ({left,right,both}), ar.zone
 ```
 
 ## 8. Testing

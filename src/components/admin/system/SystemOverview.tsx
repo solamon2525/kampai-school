@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.94.0 (หน้าแรก — โซน "เกมแนะนำ" เลื่อนแนวนอน + ป๊อปอัปรายละเอียด)',
+        version: 'v1.95.0 (AR Engine Tier 2 — ยกมือ/กระโดด/พลัง + เกม "ยกมือตอบ")',
         date: 'ล่าสุด',
+        badge: 'bg-teal-600',
+        items: [
+            'ขยาย engine `kampai-ar.js` v1.0.0 → v1.1.0: โหมด `hands` (ยกมือ ซ้าย/ขวา/สองมือ → เลือกคำตอบ, reuse hold→commit เดิม) + gesture `jump`/`squat` (onGesture) + พลังเคลื่อนไหว (onEnergy/ar.energy) + getters ar.y/ar.hands — backward compatible (เกม AR เดิมไม่กระทบ)',
+            'เกม AR ตัวอย่าง "🙌 ยกมือตอบ" (`english/hands-up-quiz`) — ยกมือข้างที่ตรงคำตอบค้างไว้ + fallback แตะ · ตรวจด้วย MediaPipe Pose (ข้อมือเทียบไหล่) · verify:game 9/9 + Check 10 AR',
+            'seed migration 214 (+ game_docs) · เอกสาร AR-GAME.md อัปเป็น v1.1.0 (โหมด/knob/API ใหม่ + Performance Tuning Log)',
+        ],
+    },
+    {
+        version: 'v1.94.0 (หน้าแรก — โซน "เกมแนะนำ" เลื่อนแนวนอน + ป๊อปอัปรายละเอียด)',
+        date: '',
         badge: 'bg-indigo-600',
         items: [
             'โซน "🎮 เกมแนะนำ" บนหน้าแรก — การ์ดปกเกมเลื่อนแนวนอน คลิกการ์ด → ป๊อปอัปรายละเอียด (ปก/คำอธิบาย/วิชา/ระดับชั้น/แท็ก/อันดับผู้เล่น top-5) + ปุ่ม "เล่นเลย" ไป /play/:slug — ดูเกมได้โดยไม่ต้องเข้าเมนูหลายชั้น',

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e7490"/>
+      <stop offset="0.55" stop-color="#0f766e"/>
+      <stop offset="1" stop-color="#065f46"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.4" r="0.6">
+      <stop offset="0" stop-color="#34d399" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#34d399" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <rect width="1280" height="720" fill="url(#glow)"/>
+  <!-- โซน 3 คอลัมน์ -->
+  <g opacity="0.18" stroke="#ffffff" stroke-width="3" stroke-dasharray="14 14">
+    <line x1="426" y1="60" x2="426" y2="660"/>
+    <line x1="853" y1="60" x2="853" y2="660"/>
+  </g>
+  <!-- มือ -->
+  <text x="213" y="430" font-size="150" text-anchor="middle">✋</text>
+  <text x="640" y="430" font-size="160" text-anchor="middle">🙌</text>
+  <text x="1066" y="430" font-size="150" text-anchor="middle">🤚</text>
+  <!-- หัวเรื่อง -->
+  <text x="640" y="180" text-anchor="middle" font-family="'Fredoka One', 'Sarabun', sans-serif" font-size="120" font-weight="800" fill="#ffffff" stroke="#0b3b34" stroke-width="8" paint-order="stroke">ยกมือตอบ</text>
+  <text x="640" y="610" text-anchor="middle" font-family="'Sarabun', sans-serif" font-size="46" font-weight="700" fill="#fde68a">AR · ยกมือ ซ้าย / ขวา / สองมือ เลือกคำตอบ</text>
+  <text x="640" y="668" text-anchor="middle" font-family="'Sarabun', sans-serif" font-size="30" fill="#a7f3d0">เคลื่อนไหวร่างกาย · เล่นเป็นกลุ่มหน้าจอใหญ่</text>
+</svg>

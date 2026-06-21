@@ -10,7 +10,7 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
     'use strict';
-    var VERSION = '1.0.0';
+    var VERSION = '1.1.0';
 
     // ค่าจูนเริ่มต้น (override ได้ผ่าน opts.tuning ใน config.js) — ดูคำอธิบายช่วงที่แนะนำใน AR-GAME.md
     var DEFAULT_TUNING = {
@@ -22,7 +22,12 @@
         minConfidence: 0.5,           // pose: ความมั่นใจขั้นต่ำ
         poseUrl: 'https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/', // jsdelivr เท่านั้น
         particles: true,              // visualizer: ฝุ่นเวทมนตร์ตามการขยับ (framediff)
-        marker: true                  // visualizer: จุดเรืองตำแหน่งผู้เล่น
+        marker: true,                 // visualizer: จุดเรืองตำแหน่งผู้เล่น
+        // ── Tier 2 (ดู AR-GAME.md): ยกมือ / กระโดด-ย่อ / พลัง ──
+        handRaiseMargin: 0.04,        // hands: wrist ต้องสูงกว่าไหล่ (y น้อยกว่า) เกินค่านี้ ถึงนับว่ายก
+        jumpVel: 0.045,               // gesture: สะโพกขึ้นเร็วเกินค่านี้ (สัดส่วนจอ/เฟรม) = กระโดด
+        squatVel: 0.045,              // gesture: สะโพกลงเร็วเกินค่านี้ = ย่อ
+        gestureCooldownMs: 700        // gesture: เว้นช่วงขั้นต่ำระหว่าง jump/squat กัน double-fire
     };
 
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
@@ -40,20 +45,27 @@
         var cuts = opts.cuts || (zones.length === 3 ? [1 / 3, 2 / 3] : zones.length === 2 ? [0.5] : evenCuts(zones.length));
         var holdMs = opts.holdMs != null ? opts.holdMs : 2000;
         var detector = opts.detector === 'pose' ? 'pose' : 'framediff';
+        // input mode: 'horizontal' (default — x→zones, เดิม) | 'hands' (ยกมือ ซ้าย/ขวา/สองมือ → zones)
+        var inputMode = opts.mode === 'hands' ? 'hands' : 'horizontal';
         var video = resolveEl(opts.video);
         var canvas = resolveEl(opts.canvas);
         var cb = {
             onZone: opts.onZone || function () {},
             onHoldProgress: opts.onHoldProgress || function () {},
             onCommit: opts.onCommit || function () {},
-            onStatus: opts.onStatus || function () {}
+            onStatus: opts.onStatus || function () {},
+            onSignals: opts.onSignals || function () {}, // ต่อเนื่อง: {x,y,energy,leftUp,rightUp,bothUp}
+            onGesture: opts.onGesture || function () {}, // discrete: 'jump' | 'squat'
+            onEnergy: opts.onEnergy || function () {}     // 0..1 ระดับการเคลื่อนไหว
         };
 
         var st = {
             stream: null, active: false, running: false, mode: 'tap', // 'camera' | 'tap'
-            x: 0.5, lastZone: null, holdStart: 0, holdProgress: 0, committedZone: null,
+            x: 0.5, y: 0.5, energy: 0, lastZone: null, holdStart: 0, holdProgress: 0, committedZone: null,
             rafId: 0, intervalId: 0, prevFrame: null, off: null, offCtx: null, particles: [],
-            pose: null
+            pose: null,
+            hands: { left: false, right: false, both: false }, handZone: null,
+            hipBaseline: null, prevHipY: null, lastGestureAt: 0
         };
         function status(s) { try { cb.onStatus(s); } catch (e) {} }
 
@@ -89,7 +101,7 @@
         }
         function setActive(b) {
             st.active = !!b;
-            if (b) { st.lastZone = null; st.committedZone = null; st.holdProgress = 0; }
+            if (b) { st.lastZone = null; st.committedZone = null; st.holdProgress = 0; st.handZone = null; }
         }
 
         // ── detector: framediff ──
@@ -107,16 +119,33 @@
                 st.offCtx.drawImage(video, 0, 0, offW, offH);
                 var frame = st.offCtx.getImageData(0, 0, offW, offH).data;
                 if (st.prevFrame) {
-                    var sumX = 0, motion = [], th = tuning.diffThreshold;
+                    var sumX = 0, sumY = 0, motion = [], th = tuning.diffThreshold;
+                    var topLeft = 0, topRight = 0; // ยกมือ (best-effort): มวลการขยับครึ่งบน แยกซ้าย/ขวา
                     for (var i = 0; i < frame.length; i += 4) {
                         var d = Math.abs(frame[i] - st.prevFrame[i]) + Math.abs(frame[i + 1] - st.prevFrame[i + 1]) + Math.abs(frame[i + 2] - st.prevFrame[i + 2]);
-                        if (d > th) { var idx = i / 4, px = idx % offW; motion.push({ x: px, y: Math.floor(idx / offW) }); sumX += px; }
+                        if (d > th) {
+                            var idx = i / 4, px = idx % offW, py = Math.floor(idx / offW);
+                            motion.push({ x: px, y: py }); sumX += px; sumY += py;
+                            if (py < offH * 0.5) { if ((1.0 - px / offW) < 0.5) topLeft++; else topRight++; }
+                        }
                     }
+                    var ratio = motion.length / (offW * offH);
+                    st.energy = st.energy * 0.6 + Math.min(1, ratio / 0.06) * 0.4; // normalize ~ พลัง 0..1
                     if (motion.length > Math.floor(offW * offH * tuning.minMotionRatio)) {
                         var target = 1.0 - (sumX / motion.length) / offW; // mirror
                         st.x = st.x * tuning.smoothing + target * (1 - tuning.smoothing);
+                        var ty = (sumY / motion.length) / offH;
+                        st.y = st.y * tuning.smoothing + ty * (1 - tuning.smoothing);
                         if (tuning.particles && ctx) spawnParticles(motion, offW, offH, canvas);
+                        // ยกมือ framediff (หยาบ — pose แม่นกว่า; tap fallback คุมเสมอ)
+                        var topMin = Math.floor(offW * offH * 0.01);
+                        var lUp = topLeft > topMin, rUp = topRight > topMin;
+                        setHands(lUp && rUp ? false : lUp, lUp && rUp ? false : rUp, lUp && rUp);
+                    } else {
+                        st.energy *= 0.85;
+                        setHands(false, false, false);
                     }
+                    emitSignals();
                 }
                 st.prevFrame = frame;
                 if (ctx) drawVisuals(ctx, canvas);
@@ -153,16 +182,66 @@
         }
         function onPoseResults(res) {
             if (!res || !res.poseLandmarks || !res.poseLandmarks[0]) return;
-            var target = 1 - res.poseLandmarks[0].x; // flip x (mirror)
+            var lm = res.poseLandmarks;
+            var nose = lm[0];
+            var target = 1 - nose.x; // flip x (mirror)
             st.x = st.x * tuning.smoothing + target * (1 - tuning.smoothing);
+            st.y = st.y * tuning.smoothing + nose.y * (1 - tuning.smoothing);
+
+            // ── ยกมือ: ข้อมือ (15 ซ้าย, 16 ขวา) เหนือไหล่ (11,12) เกิน margin ── (screen-side ใช้ x mirror)
+            var ls = lm[11], rs = lm[12], lw = lm[15], rw = lm[16], m = tuning.handRaiseMargin;
+            var ups = [];
+            if (lw && ls && lw.y < ls.y - m) ups.push(1 - lw.x);
+            if (rw && rs && rw.y < rs.y - m) ups.push(1 - rw.x);
+            if (ups.length >= 2) setHands(false, false, true);
+            else if (ups.length === 1) setHands(ups[0] < 0.5, ups[0] >= 0.5, false);
+            else setHands(false, false, false);
+
+            // ── กระโดด/ย่อ: ความเร็วแกน Y ของสะโพก (23,24) ──
+            var lh = lm[23], rh = lm[24];
+            if (lh && rh) {
+                var hipY = (lh.y + rh.y) / 2;
+                if (st.prevHipY != null) detectGesture(hipY - st.prevHipY);
+                st.prevHipY = hipY;
+            }
+
+            // พลัง ≈ ระยะขยับของจมูกเทียบเฟรมก่อน (มี smoothing แล้วใน st.x/y → ใช้ res ดิบประมาณ)
+            st.energy = st.energy * 0.7 + Math.min(1, Math.abs(target - st.x) * 8) * 0.3;
+
+            emitSignals();
             evalZone();
+        }
+
+        // ── Tier 2 helpers: hands / signals / gesture ──
+        function setHands(l, r, b) { st.hands.left = !!l; st.hands.right = !!r; st.hands.both = !!b; st.handZone = b ? 'both' : l ? 'left' : r ? 'right' : null; }
+        function emitSignals() {
+            try { cb.onSignals({ x: st.x, y: st.y, energy: st.energy, leftUp: st.hands.left, rightUp: st.hands.right, bothUp: st.hands.both }); } catch (e) {}
+            try { cb.onEnergy(clamp(st.energy, 0, 1)); } catch (e) {}
+        }
+        function detectGesture(dy) {
+            // dy < 0 = สะโพกขึ้น (y น้อยลง) = กระโดด · dy > 0 = ลง = ย่อ
+            var now = Date.now();
+            if (now - st.lastGestureAt < tuning.gestureCooldownMs) return;
+            if (dy < -tuning.jumpVel) { st.lastGestureAt = now; try { cb.onGesture('jump'); } catch (e) {} }
+            else if (dy > tuning.squatVel) { st.lastGestureAt = now; try { cb.onGesture('squat'); } catch (e) {} }
+        }
+
+        // เลือกโซนปัจจุบันตามโหมด — horizontal: จาก x · hands: จากการยกมือ (null = ไม่เลือก)
+        function currentZone() {
+            if (inputMode === 'hands') return st.handZone;
+            return zoneFromX(clamp(st.x, 0, 1), zones, cuts);
         }
 
         // ── zone + hold ──
         function evalZone() {
             if (!st.active) return;
-            var z = zoneFromX(clamp(st.x, 0, 1), zones, cuts);
+            var z = currentZone();
             try { cb.onZone(z); } catch (e) {}
+            if (z == null) { // hands mode: ไม่มีมือยก → รีเซ็ต hold (ไม่ commit)
+                if (st.lastZone) { try { cb.onHoldProgress(st.lastZone, 0); } catch (e) {} }
+                st.lastZone = null; st.holdProgress = 0;
+                return;
+            }
             if (z === st.lastZone) {
                 st.holdProgress = clamp((Date.now() - st.holdStart) / holdMs, 0, 1);
                 try { cb.onHoldProgress(z, st.holdProgress); } catch (e) {}
@@ -208,8 +287,9 @@
 
         return {
             start: start, stop: stop, setActive: setActive, tap: tap,
-            detector: detector, zones: zones, cuts: cuts, holdMs: holdMs, tuning: tuning,
-            get mode() { return st.mode; }, get x() { return st.x; }, get zone() { return st.lastZone; }
+            detector: detector, inputMode: inputMode, zones: zones, cuts: cuts, holdMs: holdMs, tuning: tuning,
+            get mode() { return st.mode; }, get x() { return st.x; }, get y() { return st.y; },
+            get energy() { return st.energy; }, get hands() { return st.hands; }, get zone() { return st.lastZone; }
         };
     }
 

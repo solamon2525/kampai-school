@@ -1,0 +1,69 @@
+/* style.css — ธีม/เลย์เอาต์ เกม AR "ยกมือตอบ"
+   🔴 กฎเหล็ก: container กล้อง (.screen/#gameScreen) ต้องเต็มจอด้วย position:absolute; inset:0
+   ห้าม override #gameScreen เป็น position:relative — จะทำให้ความสูงยุบ 0px กล้อง/zone หาย แตะไม่ได้
+   (บทเรียน fraction-garden-ar) ดู AR-GAME.md หัวข้อ Pitfalls */
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Sarabun:wght@400;600;700&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; width: 100%; overflow: hidden; font-family: 'Sarabun', sans-serif; color: #f8fafc; background: #06100c; }
+
+/* ── จอ (ทุกจอ = เต็มหน้าจอ) ── */
+.screen { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 22px; z-index: 10; }
+.screen.active { display: flex; }
+#gameScreen { background: #000; padding: 0; overflow: hidden; }   /* ← ไม่ตั้ง position:relative (ใช้ absolute จาก .screen) */
+
+/* ── กล้อง + canvas (เต็มจอ) ── */
+#arVideo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); z-index: 1; }
+.ar-dim { position: absolute; inset: 0; background: rgba(6,16,12,0.62); z-index: 2; pointer-events: none; }
+#arCanvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; }
+
+/* ── HUD + โจทย์ ── */
+.hud { position: absolute; top: 16px; left: 16px; right: 16px; display: flex; justify-content: space-between; align-items: center; z-index: 20; gap: 8px; }
+.hud .pill { background: rgba(10,26,18,0.85); border: 1px solid rgba(255,255,255,0.14); border-radius: 999px; padding: 6px 14px; font-weight: 600; font-size: 15px; }
+.hud .score { color: #fbbf24; }
+.back-btn { background: rgba(10,26,18,0.85); border: 1px solid rgba(255,255,255,0.14); color: #f8fafc; border-radius: 999px; padding: 6px 14px; font-family: inherit; font-size: 14px; cursor: pointer; }
+#question { position: absolute; top: 64px; left: 50%; transform: translateX(-50%); z-index: 20; background: rgba(10,26,18,0.85); border: 1px solid rgba(255,255,255,0.14); border-radius: 16px; padding: 12px 22px; font-family: 'Fredoka One', cursive; font-size: clamp(22px, 5vw, 36px); text-align: center; max-width: 92vw; }
+#status-tag { position: absolute; top: 130px; left: 50%; transform: translateX(-50%); z-index: 20; font-size: 13px; color: #94a3b8; }
+
+/* ── zone (เต็มความสูง = tap target + คอลัมน์คำตอบ) ── */
+.zones { position: absolute; inset: 0; display: flex; z-index: 5; }
+.zone { flex: 1; height: 100%; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 64px; border-right: 1px dashed rgba(255,255,255,0.08); cursor: pointer; transition: background 0.2s; }
+.zone:last-child { border-right: none; }
+.zone.active-zone { background: rgba(16,185,129,0.12); }
+.zone .choice { font-family: 'Fredoka One', cursive; font-size: clamp(26px, 6vw, 46px); text-shadow: 0 2px 8px rgba(0,0,0,0.6); }
+.zone .ztag { font-size: 14px; color: #fbbf24; margin-bottom: 6px; font-weight: 600; }
+.zone.correct .choice { color: #34d399; } .zone.wrong .choice { color: #f87171; }
+.zone-bar { position: absolute; bottom: 24px; left: 18%; right: 18%; height: 10px; background: rgba(255,255,255,0.14); border-radius: 999px; overflow: hidden; }
+.zone-fill { height: 100%; width: 0%; background: linear-gradient(90deg,#34d399,#10b981); transition: width 0.08s linear; }
+
+/* ── ปุ่ม + การ์ด ── */
+.btn { font-family: inherit; font-weight: 700; font-size: 20px; padding: 13px 38px; border: none; border-radius: 999px; cursor: pointer; color: #271a02; background: linear-gradient(135deg,#fbbf24,#f59e0b); box-shadow: 0 8px 22px rgba(251,191,36,0.35); }
+.btn.ghost { background: rgba(255,255,255,0.1); color: #f8fafc; border: 1px solid rgba(255,255,255,0.25); box-shadow: none; }
+.card { background: rgba(10,26,18,0.78); border: 1px solid rgba(255,255,255,0.12); border-radius: 22px; padding: 26px; max-width: 460px; width: 100%; text-align: center; backdrop-filter: blur(10px); }
+.logo { font-size: 64px; }
+h1.title { font-family: 'Fredoka One', cursive; font-size: 34px; color: #fbbf24; margin: 4px 0 6px; }
+.subtitle { color: #34d399; font-weight: 600; margin-bottom: 14px; }
+.hint { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 12px; font-size: 14px; color: #cbd5e1; line-height: 1.6; margin-bottom: 16px; text-align: left; }
+
+/* player chip + leaderboard */
+#player-chip { display: none; align-items: center; gap: 8px; justify-content: center; background: rgba(255,255,255,0.08); border-radius: 999px; padding: 5px 16px 5px 5px; margin: 0 auto 12px; width: fit-content; font-size: 14px; }
+#player-chip img, #player-chip .ini { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+#player-chip .ini { background: linear-gradient(135deg,#6c5ce7,#a29bfe); display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.lb-box { background: rgba(255,255,255,0.95); color: #2c3e50; border-radius: 14px; padding: 12px 14px; margin-top: 12px; text-align: left; }
+.lb-box h3 { font-family: 'Fredoka One', cursive; font-size: 1rem; margin-bottom: 8px; }
+.lb-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.lb-list li { display: flex; align-items: center; gap: 8px; padding: 3px 4px; border-bottom: 1px dashed #dee2e6; font-size: 14px; }
+.lb-list li:last-child { border-bottom: none; }
+.lb-list li.me { background: #fff7e0; border-radius: 8px; }
+.lb-rank { min-width: 26px; text-align: center; font-family: 'Fredoka One', cursive; color: #f39c12; }
+.lb-name { flex: 1; }
+.lb-score { color: #f39c12; font-weight: 700; }
+
+#final-score { font-family: 'Fredoka One', cursive; font-size: 56px; color: #fbbf24; }
+#final-detail { color: #cbd5e1; margin: 4px 0 14px; }
+.row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+
+/* loading */
+#loading { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(6,16,12,0.9); z-index: 50; font-size: 18px; }
+#loading.on { display: flex; }
+.narrow-hint { display: none; }
+@media (max-width: 560px) { .narrow-hint { display: block; } }
