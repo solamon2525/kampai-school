@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.96.0 (เกม AR "กระโดดเลขคู่-คี่" — โชว์ gesture jump/squat)',
+        version: 'v1.97.0 (เกม AR "จรวดพลังงาน" — โชว์ energy meter ครบ Tier 2 ทั้ง 3 แนว)',
         date: 'ล่าสุด',
+        badge: 'bg-teal-600',
+        items: [
+            'เกม AR ตัวที่ 3 ของ engine Tier 2 → "🚀 จรวดพลังงาน" (`science/energy-rocket`): ขยับตัว/วิ่งอยู่กับที่เติมพลังจนเต็ม → ปล่อยจรวด (ใช้ `onEnergy`) — หยุดนิ่งพลังไหลลง บังคับเคลื่อนไหวต่อเนื่อง (ออกกำลัง)',
+            'วัดพลังด้วย framediff (ไม่พึ่ง CDN — ทนเครื่องโรงเรียน) + ความรู้เรื่องพลังงาน/การเคลื่อนไหว · fallback แตะปุ่ม "ออกแรง" · verify:game 9/9 + Check 10 AR',
+            'ครบ 3 แนว Tier 2 แล้ว: ยกมือ (hands) · กระโดด-ย่อ (gesture) · พลัง (energy) — ไม่แตะ engine เพิ่ม (ใช้ v1.1.0) · seed migration 216 + game_docs (apply remote)',
+        ],
+    },
+    {
+        version: 'v1.96.0 (เกม AR "กระโดดเลขคู่-คี่" — โชว์ gesture jump/squat)',
+        date: '',
         badge: 'bg-teal-600',
         items: [
             'เกม AR ตัวอย่างตัวที่ 2 ของ engine Tier 2 → "🦘 กระโดดเลขคู่-คี่" (`math/jump-even-odd`): กระโดด=เลขคู่ · ย่อตัว=เลขคี่ ใช้ `onGesture` (คอมมิตทันที ไม่ต้องค้าง) — แนวเคลื่อนไหวเต็มตัว เหมาะเล่นกลุ่ม/พละ',

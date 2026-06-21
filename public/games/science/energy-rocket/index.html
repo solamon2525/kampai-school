@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>จรวดพลังงาน — AR (kampai)</title>
+<!--
+  เกม AR "จรวดพลังงาน" — ขยับตัว/วิ่งอยู่กับที่ เติมพลังจนเต็ม → ปล่อยจรวด (energy meter)
+  ใช้ KAMPAI SDK + KampaiAR engine v1.1.0 (onEnergy). โครงร่าง/วิธีทำ: AR-GAME.md
+-->
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ── จอเริ่ม ── -->
+<div class="screen active" id="startScreen">
+    <div class="card">
+        <div class="logo">🚀</div>
+        <h1 class="title">จรวดพลังงาน</h1>
+        <div class="subtitle">ขยับตัวเติมพลัง → ปล่อยจรวด!</div>
+        <div id="player-chip"></div>
+        <div class="hint">
+            🎥 <b>วิ่งอยู่กับที่ / ขยับตัว</b> ให้แถบพลังเต็ม แล้วจรวดจะพุ่ง<br>
+            ⏱ หยุดนิ่ง พลังจะค่อย ๆ ไหลลง — ขยับต่อเนื่อง!<br>
+            📱 ไม่มีกล้อง? <b>แตะปุ่ม "ออกแรง"</b> รัว ๆ
+        </div>
+        <button class="btn" id="startBtn">▶️ เริ่มเล่น</button>
+        <div class="lb-box" id="lbBox" style="display:none">
+            <h3>🏆 อันดับ</h3>
+            <ul class="lb-list" id="lbList"></ul>
+        </div>
+    </div>
+</div>
+
+<!-- ── จอเล่น (เต็มจอ) ── -->
+<div class="screen" id="gameScreen">
+    <video id="arVideo" autoplay playsinline muted></video>
+    <div class="ar-dim"></div>
+    <canvas id="arCanvas"></canvas>
+
+    <div class="hud">
+        <button class="back-btn" id="quitBtn">🏠 ออก</button>
+        <div style="display:flex; gap:8px;">
+            <span class="pill" id="roundPill">จรวด 1/6</span>
+            <span class="pill score" id="scorePill">⭐ 0</span>
+        </div>
+    </div>
+    <div id="status-tag"></div>
+
+    <!-- ราง + จรวด + แถบพลัง -->
+    <div class="stage">
+        <div class="rocket-name" id="rocketName">🚀</div>
+        <div class="track">
+            <div class="rocket" id="rocket">🚀</div>
+        </div>
+        <div class="meter">
+            <div class="meter-fill" id="meterFill"></div>
+            <span class="meter-pct" id="meterPct">0%</span>
+        </div>
+    </div>
+
+    <div class="fact-card" id="factCard">—</div>
+    <button class="push-btn" id="pushBtn">⚡ ออกแรง!</button>
+    <div id="loading">กำลังเปิดกล้อง…</div>
+</div>
+
+<!-- ── จอจบ ── -->
+<div class="screen" id="resultScreen">
+    <div class="card">
+        <div class="logo">🎉</div>
+        <h1 class="title">จบเกม!</h1>
+        <div id="final-score">0</div>
+        <div id="final-detail"></div>
+        <div class="row">
+            <button class="btn" id="restartBtn">🔄 เล่นอีกครั้ง</button>
+            <button class="btn ghost" id="homeBtn">🏠 หน้าหลัก</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── โหลด: config → data → SDK → AR engine → game (เรียงลำดับ, ห้าม import/export) ── -->
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="/games/kampai-sdk.js"></script>
+<script>window.KAMPAI = window.KAMPAI || { isEmbed:false, ready:true, student:null, stats:null, leaderboard:[], onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, sound:{ unlock:function(){}, correct:function(){}, wrong:function(){}, timeUp:function(){}, gameOver:function(){}, speak:function(){}, stopSpeak:function(){}, fxFlash:function(){}, mountToggles:function(){}, defaultBgm:function(){}, bgmStart:function(){}, bgmStop:function(){} } };</script>
+<script src="/games/kampai-ar.js"></script>
+<script>window.KampaiAR = window.KampaiAR || { VERSION:'stub', create:function(){ return { start:function(){return Promise.resolve(false);}, stop:function(){}, setActive:function(){}, tap:function(){}, mode:'tap' }; } };</script>
+<script src="game.js"></script>
+</body>
+</html>
