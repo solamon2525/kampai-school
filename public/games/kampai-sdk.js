@@ -119,10 +119,12 @@
       if (!d || d.type !== 'init') return;
       if (typeof d.studentCode === 'string') {
         var s = d.student || {};
+        var name = s.displayName || d.displayName || '';
         K.student = {
           id: s.id || null,
           code: d.studentCode,
-          displayName: s.displayName || d.displayName || '',
+          displayName: name,
+          name: name,
           photoUrl: s.photoUrl || null,
           classLabel: s.classLabel || null,
         };

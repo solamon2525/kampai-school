@@ -15,17 +15,32 @@ const SUPABASE_ANON_KEY =
 const POLLINATIONS_BASE = 'https://image.pollinations.ai/prompt';
 
 // Flux เข้าใจ prompt อังกฤษดีกว่า — เราวาดเฉพาะภาพประกอบ (ตัวหนังสือ overlay ฝั่ง client)
-function buildPrompt(subject: string, scene: string, colors: string): string {
-  return [
-    'Cute chibi cartoon illustration for a Thai elementary-school educational game, 16:9 wide aspect.',
-    'Flat design, clean lines, bright cheerful colors, kawaii style for young kids.',
-    'Main character: a cute chibi Thai student (big head, white school shirt, navy-blue Thai school uniform), smiling.',
-    `Subject theme: ${subject || 'general learning'}. Background: bright gradient with sparkles and subject icons.`,
-    `Main scene (the gameplay): ${scene || `a child happily learning about ${subject || 'this subject'}`}.`,
-    `Main color tone: ${colors || 'cheerful colors that match the subject'}.`,
-    'STRICT: absolutely no text, no letters, no words, no numbers, no logos anywhere in the image.',
-    'Leave the TOP area of the image empty/clear (a title will be added later). Keep main elements in the center-bottom, full 16:9 frame.',
-  ].join(' ');
+//
+// ส่วน "ครีเอทีฟ" มาจาก checklist ฝั่ง client (parts[] — ดู coverPresets.ts) แต่ invariant
+// (16:9 + ห้ามมีตัวอักษร + เว้นที่ด้านบน) ครอบที่นี่เสมอ กัน preset ผิดพลาดทำกฎหลุด
+function buildPrompt(opts: { subject?: string; parts?: string[]; scene?: string; colors?: string }): string {
+  const HEADER =
+    'High-quality illustration for a Thai elementary-school educational game cover, 16:9 wide aspect, full frame.';
+  const FOOTER =
+    'STRICT: absolutely no text, no letters, no words, no numbers, no logos anywhere in the image. ' +
+    'Leave the TOP area of the image empty/clear (a title will be added later). Keep main elements in the center-bottom, full 16:9 frame.';
+
+  let middle: string;
+  if (opts.parts && opts.parts.length) {
+    const subj = opts.subject ? `Subject theme: ${opts.subject}.` : '';
+    middle = [subj, opts.parts.join('. ') + '.'].filter(Boolean).join(' ');
+  } else {
+    // legacy path (subject/scene/colors แบบเดิม)
+    const { subject = '', scene = '', colors = '' } = opts;
+    middle = [
+      'Cute chibi cartoon illustration, flat design, clean lines, bright cheerful colors, kawaii style for young kids.',
+      'Main character: a cute chibi Thai student (big head, white school shirt, navy-blue Thai school uniform), smiling.',
+      `Subject theme: ${subject || 'general learning'}. Background: bright gradient with sparkles and subject icons.`,
+      `Main scene (the gameplay): ${scene || `a child happily learning about ${subject || 'this subject'}`}.`,
+      `Main color tone: ${colors || 'cheerful colors that match the subject'}.`,
+    ].join(' ');
+  }
+  return [HEADER, middle, FOOTER].join(' ');
 }
 
 async function callPollinations(prompt: string) {
@@ -68,10 +83,11 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    const { subject = '', scene = '', colors = '' } = (req.body ?? {}) as {
-      subject?: string; scene?: string; colors?: string;
+    const { subject = '', scene = '', colors = '', parts } = (req.body ?? {}) as {
+      subject?: string; scene?: string; colors?: string; parts?: string[];
     };
-    const out = await callPollinations(buildPrompt(subject, scene, colors));
+    const safeParts = Array.isArray(parts) ? parts.filter((p) => typeof p === 'string' && p.trim()) : undefined;
+    const out = await callPollinations(buildPrompt({ subject, scene, colors, parts: safeParts }));
     return res.status(200).json(out);
   } catch (err: any) {
     return res.status(502).json({ error: err?.message || 'สร้างภาพไม่สำเร็จ' });

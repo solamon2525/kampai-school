@@ -32,10 +32,11 @@ KAMPAI.onReady((sdk) => {
   if (sdk.student) {
     const chip = document.getElementById('player-chip');
     if (chip) {
+      const studentName = sdk.student.displayName || sdk.student.name || '';
       chip.style.display = 'flex';
       chip.innerHTML = `
-        <div class="pc-init">${sdk.student.name.charAt(0)}</div>
-        <span>${sdk.student.name}</span>
+        <div class="pc-init">${studentName.charAt(0) || ''}</div>
+        <span>${studentName}</span>
       `;
     }
   }
