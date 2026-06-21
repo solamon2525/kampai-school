@@ -15,6 +15,8 @@ import {
   slideUpVariants,
 } from '@/hooks/useScrollReveal';
 import FacebookFeedSection from '@/components/home/sections/FacebookFeedSection';
+import { educationalHubService, type EduHubItem } from '@/services/educational-hub.service';
+import { FeaturedGameDialog } from '@/components/home/FeaturedGameDialog';
 
 interface NewsItem {
   id: string;
@@ -129,6 +131,8 @@ export const useHomeMainBlocks = () => {
   const [activeHeroIndex, setActiveHeroIndex] = useState(0);
   const [isHeroHovered, setIsHeroHovered] = useState(false);
   const [featuredHeroLoading, setFeaturedHeroLoading] = useState(false);
+  const [featuredGames, setFeaturedGames] = useState<EduHubItem[]>([]);
+  const [selectedGame, setSelectedGame] = useState<EduHubItem | null>(null);
 
   useEffect(() => {
     supabase
@@ -144,6 +148,11 @@ export const useHomeMainBlocks = () => {
         setNews(items.slice(0, 6));
         setBlogNews(items);
       });
+
+    // เกมที่ปักหมุดขึ้นโซน "เกมแนะนำ" หน้าแรก (เลือกจากหลังบ้าน GamesTab)
+    educationalHubService.listFeaturedGames().then(({ data }) => {
+      setFeaturedGames((data as unknown as EduHubItem[] | null) ?? []);
+    });
 
     // Fetch upcoming 5 events from "ปฏิทิน" (events table) — sync กับเมนู Admin "ปฏิทิน"
     supabase
@@ -654,7 +663,7 @@ export const useHomeMainBlocks = () => {
         }
       } catch { /* fallback */ }
     }
-    return ['hero', 'featured_hero', 'news', 'about'];
+    return ['hero', 'featured_hero', 'featured_games', 'news', 'about'];
   };
   const sectionOrder = getSectionOrder();
 
@@ -1008,6 +1017,61 @@ export const useHomeMainBlocks = () => {
           ))}
         </div>
       </div>
+    </div>
+  ) : null;
+
+  // ─── เกมแนะนำ — การ์ดปกเลื่อนแนวนอน + ป๊อปอัปรายละเอียด ───
+  const featuredGamesSection = featuredGames.length > 0 ? (
+    <div key="featured_games">
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.15 }}
+        variants={slideUpVariants}
+        className="bg-card border border-border rounded-lg shadow-sm overflow-hidden"
+      >
+        <div className="bg-primary text-primary-foreground px-4 py-2 flex items-center justify-between">
+          <span className="font-semibold text-sm flex items-center gap-2">
+            <span className="w-1 h-4 bg-yellow-400 rounded-full inline-block" />
+            🎮 เกมแนะนำ
+          </span>
+          <Link to="/educational-hub" className="text-xs text-yellow-300 hover:text-yellow-100 flex items-center gap-1">
+            ดูทั้งหมด <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+        <div className="flex gap-4 p-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory">
+          {featuredGames.map((game) => (
+            <button
+              key={game.id}
+              type="button"
+              onClick={() => setSelectedGame(game)}
+              className="flex-shrink-0 w-44 sm:w-52 snap-start group text-left"
+            >
+              <div className="aspect-video bg-muted rounded-lg overflow-hidden border border-border">
+                {game.thumbnail_url ? (
+                  <img
+                    src={game.thumbnail_url}
+                    alt={game.title}
+                    loading="lazy"
+                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-muted to-secondary flex items-center justify-center">
+                    <span className="text-2xl">🎮</span>
+                  </div>
+                )}
+              </div>
+              <h4 className="text-xs font-semibold mt-2 line-clamp-2 group-hover:text-primary transition-colors">{game.title}</h4>
+              {game.subject && <p className="text-[10px] text-muted-foreground mt-0.5">{game.subject}</p>}
+            </button>
+          ))}
+        </div>
+      </motion.div>
+      <FeaturedGameDialog
+        game={selectedGame}
+        open={!!selectedGame}
+        onOpenChange={(o) => !o && setSelectedGame(null)}
+      />
     </div>
   ) : null;
 
@@ -1365,6 +1429,7 @@ export const useHomeMainBlocks = () => {
   const sectionMap: Record<string, JSX.Element | null> = {
     hero: heroSection,
     featured_hero: featuredHeroSection,
+    featured_games: featuredGamesSection,
     news: newsSection,
     facebook_feed: <FacebookFeedSection key="facebook_feed" />,
     about: aboutSection,

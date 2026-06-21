@@ -22,7 +22,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink, Plus, RefreshCw, AlertTriangle, Loader2, Trash2, RotateCcw, Settings, Code2, ChevronDown, Copy, Check, Download, Image as ImageIcon, ClipboardList, Target, Sparkles } from 'lucide-react';
+import { ExternalLink, Plus, RefreshCw, AlertTriangle, Loader2, Trash2, RotateCcw, Settings, Code2, ChevronDown, Copy, Check, Download, Image as ImageIcon, ClipboardList, Target, Sparkles, Pin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -485,6 +485,20 @@ export const GamesTab = () => {
         }
     };
 
+    // ปักหมุด/ปลดหมุด เกมขึ้นโซน "เกมแนะนำ" หน้าแรก
+    const toggleFeatured = async (item: EduHubItem) => {
+        const next = !item.homepage_featured;
+        try {
+            const { error } = await educationalHubService.updateItem(item.id, { homepage_featured: next });
+            if (error) throw error;
+            queryClient.invalidateQueries({ queryKey: ['edu-hub', 'all-games'] });
+            queryClient.invalidateQueries({ queryKey: ['edu-hub', 'featured-games'] });
+            toast({ title: next ? 'ปักหมุดขึ้นหน้าแรกแล้ว' : 'ปลดหมุดจากหน้าแรกแล้ว', description: `"${item.title}"` });
+        } catch (err) {
+            toast({ title: 'อัปเดตไม่สำเร็จ', description: err instanceof Error ? err.message : 'เกิดข้อผิดพลาด', variant: 'destructive' });
+        }
+    };
+
     // List items ทั้งหมด — Storage games (/edu-hub-games/) + Git games (/games/)
     const { data: items, isLoading } = useQuery({
         queryKey: ['edu-hub', 'all-games'],
@@ -727,6 +741,15 @@ export const GamesTab = () => {
                                                             onClick={() => setDialog({ mode: 'indicators', item })}
                                                         >
                                                             <Target className="h-3 w-3 mr-1" /> ตัวชี้วัด
+                                                        </Button>
+                                                        <Button
+                                                            variant={item.homepage_featured ? 'default' : 'outline'}
+                                                            size="sm"
+                                                            className={item.homepage_featured ? '' : 'text-rose-600 border-rose-200 hover:bg-rose-50'}
+                                                            onClick={() => toggleFeatured(item)}
+                                                            title={item.homepage_featured ? 'ปักหมุดบนหน้าแรกอยู่ — กดเพื่อปลด' : 'ปักหมุดขึ้นโซนเกมแนะนำหน้าแรก'}
+                                                        >
+                                                            <Pin className={cn('h-3 w-3 mr-1', item.homepage_featured && 'fill-current')} /> หน้าแรก
                                                         </Button>
                                                         {item.game_slug && (
                                                             <Button

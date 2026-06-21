@@ -64,6 +64,15 @@ const Index = () => {
             layout.main.blocks.unshift('featured_hero');
           }
         }
+        // Auto-inject featured_games (โซนเกมแนะนำ) if missing — แสดงต่อจาก featured_hero
+        // (section จะ render null จนกว่าจะมีเกมปักหมุด → ปลอดภัยที่จะ inject เสมอ)
+        if (!allBlocks.includes('featured_games') && !allHidden.includes('featured_games')) {
+          if (!layout.main) layout.main = { blocks: [], hidden: [] };
+          const fhIndex = layout.main.blocks.indexOf('featured_hero');
+          const hIndex = layout.main.blocks.indexOf('hero');
+          const at = fhIndex !== -1 ? fhIndex + 1 : (hIndex !== -1 ? hIndex + 1 : 0);
+          layout.main.blocks.splice(at, 0, 'featured_games');
+        }
       }
     } catch { /* fallback */ }
   }
@@ -86,6 +95,12 @@ const Index = () => {
         } else {
           mobileBlocks.unshift('featured_hero');
         }
+      }
+      if (mobileBlocks && !mobileBlocks.includes('featured_games') && !mobileHidden.includes('featured_games')) {
+        const fhIndex = mobileBlocks.indexOf('featured_hero');
+        const hIndex = mobileBlocks.indexOf('hero');
+        const at = fhIndex !== -1 ? fhIndex + 1 : (hIndex !== -1 ? hIndex + 1 : 0);
+        mobileBlocks.splice(at, 0, 'featured_games');
       }
     } catch { /* fallback */ }
   }
@@ -122,7 +137,7 @@ const Index = () => {
         {/* Desktop: 3 columns */}
         <div className="hidden lg:grid grid-cols-[240px_1fr_240px] gap-4 items-start">
           <aside className="min-w-0 overflow-hidden">{renderZone(layout?.left, ['principal', 'menu'], 'flex flex-col gap-3 w-full')}</aside>
-          <main className="min-w-0 overflow-hidden">{renderZone(layout?.main, ['hero', 'featured_hero', 'news', 'facebook_feed', 'about'], 'flex flex-col gap-4 w-full')}</main>
+          <main className="min-w-0 overflow-hidden">{renderZone(layout?.main, ['hero', 'featured_hero', 'featured_games', 'news', 'facebook_feed', 'about'], 'flex flex-col gap-4 w-full')}</main>
           <aside className="min-w-0 overflow-hidden">{renderZone(layout?.right, ['categories', 'gallery', 'services', 'social', 'stats'], 'flex flex-col gap-3 w-full')}</aside>
         </div>
 
@@ -139,7 +154,7 @@ const Index = () => {
           ) : (
             // Default: main then sidebars
             <>
-              <div className="min-w-0 overflow-hidden">{renderZone(layout?.main, ['hero', 'featured_hero', 'news', 'facebook_feed', 'about'], 'flex flex-col gap-4 w-full')}</div>
+              <div className="min-w-0 overflow-hidden">{renderZone(layout?.main, ['hero', 'featured_hero', 'featured_games', 'news', 'facebook_feed', 'about'], 'flex flex-col gap-4 w-full')}</div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 min-w-0">
                 <aside className="min-w-0 overflow-hidden">{renderZone(layout?.left, ['principal', 'menu'], 'flex flex-col gap-3 w-full')}</aside>
                 <aside className="min-w-0 overflow-hidden">{renderZone(layout?.right, ['categories', 'gallery', 'services', 'social', 'stats'], 'flex flex-col gap-3 w-full')}</aside>

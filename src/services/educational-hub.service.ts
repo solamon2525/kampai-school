@@ -54,6 +54,7 @@ export type EduHubItem = {
     is_published: boolean;
     game_slug: string | null;
     tracked_game: boolean;
+    homepage_featured: boolean;  // ปักหมุดขึ้นโซน "เกมแนะนำ" หน้าแรก (migration 213)
     bgm_preset: string | null;   // เพลงประกอบรายเกม (preset key สังเคราะห์ใน KAMPAI.sound) — null = ใช้ default ของเกม
     bgm_url: string | null;      // เพลงอัปโหลด (mp3) — ถ้ามี = เล่นแทน synth
     created_at: string;
@@ -196,6 +197,17 @@ export const educationalHubService = {
             .order('sort_order', { ascending: true })
             .order('created_at', { ascending: false });
     },
+
+    // เกมที่ปักหมุดขึ้นหน้าแรก (โซน "เกมแนะนำ") — published เท่านั้น, anon อ่านได้
+    listFeaturedGames: (limit = 12) =>
+        supabase
+            .from('educational_hub_items' as never)
+            .select('*')
+            .eq('is_published', true)
+            .eq('homepage_featured', true)
+            .order('sort_order', { ascending: true })
+            .order('created_at', { ascending: false })
+            .limit(limit),
 
     listMyItems: (staffId: string) =>
         supabase
