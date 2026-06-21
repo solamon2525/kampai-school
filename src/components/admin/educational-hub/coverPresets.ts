@@ -86,6 +86,22 @@ export const COVER_GROUPS: CoverGroup[] = [
             { id: 'scientist', label: 'นักวิทยาศาสตร์น้อย', fragment: 'main character: a curious little scientist in a lab coat and goggles' },
             { id: 'wizard', label: 'พ่อมด/แม่มดน้อย', fragment: 'main character: a tiny wizard with a hat and a glowing magic staff' },
             { id: 'dragon', label: 'มังกรน่ารัก', fragment: 'main character: a cute friendly baby dragon companion' },
+            { id: 'maker', label: 'เด็กนักประดิษฐ์/เมกเกอร์', fragment: 'main character: a young maker/inventor kid building gadgets with tools and gears' },
+            { id: 'programmer', label: 'โปรแกรมเมอร์น้อย', fragment: 'main character: a young programmer kid with a laptop and floating code blocks' },
+            { id: 'artist', label: 'ศิลปิน/นักออกแบบน้อย', fragment: 'main character: a young artist/designer kid with a drawing tablet and brush' },
+            { id: 'mascot', label: 'ตัวการ์ตูนมาสคอตกลม', fragment: 'main character: a simple cute round cartoon mascot blob with a big smile' },
+            { id: 'object', label: 'สิ่งของมีชีวิต (ดินสอ/หนังสือ)', fragment: 'main character: a friendly anthropomorphic school object (pencil or book) with a cute cartoon face' },
+            { id: 'superhero', label: 'ฮีโร่จิ๋วใส่ผ้าคลุม', fragment: 'main character: a tiny caped superhero kid striking a heroic pose' },
+        ],
+    },
+    {
+        key: 'charsize',
+        label: 'ขนาดตัวละคร',
+        multi: false,
+        options: [
+            { id: 'small', label: 'เล็ก (เน้นฉาก)', fragment: 'the character is small in the frame, the scene and environment dominate' },
+            { id: 'medium', label: 'กลาง (สมดุล)', fragment: 'the character is medium-sized, balanced with the scene' },
+            { id: 'large', label: 'ใหญ่/โดดเด่น', fragment: 'the character is large and prominent, hero front and center' },
         ],
     },
     {
@@ -186,62 +202,62 @@ export const STYLE_PACKS: { id: string; label: string; pick: CoverSelection }[] 
     {
         id: 'cute',
         label: '🧸 การ์ตูนน่ารัก',
-        pick: { style: 'chibi', mood: 'cheerful', colors: 'auto', character: 'thai_student', background: 'gradient', composition: 'front', effects: ['sparkle', 'candy'], detail: ['vibrant'] },
+        pick: { style: 'chibi', mood: 'cheerful', colors: 'auto', character: 'thai_student', charsize: 'medium', background: 'gradient', composition: 'front', effects: ['sparkle', 'candy'], detail: ['vibrant'] },
     },
     {
         id: 'action',
         label: '⚔️ อนิเมะแอ็กชัน',
-        pick: { style: 'anime', mood: 'epic', colors: 'orange_red', character: 'boy_hero', background: 'fantasy', composition: 'hero', effects: ['speed', 'burst'], detail: ['detailed'] },
+        pick: { style: 'anime', mood: 'epic', colors: 'orange_red', character: 'boy_hero', charsize: 'large', background: 'fantasy', composition: 'hero', effects: ['speed', 'burst'], detail: ['detailed'] },
     },
     {
         id: 'game3d',
         label: '✨ เกม 3D มันวาว',
-        pick: { style: 'glossy3d', mood: 'cheerful', colors: 'blue_navy', character: 'robot', background: 'gradient', composition: 'dynamic', effects: ['glow', 'sparkle'], detail: ['detailed', 'depth'] },
+        pick: { style: 'glossy3d', mood: 'cheerful', colors: 'blue_navy', character: 'robot', charsize: 'medium', background: 'gradient', composition: 'dynamic', effects: ['glow', 'sparkle'], detail: ['detailed', 'depth'] },
     },
     {
         id: 'epic',
         label: '🏆 โปสเตอร์อิงเกม',
-        pick: { style: 'poster', mood: 'epic', colors: 'purple_gold', character: 'duo', background: 'castle', composition: 'hero', effects: ['glow', 'magic'], detail: ['detailed'] },
+        pick: { style: 'poster', mood: 'epic', colors: 'purple_gold', character: 'duo', charsize: 'large', background: 'castle', composition: 'hero', effects: ['glow', 'magic'], detail: ['detailed'] },
     },
     {
         id: 'storybook',
         label: '📖 นิทานสีน้ำ',
-        pick: { style: 'storybook', mood: 'cozy', colors: 'pink_pastel', character: 'animal', background: 'nature', composition: 'wide', effects: ['sparkle', 'leaves'], detail: ['depth'] },
+        pick: { style: 'storybook', mood: 'cozy', colors: 'pink_pastel', character: 'animal', charsize: 'small', background: 'nature', composition: 'wide', effects: ['sparkle', 'leaves'], detail: ['depth'] },
     },
     {
         id: 'ocean',
         label: '🐠 ผจญภัยใต้ทะเล',
-        pick: { style: 'glossy3d', mood: 'mysterious', colors: 'mint_cyan', character: 'duo', scene: ['underwater'], background: 'underwater_bg', composition: 'wide', effects: ['glow', 'sparkle'], detail: ['depth'] },
+        pick: { style: 'glossy3d', mood: 'mysterious', colors: 'mint_cyan', character: 'duo', charsize: 'small', scene: ['underwater'], background: 'underwater_bg', composition: 'wide', effects: ['glow', 'sparkle'], detail: ['depth'] },
     },
     {
         id: 'space',
         label: '🚀 ตะลุยอวกาศ',
-        pick: { style: 'glossy3d', mood: 'epic', colors: 'galaxy', character: 'robot', scene: ['space'], background: 'space_bg', composition: 'dynamic', effects: ['glow', 'sparkle'], detail: ['detailed'] },
+        pick: { style: 'glossy3d', mood: 'epic', colors: 'galaxy', character: 'robot', charsize: 'medium', scene: ['space'], background: 'space_bg', composition: 'dynamic', effects: ['glow', 'sparkle'], detail: ['detailed'] },
     },
     {
         id: 'thai',
         label: '🇹🇭 ไทยมงคล',
-        pick: { style: 'vector', mood: 'cheerful', colors: 'red_gold', character: 'thai_costume', background: 'thai_temple', composition: 'front', effects: ['sparkle'], detail: ['vibrant'] },
+        pick: { style: 'vector', mood: 'cheerful', colors: 'red_gold', character: 'thai_costume', charsize: 'medium', background: 'thai_temple', composition: 'front', effects: ['sparkle'], detail: ['vibrant'] },
     },
     {
         id: 'lab',
         label: '🔬 แล็บวิทยาศาสตร์',
-        pick: { style: 'chibi', mood: 'cheerful', colors: 'green_fresh', character: 'scientist', scene: ['science'], background: 'lab', composition: 'closeup', effects: ['glow', 'sparkle'], detail: ['detailed'] },
+        pick: { style: 'chibi', mood: 'cheerful', colors: 'green_fresh', character: 'scientist', charsize: 'medium', scene: ['science'], background: 'lab', composition: 'closeup', effects: ['glow', 'sparkle'], detail: ['detailed'] },
     },
     {
         id: 'sport',
         label: '🏅 กีฬาแข่งขัน',
-        pick: { style: 'anime', mood: 'epic', colors: 'orange_red', character: 'group', scene: ['sports'], background: 'stadium', composition: 'dynamic', effects: ['speed', 'confetti'], detail: ['vibrant'] },
+        pick: { style: 'anime', mood: 'epic', colors: 'orange_red', character: 'group', charsize: 'medium', scene: ['sports'], background: 'stadium', composition: 'dynamic', effects: ['speed', 'confetti'], detail: ['vibrant'] },
     },
     {
         id: 'candy',
         label: '🍬 โลกขนมหวาน',
-        pick: { style: 'clay', mood: 'funny', colors: 'candy_bright', character: 'animal', background: 'candyland', composition: 'front', effects: ['candy', 'confetti'], detail: ['vibrant'] },
+        pick: { style: 'clay', mood: 'funny', colors: 'candy_bright', character: 'animal', charsize: 'medium', background: 'candyland', composition: 'front', effects: ['candy', 'confetti'], detail: ['vibrant'] },
     },
     {
         id: 'magic',
         label: '🪄 เวทมนตร์ปริศนา',
-        pick: { style: 'poster', mood: 'dreamy', colors: 'galaxy', character: 'wizard', background: 'night_sky', composition: 'hero', effects: ['magic', 'glow'], detail: ['depth'] },
+        pick: { style: 'poster', mood: 'dreamy', colors: 'galaxy', character: 'wizard', charsize: 'large', background: 'night_sky', composition: 'hero', effects: ['magic', 'glow'], detail: ['depth'] },
     },
 ];
 
