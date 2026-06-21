@@ -481,6 +481,9 @@ body {
   text-align: center;
   overflow-y: auto;
 }
+#gameover-screen {
+  display: none;
+}
 
 #blocker h1, #gameover-screen h1 {
   font-size: 44px;
