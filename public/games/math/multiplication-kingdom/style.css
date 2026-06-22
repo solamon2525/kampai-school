@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500;600&family=Sarabun:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap');
+
+body {
+    font-family: 'Mitr', 'Sarabun', sans-serif;
+    background-color: #f0fdf4;
+}
+
+.bouncy-btn {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.bouncy-btn:active {
+    transform: scale(0.95);
+}
+
+.grid-cell {
+    transition: background-color 0.15s ease;
+}
+
+/* Custom scrollbar for conversational ease */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Heartbeat animation for tips */
+@keyframes subtle-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+}
+
+.help-pulse {
+    animation: subtle-pulse 2s infinite;
+}

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>อาณาจักรคณิตคิดสนุก: ดินแดนแห่งการคูณมหัศจรรย์</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="min-h-screen flex flex-col text-slate-800">
+
+    <!-- HEADER -->
+    <header class="bg-gradient-to-r from-teal-500 via-emerald-500 to-green-600 text-white shadow-lg p-4">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-white p-2.5 rounded-2xl shadow-inner text-3xl">
+                    🍎
+                </div>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-bold tracking-wide">อาณาจักรคณิตคิดสนุก 🎪</h1>
+                    <p class="text-xs md:text-sm text-teal-100 font-light">เรียนรู้เรื่อง "การคูณ" ด้วยภาพ สัมผัสได้ เข้าใจง่ายที่สุด!</p>
+                </div>
+            </div>
+            
+            <!-- Audio Switch and System Notice -->
+            <div class="flex items-center gap-3">
+                <button onclick="toggleSound()" id="soundBtn" class="bouncy-btn px-4 py-2 bg-emerald-700 hover:bg-emerald-800 rounded-full text-xs md:text-sm font-medium flex items-center gap-2 shadow-md">
+                    <span id="soundIcon">🔊</span> <span id="soundText">เปิดเสียงเอฟเฟกต์</span>
+                </button>
+                <div class="bg-yellow-400 text-amber-950 text-xs px-3.5 py-1.5 rounded-full font-bold shadow animate-bounce">
+                    ครูพี่คูณสแตนด์บายช่วยสอน! 🤖✨
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN INTERACTIVE CONTAINER -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- LEFT COLUMN: Workspace and Interactive Tools (8/12 of screen width) -->
+        <section class="lg:col-span-8 flex flex-col gap-6">
+            
+            <!-- TAB SELECTOR -->
+            <div class="bg-white p-2 rounded-2xl shadow-sm border border-emerald-100 flex flex-wrap gap-1">
+                <button onclick="switchTab('grouping')" id="tab-grouping" class="tab-btn flex-1 min-w-[120px] py-3 px-4 rounded-xl text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 bg-emerald-500 text-white shadow-md">
+                    🍊 สวนส้มของหนู
+                </button>
+                <button onclick="switchTab('sandbox')" id="tab-sandbox" class="tab-btn flex-1 min-w-[120px] py-3 px-4 rounded-xl text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-50">
+                    🥕 แปลงผักนักลาก
+                </button>
+                <button onclick="switchTab('area')" id="tab-area" class="tab-btn flex-1 min-w-[120px] py-3 px-4 rounded-xl text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-50">
+                    🗺️ แผนที่พลังสิบ
+                </button>
+                <button onclick="switchTab('game')" id="tab-game" class="tab-btn flex-1 min-w-[120px] py-3 px-4 rounded-xl text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-50">
+                    🎮 ภารกิจสายลับ
+                </button>
+            </div>
+
+            <!-- TAB 1 CONTENT: Grouping & Arrays (สวนส้มของหนู) -->
+            <div id="content-grouping" class="tab-content bg-white p-6 rounded-3xl shadow-sm border border-emerald-100 flex flex-col gap-6">
+                <div class="flex justify-between items-start gap-4 flex-wrap">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">🍊 สวนส้มจำลองเพื่อความเข้าใจการบวกซ้ำ</h2>
+                        <p class="text-sm text-slate-500">ปรับ "จำนวนจาน" และ "จำนวนผลส้ม" เพื่อดูว่าการคูณคือการเอาส้มมารวมกันทีละเท่าๆ กันนะเด็กๆ!</p>
+                    </div>
+                    <button onclick="askAIAssistant('grouping')" class="bouncy-btn help-pulse px-4 py-2 bg-amber-400 hover:bg-amber-500 text-amber-950 font-bold rounded-xl text-xs flex items-center gap-1 shadow">
+                        💡 ให้ครูพี่คูณอธิบายหน้านี้
+                    </button>
+                </div>
+
+                <!-- Sliders for Configuration -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl">
+                    <div class="flex flex-col gap-2">
+                        <div class="flex justify-between text-sm font-semibold">
+                            <span class="text-slate-700">🍽️ จำนวนจาน (กลุ่ม)</span>
+                            <span class="text-emerald-600 font-bold" id="group-val">3 จาน</span>
+                        </div>
+                        <input type="range" id="slider-groups" min="1" max="8" value="3" oninput="updateGrouping()" class="w-full h-2 bg-emerald-200 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <div class="flex justify-between text-sm font-semibold">
+                            <span class="text-slate-700">🍊 ส้มต่อจาน (จำนวนในแต่ละกลุ่ม)</span>
+                            <span class="text-amber-600 font-bold" id="item-val">4 ผล</span>
+                        </div>
+                        <input type="range" id="slider-items" min="1" max="8" value="4" oninput="updateGrouping()" class="w-full h-2 bg-amber-200 rounded-lg appearance-none cursor-pointer accent-amber-500">
+                    </div>
+                </div>
+
+                <!-- Visualization Output Frame -->
+                <div class="border-2 border-dashed border-emerald-100 p-6 rounded-2xl min-h-[250px] flex flex-wrap justify-center items-center gap-6 bg-emerald-50/20" id="grouping-visualization">
+                    <!-- Plates with oranges are generated dynamically here -->
+                </div>
+
+                <!-- Equation Math Explainer -->
+                <div class="bg-gradient-to-r from-emerald-50 to-teal-50 p-5 rounded-2xl border border-emerald-100 text-center">
+                    <div class="text-slate-500 text-xs uppercase tracking-wider font-semibold">เขียนประโยคสัญลักษณ์ได้แบบนี้จ้า:</div>
+                    <div class="my-3 flex justify-center items-center gap-3 flex-wrap">
+                        <span class="text-3xl font-bold text-emerald-600" id="eq-groups">3</span>
+                        <span class="text-xl text-slate-400">×</span>
+                        <span class="text-3xl font-bold text-amber-500" id="eq-items">4</span>
+                        <span class="text-2xl text-slate-400">=</span>
+                        <span class="text-4xl font-black text-emerald-700 px-4 py-1.5 bg-emerald-100/80 rounded-2xl shadow-inner" id="eq-result">12</span>
+                    </div>
+                    <p class="text-sm text-slate-600 font-medium" id="addition-chain">
+                        ก็คือเอาส้มในจานมารวมกัน: 4 + 4 + 4 = 12 ผลนั่นเอง! 🎉
+                    </p>
+                </div>
+            </div>
+
+            <!-- TAB 2 CONTENT: Interactive Sandbox Grid (แปลงผักนักลาก) -->
+            <div id="content-sandbox" class="tab-content bg-white p-6 rounded-3xl shadow-sm border border-emerald-100 hidden flex flex-col gap-6">
+                <div class="flex justify-between items-start gap-4 flex-wrap">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">🥕 แปลงผักนักลากพิกัดสร้างพื้นที่</h2>
+                        <p class="text-sm text-slate-500">จิ้มแล้วลากนิ้วบนตารางด้านล่างเพื่อขุด "แปลงผักแครอท" ความกว้างคูณความยาวจะสร้างผลลัพธ์การคูณให้เห็นแบบทันตา!</p>
+                    </div>
+                    <button onclick="askAIAssistant('sandbox')" class="bouncy-btn help-pulse px-4 py-2 bg-amber-400 hover:bg-amber-500 text-amber-950 font-bold rounded-xl text-xs flex items-center gap-1 shadow">
+                        💡 ให้ครูพี่คูณอธิบายหน้านี้
+                    </button>
+                </div>
+
+                <!-- Dynamic Live HUD statistics -->
+                <div class="grid grid-cols-3 gap-2 text-center">
+                    <div class="bg-amber-50 border border-amber-100 p-2.5 rounded-xl">
+                        <div class="text-xs text-slate-500 font-medium">⬆️ แถวตั้ง (กว้าง)</div>
+                        <div class="text-lg font-bold text-amber-600" id="sb-rows">0</div>
+                    </div>
+                    <div class="bg-indigo-50 border border-indigo-100 p-2.5 rounded-xl">
+                        <div class="text-xs text-slate-500 font-medium">➡️ แถวนอน (ยาว)</div>
+                        <div class="text-lg font-bold text-indigo-600" id="sb-cols">0</div>
+                    </div>
+                    <div class="bg-emerald-50 border border-emerald-100 p-2.5 rounded-xl">
+                        <div class="text-xs text-slate-500 font-medium">🥕 ผลผลิตแครอทรวม</div>
+                        <div class="text-lg font-bold text-emerald-600" id="sb-total">0 ช่อง</div>
+                    </div>
+                </div>
+
+                <!-- Canvas Wrapper responsive sizing -->
+                <div class="relative w-full flex justify-center bg-slate-100 p-3 rounded-2xl overflow-hidden border border-slate-200">
+                    <canvas id="sandboxCanvas" class="bg-white rounded-xl shadow-inner cursor-crosshair touch-none"></canvas>
+                </div>
+
+                <!-- Bottom equation output -->
+                <div class="flex justify-between items-center bg-amber-500/10 border border-amber-100 p-4 rounded-xl text-center">
+                    <span class="text-sm text-amber-950 font-bold">สูตรแปลงผักคูณของคุณคือ:</span>
+                    <span class="text-xl font-bold text-amber-800" id="sb-equation">0 × 0 = 0</span>
+                    <button onclick="clearSandbox()" class="px-3.5 py-1.5 bg-rose-500 hover:bg-rose-600 text-white font-medium text-xs rounded-lg bouncy-btn">
+                        🧹 ล้างตารางเริ่มต้นใหม่
+                    </button>
+                </div>
+            </div>
+
+            <!-- TAB 3 CONTENT: Multi-Digit Area Model (แผนที่พลังสิบ) -->
+            <div id="content-area" class="tab-content bg-white p-6 rounded-3xl shadow-sm border border-emerald-100 hidden flex flex-col gap-6">
+                <div class="flex justify-between items-start gap-4 flex-wrap">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">🗺️ แผนที่กล่องพื้นที่การคูณเลขหลายหลัก (Area Model)</h2>
+                        <p class="text-sm text-slate-500">ขยับขยายตัวเลขขวา-ซ้ายให้มีขนาดเกิน 10 เพื่อมองดูวิธีการ "แยกหลักสิบและหลักหน่วย" ออกเป็นกล่องคำนวณย่อย 4 ใบ ย่อยเลขยากเป็นเลขบวกง่ายๆ คาตา!</p>
+                    </div>
+                    <button onclick="askAIAssistant('area')" class="bouncy-btn help-pulse px-4 py-2 bg-amber-400 hover:bg-amber-500 text-amber-950 font-bold rounded-xl text-xs flex items-center gap-1 shadow">
+                        💡 ให้ครูพี่คูณอธิบายหน้านี้
+                    </button>
+                </div>
+
+                <!-- Double Sliders for double-digit Area Model visualization -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl">
+                    <div class="flex flex-col gap-2">
+                        <div class="flex justify-between text-sm font-semibold">
+                            <span class="text-slate-700">📐 ตัวตั้งแนวตั้ง (ข้างซ้าย)</span>
+                            <span class="text-rose-600 font-bold" id="area-num1-val">14 (แยกเป็น 10 + 4)</span>
+                        </div>
+                        <input type="range" id="slider-area-num1" min="11" max="25" value="14" oninput="updateAreaModel()" class="w-full h-2 bg-rose-200 rounded-lg appearance-none cursor-pointer accent-rose-500">
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <div class="flex justify-between text-sm font-semibold">
+                            <span class="text-slate-700">📐 ตัวคูณแนวนอน (ข้างบน)</span>
+                            <span class="text-indigo-600 font-bold" id="area-num2-val">12 (แยกเป็น 10 + 2)</span>
+                        </div>
+                        <input type="range" id="slider-area-num2" min="11" max="25" value="12" oninput="updateAreaModel()" class="w-full h-2 bg-indigo-200 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                    </div>
+                </div>
+
+                <!-- Dynamic Area Model Visual container -->
+                <div class="flex justify-center p-4 border border-slate-100 bg-slate-50/50 rounded-2xl min-h-[300px]" id="area-model-container">
+                    <!-- Scaled Boxes representing the math calculation are generated via dynamic SVG here -->
+                </div>
+
+                <!-- Process Calculation Chain breakdown -->
+                <div class="bg-white border-2 border-dashed border-indigo-100 p-4 rounded-2xl">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">สรุปการบวกพลังพื้นที่ย่อยทั้ง 4:</h3>
+                    <div class="flex flex-wrap items-center justify-center gap-2 text-sm font-semibold" id="area-calculation-sum">
+                        <!-- Filled on refresh dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4 CONTENT: Game Quest (ภารกิจสายลับตาราง) -->
+            <div id="content-game" class="tab-content bg-white p-6 rounded-3xl shadow-sm border border-emerald-100 hidden flex flex-col gap-6">
+                <div class="flex justify-between items-start gap-4 flex-wrap">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">🎮 ภารกิจสายลับ: ด่านท้าทายจอมยุทธ์ตารางการคูณ</h2>
+                        <p class="text-sm text-slate-500">ดูโจทย์เป้าหมายผลลัพธ์ แล้ววาด/สร้างแปลงผักขนาดพอดีเป้าหมายลงตาราง! (คิดให้ออกนะจ๊ะว่าเลขอะไรคูณกันได้เท่านี้บ้าง!)</p>
+                    </div>
+                    <button onclick="askAIAssistant('game')" class="bouncy-btn help-pulse px-4 py-2 bg-amber-400 hover:bg-amber-500 text-amber-950 font-bold rounded-xl text-xs flex items-center gap-1 shadow">
+                        💡 ให้ครูพี่คูณอธิบายหน้านี้
+                    </button>
+                </div>
+
+                <!-- Game Leaderboard & Score HUD -->
+                <div class="flex justify-between items-center bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <div class="flex items-center gap-2">
+                        <span class="text-3xl">⭐</span>
+                        <div>
+                            <div class="text-xs text-slate-500 font-bold">ดาวสะสม</div>
+                            <div class="text-xl font-extrabold text-amber-500" id="game-stars">0</div>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-xs text-slate-500 font-bold">ด่านปัจจุบัน</div>
+                        <div class="text-sm font-extrabold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100 inline-block" id="game-level">เลเวล 1</div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-3xl">🏆</span>
+                        <div>
+                            <div class="text-xs text-slate-500 font-bold">สถิติสูงสุด</div>
+                            <div class="text-xl font-extrabold text-indigo-600" id="game-highscore">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Challenge Target Box -->
+                <div class="bg-gradient-to-br from-indigo-900 to-slate-800 text-white p-5 rounded-2xl text-center shadow-md flex flex-col items-center justify-center gap-2">
+                    <div class="text-xs tracking-wider uppercase text-indigo-300 font-bold">🎯 ภารกิจสายลับจับพื้นที่:</div>
+                    <div class="text-3xl font-extrabold" id="game-instruction">สร้างพื้นที่ขนาด 12 ช่อง!</div>
+                    <p class="text-xs text-slate-300 max-w-sm">ลากนิ้วบนตารางด้านล่างให้กลายเป็นรูปสี่เหลี่ยมที่มีตารางเท่ากับจำนวนนี้ (ใบ้ให้: เช่น 3 แถว 4 คอลัมน์ หรือ 2 แถว 6 คอลัมน์ก็ผ่านนะ!)</p>
+                </div>
+
+                <!-- Live Game Canvas -->
+                <div class="relative w-full flex justify-center bg-slate-100 p-3 rounded-2xl overflow-hidden border border-slate-200">
+                    <canvas id="gameCanvas" class="bg-white rounded-xl shadow-inner cursor-crosshair touch-none"></canvas>
+                </div>
+
+                <!-- Live interaction feedback -->
+                <div class="flex justify-between items-center bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                    <div class="text-sm">
+                        <span class="text-slate-500 font-semibold">ตารางที่คุณกางออกตอนนี้: </span>
+                        <span class="font-extrabold text-indigo-600 text-lg" id="game-current-match">0 × 0 = 0 ช่อง</span>
+                    </div>
+                    <button onclick="submitGameGuess()" class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm rounded-xl bouncy-btn shadow-md">
+                        🚀 ตรวจส่งผลตอบ!
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- RIGHT COLUMN: Player Info & AI math assistant chatbot "ครูพี่คูณ" -->
+        <section class="lg:col-span-4 flex flex-col gap-4">
+            
+            <!-- Student Stats Boilerplate -->
+            <div id="my-stats" class="bg-white p-4 rounded-3xl shadow-sm border border-emerald-100 flex flex-col gap-2">
+                <h3 class="font-bold text-xs text-slate-400 uppercase tracking-wider">👤 ข้อมูลผู้เล่น</h3>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center text-lg font-bold shadow-inner" id="player-chip">
+                        👤
+                    </div>
+                    <div>
+                        <div id="player-display-name" class="font-bold text-sm text-slate-800">นักเรียนเตรียมพร้อม...</div>
+                        <div class="text-xs text-slate-500">
+                            คะแนนสูงสุด: <span id="ms-best" class="font-bold text-amber-500">0</span> ดาว | เล่นไปแล้ว: <span id="ms-plays" class="font-bold text-indigo-500">0</span> ครั้ง
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TEACHER AI BOX -->
+            <div class="bg-white rounded-3xl shadow-sm border border-emerald-100 flex flex-col h-[420px] lg:h-[480px] overflow-hidden">
+                
+                <!-- AI Assistant Header -->
+                <div class="p-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white flex items-center gap-3">
+                    <div class="text-3xl">🤖</div>
+                    <div class="flex-grow">
+                        <h3 class="font-bold text-sm">ครูพี่คูณ: คู่หูสอนเลขส่วนตัว</h3>
+                        <p class="text-[10px] text-teal-100 font-light">อยากถามเรื่องสูตรคูณ ตัวเลข หรือให้เปรียบเทียบเรื่องอะไรถามเลย!</p>
+                    </div>
+                </div>
+
+                <!-- Chat history display area -->
+                <div id="ai-chat-history" class="flex-grow overflow-y-auto p-4 flex flex-col gap-3 bg-slate-50/50">
+                    
+                    <!-- Bot introduction bubble -->
+                    <div class="flex gap-2.5 items-start">
+                        <div class="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center text-sm shadow-inner flex-shrink-0">
+                            🤖
+                        </div>
+                        <div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm border border-emerald-100 text-xs md:text-sm max-w-[85%] text-slate-700 leading-relaxed">
+                            <span class="font-bold text-emerald-600 block mb-1">สวัสดีจ้าเด็กๆ พี่คือครูพี่คูณเอง! 👋</span>
+                            ถ้ากำลังติดใจตรงไหน หรือสงสัยว่าเลขชุดไหนมีประโยชน์อย่างไรในชีวิตจริง ถามพี่เข้ามาได้เลยนะจ๊ะ! 
+                            <div class="mt-2.5 flex flex-wrap gap-1.5">
+                                <button onclick="quickAsk('ทำไมการคูณเลขลัดสลับที่กันได้คะ?')" class="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 text-emerald-700 rounded-lg text-[10px] font-medium transition">
+                                    🤔 ทำไมการคูณสลับที่ได้?
+                                </button>
+                                <button onclick="quickAsk('อยากจำสูตรคูณแม่ 9 ให้ได้ไวๆ มีเทคนิคไหมครับ?')" class="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 text-emerald-700 rounded-lg text-[10px] font-medium transition">
+                                    💡 เทคนิคสูตรคูณแม่ 9
+                                </button>
+                                <button onclick="quickAsk('ทำไมเอาตัวเลขศูนย์คูณอะไรก็ได้คำตอบเป็นศูนย์เสมอครับ?')" class="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 text-emerald-700 rounded-lg text-[10px] font-medium transition">
+                                    😮 ทำไมคูณ 0 ได้ 0?
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI chat dynamic bubbles go here -->
+                </div>
+
+                <!-- Chat message typing form input -->
+                <form id="ai-chat-form" onsubmit="handleChatSubmit(event)" class="p-3 border-t border-slate-100 flex gap-2 bg-white">
+                    <input type="text" id="ai-chat-input" placeholder="พิมพ์ถามครูพี่คูณได้ทุกเรื่องเลยนะ..." class="flex-grow px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all">
+                    <button type="submit" class="p-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl shadow bouncy-btn flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                        </svg>
+                    </button>
+                </form>
+            </div>
+
+            <!-- CUSTOM NOTIFICATION BANNER / FEEDBACK POPUP (No Alert rule!) -->
+            <div id="toast-banner" class="opacity-0 translate-y-4 pointer-events-none transition-all duration-300 bg-emerald-950 text-emerald-100 p-4 rounded-2xl shadow-xl flex items-center gap-3 border border-emerald-800 text-xs md:text-sm">
+                <span class="text-2xl" id="toast-icon">🚀</span>
+                <div>
+                    <strong class="font-bold block" id="toast-title">เยี่ยมมาก!</strong>
+                    <span id="toast-desc">แอปพร้อมสอนแล้วครับคุณหนูๆ</span>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 text-slate-500 text-center py-4 text-xs border-t border-slate-800">
+        ออกแบบโดย ครูคณิตจำลองความเข้าใจ | ขับเคลื่อนด้วยพลังของภาพและเสียงแห่งความเข้าใจคณิตศาสตร์ ⚡
+    </footer>
+
+    <!-- SDK & configuration scripts -->
+    <div id="blocker" class="hidden"></div> <!-- Fallback blocker check -->
+    
+    <script src="/games/kampai-sdk.js"></script>
+    <script>
+    window.KAMPAI = window.KAMPAI || {
+        isEmbed: false,
+        isTouch: false,
+        ready: true,
+        student: null,
+        stats: null,
+        leaderboard: [],
+        input: { up: false, down: false, left: false, right: false, a: false, b: false },
+        onReady: function(cb) { cb(this); },
+        setSlug: function() { return this; },
+        submitScore: function() { return false; },
+        goHome: function() { location.href = '/'; },
+        exit: function() { location.href = '/'; },
+        controls: { mount: function() { return this; } },
+        sound: {
+            correct: function() {},
+            wrong: function() {},
+            timeUp: function() {},
+            gameOver: function() {},
+            speak: function() {},
+            stopSpeak: function() {},
+            fxFlash: function() {},
+            mountToggles: function() {},
+            defaultBgm: function() {},
+            bgmStart: function() {},
+            bgmStop: function() {},
+            unlock: function() {}
+        }
+    };
+    </script>
+    <script src="config.js"></script>
+    <script src="data.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
