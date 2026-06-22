@@ -1,0 +1,107 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    font-family: 'Kanit', sans-serif;
+    background-color: #87CEEB; /* Sky blue */
+    user-select: none;
+}
+
+#gameCanvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* Leaderboard List */
+.leaderboard-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.leaderboard-list li {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.03);
+    margin-bottom: 3px;
+}
+
+.leaderboard-list li.is-me {
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.leaderboard-list .lb-rank {
+    width: 20px;
+    font-weight: bold;
+    text-align: center;
+    color: #4b5563;
+}
+
+.leaderboard-list .lb-avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin-right: 6px;
+    object-fit: cover;
+}
+
+.leaderboard-list .lb-avatar-init {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin-right: 6px;
+    background: #4b5563;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    font-size: 9px;
+}
+
+.leaderboard-list .lb-info {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.leaderboard-list .lb-name {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.leaderboard-list .lb-sub {
+    font-size: 8px;
+    color: #6b7280;
+    margin-left: 4px;
+}
+
+.leaderboard-list .lb-score {
+    font-weight: bold;
+    color: #16a34a;
+}
+
+.leaderboard-list .lb-loading {
+    text-align: center;
+    color: #9ca3af;
+    padding: 6px 0;
+}
