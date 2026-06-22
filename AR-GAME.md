@@ -3,9 +3,10 @@
 > ⚠️ **อ่านไฟล์นี้ก่อนสร้าง/แก้เกม AR ทุกครั้ง** — กันบัคซ้ำเดิม (โดยเฉพาะ layout ยุบ + ไม่มี fallback)
 > เกม AR ใช้ engine กลาง `public/games/kampai-ar.js` (`window.KampaiAR`) — แก้ engine ที่เดียว ทุกเกม AR ดีขึ้นพร้อมกัน
 >
-> **Engine version:** `KampaiAR v1.1.0` · **Doc version:** v1.1.1
+> **Engine version:** `KampaiAR v1.1.1` · **Doc version:** v1.1.2
 
 ## Changelog
+- **v1.1.1** — เพิ่มเวลาตัดสินใจทุกเกม AR: `holdMs` default 2000→**2500** + config ทุกเกม `HOLD_MS:2500` / `ROUND_SEC:20` (ดู Tuning Log §6)
 - **doc v1.1.1** — เพิ่ม §2.1 Layout patterns: กล้องเต็มจอ (default) vs **กล้องมุมจอ + เกมเต็มจอ** — อ้างอิง `math/math-move-quiz`
 - **v1.1.0** — Tier 2: เพิ่มโหมด `hands` (ยกมือ ซ้าย/ขวา/สองมือ → zones, reuse hold→commit), gesture `jump`/`squat` (`onGesture`), พลัง `onEnergy`/`ar.energy`, สัญญาณ `onSignals` + getters `ar.y`/`ar.hands`. **backward compatible** (default = horizontal). เกมตัวอย่าง `english/hands-up-quiz/`
 - **v1.0.0** (เริ่มต้น) — engine `kampai-ar.js` (framediff + pose), template `_template-ar/`, เกมตัวอย่าง `demo/ar-zone-quiz/`, verify Check 10
@@ -103,6 +104,7 @@ engine **ไม่สนขนาดที่โชว์กล้อง** — d
 | วันที่ | อาการ/อุปกรณ์ | knob ที่ปรับ | ผล |
 |---|---|---|---|
 | 2026-06-20 | (เริ่มต้น) `fraction-garden-ar` คอมมิตเร็วไป บนแท็บเล็ตโรงเรียน | `HOLD_MS` 1200→2000 | มีเวลาตัดสินใจขึ้น |
+| 2026-06-22 | ทุกเกม AR — ขอเวลาตัดสินใจมากขึ้น (เซนเซอร์รอคำตอบ) | `holdMs` default 2000→2500 + ทุก config `HOLD_MS`→2500, `ROUND_SEC`→20 | ค้างนานขึ้นก่อนล็อก + มีเวลาคิดต่อข้อมากขึ้น (เปลี่ยนใจได้) |
 | _เพิ่มแถวใหม่ทุกครั้งที่จูน_ | | | |
 
 ## 7. Engine API (`window.KampaiAR`)
@@ -112,7 +114,7 @@ const ar = KampaiAR.create({
   video:'#arVideo', canvas:'#arCanvas',
   detector:'framediff'|'pose',
   mode:'horizontal'|'hands',                   // v1.1.0 — 'hands' = zones จากการยกมือ (default 'horizontal')
-  zones:['left','center','right'], holdMs:2000, tuning:{...},
+  zones:['left','center','right'], holdMs:2500, tuning:{...},
   onZone(zone){}, onHoldProgress(zone,pct){}, onCommit(zone){}, onStatus(s){}, // 'camera-on'|'no-camera'|'pose-loading'|'error'
   onSignals(s){}, // v1.1.0 ต่อเนื่อง: {x,y,energy,leftUp,rightUp,bothUp}
   onGesture(g){}, // v1.1.0 discrete: 'jump' | 'squat'

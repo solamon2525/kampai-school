@@ -7,7 +7,7 @@ window.GAME_CONFIG = {
     DETECTOR: 'pose',               // ยกมือต้องใช้ pose (จับข้อมือ/ไหล่) — โหลด lib ไม่ได้จะ fallback framediff เอง
     MODE: 'hands',                  // โซน = การยกมือ ซ้าย/ขวา/สองมือ (แทนตำแหน่งยืน)
     ZONES: ['left', 'right', 'both'],
-    HOLD_MS: 1500,                  // ยกมือค้างกี่ ms ถึงคอมมิต (มือค้างง่ายกว่ายืน → สั้นลงได้)
+    HOLD_MS: 2500,                  // ยกมือค้างกี่ ms ถึงคอมมิต (มือค้างง่ายกว่ายืน → สั้นลงได้)
     TUNING: {
         minConfidence: 0.5,
         handRaiseMargin: 0.04,      // ข้อมือต้องสูงกว่าไหล่เกินค่านี้ ถึงนับว่า "ยก"
@@ -16,6 +16,6 @@ window.GAME_CONFIG = {
 
     // ── เกม ──
     ROUNDS: 8,                      // จำนวนข้อ (≤ จำนวนใน data.js)
-    ROUND_SEC: 15,                  // เวลาต่อข้อ (วินาที)
+    ROUND_SEC: 20,                  // เวลาต่อข้อ (วินาที)
     BGM: 'cheerful'
 };

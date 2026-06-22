@@ -5,7 +5,7 @@ window.GAME_CONFIG = {
     // ── AR ──
     DETECTOR: 'framediff',
     ZONES: ['left', 'center', 'right'],
-    HOLD_MS: 2000,
+    HOLD_MS: 2500,
     TUNING: {
         downsample: { w: 120, h: 90 },
         diffThreshold: 35,
@@ -17,6 +17,6 @@ window.GAME_CONFIG = {
 
     // ── เกม ──
     ROUNDS: 10,
-    ROUND_SEC: 15,
+    ROUND_SEC: 20,
     BGM: 'playful'
 };

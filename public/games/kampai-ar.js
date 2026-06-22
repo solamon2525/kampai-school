@@ -10,7 +10,7 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
     'use strict';
-    var VERSION = '1.1.0';
+    var VERSION = '1.1.1';
 
     // ค่าจูนเริ่มต้น (override ได้ผ่าน opts.tuning ใน config.js) — ดูคำอธิบายช่วงที่แนะนำใน AR-GAME.md
     var DEFAULT_TUNING = {
@@ -43,7 +43,7 @@
         var tuning = Object.assign({}, DEFAULT_TUNING, opts.tuning || {});
         var zones = opts.zones || ['left', 'center', 'right'];
         var cuts = opts.cuts || (zones.length === 3 ? [1 / 3, 2 / 3] : zones.length === 2 ? [0.5] : evenCuts(zones.length));
-        var holdMs = opts.holdMs != null ? opts.holdMs : 2000;
+        var holdMs = opts.holdMs != null ? opts.holdMs : 2500; // default: เผื่อเวลาตัดสินใจ (เกมส่วนใหญ่ override ใน config)
         var detector = opts.detector === 'pose' ? 'pose' : 'framediff';
         // input mode: 'horizontal' (default — x→zones, เดิม) | 'hands' (ยกมือ ซ้าย/ขวา/สองมือ → zones)
         var inputMode = opts.mode === 'hands' ? 'hands' : 'horizontal';

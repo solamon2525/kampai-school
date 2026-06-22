@@ -6,7 +6,7 @@ window.GAME_CONFIG = {
     // ── AR ──
     DETECTOR: 'framediff',          // 'framediff' (ไม่พึ่ง lib ทนเครื่องโรงเรียน) | 'pose' (MediaPipe — แม่นกว่า ค้างนิ่งได้ แต่พึ่ง CDN)
     ZONES: ['left', 'right'],       // 2 ตัวเลือก: เอียงตัวซ้าย = A · เอียงตัวขวา = B (engine ตั้งเส้นแบ่งที่ 0.5 ให้เอง)
-    HOLD_MS: 1800,                  // ค้างท่ากี่ ms ถึงจะคอมมิตคำตอบ (1200–2500 = พอมีเวลาตัดสินใจ)
+    HOLD_MS: 2500,                  // ค้างท่ากี่ ms ถึงจะคอมมิตคำตอบ (1200–2500 = พอมีเวลาตัดสินใจ)
     TUNING: {                       // override DEFAULT_TUNING ของ engine (ดู kampai-ar.js)
         downsample: { w: 120, h: 90 },
         diffThreshold: 35,
@@ -18,6 +18,6 @@ window.GAME_CONFIG = {
 
     // ── เกม ──
     ROUNDS: 10,                     // จำนวนข้อต่อรอบ (≤ จำนวนใน data.js — ที่เหลือเป็นบัฟเฟอร์ให้สุ่มไม่ซ้ำ)
-    ROUND_SEC: 15,                  // เวลาต่อข้อ (วินาที)
+    ROUND_SEC: 20,                  // เวลาต่อข้อ (วินาที)
     BGM: 'cheerful'                 // เพลงพื้นหลังเริ่มต้น (หลังบ้าน override ได้)
 };

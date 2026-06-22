@@ -5,7 +5,7 @@ window.GAME_CONFIG = {
 
     // ── AR ──
     DETECTOR: 'pose',               // gesture กระโดด/ย่อ ต้องใช้ pose (จับสะโพก) — โหลดไม่ได้ → tap เล่นได้
-    HOLD_MS: 2000,                  // (ไม่ใช้ในเกมนี้ — gesture คอมมิตทันที)
+    HOLD_MS: 2500,                  // (ไม่ใช้ในเกมนี้ — gesture คอมมิตทันที)
     TUNING: {
         minConfidence: 0.5,
         jumpVel: 0.05,              // กระโดด: สะโพกขึ้นเร็วเกินค่านี้
@@ -21,6 +21,6 @@ window.GAME_CONFIG = {
 
     // ── เกม ──
     ROUNDS: 10,                     // จำนวนข้อ (≤ จำนวนใน data.js)
-    ROUND_SEC: 12,                  // เวลาต่อข้อ (วินาที)
+    ROUND_SEC: 20,                  // เวลาต่อข้อ (วินาที)
     BGM: 'cheerful'
 };

@@ -6,7 +6,7 @@ window.GAME_CONFIG = {
     // ── AR ──
     DETECTOR: 'framediff',          // 'framediff' (ไม่พึ่ง lib) | 'pose' (MediaPipe jsdelivr)
     ZONES: ['left', 'center', 'right'],
-    HOLD_MS: 2000,                  // ค้างท่ากี่ ms ถึงคอมมิต (1200–2500 = พอมีเวลาตัดสินใจ)
+    HOLD_MS: 2500,                  // ค้างท่ากี่ ms ถึงคอมมิต (1200–2500 = พอมีเวลาตัดสินใจ)
     TUNING: {                       // override DEFAULT_TUNING ของ engine (ดู kampai-ar.js)
         downsample: { w: 120, h: 90 },
         diffThreshold: 35,
@@ -18,6 +18,6 @@ window.GAME_CONFIG = {
 
     // ── เกม ──
     ROUNDS: 10,                     // จำนวนข้อ (≤ จำนวนใน data.js)
-    ROUND_SEC: 12,                  // เวลาต่อข้อ (วินาที)
+    ROUND_SEC: 20,                  // เวลาต่อข้อ (วินาที)
     BGM: 'cheerful'                 // เพลงพื้นหลังเริ่มต้น (หลังบ้าน override ได้)
 };
