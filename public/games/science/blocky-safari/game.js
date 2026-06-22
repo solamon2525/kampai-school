@@ -6,8 +6,11 @@ const { SLUG, BGM, PLAYER_SPEED, COLLISION_DIST, MAP_SIZE, TREES_COUNT } = windo
 // --- Game State ---
 let gameState = {
     isPlaying: false,
-    score: 0,
-    totalAnimals: window.ANIMAL_DB.length,
+    currentLevel: 1,
+    maxLevels: 3,
+    score: 0,            // คะแนนเก็บด่านปัจจุบัน
+    totalScore: 0,       // คะแนนสะสมรวมทุกด่าน
+    totalAnimals: 5,     // จำนวนสัตว์ป่าในด่านปัจจุบัน
     currentQuizAnimal: null,
     keys: { w: false, a: false, s: false, d: false, arrowup: false, arrowleft: false, arrowdown: false, arrowright: false }
 };
@@ -187,8 +190,10 @@ function buildWorld() {
         createTree(tx, tz);
     }
 
-    // เกิดสัตว์ทั้งหมดตามฐานข้อมูล
-    window.ANIMAL_DB.forEach(data => {
+    // เกิดสัตว์ป่าทั้งหมดของด่านปัจจุบัน
+    const currentAnimals = window.ANIMAL_DB_LEVELS[gameState.currentLevel] || window.ANIMAL_DB_LEVELS[1];
+    gameState.totalAnimals = currentAnimals.length;
+    currentAnimals.forEach(data => {
         spawnAnimal(data);
     });
     
@@ -305,13 +310,28 @@ function setupEventListeners() {
         KAMPAI.sound.bgmStart(BGM);
         startGame();
     });
+
+    // ปุ่มเปลี่ยนด่าน
+    const nextLevelBtn = document.getElementById('next-level-btn');
+    if (nextLevelBtn) {
+        nextLevelBtn.addEventListener('click', () => {
+            document.getElementById('level-clear-modal').classList.add('hidden');
+            gameState.currentLevel++;
+            gameState.score = 0;
+            gameState.isPlaying = true;
+            buildWorld();
+            KAMPAI.sound.bgmStart(BGM);
+        });
+    }
 }
 
 function startGame() {
     blocker.classList.add('hidden');
     hud.classList.remove('hidden');
     
+    gameState.currentLevel = 1;
     gameState.score = 0;
+    gameState.totalScore = 0;
     gameState.isPlaying = true;
     gameState.currentQuizAnimal = null;
     
@@ -380,21 +400,54 @@ function checkAnswer(selectedType) {
 
 function updateHUD() {
     scoreDisplay.innerText = `${gameState.score} / ${gameState.totalAnimals}`;
+    const levelDisplay = document.getElementById('level-display');
+    if (levelDisplay) {
+        levelDisplay.innerText = `${gameState.currentLevel} / ${gameState.maxLevels}`;
+    }
+}
+
+function showLevelClearModal() {
+    gameState.isPlaying = false;
+    hud.classList.add('hidden');
+    KAMPAI.sound.bgmStop();
+    KAMPAI.sound.fxFlash();
+    
+    const levelClearModal = document.getElementById('level-clear-modal');
+    const levelClearTitle = document.getElementById('level-clear-title');
+    const levelClearDesc = document.getElementById('level-clear-desc');
+    
+    if (gameState.currentLevel === 1) {
+        levelClearTitle.innerText = "🌳 ด่านที่ 1 สำเร็จแล้ว!";
+        levelClearDesc.innerText = "คุณจำแนกประเภทสัตว์ในทุ่งหญ้าสะวันนาได้ถูกต้องทั้งหมด!";
+    } else if (gameState.currentLevel === 2) {
+        levelClearTitle.innerText = "🌴 ด่านที่ 2 สำเร็จแล้ว!";
+        levelClearDesc.innerText = "คุณจำแนกประเภทสัตว์ป่าดิบชื้นได้ถูกต้องทั้งหมด!";
+    }
+    
+    levelClearModal.classList.remove('hidden');
 }
 
 function checkWin() {
     if (gameState.score >= gameState.totalAnimals) {
-        gameState.isPlaying = false;
-        hud.classList.add('hidden');
+        gameState.totalScore += gameState.score;
         
-        // ส่งคะแนนเก็บเข้าสู่ KAMPAI SDK
-        KAMPAI.submitScore(gameState.score);
-        KAMPAI.sound.gameOver();
-        KAMPAI.sound.bgmStop();
-        
-        setTimeout(() => {
-            winScreen.classList.remove('hidden');
-        }, 500);
+        if (gameState.currentLevel < gameState.maxLevels) {
+            // ด่านสำเร็จ ย้ายไปหน้าเปลี่ยนด่าน
+            showLevelClearModal();
+        } else {
+            // ชนะเกมทั้งหมด!
+            gameState.isPlaying = false;
+            hud.classList.add('hidden');
+            
+            // ส่งคะแนนสะสมทั้งหมดเข้าสู่ KAMPAI SDK
+            KAMPAI.submitScore(gameState.totalScore);
+            KAMPAI.sound.gameOver();
+            KAMPAI.sound.bgmStop();
+            
+            setTimeout(() => {
+                winScreen.classList.remove('hidden');
+            }, 500);
+        }
     }
 }
 

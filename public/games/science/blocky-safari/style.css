@@ -105,3 +105,20 @@ body {
     color: #9ca3af;
     padding: 6px 0;
 }
+
+/* Player Chip */
+#player-chip img, #player-chip .pc-init {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+#player-chip .pc-init {
+    background: #22c55e;
+    color: white;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
