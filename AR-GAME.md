@@ -3,9 +3,10 @@
 > ⚠️ **อ่านไฟล์นี้ก่อนสร้าง/แก้เกม AR ทุกครั้ง** — กันบัคซ้ำเดิม (โดยเฉพาะ layout ยุบ + ไม่มี fallback)
 > เกม AR ใช้ engine กลาง `public/games/kampai-ar.js` (`window.KampaiAR`) — แก้ engine ที่เดียว ทุกเกม AR ดีขึ้นพร้อมกัน
 >
-> **Engine version:** `KampaiAR v1.1.0` · **Doc version:** v1.1.0
+> **Engine version:** `KampaiAR v1.1.0` · **Doc version:** v1.1.1
 
 ## Changelog
+- **doc v1.1.1** — เพิ่ม §2.1 Layout patterns: กล้องเต็มจอ (default) vs **กล้องมุมจอ + เกมเต็มจอ** — อ้างอิง `math/math-move-quiz`
 - **v1.1.0** — Tier 2: เพิ่มโหมด `hands` (ยกมือ ซ้าย/ขวา/สองมือ → zones, reuse hold→commit), gesture `jump`/`squat` (`onGesture`), พลัง `onEnergy`/`ar.energy`, สัญญาณ `onSignals` + getters `ar.y`/`ar.hands`. **backward compatible** (default = horizontal). เกมตัวอย่าง `english/hands-up-quiz/`
 - **v1.0.0** (เริ่มต้น) — engine `kampai-ar.js` (framediff + pose), template `_template-ar/`, เกมตัวอย่าง `demo/ar-zone-quiz/`, verify Check 10
 
@@ -31,6 +32,23 @@ kampai-ar.js  (กล้อง/ตรวจจับ/zone/hold/fallback) ──�
 ```
 - **game.js ไม่มี camera code** — กล้อง/loop/cleanup อยู่ใน engine ทั้งหมด
 - จูนประสิทธิภาพ = แก้ `config.js` (ไม่แตะ engine/logic) · แก้พฤติกรรมร่วมทุกเกม = แก้ `kampai-ar.js`
+
+### 2.1 Layout: กล้องเต็มจอ vs กล้องมุมจอ (เลือกตามเกม)
+
+engine **ไม่สนขนาดที่โชว์กล้อง** — detection อ่าน `ar.x` (0..1) ไม่ขึ้นกับขนาด video/canvas → จัด layout ได้ 2 แบบ:
+
+| แบบ | เหมาะกับ | `#arVideo` / `#arCanvas` | UI เกม |
+|---|---|---|---|
+| **A · กล้องเต็มจอ** (default `_template-ar`) | ยืนในโซน · เล่นกลุ่มจอใหญ่ · เห็นตัวเองเต็ม | `position:absolute; inset:0; width:100%; height:100%` (เป็น background) | zone/HUD ลอยทับกล้อง |
+| **B · กล้องมุมจอ + เกมเต็มจอ** | โจทย์/คำตอบต้องเด่น (quiz) · เอียงตัวเลือก · เน้นเนื้อหา | กล่องเล็ก `#camBox` (`position:absolute; right/bottom:14px; width:~180px; aspect-ratio:4/3`) — video/canvas เต็มกล่อง | เวที่เกมเต็มจอ (`#gameScreen` มี background เอง) |
+
+> อ้างอิงแบบ B: `public/games/math/math-move-quiz/` (เอียงซ้าย/ขวาเลือก A/B · กล้องมุมล่างขวา · มี tap fallback)
+
+**ทำแบบ B จากเทมเพลต** (หลัง `cp -r _template-ar`):
+1. ห่อ `#arVideo`+`#arCanvas` ใน `<div id="camBox">` แล้วตั้ง camBox เป็นกล่องเล็กมุมจอใน `style.css`
+2. ให้ `#gameScreen` มี background ของตัวเอง (ไม่ใช่กล้อง) + วาง UI เกม (โจทย์/แผงคำตอบ) เต็มจอ
+3. wire `onZone/onHoldProgress/onCommit` → ไฮไลต์ UI เต็มจอ (ไม่ใช่ zone บนภาพกล้อง) · `ar.tap()` ที่แผง/ปุ่ม
+4. 🔴 คงกฎ `.screen{position:absolute; inset:0}` เสมอ (Pitfall §4.1) — camBox เป็นลูกที่ตั้งขนาดเอง จึงไม่ยุบ
 
 ## 3. Quick start
 
