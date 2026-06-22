@@ -2676,6 +2676,139 @@ export type Database = {
           },
         ]
       }
+      english_quest_lessons: {
+        Row: {
+          id: string
+          lesson_no: number
+          sort_order: number
+          title_th: string
+          world_id: string
+        }
+        Insert: {
+          id?: string
+          lesson_no: number
+          sort_order?: number
+          title_th: string
+          world_id: string
+        }
+        Update: {
+          id?: string
+          lesson_no?: number
+          sort_order?: number
+          title_th?: string
+          world_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "english_quest_lessons_world_id_fkey"
+            columns: ["world_id"]
+            isOneToOne: false
+            referencedRelation: "english_quest_worlds"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      english_quest_progress: {
+        Row: {
+          current_world_id: string | null
+          lesson_stars: Json
+          mascot_name: string | null
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          current_world_id?: string | null
+          lesson_stars?: Json
+          mascot_name?: string | null
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          current_world_id?: string | null
+          lesson_stars?: Json
+          mascot_name?: string | null
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      english_quest_words: {
+        Row: {
+          emoji: string | null
+          example_en: string | null
+          id: string
+          lesson_id: string
+          meaning_th: string
+          part_of_speech: string | null
+          sort_order: number
+          word_en: string
+        }
+        Insert: {
+          emoji?: string | null
+          example_en?: string | null
+          id?: string
+          lesson_id: string
+          meaning_th: string
+          part_of_speech?: string | null
+          sort_order?: number
+          word_en: string
+        }
+        Update: {
+          emoji?: string | null
+          example_en?: string | null
+          id?: string
+          lesson_id?: string
+          meaning_th?: string
+          part_of_speech?: string | null
+          sort_order?: number
+          word_en?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "english_quest_words_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "english_quest_lessons"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      english_quest_worlds: {
+        Row: {
+          color: string | null
+          created_at: string
+          icon_emoji: string | null
+          id: string
+          sort_order: number
+          theme: string | null
+          title_en: string
+          title_th: string
+          world_key: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          icon_emoji?: string | null
+          id?: string
+          sort_order?: number
+          theme?: string | null
+          title_en: string
+          title_th: string
+          world_key: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          icon_emoji?: string | null
+          id?: string
+          sort_order?: number
+          theme?: string | null
+          title_en?: string
+          title_th?: string
+          world_key?: string
+        }
+        Relationships: []
+      }
       game_score_baseline: {
         Row: {
           game_slug: string
@@ -6869,6 +7002,23 @@ export type Database = {
       }
     }
     Functions: {
+      english_quest_complete_lesson: {
+        Args: {
+          p_student_code: string
+          p_lesson_id: string
+          p_correct: number
+          p_total: number
+        }
+        Returns: Json
+      }
+      english_quest_get_state: {
+        Args: { p_student_code: string }
+        Returns: Json
+      }
+      english_quest_set_mascot: {
+        Args: { p_student_code: string; p_name: string }
+        Returns: Json
+      }
       active_term: {
         Args: never
         Returns: {

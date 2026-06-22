@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>High View Racing - AI Lane Change</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="game-container">
+    <canvas id="gameCanvas"></canvas>
+    
+    <!-- UI Layer -->
+    <div id="ui-layer">
+        <div id="warning-msg">⚠️ BOSS TRUCK! ⚠️</div>
+
+        <div id="top-ui">
+            <!-- P1 Score -->
+            <div id="p1-score-box" class="score-box">
+                <div class="score-label">P1 (RED)</div>
+                <div id="score-board-p1" class="score-val">0</div>
+                <div class="health-bar" id="health-p1">❤️❤️❤️</div>
+                <div class="status-board" id="status-board-p1">
+                    <div id="status-shield-p1" class="status-icon" style="background: rgba(0, 242, 254, 0.8); color: #000;">🛡️ SHIELD</div>
+                    <div id="status-boost-p1" class="status-icon" style="background: rgba(255, 68, 102, 0.8); color: #fff;">⚡ BOOST</div>
+                </div>
+            </div>
+
+            <!-- Question Box (Math) -->
+            <div id="question-box" class="hidden">5 × 4 = ?</div>
+
+            <!-- Mute Btn -->
+            <button id="mute-btn">🔊</button>
+
+            <!-- P2 Score -->
+            <div id="p2-score-box" class="score-box">
+                <div class="score-label">P2 (BLUE)</div>
+                <div id="score-board-p2" class="score-val">0</div>
+                <div class="health-bar" id="health-p2">❤️❤️❤️</div>
+                <div class="status-board" id="status-board-p2">
+                    <div id="status-shield-p2" class="status-icon" style="background: rgba(0, 242, 254, 0.8); color: #000;">🛡️ SHIELD</div>
+                    <div id="status-boost-p2" class="status-icon" style="background: rgba(255, 68, 102, 0.8); color: #fff;">⚡ BOOST</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Start Screen / Blocker -->
+    <div id="start-screen">
+        <!-- SDK Boilerplate Start Blocker wrapper -->
+        <div id="blocker" style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <h1>MATH RACER</h1>
+            <h2>Multiplication & Division</h2>
+            
+            <!-- Student Stats Boilerplate -->
+            <div id="my-stats" style="background: rgba(255,255,255,0.05); padding: 10px 20px; border-radius: 12px; margin-bottom: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.1); min-width: 250px;">
+                <div id="player-chip" style="font-weight: bold; color: #66fcf1; margin-bottom: 5px;">👤 นักเรียนเตรียมพร้อม...</div>
+                <div style="font-size: 13px; color: #c5c6c7;">คะแนนที่ดีที่สุด: <span id="ms-best" style="font-weight: bold; color: #ffcc00;">0</span> | เล่นไปแล้ว: <span id="ms-plays" style="font-weight: bold; color: #ffcc00;">0</span> ครั้ง</div>
+            </div>
+
+            <div class="mode-selection">
+                <button id="btn-1p" class="action-btn">👤 1 Player</button>
+                <button id="btn-2p" class="action-btn blue">👥 2 Players</button>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label class="action-btn" id="upload-label">
+                    <span id="upload-text">📷 ใช้ภาพรถของคุณเอง (อัปโหลด)</span>
+                    <input type="file" id="car-upload" accept="image/*" style="display:none">
+                </label>
+            </div>
+
+            <div class="controls-hint" style="color: white; font-size: 15px; margin-bottom: 15px;">
+                ขับรถเก็บ <span style="color:#66fcf1; font-weight:bold;">"คำตอบที่ถูกต้อง"</span><br>
+                หลบคำตอบที่ผิด, หลบรถจราจร และระวัง <span style="color:#ff3366; font-weight:bold;">รถบรรทุกยักษ์</span>!
+            </div>
+
+            <div class="controls-hint" style="font-size: 11px;">
+                <span style="color:#ff4466">P1:</span> <span class="key">←</span> <span class="key">→</span> <span class="key">↑</span> <span class="key">↓</span> หรือเมาส์/สัมผัสซ้าย-ขวา<br>
+                <span style="color:#00f2fe">P2:</span> <span class="key">A</span> <span class="key">D</span> <span class="key">W</span> <span class="key">S</span>
+            </div>
+
+            <div style="display:flex; justify-content:center; gap:10px; margin-top:20px;">
+                <button class="action-btn" id="btn-leaderboard" style="padding: 8px 20px; font-size: 12px; min-width: 110px; background: rgba(255, 215, 0, 0.2); border: 1px solid #FFD700; color: #FFD700; box-shadow: none;">LEADERBOARD</button>
+                <button class="action-btn" id="btn-exit" style="padding: 8px 20px; font-size: 12px; min-width: 110px; background: rgba(255,255,255,0.05); border: 1px solid #7f8c8d; color: #bdc3c7; box-shadow: none;">EXIT</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaderboard Screen -->
+    <div id="leaderboard-screen" class="hidden">
+        <h1 style="color: #FFD700;">TOP RACERS</h1>
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>RANK</th>
+                    <th>NAME</th>
+                    <th>SCORE</th>
+                </tr>
+            </thead>
+            <tbody id="lb-table-body">
+                <!-- Scores injected dynamically -->
+            </tbody>
+        </table>
+        <button id="close-lb-btn" class="action-btn" style="padding: 10px 24px; font-size: 14px; min-width: 100px;">CLOSE</button>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="game-over-screen" class="hidden">
+        <h1 style="color: #ff3366;">GAME OVER!</h1>
+        <div id="winner-text" style="font-size: 24px; color: gold; margin-bottom: 20px;"></div>
+        <p style="margin-bottom: 10px;">P1 Score: <span id="final-score-p1" style="color: #ff4466; font-weight: bold;">0</span></p>
+        <p id="final-p2-line" style="margin-bottom: 20px;">P2 Score: <span id="final-score-p2" style="color: #00f2fe; font-weight: bold;">0</span></p>
+        <button id="restart-btn" class="action-btn">Main Menu</button>
+    </div>
+</div>
+
+<!-- KAMPAI SDK -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+window.KAMPAI = window.KAMPAI || {
+    isEmbed: false,
+    isTouch: false,
+    ready: true,
+    student: null,
+    stats: null,
+    leaderboard: [],
+    input: { up: false, down: false, left: false, right: false, a: false, b: false },
+    onReady: function(cb) { cb(this); },
+    setSlug: function() { return this; },
+    submitScore: function() { return false; },
+    goHome: function() { location.href = '/'; },
+    exit: function() { location.href = '/'; },
+    controls: { mount: function() { return this; } },
+    sound: {
+        correct: function() {},
+        wrong: function() {},
+        timeUp: function() {},
+        gameOver: function() {},
+        speak: function() {},
+        stopSpeak: function() {},
+        fxFlash: function() {},
+        mountToggles: function() {},
+        defaultBgm: function() {},
+        bgmStart: function() {},
+        bgmStop: function() {},
+        unlock: function() {}
+    }
+};
+</script>
+
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
