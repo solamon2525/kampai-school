@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Genetic Treasure Quest — kampai</title>
+
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Phaser 3 -->
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="game-container"></div>
+
+<!-- Top Left HUD -->
+<div class="ui-layer top-4 left-4 flex flex-col gap-2 pointer-events-none">
+    <div class="bg-gray-900/85 backdrop-blur border border-gray-700 rounded-xl p-3 shadow-lg pointer-events-auto min-w-[180px]">
+        <div class="flex items-center gap-3 mb-1.5">
+            <div class="w-10 h-10 bg-blue-500 rounded-full border-2 border-white flex items-center justify-center text-white font-bold text-lg shadow-inner">
+                <span id="hud-level">1</span>
+            </div>
+            <div>
+                <h1 class="text-white font-bold text-sm leading-none tracking-wide">นักสำรวจ DNA</h1>
+                <div class="text-blue-300 text-[10px] font-semibold mt-1" id="hud-chests">หีบ: 0/50</div>
+            </div>
+        </div>
+        <!-- HP Bar -->
+        <div class="w-full bg-gray-700 rounded-full h-2 mb-1.5 relative overflow-hidden">
+            <div id="hud-hp-bar" class="bg-red-500 h-2 rounded-full transition-all duration-300" style="width: 100%"></div>
+        </div>
+        <!-- EXP Bar -->
+        <div class="w-full bg-gray-700 rounded-full h-1 relative overflow-hidden">
+            <div id="hud-exp-bar" class="bg-yellow-400 h-1 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Action Buttons (Top Right) -->
+<div class="ui-layer top-4 right-4 flex flex-col gap-2">
+    <button onclick="toggleInventory()" class="w-11 h-11 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white rounded-full shadow-lg border border-indigo-400 flex items-center justify-center transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+    </button>
+    <button onclick="saveGameData(true)" class="w-11 h-11 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white rounded-full shadow-lg border border-emerald-400 flex items-center justify-center transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+    </button>
+</div>
+
+<!-- Mobile D-Pad (Bottom Left) -->
+<div id="mobile-dpad" class="ui-layer bottom-8 left-8 w-28 h-28 hidden">
+    <div class="relative w-full h-full opacity-60">
+        <button id="btn-up" class="absolute top-0 left-9 w-10 h-10 bg-white rounded-lg shadow-md active:bg-gray-300"></button>
+        <button id="btn-down" class="absolute bottom-0 left-9 w-10 h-10 bg-white rounded-lg shadow-md active:bg-gray-300"></button>
+        <button id="btn-left" class="absolute top-9 left-0 w-10 h-10 bg-white rounded-lg shadow-md active:bg-gray-300"></button>
+        <button id="btn-right" class="absolute top-9 right-0 w-10 h-10 bg-white rounded-lg shadow-md active:bg-gray-300"></button>
+    </div>
+</div>
+
+<!-- Custom Alert Notification -->
+<div id="custom-alert" class="ui-layer top-20 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-2.5 rounded-full shadow-xl font-semibold opacity-0 transition-opacity duration-300 pointer-events-none flex items-center gap-2 border border-gray-700 text-sm">
+    <span id="alert-icon">⚠️</span>
+    <span id="alert-text">Message</span>
+</div>
+
+<!-- Quiz Modal -->
+<div id="quiz-modal" class="modal-layer inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center">
+    <div class="bg-white w-[90%] max-w-md rounded-3xl overflow-hidden shadow-2xl transform transition-all border-4 border-yellow-400 -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 absolute">
+        <div class="bg-blue-600 p-4 text-center relative">
+            <h2 class="text-xl font-bold text-white">ทดสอบพันธุกรรม!</h2>
+            <div class="absolute top-2 right-4 bg-red-500 text-white font-bold w-9 h-9 rounded-full flex items-center justify-center border-2 border-white shadow">
+                <span id="quiz-timer" class="text-sm">15</span>
+            </div>
+        </div>
+        <div class="p-5">
+            <p id="quiz-question" class="text-base text-gray-800 font-semibold mb-5 text-center leading-relaxed">คำถามจะปรากฏที่นี่?</p>
+            <div id="quiz-options" class="flex flex-col gap-2.5">
+                <!-- Options injected here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Inventory / Stats Modal -->
+<div id="inventory-modal" class="modal-layer inset-0 bg-black/70 backdrop-blur-md flex justify-center items-center">
+    <div class="bg-gray-900 w-[90%] max-w-lg h-[75vh] rounded-2xl shadow-2xl border border-gray-700 flex flex-col -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 absolute">
+        <div class="p-4 border-b border-gray-700 flex justify-between items-center bg-gray-800 rounded-t-2xl">
+            <h2 class="text-lg font-bold text-white">กระเป๋า & สถานะนักสำรวจ</h2>
+            <button onclick="toggleInventory()" class="text-gray-400 hover:text-white text-2xl leading-none">&times;</button>
+        </div>
+        <div class="p-5 overflow-y-auto flex-1 flex flex-col gap-5">
+            <!-- Stats -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                <div class="bg-gray-800 p-2.5 rounded-xl border border-gray-700">
+                    <div class="text-gray-400 text-[10px]">เลเวล</div>
+                    <div class="text-lg font-bold text-blue-400" id="inv-level">1</div>
+                </div>
+                <div class="bg-gray-800 p-2.5 rounded-xl border border-gray-700">
+                    <div class="text-gray-400 text-[10px]">EXP</div>
+                    <div class="text-lg font-bold text-yellow-400" id="inv-exp">0</div>
+                </div>
+                <div class="bg-gray-800 p-2.5 rounded-xl border border-gray-700">
+                    <div class="text-gray-400 text-[10px]">พลังชีวิต</div>
+                    <div class="text-lg font-bold text-red-400" id="inv-hp">100/100</div>
+                </div>
+                <div class="bg-gray-800 p-2.5 rounded-xl border border-gray-700">
+                    <div class="text-gray-400 text-[10px]">หีบสมบัติ</div>
+                    <div class="text-lg font-bold text-green-400" id="inv-chests">0/50</div>
+                </div>
+            </div>
+            
+            <!-- Inventory Items -->
+            <div>
+                <h3 class="text-white text-xs font-semibold mb-2.5 border-b border-gray-700 pb-1.5">ชิ้นส่วน DNA ที่สะสม (<span id="inv-item-count">0</span>)</h3>
+                <div id="inv-items-grid" class="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                    <!-- Items injected here -->
+                </div>
+            </div>
+
+            <!-- Achievements -->
+            <div>
+                <h3 class="text-white text-xs font-semibold mb-2.5 border-b border-gray-700 pb-1.5">ความสำเร็จ (Achievements)</h3>
+                <div id="inv-achievements" class="flex flex-col gap-1.5">
+                    <!-- Achievements injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ KAMPAI SDK ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+
+// JSDOM verify:game mock for Phaser
+if (!window.Phaser) {
+    window.Phaser = {
+        AUTO: 0,
+        Game: function () {
+            this.scene = { getScene: function () { return null; }, scenes: [null, null] };
+        },
+        Scene: class {
+            constructor(key) { this.key = key; }
+            make = {
+                graphics: function () {
+                    var chain = {
+                        fillStyle: function () { return chain; },
+                        fillCircle: function () { return chain; },
+                        fillRect: function () { return chain; },
+                        lineStyle: function () { return chain; },
+                        strokeCircle: function () { return chain; },
+                        generateTexture: function () { return chain; }
+                    };
+                    return chain;
+                }
+            };
+            physics = {
+                world: { setBounds: function () {} },
+                add: {
+                    sprite: function () {
+                        return {
+                            setCollideWorldBounds: function () { return this; },
+                            setDepth: function () { return this; },
+                            setCircle: function () { return this; }
+                        };
+                    },
+                    staticGroup: function () {
+                        return {
+                            create: function () {
+                                return { setCircle: function () { return this; } };
+                            }
+                        };
+                    },
+                    group: function () {
+                        return {
+                            create: function () {
+                                return {
+                                    setCollideWorldBounds: function () { return this; },
+                                    setCircle: function () {
+                                        return { body: { setBounce: function () { return this; } } };
+                                    }
+                                };
+                            },
+                            getChildren: function () { return []; }
+                        };
+                    },
+                    overlap: function () {},
+                    collider: function () {}
+                }
+            };
+            add = {
+                graphics: function () {
+                    return {
+                        fillStyle: function () { return this; },
+                        fillRect: function () { return this; },
+                        fillCircle: function () { return this; }
+                    };
+                }
+            };
+            cameras = {
+                main: { setBounds: function () {}, startFollow: function () {} },
+                add: function () {
+                    return {
+                        setZoom: function () { return this; },
+                        setName: function () { return this; },
+                        setBackgroundColor: function () { return this; },
+                        setScroll: function () { return this; }
+                    };
+                }
+            };
+            input = {
+                keyboard: {
+                    createCursorKeys: function () {
+                        return { left: {}, right: {}, up: {}, down: {} };
+                    }
+                }
+            };
+            time = { addEvent: function () {} };
+        },
+        Math: {
+            Between: function (a, b) { return a; },
+            Distance: { Between: function () { return 0; } }
+        }
+    };
+}
+</script>
+
+<!-- Game Config, Data, Logic -->
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

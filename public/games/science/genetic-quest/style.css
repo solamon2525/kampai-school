@@ -1,0 +1,69 @@
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Fredoka+One&family=Prompt:wght@400;600;800&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+    height: 100%;
+    font-family: 'Prompt', 'Kanit', sans-serif;
+    overflow: hidden;
+    touch-action: none;
+    user-select: none;
+    background-color: #000;
+}
+
+#game-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* UI Layers */
+.ui-layer {
+    position: absolute;
+    z-index: 10;
+}
+
+.modal-layer {
+    position: absolute;
+    z-index: 50;
+    display: none;
+}
+
+/* Pixel Art Rendering */
+canvas {
+    image-rendering: pixelated;
+}
+
+/* Modal scale-up animation */
+@keyframes popIn {
+    0% { transform: scale(0.85) translate(-50%, -50%); opacity: 0; }
+    100% { transform: scale(1) translate(-50%, -50%); opacity: 1; }
+}
+.animate-pop {
+    animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.2) forwards;
+}
+
+/* Custom Scrollbar for bag modal description list */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #4b5563;
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+}
+
+/* Glow highlights */
+.glow-gold {
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+}
+.glow-blue {
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+}
