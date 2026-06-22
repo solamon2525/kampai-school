@@ -1,7 +1,7 @@
 // game.js — ลอจิกการทำงานและส่วนเชื่อมต่อ Three.js + KAMPAI SDK (เวอร์ชันเกมยิง Arcade)
 
 // ดึงพารามิเตอร์จาก GAME_CONFIG
-const { SLUG, BGM, PLAYER_SPEED, COLLISION_DIST, MAP_SIZE, TREES_COUNT } = window.GAME_CONFIG;
+const { SLUG, BGM, PLAYER_SPEED, COLLISION_DIST, MAP_SIZE, TREES_COUNT, CHASE_DIST } = window.GAME_CONFIG;
 
 // --- Game State ---
 let gameState = {
@@ -38,7 +38,7 @@ const gameoverScreen = document.getElementById('gameover-screen');
 const restartBtnGameOver = document.getElementById('restart-btn-gameover');
 
 // --- Three.js Variables ---
-let scene, camera, renderer;
+let scene, camera, renderer, dirLight;
 let player;
 let animals = []; // เก็บ mesh และข้อมูลสัตว์
 let trees = [];
@@ -115,7 +115,7 @@ function initThreeJS() {
     // Scene setup
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x87CEEB); // ท้องฟ้าสีคราม
-    scene.fog = new THREE.Fog(0x87CEEB, 20, 60);
+    scene.fog = new THREE.Fog(0x87CEEB, 40, 180);
 
     // Camera setup (Isometric follow camera)
     camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -134,7 +134,7 @@ function initThreeJS() {
     hemiLight.position.set(0, 20, 0);
     scene.add(hemiLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
     dirLight.position.set(20, 30, 10);
     dirLight.castShadow = true;
     dirLight.shadow.mapSize.width = 1024;
@@ -203,17 +203,24 @@ function buildWorld() {
         createTree(tx, tz);
     }
 
-    // เกิดสัตว์ป่าทั้งหมดของด่านปัจจุบัน
+    // เกิดสัตว์ป่าทั้งหมดของด่านปัจจุบัน (สปอว์น 10 ตัวต่อสายพันธุ์ เพื่อให้แมปขนาดใหญ่สุดไม่โล่ง)
     const currentAnimals = window.ANIMAL_DB_LEVELS[gameState.currentLevel] || window.ANIMAL_DB_LEVELS[1];
-    gameState.totalAnimals = currentAnimals.length;
+    const SPAWNS_PER_ANIMAL = 10;
+    
     currentAnimals.forEach(data => {
-        spawnAnimal(data);
+        for (let i = 0; i < SPAWNS_PER_ANIMAL; i++) {
+            spawnAnimal(data);
+        }
     });
+
+    gameState.totalAnimals = currentAnimals.length * SPAWNS_PER_ANIMAL;
 
     // สุ่มเลือก Target Category จากข้อมูลสัตว์ที่มีในด่านนี้
     const uniqueTypes = [...new Set(currentAnimals.map(a => a.type))];
     gameState.targetCategory = uniqueTypes[Math.floor(Math.random() * uniqueTypes.length)];
-    gameState.totalTargetAnimals = currentAnimals.filter(a => a.type === gameState.targetCategory).length;
+    // เป้าหมายคือเก็บให้ครบทุกตัวในสายพันธุ์ของด่านนั้น
+    const targetSpeciesCount = currentAnimals.filter(a => a.type === gameState.targetCategory).length;
+    gameState.totalTargetAnimals = targetSpeciesCount * SPAWNS_PER_ANIMAL;
     
     // ตั้งเป้าคะแนนด่านปัจจุบันเป็น 0
     gameState.score = 0;
@@ -276,7 +283,8 @@ function spawnAnimal(data) {
         data: data,
         startY: 0,
         floatOffset: Math.random() * Math.PI * 2,
-        damageFlash: 0 // คูลดาวน์การกะพริบแดงเมื่อยิงผิด
+        damageFlash: 0, // คูลดาวน์การกะพริบแดงเมื่อยิงผิด
+        isAggro: false  // สถานะติดตามผู้เล่นถาวรเมื่อเข้าใกล้
     };
 
     animals.push({ group: group, data: data });
@@ -367,6 +375,8 @@ function setupEventListeners() {
             gameState.score = 0;
             gameState.isPlaying = true;
             buildWorld();
+            const radar = document.getElementById('radar-container');
+            if (radar) radar.classList.remove('hidden');
             KAMPAI.sound.bgmStart(BGM);
         });
     }
@@ -411,6 +421,8 @@ function fireBullet() {
 function startGame() {
     blocker.classList.add('hidden');
     hud.classList.remove('hidden');
+    const radar = document.getElementById('radar-container');
+    if (radar) radar.classList.remove('hidden');
     
     gameState.currentLevel = 1;
     gameState.score = 0;
@@ -435,6 +447,8 @@ function takeDamage() {
         // เกมโอเวอร์!
         gameState.isPlaying = false;
         hud.classList.add('hidden');
+        const radar = document.getElementById('radar-container');
+        if (radar) radar.classList.add('hidden');
         
         KAMPAI.sound.gameOver();
         KAMPAI.sound.bgmStop();
@@ -479,6 +493,8 @@ function updateHUD() {
 function showLevelClearModal() {
     gameState.isPlaying = false;
     hud.classList.add('hidden');
+    const radar = document.getElementById('radar-container');
+    if (radar) radar.classList.add('hidden');
     KAMPAI.sound.bgmStop();
     KAMPAI.sound.fxFlash(); // เสียงเฉลิมฉลองชั่วคราว
     
@@ -512,6 +528,8 @@ function checkWin() {
             // ชนะเกมทั้งหมดครบ 3 ด่าน!
             gameState.isPlaying = false;
             hud.classList.add('hidden');
+            const radar = document.getElementById('radar-container');
+            if (radar) radar.classList.add('hidden');
             
             // ส่งคะแนนสะสมทวีคูณเข้าสู่ KAMPAI SDK
             KAMPAI.submitScore(gameState.totalScore);
@@ -586,9 +604,9 @@ function animate() {
             bullet.mesh.position.x += bullet.vx * dt;
             bullet.mesh.position.z += bullet.vz * dt;
             
-            // ลบกระสุนหากลอยเลยเวลา 2 วินาที หรือหลุดขอบแผนที่
+            // ลบกระสุนหากลอยเลยเวลา 3 วินาที หรือหลุดขอบแผนที่
             const isOutOfMap = Math.abs(bullet.mesh.position.x) > MAP_SIZE/2 || Math.abs(bullet.mesh.position.z) > MAP_SIZE/2;
-            if (clock.getElapsedTime() - bullet.spawnTime > 2.0 || isOutOfMap) {
+            if (clock.getElapsedTime() - bullet.spawnTime > 3.0 || isOutOfMap) {
                 scene.remove(bullet.mesh);
                 gameState.bullets.splice(bIdx, 1);
                 continue;
@@ -630,8 +648,9 @@ function animate() {
             if (bulletRemoved) continue;
         }
 
-        // --- เคลื่อนไหวสัตว์ป่า (พฤติกรรมเดินช้าไล่ตามล่าผู้เล่น) ---
+        // --- เคลื่อนไหวสัตว์ป่า (พฤติกรรมเดินช้าไล่ตามล่าเมื่อเข้าใกล้ หรือเดินเล่นเมื่ออยู่ไกล) ---
         const chaseSpeed = 2.0; // สปีดการไล่ช้าๆ
+        const wanderSpeed = 1.0;
         for (let i = 0; i < animals.length; i++) {
             const animal = animals[i];
             
@@ -640,14 +659,39 @@ function animate() {
             const dz = player.position.z - animal.group.position.z;
             const dist = Math.sqrt(dx * dx + dz * dz);
             
-            if (dist > 0.1) {
-                // ค่อยๆ เดินพุ่งเข้ามาหาตัวเอก
-                animal.group.position.x += (dx / dist) * chaseSpeed * dt;
-                animal.group.position.z += (dz / dist) * chaseSpeed * dt;
+            // เช็คว่าเคยมีผู้เล่นเข้าใกล้จนกระตุ้นสถานะ Aggro หรือไม่
+            if (dist < CHASE_DIST) {
+                animal.group.userData.isAggro = true;
+            }
+
+            if (animal.group.userData.isAggro) {
+                // ติดสถานะ Aggro -> วิ่งไล่ล่าติดตามผู้เล่นตลอดการเล่นในด่านนั้น
+                if (dist > 0.1) {
+                    animal.group.position.x += (dx / dist) * chaseSpeed * dt;
+                    animal.group.position.z += (dz / dist) * chaseSpeed * dt;
+                    const angle = Math.atan2(dx, dz);
+                    animal.group.rotation.y = angle;
+                }
+            } else {
+                // หากยังไม่ถูกเปิดเผย/กระตุ้น -> เดินเล่นสำรวจทิศทางสุ่ม (Wandering)
+                if (animal.group.userData.wanderAngle === undefined) {
+                    animal.group.userData.wanderAngle = Math.random() * Math.PI * 2;
+                    animal.group.userData.wanderTimer = 0;
+                }
+                animal.group.userData.wanderTimer += dt;
+                // สุ่มเปลี่ยนทิศทางทุกๆ 3-6 วินาที
+                if (animal.group.userData.wanderTimer > 3 + Math.random() * 3) {
+                    animal.group.userData.wanderAngle = Math.random() * Math.PI * 2;
+                    animal.group.userData.wanderTimer = 0;
+                }
                 
-                // หมุนโมเดลบล็อกสัตว์หันมองผู้เล่น
-                const angle = Math.atan2(dx, dz);
-                animal.group.rotation.y = angle;
+                const nextX = animal.group.position.x + Math.sin(animal.group.userData.wanderAngle) * wanderSpeed * dt;
+                const nextZ = animal.group.position.z + Math.cos(animal.group.userData.wanderAngle) * wanderSpeed * dt;
+                const limit = MAP_SIZE / 2 - 2;
+                if (nextX > -limit && nextX < limit) animal.group.position.x = nextX;
+                if (nextZ > -limit && nextZ < limit) animal.group.position.z = nextZ;
+                
+                animal.group.rotation.y = animal.group.userData.wanderAngle;
             }
             
             // ตรวจการชนกับผู้เล่นโดยตรง
@@ -665,6 +709,15 @@ function animate() {
         camera.position.x += (player.position.x - camera.position.x) * 0.1;
         camera.position.z += (player.position.z + 15 - camera.position.z) * 0.1;
         camera.lookAt(player.position.x, player.position.y, player.position.z);
+
+        // --- ระบบแสงเงาวิ่งตามผู้เล่น (เพื่อรักษาขอบเขตเงาไม่ตกขอบแมปใหญ่) ---
+        if (dirLight) {
+            dirLight.position.set(player.position.x + 20, 30, player.position.z + 10);
+            dirLight.target = player;
+        }
+
+        // อัปเดตเรดาร์แผนที่นำทาง (Radar)
+        updateRadar();
     }
 
     // อนิเมชันสัตว์แบบลอยขึ้นลงเบาๆ + จัดการการกะพริบแดง
@@ -692,6 +745,102 @@ function animate() {
     if (renderer && scene && camera) {
         renderer.render(scene, camera);
     }
+}
+
+// ฟังก์ชันวาดแผนที่เรดาร์นำทางสีกรมท่าโปร่งแสงพร้อมแสดง Emojis สัตว์เป้าหมาย
+function updateRadar() {
+    const canvas = document.getElementById('radarCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return; // ทำงานในสภาพแวดล้อมจำลอง (JSDOM) ปลอดภัยไร้ข้อผิดพลาด
+    
+    // เคลียร์ Canvas เรดาร์เดิม
+    ctx.clearRect(0, 0, 120, 120);
+    
+    // 1. วาดวงกลมขอบเรดาร์นำทาง
+    ctx.beginPath();
+    ctx.arc(60, 60, 58, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.65)'; // สีกรมท่าหรูหราสไตล์โปร่งแสง
+    ctx.fill();
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = 'rgba(59, 130, 246, 0.6)'; // เส้นขอบสีฟ้านีออนอ่อนโยน
+    ctx.stroke();
+    
+    // 2. วาดตารางกริต/วงแหวนระยะทาง
+    ctx.beginPath();
+    ctx.arc(60, 60, 30, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+    ctx.stroke();
+    
+    ctx.beginPath();
+    ctx.arc(60, 60, 50, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+    ctx.stroke();
+    
+    // 3. วาดผู้เล่นอยู่ตรงกลางเสมอ (จุดสีน้ำเงินขอบขาว)
+    ctx.beginPath();
+    ctx.arc(60, 60, 4.5, 0, Math.PI * 2);
+    ctx.fillStyle = '#3b82f6';
+    ctx.fill();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = '#ffffff';
+    ctx.stroke();
+    
+    // วาดทิศทางการหันของผู้เล่น (ลูกศรเส้นนำสายตา)
+    if (player) {
+        const pAngle = player.rotation.y;
+        ctx.beginPath();
+        ctx.moveTo(60, 60);
+        ctx.lineTo(60 + Math.sin(pAngle) * 9, 60 + Math.cos(pAngle) * 9);
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+    }
+    
+    // 4. วาดตำแหน่งของสัตว์และศัตรูในระยะแผนที่
+    const RADAR_RANGE = 200; // ระยะการมองเห็นบนแผนที่เรดาร์
+    
+    animals.forEach(animal => {
+        if (!player) return;
+        const dx = animal.group.position.x - player.position.x;
+        const dz = animal.group.position.z - player.position.z;
+        const dist = Math.sqrt(dx * dx + dz * dz);
+        
+        if (dist <= RADAR_RANGE) {
+            // คำนวณพิกัดสเกลจุดบน Canvas
+            const rx = 60 + (dx / RADAR_RANGE) * 50;
+            const ry = 60 + (dz / RADAR_RANGE) * 50;
+            
+            if (animal.data.type === gameState.targetCategory) {
+                // สัตว์เป้าหมาย: วาดด้วย Emoji จริงตรงๆ สวยงามสะดุดตา
+                ctx.font = '14px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(animal.data.emoji, rx, ry);
+            } else {
+                // สัตว์ประเภทอื่น/ศัตรู: วาดเป็นจุดสีแดงเพลิง เตือนภัยนักล่าไล่ล่า
+                ctx.beginPath();
+                ctx.arc(rx, ry, 3.5, 0, Math.PI * 2);
+                ctx.fillStyle = '#ef4444';
+                ctx.fill();
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = '#ffffff';
+                ctx.stroke();
+            }
+        } else {
+            // ถ้านอกระยะ RADAR แต่เป็นตัวเป้าหมายหลัก -> วาดขอบนำทาง
+            if (animal.data.type === gameState.targetCategory) {
+                const angle = Math.atan2(dz, dx);
+                const bx = 60 + Math.cos(angle) * 52;
+                const by = 60 + Math.sin(angle) * 52;
+                
+                ctx.beginPath();
+                ctx.arc(bx, by, 3, 0, Math.PI * 2);
+                ctx.fillStyle = '#22c55e'; // สีเขียวสัญลักณ์เป้าหมายสะท้อนทิศทาง
+                ctx.fill();
+            }
+        }
+    });
 }
 
 function onWindowResize() {

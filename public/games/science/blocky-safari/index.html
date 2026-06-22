@@ -35,8 +35,9 @@
                     <p class="mb-2">🎮 <b>วิธีเล่น:</b></p>
                     <ul class="list-disc pl-5 space-y-1">
                         <li>ใช้ปุ่ม <b>W, A, S, D</b> หรือ <b>ลูกศร</b> เพื่อเดิน</li>
-                        <li>เดินชนสัตว์เพื่อทำความรู้จัก</li>
-                        <li>ตอบคำถามแยกประเภทให้ถูกต้องเพื่อนำสัตว์ใส่กระเป๋า</li>
+                        <li>กด <b>Spacebar</b> หรือ <b>คลิกหน้าจอ</b> เพื่อยิงกระสุน</li>
+                        <li>ต้องยิงสัตว์ประเภทเป้าหมายให้ครบเพื่อชนะด่าน</li>
+                        <li><b>ยิงผิดประเภท</b> หรือ <b>โดนศัตรูชน</b> จะเสียหัวใจ 1 ดวง</li>
                     </ul>
                 </div>
 
@@ -135,6 +136,11 @@
                     <span class="text-green-600 font-bold text-xs">Space/คลิกหน้าจอ = ยิงกระสุน</span>
                 </div>
             </div>
+        </div>
+
+        <!-- Radar Minimap -->
+        <div id="radar-container" class="absolute bottom-4 right-4 bg-white/80 backdrop-blur-sm p-1.5 rounded-full border-2 border-blue-300 shadow-lg pointer-events-auto hidden z-10">
+            <canvas id="radarCanvas" width="120" height="120" class="rounded-full bg-blue-50/40 block"></canvas>
         </div>
     </div>
 
