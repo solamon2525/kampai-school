@@ -708,7 +708,7 @@ function animate() {
         // --- มุมมองกล้องตามตัวละคร ---
         camera.position.x += (player.position.x - camera.position.x) * 0.1;
         camera.position.z += (player.position.z + 15 - camera.position.z) * 0.1;
-        camera.lookAt(player.position.x, player.position.y, player.position.z);
+        camera.lookAt(player.position.x, 0.6, player.position.z);
 
         // --- ระบบแสงเงาวิ่งตามผู้เล่น (เพื่อรักษาขอบเขตเงาไม่ตกขอบแมปใหญ่) ---
         if (dirLight) {
