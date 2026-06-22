@@ -203,9 +203,9 @@ function buildWorld() {
         createTree(tx, tz);
     }
 
-    // เกิดสัตว์ป่าทั้งหมดของด่านปัจจุบัน (สปอว์น 10 ตัวต่อสายพันธุ์ เพื่อให้แมปขนาดใหญ่สุดไม่โล่ง)
+    // เกิดสัตว์ป่าทั้งหมดของด่านปัจจุบัน (สปอว์น 4 ตัวต่อสายพันธุ์ เพื่อให้แมปขนาดใหญ่สุดไม่โล่งและไม่แออัดเกินไป)
     const currentAnimals = window.ANIMAL_DB_LEVELS[gameState.currentLevel] || window.ANIMAL_DB_LEVELS[1];
-    const SPAWNS_PER_ANIMAL = 10;
+    const SPAWNS_PER_ANIMAL = 4;
     
     currentAnimals.forEach(data => {
         for (let i = 0; i < SPAWNS_PER_ANIMAL; i++) {
