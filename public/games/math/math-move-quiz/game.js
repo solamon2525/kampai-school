@@ -6,7 +6,6 @@
     var CFG = window.GAME_CONFIG, DATA = window.GAME_DATA;
     var $ = function (id) { return document.getElementById(id); };
     var SIDES = ['left', 'right'];
-    var ZONE_IDX = { left: 0, right: 1 };
     var ZONE_EL = { left: 'panelLeft', right: 'panelRight' };
 
     KAMPAI.setSlug(CFG.SLUG);
@@ -116,10 +115,10 @@
         var bonus = Math.max(0, ST.sec) * 5;   // โบนัสตอบไว — เก็บก่อน reset ST.sec (ไม่งั้นโบนัสเป็น 0 เสมอ)
         ST.sec = 0; setStatus();
         var q = ST.questions[ST.round];
-        var idx = zone != null && ZONE_IDX[zone] != null ? ZONE_IDX[zone] : -1;
-        var correct = idx === q.answer;
+        var correctSide = SIDES[q.answer];     // 'left' | 'right'
+        var correct = zone === correctSide;    // zone = null (หมดเวลา) → false
         // เฉลย: ไฮไลต์แผงที่ถูก (+ แผงที่ตอบผิดถ้ามี)
-        $(ZONE_EL[SIDES[q.answer]]).classList.add('correct');
+        $(ZONE_EL[correctSide]).classList.add('correct');
         if (zone && !correct) $(ZONE_EL[zone]).classList.add('wrong');
         if (correct) {
             ST.score += 100 + bonus;
