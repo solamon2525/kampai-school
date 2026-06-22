@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" font-family="'Sarabun','Segoe UI',sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#16314c"/><stop offset="0.55" stop-color="#0c1a2c"/><stop offset="1" stop-color="#060f1c"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.4" r="0.6">
+      <stop offset="0" stop-color="#fbbf24" stop-opacity="0.22"/><stop offset="1" stop-color="#fbbf24" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fbbf24"/><stop offset="1" stop-color="#f59e0b"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <rect width="1280" height="720" fill="url(#glow)"/>
+
+  <!-- floating math symbols -->
+  <g font-family="'Fredoka One','Sarabun',sans-serif" fill="#ffffff" fill-opacity="0.10">
+    <text x="180" y="240" font-size="72">+</text><text x="1080" y="250" font-size="80">×</text>
+    <text x="250" y="540" font-size="64">÷</text><text x="1010" y="560" font-size="70">−</text>
+    <text x="150" y="400" font-size="58">=</text><text x="1120" y="430" font-size="58">7</text>
+  </g>
+
+  <!-- answer panels A / B -->
+  <g font-family="'Fredoka One','Sarabun',sans-serif" text-anchor="middle">
+    <rect x="70" y="250" width="260" height="300" rx="28" fill="#3b82f6" fill-opacity="0.16" stroke="#3b82f6" stroke-opacity="0.5" stroke-width="3"/>
+    <circle cx="200" cy="312" r="34" fill="#ffffff" fill-opacity="0.16"/>
+    <text x="200" y="328" font-size="42" fill="#bfdbfe">A</text>
+    <text x="200" y="470" font-size="104" fill="#dbeafe">12</text>
+
+    <rect x="950" y="250" width="260" height="300" rx="28" fill="#10b981" fill-opacity="0.18" stroke="#34d399" stroke-opacity="0.6" stroke-width="3"/>
+    <circle cx="1080" cy="312" r="34" fill="#ffffff" fill-opacity="0.16"/>
+    <text x="1080" y="328" font-size="42" fill="#a7f3d0">B</text>
+    <text x="1080" y="470" font-size="104" fill="#bbf7d0">14</text>
+  </g>
+
+  <!-- lean arrows -->
+  <g fill="#fbbf24" fill-opacity="0.85">
+    <path d="M 470 400 l 46 -26 v 16 h 40 v 20 h -40 v 16 z"/>
+    <path d="M 810 400 l -46 -26 v 16 h -40 v 20 h 40 v 16 z"/>
+  </g>
+
+  <!-- chibi student (Thai uniform: white shirt, navy) leaning to the right toward B -->
+  <g transform="translate(640,448) rotate(12)">
+    <ellipse cx="0" cy="92" rx="78" ry="20" fill="#000000" fill-opacity="0.25"/>
+    <rect x="-50" y="-86" width="100" height="128" rx="28" fill="#f8fafc"/>            <!-- white shirt -->
+    <rect x="-50" y="14" width="100" height="34" rx="10" fill="#1e3a8a"/>               <!-- navy waist -->
+    <rect x="-64" y="-78" width="24" height="92" rx="12" fill="#fcd9b6" transform="rotate(-26)"/>
+    <rect x="40" y="-80" width="24" height="96" rx="12" fill="#fcd9b6" transform="rotate(34)"/>
+    <circle cx="0" cy="-150" r="58" fill="#fcd9b6"/>                                     <!-- head -->
+    <path d="M -58 -158 Q 0 -214 58 -158 Q 40 -188 0 -190 Q -40 -188 -58 -158 Z" fill="#3b2a1d"/> <!-- hair -->
+    <circle cx="-20" cy="-150" r="7" fill="#222"/><circle cx="20" cy="-150" r="7" fill="#222"/>
+    <path d="M -18 -126 Q 0 -112 18 -126" stroke="#c2410c" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <circle cx="-30" cy="-132" r="9" fill="#fb7185" fill-opacity="0.5"/><circle cx="30" cy="-132" r="9" fill="#fb7185" fill-opacity="0.5"/>
+  </g>
+
+  <!-- mini corner-cam (โชว์กลไก: กล้องเล็กมุมล่างขวา) -->
+  <g>
+    <rect x="1052" y="566" width="170" height="128" rx="14" fill="#000000" fill-opacity="0.55" stroke="#fbbf24" stroke-width="3"/>
+    <text x="1137" y="590" text-anchor="middle" font-size="18" fill="#fbbf24">🎥 กล้องของคุณ</text>
+    <line x1="1137" y1="600" x2="1137" y2="694" stroke="#ffffff" stroke-opacity="0.18" stroke-width="2" stroke-dasharray="8 8"/>
+    <circle cx="1100" cy="650" r="20" fill="#34d399" fill-opacity="0.55"/>
+  </g>
+
+  <!-- title -->
+  <text x="640" y="120" text-anchor="middle" font-family="'Fredoka One','Sarabun',sans-serif" font-size="86" fill="url(#gold)" stroke="#06101c" stroke-width="3">ขยับตอบเลข</text>
+  <text x="640" y="172" text-anchor="middle" font-size="32" fill="#cbd5e1">เอียงตัวซ้าย/ขวา เลือกคำตอบ A หรือ B</text>
+
+  <!-- subject/grade tag -->
+  <rect x="510" y="612" width="260" height="50" rx="25" fill="url(#gold)"/>
+  <text x="640" y="646" text-anchor="middle" font-size="26" fill="#271a02" font-weight="700">คณิต · ป.4–6</text>
+</svg>

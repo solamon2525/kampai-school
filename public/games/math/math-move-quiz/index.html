@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ขยับตอบเลข — เอียงซ้าย/ขวาเลือกคำตอบ (kampai)</title>
+<!--
+  เกม AR คณิต ป.4–6: เอียงตัวซ้าย/ขวา (หรือแตะ) เลือกคำตอบ A/B — จอเกมเต็มจอ + กล่องกล้องแทร็คเล็กมุมล่างขวา
+  ใช้ KAMPAI SDK + KampaiAR engine (single source). โครงร่าง/วิธีทำ: AR-GAME.md
+-->
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ── จอเริ่ม ── -->
+<div class="screen active" id="startScreen">
+    <div class="card">
+        <div class="logo">🔢</div>
+        <h1 class="title">ขยับตอบเลข</h1>
+        <div class="subtitle">เอียงตัว <b>ซ้าย / ขวา</b> เลือกคำตอบ · คณิต ป.4–6</div>
+        <div id="player-chip"></div>
+        <div class="hint">
+            🎥 <b>เอียงตัว</b>ไปทางคำตอบที่ใช่ (ซ้าย = A · ขวา = B) แล้ว <b>ค้างไว้</b> จนแถบเต็ม<br>
+            📱 ไม่มีกล้อง? <b>แตะแผง</b>คำตอบได้เลย
+        </div>
+        <button class="btn" id="startBtn">▶️ เริ่มเล่น</button>
+        <div class="lb-box" id="lbBox" style="display:none">
+            <h3>🏆 อันดับ</h3>
+            <ul class="lb-list" id="lbList"></ul>
+        </div>
+    </div>
+</div>
+
+<!-- ── จอเล่น: เกมเต็มจอ (2 แผง A/B) + กล้องเล็กมุมล่างขวา ── -->
+<div class="screen" id="gameScreen">
+
+    <!-- 2 แผงคำตอบ เต็มซ้าย/ขวา (เต็มความสูง = tap target ด้วย) -->
+    <div class="panels">
+        <div class="panel" data-zone="left" id="panelLeft">
+            <div class="panel-tag">◀ เอียงซ้าย</div>
+            <div class="panel-key">A</div>
+            <div class="choice">—</div>
+            <div class="hold-bar"><div class="hold-fill"></div></div>
+        </div>
+        <div class="panel" data-zone="right" id="panelRight">
+            <div class="panel-tag">เอียงขวา ▶</div>
+            <div class="panel-key">B</div>
+            <div class="choice">—</div>
+            <div class="hold-bar"><div class="hold-fill"></div></div>
+        </div>
+    </div>
+
+    <!-- HUD + โจทย์ (ลอยเหนือแผง) -->
+    <div class="hud">
+        <button class="back-btn" id="quitBtn">🏠 ออก</button>
+        <div style="display:flex; gap:8px;">
+            <span class="pill" id="roundPill">ข้อ 1/10</span>
+            <span class="pill score" id="scorePill">⭐ 0</span>
+        </div>
+    </div>
+    <div id="question">—</div>
+    <div id="status-tag"></div>
+
+    <!-- กล่องกล้องแทร็คเล็ก มุมล่างขวา (engine วาด marker/เส้นแบ่งโซนในนี้) -->
+    <div id="camBox">
+        <video id="arVideo" autoplay playsinline muted></video>
+        <canvas id="arCanvas"></canvas>
+        <div class="cam-label">🎥 กล้องของคุณ</div>
+    </div>
+
+    <div id="loading">กำลังเปิดกล้อง…</div>
+</div>
+
+<!-- ── จอจบ ── -->
+<div class="screen" id="resultScreen">
+    <div class="card">
+        <div class="logo">🎉</div>
+        <h1 class="title">จบเกม!</h1>
+        <div id="final-score">0</div>
+        <div id="final-detail"></div>
+        <div class="row">
+            <button class="btn" id="restartBtn">🔄 เล่นอีกครั้ง</button>
+            <button class="btn ghost" id="homeBtn">🏠 หน้าหลัก</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── โหลด: config → data → SDK → AR engine → game (เรียงลำดับ, ห้าม import/export) ── -->
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="/games/kampai-sdk.js"></script>
+<script>window.KAMPAI = window.KAMPAI || { isEmbed:false, ready:true, student:null, stats:null, leaderboard:[], onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, sound:{ unlock:function(){}, correct:function(){}, wrong:function(){}, timeUp:function(){}, gameOver:function(){}, speak:function(){}, stopSpeak:function(){}, fxFlash:function(){}, mountToggles:function(){}, defaultBgm:function(){}, bgmStart:function(){}, bgmStop:function(){} } };</script>
+<script src="/games/kampai-ar.js"></script>
+<script>window.KampaiAR = window.KampaiAR || { VERSION:'stub', create:function(){ return { start:function(){return Promise.resolve(false);}, stop:function(){}, setActive:function(){}, tap:function(){}, mode:'tap' }; } };</script>
+<script src="game.js"></script>
+</body>
+</html>
