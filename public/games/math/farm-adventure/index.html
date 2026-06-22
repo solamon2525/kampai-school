@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Farm Adventure ภารกิจวัดความยาวในฟาร์มมหาสนุก — kampai</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- HUD -->
+<div id="score-container">⭐ <span id="score-value">0</span></div>
+<div id="life-container"></div>
+<div id="player-chip"></div>
+<div id="streak-container"><span id="streak-icon">🔥</span> <span id="streak-value">0</span></div>
+<div id="coins-container">🪙 <span id="coins-value">0</span></div>
+
+<!-- Floating farm decorations (animated) -->
+<div id="farm-bg-decor">
+    <div class="cloud c1">☁️</div>
+    <div class="cloud c2">☁️</div>
+    <div class="cloud c3">⛅</div>
+    <div class="floating-item fi1">🌻</div>
+    <div class="floating-item fi2">🦋</div>
+    <div class="floating-item fi3">🐝</div>
+</div>
+
+<!-- Start screen -->
+<div id="blocker">
+    <div class="farm-logo">🌾🚜</div>
+    <h1 id="game-title">Farm Adventure</h1>
+    <p class="game-subtitle">ภารกิจวัดความยาวในฟาร์มมหาสนุก</p>
+    <p id="game-desc">ช่วยชาวนาน้อยฟื้นฟูฟาร์ม! ทำภารกิจวัดความยาว เปรียบเทียบ แปลงหน่วย และแก้โจทย์ปัญหา</p>
+
+    <div id="farmer-select">
+        <p class="select-label">เลือกชาวนาน้อยของเธอ:</p>
+        <div class="farmer-options">
+            <button class="farmer-btn selected" data-farmer="boy" onclick="selectFarmer('boy')">
+                <span class="farmer-emoji">👦🏻</span>
+                <span class="farmer-label">ชาวนาน้อย</span>
+            </button>
+            <button class="farmer-btn" data-farmer="girl" onclick="selectFarmer('girl')">
+                <span class="farmer-emoji">👧🏻</span>
+                <span class="farmer-label">ชาวนาน้อย</span>
+            </button>
+        </div>
+    </div>
+
+    <div id="my-stats">
+        <div class="ms-cell"><div class="ms-val" id="ms-best">0</div><div class="ms-label">คะแนนสูงสุด</div></div>
+        <div class="ms-cell"><div class="ms-val" id="ms-plays">0</div><div class="ms-label">เล่นไปแล้ว (ครั้ง)</div></div>
+    </div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+    </div>
+    <button class="btn btn-primary btn-start" onclick="startGame()">▶ เริ่มผจญภัย!</button>
+</div>
+
+<!-- How to play -->
+<div id="howto-screen">
+    <div class="howto-card">
+        <h2>📖 วิธีเล่น</h2>
+        <div class="howto-list">
+            <div class="howto-item"><span class="howto-num">1</span><span>ผ่าน 5 ด่าน ด่านละ 10 ข้อ</span></div>
+            <div class="howto-item"><span class="howto-num">2</span><span>ตอบถูก +10 คะแนน, ตอบผิด -2 คะแนน</span></div>
+            <div class="howto-item"><span class="howto-num">3</span><span>ถูกต่อเนื่อง 5 ข้อ รับโบนัส +20</span></div>
+            <div class="howto-item"><span class="howto-num">4</span><span>ผ่านด่านรับโบนัส +50 คะแนน</span></div>
+            <div class="howto-item"><span class="howto-num">5</span><span>มี ❤️ 5 ดวง ตอบผิดเสีย 1 ดวง</span></div>
+            <div class="howto-item"><span class="howto-num">6</span><span>❤️ หมด = เริ่มด่านใหม่</span></div>
+        </div>
+        <button class="btn btn-primary" onclick="showLevelSelect()">📋 เลือกด่าน</button>
+    </div>
+</div>
+
+<!-- Level select -->
+<div id="level-select">
+    <h2 class="ls-title">🗺️ เลือกด่าน</h2>
+    <div id="level-list" class="level-grid"></div>
+    <button class="btn btn-blue btn-back" onclick="goBackToStart()">← กลับ</button>
+</div>
+
+<!-- Game area -->
+<div id="game-area">
+    <div id="level-banner"></div>
+    <div id="progress-bar"><div id="progress-fill"></div></div>
+    <div id="question-num"></div>
+    <div id="question-box">
+        <div id="farmer-avatar"></div>
+        <div id="visual-area"></div>
+        <div id="question-text"></div>
+        <div id="choices"></div>
+    </div>
+    <div id="feedback-overlay"></div>
+</div>
+
+<!-- Level Complete screen -->
+<div id="level-complete">
+    <div class="lc-content">
+        <h2 id="lc-title">🎉 ผ่านด่าน!</h2>
+        <div id="lc-stars"></div>
+        <p id="lc-score"></p>
+        <div id="lc-reward"></div>
+        <button class="btn btn-primary" id="lc-next-btn" onclick="nextLevel()">▶ ด่านถัดไป</button>
+    </div>
+</div>
+
+<!-- Game Over / hearts depleted -->
+<div id="hearts-depleted">
+    <div class="hd-content">
+        <div class="hd-icon">💔</div>
+        <h2>หัวใจหมดแล้ว!</h2>
+        <p>ลองใหม่อีกครั้งนะ!</p>
+        <button class="btn btn-primary" onclick="retryLevel()">🔄 ลองด่านนี้ใหม่</button>
+        <button class="btn btn-blue" onclick="goToLevelSelect()">📋 เลือกด่าน</button>
+    </div>
+</div>
+
+<!-- Game Over / Victory screen -->
+<div id="gameover-screen">
+    <div class="go-confetti" id="confetti-container"></div>
+    <h1>🎊 ยินดีด้วย!</h1>
+    <p>ฟื้นฟูฟาร์มสำเร็จ!</p>
+    <div id="final-score">0</div>
+    <div id="reward-summary"></div>
+    <div id="unlocked-pets"></div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
+        <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นใหม่</button>
+        <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+    </div>
+</div>
+
+<!-- High Scores -->
+<div id="highscore-screen">
+    <h2>🏅 คะแนนสูงสุด</h2>
+    <div id="local-highscores"></div>
+    <button class="btn btn-blue" onclick="closeHighscores()">← กลับ</button>
+</div>
+
+<!-- ═══ KAMPAI SDK ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+</script>
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
