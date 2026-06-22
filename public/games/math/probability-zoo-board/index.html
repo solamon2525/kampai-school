@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Probability Zoo Board Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="game-container">
+    <!-- Top HUD panel -->
+    <div id="top-panel">
+        <div id="game-title">🦁 PROBABILITY ZOO BOARD</div>
+        <button id="mute-btn">🔊 เสียง</button>
+    </div>
+
+    <!-- Main Board Grid -->
+    <div id="board-area">
+        <!-- Centerpiece Zoo illustration (statically placed, spanning rows 2-7, cols 2-9) -->
+        <div id="center-panel">
+            <div id="center-overlay"></div>
+            <div id="center-content">
+                <!-- Scoreboard HUD -->
+                <div id="scoreboard">
+                    <div id="p1-card" class="player-score-card">
+                        <div class="player-name p1-name">🔴 PLAYER 1 (แดง)</div>
+                        <div id="p1-score" class="player-val">10</div>
+                        <div class="p-details">ตำแหน่ง: ช่อง <span id="p1-position">1</span></div>
+                        <div id="p1-stars" class="p-details" style="color: #fbbf24;">⭐ 0 | 🛡️ ไม่มีโล่</div>
+                    </div>
+                    <div id="p2-card" class="player-score-card">
+                        <div class="player-name p2-name">🔵 PLAYER 2 (น้ำเงิน)</div>
+                        <div id="p2-score" class="player-val">10</div>
+                        <div class="p-details">ตำแหน่ง: ช่อง <span id="p2-position">1</span></div>
+                        <div id="p2-stars" class="p-details" style="color: #fbbf24;">⭐ 0 | 🛡️ ไม่มีโล่</div>
+                    </div>
+                </div>
+
+                <!-- Deck piles -->
+                <div id="decks-container">
+                    <div class="card-deck deck-blue" id="deck-quiz">
+                        <span>🎴</span><br>Question Deck<br>(การ์ดโจทย์)
+                    </div>
+                    <div class="card-deck deck-gold" id="deck-activity">
+                        <span>🌟</span><br>Activity Deck<br>(การ์ดกิจกรรม)
+                    </div>
+                </div>
+
+                <!-- Game roller controls -->
+                <div id="control-area">
+                    <div id="dice-container">
+                        <div class="cube" id="dice-cube">
+                            <div class="cube-face face-1">1</div>
+                            <div class="cube-face face-2">2</div>
+                            <div class="cube-face face-3">3</div>
+                            <div class="cube-face face-4">4</div>
+                            <div class="cube-face face-5">5</div>
+                            <div class="cube-face face-6">6</div>
+                        </div>
+                    </div>
+                    <button id="roll-btn">🎲 ทอยลูกเต๋า</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Perimeter Tiles 1-32 will be injected dynamically here -->
+        
+        <!-- Player Pawns will be placed dynamically in the grid -->
+        <div id="pawn-1" class="player-token token-p1"></div>
+        <div id="pawn-2" class="player-token token-p2"></div>
+    </div>
+
+    <!-- Modals overlays -->
+    
+    <!-- 1. Quiz Question Modal -->
+    <div id="quiz-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 style="color: #60a5fa; font-size: 16px; margin-bottom: 10px;">🟦 คำถามความน่าจะเป็น</h2>
+            <div id="question-text" class="question-text">กรงลิงเสือมีสิงโต...</div>
+            <div id="options-grid" class="options-grid">
+                <!-- Buttons injected dynamically -->
+            </div>
+            <div id="quiz-feedback" class="text-sm font-bold mt-2 hidden" style="margin-bottom: 15px;"></div>
+            <button id="quiz-close-btn" class="action-btn hidden">ถัดไป</button>
+        </div>
+    </div>
+
+    <!-- 2. Action Card Modal -->
+    <div id="card-modal" class="modal-overlay">
+        <div class="modal-content" style="border-color: #f59e0b;">
+            <h2 id="card-title" style="color: #f59e0b; font-size: 16px; margin-bottom: 15px;">🎴 การ์ดสถานการณ์</h2>
+            <div id="card-icon" style="font-size: 60px; margin-bottom: 15px;">🎁</div>
+            <div id="card-description" class="question-text" style="color: #fff; font-size: 16px;">คุณได้...</div>
+            <button id="card-close-btn" class="action-btn">ตกลง</button>
+        </div>
+    </div>
+
+    <!-- 3. Spinner Lucky Wheel Modal -->
+    <div id="spinner-modal" class="modal-overlay">
+        <div class="modal-content" style="border-color: #10b981;">
+            <h2 style="color: #10b981; font-size: 16px; margin-bottom: 10px;">🎡 วงล้อโชคดี</h2>
+            <p>ลุ้นรับรางวัลหรือเผชิญอุปสรรคแบบสุ่ม!</p>
+            <div id="spinner-container">
+                <div id="spinner-pointer"></div>
+                <div id="spinner-wheel"></div>
+            </div>
+            <button id="spinner-spin-btn" class="action-btn" style="background: #10b981; color: #fff;">หมุนวงล้อ</button>
+            <div id="spinner-result" class="text-sm font-bold mt-4" style="color: #fbbf24;"></div>
+            <button id="spinner-close-btn" class="action-btn hidden mt-2">ตกลง</button>
+        </div>
+    </div>
+
+    <!-- Screen Overlays -->
+
+    <!-- Start Screen / Blocker -->
+    <div id="start-screen">
+        <div id="blocker">
+            <h1 class="glow-text">PROBABILITY ZOO</h1>
+            <h2>สวนสัตว์นำโชค & ความน่าจะเป็น</h2>
+            
+            <!-- Student profile details boilerplate -->
+            <div id="my-stats">
+                <div id="player-chip">👤 ผู้เล่นกิตติมศักดิ์</div>
+                <div class="p-stats-row">สถิติดีที่สุด: <span id="ms-best">0</span> คะแนน | เล่นไปแล้ว: <span id="ms-plays">0</span> ครั้ง</div>
+            </div>
+
+            <div>
+                <button id="btn-start" class="menu-action-btn">🎮 เริ่มเล่นเกม</button>
+                <button id="btn-leaderboard" class="menu-action-btn" style="background: #3b82f6; border-color: #1d4ed8;">🏆 อันดับสูงสุด</button>
+                <button id="btn-exit" class="menu-action-btn" style="background: #4b5563; border-color: #374151;">🚪 ออกจากเกม</button>
+            </div>
+
+            <div class="instruction-hint">
+                <strong>กติกาสวนสัตว์นำโชค:</strong><br>
+                ทอยเต๋าเดินรอบขอบสนามสวนสัตว์ เก็บแต้มโจทย์ความน่าจะเป็น (🟦) เพื่อบวกแต้ม<br>
+                หลบสิ่งกีดขวางสัตว์ป่าดุร้าย (🟥) และรับพลังเสริมสัตว์น่ารัก (🟩) ใครถึงเส้นชัย (🏆) ด้วยแต้มสูงสุดจะเป็นผู้ชนะ!
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaderboard Screen -->
+    <div id="leaderboard-screen" class="hidden">
+        <h1 class="glow-text">อันดับบอร์ดเกมสูงสุด</h1>
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>อันดับ</th>
+                    <th>ชื่อผู้เล่น</th>
+                    <th>คะแนนสูงสุด</th>
+                </tr>
+            </thead>
+            <tbody id="lb-table-body">
+                <!-- Injected dynamically -->
+            </tbody>
+        </table>
+        <button id="close-lb-btn" class="menu-action-btn" style="padding: 10px 24px; font-size: 14px;">ปิดหน้าต่าง</button>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="game-over-screen" class="hidden">
+        <h1 id="victory-title" style="color: #fbbf24;" class="glow-text">ยินดีด้วย!</h1>
+        <div id="winner-text" style="font-size: 26px; color: #fbbf24; font-weight: bold; margin-bottom: 20px;"></div>
+        <p style="font-size: 16px; margin-bottom: 10px;">คะแนน Player 1: <span id="final-score-p1" style="color: #f87171; font-weight: bold;">0</span></p>
+        <p style="font-size: 16px; margin-bottom: 30px;">คะแนน Player 2: <span id="final-score-p2" style="color: #60a5fa; font-weight: bold;">0</span></p>
+        <button id="restart-btn" class="menu-action-btn">กลับสู่เมนูหลัก</button>
+    </div>
+</div>
+
+<!-- KAMPAI SDK -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+window.KAMPAI = window.KAMPAI || {
+    isEmbed: false,
+    isTouch: false,
+    ready: true,
+    student: null,
+    stats: null,
+    leaderboard: [],
+    input: { up: false, down: false, left: false, right: false, a: false, b: false },
+    onReady: function(cb) { cb(this); },
+    setSlug: function() { return this; },
+    submitScore: function() { return false; },
+    goHome: function() { location.href = '/'; },
+    exit: function() { location.href = '/'; },
+    controls: { mount: function() { return this; } },
+    sound: {
+        correct: function() {},
+        wrong: function() {},
+        timeUp: function() {},
+        gameOver: function() {},
+        speak: function() {},
+        stopSpeak: function() {},
+        fxFlash: function() {},
+        mountToggles: function() {},
+        defaultBgm: function() {},
+        bgmStart: function() {},
+        bgmStop: function() {},
+        unlock: function() {}
+    }
+};
+</script>
+
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
