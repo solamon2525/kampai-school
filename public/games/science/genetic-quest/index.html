@@ -16,6 +16,45 @@
 
 <div id="game-container"></div>
 
+<!-- Player Chip -->
+<div id="player-chip" class="ui-layer top-[125px] left-4 flex items-center gap-2 bg-gray-900/85 backdrop-blur border border-gray-700 px-3 py-1.5 rounded-full text-xs text-white pointer-events-auto shadow-md" style="display: none;"></div>
+
+<!-- Start screen / Blocker -->
+<div id="blocker" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-gray-950/95 text-white">
+    <div class="text-6xl mb-4 animate-bounce">🧬🗺️</div>
+    <h1 id="game-title" class="text-4xl md:text-5xl font-bold text-blue-400 mb-2 drop-shadow-sm text-center px-4">
+        Genetic Treasure Quest
+    </h1>
+    <p class="text-xl text-yellow-400 font-semibold mb-4">ล่าสมบัติพันธุศาสตร์ ป.6/ม.ต้น</p>
+    <p id="game-desc" class="text-sm text-gray-400 mb-6 max-w-lg text-center px-4 leading-relaxed">
+        สำรวจแผนที่ขนาดใหญ่เพื่อค้นหาหีบสมบัติพันธุศาสตร์ สะสมชิ้นส่วน DNA ตอบคำถามให้ถูกต้อง และระวังยีนกลายพันธุ์ที่คอยไล่ล่าคุณ!
+    </p>
+
+    <!-- Player statistics card -->
+    <div id="my-stats" class="mb-6 flex gap-4 w-full max-w-sm" style="display: none;">
+        <div class="bg-gray-900 border border-gray-800 p-3 rounded-2xl flex-1 text-center">
+            <div class="text-2xl font-bold text-yellow-400" id="ms-best">0</div>
+            <div class="text-xs text-gray-500 mt-0.5">คะแนนสูงสุด</div>
+        </div>
+        <div class="bg-gray-900 border border-gray-800 p-3 rounded-2xl flex-1 text-center">
+            <div class="text-2xl font-bold text-yellow-400" id="ms-plays">0</div>
+            <div class="text-xs text-gray-500 mt-0.5">เล่นไปแล้ว (ครั้ง)</div>
+        </div>
+    </div>
+
+    <!-- Leaderboard Box -->
+    <div class="w-full max-w-sm mb-6 bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-sm">
+        <h3 class="text-sm font-bold text-gray-400 mb-2.5 flex items-center gap-1.5">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list" class="leaderboard-list flex flex-col gap-2 text-xs">
+            <li class="lb-loading text-gray-500 text-center py-2">กำลังโหลดอันดับ...</li>
+        </ul>
+    </div>
+
+    <button id="btn-start" class="bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-bold py-3.5 px-10 rounded-2xl text-lg transition-all shadow-lg border border-blue-400">
+        เริ่มผจญภัย (Start Game)
+    </button>
+</div>
+
 <!-- Top Left HUD -->
 <div class="ui-layer top-4 left-4 flex flex-col gap-2 pointer-events-none">
     <div class="bg-gray-900/85 backdrop-blur border border-gray-700 rounded-xl p-3 shadow-lg pointer-events-auto min-w-[180px]">
