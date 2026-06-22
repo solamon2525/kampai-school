@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Battle City - Ultimate Pro Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-2 text-white bg-[#0b0f19]">
+
+    <!-- Stats HUD -->
+    <div class="w-full max-w-[780px] mb-2 grid grid-cols-3 gap-2 game-ui p-3 bg-slate-900/90 rounded-t-lg border-x-2 border-t-2 border-slate-700 shadow-2xl">
+        <!-- Player 1 Stats -->
+        <div class="space-y-1 border-r border-slate-700 pr-2">
+            <p class="player-label bg-amber-500 text-black font-bold inline-block mb-1">P1</p>
+            <p class="text-amber-400">SCORE: <span id="score1">0000</span></p>
+            <p class="text-slate-400">STAR: <span id="star1">0</span></p>
+            <div id="shieldUI1" class="hidden h-1.5 w-full bg-slate-800 rounded-full overflow-hidden mt-1">
+                <div id="shieldBar1" class="bg-cyan-400 h-full w-full"></div>
+            </div>
+        </div>
+
+        <!-- Stage & WIN Spelling Logic -->
+        <div class="flex flex-col items-center justify-center gap-1">
+            <div class="text-[8px] text-slate-500 mb-1">HI-SCORE: <span id="hiScore" class="text-slate-300">0000</span></div>
+            <p class="text-[10px] text-white font-bold uppercase">STAGE <span id="stageDisplay">1</span></p>
+            
+            <!-- Dynamic slots container -->
+            <div id="slotsContainer" class="flex gap-1">
+                <!-- Injected dynamically based on word length -->
+            </div>
+            
+            <!-- Dynamic word translation hint -->
+            <div id="wordHint" class="word-translation-hint"></div>
+            
+            <p class="text-rose-500 mt-1 text-[8px] font-bold">ENEMIES: <span id="enemyCount">20</span></p>
+        </div>
+
+        <!-- Player 2 Stats -->
+        <div id="p2Stats" class="text-right space-y-1 border-l border-slate-700 pl-2 opacity-0">
+            <p class="player-label bg-emerald-500 text-black font-bold inline-block mb-1">P2</p>
+            <p class="text-emerald-400">SCORE: <span id="score2">0000</span></p>
+            <p class="text-slate-400">STAR: <span id="star2">0</span></p>
+            <div id="shieldUI2" class="hidden h-1.5 w-full bg-slate-800 rounded-full overflow-hidden mt-1">
+                <div id="shieldBar2" class="bg-cyan-400 h-full w-0 ml-auto"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Container & Overlays -->
+    <div id="game-container" class="relative">
+        <canvas id="gameCanvas" width="780" height="780"></canvas>
+        
+        <!-- Blocker / Start Screen -->
+        <div id="start-screen" class="absolute inset-0 bg-slate-950/90 flex flex-col items-center justify-center text-center p-4">
+            <!-- Boilerplate Start screen wrapper -->
+            <div id="blocker" class="flex flex-col items-center justify-center">
+                <h1 class="text-4xl mb-4 text-amber-500 font-bold glow-text">BATTLE CITY</h1>
+                <h2 class="text-xs text-slate-400 mb-6 uppercase tracking-wider">Ultimate spelling arena</h2>
+                
+                <!-- Student Stats Boilerplate -->
+                <div id="my-stats" class="bg-slate-900/80 p-3 rounded-lg border border-slate-700 mb-6 min-w-[280px]">
+                    <div id="player-chip" class="font-bold text-[10px] text-amber-400 mb-1">👤 กำลังโหลดข้อมูลผู้เล่น...</div>
+                    <div class="text-[8px] text-slate-400">BEST SCORE: <span id="ms-best" class="text-white font-bold">0000</span> | PLAYS: <span id="ms-plays" class="text-white font-bold">0</span></div>
+                </div>
+
+                <div id="modeSelection" class="mb-4">
+                    <p class="text-[8px] mb-4 text-slate-500 uppercase tracking-widest">Select Your Mission</p>
+                    <div class="flex flex-wrap justify-center gap-2">
+                        <button id="btn-1p" class="menu-btn hover:scale-105">1 PLAYER</button>
+                        <button id="btn-2p" class="menu-btn hover:scale-105">2 PLAYERS</button>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button id="btn-leaderboard" class="menu-btn hover:scale-105" style="padding: 10px 16px; font-size: 8px; background-color: #3b82f6; border-bottom: 4px solid #1d4ed8;">LEADERBOARD</button>
+                    <button id="btn-exit" class="menu-btn hover:scale-105" style="padding: 10px 16px; font-size: 8px; background-color: #4b5563; border-bottom: 4px solid #374151;">EXIT</button>
+                </div>
+
+                <!-- Controls Guide -->
+                <div class="mt-6 text-[8px] leading-relaxed text-slate-500 max-w-[450px]">
+                    <p class="mb-1"><span class="text-amber-500 font-bold">P1 KEYS:</span> WASD to Move | SPACE to Fire</p>
+                    <p class="mb-2"><span class="text-emerald-500 font-bold">P2 KEYS:</span> Arrow Keys to Move | ENTER/Slash to Fire</p>
+                    <p class="text-cyan-400">ยิงทำลายกำแพงอิฐเพื่อค้นหาตัวอักษร สะกดคำศัพท์ให้เสร็จสิ้นเพื่อผ่านด่าน!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaderboard Overlay -->
+        <div id="leaderboard-screen" class="hidden">
+            <h1 class="text-2xl mb-4 text-amber-500 font-bold glow-text">TOP COMMANDERS</h1>
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>RANK</th>
+                        <th>NAME</th>
+                        <th>SCORE</th>
+                    </tr>
+                </thead>
+                <tbody id="lb-table-body">
+                    <!-- Dynamic stats -->
+                </tbody>
+            </table>
+            <button id="close-lb-btn" class="menu-btn hover:scale-105" style="padding: 10px 20px; font-size: 9px;">CLOSE</button>
+        </div>
+
+        <!-- Game Over Overlay -->
+        <div id="game-over-screen" class="hidden">
+            <h1 id="overlayTitle" class="text-3xl mb-4 text-rose-500 font-bold glow-text">GAME OVER!</h1>
+            <div id="winner-text" class="text-sm text-yellow-400 mb-6 font-bold uppercase"></div>
+            <p class="text-xs">P1 SCORE: <span id="final-score-p1" class="text-amber-400 font-bold">0</span></p>
+            <p id="final-p2-line" class="text-xs">P2 SCORE: <span id="final-score-p2" class="text-emerald-400 font-bold">0</span></p>
+            <button id="restart-btn" class="menu-btn mt-6 hover:scale-105">MAIN MENU</button>
+        </div>
+    </div>
+
+    <!-- KAMPAI SDK -->
+    <script src="/games/kampai-sdk.js"></script>
+    <script>
+    window.KAMPAI = window.KAMPAI || {
+        isEmbed: false,
+        isTouch: false,
+        ready: true,
+        student: null,
+        stats: null,
+        leaderboard: [],
+        input: { up: false, down: false, left: false, right: false, a: false, b: false },
+        onReady: function(cb) { cb(this); },
+        setSlug: function() { return this; },
+        submitScore: function() { return false; },
+        goHome: function() { location.href = '/'; },
+        exit: function() { location.href = '/'; },
+        controls: { mount: function() { return this; } },
+        sound: {
+            correct: function() {},
+            wrong: function() {},
+            timeUp: function() {},
+            gameOver: function() {},
+            speak: function() {},
+            stopSpeak: function() {},
+            fxFlash: function() {},
+            mountToggles: function() {},
+            defaultBgm: function() {},
+            bgmStart: function() {},
+            bgmStop: function() {},
+            unlock: function() {}
+        }
+    };
+    </script>
+
+    <script src="config.js"></script>
+    <script src="data.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
