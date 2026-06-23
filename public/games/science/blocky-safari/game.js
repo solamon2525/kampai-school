@@ -2,6 +2,20 @@
 
 // ดึงพารามิเตอร์จาก GAME_CONFIG
 const { SLUG, BGM, PLAYER_SPEED, COLLISION_DIST, MAP_SIZE, TREES_COUNT, CHASE_DIST } = window.GAME_CONFIG;
+const CFG = window.GAME_CONFIG;
+
+// seeded PRNG (mulberry32) — โลกออนไลน์ต้องตรงกันทุกเครื่อง (seed = รหัสห้อง + เลขด่าน)
+function makeRng(seed) {
+    let a = (seed >>> 0) || 1;
+    return function () {
+        a |= 0; a = (a + 0x6D2B79F5) | 0;
+        let t = Math.imul(a ^ (a >>> 15), 1 | a);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+}
+let worldRng = Math.random;   // rng สร้างโลกของด่านปัจจุบัน (buildWorld ตั้งค่า: seeded เมื่อ online)
+let match = null;             // KampaiMatch controller (โหมดแข่งออนไลน์)
 
 // --- Game State ---
 let gameState = {
@@ -16,7 +30,12 @@ let gameState = {
     hearts: 5,            // หัวใจผู้เล่นสูงสุด 5 ดวง
     invincible: 0,        // เวลาเป็นอมตะที่เหลือหลังได้รับบาดเจ็บ (วินาที)
     bullets: [],          // เก็บ mesh และเวกเตอร์ความเร็วของกระสุนที่ยิงออกไป
-    keys: { w: false, a: false, s: false, d: false, arrowup: false, arrowleft: false, arrowdown: false, arrowright: false }
+    keys: { w: false, a: false, s: false, d: false, arrowup: false, arrowleft: false, arrowdown: false, arrowright: false },
+    // ── โหมดออนไลน์แข่ง ──
+    online: false,        // true = กำลังแข่งออนไลน์
+    onlineCorrect: 0,     // ตอบถูกสะสม (ใช้รายงานคะแนน + จัดอันดับ)
+    seed: 0,              // seed โลก (จากรหัสห้อง) — โหมดเดี่ยว = 0 → Math.random
+    sab: { chaseMult: 1, oppCorrect: {} }  // sabotage: ตัวคูณความเร็วไล่ล่า + correct คู่แข่งล่าสุด
 };
 
 // คูลดาวน์การยิงกระสุน (วินาที)
@@ -206,7 +225,10 @@ function buildWorld() {
     // เกิดสัตว์ป่าทั้งหมดของด่านปัจจุบัน (สปอว์น 4 ตัวต่อสายพันธุ์ เพื่อให้แมปขนาดใหญ่สุดไม่โล่งและไม่แออัดเกินไป)
     const currentAnimals = window.ANIMAL_DB_LEVELS[gameState.currentLevel] || window.ANIMAL_DB_LEVELS[1];
     const SPAWNS_PER_ANIMAL = 4;
-    
+
+    // โหมดออนไลน์: seed โลกจาก (รหัสห้อง + เลขด่าน) → ทุกเครื่องได้เป้า/สัตว์/ตำแหน่งเหมือนกัน (ยุติธรรม)
+    worldRng = gameState.online ? makeRng((gameState.seed >>> 0) + gameState.currentLevel * 7919) : Math.random;
+
     currentAnimals.forEach(data => {
         for (let i = 0; i < SPAWNS_PER_ANIMAL; i++) {
             spawnAnimal(data);
@@ -217,7 +239,7 @@ function buildWorld() {
 
     // สุ่มเลือก Target Category จากข้อมูลสัตว์ที่มีในด่านนี้
     const uniqueTypes = [...new Set(currentAnimals.map(a => a.type))];
-    gameState.targetCategory = uniqueTypes[Math.floor(Math.random() * uniqueTypes.length)];
+    gameState.targetCategory = uniqueTypes[Math.floor(worldRng() * uniqueTypes.length)];
     // เป้าหมายคือเก็บให้ครบทุกตัวในสายพันธุ์ของด่านนั้น
     const targetSpeciesCount = currentAnimals.filter(a => a.type === gameState.targetCategory).length;
     gameState.totalTargetAnimals = targetSpeciesCount * SPAWNS_PER_ANIMAL;
@@ -252,7 +274,8 @@ function createTree(x, z) {
     trees.push(treeGroup);
 }
 
-function spawnAnimal(data) {
+function spawnAnimal(data, opts) {
+    opts = opts || {};
     const group = new THREE.Group();
 
     // ตัวสัตว์บล็อก
@@ -268,23 +291,29 @@ function spawnAnimal(data) {
     sprite.position.y = 2.5;
     group.add(sprite);
 
-    // สุ่มตำแหน่งกระจายตัว
+    // ตำแหน่ง: ปกติ = กระจายทั่วแมป (worldRng = seeded เมื่อ online) · sabotage = วงแหวนรอบผู้เล่น (สุ่มอิสระ ไม่กระทบ seed)
     let px, pz;
-    do {
-        px = (Math.random() - 0.5) * (MAP_SIZE - 8);
-        pz = (Math.random() - 0.5) * (MAP_SIZE - 8);
-    } while (Math.abs(px) < 6 && Math.abs(pz) < 6); // สปอว์นห่างจากตัวเล่นตอนเริ่มพอควร
+    if (opts.nearPlayer && player) {
+        const ang = Math.random() * Math.PI * 2, r = 16 + Math.random() * 10;
+        px = player.position.x + Math.sin(ang) * r;
+        pz = player.position.z + Math.cos(ang) * r;
+    } else {
+        do {
+            px = (worldRng() - 0.5) * (MAP_SIZE - 8);
+            pz = (worldRng() - 0.5) * (MAP_SIZE - 8);
+        } while (Math.abs(px) < 6 && Math.abs(pz) < 6); // สปอว์นห่างจากตัวเล่นตอนเริ่มพอควร
+    }
 
     group.position.set(px, 0, pz);
     scene.add(group);
 
-    // กำหนดเวกเตอร์ความเร็วสุ่มและ offset ลอยตัว
+    // offset ลอยตัว + สถานะ aggro
     group.userData = {
         data: data,
         startY: 0,
         floatOffset: Math.random() * Math.PI * 2,
         damageFlash: 0, // คูลดาวน์การกะพริบแดงเมื่อยิงผิด
-        isAggro: false  // สถานะติดตามผู้เล่นถาวรเมื่อเข้าใกล้
+        isAggro: !!opts.aggro  // sabotage spawn = ดุทันที · ปกติ = false (aggro เมื่อผู้เล่นเข้าใกล้)
     };
 
     animals.push({ group: group, data: data });
@@ -380,6 +409,94 @@ function setupEventListeners() {
             KAMPAI.sound.bgmStart(BGM);
         });
     }
+
+    // ── โหมดออนไลน์แข่ง (KampaiMatch: lobby/รหัสห้อง/นับถอยหลัง/แถบคะแนนสด/จัดอันดับ ให้ครบ) ──
+    match = KampaiMatch.create({
+        duration: CFG.ONLINE_DURATION,
+        title: 'ซาฟารีแข่งเดือด',
+        rankBy: 'score',
+        onPlay: function (m) { startOnlineGame(m && m.seed); },
+        onEnd: function () { endOnlineGame(); },
+        onOpponent: function (list) { onOpponentUpdate(list); }
+    });
+    const onlineBtn = document.getElementById('online-btn');
+    if (onlineBtn) onlineBtn.addEventListener('click', function () {
+        try { KAMPAI.sound.unlock(); } catch (e) {}
+        match.openMenu();
+    });
+}
+
+// ─── โหมดออนไลน์: เริ่ม/จบ + รับ sabotage ─────────────────────────────────
+function startOnlineGame(seed) {
+    gameState.online = true;
+    gameState.seed = (seed >>> 0) || 1;
+    gameState.onlineCorrect = 0;
+    gameState.sab = { chaseMult: 1, oppCorrect: {} };
+    blocker.classList.add('hidden');
+    winScreen.classList.add('hidden');
+    gameoverScreen.classList.add('hidden');
+    const lcm = document.getElementById('level-clear-modal'); if (lcm) lcm.classList.add('hidden');
+    hud.classList.remove('hidden');
+    const radar = document.getElementById('radar-container'); if (radar) radar.classList.remove('hidden');
+    gameState.currentLevel = 1;
+    gameState.score = 0; gameState.totalScore = 0;
+    gameState.hearts = 5; gameState.invincible = 0;
+    gameState.isPlaying = true;
+    try { KAMPAI.sound.unlock(); KAMPAI.sound.bgmStart(BGM); } catch (e) {}
+    buildWorld();
+}
+
+function endOnlineGame() {
+    gameState.isPlaying = false;
+    try { KAMPAI.sound.bgmStop(); } catch (e) {}
+    gameState.bullets.forEach(function (b) { scene.remove(b.mesh); });
+    gameState.bullets = [];
+    // match จัดการจออันดับ + submit XP เอง (rankBy:'score' = onlineCorrect ที่ report)
+}
+
+// คู่แข่งตอบถูก (correct เพิ่ม) → ป่วนตัวเอง: เร่งความเร็วไล่ล่า + เกิดสัตว์ดุพิเศษ
+function onOpponentUpdate(list) {
+    if (!gameState.online) return;
+    let delta = 0;
+    (list || []).forEach(function (m) {
+        if (m.me) return;
+        const prev = gameState.sab.oppCorrect[m.id] || 0;
+        const cur = m.correct || 0;
+        if (cur > prev) delta += (cur - prev);
+        gameState.sab.oppCorrect[m.id] = cur;
+    });
+    if (delta > 0) applySabotage(delta);
+}
+
+function applySabotage(delta) {
+    if (!gameState.isPlaying) return;
+    gameState.sab.chaseMult = Math.min(CFG.SAB_CHASE_MAX, gameState.sab.chaseMult + delta * CFG.SAB_CHASE_PER_HIT);
+    // เกิดสัตว์ดุพิเศษ (ชนิดที่ไม่ใช่เป้า = ยิงโดน = เสียหัวใจ) ใกล้ผู้เล่น = "มอนสเตอร์" ไล่ล่า
+    const lvl = window.ANIMAL_DB_LEVELS[gameState.currentLevel] || window.ANIMAL_DB_LEVELS[1];
+    const foes = lvl.filter(function (a) { return a.type !== gameState.targetCategory; });
+    const pool = foes.length ? foes : lvl;
+    const n = Math.round(delta * CFG.SAB_SPAWN_PER_HIT);
+    for (let i = 0; i < n; i++) {
+        const d = pool[Math.floor(Math.random() * pool.length)];
+        if (d) spawnAnimal(d, { nearPlayer: true, aggro: true });
+    }
+    showSabotageToast();
+    try { KAMPAI.sound.wrong(); } catch (e) {}
+}
+
+let sabToastTimer = 0;
+function showSabotageToast() {
+    let el = document.getElementById('sab-toast');
+    if (!el) {
+        el = document.createElement('div');
+        el.id = 'sab-toast';
+        el.style.cssText = 'position:fixed;top:18%;left:50%;transform:translateX(-50%);z-index:99980;background:rgba(239,68,68,.92);color:#fff;font-weight:800;font-family:Kanit,Sarabun,system-ui,sans-serif;padding:10px 20px;border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.4);font-size:18px;pointer-events:none;transition:opacity .25s';
+        document.body.appendChild(el);
+    }
+    el.textContent = '😱 คู่แข่งตอบถูก! สัตว์ดุขึ้น';
+    el.style.opacity = '1';
+    clearTimeout(sabToastTimer);
+    sabToastTimer = setTimeout(function () { el.style.opacity = '0'; }, 1400);
 }
 
 function attemptShoot() {
@@ -444,6 +561,13 @@ function takeDamage() {
     updateHUD();
     
     if (gameState.hearts <= 0) {
+        // โหมดออนไลน์: ไม่จบเกม (แข่งตามเวลา) — เติมหัวใจ + อมตะสั้น ๆ เป็นบทลงโทษเสียเวลาแทน
+        if (gameState.online) {
+            gameState.hearts = 5;
+            gameState.invincible = 2;
+            updateHUD();
+            return;
+        }
         // เกมโอเวอร์!
         gameState.isPlaying = false;
         hud.classList.add('hidden');
@@ -520,7 +644,16 @@ function showLevelClearModal() {
 function checkWin() {
     if (gameState.score >= gameState.totalTargetAnimals) {
         gameState.totalScore += gameState.score;
-        
+
+        // โหมดออนไลน์: เคลียร์ด่าน → ไปด่านถัดไปทันที (ไม่มี modal/จอชนะ — แข่งตามเวลา) วนด่านไม่ให้ตัน
+        if (gameState.online) {
+            gameState.bullets.forEach(b => scene.remove(b.mesh));
+            gameState.bullets = [];
+            gameState.currentLevel = (gameState.currentLevel % gameState.maxLevels) + 1;
+            buildWorld();   // score รีเซ็ตเป็น 0 ใน buildWorld
+            return;
+        }
+
         if (gameState.currentLevel < gameState.maxLevels) {
             // สำเร็จด่าน ไปสเตจถัดไป
             showLevelClearModal();
@@ -630,6 +763,8 @@ function animate() {
                         scene.remove(animal.group);
                         animals.splice(aIdx, 1);
                         gameState.score++;
+                        gameState.onlineCorrect++;
+                        if (gameState.online && match) match.report(gameState.onlineCorrect, { correct: gameState.onlineCorrect });
                         updateHUD();
                         checkWin();
                     } else {
@@ -649,7 +784,9 @@ function animate() {
         }
 
         // --- เคลื่อนไหวสัตว์ป่า (พฤติกรรมเดินช้าไล่ตามล่าเมื่อเข้าใกล้ หรือเดินเล่นเมื่ออยู่ไกล) ---
-        const chaseSpeed = 2.0; // สปีดการไล่ช้าๆ
+        // sabotage (online): ตัวคูณความเร็วไล่ล่าค่อย ๆ ลดกลับสู่ 1
+        if (gameState.sab.chaseMult > 1) gameState.sab.chaseMult += (1 - gameState.sab.chaseMult) * Math.min(1, dt / CFG.SAB_DECAY_SEC);
+        const chaseSpeed = 2.0 * gameState.sab.chaseMult; // สปีดไล่ล่า × ตัวคูณ sabotage
         const wanderSpeed = 1.0;
         for (let i = 0; i < animals.length; i++) {
             const animal = animals[i];

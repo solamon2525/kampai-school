@@ -272,8 +272,30 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.103.0 (ฟีเจอร์ใหม่ "English Quest" — แอปเรียนศัพท์อังกฤษรายวันแบบเกม ป.4-6)',
+        version: 'v1.105.0 (อัพเกรด "Blocky Safari" — โหมดออนไลน์แข่ง + ตอบถูกป่วนคู่แข่ง)',
         date: 'ล่าสุด',
+        badge: 'bg-teal-600',
+        items: [
+            'เกมวิทยาศาสตร์ ป.4 จำแนกสัตว์ 3D (`science/blocky-safari`) v3.0.0: เพิ่ม **โหมดออนไลน์แข่งต่างเครื่อง** ด้วย `kampai-match.js` (สร้าง/เข้าห้องรหัส 4 หลัก · นับถอยหลังซิงค์ · แถบคะแนนสด · จัดอันดับผู้ชนะ) — โหมดเดี่ยวเดิมคงทุกอย่าง',
+            'แมคคานิกแข่งขันใหม่ "ตอบถูก = ป่วนคู่แข่ง": ทุกครั้งที่เก็บสัตว์ถูก → โลกของคู่แข่งจะเพิ่มความเร็วการไล่ล่า + เกิดสัตว์ดุพิเศษรอบตัว (ตัวคูณค่อย ๆ ลดกลับสู่ปกติ) กระตุ้นให้รีบตอบให้ถูก',
+            'โลกแข่งใช้ seed เดียวกัน (รหัสห้อง + เลขด่าน) → ทุกเครื่องได้เป้าหมาย/สัตว์/ตำแหน่งเหมือนกัน ยุติธรรม · sabotage ใช้กลไก report/onOpponent ของ KampaiMatch (ไม่ต้อง sync ตำแหน่ง — network เบา)',
+            'จูนความแรง sabotage + เวลาแมตช์ได้ที่ config.js (SAB_*/ONLINE_DURATION) · ผ่าน verify:game 10/10 + ทดสอบ logic ในเบราว์เซอร์ (sabotage/seed/regression เดี่ยว) · game_docs migration 229',
+        ],
+    },
+    {
+        version: 'v1.104.0 (เพิ่ม "เสียงไทย" 3 โหมดให้เกมอังกฤษ 4 เกม + อัพเกรด KAMPAI SDK)',
+        date: '',
+        badge: 'bg-teal-600',
+        items: [
+            'อัพเกรด `kampai-sdk.js` (single source ของทุกเกม) — เพิ่ม `Sound.speakBilingual(en, th, opts)` + state `_voiceMode` (en/th/both) + ปุ่ม 🌐 ลอยมุมซ้ายบน เปลี่ยน 3 โหมดเสียงอ่าน จำค่า localStorage',
+            'เกมที่เพิ่มแล้ว: `vocab-hub` (3 โหมดในตัวเกม) · `reading-quest` (popup ศัพท์อ่าน EN+ไทย) · `phonics-pop` · `listen-spell` · `vocab-move` — รวม 5 เกม',
+            'Spoiler protection: เกมควิซที่เสียง = "คำถาม" (phonics-pop / listen-spell / vocab-move) บังคับ EN ตอนเล่นโจทย์ ปล่อยเสียงไทยเฉพาะตอน reveal/correct → กันเฉลย',
+            'Backward compatible: `Sound.speak(text, lang)` API เดิมไม่แตะ เกมอื่นที่ยังไม่ migrate ใช้งานต่อได้ปกติ — fallback stub ของทุกเกมที่ปรับ มี `speakBilingual` stub กันพังถ้า SDK โหลดไม่ได้',
+        ],
+    },
+    {
+        version: 'v1.103.0 (ฟีเจอร์ใหม่ "English Quest" — แอปเรียนศัพท์อังกฤษรายวันแบบเกม ป.4-6)',
+        date: '',
         badge: 'bg-teal-600',
         items: [
             'ฟีเจอร์เรียนคำศัพท์อังกฤษแบบ gamified สำหรับนักเรียน (route `/english-quest`): เลือกโลกผจญภัยตามธีม (สัตว์/อาหาร/โรงเรียน) → เรียนการ์ดคำ (ฟังเสียง TTS) → ทำแบบทดสอบ → เก็บดาว + XP',
