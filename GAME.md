@@ -31,6 +31,7 @@
 
 เริ่มเกมใหม่
 ├─ สร้างจากศูนย์ (แนะนำ)   → cp -r _template-folder    (โครงสร้าง 5 ไฟล์ + online — ดู §"📁 โครงสร้างโฟลเดอร์")
+├─ แข่ง 2 คน (เดี่ยว+local+online) ⭐ → cp _template-versus.html (kampai-versus: เมนูโหมด + hot-seat + online — มาตรฐานใหม่)
 ├─ เกมเล็ก/ไฟล์เดียว        → cp _template-full.html    (single-file + leaderboard + sound)
 ├─ เล่นหลายคนออนไลน์อย่างเดียว → cp _template-online.html (kampai-match: lobby+แข่งสด+อันดับ)
 ├─ ไม่อยาก leaderboard      → cp _template.html         (basic version)
@@ -64,18 +65,23 @@
 
 ---
 
-## 🌐 ก่อนสร้างเกม: ถามโหมดออนไลน์
+## 🏁 ทุกเกมต้องแข่ง 2 คนได้ (มาตรฐาน — KampaiVersus)
 
-**ทุกครั้งที่จะสร้างเกมใหม่ → ถามผู้ใช้ก่อนว่า "ทำโหมดออนไลน์ (แข่งสดต่างเครื่อง) ด้วยไหม?"**
-ถ้าเกมเหมาะ ให้ทำตั้งแต่แรก (ใช้ `kampai-match.js` — ไม่ต้องเขียน lobby/realtime เอง):
+**กฎ: ทุกเกมที่สร้าง/แก้ ต้อง wire ผ่าน `/games/kampai-versus.js` ให้ครบ 3 โหมด** —
+เดี่ยว · **2 คนเครื่องนี้ (local hot-seat จอเดียว)** · ออนไลน์ (ต่างเครื่อง).
+เฟรมเวิร์กจัดการ เมนูเลือกโหมด/เลือกคู่แข่ง P2/นับถอยหลัง/สลับตา/จอเทียบผล/สถิติแชมป์ ให้หมด —
+เกมเขียนแค่ `onPlay`/`onEnd` + `report`/`finish` (ดู §"🤝 Two-Player Framework"). **`verify:game` Check 11 บังคับ.**
 
-| เหมาะกับออนไลน์ ✅ | ไม่เหมาะ ❌ (ข้ามได้) |
+| โหมด (ได้ทุกเกม) | ทำงานต่อชนิดเกม |
 |---|---|
-| เก็บแต้ม / แข่งเวลา / ถาม-ตอบ / สะกดคำ / คณิตเร็ว | AR/กล้อง (เคลื่อนไหวร่างกาย) |
-| โจทย์สุ่มได้จาก seed (ใช้ `rng` ให้ตรงทุกเครื่อง) | อุปกรณ์เดียว/ผลัดกันเล่น · วาดภาพอิสระ · ปริศนายาว |
+| **เดี่ยว** — ปุ่ม "เริ่มเกม" เดิม | คงพฤติกรรมเดิม (`submitScore` + จอจบ) |
+| **2 คนเครื่องนี้ (hot-seat)** — P1 จบ → ส่งเครื่อง → P2 → เทียบผล | quiz/คณิต/สะกด: seed เดียว = โจทย์ตรงกัน · action/แข่งรถ: รอบจับเวลา (โลก seed เดียว) · AR: ผลัดทำรอบกล้อง |
+| **ออนไลน์** — รหัสห้อง 4 หลัก แข่งสด | reuse `kampai-match.js` ผ่าน KampaiVersus (delegate) |
 
-วิธีทำ: เปิด `ENABLE_ONLINE: true` ใน `config.js` (เทมเพลตโฟลเดอร์ wire ให้แล้ว) หรือดู §"🤝 Online
-Multiplayer Framework". ตัวอย่างจริง: `english/listen-spell/` (มีปุ่ม 🌐), `math/multiply-race.html`
+**P2 เลือกได้ 2 แบบ:** เลือกจากรายชื่อห้อง (`KAMPAI.classmates`) → เก็บสถิติแชมป์ห้อง/head-to-head ·
+หรือ "เล่นเร็ว" (ไม่ระบุชื่อ ไม่เก็บสถิติ). sabotage "ตอบถูก = ป่วนคู่แข่ง" = ออปชั่นรายเกม
+(`sabotage:true` + ใช้ `onOpponent`) — ตัวอย่าง `science/blocky-safari`.
+เริ่มจาก `_template-versus.html` · online เดิม `math/multiply-race.html`
 
 ---
 
@@ -141,7 +147,44 @@ Multiplayer Framework". ตัวอย่างจริง: `english/listen-sp
 
 ---
 
-## 🤝 Online Multiplayer Framework (`kampai-match.js`)
+## 🤝 Two-Player Framework (`kampai-versus.js`) — ใช้ตัวนี้ก่อนเสมอ
+
+**drop-in เดียว ครอบ 3 โหมดจาก wiring ชุดเดียว** — เดี่ยว · 2 คนเครื่องนี้ (local hot-seat) · ออนไลน์
+(delegate `kampai-match.js` ให้อัตโนมัติ). เกมไม่ต้องเขียนเมนู/เลือกคู่/นับถอยหลัง/สลับตา/จอเทียบ/สถิติเอง.
+
+```html
+<script src="/games/kampai-sdk.js"></script>
+<script src="/games/kampai-match.js"></script>   <!-- online (delegate) -->
+<script src="/games/kampai-versus.js"></script>
+<script>window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window.KampaiMatch&&window.KampaiMatch.create)?window.KampaiMatch.create(o):null; return { available:false, openMenu:function(){ if(m)m.openMenu(); }, report:function(s,i){ if(m)m.report(s,i); }, finish:function(s,i){ if(m){m.finish(s,i);return true;} return false; }, leave:function(){}, mode:null }; } };</script>
+```
+
+```js
+const vs = KampaiVersus.create({
+  duration: 60, title: 'แข่งบวกเลข', rankBy: 'score',  // 'score' | 'correct'
+  rounds: 1,                       // best-of-N (local) — default 1
+  onPlay: ({ rng, player }) => startRound(rng, player), // player: 'P1'|'P2'|null(เดี่ยว/online) — ใช้ rng ทำโจทย์
+  onEnd:  () => freezeInput(),                          // หมดเวลา/จบตา → หยุดรับ input
+  onOpponent: (list) => {},        // online live + local sabotage (optional)
+  sabotage: false,                 // กลไก "ตอบถูก = ป่วนคู่แข่ง" รายเกม
+});
+```
+
+**สูตร retrofit (ทุกเกน 6 จุด):**
+1. โหลด 3 script + stub ข้างบน
+2. `const vs = KampaiVersus.create({...onPlay,onEnd})`
+3. ปุ่มจอเริ่ม **"🏁 แข่ง 2 คน"** → `onclick="vs.openMenu()"` (คู่กับปุ่ม "เริ่มเกม" เดิม)
+4. `startRound(rng, player)` — ใช้ `rng` (ไม่ใช่ `Math.random`) ทำโจทย์ → P1/P2 ได้โจทย์ตรงกัน
+5. ตอนได้คะแนน: `vs.report(score, { correct })`
+6. ใน `endGame`: ขึ้นต้นด้วย `if (vs.finish(score, { correct })) return;` (versus จัดการเทียบผล/สถิติ) → ไม่งั้น `submitScore` + จอจบ (เดี่ยว)
+
+> เฟรมเวิร์ก: local hot-seat = P1 จบ → "ส่งเครื่อง" → P2 (seed เดียว = โจทย์ตรง) → จอเทียบผู้ชนะ ·
+> เลือก P2 จาก `KAMPAI.classmates` → ส่ง `versusEnd` ให้ wrapper เก็บสถิติแชมป์ (migration 208) · online → KampaiMatch.
+> `verify:game` Check 11 บังคับว่าเกมต้องมี KampaiVersus (หรืออย่างน้อย KampaiMatch). เริ่มจาก `_template-versus.html`.
+
+---
+
+## 🤝 Online Multiplayer Framework (`kampai-match.js`) — internal ที่ KampaiVersus ใช้ต่อ
 
 เกม "นักเรียนเล่นด้วยกัน" (แข่งสดต่างเครื่อง) — **อย่าเขียน lobby/presence/นับถอยหลัง/scoreboard เอง**.
 โหลด `/games/kampai-match.js` (สร้างบน `KAMPAI.online`) แล้วเรียก `KampaiMatch.create()` ครั้งเดียว.

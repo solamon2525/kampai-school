@@ -298,6 +298,30 @@ if (usesCamera) {
     }
 }
 
+// ─── Check 11: รองรับ 2 ผู้เล่น (local hot-seat + online) — กฎใหม่ "ทุกเกมแข่ง 2 คนได้" ──
+// keystone = /games/kampai-versus.js (KampaiVersus.create) → เดี่ยว + 2 คนเครื่องนี้ + ออนไลน์
+// เกมออนไลน์เดิม (KampaiMatch อย่างเดียว) = มี online แต่ยังไม่มี local hot-seat → WARN ให้อัป
+// ไม่มีทั้งคู่ = FAIL (1P ล้วน). ดู _template-versus.html / GAME.md (Two-Player Framework)
+const loadsVersus = /kampai-versus\.js/.test(html);
+const loadsMatch = /kampai-match\.js/.test(html);
+const wiresVersus = /KampaiVersus\s*\.\s*create\s*\(/.test(scanSource);
+const wiresMatch = /KampaiMatch\s*\.\s*create\s*\(/.test(scanSource);
+if (loadsVersus && wiresVersus) {
+    console.log(`${PASS} Check 11 — 2 ผู้เล่น: KampaiVersus (เดี่ยว + local hot-seat + online)`);
+} else if (loadsMatch && wiresMatch) {
+    warnings.push({
+        check: '2-player',
+        msg: 'มีเฉพาะออนไลน์ (KampaiMatch) — อัปเป็น KampaiVersus เพิ่มโหมด "2 คนเครื่องนี้" (local hot-seat). ดู _template-versus.html',
+    });
+    console.log(`${WARN} Check 11 — 2 ผู้เล่น: KampaiMatch (online เท่านั้น — ยังไม่มี local hot-seat)`);
+} else {
+    issues.push({
+        check: '2-player',
+        msg: 'ไม่พบทางแข่ง 2 คน — โหลด /games/kampai-versus.js + KampaiVersus.create({onPlay,onEnd}) + ปุ่ม "แข่ง 2 คน" (vs.openMenu()). ดู _template-versus.html / GAME.md',
+    });
+    console.log(`${FAIL} Check 11 — 2 ผู้เล่น: ไม่พบ (ต้องมี KampaiVersus หรืออย่างน้อย KampaiMatch)`);
+}
+
 // ─── Summary ─────────────────────────────────────────────────────────────────
 console.log('');
 if (issues.length === 0 && warnings.length === 0) {

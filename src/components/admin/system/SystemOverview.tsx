@@ -272,8 +272,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.105.0 (อัพเกรด "Blocky Safari" — โหมดออนไลน์แข่ง + ตอบถูกป่วนคู่แข่ง)',
+        version: 'v1.106.0 (ระบบ "แข่ง 2 คน" ทุกเกม — เฟรมเวิร์ก KampaiVersus: เดี่ยว + local hot-seat + online)',
         date: 'ล่าสุด',
+        badge: 'bg-amber-600',
+        items: [
+            'เฟรมเวิร์กกลางใหม่ `/games/kampai-versus.js` (`KampaiVersus`) — drop-in เดียวให้ทุกเกมแข่ง 2 คนได้ครบ 3 โหมดจาก wiring ชุดเดียว: **เดี่ยว · 2 คนเครื่องนี้ (local hot-seat จอเดียว ไม่แบ่งจอ) · ออนไลน์** (delegate `kampai-match.js`)',
+            'Local hot-seat: P1 เล่นจบ → "ส่งเครื่องให้ P2" → P2 เล่น (**seed เดียวกัน = โจทย์/โลกตรงกัน ยุติธรรม**) → จอเทียบผู้ชนะ · เลือกคู่แข่ง P2 จากรายชื่อห้อง (เก็บสถิติแชมป์/head-to-head) หรือ "เล่นเร็ว" ไม่ระบุชื่อ',
+            'เก็บสถิติแมตช์ reuse โครงเดิม (migration 208 — `online_matches` source=local + wrapper `versusEnd`) · sabotage "ตอบถูก = ป่วนคู่แข่ง" เป็นออปชั่นรายเกม (`sabotage:true`)',
+            'เทมเพลตใหม่ `_template-versus.html` + กฎ GAME.md "ทุกเกมต้องแข่ง 2 คนได้" + `verify:game` **Check 11** (บังคับมีทาง 2 ผู้เล่น) — เริ่ม rollout retrofit เกมเดิมทั้งหมด',
+        ],
+    },
+    {
+        version: 'v1.105.0 (อัพเกรด "Blocky Safari" — โหมดออนไลน์แข่ง + ตอบถูกป่วนคู่แข่ง)',
+        date: '',
         badge: 'bg-teal-600',
         items: [
             'เกมวิทยาศาสตร์ ป.4 จำแนกสัตว์ 3D (`science/blocky-safari`) v3.0.0: เพิ่ม **โหมดออนไลน์แข่งต่างเครื่อง** ด้วย `kampai-match.js` (สร้าง/เข้าห้องรหัส 4 หลัก · นับถอยหลังซิงค์ · แถบคะแนนสด · จัดอันดับผู้ชนะ) — โหมดเดี่ยวเดิมคงทุกอย่าง',
