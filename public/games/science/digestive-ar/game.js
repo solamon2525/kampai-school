@@ -561,13 +561,13 @@
         requestAnimationFrame(renderLoop);
     });
 
-    // Clean up camera stream on leaving/reloading
-    window.addEventListener('beforeunload', function () {
+    // ปล่อยกล้องทุก exit (กลับหน้าหลัก/รีโหลด) — มือถือ beforeunload ไม่ค่อย fire จึงเพิ่ม pagehide ด้วย
+    function cleanupCam() {
         if (cameraTracker) {
-            try {
-                cameraTracker.stop();
-            } catch (e) {}
+            try { cameraTracker.stop(); } catch (e) {}
         }
-    });
+    }
+    window.addEventListener('beforeunload', cleanupCam);
+    window.addEventListener('pagehide', cleanupCam);
 
 })();
