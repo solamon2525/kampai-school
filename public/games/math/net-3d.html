@@ -57,6 +57,7 @@ body { background: radial-gradient(circle at 50% 30%, #312e81 0%, #0f172a 70%); 
 .btn:active { transform: scale(0.95); }
 .btn-primary { background: linear-gradient(45deg,#6366f1,#4f46e5); box-shadow: 0 4px 10px rgba(79,70,229,0.4); }
 .btn-ghost { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25); }
+.btn-versus { background: linear-gradient(45deg,#f59e0b,#f97316); box-shadow: 0 4px 10px rgba(245,158,11,0.4); }
 .mode-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 8px; }
 .leaderboard-box { background: rgba(255,255,255,0.95); color: #2c3e50; border-radius: 12px; padding: 12px 15px; margin: 10px 0; width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
 .lb-title { font-family: 'Fredoka One', cursive; font-size: 1rem; margin: 0 0 8px 0; text-align: left; }
@@ -101,6 +102,7 @@ body { background: radial-gradient(circle at 50% 30%, #312e81 0%, #0f172a 70%); 
         <button class="btn btn-primary" id="btn-race">⚡ แข่งเวลา</button>
         <button class="btn btn-ghost" id="btn-practice">📚 ฝึก</button>
     </div>
+    <button class="btn btn-versus" id="btn-versus">🏁 แข่ง 2 คน (แข่งกับเพื่อน)</button>
     <div class="leaderboard-box">
         <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
         <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
@@ -126,6 +128,10 @@ body { background: radial-gradient(circle at 50% 30%, #312e81 0%, #0f172a 70%); 
 <script>window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{unlock:function(){return this;},correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},setBgm:function(){return this;},defaultBgm:function(){return this;},bgmStart:function(){},bgmStop:function(){},mountToggles:function(){return this;}} };</script>
 <!-- Three.js (UMD global THREE · classic script กัน verify Check 7 พังจาก import) -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.126.0/build/three.min.js"></script>
+<script src="/games/kampai-match.js"></script>
+<script>window.KampaiMatch = window.KampaiMatch || { create:function(){ return { available:false, openMenu:function(){ alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); }, report:function(){}, finish:function(){}, leave:function(){} }; } };</script>
+<script src="/games/kampai-versus.js"></script>
+<script>window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window.KampaiMatch&&window.KampaiMatch.create)?window.KampaiMatch.create(o):null; return { available:false, openMenu:function(){ if(m)m.openMenu(); }, report:function(s,i){ if(m)m.report(s,i); }, finish:function(s,i){ if(m){m.finish(s,i);return true;} return false; }, leave:function(){}, mode:null }; } };</script>
 <script>
 /* ═══ SECTION A · ตั้งค่า ═══ */
 const GAME_SLUG = 'net-3d';
@@ -252,8 +258,17 @@ let score = 0, lives = 3, streak = 0, maxStreak = 0, solved = 0;
 let mode = 'race';
 let started = false, isGameOver = false, locked = false;
 let qStart = 0, qLimit = 0, tRaf = 0, cur = null;
+let versusActive = false;
 
-function chooseMode(m) { KAMPAI.sound.unlock(); mode = m; startGame(); }
+/* ── เฟรมเวิร์ก 2 ผู้เล่น (เดี่ยว + local hot-seat + online) — ดู GAME.md ── */
+const vs = KampaiVersus.create({
+    duration: 60, title: 'รูปคลี่ → ทรง · ดวล', rankBy: 'score',
+    onPlay: ({ rng }) => startVersusRound(rng),
+    onEnd:  () => { locked = true; isGameOver = true; cancelAnimationFrame(tRaf); KAMPAI.sound.bgmStop(); },
+});
+
+function chooseMode(m) {
+    versusActive = false; qrand = Math.random; KAMPAI.sound.unlock(); mode = m; startGame(); }
 
 function startGame() {
     if (started) return;
@@ -263,6 +278,23 @@ function startGame() {
     if (mode === 'race') { $('life-container').style.display = ''; $('timer-wrap').classList.add('on'); }
     else { $('life-container').style.display = 'none'; $('timer-wrap').classList.remove('on'); }
     setScore(0); setLives(3); updateCombo();
+    if (!renderer) initThree(); else resize();
+    cancelAnimationFrame(rafId); animate();
+    KAMPAI.sound.bgmStart();
+    nextRound();
+}
+
+// โหมดแข่ง 2 คน — รอบจับเวลา (เฟรมเวิร์กจับเวลา/สลับตา/เทียบผลให้) · โจทย์ตาม rng = P1/P2 ตรงกัน
+function startVersusRound(rng) {
+    qrand = rng || Math.random; versusActive = true;
+    started = true; practiceType = null; isGameOver = false; locked = false;
+    mode = 'race';
+    score = 0; lives = 3; streak = 0; maxStreak = 0; solved = 0;
+    $('start').classList.remove('on'); $('gameover').classList.remove('on');
+    $('hud').classList.add('on'); $('play').classList.add('on');
+    $('life-container').style.display = 'none';
+    $('timer-wrap').classList.add('on');
+    setScore(0); updateCombo();
     if (!renderer) initThree(); else resize();
     cancelAnimationFrame(rafId); animate();
     KAMPAI.sound.bgmStart();
@@ -301,7 +333,7 @@ function timeUp() {
     revealCorrect();
     KAMPAI.sound.timeUp(); KAMPAI.sound.fxFlash(false);
     streak = 0; updateCombo(); flash('หมดเวลา! ⏱️', false);
-    setLives(lives - 1);
+    if (!versusActive) setLives(lives - 1);
     if (lives > 0) setTimeout(nextRound, 1300);
 }
 
@@ -325,7 +357,7 @@ function answer(btn, correct) {
         streak = 0; updateCombo();
         KAMPAI.sound.wrong(); KAMPAI.sound.fxFlash(false);
         flash('ยังไม่ใช่ — ดูรูปคลี่ที่ถูก (เขียว)', false);
-        if (mode === 'race') { setLives(lives - 1); if (lives > 0) setTimeout(nextRound, 1700); }
+        if (mode === 'race') { if (!versusActive) setLives(lives - 1); if (lives > 0) setTimeout(nextRound, 1700); }
         else setTimeout(nextRound, 1700);
     }
 }
@@ -342,13 +374,15 @@ function updateCombo() {
     if (streak >= 2) { badge.textContent = `🔥 x${m} · ${streak} ถูกติด`; badge.classList.add('on'); } else badge.classList.remove('on');
 }
 function flash(msg, good) { const f = $('feedback'); f.textContent = msg; f.className = good ? 'good' : 'bad'; }
-function setScore(n) { score = Math.max(0, n); $('score-value').textContent = score; const w = $('score-container'); w.classList.add('pop'); setTimeout(() => w.classList.remove('pop'), 150); }
+function setScore(n) { score = Math.max(0, n); $('score-value').textContent = score; const w = $('score-container'); w.classList.add('pop'); setTimeout(() => w.classList.remove('pop'), 150); vs.report(score, { correct: solved }); }
 function setLives(n) { lives = Math.max(0, n); let s = ''; for (let i = 0; i < 3; i++) s += (i < lives) ? '❤️' : '🖤'; $('life-container').textContent = s; if (lives <= 0) endGame(); }
 
 function endGame() {
     if (isGameOver) return; isGameOver = true;
     cancelAnimationFrame(tRaf); cancelAnimationFrame(rafId);
-    KAMPAI.sound.gameOver(); KAMPAI.sound.bgmStop();
+    KAMPAI.sound.bgmStop();
+    if (vs.finish(score, { correct: solved })) return;
+    KAMPAI.sound.gameOver();
     if (mode === 'race') KAMPAI.submitScore(score, { mode: 'normal', solved: solved, maxStreak: maxStreak });
     $('hud').classList.remove('on'); $('timer-wrap').classList.remove('on'); $('play').classList.remove('on');
     $('final-score').textContent = score;
@@ -360,6 +394,7 @@ function endGame() {
 /* ═══ ปุ่ม ═══ */
 $('btn-race').addEventListener('click', () => chooseMode('race'));
 $('btn-practice').addEventListener('click', () => chooseMode('practice'));
+$('btn-versus').addEventListener('click', () => vs.openMenu());
 $('btn-replay').addEventListener('click', () => location.reload());
 $('btn-home').addEventListener('click', () => KAMPAI.goHome());
 </script>
