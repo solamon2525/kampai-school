@@ -231,7 +231,7 @@ body { background: linear-gradient(180deg, #155e75 0%, #0f172a 100%); }
 
     <div class="mode-grid">
         <button class="btn btn-primary" onclick="chooseMode('race')">⚡ แข่งเร็ว</button>
-        <button class="btn btn-blue" onclick="openOnline()">🌐 ออนไลน์</button>
+        <button class="btn btn-blue" onclick="openOnline()">🏁 แข่ง 2 คน</button>
         <button class="btn btn-ghost" onclick="chooseMode('practice')">📚 ฝึกหมวด</button>
     </div>
     <button class="btn btn-learn" onclick="openStudyPicker()">📖 ฝึกอ่าน — เรียนคำก่อนเล่น</button>
@@ -299,6 +299,8 @@ body { background: linear-gradient(180deg, #155e75 0%, #0f172a 100%); }
 <script>window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, online:{available:false,makeCode:function(){return'0000';},join:function(){return this;},send:function(){return this;},leave:function(){return this;}}, sound:{unlock:function(){return this;},correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},setBgm:function(){return this;},defaultBgm:function(){return this;},bgmStart:function(){},bgmStop:function(){},mountToggles:function(){return this;}} };</script>
 <!-- ═══ KAMPAI Match — เฟรมเวิร์กเกมออนไลน์ (single source — อย่าแก้) ═══ -->
 <script src="/games/kampai-match.js"></script>
+<script src="/games/kampai-versus.js"></script>
+<script>window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window.KampaiMatch&&window.KampaiMatch.create)?window.KampaiMatch.create(o):null; return { available:false, openMenu:function(){ if(m)m.openMenu(); }, report:function(s,i){ if(m)m.report(s,i); }, finish:function(s,i){ if(m){m.finish(s,i);return true;} return false; }, leave:function(){}, mode:null }; } };</script>
 <script>window.KampaiMatch = window.KampaiMatch || { create:function(){ return { available:false, openMenu:function(){ alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); }, report:function(){}, finish:function(){}, leave:function(){} }; } };</script>
 
 <script>
@@ -881,7 +883,7 @@ function openReview() {
 let match = null, onlineEnded = false;
 function ensureMatch() {
     if (match) return match;
-    match = KampaiMatch.create({
+    match = KampaiVersus.create({ rankBy: 'correct',
         duration: 60,
         title: 'แข่งคำศัพท์',
         onPlay: ({ rng }) => startOnlineQuiz(rng),

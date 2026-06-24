@@ -124,7 +124,7 @@ body { background: linear-gradient(180deg, #0891b2 0%, #155e75 60%, #0c4a6e 100%
     <p>เรียงขั้นตอน <b>ล้างมือให้สะอาด 7 ขั้น</b> ให้ถูกลำดับ!<br>แตะการ์ดทีละใบจากขั้นแรกไปขั้นสุดท้าย</p>
     <div class="mode-grid">
         <button class="btn btn-primary" onclick="chooseMode('race')">⚡ แข่งเร็ว</button>
-        <button class="btn btn-blue" onclick="openOnline()">🌐 ออนไลน์</button>
+        <button class="btn btn-blue" onclick="openOnline()">🏁 แข่ง 2 คน</button>
         <button class="btn btn-ghost" onclick="chooseMode('practice')">📚 ฝึกหัด</button>
     </div>
     <div class="leaderboard-box">
@@ -160,6 +160,8 @@ window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, stu
 
 <!-- ═══ KAMPAI Match — เฟรมเวิร์กเกมออนไลน์หลายคน (single source — อย่าแก้) ═══ -->
 <script src="/games/kampai-match.js"></script>
+<script src="/games/kampai-versus.js"></script>
+<script>window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window.KampaiMatch&&window.KampaiMatch.create)?window.KampaiMatch.create(o):null; return { available:false, openMenu:function(){ if(m)m.openMenu(); }, report:function(s,i){ if(m)m.report(s,i); }, finish:function(s,i){ if(m){m.finish(s,i);return true;} return false; }, leave:function(){}, mode:null }; } };</script>
 <script>
 /* fallback stub: เปิด standalone (file://) ที่โหลด match ไม่ได้ → ปุ่มออนไลน์แจ้งเล่นผ่านระบบ */
 window.KampaiMatch = window.KampaiMatch || { create:function(){ return { available:false, openMenu:function(){ alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); }, report:function(){}, finish:function(){}, leave:function(){} }; } };
@@ -445,7 +447,7 @@ function endGame() {
 let match = null, onlineEnded = false;
 function ensureMatch() {
     if (match) return match;
-    match = KampaiMatch.create({
+    match = KampaiVersus.create({ rankBy: 'correct',
         duration: 60,
         title: 'แข่งล้างมือ 7 ขั้น',
         onPlay: ({ rng }) => startOnline(rng),
