@@ -278,6 +278,7 @@
   var _sfxOn = localStorage.getItem('mr_sfx') !== '0';
   var _ttsOn = localStorage.getItem('mr_tts') !== '0';
   var _bgmOn = localStorage.getItem('mr_bgm') !== '0';
+  var _voiceMode = (function(){ var v = localStorage.getItem('mr_voice_mode'); return (v==='th'||v==='both') ? v : 'en'; })();
   var _actx = null, _thaiVoice = null, _enVoice = null;
   var _bgmTimer = null, _bgmGain = null, _bgmStep = 0, _bgmFromInit = false, _fxEl = null;
   var _bgmUrl = null, _bgmAudio = null;   // เพลงอัปโหลด (mp3) — ถ้ามี = เล่นแทน synth
@@ -306,13 +307,18 @@
   function _ensureFx() { if (_fxEl && _fxEl.isConnected) return _fxEl; _fxEl = document.getElementById('kampai-fx'); if (!_fxEl && document.body) { _fxEl = document.createElement('div'); _fxEl.id = 'kampai-fx'; document.body.appendChild(_fxEl); } return _fxEl; }
   function _injectCss() { if (document.getElementById('kampai-sound-css')) return; var s = document.createElement('style'); s.id = 'kampai-sound-css'; s.textContent =
     '#kampai-snd{position:fixed;top:10px;left:10px;z-index:40;display:flex;gap:8px}' +
-    '.ksnd{width:44px;height:44px;border:none;border-radius:50%;cursor:pointer;font-size:19px;line-height:1;background:rgba(15,23,42,.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);box-shadow:0 2px 8px rgba(0,0,0,.35);transition:opacity .15s,transform .1s}' +
+    '.ksnd{width:44px;height:44px;border:none;border-radius:50%;cursor:pointer;font-size:19px;line-height:1;background:rgba(15,23,42,.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);box-shadow:0 2px 8px rgba(0,0,0,.35);transition:opacity .15s,transform .1s;color:#fff;padding:0;font-family:inherit}' +
+    '#kbtn-voice{width:auto;min-width:64px;padding:0 12px;border-radius:22px;font-size:13px;font-weight:700;letter-spacing:.02em}' +
     '.ksnd:active{transform:scale(.9)}.ksnd.off{opacity:.4}' +
     '#kampai-fx{position:fixed;inset:0;pointer-events:none;opacity:0;z-index:25;transition:opacity .12s ease}' +
     '#kampai-fx.good{opacity:1;background:radial-gradient(circle at 50% 60%,rgba(34,197,94,.28),transparent 65%)}' +
     '#kampai-fx.bad{opacity:1;background:radial-gradient(circle at 50% 60%,rgba(239,68,68,.30),transparent 65%)}';
     (document.head || document.documentElement).appendChild(s); }
-  function _updateBtns() { [['kbtn-sfx', _sfxOn, '🔊'], ['kbtn-tts', _ttsOn, '🗣️'], ['kbtn-bgm', _bgmOn, '🎵']].forEach(function (d) { var el = document.getElementById(d[0]); if (el) { el.textContent = d[1] ? d[2] : '🔇'; el.classList.toggle('off', !d[1]); } }); }
+  function _updateBtns() {
+    [['kbtn-sfx', _sfxOn, '🔊'], ['kbtn-tts', _ttsOn, '🗣️'], ['kbtn-bgm', _bgmOn, '🎵']].forEach(function (d) { var el = document.getElementById(d[0]); if (el) { el.textContent = d[1] ? d[2] : '🔇'; el.classList.toggle('off', !d[1]); } });
+    var vEl = document.getElementById('kbtn-voice');
+    if (vEl) { vEl.textContent = _voiceMode === 'th' ? '🌐 TH' : _voiceMode === 'both' ? '🌐 EN+TH' : '🌐 EN'; vEl.classList.toggle('off', !_ttsOn); }
+  }
 
   var Sound = {
     available: true,
@@ -322,6 +328,29 @@
     timeUp: function () { if (!_sfxOn || !_ac()) return; var t = _actx.currentTime; _blip(196, t, 0.34, 0.16, 'triangle'); _blip(146, t + 0.18, 0.40, 0.16, 'triangle'); },
     gameOver: function () { if (!_sfxOn || !_ac()) return; [[523, 0], [659, 0.14], [784, 0.28], [1047, 0.42]].forEach(function (a) { _note(a[0], a[1], 0.34, 0.15); }); },
     speak: function (text, lang, interrupt) { if (!_ttsOn || !('speechSynthesis' in window)) return; try { if (interrupt) { window.speechSynthesis.cancel(); } else if (window.speechSynthesis.speaking || window.speechSynthesis.pending) { return; } var isEn = !!(lang && lang.toLowerCase().indexOf('en') === 0); var u = new SpeechSynthesisUtterance(text); u.lang = lang || 'th-TH'; u.rate = isEn ? 0.85 : 0.92; u.pitch = 1.06; var v = isEn ? _enVoice : _thaiVoice; if (v) u.voice = v; if (interrupt) { setTimeout(function () { try { window.speechSynthesis.speak(u); } catch (e) { /* */ } }, 90); } else { window.speechSynthesis.speak(u); } } catch (e) { /* */ } },
+    getVoiceMode: function () { return _voiceMode; },
+    setVoiceMode: function (m) { if (m === 'en' || m === 'th' || m === 'both') { _voiceMode = m; try { localStorage.setItem('mr_voice_mode', m); } catch (e) { /* */ } _updateBtns(); } },
+    speakBilingual: function (enText, thText, opts) {
+      opts = opts || {};
+      var done = typeof opts.onDone === 'function' ? opts.onDone : function () {};
+      if (!_ttsOn || !('speechSynthesis' in window)) { done(); return; }
+      var mode = (opts.force === 'en' || opts.force === 'th' || opts.force === 'both') ? opts.force : _voiceMode;
+      if (opts.interrupt !== false) { try { window.speechSynthesis.cancel(); } catch (e) { /* */ } }
+      var sayOne = function (text, lang, voice, rate, cb) {
+        try {
+          var u = new SpeechSynthesisUtterance(text);
+          u.lang = lang; u.rate = rate; u.pitch = 1.06;
+          if (voice) u.voice = voice;
+          u.onend = cb; u.onerror = cb;
+          setTimeout(function () { try { window.speechSynthesis.speak(u); } catch (e) { cb(); } }, 60);
+        } catch (e) { cb(); }
+      };
+      if (mode === 'th') { sayOne(thText || enText, 'th-TH', _thaiVoice, 0.92, done); return; }
+      if (mode === 'en') { sayOne(enText, 'en-US', _enVoice, 0.85, done); return; }
+      sayOne(enText, 'en-US', _enVoice, 0.85, function () {
+        setTimeout(function () { sayOne(thText || enText, 'th-TH', _thaiVoice, 0.92, done); }, 180);
+      });
+    },
     stopSpeak: function () { try { window.speechSynthesis.cancel(); } catch (e) { /* */ } },
     fxFlash: function (good) { var el = _ensureFx(); if (!el) return; el.classList.remove('good', 'bad'); void el.offsetWidth; el.classList.add(good ? 'good' : 'bad'); setTimeout(function () { el.classList.remove('good', 'bad'); }, 160); },
     setBgm: function (preset) { if (typeof preset === 'string') { if (Object.prototype.hasOwnProperty.call(BGM_PRESETS, preset)) _bgmCfg = BGM_PRESETS[preset]; } else if (preset && typeof preset === 'object') { _bgmCfg = preset; } return Sound; },
@@ -351,6 +380,7 @@
         wrap.appendChild(mk('kbtn-sfx', 'เสียงเอฟเฟกต์', '🔊', function () { _sfxOn = !_sfxOn; localStorage.setItem('mr_sfx', _sfxOn ? '1' : '0'); _updateBtns(); if (_sfxOn) Sound.correct(); }));
         wrap.appendChild(mk('kbtn-tts', 'เสียงพูด', '🗣️', function () { _ttsOn = !_ttsOn; localStorage.setItem('mr_tts', _ttsOn ? '1' : '0'); _updateBtns(); if (!_ttsOn) Sound.stopSpeak(); }));
         wrap.appendChild(mk('kbtn-bgm', 'เพลงประกอบ', '🎵', function () { _bgmOn = !_bgmOn; localStorage.setItem('mr_bgm', _bgmOn ? '1' : '0'); _updateBtns(); if (_bgmOn) { _ac(); Sound.bgmStart(); } else Sound.bgmStop(); }));
+        wrap.appendChild(mk('kbtn-voice', 'ภาษาเสียงอ่าน (EN / ไทย / EN+ไทย)', '🌐 EN', function () { Sound.setVoiceMode(_voiceMode === 'en' ? 'th' : _voiceMode === 'th' ? 'both' : 'en'); }));
         document.body.appendChild(wrap); _updateBtns();
       };
       if (document.body) build(); else document.addEventListener('DOMContentLoaded', build);

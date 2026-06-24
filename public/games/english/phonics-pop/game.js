@@ -162,8 +162,8 @@ function sayTarget() {
     wave.classList.remove('active');
   }, 1200);
 
-  // Play target sound
-  KAMPAI.sound.speak(targetItem.speak, 'en');
+  // Play target sound — บังคับ EN เพราะเสียงคือ "คำถาม" (ห้ามปล่อยไทย = เฉลย)
+  KAMPAI.sound.speakBilingual(targetItem.speak, targetItem.thaiHint || targetItem.thai || targetItem.speak, { force: 'en', interrupt: true });
 }
 
 function replaySound() {
@@ -342,7 +342,9 @@ function onPop(item, element, clientX, clientY, color) {
     }
 
     KAMPAI.sound.correct();
-    
+    // Reinforcement reveal: ตอบถูกแล้ว เปิดให้ฟัง EN/ไทย/EN+ไทย ตามที่ผู้ใช้ตั้งไว้
+    KAMPAI.sound.speakBilingual(targetItem.speak, targetItem.thaiHint || targetItem.thai || targetItem.speak, { interrupt: false });
+
     // Clear balloons
     activeBalloons = [];
     document.getElementById('balloon-container').innerHTML = '';

@@ -200,6 +200,7 @@ function showVocab(word, thai, emoji) {
   document.getElementById('popup-word').innerText = `${emoji} ${word}`;
   document.getElementById('popup-translation').innerText = thai;
   document.getElementById('vocab-popup').style.display = 'flex';
+  if (KAMPAI.sound.speakBilingual) KAMPAI.sound.speakBilingual(word, thai, { interrupt: true });
 }
 
 function hideVocab() {

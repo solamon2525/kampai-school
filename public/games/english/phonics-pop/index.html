@@ -114,7 +114,7 @@
 <script src="/games/kampai-sdk.js"></script>
 <script>
 /* fallback stub: กันพังถ้าเปิด standalone แล้ว SDK โหลดไม่ได้ */
-window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},speakBilingual:function(){},getVoiceMode:function(){return 'en';},setVoiceMode:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
 </script>
 <script src="/games/kampai-match.js"></script>
 <script>

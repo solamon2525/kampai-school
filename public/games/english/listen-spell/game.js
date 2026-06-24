@@ -84,7 +84,7 @@ function shuffle(a){ a = a.slice(); for(let i=a.length-1;i>0;i--){ const j=(Math
 function setScore(n){ score = Math.max(0,n); const v=document.getElementById('score-value'); v.innerText=score; const w=document.getElementById('score-container'); w.classList.add('pop'); setTimeout(()=>w.classList.remove('pop'),150); }
 function setLives(n){ lives=Math.max(0,n); let s=''; for(let i=0;i<CFG.LIVES;i++) s+=(i<lives)?'❤️':'🖤'; document.getElementById('life-container').innerText=s; if(lives<=0) endGame(); }
 
-function sayWord(){ if(!cur) return; try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(e){} KAMPAI.sound.speak(cur.w, 'en'); }
+function sayWord(){ if(!cur) return; try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(e){} KAMPAI.sound.speakBilingual(cur.w, cur.t || cur.w, { force:'en', interrupt:true }); }
 
 function pickWord(){
   // เลือกคำที่ไม่เพิ่งออก (cap ปรับตามขนาดหมวด — กันคำซ้ำในหมวดเล็ก)
@@ -148,6 +148,8 @@ function checkAnswer(){
   if (guess === cur.w){
     slotEls.forEach(s=>s.classList.add('correct'));
     KAMPAI.sound.correct(); KAMPAI.sound.fxFlash(true);
+    // Reinforcement reveal: สะกดถูกแล้ว → อ่านตาม voiceMode (EN / ไทย / EN+ไทย)
+    KAMPAI.sound.speakBilingual(cur.w, cur.t || cur.w, { interrupt:false });
     const secs = (performance.now()-wordStartTs)/1000;
     const speedBonus = Math.max(0, Math.round(CFG.SPEED_BONUS_MAX - secs));
     combo++;
