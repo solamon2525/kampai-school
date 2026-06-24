@@ -49,7 +49,7 @@ KAMPAI.sound.mountToggles();
 /* ═══ โหมดออนไลน์ (kampai-match) — เปิด/ปิดที่ config.ENABLE_ONLINE ═══ */
 let match = null;
 if (CFG.ENABLE_ONLINE && window.KampaiMatch) {
-    match = KampaiMatch.create({
+    match = KampaiVersus.create({ rankBy: 'correct',
         duration: CFG.ONLINE_DURATION,
         title: 'สวนผักพอเพียง',
         onPlay: function (ctx) { startGame('online', ctx && ctx.rng); },   // ใช้ rng → ผัก+การ์ดตรงกันทุกเครื่อง

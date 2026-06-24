@@ -48,7 +48,7 @@ KAMPAI.sound.mountToggles();
 let onlineRng = null;   // ถ้า != null → กำลังเล่นออนไลน์: ใช้ rng เลือกคำให้ตรงทุกเครื่อง
 let match = null;
 if (CFG.ENABLE_ONLINE && window.KampaiMatch) {
-    match = KampaiMatch.create({
+    match = KampaiVersus.create({ rankBy: 'correct',
         duration: CFG.ONLINE_DURATION,
         title: 'แข่งสะกดคำ',
         onPlay: function ({ rng }) { onlineRng = rng; startGame('online'); },

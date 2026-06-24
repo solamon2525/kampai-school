@@ -48,7 +48,7 @@
     <div class="mode-row">
         <button class="btn btn-primary" onclick="startGame('race')">⏱️ แข่งเวลา 60 วิ</button>
         <button class="btn btn-blue" onclick="startGame('practice')">🧠 ฝึก (3 ชีวิต)</button>
-        <button class="btn btn-ghost" id="online-btn" onclick="openOnline()" style="display:none">🌐 ออนไลน์</button>
+        <button class="btn btn-ghost" id="online-btn" onclick="openOnline()" style="display:none">🏁 แข่ง 2 คน</button>
     </div>
 </div>
 
@@ -75,6 +75,8 @@
 window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},speakBilingual:function(){},getVoiceMode:function(){return 'en';},setVoiceMode:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
 </script>
 <script src="/games/kampai-match.js"></script>
+<script src="/games/kampai-versus.js"></script>
+<script>window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window.KampaiMatch&&window.KampaiMatch.create)?window.KampaiMatch.create(o):null; return { available:false, openMenu:function(){ if(m)m.openMenu(); }, report:function(s,i){ if(m)m.report(s,i); }, finish:function(s,i){ if(m){m.finish(s,i);return true;} return false; }, leave:function(){}, mode:null }; } };</script>
 <script>
 window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){alert('โหมดออนไลน์เล่นผ่านระบบเท่านั้น');},report:function(){},finish:function(){},leave:function(){}};} };
 </script>

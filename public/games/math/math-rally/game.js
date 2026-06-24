@@ -49,7 +49,7 @@ KAMPAI.onReady(function () { renderPlayer(); renderMyStats(); renderLeaderboard(
 /* ═══ โหมดออนไลน์ (kampai-match) — rankBy score: ใครถึงเส้นชัย/ไกลสุดชนะ ═══ */
 let match = null;
 if (CFG.ENABLE_ONLINE && window.KampaiMatch) {
-    match = KampaiMatch.create({
+    match = KampaiVersus.create({ rankBy: 'correct',
         duration: CFG.ONLINE_DURATION,
         title: 'รถซิ่งคณิตศาสตร์',
         tournament: true,

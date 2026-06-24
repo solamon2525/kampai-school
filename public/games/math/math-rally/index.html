@@ -76,7 +76,7 @@
         <button class="btn btn-primary" onclick="startCpu('easy')">🤖 ง่าย</button>
         <button class="btn btn-primary" onclick="startCpu('mid')">🤖 กลาง</button>
         <button class="btn btn-primary" onclick="startCpu('hard')">🤖 โหด</button>
-        <button class="btn btn-blue" id="online-btn" onclick="openOnline()" style="display:none">🌐 ออนไลน์</button>
+        <button class="btn btn-blue" id="online-btn" onclick="openOnline()" style="display:none">🏁 แข่ง 2 คน</button>
     </div>
     <div class="leaderboard-box">
         <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
@@ -109,6 +109,8 @@
 window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, online:{available:false,makeCode:function(){return'0000';},join:function(){return this;},send:function(){return this;},leave:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){return this;},defaultBgm:function(){return this;},setBgm:function(){return this;},setBgmUrl:function(){return this;},bgmStart:function(){},bgmStop:function(){},unlock:function(){return this;}} };
 </script>
 <script src="/games/kampai-match.js"></script>
+<script src="/games/kampai-versus.js"></script>
+<script>window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window.KampaiMatch&&window.KampaiMatch.create)?window.KampaiMatch.create(o):null; return { available:false, openMenu:function(){ if(m)m.openMenu(); }, report:function(s,i){ if(m)m.report(s,i); }, finish:function(s,i){ if(m){m.finish(s,i);return true;} return false; }, leave:function(){}, mode:null }; } };</script>
 <script>
 /* fallback stub สำหรับโหมดออนไลน์ */
 window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){alert('โหมดออนไลน์เล่นผ่านระบบเท่านั้น');},report:function(){},finish:function(){},leave:function(){}};} };

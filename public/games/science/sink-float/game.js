@@ -46,7 +46,7 @@ KAMPAI.sound.mountToggles();   // ปุ่ม 🔊/🗣️/🎵 (มุมบ�
 /* ═══ โหมดออนไลน์ (kampai-match) — เปิด/ปิดที่ config.ENABLE_ONLINE ═══ */
 let match = null;
 if (CFG.ENABLE_ONLINE && window.KampaiMatch) {
-    match = KampaiMatch.create({
+    match = KampaiVersus.create({ rankBy: 'correct',
         duration: CFG.ONLINE_DURATION,
         title: 'จม หรือ ลอย?',
         onPlay: function (ctx) { startGame('online', ctx && ctx.rng); },  // ใช้ rng → โจทย์ตรงกันทุกเครื่อง
