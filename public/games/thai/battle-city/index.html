@@ -51,6 +51,7 @@
     <!-- Game Container & Overlays -->
     <div id="game-container" class="relative">
         <canvas id="gameCanvas" width="780" height="780"></canvas>
+    <div id="buff-bar" class="hidden"></div>
         
         <!-- Blocker / Start Screen -->
         <div id="start-screen" class="absolute inset-0 bg-slate-950/90 flex flex-col items-center justify-center text-center p-4">
@@ -116,7 +117,32 @@
     </div>
 
     <!-- KAMPAI SDK -->
-    <script src="/games/kampai-sdk.js"></script>
+    <script src="/games/kampai-versus.js"></script>
+<script>
+  // Initialize Versus framework for Battle City
+  window.vs = KampaiVersus.create({
+    duration: 60,
+    title: 'Battle City Versus',
+    rankBy: 'score',
+    onPlay: ({ rng, player }) => {
+      // rng can be used for deterministic content per round, not needed here
+      window.currentVersusPlayer = player; // Track which player is playing this turn
+      // Start a 2‑player local hot‑seat game
+      handleStart(2);
+    },
+    onEnd: () => {
+      // No extra cleanup needed; endGame will report scores via vs.finish
+    }
+  });
+
+  // Hook up the 2‑PLAYER button to open the Versus menu
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn2p = document.getElementById('btn-2p');
+    if (btn2p && window.vs) {
+      btn2p.addEventListener('click', () => window.vs.openMenu());
+    }
+  });
+</script>
     <script>
     window.KAMPAI = window.KAMPAI || {
         isEmbed: false,

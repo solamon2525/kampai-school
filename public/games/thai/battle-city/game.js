@@ -103,6 +103,58 @@ let shovelTimer = 0;
 let hiScore = 0;
 let shakeTime = 0; 
 
+// Item type definitions (buffs & debuffs)
+const ITEM_TYPES = {
+    speed: { icon: '⚡', duration: 10, apply: (tank) => { tank.activeBuffs.speed = 60 * ITEM_TYPES.speed.duration; }, remove: (tank) => { delete tank.activeBuffs.speed; } },
+    shield: { icon: '🛡️', duration: 8, apply: (tank) => { tank.activeBuffs.shield = 60 * ITEM_TYPES.shield.duration; }, remove: (tank) => { delete tank.activeBuffs.shield; } },
+    slow: { icon: '🐢', duration: 7, apply: (tank) => { tank.activeBuffs.slow = 60 * ITEM_TYPES.slow.duration; }, remove: (tank) => { delete tank.activeBuffs.slow; } },
+    doubleFire: { icon: '🔫', duration: 6, apply: (tank) => { tank.activeBuffs.doubleFire = 60 * ITEM_TYPES.doubleFire.duration; }, remove: (tank) => { delete tank.activeBuffs.doubleFire; } }
+};
+
+function spawnItem() {
+    const attempts = 20;
+    for (let i = 0; i < attempts; i++) {
+        const tx = Math.floor(Math.random() * GRID_SIZE) * TILE_SIZE;
+        const ty = Math.floor(Math.random() * GRID_SIZE) * TILE_SIZE;
+        const collidesWall = walls.some(w => rectIntersect(tx, ty, 45, 45, w.x, w.y, w.w, w.h));
+        const collidesItem = items.some(it => rectIntersect(tx, ty, 45, 45, it.x, it.y, it.size, it.size));
+        if (!collidesWall && !collidesItem) {
+            const types = Object.keys(ITEM_TYPES);
+            const type = types[Math.floor(Math.random() * types.length)];
+            items.push(new Item(tx, ty, type));
+            break;
+        }
+    }
+}
+
+function applyItemEffect(tank, item) {
+    const def = ITEM_TYPES[item.type];
+    if (!def) return;
+    def.apply(tank);
+    Sound.pickup();
+    item.active = false;
+}
+
+function updateBuffBar() {
+    const bar = document.getElementById('buff-bar');
+    if (!bar) return;
+    const players = [p1, p2].filter(p => p && p.isPlayer && p.active);
+    const fragments = [];
+    players.forEach(p => {
+        for (const [key, frames] of Object.entries(p.activeBuffs || {})) {
+            const icon = ITEM_TYPES[key]?.icon || key;
+            const seconds = Math.ceil(frames / 60);
+            fragments.push(`<span class="buff-icon" title="${key}">${icon}<sub>${seconds}</sub></span>`);
+        }
+    });
+    if (fragments.length > 0) {
+        bar.innerHTML = fragments.join(' ');
+        bar.classList.remove('hidden');
+    } else {
+        bar.classList.add('hidden');
+    }
+}
+
 const keys = {};
 if (typeof window !== 'undefined') {
     window.addEventListener('keydown', e => {
@@ -168,8 +220,8 @@ class Item {
         this.x = x; 
         this.y = y; 
         this.size = 45;
-        this.type = type; // 'letter', 'shield', 'star', 'bomb', 'lightning', 'shovel'
-        this.letterInfo = letterInfo; // { char: 'A', index: 0 }
+        this.type = type; 
+        this.letterInfo = letterInfo; 
         this.active = true; 
         this.life = 600; 
     }
@@ -193,6 +245,11 @@ class Item {
             ctx.textAlign = 'center'; 
             ctx.textBaseline = 'middle'; 
             ctx.fillText(this.letterInfo.char, 0, 3);
+        } else if (ITEM_TYPES[this.type]) {
+            ctx.fillStyle = '#fff';
+            ctx.font = '24px serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(ITEM_TYPES[this.type].icon, 0, 8);
         } else if (this.type === 'shield') {
             ctx.fillStyle = '#22d3ee'; 
             ctx.beginPath(); 
@@ -283,7 +340,6 @@ class Bullet {
                 w.active = false; 
                 Sound.hit(); 
                 
-                // If this brick wall holds a letter, spawn it!
                 if (w.letterInfo) { 
                     items.push(new Item(w.x + 8, w.y + 8, 'letter', w.letterInfo)); 
                 } 
@@ -343,7 +399,9 @@ class Bullet {
             [p1, p2].forEach(p => {
                 if (p && p.active && rectIntersect(this.x - this.size / 2, this.y - this.size / 2, this.size, this.size, p.x, p.y, p.size, p.size)) {
                     this.active = false; 
-                    if (p.shieldTime > 0) {
+                    if (p.activeBuffs.shield) {
+                        Sound.hit();
+                    } else if (p.shieldTime > 0) {
                         Sound.hit(); 
                     } else {
                         if (p.starLevel > 0) { 
@@ -373,10 +431,19 @@ class Bullet {
 }
 
 class Tank {
-    constructor(x, y, color, playerID, level = 1, isBoss = false, isFast = false) {
-        this.x = x; 
-        this.y = y; 
-        this.size = isBoss ? 90 : 51;
+    constructor(x, y, color, playerID, level = 1, isBoss = false, isFast = false, type = 'normal') {
+        this.x = x;
+        this.y = y;
+        this.type = type; 
+        if (isBoss) {
+            this.size = 90;
+        } else if (type === 'heavy') {
+            this.size = 70;
+        } else if (type === 'light') {
+            this.size = 40;
+        } else {
+            this.size = 51;
+        }
         this.color = color; 
         this.playerID = playerID; 
         this.isPlayer = playerID > 0;
@@ -386,16 +453,33 @@ class Tank {
         this.active = true; 
         this.cooldown = 0;
         this.level = level; 
-        this.hp = isBoss ? 10 : level; 
+        if (isBoss) {
+            this.hp = 10;
+        } else if (type === 'heavy') {
+            this.hp = Math.max(5, level * 2);
+        } else if (type === 'light') {
+            this.hp = Math.max(1, Math.floor(level / 2));
+        } else {
+            this.hp = level;
+        }
         this.maxHp = this.hp;
         this.flash = 0; 
-        this.moveSpeed = this.isPlayer ? BASE_SPEED : BASE_SPEED * (isFast ? 1.2 : (0.5 + (level * 0.1)));
+        if (this.isPlayer) {
+            this.moveSpeed = BASE_SPEED;
+        } else if (type === 'heavy') {
+            this.moveSpeed = BASE_SPEED * 0.6;
+        } else if (type === 'light') {
+            this.moveSpeed = BASE_SPEED * 1.4;
+        } else {
+            this.moveSpeed = BASE_SPEED * (isFast ? 1.2 : (0.5 + (level * 0.1)));
+        }
         this.shieldTime = 0; 
         this.starLevel = 0; 
         this.score = 0;
         this.respawnTimer = 0; 
         this.freezeTimer = 0; 
         this.stunTimer = 0;
+        this.activeBuffs = {};
     }
     destroy() { 
         this.active = false; 
@@ -403,6 +487,14 @@ class Tank {
         this.respawnTimer = 180; 
     }
     update() {
+        for (const key in this.activeBuffs) {
+            this.activeBuffs[key]--;
+            if (this.activeBuffs[key] <= 0) {
+                const def = ITEM_TYPES[key];
+                if (def && def.remove) def.remove(this);
+                delete this.activeBuffs[key];
+            }
+        }
         if (!this.active) {
             if (this.isPlayer && this.respawnTimer > 0) {
                 this.respawnTimer--;
@@ -432,9 +524,12 @@ class Tank {
                 if (this.shieldTime <= 0 && sUI) sUI.classList.add('hidden');
             }
         }
+        let currentMoveSpeed = this.moveSpeed;
+        if (this.activeBuffs.speed) currentMoveSpeed *= 1.5;
+        if (this.activeBuffs.slow) currentMoveSpeed *= 0.5;
+        
         let nX = this.x, nY = this.y, moved = false;
         
-        // P1 controls & SDK virtual inputs
         if (this.playerID === 1) {
             let leftInput = keys['KeyA'];
             let rightInput = keys['KeyD'];
@@ -448,23 +543,83 @@ class Tank {
                 if (window.KAMPAI.input.down) downInput = true;
             }
 
-            if (upInput) { this.dir = 0; nY -= this.moveSpeed; moved = true; } 
-            else if (rightInput) { this.dir = 1; nX += this.moveSpeed; moved = true; } 
-            else if (downInput) { this.dir = 2; nY += this.moveSpeed; moved = true; } 
-            else if (leftInput) { this.dir = 3; nX -= this.moveSpeed; moved = true; }
+            if (upInput) { this.dir = 0; nY -= currentMoveSpeed; moved = true; } 
+            else if (rightInput) { this.dir = 1; nX += currentMoveSpeed; moved = true; } 
+            else if (downInput) { this.dir = 2; nY += currentMoveSpeed; moved = true; } 
+            else if (leftInput) { this.dir = 3; nX -= currentMoveSpeed; moved = true; }
         } else if (this.playerID === 2) {
-            if (keys['ArrowUp']) { this.dir = 0; nY -= this.moveSpeed; moved = true; } 
-            else if (keys['ArrowRight']) { this.dir = 1; nX += this.moveSpeed; moved = true; } 
-            else if (keys['ArrowDown']) { this.dir = 2; nY += this.moveSpeed; moved = true; } 
-            else if (keys['ArrowLeft']) { this.dir = 3; nX -= this.moveSpeed; moved = true; }
+            if (keys['ArrowUp']) { this.dir = 0; nY -= currentMoveSpeed; moved = true; } 
+            else if (keys['ArrowRight']) { this.dir = 1; nX += currentMoveSpeed; moved = true; } 
+            else if (keys['ArrowDown']) { this.dir = 2; nY += currentMoveSpeed; moved = true; } 
+            else if (keys['ArrowLeft']) { this.dir = 3; nX -= currentMoveSpeed; moved = true; }
         } else {
-            if (Math.random() < 0.02) this.dir = Math.floor(Math.random() * 4);
-            if (this.dir === 0) nY -= this.moveSpeed; 
-            else if (this.dir === 1) nX += this.moveSpeed; 
-            else if (this.dir === 2) nY += this.moveSpeed; 
-            else if (this.dir === 3) nX -= this.moveSpeed;
-            moved = true; 
-            
+            const players = [p1, p2].filter(p => p && p.active);
+            let target = null;
+            let minDist = Infinity;
+            for (const pl of players) {
+                const dx = pl.x - this.x;
+                const dy = pl.y - this.y;
+                const dist = Math.hypot(dx, dy);
+                if (dist < minDist) { minDist = dist; target = pl; }
+            }
+            let prefs = [];
+            if (target) {
+                const dx = target.x - this.x;
+                const dy = target.y - this.y;
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    prefs.push(dx > 0 ? 1 : 3);
+                    prefs.push(dy > 0 ? 2 : 0);
+                } else {
+                    prefs.push(dy > 0 ? 2 : 0);
+                    prefs.push(dx > 0 ? 1 : 3);
+                }
+            }
+            const allDirs = [0,1,2,3];
+            const wouldHit = (dir) => {
+                let testX = this.x, testY = this.y;
+                if (dir === 0) testY -= currentMoveSpeed;
+                else if (dir === 1) testX += currentMoveSpeed;
+                else if (dir === 2) testY += currentMoveSpeed;
+                else if (dir === 3) testX -= currentMoveSpeed;
+                testX = Math.max(0, Math.min(canvas.width - this.size, testX));
+                testY = Math.max(0, Math.min(canvas.height - this.size, testY));
+                for (let w of walls) {
+                    if (w.active && rectIntersect(testX, testY, this.size, this.size, w.x, w.y, w.w, w.h)) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+            let chosen = null;
+            for (const d of prefs) {
+                if (!wouldHit(d)) { chosen = d; break; }
+            }
+            if (chosen === null) {
+                for (const d of allDirs) {
+                    if (!wouldHit(d)) { chosen = d; break; }
+                }
+            }
+            if (chosen === null) {
+                chosen = Math.floor(Math.random() * 4);
+            }
+            this.dir = chosen;
+            if (this.dir === 0) nY -= currentMoveSpeed;
+            else if (this.dir === 1) nX += currentMoveSpeed;
+            else if (this.dir === 2) nY += currentMoveSpeed;
+            else if (this.dir === 3) nX -= currentMoveSpeed;
+            moved = true;
+            for (let b of bullets) {
+                if (!b.active || b.owner.isPlayer) continue;
+                const distB = Math.hypot(b.x - this.x, b.y - this.y);
+                if (distB < this.size * 2) {
+                    this.dir = (this.dir + 2) % 4;
+                    if (this.dir === 0) nY -= currentMoveSpeed;
+                    else if (this.dir === 1) nX += currentMoveSpeed;
+                    else if (this.dir === 2) nY += currentMoveSpeed;
+                    else if (this.dir === 3) nX -= currentMoveSpeed;
+                    break;
+                }
+            }
             const aiFireChance = this.isBoss ? 0.06 : (0.015 + this.starLevel * 0.01 + difficultyLevel * 0.005);
             if (this.cooldown === 0 && Math.random() < aiFireChance) this.shoot();
         }
@@ -496,14 +651,12 @@ class Tank {
             }
         }
         
-        items.forEach(it => {
-            if (it.active && rectIntersect(this.x, this.y, this.size, this.size, it.x, it.y, it.size, it.size)) {
-                if (it.type === 'letter') { 
-                    if (this.isPlayer && it.letterInfo) { 
+        if (this.isPlayer && moved) {
+            for (let it of items) {
+                if (it.active && rectIntersect(this.x, this.y, this.size, this.size, it.x, it.y, it.size, it.size)) {
+                    if (it.type === 'letter') { 
                         collectedLetters[it.letterInfo.index] = true; 
                         it.active = false; 
-                        
-                        // play correct sound from SDK or synth
                         if (window.KAMPAI && window.KAMPAI.sound && typeof window.KAMPAI.sound.correct === 'function') {
                             window.KAMPAI.sound.correct();
                         } else {
@@ -511,44 +664,35 @@ class Tank {
                         }
                         updateUI(); 
                         advanceStageCheck(); 
-                    } 
-                } else if (it.type === 'bomb') {
-                    it.active = false; 
-                    if (this.isPlayer) { 
+                    } else if (ITEM_TYPES[it.type]) {
+                        applyItemEffect(this, it);
+                    } else if (it.type === 'bomb') {
+                        it.active = false; 
                         enemies.forEach(en => { if (en.active) en.destroy(); }); 
                         shakeTime = 30; 
-                    } else { 
-                        Sound.siren(); 
-                        [p1, p2].forEach(p => { if (p && p.active && p.shieldTime <= 0) p.destroy(); }); 
-                    }
-                } else if (it.type === 'lightning') {
-                    it.active = false; 
-                    Sound.thunder();
-                    if (this.isPlayer) { 
+                    } else if (it.type === 'lightning') {
+                        it.active = false; 
+                        Sound.thunder();
                         enemies.forEach(en => { if (en.active) en.stunTimer = 300; }); 
-                    } else { 
-                        [p1, p2].forEach(p => { if (p && p.active) p.stunTimer = 300; }); 
-                    }
-                } else if (it.type === 'shovel') {
-                    it.active = false; 
-                    Sound.pickup();
-                    if (this.isPlayer) shovelTimer = 600; 
-                } else {
-                    it.active = false; 
-                    Sound.pickup();
-                    if (it.type === 'shield') { 
-                        this.shieldTime = 600; 
-                        if (this.isPlayer) { 
+                    } else if (it.type === 'shovel') {
+                        it.active = false; 
+                        Sound.pickup();
+                        shovelTimer = 600; 
+                    } else {
+                        it.active = false; 
+                        Sound.pickup();
+                        if (it.type === 'shield') { 
+                            this.shieldTime = 600; 
                             const ui = document.getElementById(`shieldUI${this.playerID}`); 
                             if (ui) ui.classList.remove('hidden'); 
-                        } 
-                    } else if (this.starLevel < 2) { 
-                        this.starLevel++; 
-                        if (this.isPlayer) updateUI(); 
+                        } else if (this.starLevel < 2) { 
+                            this.starLevel++; 
+                            updateUI(); 
+                        }
                     }
                 }
             }
-        });
+        }
     }
     shoot() {
         if (!this.active || this.cooldown > 0 || this.freezeTimer > 0 || this.stunTimer > 0) return;
@@ -558,7 +702,9 @@ class Tank {
         else if (this.dir === 2) by += this.size / 2; 
         else if (this.dir === 3) bx -= this.size / 2;
         bullets.push(new Bullet(bx, by, this.dir, this));
-        this.cooldown = this.isBoss ? 8 : (this.starLevel === 0 ? 30 : (this.starLevel === 1 ? 15 : 10));
+        let fireCooldown = this.isBoss ? 8 : (this.starLevel === 0 ? 30 : (this.starLevel === 1 ? 15 : 10));
+        if (this.activeBuffs.doubleFire) fireCooldown = Math.max(2, fireCooldown / 2);
+        this.cooldown = fireCooldown;
         if (this.isPlayer) Sound.shoot();
     }
     draw() {
@@ -574,8 +720,7 @@ class Tank {
         ctx.save(); 
         ctx.translate(this.x + this.size / 2, this.y + this.size / 2);
         
-        // Effects
-        if (this.shieldTime > 0) { 
+        if (this.activeBuffs.shield || this.shieldTime > 0) { 
             ctx.strokeStyle = this.isPlayer ? (this.playerID === 1 ? '#fbbf24' : '#22d3ee') : '#ef4444'; 
             ctx.lineWidth = 4; 
             ctx.setLineDash([8, 6]); 
@@ -600,7 +745,6 @@ class Tank {
             ctx.stroke(); 
         }
         
-        // Boss HP Bar
         if (this.isBoss) {
             const barW = 80;
             ctx.fillStyle = "rgba(0,0,0,0.5)"; 
@@ -625,11 +769,9 @@ class Tank {
         ctx.fillStyle = mainColor; 
         ctx.fillRect(-s / 2 + 10, -s / 2 + 6, s - 20, s - 12);
         
-        // Cannon
         ctx.fillStyle = this.starLevel >= 2 || this.isBoss ? "#22d3ee" : "#888"; 
         ctx.fillRect(-5, -s / 2 - 8, 10, 25);
         
-        // Hatch
         ctx.fillStyle = mainColor; 
         ctx.shadowBlur = 4; 
         ctx.shadowColor = "black"; 
@@ -656,7 +798,6 @@ function getRandomItemType() {
 function initLevel() {
     if (!window.GAME_DATA) return;
     
-    // Resolve dynamic word for spelling
     const wordIndex = (currentStage - 1) % window.GAME_DATA.words.length;
     const wordObj = window.GAME_DATA.words[wordIndex];
     targetWord = wordObj.word;
@@ -701,7 +842,6 @@ function initLevel() {
         }
     }
     
-    // Distribute characters of targetWord into random brick walls
     const chars = targetWord.split('');
     chars.forEach((char, index) => {
         if (brickWalls.length > 0) {
@@ -711,8 +851,8 @@ function initLevel() {
         }
     });
 
-    p1 = new Tank(4 * TILE_SIZE, 12 * TILE_SIZE, "#edc21a", 1);
-    p2 = (playerCount === 2) ? new Tank(8 * TILE_SIZE, 12 * TILE_SIZE, "#16a34a", 2) : null;
+    p1 = new Tank(4 * TILE_SIZE, 12 * TILE_SIZE, "#edc21a", 1, 1, false, false, 'normal');
+    p2 = (playerCount === 2) ? new Tank(8 * TILE_SIZE, 12 * TILE_SIZE, "#16a34a", 2, 1, false, false, 'normal') : null;
     
     updateSpellingUI();
     updateUI();
@@ -781,8 +921,16 @@ function spawnEnemy() {
     let isBoss = (enemiesToKill === 1); 
     let isF = !isBoss && Math.random() < 0.35; 
     let lv = isBoss ? 5 : (Math.random() > 0.7 ? 3 : 1);
-    enemies.push(new Tank(pt.x, pt.y, isF ? "#a855f7" : "#9ca3af", 0, lv, isBoss, isF));
-    enemiesToKill--; 
+    let enemyType = 'normal';
+    if (isBoss) {
+        enemyType = 'heavy';
+    } else if (isF) {
+        enemyType = 'light';
+    } else if (Math.random() < 0.15) {
+        enemyType = 'heavy';
+    }
+    enemies.push(new Tank(pt.x, pt.y, isF ? "#a855f7" : "#9ca3af", 0, lv, isBoss, isF, enemyType));
+    enemiesToKill--;
     updateUI();
 }
 
@@ -790,7 +938,6 @@ function advanceStage() {
     currentStage++; 
     difficultyLevel += 0.5; 
     
-    // play stage clear sound
     if (window.KAMPAI && window.KAMPAI.sound && typeof window.KAMPAI.sound.correct === 'function') {
         window.KAMPAI.sound.correct();
     } else {
@@ -800,7 +947,6 @@ function advanceStage() {
 }
 
 function advanceStageCheck() { 
-    // Check if all letters are collected
     const allCollected = collectedLetters.every(val => val === true);
     if (allCollected) {
         advanceStage(); 
@@ -874,14 +1020,14 @@ function endGame(win) {
     const winText = document.getElementById('winner-text');
     if (winText) winText.innerText = winnerText;
 
-    // Submit to SDK
-    if (window.KAMPAI) {
+    if (window.vs && typeof window.vs.finish === 'function') {
+        window.vs.finish(finalScore, {});
+    } else if (window.KAMPAI) {
         window.KAMPAI.submitScore(finalScore, {
             mode: 'normal'
         });
     }
 
-    // LocalStorage fallback
     try {
         let localData = [];
         const local = localStorage.getItem('battle_city_leaderboard');
@@ -943,7 +1089,6 @@ function update() {
     
     enemies.forEach(en => en.update());
     
-    // Shovel protection timer
     if (shovelTimer > 0) {
         shovelTimer--;
         const baseArea = [{ r: 11, c: 5 }, { r: 11, c: 6 }, { r: 11, c: 7 }, { r: 12, c: 5 }, { r: 12, c: 7 }];
@@ -969,12 +1114,12 @@ function update() {
     }
     
     itemSpawnTimer++; 
-    if (itemSpawnTimer >= 250) { 
-        let x = Math.floor(Math.random() * (GRID_SIZE - 2) + 1) * TILE_SIZE; 
-        let y = Math.floor(Math.random() * (GRID_SIZE - 2) + 1) * TILE_SIZE; 
-        items.push(new Item(x + 8, y + 8, getRandomItemType())); 
+    if (itemSpawnTimer >= 300) { 
+        spawnItem();
         itemSpawnTimer = 0; 
     }
+
+    updateBuffBar();
 }
 
 function draw() {

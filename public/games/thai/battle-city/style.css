@@ -168,3 +168,28 @@ p {
     text-align: center;
     text-shadow: 0 0 5px rgba(251, 191, 36, 0.4);
 }
+/* Buff bar styling */
+#buff-bar {
+    width: 100%;
+    text-align: center;
+    margin-top: 4px;
+    font-size: 0.8rem;
+    color: #ffd700;
+    line-height: 1.2;
+}
+.buff-icon {
+    display: inline-block;
+    margin: 0 3px;
+    font-size: 1rem;
+    position: relative;
+}
+.buff-icon sub {
+    font-size: 0.6rem;
+    position: absolute;
+    top: -0.6em;
+    right: -0.4em;
+    color: #fff;
+    background: rgba(0,0,0,0.5);
+    border-radius: 3px;
+    padding: 0 2px;
+}

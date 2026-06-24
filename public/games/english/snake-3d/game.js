@@ -40,6 +40,12 @@
   let scene, camera, renderer;
   let gridContainer, snakeContainer, lettersContainer;
   const cubesPool = [];
+// Particle system container
+let particlesContainer = null;
+// Active power-ups list
+let powerUps = [];
+// Power-up timer handle
+let powerUpTimeout = null;
   
   // --- DOM Elements ---
   const scoreValEl = document.getElementById('score-val');
@@ -373,6 +379,10 @@
   
   // --- Create Hovering 3D Letter Box ---
   function createLetterBox(x, z, char, isCorrect) {
+    // Occasionally spawn a power-up instead of a distractor
+    if (!isCorrect && Math.random() < 0.2) {
+      spawnPowerUp(x, z);
+    }
     const geo = new THREE.BoxGeometry(0.85, 0.85, 0.85);
     
     // สร้าง CanvasTexture เพื่อพ่นตัวอักษรลงบนด้านของกล่อง
@@ -426,6 +436,172 @@
       createdTime: Date.now() + gameRng() * 100
     });
   }
+
+    // --- Power‑Up System ---
+    const POWERUP_TYPES = ['boost', 'shrink', 'time'];
+
+    // Spawn a single power‑up at grid position (x, z)
+    function spawnPowerUp(x, z) {
+      const type = POWERUP_TYPES[Math.floor(gameRng() * POWERUP_TYPES.length)];
+      const size = 0.6;
+      const geo = new THREE.BoxGeometry(size, size, size);
+      const colorMap = {
+        boost: 0x2196f3, // blue
+        shrink: 0xe91e63, // pink
+        time: 0xffc107   // amber
+      };
+      const mat = new THREE.MeshPhongMaterial({
+        color: colorMap[type],
+        emissive: colorMap[type],
+        flatShading: true,
+        shininess: 40
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      const worldX = x - CONFIG.GRID_SIZE / 2 + 0.5;
+      const worldZ = z - CONFIG.GRID_SIZE / 2 + 0.5;
+      mesh.position.set(worldX, 0.5, worldZ);
+      // add to particle container (so it's on top of letters)
+      particlesContainer.add(mesh);
+      powerUps.push({ x, z, type, mesh, collected: false });
+    }
+
+    // Spawn several power‑ups randomly on empty cells
+    function spawnPowerUps() {
+      // determine number of power‑ups (1‑2 per round)
+      const count = Math.floor(gameRng() * 2) + 1;
+      const occupied = new Set();
+      // include snake and letters positions
+      snake.forEach(seg => occupied.add(`${seg.x},${seg.z}`));
+      lettersInMap.forEach(l => occupied.add(`${l.x},${l.z}`));
+      // include existing power‑ups
+      powerUps.forEach(p => occupied.add(`${p.x},${p.z}`));
+
+      let spawned = 0;
+      let attempts = 0;
+      while (spawned < count && attempts < 100) {
+        attempts++;
+        const x = Math.floor(gameRng() * CONFIG.GRID_SIZE);
+        const z = Math.floor(gameRng() * CONFIG.GRID_SIZE);
+        const key = `${x},${z}`;
+        if (!occupied.has(key)) {
+          spawnPowerUp(x, z);
+          occupied.add(key);
+          spawned++;
+        }
+      }
+    }
+
+    // Check collision with power‑ups during movement
+    function checkPowerUpCollision(newX, newZ) {
+      for (let i = 0; i < powerUps.length; i++) {
+        const pu = powerUps[i];
+        if (!pu.collected && pu.x === newX && pu.z === newZ) {
+          pu.collected = true;
+          // remove visual mesh
+          particlesContainer.remove(pu.mesh);
+          applyPowerUp(pu.type);
+          // remove from array
+          powerUps.splice(i, 1);
+          break;
+        }
+      }
+    }
+
+    // Apply effect based on power‑up type
+    function applyPowerUp(type) {
+      switch (type) {
+        case 'boost':
+          // increase speed (decrease interval) for 5 seconds
+          const originalSpeed = speed;
+          speed = Math.max(CONFIG.MIN_SPEED, speed * 0.7);
+          clearInterval(gameInterval);
+          gameInterval = setInterval(gameTick, speed);
+          if (powerUpTimeout) clearTimeout(powerUpTimeout);
+          powerUpTimeout = setTimeout(() => {
+            speed = originalSpeed;
+            clearInterval(gameInterval);
+            gameInterval = setInterval(gameTick, speed);
+          }, 5000);
+          try { KAMPAI.sound.correct(); } catch (_) {}
+          break;
+        case 'shrink':
+          // remove two tail segments if possible
+          if (snake.length > 3) {
+            for (let i = 0; i < 2; i++) {
+              const tail = snake.pop();
+              snakeContainer.remove(tail.mesh);
+            }
+            // re‑scale remaining body
+            refreshSnakeBodyScaling();
+          }
+          try { KAMPAI.sound.wrong(); } catch (_) {}
+          break;
+        case 'time':
+          // reward extra points as a proxy for time extension
+          score += 5;
+          updateScoreUI();
+          try { KAMPAI.sound.correct(); } catch (_) {}
+          break;
+        default:
+          break;
+      }
+    }
+
+    // Particle burst when eating a correct letter
+    function spawnEatParticles(position) {
+      const particleCount = 30;
+      const geometry = new THREE.BufferGeometry();
+      const positions = new Float32Array(particleCount * 3);
+      const velocities = new Float32Array(particleCount * 3);
+      for (let i = 0; i < particleCount; i++) {
+        positions[i * 3] = position.x;
+        positions[i * 3 + 1] = position.y;
+        positions[i * 3 + 2] = position.z;
+        const speed = 0.02 + Math.random() * 0.03;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.random() * Math.PI;
+        velocities[i * 3] = Math.cos(theta) * Math.sin(phi) * speed;
+        velocities[i * 3 + 1] = Math.cos(phi) * speed;
+        velocities[i * 3 + 2] = Math.sin(theta) * Math.sin(phi) * speed;
+      }
+      geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      geometry.setAttribute('velocity', new THREE.BufferAttribute(velocities, 3));
+
+      const material = new THREE.PointsMaterial({
+        color: 0xffd54f,
+        size: 0.12,
+        transparent: true,
+        opacity: 0.9,
+        depthWrite: false
+      });
+
+      const particles = new THREE.Points(geometry, material);
+      particlesContainer.add(particles);
+
+      // animate particles for 600ms
+      const start = performance.now();
+      function animate() {
+        const elapsed = performance.now() - start;
+        if (elapsed > 600) {
+          particlesContainer.remove(particles);
+          geometry.dispose();
+          material.dispose();
+          return;
+        }
+        const pos = geometry.attributes.position.array;
+        const vel = geometry.attributes.velocity.array;
+        for (let i = 0; i < particleCount; i++) {
+          pos[i * 3] += vel[i * 3];
+          pos[i * 3 + 1] += vel[i * 3 + 1] - 0.001 * (elapsed / 16);
+          pos[i * 3 + 2] += vel[i * 3 + 2];
+        }
+        geometry.attributes.position.needsUpdate = true;
+        material.opacity = 0.9 * (1 - elapsed / 600);
+        requestAnimationFrame(animate);
+      }
+      animate();
+    }
+
   
   // --- Game Tick: เคลื่อนที่งูทีละจังหวะ ---
   function gameTick() {
@@ -521,6 +697,9 @@
     const tailMesh = snake[snake.length - 1].mesh;
     
     if (!ateLetter) {
+        // Check power-up collision
+        checkPowerUpCollision(newX, newZ);
+
       // หดหาง: ดึงตำแหน่ง mesh หางมาใช้กับหัวใหม่
       const tail = snake.pop();
       tail.x = newX;
@@ -584,6 +763,8 @@
       }
     }
     pulse();
+// Spawn particle effect on eat
+spawnEatParticles(headMesh.position.clone());
   }
   
   // --- งูกระพริบสีแดงเมื่อผิดพลาด ---
@@ -618,6 +799,7 @@
     setTimeout(() => {
       resetSnake();
       spawnLetters();
+        spawnPowerUps();
       startTickLoop();
       isTransitioning = false;
     }, 1000);
@@ -795,6 +977,9 @@
     scene.add(snakeContainer);
     
     lettersContainer = new THREE.Group();
+// Add particle container to the scene
+particlesContainer = new THREE.Group();
+scene.add(particlesContainer);
     scene.add(lettersContainer);
     
     // Lights
