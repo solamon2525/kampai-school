@@ -34,6 +34,7 @@
   let isTransitioning = false; // ระหว่างเปลี่ยนคำศัพท์
   let gameRng = Math.random;
   let animLoopRunning = false;
+  let smoothLookTarget = null;
   
   // --- Three.js variables ---
   let scene, camera, renderer;
@@ -151,6 +152,9 @@
   function startGame(rng) {
     gameRng = rng || Math.random;
     score = 0;
+    if (smoothLookTarget) {
+      smoothLookTarget.set(0, 0, 0);
+    }
     lives = CONFIG.LIVES_LIMIT;
     currentWordIndex = 0;
     speed = CONFIG.INITIAL_SPEED;
@@ -769,9 +773,12 @@
     
     // Camera
     camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
-    // วางมุมกล้องเฉียงจากด้านบนส่องลงมา (isometric style)
-    camera.position.set(0, 13, 10);
+    // วางมุมกล้องเฉียงจากด้านบนส่องลงมา (isometric style) - ปรับตำแหน่งให้กว้างขึ้นสำหรับแผนที่ 19x19
+    camera.position.set(0, 17, 13);
     camera.lookAt(0, 0, -1);
+    
+    // ตั้งค่าเป้าหมายการหันกล้องติดตาม
+    smoothLookTarget = new THREE.Vector3(0, 0, 0);
     
     // Renderer
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -795,13 +802,13 @@
     scene.add(ambientLight);
     
     const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    dirLight.position.set(5, 18, 5);
+    dirLight.position.set(5, 22, 5);
     dirLight.castShadow = true;
     dirLight.shadow.mapSize.width = 1024;
     dirLight.shadow.mapSize.height = 1024;
     dirLight.shadow.camera.near = 0.5;
-    dirLight.shadow.camera.far = 30;
-    const d = 10;
+    dirLight.shadow.camera.far = 40;
+    const d = 14; // ขยายระยะเงาเพื่อให้ครอบคลุมกริดขนาด 19x19
     dirLight.shadow.camera.left = -d;
     dirLight.shadow.camera.right = d;
     dirLight.shadow.camera.top = d;
@@ -888,22 +895,22 @@
     animLoopRunning = true;
     requestAnimationFrame(animate);
     
-    // อนิมชันหมุนบล็อกและโยนตัวอักษรลอยขึ้นลง
+    // โยนตัวอักษรลอยขึ้นลงเบาๆ (ไม่มีการหมุน เพื่อให้อ่านง่ายตลอดเวลา)
     const time = Date.now();
     lettersInMap.forEach(l => {
       if (l.mesh) {
-        l.mesh.rotation.y += 0.02;
         l.mesh.position.y = Math.sin((time + l.createdTime) * 0.003) * 0.12;
       }
     });
     
-    // ให้กล้องเคลื่อนไหวตามตำแหน่งหัวงูเล็กน้อย เพื่อเพิ่มมิติความสวยงาม
-    if (snake.length > 0) {
+    // กล้องไม่ขยับตำแหน่ง แต่อินเตอร์โพลาร์ตเป้าหมายการหันมองตามหัวงูอย่างนุ่มนวล เพื่อแก้ปัญหากล้องกระตุก
+    if (snake.length > 0 && smoothLookTarget) {
       const headPos = snake[0].mesh.position;
-      // กล้องจะเคลื่อนตามหัวงูอย่างช้าๆ (Smooth interpolation)
-      camera.position.x += (headPos.x - camera.position.x) * 0.05;
-      camera.position.z += (headPos.z + 10 - camera.position.z) * 0.05;
-      camera.lookAt(headPos.x, 0, headPos.z - 1);
+      smoothLookTarget.x += (headPos.x - smoothLookTarget.x) * 0.05;
+      smoothLookTarget.z += (headPos.z - smoothLookTarget.z) * 0.05;
+      camera.lookAt(smoothLookTarget.x, 0, smoothLookTarget.z);
+    } else {
+      camera.lookAt(0, 0, 0);
     }
     
     renderer.render(scene, camera);
