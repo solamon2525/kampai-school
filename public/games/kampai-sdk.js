@@ -112,6 +112,49 @@
   };
   K.exit = K.goHome;
 
+  // ─── ผลรอบเล่น (XP/เลเวล/เหรียญ) จาก wrapper → ฝังลงจอจบของเกม (จอเดียว ไม่มีการ์ดลอยซ้ำ) ──
+  K.lastResult = null;
+  K._onResult = null;
+  /** เกมที่อยากเรนเดอร์ XP เอง: KAMPAI.onResult(function(result, info){...}) → SDK จะไม่ฉีดให้ */
+  K.onResult = function (cb) { K._onResult = (typeof cb === 'function') ? cb : null; return K; };
+  /** ฉีดแถบ XP/เลเวล/เหรียญ ลง #kampai-result (หรือจอจบที่ตรวจพบ) แล้ว ack กลับ wrapper เพื่อไม่ให้เด้งการ์ดลอย */
+  K.showResult = function (info) {
+    info = info || {}; var res = info.result || {};
+    var esc = function (v) { return String(v == null ? '' : v).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+    var slot = document.getElementById('kampai-result');
+    if (!slot) {
+      // ไม่มี slot มาตรฐาน → ลองหาจอจบที่กำลังแสดง (best-effort) แล้วแทรกแถบบนสุด
+      var ids = ['kampai-result', 'gameover-screen', 'gameover', 'over', 'gameover-modal', 'game-over', 'gameOver'];
+      var host = null;
+      for (var i = 0; i < ids.length; i++) {
+        var el = document.getElementById(ids[i]);
+        if (el) { try { if (getComputedStyle(el).display !== 'none') { host = el; break; } } catch (e) { host = el; break; } }
+      }
+      if (!host) return false;   // หาจอจบไม่เจอ → ไม่ ack (ปล่อย wrapper เด้งการ์ด XP ลอยตามเดิม = backward-safe)
+      slot = document.createElement('div'); slot.id = 'kampai-result';
+      if (host.firstChild) host.insertBefore(slot, host.firstChild); else host.appendChild(slot);
+    }
+    var xp = res.xp_earned || 0, total = res.total_xp || 0, lvl = (info.level != null ? info.level : (res.level || 0));
+    var medals = '';
+    if (res.unlocked && res.unlocked.length) {
+      medals = '<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px">' +
+        res.unlocked.map(function (u) {
+          var ic = (u.icon && !/^[A-Za-z]/.test(u.icon)) ? u.icon : '🏅';
+          return '<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(255,215,0,.15);border:1px solid rgba(255,215,0,.4);border-radius:999px;padding:3px 10px;font-size:12px;color:#fde68a;font-weight:600">' + ic + ' ' + esc(u.title || '') + '</span>';
+        }).join('') + '</div>';
+    }
+    var levelUp = info.leveledUp ? '<div style="margin-top:6px;font-size:13px;font-weight:700;color:#fde68a">🎉 เลเวลอัพ! → Lv.' + lvl + '</div>' : '';
+    slot.style.display = '';
+    slot.innerHTML =
+      '<div style="margin:10px auto;max-width:360px;background:linear-gradient(135deg,rgba(255,215,0,.13),rgba(245,158,11,.05));border:2px solid rgba(255,215,0,.45);border-radius:16px;padding:11px 16px;text-align:center;font-family:Sarabun,Kanit,system-ui,sans-serif">' +
+        '<div style="font-size:26px;font-weight:800;color:#FFD700;line-height:1.05">+' + xp.toLocaleString('th-TH') + ' XP</div>' +
+        '<div style="font-size:12px;color:#cbd5e1;margin-top:2px">รวม ' + total.toLocaleString('th-TH') + ' XP · Lv.' + lvl + '</div>' +
+        levelUp + medals +
+      '</div>';
+    try { window.parent.postMessage({ type: 'resultShown' }, '*'); } catch (e) { /* */ }
+    return true;
+  };
+
   // ─── init listener (รับข้อมูลจาก /play wrapper) ──────────────────────────────
   if (IS_EMBED) {
     window.addEventListener('message', function (e) {
@@ -152,6 +195,11 @@
       if (d.type === 'rtJoined') { o.room = d.room; if (o.onJoined) try { o.onJoined(d.room); } catch (x) { /* */ } }
       else if (d.type === 'rtPresence') { if (o.onPresence) try { o.onPresence(d.members || []); } catch (x) { /* */ } }
       else if (d.type === 'rtEvent') { if (o.onEvent) try { o.onEvent(d.event, d.payload, d.fromKey); } catch (x) { /* */ } }
+      else if (d.type === 'gameResult') {   // ผล XP กลับจาก wrapper → ฝังลงจอจบของเกม
+        K.lastResult = d.result || null;
+        if (K._onResult) { try { K._onResult(d.result, d); } catch (x) { /* */ } }
+        else { try { K.showResult(d); } catch (x) { /* */ } }
+      }
     });
     // anchor target="_top" → navigate ผ่าน wrapper (iframe sandbox ห้าม top-nav)
     document.addEventListener('click', function (e) {

@@ -2378,13 +2378,11 @@ function loop() {
       const by = getLanesY(b.lane);
       drawQuestionBlock(ctx, b.x, by, b.value, b.isCorrect, b.isChosen, b.hitResolved);
 
-      // ชน
-      if (!b.hitResolved && b.x <= playerX + 25 && b.x >= playerX - 25) {
+      // ชน — เฉพาะก้อนที่อยู่เลนเดียวกับผู้เล่น (ก้อนเลนอื่นลอยผ่านเป็นอิสระ ไม่จาง · ตอบได้หลายก้อนต่อคำถาม)
+      if (!b.hitResolved && playerLane === b.lane && b.x <= playerX + 25 && b.x >= playerX - 25) {
         b.hitResolved = true;
-        if (playerLane === b.lane) {
-          b.isChosen = true;
-          resolveHit(1, b.isCorrect, b.x, by);
-        }
+        b.isChosen = true;
+        resolveHit(1, b.isCorrect, b.x, by);
       }
 
       // ลบบล็อกเมื่อวิ่งเลยขอบจอซ้ายไปแล้วทีละกล่องอย่างอิสระ
@@ -2529,10 +2527,8 @@ function loop() {
 function resolveHit(playerIndex, isCorrect, x, y) {
   const isInvincible = playerIndex === 2 ? (p2InvincibleTime > 0) : (p1InvincibleTime > 0);
 
-  // ทำเครื่องหมายว่าคำถามได้รับการแก้ไขแล้วสำหรับทุกบล็อก เพื่อป้องกันการชนซ้ำและให้เลือกรองอื่นจางลงทันที
-  for (let i = 0; i < floatBlocks.length; i++) {
-    floatBlocks[i].hitResolved = true;
-  }
+  // ก้อนแต่ละก้อนเป็นอิสระ — ทำเครื่องหมายเฉพาะก้อนที่ชนจริง (ทำใน collision loop แล้ว)
+  // ไม่มาร์กก้อนอื่นให้จาง เพื่อให้ผู้เล่นสลับเลนชนก้อนอื่นต่อได้ (ตอบได้หลายก้อนต่อคำถาม)
 
   if (isCorrect) {
     // ตอบถูก

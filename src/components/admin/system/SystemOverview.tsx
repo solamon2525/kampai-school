@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.107.0 (Rollout "แข่ง 2 คน" — ทยอยติดตั้ง KampaiVersus ให้เกมเดิม 23 เกมแรก)',
+        version: 'v1.108.0 (จอจบเกมรวม XP ในจอเดียว + แก้ math-runner ก้อนคำตอบแยกอิสระ)',
         date: 'ล่าสุด',
+        badge: 'bg-teal-600',
+        items: [
+            'มาตรฐานใหม่ "จอจบเกมเดียว": wrapper ส่งผล XP/เลเวล/เหรียญกลับเข้าเกม → KAMPAI SDK ฝังแถบ XP ลงในการ์ด GAME OVER ของเกมเอง (`<div id="kampai-result">`) → **ไม่มีการ์ด XP ลอยซ้อนทับ/ปุ่มซ้ำ** อีก (เกมเก่าที่ยังไม่มี slot ยังเด้งการ์ดลอยเหมือนเดิม — backward-safe)',
+            'เพิ่ม `KAMPAI.showResult()` / `KAMPAI.onResult()` + slot `#kampai-result` ในเทมเพลตจอจบทุกตัว (`_template-full`/`_template-versus`/`_template-folder`) + กฎ GAME.md',
+            'แก้เกม math-runner: ก้อนคำตอบ 4 ก้อนเป็นอิสระต่อกัน — ชนก้อนในเลนเดียวกับเรา = ตอบ (ถูก/ผิด) · ก้อนเลนอื่นลอยผ่านปกติ ไม่จางหาย · ตอบได้หลายก้อนต่อคำถาม (เดิมชน 1 ก้อน อีก 3 จางหายทันที)',
+        ],
+    },
+    {
+        version: 'v1.107.0 (Rollout "แข่ง 2 คน" — ทยอยติดตั้ง KampaiVersus ให้เกมเดิม 23 เกมแรก)',
+        date: '',
         badge: 'bg-amber-600',
         items: [
             'retrofit เกมเดี่ยวให้มีโหมด "2 คนเครื่องนี้ (local hot-seat) + ออนไลน์": ปลอดภัยออนไลน์, พลเมืองดี (judgment MCQ), ห่วงโซ่อาหาร (เรียงลำดับ), กลุ่มเกม 3 มิติ block/coord/net/solid-3d + globe-3d (Three.js MCQ)',

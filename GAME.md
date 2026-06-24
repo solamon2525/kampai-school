@@ -55,7 +55,7 @@
 |---|---|
 | **จอเริ่ม (title)** | การ์ด "สถิติฉัน" (`personalBest`+`playsCount`) + ตารางอันดับ Top 5 (`leaderboard`, ไฮไลต์ `isMe`) + ปุ่มเริ่ม · **ไม่มี input ชื่อ** (ไม่มีข้อมูล → ซ่อนการ์ด) |
 | **ระหว่างเล่น (HUD)** | คะแนน + ชีวิต/เวลา + ป้ายผู้เล่น (`student.displayName`+รูป) |
-| **จอจบ (game over)** | คะแนนรอบนี้ + ตารางอันดับ (ชุดเดียวกัน) + ปุ่มเล่นใหม่ + `KAMPAI.goHome()` + **เรียก `KAMPAI.submitScore(...)`** |
+| **จอจบ (game over)** | คะแนนรอบนี้ + ตารางอันดับ (ชุดเดียวกัน) + ปุ่มเล่นใหม่ + `KAMPAI.goHome()` + **เรียก `KAMPAI.submitScore(...)`** · **ต้องมี `<div id="kampai-result"></div>`** ในการ์ดจอจบ (SDK เติม XP/เลเวล/เหรียญให้อัตโนมัติ → จอเดียว ไม่มีการ์ด XP ลอยซ้ำของ wrapper). **ห้ามมีปุ่มเล่นซ้ำ/ออก ซ้ำกับของ wrapper** |
 | **เสียง** | `KAMPAI.sound.defaultBgm(preset)` + `mountToggles()` ตอนเริ่ม · `correct()/wrong()/timeUp()/gameOver()` ตามเหตุการณ์ · `speak(word,lang)` สำหรับ**เกมภาษา** (TTS) |
 | **มือถือ** | `controls.mount()` หรือ tap · responsive ~360px **ไม่ล้นแนวนอน** · ปุ่ม ≥44px |
 

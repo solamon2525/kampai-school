@@ -87,6 +87,7 @@ const PlayGame = () => {
   const sessionSubmittedRef = useRef(false);
   const rtChannelRef = useRef<RealtimeChannel | null>(null);
   const prevQuestRef = useRef<DailyQuestStatus | null>(null);
+  const inlineResultRef = useRef(false);   // เกมฝัง XP ลงจอจบเอง (ack 'resultShown') → ไม่เด้งการ์ดลอย
 
   // ─── fullscreen: ขยายเกมเต็มจอจริง (iframe มี allow="fullscreen" อยู่แล้ว) ───
   const toggleFullscreen = useCallback(() => {
@@ -345,8 +346,10 @@ const PlayGame = () => {
       if (data?.type === 'gameStart') {
         setShowReward(false);
         sessionSubmittedRef.current = false;
+        inlineResultRef.current = false;
         return;
       }
+      if (data?.type === 'resultShown') { inlineResultRef.current = true; return; }
       if (data?.type !== 'gameEnd') return;
       if (sessionSubmittedRef.current) return;
       sessionSubmittedRef.current = true;
@@ -372,6 +375,14 @@ const PlayGame = () => {
           metadata: data.metadata ?? {},
         });
         setResult(submitted);
+        // ส่งผล XP กลับเข้าเกม → SDK ฝังลงจอจบของเกม (จอเดียว); เกมที่ฝังเองจะ ack กัน RewardPopup ลอยซ้ำ
+        try {
+          const _nl = levelFromXp(submitted.total_xp);
+          (e.source as Window | null)?.postMessage(
+            { type: 'gameResult', result: submitted, level: _nl.level, leveledUp: !!prevLevel && _nl.level > prevLevel.level },
+            '*',
+          );
+        } catch { /* */ }
         statsQuery.refetch();
         unlockedQuery.refetch();
         leaderboardQuery.refetch();
@@ -420,8 +431,8 @@ const PlayGame = () => {
         } catch (e) {
           console.warn('daily quest refresh failed', e);
         }
-        // ไม่สลับ phase (เกมโชว์จอจบของตัวเองต่อ) — เด้งการ์ด XP ลอยทับทันที แล้วค้างไว้จนกดปิด/เล่นซ้ำ
-        setShowReward(true);
+        // เด้งการ์ด XP ลอยเฉพาะเกมที่ไม่ฝัง XP เองในจอจบ (ไม่ ack 'resultShown' ภายใน 600ms = เกมเก่า/ไม่มี slot)
+        setTimeout(() => { if (!inlineResultRef.current) setShowReward(true); }, 600);
       } catch (err) {
         const msg = (err as Error).message ?? '';
         if (msg.includes('rate_limited')) {
