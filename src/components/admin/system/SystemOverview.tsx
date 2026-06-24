@@ -272,8 +272,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.106.0 (ระบบ "แข่ง 2 คน" ทุกเกม — เฟรมเวิร์ก KampaiVersus: เดี่ยว + local hot-seat + online)',
+        version: 'v1.107.0 (Rollout "แข่ง 2 คน" — ทยอยติดตั้ง KampaiVersus ให้เกมเดิม 23 เกมแรก)',
         date: 'ล่าสุด',
+        badge: 'bg-amber-600',
+        items: [
+            'retrofit เกมเดี่ยวให้มีโหมด "2 คนเครื่องนี้ (local hot-seat) + ออนไลน์": ปลอดภัยออนไลน์, พลเมืองดี (judgment MCQ), ห่วงโซ่อาหาร (เรียงลำดับ), กลุ่มเกม 3 มิติ block/coord/net/solid-3d + globe-3d (Three.js MCQ)',
+            'อัปเกรดเกมที่มีออนไลน์อยู่แล้ว (KampaiMatch → KampaiVersus) ให้เพิ่มโหมด local hot-seat ฟรี — 14 เกม: social-quiz, color-mix, symmetry-art, cashier, vocab-race, handwash-order, plate-builder, number-line, order-it, sci-sort, veggie-garden, listen-spell, math-rally, sink-float, balloon-fighter',
+            'ทุกเกมผ่าน verify:game 10/10 (รวม Check 11 บังคับ 2 ผู้เล่น) · seed เดียวกัน → P1/P2 โจทย์ตรงกัน ยุติธรรม · เก็บสถิติแชมป์ห้องเมื่อเลือกคู่แข่งจากรายชื่อ (migration 208)',
+            'รวม 23/98 เกม · game_docs migration ต่อกลุ่ม (230-236) · rollout ต่อเนื่อง: เกม 1P ที่เหลือ + React + AR',
+        ],
+    },
+    {
+        version: 'v1.106.0 (ระบบ "แข่ง 2 คน" ทุกเกม — เฟรมเวิร์ก KampaiVersus: เดี่ยว + local hot-seat + online)',
+        date: '',
         badge: 'bg-amber-600',
         items: [
             'เฟรมเวิร์กกลางใหม่ `/games/kampai-versus.js` (`KampaiVersus`) — drop-in เดียวให้ทุกเกมแข่ง 2 คนได้ครบ 3 โหมดจาก wiring ชุดเดียว: **เดี่ยว · 2 คนเครื่องนี้ (local hot-seat จอเดียว ไม่แบ่งจอ) · ออนไลน์** (delegate `kampai-match.js`)',
