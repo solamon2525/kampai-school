@@ -9,6 +9,14 @@
 </head>
 <body>
 
+<!-- บังคับแนวนอนบนมือถือ (แสดงอัตโนมัติเมื่อจอสัมผัสหันแนวตั้ง — ดู style.css @media) -->
+<div id="rotate-overlay">
+  <div class="ro-inner">
+    <div class="ro-phone">📱</div>
+    <div class="ro-text">หมุนเครื่องเป็น<b>แนวนอน</b><br>เพื่อเล่น Math Runner</div>
+  </div>
+</div>
+
 <!-- HUD Overlay -->
 <div id="hud-container">
   <div class="hud-left">
@@ -39,6 +47,18 @@
 
 <!-- Canvas -->
 <canvas id="game-canvas"></canvas>
+
+<!-- ปุ่ม ▲▼ วิชวล (เฉพาะจอสัมผัส · 1 คน=ขวา · 2 คน=ซ้าย P1 / ขวา P2) -->
+<div id="dpad">
+  <div class="dpad-side dpad-left" id="dpad-left">
+    <button class="dbtn" type="button" data-slot="left" data-dir="up" aria-label="P1 ขึ้น">▲</button>
+    <button class="dbtn" type="button" data-slot="left" data-dir="down" aria-label="P1 ลง">▼</button>
+  </div>
+  <div class="dpad-side dpad-right" id="dpad-right">
+    <button class="dbtn" type="button" data-slot="right" data-dir="up" aria-label="ขึ้น">▲</button>
+    <button class="dbtn" type="button" data-slot="right" data-dir="down" aria-label="ลง">▼</button>
+  </div>
+</div>
 
 <!-- Start Screen -->
 <div id="blocker">

@@ -57,6 +57,49 @@ KAMPAI.onReady(function () {
 KAMPAI.controls.mount({ dpad: false, buttons: [] });
 KAMPAI.sound.mountToggles();
 
+/* ── มือถือ: บังคับแนวนอน + ปุ่ม ▲▼ วิชวล (เฉพาะจอสัมผัส) ── */
+let gamePaused = false;
+if (window.matchMedia && matchMedia('(pointer: coarse)').matches) document.body.classList.add('is-touch');
+
+function syncDpad() {
+  const playing = started && !isGameOver;
+  const dp = document.getElementById('dpad'); if (!dp) return;
+  dp.classList.toggle('on', playing);
+  const L = document.getElementById('dpad-left'), R = document.getElementById('dpad-right');
+  if (L) L.style.display = (playing && mode === 'local_2p') ? 'flex' : 'none';  // ซ้าย = P1 (เฉพาะ 2 คน)
+  if (R) R.style.display = playing ? 'flex' : 'none';                            // ขวา = ผู้เล่นเดี่ยว / P2
+}
+function checkOrientation() {
+  const portrait = window.innerHeight > window.innerWidth;
+  const show = document.body.classList.contains('is-touch') && portrait;
+  document.body.classList.toggle('show-rotate', show);   // ขับ overlay ด้วย JS (สอดคล้องกับ gamePaused)
+  gamePaused = show && started && !isGameOver;
+}
+window.addEventListener('resize', checkOrientation);
+window.addEventListener('orientationchange', checkOrientation);
+checkOrientation();   // เช็คตั้งแต่จอเริ่ม (หมุนก่อนค่อยเล่น)
+
+// สลับเลนจากปุ่มวิชวล (confused-aware) — slot:'left'=P1(2คน) · 'right'=ผู้เล่นเดี่ยว หรือ P2(2คน)
+function nudgeLane(slot, dir) {
+  if (!started || isGameOver || gamePaused) return;
+  let confused, kind;
+  if (slot === 'left') { kind = 'p1'; confused = p1ConfusedTime > 0; }
+  else if (mode === 'local_2p') { kind = 'p2'; confused = p2ConfusedTime > 0; }
+  else { kind = 'single'; confused = p1ConfusedTime > 0; }
+  const d = confused ? (dir === 'up' ? 1 : -1) : (dir === 'up' ? -1 : 1);
+  if (kind === 'p1') targetP1Lane = Math.max(0, Math.min(3, targetP1Lane + d));
+  else if (kind === 'p2') targetP2Lane = Math.max(0, Math.min(3, targetP2Lane + d));
+  else targetPlayerLane = Math.max(0, Math.min(3, targetPlayerLane + d));
+  playSynthSFX('jump');
+}
+document.querySelectorAll('#dpad .dbtn').forEach((btn) => {
+  const slot = btn.dataset.slot, dir = btn.dataset.dir;
+  // touchstart + stopPropagation → ไม่ดับเบิลกับ window touch เดิม (handleTouchInput)
+  btn.addEventListener('touchstart', (e) => { e.preventDefault(); e.stopPropagation(); btn.classList.add('active'); nudgeLane(slot, dir); }, { passive: false });
+  btn.addEventListener('touchend', (e) => { e.preventDefault(); btn.classList.remove('active'); }, { passive: false });
+  btn.addEventListener('touchcancel', () => btn.classList.remove('active'));
+});
+
 /* ── ตั้งค่าเครื่องหมายคณิตศาสตร์ & ความยาก ── */
 let currentMathMode = 'mix';
 let currentDifficulty = 'easy';
@@ -2024,6 +2067,7 @@ function addFloatingText(x, y, text, color, playerIndex) {
 
 function loop() {
   if (isGameOver) return;
+  if (gamePaused) { animationFrameId = requestAnimationFrame(loop); return; }  // จอแนวตั้ง: หยุดชั่วคราว (คงลูปไว้ ไม่อัปเดต)
 
   pollGamepadInputs();
 
@@ -2845,6 +2889,7 @@ function startSinglePlayer(m) {
     cancelAnimationFrame(animationFrameId);
     animationFrameId = null;
   }
+  checkOrientation(); syncDpad();   // มือถือ: เช็คแนวจอ + แสดงปุ่ม ▲▼ ตามโหมด
   animationFrameId = requestAnimationFrame(loop);
 }
 
@@ -3016,6 +3061,7 @@ function launchLocalTwoPlayer() {
     cancelAnimationFrame(animationFrameId);
     animationFrameId = null;
   }
+  checkOrientation(); syncDpad();   // มือถือ: เช็คแนวจอ + แสดงปุ่ม ▲▼ ตามโหมด
   animationFrameId = requestAnimationFrame(loop);
   
   // โหมด 2 คนในจอเดียวจะแข่งเวลากัน 60 วินาท
@@ -3127,10 +3173,12 @@ function startGame(onlineMode, opts) {
     cancelAnimationFrame(animationFrameId);
     animationFrameId = null;
   }
+  checkOrientation(); syncDpad();   // มือถือ: เช็คแนวจอ + แสดงปุ่ม ▲▼ ตามโหมด
   animationFrameId = requestAnimationFrame(loop);
 }
 
 function tickTimer() {
+  if (gamePaused) return;   // หมุนจอ: ไม่ตัดเวลา
   gameTimeLeft--;
   $('timer-value').innerText = gameTimeLeft;
   if (gameTimeLeft <= 0) {
@@ -3140,6 +3188,7 @@ function tickTimer() {
 
 function endGame() {
   isGameOver = true;
+  syncDpad();   // ซ่อนปุ่ม ▲▼ เมื่อจบเกม
   if (timerIntervalId) {
     clearInterval(timerIntervalId);
     timerIntervalId = null;
@@ -3238,6 +3287,8 @@ function resetGame() {
   
   started = false;
   isGameOver = false;
+  gamePaused = false;
+  syncDpad();   // ซ่อนปุ่ม ▲▼ เมื่อกลับจอเริ่ม
   ctx.clearRect(0, 0, cw, ch);
   renderLeaderboard('score-list');
   
