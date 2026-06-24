@@ -551,11 +551,17 @@ p.subtitle {
 #rotate-overlay .ro-phone { font-size: 72px; animation: ro-rotate 1.6s ease-in-out infinite; }
 #rotate-overlay .ro-text { font-size: 20px; font-weight: 700; line-height: 1.55; margin-top: 14px; }
 #rotate-overlay .ro-text b { color: #FFD700; }
-@keyframes ro-rotate { 0%, 40% { transform: rotate(0deg); } 60%, 100% { transform: rotate(-90deg); } }
-@media (orientation: portrait) and (pointer: coarse) {
-  #rotate-overlay { display: flex; }
+#rotate-overlay #ro-play {
+  margin-top: 22px; padding: 12px 30px;
+  font-family: 'Sarabun', sans-serif; font-size: 17px; font-weight: 700;
+  border: none; border-radius: 999px; color: #fff; cursor: pointer;
+  background: linear-gradient(45deg, #22c55e, #16a34a);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
 }
-body.show-rotate #rotate-overlay { display: flex; }   /* JS-driven (ใช้คลาส is-touch) */
+#rotate-overlay #ro-play:active { transform: scale(0.95); }
+@keyframes ro-rotate { 0%, 40% { transform: rotate(0deg); } 60%, 100% { transform: rotate(-90deg); } }
+/* แสดง overlay ผ่าน JS เท่านั้น (checkOrientation) — ปุ่ม "เริ่มเล่นเลย" จึงสั่งซ่อนได้ */
+body.show-rotate #rotate-overlay { display: flex; }
 
 /* ── ปุ่ม ▲▼ วิชวล (แสดงเฉพาะจอสัมผัส + ตอนเล่น) ── */
 #dpad { position: fixed; inset: 0; pointer-events: none; display: none; z-index: 30; }

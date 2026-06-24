@@ -69,15 +69,23 @@ function syncDpad() {
   if (L) L.style.display = (playing && mode === 'local_2p') ? 'flex' : 'none';  // ซ้าย = P1 (เฉพาะ 2 คน)
   if (R) R.style.display = playing ? 'flex' : 'none';                            // ขวา = ผู้เล่นเดี่ยว / P2
 }
+let landscapeForced = false;   // ผู้เล่นกด "เริ่มเล่นเลย" → เลิกบล็อกแนวตั้ง (กันค้าง/หมุนไม่ได้)
+function isPortrait() {
+  // matchMedia เชื่อถือได้กว่า innerW/H ตอน orientationchange (บางเครื่องอัปเดตช้า)
+  if (window.matchMedia) { const m = window.matchMedia('(orientation: portrait)'); if (typeof m.matches === 'boolean') return m.matches; }
+  return window.innerHeight > window.innerWidth;
+}
 function checkOrientation() {
-  const portrait = window.innerHeight > window.innerWidth;
-  const show = document.body.classList.contains('is-touch') && portrait;
-  document.body.classList.toggle('show-rotate', show);   // ขับ overlay ด้วย JS (สอดคล้องกับ gamePaused)
+  const show = !landscapeForced && document.body.classList.contains('is-touch') && isPortrait();
+  document.body.classList.toggle('show-rotate', show);
   gamePaused = show && started && !isGameOver;
 }
 window.addEventListener('resize', checkOrientation);
-window.addEventListener('orientationchange', checkOrientation);
-checkOrientation();   // เช็คตั้งแต่จอเริ่ม (หมุนก่อนค่อยเล่น)
+window.addEventListener('orientationchange', () => { checkOrientation(); setTimeout(checkOrientation, 350); });  // เผื่อขนาดอัปเดตช้า
+try { const _mq = window.matchMedia('(orientation: portrait)'); _mq.addEventListener ? _mq.addEventListener('change', checkOrientation) : _mq.addListener(checkOrientation); } catch (e) { /* */ }
+// ปุ่มหนีตาย: กดเริ่มเล่นเลย (เครื่องหมุนไม่ได้/อยู่ในกรอบที่ไม่หมุน → ไม่ค้าง)
+{ const _rp = document.getElementById('ro-play'); if (_rp) _rp.addEventListener('click', () => { landscapeForced = true; checkOrientation(); }); }
+checkOrientation();   // เช็คตั้งแต่จอเริ่ม
 
 // สลับเลนจากปุ่มวิชวล (confused-aware) — slot:'left'=P1(2คน) · 'right'=ผู้เล่นเดี่ยว หรือ P2(2คน)
 function nudgeLane(slot, dir) {
