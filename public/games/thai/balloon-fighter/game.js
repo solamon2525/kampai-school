@@ -1191,7 +1191,7 @@ function loop() {
     drawBtn(cv.height * .3, '🐻 1 Player', '#3498db', '#2980b9');
     drawBtn(cv.height * .41, '🤝 2P Co-op', '#9b59b6', '#8e44ad');
     drawBtn(cv.height * .52, '⚔️ 2P Versus', '#e74c3c', '#c0392b');
-    drawBtn(cv.height * .63, '🌐 เล่นออนไลน์', '#2ecc71', '#27ae60');
+    drawBtn(cv.height * .63, '🏁 แข่ง 2 คน', '#2ecc71', '#27ae60');
     drawBtn(cv.height * .75, 'กลับ', '#7f8c8d', '#95a5a6');
   }
   else if (gs === 'catSelect') {
@@ -1372,7 +1372,7 @@ if (window.KAMPAI) {
 
 // ============================================================ KAMPAI ONLINE MATCHMAKING
 if (config.ENABLE_ONLINE && window.KampaiMatch) {
-  match = KampaiMatch.create({
+  match = KampaiVersus.create({ rankBy: 'correct',
     duration: config.ONLINE_DURATION || 60,
     title: 'แข่งสะกดคำบอลลูน',
     onPlay: function ({ rng }) {

@@ -48,6 +48,8 @@
     </script>
     <script src="/games/kampai-leaderboard.js"></script>
     <script src="/games/kampai-match.js"></script>
+    <script src="/games/kampai-versus.js"></script>
+    <script>window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window.KampaiMatch&&window.KampaiMatch.create)?window.KampaiMatch.create(o):null; return { available:false, openMenu:function(){ if(m)m.openMenu(); }, report:function(s,i){ if(m)m.report(s,i); }, finish:function(s,i){ if(m){m.finish(s,i);return true;} return false; }, leave:function(){}, mode:null }; } };</script>
     <script>
         window.KampaiMatch = window.KampaiMatch || { create:function(){ return { available:false, openMenu:function(){ alert('โหมดออนไลน์เล่นผ่านระบบเท่านั้น'); }, report:function(){}, finish:function(){}, leave:function(){} }; } };
     </script>
