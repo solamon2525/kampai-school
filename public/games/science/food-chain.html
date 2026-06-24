@@ -73,6 +73,7 @@ body { background: linear-gradient(180deg, #15803d 0%, #166534 55%, #052e16 100%
 .btn-primary { background: linear-gradient(45deg, #22c55e, #16a34a); box-shadow: 0 4px 10px rgba(34,197,94,0.4); }
 .btn-blue { background: linear-gradient(45deg, #3b82f6, #2563eb); box-shadow: 0 4px 10px rgba(59,130,246,0.4); }
 .btn-ghost { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); }
+.btn-versus { background: linear-gradient(45deg,#f59e0b,#f97316); box-shadow: 0 4px 10px rgba(245,158,11,0.4); }
 .mode-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 10px; }
 .leaderboard-box { background: rgba(255,255,255,0.95); color: #2c3e50; border-radius: 12px; padding: 12px 15px; margin: 10px 0; width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
 .lb-title { font-family: 'Fredoka One', cursive; font-size: 1rem; margin: 0 0 8px 0; text-align: left; }
@@ -118,6 +119,7 @@ body { background: linear-gradient(180deg, #15803d 0%, #166534 55%, #052e16 100%
         <button class="btn btn-primary" onclick="chooseMode('race')">⚡ แข่งเร็ว</button>
         <button class="btn btn-ghost" onclick="chooseMode('practice')">📚 ฝึกหัด</button>
     </div>
+    <button class="btn btn-versus" onclick="vs.openMenu()">🏁 แข่ง 2 คน (แข่งกับเพื่อน)</button>
     <div class="leaderboard-box">
         <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
         <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
@@ -141,6 +143,10 @@ body { background: linear-gradient(180deg, #15803d 0%, #166534 55%, #052e16 100%
 <!-- ═══ KAMPAI SDK (single source — อย่าแก้) ═══ -->
 <script src="/games/kampai-sdk.js"></script>
 <script>window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{unlock:function(){return this;},correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},setBgm:function(){return this;},defaultBgm:function(){return this;},bgmStart:function(){},bgmStop:function(){},mountToggles:function(){return this;}} };</script>
+<script src="/games/kampai-match.js"></script>
+<script>window.KampaiMatch = window.KampaiMatch || { create:function(){ return { available:false, openMenu:function(){ alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); }, report:function(){}, finish:function(){}, leave:function(){} }; } };</script>
+<script src="/games/kampai-versus.js"></script>
+<script>window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window.KampaiMatch&&window.KampaiMatch.create)?window.KampaiMatch.create(o):null; return { available:false, openMenu:function(){ if(m)m.openMenu(); }, report:function(s,i){ if(m)m.report(s,i); }, finish:function(s,i){ if(m){m.finish(s,i);return true;} return false; }, leave:function(){}, mode:null }; } };</script>
 
 <script>
 /* ═══ SECTION A · ตั้งค่า ═══ */
@@ -208,14 +214,23 @@ let mode = 'race';
 let chain = null, N = 0, nextExpected = 1, mistakesThisRound = 0;
 let roundStart = 0, rafId = 0, locked = false, started = false, isGameOver = false;
 let ROUND_BONUS_MS = 16000;
+let versusRng = null, versusActive = false;
+
+/* ── เฟรมเวิร์ก 2 ผู้เล่น (เดี่ยว + local hot-seat + online) — ดู GAME.md ── */
+const vs = KampaiVersus.create({
+    duration: 60, title: 'ห่วงโซ่อาหาร · ดวล', rankBy: 'score',
+    onPlay: ({ rng }) => startVersusRound(rng),                          // P1/P2/online: rng เลือกห่วงโซ่ให้ตรงกัน
+    onEnd:  () => { locked = true; isGameOver = true; cancelAnimationFrame(rafId); KAMPAI.sound.bgmStop(); },
+});
 
 function shuffled(arr) {
+    const rnd = versusRng || Math.random;
     const a = arr.slice();
-    for (let i = a.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [a[i], a[j]] = [a[j], a[i]]; }
+    for (let i = a.length - 1; i > 0; i--) { const j = (rnd() * (i + 1)) | 0; [a[i], a[j]] = [a[j], a[i]]; }
     return a;
 }
 
-function chooseMode(m) { KAMPAI.sound.unlock(); mode = m; startGame(); }
+function chooseMode(m) { versusActive = false; versusRng = null; KAMPAI.sound.unlock(); mode = m; startGame(); }
 
 function startGame() {
     if (started) return;
@@ -231,9 +246,24 @@ function startGame() {
     newRound();
 }
 
+// โหมดแข่ง 2 คน — รอบจับเวลา (เฟรมเวิร์กจับเวลา/สลับตา/เทียบผลให้) · ห่วงโซ่เรียงตาม rng = P1/P2 ตรงกัน
+function startVersusRound(rng) {
+    versusRng = rng || Math.random; versusActive = true;
+    started = true; isGameOver = false; locked = false;
+    mode = 'race';
+    score = 0; lives = 3; roundStreak = 0; maxStreak = 0; roundsDone = 0; correctCount = 0;
+    $('start').classList.remove('on'); $('gameover').classList.remove('on');
+    $('hud').classList.add('on'); $('play').classList.add('on');
+    $('life-container').style.display = 'none';   // versus: เฟรมเวิร์กจับเวลา ไม่ตายด้วยชีวิต
+    $('timer-wrap').classList.add('on');
+    setScore(0); updateCombo();
+    KAMPAI.sound.bgmStart();
+    newRound();
+}
+
 function newRound() {
     locked = false;
-    chain = CHAINS[(Math.random() * CHAINS.length) | 0];
+    chain = CHAINS[((versusRng || Math.random)() * CHAINS.length) | 0];
     N = chain.steps.length;
     nextExpected = 1; mistakesThisRound = 0;
     ROUND_BONUS_MS = 4000 + N * 2800;
@@ -302,7 +332,7 @@ function tapCard(stepN, btn) {
         sfxWrong(); flashFx(false);
         const need = chain.steps[nextExpected - 1];
         flash(`ยังไม่ใช่ — ลำดับที่ ${nextExpected} ${nextExpected === 1 ? 'คือผู้ผลิต (พืช)' : 'กินตัวก่อนหน้า'}`, false);
-        if (mode === 'race') { mistakesThisRound++; setLives(lives - 1); }
+        if (mode === 'race') { mistakesThisRound++; if (!versusActive) setLives(lives - 1); }
     }
 }
 
@@ -339,6 +369,7 @@ function setScore(n) {
     score = Math.max(0, Math.round(n));
     $('score-value').textContent = score;
     const w = $('score-container'); w.classList.add('pop'); setTimeout(() => w.classList.remove('pop'), 150);
+    vs.report(score, { correct: correctCount });   // อัปคะแนนสด (online) / HUD ตา (local) · เดี่ยว = no-op
 }
 function setLives(n) {
     lives = Math.max(0, n);
@@ -351,7 +382,9 @@ function endGame() {
     if (isGameOver) return;
     isGameOver = true; locked = true;
     cancelAnimationFrame(rafId);
-    KAMPAI.sound.gameOver(); KAMPAI.sound.bgmStop();
+    KAMPAI.sound.bgmStop();
+    if (vs.finish(score, { correct: correctCount })) return;   // โหมดแข่ง → เฟรมเวิร์กเทียบผล (เดี่ยว = false)
+    KAMPAI.sound.gameOver();
     if (mode === 'race') KAMPAI.submitScore(score, { mode: 'normal', rounds: roundsDone, maxStreak });
     $('hud').classList.remove('on');
     $('timer-wrap').classList.remove('on');
