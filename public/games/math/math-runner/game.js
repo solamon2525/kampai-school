@@ -58,7 +58,7 @@ KAMPAI.controls.mount({ dpad: false, buttons: [] });
 KAMPAI.sound.mountToggles();
 
 /* ── ตั้งค่าเครื่องหมายคณิตศาสตร์ & ความยาก ── */
-let currentMathMode = 'mul';
+let currentMathMode = 'mix';
 let currentDifficulty = 'easy';
 let isEquationMode = false;
 
@@ -170,6 +170,11 @@ let p1InvincibleTime = 0, p1SlowTime = 0, p1ConfusedTime = 0, p1IsGiant = false;
 let p2InvincibleTime = 0, p2SlowTime = 0, p2ConfusedTime = 0, p2IsGiant = false;
 let p1HasShield = false;
 let p2HasShield = false;
+// ── บัฟไอเทมใหม่ + หัวใจ + ความยาก ──
+let p1DoubleTime = 0, p1MagnetTime = 0;
+let p2DoubleTime = 0, p2MagnetTime = 0;
+let maxLives = CFG.LIVES;
+let diff = CFG.DIFF.easy;
 let lastPlayerLane = 1, lastP1Lane = 1, lastP2Lane = 1;
 let playerTrail = [];
 let p1Trail = [];
@@ -196,7 +201,12 @@ function generateNewQuestion(playerIndex = 1) {
   if (mode === 'local_2p') {
     tierScore = Math.max(p1Score, p2Score);
   }
-  const tier = getTierByScore(tierScore);
+  const d = curDiff();
+  let tier = getTierByScore(tierScore);
+  if (d.tierMode === 'fixed1') tier = 1;                  // ง่ายมาก: เลขน้อยคงที่
+  else if (d.tierMode === 'boost') tier = Math.min(4, tier + 1);  // ยาก: ดันขึ้น 1 ชั้น
+  // ยาก: สุ่มเป็นโจทย์หาตัวแปร (? × B = Ans) ตามโอกาส · ง่าย/ง่ายมาก/online = ปิด (ไม่เรียก random กัน online desync)
+  isEquationMode = (d.equationChance > 0) && (Math.random() < d.equationChance);
   const q = window.GAME_DATA.generateProblem(currentMathMode, tier, isEquationMode, onlineRng);
   
   activeQuestion = q;
@@ -1531,6 +1541,23 @@ function drawMonster(ctx, x, y, type, frame) {
 
 // วาดไอเทมประเภทต่างๆ
 function drawItem(ctx, x, y, type, frame) {
+  // ไอเทมใหม่ (double/magnet/bomb/oneup): กรอบกลมเรืองแสง + สัญลักษณ์ อ่านง่าย
+  const NEW_EMOJI = { magnet: '🧲', bomb: '💣', oneup: '🍀' };
+  if (type === 'double' || NEW_EMOJI[type]) {
+    ctx.save();
+    const pulse = Math.sin(frame * 0.15) * 3;
+    ctx.translate(x, y - 26);
+    const col = type === 'bomb' ? '#34495e' : type === 'oneup' ? '#27ae60' : type === 'magnet' ? '#c0392b' : '#e67e22';
+    ctx.shadowColor = col; ctx.shadowBlur = 8 + pulse;
+    ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#000000'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(0, 0, 16, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    if (type === 'double') { ctx.font = 'bold 17px Fredoka One, sans-serif'; ctx.fillStyle = '#e67e22'; ctx.fillText('×2', 0, 1); }
+    else { ctx.font = '20px sans-serif'; ctx.fillText(NEW_EMOJI[type], 0, 1); }
+    ctx.restore();
+    return;
+  }
   ctx.save();
   let yOffset = 0;
   if (type === 'mushroom') yOffset = -22;
@@ -1697,6 +1724,24 @@ function drawItem(ctx, x, y, type, frame) {
 }
 
 // ฟังก์ชันเก็บไอเทมและประมวลผลบัฟ/ดีบัฟ
+// ── ระบบหัวใจกลาง (ใช้ทั้งผจญภัย + แข่งเวลา · ไม่ใช้กับ 2P/ออนไลน์) ──
+function heartsActive() { return mode === 'adventure' || mode === 'time'; }
+function curDiff() { return (mode === 'adventure' || mode === 'time') ? diff : CFG.DIFF.easy; }  // กันความยากรั่วเข้า online/2P
+function renderLives() {
+  const el = $('life-container'); if (!el) return;
+  let s = ''; for (let i = 0; i < maxLives; i++) s += (i < lives) ? '❤️' : '🖤';
+  el.innerText = s;
+}
+function gainLife(n) {
+  if (!heartsActive()) return;
+  lives = Math.min(maxLives, lives + (n || 1)); renderLives();
+}
+function loseLife(n) {
+  if (!heartsActive()) return;
+  lives = Math.max(0, lives - (n || 1)); renderLives();
+  if (lives <= 0) endGame();
+}
+
 function collectItem(playerIndex, type, x, y) {
   if (playerIndex === 1) {
     if (type === 'mushroom') {
@@ -1732,19 +1777,32 @@ function collectItem(playerIndex, type, x, y) {
       spawnCoins(x, y);
       KAMPAI.sound.correct();
     } else if (type === 'heart') {
-      if (mode === 'adventure') {
-        lives = Math.min(CFG.LIVES, lives + 1);
-        let s = '';
-        for (let i = 0; i < CFG.LIVES; i++) s += (i < lives) ? '❤️' : '🖤';
-        $('life-container').innerText = s;
+      if (heartsActive() && lives < maxLives) {
+        gainLife(1);
         addFloatingText(x, y, '❤️ +1 ชีวิต!', '#ff4757');
       } else {
-        if (mode === 'local_2p') p1Score += 10; else {
-          score += 10;
-          $('score-value').innerText = score;
-        }
+        if (mode === 'local_2p') p1Score += 10; else { score += 10; $('score-value').innerText = score; }
         addFloatingText(x, y, '+10 แต้ม!', '#FFD700');
       }
+      KAMPAI.sound.correct();
+    } else if (type === 'double') {
+      p1DoubleTime = CFG.BUFF_DOUBLE_DURATION * 60;
+      addFloatingText(x, y, '✖️2 คะแนนคูณสอง!', '#e67e22');
+      KAMPAI.sound.correct();
+    } else if (type === 'magnet') {
+      p1MagnetTime = CFG.BUFF_MAGNET_DURATION * 60;
+      addFloatingText(x, y, '🧲 แม่เหล็กดูดของ!', '#c0392b');
+      KAMPAI.sound.correct();
+    } else if (type === 'bomb') {
+      const cleared = activeMonsters.length;
+      activeMonsters = [];
+      if (cleared > 0) { score += cleared * 5; $('score-value').innerText = score; }
+      addFloatingText(x, y, `💣 เคลียร์มอนสเตอร์ ${cleared} ตัว!`, '#34495e');
+      KAMPAI.sound.correct(); KAMPAI.sound.fxFlash(true);
+      redFlashAlpha = 0.25;
+    } else if (type === 'oneup') {
+      if (heartsActive()) { gainLife(1); addFloatingText(x, y, '🍀 1-UP! +หัวใจ', '#27ae60'); }
+      else { score += 20; $('score-value').innerText = score; addFloatingText(x, y, '🍀 +20 แต้ม!', '#27ae60'); }
       KAMPAI.sound.correct();
     }
   } else {
@@ -1780,6 +1838,24 @@ function collectItem(playerIndex, type, x, y) {
     } else if (type === 'heart') {
       p2Score += 10;
       addFloatingText(x, y, '+10 P2!', '#FFD700');
+      KAMPAI.sound.correct();
+    } else if (type === 'double') {
+      p2Score += 20;
+      addFloatingText(x, y, '✖️2 +20 P2!', '#e67e22');
+      KAMPAI.sound.correct();
+    } else if (type === 'magnet') {
+      p2Score += 10;
+      addFloatingText(x, y, '🧲 +10 P2!', '#c0392b');
+      KAMPAI.sound.correct();
+    } else if (type === 'bomb') {
+      const cleared = activeMonsters.length;
+      activeMonsters = [];
+      if (cleared > 0) p2Score += cleared * 5;
+      addFloatingText(x, y, `💣 P2 เคลียร์ ${cleared}!`, '#34495e');
+      KAMPAI.sound.correct();
+    } else if (type === 'oneup') {
+      p2Score += 20;
+      addFloatingText(x, y, '🍀 +20 P2!', '#27ae60');
       KAMPAI.sound.correct();
     }
   }
@@ -1834,15 +1910,9 @@ function hitMonster(playerIndex, type, x, y) {
       $('combo-badge').classList.add('hidden');
       redFlashAlpha = 0.55;
 
-      if (mode === 'adventure') {
-        if (lives > 0) lives--;
-        let s = '';
-        for (let i = 0; i < CFG.LIVES; i++) s += (i < lives) ? '❤️' : '🖤';
-        $('life-container').innerText = s;
+      if (heartsActive()) {
         addFloatingText(x, y, '💥 เจ็บ!', '#ff4757');
-        if (lives <= 0) {
-          endGame();
-        }
+        loseLife(1);
       } else {
         score = Math.max(0, score - CFG.WRONG_PENALTY);
         $('score-value').innerText = score;
@@ -1881,8 +1951,8 @@ function spawnMonstersAndItemsForQuestion(playerIndex, q) {
     return Math.random();
   };
 
-  // 1. สุ่มเกิดมอนสเตอร์ (ต้องเกิดในเลนที่คำตอบผิดเพื่อไม่ให้ดักขวางคำตอบที่ถูก)
-  if (random() < CFG.MONSTER_SPAWN_CHANCE) {
+  // 1. สุ่มเกิดมอนสเตอร์ (ต้องเกิดในเลนที่คำตอบผิดเพื่อไม่ให้ดักขวางคำตอบที่ถูก) · ความยากปรับอัตราเกิด (ง่ายมาก=0)
+  if (random() < CFG.MONSTER_SPAWN_CHANCE * curDiff().monsterMul) {
     const wrongLanes = [];
     for (let l = 0; l < 4; l++) {
       if (q.choices[l] !== q.Target) {
@@ -1977,9 +2047,13 @@ function loop() {
   if (p1InvincibleTime > 0) p1InvincibleTime--;
   if (p1SlowTime > 0) p1SlowTime--;
   if (p1ConfusedTime > 0) p1ConfusedTime--;
+  if (p1DoubleTime > 0) p1DoubleTime--;
+  if (p1MagnetTime > 0) p1MagnetTime--;
   if (p2InvincibleTime > 0) p2InvincibleTime--;
   if (p2SlowTime > 0) p2SlowTime--;
   if (p2ConfusedTime > 0) p2ConfusedTime--;
+  if (p2DoubleTime > 0) p2DoubleTime--;
+  if (p2MagnetTime > 0) p2MagnetTime--;
 
   updateWind();
 
@@ -1993,6 +2067,7 @@ function loop() {
     blockSpeed = (p1SlowTime > 0) ? p1BlockSpeed * 0.65 : p1BlockSpeed;
     // เพิ่มความเร็วตามคอมโบในโหมด 1P
     blockSpeed += Math.min(3.0, combo * 0.4);
+    blockSpeed *= curDiff().speedMul;   // ความยาก: ง่ายมาก ×0.8 · ยาก ×1.2
   }
 
   const p1Speed = blockSpeed;
@@ -2438,6 +2513,8 @@ function loop() {
       const it = activeItems[i];
       const itSpeed = it.isPopped ? p1Speed * 1.35 : p1Speed;
       it.x -= itSpeed;
+      // 🧲 แม่เหล็ก: ดูดไอเทมเข้าเลนผู้เล่นเมื่อเข้าใกล้
+      if (p1MagnetTime > 0 && it.x < playerX + 320 && it.x > playerX - 40) it.lane = playerLane;
       const ity = getLanesY(it.lane);
       drawItem(ctx, it.x, ity, it.type, bgOffset);
 
@@ -2562,8 +2639,14 @@ function resolveHit(playerIndex, isCorrect, x, y) {
       combo++;
       correctAnswersCount++;
       p1CorrectAnswersCount++;
+      // คอมโบครบทุก N ครั้ง → ได้หัวใจ 1 ดวง (เฉพาะโหมดที่มีหัวใจ)
+      if (heartsActive() && combo % CFG.COMBO_HEART_EVERY === 0 && lives < maxLives) {
+        gainLife(1);
+        addFloatingText(x, y - 34, '❤️ คอมโบ! +หัวใจ', '#ff4757');
+      }
       const multiplier = Math.min(5, 1 + Math.floor(combo / 3));
-      const gain = base * multiplier;
+      let gain = base * multiplier;
+      if (p1DoubleTime > 0) gain *= 2;   // ไอเทม ✖️2 คะแนนคูณสอง
       score += gain;
       $('score-value').innerText = score;
       
@@ -2647,22 +2730,11 @@ function resolveHit(playerIndex, isCorrect, x, y) {
       $('combo-badge').classList.add('hidden');
       redFlashAlpha = 0.55;
 
-      if (mode === 'adventure') {
-        if (lives > 0) lives--;
-        let s = '';
-        for (let i = 0; i < CFG.LIVES; i++) s += (i < lives) ? '❤️' : '🖤';
-        $('life-container').innerText = s;
-        addFloatingText(x, y, `💥 เสียใจ!`, '#f87171');
-        
-        if (lives <= 0) {
-          endGame();
-        }
-      } else {
-        // time / online: โดนหักคะแนน
-        score = Math.max(0, score - CFG.WRONG_PENALTY);
-        $('score-value').innerText = score;
-        addFloatingText(x, y, `-${CFG.WRONG_PENALTY}`, '#f87171');
-      }
+      // เสียแต้มเสมอ + เสียหัวใจตามความยาก (ง่ายมาก = ไม่เสียหัวใจ · loseLife จะ no-op ถ้าไม่ใช่โหมดมีหัวใจ)
+      score = Math.max(0, score - CFG.WRONG_PENALTY);
+      $('score-value').innerText = score;
+      addFloatingText(x, y, `-${CFG.WRONG_PENALTY}`, '#f87171');
+      if (curDiff().wrongLosesHeart) loseLife(1);
     }
 
     // สปีดลดลง (ขั้นบันได)
@@ -2711,12 +2783,16 @@ function startSinglePlayer(m) {
   isGameOver = false;
   score = 0;
   lives = CFG.LIVES;
+  maxLives = CFG.MAX_LIVES;
+  diff = CFG.DIFF[currentDifficulty] || CFG.DIFF.easy;
+  p1DoubleTime = 0; p1MagnetTime = 0;
   level = 1;
   combo = 0;
   correctAnswersCount = 0;
   floatBlocks = [];
   activeMonsters = [];
   activeItems = [];
+  p1InvincibleTime = 0; p1SlowTime = 0; p1ConfusedTime = 0; p1IsGiant = false;
   p1HasShield = false;
   p2HasShield = false;
   playerTrail = [];
@@ -2735,7 +2811,7 @@ function startSinglePlayer(m) {
   p1BlockSpeed = CFG.BLOCK_START_SPEED;
   p1CorrectAnswersCount = 0;
   bgOffset = 0;
-  
+
   const chip2 = $('player-chip-p2');
   if (chip2) chip2.style.display = 'none';
 
@@ -2745,19 +2821,17 @@ function startSinglePlayer(m) {
   $('blocker').style.display = 'none';
   $('hud-container').style.display = 'flex';
   
-  if (m === 'adventure') {
-    $('life-container').style.display = 'block';
-    let s = '';
-    for (let i = 0; i < CFG.LIVES; i++) s += '❤️';
-    $('life-container').innerText = s;
-    $('timer-container').style.display = 'none';
-  } else {
-    $('life-container').style.display = 'none';
+  // หัวใจแสดงทั้งโหมดผจญภัย + แข่งเวลา (เริ่ม CFG.LIVES สูงสุด CFG.MAX_LIVES)
+  $('life-container').style.display = 'block';
+  renderLives();
+  if (m === 'time') {
     $('timer-container').style.display = 'block';
     gameTimeLeft = CFG.TIME_SECONDS;
     $('timer-value').innerText = gameTimeLeft;
     if (timerIntervalId) clearInterval(timerIntervalId);
     timerIntervalId = setInterval(tickTimer, 1000);
+  } else {
+    $('timer-container').style.display = 'none';
   }
 
   KAMPAI.sound.unlock();

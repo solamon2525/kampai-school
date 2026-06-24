@@ -25,6 +25,19 @@ window.GAME_CONFIG = {
   BUFF_INVINCIBLE_DURATION: 8, // ระยะเวลาอมตะ (วินาที)
   DEBUFF_SLOW_DURATION: 5,     // ระยะเวลาเชื่องช้า (วินาที)
   DEBUFF_CONFUSED_DURATION: 5, // ระยะเวลาควบคุมกลับด้าน (วินาที)
+  BUFF_DOUBLE_DURATION: 8,     // ระยะเวลาคะแนน ×2 (วินาที)
+  BUFF_MAGNET_DURATION: 6,     // ระยะเวลาแม่เหล็กดูดเหรียญ/ไอเทม (วินาที)
+
+  // ── หัวใจ ──
+  MAX_LIVES: 5,                // เพดานหัวใจสูงสุด (เริ่มที่ LIVES เก็บเพิ่มได้ถึงนี่)
+  COMBO_HEART_EVERY: 8,        // ตอบถูกติดกันครบทุก N → ได้หัวใจ 1 ดวง
+
+  // ── ความยาก (ปุ่ม #diff-group → มีผลต่อเกมจริง) ──
+  DIFF: {
+    very_easy: { tierMode: 'fixed1', speedMul: 0.8, monsterMul: 0,   equationChance: 0,   wrongLosesHeart: false },
+    easy:      { tierMode: 'score',  speedMul: 1.0, monsterMul: 1.0, equationChance: 0,   wrongLosesHeart: true  },
+    hard:      { tierMode: 'boost',  speedMul: 1.2, monsterMul: 1.3, equationChance: 0.5, wrongLosesHeart: true  },
+  },
 
   // ── ออนไลน์ ──
   ENABLE_ONLINE: true,        // เปิดปุ่มออนไลน์

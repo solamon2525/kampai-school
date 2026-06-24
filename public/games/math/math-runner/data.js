@@ -199,12 +199,16 @@ window.GAME_DATA = {
       return Math.random();
     };
     const r = random();
-    if (r < 0.20) return 'mushroom'; // เห็ดขยายตัว/เกราะ
-    if (r < 0.30) return 'star';     // ดาวอมตะ
-    if (r < 0.40) return 'shield';   // โล่ป้องกัน
-    if (r < 0.55) return 'poison';   // เห็ดพิษสับสน
-    if (r < 0.70) return 'lightning';// สายฟ้าสโลว์
-    if (r < 0.85) return 'egg';      // ไข่โบนัสแต้ม
-    return 'heart';                  // หัวใจฟื้นชีวิต
+    if (r < 0.12) return 'mushroom'; // เห็ดขยายตัว/เกราะ
+    if (r < 0.21) return 'star';     // ดาวอมตะ
+    if (r < 0.30) return 'shield';   // โล่ป้องกัน
+    if (r < 0.40) return 'double';   // ✖️2 คะแนนคูณสอง (ใหม่)
+    if (r < 0.49) return 'magnet';   // 🧲 แม่เหล็กดูดเหรียญ/ไอเทม (ใหม่)
+    if (r < 0.55) return 'bomb';     // 💣 ระเบิด/แช่แข็งมอนสเตอร์ทั้งจอ (ใหม่)
+    if (r < 0.65) return 'poison';   // เห็ดพิษสับสน
+    if (r < 0.75) return 'lightning';// สายฟ้าสโลว์
+    if (r < 0.84) return 'egg';      // ไข่โบนัสแต้ม
+    if (r < 0.94) return 'heart';    // หัวใจฟื้นชีวิต
+    return 'oneup';                  // 🍀 1-UP เพิ่มหัวใจ (หายาก, ใหม่)
   }
 };
