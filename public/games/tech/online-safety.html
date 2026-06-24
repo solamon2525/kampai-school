@@ -61,6 +61,7 @@ body { background: linear-gradient(180deg, #0e7490 0%, #155e75 55%, #0f172a 100%
 .btn-primary { background: linear-gradient(45deg, #06b6d4, #0891b2); box-shadow: 0 4px 10px rgba(6,182,212,0.4); }
 .btn-blue { background: linear-gradient(45deg, #3b82f6, #2563eb); box-shadow: 0 4px 10px rgba(59,130,246,0.4); }
 .btn-ghost { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25); }
+.btn-versus { background: linear-gradient(45deg,#f59e0b,#f97316); box-shadow: 0 4px 10px rgba(245,158,11,0.4); }
 .mode-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 8px; }
 .leaderboard-box { background: rgba(255,255,255,0.95); color: #2c3e50; border-radius: 12px; padding: 12px 15px; margin: 10px 0; width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
 .lb-title { font-family: 'Fredoka One', cursive; font-size: 1rem; margin: 0 0 8px 0; text-align: left; }
@@ -116,6 +117,7 @@ body { background: linear-gradient(180deg, #0e7490 0%, #155e75 55%, #0f172a 100%
         <button class="btn btn-primary" onclick="startGame('race')">⚡ แข่งเวลา</button>
         <button class="btn btn-ghost" onclick="startGame('practice')">📚 ฝึก</button>
     </div>
+    <button class="btn btn-versus" onclick="vs.openMenu()">🏁 แข่ง 2 คน (แข่งกับเพื่อน)</button>
     <div class="leaderboard-box">
         <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
         <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
@@ -139,6 +141,10 @@ body { background: linear-gradient(180deg, #0e7490 0%, #155e75 55%, #0f172a 100%
 <!-- ═══ KAMPAI SDK (single source — อย่าแก้) ═══ -->
 <script src="/games/kampai-sdk.js"></script>
 <script>window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{unlock:function(){return this;},correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},setBgm:function(){return this;},defaultBgm:function(){return this;},bgmStart:function(){},bgmStop:function(){},mountToggles:function(){return this;}} };</script>
+<script src="/games/kampai-match.js"></script>
+<script>window.KampaiMatch = window.KampaiMatch || { create:function(){ return { available:false, openMenu:function(){ alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); }, report:function(){}, finish:function(){}, leave:function(){} }; } };</script>
+<script src="/games/kampai-versus.js"></script>
+<script>window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window.KampaiMatch&&window.KampaiMatch.create)?window.KampaiMatch.create(o):null; return { available:false, openMenu:function(){ if(m)m.openMenu(); }, report:function(s,i){ if(m)m.report(s,i); }, finish:function(s,i){ if(m){m.finish(s,i);return true;} return false; }, leave:function(){}, mode:null }; } };</script>
 
 <script>
 /* ═══ SECTION A · ตั้งค่า ═══ */
@@ -232,6 +238,14 @@ let mode = 'race', scored = true, isGameOver = false;
 let score = 0, combo = 0, lives = 3, locked = false;
 let queue = [], curIdx = -1, cur = null, answered = 0;
 let timeLeft = 60, timerId = null;
+let versusRng = null, correctCount = 0;
+
+/* ── เฟรมเวิร์ก 2 ผู้เล่น (เดี่ยว + local hot-seat + online) — ดู GAME.md ── */
+const vs = KampaiVersus.create({
+    duration: 60, title: 'ปลอดภัยออนไลน์ · ดวล', rankBy: 'score',
+    onPlay: ({ rng }) => startVersusRound(rng),         // P1/P2/online: rng เรียงการ์ดให้ตรงกัน
+    onEnd:  () => { locked = true; isGameOver = true; KAMPAI.sound.bgmStop(); },  // หมดเวลา → หยุดรับคำตอบ
+});
 
 function setScore(n) {
     score = Math.max(0, Math.round(n));
@@ -249,9 +263,10 @@ function setLives(n) {
     $('life-container').innerText = s;
 }
 
-function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function shuffle(a) { const rnd = versusRng || Math.random; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
 function startGame(m) {
+    versusRng = null;   // โหมดเดี่ยว — สุ่มการ์ดอิสระ
     mode = m; scored = true; isGameOver = false;
     score = 0; combo = 0; answered = 0; locked = false;
     setScore(0); setCombo(0);
@@ -271,6 +286,21 @@ function startGame(m) {
         $('timer-wrap').classList.remove('on');
         setLives(3);
     }
+    nextCard();
+}
+
+// โหมดแข่ง 2 คน — รอบจับเวลา (เฟรมเวิร์กจับเวลา/สลับตา/เทียบผลให้) · การ์ดเรียงตาม rng = P1/P2 ตรงกัน
+function startVersusRound(rng) {
+    versusRng = rng || Math.random;
+    mode = 'race'; scored = true; isGameOver = false;
+    score = 0; combo = 0; answered = 0; correctCount = 0; locked = false;
+    setScore(0); setCombo(0);
+    $('start').classList.remove('on'); $('gameover').classList.remove('on');
+    $('hud').classList.add('on'); $('play').classList.add('on');
+    KAMPAI.sound.unlock(); KAMPAI.sound.bgmStart();
+    $('life-container').style.display = 'none';
+    $('timer-wrap').classList.remove('on');     // เฟรมเวิร์กแสดงนาฬิกาตาให้แล้ว
+    queue = shuffle(CARDS.slice()); curIdx = -1;
     nextCard();
 }
 
@@ -315,6 +345,8 @@ function answer(choice) {
         setCombo(combo + 1);
         const gain = 10 * Math.max(1, combo);
         setScore(score + gain);
+        correctCount++;
+        vs.report(score, { correct: correctCount });   // อัปคะแนนสด (online) / HUD ตา (local)
         KAMPAI.sound.correct(); KAMPAI.sound.fxFlash(true);
         $('scene-emoji').classList.add('bump'); setTimeout(() => $('scene-emoji').classList.remove('bump'), 250);
         fb.className = 'good';
@@ -347,7 +379,9 @@ function endGame() {
     if (isGameOver) return;
     isGameOver = true;
     if (timerId) { clearInterval(timerId); timerId = null; }
-    KAMPAI.sound.bgmStop(); KAMPAI.sound.gameOver();
+    KAMPAI.sound.bgmStop();
+    if (vs.finish(score, { correct: correctCount })) return;   // โหมดแข่ง → เฟรมเวิร์กเทียบผล (เดี่ยว = false)
+    KAMPAI.sound.gameOver();
     $('play').classList.remove('on');
     $('hud').classList.remove('on');
     $('timer-wrap').classList.remove('on');
