@@ -3,7 +3,7 @@
 -- ============================================================================
 -- Owner: ครูณัฐพงศ์ สิงห์ชมภู
 -- Path: public/games/thai/spelling-moto.html
--- Cover: public/games/thai/spelling-moto-cover.svg
+-- Cover: public/games/thai/spelling-moto-cover.png
 -- Idempotent: re-run keeps count stable
 -- ============================================================================
 
@@ -50,7 +50,7 @@ BEGIN
   SET game_slug = 'thai-spelling-moto',
       tracked_game = true,
       is_published = true,
-      thumbnail_url = '/games/thai/spelling-moto-cover.svg',
+      thumbnail_url = '/games/thai/spelling-moto-cover.png',
       updated_at = now()
   WHERE owner_staff_id = v_staff_id AND external_url = v_url;
 

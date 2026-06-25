@@ -38,6 +38,6 @@ BEGIN
 
   UPDATE public.educational_hub_items
   SET game_slug = 'thai-edu-rpg', tracked_game = true, is_published = true,
-      thumbnail_url = '/games/thai/thai-edu-rpg-cover.svg', updated_at = now()
+      thumbnail_url = '/games/thai/thai-edu-rpg-cover.png', updated_at = now()
   WHERE owner_staff_id = v_staff_id AND external_url = v_url;
 END $$;

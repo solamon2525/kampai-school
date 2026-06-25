@@ -3,7 +3,7 @@
 -- ============================================================================
 -- Owner: ครูณัฐพงศ์ สิงห์ชมภู
 -- Path: public/games/thai/nitro-arena.html
--- Cover: public/games/thai/nitro-arena-cover.svg
+-- Cover: public/games/thai/nitro-arena-cover.png
 -- Idempotent: re-run keeps count stable
 -- ============================================================================
 
@@ -50,7 +50,7 @@ BEGIN
   SET game_slug = 'nitro-arena',
       tracked_game = true,
       is_published = true,
-      thumbnail_url = '/games/thai/nitro-arena-cover.svg',
+      thumbnail_url = '/games/thai/nitro-arena-cover.png',
       updated_at = now()
   WHERE owner_staff_id = v_staff_id AND external_url = v_url;
 

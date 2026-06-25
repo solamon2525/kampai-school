@@ -37,6 +37,6 @@ BEGIN
 
   UPDATE public.educational_hub_items
   SET game_slug = 'globe-3d', tracked_game = true, is_published = true,
-      thumbnail_url = '/games/social/globe-3d-cover.svg', bgm_preset = 'playful', updated_at = now()
+      thumbnail_url = '/games/social/globe-3d-cover.png', bgm_preset = 'playful', updated_at = now()
   WHERE owner_staff_id = v_staff_id AND external_url = v_url;
 END $$;

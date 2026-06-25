@@ -10,6 +10,6 @@ SET external_url  = '/games/thai/ai-hand-gesture-game.html',
     subject       = 'บูรณาการ (ไทย+อังกฤษ)',
     tracked_game  = true,
     is_published  = true,
-    thumbnail_url = '/games/thai/ai-hand-gesture-game-cover.svg',
+    thumbnail_url = '/games/thai/ai-hand-gesture-game-cover.png',
     updated_at    = now()
 WHERE game_slug = 'ai-hand-gesture-game';
