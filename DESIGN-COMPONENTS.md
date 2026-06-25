@@ -379,6 +379,33 @@ Dialog ดู/แก้ **รายละเอียดเกม** (รูป�
 
 ---
 
+### GameDemoPreview (games — Educational Hub)
+
+กริดวิดีโอหน้ารวมเกม: การ์ดโชว์รูปปก → เข้าจอครบ ~2 วิ → เล่นคลิปเดโม (มิวต์ วน) fade ทับปก.
+ไฟล์ `src/components/educational-hub/GameDemoPreview.tsx` — ใช้ใน `ItemThumbnail` ของ **EduHubItemCard** เมื่อ item มีทั้ง `thumbnail_url` + `preview_video_url`.
+
+```tsx
+<GameDemoPreview cover={item.thumbnail_url} video={item.preview_video_url} title={item.title} delayMs={2000} />
+```
+
+- เล่นเฉพาะการ์ด **ในจอ** (`IntersectionObserver` threshold 0.5) · `<video muted loop playsInline preload="none">` lazy set `src` ตอนจะเล่น
+- **Guard บังคับ:** ข้ามวิดีโอ (โชว์รูปปก) เมื่อ `prefers-reduced-motion: reduce` หรือ `navigator.connection.saveData` · ออกจอ → pause + คาย `src` (memory)
+- เล่นสำเร็จ → `setPlaying(true)` → fade (`opacity-0`→`opacity-100`) · `play()` reject (autoplay block / โหลดไม่ได้) → คงรูปปก (graceful)
+- เกมไม่มี `preview_video_url` → `ItemThumbnail` render รูปปกปกติ (backward-safe)
+
+### VideoUpload (admin — shared)
+
+อัปคลิปสั้น (เดโมเกม) — มิเรอร์ **ImageUpload** แต่ **ไม่บีบอัด**. ไฟล์ `src/components/admin/shared/VideoUpload.tsx`.
+
+```tsx
+<VideoUpload currentVideo={url} folder={`${ownerId}/previews`} onUploadComplete={(url) => ...} />
+```
+
+- `accept="video/mp4,video/webm"` · จำกัด ≤15MB (raw) · อัปเข้า bucket `educational-hub` folder `previews/` → คืน public URL
+- ใช้ใน **GamesTab**: ฟอร์มสร้างเกม (`preview_video_url`) + dialog "ตั้งค่าเกม" (existing games) · เก็บใน `educational_hub_items.preview_video_url` (migration 241)
+
+---
+
 ## 3. Replacement Mapping (Purple → Green tokens)
 
 ใช้ตารางนี้เมื่อ refactor ไฟล์ที่มี hardcoded purple:

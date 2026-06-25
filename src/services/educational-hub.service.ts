@@ -38,6 +38,7 @@ export type EduHubItem = {
     title: string;
     description: string | null;
     thumbnail_url: string | null;
+    preview_video_url: string | null;  // คลิปเดโมสั้น (mp4/webm) — เล่นอัตโนมัติบนการ์ดหน้ารวมเกม (migration 241)
     file_url: string | null;
     file_name: string | null;
     file_size: number | null;

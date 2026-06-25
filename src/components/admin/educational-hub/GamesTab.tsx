@@ -40,6 +40,7 @@ import {
 } from '@/components/ui/select';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { ImageUpload } from '@/components/admin/shared/ImageUpload';
+import { VideoUpload } from '@/components/admin/shared/VideoUpload';
 import { ConfirmDialog } from '@/components/admin/shared/ConfirmDialog';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -887,6 +888,7 @@ const GameSettingsDialog = ({
     const [bgmSel, setBgmSel] = useState(
         item.bgm_url ? `track:${item.bgm_url}` : item.bgm_preset ? `preset:${item.bgm_preset}` : '__default__',
     );
+    const [previewVideoUrl, setPreviewVideoUrl] = useState(item.preview_video_url ?? '');
     const [saving, setSaving] = useState(false);
 
     const { data: tracks } = useQuery({
@@ -909,6 +911,7 @@ const GameSettingsDialog = ({
                 game_slug: gameSlug.trim() || null,
                 tracked_game: tracked,
                 is_published: published,
+                preview_video_url: previewVideoUrl.trim() || null,
                 ...bgm,
             });
             if (error) throw error;
@@ -982,6 +985,14 @@ const GameSettingsDialog = ({
                     </Select>
                     <p className="text-xs text-muted-foreground">
                         เพลงอัปโหลดมาก่อนเพลงสังเคราะห์ · จัดการคลังเพลงที่ปุ่ม "🎵 คลังเพลง" · ผู้เล่นยังกดปิด 🎵 เองได้
+                    </p>
+                </div>
+
+                <div className="space-y-1.5">
+                    <label className="text-sm font-medium">🎬 คลิปเดโม (หน้ารวมเกม)</label>
+                    <VideoUpload currentVideo={previewVideoUrl} onUploadComplete={setPreviewVideoUrl} />
+                    <p className="text-xs text-muted-foreground">
+                        การ์ดเกมจะโชว์รูปปก ~2 วิ แล้วเล่นคลิปนี้อัตโนมัติ (มิวต์ วน) — ใช้คลิปสั้นเน้นช่วงเล่นจริง · ว่างได้ = โชว์รูปปกเฉย ๆ
                     </p>
                 </div>
             </div>
@@ -1101,6 +1112,7 @@ const createSchema = z.object({
         .regex(/^[a-z0-9-]+$/, 'ใช้ a-z, 0-9, - เท่านั้น (ห้ามมีไทย/space)'),
     description: z.string().max(2000).optional().nullable(),
     thumbnail_url: z.string().optional().nullable(),
+    preview_video_url: z.string().optional().nullable(),
     grade_levels: z.array(z.string()).default([]),
     tags: z.array(z.string()).default([]),
 });
@@ -1195,6 +1207,7 @@ const GameUploadDialog = (props: Props) => {
             slug: '',
             description: '',
             thumbnail_url: '',
+            preview_video_url: '',
             grade_levels: [],
             tags: [],
         },
@@ -1268,6 +1281,7 @@ const GameUploadDialog = (props: Props) => {
                 title: values.title.trim(),
                 description: values.description?.trim() || null,
                 thumbnail_url: values.thumbnail_url?.trim() || null,
+                preview_video_url: values.preview_video_url?.trim() || null,
                 external_url: up.publicUrl,
                 subject: SUBJECT_OPTIONS.find((s) => s.folder === values.subject)?.label ?? null,
                 grade_levels: values.grade_levels ?? [],
@@ -1544,6 +1558,24 @@ const GameUploadDialog = (props: Props) => {
                                         folder={`${createForm.watch('owner_staff_id') || 'shared'}/thumbs`}
                                         currentImage={field.value ?? ''}
                                         compressionPreset="cover"
+                                        onUploadComplete={(url) => field.onChange(url)}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={createForm.control}
+                        name="preview_video_url"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>🎬 คลิปเดโม (ไม่บังคับ)</FormLabel>
+                                <FormControl>
+                                    <VideoUpload
+                                        folder={`${createForm.watch('owner_staff_id') || 'shared'}/previews`}
+                                        currentVideo={field.value ?? ''}
                                         onUploadComplete={(url) => field.onChange(url)}
                                     />
                                 </FormControl>

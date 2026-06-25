@@ -22,6 +22,7 @@ import {
 } from '@/services/educational-hub.service';
 import { gamePlayService } from '@/services/game-play.service';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
+import { GameDemoPreview } from './GameDemoPreview';
 import type { ViewMode } from '@/hooks/useViewMode';
 
 interface Props {
@@ -378,6 +379,16 @@ const CompactThumb = ({ item }: { item: EduHubItem }) => {
 
 const ItemThumbnail = ({ item }: { item: EduHubItem }) => {
     if (item.thumbnail_url) {
+        // กริดวิดีโอ: มีรูปปก + คลิปเดโม → โชว์ปก 2 วิ แล้วเล่นเดโมอัตโนมัติ (เฉพาะการ์ดในจอ)
+        if (item.preview_video_url) {
+            return (
+                <GameDemoPreview
+                    cover={item.thumbnail_url}
+                    video={item.preview_video_url}
+                    title={item.title}
+                />
+            );
+        }
         return (
             <div className="aspect-video w-full overflow-hidden bg-muted">
                 <img
