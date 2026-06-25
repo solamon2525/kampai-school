@@ -2182,10 +2182,18 @@
             
             startGameSession();
         } else if (event === 'peer_state') {
-            player2.x = payload.x;
-            player2.y = payload.y;
-            player2.angle = payload.angle;
-            player2.turretAngle = payload.turretAngle;
+            player2.targetX = payload.x;
+            player2.targetY = payload.y;
+            player2.targetAngle = payload.angle;
+            player2.targetTurretAngle = payload.turretAngle;
+
+            if (player2.x === 1650 && player2.y === 1600) {
+                player2.x = payload.x;
+                player2.y = payload.y;
+                player2.angle = payload.angle;
+                player2.turretAngle = payload.turretAngle;
+            }
+
             player2.hp = payload.hp;
             player2.shield = payload.shield;
             player2.level = payload.level;
@@ -2300,13 +2308,13 @@
             payload.enemies.forEach(sync => {
                 const e = enemies.find(x => x.id === sync.id);
                 if (e) {
-                    e.x = e.x * 0.4 + sync.x * 0.6;
-                    e.y = e.y * 0.4 + sync.y * 0.6;
+                    e.targetHostX = sync.x;
+                    e.targetHostY = sync.y;
                     e.vx = sync.vx;
                     e.vy = sync.vy;
                     e.hp = sync.hp;
-                    e.angle = sync.angle;
-                    e.turretAngle = sync.turretAngle;
+                    e.angle = lerpAngle(e.angle, sync.angle, 0.3);
+                    e.turretAngle = lerpAngle(e.turretAngle, sync.turretAngle, 0.3);
                 } else {
                     enemies.push({
                         id: sync.id,
@@ -2716,6 +2724,13 @@
             closestX: closestX,
             closestY: closestY
         };
+    }
+
+    function lerpAngle(a, b, t) {
+        let diff = b - a;
+        while (diff < -Math.PI) diff += Math.PI * 2;
+        while (diff > Math.PI) diff -= Math.PI * 2;
+        return a + diff * t;
     }
 
     // Canvas rendering for Motherboard components
@@ -3446,7 +3461,7 @@
 
             if (isHost) {
                 hostSyncTimer++;
-                if (hostSyncTimer >= 60) {
+                if (hostSyncTimer >= 15) {
                     hostSyncTimer = 0;
                     const syncData = enemies.map(e => ({
                         id: e.id,
@@ -3725,6 +3740,13 @@
                     updateHudBars();
                     spawnTextParticle(player2.x, player2.y - 30, "+2 HP", "#4ade80");
                 }
+            }
+        } else if (playMode === 'online') {
+            if (player2.targetX !== undefined) {
+                player2.x = player2.x * 0.8 + player2.targetX * 0.2;
+                player2.y = player2.y * 0.8 + player2.targetY * 0.2;
+                player2.angle = lerpAngle(player2.angle, player2.targetAngle || 0, 0.2);
+                player2.turretAngle = lerpAngle(player2.turretAngle, player2.targetTurretAngle || 0, 0.2);
             }
         }
     }
@@ -4127,10 +4149,15 @@
         }
 
         if (playMode === 'online' && !isHost) {
-            // Client only runs basic physics integration from synchronized velocities
+            // Client runs dead-reckoning (velocity integration) and smooth lerping towards synchronized host positions
             for (let e of enemies) {
                 e.x += e.vx;
                 e.y += e.vy;
+
+                if (e.targetHostX !== undefined) {
+                    e.x = e.x * 0.85 + e.targetHostX * 0.15;
+                    e.y = e.y * 0.85 + e.targetHostY * 0.15;
+                }
                 
                 // Keep within borders
                 e.x = Math.max(e.r, Math.min(e.x, arenaWidth - e.r));
@@ -5332,7 +5359,7 @@
         
         ctx.save();
         // Add neon glow to tank trim stroke
-        ctx.shadowBlur = 10;
+        ctx.shadowBlur = 4;
         ctx.shadowColor = trimColor;
         
         if (type === 'fast') {
@@ -5423,7 +5450,7 @@
         // Turret neon details (glowing fusion core)
         ctx.fillStyle = trimColor;
         ctx.save();
-        ctx.shadowBlur = 12;
+        ctx.shadowBlur = 5;
         ctx.shadowColor = trimColor;
         ctx.beginPath();
         ctx.arc(0, 0, r * 0.3, 0, Math.PI * 2);
