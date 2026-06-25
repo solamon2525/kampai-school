@@ -1458,8 +1458,17 @@ function sayText(item){
   return (item.en || item.label).replace(/\s*–\s*/g, ' for ');
 }
 function sayThaiText(item){
-  // อ่าน Thai phonetic (เช่น "เรด") ด้วยเสียงไทย — เป็นการสะกดเสียงให้ฟังตามภาษาแม่
-  return item.th || item.meaning || item.label;
+  let parts = [];
+  if (item.th) {
+    parts.push("อ่านว่า " + item.th);
+  }
+  if (item.meaning) {
+    parts.push("แปลว่า " + item.meaning);
+  }
+  if (parts.length === 0) {
+    parts.push(item.label);
+  }
+  return parts.join(" ");
 }
 function _speakOne(text, lang, voice, rate, onDone){
   try {
