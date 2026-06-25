@@ -126,10 +126,10 @@ Follow these standards strictly when developing, refactoring, or integrating edu
 
 5. **สเปคทางเทคนิคและสัดส่วนภาพ (Technical Specification):**
    - **ปรับภาพให้พอดีกับขนาด 16:9 (1280×720 pixels):** เนื่องจากระบบสร้างภาพของ AI มักจะส่งออกภาพขนาด 1024×1024 (1:1) เสมอ ดังนั้น **หลังจากรันคำสั่งสร้างภาพแล้ว คุณต้องเรียกใช้สคริปต์ย่อ/ขยายและครอบภาพ (High-Quality Crop/Resize) ให้ได้ขนาด 1280×720 pixels ทันที** ก่อนจะนำไปจัดเก็บที่โฟลเดอร์เกม เพื่อให้ภาพปกแสดงผลได้เต็มช่อง aspect-video อย่างสมบูรณ์ ไม่มีขอบดำ
+   - **การจัดวางองค์ประกอบให้เห็นครบถ้วน (Fit to Scale & Full Visibility):** การจัดองค์ประกอบภาพปกจะต้องปรับขนาดแบบรักษาอัตราส่วน (Fit to scale) เพื่อไม่ให้ภาพบิดเบี้ยว และต้องออกแบบในลักษณะ Safe Zone โดยให้ตัวละครหลัก ชื่อภาษาอังกฤษ/ไทย และ HUD ของเกมอยู่ถัดเข้ามาจากขอบ เพื่อรับประกันว่าจะไม่มีส่วนสำคัญใดๆ ถูกตัดขาด (Crop-off) และจะสามารถมองเห็นทุกส่วนของภาพได้อย่างครบถ้วนสมบูรณ์เมื่อแสดงผลบนระบบพอร์ทัล
    - **ชื่อไฟล์ภาพปก:** ต้องเซฟในชื่อ `cover.png` หรือ `{slug}-cover.png` ให้อยู่ในโฟลเดอร์เกมเดียวกับหน้าหลักของเกม
+
 
 6. **ตัวอย่าง Prompt สำเร็จรูปสำหรับสั่ง AI (Gemini Prompt Template):**
    - *ตัวอย่างสำหรับเกมเทคโนโลยี/วิทยาการคำนวณ:*
-     > "Chibi style educational coding game cover, clean line art, cute cartoon style, a baby tank with friendly big eyes made of colorful pastel plastic, shooting glowing rainbow bubble codes, digital grid battlefield background with warm pastel purple and cyan neon circuits, gamification elements with floating star coins and cute numbers, cheerful and bright lighting, showing English name 'CODE TANK' and Thai name 'รถถังโค้ดดิ้ง', no violence, no guns, super adorable, 16:9 ratio, premium game art."
-
 
