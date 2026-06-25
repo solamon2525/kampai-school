@@ -302,6 +302,27 @@
         z-index: 12;
     }
 
+    /* Mini-map styling */
+    .minimap-container {
+        position: absolute;
+        top: 80px;
+        right: 20px;
+        width: 180px;
+        height: 180px;
+        background: rgba(15, 23, 42, 0.65);
+        border: 2px solid #0284c7;
+        box-shadow: 0 0 15px rgba(2, 132, 199, 0.4);
+        border-radius: 8px;
+        overflow: hidden;
+        z-index: 15;
+        pointer-events: none;
+    }
+    #minimap-canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+
     .hud-bar {
         position: absolute;
         top: 0;
@@ -1168,6 +1189,11 @@
     <div id="screen-game" class="screen">
         <canvas id="game-canvas"></canvas>
         
+        <!-- Mini-map -->
+        <div class="minimap-container">
+            <canvas id="minimap-canvas" width="180" height="180"></canvas>
+        </div>
+        
         <!-- HUD -->
         <div class="game-hud">
             <div class="hud-bar">
@@ -1526,7 +1552,9 @@
 
 <!-- ================= KAMPAI SDK ================= -->
 <script src="/games/kampai-sdk.js"></script>
+<!-- <script src="/games/kampai-versus.js"></script> -->
 <script>
+    // KampaiVersus.create(
     // Standalone fallback object if loaded outside of KAMPAI wrapper
     window.KAMPAI = window.KAMPAI || {
         isEmbed: false,
@@ -1583,8 +1611,8 @@
     let hostSyncTimer = 0;
     
     let player2 = {
-        x: 850,
-        y: 800,
+        x: 1650,
+        y: 1600,
         r: 22,
         angle: 0,
         turretAngle: 0,
@@ -1902,14 +1930,14 @@
     let isGameRunning = false;
     let isPaused = false;
     let camera = { x: 0, y: 0 };
-    let arenaWidth = 1600;
-    let arenaHeight = 1600;
+    let arenaWidth = 3200;
+    let arenaHeight = 3200;
     let gameLoopId = null;
 
     // Player Tank State
     let player = {
-        x: 800,
-        y: 800,
+        x: 1600,
+        y: 1600,
         r: 22,
         angle: 0,
         turretAngle: 0,
@@ -1945,7 +1973,6 @@
     
     // Wave state
     let gameWave = 1;
-    let waveSpawnTimer = 0;
     let isBossSpawned = false;
     let bossInstance = null;
 
@@ -2517,25 +2544,42 @@
     function buildObstaclesMap() {
         mapWalls = [];
         
-        // Boundaries
-        // Outer boundaries are virtual limits, but we add physical components
-        // RAM slots in top right
-        addWall(1000, 200, 300, 30);
-        addWall(1000, 260, 300, 30);
-        addWall(1000, 320, 300, 30);
+        // --- Top-Left Zone ---
+        addWall(200, 200, 300, 30); // Wire / RAM slot style
+        addWall(200, 260, 300, 30);
+        addWall(600, 150, 80, 80, "capacitor");
+        addWall(150, 600, 100, 100, "capacitor");
+        addWall(400, 800, 220, 80, "heatsink");
+        addWall(800, 400, 150, 180, "heatsink");
         
-        // Large Capacitor blocks
-        addWall(250, 400, 80, 80, "capacitor");
-        addWall(250, 950, 80, 80, "capacitor");
-        addWall(1200, 1100, 100, 100, "capacitor");
+        // --- Top-Right Zone ---
+        addWall(2400, 200, 300, 30);
+        addWall(2400, 260, 300, 30);
+        addWall(2400, 320, 300, 30);
+        addWall(2000, 500, 80, 80, "capacitor");
+        addWall(2800, 600, 100, 100, "capacitor");
+        addWall(2200, 900, 220, 80, "heatsink");
+        addWall(2600, 1000, 150, 180, "heatsink");
 
-        // Motherboard heatsink blocks
-        addWall(500, 1100, 220, 80, "heatsink");
-        addWall(1100, 600, 150, 180, "heatsink");
-        
-        // Wire conduits
-        addWall(50, 600, 300, 15);
-        addWall(800, 1400, 400, 20);
+        // --- Middle Buffer / Passages ---
+        addWall(800, 1400, 300, 20); // Wire trace
+        addWall(2100, 1500, 400, 20); // Wire trace
+        addWall(1500, 600, 80, 80, "capacitor"); // Near center, but offset
+        addWall(1620, 2400, 100, 100, "capacitor");
+
+        // --- Bottom-Left Zone ---
+        addWall(250, 2400, 80, 80, "capacitor");
+        addWall(600, 2800, 100, 100, "capacitor");
+        addWall(150, 2000, 300, 15); // Wire
+        addWall(500, 2200, 220, 80, "heatsink");
+        addWall(900, 2600, 150, 180, "heatsink");
+
+        // --- Bottom-Right Zone ---
+        addWall(2500, 2400, 80, 80, "capacitor");
+        addWall(2200, 2800, 100, 100, "capacitor");
+        addWall(2600, 2000, 300, 15); // Wire
+        addWall(2000, 2200, 220, 80, "heatsink");
+        addWall(2500, 2600, 150, 180, "heatsink");
     }
 
     function addWall(x, y, w, h, type = "wire") {
@@ -2656,10 +2700,17 @@
             x = 50 + Math.random() * (arenaWidth - 100);
             y = 50 + Math.random() * (arenaHeight - 100);
             
-            // Check distance to player
+            // Check distance to players
             const dx = x - player.x;
             const dy = y - player.y;
-            if (Math.sqrt(dx*dx + dy*dy) > distMin) {
+            const d1 = Math.sqrt(dx*dx + dy*dy);
+            let d2 = Infinity;
+            if (player2.active) {
+                const dx2 = x - player2.x;
+                const dy2 = y - player2.y;
+                d2 = Math.sqrt(dx2*dx2 + dy2*dy2);
+            }
+            if (d1 > distMin && d2 > distMin) {
                 // Check wall collision
                 let collidesWall = false;
                 for (let wall of mapWalls) {
@@ -2821,6 +2872,261 @@
         shakeDuration = duration;
     }
 
+    // --- AI STEERING, COLLISION & HUD HELPERS ---
+    function hasLineOfSight(fromX, fromY, toX, toY) {
+        const dx = toX - fromX;
+        const dy = toY - fromY;
+        const dist = Math.hypot(dx, dy);
+        const steps = Math.ceil(dist / 20); // Check every 20px
+        
+        for (let i = 1; i < steps; i++) {
+            const t = i / steps;
+            const px = fromX + dx * t;
+            const py = fromY + dy * t;
+            
+            for (let wall of mapWalls) {
+                const padding = 10;
+                if (px >= wall.x - padding && px <= wall.x + wall.w + padding &&
+                    py >= wall.y - padding && py <= wall.y + wall.h + padding) {
+                    return false; // Line of sight blocked by wall
+                }
+            }
+        }
+        return true;
+    }
+
+    function getBestSteeringDirection(entity, targetX, targetY, isFleeing = false) {
+        const numRays = 8;
+        const candidateAngles = [];
+        for (let i = 0; i < numRays; i++) {
+            candidateAngles.push((i * Math.PI * 2) / numRays);
+        }
+
+        const targetAngle = Math.atan2(targetY - entity.y, targetX - entity.x);
+        let bestAngle = targetAngle;
+        let bestScore = -Infinity;
+
+        const lookAheadDist = Math.max(80, entity.speed * 45);
+
+        for (let angle of candidateAngles) {
+            const diff = Math.cos(angle - targetAngle);
+            let interest = isFleeing ? -diff : diff;
+
+            let maxDanger = 0;
+            const rx = entity.x;
+            const ry = entity.y;
+            const dx = Math.cos(angle);
+            const dy = Math.sin(angle);
+
+            for (let wall of mapWalls) {
+                const steps = 4;
+                for (let step = 1; step <= steps; step++) {
+                    const checkX = rx + dx * (lookAheadDist * (step / steps));
+                    const checkY = ry + dy * (lookAheadDist * (step / steps));
+                    const check = checkCircleRectCollision(checkX, checkY, entity.r * 1.1, wall.x, wall.y, wall.w, wall.h);
+                    if (check.collided) {
+                        const danger = (steps - step + 1) / steps;
+                        if (danger > maxDanger) {
+                            maxDanger = danger;
+                        }
+                    }
+                }
+            }
+
+            const score = interest - maxDanger * 2.2;
+            if (score > bestScore) {
+                bestScore = score;
+                bestAngle = angle;
+            }
+        }
+
+        return {
+            x: Math.cos(bestAngle),
+            y: Math.sin(bestAngle),
+            angle: bestAngle
+        };
+    }
+
+    function resolveEntityCollisions() {
+        // Player 1 vs Player 2
+        if (player2.active) {
+            const dx = player.x - player2.x;
+            const dy = player.y - player2.y;
+            const dist = Math.hypot(dx, dy);
+            const minDist = player.r + player2.r;
+            if (dist < minDist) {
+                const overlap = minDist - dist;
+                const nx = dx / (dist || 1);
+                const ny = dy / (dist || 1);
+                player.x += nx * overlap * 0.5;
+                player.y += ny * overlap * 0.5;
+                player2.x -= nx * overlap * 0.5;
+                player2.y -= ny * overlap * 0.5;
+            }
+        }
+
+        // Players vs Enemies
+        enemies.forEach(e => {
+            // Player 1 vs Enemy
+            let dx = player.x - e.x;
+            let dy = player.y - e.y;
+            let dist = Math.hypot(dx, dy);
+            let minDist = player.r + e.r;
+            if (dist < minDist) {
+                const overlap = minDist - dist;
+                const nx = dx / (dist || 1);
+                const ny = dy / (dist || 1);
+                player.x += nx * overlap * 0.1;
+                player.y += ny * overlap * 0.1;
+                e.x -= nx * overlap * 0.9;
+                e.y -= ny * overlap * 0.9;
+            }
+
+            // Player 2 vs Enemy
+            if (player2.active) {
+                dx = player2.x - e.x;
+                dy = player2.y - e.y;
+                dist = Math.hypot(dx, dy);
+                minDist = player2.r + e.r;
+                if (dist < minDist) {
+                    const overlap = minDist - dist;
+                    const nx = dx / (dist || 1);
+                    const ny = dy / (dist || 1);
+                    player2.x += nx * overlap * 0.1;
+                    player2.y += ny * overlap * 0.1;
+                    e.x -= nx * overlap * 0.9;
+                    e.y -= ny * overlap * 0.9;
+                }
+            }
+        });
+
+        // Enemy vs Enemy
+        for (let i = 0; i < enemies.length; i++) {
+            const e1 = enemies[i];
+            for (let j = i + 1; j < enemies.length; j++) {
+                const e2 = enemies[j];
+                const dx = e1.x - e2.x;
+                const dy = e1.y - e2.y;
+                const dist = Math.hypot(dx, dy);
+                const minDist = e1.r + e2.r;
+                if (dist < minDist) {
+                    const overlap = minDist - dist;
+                    const nx = dx / (dist || 1);
+                    const ny = dy / (dist || 1);
+                    if (e1.isBoss) {
+                        e2.x -= nx * overlap;
+                        e2.y -= ny * overlap;
+                    } else if (e2.isBoss) {
+                        e1.x += nx * overlap;
+                        e1.y += ny * overlap;
+                    } else {
+                        e1.x += nx * overlap * 0.5;
+                        e1.y += ny * overlap * 0.5;
+                        e2.x -= nx * overlap * 0.5;
+                        e2.y -= ny * overlap * 0.5;
+                    }
+                }
+            }
+        }
+    }
+
+    function constrainToWallsAndBorders(entity) {
+        mapWalls.forEach(wall => {
+            const check = checkCircleRectCollision(entity.x, entity.y, entity.r, wall.x, wall.y, wall.w, wall.h);
+            if (check.collided) {
+                const dx = entity.x - check.closestX;
+                const dy = entity.y - check.closestY;
+                const dist = Math.hypot(dx, dy);
+                if (dist > 0) {
+                    entity.x = check.closestX + (dx / dist) * entity.r;
+                    entity.y = check.closestY + (dy / dist) * entity.r;
+                } else {
+                    entity.x += (Math.random() - 0.5) * 5;
+                    entity.y += (Math.random() - 0.5) * 5;
+                }
+            }
+        });
+        entity.x = Math.max(entity.r, Math.min(entity.x, arenaWidth - entity.r));
+        entity.y = Math.max(entity.r, Math.min(entity.y, arenaHeight - entity.r));
+    }
+
+    function drawMinimap() {
+        const minimapCanvas = document.getElementById('minimap-canvas');
+        if (!minimapCanvas) return;
+        const mmCtx = minimapCanvas.getContext('2d');
+        if (!mmCtx) return;
+
+        mmCtx.clearRect(0, 0, minimapCanvas.width, minimapCanvas.height);
+        mmCtx.save();
+
+        const mmWidth = minimapCanvas.width;
+        const mmHeight = minimapCanvas.height;
+        const scaleX = mmWidth / arenaWidth;
+        const scaleY = mmHeight / arenaHeight;
+
+        // Draw boundaries border
+        mmCtx.strokeStyle = 'rgba(14, 165, 233, 0.4)';
+        mmCtx.lineWidth = 2;
+        mmCtx.strokeRect(0, 0, mmWidth, mmHeight);
+
+        // Draw obstacles (walls)
+        mmCtx.fillStyle = 'rgba(100, 116, 139, 0.6)';
+        mapWalls.forEach(w => {
+            const wx = w.x * scaleX;
+            const wy = w.y * scaleY;
+            const ww = w.w * scaleX;
+            const wh = w.h * scaleY;
+            mmCtx.fillRect(wx, wy, ww, wh);
+        });
+
+        // Draw powerups
+        powerUps.forEach(p => {
+            let color = '#fbbf24';
+            if (p.type === 'heart') color = '#ef4444';
+            else if (p.type === 'shield') color = '#06b6d4';
+            else if (p.type === 'xp') color = '#10b981';
+
+            mmCtx.fillStyle = color;
+            mmCtx.beginPath();
+            mmCtx.arc(p.x * scaleX, p.y * scaleY, 2, 0, Math.PI * 2);
+            mmCtx.fill();
+        });
+
+        // Draw enemies
+        enemies.forEach(e => {
+            mmCtx.fillStyle = e.type === 'boss' ? '#ef4444' : '#f87171';
+            const size = e.type === 'boss' ? 4 : 2;
+            mmCtx.beginPath();
+            mmCtx.arc(e.x * scaleX, e.y * scaleY, size, 0, Math.PI * 2);
+            mmCtx.fill();
+        });
+
+        // Draw Player 2 (if active)
+        if (player2.active) {
+            mmCtx.fillStyle = '#4ade80';
+            mmCtx.beginPath();
+            mmCtx.arc(player2.x * scaleX, player2.y * scaleY, 2.5, 0, Math.PI * 2);
+            mmCtx.fill();
+        }
+
+        // Draw Player 1
+        mmCtx.fillStyle = '#38bdf8';
+        mmCtx.beginPath();
+        mmCtx.arc(player.x * scaleX, player.y * scaleY, 3, 0, Math.PI * 2);
+        mmCtx.fill();
+
+        // Draw camera viewport box
+        const vx = camera.x * scaleX;
+        const vy = camera.y * scaleY;
+        const vw = canvas.width * scaleX;
+        const vh = canvas.height * scaleY;
+        mmCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+        mmCtx.lineWidth = 1;
+        mmCtx.strokeRect(vx, vy, vw, vh);
+
+        mmCtx.restore();
+    }
+
     // --- GAME LOOP & UPDATES ---
     function updateGame() {
         if (!isGameRunning || isPaused) return;
@@ -2874,6 +3180,14 @@
 
         // 7. Update enemies
         updateEnemies();
+
+        // Resolve tank-to-tank collisions
+        resolveEntityCollisions();
+
+        // Final wall and border constraints for all active characters to prevent wall clipping
+        constrainToWallsAndBorders(player);
+        if (player2.active) constrainToWallsAndBorders(player2);
+        enemies.forEach(e => constrainToWallsAndBorders(e));
 
         // 8. Update powerups
         updatePowerups();
@@ -3561,10 +3875,9 @@
             return;
         }
 
-        for (let e of enemies) {
-            const prevX = e.x;
-            const prevY = e.y;
+        const now = Date.now();
 
+        for (let e of enemies) {
             // Target closest player
             let targetPlayer = player;
             if (player2.active) {
@@ -3582,69 +3895,128 @@
             if (e.isBoss) {
                 updateBossLogic(e, dx, dy, dist);
             } else {
-                e.angle = Math.atan2(dy, dx);
-                
-                // Set moving velocities
-                e.vx = Math.cos(e.angle) * e.speed;
-                e.vy = Math.sin(e.angle) * e.speed;
-                
-                // Sniper tries to keep distance
-                if (e.type === 'sniper' && dist < 280) {
-                    e.vx = -Math.cos(e.angle) * e.speed;
-                    e.vy = -Math.sin(e.angle) * e.speed;
+                // Stuck detection logic
+                if (e.lastX === undefined) {
+                    e.lastX = e.x;
+                    e.lastY = e.y;
+                    e.stuckFrames = 0;
                 }
 
-                // Obstacle avoidance look-ahead feeler (10 frames ahead)
-                let blockedWall = null;
-                for (let wall of mapWalls) {
-                    const check = checkCircleRectCollision(e.x + e.vx * 10, e.y + e.vy * 10, e.r, wall.x, wall.y, wall.w, wall.h);
-                    if (check.collided) {
-                        blockedWall = wall;
-                        break;
+                const moveDist = Math.hypot(e.x - e.lastX, e.y - e.lastY);
+                if (moveDist < 0.2) {
+                    e.stuckFrames++;
+                } else {
+                    e.stuckFrames = 0;
+                }
+                e.lastX = e.x;
+                e.lastY = e.y;
+
+                let forceRandomSteer = false;
+                if (e.stuckFrames > 60) {
+                    forceRandomSteer = true;
+                    if (Math.random() < 0.05) {
+                        e.stuckFrames = 0;
                     }
                 }
-                
-                if (blockedWall) {
-                    const isHorizontal = blockedWall.w >= blockedWall.h;
-                    if (isHorizontal) {
-                        // Slide horizontally
-                        e.vx = (targetPlayer.x > e.x ? 1 : -1) * e.speed;
-                        e.vy = 0;
+
+                // AI Steering Decision based on type and status
+                let steer;
+                if (forceRandomSteer) {
+                    const randomAngle = Math.random() * Math.PI * 2;
+                    steer = {
+                        x: Math.cos(randomAngle),
+                        y: Math.sin(randomAngle),
+                        angle: randomAngle
+                    };
+                } else {
+                    // Behaviors based on enemy type
+                    if (e.type === 'basic') {
+                        steer = getBestSteeringDirection(e, targetPlayer.x, targetPlayer.y, false);
+                    } else if (e.type === 'fast') {
+                        // Orbit around player: calculate tangent target
+                        if (dist > 250) {
+                            steer = getBestSteeringDirection(e, targetPlayer.x, targetPlayer.y, false);
+                        } else {
+                            const orbitAngle = Math.atan2(e.y - targetPlayer.y, e.x - targetPlayer.x) + 0.4;
+                            const targetX = targetPlayer.x + Math.cos(orbitAngle) * 220;
+                            const targetY = targetPlayer.y + Math.sin(orbitAngle) * 220;
+                            steer = getBestSteeringDirection(e, targetX, targetY, false);
+                        }
+                    } else if (e.type === 'heavy') {
+                        steer = getBestSteeringDirection(e, targetPlayer.x, targetPlayer.y, false);
+                    } else if (e.type === 'sniper') {
+                        if (dist < 280) {
+                            // Flee to keep distance
+                            steer = getBestSteeringDirection(e, targetPlayer.x, targetPlayer.y, true);
+                        } else if (dist > 450) {
+                            // Approach player
+                            steer = getBestSteeringDirection(e, targetPlayer.x, targetPlayer.y, false);
+                        } else {
+                            // Stop and align turret
+                            steer = {
+                                x: 0,
+                                y: 0,
+                                angle: Math.atan2(targetPlayer.y - e.y, targetPlayer.x - e.x)
+                            };
+                        }
+                    } else if (e.type === 'hacker') {
+                        // approach player to EMP if ready, else keep distance
+                        const empReady = now - e.lastEmpTime > 4000;
+                        if (empReady) {
+                            steer = getBestSteeringDirection(e, targetPlayer.x, targetPlayer.y, false);
+                        } else {
+                            if (dist < 250) {
+                                steer = getBestSteeringDirection(e, targetPlayer.x, targetPlayer.y, true);
+                            } else {
+                                steer = {
+                                    x: 0,
+                                    y: 0,
+                                    angle: Math.atan2(targetPlayer.y - e.y, targetPlayer.x - e.x)
+                                };
+                            }
+                        }
                     } else {
-                        // Slide vertically
-                        e.vx = 0;
-                        e.vy = (targetPlayer.y > e.y ? 1 : -1) * e.speed;
+                        steer = getBestSteeringDirection(e, targetPlayer.x, targetPlayer.y, false);
                     }
                 }
+
+                // Apply velocity
+                e.vx = steer.x * e.speed;
+                e.vy = steer.y * e.speed;
+                e.angle = steer.angle;
 
                 e.x += e.vx;
                 e.y += e.vy;
 
-                // Restrict walls
-                mapWalls.forEach(wall => {
-                    const check = checkCircleRectCollision(e.x, e.y, e.r, wall.x, wall.y, wall.w, wall.h);
-                    if (check.collided) {
-                        e.x = prevX;
-                        e.y = prevY;
-                    }
-                });
-
-                // Shoot logic (Aim turret at closest player)
+                // Shoot logic (Aim turret at closest player and shoot with LOS check)
                 e.turretAngle = Math.atan2(targetPlayer.y - e.y, targetPlayer.x - e.x);
-                const now = Date.now();
                 
                 if (e.type === 'basic' && now - e.lastShotTime > 1500 && dist < 400) {
-                    fireEnemyProjectile(e, 5, 5, '#f97316');
-                    e.lastShotTime = now;
+                    if (hasLineOfSight(e.x, e.y, targetPlayer.x, targetPlayer.y)) {
+                        fireEnemyProjectile(e, 5, 5, '#f97316');
+                        e.lastShotTime = now;
+                    }
                 } else if (e.type === 'fast' && now - e.lastShotTime > 1000 && dist < 200) {
-                    fireEnemyProjectile(e, 4, 6, '#ef4444');
-                    e.lastShotTime = now;
+                    if (hasLineOfSight(e.x, e.y, targetPlayer.x, targetPlayer.y)) {
+                        fireEnemyProjectile(e, 4, 6, '#ef4444');
+                        e.lastShotTime = now;
+                    }
                 } else if (e.type === 'heavy' && now - e.lastShotTime > 2500 && dist < 450) {
-                    fireEnemyProjectile(e, 15, 4.5, '#ef4444', 8);
-                    e.lastShotTime = now;
+                    if (hasLineOfSight(e.x, e.y, targetPlayer.x, targetPlayer.y)) {
+                        fireEnemyProjectile(e, 15, 4.5, '#ef4444', 8);
+                        e.lastShotTime = now;
+                    }
                 } else if (e.type === 'sniper' && now - e.lastShotTime > 3000 && dist < 600) {
-                    fireEnemyProjectile(e, 12, 11, '#38bdf8', 4);
-                    e.lastShotTime = now;
+                    if (hasLineOfSight(e.x, e.y, targetPlayer.x, targetPlayer.y)) {
+                        // Sniper lead shot calculation
+                        const leadTime = dist / 11;
+                        const targetX = targetPlayer.x + (targetPlayer.vx || 0) * leadTime;
+                        const targetY = targetPlayer.y + (targetPlayer.vy || 0) * leadTime;
+                        e.turretAngle = Math.atan2(targetY - e.y, targetX - e.x);
+
+                        fireEnemyProjectile(e, 12, 11, '#38bdf8', 4);
+                        e.lastShotTime = now;
+                    }
                 } else if (e.type === 'hacker' && now - e.lastEmpTime > 4000 && dist < 220) {
                     triggerEnemyEmpZap(e);
                     e.lastEmpTime = now;
@@ -3734,60 +4106,97 @@
 
     // Chapter Boss AI logics
     function updateBossLogic(boss, dx, dy, dist) {
-        const prevX = boss.x;
-        const prevY = boss.y;
+        let targetPlayer = player;
+        if (player2.active) {
+            const d1 = Math.hypot(player.x - boss.x, player.y - boss.y);
+            const d2 = Math.hypot(player2.x - boss.x, player2.y - boss.y);
+            if (d2 < d1) targetPlayer = player2;
+        }
 
-        boss.angle = Math.atan2(dy, dx);
-        boss.vx = Math.cos(boss.angle) * boss.speed;
-        boss.vy = Math.sin(boss.angle) * boss.speed;
+        // Boss stuck detection
+        if (boss.lastX === undefined) {
+            boss.lastX = boss.x;
+            boss.lastY = boss.y;
+            boss.stuckFrames = 0;
+        }
+        if (Math.hypot(boss.x - boss.lastX, boss.y - boss.lastY) < 0.2) {
+            boss.stuckFrames++;
+        } else {
+            boss.stuckFrames = 0;
+        }
+        boss.lastX = boss.x;
+        boss.lastY = boss.y;
 
-        // Obstacle avoidance look-ahead feeler (10 frames ahead) for Boss
-        let blockedWall = null;
-        for (let wall of mapWalls) {
-            const check = checkCircleRectCollision(boss.x + boss.vx * 10, boss.y + boss.vy * 10, boss.r, wall.x, wall.y, wall.w, wall.h);
-            if (check.collided) {
-                blockedWall = wall;
-                break;
+        // Anti-stuck teleport
+        if (boss.stuckFrames > 120) {
+            let tx, ty;
+            let found = false;
+            for (let tries = 0; tries < 50; tries++) {
+                tx = 200 + Math.random() * (arenaWidth - 400);
+                ty = 200 + Math.random() * (arenaHeight - 400);
+                let collides = false;
+                for (let wall of mapWalls) {
+                    if (checkCircleRectCollision(tx, ty, boss.r + 20, wall.x, wall.y, wall.w, wall.h).collided) {
+                        collides = true;
+                        break;
+                    }
+                }
+                if (!collides) {
+                    found = true;
+                    break;
+                }
+            }
+            if (found) {
+                boss.x = tx;
+                boss.y = ty;
+                boss.stuckFrames = 0;
+                spawnExplosionParticles(tx, ty, 2);
+                spawnNotificationFloat("⚡ BOSS TELEPORTED! ⚡");
             }
         }
-        
-        if (blockedWall) {
-            const isHorizontal = blockedWall.w >= blockedWall.h;
-            let targetPlayer = player;
-            if (player2.active) {
-                const d1 = Math.hypot(player.x - boss.x, player.y - boss.y);
-                const d2 = Math.hypot(player2.x - boss.x, player2.y - boss.y);
-                if (d2 < d1) targetPlayer = player2;
-            }
-            if (isHorizontal) {
-                boss.vx = (targetPlayer.x > boss.x ? 1 : -1) * boss.speed;
-                boss.vy = 0;
-            } else {
-                boss.vx = 0;
-                boss.vy = (targetPlayer.y > boss.y ? 1 : -1) * boss.speed;
-            }
+
+        let steer;
+        if (boss.stuckFrames > 60 && Math.random() < 0.5) {
+            const randomAngle = Math.random() * Math.PI * 2;
+            steer = { x: Math.cos(randomAngle), y: Math.sin(randomAngle), angle: randomAngle };
+        } else {
+            steer = getBestSteeringDirection(boss, targetPlayer.x, targetPlayer.y, false);
         }
+
+        boss.vx = steer.x * boss.speed;
+        boss.vy = steer.y * boss.speed;
+        boss.angle = steer.angle;
 
         boss.x += boss.vx;
         boss.y += boss.vy;
 
-        // Restrict walls
-        mapWalls.forEach(wall => {
-            const check = checkCircleRectCollision(boss.x, boss.y, boss.r, wall.x, wall.y, wall.w, wall.h);
-            if (check.collided) {
-                boss.x = prevX;
-                boss.y = prevY;
-            }
-        });
-
+        // Shoot logic & phase configuration
         const now = Date.now();
+        const hpPercent = boss.hp / boss.maxHp;
         
-        // Multi-attacks patterns based on Chapters
+        let phase = 1;
+        if (hpPercent <= 0.25) {
+            phase = 3;
+        } else if (hpPercent <= 0.50) {
+            phase = 2;
+        }
+
+        // Multi-attacks patterns based on Chapters and Phases
         if (currentChapter === 1) {
             // Chapter 1: CPU Destroyer - Bullet hell circles
-            if (now - boss.lastShotTime > 1800) {
-                for (let i = 0; i < 10; i++) {
-                    const angle = (i * Math.PI * 2) / 10;
+            let shootInterval = 1800;
+            let numBullets = 10;
+            if (phase === 2) {
+                shootInterval = 1300;
+                numBullets = 12;
+            } else if (phase === 3) {
+                shootInterval = 900;
+                numBullets = 16;
+            }
+
+            if (now - boss.lastShotTime > shootInterval) {
+                for (let i = 0; i < numBullets; i++) {
+                    const angle = (i * Math.PI * 2) / numBullets;
                     spawnEnemyBulletDirect({
                         x: boss.x,
                         y: boss.y,
@@ -3802,10 +4211,22 @@
                 playSynthSFX('shoot');
             }
         } else if (currentChapter === 2) {
-            // Chapter 2: Data Corruptor - Spawns 2 glitch tanks or fires homing shells
-            if (now - boss.lastShotTime > 2400) {
-                for (let i = -1; i <= 1; i++) {
-                    const spreadAngle = boss.angle + (i * 0.25);
+            // Chapter 2: Data Corruptor - Spawns glitch spread shoots
+            let shootInterval = 2400;
+            let numSpread = 3;
+            if (phase === 2) {
+                shootInterval = 1800;
+                numSpread = 5;
+            } else if (phase === 3) {
+                shootInterval = 1200;
+                numSpread = 7;
+            }
+
+            if (now - boss.lastShotTime > shootInterval) {
+                const spreadSpacing = 0.25;
+                const startOffset = -Math.floor(numSpread / 2);
+                for (let i = 0; i < numSpread; i++) {
+                    const spreadAngle = boss.angle + ((startOffset + i) * spreadSpacing);
                     spawnEnemyBulletDirect({
                         x: boss.x + Math.cos(spreadAngle) * 70,
                         y: boss.y + Math.sin(spreadAngle) * 70,
@@ -3820,35 +4241,70 @@
                 playSynthSFX('shoot');
             }
         } else if (currentChapter === 3) {
-            // Chapter 3: Logic Commander - Shoots quick double lasers or walls
-            if (now - boss.lastShotTime > 1400) {
-                const d1 = boss.angle + 0.3;
-                const d2 = boss.angle - 0.3;
-                
-                spawnEnemyBulletDirect({
-                    x: boss.x + Math.cos(d1) * 65,
-                    y: boss.y + Math.sin(d1) * 65,
-                    vx: Math.cos(boss.angle) * 7,
-                    vy: Math.sin(boss.angle) * 7,
-                    isPlayer: false,
-                    damage: 10,
-                    r: 5
-                });
-                spawnEnemyBulletDirect({
-                    x: boss.x + Math.cos(d2) * 65,
-                    y: boss.y + Math.sin(d2) * 65,
-                    vx: Math.cos(boss.angle) * 7,
-                    vy: Math.sin(boss.angle) * 7,
-                    isPlayer: false,
-                    damage: 10,
-                    r: 5
-                });
+            // Chapter 3: Logic Commander - Shoots quick lasers/triple lasers
+            let shootInterval = 1400;
+            let count = 2;
+            if (phase === 2) {
+                shootInterval = 1000;
+                count = 2;
+            } else if (phase === 3) {
+                shootInterval = 700;
+                count = 3;
+            }
+
+            if (now - boss.lastShotTime > shootInterval) {
+                if (count === 2) {
+                    const d1 = boss.angle + 0.3;
+                    const d2 = boss.angle - 0.3;
+                    spawnEnemyBulletDirect({
+                        x: boss.x + Math.cos(d1) * 65,
+                        y: boss.y + Math.sin(d1) * 65,
+                        vx: Math.cos(boss.angle) * 7,
+                        vy: Math.sin(boss.angle) * 7,
+                        isPlayer: false,
+                        damage: 10,
+                        r: 5
+                    });
+                    spawnEnemyBulletDirect({
+                        x: boss.x + Math.cos(d2) * 65,
+                        y: boss.y + Math.sin(d2) * 65,
+                        vx: Math.cos(boss.angle) * 7,
+                        vy: Math.sin(boss.angle) * 7,
+                        isPlayer: false,
+                        damage: 10,
+                        r: 5
+                    });
+                } else {
+                    // Triple laser
+                    for (let offsetAngle of [-0.3, 0, 0.3]) {
+                        const d = boss.angle + offsetAngle;
+                        spawnEnemyBulletDirect({
+                            x: boss.x + Math.cos(d) * 65,
+                            y: boss.y + Math.sin(d) * 65,
+                            vx: Math.cos(boss.angle) * 7.5,
+                            vy: Math.sin(boss.angle) * 7.5,
+                            isPlayer: false,
+                            damage: 10,
+                            r: 5
+                        });
+                    }
+                }
                 boss.lastShotTime = now;
                 playSynthSFX('shoot');
             }
         } else if (currentChapter === 4) {
-            // Chapter 4: Cyber Hacker King - EMP burst ring + Phishing bombs
-            if (now - boss.lastShotTime > 2000) {
+            // Chapter 4: Cyber Hacker King - EMP burst ring + Phishing bombs + Glitch summons
+            let shootInterval = 2000;
+            let empInterval = 6000;
+            if (phase === 2) {
+                shootInterval = 1400;
+                empInterval = 4000;
+            } else if (phase === 3) {
+                shootInterval = 900;
+                empInterval = 2500;
+            }
+
+            if (now - boss.lastShotTime > shootInterval) {
                 spawnEnemyBulletDirect({
                     x: boss.x + Math.cos(boss.angle) * 70,
                     y: boss.y + Math.sin(boss.angle) * 70,
@@ -3863,9 +4319,44 @@
                 playSynthSFX('shoot');
             }
             
-            if (now - boss.lastEmpTime > 5000 && dist < 300) {
+            if (now - boss.lastEmpTime > empInterval && dist < 300) {
                 triggerEnemyEmpZap(boss);
                 boss.lastEmpTime = now;
+            }
+
+            // Phase 3 summons a glitch fast minion every 5 seconds
+            if (phase === 3) {
+                if (boss.lastSummonTime === undefined) boss.lastSummonTime = 0;
+                if (now - boss.lastSummonTime > 5000) {
+                    boss.lastSummonTime = now;
+                    // Spawn a fast minion near the boss
+                    const spawnAngle = Math.random() * Math.PI * 2;
+                    const sx = boss.x + Math.cos(spawnAngle) * (boss.r + 30);
+                    const sy = boss.y + Math.sin(spawnAngle) * (boss.r + 30);
+                    // Add directly to enemies array safely
+                    let summon = {
+                        id: 'summon_' + Date.now() + Math.random().toString(36).substr(2, 5),
+                        x: sx,
+                        y: sy,
+                        type: 'fast',
+                        vx: 0, vy: 0, angle: spawnAngle, turretAngle: spawnAngle,
+                        lastShotTime: now, lastEmpTime: 0,
+                        hp: 12, maxHp: 12, speed: 2.4, scoreVal: 150, r: 17
+                    };
+                    // Ensure summon doesn't spawn inside a wall
+                    let summonCollides = false;
+                    for (let wall of mapWalls) {
+                        if (checkCircleRectCollision(sx, sy, summon.r, wall.x, wall.y, wall.w, wall.h).collided) {
+                            summonCollides = true;
+                            break;
+                        }
+                    }
+                    if (!summonCollides) {
+                        enemies.push(summon);
+                        spawnExplosionParticles(sx, sy, 0.7);
+                        spawnNotificationFloat("👾 GLITCH SUMMONED! 👾");
+                    }
+                }
             }
         }
     }
@@ -3986,9 +4477,6 @@
     function manageWaves() {
         if (isBossSpawned) return; // Wait for boss fight to complete
 
-        // Spawn timer checks
-        waveSpawnTimer++;
-        
         // Check active enemies count
         if (enemies.length === 0) {
             // Wave progress check
@@ -4179,6 +4667,9 @@
         });
         
         ctx.restore();
+        
+        // Draw real-time Mini-map HUD
+        drawMinimap();
     }
 
     // Helper: Draw detailed 2D tank graphics
@@ -4385,8 +4876,9 @@
         player.level = 1;
         player.vx = 0;
         player.vy = 0;
-        player.x = 800;
-        player.y = 800;
+        player.x = 1600;
+        player.y = 1600;
+        player.score = 0;
         player.killsInQuizCycle = 0;
         player.combo = 0;
         player.doubleDamageTime = 0;
@@ -4400,8 +4892,8 @@
             player2.active = true;
             player2.hp = player2.maxHp;
             player2.shield = player2.maxShield;
-            player2.x = 850;
-            player2.y = 800;
+            player2.x = 1650;
+            player2.y = 1600;
             player2.vx = 0;
             player2.vy = 0;
             player2.angle = 0;

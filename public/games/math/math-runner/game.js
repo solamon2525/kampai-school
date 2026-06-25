@@ -59,6 +59,9 @@ KAMPAI.sound.mountToggles();
 
 /* ── มือถือ: บังคับแนวนอน + ปุ่ม ▲▼ วิชวล (เฉพาะจอสัมผัส) ── */
 let gamePaused = false;
+// ⚠️ ประกาศ started/isGameOver "ก่อน" บล็อกมือถือ — checkOrientation()/syncDpad() อ้างถึงตั้งแต่ load
+// (line 89 เรียกตอนโหลด) ถ้าประกาศทีหลังจะ TDZ ReferenceError → สคริปต์ค้าง → กดเริ่มเกมไม่ได้บนมือถือ
+let isGameOver = false, started = false;
 if (window.matchMedia && matchMedia('(pointer: coarse)').matches) document.body.classList.add('is-touch');
 
 function syncDpad() {
@@ -76,9 +79,10 @@ function isPortrait() {
   return window.innerHeight > window.innerWidth;
 }
 function checkOrientation() {
-  const show = !landscapeForced && document.body.classList.contains('is-touch') && isPortrait();
+  // แสดง overlay/หยุดเกม "เฉพาะตอนเล่นจริง" — จอเริ่ม (เมนู) ไม่ถูกบัง กดเริ่มได้เสมอ
+  const show = !landscapeForced && started && !isGameOver && document.body.classList.contains('is-touch') && isPortrait();
   document.body.classList.toggle('show-rotate', show);
-  gamePaused = show && started && !isGameOver;
+  gamePaused = show;
 }
 window.addEventListener('resize', checkOrientation);
 window.addEventListener('orientationchange', () => { checkOrientation(); setTimeout(checkOrientation, 350); });  // เผื่อขนาดอัปเดตช้า
@@ -167,7 +171,6 @@ const $ = (id) => document.getElementById(id);
 let mode = 'adventure'; // adventure | time | local_2p | online
 let score = 0, lives = CFG.LIVES, level = 1, combo = 0;
 let correctAnswersCount = 0;
-let isGameOver = false, started = false;
 let gameTimeLeft = CFG.TIME_SECONDS;
 let timerIntervalId = null;
 

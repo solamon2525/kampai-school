@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+    <!-- Dark tech background with gradient -->
+    <defs>
+        <radialGradient id="bgGlow" cx="50%" cy="50%" r="70%">
+            <stop offset="0%" stop-color="#0f172a"/>
+            <stop offset="100%" stop-color="#020617"/>
+        </radialGradient>
+        <linearGradient id="cyberTrace" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#0ea5e9" stop-opacity="0.8"/>
+            <stop offset="50%" stop-color="#2dd4bf" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#0284c7" stop-opacity="0.8"/>
+        </linearGradient>
+        <linearGradient id="textGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#38bdf8"/>
+            <stop offset="100%" stop-color="#0369a1"/>
+        </linearGradient>
+    </defs>
+
+    <rect width="1280" height="720" fill="url(#bgGlow)"/>
+
+    <!-- Grid pattern -->
+    <g stroke="rgba(14, 165, 233, 0.05)" stroke-width="1">
+        <path d="M 0,80 L 1280,80 M 0,160 L 1280,160 M 0,240 L 1280,240 M 0,320 L 1280,320 M 0,400 L 1280,400 M 0,480 L 1280,480 M 0,560 L 1280,560 M 0,640 L 1280,640"/>
+        <path d="M 80,0 L 80,720 M 160,0 L 160,720 M 240,0 L 240,720 M 320,0 L 320,720 M 400,0 L 400,720 M 480,0 L 480,720 M 560,0 L 560,720 M 640,0 L 640,720 M 720,0 L 720,720 M 800,0 L 800,720 M 880,0 L 880,720 M 960,0 L 960,720 M 1040,0 L 1040,720 M 1120,0 L 1120,720 M 1200,0 L 1200,720"/>
+    </g>
+
+    <!-- Circuit board design lines -->
+    <path d="M 100,100 L 300,100 L 380,180 L 380,300 M 1180,620 L 980,620 L 900,540 L 900,420" fill="none" stroke="url(#cyberTrace)" stroke-width="3" stroke-dasharray="10 5"/>
+    <circle cx="100" cy="100" r="6" fill="#38bdf8"/>
+    <circle cx="1180" cy="620" r="6" fill="#2dd4bf"/>
+
+    <!-- Motherboard heatsink graphics in background -->
+    <rect x="850" y="100" width="300" height="250" rx="10" fill="#0f172a" stroke="#0084c7" stroke-width="3"/>
+    <path d="M 870,120 L 870,330 M 895,120 L 895,330 M 920,120 L 920,330 M 945,120 L 945,330 M 970,120 L 970,330 M 995,120 L 995,330 M 1020,120 L 1020,330 M 1045,120 L 1045,330 M 1070,120 L 1070,330 M 1095,120 L 1095,330 M 1120,120 L 1120,330" stroke="#334155" stroke-width="12" stroke-linecap="round"/>
+
+    <!-- Glowing Cyber Tank Graphics -->
+    <g transform="translate(640, 460)">
+        <!-- Treads -->
+        <rect x="-100" y="-80" width="200" height="30" rx="5" fill="#334155" stroke="#1e293b" stroke-width="2"/>
+        <rect x="-100" y="50" width="200" height="30" rx="5" fill="#334155" stroke="#1e293b" stroke-width="2"/>
+        <!-- Chassis base -->
+        <rect x="-80" y="-55" width="160" height="110" rx="15" fill="#0284c7" stroke="#38bdf8" stroke-width="4"/>
+        <rect x="-50" y="-40" width="100" height="80" rx="10" fill="#0f172a" stroke="#0ea5e9" stroke-width="2"/>
+        <!-- Turret barrel -->
+        <rect x="0" y="-12" width="120" height="24" rx="4" fill="#0284c7" stroke="#38bdf8" stroke-width="3"/>
+        <line x1="120" y1="0" x2="135" y2="0" stroke="#38bdf8" stroke-width="8"/>
+        <!-- Turret cap -->
+        <circle cx="0" cy="0" r="35" fill="#0ea5e9" stroke="#38bdf8" stroke-width="4"/>
+        <circle cx="0" cy="0" r="18" fill="#1e293b" stroke="#2dd4bf" stroke-width="3"/>
+        <circle cx="0" cy="0" r="6" fill="#2dd4bf"/>
+    </g>
+
+    <!-- Title and Subtitle -->
+    <g transform="translate(640, 160)" text-anchor="middle">
+        <!-- Title with glow effect -->
+        <text y="0" font-family="'Orbitron', sans-serif" font-weight="900" font-size="80" fill="#38bdf8" letter-spacing="4" filter="drop-shadow(0 0 20px rgba(14, 165, 233, 0.6))">TANK COMMANDER</text>
+        <text y="60" font-family="'Kanit', sans-serif" font-weight="600" font-size="28" fill="#a855f7" letter-spacing="8">LEARNING EDITION</text>
+    </g>
+
+    <!-- UI/Hacker decor -->
+    <rect x="50" y="50" width="1180" height="620" fill="none" stroke="rgba(56, 189, 248, 0.2)" stroke-width="2" rx="12"/>
+    <path d="M 50,150 L 70,150 M 1230,150 L 1210,150 M 50,570 L 70,570 M 1230,570 L 1210,570" stroke="#38bdf8" stroke-width="4"/>
+</svg>

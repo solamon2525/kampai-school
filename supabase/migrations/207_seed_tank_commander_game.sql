@@ -3,7 +3,7 @@
 -- ============================================================================
 -- Owner: ครูณัฐพงศ์ สิงห์ชมภู
 -- Path: public/games/tech/tank-commander.html
--- Cover: public/games/tech/tank-commander-cover.png
+-- Cover: public/games/tech/tank-commander-cover.svg
 -- Idempotent: re-run keeps count stable
 -- ============================================================================
 
@@ -50,7 +50,7 @@ BEGIN
   SET game_slug = 'tank-commander',
       tracked_game = true,
       is_published = true,
-      thumbnail_url = '/games/tech/tank-commander-cover.png',
+      thumbnail_url = '/games/tech/tank-commander-cover.svg',
       bgm_preset = 'bright',
       updated_at = now()
   WHERE owner_staff_id = v_staff_id AND external_url = v_url;
