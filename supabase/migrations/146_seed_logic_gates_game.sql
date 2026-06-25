@@ -38,6 +38,6 @@ BEGIN
 
   UPDATE public.educational_hub_items
   SET game_slug = 'logic-gates', tracked_game = true, is_published = true,
-      thumbnail_url = '/games/tech/logic-gates-cover.svg', bgm_preset = 'playful', updated_at = now()
+      thumbnail_url = '/games/tech/logic-gates-cover.png', bgm_preset = 'playful', updated_at = now()
   WHERE owner_staff_id = v_staff_id AND external_url = v_url;
 END $$;
