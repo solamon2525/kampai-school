@@ -1625,7 +1625,7 @@ function buildHub(){
   });
 }
 function showHub(){
-  clearInterval(timer);
+  clearTimeout(timer);
   clearTimeout(spStepTimer);
   if(window.speechSynthesis) speechSynthesis.cancel();
   currentSlug='';
@@ -1689,7 +1689,7 @@ function buildCell(item, sIdx, cIdx){
 function showTopic(slug){
   const items=TOPICS[slug];
   if(!items) return;
-  clearInterval(timer);
+  clearTimeout(timer);
   curSlide=0; curCell=0;
   currentSlug=slug; allItems=items;
   isColorTopic = slug==='colors';
@@ -1737,7 +1737,7 @@ function setScore(html){ scoreEl.innerHTML=html||''; }
 function setMode(m){
   mode=m;
   isFlipRace=(m==='fliprace');
-  clearInterval(timer);
+  clearTimeout(timer);
   clearInterval(flashTimer); flashTimer=null;
   clearTimeout(spStepTimer);
   clearInterval(taTimer); taTimer=null;
@@ -1832,7 +1832,37 @@ function setHl(sIdx,cIdx, force){
   applyHl(sIdx,cIdx);
   curItem=slides[sIdx][cIdx];
   setBannerAuto(curItem);
-  speak(curItem, null, force);
+  
+  clearTimeout(timer);
+  
+  let advanced = false;
+  const advance = () => {
+    if (advanced) return;
+    advanced = true;
+    clearTimeout(timer);
+    if (mode === 'auto' && !autoPaused && !force) {
+      timer = setTimeout(() => {
+        curCell++;
+        if (curCell >= slides[curSlide].length) {
+          goTo(curSlide + 1);
+        } else {
+          setHl(curSlide, curCell);
+        }
+      }, cellMs);
+    }
+  };
+
+  // 8 seconds safety fallback to prevent getting stuck
+  let safetyFallback = null;
+  if (mode === 'auto' && !force && !autoPaused) {
+    safetyFallback = setTimeout(advance, 8000);
+  }
+
+  speak(curItem, () => {
+    if (safetyFallback) clearTimeout(safetyFallback);
+    advance();
+  }, force);
+  
   barEl.style.width=((cIdx+1)/ips*100)+'%';
 }
 function goTo(idx){
@@ -1842,22 +1872,18 @@ function goTo(idx){
   dotElArr[curSlide]?.classList.add('active');
   renderSlide(curSlide);
   setHl(curSlide,0);
-  startTimer();
 }
 function startTimer(){
-  clearInterval(timer);
+  clearTimeout(timer);
   if(mode!=='auto'||autoPaused) return;
-  timer=setInterval(()=>{
-    curCell++;
-    if(curCell>=slides[curSlide].length){ goTo(curSlide+1); return; }
-    setHl(curSlide,curCell);
-  }, cellMs);
+  setHl(curSlide, curCell);
 }
 function pauseAuto(){
   if(mode!=='auto'||autoPaused) return;
   autoPaused=true;
-  clearInterval(timer);
+  clearTimeout(timer);
   btnPause.textContent='▶'; btnPause.classList.add('on');
+  if(window.speechSynthesis) speechSynthesis.cancel();
 }
 function resumeAuto(){
   if(mode!=='auto'||!autoPaused) return;
