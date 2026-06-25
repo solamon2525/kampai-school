@@ -63,6 +63,13 @@
     var localWorldObj = null; // โหมด B (host): โลก authoritative
     var localInputObj = null; // โหมด B (peer): input ของเรา
     var timer = 0;
+    // เฟส 3: client-side prediction (peer ทำนายตัวเองให้ตอบสนอง input ทันที + reconcile เข้าหา host แบบนุ่ม)
+    var predLocalId = opts.localId || null;     // entity id ของ "เรา" ในโลก
+    var predStep = null;                        // step(state,input,dt)→newState (เกมจัดหา)
+    var predFields = fields;
+    var predBlend = (opts.blend != null ? opts.blend : 0.1);  // แรงดึงเข้าหา authoritative ต่อเฟรม (0..1)
+    var predMaxLead = (opts.maxLead != null ? opts.maxLead : null);  // กันทำนายนำ host เกินขีด (กันทะลุกำแพง) · null=ปิด
+    var predicted = null, authLocal = null;     // predicted = สถานะเราที่ทำนาย · authLocal = authoritative ล่าสุดของเรา
 
     function roundN(v) { return Math.round(v * pow) / pow; }
     function compact(o) {
@@ -113,7 +120,7 @@
     function trim(buf, nowT) { var cut = nowT - holdMs; while (buf.length > 2 && buf[0].t < cut) buf.shift(); }
 
     return {
-      version: '1.1.0',
+      version: '1.2.0',
       tickHz: tickHz,
       interpDelay: interpDelay,
 
@@ -137,7 +144,10 @@
           var t = perfNow(); buf.push({ t: t, s: data }); trim(buf, t); return true;
         }
         if (ev === worldEv) {                             // โหมด B: world snapshot
-          var tw = perfNow(); worldBuf.push({ t: tw, ents: (data.ents || data) }); trim(worldBuf, tw); return true;
+          var tw = perfNow(); var wents = (data.ents || data);
+          worldBuf.push({ t: tw, ents: wents }); trim(worldBuf, tw);
+          if (predLocalId && wents && has(wents, predLocalId)) authLocal = wents[predLocalId];  // เฟส 3: เก็บ authoritative ของเรา
+          return true;
         }
         if (ev === inputEv) {                             // โหมด B: peer input (เก็บล่าสุดต่อ peer)
           if (!fromKey) return false;
@@ -165,6 +175,43 @@
       peers: function () { return Object.keys(buffers); },
       entityIds: function () { return worldBuf.length ? Object.keys(worldBuf[worldBuf.length - 1].ents || {}) : []; },
 
+      /** เฟส 3: ตั้งค่า client-side prediction — step(state,input,dt)→newState · init=สถานะเริ่ม · localId=entity เรา */
+      predictor: function (cfg) {
+        cfg = cfg || {};
+        predStep = cfg.step || null;
+        if (cfg.fields) predFields = cfg.fields;
+        if (cfg.blend != null) predBlend = cfg.blend;
+        if (cfg.maxLead != null) predMaxLead = cfg.maxLead;
+        if (cfg.localId) predLocalId = cfg.localId;
+        predicted = cfg.init ? Object.assign({}, cfg.init) : {};
+        return this;
+      },
+      /** เฟส 3: บอกว่า entity ไหนในโลกคือ "เรา" (สำหรับ reconcile) */
+      setLocalId: function (id) { predLocalId = id; return this; },
+      /** เฟส 3: เดิน prediction 1 เฟรม — ตอบสนอง input ทันที + reconcile เข้าหา authoritative แบบนุ่ม (กันทะลุกำแพง) */
+      predictStep: function (dt, input) {
+        if (!predStep) return this;
+        var next = predStep(predicted, input, dt);
+        if (next) predicted = next;
+        if (authLocal && predicted) {
+          for (var i = 0; i < predFields.length; i++) {
+            var f = predFields[i];
+            if (typeof predicted[f] === 'number' && typeof authLocal[f] === 'number') {
+              predicted[f] += (authLocal[f] - predicted[f]) * predBlend;       // reconcile แบบนุ่ม
+              if (predMaxLead != null) {                                       // กันนำ host เกินขีด (กันทะลุกำแพง/rubber-band เกิน)
+                var lead = predicted[f] - authLocal[f];
+                if (lead > predMaxLead) predicted[f] = authLocal[f] + predMaxLead;
+                else if (lead < -predMaxLead) predicted[f] = authLocal[f] - predMaxLead;
+              }
+            }
+          }
+        }
+        return this;
+      },
+      /** เฟส 3: สถานะ "เรา" สำหรับวาด (predicted + reconciled) — ตอบสนองทันที ไม่ดีเลย์ */
+      localView: function () { return predicted; },
+      localAuth: function () { return authLocal; },   // debug
+
       /** ลบ peer (ตอนออกห้อง) + sync กับรายชื่อปัจจุบัน */
       dropPeer: function (id) { delete buffers[id]; delete inputs[id]; return this; },
       syncPeers: function (ids) {
@@ -179,7 +226,8 @@
       /** หยุด + ล้างทุกอย่าง */
       stop: function () {
         if (timer) { clearInterval(timer); timer = 0; }
-        buffers = {}; worldBuf = []; inputs = {}; localObj = null; localWorldObj = null; localInputObj = null; return this;
+        buffers = {}; worldBuf = []; inputs = {}; localObj = null; localWorldObj = null; localInputObj = null;
+        predicted = null; authLocal = null; return this;
       },
 
       _buffers: function () { return buffers; },   // debug/test
@@ -188,5 +236,5 @@
     };
   }
 
-  window.KampaiNet = { version: '1.1.0', create: create };
+  window.KampaiNet = { version: '1.2.0', create: create };
 })();

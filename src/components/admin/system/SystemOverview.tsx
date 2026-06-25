@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.112.0 (ระบบออนไลน์เฟส 2 — host-authority รองรับหลายคน + แก้ jitter)',
+        version: 'v1.113.0 (ระบบออนไลน์เฟส 3 — client-side prediction + reconciliation)',
         date: 'ล่าสุด',
+        badge: 'bg-indigo-600',
+        items: [
+            'เฟส 3 — **client-side prediction**: peer ทำนายตัวเองให้ตอบสนอง input ทันที (ไม่รอ host ~100ms) แล้ว **reconcile** เข้าหา world ของ host แบบนุ่ม → คุมตัวเองรู้สึก "ทันมือ" แม้ latency สูง',
+            'เพิ่ม API `predictor({step,fields,blend,maxLead,init,localId})` + `predictStep(dt,input)` + `localView()` · `maxLead` กันทำนายนำ host เกินขีด (กันทะลุกำแพง — host ยังเป็น authoritative)',
+            'ทดสอบ Node 7/7: instant response (ไม่รอ host) · reconcile blend เข้าหา authoritative · พิสูจน์ wall-case (ไม่มี clamp ทะลุ x=90 · maxLead:15 จำกัด x=65) · browser โหลด v1.2.0 + API ครบ',
+        ],
+    },
+    {
+        version: 'v1.112.0 (ระบบออนไลน์เฟส 2 — host-authority รองรับหลายคน + แก้ jitter)',
+        date: '',
         badge: 'bg-indigo-600',
         items: [
             'เฟส 2 — **host-authority star topology** ใน `kampai-net.js`: host จำลองโลกทั้งหมด + broadcast world snapshot, peer ส่งแค่ input → ตัด "authority-fighting" (ต้นเหตุ tank สั่น) + traffic O(N) แทน mesh O(N²) → **รองรับ 4-8 คน**',
