@@ -22,7 +22,12 @@ export const GameDemoPreview = ({ cover, video, title, delayMs = 2000 }: Props) 
 
     useEffect(() => {
         const el = containerRef.current;
-        if (!el) return;
+        const v = videoRef.current;
+        if (!el || !v) return;
+
+        // ★ บังคับ muted "property" (ไม่ใช่แค่ attribute) — React บางทีไม่เซ็ต property ให้ → browser บล็อก autoplay
+        v.muted = true;
+        v.defaultMuted = true;
 
         // Guard: ผู้ใช้ตั้งลดการเคลื่อนไหว หรือโหมดประหยัดเน็ต → ไม่เล่นวิดีโอเลย
         const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
@@ -30,34 +35,34 @@ export const GameDemoPreview = ({ cover, video, title, delayMs = 2000 }: Props) 
         if (reduce || saveData) return;
 
         let timer: ReturnType<typeof setTimeout> | undefined;
+        const onPlaying = () => setPlaying(true);   // ใช้ event 'playing' (เชื่อถือได้กว่า promise) → fade วิดีโอขึ้น
+        v.addEventListener('playing', onPlaying);
 
         const io = new IntersectionObserver(
             (entries) => {
                 const entry = entries[0];
-                const v = videoRef.current;
                 if (entry.isIntersecting) {
                     timer = setTimeout(() => {
-                        if (!v) return;
-                        if (!v.getAttribute('src')) v.setAttribute('src', video); // lazy load ตอนจะเล่น
-                        v.play().then(() => setPlaying(true)).catch(() => { /* autoplay ถูกบล็อก → คงรูปปก */ });
+                        if (!v.getAttribute('src')) { v.setAttribute('src', video); v.load(); } // lazy load ตอนจะเล่น
+                        v.muted = true;
+                        const p = v.play();
+                        if (p && typeof p.catch === 'function') p.catch(() => { /* autoplay ถูกบล็อก → คงรูปปก */ });
                     }, delayMs);
                 } else {
                     if (timer) { clearTimeout(timer); timer = undefined; }
                     setPlaying(false);
-                    if (v) {
-                        v.pause();
-                        v.removeAttribute('src');  // คาย memory
-                        v.load();
-                    }
+                    v.pause();
+                    if (v.getAttribute('src')) { v.removeAttribute('src'); v.load(); }  // คาย memory
                 }
             },
-            { threshold: 0.5 },
+            { threshold: 0.25 },
         );
 
         io.observe(el);
         return () => {
             io.disconnect();
             if (timer) clearTimeout(timer);
+            v.removeEventListener('playing', onPlaying);
         };
     }, [video, delayMs]);
 
