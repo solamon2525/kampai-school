@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { gamePlayService } from '@/services/game-play.service';
+import { GameDemoPreview } from '@/components/educational-hub/GameDemoPreview';
 import type { EduHubItem } from '@/services/educational-hub.service';
 
 export const FeaturedGameDialog = ({
@@ -58,7 +59,9 @@ export const FeaturedGameDialog = ({
 
                 {/* ปก */}
                 <div className="aspect-video w-full overflow-hidden rounded-lg border border-border bg-muted">
-                    {game.thumbnail_url ? (
+                    {game.thumbnail_url && game.preview_video_url ? (
+                        <GameDemoPreview cover={game.thumbnail_url} video={game.preview_video_url} title={game.title} />
+                    ) : game.thumbnail_url ? (
                         <img src={game.thumbnail_url} alt={game.title} className="w-full h-full object-contain" />
                     ) : (
                         <div className="w-full h-full bg-gradient-to-br from-muted to-secondary flex items-center justify-center text-4xl">🎮</div>

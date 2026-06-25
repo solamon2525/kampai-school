@@ -276,7 +276,7 @@ const versionHistory = [
         date: 'ล่าสุด',
         badge: 'bg-teal-600',
         items: [
-            '🎬 **กริดวิดีโอหน้ารวมเกม**: การ์ดเกมโชว์รูปปกก่อน → เข้าจอครบ ~2 วิ แล้ว **เล่นคลิปเดโมอัตโนมัติ** (มิวต์ วน) fade ทับปก — คอมโพเนนต์ `GameDemoPreview` ใช้ใน `EduHubItemCard` (ติดทุก grid หน้ารวมเกม)',
+            '🎬 **กริดวิดีโอหน้ารวมเกม**: การ์ดเกมโชว์รูปปกก่อน → เข้าจอครบ ~2 วิ แล้ว **เล่นคลิปเดโมอัตโนมัติ** (มิวต์ วน) fade ทับปก — คอมโพเนนต์ `GameDemoPreview` ใช้ใน `EduHubItemCard` (ทุก grid หน้ารวมเกม) + **โซน "เกมแนะนำ" หน้าแรก** (carousel + ป๊อปอัป FeaturedGameDialog)',
             'ประสิทธิภาพ: เล่นเฉพาะการ์ด **ในจอ** (IntersectionObserver) · lazy `src` (`preload=none`) · เคารพ prefers-reduced-motion + โหมดประหยัดเน็ต (saveData) → โชว์รูปปกเฉย ๆ · ออกจอ = หยุด+คาย memory · เกมไม่มีคลิป = รูปปกปกติ (backward-safe)',
             'หลังบ้าน: คอลัมน์ `preview_video_url` (migration 241) + คอมโพเนนต์ `VideoUpload` (mp4/webm ≤15MB → bucket educational-hub) อัปคลิปต่อเกมได้ทั้งฟอร์มสร้างเกม + ดialog "ตั้งค่าเกม"',
             'ทดสอบ: `pnpm build` ผ่าน · เบราว์เซอร์ยืนยันโครงสร้าง (ปก + วิดีโอ overlay lazy/มิวต์) + เฉพาะเกมที่มีคลิปจึงมี `<video>` + graceful fallback ตอนคลิปโหลดไม่ได้ (คงรูปปก ไม่มี error)',

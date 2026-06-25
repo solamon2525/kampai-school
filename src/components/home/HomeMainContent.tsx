@@ -17,6 +17,7 @@ import {
 import FacebookFeedSection from '@/components/home/sections/FacebookFeedSection';
 import { educationalHubService, type EduHubItem } from '@/services/educational-hub.service';
 import { FeaturedGameDialog } from '@/components/home/FeaturedGameDialog';
+import { GameDemoPreview } from '@/components/educational-hub/GameDemoPreview';
 
 interface NewsItem {
   id: string;
@@ -1048,7 +1049,9 @@ export const useHomeMainBlocks = () => {
               className="flex-shrink-0 w-44 sm:w-52 snap-start group text-left"
             >
               <div className="aspect-video bg-muted rounded-lg overflow-hidden border border-border">
-                {game.thumbnail_url ? (
+                {game.thumbnail_url && game.preview_video_url ? (
+                  <GameDemoPreview cover={game.thumbnail_url} video={game.preview_video_url} title={game.title} />
+                ) : game.thumbnail_url ? (
                   <img
                     src={game.thumbnail_url}
                     alt={game.title}
