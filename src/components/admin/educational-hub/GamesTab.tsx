@@ -59,6 +59,7 @@ import { gamePlayService } from '@/services/game-play.service';
 import { GameDocsDialog } from './GameDocsDialog';
 import { GameCoverAiDialog } from './GameCoverAiDialog';
 import { GameIndicatorsDialog } from './GameIndicatorsDialog';
+import { FeaturedGamesDisplaySettings } from './FeaturedGamesDisplaySettings';
 import { IndicatorPromptDialog } from './IndicatorPromptDialog';
 import { IndicatorCoverageDialog } from './IndicatorCoverageDialog';
 import { curriculumService } from '@/services/curriculum.service';
@@ -601,6 +602,7 @@ export const GamesTab = () => {
                 pendingCount={pendingIndicatorIds.length}
             />
             <CoverStandardKit />
+            <FeaturedGamesDisplaySettings />
             <DeveloperCheatsheet />
 
             {isLoading ? (
