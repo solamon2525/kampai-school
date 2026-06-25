@@ -74,6 +74,27 @@ const MainBlockPreview: Record<string, () => JSX.Element> = {
             </div>
         </div>
     ),
+    featured_games: () => (
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <div className="bg-emerald-800 text-white px-2 py-1 flex items-center justify-between">
+                <span className="text-[8px] font-semibold flex items-center gap-1">
+                    <span className="w-0.5 h-2 bg-yellow-400 rounded-full inline-block" />
+                    🎮 เกมแนะนำ
+                </span>
+                <span className="text-[6px] text-yellow-300">ดูทั้งหมด →</span>
+            </div>
+            <div className="flex gap-1.5 p-2 overflow-hidden">
+                {[0, 1, 2, 3].map((i) => (
+                    <div key={i} className="flex-shrink-0 w-10">
+                        <div className="aspect-[3/4] rounded bg-gradient-to-br from-indigo-300 to-purple-300 border border-gray-100 flex items-center justify-center text-[11px]">
+                            🎮
+                        </div>
+                        <div className="h-1 bg-gray-300 rounded w-3/4 mt-1" />
+                    </div>
+                ))}
+            </div>
+        </div>
+    ),
     news: () => (
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
             <div className="bg-emerald-800 text-white px-2 py-1 flex items-center justify-between">

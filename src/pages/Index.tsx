@@ -7,6 +7,7 @@ import { useHomeRightBlocks } from '@/components/home/HomeRightSidebar';
 import HomeFooterZone from '@/components/home/HomeFooterZone';
 import Footer from '@/components/Footer';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
+import { injectFeaturedMainBlocks, injectFeaturedMobileBlocks } from '@/components/home/featuredBlocks';
 
 interface HomepageLayout {
   header?: { blocks: string[]; hidden: string[] };
@@ -36,43 +37,9 @@ const Index = () => {
     try {
       layout = JSON.parse(settings.homepage_layout_raw);
       if (layout) {
-        // Auto-inject featured_hero if missing entirely from blocks and hidden
-        const allBlocks = [
-          ...(layout.header?.blocks || []),
-          ...(layout.left?.blocks || []),
-          ...(layout.main?.blocks || []),
-          ...(layout.right?.blocks || []),
-          ...(layout.footer?.blocks || [])
-        ];
-        const allHidden = [
-          ...(layout.header?.hidden || []),
-          ...(layout.left?.hidden || []),
-          ...(layout.main?.hidden || []),
-          ...(layout.right?.hidden || []),
-          ...(layout.footer?.hidden || [])
-        ];
-        if (!allBlocks.includes('featured_hero') && !allHidden.includes('featured_hero')) {
-          if (!layout.main) {
-            layout.main = { blocks: [], hidden: [] };
-          }
-          const heroIndex = layout.main.blocks.indexOf('hero');
-          if (heroIndex !== -1) {
-            // Insert featured_hero right after hero
-            layout.main.blocks.splice(heroIndex + 1, 0, 'featured_hero');
-          } else {
-            // Prepend to main
-            layout.main.blocks.unshift('featured_hero');
-          }
-        }
-        // Auto-inject featured_games (โซนเกมแนะนำ) if missing — แสดงต่อจาก featured_hero
-        // (section จะ render null จนกว่าจะมีเกมปักหมุด → ปลอดภัยที่จะ inject เสมอ)
-        if (!allBlocks.includes('featured_games') && !allHidden.includes('featured_games')) {
-          if (!layout.main) layout.main = { blocks: [], hidden: [] };
-          const fhIndex = layout.main.blocks.indexOf('featured_hero');
-          const hIndex = layout.main.blocks.indexOf('hero');
-          const at = fhIndex !== -1 ? fhIndex + 1 : (hIndex !== -1 ? hIndex + 1 : 0);
-          layout.main.blocks.splice(at, 0, 'featured_games');
-        }
+        // Auto-inject featured_hero + featured_games ลงโซน main ถ้ายังไม่มี (โลจิกตำแหน่งร่วมกับตัวแก้หลังบ้าน)
+        // (section เกมแนะนำ render null จนกว่าจะมีเกมปักหมุด → ปลอดภัยที่จะ inject เสมอ)
+        injectFeaturedMainBlocks(layout);
       }
     } catch { /* fallback */ }
   }
@@ -87,21 +54,8 @@ const Index = () => {
       mobileBlocks = (ml.blocks as string[]) || null;
       mobileHidden = (ml.hidden as string[]) || [];
 
-      // Auto-inject featured_hero if missing entirely from mobile layout
-      if (mobileBlocks && !mobileBlocks.includes('featured_hero') && !mobileHidden.includes('featured_hero')) {
-        const heroIndex = mobileBlocks.indexOf('hero');
-        if (heroIndex !== -1) {
-          mobileBlocks.splice(heroIndex + 1, 0, 'featured_hero');
-        } else {
-          mobileBlocks.unshift('featured_hero');
-        }
-      }
-      if (mobileBlocks && !mobileBlocks.includes('featured_games') && !mobileHidden.includes('featured_games')) {
-        const fhIndex = mobileBlocks.indexOf('featured_hero');
-        const hIndex = mobileBlocks.indexOf('hero');
-        const at = fhIndex !== -1 ? fhIndex + 1 : (hIndex !== -1 ? hIndex + 1 : 0);
-        mobileBlocks.splice(at, 0, 'featured_games');
-      }
+      // Auto-inject featured_hero + featured_games ถ้ายังไม่มีในเลย์เอาท์มือถือ (โลจิกตำแหน่งร่วม)
+      if (mobileBlocks) injectFeaturedMobileBlocks(mobileBlocks, mobileHidden);
     } catch { /* fallback */ }
   }
 

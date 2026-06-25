@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.114.0 (ระบบออนไลน์เฟส 4 — rollout: KampaiMatch smooth + math-rally + docs)',
+        version: 'v1.115.0 (จัดการหน้าแรก — บล็อก "เกมแนะนำ" จัดการได้จริง)',
         date: 'ล่าสุด',
+        badge: 'bg-teal-600',
+        items: [
+            '🎮 แก้บล็อก **"เกมแนะนำ" (featured_games)** ในตัวแก้หน้าแรกให้จัดการได้จริง — เดิมโผล่บนหน้าเว็บ (auto-inject) แต่ในตัวแก้เดสก์ท็อป **ไม่มี preview** (ล่องหน) + ถูก inject ต่อท้ายสุด (หาไม่เจอ · เซฟแล้วเกมเด้งไปอยู่ล่างสุด)',
+            'เพิ่ม preview การ์ดเกมใน `HomepagePreview` + ดึงโลจิกตำแหน่ง auto-inject (`featured_hero`/`featured_games`) เป็น util ร่วม `src/components/home/featuredBlocks.ts` ใช้ทั้งหน้าเว็บจริง (`Index`) + ตัวแก้ (`HomepageManager`) → ตำแหน่งตรงกัน · เปิด/ปิด/ลากเรียงได้ · เซฟไม่ทำเกมเด้งท้าย',
+            'ทดสอบ: util logic 8/8 (ข้อมูลจริง + กรณีซ่อน/ย้ายโซน/idempotent) · `pnpm build` ผ่าน · หน้าแรกจริง render โซนเกมแนะนำปกติ ไม่ regress',
+        ],
+    },
+    {
+        version: 'v1.114.0 (ระบบออนไลน์เฟส 4 — rollout: KampaiMatch smooth + math-rally + docs)',
+        date: '',
         badge: 'bg-indigo-600',
         items: [
             'เฟส 4 — **rollout netcode เข้าเฟรมเวิร์กกลาง**: `KampaiMatch` interpolate ตำแหน่งคู่แข่งผ่าน kampai-net แล้วเปิด `match.opponents()` (มี `v` = ตำแหน่ง interpolated) → **ทุกเกม race/score อ่านต่อเฟรมได้ลื่นทันที** (KampaiVersus ส่งต่อให้ด้วย) · ลด throttle ส่งคะแนน 120→80ms',

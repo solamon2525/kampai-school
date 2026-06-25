@@ -17,6 +17,7 @@ import {
 } from './BlockPalette';
 import { HomepagePreview } from './HomepagePreview';
 import { MobileLayoutManager, DEFAULT_MOBILE_LAYOUT, MOBILE_AVAILABLE_BLOCKS, type MobileLayout } from './MobileLayoutManager';
+import { injectFeaturedMainBlocks, injectFeaturedMobileBlocks } from '@/components/home/featuredBlocks';
 
 interface HomepageLayout {
     header: { blocks: string[]; hidden: string[] };
@@ -36,7 +37,7 @@ const DEFAULT_LAYOUT: HomepageLayout = {
         hidden: [],
     },
     main: {
-        blocks: ['hero', 'news', 'facebook_feed', 'about'],
+        blocks: ['hero', 'featured_hero', 'featured_games', 'news', 'facebook_feed', 'about'],
         hidden: [],
     },
     right: {
@@ -173,6 +174,10 @@ export const HomepageManager = () => {
             if (!loaded.left) loaded.left = { blocks: [], hidden: [] };
             if (!loaded.footer) loaded.footer = { blocks: [], hidden: [] };
 
+            // Inject featured_hero + featured_games ที่ "ตำแหน่งถูกต้อง" (หลัง featured_hero/hero) ก่อน generic inject
+            // ใช้โลจิกร่วมกับหน้าเว็บจริง (Index.tsx) → ตัวแก้กับหน้าจริงตำแหน่งตรงกัน + เซฟแล้วเกมไม่เด้งท้าย
+            injectFeaturedMainBlocks(loaded);
+
             // Find all blocks currently ANYWHERE in the layout
             const allCurrentBlocks = new Set([
                 ...loaded.header.blocks,
@@ -206,6 +211,8 @@ export const HomepageManager = () => {
             if (map.homepage_mobile_layout) {
                 try {
                     const parsed = JSON.parse(map.homepage_mobile_layout) as MobileLayout;
+                    // Inject featured_hero/featured_games ที่ตำแหน่งถูกต้องก่อน (ไม่งั้นจะถูก append ท้ายสุดด้านล่าง)
+                    injectFeaturedMobileBlocks(parsed.blocks, parsed.hidden || []);
                     // Ensure all available blocks are present (inject new ones at end)
                     const existingIds = new Set(parsed.blocks);
                     const newBlocks = MOBILE_AVAILABLE_BLOCKS.filter(b => !existingIds.has(b.id)).map(b => b.id);
