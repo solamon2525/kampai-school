@@ -683,6 +683,88 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
 
 #cfx{position:fixed;inset:0;z-index:70;pointer-events:none;display:none}
 
+/* ===== STUDENT BANNER (Hub) ===== */
+#hub-student-banner{
+  display:none;
+  background:linear-gradient(135deg,rgba(255,215,0,0.12),rgba(245,158,11,0.06));
+  border:1.5px solid rgba(255,215,0,0.35);
+  border-radius:14px;
+  padding:1vh 2vw;
+  margin-bottom:1.5vh;
+  gap:1.2vw;
+  align-items:center;
+  flex-wrap:wrap;
+}
+#hub-student-banner.show{display:flex}
+.hsb-avatar{
+  width:clamp(34px,4.5vh,44px);height:clamp(34px,4.5vh,44px);
+  border-radius:50%;object-fit:cover;
+  border:2px solid rgba(255,215,0,0.6);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:#FFE082;color:#1565C0;font-weight:800;font-size:2.2vh;
+}
+.hsb-avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover}
+.hsb-info{display:flex;flex-direction:column;gap:0.2vh;flex:1;min-width:0}
+.hsb-name{font-size:2vh;font-weight:700;color:#FFE082;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hsb-meta{font-size:1.65vh;color:rgba(255,255,255,0.6);display:flex;gap:1.2vw;flex-wrap:wrap}
+.hsb-meta span{white-space:nowrap}
+.hsb-xp-bar-wrap{display:flex;align-items:center;gap:6px;min-width:120px;flex:0 0 auto}
+.hsb-xp-bar{
+  height:7px;border-radius:4px;background:rgba(255,255,255,0.12);
+  flex:1;overflow:hidden;position:relative;min-width:80px;
+}
+.hsb-xp-fill{
+  height:100%;border-radius:4px;
+  background:linear-gradient(90deg,#FFD700,#FF8F00);
+  transition:width 0.6s ease;
+}
+.hsb-xp-label{font-size:1.5vh;color:rgba(255,215,0,0.7);white-space:nowrap}
+
+/* ===== LEADERBOARD (Hub) ===== */
+#hub-leaderboard{
+  display:none;
+  background:rgba(0,0,0,0.25);
+  border:1.5px solid rgba(255,215,0,0.2);
+  border-radius:14px;
+  padding:1vh 1.5vw;
+  margin-bottom:1.5vh;
+  flex-direction:column;
+  gap:0.5vh;
+}
+#hub-leaderboard.show{display:flex}
+.hub-lb-title{
+  font-size:1.8vh;font-weight:700;color:#FFE082;
+  margin-bottom:0.4vh;letter-spacing:0.04em;
+}
+.lb-row{
+  display:flex;align-items:center;gap:0.8vw;
+  padding:0.4vh 0.6vw;border-radius:8px;
+  transition:background 0.12s;
+}
+.lb-row.lb-me{background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.3)}
+.lb-rank{font-size:1.7vh;font-weight:700;color:rgba(255,255,255,0.45);width:3ch;text-align:center;flex-shrink:0}
+.lb-rank.gold{color:#FFD700}.lb-rank.silver{color:#C0C0C0}.lb-rank.bronze{color:#CD7F32}
+.lb-av{
+  width:clamp(22px,3vh,28px);height:clamp(22px,3vh,28px);border-radius:50%;
+  background:#FFE082;color:#1565C0;font-size:1.4vh;font-weight:700;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  overflow:hidden;
+}
+.lb-av img{width:100%;height:100%;object-fit:cover}
+.lb-name{flex:1;font-size:1.7vh;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-me .lb-name{color:#FFE082;font-weight:700}
+.lb-score{font-size:1.7vh;font-weight:700;color:#FFD700;white-space:nowrap}
+.lb-class{font-size:1.4vh;color:rgba(255,255,255,0.4);white-space:nowrap}
+
+/* ===== WIN SCREEN — personal best + kampai-result slot ===== */
+#win-personal-best{
+  font-size:2.6vh;font-weight:700;color:#FFD700;
+  animation:pop 0.4s;text-align:center;
+  display:none;
+}
+#win-personal-best.show{display:block}
+#kampai-result{margin:0 auto}
+
 /* ===== MOBILE / RESPONSIVE (≤768px) ===== */
 @media (max-width: 768px){
   /* scroll safety — ของล้นต้องเข้าถึงได้เสมอ */
@@ -778,7 +860,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
 <div id="hub-view">
   <div id="hub-title">คำศัพท์ภาษาอังกฤษ</div>
   <div id="hub-sub">English Vocabulary — เลือกหัวข้อ &nbsp;|&nbsp; F = เต็มจอ</div>
-  <div style="text-align:center;margin-bottom:1.5vh">
+  <div style="text-align:center;margin-bottom:1.2vh">
     <button id="btn-back-hub" onclick="KAMPAI.goHome()"
       style="display:inline-flex;align-items:center;gap:6px;padding:8px 22px;border-radius:12px;
         border:2px solid rgba(255,224,130,0.35);background:rgba(255,224,130,0.1);
@@ -787,6 +869,27 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
       onmouseover="this.style.background='rgba(255,224,130,0.22)';this.style.borderColor='rgba(255,224,130,0.6)';this.style.transform='scale(1.04)'"
       onmouseout="this.style.background='rgba(255,224,130,0.1)';this.style.borderColor='rgba(255,224,130,0.35)';this.style.transform='scale(1)'"
     >⬅ กลับหน้ารวมเกม</button>
+  </div>
+  <!-- Student Banner (แสดงเมื่อล็อกอินผ่าน KAMPAI SDK) -->
+  <div id="hub-student-banner">
+    <div class="hsb-avatar" id="hsb-avatar-wrap"></div>
+    <div class="hsb-info">
+      <div class="hsb-name" id="hsb-name">นักเรียน</div>
+      <div class="hsb-meta">
+        <span id="hsb-level">🎖️ Lv.1</span>
+        <span id="hsb-plays">🎮 0 ครั้ง</span>
+        <span id="hsb-best">🏆 Best: 0</span>
+      </div>
+    </div>
+    <div class="hsb-xp-bar-wrap">
+      <div class="hsb-xp-bar"><div class="hsb-xp-fill" id="hsb-xp-fill" style="width:0%"></div></div>
+      <div class="hsb-xp-label" id="hsb-xp-label">0 XP</div>
+    </div>
+  </div>
+  <!-- Leaderboard (แสดงเมื่อมีข้อมูล leaderboard จาก SDK) -->
+  <div id="hub-leaderboard">
+    <div class="hub-lb-title">🏆 อันดับ — คะแนนสูงสุด</div>
+    <div id="hub-lb-rows"></div>
   </div>
   <div id="hub-grid"></div>
 </div>
@@ -903,6 +1006,8 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   <div class="win-text">เก่งมาก!</div>
   <div class="win-stars"></div>
   <div class="win-score"></div>
+  <div id="win-personal-best"></div>
+  <div id="kampai-result"></div>
   <div class="win-btns">
     <button class="win-btn primary" id="win-again">▶ เล่นอีกครั้ง</button>
     <button class="win-btn" id="win-home">← หน้าหลัก</button>
@@ -1631,6 +1736,20 @@ function showWin(emoji,text,scoreHtml,stars){
   winEl.querySelector('.win-text').textContent=text;
   winEl.querySelector('.win-stars').textContent=stars||'';
   winEl.querySelector('.win-score').innerHTML=scoreHtml||'';
+  // Personal best check
+  var pbEl = document.getElementById('win-personal-best');
+  if (pbEl) {
+    pbEl.textContent = '';
+    pbEl.classList.remove('show');
+    try {
+      var numScore = parseInt((scoreHtml||'').replace(/<[^>]*>/g,'').match(/\d+/)?.[0] || '0', 10);
+      var pb = KAMPAI.stats && KAMPAI.stats.personalBest;
+      if (pb != null && numScore > 0 && numScore > pb) {
+        pbEl.textContent = '🎉 สถิติใหม่! ' + numScore + ' คะแนน';
+        pbEl.classList.add('show');
+      }
+    } catch(_) {}
+  }
   winEl.classList.add('show');
   sWin(); confetti();
   try{KAMPAI.sound.fxFlash(true);}catch(_){}
@@ -3365,12 +3484,14 @@ window.addEventListener('hashchange',route);
 buildHub();
 route();
 
-// KAMPAI SDK init — player chip + sound
+// KAMPAI SDK init — player chip + student banner + leaderboard + XP result
 const GAME_SLUG = 'vocab-hub';
 KAMPAI.setSlug(GAME_SLUG);
 KAMPAI.onReady(function(K){
   try {
     var s = K.student;
+
+    // ── 1. Player chip (top-right corner, existing) ──────────────────────
     if(s){
       var chip = document.getElementById('player-chip');
       if(chip){
@@ -3381,6 +3502,79 @@ KAMPAI.onReady(function(K){
         chip.style.display = 'flex';
       }
     }
+
+    // ── 2. Student Banner in Hub ──────────────────────────────────────────
+    if(s && K.stats){
+      var banner = document.getElementById('hub-student-banner');
+      var avatarWrap = document.getElementById('hsb-avatar-wrap');
+      var nameEl = document.getElementById('hsb-name');
+      var levelEl = document.getElementById('hsb-level');
+      var playsEl = document.getElementById('hsb-plays');
+      var bestEl = document.getElementById('hsb-best');
+      var xpFill = document.getElementById('hsb-xp-fill');
+      var xpLabel = document.getElementById('hsb-xp-label');
+
+      if(avatarWrap){
+        if(s.photoUrl){
+          avatarWrap.innerHTML = '<img src="'+s.photoUrl+'" alt="">';
+        } else {
+          avatarWrap.textContent = (s.displayName||'?')[0].toUpperCase();
+        }
+      }
+      if(nameEl) nameEl.textContent = s.displayName || 'นักเรียน';
+      if(s.classLabel && nameEl) nameEl.textContent += ' · ' + s.classLabel;
+
+      var st = K.stats;
+      if(levelEl) levelEl.textContent = '🎖️ Lv.' + (st.level||1);
+      if(playsEl) playsEl.textContent = '🎮 ' + (st.playsCount||0) + ' ครั้ง';
+      if(bestEl)  bestEl.textContent  = '🏆 Best: ' + (st.personalBest||0);
+
+      // XP progress bar — ระยะห่างต่อเลเวลประมาณ 500 XP (adjust ตามระบบจริง)
+      var XP_PER_LEVEL = 500;
+      var xpInLevel = (st.totalXp||0) % XP_PER_LEVEL;
+      var pct = Math.min(100, Math.round((xpInLevel / XP_PER_LEVEL) * 100));
+      if(xpFill)  xpFill.style.width = pct + '%';
+      if(xpLabel) xpLabel.textContent = (st.totalXp||0).toLocaleString('th-TH') + ' XP';
+
+      if(banner) banner.classList.add('show');
+    }
+
+    // ── 3. Leaderboard in Hub ─────────────────────────────────────────────
+    var lb = K.leaderboard;
+    if(lb && lb.length){
+      var lbPanel = document.getElementById('hub-leaderboard');
+      var lbRows  = document.getElementById('hub-lb-rows');
+      if(lbPanel && lbRows){
+        var rankIcons = ['🥇','🥈','🥉'];
+        var rankClasses = ['gold','silver','bronze'];
+        var html = lb.slice(0,5).map(function(row,i){
+          var isMe = row.isMe;
+          var avHtml = row.photoUrl
+            ? '<img src="'+row.photoUrl+'" alt="">'
+            : (row.displayName||'?')[0].toUpperCase();
+          var rankLabel = i < 3
+            ? '<span class="lb-rank '+rankClasses[i]+'">'+rankIcons[i]+'</span>'
+            : '<span class="lb-rank">#'+(i+1)+'</span>';
+          return '<div class="lb-row'+(isMe?' lb-me':'')+'">'+
+            rankLabel+
+            '<div class="lb-av">'+avHtml+'</div>'+
+            '<div class="lb-name">'+(row.displayName||'?')+(isMe?' (คุณ)':'')+'</div>'+
+            (row.classLabel?'<div class="lb-class">'+row.classLabel+'</div>':'')+
+            '<div class="lb-score">'+((row.personalBest||0).toLocaleString('th-TH'))+'</div>'+
+          '</div>';
+        }).join('');
+        lbRows.innerHTML = html;
+        lbPanel.classList.add('show');
+      }
+    }
+
+    // ── 4. XP Result panel — ลงทะเบียนก่อนส่งคะแนน ─────────────────────
+    // KAMPAI.onResult ทำให้ SDK inject XP ลง #kampai-result อัตโนมัติ
+    // (ถ้าไม่ register, SDK จะ inject ด้วย showResult() เองอยู่แล้ว)
+    KAMPAI.onResult(function(result, info){
+      try { KAMPAI.showResult(info); } catch(_) {}
+    });
+
     KAMPAI.sound.defaultBgm('cheerful');
   } catch(e){ console.warn('SDK init error', e); }
 });
