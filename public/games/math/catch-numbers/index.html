@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Catch Numbers — รับตัวเลข AR (คณิตศาสตร์)</title>
+<meta name="description" content="เกม AR รับตัวเลขที่ตกลงมาตามกติกา เลขคู่ เลขคี่ พหุคูณ — เคลื่อนตัวด้วยกล้อง">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ── หน้าเริ่ม ── -->
+<div class="screen active" id="startScreen">
+  <div class="card">
+    <div class="logo">🧺</div>
+    <h1 class="title">Catch Numbers</h1>
+    <div class="subtitle">รับตัวเลขที่ตกลงมาตามกติกา — เลื่อนตัวด้วยกล้อง!</div>
+    <div id="player-chip"></div>
+    <div class="hint">
+      🎥 ขยับตัว <b>ซ้าย-ขวา</b> ให้ตะกร้าอยู่ใต้ตัวเลขที่ต้องการ<br>
+      📱 ไม่มีกล้อง? <b>เลื่อนนิ้ว</b> บนหน้าจอได้เลย
+    </div>
+    <button class="btn" id="startBtn">▶️ เริ่มเล่น</button>
+    <button class="btn" id="onlineBtn" style="background:linear-gradient(135deg,#0ea5e9,#0284c7);margin-top:-6px">⚔️ แข่งออนไลน์</button>
+    <div class="lb-box" id="lbBox" style="display:none">
+      <h3>🏆 อันดับ</h3>
+      <ul class="lb-list" id="lbList"></ul>
+    </div>
+  </div>
+</div>
+
+<!-- ── หน้าเล่น (เต็มจอ) ── -->
+<div class="screen" id="gameScreen">
+  <!-- กล้อง + AR overlay -->
+  <video id="arVideo" autoplay playsinline muted></video>
+  <canvas id="arOverlay"></canvas>
+  <!-- canvas เกม (วาดตัวเลข + ตะกร้า) -->
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- HUD บนสุด -->
+  <div class="hud">
+    <button class="back-btn" id="quitBtn">🏠 ออก</button>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+      <span class="pill" id="hud-round">รอบ 1/5</span>
+      <span class="pill score" id="hud-score">⭐ 0</span>
+      <span class="pill time" id="hud-time">⏱ 30s</span>
+      <span class="pill" id="hud-lives">❤️❤️❤️</span>
+    </div>
+    <div class="hud-rules">
+      <span id="hud-rule"></span>
+      <span id="hud-hint"></span>
+    </div>
+  </div>
+
+  <!-- Rule card (flash ตอนเริ่มรอบ) -->
+  <div id="rule-card">
+    <div class="rc-emoji">2️⃣</div>
+    <div class="rc-label">รับเลขคู่!</div>
+    <div class="rc-hint">เลขที่หารด้วย 2 ลงตัว</div>
+  </div>
+
+  <div id="loading">กำลังเปิดกล้อง…</div>
+</div>
+
+<!-- ── หน้าจบ ── -->
+<div class="screen" id="resultScreen">
+  <div class="card">
+    <div class="logo">🎉</div>
+    <h1 class="title">จบเกม!</h1>
+    <div id="final-score">0</div>
+    <div id="final-detail"></div>
+    <div id="kampai-result"></div>
+    <div class="row">
+      <button class="btn" id="restartBtn">🔄 เล่นอีกครั้ง</button>
+      <button class="btn ghost" id="homeBtn">🏠 หน้าหลัก</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── โหลด: config → data → SDK → AR engine → game ── -->
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="/games/kampai-sdk.js"></script>
+<script>
+// SDK fallback stub — standalone play ไม่ crash
+window.KAMPAI = window.KAMPAI || {
+  isEmbed:false, ready:true, student:null, stats:null, leaderboard:[],
+  onReady:function(cb){cb(this);}, setSlug:function(){return this;},
+  submitScore:function(){return false;}, goHome:function(){history.back();},
+  sound:{
+    unlock:function(){}, correct:function(){}, wrong:function(){},
+    timeUp:function(){}, gameOver:function(){}, speak:function(){},
+    stopSpeak:function(){}, fxFlash:function(){}, mountToggles:function(){},
+    defaultBgm:function(){}, bgmStart:function(){}, bgmStop:function(){}
+  }
+};
+</script>
+<script src="/games/kampai-match.js"></script>
+<script>
+// KampaiMatch fallback stub
+window.KampaiMatch = window.KampaiMatch || {
+  create: function() {
+    return {
+      available: false,
+      openMenu: function() { alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); },
+      report: function() {},
+      finish: function() {},
+      leave:  function() {}
+    };
+  }
+};
+</script>
+<script src="/games/kampai-ar.js"></script>
+<script>
+// KampaiAR fallback stub
+window.KampaiAR = window.KampaiAR || {
+  VERSION: 'stub',
+  create: function() {
+    return {
+      start: function(){ return Promise.resolve(false); },
+      stop:  function(){},
+      setActive: function(){},
+      tap:   function(){},
+      mode:  'tap',
+      x: 0.5, y: 0.5, zone: null
+    };
+  }
+};
+</script>
+<script src="game.js"></script>
+</body>
+</html>
