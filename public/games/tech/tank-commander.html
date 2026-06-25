@@ -3122,10 +3122,17 @@
                 const overlap = minDist - dist;
                 const nx = dx / (dist || 1);
                 const ny = dy / (dist || 1);
-                player.x += nx * overlap * 0.5;
-                player.y += ny * overlap * 0.5;
-                player2.x -= nx * overlap * 0.5;
-                player2.y -= ny * overlap * 0.5;
+                if (playMode === 'online') {
+                    // In online mode, the local player controls their own position
+                    // and gets pushed by the full overlap, while leaving the peer unchanged.
+                    player.x += nx * overlap;
+                    player.y += ny * overlap;
+                } else {
+                    player.x += nx * overlap * 0.5;
+                    player.y += ny * overlap * 0.5;
+                    player2.x -= nx * overlap * 0.5;
+                    player2.y -= ny * overlap * 0.5;
+                }
             }
         }
 
@@ -3140,10 +3147,24 @@
                 const overlap = minDist - dist;
                 const nx = dx / (dist || 1);
                 const ny = dy / (dist || 1);
-                player.x += nx * overlap * 0.1;
-                player.y += ny * overlap * 0.1;
-                e.x -= nx * overlap * 0.9;
-                e.y -= ny * overlap * 0.9;
+                if (playMode === 'online') {
+                    if (isHost) {
+                        // Host controls both player and enemies
+                        player.x += nx * overlap * 0.1;
+                        player.y += ny * overlap * 0.1;
+                        e.x -= nx * overlap * 0.9;
+                        e.y -= ny * overlap * 0.9;
+                    } else {
+                        // Client only pushes local player by full overlap
+                        player.x += nx * overlap;
+                        player.y += ny * overlap;
+                    }
+                } else {
+                    player.x += nx * overlap * 0.1;
+                    player.y += ny * overlap * 0.1;
+                    e.x -= nx * overlap * 0.9;
+                    e.y -= ny * overlap * 0.9;
+                }
             }
 
             // Player 2 vs Enemy
@@ -3156,38 +3177,50 @@
                     const overlap = minDist - dist;
                     const nx = dx / (dist || 1);
                     const ny = dy / (dist || 1);
-                    player2.x += nx * overlap * 0.1;
-                    player2.y += ny * overlap * 0.1;
-                    e.x -= nx * overlap * 0.9;
-                    e.y -= ny * overlap * 0.9;
+                    if (playMode === 'online') {
+                        if (isHost) {
+                            // Host controls enemies, remote client controls player2.
+                            // Host pushes enemies away from remote client by full overlap.
+                            e.x -= nx * overlap;
+                            e.y -= ny * overlap;
+                        }
+                        // Client doesn't resolve collisions between remote player2 and remote enemies
+                    } else {
+                        player2.x += nx * overlap * 0.1;
+                        player2.y += ny * overlap * 0.1;
+                        e.x -= nx * overlap * 0.9;
+                        e.y -= ny * overlap * 0.9;
+                    }
                 }
             }
         });
 
         // Enemy vs Enemy
-        for (let i = 0; i < enemies.length; i++) {
-            const e1 = enemies[i];
-            for (let j = i + 1; j < enemies.length; j++) {
-                const e2 = enemies[j];
-                const dx = e1.x - e2.x;
-                const dy = e1.y - e2.y;
-                const dist = Math.hypot(dx, dy);
-                const minDist = e1.r + e2.r;
-                if (dist < minDist) {
-                    const overlap = minDist - dist;
-                    const nx = dx / (dist || 1);
-                    const ny = dy / (dist || 1);
-                    if (e1.isBoss) {
-                        e2.x -= nx * overlap;
-                        e2.y -= ny * overlap;
-                    } else if (e2.isBoss) {
-                        e1.x += nx * overlap;
-                        e1.y += ny * overlap;
-                    } else {
-                        e1.x += nx * overlap * 0.5;
-                        e1.y += ny * overlap * 0.5;
-                        e2.x -= nx * overlap * 0.5;
-                        e2.y -= ny * overlap * 0.5;
+        if (playMode !== 'online' || isHost) {
+            for (let i = 0; i < enemies.length; i++) {
+                const e1 = enemies[i];
+                for (let j = i + 1; j < enemies.length; j++) {
+                    const e2 = enemies[j];
+                    const dx = e1.x - e2.x;
+                    const dy = e1.y - e2.y;
+                    const dist = Math.hypot(dx, dy);
+                    const minDist = e1.r + e2.r;
+                    if (dist < minDist) {
+                        const overlap = minDist - dist;
+                        const nx = dx / (dist || 1);
+                        const ny = dy / (dist || 1);
+                        if (e1.isBoss) {
+                            e2.x -= nx * overlap;
+                            e2.y -= ny * overlap;
+                        } else if (e2.isBoss) {
+                            e1.x += nx * overlap;
+                            e1.y += ny * overlap;
+                        } else {
+                            e1.x += nx * overlap * 0.5;
+                            e1.y += ny * overlap * 0.5;
+                            e2.x -= nx * overlap * 0.5;
+                            e2.y -= ny * overlap * 0.5;
+                        }
                     }
                 }
             }
@@ -3359,10 +3392,20 @@
         // Resolve tank-to-tank collisions
         resolveEntityCollisions();
 
-        // Final wall and border constraints for all active characters to prevent wall clipping
-        constrainToWallsAndBorders(player);
-        if (player2.active) constrainToWallsAndBorders(player2);
-        enemies.forEach(e => constrainToWallsAndBorders(e));
+        // Final wall and border constraints based on network authority to prevent jittering
+        if (playMode === 'online') {
+            if (isHost) {
+                constrainToWallsAndBorders(player);
+                enemies.forEach(e => constrainToWallsAndBorders(e));
+            } else {
+                constrainToWallsAndBorders(player);
+            }
+        } else {
+            // Solo or Local co-op: constrain everyone
+            constrainToWallsAndBorders(player);
+            if (player2.active) constrainToWallsAndBorders(player2);
+            enemies.forEach(e => constrainToWallsAndBorders(e));
+        }
 
         // Dynamic Wall Respawning (low count check)
         if (playMode !== 'online' || isHost) {
