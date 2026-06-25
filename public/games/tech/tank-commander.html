@@ -1975,6 +1975,7 @@
     let gameWave = 1;
     let isBossSpawned = false;
     let bossInstance = null;
+    let wallRespawnTimer = 0;
 
     // Adaptive Learning State
     let learningState = {
@@ -2324,6 +2325,28 @@
         } else if (event === 'game_over') {
             receivedGameOverEvent = true;
             endGame(payload.isVictory);
+        } else if (event === 'destroy_wall') {
+            const idx = mapWalls.findIndex(w => w.id === payload.id);
+            if (idx !== -1) {
+                const wall = mapWalls[idx];
+                playSynthSFX('hit');
+                spawnExplosionParticles(wall.x + wall.w / 2, wall.y + wall.h / 2, 0.9);
+                mapWalls.splice(idx, 1);
+            }
+        } else if (event === 'spawn_wall') {
+            if (!mapWalls.some(w => w.id === payload.id)) {
+                mapWalls.push({
+                    id: payload.id,
+                    x: payload.x,
+                    y: payload.y,
+                    w: payload.w,
+                    h: payload.h,
+                    type: payload.type,
+                    hp: payload.hp,
+                    maxHp: payload.maxHp
+                });
+                spawnExplosionParticles(payload.x + payload.w / 2, payload.y + payload.h / 2, 0.5);
+            }
         }
     }
 
@@ -2540,8 +2563,10 @@
         } catch(e) {}
     }
 
+    let wallCounter = 0;
     // Draw Motherboard Obstacles (Walls)
     function buildObstaclesMap() {
+        wallCounter = 0;
         mapWalls = [];
         
         // --- Top-Left Zone ---
@@ -2583,7 +2608,83 @@
     }
 
     function addWall(x, y, w, h, type = "wire") {
-        mapWalls.push({ x, y, w, h, type });
+        const id = 'wall_' + (wallCounter++);
+        let maxHp = 50;
+        if (type === "capacitor") maxHp = 80;
+        else if (type === "heatsink") maxHp = 200;
+        else maxHp = 30; // wire
+
+        mapWalls.push({ id, x, y, w, h, type, hp: maxHp, maxHp });
+    }
+
+    function spawnRandomWall() {
+        if (playMode === 'online' && !isHost) return; // Only Host/Solo spawns new walls
+
+        const types = ["capacitor", "heatsink", "wire"];
+        const type = types[Math.floor(Math.random() * types.length)];
+        
+        let w = 80, h = 80;
+        if (type === "heatsink") {
+            w = 120 + Math.floor(Math.random() * 80);
+            h = 80 + Math.floor(Math.random() * 80);
+        } else if (type === "wire") {
+            w = 100 + Math.floor(Math.random() * 200);
+            h = 15 + Math.floor(Math.random() * 15);
+        } else {
+            w = 60 + Math.floor(Math.random() * 40);
+            h = w;
+        }
+
+        let tries = 0;
+        let tx, ty;
+        while (tries < 100) {
+            tx = 100 + Math.floor(Math.random() * (arenaWidth - w - 200));
+            ty = 100 + Math.floor(Math.random() * (arenaHeight - h - 200));
+
+            // Avoid players
+            let collidesPlayer = false;
+            [player, player2].forEach(p => {
+                if (p === player || (p.active && playMode === 'local')) {
+                    if (checkCircleRectCollision(p.x, p.y, p.r + 150, tx, ty, w, h).collided) {
+                        collidesPlayer = true;
+                    }
+                }
+            });
+
+            if (!collidesPlayer) {
+                // Avoid other walls
+                let collidesWall = false;
+                for (let wall of mapWalls) {
+                    if (tx < wall.x + wall.w && tx + w > wall.x &&
+                        ty < wall.y + wall.h && ty + h > wall.y) {
+                        collidesWall = true;
+                        break;
+                    }
+                }
+
+                if (!collidesWall) {
+                    addWall(tx, ty, w, h, type);
+                    
+                    const newWall = mapWalls[mapWalls.length - 1];
+                    if (playMode === 'online' && isHost) {
+                        KAMPAI.online.send('spawn_wall', {
+                            id: newWall.id,
+                            x: newWall.x,
+                            y: newWall.y,
+                            w: newWall.w,
+                            h: newWall.h,
+                            type: newWall.type,
+                            hp: newWall.hp,
+                            maxHp: newWall.maxHp
+                        });
+                    }
+                    
+                    spawnExplosionParticles(tx + w / 2, ty + h / 2, 0.5);
+                    break;
+                }
+            }
+            tries++;
+        }
     }
 
     // Helper: Rect-Circle collision detection
@@ -2687,18 +2788,48 @@
                 ctx.lineTo(rx + w.w - 2, ry + w.h/2);
                 ctx.stroke();
             }
+
+            // Draw wall health bar if damaged
+            if (w.hp < w.maxHp) {
+                ctx.save();
+                ctx.fillStyle = "rgba(15, 23, 42, 0.6)";
+                ctx.fillRect(rx, ry - 8, w.w, 4);
+                ctx.fillStyle = w.hp / w.maxHp > 0.5 ? "#10b981" : "#ef4444";
+                ctx.fillRect(rx, ry - 8, w.w * (w.hp / w.maxHp), 4);
+                ctx.restore();
+            }
         });
     }
 
     // --- Entity Spawners ---
     function spawnEnemy(type) {
+        if (playMode === 'online' && !isHost) return; // Client only spawns from Host events
+
         let x, y;
-        // Spawn far enough from player
         const distMin = 300;
         let tries = 0;
+        const padding = 40;
+
         while (tries < 100) {
-            x = 50 + Math.random() * (arenaWidth - 100);
-            y = 50 + Math.random() * (arenaHeight - 100);
+            // Spawn on one of the 4 borders (outer edges) of the game map
+            const edge = Math.floor(Math.random() * 4);
+            if (edge === 0) {
+                // Top edge
+                x = padding + Math.random() * (arenaWidth - padding * 2);
+                y = padding;
+            } else if (edge === 1) {
+                // Bottom edge
+                x = padding + Math.random() * (arenaWidth - padding * 2);
+                y = arenaHeight - padding;
+            } else if (edge === 2) {
+                // Left edge
+                x = padding;
+                y = padding + Math.random() * (arenaHeight - padding * 2);
+            } else {
+                // Right edge
+                x = arenaWidth - padding;
+                y = padding + Math.random() * (arenaHeight - padding * 2);
+            }
             
             // Check distance to players
             const dx = x - player.x;
@@ -2739,7 +2870,11 @@
             maxHp: 20,
             speed: 1.5,
             scoreVal: 100,
-            r: 20
+            r: 20,
+            // Inward patrol states
+            patrolX: 1000 + Math.random() * 1200,
+            patrolY: 1000 + Math.random() * 1200,
+            hasSpottedPlayer: type === 'boss' // Boss is aggressive immediately
         };
 
         // Customise based on enemy type
@@ -2772,6 +2907,21 @@
         }
 
         enemies.push(e);
+
+        // Broadcast to Client if in Online mode
+        if (playMode === 'online' && isHost) {
+            KAMPAI.online.send('spawn_enemy', {
+                id: e.id,
+                x: e.x,
+                y: e.y,
+                type: e.type,
+                hp: e.hp,
+                maxHp: e.maxHp,
+                speed: e.speed,
+                r: e.r,
+                scoreVal: e.scoreVal
+            });
+        }
     }
 
     function spawnPowerUp(x, y, forceType = null) {
@@ -3188,6 +3338,17 @@
         constrainToWallsAndBorders(player);
         if (player2.active) constrainToWallsAndBorders(player2);
         enemies.forEach(e => constrainToWallsAndBorders(e));
+
+        // Dynamic Wall Respawning (low count check)
+        if (playMode !== 'online' || isHost) {
+            wallRespawnTimer++;
+            if (wallRespawnTimer > 600) { // check every 10 seconds
+                wallRespawnTimer = 0;
+                if (mapWalls.length < 20) {
+                    spawnRandomWall();
+                }
+            }
+        }
 
         // 8. Update powerups
         updatePowerups();
@@ -3653,6 +3814,31 @@
             for (let wall of mapWalls) {
                 if (checkCircleRectCollision(p.x, p.y, p.r, wall.x, wall.y, wall.w, wall.h).collided) {
                     hitWall = true;
+                    
+                    // Solo, local co-op, or Host damages wall
+                    if (playMode !== 'online' || isHost) {
+                        wall.hp -= p.damage;
+                        spawnExplosionParticles(p.x, p.y, 0.25); // Small spark on hit
+                        
+                        if (wall.hp <= 0) {
+                            // Destroy wall
+                            const index = mapWalls.indexOf(wall);
+                            if (index !== -1) {
+                                mapWalls.splice(index, 1);
+                            }
+                            
+                            // Send online synchronization
+                            if (playMode === 'online' && isHost) {
+                                KAMPAI.online.send('destroy_wall', { id: wall.id });
+                            }
+                            
+                            playSynthSFX('hit');
+                            spawnExplosionParticles(wall.x + wall.w / 2, wall.y + wall.h / 2, 0.9);
+                        }
+                    } else {
+                        // Client only spawns spark particle locally on hit
+                        spawnExplosionParticles(p.x, p.y, 0.25);
+                    }
                     break;
                 }
             }
@@ -3895,6 +4081,25 @@
             if (e.isBoss) {
                 updateBossLogic(e, dx, dy, dist);
             } else {
+                // Initialize patrol state if not set
+                if (e.hasSpottedPlayer === undefined) {
+                    e.hasSpottedPlayer = false;
+                }
+                if (e.patrolX === undefined) {
+                    e.patrolX = 1000 + Math.random() * 1200;
+                    e.patrolY = 1000 + Math.random() * 1200;
+                }
+
+                // Check player spotting
+                if (!e.hasSpottedPlayer) {
+                    const spotRange = 600;
+                    if ((dist < spotRange && hasLineOfSight(e.x, e.y, targetPlayer.x, targetPlayer.y)) || e.hp < e.maxHp) {
+                        e.hasSpottedPlayer = true;
+                        // Spawn small exclamation mark indicator
+                        spawnTextParticle(e.x, e.y - 30, "❗", "#f87171", 16);
+                    }
+                }
+
                 // Stuck detection logic
                 if (e.lastX === undefined) {
                     e.lastX = e.x;
@@ -3919,7 +4124,7 @@
                     }
                 }
 
-                // AI Steering Decision based on type and status
+                // AI Steering Decision based on patrol vs combat
                 let steer;
                 if (forceRandomSteer) {
                     const randomAngle = Math.random() * Math.PI * 2;
@@ -3928,8 +4133,16 @@
                         y: Math.sin(randomAngle),
                         angle: randomAngle
                     };
+                } else if (!e.hasSpottedPlayer) {
+                    // Patrol mode: move towards patrol target
+                    const patrolDist = Math.hypot(e.patrolX - e.x, e.patrolY - e.y);
+                    if (patrolDist < 60) {
+                        e.patrolX = 1000 + Math.random() * 1200;
+                        e.patrolY = 1000 + Math.random() * 1200;
+                    }
+                    steer = getBestSteeringDirection(e, e.patrolX, e.patrolY, false);
                 } else {
-                    // Behaviors based on enemy type
+                    // Combat mode: behaviors based on enemy type
                     if (e.type === 'basic') {
                         steer = getBestSteeringDirection(e, targetPlayer.x, targetPlayer.y, false);
                     } else if (e.type === 'fast') {
@@ -3988,50 +4201,59 @@
                 e.x += e.vx;
                 e.y += e.vy;
 
-                // Shoot logic (Aim turret at closest player and shoot with LOS check)
-                e.turretAngle = Math.atan2(targetPlayer.y - e.y, targetPlayer.x - e.x);
-                
-                if (e.type === 'basic' && now - e.lastShotTime > 1500 && dist < 400) {
-                    if (hasLineOfSight(e.x, e.y, targetPlayer.x, targetPlayer.y)) {
-                        fireEnemyProjectile(e, 5, 5, '#f97316');
-                        e.lastShotTime = now;
-                    }
-                } else if (e.type === 'fast' && now - e.lastShotTime > 1000 && dist < 200) {
-                    if (hasLineOfSight(e.x, e.y, targetPlayer.x, targetPlayer.y)) {
-                        fireEnemyProjectile(e, 4, 6, '#ef4444');
-                        e.lastShotTime = now;
-                    }
-                } else if (e.type === 'heavy' && now - e.lastShotTime > 2500 && dist < 450) {
-                    if (hasLineOfSight(e.x, e.y, targetPlayer.x, targetPlayer.y)) {
-                        fireEnemyProjectile(e, 15, 4.5, '#ef4444', 8);
-                        e.lastShotTime = now;
-                    }
-                } else if (e.type === 'sniper' && now - e.lastShotTime > 3000 && dist < 600) {
-                    if (hasLineOfSight(e.x, e.y, targetPlayer.x, targetPlayer.y)) {
-                        // Sniper lead shot calculation
-                        const leadTime = dist / 11;
-                        const targetX = targetPlayer.x + (targetPlayer.vx || 0) * leadTime;
-                        const targetY = targetPlayer.y + (targetPlayer.vy || 0) * leadTime;
-                        e.turretAngle = Math.atan2(targetY - e.y, targetX - e.x);
+                // Shoot logic: Only shoot if target spotted
+                if (e.hasSpottedPlayer) {
+                    e.turretAngle = Math.atan2(targetPlayer.y - e.y, targetPlayer.x - e.x);
+                    
+                    if (e.type === 'basic' && now - e.lastShotTime > 1500 && dist < 400) {
+                        if (hasLineOfSight(e.x, e.y, targetPlayer.x, targetPlayer.y)) {
+                            fireEnemyProjectile(e, 5, 5, '#cbd5e1'); // Silver bullet matching Basic tank
+                            e.lastShotTime = now;
+                        }
+                    } else if (e.type === 'fast' && now - e.lastShotTime > 1000 && dist < 200) {
+                        if (hasLineOfSight(e.x, e.y, targetPlayer.x, targetPlayer.y)) {
+                            fireEnemyProjectile(e, 4, 6, '#fbbf24'); // Yellow bullet matching Fast tank
+                            e.lastShotTime = now;
+                        }
+                    } else if (e.type === 'heavy' && now - e.lastShotTime > 3000 && dist < 450) {
+                        if (hasLineOfSight(e.x, e.y, targetPlayer.x, targetPlayer.y)) {
+                            // 3-shot spread matching Heavy red theme
+                            fireEnemyProjectile(e, 10, 4.5, '#ef4444', 6, -0.2);
+                            fireEnemyProjectile(e, 10, 4.5, '#ef4444', 6, 0);
+                            fireEnemyProjectile(e, 10, 4.5, '#ef4444', 6, 0.2);
+                            e.lastShotTime = now;
+                        }
+                    } else if (e.type === 'sniper' && now - e.lastShotTime > 3000 && dist < 600) {
+                        if (hasLineOfSight(e.x, e.y, targetPlayer.x, targetPlayer.y)) {
+                            // Sniper lead shot calculation
+                            const leadTime = dist / 11;
+                            const targetX = targetPlayer.x + (targetPlayer.vx || 0) * leadTime;
+                            const targetY = targetPlayer.y + (targetPlayer.vy || 0) * leadTime;
+                            e.turretAngle = Math.atan2(targetY - e.y, targetX - e.x);
 
-                        fireEnemyProjectile(e, 12, 11, '#38bdf8', 4);
-                        e.lastShotTime = now;
+                            fireEnemyProjectile(e, 12, 11, '#2dd4bf', 4); // Teal bullet matching Sniper theme
+                            e.lastShotTime = now;
+                        }
+                    } else if (e.type === 'hacker' && now - e.lastEmpTime > 4000 && dist < 220) {
+                        triggerEnemyEmpZap(e);
+                        e.lastEmpTime = now;
                     }
-                } else if (e.type === 'hacker' && now - e.lastEmpTime > 4000 && dist < 220) {
-                    triggerEnemyEmpZap(e);
-                    e.lastEmpTime = now;
+                } else {
+                    // In patrol mode: point turret in direction of movement
+                    e.turretAngle = e.angle;
                 }
             }
         }
     }
 
-    function fireEnemyProjectile(e, damage, speed, color = '#f87171', r = 4) {
+    function fireEnemyProjectile(e, damage, speed, color = '#f87171', r = 4, angleOffset = 0) {
         if (playMode === 'online' && !isHost) return;
 
-        const vx = Math.cos(e.turretAngle) * speed;
-        const vy = Math.sin(e.turretAngle) * speed;
-        const x = e.x + Math.cos(e.turretAngle) * (e.r + 5);
-        const y = e.y + Math.sin(e.turretAngle) * (e.r + 5);
+        const finalAngle = e.turretAngle + angleOffset;
+        const vx = Math.cos(finalAngle) * speed;
+        const vy = Math.sin(finalAngle) * speed;
+        const x = e.x + Math.cos(finalAngle) * (e.r + 5);
+        const y = e.y + Math.sin(finalAngle) * (e.r + 5);
 
         projectiles.push({
             x, y, vx, vy,
@@ -4486,6 +4708,13 @@
                 gameWave++;
                 document.getElementById('hud-wave').innerText = `WAVE ${gameWave}`;
                 spawnWaveMinions();
+
+                // Spawn some random walls to refresh cover
+                if (playMode !== 'online' || isHost) {
+                    for (let wCount = 0; wCount < 3; wCount++) {
+                        spawnRandomWall();
+                    }
+                }
             } else {
                 // Spawn Chapter Boss
                 spawnEnemy('boss');
