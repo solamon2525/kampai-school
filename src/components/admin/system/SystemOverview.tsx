@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.111.0 (ระบบออนไลน์เฟส 0-1 — ปลดคอขวด + kampai-net.js interpolation)',
+        version: 'v1.112.0 (ระบบออนไลน์เฟส 2 — host-authority รองรับหลายคน + แก้ jitter)',
         date: 'ล่าสุด',
+        badge: 'bg-indigo-600',
+        items: [
+            'เฟส 2 — **host-authority star topology** ใน `kampai-net.js`: host จำลองโลกทั้งหมด + broadcast world snapshot, peer ส่งแค่ input → ตัด "authority-fighting" (ต้นเหตุ tank สั่น) + traffic O(N) แทน mesh O(N²) → **รองรับ 4-8 คน**',
+            'เพิ่ม API: `setHost()` · `localWorld(ents)` (host) · `localInput(obj)` + `viewEntity(id)` (peer อ่านโลกแบบ interpolate) · `input(peerId)`/`inputs()` (host อ่าน input) · entity โผล่/หายระหว่าง snapshot ไม่พัง',
+            'ทดสอบ: Node 19/19 (peer-broadcast + world interp + input + emit routing) + **end-to-end sim 1 host + 2 peers 8/8** — peer ทั้งคู่เห็นตำแหน่งตรงกัน (authoritative เดียว = ไม่ diverge) + ตามหลัง ~100ms (ลื่น)',
+        ],
+    },
+    {
+        version: 'v1.111.0 (ระบบออนไลน์เฟส 0-1 — ปลดคอขวด + kampai-net.js interpolation)',
+        date: '',
         badge: 'bg-indigo-600',
         items: [
             '🌐 **เริ่มยกเครื่องระบบเล่นออนไลน์ (แนวทาง A)** ให้ลื่นขึ้น + รองรับเกิน 2 คน — ทำที่ shared layer มีผลกับทุกเกมที่ใช้ `KAMPAI.online`/`KampaiMatch`',
