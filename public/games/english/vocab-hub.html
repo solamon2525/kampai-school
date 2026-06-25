@@ -99,8 +99,9 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   border:2px solid rgba(255,255,255,0.18);
   background:rgba(255,255,255,0.07);
   cursor:pointer;
-  gap:0.5vh;
-  padding:1vh 0.5vw;
+  gap:0.3vh;
+  padding:0.8vh 0.5vw;
+  overflow:hidden;
   transition:background 0.14s,transform 0.12s,border-color 0.14s;
 }
 .hub-card:hover{
@@ -108,7 +109,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   border-color:rgba(255,215,0,0.55);
   transform:scale(1.04);
 }
-.hub-card .hc-icon{font-size:4vh;line-height:1.1}
+.hub-card .hc-icon{font-size:3vh;line-height:1}
 .hub-card .hc-th{width:100%;font-weight:700;color:#FFE082;text-align:center;line-height:1.05;
   word-break:break-word;overflow-wrap:break-word}
 .hub-card .hc-en{font-size:1.6vh;color:rgba(255,255,255,0.55);text-align:center}
@@ -379,19 +380,18 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
 
 /* Bottom bar */
 #bottom{
-  flex:0 0 6vh;
-  display:flex;align-items:center;
-  padding:0 1.5vw 0.8vh;
-  position:relative;gap:5px;
+  flex:0 0 auto;
+  display:flex;flex-direction:column;align-items:stretch;
+  padding:0.6vh 1.5vw 0.8vh;
+  gap:4px;
 }
 #dotsnav{
-  position:absolute;left:50%;transform:translateX(-50%);
-  display:flex;gap:10px;align-items:center;
+  display:flex;gap:10px;align-items:center;justify-content:center;
 }
 #dots{display:flex;gap:7px;align-items:center}
 .dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,0.25);transition:background 0.2s}
 .dot.active{background:#FFD700}
-#lctrl{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+#lctrl{display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap}
 .cbtn{
   font-size:1.55vh;
   padding:3px 8px;border-radius:5px;cursor:pointer;
@@ -404,10 +404,10 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
 .cbtn.on{background:#FFD700;border-color:#FF8F00;color:#1A237E;font-weight:700}
 #btn-home{color:rgba(255,224,130,0.7);border-color:rgba(255,224,130,0.3)}
 #btn-home:hover{background:rgba(255,224,130,0.15);color:#FFE082}
-#score{margin-left:auto;font-size:2vh;font-weight:700;color:#fff;white-space:nowrap}
+#score{font-size:2vh;font-weight:700;color:#fff;white-space:nowrap;text-align:center}
 #score b{color:#FFD700}
 #speed{
-  display:flex;align-items:center;gap:4px;margin-left:1vw;
+  display:flex;align-items:center;justify-content:center;gap:4px;
 }
 #speed label{font-size:1.55vh;color:rgba(255,255,255,0.45);margin-right:2px}
 .spd{
@@ -419,7 +419,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
 }
 .spd:hover{background:rgba(255,255,255,0.18)}
 .spd.on{background:#FFD700;border-color:#FF8F00;color:#1A237E;font-weight:700}
-#flash-variant{display:none;align-items:center;gap:4px;margin-left:1vw}
+#flash-variant{display:none;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap}
 #flash-variant label{font-size:1.55vh;color:rgba(255,255,255,0.45);margin-right:2px}
 .fv{
   font-size:1.55vh;
@@ -621,10 +621,10 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   .sp-letter{min-width:clamp(34px,11vw,52px);height:64px;font-size:clamp(26px,9vw,40px)}
   .sp-read,.sp-mean{font-size:20px}
 
-  /* BOTTOM CONTROL BAR → stack toolbar, เลิก absolute */
-  #bottom{flex-direction:column;flex:0 0 auto;height:auto;align-items:stretch;gap:6px;padding:6px 2vw;padding-bottom:max(8px,env(safe-area-inset-bottom))}
-  #lctrl{justify-content:center;gap:6px}
-  #dotsnav{position:static;transform:none;justify-content:center;order:2}
+  /* BOTTOM CONTROL BAR */
+  #bottom{gap:6px;padding:6px 2vw;padding-bottom:max(8px,env(safe-area-inset-bottom))}
+  #lctrl{gap:6px}
+  #dotsnav{order:2}
   #score{margin-left:0;text-align:center;font-size:14px;order:3}
   #speed{margin-left:0;justify-content:center;order:4}
   #flash-variant{margin-left:0;justify-content:center;flex-wrap:wrap;order:4}
@@ -663,6 +663,16 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
 <div id="hub-view">
   <div id="hub-title">คำศัพท์ภาษาอังกฤษ</div>
   <div id="hub-sub">English Vocabulary — เลือกหัวข้อ &nbsp;|&nbsp; F = เต็มจอ</div>
+  <div style="text-align:center;margin-bottom:1.5vh">
+    <button id="btn-back-hub" onclick="KAMPAI.goHome()"
+      style="display:inline-flex;align-items:center;gap:6px;padding:8px 22px;border-radius:12px;
+        border:2px solid rgba(255,224,130,0.35);background:rgba(255,224,130,0.1);
+        color:#FFE082;font-size:2vh;font-weight:700;cursor:pointer;
+        font-family:inherit;transition:background 0.15s,transform 0.1s,border-color 0.15s"
+      onmouseover="this.style.background='rgba(255,224,130,0.22)';this.style.borderColor='rgba(255,224,130,0.6)';this.style.transform='scale(1.04)'"
+      onmouseout="this.style.background='rgba(255,224,130,0.1)';this.style.borderColor='rgba(255,224,130,0.35)';this.style.transform='scale(1)'"
+    >⬅ กลับหน้ารวมเกม</button>
+  </div>
   <div id="hub-grid"></div>
 </div>
 
@@ -2751,6 +2761,8 @@ btnC3.addEventListener('click', e => {
   saveKnownEns();
   renderFlashCard();
 });
+btnTfTrue.addEventListener('click', e => { e.stopPropagation(); checkTF(true); });
+btnTfFalse.addEventListener('click', e => { e.stopPropagation(); checkTF(false); });
 document.getElementById('flash-reset').addEventListener('click',e=>{
   e.stopPropagation();
   if(mode==='flash'||mode==='fliprace') resetFlashProgress();   // ล้าง "รู้แล้ว" ของหมวดนี้ แล้วเริ่มกองใหม่
