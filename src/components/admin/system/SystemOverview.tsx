@@ -272,8 +272,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.110.0 (math-runner — มือถือเล่นแนวนอน + ปุ่ม ▲▼ วิชวลกดง่าย)',
+        version: 'v1.111.0 (ระบบออนไลน์เฟส 0-1 — ปลดคอขวด + kampai-net.js interpolation)',
         date: 'ล่าสุด',
+        badge: 'bg-indigo-600',
+        items: [
+            '🌐 **เริ่มยกเครื่องระบบเล่นออนไลน์ (แนวทาง A)** ให้ลื่นขึ้น + รองรับเกิน 2 คน — ทำที่ shared layer มีผลกับทุกเกมที่ใช้ `KAMPAI.online`/`KampaiMatch`',
+            'เฟส 0 — ปลดคอขวด: ตั้ง `realtime.params.eventsPerSecond: 30` ใน supabase client (เดิมใช้ default 10/s ที่ throttle เกมแอ็กชันให้กระตุก)',
+            'เฟส 1 — `public/games/kampai-net.js` (keystone): network tick แยกจาก render + **snapshot interpolation** (เรนเดอร์ย้อนหลัง ~100ms แล้ว lerp ระหว่าง 2 snapshot) → คู่แข่งขยับลื่นแทนการ set ตำแหน่งดิบที่กระโดดเป็นก้อน · lerp มุมแบบทางสั้น · timebase = เวลาตอนรับ (ไม่ต้อง sync นาฬิกาข้ามเครื่อง)',
+            'ทดสอบ: Node controlled-clock 11/11 ผ่าน (interpolate/angle-wrap/starvation/prune) + เบราว์เซอร์ยืนยัน x,y กึ่งกลาง + มุมทางสั้นถูกต้อง · แอปบูตปกติหลังเปลี่ยน client config',
+        ],
+    },
+    {
+        version: 'v1.110.0 (math-runner — มือถือเล่นแนวนอน + ปุ่ม ▲▼ วิชวลกดง่าย)',
+        date: '',
         badge: 'bg-teal-600',
         items: [
             '🐛 **แก้บั๊กกดเริ่มเกมไม่ได้บนมือถือ (root cause)** — `checkOrientation()` ถูกเรียกตอนโหลด แต่ไปอ้าง `started` ที่ประกาศทีหลัง → **TDZ ReferenceError** ทำให้สคริปต์ค้างทั้งไฟล์ (`startSinglePlayer` ไม่ถูกผูก) เฉพาะบนจอสัมผัส+แนวตั้ง (`is-touch`=true → `show`=true → แตะ `started`) · เดสก์ท็อปไม่เจอเพราะ short-circuit. แก้: ย้ายประกาศ `started/isGameOver` ขึ้นก่อนบล็อกมือถือ',

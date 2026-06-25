@@ -13,5 +13,11 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     storage: localStorage,
     persistSession: true,
     autoRefreshToken: true,
-  }
+  },
+  // เกมออนไลน์ (kampai-net/kampai-match) ส่ง broadcast 15-20Hz — ค่า default ของ supabase-js
+  // คือ eventsPerSecond: 10 ซึ่ง throttle เกมแอ็กชันให้กระตุก. ยกเป็น 30 เพื่อรองรับ network tick
+  // (server tenant limit ~100/s → ปลอดภัย). ดู kampai-net.js / PlayGame.tsx realtime relay
+  realtime: {
+    params: { eventsPerSecond: 30 },
+  },
 });
