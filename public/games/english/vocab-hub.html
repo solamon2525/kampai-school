@@ -285,6 +285,82 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   white-space:nowrap;
 }
 
+/* Grid Header & Mute Controls */
+#grid-header {
+  display: none;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 3vw;
+  margin-bottom: 0.5vh;
+  gap: 8px;
+}
+.grid-header-title {
+  color: #FFE082;
+  font-size: 2vh;
+  font-weight: 700;
+}
+.grid-ctrl-btn {
+  padding: 4px 12px;
+  font-size: 1.8vh;
+  font-weight: 700;
+  border-radius: 8px;
+  border: 1.5px solid rgba(255,224,130,0.35);
+  background: rgba(255,224,130,0.1);
+  color: #FFE082;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+.grid-ctrl-btn:hover {
+  background: rgba(255,224,130,0.22);
+  border-color: rgba(255,224,130,0.6);
+  transform: scale(1.04);
+}
+.cell-spk {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 10;
+  width: 4.2vh;
+  height: 4.2vh;
+  min-width: 26px;
+  min-height: 26px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(0,0,0,0.45);
+  color: rgba(255,255,255,0.4);
+  font-size: 1.8vh;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s;
+}
+.cell-spk:hover {
+  transform: scale(1.1);
+  background: rgba(0,0,0,0.65);
+}
+.cell-spk.active {
+  color: #FFD700;
+  border-color: rgba(255,215,0,0.5);
+  background: rgba(255,215,0,0.15);
+}
+@media (max-width: 600px) {
+  #grid-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 4px;
+  }
+  .grid-header-title {
+    font-size: 1.8vh;
+  }
+  .grid-ctrl-btn {
+    font-size: 1.6vh;
+    padding: 3px 8px;
+  }
+}
+
 /* ===== PLAY AREA (choice / match / listen) ===== */
 #play{display:none;flex:1;flex-direction:column;padding:1.5vh 3vw}
 #play.show{display:flex}
@@ -633,7 +709,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   .fv{font-size:13px;padding:7px 11px}
   #flash-reset{font-size:15px;padding:7px 10px}
   #speed label,#flash-variant label{font-size:13px}
-  .cbtn,.spd,.opt,.mcard,.hub-card,.win-btn,.qbtn,.cell,.q-listen{touch-action:manipulation}
+  .cbtn,.spd,.opt,.mcard,.hub-card,.win-btn,.qbtn,.cell,.q-listen,.cell-spk,.grid-ctrl-btn{touch-action:manipulation}
 
   /* OVERLAYS */
   #win .win-emoji{font-size:90px}
@@ -693,6 +769,13 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
     </div>
     <div class="swipe-indicator swipe-left" id="sw-left">🔁 ทบทวน</div>
     <div class="swipe-indicator swipe-right" id="sw-right">✅ รู้แล้ว</div>
+  </div>
+  <div id="grid-header">
+    <span class="grid-header-title">ฝึกอ่านเฉพาะคำที่เลือก (คลิก 🔊 ที่การ์ดเพื่อเปิด/ปิดเสียง)</span>
+    <div style="display:flex; gap:8px;">
+      <button class="grid-ctrl-btn" id="btn-mute-all" title="ปิดเสียงอ่านของทุกคำในหมวดนี้">🔇 ปิดเสียงทั้งหมด</button>
+      <button class="grid-ctrl-btn" id="btn-unmute-all" title="เปิดเสียงอ่านของทุกคำในหมวดนี้">🔊 เปิดเสียงทั้งหมด</button>
+    </div>
   </div>
   <div id="grid"></div>
   <div id="play"></div>
@@ -1214,6 +1297,9 @@ const topicView = document.getElementById('topic-view');
 const hubGrid   = document.getElementById('hub-grid');
 const wordEl    = document.getElementById('word');
 const gridEl    = document.getElementById('grid');
+const gridHeader   = document.getElementById('grid-header');
+const btnMuteAll   = document.getElementById('btn-mute-all');
+const btnUnmuteAll = document.getElementById('btn-unmute-all');
 const playEl    = document.getElementById('play');
 const tcard     = document.getElementById('tcard');
 const wfront    = document.getElementById('wfront');
@@ -1385,6 +1471,11 @@ function _speakOne(text, lang, voice, rate, onDone){
 }
 function speak(item, onDone, force){
   if (!audioOn || !window.speechSynthesis){ if(onDone) onDone(); return; }
+  if (mode === 'auto' && !force && item && item.speakEnabled === false) {
+    try { speechSynthesis.cancel(); } catch(_) {}
+    if(onDone) onDone();
+    return;
+  }
   const m = force || voiceMode;
   try {
     speechSynthesis.cancel();
@@ -1556,13 +1647,33 @@ function buildCell(item, sIdx, cIdx){
   lbl.style.fontSize = item.emoji ? '3.4vh' : cellLabelFs;
   if(isColorTopic&&item.darkText) lbl.style.color='#1A237E';
   el.appendChild(lbl); el._item=item;
+
+  // Speaker button to toggle sound for this word
+  const spkBtn = document.createElement('button');
+  spkBtn.className = 'cell-spk' + (item.speakEnabled !== false ? ' active' : '');
+  spkBtn.title = 'เปิด/ปิด เสียงคำนี้';
+  spkBtn.innerHTML = (item.speakEnabled !== false) ? '🔊' : '🔇';
+  spkBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    item.speakEnabled = !item.speakEnabled;
+    spkBtn.className = 'cell-spk' + (item.speakEnabled ? ' active' : '');
+    spkBtn.innerHTML = item.speakEnabled ? '🔊' : '🔇';
+    saveMutedState();
+    if (item.speakEnabled) {
+      speak(item, null, true); // force play preview
+    } else {
+      if(window.speechSynthesis) speechSynthesis.cancel();
+    }
+  });
+  el.appendChild(spkBtn);
+
   // โหมดอัตโนมัติ: คลิกคำไหนก็ได้เพื่อหยุดและดู/ฟังคำนั้นทันที (กดเองได้ ไม่ต้องรอ)
   el.addEventListener('click', e=>{
     if(mode!=='auto') return;
     e.stopPropagation();
     pauseAuto();
     curCell=cIdx;
-    setHl(sIdx,cIdx);
+    setHl(sIdx,cIdx, true);
   });
   return el;
 }
@@ -1574,6 +1685,17 @@ function showTopic(slug){
   currentSlug=slug; allItems=items;
   isColorTopic = slug==='colors';
   ips=getIps(items.length);
+
+  // Load muted list for this topic
+  let mutedList = [];
+  try {
+    const saved = localStorage.getItem('vocab_hub_muted_' + slug);
+    if (saved) mutedList = JSON.parse(saved);
+  } catch(e) {}
+  items.forEach(item => {
+    item.speakEnabled = !mutedList.includes(item.en || item.label);
+  });
+
   // ขนาดตัวอักษรในเซลล์ = อิงคำที่ยาวสุดของหมวด → ทุกเซลล์เท่ากันทั้งจอ (กันตัวเล็กใหญ่ไม่เท่า)
   const longest=items.reduce((a,it)=>(!it.emoji&&it.label.length>a.length)?it.label:a,'');
   cellLabelFs = longest ? cellFontSize(longest) : '10vh';
@@ -1630,6 +1752,7 @@ function setMode(m){
   showBoards(board);
   wordEl.style.flex = isFlash ? '1' : '';   // flash: การ์ดขยายเต็มพื้นที่ (กริดถูกซ่อน) ให้ใหญ่+อยู่กลาง
   gridEl.style.display = isAuto ? '' : 'none';   // กริดเฉพาะอัตโนมัติ — flash ซ่อนกันเฉลยคำตอบโผล่
+  gridHeader.style.display = isAuto ? 'flex' : 'none';
   dotsEl.style.display = isAuto ? '' : 'none';
   btnSay.style.display = board ? '' : 'none';
   speedDiv.style.display = (isAuto || m==='spell') ? '' : 'none';   // โชว์ในโหมดอัตโนมัติ + สะกดคำ (คุมจังหวะเลื่อนตัวอักษร)
@@ -1696,11 +1819,11 @@ function setBannerAuto(item){
   wfront.style.fontSize=bannerFontSize(item.en);
   wfrontSub.textContent=item.meaning || '';   // คำแปลไทยใต้คำอังกฤษ (ถ้ามี)
 }
-function setHl(sIdx,cIdx){
+function setHl(sIdx,cIdx, force){
   applyHl(sIdx,cIdx);
   curItem=slides[sIdx][cIdx];
   setBannerAuto(curItem);
-  speak(curItem);
+  speak(curItem, null, force);
   barEl.style.width=((cIdx+1)/ips*100)+'%';
 }
 function goTo(idx){
@@ -2777,7 +2900,7 @@ Object.keys(modeBtns).forEach(k=>{
   if(modeBtns[k]) modeBtns[k].addEventListener('click',e=>{ e.stopPropagation(); if(mode!==k) setMode(k); });
 });
 btnHome.addEventListener('click',e=>{ e.stopPropagation(); location.hash=''; showHub(); });
-btnSay.addEventListener('click',e=>{ e.stopPropagation(); if(curItem) speak(curItem); });
+btnSay.addEventListener('click',e=>{ e.stopPropagation(); if(curItem) speak(curItem, null, true); });
 btnPause.addEventListener('click',e=>{ e.stopPropagation(); autoPaused ? resumeAuto() : pauseAuto(); });
 btnPrevSlide.addEventListener('click',e=>{ e.stopPropagation(); if(mode!=='auto') return; pauseAuto(); goTo(curSlide-1); });
 btnNextSlide.addEventListener('click',e=>{ e.stopPropagation(); if(mode!=='auto') return; pauseAuto(); goTo(curSlide+1); });
@@ -2804,9 +2927,46 @@ btnVoice.addEventListener('click',e=>{
   voiceMode = VOICE_CYCLE[(i+1) % VOICE_CYCLE.length].mode;
   applyVoiceMode();
   if(window.speechSynthesis) speechSynthesis.cancel();
-  if(curItem) speak(curItem);
+  if(curItem) speak(curItem, null, true);
 });
 applyVoiceMode();
+
+function saveMutedState(){
+  if (!currentSlug || !allItems) return;
+  const mutedItems = allItems.filter(item => item.speakEnabled === false).map(item => item.en || item.label);
+  localStorage.setItem('vocab_hub_muted_' + currentSlug, JSON.stringify(mutedItems));
+}
+btnMuteAll.addEventListener('click', e => {
+  e.stopPropagation();
+  if (!allItems) return;
+  allItems.forEach(item => { item.speakEnabled = false; });
+  slideEls.forEach(slide => {
+    slide.forEach(cell => {
+      const spk = cell.querySelector('.cell-spk');
+      if (spk) {
+        spk.classList.remove('active');
+        spk.innerHTML = '🔇';
+      }
+    });
+  });
+  saveMutedState();
+  if(window.speechSynthesis) speechSynthesis.cancel();
+});
+btnUnmuteAll.addEventListener('click', e => {
+  e.stopPropagation();
+  if (!allItems) return;
+  allItems.forEach(item => { item.speakEnabled = true; });
+  slideEls.forEach(slide => {
+    slide.forEach(cell => {
+      const spk = cell.querySelector('.cell-spk');
+      if (spk) {
+        spk.classList.add('active');
+        spk.innerHTML = '🔊';
+      }
+    });
+  });
+  saveMutedState();
+});
 document.querySelectorAll('.spd').forEach(btn=>{
   btn.addEventListener('click',e=>{
     e.stopPropagation();
