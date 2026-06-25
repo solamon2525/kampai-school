@@ -156,6 +156,8 @@
     var tournamentRound = 0, eliminated = {};
     // อันดับสุดท้ายของฉัน (เก็บตอน showResult → ส่งใน bankXp ให้ระบบเหรียญนับแชมป์)
     var lastRank = 0, lastPlayers = 0;
+    // เฟส 4: smooth ตำแหน่งคู่แข่งผ่าน kampai-net (interpolation) — เกม race/score อ่านผ่าน match.opponents() ได้ลื่น
+    var oppNet = (window.KampaiNet && window.KampaiNet.create) ? window.KampaiNet.create({ interpDelay: 200, fields: ['v'] }) : null;
 
     // ─── wire UI ───────────────────────────────────────────────────────────
     $('.km-close').onclick = function () { root.style.display = 'none'; };
@@ -224,6 +226,7 @@
 
     function leave() {
       try { online() && online().leave(); } catch (e) { /* */ }
+      if (oppNet) oppNet.stop();
       room = null; isHost = false; started = false;
       board.style.display = 'none';
       root.style.display = 'none';
@@ -244,6 +247,7 @@
       if (!started) {
         Object.keys(members).forEach(function (id) { if (!ids[id]) delete members[id]; });
       }
+      if (oppNet) oppNet.syncPeers(Object.keys(members));   // ตัด buffer ของคนที่ออกห้อง
       $('.km-count').textContent = Object.keys(members).length;
       renderList('.km-lobby-list', false);
       if (started) { renderBoard(); notifyOpponents(); }
@@ -270,6 +274,7 @@
       var m = members[fromKey] || (members[fromKey] = { name: '?', photoUrl: null, classLabel: null, done: false });
       if (ev === 'score') { m.score = data.score | 0; m.correct = data.correct | 0; }
       else if (ev === 'done') { m.score = data.score | 0; m.correct = data.correct | 0; m.done = true; }
+      if (oppNet && (ev === 'score' || ev === 'done')) oppNet.receive('net', { v: data.score | 0 }, fromKey); // เก็บตำแหน่งคู่แข่งไว้ interpolate
       if (started) { renderBoard(); notifyOpponents(); }
       if (ev === 'done') maybeFinish();
     }
@@ -337,7 +342,7 @@
       lastScore = score | 0; lastCorrect = info.correct | 0;
       if (members[myId]) { members[myId].score = lastScore; members[myId].correct = lastCorrect; }
       var now = (window.performance && performance.now()) || Date.now();
-      if (now - sendTs > 120) { sendTs = now; if (online()) online().send('score', { score: lastScore, correct: lastCorrect }); }
+      if (now - sendTs > 80) { sendTs = now; if (online()) online().send('score', { score: lastScore, correct: lastCorrect }); }  // ~12Hz (eventsPerSecond=30 รองรับ) → interpolate ลื่น
       renderBoard();
     }
 
@@ -484,7 +489,19 @@
       }).join('');
     }
 
-    return { available: available, openMenu: openMenu, report: report, finish: finishNow, leave: leave };
+    return {
+      available: available, openMenu: openMenu, report: report, finish: finishNow, leave: leave,
+      /** เฟส 4: ตำแหน่งคู่แข่งแบบ interpolated (ลื่น) — เกม race อ่านต่อเฟรมแทนการเซ็ตดิบตอนรับ event
+       *  คืน array { id,name,photoUrl,score,correct,done,me, v } · v = ตำแหน่ง(score) แบบ interpolate */
+      opponents: function () {
+        return Object.keys(members).map(function (id) {
+          var m = members[id];
+          var sv = oppNet ? oppNet.view(id) : null;
+          return { id: id, name: m.name, photoUrl: m.photoUrl, score: m.score || 0, correct: m.correct || 0, done: !!m.done, me: !!m.me, v: (sv && typeof sv.v === 'number') ? sv.v : (m.score || 0) };
+        });
+      },
+      opponentView: function (id) { return oppNet ? oppNet.view(id) : null; }
+    };
   }
 
   window.KampaiMatch = { version: '1.0.0', create: create };

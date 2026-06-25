@@ -272,8 +272,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.113.0 (ระบบออนไลน์เฟส 3 — client-side prediction + reconciliation)',
+        version: 'v1.114.0 (ระบบออนไลน์เฟส 4 — rollout: KampaiMatch smooth + math-rally + docs)',
         date: 'ล่าสุด',
+        badge: 'bg-indigo-600',
+        items: [
+            'เฟส 4 — **rollout netcode เข้าเฟรมเวิร์กกลาง**: `KampaiMatch` interpolate ตำแหน่งคู่แข่งผ่าน kampai-net แล้วเปิด `match.opponents()` (มี `v` = ตำแหน่ง interpolated) → **ทุกเกม race/score อ่านต่อเฟรมได้ลื่นทันที** (KampaiVersus ส่งต่อให้ด้วย) · ลด throttle ส่งคะแนน 120→80ms',
+            'เกมตัวอย่าง **math-rally**: เปลี่ยนจากเซ็ต `rival.dist` ดิบตอนรับ event (กระโดดทุก ~150ms = กระตุก) → อ่าน `match.opponents()` แบบ interpolated ใน loop (ลื่น) · โหลด `kampai-net.js` · backward-safe (ไม่มี net = ค่าดิบ)',
+            'เอกสาร: เพิ่มหัวข้อ **Netcode** ใน GAME.md (ทางลัด match.opponents() + host-authority + prediction) · ทดสอบ: math-rally verify 10/10 ผ่าน + browser loop เดินจริง (rival ขยับ, ไม่มี error, ไม่ regress vs คอม)',
+            'เกมแอ็กชันที่เหลือ (tank-commander host-authority, blocky-safari) = rollout ต่อไปที่ต้องทดสอบ 2 เครื่องจริง',
+        ],
+    },
+    {
+        version: 'v1.113.0 (ระบบออนไลน์เฟส 3 — client-side prediction + reconciliation)',
+        date: '',
         badge: 'bg-indigo-600',
         items: [
             'เฟส 3 — **client-side prediction**: peer ทำนายตัวเองให้ตอบสนอง input ทันที (ไม่รอ host ~100ms) แล้ว **reconcile** เข้าหา world ของ host แบบนุ่ม → คุมตัวเองรู้สึก "ทันมือ" แม้ latency สูง',

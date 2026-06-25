@@ -222,6 +222,34 @@ const match = KampaiMatch.create({
 > ตัวอย่างจริง: `math/multiply-race.html` (โหมด 🌐 ออนไลน์). starter: `_template-online.html`.
 > ข้อจำกัดปัจจุบัน: รองรับ **race ตามเวลา** (host ออกห้องไม่มี reassign — ยอมรับได้ในห้องเรียน).
 
+### 🛰️ Netcode (`kampai-net.js`) — ทำเกมออนไลน์ "ลื่น ไม่กระตุก" + รองรับหลายคน
+
+ปัญหาคลาสสิก: เซ็ตตำแหน่งคู่แข่งดิบ ๆ ตอนรับ event (เช่น `rival.x = data.x`) → กระโดดเป็นก้อนทุก ~100ms = **กระตุก**.
+`kampai-net.js` แก้ด้วย **snapshot interpolation** (network tick แยก render + เรนเดอร์ย้อนหลัง ~100ms แล้ว lerp). โหลดคู่ SDK:
+```html
+<script src="/games/kampai-sdk.js"></script>
+<script src="/games/kampai-net.js"></script>   <!-- ก่อน kampai-match.js -->
+```
+
+**ทางลัด (เกม race/score ที่ใช้ KampaiMatch/KampaiVersus):** ไม่ต้องเรียก kampai-net เอง — แค่อ่าน `match.opponents()`
+**ต่อเฟรมใน loop** (ตำแหน่งคู่แข่งถูก interpolate ให้แล้ว) แทนการเซ็ตใน `onOpponent`:
+```js
+// ใน loop() (ทุกเฟรม) — แทน rival.x = leader.score ดิบ ๆ
+const others = match.opponents().filter((m) => !m.me);   // [{id,name,score,correct,me, v}]
+if (others.length) rival.dist = others.sort((a,b)=>b.v-a.v)[0].v;   // v = ตำแหน่ง interpolated (ลื่น)
+```
+ถ้าไม่โหลด `kampai-net.js` → `v` = ค่าดิบ (ทำงานได้ แต่ไม่ลื่น) = backward-safe. ตัวอย่างจริง: `math/math-rally`.
+
+**เกมแอ็กชันหลายคน (host-authority — รองรับ 4-8 คน):** ใช้ `KampaiNet.create()` ตรง ๆ:
+| โหมด | host | peer |
+|---|---|---|
+| **peer-broadcast** (ต่างคนต่างจำลอง) | `net.localState({x,y})` ทุกเฟรม · `net.view(peerId)` ตอนวาด | เหมือนกัน |
+| **host-authority** (host จำลองโลก) | `net.localWorld({p1:{x,y},ball:{...}})` + อ่าน `net.input(peerId)` | `net.localInput({up,fire})` · วาดด้วย `net.viewEntity(id)` |
+
+- `net.predictor({step,fields,blend,maxLead,init,localId})` + `net.predictStep(dt,input)` → `net.localView()` = ตัวเราตอบสนอง input ทันที (client prediction) · `maxLead` กันทำนายทะลุกำแพง
+- ป้อน event เข้า net: ใน `onEvent` ของห้อง → `if (net.receive(ev,data,from)) return;` · เริ่ม/หยุด: `net.start()`/`net.stop()`
+- supabase client ตั้ง `eventsPerSecond: 30` แล้ว (รองรับ network tick 15-20Hz) — ดู `src/integrations/supabase/client.ts`
+
 **Prompt สำหรับสั่ง AI เจ้าอื่นสร้างเกม:** `public/GAME-PROMPT.md` (served ที่ `/GAME-PROMPT.md`) —
 แอดมินมีปุ่ม "คัดลอก Prompt" + ดาวน์โหลดเทมเพลตที่ เมนูเกม HTML (GamesTab).
 

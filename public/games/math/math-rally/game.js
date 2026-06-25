@@ -337,7 +337,7 @@ function onOpponentUpdate(members) {
     const others = members.filter((m) => !m.me).sort((a, b) => b.score - a.score);
     if (!others.length) return;
     const leader = others[0];
-    rival.dist = Math.min(CFG.TRACK_LEN, leader.score);
+    // ตำแหน่ง rival.dist ตั้งใน loop แบบ interpolated (เฟส 4) — ที่นี่อัปแค่ชื่อ + ตรวจถึงเส้นชัย
     $('rival-name').textContent = `${DATA.RIVALS.online.car} ${leader.name}`;
     // มีคนถึงเส้นชัย → จบรอบของเราด้วย (อันดับคิดตาม score ที่รายงานล่าสุด)
     if (!raceDone && !isSpectator && others.some((m) => m.done && m.score >= CFG.TRACK_LEN)) {
@@ -445,6 +445,11 @@ function loop(ts) {
                 }
                 cpuNextAt = now + ai.min + Math.random() * (ai.max - ai.min);
             }
+        }
+        // คู่แข่งออนไลน์: อ่านตำแหน่ง interpolated ต่อเฟรม (ลื่น) แทนเซ็ตดิบตอนรับ event (กันกระตุก — เฟส 4 netcode)
+        else if (mode === 'online' && match && match.opponents) {
+            const others = match.opponents().filter((m) => !m.me);
+            if (others.length) rival.dist = Math.min(CFG.TRACK_LEN, others.sort((a, b) => b.v - a.v)[0].v);
         }
 
         // โจทย์หมดเวลา

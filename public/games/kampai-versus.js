@@ -458,6 +458,8 @@
       finish: finish,
       leave: leaveAll,
       online: ensureOnline,
+      // เฟส 4: ส่งต่อ opponents() แบบ interpolated จาก KampaiMatch (online) — โหมด local/cpu คืน [] (ไม่มี onlineMatch)
+      opponents: function () { return (onlineMatch && onlineMatch.opponents) ? onlineMatch.opponents() : []; },
       get mode() { return activeMode; }
     };
   }
