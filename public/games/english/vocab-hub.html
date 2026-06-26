@@ -860,7 +860,8 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
 <div id="hub-view">
   <div id="hub-title">คำศัพท์ภาษาอังกฤษ</div>
   <div id="hub-sub">English Vocabulary — เลือกหัวข้อ &nbsp;|&nbsp; F = เต็มจอ</div>
-  <div style="text-align:center;margin-bottom:1.2vh">
+  <!-- แดชบอด (โปรไฟล์/สถิติ/อันดับ) แยกออกไปเป็นหน้าต่างหาก /play/vocab-hub/dashboard -->
+  <div style="text-align:center;margin-bottom:1.2vh;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
     <button id="btn-back-hub" onclick="KAMPAI.goHome()"
       style="display:inline-flex;align-items:center;gap:6px;padding:8px 22px;border-radius:12px;
         border:2px solid rgba(255,224,130,0.35);background:rgba(255,224,130,0.1);
@@ -869,27 +870,14 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
       onmouseover="this.style.background='rgba(255,224,130,0.22)';this.style.borderColor='rgba(255,224,130,0.6)';this.style.transform='scale(1.04)'"
       onmouseout="this.style.background='rgba(255,224,130,0.1)';this.style.borderColor='rgba(255,224,130,0.35)';this.style.transform='scale(1)'"
     >⬅ กลับหน้ารวมเกม</button>
-  </div>
-  <!-- Student Banner (แสดงเมื่อล็อกอินผ่าน KAMPAI SDK) -->
-  <div id="hub-student-banner">
-    <div class="hsb-avatar" id="hsb-avatar-wrap"></div>
-    <div class="hsb-info">
-      <div class="hsb-name" id="hsb-name">นักเรียน</div>
-      <div class="hsb-meta">
-        <span id="hsb-level">🎖️ Lv.1</span>
-        <span id="hsb-plays">🎮 0 ครั้ง</span>
-        <span id="hsb-best">🏆 Best: 0</span>
-      </div>
-    </div>
-    <div class="hsb-xp-bar-wrap">
-      <div class="hsb-xp-bar"><div class="hsb-xp-fill" id="hsb-xp-fill" style="width:0%"></div></div>
-      <div class="hsb-xp-label" id="hsb-xp-label">0 XP</div>
-    </div>
-  </div>
-  <!-- Leaderboard (แสดงเมื่อมีข้อมูล leaderboard จาก SDK) -->
-  <div id="hub-leaderboard">
-    <div class="hub-lb-title">🏆 อันดับ — คะแนนสูงสุด</div>
-    <div id="hub-lb-rows"></div>
+    <a id="btn-dashboard" href="/play/vocab-hub/dashboard" target="_top"
+      style="display:inline-flex;align-items:center;gap:6px;padding:8px 22px;border-radius:12px;text-decoration:none;
+        border:2px solid rgba(255,224,130,0.35);background:rgba(255,224,130,0.1);
+        color:#FFE082;font-size:2vh;font-weight:700;cursor:pointer;
+        font-family:inherit;transition:background 0.15s,transform 0.1s,border-color 0.15s"
+      onmouseover="this.style.background='rgba(255,224,130,0.22)';this.style.borderColor='rgba(255,224,130,0.6)';this.style.transform='scale(1.04)'"
+      onmouseout="this.style.background='rgba(255,224,130,0.1)';this.style.borderColor='rgba(255,224,130,0.35)';this.style.transform='scale(1)'"
+    >📊 แดชบอด / อันดับ</a>
   </div>
   <div id="hub-grid"></div>
 </div>
@@ -1016,6 +1004,10 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
 <canvas id="cfx"></canvas>
 
 <script>
+const GAME_SLUG = 'vocab-hub';
+if (window.KAMPAI) {
+  window.KAMPAI.setSlug(GAME_SLUG);
+}
 // =====================================================================
 // TOPIC METADATA (for hub cards)
 // =====================================================================
@@ -1753,6 +1745,29 @@ function showWin(emoji,text,scoreHtml,stars){
   winEl.classList.add('show');
   sWin(); confetti();
   try{KAMPAI.sound.fxFlash(true);}catch(_){}
+
+  if (window.KAMPAI) {
+    let finalScore = 0;
+    if (typeof mode !== 'undefined') {
+      if (mode === 'choice' || mode === 'listen') {
+        finalScore = (typeof qLen !== 'undefined' && qLen > 0) ? Math.round((score / qLen) * 100) : 0;
+      } else if (mode === 'match') {
+        finalScore = 100;
+      } else {
+        finalScore = 100;
+      }
+    } else {
+      finalScore = 100;
+    }
+    let starCount = 0;
+    if (typeof stars === 'string') {
+      starCount = (stars.match(/⭐/g) || []).length;
+    }
+    window.KAMPAI.submitScore(finalScore, {
+      stars: starCount,
+      mode: (typeof mode !== 'undefined' ? mode : 'normal')
+    });
+  }
 }
 
 // =====================================================================
@@ -3484,8 +3499,7 @@ window.addEventListener('hashchange',route);
 buildHub();
 route();
 
-// KAMPAI SDK init — player chip + student banner + leaderboard + XP result
-const GAME_SLUG = 'vocab-hub';
+// KAMPAI SDK init — player chip + XP result (GAME_SLUG ประกาศไว้แล้วด้านบน)
 KAMPAI.setSlug(GAME_SLUG);
 KAMPAI.onReady(function(K){
   try {
@@ -3503,72 +3517,10 @@ KAMPAI.onReady(function(K){
       }
     }
 
-    // ── 2. Student Banner in Hub ──────────────────────────────────────────
-    if(s && K.stats){
-      var banner = document.getElementById('hub-student-banner');
-      var avatarWrap = document.getElementById('hsb-avatar-wrap');
-      var nameEl = document.getElementById('hsb-name');
-      var levelEl = document.getElementById('hsb-level');
-      var playsEl = document.getElementById('hsb-plays');
-      var bestEl = document.getElementById('hsb-best');
-      var xpFill = document.getElementById('hsb-xp-fill');
-      var xpLabel = document.getElementById('hsb-xp-label');
+    // หมายเหตุ: แดชบอด (student banner + leaderboard) ย้ายออกไปหน้า
+    // /play/vocab-hub/dashboard แล้ว — จอ hub เหลือแค่หัวข้อ + เล่น
 
-      if(avatarWrap){
-        if(s.photoUrl){
-          avatarWrap.innerHTML = '<img src="'+s.photoUrl+'" alt="">';
-        } else {
-          avatarWrap.textContent = (s.displayName||'?')[0].toUpperCase();
-        }
-      }
-      if(nameEl) nameEl.textContent = s.displayName || 'นักเรียน';
-      if(s.classLabel && nameEl) nameEl.textContent += ' · ' + s.classLabel;
-
-      var st = K.stats;
-      if(levelEl) levelEl.textContent = '🎖️ Lv.' + (st.level||1);
-      if(playsEl) playsEl.textContent = '🎮 ' + (st.playsCount||0) + ' ครั้ง';
-      if(bestEl)  bestEl.textContent  = '🏆 Best: ' + (st.personalBest||0);
-
-      // XP progress bar — ระยะห่างต่อเลเวลประมาณ 500 XP (adjust ตามระบบจริง)
-      var XP_PER_LEVEL = 500;
-      var xpInLevel = (st.totalXp||0) % XP_PER_LEVEL;
-      var pct = Math.min(100, Math.round((xpInLevel / XP_PER_LEVEL) * 100));
-      if(xpFill)  xpFill.style.width = pct + '%';
-      if(xpLabel) xpLabel.textContent = (st.totalXp||0).toLocaleString('th-TH') + ' XP';
-
-      if(banner) banner.classList.add('show');
-    }
-
-    // ── 3. Leaderboard in Hub ─────────────────────────────────────────────
-    var lb = K.leaderboard;
-    if(lb && lb.length){
-      var lbPanel = document.getElementById('hub-leaderboard');
-      var lbRows  = document.getElementById('hub-lb-rows');
-      if(lbPanel && lbRows){
-        var rankIcons = ['🥇','🥈','🥉'];
-        var rankClasses = ['gold','silver','bronze'];
-        var html = lb.slice(0,5).map(function(row,i){
-          var isMe = row.isMe;
-          var avHtml = row.photoUrl
-            ? '<img src="'+row.photoUrl+'" alt="">'
-            : (row.displayName||'?')[0].toUpperCase();
-          var rankLabel = i < 3
-            ? '<span class="lb-rank '+rankClasses[i]+'">'+rankIcons[i]+'</span>'
-            : '<span class="lb-rank">#'+(i+1)+'</span>';
-          return '<div class="lb-row'+(isMe?' lb-me':'')+'">'+
-            rankLabel+
-            '<div class="lb-av">'+avHtml+'</div>'+
-            '<div class="lb-name">'+(row.displayName||'?')+(isMe?' (คุณ)':'')+'</div>'+
-            (row.classLabel?'<div class="lb-class">'+row.classLabel+'</div>':'')+
-            '<div class="lb-score">'+((row.personalBest||0).toLocaleString('th-TH'))+'</div>'+
-          '</div>';
-        }).join('');
-        lbRows.innerHTML = html;
-        lbPanel.classList.add('show');
-      }
-    }
-
-    // ── 4. XP Result panel — ลงทะเบียนก่อนส่งคะแนน ─────────────────────
+    // ── 2. XP Result panel — ลงทะเบียนก่อนส่งคะแนน ─────────────────────
     // KAMPAI.onResult ทำให้ SDK inject XP ลง #kampai-result อัตโนมัติ
     // (ถ้าไม่ register, SDK จะ inject ด้วย showResult() เองอยู่แล้ว)
     KAMPAI.onResult(function(result, info){

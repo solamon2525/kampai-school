@@ -66,6 +66,7 @@ const TrainingShowcasePublic = lazyWithRetry(() => import("./pages/TrainingShowc
 const EducationalHub = lazyWithRetry(() => import("./pages/EducationalHub"));
 const EducationalHubTeacher = lazyWithRetry(() => import("./pages/EducationalHubTeacher"));
 const PlayGame = lazyWithRetry(() => import("./pages/PlayGame"));
+const GameDashboard = lazyWithRetry(() => import("./pages/GameDashboard"));
 const EnglishQuest = lazyWithRetry(() => import("./pages/EnglishQuest"));
 const StudentHeroPublic = lazyWithRetry(() => import("./pages/StudentHeroPublic"));
 
@@ -185,6 +186,7 @@ const App = () => (
             {/* Short URL alias — /h/<username|uuid> */}
             <Route path="/h/:identifier" element={<EducationalHubTeacher />} />
             <Route path="/play/:gameSlug" element={<PlayGame />} />
+            <Route path="/play/:gameSlug/dashboard" element={<GameDashboard />} />
             <Route path="/english-quest" element={<EnglishQuest />} />
             <Route path="/hero" element={<StudentHeroPublic />} />
             <Route path="/hero/:studentId" element={<StudentHeroPublic />} />
