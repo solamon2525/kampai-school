@@ -461,8 +461,8 @@ function updatePlayer() {
 
   if (player.y > V_H + 80) handleFall();
 
-  // Auto-scrolling camera (comfortable speed for decision-making)
-  camX += 0.95;
+  // Auto-scrolling camera (increased speed by 20%)
+  camX += 1.15;
   if (camX < 0) camX = 0;
 
   // Constrain player to right screen edge
@@ -475,7 +475,7 @@ function updatePlayer() {
 }
 
 function drawCloud(c) {
-  const x = c.x - camX * c.spd * 0.3;
+  const x = c.x - camX * 0.3;
   ctx.save();
   ctx.translate(x, c.y);
   ctx.scale(c.s, c.s);
@@ -529,16 +529,36 @@ function drawBunny() {
   ctx.fillStyle = '#fff';
   for (let i = -14; i < 18; i += 7) ctx.fillRect(i, 2, 5, 14);
   ctx.fillStyle = '#fbcfe8';
-  ctx.beginPath(); ctx.arc(-10, 4, 6, 0, 6.28); ctx.arc(10, 4, 6, 0, 6.28); ctx.fill();
-  ctx.fillStyle = '#334155';
+  ctx.beginPath(); ctx.arc(-12, 4, 5, 0, 6.28); ctx.arc(12, 4, 5, 0, 6.28); ctx.fill();
+
+  ctx.strokeStyle = '#334155'; ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.fillStyle = '#334155';
   if (player.state === 'hurt') {
-    ctx.font = 'bold 18px Itim'; ctx.textAlign = 'center'; ctx.fillText('> <', 0, -2);
+    // Cross eyes > <
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(-11, -6); ctx.lineTo(-5, -2); ctx.moveTo(-11, -2); ctx.lineTo(-5, -6);
+    ctx.moveTo(5, -6); ctx.lineTo(11, -2); ctx.moveTo(5, -2); ctx.lineTo(11, -6);
+    ctx.stroke();
+    // Flat mouth
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(-3, 2); ctx.lineTo(3, 2); ctx.stroke();
   } else if (player.state === 'happy' || player.state === 'jump') {
-    ctx.font = 'bold 16px Itim'; ctx.fillText('^ ▽ ^', 0, -2);
-  } else if (player.state === 'run') {
-    ctx.font = 'bold 16px Itim'; ctx.fillText('^‿^', 0, -2);
+    // Upward arch eyes ^ ^
+    ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.arc(-8, -2, 4, 3.14, 0); ctx.stroke();
+    ctx.beginPath(); ctx.arc(8, -2, 4, 3.14, 0); ctx.stroke();
+    // Cute open mouth
+    ctx.fillStyle = '#f43f5e';
+    ctx.beginPath(); ctx.arc(0, 2, 4, 0, 3.14); ctx.fill();
   } else {
-    ctx.font = 'bold 18px Itim'; ctx.fillText('😳', 0, 2);
+    // Normal vertical oval eyes
+    ctx.beginPath(); ctx.ellipse(-8, -4, 3, 5, 0, 0, 6.28); ctx.ellipse(8, -4, 3, 5, 0, 0, 6.28); ctx.fill();
+    // Sparkles inside eyes
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(-9, -6, 1, 0, 6.28); ctx.arc(7, -6, 1, 0, 6.28); ctx.fill();
+    // Cute w-mouth
+    ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(-2, 2, 2, 0, 3.14); ctx.arc(2, 2, 2, 0, 3.14); ctx.stroke();
   }
   ctx.restore();
 }
@@ -585,7 +605,7 @@ function draw() {
   ctx.translate(shakeX, shakeY);
   ctx.fillStyle = skyGrad;
   ctx.fillRect(0, 0, V_W, V_H);
-  clouds.forEach(c => { c.x += c.spd; if (c.x > camX + V_W + 200) c.x = camX - 200; drawCloud(c); });
+  clouds.forEach(c => { c.x -= c.spd; if (c.x < camX - 200) c.x = camX + V_W + 200; drawCloud(c); });
   petals.forEach(p => {
     p.y += p.spd; p.x += p.drift; p.rot += 0.02;
     if (p.y > V_H + 20) { p.y = -20; p.x = camX + rand(0, V_W); }
