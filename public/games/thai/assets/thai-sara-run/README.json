@@ -1,0 +1,14 @@
+{
+  "frameWidth": 48,
+  "frameHeight": 48,
+  "frames": [
+    "idle",
+    "runA",
+    "runB",
+    "jump",
+    "hurt",
+    "happy"
+  ],
+  "piskel": "Import PNG → Resize frames 48×48 → แก้สี/ท่า → Export sprite sheet",
+  "regenerate": "node scripts/generate-sara-run-sprites.mjs"
+}
