@@ -1,0 +1,2116 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🍕 ผจญภัยเศษส่วน ป.4 — Fraction Adventure</title>
+    <meta name="description" content="เกมการเรียนเรื่องเศษส่วนชั้นประถมศึกษาปีที่ 4 เรียนรู้สนุกสนานพร้อมระบบ AR จับความเคลื่อนไหวมือ">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Kanit:wght@400;500;600;700;800&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- External Libraries: Chart.js & MediaPipe Hands -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <!-- Kampai Game SDK & Multi-Player Framework (Loaded before game logic) -->
+    <script src="/games/kampai-sdk.js"></script>
+    <script>
+        // Stub SDK if not embedded to prevent crash in standalone/offline test
+        window.KAMPAI = window.KAMPAI || { 
+            isEmbed: false, ready: true, student: null, stats: null, leaderboard: [], classmates: [], 
+            onReady: function(cb){ cb(this); }, setSlug: function(){ return this; }, submitScore: function(){ return false; }, 
+            goHome: function(){ location.reload(); }, sound: { correct: function(){}, wrong: function(){}, timeUp: function(){}, gameOver: function(){}, bgmStart: function(){}, bgmStop: function(){}, unlock: function(){} } 
+        };
+    </script>
+    <script src="/games/kampai-match.js"></script>
+    <script>
+        window.KampaiMatch = window.KampaiMatch || { 
+            create: function(){ return { available: false, openMenu: function(){ alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); }, report: function(){}, finish: function(){}, leave: function(){} }; } 
+        };
+    </script>
+    <script src="/games/kampai-versus.js"></script>
+    <script>
+        window.KampaiVersus = window.KampaiVersus || { 
+            create: function(o){ 
+                var m = (window.KampaiMatch && window.KampaiMatch.create) ? window.KampaiMatch.create(o) : null; 
+                return { available: false, openMenu: function(){ if(m) m.openMenu(); }, report: function(s,i){ if(m) m.report(s,i); }, finish: function(s,i){ if(m){ m.finish(s,i); return true; } return false; }, leave: function(){}, mode: null }; 
+            } 
+        };
+    </script>
+
+    <style>
+        /* ─── DESIGN SYSTEM (Vanilla CSS Kids Cute Pastel) ─── */
+        :root {
+            --sky-blue-light: #e0f2fe;
+            --sky-blue-mid: #7dd3fc;
+            --sky-blue-dark: #0284c7;
+            --pink-pastel-light: #fce7f3;
+            --pink-pastel-mid: #f9a8d4;
+            --pink-pastel-dark: #db2777;
+            --yellow-pastel-light: #fef9c3;
+            --yellow-pastel-mid: #fde047;
+            --yellow-pastel-dark: #ca8a04;
+            --mint-green-light: #dcfce7;
+            --mint-green-mid: #86efac;
+            --mint-green-dark: #16a34a;
+            --orange-pastel-light: #ffedd5;
+            --orange-pastel-mid: #fed7aa;
+            --orange-pastel-dark: #ea580c;
+            --neutral-dark: #1e293b;
+            --neutral-light: #f8fafc;
+            --card-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.08), 0 4px 12px -4px rgba(0, 0, 0, 0.04);
+            --card-shadow-hover: 0 20px 32px -8px rgba(0, 0, 0, 0.12), 0 8px 16px -6px rgba(0, 0, 0, 0.06);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            font-family: 'Kanit', 'Sarabun', sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #fae8ff 100%);
+            color: var(--neutral-dark);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ─── LAYOUT & SCREEN CONTAINER ─── */
+        #app-container {
+            width: min(100%, 800px);
+            height: 100%;
+            max-height: 900px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* Screens: forced center and clean container */
+        .screen {
+            background: rgba(255, 255, 255, 0.9);
+            border: 4px solid var(--sky-blue-mid);
+            border-radius: 32px;
+            box-shadow: var(--card-shadow);
+            padding: 24px;
+            overflow-y: auto;
+            position: relative;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            flex: 1;
+            max-height: 100%;
+            transition: all 0.3s ease;
+        }
+
+        /* Screen alignment rules matching custom sandbox rules */
+        .flex { display: flex !important; }
+        .flex-col { flex-direction: column !important; }
+        .hidden { display: none !important; }
+
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: 99px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: var(--sky-blue-mid);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 99px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: var(--sky-blue-dark);
+        }
+
+        /* ─── SPLASH / START SCREEN ─── */
+        .splash-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-title {
+            font-family: 'Fredoka One', 'Kanit', sans-serif;
+            font-size: clamp(32px, 5vw, 44px);
+            color: var(--pink-pastel-dark);
+            text-shadow: 3px 3px 0 var(--pink-pastel-light), 0 8px 16px rgba(219, 39, 119, 0.2);
+            animation: bounceLogo 3s ease-in-out infinite;
+        }
+
+        .logo-subtitle {
+            font-size: 18px;
+            color: var(--sky-blue-dark);
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        @keyframes bounceLogo {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-10px) scale(1.03); }
+        }
+
+        .student-profile-banner {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--sky-blue-light);
+            border: 2px solid var(--sky-blue-mid);
+            border-radius: 20px;
+            padding: 10px 14px;
+            margin-bottom: 16px;
+            align-self: center;
+            width: fit-content;
+        }
+
+        .profile-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 2px solid var(--pink-pastel-mid);
+            object-fit: cover;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-name {
+            font-weight: 700;
+            color: var(--neutral-dark);
+            font-size: 15px;
+        }
+
+        .profile-class {
+            font-size: 12px;
+            color: var(--sky-blue-dark);
+            font-weight: 600;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            width: 100%;
+            max-width: 540px;
+            margin: 0 auto;
+        }
+
+        @media (min-width: 600px) {
+            .menu-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* ─── BUTTONS ─── */
+        .btn-menu {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 14px;
+            border-radius: 24px;
+            border: 3px solid transparent;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease-in-out;
+            box-shadow: var(--card-shadow);
+        }
+
+        .btn-menu:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .btn-menu:active {
+            transform: scale(0.96);
+        }
+
+        .btn-menu.like {
+            background: var(--sky-blue-light);
+            border-color: var(--sky-blue-mid);
+            color: var(--sky-blue-dark);
+        }
+
+        .btn-menu.unlike {
+            background: var(--pink-pastel-light);
+            border-color: var(--pink-pastel-mid);
+            color: var(--pink-pastel-dark);
+        }
+
+        .btn-menu.adventure {
+            background: var(--yellow-pastel-light);
+            border-color: var(--yellow-pastel-mid);
+            color: var(--yellow-pastel-dark);
+        }
+
+        .btn-menu.ar {
+            background: var(--mint-green-light);
+            border-color: var(--mint-green-mid);
+            color: var(--mint-green-dark);
+        }
+
+        .btn-menu.versus {
+            background: var(--orange-pastel-light);
+            border-color: var(--orange-pastel-mid);
+            color: var(--orange-pastel-dark);
+        }
+
+        .btn-menu.dashboard {
+            background: #ffffff;
+            border-color: #cbd5e1;
+            color: #64748b;
+        }
+
+        .menu-icon {
+            font-size: 28px;
+            margin-bottom: 6px;
+        }
+
+        .menu-title {
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .menu-desc {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+
+        /* ─── GAME SCREEN & HUD ─── */
+        .game-hud {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #ffffff;
+            border: 2px solid var(--sky-blue-light);
+            border-radius: 20px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+        }
+
+        .hud-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-back {
+            background: var(--pink-pastel-light);
+            border: 2px solid var(--pink-pastel-mid);
+            color: var(--pink-pastel-dark);
+            border-radius: 12px;
+            padding: 6px 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .btn-back:hover {
+            transform: scale(1.05);
+        }
+
+        .hud-stats {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .hud-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .hud-star {
+            color: var(--yellow-pastel-dark);
+        }
+
+        .hud-hearts {
+            display: flex;
+            gap: 4px;
+            color: #ef4444;
+            font-size: 18px;
+        }
+
+        .sound-toggle {
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.1s;
+        }
+
+        .sound-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        /* ─── WORKSHEET & FRACTION FORMULAS ─── */
+        .worksheet-container {
+            background: #ffffff;
+            border-radius: 24px;
+            border: 3px dashed var(--sky-blue-mid);
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .word-problem-bubble {
+            background: var(--yellow-pastel-light);
+            border: 2px solid var(--yellow-pastel-mid);
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 20px;
+            width: 100%;
+            position: relative;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            font-size: 16px;
+            line-height: 1.6;
+            animation: floatBubble 4s ease-in-out infinite;
+        }
+
+        @keyframes floatBubble {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+
+        /* FRACTION EQUATION RENDERING */
+        .fraction-equation {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .fraction {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 48px;
+        }
+
+        .numerator, .denominator {
+            font-size: 22px;
+            font-weight: 700;
+            text-align: center;
+            padding: 2px 4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fraction-line {
+            width: 100%;
+            height: 4px;
+            background-color: var(--neutral-dark);
+            border-radius: 2px;
+            margin: 4px 0;
+        }
+
+        .math-operator {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--pink-pastel-dark);
+            margin: 0 4px;
+        }
+
+        /* ─── FRACTION INPUT BOXES ─── */
+        .fraction-input-box {
+            width: 45px;
+            height: 45px;
+            border: 3px solid #cbd5e1;
+            border-radius: 12px;
+            background: #ffffff;
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--neutral-dark);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            margin: 2px;
+            position: relative;
+        }
+
+        .fraction-input-box.active {
+            border-color: var(--pink-pastel-dark) !important;
+            background: #ffffff !important;
+            box-shadow: 0 0 0 4px rgba(219, 39, 119, 0.2);
+            animation: activePulse 1.5s infinite;
+        }
+
+        @keyframes activePulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0px rgba(219, 39, 119, 0.4); }
+            50% { transform: scale(1.06); box-shadow: 0 0 0 8px rgba(219, 39, 119, 0.15); }
+        }
+
+        .fraction-input-box.filled {
+            border-color: #2563eb !important;
+            background: #dbeafe !important;
+            color: #1e3a8a !important;
+        }
+
+        .fraction-input-box.wrong {
+            border-color: #ef4444 !important;
+            background: #fee2e2 !important;
+            animation: shakeInput 0.3s ease-in-out;
+        }
+
+        @keyframes shakeInput {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+
+        /* WORKSHEET ROWS (UNLIKE DENOMINATORS) */
+        .unlike-worksheet {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .worksheet-row {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--sky-blue-light);
+            border: 2px solid var(--sky-blue-mid);
+            border-radius: 20px;
+            padding: 12px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .row-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--sky-blue-dark);
+            margin-bottom: 6px;
+            text-align: center;
+        }
+
+        /* ─── VIRTUAL KEYPAD ─── */
+        .keypad-container {
+            width: 100%;
+            max-width: 320px;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 2px solid var(--sky-blue-light);
+            border-radius: 24px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .keypad-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .key-btn {
+            flex: 1;
+            height: 48px;
+            border-radius: 14px;
+            border: 2px solid #e2e8f0;
+            background: #ffffff;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--neutral-dark);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .key-btn:hover {
+            background: var(--sky-blue-light);
+            border-color: var(--sky-blue-mid);
+            transform: translateY(-2px);
+        }
+
+        .key-btn:active, .key-btn.clicked {
+            background: var(--sky-blue-mid);
+            transform: scale(0.95);
+        }
+
+        /* ─── AR CAM FEED CARD ─── */
+        .ar-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+            align-items: center;
+        }
+
+        @media (min-width: 650px) {
+            .ar-grid {
+                flex-direction: row;
+                justify-content: center;
+                align-items: flex-start;
+            }
+            .ar-grid .worksheet-container {
+                flex: 1;
+            }
+        }
+
+        .ar-card {
+            width: 240px;
+            background: #ffffff;
+            border: 3px solid var(--mint-green-mid);
+            border-radius: 24px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: var(--card-shadow);
+        }
+
+        .camera-wrapper {
+            width: 216px;
+            height: 162px;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #000000;
+            position: relative;
+        }
+
+        #webcam-canvas {
+            width: 100%;
+            height: 100%;
+            transform: scaleX(-1); /* Mirror camera output */
+            display: block;
+        }
+
+        .camera-status {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--mint-green-dark);
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        #ar-cursor {
+            position: fixed;
+            width: 24px;
+            height: 24px;
+            font-size: 24px;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: transform 0.05s ease;
+        }
+
+        #ar-cursor.pinching {
+            transform: translate(-50%, -50%) scale(0.7);
+            filter: drop-shadow(0 0 8px #db2777);
+        }
+
+        /* ─── REWARDS & DASHBOARD SCREEN ─── */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        @media (min-width: 600px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr 1.2fr;
+            }
+        }
+
+        .dashboard-card {
+            background: #ffffff;
+            border: 2px solid var(--sky-blue-light);
+            border-radius: 20px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--card-shadow);
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 200px;
+            width: 100%;
+        }
+
+        .effort-number {
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--yellow-pastel-dark);
+            text-shadow: 2px 2px 0 var(--yellow-pastel-light);
+            margin: 12px 0;
+        }
+
+        .btn-certificate {
+            width: 100%;
+            background: linear-gradient(135deg, var(--yellow-pastel-mid), var(--yellow-pastel-dark));
+            border: none;
+            color: #ffffff;
+            padding: 14px 20px;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 6px 12px rgba(202, 138, 4, 0.2);
+            transition: all 0.2s;
+            text-align: center;
+            margin-top: 12px;
+        }
+
+        .btn-certificate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 16px rgba(202, 138, 4, 0.35);
+        }
+
+        /* ─── CUSTOM MODALS (Sandbox Safe) ─── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-box {
+            background: #ffffff;
+            border: 4px solid var(--pink-pastel-mid);
+            border-radius: 24px;
+            padding: 24px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            text-align: center;
+            animation: popModal 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes popModal {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--pink-pastel-dark);
+            margin-bottom: 12px;
+        }
+
+        .modal-body {
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: var(--neutral-dark);
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-input:focus {
+            outline: none;
+            border-color: var(--sky-blue-mid);
+            box-shadow: 0 0 0 3px rgba(125, 211, 252, 0.4);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .btn-confirm, .btn-cancel {
+            flex: 1;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.1s;
+        }
+
+        .btn-confirm {
+            background: var(--mint-green-dark);
+            color: #ffffff;
+        }
+
+        .btn-confirm:hover {
+            background: #15803d;
+        }
+
+        .btn-cancel {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .btn-cancel:hover {
+            background: #cbd5e1;
+        }
+
+        /* Success dialog style */
+        .modal-box.success {
+            border-color: var(--mint-green-mid);
+        }
+        .modal-title.success {
+            color: var(--mint-green-dark);
+        }
+
+        /* Certificate Download Canvas Container */
+        #hidden-canvas-container {
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Virtual AR Pointer Cursor -->
+    <div id="ar-cursor" class="hidden">⭐</div>
+
+    <!-- MAIN APPLICATION CONTAINER -->
+    <div id="app-container">
+
+        <!-- 1. SPLASH SCREEN -->
+        <div id="screen-splash" class="screen flex flex-col custom-scrollbar">
+            <div class="splash-header">
+                <h1 class="logo-title">🍕 ผจญภัยเศษส่วน 🍕</h1>
+                <p class="logo-subtitle">Fraction Adventure for Grade 4</p>
+            </div>
+
+            <!-- Student Profile HUD -->
+            <div class="student-profile-banner">
+                <img id="avatar-img" class="profile-avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%237dd3fc'/><text x='50' y='60' font-size='40' text-anchor='middle'>🍔</text></svg>" alt="avatar">
+                <div class="profile-info">
+                    <span class="profile-name" id="student-name-text">นักเรียนคนเก่ง</span>
+                    <span class="profile-class" id="student-class-text">ระดับชั้น ป.4</span>
+                </div>
+            </div>
+
+            <!-- Main Menu Grid -->
+            <div class="menu-grid">
+                <div class="btn-menu like ar-btn" onclick="selectMode('like')">
+                    <span class="menu-icon">🍕</span>
+                    <span class="menu-title">เศษส่วนเท่ากัน</span>
+                    <span class="menu-desc">บวกเศษ ส่วนคงเดิม (ง่าย)</span>
+                </div>
+                <div class="btn-menu unlike ar-btn" onclick="selectMode('unlike')">
+                    <span class="menu-icon">🍩</span>
+                    <span class="menu-title">เศษส่วนไม่เท่ากัน</span>
+                    <span class="menu-desc">หา ค.ร.น. ขยายส่วน (ทั่วไป)</span>
+                </div>
+                <div class="btn-menu adventure ar-btn" onclick="selectMode('adventure')">
+                    <span class="menu-icon">📖</span>
+                    <span class="menu-title">โจทย์ปัญหาเศษส่วน</span>
+                    <span class="menu-desc">เรื่องราวแบ่งเค้กและขนมแสนสนุก</span>
+                </div>
+                <div class="btn-menu ar ar-btn" onclick="selectMode('ar')">
+                    <span class="menu-icon">📷</span>
+                    <span class="menu-title">โหมด AR จับมือ</span>
+                    <span class="menu-desc">ใช้นิ้วจีบ Pinch เพื่อกดปุ่มตอบ</span>
+                </div>
+                <div class="btn-menu versus ar-btn" onclick="vs.openMenu()">
+                    <span class="menu-icon">🏁</span>
+                    <span class="menu-title">แข่ง 2 คน</span>
+                    <span class="menu-desc">ท้าสู้เครื่องนี้ หรือท้าชิงออนไลน์</span>
+                </div>
+                <div class="btn-menu dashboard ar-btn" onclick="showDashboard()">
+                    <span class="menu-icon">📊</span>
+                    <span class="menu-title">แดชบอร์ดสรุปผล & เกียรติบัตร</span>
+                    <span class="menu-desc">ดูข้อมูลวิเคราะห์และรับใบประกาศคุณคนเก่ง</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. GAMEPLAY SCREEN -->
+        <div id="screen-game" class="screen flex flex-col hidden custom-scrollbar">
+            <!-- HUD -->
+            <div class="game-hud">
+                <div class="hud-left">
+                    <button class="btn-back ar-btn" onclick="quitGameClicked()">ย้อนกลับ</button>
+                    <span class="hud-item"><span class="hud-star">⭐</span> คะแนน: <span id="hud-score">0</span></span>
+                    <span class="hud-item text-yellow-600">💪 ความพยายาม: <span id="hud-effort">0</span></span>
+                </div>
+                <div class="hud-stats">
+                    <div class="hud-hearts" id="hud-hearts-container">
+                        <span>❤️</span><span>❤️</span><span>❤️</span><span>❤️</span><span>❤️</span>
+                    </div>
+                    <span class="sound-toggle ar-btn" id="sound-btn" onclick="toggleSound()">🔊</span>
+                </div>
+            </div>
+
+            <!-- Workspace Grid (supports AR camera display next to the math) -->
+            <div class="ar-grid">
+                
+                <!-- Compact AR Camera display card -->
+                <div class="ar-card hidden" id="ar-cam-card">
+                    <div class="camera-wrapper">
+                        <video id="webcam-video" style="display:none;" autoplay playsinline></video>
+                        <canvas id="webcam-canvas"></canvas>
+                    </div>
+                    <div class="camera-status" id="camera-status-msg">กำลังเปิดกล้อง...</div>
+                </div>
+
+                <!-- Math Worksheet Area -->
+                <div class="worksheet-container custom-scrollbar">
+                    
+                    <!-- Speech bubble for adventure mode -->
+                    <div class="word-problem-bubble hidden" id="adventure-story-bubble">
+                        นี่คือโจทย์ปัญหาน่ารักๆ จ้า...
+                    </div>
+
+                    <!-- Dynamic Math Worksheet Form -->
+                    <div id="worksheet-math-area" style="width: 100%;">
+                        <!-- Content will be injected dynamically -->
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Keypad Area -->
+            <div class="keypad-container">
+                <div class="keypad-row">
+                    <button class="key-btn ar-btn" onclick="keypadPress('1')">1</button>
+                    <button class="key-btn ar-btn" onclick="keypadPress('2')">2</button>
+                    <button class="key-btn ar-btn" onclick="keypadPress('3')">3</button>
+                </div>
+                <div class="keypad-row">
+                    <button class="key-btn ar-btn" onclick="keypadPress('4')">4</button>
+                    <button class="key-btn ar-btn" onclick="keypadPress('5')">5</button>
+                    <button class="key-btn ar-btn" onclick="keypadPress('6')">6</button>
+                </div>
+                <div class="keypad-row">
+                    <button class="key-btn ar-btn" onclick="keypadPress('7')">7</button>
+                    <button class="key-btn ar-btn" onclick="keypadPress('8')">8</button>
+                    <button class="key-btn ar-btn" onclick="keypadPress('9')">9</button>
+                </div>
+                <div class="keypad-row">
+                    <button class="key-btn ar-btn text-pink-500" onclick="keypadPress('back')">⌫</button>
+                    <button class="key-btn ar-btn" onclick="keypadPress('0')">0</button>
+                    <button class="key-btn ar-btn text-green-600" onclick="keypadPress('ok')">ตกลง</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. DASHBOARD & REWARDS SCREEN -->
+        <div id="screen-dashboard" class="screen flex flex-col hidden custom-scrollbar">
+            <div class="game-hud">
+                <button class="btn-back ar-btn" onclick="showScreen('screen-splash')">กลับหน้าหลัก</button>
+                <h2 style="font-weight: 800; color: var(--pink-pastel-dark);">📊 บันทึกความสำเร็จ</h2>
+                <span class="hud-item"><span class="hud-star">⭐</span> ความพยายามสะสม: <span id="dashboard-effort-text">0</span></span>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- Effort stats card -->
+                <div class="dashboard-card">
+                    <span class="menu-icon">🏆</span>
+                    <h3 style="font-weight: 700;">คะแนนความตั้งใจ</h3>
+                    <div class="effort-number" id="dashboard-effort-big">0</div>
+                    <p style="font-size: 13px; color: #64748b; text-align: center;">
+                        ตอบถูกได้รับ +10 ความพยายาม<br>ทำโจทย์ผิด/ลองพยายาม ได้รับ +2 ความพยายาม
+                    </p>
+                    <button class="btn-certificate ar-btn" onclick="openCertificateNamePrompt()">🎖️ รับเกียรติบัตรยอดคนเก่ง</button>
+                </div>
+
+                <!-- Analysis Chart.js card -->
+                <div class="dashboard-card">
+                    <h3 style="font-weight: 700; margin-bottom: 12px;">อัตราการตอบถูก/ตอบผิด</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="stats-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ─── CUSTOM MODALS OVERLAYS (Sandbox Safe) ─── -->
+
+    <!-- Quit Game Dialog -->
+    <div id="modal-quit" class="modal-overlay hidden">
+        <div class="modal-box">
+            <div class="modal-title">คุณครูขาท่านผู้ปกครองครับ...</div>
+            <div class="modal-body">
+                คุณเก่งคิดว่าต้องการที่จะ **ออกจากรอบการเล่นปัจจุบัน** หรือไม่เอ่ย?<br>
+                ความคืบหน้าของด่านนี้จะหายไปนะจ๊ะ
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-confirm ar-btn" onclick="confirmQuitGame()">ชัวร์ ออกเลย</button>
+                <button class="btn-cancel ar-btn" onclick="closeQuitModal()">เล่นต่อ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Over Dialog -->
+    <div id="modal-gameover" class="modal-overlay hidden">
+        <div class="modal-box">
+            <div class="modal-title">หมดพลังหัวใจแล้วจ้า!</div>
+            <div class="modal-body">
+                พยายามได้เยี่ยมมากเลยจ้าเด็กดี! มารับผลลัพธ์รอบนี้และพยายามเรียนรู้ในรอบต่อไปนะจ๊ะ
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-confirm ar-btn" onclick="confirmGameOver()">ดูแดชบอร์ดความสำเร็จ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Certificate Name Prompt Dialog -->
+    <div id="modal-cert-name" class="modal-overlay hidden">
+        <div class="modal-box">
+            <div class="modal-title">ยินดีด้วยค่ะคนเก่ง!</div>
+            <div class="modal-body">
+                กรอกชื่อ-นามสกุลจริงของคุณคนเก่ง เพื่อจัดเตรียมใบประกาศเกียรติคุณยอดเยี่ยมลงในแฟ้มสะสมผลงาน:
+            </div>
+            <input type="text" id="cert-student-name" class="modal-input" placeholder="พิมพ์ชื่อ-นามสกุลที่นี่..." value="เด็กชายสมศักดิ์ เด็กดี">
+            <div class="modal-buttons">
+                <button class="btn-confirm ar-btn" onclick="generateAndDownloadCertificate()">ดาวน์โหลดรูปเกียรติบัตร</button>
+                <button class="btn-cancel ar-btn" onclick="closeCertModal()">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Answer Feedback Dialog (Encouragement popup) -->
+    <div id="modal-feedback" class="modal-overlay hidden">
+        <div class="modal-box success" id="feedback-box">
+            <div class="modal-title success" id="feedback-title">ถูกต้องแล้วจ้า! 🎉</div>
+            <div class="modal-body" id="feedback-msg">
+                เก่งมากๆ เลยลูก พยายามต่อไปนะจ๊ะ!
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-confirm ar-btn" id="btn-feedback-next" onclick="closeFeedbackAndNext()">ข้อต่อไป 🍕</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Canvas Container for exporting certificates -->
+    <div id="hidden-canvas-container">
+        <canvas id="cert-canvas" width="800" height="560"></canvas>
+    </div>
+
+    <!-- ─── JAVASCRIPT GAMEPLAY ENGINE ─── -->
+    <script>
+        /* ═══ SECTION A · ตั้งค่า ═══ */
+        const GAME_SLUG = 'fraction-adventure';
+        const PLAY_DURATION = 60;
+        
+        // ─── Sound System via Web Audio API ───
+        const SoundFX = {
+            ctx: null,
+            enabled: true,
+            init() {
+                if (this.ctx) return;
+                try {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                } catch(e) {
+                    console.warn("Web Audio API is not supported.");
+                }
+            },
+            tick() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.06, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+                
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.06);
+            },
+            correct() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                
+                const now = this.ctx.currentTime;
+                const playTone = (freq, time, duration) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, time);
+                    gain.gain.setValueAtTime(0.12, time);
+                    gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
+                    
+                    osc.start(time);
+                    osc.stop(time + duration);
+                };
+                
+                playTone(523.25, now, 0.15);      // C5
+                playTone(659.25, now + 0.1, 0.15);  // E5
+                playTone(783.99, now + 0.2, 0.3);   // G5
+            },
+            wrong() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.linearRampToValueAtTime(90, now + 0.35);
+                
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.linearRampToValueAtTime(0.001, now + 0.35);
+                
+                osc.start();
+                osc.stop(now + 0.35);
+            },
+            swoosh() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(260, now);
+                osc.frequency.exponentialRampToValueAtTime(900, now + 0.25);
+                
+                gain.gain.setValueAtTime(0.05, now);
+                gain.gain.linearRampToValueAtTime(0.001, now + 0.25);
+                
+                osc.start();
+                osc.stop(now + 0.25);
+            }
+        };
+
+        // Sound settings
+        function toggleSound() {
+            SoundFX.enabled = !SoundFX.enabled;
+            const btn = document.getElementById('sound-btn');
+            btn.innerText = SoundFX.enabled ? '🔊' : '🔇';
+            SoundFX.tick();
+        }
+
+        // Global Variables
+        let studentName = "นักเรียนคนเก่ง";
+        let studentClass = "ระดับชั้น ป.4";
+        let effortPoints = 0;
+        let score = 0;
+        let lives = 5;
+        let currentMode = 'like';
+        
+        let currentQuestion = null;
+        let activeBoxIndex = 0;
+        let answersState = [];
+        let correctAnswers = [];
+        let numBoxes = 0;
+
+        // Custom Random function to support seeded RNG (Versus Mode)
+        let gameRand = Math.random;
+
+        // Statistics history for Dashboard
+        let history = []; // array of { correct: true/false }
+        let statsChartInstance = null;
+
+        // MediaPipe Variables
+        let isAILoaded = false;
+        let isFallbackMode = false;
+        let isPredicting = false;
+        let webcamStream = null;
+        let arClickLocked = false;
+        let mpHands = null;
+
+        const videoElement = document.getElementById('webcam-video');
+        const canvasElement = document.getElementById('webcam-canvas');
+        const canvasCtx = canvasElement.getContext('2d');
+
+        /* ═══ SECTION B · เชื่อมเฟรมเวิร์ก 2 ผู้เล่น (KampaiVersus) ═══ */
+        const vs = KampaiVersus.create({
+            duration: PLAY_DURATION,
+            title: 'ผจญภัยเศษส่วน ป.4',
+            rankBy: 'score',
+            onPlay: ({ rng, player }) => {
+                gameRand = rng || Math.random;
+                score = 0;
+                lives = 5;
+                // Default competitive mode to Unlike Denominators if playing vs
+                currentMode = 'unlike'; 
+                showScreen('screen-game');
+                updateHUD();
+                
+                // Hide AR controls in standard versus
+                document.getElementById('ar-cam-card').classList.add('hidden');
+                document.getElementById('ar-cursor').classList.add('hidden');
+                stopCamera();
+
+                generateQuestion();
+            },
+            onEnd: () => {
+                showGameOverModal();
+            }
+        });
+
+        // SDK Integration
+        KAMPAI.setSlug(GAME_SLUG);
+        KAMPAI.onReady((k) => {
+            if (k.student) {
+                studentName = k.student.displayName || "นักเรียนคนเก่ง";
+                studentClass = k.student.classLabel ? `ชั้น ${k.student.classLabel}` : "ระดับชั้น ป.4";
+                document.getElementById('student-name-text').innerText = studentName;
+                document.getElementById('student-class-text').innerText = studentClass;
+                document.getElementById('cert-student-name').value = studentName;
+            }
+        });
+
+        // ─── MATHEMATICAL WORK SHEET GENERATION ───
+        function generateQuestion() {
+            answersState = [];
+            correctAnswers = [];
+            activeBoxIndex = 0;
+
+            if (currentMode === 'like' || (currentMode === 'ar')) {
+                // Like Denominators mode (or AR Mode)
+                const dens = [5, 6, 7, 8, 9, 10, 12, 15];
+                const d = dens[Math.floor(gameRand() * dens.length)];
+                const n1 = Math.floor(gameRand() * (d - 2)) + 1;
+                const n2 = Math.floor(gameRand() * (d - n1 - 1)) + 1; // n1 + n2 < d
+
+                currentQuestion = {
+                    mode: 'like',
+                    num1: n1,
+                    den1: d,
+                    num2: n2,
+                    den2: d,
+                    final_num: n1 + n2,
+                    final_den: d
+                };
+
+                numBoxes = 2;
+                correctAnswers = [n1 + n2, d];
+                answersState = ["", ""];
+
+                renderLikeQuestion();
+            } else if (currentMode === 'unlike') {
+                // Unlike Denominators mode
+                const pairs = [
+                    [2, 4, 4], [2, 6, 6], [2, 8, 8], [3, 6, 6], [3, 9, 9], 
+                    [4, 8, 8], [2, 3, 6], [2, 5, 10], [3, 4, 12], [5, 10, 10]
+                ];
+                const pair = pairs[Math.floor(gameRand() * pairs.length)];
+                const d1 = pair[0];
+                const d2 = pair[1];
+                const lcm = pair[2];
+
+                const m1 = lcm / d1;
+                const m2 = lcm / d2;
+
+                // Pick n1, n2 such that n1/d1 + n2/d2 <= 1 => n1*m1 + n2*m2 <= lcm
+                let n1 = 1;
+                let n2 = 1;
+                let valid = false;
+                while(!valid) {
+                    n1 = Math.floor(gameRand() * (d1 - 1)) + 1;
+                    const max_n2 = Math.floor((lcm - n1 * m1) / m2);
+                    if (max_n2 >= 1) {
+                        n2 = Math.floor(gameRand() * max_n2) + 1;
+                        valid = true;
+                    }
+                }
+
+                currentQuestion = {
+                    mode: 'unlike',
+                    num1: n1,
+                    den1: d1,
+                    num2: n2,
+                    den2: d2,
+                    m1: m1,
+                    m2: m2,
+                    lcm: lcm,
+                    ans_num1: n1 * m1,
+                    ans_num2: n2 * m2,
+                    final_num: n1 * m1 + n2 * m2,
+                    final_den: lcm
+                };
+
+                numBoxes = 9;
+                correctAnswers = [m1, m1, m2, m2, n1 * m1, n2 * m2, lcm, n1 * m1 + n2 * m2, lcm];
+                answersState = Array(9).fill("");
+
+                renderUnlikeQuestion();
+            } else if (currentMode === 'adventure') {
+                // Adventure: Word Problems
+                const wordStories = [
+                    {
+                        text: "น้องแอนแบ่งพิซซ่าถาดโตออกเป็น {den} ชิ้นเท่ากัน เธอกินไป {num1} ชิ้น และแบ่งให้พี่ชายกินอีก {num2} ชิ้น ทั้งสองคนกินพิซซ่าไปรวมกันคิดเป็นเศษส่วนเท่าใดของถาด?",
+                        denominators: [6, 8, 10, 12]
+                    },
+                    {
+                        text: "ปุ๊กกี้ใช้เวลาอ่านหนังสือนิทานช่วงเช้าได้ {num1}/{den} เล่ม และอ่านในช่วงบ่ายเพิ่มได้อีก {num2}/{den} เล่ม วันนี้ปุ๊กกี้อ่านหนังสือได้รวมคิดเป็นเศษส่วนเท่าใดของเล่ม?",
+                        denominators: [5, 7, 9, 10]
+                    },
+                    {
+                        text: "คุณแม่ถักไหมพรมทำของเล่น เชือกสีชมพูยาว {num1}/{den} เมตร และเชือกสีเขียวยาว {num2}/{den} เมตร ถ้านำเชือกสองเส้นมาวางผูกรวมกันจะได้ความยาวรวมกันกี่เมตร?",
+                        denominators: [8, 10, 12, 15]
+                    }
+                ];
+
+                const storyObj = wordStories[Math.floor(gameRand() * wordStories.length)];
+                const d = storyObj.denominators[Math.floor(gameRand() * storyObj.denominators.length)];
+                const n1 = Math.floor(gameRand() * (d - 2)) + 1;
+                const n2 = Math.floor(gameRand() * (d - n1 - 1)) + 1; // n1+n2 < d
+
+                let storyText = storyObj.text
+                    .replace(/{den}/g, d)
+                    .replace(/{num1}/g, n1)
+                    .replace(/{num2}/g, n2);
+
+                currentQuestion = {
+                    mode: 'like',
+                    num1: n1,
+                    den1: d,
+                    num2: n2,
+                    den2: d,
+                    final_num: n1 + n2,
+                    final_den: d,
+                    story: storyText
+                };
+
+                numBoxes = 2;
+                correctAnswers = [n1 + n2, d];
+                answersState = ["", ""];
+
+                renderAdventureQuestion();
+            }
+        }
+
+        // Render Easy/Like denominators worksheet
+        function renderLikeQuestion() {
+            document.getElementById('adventure-story-bubble').classList.add('hidden');
+            const mathArea = document.getElementById('worksheet-math-area');
+            mathArea.innerHTML = `
+                <div class="fraction-equation">
+                    <div class="fraction">
+                        <div class="numerator">${currentQuestion.num1}</div>
+                        <div class="fraction-line"></div>
+                        <div class="denominator">${currentQuestion.den1}</div>
+                    </div>
+                    <div class="math-operator">+</div>
+                    <div class="fraction">
+                        <div class="numerator">${currentQuestion.num2}</div>
+                        <div class="fraction-line"></div>
+                        <div class="denominator">${currentQuestion.den2}</div>
+                    </div>
+                    <div class="math-operator">=</div>
+                    <div class="fraction">
+                        <div class="fraction-input-box active" id="box-0" onclick="setActiveBox(0)">?</div>
+                        <div class="fraction-line"></div>
+                        <div class="fraction-input-box" id="box-1" onclick="setActiveBox(1)">?</div>
+                    </div>
+                </div>
+            `;
+            setActiveBox(0);
+        }
+
+        // Render Normal/Unlike denominators worksheet (Step-by-step)
+        function renderUnlikeQuestion() {
+            document.getElementById('adventure-story-bubble').classList.add('hidden');
+            const mathArea = document.getElementById('worksheet-math-area');
+            mathArea.innerHTML = `
+                <div class="unlike-worksheet custom-scrollbar">
+                    <div class="worksheet-row" id="step-row-1">
+                        <span class="row-label">ขั้นที่ 1-2: ปรับตัวส่วนให้เท่ากัน (หา ค.ร.น. คือ ${currentQuestion.lcm})</span>
+                        <div class="fraction-equation">
+                            <div class="fraction">
+                                <div class="numerator">${currentQuestion.num1} &times; <span class="fraction-input-box" id="box-0" onclick="setActiveBox(0)">?</span></div>
+                                <div class="fraction-line"></div>
+                                <div class="denominator">${currentQuestion.den1} &times; <span class="fraction-input-box" id="box-1" onclick="setActiveBox(1)">?</span></div>
+                            </div>
+                            <div class="math-operator">+</div>
+                            <div class="fraction">
+                                <div class="numerator">${currentQuestion.num2} &times; <span class="fraction-input-box" id="box-2" onclick="setActiveBox(2)">?</span></div>
+                                <div class="fraction-line"></div>
+                                <div class="denominator">${currentQuestion.den2} &times; <span class="fraction-input-box" id="box-3" onclick="setActiveBox(3)">?</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="worksheet-row hidden" id="step-row-2">
+                        <span class="row-label">ขั้นที่ 3-4: คำนวณเศษส่วนตัวใหม่</span>
+                        <div class="fraction-equation">
+                            <div class="fraction">
+                                <span class="fraction-input-box" id="box-4" onclick="setActiveBox(4)">?</span>
+                                <div class="fraction-line"></div>
+                                <div class="denominator">${currentQuestion.lcm}</div>
+                            </div>
+                            <div class="math-operator">+</div>
+                            <div class="fraction">
+                                <span class="fraction-input-box" id="box-5" onclick="setActiveBox(5)">?</span>
+                                <div class="fraction-line"></div>
+                                <div class="denominator">${currentQuestion.lcm}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="worksheet-row hidden" id="step-row-3">
+                        <span class="row-label">ขั้นที่ 5: เติมตัวส่วนร่วม (ค.ร.น.)</span>
+                        <div class="fraction-equation">
+                            <div class="fraction">
+                                <div class="numerator">${currentQuestion.num1 * currentQuestion.m1} + ${currentQuestion.num2 * currentQuestion.m2}</div>
+                                <div class="fraction-line"></div>
+                                <span class="fraction-input-box" id="box-6" onclick="setActiveBox(6)">?</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="worksheet-row hidden" id="step-row-4">
+                        <span class="row-label">ขั้นที่ 6-7: หาผลลัพธ์สุดท้าย</span>
+                        <div class="fraction-equation">
+                            <div class="fraction">
+                                <span class="fraction-input-box" id="box-7" onclick="setActiveBox(7)">?</span>
+                                <div class="fraction-line"></div>
+                                <span class="fraction-input-box" id="box-8" onclick="setActiveBox(8)">?</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            setActiveBox(0);
+        }
+
+        // Render Adventure mode story and Like denominators worksheet
+        function renderAdventureQuestion() {
+            const bubble = document.getElementById('adventure-story-bubble');
+            bubble.innerText = currentQuestion.story;
+            bubble.classList.remove('hidden');
+
+            const mathArea = document.getElementById('worksheet-math-area');
+            mathArea.innerHTML = `
+                <div class="fraction-equation">
+                    <div class="fraction">
+                        <div class="numerator">${currentQuestion.num1}</div>
+                        <div class="fraction-line"></div>
+                        <div class="denominator">${currentQuestion.den1}</div>
+                    </div>
+                    <div class="math-operator">+</div>
+                    <div class="fraction">
+                        <div class="numerator">${currentQuestion.num2}</div>
+                        <div class="fraction-line"></div>
+                        <div class="denominator">${currentQuestion.den2}</div>
+                    </div>
+                    <div class="math-operator">=</div>
+                    <div class="fraction">
+                        <div class="fraction-input-box active" id="box-0" onclick="setActiveBox(0)">?</div>
+                        <div class="fraction-line"></div>
+                        <div class="fraction-input-box" id="box-1" onclick="setActiveBox(1)">?</div>
+                    </div>
+                </div>
+            `;
+            setActiveBox(0);
+        }
+
+        // Set active fraction input box
+        function setActiveBox(idx) {
+            if (idx >= numBoxes || idx < 0) return;
+            
+            const box = document.getElementById(`box-${idx}`);
+            if (box && box.classList.contains('filled')) return;
+
+            for (let i = 0; i < numBoxes; i++) {
+                const b = document.getElementById(`box-${i}`);
+                if (b) b.classList.remove('active');
+            }
+
+            activeBoxIndex = idx;
+            const activeBox = document.getElementById(`box-${idx}`);
+            if (activeBox) {
+                activeBox.classList.add('active');
+                SoundFX.tick();
+            }
+        }
+
+        // Handle numeric input and actions (Keypad or keyboard)
+        function keypadPress(val) {
+            const activeBox = document.getElementById(`box-${activeBoxIndex}`);
+            if (!activeBox) return;
+
+            SoundFX.tick();
+
+            if (val === 'back') {
+                answersState[activeBoxIndex] = answersState[activeBoxIndex].slice(0, -1);
+                activeBox.innerText = answersState[activeBoxIndex] || "?";
+            } else if (val === 'ok') {
+                checkActiveBoxAnswer();
+            } else {
+                if (answersState[activeBoxIndex].length < 3) {
+                    answersState[activeBoxIndex] += val;
+                    activeBox.innerText = answersState[activeBoxIndex];
+                }
+            }
+        }
+
+        // Validate the entered answer for the active box
+        function checkActiveBoxAnswer() {
+            const activeBox = document.getElementById(`box-${activeBoxIndex}`);
+            if (!activeBox) return;
+
+            const userVal = parseInt(answersState[activeBoxIndex]);
+            const correctVal = correctAnswers[activeBoxIndex];
+
+            if (isNaN(userVal)) return;
+
+            if (userVal === correctVal) {
+                // Correct answer!
+                SoundFX.correct();
+                activeBox.classList.remove('active');
+                activeBox.classList.add('filled');
+                
+                effortPoints += 10;
+                updateHUD();
+
+                // Check step-by-step progress for Unlike Denominators
+                if (currentMode === 'unlike') {
+                    if (activeBoxIndex === 3) {
+                        document.getElementById('step-row-2').classList.remove('hidden');
+                        setActiveBox(4);
+                        return;
+                    } else if (activeBoxIndex === 5) {
+                        document.getElementById('step-row-3').classList.remove('hidden');
+                        setActiveBox(6);
+                        return;
+                    } else if (activeBoxIndex === 6) {
+                        document.getElementById('step-row-4').classList.remove('hidden');
+                        setActiveBox(7);
+                        return;
+                    }
+                }
+
+                // Move to next box
+                let nextIdx = activeBoxIndex + 1;
+                if (nextIdx < numBoxes) {
+                    setActiveBox(nextIdx);
+                } else {
+                    // Question completed!
+                    score += 1;
+                    effortPoints += 20; // completion bonus
+                    updateHUD();
+                    history.push({ correct: true });
+
+                    // Report score/achievement to versus framework
+                    vs.report(score, { correct: score });
+
+                    // Show success feedback overlay (Sandbox safe)
+                    showFeedbackModal("เก่งมากจ้า! ถูกต้องทั้งหมดแล้ว", "คนเก่งได้เรียนรู้วิธีการบวกเศษส่วนสำเร็จไปอีกหนึ่งระดับแล้วนะจ๊ะ!");
+                }
+            } else {
+                // Wrong answer
+                SoundFX.wrong();
+                activeBox.classList.add('wrong');
+                setTimeout(() => activeBox.classList.remove('wrong'), 300);
+
+                effortPoints += 2; // effort point for attempt
+                lives -= 1;
+                updateHUD();
+                history.push({ correct: false });
+
+                answersState[activeBoxIndex] = "";
+                activeBox.innerText = "?";
+
+                if (lives <= 0) {
+                    showGameOverModal();
+                }
+            }
+        }
+
+        // Support physical keyboard inputs
+        window.addEventListener('keydown', (e) => {
+            const gameScreen = document.getElementById('screen-game');
+            if (gameScreen.classList.contains('hidden')) return;
+
+            if (!document.getElementById('modal-quit').classList.contains('hidden') ||
+                !document.getElementById('modal-gameover').classList.contains('hidden') ||
+                !document.getElementById('modal-feedback').classList.contains('hidden') ||
+                !document.getElementById('modal-cert-name').classList.contains('hidden')) {
+                return;
+            }
+
+            if (e.key >= '0' && e.key <= '9') {
+                keypadPress(e.key);
+            } else if (e.key === 'Backspace') {
+                keypadPress('back');
+            } else if (e.key === 'Enter') {
+                keypadPress('ok');
+            }
+        });
+
+        // ─── GAME NAVIGATION AND MODALS ───
+        function showScreen(screenId) {
+            const screens = ['screen-splash', 'screen-game', 'screen-dashboard'];
+            screens.forEach(id => {
+                const el = document.getElementById(id);
+                if (id === screenId) {
+                    el.classList.remove('hidden');
+                } else {
+                    el.classList.add('hidden');
+                }
+            });
+            SoundFX.swoosh();
+
+            if (screenId !== 'screen-game') {
+                stopCamera();
+            }
+        }
+
+        function selectMode(mode) {
+            currentMode = mode;
+            score = 0;
+            lives = 5;
+            currentQuestion = null;
+            gameRand = Math.random; // reset to solo random
+
+            showScreen('screen-game');
+            updateHUD();
+
+            const camCard = document.getElementById('ar-cam-card');
+            const arCursor = document.getElementById('ar-cursor');
+
+            if (mode === 'ar') {
+                camCard.classList.remove('hidden');
+                arCursor.classList.remove('hidden');
+                initMediaPipe();
+                startWebcam();
+            } else {
+                camCard.classList.add('hidden');
+                arCursor.classList.add('hidden');
+                stopCamera();
+            }
+
+            generateQuestion();
+        }
+
+        function updateHUD() {
+            document.getElementById('hud-score').innerText = score;
+            document.getElementById('hud-effort').innerText = effortPoints;
+
+            const container = document.getElementById('hud-hearts-container');
+            container.innerHTML = "";
+            for (let i = 0; i < 5; i++) {
+                if (i < lives) {
+                    container.innerHTML += "<span>❤️</span>";
+                } else {
+                    container.innerHTML += "<span style='opacity:0.2;'>❤️</span>";
+                }
+            }
+        }
+
+        // Custom Modals functions
+        function quitGameClicked() {
+            SoundFX.tick();
+            document.getElementById('modal-quit').classList.remove('hidden');
+        }
+
+        function closeQuitModal() {
+            SoundFX.tick();
+            document.getElementById('modal-quit').classList.add('hidden');
+        }
+
+        function confirmQuitGame() {
+            document.getElementById('modal-quit').classList.add('hidden');
+            
+            // Check if versus framework should intercept the finish/exit sequence
+            if (vs.finish(score, { correct: score })) return;
+
+            if (score > 0) {
+                KAMPAI.submitScore(score, { mode: currentMode, effortEarned: effortPoints });
+            }
+
+            showScreen('screen-splash');
+        }
+
+        function showGameOverModal() {
+            document.getElementById('modal-gameover').classList.remove('hidden');
+        }
+
+        function confirmGameOver() {
+            document.getElementById('modal-gameover').classList.add('hidden');
+            
+            // Delegate game ending display to Versus framework if active
+            if (vs.finish(score, { correct: score })) return;
+
+            KAMPAI.submitScore(score, { mode: currentMode, effortEarned: effortPoints });
+            showDashboard();
+        }
+
+        function showFeedbackModal(title, msg) {
+            document.getElementById('feedback-title').innerText = title;
+            document.getElementById('feedback-msg').innerText = msg;
+            document.getElementById('modal-feedback').classList.remove('hidden');
+        }
+
+        function closeFeedbackAndNext() {
+            SoundFX.tick();
+            document.getElementById('modal-feedback').classList.add('hidden');
+            generateQuestion();
+        }
+
+        // ─── DASHBOARD & CHART.JS ───
+        function showDashboard() {
+            document.getElementById('dashboard-effort-text').innerText = effortPoints;
+            document.getElementById('dashboard-effort-big').innerText = effortPoints;
+            showScreen('screen-dashboard');
+            
+            setTimeout(renderStatsChart, 100);
+        }
+
+        function renderStatsChart() {
+            const ctx = document.getElementById('stats-chart').getContext('2d');
+            
+            let correct = history.filter(h => h.correct).length;
+            let wrong = history.filter(h => !h.correct).length;
+
+            if (correct === 0 && wrong === 0) {
+                correct = 1;
+                wrong = 0;
+            }
+
+            if (statsChartInstance) {
+                statsChartInstance.destroy();
+            }
+
+            statsChartInstance = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['ตอบถูก', 'ตอบผิด/แก้ไข'],
+                    datasets: [{
+                        data: [correct, wrong],
+                        backgroundColor: ['#86efac', '#fca5a5'], 
+                        borderColor: ['#ffffff', '#ffffff'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    family: 'Kanit',
+                                    size: 14
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ─── HTML5 CANVAS CERTIFICATE SYSTEM ───
+        function openCertificateNamePrompt() {
+            SoundFX.tick();
+            document.getElementById('modal-cert-name').classList.remove('hidden');
+        }
+
+        function closeCertModal() {
+            SoundFX.tick();
+            document.getElementById('modal-cert-name').classList.add('hidden');
+        }
+
+        function getThaiDateString() {
+            const months = [
+                "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+                "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+            ];
+            const now = new Date();
+            const day = now.getDate();
+            const month = months[now.getMonth()];
+            const yearBE = now.getFullYear() + 543;
+            return `วันที่ ${day} ${month} พ.ศ. ${yearBE}`;
+        }
+
+        function generateAndDownloadCertificate() {
+            SoundFX.tick();
+            const nameInput = document.getElementById('cert-student-name').value.trim();
+            const name = nameInput || "คุณคนเก่ง";
+            
+            const canvas = document.getElementById('cert-canvas');
+            const ctx = canvas.getContext('2d');
+
+            const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            grad.addColorStop(0, '#fdf2f8'); 
+            grad.addColorStop(0.5, '#fefaf0'); 
+            grad.addColorStop(1, '#f0f9ff'); 
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.strokeStyle = '#db2777'; 
+            ctx.lineWidth = 10;
+            ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+
+            ctx.strokeStyle = '#7dd3fc'; 
+            ctx.lineWidth = 3;
+            ctx.strokeRect(32, 32, canvas.width - 64, canvas.height - 64);
+
+            const drawStar = (cx, cy, spikes, outerRadius, innerRadius, color) => {
+                let rot = Math.PI / 2 * 3;
+                let x = cx;
+                let y = cy;
+                let step = Math.PI / spikes;
+                
+                ctx.beginPath();
+                ctx.moveTo(cx, cy - outerRadius);
+                for (let i = 0; i < spikes; i++) {
+                    x = cx + Math.cos(rot) * outerRadius;
+                    y = cy + Math.sin(rot) * outerRadius;
+                    ctx.lineTo(x, y);
+                    rot += step;
+                    
+                    x = cx + Math.cos(rot) * innerRadius;
+                    y = cy + Math.sin(rot) * innerRadius;
+                    ctx.lineTo(x, y);
+                    rot += step;
+                }
+                ctx.lineTo(cx, cy - outerRadius);
+                ctx.closePath();
+                ctx.fillStyle = color;
+                ctx.fill();
+            };
+
+            drawStar(50, 50, 5, 14, 7, '#fbbf24');
+            drawStar(canvas.width - 50, 50, 5, 14, 7, '#fbbf24');
+            drawStar(50, canvas.height - 50, 5, 14, 7, '#fbbf24');
+            drawStar(canvas.width - 50, canvas.height - 50, 5, 14, 7, '#fbbf24');
+
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            ctx.fillStyle = '#db2777';
+            ctx.font = 'bold 34px "Sarabun", "Kanit", sans-serif';
+            ctx.fillText('ใบประกาศคนเก่งคณิตศาสตร์', canvas.width / 2, 95);
+
+            ctx.fillStyle = '#64748b';
+            ctx.font = '500 18px "Sarabun", "Kanit", sans-serif';
+            ctx.fillText('เกียรติบัตรฉบับนี้ให้ไว้เพื่อแสดงว่า', canvas.width / 2, 145);
+
+            ctx.fillStyle = '#1e3a8a';
+            ctx.font = 'bold 30px "Sarabun", "Kanit", sans-serif';
+            ctx.fillText(name, canvas.width / 2, 200);
+
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2 - 200, 225);
+            ctx.lineTo(canvas.width / 2 + 200, 225);
+            ctx.stroke();
+
+            ctx.fillStyle = '#334155';
+            ctx.font = '18px "Sarabun", "Kanit", sans-serif';
+            ctx.fillText('ได้ผ่านการฝึกฝนและทำโจทย์เรื่อง "การบวกเศษส่วน ป.4" จนสำเร็จยอดเยี่ยม', canvas.width / 2, 260);
+
+            ctx.fillStyle = '#ca8a04';
+            ctx.font = 'bold 20px "Sarabun", "Kanit", sans-serif';
+            ctx.fillText(`สะสมคะแนนความพยายามรวมได้ทั้งสิ้น ${effortPoints} คะแนน`, canvas.width / 2, 300);
+
+            ctx.fillStyle = '#64748b';
+            ctx.font = 'italic 15px "Sarabun", "Kanit", sans-serif';
+            ctx.fillText('ขอให้มีความพากเพียรและเรียนรู้อย่างมีความสุขต่อไปในวิถีคณิตศาสตร์นะเด็กดี', canvas.width / 2, 335);
+
+            const sealX = canvas.width / 2;
+            const sealY = 430;
+
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.moveTo(sealX - 25, sealY);
+            ctx.lineTo(sealX - 45, sealY + 60);
+            ctx.lineTo(sealX - 25, sealY + 48);
+            ctx.lineTo(sealX - 5, sealY + 60);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(sealX + 5, sealY);
+            ctx.lineTo(sealX + 25, sealY + 60);
+            ctx.lineTo(sealX + 45, sealY + 48);
+            ctx.lineTo(sealX + 65, sealY + 60);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = '#ca8a04';
+            ctx.beginPath();
+            ctx.arc(sealX + 10, sealY + 10, 32, 0, 2 * Math.PI);
+            ctx.fill();
+
+            ctx.fillStyle = '#f59e0b';
+            ctx.beginPath();
+            ctx.arc(sealX + 10, sealY + 10, 26, 0, 2 * Math.PI);
+            ctx.fill();
+
+            drawStar(sealX + 10, sealY + 10, 5, 14, 6, '#ffffff');
+
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#475569';
+            ctx.font = '16px "Sarabun", "Kanit", sans-serif';
+            ctx.fillText('ครูพี่ณัฐพงศ์ สิงห์ชมภู', 80, 440);
+            ctx.font = '13px "Sarabun", "Kanit", sans-serif';
+            ctx.fillText('(ครูผู้สอนวิชาคณิตศาสตร์)', 80, 465);
+
+            ctx.strokeStyle = '#2563eb';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(90, 410);
+            ctx.quadraticCurveTo(120, 395, 150, 412);
+            ctx.quadraticCurveTo(170, 425, 200, 408);
+            ctx.stroke();
+
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(80, 425);
+            ctx.lineTo(240, 425);
+            ctx.stroke();
+
+            ctx.textAlign = 'right';
+            ctx.fillStyle = '#475569';
+            ctx.font = '15px "Sarabun", "Kanit", sans-serif';
+            ctx.fillText(getThaiDateString(), canvas.width - 80, 440);
+            ctx.font = '14px "Sarabun", "Kanit", sans-serif';
+            ctx.fillText('โรงเรียนคณิตศาสตร์แคมป์ไพ', canvas.width - 80, 465);
+
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(canvas.width - 240, 425);
+            ctx.lineTo(canvas.width - 80, 425);
+            ctx.stroke();
+
+            const dataUrl = canvas.toDataURL("image/png");
+            const link = document.createElement('a');
+            link.download = `เกียรติบัตร_${name}_ผจญภัยเศษส่วน.png`;
+            link.href = dataUrl;
+            link.click();
+
+            closeCertModal();
+        }
+
+        // ─── MEDIAPIPE AI HAND TRACKING ───
+        function initMediaPipe() {
+            if (typeof Hands === 'undefined') {
+                console.warn("MediaPipe is not available. Touch mode is enabled.");
+                isFallbackMode = true;
+                document.getElementById('camera-status-msg').innerText = "เครื่องไม่รองรับกล้อง (แตะสัมผัสแทนได้จ้า)";
+                return;
+            }
+
+            try {
+                mpHands = new Hands({
+                    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+                });
+
+                mpHands.setOptions({
+                    maxNumHands: 1,
+                    modelComplexity: 0,
+                    minDetectionConfidence: 0.6,
+                    minTrackingConfidence: 0.6
+                });
+
+                mpHands.onResults(onHandResults);
+
+                mpHands.initialize().then(() => {
+                    isAILoaded = true;
+                    console.log("MediaPipe initialized.");
+                }).catch(err => {
+                    console.error("MediaPipe initialization error:", err);
+                    isFallbackMode = true;
+                    document.getElementById('camera-status-msg').innerText = "โหลด AI ไม่สำเร็จ (แตะสัมผัสแทนได้จ้า)";
+                });
+            } catch (err) {
+                console.error("MediaPipe creation error:", err);
+                isFallbackMode = true;
+                document.getElementById('camera-status-msg').innerText = "โหลด AI ไม่สำเร็จ (แตะสัมผัสแทนได้จ้า)";
+            }
+        }
+
+        async function startWebcam() {
+            isFallbackMode = false;
+            document.getElementById('camera-status-msg').innerText = "กำลังเชื่อมต่อกล้อง...";
+
+            try {
+                let stream;
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } }
+                    });
+                } catch(e) {
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        video: { width: { ideal: 640 }, height: { ideal: 480 } }
+                    });
+                }
+
+                webcamStream = stream;
+                videoElement.srcObject = stream;
+
+                videoElement.onloadeddata = () => {
+                    videoElement.play();
+                    document.getElementById('camera-status-msg').innerText = "กล้องพร้อมจับความเคลื่อนไหว";
+                    isPredicting = false;
+                    predictLoop();
+                };
+            } catch (error) {
+                console.error("Cannot open camera:", error);
+                document.getElementById('camera-status-msg').innerText = "หาไม่พบกล้อง (สัมผัสผ่านหน้าจอแทน)";
+                isFallbackMode = true;
+            }
+        }
+
+        function stopCamera() {
+            if (webcamStream) {
+                webcamStream.getTracks().forEach(track => track.stop());
+                webcamStream = null;
+            }
+            videoElement.srcObject = null;
+            document.getElementById('ar-cursor').classList.add('hidden');
+        }
+
+        async function predictLoop() {
+            if (isFallbackMode || !webcamStream) return;
+            if (videoElement.readyState >= 2 && !isPredicting) {
+                isPredicting = true;
+                try {
+                    await mpHands.send({ image: videoElement });
+                } catch (e) {
+                    // Frame missing, ignore silently
+                }
+            }
+            requestAnimationFrame(predictLoop);
+        }
+
+        function onHandResults(results) {
+            isPredicting = false;
+            if (!webcamStream) return;
+
+            if (canvasElement.width !== (videoElement.videoWidth || 320)) {
+                canvasElement.width = videoElement.videoWidth || 320;
+                canvasElement.height = videoElement.videoHeight || 240;
+            }
+
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+            canvasCtx.translate(canvasElement.width, 0);
+            canvasCtx.scale(-1, 1);
+            canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+            canvasCtx.restore();
+
+            let indexTip = null;
+            let thumbTip = null;
+
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                const landmarks = results.multiHandLandmarks[0];
+
+                indexTip = landmarks[8];
+                thumbTip = landmarks[4];
+
+                for (let i = 0; i < landmarks.length; i++) {
+                    const x = (1 - landmarks[i].x) * canvasElement.width; 
+                    const y = landmarks[i].y * canvasElement.height;
+                    canvasCtx.beginPath();
+                    canvasCtx.arc(x, y, 4, 0, 2 * Math.PI);
+                    canvasCtx.fillStyle = '#db2777';
+                    canvasCtx.fill();
+                }
+
+                const dist = Math.hypot(indexTip.x - thumbTip.x, indexTip.y - thumbTip.y, indexTip.z - thumbTip.z || 0);
+                const isPinching = dist < 0.08;
+
+                const screenX = (1 - indexTip.x) * window.innerWidth;
+                const screenY = indexTip.y * window.innerHeight;
+
+                updateARCursor(screenX, screenY, isPinching);
+            } else {
+                document.getElementById('ar-cursor').classList.add('hidden');
+            }
+        }
+
+        function updateARCursor(x, y, isPinching) {
+            const cursor = document.getElementById('ar-cursor');
+            cursor.style.left = `${x}px`;
+            cursor.style.top = `${y}px`;
+            cursor.classList.remove('hidden');
+
+            if (isPinching) {
+                cursor.classList.add('pinching');
+                triggerVirtualARClick(x, y);
+            } else {
+                cursor.classList.remove('pinching');
+                arClickLocked = false;
+            }
+        }
+
+        function triggerVirtualARClick(x, y) {
+            if (arClickLocked) return;
+            arClickLocked = true;
+
+            const el = document.elementFromPoint(x, y);
+            if (el && el.classList.contains('ar-btn')) {
+                el.click();
+                SoundFX.tick();
+                
+                el.classList.add('clicked');
+                setTimeout(() => el.classList.remove('clicked'), 160);
+            }
+        }
+    </script>
+</body>
+</html>
