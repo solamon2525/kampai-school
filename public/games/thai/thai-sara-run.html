@@ -320,6 +320,7 @@ function hitBubble(b) {
     try { KAMPAI.sound.speak(currentQ.word, 'th-TH'); } catch (e) {}
     currentQ = null;
     bubbles = [];
+    document.getElementById('qHud').textContent = '📖 วิ่งไปข้างหน้า!';
   } else {
     combo = 0;
     lives = Math.max(0, lives - 1);
@@ -589,11 +590,10 @@ function startGame(rng, playerInfo) {
   document.getElementById('startModal').classList.add('off');
   document.getElementById('overModal').classList.add('off');
   document.getElementById('hud').classList.add('on');
+  resize();
   resetWorld(rng || Math.random);
   updateHud();
-  document.getElementById('qHud').textContent = '📖 ไปข้างหน้า!';
   try { KAMPAI.sound.unlock(); KAMPAI.sound.defaultBgm('playful'); KAMPAI.sound.bgmStart(); } catch (e) {}
-  resize();
   initClouds(); initPetals();
   loop();
   if (!versusMode) return;
