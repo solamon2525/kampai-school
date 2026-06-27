@@ -29,7 +29,7 @@ BEGIN
 
   UPDATE public.educational_hub_items
   SET game_slug = 'weight-adventure', tracked_game = true, is_published = true,
-      thumbnail_url = '/games/math/weight-adventure-cover.svg', bgm_preset = 'cheerful', updated_at = now()
+      thumbnail_url = '/games/math/weight-adventure-cover.png', bgm_preset = 'cheerful', updated_at = now()
   WHERE owner_staff_id = v_staff_id AND external_url = v_url;
 
   INSERT INTO public.game_docs (item_id, owner_staff_id, game_format, features, version, notes)
