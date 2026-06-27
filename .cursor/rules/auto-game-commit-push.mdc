@@ -11,3 +11,11 @@ alwaysApply: false
 - ใช้ข้อความ commit แบบ Conventional Commits ตามสไตล์ repo (`feat(games): ...` หรือ `fix(games): ...`)
 - ห้ามรวมไฟล์ที่ไม่เกี่ยวข้องกับงานเกมนั้นใน commit เดียวกัน
 - ถ้ามีความเสี่ยงสูง (เช่น ลบไฟล์จำนวนมาก/เปลี่ยนหลายระบบไม่เกี่ยวกัน) ให้หยุดและถามผู้ใช้ก่อน
+
+## Game Cover Policy (Strict)
+
+- ปกเกมต้องใช้ workflow ตาม `GAME.md` และ `public/COVER-PROMPT.md`
+- เครื่องมือสร้างปกให้ใช้สายงาน Canva AI (generate-design/edit/export)
+- ส่งออกปกเป็น `PNG` เท่านั้น ขนาด `1280x720` (16:9)
+- ห้ามใช้ไฟล์ปกแบบ `SVG` สำหรับเกมใหม่หรือการอัปเดตปก
+- เมื่ออัปเดตปก ต้องอัปเดต `thumbnail_url` ให้ชี้ `.png` และรัน `pnpm verify:game <path>`
