@@ -141,10 +141,11 @@ async function lockLandscape() {
 
 function updateRotateOverlay() {
   if (inIframe) {
-    // PlayGame แสดง overlay ทั้งหน้าแล้ว — อย่าซ้ำใน iframe
+    // PlayGame แสดง overlay ทั้งหน้า — iframe ไม่ซ้ำ; หยุดเกมเมื่อ parent/เครื่องเป็นแนวตั้ง
     document.body.classList.remove('show-rotate');
     const portraitBlock = document.body.classList.contains('is-touch')
-      && parentViewport && parentViewport.landscape === false;
+      && (parentViewport?.landscape === false
+        || (parentViewport?.landscape !== true && isDevicePortrait()));
     gamePaused = portraitBlock && started && !isGameOver;
     return;
   }
@@ -168,21 +169,11 @@ function requireLandscape() {
     lockLandscape();
     return true;
   }
+  // embed (/play/*): PlayGame ส่ง parentHandlesOrientation — อย่าบล็อกปุ่มเริ่มในเมนู
+  // portrait หลัง gameStart → parent overlay + gamePaused (updateRotateOverlay)
   if (inIframe) {
-    if (parentViewport && parentViewport.landscape === false) {
-      checkOrientation();
-      return false;
-    }
-    if (parentViewport && parentViewport.landscape === true) {
-      lockLandscape();
-      return true;
-    }
-    if (!isDevicePortrait()) {
-      lockLandscape();
-      return true;
-    }
-    checkOrientation();
-    return false;
+    if (!isDevicePortrait()) lockLandscape();
+    return true;
   }
   if (isDevicePortrait()) {
     checkOrientation();
@@ -190,6 +181,14 @@ function requireLandscape() {
   }
   lockLandscape();
   return true;
+}
+
+function notifyParentGameStart() {
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'gameStart' }, '*');
+    }
+  } catch (e) { /* */ }
 }
 
 function onViewportChange() {
@@ -2973,12 +2972,10 @@ function resolveHit(playerIndex, isCorrect, x, y) {
 /* ── ฟังก์ชันเริ่ม/จบ เกม ── */
 
 function startSinglePlayer(m) {
+  notifyParentGameStart();
   if (!requireLandscape()) return;
   if (window.KAMPAI) {
     window.KAMPAI._submitted = false;
-  }
-  if (window.parent && typeof window.parent.postMessage === 'function') {
-    window.parent.postMessage({ type: 'gameStart' }, '*');
   }
 
   mode = m;
@@ -3056,10 +3053,8 @@ let p1Student = { displayName: 'ผู้เล่น 1', photoUrl: null, isGues
 let p2Student = { displayName: 'ผู้เล่น 2', photoUrl: null, isGuest: true };
 
 function startLocalTwoPlayer() {
+  notifyParentGameStart();
   if (!requireLandscape()) return;
-  if (window.parent && typeof window.parent.postMessage === 'function') {
-    window.parent.postMessage({ type: 'gameStart' }, '*');
-  }
 
   // ตั้งค่าข้อมูล P1
   if (KAMPAI.student) {
@@ -3159,6 +3154,7 @@ function confirmGuestPlayer() {
 }
 
 function launchLocalTwoPlayer() {
+  notifyParentGameStart();
   if (!requireLandscape()) return;
   if (window.KAMPAI) {
     window.KAMPAI._submitted = false;
@@ -3259,12 +3255,10 @@ function renderPlayerChips2P() {
 }
 
 function startGame(onlineMode, opts) {
+  notifyParentGameStart();
   if (!requireLandscape()) return;
   if (window.KAMPAI) {
     window.KAMPAI._submitted = false;
-  }
-  if (window.parent && typeof window.parent.postMessage === 'function') {
-    window.parent.postMessage({ type: 'gameStart' }, '*');
   }
 
   mode = onlineMode;
