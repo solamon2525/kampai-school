@@ -224,7 +224,6 @@ function makePlatform(x, y, w, withQuestion) {
   for (let i = 0; i < nF; i++) p.flowers.push({ ox: rand(8, w - 8), col: ['#f9a8d4','#fde68a','#c4b5fd'][i % 3] });
   if (Math.random() < 0.35) p.shrooms.push({ ox: rand(12, w - 20) });
   platforms.push(p);
-  if (withQuestion && currentQ === null) spawnQuestion(p);
   if (Math.random() < 0.45) stars.push({ x: x + rand(20, w - 20), y: y - 28, taken: false, bob: Math.random() * 6.28 });
   return p;
 }
@@ -236,13 +235,24 @@ function spawnQuestion(plat) {
   answeredQ = false;
   const opts = shuffle(currentQ.opts.slice());
   bubbles = [];
-  const gap = plat.w / (opts.length + 1);
+  const midX = plat.x + plat.w / 2;
   opts.forEach((opt, i) => {
+    const offset = (i - 1) * 120; // Separated by exactly 120px virtual
+    const baseY = plat.y - rand(80, 170); // Random altitudes above the platform
     bubbles.push({
-      x: plat.x + gap * (i + 1), y: plat.y - 68, r: 30, text: opt,
-      correct: opt === currentQ.answer, wob: Math.random() * 6.28, col: BUBBLE_COLORS[i % 3],
+      x: midX + offset,
+      y: baseY,
+      baseY: baseY,
+      r: 30,
+      text: opt,
+      correct: opt === currentQ.answer,
+      wob: Math.random() * 6.28,
+      phase: Math.random() * 6.28,
+      floatSpeed: 0.02 + Math.random() * 0.03,
+      col: BUBBLE_COLORS[i % 3],
     });
   });
+  plat.question = false;
   document.getElementById('qHud').textContent = '📖 ' + currentQ.prompt.replace('_', '___') + ' (' + currentQ.word + ')';
 }
 
@@ -361,6 +371,14 @@ function extendWorld() {
 }
 
 function updatePlayer() {
+  // Trigger question spawning dynamically when approaching question platforms
+  for (const p of platforms) {
+    if (p.question && currentQ === null && p.x - camX < V_W + 100 && p.x - camX > -p.w) {
+      spawnQuestion(p);
+      break;
+    }
+  }
+
   if (keys.left) { player.vx = -RUN; player.face = -1; player.state = player.onGround ? 'run' : player.state; }
   else if (keys.right) { player.vx = RUN; player.face = 1; player.state = player.onGround ? 'run' : player.state; }
   else { player.vx *= FRICTION; if (Math.abs(player.vx) < 0.05) player.vx = 0; if (player.onGround && player.state === 'run') player.state = 'idle'; }
@@ -401,6 +419,12 @@ function updatePlayer() {
       lastSafePlat = p;
       if (player.state !== 'happy' && player.state !== 'hurt') player.state = keys.left || keys.right ? 'run' : 'idle';
     }
+  }
+
+  // Update bubbles floating animation
+  for (const b of bubbles) {
+    b.phase += b.floatSpeed;
+    b.y = b.baseY + Math.sin(b.phase) * 14;
   }
 
   const pad = 14;
