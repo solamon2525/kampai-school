@@ -306,6 +306,7 @@ function respawnPlayer() {
   player.vx = 0; player.vy = 0; player.jumps = 0;
   player.hurtT = 40; player.state = 'hurt';
   shakeT = 18;
+  camX = Math.max(0, lastSafePlat.x - 120); // Reset camera back to safe platform
   addFloatText(player.x, player.y - 20, '-1 พลังชีวิต! 💔', '#ef4444');
 }
 
@@ -460,9 +461,15 @@ function updatePlayer() {
 
   if (player.y > V_H + 80) handleFall();
 
-  const targetCam = player.x - V_W * 0.35;
-  camX += (targetCam - camX) * 0.12;
+  // Auto-scrolling camera (comfortable speed for decision-making)
+  camX += 0.95;
   if (camX < 0) camX = 0;
+
+  // Constrain player to right screen edge
+  if (player.x > camX + V_W - player.w) {
+    player.x = camX + V_W - player.w;
+    player.vx = 0;
+  }
 
   extendWorld();
 }
