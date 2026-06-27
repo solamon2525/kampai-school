@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.117.0 (หน้าแรก — โซน "เกมแนะนำ" ปรับการแสดงผลได้จากหลังบ้าน)',
+        version: 'v1.118.0 (คลังเกม — ปักหมุดเรียงลำดับจากหน้าฟронต์)',
         date: 'ล่าสุด',
+        badge: 'bg-teal-600',
+        items: [
+            'หมวด **คลังเกมการศึกษา** (`/h/:identifier`): แอดมินปักหมุดเกม 📌 บนการ์ดโดยตรง — มีผล**ทุกเครื่อง** (คนละส่วนกับ ⭐ เกมโปรด localStorage และ 🎮 หน้าแรก)',
+            'เกมที่ปักหมุดเรียงตาม `library_pin_order` (ลากจัดลำดับได้) · เกมที่ไม่ปักหมุดเรียง **ใหม่ล่าสุดก่อน** (`created_at desc`) · หมวดเกมไม่สน toolbar sort',
+            'Migration 249: `library_pinned` + `library_pin_order` บน `educational_hub_items` · UI: `GamesCategorySection` + ปุ่ม 📌 ใน `EduHubItemCard` · service: `sortGamesLibraryItems` / `toggleLibraryPin`',
+        ],
+    },
+    {
+        version: 'v1.117.0 (หน้าแรก — โซน "เกมแนะนำ" ปรับการแสดงผลได้จากหลังบ้าน)',
+        date: '',
         badge: 'bg-amber-600',
         items: [
             'โซน "🎮 เกมแนะนำ" หน้าแรก: แอดมินคุมการแสดงผลได้จาก **GamesTab** (educational-hub) — ขยาย **1 หรือ 2 แถว** + เลือก **3 โหมด**: เลื่อนเอง (snap, เดิม) / **เลื่อนอัตโนมัติ ขวา→ซ้าย (โชว์เคส marquee)** / กริดนิ่ง',

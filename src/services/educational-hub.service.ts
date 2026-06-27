@@ -56,6 +56,8 @@ export type EduHubItem = {
     game_slug: string | null;
     tracked_game: boolean;
     homepage_featured: boolean;  // ปักหมุดขึ้นโซน "เกมแนะนำ" หน้าแรก (migration 213)
+    library_pinned?: boolean;     // ปักหมุดในหมวดคลังเกม — มีผลทุกเครื่อง (migration 249)
+    library_pin_order?: number;   // ลำดับในกลุ่มปักหมุด (step 10, 20, …)
     bgm_preset: string | null;   // เพลงประกอบรายเกม (preset key สังเคราะห์ใน KAMPAI.sound) — null = ใช้ default ของเกม
     bgm_url: string | null;      // เพลงอัปโหลด (mp3) — ถ้ามี = เล่นแทน synth
     created_at: string;
@@ -272,6 +274,45 @@ export const educationalHubService = {
         return { error: (firstErr as Error | undefined) ?? null };
     },
 
+    /** ปักหมุด/ปลดหมุดเกมในคลัง (global) — ใช้จากหน้า /h/:identifier (admin) */
+    toggleLibraryPin: async (
+        itemId: string,
+        pinned: boolean,
+        currentPinned: Pick<EduHubItem, 'library_pin_order'>[],
+    ): Promise<{ error: Error | null }> => {
+        if (pinned) {
+            const maxOrder = currentPinned.reduce(
+                (max, i) => Math.max(max, i.library_pin_order ?? 0),
+                0,
+            );
+            const { error } = await supabase
+                .from('educational_hub_items' as never)
+                .update({ library_pinned: true, library_pin_order: maxOrder + 10 } as never)
+                .eq('id', itemId);
+            return { error: (error as Error | null) ?? null };
+        }
+        const { error } = await supabase
+            .from('educational_hub_items' as never)
+            .update({ library_pinned: false, library_pin_order: 0 } as never)
+            .eq('id', itemId);
+        return { error: (error as Error | null) ?? null };
+    },
+
+    bulkUpdateLibraryPinOrder: async (
+        updates: { id: string; library_pin_order: number }[],
+    ): Promise<{ error: Error | null }> => {
+        const results = await Promise.all(
+            updates.map((u) =>
+                supabase
+                    .from('educational_hub_items' as never)
+                    .update({ library_pin_order: u.library_pin_order } as never)
+                    .eq('id', u.id),
+            ),
+        );
+        const firstErr = results.find((r) => r.error)?.error;
+        return { error: (firstErr as Error | undefined) ?? null };
+    },
+
     // ─── Hub layout default (school_settings key='hub_layout_default') ──
     /**
      * Fetch global default hub layout from school_settings.
@@ -423,6 +464,25 @@ export const isGameItem = (item: Pick<EduHubItem, 'item_type' | 'external_url'>)
     item.item_type === 'link' &&
     !!item.external_url &&
     (item.external_url.includes('/edu-hub-games/') || item.external_url.includes('/games/'));
+
+/** เรียงหมวดคลังเกม: ปักหมุดก่อน (library_pin_order) → ที่เหลือ created_at ใหม่สุดก่อน */
+export function sortGamesLibraryItems(items: EduHubItem[]): EduHubItem[] {
+    const pinned = items
+        .filter((i) => i.library_pinned)
+        .sort((a, b) => (a.library_pin_order ?? 0) - (b.library_pin_order ?? 0));
+    const unpinned = items
+        .filter((i) => !i.library_pinned)
+        .sort((a, b) => b.created_at.localeCompare(a.created_at));
+    return [...pinned, ...unpinned];
+}
+
+export function splitGamesLibraryItems(items: EduHubItem[]) {
+    const sorted = sortGamesLibraryItems(items);
+    return {
+        pinned: sorted.filter((i) => i.library_pinned),
+        unpinned: sorted.filter((i) => !i.library_pinned),
+    };
+}
 
 /** Format file size for display (e.g., "2.4 MB") */
 export const formatFileSize = (bytes: number | null | undefined): string => {

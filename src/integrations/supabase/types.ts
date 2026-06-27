@@ -2064,9 +2064,12 @@ export type Database = {
           file_url: string | null
           game_slug: string | null
           grade_levels: string[]
+          homepage_featured: boolean
           id: string
           is_published: boolean
           item_type: Database["public"]["Enums"]["edu_hub_item_type"]
+          library_pin_order: number
+          library_pinned: boolean
           owner_staff_id: string
           quest_min_score: number | null
           sort_order: number
@@ -2094,9 +2097,12 @@ export type Database = {
           file_url?: string | null
           game_slug?: string | null
           grade_levels?: string[]
+          homepage_featured?: boolean
           id?: string
           is_published?: boolean
           item_type: Database["public"]["Enums"]["edu_hub_item_type"]
+          library_pin_order?: number
+          library_pinned?: boolean
           owner_staff_id: string
           quest_min_score?: number | null
           sort_order?: number
@@ -2124,9 +2130,12 @@ export type Database = {
           file_url?: string | null
           game_slug?: string | null
           grade_levels?: string[]
+          homepage_featured?: boolean
           id?: string
           is_published?: boolean
           item_type?: Database["public"]["Enums"]["edu_hub_item_type"]
+          library_pin_order?: number
+          library_pinned?: boolean
           owner_staff_id?: string
           quest_min_score?: number | null
           sort_order?: number
