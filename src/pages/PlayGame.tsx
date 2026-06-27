@@ -62,6 +62,18 @@ const ICON = (name: string | null | undefined) =>
 // ─── Page state ──────────────────────────────────────────────────────────────
 type Phase = 'lookup' | 'confirm' | 'pre-game' | 'playing';
 
+/** ตรวจ landscape จาก top window — อย่าใช้ screen.width/height (ไม่สลับบน iOS) */
+function getParentLandscape(): boolean {
+  try {
+    const t = screen.orientation?.type ?? '';
+    if (t.startsWith('landscape')) return true;
+    if (t.startsWith('portrait')) return false;
+  } catch { /* */ }
+  if (window.matchMedia?.('(orientation: landscape)')?.matches) return true;
+  if (window.matchMedia?.('(orientation: portrait)')?.matches) return false;
+  return window.innerWidth > window.innerHeight;
+}
+
 // ============================================================================
 const PlayGame = () => {
   const { gameSlug: originalSlug = '' } = useParams<{ gameSlug: string }>();
@@ -256,22 +268,28 @@ const PlayGame = () => {
 
   const postParentViewport = useCallback(() => {
     if (!iframeRef.current?.contentWindow || resolvedSlug !== 'math-runner') return;
-    const orient = screen.orientation?.type ?? '';
-    const landscape = orient.startsWith('landscape') || window.screen.width > window.screen.height;
-    const rect = gameContainerRef.current?.getBoundingClientRect();
+    const landscape = getParentLandscape();
     iframeRef.current.contentWindow.postMessage(
       {
         type: 'parentViewport',
-        width: rect?.width ?? window.innerWidth,
-        height: rect?.height ?? window.innerHeight,
+        width: window.innerWidth,
+        height: window.innerHeight,
         screenW: window.screen.width,
         screenH: window.screen.height,
         landscape,
-        orientation: orient || null,
+        orientation: screen.orientation?.type ?? null,
       },
       '*',
     );
   }, [resolvedSlug]);
+
+  useEffect(() => {
+    const onRequest = (e: MessageEvent) => {
+      if (e.data?.type === 'requestParentViewport') postParentViewport();
+    };
+    window.addEventListener('message', onRequest);
+    return () => window.removeEventListener('message', onRequest);
+  }, [postParentViewport]);
 
   useEffect(() => {
     if (phase !== 'playing' || resolvedSlug !== 'math-runner') return;
@@ -290,10 +308,24 @@ const PlayGame = () => {
     window.addEventListener('resize', onChange);
     window.addEventListener('orientationchange', onChange);
     document.addEventListener('fullscreenchange', onChange);
+    let mq: MediaQueryList | null = null;
+    try {
+      mq = window.matchMedia('(orientation: landscape)');
+      (mq.addEventListener ? mq.addEventListener('change', onChange) : mq.addListener(onChange));
+    } catch { /* */ }
+    try {
+      screen.orientation?.addEventListener?.('change', onChange);
+    } catch { /* */ }
+    const iv = window.setInterval(onChange, 400);
+    const stopIv = window.setTimeout(() => window.clearInterval(iv), 12000);
     return () => {
       window.removeEventListener('resize', onChange);
       window.removeEventListener('orientationchange', onChange);
       document.removeEventListener('fullscreenchange', onChange);
+      if (mq) (mq.removeEventListener ? mq.removeEventListener('change', onChange) : mq.removeListener(onChange));
+      try { screen.orientation?.removeEventListener?.('change', onChange); } catch { /* */ }
+      window.clearInterval(iv);
+      window.clearTimeout(stopIv);
     };
   }, [phase, resolvedSlug, postParentViewport]);
 
@@ -301,6 +333,11 @@ const PlayGame = () => {
   // ส่งทั้ง studentCode (เดิม — เกมเก่าใช้ได้) + student/stats/leaderboard (ใหม่ — KAMPAI SDK
   // เอาไปโชว์ชื่อ/คะแนน/อันดับในหน้าเกม โดยไม่ต้องยิง Supabase เอง)
   const handleIframeLoad = useCallback(() => {
+    if (resolvedSlug === 'math-runner') {
+      requestAnimationFrame(() => postParentViewport());
+      setTimeout(postParentViewport, 100);
+      setTimeout(postParentViewport, 500);
+    }
     if (!student || !iframeRef.current?.contentWindow) return;
     // เกม (re)load — รวมกรณีกดปุ่ม "🔄 เล่นอีกครั้ง" ในเกม (location.reload) → เริ่มรอบใหม่สะอาด
     setShowReward(false);
@@ -353,9 +390,6 @@ const PlayGame = () => {
       },
       '*',
     );
-    if (resolvedSlug === 'math-runner') {
-      requestAnimationFrame(() => postParentViewport());
-    }
   }, [student, codeInput, statsQuery.data, levelInfo.level, leaderboardQuery.data, classmatesQuery.data, gameQuery.data?.bgm_preset, gameQuery.data?.bgm_url, resolvedSlug, masteryQuery.data, dailyStatusQuery.data, dailyLeaderboardQuery.data, postParentViewport]);
 
   // ─── auto-login จาก localStorage (ลดเวลากรอกรหัสเมื่อเปลี่ยนเกม) ────────

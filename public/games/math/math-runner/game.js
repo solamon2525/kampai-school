@@ -74,30 +74,42 @@ function syncDpad() {
 }
 let landscapeLocked = false;
 let parentViewport = null; // จาก PlayGame postMessage (embed)
+const isEmbed = window.self !== window.top || /[?&]embed=1/.test(location.search);
 
 function isDevicePortrait() {
+  // embed: เชื่อ parent (top window) ก่อน — iframe innerWidth/screen.width ไม่หมุนตามเครื่อง
   if (parentViewport && typeof parentViewport.landscape === 'boolean') {
     return !parentViewport.landscape;
   }
+  if (isEmbed) {
+    if (typeof window.orientation === 'number') {
+      return Math.abs(window.orientation) !== 90;
+    }
+    return true; // รอ parentViewport — อย่าใช้ screen.height>width (ค้าง portrait ตลอดบนมือถือ)
+  }
   try {
-    if (screen.orientation && typeof screen.orientation.type === 'string') {
-      return screen.orientation.type.indexOf('portrait') === 0;
+    const t = screen.orientation && screen.orientation.type;
+    if (typeof t === 'string') {
+      if (t.indexOf('landscape') === 0) return false;
+      if (t.indexOf('portrait') === 0) return true;
     }
   } catch (e) { /* */ }
   if (typeof window.orientation === 'number') {
     return Math.abs(window.orientation) !== 90;
   }
-  if (window.screen && window.screen.width && window.screen.height) {
-    return window.screen.height > window.screen.width;
+  if (window.matchMedia) {
+    if (window.matchMedia('(orientation: landscape)').matches) return false;
+    if (window.matchMedia('(orientation: portrait)').matches) return true;
   }
   if (window.visualViewport) {
-    return window.visualViewport.height > window.visualViewport.width;
+    const { width, height } = window.visualViewport;
+    if (width && height && width !== height) return height > width;
   }
   return window.innerHeight > window.innerWidth;
 }
 
 function getViewportSize() {
-  if (parentViewport && parentViewport.landscape && parentViewport.width > 0 && parentViewport.height > 0) {
+  if (parentViewport && parentViewport.width > 0 && parentViewport.height > 0) {
     return { w: parentViewport.width, h: parentViewport.height };
   }
   const vv = window.visualViewport;
@@ -166,6 +178,18 @@ window.addEventListener('message', (e) => {
     onViewportChange();
   }
 });
+if (isEmbed) {
+  function pingParentForViewport() {
+    try { window.parent.postMessage({ type: 'requestParentViewport' }, '*'); } catch (err) { /* */ }
+  }
+  pingParentForViewport();
+  let pingCount = 0;
+  const pingIv = setInterval(() => {
+    pingParentForViewport();
+    if (++pingCount >= 24) clearInterval(pingIv);
+  }, 250);
+  window.addEventListener('orientationchange', pingParentForViewport);
+}
 document.body.addEventListener('touchstart', () => lockLandscape(), { once: true, passive: true });
 updateRotateOverlay();
 
