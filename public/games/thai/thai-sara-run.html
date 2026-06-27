@@ -12,6 +12,8 @@ html,body{height:100%;font-family:'Kanit',sans-serif;overflow:hidden;touch-actio
 #gameCanvas{display:block;flex:1;width:100%;touch-action:none}
 #hud{position:fixed;top:0;left:0;right:0;display:none;align-items:flex-start;justify-content:space-between;padding:54px 12px 8px;pointer-events:none;z-index:15;flex-wrap:wrap;gap:6px}
 #hud.on{display:flex}
+#qHud{position:fixed;top:54px;left:50%;transform:translateX(-50%) scale(0);z-index:16;font-size:clamp(20px,5vw,28px);color:#be185d;font-weight:800;border:3px solid #fbcfe8;background:rgba(255,255,255,0.96);padding:6px 22px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,0.12);white-space:nowrap;pointer-events:none;transition:transform 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275)}
+#hud.on ~ #qHud{transform:translateX(-50%) scale(1)}
 .hud-pill{font-weight:700;background:rgba(255,255,255,.88);color:#334155;padding:6px 14px;border-radius:999px;box-shadow:0 4px 12px rgba(0,0,0,.12);font-size:clamp(14px,3.5vw,18px);border:2px solid rgba(255,255,255,.9)}
 #comboBanner{position:fixed;top:42%;left:50%;transform:translate(-50%,-50%) scale(0);padding:12px 24px;border-radius:20px;font-weight:800;font-size:clamp(18px,4.5vw,28px);color:#fff;z-index:25;pointer-events:none;opacity:0;background:linear-gradient(90deg,#f472b6,#a78bfa,#38bdf8,#4ade80,#fbbf24);background-size:200% 100%;animation:none;text-shadow:0 2px 8px rgba(0,0,0,.25)}
 #comboBanner.show{animation:comboPop .9s ease forwards,rainbowShift 1.2s linear infinite}
@@ -49,9 +51,9 @@ html,body{height:100%;font-family:'Kanit',sans-serif;overflow:hidden;touch-actio
 <canvas id="gameCanvas"></canvas>
 <div id="hud">
   <div class="hud-pill" id="scoreHud">⭐ 0</div>
-  <div class="hud-pill" id="qHud">📖 พร้อม!</div>
   <div class="hud-pill" id="lifeHud">❤️❤️❤️</div>
 </div>
+<div id="qHud" class="hud-pill">📖 พร้อม!</div>
 <div id="comboBanner"></div>
 <div id="touchControls">
   <div style="display:flex; gap:12px;">
@@ -237,11 +239,11 @@ function spawnQuestion(plat) {
   const gap = plat.w / (opts.length + 1);
   opts.forEach((opt, i) => {
     bubbles.push({
-      x: plat.x + gap * (i + 1), y: plat.y - 58, r: 26, text: opt,
+      x: plat.x + gap * (i + 1), y: plat.y - 68, r: 30, text: opt,
       correct: opt === currentQ.answer, wob: Math.random() * 6.28, col: BUBBLE_COLORS[i % 3],
     });
   });
-  document.getElementById('qHud').textContent = '📖 ' + currentQ.prompt.replace('_', '___');
+  document.getElementById('qHud').textContent = '📖 ' + currentQ.prompt.replace('_', '___') + ' (' + currentQ.word + ')';
 }
 
 function resetWorld(rng) {
@@ -249,17 +251,17 @@ function resetWorld(rng) {
   platIndex = 0; qIdx = 0; currentQ = null; answeredQ = true;
   qOrder = shuffle(QUESTIONS.map((_, i) => i), rng || Math.random);
   camX = 0;
-  const groundY = V_H - 120;
+  const groundY = V_H - 240;
   const first = makePlatform(40, groundY, 420, false);
   lastSafePlat = first;
   let x = 40, y = groundY;
   for (let i = 0; i < 24; i++) {
     const gap = rand(60, 110);
     const dy = rand(-40, 40);
-    const w = rand(140, 220);
-    x += gap + (platforms[platforms.length - 1]?.w || 420);
-    y = Math.max(V_H - 280, Math.min(V_H - 100, y + dy));
     const withQ = (i + 1) % 3 === 0;
+    const w = withQ ? rand(300, 360) : rand(160, 220);
+    x += gap + (platforms[platforms.length - 1]?.w || 420);
+    y = Math.max(V_H - 480, Math.min(V_H - 240, y + dy));
     makePlatform(x, y, w, withQ);
   }
   player.x = first.x + 60; player.y = first.y - player.h - 2;
@@ -345,11 +347,11 @@ function extendWorld() {
   if (!last || last.x + last.w - camX < V_W * 1.8) {
     const gap = rand(60, 110);
     const dy = rand(-40, 40);
-    const w = rand(140, 220);
+    const withQ = platIndex % 3 === 0;
+    const w = withQ ? rand(300, 360) : rand(160, 220);
     const x = last.x + last.w + gap;
     let y = last.y + dy;
-    y = Math.max(V_H - 280, Math.min(V_H - 100, y));
-    const withQ = platIndex % 3 === 0;
+    y = Math.max(V_H - 480, Math.min(V_H - 240, y));
     makePlatform(x, y, w, withQ);
   }
   platforms = platforms.filter(p => p.x + p.w > camX - 200);
@@ -510,7 +512,7 @@ function drawBubble(b) {
   ctx.beginPath(); ctx.arc(0, 0, b.r, 0, 6.28); ctx.fill();
   ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = 2; ctx.stroke();
   ctx.fillStyle = '#1e293b';
-  ctx.font = 'bold 22px Kanit'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.font = 'bold 28px Kanit'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.fillText(b.text, 0, 1);
   ctx.restore();
   b.wob += 0.07;
