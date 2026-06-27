@@ -1,14 +1,26 @@
 {
-  "frameWidth": 48,
-  "frameHeight": 48,
+  "frameWidth": 128,
+  "frameHeight": 128,
+  "frameCount": 12,
   "frames": [
     "idle",
-    "runA",
-    "runB",
-    "jump",
+    "idle2",
+    "run1",
+    "run2",
+    "run3",
+    "run4",
+    "jumpUp",
+    "jumpPeak",
+    "jumpFall",
     "hurt",
-    "happy"
+    "happy",
+    "land"
   ],
-  "piskel": "Import PNG → Resize frames 48×48 → แก้สี/ท่า → Export sprite sheet",
+  "view": "side-right (flip in game when moving left)",
+  "displaySize": {
+    "w": 88,
+    "h": 96
+  },
+  "piskel": "Import PNG → 128px per frame · 12 columns",
   "regenerate": "node scripts/generate-sara-run-sprites.mjs"
 }

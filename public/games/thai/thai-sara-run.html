@@ -124,7 +124,9 @@ const QUESTIONS = [
 
 const BUBBLE_COLORS = ['#93c5fd','#fca5a5','#86efac'];
 const GRAVITY = 0.38, FRICTION = 0.82, RUN = 4.2, JUMP1 = -9.2, JUMP2 = -7.4;
-const BUNNY_SPRITE = { fw: 48, fh: 48, frames: 6, white: null, blue: null, ready: false };
+const BUNNY_SPRITE = { fw: 128, fh: 128, frames: 12, white: null, blue: null, ready: false };
+const BUNNY_DRAW_W = 88;
+const BUNNY_DRAW_H = 96;
 const BUNNY_ASSET_BASE = '/games/thai/assets/thai-sara-run';
 const WORLD_H = 720, PLAT_H = 48;
 const V_H = 720;
@@ -257,7 +259,7 @@ function spawnWorldQuestion(plat, rng) {
 function initGameWorld(rng) {
   const r = rng || Math.random;
   const groundY = V_H - 240;
-  wld = { score1: 0, lives1: 3, combo1: 0, correctCount1: 0, score2: 0, lives2: 3, combo2: 0, correctCount2: 0, camX: 0, currentQ1: null, answeredQ1: true, currentQ2: null, answeredQ2: true, collectedLetters1: [], collectedLetters2: [], platforms: [], bubbles: [], stars: [], particles: [], floatTexts: [], qIdx1: 0, qIdx2: 0, platIndex: 0, lastSafePlat: null, qOrder1: shuffle(QUESTIONS.map((_, i) => i), r), qOrder2: shuffle(QUESTIONS.map((_, i) => i), r), bannerText1: '', bannerT1: 0, bannerText2: '', bannerT2: 0, rng: r, player1: { x: 100, y: groundY - 54, vx: 0, vy: 0, w: 44, h: 52, onGround: false, jumps: 0, state: 'idle', hurtT: 0, earPhase: 0, animTime: 0, face: 1, ridingPlat: null }, player2: localCoopMode ? { x: 150, y: groundY - 54, vx: 0, vy: 0, w: 44, h: 52, onGround: false, jumps: 0, state: 'idle', hurtT: 0, earPhase: 0, animTime: 0, face: 1, ridingPlat: null } : null };
+  wld = { score1: 0, lives1: 3, combo1: 0, correctCount1: 0, score2: 0, lives2: 3, combo2: 0, correctCount2: 0, camX: 0, currentQ1: null, answeredQ1: true, currentQ2: null, answeredQ2: true, collectedLetters1: [], collectedLetters2: [], platforms: [], bubbles: [], stars: [], particles: [], floatTexts: [], qIdx1: 0, qIdx2: 0, platIndex: 0, lastSafePlat: null, qOrder1: shuffle(QUESTIONS.map((_, i) => i), r), qOrder2: shuffle(QUESTIONS.map((_, i) => i), r), bannerText1: '', bannerT1: 0, bannerText2: '', bannerT2: 0, rng: r, player1: { x: 100, y: groundY - 96, vx: 0, vy: 0, w: 72, h: 96, onGround: false, jumps: 0, state: 'idle', hurtT: 0, earPhase: 0, animTime: 0, face: 1, ridingPlat: null }, player2: localCoopMode ? { x: 150, y: groundY - 96, vx: 0, vy: 0, w: 72, h: 96, onGround: false, jumps: 0, state: 'idle', hurtT: 0, earPhase: 0, animTime: 0, face: 1, ridingPlat: null } : null };
   wld.lastSafePlat = makeWorldPlatform(40, groundY, 420, false, r);
   wld.player1.x = wld.lastSafePlat.x + 60; wld.player1.y = wld.lastSafePlat.y - wld.player1.h - 2;
   if (wld.player2) { wld.player2.x = wld.lastSafePlat.x + 120; wld.player2.y = wld.lastSafePlat.y - wld.player2.h - 2; }
@@ -616,10 +618,18 @@ function loadBunnySprites() {
 }
 
 function getBunnySpriteFrame(p) {
-  if (p.state === 'hurt') return 4;
-  if (p.state === 'happy') return 5;
-  if (!p.onGround || p.state === 'jump') return 3;
-  if (p.state === 'run' || Math.abs(p.vx) > 0.2) return Math.floor(p.animTime) % 2 === 0 ? 1 : 2;
+  if (p.state === 'hurt') return 9;
+  if (p.state === 'happy') return 10;
+  if (!p.onGround || p.state === 'jump') {
+    if (p.vy < -3.5) return 6;
+    if (p.vy > 2.5) return 8;
+    return 7;
+  }
+  if (p.state === 'run' || Math.abs(p.vx) > 0.2) {
+    const runFrames = [2, 3, 4, 5];
+    return runFrames[Math.floor(p.animTime * 1.15) % 4];
+  }
+  if (Math.sin(p.animTime * 0.45) > 0.92) return 1;
   return 0;
 }
 
@@ -634,10 +644,10 @@ function drawWorldBunny(p, variant) {
   if (BUNNY_SPRITE.ready) {
     const sheet = variant === 'blue' ? BUNNY_SPRITE.blue : BUNNY_SPRITE.white;
     const f = getBunnySpriteFrame(p);
-    const dw = 48;
-    const dh = 52;
-    const dx = x + (p.w - dw) / 2;
-    const dy = y + (p.h - dh);
+    const dw = BUNNY_DRAW_W;
+    const dh = BUNNY_DRAW_H;
+    const dx = x + p.w - dw;
+    const dy = y + p.h - dh;
     ctx.save();
     ctx.imageSmoothingEnabled = false;
     if (p.face === -1) {
