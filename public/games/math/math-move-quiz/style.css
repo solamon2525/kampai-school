@@ -40,9 +40,7 @@ html, body { height: 100%; width: 100%; overflow: hidden; font-family: 'Sarabun'
 #arCanvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
 .cam-label { position: absolute; top: 0; left: 0; right: 0; text-align: center; font-size: 11px; padding: 3px; background: rgba(0,0,0,0.5); color: #fbbf24; z-index: 3; font-weight: 600; }
 
-/* ปุ่มเสียง #kampai-snd (จาก mountToggles) อยู่ default มุมบนซ้าย z-40 — ชนปุ่มออกใน HUD → ย้ายลงล่างซ้าย
-   (กล่องกล้องอยู่ล่างขวาแล้ว) — gotcha GAME.md */
-#kampai-snd { top: auto !important; bottom: 14px !important; left: 12px !important; right: auto !important; }
+/* ปุ่มเสียง #kampai-snd — default SDK มุมล่างขวา (กล่องกล้องอยู่ล่างซ้าย) */
 
 /* ── ปุ่ม + การ์ด ── */
 .btn { font-family: inherit; font-weight: 700; font-size: 20px; padding: 13px 38px; border: none; border-radius: 999px; cursor: pointer; color: #271a02; background: linear-gradient(135deg,#fbbf24,#f59e0b); box-shadow: 0 8px 22px rgba(251,191,36,0.35); }

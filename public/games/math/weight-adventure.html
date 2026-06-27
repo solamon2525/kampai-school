@@ -36,7 +36,7 @@
             touch-action: none;
         }
 
-        #kampai-snd { top: auto !important; bottom: 14px !important; left: 12px !important; }
+        /* ปุ่มเสียง SDK — มุมล่างขวา (default kampai-sdk.js) */
 
         #ui-layer {
             position: absolute;
@@ -661,6 +661,11 @@ window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window
     let cameraX = 0;
     let lastSafePlatform = null;
     let sessionStartTs = 0;
+    const WORLD_SPEED_BASE = 170;
+    let worldSpeed = WORLD_SPEED_BASE;
+    let spawnTimer = 0;
+    let spawnInterval = 1.05;
+    let targetPlatformY = 0;
 
     let lives = 3;
     let score = 0;
@@ -801,6 +806,45 @@ window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window
         currentAnswers.sort(function () { return Math.random() - 0.5; });
     }
 
+    function spawnAnswerBubbles(anchorX, anchorY) {
+        const spread = [-170, 0, 170];
+        const ySpread = [-150, -210, -150];
+        const pairs = currentAnswers.map(function (v) {
+            return { value: v, isCorrect: v === currentWeight };
+        }).sort(function () { return Math.random() - 0.5; });
+
+        for (let i = 0; i < pairs.length; i++) {
+            bubbles.push(new Bubble(anchorX + spread[i], anchorY + ySpread[i], pairs[i].value, pairs[i].isCorrect));
+        }
+    }
+
+    function spawnWave() {
+        const waveX = cw + 150 + Math.random() * 40;
+        targetPlatformY += (Math.random() * 80 - 40);
+        if (targetPlatformY > ch - 120) targetPlatformY = ch - 120;
+        if (targetPlatformY < ch - 260) targetPlatformY = ch - 260;
+
+        const mainW = 170 + Math.random() * 90;
+        const mainPlatform = new Platform(waveX, targetPlatformY, mainW, 56);
+        platforms.push(mainPlatform);
+
+        if (Math.random() > 0.45) {
+            stars.push(new Star(waveX + mainW * 0.5 - 15, targetPlatformY - 58));
+        }
+
+        if (Math.random() > 0.5) {
+            const altY = Math.max(ch - 300, Math.min(ch - 130, targetPlatformY + (Math.random() > 0.5 ? -75 : 75)));
+            const altW = 120 + Math.random() * 70;
+            const altX = waveX + (Math.random() > 0.5 ? -90 : 90);
+            platforms.push(new Platform(altX, altY, altW, 56));
+        }
+
+        if (bubbles.filter(function (b) { return b.active; }).length <= 1) {
+            updateProblem();
+            spawnAnswerBubbles(waveX + mainW * 0.5, targetPlatformY);
+        }
+    }
+
     class Player {
         constructor() {
             this.w = 40;
@@ -831,6 +875,9 @@ window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window
             this.vy += this.gravity * dt;
             this.x += this.vx * dt;
             this.y += this.vy * dt;
+
+            if (this.x < 20) this.x = 20;
+            if (this.x + this.w > cw - 20) this.x = cw - this.w - 20;
 
             if (this.vx !== 0 && this.onGround) this.bobTimer += dt * 15;
             else this.bobTimer = 0;
@@ -1020,29 +1067,10 @@ window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window
     }
 
     function generateChunk() {
-        while (nextPlatformX < cameraX + cw + 1000) {
-            const pWidth = 150 + Math.random() * 200;
-            const gap = 80 + Math.random() * 100;
-            let pY = ch - 150 + (Math.random() * 100 - 50);
-            if (pY > ch - 100) pY = ch - 100;
-            if (pY < ch - 300) pY = ch - 300;
-
-            platforms.push(new Platform(nextPlatformX, pY, pWidth, ch - pY + 50));
-
-            if (Math.random() > 0.5) {
-                stars.push(new Star(nextPlatformX + pWidth / 2 - 15, pY - 50));
-            }
-
-            if (Math.random() > 0.6 && nextPlatformX > 500 && bubbles.length === 0) {
-                updateProblem();
-                const bx = nextPlatformX + pWidth / 2;
-                const space = 100;
-                bubbles.push(new Bubble(bx - space, pY - 120, currentAnswers[0], currentAnswers[0] === currentWeight));
-                bubbles.push(new Bubble(bx, pY - 160, currentAnswers[1], currentAnswers[1] === currentWeight));
-                bubbles.push(new Bubble(bx + space, pY - 120, currentAnswers[2], currentAnswers[2] === currentWeight));
-            }
-
-            nextPlatformX += pWidth + gap;
+        while (spawnTimer >= spawnInterval) {
+            spawnWave();
+            spawnTimer -= spawnInterval;
+            spawnInterval = 0.88 + Math.random() * 0.22;
         }
     }
 
@@ -1055,7 +1083,7 @@ window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window
         } else {
             player.vx = 0;
             player.vy = 0;
-            if (lastSafePlatform) {
+            if (lastSafePlatform && lastSafePlatform.x + lastSafePlatform.w > 40) {
                 player.x = lastSafePlatform.x + lastSafePlatform.w / 2;
                 player.y = lastSafePlatform.y - player.h - 10;
             } else {
@@ -1118,10 +1146,10 @@ window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window
     }
 
     function garbageCollection() {
-        const deadZone = cameraX - 1000;
+        const deadZone = -280;
         platforms = platforms.filter(function (p) { return p.x + p.w > deadZone; });
         stars = stars.filter(function (s) { return s.x > deadZone && !s.collected; });
-        bubbles = bubbles.filter(function (b) { return b.x > deadZone && b.active; });
+        bubbles = bubbles.filter(function (b) { return b.x + b.r > deadZone && b.active; });
         particles = particles.filter(function (p) { return p.life > 0; });
     }
 
@@ -1162,19 +1190,28 @@ window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window
         correctCount = 0;
         cameraX = 0;
         nextPlatformX = -100;
+        worldSpeed = WORLD_SPEED_BASE;
+        spawnTimer = 0;
+        spawnInterval = 1.0;
         platforms = [];
         stars = [];
         bubbles = [];
         particles = [];
         clouds = [];
         sessionStartTs = Date.now();
+        targetPlatformY = ch - 180;
 
         player = new Player();
+        player.x = 170;
+        player.y = targetPlatformY - player.h;
         for (let i = 0; i < 8; i++) clouds.push(new Cloud());
 
         updateUI();
+        const startPlatform = new Platform(30, targetPlatformY, Math.max(290, cw * 0.42), 56);
+        platforms.push(startPlatform);
+        lastSafePlatform = startPlatform;
         updateProblem();
-        generateChunk();
+        spawnAnswerBubbles(cw * 0.62, targetPlatformY);
 
         isPlaying = true;
         lastTime = performance.now();
@@ -1237,9 +1274,10 @@ window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window
         player.update(dt);
         clouds.forEach(function (c) { c.update(dt); });
         particles.forEach(function (p) { p.update(dt); });
-
-        const targetCamX = player.x - cw / 3;
-        if (targetCamX > cameraX) cameraX = targetCamX;
+        spawnTimer += dt;
+        platforms.forEach(function (p) { p.x -= worldSpeed * dt; });
+        stars.forEach(function (s) { s.x -= worldSpeed * dt; });
+        bubbles.forEach(function (b) { b.x -= worldSpeed * dt; });
 
         generateChunk();
         checkCollisions();

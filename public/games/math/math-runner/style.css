@@ -579,18 +579,7 @@ body.show-rotate { overflow: hidden; touch-action: none; }
 .dbtn.active { transform: scale(0.88); background: rgba(245, 158, 11, 0.7); }
 .is-touch #dpad.on { display: block; }
 
-/* Custom Overrides for KAMPAI Sound Widget */
-#kampai-snd {
-  top: auto !important;
-  bottom: 14px !important;
-  left: 14px !important;
-  z-index: 45 !important;
-}
-
-.ksnd {
-  border: 3px solid #000 !important;
-  box-shadow: 0 4px 0px #000 !important;
-}
+/* ปุ่มเสียง SDK (#kampai-snd) — ตำแหน่งมาจาก kampai-sdk.js มุมล่างขวา; ไม่ override ที่นี่ */
 
 /* ── Player Chip (SDK Profile) ── */
 #player-chip {
@@ -955,5 +944,4 @@ body.show-rotate { overflow: hidden; touch-action: none; }
   .dpad-left { left: 8px; }
   .dpad-right { right: 8px; }
   .dbtn { width: 52px; height: 52px; font-size: 1.4rem; }
-  #kampai-snd { bottom: 72px !important; left: 8px !important; transform: scale(0.85); transform-origin: bottom left; }
 }

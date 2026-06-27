@@ -354,9 +354,11 @@
   function _bgmTick() { if (!_bgmCfg || !_bgmEnsure()) return; var SPC = 8, chord = BGM_PROG[Math.floor(_bgmStep / SPC) % BGM_PROG.length], w = _bgmStep % SPC, t = _actx.currentTime; if (w === 0) _bgmNote(_bgmCfg.root * Math.pow(2, (chord[0] - 12) / 12), t, 0.55, 0.6, 'sine'); _bgmNote(_bgmCfg.root * Math.pow(2, chord[w % chord.length] / 12), t, 0.28, 0.4, _bgmCfg.wave); _bgmStep++; }
   function _ensureFx() { if (_fxEl && _fxEl.isConnected) return _fxEl; _fxEl = document.getElementById('kampai-fx'); if (!_fxEl && document.body) { _fxEl = document.createElement('div'); _fxEl.id = 'kampai-fx'; document.body.appendChild(_fxEl); } return _fxEl; }
   function _injectCss() { if (document.getElementById('kampai-sound-css')) return; var s = document.createElement('style'); s.id = 'kampai-sound-css'; s.textContent =
-    '#kampai-snd{position:fixed;top:10px;left:10px;z-index:40;display:flex;gap:8px}' +
-    '.ksnd{width:44px;height:44px;border:none;border-radius:50%;cursor:pointer;font-size:19px;line-height:1;background:rgba(15,23,42,.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);box-shadow:0 2px 8px rgba(0,0,0,.35);transition:opacity .15s,transform .1s;color:#fff;padding:0;font-family:inherit}' +
-    '#kbtn-voice{width:auto;min-width:64px;padding:0 12px;border-radius:22px;font-size:13px;font-weight:700;letter-spacing:.02em}' +
+    '#kampai-snd{position:fixed;top:auto;bottom:max(10px,env(safe-area-inset-bottom));right:max(10px,env(safe-area-inset-right));left:auto;z-index:40;display:flex;gap:6px;flex-wrap:nowrap;pointer-events:auto}' +
+    '.ksnd{width:40px;height:40px;border:none;border-radius:50%;cursor:pointer;font-size:17px;line-height:1;background:rgba(15,23,42,.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);box-shadow:0 2px 8px rgba(0,0,0,.35);transition:opacity .15s,transform .1s;color:#fff;padding:0;font-family:inherit}' +
+    '#kbtn-voice{width:auto;min-width:56px;padding:0 10px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:.02em}' +
+    '@media (pointer:coarse){.ksnd{width:36px;height:36px;font-size:15px}#kbtn-voice{min-width:48px;font-size:11px;padding:0 7px}}' +
+    '@media (pointer:coarse) and (orientation:landscape){#kampai-snd{bottom:max(8px,env(safe-area-inset-bottom));right:max(8px,env(safe-area-inset-right));gap:4px}.ksnd{width:32px;height:32px;font-size:13px}#kbtn-voice{min-width:40px;font-size:10px;padding:0 5px}}' +
     '.ksnd:active{transform:scale(.9)}.ksnd.off{opacity:.4}' +
     '#kampai-fx{position:fixed;inset:0;pointer-events:none;opacity:0;z-index:25;transition:opacity .12s ease}' +
     '#kampai-fx.good{opacity:1;background:radial-gradient(circle at 50% 60%,rgba(34,197,94,.28),transparent 65%)}' +

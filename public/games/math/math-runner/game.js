@@ -69,8 +69,8 @@ function syncDpad() {
   const dp = document.getElementById('dpad'); if (!dp) return;
   dp.classList.toggle('on', playing);
   const L = document.getElementById('dpad-left'), R = document.getElementById('dpad-right');
-  if (L) L.style.display = (playing && mode === 'local_2p') ? 'flex' : 'none';  // ซ้าย = P1 (เฉพาะ 2 คน)
-  if (R) R.style.display = playing ? 'flex' : 'none';                            // ขวา = ผู้เล่นเดี่ยว / P2
+  if (L) L.style.display = playing ? 'flex' : 'none';  // ซ้าย = ผู้เล่นเดี่ยว หรือ P1 (2 คน)
+  if (R) R.style.display = (playing && mode === 'local_2p') ? 'flex' : 'none';  // ขวา = P2 (เฉพาะ 2 คน)
 }
 let landscapeLocked = false;
 let parentViewport = null; // จาก PlayGame postMessage (embed)
@@ -234,12 +234,14 @@ if (inIframe) {
 document.body.addEventListener('touchstart', () => lockLandscape(), { once: true, passive: true });
 updateRotateOverlay();
 
-// สลับเลนจากปุ่มวิชวล (confused-aware) — slot:'left'=P1(2คน) · 'right'=ผู้เล่นเดี่ยว หรือ P2(2คน)
+// สลับเลนจากปุ่มวิชวล (confused-aware) — slot:'left'=เดี่ยว/P1 · 'right'=P2(2คน)
 function nudgeLane(slot, dir) {
   if (!started || isGameOver || gamePaused) return;
   let confused, kind;
-  if (slot === 'left') { kind = 'p1'; confused = p1ConfusedTime > 0; }
-  else if (mode === 'local_2p') { kind = 'p2'; confused = p2ConfusedTime > 0; }
+  if (slot === 'left') {
+    if (mode === 'local_2p') { kind = 'p1'; confused = p1ConfusedTime > 0; }
+    else { kind = 'single'; confused = p1ConfusedTime > 0; }
+  } else if (mode === 'local_2p') { kind = 'p2'; confused = p2ConfusedTime > 0; }
   else { kind = 'single'; confused = p1ConfusedTime > 0; }
   const d = confused ? (dir === 'up' ? 1 : -1) : (dir === 'up' ? -1 : 1);
   if (kind === 'p1') targetP1Lane = Math.max(0, Math.min(3, targetP1Lane + d));
