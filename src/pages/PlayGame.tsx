@@ -63,8 +63,13 @@ const ICON = (name: string | null | undefined) =>
 // ─── Page state ──────────────────────────────────────────────────────────────
 type Phase = 'lookup' | 'confirm' | 'pre-game' | 'playing';
 
-/** ตรวจ landscape จาก top window — อย่าใช้ screen.width/height (ไม่สลับบน iOS) */
+/** ตรวจ landscape จาก top window — innerWidth/height ก่อน (สลับจริงเมื่อหมุน) */
 function getParentLandscape(): boolean {
+  const vv = window.visualViewport;
+  const w = vv?.width ?? window.innerWidth;
+  const h = vv?.height ?? window.innerHeight;
+  if (w > h) return true;
+  if (h > w * 1.05) return false;
   try {
     const t = screen.orientation?.type ?? '';
     if (t.startsWith('landscape')) return true;
@@ -72,7 +77,7 @@ function getParentLandscape(): boolean {
   } catch { /* */ }
   if (window.matchMedia?.('(orientation: landscape)')?.matches) return true;
   if (window.matchMedia?.('(orientation: portrait)')?.matches) return false;
-  return window.innerWidth > window.innerHeight;
+  return w > h;
 }
 
 // ============================================================================
@@ -475,6 +480,15 @@ const PlayGame = () => {
         sessionSubmittedRef.current = false;
         inlineResultRef.current = false;
         setGameSessionStarted(true);
+        if (resolvedSlug === 'math-runner' && window.matchMedia?.('(pointer: coarse)')?.matches) {
+          requestAnimationFrame(() => {
+            gameContainerRef.current?.requestFullscreen?.().catch(() => {});
+            try {
+              void screen.orientation?.lock?.('landscape');
+            } catch { /* iOS/PWA อาจไม่รองรับ */ }
+            postParentViewport();
+          });
+        }
         return;
       }
       if (data?.type === 'resultShown') { inlineResultRef.current = true; return; }
@@ -582,7 +596,7 @@ const PlayGame = () => {
     };
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
-  }, [phase, student, codeInput, resolvedSlug, toast, statsQuery, unlockedQuery, leaderboardQuery, queryClient]);
+  }, [phase, student, codeInput, resolvedSlug, toast, statsQuery, unlockedQuery, leaderboardQuery, queryClient, postParentViewport]);
 
   // ─── โหมด 2 คน (Versus) — บันทึก 2 session + ส่ง head-to-head/แชมป์ห้องกลับเข้าเกม ──
   useEffect(() => {
@@ -805,6 +819,9 @@ const PlayGame = () => {
           <p className="mt-2 text-sm text-background/70">Math Runner เล่นได้เฉพาะแนวนอนเท่านั้น</p>
           <p className="mt-6 rounded-xl bg-background/10 px-4 py-2 text-sm font-semibold text-background/80">
             หมุนมือถือแล้วเกมจะเริ่มได้ทันที
+          </p>
+          <p className="mt-3 max-w-xs text-xs text-background/60">
+            หมุนแล้วไม่เปลี่ยน? เปิดจาก Safari/Chrome โดยตรง (ไม่ใช่ไอคอนหน้าจอ) หรือกดปุ่มเต็มจอ ↗
           </p>
         </div>
       )}
