@@ -269,11 +269,12 @@ const PlayGame = () => {
   const postParentViewport = useCallback(() => {
     if (!iframeRef.current?.contentWindow || resolvedSlug !== 'math-runner') return;
     const landscape = getParentLandscape();
+    const vv = window.visualViewport;
     iframeRef.current.contentWindow.postMessage(
       {
         type: 'parentViewport',
-        width: window.innerWidth,
-        height: window.innerHeight,
+        width: vv?.width ?? window.innerWidth,
+        height: vv?.height ?? window.innerHeight,
         screenW: window.screen.width,
         screenH: window.screen.height,
         landscape,
@@ -285,7 +286,10 @@ const PlayGame = () => {
 
   useEffect(() => {
     const onRequest = (e: MessageEvent) => {
-      if (e.data?.type === 'requestParentViewport') postParentViewport();
+      if (e.data?.type !== 'requestParentViewport') return;
+      const cw = iframeRef.current?.contentWindow;
+      if (cw && e.source !== cw) return;
+      postParentViewport();
     };
     window.addEventListener('message', onRequest);
     return () => window.removeEventListener('message', onRequest);
@@ -303,29 +307,31 @@ const PlayGame = () => {
 
   useEffect(() => {
     if (phase !== 'playing' || resolvedSlug !== 'math-runner') return;
-    postParentViewport();
-    const onChange = () => postParentViewport();
-    window.addEventListener('resize', onChange);
-    window.addEventListener('orientationchange', onChange);
-    document.addEventListener('fullscreenchange', onChange);
+    const push = () => {
+      postParentViewport();
+      setTimeout(postParentViewport, 120);
+      setTimeout(postParentViewport, 400);
+    };
+    push();
+    window.addEventListener('resize', push);
+    window.addEventListener('orientationchange', push);
+    document.addEventListener('fullscreenchange', push);
     let mq: MediaQueryList | null = null;
     try {
       mq = window.matchMedia('(orientation: landscape)');
-      (mq.addEventListener ? mq.addEventListener('change', onChange) : mq.addListener(onChange));
+      (mq.addEventListener ? mq.addEventListener('change', push) : mq.addListener(push));
     } catch { /* */ }
     try {
-      screen.orientation?.addEventListener?.('change', onChange);
+      screen.orientation?.addEventListener?.('change', push);
     } catch { /* */ }
-    const iv = window.setInterval(onChange, 400);
-    const stopIv = window.setTimeout(() => window.clearInterval(iv), 12000);
+    const iv = window.setInterval(postParentViewport, 800);
     return () => {
-      window.removeEventListener('resize', onChange);
-      window.removeEventListener('orientationchange', onChange);
-      document.removeEventListener('fullscreenchange', onChange);
-      if (mq) (mq.removeEventListener ? mq.removeEventListener('change', onChange) : mq.removeListener(onChange));
-      try { screen.orientation?.removeEventListener?.('change', onChange); } catch { /* */ }
+      window.removeEventListener('resize', push);
+      window.removeEventListener('orientationchange', push);
+      document.removeEventListener('fullscreenchange', push);
+      if (mq) (mq.removeEventListener ? mq.removeEventListener('change', push) : mq.removeListener(push));
+      try { screen.orientation?.removeEventListener?.('change', push); } catch { /* */ }
       window.clearInterval(iv);
-      window.clearTimeout(stopIv);
     };
   }, [phase, resolvedSlug, postParentViewport]);
 

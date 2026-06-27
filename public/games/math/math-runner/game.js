@@ -74,18 +74,26 @@ function syncDpad() {
 }
 let landscapeLocked = false;
 let parentViewport = null; // จาก PlayGame postMessage (embed)
-const isEmbed = window.self !== window.top || /[?&]embed=1/.test(location.search);
+const inIframe = window.self !== window.top;
+const isEmbed = inIframe || /[?&]embed=1/.test(location.search);
 
 function isDevicePortrait() {
-  // embed: เชื่อ parent (top window) ก่อน — iframe innerWidth/screen.width ไม่หมุนตามเครื่อง
+  // embed ใน iframe: เชื่อ parent (top window) ก่อน
   if (parentViewport && typeof parentViewport.landscape === 'boolean') {
     return !parentViewport.landscape;
   }
-  if (isEmbed) {
+  if (inIframe) {
+    try {
+      const t = screen.orientation && screen.orientation.type;
+      if (typeof t === 'string') {
+        if (t.indexOf('landscape') === 0) return false;
+        if (t.indexOf('portrait') === 0) return true;
+      }
+    } catch (e) { /* */ }
     if (typeof window.orientation === 'number') {
       return Math.abs(window.orientation) !== 90;
     }
-    return true; // รอ parentViewport — อย่าใช้ screen.height>width (ค้าง portrait ตลอดบนมือถือ)
+    return true; // รอ parentViewport — อย่าใช้ screen.height>width
   }
   try {
     const t = screen.orientation && screen.orientation.type;
@@ -109,9 +117,7 @@ function isDevicePortrait() {
 }
 
 function getViewportSize() {
-  if (parentViewport && parentViewport.width > 0 && parentViewport.height > 0) {
-    return { w: parentViewport.width, h: parentViewport.height };
-  }
+  // canvas/touch ต้องใช้ขนาด iframe จริง — อย่าใช้ parent innerWidth (ไม่ตรง display)
   const vv = window.visualViewport;
   return {
     w: vv ? vv.width : window.innerWidth,
@@ -178,7 +184,7 @@ window.addEventListener('message', (e) => {
     onViewportChange();
   }
 });
-if (isEmbed) {
+if (inIframe) {
   function pingParentForViewport() {
     try { window.parent.postMessage({ type: 'requestParentViewport' }, '*'); } catch (err) { /* */ }
   }
@@ -186,9 +192,13 @@ if (isEmbed) {
   let pingCount = 0;
   const pingIv = setInterval(() => {
     pingParentForViewport();
-    if (++pingCount >= 24) clearInterval(pingIv);
+    if (++pingCount >= 40) clearInterval(pingIv);
   }, 250);
-  window.addEventListener('orientationchange', pingParentForViewport);
+  window.addEventListener('orientationchange', () => {
+    pingParentForViewport();
+    setTimeout(pingParentForViewport, 150);
+    setTimeout(pingParentForViewport, 450);
+  });
 }
 document.body.addEventListener('touchstart', () => lockLandscape(), { once: true, passive: true });
 updateRotateOverlay();
