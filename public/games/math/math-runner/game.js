@@ -136,6 +136,14 @@ async function lockLandscape() {
 }
 
 function updateRotateOverlay() {
+  if (inIframe) {
+    // PlayGame แสดง overlay ทั้งหน้าแล้ว — อย่าซ้ำใน iframe
+    document.body.classList.remove('show-rotate');
+    const portraitBlock = document.body.classList.contains('is-touch')
+      && parentViewport && parentViewport.landscape === false;
+    gamePaused = portraitBlock && started && !isGameOver;
+    return;
+  }
   const portraitBlock = document.body.classList.contains('is-touch') && isDevicePortrait();
   document.body.classList.toggle('show-rotate', portraitBlock);
   gamePaused = portraitBlock && started && !isGameOver;
@@ -152,6 +160,18 @@ function checkOrientation() {
 }
 
 function requireLandscape() {
+  if (!document.body.classList.contains('is-touch')) {
+    lockLandscape();
+    return true;
+  }
+  if (inIframe && parentViewport && typeof parentViewport.landscape === 'boolean') {
+    if (!parentViewport.landscape) {
+      checkOrientation();
+      return false;
+    }
+    lockLandscape();
+    return true;
+  }
   if (document.body.classList.contains('is-touch') && isDevicePortrait()) {
     checkOrientation();
     return false;

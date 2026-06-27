@@ -14,6 +14,7 @@ import {
   Maximize,
   Minimize,
   X,
+  Smartphone,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -93,6 +94,10 @@ const PlayGame = () => {
   const [showExitMenu, setShowExitMenu] = useState(false);
   const [showReward, setShowReward] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [deviceLandscape, setDeviceLandscape] = useState(() =>
+    typeof window !== 'undefined' ? getParentLandscape() : false,
+  );
 
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const gameContainerRef = useRef<HTMLDivElement | null>(null);
@@ -115,6 +120,10 @@ const PlayGame = () => {
     return () => document.removeEventListener('fullscreenchange', onFsChange);
   }, []);
 
+  useEffect(() => {
+    setIsTouchDevice(window.matchMedia('(pointer: coarse)').matches);
+  }, []);
+
   // game metadata
   const gameQuery = useQuery({
     queryKey: ['tracked-game', gameSlug],
@@ -127,6 +136,9 @@ const PlayGame = () => {
   });
 
   const resolvedSlug = gameQuery.data?.game_slug || gameSlug;
+
+  const isMathRunnerMobilePlay =
+    phase === 'playing' && resolvedSlug === 'math-runner' && isTouchDevice;
 
   // per-student stats (loaded once we have a student)
   const statsQuery = useQuery({
@@ -269,6 +281,7 @@ const PlayGame = () => {
   const postParentViewport = useCallback(() => {
     if (!iframeRef.current?.contentWindow || resolvedSlug !== 'math-runner') return;
     const landscape = getParentLandscape();
+    setDeviceLandscape(landscape);
     const vv = window.visualViewport;
     iframeRef.current.contentWindow.postMessage(
       {
@@ -278,6 +291,7 @@ const PlayGame = () => {
         screenW: window.screen.width,
         screenH: window.screen.height,
         landscape,
+        parentHandlesOrientation: true,
         orientation: screen.orientation?.type ?? null,
       },
       '*',
@@ -334,6 +348,30 @@ const PlayGame = () => {
       window.clearInterval(iv);
     };
   }, [phase, resolvedSlug, postParentViewport]);
+
+  // math-runner มือถือ: ล็อก scroll ทั้งหน้า + sync landscape ตั้งแต่ pre-playing
+  useEffect(() => {
+    if (!isMathRunnerMobilePlay) return;
+    const sync = () => setDeviceLandscape(getParentLandscape());
+    sync();
+    window.addEventListener('resize', sync);
+    window.addEventListener('orientationchange', sync);
+    let mq: MediaQueryList | null = null;
+    try {
+      mq = window.matchMedia('(orientation: landscape)');
+      (mq.addEventListener ? mq.addEventListener('change', sync) : mq.addListener(sync));
+    } catch { /* */ }
+    try { screen.orientation?.addEventListener?.('change', sync); } catch { /* */ }
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('resize', sync);
+      window.removeEventListener('orientationchange', sync);
+      if (mq) (mq.removeEventListener ? mq.removeEventListener('change', sync) : mq.removeListener(sync));
+      try { screen.orientation?.removeEventListener?.('change', sync); } catch { /* */ }
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [isMathRunnerMobilePlay]);
 
   // ─── send init to iframe once loaded ───────────────────────────────────────
   // ส่งทั้ง studentCode (เดิม — เกมเก่าใช้ได้) + student/stats/leaderboard (ใหม่ — KAMPAI SDK
@@ -738,7 +776,33 @@ const PlayGame = () => {
   }
 
   return (
-    <div className={cn('bg-background', phase === 'playing' ? 'flex h-[100dvh] flex-col overflow-hidden' : 'min-h-screen')}>
+    <div
+      className={cn(
+        'bg-background',
+        isMathRunnerMobilePlay
+          ? 'fixed inset-0 z-50 flex flex-col overflow-hidden'
+          : phase === 'playing'
+            ? 'flex h-[100dvh] flex-col overflow-hidden'
+            : 'min-h-screen',
+      )}
+    >
+      {/* math-runner มือถือ แนวตั้ง: overlay ทั้งหน้า (รวม toolbar) — ไม่เช็คแค่ใน iframe */}
+      {isMathRunnerMobilePlay && !deviceLandscape && (
+        <div
+          className="fixed inset-0 z-[10001] flex flex-col items-center justify-center bg-foreground px-6 text-center text-background"
+          aria-live="polite"
+        >
+          <Smartphone className="mb-4 h-16 w-16 animate-pulse text-primary" aria-hidden />
+          <p className="text-xl font-bold">
+            กรุณาหมุนเครื่องเป็น <span className="text-primary">แนวนอน</span>
+          </p>
+          <p className="mt-2 text-sm text-background/70">Math Runner เล่นได้เฉพาะแนวนอนเท่านั้น</p>
+          <p className="mt-6 rounded-xl bg-background/10 px-4 py-2 text-sm font-semibold text-background/80">
+            หมุนมือถือแล้วเกมจะเริ่มได้ทันที
+          </p>
+        </div>
+      )}
+
       {/* header — math-runner ซ่อนตอนเล่นเพื่อให้ iframe ได้พื้นที่แนวนอนเต็มที่ */}
       {!(phase === 'playing' && resolvedSlug === 'math-runner') && (
       <header className="border-b border-border bg-card">
@@ -810,8 +874,36 @@ const PlayGame = () => {
         )}
 
         {phase === 'playing' && iframeUrl && (
-          <div ref={gameContainerRef} className="relative h-full bg-background flex flex-col">
-            {/* Toolbar แถบบาง — กินพื้นที่ของตัวเอง ไม่ overlay บน iframe */}
+          <div
+            ref={gameContainerRef}
+            className={cn(
+              'relative flex flex-col bg-background',
+              isMathRunnerMobilePlay ? 'h-full min-h-0 flex-1' : 'h-full',
+            )}
+          >
+            {/* Toolbar — math-runner มือถือแนวนอน: ปุ่มลอย ไม่กินแนวตั้ง */}
+            {isMathRunnerMobilePlay && deviceLandscape ? (
+              <div className="pointer-events-none absolute inset-x-0 top-0 z-20 flex justify-end gap-2 p-2">
+                <button
+                  type="button"
+                  onClick={toggleFullscreen}
+                  className="pointer-events-auto rounded-full bg-foreground/70 p-2 text-background backdrop-blur-sm transition-colors hover:bg-foreground/85"
+                  title={isFullscreen ? 'ออกจากเต็มจอ' : 'เต็มจอ'}
+                  aria-label={isFullscreen ? 'ออกจากเต็มจอ' : 'เต็มจอ'}
+                >
+                  {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowExitMenu(true)}
+                  className="pointer-events-auto rounded-full bg-foreground/70 p-2 text-background backdrop-blur-sm transition-colors hover:bg-foreground/85"
+                  title="เมนู / ออกจากเกม"
+                  aria-label="เมนู / ออกจากเกม"
+                >
+                  <Menu className="h-4 w-4" />
+                </button>
+              </div>
+            ) : !isMathRunnerMobilePlay ? (
             <div className="shrink-0 flex items-center justify-end gap-2 px-2 py-1.5 bg-black/60 backdrop-blur-sm border-b border-white/10">
               <button
                 onClick={toggleFullscreen}
@@ -830,8 +922,9 @@ const PlayGame = () => {
                 <Menu className="h-4 w-4" />
               </button>
             </div>
-            {/* iframe กินพื้นที่ที่เหลือ */}
-            <div className="flex-1 min-h-0 relative">
+            ) : null}
+            {/* iframe กินพื้นที่ที่เหลือ — math-runner แนวนอน = เต็มจอ */}
+            <div className="relative min-h-0 flex-1">
               <PlayingPanel iframeRef={iframeRef} url={iframeUrl} onLoad={handleIframeLoad} />
             </div>
 
