@@ -272,8 +272,17 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.119.0 (เกมใหม่ — ตะลุยด่านสระพาสนุก ป.1-6)',
+        version: 'v1.120.0 (Math Tank Raid — รถถังจอมคณิต ป.3-4)',
         date: 'ล่าสุด',
+        badge: 'bg-blue-600',
+        items: [
+            'เกม **Math Tank Raid** (`math-tank-raid`) — top-down tank shooter คณิต ป.3-4: ยิง/ชนลูกโป่งคำตอบ คูณ·หาร·เศษส่วน ไม่มี popup ควิซ · แทน Tank Commander',
+            'ไฟล์: `public/games/math/math-tank-raid.html` + migration 253 · ปิด `tank-commander` เดิม',
+        ],
+    },
+    {
+        version: 'v1.119.0 (เกมใหม่ — ตะลุยด่านสระพาสนุก ป.1-6)',
+        date: '',
         badge: 'bg-pink-600',
         items: [
             'เกม **ตะลุยด่านสระพาสนุก** (`thai-sara-run`) — HTML5 Canvas platformer สอนสระไทย ป.1-6: กระต่ายกระโดด 2 ชั้น · ลูกโป่งคำตอบเจลลี่ · คอมโบ · KampaiVersus 90s',
