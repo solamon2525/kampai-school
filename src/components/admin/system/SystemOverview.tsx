@@ -272,8 +272,17 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.118.0 (คลังเกม — ปักหมุดเรียงลำดับจากหน้าฟронต์)',
+        version: 'v1.119.0 (เกมใหม่ — ตะลุยด่านสระพาสนุก ป.1-6)',
         date: 'ล่าสุด',
+        badge: 'bg-pink-600',
+        items: [
+            'เกม **ตะลุยด่านสระพาสนุก** (`thai-sara-run`) — HTML5 Canvas platformer สอนสระไทย ป.1-6: กระต่ายกระโดด 2 ชั้น · ลูกโป่งคำตอบเจลลี่ · คอมโบ · KampaiVersus 90s',
+            'ไฟล์: `public/games/thai/thai-sara-run.html` + ปก `thai-sara-run-cover.png` · Migration 251 seed + `game_docs`',
+        ],
+    },
+    {
+        version: 'v1.118.0 (คลังเกม — ปักหมุดเรียงลำดับจากหน้าฟронต์)',
+        date: '',
         badge: 'bg-teal-600',
         items: [
             'หมวด **คลังเกมการศึกษา** (`/h/:identifier`): แอดมินปักหมุดเกม 📌 บนการ์ดโดยตรง — มีผล**ทุกเครื่อง** (คนละส่วนกับ ⭐ เกมโปรด localStorage และ 🎮 หน้าแรก)',
