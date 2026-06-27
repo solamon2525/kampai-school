@@ -98,6 +98,7 @@ const PlayGame = () => {
   const [deviceLandscape, setDeviceLandscape] = useState(() =>
     typeof window !== 'undefined' ? getParentLandscape() : false,
   );
+  const [gameSessionStarted, setGameSessionStarted] = useState(false);
 
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const gameContainerRef = useRef<HTMLDivElement | null>(null);
@@ -275,6 +276,7 @@ const PlayGame = () => {
     setResult(null);
     setShowReward(false);
     sessionSubmittedRef.current = false;
+    setGameSessionStarted(false);
     setPhase('playing');
   }, [levelInfo, questQuery.data]);
 
@@ -377,6 +379,7 @@ const PlayGame = () => {
   // ส่งทั้ง studentCode (เดิม — เกมเก่าใช้ได้) + student/stats/leaderboard (ใหม่ — KAMPAI SDK
   // เอาไปโชว์ชื่อ/คะแนน/อันดับในหน้าเกม โดยไม่ต้องยิง Supabase เอง)
   const handleIframeLoad = useCallback(() => {
+    setGameSessionStarted(false);
     if (resolvedSlug === 'math-runner') {
       requestAnimationFrame(() => postParentViewport());
       setTimeout(postParentViewport, 100);
@@ -471,11 +474,13 @@ const PlayGame = () => {
         setShowReward(false);
         sessionSubmittedRef.current = false;
         inlineResultRef.current = false;
+        setGameSessionStarted(true);
         return;
       }
       if (data?.type === 'resultShown') { inlineResultRef.current = true; return; }
       if (data?.type !== 'gameEnd') return;
       if (sessionSubmittedRef.current) return;
+      setGameSessionStarted(false);
       sessionSubmittedRef.current = true;
 
       if (!student || typeof data.score !== 'number') {
@@ -726,6 +731,7 @@ const PlayGame = () => {
     setShowReward(false);
     setPrevLevel(levelInfo);
     sessionSubmittedRef.current = false;
+    setGameSessionStarted(false);
     setPhase('pre-game');
   }, [levelInfo]);
 
@@ -786,8 +792,8 @@ const PlayGame = () => {
             : 'min-h-screen',
       )}
     >
-      {/* math-runner มือถือ แนวตั้ง: overlay ทั้งหน้า (รวม toolbar) — ไม่เช็คแค่ใน iframe */}
-      {isMathRunnerMobilePlay && !deviceLandscape && (
+      {/* math-runner มือถือ แนวตั้ง: overlay เฉพาะตอนเล่นจริง (จอเมนูเกมกดได้) */}
+      {isMathRunnerMobilePlay && !deviceLandscape && gameSessionStarted && (
         <div
           className="fixed inset-0 z-[10001] flex flex-col items-center justify-center bg-foreground px-6 text-center text-background"
           aria-live="polite"

@@ -93,7 +93,11 @@ function isDevicePortrait() {
     if (typeof window.orientation === 'number') {
       return Math.abs(window.orientation) !== 90;
     }
-    return true; // รอ parentViewport — อย่าใช้ screen.height>width
+    if (window.matchMedia) {
+      if (window.matchMedia('(orientation: landscape)').matches) return false;
+      if (window.matchMedia('(orientation: portrait)').matches) return true;
+    }
+    return true; // รอ parentViewport
   }
   try {
     const t = screen.orientation && screen.orientation.type;
@@ -164,15 +168,23 @@ function requireLandscape() {
     lockLandscape();
     return true;
   }
-  if (inIframe && parentViewport && typeof parentViewport.landscape === 'boolean') {
-    if (!parentViewport.landscape) {
+  if (inIframe) {
+    if (parentViewport && parentViewport.landscape === false) {
       checkOrientation();
       return false;
     }
-    lockLandscape();
-    return true;
+    if (parentViewport && parentViewport.landscape === true) {
+      lockLandscape();
+      return true;
+    }
+    if (!isDevicePortrait()) {
+      lockLandscape();
+      return true;
+    }
+    checkOrientation();
+    return false;
   }
-  if (document.body.classList.contains('is-touch') && isDevicePortrait()) {
+  if (isDevicePortrait()) {
     checkOrientation();
     return false;
   }
