@@ -1,7 +1,7 @@
 /* config.js — พารามิเตอร์เกม (จูนที่นี่ที่เดียว) · window.GAME_CONFIG
    ดูคำอธิบาย knob + ช่วงที่แนะนำใน AR-GAME.md (ตารางจูนประสิทธิภาพ) */
 window.GAME_CONFIG = {
-    SLUG: 'placeholder-slug',       // ⚠️ TODO: ใส่ slug จริง (ตรงกับ game_slug ใน migration)
+    SLUG: '_template-ar',       // ⚠️ TODO: ใส่ slug จริง (ตรงกับ game_slug ใน migration)
 
     // ── AR ──
     DETECTOR: 'framediff',          // 'framediff' (ไม่พึ่ง lib) | 'pose' (MediaPipe jsdelivr)

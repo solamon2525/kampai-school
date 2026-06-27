@@ -438,6 +438,7 @@
 </div>
 
 <script>
+    const GAME_SLUG = 'math-jumper';
     // --- Audio System ---
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     let audioCtx;
@@ -1158,19 +1159,15 @@
         document.getElementById('final-score').innerText = score;
         document.getElementById('game-over-screen').style.display = 'flex';
         updateLeaderboardUI();
-        // ส่งคะแนนไปยัง PlayGame.tsx wrapper เพื่อบันทึกลง Supabase
-        window.parent.postMessage({
-            type: 'gameEnd',
-            gameSlug: 'math-jumper',
-            studentCode: STUDENT_CODE,
-            score: score,
-            mode: currentMathMode + (isEquationMode ? '_eq' : ''),
-            metadata: {
+        // ส่งคะแนนไปยัง PlayGame.tsx wrapper หรือ SDK
+        if (window.KAMPAI) {
+            window.KAMPAI.submitScore(score, {
+                mode: currentMathMode + (isEquationMode ? '_eq' : ''),
                 duration: Math.max(1, Math.floor((Date.now() - SESSION_START_TS) / 1000)),
                 height: Math.floor(heightScore),
                 difficulty: selectedDifficulty,
-            }
-        }, '*');
+            });
+        }
     }
 
     function createParticles(x, y, color) {

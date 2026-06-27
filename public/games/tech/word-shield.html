@@ -483,24 +483,33 @@
     }
 
     function sendGameEnd(finalScore, mode, extra) {
-        if (!IS_EMBED || !STUDENT_CODE) return;
-        try {
-            window.parent.postMessage({
-                type: 'gameEnd',
-                gameSlug: GAME_SLUG,
-                studentCode: STUDENT_CODE,
-                score: Math.round(finalScore),
+        if (window.KAMPAI) {
+            window.KAMPAI.submitScore(Math.round(finalScore), {
                 mode: mode,
-                metadata: {
-                    duration: Math.max(1, Math.floor((Date.now() - SESSION_START_TS) / 1000)),
-                    ...extra,
-                },
-            }, '*');
-        } catch (_) {}
+                duration: Math.max(1, Math.floor((Date.now() - SESSION_START_TS) / 1000)),
+                ...extra
+            });
+        } else if (IS_EMBED && STUDENT_CODE) {
+            try {
+                window.parent.postMessage({
+                    type: 'gameEnd',
+                    gameSlug: GAME_SLUG,
+                    studentCode: STUDENT_CODE,
+                    score: Math.round(finalScore),
+                    mode: mode,
+                    metadata: {
+                        duration: Math.max(1, Math.floor((Date.now() - SESSION_START_TS) / 1000)),
+                        ...extra,
+                    },
+                }, '*');
+            } catch (_) {}
+        }
     }
 
     function navigateBack() {
-        if (IS_EMBED) {
+        if (window.KAMPAI) {
+            window.KAMPAI.goHome();
+        } else if (IS_EMBED) {
             try { window.parent.postMessage({ type: 'navigate', to: '/h/nattapong' }, '*'); } catch (_) {}
         }
     }

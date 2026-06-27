@@ -129,20 +129,6 @@ const V_H = 720;
 let V_W = 1280;
 let renderScale = 1;
 let gameRng = Math.random;
-let collectedLetters = [];
-
-function updateLetterHud() {
-  const letters = ['ส', 'ร', 'ะ'];
-  let html = 'สะสมคำ: ';
-  letters.forEach(l => {
-    if (collectedLetters.includes(l)) {
-      html += `<span style="color:#e11d48; font-weight:900; text-shadow:0 0 4px rgba(225,29,72,0.4); margin:0 3px">${l}</span>`;
-    } else {
-      html += `<span style="color:#94a3b8; margin:0 3px">◯</span>`;
-    }
-  });
-  document.getElementById('letterHud').innerHTML = html;
-}
 
 function getEmojiClue(word) {
   const clues = {
@@ -160,7 +146,7 @@ let W = 1280, H = 720, dpr = 1;
 let skyGrad = null, gameRunning = false, versusMode = false, versusTimer = null;
 let shakeT = 0, petals = [], clouds = [];
 let localCoopMode = false;
-let worlds = [];
+let wld = null;
 
 const keys1 = { left: false, right: false, jump: false };
 const keys2 = { left: false, right: false, jump: false };
@@ -181,25 +167,11 @@ const AudioSynth = {
       const g = ac.createGain();
       o.connect(g); g.connect(ac.destination);
       const t = ac.currentTime;
-      if (type === 'jump') {
-        o.type = 'sine'; o.frequency.setValueAtTime(280, t); o.frequency.exponentialRampToValueAtTime(880, t + 0.12);
-        g.gain.setValueAtTime(0.12, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
-        o.start(t); o.stop(t + 0.16);
-      } else if (type === 'star') {
-        o.type = 'triangle'; o.frequency.setValueAtTime(660, t); o.frequency.setValueAtTime(990, t + 0.08);
-        g.gain.setValueAtTime(0.1, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
-        o.start(t); o.stop(t + 0.22);
-      } else if (type === 'correct') {
-        const base = 520 + Math.min(comboN, 8) * 40;
-        o.type = 'sine'; o.frequency.setValueAtTime(base, t); o.frequency.setValueAtTime(base * 1.25, t + 0.06); o.frequency.setValueAtTime(base * 1.5, t + 0.12);
-        g.gain.setValueAtTime(0.14, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
-        o.start(t); o.stop(t + 0.3);
-      } else if (type === 'wrong') {
-        o.type = 'sawtooth'; o.frequency.setValueAtTime(220, t); o.frequency.exponentialRampToValueAtTime(80, t + 0.25);
-        g.gain.setValueAtTime(0.1, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
-        o.start(t); o.stop(t + 0.32);
-      }
-    } catch (e) { /* noop */ }
+      if (type === 'jump') { o.type = 'sine'; o.frequency.setValueAtTime(280, t); o.frequency.exponentialRampToValueAtTime(880, t + 0.12); g.gain.setValueAtTime(0.12, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.15); o.start(t); o.stop(t + 0.16); } 
+      else if (type === 'correct') { const base = 520 + Math.min(comboN, 8) * 40; o.type = 'sine'; o.frequency.setValueAtTime(base, t); o.frequency.setValueAtTime(base * 1.25, t + 0.06); o.frequency.setValueAtTime(base * 1.5, t + 0.12); g.gain.setValueAtTime(0.14, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.28); o.start(t); o.stop(t + 0.3); } 
+      else if (type === 'wrong') { o.type = 'sawtooth'; o.frequency.setValueAtTime(220, t); o.frequency.exponentialRampToValueAtTime(80, t + 0.25); g.gain.setValueAtTime(0.1, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.3); o.start(t); o.stop(t + 0.32); }
+      else if (type === 'star') { o.type = 'triangle'; o.frequency.setValueAtTime(660, t); o.frequency.setValueAtTime(990, t + 0.08); g.gain.setValueAtTime(0.1, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.2); o.start(t); o.stop(t + 0.22); }
+    } catch (e) {}
   },
 };
 
@@ -209,8 +181,7 @@ function resize() {
   W = rect.width * dpr;
   H = rect.height * dpr;
   canvas.width = W; canvas.height = H;
-  const activeH = localCoopMode ? (H / 2) : H;
-  renderScale = activeH / V_H;
+  renderScale = H / V_H;
   V_W = W / renderScale;
   skyGrad = ctx.createLinearGradient(0, 0, 0, V_H);
   skyGrad.addColorStop(0, '#a1c4fd');
@@ -221,36 +192,15 @@ function rand(a, b) { return a + gameRng() * (b - a); }
 function shuffle(arr, rng) {
   const r = rng || gameRng;
   const a = arr.slice();
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = (r() * (i + 1)) | 0;
-    [a[i], a[j]] = [a[j], a[i]];
-  }
+  for (let i = a.length - 1; i > 0; i--) { const j = (r() * (i + 1)) | 0; [a[i], a[j]] = [a[j], a[i]]; }
   return a;
 }
 
-function initClouds() {
-  clouds = [];
-  for (let i = 0; i < 6; i++) {
-    clouds.push({ x: rand(0, 2000), y: rand(40, 180), s: rand(0.7, 1.3), spd: rand(0.15, 0.35) });
-  }
-}
-function initPetals() {
-  petals = [];
-  for (let i = 0; i < 28; i++) {
-    petals.push({ x: rand(0, 3000), y: rand(-V_H, V_H), r: rand(3, 7), rot: rand(0, 6.28), spd: rand(0.4, 1.2), drift: rand(-0.3, 0.3) });
-  }
-}
+function initClouds() { clouds = []; for (let i = 0; i < 6; i++) clouds.push({ x: rand(0, 2000), y: rand(40, 180), s: rand(0.7, 1.3), spd: rand(0.15, 0.35) }); }
+function initPetals() { petals = []; for (let i = 0; i < 28; i++) petals.push({ x: rand(0, 3000), y: rand(-V_H, V_H), r: rand(3, 7), rot: rand(0, 6.28), spd: rand(0.4, 1.2), drift: rand(-0.3, 0.3) }); }
+function mulberry32(a) { return function() { let t = a += 0x6D2B79F5; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; } }
 
-function mulberry32(a) {
-  return function() {
-    let t = a += 0x6D2B79F5;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  }
-}
-
-function makeWorldPlatform(wld, x, y, w, withQuestion, rng) {
+function makeWorldPlatform(x, y, w, withQuestion, rng) {
   const r = rng || gameRng;
   const isMoving = !withQuestion && wld.platIndex > 0 && r() < 0.35;
   const p = {
@@ -262,22 +212,10 @@ function makeWorldPlatform(wld, x, y, w, withQuestion, rng) {
   for (let i = 0; i < nF; i++) p.flowers.push({ ox: 8 + r() * (w - 16), col: ['#f9a8d4','#fde68a','#c4b5fd'][i % 3] });
   if (r() < 0.35) p.shrooms.push({ ox: 12 + r() * (w - 32) });
   wld.platforms.push(p);
-  
   if (r() < 0.45) {
     if (r() < 0.35) {
-      const nextIdx = wld.collectedLetters.length;
-      if (nextIdx < 3) {
-        const letter = ['ส', 'ร', 'ะ'][nextIdx];
-        wld.stars.push({
-          x: x + 20 + r() * (w - 40),
-          y: y - (70 + r() * 50),
-          taken: false,
-          bob: r() * 6.28,
-          letter: letter
-        });
-      } else {
-        wld.stars.push({ x: x + 20 + r() * (w - 40), y: y - 28, taken: false, bob: r() * 6.28 });
-      }
+      const letter = ['ส', 'ร', 'ะ'][Math.floor(r() * 3)];
+      wld.stars.push({ x: x + 20 + r() * (w - 40), y: y - (70 + r() * 50), taken: false, bob: r() * 6.28, letter: letter });
     } else {
       wld.stars.push({ x: x + 20 + r() * (w - 40), y: y - 28, taken: false, bob: r() * 6.28 });
     }
@@ -285,78 +223,41 @@ function makeWorldPlatform(wld, x, y, w, withQuestion, rng) {
   return p;
 }
 
-function spawnWorldQuestion(wld, plat, rng) {
+function spawnWorldQuestion(plat, rng) {
   const r = rng || gameRng;
-  if (wld.qIdx >= wld.qOrder.length) wld.qOrder = shuffle(QUESTIONS.map((_, i) => i), r);
-  const qi = wld.qOrder[wld.qIdx++ % wld.qOrder.length];
-  wld.currentQ = { ...QUESTIONS[qi], platId: plat.id };
-  wld.answeredQ = false;
-  const opts = shuffle(wld.currentQ.opts.slice(), r);
-  wld.bubbles = [];
+  if (wld.qIdx1 >= wld.qOrder1.length) wld.qOrder1 = shuffle(QUESTIONS.map((_, i) => i), r);
+  const qi1 = wld.qOrder1[wld.qIdx1++ % wld.qOrder1.length];
+  wld.currentQ1 = { ...QUESTIONS[qi1], platId: plat.id };
+  wld.answeredQ1 = false;
+  const opts1 = shuffle(wld.currentQ1.opts.slice(), r);
   const midX = plat.x + plat.w / 2;
-  opts.forEach((opt, i) => {
-    const offset = (i - 1) * 150;
-    const baseY = plat.y - (100 + r() * 90);
-    wld.bubbles.push({
-      x: midX + offset,
-      y: baseY,
-      baseY: baseY,
-      r: 34,
-      text: opt,
-      correct: opt === wld.currentQ.answer,
-      wob: r() * 6.28,
-      phase: r() * 6.28,
-      floatSpeed: 0.02 + r() * 0.03,
-      vx: -(0.55 + r() * 0.45),
-      col: BUBBLE_COLORS[i % 3],
-    });
+  const yOffset1 = localCoopMode ? 110 : 130;
+  opts1.forEach((opt, i) => {
+    const offset = (i - 1) * 140;
+    wld.bubbles.push({ x: midX + offset, y: plat.y - yOffset1, baseY: plat.y - yOffset1, r: 34, text: opt, correct: opt === wld.currentQ1.answer, wob: r() * 6.28, phase: r() * 6.28, floatSpeed: 0.02 + r() * 0.03, vx: -(0.55 + r() * 0.45), col: BUBBLE_COLORS[i % 3], player: 1 });
   });
+  if (localCoopMode && wld.player2) {
+    if (wld.qIdx2 >= wld.qOrder2.length) wld.qOrder2 = shuffle(QUESTIONS.map((_, i) => i), r);
+    const qi2 = wld.qOrder2[wld.qIdx2++ % wld.qOrder2.length];
+    wld.currentQ2 = { ...QUESTIONS[qi2], platId: plat.id };
+    wld.answeredQ2 = false;
+    const opts2 = shuffle(wld.currentQ2.opts.slice(), r);
+    const yOffset2 = 190;
+    opts2.forEach((opt, i) => {
+      const offset = (i - 1) * 140;
+      wld.bubbles.push({ x: midX + offset, y: plat.y - yOffset2, baseY: plat.y - yOffset2, r: 34, text: opt, correct: opt === wld.currentQ2.answer, wob: r() * 6.28, phase: r() * 6.28, floatSpeed: 0.02 + r() * 0.03, vx: -(0.55 + r() * 0.45), col: BUBBLE_COLORS[i % 3], player: 2 });
+    });
+  }
   plat.question = false;
 }
 
-function createWorld(playerIdx, rng) {
-  const r = rng || gameRng;
-  const isP2 = playerIdx === 1;
+function initGameWorld(rng) {
+  const r = rng || Math.random;
   const groundY = V_H - 240;
-  
-  const wld = {
-    id: playerIdx,
-    score: 0,
-    lives: 3,
-    combo: 0,
-    correctCount: 0,
-    camX: 0,
-    currentQ: null,
-    answeredQ: true,
-    collectedLetters: [],
-    platforms: [],
-    bubbles: [],
-    stars: [],
-    particles: [],
-    floatTexts: [],
-    qIdx: 0,
-    platIndex: 0,
-    lastSafePlat: null,
-    qOrder: shuffle(QUESTIONS.map((_, i) => i), r),
-    gameEnded: false,
-    bannerText: '',
-    bannerT: 0,
-    rng: r,
-    
-    player: {
-      x: 100, y: groundY - 54, vx: 0, vy: 0, w: 44, h: 52,
-      onGround: false, jumps: 0, state: 'idle', hurtT: 0, earPhase: 0, animTime: 0, face: 1
-    },
-    
-    keys: isP2 ? keys2 : keys1,
-    skinColor: isP2 ? '#bae6fd' : '#fff',
-    cheekColor: isP2 ? '#93c5fd' : '#fbcfe8',
-  };
-  
-  wld.lastSafePlat = makeWorldPlatform(wld, 40, groundY, 420, false, r);
-  wld.player.x = wld.lastSafePlat.x + 60;
-  wld.player.y = wld.lastSafePlat.y - wld.player.h - 2;
-  
+  wld = { score1: 0, lives1: 3, combo1: 0, correctCount1: 0, score2: 0, lives2: 3, combo2: 0, correctCount2: 0, camX: 0, currentQ1: null, answeredQ1: true, currentQ2: null, answeredQ2: true, collectedLetters1: [], collectedLetters2: [], platforms: [], bubbles: [], stars: [], particles: [], floatTexts: [], qIdx1: 0, qIdx2: 0, platIndex: 0, lastSafePlat: null, qOrder1: shuffle(QUESTIONS.map((_, i) => i), r), qOrder2: shuffle(QUESTIONS.map((_, i) => i), r), bannerText1: '', bannerT1: 0, bannerText2: '', bannerT2: 0, rng: r, player1: { x: 100, y: groundY - 54, vx: 0, vy: 0, w: 44, h: 52, onGround: false, jumps: 0, state: 'idle', hurtT: 0, earPhase: 0, animTime: 0, face: 1, ridingPlat: null }, player2: localCoopMode ? { x: 150, y: groundY - 54, vx: 0, vy: 0, w: 44, h: 52, onGround: false, jumps: 0, state: 'idle', hurtT: 0, earPhase: 0, animTime: 0, face: 1, ridingPlat: null } : null };
+  wld.lastSafePlat = makeWorldPlatform(40, groundY, 420, false, r);
+  wld.player1.x = wld.lastSafePlat.x + 60; wld.player1.y = wld.lastSafePlat.y - wld.player1.h - 2;
+  if (wld.player2) { wld.player2.x = wld.lastSafePlat.x + 120; wld.player2.y = wld.lastSafePlat.y - wld.player2.h - 2; }
   let px = 40, py = groundY;
   for (let i = 0; i < 24; i++) {
     const gap = 60 + r() * 50;
@@ -365,82 +266,108 @@ function createWorld(playerIdx, rng) {
     const w = withQ ? (380 + r() * 60) : (160 + r() * 60);
     px += gap + (wld.platforms[wld.platforms.length - 1]?.w || 420);
     py = Math.max(V_H - 480, Math.min(V_H - 240, py + dy));
-    makeWorldPlatform(wld, px, py, w, withQ, r);
-  }
-  
-  return wld;
-}
-
-function addWorldFloatText(wld, x, y, text, col) {
-  wld.floatTexts.push({ x, y, text, col, life: 1 });
-}
-
-function spawnWorldDust(wld, x, y) {
-  const r = wld.rng;
-  for (let i = 0; i < 8; i++) {
-    wld.particles.push({ x, y, vx: -2 + r() * 4, vy: -3 + r() * 2, life: 1, col: '#fff' });
+    makeWorldPlatform(px, py, w, withQ, r);
   }
 }
 
-function respawnWorldPlayer(wld) {
+function addWorldFloatText(x, y, text, col) { wld.floatTexts.push({ x, y, text, col, life: 1 }); }
+function spawnWorldDust(x, y) { const r = wld.rng || Math.random; for (let i = 0; i < 8; i++) wld.particles.push({ x, y, vx: -2 + r() * 4, vy: -3 + r() * 2, life: 1, col: '#fff' }); }
+
+function respawnWorldPlayer(playerNum) {
   if (!wld.lastSafePlat) return;
-  const p = wld.player;
+  const p = playerNum === 1 ? wld.player1 : wld.player2;
   p.x = wld.lastSafePlat.x + wld.lastSafePlat.w / 2 - p.w / 2;
   p.y = wld.lastSafePlat.y - p.h - 2;
-  p.vx = 0; p.vy = 0; p.jumps = 0;
+  p.vx = 0; p.vy = 0; p.jumps = 0; p.ridingPlat = null;
   p.hurtT = 40; p.state = 'hurt';
   shakeT = 18;
-  wld.camX = Math.max(0, wld.lastSafePlat.x - 120);
-  addWorldFloatText(wld, p.x, p.y - 20, '-1 พลังชีวิต! 💔', '#ef4444');
+  addWorldFloatText(p.x, p.y - 20, (playerNum === 1 ? 'P1' : 'P2') + ' -1 พลังชีวิต! 💔', '#ef4444');
 }
 
-function handleWorldFall(wld) {
-  wld.lives = Math.max(0, wld.lives - 1);
+function handleWorldFall(playerNum) {
+  if (playerNum === 1) {
+    wld.lives1 = Math.max(0, wld.lives1 - 1);
+    respawnWorldPlayer(1);
+    if (wld.lives1 <= 0) checkGameOver();
+  } else {
+    wld.lives2 = Math.max(0, wld.lives2 - 1);
+    respawnWorldPlayer(2);
+    if (wld.lives2 <= 0) checkGameOver();
+  }
   KAMPAI.sound.wrong();
   AudioSynth.play('wrong');
-  respawnWorldPlayer(wld);
-  if (wld.lives <= 0) endWorldGame(wld);
 }
 
-function showLocalComboBanner(wld, text) {
-  wld.bannerText = text;
-  wld.bannerT = 120;
+function showLocalComboBanner(playerNum, text) {
+  if (playerNum === 1) { wld.bannerText1 = text; wld.bannerT1 = 120; }
+  else { wld.bannerText2 = text; wld.bannerT2 = 120; }
 }
 
-function hitWorldBubble(wld, b) {
-  if (wld.answeredQ) return;
-  wld.answeredQ = true;
-  if (b.correct) {
-    wld.combo++; wld.correctCount++;
-    const bonus = 10 + wld.combo * 3;
-    wld.score += bonus;
-    wld.player.state = 'happy';
-    KAMPAI.sound.correct();
-    AudioSynth.play('correct', wld.combo);
-    addWorldFloatText(wld, b.x, b.y - 30, 'ถูกต้อง! 🎉', '#16a34a');
-    addWorldFloatText(wld, b.x, b.y - 55, '+' + bonus + ' ⭐', '#f59e0b');
-    if (wld.combo >= 2) {
-      showLocalComboBanner(wld, 'คอมโบต่อเนื่อง x' + wld.combo + '! 🌈✨');
+function collectStarForPlayer(playerNum, s) {
+  if (s.letter) {
+    const letters = playerNum === 1 ? wld.collectedLetters1 : wld.collectedLetters2;
+    if (letters.length < 3 && !letters.includes(s.letter)) {
+      letters.push(s.letter);
+      if (playerNum === 1) { wld.score1 += 20; addWorldFloatText(s.x, s.y - 15, 'P1 สะสม: ' + s.letter + ' ✨', '#e11d48'); }
+      else { wld.score2 += 20; addWorldFloatText(s.x, s.y - 15, 'P2 สะสม: ' + s.letter + ' ✨', '#2563eb'); }
+      AudioSynth.play('correct', letters.length);
+      if (letters.length === 3) {
+        if (playerNum === 1) { wld.score1 += 100; wld.combo1++; addWorldFloatText(wld.player1.x, wld.player1.y - 45, 'P1 สำเร็จคำวิเศษ! 🎉 +100 ⭐', '#fbbf24'); showLocalComboBanner(1, 'ผู้เล่น 1 สะสมคำวิเศษครบ! 🌈✨ +100'); }
+        else { wld.score2 += 100; wld.combo2++; addWorldFloatText(wld.player2.x, wld.player2.y - 45, 'P2 สำเร็จคำวิเศษ! 🎉 +100 ⭐', '#fbbf24'); showLocalComboBanner(2, 'ผู้เล่น 2 สะสมคำวิเศษครบ! 🌈✨ +100'); }
+        AudioSynth.play('correct', 5);
+        setTimeout(() => { if (playerNum === 1) wld.collectedLetters1 = []; else wld.collectedLetters2 = []; }, 2000);
+      }
     }
-    if (!localCoopMode) vs.report(wld.score, { correct: wld.correctCount });
-    try { KAMPAI.sound.speak(wld.currentQ.word, 'th-TH'); } catch (e) {}
-    wld.currentQ = null;
-    wld.bubbles = [];
   } else {
-    wld.combo = 0;
-    wld.lives = Math.max(0, wld.lives - 1);
-    wld.player.state = 'hurt'; wld.player.hurtT = 35;
+    if (playerNum === 1) { wld.score1 += 10; addWorldFloatText(s.x, s.y - 10, 'P1 +10 ⭐', '#fbbf24'); }
+    else { wld.score2 += 10; addWorldFloatText(s.x, s.y - 10, 'P2 +10 ⭐', '#38bdf8'); }
+    AudioSynth.play('star');
+  }
+}
+
+function hitWorldBubble(playerNum, b) {
+  const isP1 = playerNum === 1;
+  const answered = isP1 ? wld.answeredQ1 : wld.answeredQ2;
+  if (answered) return;
+  if (isP1) wld.answeredQ1 = true; else wld.answeredQ2 = true;
+  const p = isP1 ? wld.player1 : wld.player2;
+  const currentQ = isP1 ? wld.currentQ1 : wld.currentQ2;
+  if (b.correct) {
+    if (isP1) {
+      wld.combo1++; wld.correctCount1++;
+      const bonus = 10 + wld.combo1 * 3; wld.score1 += bonus; p.state = 'happy';
+      addWorldFloatText(b.x, b.y - 30, 'P1 ถูกต้อง! 🎉', '#16a34a'); addWorldFloatText(b.x, b.y - 55, '+' + bonus + ' ⭐', '#f59e0b');
+      if (wld.combo1 >= 2) showLocalComboBanner(1, 'P1 คอมโบ x' + wld.combo1 + '! 🌈');
+      if (!localCoopMode) vs.report(wld.score1, { correct: wld.correctCount1 });
+    } else {
+      wld.combo2++; wld.correctCount2++;
+      const bonus = 10 + wld.combo2 * 3; wld.score2 += bonus; p.state = 'happy';
+      addWorldFloatText(b.x, b.y - 30, 'P2 ถูกต้อง! 🎉', '#2563eb'); addWorldFloatText(b.x, b.y - 55, '+' + bonus + ' ⭐', '#38bdf8');
+      if (wld.combo2 >= 2) showLocalComboBanner(2, 'P2 คอมโบ x' + wld.combo2 + '! 🌈');
+    }
+    KAMPAI.sound.correct();
+    AudioSynth.play('correct', isP1 ? wld.combo1 : wld.combo2);
+    try { KAMPAI.sound.speak(currentQ.word, 'th-TH'); } catch (e) {}
+    wld.bubbles = wld.bubbles.filter(bub => bub.player !== playerNum);
+    if (isP1) wld.currentQ1 = null; else wld.currentQ2 = null;
+  } else {
+    if (isP1) {
+      wld.combo1 = 0; wld.lives1 = Math.max(0, wld.lives1 - 1); p.state = 'hurt'; p.hurtT = 35;
+      addWorldFloatText(b.x, b.y - 30, 'P1 ผิด!', '#ef4444'); wld.answeredQ1 = false;
+      if (wld.lives1 <= 0) checkGameOver();
+    } else {
+      wld.combo2 = 0; wld.lives2 = Math.max(0, wld.lives2 - 1); p.state = 'hurt'; p.hurtT = 35;
+      addWorldFloatText(b.x, b.y - 30, 'P2 ผิด!', '#ef4444'); wld.answeredQ2 = false;
+      if (wld.lives2 <= 0) checkGameOver();
+    }
     shakeT = 16;
     KAMPAI.sound.wrong();
     AudioSynth.play('wrong');
-    addWorldFloatText(wld, b.x, b.y - 30, 'ผิด! ลองใหม่', '#ef4444');
-    wld.answeredQ = false;
-    if (wld.lives <= 0) endWorldGame(wld);
   }
 }
 
-function extendWorldWorld(wld) {
-  const r = wld.rng;
+function extendWorldWorld() {
+  const r = wld.rng || gameRng;
   const last = wld.platforms[wld.platforms.length - 1];
   if (!last || last.x + last.w - wld.camX < V_W * 1.8) {
     const gap = 60 + r() * 50;
@@ -450,48 +377,23 @@ function extendWorldWorld(wld) {
     const x = last.x + last.w + gap;
     let y = last.y + dy;
     y = Math.max(V_H - 480, Math.min(V_H - 240, y));
-    makeWorldPlatform(wld, x, y, w, withQ, r);
+    makeWorldPlatform(x, y, w, withQ, r);
   }
   wld.platforms = wld.platforms.filter(p => p.x + p.w > wld.camX - 200);
   wld.stars = wld.stars.filter(s => s.x > wld.camX - 100);
-  
   const hadBubbles = wld.bubbles.length > 0;
   wld.bubbles = wld.bubbles.filter(b => b.x > wld.camX - 80);
-  if (hadBubbles && wld.bubbles.length === 0 && wld.currentQ !== null) {
-    wld.currentQ = null;
-    wld.answeredQ = true;
+  if (hadBubbles && wld.bubbles.length === 0) {
+    if (wld.currentQ1 !== null) { wld.currentQ1 = null; wld.answeredQ1 = true; }
+    if (wld.currentQ2 !== null) { wld.currentQ2 = null; wld.answeredQ2 = true; }
   }
 }
 
-function updateWorld(wld) {
-  const p = wld.player;
-  const keys = wld.keys;
-  
+function updatePlayerPhysics(p, keys, playerNum) {
   if (!p.animTime) p.animTime = 0;
-  if (!p.onGround) {
-    p.animTime += 0.15;
-  } else if (p.state === 'run' || Math.abs(p.vx) > 0.2) {
-    p.animTime += 0.15 + Math.abs(p.vx) * 0.05;
-  } else {
-    p.animTime += 0.04;
-  }
-
-  for (const plat of wld.platforms) {
-    if (plat.moving) {
-      plat.phase += plat.moveSpeed;
-      plat.y = plat.baseY + Math.sin(plat.phase) * plat.moveRange;
-      if (p.onGround && wld.lastSafePlat === plat) {
-        p.y = plat.y - p.h;
-      }
-    }
-  }
-
-  for (const plat of wld.platforms) {
-    if (plat.question && wld.currentQ === null && plat.x - wld.camX < V_W + 100 && plat.x - wld.camX > -plat.w) {
-      spawnWorldQuestion(wld, plat, wld.rng);
-      break;
-    }
-  }
+  if (!p.onGround) { p.animTime += 0.15; } 
+  else if (p.state === 'run' || Math.abs(p.vx) > 0.2) { p.animTime += 0.15 + Math.abs(p.vx) * 0.05; } 
+  else { p.animTime += 0.04; }
 
   if (keys.left) { p.vx = -RUN; p.face = -1; p.state = p.onGround ? 'run' : p.state; }
   else if (keys.right) { p.vx = RUN; p.face = 1; p.state = p.onGround ? 'run' : p.state; }
@@ -499,13 +401,13 @@ function updateWorld(wld) {
 
   if (keys.jump) {
     if (p.onGround) {
-      p.vy = JUMP1; p.onGround = false; p.jumps = 1;
-      p.state = 'jump'; spawnWorldDust(wld, p.x + p.w / 2, p.y + p.h);
+      p.vy = JUMP1; p.onGround = false; p.jumps = 1; p.ridingPlat = null;
+      p.state = 'jump'; spawnWorldDust(p.x + p.w / 2, p.y + p.h);
       AudioSynth.play('jump');
       keys.jump = false;
     } else if (p.jumps === 1) {
-      p.vy = JUMP2; p.jumps = 2; p.state = 'jump';
-      spawnWorldDust(wld, p.x + p.w / 2, p.y + p.h / 2);
+      p.vy = JUMP2; p.jumps = 2; p.state = 'jump'; p.ridingPlat = null;
+      spawnWorldDust(p.x + p.w / 2, p.y + p.h / 2);
       AudioSynth.play('jump');
       keys.jump = false;
     }
@@ -530,418 +432,246 @@ function updateWorld(wld) {
       p.vy = 0;
       p.onGround = true;
       p.jumps = 0;
-      wld.lastSafePlat = plat;
+      p.ridingPlat = plat;
+      if (playerNum === 1) wld.lastSafePlat = plat;
       if (p.state !== 'happy' && p.state !== 'hurt') p.state = keys.left || keys.right ? 'run' : 'idle';
     }
   }
 
-  for (const b of wld.bubbles) {
-    b.phase += b.floatSpeed;
-    b.y = b.baseY + Math.sin(b.phase) * 14;
-    b.x += b.vx || 0;
-  }
+  if (p.x > wld.camX + V_W - p.w) { p.x = wld.camX + V_W - p.w; p.vx = 0; }
+}
 
+function updateWorld() {
+  for (const plat of wld.platforms) {
+    if (plat.moving) {
+      plat.phase += plat.moveSpeed;
+      plat.y = plat.baseY + Math.sin(plat.phase) * plat.moveRange;
+      if (wld.player1.onGround && wld.player1.ridingPlat === plat) { wld.player1.y = plat.y - wld.player1.h; }
+      if (wld.player2 && wld.player2.onGround && wld.player2.ridingPlat === plat) { wld.player2.y = plat.y - wld.player2.h; }
+    }
+  }
+  for (const plat of wld.platforms) {
+    if (plat.question && wld.currentQ1 === null && (localCoopMode ? wld.currentQ2 === null : true) && plat.x - wld.camX < V_W + 100 && plat.x - wld.camX > -plat.w) {
+      spawnWorldQuestion(plat, wld.rng);
+      break;
+    }
+  }
+  updatePlayerPhysics(wld.player1, keys1, 1);
+  if (localCoopMode && wld.player2) { updatePlayerPhysics(wld.player2, keys2, 2); }
+  for (const b of wld.bubbles) { b.phase += b.floatSpeed; b.y = b.baseY + Math.sin(b.phase) * 14; b.x += b.vx || 0; }
   const pad = 14;
   for (const b of wld.bubbles) {
-    const dx = (p.x + p.w / 2) - b.x;
-    const dy = (p.y + p.h / 2) - b.y;
-    if (dx * dx + dy * dy < (b.r + pad) * (b.r + pad)) hitWorldBubble(wld, b);
+    if (b.player === 1) {
+      const dx = (wld.player1.x + wld.player1.w / 2) - b.x;
+      const dy = (wld.player1.y + wld.player1.h / 2) - b.y;
+      if (dx * dx + dy * dy < (b.r + pad) * (b.r + pad)) hitWorldBubble(1, b);
+    }
   }
-
+  if (localCoopMode && wld.player2) {
+    for (const b of wld.bubbles) {
+      if (b.player === 2) {
+        const dx = (wld.player2.x + wld.player2.w / 2) - b.x;
+        const dy = (wld.player2.y + wld.player2.h / 2) - b.y;
+        if (dx * dx + dy * dy < (b.r + pad) * (b.r + pad)) hitWorldBubble(2, b);
+      }
+    }
+  }
   for (const s of wld.stars) {
     if (s.taken) continue;
     s.bob += 0.06;
     const sY = s.letter ? s.y + Math.sin(s.bob) * 6 : s.y + Math.sin(s.bob) * 4;
-    const dx = (p.x + p.w / 2) - s.x;
-    const dy = (p.y + p.h / 2) - sY;
-    if (dx * dx + dy * dy < 900) {
-      s.taken = true;
-      if (s.letter) {
-        if (wld.collectedLetters.length < 3 && !wld.collectedLetters.includes(s.letter)) {
-          wld.collectedLetters.push(s.letter);
-          wld.score += 20;
-          AudioSynth.play('correct', wld.collectedLetters.length);
-          addWorldFloatText(wld, s.x, s.y - 15, 'สะสม: ' + s.letter + ' ✨', '#e11d48');
-          
-          if (wld.collectedLetters.length === 3) {
-            wld.score += 100;
-            wld.combo++;
-            AudioSynth.play('correct', 5);
-            addWorldFloatText(wld, p.x, p.y - 45, 'สำเร็จคำวิเศษ! 🎉 +100 ⭐', '#fbbf24');
-            showLocalComboBanner(wld, 'สะสมอักษรครบคำว่า "สระ"! 🌈✨ +100 ⭐');
-            
-            setTimeout(() => {
-              wld.collectedLetters = [];
-            }, 2000);
-          }
-        }
-      } else {
-        wld.score += 10;
-        AudioSynth.play('star');
-        addWorldFloatText(wld, s.x, s.y - 10, '+10 ⭐', '#fbbf24');
-      }
+    const dx1 = (wld.player1.x + wld.player1.w / 2) - s.x;
+    const dy1 = (wld.player1.y + wld.player1.h / 2) - sY;
+    if (dx1 * dx1 + dy1 * dy1 < 900) { s.taken = true; collectStarForPlayer(1, s); continue; }
+    if (localCoopMode && wld.player2) {
+      const dx2 = (wld.player2.x + wld.player2.w / 2) - s.x;
+      const dy2 = (wld.player2.y + wld.player2.h / 2) - sY;
+      if (dx2 * dx2 + dy2 * dy2 < 900) { s.taken = true; collectStarForPlayer(2, s); }
     }
   }
-
-  if (p.y > V_H + 80) handleWorldFall(wld);
-
-  const scrollSpeed = 1.15 + Math.min(0.6, wld.combo * 0.1);
+  if (wld.player1.y > V_H + 80) handleWorldFall(1);
+  if (localCoopMode && wld.player2 && wld.player2.y > V_H + 80) handleWorldFall(2);
+  const maxCombo = localCoopMode ? Math.max(wld.combo1, wld.combo2) : wld.combo1;
+  const scrollSpeed = 1.15 + Math.min(0.6, maxCombo * 0.1);
   wld.camX += scrollSpeed;
   if (wld.camX < 0) wld.camX = 0;
-
-  if (p.x > wld.camX + V_W - p.w) {
-    p.x = wld.camX + V_W - p.w;
-    p.vx = 0;
-  }
-
-  wld.particles.forEach(pt => {
-    pt.x += pt.vx; pt.y += pt.vy; pt.life -= 0.04;
-  });
+  wld.particles.forEach(pt => { pt.x += pt.vx; pt.y += pt.vy; pt.life -= 0.04; });
   wld.particles = wld.particles.filter(pt => pt.life > 0);
-
-  wld.floatTexts.forEach(ft => {
-    ft.y -= 1.2; ft.life -= 0.015;
-  });
+  wld.floatTexts.forEach(ft => { ft.y -= 1.2; ft.life -= 0.015; });
   wld.floatTexts = wld.floatTexts.filter(ft => ft.life > 0);
-
-  extendWorldWorld(wld);
+  extendWorldWorld();
 }
 
-function drawCloud(wld, c) {
+function drawCloud(c) {
   const x = c.x - wld.camX * 0.3;
-  ctx.save();
-  ctx.translate(x, c.y);
-  ctx.scale(c.s, c.s);
+  ctx.save(); ctx.translate(x, c.y); ctx.scale(c.s, c.s);
   ctx.fillStyle = 'rgba(255,255,255,.92)';
-  ctx.beginPath();
-  ctx.arc(0, 0, 28, 0, 6.28);
-  ctx.arc(32, -8, 34, 0, 6.28);
-  ctx.arc(64, 0, 26, 0, 6.28);
-  ctx.fill();
-  ctx.fillStyle = '#475569';
-  ctx.beginPath(); ctx.arc(-6, -4, 3, 0, 6.28); ctx.arc(6, -4, 3, 0, 6.28); ctx.fill();
-  ctx.strokeStyle = '#64748b'; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.arc(0, 6, 8, 0.1, 3.04); ctx.stroke();
+  ctx.beginPath(); ctx.arc(0, 0, 28, 0, 6.28); ctx.arc(32, -8, 34, 0, 6.28); ctx.arc(64, 0, 26, 0, 6.28); ctx.fill();
+  ctx.fillStyle = '#475569'; ctx.beginPath(); ctx.arc(-6, -4, 3, 0, 6.28); ctx.arc(6, -4, 3, 0, 6.28); ctx.fill();
+  ctx.strokeStyle = '#64748b'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, 6, 8, 0.1, 3.04); ctx.stroke();
   ctx.restore();
 }
 
-function drawWorldPlatform(wld, p) {
+function drawWorldPlatform(p) {
   const x = p.x - wld.camX, y = p.y;
-  ctx.fillStyle = p.moving ? '#78350f' : '#92400e';
-  ctx.beginPath(); ctx.roundRect(x, y, p.w, p.h, 12); ctx.fill();
-  ctx.fillStyle = p.moving ? '#4d7c0f' : '#65a30d';
-  ctx.fillRect(x, y - 8, p.w, 14);
+  ctx.fillStyle = p.moving ? '#78350f' : '#92400e'; ctx.beginPath(); ctx.roundRect(x, y, p.w, p.h, 12); ctx.fill();
+  ctx.fillStyle = p.moving ? '#4d7c0f' : '#65a30d'; ctx.fillRect(x, y - 8, p.w, 14);
   ctx.fillStyle = p.moving ? '#a3e635' : '#84cc16';
   for (let i = 0; i < p.w; i += 18) ctx.fillRect(x + i, y - 10, 10, 6);
-  p.flowers.forEach(f => {
-    ctx.fillStyle = f.col;
-    ctx.beginPath(); ctx.arc(x + f.ox, y - 14, 5, 0, 6.28); ctx.fill();
-  });
-  p.shrooms.forEach(m => {
-    ctx.fillStyle = '#ef4444';
-    ctx.beginPath(); ctx.ellipse(x + m.ox, y - 12, 8, 6, 0, 0, 6.28); ctx.fill();
-    ctx.fillStyle = '#fef3c7';
-    ctx.fillRect(x + m.ox - 2, y - 8, 4, 8);
-  });
+  p.flowers.forEach(f => { ctx.fillStyle = f.col; ctx.beginPath(); ctx.arc(x + f.ox, y - 14, 5, 0, 6.28); ctx.fill(); });
+  p.shrooms.forEach(m => { ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.ellipse(x + m.ox, y - 12, 8, 6, 0, 0, 6.28); ctx.fill(); ctx.fillStyle = '#fef3c7'; ctx.fillRect(x + m.ox - 2, y - 8, 4, 8); });
 }
 
-function drawWorldStar(wld, s) {
+function drawWorldStar(s) {
   if (s.taken) return;
   const x = s.x - wld.camX, y = s.y + Math.sin(s.bob) * 4;
   ctx.save(); ctx.translate(x, y);
   if (s.letter) {
-    ctx.fillStyle = '#f59e0b';
-    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5;
-    ctx.beginPath(); ctx.arc(0, 0, 16, 0, 6.28); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 18px Itim'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText(s.letter, 0, 1);
+    ctx.fillStyle = '#f59e0b'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(0, 0, 16, 0, 6.28); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 18px Itim'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(s.letter, 0, 1);
   } else {
-    ctx.fillStyle = '#fbbf24';
-    ctx.beginPath();
-    for (let i = 0; i < 5; i++) {
-      const a = (i * 4 * Math.PI) / 5 - Math.PI / 2;
-      const r = i % 2 ? 6 : 12;
-      ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
-    }
+    ctx.fillStyle = '#fbbf24'; ctx.beginPath();
+    for (let i = 0; i < 5; i++) { const a = (i * 4 * Math.PI) / 5 - Math.PI / 2; const r = i % 2 ? 6 : 12; ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r); }
     ctx.closePath(); ctx.fill();
   }
   ctx.restore();
 }
 
-function drawWorldBubble(wld, b) {
+function drawWorldBubble(b) {
   const wob = 1 + Math.sin(b.wob) * 0.08;
   const x = b.x - wld.camX, y = b.y;
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.scale(wob, 1 / wob);
-  const g = ctx.createRadialGradient(-6, -6, 4, 0, 0, b.r);
-  g.addColorStop(0, '#fff'); g.addColorStop(0.45, b.col); g.addColorStop(1, b.col);
-  ctx.fillStyle = g;
-  ctx.beginPath(); ctx.arc(0, 0, b.r, 0, 6.28); ctx.fill();
-  ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = 2; ctx.stroke();
-  ctx.fillStyle = '#1e293b';
-  ctx.font = 'bold 36px Itim'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText(b.text, 0, 1);
-  ctx.restore();
-  b.wob += 0.07;
+  ctx.save(); ctx.translate(x, y); ctx.scale(wob, 1 / wob);
+  const g = ctx.createRadialGradient(-6, -6, 4, 0, 0, b.r); g.addColorStop(0, '#fff'); g.addColorStop(0.45, b.col); g.addColorStop(1, b.col);
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, b.r, 0, 6.28); ctx.fill();
+  if (localCoopMode) { ctx.strokeStyle = b.player === 1 ? 'rgba(219,39,119,0.95)' : 'rgba(37,99,235,0.95)'; ctx.lineWidth = 3.5; } 
+  else { ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = 2; }
+  ctx.stroke();
+  ctx.fillStyle = '#1e293b'; ctx.font = 'bold 36px Itim'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(b.text, 0, 1);
+  ctx.restore(); b.wob += 0.07;
 }
 
 function drawLimb(jx, jy, len, thick, ang, skinCol) {
-  ctx.save();
-  ctx.translate(jx, jy);
-  ctx.rotate(ang);
-  ctx.strokeStyle = '#fbcfe8'; ctx.lineWidth = 1.5;
-  ctx.fillStyle = skinCol;
-  ctx.beginPath();
-  ctx.roundRect(-thick / 2, 0, thick, len, thick / 2);
-  ctx.fill(); ctx.stroke();
-  ctx.restore();
+  ctx.save(); ctx.translate(jx, jy); ctx.rotate(ang); ctx.strokeStyle = '#fbcfe8'; ctx.lineWidth = 1.5; ctx.fillStyle = skinCol;
+  ctx.beginPath(); ctx.roundRect(-thick / 2, 0, thick, len, thick / 2); ctx.fill(); ctx.stroke(); ctx.restore();
 }
 
-function drawWorldBunny(wld) {
-  const p = wld.player;
+function drawWorldBunny(p, skinCol, cheekCol) {
   const x = p.x - wld.camX, y = p.y;
   const earTilt = Math.sin(p.earPhase) * 0.15 + (p.vy < -2 ? -0.25 : 0.1);
-  
   let animTime = p.animTime || 0;
-  let leg1Ang = 0.1, leg2Ang = -0.1;
-  let arm1Ang = 0.6, arm2Ang = 0.6;
-  let bodyBob = 0;
-  
-  if (p.state === 'hurt') {
-    leg1Ang = Math.sin(animTime * 3) * 0.8;
-    leg2Ang = Math.sin(animTime * 3 + Math.PI) * 0.8;
-    arm1Ang = Math.sin(animTime * 4) * 1.2 - 0.5;
-    arm2Ang = Math.sin(animTime * 4 + Math.PI) * 1.2 - 0.5;
-    bodyBob = Math.sin(animTime * 3) * 2;
-  } else if (!p.onGround) {
-    leg1Ang = p.vy < 0 ? -0.4 : 0.3;
-    leg2Ang = p.vy < 0 ? -0.2 : 0.1;
-    arm1Ang = -2.0;
-    arm2Ang = -1.6;
-    bodyBob = 0;
-  } else if (p.state === 'run' || Math.abs(p.vx) > 0.2) {
-    const speedMult = Math.abs(p.vx) / RUN;
-    leg1Ang = Math.sin(animTime) * 0.7 * speedMult;
-    leg2Ang = Math.sin(animTime + Math.PI) * 0.7 * speedMult;
-    arm1Ang = 0.5 - Math.sin(animTime) * 0.6 * speedMult;
-    arm2Ang = 0.5 - Math.sin(animTime + Math.PI) * 0.6 * speedMult;
-    bodyBob = Math.abs(Math.sin(animTime * 2)) * -2.5;
-  } else {
-    leg1Ang = 0.15;
-    leg2Ang = -0.15;
-    arm1Ang = 0.6 + Math.sin(animTime * 0.5) * 0.08;
-    arm2Ang = 0.6 - Math.sin(animTime * 0.5) * 0.08;
-    bodyBob = Math.sin(animTime * 0.5) * 0.8;
-  }
-
-  ctx.save();
-  ctx.translate(x + p.w / 2, y + p.h / 2 + bodyBob);
-  ctx.scale(p.face, 1);
-  
-  drawLimb(-8, 16, 12, 8, leg2Ang, '#e2e8f0');
-  drawLimb(-14, 2, 14, 7, arm2Ang, '#e2e8f0');
-
-  ctx.fillStyle = '#fff';
-  ctx.strokeStyle = '#fbcfe8'; ctx.lineWidth = 2;
+  let leg1Ang = 0.1, leg2Ang = -0.1, arm1Ang = 0.6, arm2Ang = 0.6, bodyBob = 0;
+  if (p.state === 'hurt') { leg1Ang = Math.sin(animTime * 3) * 0.8; leg2Ang = Math.sin(animTime * 3 + Math.PI) * 0.8; arm1Ang = Math.sin(animTime * 4) * 1.2 - 0.5; arm2Ang = Math.sin(animTime * 4 + Math.PI) * 1.2 - 0.5; bodyBob = Math.sin(animTime * 3) * 2; } 
+  else if (!p.onGround) { leg1Ang = p.vy < 0 ? -0.4 : 0.3; leg2Ang = p.vy < 0 ? -0.2 : 0.1; arm1Ang = -2.0; arm2Ang = -1.6; bodyBob = 0; } 
+  else if (p.state === 'run' || Math.abs(p.vx) > 0.2) { const speedMult = Math.abs(p.vx) / RUN; leg1Ang = Math.sin(animTime) * 0.7 * speedMult; leg2Ang = Math.sin(animTime + Math.PI) * 0.7 * speedMult; arm1Ang = 0.5 - Math.sin(animTime) * 0.6 * speedMult; arm2Ang = 0.5 - Math.sin(animTime + Math.PI) * 0.6 * speedMult; bodyBob = Math.abs(Math.sin(animTime * 2)) * -2.5; } 
+  else { leg1Ang = 0.15; leg2Ang = -0.15; arm1Ang = 0.6 + Math.sin(animTime * 0.5) * 0.08; arm2Ang = 0.6 - Math.sin(animTime * 0.5) * 0.08; bodyBob = Math.sin(animTime * 0.5) * 0.8; }
+  ctx.save(); ctx.translate(x + p.w / 2, y + p.h / 2 + bodyBob); ctx.scale(p.face, 1);
+  drawLimb(-8, 16, 12, 8, leg2Ang, '#e2e8f0'); drawLimb(-14, 2, 14, 7, arm2Ang, '#e2e8f0');
+  ctx.fillStyle = '#fff'; ctx.strokeStyle = '#fbcfe8'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.ellipse(-12, -34 + Math.sin(p.earPhase) * 3, 8, 22, -0.2 + earTilt, 0, 6.28); ctx.fill(); ctx.stroke();
   ctx.beginPath(); ctx.ellipse(12, -34 + Math.sin(p.earPhase + 1) * 3, 8, 22, 0.2 - earTilt, 0, 6.28); ctx.fill(); ctx.stroke();
-  ctx.fillStyle = wld.skinColor;
-  ctx.beginPath(); ctx.roundRect(-22, -18, 44, 40, 16); ctx.fill(); ctx.stroke();
-  
-  ctx.fillStyle = wld.cheekColor || '#fbcfe8';
-  ctx.beginPath(); ctx.arc(-12, 4, 5, 0, 6.28); ctx.arc(12, 4, 5, 0, 6.28); ctx.fill();
+  ctx.fillStyle = skinCol; ctx.beginPath(); ctx.roundRect(-22, -18, 44, 40, 16); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = cheekCol; ctx.beginPath(); ctx.arc(-12, 4, 5, 0, 6.28); ctx.arc(12, 4, 5, 0, 6.28); ctx.fill();
   ctx.strokeStyle = '#334155'; ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.fillStyle = '#334155';
   if (p.state === 'hurt') {
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    ctx.moveTo(-11, -6); ctx.lineTo(-5, -2); ctx.moveTo(-11, -2); ctx.lineTo(-5, -6);
-    ctx.moveTo(5, -6); ctx.lineTo(11, -2); ctx.moveTo(5, -2); ctx.lineTo(11, -6);
-    ctx.stroke();
-    ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(-3, 2); ctx.lineTo(3, 2); ctx.stroke();
+    ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(-11, -6); ctx.lineTo(-5, -2); ctx.moveTo(-11, -2); ctx.lineTo(-5, -6); ctx.moveTo(5, -6); ctx.lineTo(11, -2); ctx.moveTo(5, -2); ctx.lineTo(11, -6); ctx.stroke();
+    ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-3, 2); ctx.lineTo(3, 2); ctx.stroke();
   } else if (p.state === 'happy' || p.state === 'jump') {
-    ctx.lineWidth = 2.5;
-    ctx.beginPath(); ctx.arc(-8, -2, 4, 3.14, 0); ctx.stroke();
-    ctx.beginPath(); ctx.arc(8, -2, 4, 3.14, 0); ctx.stroke();
-    ctx.fillStyle = '#f43f5e';
-    ctx.beginPath(); ctx.arc(0, 2, 4, 0, 3.14); ctx.fill();
+    ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(-8, -2, 4, 3.14, 0); ctx.stroke(); ctx.beginPath(); ctx.arc(8, -2, 4, 3.14, 0); ctx.stroke();
+    ctx.fillStyle = '#f43f5e'; ctx.beginPath(); ctx.arc(0, 2, 4, 0, 3.14); ctx.fill();
   } else {
     ctx.beginPath(); ctx.ellipse(-8, -4, 3, 5, 0, 0, 6.28); ctx.ellipse(8, -4, 3, 5, 0, 0, 6.28); ctx.fill();
-    ctx.fillStyle = '#fff';
-    ctx.beginPath(); ctx.arc(-9, -6, 1, 0, 6.28); ctx.arc(7, -6, 1, 0, 6.28); ctx.fill();
-    ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.arc(-2, 2, 2, 0, 3.14); ctx.arc(2, 2, 2, 0, 3.14); ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(-9, -6, 1, 0, 6.28); ctx.arc(7, -6, 1, 0, 6.28); ctx.fill();
+    ctx.strokeStyle = '#334155'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(-2, 2, 2, 0, 3.14); ctx.arc(2, 2, 2, 0, 3.14); ctx.stroke();
   }
-  
-  drawLimb(8, 16, 12, 8, leg1Ang, wld.skinColor);
-  drawLimb(14, 2, 14, 7, arm1Ang, wld.skinColor);
-
-  ctx.restore();
+  drawLimb(8, 16, 12, 8, leg1Ang, skinCol); drawLimb(14, 2, 14, 7, arm1Ang, skinCol); ctx.restore();
 }
 
-function drawWorld(wld) {
-  ctx.fillStyle = skyGrad;
-  ctx.fillRect(0, 0, V_W, V_H);
-  
-  clouds.forEach(c => drawCloud(wld, c));
-  
+function drawWorld() {
+  ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, V_W, V_H);
+  clouds.forEach(c => drawCloud(c));
   petals.forEach(p => {
-    ctx.save();
-    ctx.translate(p.x - wld.camX * 0.15, p.y);
-    ctx.rotate(p.rot);
-    ctx.fillStyle = 'rgba(251,182,206,.75)';
-    ctx.beginPath(); ctx.ellipse(0, 0, p.r, p.r * 0.6, 0, 0, 6.28); ctx.fill();
-    ctx.restore();
+    ctx.save(); ctx.translate(p.x - wld.camX * 0.15, p.y); ctx.rotate(p.rot);
+    ctx.fillStyle = 'rgba(251,182,206,.75)'; ctx.beginPath(); ctx.ellipse(0, 0, p.r, p.r * 0.6, 0, 0, 6.28); ctx.fill(); ctx.restore();
   });
-  
-  wld.platforms.forEach(p => drawWorldPlatform(wld, p));
-  wld.stars.forEach(s => drawWorldStar(wld, s));
-  wld.bubbles.forEach(b => drawWorldBubble(wld, b));
-  drawWorldBunny(wld);
-  
-  wld.particles.forEach(pt => {
-    ctx.globalAlpha = pt.life; ctx.fillStyle = pt.col;
-    ctx.beginPath(); ctx.arc(pt.x - wld.camX, pt.y, 3, 0, 6.28); ctx.fill();
-    ctx.globalAlpha = 1;
-  });
-  
-  wld.floatTexts.forEach(ft => {
-    ctx.globalAlpha = Math.max(0, ft.life);
-    ctx.fillStyle = ft.col; ctx.font = 'bold 22px Itim'; ctx.textAlign = 'center';
-    ctx.fillText(ft.text, ft.x - wld.camX, ft.y);
-    ctx.globalAlpha = 1;
-  });
-  
-  drawHud(wld);
-  
-  if (wld.bannerT > 0) {
-    wld.bannerT--;
-    ctx.save();
-    const opacity = Math.min(1, wld.bannerT / 15);
-    ctx.fillStyle = `rgba(219, 39, 119, ${opacity * 0.9})`;
-    ctx.fillRect(0, V_H / 2 - 40, V_W, 60);
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 24px Itim'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText(wld.bannerText, V_W / 2, V_H / 2 - 10);
-    ctx.restore();
+  wld.platforms.forEach(p => drawWorldPlatform(p));
+  wld.stars.forEach(s => drawWorldStar(s));
+  wld.bubbles.forEach(b => drawWorldBubble(b));
+  drawWorldBunny(wld.player1, '#fff', '#fbcfe8');
+  if (localCoopMode && wld.player2) { drawWorldBunny(wld.player2, '#bae6fd', '#93c5fd'); }
+  wld.particles.forEach(pt => { ctx.globalAlpha = pt.life; ctx.fillStyle = pt.col; ctx.beginPath(); ctx.arc(pt.x - wld.camX, pt.y, 3, 0, 6.28); ctx.fill(); ctx.globalAlpha = 1; });
+  wld.floatTexts.forEach(ft => { ctx.globalAlpha = Math.max(0, ft.life); ctx.fillStyle = ft.col; ctx.font = 'bold 22px Itim'; ctx.textAlign = 'center'; ctx.fillText(ft.text, ft.x - wld.camX, ft.y); ctx.globalAlpha = 1; });
+  drawHud();
+  if (wld.bannerT1 > 0) {
+    wld.bannerT1--; ctx.save(); const opacity = Math.min(1, wld.bannerT1 / 15); ctx.fillStyle = `rgba(219, 39, 119, ${opacity * 0.9})`; ctx.fillRect(0, V_H / 2 - 40, V_W, 60); ctx.fillStyle = '#fff'; ctx.font = 'bold 24px Itim'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(wld.bannerText1, V_W / 2, V_H / 2 - 10); ctx.restore();
+  }
+  if (wld.bannerT2 > 0) {
+    wld.bannerT2--; ctx.save(); const opacity = Math.min(1, wld.bannerT2 / 15); ctx.fillStyle = `rgba(37, 99, 235, ${opacity * 0.9})`; ctx.fillRect(0, V_H / 2 + 30, V_W, 60); ctx.fillStyle = '#fff'; ctx.font = 'bold 24px Itim'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(wld.bannerText2, V_W / 2, V_H / 2 + 60); ctx.restore();
   }
 }
 
-function drawHud(wld) {
-  const bannerW = 420;
-  const bannerH = 48;
-  const bannerX = V_W / 2 - bannerW / 2;
-  const bannerY = 20;
-  
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-  ctx.strokeStyle = '#fbcfe8'; ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.roundRect(bannerX, bannerY, bannerW, bannerH, 24);
-  ctx.fill(); ctx.stroke();
-  
-  ctx.fillStyle = '#be185d';
-  ctx.font = 'bold 24px Itim'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  let qText = '📖 วิ่งไปข้างหน้า!';
-  if (wld.currentQ) {
-    qText = '📖 ' + wld.currentQ.prompt.replace('_', '___') + ' (' + getEmojiClue(wld.currentQ.word) + ')';
-  }
-  ctx.fillText(qText, V_W / 2, bannerY + bannerH / 2 + 1);
-  
-  const scoreX = 30;
-  const scoreY = 20;
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)'; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.roundRect(scoreX, scoreY, 110, 48, 24); ctx.fill(); ctx.stroke();
-  ctx.fillStyle = '#334155'; ctx.font = 'bold 20px Itim'; ctx.textAlign = 'left';
-  ctx.fillText('⭐ ' + wld.score, scoreX + 20, scoreY + 24 + 1);
-  
-  const heartsX = V_W - 160;
-  const heartsY = 20;
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)'; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.roundRect(heartsX, heartsY, 130, 48, 24); ctx.fill(); ctx.stroke();
-  ctx.fillStyle = '#ef4444'; ctx.font = '20px Itim'; ctx.textAlign = 'center';
-  const heartStr = '❤️'.repeat(wld.lives) || '💔';
-  ctx.fillText(heartStr, heartsX + 65, heartsY + 24 + 1);
+function drawHud() {
+  if (localCoopMode) {
+    // Player 1 HUD (Left)
+    const p1X = 20, p1BannerW = V_W / 2 - 40;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)'; ctx.strokeStyle = '#db2777'; ctx.lineWidth = 3; ctx.beginPath(); ctx.roundRect(p1X, 20, p1BannerW, 48, 24); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#be185d'; ctx.font = 'bold 22px Itim'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    let qText1 = '📖 P1: วิ่งไปข้างหน้า!'; if (wld.currentQ1) qText1 = '📖 P1: ' + wld.currentQ1.prompt.replace('_', '___') + ' (' + getEmojiClue(wld.currentQ1.word) + ')';
+    ctx.fillText(qText1, p1X + p1BannerW / 2, 20 + 24 + 1);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.88)'; ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.roundRect(p1X, 78, 110, 44, 22); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#334155'; ctx.font = 'bold 18px Itim'; ctx.textAlign = 'left'; ctx.fillText('⭐ P1: ' + wld.score1, p1X + 18, 78 + 22 + 1);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.88)'; ctx.beginPath(); ctx.roundRect(p1X + 120, 78, 120, 44, 22); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#ef4444'; ctx.font = '18px Itim'; ctx.textAlign = 'center'; ctx.fillText('❤️'.repeat(wld.lives1) || '💔', p1X + 180, 78 + 22 + 1);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.85)'; ctx.beginPath(); ctx.roundRect(p1X + 250, 78, 160, 44, 22); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#475569'; ctx.font = 'bold 14px Itim'; ctx.textAlign = 'left'; ctx.fillText('คำ: ', p1X + 265, 78 + 22 + 1);
+    const letters1 = ['ส', 'ร', 'ะ'];
+    letters1.forEach((l, idx) => { const lx = p1X + 300 + idx * 20; ctx.textAlign = 'center'; if (wld.collectedLetters1.includes(l)) { ctx.fillStyle = '#e11d48'; ctx.font = 'bold 16px Itim'; ctx.fillText(l, lx, 78 + 22 + 1); } else { ctx.fillStyle = '#94a3b8'; ctx.font = '16px Itim'; ctx.fillText('◯', lx, 78 + 22 + 1); } });
 
-  const letterY = bannerY + bannerH + 18;
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-  ctx.beginPath(); ctx.roundRect(V_W / 2 - 100, letterY - 14, 200, 28, 14); ctx.fill();
-  
-  ctx.font = 'bold 16px Itim'; ctx.textAlign = 'center'; ctx.fillStyle = '#475569';
-  ctx.fillText('สะสมคำ: ', V_W / 2 - 40, letterY + 1);
-  
-  const letters = ['ส', 'ร', 'ะ'];
-  letters.forEach((l, idx) => {
-    const lx = V_W / 2 + 15 + idx * 22;
-    if (wld.collectedLetters.includes(l)) {
-      ctx.fillStyle = '#e11d48';
-      ctx.font = 'bold 18px Itim';
-      ctx.fillText(l, lx, letterY + 1);
-    } else {
-      ctx.fillStyle = '#94a3b8';
-      ctx.font = '18px Itim';
-      ctx.fillText('◯', lx, letterY + 1);
-    }
-  });
+    // Player 2 HUD (Right)
+    const p2X = V_W / 2 + 20, p2BannerW = V_W / 2 - 40;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)'; ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 3; ctx.beginPath(); ctx.roundRect(p2X, 20, p2BannerW, 48, 24); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#1e3a8a'; ctx.font = 'bold 22px Itim'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    let qText2 = '📖 P2: วิ่งไปข้างหน้า!'; if (wld.currentQ2) qText2 = '📖 P2: ' + wld.currentQ2.prompt.replace('_', '___') + ' (' + getEmojiClue(wld.currentQ2.word) + ')';
+    ctx.fillText(qText2, p2X + p2BannerW / 2, 20 + 24 + 1);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.88)'; ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.roundRect(p2X, 78, 110, 44, 22); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#334155'; ctx.font = 'bold 18px Itim'; ctx.textAlign = 'left'; ctx.fillText('⭐ P2: ' + wld.score2, p2X + 18, 78 + 22 + 1);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.88)'; ctx.beginPath(); ctx.roundRect(p2X + 120, 78, 120, 44, 22); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#ef4444'; ctx.font = '18px Itim'; ctx.textAlign = 'center'; ctx.fillText('❤️'.repeat(wld.lives2) || '💔', p2X + 180, 78 + 22 + 1);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.85)'; ctx.beginPath(); ctx.roundRect(p2X + 250, 78, 160, 44, 22); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#475569'; ctx.font = 'bold 14px Itim'; ctx.textAlign = 'left'; ctx.fillText('คำ: ', p2X + 265, 78 + 22 + 1);
+    const letters2 = ['ส', 'ร', 'ะ'];
+    letters2.forEach((l, idx) => { const lx = p2X + 300 + idx * 20; ctx.textAlign = 'center'; if (wld.collectedLetters2.includes(l)) { ctx.fillStyle = '#2563eb'; ctx.font = 'bold 16px Itim'; ctx.fillText(l, lx, 78 + 22 + 1); } else { ctx.fillStyle = '#94a3b8'; ctx.font = '16px Itim'; ctx.fillText('◯', lx, 78 + 22 + 1); } });
+  } else {
+    const bannerW = 420, bannerH = 48, bannerX = V_W / 2 - bannerW / 2, bannerY = 20;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)'; ctx.strokeStyle = '#fbcfe8'; ctx.lineWidth = 3; ctx.beginPath(); ctx.roundRect(bannerX, bannerY, bannerW, bannerH, 24); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#be185d'; ctx.font = 'bold 24px Itim'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    let qText = '📖 วิ่งไปข้างหน้า!'; if (wld.currentQ1) qText = '📖 ' + wld.currentQ1.prompt.replace('_', '___') + ' (' + getEmojiClue(wld.currentQ1.word) + ')';
+    ctx.fillText(qText, V_W / 2, bannerY + bannerH / 2 + 1);
+    const scoreX = 30, scoreY = 20;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.88)'; ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.roundRect(scoreX, scoreY, 110, 48, 24); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#334155'; ctx.font = 'bold 20px Itim'; ctx.textAlign = 'left'; ctx.fillText('⭐ ' + wld.score1, scoreX + 20, scoreY + 24 + 1);
+    const heartsX = V_W - 160, heartsY = 20;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.88)'; ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.roundRect(heartsX, heartsY, 130, 48, 24); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#ef4444'; ctx.font = '20px Itim'; ctx.textAlign = 'center'; const heartStr = '❤️'.repeat(wld.lives1) || '💔'; ctx.fillText(heartStr, heartsX + 65, heartsY + 24 + 1);
+    const letterY = bannerY + bannerH + 18;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.85)'; ctx.beginPath(); ctx.roundRect(V_W / 2 - 100, letterY - 14, 200, 28, 14); ctx.fill();
+    ctx.font = 'bold 16px Itim'; ctx.textAlign = 'center'; ctx.fillStyle = '#475569'; ctx.fillText('สะสมคำ: ', V_W / 2 - 40, letterY + 1);
+    const letters = ['ส', 'ร', 'ะ'];
+    letters.forEach((l, idx) => { const lx = V_W / 2 + 15 + idx * 22; if (wld.collectedLetters1.includes(l)) { ctx.fillStyle = '#e11d48'; ctx.font = 'bold 18px Itim'; ctx.fillText(l, lx, letterY + 1); } else { ctx.fillStyle = '#94a3b8'; ctx.font = '18px Itim'; ctx.fillText('◯', lx, letterY + 1); } });
+  }
 }
 
 function draw() {
   const shakeX = shakeT > 0 ? (Math.random() - 0.5) * shakeT * 0.4 : 0;
   const shakeY = shakeT > 0 ? (Math.random() - 0.5) * shakeT * 0.3 : 0;
   if (shakeT > 0) shakeT--;
-
-  if (localCoopMode) {
-    const H_half = H / 2;
-    ctx.save();
-    ctx.beginPath(); ctx.rect(0, 0, W, H_half); ctx.clip();
-    ctx.scale(renderScale, renderScale);
-    ctx.translate(shakeX, shakeY);
-    drawWorld(worlds[0]);
-    ctx.restore();
-    
-    ctx.fillStyle = '#fbcfe8';
-    ctx.fillRect(0, H_half - 3, W, 6);
-
-    ctx.save();
-    ctx.beginPath(); ctx.rect(0, H_half, W, H_half); ctx.clip();
-    ctx.translate(0, H_half);
-    ctx.scale(renderScale, renderScale);
-    ctx.translate(shakeX, shakeY);
-    drawWorld(worlds[1]);
-    ctx.restore();
-  } else {
-    ctx.save();
-    ctx.scale(renderScale, renderScale);
-    ctx.translate(shakeX, shakeY);
-    drawWorld(worlds[0]);
-    ctx.restore();
-  }
+  ctx.save(); ctx.scale(renderScale, renderScale); ctx.translate(shakeX, shakeY); drawWorld(); ctx.restore();
 }
 
 function loop() {
   if (!gameRunning) return;
-  
-  clouds.forEach(c => {
-    c.x -= c.spd;
-    const refCamX = worlds[0] ? worlds[0].camX : 0;
-    if (c.x < refCamX - 200) c.x = refCamX + V_W + 200;
-  });
-  
-  petals.forEach(p => {
-    p.y += p.spd; p.x += p.drift; p.rot += 0.02;
-    const refCamX = worlds[0] ? worlds[0].camX : 0;
-    if (p.y > V_H + 20) { p.y = -20; p.x = refCamX + rand(0, V_W); }
-  });
-
-  worlds.forEach(wld => {
-    if (!wld.gameEnded) updateWorld(wld);
-  });
-  
-  draw();
-  requestAnimationFrame(loop);
+  clouds.forEach(c => { c.x -= c.spd; if (c.x < wld.camX - 200) c.x = wld.camX + V_W + 200; });
+  petals.forEach(p => { p.y += p.spd; p.x += p.drift; p.rot += 0.02; if (p.y > V_H + 20) { p.y = -20; p.x = wld.camX + rand(0, V_W); } });
+  updateWorld(); draw(); requestAnimationFrame(loop);
 }
 
 function startGame(rng, playerInfo) {
@@ -950,50 +680,27 @@ function startGame(rng, playerInfo) {
   gameRunning = true;
   document.getElementById('startModal').classList.add('off');
   document.getElementById('overModal').classList.add('off');
-  
-  // Hide HTML HUD elements because we draw directly on Canvas
   document.getElementById('hud').style.display = 'none';
   document.getElementById('qHud').style.display = 'none';
-  
   resize();
-  
-  worlds = [];
-  if (localCoopMode) {
-    const seedVal = Math.floor(Math.random() * 0xffffffff);
-    const rng1 = mulberry32(seedVal);
-    const rng2 = mulberry32(seedVal);
-    worlds.push(createWorld(0, rng1));
-    worlds.push(createWorld(1, rng2));
-  } else {
-    worlds.push(createWorld(0, gameRng));
-  }
-  
+  initGameWorld(gameRng);
   try { KAMPAI.sound.unlock(); KAMPAI.sound.defaultBgm('playful'); KAMPAI.sound.bgmStart(); } catch (e) {}
   initClouds(); initPetals();
   loop();
-  
   if (!versusMode) return;
   clearTimeout(versusTimer);
-  versusTimer = setTimeout(() => { gameRunning = false; endWorldGame(worlds[0]); }, 90 * 1000);
+  versusTimer = setTimeout(() => { gameRunning = false; checkGameOver(); }, 90 * 1000);
 }
 
-function endWorldGame(wld) {
-  wld.gameEnded = true;
-  
+function checkGameOver() {
   if (localCoopMode) {
-    if (worlds.every(w => w.lives <= 0 || w.gameEnded)) {
+    if (wld.lives1 <= 0 && wld.lives2 <= 0) {
       gameRunning = false;
-      const score1 = worlds[0].score;
-      const score2 = worlds[1].score;
+      const score1 = wld.score1, score2 = wld.score2;
       let winnerText = '';
-      if (score1 > score2) {
-        winnerText = 'ผู้เล่น 1 (กระต่ายขาว) ชนะ! 🏆🤍';
-      } else if (score2 > score1) {
-        winnerText = 'ผู้เล่น 2 (กระต่ายฟ้า) ชนะ! 🏆💙';
-      } else {
-        winnerText = 'เสมอกัน! 🤝🌸';
-      }
-      
+      if (score1 > score2) winnerText = 'ผู้เล่น 1 (กระต่ายขาว) ชนะ! 🏆🤍';
+      else if (score2 > score1) winnerText = 'ผู้เล่น 2 (กระต่ายฟ้า) ชนะ! 🏆💙';
+      else winnerText = 'เสมอกัน! 🤝🌸';
       document.getElementById('finalScore').innerHTML = `
         <div style="font-size:24px;color:#be185d;margin-bottom:12px">${winnerText}</div>
         <div style="display:flex;justify-content:space-around;font-size:20px;font-weight:bold;margin-top:8px">
@@ -1007,11 +714,11 @@ function endWorldGame(wld) {
   } else {
     gameRunning = false;
     clearTimeout(versusTimer);
-    if (vs.finish(wld.score, { correct: wld.correctCount })) return;
+    if (vs.finish(wld.score1, { correct: wld.correctCount1 })) return;
     try { KAMPAI.sound.gameOver(); KAMPAI.sound.bgmStop(); } catch (e) {}
-    document.getElementById('finalScore').textContent = wld.score;
+    document.getElementById('finalScore').textContent = wld.score1;
     document.getElementById('overModal').classList.remove('off');
-    KAMPAI.submitScore(wld.score, { correct: wld.correctCount, combo_max: wld.combo });
+    KAMPAI.submitScore(wld.score1, { correct: wld.correctCount1, combo_max: wld.combo1 });
   }
 }
 
@@ -1053,23 +760,17 @@ document.getElementById('btnRetry').onclick = () => {
 document.getElementById('btnHome').onclick = () => { localCoopMode = false; KAMPAI.goHome(); };
 
 window.addEventListener('keydown', e => {
-  // Player 1 (WASD)
   if (e.code === 'KeyA') keys1.left = true;
   if (e.code === 'KeyD') keys1.right = true;
   if (e.code === 'KeyW') { if (!e.repeat) keys1.jump = true; }
-  
-  // Player 2 (Arrows)
   if (e.code === 'ArrowLeft') keys2.left = true;
   if (e.code === 'ArrowRight') keys2.right = true;
   if (e.code === 'ArrowUp' || e.code === 'Space') { if (!e.repeat) keys2.jump = true; }
 });
 window.addEventListener('keyup', e => {
-  // Player 1 (WASD)
   if (e.code === 'KeyA') keys1.left = false;
   if (e.code === 'KeyD') keys1.right = false;
   if (e.code === 'KeyW') keys1.jump = false;
-  
-  // Player 2 (Arrows)
   if (e.code === 'ArrowLeft') keys2.left = false;
   if (e.code === 'ArrowRight') keys2.right = false;
   if (e.code === 'ArrowUp' || e.code === 'Space') keys2.jump = false;

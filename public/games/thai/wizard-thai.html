@@ -2,6 +2,9 @@
 <html lang="th">
 <head>
 <script src="/games/kampai-sdk.js"></script>
+<script>
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ศึกจอมเวทแห่งภาษา</title>
@@ -23,6 +26,7 @@
 <script type="text/babel">
 /* ═══ KAMPAI INTEGRATION (GAME.md EMBED block) ═══ */
 const GAME_SLUG = 'wizard-thai';
+KAMPAI.setSlug(GAME_SLUG);
 const IS_EMBED = window.self !== window.top ||
                  new URLSearchParams(location.search).get('embed') === '1';
 let STUDENT_CODE      = null;
@@ -48,12 +52,19 @@ if (IS_EMBED) {
   });
 }
 function sendGameEnd(finalScore, mode, extra) {
+  const duration = Math.max(1, Math.floor((Date.now() - SESSION_START_TS) / 1000));
+  let stars = 0;
+  if (finalScore >= 80) stars = 3;
+  else if (finalScore >= 50) stars = 2;
+  else if (finalScore >= 20) stars = 1;
+  KAMPAI.submitScore(Math.round(finalScore), { mode: mode || 'normal', stars: stars, duration: duration, ...(extra || {}) });
+
   if (!IS_EMBED || !STUDENT_CODE) return;
   try {
     window.parent.postMessage({
       type: 'gameEnd', gameSlug: GAME_SLUG, studentCode: STUDENT_CODE,
       score: Math.round(finalScore), mode: mode || 'normal',
-      metadata: { duration: Math.max(1, Math.floor((Date.now() - SESSION_START_TS) / 1000)), ...(extra || {}) },
+      metadata: { duration: duration, ...(extra || {}) },
     }, '*');
   } catch (_) {}
 }

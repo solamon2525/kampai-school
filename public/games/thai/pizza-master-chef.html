@@ -1005,7 +1005,7 @@
             <h1>พิซซ่ามาสเตอร์</h1>
             <p class="subtitle">เลือกระดับชั้น แล้วเลือกโหมดเพื่อเริ่มเปิดร้าน!</p>
 
-            <input type="text" id="player-name" class="name-input" placeholder="ใส่ชื่อเชฟที่นี่..." maxlength="10">
+            <input type="text" id="chef-name" class="name-input" placeholder="ใส่ชื่อเชฟที่นี่..." maxlength="10">
 
             <div class="setup-row">
                 <div class="setup-group">
@@ -1138,6 +1138,7 @@
         /* ============================================
            SECTION A: EMBED MODE (postMessage)
            ============================================ */
+        const GAME_SLUG = 'pizza-master-chef';
         const EMBED = (window.parent !== window) ||
                       (new URLSearchParams(location.search).get('embed') === '1');
         let STUDENT_CODE = null;
@@ -1150,20 +1151,20 @@
                 }
             });
 
-            // Intercept target="_top" anchor clicks → postMessage to parent.
-            // Sandboxed iframe can't break out via target="_top" (would need
-            // allow-top-navigation), so the React wrapper handles navigation
-            // via useNavigate(). Standalone mode unchanged (browser handles
-            // target="_top" normally — this block doesn't run).
+            // Intercept target="_top" anchor clicks → postMessage or SDK goHome.
             document.addEventListener('click', (e) => {
                 const a = e.target.closest('a[target="_top"]');
                 if (!a) return;
                 const href = a.getAttribute('href');
                 if (!href) return;
                 e.preventDefault();
-                try {
-                    window.parent.postMessage({ type: 'navigate', to: href }, '*');
-                } catch (_err) { /* parent gone — ignore */ }
+                if (window.KAMPAI && (href.includes('/h/') || href === '/')) {
+                    window.KAMPAI.goHome();
+                } else {
+                    try {
+                        window.parent.postMessage({ type: 'navigate', to: href }, '*');
+                    } catch (_err) { /* parent gone — ignore */ }
+                }
             });
         }
 
@@ -1578,7 +1579,9 @@
                 const pauseModal = document.getElementById('pause-modal');
                 if (pauseModal) pauseModal.classList.remove('show');
 
-                this.state.playerName = EMBED ? '' : (document.getElementById('player-name').value.trim() || 'เชฟนิรนาม');
+                const displayName = (window.KAMPAI && window.KAMPAI.student && window.KAMPAI.student.displayName);
+                const nameEl = document.getElementById('chef-name');
+                this.state.playerName = EMBED ? (displayName || 'เชฟนิรนาม') : ((nameEl ? nameEl.value.trim() : '') || 'เชฟนิรนาม');
                 if (EMBED) SESSION_START_TS = Date.now();
 
                 this.state.mode = modeName;
@@ -1716,27 +1719,43 @@
                 } else if (!EMBED) {
                     this.highScoreManager.saveScore(this.state.playerName, this.player.score);
                 } else {
-                    try {
-                        window.parent.postMessage({
-                            type: 'gameEnd',
-                            gameSlug: 'pizza-master-chef',
-                            studentCode: STUDENT_CODE,
-                            score: this.player.score,
+                    if (window.KAMPAI) {
+                        window.KAMPAI.submitScore(this.player.score, {
                             mode: this.state.mode,
-                            metadata: {
-                                duration: Math.max(1, Math.floor((Date.now() - SESSION_START_TS) / 1000)),
-                                combo_max: this.player.maxCombo,
-                                fever: !!this.player.isFever,
-                                delivery_streak: this.player.deliveryStreak,
-                                accuracy: accuracy,
-                                total_served: this.player.totalServed,
-                                total_wrong: this.player.totalWrong,
-                                wave_reached: waveReached,
-                                grade_band: this.state.gradeBand,
-                                miss_log: this.player.missLog   // E1: พลาดเศษส่วนไหนบ้าง (ป้อนรายงานครู/diagnostic)
-                            }
-                        }, '*');
-                    } catch (err) { /* parent gone */ }
+                            duration: Math.max(1, Math.floor((Date.now() - SESSION_START_TS) / 1000)),
+                            combo_max: this.player.maxCombo,
+                            fever: !!this.player.isFever,
+                            delivery_streak: this.player.deliveryStreak,
+                            accuracy: accuracy,
+                            total_served: this.player.totalServed,
+                            total_wrong: this.player.totalWrong,
+                            wave_reached: waveReached,
+                            grade_band: this.state.gradeBand,
+                            miss_log: this.player.missLog
+                        });
+                    } else {
+                        try {
+                            window.parent.postMessage({
+                                type: 'gameEnd',
+                                gameSlug: GAME_SLUG,
+                                studentCode: STUDENT_CODE,
+                                score: this.player.score,
+                                mode: this.state.mode,
+                                metadata: {
+                                    duration: Math.max(1, Math.floor((Date.now() - SESSION_START_TS) / 1000)),
+                                    combo_max: this.player.maxCombo,
+                                    fever: !!this.player.isFever,
+                                    delivery_streak: this.player.deliveryStreak,
+                                    accuracy: accuracy,
+                                    total_served: this.player.totalServed,
+                                    total_wrong: this.player.totalWrong,
+                                    wave_reached: waveReached,
+                                    grade_band: this.state.gradeBand,
+                                    miss_log: this.player.missLog
+                                }
+                            }, '*');
+                        } catch (err) { /* parent gone */ }
+                    }
                 }
 
                 // Star rating

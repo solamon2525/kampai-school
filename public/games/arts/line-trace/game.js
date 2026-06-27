@@ -10,6 +10,7 @@ let levelAccuracyCount = 0;
 let isLevelCompleted = false;
 
 const CONFIG = window.GAME_CONFIG;
+KAMPAI.setSlug(CONFIG.SLUG);
 const TEMPLATES = window.GAME_DATA.templates;
 
 // ส่วนเชื่อมโยง Canvas
@@ -19,8 +20,8 @@ let pulseTimer = 0;
 
 // โหลดข้อมูล SDK เมื่อหน้าพร้อมใช้งาน
 KAMPAI.onReady((sdk) => {
-  const bestScore = sdk.stats?.high_score || 0;
-  const playCount = sdk.stats?.play_count || 0;
+  const bestScore = sdk.stats?.personalBest || 0;
+  const playCount = sdk.stats?.playsCount || 0;
   
   const bestEl = document.getElementById('ms-best');
   const playsEl = document.getElementById('ms-plays');
@@ -395,13 +396,16 @@ function renderLeaderboard(leaderboardData, containerId) {
   }
 
   leaderboardData.forEach((row, i) => {
-    const isMe = KAMPAI.student && row.student_id === KAMPAI.student.id;
+    const isMe = KAMPAI.student && (row.studentId === KAMPAI.student.id || row.student_id === KAMPAI.student.id);
     const li = document.createElement('li');
     if (isMe) li.className = 'me';
     
+    const displayName = row.displayName || row.student_name || 'เพื่อนนักเรียน';
+    const score = row.personalBest !== undefined ? row.personalBest : (row.score !== undefined ? row.score : 0);
+    
     li.innerHTML = `
-      <span><strong>#${i + 1}</strong> ${row.student_name || 'เพื่อนนักเรียน'}</span>
-      <span>⭐ ${row.score}</span>
+      <span><strong>#${i + 1}</strong> ${displayName}</span>
+      <span>⭐ ${score}</span>
     `;
     listEl.appendChild(li);
   });

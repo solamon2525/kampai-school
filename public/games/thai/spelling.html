@@ -364,19 +364,23 @@
                 try { window.parent.postMessage({ type: 'navigate', to: href }, '*'); } catch (_) {}
             });
         }
+        if (window.KAMPAI) {
+            KAMPAI.setSlug(GAME_SLUG);
+        }
         function sendGameEnd(finalScore, mode, extra) {
-            if (!IS_EMBED || !STUDENT_CODE) return;
-            try {
-                window.parent.postMessage({
-                    type: 'gameEnd', gameSlug: GAME_SLUG, studentCode: STUDENT_CODE,
-                    score: Math.round(finalScore), mode: mode || 'normal',
-                    metadata: { duration: Math.max(1, Math.floor((Date.now() - SESSION_START_TS) / 1000)), ...(extra || {}) },
-                }, '*');
-            } catch (_) {}
+            if (window.KAMPAI) {
+                KAMPAI.submitScore(finalScore, {
+                    mode: mode || 'normal',
+                    ...(extra || {})
+                });
+            }
         }
         function navigateBack() {
-            if (IS_EMBED) { try { window.parent.postMessage({ type: 'navigate', to: '/h/nattapong' }, '*'); } catch (_) {} }
-            else { window.location.href = '/h/nattapong'; }
+            if (window.KAMPAI) {
+                KAMPAI.goHome();
+            } else {
+                window.location.href = '/';
+            }
         }
 
         // --- 1. Sound System & TTS ---

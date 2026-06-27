@@ -41,8 +41,7 @@
     <div id="root"></div>
 
     <script>
-    // --- postMessage tracking boilerplate ---
-    window.studentCode = '';
+    const GAME_SLUG = 'kingdom';
     window.gameStartedAt = Date.now();
 
     window.__kampaiInit = null;   // payload เต็มจาก wrapper (student/stats/leaderboard)
@@ -54,29 +53,27 @@
       }
     });
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const backBtns = document.querySelectorAll('.back, a[href*="educational-hub"], a[href*="index.html"]');
-      backBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.preventDefault();
-          window.parent.postMessage({ type: 'navigate', to: '/h/nattapong' }, '*');
-        });
-      });
-    });
-
     window.reportScore = function(score, mode = 'normal', additionalMetadata = {}) {
       const duration = Math.round((Date.now() - window.gameStartedAt) / 1000);
       console.log('[Kingdom Duel] Reporting score:', score, 'Duration:', duration);
-      window.parent.postMessage({
-        type: 'gameEnd',
-        gameSlug: 'kingdom',
-        score: score,
-        mode: mode,
-        metadata: {
+      if (window.KAMPAI) {
+        window.KAMPAI.submitScore(score, {
+          mode: mode,
           duration: duration,
           ...additionalMetadata
-        }
-      }, '*');
+        });
+      } else {
+        window.parent.postMessage({
+          type: 'gameEnd',
+          gameSlug: GAME_SLUG,
+          score: score,
+          mode: mode,
+          metadata: {
+            duration: duration,
+            ...additionalMetadata
+          }
+        }, '*');
+      }
     };
     // --- end boilerplate ---
     </script>

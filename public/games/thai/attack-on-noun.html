@@ -327,20 +327,9 @@
     <script type="module">
         import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.126.0/build/three.module.js';
 
-        // ─── Score tracking embed hook (kampai-school PlayGame wrapper) ───
-        // Pattern: same as pizza-master-chef — detect ?embed=1, cache STUDENT_CODE,
-        // post {type:'gameEnd', score, ...} to parent on game over.
-        const EMBED = (window.parent !== window) ||
-                     (new URLSearchParams(location.search).get('embed') === '1');
-        let STUDENT_CODE = null;
-        let SESSION_START_TS = 0;
-        if (EMBED) {
-            window.addEventListener('message', (e) => {
-                if (e?.data?.type === 'init' && typeof e.data.studentCode === 'string') {
-                    STUDENT_CODE = e.data.studentCode;
-                    SESSION_START_TS = Date.now();
-                }
-            });
+        const GAME_SLUG = 'attack-on-noun';
+        if (window.KAMPAI) {
+            window.KAMPAI.setSlug(GAME_SLUG);
         }
 
         // ─── Touch device detection (mobile/tablet) ─────────────────────
@@ -1399,21 +1388,10 @@
             isGameOver = true;
             document.exitPointerLock();
 
-            // Report score to parent (kampai PlayGame wrapper)
-            if (EMBED) {
-                try {
-                    window.parent.postMessage({
-                        type: 'gameEnd',
-                        gameSlug: 'attack-on-noun',
-                        studentCode: STUDENT_CODE,
-                        score: score,
-                        mode: 'normal',
-                        metadata: {
-                            duration: Math.max(1, Math.floor((Date.now() - SESSION_START_TS) / 1000)),
-                            hearts_remaining: hearts,
-                        },
-                    }, '*');
-                } catch (_err) { /* parent gone — ignore */ }
+            if (window.KAMPAI) {
+                window.KAMPAI.submitScore(score, {
+                    hearts_remaining: hearts
+                });
             }
 
             // Show final score on game-over screen
@@ -1570,8 +1548,7 @@
             renderer.render(scene, camera);
         }
 
-        initScene();
-        animate();
+        // init and animate called at start of script
     </script>
 </body>
 </html>

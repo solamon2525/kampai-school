@@ -457,6 +457,10 @@
 
     <script src="/games/kampai-leaderboard.js"></script>
     <script>
+        const GAME_SLUG = 'math-24';
+        if (window.KAMPAI) {
+            window.KAMPAI.setSlug(GAME_SLUG);
+        }
         /* ============================================================================
            SECTION A · KAMPAI INTEGRATION BOILERPLATE
            ============================================================================ */
@@ -929,21 +933,10 @@
             isGameOver = true;
             clearInterval(timerInterval);
 
-            // postMessage to parent wrapper
-            if (EMBED) {
-                try {
-                    window.parent.postMessage({
-                        type: 'gameEnd',
-                        gameSlug: 'math-24',
-                        studentCode: STUDENT_CODE,
-                        score: score,
-                        mode: 'normal',
-                        metadata: {
-                            duration: Math.max(1, Math.floor((Date.now() - SESSION_START_TS) / 1000)),
-                            solved_levels: level - 1
-                        }
-                    }, '*');
-                } catch (err) { }
+            if (window.KAMPAI) {
+                window.KAMPAI.submitScore(score, {
+                    solved_levels: level - 1
+                });
             }
 
             document.getElementById('final-score').innerText = score;

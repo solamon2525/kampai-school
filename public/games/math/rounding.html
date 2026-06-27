@@ -425,6 +425,10 @@
     </div>
 
     <script>
+        const GAME_SLUG = 'rounding';
+        if (window.KAMPAI) {
+            window.KAMPAI.setSlug(GAME_SLUG);
+        }
         const numInput = document.getElementById('num');
         const displayNum = document.getElementById('displayNum');
         const answerContainer = document.getElementById('answerContainer');
@@ -463,6 +467,14 @@
 
             var n = parseInt(numInput.value);
             var roundValue = parseInt(roundLevelSelect.value);
+
+            if (window.KAMPAI) {
+                window.KAMPAI.submitScore(100, {
+                    mode: 'learn',
+                    number: n,
+                    round_level: roundValue
+                });
+            }
 
             // ตรรกะการหาค่าประมาณตามหลักที่เลือก
             var rounded = Math.round(n / roundValue) * roundValue;
