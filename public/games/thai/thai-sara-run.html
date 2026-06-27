@@ -687,6 +687,18 @@ function drawWorldBubble(wld, b) {
   b.wob += 0.07;
 }
 
+function drawLimb(jx, jy, len, thick, ang, skinCol) {
+  ctx.save();
+  ctx.translate(jx, jy);
+  ctx.rotate(ang);
+  ctx.strokeStyle = '#fbcfe8'; ctx.lineWidth = 1.5;
+  ctx.fillStyle = skinCol;
+  ctx.beginPath();
+  ctx.roundRect(-thick / 2, 0, thick, len, thick / 2);
+  ctx.fill(); ctx.stroke();
+  ctx.restore();
+}
+
 function drawWorldBunny(wld) {
   const p = wld.player;
   const x = p.x - wld.camX, y = p.y;
