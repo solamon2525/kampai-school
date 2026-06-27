@@ -314,6 +314,7 @@ function resetWorld(rng) {
   camX = 0;
   collectedLetters = [];
   updateLetterHud();
+  player.animTime = 0;
   const groundY = V_H - 240;
   const first = makePlatform(40, groundY, 420, false);
   lastSafePlat = first;
@@ -425,6 +426,16 @@ function extendWorld() {
 }
 
 function updatePlayer() {
+  // Update animation frame time
+  if (!player.animTime) player.animTime = 0;
+  if (!player.onGround) {
+    player.animTime += 0.15;
+  } else if (player.state === 'run' || Math.abs(player.vx) > 0.2) {
+    player.animTime += 0.15 + Math.abs(player.vx) * 0.05;
+  } else {
+    player.animTime += 0.04;
+  }
+
   // Update moving platforms
   for (const p of platforms) {
     if (p.moving) {
@@ -595,12 +606,76 @@ function drawPlatform(p) {
   });
 }
 
+function drawLimb(jx, jy, len, thick, ang, skinCol, shirtCol) {
+  ctx.save();
+  ctx.translate(jx, jy);
+  ctx.rotate(ang);
+  ctx.strokeStyle = '#fbcfe8'; ctx.lineWidth = 1.5;
+  if (shirtCol) {
+    ctx.fillStyle = shirtCol;
+    ctx.beginPath();
+    ctx.roundRect(-thick / 2, 0, thick, len * 0.4, [thick / 2, thick / 2, 0, 0]);
+    ctx.fill(); ctx.stroke();
+    
+    ctx.fillStyle = skinCol;
+    ctx.beginPath();
+    ctx.roundRect(-thick * 0.9 / 2, len * 0.35, thick * 0.9, len * 0.65, [0, 0, thick * 0.9 / 2, thick * 0.9 / 2]);
+    ctx.fill(); ctx.stroke();
+  } else {
+    ctx.fillStyle = skinCol;
+    ctx.beginPath();
+    ctx.roundRect(-thick / 2, 0, thick, len, thick / 2);
+    ctx.fill(); ctx.stroke();
+  }
+  ctx.restore();
+}
+
 function drawBunny() {
   const x = player.x - camX, y = player.y;
   const earTilt = Math.sin(player.earPhase) * 0.15 + (player.vy < -2 ? -0.25 : 0.1);
+  
+  // Calculate limb angles and vertical body bobbing based on state
+  let animTime = player.animTime || 0;
+  let leg1Ang = 0.1, leg2Ang = -0.1;
+  let arm1Ang = 0.6, arm2Ang = 0.6;
+  let bodyBob = 0;
+  
+  if (player.state === 'hurt') {
+    leg1Ang = Math.sin(animTime * 3) * 0.8;
+    leg2Ang = Math.sin(animTime * 3 + Math.PI) * 0.8;
+    arm1Ang = Math.sin(animTime * 4) * 1.2 - 0.5;
+    arm2Ang = Math.sin(animTime * 4 + Math.PI) * 1.2 - 0.5;
+    bodyBob = Math.sin(animTime * 3) * 2;
+  } else if (!player.onGround) {
+    leg1Ang = player.vy < 0 ? -0.4 : 0.3;
+    leg2Ang = player.vy < 0 ? -0.2 : 0.1;
+    arm1Ang = -2.0; // Hands up!
+    arm2Ang = -1.6;
+    bodyBob = 0;
+  } else if (player.state === 'run' || Math.abs(player.vx) > 0.2) {
+    const speedMult = Math.abs(player.vx) / RUN;
+    leg1Ang = Math.sin(animTime) * 0.7 * speedMult;
+    leg2Ang = Math.sin(animTime + Math.PI) * 0.7 * speedMult;
+    arm1Ang = 0.5 - Math.sin(animTime) * 0.6 * speedMult;
+    arm2Ang = 0.5 - Math.sin(animTime + Math.PI) * 0.6 * speedMult;
+    bodyBob = Math.abs(Math.sin(animTime * 2)) * -2.5; // Running bounce
+  } else {
+    leg1Ang = 0.15;
+    leg2Ang = -0.15;
+    arm1Ang = 0.6 + Math.sin(animTime * 0.5) * 0.08;
+    arm2Ang = 0.6 - Math.sin(animTime * 0.5) * 0.08;
+    bodyBob = Math.sin(animTime * 0.5) * 0.8;
+  }
+
   ctx.save();
-  ctx.translate(x + player.w / 2, y + player.h / 2);
+  ctx.translate(x + player.w / 2, y + player.h / 2 + bodyBob);
   ctx.scale(player.face, 1);
+  
+  // 1. Draw Background Limbs (shadowed color)
+  drawLimb(-8, 16, 12, 8, leg2Ang, '#e2e8f0'); // Background Leg
+  drawLimb(-14, 2, 14, 7, arm2Ang, '#e2e8f0', '#60a5fa'); // Background Arm (with shaded sleeve)
+
+  // 2. Draw Bunny Body & Head
   ctx.fillStyle = '#fff';
   ctx.strokeStyle = '#fbcfe8'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.ellipse(-12, -34 + Math.sin(player.earPhase) * 3, 8, 22, -0.2 + earTilt, 0, 6.28); ctx.fill(); ctx.stroke();
@@ -611,38 +686,37 @@ function drawBunny() {
   ctx.fillRect(-18, 0, 36, 18);
   ctx.fillStyle = '#fff';
   for (let i = -14; i < 18; i += 7) ctx.fillRect(i, 2, 5, 14);
+  
+  // 3. Draw Bunny Face Features
   ctx.fillStyle = '#fbcfe8';
   ctx.beginPath(); ctx.arc(-12, 4, 5, 0, 6.28); ctx.arc(12, 4, 5, 0, 6.28); ctx.fill();
-
   ctx.strokeStyle = '#334155'; ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.fillStyle = '#334155';
   if (player.state === 'hurt') {
-    // Cross eyes > <
     ctx.lineWidth = 2.5;
     ctx.beginPath();
     ctx.moveTo(-11, -6); ctx.lineTo(-5, -2); ctx.moveTo(-11, -2); ctx.lineTo(-5, -6);
     ctx.moveTo(5, -6); ctx.lineTo(11, -2); ctx.moveTo(5, -2); ctx.lineTo(11, -6);
     ctx.stroke();
-    // Flat mouth
     ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(-3, 2); ctx.lineTo(3, 2); ctx.stroke();
   } else if (player.state === 'happy' || player.state === 'jump') {
-    // Upward arch eyes ^ ^
     ctx.lineWidth = 2.5;
     ctx.beginPath(); ctx.arc(-8, -2, 4, 3.14, 0); ctx.stroke();
     ctx.beginPath(); ctx.arc(8, -2, 4, 3.14, 0); ctx.stroke();
-    // Cute open mouth
     ctx.fillStyle = '#f43f5e';
     ctx.beginPath(); ctx.arc(0, 2, 4, 0, 3.14); ctx.fill();
   } else {
-    // Normal vertical oval eyes
     ctx.beginPath(); ctx.ellipse(-8, -4, 3, 5, 0, 0, 6.28); ctx.ellipse(8, -4, 3, 5, 0, 0, 6.28); ctx.fill();
-    // Sparkles inside eyes
     ctx.fillStyle = '#fff';
     ctx.beginPath(); ctx.arc(-9, -6, 1, 0, 6.28); ctx.arc(7, -6, 1, 0, 6.28); ctx.fill();
-    // Cute w-mouth
     ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.arc(-2, 2, 2, 0, 3.14); ctx.arc(2, 2, 2, 0, 3.14); ctx.stroke();
   }
+  
+  // 4. Draw Foreground Limbs (on top of body)
+  drawLimb(8, 16, 12, 8, leg1Ang, '#fff'); // Foreground Leg
+  drawLimb(14, 2, 14, 7, arm1Ang, '#fff', '#93c5fd'); // Foreground Arm (with bright sleeve)
+
   ctx.restore();
 }
 
