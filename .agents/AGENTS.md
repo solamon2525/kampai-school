@@ -92,6 +92,7 @@ Follow these standards strictly when developing, refactoring, or integrating edu
 - **Rule**: The migration must:
   1. Seed the item in `educational_hub_items` (`game_slug`, `tracked_game = true`, `thumbnail_url = '/games/{subject}/{slug}/cover.png'`).
   2. Insert or update the game profile details in `game_docs` using `INSERT ... ON CONFLICT (item_id) DO UPDATE` with game format, features, build version, and notes.
+- **Programmatic Seeding**: Note that writing an SQL migration file in `supabase/migrations` registers the schema but does not automatically populate/publish the game on the live Supabase production database. To make the game immediately visible in the Game Library (คลังเกมการศึกษา), you **MUST** also create a JavaScript seed script under `scripts/seed-{slug}-game.mjs` and execute it (`node scripts/seed-{slug}-game.mjs`) to programmatically upsert the game metadata into `educational_hub_items` and `game_docs` using the Supabase Service Role key from `.env.local`.
 
 ### E. Local Verification
 - Before finalizing a game, run the verification tool:
