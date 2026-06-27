@@ -33,6 +33,7 @@
 ├─ สร้างจากศูนย์ (แนะนำ)   → cp -r _template-folder    (โครงสร้าง 5 ไฟล์ + online — ดู §"📁 โครงสร้างโฟลเดอร์")
 ├─ แข่ง 2 คน (เดี่ยว+local+online) ⭐ → cp _template-versus.html (kampai-versus: เมนูโหมด + hot-seat + online — มาตรฐานใหม่)
 ├─ เกมเล็ก/ไฟล์เดียว        → cp _template-full.html    (single-file + leaderboard + sound)
+├─ รองรับแนวตั้ง+แนวนอน ⭐   → cp -r _template-orient     (kampai-orient.js + HUD/menu responsive — อ่าน ORIENT-GAME.md)
 ├─ เล่นหลายคนออนไลน์อย่างเดียว → cp _template-online.html (kampai-match: lobby+แข่งสด+อันดับ)
 ├─ ไม่อยาก leaderboard      → cp _template.html         (basic version)
 ├─ เกมเป็น React component   → cp _template-react.html   (JSX/lucide-react → single-file)
@@ -59,9 +60,8 @@
 | **เสียง** | `KAMPAI.sound.defaultBgm(preset)` + `mountToggles()` ตอนเริ่ม · `correct()/wrong()/timeUp()/gameOver()` ตามเหตุการณ์ · `speak(word,lang)` สำหรับ**เกมภาษา** (TTS) |
 | **มือถือ** | `controls.mount()` หรือ tap · responsive ~360px **ไม่ล้นแนวนอน** · ปุ่ม ≥44px |
 
-⚠️ gotcha: ปุ่มเสียง `#kampai-snd` (จาก `mountToggles`) อยู่ **มุมบนซ้าย z-index 40** — ถ้า HUD เกมก็อยู่ซ้ายบน
-จะทับกัน → override ตำแหน่ง เช่น `#kampai-snd{ top:auto !important; bottom:14px !important; left:12px !important }`
-(ตัวอย่าง `english/vocab-move.html` ย้ายปุ่มเสียงลงล่างซ้าย)
+⚠️ gotcha: ปุ่มเสียง `#kampai-snd` (จาก `mountToggles`) อยู่ **มุมล่างขวา z-index 40** (SDK default) — วาง HUD/ปุ่มเกม
+ไม่ให้ทับมุมล่าง · dpad SDK อยู่ **ซ้ายล่าง**. เกม landscape/runner → ใช้ `_template-orient` + อ่าน `ORIENT-GAME.md`
 
 ---
 
@@ -98,6 +98,8 @@
 | `game.js` | **ลอจิก** อ่านจาก config/data + SDK/leaderboard/sound | แก้กลไกเกม |
 | `cover.{png,svg}` | ปก 16:9 | — |
 
+**เทมเพลตแนวจอ:** `cp -r public/games/_template-orient` — เพิ่ม `kampai-orient.js` + `ORIENTATION` ใน config (ดู `ORIENT-GAME.md`)
+
 **กฎ:**
 - โหลดด้วย **plain `<script src>` เรียงลำดับ** (`config → data → game`) — **ห้าม `import/export`** (แชร์ global
   scope; verifier + เบราว์เซอร์ eval ตามลำดับ). ค่าส่งผ่าน global: `window.GAME_CONFIG`/`window.GAME_DATA`
@@ -130,7 +132,7 @@
 | `KAMPAI.submitScore(score,{mode,...meta})` | ส่งคะแนนตอนจบเกม (= gameEnd เดิม) — **ต้องเรียก** |
 | `KAMPAI.goHome()` | ปุ่มกลับหน้าหลัก (= navigate เดิม) |
 | `KAMPAI.controls.mount({dpad,buttons,onTap})` | วาด D-pad+ปุ่มบนมือถือ + sync คีย์บอร์ด → อ่าน `KAMPAI.input{up,down,left,right,a,b}` |
-| `KAMPAI.sound.mountToggles()` | วางปุ่ม 🔊/🗣️/🎵 (เปิด/ปิด SFX·TTS·BGM) มุมบนซ้าย — เรียกตอนเริ่ม |
+| `KAMPAI.sound.mountToggles()` | วางปุ่ม 🔊/🗣️/🎵 (เปิด/ปิด SFX·TTS·BGM) มุมล่างขวา — เรียกตอนเริ่ม |
 | `KAMPAI.sound.defaultBgm('preset')` | ตั้งเพลงพื้นหลังเริ่มต้น (cheerful/calm/warm/playful/bright/mellow) ถ้าหลังบ้านไม่กำหนด |
 | `KAMPAI.sound.bgmStart()` / `bgmStop()` | เริ่ม/หยุดเพลง (เรียกตอน startGame / endGame) |
 | `KAMPAI.sound.correct()` / `wrong()` / `timeUp()` / `gameOver()` | เสียงเอฟเฟกต์ตามเหตุการณ์ |

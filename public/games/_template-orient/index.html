@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>เกมตัวอย่าง — Template แนวจอ (portrait + landscape)</title>
+<!--
+═══════════════════════════════════════════════════════════════════════════
+  KAMPAI-SCHOOL · ORIENTATION TEMPLATE (_template-orient)
+  รองรับแนวตั้ง + แนวนอน · ปรับ HUD/เมนูอัตโนมัติ · engine กลาง kampai-orient.js
+
+  วิธีใช้:
+  1. cp -r public/games/_template-orient  public/games/{subject}/{slug}
+  2. config.js → SLUG + ORIENTATION ('any'|'portrait'|'landscape')
+  3. เขียนเกมใน game.js · เนื้อหา data.js · สไตล์ style.css
+  4. อ่าน ORIENT-GAME.md ก่อนทำเกม runner / AR / split-screen
+  5. migration + pnpm verify:game public/games/{subject}/{slug}/index.html
+
+  ไฟล์กลาง (ปรับปรุงที่เดียว · มีผลทุกเกม):
+  · /games/kampai-orient.js  — ตรวจจอ + overlay + iframe parentViewport
+  · /games/kampai-sdk.js     — คะแนน / เสียง / dpad / leaderboard
+═══════════════════════════════════════════════════════════════════════════
+-->
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Overlay หมุนจอ (แสดงเมื่อ ORIENTATION ≠ any บนมือถือ) -->
+<div id="rotate-overlay" aria-live="polite">
+  <div class="ro-inner">
+    <div class="ro-phone" aria-hidden="true">📱</div>
+    <div class="ro-text">กรุณาหมุนเครื่องเป็น<b>แนวนอน</b></div>
+    <div class="ro-hint">↻ หมุนมือถือแล้วเกมจะเล่นได้ทันที</div>
+  </div>
+</div>
+
+<!-- HUD -->
+<div id="hud-bar">
+  <div id="score-container" class="hud-pill">⭐ <span id="score-value">0</span></div>
+  <div id="hud-center">พร้อม!</div>
+  <div id="life-container" class="hud-pill">❤️❤️❤️</div>
+</div>
+<div id="player-chip"></div>
+
+<canvas id="game-canvas"></canvas>
+
+<!-- Start screen — menu-body 2 คอลัมน์อัตโนมัติบน ui-landscape -->
+<div id="blocker">
+  <div class="menu-panel">
+    <header class="menu-header menu-section">
+      <span class="orient-badge" id="orient-badge">📐 any</span>
+      <h1 id="game-title">🧭 เกมตัวอย่าง</h1>
+      <p id="game-subtitle">—</p>
+    </header>
+    <div class="menu-body">
+      <aside class="menu-settings">
+        <div id="my-stats">
+          <div class="ms-cell"><div class="ms-val" id="ms-best">0</div><div class="ms-label">คะแนนสูงสุด</div></div>
+          <div class="ms-cell"><div class="ms-val" id="ms-plays">0</div><div class="ms-label">เล่นแล้ว</div></div>
+        </div>
+        <div class="menu-section">
+          <h3>💡 แนวทางแนวจอ</h3>
+          <ul class="tips-list" id="tips-list"></ul>
+        </div>
+      </aside>
+      <main class="menu-play">
+        <div class="leaderboard-box">
+          <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+          <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" type="button" onclick="startGame()">▶ เริ่มเกม</button>
+          <button class="btn btn-blue" type="button" onclick="openVersus()">🏁 แข่ง 2 คน</button>
+          <button class="btn btn-blue" type="button" onclick="KAMPAI.goHome()">🎮 กลับ</button>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- Game Over -->
+<div id="gameover-screen">
+  <div class="menu-panel">
+    <header class="menu-header">
+      <h1>จบเกม!</h1>
+      <div id="go-stars">☆☆☆</div>
+      <div id="final-score">0</div>
+      <div id="kampai-result"></div>
+    </header>
+    <div class="leaderboard-box">
+      <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+      <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" type="button" onclick="location.reload()">🔄 เล่นใหม่</button>
+      <button class="btn btn-blue" type="button" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+    </div>
+  </div>
+</div>
+
+<script src="/games/kampai-sdk.js"></script>
+<script src="/games/kampai-orient.js"></script>
+<script src="/games/kampai-match.js"></script>
+<script src="/games/kampai-versus.js"></script>
+<script>
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+window.KampaiOrient = window.KampaiOrient || { init:function(){return this;}, getViewportSize:function(){return{w:innerWidth,h:innerHeight};}, isPortrait:function(){return innerHeight>innerWidth;}, isLandscape:function(){return innerWidth>=innerHeight;}, isBlocked:function(){return false;}, isPaused:function(){return false;}, canStart:function(){return true;}, setPlaying:function(){}, lock:function(){}, notifyGameStart:function(){}, refresh:function(){} };
+window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){},report:function(){},finish:function(){return false;},leave:function(){}};} };
+window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=window.KampaiMatch&&window.KampaiMatch.create?window.KampaiMatch.create(o):null; return{available:false,openMenu:function(){if(m)m.openMenu();},report:function(s,i){if(m)m.report(s,i);},finish:function(s,i){if(m&&m.finish(s,i))return true;return false;},leave:function(){}};} };
+</script>
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
