@@ -51,6 +51,7 @@ html,body{height:100%;font-family:'Itim', 'Sarabun', sans-serif;overflow:hidden;
 <canvas id="gameCanvas"></canvas>
 <div id="hud">
   <div class="hud-pill" id="scoreHud">⭐ 0</div>
+  <div class="hud-pill" id="letterHud">สะสมคำ: ◯ ◯ ◯</div>
   <div class="hud-pill" id="lifeHud">❤️❤️❤️</div>
 </div>
 <div id="qHud" class="hud-pill">📖 พร้อม!</div>
@@ -126,6 +127,20 @@ const V_H = 720;
 let V_W = 1280;
 let renderScale = 1;
 let gameRng = Math.random;
+let collectedLetters = [];
+
+function updateLetterHud() {
+  const letters = ['ส', 'ร', 'ะ'];
+  let html = 'สะสมคำ: ';
+  letters.forEach(l => {
+    if (collectedLetters.includes(l)) {
+      html += `<span style="color:#e11d48; font-weight:900; text-shadow:0 0 4px rgba(225,29,72,0.4); margin:0 3px">${l}</span>`;
+    } else {
+      html += `<span style="color:#94a3b8; margin:0 3px">◯</span>`;
+    }
+  });
+  document.getElementById('letterHud').innerHTML = html;
+}
 
 function getEmojiClue(word) {
   const clues = {
@@ -230,12 +245,37 @@ function initPetals() {
 }
 
 function makePlatform(x, y, w, withQuestion) {
-  const p = { x, y, w, h: PLAT_H, flowers: [], shrooms: [], question: withQuestion, id: platIndex++ };
-  const nF = 2 + (Math.random() * 4 | 0);
+  const isMoving = !withQuestion && platIndex > 0 && gameRng() < 0.35; // 35% chance for normal platforms
+  const p = {
+    x, y, w, h: PLAT_H, flowers: [], shrooms: [], question: withQuestion, id: platIndex++,
+    moving: isMoving, baseY: y, phase: gameRng() * 6.28,
+    moveRange: rand(35, 75), moveSpeed: 0.015 + gameRng() * 0.02
+  };
+  const nF = 2 + (gameRng() * 4 | 0);
   for (let i = 0; i < nF; i++) p.flowers.push({ ox: rand(8, w - 8), col: ['#f9a8d4','#fde68a','#c4b5fd'][i % 3] });
-  if (Math.random() < 0.35) p.shrooms.push({ ox: rand(12, w - 20) });
+  if (gameRng() < 0.35) p.shrooms.push({ ox: rand(12, w - 20) });
   platforms.push(p);
-  if (Math.random() < 0.45) stars.push({ x: x + rand(20, w - 20), y: y - 28, taken: false, bob: Math.random() * 6.28 });
+  
+  if (gameRng() < 0.45) {
+    if (gameRng() < 0.35) {
+      // Find the next letter to collect (in sequence)
+      const nextIdx = collectedLetters.length;
+      if (nextIdx < 3) {
+        const letter = ['ส', 'ร', 'ะ'][nextIdx];
+        stars.push({
+          x: x + rand(20, w - 20),
+          y: y - rand(70, 120), // Spawns higher in the air
+          taken: false,
+          bob: gameRng() * 6.28,
+          letter: letter
+        });
+      } else {
+        stars.push({ x: x + rand(20, w - 20), y: y - 28, taken: false, bob: gameRng() * 6.28 });
+      }
+    } else {
+      stars.push({ x: x + rand(20, w - 20), y: y - 28, taken: false, bob: gameRng() * 6.28 });
+    }
+  }
   return p;
 }
 
@@ -248,7 +288,7 @@ function spawnQuestion(plat) {
   bubbles = [];
   const midX = plat.x + plat.w / 2;
   opts.forEach((opt, i) => {
-    const offset = (i - 1) * 120; // Spaced by exactly 120px virtual
+    const offset = (i - 1) * 150; // Spaced by exactly 150px virtual
     const baseY = plat.y - rand(100, 190); // Float higher in the sky
     bubbles.push({
       x: midX + offset,
@@ -272,6 +312,8 @@ function resetWorld(rng) {
   platIndex = 0; qIdx = 0; currentQ = null; answeredQ = true;
   qOrder = shuffle(QUESTIONS.map((_, i) => i), rng || Math.random);
   camX = 0;
+  collectedLetters = [];
+  updateLetterHud();
   const groundY = V_H - 240;
   const first = makePlatform(40, groundY, 420, false);
   lastSafePlat = first;
@@ -280,7 +322,7 @@ function resetWorld(rng) {
     const gap = rand(60, 110);
     const dy = rand(-40, 40);
     const withQ = (i + 1) % 3 === 0;
-    const w = withQ ? rand(300, 360) : rand(160, 220);
+    const w = withQ ? rand(380, 440) : rand(160, 220);
     x += gap + (platforms[platforms.length - 1]?.w || 420);
     y = Math.max(V_H - 480, Math.min(V_H - 240, y + dy));
     makePlatform(x, y, w, withQ);
@@ -371,7 +413,7 @@ function extendWorld() {
     const gap = rand(60, 110);
     const dy = rand(-40, 40);
     const withQ = platIndex % 3 === 0;
-    const w = withQ ? rand(300, 360) : rand(160, 220);
+    const w = withQ ? rand(380, 440) : rand(160, 220);
     const x = last.x + last.w + gap;
     let y = last.y + dy;
     y = Math.max(V_H - 480, Math.min(V_H - 240, y));
@@ -383,6 +425,17 @@ function extendWorld() {
 }
 
 function updatePlayer() {
+  // Update moving platforms
+  for (const p of platforms) {
+    if (p.moving) {
+      p.phase += p.moveSpeed;
+      p.y = p.baseY + Math.sin(p.phase) * p.moveRange;
+      if (player.onGround && lastSafePlat === p) {
+        player.y = p.y - player.h;
+      }
+    }
+  }
+
   // Trigger question spawning dynamically when approaching question platforms
   for (const p of platforms) {
     if (p.question && currentQ === null && p.x - camX < V_W + 100 && p.x - camX > -p.w) {
@@ -449,20 +502,50 @@ function updatePlayer() {
   for (const s of stars) {
     if (s.taken) continue;
     s.bob += 0.06;
+    const sY = s.letter ? s.y + Math.sin(s.bob) * 6 : s.y + Math.sin(s.bob) * 4;
     const dx = (player.x + player.w / 2) - s.x;
-    const dy = (player.y + player.h / 2) - (s.y + Math.sin(s.bob) * 4);
+    const dy = (player.y + player.h / 2) - sY;
     if (dx * dx + dy * dy < 900) {
-      s.taken = true; score += 10;
-      AudioSynth.play('star');
-      addFloatText(s.x, s.y - 10, '+10 ⭐', '#fbbf24');
+      s.taken = true;
+      if (s.letter) {
+        if (collectedLetters.length < 3 && !collectedLetters.includes(s.letter)) {
+          collectedLetters.push(s.letter);
+          score += 20;
+          AudioSynth.play('correct', collectedLetters.length);
+          addFloatText(s.x, s.y - 15, 'สะสม: ' + s.letter + ' ✨', '#e11d48');
+          updateLetterHud();
+          
+          if (collectedLetters.length === 3) {
+            score += 100;
+            combo++;
+            AudioSynth.play('correct', 5);
+            addFloatText(player.x, player.y - 45, 'สำเร็จคำวิเศษ! 🎉 +100 ⭐', '#fbbf24');
+            const el = document.getElementById('comboBanner');
+            el.textContent = 'สะสมอักษรครบคำว่า "สระ"! 🌈✨ +100 ⭐';
+            el.classList.remove('show');
+            void el.offsetWidth;
+            el.classList.add('show');
+            
+            setTimeout(() => {
+              collectedLetters = [];
+              updateLetterHud();
+            }, 2000);
+          }
+        }
+      } else {
+        score += 10;
+        AudioSynth.play('star');
+        addFloatText(s.x, s.y - 10, '+10 ⭐', '#fbbf24');
+      }
       updateHud();
     }
   }
 
   if (player.y > V_H + 80) handleFall();
 
-  // Auto-scrolling camera (increased speed by 20%)
-  camX += 1.15;
+  // Auto-scrolling camera (dynamic speed based on combo)
+  const scrollSpeed = 1.15 + Math.min(0.6, combo * 0.1);
+  camX += scrollSpeed;
   if (camX < 0) camX = 0;
 
   // Constrain player to right screen edge
@@ -494,11 +577,11 @@ function drawCloud(c) {
 
 function drawPlatform(p) {
   const x = p.x - camX, y = p.y;
-  ctx.fillStyle = '#92400e';
+  ctx.fillStyle = p.moving ? '#78350f' : '#92400e';
   ctx.beginPath(); ctx.roundRect(x, y, p.w, p.h, 12); ctx.fill();
-  ctx.fillStyle = '#65a30d';
+  ctx.fillStyle = p.moving ? '#4d7c0f' : '#65a30d';
   ctx.fillRect(x, y - 8, p.w, 14);
-  ctx.fillStyle = '#84cc16';
+  ctx.fillStyle = p.moving ? '#a3e635' : '#84cc16';
   for (let i = 0; i < p.w; i += 18) ctx.fillRect(x + i, y - 10, 10, 6);
   p.flowers.forEach(f => {
     ctx.fillStyle = f.col;
@@ -585,14 +668,23 @@ function drawStar(s) {
   if (s.taken) return;
   const x = s.x - camX, y = s.y + Math.sin(s.bob) * 4;
   ctx.save(); ctx.translate(x, y);
-  ctx.fillStyle = '#fbbf24';
-  ctx.beginPath();
-  for (let i = 0; i < 5; i++) {
-    const a = (i * 4 * Math.PI) / 5 - Math.PI / 2;
-    const r = i % 2 ? 6 : 12;
-    ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+  if (s.letter) {
+    ctx.fillStyle = '#f59e0b';
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.arc(0, 0, 16, 0, 6.28); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 18px Itim'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(s.letter, 0, 1);
+  } else {
+    ctx.fillStyle = '#fbbf24';
+    ctx.beginPath();
+    for (let i = 0; i < 5; i++) {
+      const a = (i * 4 * Math.PI) / 5 - Math.PI / 2;
+      const r = i % 2 ? 6 : 12;
+      ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+    }
+    ctx.closePath(); ctx.fill();
   }
-  ctx.closePath(); ctx.fill();
   ctx.restore();
 }
 
