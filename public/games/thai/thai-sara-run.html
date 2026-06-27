@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>เกมภาษาไทย: ตะลุยด่านสระพาสนุก ป.1-6</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Itim&family=Sarabun:wght@400;600;700;800&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;font-family:'Kanit',sans-serif;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;background:#a1c4fd}
+html,body{height:100%;font-family:'Itim', 'Sarabun', sans-serif;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;background:#a1c4fd}
 #wrap{position:fixed;inset:0;display:flex;flex-direction:column}
 #gameCanvas{display:block;flex:1;width:100%;touch-action:none}
 #hud{position:fixed;top:0;left:0;right:0;display:none;align-items:flex-start;justify-content:space-between;padding:54px 12px 8px;pointer-events:none;z-index:15;flex-wrap:wrap;gap:6px}
 #hud.on{display:flex}
-#qHud{position:fixed;top:54px;left:50%;transform:translateX(-50%) scale(0);z-index:16;font-size:clamp(20px,5vw,28px);color:#be185d;font-weight:800;border:3px solid #fbcfe8;background:rgba(255,255,255,0.96);padding:6px 22px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,0.12);white-space:nowrap;pointer-events:none;transition:transform 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275)}
+#qHud{position:fixed;top:54px;left:50%;transform:translateX(-50%) scale(0);z-index:16;font-size:clamp(24px,6vw,34px);color:#be185d;font-weight:800;border:3px solid #fbcfe8;background:rgba(255,255,255,0.96);padding:8px 24px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,0.12);white-space:nowrap;pointer-events:none;transition:transform 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275)}
 #hud.on ~ #qHud{transform:translateX(-50%) scale(1)}
 .hud-pill{font-weight:700;background:rgba(255,255,255,.88);color:#334155;padding:6px 14px;border-radius:999px;box-shadow:0 4px 12px rgba(0,0,0,.12);font-size:clamp(14px,3.5vw,18px);border:2px solid rgba(255,255,255,.9)}
 #comboBanner{position:fixed;top:42%;left:50%;transform:translate(-50%,-50%) scale(0);padding:12px 24px;border-radius:20px;font-weight:800;font-size:clamp(18px,4.5vw,28px);color:#fff;z-index:25;pointer-events:none;opacity:0;background:linear-gradient(90deg,#f472b6,#a78bfa,#38bdf8,#4ade80,#fbbf24);background-size:200% 100%;animation:none;text-shadow:0 2px 8px rgba(0,0,0,.25)}
@@ -125,6 +125,17 @@ const WORLD_H = 720, PLAT_H = 48;
 const V_H = 720;
 let V_W = 1280;
 let renderScale = 1;
+let gameRng = Math.random;
+
+function getEmojiClue(word) {
+  const clues = {
+    'ปู': '🦀', 'ตา': '👁️', 'ลิง': '🐒', 'โรงเรียน': '🏫', 'ม้า': '🐎',
+    'หมา': '🐕', 'นัก': '🧑‍🎓', 'ไก่': '🐔', 'หมู': '🐖', 'แม่': '👩',
+    'ดิน': '🌱', 'มัด': '📦', 'เรา': '👥', 'เด็ก': '👶', 'ปลา': '🐟',
+    'ช้าง': '🐘', 'ฟัน': '🦷', 'รัน': '🏃', 'สัตว์': '🦁'
+  };
+  return clues[word] || '❓';
+}
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -194,9 +205,9 @@ function resize() {
   skyGrad.addColorStop(1, '#c2e9fb');
 }
 
-function rand(a, b) { return a + Math.random() * (b - a); }
+function rand(a, b) { return a + gameRng() * (b - a); }
 function shuffle(arr, rng) {
-  const r = rng || Math.random;
+  const r = rng || gameRng;
   const a = arr.slice();
   for (let i = a.length - 1; i > 0; i--) {
     const j = (r() * (i + 1)) | 0;
@@ -229,31 +240,31 @@ function makePlatform(x, y, w, withQuestion) {
 }
 
 function spawnQuestion(plat) {
-  if (qIdx >= qOrder.length) qOrder = shuffle(QUESTIONS.map((_, i) => i), Math.random);
+  if (qIdx >= qOrder.length) qOrder = shuffle(QUESTIONS.map((_, i) => i), gameRng);
   const qi = qOrder[qIdx++ % qOrder.length];
   currentQ = { ...QUESTIONS[qi], platId: plat.id };
   answeredQ = false;
-  const opts = shuffle(currentQ.opts.slice());
+  const opts = shuffle(currentQ.opts.slice(), gameRng);
   bubbles = [];
   const midX = plat.x + plat.w / 2;
   opts.forEach((opt, i) => {
-    const offset = (i - 1) * 120; // Separated by exactly 120px virtual
-    const baseY = plat.y - rand(80, 170); // Random altitudes above the platform
+    const offset = (i - 1) * 120; // Spaced by exactly 120px virtual
+    const baseY = plat.y - rand(100, 190); // Float higher in the sky
     bubbles.push({
       x: midX + offset,
       y: baseY,
       baseY: baseY,
-      r: 30,
+      r: 34, // Larger choice bubble
       text: opt,
       correct: opt === currentQ.answer,
-      wob: Math.random() * 6.28,
-      phase: Math.random() * 6.28,
-      floatSpeed: 0.02 + Math.random() * 0.03,
+      wob: gameRng() * 6.28,
+      phase: gameRng() * 6.28,
+      floatSpeed: 0.02 + gameRng() * 0.03,
       col: BUBBLE_COLORS[i % 3],
     });
   });
   plat.question = false;
-  document.getElementById('qHud').textContent = '📖 ' + currentQ.prompt.replace('_', '___') + ' (' + currentQ.word + ')';
+  document.getElementById('qHud').textContent = '📖 ' + currentQ.prompt.replace('_', '___') + ' (' + getEmojiClue(currentQ.word) + ')';
 }
 
 function resetWorld(rng) {
@@ -514,13 +525,13 @@ function drawBunny() {
   ctx.beginPath(); ctx.arc(-10, 4, 6, 0, 6.28); ctx.arc(10, 4, 6, 0, 6.28); ctx.fill();
   ctx.fillStyle = '#334155';
   if (player.state === 'hurt') {
-    ctx.font = 'bold 16px Kanit'; ctx.textAlign = 'center'; ctx.fillText('> <', 0, -2);
+    ctx.font = 'bold 18px Itim'; ctx.textAlign = 'center'; ctx.fillText('> <', 0, -2);
   } else if (player.state === 'happy' || player.state === 'jump') {
-    ctx.font = 'bold 14px Kanit'; ctx.fillText('^ ▽ ^', 0, -2);
+    ctx.font = 'bold 16px Itim'; ctx.fillText('^ ▽ ^', 0, -2);
   } else if (player.state === 'run') {
-    ctx.font = 'bold 14px Kanit'; ctx.fillText('^‿^', 0, -2);
+    ctx.font = 'bold 16px Itim'; ctx.fillText('^‿^', 0, -2);
   } else {
-    ctx.font = 'bold 16px Kanit'; ctx.fillText('😳', 0, 2);
+    ctx.font = 'bold 18px Itim'; ctx.fillText('😳', 0, 2);
   }
   ctx.restore();
 }
@@ -537,7 +548,7 @@ function drawBubble(b) {
   ctx.beginPath(); ctx.arc(0, 0, b.r, 0, 6.28); ctx.fill();
   ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = 2; ctx.stroke();
   ctx.fillStyle = '#1e293b';
-  ctx.font = 'bold 28px Kanit'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.font = 'bold 36px Itim'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.fillText(b.text, 0, 1);
   ctx.restore();
   b.wob += 0.07;
@@ -592,7 +603,7 @@ function draw() {
   floatTexts.forEach(ft => {
     ft.y -= 1.2; ft.life -= 0.015;
     ctx.globalAlpha = Math.max(0, ft.life);
-    ctx.fillStyle = ft.col; ctx.font = 'bold 18px Kanit'; ctx.textAlign = 'center';
+    ctx.fillStyle = ft.col; ctx.font = 'bold 22px Itim'; ctx.textAlign = 'center';
     ctx.fillText(ft.text, ft.x - camX, ft.y);
     ctx.globalAlpha = 1;
   });
@@ -609,13 +620,14 @@ function loop() {
 
 function startGame(rng, playerInfo) {
   versusMode = playerInfo !== null && playerInfo !== undefined;
+  gameRng = rng || Math.random;
   score = 0; lives = 3; combo = 0; correctCount = 0;
   gameRunning = true;
   document.getElementById('startModal').classList.add('off');
   document.getElementById('overModal').classList.add('off');
   document.getElementById('hud').classList.add('on');
   resize();
-  resetWorld(rng || Math.random);
+  resetWorld(gameRng);
   updateHud();
   try { KAMPAI.sound.unlock(); KAMPAI.sound.defaultBgm('playful'); KAMPAI.sound.bgmStart(); } catch (e) {}
   initClouds(); initPetals();
