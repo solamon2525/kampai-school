@@ -234,7 +234,7 @@ function spawnWorldQuestion(plat, rng) {
   const yOffset1 = localCoopMode ? 110 : 130;
   opts1.forEach((opt, i) => {
     const offset = (i - 1) * 140;
-    wld.bubbles.push({ x: midX + offset, y: plat.y - yOffset1, baseY: plat.y - yOffset1, r: 34, text: opt, correct: opt === wld.currentQ1.answer, wob: r() * 6.28, phase: r() * 6.28, floatSpeed: 0.02 + r() * 0.03, vx: -(0.55 + r() * 0.45), col: BUBBLE_COLORS[i % 3], player: 1 });
+    wld.bubbles.push({ x: midX + offset, y: plat.y - yOffset1, baseY: plat.y - yOffset1, r: 34, text: opt, correct: opt === wld.currentQ1.answer, wob: r() * 6.28, phase: r() * 6.28, floatSpeed: 0.02 + r() * 0.03, vx: -0.15, col: BUBBLE_COLORS[i % 3], player: 1 });
   });
   if (localCoopMode && wld.player2) {
     if (wld.qIdx2 >= wld.qOrder2.length) wld.qOrder2 = shuffle(QUESTIONS.map((_, i) => i), r);
@@ -245,7 +245,7 @@ function spawnWorldQuestion(plat, rng) {
     const yOffset2 = 190;
     opts2.forEach((opt, i) => {
       const offset = (i - 1) * 140;
-      wld.bubbles.push({ x: midX + offset, y: plat.y - yOffset2, baseY: plat.y - yOffset2, r: 34, text: opt, correct: opt === wld.currentQ2.answer, wob: r() * 6.28, phase: r() * 6.28, floatSpeed: 0.02 + r() * 0.03, vx: -(0.55 + r() * 0.45), col: BUBBLE_COLORS[i % 3], player: 2 });
+      wld.bubbles.push({ x: midX + offset, y: plat.y - yOffset2, baseY: plat.y - yOffset2, r: 34, text: opt, correct: opt === wld.currentQ2.answer, wob: r() * 6.28, phase: r() * 6.28, floatSpeed: 0.02 + r() * 0.03, vx: -0.15, col: BUBBLE_COLORS[i % 3], player: 2 });
     });
   }
   plat.question = false;
@@ -460,19 +460,43 @@ function updateWorld() {
   if (localCoopMode && wld.player2) { updatePlayerPhysics(wld.player2, keys2, 2); }
   for (const b of wld.bubbles) { b.phase += b.floatSpeed; b.y = b.baseY + Math.sin(b.phase) * 14; b.x += b.vx || 0; }
   const pad = 14;
-  for (const b of wld.bubbles) {
-    if (b.player === 1) {
-      const dx = (wld.player1.x + wld.player1.w / 2) - b.x;
-      const dy = (wld.player1.y + wld.player1.h / 2) - b.y;
-      if (dx * dx + dy * dy < (b.r + pad) * (b.r + pad)) hitWorldBubble(1, b);
+  const bubblesCopy = [...wld.bubbles];
+  for (const b of bubblesCopy) {
+    const dx1 = (wld.player1.x + wld.player1.w / 2) - b.x;
+    const dy1 = (wld.player1.y + wld.player1.h / 2) - b.y;
+    if (dx1 * dx1 + dy1 * dy1 < (b.r + pad) * (b.r + pad)) {
+      if (b.player === 1) {
+        hitWorldBubble(1, b);
+      } else if (localCoopMode) {
+        wld.lives1 = Math.max(0, wld.lives1 - 1);
+        wld.player1.state = 'hurt';
+        wld.player1.hurtT = 35;
+        shakeT = 16;
+        addWorldFloatText(wld.player1.x + 22, wld.player1.y - 20, 'ไม่ใช่ของ P1! 💔', '#ef4444');
+        AudioSynth.play('wrong');
+        try { KAMPAI.sound.wrong(); } catch (e) {}
+        wld.bubbles = wld.bubbles.filter(bub => bub !== b);
+        checkGameOver();
+      }
+      continue;
     }
-  }
-  if (localCoopMode && wld.player2) {
-    for (const b of wld.bubbles) {
-      if (b.player === 2) {
-        const dx = (wld.player2.x + wld.player2.w / 2) - b.x;
-        const dy = (wld.player2.y + wld.player2.h / 2) - b.y;
-        if (dx * dx + dy * dy < (b.r + pad) * (b.r + pad)) hitWorldBubble(2, b);
+    if (localCoopMode && wld.player2) {
+      const dx2 = (wld.player2.x + wld.player2.w / 2) - b.x;
+      const dy2 = (wld.player2.y + wld.player2.h / 2) - b.y;
+      if (dx2 * dx2 + dy2 * dy2 < (b.r + pad) * (b.r + pad)) {
+        if (b.player === 2) {
+          hitWorldBubble(2, b);
+        } else {
+          wld.lives2 = Math.max(0, wld.lives2 - 1);
+          wld.player2.state = 'hurt';
+          wld.player2.hurtT = 35;
+          shakeT = 16;
+          addWorldFloatText(wld.player2.x + 22, wld.player2.y - 20, 'ไม่ใช่ของ P2! 💔', '#ef4444');
+          AudioSynth.play('wrong');
+          try { KAMPAI.sound.wrong(); } catch (e) {}
+          wld.bubbles = wld.bubbles.filter(bub => bub !== b);
+          checkGameOver();
+        }
       }
     }
   }
@@ -541,10 +565,28 @@ function drawWorldBubble(b) {
   const wob = 1 + Math.sin(b.wob) * 0.08;
   const x = b.x - wld.camX, y = b.y;
   ctx.save(); ctx.translate(x, y); ctx.scale(wob, 1 / wob);
-  const g = ctx.createRadialGradient(-6, -6, 4, 0, 0, b.r); g.addColorStop(0, '#fff'); g.addColorStop(0.45, b.col); g.addColorStop(1, b.col);
+  const g = ctx.createRadialGradient(-6, -6, 4, 0, 0, b.r);
+  if (localCoopMode) {
+    if (b.player === 1) {
+      g.addColorStop(0, '#fff5f5');
+      g.addColorStop(0.45, '#fecdd3');
+      g.addColorStop(1, '#fda4af');
+      ctx.strokeStyle = 'rgba(219,39,119,0.95)';
+    } else {
+      g.addColorStop(0, '#f0f9ff');
+      g.addColorStop(0.45, '#bae6fd');
+      g.addColorStop(1, '#7dd3fc');
+      ctx.strokeStyle = 'rgba(37,99,235,0.95)';
+    }
+    ctx.lineWidth = 3.5;
+  } else {
+    g.addColorStop(0, '#fff');
+    g.addColorStop(0.45, b.col);
+    g.addColorStop(1, b.col);
+    ctx.strokeStyle = 'rgba(255,255,255,.7)';
+    ctx.lineWidth = 2;
+  }
   ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, b.r, 0, 6.28); ctx.fill();
-  if (localCoopMode) { ctx.strokeStyle = b.player === 1 ? 'rgba(219,39,119,0.95)' : 'rgba(37,99,235,0.95)'; ctx.lineWidth = 3.5; } 
-  else { ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = 2; }
   ctx.stroke();
   ctx.fillStyle = '#1e293b'; ctx.font = 'bold 36px Itim'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(b.text, 0, 1);
   ctx.restore(); b.wob += 0.07;
