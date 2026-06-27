@@ -72,24 +72,48 @@ function syncDpad() {
   if (L) L.style.display = (playing && mode === 'local_2p') ? 'flex' : 'none';  // ซ้าย = P1 (เฉพาะ 2 คน)
   if (R) R.style.display = playing ? 'flex' : 'none';                            // ขวา = ผู้เล่นเดี่ยว / P2
 }
-let landscapeForced = false;   // ผู้เล่นกด "เริ่มเล่นเลย" → เลิกบล็อกแนวตั้ง (กันค้าง/หมุนไม่ได้)
+let landscapeLocked = false;
 function isPortrait() {
-  // matchMedia เชื่อถือได้กว่า innerW/H ตอน orientationchange (บางเครื่องอัปเดตช้า)
-  if (window.matchMedia) { const m = window.matchMedia('(orientation: portrait)'); if (typeof m.matches === 'boolean') return m.matches; }
+  if (window.matchMedia) {
+    const m = window.matchMedia('(orientation: portrait)');
+    if (typeof m.matches === 'boolean') return m.matches;
+  }
   return window.innerHeight > window.innerWidth;
 }
-function checkOrientation() {
-  // แสดง overlay/หยุดเกม "เฉพาะตอนเล่นจริง" — จอเริ่ม (เมนู) ไม่ถูกบัง กดเริ่มได้เสมอ
-  const show = !landscapeForced && started && !isGameOver && document.body.classList.contains('is-touch') && isPortrait();
-  document.body.classList.toggle('show-rotate', show);
-  gamePaused = show;
+async function lockLandscape() {
+  if (landscapeLocked) return;
+  try {
+    if (screen.orientation && typeof screen.orientation.lock === 'function') {
+      await screen.orientation.lock('landscape');
+      landscapeLocked = true;
+    }
+  } catch (e) { /* บางเบราว์เซอร์/iframe ไม่รองรับ — ใช้ overlay บังคับแทน */ }
 }
-window.addEventListener('resize', checkOrientation);
-window.addEventListener('orientationchange', () => { checkOrientation(); setTimeout(checkOrientation, 350); });  // เผื่อขนาดอัปเดตช้า
-try { const _mq = window.matchMedia('(orientation: portrait)'); _mq.addEventListener ? _mq.addEventListener('change', checkOrientation) : _mq.addListener(checkOrientation); } catch (e) { /* */ }
-// ปุ่มหนีตาย: กดเริ่มเล่นเลย (เครื่องหมุนไม่ได้/อยู่ในกรอบที่ไม่หมุน → ไม่ค้าง)
-{ const _rp = document.getElementById('ro-play'); if (_rp) _rp.addEventListener('click', () => { landscapeForced = true; checkOrientation(); }); }
-checkOrientation();   // เช็คตั้งแต่จอเริ่ม
+function checkOrientation() {
+  const portraitBlock = document.body.classList.contains('is-touch') && isPortrait();
+  document.body.classList.toggle('show-rotate', portraitBlock);
+  gamePaused = portraitBlock && started && !isGameOver;
+  if (!portraitBlock && started) resize();
+}
+function requireLandscape() {
+  if (document.body.classList.contains('is-touch') && isPortrait()) {
+    checkOrientation();
+    return false;
+  }
+  lockLandscape();
+  return true;
+}
+window.addEventListener('resize', () => { checkOrientation(); resize(); });
+window.addEventListener('orientationchange', () => {
+  setTimeout(() => { checkOrientation(); resize(); }, 100);
+  setTimeout(() => { checkOrientation(); resize(); }, 400);
+});
+try {
+  const _mq = window.matchMedia('(orientation: portrait)');
+  (_mq.addEventListener ? _mq.addEventListener('change', checkOrientation) : _mq.addListener(checkOrientation));
+} catch (e) { /* */ }
+document.body.addEventListener('touchstart', () => lockLandscape(), { once: true, passive: true });
+checkOrientation();
 
 // สลับเลนจากปุ่มวิชวล (confused-aware) — slot:'left'=P1(2คน) · 'right'=ผู้เล่นเดี่ยว หรือ P2(2คน)
 function nudgeLane(slot, dir) {
@@ -2826,6 +2850,7 @@ function resolveHit(playerIndex, isCorrect, x, y) {
 /* ── ฟังก์ชันเริ่ม/จบ เกม ── */
 
 function startSinglePlayer(m) {
+  if (!requireLandscape()) return;
   if (window.KAMPAI) {
     window.KAMPAI._submitted = false;
   }
@@ -2908,6 +2933,7 @@ let p1Student = { displayName: 'ผู้เล่น 1', photoUrl: null, isGues
 let p2Student = { displayName: 'ผู้เล่น 2', photoUrl: null, isGuest: true };
 
 function startLocalTwoPlayer() {
+  if (!requireLandscape()) return;
   if (window.parent && typeof window.parent.postMessage === 'function') {
     window.parent.postMessage({ type: 'gameStart' }, '*');
   }
@@ -3010,6 +3036,7 @@ function confirmGuestPlayer() {
 }
 
 function launchLocalTwoPlayer() {
+  if (!requireLandscape()) return;
   if (window.KAMPAI) {
     window.KAMPAI._submitted = false;
   }
@@ -3109,6 +3136,7 @@ function renderPlayerChips2P() {
 }
 
 function startGame(onlineMode, opts) {
+  if (!requireLandscape()) return;
   if (window.KAMPAI) {
     window.KAMPAI._submitted = false;
   }
