@@ -1,0 +1,13 @@
+---
+description: Auto commit and push after game edits
+globs: public/games/**
+alwaysApply: false
+---
+
+# Auto Publish Game Changes
+
+- เมื่อแก้ไฟล์เกมใน `public/games/**` เสร็จแล้ว ให้ `git add` เฉพาะไฟล์ที่เกี่ยวข้องกับงานนั้น
+- จากนั้นให้ `git commit` และ `git push` ทันที โดยไม่ต้องถามยืนยันเพิ่ม
+- ใช้ข้อความ commit แบบ Conventional Commits ตามสไตล์ repo (`feat(games): ...` หรือ `fix(games): ...`)
+- ห้ามรวมไฟล์ที่ไม่เกี่ยวข้องกับงานเกมนั้นใน commit เดียวกัน
+- ถ้ามีความเสี่ยงสูง (เช่น ลบไฟล์จำนวนมาก/เปลี่ยนหลายระบบไม่เกี่ยวกัน) ให้หยุดและถามผู้ใช้ก่อน
