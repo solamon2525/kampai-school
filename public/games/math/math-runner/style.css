@@ -923,3 +923,37 @@ body.show-rotate { overflow: hidden; touch-action: none; }
   100% { opacity: 0.3; }
 }
 
+/* ── มือถือแนวนอน: HUD/เมนูกระชับ (หลัง overlay หาย) ── */
+@media (orientation: landscape) and (max-height: 500px) {
+  #hud-container { padding: 4px 10px; }
+  .hud-box { padding: 4px 10px; font-size: 0.85rem; border-width: 2px; border-radius: 10px; }
+  .hud-left, .hud-right { gap: 6px; }
+  #math-problem-bar {
+    font-size: 1.35rem;
+    padding: 4px 18px;
+    border-width: 3px;
+    box-shadow: 0 4px 0px #e67e22, 0 6px 0px #000;
+  }
+  #combo-badge { font-size: 0.75rem; padding: 2px 8px; }
+  #blocker { padding: 8px 0; }
+  #blocker .menu-panel {
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 16px 14px;
+    width: min(360px, 94vw);
+  }
+  #blocker h1 { font-size: 1.8rem; margin-bottom: 2px; }
+  #blocker p.subtitle { font-size: 0.78rem; margin-bottom: 8px; }
+  #blocker .setting-section { padding: 8px 10px; margin-bottom: 8px; }
+  #blocker .action-btn, #blocker .mode-btn, #blocker .diff-btn {
+    padding: 8px 10px;
+    font-size: 0.82rem;
+  }
+  #player-chip { top: 8px; left: 8px; font-size: 0.75rem; padding: 4px 8px; }
+  #my-stats { top: 8px; right: 8px; font-size: 0.72rem; }
+  .dpad-side { bottom: 8px; gap: 8px; }
+  .dpad-left { left: 8px; }
+  .dpad-right { right: 8px; }
+  .dbtn { width: 52px; height: 52px; font-size: 1.4rem; }
+  #kampai-snd { bottom: 72px !important; left: 8px !important; transform: scale(0.85); transform-origin: bottom left; }
+}

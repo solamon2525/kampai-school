@@ -73,13 +73,40 @@ function syncDpad() {
   if (R) R.style.display = playing ? 'flex' : 'none';                            // ขวา = ผู้เล่นเดี่ยว / P2
 }
 let landscapeLocked = false;
-function isPortrait() {
-  if (window.matchMedia) {
-    const m = window.matchMedia('(orientation: portrait)');
-    if (typeof m.matches === 'boolean') return m.matches;
+let parentViewport = null; // จาก PlayGame postMessage (embed)
+
+function isDevicePortrait() {
+  if (parentViewport && typeof parentViewport.landscape === 'boolean') {
+    return !parentViewport.landscape;
+  }
+  try {
+    if (screen.orientation && typeof screen.orientation.type === 'string') {
+      return screen.orientation.type.indexOf('portrait') === 0;
+    }
+  } catch (e) { /* */ }
+  if (typeof window.orientation === 'number') {
+    return Math.abs(window.orientation) !== 90;
+  }
+  if (window.screen && window.screen.width && window.screen.height) {
+    return window.screen.height > window.screen.width;
+  }
+  if (window.visualViewport) {
+    return window.visualViewport.height > window.visualViewport.width;
   }
   return window.innerHeight > window.innerWidth;
 }
+
+function getViewportSize() {
+  if (parentViewport && parentViewport.landscape && parentViewport.width > 0 && parentViewport.height > 0) {
+    return { w: parentViewport.width, h: parentViewport.height };
+  }
+  const vv = window.visualViewport;
+  return {
+    w: vv ? vv.width : window.innerWidth,
+    h: vv ? vv.height : window.innerHeight,
+  };
+}
+
 async function lockLandscape() {
   if (landscapeLocked) return;
   try {
@@ -87,33 +114,60 @@ async function lockLandscape() {
       await screen.orientation.lock('landscape');
       landscapeLocked = true;
     }
-  } catch (e) { /* บางเบราว์เซอร์/iframe ไม่รองรับ — ใช้ overlay บังคับแทน */ }
+  } catch (e) { /* iframe / ไม่มี user gesture */ }
 }
-function checkOrientation() {
-  const portraitBlock = document.body.classList.contains('is-touch') && isPortrait();
+
+function updateRotateOverlay() {
+  const portraitBlock = document.body.classList.contains('is-touch') && isDevicePortrait();
   document.body.classList.toggle('show-rotate', portraitBlock);
   gamePaused = portraitBlock && started && !isGameOver;
-  if (!portraitBlock && started) resize();
 }
+
+let canvasReady = false;
+
+function checkOrientation() {
+  updateRotateOverlay();
+  if (!document.body.classList.contains('show-rotate') && canvasReady) {
+    resize();
+    syncDpad();
+  }
+}
+
 function requireLandscape() {
-  if (document.body.classList.contains('is-touch') && isPortrait()) {
+  if (document.body.classList.contains('is-touch') && isDevicePortrait()) {
     checkOrientation();
     return false;
   }
   lockLandscape();
   return true;
 }
-window.addEventListener('resize', () => { checkOrientation(); resize(); });
+
+function onViewportChange() {
+  checkOrientation();
+}
+
+window.addEventListener('resize', onViewportChange);
 window.addEventListener('orientationchange', () => {
-  setTimeout(() => { checkOrientation(); resize(); }, 100);
-  setTimeout(() => { checkOrientation(); resize(); }, 400);
+  setTimeout(onViewportChange, 100);
+  setTimeout(onViewportChange, 400);
 });
 try {
   const _mq = window.matchMedia('(orientation: portrait)');
-  (_mq.addEventListener ? _mq.addEventListener('change', checkOrientation) : _mq.addListener(checkOrientation));
+  (_mq.addEventListener ? _mq.addEventListener('change', onViewportChange) : _mq.addListener(onViewportChange));
 } catch (e) { /* */ }
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', onViewportChange);
+  window.visualViewport.addEventListener('scroll', onViewportChange);
+}
+window.addEventListener('message', (e) => {
+  const d = e.data;
+  if (d && d.type === 'parentViewport') {
+    parentViewport = d;
+    onViewportChange();
+  }
+});
 document.body.addEventListener('touchstart', () => lockLandscape(), { once: true, passive: true });
-checkOrientation();
+updateRotateOverlay();
 
 // สลับเลนจากปุ่มวิชวล (confused-aware) — slot:'left'=P1(2คน) · 'right'=ผู้เล่นเดี่ยว หรือ P2(2คน)
 function nudgeLane(slot, dir) {
@@ -184,11 +238,14 @@ const ctx = canvas.getContext('2d');
 let cw = 0, ch = 0;
 
 function resize() {
-  cw = canvas.width = window.innerWidth;
-  ch = canvas.height = window.innerHeight;
+  if (!canvasReady) return;
+  const { w, h } = getViewportSize();
+  cw = canvas.width = Math.round(w);
+  ch = canvas.height = Math.round(h);
 }
+canvasReady = true;
 resize();
-window.addEventListener('resize', resize);
+checkOrientation();
 
 const $ = (id) => document.getElementById(id);
 
@@ -620,7 +677,7 @@ window.addEventListener('keyup', e => {
 
 // สัมผัสหน้าจอมือถือ (การควบคุมแบบสัมผัสสัมพัทธ์ Tap-to-Move)
 function handleTouchInput(e) {
-  if (!started || isGameOver) return;
+  if (!started || isGameOver || gamePaused) return;
   
   // 1. คำนวณความเร็วเคลื่อนที่แนวนอน (แกน X) จากทุกนิ้วที่สัมผัสค้างอยู่
   touchMoveDirX = 0;

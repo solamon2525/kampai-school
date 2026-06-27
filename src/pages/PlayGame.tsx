@@ -254,6 +254,49 @@ const PlayGame = () => {
     setPhase('playing');
   }, [levelInfo, questQuery.data]);
 
+  const postParentViewport = useCallback(() => {
+    if (!iframeRef.current?.contentWindow || resolvedSlug !== 'math-runner') return;
+    const orient = screen.orientation?.type ?? '';
+    const landscape = orient.startsWith('landscape') || window.screen.width > window.screen.height;
+    const rect = gameContainerRef.current?.getBoundingClientRect();
+    iframeRef.current.contentWindow.postMessage(
+      {
+        type: 'parentViewport',
+        width: rect?.width ?? window.innerWidth,
+        height: rect?.height ?? window.innerHeight,
+        screenW: window.screen.width,
+        screenH: window.screen.height,
+        landscape,
+        orientation: orient || null,
+      },
+      '*',
+    );
+  }, [resolvedSlug]);
+
+  useEffect(() => {
+    if (phase !== 'playing' || resolvedSlug !== 'math-runner') return;
+    const isTouch = window.matchMedia?.('(pointer: coarse)')?.matches;
+    if (isTouch) {
+      requestAnimationFrame(() => {
+        gameContainerRef.current?.requestFullscreen?.().catch(() => {});
+      });
+    }
+  }, [phase, resolvedSlug]);
+
+  useEffect(() => {
+    if (phase !== 'playing' || resolvedSlug !== 'math-runner') return;
+    postParentViewport();
+    const onChange = () => postParentViewport();
+    window.addEventListener('resize', onChange);
+    window.addEventListener('orientationchange', onChange);
+    document.addEventListener('fullscreenchange', onChange);
+    return () => {
+      window.removeEventListener('resize', onChange);
+      window.removeEventListener('orientationchange', onChange);
+      document.removeEventListener('fullscreenchange', onChange);
+    };
+  }, [phase, resolvedSlug, postParentViewport]);
+
   // ─── send init to iframe once loaded ───────────────────────────────────────
   // ส่งทั้ง studentCode (เดิม — เกมเก่าใช้ได้) + student/stats/leaderboard (ใหม่ — KAMPAI SDK
   // เอาไปโชว์ชื่อ/คะแนน/อันดับในหน้าเกม โดยไม่ต้องยิง Supabase เอง)
@@ -310,7 +353,10 @@ const PlayGame = () => {
       },
       '*',
     );
-  }, [student, codeInput, statsQuery.data, levelInfo.level, leaderboardQuery.data, classmatesQuery.data, gameQuery.data?.bgm_preset, gameQuery.data?.bgm_url, resolvedSlug, masteryQuery.data, dailyStatusQuery.data, dailyLeaderboardQuery.data]);
+    if (resolvedSlug === 'math-runner') {
+      requestAnimationFrame(() => postParentViewport());
+    }
+  }, [student, codeInput, statsQuery.data, levelInfo.level, leaderboardQuery.data, classmatesQuery.data, gameQuery.data?.bgm_preset, gameQuery.data?.bgm_url, resolvedSlug, masteryQuery.data, dailyStatusQuery.data, dailyLeaderboardQuery.data, postParentViewport]);
 
   // ─── auto-login จาก localStorage (ลดเวลากรอกรหัสเมื่อเปลี่ยนเกม) ────────
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -653,7 +699,8 @@ const PlayGame = () => {
 
   return (
     <div className={cn('bg-background', phase === 'playing' ? 'flex h-[100dvh] flex-col overflow-hidden' : 'min-h-screen')}>
-      {/* header */}
+      {/* header — math-runner ซ่อนตอนเล่นเพื่อให้ iframe ได้พื้นที่แนวนอนเต็มที่ */}
+      {!(phase === 'playing' && resolvedSlug === 'math-runner') && (
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 p-4">
           <div className="flex items-center gap-3">
@@ -682,6 +729,7 @@ const PlayGame = () => {
           </div>
         </div>
       </header>
+      )}
 
       <main className={cn('mx-auto w-full', phase === 'playing' ? 'min-h-0 flex-1 max-w-none p-0' : 'max-w-5xl p-4 sm:p-6')}>
         {phase === 'lookup' && (
