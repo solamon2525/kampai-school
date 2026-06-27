@@ -272,12 +272,12 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.120.0 (Math Tank Raid — รถถังจอมคณิต ป.3-4)',
+        version: 'v1.120.0 (Math Tank Raid + คืน Tank Commander)',
         date: 'ล่าสุด',
         badge: 'bg-blue-600',
         items: [
-            'เกม **Math Tank Raid** (`math-tank-raid`) — top-down tank shooter คณิต ป.3-4: ยิง/ชนลูกโป่งคำตอบ คูณ·หาร·เศษส่วน ไม่มี popup ควิซ · แทน Tank Commander',
-            'ไฟล์: `public/games/math/math-tank-raid.html` + migration 253 · ปิด `tank-commander` เดิม',
+            'เกม **Math Tank Raid** (`math-tank-raid`) — รถถังคณิต ป.3-4 คู่·หาร·เศษส่วน (เกมใหม่ แยกต่างหาก)',
+            'คืน **Tank Commander** (`tank-commander`) — วิทยาการคำนวณ ม.1-3 เวอร์ชันเดิม · ทั้งสองเกมเผยแพร่พร้อมกัน (migration 254)',
         ],
     },
     {
