@@ -423,6 +423,8 @@
       if (Array.isArray(d.leaderboard)) K.leaderboard = d.leaderboard;
       if (Array.isArray(d.classmates)) K.classmates = d.classmates;
       if (d.gameData && typeof d.gameData === 'object') K.gameData = d.gameData;
+      if (d.blueprint && typeof d.blueprint === 'object') K.blueprint = d.blueprint;
+      else if (d.gameData && d.gameData.blueprint) K.blueprint = d.gameData.blueprint;
       if (d.character && typeof d.character === 'object' && d.character.sheetUrl) {
         K.character = d.character;
         if (!K.character.anim) K.character.anim = DEFAULT_CHAR_ANIM;

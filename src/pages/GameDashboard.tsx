@@ -9,7 +9,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Gamepad2, Loader2, Trophy } from 'lucide-react';
+import { ArrowLeft, Gamepad2, Loader2, Trophy, Sparkles } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/table';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { cn } from '@/lib/utils';
+import { RecommendedGames } from '@/components/student/RecommendedGames';
 import {
   gamePlayService,
   levelFromXp,
@@ -263,6 +264,17 @@ const GameDashboard = () => {
             กลับไปเล่นเกม
           </Button>
         </div>
+
+        {/* เกมแนะนำต่อไป (#1) — ฝัง RecommendedGames เมื่อรู้ studentCode */}
+        {studentCode && (
+          <section className="space-y-2 pt-2">
+            <div className="flex items-center gap-2 px-1">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <h3 className="font-semibold">เกมแนะนำต่อไป</h3>
+            </div>
+            <RecommendedGames studentCode={studentCode} limit={4} className="grid-cols-2 sm:grid-cols-4" />
+          </section>
+        )}
       </main>
     </div>
   );

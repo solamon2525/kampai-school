@@ -22,7 +22,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink, Plus, RefreshCw, AlertTriangle, Loader2, Trash2, RotateCcw, Settings, Code2, ChevronDown, Copy, Check, Download, Image as ImageIcon, ClipboardList, Target, Sparkles, Pin, Pencil, ArrowLeft, CopyPlus } from 'lucide-react';
+import { ExternalLink, Plus, RefreshCw, AlertTriangle, Loader2, Trash2, RotateCcw, Settings, Code2, ChevronDown, Copy, Check, Download, Image as ImageIcon, ClipboardList, Target, Sparkles, Pin, Pencil, ArrowLeft, CopyPlus, LayoutGrid } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -63,6 +63,8 @@ import { CharacterSheetScenePreview } from './CharacterSheetScenePreview';
 import { CharacterSheetStudio } from './CharacterSheetStudio';
 import { CharacterCreationWizard } from './CharacterCreationWizard';
 import { CharacterTemplatePicker } from './CharacterTemplatePicker';
+import { GameBlueprintEditor } from './GameBlueprintEditor';
+import { supportsBlueprintEditor, blueprintPreviewEngineUrl } from '@/lib/game-blueprint';
 import {
     isCharacterSupportedGame,
     parseCharacterAnimationConfig,
@@ -472,6 +474,7 @@ export const GamesTab = () => {
         | { mode: 'bgm' }
         | { mode: 'characters' }
         | { mode: 'batch-map' }
+        | { mode: 'blueprint'; item: EduHubItem }
         | null
     >(null);
     // ตัวชี้วัดที่เลือกจาก IndicatorPromptDialog → auto-map เข้าเกมใหม่หลังอัปโหลด
@@ -827,6 +830,16 @@ export const GamesTab = () => {
                                                         >
                                                             <Settings className="h-3 w-3 mr-1" /> ตั้งค่า
                                                         </Button>
+                                                        {supportsBlueprintEditor(item) && (
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                className="text-emerald-700 border-emerald-200 hover:bg-emerald-50"
+                                                                onClick={() => setDialog({ mode: 'blueprint', item })}
+                                                            >
+                                                                <LayoutGrid className="h-3 w-3 mr-1" /> ออกแบบด่าน
+                                                            </Button>
+                                                        )}
                                                         <Button
                                                             variant="outline"
                                                             size="sm"
@@ -892,6 +905,7 @@ export const GamesTab = () => {
 
             <Dialog open={!!dialog} onOpenChange={(open) => !open && setDialog(null)}>
                 <DialogContent className={cn(
+                    dialog?.mode === 'blueprint' ? 'max-w-5xl' :
                     (dialog?.mode === 'characters') ? 'max-w-4xl' : (dialog?.mode === 'settings' || dialog?.mode === 'bgm') ? 'max-w-md' : 'max-w-2xl',
                     'overflow-y-auto max-h-[90vh]',
                 )}>
@@ -958,6 +972,28 @@ export const GamesTab = () => {
                     )}
                     {dialog?.mode === 'characters' && (
                         <CharacterLibraryDialog onClose={() => setDialog(null)} />
+                    )}
+                    {dialog?.mode === 'blueprint' && (
+                        <>
+                            <DialogHeader>
+                                <DialogTitle>ออกแบบด่าน — {dialog.item.title}</DialogTitle>
+                                <DialogDescription>
+                                    ลาก platform · คลิกวาง spawn/ดาว · บันทึกแล้วเกมโหลดด่านจาก blueprint อัตโนมัติ
+                                </DialogDescription>
+                            </DialogHeader>
+                            <GameBlueprintEditor
+                                itemId={dialog.item.id}
+                                itemTitle={dialog.item.title}
+                                blueprintId={dialog.item.blueprint_id}
+                                initialBlueprint={dialog.item.blueprint_json}
+                                previewEngineUrl={blueprintPreviewEngineUrl(dialog.item)}
+                                onSaved={() => {
+                                    handleSaved();
+                                    toast({ title: 'บันทึกด่านแล้ว', description: 'นักเรียนจะเห็นด่านใหม่เมื่อเล่นเกม' });
+                                }}
+                                onCancel={() => setDialog(null)}
+                            />
+                        </>
                     )}
                 </DialogContent>
             </Dialog>

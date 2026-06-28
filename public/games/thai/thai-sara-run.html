@@ -288,6 +288,10 @@ function makeWorldPlatform(x, y, w, withQuestion, rng) {
 
 function spawnWorldQuestion(plat, rng) {
   const r = rng || gameRng;
+  if (plat.blueprintQ) {
+    spawnBlueprintQuestion(plat, plat.blueprintQ, r);
+    return;
+  }
   if (wld.qIdx1 >= wld.qOrder1.length) wld.qOrder1 = shuffle(QUESTIONS.map((_, i) => i), r);
   const qi1 = wld.qOrder1[wld.qIdx1++ % wld.qOrder1.length];
   wld.currentQ1 = { ...QUESTIONS[qi1], platId: plat.id };
@@ -314,10 +318,40 @@ function spawnWorldQuestion(plat, rng) {
   plat.question = false;
 }
 
+function spawnBlueprintQuestion(plat, qDef, rng) {
+  const r = rng || gameRng;
+  const qData = {
+    prompt: qDef.prompt,
+    word: String(qDef.prompt || '').replace(/\s*_\s*/g, qDef.answer),
+    answer: qDef.answer,
+    opts: (qDef.options || []).slice()
+  };
+  wld.currentQ1 = { ...qData, platId: plat.id };
+  wld.answeredQ1 = false;
+  const opts1 = shuffle(qData.opts, r);
+  const midX = plat.x + plat.w / 2;
+  const yOffset1 = localCoopMode ? 110 : 130;
+  opts1.forEach((opt, i) => {
+    const offset = (i - 1) * 140;
+    wld.bubbles.push({ x: midX + offset, y: plat.y - yOffset1, baseY: plat.y - yOffset1, r: 34, text: opt, correct: opt === qData.answer, wob: r() * 6.28, phase: r() * 6.28, floatSpeed: 0.02 + r() * 0.03, vx: -0.15, col: BUBBLE_COLORS[i % 3], player: 1 });
+  });
+  if (localCoopMode && wld.player2 && qData.opts.length) {
+    wld.currentQ2 = { ...qData, platId: plat.id };
+    wld.answeredQ2 = false;
+    const opts2 = shuffle(qData.opts, r);
+    const yOffset2 = 190;
+    opts2.forEach((opt, i) => {
+      const offset = (i - 1) * 140;
+      wld.bubbles.push({ x: midX + offset, y: plat.y - yOffset2, baseY: plat.y - yOffset2, r: 34, text: opt, correct: opt === qData.answer, wob: r() * 6.28, phase: r() * 6.28, floatSpeed: 0.02 + r() * 0.03, vx: -0.15, col: BUBBLE_COLORS[i % 3], player: 2 });
+    });
+  }
+  plat.question = false;
+}
+
 function initGameWorld(rng) {
   const r = rng || Math.random;
   const groundY = V_H - 240;
-  wld = { score1: 0, lives1: START_LIVES, combo1: 0, correctCount1: 0, score2: 0, lives2: START_LIVES, combo2: 0, correctCount2: 0, camX: 0, currentQ1: null, answeredQ1: true, currentQ2: null, answeredQ2: true, collectedLetters1: [], collectedLetters2: [], platforms: [], bubbles: [], stars: [], hearts: [], particles: [], floatTexts: [], qIdx1: 0, qIdx2: 0, platIndex: 0, lastSafePlat: null, qOrder1: shuffle(QUESTIONS.map((_, i) => i), r), qOrder2: shuffle(QUESTIONS.map((_, i) => i), r), bannerText1: '', bannerT1: 0, bannerText2: '', bannerT2: 0, rng: r, player1: makePlayer(100, groundY - 96), player2: localCoopMode ? makePlayer(150, groundY - 96) : null };
+  wld = { score1: 0, lives1: START_LIVES, combo1: 0, correctCount1: 0, score2: 0, lives2: START_LIVES, combo2: 0, correctCount2: 0, camX: 0, currentQ1: null, answeredQ1: true, currentQ2: null, answeredQ2: true, collectedLetters1: [], collectedLetters2: [], platforms: [], bubbles: [], stars: [], hearts: [], particles: [], floatTexts: [], qIdx1: 0, qIdx2: 0, platIndex: 0, lastSafePlat: null, qOrder1: shuffle(QUESTIONS.map((_, i) => i), r), qOrder2: shuffle(QUESTIONS.map((_, i) => i), r), bannerText1: '', bannerT1: 0, bannerText2: '', bannerT2: 0, rng: r, blueprintMode: false, worldWidth: 99999, player1: makePlayer(100, groundY - 96), player2: localCoopMode ? makePlayer(150, groundY - 96) : null };
   wld.lastSafePlat = makeWorldPlatform(40, groundY, 420, false, r);
   wld.player1.x = wld.lastSafePlat.x + 60; wld.player1.y = wld.lastSafePlat.y - wld.player1.h - 2;
   if (wld.player2) { wld.player2.x = wld.lastSafePlat.x + 120; wld.player2.y = wld.lastSafePlat.y - wld.player2.h - 2; }
@@ -331,6 +365,41 @@ function initGameWorld(rng) {
     py = Math.max(V_H - 480, Math.min(V_H - 240, py + dy));
     makeWorldPlatform(px, py, w, withQ, r);
   }
+}
+
+function getBlueprintWorld() {
+  if (KAMPAI.blueprint) return KAMPAI.blueprint;
+  if (KAMPAI.gameData && KAMPAI.gameData.blueprint) return KAMPAI.gameData.blueprint;
+  return null;
+}
+
+function initGameWorldFromBlueprint(bp, rng) {
+  const r = rng || Math.random;
+  const qMap = {};
+  (bp.questions || []).forEach(q => { qMap[q.platformId] = q; });
+  const spawnX = bp.spawn?.x ?? 120;
+  const spawnY = bp.spawn?.y ?? (V_H - 336);
+  wld = { score1: 0, lives1: START_LIVES, combo1: 0, correctCount1: 0, score2: 0, lives2: START_LIVES, combo2: 0, correctCount2: 0, camX: 0, currentQ1: null, answeredQ1: true, currentQ2: null, answeredQ2: true, collectedLetters1: [], collectedLetters2: [], platforms: [], bubbles: [], stars: [], hearts: [], particles: [], floatTexts: [], qIdx1: 0, qIdx2: 0, platIndex: 0, lastSafePlat: null, qOrder1: shuffle(QUESTIONS.map((_, i) => i), r), qOrder2: shuffle(QUESTIONS.map((_, i) => i), r), bannerText1: '', bannerT1: 0, bannerText2: '', bannerT2: 0, rng: r, blueprintMode: true, worldWidth: bp.world?.width || 1280, player1: makePlayer(spawnX, spawnY), player2: localCoopMode ? makePlayer(spawnX + 50, spawnY) : null };
+  for (const bpPlat of (bp.platforms || [])) {
+    const hasQ = !!qMap[bpPlat.id];
+    const p = {
+      x: bpPlat.x, y: bpPlat.y, w: bpPlat.w, h: bpPlat.h || PLAT_H,
+      flowers: [], shrooms: [], question: hasQ, id: bpPlat.id,
+      blueprintQ: qMap[bpPlat.id] || null,
+      moving: false, baseY: bpPlat.y, phase: r() * 6.28, moveRange: 0, moveSpeed: 0
+    };
+    const nF = 2 + (r() * 3 | 0);
+    for (let i = 0; i < nF; i++) p.flowers.push({ ox: 8 + r() * Math.max(16, p.w - 16), col: ['#f9a8d4','#fde68a','#c4b5fd'][i % 3] });
+    wld.platforms.push(p);
+  }
+  wld.lastSafePlat = wld.platforms.find(p => p.id === 'ground') || wld.platforms[0] || null;
+  for (const c of (bp.collectibles || [])) {
+    if (c.kind === 'heart') wld.hearts.push({ x: c.x, y: c.y, taken: false, bob: r() * 6.28 });
+    else wld.stars.push({ x: c.x, y: c.y, taken: false, bob: r() * 6.28 });
+  }
+  wld.player1.x = spawnX;
+  wld.player1.y = spawnY;
+  if (wld.player2) { wld.player2.x = spawnX + 50; wld.player2.y = spawnY; }
 }
 
 function addWorldFloatText(x, y, text, col) { wld.floatTexts.push({ x, y, text, col, life: 1 }); }
@@ -469,7 +538,7 @@ function updatePlayerPhysics(p, keys, playerNum) {
 
   p.vy += GRAVITY;
   p.x += p.vx;
-  if (p.x < wld.camX) { p.x = wld.camX; p.vx = 0; }
+  if (!wld.blueprintMode && p.x < wld.camX) { p.x = wld.camX; p.vx = 0; }
   if (p.x < 0) { p.x = 0; p.vx = 0; }
   p.y += p.vy;
   p.onGround = false;
@@ -493,7 +562,10 @@ function updatePlayerPhysics(p, keys, playerNum) {
     }
   }
 
-  if (p.x > wld.camX + V_W - p.w) { p.x = wld.camX + V_W - p.w; p.vx = 0; }
+  if (wld.blueprintMode) {
+    const maxX = (wld.worldWidth || 1280) - p.w;
+    if (p.x > maxX) { p.x = maxX; p.vx = 0; }
+  } else if (p.x > wld.camX + V_W - p.w) { p.x = wld.camX + V_W - p.w; p.vx = 0; }
 }
 
 function updateWorld() {
@@ -569,13 +641,19 @@ function updateWorld() {
   if (localCoopMode && wld.player2 && wld.player2.y > V_H + 80 && getLives(2) > 0) handleWorldFall(2);
   const maxCombo = localCoopMode ? Math.max(wld.combo1, wld.combo2) : wld.combo1;
   const scrollSpeed = 1.15 + Math.min(0.6, maxCombo * 0.1);
-  wld.camX += scrollSpeed;
-  if (wld.camX < 0) wld.camX = 0;
+  if (wld.blueprintMode) {
+    const targetCam = wld.player1.x - V_W * 0.35;
+    const maxCam = Math.max(0, (wld.worldWidth || 1280) - V_W);
+    wld.camX += (Math.max(0, Math.min(maxCam, targetCam)) - wld.camX) * 0.12;
+  } else {
+    wld.camX += scrollSpeed;
+    if (wld.camX < 0) wld.camX = 0;
+    extendWorldWorld();
+  }
   wld.particles.forEach(pt => { pt.x += pt.vx; pt.y += pt.vy; pt.life -= 0.04; });
   wld.particles = wld.particles.filter(pt => pt.life > 0);
   wld.floatTexts.forEach(ft => { ft.y -= 1.2; ft.life -= 0.015; });
   wld.floatTexts = wld.floatTexts.filter(ft => ft.life > 0);
-  extendWorldWorld();
 }
 
 function drawCloud(c) {
@@ -900,7 +978,9 @@ function startGame(rng, playerInfo) {
   document.getElementById('hud').style.display = 'none';
   document.getElementById('qHud').style.display = 'none';
   resize();
-  initGameWorld(gameRng);
+  const bpWorld = getBlueprintWorld();
+  if (bpWorld) initGameWorldFromBlueprint(bpWorld, gameRng);
+  else initGameWorld(gameRng);
   try { KAMPAI.sound.unlock(); KAMPAI.sound.defaultBgm('playful'); KAMPAI.sound.bgmStart(); } catch (e) {}
   initClouds(); initPetals();
   loop();
@@ -967,6 +1047,12 @@ KAMPAI.onReady(() => {
   try { KAMPAI.sound.mountToggles(); KAMPAI.controls.mount({ dpad: true }); } catch (e) {}
   loadBunnySprites();
   renderLeaderboard();
+});
+
+window.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'blueprintPreview' && e.data.blueprint) {
+    KAMPAI.blueprint = e.data.blueprint;
+  }
 });
 
 document.getElementById('btnStart').onclick = () => { localCoopMode = false; startGame(Math.random, null); };

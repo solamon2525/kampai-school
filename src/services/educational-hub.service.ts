@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { getCharacterAnimPreset, type CharacterAnimationConfig } from '@/lib/character-animation';
 import { type CharacterColorConfig, presetToColorConfig } from '@/lib/character-color';
 import { getCharacterStudioTemplate } from '@/lib/character-templates';
+import type { PlatformerBlueprintV1 } from '@/lib/game-blueprint';
 
 export type EduHubItemType = 'file' | 'link' | 'youtube' | 'text';
 
@@ -72,6 +73,8 @@ export type EduHubItem = {
     character_animation_config: CharacterAnimationConfig | null;
     character_color_config: CharacterColorConfig | null;
     game_play_style: string | null;
+    blueprint_id: string | null;
+    blueprint_json: Record<string, unknown> | null;
     created_at: string;
     updated_at: string;
 };
@@ -910,6 +913,98 @@ export function characterAssignmentFromSheet(sheet: CharacterSheet | null | unde
         character_color_config: sheet.color_config,
     };
 }
+
+/** denormalize blueprint ลง educational_hub_items */
+export function blueprintAssignmentFromJson(
+    blueprintId: string | null,
+    blueprint: PlatformerBlueprintV1 | null,
+) {
+    return {
+        blueprint_id: blueprintId,
+        blueprint_json: blueprint as unknown as Record<string, unknown> | null,
+    };
+}
+
+export type GameBlueprintRow = {
+    id: string;
+    title: string;
+    engine: string;
+    blueprint: PlatformerBlueprintV1;
+    owner_staff_id: string | null;
+    created_at: string;
+    updated_at: string;
+};
+
+export const gameBlueprintsService = {
+    list: () =>
+        supabase
+            .from('game_blueprints' as never)
+            .select('*')
+            .order('updated_at', { ascending: false }),
+
+    get: (id: string) =>
+        supabase
+            .from('game_blueprints' as never)
+            .select('*')
+            .eq('id', id)
+            .maybeSingle(),
+
+    create: (title: string, blueprint: PlatformerBlueprintV1, ownerStaffId?: string | null) =>
+        supabase
+            .from('game_blueprints' as never)
+            .insert({
+                title: title.trim() || 'ด่านใหม่',
+                engine: 'platformer-2d',
+                blueprint,
+                owner_staff_id: ownerStaffId ?? null,
+            } as never)
+            .select()
+            .single(),
+
+    update: (id: string, patch: { title?: string; blueprint?: PlatformerBlueprintV1 }) =>
+        supabase
+            .from('game_blueprints' as never)
+            .update({ ...patch, updated_at: new Date().toISOString() } as never)
+            .eq('id', id),
+
+    linkToItem: async (
+        itemId: string,
+        blueprintId: string | null,
+        blueprint: PlatformerBlueprintV1 | null,
+    ): Promise<{ error: Error | null }> => {
+        const { error } = await supabase
+            .from('educational_hub_items')
+            .update(blueprintAssignmentFromJson(blueprintId, blueprint) as never)
+            .eq('id', itemId);
+        return { error: (error as Error | null) ?? null };
+    },
+
+    saveForItem: async (
+        itemId: string,
+        itemTitle: string,
+        blueprint: PlatformerBlueprintV1,
+        existingBlueprintId?: string | null,
+    ): Promise<{ blueprintId: string | null; error: Error | null }> => {
+        let blueprintId = existingBlueprintId ?? null;
+
+        if (blueprintId) {
+            const { error } = await gameBlueprintsService.update(blueprintId, { blueprint });
+            if (error) return { blueprintId: null, error: error as Error };
+        } else {
+            const { data, error } = await gameBlueprintsService.create(
+                `${itemTitle} — ด่าน`,
+                blueprint,
+            );
+            if (error || !data) {
+                return { blueprintId: null, error: (error as Error) ?? new Error('create failed') };
+            }
+            blueprintId = (data as { id: string }).id;
+        }
+
+        const { error: linkErr } = await gameBlueprintsService.linkToItem(itemId, blueprintId, blueprint);
+        return { blueprintId, error: linkErr };
+    },
+};
 
 // ─── รายละเอียดเกม (game_docs) ────────────────────────────────────────────────
 // สเปกเดียวต่อเกม (1:1 กับ educational_hub_items, แก้ทับได้) — RLS เห็นเฉพาะเจ้าของ+admin

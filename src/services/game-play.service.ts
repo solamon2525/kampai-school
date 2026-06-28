@@ -220,7 +220,7 @@ export const trackedGamesService = {
   getBySlug: (gameSlug: string) => {
     let query = supabase
       .from('educational_hub_items')
-      .select('id, title, external_url, subject, game_slug, tracked_game, thumbnail_url, bgm_preset, bgm_url, character_sheet_url, character_sheet_url_p2, character_frame_w, character_frame_h, character_frame_count, character_animation_config, character_color_config')
+      .select('id, title, external_url, subject, game_slug, tracked_game, thumbnail_url, bgm_preset, bgm_url, character_sheet_url, character_sheet_url_p2, character_frame_w, character_frame_h, character_frame_count, character_animation_config, character_color_config, blueprint_id, blueprint_json')
       .eq('tracked_game', true)
       .eq('is_published', true);
 
