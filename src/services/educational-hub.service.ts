@@ -4,7 +4,8 @@
  */
 import { supabase } from '@/integrations/supabase/client';
 import { getCharacterAnimPreset, type CharacterAnimationConfig } from '@/lib/character-animation';
-import { type CharacterColorConfig } from '@/lib/character-color';
+import { type CharacterColorConfig, presetToColorConfig } from '@/lib/character-color';
+import { getCharacterStudioTemplate } from '@/lib/character-templates';
 
 export type EduHubItemType = 'file' | 'link' | 'youtube' | 'text';
 
@@ -709,6 +710,60 @@ export const characterSheetsService = {
             .select('id, title, game_slug, game_play_style, character_sheet_id')
             .not('game_slug', 'is', null)
             .order('title'),
+
+    /** จำนวนเกมที่ผูกต่อ sheet — ใช้กรองคลัง */
+    listSheetGameCounts: async (): Promise<{ data: Record<string, number>; error: Error | null }> => {
+        const { data, error } = await supabase
+            .from('educational_hub_items')
+            .select('character_sheet_id')
+            .not('character_sheet_id', 'is', null);
+        if (error) return { data: {}, error: error as Error };
+        const counts: Record<string, number> = {};
+        for (const row of data ?? []) {
+            const id = (row as { character_sheet_id: string }).character_sheet_id;
+            counts[id] = (counts[id] ?? 0) + 1;
+        }
+        return { data: counts, error: null };
+    },
+
+    createFromTemplate: async (
+        templateKey: string,
+        title?: string,
+    ): Promise<{ sheet: CharacterSheet | null; error: Error | null }> => {
+        const t = getCharacterStudioTemplate(templateKey);
+        if (!t) return { sheet: null, error: new Error('ไม่พบเทมเพลต') };
+
+        const id = crypto.randomUUID();
+        const origin = typeof window !== 'undefined' ? window.location.origin : 'https://kampai-school.vercel.app';
+        const abs = (p: string) => (p.startsWith('http') ? p : `${origin}${p}`);
+
+        const colorConfig = t.defaultColorPreset
+            ? presetToColorConfig(t.defaultColorPreset)
+            : null;
+
+        const { data, error } = await supabase
+            .from('game_character_sheets' as never)
+            .insert({
+                id,
+                title: title?.trim() || `${t.label} (ใหม่)`,
+                slug: null,
+                sheet_url: abs(t.sheetUrl),
+                sheet_url_p2: t.sheetUrlP2 ? abs(t.sheetUrlP2) : null,
+                storage_path: t.storagePath,
+                storage_path_p2: t.storagePathP2 ?? null,
+                frame_width: t.frameWidth,
+                frame_height: t.frameHeight,
+                frame_count: t.frameCount,
+                animation_config: t.animationConfig,
+                color_config: colorConfig,
+                notes: `สร้างจากเทมเพลต ${t.key}`,
+            } as never)
+            .select()
+            .single();
+
+        if (error || !data) return { sheet: null, error: (error as Error) ?? new Error('insert failed') };
+        return { sheet: data as unknown as CharacterSheet, error: null };
+    },
 
     syncGameAssignments: async (
         sheetId: string,

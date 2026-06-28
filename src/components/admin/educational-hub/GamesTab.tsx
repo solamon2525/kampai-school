@@ -59,8 +59,10 @@ import {
     type CharacterSheet,
 } from '@/services/educational-hub.service';
 import { CharacterSheetPreview } from './CharacterSheetPreview';
+import { CharacterSheetScenePreview } from './CharacterSheetScenePreview';
 import { CharacterSheetStudio } from './CharacterSheetStudio';
 import { CharacterCreationWizard } from './CharacterCreationWizard';
+import { CharacterTemplatePicker } from './CharacterTemplatePicker';
 import {
     isCharacterSupportedGame,
     parseCharacterAnimationConfig,
@@ -68,7 +70,8 @@ import {
     getCharacterAnimPreset,
     type CharacterAnimationConfig,
 } from '@/lib/character-animation';
-import type { CharacterColorConfig } from '@/lib/character-color';
+import { parseCharacterColorConfig, type CharacterColorConfig } from '@/lib/character-color';
+import { inferPlayStyleFromAnim, type CharacterStudioTemplate } from '@/lib/character-templates';
 import {
     GAME_PLAY_STYLE_OPTIONS,
     GAME_PLAY_STYLE_KEYS,
@@ -1296,8 +1299,12 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
     const [removeBg, setRemoveBg] = useState(true);
     const [bgTolerance] = useState(36);
     const [busy, setBusy] = useState(false);
+    const [templateBusy, setTemplateBusy] = useState(false);
     const [editingSheet, setEditingSheet] = useState<CharacterSheet | null>(null);
     const [saveBusy, setSaveBusy] = useState(false);
+    const [search, setSearch] = useState('');
+    const [styleFilter, setStyleFilter] = useState<GamePlayStyleFilter>('all');
+    const [onlyAssigned, setOnlyAssigned] = useState(false);
 
     const { data: sheets, isLoading } = useQuery({
         queryKey: ['character-sheets'],
@@ -1307,6 +1314,30 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
             return (data ?? []) as CharacterSheet[];
         },
     });
+
+    const { data: gameCounts } = useQuery({
+        queryKey: ['character-sheet-game-counts'],
+        queryFn: async () => {
+            const { data, error } = await characterSheetsService.listSheetGameCounts();
+            if (error) throw error;
+            return data;
+        },
+    });
+
+    const filteredSheets = useMemo(() => {
+        const list = sheets ?? [];
+        const q = search.trim().toLowerCase();
+        return list.filter((s) => {
+            const anim = parseCharacterAnimationConfig(s.animation_config);
+            const style = inferPlayStyleFromAnim(anim);
+            if (styleFilter !== 'all' && style !== styleFilter) return false;
+            if (onlyAssigned && !(gameCounts?.[s.id] ?? 0)) return false;
+            if (!q) return true;
+            return s.title.toLowerCase().includes(q)
+                || (s.slug?.toLowerCase().includes(q) ?? false)
+                || (anim?.preset?.includes(q) ?? false);
+        });
+    }, [sheets, search, styleFilter, onlyAssigned, gameCounts]);
 
     const handleDelete = async (s: CharacterSheet) => {
         try {
@@ -1408,12 +1439,31 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
         }
     };
 
+    const handleCreateFromTemplate = async (template: CharacterStudioTemplate) => {
+        setTemplateBusy(true);
+        try {
+            const { sheet, error } = await characterSheetsService.createFromTemplate(template.key);
+            if (error) throw error;
+            queryClient.invalidateQueries({ queryKey: ['character-sheets'] });
+            toast({ title: 'สร้างจากเทมเพลตแล้ว', description: sheet?.title });
+            if (sheet) setEditingSheet(sheet);
+        } catch (err) {
+            toast({
+                title: 'สร้างเทมเพลตไม่สำเร็จ',
+                description: err instanceof Error ? err.message : 'เกิดข้อผิดพลาด',
+                variant: 'destructive',
+            });
+        } finally {
+            setTemplateBusy(false);
+        }
+    };
+
     return (
         <>
             <DialogHeader>
                 <DialogTitle>🐰 คลังตัวละคร</DialogTitle>
                 <DialogDescription>
-                    Wizard 3 ขั้น · คลิก map ท่า · ผูกเกม · duplicate + preset สี
+                    เทมเพลต · Wizard · Scene thumbnail · Export PNG · ค้นหา/กรอง
                 </DialogDescription>
             </DialogHeader>
 
@@ -1431,38 +1481,86 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
                 </div>
             ) : (
             <div className="space-y-4">
+                <CharacterTemplatePicker busy={templateBusy} onSelect={handleCreateFromTemplate} />
                 <CharacterCreationWizard busy={busy} onUpload={handleWizardUpload} />
                 <div className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2">
                     <p className="text-xs text-muted-foreground">ตัดพื้นหลังตอนอัปโหลด (Wizard ขั้น 1)</p>
                     <Switch checked={removeBg} onCheckedChange={setRemoveBg} />
                 </div>
 
+                <div className="space-y-2 rounded-md border border-border p-3">
+                    <Input
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder="ค้นหาชื่อ / slug / preset…"
+                        className="h-8 text-xs"
+                    />
+                    <div className="flex flex-wrap gap-1">
+                        <Button
+                            type="button"
+                            size="sm"
+                            variant={styleFilter === 'all' ? 'default' : 'outline'}
+                            className="h-7 text-[10px]"
+                            onClick={() => setStyleFilter('all')}
+                        >
+                            ทั้งหมด
+                        </Button>
+                        {(['platformer-2d', 'top-down', 'jump'] as const).map((key) => (
+                            <Button
+                                key={key}
+                                type="button"
+                                size="sm"
+                                variant={styleFilter === key ? 'default' : 'outline'}
+                                className="h-7 text-[10px]"
+                                onClick={() => setStyleFilter(key)}
+                            >
+                                {gamePlayStyleLabel(key)}
+                            </Button>
+                        ))}
+                        <Button
+                            type="button"
+                            size="sm"
+                            variant={onlyAssigned ? 'default' : 'outline'}
+                            className="h-7 text-[10px]"
+                            onClick={() => setOnlyAssigned((v) => !v)}
+                        >
+                            มีเกมผูก
+                        </Button>
+                    </div>
+                </div>
+
                 {isLoading ? (
                     <p className="text-center text-sm text-muted-foreground py-4">กำลังโหลด...</p>
-                ) : (sheets ?? []).length === 0 ? (
-                    <p className="text-center text-sm text-muted-foreground py-4">ยังไม่มีตัวละครในคลัง</p>
+                ) : filteredSheets.length === 0 ? (
+                    <p className="text-center text-sm text-muted-foreground py-4">
+                        {(sheets ?? []).length === 0 ? 'ยังไม่มีตัวละครในคลัง' : 'ไม่พบตัวละครตามตัวกรอง'}
+                    </p>
                 ) : (
                     <ul className="space-y-2 max-h-[40vh] overflow-y-auto">
-                        {sheets!.map((s) => {
+                        {filteredSheets.map((s) => {
                             const anim = parseCharacterAnimationConfig(s.animation_config) ?? getCharacterAnimPreset('platformer-12');
+                            const assigned = gameCounts?.[s.id] ?? 0;
                             return (
                                 <li key={s.id} className="flex items-center gap-2 rounded-md border border-border p-2">
-                                    <CharacterSheetPreview
-                                        sheetUrl={s.sheet_url}
-                                        frameWidth={s.frame_width}
-                                        frameHeight={s.frame_height}
-                                        frameCount={s.frame_count}
-                                        animationConfig={anim}
-                                        mode="walk"
-                                        size={48}
-                                        className="shrink-0 rounded border border-border"
-                                        checkerboard
-                                    />
+                                    <div className="shrink-0 w-[88px]">
+                                        <CharacterSheetScenePreview
+                                            sheetUrl={s.sheet_url}
+                                            frameWidth={s.frame_width}
+                                            frameHeight={s.frame_height}
+                                            frameCount={s.frame_count}
+                                            animationConfig={anim}
+                                            colorConfig={parseCharacterColorConfig(s.color_config)}
+                                            width={88}
+                                            height={52}
+                                            className="[&_canvas]:max-w-[88px]"
+                                        />
+                                    </div>
                                     <div className="flex-1 min-w-0">
                                         <p className="text-sm font-medium truncate">{s.title}</p>
                                         <p className="text-xs text-muted-foreground">
                                             {s.frame_width}×{s.frame_height} · {s.frame_count} เฟรม · {anim.preset}
                                             {s.sheet_url_p2 ? ' · 2P' : ''}
+                                            {assigned > 0 ? ` · ${assigned} เกม` : ''}
                                         </p>
                                     </div>
                                     <Button variant="outline" size="sm" className="shrink-0" title="สำเนา" onClick={() => handleDuplicate(s)}>

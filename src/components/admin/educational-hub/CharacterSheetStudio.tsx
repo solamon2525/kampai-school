@@ -10,6 +10,7 @@ import { CharacterSheetScenePreview } from './CharacterSheetScenePreview';
 import { CharacterInteractiveGrid } from './CharacterInteractiveGrid';
 import { CharacterPoseMapper } from './CharacterPoseMapper';
 import { CharacterColorEditor } from './CharacterColorEditor';
+import { CharacterPoseExportPanel } from './CharacterPoseExportPanel';
 import { CharacterGameAssignPanel } from './CharacterGameAssignPanel';
 import { CharacterSaveChecklist, useCharacterSaveReady } from './CharacterSaveChecklist';
 import {
@@ -336,6 +337,16 @@ export function CharacterSheetStudio({ sheet, busy, onSave, className }: Props) 
                 sheetUrl={sheet.sheet_url}
                 value={colorConfig}
                 onChange={setColorConfig}
+            />
+
+            <CharacterPoseExportPanel
+                sheetUrl={sheet.sheet_url}
+                title={title || sheet.title}
+                frameWidth={frameWidth}
+                frameHeight={frameHeight}
+                frameCount={frameCount}
+                animationConfig={animConfig}
+                colorConfig={colorConfig}
             />
 
             <CharacterPoseMapper
