@@ -1,9 +1,149 @@
-/** สัญญา animation สำหรับ sprite sheet (horizontal หรือ grid) */
+/**
+ * สเปก pose map ครบ — ท่าหลัก (core) + ท่าเสริม (extras) ใน animation_config JSONB
+ */
 
 export type CharacterJumpFrames = {
     up: number;
     peak: number;
     fall: number;
+};
+
+/** เฟรมเดียว หรือ array วนลูป */
+export type PoseFrames = number[] | number;
+
+/** ท่าหลัก — ทุก sheet ควรมี (fallback ใน preset) */
+export type CharacterCorePoseKey =
+    | 'idle'
+    | 'walk'
+    | 'run'
+    | 'jump'
+    | 'hurt'
+    | 'happy';
+
+/** ท่าเสริม — map เมื่อ sheet มี (extras ใน config) */
+export type CharacterExtendedPoseKey =
+    | 'attack'
+    | 'attackHeavy'
+    | 'block'
+    | 'dodge'
+    | 'crouch'
+    | 'crawl'
+    | 'sit'
+    | 'slide'
+    | 'wallSlide'
+    | 'climb'
+    | 'fall'
+    | 'land'
+    | 'special'
+    | 'emote'
+    | 'sleep'
+    | 'death'
+    | 'spawn';
+
+export type CharacterPoseKey = CharacterCorePoseKey | CharacterExtendedPoseKey;
+
+export type PoseCatalogEntry = {
+    key: CharacterPoseKey;
+    label: string;
+    /** loop = หลายเฟรมวน · single = เฟรมเดียว · jump = รูปแบบ jump พิเศษ */
+    kind: 'loop' | 'single' | 'jump';
+    /** ค่า player.state ที่เกมส่งมา (ถ้าต่างจาก key) */
+    gameState?: string;
+    placeholder?: string;
+    defaultFps?: number;
+};
+
+export type PoseCatalogGroup = {
+    id: string;
+    label: string;
+    entries: PoseCatalogEntry[];
+};
+
+/** แคตตาล็อกท่า — ใช้ generate UI + SDK state priority */
+export const CHARACTER_POSE_CATALOG: PoseCatalogGroup[] = [
+    {
+        id: 'movement',
+        label: 'เคลื่อนที่',
+        entries: [
+            { key: 'idle', label: 'ยืน (idle)', kind: 'loop', defaultFps: 4 },
+            { key: 'walk', label: 'เดิน (walk)', kind: 'loop', defaultFps: 5 },
+            { key: 'run', label: 'วิ่ง (run)', kind: 'loop', defaultFps: 10 },
+            { key: 'jump', label: 'โดด (jump)', kind: 'jump', defaultFps: 8 },
+        ],
+    },
+    {
+        id: 'combat',
+        label: 'ต่อสู้',
+        entries: [
+            { key: 'attack', label: 'โจมตี (attack)', kind: 'loop', gameState: 'attack', defaultFps: 12, placeholder: 'เช่น 0,1,2' },
+            { key: 'attackHeavy', label: 'โจมตีหนัก', kind: 'loop', gameState: 'attackHeavy', defaultFps: 10, placeholder: 'เช่น 3,4,5' },
+            { key: 'block', label: 'ป้องกัน (block)', kind: 'single', gameState: 'block', placeholder: 'เช่น 6' },
+            { key: 'dodge', label: 'หลบ (dodge)', kind: 'loop', gameState: 'dodge', defaultFps: 14, placeholder: 'เช่น 7,8' },
+            { key: 'hurt', label: 'เจ็บ (hurt)', kind: 'single', defaultFps: 4, placeholder: 'เช่น 10' },
+        ],
+    },
+    {
+        id: 'stance',
+        label: 'ท่าทาง',
+        entries: [
+            { key: 'crouch', label: 'หมอบ (crouch)', kind: 'loop', gameState: 'crouch', defaultFps: 4, placeholder: 'เช่น 12,13' },
+            { key: 'crawl', label: 'คลาน (crawl)', kind: 'loop', gameState: 'crawl', defaultFps: 6, placeholder: 'เช่น 14,15' },
+            { key: 'sit', label: 'นั่ง (sit)', kind: 'single', gameState: 'sit', placeholder: 'เช่น 16' },
+            { key: 'sleep', label: 'หลับ (sleep)', kind: 'single', gameState: 'sleep', placeholder: 'เช่น 17' },
+        ],
+    },
+    {
+        id: 'platformer',
+        label: 'แพลตฟอร์ม',
+        entries: [
+            { key: 'slide', label: 'สไลด์ (slide)', kind: 'loop', gameState: 'slide', defaultFps: 10, placeholder: 'เช่น 18,19' },
+            { key: 'wallSlide', label: 'สไลด์ติดกำแพง', kind: 'single', gameState: 'wallSlide', placeholder: 'เช่น 20' },
+            { key: 'climb', label: 'ปีน (climb)', kind: 'loop', gameState: 'climb', defaultFps: 8, placeholder: 'เช่น 21,22' },
+            { key: 'fall', label: 'ตก (fall)', kind: 'single', gameState: 'fall', placeholder: 'jump fall หรือเฟรมแยก' },
+            { key: 'land', label: 'ลงพื้น (land)', kind: 'single', gameState: 'land', placeholder: 'เช่น 23' },
+        ],
+    },
+    {
+        id: 'special',
+        label: 'พิเศษ / อารมณ์',
+        entries: [
+            { key: 'happy', label: 'ดีใจ (happy)', kind: 'single', defaultFps: 4, placeholder: 'เช่น 11' },
+            { key: 'special', label: 'ท่าพิเศษ (special)', kind: 'loop', gameState: 'special', defaultFps: 8, placeholder: 'ultimate / skill' },
+            { key: 'emote', label: 'ท่าทาง (emote)', kind: 'loop', gameState: 'emote', defaultFps: 5, placeholder: 'โบกมือ ฯลฯ' },
+            { key: 'spawn', label: 'เกิด (spawn)', kind: 'loop', gameState: 'spawn', defaultFps: 8, placeholder: 'เข้าฉาก' },
+            { key: 'death', label: 'ตาย (death)', kind: 'single', gameState: 'death', placeholder: 'game over' },
+        ],
+    },
+];
+
+export const CHARACTER_CORE_POSE_KEYS: CharacterCorePoseKey[] = [
+    'idle', 'walk', 'run', 'jump', 'hurt', 'happy',
+];
+
+export const CHARACTER_EXTENDED_POSE_KEYS: CharacterExtendedPoseKey[] =
+    CHARACTER_POSE_CATALOG.flatMap((g) =>
+        g.entries.map((e) => e.key).filter((k): k is CharacterExtendedPoseKey =>
+            !CHARACTER_CORE_POSE_KEYS.includes(k as CharacterCorePoseKey)),
+    );
+
+export const CHARACTER_ALL_POSE_KEYS: CharacterPoseKey[] =
+    CHARACTER_POSE_CATALOG.flatMap((g) => g.entries.map((e) => e.key));
+
+export function getPoseCatalogEntry(key: CharacterPoseKey): PoseCatalogEntry | undefined {
+    for (const g of CHARACTER_POSE_CATALOG) {
+        const e = g.entries.find((x) => x.key === key);
+        if (e) return e;
+    }
+    return undefined;
+}
+
+export function characterPoseLabel(pose: CharacterPoseKey): string {
+    return getPoseCatalogEntry(pose)?.label ?? pose;
+}
+
+export type FootAnchorOverride = {
+    anchorFoot?: number;
+    feetPad?: number;
 };
 
 export type CharacterAnimationConfig = {
@@ -14,28 +154,20 @@ export type CharacterAnimationConfig = {
     idle: number[];
     walk: number[];
     run: number[];
-    /** แนวนอน: up/peak/fall · grid: array วนลูปตอนกระโดด */
     jump: CharacterJumpFrames | number[];
     hurt: number;
     happy: number;
+    /** ท่าเสริม — attack / crouch / slide / special ฯลฯ */
+    extras?: Partial<Record<CharacterExtendedPoseKey, PoseFrames>>;
     walkFps?: number;
     runFps?: number;
     jumpFps?: number;
-    /** ทิศทางที่เฟรมวิ่งหันใน sheet: right = หันขวา (flip เมื่อเดินซ้าย) */
+    /** FPS รายท่า (override default จาก catalog) */
+    poseFps?: Partial<Record<CharacterPoseKey, number>>;
     runFaces?: 'left' | 'right';
-    /** ตำแหน่งเท้าในเฟรม 0–1 (จากบนลงล่าง) — default ทุกท่า */
     anchorFoot?: number;
-    /** ขยับลงเพิ่ม (px) ให้เท้าแตะพื้น — default ทุกท่า */
     feetPad?: number;
-    /** override จุดเท้าแยกตามท่า — ว่าง = ใช้ anchorFoot/feetPad ด้านบน */
     poseAnchors?: Partial<Record<CharacterPoseKey, FootAnchorOverride>>;
-};
-
-export type CharacterPoseKey = 'idle' | 'walk' | 'run' | 'jump' | 'hurt' | 'happy';
-
-export type FootAnchorOverride = {
-    anchorFoot?: number;
-    feetPad?: number;
 };
 
 export const CHARACTER_ANIM_PRESET_PLATFORMER_12: CharacterAnimationConfig = {
@@ -51,7 +183,6 @@ export const CHARACTER_ANIM_PRESET_PLATFORMER_12: CharacterAnimationConfig = {
     runFps: 10,
 };
 
-/** กระต่าย thai-sara-run — grid 3 แถว × 6 คอลัมน์ (วิ่ง / โดด / ยืน) */
 export const CHARACTER_ANIM_PRESET_GRID_3X6_18: CharacterAnimationConfig = {
     preset: 'grid-3x6-18',
     layout: 'grid',
@@ -83,17 +214,16 @@ export const CHARACTER_ANIM_PRESET_OPTIONS = [
         frameCount: 18,
         cols: 6,
         rows: 3,
-        frameHint: 'แถว1 วิ่ง 0–5 · แถว2 โดด 6–11 · แถว3 ยืน 12–17',
+        frameHint: 'แถว1 วิ่ง 0–5 · แถว2 โดด 6–11 · แถว3 ยืน 12–17 · ท่าอื่น map ใน extras',
     },
     {
         key: 'platformer-12',
         label: 'Platformer 12 เฟรม (idle/walk/run/jump/hurt/happy)',
         frameCount: 12,
-        frameHint: '0 idle · 1–2 walk · 3–6 run · 7–9 jump · 10 hurt · 11 happy',
+        frameHint: '0 idle · 1–2 walk · 3–6 run · 7–9 jump · 10 hurt · 11 happy · ท่าเสริมใน extras',
     },
 ] as const;
 
-/** เกมที่ opt-in รองรับ KAMPAI.character + pickCharacterFrame */
 export const GAMES_WITH_CHARACTER_SUPPORT = ['thai-sara-run'] as const;
 
 export function isCharacterSupportedGame(slug: string | null | undefined): boolean {
@@ -120,7 +250,157 @@ function collectJumpIndices(jump: CharacterJumpFrames | number[]): number[] {
     return [jump.up, jump.peak, jump.fall];
 }
 
-/** อ่าน animation_config จาก JSONB (Supabase) */
+/** ดึงเฟรมของท่า — core จาก field หลัก · extended จาก extras */
+export function getPoseFrames(
+    config: CharacterAnimationConfig,
+    pose: CharacterPoseKey,
+): PoseFrames | null {
+    switch (pose) {
+        case 'idle': return config.idle?.length ? config.idle : null;
+        case 'walk': return config.walk?.length ? config.walk : null;
+        case 'run': return config.run?.length ? config.run : null;
+        case 'jump': return config.jump ?? null;
+        case 'hurt': return config.hurt;
+        case 'happy': return config.happy;
+        default: {
+            const ex = config.extras?.[pose as CharacterExtendedPoseKey];
+            return ex ?? null;
+        }
+    }
+}
+
+/** ลำดับความสำคัญ state → ท่า (ใช้ใน pickCharacterFrame) */
+export const POSE_STATE_PRIORITY: { state: string; pose: CharacterPoseKey }[] = [
+    { state: 'death', pose: 'death' },
+    { state: 'hurt', pose: 'hurt' },
+    { state: 'happy', pose: 'happy' },
+    { state: 'emote', pose: 'emote' },
+    { state: 'special', pose: 'special' },
+    { state: 'spawn', pose: 'spawn' },
+    { state: 'attackHeavy', pose: 'attackHeavy' },
+    { state: 'attack', pose: 'attack' },
+    { state: 'block', pose: 'block' },
+    { state: 'dodge', pose: 'dodge' },
+    { state: 'slide', pose: 'slide' },
+    { state: 'wallSlide', pose: 'wallSlide' },
+    { state: 'climb', pose: 'climb' },
+    { state: 'crouch', pose: 'crouch' },
+    { state: 'crawl', pose: 'crawl' },
+    { state: 'sit', pose: 'sit' },
+    { state: 'sleep', pose: 'sleep' },
+    { state: 'land', pose: 'land' },
+    { state: 'fall', pose: 'fall' },
+    { state: 'jump', pose: 'jump' },
+];
+
+export function resolvePoseFps(config: CharacterAnimationConfig, pose: CharacterPoseKey): number {
+    const custom = config.poseFps?.[pose];
+    if (typeof custom === 'number') return custom;
+    const entry = getPoseCatalogEntry(pose);
+    if (entry?.defaultFps) return entry.defaultFps;
+    if (pose === 'walk') return config.walkFps ?? 5;
+    if (pose === 'run') return config.runFps ?? 10;
+    if (pose === 'jump') return config.jumpFps ?? 8;
+    return 4;
+}
+
+function pickFromPoseFrames(
+    frames: PoseFrames,
+    animTime: number,
+    fps: number,
+    jumpOpts?: { vy?: number; vyJumpUp?: number; vyJumpFall?: number },
+): number {
+    if (Array.isArray(frames)) {
+        if (frames.length <= 1) return frames[0] ?? 0;
+        return frames[Math.floor(animTime * (fps / 10)) % frames.length];
+    }
+    if (typeof frames === 'number') return frames;
+    const j = frames as CharacterJumpFrames;
+    const vy = jumpOpts?.vy ?? 0;
+    const up = jumpOpts?.vyJumpUp ?? -3.5;
+    const fall = jumpOpts?.vyJumpFall ?? 2.5;
+    if (vy < up) return j.up;
+    if (vy > fall) return j.fall;
+    return j.peak;
+}
+
+/** เลือก index เฟรมจาก state ผู้เล่น — รองรับท่า extras ครบ */
+export function pickCharacterFrameIndex(
+    p: {
+        state?: string;
+        onGround?: boolean;
+        vy?: number;
+        vx?: number;
+        animTime?: number;
+    },
+    config: CharacterAnimationConfig,
+    opt?: { runSpeed?: number; vyJumpUp?: number; vyJumpFall?: number },
+): number {
+    const animTime = p.animTime ?? 0;
+    const runSpeed = opt?.runSpeed ?? 4.5;
+    const state = p.state ?? 'idle';
+
+    for (const { state: st, pose } of POSE_STATE_PRIORITY) {
+        if (state !== st) continue;
+        const frames = getPoseFrames(config, pose);
+        if (frames == null) continue;
+        return pickFromPoseFrames(frames, animTime, resolvePoseFps(config, pose), {
+            vy: p.vy,
+            vyJumpUp: opt?.vyJumpUp,
+            vyJumpFall: opt?.vyJumpFall,
+        });
+    }
+
+    if (!p.onGround || state === 'jump') {
+        const land = getPoseFrames(config, 'land');
+        if (state === 'land' && land != null) {
+            return pickFromPoseFrames(land, animTime, resolvePoseFps(config, 'land'));
+        }
+        const fall = getPoseFrames(config, 'fall');
+        if (p.onGround === false && p.vy != null && p.vy > (opt?.vyJumpFall ?? 2.5) && fall != null) {
+            return pickFromPoseFrames(fall, animTime, resolvePoseFps(config, 'fall'));
+        }
+        const j = getPoseFrames(config, 'jump');
+        if (j != null) {
+            return pickFromPoseFrames(j, animTime, resolvePoseFps(config, 'jump'), {
+                vy: p.vy,
+                vyJumpUp: opt?.vyJumpUp,
+                vyJumpFall: opt?.vyJumpFall,
+            });
+        }
+    }
+
+    if (state === 'run' || Math.abs(p.vx ?? 0) > runSpeed * 0.55) {
+        const rf = getPoseFrames(config, 'run');
+        if (rf != null) return pickFromPoseFrames(rf, animTime, resolvePoseFps(config, 'run'));
+    }
+    if (Math.abs(p.vx ?? 0) > 0.15) {
+        const wf = getPoseFrames(config, 'walk');
+        if (wf != null) return pickFromPoseFrames(wf, animTime, resolvePoseFps(config, 'walk'));
+    }
+    const idle = getPoseFrames(config, 'idle');
+    if (idle != null) return pickFromPoseFrames(idle, animTime, resolvePoseFps(config, 'idle'));
+    return 0;
+}
+
+function parseExtras(raw: unknown): CharacterAnimationConfig['extras'] | undefined {
+    if (!raw || typeof raw !== 'object') return undefined;
+    const o = raw as Record<string, unknown>;
+    const out: NonNullable<CharacterAnimationConfig['extras']> = {};
+    let any = false;
+    for (const key of CHARACTER_EXTENDED_POSE_KEYS) {
+        const v = o[key];
+        if (typeof v === 'number') {
+            out[key] = v;
+            any = true;
+        } else if (Array.isArray(v) && v.length) {
+            out[key] = v as number[];
+            any = true;
+        }
+    }
+    return any ? out : undefined;
+}
+
 export function parseCharacterAnimationConfig(raw: unknown): CharacterAnimationConfig | null {
     if (!raw || typeof raw !== 'object') return null;
     const o = raw as Record<string, unknown>;
@@ -144,6 +424,8 @@ export function parseCharacterAnimationConfig(raw: unknown): CharacterAnimationC
         jump,
         hurt: typeof o.hurt === 'number' ? o.hurt : base.hurt,
         happy: typeof o.happy === 'number' ? o.happy : base.happy,
+        extras: parseExtras(o.extras) ?? base.extras,
+        poseFps: o.poseFps && typeof o.poseFps === 'object' ? (o.poseFps as CharacterAnimationConfig['poseFps']) : base.poseFps,
         runFaces: o.runFaces === 'left' || o.runFaces === 'right' ? o.runFaces : base.runFaces,
         anchorFoot: typeof o.anchorFoot === 'number' ? o.anchorFoot : base.anchorFoot,
         feetPad: typeof o.feetPad === 'number' ? o.feetPad : base.feetPad,
@@ -154,10 +436,9 @@ export function parseCharacterAnimationConfig(raw: unknown): CharacterAnimationC
 function parsePoseAnchors(raw: unknown): CharacterAnimationConfig['poseAnchors'] | undefined {
     if (!raw || typeof raw !== 'object') return undefined;
     const o = raw as Record<string, unknown>;
-    const poses: CharacterPoseKey[] = ['idle', 'walk', 'run', 'jump', 'hurt', 'happy'];
     const out: NonNullable<CharacterAnimationConfig['poseAnchors']> = {};
     let any = false;
-    for (const pose of poses) {
+    for (const pose of CHARACTER_ALL_POSE_KEYS) {
         const v = o[pose];
         if (!v || typeof v !== 'object') continue;
         const p = v as Record<string, unknown>;
@@ -171,22 +452,22 @@ function parsePoseAnchors(raw: unknown): CharacterAnimationConfig['poseAnchors']
     return any ? out : undefined;
 }
 
-/** ตรวจว่า index เฟรมอยู่ในช่วง sheet */
+function collectPoseIndices(pose: CharacterPoseKey, config: CharacterAnimationConfig): number[] {
+    const frames = getPoseFrames(config, pose);
+    if (frames == null) return [];
+    if (Array.isArray(frames)) return frames;
+    if (typeof frames === 'number') return [frames];
+    return collectJumpIndices(frames);
+}
+
 export function validateAnimationConfig(
     config: CharacterAnimationConfig,
     frameCount: number,
 ): string | null {
     const indices = new Set<number>();
-    const collect = (n: number | number[]) => {
-        if (Array.isArray(n)) n.forEach((i) => indices.add(i));
-        else indices.add(n);
-    };
-    collect(config.idle);
-    collect(config.walk);
-    collect(config.run);
-    collectJumpIndices(config.jump).forEach((i) => indices.add(i));
-    collect(config.hurt);
-    collect(config.happy);
+    for (const pose of CHARACTER_ALL_POSE_KEYS) {
+        for (const i of collectPoseIndices(pose, config)) indices.add(i);
+    }
     for (const i of indices) {
         if (i < 0 || i >= frameCount) {
             return `เฟรม ${i} เกินช่วง (0–${frameCount - 1})`;
@@ -195,7 +476,6 @@ export function validateAnimationConfig(
     return null;
 }
 
-/** คำนวณขนาดเฟรมจาก PNG */
 export function suggestFrameSizeFromImage(
     imgW: number,
     imgH: number,
@@ -221,7 +501,6 @@ export function suggestFrameSizeFromImage(
     return { frameWidth: fw, frameHeight: imgH };
 }
 
-/** แปลง index เฟรม → ตำแหน่ง crop บน sheet */
 export function characterFrameRect(
     frameIndex: number,
     fw: number,
@@ -236,13 +515,11 @@ export function characterFrameRect(
     return { sx: frameIndex * fw, sy: 0 };
 }
 
-/** flip sprite เมื่อเดินสวนทิศกับ runFaces ใน sheet */
 export function shouldFlipCharacterFace(face: number, anim: CharacterAnimationConfig): boolean {
     const rf = anim.runFaces ?? 'right';
     return rf === 'right' ? face < 0 : face > 0;
 }
 
-/** จุดเท้าสำหรับท่า — ใช้ poseAnchors[pose] ก่อน แล้ว fallback global */
 export function resolveFootAnchor(
     anim: CharacterAnimationConfig,
     pose: CharacterPoseKey,
@@ -256,34 +533,25 @@ export function resolveFootAnchor(
     };
 }
 
-/** แปลง state ผู้เล่นในเกม → ท่าสำหรับจุดเท้า (สอดคล้อง pickCharacterFrame) */
 export function poseKeyFromPlayerState(
     p: { state?: string; onGround?: boolean; vy?: number; vx?: number },
     opt?: { runSpeed?: number },
 ): CharacterPoseKey {
     const runSpeed = opt?.runSpeed ?? 4.5;
-    if (p.state === 'hurt') return 'hurt';
-    if (p.state === 'happy') return 'happy';
-    if (!p.onGround || p.state === 'jump') return 'jump';
-    if (p.state === 'run' || Math.abs(p.vx ?? 0) > runSpeed * 0.55) return 'run';
+    const state = p.state ?? 'idle';
+    for (const { state: st, pose } of POSE_STATE_PRIORITY) {
+        if (state === st) return pose;
+    }
+    if (!p.onGround || state === 'jump') {
+        if (state === 'land') return 'land';
+        if (p.vy != null && p.vy > 2.5) return 'fall';
+        return 'jump';
+    }
+    if (state === 'run' || Math.abs(p.vx ?? 0) > runSpeed * 0.55) return 'run';
     if (Math.abs(p.vx ?? 0) > 0.15) return 'walk';
     return 'idle';
 }
 
-const POSE_LABELS: Record<CharacterPoseKey, string> = {
-    idle: 'ยืน',
-    walk: 'เดิน',
-    run: 'วิ่ง',
-    jump: 'โดด',
-    hurt: 'เจ็บ',
-    happy: 'ดีใจ',
-};
-
-export function characterPoseLabel(pose: CharacterPoseKey): string {
-    return POSE_LABELS[pose];
-}
-
-/** แปลง "0,1,2" → [0,1,2] */
 export function parseFrameIndexList(raw: string): number[] {
     return raw
         .split(/[,;\s]+/)
@@ -295,34 +563,44 @@ export function frameIndexListToString(arr: number[]): string {
     return arr.join(', ');
 }
 
+function poseFramesToString(frames: PoseFrames | null | undefined): string {
+    if (frames == null) return '';
+    if (Array.isArray(frames)) return frameIndexListToString(frames);
+    if (typeof frames === 'number') return String(frames);
+    return `${frames.up},${frames.peak},${frames.fall}`;
+}
+
 export type CharacterPoseFields = {
     preset: string;
-    run: string;
-    jump: string;
-    idle: string;
-    walk: string;
-    hurt: string;
-    happy: string;
     runFaces: 'left' | 'right';
     anchorFoot: number;
     feetPad: number;
+    /** core poses serialized */
+    core: Record<CharacterCorePoseKey, string>;
+    /** extended poses serialized */
+    extras: Partial<Record<CharacterExtendedPoseKey, string>>;
 };
 
 export function poseFieldsFromConfig(config: CharacterAnimationConfig): CharacterPoseFields {
-    const jumpStr = Array.isArray(config.jump)
-        ? frameIndexListToString(config.jump)
-        : `${config.jump.up},${config.jump.peak},${config.jump.fall}`;
+    const extras: Partial<Record<CharacterExtendedPoseKey, string>> = {};
+    for (const key of CHARACTER_EXTENDED_POSE_KEYS) {
+        const s = poseFramesToString(config.extras?.[key]);
+        if (s) extras[key] = s;
+    }
     return {
         preset: config.preset,
-        run: frameIndexListToString(config.run),
-        jump: jumpStr,
-        idle: frameIndexListToString(config.idle),
-        walk: frameIndexListToString(config.walk),
-        hurt: String(config.hurt),
-        happy: String(config.happy),
         runFaces: config.runFaces ?? 'right',
         anchorFoot: config.anchorFoot ?? 0.94,
         feetPad: config.feetPad ?? 0,
+        core: {
+            idle: poseFramesToString(config.idle),
+            walk: poseFramesToString(config.walk),
+            run: poseFramesToString(config.run),
+            jump: poseFramesToString(config.jump),
+            hurt: String(config.hurt),
+            happy: String(config.happy),
+        },
+        extras,
     };
 }
 
@@ -331,7 +609,7 @@ export function buildAnimationConfigFromFields(
     frameCount: number,
 ): { config: CharacterAnimationConfig; error: string | null } {
     const base = getCharacterAnimPreset(fields.preset);
-    const jumpParts = parseFrameIndexList(fields.jump);
+    const jumpParts = parseFrameIndexList(fields.core.jump);
     const jump: CharacterAnimationConfig['jump'] = jumpParts.length >= 3 && jumpParts.length <= 4
         ? jumpParts.length === 3
             ? { up: jumpParts[0], peak: jumpParts[1], fall: jumpParts[2] }
@@ -340,15 +618,25 @@ export function buildAnimationConfigFromFields(
             ? jumpParts
             : base.jump;
 
+    const extras: NonNullable<CharacterAnimationConfig['extras']> = {};
+    for (const key of CHARACTER_EXTENDED_POSE_KEYS) {
+        const raw = fields.extras[key]?.trim();
+        if (!raw) continue;
+        const parts = parseFrameIndexList(raw);
+        if (parts.length === 1) extras[key] = parts[0];
+        else if (parts.length > 1) extras[key] = parts;
+    }
+
     const config: CharacterAnimationConfig = {
         ...base,
         preset: fields.preset,
-        idle: parseFrameIndexList(fields.idle).length ? parseFrameIndexList(fields.idle) : base.idle,
-        walk: parseFrameIndexList(fields.walk).length ? parseFrameIndexList(fields.walk) : base.walk,
-        run: parseFrameIndexList(fields.run).length ? parseFrameIndexList(fields.run) : base.run,
+        idle: parseFrameIndexList(fields.core.idle).length ? parseFrameIndexList(fields.core.idle) : base.idle,
+        walk: parseFrameIndexList(fields.core.walk).length ? parseFrameIndexList(fields.core.walk) : base.walk,
+        run: parseFrameIndexList(fields.core.run).length ? parseFrameIndexList(fields.core.run) : base.run,
         jump,
-        hurt: parseInt(fields.hurt, 10),
-        happy: parseInt(fields.happy, 10),
+        hurt: parseInt(fields.core.hurt, 10),
+        happy: parseInt(fields.core.happy, 10),
+        extras: Object.keys(extras).length ? extras : undefined,
         runFaces: fields.runFaces,
         anchorFoot: fields.anchorFoot,
         feetPad: fields.feetPad,
@@ -357,4 +645,14 @@ export function buildAnimationConfigFromFields(
     if (Number.isNaN(config.happy)) config.happy = base.happy;
     const err = validateAnimationConfig(config, frameCount);
     return { config, error: err };
+}
+
+/** ท่าที่ map แล้ว (มีเฟรม) — ใช้ preview dropdown */
+export function listMappedPoses(config: CharacterAnimationConfig): CharacterPoseKey[] {
+    return CHARACTER_ALL_POSE_KEYS.filter((pose) => {
+        const f = getPoseFrames(config, pose);
+        if (f == null) return false;
+        if (Array.isArray(f)) return f.length > 0;
+        return true;
+    });
 }

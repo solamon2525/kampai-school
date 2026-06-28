@@ -1,6 +1,9 @@
 import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+    Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue,
+} from '@/components/ui/select';
 import { Loader2, Save } from 'lucide-react';
 import { CharacterSheetPreview } from './CharacterSheetPreview';
 import { CharacterSheetGridPreview } from './CharacterSheetGridPreview';
@@ -8,6 +11,8 @@ import { CharacterPoseMapper } from './CharacterPoseMapper';
 import { CharacterColorEditor } from './CharacterColorEditor';
 import {
     type CharacterAnimationConfig,
+    type CharacterPoseKey,
+    CHARACTER_POSE_CATALOG,
     characterPoseLabel,
     getCharacterAnimPreset,
     parseCharacterAnimationConfig,
@@ -20,7 +25,7 @@ import { parseCharacterColorConfig, type CharacterColorConfig } from '@/lib/char
 import type { CharacterSheet } from '@/services/educational-hub.service';
 import { cn } from '@/lib/utils';
 
-const PREVIEW_MODES = ['idle', 'walk', 'run', 'jump'] as const;
+const QUICK_PREVIEW_POSES: CharacterPoseKey[] = ['idle', 'walk', 'run', 'jump', 'attack', 'crouch', 'slide', 'special'];
 
 type Props = {
     sheet: CharacterSheet;
@@ -50,7 +55,7 @@ export function CharacterSheetStudio({ sheet, busy, onSave, className }: Props) 
     const [colorConfig, setColorConfig] = useState<CharacterColorConfig | null>(
         () => parseCharacterColorConfig(sheet.color_config),
     );
-    const [previewMode, setPreviewMode] = useState<(typeof PREVIEW_MODES)[number]>('run');
+    const [previewMode, setPreviewMode] = useState<CharacterPoseKey>('run');
     const [face, setFace] = useState(1);
     const [saveError, setSaveError] = useState<string | null>(null);
     const [autoFitAnalysis, setAutoFitAnalysis] = useState<SpriteAutoFitResult | null>(null);
@@ -120,17 +125,30 @@ export function CharacterSheetStudio({ sheet, busy, onSave, className }: Props) 
                     className="h-9 max-w-xs"
                     placeholder="ชื่อตัวละคร"
                 />
-                <div className="flex gap-1">
-                    {PREVIEW_MODES.map((m) => (
+                <Select value={previewMode} onValueChange={(v) => setPreviewMode(v as CharacterPoseKey)}>
+                    <SelectTrigger className="h-8 w-44 text-xs"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                        {CHARACTER_POSE_CATALOG.map((g) => (
+                            <SelectGroup key={g.id}>
+                                <SelectLabel className="text-xs">{g.label}</SelectLabel>
+                                {g.entries.map((e) => (
+                                    <SelectItem key={e.key} value={e.key} className="text-xs">{e.label}</SelectItem>
+                                ))}
+                            </SelectGroup>
+                        ))}
+                    </SelectContent>
+                </Select>
+                <div className="flex flex-wrap gap-1">
+                    {QUICK_PREVIEW_POSES.map((m) => (
                         <Button
                             key={m}
                             type="button"
                             size="sm"
                             variant={previewMode === m ? 'default' : 'outline'}
-                            className="h-8 text-xs capitalize"
+                            className="h-8 text-xs"
                             onClick={() => setPreviewMode(m)}
                         >
-                            {m}
+                            {characterPoseLabel(m).split(' ')[0]}
                         </Button>
                     ))}
                 </div>

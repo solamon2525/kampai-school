@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import {
     type CharacterAnimationConfig,
+    type CharacterPoseKey,
     characterFrameRect,
+    getPoseFrames,
     resolveCharacterAnimation,
     resolveFootAnchor,
+    resolvePoseFps,
     shouldFlipCharacterFace,
 } from '@/lib/character-animation';
 import type { CharacterColorConfig } from '@/lib/character-color';
@@ -19,8 +22,8 @@ type Props = {
     animationConfig?: CharacterAnimationConfig | null;
     colorConfig?: CharacterColorConfig | null;
     player?: 1 | 2;
-    /** idle | walk | run | jump */
-    mode?: 'idle' | 'walk' | 'run' | 'jump';
+    /** ท่าที่ preview — ตาม CHARACTER_POSE_CATALOG */
+    mode?: CharacterPoseKey;
     size?: number;
     className?: string;
     checkerboard?: boolean;
@@ -79,26 +82,20 @@ export function CharacterSheetPreview({
         let start = 0;
 
         const framesForMode = (): number[] => {
-            if (mode === 'idle') return anim.idle.length ? anim.idle : [0];
-            if (mode === 'run') return anim.run.length ? anim.run : [0];
-            if (mode === 'jump') {
-                return Array.isArray(anim.jump) ? anim.jump : [anim.jump.up, anim.jump.peak, anim.jump.fall];
-            }
-            return anim.walk.length ? anim.walk : [0];
+            const raw = getPoseFrames(anim, mode);
+            if (raw == null) return [0];
+            if (Array.isArray(raw)) return raw.length ? raw : [0];
+            if (typeof raw === 'number') return [raw];
+            return [raw.up, raw.peak, raw.fall];
         };
 
-        const fps = mode === 'run'
-            ? (anim.runFps ?? 10)
-            : mode === 'walk'
-                ? (anim.walkFps ?? 5)
-                : mode === 'jump'
-                    ? (anim.jumpFps ?? 8)
-                    : 4;
+        const fps = resolvePoseFps(anim, mode);
 
         const tick = (now: number) => {
             if (!start) start = now;
             const fr = framesForMode();
-            const idx = mode === 'idle' && fr.length === 1
+            const isSingle = fr.length === 1;
+            const idx = isSingle
                 ? fr[0]
                 : fr[Math.floor(((now - start) / 1000) * fps) % fr.length];
             const { sx, sy } = characterFrameRect(idx, frameWidth, frameHeight, anim);

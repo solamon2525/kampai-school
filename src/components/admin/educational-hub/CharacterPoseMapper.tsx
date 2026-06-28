@@ -4,13 +4,24 @@ import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import { ChevronDown } from 'lucide-react';
+import {
     CHARACTER_ANIM_PRESET_OPTIONS,
+    CHARACTER_POSE_CATALOG,
+    CHARACTER_CORE_POSE_KEYS,
     buildAnimationConfigFromFields,
     getCharacterAnimPreset,
     poseFieldsFromConfig,
     type CharacterAnimationConfig,
+    type CharacterCorePoseKey,
+    type CharacterExtendedPoseKey,
     type CharacterPoseFields,
 } from '@/lib/character-animation';
+import { cn } from '@/lib/utils';
 
 type Props = {
     preset: string;
@@ -24,6 +35,13 @@ export function CharacterPoseMapper({ preset, frameCount, onPresetChange, onConf
         poseFieldsFromConfig(getCharacterAnimPreset(preset)),
     );
     const [mapError, setMapError] = useState<string | null>(null);
+    const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
+        movement: true,
+        combat: false,
+        stance: false,
+        platformer: false,
+        special: false,
+    });
 
     useEffect(() => {
         setFields(poseFieldsFromConfig(getCharacterAnimPreset(preset)));
@@ -35,7 +53,21 @@ export function CharacterPoseMapper({ preset, frameCount, onPresetChange, onConf
         if (!error) onConfigChange(config);
     }, [fields, frameCount, onConfigChange]);
 
-    const set = (patch: Partial<CharacterPoseFields>) => setFields((f) => ({ ...f, ...patch }));
+    const setCore = (key: CharacterCorePoseKey, value: string) =>
+        setFields((f) => ({ ...f, core: { ...f.core, [key]: value } }));
+
+    const setExtra = (key: CharacterExtendedPoseKey, value: string) =>
+        setFields((f) => ({
+            ...f,
+            extras: value.trim() ? { ...f.extras, [key]: value } : (() => {
+                const next = { ...f.extras };
+                delete next[key];
+                return next;
+            })(),
+        }));
+
+    const setMeta = (patch: Partial<Pick<CharacterPoseFields, 'runFaces' | 'anchorFoot' | 'feetPad'>>) =>
+        setFields((f) => ({ ...f, ...patch }));
 
     return (
         <div className="space-y-2 rounded-md border border-border p-3">
@@ -44,7 +76,7 @@ export function CharacterPoseMapper({ preset, frameCount, onPresetChange, onConf
                 value={preset}
                 onValueChange={(v) => {
                     onPresetChange(v);
-                    set({ preset: v });
+                    setFields((f) => ({ ...f, preset: v }));
                 }}
             >
                 <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
@@ -54,36 +86,51 @@ export function CharacterPoseMapper({ preset, frameCount, onPresetChange, onConf
                     ))}
                 </SelectContent>
             </Select>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-                <label className="space-y-0.5">
-                    <span className="text-muted-foreground">วิ่ง (run)</span>
-                    <Input className="h-8 font-mono text-xs" value={fields.run} onChange={(e) => set({ run: e.target.value })} />
-                </label>
-                <label className="space-y-0.5">
-                    <span className="text-muted-foreground">โดด (jump)</span>
-                    <Input className="h-8 font-mono text-xs" value={fields.jump} onChange={(e) => set({ jump: e.target.value })} />
-                </label>
-                <label className="space-y-0.5">
-                    <span className="text-muted-foreground">ยืน (idle)</span>
-                    <Input className="h-8 font-mono text-xs" value={fields.idle} onChange={(e) => set({ idle: e.target.value })} />
-                </label>
-                <label className="space-y-0.5">
-                    <span className="text-muted-foreground">เดิน (walk)</span>
-                    <Input className="h-8 font-mono text-xs" value={fields.walk} onChange={(e) => set({ walk: e.target.value })} />
-                </label>
-                <label className="space-y-0.5">
-                    <span className="text-muted-foreground">เจ็บ (hurt)</span>
-                    <Input className="h-8 font-mono text-xs" value={fields.hurt} onChange={(e) => set({ hurt: e.target.value })} />
-                </label>
-                <label className="space-y-0.5">
-                    <span className="text-muted-foreground">ดีใจ (happy)</span>
-                    <Input className="h-8 font-mono text-xs" value={fields.happy} onChange={(e) => set({ happy: e.target.value })} />
-                </label>
-            </div>
+
+            {CHARACTER_POSE_CATALOG.map((group) => {
+                const open = openGroups[group.id] ?? false;
+                return (
+                    <Collapsible
+                        key={group.id}
+                        open={open}
+                        onOpenChange={(v) => setOpenGroups((g) => ({ ...g, [group.id]: v }))}
+                    >
+                        <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md border border-border px-2 py-1.5 text-xs font-medium hover:bg-muted/50">
+                            <span>{group.label}</span>
+                            <ChevronDown className={cn('h-3.5 w-3.5 transition-transform', open && 'rotate-180')} />
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="pt-2">
+                            <div className="grid grid-cols-2 gap-2 text-xs">
+                                {group.entries.map((entry) => {
+                                    const isCoreKey = CHARACTER_CORE_POSE_KEYS.includes(entry.key as CharacterCorePoseKey);
+                                    const value = isCoreKey
+                                        ? fields.core[entry.key as CharacterCorePoseKey]
+                                        : (fields.extras[entry.key as CharacterExtendedPoseKey] ?? '');
+                                    return (
+                                        <label key={entry.key} className="space-y-0.5">
+                                            <span className="text-muted-foreground">{entry.label}</span>
+                                            <Input
+                                                className="h-8 font-mono text-xs"
+                                                value={value}
+                                                placeholder={entry.placeholder ?? (isCoreKey ? '' : 'ว่าง = ยังไม่ map')}
+                                                onChange={(e) => {
+                                                    if (isCoreKey) setCore(entry.key as CharacterCorePoseKey, e.target.value);
+                                                    else setExtra(entry.key as CharacterExtendedPoseKey, e.target.value);
+                                                }}
+                                            />
+                                        </label>
+                                    );
+                                })}
+                            </div>
+                        </CollapsibleContent>
+                    </Collapsible>
+                );
+            })}
+
             <div className="grid grid-cols-2 gap-2">
                 <label className="space-y-0.5 text-xs">
                     <span className="text-muted-foreground">ทิศทางเฟรมวิ่งใน sheet</span>
-                    <Select value={fields.runFaces} onValueChange={(v: 'left' | 'right') => set({ runFaces: v })}>
+                    <Select value={fields.runFaces} onValueChange={(v: 'left' | 'right') => setMeta({ runFaces: v })}>
                         <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="right">หันขวา (flip เมื่อเดินซ้าย)</SelectItem>
@@ -99,7 +146,7 @@ export function CharacterPoseMapper({ preset, frameCount, onPresetChange, onConf
                         max={1}
                         step={0.01}
                         value={fields.anchorFoot}
-                        onChange={(e) => set({ anchorFoot: Number(e.target.value) })}
+                        onChange={(e) => setMeta({ anchorFoot: Number(e.target.value) })}
                         className="w-full accent-primary"
                     />
                 </label>
@@ -111,7 +158,7 @@ export function CharacterPoseMapper({ preset, frameCount, onPresetChange, onConf
                     min={0}
                     max={32}
                     value={fields.feetPad}
-                    onChange={(e) => set({ feetPad: Number(e.target.value) })}
+                    onChange={(e) => setMeta({ feetPad: Number(e.target.value) })}
                     className="w-full accent-primary"
                 />
             </label>
@@ -120,7 +167,8 @@ export function CharacterPoseMapper({ preset, frameCount, onPresetChange, onConf
                 {CHARACTER_ANIM_PRESET_OPTIONS.find((p) => p.key === preset)?.frameHint ?? ''}
             </p>
             <p className="text-[10px] text-muted-foreground">
-                ค่า default ทุกท่า · ปรับแยกตามท่าได้ที่ preview ด้านบน (run/jump/idle/…)
+                เกมเรียกท่าเสริมด้วย <code className="text-[10px]">player.state</code> เช่น attack · crouch · slide · special
+                · ท่าที่ยังไม่ map จะ fallback ไปท่าเคลื่อนที่
             </p>
         </div>
     );

@@ -147,44 +147,94 @@
   /** เลือก index เฟรมจากสถานะผู้เล่น + animation config (K.character.anim) */
   K.pickCharacterFrame = function (p, opt) {
     opt = opt || {};
-    var c = K.character;
-    var anim = opt.anim || (c && c.anim) || DEFAULT_CHAR_ANIM;
+    var anim = opt.anim || (K.character && K.character.anim) || DEFAULT_CHAR_ANIM;
     var runSpeed = opt.runSpeed != null ? opt.runSpeed : 4.5;
     var animTime = p.animTime || 0;
-    if (p.state === 'hurt') return anim.hurt;
-    if (p.state === 'happy') return anim.happy;
-    if (!p.onGround || p.state === 'jump') {
-      var j = anim.jump || DEFAULT_CHAR_ANIM.jump;
-      if (Array.isArray(j)) {
-        return j[Math.floor(animTime * 1.1) % j.length];
+    var state = p.state || 'idle';
+
+    function fps(pose) {
+      if (anim.poseFps && anim.poseFps[pose] != null) return anim.poseFps[pose];
+      if (pose === 'walk') return anim.walkFps != null ? anim.walkFps : 5;
+      if (pose === 'run') return anim.runFps != null ? anim.runFps : 10;
+      if (pose === 'jump') return anim.jumpFps != null ? anim.jumpFps : 8;
+      return 4;
+    }
+    function getPose(pose) {
+      if (pose === 'idle') return anim.idle;
+      if (pose === 'walk') return anim.walk;
+      if (pose === 'run') return anim.run;
+      if (pose === 'jump') return anim.jump;
+      if (pose === 'hurt') return anim.hurt;
+      if (pose === 'happy') return anim.happy;
+      return anim.extras && anim.extras[pose] != null ? anim.extras[pose] : null;
+    }
+    function pick(frames, f, jumpOpt) {
+      if (frames == null) return null;
+      if (Array.isArray(frames)) {
+        if (!frames.length) return null;
+        if (frames.length === 1) return frames[0];
+        return frames[Math.floor(animTime * (f / 10)) % frames.length];
       }
-      if (p.vy < (opt.vyJumpUp != null ? opt.vyJumpUp : -3.5)) return j.up;
-      if (p.vy > (opt.vyJumpFall != null ? opt.vyJumpFall : 2.5)) return j.fall;
-      return j.peak;
+      if (typeof frames === 'number') return frames;
+      var vy = jumpOpt && jumpOpt.vy != null ? jumpOpt.vy : 0;
+      if (vy < (jumpOpt && jumpOpt.vyJumpUp != null ? jumpOpt.vyJumpUp : -3.5)) return frames.up;
+      if (vy > (jumpOpt && jumpOpt.vyJumpFall != null ? jumpOpt.vyJumpFall : 2.5)) return frames.fall;
+      return frames.peak;
     }
-    if (p.state === 'run' || Math.abs(p.vx) > runSpeed * 0.55) {
-      var rf = anim.run && anim.run.length ? anim.run : DEFAULT_CHAR_ANIM.run;
-      return rf[Math.floor(animTime * 1.15) % rf.length];
+
+    var PRIORITY = [
+      'death', 'hurt', 'happy', 'emote', 'special', 'spawn',
+      'attackHeavy', 'attack', 'block', 'dodge',
+      'slide', 'wallSlide', 'climb', 'crouch', 'crawl', 'sit', 'sleep',
+      'land', 'fall', 'jump',
+    ];
+    for (var i = 0; i < PRIORITY.length; i++) {
+      if (state !== PRIORITY[i]) continue;
+      var pf = pick(getPose(PRIORITY[i]), fps(PRIORITY[i]), { vy: p.vy, vyJumpUp: opt.vyJumpUp, vyJumpFall: opt.vyJumpFall });
+      if (pf != null) return pf;
     }
-    if (Math.abs(p.vx) > 0.15) {
-      var wf = anim.walk && anim.walk.length ? anim.walk : DEFAULT_CHAR_ANIM.walk;
-      return wf[Math.floor(animTime * 0.85) % wf.length];
+
+    if (!p.onGround || state === 'jump') {
+      var landF = pick(getPose('land'), fps('land'));
+      if (state === 'land' && landF != null) return landF;
+      var fallF = pick(getPose('fall'), fps('fall'));
+      if (p.onGround === false && p.vy > (opt.vyJumpFall != null ? opt.vyJumpFall : 2.5) && fallF != null) return fallF;
+      var jf = pick(getPose('jump'), fps('jump'), { vy: p.vy, vyJumpUp: opt.vyJumpUp, vyJumpFall: opt.vyJumpFall });
+      if (jf != null) return jf;
     }
-    var idle = anim.idle && anim.idle.length ? anim.idle : DEFAULT_CHAR_ANIM.idle;
-    if (idle.length > 1) {
-      return idle[Math.floor(animTime * 0.5) % idle.length];
+    if (state === 'run' || Math.abs(p.vx || 0) > runSpeed * 0.55) {
+      var rf = pick(getPose('run'), fps('run'));
+      if (rf != null) return rf;
     }
-    return idle[0];
+    if (Math.abs(p.vx || 0) > 0.15) {
+      var wf = pick(getPose('walk'), fps('walk'));
+      if (wf != null) return wf;
+    }
+    var idf = pick(getPose('idle'), fps('idle'));
+    if (idf != null) return idf;
+    return 0;
   };
 
-  /** แปลง state ผู้เล่น → ท่า (idle/walk/run/jump/hurt/happy) สำหรับจุดเท้า */
+  /** แปลง state ผู้เล่น → ท่า สำหรับจุดเท้า */
   K.poseKeyFromPlayerState = function (p, opt) {
     opt = opt || {};
     var runSpeed = opt.runSpeed != null ? opt.runSpeed : 4.5;
-    if (p.state === 'hurt') return 'hurt';
-    if (p.state === 'happy') return 'happy';
-    if (!p.onGround || p.state === 'jump') return 'jump';
-    if (p.state === 'run' || Math.abs(p.vx || 0) > runSpeed * 0.55) return 'run';
+    var state = p.state || 'idle';
+    var map = [
+      'death', 'hurt', 'happy', 'emote', 'special', 'spawn',
+      'attackHeavy', 'attack', 'block', 'dodge',
+      'slide', 'wallSlide', 'climb', 'crouch', 'crawl', 'sit', 'sleep',
+      'land', 'fall', 'jump',
+    ];
+    for (var i = 0; i < map.length; i++) {
+      if (state === map[i]) return map[i];
+    }
+    if (!p.onGround || state === 'jump') {
+      if (state === 'land') return 'land';
+      if (p.vy != null && p.vy > 2.5) return 'fall';
+      return 'jump';
+    }
+    if (state === 'run' || Math.abs(p.vx || 0) > runSpeed * 0.55) return 'run';
     if (Math.abs(p.vx || 0) > 0.15) return 'walk';
     return 'idle';
   };
