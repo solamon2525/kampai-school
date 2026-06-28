@@ -124,9 +124,14 @@ const QUESTIONS = [
 
 const BUBBLE_COLORS = ['#93c5fd','#fca5a5','#86efac'];
 const GRAVITY = 0.38, FRICTION = 0.82, RUN = 4.2, JUMP1 = -9.2, JUMP2 = -7.4;
-const BUNNY_SPRITE = { fw: 128, fh: 128, frames: 12, white: null, blue: null, ready: false };
+const BUNNY_SPRITE = { fw: 170, fh: 227, frames: 18, white: null, blue: null, ready: false };
+const BUNNY_DEFAULT_ANIM = {
+  preset: 'grid-3x6-18', layout: 'grid', cols: 6, rows: 3,
+  idle: [12, 13, 14, 15, 16, 17], walk: [12, 13, 14, 15, 16, 17],
+  run: [0, 1, 2, 3, 4, 5], jump: [6, 7, 8, 9, 10, 11], hurt: 12, happy: 12,
+};
 const BUNNY_DRAW_W = 96;
-const BUNNY_DRAW_H = 104;
+const BUNNY_DRAW_H = 128;
 const BUNNY_ASSET_BASE = '/games/thai/assets/thai-sara-run';
 const WORLD_H = 720, PLAT_H = 48;
 const V_H = 720;
@@ -615,6 +620,10 @@ function loadBunnySprites() {
     BUNNY_SPRITE.fw = c.fw;
     BUNNY_SPRITE.fh = c.fh;
     if (c.frames) BUNNY_SPRITE.frames = c.frames;
+  } else {
+    BUNNY_SPRITE.fw = 170;
+    BUNNY_SPRITE.fh = 227;
+    BUNNY_SPRITE.frames = 18;
   }
   return Promise.all([
     loadBunnyImage(wUrl),
@@ -626,9 +635,13 @@ function loadBunnySprites() {
   }).catch(() => { BUNNY_SPRITE.ready = false; });
 }
 
+function getBunnyAnim() {
+  return (KAMPAI.character && KAMPAI.character.anim) || BUNNY_DEFAULT_ANIM;
+}
+
 function getBunnySpriteFrame(p) {
   if (typeof KAMPAI.pickCharacterFrame === 'function') {
-    return KAMPAI.pickCharacterFrame(p, { runSpeed: RUN });
+    return KAMPAI.pickCharacterFrame(p, { runSpeed: RUN, anim: getBunnyAnim() });
   }
   if (p.state === 'hurt') return 10;
   if (p.state === 'happy') return 11;
@@ -664,14 +677,18 @@ function drawWorldBunny(p, variant) {
     const dh = BUNNY_DRAW_H;
     const dx = x + p.w - dw;
     const dy = y + p.h - dh;
+    const cfg = { fw: BUNNY_SPRITE.fw, fh: BUNNY_SPRITE.fh, anim: getBunnyAnim() };
+    const rect = typeof KAMPAI.characterFrameRect === 'function'
+      ? KAMPAI.characterFrameRect(f, cfg)
+      : { sx: f * BUNNY_SPRITE.fw, sy: 0, fw: BUNNY_SPRITE.fw, fh: BUNNY_SPRITE.fh };
     ctx.save();
     ctx.imageSmoothingEnabled = false;
     if (p.face === -1) {
       ctx.translate(dx + dw, dy);
       ctx.scale(-1, 1);
-      ctx.drawImage(sheet, f * BUNNY_SPRITE.fw, 0, BUNNY_SPRITE.fw, BUNNY_SPRITE.fh, 0, 0, dw, dh);
+      ctx.drawImage(sheet, rect.sx, rect.sy, rect.fw, rect.fh, 0, 0, dw, dh);
     } else {
-      ctx.drawImage(sheet, f * BUNNY_SPRITE.fw, 0, BUNNY_SPRITE.fw, BUNNY_SPRITE.fh, dx, dy, dw, dh);
+      ctx.drawImage(sheet, rect.sx, rect.sy, rect.fw, rect.fh, dx, dy, dw, dh);
     }
     ctx.restore();
     return;

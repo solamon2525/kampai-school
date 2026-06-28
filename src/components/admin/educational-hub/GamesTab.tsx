@@ -1179,7 +1179,7 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
     const [fw, setFw] = useState('128');
     const [fh, setFh] = useState('128');
     const [fc, setFc] = useState('12');
-    const [preset, setPreset] = useState('platformer-12');
+    const [preset, setPreset] = useState('grid-3x6-18');
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [busy, setBusy] = useState(false);
 
@@ -1187,7 +1187,10 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
 
     useEffect(() => {
         setFc(String(presetMeta.frameCount));
-    }, [presetMeta.frameCount]);
+        if ('cols' in presetMeta && presetMeta.cols) {
+            // grid preset — รอไฟล์แล้ว auto-detect จาก rows/cols
+        }
+    }, [presetMeta.frameCount, preset]);
 
     useEffect(() => {
         if (!file) {
@@ -1199,7 +1202,10 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
         const img = new Image();
         img.onload = () => {
             const fcNum = parseInt(fc, 10) || presetMeta.frameCount;
-            const suggested = suggestFrameSizeFromImage(img.naturalWidth, img.naturalHeight, fcNum);
+            const gridOpts = 'cols' in presetMeta && presetMeta.cols
+                ? { cols: presetMeta.cols, rows: 'rows' in presetMeta ? presetMeta.rows : 3 }
+                : undefined;
+            const suggested = suggestFrameSizeFromImage(img.naturalWidth, img.naturalHeight, fcNum, gridOpts);
             if (suggested) {
                 setFw(String(suggested.frameWidth));
                 setFh(String(suggested.frameHeight));

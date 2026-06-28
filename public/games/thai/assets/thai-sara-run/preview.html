@@ -11,24 +11,30 @@ canvas{display:block;margin:0 auto;image-rendering:pixelated;background:linear-g
 .box{text-align:center;font-size:.7rem;color:#94a3b8;margin-top:4px}
 img{max-width:100%;image-rendering:pixelated;border-radius:10px;border:2px solid #e2e8f0;margin-top:8px}
 </style></head><body>
-<h1>🐰 กระต่ายจาก bunny-base · thai-sara-run</h1>
-<p>128×128 · ท่าเดินวาดจากเฟรมฐาน</p>
+<h1>🐰 กระต่าย grid 3×6 · thai-sara-run</h1>
+<p>170×227 · วิ่ง / โดด / ยืน</p>
 <div class="card"><div class="row">
-<div><canvas id="idle" width="256" height="256"></canvas><div class="box">ยืน</div></div>
-<div><canvas id="walk" width="256" height="256"></canvas><div class="box">เดิน</div></div>
-<div><canvas id="run" width="256" height="256"></canvas><div class="box">วิ่ง</div></div>
-<div><canvas id="jump" width="256" height="256"></canvas><div class="box">กระโดด</div></div>
+<div><canvas id="idle" width="200" height="260"></canvas><div class="box">ยืน</div></div>
+<div><canvas id="run" width="200" height="260"></canvas><div class="box">วิ่ง</div></div>
+<div><canvas id="jump" width="200" height="260"></canvas><div class="box">โดด</div></div>
 </div></div>
-<div class="card"><img src="preview.png?v=3" alt="preview"><img src="bunny-white-sheet.png?v=3" alt="sheet"></div>
+<div class="card"><img src="bunny-blue-sheet.png?v=4" alt="sheet"></div>
 <script>
-const W=128,H=128,WALK=[1,2],RUN=[3,4,5,6],JUMP=[7,8,9];
-function load(s){return new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=s+'?v=3';});}
-function loop(c,s,fr,fps){const x=c.getContext('2d');x.imageSmoothingEnabled=false;let n=0,t=0;const sc=c.width/W;
-(function tick(now){if(now-t>1000/fps){t=now;n=(n+1)%fr.length;}x.clearRect(0,0,c.width,c.height);
-x.drawImage(s,fr[n]*W,0,W,H,0,0,W*sc,H*sc);requestAnimationFrame(tick);})(0);}
-function hold(c,s,f){const x=c.getContext('2d');x.imageSmoothingEnabled=false;const sc=c.width/W;
-x.drawImage(s,f*W,0,W,H,0,0,W*sc,H*sc);}
-load('bunny-white-sheet.png').then(s=>{
-hold(document.getElementById('idle'),s,0);loop(document.getElementById('walk'),s,WALK,5);
-loop(document.getElementById('run'),s,RUN,10);loop(document.getElementById('jump'),s,JUMP,8);});
+const FW=170,FH=227,COLS=6;
+const IDLE=[12,13,14,15,16,17],RUN=[0,1,2,3,4,5],JUMP=[6,7,8,9,10,11];
+function rect(i){return{sx:(i%COLS)*FW,sy:Math.floor(i/COLS)*FH};}
+function load(s){return new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=s+'?v=4';});}
+function loop(c,s,fr,fps){const x=c.getContext('2d');x.imageSmoothingEnabled=false;let n=0,t=0;
+const sc=Math.min(c.width/FW,c.height/FH);
+(function tick(now){if(now-t>1000/fps){t=now;n=(n+1)%fr.length;}
+const r=rect(fr[n]);x.clearRect(0,0,c.width,c.height);
+x.drawImage(s,r.sx,r.sy,FW,FH,(c.width-FW*sc)/2,(c.height-FH*sc)/2,FW*sc,FH*sc);
+requestAnimationFrame(tick);})(0);}
+function hold(c,s,f){const x=c.getContext('2d');x.imageSmoothingEnabled=false;
+const sc=Math.min(c.width/FW,c.height/FH);const r=rect(f);
+x.drawImage(s,r.sx,r.sy,FW,FH,(c.width-FW*sc)/2,(c.height-FH*sc)/2,FW*sc,FH*sc);}
+load('bunny-blue-sheet.png').then(s=>{
+loop(document.getElementById('idle'),s,IDLE,4);
+loop(document.getElementById('run'),s,RUN,12);
+loop(document.getElementById('jump'),s,JUMP,10);});
 </script></body></html>

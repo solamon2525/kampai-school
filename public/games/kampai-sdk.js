@@ -115,21 +115,46 @@
 
   /** โหลด sprite sheet จาก K.character (คลังหลังบ้าน) — คืน { primary, secondary } */
   var DEFAULT_CHAR_ANIM = {
-    idle: [0], walk: [1, 2], run: [3, 4, 5, 6],
-    jump: { up: 7, peak: 8, fall: 9 }, hurt: 10, happy: 11,
+    preset: 'grid-3x6-18',
+    layout: 'grid',
+    cols: 6,
+    rows: 3,
+    idle: [12, 13, 14, 15, 16, 17],
+    walk: [12, 13, 14, 15, 16, 17],
+    run: [0, 1, 2, 3, 4, 5],
+    jump: [6, 7, 8, 9, 10, 11],
+    hurt: 12,
+    happy: 12,
+  };
+
+  /** ตำแหน่ง crop เฟรมบน sheet (รองรับ grid + horizontal) */
+  K.characterFrameRect = function (frameIndex, cfg) {
+    cfg = cfg || K.character || {};
+    var anim = cfg.anim || DEFAULT_CHAR_ANIM;
+    var fw = cfg.fw || 128;
+    var fh = cfg.fh || 128;
+    if (anim.layout === 'grid' && anim.cols) {
+      var col = frameIndex % anim.cols;
+      var row = Math.floor(frameIndex / anim.cols);
+      return { sx: col * fw, sy: row * fh, fw: fw, fh: fh };
+    }
+    return { sx: frameIndex * fw, sy: 0, fw: fw, fh: fh };
   };
 
   /** เลือก index เฟรมจากสถานะผู้เล่น + animation config (K.character.anim) */
   K.pickCharacterFrame = function (p, opt) {
     opt = opt || {};
     var c = K.character;
-    var anim = (c && c.anim) || DEFAULT_CHAR_ANIM;
+    var anim = opt.anim || (c && c.anim) || DEFAULT_CHAR_ANIM;
     var runSpeed = opt.runSpeed != null ? opt.runSpeed : 4.5;
     var animTime = p.animTime || 0;
     if (p.state === 'hurt') return anim.hurt;
     if (p.state === 'happy') return anim.happy;
     if (!p.onGround || p.state === 'jump') {
       var j = anim.jump || DEFAULT_CHAR_ANIM.jump;
+      if (Array.isArray(j)) {
+        return j[Math.floor(animTime * 1.1) % j.length];
+      }
       if (p.vy < (opt.vyJumpUp != null ? opt.vyJumpUp : -3.5)) return j.up;
       if (p.vy > (opt.vyJumpFall != null ? opt.vyJumpFall : 2.5)) return j.fall;
       return j.peak;
@@ -143,7 +168,9 @@
       return wf[Math.floor(animTime * 0.85) % wf.length];
     }
     var idle = anim.idle && anim.idle.length ? anim.idle : DEFAULT_CHAR_ANIM.idle;
-    if (idle.length > 1 && Math.sin(animTime * 0.45) > 0.92) return idle[0];
+    if (idle.length > 1) {
+      return idle[Math.floor(animTime * 0.5) % idle.length];
+    }
     return idle[0];
   };
 

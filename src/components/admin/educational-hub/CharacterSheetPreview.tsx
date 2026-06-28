@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import {
     type CharacterAnimationConfig,
+    characterFrameRect,
     resolveCharacterAnimation,
 } from '@/lib/character-animation';
 
@@ -45,7 +46,9 @@ export function CharacterSheetPreview({
         const framesForMode = (): number[] => {
             if (mode === 'idle') return anim.idle.length ? anim.idle : [0];
             if (mode === 'run') return anim.run.length ? anim.run : [0];
-            if (mode === 'jump') return [anim.jump.up, anim.jump.peak, anim.jump.fall];
+            if (mode === 'jump') {
+                return Array.isArray(anim.jump) ? anim.jump : [anim.jump.up, anim.jump.peak, anim.jump.fall];
+            }
             return anim.walk.length ? anim.walk : [0];
         };
 
@@ -54,27 +57,29 @@ export function CharacterSheetPreview({
             : mode === 'walk'
                 ? (anim.walkFps ?? 5)
                 : mode === 'jump'
-                    ? 8
-                    : 1;
+                    ? (anim.jumpFps ?? 8)
+                    : 4;
 
         const tick = (now: number) => {
             if (!start) start = now;
             const fr = framesForMode();
-            const idx = mode === 'idle'
+            const idx = mode === 'idle' && fr.length === 1
                 ? fr[0]
                 : fr[Math.floor(((now - start) / 1000) * fps) % fr.length];
+            const { sx, sy } = characterFrameRect(idx, frameWidth, frameHeight, anim);
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             if (img.complete && img.naturalWidth > 0) {
+                const scale = canvas.width / frameWidth;
                 ctx.drawImage(
                     img,
-                    idx * frameWidth,
-                    0,
+                    sx,
+                    sy,
                     frameWidth,
                     frameHeight,
                     0,
                     0,
-                    canvas.width,
-                    canvas.height,
+                    frameWidth * scale,
+                    frameHeight * scale,
                 );
             }
             raf = requestAnimationFrame(tick);

@@ -1,4 +1,4 @@
-/** สัญญา animation สำหรับ sprite sheet แนวนอน (platformer) */
+/** สัญญา animation สำหรับ sprite sheet (horizontal หรือ grid) */
 
 export type CharacterJumpFrames = {
     up: number;
@@ -8,15 +8,19 @@ export type CharacterJumpFrames = {
 
 export type CharacterAnimationConfig = {
     preset: string;
-    layout: 'horizontal';
+    layout: 'horizontal' | 'grid';
+    cols?: number;
+    rows?: number;
     idle: number[];
     walk: number[];
     run: number[];
-    jump: CharacterJumpFrames;
+    /** แนวนอน: up/peak/fall · grid: array วนลูปตอนกระโดด */
+    jump: CharacterJumpFrames | number[];
     hurt: number;
     happy: number;
     walkFps?: number;
     runFps?: number;
+    jumpFps?: number;
 };
 
 export const CHARACTER_ANIM_PRESET_PLATFORMER_12: CharacterAnimationConfig = {
@@ -32,11 +36,37 @@ export const CHARACTER_ANIM_PRESET_PLATFORMER_12: CharacterAnimationConfig = {
     runFps: 10,
 };
 
+/** กระต่าย thai-sara-run — grid 3 แถว × 6 คอลัมน์ (วิ่ง / โดด / ยืน) */
+export const CHARACTER_ANIM_PRESET_GRID_3X6_18: CharacterAnimationConfig = {
+    preset: 'grid-3x6-18',
+    layout: 'grid',
+    cols: 6,
+    rows: 3,
+    idle: [12, 13, 14, 15, 16, 17],
+    walk: [12, 13, 14, 15, 16, 17],
+    run: [0, 1, 2, 3, 4, 5],
+    jump: [6, 7, 8, 9, 10, 11],
+    hurt: 12,
+    happy: 12,
+    walkFps: 4,
+    runFps: 12,
+    jumpFps: 10,
+};
+
 export const CHARACTER_ANIM_PRESETS: Record<string, CharacterAnimationConfig> = {
     'platformer-12': CHARACTER_ANIM_PRESET_PLATFORMER_12,
+    'grid-3x6-18': CHARACTER_ANIM_PRESET_GRID_3X6_18,
 };
 
 export const CHARACTER_ANIM_PRESET_OPTIONS = [
+    {
+        key: 'grid-3x6-18',
+        label: 'Grid 3×6 — 18 เฟรม (วิ่ง / โดด / ยืน)',
+        frameCount: 18,
+        cols: 6,
+        rows: 3,
+        frameHint: 'แถว1 วิ่ง 0–5 · แถว2 โดด 6–11 · แถว3 ยืน 12–17',
+    },
     {
         key: 'platformer-12',
         label: 'Platformer 12 เฟรม (idle/walk/run/jump/hurt/happy)',
@@ -54,16 +84,22 @@ export function isCharacterSupportedGame(slug: string | null | undefined): boole
 }
 
 export function getCharacterAnimPreset(presetKey: string): CharacterAnimationConfig {
-    return CHARACTER_ANIM_PRESETS[presetKey] ?? CHARACTER_ANIM_PRESET_PLATFORMER_12;
+    return CHARACTER_ANIM_PRESETS[presetKey] ?? CHARACTER_ANIM_PRESET_GRID_3X6_18;
 }
 
 export function resolveCharacterAnimation(
     config: CharacterAnimationConfig | null | undefined,
     frameCount?: number | null,
 ): CharacterAnimationConfig {
-    if (config?.preset && config.walk?.length) return config;
-    if (frameCount === 12 || frameCount == null) return CHARACTER_ANIM_PRESET_PLATFORMER_12;
-    return CHARACTER_ANIM_PRESET_PLATFORMER_12;
+    if (config?.preset && config.run?.length) return config;
+    if (frameCount === 18) return CHARACTER_ANIM_PRESET_GRID_3X6_18;
+    if (frameCount === 12) return CHARACTER_ANIM_PRESET_PLATFORMER_12;
+    return CHARACTER_ANIM_PRESET_GRID_3X6_18;
+}
+
+function collectJumpIndices(jump: CharacterJumpFrames | number[]): number[] {
+    if (Array.isArray(jump)) return jump;
+    return [jump.up, jump.peak, jump.fall];
 }
 
 /** อ่าน animation_config จาก JSONB (Supabase) */
@@ -72,15 +108,22 @@ export function parseCharacterAnimationConfig(raw: unknown): CharacterAnimationC
     const o = raw as Record<string, unknown>;
     if (typeof o.preset !== 'string') return null;
     const base = getCharacterAnimPreset(o.preset);
+    const jumpRaw = o.jump;
+    let jump: CharacterJumpFrames | number[] = base.jump;
+    if (Array.isArray(jumpRaw)) jump = jumpRaw as number[];
+    else if (jumpRaw && typeof jumpRaw === 'object') {
+        jump = { ...(base.jump as CharacterJumpFrames), ...(jumpRaw as CharacterJumpFrames) };
+    }
     return {
         ...base,
         ...o,
+        layout: o.layout === 'grid' ? 'grid' : base.layout,
+        cols: typeof o.cols === 'number' ? o.cols : base.cols,
+        rows: typeof o.rows === 'number' ? o.rows : base.rows,
         idle: Array.isArray(o.idle) ? (o.idle as number[]) : base.idle,
         walk: Array.isArray(o.walk) ? (o.walk as number[]) : base.walk,
         run: Array.isArray(o.run) ? (o.run as number[]) : base.run,
-        jump: o.jump && typeof o.jump === 'object'
-            ? { ...base.jump, ...(o.jump as CharacterJumpFrames) }
-            : base.jump,
+        jump,
         hurt: typeof o.hurt === 'number' ? o.hurt : base.hurt,
         happy: typeof o.happy === 'number' ? o.happy : base.happy,
     };
@@ -99,9 +142,7 @@ export function validateAnimationConfig(
     collect(config.idle);
     collect(config.walk);
     collect(config.run);
-    collect(config.jump.up);
-    collect(config.jump.peak);
-    collect(config.jump.fall);
+    collectJumpIndices(config.jump).forEach((i) => indices.add(i));
     collect(config.hurt);
     collect(config.happy);
     for (const i of indices) {
@@ -112,13 +153,21 @@ export function validateAnimationConfig(
     return null;
 }
 
-/** คำนวณขนาดเฟรมจาก PNG แนวนอน */
+/** คำนวณขนาดเฟรมจาก PNG */
 export function suggestFrameSizeFromImage(
     imgW: number,
     imgH: number,
     frameCount: number,
+    opts?: { cols?: number; rows?: number },
 ): { frameWidth: number; frameHeight: number } | null {
     if (imgW <= 0 || imgH <= 0 || frameCount <= 0) return null;
+    const cols = opts?.cols ?? (frameCount === 18 ? 6 : frameCount);
+    const rows = opts?.rows ?? (frameCount === 18 ? 3 : 1);
+    if (rows > 1 || cols < frameCount) {
+        const fw = Math.floor(imgW / cols);
+        const fh = Math.floor(imgH / rows);
+        if (fw > 0 && fh > 0) return { frameWidth: fw, frameHeight: fh };
+    }
     const fw = Math.round(imgW / frameCount);
     if (fw <= 0) return null;
     if (Math.abs(fw - imgH) <= 2 || imgH === fw) {
@@ -128,4 +177,19 @@ export function suggestFrameSizeFromImage(
         return { frameWidth: imgW / frameCount, frameHeight: imgH };
     }
     return { frameWidth: fw, frameHeight: imgH };
+}
+
+/** แปลง index เฟรม → ตำแหน่ง crop บน sheet */
+export function characterFrameRect(
+    frameIndex: number,
+    fw: number,
+    fh: number,
+    anim: CharacterAnimationConfig,
+): { sx: number; sy: number } {
+    if (anim.layout === 'grid' && anim.cols) {
+        const col = frameIndex % anim.cols;
+        const row = Math.floor(frameIndex / anim.cols);
+        return { sx: col * fw, sy: row * fh };
+    }
+    return { sx: frameIndex * fw, sy: 0 };
 }
