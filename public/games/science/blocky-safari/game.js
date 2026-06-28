@@ -63,6 +63,12 @@ let animals = []; // เก็บ mesh และข้อมูลสัตว�
 let trees = [];
 let clock = new THREE.Clock();
 
+// --- GLTF Model & Animation Variables ---
+let playerMixer = null;          // AnimationMixer สำหรับผู้เล่น
+let playerAnimations = null;     // รายการแอนิเมชันทั้งหมดของผู้เล่น
+let currentPlayerAction = null;  // Action แอนิเมชันที่กำลังเล่น
+let hasGLTFPlayer = false;       // มีโมเดล GLTF ของผู้เล่นที่โหลดสำเร็จหรือไม่
+
 // --- Initialization ---
 window.onload = () => {
     initThreeJS();
@@ -183,6 +189,12 @@ function buildWorld() {
     trees = [];
     gameState.bullets = [];
 
+    // รีเซ็ตตัวแปร GLTF ของผู้เล่น
+    playerMixer = null;
+    playerAnimations = null;
+    currentPlayerAction = null;
+    hasGLTFPlayer = false;
+
     // พื้นดิน
     const groundGeo = new THREE.BoxGeometry(MAP_SIZE, 2, MAP_SIZE);
     const groundMat = new THREE.MeshLambertMaterial({ color: 0x55aa55 });
@@ -212,6 +224,47 @@ function buildWorld() {
     scene.add(playerGroup);
     player = playerGroup;
     player.position.set(0, 0, 0); // รีเซ็ตตำแหน่งกลางแมป
+
+    // พยายามโหลดโมเดล GLTF ของผู้เล่นเข้ามาแทนที่กล่องเริ่มต้น
+    if (typeof THREE.GLTFLoader !== 'undefined') {
+        const loader = new THREE.GLTFLoader();
+        loader.load(
+            './assets/player.glb',
+            function (gltf) {
+                // ล้างโมเดลกล่องเริ่มต้นออก
+                playerGroup.remove(playerBody);
+                playerGroup.remove(eyeL);
+                playerGroup.remove(eyeR);
+
+                const model = gltf.scene;
+                // ปรับสเกลและองศาให้พอดี
+                model.scale.set(0.12, 0.12, 0.12);
+                model.position.set(0, 0, 0);
+                
+                model.traverse(function (node) {
+                    if (node.isMesh) {
+                        node.castShadow = true;
+                        node.receiveShadow = true;
+                    }
+                });
+
+                playerGroup.add(model);
+                hasGLTFPlayer = true;
+
+                // ผูกแอนิเมชันหากมี
+                if (gltf.animations && gltf.animations.length > 0) {
+                    playerMixer = new THREE.AnimationMixer(model);
+                    playerAnimations = gltf.animations;
+                    setPlayerAnimation('idle');
+                }
+                console.log('โหลดโมเดลผู้เล่น GLTF สำเร็จ!');
+            },
+            undefined,
+            function (error) {
+                console.warn('ไม่พบไฟล์ player.glb หรือโหลดไม่สำเร็จ (ระบบใช้งานโมเดลกล่องเริ่มต้นสำรอง):', error);
+            }
+        );
+    }
 
     // ต้นไม้ตกแต่งป่าซาฟารี
     for (let i = 0; i < TREES_COUNT; i++) {
@@ -313,8 +366,51 @@ function spawnAnimal(data, opts) {
         startY: 0,
         floatOffset: Math.random() * Math.PI * 2,
         damageFlash: 0, // คูลดาวน์การกะพริบแดงเมื่อยิงผิด
-        isAggro: !!opts.aggro  // sabotage spawn = ดุทันที · ปกติ = false (aggro เมื่อผู้เล่นเข้าใกล้)
+        isAggro: !!opts.aggro,  // sabotage spawn = ดุทันที · ปกติ = false (aggro เมื่อผู้เล่นเข้าใกล้)
+        hasGLTF: false,
+        mixer: null,
+        animations: null,
+        currentAction: null
     };
+
+    // พยายามโหลดโมเดล GLTF ของสัตว์ตัวนี้ (เช่น lion.glb)
+    if (typeof THREE.GLTFLoader !== 'undefined') {
+        const loader = new THREE.GLTFLoader();
+        loader.load(
+            './assets/animals/' + data.id + '.glb',
+            function (gltf) {
+                // ลบตัวสัตว์บล็อกดั้งเดิมออก
+                group.remove(body);
+
+                const model = gltf.scene;
+                // ปรับขนาดและตำแหน่งโมเดลสัตว์
+                model.scale.set(0.12, 0.12, 0.12);
+                model.position.set(0, 0, 0);
+
+                model.traverse(function (node) {
+                    if (node.isMesh) {
+                        node.castShadow = true;
+                        node.receiveShadow = true;
+                    }
+                });
+
+                group.add(model);
+                group.userData.hasGLTF = true;
+
+                // ผูกแอนิเมชันถ้ามี
+                if (gltf.animations && gltf.animations.length > 0) {
+                    group.userData.mixer = new THREE.AnimationMixer(model);
+                    group.userData.animations = gltf.animations;
+                    setAnimalAnimation(group, 'idle');
+                }
+                console.log('โหลดโมเดลสัตว์ ' + data.name + ' สำเร็จ!');
+            },
+            undefined,
+            function (error) {
+                // หากไม่พบโมเดลสัตว์รายตัว ก็จะใช้บล็อกสี่เหลี่ยมเดิมโดยไม่ต้องทำอะไรเพิ่ม
+            }
+        );
+    }
 
     animals.push({ group: group, data: data });
 }
@@ -680,11 +776,71 @@ function checkWin() {
     }
 }
 
+// --- ฟังก์ชันจัดการแอนิเมชันสำหรับโมเดล GLTF ---
+function setPlayerAnimation(clipName) {
+    if (!playerMixer || !playerAnimations) return;
+    
+    // ค้นหาแอนิเมชันที่สอดคล้อง (มองข้ามตัวพิมพ์เล็ก/ใหญ่)
+    let clip = playerAnimations.find(c => c.name.toLowerCase().includes(clipName.toLowerCase()));
+    
+    // หากไม่พบชื่อนั้นๆ แต่มีแอนิเมชันอื่น ให้ใช้ตัวแรกแทน
+    if (!clip && playerAnimations.length > 0) {
+        clip = playerAnimations[0];
+    }
+    if (!clip) return;
+
+    const action = playerMixer.clipAction(clip);
+    if (currentPlayerAction !== action) {
+        if (currentPlayerAction) {
+            currentPlayerAction.fadeOut(0.2); // ผสมจางแอนิเมชันเดิมออก
+        }
+        action.reset().fadeIn(0.2).play(); // ค่อยๆ โชว์แอนิเมชันใหม่
+        currentPlayerAction = action;
+    }
+}
+
+function setAnimalAnimation(group, clipName) {
+    const ud = group.userData;
+    if (!ud.mixer || !ud.animations) return;
+
+    let clip = ud.animations.find(c => c.name.toLowerCase().includes(clipName.toLowerCase()));
+    
+    // สำรอง: หากมองหาแอนิเมชันวิ่ง (run) ไม่พบ ให้ใช้ท่าเดิน (walk) หรือยืนนิ่ง (idle) สำรอง
+    if (!clip && clipName === 'run') {
+        clip = ud.animations.find(c => c.name.toLowerCase().includes('walk'));
+    }
+    if (!clip && ud.animations.length > 0) {
+        clip = ud.animations[0];
+    }
+    if (!clip) return;
+
+    const action = ud.mixer.clipAction(clip);
+    if (ud.currentAction !== action) {
+        if (ud.currentAction) {
+            ud.currentAction.fadeOut(0.2);
+        }
+        action.reset().fadeIn(0.2).play();
+        ud.currentAction = action;
+    }
+}
+
 function animate() {
     requestAnimationFrame(animate);
 
     const dt = clock.getDelta();
     const time = clock.getElapsedTime();
+
+    // อัปเดตแอนิเมชันผู้เล่น GLTF
+    if (playerMixer) {
+        playerMixer.update(dt);
+    }
+
+    // อัปเดตแอนิเมชันสัตว์ GLTF
+    animals.forEach(a => {
+        if (a.group.userData.mixer) {
+            a.group.userData.mixer.update(dt);
+        }
+    });
 
     if (gameState.isPlaying && player) {
         // --- การควบคุมและเคลื่อนที่ผู้เล่น ---
@@ -711,15 +867,23 @@ function animate() {
         if (newX > -limit && newX < limit) player.position.x = newX;
         if (newZ > -limit && newZ < limit) player.position.z = newZ;
 
-        // อนิเมชันกระโดดดึ๋งๆ ขณะเดิน
+        // อนิเมชันกระโดดดึ๋งๆ ขณะเดิน (หรือใช้ท่าวิ่ง/เดินของ GLTF)
         if (moveX !== 0 || moveZ !== 0) {
-            player.position.y = Math.abs(Math.sin(time * 15)) * 0.5;
+            if (hasGLTFPlayer) {
+                setPlayerAnimation('walk');
+            } else {
+                player.position.y = Math.abs(Math.sin(time * 15)) * 0.5;
+            }
             
             // หมุนตัวบล็อกผู้เล่นหันหน้าไปทิศทางการเดิน
             const targetAngle = Math.atan2(moveX, moveZ);
             player.rotation.y = targetAngle; 
         } else {
-            player.position.y = 0;
+            if (hasGLTFPlayer) {
+                setPlayerAnimation('idle');
+            } else {
+                player.position.y = 0;
+            }
         }
 
         // จัดการสถานะเป็นอมตะ (กะพริบตัวผู้เล่น)
@@ -809,6 +973,9 @@ function animate() {
                     const angle = Math.atan2(dx, dz);
                     animal.group.rotation.y = angle;
                 }
+                if (animal.group.userData.hasGLTF) {
+                    setAnimalAnimation(animal.group, 'run');
+                }
             } else {
                 // หากยังไม่ถูกเปิดเผย/กระตุ้น -> เดินเล่นสำรวจทิศทางสุ่ม (Wandering)
                 if (animal.group.userData.wanderAngle === undefined) {
@@ -829,6 +996,10 @@ function animate() {
                 if (nextZ > -limit && nextZ < limit) animal.group.position.z = nextZ;
                 
                 animal.group.rotation.y = animal.group.userData.wanderAngle;
+
+                if (animal.group.userData.hasGLTF) {
+                    setAnimalAnimation(animal.group, 'walk');
+                }
             }
             
             // ตรวจการชนกับผู้เล่นโดยตรง
@@ -859,22 +1030,47 @@ function animate() {
 
     // อนิเมชันสัตว์แบบลอยขึ้นลงเบาๆ + จัดการการกะพริบแดง
     animals.forEach(a => {
-        a.group.position.y = Math.sin(time * 2 + a.group.userData.floatOffset) * 0.2;
+        const ud = a.group.userData;
+
+        // หากเป็นโมเดล GLTF ให้ยืนนิ่งบนพื้น (ไม่ลอยขึ้นลง)
+        if (!ud.hasGLTF) {
+            a.group.position.y = Math.sin(time * 2 + ud.floatOffset) * 0.2;
+        } else {
+            a.group.position.y = 0;
+        }
         
         // หมุนป้ายชื่อสัตว์ลอยได้ให้หันเข้าหากล้องเสมอ
-        const sprite = a.group.children[1];
+        const sprite = ud.textSprite;
         if (sprite) {
             sprite.lookAt(camera.position);
         }
         
-        // ควบคุมเอฟเฟกต์สีแดงเมื่อยิงผิด
-        const bodyMesh = a.group.children[0];
-        if (bodyMesh && bodyMesh.material) {
-            if (a.group.userData.damageFlash > 0) {
-                a.group.userData.damageFlash -= dt;
-                bodyMesh.material.color.setHex(0xff0000); // สีแดงกะพริบโดนตี
+        // ควบคุมเอฟเฟกต์สีแดงเมื่อยิงผิด (Damage Flash)
+        const bodyMesh = ud.bodyMesh;
+        if (bodyMesh) {
+            if (ud.damageFlash > 0) {
+                ud.damageFlash -= dt;
+                const redColor = new THREE.Color(0xff0000);
+                if (ud.hasGLTF) {
+                    bodyMesh.traverse(function (node) {
+                        if (node.isMesh && node.material) {
+                            if (!node.userData.originalColor) node.userData.originalColor = node.material.color.clone();
+                            node.material.color.copy(redColor);
+                        }
+                    });
+                } else {
+                    if (bodyMesh.material) bodyMesh.material.color.setHex(0xff0000);
+                }
             } else {
-                bodyMesh.material.color.setHex(a.data.color); // คืนสีปกติ
+                if (ud.hasGLTF) {
+                    bodyMesh.traverse(function (node) {
+                        if (node.isMesh && node.material && node.userData.originalColor) {
+                            node.material.color.copy(node.userData.originalColor);
+                        }
+                    });
+                } else {
+                    if (bodyMesh.material) bodyMesh.material.color.setHex(a.data.color);
+                }
             }
         }
     });
