@@ -1,7 +1,8 @@
 {
-  "source": "Piskel-compatible pixel art · front view",
-  "frameWidth": 64,
-  "frameHeight": 64,
+  "model": "bunny-base derived · side chibi + hat",
+  "source": "bunny-base.png",
+  "frameWidth": 128,
+  "frameHeight": 128,
   "frameCount": 12,
   "frames": [
     "idle",
@@ -17,10 +18,5 @@
     "hurt",
     "happy"
   ],
-  "piskelFiles": [
-    "bunny-white.piskel",
-    "bunny-blue.piskel"
-  ],
-  "preview": "preview.html",
-  "regenerate": "node scripts/generate-sara-run-sprites.mjs"
+  "regenerate": "node scripts/build-sara-run-from-base.mjs"
 }

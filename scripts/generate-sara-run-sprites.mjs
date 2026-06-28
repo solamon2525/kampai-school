@@ -1,8 +1,6 @@
 /**
- * thai-sara-run · กระต่ายมุมหน้า (64×64 · 12 เฟรม)
+ * thai-sara-run · กระต่าย Piskel มุมหน้า chibi (64×64 · 12 เฟรม)
  * รัน: node scripts/generate-sara-run-sprites.mjs
- *
- * เฟรม: idle · walk×2 · run×4 · jump×3 · hurt · happy
  */
 import sharp from 'sharp';
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -21,7 +19,6 @@ const FRAME_NAMES = [
   'jumpUp', 'jumpPeak', 'jumpFall', 'hurt', 'happy',
 ];
 
-/** @type {Record<string, [number,number,number,number]>} */
 const PAL_WHITE = {
   '.': [0, 0, 0, 0],
   O: [157, 23, 77, 255],
@@ -33,9 +30,10 @@ const PAL_WHITE = {
   I: [30, 41, 59, 255],
   H: [255, 255, 255, 255],
   N: [244, 63, 94, 255],
+  T: [255, 255, 255, 255],
+  D: [148, 163, 184, 120],
 };
 
-/** @type {Record<string, [number,number,number,number]>} */
 const PAL_BLUE = {
   '.': [0, 0, 0, 0],
   O: [3, 105, 161, 255],
@@ -47,18 +45,18 @@ const PAL_BLUE = {
   I: [15, 23, 42, 255],
   H: [255, 255, 255, 255],
   N: [236, 72, 153, 255],
+  T: [186, 230, 253, 255],
+  D: [100, 116, 139, 120],
 };
 
-/** @typedef {{ bob:number, lFootX:number, rFootX:number, lFootY:number, rFootY:number, lArmY:number, rArmY:number, lEarTilt:number, rEarTilt:number, eye:string, mouth:string, squash:number }} Pose */
+/** @typedef {{ bob:number, lFootX:number, rFootX:number, lFootY:number, rFootY:number, lArmX:number, rArmX:number, lArmY:number, rArmY:number, lEar:number, rEar:number, tail:number, eye:string, mouth:string, squash:number, shadow:boolean, dust:boolean }} Pose */
 
-/** @param {string[]} rows @param {Record<string,[number,number,number,number]>} pal */
 function rasterize(rows, pal) {
   const px = new Uint8ClampedArray(W * H * 4);
-  for (let y = 0; y < H && y < rows.length; y++) {
-    const row = rows[y].padEnd(W, '.').slice(0, W);
+  for (let y = 0; y < H; y++) {
+    const row = (rows[y] || '').padEnd(W, '.').slice(0, W);
     for (let x = 0; x < W; x++) {
-      const ch = row[x] || '.';
-      const c = pal[ch] || pal['.'];
+      const c = pal[row[x] || '.'] || pal['.'];
       const i = (y * W + x) * 4;
       px[i] = c[0]; px[i + 1] = c[1]; px[i + 2] = c[2]; px[i + 3] = c[3];
     }
@@ -66,175 +64,197 @@ function rasterize(rows, pal) {
   return px;
 }
 
-/** มุมหน้า chibi · สมมาตร · pixel grid */
 function bunnyArt(p) {
   const b = p.bob | 0;
+  const sq = p.squash | 0;
   const raw = Array.from({ length: H }, () => '.'.repeat(W));
+  const cx = 32;
 
-  function stamp(sx, sy, art) {
+  function put(sx, sy, art) {
     for (let y = 0; y < art.length; y++)
       for (let x = 0; x < art[y].length; x++) {
         const ch = art[y][x];
         if (ch === '.' || ch === ' ') continue;
-        const ty = sy + y + b + p.squash;
+        const ty = sy + y + b + sq;
         const tx = sx + x;
         if (ty >= 0 && ty < H && tx >= 0 && tx < W)
-          raw[ty] = raw[ty].substring(0, tx) + ch + raw[ty].substring(tx + 1);
+          raw[ty] = raw[ty].slice(0, tx) + ch + raw[ty].slice(tx + 1);
       }
   }
 
-  const cx = 32;
+  if (p.shadow) {
+    put(cx - 10, 57 + b, ['....DDDDDD....', '..DDDDDDDDDD..', '....DDDDDD....']);
+  }
 
-  // ── หูซ้าย ──
-  stamp(cx - 18 + p.lEarTilt, 4 - p.lEarTilt, [
-    '..OO..',
-    '.OEEEO',
-    '.OEEEO',
-    '.OEEEO',
-    '.OWWWO',
-    '..OO..',
+  if (p.dust) {
+    put(cx - 18, 54 + b, ['.D..', '..D.', '.D..']);
+    put(cx + 12, 55 + b, ['..D.', '.D..', '..D.']);
+  }
+
+  // หาง
+  put(cx - 2 + p.tail, 42 + sq, [
+    '..TTTOO',
+    '.TTWWWO',
+    'TTWWWO.',
+    '.TWO...',
   ]);
 
-  // ── หูขวา ──
-  stamp(cx + 6 - p.rEarTilt, 4 - p.rEarTilt, [
-    '..OO..',
-    '.OEEEO',
-    '.OEEEO',
-    '.OEEEO',
-    '.OWWWO',
-    '..OO..',
+  // ขาซ้าย (หลัง)
+  put(cx - 16 + p.lFootX, 46 + p.lFootY + b, [
+    '..WWW..',
+    '..WWW..',
+    '..PPP..',
+    '..PPP..',
+    '.OOOOO.',
+    'OOPOPOO',
   ]);
 
-  // ── หัว ──
-  stamp(cx - 14, 14 + p.squash, [
-    '....OOOOOO....',
-    '..OOOWWWWOOO..',
-    '.OWWWWWWWWWWOO',
-    'OWWWWWWWWWWWWO',
-    'OWWWWWWWWWWWWO',
-    'OWWWWWWWWWWWWO',
-    '.OWWWWWWWWWWOO',
-    '..OOOWWWWOOO..',
-    '....OOOOOO....',
+  // ขาขวา (หลัง)
+  put(cx + 6 + p.rFootX, 46 + p.rFootY + b, [
+    '..WWW..',
+    '..WWW..',
+    '..PPP..',
+    '..PPP..',
+    '.OOOOO.',
+    'OOPOPOO',
   ]);
 
-  // ── ตา ──
+  // ตัว + ท้อง
+  put(cx - 15, 34 + sq, [
+    '.....OOOOOOO.....',
+    '...OOOWWWWWWOOO..',
+    '..OWWWWWWWWWWOO.',
+    '.OWWWSSSSSSWWWO.',
+    'OWWWSSSSSSSWWWO',
+    'OWWWSSSSSSSWWWO',
+    '.OWWWWWWWWWWWOO.',
+    '..OOOOOOOOOOO...',
+  ]);
+
+  // แขนซ้าย
+  put(cx - 24 + p.lArmX, 36 + p.lArmY + sq, [
+    '.WW.',
+    '.WW.',
+    '.PP.',
+    '.PP.',
+    'OOOO',
+    '.OO.',
+  ]);
+
+  // แขนขวา
+  put(cx + 16 + p.rArmX, 36 + p.rArmY + sq, [
+    '.WW.',
+    '.WW.',
+    '.PP.',
+    '.PP.',
+    'OOOO',
+    '.OO.',
+  ]);
+
+  // หูซ้าย
+  put(cx - 20 + p.lEar, 2 - p.lEar, [
+    '...OOO...',
+    '..OWEEO..',
+    '..OWEEO..',
+    '..OWEEO..',
+    '..OWEEO..',
+    '..OWWWO..',
+    '...OOO...',
+  ]);
+
+  // หูขวา
+  put(cx + 5 - p.rEar, 2 - p.rEar, [
+    '...OOO...',
+    '..OWEEO..',
+    '..OWEEO..',
+    '..OWEEO..',
+    '..OWEEO..',
+    '..OWWWO..',
+    '...OOO...',
+  ]);
+
+  // หัว
+  put(cx - 16, 12 + sq, [
+    '......OOOOOO......',
+    '....OOOWWWWOOO....',
+    '...OWWWWWWWWWWOO..',
+    '..OWWWHHHHHWWWWO..',
+    '.OWWWHHHHHHHWWWWO.',
+    'OWWWWWWWWWWWWWWWWO',
+    'OWWWWWWWWWWWWWWWWO',
+    '.OWWWWWWWWWWWWWWOO',
+    '..OOOWWWWWWOOO....',
+    '....OOOOOOOO......',
+  ]);
+
+  // ตา
   if (p.eye === 'hurt') {
-    stamp(cx - 12, 24 + p.squash, ['I..I', '.II.', 'I..I']);
-    stamp(cx + 4, 24 + p.squash, ['I..I', '.II.', 'I..I']);
+    put(cx - 13, 22 + sq, ['I..I', '.II.', 'I..I']);
+    put(cx + 5, 22 + sq, ['I..I', '.II.', 'I..I']);
   } else if (p.eye === 'happy') {
-    stamp(cx - 13, 25 + p.squash, ['O..O', '.II.', 'O..O']);
-    stamp(cx + 3, 25 + p.squash, ['O..O', '.II.', 'O..O']);
-  } else if (p.eye === 'blink') {
-    stamp(cx - 12, 26 + p.squash, ['OOOO', 'OOOO']);
-    stamp(cx + 4, 26 + p.squash, ['OOOO', 'OOOO']);
+    put(cx - 14, 23 + sq, ['O..O', '.II.', '....']);
+    put(cx + 4, 23 + sq, ['O..O', '.II.', '....']);
+  } else if (p.eye === 'wide') {
+    put(cx - 13, 22 + sq, ['OOOO', 'OIHO', 'OOOO']);
+    put(cx + 5, 22 + sq, ['OOOO', 'OHIO', 'OOOO']);
   } else {
-    stamp(cx - 12, 24 + p.squash, ['.OO.', 'OIHO', '.OO.']);
-    stamp(cx + 4, 24 + p.squash, ['.OO.', 'OHIO', '.OO.']);
+    put(cx - 13, 22 + sq, ['.OO.', 'OIHO', '.OO.']);
+    put(cx + 5, 22 + sq, ['.OO.', 'OHIO', '.OO.']);
   }
 
-  // ── แก้ม ──
-  stamp(cx - 16, 30 + p.squash, ['.CC.', '.CC.']);
-  stamp(cx + 8, 30 + p.squash, ['.CC.', '.CC.']);
+  // แก้ม
+  put(cx - 17, 28 + sq, ['.CC..', '.CC..']);
+  put(cx + 9, 28 + sq, ['..CC.', '..CC.']);
 
-  // ── จมูก/ปาก ──
+  // จมูกปาก
   if (p.mouth === 'open') {
-    stamp(cx - 4, 32 + p.squash, ['.OWO.', 'OWNNO', '.OOO.']);
+    put(cx - 5, 30 + sq, ['..OWO..', '.OWNNO.', '..OOO..']);
   } else if (p.mouth === 'sad') {
-    stamp(cx - 3, 33 + p.squash, ['.II.', 'I..I']);
+    put(cx - 4, 31 + sq, ['.II.', 'I..I']);
   } else if (p.mouth === 'gasp') {
-    stamp(cx - 2, 33 + p.squash, ['.II.', '.II.']);
+    put(cx - 3, 31 + sq, ['.II.', '.II.']);
   } else {
-    stamp(cx - 3, 32 + p.squash, ['.OWO.', 'OWWWO', '.ONO.']);
+    put(cx - 4, 30 + sq, ['..OWO..', '.OWWWO.', '..ONO..']);
   }
-
-  // ── ตัว ──
-  stamp(cx - 13, 36 + p.squash, [
-    '...OOOOOOO...',
-    '..OWWWWWWWOO.',
-    '.OWWWSSSWWWO.',
-    'OWWWSSSSSWWWO',
-    'OWWWSSSSSWWWO',
-    '.OWWWWWWWWO.',
-    '..OOOOOOOO..',
-  ]);
-
-  // ── แขนซ้าย ──
-  stamp(cx - 22, 38 + p.lArmY + p.squash, [
-    '.WW.',
-    '.WW.',
-    '.PP.',
-    '.PP.',
-    'OOOO',
-  ]);
-
-  // ── แขนขวา ──
-  stamp(cx + 14, 38 + p.rArmY + p.squash, [
-    '.WW.',
-    '.WW.',
-    '.PP.',
-    '.PP.',
-    'OOOO',
-  ]);
-
-  // ── ขาซ้าย ──
-  stamp(cx - 14 + p.lFootX, 48 + p.lFootY, [
-    '.WWW.',
-    '.WWW.',
-    '.PPP.',
-    '.PPP.',
-    'OOOOO',
-    'OPOPO',
-  ]);
-
-  // ── ขาขวา ──
-  stamp(cx + 4 + p.rFootX, 48 + p.rFootY, [
-    '.WWW.',
-    '.WWW.',
-    '.PPP.',
-    '.PPP.',
-    'OOOOO',
-    'OPOPO',
-  ]);
 
   return raw;
 }
 
-/** @param {number} f */
 function poseForFrame(f) {
   /** @type {Pose} */
-  const base = {
+  const z = {
     bob: 0, lFootX: 0, rFootX: 0, lFootY: 0, rFootY: 0,
-    lArmY: 0, rArmY: 0, lEarTilt: 0, rEarTilt: 0,
-    eye: 'normal', mouth: 'smile', squash: 0,
+    lArmX: 0, rArmX: 0, lArmY: 0, rArmY: 0,
+    lEar: 0, rEar: 0, tail: 0,
+    eye: 'normal', mouth: 'smile', squash: 0, shadow: true, dust: false,
   };
   switch (f) {
-    case 0: // idle
-      return { ...base, lFootX: -1, rFootX: 1 };
-    case 1: // walk1 — ซ้ายก้าวหน้า
-      return { ...base, bob: 1, lFootX: -3, rFootX: 2, lFootY: -1, rFootY: 0, lArmY: 2, rArmY: -2, lEarTilt: 1, rEarTilt: 0 };
-    case 2: // walk2 — ขวาก้าวหน้า
-      return { ...base, bob: 0, lFootX: 2, rFootX: -3, lFootY: 0, rFootY: -1, lArmY: -2, rArmY: 2, lEarTilt: 0, rEarTilt: 1 };
-    case 3: // run1
-      return { ...base, bob: 1, lFootX: -4, rFootX: 3, lFootY: -2, rFootY: 1, lArmY: 3, rArmY: -3, lEarTilt: 2, rEarTilt: 1, squash: -1 };
-    case 4: // run2 — กลางอากาศ
-      return { ...base, bob: -1, lFootX: 0, rFootX: 0, lFootY: -4, rFootY: -4, lArmY: -2, rArmY: -2, lEarTilt: -1, rEarTilt: -1, squash: 1 };
-    case 5: // run3
-      return { ...base, bob: 1, lFootX: 3, rFootX: -4, lFootY: 1, rFootY: -2, lArmY: -3, rArmY: 3, lEarTilt: 1, rEarTilt: 2, squash: -1 };
-    case 6: // run4
-      return { ...base, bob: 0, lFootX: -2, rFootX: 2, lFootY: -3, rFootY: -3, lArmY: 1, rArmY: 1, lEarTilt: 0, rEarTilt: 0, squash: 0 };
-    case 7: // jumpUp
-      return { ...base, bob: -2, lFootX: -2, rFootX: 2, lFootY: 2, rFootY: 2, lArmY: -4, rArmY: -4, lEarTilt: -2, rEarTilt: -2, mouth: 'gasp', squash: -1 };
-    case 8: // jumpPeak
-      return { ...base, bob: -3, lFootX: -1, rFootX: 1, lFootY: 4, rFootY: 4, lArmY: -5, rArmY: -5, lEarTilt: -3, rEarTilt: -3, eye: 'happy', mouth: 'open', squash: 1 };
-    case 9: // jumpFall
-      return { ...base, bob: -1, lFootX: -3, rFootX: 3, lFootY: 0, rFootY: 0, lArmY: 2, rArmY: 2, lEarTilt: 1, rEarTilt: 1 };
-    case 10: // hurt
-      return { ...base, bob: 2, lFootX: -2, rFootX: 2, lArmY: 3, rArmY: 3, eye: 'hurt', mouth: 'sad', lEarTilt: 3, rEarTilt: 3, squash: 1 };
-    case 11: // happy
-      return { ...base, bob: -2, lFootX: -2, rFootX: 2, lFootY: -2, rFootY: -2, lArmY: -4, rArmY: -4, eye: 'happy', mouth: 'open', lEarTilt: -2, rEarTilt: -2 };
+    case 0:
+      return { ...z, lFootX: -2, rFootX: 2, lArmY: 1, rArmY: 1 };
+    case 1:
+      return { ...z, bob: 1, lFootX: -4, rFootX: 3, lFootY: -1, lArmX: -1, rArmX: 1, lArmY: 2, rArmY: -1, lEar: 1, rEar: 0, tail: -1 };
+    case 2:
+      return { ...z, bob: 0, lFootX: 3, rFootX: -4, rFootY: -1, lArmX: 1, rArmX: -1, lArmY: -1, rArmY: 2, lEar: 0, rEar: 1, tail: 1 };
+    case 3:
+      return { ...z, bob: 1, lFootX: -5, rFootX: 4, lFootY: -2, rFootY: 1, lArmX: -2, rArmX: 2, lArmY: 3, rArmY: -2, lEar: 2, rEar: 1, squash: -1, dust: true };
+    case 4:
+      return { ...z, bob: -2, lFootX: -1, rFootX: 1, lFootY: -5, rFootY: -5, lArmY: -3, rArmY: -3, lEar: -2, rEar: -2, squash: 1, shadow: false, dust: true };
+    case 5:
+      return { ...z, bob: 1, lFootX: 4, rFootX: -5, lFootY: 1, rFootY: -2, lArmX: 2, rArmX: -2, lArmY: -2, rArmY: 3, lEar: 1, rEar: 2, squash: -1, dust: true };
+    case 6:
+      return { ...z, bob: 0, lFootX: -3, rFootX: 3, lFootY: -4, rFootY: -4, lArmY: 0, rArmY: 0, lEar: 0, rEar: 0, shadow: false };
+    case 7:
+      return { ...z, bob: -2, lFootX: -3, rFootX: 3, lFootY: 3, rFootY: 3, lArmY: -5, rArmY: -5, lEar: -2, rEar: -2, mouth: 'gasp', eye: 'wide', squash: -1, shadow: false };
+    case 8:
+      return { ...z, bob: -3, lFootX: -2, rFootX: 2, lFootY: 5, rFootY: 5, lArmY: -6, rArmY: -6, lEar: -3, rEar: -3, eye: 'happy', mouth: 'open', squash: 2, shadow: false };
+    case 9:
+      return { ...z, bob: -1, lFootX: -4, rFootX: 4, lFootY: 1, lArmY: 1, rArmY: 1, lEar: 1, rEar: 1, eye: 'wide', shadow: false };
+    case 10:
+      return { ...z, bob: 2, lFootX: -3, rFootX: 3, lArmY: 4, rArmY: 4, lEar: 3, rEar: 3, eye: 'hurt', mouth: 'sad', squash: 1, tail: 2 };
+    case 11:
+      return { ...z, bob: -2, lFootX: -3, rFootX: 3, lFootY: -2, rFootY: -2, lArmY: -5, rArmY: -5, lEar: -2, rEar: -2, eye: 'happy', mouth: 'open', tail: -1 };
     default:
-      return base;
+      return z;
   }
 }
 
@@ -267,39 +287,34 @@ function buildPiskel(name, pngs) {
     layout: [[frame]],
     base64PNG: buf.toString('base64'),
   }));
-  const layer = JSON.stringify({
-    name: 'Layer 1',
-    opacity: 1,
-    frameCount: pngs.length,
-    chunks,
-  });
   return JSON.stringify({
     modelVersion: 2,
     piskel: {
       name,
-      description: 'thai-sara-run · front chibi bunny · เดิน/วิ่ง/กระโดด',
+      description: 'thai-sara-run · chibi bunny front · walk/run/jump',
       fps: FPS,
       height: H,
       width: W,
-      layers: [layer],
+      layers: [JSON.stringify({ name: 'Layer 1', opacity: 1, frameCount: pngs.length, chunks })],
       hiddenFrames: [],
     },
   }, null, 2);
 }
 
-async function buildPreviewPng(whiteSheet, blueSheet) {
-  const scale = 2;
-  const pad = 12;
+async function buildPreviewPng(whiteSheet) {
+  const scale = 3;
+  const pad = 10;
   const cols = 6;
   const cell = W * scale + pad;
   const pw = cols * cell + pad;
-  const ph = 2 * (H * scale + pad + 20) + pad;
+  const ph = 2 * (H * scale + pad + 24) + pad + 40;
 
   const bg = Buffer.alloc(pw * ph * 4);
   for (let i = 0; i < pw * ph; i++) {
-    bg[i * 4] = 199; bg[i * 4 + 1] = 210; bg[i * 4 + 2] = 254; bg[i * 4 + 3] = 255;
+    bg[i * 4] = 186; bg[i * 4 + 1] = 230; bg[i * 4 + 2] = 253; bg[i * 4 + 3] = 255;
   }
 
+  const labels = ['idle', 'walk1', 'walk2', 'run1', 'run2', 'run3', 'run4', 'jump↑', 'jump○', 'jump↓', 'hurt', 'happy'];
   const composites = [];
   for (let f = 0; f < FRAMES; f++) {
     const col = f % cols;
@@ -308,7 +323,7 @@ async function buildPreviewPng(whiteSheet, blueSheet) {
       .extract({ left: f * W, top: 0, width: W, height: H })
       .resize(W * scale, H * scale, { kernel: 'nearest' })
       .png().toBuffer();
-    composites.push({ input: frameBuf, left: pad + col * cell, top: 36 + row * (H * scale + pad + 20) });
+    composites.push({ input: frameBuf, left: pad + col * cell, top: 28 + row * (H * scale + pad + 24) });
   }
 
   await sharp(bg, { raw: { width: pw, height: ph, channels: 4 } })
@@ -320,64 +335,64 @@ async function buildPreviewPng(whiteSheet, blueSheet) {
 function writePreviewHtml() {
   writeFileSync(join(OUT, 'preview.html'), `<!DOCTYPE html>
 <html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Preview · กระต่ายมุมหน้า</title>
+<title>Preview · กระต่าย thai-sara-run</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:system-ui,sans-serif;background:linear-gradient(180deg,#a1c4fd,#c2e9fb);padding:20px;color:#334155}
-h1{color:#be185d;font-size:1.4rem} p{margin:8px 0 16px;color:#64748b;font-size:.9rem}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(180deg,#fce7f3,#e0f2fe);padding:20px;color:#334155}
+h1{color:#be185d;font-size:1.35rem} p{margin:8px 0 16px;color:#64748b;font-size:.88rem}
 .card{background:#fff;border-radius:16px;padding:16px;margin-bottom:14px;border:3px solid #fbcfe8;box-shadow:0 6px 24px rgba(0,0,0,.08)}
-.card h2{font-size:.95rem;color:#be185d;margin-bottom:10px}
-canvas{display:block;margin:0 auto;image-rendering:pixelated;background:linear-gradient(#bae6fd,#86efac);border-radius:10px;border:2px solid #e2e8f0}
-.row{display:flex;flex-wrap:wrap;gap:14px;justify-content:center}
-.box{text-align:center;font-size:.72rem;color:#94a3b8;margin-top:4px}
+.card h2{font-size:.92rem;color:#be185d;margin-bottom:10px}
+canvas{display:block;margin:0 auto;image-rendering:pixelated;background:linear-gradient(#bae6fd 60%,#86efac);border-radius:10px;border:2px solid #e2e8f0}
+.row{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.box{text-align:center;font-size:.7rem;color:#94a3b8;margin-top:4px}
 img{max-width:100%;image-rendering:pixelated;border-radius:10px;border:2px solid #e2e8f0;margin-top:8px}
-code{background:#fce7f3;padding:2px 6px;border-radius:4px;font-size:.85rem}
+code{background:#fce7f3;padding:2px 6px;border-radius:4px;font-size:.82rem}
 a{color:#be185d}
 </style></head><body>
-<h1>🐰 กระต่ายมุมหน้า · thai-sara-run</h1>
-<p>64×64 · 12 เฟรม · idle / เดิน / วิ่ง / กระโดด · เปิด <code>.piskel</code> ใน <a href="https://www.piskelapp.com/p/create/sprite" target="_blank">Piskel</a></p>
-<div class="card"><h2>Animation</h2><div class="row">
+<h1>🐰 กระต่าย chibi · thai-sara-run</h1>
+<p>64×64 · Piskel · มุมหน้า · <a href="https://www.piskelapp.com/p/create/sprite" target="_blank">เปิดแก้ใน Piskel</a></p>
+<div class="card"><h2>ท่าทาง</h2><div class="row">
 <div><canvas id="idle" width="192" height="192"></canvas><div class="box">ยืน</div></div>
 <div><canvas id="walk" width="192" height="192"></canvas><div class="box">เดิน</div></div>
 <div><canvas id="run" width="192" height="192"></canvas><div class="box">วิ่ง</div></div>
 <div><canvas id="jump" width="192" height="192"></canvas><div class="box">กระโดด</div></div>
 </div></div>
-<div class="card"><h2>Sprite sheet</h2>
-<img src="preview.png" alt="preview"><img src="bunny-white-sheet.png" alt="white">
+<div class="card"><h2>Sprite sheet ทั้งหมด</h2>
+<img src="preview.png?v=2" alt="preview"><img src="bunny-white-sheet.png?v=2" alt="white">
+<p style="margin-top:8px">Import: <code>bunny-white.piskel</code></p>
 </div>
 <script>
 const W=64,H=64,WALK=[1,2],RUN=[3,4,5,6],JUMP=[7,8,9];
-function load(s){return new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=s;});}
+function load(s){return new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=s+'?v=2';});}
 function loop(c,s,fr,fps){const x=c.getContext('2d');x.imageSmoothingEnabled=false;let n=0,t=0;const sc=c.width/W;
 (function tick(now){if(now-t>1000/fps){t=now;n=(n+1)%fr.length;}x.clearRect(0,0,c.width,c.height);
 const f=fr[n];x.drawImage(s,f*W,0,W,H,0,0,W*sc,H*sc);requestAnimationFrame(tick);})(0);}
 function hold(c,s,f){const x=c.getContext('2d');x.imageSmoothingEnabled=false;const sc=c.width/W;
 x.drawImage(s,f*W,0,W,H,0,0,W*sc,H*sc);}
 load('bunny-white-sheet.png').then(s=>{
-loop(document.getElementById('walk'),s,WALK,6);loop(document.getElementById('run'),s,RUN,10);
-loop(document.getElementById('jump'),s,JUMP,7);hold(document.getElementById('idle'),s,0);});
+hold(document.getElementById('idle'),s,0);loop(document.getElementById('walk'),s,WALK,5);
+loop(document.getElementById('run'),s,RUN,11);loop(document.getElementById('jump'),s,JUMP,8);});
 </script></body></html>`, 'utf8');
 }
 
 function writePiskelGuide() {
-  writeFileSync(join(OUT, 'PISKEL.md'), `# แก้กระต่ายมุมหน้าใน Piskel
+  writeFileSync(join(OUT, 'PISKEL.md'), `# กระต่าย thai-sara-run (Piskel)
 
-## เฟรม (12)
-| # | ท่า |
-|---|-----|
-| 0 | idle ยืน |
+## โมเดล
+มุมหน้า chibi · 64×64 · เหมาะกับ platform runner
+
+| เฟรม | ท่า |
+|------|-----|
+| 0 | idle |
 | 1–2 | เดิน |
-| 3–6 | วิ่ง |
-| 7–9 | กระโดด (ขึ้น / ลอย / ลง) |
+| 3–6 | วิ่ง (มีเฟรมลอย) |
+| 7–9 | กระโดด |
 | 10 | โดน |
 | 11 | ยินดี |
 
-## เปิดไฟล์
-1. [piskelapp.com](https://www.piskelapp.com/p/create/sprite) → **Import** → \`bunny-white.piskel\`
-2. แก้ pixel ทีละเฟรม (64×64)
-
-## Export
-**Export** → PNG → Sprite sheet แนวนอน 12 columns → ทับ \`bunny-white-sheet.png\` (768×64)
+## แก้ใน Piskel
+1. [piskelapp.com](https://www.piskelapp.com/p/create/sprite) → Import \`bunny-white.piskel\`
+2. Export PNG sprite sheet แนวนอน 12 columns → ทับ \`bunny-white-sheet.png\`
 
 ## สร้างใหม่
 \`\`\`bash
@@ -386,7 +401,6 @@ node scripts/generate-sara-run-sprites.mjs
 `, 'utf8');
 }
 
-// ── main ──
 mkdirSync(OUT, { recursive: true });
 
 const white = await buildSheet(PAL_WHITE);
@@ -399,10 +413,11 @@ writeFileSync(join(OUT, 'bunny-blue.piskel'), buildPiskel('bunny-blue', blue.png
 
 writePreviewHtml();
 writePiskelGuide();
-await buildPreviewPng(white.sheetPng, blue.sheetPng);
+await buildPreviewPng(white.sheetPng);
 
 writeFileSync(join(OUT, 'README.json'), JSON.stringify({
-  source: 'Piskel-compatible pixel art · front view',
+  model: 'front chibi bunny',
+  source: 'Piskel-compatible pixel art',
   frameWidth: W,
   frameHeight: H,
   frameCount: FRAMES,
@@ -412,4 +427,4 @@ writeFileSync(join(OUT, 'README.json'), JSON.stringify({
   regenerate: 'node scripts/generate-sara-run-sprites.mjs',
 }, null, 2));
 
-console.log('✅ Front-view bunny sprites →', OUT);
+console.log('✅ Bunny sprites v2 →', OUT);

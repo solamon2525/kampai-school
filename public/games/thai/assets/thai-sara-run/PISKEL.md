@@ -1,23 +1,27 @@
-# แก้กระต่ายมุมหน้าใน Piskel
+# กระต่าย thai-sara-run (จากภาพอ้างอิง)
 
-## เฟรม (12)
-| # | ท่า |
-|---|-----|
-| 0 | idle ยืน |
+## โมเดล
+มุมข้าง chibi + หมวก · 128×128 · 12 เฟรม
+
+| เฟรม | ท่า |
+|------|-----|
+| 0 | idle |
 | 1–2 | เดิน |
 | 3–6 | วิ่ง |
-| 7–9 | กระโดด (ขึ้น / ลอย / ลง) |
+| 7–9 | กระโดด |
 | 10 | โดน |
-| 11 | ยินดี |
+| 11 | ยินดี (มุมหน้า) |
 
-## เปิดไฟล์
-1. [piskelapp.com](https://www.piskelapp.com/p/create/sprite) → **Import** → `bunny-white.piskel`
-2. แก้ pixel ทีละเฟรม (64×64)
-
-## Export
-**Export** → PNG → Sprite sheet แนวนอน 12 columns → ทับ `bunny-white-sheet.png` (768×64)
-
-## สร้างใหม่
+## สร้าง sprite จากเฟรมฐาน (bunny-base.png)
 ```bash
-node scripts/generate-sara-run-sprites.mjs
+node scripts/build-sara-run-from-base.mjs
 ```
+วาดท่า **เดิน / วิ่ง / กระโดด** จากเฟรมเดียวโดยขยับขา+ตัว
+
+## สร้างจาก grid เก่า (reference-bunny.png)
+```bash
+node scripts/import-sara-run-reference.mjs
+```
+
+## แก้ใน Piskel
+Import `bunny-white.piskel` → Export PNG sprite sheet แนวนอน 12 columns → ทับ `bunny-white-sheet.png` (1536×128)
