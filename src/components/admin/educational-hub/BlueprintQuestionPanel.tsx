@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Trash2 } from 'lucide-react';
+import { BookOpen, Trash2 } from 'lucide-react';
 import {
     type PlatformerBlueprintV1,
     type PlatformerQuestion,
@@ -14,6 +14,7 @@ type Props = {
     question?: PlatformerQuestion;
     onChange: (bp: PlatformerBlueprintV1) => void;
     blueprint: PlatformerBlueprintV1;
+    onOpenBank?: () => void;
 };
 
 export function BlueprintQuestionPanel({
@@ -22,6 +23,7 @@ export function BlueprintQuestionPanel({
     question,
     onChange,
     blueprint,
+    onOpenBank,
 }: Props) {
     const setField = (patch: Partial<Omit<PlatformerQuestion, 'id' | 'platformId'>>) => {
         onChange(upsertQuestionForPlatform(blueprint, platformId, patch));
@@ -38,22 +40,30 @@ export function BlueprintQuestionPanel({
             <div className="rounded-md border border-border p-3 space-y-2">
                 <p className="text-sm font-medium">Platform: {platformLabel}</p>
                 <p className="text-xs text-muted-foreground">ยังไม่มีคำถามบน platform นี้</p>
-                <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() =>
-                        onChange(
-                            upsertQuestionForPlatform(blueprint, platformId, {
-                                prompt: 'ป _',
-                                options: ['ู', 'า', 'ิ'],
-                                answer: 'ู',
-                            }),
-                        )
-                    }
-                >
-                    + เพิ่มคำถาม
-                </Button>
+                <div className="flex flex-wrap gap-2">
+                    <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() =>
+                            onChange(
+                                upsertQuestionForPlatform(blueprint, platformId, {
+                                    prompt: 'ป _',
+                                    options: ['ู', 'า', 'ิ'],
+                                    answer: 'ู',
+                                }),
+                            )
+                        }
+                    >
+                        + เพิ่มคำถาม
+                    </Button>
+                    {onOpenBank && (
+                        <Button type="button" size="sm" variant="secondary" onClick={onOpenBank}>
+                            <BookOpen className="h-3.5 w-3.5 mr-1" />
+                            เลือกจากคลัง
+                        </Button>
+                    )}
+                </div>
             </div>
         );
     }
@@ -101,6 +111,12 @@ export function BlueprintQuestionPanel({
                     ))}
                 </datalist>
             </div>
+            {onOpenBank && (
+                <Button type="button" size="sm" variant="outline" className="w-full" onClick={onOpenBank}>
+                    <BookOpen className="h-3.5 w-3.5 mr-1" />
+                    เปลี่ยนจากคลังโจทย์
+                </Button>
+            )}
         </div>
     );
 }

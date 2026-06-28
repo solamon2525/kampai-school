@@ -987,6 +987,7 @@ export const GamesTab = () => {
                                 blueprintId={dialog.item.blueprint_id}
                                 initialBlueprint={dialog.item.blueprint_json}
                                 previewEngineUrl={blueprintPreviewEngineUrl(dialog.item)}
+                                gameSlug={dialog.item.game_slug}
                                 onSaved={() => {
                                     handleSaved();
                                     toast({ title: 'บันทึกด่านแล้ว', description: 'นักเรียนจะเห็นด่านใหม่เมื่อเล่นเกม' });

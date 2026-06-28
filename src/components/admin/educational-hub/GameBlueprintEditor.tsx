@@ -1,8 +1,16 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Loader2, MousePointer2, Play, Square, Star, Trash2, User, HelpCircle } from 'lucide-react';
+import { Loader2, MousePointer2, Play, Square, Star, Trash2, User, HelpCircle, BookOpen, Upload, Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+    BLUEPRINT_QUESTION_CSV_TEMPLATE,
+    bankEntryToQuestionFields,
+    getQuestionBankForGame,
+    mergeQuestionBanks,
+    parseBlueprintQuestionsCsv,
+    type BlueprintQuestionBankEntry,
+} from '@/lib/blueprint-question-banks';
 import {
     BLUEPRINT_WORLD_H,
     BLUEPRINT_WORLD_W,
@@ -20,6 +28,8 @@ import {
 import { gameBlueprintsService } from '@/services/educational-hub.service';
 import { BlueprintQuestionPanel } from './BlueprintQuestionPanel';
 import { GameBlueprintPreview } from './GameBlueprintPreview';
+import { BlueprintQuestionBankDialog } from './BlueprintQuestionBankDialog';
+import { useToast } from '@/hooks/use-toast';
 
 type Tool = 'select' | 'platform' | 'spawn' | 'star' | 'question' | 'delete';
 
@@ -29,6 +39,7 @@ type Props = {
     blueprintId?: string | null;
     initialBlueprint?: unknown;
     previewEngineUrl?: string;
+    gameSlug?: string | null;
     onSaved: () => void;
     onCancel: () => void;
 };
@@ -49,9 +60,12 @@ export function GameBlueprintEditor({
     blueprintId: initialBlueprintId,
     initialBlueprint,
     previewEngineUrl = '/games/engine/platformer-2d/index.html',
+    gameSlug,
     onSaved,
     onCancel,
 }: Props) {
+    const { toast } = useToast();
+    const csvInputRef = useRef<HTMLInputElement>(null);
     const canvasRef = useRef<HTMLDivElement>(null);
     const [blueprintId, setBlueprintId] = useState(initialBlueprintId ?? null);
     const [bp, setBp] = useState<PlatformerBlueprintV1>(() =>
@@ -67,6 +81,13 @@ export function GameBlueprintEditor({
     const [busy, setBusy] = useState(false);
     const [err, setErr] = useState<string | null>(null);
     const [previewOpen, setPreviewOpen] = useState(false);
+    const [bankOpen, setBankOpen] = useState(false);
+    const [importedBank, setImportedBank] = useState<BlueprintQuestionBankEntry[]>([]);
+
+    const questionBank = useMemo(
+        () => mergeQuestionBanks(getQuestionBankForGame(gameSlug), importedBank),
+        [gameSlug, importedBank],
+    );
 
     const selectedPlatform = useMemo(
         () => bp.platforms.find((p) => p.id === selectedId) ?? null,
@@ -245,6 +266,67 @@ export function GameBlueprintEditor({
         setDrag(null);
     };
 
+    const openQuestionBank = useCallback(() => {
+        if (!selectedPlatform || selectedPlatform.id === 'ground') {
+            toast({
+                title: 'เลือก platform ก่อน',
+                description: 'คลิก platform บน canvas (ไม่ใช่พื้นดิน) แล้วเปิดคลังโจทย์',
+                variant: 'destructive',
+            });
+            return;
+        }
+        setBankOpen(true);
+    }, [selectedPlatform, toast]);
+
+    const applyBankEntry = useCallback(
+        (entry: BlueprintQuestionBankEntry) => {
+            if (!selectedPlatform || selectedPlatform.id === 'ground') return;
+            setBp((prev) =>
+                upsertQuestionForPlatform(
+                    prev,
+                    selectedPlatform.id,
+                    bankEntryToQuestionFields(entry),
+                ),
+            );
+            setSelectedId(selectedPlatform.id);
+        },
+        [selectedPlatform],
+    );
+
+    const handleCsvImport = useCallback(
+        async (file: File) => {
+            const text = await file.text();
+            const { entries, errors } = parseBlueprintQuestionsCsv(text);
+            if (!entries.length) {
+                toast({
+                    title: 'นำเข้า CSV ไม่สำเร็จ',
+                    description: errors[0] ?? 'ไม่พบโจทย์ที่ใช้ได้',
+                    variant: 'destructive',
+                });
+                return;
+            }
+            setImportedBank((prev) => mergeQuestionBanks(prev, entries));
+            toast({
+                title: `นำเข้า ${entries.length} ข้อ`,
+                description: errors.length
+                    ? `ข้าม ${errors.length} แถว (ดู console)`
+                    : 'เพิ่มในคลังโจทย์แล้ว — เลือก platform แล้วกด "เลือกจากคลัง"',
+            });
+            if (errors.length) console.warn('[blueprint CSV]', errors);
+        },
+        [toast],
+    );
+
+    const downloadCsvTemplate = useCallback(() => {
+        const blob = new Blob([BLUEPRINT_QUESTION_CSV_TEMPLATE], { type: 'text/csv;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'blueprint-questions-template.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+    }, []);
+
     const handleSave = async () => {
         const validation = validatePlatformerBlueprint(bp);
         if (validation) {
@@ -304,6 +386,33 @@ export function GameBlueprintEditor({
                     <Play className="h-3.5 w-3.5 mr-1" />
                     ทดสอบ
                 </Button>
+                <Button type="button" size="sm" variant="outline" onClick={openQuestionBank}>
+                    <BookOpen className="h-3.5 w-3.5 mr-1" />
+                    คลัง ({questionBank.length})
+                </Button>
+                <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => csvInputRef.current?.click()}
+                >
+                    <Upload className="h-3.5 w-3.5 mr-1" />
+                    CSV
+                </Button>
+                <Button type="button" size="sm" variant="ghost" onClick={downloadCsvTemplate} title="ดาวน์โหลด template CSV">
+                    <Download className="h-3.5 w-3.5" />
+                </Button>
+                <input
+                    ref={csvInputRef}
+                    type="file"
+                    accept=".csv,text/csv"
+                    className="hidden"
+                    onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (f) void handleCsvImport(f);
+                        e.target.value = '';
+                    }}
+                />
                 <div className="ml-auto flex items-center gap-2">
                     <label className="text-xs text-muted-foreground whitespace-nowrap">เวลา (วิ)</label>
                     <Input
@@ -425,7 +534,9 @@ export function GameBlueprintEditor({
             </div>
 
             <p className="text-xs text-muted-foreground">
-                ลาก platform · คลิกวาง spawn/ดาว · คลิก platform + คำถาม · grid {SNAP}px
+                ลาก platform · spawn/ดาว/คำถาม · คลังโจทย์ {questionBank.length} ข้อ
+                {importedBank.length > 0 ? ` (นำเข้า ${importedBank.length})` : ''}
+                · grid {SNAP}px
                 {blueprintId ? ` · blueprint ${blueprintId.slice(0, 8)}…` : ' · ยังไม่บันทึก'}
             </p>
 
@@ -436,6 +547,7 @@ export function GameBlueprintEditor({
                     question={selectedQuestion}
                     blueprint={bp}
                     onChange={setBp}
+                    onOpenBank={openQuestionBank}
                 />
             )}
 
@@ -446,6 +558,18 @@ export function GameBlueprintEditor({
                 onClose={() => setPreviewOpen(false)}
                 engineUrl={previewEngineUrl}
                 blueprint={bp}
+            />
+
+            <BlueprintQuestionBankDialog
+                open={bankOpen}
+                onClose={() => setBankOpen(false)}
+                bank={questionBank}
+                platformLabel={
+                    selectedPlatform && selectedPlatform.id !== 'ground'
+                        ? selectedPlatform.id
+                        : null
+                }
+                onSelect={applyBankEntry}
             />
 
             <div className="flex justify-end gap-2">
