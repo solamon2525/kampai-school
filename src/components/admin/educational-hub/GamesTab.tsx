@@ -61,6 +61,7 @@ import {
 import { CharacterSheetPreview } from './CharacterSheetPreview';
 import { CharacterSheetGridPreview } from './CharacterSheetGridPreview';
 import { CharacterSheetStudio } from './CharacterSheetStudio';
+import { CharacterSheetAutoFitButton } from './CharacterSheetAutoFitButton';
 import { CharacterPoseMapper } from './CharacterPoseMapper';
 import {
     CHARACTER_ANIM_PRESET_OPTIONS,
@@ -71,6 +72,7 @@ import {
     getCharacterAnimPreset,
     type CharacterAnimationConfig,
 } from '@/lib/character-animation';
+import { analyzeSpriteSheetFromUrl, type SpriteAutoFitResult } from '@/lib/sprite-frame-autofit';
 import type { CharacterColorConfig } from '@/lib/character-color';
 import {
     processSpriteSheetFile,
@@ -85,6 +87,7 @@ import { FeaturedGamesDisplaySettings } from './FeaturedGamesDisplaySettings';
 import { IndicatorPromptDialog } from './IndicatorPromptDialog';
 import { IndicatorCoverageDialog } from './IndicatorCoverageDialog';
 import { curriculumService } from '@/services/curriculum.service';
+import { GameIndicatorBatchMapper } from '@/components/admin/curriculum/GameIndicatorBatchMapper';
 
 /** preset เพลงสังเคราะห์ (ตรงกับ BGM_PRESETS ใน kampai-sdk.js) */
 const BGM_PRESETS: { key: string; label: string }[] = [
@@ -461,6 +464,7 @@ export const GamesTab = () => {
         | { mode: 'coverage' }
         | { mode: 'bgm' }
         | { mode: 'characters' }
+        | { mode: 'batch-map' }
         | null
     >(null);
     // ตัวชี้วัดที่เลือกจาก IndicatorPromptDialog → auto-map เข้าเกมใหม่หลังอัปโหลด
@@ -610,6 +614,9 @@ export const GamesTab = () => {
                 <div className="flex items-center gap-2">
                     <Button variant="outline" onClick={() => setDialog({ mode: 'coverage' })}>
                         📊 ความครอบคลุมตัวชี้วัด
+                    </Button>
+                    <Button variant="outline" onClick={() => setDialog({ mode: 'batch-map' })}>
+                        🔗 จับคู่เกม↔ตัวชี้วัด
                     </Button>
                     <Button variant="outline" onClick={() => setDialog({ mode: 'bgm' })}>
                         🎵 คลังเพลง
@@ -866,6 +873,12 @@ export const GamesTab = () => {
                     )}
                     {dialog?.mode === 'coverage' && (
                         <IndicatorCoverageDialog onClose={() => setDialog(null)} />
+                    )}
+                    {dialog?.mode === 'batch-map' && (
+                        <GameIndicatorBatchMapper
+                            open
+                            onClose={() => setDialog(null)}
+                        />
                     )}
                     {dialog?.mode === 'bgm' && (
                         <BgmLibraryDialog onClose={() => setDialog(null)} />
@@ -1198,6 +1211,7 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
     const [busy, setBusy] = useState(false);
     const [editingSheet, setEditingSheet] = useState<CharacterSheet | null>(null);
     const [saveBusy, setSaveBusy] = useState(false);
+    const [autoFitAnalysis, setAutoFitAnalysis] = useState<SpriteAutoFitResult | null>(null);
 
     const bgOpts = { tolerance: bgTolerance, mode: 'auto' as const };
 
@@ -1217,6 +1231,7 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
     useEffect(() => {
         if (!file) {
             setPreviewUrl(null);
+            setAutoFitAnalysis(null);
             return;
         }
         let cancelled = false;
@@ -1239,13 +1254,40 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
                     if (cancelled) return;
                     const fcNum = parseInt(fc, 10) || presetMeta.frameCount;
                     const gridOpts = 'cols' in presetMeta && presetMeta.cols
-                        ? { cols: presetMeta.cols, rows: 'rows' in presetMeta ? presetMeta.rows : 3 }
-                        : undefined;
-                    const suggested = suggestFrameSizeFromImage(img.naturalWidth, img.naturalHeight, fcNum, gridOpts);
-                    if (suggested) {
-                        setFw(String(suggested.frameWidth));
-                        setFh(String(suggested.frameHeight));
-                    }
+                        ? {
+                            cols: presetMeta.cols,
+                            rows: 'rows' in presetMeta ? presetMeta.rows : 3,
+                            frameCount: fcNum,
+                        }
+                        : { frameCount: fcNum };
+                    void analyzeSpriteSheetFromUrl(url, gridOpts).then((fit) => {
+                        if (cancelled || !fit) {
+                            const suggested = suggestFrameSizeFromImage(
+                                img.naturalWidth,
+                                img.naturalHeight,
+                                fcNum,
+                                'cols' in presetMeta && presetMeta.cols
+                                    ? { cols: presetMeta.cols, rows: 'rows' in presetMeta ? presetMeta.rows : 3 }
+                                    : undefined,
+                            );
+                            if (suggested) {
+                                setFw(String(suggested.frameWidth));
+                                setFh(String(suggested.frameHeight));
+                            }
+                            return;
+                        }
+                        setFw(String(fit.frameWidth));
+                        setFh(String(fit.frameHeight));
+                        setFc(String(fit.frameCount));
+                        setAutoFitAnalysis(fit);
+                        if (fit.cols && fit.rows) {
+                            setAnimConfig((prev) => (
+                                prev.layout === 'grid'
+                                    ? { ...prev, cols: fit.cols, rows: fit.rows }
+                                    : prev
+                            ));
+                        }
+                    });
                 };
                 img.src = url;
             } catch {
@@ -1433,7 +1475,25 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
                                 frameHeight={parseInt(fh, 10) || 128}
                                 frameCount={parseInt(fc, 10) || 12}
                                 animationConfig={animConfig}
+                                autoFitAnalysis={autoFitAnalysis}
                                 maxHeight={140}
+                            />
+                            <CharacterSheetAutoFitButton
+                                sheetUrl={previewUrl}
+                                frameCount={parseInt(fc, 10) || presetMeta.frameCount}
+                                cols={'cols' in presetMeta ? presetMeta.cols : undefined}
+                                rows={'rows' in presetMeta ? presetMeta.rows : undefined}
+                                onApply={({ frameWidth: w, frameHeight: h, frameCount: n, cols, rows, analysis }) => {
+                                    setFw(String(w));
+                                    setFh(String(h));
+                                    setFc(String(n));
+                                    setAutoFitAnalysis(analysis);
+                                    if (cols && rows) {
+                                        setAnimConfig((prev) => (
+                                            prev.layout === 'grid' ? { ...prev, cols, rows } : prev
+                                        ));
+                                    }
+                                }}
                             />
                             <div className="flex flex-wrap gap-3 justify-center">
                                 {(['idle', 'walk', 'run', 'jump'] as const).map((mode) => (

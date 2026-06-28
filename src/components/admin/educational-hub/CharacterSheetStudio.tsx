@@ -14,6 +14,8 @@ import {
     resolveFootAnchor,
     validateAnimationConfig,
 } from '@/lib/character-animation';
+import { CharacterSheetAutoFitButton } from './CharacterSheetAutoFitButton';
+import type { SpriteAutoFitResult } from '@/lib/sprite-frame-autofit';
 import { parseCharacterColorConfig, type CharacterColorConfig } from '@/lib/character-color';
 import type { CharacterSheet } from '@/services/educational-hub.service';
 import { cn } from '@/lib/utils';
@@ -51,10 +53,14 @@ export function CharacterSheetStudio({ sheet, busy, onSave, className }: Props) 
     const [previewMode, setPreviewMode] = useState<(typeof PREVIEW_MODES)[number]>('run');
     const [face, setFace] = useState(1);
     const [saveError, setSaveError] = useState<string | null>(null);
+    const [autoFitAnalysis, setAutoFitAnalysis] = useState<SpriteAutoFitResult | null>(null);
 
     const frameWidth = parseInt(fw, 10) || sheet.frame_width;
     const frameHeight = parseInt(fh, 10) || sheet.frame_height;
     const frameCount = parseInt(fc, 10) || sheet.frame_count;
+
+    const gridCols = animConfig.cols ?? (frameCount === 18 ? 6 : undefined);
+    const gridRows = animConfig.rows ?? (frameCount === 18 ? 3 : undefined);
 
     const poseFoot = resolveFootAnchor(animConfig, previewMode);
     const poseHasOverride = Boolean(animConfig.poseAnchors?.[previewMode]);
@@ -143,8 +149,27 @@ export function CharacterSheetStudio({ sheet, busy, onSave, className }: Props) 
                         frameCount={frameCount}
                         animationConfig={animConfig}
                         colorConfig={colorConfig}
+                        autoFitAnalysis={autoFitAnalysis}
                         maxHeight={180}
                     />
+                    <CharacterSheetAutoFitButton
+                        sheetUrl={sheet.sheet_url}
+                        frameCount={frameCount}
+                        cols={gridCols}
+                        rows={gridRows}
+                        onApply={({ frameWidth: w, frameHeight: h, frameCount: n, cols, rows, analysis }) => {
+                            setFw(String(w));
+                            setFh(String(h));
+                            setFc(String(n));
+                            setAutoFitAnalysis(analysis);
+                            if (cols && rows && animConfig.layout === 'grid') {
+                                setAnimConfig((prev) => ({ ...prev, cols, rows }));
+                            }
+                        }}
+                    />
+                    <p className="text-[10px] text-muted-foreground">
+                        กรอบเขียว = ตัวละครในเซลล์ · กรอบแดง = ล้นไปแตะเฟรมข้างเคียง
+                    </p>
                     <div className="grid grid-cols-3 gap-2">
                         <Input value={fw} onChange={(e) => setFw(e.target.value)} className="h-8 text-xs" placeholder="W" />
                         <Input value={fh} onChange={(e) => setFh(e.target.value)} className="h-8 text-xs" placeholder="H" />

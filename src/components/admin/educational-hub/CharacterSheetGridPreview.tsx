@@ -5,6 +5,7 @@ import {
     resolveCharacterAnimation,
 } from '@/lib/character-animation';
 import type { CharacterColorConfig } from '@/lib/character-color';
+import type { SpriteAutoFitResult } from '@/lib/sprite-frame-autofit';
 import { recolorImageToCanvas } from '@/lib/sprite-recolor';
 import { SPRITE_CHECKERBOARD_STYLE } from '@/lib/sprite-background';
 import { cn } from '@/lib/utils';
@@ -17,6 +18,7 @@ type Props = {
     animationConfig?: CharacterAnimationConfig | null;
     colorConfig?: CharacterColorConfig | null;
     player?: 1 | 2;
+    autoFitAnalysis?: SpriteAutoFitResult | null;
     className?: string;
     maxHeight?: number;
 };
@@ -30,6 +32,7 @@ export function CharacterSheetGridPreview({
     animationConfig,
     colorConfig,
     player = 1,
+    autoFitAnalysis,
     className,
     maxHeight = 200,
 }: Props) {
@@ -81,13 +84,33 @@ export function CharacterSheetGridPreview({
             const { sx, sy } = characterFrameRect(i, frameWidth, frameHeight, anim);
             const dx = sx * scale;
             const dy = sy * scale;
+            const cellInfo = autoFitAnalysis?.cells.find((c) => c.frame === i);
+            const overflow = cellInfo && (
+                cellInfo.overflowLeft || cellInfo.overflowRight
+                || cellInfo.overflowTop || cellInfo.overflowBottom
+            );
+            ctx.fillStyle = overflow ? 'rgba(239, 68, 68, 0.15)' : 'rgba(236, 72, 153, 0.12)';
             ctx.fillRect(dx, dy, fw, fh);
+            ctx.strokeStyle = overflow ? 'rgba(239, 68, 68, 0.95)' : 'rgba(236, 72, 153, 0.85)';
             ctx.strokeRect(dx + 0.5, dy + 0.5, fw - 1, fh - 1);
+
+            if (cellInfo?.hasContent) {
+                const cl = cellInfo.contentLeft * scale;
+                const ct = cellInfo.contentTop * scale;
+                const cr = (cellInfo.contentRight + 1) * scale;
+                const cb = (cellInfo.contentBottom + 1) * scale;
+                ctx.strokeStyle = 'rgba(34, 197, 94, 0.9)';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([2, 2]);
+                ctx.strokeRect(dx + cl, dy + ct, cr - cl, cb - ct);
+                ctx.setLineDash([]);
+            }
+
             ctx.fillStyle = 'rgba(190, 24, 93, 0.95)';
             ctx.fillText(String(i), dx + fw / 2, dy + fh / 2);
             ctx.fillStyle = 'rgba(236, 72, 153, 0.12)';
         }
-    }, [drawSrc, frameWidth, frameHeight, frameCount, animationConfig, maxHeight]);
+    }, [drawSrc, frameWidth, frameHeight, frameCount, animationConfig, maxHeight, autoFitAnalysis]);
 
     return (
         <canvas
