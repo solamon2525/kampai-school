@@ -1,10 +1,12 @@
 {
-  "frameWidth": 128,
-  "frameHeight": 128,
+  "source": "Piskel-compatible pixel art · front view",
+  "frameWidth": 64,
+  "frameHeight": 64,
   "frameCount": 12,
   "frames": [
     "idle",
-    "idle2",
+    "walk1",
+    "walk2",
     "run1",
     "run2",
     "run3",
@@ -13,14 +15,12 @@
     "jumpPeak",
     "jumpFall",
     "hurt",
-    "happy",
-    "land"
+    "happy"
   ],
-  "view": "side-right (flip in game when moving left)",
-  "displaySize": {
-    "w": 88,
-    "h": 96
-  },
-  "piskel": "Import PNG → 128px per frame · 12 columns",
+  "piskelFiles": [
+    "bunny-white.piskel",
+    "bunny-blue.piskel"
+  ],
+  "preview": "preview.html",
   "regenerate": "node scripts/generate-sara-run-sprites.mjs"
 }

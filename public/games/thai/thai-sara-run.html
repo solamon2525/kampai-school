@@ -124,7 +124,7 @@ const QUESTIONS = [
 
 const BUBBLE_COLORS = ['#93c5fd','#fca5a5','#86efac'];
 const GRAVITY = 0.38, FRICTION = 0.82, RUN = 4.2, JUMP1 = -9.2, JUMP2 = -7.4;
-const BUNNY_SPRITE = { fw: 128, fh: 128, frames: 12, white: null, blue: null, ready: false };
+const BUNNY_SPRITE = { fw: 64, fh: 64, frames: 12, white: null, blue: null, ready: false };
 const BUNNY_DRAW_W = 88;
 const BUNNY_DRAW_H = 96;
 const BUNNY_ASSET_BASE = '/games/thai/assets/thai-sara-run';
@@ -618,18 +618,22 @@ function loadBunnySprites() {
 }
 
 function getBunnySpriteFrame(p) {
-  if (p.state === 'hurt') return 9;
-  if (p.state === 'happy') return 10;
+  if (p.state === 'hurt') return 10;
+  if (p.state === 'happy') return 11;
   if (!p.onGround || p.state === 'jump') {
-    if (p.vy < -3.5) return 6;
-    if (p.vy > 2.5) return 8;
-    return 7;
+    if (p.vy < -3.5) return 7;
+    if (p.vy > 2.5) return 9;
+    return 8;
   }
-  if (p.state === 'run' || Math.abs(p.vx) > 0.2) {
-    const runFrames = [2, 3, 4, 5];
+  if (p.state === 'run' || Math.abs(p.vx) > RUN * 0.55) {
+    const runFrames = [3, 4, 5, 6];
     return runFrames[Math.floor(p.animTime * 1.15) % 4];
   }
-  if (Math.sin(p.animTime * 0.45) > 0.92) return 1;
+  if (Math.abs(p.vx) > 0.15) {
+    const walkFrames = [1, 2];
+    return walkFrames[Math.floor(p.animTime * 0.85) % 2];
+  }
+  if (Math.sin(p.animTime * 0.45) > 0.92) return 0;
   return 0;
 }
 
