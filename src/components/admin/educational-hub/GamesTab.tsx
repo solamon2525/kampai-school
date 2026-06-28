@@ -76,6 +76,16 @@ import {
 import { analyzeSpriteSheetFromUrl, type SpriteAutoFitResult } from '@/lib/sprite-frame-autofit';
 import type { CharacterColorConfig } from '@/lib/character-color';
 import {
+    GAME_PLAY_STYLE_OPTIONS,
+    GAME_PLAY_STYLE_KEYS,
+    type GamePlayStyleFilter,
+    countGamesByPlayStyle,
+    filterGamesByPlayStyle,
+    gamePlayStyleLabel,
+    gamePlayStyleSupportsCharacter,
+    isGamePlayStyleKey,
+} from '@/lib/game-play-style';
+import {
     processSpriteSheetFile,
     processSpriteSheetPreviewUrl,
     SPRITE_CHECKERBOARD_STYLE,
@@ -475,6 +485,7 @@ export const GamesTab = () => {
         | { type: 'reset'; item: EduHubItem }
         | null
     >(null);
+    const [styleFilter, setStyleFilter] = useState<GamePlayStyleFilter>('__all__');
 
     const handleConfirm = async () => {
         if (!confirmAction) return;
@@ -580,6 +591,16 @@ export const GamesTab = () => {
         return map;
     }, [teachers]);
 
+    const styleCounts = useMemo(
+        () => countGamesByPlayStyle(items ?? []),
+        [items],
+    );
+
+    const filteredItems = useMemo(
+        () => filterGamesByPlayStyle(items ?? [], styleFilter),
+        [items, styleFilter],
+    );
+
     const handleSaved = async (newItemId?: string) => {
         // auto-map ตัวชี้วัดที่เลือกไว้ (จาก IndicatorPromptDialog) เข้ากับเกมใหม่
         if (newItemId && pendingIndicatorIds.length > 0) {
@@ -653,21 +674,71 @@ export const GamesTab = () => {
             ) : (
                 <Card>
                     <CardContent className="p-0">
+                        <div className="border-b border-border px-4 py-3 space-y-2">
+                            <p className="text-xs font-medium text-muted-foreground">แนวเกม — เลือกก่อนดูรายการ</p>
+                            <div className="flex flex-wrap gap-1.5">
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    variant={styleFilter === '__all__' ? 'default' : 'outline'}
+                                    className="h-8 text-xs"
+                                    onClick={() => setStyleFilter('__all__')}
+                                >
+                                    ทั้งหมด ({styleCounts.__all__})
+                                </Button>
+                                {GAME_PLAY_STYLE_OPTIONS.map((o) => (
+                                    <Button
+                                        key={o.key}
+                                        type="button"
+                                        size="sm"
+                                        variant={styleFilter === o.key ? 'default' : 'outline'}
+                                        className="h-8 text-xs"
+                                        onClick={() => setStyleFilter(o.key)}
+                                    >
+                                        {o.emoji} {o.shortLabel} ({styleCounts[o.key] ?? 0})
+                                    </Button>
+                                ))}
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    variant={styleFilter === '__unset__' ? 'default' : 'outline'}
+                                    className="h-8 text-xs"
+                                    onClick={() => setStyleFilter('__unset__')}
+                                >
+                                    ยังไม่ระบุ ({styleCounts.__unset__})
+                                </Button>
+                            </div>
+                            {styleFilter !== '__all__' && (
+                                <p className="text-[10px] text-muted-foreground">
+                                    แสดง {filteredItems.length} จาก {items!.length} เกม
+                                    {styleFilter !== '__unset__' && isGamePlayStyleKey(styleFilter)
+                                        ? ` · ${GAME_PLAY_STYLE_OPTIONS.find((o) => o.key === styleFilter)?.description}`
+                                        : ''}
+                                </p>
+                            )}
+                        </div>
                         <div className="overflow-x-auto">
                             <table className="w-full">
                                 <thead className="border-b border-border bg-muted/30">
                                     <tr>
                                         <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">ปก</th>
                                         <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">ชื่อเกม</th>
-                                        <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">ประเภท</th>
-                                        <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">หมวด</th>
+                                        <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">ที่เก็บ</th>
+                                        <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">แนวเกม</th>
+                                        <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">หมวดวิชา</th>
                                         <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">เจ้าของ</th>
                                         <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">URL</th>
                                         <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">การจัดการ</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {items!.map((item) => {
+                                    {filteredItems.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={7} className="px-4 py-10 text-center text-sm text-muted-foreground">
+                                                ไม่มีเกมในแนวนี้ — ลองเลือก「ทั้งหมด」หรือตั้งแนวเกมใน「ตั้งค่า」
+                                            </td>
+                                        </tr>
+                                    ) : filteredItems.map((item) => {
                                         const { subject, slug } = getGameDisplayInfo(item.external_url);
                                         const storage = isStorageGame(item.external_url);
                                         const owner = teacherById.get(item.owner_staff_id);
@@ -708,6 +779,11 @@ export const GamesTab = () => {
                                                             Git
                                                         </Badge>
                                                     )}
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    <Badge variant="outline" className="text-[10px] whitespace-nowrap">
+                                                        {gamePlayStyleLabel(item.game_play_style)}
+                                                    </Badge>
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     <Badge variant="outline" className="text-[10px]">
@@ -936,6 +1012,7 @@ const GameSettingsDialog = ({
     const [charSel, setCharSel] = useState(
         item.character_sheet_id ? `char:${item.character_sheet_id}` : '__default__',
     );
+    const [playStyle, setPlayStyle] = useState(item.game_play_style ?? '__unset__');
     const [previewVideoUrl, setPreviewVideoUrl] = useState(item.preview_video_url ?? '');
     const [saving, setSaving] = useState(false);
 
@@ -971,6 +1048,7 @@ const GameSettingsDialog = ({
                 tracked_game: tracked,
                 is_published: published,
                 preview_video_url: previewVideoUrl.trim() || null,
+                game_play_style: playStyle === '__unset__' ? null : playStyle,
                 ...bgm,
                 ...charFields,
             });
@@ -1026,6 +1104,26 @@ const GameSettingsDialog = ({
                 </div>
 
                 <div className="space-y-1.5">
+                    <label className="text-sm font-medium">🎮 แนวเกม</label>
+                    <Select value={playStyle} onValueChange={setPlayStyle}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__unset__">ยังไม่ระบุ</SelectItem>
+                            {GAME_PLAY_STYLE_OPTIONS.map((o) => (
+                                <SelectItem key={o.key} value={o.key}>
+                                    {o.emoji} {o.label}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">
+                        ใช้กรองรายการในแท็บเกม HTML · {playStyle !== '__unset__' && isGamePlayStyleKey(playStyle)
+                            ? GAME_PLAY_STYLE_OPTIONS.find((o) => o.key === playStyle)?.description
+                            : 'เลือกแนวให้ตรงการเล่นจริง'}
+                    </p>
+                </div>
+
+                <div className="space-y-1.5">
                     <label className="text-sm font-medium">🎵 เพลงประกอบ</label>
                     <Select value={bgmSel} onValueChange={setBgmSel}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
@@ -1066,6 +1164,11 @@ const GameSettingsDialog = ({
                         {!isCharacterSupportedGame(gameSlug.trim()) && charSel.startsWith('char:') && (
                             <span className="block mt-1 text-amber-700">
                                 ⚠ เกมนี้ยังไม่ opt-in ตัวละครจากคลัง — ตั้งค่าได้แต่เกมอาจไม่ใช้
+                            </span>
+                        )}
+                        {charSel.startsWith('char:') && playStyle !== '__unset__' && !gamePlayStyleSupportsCharacter(playStyle) && (
+                            <span className="block mt-1 text-amber-700">
+                                ⚠ แนวเกมนี้ยังไม่รองรับ sprite จากคลัง — ใช้ได้กับแพลตฟอร์ม 2D เป็นหลัก
                             </span>
                         )}
                         {charSel.startsWith('char:') && (() => {
@@ -1595,6 +1698,7 @@ const createSchema = z.object({
     preview_video_url: z.string().optional().nullable(),
     grade_levels: z.array(z.string()).default([]),
     tags: z.array(z.string()).default([]),
+    game_play_style: z.enum(GAME_PLAY_STYLE_KEYS as [string, ...string[]]).optional().nullable(),
 });
 
 type CreateValues = z.infer<typeof createSchema>;
@@ -1690,6 +1794,7 @@ const GameUploadDialog = (props: Props) => {
             preview_video_url: '',
             grade_levels: [],
             tags: [],
+            game_play_style: null,
         },
     });
 
@@ -1769,6 +1874,7 @@ const GameUploadDialog = (props: Props) => {
                 game_slug: info.slug,
                 tracked_game: !!info.slug,
                 is_published: true,
+                game_play_style: values.game_play_style ?? null,
             });
             if (insErr) throw insErr;
             props.onSaved((inserted as { id?: string } | null)?.id);
@@ -1986,6 +2092,36 @@ const GameUploadDialog = (props: Props) => {
                             )}
                         />
                     </div>
+
+                    <FormField
+                        control={createForm.control}
+                        name="game_play_style"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>แนวเกม</FormLabel>
+                                <Select
+                                    value={field.value ?? '__unset__'}
+                                    onValueChange={(v) => field.onChange(v === '__unset__' ? null : v)}
+                                >
+                                    <FormControl>
+                                        <SelectTrigger><SelectValue placeholder="เลือกแนวเกม" /></SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="__unset__">ยังไม่ระบุ (ตั้งทีหลังได้)</SelectItem>
+                                        {GAME_PLAY_STYLE_OPTIONS.map((o) => (
+                                            <SelectItem key={o.key} value={o.key}>
+                                                {o.emoji} {o.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <FormDescription className="text-[10px]">
+                                    ใช้กรองรายการในแท็บเกม — เลือกให้ตรงการเล่นจริง
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
 
                     <HtmlInput
                         label="ไฟล์ HTML"

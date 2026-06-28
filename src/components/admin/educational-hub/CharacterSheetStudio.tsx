@@ -21,6 +21,7 @@ import {
     validateAnimationConfig,
 } from '@/lib/character-animation';
 import { CharacterSheetAutoFitButton } from './CharacterSheetAutoFitButton';
+import { CharacterAssignedGamesPanel } from './CharacterAssignedGamesPanel';
 import type { SpriteAutoFitResult } from '@/lib/sprite-frame-autofit';
 import { parseCharacterColorConfig, type CharacterColorConfig } from '@/lib/character-color';
 import type { CharacterSheet } from '@/services/educational-hub.service';
@@ -119,6 +120,8 @@ export function CharacterSheetStudio({ sheet, busy, onSave, className }: Props) 
 
     return (
         <div className={cn('space-y-3', className)}>
+            <CharacterAssignedGamesPanel sheetId={sheet.id} />
+
             <div className="flex flex-wrap items-center gap-2">
                 <Input
                     value={title}

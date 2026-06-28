@@ -70,6 +70,7 @@ export type EduHubItem = {
     character_frame_count: number | null;
     character_animation_config: CharacterAnimationConfig | null;
     character_color_config: CharacterColorConfig | null;
+    game_play_style: string | null;
     created_at: string;
     updated_at: string;
 };
@@ -683,6 +684,13 @@ export const characterSheetsService = {
     },
 
     syncAssignedGames: syncCharacterSheetToAssignedGames,
+
+    listAssignedGames: (sheetId: string) =>
+        supabase
+            .from('educational_hub_items')
+            .select('id, title, game_slug, game_play_style')
+            .eq('character_sheet_id', sheetId)
+            .order('title'),
 
     remove: async (sheet: CharacterSheet): Promise<{ error: Error | null }> => {
         if (!sheet.storage_path.startsWith('git:')) {

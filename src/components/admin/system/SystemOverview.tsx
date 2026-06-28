@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.125.0 (scene preview จำลองเกม)',
+        version: 'v1.126.0 (แนวเกม game_play_style)',
         date: 'ล่าสุด',
+        badge: 'bg-violet-600',
+        items: [
+            '**แนวเกม 7 ประเภท** — แพลตฟอร์ม 2D · มองด้านบน · กระโดด · แข่งรถ · ยิง · พัสเซิล · 3D มายคราฟ',
+            'GamesTab กรองรายการตามแนวก่อนแสดง · ตั้งค่าเกม + อัปโหลดใหม่เลือกแนวได้',
+            'Character Studio แสดงเกมที่ผูกตัวละคร แยกตามแนว',
+        ],
+    },
+    {
+        version: 'v1.125.0 (scene preview จำลองเกม)',
+        date: '',
         badge: 'bg-violet-600',
         items: [
             '**CharacterSheetScenePreview** — ตัวละครเดิน/วิ่ง/กระโดด/หยุดขอบใน canvas · ใช้ `pickCharacterFrameIndex` เหมือน runtime',
