@@ -129,7 +129,7 @@ async function main() {
       .eq('item_id', saraItem.id)
       .maybeSingle();
 
-    const docOk = !docErr && ['v1.1.0', 'v1.2.0', 'v1.3.0', 'v1.4.0'].includes(doc?.version ?? '');
+    const docOk = !docErr && ['v1.1.0', 'v1.2.0', 'v1.3.0', 'v1.4.0', 'v1.5.0'].includes(doc?.version ?? '');
     allOk = report(
       'game_docs thai-sara-run',
       docOk,

@@ -287,8 +287,10 @@ export function CharacterSheetStudio({ sheet, busy, onSave, className }: Props) 
             />
 
             <CharacterPoseMapper
+                key={sheet.id}
                 preset={preset}
                 frameCount={frameCount}
+                initialConfig={initialAnim}
                 onPresetChange={setPreset}
                 onConfigChange={(config) => setAnimConfig((prev) => ({ ...config, poseAnchors: prev.poseAnchors }))}
             />

@@ -140,7 +140,9 @@
 | `KAMPAI.sound.fxFlash(good)` | แฟลชจอเขียว(ถูก)/แดง(ผิด) · `unlock()` ปลดล็อก audio ตอน gesture แรก |
 | `KAMPAI.character` | `{sheetUrl, sheetUrlP2, fw, fh, frames, anim}` จากหลังบ้าน — `null` = ใช้ sprite bundled ใน git |
 | `KAMPAI.loadCharacterSheets()` | Promise โหลด Image P1 (+ P2 ถ้ามี) จาก `KAMPAI.character` — เกม opt-in เรียกก่อนเริ่ม |
-| `KAMPAI.pickCharacterFrame(p, opt?)` | เลือก index เฟรมจาก `p.state/vx/vy/animTime` + `K.character.anim` · `opt.runSpeed` สำหรับ threshold วิ่ง |
+| `KAMPAI.pickCharacterFrame(p, opt?)` | เลือก index เฟรมจาก `p.state/vx/vy/animTime` + `anim`/`anim.extras` · รองรับ attack/crouch/slide/special ฯลฯ |
+| `KAMPAI.poseKeyFromPlayerState(p, opt?)` | แปลง state → ท่า (จุดเท้า preview) |
+| `KAMPAI.resolveFootAnchor(anim, pose)` | จุดเท้าแยกตามท่า — `anim.poseAnchors[pose]` หรือ default |
 | `KAMPAI.online.available` | `true` ถ้าเล่นใน embed (standalone เล่นออนไลน์ไม่ได้) |
 | `KAMPAI.online.makeCode()` | สุ่มรหัสห้อง 4 หลัก |
 | `KAMPAI.online.join(room,{onJoined,onPresence,onEvent})` | เข้าห้อง realtime — wrapper เปิด Supabase channel ให้ (เกมไม่ต้องมี anon key). meta presence ดึงจาก `KAMPAI.student` อัตโนมัติ |
@@ -270,7 +272,11 @@ if (others.length) rival.dist = others.sort((a,b)=>b.v-a.v)[0].v;   // v = ต�
 > เกมเก่าที่อ่านแค่ `studentCode` ยังทำงานได้ (additive). ถ้า `character === null` → ใช้ sprite bundled ใน git ตามเดิม.
 > เกมที่ opt-in: อ่าน `KAMPAI.character` ใน `onReady` หรือเรียก `KAMPAI.loadCharacterSheets()` + `KAMPAI.pickCharacterFrame(player)`.
 > **คลังตัวละคร admin:** อัปโหลดแล้ว **ตัดพื้นหลังอัตโนมัติ** (flood fill จากขอบ → PNG โปร่งใส) · ปรับความไวได้ · bundled git ใช้ `pnpm process:sprite-bg`
-> `anim` = mapping เฟรม `{ idle[], walk[], run[], jump:{up,peak,fall}, hurt, happy }` — preset `platformer-12` เป็น default.
+> `anim` = mapping เฟรม core `{ idle[], walk[], run[], jump, hurt, happy }` + ท่าเสริมใน `extras` (optional).
+> **Pose catalog (5 กลุ่ม):** เคลื่อนที่ · ต่อสู้ (attack/block/dodge) · ท่าทาง (crouch/sit/…) · แพลตฟอร์ม (slide/climb/fall) · พิเศษ (special/emote/death).
+> เกมเรียกท่าด้วย `player.state` — ตัวอย่าง `'attack'`, `'crouch'`, `'slide'`, `'special'`. ท่าที่ยังไม่ map → fallback idle/walk/run/jump อัตโนมัติ.
+> `KAMPAI.pickCharacterFrame(p, { runSpeed })` · `KAMPAI.poseKeyFromPlayerState(p)` · `KAMPAI.resolveFootAnchor(anim, pose)`.
+> Admin: **Character Studio** — map ท่าแยกกลุ่ม · Auto fit ขนาดเฟรม · palette สี · จุดเท้าแยกตามท่า (poseAnchors).
 > `_template-react.html` (React) — ทั้งคู่ใช้ SDK + โชว์ leaderboard ในเกม + D-pad มือถือ.
 
 ---

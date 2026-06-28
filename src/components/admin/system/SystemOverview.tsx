@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.123.0 (ตัดพื้นหลัง sprite ตัวละคร)',
+        version: 'v1.124.0 (pose catalog ครบ + studio sync)',
         date: 'ล่าสุด',
+        badge: 'bg-violet-600',
+        items: [
+            '**Pose map 5 กลุ่ม** — attack/crouch/slide/special/death ฯลฯ ใน `animation_config.extras` · admin UI พับกลุ่ม',
+            '`KAMPAI.pickCharacterFrame` รองรับ state ครบ · preview ทุกท่าใน Character Studio',
+            'Fix PoseMapper โหลด config ที่บันทึกแล้ว · game_docs v1.5.0',
+        ],
+    },
+    {
+        version: 'v1.123.0 (ตัดพื้นหลัง sprite ตัวละคร)',
+        date: '',
         badge: 'bg-violet-600',
         items: [
             '**ตัดพื้นหลังอัตโนมัติ** ในคลังตัวละคร — flood fill จากขอบ · preview checkerboard · ปรับความไว',

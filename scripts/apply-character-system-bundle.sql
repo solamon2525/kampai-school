@@ -162,19 +162,17 @@ ALTER TABLE public.game_character_sheets
 ALTER TABLE public.educational_hub_items
   ADD COLUMN IF NOT EXISTS character_color_config jsonb;
 
--- ─── game_docs thai-sara-run (รวม 264/266 → v1.3.0) ─────────────────────────
+-- ─── game_docs thai-sara-run (270 → v1.5.0) ─────────────────────────────────
 INSERT INTO public.game_docs (item_id, owner_staff_id, game_format, features, version, notes)
 SELECT i.id, i.owner_staff_id,
        'HTML5 Canvas Platformer — สระไทย ป.1-6 · กระต่าย grid 3×6 จากคลังตัวละคร',
        ARRAY[
-         'กระต่าย sprite grid 170×227 · 18 เฟรม (วิ่ง/โดด/ยืน) · KAMPAI.pickCharacterFrame',
-         'คลังตัวละคร admin: Character Studio · map ท่า · preview บนพื้น · runFaces/anchorFoot',
-         'ระบบใส่สี palette · preset กระต่ายฟ้า/ชมพู/เขียว · recolor runtime ใน KAMPAI.loadCharacterSheets',
-         '5 หัวใจ · เก็บหัวใจเพิ่ม · ชนครั้งละ -1 · KampaiVersus co-op P2 sheet ฟ้า',
-         'KAMPAI SDK score/leaderboard · fallback bundled git · 19 ข้อสระไทย'
+         'กระต่าย sprite grid 170×227 · 18 เฟรม · KAMPAI.pickCharacterFrame + extras (attack/crouch/slide/…)',
+         'คลังตัวละคร: Character Studio · pose map 5 กลุ่ม · Auto fit W×H · palette recolor · จุดเท้าแยกท่า',
+         '5 หัวใจ · เก็บหัวใจเพิ่ม · co-op P2 · KAMPAI SDK score/leaderboard · 19 ข้อสระไทย'
        ],
-       'v1.4.0',
-       'thai-sara-run — คลังตัวละคร + animation + studio + color palette (bundle 263-269)'
+       'v1.5.0',
+       'thai-sara-run — pose catalog + color + auto-fit + per-pose foot anchors (bundle 263-270)'
 FROM public.educational_hub_items i
 WHERE i.game_slug = 'thai-sara-run'
 ON CONFLICT (item_id) DO UPDATE

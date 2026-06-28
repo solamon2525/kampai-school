@@ -26,13 +26,14 @@ import { cn } from '@/lib/utils';
 type Props = {
     preset: string;
     frameCount: number;
+    initialConfig?: CharacterAnimationConfig | null;
     onPresetChange: (preset: string) => void;
     onConfigChange: (config: CharacterAnimationConfig) => void;
 };
 
-export function CharacterPoseMapper({ preset, frameCount, onPresetChange, onConfigChange }: Props) {
+export function CharacterPoseMapper({ preset, frameCount, initialConfig, onPresetChange, onConfigChange }: Props) {
     const [fields, setFields] = useState<CharacterPoseFields>(() =>
-        poseFieldsFromConfig(getCharacterAnimPreset(preset)),
+        poseFieldsFromConfig(initialConfig ?? getCharacterAnimPreset(preset)),
     );
     const [mapError, setMapError] = useState<string | null>(null);
     const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
@@ -44,8 +45,10 @@ export function CharacterPoseMapper({ preset, frameCount, onPresetChange, onConf
     });
 
     useEffect(() => {
-        setFields(poseFieldsFromConfig(getCharacterAnimPreset(preset)));
-    }, [preset]);
+        if (initialConfig) {
+            setFields(poseFieldsFromConfig(initialConfig));
+        }
+    }, [initialConfig]);
 
     useEffect(() => {
         const { config, error } = buildAnimationConfigFromFields(fields, frameCount);
@@ -76,7 +79,7 @@ export function CharacterPoseMapper({ preset, frameCount, onPresetChange, onConf
                 value={preset}
                 onValueChange={(v) => {
                     onPresetChange(v);
-                    setFields((f) => ({ ...f, preset: v }));
+                    setFields(poseFieldsFromConfig(getCharacterAnimPreset(v)));
                 }}
             >
                 <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
