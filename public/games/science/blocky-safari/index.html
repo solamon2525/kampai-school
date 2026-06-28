@@ -127,9 +127,17 @@
                 </div>
                 <!-- Target category display badge -->
                 <div class="bg-white/90 backdrop-blur-sm px-4 py-2.5 rounded-xl shadow-md border-2 border-green-400 flex flex-col">
-                    <div class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">เป้าหมายจำแนก</div>
-                    <div id="target-display" class="text-base font-extrabold text-green-700">กำลังสุ่มเป้าหมาย...</div>
-                    <div id="remaining-display" class="text-xs text-gray-600 font-semibold mt-0.5">เหลือเก็บอีก: - ตัว</div>
+                    <div class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">เป้าหมายปัจจุบัน</div>
+                    <div id="target-display" class="text-lg font-extrabold text-green-700">กำลังสุ่มเป้าหมาย...</div>
+                    <div id="target-timer" class="text-[11px] text-orange-600 font-bold mt-0.5">เปลี่ยนเป้าหมายใน: 12 วินาที</div>
+                    
+                    <!-- บาร์เกจบอกความคืบหน้าของแต่ละประเภท (Progress Bars) -->
+                    <div class="mt-2.5 pt-2 border-t border-gray-200 flex flex-col gap-1.5 w-[220px] sm:w-[260px]" id="progress-bars-container">
+                        <div class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">ความคืบหน้าการคัดแยก</div>
+                        <div id="progress-list" class="flex flex-col gap-2">
+                            <!-- จะถูกเติมแบบไดนามิกผ่าน Javascript -->
+                        </div>
+                    </div>
                 </div>
             </div>
             

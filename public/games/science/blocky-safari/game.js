@@ -69,6 +69,9 @@ let playerAnimations = null;     // รายการแอนิเมชั�
 let currentPlayerAction = null;  // Action แอนิเมชันที่กำลังเล่น
 let hasGLTFPlayer = false;       // มีโมเดล GLTF ของผู้เล่นที่โหลดสำเร็จหรือไม่
 
+// --- Game Mechanics Variables ---
+let targetChangeTimer = 12;      // นับถอยหลังการสลับเป้าหมายปัจจุบัน (หน่วย: วินาที)
+
 // --- Initialization ---
 window.onload = () => {
     initThreeJS();
@@ -290,18 +293,31 @@ function buildWorld() {
 
     gameState.totalAnimals = currentAnimals.length * SPAWNS_PER_ANIMAL;
 
-    // สุ่มเลือก Target Category จากข้อมูลสัตว์ที่มีในด่านนี้
-    const uniqueTypes = [...new Set(currentAnimals.map(a => a.type))];
-    gameState.targetCategory = uniqueTypes[Math.floor(worldRng() * uniqueTypes.length)];
-    // เป้าหมายคือเก็บให้ครบทุกตัวในสายพันธุ์ของด่านนั้น
-    const targetSpeciesCount = currentAnimals.filter(a => a.type === gameState.targetCategory).length;
-    gameState.totalTargetAnimals = targetSpeciesCount * SPAWNS_PER_ANIMAL;
+    // คำนวณจำนวนสัตว์เป้าหมายทั้งหมดแยกแต่ละสายพันธุ์/หมวดหมู่
+    gameState.capturedProgress = {};
+    gameState.totalRequired = {};
     
+    currentAnimals.forEach(data => {
+        if (!gameState.totalRequired[data.type]) {
+            gameState.totalRequired[data.type] = 0;
+            gameState.capturedProgress[data.type] = 0;
+        }
+        gameState.totalRequired[data.type] += SPAWNS_PER_ANIMAL;
+    });
+
+    // คำนวณคะแนนรวมที่ต้องเก็บทั้งหมดในด่านนี้
+    let totalTarget = 0;
+    for (const key in gameState.totalRequired) {
+        totalTarget += gameState.totalRequired[key];
+    }
+    gameState.totalTargetAnimals = totalTarget;
+
     // ตั้งเป้าคะแนนด่านปัจจุบันเป็น 0
     gameState.score = 0;
-    
-    // รีเซ็ตการแสดงผล HUD
-    updateHUD();
+    targetChangeTimer = 12; // เวลาเปลี่ยนเป้าหมายเริ่มต้น
+
+    // เลือกและสุ่มตั้งเป้าหมายแรก
+    switchTargetCategory();
 }
 
 function createTree(x, z) {
@@ -717,6 +733,39 @@ function takeDamage() {
     }
 }
 
+function switchTargetCategory() {
+    // หาหมวดหมู่ที่ยังเก็บไม่ครบ
+    const incompleteCategories = [];
+    const currentAnimals = window.ANIMAL_DB_LEVELS[gameState.currentLevel] || window.ANIMAL_DB_LEVELS[1];
+    const uniqueTypes = [...new Set(currentAnimals.map(a => a.type))];
+    
+    uniqueTypes.forEach(type => {
+        const required = gameState.totalRequired[type] || 0;
+        const captured = gameState.capturedProgress[type] || 0;
+        if (captured < required) {
+            incompleteCategories.push(type);
+        }
+    });
+
+    if (incompleteCategories.length === 0) {
+        // ครบหมดทุกตัวแล้ว!
+        checkWin();
+        return;
+    }
+
+    // สุ่มเลือกเป้าหมายที่ยังเก็บไม่ครบ (หลีกเลี่ยงเป้าหมายเดิมถ้าเป็นไปได้)
+    let newTarget = incompleteCategories[Math.floor(Math.random() * incompleteCategories.length)];
+    if (incompleteCategories.length > 1 && newTarget === gameState.targetCategory) {
+        const others = incompleteCategories.filter(t => t !== gameState.targetCategory);
+        newTarget = others[Math.floor(Math.random() * others.length)];
+    }
+
+    gameState.targetCategory = newTarget;
+    targetChangeTimer = 12; // รีเซ็ตเวลาเป็น 12 วินาที
+    
+    updateHUD();
+}
+
 function updateHUD() {
     const levelDisplay = document.getElementById('level-display');
     if (levelDisplay) {
@@ -734,10 +783,48 @@ function updateHUD() {
         const emoji = match ? match.emoji : '';
         targetDisplay.innerText = `${gameState.targetCategory} ${emoji}`;
     }
+
+    // อัปเดตตัวเลขเวลาสลับเป้าหมาย
+    const timerDisplay = document.getElementById('target-timer');
+    if (timerDisplay) {
+        timerDisplay.innerText = `เปลี่ยนใน: ${Math.ceil(targetChangeTimer)} วินาที`;
+    }
     
-    if (remainingDisplay) {
-        const remaining = gameState.totalTargetAnimals - gameState.score;
-        remainingDisplay.innerText = `เหลือเก็บอีก: ${remaining} ตัว`;
+    // เติมบาร์เกจความคืบหน้า (Progress Bars) แต่ละประเภท
+    const progressList = document.getElementById('progress-list');
+    if (progressList && gameState.totalRequired) {
+        let html = '';
+        const sortedCategories = Object.keys(gameState.totalRequired).sort();
+        
+        sortedCategories.forEach(type => {
+            const required = gameState.totalRequired[type];
+            const captured = gameState.capturedProgress[type] || 0;
+            const percent = Math.min(100, Math.round((captured / required) * 100));
+            const isComplete = captured >= required;
+            
+            // หา Emojis ประจำประเภทสัตว์
+            const currentAnimals = window.ANIMAL_DB_LEVELS[gameState.currentLevel] || window.ANIMAL_DB_LEVELS[1];
+            const match = currentAnimals.find(a => a.type === type);
+            const emoji = match ? match.emoji : '🐾';
+
+            // สีของบาร์เกจ
+            const barColor = isComplete ? 'bg-green-500' : 'bg-blue-500';
+            const statusIcon = isComplete ? '✅' : '⏳';
+            const statusText = isComplete ? 'ครบแล้ว' : `${captured}/${required}`;
+
+            html += `
+                <div class="flex flex-col gap-0.5 text-xs text-gray-700">
+                    <div class="flex justify-between font-bold text-[10px] sm:text-[11px]">
+                        <span>${emoji} ${type}</span>
+                        <span class="${isComplete ? 'text-green-600' : 'text-blue-600'}">${statusIcon} ${statusText}</span>
+                    </div>
+                    <div class="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
+                        <div class="${barColor} h-full transition-all duration-300" style="width: ${percent}%"></div>
+                    </div>
+                </div>
+            `;
+        });
+        progressList.innerHTML = html;
     }
 }
 
@@ -874,6 +961,20 @@ function animate() {
     });
 
     if (gameState.isPlaying && player) {
+        // จัดการนับถอยหลังการสลับเป้าหมาย
+        targetChangeTimer -= dt;
+        if (targetChangeTimer <= 0) {
+            switchTargetCategory();
+            // ออกเสียงแจ้งเตือนสั้นๆ เพื่อสะกิดความสนใจนักเรียน
+            KAMPAI.sound.speak("เปลี่ยนเป้าหมาย", "th-TH");
+        } else {
+            // อัปเดตเฉพาะตัวเลขเวลาถอยหลังใน HUD เพื่อประหยัด CPU
+            const timerDisplay = document.getElementById('target-timer');
+            if (timerDisplay) {
+                timerDisplay.innerText = `เปลี่ยนใน: ${Math.ceil(targetChangeTimer)} วินาที`;
+            }
+        }
+
         // --- การควบคุมและเคลื่อนที่ผู้เล่น ---
         let moveX = 0;
         let moveZ = 0;
@@ -957,11 +1058,19 @@ function animate() {
                         KAMPAI.sound.correct();
                         scene.remove(animal.group);
                         animals.splice(aIdx, 1);
+                        
+                        // บันทึกความคืบหน้าของประเภทที่ยิงได้
+                        if (!gameState.capturedProgress[animal.data.type]) {
+                            gameState.capturedProgress[animal.data.type] = 0;
+                        }
+                        gameState.capturedProgress[animal.data.type]++;
+                        
                         gameState.score++;
                         gameState.onlineCorrect++;
                         if (gameState.online && match) match.report(gameState.onlineCorrect, { correct: gameState.onlineCorrect });
-                        updateHUD();
-                        checkWin();
+                        
+                        // สุ่มเปลี่ยนเป้าหมายถัดไปทันที
+                        switchTargetCategory();
                     } else {
                         // ยิงผิดตัว! -> ลบหัวใจ + มอนสเตอร์สะท้อนกลับ
                         takeDamage();
