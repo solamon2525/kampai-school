@@ -60,6 +60,12 @@ export type EduHubItem = {
     library_pin_order?: number;   // ลำดับในกลุ่มปักหมุด (step 10, 20, …)
     bgm_preset: string | null;   // เพลงประกอบรายเกม (preset key สังเคราะห์ใน KAMPAI.sound) — null = ใช้ default ของเกม
     bgm_url: string | null;      // เพลงอัปโหลด (mp3) — ถ้ามี = เล่นแทน synth
+    character_sheet_id: string | null;
+    character_sheet_url: string | null;
+    character_sheet_url_p2: string | null;
+    character_frame_w: number | null;
+    character_frame_h: number | null;
+    character_frame_count: number | null;
     created_at: string;
     updated_at: string;
 };
@@ -84,6 +90,24 @@ export type BgmTrack = {
     title: string;
     storage_path: string;
     url: string;
+    created_by: string | null;
+    created_at: string;
+};
+
+/** Sprite sheet ในคลังตัวละคร (game_character_sheets) */
+export type CharacterSheet = {
+    id: string;
+    title: string;
+    slug: string | null;
+    sheet_url: string;
+    sheet_url_p2: string | null;
+    storage_path: string;
+    storage_path_p2: string | null;
+    frame_width: number;
+    frame_height: number;
+    frame_count: number;
+    preview_url: string | null;
+    notes: string | null;
     created_by: string | null;
     created_at: string;
 };
@@ -529,6 +553,107 @@ export const bgmTracksService = {
         return { error: (error as Error | null) ?? null };
     },
 };
+
+// ─── คลัง sprite sheet ตัวละคร (game_character_sheets) ───────────────────────
+export const characterSheetsService = {
+    list: () =>
+        supabase
+            .from('game_character_sheets' as never)
+            .select('*')
+            .order('created_at', { ascending: false }),
+
+    upload: async (params: {
+        title: string;
+        sheetFile: File;
+        sheetFileP2?: File | null;
+        frameWidth: number;
+        frameHeight: number;
+        frameCount: number;
+        notes?: string;
+    }): Promise<{ sheet: CharacterSheet | null; error: Error | null }> => {
+        const id = crypto.randomUUID();
+        const base = `characters/${id}`;
+        const path1 = `${base}/sheet.png`;
+
+        const { error: up1Err } = await supabase.storage.from(BUCKET).upload(path1, params.sheetFile, {
+            cacheControl: '3600',
+            upsert: false,
+            contentType: params.sheetFile.type || 'image/png',
+        });
+        if (up1Err) return { sheet: null, error: up1Err as Error };
+
+        const url1 = supabase.storage.from(BUCKET).getPublicUrl(path1).data.publicUrl;
+        let path2: string | null = null;
+        let url2: string | null = null;
+
+        if (params.sheetFileP2) {
+            path2 = `${base}/sheet-p2.png`;
+            const { error: up2Err } = await supabase.storage.from(BUCKET).upload(path2, params.sheetFileP2, {
+                cacheControl: '3600',
+                upsert: false,
+                contentType: params.sheetFileP2.type || 'image/png',
+            });
+            if (up2Err) {
+                await educationalHubService.removeFile(path1);
+                return { sheet: null, error: up2Err as Error };
+            }
+            url2 = supabase.storage.from(BUCKET).getPublicUrl(path2).data.publicUrl;
+        }
+
+        const { data, error } = await supabase
+            .from('game_character_sheets' as never)
+            .insert({
+                id,
+                title: params.title.trim() || params.sheetFile.name.replace(/\.[^.]+$/, ''),
+                sheet_url: url1,
+                sheet_url_p2: url2,
+                storage_path: path1,
+                storage_path_p2: path2,
+                frame_width: params.frameWidth,
+                frame_height: params.frameHeight,
+                frame_count: params.frameCount,
+                notes: params.notes?.trim() || null,
+            } as never)
+            .select()
+            .single();
+
+        if (error) {
+            await educationalHubService.removeFile(path1);
+            if (path2) await educationalHubService.removeFile(path2);
+            return { sheet: null, error: error as Error };
+        }
+        return { sheet: data as unknown as CharacterSheet, error: null };
+    },
+
+    remove: async (sheet: CharacterSheet): Promise<{ error: Error | null }> => {
+        await educationalHubService.removeFile(sheet.storage_path);
+        if (sheet.storage_path_p2) await educationalHubService.removeFile(sheet.storage_path_p2);
+        const { error } = await supabase.from('game_character_sheets' as never).delete().eq('id', sheet.id);
+        return { error: (error as Error | null) ?? null };
+    },
+};
+
+/** ค่า denormalize ลง educational_hub_items เมื่อเลือกตัวละคร */
+export function characterAssignmentFromSheet(sheet: CharacterSheet | null | undefined) {
+    if (!sheet) {
+        return {
+            character_sheet_id: null,
+            character_sheet_url: null,
+            character_sheet_url_p2: null,
+            character_frame_w: null,
+            character_frame_h: null,
+            character_frame_count: null,
+        };
+    }
+    return {
+        character_sheet_id: sheet.id,
+        character_sheet_url: sheet.sheet_url,
+        character_sheet_url_p2: sheet.sheet_url_p2,
+        character_frame_w: sheet.frame_width,
+        character_frame_h: sheet.frame_height,
+        character_frame_count: sheet.frame_count,
+    };
+}
 
 // ─── รายละเอียดเกม (game_docs) ────────────────────────────────────────────────
 // สเปกเดียวต่อเกม (1:1 กับ educational_hub_items, แก้ทับได้) — RLS เห็นเฉพาะเจ้าของ+admin

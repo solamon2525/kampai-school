@@ -607,9 +607,18 @@ function loadBunnyImage(src) {
 }
 
 function loadBunnySprites() {
+  const c = KAMPAI.character;
+  const base = BUNNY_ASSET_BASE;
+  const wUrl = (c && c.sheetUrl) ? c.sheetUrl : base + '/bunny-white-sheet.png';
+  const bUrl = (c && c.sheetUrlP2) ? c.sheetUrlP2 : base + '/bunny-blue-sheet.png';
+  if (c && c.fw && c.fh) {
+    BUNNY_SPRITE.fw = c.fw;
+    BUNNY_SPRITE.fh = c.fh;
+    if (c.frames) BUNNY_SPRITE.frames = c.frames;
+  }
   return Promise.all([
-    loadBunnyImage(BUNNY_ASSET_BASE + '/bunny-white-sheet.png'),
-    loadBunnyImage(BUNNY_ASSET_BASE + '/bunny-blue-sheet.png'),
+    loadBunnyImage(wUrl),
+    loadBunnyImage(bUrl),
   ]).then(([white, blue]) => {
     BUNNY_SPRITE.white = white;
     BUNNY_SPRITE.blue = blue;

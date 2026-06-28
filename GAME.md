@@ -138,6 +138,8 @@
 | `KAMPAI.sound.correct()` / `wrong()` / `timeUp()` / `gameOver()` | เสียงเอฟเฟกต์ตามเหตุการณ์ |
 | `KAMPAI.sound.speak(text, lang)` | TTS อ่านออกเสียง (เกมภาษา เช่น `speak('apple','en-US')`) · `stopSpeak()` หยุด |
 | `KAMPAI.sound.fxFlash(good)` | แฟลชจอเขียว(ถูก)/แดง(ผิด) · `unlock()` ปลดล็อก audio ตอน gesture แรก |
+| `KAMPAI.character` | `{sheetUrl, sheetUrlP2, fw, fh, frames}` จากหลังบ้าน — `null` = ใช้ sprite bundled ใน git |
+| `KAMPAI.loadCharacterSheets()` | Promise โหลด Image P1 (+ P2 ถ้ามี) จาก `KAMPAI.character` — เกม opt-in เรียกก่อนเริ่ม |
 | `KAMPAI.online.available` | `true` ถ้าเล่นใน embed (standalone เล่นออนไลน์ไม่ได้) |
 | `KAMPAI.online.makeCode()` | สุ่มรหัสห้อง 4 หลัก |
 | `KAMPAI.online.join(room,{onJoined,onPresence,onEvent})` | เข้าห้อง realtime — wrapper เปิด Supabase channel ให้ (เกมไม่ต้องมี anon key). meta presence ดึงจาก `KAMPAI.student` อัตโนมัติ |
@@ -259,9 +261,13 @@ if (others.length) rival.dist = others.sort((a,b)=>b.v-a.v)[0].v;   // v = ต�
 ```js
 { type:'init', studentCode, student:{id,displayName,photoUrl,classLabel},
   stats:{playsCount,personalBest,totalXp,level},
-  leaderboard:[{rank,studentId,displayName,photoUrl,classLabel,personalBest,isMe}] }
+  leaderboard:[{rank,studentId,displayName,photoUrl,classLabel,personalBest,isMe}],
+  audio:{ bgm, bgmUrl },          // เพลงจากหลังบ้าน (optional)
+  character:{ sheetUrl, sheetUrlP2, fw, fh, frames } | null  // sprite จากคลังตัวละคร (optional)
+}
 ```
-> เกมเก่าที่อ่านแค่ `studentCode` ยังทำงานได้ (additive). เทมเพลต: `_template-full.html` (vanilla),
+> เกมเก่าที่อ่านแค่ `studentCode` ยังทำงานได้ (additive). ถ้า `character === null` → ใช้ sprite bundled ใน git ตามเดิม.
+> เกมที่ opt-in: อ่าน `KAMPAI.character` ใน `onReady` หรือเรียก `KAMPAI.loadCharacterSheets()`.
 > `_template-react.html` (React) — ทั้งคู่ใช้ SDK + โชว์ leaderboard ในเกม + D-pad มือถือ.
 
 ---

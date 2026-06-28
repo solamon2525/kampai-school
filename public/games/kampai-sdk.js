@@ -39,6 +39,7 @@
     leaderboard: [],  // [{rank, studentId, displayName, photoUrl, classLabel, personalBest, isMe}]
     classmates: [],   // [{id, studentCode, displayName, photoUrl, classNumber}]
     gameData: null,   // per-game data จาก wrapper (เช่น multiply-race.mastery)
+    character: null,  // sprite sheet จากคลังหลังบ้าน {sheetUrl, sheetUrlP2, fw, fh, frames}
     input: { up: false, down: false, left: false, right: false, a: false, b: false },
     _slug: null,
     _startTs: Date.now(),
@@ -112,6 +113,25 @@
   };
   K.exit = K.goHome;
 
+  /** โหลด sprite sheet จาก K.character (คลังหลังบ้าน) — คืน { primary, secondary } */
+  K.loadCharacterSheets = function () {
+    var c = K.character;
+    if (!c || !c.sheetUrl) return Promise.resolve({ primary: null, secondary: null });
+    function loadImg(src) {
+      return new Promise(function (resolve, reject) {
+        var img = new Image();
+        img.onload = function () { resolve(img); };
+        img.onerror = reject;
+        img.src = src;
+      });
+    }
+    return Promise.all([
+      loadImg(c.sheetUrl),
+      c.sheetUrlP2 ? loadImg(c.sheetUrlP2) : Promise.resolve(null),
+    ]).then(function (r) { return { primary: r[0], secondary: r[1] }; })
+      .catch(function () { return { primary: null, secondary: null }; });
+  };
+
   // ─── ผลรอบเล่น (XP/เลเวล/เหรียญ) จาก wrapper → ฝังลงจอจบของเกม (จอเดียว ไม่มีการ์ดลอยซ้ำ) ──
   K.lastResult = null;
   K._onResult = null;
@@ -181,6 +201,7 @@
       if (Array.isArray(d.leaderboard)) K.leaderboard = d.leaderboard;
       if (Array.isArray(d.classmates)) K.classmates = d.classmates;
       if (d.gameData && typeof d.gameData === 'object') K.gameData = d.gameData;
+      if (d.character && typeof d.character === 'object' && d.character.sheetUrl) K.character = d.character;
       if (d.audio && K.sound) {   // เพลงรายเกมจากหลังบ้าน: mp3 อัปโหลด (ก่อน) > synth preset
         if (d.audio.bgmUrl) { _bgmFromInit = true; K.sound.setBgmUrl(d.audio.bgmUrl); }
         else if (d.audio.bgm) { _bgmFromInit = true; K.sound.setBgm(d.audio.bgm); }

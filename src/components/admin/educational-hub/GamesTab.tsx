@@ -52,8 +52,11 @@ import { supabase } from '@/integrations/supabase/client';
 import {
     educationalHubService,
     bgmTracksService,
+    characterSheetsService,
+    characterAssignmentFromSheet,
     type EduHubItem,
     type BgmTrack,
+    type CharacterSheet,
 } from '@/services/educational-hub.service';
 import { gamePlayService } from '@/services/game-play.service';
 import { GameDocsDialog } from './GameDocsDialog';
@@ -438,6 +441,7 @@ export const GamesTab = () => {
         | { mode: 'prompt' }
         | { mode: 'coverage' }
         | { mode: 'bgm' }
+        | { mode: 'characters' }
         | null
     >(null);
     // ตัวชี้วัดที่เลือกจาก IndicatorPromptDialog → auto-map เข้าเกมใหม่หลังอัปโหลด
@@ -590,6 +594,9 @@ export const GamesTab = () => {
                     </Button>
                     <Button variant="outline" onClick={() => setDialog({ mode: 'bgm' })}>
                         🎵 คลังเพลง
+                    </Button>
+                    <Button variant="outline" onClick={() => setDialog({ mode: 'characters' })}>
+                        🐰 คลังตัวละคร
                     </Button>
                     <Button onClick={() => setDialog({ mode: 'create' })} disabled={!gamesCategoryId}>
                         <Plus className="h-4 w-4 mr-1" /> อัพโหลดเกมใหม่
@@ -786,7 +793,7 @@ export const GamesTab = () => {
 
             <Dialog open={!!dialog} onOpenChange={(open) => !open && setDialog(null)}>
                 <DialogContent className={cn(
-                    (dialog?.mode === 'settings' || dialog?.mode === 'bgm') ? 'max-w-md' : 'max-w-2xl',
+                    (dialog?.mode === 'settings' || dialog?.mode === 'bgm' || dialog?.mode === 'characters') ? 'max-w-md' : 'max-w-2xl',
                     'overflow-y-auto max-h-[90vh]',
                 )}>
                     {dialog?.mode === 'create' && gamesCategoryId && (
@@ -844,6 +851,9 @@ export const GamesTab = () => {
                     {dialog?.mode === 'bgm' && (
                         <BgmLibraryDialog onClose={() => setDialog(null)} />
                     )}
+                    {dialog?.mode === 'characters' && (
+                        <CharacterLibraryDialog onClose={() => setDialog(null)} />
+                    )}
                 </DialogContent>
             </Dialog>
 
@@ -890,6 +900,9 @@ const GameSettingsDialog = ({
     const [bgmSel, setBgmSel] = useState(
         item.bgm_url ? `track:${item.bgm_url}` : item.bgm_preset ? `preset:${item.bgm_preset}` : '__default__',
     );
+    const [charSel, setCharSel] = useState(
+        item.character_sheet_id ? `char:${item.character_sheet_id}` : '__default__',
+    );
     const [previewVideoUrl, setPreviewVideoUrl] = useState(item.preview_video_url ?? '');
     const [saving, setSaving] = useState(false);
 
@@ -901,6 +914,14 @@ const GameSettingsDialog = ({
         },
     });
 
+    const { data: characters } = useQuery({
+        queryKey: ['character-sheets'],
+        queryFn: async () => {
+            const { data } = await characterSheetsService.list();
+            return (data ?? []) as CharacterSheet[];
+        },
+    });
+
     const handleSave = async () => {
         setSaving(true);
         try {
@@ -909,12 +930,16 @@ const GameSettingsDialog = ({
                 : bgmSel.startsWith('preset:')
                     ? { bgm_url: null, bgm_preset: bgmSel.slice(7) }
                     : { bgm_url: null, bgm_preset: null };
+            const charId = charSel.startsWith('char:') ? charSel.slice(5) : null;
+            const sheet = charId ? (characters ?? []).find((c) => c.id === charId) : null;
+            const charFields = characterAssignmentFromSheet(sheet);
             const { error } = await educationalHubService.updateItem(item.id, {
                 game_slug: gameSlug.trim() || null,
                 tracked_game: tracked,
                 is_published: published,
                 preview_video_url: previewVideoUrl.trim() || null,
                 ...bgm,
+                ...charFields,
             });
             if (error) throw error;
             onSaved();
@@ -987,6 +1012,24 @@ const GameSettingsDialog = ({
                     </Select>
                     <p className="text-xs text-muted-foreground">
                         เพลงอัปโหลดมาก่อนเพลงสังเคราะห์ · จัดการคลังเพลงที่ปุ่ม "🎵 คลังเพลง" · ผู้เล่นยังกดปิด 🎵 เองได้
+                    </p>
+                </div>
+
+                <div className="space-y-1.5">
+                    <label className="text-sm font-medium">🐰 ตัวละคร (sprite sheet)</label>
+                    <Select value={charSel} onValueChange={setCharSel}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__default__">ค่าเริ่มต้นของเกม (bundled)</SelectItem>
+                            {(characters ?? []).map((c) => (
+                                <SelectItem key={c.id} value={`char:${c.id}`}>
+                                    🐰 {c.title} ({c.frame_width}×{c.frame_height} · {c.frame_count} เฟรม)
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">
+                        เกมที่รองรับ KAMPAI.character จะโหลด sheet จากคลัง · จัดการที่ปุ่ม "🐰 คลังตัวละคร"
                     </p>
                 </div>
 
@@ -1086,6 +1129,125 @@ const BgmLibraryDialog = ({ onClose }: { onClose: () => void }) => {
                                     <audio controls preload="none" src={t.url} className="mt-1 h-8 w-full" />
                                 </div>
                                 <Button variant="ghost" size="sm" className="text-destructive shrink-0" onClick={() => handleDelete(t)}>
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </div>
+
+            <DialogFooter>
+                <Button variant="ghost" onClick={onClose}>ปิด</Button>
+            </DialogFooter>
+        </>
+    );
+};
+
+// ─── คลัง sprite sheet ตัวละคร ─────────────────────────────────────────────
+const MAX_SHEET_SIZE = 10 * 1024 * 1024;
+
+const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
+    const { toast } = useToast();
+    const queryClient = useQueryClient();
+    const [title, setTitle] = useState('');
+    const [file, setFile] = useState<File | null>(null);
+    const [fileP2, setFileP2] = useState<File | null>(null);
+    const [fw, setFw] = useState('128');
+    const [fh, setFh] = useState('128');
+    const [fc, setFc] = useState('12');
+    const [busy, setBusy] = useState(false);
+
+    const { data: sheets, isLoading } = useQuery({
+        queryKey: ['character-sheets'],
+        queryFn: async () => {
+            const { data, error } = await characterSheetsService.list();
+            if (error) throw error;
+            return (data ?? []) as CharacterSheet[];
+        },
+    });
+
+    const handleUpload = async () => {
+        if (!file) { toast({ title: 'เลือกไฟล์ sprite sheet ก่อน', variant: 'destructive' }); return; }
+        if (!file.type.startsWith('image/')) { toast({ title: 'รองรับเฉพาะไฟล์รูป (PNG)', variant: 'destructive' }); return; }
+        if (file.size > MAX_SHEET_SIZE) { toast({ title: 'ไฟล์ใหญ่เกิน 10 MB', variant: 'destructive' }); return; }
+        const frameWidth = parseInt(fw, 10) || 128;
+        const frameHeight = parseInt(fh, 10) || 128;
+        const frameCount = parseInt(fc, 10) || 12;
+        setBusy(true);
+        try {
+            const { error } = await characterSheetsService.upload({
+                title: title || file.name.replace(/\.[^.]+$/, ''),
+                sheetFile: file,
+                sheetFileP2: fileP2,
+                frameWidth,
+                frameHeight,
+                frameCount,
+            });
+            if (error) throw error;
+            setTitle(''); setFile(null); setFileP2(null);
+            queryClient.invalidateQueries({ queryKey: ['character-sheets'] });
+            toast({ title: 'อัปโหลดตัวละครสำเร็จ' });
+        } catch (err) {
+            toast({ title: 'อัปโหลดไม่สำเร็จ', description: err instanceof Error ? err.message : 'เกิดข้อผิดพลาด', variant: 'destructive' });
+        } finally { setBusy(false); }
+    };
+
+    const handleDelete = async (s: CharacterSheet) => {
+        try {
+            const { error } = await characterSheetsService.remove(s);
+            if (error) throw error;
+            queryClient.invalidateQueries({ queryKey: ['character-sheets'] });
+            toast({ title: 'ลบตัวละครแล้ว', description: s.title });
+        } catch (err) {
+            toast({ title: 'ลบไม่สำเร็จ', description: err instanceof Error ? err.message : 'เกิดข้อผิดพลาด', variant: 'destructive' });
+        }
+    };
+
+    return (
+        <>
+            <DialogHeader>
+                <DialogTitle>🐰 คลังตัวละคร</DialogTitle>
+                <DialogDescription>
+                    อัปโหลด sprite sheet PNG เข้าคลังกลาง แล้วเลือกใช้รายเกมได้ที่ &quot;ตั้งค่า&quot;
+                </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+                <div className="space-y-2 rounded-md border border-border p-3">
+                    <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="ชื่อตัวละคร" />
+                    <div className="grid grid-cols-3 gap-2">
+                        <Input value={fw} onChange={(e) => setFw(e.target.value)} placeholder="ความกว้างเฟรม" />
+                        <Input value={fh} onChange={(e) => setFh(e.target.value)} placeholder="ความสูงเฟรม" />
+                        <Input value={fc} onChange={(e) => setFc(e.target.value)} placeholder="จำนวนเฟรม" />
+                    </div>
+                    <div className="space-y-1">
+                        <label className="text-xs text-muted-foreground">Sheet ผู้เล่น 1 (บังคับ)</label>
+                        <Input type="file" accept="image/png,image/webp,image/gif" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+                    </div>
+                    <div className="space-y-1">
+                        <label className="text-xs text-muted-foreground">Sheet ผู้เล่น 2 — co-op (ไม่บังคับ)</label>
+                        <Input type="file" accept="image/png,image/webp,image/gif" onChange={(e) => setFileP2(e.target.files?.[0] ?? null)} />
+                    </div>
+                    <Button onClick={handleUpload} disabled={busy || !file} className="w-full">
+                        {busy ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> กำลังอัปโหลด...</> : <><Plus className="h-4 w-4 mr-1" /> อัปโหลดตัวละคร</>}
+                    </Button>
+                </div>
+
+                {isLoading ? (
+                    <p className="text-center text-sm text-muted-foreground py-4">กำลังโหลด...</p>
+                ) : (sheets ?? []).length === 0 ? (
+                    <p className="text-center text-sm text-muted-foreground py-4">ยังไม่มีตัวละครในคลัง</p>
+                ) : (
+                    <ul className="space-y-2 max-h-[40vh] overflow-y-auto">
+                        {sheets!.map((s) => (
+                            <li key={s.id} className="flex items-center gap-2 rounded-md border border-border p-2">
+                                <img src={s.sheet_url} alt="" className="h-12 w-12 object-contain image-rendering-pixelated bg-muted rounded shrink-0" />
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium truncate">{s.title}</p>
+                                    <p className="text-xs text-muted-foreground">{s.frame_width}×{s.frame_height} · {s.frame_count} เฟรม{s.sheet_url_p2 ? ' · 2P' : ''}</p>
+                                </div>
+                                <Button variant="ghost" size="sm" className="text-destructive shrink-0" onClick={() => handleDelete(s)}>
                                     <Trash2 className="h-4 w-4" />
                                 </Button>
                             </li>

@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.120.0 (Math Tank Raid + คืน Tank Commander)',
+        version: 'v1.121.0 (คลัง Sprite Sheet ตัวละคร)',
         date: 'ล่าสุด',
+        badge: 'bg-violet-600',
+        items: [
+            '**คลังตัวละคร** (`game_character_sheets`) — admin อัปโหลด PNG sprite sheet (P1 + P2 co-op) · เลือกใช้รายเกมใน GameSettings',
+            'PlayGame ส่ง `init.character` → `KAMPAI.character` + `loadCharacterSheets()` · pilot: `thai-sara-run` fallback bundled git',
+            'Migration 263/264 · `characterSheetsService` · ปุ่ม 🐰 คลังตัวละคร ใน GamesTab',
+        ],
+    },
+    {
+        version: 'v1.120.0 (Math Tank Raid + คืน Tank Commander)',
+        date: '',
         badge: 'bg-blue-600',
         items: [
             'เกม **Math Tank Raid** (`math-tank-raid`) — รถถังคณิต ป.3-4 คู่·หาร·เศษส่วน (เกมใหม่ แยกต่างหาก)',
