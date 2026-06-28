@@ -29,7 +29,7 @@ let gameState = {
     targetCategory: '',   // ชนิดสัตว์เป้าหมายของด่านนี้ (เช่น window.ANIMAL_TYPES.MAMMAL)
     hearts: 5,            // หัวใจผู้เล่นสูงสุด 5 ดวง
     invincible: 0,        // เวลาเป็นอมตะที่เหลือหลังได้รับบาดเจ็บ (วินาที)
-    bullets: [],          // เก็บ mesh และเวกเตอร์ความเร็วของกระสุนที่ยิงออกไป
+    traps: [],            // เก็บข้อมูลกับดักที่วางบนแผนที่
     keys: { w: false, a: false, s: false, d: false, arrowup: false, arrowleft: false, arrowdown: false, arrowright: false, q: false, e: false },
     // ── โหมดออนไลน์แข่ง ──
     online: false,        // true = กำลังแข่งออนไลน์
@@ -38,10 +38,9 @@ let gameState = {
     sab: { chaseMult: 1, oppCorrect: {} }  // sabotage: ตัวคูณความเร็วไล่ล่า + correct คู่แข่งล่าสุด
 };
 
-// คูลดาวน์การยิงกระสุน (วินาที)
-const BULLET_COOLDOWN = 0.35;
-let lastShotTime = 0;
-const BULLET_SPEED = 25;
+// คูลดาวน์การวางกับดัก (วินาที)
+const TRAP_COOLDOWN = 0.45;
+let lastTrapTime = 0;
 
 // --- DOM Elements ---
 const blocker = document.getElementById('blocker');
@@ -200,7 +199,7 @@ function buildWorld() {
     if (player) scene.remove(player);
     animals.forEach(a => scene.remove(a.group));
     trees.forEach(t => scene.remove(t));
-    gameState.bullets.forEach(b => scene.remove(b.mesh));
+    gameState.traps.forEach(t => scene.remove(t.mesh));
     
     // ล้างสระน้ำ หญ้า และไอเทมพาวเวอร์อัปเก่า
     ponds.forEach(p => scene.remove(p.mesh));
@@ -209,7 +208,7 @@ function buildWorld() {
     
     animals = [];
     trees = [];
-    gameState.bullets = [];
+    gameState.traps = [];
     ponds = [];
     grassPatches = [];
     powerupBoxes = [];
@@ -635,10 +634,10 @@ function setupEventListeners() {
             gameState.keys[key] = true;
         }
         
-        // ยิงกระสุนด้วยปุ่ม Spacebar (คัดเลือกเป้าหมาย)
+        // วางกับดักด้วยปุ่ม Spacebar
         if (key === ' ' || key === 'spacebar') {
             e.preventDefault();
-            attemptShoot();
+            attemptPlaceTrap();
         }
     });
     
@@ -654,9 +653,9 @@ function setupEventListeners() {
     let previousMousePosition = { x: 0, y: 0 };
     
     window.addEventListener('pointerdown', (e) => {
-        // ถ้ายิงขณะเล่นเกมและไม่ได้กด UI
+        // ถ้าวางกับดักขณะเล่นเกมและไม่ได้กด UI
         if (gameState.isPlaying && e.target.tagName !== 'BUTTON' && !e.target.closest('#ui-layer')) {
-            attemptShoot();
+            attemptPlaceTrap();
             isDragging = true;
             previousMousePosition = { x: e.clientX, y: e.clientY };
         }
