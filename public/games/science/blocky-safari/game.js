@@ -437,39 +437,98 @@ function spawnAnimal(data, opts) {
     // ตัวสัตว์กลมน่ารัก (ไม่ใช้บล็อกสี่เหลี่ยมเดี่ยวๆ) - ขยายขนาด 200%
     const body = new THREE.Group();
 
-    const bodyMat = new THREE.MeshLambertMaterial({ color: data.color });
+    // สุ่มโทนสี (HSL Variation) เล็กน้อยเพื่อให้สีตัวสัตว์แต่ละตัวไม่ซ้ำซากจำเจ
+    const baseColor = new THREE.Color(data.color);
+    baseColor.offsetHSL((Math.random() - 0.5) * 0.08, (Math.random() - 0.5) * 0.1, (Math.random() - 0.5) * 0.08);
+    const bodyMat = new THREE.MeshLambertMaterial({ color: baseColor });
+
+    // สุ่มขนาดสเกลส่วนตัวสัตว์เล็กน้อย +/- 15%
+    const bodyScaleX = 0.85 + Math.random() * 0.3;
+    const bodyScaleY = 0.85 + Math.random() * 0.3;
+    const bodyScaleZ = 0.85 + Math.random() * 0.3;
 
     // 1. ลำตัว (ทรงกระบอกแนวนอน)
     const bodyGeo = new THREE.CylinderGeometry(1.6, 1.6, 3.6, 16);
     bodyGeo.rotateX(Math.PI / 2);
     const bodyMesh = new THREE.Mesh(bodyGeo, bodyMat);
     bodyMesh.position.y = 2.0;
+    bodyMesh.scale.set(bodyScaleX, bodyScaleY, bodyScaleZ);
     bodyMesh.castShadow = true;
     bodyMesh.receiveShadow = true;
     body.add(bodyMesh);
 
     // 2. หัว (ทรงกลม)
-    const headGeo = new THREE.SphereGeometry(1.4, 16, 16);
+    const headScale = 0.85 + Math.random() * 0.3;
+    const headGeo = new THREE.SphereGeometry(1.4 * headScale, 16, 16);
     const headMesh = new THREE.Mesh(headGeo, bodyMat);
     headMesh.position.set(0, 3.0, 1.8);
     headMesh.castShadow = true;
     body.add(headMesh);
 
-    // 3. ขา 4 ข้าง
-    const legGeo = new THREE.CylinderGeometry(0.36, 0.36, 1.4, 8);
-    const legMat = new THREE.MeshLambertMaterial({ color: data.color });
-    const legFL = new THREE.Mesh(legGeo, legMat); legFL.position.set(1.0, 0.7, 1.2); legFL.castShadow = true;
-    const legFR = new THREE.Mesh(legGeo, legMat); legFR.position.set(-1.0, 0.7, 1.2); legFR.castShadow = true;
-    const legBL = new THREE.Mesh(legGeo, legMat); legBL.position.set(1.0, 0.7, -1.2); legBL.castShadow = true;
-    const legBR = new THREE.Mesh(legGeo, legMat); legBR.position.set(-1.0, 0.7, -1.2); legBR.castShadow = true;
+    // 3. ขา 4 ข้าง (สุ่มความสูง/หนาของขา)
+    const legH = 1.0 + Math.random() * 0.8;
+    const legThick = 0.3 + Math.random() * 0.15;
+    const legGeo = new THREE.CylinderGeometry(legThick, legThick, legH, 8);
+    const legMat = new THREE.MeshLambertMaterial({ color: baseColor });
+    
+    const legFL = new THREE.Mesh(legGeo, legMat); legFL.position.set(1.0, legH / 2, 1.2); legFL.castShadow = true;
+    const legFR = new THREE.Mesh(legGeo, legMat); legFR.position.set(-1.0, legH / 2, 1.2); legFR.castShadow = true;
+    const legBL = new THREE.Mesh(legGeo, legMat); legBL.position.set(1.0, legH / 2, -1.2); legBL.castShadow = true;
+    const legBR = new THREE.Mesh(legGeo, legMat); legBR.position.set(-1.0, legH / 2, -1.2); legBR.castShadow = true;
     body.add(legFL, legFR, legBL, legBR);
 
     // 4. ตา 2 ข้าง (จุดดำ)
     const eyeGeo = new THREE.SphereGeometry(0.2, 8, 8);
     const eyeMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
-    const eyeL = new THREE.Mesh(eyeGeo, eyeMat); eyeL.position.set(0.5, 3.3, 3.0);
-    const eyeR = new THREE.Mesh(eyeGeo, eyeMat); eyeR.position.set(-0.5, 3.3, 3.0);
+    const eyeL = new THREE.Mesh(eyeGeo, eyeMat); eyeL.position.set(0.5, 3.0 + 0.3 * headScale, 1.8 + 1.2 * headScale);
+    const eyeR = new THREE.Mesh(eyeGeo, eyeMat); eyeR.position.set(-0.5, 3.0 + 0.3 * headScale, 1.8 + 1.2 * headScale);
     body.add(eyeL, eyeR);
+
+    // 5. สุ่มเครื่องประดับ/ลักษณะเฉพาะตัวอื่นๆ เพื่อความหลากหลาย (Accessories)
+    const randFeature = Math.random();
+    if (randFeature < 0.25) {
+        // แฟลตลายจุดบนตัว (Spots) 4 จุด
+        const spotMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+        for (let i = 0; i < 4; i++) {
+            const spotGeo = new THREE.SphereGeometry(0.35, 8, 8);
+            const spot = new THREE.Mesh(spotGeo, spotMat);
+            const side = i % 2 === 0 ? 1.65 : -1.65;
+            spot.position.set(side * bodyScaleX, 2.0 + (Math.random() - 0.5) * 0.8, (Math.random() - 0.5) * 1.5);
+            body.add(spot);
+        }
+    } else if (randFeature < 0.50) {
+        // แผงหนามบนหลัง (Spikes)
+        const spikeMat = new THREE.MeshLambertMaterial({ color: 0xdd6b20 });
+        for (let i = 0; i < 3; i++) {
+            const spikeGeo = new THREE.ConeGeometry(0.3, 0.7, 4);
+            const spike = new THREE.Mesh(spikeGeo, spikeMat);
+            spike.position.set(0, 2.0 + 1.6 * bodyScaleY, -1.0 + i * 0.8);
+            spike.rotation.x = Math.PI / 6;
+            body.add(spike);
+        }
+    } else if (randFeature < 0.75) {
+        // หู/เขา สองข้างบนหัว
+        const hornGeo = new THREE.CylinderGeometry(0.15, 0.15, 0.9, 6);
+        const hornMat = new THREE.MeshLambertMaterial({ color: 0xe2e8f0 });
+        const hornL = new THREE.Mesh(hornGeo, hornMat);
+        hornL.position.set(0.6 * headScale, 3.0 + 1.2 * headScale, 1.8);
+        hornL.rotation.z = -Math.PI / 6;
+        const hornR = new THREE.Mesh(hornGeo, hornMat);
+        hornR.position.set(-0.6 * headScale, 3.0 + 1.2 * headScale, 1.8);
+        hornR.rotation.z = Math.PI / 6;
+        body.add(hornL, hornR);
+    } else if (randFeature < 0.90) {
+        // สวมหมวกจิ๋วสีสันสดใส (Cute tiny explorer hat!)
+        const hatGroup = new THREE.Group();
+        const hatColor = [0xef4444, 0x3b82f6, 0xa855f7, 0xf59e0b][Math.floor(Math.random() * 4)];
+        const hatMat = new THREE.MeshLambertMaterial({ color: hatColor });
+        const hatBase = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 0.9, 0.08, 12), hatMat);
+        const hatTop = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 0.6, 12), hatMat);
+        hatTop.position.y = 0.3;
+        hatGroup.add(hatBase, hatTop);
+        hatGroup.position.set(0, 3.0 + 1.35 * headScale, 1.8);
+        body.add(hatGroup);
+    }
 
     group.add(body);
 
@@ -562,16 +621,23 @@ function spawnAnimal(data, opts) {
                 group.remove(body);
 
                 const model = gltf.scene;
-                // ปรับขนาดและตำแหน่งโมเดลสัตว์
-                model.scale.set(0.12, 0.12, 0.12);
+                // ปรับขนาดและตำแหน่งโมเดลสัตว์ (สุ่มขนาดเพิ่ม/ลด +/- 20% เพื่อความหลากหลายทางสายพันธุ์)
+                const randomScale = 0.12 * (0.8 + Math.random() * 0.4);
+                model.scale.set(randomScale, randomScale, randomScale);
                 model.position.set(0, 0, 0);
 
                 model.traverse(function (node) {
                     if (node.isMesh) {
                         node.castShadow = true;
                         node.receiveShadow = true;
+                        node.material = node.material.clone();
+                        
+                        // ปรับแต่งเฉดสีวัสดุเล็กน้อยเพื่อให้สัตว์แต่ละตัวสีเหลือบไม่เท่ากัน
+                        if (node.material.color) {
+                            node.material.color.offsetHSL((Math.random() - 0.5) * 0.05, (Math.random() - 0.5) * 0.05, (Math.random() - 0.5) * 0.05);
+                        }
+                        
                         if (group.userData.isHiddenReptile) {
-                            node.material = node.material.clone();
                             node.material.transparent = true;
                             node.material.opacity = 0.25;
                         }
@@ -1297,26 +1363,26 @@ function animate() {
         }
 
         // --- การควบคุมและเคลื่อนที่ผู้เล่น ---
-        let moveX = 0;
-        let moveZ = 0;
+        let forwardAmount = 0;
+        let rightAmount = 0;
 
-        if (gameState.keys.w || gameState.keys.arrowup) moveZ = -1;
-        if (gameState.keys.s || gameState.keys.arrowdown) moveZ = 1;
-        if (gameState.keys.a || gameState.keys.arrowleft) moveX = -1;
-        if (gameState.keys.d || gameState.keys.arrowright) moveX = 1;
+        if (gameState.keys.w || gameState.keys.arrowup) forwardAmount = 1;
+        if (gameState.keys.s || gameState.keys.arrowdown) forwardAmount = -1;
+        if (gameState.keys.a || gameState.keys.arrowleft) rightAmount = -1;
+        if (gameState.keys.d || gameState.keys.arrowright) rightAmount = 1;
 
         // รักษาความเร็วการเดินแยงมุมให้เท่ากับแนวปกติ
-        if (moveX !== 0 && moveZ !== 0) {
-            const length = Math.sqrt(moveX * moveX + moveZ * moveZ);
-            moveX /= length;
-            moveZ /= length;
+        if (forwardAmount !== 0 && rightAmount !== 0) {
+            const length = Math.sqrt(forwardAmount * forwardAmount + rightAmount * rightAmount);
+            forwardAmount /= length;
+            rightAmount /= length;
         }
 
-        // หมุนเวกเตอร์การเคลื่อนที่ตามมุมกล้องปัจจุบัน (เพื่อให้เดินตามมุมมองหน้าจอ)
+        // หมุนเวกเตอร์การเคลื่อนที่ตามมุมกล้องปัจจุบัน (ให้ปุ่มทิศทาง WASD สัมพันธ์กับมุมมองหน้าจอ)
         const cos = Math.cos(cameraAngle);
         const sin = Math.sin(cameraAngle);
-        const rotMoveX = moveX * cos - moveZ * sin;
-        const rotMoveZ = moveX * sin + moveZ * cos;
+        const rotMoveX = rightAmount * cos - forwardAmount * sin;
+        const rotMoveZ = -rightAmount * sin - forwardAmount * cos;
 
         // ใช้ความเร็วแบบรองเท้าสปีด (Safari Boots)
         const speedMultiplier = activePowerups.boots > 0 ? 1.7 : 1.0;
@@ -1329,7 +1395,7 @@ function animate() {
         if (newZ > -limit && newZ < limit) player.position.z = newZ;
 
         // อนิเมชันกระโดดดึ๋งๆ ขณะเดิน (หรือใช้ท่าวิ่ง/เดินของ GLTF)
-        if (moveX !== 0 || moveZ !== 0) {
+        if (forwardAmount !== 0 || rightAmount !== 0) {
             if (hasGLTFPlayer) {
                 setPlayerAnimation('walk');
             } else {
@@ -1422,68 +1488,71 @@ function animate() {
             }
         }
 
-        // --- เคลื่อนที่กระสุน + ตรวจชนมอนสเตอร์สัตว์ ---
-        for (let bIdx = gameState.bullets.length - 1; bIdx >= 0; bIdx--) {
-            const bullet = gameState.bullets[bIdx];
-            bullet.mesh.position.x += bullet.vx * dt;
-            bullet.mesh.position.z += bullet.vz * dt;
+        // --- อัปเดตและเช็คการเหยียบกับดัก (Trap Trigger System) ---
+        for (let tIdx = gameState.traps.length - 1; tIdx >= 0; tIdx--) {
+            const trap = gameState.traps[tIdx];
             
-            // อัปเดตการขยายขนาดคลื่นแสงแฟลชและจางหายไปตามเวลา
-            const elapsed = clock.getElapsedTime() - bullet.spawnTime;
-            bullet.mesh.scale.addScalar(dt * 7.5);
-            if (bullet.mesh.material) {
-                bullet.mesh.material.opacity = Math.max(0, 0.85 - elapsed * 2.5);
+            // คอนโทรลเหยื่อล่อลอยหมุนสปิน
+            const baitMesh = trap.mesh.children.find(c => c.geometry && c.geometry.type === "BoxGeometry");
+            if (baitMesh) {
+                baitMesh.rotation.y += dt * 2.5;
+                baitMesh.position.y = 0.25 + Math.sin(time * 5.0) * 0.04;
             }
             
-            // ลบแสงแฟลชหากยิงออกไปเกิน 0.4 วินาที (ระยะถ่ายรูปแฟลช) หรือหลุดขอบแผนที่
-            const isOutOfMap = Math.abs(bullet.mesh.position.x) > MAP_SIZE/2 || Math.abs(bullet.mesh.position.z) > MAP_SIZE/2;
-            if (elapsed > 0.4 || isOutOfMap) {
-                scene.remove(bullet.mesh);
-                gameState.bullets.splice(bIdx, 1);
-                continue;
-            }
-            
-            // ตรวจการชนกับสัตว์ป่า
-            let bulletRemoved = false;
+            let trapTriggered = false;
+            // เช็คว่ามีสัตว์ตัวใดเดินมาใกล้พิกัดกับดักหรือไม่
             for (let aIdx = animals.length - 1; aIdx >= 0; aIdx--) {
                 const animal = animals[aIdx];
-                const bDist = bullet.mesh.position.distanceTo(animal.group.position);
                 
-                if (bDist < 3.2) { // ชนโดนสัตว์!
-                    scene.remove(bullet.mesh);
-                    gameState.bullets.splice(bIdx, 1);
-                    bulletRemoved = true;
+                // สัตว์ที่ยังซ่อนตัวอยู่ในดงหญ้า หรือสัตว์ปีก (บินอยู่บนฟ้า) จะไม่โดนกับดักบนดิน
+                if (animal.group.userData.isHiddenReptile) continue;
+                if (animal.group.userData.data.type === window.ANIMAL_TYPES.BIRD) continue;
+                
+                const dx = trap.x - animal.group.position.x;
+                const dz = trap.z - animal.group.position.z;
+                const dist = Math.sqrt(dx * dx + dz * dz);
+                
+                if (dist < 2.5) { // รัศมีเหยียบกับดัก (อิงตามสัตว์ 200% size)
+                    trapTriggered = true;
                     
-                    // เช็คประเภท
-                    if (animal.data.type === gameState.targetCategory) {
-                        // ยิงถูกเป้า! -> เซฟสัตว์เข้าระบบ
+                    // นำกับดักออกจากซีนและอาร์เรย์
+                    scene.remove(trap.mesh);
+                    gameState.traps.splice(tIdx, 1);
+                    
+                    // ตรวจเช็คความถูกต้องของเป้าหมายประเภทสัตว์
+                    if (animal.group.userData.data.type === gameState.targetCategory) {
+                        // จับถูกประเภท! -> เล่นเสียงความสำเร็จ
                         KAMPAI.sound.correct();
                         scene.remove(animal.group);
                         animals.splice(aIdx, 1);
                         
-                        // บันทึกความคืบหน้าของประเภทที่ยิงได้
-                        if (!gameState.capturedProgress[animal.data.type]) {
-                            gameState.capturedProgress[animal.data.type] = 0;
+                        // บันทึกความคืบหน้าของประเภทสัตว์ที่จับได้
+                        const animalType = animal.group.userData.data.type;
+                        if (!gameState.capturedProgress[animalType]) {
+                            gameState.capturedProgress[animalType] = 0;
                         }
-                        gameState.capturedProgress[animal.data.type]++;
-
-                        // บันทึกประวัติเพื่อทำสมุดการ์ดคลังความรู้ (Bio-Cards) ตอนจบด่าน
-                        if (!capturedHistory.some(a => a.id === animal.data.id)) {
-                            capturedHistory.push(animal.data);
+                        gameState.capturedProgress[animalType]++;
+                        
+                        // บันทึกประวัติ Encyclopedia
+                        if (!capturedHistory.some(a => a.id === animal.group.userData.data.id)) {
+                            capturedHistory.push(animal.group.userData.data);
                         }
                         
                         gameState.score++;
                         gameState.onlineCorrect++;
                         if (gameState.online && match) match.report(gameState.onlineCorrect, { correct: gameState.onlineCorrect });
                         
-                        // สุ่มเปลี่ยนเป้าหมายถัดไปทันที
+                        // สลับเป้าหมายถัดไปทันที
                         switchTargetCategory();
                     } else {
-                        // ยิงผิดตัว! -> ลบหัวใจ + มอนสเตอร์สะท้อนกลับ
+                        // จับผิดประเภท! -> หักหัวใจ/พลังชีวิต
                         takeDamage();
-                        animal.group.userData.damageFlash = 0.5; // กะพริบแดง 0.5 วินาที
+                        animal.group.userData.damageFlash = 0.5; // กะพริบตัวสีแดง
                         
-                        // เด้งสัตว์กระเด็นหนีออกจากตัวผู้เล่น
+                        // สัตว์ป่าตัวนี้โกรธและไล่ล่าติดตามผู้เล่นทันที
+                        animal.group.userData.isAggro = true;
+                        
+                        // เด้งสัตว์ป่ากระเด็นออกจากผู้เล่นเล็กน้อยเพื่อรีเซ็ตขอบเขตชน
                         const angleToPlayer = Math.atan2(animal.group.position.x - player.position.x, animal.group.position.z - player.position.z);
                         animal.group.position.x += Math.sin(angleToPlayer) * 4;
                         animal.group.position.z += Math.cos(angleToPlayer) * 4;
@@ -1491,7 +1560,7 @@ function animate() {
                     break;
                 }
             }
-            if (bulletRemoved) continue;
+            if (trapTriggered) continue;
         }
 
         // --- เคลื่อนไหวสัตว์ป่า (พฤติกรรมเดินช้าไล่ตามล่าเมื่อเข้าใกล้ หรือเดินเล่นเมื่ออยู่ไกล) ---
