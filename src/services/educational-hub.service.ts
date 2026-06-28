@@ -573,9 +573,11 @@ export const characterSheetsService = {
         frameHeight: number;
         frameCount: number;
         animationPreset?: string;
+        animationConfig?: CharacterAnimationConfig;
         notes?: string;
     }): Promise<{ sheet: CharacterSheet | null; error: Error | null }> => {
-        const animationConfig = getCharacterAnimPreset(params.animationPreset ?? 'grid-3x6-18');
+        const animationConfig = params.animationConfig
+            ?? getCharacterAnimPreset(params.animationPreset ?? 'grid-3x6-18');
         const id = crypto.randomUUID();
         const base = `characters/${id}`;
         const path1 = `${base}/sheet.png`;

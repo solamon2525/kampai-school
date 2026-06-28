@@ -16,7 +16,7 @@
  * และ Storage RLS (migration 063) บังคับ admin-only เพิ่มอีกชั้น
  */
 
-import { useMemo, useState, useEffect, useRef } from 'react';
+import { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthProvider';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -59,6 +59,7 @@ import {
     type CharacterSheet,
 } from '@/services/educational-hub.service';
 import { CharacterSheetPreview } from './CharacterSheetPreview';
+import { CharacterPoseMapper } from './CharacterPoseMapper';
 import {
     CHARACTER_ANIM_PRESET_OPTIONS,
     isCharacterSupportedGame,
@@ -66,6 +67,7 @@ import {
     suggestFrameSizeFromImage,
     validateAnimationConfig,
     getCharacterAnimPreset,
+    type CharacterAnimationConfig,
 } from '@/lib/character-animation';
 import {
     processSpriteSheetFile,
@@ -1185,6 +1187,7 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
     const [fh, setFh] = useState('128');
     const [fc, setFc] = useState('12');
     const [preset, setPreset] = useState('grid-3x6-18');
+    const [animConfig, setAnimConfig] = useState<CharacterAnimationConfig>(() => getCharacterAnimPreset('grid-3x6-18'));
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [removeBg, setRemoveBg] = useState(true);
     const [bgTolerance, setBgTolerance] = useState(36);
@@ -1194,6 +1197,10 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
     const bgOpts = { tolerance: bgTolerance, mode: 'auto' as const };
 
     const presetMeta = CHARACTER_ANIM_PRESET_OPTIONS.find((p) => p.key === preset) ?? CHARACTER_ANIM_PRESET_OPTIONS[0];
+
+    const handleAnimConfigChange = useCallback((config: CharacterAnimationConfig) => {
+        setAnimConfig(config);
+    }, []);
 
     useEffect(() => {
         setFc(String(presetMeta.frameCount));
@@ -1267,7 +1274,6 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
         const frameWidth = parseInt(fw, 10) || 128;
         const frameHeight = parseInt(fh, 10) || 128;
         const frameCount = parseInt(fc, 10) || 12;
-        const animConfig = getCharacterAnimPreset(preset);
         const animErr = validateAnimationConfig(animConfig, frameCount);
         if (animErr) {
             toast({ title: 'แบบเฟรมไม่ตรงจำนวน', description: animErr, variant: 'destructive' });
@@ -1284,7 +1290,7 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
                 frameWidth,
                 frameHeight,
                 frameCount,
-                animationPreset: preset,
+                animationConfig: animConfig,
             });
             if (error) throw error;
             setTitle(''); setFile(null); setFileP2(null);
@@ -1322,18 +1328,12 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
             <div className="space-y-4">
                 <div className="space-y-2 rounded-md border border-border p-3">
                     <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="ชื่อตัวละคร" />
-                    <div className="space-y-1">
-                        <label className="text-xs font-medium text-muted-foreground">แบบจัดเรียงเฟรม</label>
-                        <Select value={preset} onValueChange={setPreset}>
-                            <SelectTrigger><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                                {CHARACTER_ANIM_PRESET_OPTIONS.map((p) => (
-                                    <SelectItem key={p.key} value={p.key}>{p.label}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        <p className="text-[11px] text-muted-foreground">{presetMeta.frameHint}</p>
-                    </div>
+                    <CharacterPoseMapper
+                        preset={preset}
+                        frameCount={parseInt(fc, 10) || presetMeta.frameCount}
+                        onPresetChange={setPreset}
+                        onConfigChange={handleAnimConfigChange}
+                    />
                     <div className="grid grid-cols-3 gap-2">
                         <Input value={fw} onChange={(e) => setFw(e.target.value)} placeholder="ความกว้างเฟรม" />
                         <Input value={fh} onChange={(e) => setFh(e.target.value)} placeholder="ความสูงเฟรม" />
@@ -1383,7 +1383,7 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
                                             frameWidth={parseInt(fw, 10) || 128}
                                             frameHeight={parseInt(fh, 10) || 128}
                                             frameCount={parseInt(fc, 10) || 12}
-                                            animationConfig={getCharacterAnimPreset(preset)}
+                                            animationConfig={animConfig}
                                             mode={mode}
                                             size={56}
                                             className="rounded border border-border"

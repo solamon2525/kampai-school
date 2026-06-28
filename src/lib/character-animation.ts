@@ -21,6 +21,12 @@ export type CharacterAnimationConfig = {
     walkFps?: number;
     runFps?: number;
     jumpFps?: number;
+    /** ทิศทางที่เฟรมวิ่งหันใน sheet: right = หันขวา (flip เมื่อเดินซ้าย) */
+    runFaces?: 'left' | 'right';
+    /** ตำแหน่งเท้าในเฟรม 0–1 (จากบนลงล่าง) — default 0.94 */
+    anchorFoot?: number;
+    /** ขยับลงเพิ่ม (px) ให้เท้าแตะพื้น */
+    feetPad?: number;
 };
 
 export const CHARACTER_ANIM_PRESET_PLATFORMER_12: CharacterAnimationConfig = {
@@ -51,6 +57,9 @@ export const CHARACTER_ANIM_PRESET_GRID_3X6_18: CharacterAnimationConfig = {
     walkFps: 4,
     runFps: 12,
     jumpFps: 10,
+    runFaces: 'left',
+    anchorFoot: 0.94,
+    feetPad: 14,
 };
 
 export const CHARACTER_ANIM_PRESETS: Record<string, CharacterAnimationConfig> = {
@@ -126,6 +135,9 @@ export function parseCharacterAnimationConfig(raw: unknown): CharacterAnimationC
         jump,
         hurt: typeof o.hurt === 'number' ? o.hurt : base.hurt,
         happy: typeof o.happy === 'number' ? o.happy : base.happy,
+        runFaces: o.runFaces === 'left' || o.runFaces === 'right' ? o.runFaces : base.runFaces,
+        anchorFoot: typeof o.anchorFoot === 'number' ? o.anchorFoot : base.anchorFoot,
+        feetPad: typeof o.feetPad === 'number' ? o.feetPad : base.feetPad,
     };
 }
 
@@ -192,4 +204,86 @@ export function characterFrameRect(
         return { sx: col * fw, sy: row * fh };
     }
     return { sx: frameIndex * fw, sy: 0 };
+}
+
+/** flip sprite เมื่อเดินสวนทิศกับ runFaces ใน sheet */
+export function shouldFlipCharacterFace(face: number, anim: CharacterAnimationConfig): boolean {
+    const rf = anim.runFaces ?? 'right';
+    return rf === 'right' ? face < 0 : face > 0;
+}
+
+/** แปลง "0,1,2" → [0,1,2] */
+export function parseFrameIndexList(raw: string): number[] {
+    return raw
+        .split(/[,;\s]+/)
+        .map((s) => parseInt(s.trim(), 10))
+        .filter((n) => !Number.isNaN(n));
+}
+
+export function frameIndexListToString(arr: number[]): string {
+    return arr.join(', ');
+}
+
+export type CharacterPoseFields = {
+    preset: string;
+    run: string;
+    jump: string;
+    idle: string;
+    walk: string;
+    hurt: string;
+    happy: string;
+    runFaces: 'left' | 'right';
+    anchorFoot: number;
+    feetPad: number;
+};
+
+export function poseFieldsFromConfig(config: CharacterAnimationConfig): CharacterPoseFields {
+    const jumpStr = Array.isArray(config.jump)
+        ? frameIndexListToString(config.jump)
+        : `${config.jump.up},${config.jump.peak},${config.jump.fall}`;
+    return {
+        preset: config.preset,
+        run: frameIndexListToString(config.run),
+        jump: jumpStr,
+        idle: frameIndexListToString(config.idle),
+        walk: frameIndexListToString(config.walk),
+        hurt: String(config.hurt),
+        happy: String(config.happy),
+        runFaces: config.runFaces ?? 'right',
+        anchorFoot: config.anchorFoot ?? 0.94,
+        feetPad: config.feetPad ?? 0,
+    };
+}
+
+export function buildAnimationConfigFromFields(
+    fields: CharacterPoseFields,
+    frameCount: number,
+): { config: CharacterAnimationConfig; error: string | null } {
+    const base = getCharacterAnimPreset(fields.preset);
+    const jumpParts = parseFrameIndexList(fields.jump);
+    const jump: CharacterAnimationConfig['jump'] = jumpParts.length >= 3 && jumpParts.length <= 4
+        ? jumpParts.length === 3
+            ? { up: jumpParts[0], peak: jumpParts[1], fall: jumpParts[2] }
+            : jumpParts
+        : jumpParts.length > 0
+            ? jumpParts
+            : base.jump;
+
+    const config: CharacterAnimationConfig = {
+        ...base,
+        preset: fields.preset,
+        idle: parseFrameIndexList(fields.idle).length ? parseFrameIndexList(fields.idle) : base.idle,
+        walk: parseFrameIndexList(fields.walk).length ? parseFrameIndexList(fields.walk) : base.walk,
+        run: parseFrameIndexList(fields.run).length ? parseFrameIndexList(fields.run) : base.run,
+        jump,
+        hurt: parseInt(fields.hurt, 10),
+        happy: parseInt(fields.happy, 10),
+        runFaces: fields.runFaces,
+        anchorFoot: fields.anchorFoot,
+        feetPad: fields.feetPad,
+    };
+    if (Number.isNaN(config.hurt)) config.hurt = base.hurt;
+    if (Number.isNaN(config.happy)) config.happy = base.happy;
+    const err = validateAnimationConfig(config, frameCount);
+    return { config, error: err };
 }

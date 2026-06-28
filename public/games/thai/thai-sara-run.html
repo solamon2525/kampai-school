@@ -129,6 +129,7 @@ const BUNNY_DEFAULT_ANIM = {
   preset: 'grid-3x6-18', layout: 'grid', cols: 6, rows: 3,
   idle: [12, 13, 14, 15, 16, 17], walk: [12, 13, 14, 15, 16, 17],
   run: [0, 1, 2, 3, 4, 5], jump: [6, 7, 8, 9, 10, 11], hurt: 12, happy: 12,
+  runFaces: 'left', anchorFoot: 0.94, feetPad: 14,
 };
 const BUNNY_DRAW_W = 96;
 const BUNNY_DRAW_H = 128;
@@ -675,20 +676,25 @@ function drawWorldBunny(p, variant) {
     const f = getBunnySpriteFrame(p);
     const dw = BUNNY_DRAW_W;
     const dh = BUNNY_DRAW_H;
-    const dx = x + p.w - dw;
-    const dy = y + p.h - dh;
-    const cfg = { fw: BUNNY_SPRITE.fw, fh: BUNNY_SPRITE.fh, anim: getBunnyAnim() };
+    const anim = getBunnyAnim();
+    const footRatio = anim.anchorFoot != null ? anim.anchorFoot : 0.94;
+    const feetPad = anim.feetPad != null ? anim.feetPad : 14;
+    const cx = x + p.w / 2;
+    const dy = y + p.h - dh * footRatio + feetPad;
+    const cfg = { fw: BUNNY_SPRITE.fw, fh: BUNNY_SPRITE.fh, anim };
     const rect = typeof KAMPAI.characterFrameRect === 'function'
       ? KAMPAI.characterFrameRect(f, cfg)
       : { sx: f * BUNNY_SPRITE.fw, sy: 0, fw: BUNNY_SPRITE.fw, fh: BUNNY_SPRITE.fh };
+    const rf = anim.runFaces || 'left';
+    const flip = rf === 'right' ? p.face < 0 : p.face > 0;
     ctx.save();
     ctx.imageSmoothingEnabled = false;
-    if (p.face === -1) {
-      ctx.translate(dx + dw, dy);
+    if (flip) {
+      ctx.translate(cx, dy);
       ctx.scale(-1, 1);
-      ctx.drawImage(sheet, rect.sx, rect.sy, rect.fw, rect.fh, 0, 0, dw, dh);
+      ctx.drawImage(sheet, rect.sx, rect.sy, rect.fw, rect.fh, -dw / 2, 0, dw, dh);
     } else {
-      ctx.drawImage(sheet, rect.sx, rect.sy, rect.fw, rect.fh, dx, dy, dw, dh);
+      ctx.drawImage(sheet, rect.sx, rect.sy, rect.fw, rect.fh, cx - dw / 2, dy, dw, dh);
     }
     ctx.restore();
     return;

@@ -125,6 +125,9 @@
     jump: [6, 7, 8, 9, 10, 11],
     hurt: 12,
     happy: 12,
+    runFaces: 'left',
+    anchorFoot: 0.94,
+    feetPad: 14,
   };
 
   /** ตำแหน่ง crop เฟรมบน sheet (รองรับ grid + horizontal) */
