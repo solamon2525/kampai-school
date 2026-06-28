@@ -627,6 +627,9 @@ function loadBunnySprites() {
 }
 
 function getBunnySpriteFrame(p) {
+  if (typeof KAMPAI.pickCharacterFrame === 'function') {
+    return KAMPAI.pickCharacterFrame(p, { runSpeed: RUN });
+  }
   if (p.state === 'hurt') return 10;
   if (p.state === 'happy') return 11;
   if (!p.onGround || p.state === 'jump') {

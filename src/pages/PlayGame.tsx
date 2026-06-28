@@ -32,6 +32,7 @@ import {
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { parseCharacterAnimationConfig, resolveCharacterAnimation } from '@/lib/character-animation';
 import { supabase } from '@/integrations/supabase/client';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
@@ -438,6 +439,10 @@ const PlayGame = () => {
               fw: gameQuery.data.character_frame_w ?? 128,
               fh: gameQuery.data.character_frame_h ?? 128,
               frames: gameQuery.data.character_frame_count ?? 12,
+              anim: resolveCharacterAnimation(
+                parseCharacterAnimationConfig(gameQuery.data.character_animation_config),
+                gameQuery.data.character_frame_count,
+              ),
             }
           : null,
         // Phase 2/3: per-game data (เกมตัดสินใจใช้หรือไม่)
@@ -451,7 +456,7 @@ const PlayGame = () => {
       },
       '*',
     );
-  }, [student, codeInput, statsQuery.data, levelInfo.level, leaderboardQuery.data, classmatesQuery.data, gameQuery.data?.bgm_preset, gameQuery.data?.bgm_url, gameQuery.data?.character_sheet_url, gameQuery.data?.character_sheet_url_p2, gameQuery.data?.character_frame_w, gameQuery.data?.character_frame_h, gameQuery.data?.character_frame_count, resolvedSlug, masteryQuery.data, dailyStatusQuery.data, dailyLeaderboardQuery.data, postParentViewport]);
+  }, [student, codeInput, statsQuery.data, levelInfo.level, leaderboardQuery.data, classmatesQuery.data, gameQuery.data?.bgm_preset, gameQuery.data?.bgm_url, gameQuery.data?.character_sheet_url, gameQuery.data?.character_sheet_url_p2, gameQuery.data?.character_frame_w, gameQuery.data?.character_frame_h, gameQuery.data?.character_frame_count, gameQuery.data?.character_animation_config, resolvedSlug, masteryQuery.data, dailyStatusQuery.data, dailyLeaderboardQuery.data, postParentViewport]);
 
   // ─── auto-login จาก localStorage (ลดเวลากรอกรหัสเมื่อเปลี่ยนเกม) ────────
   // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.121.0 (คลัง Sprite Sheet ตัวละคร)',
+        version: 'v1.122.0 (คลังตัวละคร — animation config)',
         date: 'ล่าสุด',
+        badge: 'bg-violet-600',
+        items: [
+            '**animation_config** (migration 265) — preset platformer-12: idle/walk/run/jump/hurt/happy · denormalize ลงเกม',
+            'Admin: preview animation (idle/walk/run/jump) · auto-detect ขนาดเฟรมจาก PNG · `KAMPAI.pickCharacterFrame`',
+            'thai-sara-run v1.2.0 · `CharacterSheetPreview` component',
+        ],
+    },
+    {
+        version: 'v1.121.0 (คลัง Sprite Sheet ตัวละคร)',
+        date: '',
         badge: 'bg-violet-600',
         items: [
             '**คลังตัวละคร** (`game_character_sheets`) — admin อัปโหลด PNG sprite sheet (P1 + P2 co-op) · เลือกใช้รายเกมใน GameSettings',

@@ -2055,6 +2055,7 @@ export type Database = {
           body_html: string | null
           category_id: string
           character_frame_count: number | null
+          character_animation_config: Json | null
           character_frame_h: number | null
           character_frame_w: number | null
           character_sheet_id: string | null
@@ -2095,6 +2096,7 @@ export type Database = {
           body_html?: string | null
           category_id: string
           character_frame_count?: number | null
+          character_animation_config?: Json | null
           character_frame_h?: number | null
           character_frame_w?: number | null
           character_sheet_id?: string | null
@@ -2135,6 +2137,7 @@ export type Database = {
           body_html?: string | null
           category_id?: string
           character_frame_count?: number | null
+          character_animation_config?: Json | null
           character_frame_h?: number | null
           character_frame_w?: number | null
           character_sheet_id?: string | null
@@ -2627,6 +2630,7 @@ export type Database = {
       }
       game_character_sheets: {
         Row: {
+          animation_config: Json | null
           created_at: string
           created_by: string | null
           frame_count: number
@@ -2643,6 +2647,7 @@ export type Database = {
           title: string
         }
         Insert: {
+          animation_config?: Json | null
           created_at?: string
           created_by?: string | null
           frame_count?: number
@@ -2659,6 +2664,7 @@ export type Database = {
           title: string
         }
         Update: {
+          animation_config?: Json | null
           created_at?: string
           created_by?: string | null
           frame_count?: number

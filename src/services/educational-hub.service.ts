@@ -3,6 +3,7 @@
  * Supabase queries สำหรับ Educational Hub — categories, profiles, items + counter RPCs
  */
 import { supabase } from '@/integrations/supabase/client';
+import { getCharacterAnimPreset, type CharacterAnimationConfig } from '@/lib/character-animation';
 
 export type EduHubItemType = 'file' | 'link' | 'youtube' | 'text';
 
@@ -66,6 +67,7 @@ export type EduHubItem = {
     character_frame_w: number | null;
     character_frame_h: number | null;
     character_frame_count: number | null;
+    character_animation_config: CharacterAnimationConfig | null;
     created_at: string;
     updated_at: string;
 };
@@ -106,6 +108,7 @@ export type CharacterSheet = {
     frame_width: number;
     frame_height: number;
     frame_count: number;
+    animation_config: CharacterAnimationConfig | null;
     preview_url: string | null;
     notes: string | null;
     created_by: string | null;
@@ -569,8 +572,10 @@ export const characterSheetsService = {
         frameWidth: number;
         frameHeight: number;
         frameCount: number;
+        animationPreset?: string;
         notes?: string;
     }): Promise<{ sheet: CharacterSheet | null; error: Error | null }> => {
+        const animationConfig = getCharacterAnimPreset(params.animationPreset ?? 'platformer-12');
         const id = crypto.randomUUID();
         const base = `characters/${id}`;
         const path1 = `${base}/sheet.png`;
@@ -612,6 +617,7 @@ export const characterSheetsService = {
                 frame_width: params.frameWidth,
                 frame_height: params.frameHeight,
                 frame_count: params.frameCount,
+                animation_config: animationConfig,
                 notes: params.notes?.trim() || null,
             } as never)
             .select()
@@ -643,6 +649,7 @@ export function characterAssignmentFromSheet(sheet: CharacterSheet | null | unde
             character_frame_w: null,
             character_frame_h: null,
             character_frame_count: null,
+            character_animation_config: null,
         };
     }
     return {
@@ -652,6 +659,7 @@ export function characterAssignmentFromSheet(sheet: CharacterSheet | null | unde
         character_frame_w: sheet.frame_width,
         character_frame_h: sheet.frame_height,
         character_frame_count: sheet.frame_count,
+        character_animation_config: sheet.animation_config,
     };
 }
 

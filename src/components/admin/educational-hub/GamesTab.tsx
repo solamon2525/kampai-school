@@ -58,6 +58,15 @@ import {
     type BgmTrack,
     type CharacterSheet,
 } from '@/services/educational-hub.service';
+import { CharacterSheetPreview } from './CharacterSheetPreview';
+import {
+    CHARACTER_ANIM_PRESET_OPTIONS,
+    isCharacterSupportedGame,
+    parseCharacterAnimationConfig,
+    suggestFrameSizeFromImage,
+    validateAnimationConfig,
+    getCharacterAnimPreset,
+} from '@/lib/character-animation';
 import { gamePlayService } from '@/services/game-play.service';
 import { GameDocsDialog } from './GameDocsDialog';
 import { GameCoverAiDialog } from './GameCoverAiDialog';
@@ -1029,7 +1038,21 @@ const GameSettingsDialog = ({
                         </SelectContent>
                     </Select>
                     <p className="text-xs text-muted-foreground">
-                        เกมที่รองรับ KAMPAI.character จะโหลด sheet จากคลัง · จัดการที่ปุ่ม "🐰 คลังตัวละคร"
+                        เกมที่รองรับ KAMPAI.character จะโหลด sheet จากคลัง · จัดการที่ปุ่ม &quot;🐰 คลังตัวละคร&quot;
+                        {!isCharacterSupportedGame(gameSlug.trim()) && charSel.startsWith('char:') && (
+                            <span className="block mt-1 text-amber-700">
+                                ⚠ เกมนี้ยังไม่ opt-in ตัวละครจากคลัง — ตั้งค่าได้แต่เกมอาจไม่ใช้
+                            </span>
+                        )}
+                        {charSel.startsWith('char:') && (() => {
+                            const sheet = (characters ?? []).find((c) => `char:${c.id}` === charSel);
+                            const anim = sheet?.animation_config ?? getCharacterAnimPreset('platformer-12');
+                            return sheet ? (
+                                <span className="block mt-1">
+                                    แบบเฟรม: {anim.preset} · walk [{anim.walk.join(',')}] · run [{anim.run.join(',')}]
+                                </span>
+                            ) : null;
+                        })()}
                     </p>
                 </div>
 
@@ -1156,7 +1179,35 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
     const [fw, setFw] = useState('128');
     const [fh, setFh] = useState('128');
     const [fc, setFc] = useState('12');
+    const [preset, setPreset] = useState('platformer-12');
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [busy, setBusy] = useState(false);
+
+    const presetMeta = CHARACTER_ANIM_PRESET_OPTIONS.find((p) => p.key === preset) ?? CHARACTER_ANIM_PRESET_OPTIONS[0];
+
+    useEffect(() => {
+        setFc(String(presetMeta.frameCount));
+    }, [presetMeta.frameCount]);
+
+    useEffect(() => {
+        if (!file) {
+            setPreviewUrl(null);
+            return;
+        }
+        const url = URL.createObjectURL(file);
+        setPreviewUrl(url);
+        const img = new Image();
+        img.onload = () => {
+            const fcNum = parseInt(fc, 10) || presetMeta.frameCount;
+            const suggested = suggestFrameSizeFromImage(img.naturalWidth, img.naturalHeight, fcNum);
+            if (suggested) {
+                setFw(String(suggested.frameWidth));
+                setFh(String(suggested.frameHeight));
+            }
+        };
+        img.src = url;
+        return () => URL.revokeObjectURL(url);
+    }, [file, fc, presetMeta.frameCount]);
 
     const { data: sheets, isLoading } = useQuery({
         queryKey: ['character-sheets'],
@@ -1174,6 +1225,12 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
         const frameWidth = parseInt(fw, 10) || 128;
         const frameHeight = parseInt(fh, 10) || 128;
         const frameCount = parseInt(fc, 10) || 12;
+        const animConfig = getCharacterAnimPreset(preset);
+        const animErr = validateAnimationConfig(animConfig, frameCount);
+        if (animErr) {
+            toast({ title: 'แบบเฟรมไม่ตรงจำนวน', description: animErr, variant: 'destructive' });
+            return;
+        }
         setBusy(true);
         try {
             const { error } = await characterSheetsService.upload({
@@ -1183,9 +1240,10 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
                 frameWidth,
                 frameHeight,
                 frameCount,
+                animationPreset: preset,
             });
             if (error) throw error;
-            setTitle(''); setFile(null); setFileP2(null);
+            setTitle(''); setFile(null); setFileP2(null); setPreviewUrl(null);
             queryClient.invalidateQueries({ queryKey: ['character-sheets'] });
             toast({ title: 'อัปโหลดตัวละครสำเร็จ' });
         } catch (err) {
@@ -1209,13 +1267,25 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
             <DialogHeader>
                 <DialogTitle>🐰 คลังตัวละคร</DialogTitle>
                 <DialogDescription>
-                    อัปโหลด sprite sheet PNG เข้าคลังกลาง แล้วเลือกใช้รายเกมได้ที่ &quot;ตั้งค่า&quot;
+                    อัปโหลด sprite sheet แนวนอน + เลือกแบบจัดเรียงเฟรม · preview animation ก่อนบันทึก
                 </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4">
                 <div className="space-y-2 rounded-md border border-border p-3">
                     <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="ชื่อตัวละคร" />
+                    <div className="space-y-1">
+                        <label className="text-xs font-medium text-muted-foreground">แบบจัดเรียงเฟรม</label>
+                        <Select value={preset} onValueChange={setPreset}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                                {CHARACTER_ANIM_PRESET_OPTIONS.map((p) => (
+                                    <SelectItem key={p.key} value={p.key}>{p.label}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <p className="text-[11px] text-muted-foreground">{presetMeta.frameHint}</p>
+                    </div>
                     <div className="grid grid-cols-3 gap-2">
                         <Input value={fw} onChange={(e) => setFw(e.target.value)} placeholder="ความกว้างเฟรม" />
                         <Input value={fh} onChange={(e) => setFh(e.target.value)} placeholder="ความสูงเฟรม" />
@@ -1229,6 +1299,28 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
                         <label className="text-xs text-muted-foreground">Sheet ผู้เล่น 2 — co-op (ไม่บังคับ)</label>
                         <Input type="file" accept="image/png,image/webp,image/gif" onChange={(e) => setFileP2(e.target.files?.[0] ?? null)} />
                     </div>
+                    {previewUrl && (
+                        <div className="rounded-md border border-border bg-muted/30 p-2">
+                            <p className="text-xs text-muted-foreground mb-2">Preview ก่อนอัปโหลด</p>
+                            <div className="flex flex-wrap gap-3 justify-center">
+                                {(['idle', 'walk', 'run', 'jump'] as const).map((mode) => (
+                                    <div key={mode} className="text-center">
+                                        <CharacterSheetPreview
+                                            sheetUrl={previewUrl}
+                                            frameWidth={parseInt(fw, 10) || 128}
+                                            frameHeight={parseInt(fh, 10) || 128}
+                                            frameCount={parseInt(fc, 10) || 12}
+                                            animationConfig={getCharacterAnimPreset(preset)}
+                                            mode={mode}
+                                            size={56}
+                                            className="rounded bg-background border border-border"
+                                        />
+                                        <p className="text-[10px] text-muted-foreground mt-1">{mode}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                     <Button onClick={handleUpload} disabled={busy || !file} className="w-full">
                         {busy ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> กำลังอัปโหลด...</> : <><Plus className="h-4 w-4 mr-1" /> อัปโหลดตัวละคร</>}
                     </Button>
@@ -1240,18 +1332,33 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
                     <p className="text-center text-sm text-muted-foreground py-4">ยังไม่มีตัวละครในคลัง</p>
                 ) : (
                     <ul className="space-y-2 max-h-[40vh] overflow-y-auto">
-                        {sheets!.map((s) => (
-                            <li key={s.id} className="flex items-center gap-2 rounded-md border border-border p-2">
-                                <img src={s.sheet_url} alt="" className="h-12 w-12 object-contain image-rendering-pixelated bg-muted rounded shrink-0" />
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium truncate">{s.title}</p>
-                                    <p className="text-xs text-muted-foreground">{s.frame_width}×{s.frame_height} · {s.frame_count} เฟรม{s.sheet_url_p2 ? ' · 2P' : ''}</p>
-                                </div>
-                                <Button variant="ghost" size="sm" className="text-destructive shrink-0" onClick={() => handleDelete(s)}>
-                                    <Trash2 className="h-4 w-4" />
-                                </Button>
-                            </li>
-                        ))}
+                        {sheets!.map((s) => {
+                            const anim = parseCharacterAnimationConfig(s.animation_config) ?? getCharacterAnimPreset('platformer-12');
+                            return (
+                                <li key={s.id} className="flex items-center gap-2 rounded-md border border-border p-2">
+                                    <CharacterSheetPreview
+                                        sheetUrl={s.sheet_url}
+                                        frameWidth={s.frame_width}
+                                        frameHeight={s.frame_height}
+                                        frameCount={s.frame_count}
+                                        animationConfig={anim}
+                                        mode="walk"
+                                        size={48}
+                                        className="shrink-0 rounded bg-muted border border-border"
+                                    />
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium truncate">{s.title}</p>
+                                        <p className="text-xs text-muted-foreground">
+                                            {s.frame_width}×{s.frame_height} · {s.frame_count} เฟรม · {anim.preset}
+                                            {s.sheet_url_p2 ? ' · 2P' : ''}
+                                        </p>
+                                    </div>
+                                    <Button variant="ghost" size="sm" className="text-destructive shrink-0" onClick={() => handleDelete(s)}>
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </li>
+                            );
+                        })}
                     </ul>
                 )}
             </div>
