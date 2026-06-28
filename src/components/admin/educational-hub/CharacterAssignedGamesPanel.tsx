@@ -55,7 +55,7 @@ export function CharacterAssignedGamesPanel({ sheetId, className }: Props) {
         return (
             <div className={cn('rounded-md border border-dashed border-border px-3 py-2', className)}>
                 <p className="text-xs text-muted-foreground">
-                    ยังไม่มีเกมผูกตัวละครนี้ — ไปที่การ์ดเกม → <strong>ตั้งค่า</strong> → เลือกตัวละครในคลัง
+                    ยังไม่มีเกมผูก — เลือกเกมด้านล่างใน Studio หรือการ์ดเกม → ตั้งค่า
                 </p>
             </div>
         );

@@ -206,6 +206,16 @@
       var rf = pick(getPose('run'), fps('run'));
       if (rf != null) return rf;
     }
+    var facing = p.facing;
+    if (!facing && (Math.abs(p.vx || 0) > 0.15 || Math.abs(p.vy || 0) > 0.15)) {
+      var ax = Math.abs(p.vx || 0), ay = Math.abs(p.vy || 0);
+      if (ax >= ay) facing = (p.vx || 0) >= 0 ? 'right' : 'left';
+      else facing = (p.vy || 0) >= 0 ? 'down' : 'up';
+    }
+    if (facing && anim.directions && anim.directions[facing] && anim.directions[facing].length) {
+      var df = pick(anim.directions[facing], fps('walk'));
+      if (df != null && (Math.abs(p.vx || 0) > 0.15 || Math.abs(p.vy || 0) > 0.15 || state === 'walk' || state === 'run')) return df;
+    }
     if (Math.abs(p.vx || 0) > 0.15) {
       var wf = pick(getPose('walk'), fps('walk'));
       if (wf != null) return wf;

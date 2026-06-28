@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
@@ -13,25 +14,51 @@ import {
     CHARACTER_ANIM_PRESET_OPTIONS,
     CHARACTER_POSE_CATALOG,
     CHARACTER_CORE_POSE_KEYS,
+    CHARACTER_FACING_KEYS,
+    CHARACTER_FACING_LABELS,
     buildAnimationConfigFromFields,
+    characterPoseLabel,
+    frameIndexListToString,
+    framesForMapTarget,
     getCharacterAnimPreset,
     poseFieldsFromConfig,
     type CharacterAnimationConfig,
     type CharacterCorePoseKey,
     type CharacterExtendedPoseKey,
     type CharacterPoseFields,
+    type CharacterPoseKey,
+    type PoseMapTarget,
 } from '@/lib/character-animation';
 import { cn } from '@/lib/utils';
+
+const QUICK_MAP_POSES: CharacterPoseKey[] = ['idle', 'walk', 'run', 'jump', 'hurt', 'happy'];
 
 type Props = {
     preset: string;
     frameCount: number;
     initialConfig?: CharacterAnimationConfig | null;
+    /** config จาก parent (grid คลิก) — sync กลับ fields */
+    syncedConfig?: CharacterAnimationConfig | null;
+    mapTarget?: PoseMapTarget;
+    onMapTargetChange?: (target: PoseMapTarget) => void;
+    showDirections?: boolean;
+    interactive?: boolean;
     onPresetChange: (preset: string) => void;
     onConfigChange: (config: CharacterAnimationConfig) => void;
 };
 
-export function CharacterPoseMapper({ preset, frameCount, initialConfig, onPresetChange, onConfigChange }: Props) {
+export function CharacterPoseMapper({
+    preset,
+    frameCount,
+    initialConfig,
+    syncedConfig,
+    mapTarget,
+    onMapTargetChange,
+    showDirections,
+    interactive,
+    onPresetChange,
+    onConfigChange,
+}: Props) {
     const [fields, setFields] = useState<CharacterPoseFields>(() =>
         poseFieldsFromConfig(initialConfig ?? getCharacterAnimPreset(preset)),
     );
@@ -45,16 +72,39 @@ export function CharacterPoseMapper({ preset, frameCount, initialConfig, onPrese
     });
 
     useEffect(() => {
-        if (initialConfig) {
-            setFields(poseFieldsFromConfig(initialConfig));
-        }
+        if (initialConfig) setFields(poseFieldsFromConfig(initialConfig));
     }, [initialConfig]);
 
     useEffect(() => {
+        if (syncedConfig) setFields(poseFieldsFromConfig(syncedConfig));
+    }, [syncedConfig]);
+
+    useEffect(() => {
+        if (interactive && syncedConfig) return;
         const { config, error } = buildAnimationConfigFromFields(fields, frameCount);
         setMapError(error);
         if (!error) onConfigChange(config);
-    }, [fields, frameCount, onConfigChange]);
+    }, [fields, frameCount, onConfigChange, syncedConfig, interactive]);
+
+    const applyMetaToSynced = (patch: Partial<Pick<CharacterPoseFields, 'runFaces' | 'anchorFoot' | 'feetPad'>>) => {
+        setFields((f) => {
+            const next = { ...f, ...patch };
+            if (interactive && syncedConfig) {
+                onConfigChange({
+                    ...syncedConfig,
+                    runFaces: next.runFaces,
+                    anchorFoot: next.anchorFoot,
+                    feetPad: next.feetPad,
+                });
+            }
+            return next;
+        });
+    };
+
+    const activeTarget = mapTarget ?? { kind: 'pose' as const, key: 'run' as CharacterPoseKey };
+    const activeFrames = syncedConfig
+        ? framesForMapTarget(syncedConfig, activeTarget)
+        : [];
 
     const setCore = (key: CharacterCorePoseKey, value: string) =>
         setFields((f) => ({ ...f, core: { ...f.core, [key]: value } }));
@@ -70,16 +120,22 @@ export function CharacterPoseMapper({ preset, frameCount, initialConfig, onPrese
         }));
 
     const setMeta = (patch: Partial<Pick<CharacterPoseFields, 'runFaces' | 'anchorFoot' | 'feetPad'>>) =>
-        setFields((f) => ({ ...f, ...patch }));
+        applyMetaToSynced(patch);
+
+    const selectTarget = (target: PoseMapTarget) => onMapTargetChange?.(target);
 
     return (
         <div className="space-y-2 rounded-md border border-border p-3">
-            <p className="text-xs font-medium text-muted-foreground">🎬 Map ท่าเคลื่อนไหว (เลขเฟรม)</p>
+            <p className="text-xs font-medium text-muted-foreground">
+                🎬 Map ท่า{interactive ? ' — คลิกเฟรมบน sheet' : ' (เลขเฟรม)'}
+            </p>
             <Select
                 value={preset}
                 onValueChange={(v) => {
                     onPresetChange(v);
-                    setFields(poseFieldsFromConfig(getCharacterAnimPreset(v)));
+                    const next = getCharacterAnimPreset(v);
+                    setFields(poseFieldsFromConfig(next));
+                    onConfigChange({ ...next, poseAnchors: syncedConfig?.poseAnchors ?? initialConfig?.poseAnchors });
                 }}
             >
                 <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
@@ -90,7 +146,45 @@ export function CharacterPoseMapper({ preset, frameCount, initialConfig, onPrese
                 </SelectContent>
             </Select>
 
-            {CHARACTER_POSE_CATALOG.map((group) => {
+            {interactive && onMapTargetChange && (
+                <div className="space-y-2">
+                    <div className="flex flex-wrap gap-1">
+                        {QUICK_MAP_POSES.map((key) => (
+                            <Button
+                                key={key}
+                                type="button"
+                                size="sm"
+                                variant={activeTarget.kind === 'pose' && activeTarget.key === key ? 'default' : 'outline'}
+                                className="h-7 text-[10px] px-2"
+                                onClick={() => selectTarget({ kind: 'pose', key })}
+                            >
+                                {characterPoseLabel(key).split(' ')[0]}
+                            </Button>
+                        ))}
+                    </div>
+                    {showDirections && (
+                        <div className="flex flex-wrap gap-1">
+                            {CHARACTER_FACING_KEYS.map((key) => (
+                                <Button
+                                    key={key}
+                                    type="button"
+                                    size="sm"
+                                    variant={activeTarget.kind === 'direction' && activeTarget.key === key ? 'default' : 'outline'}
+                                    className="h-7 text-[10px] px-2"
+                                    onClick={() => selectTarget({ kind: 'direction', key })}
+                                >
+                                    {CHARACTER_FACING_LABELS[key]}
+                                </Button>
+                            ))}
+                        </div>
+                    )}
+                    <p className="text-[10px] text-muted-foreground font-mono">
+                        เฟรมที่เลือก: {activeFrames.length ? frameIndexListToString(activeFrames) : '— คลิกบน grid —'}
+                    </p>
+                </div>
+            )}
+
+            {!interactive && CHARACTER_POSE_CATALOG.map((group) => {
                 const open = openGroups[group.id] ?? false;
                 return (
                     <Collapsible
@@ -168,10 +262,6 @@ export function CharacterPoseMapper({ preset, frameCount, initialConfig, onPrese
             {mapError && <p className="text-xs text-destructive">{mapError}</p>}
             <p className="text-[10px] text-muted-foreground">
                 {CHARACTER_ANIM_PRESET_OPTIONS.find((p) => p.key === preset)?.frameHint ?? ''}
-            </p>
-            <p className="text-[10px] text-muted-foreground">
-                เกมเรียกท่าเสริมด้วย <code className="text-[10px]">player.state</code> เช่น attack · crouch · slide · special
-                · ท่าที่ยังไม่ map จะ fallback ไปท่าเคลื่อนที่
             </p>
         </div>
     );

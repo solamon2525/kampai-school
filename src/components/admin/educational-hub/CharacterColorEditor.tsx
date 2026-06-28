@@ -160,6 +160,30 @@ export function CharacterColorEditor({ sheetUrl, value, onChange, className }: P
                 </Select>
             </div>
 
+            <div className="flex flex-wrap gap-1">
+                {(['bunny-blue', 'bunny-pink', 'bunny-green'] as const).map((key) => (
+                    <Button
+                        key={key}
+                        type="button"
+                        size="sm"
+                        variant={config.preset === key ? 'default' : 'outline'}
+                        className="h-7 text-xs"
+                        onClick={() => setPreset(key)}
+                    >
+                        {CHARACTER_COLOR_PRESETS[key].label}
+                    </Button>
+                ))}
+                <Button
+                    type="button"
+                    size="sm"
+                    variant={!config.preset || config.preset === 'original' ? 'default' : 'outline'}
+                    className="h-7 text-xs"
+                    onClick={() => setPreset('original')}
+                >
+                    ต้นฉบับ
+                </Button>
+            </div>
+
             {!config.slots?.length ? (
                 <p className="text-[11px] text-muted-foreground">
                     ต้นฉบับ — ไม่เปลี่ยนสี · กด &quot;ตรวจสีอัตโนมัติ&quot; หรือเลือก preset

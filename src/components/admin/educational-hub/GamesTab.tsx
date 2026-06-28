@@ -16,13 +16,13 @@
  * และ Storage RLS (migration 063) บังคับ admin-only เพิ่มอีกชั้น
  */
 
-import { useMemo, useState, useEffect, useRef, useCallback } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthProvider';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink, Plus, RefreshCw, AlertTriangle, Loader2, Trash2, RotateCcw, Settings, Code2, ChevronDown, Copy, Check, Download, Image as ImageIcon, ClipboardList, Target, Sparkles, Pin, Pencil, ArrowLeft } from 'lucide-react';
+import { ExternalLink, Plus, RefreshCw, AlertTriangle, Loader2, Trash2, RotateCcw, Settings, Code2, ChevronDown, Copy, Check, Download, Image as ImageIcon, ClipboardList, Target, Sparkles, Pin, Pencil, ArrowLeft, CopyPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -59,21 +59,15 @@ import {
     type CharacterSheet,
 } from '@/services/educational-hub.service';
 import { CharacterSheetPreview } from './CharacterSheetPreview';
-import { CharacterSheetScenePreview } from './CharacterSheetScenePreview';
-import { CharacterSheetGridPreview } from './CharacterSheetGridPreview';
 import { CharacterSheetStudio } from './CharacterSheetStudio';
-import { CharacterSheetAutoFitButton } from './CharacterSheetAutoFitButton';
-import { CharacterPoseMapper } from './CharacterPoseMapper';
+import { CharacterCreationWizard } from './CharacterCreationWizard';
 import {
-    CHARACTER_ANIM_PRESET_OPTIONS,
     isCharacterSupportedGame,
     parseCharacterAnimationConfig,
-    suggestFrameSizeFromImage,
     validateAnimationConfig,
     getCharacterAnimPreset,
     type CharacterAnimationConfig,
 } from '@/lib/character-animation';
-import { analyzeSpriteSheetFromUrl, type SpriteAutoFitResult } from '@/lib/sprite-frame-autofit';
 import type { CharacterColorConfig } from '@/lib/character-color';
 import {
     GAME_PLAY_STYLE_OPTIONS,
@@ -87,7 +81,6 @@ import {
 } from '@/lib/game-play-style';
 import {
     processSpriteSheetFile,
-    processSpriteSheetPreviewUrl,
     SPRITE_CHECKERBOARD_STYLE,
 } from '@/lib/sprite-background';
 import { gamePlayService } from '@/services/game-play.service';
@@ -1300,114 +1293,11 @@ const MAX_SHEET_SIZE = 10 * 1024 * 1024;
 const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
     const { toast } = useToast();
     const queryClient = useQueryClient();
-    const [title, setTitle] = useState('');
-    const [file, setFile] = useState<File | null>(null);
-    const [fileP2, setFileP2] = useState<File | null>(null);
-    const [fw, setFw] = useState('128');
-    const [fh, setFh] = useState('128');
-    const [fc, setFc] = useState('12');
-    const [preset, setPreset] = useState('grid-3x6-18');
-    const [animConfig, setAnimConfig] = useState<CharacterAnimationConfig>(() => getCharacterAnimPreset('grid-3x6-18'));
-    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [removeBg, setRemoveBg] = useState(true);
-    const [bgTolerance, setBgTolerance] = useState(36);
-    const [previewBusy, setPreviewBusy] = useState(false);
+    const [bgTolerance] = useState(36);
     const [busy, setBusy] = useState(false);
     const [editingSheet, setEditingSheet] = useState<CharacterSheet | null>(null);
     const [saveBusy, setSaveBusy] = useState(false);
-    const [autoFitAnalysis, setAutoFitAnalysis] = useState<SpriteAutoFitResult | null>(null);
-
-    const bgOpts = { tolerance: bgTolerance, mode: 'auto' as const };
-
-    const presetMeta = CHARACTER_ANIM_PRESET_OPTIONS.find((p) => p.key === preset) ?? CHARACTER_ANIM_PRESET_OPTIONS[0];
-
-    const handleAnimConfigChange = useCallback((config: CharacterAnimationConfig) => {
-        setAnimConfig(config);
-    }, []);
-
-    useEffect(() => {
-        setFc(String(presetMeta.frameCount));
-        if ('cols' in presetMeta && presetMeta.cols) {
-            // grid preset — รอไฟล์แล้ว auto-detect จาก rows/cols
-        }
-    }, [presetMeta.frameCount, preset]);
-
-    useEffect(() => {
-        if (!file) {
-            setPreviewUrl(null);
-            setAutoFitAnalysis(null);
-            return;
-        }
-        let cancelled = false;
-        setPreviewBusy(true);
-        (async () => {
-            try {
-                const url = removeBg
-                    ? await processSpriteSheetPreviewUrl(file, bgOpts)
-                    : URL.createObjectURL(file);
-                if (cancelled) {
-                    URL.revokeObjectURL(url);
-                    return;
-                }
-                setPreviewUrl((prev) => {
-                    if (prev) URL.revokeObjectURL(prev);
-                    return url;
-                });
-                const img = new Image();
-                img.onload = () => {
-                    if (cancelled) return;
-                    const fcNum = parseInt(fc, 10) || presetMeta.frameCount;
-                    const gridOpts = 'cols' in presetMeta && presetMeta.cols
-                        ? {
-                            cols: presetMeta.cols,
-                            rows: 'rows' in presetMeta ? presetMeta.rows : 3,
-                            frameCount: fcNum,
-                        }
-                        : { frameCount: fcNum };
-                    void analyzeSpriteSheetFromUrl(url, gridOpts).then((fit) => {
-                        if (cancelled || !fit) {
-                            const suggested = suggestFrameSizeFromImage(
-                                img.naturalWidth,
-                                img.naturalHeight,
-                                fcNum,
-                                'cols' in presetMeta && presetMeta.cols
-                                    ? { cols: presetMeta.cols, rows: 'rows' in presetMeta ? presetMeta.rows : 3 }
-                                    : undefined,
-                            );
-                            if (suggested) {
-                                setFw(String(suggested.frameWidth));
-                                setFh(String(suggested.frameHeight));
-                            }
-                            return;
-                        }
-                        setFw(String(fit.frameWidth));
-                        setFh(String(fit.frameHeight));
-                        setFc(String(fit.frameCount));
-                        setAutoFitAnalysis(fit);
-                        if (fit.cols && fit.rows) {
-                            setAnimConfig((prev) => (
-                                prev.layout === 'grid'
-                                    ? { ...prev, cols: fit.cols, rows: fit.rows }
-                                    : prev
-                            ));
-                        }
-                    });
-                };
-                img.src = url;
-            } catch {
-                if (!cancelled) toast({ title: 'ประมวลผล preview ไม่สำเร็จ', variant: 'destructive' });
-            } finally {
-                if (!cancelled) setPreviewBusy(false);
-            }
-        })();
-        return () => {
-            cancelled = true;
-            setPreviewUrl((prev) => {
-                if (prev) URL.revokeObjectURL(prev);
-                return null;
-            });
-        };
-    }, [file, fc, presetMeta, removeBg, bgTolerance, toast]);
 
     const { data: sheets, isLoading } = useQuery({
         queryKey: ['character-sheets'],
@@ -1417,44 +1307,6 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
             return (data ?? []) as CharacterSheet[];
         },
     });
-
-    const handleUpload = async () => {
-        if (!file) { toast({ title: 'เลือกไฟล์ sprite sheet ก่อน', variant: 'destructive' }); return; }
-        if (!file.type.startsWith('image/')) { toast({ title: 'รองรับเฉพาะไฟล์รูป (PNG)', variant: 'destructive' }); return; }
-        if (file.size > MAX_SHEET_SIZE) { toast({ title: 'ไฟล์ใหญ่เกิน 10 MB', variant: 'destructive' }); return; }
-        const frameWidth = parseInt(fw, 10) || 128;
-        const frameHeight = parseInt(fh, 10) || 128;
-        const frameCount = parseInt(fc, 10) || 12;
-        const animErr = validateAnimationConfig(animConfig, frameCount);
-        if (animErr) {
-            toast({ title: 'แบบเฟรมไม่ตรงจำนวน', description: animErr, variant: 'destructive' });
-            return;
-        }
-        setBusy(true);
-        try {
-            const sheet1 = removeBg ? await processSpriteSheetFile(file, bgOpts) : file;
-            const sheet2 = fileP2 && removeBg ? await processSpriteSheetFile(fileP2, bgOpts) : fileP2;
-            const { error } = await characterSheetsService.upload({
-                title: title || file.name.replace(/\.[^.]+$/, ''),
-                sheetFile: sheet1,
-                sheetFileP2: sheet2,
-                frameWidth,
-                frameHeight,
-                frameCount,
-                animationConfig: animConfig,
-            });
-            if (error) throw error;
-            setTitle(''); setFile(null); setFileP2(null);
-            setPreviewUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return null; });
-            queryClient.invalidateQueries({ queryKey: ['character-sheets'] });
-            toast({
-                title: 'อัปโหลดตัวละครสำเร็จ',
-                description: removeBg ? 'ตัดพื้นหลังแล้ว — PNG โปร่งใส' : undefined,
-            });
-        } catch (err) {
-            toast({ title: 'อัปโหลดไม่สำเร็จ', description: err instanceof Error ? err.message : 'เกิดข้อผิดพลาด', variant: 'destructive' });
-        } finally { setBusy(false); }
-    };
 
     const handleDelete = async (s: CharacterSheet) => {
         try {
@@ -1501,12 +1353,67 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
         }
     };
 
+    const handleDuplicate = async (s: CharacterSheet) => {
+        try {
+            const { sheet, error } = await characterSheetsService.duplicate(s.id);
+            if (error) throw error;
+            queryClient.invalidateQueries({ queryKey: ['character-sheets'] });
+            toast({ title: 'สำเนาตัวละครแล้ว', description: sheet?.title });
+            if (sheet) setEditingSheet(sheet);
+        } catch (err) {
+            toast({ title: 'สำเนาไม่สำเร็จ', description: err instanceof Error ? err.message : 'เกิดข้อผิดพลาด', variant: 'destructive' });
+        }
+    };
+
+    const handleWizardUpload = async (payload: {
+        title: string;
+        file: File;
+        fileP2: File | null;
+        frameWidth: number;
+        frameHeight: number;
+        frameCount: number;
+        animationConfig: CharacterAnimationConfig;
+    }) => {
+        if (payload.file.size > MAX_SHEET_SIZE) {
+            toast({ title: 'ไฟล์ใหญ่เกิน 10 MB', variant: 'destructive' });
+            return;
+        }
+        const animErr = validateAnimationConfig(payload.animationConfig, payload.frameCount);
+        if (animErr) {
+            toast({ title: 'แบบเฟรมไม่ตรงจำนวน', description: animErr, variant: 'destructive' });
+            return;
+        }
+        setBusy(true);
+        try {
+            const bgOpts = { tolerance: bgTolerance, mode: 'auto' as const };
+            const sheet1 = removeBg ? await processSpriteSheetFile(payload.file, bgOpts) : payload.file;
+            const sheet2 = payload.fileP2 && removeBg ? await processSpriteSheetFile(payload.fileP2, bgOpts) : payload.fileP2;
+            const { sheet, error } = await characterSheetsService.upload({
+                title: payload.title,
+                sheetFile: sheet1,
+                sheetFileP2: sheet2,
+                frameWidth: payload.frameWidth,
+                frameHeight: payload.frameHeight,
+                frameCount: payload.frameCount,
+                animationConfig: payload.animationConfig,
+            });
+            if (error) throw error;
+            queryClient.invalidateQueries({ queryKey: ['character-sheets'] });
+            toast({ title: 'อัปโหลดตัวละครสำเร็จ' });
+            if (sheet) setEditingSheet(sheet);
+        } catch (err) {
+            toast({ title: 'อัปโหลดไม่สำเร็จ', description: err instanceof Error ? err.message : 'เกิดข้อผิดพลาด', variant: 'destructive' });
+        } finally {
+            setBusy(false);
+        }
+    };
+
     return (
         <>
             <DialogHeader>
                 <DialogTitle>🐰 คลังตัวละคร</DialogTitle>
                 <DialogDescription>
-                    อัปโหลด sprite sheet · preview + map ท่า · แก้ไขตัวละครในคลังได้ทันที
+                    Wizard 3 ขั้น · คลิก map ท่า · ผูกเกม · duplicate + preset สี
                 </DialogDescription>
             </DialogHeader>
 
@@ -1524,113 +1431,10 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
                 </div>
             ) : (
             <div className="space-y-4">
-                <div className="space-y-2 rounded-md border border-border p-3">
-                    <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="ชื่อตัวละคร" />
-                    <CharacterPoseMapper
-                        preset={preset}
-                        frameCount={parseInt(fc, 10) || presetMeta.frameCount}
-                        onPresetChange={setPreset}
-                        onConfigChange={handleAnimConfigChange}
-                    />
-                    <div className="grid grid-cols-3 gap-2">
-                        <Input value={fw} onChange={(e) => setFw(e.target.value)} placeholder="ความกว้างเฟรม" />
-                        <Input value={fh} onChange={(e) => setFh(e.target.value)} placeholder="ความสูงเฟรม" />
-                        <Input value={fc} onChange={(e) => setFc(e.target.value)} placeholder="จำนวนเฟรม" />
-                    </div>
-                    <div className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2">
-                        <div>
-                            <p className="text-sm font-medium">✂️ ตัดพื้นหลังอัตโนมัติ</p>
-                            <p className="text-[11px] text-muted-foreground">Flood fill จากขอบ → PNG โปร่งใส (checkerboard ใน preview)</p>
-                        </div>
-                        <Switch checked={removeBg} onCheckedChange={setRemoveBg} />
-                    </div>
-                    {removeBg && (
-                        <div className="space-y-1">
-                            <label className="text-xs text-muted-foreground">
-                                ความไวตัดพื้นหลัง: {bgTolerance}
-                            </label>
-                            <input
-                                type="range"
-                                min={8}
-                                max={64}
-                                value={bgTolerance}
-                                onChange={(e) => setBgTolerance(Number(e.target.value))}
-                                className="w-full accent-primary"
-                            />
-                        </div>
-                    )}
-                    <div className="space-y-1">
-                        <label className="text-xs text-muted-foreground">Sheet ผู้เล่น 1 (บังคับ)</label>
-                        <Input type="file" accept="image/png,image/webp,image/gif" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
-                    </div>
-                    <div className="space-y-1">
-                        <label className="text-xs text-muted-foreground">Sheet ผู้เล่น 2 — co-op (ไม่บังคับ)</label>
-                        <Input type="file" accept="image/png,image/webp,image/gif" onChange={(e) => setFileP2(e.target.files?.[0] ?? null)} />
-                    </div>
-                    {previewUrl && (
-                        <div className="rounded-md border border-border bg-muted/30 p-2 space-y-2">
-                            <p className="text-xs text-muted-foreground">
-                                Preview ก่อนอัปโหลด {removeBg ? '(พื้นหลังโปร่งใส)' : ''}
-                                {previewBusy ? ' · กำลังประมวลผล…' : ''}
-                            </p>
-                            <CharacterSheetGridPreview
-                                sheetUrl={previewUrl}
-                                frameWidth={parseInt(fw, 10) || 128}
-                                frameHeight={parseInt(fh, 10) || 128}
-                                frameCount={parseInt(fc, 10) || 12}
-                                animationConfig={animConfig}
-                                autoFitAnalysis={autoFitAnalysis}
-                                maxHeight={140}
-                            />
-                            <CharacterSheetAutoFitButton
-                                sheetUrl={previewUrl}
-                                frameCount={parseInt(fc, 10) || presetMeta.frameCount}
-                                cols={'cols' in presetMeta ? presetMeta.cols : undefined}
-                                rows={'rows' in presetMeta ? presetMeta.rows : undefined}
-                                onApply={({ frameWidth: w, frameHeight: h, frameCount: n, cols, rows, analysis }) => {
-                                    setFw(String(w));
-                                    setFh(String(h));
-                                    setFc(String(n));
-                                    setAutoFitAnalysis(analysis);
-                                    if (cols && rows) {
-                                        setAnimConfig((prev) => (
-                                            prev.layout === 'grid' ? { ...prev, cols, rows } : prev
-                                        ));
-                                    }
-                                }}
-                            />
-                            <div className="flex flex-wrap gap-3 justify-center">
-                                {(['idle', 'walk', 'run', 'jump'] as const).map((mode) => (
-                                    <div key={mode} className="text-center">
-                                        <CharacterSheetPreview
-                                            sheetUrl={previewUrl}
-                                            frameWidth={parseInt(fw, 10) || 128}
-                                            frameHeight={parseInt(fh, 10) || 128}
-                                            frameCount={parseInt(fc, 10) || 12}
-                                            animationConfig={animConfig}
-                                            mode={mode}
-                                            size={56}
-                                            showGround
-                                            className="rounded border border-border"
-                                            checkerboard
-                                        />
-                                        <p className="text-[10px] text-muted-foreground mt-1">{mode}</p>
-                                    </div>
-                                ))}
-                            </div>
-                            <CharacterSheetScenePreview
-                                sheetUrl={previewUrl}
-                                frameWidth={parseInt(fw, 10) || 128}
-                                frameHeight={parseInt(fh, 10) || 128}
-                                frameCount={parseInt(fc, 10) || 12}
-                                animationConfig={animConfig}
-                                className="mt-2"
-                            />
-                        </div>
-                    )}
-                    <Button onClick={handleUpload} disabled={busy || !file} className="w-full">
-                        {busy ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> กำลังอัปโหลด...</> : <><Plus className="h-4 w-4 mr-1" /> อัปโหลดตัวละคร</>}
-                    </Button>
+                <CharacterCreationWizard busy={busy} onUpload={handleWizardUpload} />
+                <div className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2">
+                    <p className="text-xs text-muted-foreground">ตัดพื้นหลังตอนอัปโหลด (Wizard ขั้น 1)</p>
+                    <Switch checked={removeBg} onCheckedChange={setRemoveBg} />
                 </div>
 
                 {isLoading ? (
@@ -1661,6 +1465,9 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
                                             {s.sheet_url_p2 ? ' · 2P' : ''}
                                         </p>
                                     </div>
+                                    <Button variant="outline" size="sm" className="shrink-0" title="สำเนา" onClick={() => handleDuplicate(s)}>
+                                        <CopyPlus className="h-4 w-4" />
+                                    </Button>
                                     <Button variant="outline" size="sm" className="shrink-0" onClick={() => setEditingSheet(s)}>
                                         <Pencil className="h-4 w-4" />
                                     </Button>

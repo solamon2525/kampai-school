@@ -40,6 +40,11 @@ export type CharacterExtendedPoseKey =
     | 'death'
     | 'spawn';
 
+/** ทิศเดิน top-down (4 ทิศ) */
+export type CharacterFacing = 'up' | 'down' | 'left' | 'right';
+
+export const CHARACTER_FACING_KEYS: CharacterFacing[] = ['down', 'up', 'left', 'right'];
+
 export type CharacterPoseKey = CharacterCorePoseKey | CharacterExtendedPoseKey;
 
 export type PoseCatalogEntry = {
@@ -157,6 +162,8 @@ export type CharacterAnimationConfig = {
     jump: CharacterJumpFrames | number[];
     hurt: number;
     happy: number;
+    /** ท่าเดินแยกทิศ — top-down 4 ทิศ */
+    directions?: Partial<Record<CharacterFacing, number[]>>;
     /** ท่าเสริม — attack / crouch / slide / special ฯลฯ */
     extras?: Partial<Record<CharacterExtendedPoseKey, PoseFrames>>;
     walkFps?: number;
@@ -202,9 +209,33 @@ export const CHARACTER_ANIM_PRESET_GRID_3X6_18: CharacterAnimationConfig = {
     feetPad: 14,
 };
 
+export const CHARACTER_ANIM_PRESET_TOPDOWN_4DIR_16: CharacterAnimationConfig = {
+    preset: 'topdown-4dir-16',
+    layout: 'grid',
+    cols: 4,
+    rows: 4,
+    idle: [12, 13],
+    walk: [0, 1, 2],
+    run: [0, 1, 2],
+    jump: [12],
+    hurt: 14,
+    happy: 15,
+    directions: {
+        down: [0, 1, 2],
+        up: [3, 4, 5],
+        left: [6, 7, 8],
+        right: [9, 10, 11],
+    },
+    walkFps: 6,
+    runFps: 8,
+    anchorFoot: 0.92,
+    feetPad: 8,
+};
+
 export const CHARACTER_ANIM_PRESETS: Record<string, CharacterAnimationConfig> = {
     'platformer-12': CHARACTER_ANIM_PRESET_PLATFORMER_12,
     'grid-3x6-18': CHARACTER_ANIM_PRESET_GRID_3X6_18,
+    'topdown-4dir-16': CHARACTER_ANIM_PRESET_TOPDOWN_4DIR_16,
 };
 
 export const CHARACTER_ANIM_PRESET_OPTIONS = [
@@ -217,6 +248,14 @@ export const CHARACTER_ANIM_PRESET_OPTIONS = [
         frameHint: 'แถว1 วิ่ง 0–5 · แถว2 โดด 6–11 · แถว3 ยืน 12–17 · ท่าอื่น map ใน extras',
     },
     {
+        key: 'topdown-4dir-16',
+        label: 'Top-down 4×4 — 16 เฟรม (4 ทิศ)',
+        frameCount: 16,
+        cols: 4,
+        rows: 4,
+        frameHint: '↓0–2 · ↑3–5 · ←6–8 · →9–11 · idle 12–13 · คลิก map ทิศใน Studio',
+    },
+    {
         key: 'platformer-12',
         label: 'Platformer 12 เฟรม (idle/walk/run/jump/hurt/happy)',
         frameCount: 12,
@@ -224,7 +263,22 @@ export const CHARACTER_ANIM_PRESET_OPTIONS = [
     },
 ] as const;
 
-export const GAMES_WITH_CHARACTER_SUPPORT = ['thai-sara-run'] as const;
+export const GAMES_WITH_CHARACTER_SUPPORT = [
+    'thai-sara-run',
+    'jump-even-odd',
+    'fraction-adventure',
+] as const;
+
+export const CHARACTER_FACING_LABELS: Record<CharacterFacing, string> = {
+    down: '↓ ลง',
+    up: '↑ ขึ้น',
+    left: '← ซ้าย',
+    right: '→ ขวา',
+};
+
+export type PoseMapTarget =
+    | { kind: 'pose'; key: CharacterPoseKey }
+    | { kind: 'direction'; key: CharacterFacing };
 
 export function isCharacterSupportedGame(slug: string | null | undefined): boolean {
     if (!slug) return false;
@@ -241,6 +295,7 @@ export function resolveCharacterAnimation(
 ): CharacterAnimationConfig {
     if (config?.preset && config.run?.length) return config;
     if (frameCount === 18) return CHARACTER_ANIM_PRESET_GRID_3X6_18;
+    if (frameCount === 16) return CHARACTER_ANIM_PRESET_TOPDOWN_4DIR_16;
     if (frameCount === 12) return CHARACTER_ANIM_PRESET_PLATFORMER_12;
     return CHARACTER_ANIM_PRESET_GRID_3X6_18;
 }
@@ -332,6 +387,7 @@ export function pickCharacterFrameIndex(
         vy?: number;
         vx?: number;
         animTime?: number;
+        facing?: CharacterFacing;
     },
     config: CharacterAnimationConfig,
     opt?: { runSpeed?: number; vyJumpUp?: number; vyJumpFall?: number },
@@ -374,6 +430,16 @@ export function pickCharacterFrameIndex(
         const rf = getPoseFrames(config, 'run');
         if (rf != null) return pickFromPoseFrames(rf, animTime, resolvePoseFps(config, 'run'));
     }
+
+    const facing = p.facing ?? inferFacingFromVelocity(p.vx, p.vy);
+    if (facing && config.directions?.[facing]?.length) {
+        const dirFrames = config.directions[facing]!;
+        const moving = Math.abs(p.vx ?? 0) > 0.15 || Math.abs(p.vy ?? 0) > 0.15;
+        if (moving || state === 'walk' || state === 'run') {
+            return pickFromPoseFrames(dirFrames, animTime, resolvePoseFps(config, 'walk'));
+        }
+    }
+
     if (Math.abs(p.vx ?? 0) > 0.15) {
         const wf = getPoseFrames(config, 'walk');
         if (wf != null) return pickFromPoseFrames(wf, animTime, resolvePoseFps(config, 'walk'));
@@ -430,7 +496,31 @@ export function parseCharacterAnimationConfig(raw: unknown): CharacterAnimationC
         anchorFoot: typeof o.anchorFoot === 'number' ? o.anchorFoot : base.anchorFoot,
         feetPad: typeof o.feetPad === 'number' ? o.feetPad : base.feetPad,
         poseAnchors: parsePoseAnchors(o.poseAnchors) ?? base.poseAnchors,
+        directions: parseDirections(o.directions) ?? base.directions,
     };
+}
+
+function parseDirections(raw: unknown): CharacterAnimationConfig['directions'] | undefined {
+    if (!raw || typeof raw !== 'object') return undefined;
+    const o = raw as Record<string, unknown>;
+    const out: NonNullable<CharacterAnimationConfig['directions']> = {};
+    let any = false;
+    for (const key of CHARACTER_FACING_KEYS) {
+        const v = o[key];
+        if (Array.isArray(v) && v.length) {
+            out[key] = v as number[];
+            any = true;
+        }
+    }
+    return any ? out : undefined;
+}
+
+export function inferFacingFromVelocity(vx?: number, vy?: number): CharacterFacing | undefined {
+    const ax = Math.abs(vx ?? 0);
+    const ay = Math.abs(vy ?? 0);
+    if (ax < 0.15 && ay < 0.15) return undefined;
+    if (ax >= ay) return (vx ?? 0) >= 0 ? 'right' : 'left';
+    return (vy ?? 0) >= 0 ? 'down' : 'up';
 }
 
 function parsePoseAnchors(raw: unknown): CharacterAnimationConfig['poseAnchors'] | undefined {
@@ -467,6 +557,11 @@ export function validateAnimationConfig(
     const indices = new Set<number>();
     for (const pose of CHARACTER_ALL_POSE_KEYS) {
         for (const i of collectPoseIndices(pose, config)) indices.add(i);
+    }
+    if (config.directions) {
+        for (const frames of Object.values(config.directions)) {
+            if (frames) for (const i of frames) indices.add(i);
+        }
     }
     for (const i of indices) {
         if (i < 0 || i >= frameCount) {
@@ -655,4 +750,84 @@ export function listMappedPoses(config: CharacterAnimationConfig): CharacterPose
         if (Array.isArray(f)) return f.length > 0;
         return true;
     });
+}
+
+function getFramesForTarget(config: CharacterAnimationConfig, target: PoseMapTarget): number[] {
+    if (target.kind === 'direction') {
+        return [...(config.directions?.[target.key] ?? [])];
+    }
+    const frames = getPoseFrames(config, target.key);
+    if (frames == null) return [];
+    if (Array.isArray(frames)) return [...frames];
+    if (typeof frames === 'number') return [frames];
+    return collectJumpIndices(frames);
+}
+
+function setFramesForTarget(
+    config: CharacterAnimationConfig,
+    target: PoseMapTarget,
+    frames: number[],
+): CharacterAnimationConfig {
+    const sorted = [...new Set(frames)].sort((a, b) => a - b);
+    if (target.kind === 'direction') {
+        const directions = { ...config.directions };
+        if (sorted.length) directions[target.key] = sorted;
+        else delete directions[target.key];
+        return { ...config, directions: Object.keys(directions).length ? directions : undefined };
+    }
+    const key = target.key;
+    if (CHARACTER_CORE_POSE_KEYS.includes(key as CharacterCorePoseKey)) {
+        const coreKey = key as CharacterCorePoseKey;
+        if (coreKey === 'hurt' || coreKey === 'happy') {
+            return { ...config, [coreKey]: sorted[0] ?? config[coreKey] };
+        }
+        if (coreKey === 'jump') {
+            if (sorted.length >= 3) {
+                return {
+                    ...config,
+                    jump: sorted.length === 3
+                        ? { up: sorted[0], peak: sorted[1], fall: sorted[2] }
+                        : sorted,
+                };
+            }
+            return { ...config, jump: sorted.length ? sorted : config.jump };
+        }
+        return { ...config, [coreKey]: sorted };
+    }
+    const extras = { ...config.extras };
+    if (sorted.length === 1) extras[key as CharacterExtendedPoseKey] = sorted[0];
+    else if (sorted.length > 1) extras[key as CharacterExtendedPoseKey] = sorted;
+    else delete extras[key as CharacterExtendedPoseKey];
+    return { ...config, extras: Object.keys(extras).length ? extras : undefined };
+}
+
+/** คลิก toggle เฟรมใน/ออกจากท่าที่เลือก */
+export function toggleFrameInPoseMap(
+    config: CharacterAnimationConfig,
+    target: PoseMapTarget,
+    frameIndex: number,
+): CharacterAnimationConfig {
+    const current = getFramesForTarget(config, target);
+    const next = current.includes(frameIndex)
+        ? current.filter((i) => i !== frameIndex)
+        : [...current, frameIndex];
+    return setFramesForTarget(config, target, next);
+}
+
+/** เฟรมที่ map กับ target — ใส่ highlight บน grid */
+export function framesForMapTarget(config: CharacterAnimationConfig, target: PoseMapTarget): number[] {
+    return getFramesForTarget(config, target);
+}
+
+export function framesMappedInConfig(config: CharacterAnimationConfig): Set<number> {
+    const set = new Set<number>();
+    for (const pose of CHARACTER_ALL_POSE_KEYS) {
+        for (const i of collectPoseIndices(pose, config)) set.add(i);
+    }
+    if (config.directions) {
+        for (const frames of Object.values(config.directions)) {
+            if (frames) for (const i of frames) set.add(i);
+        }
+    }
+    return set;
 }

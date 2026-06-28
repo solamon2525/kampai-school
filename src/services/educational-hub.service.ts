@@ -702,6 +702,132 @@ export const characterSheetsService = {
         const { error } = await supabase.from('game_character_sheets' as never).delete().eq('id', sheet.id);
         return { error: (error as Error | null) ?? null };
     },
+
+    listAssignableGames: () =>
+        supabase
+            .from('educational_hub_items')
+            .select('id, title, game_slug, game_play_style, character_sheet_id')
+            .not('game_slug', 'is', null)
+            .order('title'),
+
+    syncGameAssignments: async (
+        sheetId: string,
+        checkedItemIds: string[],
+        sheet: CharacterSheet,
+    ): Promise<{ error: Error | null }> => {
+        const assignFields = characterAssignmentFromSheet(sheet);
+        const clearFields = characterAssignmentFromSheet(null);
+
+        const { data: current, error: listErr } = await supabase
+            .from('educational_hub_items')
+            .select('id')
+            .eq('character_sheet_id', sheetId);
+        if (listErr) return { error: listErr as Error };
+
+        const currentIds = (current ?? []).map((r) => (r as { id: string }).id);
+        const toRemove = currentIds.filter((id) => !checkedItemIds.includes(id));
+        const toAdd = checkedItemIds.filter((id) => !currentIds.includes(id));
+
+        if (toRemove.length) {
+            const { error } = await supabase
+                .from('educational_hub_items')
+                .update(clearFields as never)
+                .in('id', toRemove);
+            if (error) return { error: error as Error };
+        }
+        if (toAdd.length) {
+            const { error } = await supabase
+                .from('educational_hub_items')
+                .update(assignFields as never)
+                .in('id', toAdd);
+            if (error) return { error: error as Error };
+        }
+        return { error: null };
+    },
+
+    duplicate: async (
+        sourceId: string,
+        title?: string,
+    ): Promise<{ sheet: CharacterSheet | null; error: Error | null }> => {
+        const { data: source, error: fetchErr } = await supabase
+            .from('game_character_sheets' as never)
+            .select('*')
+            .eq('id', sourceId)
+            .single();
+        if (fetchErr || !source) {
+            return { sheet: null, error: (fetchErr as Error) ?? new Error('not found') };
+        }
+        const src = source as unknown as CharacterSheet;
+        const id = crypto.randomUUID();
+        const isGit = src.storage_path.startsWith('git:');
+
+        let path1 = src.storage_path;
+        let url1 = src.sheet_url;
+        let path2 = src.storage_path_p2;
+        let url2 = src.sheet_url_p2;
+
+        if (!isGit) {
+            try {
+                const res = await fetch(src.sheet_url);
+                const blob = await res.blob();
+                path1 = `characters/${id}/sheet.png`;
+                const { error: up1Err } = await supabase.storage.from(BUCKET).upload(path1, blob, {
+                    cacheControl: '3600',
+                    upsert: false,
+                    contentType: blob.type || 'image/png',
+                });
+                if (up1Err) return { sheet: null, error: up1Err as Error };
+                url1 = supabase.storage.from(BUCKET).getPublicUrl(path1).data.publicUrl;
+
+                if (src.sheet_url_p2 && src.storage_path_p2) {
+                    const res2 = await fetch(src.sheet_url_p2);
+                    const blob2 = await res2.blob();
+                    path2 = `characters/${id}/sheet-p2.png`;
+                    const { error: up2Err } = await supabase.storage.from(BUCKET).upload(path2, blob2, {
+                        cacheControl: '3600',
+                        upsert: false,
+                        contentType: blob2.type || 'image/png',
+                    });
+                    if (up2Err) {
+                        await educationalHubService.removeFile(path1);
+                        return { sheet: null, error: up2Err as Error };
+                    }
+                    url2 = supabase.storage.from(BUCKET).getPublicUrl(path2).data.publicUrl;
+                }
+            } catch (e) {
+                return { sheet: null, error: e instanceof Error ? e : new Error('duplicate copy failed') };
+            }
+        }
+
+        const dupTitle = title?.trim() || `${src.title} (สำเนา)`;
+        const { data, error } = await supabase
+            .from('game_character_sheets' as never)
+            .insert({
+                id,
+                title: dupTitle,
+                sheet_url: url1,
+                sheet_url_p2: url2,
+                storage_path: path1,
+                storage_path_p2: path2,
+                frame_width: src.frame_width,
+                frame_height: src.frame_height,
+                frame_count: src.frame_count,
+                animation_config: src.animation_config,
+                color_config: src.color_config,
+                notes: src.notes,
+            } as never)
+            .select()
+            .single();
+
+        if (error) {
+            if (!isGit && path1.startsWith(`characters/${id}`)) {
+                await educationalHubService.removeFile(path1);
+                if (path2?.startsWith(`characters/${id}`)) await educationalHubService.removeFile(path2);
+            }
+            return { sheet: null, error: error as Error };
+        }
+        return { sheet: data as unknown as CharacterSheet, error: null };
+    },
 };
 
 /** ค่า denormalize ลง educational_hub_items เมื่อเลือกตัวละคร */

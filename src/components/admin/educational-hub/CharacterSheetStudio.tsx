@@ -7,12 +7,15 @@ import {
 import { Loader2, Save } from 'lucide-react';
 import { CharacterSheetPreview } from './CharacterSheetPreview';
 import { CharacterSheetScenePreview } from './CharacterSheetScenePreview';
-import { CharacterSheetGridPreview } from './CharacterSheetGridPreview';
+import { CharacterInteractiveGrid } from './CharacterInteractiveGrid';
 import { CharacterPoseMapper } from './CharacterPoseMapper';
 import { CharacterColorEditor } from './CharacterColorEditor';
+import { CharacterGameAssignPanel } from './CharacterGameAssignPanel';
+import { CharacterSaveChecklist, useCharacterSaveReady } from './CharacterSaveChecklist';
 import {
     type CharacterAnimationConfig,
     type CharacterPoseKey,
+    type PoseMapTarget,
     CHARACTER_POSE_CATALOG,
     characterPoseLabel,
     getCharacterAnimPreset,
@@ -61,6 +64,17 @@ export function CharacterSheetStudio({ sheet, busy, onSave, className }: Props) 
     const [face, setFace] = useState(1);
     const [saveError, setSaveError] = useState<string | null>(null);
     const [autoFitAnalysis, setAutoFitAnalysis] = useState<SpriteAutoFitResult | null>(null);
+    const [mapTarget, setMapTarget] = useState<PoseMapTarget>({ kind: 'pose', key: 'run' });
+    const [assignedSlugs, setAssignedSlugs] = useState<string[]>([]);
+
+    const showDirections = animConfig.preset === 'topdown-4dir-16' || Boolean(animConfig.directions);
+    const saveReady = useCharacterSaveReady({
+        animConfig,
+        frameCount,
+        autoFitAnalysis,
+        assignedGameSlugs: assignedSlugs,
+        playStyle: showDirections ? 'top-down' : 'platformer-2d',
+    });
 
     const frameWidth = parseInt(fw, 10) || sheet.frame_width;
     const frameHeight = parseInt(fh, 10) || sheet.frame_height;
@@ -107,6 +121,10 @@ export function CharacterSheetStudio({ sheet, busy, onSave, className }: Props) 
             setSaveError(err);
             return;
         }
+        if (!saveReady) {
+            setSaveError('Checklist ยังไม่ครบ — ดูรายการด้านล่าง');
+            return;
+        }
         setSaveError(null);
         await onSave({
             title: title.trim() || sheet.title,
@@ -121,6 +139,10 @@ export function CharacterSheetStudio({ sheet, busy, onSave, className }: Props) 
     return (
         <div className={cn('space-y-3', className)}>
             <CharacterAssignedGamesPanel sheetId={sheet.id} />
+            <CharacterGameAssignPanel
+                sheet={sheet}
+                onAssignedSlugsChange={setAssignedSlugs}
+            />
 
             <div className="flex flex-wrap items-center gap-2">
                 <Input
@@ -163,8 +185,8 @@ export function CharacterSheetStudio({ sheet, busy, onSave, className }: Props) 
 
             <div className="grid gap-3 lg:grid-cols-2">
                 <div className="space-y-2 rounded-md border border-border p-2">
-                    <p className="text-xs font-medium text-muted-foreground">📋 Sheet + เลขเฟรม</p>
-                    <CharacterSheetGridPreview
+                    <p className="text-xs font-medium text-muted-foreground">📋 Sheet — คลิก map ท่า</p>
+                    <CharacterInteractiveGrid
                         sheetUrl={sheet.sheet_url}
                         frameWidth={frameWidth}
                         frameHeight={frameHeight}
@@ -172,6 +194,8 @@ export function CharacterSheetStudio({ sheet, busy, onSave, className }: Props) 
                         animationConfig={animConfig}
                         colorConfig={colorConfig}
                         autoFitAnalysis={autoFitAnalysis}
+                        mapTarget={mapTarget}
+                        onAnimConfigChange={setAnimConfig}
                         maxHeight={180}
                     />
                     <CharacterSheetAutoFitButton
@@ -319,13 +343,29 @@ export function CharacterSheetStudio({ sheet, busy, onSave, className }: Props) 
                 preset={preset}
                 frameCount={frameCount}
                 initialConfig={initialAnim}
-                onPresetChange={setPreset}
+                syncedConfig={animConfig}
+                interactive
+                mapTarget={mapTarget}
+                onMapTargetChange={setMapTarget}
+                showDirections={showDirections}
+                onPresetChange={(p) => {
+                    setPreset(p);
+                    setAnimConfig((prev) => ({ ...getCharacterAnimPreset(p), poseAnchors: prev.poseAnchors }));
+                }}
                 onConfigChange={(config) => setAnimConfig((prev) => ({ ...config, poseAnchors: prev.poseAnchors }))}
+            />
+
+            <CharacterSaveChecklist
+                animConfig={animConfig}
+                frameCount={frameCount}
+                autoFitAnalysis={autoFitAnalysis}
+                assignedGameSlugs={assignedSlugs}
+                playStyle={showDirections ? 'top-down' : 'platformer-2d'}
             />
 
             {saveError && <p className="text-xs text-destructive">{saveError}</p>}
 
-            <Button type="button" className="w-full" disabled={busy} onClick={handleSave}>
+            <Button type="button" className="w-full" disabled={busy || !saveReady} onClick={handleSave}>
                 {busy ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> กำลังบันทึก...</> : <><Save className="h-4 w-4 mr-1" /> บันทึกการตั้งค่า</>}
             </Button>
         </div>
