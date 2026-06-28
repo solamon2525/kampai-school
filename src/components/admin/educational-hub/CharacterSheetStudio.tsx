@@ -1,0 +1,171 @@
+import { useMemo, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Loader2, Save } from 'lucide-react';
+import { CharacterSheetPreview } from './CharacterSheetPreview';
+import { CharacterSheetGridPreview } from './CharacterSheetGridPreview';
+import { CharacterPoseMapper } from './CharacterPoseMapper';
+import {
+    type CharacterAnimationConfig,
+    getCharacterAnimPreset,
+    parseCharacterAnimationConfig,
+    validateAnimationConfig,
+} from '@/lib/character-animation';
+import type { CharacterSheet } from '@/services/educational-hub.service';
+import { cn } from '@/lib/utils';
+
+const PREVIEW_MODES = ['idle', 'walk', 'run', 'jump'] as const;
+
+type Props = {
+    sheet: CharacterSheet;
+    busy?: boolean;
+    onSave: (payload: {
+        title: string;
+        frameWidth: number;
+        frameHeight: number;
+        frameCount: number;
+        animationConfig: CharacterAnimationConfig;
+    }) => void | Promise<void>;
+    className?: string;
+};
+
+export function CharacterSheetStudio({ sheet, busy, onSave, className }: Props) {
+    const initialAnim = useMemo(
+        () => parseCharacterAnimationConfig(sheet.animation_config) ?? getCharacterAnimPreset('grid-3x6-18'),
+        [sheet.animation_config],
+    );
+    const [title, setTitle] = useState(sheet.title);
+    const [fw, setFw] = useState(String(sheet.frame_width));
+    const [fh, setFh] = useState(String(sheet.frame_height));
+    const [fc, setFc] = useState(String(sheet.frame_count));
+    const [preset, setPreset] = useState(initialAnim.preset);
+    const [animConfig, setAnimConfig] = useState<CharacterAnimationConfig>(initialAnim);
+    const [previewMode, setPreviewMode] = useState<(typeof PREVIEW_MODES)[number]>('run');
+    const [face, setFace] = useState(1);
+    const [saveError, setSaveError] = useState<string | null>(null);
+
+    const frameWidth = parseInt(fw, 10) || sheet.frame_width;
+    const frameHeight = parseInt(fh, 10) || sheet.frame_height;
+    const frameCount = parseInt(fc, 10) || sheet.frame_count;
+
+    const handleSave = async () => {
+        const err = validateAnimationConfig(animConfig, frameCount);
+        if (err) {
+            setSaveError(err);
+            return;
+        }
+        setSaveError(null);
+        await onSave({
+            title: title.trim() || sheet.title,
+            frameWidth,
+            frameHeight,
+            frameCount,
+            animationConfig: animConfig,
+        });
+    };
+
+    return (
+        <div className={cn('space-y-3', className)}>
+            <div className="flex flex-wrap items-center gap-2">
+                <Input
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="h-9 max-w-xs"
+                    placeholder="ชื่อตัวละคร"
+                />
+                <div className="flex gap-1">
+                    {PREVIEW_MODES.map((m) => (
+                        <Button
+                            key={m}
+                            type="button"
+                            size="sm"
+                            variant={previewMode === m ? 'default' : 'outline'}
+                            className="h-8 text-xs capitalize"
+                            onClick={() => setPreviewMode(m)}
+                        >
+                            {m}
+                        </Button>
+                    ))}
+                </div>
+                <Button type="button" size="sm" variant="outline" className="h-8 text-xs" onClick={() => setFace((f) => -f)}>
+                    ทิศ: {face > 0 ? '→ ขวา' : '← ซ้าย'}
+                </Button>
+            </div>
+
+            <div className="grid gap-3 lg:grid-cols-2">
+                <div className="space-y-2 rounded-md border border-border p-2">
+                    <p className="text-xs font-medium text-muted-foreground">📋 Sheet + เลขเฟรม</p>
+                    <CharacterSheetGridPreview
+                        sheetUrl={sheet.sheet_url}
+                        frameWidth={frameWidth}
+                        frameHeight={frameHeight}
+                        frameCount={frameCount}
+                        animationConfig={animConfig}
+                        maxHeight={180}
+                    />
+                    <div className="grid grid-cols-3 gap-2">
+                        <Input value={fw} onChange={(e) => setFw(e.target.value)} className="h-8 text-xs" placeholder="W" />
+                        <Input value={fh} onChange={(e) => setFh(e.target.value)} className="h-8 text-xs" placeholder="H" />
+                        <Input value={fc} onChange={(e) => setFc(e.target.value)} className="h-8 text-xs" placeholder="N" />
+                    </div>
+                </div>
+
+                <div className="space-y-2 rounded-md border border-border p-2">
+                    <p className="text-xs font-medium text-muted-foreground">🎬 Preview ในเกม (P1 / P2 + พื้น)</p>
+                    <div className="flex flex-wrap justify-center gap-3">
+                        <div className="text-center">
+                            <CharacterSheetPreview
+                                sheetUrl={sheet.sheet_url}
+                                frameWidth={frameWidth}
+                                frameHeight={frameHeight}
+                                frameCount={frameCount}
+                                animationConfig={animConfig}
+                                mode={previewMode}
+                                size={120}
+                                face={face}
+                                showGround
+                                checkerboard
+                                className="rounded border border-border mx-auto"
+                            />
+                            <p className="text-[10px] text-muted-foreground mt-1">P1 ขาว</p>
+                        </div>
+                        {sheet.sheet_url_p2 && (
+                            <div className="text-center">
+                                <CharacterSheetPreview
+                                    sheetUrl={sheet.sheet_url_p2}
+                                    frameWidth={frameWidth}
+                                    frameHeight={frameHeight}
+                                    frameCount={frameCount}
+                                    animationConfig={animConfig}
+                                    mode={previewMode}
+                                    size={120}
+                                    face={face}
+                                    showGround
+                                    checkerboard
+                                    className="rounded border border-border mx-auto"
+                                />
+                                <p className="text-[10px] text-muted-foreground mt-1">P2 ฟ้า</p>
+                            </div>
+                        )}
+                    </div>
+                    <p className="text-[10px] text-center text-muted-foreground">
+                        เส้นพื้น = จุดเท้า anchorFoot {((animConfig.anchorFoot ?? 0.94) * 100).toFixed(0)}% + feetPad {animConfig.feetPad ?? 0}px
+                    </p>
+                </div>
+            </div>
+
+            <CharacterPoseMapper
+                preset={preset}
+                frameCount={frameCount}
+                onPresetChange={setPreset}
+                onConfigChange={setAnimConfig}
+            />
+
+            {saveError && <p className="text-xs text-destructive">{saveError}</p>}
+
+            <Button type="button" className="w-full" disabled={busy} onClick={handleSave}>
+                {busy ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> กำลังบันทึก...</> : <><Save className="h-4 w-4 mr-1" /> บันทึกการตั้งค่า</>}
+            </Button>
+        </div>
+    );
+}

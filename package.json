@@ -20,7 +20,8 @@
     "generate:og": "node scripts/generate-og-image.mjs",
     "optimize:logos": "node scripts/optimize-logos.mjs",
     "verify:game": "node scripts/verify-game.mjs",
-    "process:sprite-bg": "node scripts/process-sprite-background.mjs"
+    "process:sprite-bg": "node scripts/process-sprite-background.mjs",
+    "seed:bunny-character": "node scripts/seed-bunny-character.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

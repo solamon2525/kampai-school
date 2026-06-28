@@ -558,6 +558,16 @@ export const bgmTracksService = {
 };
 
 // ─── คลัง sprite sheet ตัวละคร (game_character_sheets) ───────────────────────
+
+async function syncCharacterSheetToAssignedGames(sheet: CharacterSheet): Promise<{ error: Error | null }> {
+    const fields = characterAssignmentFromSheet(sheet);
+    const { error } = await supabase
+        .from('educational_hub_items')
+        .update(fields as never)
+        .eq('character_sheet_id', sheet.id);
+    return { error: (error as Error | null) ?? null };
+}
+
 export const characterSheetsService = {
     list: () =>
         supabase
@@ -633,9 +643,49 @@ export const characterSheetsService = {
         return { sheet: data as unknown as CharacterSheet, error: null };
     },
 
+    update: async (
+        id: string,
+        params: {
+            title?: string;
+            frameWidth?: number;
+            frameHeight?: number;
+            frameCount?: number;
+            animationConfig?: CharacterAnimationConfig;
+            notes?: string | null;
+        },
+    ): Promise<{ sheet: CharacterSheet | null; error: Error | null }> => {
+        const patch: Record<string, unknown> = {};
+        if (params.title != null) patch.title = params.title.trim();
+        if (params.frameWidth != null) patch.frame_width = params.frameWidth;
+        if (params.frameHeight != null) patch.frame_height = params.frameHeight;
+        if (params.frameCount != null) patch.frame_count = params.frameCount;
+        if (params.animationConfig != null) patch.animation_config = params.animationConfig;
+        if (params.notes !== undefined) patch.notes = params.notes;
+
+        const { data, error } = await supabase
+            .from('game_character_sheets' as never)
+            .update(patch as never)
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error || !data) return { sheet: null, error: (error as Error) ?? new Error('update failed') };
+
+        const sheet = data as unknown as CharacterSheet;
+        const syncErr = await syncCharacterSheetToAssignedGames(sheet);
+        if (syncErr.error) return { sheet, error: syncErr.error };
+        return { sheet, error: null };
+    },
+
+    syncAssignedGames: syncCharacterSheetToAssignedGames,
+
     remove: async (sheet: CharacterSheet): Promise<{ error: Error | null }> => {
-        await educationalHubService.removeFile(sheet.storage_path);
-        if (sheet.storage_path_p2) await educationalHubService.removeFile(sheet.storage_path_p2);
+        if (!sheet.storage_path.startsWith('git:')) {
+            await educationalHubService.removeFile(sheet.storage_path);
+        }
+        if (sheet.storage_path_p2 && !sheet.storage_path_p2.startsWith('git:')) {
+            await educationalHubService.removeFile(sheet.storage_path_p2);
+        }
         const { error } = await supabase.from('game_character_sheets' as never).delete().eq('id', sheet.id);
         return { error: (error as Error | null) ?? null };
     },

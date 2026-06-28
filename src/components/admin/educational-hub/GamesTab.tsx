@@ -22,7 +22,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink, Plus, RefreshCw, AlertTriangle, Loader2, Trash2, RotateCcw, Settings, Code2, ChevronDown, Copy, Check, Download, Image as ImageIcon, ClipboardList, Target, Sparkles, Pin } from 'lucide-react';
+import { ExternalLink, Plus, RefreshCw, AlertTriangle, Loader2, Trash2, RotateCcw, Settings, Code2, ChevronDown, Copy, Check, Download, Image as ImageIcon, ClipboardList, Target, Sparkles, Pin, Pencil, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -59,6 +59,8 @@ import {
     type CharacterSheet,
 } from '@/services/educational-hub.service';
 import { CharacterSheetPreview } from './CharacterSheetPreview';
+import { CharacterSheetGridPreview } from './CharacterSheetGridPreview';
+import { CharacterSheetStudio } from './CharacterSheetStudio';
 import { CharacterPoseMapper } from './CharacterPoseMapper';
 import {
     CHARACTER_ANIM_PRESET_OPTIONS,
@@ -809,7 +811,7 @@ export const GamesTab = () => {
 
             <Dialog open={!!dialog} onOpenChange={(open) => !open && setDialog(null)}>
                 <DialogContent className={cn(
-                    (dialog?.mode === 'settings' || dialog?.mode === 'bgm' || dialog?.mode === 'characters') ? 'max-w-md' : 'max-w-2xl',
+                    (dialog?.mode === 'characters') ? 'max-w-4xl' : (dialog?.mode === 'settings' || dialog?.mode === 'bgm') ? 'max-w-md' : 'max-w-2xl',
                     'overflow-y-auto max-h-[90vh]',
                 )}>
                     {dialog?.mode === 'create' && gamesCategoryId && (
@@ -1193,6 +1195,8 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
     const [bgTolerance, setBgTolerance] = useState(36);
     const [previewBusy, setPreviewBusy] = useState(false);
     const [busy, setBusy] = useState(false);
+    const [editingSheet, setEditingSheet] = useState<CharacterSheet | null>(null);
+    const [saveBusy, setSaveBusy] = useState(false);
 
     const bgOpts = { tolerance: bgTolerance, mode: 'auto' as const };
 
@@ -1309,10 +1313,42 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
         try {
             const { error } = await characterSheetsService.remove(s);
             if (error) throw error;
+            if (editingSheet?.id === s.id) setEditingSheet(null);
             queryClient.invalidateQueries({ queryKey: ['character-sheets'] });
             toast({ title: 'ลบตัวละครแล้ว', description: s.title });
         } catch (err) {
             toast({ title: 'ลบไม่สำเร็จ', description: err instanceof Error ? err.message : 'เกิดข้อผิดพลาด', variant: 'destructive' });
+        }
+    };
+
+    const handleSaveSheet = async (
+        sheet: CharacterSheet,
+        payload: {
+            title: string;
+            frameWidth: number;
+            frameHeight: number;
+            frameCount: number;
+            animationConfig: CharacterAnimationConfig;
+        },
+    ) => {
+        setSaveBusy(true);
+        try {
+            const { sheet: updated, error } = await characterSheetsService.update(sheet.id, {
+                title: payload.title,
+                frameWidth: payload.frameWidth,
+                frameHeight: payload.frameHeight,
+                frameCount: payload.frameCount,
+                animationConfig: payload.animationConfig,
+            });
+            if (error) throw error;
+            queryClient.invalidateQueries({ queryKey: ['character-sheets'] });
+            queryClient.invalidateQueries({ queryKey: ['edu-hub'] });
+            if (updated) setEditingSheet(updated);
+            toast({ title: 'บันทึกตัวละครแล้ว', description: 'เกมที่ผูกตัวละครนี้จะใช้ค่าใหม่ทันที' });
+        } catch (err) {
+            toast({ title: 'บันทึกไม่สำเร็จ', description: err instanceof Error ? err.message : 'เกิดข้อผิดพลาด', variant: 'destructive' });
+        } finally {
+            setSaveBusy(false);
         }
     };
 
@@ -1321,10 +1357,23 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
             <DialogHeader>
                 <DialogTitle>🐰 คลังตัวละคร</DialogTitle>
                 <DialogDescription>
-                    อัปโหลด sprite sheet + ตัดพื้นหลังอัตโนมัติ (PNG โปร่งใส) · preview animation ก่อนบันทึก
+                    อัปโหลด sprite sheet · preview + map ท่า · แก้ไขตัวละครในคลังได้ทันที
                 </DialogDescription>
             </DialogHeader>
 
+            {editingSheet ? (
+                <div className="space-y-3">
+                    <Button type="button" variant="ghost" size="sm" className="h-8 -ml-2" onClick={() => setEditingSheet(null)}>
+                        <ArrowLeft className="h-4 w-4 mr-1" /> กลับรายการ
+                    </Button>
+                    <CharacterSheetStudio
+                        key={editingSheet.id + String(editingSheet.created_at)}
+                        sheet={editingSheet}
+                        busy={saveBusy}
+                        onSave={(payload) => handleSaveSheet(editingSheet, payload)}
+                    />
+                </div>
+            ) : (
             <div className="space-y-4">
                 <div className="space-y-2 rounded-md border border-border p-3">
                     <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="ชื่อตัวละคร" />
@@ -1370,11 +1419,19 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
                         <Input type="file" accept="image/png,image/webp,image/gif" onChange={(e) => setFileP2(e.target.files?.[0] ?? null)} />
                     </div>
                     {previewUrl && (
-                        <div className="rounded-md border border-border bg-muted/30 p-2">
-                            <p className="text-xs text-muted-foreground mb-2">
+                        <div className="rounded-md border border-border bg-muted/30 p-2 space-y-2">
+                            <p className="text-xs text-muted-foreground">
                                 Preview ก่อนอัปโหลด {removeBg ? '(พื้นหลังโปร่งใส)' : ''}
                                 {previewBusy ? ' · กำลังประมวลผล…' : ''}
                             </p>
+                            <CharacterSheetGridPreview
+                                sheetUrl={previewUrl}
+                                frameWidth={parseInt(fw, 10) || 128}
+                                frameHeight={parseInt(fh, 10) || 128}
+                                frameCount={parseInt(fc, 10) || 12}
+                                animationConfig={animConfig}
+                                maxHeight={140}
+                            />
                             <div className="flex flex-wrap gap-3 justify-center">
                                 {(['idle', 'walk', 'run', 'jump'] as const).map((mode) => (
                                     <div key={mode} className="text-center">
@@ -1386,6 +1443,7 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
                                             animationConfig={animConfig}
                                             mode={mode}
                                             size={56}
+                                            showGround
                                             className="rounded border border-border"
                                             checkerboard
                                         />
@@ -1428,6 +1486,9 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
                                             {s.sheet_url_p2 ? ' · 2P' : ''}
                                         </p>
                                     </div>
+                                    <Button variant="outline" size="sm" className="shrink-0" onClick={() => setEditingSheet(s)}>
+                                        <Pencil className="h-4 w-4" />
+                                    </Button>
                                     <Button variant="ghost" size="sm" className="text-destructive shrink-0" onClick={() => handleDelete(s)}>
                                         <Trash2 className="h-4 w-4" />
                                     </Button>
@@ -1437,9 +1498,10 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
                     </ul>
                 )}
             </div>
+            )}
 
             <DialogFooter>
-                <Button variant="ghost" onClick={onClose}>ปิด</Button>
+                <Button variant="ghost" onClick={() => { setEditingSheet(null); onClose(); }}>ปิด</Button>
             </DialogFooter>
         </>
     );
