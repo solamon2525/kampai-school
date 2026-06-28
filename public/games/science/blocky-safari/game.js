@@ -958,17 +958,17 @@ function showSabotageToast() {
     sabToastTimer = setTimeout(function () { el.style.opacity = '0'; }, 1400);
 }
 
-function attemptShoot() {
+function attemptPlaceTrap() {
     if (!gameState.isPlaying || !player) return;
     
     const now = clock.getElapsedTime();
-    if (now - lastShotTime >= BULLET_COOLDOWN) {
-        lastShotTime = now;
-        fireBullet();
+    if (now - lastTrapTime >= TRAP_COOLDOWN) {
+        lastTrapTime = now;
+        placeTrap();
     }
 }
 
-function playShutterSound() {
+function playTrapSound() {
     try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = audioCtx.createOscillator();
@@ -976,55 +976,72 @@ function playShutterSound() {
         osc.connect(gain);
         gain.connect(audioCtx.destination);
         
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(600, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.08);
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+        osc.frequency.linearRampToValueAtTime(50, audioCtx.currentTime + 0.15);
         
-        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
         
         osc.start();
-        osc.stop(audioCtx.currentTime + 0.08);
+        osc.stop(audioCtx.currentTime + 0.15);
     } catch (e) {
-        console.warn("Web Audio shutter sound failed:", e);
+        console.warn("Web Audio trap sound failed:", e);
     }
 }
 
-function fireBullet() {
-    // 1. เล่นเสียงชัตเตอร์ของกล้องถ่ายรูป
-    playShutterSound();
+function placeTrap() {
+    // 1. เล่นเสียงวางกับดักเหล็กสับ/กรงไม้
+    playTrapSound();
     
-    // 2. แสดงเอฟเฟกต์แสงแฟลชบนหน้าจอ (Shutter Flash)
-    const flashEl = document.getElementById('flash-overlay');
-    if (flashEl) {
-        flashEl.classList.add('active');
-        setTimeout(() => {
-            flashEl.classList.remove('active');
-        }, 60);
+    try {
+        KAMPAI.sound.speak("วางกับดัก", "th-TH");
+    } catch(e){}
+
+    // จำกัดจำนวนกับดักสูงสุดไม่เกิน 5 ชิ้น
+    if (gameState.traps.length >= 5) {
+        const oldest = gameState.traps.shift();
+        scene.remove(oldest.mesh);
     }
     
-    // ทิศทางที่ผู้เล่นหันหน้าไป
-    const angle = player.rotation.y;
-    const vx = Math.sin(angle) * BULLET_SPEED;
-    const vz = Math.cos(angle) * BULLET_SPEED;
+    const tx = player.position.x;
+    const tz = player.position.z;
     
-    // สร้างกระสุน 3D เป็นคลื่นแสงแฟลชสีขาว (Expanding White Sphere)
-    const bulletGeo = new THREE.SphereGeometry(0.5, 16, 16);
-    const bulletMat = new THREE.MeshBasicMaterial({ 
-        color: 0xffffff, 
-        transparent: true, 
-        opacity: 0.85 
+    const trapGroup = new THREE.Group();
+    
+    // ฐานเหลี่ยมกลมสีส้มลายไม้ของกรง/กับดัก
+    const baseGeo = new THREE.CylinderGeometry(1.6, 1.6, 0.12, 16);
+    const baseMat = new THREE.MeshLambertMaterial({ color: 0xc87d32 }); // ลายไม้ส้ม
+    const baseMesh = new THREE.Mesh(baseGeo, baseMat);
+    baseMesh.receiveShadow = true;
+    trapGroup.add(baseMesh);
+    
+    // ห่วงเชือกทับด้านบน (Torus)
+    const ringGeo = new THREE.TorusGeometry(1.3, 0.12, 8, 24);
+    ringGeo.rotateX(Math.PI / 2);
+    const ringMat = new THREE.MeshLambertMaterial({ color: 0x475569 }); // สีเทาเหล็ก
+    const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+    ringMesh.position.y = 0.08;
+    trapGroup.add(ringMesh);
+    
+    // เหยื่อล่อตรงกลาง (ลูกบาศก์แดงเรืองแสง)
+    const baitGeo = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+    const baitMat = new THREE.MeshLambertMaterial({ 
+        color: 0xef4444, 
+        emissive: 0xef4444, 
+        emissiveIntensity: 0.8 
     });
-    const bulletMesh = new THREE.Mesh(bulletGeo, bulletMat);
+    const baitMesh = new THREE.Mesh(baitGeo, baitMat);
+    baitMesh.position.y = 0.25;
+    trapGroup.add(baitMesh);
     
-    // เริ่มต้นจากตัวผู้เล่น ลอยอยู่ระดับอก
-    bulletMesh.position.set(player.position.x, 0.8, player.position.z);
-    scene.add(bulletMesh);
+    trapGroup.position.set(tx, 0.06, tz);
+    scene.add(trapGroup);
     
-    gameState.bullets.push({
-        mesh: bulletMesh,
-        vx: vx,
-        vz: vz,
+    gameState.traps.push({
+        mesh: trapGroup,
+        x: tx,
+        z: tz,
         spawnTime: clock.getElapsedTime()
     });
 }
