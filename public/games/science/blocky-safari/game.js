@@ -203,22 +203,22 @@ function buildWorld() {
     ground.receiveShadow = true;
     scene.add(ground);
 
-    // สร้างตัวละครผู้เล่น (Blue Explorer Block)
+    // สร้างตัวละครผู้เล่น (Blue Explorer Block) - ขนาดขยาย 200% (2.4x2.4x2.4)
     const playerGroup = new THREE.Group();
     
-    const playerBodyGeo = new THREE.BoxGeometry(1.2, 1.2, 1.2);
+    const playerBodyGeo = new THREE.BoxGeometry(2.4, 2.4, 2.4);
     const playerBodyMat = new THREE.MeshLambertMaterial({ color: 0x3b82f6 });
     const playerBody = new THREE.Mesh(playerBodyGeo, playerBodyMat);
-    playerBody.position.y = 0.6;
+    playerBody.position.y = 1.2;
     playerBody.castShadow = true;
     
     // ตาของผู้เล่น
-    const eyeGeo = new THREE.BoxGeometry(0.2, 0.2, 0.1);
+    const eyeGeo = new THREE.BoxGeometry(0.4, 0.4, 0.2);
     const eyeMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
     const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
-    eyeL.position.set(-0.3, 0.8, 0.61);
+    eyeL.position.set(-0.6, 1.6, 1.22);
     const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
-    eyeR.position.set(0.3, 0.8, 0.61);
+    eyeR.position.set(0.6, 1.6, 1.22);
 
     playerGroup.add(playerBody, eyeL, eyeR);
     scene.add(playerGroup);
@@ -237,8 +237,8 @@ function buildWorld() {
                 playerGroup.remove(eyeR);
 
                 const model = gltf.scene;
-                // ปรับสเกลและองศาให้พอดี
-                model.scale.set(0.3, 0.3, 0.3);
+                // ปรับสเกลและองศาให้พอดี (ขยาย 200% จากเดิม 0.3 -> 0.6)
+                model.scale.set(0.6, 0.6, 0.6);
                 model.position.set(0, 0, 0);
                 
                 model.traverse(function (node) {
@@ -331,12 +331,43 @@ function spawnAnimal(data, opts) {
     opts = opts || {};
     const group = new THREE.Group();
 
-    // ตัวสัตว์บล็อก
-    const bodyGeo = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+    // ตัวสัตว์กลมน่ารัก (ไม่ใช้บล็อกสี่เหลี่ยมเดี่ยวๆ) - ขยายขนาด 200%
+    const body = new THREE.Group();
+
     const bodyMat = new THREE.MeshLambertMaterial({ color: data.color });
-    const body = new THREE.Mesh(bodyGeo, bodyMat);
-    body.position.y = 0.75;
-    body.castShadow = true;
+
+    // 1. ลำตัว (ทรงกระบอกแนวนอน)
+    const bodyGeo = new THREE.CylinderGeometry(1.6, 1.6, 3.6, 16);
+    bodyGeo.rotateX(Math.PI / 2);
+    const bodyMesh = new THREE.Mesh(bodyGeo, bodyMat);
+    bodyMesh.position.y = 2.0;
+    bodyMesh.castShadow = true;
+    bodyMesh.receiveShadow = true;
+    body.add(bodyMesh);
+
+    // 2. หัว (ทรงกลม)
+    const headGeo = new THREE.SphereGeometry(1.4, 16, 16);
+    const headMesh = new THREE.Mesh(headGeo, bodyMat);
+    headMesh.position.set(0, 3.0, 1.8);
+    headMesh.castShadow = true;
+    body.add(headMesh);
+
+    // 3. ขา 4 ข้าง
+    const legGeo = new THREE.CylinderGeometry(0.36, 0.36, 1.4, 8);
+    const legMat = new THREE.MeshLambertMaterial({ color: data.color });
+    const legFL = new THREE.Mesh(legGeo, legMat); legFL.position.set(1.0, 0.7, 1.2); legFL.castShadow = true;
+    const legFR = new THREE.Mesh(legGeo, legMat); legFR.position.set(-1.0, 0.7, 1.2); legFR.castShadow = true;
+    const legBL = new THREE.Mesh(legGeo, legMat); legBL.position.set(1.0, 0.7, -1.2); legBL.castShadow = true;
+    const legBR = new THREE.Mesh(legGeo, legMat); legBR.position.set(-1.0, 0.7, -1.2); legBR.castShadow = true;
+    body.add(legFL, legFR, legBL, legBR);
+
+    // 4. ตา 2 ข้าง (จุดดำ)
+    const eyeGeo = new THREE.SphereGeometry(0.2, 8, 8);
+    const eyeMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+    const eyeL = new THREE.Mesh(eyeGeo, eyeMat); eyeL.position.set(0.5, 3.3, 3.0);
+    const eyeR = new THREE.Mesh(eyeGeo, eyeMat); eyeR.position.set(-0.5, 3.3, 3.0);
+    body.add(eyeL, eyeR);
+
     group.add(body);
 
     // ป้ายชื่อสัตว์ลอยได้
@@ -915,7 +946,7 @@ function animate() {
                 const animal = animals[aIdx];
                 const bDist = bullet.mesh.position.distanceTo(animal.group.position);
                 
-                if (bDist < 1.6) { // ชนโดนสัตว์!
+                if (bDist < 3.2) { // ชนโดนสัตว์!
                     scene.remove(bullet.mesh);
                     gameState.bullets.splice(bIdx, 1);
                     bulletRemoved = true;
