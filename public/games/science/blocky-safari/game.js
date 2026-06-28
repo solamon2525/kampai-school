@@ -69,7 +69,7 @@ let currentPlayerAction = null;  // Action แอนิเมชันที่�
 let hasGLTFPlayer = false;       // มีโมเดล GLTF ของผู้เล่นที่โหลดสำเร็จหรือไม่
 
 // --- Game Mechanics Variables ---
-let targetChangeTimer = 12;      // นับถอยหลังการสลับเป้าหมายปัจจุบัน (หน่วย: วินาที)
+let targetChangeTimer = 30;      // นับถอยหลังการสลับเป้าหมายปัจจุบัน (หน่วย: วินาที)
 let cameraAngle = 0;             // องศามุมกล้องแนวระนาบ (เรเดียน)
 let cameraZoom = 1.0;            // ค่าซูมกล้องเข้าออก (0.5 - 2.0)
 let activePowerups = {
@@ -401,7 +401,7 @@ function buildWorld() {
 
     // ตั้งเป้าคะแนนด่านปัจจุบันเป็น 0
     gameState.score = 0;
-    targetChangeTimer = 12; // เวลาเปลี่ยนเป้าหมายเริ่มต้น
+    targetChangeTimer = 30; // เวลาเปลี่ยนเป้าหมายเริ่มต้น
 
     // เลือกและสุ่มตั้งเป้าหมายแรก
     switchTargetCategory();
@@ -430,111 +430,641 @@ function createTree(x, z) {
     trees.push(treeGroup);
 }
 
+function buildProceduralAnimal(data, bodyMat) {
+    const group = new THREE.Group();
+    let legs = [];
+    let tailFin = null;
+    let segments = [];
+    let height = 1.0;
+    let isSnake = false;
+    let isFish = false;
+
+    const eyeMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+    const beakMat = new THREE.MeshLambertMaterial({ color: 0xfabf2c }); // Orange-yellow
+    const whiteMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+    const bellyMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+    const skinColor = new THREE.Color(data.color);
+    const skinMat = bodyMat || new THREE.MeshLambertMaterial({ color: skinColor });
+
+    const type = data.type;
+    const id = data.id;
+
+    if (type === window.ANIMAL_TYPES.BIRD) {
+        // Birds: 2 legs, wings, beak
+        if (id === 'ostrich') {
+            height = 2.2;
+            const bodyGeo = new THREE.BoxGeometry(0.7, 0.7, 0.9);
+            const bodyMesh = new THREE.Mesh(bodyGeo, skinMat);
+            bodyMesh.position.y = 1.25;
+            bodyMesh.castShadow = true;
+            group.add(bodyMesh);
+
+            const neckGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.9, 8);
+            const neck = new THREE.Mesh(neckGeo, skinMat);
+            neck.position.set(0, 1.8, 0.35);
+            neck.rotation.x = -Math.PI / 12;
+            neck.castShadow = true;
+            group.add(neck);
+
+            const headGeo = new THREE.SphereGeometry(0.24, 12, 12);
+            const head = new THREE.Mesh(headGeo, skinMat);
+            head.position.set(0, 2.2, 0.45);
+            head.castShadow = true;
+            group.add(head);
+
+            const beakGeo = new THREE.ConeGeometry(0.08, 0.25, 4);
+            const beak = new THREE.Mesh(beakGeo, beakMat);
+            beak.position.set(0, 2.2, 0.65);
+            beak.rotation.x = Math.PI / 2;
+            group.add(beak);
+
+            const eyeGeo = new THREE.SphereGeometry(0.05, 8, 8);
+            const eyeL = new THREE.Mesh(eyeGeo, eyeMat); eyeL.position.set(0.15, 2.25, 0.52);
+            const eyeR = new THREE.Mesh(eyeGeo, eyeMat); eyeR.position.set(-0.15, 2.25, 0.52);
+            group.add(eyeL, eyeR);
+
+            const legFL = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 1.0, 8), new THREE.MeshLambertMaterial({ color: 0xdd9966 }));
+            legFL.position.set(0.2, 0.5, 0);
+            legFL.castShadow = true;
+            const legFR = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 1.0, 8), new THREE.MeshLambertMaterial({ color: 0xdd9966 }));
+            legFR.position.set(-0.2, 0.5, 0);
+            legFR.castShadow = true;
+            group.add(legFL, legFR);
+            legs.push(legFL, legFR);
+        } else if (id === 'penguin') {
+            height = 1.1;
+            const bodyGeo = new THREE.BoxGeometry(0.65, 0.9, 0.65);
+            const darkMat = new THREE.MeshLambertMaterial({ color: 0x1f2937 }); // slate-800
+            const bodyMesh = new THREE.Mesh(bodyGeo, darkMat);
+            bodyMesh.position.y = 0.55;
+            bodyMesh.castShadow = true;
+            group.add(bodyMesh);
+
+            const bellyGeo = new THREE.BoxGeometry(0.45, 0.7, 0.08);
+            const belly = new THREE.Mesh(bellyGeo, bellyMat);
+            belly.position.set(0, 0.5, 0.3);
+            group.add(belly);
+
+            const headGeo = new THREE.BoxGeometry(0.55, 0.4, 0.55);
+            const head = new THREE.Mesh(headGeo, darkMat);
+            head.position.set(0, 1.05, 0);
+            head.castShadow = true;
+            group.add(head);
+
+            const beakGeo = new THREE.ConeGeometry(0.08, 0.22, 4);
+            const beak = new THREE.Mesh(beakGeo, beakMat);
+            beak.position.set(0, 1.0, 0.35);
+            beak.rotation.x = Math.PI / 2;
+            group.add(beak);
+
+            const eyeGeo = new THREE.SphereGeometry(0.06, 8, 8);
+            const eyeL = new THREE.Mesh(eyeGeo, eyeMat); eyeL.position.set(0.18, 1.1, 0.25);
+            const eyeR = new THREE.Mesh(eyeGeo, eyeMat); eyeR.position.set(-0.18, 1.1, 0.25);
+            group.add(eyeL, eyeR);
+
+            const flipperGeo = new THREE.BoxGeometry(0.1, 0.6, 0.35);
+            const flipL = new THREE.Mesh(flipperGeo, darkMat); flipL.position.set(0.36, 0.65, 0); flipL.rotation.z = -Math.PI / 8;
+            const flipR = new THREE.Mesh(flipperGeo, darkMat); flipR.position.set(-0.36, 0.65, 0); flipR.rotation.z = Math.PI / 8;
+            group.add(flipL, flipR);
+
+            const footMat = new THREE.MeshLambertMaterial({ color: 0xea580c });
+            const footGeo = new THREE.BoxGeometry(0.2, 0.1, 0.35);
+            const footL = new THREE.Mesh(footGeo, footMat); footL.position.set(0.18, 0.05, 0.1);
+            const footR = new THREE.Mesh(footGeo, footMat); footR.position.set(-0.18, 0.05, 0.1);
+            group.add(footL, footR);
+            legs.push(footL, footR);
+        } else {
+            height = 1.0;
+            const bodyGeo = new THREE.BoxGeometry(0.55, 0.55, 0.75);
+            const bodyMesh = new THREE.Mesh(bodyGeo, skinMat);
+            bodyMesh.position.y = 0.55;
+            bodyMesh.castShadow = true;
+            group.add(bodyMesh);
+
+            const headGeo = new THREE.BoxGeometry(0.4, 0.4, 0.4);
+            const head = new THREE.Mesh(headGeo, skinMat);
+            head.position.set(0, 0.95, 0.2);
+            head.castShadow = true;
+            group.add(head);
+
+            const beakGeo = new THREE.ConeGeometry(0.08, 0.22, 4);
+            const beak = new THREE.Mesh(beakGeo, beakMat);
+            beak.position.set(0, 0.92, 0.42);
+            beak.rotation.x = Math.PI / 2;
+            group.add(beak);
+
+            const eyeGeo = new THREE.SphereGeometry(0.05, 8, 8);
+            const eyeL = new THREE.Mesh(eyeGeo, eyeMat); eyeL.position.set(0.15, 1.0, 0.32);
+            const eyeR = new THREE.Mesh(eyeGeo, eyeMat); eyeR.position.set(-0.15, 1.0, 0.32);
+            group.add(eyeL, eyeR);
+
+            const wingGeo = new THREE.BoxGeometry(0.08, 0.4, 0.55);
+            const wingL = new THREE.Mesh(wingGeo, skinMat); wingL.position.set(0.3, 0.6, 0); wingL.rotation.z = -Math.PI / 16;
+            const wingR = new THREE.Mesh(wingGeo, skinMat); wingR.position.set(-0.3, 0.6, 0); wingR.rotation.z = Math.PI / 16;
+            group.add(wingL, wingR);
+
+            const legH = 0.3;
+            const legGeo = new THREE.CylinderGeometry(0.04, 0.04, legH, 8);
+            const orangeMat = new THREE.MeshLambertMaterial({ color: 0xf59e0b });
+            const legL = new THREE.Mesh(legGeo, orangeMat); legL.position.set(0.15, legH / 2, 0); legL.castShadow = true;
+            const legR = new THREE.Mesh(legGeo, orangeMat); legR.position.set(-0.15, legH / 2, 0); legR.castShadow = true;
+            group.add(legL, legR);
+            legs.push(legL, legR);
+        }
+    } else if (type === window.ANIMAL_TYPES.FISH) {
+        isFish = true;
+        height = 0.8;
+
+        if (id === 'shark') {
+            const bodyGeo = new THREE.BoxGeometry(0.55, 0.55, 1.5);
+            const greyMat = new THREE.MeshLambertMaterial({ color: 0x64748b });
+            const bodyMesh = new THREE.Mesh(bodyGeo, greyMat);
+            bodyMesh.position.y = 0.4;
+            bodyMesh.castShadow = true;
+            group.add(bodyMesh);
+
+            const headGeo = new THREE.BoxGeometry(0.45, 0.4, 0.55);
+            const head = new THREE.Mesh(headGeo, greyMat);
+            head.position.set(0, 0.38, 0.85);
+            group.add(head);
+
+            const dorsalGeo = new THREE.BoxGeometry(0.1, 0.45, 0.35);
+            const dorsal = new THREE.Mesh(dorsalGeo, greyMat);
+            dorsal.position.set(0, 0.8, -0.1);
+            dorsal.rotation.x = -Math.PI / 8;
+            group.add(dorsal);
+
+            const eyeGeo = new THREE.SphereGeometry(0.05, 8, 8);
+            const eyeL = new THREE.Mesh(eyeGeo, eyeMat); eyeL.position.set(0.24, 0.45, 0.95);
+            const eyeR = new THREE.Mesh(eyeGeo, eyeMat); eyeR.position.set(-0.24, 0.45, 0.95);
+            group.add(eyeL, eyeR);
+
+            const tailGeo = new THREE.BoxGeometry(0.08, 0.65, 0.35);
+            tailFin = new THREE.Mesh(tailGeo, greyMat);
+            tailFin.position.set(0, 0.4, -0.85);
+            group.add(tailFin);
+        } else if (id === 'stingray') {
+            const bodyGeo = new THREE.BoxGeometry(1.6, 0.08, 1.2);
+            const greyBlueMat = new THREE.MeshLambertMaterial({ color: 0x475569 });
+            const bodyMesh = new THREE.Mesh(bodyGeo, greyBlueMat);
+            bodyMesh.position.y = 0.25;
+            bodyMesh.castShadow = true;
+            group.add(bodyMesh);
+
+            const eyeGeo = new THREE.SphereGeometry(0.05, 8, 8);
+            const eyeL = new THREE.Mesh(eyeGeo, eyeMat); eyeL.position.set(0.15, 0.31, 0.3);
+            const eyeR = new THREE.Mesh(eyeGeo, eyeMat); eyeR.position.set(-0.15, 0.31, 0.3);
+            group.add(eyeL, eyeR);
+
+            const tailGeo = new THREE.BoxGeometry(0.06, 0.06, 1.0);
+            tailFin = new THREE.Mesh(tailGeo, greyBlueMat);
+            tailFin.position.set(0, 0.25, -1.05);
+            group.add(tailFin);
+        } else if (id === 'whale' || id === 'dolphin') {
+            const bodyGeo = new THREE.BoxGeometry(0.75, 0.75, 1.8);
+            const blueMat = new THREE.MeshLambertMaterial({ color: id === 'whale' ? 0x0284c7 : 0x38bdf8 });
+            const bodyMesh = new THREE.Mesh(bodyGeo, blueMat);
+            bodyMesh.position.y = 0.55;
+            bodyMesh.castShadow = true;
+            group.add(bodyMesh);
+
+            const headGeo = new THREE.BoxGeometry(0.6, 0.55, 0.5);
+            const head = new THREE.Mesh(headGeo, blueMat);
+            head.position.set(0, 0.5, 1.05);
+            group.add(head);
+
+            const eyeGeo = new THREE.SphereGeometry(0.06, 8, 8);
+            const eyeL = new THREE.Mesh(eyeGeo, eyeMat); eyeL.position.set(0.31, 0.55, 1.0);
+            const eyeR = new THREE.Mesh(eyeGeo, eyeMat); eyeR.position.set(-0.31, 0.55, 1.0);
+            group.add(eyeL, eyeR);
+
+            const tailGeo = new THREE.BoxGeometry(0.6, 0.08, 0.35);
+            tailFin = new THREE.Mesh(tailGeo, blueMat);
+            tailFin.position.set(0, 0.55, -1.05);
+            group.add(tailFin);
+        } else {
+            const bodyGeo = new THREE.BoxGeometry(0.35, 0.55, 0.95);
+            const bodyMesh = new THREE.Mesh(bodyGeo, skinMat);
+            bodyMesh.position.y = 0.4;
+            bodyMesh.castShadow = true;
+            group.add(bodyMesh);
+
+            const eyeGeo = new THREE.SphereGeometry(0.05, 8, 8);
+            const eyeL = new THREE.Mesh(eyeGeo, eyeMat); eyeL.position.set(0.185, 0.45, 0.3);
+            const eyeR = new THREE.Mesh(eyeGeo, eyeMat); eyeR.position.set(-0.185, 0.45, 0.3);
+            group.add(eyeL, eyeR);
+
+            const finGeo = new THREE.BoxGeometry(0.25, 0.08, 0.25);
+            const finL = new THREE.Mesh(finGeo, skinMat); finL.position.set(0.22, 0.35, 0.15); finL.rotation.z = -Math.PI/6;
+            const finR = new THREE.Mesh(finGeo, skinMat); finR.position.set(-0.22, 0.35, 0.15); finR.rotation.z = Math.PI/6;
+            group.add(finL, finR);
+
+            const tailGeo = new THREE.BoxGeometry(0.06, 0.45, 0.3);
+            tailFin = new THREE.Mesh(tailGeo, skinMat);
+            tailFin.position.set(0, 0.4, -0.6);
+            group.add(tailFin);
+        }
+    } else if (type === window.ANIMAL_TYPES.REPTILE) {
+        if (id === 'python' || id === 'python_sab' || id === 'rattlesnake') {
+            isSnake = true;
+            height = 0.5;
+
+            const segCount = 5;
+            for (let i = 0; i < segCount; i++) {
+                const segGeo = new THREE.BoxGeometry(0.32, 0.32, 0.4);
+                const col = i % 2 === 0 ? skinColor : new THREE.Color(skinColor).multiplyScalar(0.75);
+                const segMat = new THREE.MeshLambertMaterial({ color: col });
+                const seg = new THREE.Mesh(segGeo, segMat);
+                seg.position.set(0, 0.16, 0.8 - i * 0.4);
+                seg.castShadow = true;
+                group.add(seg);
+                segments.push(seg);
+            }
+
+            const head = segments[0];
+            const eyeGeo = new THREE.SphereGeometry(0.05, 8, 8);
+            const eyeL = new THREE.Mesh(eyeGeo, eyeMat); eyeL.position.set(0.16, 0.12, 0.12);
+            const eyeR = new THREE.Mesh(eyeGeo, eyeMat); eyeR.position.set(-0.16, 0.12, 0.12);
+            head.add(eyeL, eyeR);
+
+            const tongueGeo = new THREE.BoxGeometry(0.06, 0.03, 0.25);
+            const tongueMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+            const tongue = new THREE.Mesh(tongueGeo, tongueMat);
+            tongue.position.set(0, -0.05, 0.3);
+            head.add(tongue);
+        } else if (id === 'turtle' || id === 'leatherback') {
+            height = 0.6;
+            const bodyGeo = new THREE.BoxGeometry(0.55, 0.25, 0.95);
+            const bodyMesh = new THREE.Mesh(bodyGeo, skinMat);
+            bodyMesh.position.y = 0.2;
+            bodyMesh.castShadow = true;
+            group.add(bodyMesh);
+
+            const shellGeo = new THREE.BoxGeometry(0.85, 0.45, 1.05);
+            const shellMat = new THREE.MeshLambertMaterial({ color: 0x78350f }); // brown shell
+            const shell = new THREE.Mesh(shellGeo, shellMat);
+            shell.position.set(0, 0.4, 0);
+            shell.castShadow = true;
+            group.add(shell);
+
+            const headGeo = new THREE.BoxGeometry(0.3, 0.25, 0.35);
+            const head = new THREE.Mesh(headGeo, skinMat);
+            head.position.set(0, 0.25, 0.6);
+            head.castShadow = true;
+            group.add(head);
+
+            const eyeGeo = new THREE.SphereGeometry(0.04, 8, 8);
+            const eyeL = new THREE.Mesh(eyeGeo, eyeMat); eyeL.position.set(0.12, 0.1, 0.12);
+            const eyeR = new THREE.Mesh(eyeGeo, eyeMat); eyeR.position.set(-0.12, 0.1, 0.12);
+            head.add(eyeL, eyeR);
+
+            const legH = 0.2;
+            const legGeo = new THREE.CylinderGeometry(0.08, 0.08, legH, 8);
+            const legFL = new THREE.Mesh(legGeo, skinMat); legFL.position.set(0.35, legH / 2, 0.35);
+            const legFR = new THREE.Mesh(legGeo, skinMat); legFR.position.set(-0.35, legH / 2, 0.35);
+            const legBL = new THREE.Mesh(legGeo, skinMat); legBL.position.set(0.35, legH / 2, -0.35);
+            const legBR = new THREE.Mesh(legGeo, skinMat); legBR.position.set(-0.35, legH / 2, -0.35);
+            group.add(legFL, legFR, legBL, legBR);
+            legs.push(legFL, legFR, legBL, legBR);
+        } else {
+            height = 0.65;
+            const bodyGeo = new THREE.BoxGeometry(0.45, 0.28, 1.3);
+            const bodyMesh = new THREE.Mesh(bodyGeo, skinMat);
+            bodyMesh.position.y = 0.22;
+            bodyMesh.castShadow = true;
+            group.add(bodyMesh);
+
+            const headGeo = new THREE.BoxGeometry(0.35, 0.25, 0.45);
+            const head = new THREE.Mesh(headGeo, skinMat);
+            head.position.set(0, 0.25, 0.75);
+            head.castShadow = true;
+            group.add(head);
+
+            const eyeGeo = new THREE.SphereGeometry(0.05, 8, 8);
+            const eyeL = new THREE.Mesh(eyeGeo, eyeMat); eyeL.position.set(0.15, 0.3, 0.8);
+            const eyeR = new THREE.Mesh(eyeGeo, eyeMat); eyeR.position.set(-0.15, 0.3, 0.8);
+            group.add(eyeL, eyeR);
+
+            const tailGeo = new THREE.BoxGeometry(0.22, 0.12, 0.75);
+            const tail = new THREE.Mesh(tailGeo, skinMat);
+            tail.position.set(0, 0.16, -0.9);
+            group.add(tail);
+
+            if (id === 'crocodile') {
+                const spikeMat = new THREE.MeshLambertMaterial({ color: 0x14532d });
+                for (let i = 0; i < 3; i++) {
+                    const spikeGeo = new THREE.ConeGeometry(0.08, 0.2, 4);
+                    const spike = new THREE.Mesh(spikeGeo, spikeMat);
+                    spike.position.set(0, 0.4, 0.3 - i * 0.35);
+                    group.add(spike);
+                }
+            }
+
+            const legH = 0.22;
+            const legGeo = new THREE.CylinderGeometry(0.08, 0.08, legH, 8);
+            const legFL = new THREE.Mesh(legGeo, skinMat); legFL.position.set(0.28, legH / 2, 0.4);
+            const legFR = new THREE.Mesh(legGeo, skinMat); legFR.position.set(-0.28, legH / 2, 0.4);
+            const legBL = new THREE.Mesh(legGeo, skinMat); legBL.position.set(0.28, legH / 2, -0.4);
+            const legBR = new THREE.Mesh(legGeo, skinMat); legBR.position.set(-0.28, legH / 2, -0.4);
+            group.add(legFL, legFR, legBL, legBR);
+            legs.push(legFL, legFR, legBL, legBR);
+        }
+    } else if (type === window.ANIMAL_TYPES.AMPHIBIAN) {
+        height = 0.7;
+        const bodyGeo = new THREE.BoxGeometry(0.55, 0.45, 0.75);
+        const bodyMesh = new THREE.Mesh(bodyGeo, skinMat);
+        bodyMesh.position.y = 0.25;
+        bodyMesh.castShadow = true;
+        group.add(bodyMesh);
+
+        const eyeBulgeGeo = new THREE.SphereGeometry(0.12, 8, 8);
+        const bulgeL = new THREE.Mesh(eyeBulgeGeo, skinMat); bulgeL.position.set(0.18, 0.5, 0.25);
+        const bulgeR = new THREE.Mesh(eyeBulgeGeo, skinMat); bulgeR.position.set(-0.18, 0.5, 0.25);
+        group.add(bulgeL, bulgeR);
+
+        const eyeGeo = new THREE.SphereGeometry(0.06, 8, 8);
+        const eyeL = new THREE.Mesh(eyeGeo, eyeMat); eyeL.position.set(0.18, 0.52, 0.33);
+        const eyeR = new THREE.Mesh(eyeGeo, eyeMat); eyeR.position.set(-0.18, 0.52, 0.33);
+        group.add(eyeL, eyeR);
+
+        if (id === 'salamander' || id === 'newt') {
+            const tailGeo = new THREE.BoxGeometry(0.18, 0.18, 0.65);
+            const tail = new THREE.Mesh(tailGeo, skinMat);
+            tail.position.set(0, 0.25, -0.6);
+            group.add(tail);
+        }
+
+        const legH = 0.25;
+        const legGeo = new THREE.CylinderGeometry(0.07, 0.07, legH, 8);
+        const legFL = new THREE.Mesh(legGeo, skinMat); legFL.position.set(0.3, legH / 2, 0.25);
+        const legFR = new THREE.Mesh(legGeo, skinMat); legFR.position.set(-0.3, legH / 2, 0.25);
+        const legBL = new THREE.Mesh(legGeo, skinMat); legBL.position.set(0.3, legH / 2, -0.25);
+        const legBR = new THREE.Mesh(legGeo, skinMat); legBR.position.set(-0.3, legH / 2, -0.25);
+        group.add(legFL, legFR, legBL, legBR);
+        legs.push(legFL, legFR, legBL, legBR);
+    } else {
+        // Mammals: 4 legs
+        if (id === 'elephant') {
+            height = 1.6;
+            const bodyGeo = new THREE.BoxGeometry(1.0, 0.9, 1.6);
+            const greyMat = new THREE.MeshLambertMaterial({ color: 0x6b7280 });
+            const bodyMesh = new THREE.Mesh(bodyGeo, greyMat);
+            bodyMesh.position.y = 0.85;
+            bodyMesh.castShadow = true;
+            group.add(bodyMesh);
+
+            const headGeo = new THREE.BoxGeometry(0.8, 0.75, 0.75);
+            const head = new THREE.Mesh(headGeo, greyMat);
+            head.position.set(0, 1.15, 0.85);
+            head.castShadow = true;
+            group.add(head);
+
+            const eyeGeo = new THREE.SphereGeometry(0.06, 8, 8);
+            const eyeL = new THREE.Mesh(eyeGeo, eyeMat); eyeL.position.set(0.41, 1.25, 0.95);
+            const eyeR = new THREE.Mesh(eyeGeo, eyeMat); eyeR.position.set(-0.41, 1.25, 0.95);
+            group.add(eyeL, eyeR);
+
+            const earGeo = new THREE.BoxGeometry(0.12, 0.85, 0.6);
+            const earL = new THREE.Mesh(earGeo, greyMat); earL.position.set(0.48, 1.2, 0.7); earL.rotation.y = -Math.PI / 6;
+            const earR = new THREE.Mesh(earGeo, greyMat); earR.position.set(-0.48, 1.2, 0.7); earR.rotation.y = Math.PI / 6;
+            group.add(earL, earR);
+
+            const trunkGeo = new THREE.BoxGeometry(0.2, 0.75, 0.2);
+            const trunk = new THREE.Mesh(trunkGeo, greyMat);
+            trunk.position.set(0, 0.8, 1.25);
+            trunk.rotation.x = -Math.PI / 12;
+            group.add(trunk);
+
+            const tuskGeo = new THREE.BoxGeometry(0.08, 0.08, 0.45);
+            const tuskMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+            const tuskL = new THREE.Mesh(tuskGeo, tuskMat); tuskL.position.set(0.25, 0.9, 1.15); tuskL.rotation.x = Math.PI / 12;
+            const tuskR = new THREE.Mesh(tuskGeo, tuskMat); tuskR.position.set(-0.25, 0.9, 1.15); tuskR.rotation.x = Math.PI / 12;
+            group.add(tuskL, tuskR);
+
+            const legH = 0.5;
+            const legGeo = new THREE.CylinderGeometry(0.16, 0.16, legH, 8);
+            const legFL = new THREE.Mesh(legGeo, greyMat); legFL.position.set(0.35, legH / 2, 0.5); legFL.castShadow = true;
+            const legFR = new THREE.Mesh(legGeo, greyMat); legFR.position.set(-0.35, legH / 2, 0.5); legFR.castShadow = true;
+            const legBL = new THREE.Mesh(legGeo, greyMat); legBL.position.set(0.35, legH / 2, -0.5); legBL.castShadow = true;
+            const legBR = new THREE.Mesh(legGeo, greyMat); legBR.position.set(-0.35, legH / 2, -0.5); legBR.castShadow = true;
+            group.add(legFL, legFR, legBL, legBR);
+            legs.push(legFL, legFR, legBL, legBR);
+        } else if (id === 'lion') {
+            height = 1.2;
+            const bodyGeo = new THREE.BoxGeometry(0.55, 0.55, 1.15);
+            const bodyMesh = new THREE.Mesh(bodyGeo, skinMat);
+            bodyMesh.position.y = 0.65;
+            bodyMesh.castShadow = true;
+            group.add(bodyMesh);
+
+            const headGeo = new THREE.BoxGeometry(0.48, 0.48, 0.48);
+            const head = new THREE.Mesh(headGeo, skinMat);
+            head.position.set(0, 0.95, 0.55);
+            head.castShadow = true;
+            group.add(head);
+
+            const maneGeo = new THREE.BoxGeometry(0.75, 0.75, 0.28);
+            const maneMat = new THREE.MeshLambertMaterial({ color: 0x9a3412 });
+            const mane = new THREE.Mesh(maneGeo, maneMat);
+            mane.position.set(0, 0.95, 0.4);
+            group.add(mane);
+
+            const eyeGeo = new THREE.SphereGeometry(0.05, 8, 8);
+            const eyeL = new THREE.Mesh(eyeGeo, eyeMat); eyeL.position.set(0.16, 1.0, 0.76);
+            const eyeR = new THREE.Mesh(eyeGeo, eyeMat); eyeR.position.set(-0.16, 1.0, 0.76);
+            group.add(eyeL, eyeR);
+
+            const tailGeo = new THREE.BoxGeometry(0.08, 0.08, 0.45);
+            const tail = new THREE.Mesh(tailGeo, skinMat);
+            tail.position.set(0, 0.7, -0.75);
+            tail.rotation.x = -Math.PI / 4;
+            group.add(tail);
+
+            const legH = 0.42;
+            const legGeo = new THREE.CylinderGeometry(0.1, 0.1, legH, 8);
+            const legFL = new THREE.Mesh(legGeo, skinMat); legFL.position.set(0.2, legH / 2, 0.35); legFL.castShadow = true;
+            const legFR = new THREE.Mesh(legGeo, skinMat); legFR.position.set(-0.2, legH / 2, 0.35); legFR.castShadow = true;
+            const legBL = new THREE.Mesh(legGeo, skinMat); legBL.position.set(0.2, legH / 2, -0.35); legBL.castShadow = true;
+            const legBR = new THREE.Mesh(legGeo, skinMat); legBR.position.set(-0.2, legH / 2, -0.35); legBR.castShadow = true;
+            group.add(legFL, legFR, legBL, legBR);
+            legs.push(legFL, legFR, legBL, legBR);
+        } else if (id === 'camel') {
+            height = 1.5;
+            const bodyGeo = new THREE.BoxGeometry(0.55, 0.65, 1.15);
+            const bodyMesh = new THREE.Mesh(bodyGeo, skinMat);
+            bodyMesh.position.y = 0.85;
+            bodyMesh.castShadow = true;
+            group.add(bodyMesh);
+
+            const humpGeo = new THREE.BoxGeometry(0.45, 0.3, 0.35);
+            const hump1 = new THREE.Mesh(humpGeo, skinMat); hump1.position.set(0, 1.25, 0.15);
+            const hump2 = new THREE.Mesh(humpGeo, skinMat); hump2.position.set(0, 1.25, -0.25);
+            group.add(hump1, hump2);
+
+            const neckGeo = new THREE.CylinderGeometry(0.08, 0.12, 0.6, 8);
+            const neck = new THREE.Mesh(neckGeo, skinMat);
+            neck.position.set(0, 1.2, 0.65);
+            neck.rotation.x = -Math.PI / 6;
+            group.add(neck);
+
+            const headGeo = new THREE.BoxGeometry(0.35, 0.35, 0.45);
+            const head = new THREE.Mesh(headGeo, skinMat);
+            head.position.set(0, 1.5, 0.8);
+            head.castShadow = true;
+            group.add(head);
+
+            const eyeGeo = new THREE.SphereGeometry(0.05, 8, 8);
+            const eyeL = new THREE.Mesh(eyeGeo, eyeMat); eyeL.position.set(0.15, 1.55, 0.95);
+            const eyeR = new THREE.Mesh(eyeGeo, eyeMat); eyeR.position.set(-0.15, 1.55, 0.95);
+            group.add(eyeL, eyeR);
+
+            const legH = 0.6;
+            const legGeo = new THREE.CylinderGeometry(0.07, 0.07, legH, 8);
+            const legFL = new THREE.Mesh(legGeo, skinMat); legFL.position.set(0.2, legH / 2, 0.35); legFL.castShadow = true;
+            const legFR = new THREE.Mesh(legGeo, skinMat); legFR.position.set(-0.2, legH / 2, 0.35); legFR.castShadow = true;
+            const legBL = new THREE.Mesh(legGeo, skinMat); legBL.position.set(0.2, legH / 2, -0.35); legBL.castShadow = true;
+            const legBR = new THREE.Mesh(legGeo, skinMat); legBR.position.set(-0.2, legH / 2, -0.35); legBR.castShadow = true;
+            group.add(legFL, legFR, legBL, legBR);
+            legs.push(legFL, legFR, legBL, legBR);
+        } else if (id === 'bat') {
+            height = 0.9;
+            const bodyGeo = new THREE.BoxGeometry(0.38, 0.55, 0.38);
+            const bodyMesh = new THREE.Mesh(bodyGeo, skinMat);
+            bodyMesh.position.y = 0.45;
+            bodyMesh.castShadow = true;
+            group.add(bodyMesh);
+
+            const earGeo = new THREE.ConeGeometry(0.1, 0.25, 4);
+            const earL = new THREE.Mesh(earGeo, skinMat); earL.position.set(0.12, 0.8, 0);
+            const earR = new THREE.Mesh(earGeo, skinMat); earR.position.set(-0.12, 0.8, 0);
+            group.add(earL, earR);
+
+            const eyeGeo = new THREE.SphereGeometry(0.04, 8, 8);
+            const eyeL = new THREE.Mesh(eyeGeo, eyeMat); eyeL.position.set(0.1, 0.55, 0.18);
+            const eyeR = new THREE.Mesh(eyeGeo, eyeMat); eyeR.position.set(-0.1, 0.55, 0.18);
+            group.add(eyeL, eyeR);
+
+            const wingGeo = new THREE.BoxGeometry(0.85, 0.35, 0.04);
+            const wingMat = new THREE.MeshLambertMaterial({ color: 0x111827 });
+            const wingL = new THREE.Mesh(wingGeo, wingMat); wingL.position.set(0.55, 0.5, 0); wingL.rotation.y = -Math.PI / 12;
+            const wingR = new THREE.Mesh(wingGeo, wingMat); wingR.position.set(-0.55, 0.5, 0); wingR.rotation.y = Math.PI / 12;
+            group.add(wingL, wingR);
+
+            const hookGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.12, 8);
+            const hookL = new THREE.Mesh(hookGeo, wingMat); hookL.position.set(0.08, 0.1, 0);
+            const hookR = new THREE.Mesh(hookGeo, wingMat); hookR.position.set(-0.08, 0.1, 0);
+            group.add(hookL, hookR);
+            legs.push(hookL, hookR);
+        } else {
+            height = 1.1;
+            const bodyGeo = new THREE.BoxGeometry(0.55, 0.55, 1.05);
+            const bodyMesh = new THREE.Mesh(bodyGeo, skinMat);
+            bodyMesh.position.y = 0.55;
+            bodyMesh.castShadow = true;
+            group.add(bodyMesh);
+
+            const headGeo = new THREE.BoxGeometry(0.42, 0.42, 0.42);
+            const head = new THREE.Mesh(headGeo, skinMat);
+            head.position.set(0, 0.85, 0.48);
+            head.castShadow = true;
+            group.add(head);
+
+            const eyeGeo = new THREE.SphereGeometry(0.05, 8, 8);
+            const eyeL = new THREE.Mesh(eyeGeo, eyeMat); eyeL.position.set(0.14, 0.9, 0.66);
+            const eyeR = new THREE.Mesh(eyeGeo, eyeMat); eyeR.position.set(-0.14, 0.9, 0.66);
+            group.add(eyeL, eyeR);
+
+            const snoutGeo = new THREE.BoxGeometry(0.24, 0.18, 0.2);
+            const snoutMat = new THREE.MeshLambertMaterial({ color: skinColor.clone().multiplyScalar(0.85) });
+            const snout = new THREE.Mesh(snoutGeo, snoutMat);
+            snout.position.set(0, 0.78, 0.68);
+            group.add(snout);
+
+            const tailGeo = new THREE.BoxGeometry(0.07, 0.07, 0.35);
+            const tail = new THREE.Mesh(tailGeo, skinMat);
+            tail.position.set(0, 0.65, -0.65);
+            tail.rotation.x = -Math.PI / 4;
+            group.add(tail);
+
+            if (id === 'cow') {
+                const spotMat = new THREE.MeshLambertMaterial({ color: 0x111827 });
+                for (let i = 0; i < 3; i++) {
+                    const spotGeo = new THREE.SphereGeometry(0.16, 8, 8);
+                    const spot = new THREE.Mesh(spotGeo, spotMat);
+                    spot.position.set((i % 2 === 0 ? 0.28 : -0.28), 0.6 + (Math.random() - 0.5) * 0.1, 0.2 - i * 0.3);
+                    group.add(spot);
+                }
+                const hornGeo = new THREE.ConeGeometry(0.06, 0.18, 4);
+                const hornL = new THREE.Mesh(hornGeo, whiteMat); hornL.position.set(0.18, 1.1, 0.45); hornL.rotation.z = -Math.PI / 12;
+                const hornR = new THREE.Mesh(hornGeo, whiteMat); hornR.position.set(-0.18, 1.1, 0.45); hornR.rotation.z = Math.PI / 12;
+                group.add(hornL, hornR);
+            }
+
+            if (id === 'cat' || id === 'dog') {
+                const earGeo = new THREE.ConeGeometry(0.08, 0.18, 4);
+                const earL = new THREE.Mesh(earGeo, skinMat); earL.position.set(0.16, 1.08, 0.45);
+                const earR = new THREE.Mesh(earGeo, skinMat); earR.position.set(-0.16, 1.08, 0.45);
+                group.add(earL, earR);
+            }
+
+            const legH = 0.38;
+            const legGeo = new THREE.CylinderGeometry(0.08, 0.08, legH, 8);
+            const legFL = new THREE.Mesh(legGeo, skinMat); legFL.position.set(0.2, legH / 2, 0.3); legFL.castShadow = true;
+            const legFR = new THREE.Mesh(legGeo, skinMat); legFR.position.set(-0.2, legH / 2, 0.3); legFR.castShadow = true;
+            const legBL = new THREE.Mesh(legGeo, skinMat); legBL.position.set(0.2, legH / 2, -0.3); legBL.castShadow = true;
+            const legBR = new THREE.Mesh(legGeo, skinMat); legBR.position.set(-0.2, legH / 2, -0.3); legBR.castShadow = true;
+            group.add(legFL, legFR, legBL, legBR);
+            legs.push(legFL, legFR, legBL, legBR);
+        }
+    }
+
+    return {
+        mesh: group,
+        legs: legs,
+        tailFin: tailFin,
+        segments: segments,
+        height: height,
+        isSnake: isSnake,
+        isFish: isFish
+    };
+}
+
 function spawnAnimal(data, opts) {
     opts = opts || {};
     const group = new THREE.Group();
 
-    // ตัวสัตว์กลมน่ารัก (ไม่ใช้บล็อกสี่เหลี่ยมเดี่ยวๆ) - ขยายขนาด 200%
-    const body = new THREE.Group();
-
-    // สุ่มโทนสี (HSL Variation) เล็กน้อยเพื่อให้สีตัวสัตว์แต่ละตัวไม่ซ้ำซากจำเจ
+    // สร้างโมเดลสัตว์ด้วยระบบ Procedural Builder (สเกลเล็กลง น่ารักขึ้น)
     const baseColor = new THREE.Color(data.color);
     baseColor.offsetHSL((Math.random() - 0.5) * 0.08, (Math.random() - 0.5) * 0.1, (Math.random() - 0.5) * 0.08);
     const bodyMat = new THREE.MeshLambertMaterial({ color: baseColor });
 
-    // สุ่มขนาดสเกลส่วนตัวสัตว์เล็กน้อย +/- 15%
-    const bodyScaleX = 0.85 + Math.random() * 0.3;
-    const bodyScaleY = 0.85 + Math.random() * 0.3;
-    const bodyScaleZ = 0.85 + Math.random() * 0.3;
+    const pAnim = buildProceduralAnimal(data, bodyMat);
+    const body = pAnim.mesh;
 
-    // 1. ลำตัว (ทรงกระบอกแนวนอน)
-    const bodyGeo = new THREE.CylinderGeometry(1.6, 1.6, 3.6, 16);
-    bodyGeo.rotateX(Math.PI / 2);
-    const bodyMesh = new THREE.Mesh(bodyGeo, bodyMat);
-    bodyMesh.position.y = 2.0;
-    bodyMesh.scale.set(bodyScaleX, bodyScaleY, bodyScaleZ);
-    bodyMesh.castShadow = true;
-    bodyMesh.receiveShadow = true;
-    body.add(bodyMesh);
+    // สุ่มขนาดสเกลเล็กน้อย +/- 10%
+    const varScale = 0.9 + Math.random() * 0.2;
+    body.scale.set(varScale, varScale, varScale);
+    const animalHeight = pAnim.height * varScale;
 
-    // 2. หัว (ทรงกลม)
-    const headScale = 0.85 + Math.random() * 0.3;
-    const headGeo = new THREE.SphereGeometry(1.4 * headScale, 16, 16);
-    const headMesh = new THREE.Mesh(headGeo, bodyMat);
-    headMesh.position.set(0, 3.0, 1.8);
-    headMesh.castShadow = true;
-    body.add(headMesh);
-
-    // 3. ขา 4 ข้าง (สุ่มความสูง/หนาของขา)
-    const legH = 1.0 + Math.random() * 0.8;
-    const legThick = 0.3 + Math.random() * 0.15;
-    const legGeo = new THREE.CylinderGeometry(legThick, legThick, legH, 8);
-    const legMat = new THREE.MeshLambertMaterial({ color: baseColor });
-    
-    const legFL = new THREE.Mesh(legGeo, legMat); legFL.position.set(1.0, legH / 2, 1.2); legFL.castShadow = true;
-    const legFR = new THREE.Mesh(legGeo, legMat); legFR.position.set(-1.0, legH / 2, 1.2); legFR.castShadow = true;
-    const legBL = new THREE.Mesh(legGeo, legMat); legBL.position.set(1.0, legH / 2, -1.2); legBL.castShadow = true;
-    const legBR = new THREE.Mesh(legGeo, legMat); legBR.position.set(-1.0, legH / 2, -1.2); legBR.castShadow = true;
-    body.add(legFL, legFR, legBL, legBR);
-
-    // 4. ตา 2 ข้าง (จุดดำ)
-    const eyeGeo = new THREE.SphereGeometry(0.2, 8, 8);
-    const eyeMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
-    const eyeL = new THREE.Mesh(eyeGeo, eyeMat); eyeL.position.set(0.5, 3.0 + 0.3 * headScale, 1.8 + 1.2 * headScale);
-    const eyeR = new THREE.Mesh(eyeGeo, eyeMat); eyeR.position.set(-0.5, 3.0 + 0.3 * headScale, 1.8 + 1.2 * headScale);
-    body.add(eyeL, eyeR);
-
-    // 5. สุ่มเครื่องประดับ/ลักษณะเฉพาะตัวอื่นๆ เพื่อความหลากหลาย (Accessories)
-    const randFeature = Math.random();
-    if (randFeature < 0.25) {
-        // แฟลตลายจุดบนตัว (Spots) 4 จุด
-        const spotMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
-        for (let i = 0; i < 4; i++) {
-            const spotGeo = new THREE.SphereGeometry(0.35, 8, 8);
-            const spot = new THREE.Mesh(spotGeo, spotMat);
-            const side = i % 2 === 0 ? 1.65 : -1.65;
-            spot.position.set(side * bodyScaleX, 2.0 + (Math.random() - 0.5) * 0.8, (Math.random() - 0.5) * 1.5);
-            body.add(spot);
-        }
-    } else if (randFeature < 0.50) {
-        // แผงหนามบนหลัง (Spikes)
-        const spikeMat = new THREE.MeshLambertMaterial({ color: 0xdd6b20 });
-        for (let i = 0; i < 3; i++) {
-            const spikeGeo = new THREE.ConeGeometry(0.3, 0.7, 4);
-            const spike = new THREE.Mesh(spikeGeo, spikeMat);
-            spike.position.set(0, 2.0 + 1.6 * bodyScaleY, -1.0 + i * 0.8);
-            spike.rotation.x = Math.PI / 6;
-            body.add(spike);
-        }
-    } else if (randFeature < 0.75) {
-        // หู/เขา สองข้างบนหัว
-        const hornGeo = new THREE.CylinderGeometry(0.15, 0.15, 0.9, 6);
-        const hornMat = new THREE.MeshLambertMaterial({ color: 0xe2e8f0 });
-        const hornL = new THREE.Mesh(hornGeo, hornMat);
-        hornL.position.set(0.6 * headScale, 3.0 + 1.2 * headScale, 1.8);
-        hornL.rotation.z = -Math.PI / 6;
-        const hornR = new THREE.Mesh(hornGeo, hornMat);
-        hornR.position.set(-0.6 * headScale, 3.0 + 1.2 * headScale, 1.8);
-        hornR.rotation.z = Math.PI / 6;
-        body.add(hornL, hornR);
-    } else if (randFeature < 0.90) {
-        // สวมหมวกจิ๋วสีสันสดใส (Cute tiny explorer hat!)
-        const hatGroup = new THREE.Group();
+    // สุ่มสวมหมวกนักสำรวจจิ๋ว (Easter Egg น่ารัก)
+    if (Math.random() < 0.15 && (data.type === window.ANIMAL_TYPES.MAMMAL || data.type === window.ANIMAL_TYPES.AMPHIBIAN)) {
         const hatColor = [0xef4444, 0x3b82f6, 0xa855f7, 0xf59e0b][Math.floor(Math.random() * 4)];
         const hatMat = new THREE.MeshLambertMaterial({ color: hatColor });
-        const hatBase = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 0.9, 0.08, 12), hatMat);
-        const hatTop = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 0.6, 12), hatMat);
-        hatTop.position.y = 0.3;
-        hatGroup.add(hatBase, hatTop);
-        hatGroup.position.set(0, 3.0 + 1.35 * headScale, 1.8);
-        body.add(hatGroup);
+        const hatBase = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.02, 10), hatMat);
+        const hatTop = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.12, 10), hatMat);
+        hatTop.position.y = 0.06;
+        const hat = new THREE.Group();
+        hat.add(hatBase, hatTop);
+        // วางบนหัว
+        hat.position.set(0, pAnim.height, 0.25);
+        body.add(hat);
     }
 
     group.add(body);
 
-    // ป้ายชื่อสัตว์ลอยได้
+    // ป้ายชื่อสัตว์ลอยได้ (ความสูงเหมาะสม ลอยเหนือหัว)
     const sprite = createTextSprite(data.emoji + " " + data.name);
-    sprite.position.y = 2.5;
+    sprite.position.y = animalHeight + 0.65;
     group.add(sprite);
 
     // ตำแหน่ง: ปกติ = กระจายทั่วแมป ตามประเภทสิ่งแวดล้อม
@@ -608,7 +1138,16 @@ function spawnAnimal(data, opts) {
         pond: assignedPond,
         grass: assignedGrass,
         isHiddenReptile: assignedGrass ? true : false,
-        revealAlpha: assignedGrass ? 0.25 : 1.0
+        revealAlpha: assignedGrass ? 0.25 : 1.0,
+
+        // Custom animation hooks
+        legs: pAnim.legs,
+        tailFin: pAnim.tailFin,
+        segments: pAnim.segments,
+        isSnake: pAnim.isSnake,
+        isFish: pAnim.isFish,
+        bodyMesh: body, // Reference for color flash
+        textSprite: sprite
     };
 
     // พยายามโหลดโมเดล GLTF ของสัตว์ตัวนี้ (เช่น lion.glb)
@@ -675,20 +1214,46 @@ function createTextSprite(text) {
         const texture = new THREE.CanvasTexture(canvas);
         const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
         const sprite = new THREE.Sprite(spriteMaterial);
-        sprite.scale.set(4, 2, 1);
+        sprite.scale.set(3, 1.5, 1);
         return sprite;
     }
     
-    context.font = "Bold 40px 'Kanit'";
-    context.fillStyle = "rgba(0, 0, 0, 0.5)"; // เงาป้ายชื่อ
-    context.fillText(text, 22, 72);
-    context.fillStyle = "white";
-    context.fillText(text, 20, 70);
+    context.font = "Bold 24px 'Kanit'";
+    const textWidth = context.measureText(text).width;
+    const pillWidth = Math.min(240, textWidth + 30);
+    const pillHeight = 44;
+    const pillX = (256 - pillWidth) / 2;
+    const pillY = (128 - pillHeight) / 2;
+    const radius = 22;
+
+    context.beginPath();
+    context.moveTo(pillX + radius, pillY);
+    context.lineTo(pillX + pillWidth - radius, pillY);
+    context.quadraticCurveTo(pillX + pillWidth, pillY, pillX + pillWidth, pillY + radius);
+    context.lineTo(pillX + pillWidth, pillY + pillHeight - radius);
+    context.quadraticCurveTo(pillX + pillWidth, pillY + pillHeight, pillX + pillWidth - radius, pillY + pillHeight);
+    context.lineTo(pillX + radius, pillY + pillHeight);
+    context.quadraticCurveTo(pillX, pillY + pillHeight, pillX, pillY + pillHeight - radius);
+    context.lineTo(pillX, pillY + radius, pillX, pillY);
+    context.quadraticCurveTo(pillX, pillY, pillX + radius, pillY);
+    context.closePath();
+
+    context.fillStyle = "rgba(15, 23, 42, 0.85)"; // Slate-900 with opacity
+    context.fill();
+
+    context.strokeStyle = "rgba(255, 255, 255, 0.4)";
+    context.lineWidth = 2;
+    context.stroke();
+    
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillStyle = "#ffffff";
+    context.fillText(text, 128, 64);
 
     const texture = new THREE.CanvasTexture(canvas);
     const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
     const sprite = new THREE.Sprite(spriteMaterial);
-    sprite.scale.set(4, 2, 1);
+    sprite.scale.set(3.2, 1.6, 1);
     return sprite;
 }
 
@@ -1139,7 +1704,7 @@ function switchTargetCategory() {
     }
 
     gameState.targetCategory = newTarget;
-    targetChangeTimer = 12; // รีเซ็ตเวลาเป็น 12 วินาที
+    targetChangeTimer = 30; // รีเซ็ตเวลาเป็น 30 วินาที
     
     updateHUD();
 }
@@ -1746,7 +2311,45 @@ function animate() {
 
         // หากเป็นโมเดล GLTF ให้ยืนนิ่งบนพื้น (ไม่ลอยขึ้นลง)
         if (!ud.hasGLTF) {
-            a.group.position.y = Math.sin(time * 2 + ud.floatOffset) * 0.2;
+            // ปรับระดับความสูงและการลอยตัวให้สอดคล้องกับประเภทสัตว์
+            if (ud.isFish) {
+                a.group.position.y = ud.startY + Math.sin(time * 3 + ud.floatOffset) * 0.08;
+            } else if (ud.isSnake) {
+                a.group.position.y = ud.startY + Math.sin(time * 3 + ud.floatOffset) * 0.03;
+            } else {
+                a.group.position.y = ud.startY + Math.sin(time * 2.5 + ud.floatOffset) * 0.15;
+            }
+
+            // --- อนิเมชันการขยับ/การเดินแบบจำลอง (Procedural Animations) ---
+            // 1. แกว่งขาเดิน (Legs swinging)
+            if (ud.legs && ud.legs.length > 0) {
+                const speed = ud.isAggro ? 12 : 6;
+                const amplitude = ud.isAggro ? 0.6 : 0.35;
+                const swing = Math.sin(time * speed + ud.floatOffset) * amplitude;
+                ud.legs.forEach((leg, idx) => {
+                    if (idx === 0 || idx === 3) {
+                        leg.rotation.x = swing;
+                    } else {
+                        leg.rotation.x = -swing;
+                    }
+                });
+            }
+
+            // 2. ดุกดิกหางปลา (Fish tail fin wiggling)
+            if (ud.isFish && ud.tailFin) {
+                const wiggleSpeed = ud.isAggro ? 18 : 10;
+                const wiggleAmp = ud.isAggro ? 0.6 : 0.3;
+                ud.tailFin.rotation.y = Math.sin(time * wiggleSpeed + ud.floatOffset) * wiggleAmp;
+            }
+
+            // 3. เลื้อยแบบคลื่นสำหรับงู (Snake segments slithering wave)
+            if (ud.isSnake && ud.segments && ud.segments.length > 0) {
+                const slitherSpeed = ud.isAggro ? 14 : 7;
+                const slitherAmp = ud.isAggro ? 0.35 : 0.2;
+                ud.segments.forEach((seg, idx) => {
+                    seg.position.x = Math.sin(time * slitherSpeed - idx * 0.8 + ud.floatOffset) * slitherAmp;
+                });
+            }
         } else {
             a.group.position.y = 0;
         }
@@ -1763,26 +2366,22 @@ function animate() {
             if (ud.damageFlash > 0) {
                 ud.damageFlash -= dt;
                 const redColor = new THREE.Color(0xff0000);
-                if (ud.hasGLTF) {
-                    bodyMesh.traverse(function (node) {
-                        if (node.isMesh && node.material) {
-                            if (!node.userData.originalColor) node.userData.originalColor = node.material.color.clone();
-                            node.material.color.copy(redColor);
-                        }
-                    });
-                } else {
-                    if (bodyMesh.material) bodyMesh.material.color.setHex(0xff0000);
-                }
+                bodyMesh.traverse(function (node) {
+                    if (node.isMesh && node.material) {
+                        if (!node.userData.originalColor) node.userData.originalColor = node.material.color.clone();
+                        node.material.color.copy(redColor);
+                    }
+                });
             } else {
-                if (ud.hasGLTF) {
-                    bodyMesh.traverse(function (node) {
-                        if (node.isMesh && node.material && node.userData.originalColor) {
+                bodyMesh.traverse(function (node) {
+                    if (node.isMesh && node.material) {
+                        if (node.userData.originalColor) {
                             node.material.color.copy(node.userData.originalColor);
+                        } else if (node.material.color) {
+                            node.material.color.setHex(a.data.color);
                         }
-                    });
-                } else {
-                    if (bodyMesh.material) bodyMesh.material.color.setHex(a.data.color);
-                }
+                    }
+                });
             }
         }
     });
