@@ -991,10 +991,8 @@ function animate() {
             const dz = player.position.z - animal.group.position.z;
             const dist = Math.sqrt(dx * dx + dz * dz);
             
-            // เช็คว่าเคยมีผู้เล่นเข้าใกล้จนกระตุ้นสถานะ Aggro หรือไม่
-            if (dist < CHASE_DIST) {
-                animal.group.userData.isAggro = true;
-            }
+            // เช็คว่าผู้เล่นอยู่ในระยะติดตาม (CHASE_DIST) หรือไม่ (ติดตามเมื่อเข้าใกล้ และเลิกติดตามเมื่อออกห่าง)
+            animal.group.userData.isAggro = (dist < CHASE_DIST);
 
             if (animal.group.userData.isAggro) {
                 // ติดสถานะ Aggro -> วิ่งไล่ล่าติดตามผู้เล่นตลอดการเล่นในด่านนั้น
