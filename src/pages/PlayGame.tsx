@@ -440,7 +440,9 @@ const PlayGame = () => {
               fh: gameQuery.data.character_frame_h ?? 128,
               frames: gameQuery.data.character_frame_count ?? 12,
               anim: resolveCharacterAnimation(
-                parseCharacterAnimationConfig(gameQuery.data.character_animation_config),
+                parseCharacterAnimationConfig(
+                  (gameQuery.data as { character_animation_config?: unknown }).character_animation_config,
+                ),
                 gameQuery.data.character_frame_count,
               ),
             }
@@ -456,7 +458,7 @@ const PlayGame = () => {
       },
       '*',
     );
-  }, [student, codeInput, statsQuery.data, levelInfo.level, leaderboardQuery.data, classmatesQuery.data, gameQuery.data?.bgm_preset, gameQuery.data?.bgm_url, gameQuery.data?.character_sheet_url, gameQuery.data?.character_sheet_url_p2, gameQuery.data?.character_frame_w, gameQuery.data?.character_frame_h, gameQuery.data?.character_frame_count, gameQuery.data?.character_animation_config, resolvedSlug, masteryQuery.data, dailyStatusQuery.data, dailyLeaderboardQuery.data, postParentViewport]);
+  }, [student, codeInput, statsQuery.data, levelInfo.level, leaderboardQuery.data, classmatesQuery.data, gameQuery.data?.bgm_preset, gameQuery.data?.bgm_url, gameQuery.data?.character_sheet_url, gameQuery.data?.character_sheet_url_p2, gameQuery.data?.character_frame_w, gameQuery.data?.character_frame_h, gameQuery.data?.character_frame_count, resolvedSlug, masteryQuery.data, dailyStatusQuery.data, dailyLeaderboardQuery.data, postParentViewport]);
 
   // ─── auto-login จาก localStorage (ลดเวลากรอกรหัสเมื่อเปลี่ยนเกม) ────────
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -798,7 +800,14 @@ const PlayGame = () => {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background p-6">
         <Gamepad2 className="h-12 w-12 text-muted-foreground" />
-        <p className="text-lg text-muted-foreground">ไม่พบเกมนี้ในระบบติดตาม</p>
+        <p className="text-lg text-muted-foreground">
+          {gameQuery.isError ? 'โหลดข้อมูลเกมไม่สำเร็จ — ลอง refresh' : 'ไม่พบเกมนี้ในระบบติดตาม'}
+        </p>
+        {gameQuery.isError && (
+          <p className="text-xs text-muted-foreground max-w-md text-center">
+            {(gameQuery.error as Error)?.message ?? 'query error'}
+          </p>
+        )}
         <Button asChild variant="outline">
           <Link to="/h/nattapong">
             <ArrowLeft className="mr-2 h-4 w-4" />
