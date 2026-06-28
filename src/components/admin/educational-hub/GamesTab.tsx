@@ -59,6 +59,7 @@ import {
     type CharacterSheet,
 } from '@/services/educational-hub.service';
 import { CharacterSheetPreview } from './CharacterSheetPreview';
+import { CharacterSheetScenePreview } from './CharacterSheetScenePreview';
 import { CharacterSheetGridPreview } from './CharacterSheetGridPreview';
 import { CharacterSheetStudio } from './CharacterSheetStudio';
 import { CharacterSheetAutoFitButton } from './CharacterSheetAutoFitButton';
@@ -1514,6 +1515,14 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
                                     </div>
                                 ))}
                             </div>
+                            <CharacterSheetScenePreview
+                                sheetUrl={previewUrl}
+                                frameWidth={parseInt(fw, 10) || 128}
+                                frameHeight={parseInt(fh, 10) || 128}
+                                frameCount={parseInt(fc, 10) || 12}
+                                animationConfig={animConfig}
+                                className="mt-2"
+                            />
                         </div>
                     )}
                     <Button onClick={handleUpload} disabled={busy || !file} className="w-full">

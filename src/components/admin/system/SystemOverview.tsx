@@ -272,8 +272,17 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.124.0 (pose catalog ครบ + studio sync)',
+        version: 'v1.125.0 (scene preview จำลองเกม)',
         date: 'ล่าสุด',
+        badge: 'bg-violet-600',
+        items: [
+            '**CharacterSheetScenePreview** — ตัวละครเดิน/วิ่ง/กระโดด/หยุดขอบใน canvas · ใช้ `pickCharacterFrameIndex` เหมือน runtime',
+            'Character Studio + อัปโหลดตัวละคร — แสดง scene P1/P2 · โชว์ท่า attack/happy ถ้า map แล้ว',
+        ],
+    },
+    {
+        version: 'v1.124.0 (pose catalog ครบ + studio sync)',
+        date: '',
         badge: 'bg-violet-600',
         items: [
             '**Pose map 5 กลุ่ม** — attack/crouch/slide/special/death ฯลฯ ใน `animation_config.extras` · admin UI พับกลุ่ม',

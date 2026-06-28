@@ -6,6 +6,7 @@ import {
 } from '@/components/ui/select';
 import { Loader2, Save } from 'lucide-react';
 import { CharacterSheetPreview } from './CharacterSheetPreview';
+import { CharacterSheetScenePreview } from './CharacterSheetScenePreview';
 import { CharacterSheetGridPreview } from './CharacterSheetGridPreview';
 import { CharacterPoseMapper } from './CharacterPoseMapper';
 import { CharacterColorEditor } from './CharacterColorEditor';
@@ -192,6 +193,30 @@ export function CharacterSheetStudio({ sheet, busy, onSave, className }: Props) 
                         <Input value={fw} onChange={(e) => setFw(e.target.value)} className="h-8 text-xs" placeholder="W" />
                         <Input value={fh} onChange={(e) => setFh(e.target.value)} className="h-8 text-xs" placeholder="H" />
                         <Input value={fc} onChange={(e) => setFc(e.target.value)} className="h-8 text-xs" placeholder="N" />
+                    </div>
+                </div>
+
+                <div className="space-y-2 rounded-md border border-border p-2 lg:col-span-2">
+                    <p className="text-xs font-medium text-muted-foreground">🎮 จำลองเกม (เดิน · วิ่ง · กระโดด · หยุดขอบ)</p>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                        <CharacterSheetScenePreview
+                            sheetUrl={sheet.sheet_url}
+                            frameWidth={frameWidth}
+                            frameHeight={frameHeight}
+                            frameCount={frameCount}
+                            animationConfig={animConfig}
+                            colorConfig={colorConfig}
+                            player={1}
+                        />
+                        <CharacterSheetScenePreview
+                            sheetUrl={sheet.sheet_url_p2 ?? sheet.sheet_url}
+                            frameWidth={frameWidth}
+                            frameHeight={frameHeight}
+                            frameCount={frameCount}
+                            animationConfig={animConfig}
+                            colorConfig={colorConfig}
+                            player={2}
+                        />
                     </div>
                 </div>
 

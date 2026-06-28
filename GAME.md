@@ -276,7 +276,7 @@ if (others.length) rival.dist = others.sort((a,b)=>b.v-a.v)[0].v;   // v = ต�
 > **Pose catalog (5 กลุ่ม):** เคลื่อนที่ · ต่อสู้ (attack/block/dodge) · ท่าทาง (crouch/sit/…) · แพลตฟอร์ม (slide/climb/fall) · พิเศษ (special/emote/death).
 > เกมเรียกท่าด้วย `player.state` — ตัวอย่าง `'attack'`, `'crouch'`, `'slide'`, `'special'`. ท่าที่ยังไม่ map → fallback idle/walk/run/jump อัตโนมัติ.
 > `KAMPAI.pickCharacterFrame(p, { runSpeed })` · `KAMPAI.poseKeyFromPlayerState(p)` · `KAMPAI.resolveFootAnchor(anim, pose)`.
-> Admin: **Character Studio** — map ท่าแยกกลุ่ม · Auto fit ขนาดเฟรม · palette สี · จุดเท้าแยกตามท่า (poseAnchors).
+> Admin: **Character Studio** — map ท่าแยกกลุ่ม · Auto fit ขนาดเฟรม · palette สี · จุดเท้าแยกตามท่า (poseAnchors) · **Scene preview** จำลองเดิน/วิ่ง/กระโดดบนพื้น (ใช้ `pickCharacterFrameIndex` เหมือนในเกม).
 > `_template-react.html` (React) — ทั้งคู่ใช้ SDK + โชว์ leaderboard ในเกม + D-pad มือถือ.
 
 ---
