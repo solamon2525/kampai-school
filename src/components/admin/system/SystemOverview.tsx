@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.122.0 (คลังตัวละคร — animation config)',
+        version: 'v1.123.0 (ตัดพื้นหลัง sprite ตัวละคร)',
         date: 'ล่าสุด',
+        badge: 'bg-violet-600',
+        items: [
+            '**ตัดพื้นหลังอัตโนมัติ** ในคลังตัวละคร — flood fill จากขอบ · preview checkerboard · ปรับความไว',
+            '`src/lib/sprite-background.ts` + `pnpm process:sprite-bg` สำหรับ bundled assets',
+            'thai-sara-run bunny sheets → PNG โปร่งใส',
+        ],
+    },
+    {
+        version: 'v1.122.0 (คลังตัวละคร — animation config)',
+        date: '',
         badge: 'bg-violet-600',
         items: [
             '**animation_config** (migration 265) — preset platformer-12: idle/walk/run/jump/hurt/happy · denormalize ลงเกม',

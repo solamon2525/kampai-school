@@ -575,7 +575,7 @@ export const characterSheetsService = {
         animationPreset?: string;
         notes?: string;
     }): Promise<{ sheet: CharacterSheet | null; error: Error | null }> => {
-        const animationConfig = getCharacterAnimPreset(params.animationPreset ?? 'platformer-12');
+        const animationConfig = getCharacterAnimPreset(params.animationPreset ?? 'grid-3x6-18');
         const id = crypto.randomUUID();
         const base = `characters/${id}`;
         const path1 = `${base}/sheet.png`;

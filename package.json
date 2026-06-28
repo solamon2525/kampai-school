@@ -19,7 +19,8 @@
     "lint:design": "design.md lint DESIGN.md",
     "generate:og": "node scripts/generate-og-image.mjs",
     "optimize:logos": "node scripts/optimize-logos.mjs",
-    "verify:game": "node scripts/verify-game.mjs"
+    "verify:game": "node scripts/verify-game.mjs",
+    "process:sprite-bg": "node scripts/process-sprite-background.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

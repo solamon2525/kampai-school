@@ -269,6 +269,7 @@ if (others.length) rival.dist = others.sort((a,b)=>b.v-a.v)[0].v;   // v = ต�
 ```
 > เกมเก่าที่อ่านแค่ `studentCode` ยังทำงานได้ (additive). ถ้า `character === null` → ใช้ sprite bundled ใน git ตามเดิม.
 > เกมที่ opt-in: อ่าน `KAMPAI.character` ใน `onReady` หรือเรียก `KAMPAI.loadCharacterSheets()` + `KAMPAI.pickCharacterFrame(player)`.
+> **คลังตัวละคร admin:** อัปโหลดแล้ว **ตัดพื้นหลังอัตโนมัติ** (flood fill จากขอบ → PNG โปร่งใส) · ปรับความไวได้ · bundled git ใช้ `pnpm process:sprite-bg`
 > `anim` = mapping เฟรม `{ idle[], walk[], run[], jump:{up,peak,fall}, hurt, happy }` — preset `platformer-12` เป็น default.
 > `_template-react.html` (React) — ทั้งคู่ใช้ SDK + โชว์ leaderboard ในเกม + D-pad มือถือ.
 

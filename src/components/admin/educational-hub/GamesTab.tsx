@@ -67,6 +67,11 @@ import {
     validateAnimationConfig,
     getCharacterAnimPreset,
 } from '@/lib/character-animation';
+import {
+    processSpriteSheetFile,
+    processSpriteSheetPreviewUrl,
+    SPRITE_CHECKERBOARD_STYLE,
+} from '@/lib/sprite-background';
 import { gamePlayService } from '@/services/game-play.service';
 import { GameDocsDialog } from './GameDocsDialog';
 import { GameCoverAiDialog } from './GameCoverAiDialog';
@@ -1181,7 +1186,12 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
     const [fc, setFc] = useState('12');
     const [preset, setPreset] = useState('grid-3x6-18');
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [removeBg, setRemoveBg] = useState(true);
+    const [bgTolerance, setBgTolerance] = useState(36);
+    const [previewBusy, setPreviewBusy] = useState(false);
     const [busy, setBusy] = useState(false);
+
+    const bgOpts = { tolerance: bgTolerance, mode: 'auto' as const };
 
     const presetMeta = CHARACTER_ANIM_PRESET_OPTIONS.find((p) => p.key === preset) ?? CHARACTER_ANIM_PRESET_OPTIONS[0];
 
@@ -1197,23 +1207,49 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
             setPreviewUrl(null);
             return;
         }
-        const url = URL.createObjectURL(file);
-        setPreviewUrl(url);
-        const img = new Image();
-        img.onload = () => {
-            const fcNum = parseInt(fc, 10) || presetMeta.frameCount;
-            const gridOpts = 'cols' in presetMeta && presetMeta.cols
-                ? { cols: presetMeta.cols, rows: 'rows' in presetMeta ? presetMeta.rows : 3 }
-                : undefined;
-            const suggested = suggestFrameSizeFromImage(img.naturalWidth, img.naturalHeight, fcNum, gridOpts);
-            if (suggested) {
-                setFw(String(suggested.frameWidth));
-                setFh(String(suggested.frameHeight));
+        let cancelled = false;
+        setPreviewBusy(true);
+        (async () => {
+            try {
+                const url = removeBg
+                    ? await processSpriteSheetPreviewUrl(file, bgOpts)
+                    : URL.createObjectURL(file);
+                if (cancelled) {
+                    URL.revokeObjectURL(url);
+                    return;
+                }
+                setPreviewUrl((prev) => {
+                    if (prev) URL.revokeObjectURL(prev);
+                    return url;
+                });
+                const img = new Image();
+                img.onload = () => {
+                    if (cancelled) return;
+                    const fcNum = parseInt(fc, 10) || presetMeta.frameCount;
+                    const gridOpts = 'cols' in presetMeta && presetMeta.cols
+                        ? { cols: presetMeta.cols, rows: 'rows' in presetMeta ? presetMeta.rows : 3 }
+                        : undefined;
+                    const suggested = suggestFrameSizeFromImage(img.naturalWidth, img.naturalHeight, fcNum, gridOpts);
+                    if (suggested) {
+                        setFw(String(suggested.frameWidth));
+                        setFh(String(suggested.frameHeight));
+                    }
+                };
+                img.src = url;
+            } catch {
+                if (!cancelled) toast({ title: 'ประมวลผล preview ไม่สำเร็จ', variant: 'destructive' });
+            } finally {
+                if (!cancelled) setPreviewBusy(false);
             }
+        })();
+        return () => {
+            cancelled = true;
+            setPreviewUrl((prev) => {
+                if (prev) URL.revokeObjectURL(prev);
+                return null;
+            });
         };
-        img.src = url;
-        return () => URL.revokeObjectURL(url);
-    }, [file, fc, presetMeta.frameCount]);
+    }, [file, fc, presetMeta, removeBg, bgTolerance, toast]);
 
     const { data: sheets, isLoading } = useQuery({
         queryKey: ['character-sheets'],
@@ -1239,19 +1275,25 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
         }
         setBusy(true);
         try {
+            const sheet1 = removeBg ? await processSpriteSheetFile(file, bgOpts) : file;
+            const sheet2 = fileP2 && removeBg ? await processSpriteSheetFile(fileP2, bgOpts) : fileP2;
             const { error } = await characterSheetsService.upload({
                 title: title || file.name.replace(/\.[^.]+$/, ''),
-                sheetFile: file,
-                sheetFileP2: fileP2,
+                sheetFile: sheet1,
+                sheetFileP2: sheet2,
                 frameWidth,
                 frameHeight,
                 frameCount,
                 animationPreset: preset,
             });
             if (error) throw error;
-            setTitle(''); setFile(null); setFileP2(null); setPreviewUrl(null);
+            setTitle(''); setFile(null); setFileP2(null);
+            setPreviewUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return null; });
             queryClient.invalidateQueries({ queryKey: ['character-sheets'] });
-            toast({ title: 'อัปโหลดตัวละครสำเร็จ' });
+            toast({
+                title: 'อัปโหลดตัวละครสำเร็จ',
+                description: removeBg ? 'ตัดพื้นหลังแล้ว — PNG โปร่งใส' : undefined,
+            });
         } catch (err) {
             toast({ title: 'อัปโหลดไม่สำเร็จ', description: err instanceof Error ? err.message : 'เกิดข้อผิดพลาด', variant: 'destructive' });
         } finally { setBusy(false); }
@@ -1273,7 +1315,7 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
             <DialogHeader>
                 <DialogTitle>🐰 คลังตัวละคร</DialogTitle>
                 <DialogDescription>
-                    อัปโหลด sprite sheet แนวนอน + เลือกแบบจัดเรียงเฟรม · preview animation ก่อนบันทึก
+                    อัปโหลด sprite sheet + ตัดพื้นหลังอัตโนมัติ (PNG โปร่งใส) · preview animation ก่อนบันทึก
                 </DialogDescription>
             </DialogHeader>
 
@@ -1297,6 +1339,28 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
                         <Input value={fh} onChange={(e) => setFh(e.target.value)} placeholder="ความสูงเฟรม" />
                         <Input value={fc} onChange={(e) => setFc(e.target.value)} placeholder="จำนวนเฟรม" />
                     </div>
+                    <div className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2">
+                        <div>
+                            <p className="text-sm font-medium">✂️ ตัดพื้นหลังอัตโนมัติ</p>
+                            <p className="text-[11px] text-muted-foreground">Flood fill จากขอบ → PNG โปร่งใส (checkerboard ใน preview)</p>
+                        </div>
+                        <Switch checked={removeBg} onCheckedChange={setRemoveBg} />
+                    </div>
+                    {removeBg && (
+                        <div className="space-y-1">
+                            <label className="text-xs text-muted-foreground">
+                                ความไวตัดพื้นหลัง: {bgTolerance}
+                            </label>
+                            <input
+                                type="range"
+                                min={8}
+                                max={64}
+                                value={bgTolerance}
+                                onChange={(e) => setBgTolerance(Number(e.target.value))}
+                                className="w-full accent-primary"
+                            />
+                        </div>
+                    )}
                     <div className="space-y-1">
                         <label className="text-xs text-muted-foreground">Sheet ผู้เล่น 1 (บังคับ)</label>
                         <Input type="file" accept="image/png,image/webp,image/gif" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
@@ -1307,7 +1371,10 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
                     </div>
                     {previewUrl && (
                         <div className="rounded-md border border-border bg-muted/30 p-2">
-                            <p className="text-xs text-muted-foreground mb-2">Preview ก่อนอัปโหลด</p>
+                            <p className="text-xs text-muted-foreground mb-2">
+                                Preview ก่อนอัปโหลด {removeBg ? '(พื้นหลังโปร่งใส)' : ''}
+                                {previewBusy ? ' · กำลังประมวลผล…' : ''}
+                            </p>
                             <div className="flex flex-wrap gap-3 justify-center">
                                 {(['idle', 'walk', 'run', 'jump'] as const).map((mode) => (
                                     <div key={mode} className="text-center">
@@ -1319,7 +1386,8 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
                                             animationConfig={getCharacterAnimPreset(preset)}
                                             mode={mode}
                                             size={56}
-                                            className="rounded bg-background border border-border"
+                                            className="rounded border border-border"
+                                            checkerboard
                                         />
                                         <p className="text-[10px] text-muted-foreground mt-1">{mode}</p>
                                     </div>
@@ -1350,7 +1418,8 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
                                         animationConfig={anim}
                                         mode="walk"
                                         size={48}
-                                        className="shrink-0 rounded bg-muted border border-border"
+                                        className="shrink-0 rounded border border-border"
+                                        checkerboard
                                     />
                                     <div className="flex-1 min-w-0">
                                         <p className="text-sm font-medium truncate">{s.title}</p>

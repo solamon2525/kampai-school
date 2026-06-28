@@ -4,6 +4,8 @@ import {
     characterFrameRect,
     resolveCharacterAnimation,
 } from '@/lib/character-animation';
+import { SPRITE_CHECKERBOARD_STYLE } from '@/lib/sprite-background';
+import { cn } from '@/lib/utils';
 
 type Props = {
     sheetUrl: string;
@@ -15,6 +17,8 @@ type Props = {
     mode?: 'idle' | 'walk' | 'run' | 'jump';
     size?: number;
     className?: string;
+    /** แสดงพื้น checkerboard เพื่อเห็นความโปร่งใส */
+    checkerboard?: boolean;
 };
 
 export function CharacterSheetPreview({
@@ -26,6 +30,7 @@ export function CharacterSheetPreview({
     mode = 'walk',
     size = 64,
     className,
+    checkerboard = false,
 }: Props) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -103,8 +108,11 @@ export function CharacterSheetPreview({
             ref={canvasRef}
             width={size}
             height={size}
-            className={className}
-            style={{ imageRendering: 'pixelated' }}
+            className={cn(className)}
+            style={{
+                imageRendering: 'pixelated',
+                ...(checkerboard ? SPRITE_CHECKERBOARD_STYLE : undefined),
+            }}
             aria-hidden
         />
     );
