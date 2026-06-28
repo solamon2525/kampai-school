@@ -669,8 +669,6 @@ function loadBunnyImage(src) {
 function loadBunnySprites() {
   const c = KAMPAI.character;
   const base = BUNNY_ASSET_BASE;
-  const wUrl = (c && c.sheetUrl) ? c.sheetUrl : base + '/bunny-white-sheet.png';
-  const bUrl = (c && c.sheetUrlP2) ? c.sheetUrlP2 : base + '/bunny-blue-sheet.png';
   if (c && c.fw && c.fh) {
     BUNNY_SPRITE.fw = c.fw;
     BUNNY_SPRITE.fh = c.fh;
@@ -680,6 +678,15 @@ function loadBunnySprites() {
     BUNNY_SPRITE.fh = 227;
     BUNNY_SPRITE.frames = 18;
   }
+  if (typeof KAMPAI.loadCharacterSheets === 'function' && c && c.sheetUrl) {
+    return KAMPAI.loadCharacterSheets().then(({ primary, secondary }) => {
+      BUNNY_SPRITE.white = primary;
+      BUNNY_SPRITE.blue = secondary || primary;
+      BUNNY_SPRITE.ready = Boolean(primary);
+    }).catch(() => { BUNNY_SPRITE.ready = false; });
+  }
+  const wUrl = (c && c.sheetUrl) ? c.sheetUrl : base + '/bunny-white-sheet.png';
+  const bUrl = (c && c.sheetUrlP2) ? c.sheetUrlP2 : base + '/bunny-blue-sheet.png';
   return Promise.all([
     loadBunnyImage(wUrl),
     loadBunnyImage(bUrl),

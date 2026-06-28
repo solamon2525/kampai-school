@@ -1,10 +1,12 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
     type CharacterAnimationConfig,
     characterFrameRect,
     resolveCharacterAnimation,
     shouldFlipCharacterFace,
 } from '@/lib/character-animation';
+import type { CharacterColorConfig } from '@/lib/character-color';
+import { recolorImageToCanvas } from '@/lib/sprite-recolor';
 import { SPRITE_CHECKERBOARD_STYLE } from '@/lib/sprite-background';
 import { cn } from '@/lib/utils';
 
@@ -14,6 +16,8 @@ type Props = {
     frameHeight: number;
     frameCount: number;
     animationConfig?: CharacterAnimationConfig | null;
+    colorConfig?: CharacterColorConfig | null;
+    player?: 1 | 2;
     /** idle | walk | run | jump */
     mode?: 'idle' | 'walk' | 'run' | 'jump';
     size?: number;
@@ -33,6 +37,8 @@ export function CharacterSheetPreview({
     frameHeight,
     frameCount,
     animationConfig,
+    colorConfig,
+    player = 1,
     mode = 'walk',
     size = 64,
     className,
@@ -43,6 +49,21 @@ export function CharacterSheetPreview({
     drawH = 128,
 }: Props) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const [drawSrc, setDrawSrc] = useState<CanvasImageSource | null>(null);
+
+    useEffect(() => {
+        let cancelled = false;
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = async () => {
+            if (cancelled) return;
+            const canvas = await recolorImageToCanvas(img, colorConfig, player);
+            setDrawSrc(canvas);
+        };
+        img.onerror = () => { if (!cancelled) setDrawSrc(null); };
+        img.src = sheetUrl;
+        return () => { cancelled = true; };
+    }, [sheetUrl, colorConfig, player]);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -53,8 +74,6 @@ export function CharacterSheetPreview({
         if (!ctx) return;
 
         ctx.imageSmoothingEnabled = false;
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
         let raf = 0;
         let start = 0;
 
@@ -100,7 +119,7 @@ export function CharacterSheetPreview({
                 ctx.fillText('พื้น', 10, groundY - 4);
             }
 
-            if (img.complete && img.naturalWidth > 0) {
+            if (drawSrc) {
                 const footRatio = anim.anchorFoot ?? 0.94;
                 const feetPad = anim.feetPad ?? 0;
                 const scale = showGround ? Math.min((w - 24) / drawW, (h - 28) / drawH) : w / frameWidth;
@@ -115,29 +134,23 @@ export function CharacterSheetPreview({
                 if (flip) {
                     ctx.translate(cx, dy);
                     ctx.scale(-1, 1);
-                    ctx.drawImage(img, sx, sy, frameWidth, frameHeight, -dw / 2, 0, dw, dh);
+                    ctx.drawImage(drawSrc, sx, sy, frameWidth, frameHeight, -dw / 2, 0, dw, dh);
                 } else if (showGround) {
-                    ctx.drawImage(img, sx, sy, frameWidth, frameHeight, cx - dw / 2, dy, dw, dh);
+                    ctx.drawImage(drawSrc, sx, sy, frameWidth, frameHeight, cx - dw / 2, dy, dw, dh);
                 } else {
-                    ctx.drawImage(img, sx, sy, frameWidth, frameHeight, 0, 0, dw, dh);
+                    ctx.drawImage(drawSrc, sx, sy, frameWidth, frameHeight, 0, 0, dw, dh);
                 }
                 ctx.restore();
             }
             raf = requestAnimationFrame(tick);
         };
 
-        img.onload = () => {
-            cancelAnimationFrame(raf);
-            start = 0;
-            raf = requestAnimationFrame(tick);
-        };
-        img.src = sheetUrl;
+        raf = requestAnimationFrame(tick);
 
         return () => {
             cancelAnimationFrame(raf);
-            img.onload = null;
         };
-    }, [sheetUrl, frameWidth, frameHeight, frameCount, animationConfig, mode, face, showGround, drawW, drawH]);
+    }, [drawSrc, sheetUrl, frameWidth, frameHeight, frameCount, animationConfig, mode, face, showGround, drawW, drawH]);
 
     return (
         <canvas

@@ -71,6 +71,7 @@ import {
     getCharacterAnimPreset,
     type CharacterAnimationConfig,
 } from '@/lib/character-animation';
+import type { CharacterColorConfig } from '@/lib/character-color';
 import {
     processSpriteSheetFile,
     processSpriteSheetPreviewUrl,
@@ -1329,6 +1330,7 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
             frameHeight: number;
             frameCount: number;
             animationConfig: CharacterAnimationConfig;
+            colorConfig: CharacterColorConfig | null;
         },
     ) => {
         setSaveBusy(true);
@@ -1339,6 +1341,7 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
                 frameHeight: payload.frameHeight,
                 frameCount: payload.frameCount,
                 animationConfig: payload.animationConfig,
+                colorConfig: payload.colorConfig,
             });
             if (error) throw error;
             queryClient.invalidateQueries({ queryKey: ['character-sheets'] });

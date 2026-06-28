@@ -4,6 +4,7 @@
  */
 import { supabase } from '@/integrations/supabase/client';
 import { getCharacterAnimPreset, type CharacterAnimationConfig } from '@/lib/character-animation';
+import { type CharacterColorConfig } from '@/lib/character-color';
 
 export type EduHubItemType = 'file' | 'link' | 'youtube' | 'text';
 
@@ -68,6 +69,7 @@ export type EduHubItem = {
     character_frame_h: number | null;
     character_frame_count: number | null;
     character_animation_config: CharacterAnimationConfig | null;
+    character_color_config: CharacterColorConfig | null;
     created_at: string;
     updated_at: string;
 };
@@ -109,6 +111,7 @@ export type CharacterSheet = {
     frame_height: number;
     frame_count: number;
     animation_config: CharacterAnimationConfig | null;
+    color_config: CharacterColorConfig | null;
     preview_url: string | null;
     notes: string | null;
     created_by: string | null;
@@ -651,6 +654,7 @@ export const characterSheetsService = {
             frameHeight?: number;
             frameCount?: number;
             animationConfig?: CharacterAnimationConfig;
+            colorConfig?: CharacterColorConfig | null;
             notes?: string | null;
         },
     ): Promise<{ sheet: CharacterSheet | null; error: Error | null }> => {
@@ -660,6 +664,7 @@ export const characterSheetsService = {
         if (params.frameHeight != null) patch.frame_height = params.frameHeight;
         if (params.frameCount != null) patch.frame_count = params.frameCount;
         if (params.animationConfig != null) patch.animation_config = params.animationConfig;
+        if (params.colorConfig !== undefined) patch.color_config = params.colorConfig;
         if (params.notes !== undefined) patch.notes = params.notes;
 
         const { data, error } = await supabase
@@ -702,6 +707,7 @@ export function characterAssignmentFromSheet(sheet: CharacterSheet | null | unde
             character_frame_h: null,
             character_frame_count: null,
             character_animation_config: null,
+            character_color_config: null,
         };
     }
     return {
@@ -712,6 +718,7 @@ export function characterAssignmentFromSheet(sheet: CharacterSheet | null | unde
         character_frame_h: sheet.frame_height,
         character_frame_count: sheet.frame_count,
         character_animation_config: sheet.animation_config,
+        character_color_config: sheet.color_config,
     };
 }
 

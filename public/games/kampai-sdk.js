@@ -177,21 +177,96 @@
     return idle[0];
   };
 
+  /** Recolor sprite — palette slots + luminance shading */
+  function _hexToRgb(hex) {
+    var h = String(hex || '').replace('#', '');
+    if (h.length === 3) h = h.split('').map(function (c) { return c + c; }).join('');
+    var n = parseInt(h, 16) || 0;
+    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+  }
+  function _pxLum(r, g, b) { return 0.299 * r + 0.587 * g + 0.114 * b; }
+  function _colorDist(r, g, b, tr, tg, tb) {
+    return Math.max(Math.abs(r - tr), Math.abs(g - tg), Math.abs(b - tb));
+  }
+  function _effectiveColorSlots(cfg, player) {
+    if (!cfg || !cfg.slots) return [];
+    if (player === 2 && cfg.slotsP2 && cfg.slotsP2.length) {
+      return cfg.slotsP2.filter(function (s) { return s.enabled !== false; });
+    }
+    return (cfg.slots || []).filter(function (s) { return s.enabled !== false; });
+  }
+  function _recolorRgb(r, g, b, slots) {
+    if (!slots.length) return [r, g, b];
+    var best = null, bestD = Infinity;
+    for (var i = 0; i < slots.length; i++) {
+      var s = slots[i];
+      if (s.enabled === false) continue;
+      var tol = s.tolerance != null ? s.tolerance : 18;
+      var d = _colorDist(r, g, b, s.source.r, s.source.g, s.source.b);
+      if (d <= tol && d < bestD) { bestD = d; best = s; }
+    }
+    if (!best) return [r, g, b];
+    var srcL = _pxLum(best.source.r, best.source.g, best.source.b) || 1;
+    var pxL = _pxLum(r, g, b);
+    var ratio = Math.max(0.35, Math.min(1.65, pxL / srcL));
+    var t = _hexToRgb(best.target);
+    return [
+      Math.max(0, Math.min(255, Math.round(t.r * ratio))),
+      Math.max(0, Math.min(255, Math.round(t.g * ratio))),
+      Math.max(0, Math.min(255, Math.round(t.b * ratio))),
+    ];
+  }
+  function _applyColorToCanvas(ctx, colorCfg, player) {
+    var slots = _effectiveColorSlots(colorCfg, player);
+    if (!slots.length) return;
+    var w = ctx.canvas.width, h = ctx.canvas.height;
+    var img = ctx.getImageData(0, 0, w, h), d = img.data;
+    for (var i = 0; i < d.length; i += 4) {
+      if (d[i + 3] < 8) continue;
+      var nr = _recolorRgb(d[i], d[i + 1], d[i + 2], slots);
+      d[i] = nr[0]; d[i + 1] = nr[1]; d[i + 2] = nr[2];
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+  function _loadRecoloredImg(src, colorCfg, player) {
+    return new Promise(function (resolve, reject) {
+      var img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = function () {
+        var slots = _effectiveColorSlots(colorCfg, player);
+        if (!slots.length) { resolve(img); return; }
+        var canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        var ctx = canvas.getContext('2d');
+        if (!ctx) { resolve(img); return; }
+        ctx.drawImage(img, 0, 0);
+        _applyColorToCanvas(ctx, colorCfg, player);
+        var out = new Image();
+        out.onload = function () { resolve(out); };
+        out.onerror = reject;
+        out.src = canvas.toDataURL('image/png');
+      };
+      img.onerror = reject;
+      img.src = src;
+    });
+  }
+
   K.loadCharacterSheets = function () {
     var c = K.character;
     if (!c || !c.sheetUrl) return Promise.resolve({ primary: null, secondary: null });
-    function loadImg(src) {
-      return new Promise(function (resolve, reject) {
-        var img = new Image();
-        img.onload = function () { resolve(img); };
-        img.onerror = reject;
-        img.src = src;
-      });
-    }
-    return Promise.all([
-      loadImg(c.sheetUrl),
-      c.sheetUrlP2 ? loadImg(c.sheetUrlP2) : Promise.resolve(null),
-    ]).then(function (r) { return { primary: r[0], secondary: r[1] }; })
+    var colorCfg = c.color || null;
+    var p1Slots = _effectiveColorSlots(colorCfg, 1);
+    var p2HasOwn = colorCfg && colorCfg.slotsP2 && colorCfg.slotsP2.length;
+    var p1 = p1Slots.length
+      ? _loadRecoloredImg(c.sheetUrl, colorCfg, 1)
+      : _loadRecoloredImg(c.sheetUrl, null, 1);
+    var p2 = c.sheetUrlP2
+      ? (p2HasOwn || c.sheetUrlP2 === c.sheetUrl || !p1Slots.length
+          ? _loadRecoloredImg(c.sheetUrlP2, colorCfg, p2HasOwn ? 2 : 1)
+          : _loadRecoloredImg(c.sheetUrlP2, null, 2))
+      : Promise.resolve(null);
+    return Promise.all([p1, p2]).then(function (r) { return { primary: r[0], secondary: r[1] }; })
       .catch(function () { return { primary: null, secondary: null }; });
   };
 

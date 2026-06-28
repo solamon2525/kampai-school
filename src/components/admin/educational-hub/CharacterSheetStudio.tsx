@@ -5,12 +5,14 @@ import { Loader2, Save } from 'lucide-react';
 import { CharacterSheetPreview } from './CharacterSheetPreview';
 import { CharacterSheetGridPreview } from './CharacterSheetGridPreview';
 import { CharacterPoseMapper } from './CharacterPoseMapper';
+import { CharacterColorEditor } from './CharacterColorEditor';
 import {
     type CharacterAnimationConfig,
     getCharacterAnimPreset,
     parseCharacterAnimationConfig,
     validateAnimationConfig,
 } from '@/lib/character-animation';
+import { parseCharacterColorConfig, type CharacterColorConfig } from '@/lib/character-color';
 import type { CharacterSheet } from '@/services/educational-hub.service';
 import { cn } from '@/lib/utils';
 
@@ -25,6 +27,7 @@ type Props = {
         frameHeight: number;
         frameCount: number;
         animationConfig: CharacterAnimationConfig;
+        colorConfig: CharacterColorConfig | null;
     }) => void | Promise<void>;
     className?: string;
 };
@@ -40,6 +43,9 @@ export function CharacterSheetStudio({ sheet, busy, onSave, className }: Props) 
     const [fc, setFc] = useState(String(sheet.frame_count));
     const [preset, setPreset] = useState(initialAnim.preset);
     const [animConfig, setAnimConfig] = useState<CharacterAnimationConfig>(initialAnim);
+    const [colorConfig, setColorConfig] = useState<CharacterColorConfig | null>(
+        () => parseCharacterColorConfig(sheet.color_config),
+    );
     const [previewMode, setPreviewMode] = useState<(typeof PREVIEW_MODES)[number]>('run');
     const [face, setFace] = useState(1);
     const [saveError, setSaveError] = useState<string | null>(null);
@@ -61,6 +67,7 @@ export function CharacterSheetStudio({ sheet, busy, onSave, className }: Props) 
             frameHeight,
             frameCount,
             animationConfig: animConfig,
+            colorConfig,
         });
     };
 
@@ -101,6 +108,7 @@ export function CharacterSheetStudio({ sheet, busy, onSave, className }: Props) 
                         frameHeight={frameHeight}
                         frameCount={frameCount}
                         animationConfig={animConfig}
+                        colorConfig={colorConfig}
                         maxHeight={180}
                     />
                     <div className="grid grid-cols-3 gap-2">
@@ -120,6 +128,8 @@ export function CharacterSheetStudio({ sheet, busy, onSave, className }: Props) 
                                 frameHeight={frameHeight}
                                 frameCount={frameCount}
                                 animationConfig={animConfig}
+                                colorConfig={colorConfig}
+                                player={1}
                                 mode={previewMode}
                                 size={120}
                                 face={face}
@@ -127,32 +137,38 @@ export function CharacterSheetStudio({ sheet, busy, onSave, className }: Props) 
                                 checkerboard
                                 className="rounded border border-border mx-auto"
                             />
-                            <p className="text-[10px] text-muted-foreground mt-1">P1 ขาว</p>
+                            <p className="text-[10px] text-muted-foreground mt-1">P1</p>
                         </div>
-                        {sheet.sheet_url_p2 && (
-                            <div className="text-center">
-                                <CharacterSheetPreview
-                                    sheetUrl={sheet.sheet_url_p2}
-                                    frameWidth={frameWidth}
-                                    frameHeight={frameHeight}
-                                    frameCount={frameCount}
-                                    animationConfig={animConfig}
-                                    mode={previewMode}
-                                    size={120}
-                                    face={face}
-                                    showGround
-                                    checkerboard
-                                    className="rounded border border-border mx-auto"
-                                />
-                                <p className="text-[10px] text-muted-foreground mt-1">P2 ฟ้า</p>
-                            </div>
-                        )}
+                        <div className="text-center">
+                            <CharacterSheetPreview
+                                sheetUrl={sheet.sheet_url_p2 ?? sheet.sheet_url}
+                                frameWidth={frameWidth}
+                                frameHeight={frameHeight}
+                                frameCount={frameCount}
+                                animationConfig={animConfig}
+                                colorConfig={colorConfig}
+                                player={2}
+                                mode={previewMode}
+                                size={120}
+                                face={face}
+                                showGround
+                                checkerboard
+                                className="rounded border border-border mx-auto"
+                            />
+                            <p className="text-[10px] text-muted-foreground mt-1">P2</p>
+                        </div>
                     </div>
                     <p className="text-[10px] text-center text-muted-foreground">
                         เส้นพื้น = จุดเท้า anchorFoot {((animConfig.anchorFoot ?? 0.94) * 100).toFixed(0)}% + feetPad {animConfig.feetPad ?? 0}px
                     </p>
                 </div>
             </div>
+
+            <CharacterColorEditor
+                sheetUrl={sheet.sheet_url}
+                value={colorConfig}
+                onChange={setColorConfig}
+            />
 
             <CharacterPoseMapper
                 preset={preset}

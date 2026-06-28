@@ -155,6 +155,13 @@ SET
   }'::jsonb
 WHERE game_slug = 'thai-sara-run';
 
+-- ─── 269: ระบบใส่สีตัวละคร ───────────────────────────────────────────────────
+ALTER TABLE public.game_character_sheets
+  ADD COLUMN IF NOT EXISTS color_config jsonb;
+
+ALTER TABLE public.educational_hub_items
+  ADD COLUMN IF NOT EXISTS character_color_config jsonb;
+
 -- ─── game_docs thai-sara-run (รวม 264/266 → v1.3.0) ─────────────────────────
 INSERT INTO public.game_docs (item_id, owner_staff_id, game_format, features, version, notes)
 SELECT i.id, i.owner_staff_id,
@@ -162,11 +169,12 @@ SELECT i.id, i.owner_staff_id,
        ARRAY[
          'กระต่าย sprite grid 170×227 · 18 เฟรม (วิ่ง/โดด/ยืน) · KAMPAI.pickCharacterFrame',
          'คลังตัวละคร admin: Character Studio · map ท่า · preview บนพื้น · runFaces/anchorFoot',
+         'ระบบใส่สี palette · preset กระต่ายฟ้า/ชมพู/เขียว · recolor runtime ใน KAMPAI.loadCharacterSheets',
          '5 หัวใจ · เก็บหัวใจเพิ่ม · ชนครั้งละ -1 · KampaiVersus co-op P2 sheet ฟ้า',
          'KAMPAI SDK score/leaderboard · fallback bundled git · 19 ข้อสระไทย'
        ],
-       'v1.3.0',
-       'thai-sara-run — คลังตัวละคร + animation + studio (bundle 263-267)'
+       'v1.4.0',
+       'thai-sara-run — คลังตัวละคร + animation + studio + color palette (bundle 263-269)'
 FROM public.educational_hub_items i
 WHERE i.game_slug = 'thai-sara-run'
 ON CONFLICT (item_id) DO UPDATE

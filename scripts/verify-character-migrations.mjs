@@ -39,7 +39,7 @@ function report(name, ok, detail = '') {
 }
 
 async function main() {
-  console.log('\n🔍 Verify character sheet migrations (263–266)\n');
+  console.log('\n🔍 Verify character system (263–269 bundle)\n');
 
   let allOk = true;
 
@@ -57,7 +57,7 @@ async function main() {
   const { data: saraItem, error: itemErr } = await admin
     .from('educational_hub_items')
     .select(
-      'id, game_slug, character_sheet_id, character_sheet_url, character_sheet_url_p2, character_frame_w, character_frame_h, character_frame_count, character_animation_config',
+      'id, game_slug, character_sheet_id, character_sheet_url, character_sheet_url_p2, character_frame_w, character_frame_h, character_frame_count, character_animation_config, character_color_config',
     )
     .eq('game_slug', 'thai-sara-run')
     .maybeSingle();
@@ -95,7 +95,33 @@ async function main() {
     animColErr ? animColErr.message : itemErr?.message?.includes('character_animation_config') ? itemErr.message : 'OK',
   ) && allOk;
 
-  // game_docs (264 หรือ 266)
+  // 269: color_config columns
+  const { error: colorColErr } = await admin
+    .from('game_character_sheets')
+    .select('color_config')
+    .limit(0);
+  allOk = report(
+    '269 — color_config บน game_character_sheets + items',
+    !colorColErr && !itemErr?.message?.includes('character_color_config'),
+    colorColErr ? colorColErr.message : itemErr?.message?.includes('character_color_config') ? itemErr.message : 'OK',
+  ) && allOk;
+
+  // 267: bunny seed
+  const { data: bunny, error: bunnyErr } = await admin
+    .from('game_character_sheets')
+    .select('id, title, slug, animation_config')
+    .eq('slug', 'thai-sara-run-bunny')
+    .maybeSingle();
+  allOk = report(
+    '267 — seed กระต่าย thai-sara-run-bunny',
+    !bunnyErr && Boolean(bunny?.id),
+    bunnyErr ? bunnyErr.message : bunny ? bunny.title : 'ไม่พบแถว',
+  ) && allOk;
+  if (bunny?.animation_config?.preset) {
+    console.log(`   animation preset: ${bunny.animation_config.preset}, runFaces=${bunny.animation_config.runFaces ?? '—'}`);
+  }
+
+  // game_docs (264 / 266 / 268)
   if (saraItem?.id) {
     const { data: doc, error: docErr } = await admin
       .from('game_docs')
@@ -103,7 +129,7 @@ async function main() {
       .eq('item_id', saraItem.id)
       .maybeSingle();
 
-    const docOk = !docErr && (doc?.version === 'v1.2.0' || doc?.version === 'v1.1.0');
+    const docOk = !docErr && ['v1.1.0', 'v1.2.0', 'v1.3.0', 'v1.4.0'].includes(doc?.version ?? '');
     allOk = report(
       'game_docs thai-sara-run',
       docOk,
@@ -138,7 +164,7 @@ async function main() {
     ) && allOk;
   }
 
-  console.log(allOk ? '\n✨ Migration 263–266 ผ่านทุก check\n' : '\n⚠ มี check ที่ยังไม่ผ่าน — ดูด้านบน\n');
+  console.log(allOk ? '\n✨ ระบบตัวละครพร้อมใช้งาน — ผ่านทุก check\n' : '\n⚠ มี check ที่ยังไม่ผ่าน — ดูด้านบน\n');
   process.exit(allOk ? 0 : 1);
 }
 
