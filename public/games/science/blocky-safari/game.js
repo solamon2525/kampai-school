@@ -238,7 +238,7 @@ function buildWorld() {
 
                 const model = gltf.scene;
                 // ปรับสเกลและองศาให้พอดี
-                model.scale.set(0.12, 0.12, 0.12);
+                model.scale.set(0.3, 0.3, 0.3);
                 model.position.set(0, 0, 0);
                 
                 model.traverse(function (node) {
