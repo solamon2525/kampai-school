@@ -92,7 +92,7 @@ export function CharacterPoseMapper({ preset, frameCount, onPresetChange, onConf
                     </Select>
                 </label>
                 <label className="space-y-0.5 text-xs">
-                    <span className="text-muted-foreground">จุดเท้าในเฟรม: {(fields.anchorFoot * 100).toFixed(0)}%</span>
+                    <span className="text-muted-foreground">จุดเท้า default: {(fields.anchorFoot * 100).toFixed(0)}%</span>
                     <input
                         type="range"
                         min={0.75}
@@ -105,7 +105,7 @@ export function CharacterPoseMapper({ preset, frameCount, onPresetChange, onConf
                 </label>
             </div>
             <label className="space-y-0.5 text-xs block">
-                <span className="text-muted-foreground">ขยับลงเพิ่ม (px): {fields.feetPad}</span>
+                <span className="text-muted-foreground">ขยับลง default (px): {fields.feetPad}</span>
                 <input
                     type="range"
                     min={0}
@@ -120,7 +120,7 @@ export function CharacterPoseMapper({ preset, frameCount, onPresetChange, onConf
                 {CHARACTER_ANIM_PRESET_OPTIONS.find((p) => p.key === preset)?.frameHint ?? ''}
             </p>
             <p className="text-[10px] text-muted-foreground">
-                ใส่เลขเฟรมคั่นจุลภาค · ปรับทิศทาง/จุดเท้าให้ตรงกับ sprite
+                ค่า default ทุกท่า · ปรับแยกตามท่าได้ที่ preview ด้านบน (run/jump/idle/…)
             </p>
         </div>
     );

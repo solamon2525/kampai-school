@@ -23,9 +23,18 @@ export type CharacterAnimationConfig = {
     jumpFps?: number;
     /** ทิศทางที่เฟรมวิ่งหันใน sheet: right = หันขวา (flip เมื่อเดินซ้าย) */
     runFaces?: 'left' | 'right';
-    /** ตำแหน่งเท้าในเฟรม 0–1 (จากบนลงล่าง) — default 0.94 */
+    /** ตำแหน่งเท้าในเฟรม 0–1 (จากบนลงล่าง) — default ทุกท่า */
     anchorFoot?: number;
-    /** ขยับลงเพิ่ม (px) ให้เท้าแตะพื้น */
+    /** ขยับลงเพิ่ม (px) ให้เท้าแตะพื้น — default ทุกท่า */
+    feetPad?: number;
+    /** override จุดเท้าแยกตามท่า — ว่าง = ใช้ anchorFoot/feetPad ด้านบน */
+    poseAnchors?: Partial<Record<CharacterPoseKey, FootAnchorOverride>>;
+};
+
+export type CharacterPoseKey = 'idle' | 'walk' | 'run' | 'jump' | 'hurt' | 'happy';
+
+export type FootAnchorOverride = {
+    anchorFoot?: number;
     feetPad?: number;
 };
 
@@ -138,7 +147,28 @@ export function parseCharacterAnimationConfig(raw: unknown): CharacterAnimationC
         runFaces: o.runFaces === 'left' || o.runFaces === 'right' ? o.runFaces : base.runFaces,
         anchorFoot: typeof o.anchorFoot === 'number' ? o.anchorFoot : base.anchorFoot,
         feetPad: typeof o.feetPad === 'number' ? o.feetPad : base.feetPad,
+        poseAnchors: parsePoseAnchors(o.poseAnchors) ?? base.poseAnchors,
     };
+}
+
+function parsePoseAnchors(raw: unknown): CharacterAnimationConfig['poseAnchors'] | undefined {
+    if (!raw || typeof raw !== 'object') return undefined;
+    const o = raw as Record<string, unknown>;
+    const poses: CharacterPoseKey[] = ['idle', 'walk', 'run', 'jump', 'hurt', 'happy'];
+    const out: NonNullable<CharacterAnimationConfig['poseAnchors']> = {};
+    let any = false;
+    for (const pose of poses) {
+        const v = o[pose];
+        if (!v || typeof v !== 'object') continue;
+        const p = v as Record<string, unknown>;
+        const anchorFoot = typeof p.anchorFoot === 'number' ? p.anchorFoot : undefined;
+        const feetPad = typeof p.feetPad === 'number' ? p.feetPad : undefined;
+        if (anchorFoot != null || feetPad != null) {
+            out[pose] = { anchorFoot, feetPad };
+            any = true;
+        }
+    }
+    return any ? out : undefined;
 }
 
 /** ตรวจว่า index เฟรมอยู่ในช่วง sheet */
@@ -210,6 +240,47 @@ export function characterFrameRect(
 export function shouldFlipCharacterFace(face: number, anim: CharacterAnimationConfig): boolean {
     const rf = anim.runFaces ?? 'right';
     return rf === 'right' ? face < 0 : face > 0;
+}
+
+/** จุดเท้าสำหรับท่า — ใช้ poseAnchors[pose] ก่อน แล้ว fallback global */
+export function resolveFootAnchor(
+    anim: CharacterAnimationConfig,
+    pose: CharacterPoseKey,
+): { anchorFoot: number; feetPad: number } {
+    const globalFoot = anim.anchorFoot ?? 0.94;
+    const globalPad = anim.feetPad ?? 0;
+    const o = anim.poseAnchors?.[pose];
+    return {
+        anchorFoot: o?.anchorFoot ?? globalFoot,
+        feetPad: o?.feetPad ?? globalPad,
+    };
+}
+
+/** แปลง state ผู้เล่นในเกม → ท่าสำหรับจุดเท้า (สอดคล้อง pickCharacterFrame) */
+export function poseKeyFromPlayerState(
+    p: { state?: string; onGround?: boolean; vy?: number; vx?: number },
+    opt?: { runSpeed?: number },
+): CharacterPoseKey {
+    const runSpeed = opt?.runSpeed ?? 4.5;
+    if (p.state === 'hurt') return 'hurt';
+    if (p.state === 'happy') return 'happy';
+    if (!p.onGround || p.state === 'jump') return 'jump';
+    if (p.state === 'run' || Math.abs(p.vx ?? 0) > runSpeed * 0.55) return 'run';
+    if (Math.abs(p.vx ?? 0) > 0.15) return 'walk';
+    return 'idle';
+}
+
+const POSE_LABELS: Record<CharacterPoseKey, string> = {
+    idle: 'ยืน',
+    walk: 'เดิน',
+    run: 'วิ่ง',
+    jump: 'โดด',
+    hurt: 'เจ็บ',
+    happy: 'ดีใจ',
+};
+
+export function characterPoseLabel(pose: CharacterPoseKey): string {
+    return POSE_LABELS[pose];
 }
 
 /** แปลง "0,1,2" → [0,1,2] */

@@ -738,8 +738,14 @@ function drawWorldBunny(p, variant) {
     const dw = BUNNY_DRAW_W;
     const dh = BUNNY_DRAW_H;
     const anim = getBunnyAnim();
-    const footRatio = anim.anchorFoot != null ? anim.anchorFoot : 0.94;
-    const feetPad = anim.feetPad != null ? anim.feetPad : 14;
+    const poseKey = typeof KAMPAI.poseKeyFromPlayerState === 'function'
+      ? KAMPAI.poseKeyFromPlayerState(p, { runSpeed: RUN })
+      : 'run';
+    const foot = typeof KAMPAI.resolveFootAnchor === 'function'
+      ? KAMPAI.resolveFootAnchor(anim, poseKey)
+      : { anchorFoot: anim.anchorFoot != null ? anim.anchorFoot : 0.94, feetPad: anim.feetPad != null ? anim.feetPad : 14 };
+    const footRatio = foot.anchorFoot;
+    const feetPad = foot.feetPad;
     const cx = x + p.w / 2;
     const dy = y + p.h - dh * footRatio + feetPad;
     const cfg = { fw: BUNNY_SPRITE.fw, fh: BUNNY_SPRITE.fh, anim };

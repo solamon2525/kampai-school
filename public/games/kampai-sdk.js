@@ -177,6 +177,30 @@
     return idle[0];
   };
 
+  /** แปลง state ผู้เล่น → ท่า (idle/walk/run/jump/hurt/happy) สำหรับจุดเท้า */
+  K.poseKeyFromPlayerState = function (p, opt) {
+    opt = opt || {};
+    var runSpeed = opt.runSpeed != null ? opt.runSpeed : 4.5;
+    if (p.state === 'hurt') return 'hurt';
+    if (p.state === 'happy') return 'happy';
+    if (!p.onGround || p.state === 'jump') return 'jump';
+    if (p.state === 'run' || Math.abs(p.vx || 0) > runSpeed * 0.55) return 'run';
+    if (Math.abs(p.vx || 0) > 0.15) return 'walk';
+    return 'idle';
+  };
+
+  /** จุดเท้าแยกตามท่า — poseAnchors[pose] ก่อน แล้ว fallback global */
+  K.resolveFootAnchor = function (anim, pose) {
+    anim = anim || DEFAULT_CHAR_ANIM;
+    var globalFoot = anim.anchorFoot != null ? anim.anchorFoot : 0.94;
+    var globalPad = anim.feetPad != null ? anim.feetPad : 0;
+    var o = anim.poseAnchors && anim.poseAnchors[pose];
+    return {
+      anchorFoot: (o && o.anchorFoot != null) ? o.anchorFoot : globalFoot,
+      feetPad: (o && o.feetPad != null) ? o.feetPad : globalPad,
+    };
+  };
+
   /** Recolor sprite — palette slots + luminance shading */
   function _hexToRgb(hex) {
     var h = String(hex || '').replace('#', '');

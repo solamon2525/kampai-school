@@ -3,6 +3,7 @@ import {
     type CharacterAnimationConfig,
     characterFrameRect,
     resolveCharacterAnimation,
+    resolveFootAnchor,
     shouldFlipCharacterFace,
 } from '@/lib/character-animation';
 import type { CharacterColorConfig } from '@/lib/character-color';
@@ -120,8 +121,7 @@ export function CharacterSheetPreview({
             }
 
             if (drawSrc) {
-                const footRatio = anim.anchorFoot ?? 0.94;
-                const feetPad = anim.feetPad ?? 0;
+                const { anchorFoot: footRatio, feetPad } = resolveFootAnchor(anim, mode);
                 const scale = showGround ? Math.min((w - 24) / drawW, (h - 28) / drawH) : w / frameWidth;
                 const dw = showGround ? drawW * scale : frameWidth * scale;
                 const dh = showGround ? drawH * scale : frameHeight * scale;

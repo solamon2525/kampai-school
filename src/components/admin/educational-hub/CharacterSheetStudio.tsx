@@ -8,8 +8,10 @@ import { CharacterPoseMapper } from './CharacterPoseMapper';
 import { CharacterColorEditor } from './CharacterColorEditor';
 import {
     type CharacterAnimationConfig,
+    characterPoseLabel,
     getCharacterAnimPreset,
     parseCharacterAnimationConfig,
+    resolveFootAnchor,
     validateAnimationConfig,
 } from '@/lib/character-animation';
 import { parseCharacterColorConfig, type CharacterColorConfig } from '@/lib/character-color';
@@ -53,6 +55,38 @@ export function CharacterSheetStudio({ sheet, busy, onSave, className }: Props) 
     const frameWidth = parseInt(fw, 10) || sheet.frame_width;
     const frameHeight = parseInt(fh, 10) || sheet.frame_height;
     const frameCount = parseInt(fc, 10) || sheet.frame_count;
+
+    const poseFoot = resolveFootAnchor(animConfig, previewMode);
+    const poseHasOverride = Boolean(animConfig.poseAnchors?.[previewMode]);
+
+    const setPoseFoot = (patch: { anchorFoot?: number; feetPad?: number }) => {
+        setAnimConfig((prev) => {
+            const current = resolveFootAnchor(prev, previewMode);
+            const next = {
+                anchorFoot: patch.anchorFoot ?? current.anchorFoot,
+                feetPad: patch.feetPad ?? current.feetPad,
+            };
+            return {
+                ...prev,
+                poseAnchors: {
+                    ...prev.poseAnchors,
+                    [previewMode]: next,
+                },
+            };
+        });
+    };
+
+    const resetPoseFoot = () => {
+        setAnimConfig((prev) => {
+            if (!prev.poseAnchors?.[previewMode]) return prev;
+            const next = { ...prev.poseAnchors };
+            delete next[previewMode];
+            return {
+                ...prev,
+                poseAnchors: Object.keys(next).length ? next : undefined,
+            };
+        });
+    };
 
     const handleSave = async () => {
         const err = validateAnimationConfig(animConfig, frameCount);
@@ -159,8 +193,47 @@ export function CharacterSheetStudio({ sheet, busy, onSave, className }: Props) 
                         </div>
                     </div>
                     <p className="text-[10px] text-center text-muted-foreground">
-                        เส้นพื้น = จุดเท้า anchorFoot {((animConfig.anchorFoot ?? 0.94) * 100).toFixed(0)}% + feetPad {animConfig.feetPad ?? 0}px
+                        เส้นพื้น = จุดเท้าท่า {characterPoseLabel(previewMode)} · {((poseFoot.anchorFoot) * 100).toFixed(0)}% + {poseFoot.feetPad}px
+                        {poseHasOverride ? ' (ปรับแยก)' : ' (default)'}
                     </p>
+                    <div className="rounded-md border border-border px-2 py-2 space-y-2">
+                        <div className="flex items-center justify-between gap-2">
+                            <p className="text-xs font-medium text-muted-foreground">
+                                👣 จุดเท้า — ท่า {characterPoseLabel(previewMode)}
+                            </p>
+                            {poseHasOverride && (
+                                <Button type="button" size="sm" variant="ghost" className="h-7 text-[10px]" onClick={resetPoseFoot}>
+                                    ใช้ default
+                                </Button>
+                            )}
+                        </div>
+                        <label className="space-y-0.5 text-xs block">
+                            <span className="text-muted-foreground">anchorFoot: {(poseFoot.anchorFoot * 100).toFixed(0)}%</span>
+                            <input
+                                type="range"
+                                min={0.75}
+                                max={1}
+                                step={0.01}
+                                value={poseFoot.anchorFoot}
+                                onChange={(e) => setPoseFoot({ anchorFoot: Number(e.target.value) })}
+                                className="w-full accent-primary"
+                            />
+                        </label>
+                        <label className="space-y-0.5 text-xs block">
+                            <span className="text-muted-foreground">feetPad: {poseFoot.feetPad}px</span>
+                            <input
+                                type="range"
+                                min={0}
+                                max={32}
+                                value={poseFoot.feetPad}
+                                onChange={(e) => setPoseFoot({ feetPad: Number(e.target.value) })}
+                                className="w-full accent-primary"
+                            />
+                        </label>
+                        <p className="text-[10px] text-muted-foreground">
+                            สลับปุ่ม run / jump / idle ด้านบน แล้วปรับทีละท่า — บันทึกแล้วเกมใช้ค่าแยกอัตโนมัติ
+                        </p>
+                    </div>
                 </div>
             </div>
 
@@ -174,7 +247,7 @@ export function CharacterSheetStudio({ sheet, busy, onSave, className }: Props) 
                 preset={preset}
                 frameCount={frameCount}
                 onPresetChange={setPreset}
-                onConfigChange={setAnimConfig}
+                onConfigChange={(config) => setAnimConfig((prev) => ({ ...config, poseAnchors: prev.poseAnchors }))}
             />
 
             {saveError && <p className="text-xs text-destructive">{saveError}</p>}
