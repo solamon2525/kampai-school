@@ -30,7 +30,7 @@ let gameState = {
     hearts: 5,            // หัวใจผู้เล่นสูงสุด 5 ดวง
     invincible: 0,        // เวลาเป็นอมตะที่เหลือหลังได้รับบาดเจ็บ (วินาที)
     bullets: [],          // เก็บ mesh และเวกเตอร์ความเร็วของกระสุนที่ยิงออกไป
-    keys: { w: false, a: false, s: false, d: false, arrowup: false, arrowleft: false, arrowdown: false, arrowright: false },
+    keys: { w: false, a: false, s: false, d: false, arrowup: false, arrowleft: false, arrowdown: false, arrowright: false, q: false, e: false },
     // ── โหมดออนไลน์แข่ง ──
     online: false,        // true = กำลังแข่งออนไลน์
     onlineCorrect: 0,     // ตอบถูกสะสม (ใช้รายงานคะแนน + จัดอันดับ)
@@ -71,6 +71,20 @@ let hasGLTFPlayer = false;       // มีโมเดล GLTF ของผู�
 
 // --- Game Mechanics Variables ---
 let targetChangeTimer = 12;      // นับถอยหลังการสลับเป้าหมายปัจจุบัน (หน่วย: วินาที)
+let cameraAngle = 0;             // องศามุมกล้องแนวระนาบ (เรเดียน)
+let cameraZoom = 1.0;            // ค่าซูมกล้องเข้าออก (0.5 - 2.0)
+let activePowerups = {
+    boots: 0,                    // วิ่งเร็ว (วินาที)
+    glasses: 0,                  // แว่นตามองเป้าหมาย (วินาที)
+    camo: 0                      // ล่องหนพรางตัว (วินาที)
+};
+let ponds = [];                  // พิกัด/ข้อมูลสระน้ำสำหรับปลา
+let grassPatches = [];           // พิกัด/ข้อมูลดงหญ้าสำหรับสัตว์เลื้อยคลาน
+let powerupBoxes = [];           // ข้อมูลวัตถุไอเทมเก็บในสนาม
+let dustStormTimer = 0;          // พายุฝุ่นจากคู่แข่ง (วินาที)
+let stampedeTimer = 0;           // ฝูงสัตว์คลั่งวิ่งสุ่มเร็วขึ้น (วินาที)
+let capturedHistory = [];        // ประวัติสัตว์ที่จับสำเร็จในด่านปัจจุบันเพื่อโชว์ใน Encyclopedia
+let bioCardIndex = 0;            // หน้าการ์ด Encyclopedia ปัจจุบัน
 
 // --- Initialization ---
 window.onload = () => {
@@ -188,9 +202,18 @@ function buildWorld() {
     trees.forEach(t => scene.remove(t));
     gameState.bullets.forEach(b => scene.remove(b.mesh));
     
+    // ล้างสระน้ำ หญ้า และไอเทมพาวเวอร์อัปเก่า
+    ponds.forEach(p => scene.remove(p.mesh));
+    grassPatches.forEach(g => scene.remove(g.mesh));
+    powerupBoxes.forEach(p => scene.remove(p.mesh));
+    
     animals = [];
     trees = [];
     gameState.bullets = [];
+    ponds = [];
+    grassPatches = [];
+    powerupBoxes = [];
+    capturedHistory = []; // ล้างประวัติของด่านเก่า
 
     // รีเซ็ตตัวแปร GLTF ของผู้เล่น
     playerMixer = null;
@@ -205,6 +228,71 @@ function buildWorld() {
     ground.position.y = -1;
     ground.receiveShadow = true;
     scene.add(ground);
+
+    // สร้างสระน้ำสำหรับปลา 3 จุด
+    const pondCoords = [
+        { x: -MAP_SIZE * 0.25, z: -MAP_SIZE * 0.25 },
+        { x: MAP_SIZE * 0.2, z: -MAP_SIZE * 0.15 },
+        { x: -MAP_SIZE * 0.15, z: MAP_SIZE * 0.25 }
+    ];
+    pondCoords.forEach(c => {
+        const pondGeo = new THREE.CylinderGeometry(14, 14, 0.15, 32);
+        const pondMat = new THREE.MeshLambertMaterial({ color: 0x2563eb }); // สีน้ำเงินเข้ม
+        const pondMesh = new THREE.Mesh(pondGeo, pondMat);
+        pondMesh.position.set(c.x, 0.08, c.z); // เติมเหนือพื้นขึ้นมานิดนึง
+        scene.add(pondMesh);
+        ponds.push({ x: c.x, z: c.z, radius: 14, mesh: pondMesh });
+    });
+
+    // สร้างดงหญ้าสำหรับกิ้งก่า/จระเข้ 4 จุด
+    const grassCoords = [
+        { x: -MAP_SIZE * 0.2, z: MAP_SIZE * 0.1 },
+        { x: MAP_SIZE * 0.25, z: MAP_SIZE * 0.2 },
+        { x: MAP_SIZE * 0.1, z: -MAP_SIZE * 0.3 },
+        { x: -MAP_SIZE * 0.3, z: -MAP_SIZE * 0.1 }
+    ];
+    grassCoords.forEach(c => {
+        const grassGeo = new THREE.BoxGeometry(16, 2.5, 16);
+        const grassMat = new THREE.MeshLambertMaterial({ 
+            color: 0x15803d, // เขียวแก่ใบไม้
+            transparent: true, 
+            opacity: 0.45 
+        });
+        const grassMesh = new THREE.Mesh(grassGeo, grassMat);
+        grassMesh.position.set(c.x, 1.25, c.z);
+        scene.add(grassMesh);
+        grassPatches.push({ x: c.x, z: c.z, size: 16, mesh: grassMesh });
+    });
+
+    // สปอว์นกล่อง Power-up 5 กล่องสุ่มตามแผนที่
+    const powerupTypes = ['boots', 'glasses', 'camo'];
+    const colors = { boots: 0x22c55e, glasses: 0xeab308, camo: 0xa855f7 }; // เขียว เหลือง ม่วง
+    for (let i = 0; i < 5; i++) {
+        const type = powerupTypes[Math.floor(Math.random() * powerupTypes.length)];
+        const boxGeo = new THREE.BoxGeometry(1.6, 1.6, 1.6);
+        const boxMat = new THREE.MeshLambertMaterial({ 
+            color: colors[type],
+            emissive: colors[type],
+            emissiveIntensity: 0.25
+        });
+        const boxMesh = new THREE.Mesh(boxGeo, boxMat);
+        
+        // เกิดสุ่มแบบห่างจุดเกิดผู้เล่น
+        let px, pz;
+        do {
+            px = (Math.random() - 0.5) * (MAP_SIZE - 20);
+            pz = (Math.random() - 0.5) * (MAP_SIZE - 20);
+        } while (Math.abs(px) < 15 && Math.abs(pz) < 15);
+
+        boxMesh.position.set(px, 1.0, pz);
+        scene.add(boxMesh);
+        powerupBoxes.push({
+            type: type,
+            mesh: boxMesh,
+            color: colors[type],
+            floatOffset: Math.random() * Math.PI * 2
+        });
+    }
 
     // สร้างตัวละครผู้เล่น (Blue Explorer Block) - ขนาดขยาย 200% (2.4x2.4x2.4)
     const playerGroup = new THREE.Group();
@@ -391,33 +479,78 @@ function spawnAnimal(data, opts) {
     sprite.position.y = 2.5;
     group.add(sprite);
 
-    // ตำแหน่ง: ปกติ = กระจายทั่วแมป (worldRng = seeded เมื่อ online) · sabotage = วงแหวนรอบผู้เล่น (สุ่มอิสระ ไม่กระทบ seed)
-    let px, pz;
+    // ตำแหน่ง: ปกติ = กระจายทั่วแมป ตามประเภทสิ่งแวดล้อม
+    let px, pz, py = 0;
+    let assignedPond = null;
+    let assignedGrass = null;
+
     if (opts.nearPlayer && player) {
         const ang = Math.random() * Math.PI * 2, r = 16 + Math.random() * 10;
         px = player.position.x + Math.sin(ang) * r;
         pz = player.position.z + Math.cos(ang) * r;
+        if (data.type === window.ANIMAL_TYPES.BIRD) {
+            py = 5.5;
+        }
     } else {
-        do {
-            px = (worldRng() - 0.5) * (MAP_SIZE - 8);
-            pz = (worldRng() - 0.5) * (MAP_SIZE - 8);
-        } while (Math.abs(px) < 6 && Math.abs(pz) < 6); // สปอว์นห่างจากตัวเล่นตอนเริ่มพอควร
+        if (data.type === window.ANIMAL_TYPES.FISH && ponds.length > 0) {
+            // เกิดในสระน้ำสุ่ม
+            assignedPond = ponds[Math.floor(worldRng() * ponds.length)];
+            const r = worldRng() * (assignedPond.radius - 3.5);
+            const ang = worldRng() * Math.PI * 2;
+            px = assignedPond.x + Math.sin(ang) * r;
+            pz = assignedPond.z + Math.cos(ang) * r;
+            py = 0.2; // ระดับสระน้ำ
+        } else if (data.type === window.ANIMAL_TYPES.REPTILE && grassPatches.length > 0) {
+            // เกิดในดงหญ้าสุ่ม
+            assignedGrass = grassPatches[Math.floor(worldRng() * grassPatches.length)];
+            const rxOffset = (worldRng() - 0.5) * (assignedGrass.size - 4);
+            const rzOffset = (worldRng() - 0.5) * (assignedGrass.size - 4);
+            px = assignedGrass.x + rxOffset;
+            pz = assignedGrass.z + rzOffset;
+            py = 0.0;
+        } else {
+            // เกิดสุ่มตามแผนที่ทั่วไป
+            do {
+                px = (worldRng() - 0.5) * (MAP_SIZE - 8);
+                pz = (worldRng() - 0.5) * (MAP_SIZE - 8);
+            } while (Math.abs(px) < 8 && Math.abs(pz) < 8);
+            
+            if (data.type === window.ANIMAL_TYPES.BIRD) {
+                py = 5.5; // นกบินบนอากาศ
+            }
+        }
     }
 
-    group.position.set(px, 0, pz);
+    group.position.set(px, py, pz);
     scene.add(group);
 
-    // offset ลอยตัว + สถานะ aggro
+    // ทำตัวโปร่งแสงพรางตัวในดงหญ้าสำหรับสัตว์เลื้อยคลาน
+    if (assignedGrass) {
+        body.traverse(child => {
+            if (child.isMesh) {
+                child.material = child.material.clone(); // โคลนแยกชิ้น
+                child.material.transparent = true;
+                child.material.opacity = 0.25;
+            }
+        });
+    }
+
+    // offset ลอยตัว + สถานะ aggro + ข้อมูลสิ่งแวดล้อม
     group.userData = {
         data: data,
-        startY: 0,
+        startY: py,
         floatOffset: Math.random() * Math.PI * 2,
         damageFlash: 0, // คูลดาวน์การกะพริบแดงเมื่อยิงผิด
         isAggro: !!opts.aggro,  // sabotage spawn = ดุทันที · ปกติ = false (aggro เมื่อผู้เล่นเข้าใกล้)
         hasGLTF: false,
         mixer: null,
         animations: null,
-        currentAction: null
+        currentAction: null,
+        
+        pond: assignedPond,
+        grass: assignedGrass,
+        isHiddenReptile: assignedGrass ? true : false,
+        revealAlpha: assignedGrass ? 0.25 : 1.0
     };
 
     // พยายามโหลดโมเดล GLTF ของสัตว์ตัวนี้ (เช่น lion.glb)
@@ -438,6 +571,11 @@ function spawnAnimal(data, opts) {
                     if (node.isMesh) {
                         node.castShadow = true;
                         node.receiveShadow = true;
+                        if (group.userData.isHiddenReptile) {
+                            node.material = node.material.clone();
+                            node.material.transparent = true;
+                            node.material.opacity = 0.25;
+                        }
                     }
                 });
 
@@ -497,7 +635,7 @@ function setupEventListeners() {
             gameState.keys[key] = true;
         }
         
-        // ยิงกระสุนด้วยปุ่ม Spacebar
+        // ยิงกระสุนด้วยปุ่ม Spacebar (คัดเลือกเป้าหมาย)
         if (key === ' ' || key === 'spacebar') {
             e.preventDefault();
             attemptShoot();
@@ -511,13 +649,69 @@ function setupEventListeners() {
         }
     });
 
-    // ยิงกระสุนด้วยการคลิกเมาส์/สัมผัสหน้าจอ
+    // ลากเมาส์/ปัดเพื่อหมุนมุมกล้องรอบตัวผู้เล่น
+    let isDragging = false;
+    let previousMousePosition = { x: 0, y: 0 };
+    
     window.addEventListener('pointerdown', (e) => {
         // ถ้ายิงขณะเล่นเกมและไม่ได้กด UI
         if (gameState.isPlaying && e.target.tagName !== 'BUTTON' && !e.target.closest('#ui-layer')) {
             attemptShoot();
+            isDragging = true;
+            previousMousePosition = { x: e.clientX, y: e.clientY };
         }
     });
+
+    window.addEventListener('pointermove', (e) => {
+        if (isDragging && gameState.isPlaying) {
+            const deltaX = e.clientX - previousMousePosition.x;
+            cameraAngle += deltaX * 0.005; // ปรับความละเอียดการหมุน
+            previousMousePosition = { x: e.clientX, y: e.clientY };
+        }
+    });
+
+    window.addEventListener('pointerup', () => {
+        isDragging = false;
+    });
+
+    // ซูมมุมกล้องเข้าออกด้วย Wheel เมาส์
+    window.addEventListener('wheel', (e) => {
+        if (gameState.isPlaying) {
+            cameraZoom += e.deltaY * 0.0008;
+            cameraZoom = Math.max(0.4, Math.min(2.2, cameraZoom));
+        }
+    }, { passive: true });
+
+    // ปุ่มควบคุมกล้องบน HUD
+    const rotLBtn = document.getElementById('cam-rot-l');
+    const rotRBtn = document.getElementById('cam-rot-r');
+    const zoomInBtn = document.getElementById('cam-zoom-in');
+    const zoomOutBtn = document.getElementById('cam-zoom-out');
+    
+    if (rotLBtn) {
+        rotLBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            cameraAngle -= 0.35;
+        });
+    }
+    if (rotRBtn) {
+        rotRBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            cameraAngle += 0.35;
+        });
+    }
+    if (zoomInBtn) {
+        zoomInBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            cameraZoom = Math.max(0.4, cameraZoom - 0.2);
+        });
+    }
+    if (zoomOutBtn) {
+        zoomOutBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            cameraZoom = Math.min(2.2, cameraZoom + 0.2);
+        });
+    }
 
     // ปุ่มสำหรับ UI
     startBtn.addEventListener('click', () => {
@@ -543,6 +737,46 @@ function setupEventListeners() {
     if (nextLevelBtn) {
         nextLevelBtn.addEventListener('click', () => {
             document.getElementById('level-clear-modal').classList.add('hidden');
+            gameState.currentLevel++;
+            gameState.score = 0;
+            gameState.isPlaying = true;
+            buildWorld();
+            const radar = document.getElementById('radar-container');
+            if (radar) radar.classList.remove('hidden');
+            KAMPAI.sound.bgmStart(BGM);
+        });
+    }
+
+    // ปุ่มควบคุมสมุดคลังการ์ด Encyclopedia (Bio-Cards)
+    const prevCardBtn = document.getElementById('bio-card-prev');
+    const nextCardBtn = document.getElementById('bio-card-next');
+    const closeBioBtn = document.getElementById('close-bio-btn');
+    
+    if (prevCardBtn) {
+        prevCardBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (capturedHistory.length > 0) {
+                bioCardIndex = (bioCardIndex - 1 + capturedHistory.length) % capturedHistory.length;
+                renderBioCard();
+            }
+        });
+    }
+    if (nextCardBtn) {
+        nextCardBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (capturedHistory.length > 0) {
+                bioCardIndex = (bioCardIndex + 1) % capturedHistory.length;
+                renderBioCard();
+            }
+        });
+    }
+    if (closeBioBtn) {
+        closeBioBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const modal = document.getElementById('bio-cards-modal');
+            if (modal) modal.classList.add('hidden');
+            
+            // ลุยด่านถัดไป
             gameState.currentLevel++;
             gameState.score = 0;
             gameState.isPlaying = true;
@@ -579,6 +813,18 @@ function startOnlineGame(seed) {
     winScreen.classList.add('hidden');
     gameoverScreen.classList.add('hidden');
     const lcm = document.getElementById('level-clear-modal'); if (lcm) lcm.classList.add('hidden');
+    
+    // ซ่อนโมเดลสมุดคลังความรู้การ์ด
+    const bioModal = document.getElementById('bio-cards-modal');
+    if (bioModal) bioModal.classList.add('hidden');
+
+    // รีเซ็ตสถานะป่วนและบัฟออนไลน์
+    activePowerups = { boots: 0, glasses: 0, camo: 0 };
+    dustStormTimer = 0;
+    stampedeTimer = 0;
+    const dsOverlay = document.getElementById('dust-storm-overlay');
+    if (dsOverlay) dsOverlay.classList.remove('active');
+
     hud.classList.remove('hidden');
     const radar = document.getElementById('radar-container'); if (radar) radar.classList.remove('hidden');
     gameState.currentLevel = 1;
@@ -614,6 +860,11 @@ function onOpponentUpdate(list) {
 function applySabotage(delta) {
     if (!gameState.isPlaying) return;
     gameState.sab.chaseMult = Math.min(CFG.SAB_CHASE_MAX, gameState.sab.chaseMult + delta * CFG.SAB_CHASE_PER_HIT);
+    
+    // ตั้งค่าเวลาสำหรับพายุทราย (ฝุ่นตลบ) และสัตว์ป่าคลั่ง (Stampede)
+    dustStormTimer = 6.0;
+    stampedeTimer = 6.0;
+
     // เกิดสัตว์ดุพิเศษ (ชนิดที่ไม่ใช่เป้า = ยิงโดน = เสียหัวใจ) ใกล้ผู้เล่น = "มอนสเตอร์" ไล่ล่า
     const lvl = window.ANIMAL_DB_LEVELS[gameState.currentLevel] || window.ANIMAL_DB_LEVELS[1];
     const foes = lvl.filter(function (a) { return a.type !== gameState.targetCategory; });
@@ -636,7 +887,7 @@ function showSabotageToast() {
         el.style.cssText = 'position:fixed;top:18%;left:50%;transform:translateX(-50%);z-index:99980;background:rgba(239,68,68,.92);color:#fff;font-weight:800;font-family:Kanit,Sarabun,system-ui,sans-serif;padding:10px 20px;border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.4);font-size:18px;pointer-events:none;transition:opacity .25s';
         document.body.appendChild(el);
     }
-    el.textContent = '😱 คู่แข่งตอบถูก! สัตว์ดุขึ้น';
+    el.textContent = '🌪️ ฝุ่นตลบและแตรสัตว์คลั่งจากคู่แข่ง! 😱';
     el.style.opacity = '1';
     clearTimeout(sabToastTimer);
     sabToastTimer = setTimeout(function () { el.style.opacity = '0'; }, 1400);
@@ -652,22 +903,57 @@ function attemptShoot() {
     }
 }
 
+function playShutterSound() {
+    try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.08);
+        
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+        
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.08);
+    } catch (e) {
+        console.warn("Web Audio shutter sound failed:", e);
+    }
+}
+
 function fireBullet() {
-    // เสียงยิงปืน/เวทมนตร์ (ใช้ fxFlash ของ SDK เป็นเสียงเอฟเฟกต์เบื้องต้น)
-    KAMPAI.sound.fxFlash();
+    // 1. เล่นเสียงชัตเตอร์ของกล้องถ่ายรูป
+    playShutterSound();
+    
+    // 2. แสดงเอฟเฟกต์แสงแฟลชบนหน้าจอ (Shutter Flash)
+    const flashEl = document.getElementById('flash-overlay');
+    if (flashEl) {
+        flashEl.classList.add('active');
+        setTimeout(() => {
+            flashEl.classList.remove('active');
+        }, 60);
+    }
     
     // ทิศทางที่ผู้เล่นหันหน้าไป
     const angle = player.rotation.y;
     const vx = Math.sin(angle) * BULLET_SPEED;
     const vz = Math.cos(angle) * BULLET_SPEED;
     
-    // สร้างกระสุน 3D (Glowing Sphere)
-    const bulletGeo = new THREE.BoxGeometry(0.4, 0.4, 0.4);
-    const bulletMat = new THREE.MeshBasicMaterial({ color: 0xffff00 }); // สีเหลืองส่องสว่าง
+    // สร้างกระสุน 3D เป็นคลื่นแสงแฟลชสีขาว (Expanding White Sphere)
+    const bulletGeo = new THREE.SphereGeometry(0.5, 16, 16);
+    const bulletMat = new THREE.MeshBasicMaterial({ 
+        color: 0xffffff, 
+        transparent: true, 
+        opacity: 0.85 
+    });
     const bulletMesh = new THREE.Mesh(bulletGeo, bulletMat);
     
-    // เริ่มต้นจากตัวผู้เล่น ลอยอยู่ระดับเอว
-    bulletMesh.position.set(player.position.x, 0.6, player.position.z);
+    // เริ่มต้นจากตัวผู้เล่น ลอยอยู่ระดับอก
+    bulletMesh.position.set(player.position.x, 0.8, player.position.z);
     scene.add(bulletMesh);
     
     gameState.bullets.push({
@@ -683,6 +969,16 @@ function startGame() {
     hud.classList.remove('hidden');
     const radar = document.getElementById('radar-container');
     if (radar) radar.classList.remove('hidden');
+    
+    const bioModal = document.getElementById('bio-cards-modal');
+    if (bioModal) bioModal.classList.add('hidden');
+    
+    // รีเซ็ตพาวเวอร์อัปและเอฟเฟกต์หน้าจอป่วน
+    activePowerups = { boots: 0, glasses: 0, camo: 0 };
+    dustStormTimer = 0;
+    stampedeTimer = 0;
+    const dsOverlay = document.getElementById('dust-storm-overlay');
+    if (dsOverlay) dsOverlay.classList.remove('active');
     
     gameState.currentLevel = 1;
     gameState.score = 0;
@@ -828,31 +1124,57 @@ function updateHUD() {
     }
 }
 
-function showLevelClearModal() {
+function showBioCardsModal() {
     gameState.isPlaying = false;
     hud.classList.add('hidden');
     const radar = document.getElementById('radar-container');
     if (radar) radar.classList.add('hidden');
     KAMPAI.sound.bgmStop();
-    KAMPAI.sound.fxFlash(); // เสียงเฉลิมฉลองชั่วคราว
-    
-    const levelClearModal = document.getElementById('level-clear-modal');
-    const levelClearTitle = document.getElementById('level-clear-title');
-    const levelClearDesc = document.getElementById('level-clear-desc');
-    
-    if (gameState.currentLevel === 1) {
-        levelClearTitle.innerText = "🌳 ด่านที่ 1 สำเร็จแล้ว!";
-        levelClearDesc.innerText = "คุณคัดกรองสัตว์ป่าทุ่งหญ้าสะวันนาได้ถูกต้องทั้งหมด!";
-    } else if (gameState.currentLevel === 2) {
-        levelClearTitle.innerText = "🌴 ด่านที่ 2 สำเร็จแล้ว!";
-        levelClearDesc.innerText = "คุณคัดกรองสัตว์ป่าดิบชื้นได้ถูกต้องทั้งหมด!";
-    }
+    KAMPAI.sound.fxFlash(); // เสียงเฉลิมฉลอง
     
     // เคลียร์กระสุนค้างในจอ
     gameState.bullets.forEach(b => scene.remove(b.mesh));
     gameState.bullets = [];
     
-    levelClearModal.classList.remove('hidden');
+    const modal = document.getElementById('bio-cards-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+    }
+    
+    bioCardIndex = 0;
+    renderBioCard();
+}
+
+function renderBioCard() {
+    const carousel = document.getElementById('bio-cards-carousel');
+    const indicator = document.getElementById('bio-card-indicator');
+    if (!carousel || !indicator) return;
+    
+    if (capturedHistory.length === 0) {
+        carousel.innerHTML = `
+            <div class="text-gray-400 text-sm text-center">
+                ไม่มีประวัติการคัดแยกสัตว์ในรอบนี้
+            </div>
+        `;
+        indicator.innerText = "0 / 0";
+        return;
+    }
+    
+    const animal = capturedHistory[bioCardIndex];
+    indicator.innerText = `${bioCardIndex + 1} / ${capturedHistory.length}`;
+    
+    carousel.innerHTML = `
+        <div class="flex flex-col items-center gap-3 w-full animate-fade-in">
+            <div class="text-7xl p-3 bg-white rounded-3xl shadow-inner border border-blue-100 flex items-center justify-center w-24 h-24 select-none">${animal.emoji}</div>
+            <div class="text-center">
+                <h3 class="text-lg font-extrabold text-blue-700">${animal.name}</h3>
+                <span class="inline-block bg-blue-100 text-blue-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full mt-0.5">${animal.type}</span>
+            </div>
+            <div class="bg-white border border-blue-50 p-3 rounded-xl text-xs text-gray-600 text-left w-full shadow-sm leading-relaxed">
+                <b>💡 เกร็ดความรู้:</b> ${animal.hint || "สัตว์จำพวกมีกระดูกสันหลังที่สำคัญต่อระบบนิเวศ"}
+            </div>
+        </div>
+    `;
 }
 
 function checkWin() {
@@ -869,8 +1191,8 @@ function checkWin() {
         }
 
         if (gameState.currentLevel < gameState.maxLevels) {
-            // สำเร็จด่าน ไปสเตจถัดไป
-            showLevelClearModal();
+            // สำเร็จด่าน โชว์สมุดคลังความรู้การ์ด
+            showBioCardsModal();
         } else {
             // ชนะเกมทั้งหมดครบ 3 ด่าน!
             gameState.isPlaying = false;
@@ -991,8 +1313,16 @@ function animate() {
             moveZ /= length;
         }
 
-        const newX = player.position.x + moveX * PLAYER_SPEED * dt;
-        const newZ = player.position.z + moveZ * PLAYER_SPEED * dt;
+        // หมุนเวกเตอร์การเคลื่อนที่ตามมุมกล้องปัจจุบัน (เพื่อให้เดินตามมุมมองหน้าจอ)
+        const cos = Math.cos(cameraAngle);
+        const sin = Math.sin(cameraAngle);
+        const rotMoveX = moveX * cos - moveZ * sin;
+        const rotMoveZ = moveX * sin + moveZ * cos;
+
+        // ใช้ความเร็วแบบรองเท้าสปีด (Safari Boots)
+        const speedMultiplier = activePowerups.boots > 0 ? 1.7 : 1.0;
+        const newX = player.position.x + rotMoveX * PLAYER_SPEED * speedMultiplier * dt;
+        const newZ = player.position.z + rotMoveZ * PLAYER_SPEED * speedMultiplier * dt;
 
         // ตรวจขอบแมปซาฟารี
         const limit = MAP_SIZE / 2 - 1;
@@ -1007,8 +1337,8 @@ function animate() {
                 player.position.y = Math.abs(Math.sin(time * 15)) * 0.5;
             }
             
-            // หมุนตัวบล็อกผู้เล่นหันหน้าไปทิศทางการเดิน
-            const targetAngle = Math.atan2(moveX, moveZ);
+            // หมุนตัวบล็อกผู้เล่นหันหน้าไปทิศทางการเดินจริง
+            const targetAngle = Math.atan2(rotMoveX, rotMoveZ);
             player.rotation.y = targetAngle; 
         } else {
             if (hasGLTFPlayer) {
@@ -1027,15 +1357,88 @@ function animate() {
             }
         }
 
+        // จัดการและนับถอยหลังระยะเวลาของพาวเวอร์อัปต่างๆ
+        if (activePowerups.boots > 0) activePowerups.boots = Math.max(0, activePowerups.boots - dt);
+        if (activePowerups.glasses > 0) activePowerups.glasses = Math.max(0, activePowerups.glasses - dt);
+        if (activePowerups.camo > 0) activePowerups.camo = Math.max(0, activePowerups.camo - dt);
+
+        // จัดการนับถอยหลังพายุทราย (ฝุ่นตลบ) และสัตว์ป่าคลั่ง (Sabotage)
+        if (dustStormTimer > 0) {
+            dustStormTimer = Math.max(0, dustStormTimer - dt);
+            const dsOverlay = document.getElementById('dust-storm-overlay');
+            if (dsOverlay) {
+                if (dustStormTimer > 0) {
+                    dsOverlay.classList.add('active');
+                } else {
+                    dsOverlay.classList.remove('active');
+                }
+            }
+        }
+        if (stampedeTimer > 0) {
+            stampedeTimer = Math.max(0, stampedeTimer - dt);
+        }
+
+        // อัปเดตการแสดงผลไอคอนพาวเวอร์อัปที่กำลังทำงานบนหน้าจอ HUD
+        const pContainer = document.getElementById('powerups-hud');
+        if (pContainer) {
+            let html = '';
+            if (activePowerups.boots > 0) {
+                html += `<div class="bg-green-500/90 text-white font-bold text-[10px] px-2.5 py-1 rounded-xl shadow border border-green-300 animate-pulse flex items-center gap-1">🥾 สปีด: ${Math.ceil(activePowerups.boots)} วิ</div>`;
+            }
+            if (activePowerups.glasses > 0) {
+                html += `<div class="bg-yellow-500/90 text-white font-bold text-[10px] px-2.5 py-1 rounded-xl shadow border border-yellow-300 animate-pulse flex items-center gap-1">🔍 แว่นมอง: ${Math.ceil(activePowerups.glasses)} วิ</div>`;
+            }
+            if (activePowerups.camo > 0) {
+                html += `<div class="bg-purple-500/90 text-white font-bold text-[10px] px-2.5 py-1 rounded-xl shadow border border-purple-300 animate-pulse flex items-center gap-1">🍃 พรางตัว: ${Math.ceil(activePowerups.camo)} วิ</div>`;
+            }
+            pContainer.innerHTML = html;
+        }
+
+        // จัดการไอเทมพาวเวอร์อัปที่สปอว์นในสนาม (กล่องลอยหมุนสปิน)
+        for (let pIdx = powerupBoxes.length - 1; pIdx >= 0; pIdx--) {
+            const pBox = powerupBoxes[pIdx];
+            pBox.mesh.rotation.y += dt * 1.5;
+            pBox.mesh.rotation.x += dt * 0.8;
+            pBox.mesh.position.y = 1.0 + Math.sin(time * 2.5 + pBox.floatOffset) * 0.15;
+            
+            // ตรวจการชนระหว่างผู้เล่นกับกล่องไอเทม
+            const pDist = player.position.distanceTo(pBox.mesh.position);
+            if (pDist < 2.5) {
+                scene.remove(pBox.mesh);
+                powerupBoxes.splice(pIdx, 1);
+                
+                // รับไอเทม 10 วินาที
+                activePowerups[pBox.type] = 10.0;
+                
+                try {
+                    KAMPAI.sound.correct();
+                    if (pBox.type === 'boots') {
+                        KAMPAI.sound.speak("รองเท้าวิ่งเร็ว", "th-TH");
+                    } else if (pBox.type === 'glasses') {
+                        KAMPAI.sound.speak("แว่นตามองเป้าหมาย", "th-TH");
+                    } else if (pBox.type === 'camo') {
+                        KAMPAI.sound.speak("สเปรย์พรางตัว", "th-TH");
+                    }
+                } catch(e){}
+            }
+        }
+
         // --- เคลื่อนที่กระสุน + ตรวจชนมอนสเตอร์สัตว์ ---
         for (let bIdx = gameState.bullets.length - 1; bIdx >= 0; bIdx--) {
             const bullet = gameState.bullets[bIdx];
             bullet.mesh.position.x += bullet.vx * dt;
             bullet.mesh.position.z += bullet.vz * dt;
             
-            // ลบกระสุนหากลอยเลยเวลา 3 วินาที หรือหลุดขอบแผนที่
+            // อัปเดตการขยายขนาดคลื่นแสงแฟลชและจางหายไปตามเวลา
+            const elapsed = clock.getElapsedTime() - bullet.spawnTime;
+            bullet.mesh.scale.addScalar(dt * 7.5);
+            if (bullet.mesh.material) {
+                bullet.mesh.material.opacity = Math.max(0, 0.85 - elapsed * 2.5);
+            }
+            
+            // ลบแสงแฟลชหากยิงออกไปเกิน 0.4 วินาที (ระยะถ่ายรูปแฟลช) หรือหลุดขอบแผนที่
             const isOutOfMap = Math.abs(bullet.mesh.position.x) > MAP_SIZE/2 || Math.abs(bullet.mesh.position.z) > MAP_SIZE/2;
-            if (clock.getElapsedTime() - bullet.spawnTime > 3.0 || isOutOfMap) {
+            if (elapsed > 0.4 || isOutOfMap) {
                 scene.remove(bullet.mesh);
                 gameState.bullets.splice(bIdx, 1);
                 continue;
@@ -1064,6 +1467,11 @@ function animate() {
                             gameState.capturedProgress[animal.data.type] = 0;
                         }
                         gameState.capturedProgress[animal.data.type]++;
+
+                        // บันทึกประวัติเพื่อทำสมุดการ์ดคลังความรู้ (Bio-Cards) ตอนจบด่าน
+                        if (!capturedHistory.some(a => a.id === animal.data.id)) {
+                            capturedHistory.push(animal.data);
+                        }
                         
                         gameState.score++;
                         gameState.onlineCorrect++;
@@ -1099,15 +1507,56 @@ function animate() {
             const dx = player.position.x - animal.group.position.x;
             const dz = player.position.z - animal.group.position.z;
             const dist = Math.sqrt(dx * dx + dz * dz);
+
+            // ระบบแว่นตานักชีววิทยา (Biologist Glasses) ไฮไลท์เป้าหมาย
+            const isTarget = animal.data.type === gameState.targetCategory;
+            const hasGlasses = activePowerups.glasses > 0;
             
-            // เช็คว่าผู้เล่นอยู่ในระยะติดตาม (CHASE_DIST) หรือไม่ (ติดตามเมื่อเข้าใกล้ และเลิกติดตามเมื่อออกห่าง)
-            animal.group.userData.isAggro = (dist < CHASE_DIST);
+            // ขยายป้ายชื่อลอยตัวและทำให้ชีพจรโมเดลขยายเมื่อมองผ่านแว่นตา
+            const nameSprite = animal.group.children.find(c => c.isSprite);
+            if (nameSprite) {
+                if (hasGlasses && isTarget) {
+                    nameSprite.scale.set(8, 4, 1);
+                    nameSprite.position.y = 5.0; // ลอยสูงขึ้น
+                } else {
+                    nameSprite.scale.set(4, 2, 1);
+                    nameSprite.position.y = 3.0; // ระดับปกติ
+                }
+            }
+            if (hasGlasses && isTarget) {
+                const pulse = 1.0 + Math.sin(time * 8) * 0.15;
+                animal.group.scale.set(pulse, pulse, pulse);
+            } else {
+                animal.group.scale.set(1.0, 1.0, 1.0);
+            }
+            
+            // ตรวจสอบการแสดงตัวของกิ้งก่า/จระเข้ที่พรางตัวในดงหญ้าเมื่อผู้เล่นเข้าใกล้
+            if (animal.group.userData.isHiddenReptile) {
+                if (dist < 18) { // ค้นพบตัวเมื่ออยู่ใกล้ในระยะ 18 หน่วย
+                    animal.group.userData.isHiddenReptile = false;
+                    animal.group.traverse(child => {
+                        if (child.isMesh) {
+                            child.material.opacity = 1.0;
+                            child.material.transparent = false;
+                        }
+                    });
+                    try { KAMPAI.sound.wrong(); } catch (e) {} // ส่งเสียงแจ้งเตือนสัตว์กระโดดเข้าใส่
+                }
+            }
+
+            // เช็คว่าผู้เล่นอยู่ในระยะติดตาม (CHASE_DIST) หรือไม่
+            // หากมีสถานะล่องหน Camo Spray อยู่ สัตว์จะไม่เห็นผู้เล่นเลย
+            const isPlayerInvisible = activePowerups.camo > 0;
+            // สลักเกลียว: สัตว์จะคลั่งวิ่งไล่ล่าทันทีถ้ารวมเหตุการณ์คู่แข่งป่วน (stampede) หรือผู้เล่นอยู่ในระยะ
+            const isAggroActive = !isPlayerInvisible && (dist < CHASE_DIST || stampedeTimer > 0);
+            animal.group.userData.isAggro = isAggroActive && !animal.group.userData.isHiddenReptile;
 
             if (animal.group.userData.isAggro) {
-                // ติดสถานะ Aggro -> วิ่งไล่ล่าติดตามผู้เล่นตลอดการเล่นในด่านนั้น
+                // ติดสถานะ Aggro -> วิ่งไล่ล่าติดตามผู้เล่น
+                const currentChaseSpeed = stampedeTimer > 0 ? chaseSpeed * 1.8 : chaseSpeed;
                 if (dist > 0.1) {
-                    animal.group.position.x += (dx / dist) * chaseSpeed * dt;
-                    animal.group.position.z += (dz / dist) * chaseSpeed * dt;
+                    animal.group.position.x += (dx / dist) * currentChaseSpeed * dt;
+                    animal.group.position.z += (dz / dist) * currentChaseSpeed * dt;
                     const angle = Math.atan2(dx, dz);
                     animal.group.rotation.y = angle;
                 }
@@ -1115,7 +1564,7 @@ function animate() {
                     setAnimalAnimation(animal.group, 'run');
                 }
             } else {
-                // หากยังไม่ถูกเปิดเผย/กระตุ้น -> เดินเล่นสำรวจทิศทางสุ่ม (Wandering)
+                // หากยังไม่ถูกกระตุ้น -> เดินเล่นสำรวจทิศทางสุ่ม (Wandering)
                 if (animal.group.userData.wanderAngle === undefined) {
                     animal.group.userData.wanderAngle = Math.random() * Math.PI * 2;
                     animal.group.userData.wanderTimer = 0;
@@ -1127,14 +1576,34 @@ function animate() {
                     animal.group.userData.wanderTimer = 0;
                 }
                 
-                const nextX = animal.group.position.x + Math.sin(animal.group.userData.wanderAngle) * wanderSpeed * dt;
-                const nextZ = animal.group.position.z + Math.cos(animal.group.userData.wanderAngle) * wanderSpeed * dt;
-                const limit = MAP_SIZE / 2 - 2;
-                if (nextX > -limit && nextX < limit) animal.group.position.x = nextX;
-                if (nextZ > -limit && nextZ < limit) animal.group.position.z = nextZ;
+                const wx = Math.sin(animal.group.userData.wanderAngle) * wanderSpeed * dt;
+                const wz = Math.cos(animal.group.userData.wanderAngle) * wanderSpeed * dt;
+                
+                const nextX = animal.group.position.x + wx;
+                const nextZ = animal.group.position.z + wz;
+                
+                // ถ้าน้ำสระปลา ถูกขังในสระน้ำ
+                const pond = animal.group.userData.pond;
+                if (pond) {
+                    const pdx = nextX - pond.x;
+                    const pdz = nextZ - pond.z;
+                    const pdist = Math.sqrt(pdx * pdx + pdz * pdz);
+                    if (pdist < pond.radius - 2.5) {
+                        animal.group.position.x = nextX;
+                        animal.group.position.z = nextZ;
+                    } else {
+                        // ชนขอบสระ -> หันหลังกลับทันที
+                        animal.group.userData.wanderAngle = Math.random() * Math.PI * 2;
+                        animal.group.userData.wanderTimer = 0;
+                    }
+                } else {
+                    const limit = MAP_SIZE / 2 - 2;
+                    if (nextX > -limit && nextX < limit) animal.group.position.x = nextX;
+                    if (nextZ > -limit && nextZ < limit) animal.group.position.z = nextZ;
+                }
                 
                 animal.group.rotation.y = animal.group.userData.wanderAngle;
-
+                
                 if (animal.group.userData.hasGLTF) {
                     setAnimalAnimation(animal.group, 'walk');
                 }
@@ -1151,10 +1620,30 @@ function animate() {
             }
         }
 
-        // --- มุมมองกล้องตามตัวละคร ---
-        camera.position.x += (player.position.x - camera.position.x) * 0.1;
-        camera.position.z += (player.position.z + 15 - camera.position.z) * 0.1;
-        camera.lookAt(player.position.x, 0.6, player.position.z);
+        // ตรวจสอบอินพุตหมุนกล้องแนวระนาบด้วยปุ่ม Q และ E
+        if (gameState.keys.q) {
+            cameraAngle -= 2.0 * dt;
+        }
+        if (gameState.keys.e) {
+            cameraAngle += 2.0 * dt;
+        }
+
+        // --- มุมมองกล้องตามตัวละครแบบ Orbit (หมุนและซูมได้) ---
+        const baseDistance = 18;
+        const baseHeight = 15;
+        const targetDistance = baseDistance * cameraZoom;
+        const targetHeight = baseHeight * cameraZoom;
+
+        // คำนวณพิกัดมุมกล้องเป้าหมายรอบผู้เล่น
+        const cameraTargetX = player.position.x + Math.sin(cameraAngle) * targetDistance;
+        const cameraTargetZ = player.position.z + Math.cos(cameraAngle) * targetDistance;
+        const cameraTargetY = player.position.y + targetHeight;
+
+        // ค่อยๆ Lerp เลื่อนกล้องไปพิกัดเป้าหมายอย่างลื่นไหล
+        camera.position.x += (cameraTargetX - camera.position.x) * 0.1;
+        camera.position.y += (cameraTargetY - camera.position.y) * 0.1;
+        camera.position.z += (cameraTargetZ - camera.position.z) * 0.1;
+        camera.lookAt(player.position.x, 0.8, player.position.z);
 
         // --- ระบบแสงเงาวิ่งตามผู้เล่น (เพื่อรักษาขอบเขตเงาไม่ตกขอบแมปใหญ่) ---
         if (dirLight) {
