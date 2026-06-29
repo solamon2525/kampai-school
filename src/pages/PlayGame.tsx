@@ -50,6 +50,7 @@ import {
   type LevelInfo,
 } from '@/services/game-play.service';
 import { multiplyRaceService, type PerTableStats } from '@/services/multiply-race.service';
+import { thaiVocabService } from '@/services/thai-vocab.service';
 import { HonorWall } from '@/components/games/HonorWall';
 import { DailyQuestPanel, dailyQuestQueryKey } from '@/components/games/DailyQuestPanel';
 import { dailyQuestService, type DailyQuestStatus } from '@/services/daily-quest.service';
@@ -254,6 +255,25 @@ const PlayGame = () => {
     enabled: gameSlug === 'multiply-race' && !!student && !!codeInput,
   });
 
+  const thaiVocabCatalogQuery = useQuery({
+    queryKey: ['thai-vocab-catalog'],
+    queryFn: async () => {
+      if (resolvedSlug !== 'thai-vocab-hub') return null;
+      return await thaiVocabService.getCatalog();
+    },
+    enabled: resolvedSlug === 'thai-vocab-hub',
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const thaiVocabMissedQuery = useQuery({
+    queryKey: ['thai-vocab-missed', codeInput],
+    queryFn: async () => {
+      if (resolvedSlug !== 'thai-vocab-hub' || !codeInput) return [];
+      return await thaiVocabService.getMissedByCode(codeInput.trim());
+    },
+    enabled: resolvedSlug === 'thai-vocab-hub' && !!student && !!codeInput,
+  });
+
   // ─── lookup handler ────────────────────────────────────────────────────────
   const handleLookup = useCallback(async (overrideCode?: string) => {
     const code = (overrideCode ?? codeInput).trim();
@@ -453,7 +473,12 @@ const PlayGame = () => {
             }
           : null,
         // Phase 2/3: per-game data (เกมตัดสินใจใช้หรือไม่)
-        gameData: gameSlug === 'multiply-race' ? {
+        gameData: resolvedSlug === 'thai-vocab-hub'
+          ? {
+              vocab: thaiVocabCatalogQuery.data ?? null,
+              missed: thaiVocabMissedQuery.data ?? [],
+            }
+          : gameSlug === 'multiply-race' ? {
           mastery: masteryQuery.data ?? [],
           daily: {
             status: dailyStatusQuery.data ?? null,
@@ -466,7 +491,7 @@ const PlayGame = () => {
       },
       '*',
     );
-  }, [student, codeInput, statsQuery.data, levelInfo.level, leaderboardQuery.data, classmatesQuery.data, gameQuery.data?.bgm_preset, gameQuery.data?.bgm_url, gameQuery.data?.character_sheet_url, gameQuery.data?.character_sheet_url_p2, gameQuery.data?.character_frame_w, gameQuery.data?.character_frame_h, gameQuery.data?.character_frame_count, (gameQuery.data as { character_color_config?: unknown } | undefined)?.character_color_config, (gameQuery.data as { blueprint_json?: unknown } | undefined)?.blueprint_json, resolvedSlug, masteryQuery.data, dailyStatusQuery.data, dailyLeaderboardQuery.data, postParentViewport]);
+  }, [student, codeInput, statsQuery.data, levelInfo.level, leaderboardQuery.data, classmatesQuery.data, gameQuery.data?.bgm_preset, gameQuery.data?.bgm_url, gameQuery.data?.character_sheet_url, gameQuery.data?.character_sheet_url_p2, gameQuery.data?.character_frame_w, gameQuery.data?.character_frame_h, gameQuery.data?.character_frame_count, (gameQuery.data as { character_color_config?: unknown } | undefined)?.character_color_config, (gameQuery.data as { blueprint_json?: unknown } | undefined)?.blueprint_json, resolvedSlug, masteryQuery.data, dailyStatusQuery.data, dailyLeaderboardQuery.data, thaiVocabCatalogQuery.data, thaiVocabMissedQuery.data, postParentViewport]);
 
   // ─── auto-login จาก localStorage (ลดเวลากรอกรหัสเมื่อเปลี่ยนเกม) ────────
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -570,6 +595,21 @@ const PlayGame = () => {
             dailyStatusQuery.refetch();
             dailyLeaderboardQuery.refetch();
           } catch (e) { console.warn('daily submit failed', e); }
+        }
+        // Phase D: บันทึกคำที่พลาด Thai Vocab Hub → DB
+        if (resolvedSlug === 'thai-vocab-hub') {
+          const categorySlug = typeof data.metadata?.categorySlug === 'string' ? data.metadata.categorySlug : '';
+          const missed = Array.isArray(data.metadata?.missedWords) ? data.metadata.missedWords : [];
+          if (categorySlug && missed.length > 0) {
+            try {
+              await thaiVocabService.recordMissedByCode(
+                codeInput.trim(),
+                categorySlug,
+                missed as { word: string; reading: string; meaning: string }[],
+              );
+              thaiVocabMissedQuery.refetch();
+            } catch (e) { console.warn('thai vocab missed sync failed', e); }
+          }
         }
         // Daily Quest: trigger ฝั่ง DB เครดิตเควสให้แล้วตอน insert session → refetch สถานะ + celebrate
         try {

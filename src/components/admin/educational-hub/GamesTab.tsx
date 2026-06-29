@@ -22,7 +22,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink, Plus, RefreshCw, AlertTriangle, Loader2, Trash2, RotateCcw, Settings, Code2, ChevronDown, Copy, Check, Download, Image as ImageIcon, ClipboardList, Target, Sparkles, Pin, Pencil, ArrowLeft, CopyPlus, LayoutGrid } from 'lucide-react';
+import { ExternalLink, Plus, RefreshCw, AlertTriangle, Loader2, Trash2, RotateCcw, Settings, Code2, ChevronDown, Copy, Check, Download, Image as ImageIcon, ClipboardList, Target, Sparkles, Pin, Pencil, ArrowLeft, CopyPlus, LayoutGrid, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -95,6 +95,7 @@ import { GameIndicatorsDialog } from './GameIndicatorsDialog';
 import { FeaturedGamesDisplaySettings } from './FeaturedGamesDisplaySettings';
 import { IndicatorPromptDialog } from './IndicatorPromptDialog';
 import { IndicatorCoverageDialog } from './IndicatorCoverageDialog';
+import { ThaiVocabManageDialog } from './ThaiVocabManageDialog';
 import { curriculumService } from '@/services/curriculum.service';
 import { GameIndicatorBatchMapper } from '@/components/admin/curriculum/GameIndicatorBatchMapper';
 
@@ -453,6 +454,11 @@ function DeveloperCheatsheet() {
 
 // ─── Tab ────────────────────────────────────────────────────────────────────
 
+function isThaiVocabHubGame(item: EduHubItem): boolean {
+    return item.game_slug === 'thai-vocab-hub'
+        || (item.external_url ?? '').includes('thai-vocab-hub');
+}
+
 type Teacher = {
     id: string;
     name: string;
@@ -475,6 +481,7 @@ export const GamesTab = () => {
         | { mode: 'characters' }
         | { mode: 'batch-map' }
         | { mode: 'blueprint'; item: EduHubItem }
+        | { mode: 'vocab'; item: EduHubItem }
         | null
     >(null);
     // ตัวชี้วัดที่เลือกจาก IndicatorPromptDialog → auto-map เข้าเกมใหม่หลังอัปโหลด
@@ -859,11 +866,21 @@ export const GamesTab = () => {
                                                         <Button
                                                             variant="outline"
                                                             size="sm"
-                                                            className="text-emerald-600 border-emerald-200 hover:bg-emerald-50"
+                                                            className="text-amber-700 border-amber-200 hover:bg-amber-50"
                                                             onClick={() => setDialog({ mode: 'indicators', item })}
                                                         >
                                                             <Target className="h-3 w-3 mr-1" /> ตัวชี้วัด
                                                         </Button>
+                                                        {isThaiVocabHubGame(item) && (
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                className="text-amber-800 border-amber-300 hover:bg-amber-50"
+                                                                onClick={() => setDialog({ mode: 'vocab', item })}
+                                                            >
+                                                                <BookOpen className="h-3 w-3 mr-1" /> จัดการคำศัพท์
+                                                            </Button>
+                                                        )}
                                                         <Button
                                                             variant={item.homepage_featured ? 'default' : 'outline'}
                                                             size="sm"
@@ -948,6 +965,12 @@ export const GamesTab = () => {
                     )}
                     {dialog?.mode === 'indicators' && (
                         <GameIndicatorsDialog
+                            item={dialog.item}
+                            onClose={() => setDialog(null)}
+                        />
+                    )}
+                    {dialog?.mode === 'vocab' && (
+                        <ThaiVocabManageDialog
                             item={dialog.item}
                             onClose={() => setDialog(null)}
                         />

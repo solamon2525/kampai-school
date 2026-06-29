@@ -4,7 +4,10 @@ let currentScore = 0;
 let currentLives = 5;
 let currentMode = 'auto'; // auto, dictation, choice, match
 let activeCategory = null;
+let activeCategorySlug = null;
+let fullCategoryWords = [];
 let categoryWords = [];
+let gridDisplayWords = [];
 let currentWordIndex = 0;
 let isAnswered = false;
 
@@ -21,6 +24,52 @@ let autoplaySpeed = 3000;
 let sessionCorrect = 0;
 let sessionTotal = 0;
 let missedWords = [];
+let serverMissedWords = [];
+
+function applyVocabFromSdk(sdk) {
+  const vocab = sdk && sdk.gameData && sdk.gameData.vocab;
+  if (!vocab || !vocab.categories || !vocab.categories.length) return;
+
+  CATEGORIES.length = 0;
+  CATEGORIES.push(...vocab.categories);
+  Object.keys(ALL_WORDS).forEach((k) => delete ALL_WORDS[k]);
+  Object.assign(ALL_WORDS, vocab.words || {});
+
+  if (window.GAME_DATA) {
+    window.GAME_DATA.categories = vocab.categories;
+    window.GAME_DATA.words = vocab.words;
+  }
+
+  const hubVisible = document.getElementById('hub-view')?.style.display !== 'none';
+  if (hubVisible) initHubGrid();
+
+  if (activeCategorySlug && ALL_WORDS[activeCategorySlug]) {
+    fullCategoryWords = ALL_WORDS[activeCategorySlug] || [];
+    categoryWords = fullCategoryWords;
+    if (currentMode === 'auto') renderWordsGrid();
+  }
+}
+
+function applyMissedFromSdk(sdk) {
+  const missed = sdk && sdk.gameData && sdk.gameData.missed;
+  if (!Array.isArray(missed)) return;
+  serverMissedWords = missed;
+  renderMissedBanner();
+}
+
+function renderMissedBanner() {
+  const el = document.getElementById('missed-banner');
+  if (!el) return;
+  if (!serverMissedWords.length) {
+    el.style.display = 'none';
+    return;
+  }
+  const top = serverMissedWords.slice(0, 5);
+  const more = serverMissedWords.length - top.length;
+  const sample = top.map((m) => m.word).join(', ');
+  el.textContent = `📝 คำที่เคยพลาด (${serverMissedWords.length}): ${sample}${more > 0 ? ` +${more}` : ''}`;
+  el.style.display = 'block';
+}
 
 function resetSession() {
   sessionCorrect = 0;
@@ -125,6 +174,129 @@ function buildGridSizePicker(header) {
 
 loadGridColsPref();
 
+// ฟิลเตอร์กริดทบทวน — ชั้นเรียน + โหมดแสดงผล
+const GRID_GRADE_KEY = 'tvh_grid_grade';
+const GRID_VIEW_KEY = 'tvh_grid_view';
+const RANDOM_SAMPLE = 20;
+const GRID_GRADE_OPTIONS = [
+  { value: 'all', label: 'ทุกชั้น' },
+  { value: 'ป.4', label: 'ป.4' },
+  { value: 'ป.5', label: 'ป.5' },
+  { value: 'ป.6', label: 'ป.6' },
+];
+const GRID_VIEW_OPTIONS = [
+  { value: 'all', label: 'ทั้งหมด' },
+  { value: 'sample', label: 'สุ่ม 20' },
+];
+let gridGradeFilter = 'all';
+let gridViewMode = 'all';
+
+function loadGridFilterPrefs() {
+  const g = localStorage.getItem(GRID_GRADE_KEY);
+  const v = localStorage.getItem(GRID_VIEW_KEY);
+  if (GRID_GRADE_OPTIONS.some((o) => o.value === g)) gridGradeFilter = g;
+  if (GRID_VIEW_OPTIONS.some((o) => o.value === v)) gridViewMode = v;
+}
+
+function setGridGradeFilter(value) {
+  if (!GRID_GRADE_OPTIONS.some((o) => o.value === value)) return;
+  gridGradeFilter = value;
+  localStorage.setItem(GRID_GRADE_KEY, value);
+  updateGridFilterPickerUI();
+  if (currentMode === 'auto') renderWordsGrid();
+}
+
+function setGridViewMode(value) {
+  if (!GRID_VIEW_OPTIONS.some((o) => o.value === value)) return;
+  gridViewMode = value;
+  localStorage.setItem(GRID_VIEW_KEY, value);
+  updateGridFilterPickerUI();
+  if (currentMode === 'auto') renderWordsGrid();
+}
+
+function reshuffleGridSample() {
+  if (currentMode === 'auto' && gridViewMode === 'sample') renderWordsGrid();
+}
+
+function getGridDisplayWords() {
+  let words = fullCategoryWords;
+  if (gridGradeFilter !== 'all') {
+    words = words.filter((w) => w.grade === gridGradeFilter);
+  }
+  if (gridViewMode === 'sample' && words.length > RANDOM_SAMPLE) {
+    words = shuffle([...words]).slice(0, RANDOM_SAMPLE);
+  }
+  return words;
+}
+
+function updateGridFilterPickerUI() {
+  document.querySelectorAll('.grid-grade-btn').forEach((btn) => {
+    const active = btn.dataset.grade === gridGradeFilter;
+    btn.classList.toggle('active', active);
+    btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+  });
+  document.querySelectorAll('.grid-view-btn').forEach((btn) => {
+    const active = btn.dataset.view === gridViewMode;
+    btn.classList.toggle('active', active);
+    btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+  });
+  const reshuffleBtn = document.getElementById('btn-reshuffle-sample');
+  if (reshuffleBtn) {
+    reshuffleBtn.style.display = gridViewMode === 'sample' ? 'inline-flex' : 'none';
+  }
+}
+
+function buildGridFilterPickers(header) {
+  const wrap = document.createElement('div');
+  wrap.className = 'grid-filter-picker';
+
+  const gradeBlock = document.createElement('div');
+  gradeBlock.className = 'grid-filter-group';
+  gradeBlock.innerHTML = '<span class="grid-size-label">ชั้น</span>';
+  const gradeBtns = document.createElement('div');
+  gradeBtns.className = 'grid-size-btns';
+  GRID_GRADE_OPTIONS.forEach((opt) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'grid-size-btn grid-grade-btn';
+    btn.dataset.grade = opt.value;
+    btn.textContent = opt.label;
+    btn.addEventListener('click', () => setGridGradeFilter(opt.value));
+    gradeBtns.appendChild(btn);
+  });
+  gradeBlock.appendChild(gradeBtns);
+
+  const viewBlock = document.createElement('div');
+  viewBlock.className = 'grid-filter-group';
+  viewBlock.innerHTML = '<span class="grid-size-label">แสดง</span>';
+  const viewBtns = document.createElement('div');
+  viewBtns.className = 'grid-size-btns';
+  GRID_VIEW_OPTIONS.forEach((opt) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'grid-size-btn grid-view-btn';
+    btn.dataset.view = opt.value;
+    btn.textContent = opt.label;
+    btn.addEventListener('click', () => setGridViewMode(opt.value));
+    viewBtns.appendChild(btn);
+  });
+  const reshuffleBtn = document.createElement('button');
+  reshuffleBtn.type = 'button';
+  reshuffleBtn.id = 'btn-reshuffle-sample';
+  reshuffleBtn.className = 'grid-size-btn grid-reshuffle-btn';
+  reshuffleBtn.textContent = '🔀 สุ่มใหม่';
+  reshuffleBtn.addEventListener('click', reshuffleGridSample);
+  viewBtns.appendChild(reshuffleBtn);
+  viewBlock.appendChild(viewBtns);
+
+  wrap.appendChild(gradeBlock);
+  wrap.appendChild(viewBlock);
+  header.appendChild(wrap);
+  updateGridFilterPickerUI();
+}
+
+loadGridFilterPrefs();
+
 function mountFontSizeSlider() {
   const slider = document.getElementById('tvh-fontsize-slider');
   if (!slider || slider.dataset.tvhBound) return;
@@ -146,6 +318,9 @@ function mountFontSizeSlider() {
 // โหลดข้อมูล SDK เมื่อหน้าพร้อมใช้งาน — ครอบ try/catch กันเสียง/ชิป/SDK ทำให้ทั้งเกมพัง
 KAMPAI.onReady((sdk) => {
   try {
+    applyVocabFromSdk(sdk);
+    applyMissedFromSdk(sdk);
+
     // แสดงชิปนักเรียนเมื่อเล่นผ่านระบบ (embedded)
     const name = sdk.student && sdk.student.displayName;
     if (name) {
@@ -190,8 +365,10 @@ function initHubGrid() {
 
 // เลือกหมวดหมู่คำศัพท์
 function selectCategory(slug) {
+  activeCategorySlug = slug;
   activeCategory = CATEGORIES.find(c => c.slug === slug);
-  categoryWords = ALL_WORDS[slug] || [];
+  fullCategoryWords = ALL_WORDS[slug] || [];
+  categoryWords = fullCategoryWords;
 
   if (categoryWords.length === 0) return;
 
@@ -287,21 +464,35 @@ function switchMode(mode) {
 function renderWordsGrid() {
   const grid = document.getElementById('words-grid');
   grid.innerHTML = '';
+  gridDisplayWords = getGridDisplayWords();
 
   if (activeCategory) {
     const header = document.createElement('div');
     header.className = 'grid-cat-header';
+    const countLabel = gridDisplayWords.length === fullCategoryWords.length
+      ? `${fullCategoryWords.length} คำ`
+      : `แสดง ${gridDisplayWords.length} / ${fullCategoryWords.length} คำ`;
     header.innerHTML = `
       <span class="grid-cat-icon">${activeCategory.icon}</span>
       <span class="grid-cat-title">${activeCategory.title}</span>
-      <span class="grid-cat-hint">แตะการ์ดเพื่อพลิกดูความหมาย · เลือกขนาดกริดได้ด้านล่าง</span>
-      <span class="grid-cat-count">${categoryWords.length} คำ</span>
+      <span class="grid-cat-hint">แตะการ์ดเพื่อพลิกดูความหมาย</span>
+      <span class="grid-cat-count">${countLabel}</span>
     `;
+    buildGridFilterPickers(header);
     buildGridSizePicker(header);
     grid.appendChild(header);
   }
 
-  categoryWords.forEach((item, idx) => {
+  if (gridDisplayWords.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'grid-empty-msg';
+    empty.textContent = 'ไม่มีคำในชั้นที่เลือก — ลองเปลี่ยนตัวกรอง';
+    grid.appendChild(empty);
+    applyGridColsLayout();
+    return;
+  }
+
+  gridDisplayWords.forEach((item, idx) => {
     const card = document.createElement('div');
     card.className = 'grid-flip-card';
     card.id = `word-cell-${idx}`;
@@ -311,10 +502,15 @@ function renderWordsGrid() {
 
     const emoji = item.emoji || (activeCategory && activeCategory.icon) || '📝';
 
+    const gradeBadge = item.grade
+      ? `<span class="grid-grade-badge">${item.grade}</span>`
+      : '';
+
     card.innerHTML = `
       <div class="grid-flip-inner">
         <div class="grid-flip-face grid-flip-front">
           <button type="button" class="grid-say-btn" title="ฟังเสียงอ่าน" aria-label="ฟังเสียง ${item.word}">🔊</button>
+          ${gradeBadge}
           <span class="grid-word-emoji">${emoji}</span>
           <span class="grid-word-text">${item.word}</span>
         </div>
@@ -353,11 +549,11 @@ function toggleGridCard(card, idx) {
   currentWordIndex = idx;
 
   if (!wasFlipped) {
-    speakThai(categoryWords[idx].word);
+    speakThai(gridDisplayWords[idx].word);
   }
 
   const flippedCount = document.querySelectorAll('.grid-flip-card.flipped').length;
-  const pct = categoryWords.length > 0 ? (flippedCount / categoryWords.length) * 100 : 0;
+  const pct = gridDisplayWords.length > 0 ? (flippedCount / gridDisplayWords.length) * 100 : 0;
   document.getElementById('bar').style.width = `${pct}%`;
 }
 
@@ -407,8 +603,8 @@ function flipCard() {
 
 // เลื่อนคำถัดไป/ก่อนหน้าในโหมดทบทวน (ปุ่ม ◀ ▶ และลูกศรคีย์บอร์ด) วนรอบ
 function nextWord() {
-  if (currentMode !== 'auto' || categoryWords.length === 0) return;
-  const nextIdx = (currentWordIndex + 1) % categoryWords.length;
+  if (currentMode !== 'auto' || gridDisplayWords.length === 0) return;
+  const nextIdx = (currentWordIndex + 1) % gridDisplayWords.length;
   const card = document.getElementById(`word-cell-${nextIdx}`);
   if (card) {
     card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -417,8 +613,8 @@ function nextWord() {
 }
 
 function prevWord() {
-  if (currentMode !== 'auto' || categoryWords.length === 0) return;
-  const prevIdx = (currentWordIndex - 1 + categoryWords.length) % categoryWords.length;
+  if (currentMode !== 'auto' || gridDisplayWords.length === 0) return;
+  const prevIdx = (currentWordIndex - 1 + gridDisplayWords.length) % gridDisplayWords.length;
   const card = document.getElementById(`word-cell-${prevIdx}`);
   if (card) {
     card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -814,7 +1010,15 @@ function endGame() {
 
   // ส่งคะแนนรอบฝึกขึ้นระบบ (เฉพาะเมื่อมีการตอบอย่างน้อย 1 ข้อ — โหมดทบทวนไม่เรียก endGame)
   if (total > 0 && KAMPAI.submitScore) {
-    KAMPAI.submitScore(currentScore, { stars: stars });
+    KAMPAI.submitScore(currentScore, {
+      stars: stars,
+      categorySlug: activeCategorySlug,
+      missedWords: missedWords.map((w) => ({
+        word: w.word,
+        reading: w.reading,
+        meaning: w.meaning,
+      })),
+    });
   }
 
   const titleEl = document.getElementById('go-title');

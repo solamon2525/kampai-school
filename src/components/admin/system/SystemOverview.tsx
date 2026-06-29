@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.126.0 (แนวเกม game_play_style)',
+        version: 'v1.127.0 (Thai Vocab Hub เฟส D)',
         date: 'ล่าสุด',
+        badge: 'bg-amber-600',
+        items: [
+            '**Thai Vocab Hub เฟส D** — คลังคำศัพท์ใน Supabase (`thai_vocab_*`) + RPC catalog/missed',
+            'GamesTab ปุ่ม **จัดการคำศัพท์** — นำเข้า/ส่งออก CSV · PlayGame ส่ง `gameData.vocab` + sync คำพลาด',
+            'หมวด lesson/spelling ผูก `indicator_code` · migration 278–279 · game_docs v1.5.0',
+        ],
+    },
+    {
+        version: 'v1.126.0 (แนวเกม game_play_style)',
+        date: '',
         badge: 'bg-violet-600',
         items: [
             '**แนวเกม 7 ประเภท** — แพลตฟอร์ม 2D · มองด้านบน · กระโดด · แข่งรถ · ยิง · พัสเซิล · 3D มายคราฟ',
