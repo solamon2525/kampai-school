@@ -1,6 +1,14 @@
-/** Schema ด่านเกม — Platformer 2D Blueprint Engine v1 */
+/**
+ * Schema ด่านเกม — Multi-Engine Blueprint System
+ *
+ * engine แต่ละตัวมี schema ของตัวเอง (discriminated union ตาม field `engine`)
+ * - 'platformer-2d' : เกมวิ่งกระโดดแพลตฟอร์ม (เดิม)
+ * - 'quiz'          : เกมตอบคำถามตัวเลือกพร้อมจับเวลา/คะแนน (ใหม่)
+ *
+ * ระบบ engine registry อยู่ใน `src/lib/blueprint-engines.ts`
+ */
 
-export type BlueprintEngine = 'platformer-2d';
+export type BlueprintEngine = 'platformer-2d' | 'quiz';
 
 export type PlatformerPlatform = {
     id: string;
@@ -43,6 +51,49 @@ export type PlatformerBlueprintV1 = {
     collectibles: PlatformerCollectible[];
     questions: PlatformerQuestion[];
 };
+
+// ─── Quiz Engine ────────────────────────────────────────────────────────────
+
+export type QuizQuestion = {
+    id: string;
+    prompt: string;
+    options: string[];
+    answer: string;
+    /** คำเต็ม/คำอธิบาย สำหรับแสดงหลังตอบ (optional) */
+    hint?: string;
+};
+
+/** พรีเซตพื้นหลัง — runtime เลือก gradient/ภาพตามค่านี้ */
+export type QuizBgPreset = 'aurora' | 'sunset' | 'ocean' | 'forest' | 'candy' | 'midnight';
+
+export type QuizBlueprintV1 = {
+    version: 1;
+    engine: 'quiz';
+    meta: {
+        title: string;
+        subject: string;
+        /** ระดับชั้นอิสระ เช่น "ป.1" */
+        grade?: string;
+    };
+    rules: {
+        /** วินาทีต่อข้อ (0 = ไม่จับเวลา) */
+        timeLimitSec: number;
+        pointsPerCorrect: number;
+        /** คะแนนขั้นต่ำถือว่า "ผ่าน" */
+        passingScore: number;
+        /** true = สลับลำดับตัวเลือกทุกครั้งที่เล่น */
+        shuffleOptions: boolean;
+    };
+    theme: {
+        bgPreset: QuizBgPreset;
+        accentColor: string;
+    };
+    questions: QuizQuestion[];
+};
+
+// ─── Union กลางของทุก engine ────────────────────────────────────────────────
+
+export type GameBlueprint = PlatformerBlueprintV1 | QuizBlueprintV1;
 
 export const BLUEPRINT_WORLD_W = 1280;
 export const BLUEPRINT_WORLD_H = 720;
@@ -142,8 +193,10 @@ export function newBlueprintId(prefix: string): string {
     return `${prefix}-${crypto.randomUUID().slice(0, 8)}`;
 }
 
-/** เกมที่เปิด visual blueprint editor ได้ */
-const BLUEPRINT_PLAY_STYLES = new Set(['platformer', 'platformer-2d']);
+/** เกมที่เปิด visual blueprint editor ได้ — registry-driven */
+const BLUEPRINT_PLAY_STYLES = new Set(['platformer', 'platformer-2d', 'quiz']);
+const BLUEPRINT_SLUGS = new Set(['thai-sara-run', 'platformer-blueprint', 'quiz-builder']);
+const BLUEPRINT_ENGINE_KEYWORDS = ['platformer-2d', 'quiz'];
 
 export function supportsBlueprintEditor(item: {
     game_play_style?: string | null;
@@ -151,8 +204,10 @@ export function supportsBlueprintEditor(item: {
     game_slug?: string | null;
 }): boolean {
     if (item.game_play_style && BLUEPRINT_PLAY_STYLES.has(item.game_play_style)) return true;
-    if (item.game_slug === 'thai-sara-run' || item.game_slug === 'platformer-blueprint') return true;
-    return !!(item.external_url && item.external_url.includes('platformer-2d'));
+    if (item.game_slug && BLUEPRINT_SLUGS.has(item.game_slug)) return true;
+    return !!(
+        item.external_url && BLUEPRINT_ENGINE_KEYWORDS.some((k) => item.external_url!.includes(k))
+    );
 }
 
 export function blueprintPreviewEngineUrl(item: {
@@ -160,6 +215,7 @@ export function blueprintPreviewEngineUrl(item: {
     game_slug?: string | null;
 }): string {
     if (item.game_slug === 'thai-sara-run') return '/games/thai/thai-sara-run.html';
+    if (item.external_url?.includes('quiz')) return '/games/engine/quiz/index.html';
     if (item.external_url?.includes('.html')) return item.external_url;
     return '/games/engine/platformer-2d/index.html';
 }
@@ -187,4 +243,124 @@ export function upsertQuestionForPlatform(
         answer: patch.answer ?? existing?.answer ?? 'ก',
     };
     return { ...bp, questions: [...rest, next] };
+}
+
+// ─── Quiz Engine: createDefault / parse / validate ──────────────────────────
+
+export function createDefaultQuizBlueprint(meta?: Partial<QuizBlueprintV1['meta']>): QuizBlueprintV1 {
+    return {
+        version: 1,
+        engine: 'quiz',
+        meta: {
+            title: meta?.title ?? 'แบบทดสอบใหม่',
+            subject: meta?.subject ?? 'thai',
+            grade: meta?.grade,
+        },
+        rules: {
+            timeLimitSec: 15,
+            pointsPerCorrect: 10,
+            passingScore: 50,
+            shuffleOptions: true,
+        },
+        theme: {
+            bgPreset: 'aurora',
+            accentColor: '#6366f1',
+        },
+        questions: [
+            {
+                id: newBlueprintId('qq'),
+                prompt: '2 + 3 = ?',
+                options: ['4', '5', '6'],
+                answer: '5',
+            },
+            {
+                id: newBlueprintId('qq'),
+                prompt: 'สระในคำว่า ปู คือ?',
+                options: ['ู', 'า', 'ิ'],
+                answer: 'ู',
+                hint: 'ป + ู',
+            },
+        ],
+    };
+}
+
+const QUIZ_BG_PRESETS: QuizBgPreset[] = ['aurora', 'sunset', 'ocean', 'forest', 'candy', 'midnight'];
+
+export function parseQuizBlueprint(raw: unknown): QuizBlueprintV1 | null {
+    if (!raw || typeof raw !== 'object') return null;
+    const o = raw as Record<string, unknown>;
+    if (o.version !== 1 || o.engine !== 'quiz') return null;
+
+    const metaIn = (o.meta as Record<string, unknown> | undefined) ?? {};
+    const rulesIn = (o.rules as Record<string, unknown> | undefined) ?? {};
+    const themeIn = (o.theme as Record<string, unknown> | undefined) ?? {};
+
+    const questions = Array.isArray(o.questions)
+        ? (o.questions as QuizQuestion[])
+              .filter((q) => q && typeof q.prompt === 'string')
+              .map((q) => ({
+                  id: typeof q.id === 'string' ? q.id : newBlueprintId('qq'),
+                  prompt: q.prompt,
+                  options: Array.isArray(q.options) ? q.options.map(String).slice(0, 6) : [],
+                  answer: typeof q.answer === 'string' ? q.answer : '',
+                  hint: typeof q.hint === 'string' ? q.hint : undefined,
+              }))
+        : [];
+
+    const bgPresetRaw = themeIn.bgPreset as QuizBgPreset;
+    const bgPreset: QuizBgPreset = QUIZ_BG_PRESETS.includes(bgPresetRaw) ? bgPresetRaw : 'aurora';
+
+    return {
+        version: 1,
+        engine: 'quiz',
+        meta: {
+            title: typeof metaIn.title === 'string' ? metaIn.title : 'แบบทดสอบ',
+            subject: typeof metaIn.subject === 'string' ? metaIn.subject : 'thai',
+            grade: typeof metaIn.grade === 'string' ? metaIn.grade : undefined,
+        },
+        rules: {
+            timeLimitSec: typeof rulesIn.timeLimitSec === 'number' ? rulesIn.timeLimitSec : 15,
+            pointsPerCorrect:
+                typeof rulesIn.pointsPerCorrect === 'number' ? rulesIn.pointsPerCorrect : 10,
+            passingScore: typeof rulesIn.passingScore === 'number' ? rulesIn.passingScore : 50,
+            shuffleOptions: typeof rulesIn.shuffleOptions === 'boolean' ? rulesIn.shuffleOptions : true,
+        },
+        theme: {
+            bgPreset,
+            accentColor:
+                typeof themeIn.accentColor === 'string' ? themeIn.accentColor : '#6366f1',
+        },
+        questions,
+    };
+}
+
+export function validateQuizBlueprint(bp: QuizBlueprintV1): string | null {
+    if (!bp.questions.length) return 'ต้องมีคำถามอย่างน้อย 1 ข้อ';
+    for (const [i, q] of bp.questions.entries()) {
+        if (!q.prompt.trim()) return `คำถามข้อ ${i + 1} ไม่มีโจทย์`;
+        if (q.options.length < 2) return `คำถามข้อ ${i + 1} ต้องมีตัวเลือกอย่างน้อย 2 ข้อ`;
+        if (!q.answer.trim()) return `คำถามข้อ ${i + 1} ไม่มีเฉลย`;
+        if (!q.options.includes(q.answer))
+            return `คำถามข้อ ${i + 1} เฉลย "${q.answer}" ไม่อยู่ในตัวเลือก`;
+    }
+    if (bp.rules.pointsPerCorrect < 0) return 'คะแนนต่อข้อต้องไม่ติดลบ';
+    return null;
+}
+
+// ─── Multi-engine dispatch helpers ──────────────────────────────────────────
+
+/** parse blueprint JSON ตาม engine field — คืน null ถ้า engine ไม่รู้จัก */
+export function parseGameBlueprint(raw: unknown): GameBlueprint | null {
+    if (!raw || typeof raw !== 'object') return null;
+    const engine = (raw as Record<string, unknown>).engine;
+    if (engine === 'platformer-2d') return parsePlatformerBlueprint(raw);
+    if (engine === 'quiz') return parseQuizBlueprint(raw);
+    return null;
+}
+
+/** validate ตาม engine — คืนข้อความ error หรือ null ถ้าผ่าน */
+export function validateGameBlueprint(bp: GameBlueprint): string | null {
+    if (bp.engine === 'platformer-2d') return validatePlatformerBlueprint(bp);
+    if (bp.engine === 'quiz') return validateQuizBlueprint(bp);
+    return null;
 }
