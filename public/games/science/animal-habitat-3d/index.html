@@ -8,43 +8,7 @@
 
 <!-- THREE.JS UMD Library -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script>
-  // Mock window.THREE for server-side JSDOM environments (verify:game) to prevent crash
-  if (!window.THREE) {
-    const noop = () => {};
-    const vec3 = {
-      set: function() { return this; },
-      copy: function() { return this; },
-      add: function() { return this; },
-      multiplyScalar: function() { return this; },
-      distanceTo: () => 0,
-      x: 0, y: 0, z: 0
-    };
-    window.THREE = {
-      Clock: function() { return { getDelta: () => 0.016, getElapsedTime: () => 0 }; },
-      Scene: function() { return { add: noop, remove: noop, background: {}, fog: {} }; },
-      PerspectiveCamera: function() { return { position: vec3, lookAt: noop, aspect: 1 }; },
-      WebGLRenderer: function() {
-        return { setSize: noop, render: noop, domElement: document.createElement('canvas'), shadowMap: { enabled: false } };
-      },
-      AmbientLight: function() { return { position: vec3 }; },
-      DirectionalLight: function() {
-        return { position: vec3, castShadow: false, shadow: { mapSize: { set: noop }, camera: { near: 0, far: 0 } } };
-      },
-      BoxGeometry: function() { return {}; },
-      CylinderGeometry: function() { return {}; },
-      SphereGeometry: function() { return {}; },
-      ConeGeometry: function() { return {}; },
-      MeshPhongMaterial: function() { return {}; },
-      MeshBasicMaterial: function() { return {}; },
-      Mesh: function() { return { position: vec3, rotation: vec3, scale: vec3, castShadow: false, receiveShadow: false }; },
-      Group: function() { return { add: noop, remove: noop, position: vec3, rotation: vec3 }; },
-      Color: function() { return {}; },
-      Vector3: function() { return vec3; },
-      CanvasTexture: function() { return { repeat: { set: noop } }; }
-    };
-  }
-</script>
+<script src="/games/kampai-3d.js"></script>
 </head>
 <body>
 

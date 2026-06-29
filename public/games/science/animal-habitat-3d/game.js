@@ -67,67 +67,99 @@ const vs = KampaiVersus.create({
 KAMPAI.sound.mountToggles();
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   THREE.JS 3D ENGINE & GRAPHICS
+   THREE.JS 3D ENGINE & GRAPHICS (ใช้ Kampai3D Framework)
    ═══════════════════════════════════════════════════════════════════════════ */
+let k3d;
 let scene, camera, renderer;
 let islandGroup, spawnPlatform;
 let quadrantMeshes = [];
 let currentAnimalMesh = null;
 const container = document.getElementById('canvas-container');
 
-// ตรวจจับขนาดหน้าจอ
-let width = container.clientWidth || window.innerWidth;
-let height = container.clientHeight || window.innerHeight;
-
-// ตรวจสอบว่ามี THREE.js จริงหรือไม่ (ป้องกันพังใน JSDOM)
 const hasTHREE = window.THREE && typeof window.THREE.Scene === 'function' && !window.THREE.Scene.toString().includes('noop');
 
 function init3D() {
     if (!hasTHREE) return;
 
-    // 1. สร้าง Scene & Camera
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0b132a);
-    scene.fog = new THREE.FogExp2(0x0b132a, 0.015);
+    // สร้างระบบ 3D ด้วย Kampai3D Framework
+    k3d = Kampai3D.create({
+        container: container,
+        cameraPos: { x: 0, y: 10, z: 16 },
+        cameraLookAt: { x: 0, y: 0.5, z: 0 },
+        dragRotate: true,
+        dragSpeed: 0.008,
+        idleRotateSpeed: 0.08,
+        shadows: true,
+        hemisphereLight: true,
+        backgroundColor: 0x0b132a,
+        fogColor: 0x0b132a,
+        fogDensity: 0.015,
+        onUpdate: (delta, time) => {
+            // ขยับขึ้นลงเอฟเฟกต์เบาๆ ของตัวเกาะลอยฟ้า (Bobbing)
+            if (islandGroup) {
+                islandGroup.position.y = Math.sin(time * 0.8) * 0.12 - 0.2;
+            }
 
-    camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-    camera.position.set(0, 10, 16);
-    camera.lookAt(0, 0.5, 0);
+            // แอนิเมชันสัตว์ขยับอยู่บนแท่นสปอว์นกลาง (Bobbing & Rotating)
+            if (currentAnimalMesh && !animationActive) {
+                currentAnimalMesh.position.y = 2.35 + Math.sin(time * 4) * 0.08;
+                currentAnimalMesh.rotation.y = time * 0.7;
+            }
 
-    // 2. Renderer
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    container.appendChild(renderer.domElement);
+            // แอนิเมชันขณะที่สัตว์เคลื่อนที่เดินทางไปถิ่นที่อยู่ (Transition Animation)
+            if (animationActive && currentAnimalMesh) {
+                animationProgress += delta * 1.6;
+                if (animationProgress >= 1) {
+                    // จบแอนิเมชัน!
+                    animationActive = false;
+                    if (animationSuccess) {
+                        // ถูกต้อง: สัตว์ลงไปจอดตรงแผ่นดินถิ่นที่อยู่
+                        currentAnimalMesh.position.copy(animEndPos);
+                        currentAnimalMesh.rotation.set(0, Math.random() * Math.PI, 0);
+                        islandGroup.add(currentAnimalMesh);
+                        
+                        const danceMesh = currentAnimalMesh;
+                        const danceOffset = Math.random() * 5;
+                        const danceInterval = setInterval(() => {
+                            if (isGameOver || !danceMesh.parent) {
+                                clearInterval(danceInterval);
+                                return;
+                            }
+                            const dt = Date.now() / 200;
+                            danceMesh.position.y = 0.45 + Math.abs(Math.sin(dt + danceOffset)) * 0.4;
+                        }, 30);
+                        
+                        danceMesh.userData.danceIntervalId = danceInterval;
+                        danceMesh.name = "animal_placed_" + Date.now();
+                    } else {
+                        // ผิด: ตกน้ำทะเลหายไป
+                        scene.remove(currentAnimalMesh);
+                        currentAnimalMesh = null;
+                    }
+                    setTimeout(spawnAnimal, CFG.NEXT_SPAWN_DELAY_MS);
+                } else {
+                    const p = animationProgress;
+                    const currentY = THREE.MathUtils.lerp(animStartPos.y, animEndPos.y, p) + Math.sin(p * Math.PI) * 1.5;
+                    const currentX = THREE.MathUtils.lerp(animStartPos.x, animEndPos.x, p);
+                    const currentZ = THREE.MathUtils.lerp(animStartPos.z, animEndPos.z, p);
+                    
+                    currentAnimalMesh.position.set(currentX, currentY, currentZ);
+                    currentAnimalMesh.rotation.x = p * Math.PI * 2;
+                    currentAnimalMesh.rotation.y += delta * 5;
+                    
+                    if (!animationSuccess) {
+                        const scale = 1 - p;
+                        currentAnimalMesh.scale.setScalar(scale);
+                    }
+                }
+            }
+        }
+    });
 
-    // 3. แสงไฟ (Lighting)
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-    scene.add(ambientLight);
-
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    dirLight.position.set(10, 18, 10);
-    dirLight.castShadow = true;
-    dirLight.shadow.mapSize.width = 1024;
-    dirLight.shadow.mapSize.height = 1024;
-    dirLight.shadow.camera.near = 0.5;
-    dirLight.shadow.camera.far = 40;
-    const d = 8;
-    dirLight.shadow.camera.left = -d;
-    dirLight.shadow.camera.right = d;
-    dirLight.shadow.camera.top = d;
-    dirLight.shadow.camera.bottom = -d;
-    scene.add(dirLight);
-
-    // แสงสีฟ้าอ่อนสะท้อนล่างเกาะ
-    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x1d4ed8, 0.3);
-    hemiLight.position.set(0, 20, 0);
-    scene.add(hemiLight);
-
-    // 4. สร้างกลุ่มวัตถุของเกาะลอยน้ำ (Island Group)
-    islandGroup = new THREE.Group();
-    scene.add(islandGroup);
+    scene = k3d.scene;
+    camera = k3d.camera;
+    renderer = k3d.renderer;
+    islandGroup = k3d.group;
 
     createFloatingIsland();
     createCenterSpawnPlatform();
@@ -421,84 +453,9 @@ function buildVoxelAnimal(id) {
     return group;
 }
 
-// ── ตรวจจับปฏิสัมพันธ์หมุนเกาะ (Mouse Drag/Touch to Rotate) ──
-let isDragging = false;
-let previousMousePosition = { x: 0, y: 0 };
-let targetRotationY = 0;
-
-function setupInteraction() {
-    container.addEventListener('pointerdown', (e) => {
-        isDragging = true;
-        previousMousePosition = { x: e.clientX, y: e.clientY };
-    });
-
-    container.addEventListener('pointermove', (e) => {
-        if (!isDragging || !islandGroup) return;
-        const deltaX = e.clientX - previousMousePosition.x;
-        islandGroup.rotation.y += deltaX * 0.008;
-        targetRotationY = islandGroup.rotation.y;
-        previousMousePosition = { x: e.clientX, y: e.clientY };
-    });
-
-    window.addEventListener('pointerup', () => {
-        isDragging = false;
-    });
-
-    // ── ตรวจจับการคลิกถิ่นที่อยู่บนโมเดล 3D โดยตรง (Raycasting) ──
-    const raycaster = new THREE.Raycaster();
-    const mouse2D = new THREE.Vector2();
-
-    container.addEventListener('click', (e) => {
-        if (!started || isGameOver || inputLocked) return;
-
-        // แปลงพิกัดเมาส์เป็นแบบ Normalize -1 ถึง 1
-        mouse2D.x = (e.clientX / window.innerWidth) * 2 - 1;
-        mouse2D.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
-        raycaster.setFromCamera(mouse2D, camera);
-
-        // เช็คว่ากดไปโดนสัตว์ที่อยู่ในแท่นหรือไม่ เพื่อสปีด TTS ออกเสียงศัพท์
-        if (currentAnimalMesh) {
-            const hitAnimal = raycaster.intersectObjects(currentAnimalMesh.children, true);
-            if (hitAnimal.length > 0 && currentAnimal) {
-                KAMPAI.sound.speak(currentAnimal.nameEN, 'en-US');
-                toast(`🇺🇸 ${currentAnimal.nameEN}`);
-                return;
-            }
-        }
-
-        // เช็คว่ากดโดนแผ่น 4 ถิ่นที่อยู่บนเกาะลอยน้ำหรือไม่
-        const hitQuadrants = raycaster.intersectObjects(quadrantMeshes);
-        if (hitQuadrants.length > 0) {
-            const habId = hitQuadrants[0].object.userData.habitatId;
-            if (habId) {
-                selectHabitat(habId);
-            }
-        }
-    });
-}
-
-function onWindowResize() {
-    width = container.clientWidth || window.innerWidth;
-    height = container.clientHeight || window.innerHeight;
-    if (camera && renderer) {
-        camera.aspect = width / height;
-        camera.updateProjectionMatrix();
-        renderer.setSize(width, height);
-    }
-}
-
-// หาพิกัด 2D บนหน้าจอจากตำแหน่ง 3D (สำหรับวาดคะแนน/เอฟเฟกต์เด้งลอยขึ้น)
 function getScreenPosition(object) {
-    if (!hasTHREE || !object || !camera) return { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-    const vec = new THREE.Vector3();
-    object.updateMatrixWorld();
-    vec.setFromMatrixPosition(object.matrixWorld);
-    vec.project(camera);
-    return {
-        x: (vec.x * 0.5 + 0.5) * window.innerWidth,
-        y: (-(vec.y * 0.5) + 0.5) * window.innerHeight
-    };
+    if (k3d) return k3d.getScreenPosition(object);
+    return { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -749,31 +706,12 @@ function animateAnimalToHabitat(habitatId, success) {
 }
 
 function clearPlacedAnimals() {
-    if (hasTHREE && scene) {
-        const toRemove = [];
-        scene.traverse((obj) => {
-            if (obj.name && obj.name.startsWith("animal_")) {
-                toRemove.push(obj);
-            }
-        });
-        toRemove.forEach(obj => {
-            // เคลียร์ Interval การเต้นของสัตว์ตัวนั้นๆ
-            if (obj.userData && obj.userData.danceIntervalId) {
-                clearInterval(obj.userData.danceIntervalId);
-            }
-            // ปล่อยคืนทรัพยากร WebGL ป้องกัน Memory Leak
-            obj.traverse((child) => {
-                if (child.geometry) child.geometry.dispose();
-                if (child.material) {
-                    if (Array.isArray(child.material)) {
-                        child.material.forEach(m => m.dispose());
-                    } else {
-                        child.material.dispose();
-                    }
-                }
-            });
-            scene.remove(obj);
-        });
+    if (currentAnimalMesh && scene) {
+        scene.remove(currentAnimalMesh);
+        currentAnimalMesh = null;
+    }
+    if (k3d) {
+        k3d.clearGroup();
     }
 }
 
@@ -908,97 +846,5 @@ function endGame() {
     renderLeaderboard('score-list-gameover');
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   THREE.JS ANIMATION TICK / RENDER LOOP
-   ═══════════════════════════════════════════════════════════════════════════ */
-const clock = hasTHREE ? new THREE.Clock() : null;
+// ไม่ต้องรันลูปอนิเมชันแบบแมนนวล ลูปถูกจัดการโดย Kampai3D.create
 
-function animate() {
-    requestAnimationFrame(animate);
-
-    const delta = clock ? clock.getDelta() : 0.016;
-    const time = clock ? clock.getElapsedTime() : 0;
-
-    // 1. หมุนและขยับขึ้นลงเอฟเฟกต์เบาๆ ของตัวเกาะลอยฟ้า (Idle Floating Effect)
-    if (islandGroup && !isDragging) {
-        islandGroup.rotation.y += 0.08 * delta; // หมุนรอบตัวเองเอื่อยๆ
-        islandGroup.position.y = Math.sin(time * 0.8) * 0.12 - 0.2; // ลอยขึ้นลงเบาๆ
-    }
-
-    // 2. แอนิเมชันสัตว์ขยับอยู่บนแท่นสปอว์นกลาง (Bobbing & Rotating)
-    if (currentAnimalMesh && !animationActive) {
-        currentAnimalMesh.position.y = 2.35 + Math.sin(time * 4) * 0.08;
-        // หมุนตัวอวดโฉมช้าๆ
-        currentAnimalMesh.rotation.y = time * 0.7;
-    }
-
-    // 3. แอนิเมชันขณะที่สัตว์เคลื่อนที่เดินทางไปถิ่นที่อยู่ (Transition Animation)
-    if (animationActive && currentAnimalMesh) {
-        animationProgress += delta * 1.6; // ปรับความเร็วอนิเมชัน (สไลด์ลง)
-        if (animationProgress >= 1) {
-            // จบแอนิเมชัน!
-            animationActive = false;
-            if (animationSuccess) {
-                // ถูกต้อง: สัตว์ลงไปจอดตรงแผ่นดินถิ่นที่อยู่
-                currentAnimalMesh.position.copy(animEndPos);
-                // ดึงออกจากกลุ่มขยับหลัก ไปผูกร่วมกับ islandGroup เพื่อเวลาเกาะหมุนสัตว์จะหมุนตามเกาะไปด้วย!
-                currentAnimalMesh.rotation.set(0, Math.random() * Math.PI, 0);
-                islandGroup.add(currentAnimalMesh);
-                
-                // ให้เต้นกระโดดเฉลิมฉลอง
-                const danceMesh = currentAnimalMesh;
-                const danceOffset = Math.random() * 5;
-                const danceInterval = setInterval(() => {
-                    if (isGameOver || !danceMesh.parent) { // เคลียร์ถ้าจบเกมหรือตัวละครถูกดึงออกจากฉาก
-                        clearInterval(danceInterval);
-                        return;
-                    }
-                    const dt = Date.now() / 200;
-                    danceMesh.position.y = 0.45 + Math.abs(Math.sin(dt + danceOffset)) * 0.4;
-                }, 30);
-                
-                // เก็บไอดี Interval ไว้เพื่อใช้เคลียร์ลบวัตถุรอบการเล่นถัดไป
-                danceMesh.userData.danceIntervalId = danceInterval;
-                
-                // เซฟใส่รายชื่อเพื่อเคลียร์รอบหน้า
-                danceMesh.name = "animal_placed_" + Date.now();
-            } else {
-                // ผิด: ตกน้ำทะเลหายไป ทำลายโมเดล
-                scene.remove(currentAnimalMesh);
-                currentAnimalMesh = null;
-            }
-            // เริ่มต้นสปอว์นสัตว์ตัวใหม่มารับคำใบ้ถัดไป
-            setTimeout(spawnAnimal, CFG.NEXT_SPAWN_DELAY_MS);
-        } else {
-            // ระหว่างเดินทาง: วิ่ง Lerp ไปจุดปลายทาง
-            const p = animationProgress;
-            
-            // ใช้ความโค้งแบบพาราโบลาเพื่อให้ดูสมจริงเหมือนกระโดดลงไป
-            const currentY = THREE.MathUtils.lerp(animStartPos.y, animEndPos.y, p) + Math.sin(p * Math.PI) * 1.5;
-            const currentX = THREE.MathUtils.lerp(animStartPos.x, animEndPos.x, p);
-            const currentZ = THREE.MathUtils.lerp(animStartPos.z, animEndPos.z, p);
-            
-            currentAnimalMesh.position.set(currentX, currentY, currentZ);
-            
-            // หมุนเหวี่ยงไปตามการโค้งกระโดด
-            currentAnimalMesh.rotation.x = p * Math.PI * 2;
-            currentAnimalMesh.rotation.y += delta * 5;
-            
-            if (!animationSuccess) {
-                // ถ้าตอบผิด ให้ปรับขนาดย่อหดตัวจิ๋วลงเรื่อยๆ ขณะตกร่วง
-                const scale = 1 - p;
-                currentAnimalMesh.scale.setScalar(scale);
-            }
-        }
-    }
-
-    // 4. เรนเดอร์หน้าจอ 3D
-    if (renderer && scene && camera) {
-        renderer.render(scene, camera);
-    }
-}
-
-// รันลูปแอนิเมชันทันที
-if (hasTHREE) {
-    animate();
-}
