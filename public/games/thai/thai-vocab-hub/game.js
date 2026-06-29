@@ -178,12 +178,19 @@ function switchMode(mode) {
   const autoplayControls = document.getElementById('autoplay-controls');
 
   // เลือกแผงตามโหมด
+  const topicView = document.getElementById('topic-view');
+  const wordArea = document.getElementById('word-area');
   if (mode === 'auto') {
-    if (autoplayControls) autoplayControls.style.display = 'flex';
+    if (topicView) topicView.classList.add('auto-grid-mode');
+    if (wordArea) wordArea.style.display = 'none';
+    if (autoplayControls) autoplayControls.style.display = 'none';
     document.getElementById('words-grid').style.display = 'grid';
+    currentWordIndex = 0;
     renderWordsGrid();
-    loadWord(0);
+    document.getElementById('bar').style.width = '0%';
   } else {
+    if (topicView) topicView.classList.remove('auto-grid-mode');
+    if (wordArea) wordArea.style.display = '';
     if (autoplayControls) autoplayControls.style.display = 'none';
     if (mode === 'dictation') {
       document.getElementById('dictation-mode').style.display = 'block';
@@ -209,14 +216,74 @@ function renderWordsGrid() {
   const grid = document.getElementById('words-grid');
   grid.innerHTML = '';
 
+  if (activeCategory) {
+    const header = document.createElement('div');
+    header.className = 'grid-cat-header';
+    header.innerHTML = `
+      <span class="grid-cat-icon">${activeCategory.icon}</span>
+      <span class="grid-cat-title">${activeCategory.title}</span>
+      <span class="grid-cat-hint">แตะการ์ดเพื่อพลิกดูความหมาย</span>
+      <span class="grid-cat-count">${categoryWords.length} คำ</span>
+    `;
+    grid.appendChild(header);
+  }
+
   categoryWords.forEach((item, idx) => {
-    const cell = document.createElement('div');
-    cell.className = `word-cell ${idx === currentWordIndex ? 'active' : ''}`;
-    cell.id = `word-cell-${idx}`;
-    cell.textContent = item.word;
-    cell.onclick = () => loadWord(idx);
-    grid.appendChild(cell);
+    const card = document.createElement('div');
+    card.className = 'grid-flip-card';
+    card.id = `word-cell-${idx}`;
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('aria-label', `${item.word} — แตะเพื่อดูความหมาย`);
+
+    const emoji = item.emoji || (activeCategory && activeCategory.icon) || '📝';
+
+    card.innerHTML = `
+      <div class="grid-flip-inner">
+        <div class="grid-flip-face grid-flip-front">
+          <button type="button" class="grid-say-btn" title="ฟังเสียงอ่าน" aria-label="ฟังเสียง ${item.word}">🔊</button>
+          <span class="grid-word-emoji">${emoji}</span>
+          <span class="grid-word-text">${item.word}</span>
+        </div>
+        <div class="grid-flip-face grid-flip-back">
+          <span class="grid-reading">[ ${item.reading} ]</span>
+          <span class="grid-meaning">${item.meaning}</span>
+        </div>
+      </div>
+    `;
+
+    const sayBtn = card.querySelector('.grid-say-btn');
+    if (sayBtn) {
+      sayBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        speakThai(item.word);
+      });
+    }
+
+    card.addEventListener('click', () => toggleGridCard(card, idx));
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleGridCard(card, idx);
+      }
+    });
+
+    grid.appendChild(card);
   });
+}
+
+function toggleGridCard(card, idx) {
+  const wasFlipped = card.classList.contains('flipped');
+  card.classList.toggle('flipped');
+  currentWordIndex = idx;
+
+  if (!wasFlipped) {
+    speakThai(categoryWords[idx].word);
+  }
+
+  const flippedCount = document.querySelectorAll('.grid-flip-card.flipped').length;
+  const pct = categoryWords.length > 0 ? (flippedCount / categoryWords.length) * 100 : 0;
+  document.getElementById('bar').style.width = `${pct}%`;
 }
 
 function loadWord(index) {
@@ -266,12 +333,22 @@ function flipCard() {
 // เลื่อนคำถัดไป/ก่อนหน้าในโหมดทบทวน (ปุ่ม ◀ ▶ และลูกศรคีย์บอร์ด) วนรอบ
 function nextWord() {
   if (currentMode !== 'auto' || categoryWords.length === 0) return;
-  loadWord((currentWordIndex + 1) % categoryWords.length);
+  const nextIdx = (currentWordIndex + 1) % categoryWords.length;
+  const card = document.getElementById(`word-cell-${nextIdx}`);
+  if (card) {
+    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    if (!card.classList.contains('flipped')) toggleGridCard(card, nextIdx);
+  }
 }
 
 function prevWord() {
   if (currentMode !== 'auto' || categoryWords.length === 0) return;
-  loadWord((currentWordIndex - 1 + categoryWords.length) % categoryWords.length);
+  const prevIdx = (currentWordIndex - 1 + categoryWords.length) % categoryWords.length;
+  const card = document.getElementById(`word-cell-${prevIdx}`);
+  if (card) {
+    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    if (!card.classList.contains('flipped')) toggleGridCard(card, prevIdx);
+  }
 }
 
 // ═══ MODE 2: DICTATION (เขียนตามคำบอก) ═══
@@ -810,11 +887,7 @@ function startAutoplay() {
 
   // Set interval to advance word
   autoplayInterval = setInterval(() => {
-    let nextIndex = currentWordIndex + 1;
-    if (nextIndex >= categoryWords.length) {
-      nextIndex = 0; // wrap around
-    }
-    loadWord(nextIndex);
+    nextWord();
   }, autoplaySpeed);
 }
 
@@ -854,7 +927,11 @@ document.addEventListener('keydown', (e) => {
   if (currentMode === 'auto') {
     if (e.key === 'ArrowLeft') { e.preventDefault(); prevWord(); }
     else if (e.key === 'ArrowRight') { e.preventDefault(); nextWord(); }
-    else if (e.key === ' ') { e.preventDefault(); flipCard(); }
+    else if (e.key === ' ') {
+      e.preventDefault();
+      const card = document.getElementById(`word-cell-${currentWordIndex}`);
+      if (card) toggleGridCard(card, currentWordIndex);
+    }
   } else if (currentMode === 'choice' && e.key >= '1' && e.key <= '4') {
     const btns = document.querySelectorAll('#choice-options .option-btn');
     const btn = btns[parseInt(e.key, 10) - 1];
