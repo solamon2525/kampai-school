@@ -57,57 +57,53 @@ const restartBtnGameOver = document.getElementById('restart-btn-gameover');
 
 // --- Three.js Variables ---
 const ANIMAL_BASE_SCALES = {
-    // เล็กมาก (Tiny)
-    toadlet: 0.15,
-    frog: 0.18,
-    bullfrog: 0.22,
-    toad: 0.22,
-    guppy: 0.15,
-    goldfish: 0.18,
-    clownfish: 0.18,
-    fightingfish: 0.18,
-    newt: 0.25,
-    gecko: 0.2,
-    lizard: 0.25,
-    desertlizard: 0.25,
-    salamander: 0.25,
-    bat: 0.25,
+    // เล็กสุดตั้งต้นเท่ากับผู้เล่น (สเกล 1.0) เพื่อการมองเห็นที่ง่ายสำหรับเด็ก
+    toadlet: 1.0,
+    frog: 1.0,
+    bullfrog: 1.0,
+    toad: 1.0,
+    guppy: 1.0,
+    goldfish: 1.0,
+    clownfish: 1.0,
+    fightingfish: 1.0,
+    newt: 1.0,
+    gecko: 1.0,
+    lizard: 1.0,
+    desertlizard: 1.0,
+    salamander: 1.0,
+    bat: 1.0,
+    cat: 1.0,
+    dog: 1.0,
+    chicken: 1.0,
+    duck: 1.0,
+    pigeon: 1.0,
+    seagull: 1.0,
+    owl: 1.0,
+    turtle: 1.0,
+    rattlesnake: 1.0,
+    python: 1.0,
+    monkey: 1.0,
+    penguin: 1.0,
+    eagle: 1.0,
+    parrot: 1.0,
+    carp: 1.0,
 
-    // ขนาดเล็ก (Small)
-    cat: 0.35,
-    dog: 0.45,
-    chicken: 0.4,
-    duck: 0.4,
-    pigeon: 0.35,
-    seagull: 0.4,
-    owl: 0.4,
-    turtle: 0.45,
-    rattlesnake: 0.4,
-    python: 0.5,
-
-    // ขนาดกลาง (Medium)
-    monkey: 0.8,
-    penguin: 0.7,
-    eagle: 0.7,
-    parrot: 0.5,
-    leatherback: 1.1,
-    carp: 0.5,
-
-    // ขนาดใหญ่ (Large)
-    lion: 1.5,
+    // ขนาดกลาง-ใหญ่ (ขยายเพิ่มขึ้นจากคน)
+    leatherback: 1.4,
+    lion: 1.6,
     horse: 1.8,
     cow: 1.8,
-    polarbear: 2.0,
-    camel: 2.0,
+    polarbear: 1.8,
+    camel: 1.8,
     ostrich: 1.8,
-    crocodile: 1.7,
+    crocodile: 1.8,
     shark: 2.0,
     stingray: 1.8,
-    dolphin: 2.0,
+    dolphin: 1.8,
 
-    // ขนาดมโหฬาร (Huge)
-    elephant: 3.8,
-    whale: 4.5
+    // ขนาดมโหฬาร
+    elephant: 3.5,
+    whale: 4.0
 };
 
 let k3d, scene, camera, renderer, dirLight;
@@ -1184,6 +1180,7 @@ function spawnAnimal(data, opts) {
     }
 
     group.position.set(px, py, pz);
+    group.userData.py = py; // บันทึกระดับความสูงเริ่มต้น (เพื่อคำนวณการกระโดดของกบ)
     scene.add(group);
 
     // ทำตัวโปร่งแสงพรางตัวในดงหญ้าสำหรับสัตว์เลื้อยคลาน
@@ -2229,10 +2226,24 @@ function animate() {
         for (let i = 0; i < animals.length; i++) {
             const animal = animals[i];
             
+            const animalBaseScale = ANIMAL_BASE_SCALES[animal.data.id] || 1.0;
+            const speedFactor = 1.0 / Math.sqrt(animalBaseScale); // ยิ่งตัวใหญ่ ยิ่งเดินช้าลงแบบลื่นไหล
+            const currentWanderSpeed = wanderSpeed * speedFactor;
+            const currentChaseSpeed = (stampedeTimer > 0 ? chaseSpeed * 1.8 : chaseSpeed) * speedFactor;
+
             // คำนวณเวกเตอร์พุ่งเข้าหาผู้เล่น
             const dx = player.position.x - animal.group.position.x;
             const dz = player.position.z - animal.group.position.z;
             const dist = Math.sqrt(dx * dx + dz * dz);
+
+            // ระบบกบกระโดด (Frog hopping mechanic)
+            const py = animal.group.userData.py || 0;
+            const isFrog = ['frog', 'toadlet', 'bullfrog', 'toad'].includes(animal.data.id);
+            if (isFrog) {
+                const freq = animal.group.userData.isAggro ? 12 : 6;
+                const jumpHeight = (animal.group.userData.isAggro ? 1.5 : 0.8) * animalBaseScale;
+                animal.group.position.y = py + Math.abs(Math.sin(time * freq)) * jumpHeight;
+            }
 
             // ระบบแว่นตานักชีววิทยา (Biologist Glasses) ไฮไลท์เป้าหมาย
             const isTarget = animal.data.type === gameState.targetCategory;
@@ -2279,7 +2290,6 @@ function animate() {
 
             if (animal.group.userData.isAggro) {
                 // ติดสถานะ Aggro -> วิ่งไล่ล่าติดตามผู้เล่น
-                const currentChaseSpeed = stampedeTimer > 0 ? chaseSpeed * 1.8 : chaseSpeed;
                 if (dist > 0.1) {
                     animal.group.position.x += (dx / dist) * currentChaseSpeed * dt;
                     animal.group.position.z += (dz / dist) * currentChaseSpeed * dt;
@@ -2302,8 +2312,8 @@ function animate() {
                     animal.group.userData.wanderTimer = 0;
                 }
                 
-                const wx = Math.sin(animal.group.userData.wanderAngle) * wanderSpeed * dt;
-                const wz = Math.cos(animal.group.userData.wanderAngle) * wanderSpeed * dt;
+                const wx = Math.sin(animal.group.userData.wanderAngle) * currentWanderSpeed * dt;
+                const wz = Math.cos(animal.group.userData.wanderAngle) * currentWanderSpeed * dt;
                 
                 const nextX = animal.group.position.x + wx;
                 const nextZ = animal.group.position.z + wz;
@@ -2336,8 +2346,8 @@ function animate() {
             }
             
             // ตรวจการชนกับผู้เล่นโดยตรง ปรับระยะชนและแรงดีดสะท้อนตามขนาดสัตว์
-            const animalBaseScale = ANIMAL_BASE_SCALES[animal.group.userData.data.id] || 1.0;
             const dynamicCollisionDist = COLLISION_DIST * Math.max(0.5, animalBaseScale);
+
             if (dist < dynamicCollisionDist) {
                 takeDamage();
                 
