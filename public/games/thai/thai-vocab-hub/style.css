@@ -365,10 +365,38 @@ body {
 /* 1. Words Grid — การ์ดพลิกเต็มจอ */
 .words-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
-  gap: 10px;
+  gap: var(--grid-gap, 10px);
   width: 100%;
   padding: 4px 2px 12px;
+}
+
+.words-grid[data-grid-cols="auto"] {
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+}
+
+.words-grid[data-grid-cols="3"] {
+  --grid-gap: 12px;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.words-grid[data-grid-cols="4"] {
+  --grid-gap: 11px;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.words-grid[data-grid-cols="5"] {
+  --grid-gap: 10px;
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.words-grid[data-grid-cols="6"] {
+  --grid-gap: 9px;
+  grid-template-columns: repeat(6, 1fr);
+}
+
+.words-grid[data-grid-cols="7"] {
+  --grid-gap: 8px;
+  grid-template-columns: repeat(7, 1fr);
 }
 
 .grid-cat-header {
@@ -381,6 +409,55 @@ body {
   padding: 6px 8px 10px;
   margin-bottom: 2px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.grid-size-picker {
+  grid-column: 1 / -1;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 10px;
+  padding: 4px 0 2px;
+}
+
+.grid-size-label {
+  font-size: calc(14px * var(--font-scale));
+  font-weight: 700;
+  color: #cbd5e1;
+}
+
+.grid-size-btns {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+.grid-size-btn {
+  font-family: inherit;
+  font-size: calc(13px * var(--font-scale));
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 99px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.grid-size-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f1f5f9;
+}
+
+.grid-size-btn.active {
+  background: #f97316;
+  border-color: #fdba74;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(249, 115, 22, 0.35);
 }
 
 .grid-cat-icon {
@@ -410,9 +487,12 @@ body {
 
 .grid-flip-card {
   perspective: 900px;
-  min-height: 148px;
+  position: relative;
+  aspect-ratio: 1;
+  min-height: 0;
   cursor: pointer;
   outline: none;
+  container-type: size;
 }
 
 .grid-flip-card:focus-visible .grid-flip-inner {
@@ -420,10 +500,10 @@ body {
 }
 
 .grid-flip-inner {
-  position: relative;
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  min-height: 148px;
   transform-style: preserve-3d;
   transition: transform 0.45s ease;
   border-radius: 14px;
@@ -444,10 +524,11 @@ body {
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 12px 10px;
+  padding: clamp(6px, 8cqmin, 14px);
   border: 2px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
-  gap: 4px;
+  gap: clamp(2px, 3cqmin, 6px);
+  overflow: hidden;
 }
 
 .grid-flip-front {
@@ -463,15 +544,15 @@ body {
 
 .grid-say-btn {
   position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 30px;
-  height: 30px;
+  top: clamp(4px, 5cqmin, 8px);
+  right: clamp(4px, 5cqmin, 8px);
+  width: clamp(22px, 14cqmin, 38px);
+  height: clamp(22px, 14cqmin, 38px);
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.25);
   background: rgba(0, 0, 0, 0.3);
   color: #fff;
-  font-size: 14px;
+  font-size: clamp(10px, 9cqmin, 16px);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -479,6 +560,7 @@ body {
   padding: 0;
   line-height: 1;
   transition: background 0.15s;
+  z-index: 2;
 }
 
 .grid-say-btn:hover {
@@ -486,35 +568,49 @@ body {
 }
 
 .grid-word-emoji {
-  font-size: calc(28px * var(--font-scale));
+  font-size: clamp(14px, 20cqmin * var(--font-scale), 72px);
   line-height: 1;
+  flex-shrink: 0;
 }
 
 .grid-word-text {
-  font-size: calc(26px * var(--font-scale));
+  font-size: clamp(13px, 22cqmin * var(--font-scale), 68px);
   font-weight: 700;
   color: #fbbf24;
-  line-height: 1.2;
+  line-height: 1.15;
   word-break: break-word;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0 clamp(2px, 3cqmin, 6px);
+  overflow: hidden;
 }
 
 .grid-reading {
-  font-size: calc(18px * var(--font-scale));
+  font-size: clamp(11px, 14cqmin * var(--font-scale), 44px);
   font-weight: 700;
   color: #fff;
   border-bottom: 1px dashed rgba(255, 255, 255, 0.45);
-  padding-bottom: 4px;
-  margin-bottom: 2px;
-  line-height: 1.3;
+  padding-bottom: clamp(2px, 3cqmin, 5px);
+  margin-bottom: clamp(2px, 2cqmin, 4px);
+  line-height: 1.25;
+  flex-shrink: 0;
+  max-width: 100%;
 }
 
 .grid-meaning {
-  font-size: calc(15px * var(--font-scale));
+  font-size: clamp(10px, 11cqmin * var(--font-scale), 30px);
   color: #ffedd5;
-  line-height: 1.45;
+  line-height: 1.4;
   overflow-y: auto;
-  max-height: 72px;
-  padding: 0 2px;
+  flex: 1;
+  width: 100%;
+  padding: 0 clamp(2px, 3cqmin, 6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* legacy word-cell (unused) */
@@ -1168,20 +1264,9 @@ body {
   .hc-th {
     font-size: calc(22px * var(--font-scale));
   }
-  .words-grid {
+  .words-grid[data-grid-cols="auto"] {
     grid-template-columns: repeat(auto-fill, minmax(172px, 1fr));
-    gap: 12px;
-  }
-  .grid-flip-card,
-  .grid-flip-inner {
-    min-height: 168px;
-  }
-  .grid-word-text {
-    font-size: calc(30px * var(--font-scale));
-  }
-  .grid-meaning {
-    font-size: calc(16px * var(--font-scale));
-    max-height: 88px;
+    --grid-gap: 12px;
   }
 }
 
@@ -1210,20 +1295,13 @@ body {
     font-size: calc(24px * var(--font-scale)); /* smaller base than desktop, see #wfront-emoji */
     max-width: calc(520px * var(--font-scale));
   }
-  .words-grid {
+  .words-grid[data-grid-cols="auto"] {
     grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
-    gap: 8px;
+    --grid-gap: 8px;
   }
-  .grid-flip-card,
-  .grid-flip-inner {
-    min-height: 132px;
-  }
-  .grid-word-text {
-    font-size: calc(22px * var(--font-scale));
-  }
-  .grid-meaning {
-    font-size: calc(13px * var(--font-scale));
-    max-height: 60px;
+  .grid-size-btn {
+    padding: 4px 10px;
+    font-size: calc(12px * var(--font-scale));
   }
   #bottom-bar {
     flex-direction: column;

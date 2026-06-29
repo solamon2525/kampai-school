@@ -53,6 +53,78 @@ if (document.readyState === 'loading') {
 const FS_KEY = 'tvh_font_scale';
 const FS_MIN = 0.85, FS_MAX = 1.30;
 
+// ขนาดกริดคำศัพท์ (จำใน localStorage)
+const GRID_COLS_KEY = 'tvh_grid_cols';
+const GRID_COLS_OPTIONS = [
+  { value: 'auto', label: 'อัตโนมัติ' },
+  { value: '3', label: '3×3' },
+  { value: '4', label: '4×4' },
+  { value: '5', label: '5×5' },
+  { value: '6', label: '6×6' },
+  { value: '7', label: '7×7' },
+];
+let gridCols = 'auto';
+
+function loadGridColsPref() {
+  const saved = localStorage.getItem(GRID_COLS_KEY);
+  if (GRID_COLS_OPTIONS.some((o) => o.value === saved)) gridCols = saved;
+}
+
+function setGridCols(value) {
+  if (!GRID_COLS_OPTIONS.some((o) => o.value === value)) return;
+  gridCols = value;
+  localStorage.setItem(GRID_COLS_KEY, value);
+  applyGridColsLayout();
+  updateGridSizePickerUI();
+}
+
+function applyGridColsLayout() {
+  const grid = document.getElementById('words-grid');
+  if (!grid) return;
+  grid.dataset.gridCols = gridCols;
+  if (gridCols === 'auto') {
+    grid.style.removeProperty('--grid-cols-num');
+  } else {
+    grid.style.setProperty('--grid-cols-num', gridCols);
+  }
+}
+
+function updateGridSizePickerUI() {
+  document.querySelectorAll('.grid-size-btn').forEach((btn) => {
+    const active = btn.dataset.cols === gridCols;
+    btn.classList.toggle('active', active);
+    btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+  });
+}
+
+function buildGridSizePicker(header) {
+  const wrap = document.createElement('div');
+  wrap.className = 'grid-size-picker';
+  wrap.innerHTML = '<span class="grid-size-label">ขนาดกริด</span>';
+
+  const btns = document.createElement('div');
+  btns.className = 'grid-size-btns';
+  btns.setAttribute('role', 'group');
+  btns.setAttribute('aria-label', 'เลือกขนาดกริด');
+
+  GRID_COLS_OPTIONS.forEach((opt) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'grid-size-btn';
+    btn.dataset.cols = opt.value;
+    btn.textContent = opt.label;
+    btn.setAttribute('aria-pressed', 'false');
+    btn.addEventListener('click', () => setGridCols(opt.value));
+    btns.appendChild(btn);
+  });
+
+  wrap.appendChild(btns);
+  header.appendChild(wrap);
+  updateGridSizePickerUI();
+}
+
+loadGridColsPref();
+
 function mountFontSizeSlider() {
   const slider = document.getElementById('tvh-fontsize-slider');
   if (!slider || slider.dataset.tvhBound) return;
@@ -222,9 +294,10 @@ function renderWordsGrid() {
     header.innerHTML = `
       <span class="grid-cat-icon">${activeCategory.icon}</span>
       <span class="grid-cat-title">${activeCategory.title}</span>
-      <span class="grid-cat-hint">แตะการ์ดเพื่อพลิกดูความหมาย</span>
+      <span class="grid-cat-hint">แตะการ์ดเพื่อพลิกดูความหมาย · เลือกขนาดกริดได้ด้านล่าง</span>
       <span class="grid-cat-count">${categoryWords.length} คำ</span>
     `;
+    buildGridSizePicker(header);
     grid.appendChild(header);
   }
 
@@ -270,6 +343,8 @@ function renderWordsGrid() {
 
     grid.appendChild(card);
   });
+
+  applyGridColsLayout();
 }
 
 function toggleGridCard(card, idx) {
