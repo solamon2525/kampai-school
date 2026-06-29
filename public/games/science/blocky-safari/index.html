@@ -209,98 +209,12 @@
     <script src="/games/kampai-sdk.js"></script>
     <script src="/games/kampai-match.js"></script>
     <script>window.KampaiMatch = window.KampaiMatch || { create:function(){ return { available:false, openMenu:function(){ alert('โหมดแข่งออนไลน์เล่นผ่านระบบ /play เท่านั้น'); }, report:function(){}, finish:function(){}, leave:function(){} }; } };</script>
+    <script src="/games/kampai-3d.js"></script>
     <script>
     /* fallback stub: กันพังถ้าเปิด standalone แล้ว SDK โหลดไม่ได้ */
     window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
-    
-    // JSDOM verify:game mock for Three.js
-    if (!window.THREE) {
-        const noop = () => {};
-        const chainNoop = function() { return this; };
-        const vec3 = {
-            set: function() { return this; },
-            copy: function() { return this; },
-            distanceTo: () => 0,
-            add: function() { return this; },
-            multiplyScalar: function() { return this; },
-            x: 0, y: 0, z: 0
-        };
-        window.THREE = {
-            Clock: function() {
-                return { getDelta: () => 0.016, getElapsedTime: () => 0 };
-            },
-            Scene: function() {
-                return {
-                    add: noop,
-                    remove: noop,
-                    background: {},
-                    fog: {}
-                };
-            },
-            Color: function() {},
-            Fog: function() {},
-            PerspectiveCamera: function() {
-                return {
-                    position: { set: noop, x: 0, y: 0, z: 0 },
-                    lookAt: noop,
-                    updateProjectionMatrix: noop,
-                    aspect: 1
-                };
-            },
-            WebGLRenderer: function() {
-                return {
-                    setSize: noop,
-                    setPixelRatio: noop,
-                    render: noop,
-                    shadowMap: {}
-                };
-            },
-            HemisphereLight: function() {
-                return { position: { set: noop } };
-            },
-            DirectionalLight: function() {
-                return { 
-                    position: { set: noop }, 
-                    shadow: { 
-                        mapSize: {}, 
-                        camera: { near: 0, far: 0, left: 0, right: 0, top: 0, bottom: 0 } 
-                    } 
-                };
-            },
-            BoxGeometry: function() {},
-            MeshLambertMaterial: function() {},
-            MeshBasicMaterial: function() {},
-            Mesh: function() {
-                return {
-                    position: vec3,
-                    rotation: { y: 0 },
-                    castShadow: true,
-                    receiveShadow: true
-                };
-            },
-            Group: function() {
-                return {
-                    position: vec3,
-                    rotation: { y: 0 },
-                    add: noop,
-                    remove: noop,
-                    children: [],
-                    userData: {}
-                };
-            },
-            CanvasTexture: function() {},
-            SpriteMaterial: function() {},
-            Sprite: function() {
-                return {
-                    position: vec3,
-                    scale: { set: noop },
-                    lookAt: noop
-                };
-            },
-            PCFSoftShadowMap: 1
-        };
-    }
     </script>
+
 
     <!-- ═══ เกม (config → data → game) ═══ -->
     <script src="config.js"></script>

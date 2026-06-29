@@ -56,7 +56,7 @@ const gameoverScreen = document.getElementById('gameover-screen');
 const restartBtnGameOver = document.getElementById('restart-btn-gameover');
 
 // --- Three.js Variables ---
-let scene, camera, renderer, dirLight;
+let k3d, scene, camera, renderer, dirLight;
 let player;
 let animals = []; // เก็บ mesh และข้อมูลสัตว์
 let trees = [];
@@ -153,58 +153,77 @@ function initThreeJS() {
     const canvas = document.getElementById('gameCanvas');
     if (!canvas) return;
     
-    // Scene setup
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x87CEEB); // ท้องฟ้าสีคราม
-    scene.fog = new THREE.Fog(0x87CEEB, 40, 180);
+    k3d = Kampai3D.create({
+        container: '#game-container',
+        canvas: canvas,
+        fov: 60,
+        near: 0.1,
+        far: 1000,
+        cameraPos: { x: 0, y: 15, z: 20 },
+        cameraLookAt: { x: 0, y: 0, z: 0 },
+        shadows: true,
+        backgroundColor: 0x87CEEB,
+        fogColor: 0x87CEEB,
+        fogDensity: 0.005,
+        hemisphereLight: true,
+        hemiSkyColor: 0xffffff,
+        hemiGroundColor: 0x444444,
+        hemiIntensity: 0.6,
+        dirLightIntensity: 0.8,
+        dirLightPos: { x: 20, y: 30, z: 10 }
+    });
 
-    // Camera setup (Isometric follow camera)
-    camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 15, 20);
-    camera.lookAt(0, 0, 0);
+    scene = k3d.scene;
+    camera = k3d.camera;
+    renderer = k3d.renderer;
 
-    // Renderer setup
-    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-    // Lighting
-    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6);
-    hemiLight.position.set(0, 20, 0);
-    scene.add(hemiLight);
-
-    dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    dirLight.position.set(20, 30, 10);
-    dirLight.castShadow = true;
-    dirLight.shadow.mapSize.width = 1024;
-    dirLight.shadow.mapSize.height = 1024;
-    dirLight.shadow.camera.near = 10;
-    dirLight.shadow.camera.far = 100;
-    dirLight.shadow.camera.left = -30;
-    dirLight.shadow.camera.right = 30;
-    dirLight.shadow.camera.top = 30;
-    dirLight.shadow.camera.bottom = -30;
-    scene.add(dirLight);
+    // ดึง Directional Light ที่สร้างขึ้นมาโดยเฟรมเวิร์ก เพื่อตั้งค่า Shadow Camera ต่อ
+    dirLight = scene.children.find(c => c.isDirectionalLight);
+    if (dirLight && dirLight.shadow && dirLight.shadow.camera) {
+        dirLight.shadow.camera.near = 10;
+        dirLight.shadow.camera.far = 100;
+        dirLight.shadow.camera.left = -30;
+        dirLight.shadow.camera.right = 30;
+        dirLight.shadow.camera.top = 30;
+        dirLight.shadow.camera.bottom = -30;
+        if (dirLight.shadow.camera.updateProjectionMatrix) {
+            dirLight.shadow.camera.updateProjectionMatrix();
+        }
+    }
 
     buildWorld();
-    
-    // Handle resize
-    window.addEventListener('resize', onWindowResize, false);
+}
+
+function safeRemove(object) {
+    if (!object) return;
+    object.traverse(child => {
+        if (child.geometry) {
+            try { child.geometry.dispose(); } catch (e) {}
+        }
+        if (child.material) {
+            try {
+                if (Array.isArray(child.material)) {
+                    child.material.forEach(m => m.dispose());
+                } else {
+                    child.material.dispose();
+                }
+            } catch (e) {}
+        }
+    });
+    scene.remove(object);
 }
 
 function buildWorld() {
-    // ล้าง Entity เก่าในซีน
-    if (player) scene.remove(player);
-    animals.forEach(a => scene.remove(a.group));
-    trees.forEach(t => scene.remove(t));
-    gameState.traps.forEach(t => scene.remove(t.mesh));
+    // ล้าง Entity เก่าในซีน พร้อมปล่อยคืนหน่วยความจำ WebGL ป้องกัน Memory Leak
+    if (player) safeRemove(player);
+    animals.forEach(a => safeRemove(a.group));
+    trees.forEach(t => safeRemove(t));
+    gameState.traps.forEach(t => safeRemove(t.mesh));
     
     // ล้างสระน้ำ หญ้า และไอเทมพาวเวอร์อัปเก่า
-    ponds.forEach(p => scene.remove(p.mesh));
-    grassPatches.forEach(g => scene.remove(g.mesh));
-    powerupBoxes.forEach(p => scene.remove(p.mesh));
+    ponds.forEach(p => safeRemove(p.mesh));
+    grassPatches.forEach(g => safeRemove(g.mesh));
+    powerupBoxes.forEach(p => safeRemove(p.mesh));
     
     animals = [];
     trees = [];
@@ -2488,8 +2507,5 @@ function updateRadar() {
 }
 
 function onWindowResize() {
-    if (!camera || !renderer) return;
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    // จัดการอัตโนมัติผ่านเฟรมเวิร์ก Kampai3D
 }

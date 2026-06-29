@@ -58,6 +58,23 @@ window.Kampai3D = (function () {
       MeshPhongMaterial: function () { return { dispose: noop }; },
       MeshStandardMaterial: function () { return { dispose: noop }; },
       MeshBasicMaterial: function () { return { dispose: noop }; },
+      MeshLambertMaterial: function () { return { dispose: noop }; },
+      SpriteMaterial: function () { return { dispose: noop }; },
+      CanvasTexture: function () { return { repeat: { set: noop } }; },
+      Sprite: function () {
+        return {
+          position: vec3,
+          scale: vec3,
+          lookAt: noop
+        };
+      },
+      GLTFLoader: function () {
+        return {
+          load: function (url, onLoad) {
+            // mock load callback
+          }
+        };
+      },
       Mesh: function () {
         return {
           position: vec3,
@@ -77,7 +94,8 @@ window.Kampai3D = (function () {
           position: vec3,
           rotation: vec3,
           scale: vec3,
-          children: []
+          children: [],
+          userData: {}
         };
       },
       Color: function () { return {}; },
@@ -88,6 +106,7 @@ window.Kampai3D = (function () {
       PCFSoftShadowMap: 1
     };
   }
+
 
   // 2. ฟังก์ชันเริ่มสร้างชุดระบบ 3 มิติ
   function create(opts) {
@@ -127,14 +146,18 @@ window.Kampai3D = (function () {
     const camLook = opts.cameraLookAt || { x: 0, y: 0.5, z: 0 };
     camera.lookAt(camLook.x, camLook.y, camLook.z);
 
-    const renderer = new window.THREE.WebGLRenderer({ antialias: true, alpha: opts.alpha !== undefined ? opts.alpha : false });
+    const rendererOpts = { antialias: true, alpha: opts.alpha !== undefined ? opts.alpha : false };
+    if (opts.canvas) rendererOpts.canvas = opts.canvas;
+    const renderer = new window.THREE.WebGLRenderer(rendererOpts);
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     if (opts.shadows) {
       renderer.shadowMap.enabled = true;
       renderer.shadowMap.type = window.THREE.PCFSoftShadowMap;
     }
-    container.appendChild(renderer.domElement);
+    if (!opts.canvas) {
+      container.appendChild(renderer.domElement);
+    }
 
     // ไฟรอบข้าง (Ambient Light)
     const ambient = new window.THREE.AmbientLight(
@@ -334,7 +357,7 @@ window.Kampai3D = (function () {
           window.removeEventListener('pointerup', onPointerUp);
         }
         scene.traverse(disposeObject);
-        if (renderer && renderer.domElement && renderer.domElement.parentNode) {
+        if (!opts.canvas && renderer && renderer.domElement && renderer.domElement.parentNode) {
           renderer.domElement.parentNode.removeChild(renderer.domElement);
         }
       },
