@@ -50,12 +50,18 @@ KAMPAI.onReady(function() {
 });
 
 // เปิดระบบ Versus / Online
+let roundActive = false;
 const vs = KampaiVersus.create({
     duration: CFG.ONLINE_DURATION,
     title: 'แข่งคัดแยกสัตว์ 3 มิติ',
     rankBy: 'score',
     onPlay: ({ rng, player }) => startRound(rng, player),
-    onEnd: () => { inputLocked = true; }
+    onEnd: () => { 
+        inputLocked = true;
+        roundActive = false;
+        KAMPAI.sound.bgmStop();
+        KAMPAI.sound.gameOver();
+    }
 });
 
 KAMPAI.sound.mountToggles();
@@ -608,6 +614,7 @@ function toast(text) {
 // สปอว์นสัตว์
 function spawnAnimal() {
     if (isGameOver) return;
+    if ((mode === 'versus' || mode === 'online') && !roundActive) return;
     inputLocked = false;
     currentAnimal = getNextAnimal();
 
@@ -741,6 +748,35 @@ function animateAnimalToHabitat(habitatId, success) {
     animationActive = true;
 }
 
+function clearPlacedAnimals() {
+    if (hasTHREE && scene) {
+        const toRemove = [];
+        scene.traverse((obj) => {
+            if (obj.name && obj.name.startsWith("animal_")) {
+                toRemove.push(obj);
+            }
+        });
+        toRemove.forEach(obj => {
+            // เคลียร์ Interval การเต้นของสัตว์ตัวนั้นๆ
+            if (obj.userData && obj.userData.danceIntervalId) {
+                clearInterval(obj.userData.danceIntervalId);
+            }
+            // ปล่อยคืนทรัพยากร WebGL ป้องกัน Memory Leak
+            obj.traverse((child) => {
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) {
+                    if (Array.isArray(child.material)) {
+                        child.material.forEach(m => m.dispose());
+                    } else {
+                        child.material.dispose();
+                    }
+                }
+            });
+            scene.remove(obj);
+        });
+    }
+}
+
 // ── เริ่มต้นรอบการเล่น ──
 function startGame(m) {
     if (started && m !== 'online' && mode !== 'online') return;
@@ -781,16 +817,7 @@ function startGame(m) {
     }
 
     // ล้างโมเดลสัตว์ตัวเก่าที่อาจตกค้างรอบก่อนบนเกาะ
-    if (hasTHREE && scene) {
-        // ล้างโมเดลทั้งหมดที่ขึ้นต้นด้วย animal_
-        const toRemove = [];
-        scene.traverse((obj) => {
-            if (obj.name && obj.name.startsWith("animal_")) {
-                toRemove.push(obj);
-            }
-        });
-        toRemove.forEach(obj => scene.remove(obj));
-    }
+    clearPlacedAnimals();
 
     KAMPAI.sound.unlock();
     KAMPAI.sound.bgmStart();
@@ -811,6 +838,7 @@ function startRound(rng, player) {
     inputLocked = false;
     started = true;
     isGameOver = false;
+    roundActive = true; // เปิดใช้งานรอบ Versus
 
     if (player !== null) {
         mode = 'versus'; // โหมดแข่งบนเครื่องเดียวกัน
@@ -826,15 +854,7 @@ function startRound(rng, player) {
     updateComboBadge();
     $('level-badge').innerText = 'แข่งแยกสัตว์';
 
-    if (hasTHREE && scene) {
-        const toRemove = [];
-        scene.traverse((obj) => {
-            if (obj.name && obj.name.startsWith("animal_")) {
-                toRemove.push(obj);
-            }
-        });
-        toRemove.forEach(obj => scene.remove(obj));
-    }
+    clearPlacedAnimals();
 
     if (!renderer) {
         init3D();
@@ -929,13 +949,16 @@ function animate() {
                 const danceMesh = currentAnimalMesh;
                 const danceOffset = Math.random() * 5;
                 const danceInterval = setInterval(() => {
-                    if (isGameOver) {
+                    if (isGameOver || !danceMesh.parent) { // เคลียร์ถ้าจบเกมหรือตัวละครถูกดึงออกจากฉาก
                         clearInterval(danceInterval);
                         return;
                     }
                     const dt = Date.now() / 200;
                     danceMesh.position.y = 0.45 + Math.abs(Math.sin(dt + danceOffset)) * 0.4;
                 }, 30);
+                
+                // เก็บไอดี Interval ไว้เพื่อใช้เคลียร์ลบวัตถุรอบการเล่นถัดไป
+                danceMesh.userData.danceIntervalId = danceInterval;
                 
                 // เซฟใส่รายชื่อเพื่อเคลียร์รอบหน้า
                 danceMesh.name = "animal_placed_" + Date.now();
