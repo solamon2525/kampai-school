@@ -56,6 +56,60 @@ const gameoverScreen = document.getElementById('gameover-screen');
 const restartBtnGameOver = document.getElementById('restart-btn-gameover');
 
 // --- Three.js Variables ---
+const ANIMAL_BASE_SCALES = {
+    // เล็กมาก (Tiny)
+    toadlet: 0.15,
+    frog: 0.18,
+    bullfrog: 0.22,
+    toad: 0.22,
+    guppy: 0.15,
+    goldfish: 0.18,
+    clownfish: 0.18,
+    fightingfish: 0.18,
+    newt: 0.25,
+    gecko: 0.2,
+    lizard: 0.25,
+    desertlizard: 0.25,
+    salamander: 0.25,
+    bat: 0.25,
+
+    // ขนาดเล็ก (Small)
+    cat: 0.35,
+    dog: 0.45,
+    chicken: 0.4,
+    duck: 0.4,
+    pigeon: 0.35,
+    seagull: 0.4,
+    owl: 0.4,
+    turtle: 0.45,
+    rattlesnake: 0.4,
+    python: 0.5,
+
+    // ขนาดกลาง (Medium)
+    monkey: 0.8,
+    penguin: 0.7,
+    eagle: 0.7,
+    parrot: 0.5,
+    leatherback: 1.1,
+    carp: 0.5,
+
+    // ขนาดใหญ่ (Large)
+    lion: 1.5,
+    horse: 1.8,
+    cow: 1.8,
+    polarbear: 2.0,
+    camel: 2.0,
+    ostrich: 1.8,
+    crocodile: 1.7,
+    shark: 2.0,
+    stingray: 1.8,
+    dolphin: 2.0,
+
+    // ขนาดมโหฬาร (Huge)
+    elephant: 3.8,
+    whale: 4.5
+};
+
 let k3d, scene, camera, renderer, dirLight;
 let player;
 let animals = []; // เก็บ mesh และข้อมูลสัตว์
@@ -1060,8 +1114,9 @@ function spawnAnimal(data, opts) {
     const pAnim = buildProceduralAnimal(data, bodyMat);
     const body = pAnim.mesh;
 
-    // สุ่มขนาดสเกลเล็กน้อย +/- 10%
-    const varScale = 0.9 + Math.random() * 0.2;
+    // โหลดสเกลมาตรฐานตามสายพันธุ์ และสุ่มขนาดสเกลเล็กน้อย +/- 10%
+    const baseScale = ANIMAL_BASE_SCALES[data.id] || 1.0;
+    const varScale = (0.9 + Math.random() * 0.2) * baseScale;
     body.scale.set(varScale, varScale, varScale);
     const animalHeight = pAnim.height * varScale;
 
@@ -2113,7 +2168,9 @@ function animate() {
                 const dz = trap.z - animal.group.position.z;
                 const dist = Math.sqrt(dx * dx + dz * dz);
                 
-                if (dist < 2.5) { // รัศมีเหยียบกับดัก (อิงตามสัตว์ 200% size)
+                const animalBaseScale = ANIMAL_BASE_SCALES[animal.group.userData.data.id] || 1.0;
+                const dynamicTrapDist = 2.5 * Math.max(0.8, animalBaseScale * 0.5);
+                if (dist < dynamicTrapDist) { // รัศมีเหยียบกับดัก ปรับแบบไดนามิกตามสเกลสัตว์
                     trapTriggered = true;
                     
                     // นำกับดักออกจากซีนและอาร์เรย์
@@ -2278,14 +2335,16 @@ function animate() {
                 }
             }
             
-            // ตรวจการชนกับผู้เล่นโดยตรง
-            if (dist < COLLISION_DIST) {
+            // ตรวจการชนกับผู้เล่นโดยตรง ปรับระยะชนและแรงดีดสะท้อนตามขนาดสัตว์
+            const animalBaseScale = ANIMAL_BASE_SCALES[animal.group.userData.data.id] || 1.0;
+            const dynamicCollisionDist = COLLISION_DIST * Math.max(0.5, animalBaseScale);
+            if (dist < dynamicCollisionDist) {
                 takeDamage();
                 
                 // เด้งกระดอนผู้เล่น/สัตว์หลบมุม
                 const angle = Math.atan2(animal.group.position.x - player.position.x, animal.group.position.z - player.position.z);
-                animal.group.position.x += Math.sin(angle) * 3;
-                animal.group.position.z += Math.cos(angle) * 3;
+                animal.group.position.x += Math.sin(angle) * (2.0 + animalBaseScale * 1.5);
+                animal.group.position.z += Math.cos(angle) * (2.0 + animalBaseScale * 1.5);
             }
         }
 
