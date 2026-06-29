@@ -2,6 +2,35 @@
 -- Migration 278: Thai Vocab Hub — DB catalog + missed-word queue (Phase D)
 -- ============================================================================
 
+-- ─── Prerequisites (069/083/269 — idempotent; remote อาจยังไม่มี helper เหล่านี้) ─
+CREATE OR REPLACE FUNCTION public.is_my_student(student_uuid UUID)
+RETURNS boolean
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.user_roles
+    WHERE user_id = auth.uid() AND student_id = student_uuid
+  )
+  OR EXISTS (
+    SELECT 1 FROM public.parent_student_links psl
+    WHERE psl.user_id = auth.uid() AND psl.student_id = student_uuid
+  );
+$$;
+
+GRANT EXECUTE ON FUNCTION public.is_my_student(UUID) TO anon, authenticated;
+
+CREATE OR REPLACE FUNCTION public.resolve_student_by_code(p_student_code text)
+RETURNS public.students
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public
+AS $$
+  SELECT * FROM public.students
+  WHERE student_code = p_student_code
+    AND COALESCE(is_active, true) = true
+  LIMIT 1;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.resolve_student_by_code(text) TO anon, authenticated;
+
 CREATE TABLE IF NOT EXISTS public.thai_vocab_categories (
   slug        text PRIMARY KEY,
   title       text NOT NULL,
