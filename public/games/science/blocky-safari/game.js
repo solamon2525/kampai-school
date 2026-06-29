@@ -1737,10 +1737,18 @@ function takeDamage() {
         // เคลียร์กระสุนทั้งหมด
         gameState.bullets.forEach(b => scene.remove(b.mesh));
         gameState.bullets = [];
+
+        // อัปเดตบอร์ดสถิติบนหน้าฉาก Game Over
+        const finalCaptured = gameState.totalScore + gameState.score;
+        const capturedStat = document.getElementById('go-stat-captured');
+        const levelStat = document.getElementById('go-stat-level');
+        if (capturedStat) capturedStat.innerText = finalCaptured + ' ตัว';
+        if (levelStat) levelStat.innerText = 'เลเวล ' + gameState.currentLevel;
         
         setTimeout(() => {
             gameoverScreen.classList.remove('hidden');
         }, 500);
+
     } else {
         // เป็นอมตะชั่วคราว 1.5 วินาที
         gameState.invincible = 1.5;
@@ -2157,11 +2165,11 @@ function animate() {
             for (let aIdx = animals.length - 1; aIdx >= 0; aIdx--) {
                 const animal = animals[aIdx];
                 
-                // สัตว์ที่ยังซ่อนตัวอยู่ในดงหญ้า หรือสัตว์ปีก (บินอยู่บนฟ้า) จะไม่โดนกับดักบนดิน
+                // สัตว์ที่ยังซ่อนตัวอยู่ในดงหญ้า จะไม่โดนกับดักบนดิน (แต่สัตว์ปีกสามารถโดนกับดักได้ถ้าเงาอยู่ตรงตำแหน่งเดียวกัน)
                 if (animal.group.userData.isHiddenReptile) continue;
-                if (animal.group.userData.data.type === window.ANIMAL_TYPES.BIRD) continue;
                 
                 const dx = trap.x - animal.group.position.x;
+
                 const dz = trap.z - animal.group.position.z;
                 const dist = Math.sqrt(dx * dx + dz * dz);
                 
