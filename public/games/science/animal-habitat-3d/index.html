@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>เกาะหรรษา คัดแยกสัตว์ 3 มิติ (Animal Habitat Classifier 3D)</title>
+<link rel="stylesheet" href="style.css">
+
+<!-- THREE.JS UMD Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+  // Mock window.THREE for server-side JSDOM environments (verify:game) to prevent crash
+  if (!window.THREE) {
+    const noop = () => {};
+    const vec3 = {
+      set: function() { return this; },
+      copy: function() { return this; },
+      add: function() { return this; },
+      multiplyScalar: function() { return this; },
+      distanceTo: () => 0,
+      x: 0, y: 0, z: 0
+    };
+    window.THREE = {
+      Clock: function() { return { getDelta: () => 0.016, getElapsedTime: () => 0 }; },
+      Scene: function() { return { add: noop, remove: noop, background: {}, fog: {} }; },
+      PerspectiveCamera: function() { return { position: vec3, lookAt: noop, aspect: 1 }; },
+      WebGLRenderer: function() {
+        return { setSize: noop, render: noop, domElement: document.createElement('canvas'), shadowMap: { enabled: false } };
+      },
+      AmbientLight: function() { return { position: vec3 }; },
+      DirectionalLight: function() {
+        return { position: vec3, castShadow: false, shadow: { mapSize: { set: noop }, camera: { near: 0, far: 0 } } };
+      },
+      BoxGeometry: function() { return {}; },
+      CylinderGeometry: function() { return {}; },
+      SphereGeometry: function() { return {}; },
+      ConeGeometry: function() { return {}; },
+      MeshPhongMaterial: function() { return {}; },
+      MeshBasicMaterial: function() { return {}; },
+      Mesh: function() { return { position: vec3, rotation: vec3, scale: vec3, castShadow: false, receiveShadow: false }; },
+      Group: function() { return { add: noop, remove: noop, position: vec3, rotation: vec3 }; },
+      Color: function() { return {}; },
+      Vector3: function() { return vec3; },
+      CanvasTexture: function() { return { repeat: { set: noop } }; }
+    };
+  }
+</script>
+</head>
+<body>
+
+<div id="app">
+    <!-- 3D Viewport -->
+    <div id="canvas-container"></div>
+
+    <!-- HUD Overlay -->
+    <div id="hud">
+        <div id="score-container">⭐ <span id="score-value">0</span></div>
+        <div id="timer-container">⏱️ <span id="timer-value">45</span></div>
+        <div id="life-container">❤️❤️❤️</div>
+        <div id="level-badge">เลเวล 1</div>
+        <div id="combo-badge"></div>
+        <div id="player-chip"></div>
+    </div>
+
+    <!-- Fact Board (Top Center) -->
+    <div id="fact-board" style="display:none">
+        <div id="fact-animal-name">ชื่อสัตว์</div>
+        <div id="fact-text">คำใบ้เกี่ยวกับสัตว์ชนิดนี้...</div>
+    </div>
+
+    <!-- Habitat Buttons HUD (Bottom) -->
+    <div id="habitat-dock">
+        <button class="hab-btn hab-forest" onclick="selectHabitat('forest')">🌳 ป่าไม้</button>
+        <button class="hab-btn hab-desert" onclick="selectHabitat('desert')">🏜️ ทะเลทราย</button>
+        <button class="hab-btn hab-arctic" onclick="selectHabitat('arctic')">❄️ ขั้วโลก</button>
+        <button class="hab-btn hab-ocean" onclick="selectHabitat('ocean')">🌊 มหาสมุทร</button>
+    </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- Start Screen Blocker -->
+<div id="blocker">
+    <h1 style="font-size: 4.5vh; margin-bottom: 1vh;">🏝️ เกาะหรรษา คัดแยกสัตว์ 3 มิติ</h1>
+    <p>ช่วยพาเหล่าสัตว์ป่าผู้น่ารักกลับไปยังถิ่นที่อยู่ที่ถูกต้อง!<br>หมุนเกาะ 3D โดยการลากบนหน้าจอ หรือคลิกเลือกถิ่นที่อยู่ด้านล่างให้ถูกต้องตามคำใบ้</p>
+    
+    <div id="my-stats">
+        <div class="ms-cell"><div class="ms-val" id="ms-best">0</div><div class="ms-label">คะแนนสูงสุด</div></div>
+        <div class="ms-cell"><div class="ms-val" id="ms-plays">0</div><div class="ms-label">เล่นไปแล้ว (ครั้ง)</div></div>
+    </div>
+    
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+    </div>
+    
+    <div class="mode-row">
+        <button class="btn btn-primary" onclick="startGame('adventure')">🗺️ ผจญภัย (3 ชีวิต)</button>
+        <button class="btn btn-blue" onclick="startGame('time')">⏱️ แข่งเวลา 45 วิ</button>
+        <button class="btn btn-versus" onclick="vs.openMenu()">🏁 แข่ง 2 คน</button>
+    </div>
+</div>
+
+<!-- Game Over screen -->
+<div id="gameover-screen">
+    <h1>จบภารกิจ!</h1>
+    <div id="go-stars">☆☆☆</div>
+    <div id="final-score">0</div>
+    <p id="go-summary"></p>
+    <div id="kampai-result"></div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:8px; width:100%; max-width:400px; margin-top: 10px;">
+        <button class="btn btn-primary" onclick="location.reload()" style="flex:1;">🔄 เล่นใหม่</button>
+        <button class="btn btn-blue" onclick="KAMPAI.goHome()" style="flex:1;">🎮 เลือกเกมใหม่</button>
+    </div>
+</div>
+
+<!-- ═══ KAMPAI SDK + Online framework (single source — อย่าแก้) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+/* fallback stub: กันพังถ้าเปิด standalone แล้ว SDK โหลดไม่ได้ */
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], classmates:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}}, online:{available:false} };
+</script>
+<script src="/games/kampai-match.js"></script>
+<script>
+/* fallback stub สำหรับโหมดออนไลน์ */
+window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){alert('โหมดออนไลน์เล่นผ่านระบบเท่านั้น');},report:function(){},finish:function(){},leave:function(){}};} };
+</script>
+<script src="/games/kampai-versus.js"></script>
+<script>
+/* fallback stub สำหรับโหมด Versus */
+window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window.KampaiMatch&&window.KampaiMatch.create)?window.KampaiMatch.create(o):null; return { available:false, openMenu:function(){ if(m)m.openMenu(); }, report:function(s,i){ if(m)m.report(s,i); }, finish:function(s,i){ if(m){m.finish(s,i);return true;} return false; }, leave:function(){}, mode:null }; } };
+</script>
+
+<!-- ═══ เกม (config → data → game) ═══ -->
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
