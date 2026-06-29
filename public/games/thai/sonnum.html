@@ -2,6 +2,9 @@
 <html lang="th">
 <head>
     <script src="/games/kampai-sdk.js"></script>
+    <script>
+    window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>วงล้อซ่อนหา มหาสนุก "อักษรนำ" (AI Edition)</title>
@@ -828,14 +831,14 @@
 
     <script>
         // --- postMessage tracking boilerplate ---
+        const GAME_SLUG = 'sonnum';
+        KAMPAI.setSlug(GAME_SLUG);
         let studentCode = '';
         let gameStartedAt = Date.now();
 
-        window.addEventListener('message', (e) => {
-          if (e.data && e.data.type === 'init') {
-            studentCode = e.data.studentCode;
-            console.log('[Sonnum] Student initialized:', studentCode);
-          }
+        KAMPAI.onReady((sdk) => {
+          studentCode = sdk.student?.code || '';
+          console.log('[Sonnum] Student initialized:', studentCode);
         });
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -843,7 +846,7 @@
           backBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
               e.preventDefault();
-              window.parent.postMessage({ type: 'navigate', to: '/h/nattapong' }, '*');
+              KAMPAI.goHome();
             });
           });
         });
@@ -851,16 +854,11 @@
         function reportScore(score, mode = 'normal', additionalMetadata = {}) {
           const duration = Math.round((Date.now() - gameStartedAt) / 1000);
           console.log('[Sonnum] Reporting score:', score, 'Duration:', duration);
-          window.parent.postMessage({
-            type: 'gameEnd',
-            gameSlug: 'sonnum',
-            score: score,
-            mode: mode,
-            metadata: {
-              duration: duration,
-              ...additionalMetadata
-            }
-          }, '*');
+          let stars = 0;
+          if (score >= 200) stars = 3;
+          else if (score >= 120) stars = 2;
+          else if (score >= 50) stars = 1;
+          KAMPAI.submitScore(score, { mode: mode, stars: stars, duration: duration, ...additionalMetadata });
         }
         // --- end boilerplate ---
 

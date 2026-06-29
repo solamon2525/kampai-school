@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>เกมภาษาไทย: ตะลุยด่านสระพาสนุก ป.1-6</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Itim&family=Sarabun:wght@400;600;700;800&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;font-family:'Itim', 'Sarabun', sans-serif;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;background:#a1c4fd}
+#wrap{position:fixed;inset:0;display:flex;flex-direction:column}
+#gameCanvas{display:block;flex:1;width:100%;touch-action:none}
+#hud{position:fixed;top:0;left:0;right:0;display:none;align-items:flex-start;justify-content:space-between;padding:54px 12px 8px;pointer-events:none;z-index:15;flex-wrap:wrap;gap:6px}
+#hud.on{display:flex}
+#qHud{position:fixed;top:54px;left:50%;transform:translateX(-50%) scale(0);z-index:16;font-size:clamp(24px,6vw,34px);color:#be185d;font-weight:800;border:3px solid #fbcfe8;background:rgba(255,255,255,0.96);padding:8px 24px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,0.12);white-space:nowrap;pointer-events:none;transition:transform 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275)}
+#hud.on ~ #qHud{transform:translateX(-50%) scale(1)}
+.hud-pill{font-weight:700;background:rgba(255,255,255,.88);color:#334155;padding:6px 14px;border-radius:999px;box-shadow:0 4px 12px rgba(0,0,0,.12);font-size:clamp(14px,3.5vw,18px);border:2px solid rgba(255,255,255,.9)}
+#comboBanner{position:fixed;top:42%;left:50%;transform:translate(-50%,-50%) scale(0);padding:12px 24px;border-radius:20px;font-weight:800;font-size:clamp(18px,4.5vw,28px);color:#fff;z-index:25;pointer-events:none;opacity:0;background:linear-gradient(90deg,#f472b6,#a78bfa,#38bdf8,#4ade80,#fbbf24);background-size:200% 100%;animation:none;text-shadow:0 2px 8px rgba(0,0,0,.25)}
+#comboBanner.show{animation:comboPop .9s ease forwards,rainbowShift 1.2s linear infinite}
+@keyframes comboPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}100%{opacity:0;transform:translate(-50%,-60%) scale(1)}}
+@keyframes rainbowShift{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+.modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;z-index:40;background:rgba(161,196,253,.55);backdrop-filter:blur(8px)}
+.modal.off{display:none}
+.modal-card{width:100%;max-width:440px;background:linear-gradient(165deg,#fff 0%,#fef3c7 100%);border-radius:28px;padding:28px 22px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.18);border:3px solid #fff;position:relative;overflow:hidden;max-height:92vh;overflow-y:auto}
+.modal-card::before{content:'🌸 🍃 🌿';position:absolute;top:8px;left:0;right:0;font-size:18px;opacity:.45;letter-spacing:8px}
+.modal-card h1{font-size:clamp(22px,5vw,30px);color:#be185d;margin:20px 0 8px;line-height:1.25}
+.modal-card p{color:#64748b;font-size:15px;line-height:1.55;margin-bottom:12px}
+.modal-card .score-big{font-size:48px;font-weight:800;color:#f59e0b;margin:8px 0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 26px;margin:6px;border:none;border-radius:999px;font-family:inherit;font-size:17px;font-weight:700;color:#fff;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.15)}
+.btn:active{transform:scale(.96)}
+.btn-green{background:linear-gradient(135deg,#4ade80,#16a34a)}
+.btn-orange{background:linear-gradient(135deg,#fb923c,#ea580c)}
+.btn-blue{background:linear-gradient(135deg,#60a5fa,#2563eb)}
+.btn-purple{background:linear-gradient(135deg,#c084fc,#8b5cf6)}
+.lb-box{background:rgba(255,255,255,.95);color:#334155;border-radius:14px;padding:10px 12px;margin:10px 0;text-align:left;max-height:180px;overflow-y:auto}
+.lb-box h3{font-size:14px;margin-bottom:6px;color:#be185d}
+.lb-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px dashed #e2e8f0;font-size:13px}
+.lb-row:last-child{border:none}
+.lb-row.me{background:#fef9c3;border-radius:8px;padding:4px 6px}
+#touchControls{position:fixed;bottom:20px;left:20px;right:20px;display:none;justify-content:space-between;align-items:center;z-index:20;pointer-events:none}
+#touchControls button{pointer-events:auto}
+@media (pointer:coarse){#touchControls{display:flex}}
+@media (pointer:fine){#touchControls{display:none!important}}
+.tbtn{width:64px;height:64px;border-radius:20px;border:none;background:rgba(255,255,255,.92);font-size:26px;font-weight:800;color:#475569;box-shadow:0 6px 0 #cbd5e1,0 10px 20px rgba(0,0,0,.12)}
+.tbtn.jump{width:72px;height:72px;border-radius:24px;background:linear-gradient(135deg,#fbcfe8,#f9a8d4);color:#9d174d}
+.tbtn:active{transform:translateY(4px);box-shadow:0 2px 0 #cbd5e1}
+#kampai-snd{top:auto!important;bottom:100px!important;right:20px!important;left:auto!important;z-index:30}
+</style>
+</head>
+<body>
+<div id="wrap">
+<canvas id="gameCanvas"></canvas>
+<div id="hud">
+  <div class="hud-pill" id="scoreHud">⭐ 0</div>
+  <div class="hud-pill" id="letterHud">สะสมคำ: ◯ ◯ ◯</div>
+  <div class="hud-pill" id="lifeHud">❤️❤️❤️❤️❤️</div>
+</div>
+<div id="qHud" class="hud-pill">📖 พร้อม!</div>
+<div id="comboBanner"></div>
+<div id="touchControls">
+  <div style="display:flex; gap:12px;">
+    <button class="tbtn" id="btnLeft" type="button" aria-label="ซ้าย">◀</button>
+    <button class="tbtn" id="btnRight" type="button" aria-label="ขวา">▶</button>
+  </div>
+  <button class="tbtn jump" id="btnJump" type="button" aria-label="กระโดด">▲</button>
+</div>
+</div>
+
+<div id="startModal" class="modal">
+  <div class="modal-card">
+    <h1>🐰 ตะลุยด่านสระพาสนุก</h1>
+    <p>กระโดดชนลูกโป่งสระที่ถูกต้อง · เก็บดาวและหัวใจ ❤️ · กระโดด 2 ชั้น!<br>เริ่ม 5 หัวใจ · ชนครั้งละ -1 · เก็บหัวใจเพิ่มได้<br>ภาษาไทย ป.1–6 🌸</p>
+    <div id="myStats" style="display:none;gap:8px;margin:8px 0"></div>
+    <div id="startLb" class="lb-box" style="display:none"><h3>🏆 อันดับสูงสุด</h3><div id="lbList"></div></div>
+    <button class="btn btn-green" id="btnStart" type="button">▶ เริ่มเกม</button>
+    <button class="btn btn-orange" id="btnVersus" type="button">🏁 แข่ง 2 คน (ออนไลน์)</button>
+    <button class="btn btn-purple" id="btnLocalCoop" type="button">👥 เล่น 2 คนในเครื่องเดียว</button>
+  </div>
+</div>
+
+<div id="overModal" class="modal off">
+  <div class="modal-card">
+    <h1>🌸 จบเกม!</h1>
+    <p>คะแนนของคุณ</p>
+    <div class="score-big" id="finalScore">0</div>
+    <div id="kampai-result"></div>
+    <button class="btn btn-green" id="btnRetry" type="button">🔄 เล่นใหม่</button>
+    <button class="btn btn-blue" id="btnHome" type="button">🎮 เลือกเกมใหม่</button>
+  </div>
+</div>
+
+<script src="/games/kampai-sdk.js"></script>
+<script>window.KAMPAI=window.KAMPAI||{isEmbed:false,ready:true,student:null,stats:null,leaderboard:[],classmates:[],onReady:function(cb){cb(this);},setSlug:function(){return this;},submitScore:function(){return false;},goHome:function(){location.href='/h/nattapong';},controls:{mount:function(){return this;}},sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){},speak:function(){}},online:{available:false}};</script>
+<script src="/games/kampai-match.js"></script>
+<script>window.KampaiMatch=window.KampaiMatch||{create:function(){return{available:false,openMenu:function(){},report:function(){},finish:function(){},leave:function(){}};}};</script>
+<script src="/games/kampai-versus.js"></script>
+<script>window.KampaiVersus=window.KampaiVersus||{create:function(o){var m=(window.KampaiMatch&&window.KampaiMatch.create)?window.KampaiMatch.create(o):null;return{available:false,openMenu:function(){if(m)m.openMenu();},report:function(s,i){if(m)m.report(s,i);},finish:function(s,i){if(m){m.finish(s,i);return true;}return false;},leave:function(){},mode:null};}};</script>
+
+<script>
+const GAME_SLUG = 'thai-sara-run';
+KAMPAI.setSlug(GAME_SLUG);
+
+const QUESTIONS = [
+  { prompt: 'ป _', word: 'ปู', answer: 'ู', opts: ['ู','า','ิ'] },
+  { prompt: 'ต _', word: 'ตา', answer: 'า', opts: ['า','ี','ุ'] },
+  { prompt: 'ล _ ง', word: 'ลิง', answer: 'ิ', opts: ['ิ','ึ','ื'] },
+  { prompt: 'โรงเร _ ยน', word: 'โรงเรียน', answer: 'ี', opts: ['ี','ิ','ื'] },
+  { prompt: 'ม _ า', word: 'ม้า', answer: '้', opts: ['้','๊','่'] },
+  { prompt: 'หม _', word: 'หมา', answer: 'า', opts: ['า','ิ','ำ'] },
+  { prompt: 'น _ ก', word: 'นัก', answer: 'ั', opts: ['ั','ุ','ึ'] },
+  { prompt: 'ไก _', word: 'ไก่', answer: '่', opts: ['่','้','๊'] },
+  { prompt: 'หม _', word: 'หมู', answer: 'ู', opts: ['ู','ุ','า'] },
+  { prompt: 'แม _', word: 'แม่', answer: '่', opts: ['่','้','า'] },
+  { prompt: 'ด _ น', word: 'ดิน', answer: 'ิ', opts: ['ิ','ี','ึ'] },
+  { prompt: 'ม _ ด', word: 'มัด', answer: 'ั', opts: ['ั','า','ิ'] },
+  { prompt: 'เร _', word: 'เรา', answer: 'า', opts: ['า','ิ','ุ'] },
+  { prompt: 'เด _ ก', word: 'เด็ก', answer: '็', opts: ['็','่','้'] },
+  { prompt: 'ปล _', word: 'ปลา', answer: 'า', opts: ['า','ิ','ุ'] },
+  { prompt: 'ช _ าง', word: 'ช้าง', answer: '้', opts: ['้','่','๊'] },
+  { prompt: 'ฟ _ น', word: 'ฟัน', answer: 'ั', opts: ['ั','า','ิ'] },
+  { prompt: 'ร _ น', word: 'รัน', answer: 'ั', opts: ['ั','ิ','ุ'] },
+  { prompt: 'ส _ ต', word: 'สัตว์', answer: 'ั', opts: ['ั','า','ิ'] },
+];
+
+const BUBBLE_COLORS = ['#93c5fd','#fca5a5','#86efac'];
+const START_LIVES = 5;
+const MAX_LIVES = 10;
+const INVINC_MS = 90;
+const GRAVITY = 0.38, FRICTION = 0.82, RUN = 4.2, JUMP1 = -9.2, JUMP2 = -7.4;
+const BUNNY_SPRITE = { fw: 170, fh: 227, frames: 18, white: null, blue: null, ready: false };
+const BUNNY_DEFAULT_ANIM = {
+  preset: 'grid-3x6-18', layout: 'grid', cols: 6, rows: 3,
+  idle: [12, 13, 14, 15, 16, 17], walk: [12, 13, 14, 15, 16, 17],
+  run: [0, 1, 2, 3, 4, 5], jump: [6, 7, 8, 9, 10, 11], hurt: 12, happy: 12,
+  runFaces: 'left', anchorFoot: 0.94, feetPad: 14,
+};
+const BUNNY_DRAW_W = 96;
+const BUNNY_DRAW_H = 128;
+const BUNNY_ASSET_BASE = '/games/thai/assets/thai-sara-run';
+const WORLD_H = 720, PLAT_H = 48;
+const V_H = 720;
+let V_W = 1280;
+let renderScale = 1;
+let gameRng = Math.random;
+
+function getEmojiClue(word) {
+  const clues = {
+    'ปู': '🦀', 'ตา': '👁️', 'ลิง': '🐒', 'โรงเรียน': '🏫', 'ม้า': '🐎',
+    'หมา': '🐕', 'นัก': '🧑‍🎓', 'ไก่': '🐔', 'หมู': '🐖', 'แม่': '👩',
+    'ดิน': '🌱', 'มัด': '📦', 'เรา': '👥', 'เด็ก': '👶', 'ปลา': '🐟',
+    'ช้าง': '🐘', 'ฟัน': '🦷', 'รัน': '🏃', 'สัตว์': '🦁'
+  };
+  return clues[word] || '❓';
+}
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+let W = 1280, H = 720, dpr = 1;
+let skyGrad = null, gameRunning = false, versusMode = false, versusTimer = null;
+let shakeT = 0, petals = [], clouds = [];
+let localCoopMode = false;
+let wld = null;
+
+const keys1 = { left: false, right: false, jump: false };
+const keys2 = { left: false, right: false, jump: false };
+
+const AudioSynth = {
+  ctx: null,
+  init() {
+    try {
+      if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch (e) { /* noop */ }
+  },
+  play(type, comboN) {
+    try {
+      this.init();
+      const ac = this.ctx;
+      if (!ac) return;
+      const o = ac.createOscillator();
+      const g = ac.createGain();
+      o.connect(g); g.connect(ac.destination);
+      const t = ac.currentTime;
+      if (type === 'jump') { o.type = 'sine'; o.frequency.setValueAtTime(280, t); o.frequency.exponentialRampToValueAtTime(880, t + 0.12); g.gain.setValueAtTime(0.12, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.15); o.start(t); o.stop(t + 0.16); } 
+      else if (type === 'correct') { const base = 520 + Math.min(comboN, 8) * 40; o.type = 'sine'; o.frequency.setValueAtTime(base, t); o.frequency.setValueAtTime(base * 1.25, t + 0.06); o.frequency.setValueAtTime(base * 1.5, t + 0.12); g.gain.setValueAtTime(0.14, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.28); o.start(t); o.stop(t + 0.3); } 
+      else if (type === 'wrong') { o.type = 'sawtooth'; o.frequency.setValueAtTime(220, t); o.frequency.exponentialRampToValueAtTime(80, t + 0.25); g.gain.setValueAtTime(0.1, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.3); o.start(t); o.stop(t + 0.32); }
+      else if (type === 'star') { o.type = 'triangle'; o.frequency.setValueAtTime(660, t); o.frequency.setValueAtTime(990, t + 0.08); g.gain.setValueAtTime(0.1, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.2); o.start(t); o.stop(t + 0.22); }
+    } catch (e) {}
+  },
+};
+
+function resize() {
+  dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const rect = canvas.getBoundingClientRect();
+  W = rect.width * dpr;
+  H = rect.height * dpr;
+  canvas.width = W; canvas.height = H;
+  renderScale = H / V_H;
+  V_W = W / renderScale;
+  skyGrad = ctx.createLinearGradient(0, 0, 0, V_H);
+  skyGrad.addColorStop(0, '#a1c4fd');
+  skyGrad.addColorStop(1, '#c2e9fb');
+}
+
+function formatLifeHearts(n) {
+  if (n <= 0) return '💔';
+  if (n <= START_LIVES) return '❤️'.repeat(n);
+  return '❤️'.repeat(START_LIVES) + '+' + (n - START_LIVES);
+}
+
+function getLives(playerNum) { return playerNum === 1 ? wld.lives1 : wld.lives2; }
+function setLives(playerNum, n) { if (playerNum === 1) wld.lives1 = n; else wld.lives2 = n; }
+
+/** หัก 1 หัวใจ — คืน false ถ้าอยู่ในช่วงไม่เป็นอันตราย (invinc) */
+function deductLife(playerNum, reason) {
+  const p = playerNum === 1 ? wld.player1 : wld.player2;
+  if (!p || p.invincT > 0) return false;
+  const lives = getLives(playerNum);
+  if (lives <= 0) return false;
+  setLives(playerNum, lives - 1);
+  p.state = 'hurt';
+  p.hurtT = 35;
+  p.invincT = INVINC_MS;
+  shakeT = 16;
+  const tag = playerNum === 1 ? 'P1' : 'P2';
+  addWorldFloatText(p.x, p.y - 20, tag + ' -1 ❤️' + (reason ? ' ' + reason : ''), '#ef4444');
+  try { KAMPAI.sound.wrong(); } catch (e) {}
+  AudioSynth.play('wrong');
+  if (getLives(playerNum) <= 0) checkGameOver();
+  return true;
+}
+
+function collectHeartForPlayer(playerNum, h) {
+  const lives = getLives(playerNum);
+  const tag = playerNum === 1 ? 'P1' : 'P2';
+  if (lives >= MAX_LIVES) {
+    addWorldFloatText(h.x, h.y - 12, tag + ' หัวใจเต็ม!', '#94a3b8');
+    return;
+  }
+  setLives(playerNum, lives + 1);
+  addWorldFloatText(h.x, h.y - 12, tag + ' +1 ❤️', '#ec4899');
+  AudioSynth.play('star');
+  try { KAMPAI.sound.correct(); } catch (e) {}
+}
+
+function makePlayer(x, y) {
+  return { x, y, vx: 0, vy: 0, w: 72, h: 96, onGround: false, jumps: 0, state: 'idle', hurtT: 0, invincT: 0, earPhase: 0, animTime: 0, face: 1, ridingPlat: null };
+}
+
+function rand(a, b) { return a + gameRng() * (b - a); }
+
+function shuffle(arr, rng) {
+  const r = rng || gameRng;
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = (r() * (i + 1)) | 0; [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+
+function initClouds() { clouds = []; for (let i = 0; i < 6; i++) clouds.push({ x: rand(0, 2000), y: rand(40, 180), s: rand(0.7, 1.3), spd: rand(0.15, 0.35) }); }
+function initPetals() { petals = []; for (let i = 0; i < 28; i++) petals.push({ x: rand(0, 3000), y: rand(-V_H, V_H), r: rand(3, 7), rot: rand(0, 6.28), spd: rand(0.4, 1.2), drift: rand(-0.3, 0.3) }); }
+function mulberry32(a) { return function() { let t = a += 0x6D2B79F5; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; } }
+
+function makeWorldPlatform(x, y, w, withQuestion, rng) {
+  const r = rng || gameRng;
+  const isMoving = !withQuestion && wld.platIndex > 0 && r() < 0.35;
+  const p = {
+    x, y, w, h: PLAT_H, flowers: [], shrooms: [], question: withQuestion, id: wld.platIndex++,
+    moving: isMoving, baseY: y, phase: r() * 6.28,
+    moveRange: 35 + r() * 40, moveSpeed: 0.015 + r() * 0.02
+  };
+  const nF = 2 + (r() * 4 | 0);
+  for (let i = 0; i < nF; i++) p.flowers.push({ ox: 8 + r() * (w - 16), col: ['#f9a8d4','#fde68a','#c4b5fd'][i % 3] });
+  if (r() < 0.35) p.shrooms.push({ ox: 12 + r() * (w - 32) });
+  wld.platforms.push(p);
+  if (r() < 0.45) {
+    if (r() < 0.35) {
+      const letter = ['ส', 'ร', 'ะ'][Math.floor(r() * 3)];
+      wld.stars.push({ x: x + 20 + r() * (w - 40), y: y - (70 + r() * 50), taken: false, bob: r() * 6.28, letter: letter });
+    } else {
+      wld.stars.push({ x: x + 20 + r() * (w - 40), y: y - 28, taken: false, bob: r() * 6.28 });
+    }
+  }
+  if (!withQuestion && r() < 0.16) {
+    wld.hearts.push({ x: x + 24 + r() * (w - 48), y: y - (52 + r() * 40), taken: false, bob: r() * 6.28 });
+  }
+  return p;
+}
+
+function spawnWorldQuestion(plat, rng) {
+  const r = rng || gameRng;
+  if (plat.blueprintQ) {
+    spawnBlueprintQuestion(plat, plat.blueprintQ, r);
+    return;
+  }
+  if (wld.qIdx1 >= wld.qOrder1.length) wld.qOrder1 = shuffle(QUESTIONS.map((_, i) => i), r);
+  const qi1 = wld.qOrder1[wld.qIdx1++ % wld.qOrder1.length];
+  wld.currentQ1 = { ...QUESTIONS[qi1], platId: plat.id };
+  wld.answeredQ1 = false;
+  const opts1 = shuffle(wld.currentQ1.opts.slice(), r);
+  const midX = plat.x + plat.w / 2;
+  const yOffset1 = localCoopMode ? 110 : 130;
+  opts1.forEach((opt, i) => {
+    const offset = (i - 1) * 140;
+    wld.bubbles.push({ x: midX + offset, y: plat.y - yOffset1, baseY: plat.y - yOffset1, r: 34, text: opt, correct: opt === wld.currentQ1.answer, wob: r() * 6.28, phase: r() * 6.28, floatSpeed: 0.02 + r() * 0.03, vx: -0.15, col: BUBBLE_COLORS[i % 3], player: 1 });
+  });
+  if (localCoopMode && wld.player2) {
+    if (wld.qIdx2 >= wld.qOrder2.length) wld.qOrder2 = shuffle(QUESTIONS.map((_, i) => i), r);
+    const qi2 = wld.qOrder2[wld.qIdx2++ % wld.qOrder2.length];
+    wld.currentQ2 = { ...QUESTIONS[qi2], platId: plat.id };
+    wld.answeredQ2 = false;
+    const opts2 = shuffle(wld.currentQ2.opts.slice(), r);
+    const yOffset2 = 190;
+    opts2.forEach((opt, i) => {
+      const offset = (i - 1) * 140;
+      wld.bubbles.push({ x: midX + offset, y: plat.y - yOffset2, baseY: plat.y - yOffset2, r: 34, text: opt, correct: opt === wld.currentQ2.answer, wob: r() * 6.28, phase: r() * 6.28, floatSpeed: 0.02 + r() * 0.03, vx: -0.15, col: BUBBLE_COLORS[i % 3], player: 2 });
+    });
+  }
+  plat.question = false;
+}
+
+function spawnBlueprintQuestion(plat, qDef, rng) {
+  const r = rng || gameRng;
+  const qData = {
+    prompt: qDef.prompt,
+    word: String(qDef.prompt || '').replace(/\s*_\s*/g, qDef.answer),
+    answer: qDef.answer,
+    opts: (qDef.options || []).slice()
+  };
+  wld.currentQ1 = { ...qData, platId: plat.id };
+  wld.answeredQ1 = false;
+  const opts1 = shuffle(qData.opts, r);
+  const midX = plat.x + plat.w / 2;
+  const yOffset1 = localCoopMode ? 110 : 130;
+  opts1.forEach((opt, i) => {
+    const offset = (i - 1) * 140;
+    wld.bubbles.push({ x: midX + offset, y: plat.y - yOffset1, baseY: plat.y - yOffset1, r: 34, text: opt, correct: opt === qData.answer, wob: r() * 6.28, phase: r() * 6.28, floatSpeed: 0.02 + r() * 0.03, vx: -0.15, col: BUBBLE_COLORS[i % 3], player: 1 });
+  });
+  if (localCoopMode && wld.player2 && qData.opts.length) {
+    wld.currentQ2 = { ...qData, platId: plat.id };
+    wld.answeredQ2 = false;
+    const opts2 = shuffle(qData.opts, r);
+    const yOffset2 = 190;
+    opts2.forEach((opt, i) => {
+      const offset = (i - 1) * 140;
+      wld.bubbles.push({ x: midX + offset, y: plat.y - yOffset2, baseY: plat.y - yOffset2, r: 34, text: opt, correct: opt === qData.answer, wob: r() * 6.28, phase: r() * 6.28, floatSpeed: 0.02 + r() * 0.03, vx: -0.15, col: BUBBLE_COLORS[i % 3], player: 2 });
+    });
+  }
+  plat.question = false;
+}
+
+function initGameWorld(rng) {
+  const r = rng || Math.random;
+  const groundY = V_H - 240;
+  wld = { score1: 0, lives1: START_LIVES, combo1: 0, correctCount1: 0, score2: 0, lives2: START_LIVES, combo2: 0, correctCount2: 0, camX: 0, currentQ1: null, answeredQ1: true, currentQ2: null, answeredQ2: true, collectedLetters1: [], collectedLetters2: [], platforms: [], bubbles: [], stars: [], hearts: [], particles: [], floatTexts: [], qIdx1: 0, qIdx2: 0, platIndex: 0, lastSafePlat: null, qOrder1: shuffle(QUESTIONS.map((_, i) => i), r), qOrder2: shuffle(QUESTIONS.map((_, i) => i), r), bannerText1: '', bannerT1: 0, bannerText2: '', bannerT2: 0, rng: r, blueprintMode: false, worldWidth: 99999, player1: makePlayer(100, groundY - 96), player2: localCoopMode ? makePlayer(150, groundY - 96) : null };
+  wld.lastSafePlat = makeWorldPlatform(40, groundY, 420, false, r);
+  wld.player1.x = wld.lastSafePlat.x + 60; wld.player1.y = wld.lastSafePlat.y - wld.player1.h - 2;
+  if (wld.player2) { wld.player2.x = wld.lastSafePlat.x + 120; wld.player2.y = wld.lastSafePlat.y - wld.player2.h - 2; }
+  let px = 40, py = groundY;
+  for (let i = 0; i < 24; i++) {
+    const gap = 60 + r() * 50;
+    const dy = -40 + r() * 80;
+    const withQ = (i + 1) % 3 === 0;
+    const w = withQ ? (380 + r() * 60) : (160 + r() * 60);
+    px += gap + (wld.platforms[wld.platforms.length - 1]?.w || 420);
+    py = Math.max(V_H - 480, Math.min(V_H - 240, py + dy));
+    makeWorldPlatform(px, py, w, withQ, r);
+  }
+}
+
+function getBlueprintWorld() {
+  if (KAMPAI.blueprint) return KAMPAI.blueprint;
+  if (KAMPAI.gameData && KAMPAI.gameData.blueprint) return KAMPAI.gameData.blueprint;
+  return null;
+}
+
+function initGameWorldFromBlueprint(bp, rng) {
+  const r = rng || Math.random;
+  const qMap = {};
+  (bp.questions || []).forEach(q => { qMap[q.platformId] = q; });
+  const spawnX = bp.spawn?.x ?? 120;
+  const spawnY = bp.spawn?.y ?? (V_H - 336);
+  wld = { score1: 0, lives1: START_LIVES, combo1: 0, correctCount1: 0, score2: 0, lives2: START_LIVES, combo2: 0, correctCount2: 0, camX: 0, currentQ1: null, answeredQ1: true, currentQ2: null, answeredQ2: true, collectedLetters1: [], collectedLetters2: [], platforms: [], bubbles: [], stars: [], hearts: [], particles: [], floatTexts: [], qIdx1: 0, qIdx2: 0, platIndex: 0, lastSafePlat: null, qOrder1: shuffle(QUESTIONS.map((_, i) => i), r), qOrder2: shuffle(QUESTIONS.map((_, i) => i), r), bannerText1: '', bannerT1: 0, bannerText2: '', bannerT2: 0, rng: r, blueprintMode: true, worldWidth: bp.world?.width || 1280, player1: makePlayer(spawnX, spawnY), player2: localCoopMode ? makePlayer(spawnX + 50, spawnY) : null };
+  for (const bpPlat of (bp.platforms || [])) {
+    const hasQ = !!qMap[bpPlat.id];
+    const p = {
+      x: bpPlat.x, y: bpPlat.y, w: bpPlat.w, h: bpPlat.h || PLAT_H,
+      flowers: [], shrooms: [], question: hasQ, id: bpPlat.id,
+      blueprintQ: qMap[bpPlat.id] || null,
+      moving: false, baseY: bpPlat.y, phase: r() * 6.28, moveRange: 0, moveSpeed: 0
+    };
+    const nF = 2 + (r() * 3 | 0);
+    for (let i = 0; i < nF; i++) p.flowers.push({ ox: 8 + r() * Math.max(16, p.w - 16), col: ['#f9a8d4','#fde68a','#c4b5fd'][i % 3] });
+    wld.platforms.push(p);
+  }
+  wld.lastSafePlat = wld.platforms.find(p => p.id === 'ground') || wld.platforms[0] || null;
+  for (const c of (bp.collectibles || [])) {
+    if (c.kind === 'heart') wld.hearts.push({ x: c.x, y: c.y, taken: false, bob: r() * 6.28 });
+    else wld.stars.push({ x: c.x, y: c.y, taken: false, bob: r() * 6.28 });
+  }
+  wld.player1.x = spawnX;
+  wld.player1.y = spawnY;
+  if (wld.player2) { wld.player2.x = spawnX + 50; wld.player2.y = spawnY; }
+}
+
+function addWorldFloatText(x, y, text, col) { wld.floatTexts.push({ x, y, text, col, life: 1 }); }
+function spawnWorldDust(x, y) { const r = wld.rng || Math.random; for (let i = 0; i < 8; i++) wld.particles.push({ x, y, vx: -2 + r() * 4, vy: -3 + r() * 2, life: 1, col: '#fff' }); }
+
+function respawnWorldPlayer(playerNum) {
+  if (!wld.lastSafePlat) return;
+  const p = playerNum === 1 ? wld.player1 : wld.player2;
+  p.x = wld.lastSafePlat.x + wld.lastSafePlat.w / 2 - p.w / 2;
+  p.y = wld.lastSafePlat.y - p.h - 2;
+  p.vx = 0; p.vy = 0; p.jumps = 0; p.ridingPlat = null;
+  shakeT = 18;
+}
+
+function handleWorldFall(playerNum) {
+  const p = playerNum === 1 ? wld.player1 : wld.player2;
+  if (!p || p.invincT > 0 || getLives(playerNum) <= 0) return;
+  if (!deductLife(playerNum, 'ตก!')) return;
+  respawnWorldPlayer(playerNum);
+}
+
+function showLocalComboBanner(playerNum, text) {
+  if (playerNum === 1) { wld.bannerText1 = text; wld.bannerT1 = 120; }
+  else { wld.bannerText2 = text; wld.bannerT2 = 120; }
+}
+
+function collectStarForPlayer(playerNum, s) {
+  if (s.letter) {
+    const letters = playerNum === 1 ? wld.collectedLetters1 : wld.collectedLetters2;
+    if (letters.length < 3 && !letters.includes(s.letter)) {
+      letters.push(s.letter);
+      if (playerNum === 1) { wld.score1 += 20; addWorldFloatText(s.x, s.y - 15, 'P1 สะสม: ' + s.letter + ' ✨', '#e11d48'); }
+      else { wld.score2 += 20; addWorldFloatText(s.x, s.y - 15, 'P2 สะสม: ' + s.letter + ' ✨', '#2563eb'); }
+      AudioSynth.play('correct', letters.length);
+      if (letters.length === 3) {
+        if (playerNum === 1) { wld.score1 += 100; wld.combo1++; addWorldFloatText(wld.player1.x, wld.player1.y - 45, 'P1 สำเร็จคำวิเศษ! 🎉 +100 ⭐', '#fbbf24'); showLocalComboBanner(1, 'ผู้เล่น 1 สะสมคำวิเศษครบ! 🌈✨ +100'); }
+        else { wld.score2 += 100; wld.combo2++; addWorldFloatText(wld.player2.x, wld.player2.y - 45, 'P2 สำเร็จคำวิเศษ! 🎉 +100 ⭐', '#fbbf24'); showLocalComboBanner(2, 'ผู้เล่น 2 สะสมคำวิเศษครบ! 🌈✨ +100'); }
+        AudioSynth.play('correct', 5);
+        setTimeout(() => { if (playerNum === 1) wld.collectedLetters1 = []; else wld.collectedLetters2 = []; }, 2000);
+      }
+    }
+  } else {
+    if (playerNum === 1) { wld.score1 += 10; addWorldFloatText(s.x, s.y - 10, 'P1 +10 ⭐', '#fbbf24'); }
+    else { wld.score2 += 10; addWorldFloatText(s.x, s.y - 10, 'P2 +10 ⭐', '#38bdf8'); }
+    AudioSynth.play('star');
+  }
+}
+
+function hitWorldBubble(playerNum, b) {
+  const isP1 = playerNum === 1;
+  const answered = isP1 ? wld.answeredQ1 : wld.answeredQ2;
+  if (answered) return;
+  if (isP1) wld.answeredQ1 = true; else wld.answeredQ2 = true;
+  const p = isP1 ? wld.player1 : wld.player2;
+  const currentQ = isP1 ? wld.currentQ1 : wld.currentQ2;
+  if (b.correct) {
+    if (isP1) {
+      wld.combo1++; wld.correctCount1++;
+      const bonus = 10 + wld.combo1 * 3; wld.score1 += bonus; p.state = 'happy';
+      addWorldFloatText(b.x, b.y - 30, 'P1 ถูกต้อง! 🎉', '#16a34a'); addWorldFloatText(b.x, b.y - 55, '+' + bonus + ' ⭐', '#f59e0b');
+      if (wld.combo1 >= 2) showLocalComboBanner(1, 'P1 คอมโบ x' + wld.combo1 + '! 🌈');
+      if (!localCoopMode) vs.report(wld.score1, { correct: wld.correctCount1 });
+    } else {
+      wld.combo2++; wld.correctCount2++;
+      const bonus = 10 + wld.combo2 * 3; wld.score2 += bonus; p.state = 'happy';
+      addWorldFloatText(b.x, b.y - 30, 'P2 ถูกต้อง! 🎉', '#2563eb'); addWorldFloatText(b.x, b.y - 55, '+' + bonus + ' ⭐', '#38bdf8');
+      if (wld.combo2 >= 2) showLocalComboBanner(2, 'P2 คอมโบ x' + wld.combo2 + '! 🌈');
+    }
+    KAMPAI.sound.correct();
+    AudioSynth.play('correct', isP1 ? wld.combo1 : wld.combo2);
+    try { KAMPAI.sound.speak(currentQ.word, 'th-TH'); } catch (e) {}
+    wld.bubbles = wld.bubbles.filter(bub => bub.player !== playerNum);
+    if (isP1) wld.currentQ1 = null; else wld.currentQ2 = null;
+  } else {
+    if (isP1) {
+      wld.combo1 = 0;
+      deductLife(1, 'ผิด!');
+      addWorldFloatText(b.x, b.y - 30, 'P1 ผิด!', '#ef4444');
+      wld.answeredQ1 = false;
+    } else {
+      wld.combo2 = 0;
+      deductLife(2, 'ผิด!');
+      addWorldFloatText(b.x, b.y - 30, 'P2 ผิด!', '#ef4444');
+      wld.answeredQ2 = false;
+    }
+  }
+}
+
+function extendWorldWorld() {
+  const r = wld.rng || gameRng;
+  const last = wld.platforms[wld.platforms.length - 1];
+  if (!last || last.x + last.w - wld.camX < V_W * 1.8) {
+    const gap = 60 + r() * 50;
+    const dy = -40 + r() * 80;
+    const withQ = wld.platIndex % 3 === 0;
+    const w = withQ ? (380 + r() * 60) : (160 + r() * 60);
+    const x = last.x + last.w + gap;
+    let y = last.y + dy;
+    y = Math.max(V_H - 480, Math.min(V_H - 240, y));
+    makeWorldPlatform(x, y, w, withQ, r);
+  }
+  wld.platforms = wld.platforms.filter(p => p.x + p.w > wld.camX - 200);
+  wld.stars = wld.stars.filter(s => s.x > wld.camX - 100);
+  wld.hearts = wld.hearts.filter(h => h.x > wld.camX - 100);
+  const hadBubbles = wld.bubbles.length > 0;
+  wld.bubbles = wld.bubbles.filter(b => b.x > wld.camX - 80);
+  if (hadBubbles && wld.bubbles.length === 0) {
+    if (wld.currentQ1 !== null) { wld.currentQ1 = null; wld.answeredQ1 = true; }
+    if (wld.currentQ2 !== null) { wld.currentQ2 = null; wld.answeredQ2 = true; }
+  }
+}
+
+function updatePlayerPhysics(p, keys, playerNum) {
+  if (!p.animTime) p.animTime = 0;
+  if (!p.onGround) { p.animTime += 0.15; } 
+  else if (p.state === 'run' || Math.abs(p.vx) > 0.2) { p.animTime += 0.15 + Math.abs(p.vx) * 0.05; } 
+  else { p.animTime += 0.04; }
+
+  if (keys.left) { p.vx = -RUN; p.face = -1; p.state = p.onGround ? 'run' : p.state; }
+  else if (keys.right) { p.vx = RUN; p.face = 1; p.state = p.onGround ? 'run' : p.state; }
+  else { p.vx *= FRICTION; if (Math.abs(p.vx) < 0.05) p.vx = 0; if (p.onGround && p.state === 'run') p.state = 'idle'; }
+
+  if (keys.jump) {
+    if (p.onGround) {
+      p.vy = JUMP1; p.onGround = false; p.jumps = 1; p.ridingPlat = null;
+      p.state = 'jump'; spawnWorldDust(p.x + p.w / 2, p.y + p.h);
+      AudioSynth.play('jump');
+      keys.jump = false;
+    } else if (p.jumps === 1) {
+      p.vy = JUMP2; p.jumps = 2; p.state = 'jump'; p.ridingPlat = null;
+      spawnWorldDust(p.x + p.w / 2, p.y + p.h / 2);
+      AudioSynth.play('jump');
+      keys.jump = false;
+    }
+  }
+
+  p.vy += GRAVITY;
+  p.x += p.vx;
+  if (!wld.blueprintMode && p.x < wld.camX) { p.x = wld.camX; p.vx = 0; }
+  if (p.x < 0) { p.x = 0; p.vx = 0; }
+  p.y += p.vy;
+  p.onGround = false;
+
+  if (p.invincT > 0) p.invincT--;
+  if (p.hurtT > 0) p.hurtT--;
+  else if (p.state === 'hurt') p.state = 'idle';
+  if (p.state === 'happy') p.state = p.onGround ? 'idle' : 'jump';
+  p.earPhase += 0.08 + Math.abs(p.vx) * 0.02;
+
+  for (const plat of wld.platforms) {
+    if (p.x + p.w > plat.x + 8 && p.x < plat.x + plat.w - 8 &&
+        p.y + p.h >= plat.y && p.y + p.h <= plat.y + plat.h + p.vy + 4 && p.vy >= 0) {
+      p.y = plat.y - p.h;
+      p.vy = 0;
+      p.onGround = true;
+      p.jumps = 0;
+      p.ridingPlat = plat;
+      if (playerNum === 1) wld.lastSafePlat = plat;
+      if (p.state !== 'happy' && p.state !== 'hurt') p.state = keys.left || keys.right ? 'run' : 'idle';
+    }
+  }
+
+  if (wld.blueprintMode) {
+    const maxX = (wld.worldWidth || 1280) - p.w;
+    if (p.x > maxX) { p.x = maxX; p.vx = 0; }
+  } else if (p.x > wld.camX + V_W - p.w) { p.x = wld.camX + V_W - p.w; p.vx = 0; }
+}
+
+function updateWorld() {
+  for (const plat of wld.platforms) {
+    if (plat.moving) {
+      plat.phase += plat.moveSpeed;
+      plat.y = plat.baseY + Math.sin(plat.phase) * plat.moveRange;
+      if (wld.player1.onGround && wld.player1.ridingPlat === plat) { wld.player1.y = plat.y - wld.player1.h; }
+      if (wld.player2 && wld.player2.onGround && wld.player2.ridingPlat === plat) { wld.player2.y = plat.y - wld.player2.h; }
+    }
+  }
+  for (const plat of wld.platforms) {
+    if (plat.question && wld.currentQ1 === null && (localCoopMode ? wld.currentQ2 === null : true) && plat.x - wld.camX < V_W + 100 && plat.x - wld.camX > -plat.w) {
+      spawnWorldQuestion(plat, wld.rng);
+      break;
+    }
+  }
+  updatePlayerPhysics(wld.player1, keys1, 1);
+  if (localCoopMode && wld.player2) { updatePlayerPhysics(wld.player2, keys2, 2); }
+  for (const b of wld.bubbles) { b.phase += b.floatSpeed; b.y = b.baseY + Math.sin(b.phase) * 14; b.x += b.vx || 0; }
+  const pad = 14;
+  const bubblesCopy = [...wld.bubbles];
+  for (const b of bubblesCopy) {
+    const dx1 = (wld.player1.x + wld.player1.w / 2) - b.x;
+    const dy1 = (wld.player1.y + wld.player1.h / 2) - b.y;
+    if (dx1 * dx1 + dy1 * dy1 < (b.r + pad) * (b.r + pad)) {
+      if (b.player === 1) {
+        hitWorldBubble(1, b);
+      } else if (localCoopMode) {
+        if (deductLife(1, 'ไม่ใช่ของ P1!')) wld.bubbles = wld.bubbles.filter(bub => bub !== b);
+      }
+      continue;
+    }
+    if (localCoopMode && wld.player2) {
+      const dx2 = (wld.player2.x + wld.player2.w / 2) - b.x;
+      const dy2 = (wld.player2.y + wld.player2.h / 2) - b.y;
+      if (dx2 * dx2 + dy2 * dy2 < (b.r + pad) * (b.r + pad)) {
+        if (b.player === 2) {
+          hitWorldBubble(2, b);
+        } else {
+          if (deductLife(2, 'ไม่ใช่ของ P2!')) wld.bubbles = wld.bubbles.filter(bub => bub !== b);
+        }
+      }
+    }
+  }
+  for (const s of wld.stars) {
+    if (s.taken) continue;
+    s.bob += 0.06;
+    const sY = s.letter ? s.y + Math.sin(s.bob) * 6 : s.y + Math.sin(s.bob) * 4;
+    const dx1 = (wld.player1.x + wld.player1.w / 2) - s.x;
+    const dy1 = (wld.player1.y + wld.player1.h / 2) - sY;
+    if (dx1 * dx1 + dy1 * dy1 < 900) { s.taken = true; collectStarForPlayer(1, s); continue; }
+    if (localCoopMode && wld.player2) {
+      const dx2 = (wld.player2.x + wld.player2.w / 2) - s.x;
+      const dy2 = (wld.player2.y + wld.player2.h / 2) - sY;
+      if (dx2 * dx2 + dy2 * dy2 < 900) { s.taken = true; collectStarForPlayer(2, s); }
+    }
+  }
+  for (const h of wld.hearts) {
+    if (h.taken) continue;
+    h.bob += 0.07;
+    const hY = h.y + Math.sin(h.bob) * 5;
+    const dx1 = (wld.player1.x + wld.player1.w / 2) - h.x;
+    const dy1 = (wld.player1.y + wld.player1.h / 2) - hY;
+    if (dx1 * dx1 + dy1 * dy1 < 900) { h.taken = true; collectHeartForPlayer(1, h); continue; }
+    if (localCoopMode && wld.player2) {
+      const dx2 = (wld.player2.x + wld.player2.w / 2) - h.x;
+      const dy2 = (wld.player2.y + wld.player2.h / 2) - hY;
+      if (dx2 * dx2 + dy2 * dy2 < 900) { h.taken = true; collectHeartForPlayer(2, h); }
+    }
+  }
+  if (wld.player1.y > V_H + 80 && getLives(1) > 0) handleWorldFall(1);
+  if (localCoopMode && wld.player2 && wld.player2.y > V_H + 80 && getLives(2) > 0) handleWorldFall(2);
+  const maxCombo = localCoopMode ? Math.max(wld.combo1, wld.combo2) : wld.combo1;
+  const scrollSpeed = 1.15 + Math.min(0.6, maxCombo * 0.1);
+  if (wld.blueprintMode) {
+    const targetCam = wld.player1.x - V_W * 0.35;
+    const maxCam = Math.max(0, (wld.worldWidth || 1280) - V_W);
+    wld.camX += (Math.max(0, Math.min(maxCam, targetCam)) - wld.camX) * 0.12;
+  } else {
+    wld.camX += scrollSpeed;
+    if (wld.camX < 0) wld.camX = 0;
+    extendWorldWorld();
+  }
+  wld.particles.forEach(pt => { pt.x += pt.vx; pt.y += pt.vy; pt.life -= 0.04; });
+  wld.particles = wld.particles.filter(pt => pt.life > 0);
+  wld.floatTexts.forEach(ft => { ft.y -= 1.2; ft.life -= 0.015; });
+  wld.floatTexts = wld.floatTexts.filter(ft => ft.life > 0);
+}
+
+function drawCloud(c) {
+  const x = c.x - wld.camX * 0.3;
+  ctx.save(); ctx.translate(x, c.y); ctx.scale(c.s, c.s);
+  ctx.fillStyle = 'rgba(255,255,255,.92)';
+  ctx.beginPath(); ctx.arc(0, 0, 28, 0, 6.28); ctx.arc(32, -8, 34, 0, 6.28); ctx.arc(64, 0, 26, 0, 6.28); ctx.fill();
+  ctx.fillStyle = '#475569'; ctx.beginPath(); ctx.arc(-6, -4, 3, 0, 6.28); ctx.arc(6, -4, 3, 0, 6.28); ctx.fill();
+  ctx.strokeStyle = '#64748b'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, 6, 8, 0.1, 3.04); ctx.stroke();
+  ctx.restore();
+}
+
+function drawWorldPlatform(p) {
+  const x = p.x - wld.camX, y = p.y;
+  ctx.fillStyle = p.moving ? '#78350f' : '#92400e'; ctx.beginPath(); ctx.roundRect(x, y, p.w, p.h, 12); ctx.fill();
+  ctx.fillStyle = p.moving ? '#4d7c0f' : '#65a30d'; ctx.fillRect(x, y - 8, p.w, 14);
+  ctx.fillStyle = p.moving ? '#a3e635' : '#84cc16';
+  for (let i = 0; i < p.w; i += 18) ctx.fillRect(x + i, y - 10, 10, 6);
+  p.flowers.forEach(f => { ctx.fillStyle = f.col; ctx.beginPath(); ctx.arc(x + f.ox, y - 14, 5, 0, 6.28); ctx.fill(); });
+  p.shrooms.forEach(m => { ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.ellipse(x + m.ox, y - 12, 8, 6, 0, 0, 6.28); ctx.fill(); ctx.fillStyle = '#fef3c7'; ctx.fillRect(x + m.ox - 2, y - 8, 4, 8); });
+}
+
+function drawWorldHeart(h) {
+  if (h.taken) return;
+  const x = h.x - wld.camX, y = h.y + Math.sin(h.bob) * 5;
+  ctx.save(); ctx.translate(x, y);
+  ctx.fillStyle = '#f472b6'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, 4);
+  ctx.bezierCurveTo(-14, -8, -14, 8, 0, 16);
+  ctx.bezierCurveTo(14, 8, 14, -8, 0, 4);
+  ctx.fill(); ctx.stroke();
+  ctx.restore();
+}
+
+function drawWorldStar(s) {
+  if (s.taken) return;
+  const x = s.x - wld.camX, y = s.y + Math.sin(s.bob) * 4;
+  ctx.save(); ctx.translate(x, y);
+  if (s.letter) {
+    ctx.fillStyle = '#f59e0b'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(0, 0, 16, 0, 6.28); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 18px Itim'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(s.letter, 0, 1);
+  } else {
+    ctx.fillStyle = '#fbbf24'; ctx.beginPath();
+    for (let i = 0; i < 5; i++) { const a = (i * 4 * Math.PI) / 5 - Math.PI / 2; const r = i % 2 ? 6 : 12; ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r); }
+    ctx.closePath(); ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawWorldBubble(b) {
+  const wob = 1 + Math.sin(b.wob) * 0.08;
+  const x = b.x - wld.camX, y = b.y;
+  ctx.save(); ctx.translate(x, y); ctx.scale(wob, 1 / wob);
+  const g = ctx.createRadialGradient(-6, -6, 4, 0, 0, b.r);
+  if (localCoopMode) {
+    if (b.player === 1) {
+      g.addColorStop(0, '#fff5f5');
+      g.addColorStop(0.45, '#fecdd3');
+      g.addColorStop(1, '#fda4af');
+      ctx.strokeStyle = 'rgba(219,39,119,0.95)';
+    } else {
+      g.addColorStop(0, '#f0f9ff');
+      g.addColorStop(0.45, '#bae6fd');
+      g.addColorStop(1, '#7dd3fc');
+      ctx.strokeStyle = 'rgba(37,99,235,0.95)';
+    }
+    ctx.lineWidth = 3.5;
+  } else {
+    g.addColorStop(0, '#fff');
+    g.addColorStop(0.45, b.col);
+    g.addColorStop(1, b.col);
+    ctx.strokeStyle = 'rgba(255,255,255,.7)';
+    ctx.lineWidth = 2;
+  }
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, b.r, 0, 6.28); ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#1e293b'; ctx.font = 'bold 36px Itim'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(b.text, 0, 1);
+  ctx.restore(); b.wob += 0.07;
+}
+
+function loadBunnyImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+function loadBunnySprites() {
+  const c = KAMPAI.character;
+  const base = BUNNY_ASSET_BASE;
+  if (c && c.fw && c.fh) {
+    BUNNY_SPRITE.fw = c.fw;
+    BUNNY_SPRITE.fh = c.fh;
+    if (c.frames) BUNNY_SPRITE.frames = c.frames;
+  } else {
+    BUNNY_SPRITE.fw = 170;
+    BUNNY_SPRITE.fh = 227;
+    BUNNY_SPRITE.frames = 18;
+  }
+  if (typeof KAMPAI.loadCharacterSheets === 'function' && c && c.sheetUrl) {
+    return KAMPAI.loadCharacterSheets().then(({ primary, secondary }) => {
+      BUNNY_SPRITE.white = primary;
+      BUNNY_SPRITE.blue = secondary || primary;
+      BUNNY_SPRITE.ready = Boolean(primary);
+    }).catch(() => { BUNNY_SPRITE.ready = false; });
+  }
+  const wUrl = (c && c.sheetUrl) ? c.sheetUrl : base + '/bunny-white-sheet.png';
+  const bUrl = (c && c.sheetUrlP2) ? c.sheetUrlP2 : base + '/bunny-blue-sheet.png';
+  return Promise.all([
+    loadBunnyImage(wUrl),
+    loadBunnyImage(bUrl),
+  ]).then(([white, blue]) => {
+    BUNNY_SPRITE.white = white;
+    BUNNY_SPRITE.blue = blue;
+    BUNNY_SPRITE.ready = true;
+  }).catch(() => { BUNNY_SPRITE.ready = false; });
+}
+
+function getBunnyAnim() {
+  return (KAMPAI.character && KAMPAI.character.anim) || BUNNY_DEFAULT_ANIM;
+}
+
+function getBunnySpriteFrame(p) {
+  if (typeof KAMPAI.pickCharacterFrame === 'function') {
+    return KAMPAI.pickCharacterFrame(p, { runSpeed: RUN, anim: getBunnyAnim() });
+  }
+  if (p.state === 'hurt') return 10;
+  if (p.state === 'happy') return 11;
+  if (!p.onGround || p.state === 'jump') {
+    if (p.vy < -3.5) return 7;
+    if (p.vy > 2.5) return 9;
+    return 8;
+  }
+  if (p.state === 'run' || Math.abs(p.vx) > RUN * 0.55) {
+    const runFrames = [3, 4, 5, 6];
+    return runFrames[Math.floor(p.animTime * 1.15) % 4];
+  }
+  if (Math.abs(p.vx) > 0.15) {
+    const walkFrames = [1, 2];
+    return walkFrames[Math.floor(p.animTime * 0.85) % 2];
+  }
+  if (Math.sin(p.animTime * 0.45) > 0.92) return 0;
+  return 0;
+}
+
+function drawLimb(jx, jy, len, thick, ang, skinCol) {
+  ctx.save(); ctx.translate(jx, jy); ctx.rotate(ang); ctx.strokeStyle = '#fbcfe8'; ctx.lineWidth = 1.5; ctx.fillStyle = skinCol;
+  ctx.beginPath(); ctx.roundRect(-thick / 2, 0, thick, len, thick / 2); ctx.fill(); ctx.stroke(); ctx.restore();
+}
+
+function drawWorldBunny(p, variant) {
+  const x = p.x - wld.camX;
+  const y = p.y;
+  if (BUNNY_SPRITE.ready) {
+    const sheet = variant === 'blue' ? BUNNY_SPRITE.blue : BUNNY_SPRITE.white;
+    const f = getBunnySpriteFrame(p);
+    const dw = BUNNY_DRAW_W;
+    const dh = BUNNY_DRAW_H;
+    const anim = getBunnyAnim();
+    const poseKey = typeof KAMPAI.poseKeyFromPlayerState === 'function'
+      ? KAMPAI.poseKeyFromPlayerState(p, { runSpeed: RUN })
+      : 'run';
+    const foot = typeof KAMPAI.resolveFootAnchor === 'function'
+      ? KAMPAI.resolveFootAnchor(anim, poseKey)
+      : { anchorFoot: anim.anchorFoot != null ? anim.anchorFoot : 0.94, feetPad: anim.feetPad != null ? anim.feetPad : 14 };
+    const footRatio = foot.anchorFoot;
+    const feetPad = foot.feetPad;
+    const cx = x + p.w / 2;
+    const dy = y + p.h - dh * footRatio + feetPad;
+    const cfg = { fw: BUNNY_SPRITE.fw, fh: BUNNY_SPRITE.fh, anim };
+    const rect = typeof KAMPAI.characterFrameRect === 'function'
+      ? KAMPAI.characterFrameRect(f, cfg)
+      : { sx: f * BUNNY_SPRITE.fw, sy: 0, fw: BUNNY_SPRITE.fw, fh: BUNNY_SPRITE.fh };
+    const rf = anim.runFaces || 'left';
+    const flip = rf === 'right' ? p.face < 0 : p.face > 0;
+    ctx.save();
+    ctx.imageSmoothingEnabled = false;
+    if (flip) {
+      ctx.translate(cx, dy);
+      ctx.scale(-1, 1);
+      ctx.drawImage(sheet, rect.sx, rect.sy, rect.fw, rect.fh, -dw / 2, 0, dw, dh);
+    } else {
+      ctx.drawImage(sheet, rect.sx, rect.sy, rect.fw, rect.fh, cx - dw / 2, dy, dw, dh);
+    }
+    ctx.restore();
+    return;
+  }
+  const skinCol = variant === 'blue' ? '#bae6fd' : '#fff';
+  const cheekCol = variant === 'blue' ? '#93c5fd' : '#fbcfe8';
+  drawWorldBunnyVector(p, skinCol, cheekCol);
+}
+
+function drawWorldBunnyVector(p, skinCol, cheekCol) {
+  const x = p.x - wld.camX, y = p.y;
+  const earTilt = Math.sin(p.earPhase) * 0.15 + (p.vy < -2 ? -0.25 : 0.1);
+  let animTime = p.animTime || 0;
+  let leg1Ang = 0.1, leg2Ang = -0.1, arm1Ang = 0.6, arm2Ang = 0.6, bodyBob = 0;
+  if (p.state === 'hurt') { leg1Ang = Math.sin(animTime * 3) * 0.8; leg2Ang = Math.sin(animTime * 3 + Math.PI) * 0.8; arm1Ang = Math.sin(animTime * 4) * 1.2 - 0.5; arm2Ang = Math.sin(animTime * 4 + Math.PI) * 1.2 - 0.5; bodyBob = Math.sin(animTime * 3) * 2; } 
+  else if (!p.onGround) { leg1Ang = p.vy < 0 ? -0.4 : 0.3; leg2Ang = p.vy < 0 ? -0.2 : 0.1; arm1Ang = -2.0; arm2Ang = -1.6; bodyBob = 0; } 
+  else if (p.state === 'run' || Math.abs(p.vx) > 0.2) { const speedMult = Math.abs(p.vx) / RUN; leg1Ang = Math.sin(animTime) * 0.7 * speedMult; leg2Ang = Math.sin(animTime + Math.PI) * 0.7 * speedMult; arm1Ang = 0.5 - Math.sin(animTime) * 0.6 * speedMult; arm2Ang = 0.5 - Math.sin(animTime + Math.PI) * 0.6 * speedMult; bodyBob = Math.abs(Math.sin(animTime * 2)) * -2.5; } 
+  else { leg1Ang = 0.15; leg2Ang = -0.15; arm1Ang = 0.6 + Math.sin(animTime * 0.5) * 0.08; arm2Ang = 0.6 - Math.sin(animTime * 0.5) * 0.08; bodyBob = Math.sin(animTime * 0.5) * 0.8; }
+  ctx.save(); ctx.translate(x + p.w / 2, y + p.h / 2 + bodyBob); ctx.scale(p.face, 1);
+  drawLimb(-8, 16, 12, 8, leg2Ang, '#e2e8f0'); drawLimb(-14, 2, 14, 7, arm2Ang, '#e2e8f0');
+  ctx.fillStyle = '#fff'; ctx.strokeStyle = '#fbcfe8'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.ellipse(-12, -34 + Math.sin(p.earPhase) * 3, 8, 22, -0.2 + earTilt, 0, 6.28); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.ellipse(12, -34 + Math.sin(p.earPhase + 1) * 3, 8, 22, 0.2 - earTilt, 0, 6.28); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = skinCol; ctx.beginPath(); ctx.roundRect(-22, -18, 44, 40, 16); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = cheekCol; ctx.beginPath(); ctx.arc(-12, 4, 5, 0, 6.28); ctx.arc(12, 4, 5, 0, 6.28); ctx.fill();
+  ctx.strokeStyle = '#334155'; ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.fillStyle = '#334155';
+  if (p.state === 'hurt') {
+    ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(-11, -6); ctx.lineTo(-5, -2); ctx.moveTo(-11, -2); ctx.lineTo(-5, -6); ctx.moveTo(5, -6); ctx.lineTo(11, -2); ctx.moveTo(5, -2); ctx.lineTo(11, -6); ctx.stroke();
+    ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-3, 2); ctx.lineTo(3, 2); ctx.stroke();
+  } else if (p.state === 'happy' || p.state === 'jump') {
+    ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(-8, -2, 4, 3.14, 0); ctx.stroke(); ctx.beginPath(); ctx.arc(8, -2, 4, 3.14, 0); ctx.stroke();
+    ctx.fillStyle = '#f43f5e'; ctx.beginPath(); ctx.arc(0, 2, 4, 0, 3.14); ctx.fill();
+  } else {
+    ctx.beginPath(); ctx.ellipse(-8, -4, 3, 5, 0, 0, 6.28); ctx.ellipse(8, -4, 3, 5, 0, 0, 6.28); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(-9, -6, 1, 0, 6.28); ctx.arc(7, -6, 1, 0, 6.28); ctx.fill();
+    ctx.strokeStyle = '#334155'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(-2, 2, 2, 0, 3.14); ctx.arc(2, 2, 2, 0, 3.14); ctx.stroke();
+  }
+  drawLimb(8, 16, 12, 8, leg1Ang, skinCol); drawLimb(14, 2, 14, 7, arm1Ang, skinCol); ctx.restore();
+}
+
+function drawWorld() {
+  ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, V_W, V_H);
+  clouds.forEach(c => drawCloud(c));
+  petals.forEach(p => {
+    ctx.save(); ctx.translate(p.x - wld.camX * 0.15, p.y); ctx.rotate(p.rot);
+    ctx.fillStyle = 'rgba(251,182,206,.75)'; ctx.beginPath(); ctx.ellipse(0, 0, p.r, p.r * 0.6, 0, 0, 6.28); ctx.fill(); ctx.restore();
+  });
+  wld.platforms.forEach(p => drawWorldPlatform(p));
+  wld.stars.forEach(s => drawWorldStar(s));
+  wld.hearts.forEach(h => drawWorldHeart(h));
+  wld.bubbles.forEach(b => drawWorldBubble(b));
+  drawWorldBunny(wld.player1, 'white');
+  if (localCoopMode && wld.player2) { drawWorldBunny(wld.player2, 'blue'); }
+  wld.particles.forEach(pt => { ctx.globalAlpha = pt.life; ctx.fillStyle = pt.col; ctx.beginPath(); ctx.arc(pt.x - wld.camX, pt.y, 3, 0, 6.28); ctx.fill(); ctx.globalAlpha = 1; });
+  wld.floatTexts.forEach(ft => { ctx.globalAlpha = Math.max(0, ft.life); ctx.fillStyle = ft.col; ctx.font = 'bold 22px Itim'; ctx.textAlign = 'center'; ctx.fillText(ft.text, ft.x - wld.camX, ft.y); ctx.globalAlpha = 1; });
+  drawHud();
+  if (wld.bannerT1 > 0) {
+    wld.bannerT1--; ctx.save(); const opacity = Math.min(1, wld.bannerT1 / 15); ctx.fillStyle = `rgba(219, 39, 119, ${opacity * 0.9})`; ctx.fillRect(0, V_H / 2 - 40, V_W, 60); ctx.fillStyle = '#fff'; ctx.font = 'bold 24px Itim'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(wld.bannerText1, V_W / 2, V_H / 2 - 10); ctx.restore();
+  }
+  if (wld.bannerT2 > 0) {
+    wld.bannerT2--; ctx.save(); const opacity = Math.min(1, wld.bannerT2 / 15); ctx.fillStyle = `rgba(37, 99, 235, ${opacity * 0.9})`; ctx.fillRect(0, V_H / 2 + 30, V_W, 60); ctx.fillStyle = '#fff'; ctx.font = 'bold 24px Itim'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(wld.bannerText2, V_W / 2, V_H / 2 + 60); ctx.restore();
+  }
+}
+
+function drawHud() {
+  if (localCoopMode) {
+    // Player 1 HUD (Left)
+    const p1X = 20, p1BannerW = V_W / 2 - 40;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)'; ctx.strokeStyle = '#db2777'; ctx.lineWidth = 3; ctx.beginPath(); ctx.roundRect(p1X, 20, p1BannerW, 48, 24); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#be185d'; ctx.font = 'bold 22px Itim'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    let qText1 = '📖 P1: วิ่งไปข้างหน้า!'; if (wld.currentQ1) qText1 = '📖 P1: ' + wld.currentQ1.prompt.replace('_', '___') + ' (' + getEmojiClue(wld.currentQ1.word) + ')';
+    ctx.fillText(qText1, p1X + p1BannerW / 2, 20 + 24 + 1);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.88)'; ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.roundRect(p1X, 78, 110, 44, 22); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#334155'; ctx.font = 'bold 18px Itim'; ctx.textAlign = 'left'; ctx.fillText('⭐ P1: ' + wld.score1, p1X + 18, 78 + 22 + 1);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.88)'; ctx.beginPath(); ctx.roundRect(p1X + 120, 78, 120, 44, 22); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#ef4444'; ctx.font = '16px Itim'; ctx.textAlign = 'center'; ctx.fillText(formatLifeHearts(wld.lives1), p1X + 180, 78 + 22 + 1);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.85)'; ctx.beginPath(); ctx.roundRect(p1X + 250, 78, 160, 44, 22); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#475569'; ctx.font = 'bold 14px Itim'; ctx.textAlign = 'left'; ctx.fillText('คำ: ', p1X + 265, 78 + 22 + 1);
+    const letters1 = ['ส', 'ร', 'ะ'];
+    letters1.forEach((l, idx) => { const lx = p1X + 300 + idx * 20; ctx.textAlign = 'center'; if (wld.collectedLetters1.includes(l)) { ctx.fillStyle = '#e11d48'; ctx.font = 'bold 16px Itim'; ctx.fillText(l, lx, 78 + 22 + 1); } else { ctx.fillStyle = '#94a3b8'; ctx.font = '16px Itim'; ctx.fillText('◯', lx, 78 + 22 + 1); } });
+
+    // Player 2 HUD (Right)
+    const p2X = V_W / 2 + 20, p2BannerW = V_W / 2 - 40;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)'; ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 3; ctx.beginPath(); ctx.roundRect(p2X, 20, p2BannerW, 48, 24); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#1e3a8a'; ctx.font = 'bold 22px Itim'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    let qText2 = '📖 P2: วิ่งไปข้างหน้า!'; if (wld.currentQ2) qText2 = '📖 P2: ' + wld.currentQ2.prompt.replace('_', '___') + ' (' + getEmojiClue(wld.currentQ2.word) + ')';
+    ctx.fillText(qText2, p2X + p2BannerW / 2, 20 + 24 + 1);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.88)'; ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.roundRect(p2X, 78, 110, 44, 22); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#334155'; ctx.font = 'bold 18px Itim'; ctx.textAlign = 'left'; ctx.fillText('⭐ P2: ' + wld.score2, p2X + 18, 78 + 22 + 1);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.88)'; ctx.beginPath(); ctx.roundRect(p2X + 120, 78, 120, 44, 22); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#ef4444'; ctx.font = '16px Itim'; ctx.textAlign = 'center'; ctx.fillText(formatLifeHearts(wld.lives2), p2X + 180, 78 + 22 + 1);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.85)'; ctx.beginPath(); ctx.roundRect(p2X + 250, 78, 160, 44, 22); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#475569'; ctx.font = 'bold 14px Itim'; ctx.textAlign = 'left'; ctx.fillText('คำ: ', p2X + 265, 78 + 22 + 1);
+    const letters2 = ['ส', 'ร', 'ะ'];
+    letters2.forEach((l, idx) => { const lx = p2X + 300 + idx * 20; ctx.textAlign = 'center'; if (wld.collectedLetters2.includes(l)) { ctx.fillStyle = '#2563eb'; ctx.font = 'bold 16px Itim'; ctx.fillText(l, lx, 78 + 22 + 1); } else { ctx.fillStyle = '#94a3b8'; ctx.font = '16px Itim'; ctx.fillText('◯', lx, 78 + 22 + 1); } });
+  } else {
+    const bannerW = 420, bannerH = 48, bannerX = V_W / 2 - bannerW / 2, bannerY = 20;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)'; ctx.strokeStyle = '#fbcfe8'; ctx.lineWidth = 3; ctx.beginPath(); ctx.roundRect(bannerX, bannerY, bannerW, bannerH, 24); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#be185d'; ctx.font = 'bold 24px Itim'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    let qText = '📖 วิ่งไปข้างหน้า!'; if (wld.currentQ1) qText = '📖 ' + wld.currentQ1.prompt.replace('_', '___') + ' (' + getEmojiClue(wld.currentQ1.word) + ')';
+    ctx.fillText(qText, V_W / 2, bannerY + bannerH / 2 + 1);
+    const scoreX = 30, scoreY = 20;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.88)'; ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.roundRect(scoreX, scoreY, 110, 48, 24); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#334155'; ctx.font = 'bold 20px Itim'; ctx.textAlign = 'left'; ctx.fillText('⭐ ' + wld.score1, scoreX + 20, scoreY + 24 + 1);
+    const heartsX = V_W - 180, heartsY = 20;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.88)'; ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.roundRect(heartsX, heartsY, 150, 48, 24); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#ef4444'; ctx.font = '18px Itim'; ctx.textAlign = 'center'; ctx.fillText(formatLifeHearts(wld.lives1), heartsX + 75, heartsY + 24 + 1);
+    const letterY = bannerY + bannerH + 18;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.85)'; ctx.beginPath(); ctx.roundRect(V_W / 2 - 100, letterY - 14, 200, 28, 14); ctx.fill();
+    ctx.font = 'bold 16px Itim'; ctx.textAlign = 'center'; ctx.fillStyle = '#475569'; ctx.fillText('สะสมคำ: ', V_W / 2 - 40, letterY + 1);
+    const letters = ['ส', 'ร', 'ะ'];
+    letters.forEach((l, idx) => { const lx = V_W / 2 + 15 + idx * 22; if (wld.collectedLetters1.includes(l)) { ctx.fillStyle = '#e11d48'; ctx.font = 'bold 18px Itim'; ctx.fillText(l, lx, letterY + 1); } else { ctx.fillStyle = '#94a3b8'; ctx.font = '18px Itim'; ctx.fillText('◯', lx, letterY + 1); } });
+  }
+}
+
+function draw() {
+  const shakeX = shakeT > 0 ? (Math.random() - 0.5) * shakeT * 0.4 : 0;
+  const shakeY = shakeT > 0 ? (Math.random() - 0.5) * shakeT * 0.3 : 0;
+  if (shakeT > 0) shakeT--;
+  ctx.save(); ctx.scale(renderScale, renderScale); ctx.translate(shakeX, shakeY); drawWorld(); ctx.restore();
+}
+
+function loop() {
+  if (!gameRunning) return;
+  clouds.forEach(c => { c.x -= c.spd; if (c.x < wld.camX - 200) c.x = wld.camX + V_W + 200; });
+  petals.forEach(p => { p.y += p.spd; p.x += p.drift; p.rot += 0.02; if (p.y > V_H + 20) { p.y = -20; p.x = wld.camX + rand(0, V_W); } });
+  updateWorld(); draw(); requestAnimationFrame(loop);
+}
+
+function startGame(rng, playerInfo) {
+  versusMode = playerInfo !== null && playerInfo !== undefined;
+  gameRng = rng || Math.random;
+  gameRunning = true;
+  document.getElementById('startModal').classList.add('off');
+  document.getElementById('overModal').classList.add('off');
+  document.getElementById('hud').style.display = 'none';
+  document.getElementById('qHud').style.display = 'none';
+  resize();
+  const bpWorld = getBlueprintWorld();
+  if (bpWorld) initGameWorldFromBlueprint(bpWorld, gameRng);
+  else initGameWorld(gameRng);
+  try { KAMPAI.sound.unlock(); KAMPAI.sound.defaultBgm('playful'); KAMPAI.sound.bgmStart(); } catch (e) {}
+  initClouds(); initPetals();
+  loop();
+  if (!versusMode) return;
+  clearTimeout(versusTimer);
+  versusTimer = setTimeout(() => { gameRunning = false; checkGameOver(); }, 90 * 1000);
+}
+
+function checkGameOver() {
+  if (localCoopMode) {
+    if (wld.lives1 <= 0 && wld.lives2 <= 0) {
+      gameRunning = false;
+      const score1 = wld.score1, score2 = wld.score2;
+      let winnerText = '';
+      if (score1 > score2) winnerText = 'ผู้เล่น 1 (กระต่ายขาว) ชนะ! 🏆🤍';
+      else if (score2 > score1) winnerText = 'ผู้เล่น 2 (กระต่ายฟ้า) ชนะ! 🏆💙';
+      else winnerText = 'เสมอกัน! 🤝🌸';
+      document.getElementById('finalScore').innerHTML = `
+        <div style="font-size:24px;color:#be185d;margin-bottom:12px">${winnerText}</div>
+        <div style="display:flex;justify-content:space-around;font-size:20px;font-weight:bold;margin-top:8px">
+          <span style="color:#2563eb">P1: ${score1} ⭐</span>
+          <span style="color:#db2777">P2: ${score2} ⭐</span>
+        </div>
+      `;
+      document.getElementById('overModal').classList.remove('off');
+      try { KAMPAI.sound.gameOver(); KAMPAI.sound.bgmStop(); } catch (e) {}
+    }
+  } else {
+    if (!versusMode && wld.lives1 > 0) return;
+    gameRunning = false;
+    clearTimeout(versusTimer);
+    if (vs.finish(wld.score1, { correct: wld.correctCount1 })) return;
+    try { KAMPAI.sound.gameOver(); KAMPAI.sound.bgmStop(); } catch (e) {}
+    document.getElementById('finalScore').textContent = wld.score1;
+    document.getElementById('overModal').classList.remove('off');
+    KAMPAI.submitScore(wld.score1, { correct: wld.correctCount1, combo_max: wld.combo1 });
+  }
+}
+
+const vs = KampaiVersus.create({
+  duration: 90,
+  title: 'ตะลุยด่านสระพาสนุก',
+  rankBy: 'score',
+  onPlay: ({ rng, player: pInfo }) => startGame(rng, pInfo),
+  onEnd: () => { gameRunning = false; },
+});
+
+function renderLeaderboard() {
+  const lb = KAMPAI.leaderboard || [];
+  const stats = KAMPAI.stats;
+  const ms = document.getElementById('myStats');
+  if (stats && (stats.personalBest > 0 || stats.playsCount > 0)) {
+    ms.style.display = 'flex';
+    ms.innerHTML = '<div style="flex:1;background:rgba(255,255,255,.6);border-radius:12px;padding:8px"><div style="font-size:22px;font-weight:800;color:#f59e0b">' + (stats.personalBest || 0) + '</div><div style="font-size:12px;color:#64748b">สถิติสูงสุด</div></div><div style="flex:1;background:rgba(255,255,255,.6);border-radius:12px;padding:8px"><div style="font-size:22px;font-weight:800;color:#6366f1">' + (stats.playsCount || 0) + '</div><div style="font-size:12px;color:#64748b">ครั้งที่เล่น</div></div>';
+  }
+  const box = document.getElementById('startLb');
+  const list = document.getElementById('lbList');
+  if (!lb.length) { box.style.display = 'none'; return; }
+  box.style.display = 'block';
+  list.innerHTML = lb.slice(0, 5).map((row, i) => '<div class="lb-row' + (row.isMe ? ' me' : '') + '"><span>#' + (i + 1) + '</span><span style="flex:1">' + (row.displayName || row.name || '—') + '</span><span>' + row.score + '</span></div>').join('');
+}
+
+KAMPAI.onReady(() => {
+  try { KAMPAI.sound.mountToggles(); KAMPAI.controls.mount({ dpad: true }); } catch (e) {}
+  loadBunnySprites();
+  renderLeaderboard();
+});
+
+window.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'blueprintPreview' && e.data.blueprint) {
+    KAMPAI.blueprint = e.data.blueprint;
+  }
+});
+
+document.getElementById('btnStart').onclick = () => { localCoopMode = false; startGame(Math.random, null); };
+document.getElementById('btnVersus').onclick = () => { localCoopMode = false; vs.openMenu(); };
+document.getElementById('btnLocalCoop').onclick = () => { localCoopMode = true; startGame(Math.random, null); };
+document.getElementById('btnRetry').onclick = () => {
+  document.getElementById('overModal').classList.add('off');
+  startGame(Math.random, null);
+};
+document.getElementById('btnHome').onclick = () => { localCoopMode = false; KAMPAI.goHome(); };
+
+window.addEventListener('keydown', e => {
+  if (e.code === 'KeyA') keys1.left = true;
+  if (e.code === 'KeyD') keys1.right = true;
+  if (e.code === 'KeyW') { if (!e.repeat) keys1.jump = true; }
+  if (e.code === 'ArrowLeft') keys2.left = true;
+  if (e.code === 'ArrowRight') keys2.right = true;
+  if (e.code === 'ArrowUp' || e.code === 'Space') { if (!e.repeat) keys2.jump = true; }
+});
+window.addEventListener('keyup', e => {
+  if (e.code === 'KeyA') keys1.left = false;
+  if (e.code === 'KeyD') keys1.right = false;
+  if (e.code === 'KeyW') keys1.jump = false;
+  if (e.code === 'ArrowLeft') keys2.left = false;
+  if (e.code === 'ArrowRight') keys2.right = false;
+  if (e.code === 'ArrowUp' || e.code === 'Space') keys2.jump = false;
+});
+
+function bindTouch(btn, key, isJump) {
+  const down = e => { e.preventDefault(); if (isJump) keys1.jump = true; else keys1[key] = true; };
+  const up = e => { e.preventDefault(); if (isJump) keys1.jump = false; else keys1[key] = false; };
+  btn.addEventListener('touchstart', down, { passive: false });
+  btn.addEventListener('touchend', up);
+  btn.addEventListener('touchcancel', up);
+  btn.addEventListener('mousedown', down);
+  btn.addEventListener('mouseup', up);
+  btn.addEventListener('mouseleave', up);
+}
+bindTouch(document.getElementById('btnLeft'), 'left', false);
+bindTouch(document.getElementById('btnRight'), 'right', false);
+bindTouch(document.getElementById('btnJump'), null, true);
+
+window.addEventListener('resize', resize);
+resize();
+</script>
+</body>
+</html>

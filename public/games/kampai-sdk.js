@@ -39,6 +39,7 @@
     leaderboard: [],  // [{rank, studentId, displayName, photoUrl, classLabel, personalBest, isMe}]
     classmates: [],   // [{id, studentCode, displayName, photoUrl, classNumber}]
     gameData: null,   // per-game data จาก wrapper (เช่น multiply-race.mastery)
+    character: null,  // sprite sheet จากคลังหลังบ้าน {sheetUrl, sheetUrlP2, fw, fh, frames}
     input: { up: false, down: false, left: false, right: false, a: false, b: false },
     _slug: null,
     _startTs: Date.now(),
@@ -112,6 +113,247 @@
   };
   K.exit = K.goHome;
 
+  /** โหลด sprite sheet จาก K.character (คลังหลังบ้าน) — คืน { primary, secondary } */
+  var DEFAULT_CHAR_ANIM = {
+    preset: 'grid-3x6-18',
+    layout: 'grid',
+    cols: 6,
+    rows: 3,
+    idle: [12, 13, 14, 15, 16, 17],
+    walk: [12, 13, 14, 15, 16, 17],
+    run: [0, 1, 2, 3, 4, 5],
+    jump: [6, 7, 8, 9, 10, 11],
+    hurt: 12,
+    happy: 12,
+    runFaces: 'left',
+    anchorFoot: 0.94,
+    feetPad: 14,
+  };
+
+  /** ตำแหน่ง crop เฟรมบน sheet (รองรับ grid + horizontal) */
+  K.characterFrameRect = function (frameIndex, cfg) {
+    cfg = cfg || K.character || {};
+    var anim = cfg.anim || DEFAULT_CHAR_ANIM;
+    var fw = cfg.fw || 128;
+    var fh = cfg.fh || 128;
+    if (anim.layout === 'grid' && anim.cols) {
+      var col = frameIndex % anim.cols;
+      var row = Math.floor(frameIndex / anim.cols);
+      return { sx: col * fw, sy: row * fh, fw: fw, fh: fh };
+    }
+    return { sx: frameIndex * fw, sy: 0, fw: fw, fh: fh };
+  };
+
+  /** เลือก index เฟรมจากสถานะผู้เล่น + animation config (K.character.anim) */
+  K.pickCharacterFrame = function (p, opt) {
+    opt = opt || {};
+    var anim = opt.anim || (K.character && K.character.anim) || DEFAULT_CHAR_ANIM;
+    var runSpeed = opt.runSpeed != null ? opt.runSpeed : 4.5;
+    var animTime = p.animTime || 0;
+    var state = p.state || 'idle';
+
+    function fps(pose) {
+      if (anim.poseFps && anim.poseFps[pose] != null) return anim.poseFps[pose];
+      if (pose === 'walk') return anim.walkFps != null ? anim.walkFps : 5;
+      if (pose === 'run') return anim.runFps != null ? anim.runFps : 10;
+      if (pose === 'jump') return anim.jumpFps != null ? anim.jumpFps : 8;
+      return 4;
+    }
+    function getPose(pose) {
+      if (pose === 'idle') return anim.idle;
+      if (pose === 'walk') return anim.walk;
+      if (pose === 'run') return anim.run;
+      if (pose === 'jump') return anim.jump;
+      if (pose === 'hurt') return anim.hurt;
+      if (pose === 'happy') return anim.happy;
+      return anim.extras && anim.extras[pose] != null ? anim.extras[pose] : null;
+    }
+    function pick(frames, f, jumpOpt) {
+      if (frames == null) return null;
+      if (Array.isArray(frames)) {
+        if (!frames.length) return null;
+        if (frames.length === 1) return frames[0];
+        return frames[Math.floor(animTime * (f / 10)) % frames.length];
+      }
+      if (typeof frames === 'number') return frames;
+      var vy = jumpOpt && jumpOpt.vy != null ? jumpOpt.vy : 0;
+      if (vy < (jumpOpt && jumpOpt.vyJumpUp != null ? jumpOpt.vyJumpUp : -3.5)) return frames.up;
+      if (vy > (jumpOpt && jumpOpt.vyJumpFall != null ? jumpOpt.vyJumpFall : 2.5)) return frames.fall;
+      return frames.peak;
+    }
+
+    var PRIORITY = [
+      'death', 'hurt', 'happy', 'emote', 'special', 'spawn',
+      'attackHeavy', 'attack', 'block', 'dodge',
+      'slide', 'wallSlide', 'climb', 'crouch', 'crawl', 'sit', 'sleep',
+      'land', 'fall', 'jump',
+    ];
+    for (var i = 0; i < PRIORITY.length; i++) {
+      if (state !== PRIORITY[i]) continue;
+      var pf = pick(getPose(PRIORITY[i]), fps(PRIORITY[i]), { vy: p.vy, vyJumpUp: opt.vyJumpUp, vyJumpFall: opt.vyJumpFall });
+      if (pf != null) return pf;
+    }
+
+    if (!p.onGround || state === 'jump') {
+      var landF = pick(getPose('land'), fps('land'));
+      if (state === 'land' && landF != null) return landF;
+      var fallF = pick(getPose('fall'), fps('fall'));
+      if (p.onGround === false && p.vy > (opt.vyJumpFall != null ? opt.vyJumpFall : 2.5) && fallF != null) return fallF;
+      var jf = pick(getPose('jump'), fps('jump'), { vy: p.vy, vyJumpUp: opt.vyJumpUp, vyJumpFall: opt.vyJumpFall });
+      if (jf != null) return jf;
+    }
+    if (state === 'run' || Math.abs(p.vx || 0) > runSpeed * 0.55) {
+      var rf = pick(getPose('run'), fps('run'));
+      if (rf != null) return rf;
+    }
+    var facing = p.facing;
+    if (!facing && (Math.abs(p.vx || 0) > 0.15 || Math.abs(p.vy || 0) > 0.15)) {
+      var ax = Math.abs(p.vx || 0), ay = Math.abs(p.vy || 0);
+      if (ax >= ay) facing = (p.vx || 0) >= 0 ? 'right' : 'left';
+      else facing = (p.vy || 0) >= 0 ? 'down' : 'up';
+    }
+    if (facing && anim.directions && anim.directions[facing] && anim.directions[facing].length) {
+      var df = pick(anim.directions[facing], fps('walk'));
+      if (df != null && (Math.abs(p.vx || 0) > 0.15 || Math.abs(p.vy || 0) > 0.15 || state === 'walk' || state === 'run')) return df;
+    }
+    if (Math.abs(p.vx || 0) > 0.15) {
+      var wf = pick(getPose('walk'), fps('walk'));
+      if (wf != null) return wf;
+    }
+    var idf = pick(getPose('idle'), fps('idle'));
+    if (idf != null) return idf;
+    return 0;
+  };
+
+  /** แปลง state ผู้เล่น → ท่า สำหรับจุดเท้า */
+  K.poseKeyFromPlayerState = function (p, opt) {
+    opt = opt || {};
+    var runSpeed = opt.runSpeed != null ? opt.runSpeed : 4.5;
+    var state = p.state || 'idle';
+    var map = [
+      'death', 'hurt', 'happy', 'emote', 'special', 'spawn',
+      'attackHeavy', 'attack', 'block', 'dodge',
+      'slide', 'wallSlide', 'climb', 'crouch', 'crawl', 'sit', 'sleep',
+      'land', 'fall', 'jump',
+    ];
+    for (var i = 0; i < map.length; i++) {
+      if (state === map[i]) return map[i];
+    }
+    if (!p.onGround || state === 'jump') {
+      if (state === 'land') return 'land';
+      if (p.vy != null && p.vy > 2.5) return 'fall';
+      return 'jump';
+    }
+    if (state === 'run' || Math.abs(p.vx || 0) > runSpeed * 0.55) return 'run';
+    if (Math.abs(p.vx || 0) > 0.15) return 'walk';
+    return 'idle';
+  };
+
+  /** จุดเท้าแยกตามท่า — poseAnchors[pose] ก่อน แล้ว fallback global */
+  K.resolveFootAnchor = function (anim, pose) {
+    anim = anim || DEFAULT_CHAR_ANIM;
+    var globalFoot = anim.anchorFoot != null ? anim.anchorFoot : 0.94;
+    var globalPad = anim.feetPad != null ? anim.feetPad : 0;
+    var o = anim.poseAnchors && anim.poseAnchors[pose];
+    return {
+      anchorFoot: (o && o.anchorFoot != null) ? o.anchorFoot : globalFoot,
+      feetPad: (o && o.feetPad != null) ? o.feetPad : globalPad,
+    };
+  };
+
+  /** Recolor sprite — palette slots + luminance shading */
+  function _hexToRgb(hex) {
+    var h = String(hex || '').replace('#', '');
+    if (h.length === 3) h = h.split('').map(function (c) { return c + c; }).join('');
+    var n = parseInt(h, 16) || 0;
+    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+  }
+  function _pxLum(r, g, b) { return 0.299 * r + 0.587 * g + 0.114 * b; }
+  function _colorDist(r, g, b, tr, tg, tb) {
+    return Math.max(Math.abs(r - tr), Math.abs(g - tg), Math.abs(b - tb));
+  }
+  function _effectiveColorSlots(cfg, player) {
+    if (!cfg || !cfg.slots) return [];
+    if (player === 2 && cfg.slotsP2 && cfg.slotsP2.length) {
+      return cfg.slotsP2.filter(function (s) { return s.enabled !== false; });
+    }
+    return (cfg.slots || []).filter(function (s) { return s.enabled !== false; });
+  }
+  function _recolorRgb(r, g, b, slots) {
+    if (!slots.length) return [r, g, b];
+    var best = null, bestD = Infinity;
+    for (var i = 0; i < slots.length; i++) {
+      var s = slots[i];
+      if (s.enabled === false) continue;
+      var tol = s.tolerance != null ? s.tolerance : 18;
+      var d = _colorDist(r, g, b, s.source.r, s.source.g, s.source.b);
+      if (d <= tol && d < bestD) { bestD = d; best = s; }
+    }
+    if (!best) return [r, g, b];
+    var srcL = _pxLum(best.source.r, best.source.g, best.source.b) || 1;
+    var pxL = _pxLum(r, g, b);
+    var ratio = Math.max(0.35, Math.min(1.65, pxL / srcL));
+    var t = _hexToRgb(best.target);
+    return [
+      Math.max(0, Math.min(255, Math.round(t.r * ratio))),
+      Math.max(0, Math.min(255, Math.round(t.g * ratio))),
+      Math.max(0, Math.min(255, Math.round(t.b * ratio))),
+    ];
+  }
+  function _applyColorToCanvas(ctx, colorCfg, player) {
+    var slots = _effectiveColorSlots(colorCfg, player);
+    if (!slots.length) return;
+    var w = ctx.canvas.width, h = ctx.canvas.height;
+    var img = ctx.getImageData(0, 0, w, h), d = img.data;
+    for (var i = 0; i < d.length; i += 4) {
+      if (d[i + 3] < 8) continue;
+      var nr = _recolorRgb(d[i], d[i + 1], d[i + 2], slots);
+      d[i] = nr[0]; d[i + 1] = nr[1]; d[i + 2] = nr[2];
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+  function _loadRecoloredImg(src, colorCfg, player) {
+    return new Promise(function (resolve, reject) {
+      var img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = function () {
+        var slots = _effectiveColorSlots(colorCfg, player);
+        if (!slots.length) { resolve(img); return; }
+        var canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        var ctx = canvas.getContext('2d');
+        if (!ctx) { resolve(img); return; }
+        ctx.drawImage(img, 0, 0);
+        _applyColorToCanvas(ctx, colorCfg, player);
+        var out = new Image();
+        out.onload = function () { resolve(out); };
+        out.onerror = reject;
+        out.src = canvas.toDataURL('image/png');
+      };
+      img.onerror = reject;
+      img.src = src;
+    });
+  }
+
+  K.loadCharacterSheets = function () {
+    var c = K.character;
+    if (!c || !c.sheetUrl) return Promise.resolve({ primary: null, secondary: null });
+    var colorCfg = c.color || null;
+    var p1Slots = _effectiveColorSlots(colorCfg, 1);
+    var p2HasOwn = colorCfg && colorCfg.slotsP2 && colorCfg.slotsP2.length;
+    var p1 = p1Slots.length
+      ? _loadRecoloredImg(c.sheetUrl, colorCfg, 1)
+      : _loadRecoloredImg(c.sheetUrl, null, 1);
+    var p2 = c.sheetUrlP2
+      ? (p2HasOwn || c.sheetUrlP2 === c.sheetUrl || !p1Slots.length
+          ? _loadRecoloredImg(c.sheetUrlP2, colorCfg, p2HasOwn ? 2 : 1)
+          : _loadRecoloredImg(c.sheetUrlP2, null, 2))
+      : Promise.resolve(null);
+    return Promise.all([p1, p2]).then(function (r) { return { primary: r[0], secondary: r[1] }; })
+      .catch(function () { return { primary: null, secondary: null }; });
+  };
+
   // ─── ผลรอบเล่น (XP/เลเวล/เหรียญ) จาก wrapper → ฝังลงจอจบของเกม (จอเดียว ไม่มีการ์ดลอยซ้ำ) ──
   K.lastResult = null;
   K._onResult = null;
@@ -181,6 +423,12 @@
       if (Array.isArray(d.leaderboard)) K.leaderboard = d.leaderboard;
       if (Array.isArray(d.classmates)) K.classmates = d.classmates;
       if (d.gameData && typeof d.gameData === 'object') K.gameData = d.gameData;
+      if (d.blueprint && typeof d.blueprint === 'object') K.blueprint = d.blueprint;
+      else if (d.gameData && d.gameData.blueprint) K.blueprint = d.gameData.blueprint;
+      if (d.character && typeof d.character === 'object' && d.character.sheetUrl) {
+        K.character = d.character;
+        if (!K.character.anim) K.character.anim = DEFAULT_CHAR_ANIM;
+      }
       if (d.audio && K.sound) {   // เพลงรายเกมจากหลังบ้าน: mp3 อัปโหลด (ก่อน) > synth preset
         if (d.audio.bgmUrl) { _bgmFromInit = true; K.sound.setBgmUrl(d.audio.bgmUrl); }
         else if (d.audio.bgm) { _bgmFromInit = true; K.sound.setBgm(d.audio.bgm); }
@@ -354,9 +602,11 @@
   function _bgmTick() { if (!_bgmCfg || !_bgmEnsure()) return; var SPC = 8, chord = BGM_PROG[Math.floor(_bgmStep / SPC) % BGM_PROG.length], w = _bgmStep % SPC, t = _actx.currentTime; if (w === 0) _bgmNote(_bgmCfg.root * Math.pow(2, (chord[0] - 12) / 12), t, 0.55, 0.6, 'sine'); _bgmNote(_bgmCfg.root * Math.pow(2, chord[w % chord.length] / 12), t, 0.28, 0.4, _bgmCfg.wave); _bgmStep++; }
   function _ensureFx() { if (_fxEl && _fxEl.isConnected) return _fxEl; _fxEl = document.getElementById('kampai-fx'); if (!_fxEl && document.body) { _fxEl = document.createElement('div'); _fxEl.id = 'kampai-fx'; document.body.appendChild(_fxEl); } return _fxEl; }
   function _injectCss() { if (document.getElementById('kampai-sound-css')) return; var s = document.createElement('style'); s.id = 'kampai-sound-css'; s.textContent =
-    '#kampai-snd{position:fixed;top:10px;left:10px;z-index:40;display:flex;gap:8px}' +
-    '.ksnd{width:44px;height:44px;border:none;border-radius:50%;cursor:pointer;font-size:19px;line-height:1;background:rgba(15,23,42,.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);box-shadow:0 2px 8px rgba(0,0,0,.35);transition:opacity .15s,transform .1s;color:#fff;padding:0;font-family:inherit}' +
-    '#kbtn-voice{width:auto;min-width:64px;padding:0 12px;border-radius:22px;font-size:13px;font-weight:700;letter-spacing:.02em}' +
+    '#kampai-snd{position:fixed;top:auto;bottom:max(10px,env(safe-area-inset-bottom));right:max(10px,env(safe-area-inset-right));left:auto;z-index:40;display:flex;gap:6px;flex-wrap:nowrap;pointer-events:auto}' +
+    '.ksnd{width:40px;height:40px;border:none;border-radius:50%;cursor:pointer;font-size:17px;line-height:1;background:rgba(15,23,42,.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);box-shadow:0 2px 8px rgba(0,0,0,.35);transition:opacity .15s,transform .1s;color:#fff;padding:0;font-family:inherit}' +
+    '#kbtn-voice{width:auto;min-width:56px;padding:0 10px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:.02em}' +
+    '@media (pointer:coarse){.ksnd{width:36px;height:36px;font-size:15px}#kbtn-voice{min-width:48px;font-size:11px;padding:0 7px}}' +
+    '@media (pointer:coarse) and (orientation:landscape){#kampai-snd{bottom:max(8px,env(safe-area-inset-bottom));right:max(8px,env(safe-area-inset-right));gap:4px}.ksnd{width:32px;height:32px;font-size:13px}#kbtn-voice{min-width:40px;font-size:10px;padding:0 5px}}' +
     '.ksnd:active{transform:scale(.9)}.ksnd.off{opacity:.4}' +
     '#kampai-fx{position:fixed;inset:0;pointer-events:none;opacity:0;z-index:25;transition:opacity .12s ease}' +
     '#kampai-fx.good{opacity:1;background:radial-gradient(circle at 50% 60%,rgba(34,197,94,.28),transparent 65%)}' +

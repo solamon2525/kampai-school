@@ -1,0 +1,22 @@
+{
+  "model": "bunny-base derived · side chibi + hat",
+  "source": "bunny-base.png",
+  "frameWidth": 128,
+  "frameHeight": 128,
+  "frameCount": 12,
+  "frames": [
+    "idle",
+    "walk1",
+    "walk2",
+    "run1",
+    "run2",
+    "run3",
+    "run4",
+    "jumpUp",
+    "jumpPeak",
+    "jumpFall",
+    "hurt",
+    "happy"
+  ],
+  "regenerate": "node scripts/build-sara-run-from-base.mjs"
+}

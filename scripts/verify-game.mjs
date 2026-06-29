@@ -159,7 +159,15 @@ if (detectedSlug && detectedSlug !== 'placeholder-slug' && existsSync(migrations
     const slugNoDash = detectedSlug.replace(/-/g, '_');
     migrationFound = files.some((f) => {
         const lower = f.toLowerCase();
-        return lower.includes(detectedSlug.toLowerCase()) || lower.includes(slugNoDash.toLowerCase());
+        const filenameMatch = lower.includes(detectedSlug.toLowerCase()) || lower.includes(slugNoDash.toLowerCase());
+        if (filenameMatch) return true;
+        if (f.endsWith('075_track_all_legacy_games.sql')) {
+            try {
+                const content = readFileSync(join(migrationsDir, f), 'utf8');
+                return content.includes(detectedSlug);
+            } catch { return false; }
+        }
+        return false;
     });
 }
 if (!detectedSlug || detectedSlug === 'placeholder-slug') {
@@ -476,7 +484,12 @@ async function renderSmokeTest(html, gameDir) {
             } else if (isBabel) {
                 steps.push({ kind: 'babel', code: inner });
             } else if (inner.trim()) {
-                steps.push({ kind: 'eval', code: inner });
+                const isModule = /type=["']module["']/.test(attrs) || /\bimport\s+[^;]+;/.test(inner);
+                if (isModule) {
+                    steps.push({ kind: 'babel', code: inner });
+                } else {
+                    steps.push({ kind: 'eval', code: inner });
+                }
             }
         }
     } catch (e) {
@@ -499,8 +512,55 @@ async function renderSmokeTest(html, gameDir) {
     const noopGain = () => ({ connect() {}, gain: { setValueAtTime() {}, exponentialRampToValueAtTime() {}, linearRampToValueAtTime() {} } });
     const NoopAudio = function () { return { createOscillator: noopOsc, createGain: noopGain, destination: {}, currentTime: 0, state: 'running', resume() {}, close() { return Promise.resolve(); } }; };
     window.AudioContext = NoopAudio; window.webkitAudioContext = NoopAudio;
-    try { window.navigator.vibrate = () => {}; } catch { /* readonly */ }
-    try { window.HTMLCanvasElement.prototype.getContext = () => null; } catch { /* ignore */ }
+    const dummyProxy = new Proxy(function() {}, {
+        get: (target, prop) => {
+            if (prop === 'valueOf') {
+                return () => 0;
+            }
+            if (prop === 'toString' || prop === Symbol.toStringTag) {
+                return () => 'dummy';
+            }
+            if (prop === Symbol.toPrimitive) {
+                return (hint) => {
+                    if (hint === 'number') return 0;
+                    return 'dummy';
+                };
+            }
+            if (prop === 'domElement') {
+                return window.document.createElement('canvas');
+            }
+            if (prop === 'shadowMap') {
+                return {};
+            }
+            if (prop === 'WebGLRenderer') {
+                return function() {
+                    return dummyProxy;
+                };
+            }
+            if (prop === 'canvas') {
+                return {};
+            }
+            return dummyProxy;
+        },
+        construct: (target, args) => {
+            return dummyProxy;
+        },
+        apply: (target, thisArg, argumentsList) => {
+            return dummyProxy;
+        },
+        set: (target, prop, value) => {
+            return true;
+        }
+    });
+    try { window.HTMLCanvasElement.prototype.getContext = () => dummyProxy; } catch { /* ignore */ }
+    window.CanvasRenderingContext2D = function() {};
+    window.CanvasRenderingContext2D.prototype = dummyProxy;
+    window.require = () => dummyProxy;
+    window.THREE = dummyProxy;
+    window.firebase = dummyProxy;
+    window.__firebase_config = {};
+    window.Hands = dummyProxy;
+    window.Camera = dummyProxy;
 
     try {
         for (const step of steps) {

@@ -667,6 +667,7 @@
 </div>
 
 <script>
+  const GAME_SLUG = 'blockly';
   // Setup loading tracking
   const startTime = Date.now();
   let studentCode = '';
@@ -755,11 +756,15 @@
     }
   });
 
-  // Intercept exit/back click and dispatch custom message to parent (due to sandbox)
+  // Intercept exit/back click and dispatch custom message to parent or SDK
   document.getElementById('back-btn').addEventListener('click', (e) => {
     e.preventDefault();
     playSound('click');
-    window.parent.postMessage({ type: 'navigate', to: '/h/nattapong' }, '*');
+    if (window.KAMPAI) {
+      window.KAMPAI.goHome();
+    } else {
+      window.parent.postMessage({ type: 'navigate', to: '/h/nattapong' }, '*');
+    }
   });
 
   // Card toggle interaction
@@ -852,18 +857,16 @@
       toast.classList.remove('show');
     }, 4000);
     
-    // Dispatch gameEnd to parent app
+    // Dispatch gameEnd to parent app or SDK
     console.log("[Blockly] Dispatching gameEnd score:", score);
-    window.parent.postMessage({
-      type: 'gameEnd',
-      score: score,
-      mode: 'self-report',
-      metadata: {
+    if (window.KAMPAI) {
+      window.KAMPAI.submitScore(score, {
+        mode: 'self-report',
         duration: duration,
         completed_games: Array.from(checkedItems),
         completed_count: count
-      }
-    }, '*');
+      });
+    }
   });
 
   // Elegant client-side canvas confetti explosion

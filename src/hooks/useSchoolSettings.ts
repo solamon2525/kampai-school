@@ -117,6 +117,13 @@ export interface SchoolSettings {
 
     // หน้าเกียรติบัตร — วิวเริ่มต้นที่แอดมินตั้งให้ทุกคน ('auto' = ใช้ค่าเริ่มต้นเดิมของแต่ละหน้า)
     cert_default_view: string;
+
+    // โซน "เกมแนะนำ" หน้าแรก — แอดมินคุมการแสดงผล (GamesTab)
+    featured_games_rows: string;            // '1' | '2'
+    featured_games_mode: string;            // 'scroll' | 'marquee' | 'grid'
+    featured_games_marquee_speed: string;   // วินาที/รอบ (marquee)
+    featured_games_fade_duration: string;   // ms
+    featured_games_fade_stagger: string;    // ms
 }
 
 const defaultSettings: SchoolSettings = {
@@ -213,6 +220,13 @@ const defaultSettings: SchoolSettings = {
     ticker_gap_px: '60',
     ticker_pause_on_hover: 'true',
     cert_default_view: 'auto',
+
+    // โซน "เกมแนะนำ" หน้าแรก — ค่าเริ่มต้น = พฤติกรรมเดิม (เลื่อนเอง 1 แถว)
+    featured_games_rows: '1',
+    featured_games_mode: 'scroll',
+    featured_games_marquee_speed: '30',
+    featured_games_fade_duration: '400',
+    featured_games_fade_stagger: '80',
 };
 
 const CACHE_KEY = 'school_settings_cache';

@@ -272,8 +272,105 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.116.0 (หน้ารวมเกม — กริดวิดีโอ: การ์ดโชว์ปก 2 วิ แล้วเล่นเดโมเกม)',
+        version: 'v1.126.0 (แนวเกม game_play_style)',
         date: 'ล่าสุด',
+        badge: 'bg-violet-600',
+        items: [
+            '**แนวเกม 7 ประเภท** — แพลตฟอร์ม 2D · มองด้านบน · กระโดด · แข่งรถ · ยิง · พัสเซิล · 3D มายคราฟ',
+            'GamesTab กรองรายการตามแนวก่อนแสดง · ตั้งค่าเกม + อัปโหลดใหม่เลือกแนวได้',
+            'Character Studio แสดงเกมที่ผูกตัวละคร แยกตามแนว',
+        ],
+    },
+    {
+        version: 'v1.125.0 (scene preview จำลองเกม)',
+        date: '',
+        badge: 'bg-violet-600',
+        items: [
+            '**CharacterSheetScenePreview** — ตัวละครเดิน/วิ่ง/กระโดด/หยุดขอบใน canvas · ใช้ `pickCharacterFrameIndex` เหมือน runtime',
+            'Character Studio + อัปโหลดตัวละคร — แสดง scene P1/P2 · โชว์ท่า attack/happy ถ้า map แล้ว',
+        ],
+    },
+    {
+        version: 'v1.124.0 (pose catalog ครบ + studio sync)',
+        date: '',
+        badge: 'bg-violet-600',
+        items: [
+            '**Pose map 5 กลุ่ม** — attack/crouch/slide/special/death ฯลฯ ใน `animation_config.extras` · admin UI พับกลุ่ม',
+            '`KAMPAI.pickCharacterFrame` รองรับ state ครบ · preview ทุกท่าใน Character Studio',
+            'Fix PoseMapper โหลด config ที่บันทึกแล้ว · game_docs v1.5.0',
+        ],
+    },
+    {
+        version: 'v1.123.0 (ตัดพื้นหลัง sprite ตัวละคร)',
+        date: '',
+        badge: 'bg-violet-600',
+        items: [
+            '**ตัดพื้นหลังอัตโนมัติ** ในคลังตัวละคร — flood fill จากขอบ · preview checkerboard · ปรับความไว',
+            '`src/lib/sprite-background.ts` + `pnpm process:sprite-bg` สำหรับ bundled assets',
+            'thai-sara-run bunny sheets → PNG โปร่งใส',
+        ],
+    },
+    {
+        version: 'v1.122.0 (คลังตัวละคร — animation config)',
+        date: '',
+        badge: 'bg-violet-600',
+        items: [
+            '**animation_config** (migration 265) — preset platformer-12: idle/walk/run/jump/hurt/happy · denormalize ลงเกม',
+            'Admin: preview animation (idle/walk/run/jump) · auto-detect ขนาดเฟรมจาก PNG · `KAMPAI.pickCharacterFrame`',
+            'thai-sara-run v1.2.0 · `CharacterSheetPreview` component',
+        ],
+    },
+    {
+        version: 'v1.121.0 (คลัง Sprite Sheet ตัวละคร)',
+        date: '',
+        badge: 'bg-violet-600',
+        items: [
+            '**คลังตัวละคร** (`game_character_sheets`) — admin อัปโหลด PNG sprite sheet (P1 + P2 co-op) · เลือกใช้รายเกมใน GameSettings',
+            'PlayGame ส่ง `init.character` → `KAMPAI.character` + `loadCharacterSheets()` · pilot: `thai-sara-run` fallback bundled git',
+            'Migration 263/264 · `characterSheetsService` · ปุ่ม 🐰 คลังตัวละคร ใน GamesTab',
+        ],
+    },
+    {
+        version: 'v1.120.0 (Math Tank Raid + คืน Tank Commander)',
+        date: '',
+        badge: 'bg-blue-600',
+        items: [
+            'เกม **Math Tank Raid** (`math-tank-raid`) — รถถังคณิต ป.3-4 คู่·หาร·เศษส่วน (เกมใหม่ แยกต่างหาก)',
+            'คืน **Tank Commander** (`tank-commander`) — วิทยาการคำนวณ ม.1-3 เวอร์ชันเดิม · ทั้งสองเกมเผยแพร่พร้อมกัน (migration 254)',
+        ],
+    },
+    {
+        version: 'v1.119.0 (เกมใหม่ — ตะลุยด่านสระพาสนุก ป.1-6)',
+        date: '',
+        badge: 'bg-pink-600',
+        items: [
+            'เกม **ตะลุยด่านสระพาสนุก** (`thai-sara-run`) — HTML5 Canvas platformer สอนสระไทย ป.1-6: กระต่ายกระโดด 2 ชั้น · ลูกโป่งคำตอบเจลลี่ · คอมโบ · KampaiVersus 90s',
+            'ไฟล์: `public/games/thai/thai-sara-run.html` + ปก `thai-sara-run-cover.png` · Migration 251 seed + `game_docs`',
+        ],
+    },
+    {
+        version: 'v1.118.0 (คลังเกม — ปักหมุดเรียงลำดับจากหน้าฟронต์)',
+        date: '',
+        badge: 'bg-teal-600',
+        items: [
+            'หมวด **คลังเกมการศึกษา** (`/h/:identifier`): แอดมินปักหมุดเกม 📌 บนการ์ดโดยตรง — มีผล**ทุกเครื่อง** (คนละส่วนกับ ⭐ เกมโปรด localStorage และ 🎮 หน้าแรก)',
+            'เกมที่ปักหมุดเรียงตาม `library_pin_order` (ลากจัดลำดับได้) · เกมที่ไม่ปักหมุดเรียง **ใหม่ล่าสุดก่อน** (`created_at desc`) · หมวดเกมไม่สน toolbar sort',
+            'Migration 249: `library_pinned` + `library_pin_order` บน `educational_hub_items` · UI: `GamesCategorySection` + ปุ่ม 📌 ใน `EduHubItemCard` · service: `sortGamesLibraryItems` / `toggleLibraryPin`',
+        ],
+    },
+    {
+        version: 'v1.117.0 (หน้าแรก — โซน "เกมแนะนำ" ปรับการแสดงผลได้จากหลังบ้าน)',
+        date: '',
+        badge: 'bg-amber-600',
+        items: [
+            'โซน "🎮 เกมแนะนำ" หน้าแรก: แอดมินคุมการแสดงผลได้จาก **GamesTab** (educational-hub) — ขยาย **1 หรือ 2 แถว** + เลือก **3 โหมด**: เลื่อนเอง (snap, เดิม) / **เลื่อนอัตโนมัติ ขวา→ซ้าย (โชว์เคส marquee)** / กริดนิ่ง',
+            'ปกเกม **เฟดเข้าทีละใบ (stagger)** — ตั้งเวลาเฟด (duration) + ความหน่วงระหว่างใบได้ · โหมด marquee ตั้งความเร็วเลื่อน (วินาที/รอบ) + หยุดเมื่อชี้/แตะ',
+            'ใช้ตาราง `school_settings` (key-value) — ไม่มี migration/แก้ schema · reuse keyframe `news-ticker-rtl` เดิม · ค่าเริ่มต้น = พฤติกรรมเดิม (scroll/1 แถว) ของเก่าไม่กระทบ',
+        ],
+    },
+    {
+        version: 'v1.116.0 (หน้ารวมเกม — กริดวิดีโอ: การ์ดโชว์ปก 2 วิ แล้วเล่นเดโมเกม)',
+        date: '',
         badge: 'bg-teal-600',
         items: [
             '🎬 **กริดวิดีโอหน้ารวมเกม**: การ์ดเกมโชว์รูปปกก่อน → เข้าจอครบ ~2 วิ แล้ว **เล่นคลิปเดโมอัตโนมัติ** (มิวต์ วน) fade ทับปก — คอมโพเนนต์ `GameDemoPreview` ใช้ใน `EduHubItemCard` (ทุก grid หน้ารวมเกม) + **โซน "เกมแนะนำ" หน้าแรก** (carousel + ป๊อปอัป FeaturedGameDialog)',

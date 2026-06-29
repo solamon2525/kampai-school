@@ -1,7 +1,7 @@
 /* config.js — พารามิเตอร์เกม (แก้ค่าตรงนี้ที่เดียว ไม่ต้องแตะ game.js)
    ⚠️ เปลี่ยน SLUG เป็น slug จริง (ตรงกับ educational_hub_items.game_slug) ก่อนใช้งาน */
 window.GAME_CONFIG = {
-  SLUG: 'placeholder-slug',   // ⚠️ TODO: ใส่ slug จริง
+  SLUG: '_template-folder',   // ⚠️ TODO: ใส่ slug จริง
   BGM: 'cheerful',            // เพลงพื้นหลัง: cheerful/calm/warm/playful/bright/mellow
 
   // ── การเล่น ──

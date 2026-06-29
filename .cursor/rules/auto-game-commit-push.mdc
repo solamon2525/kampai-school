@@ -1,0 +1,28 @@
+---
+description: Auto commit and push after game edits
+globs: public/games/**
+alwaysApply: false
+---
+
+# Auto Publish Game Changes
+
+- เมื่อแก้ไฟล์เกมใน `public/games/**` เสร็จแล้ว ให้ `git add` เฉพาะไฟล์ที่เกี่ยวข้องกับงานนั้น
+- จากนั้นให้ `git commit` และ `git push` ทันที โดยไม่ต้องถามยืนยันเพิ่ม
+- ใช้ข้อความ commit แบบ Conventional Commits ตามสไตล์ repo (`feat(games): ...` หรือ `fix(games): ...`)
+- ห้ามรวมไฟล์ที่ไม่เกี่ยวข้องกับงานเกมนั้นใน commit เดียวกัน
+- ถ้ามีความเสี่ยงสูง (เช่น ลบไฟล์จำนวนมาก/เปลี่ยนหลายระบบไม่เกี่ยวกัน) ให้หยุดและถามผู้ใช้ก่อน
+
+## Game Cover Policy (Strict)
+
+- ปกเกมต้องใช้ workflow ตาม `GAME.md` และ `public/COVER-PROMPT.md`
+- เครื่องมือสร้างปกให้ใช้สายงาน Canva AI (generate-design/edit/export)
+- ส่งออกปกเป็น `PNG` เท่านั้น ขนาด `1280x720` (16:9)
+- ห้ามใช้ไฟล์ปกแบบ `SVG` สำหรับเกมใหม่หรือการอัปเดตปก
+- เมื่ออัปเดตปก ต้องอัปเดต `thumbnail_url` ให้ชี้ `.png` และรัน `pnpm verify:game <path>`
+
+### Fit-to-scale (บังคับ — ห้ามตัดข้อความ/ตัวละคร)
+
+- ปกต้อง **fit-to-scale (contain)** — มองเห็นชื่อเกมและองค์ประกอบสำคัญ **ครบทั้งภาพ** ไม่ถูกขอบรูปตัด
+- การ์ดเกมใช้ `aspect-video` + `object-contain` → ออกแบบ/ส่งออกให้เนื้อหาอยู่ใน **safe area** (เว้นขอบ ~5–8% รอบภาพ) โดยเฉพาะตัวอักษรไทย
+- หลัง generate ถ้าต้องปรับขนาด → ใช้ **`fit: contain`** (letterbox/pad พื้นหลัง) — **ห้าม `fit: cover`** ที่ครอปตัดข้อความหรือหัวตัวละคร
+- ตรวจด้วยตาก่อน ship: ชื่อเกม/ป้ายวิชาอ่านได้เต็ม ไม่โดนตัดมุมซ้าย-ขวา-บน-ล่าง

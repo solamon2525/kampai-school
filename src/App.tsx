@@ -66,6 +66,7 @@ const TrainingShowcasePublic = lazyWithRetry(() => import("./pages/TrainingShowc
 const EducationalHub = lazyWithRetry(() => import("./pages/EducationalHub"));
 const EducationalHubTeacher = lazyWithRetry(() => import("./pages/EducationalHubTeacher"));
 const PlayGame = lazyWithRetry(() => import("./pages/PlayGame"));
+const GameDashboard = lazyWithRetry(() => import("./pages/GameDashboard"));
 const EnglishQuest = lazyWithRetry(() => import("./pages/EnglishQuest"));
 const StudentHeroPublic = lazyWithRetry(() => import("./pages/StudentHeroPublic"));
 
@@ -78,8 +79,11 @@ const TeacherRewardsApproval = lazyWithRetry(() => import("./pages/teacher/Teach
 const TeacherEduHubManager = lazyWithRetry(() => import("./pages/teacher/TeacherEduHubManager"));
 const TeacherCctv = lazyWithRetry(() => import("./pages/teacher/TeacherCctv"));
 const TeacherMultiplyRaceDashboard = lazyWithRetry(() => import("./pages/teacher/TeacherMultiplyRaceDashboard"));
+const TeacherMasteryHeatmap = lazyWithRetry(() => import("./pages/teacher/TeacherMasteryHeatmap"));
 const ParentDashboard = lazyWithRetry(() => import("./pages/parent/ParentDashboard"));
 const ParentChildView = lazyWithRetry(() => import("./pages/parent/ParentChildView"));
+const ParentMastery = lazyWithRetry(() => import("./pages/parent/ParentMastery"));
+const MyLearning = lazyWithRetry(() => import("./pages/student/MyLearning"));
 const PdpaSelfView = lazyWithRetry(() => import("./components/parent/PdpaSelfView").then(m => ({ default: m.PdpaSelfView })));
 const ChatPage = lazyWithRetry(() => import("./components/chat/ChatPage").then(m => ({ default: m.ChatPage })));
 const Donate = lazyWithRetry(() => import("./pages/Donate"));
@@ -185,6 +189,9 @@ const App = () => (
             {/* Short URL alias — /h/<username|uuid> */}
             <Route path="/h/:identifier" element={<EducationalHubTeacher />} />
             <Route path="/play/:gameSlug" element={<PlayGame />} />
+            <Route path="/play/:gameSlug/dashboard" element={<GameDashboard />} />
+            {/* Student Self-Dashboard — เข้าด้วย student_code (public) */}
+            <Route path="/my" element={<MyLearning />} />
             <Route path="/english-quest" element={<EnglishQuest />} />
             <Route path="/hero" element={<StudentHeroPublic />} />
             <Route path="/hero/:studentId" element={<StudentHeroPublic />} />
@@ -217,6 +224,9 @@ const App = () => (
             <Route path="/teacher/games/multiply-race" element={
               <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherMultiplyRaceDashboard /></PortalProtectedRoute>
             } />
+            <Route path="/teacher/mastery" element={
+              <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherMasteryHeatmap /></PortalProtectedRoute>
+            } />
             <Route path="/teacher/chat" element={
               <PortalProtectedRoute allow={['teacher', 'admin']}><ChatPage /></PortalProtectedRoute>
             } />
@@ -245,6 +255,9 @@ const App = () => (
             } />
             <Route path="/parent/savings-bank" element={
               <PortalProtectedRoute allow={['parent', 'admin']}><ParentChildView view="savings-bank" /></PortalProtectedRoute>
+            } />
+            <Route path="/parent/mastery" element={
+              <PortalProtectedRoute allow={['parent', 'admin']}><ParentMastery /></PortalProtectedRoute>
             } />
             <Route path="/parent/privacy" element={
               <PortalProtectedRoute allow={['parent', 'admin']}><PdpaSelfView /></PortalProtectedRoute>

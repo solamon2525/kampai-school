@@ -33,6 +33,7 @@
 ├─ สร้างจากศูนย์ (แนะนำ)   → cp -r _template-folder    (โครงสร้าง 5 ไฟล์ + online — ดู §"📁 โครงสร้างโฟลเดอร์")
 ├─ แข่ง 2 คน (เดี่ยว+local+online) ⭐ → cp _template-versus.html (kampai-versus: เมนูโหมด + hot-seat + online — มาตรฐานใหม่)
 ├─ เกมเล็ก/ไฟล์เดียว        → cp _template-full.html    (single-file + leaderboard + sound)
+├─ รองรับแนวตั้ง+แนวนอน ⭐   → cp -r _template-orient     (kampai-orient.js + HUD/menu responsive — อ่าน ORIENT-GAME.md)
 ├─ เล่นหลายคนออนไลน์อย่างเดียว → cp _template-online.html (kampai-match: lobby+แข่งสด+อันดับ)
 ├─ ไม่อยาก leaderboard      → cp _template.html         (basic version)
 ├─ เกมเป็น React component   → cp _template-react.html   (JSX/lucide-react → single-file)
@@ -59,9 +60,8 @@
 | **เสียง** | `KAMPAI.sound.defaultBgm(preset)` + `mountToggles()` ตอนเริ่ม · `correct()/wrong()/timeUp()/gameOver()` ตามเหตุการณ์ · `speak(word,lang)` สำหรับ**เกมภาษา** (TTS) |
 | **มือถือ** | `controls.mount()` หรือ tap · responsive ~360px **ไม่ล้นแนวนอน** · ปุ่ม ≥44px |
 
-⚠️ gotcha: ปุ่มเสียง `#kampai-snd` (จาก `mountToggles`) อยู่ **มุมบนซ้าย z-index 40** — ถ้า HUD เกมก็อยู่ซ้ายบน
-จะทับกัน → override ตำแหน่ง เช่น `#kampai-snd{ top:auto !important; bottom:14px !important; left:12px !important }`
-(ตัวอย่าง `english/vocab-move.html` ย้ายปุ่มเสียงลงล่างซ้าย)
+⚠️ gotcha: ปุ่มเสียง `#kampai-snd` (จาก `mountToggles`) อยู่ **มุมล่างขวา z-index 40** (SDK default) — วาง HUD/ปุ่มเกม
+ไม่ให้ทับมุมล่าง · dpad SDK อยู่ **ซ้ายล่าง**. เกม landscape/runner → ใช้ `_template-orient` + อ่าน `ORIENT-GAME.md`
 
 ---
 
@@ -98,6 +98,8 @@
 | `game.js` | **ลอจิก** อ่านจาก config/data + SDK/leaderboard/sound | แก้กลไกเกม |
 | `cover.{png,svg}` | ปก 16:9 | — |
 
+**เทมเพลตแนวจอ:** `cp -r public/games/_template-orient` — เพิ่ม `kampai-orient.js` + `ORIENTATION` ใน config (ดู `ORIENT-GAME.md`)
+
 **กฎ:**
 - โหลดด้วย **plain `<script src>` เรียงลำดับ** (`config → data → game`) — **ห้าม `import/export`** (แชร์ global
   scope; verifier + เบราว์เซอร์ eval ตามลำดับ). ค่าส่งผ่าน global: `window.GAME_CONFIG`/`window.GAME_DATA`
@@ -130,12 +132,17 @@
 | `KAMPAI.submitScore(score,{mode,...meta})` | ส่งคะแนนตอนจบเกม (= gameEnd เดิม) — **ต้องเรียก** |
 | `KAMPAI.goHome()` | ปุ่มกลับหน้าหลัก (= navigate เดิม) |
 | `KAMPAI.controls.mount({dpad,buttons,onTap})` | วาด D-pad+ปุ่มบนมือถือ + sync คีย์บอร์ด → อ่าน `KAMPAI.input{up,down,left,right,a,b}` |
-| `KAMPAI.sound.mountToggles()` | วางปุ่ม 🔊/🗣️/🎵 (เปิด/ปิด SFX·TTS·BGM) มุมบนซ้าย — เรียกตอนเริ่ม |
+| `KAMPAI.sound.mountToggles()` | วางปุ่ม 🔊/🗣️/🎵 (เปิด/ปิด SFX·TTS·BGM) มุมล่างขวา — เรียกตอนเริ่ม |
 | `KAMPAI.sound.defaultBgm('preset')` | ตั้งเพลงพื้นหลังเริ่มต้น (cheerful/calm/warm/playful/bright/mellow) ถ้าหลังบ้านไม่กำหนด |
 | `KAMPAI.sound.bgmStart()` / `bgmStop()` | เริ่ม/หยุดเพลง (เรียกตอน startGame / endGame) |
 | `KAMPAI.sound.correct()` / `wrong()` / `timeUp()` / `gameOver()` | เสียงเอฟเฟกต์ตามเหตุการณ์ |
 | `KAMPAI.sound.speak(text, lang)` | TTS อ่านออกเสียง (เกมภาษา เช่น `speak('apple','en-US')`) · `stopSpeak()` หยุด |
 | `KAMPAI.sound.fxFlash(good)` | แฟลชจอเขียว(ถูก)/แดง(ผิด) · `unlock()` ปลดล็อก audio ตอน gesture แรก |
+| `KAMPAI.character` | `{sheetUrl, sheetUrlP2, fw, fh, frames, anim}` จากหลังบ้าน — `null` = ใช้ sprite bundled ใน git |
+| `KAMPAI.loadCharacterSheets()` | Promise โหลด Image P1 (+ P2 ถ้ามี) จาก `KAMPAI.character` — เกม opt-in เรียกก่อนเริ่ม |
+| `KAMPAI.pickCharacterFrame(p, opt?)` | เลือก index เฟรมจาก `p.state/vx/vy/animTime` + `anim`/`anim.extras` · รองรับ attack/crouch/slide/special ฯลฯ |
+| `KAMPAI.poseKeyFromPlayerState(p, opt?)` | แปลง state → ท่า (จุดเท้า preview) |
+| `KAMPAI.resolveFootAnchor(anim, pose)` | จุดเท้าแยกตามท่า — `anim.poseAnchors[pose]` หรือ default |
 | `KAMPAI.online.available` | `true` ถ้าเล่นใน embed (standalone เล่นออนไลน์ไม่ได้) |
 | `KAMPAI.online.makeCode()` | สุ่มรหัสห้อง 4 หลัก |
 | `KAMPAI.online.join(room,{onJoined,onPresence,onEvent})` | เข้าห้อง realtime — wrapper เปิด Supabase channel ให้ (เกมไม่ต้องมี anon key). meta presence ดึงจาก `KAMPAI.student` อัตโนมัติ |
@@ -257,9 +264,20 @@ if (others.length) rival.dist = others.sort((a,b)=>b.v-a.v)[0].v;   // v = ต�
 ```js
 { type:'init', studentCode, student:{id,displayName,photoUrl,classLabel},
   stats:{playsCount,personalBest,totalXp,level},
-  leaderboard:[{rank,studentId,displayName,photoUrl,classLabel,personalBest,isMe}] }
+  leaderboard:[{rank,studentId,displayName,photoUrl,classLabel,personalBest,isMe}],
+  audio:{ bgm, bgmUrl },          // เพลงจากหลังบ้าน (optional)
+  character:{ sheetUrl, sheetUrlP2, fw, fh, frames, anim } | null  // sprite จากคลังตัวละคร (optional)
+}
 ```
-> เกมเก่าที่อ่านแค่ `studentCode` ยังทำงานได้ (additive). เทมเพลต: `_template-full.html` (vanilla),
+> เกมเก่าที่อ่านแค่ `studentCode` ยังทำงานได้ (additive). ถ้า `character === null` → ใช้ sprite bundled ใน git ตามเดิม.
+> เกมที่ opt-in: อ่าน `KAMPAI.character` ใน `onReady` หรือเรียก `KAMPAI.loadCharacterSheets()` + `KAMPAI.pickCharacterFrame(player)`.
+> **คลังตัวละคร admin:** อัปโหลดแล้ว **ตัดพื้นหลังอัตโนมัติ** (flood fill จากขอบ → PNG โปร่งใส) · ปรับความไวได้ · bundled git ใช้ `pnpm process:sprite-bg`
+> `anim` = mapping เฟรม core `{ idle[], walk[], run[], jump, hurt, happy }` + ท่าเสริมใน `extras` (optional).
+> **Pose catalog (5 กลุ่ม):** เคลื่อนที่ · ต่อสู้ (attack/block/dodge) · ท่าทาง (crouch/sit/…) · แพลตฟอร์ม (slide/climb/fall) · พิเศษ (special/emote/death).
+> เกมเรียกท่าด้วย `player.state` — ตัวอย่าง `'attack'`, `'crouch'`, `'slide'`, `'special'`. ท่าที่ยังไม่ map → fallback idle/walk/run/jump อัตโนมัติ.
+> `KAMPAI.pickCharacterFrame(p, { runSpeed })` · `KAMPAI.poseKeyFromPlayerState(p)` · `KAMPAI.resolveFootAnchor(anim, pose)`.
+> Admin: **Character Studio** — map ท่าแยกกลุ่ม · Auto fit ขนาดเฟรม · palette สี · จุดเท้าแยกตามท่า (poseAnchors) · **Scene preview** จำลองเดิน/วิ่ง/กระโดดบนพื้น.
+> **แนวเกม (`game_play_style`)** — กรองรายการใน GamesTab: `platformer-2d` · `top-down` · `jump` · `racing` · `shooter` · `puzzle` · `sandbox-3d` — ตั้งใน「ตั้งค่าเกม」หรือตอนอัปโหลดใหม่.
 > `_template-react.html` (React) — ทั้งคู่ใช้ SDK + โชว์ leaderboard ในเกม + D-pad มือถือ.
 
 ---

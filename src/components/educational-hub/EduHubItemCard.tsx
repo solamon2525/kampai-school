@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
     FileText, ExternalLink, Play, Type, Download, Eye, Star, PlayCircle, Maximize2,
-    GripVertical, Gamepad2,
+    GripVertical, Gamepad2, Pin, Loader2,
 } from 'lucide-react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -33,6 +33,11 @@ interface Props {
     onToggleFavorite?: () => void;
     /** Admin-only — shows a drag handle and registers with parent SortableContext */
     editable?: boolean;
+    /** ปักหมุดคลังเกม (global) */
+    libraryPinned?: boolean;
+    showLibraryPinControl?: boolean;
+    onToggleLibraryPin?: () => void;
+    libraryPinLoading?: boolean;
 }
 
 export const EduHubItemCard = ({
@@ -41,6 +46,10 @@ export const EduHubItemCard = ({
     isFavorite = false,
     onToggleFavorite,
     editable = false,
+    libraryPinned = false,
+    showLibraryPinControl = false,
+    onToggleLibraryPin,
+    libraryPinLoading = false,
 }: Props) => {
     // Redefine item with backward compatibility mapping
     const item = originalItem.game_slug === 'multiply-rally' || originalItem.external_url?.includes('/multiply-rally/')
@@ -104,6 +113,11 @@ export const EduHubItemCard = ({
         onToggleFavorite?.();
     };
 
+    const handleLibraryPinClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        onToggleLibraryPin?.();
+    };
+
     const handleEmbedClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         trackView();
@@ -153,6 +167,10 @@ export const EduHubItemCard = ({
                         isFavorite={isFavorite}
                         onToggleFavorite={onToggleFavorite ? handleFavoriteClick : undefined}
                         onEmbed={item.item_type === 'link' ? handleEmbedClick : undefined}
+                        libraryPinned={libraryPinned}
+                        showLibraryPinControl={showLibraryPinControl}
+                        onToggleLibraryPin={onToggleLibraryPin ? handleLibraryPinClick : undefined}
+                        libraryPinLoading={libraryPinLoading}
                         compact
                     />
                 </Card>
@@ -205,6 +223,28 @@ export const EduHubItemCard = ({
                             <Maximize2 className="h-3.5 w-3.5 text-foreground" />
                         </button>
                     )}
+                    {showLibraryPinControl && onToggleLibraryPin && (
+                        <button
+                            type="button"
+                            onClick={handleLibraryPinClick}
+                            disabled={libraryPinLoading}
+                            className="h-7 w-7 rounded-full bg-background/90 backdrop-blur flex items-center justify-center shadow-sm hover:bg-background hover:scale-110 transition-transform disabled:opacity-60"
+                            aria-label={libraryPinned ? 'ปลดหมุดคลัง' : 'ปักหมุดคลัง'}
+                            aria-pressed={libraryPinned}
+                            title={libraryPinned ? 'ปักหมุดคลัง (มีผลทุกเครื่อง)' : 'ปักหมุดคลัง (มีผลทุกเครื่อง)'}
+                        >
+                            {libraryPinLoading ? (
+                                <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+                            ) : (
+                                <Pin
+                                    className={cn(
+                                        'h-3.5 w-3.5 transition-colors',
+                                        libraryPinned ? 'fill-primary text-primary' : 'text-muted-foreground',
+                                    )}
+                                />
+                            )}
+                        </button>
+                    )}
                     {onToggleFavorite && (
                         <button
                             type="button"
@@ -255,6 +295,12 @@ export const EduHubItemCard = ({
                                 <Badge variant="secondary" className="gap-1 text-[10px]">
                                     <Gamepad2 className="h-3 w-3" />
                                     เก็บคะแนน
+                                </Badge>
+                            )}
+                            {libraryPinned && (
+                                <Badge variant="outline" className="gap-1 text-[10px] border-primary/40 text-primary">
+                                    <Pin className="h-3 w-3" />
+                                    ปักหมุด
                                 </Badge>
                             )}
                             {item.grade_levels?.slice(0, 2).map((g) => (
@@ -313,12 +359,20 @@ const CardActions = ({
     isFavorite,
     onToggleFavorite,
     onEmbed,
+    libraryPinned = false,
+    showLibraryPinControl = false,
+    onToggleLibraryPin,
+    libraryPinLoading = false,
     compact,
 }: {
     item: EduHubItem;
     isFavorite: boolean;
     onToggleFavorite?: (e: React.MouseEvent) => void;
     onEmbed?: (e: React.MouseEvent) => void;
+    libraryPinned?: boolean;
+    showLibraryPinControl?: boolean;
+    onToggleLibraryPin?: (e: React.MouseEvent) => void;
+    libraryPinLoading?: boolean;
     compact?: boolean;
 }) => (
     <div className="flex items-center gap-1 shrink-0">
@@ -331,6 +385,28 @@ const CardActions = ({
                 title="เล่นในหน้านี้"
             >
                 <PlayCircle className="h-4 w-4" />
+            </Button>
+        )}
+        {showLibraryPinControl && onToggleLibraryPin && (
+            <Button
+                size="icon"
+                variant="ghost"
+                onClick={onToggleLibraryPin}
+                disabled={libraryPinLoading}
+                className={compact ? 'h-7 w-7' : 'h-8 w-8'}
+                title={libraryPinned ? 'ปลดหมุดคลัง' : 'ปักหมุดคลัง'}
+                aria-pressed={libraryPinned}
+            >
+                {libraryPinLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                    <Pin
+                        className={cn(
+                            'h-4 w-4',
+                            libraryPinned ? 'fill-primary text-primary' : 'text-muted-foreground',
+                        )}
+                    />
+                )}
             </Button>
         )}
         {onToggleFavorite && (

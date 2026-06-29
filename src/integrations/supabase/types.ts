@@ -2054,6 +2054,13 @@ export type Database = {
           bgm_url: string | null
           body_html: string | null
           category_id: string
+          character_frame_count: number | null
+          character_animation_config: Json | null
+          character_frame_h: number | null
+          character_frame_w: number | null
+          character_sheet_id: string | null
+          character_sheet_url: string | null
+          character_sheet_url_p2: string | null
           created_at: string
           description: string | null
           download_count: number
@@ -2064,10 +2071,14 @@ export type Database = {
           file_url: string | null
           game_slug: string | null
           grade_levels: string[]
+          homepage_featured: boolean
           id: string
           is_published: boolean
           item_type: Database["public"]["Enums"]["edu_hub_item_type"]
+          library_pin_order: number
+          library_pinned: boolean
           owner_staff_id: string
+          preview_video_url: string | null
           quest_min_score: number | null
           sort_order: number
           subject: string | null
@@ -2084,6 +2095,13 @@ export type Database = {
           bgm_url?: string | null
           body_html?: string | null
           category_id: string
+          character_frame_count?: number | null
+          character_animation_config?: Json | null
+          character_frame_h?: number | null
+          character_frame_w?: number | null
+          character_sheet_id?: string | null
+          character_sheet_url?: string | null
+          character_sheet_url_p2?: string | null
           created_at?: string
           description?: string | null
           download_count?: number
@@ -2094,10 +2112,14 @@ export type Database = {
           file_url?: string | null
           game_slug?: string | null
           grade_levels?: string[]
+          homepage_featured?: boolean
           id?: string
           is_published?: boolean
           item_type: Database["public"]["Enums"]["edu_hub_item_type"]
+          library_pin_order?: number
+          library_pinned?: boolean
           owner_staff_id: string
+          preview_video_url?: string | null
           quest_min_score?: number | null
           sort_order?: number
           subject?: string | null
@@ -2114,6 +2136,13 @@ export type Database = {
           bgm_url?: string | null
           body_html?: string | null
           category_id?: string
+          character_frame_count?: number | null
+          character_animation_config?: Json | null
+          character_frame_h?: number | null
+          character_frame_w?: number | null
+          character_sheet_id?: string | null
+          character_sheet_url?: string | null
+          character_sheet_url_p2?: string | null
           created_at?: string
           description?: string | null
           download_count?: number
@@ -2124,10 +2153,14 @@ export type Database = {
           file_url?: string | null
           game_slug?: string | null
           grade_levels?: string[]
+          homepage_featured?: boolean
           id?: string
           is_published?: boolean
           item_type?: Database["public"]["Enums"]["edu_hub_item_type"]
+          library_pin_order?: number
+          library_pinned?: boolean
           owner_staff_id?: string
+          preview_video_url?: string | null
           quest_min_score?: number | null
           sort_order?: number
           subject?: string | null
@@ -2145,6 +2178,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "educational_hub_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "educational_hub_items_character_sheet_id_fkey"
+            columns: ["character_sheet_id"]
+            isOneToOne: false
+            referencedRelation: "game_character_sheets"
             referencedColumns: ["id"]
           },
           {
@@ -2585,6 +2625,60 @@ export type Database = {
           tier?: string
           title_th?: string
           xp_bonus?: number
+        }
+        Relationships: []
+      }
+      game_character_sheets: {
+        Row: {
+          animation_config: Json | null
+          created_at: string
+          created_by: string | null
+          frame_count: number
+          frame_height: number
+          frame_width: number
+          id: string
+          notes: string | null
+          preview_url: string | null
+          sheet_url: string
+          sheet_url_p2: string | null
+          slug: string | null
+          storage_path: string
+          storage_path_p2: string | null
+          title: string
+        }
+        Insert: {
+          animation_config?: Json | null
+          created_at?: string
+          created_by?: string | null
+          frame_count?: number
+          frame_height?: number
+          frame_width?: number
+          id?: string
+          notes?: string | null
+          preview_url?: string | null
+          sheet_url: string
+          sheet_url_p2?: string | null
+          slug?: string | null
+          storage_path: string
+          storage_path_p2?: string | null
+          title: string
+        }
+        Update: {
+          animation_config?: Json | null
+          created_at?: string
+          created_by?: string | null
+          frame_count?: number
+          frame_height?: number
+          frame_width?: number
+          id?: string
+          notes?: string | null
+          preview_url?: string | null
+          sheet_url?: string
+          sheet_url_p2?: string | null
+          slug?: string | null
+          storage_path?: string
+          storage_path_p2?: string | null
+          title?: string
         }
         Relationships: []
       }

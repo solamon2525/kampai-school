@@ -14,6 +14,7 @@ import {
   Maximize,
   Minimize,
   X,
+  Smartphone,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -31,6 +32,9 @@ import {
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { parseCharacterAnimationConfig, resolveCharacterAnimation } from '@/lib/character-animation';
+import { parseCharacterColorConfig } from '@/lib/character-color';
+import { parsePlatformerBlueprint } from '@/lib/game-blueprint';
 import { supabase } from '@/integrations/supabase/client';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
@@ -62,6 +66,23 @@ const ICON = (name: string | null | undefined) =>
 // ─── Page state ──────────────────────────────────────────────────────────────
 type Phase = 'lookup' | 'confirm' | 'pre-game' | 'playing';
 
+/** ตรวจ landscape จาก top window — innerWidth/height ก่อน (สลับจริงเมื่อหมุน) */
+function getParentLandscape(): boolean {
+  const vv = window.visualViewport;
+  const w = vv?.width ?? window.innerWidth;
+  const h = vv?.height ?? window.innerHeight;
+  if (w > h) return true;
+  if (h > w * 1.05) return false;
+  try {
+    const t = screen.orientation?.type ?? '';
+    if (t.startsWith('landscape')) return true;
+    if (t.startsWith('portrait')) return false;
+  } catch { /* */ }
+  if (window.matchMedia?.('(orientation: landscape)')?.matches) return true;
+  if (window.matchMedia?.('(orientation: portrait)')?.matches) return false;
+  return w > h;
+}
+
 // ============================================================================
 const PlayGame = () => {
   const { gameSlug: originalSlug = '' } = useParams<{ gameSlug: string }>();
@@ -81,6 +102,11 @@ const PlayGame = () => {
   const [showExitMenu, setShowExitMenu] = useState(false);
   const [showReward, setShowReward] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [deviceLandscape, setDeviceLandscape] = useState(() =>
+    typeof window !== 'undefined' ? getParentLandscape() : false,
+  );
+  const [gameSessionStarted, setGameSessionStarted] = useState(false);
 
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const gameContainerRef = useRef<HTMLDivElement | null>(null);
@@ -103,6 +129,10 @@ const PlayGame = () => {
     return () => document.removeEventListener('fullscreenchange', onFsChange);
   }, []);
 
+  useEffect(() => {
+    setIsTouchDevice(window.matchMedia('(pointer: coarse)').matches);
+  }, []);
+
   // game metadata
   const gameQuery = useQuery({
     queryKey: ['tracked-game', gameSlug],
@@ -115,6 +145,9 @@ const PlayGame = () => {
   });
 
   const resolvedSlug = gameQuery.data?.game_slug || gameSlug;
+
+  const isMathRunnerMobilePlay =
+    phase === 'playing' && resolvedSlug === 'math-runner' && isTouchDevice;
 
   // per-student stats (loaded once we have a student)
   const statsQuery = useQuery({
@@ -251,13 +284,115 @@ const PlayGame = () => {
     setResult(null);
     setShowReward(false);
     sessionSubmittedRef.current = false;
+    setGameSessionStarted(false);
     setPhase('playing');
   }, [levelInfo, questQuery.data]);
+
+  const postParentViewport = useCallback(() => {
+    if (!iframeRef.current?.contentWindow || resolvedSlug !== 'math-runner') return;
+    const landscape = getParentLandscape();
+    setDeviceLandscape(landscape);
+    const vv = window.visualViewport;
+    iframeRef.current.contentWindow.postMessage(
+      {
+        type: 'parentViewport',
+        width: vv?.width ?? window.innerWidth,
+        height: vv?.height ?? window.innerHeight,
+        screenW: window.screen.width,
+        screenH: window.screen.height,
+        landscape,
+        parentHandlesOrientation: true,
+        orientation: screen.orientation?.type ?? null,
+      },
+      '*',
+    );
+  }, [resolvedSlug]);
+
+  useEffect(() => {
+    const onRequest = (e: MessageEvent) => {
+      if (e.data?.type !== 'requestParentViewport') return;
+      const cw = iframeRef.current?.contentWindow;
+      if (cw && e.source !== cw) return;
+      postParentViewport();
+    };
+    window.addEventListener('message', onRequest);
+    return () => window.removeEventListener('message', onRequest);
+  }, [postParentViewport]);
+
+  useEffect(() => {
+    if (phase !== 'playing' || resolvedSlug !== 'math-runner') return;
+    const isTouch = window.matchMedia?.('(pointer: coarse)')?.matches;
+    if (isTouch) {
+      requestAnimationFrame(() => {
+        gameContainerRef.current?.requestFullscreen?.().catch(() => {});
+      });
+    }
+  }, [phase, resolvedSlug]);
+
+  useEffect(() => {
+    if (phase !== 'playing' || resolvedSlug !== 'math-runner') return;
+    const push = () => {
+      postParentViewport();
+      setTimeout(postParentViewport, 120);
+      setTimeout(postParentViewport, 400);
+    };
+    push();
+    window.addEventListener('resize', push);
+    window.addEventListener('orientationchange', push);
+    document.addEventListener('fullscreenchange', push);
+    let mq: MediaQueryList | null = null;
+    try {
+      mq = window.matchMedia('(orientation: landscape)');
+      (mq.addEventListener ? mq.addEventListener('change', push) : mq.addListener(push));
+    } catch { /* */ }
+    try {
+      screen.orientation?.addEventListener?.('change', push);
+    } catch { /* */ }
+    const iv = window.setInterval(postParentViewport, 800);
+    return () => {
+      window.removeEventListener('resize', push);
+      window.removeEventListener('orientationchange', push);
+      document.removeEventListener('fullscreenchange', push);
+      if (mq) (mq.removeEventListener ? mq.removeEventListener('change', push) : mq.removeListener(push));
+      try { screen.orientation?.removeEventListener?.('change', push); } catch { /* */ }
+      window.clearInterval(iv);
+    };
+  }, [phase, resolvedSlug, postParentViewport]);
+
+  // math-runner มือถือ: ล็อก scroll ทั้งหน้า + sync landscape ตั้งแต่ pre-playing
+  useEffect(() => {
+    if (!isMathRunnerMobilePlay) return;
+    const sync = () => setDeviceLandscape(getParentLandscape());
+    sync();
+    window.addEventListener('resize', sync);
+    window.addEventListener('orientationchange', sync);
+    let mq: MediaQueryList | null = null;
+    try {
+      mq = window.matchMedia('(orientation: landscape)');
+      (mq.addEventListener ? mq.addEventListener('change', sync) : mq.addListener(sync));
+    } catch { /* */ }
+    try { screen.orientation?.addEventListener?.('change', sync); } catch { /* */ }
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('resize', sync);
+      window.removeEventListener('orientationchange', sync);
+      if (mq) (mq.removeEventListener ? mq.removeEventListener('change', sync) : mq.removeListener(sync));
+      try { screen.orientation?.removeEventListener?.('change', sync); } catch { /* */ }
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [isMathRunnerMobilePlay]);
 
   // ─── send init to iframe once loaded ───────────────────────────────────────
   // ส่งทั้ง studentCode (เดิม — เกมเก่าใช้ได้) + student/stats/leaderboard (ใหม่ — KAMPAI SDK
   // เอาไปโชว์ชื่อ/คะแนน/อันดับในหน้าเกม โดยไม่ต้องยิง Supabase เอง)
   const handleIframeLoad = useCallback(() => {
+    setGameSessionStarted(false);
+    if (resolvedSlug === 'math-runner') {
+      requestAnimationFrame(() => postParentViewport());
+      setTimeout(postParentViewport, 100);
+      setTimeout(postParentViewport, 500);
+    }
     if (!student || !iframeRef.current?.contentWindow) return;
     // เกม (re)load — รวมกรณีกดปุ่ม "🔄 เล่นอีกครั้ง" ในเกม (location.reload) → เริ่มรอบใหม่สะอาด
     setShowReward(false);
@@ -299,6 +434,24 @@ const PlayGame = () => {
         // เพลงประกอบรายเกม (ตั้งจากหลังบ้าน) → KAMPAI.sound override default ของเกม
         // bgmUrl (mp3 อัปโหลด) มาก่อน synth preset
         audio: { bgm: gameQuery.data?.bgm_preset ?? null, bgmUrl: gameQuery.data?.bgm_url ?? null },
+        character: gameQuery.data?.character_sheet_url
+          ? {
+              sheetUrl: gameQuery.data.character_sheet_url,
+              sheetUrlP2: gameQuery.data.character_sheet_url_p2 ?? null,
+              fw: gameQuery.data.character_frame_w ?? 128,
+              fh: gameQuery.data.character_frame_h ?? 128,
+              frames: gameQuery.data.character_frame_count ?? 12,
+              anim: resolveCharacterAnimation(
+                parseCharacterAnimationConfig(
+                  (gameQuery.data as { character_animation_config?: unknown }).character_animation_config,
+                ),
+                gameQuery.data.character_frame_count,
+              ),
+              color: parseCharacterColorConfig(
+                (gameQuery.data as { character_color_config?: unknown }).character_color_config,
+              ),
+            }
+          : null,
         // Phase 2/3: per-game data (เกมตัดสินใจใช้หรือไม่)
         gameData: gameSlug === 'multiply-race' ? {
           mastery: masteryQuery.data ?? [],
@@ -307,10 +460,13 @@ const PlayGame = () => {
             leaderboard: dailyLeaderboardQuery.data ?? [],
           },
         } : undefined,
+        blueprint: parsePlatformerBlueprint(
+          (gameQuery.data as { blueprint_json?: unknown } | undefined)?.blueprint_json,
+        ) ?? undefined,
       },
       '*',
     );
-  }, [student, codeInput, statsQuery.data, levelInfo.level, leaderboardQuery.data, classmatesQuery.data, gameQuery.data?.bgm_preset, gameQuery.data?.bgm_url, resolvedSlug, masteryQuery.data, dailyStatusQuery.data, dailyLeaderboardQuery.data]);
+  }, [student, codeInput, statsQuery.data, levelInfo.level, leaderboardQuery.data, classmatesQuery.data, gameQuery.data?.bgm_preset, gameQuery.data?.bgm_url, gameQuery.data?.character_sheet_url, gameQuery.data?.character_sheet_url_p2, gameQuery.data?.character_frame_w, gameQuery.data?.character_frame_h, gameQuery.data?.character_frame_count, (gameQuery.data as { character_color_config?: unknown } | undefined)?.character_color_config, (gameQuery.data as { blueprint_json?: unknown } | undefined)?.blueprint_json, resolvedSlug, masteryQuery.data, dailyStatusQuery.data, dailyLeaderboardQuery.data, postParentViewport]);
 
   // ─── auto-login จาก localStorage (ลดเวลากรอกรหัสเมื่อเปลี่ยนเกม) ────────
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -347,11 +503,22 @@ const PlayGame = () => {
         setShowReward(false);
         sessionSubmittedRef.current = false;
         inlineResultRef.current = false;
+        setGameSessionStarted(true);
+        if (resolvedSlug === 'math-runner' && window.matchMedia?.('(pointer: coarse)')?.matches) {
+          requestAnimationFrame(() => {
+            gameContainerRef.current?.requestFullscreen?.().catch(() => {});
+            try {
+              void screen.orientation?.lock?.('landscape');
+            } catch { /* iOS/PWA อาจไม่รองรับ */ }
+            postParentViewport();
+          });
+        }
         return;
       }
       if (data?.type === 'resultShown') { inlineResultRef.current = true; return; }
       if (data?.type !== 'gameEnd') return;
       if (sessionSubmittedRef.current) return;
+      setGameSessionStarted(false);
       sessionSubmittedRef.current = true;
 
       if (!student || typeof data.score !== 'number') {
@@ -453,7 +620,7 @@ const PlayGame = () => {
     };
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
-  }, [phase, student, codeInput, resolvedSlug, toast, statsQuery, unlockedQuery, leaderboardQuery, queryClient]);
+  }, [phase, student, codeInput, resolvedSlug, toast, statsQuery, unlockedQuery, leaderboardQuery, queryClient, postParentViewport]);
 
   // ─── โหมด 2 คน (Versus) — บันทึก 2 session + ส่ง head-to-head/แชมป์ห้องกลับเข้าเกม ──
   useEffect(() => {
@@ -602,6 +769,7 @@ const PlayGame = () => {
     setShowReward(false);
     setPrevLevel(levelInfo);
     sessionSubmittedRef.current = false;
+    setGameSessionStarted(false);
     setPhase('pre-game');
   }, [levelInfo]);
 
@@ -640,7 +808,14 @@ const PlayGame = () => {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background p-6">
         <Gamepad2 className="h-12 w-12 text-muted-foreground" />
-        <p className="text-lg text-muted-foreground">ไม่พบเกมนี้ในระบบติดตาม</p>
+        <p className="text-lg text-muted-foreground">
+          {gameQuery.isError ? 'โหลดข้อมูลเกมไม่สำเร็จ — ลอง refresh' : 'ไม่พบเกมนี้ในระบบติดตาม'}
+        </p>
+        {gameQuery.isError && (
+          <p className="text-xs text-muted-foreground max-w-md text-center">
+            {(gameQuery.error as Error)?.message ?? 'query error'}
+          </p>
+        )}
         <Button asChild variant="outline">
           <Link to="/h/nattapong">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -652,8 +827,38 @@ const PlayGame = () => {
   }
 
   return (
-    <div className={cn('bg-background', phase === 'playing' ? 'flex h-[100dvh] flex-col overflow-hidden' : 'min-h-screen')}>
-      {/* header */}
+    <div
+      className={cn(
+        'bg-background',
+        isMathRunnerMobilePlay
+          ? 'fixed inset-0 z-50 flex flex-col overflow-hidden'
+          : phase === 'playing'
+            ? 'flex h-[100dvh] flex-col overflow-hidden'
+            : 'min-h-screen',
+      )}
+    >
+      {/* math-runner มือถือ แนวตั้ง: overlay เฉพาะตอนเล่นจริง (จอเมนูเกมกดได้) */}
+      {isMathRunnerMobilePlay && !deviceLandscape && gameSessionStarted && (
+        <div
+          className="fixed inset-0 z-[10001] flex flex-col items-center justify-center bg-foreground px-6 text-center text-background"
+          aria-live="polite"
+        >
+          <Smartphone className="mb-4 h-16 w-16 animate-pulse text-primary" aria-hidden />
+          <p className="text-xl font-bold">
+            กรุณาหมุนเครื่องเป็น <span className="text-primary">แนวนอน</span>
+          </p>
+          <p className="mt-2 text-sm text-background/70">Math Runner เล่นได้เฉพาะแนวนอนเท่านั้น</p>
+          <p className="mt-6 rounded-xl bg-background/10 px-4 py-2 text-sm font-semibold text-background/80">
+            หมุนมือถือแล้วเกมจะเริ่มได้ทันที
+          </p>
+          <p className="mt-3 max-w-xs text-xs text-background/60">
+            หมุนแล้วไม่เปลี่ยน? เปิดจาก Safari/Chrome โดยตรง (ไม่ใช่ไอคอนหน้าจอ) หรือกดปุ่มเต็มจอ ↗
+          </p>
+        </div>
+      )}
+
+      {/* header — math-runner ซ่อนตอนเล่นเพื่อให้ iframe ได้พื้นที่แนวนอนเต็มที่ */}
+      {!(phase === 'playing' && resolvedSlug === 'math-runner') && (
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 p-4">
           <div className="flex items-center gap-3">
@@ -682,6 +887,7 @@ const PlayGame = () => {
           </div>
         </div>
       </header>
+      )}
 
       <main className={cn('mx-auto w-full', phase === 'playing' ? 'min-h-0 flex-1 max-w-none p-0' : 'max-w-5xl p-4 sm:p-6')}>
         {phase === 'lookup' && (
@@ -722,8 +928,36 @@ const PlayGame = () => {
         )}
 
         {phase === 'playing' && iframeUrl && (
-          <div ref={gameContainerRef} className="relative h-full bg-background flex flex-col">
-            {/* Toolbar แถบบาง — กินพื้นที่ของตัวเอง ไม่ overlay บน iframe */}
+          <div
+            ref={gameContainerRef}
+            className={cn(
+              'relative flex flex-col bg-background',
+              isMathRunnerMobilePlay ? 'h-full min-h-0 flex-1' : 'h-full',
+            )}
+          >
+            {/* Toolbar — math-runner มือถือแนวนอน: ปุ่มลอย ไม่กินแนวตั้ง */}
+            {isMathRunnerMobilePlay && deviceLandscape ? (
+              <div className="pointer-events-none absolute inset-x-0 top-0 z-20 flex justify-end gap-2 p-2">
+                <button
+                  type="button"
+                  onClick={toggleFullscreen}
+                  className="pointer-events-auto rounded-full bg-foreground/70 p-2 text-background backdrop-blur-sm transition-colors hover:bg-foreground/85"
+                  title={isFullscreen ? 'ออกจากเต็มจอ' : 'เต็มจอ'}
+                  aria-label={isFullscreen ? 'ออกจากเต็มจอ' : 'เต็มจอ'}
+                >
+                  {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowExitMenu(true)}
+                  className="pointer-events-auto rounded-full bg-foreground/70 p-2 text-background backdrop-blur-sm transition-colors hover:bg-foreground/85"
+                  title="เมนู / ออกจากเกม"
+                  aria-label="เมนู / ออกจากเกม"
+                >
+                  <Menu className="h-4 w-4" />
+                </button>
+              </div>
+            ) : !isMathRunnerMobilePlay ? (
             <div className="shrink-0 flex items-center justify-end gap-2 px-2 py-1.5 bg-black/60 backdrop-blur-sm border-b border-white/10">
               <button
                 onClick={toggleFullscreen}
@@ -742,8 +976,9 @@ const PlayGame = () => {
                 <Menu className="h-4 w-4" />
               </button>
             </div>
-            {/* iframe กินพื้นที่ที่เหลือ */}
-            <div className="flex-1 min-h-0 relative">
+            ) : null}
+            {/* iframe กินพื้นที่ที่เหลือ — math-runner แนวนอน = เต็มจอ */}
+            <div className="relative min-h-0 flex-1">
               <PlayingPanel iframeRef={iframeRef} url={iframeUrl} onLoad={handleIframeLoad} />
             </div>
 

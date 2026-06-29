@@ -22,7 +22,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink, Plus, RefreshCw, AlertTriangle, Loader2, Trash2, RotateCcw, Settings, Code2, ChevronDown, Copy, Check, Download, Image as ImageIcon, ClipboardList, Target, Sparkles, Pin } from 'lucide-react';
+import { ExternalLink, Plus, RefreshCw, AlertTriangle, Loader2, Trash2, RotateCcw, Settings, Code2, ChevronDown, Copy, Check, Download, Image as ImageIcon, ClipboardList, Target, Sparkles, Pin, Pencil, ArrowLeft, CopyPlus, LayoutGrid } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -52,16 +52,51 @@ import { supabase } from '@/integrations/supabase/client';
 import {
     educationalHubService,
     bgmTracksService,
+    characterSheetsService,
+    characterAssignmentFromSheet,
     type EduHubItem,
     type BgmTrack,
+    type CharacterSheet,
 } from '@/services/educational-hub.service';
+import { CharacterSheetPreview } from './CharacterSheetPreview';
+import { CharacterSheetScenePreview } from './CharacterSheetScenePreview';
+import { CharacterSheetStudio } from './CharacterSheetStudio';
+import { CharacterCreationWizard } from './CharacterCreationWizard';
+import { CharacterTemplatePicker } from './CharacterTemplatePicker';
+import { GameBlueprintEditor } from './GameBlueprintEditor';
+import { supportsBlueprintEditor, blueprintPreviewEngineUrl } from '@/lib/game-blueprint';
+import {
+    isCharacterSupportedGame,
+    parseCharacterAnimationConfig,
+    validateAnimationConfig,
+    getCharacterAnimPreset,
+    type CharacterAnimationConfig,
+} from '@/lib/character-animation';
+import { parseCharacterColorConfig, type CharacterColorConfig } from '@/lib/character-color';
+import { inferPlayStyleFromAnim, type CharacterStudioTemplate } from '@/lib/character-templates';
+import {
+    GAME_PLAY_STYLE_OPTIONS,
+    GAME_PLAY_STYLE_KEYS,
+    type GamePlayStyleFilter,
+    countGamesByPlayStyle,
+    filterGamesByPlayStyle,
+    gamePlayStyleLabel,
+    gamePlayStyleSupportsCharacter,
+    isGamePlayStyleKey,
+} from '@/lib/game-play-style';
+import {
+    processSpriteSheetFile,
+    SPRITE_CHECKERBOARD_STYLE,
+} from '@/lib/sprite-background';
 import { gamePlayService } from '@/services/game-play.service';
 import { GameDocsDialog } from './GameDocsDialog';
 import { GameCoverAiDialog } from './GameCoverAiDialog';
 import { GameIndicatorsDialog } from './GameIndicatorsDialog';
+import { FeaturedGamesDisplaySettings } from './FeaturedGamesDisplaySettings';
 import { IndicatorPromptDialog } from './IndicatorPromptDialog';
 import { IndicatorCoverageDialog } from './IndicatorCoverageDialog';
 import { curriculumService } from '@/services/curriculum.service';
+import { GameIndicatorBatchMapper } from '@/components/admin/curriculum/GameIndicatorBatchMapper';
 
 /** preset เพลงสังเคราะห์ (ตรงกับ BGM_PRESETS ใน kampai-sdk.js) */
 const BGM_PRESETS: { key: string; label: string }[] = [
@@ -437,6 +472,9 @@ export const GamesTab = () => {
         | { mode: 'prompt' }
         | { mode: 'coverage' }
         | { mode: 'bgm' }
+        | { mode: 'characters' }
+        | { mode: 'batch-map' }
+        | { mode: 'blueprint'; item: EduHubItem }
         | null
     >(null);
     // ตัวชี้วัดที่เลือกจาก IndicatorPromptDialog → auto-map เข้าเกมใหม่หลังอัปโหลด
@@ -446,6 +484,7 @@ export const GamesTab = () => {
         | { type: 'reset'; item: EduHubItem }
         | null
     >(null);
+    const [styleFilter, setStyleFilter] = useState<GamePlayStyleFilter>('__all__');
 
     const handleConfirm = async () => {
         if (!confirmAction) return;
@@ -551,6 +590,16 @@ export const GamesTab = () => {
         return map;
     }, [teachers]);
 
+    const styleCounts = useMemo(
+        () => countGamesByPlayStyle(items ?? []),
+        [items],
+    );
+
+    const filteredItems = useMemo(
+        () => filterGamesByPlayStyle(items ?? [], styleFilter),
+        [items, styleFilter],
+    );
+
     const handleSaved = async (newItemId?: string) => {
         // auto-map ตัวชี้วัดที่เลือกไว้ (จาก IndicatorPromptDialog) เข้ากับเกมใหม่
         if (newItemId && pendingIndicatorIds.length > 0) {
@@ -587,8 +636,14 @@ export const GamesTab = () => {
                     <Button variant="outline" onClick={() => setDialog({ mode: 'coverage' })}>
                         📊 ความครอบคลุมตัวชี้วัด
                     </Button>
+                    <Button variant="outline" onClick={() => setDialog({ mode: 'batch-map' })}>
+                        🔗 จับคู่เกม↔ตัวชี้วัด
+                    </Button>
                     <Button variant="outline" onClick={() => setDialog({ mode: 'bgm' })}>
                         🎵 คลังเพลง
+                    </Button>
+                    <Button variant="outline" onClick={() => setDialog({ mode: 'characters' })}>
+                        🐰 คลังตัวละคร
                     </Button>
                     <Button onClick={() => setDialog({ mode: 'create' })} disabled={!gamesCategoryId}>
                         <Plus className="h-4 w-4 mr-1" /> อัพโหลดเกมใหม่
@@ -601,6 +656,7 @@ export const GamesTab = () => {
                 pendingCount={pendingIndicatorIds.length}
             />
             <CoverStandardKit />
+            <FeaturedGamesDisplaySettings />
             <DeveloperCheatsheet />
 
             {isLoading ? (
@@ -617,21 +673,71 @@ export const GamesTab = () => {
             ) : (
                 <Card>
                     <CardContent className="p-0">
+                        <div className="border-b border-border px-4 py-3 space-y-2">
+                            <p className="text-xs font-medium text-muted-foreground">แนวเกม — เลือกก่อนดูรายการ</p>
+                            <div className="flex flex-wrap gap-1.5">
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    variant={styleFilter === '__all__' ? 'default' : 'outline'}
+                                    className="h-8 text-xs"
+                                    onClick={() => setStyleFilter('__all__')}
+                                >
+                                    ทั้งหมด ({styleCounts.__all__})
+                                </Button>
+                                {GAME_PLAY_STYLE_OPTIONS.map((o) => (
+                                    <Button
+                                        key={o.key}
+                                        type="button"
+                                        size="sm"
+                                        variant={styleFilter === o.key ? 'default' : 'outline'}
+                                        className="h-8 text-xs"
+                                        onClick={() => setStyleFilter(o.key)}
+                                    >
+                                        {o.emoji} {o.shortLabel} ({styleCounts[o.key] ?? 0})
+                                    </Button>
+                                ))}
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    variant={styleFilter === '__unset__' ? 'default' : 'outline'}
+                                    className="h-8 text-xs"
+                                    onClick={() => setStyleFilter('__unset__')}
+                                >
+                                    ยังไม่ระบุ ({styleCounts.__unset__})
+                                </Button>
+                            </div>
+                            {styleFilter !== '__all__' && (
+                                <p className="text-[10px] text-muted-foreground">
+                                    แสดง {filteredItems.length} จาก {items!.length} เกม
+                                    {styleFilter !== '__unset__' && isGamePlayStyleKey(styleFilter)
+                                        ? ` · ${GAME_PLAY_STYLE_OPTIONS.find((o) => o.key === styleFilter)?.description}`
+                                        : ''}
+                                </p>
+                            )}
+                        </div>
                         <div className="overflow-x-auto">
                             <table className="w-full">
                                 <thead className="border-b border-border bg-muted/30">
                                     <tr>
                                         <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">ปก</th>
                                         <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">ชื่อเกม</th>
-                                        <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">ประเภท</th>
-                                        <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">หมวด</th>
+                                        <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">ที่เก็บ</th>
+                                        <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">แนวเกม</th>
+                                        <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">หมวดวิชา</th>
                                         <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">เจ้าของ</th>
                                         <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">URL</th>
                                         <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground">การจัดการ</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {items!.map((item) => {
+                                    {filteredItems.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={7} className="px-4 py-10 text-center text-sm text-muted-foreground">
+                                                ไม่มีเกมในแนวนี้ — ลองเลือก「ทั้งหมด」หรือตั้งแนวเกมใน「ตั้งค่า」
+                                            </td>
+                                        </tr>
+                                    ) : filteredItems.map((item) => {
                                         const { subject, slug } = getGameDisplayInfo(item.external_url);
                                         const storage = isStorageGame(item.external_url);
                                         const owner = teacherById.get(item.owner_staff_id);
@@ -672,6 +778,11 @@ export const GamesTab = () => {
                                                             Git
                                                         </Badge>
                                                     )}
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    <Badge variant="outline" className="text-[10px] whitespace-nowrap">
+                                                        {gamePlayStyleLabel(item.game_play_style)}
+                                                    </Badge>
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     <Badge variant="outline" className="text-[10px]">
@@ -719,6 +830,16 @@ export const GamesTab = () => {
                                                         >
                                                             <Settings className="h-3 w-3 mr-1" /> ตั้งค่า
                                                         </Button>
+                                                        {supportsBlueprintEditor(item) && (
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                className="text-emerald-700 border-emerald-200 hover:bg-emerald-50"
+                                                                onClick={() => setDialog({ mode: 'blueprint', item })}
+                                                            >
+                                                                <LayoutGrid className="h-3 w-3 mr-1" /> ออกแบบด่าน
+                                                            </Button>
+                                                        )}
                                                         <Button
                                                             variant="outline"
                                                             size="sm"
@@ -784,7 +905,8 @@ export const GamesTab = () => {
 
             <Dialog open={!!dialog} onOpenChange={(open) => !open && setDialog(null)}>
                 <DialogContent className={cn(
-                    (dialog?.mode === 'settings' || dialog?.mode === 'bgm') ? 'max-w-md' : 'max-w-2xl',
+                    dialog?.mode === 'blueprint' ? 'max-w-5xl' :
+                    (dialog?.mode === 'characters') ? 'max-w-4xl' : (dialog?.mode === 'settings' || dialog?.mode === 'bgm') ? 'max-w-md' : 'max-w-2xl',
                     'overflow-y-auto max-h-[90vh]',
                 )}>
                     {dialog?.mode === 'create' && gamesCategoryId && (
@@ -839,8 +961,40 @@ export const GamesTab = () => {
                     {dialog?.mode === 'coverage' && (
                         <IndicatorCoverageDialog onClose={() => setDialog(null)} />
                     )}
+                    {dialog?.mode === 'batch-map' && (
+                        <GameIndicatorBatchMapper
+                            open
+                            onClose={() => setDialog(null)}
+                        />
+                    )}
                     {dialog?.mode === 'bgm' && (
                         <BgmLibraryDialog onClose={() => setDialog(null)} />
+                    )}
+                    {dialog?.mode === 'characters' && (
+                        <CharacterLibraryDialog onClose={() => setDialog(null)} />
+                    )}
+                    {dialog?.mode === 'blueprint' && (
+                        <>
+                            <DialogHeader>
+                                <DialogTitle>ออกแบบด่าน — {dialog.item.title}</DialogTitle>
+                                <DialogDescription>
+                                    ลาก platform · คลิกวาง spawn/ดาว · บันทึกแล้วเกมโหลดด่านจาก blueprint อัตโนมัติ
+                                </DialogDescription>
+                            </DialogHeader>
+                            <GameBlueprintEditor
+                                itemId={dialog.item.id}
+                                itemTitle={dialog.item.title}
+                                blueprintId={dialog.item.blueprint_id}
+                                initialBlueprint={dialog.item.blueprint_json}
+                                previewEngineUrl={blueprintPreviewEngineUrl(dialog.item)}
+                                gameSlug={dialog.item.game_slug}
+                                onSaved={() => {
+                                    handleSaved();
+                                    toast({ title: 'บันทึกด่านแล้ว', description: 'นักเรียนจะเห็นด่านใหม่เมื่อเล่นเกม' });
+                                }}
+                                onCancel={() => setDialog(null)}
+                            />
+                        </>
                     )}
                 </DialogContent>
             </Dialog>
@@ -888,6 +1042,10 @@ const GameSettingsDialog = ({
     const [bgmSel, setBgmSel] = useState(
         item.bgm_url ? `track:${item.bgm_url}` : item.bgm_preset ? `preset:${item.bgm_preset}` : '__default__',
     );
+    const [charSel, setCharSel] = useState(
+        item.character_sheet_id ? `char:${item.character_sheet_id}` : '__default__',
+    );
+    const [playStyle, setPlayStyle] = useState(item.game_play_style ?? '__unset__');
     const [previewVideoUrl, setPreviewVideoUrl] = useState(item.preview_video_url ?? '');
     const [saving, setSaving] = useState(false);
 
@@ -899,6 +1057,14 @@ const GameSettingsDialog = ({
         },
     });
 
+    const { data: characters } = useQuery({
+        queryKey: ['character-sheets'],
+        queryFn: async () => {
+            const { data } = await characterSheetsService.list();
+            return (data ?? []) as CharacterSheet[];
+        },
+    });
+
     const handleSave = async () => {
         setSaving(true);
         try {
@@ -907,12 +1073,17 @@ const GameSettingsDialog = ({
                 : bgmSel.startsWith('preset:')
                     ? { bgm_url: null, bgm_preset: bgmSel.slice(7) }
                     : { bgm_url: null, bgm_preset: null };
+            const charId = charSel.startsWith('char:') ? charSel.slice(5) : null;
+            const sheet = charId ? (characters ?? []).find((c) => c.id === charId) : null;
+            const charFields = characterAssignmentFromSheet(sheet);
             const { error } = await educationalHubService.updateItem(item.id, {
                 game_slug: gameSlug.trim() || null,
                 tracked_game: tracked,
                 is_published: published,
                 preview_video_url: previewVideoUrl.trim() || null,
+                game_play_style: playStyle === '__unset__' ? null : playStyle,
                 ...bgm,
+                ...charFields,
             });
             if (error) throw error;
             onSaved();
@@ -966,6 +1137,26 @@ const GameSettingsDialog = ({
                 </div>
 
                 <div className="space-y-1.5">
+                    <label className="text-sm font-medium">🎮 แนวเกม</label>
+                    <Select value={playStyle} onValueChange={setPlayStyle}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__unset__">ยังไม่ระบุ</SelectItem>
+                            {GAME_PLAY_STYLE_OPTIONS.map((o) => (
+                                <SelectItem key={o.key} value={o.key}>
+                                    {o.emoji} {o.label}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">
+                        ใช้กรองรายการในแท็บเกม HTML · {playStyle !== '__unset__' && isGamePlayStyleKey(playStyle)
+                            ? GAME_PLAY_STYLE_OPTIONS.find((o) => o.key === playStyle)?.description
+                            : 'เลือกแนวให้ตรงการเล่นจริง'}
+                    </p>
+                </div>
+
+                <div className="space-y-1.5">
                     <label className="text-sm font-medium">🎵 เพลงประกอบ</label>
                     <Select value={bgmSel} onValueChange={setBgmSel}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
@@ -985,6 +1176,43 @@ const GameSettingsDialog = ({
                     </Select>
                     <p className="text-xs text-muted-foreground">
                         เพลงอัปโหลดมาก่อนเพลงสังเคราะห์ · จัดการคลังเพลงที่ปุ่ม "🎵 คลังเพลง" · ผู้เล่นยังกดปิด 🎵 เองได้
+                    </p>
+                </div>
+
+                <div className="space-y-1.5">
+                    <label className="text-sm font-medium">🐰 ตัวละคร (sprite sheet)</label>
+                    <Select value={charSel} onValueChange={setCharSel}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__default__">ค่าเริ่มต้นของเกม (bundled)</SelectItem>
+                            {(characters ?? []).map((c) => (
+                                <SelectItem key={c.id} value={`char:${c.id}`}>
+                                    🐰 {c.title} ({c.frame_width}×{c.frame_height} · {c.frame_count} เฟรม)
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">
+                        เกมที่รองรับ KAMPAI.character จะโหลด sheet จากคลัง · จัดการที่ปุ่ม &quot;🐰 คลังตัวละคร&quot;
+                        {!isCharacterSupportedGame(gameSlug.trim()) && charSel.startsWith('char:') && (
+                            <span className="block mt-1 text-amber-700">
+                                ⚠ เกมนี้ยังไม่ opt-in ตัวละครจากคลัง — ตั้งค่าได้แต่เกมอาจไม่ใช้
+                            </span>
+                        )}
+                        {charSel.startsWith('char:') && playStyle !== '__unset__' && !gamePlayStyleSupportsCharacter(playStyle) && (
+                            <span className="block mt-1 text-amber-700">
+                                ⚠ แนวเกมนี้ยังไม่รองรับ sprite จากคลัง — ใช้ได้กับแพลตฟอร์ม 2D เป็นหลัก
+                            </span>
+                        )}
+                        {charSel.startsWith('char:') && (() => {
+                            const sheet = (characters ?? []).find((c) => `char:${c.id}` === charSel);
+                            const anim = sheet?.animation_config ?? getCharacterAnimPreset('platformer-12');
+                            return sheet ? (
+                                <span className="block mt-1">
+                                    แบบเฟรม: {anim.preset} · walk [{anim.walk.join(',')}] · run [{anim.run.join(',')}]
+                                </span>
+                            ) : null;
+                        })()}
                     </p>
                 </div>
 
@@ -1099,6 +1327,303 @@ const BgmLibraryDialog = ({ onClose }: { onClose: () => void }) => {
     );
 };
 
+// ─── คลัง sprite sheet ตัวละคร ─────────────────────────────────────────────
+const MAX_SHEET_SIZE = 10 * 1024 * 1024;
+
+const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
+    const { toast } = useToast();
+    const queryClient = useQueryClient();
+    const [removeBg, setRemoveBg] = useState(true);
+    const [bgTolerance] = useState(36);
+    const [busy, setBusy] = useState(false);
+    const [templateBusy, setTemplateBusy] = useState(false);
+    const [editingSheet, setEditingSheet] = useState<CharacterSheet | null>(null);
+    const [saveBusy, setSaveBusy] = useState(false);
+    const [search, setSearch] = useState('');
+    const [styleFilter, setStyleFilter] = useState<GamePlayStyleFilter>('all');
+    const [onlyAssigned, setOnlyAssigned] = useState(false);
+
+    const { data: sheets, isLoading } = useQuery({
+        queryKey: ['character-sheets'],
+        queryFn: async () => {
+            const { data, error } = await characterSheetsService.list();
+            if (error) throw error;
+            return (data ?? []) as CharacterSheet[];
+        },
+    });
+
+    const { data: gameCounts } = useQuery({
+        queryKey: ['character-sheet-game-counts'],
+        queryFn: async () => {
+            const { data, error } = await characterSheetsService.listSheetGameCounts();
+            if (error) throw error;
+            return data;
+        },
+    });
+
+    const filteredSheets = useMemo(() => {
+        const list = sheets ?? [];
+        const q = search.trim().toLowerCase();
+        return list.filter((s) => {
+            const anim = parseCharacterAnimationConfig(s.animation_config);
+            const style = inferPlayStyleFromAnim(anim);
+            if (styleFilter !== 'all' && style !== styleFilter) return false;
+            if (onlyAssigned && !(gameCounts?.[s.id] ?? 0)) return false;
+            if (!q) return true;
+            return s.title.toLowerCase().includes(q)
+                || (s.slug?.toLowerCase().includes(q) ?? false)
+                || (anim?.preset?.includes(q) ?? false);
+        });
+    }, [sheets, search, styleFilter, onlyAssigned, gameCounts]);
+
+    const handleDelete = async (s: CharacterSheet) => {
+        try {
+            const { error } = await characterSheetsService.remove(s);
+            if (error) throw error;
+            if (editingSheet?.id === s.id) setEditingSheet(null);
+            queryClient.invalidateQueries({ queryKey: ['character-sheets'] });
+            toast({ title: 'ลบตัวละครแล้ว', description: s.title });
+        } catch (err) {
+            toast({ title: 'ลบไม่สำเร็จ', description: err instanceof Error ? err.message : 'เกิดข้อผิดพลาด', variant: 'destructive' });
+        }
+    };
+
+    const handleSaveSheet = async (
+        sheet: CharacterSheet,
+        payload: {
+            title: string;
+            frameWidth: number;
+            frameHeight: number;
+            frameCount: number;
+            animationConfig: CharacterAnimationConfig;
+            colorConfig: CharacterColorConfig | null;
+        },
+    ) => {
+        setSaveBusy(true);
+        try {
+            const { sheet: updated, error } = await characterSheetsService.update(sheet.id, {
+                title: payload.title,
+                frameWidth: payload.frameWidth,
+                frameHeight: payload.frameHeight,
+                frameCount: payload.frameCount,
+                animationConfig: payload.animationConfig,
+                colorConfig: payload.colorConfig,
+            });
+            if (error) throw error;
+            queryClient.invalidateQueries({ queryKey: ['character-sheets'] });
+            queryClient.invalidateQueries({ queryKey: ['edu-hub'] });
+            if (updated) setEditingSheet(updated);
+            toast({ title: 'บันทึกตัวละครแล้ว', description: 'เกมที่ผูกตัวละครนี้จะใช้ค่าใหม่ทันที' });
+        } catch (err) {
+            toast({ title: 'บันทึกไม่สำเร็จ', description: err instanceof Error ? err.message : 'เกิดข้อผิดพลาด', variant: 'destructive' });
+        } finally {
+            setSaveBusy(false);
+        }
+    };
+
+    const handleDuplicate = async (s: CharacterSheet) => {
+        try {
+            const { sheet, error } = await characterSheetsService.duplicate(s.id);
+            if (error) throw error;
+            queryClient.invalidateQueries({ queryKey: ['character-sheets'] });
+            toast({ title: 'สำเนาตัวละครแล้ว', description: sheet?.title });
+            if (sheet) setEditingSheet(sheet);
+        } catch (err) {
+            toast({ title: 'สำเนาไม่สำเร็จ', description: err instanceof Error ? err.message : 'เกิดข้อผิดพลาด', variant: 'destructive' });
+        }
+    };
+
+    const handleWizardUpload = async (payload: {
+        title: string;
+        file: File;
+        fileP2: File | null;
+        frameWidth: number;
+        frameHeight: number;
+        frameCount: number;
+        animationConfig: CharacterAnimationConfig;
+    }) => {
+        if (payload.file.size > MAX_SHEET_SIZE) {
+            toast({ title: 'ไฟล์ใหญ่เกิน 10 MB', variant: 'destructive' });
+            return;
+        }
+        const animErr = validateAnimationConfig(payload.animationConfig, payload.frameCount);
+        if (animErr) {
+            toast({ title: 'แบบเฟรมไม่ตรงจำนวน', description: animErr, variant: 'destructive' });
+            return;
+        }
+        setBusy(true);
+        try {
+            const bgOpts = { tolerance: bgTolerance, mode: 'auto' as const };
+            const sheet1 = removeBg ? await processSpriteSheetFile(payload.file, bgOpts) : payload.file;
+            const sheet2 = payload.fileP2 && removeBg ? await processSpriteSheetFile(payload.fileP2, bgOpts) : payload.fileP2;
+            const { sheet, error } = await characterSheetsService.upload({
+                title: payload.title,
+                sheetFile: sheet1,
+                sheetFileP2: sheet2,
+                frameWidth: payload.frameWidth,
+                frameHeight: payload.frameHeight,
+                frameCount: payload.frameCount,
+                animationConfig: payload.animationConfig,
+            });
+            if (error) throw error;
+            queryClient.invalidateQueries({ queryKey: ['character-sheets'] });
+            toast({ title: 'อัปโหลดตัวละครสำเร็จ' });
+            if (sheet) setEditingSheet(sheet);
+        } catch (err) {
+            toast({ title: 'อัปโหลดไม่สำเร็จ', description: err instanceof Error ? err.message : 'เกิดข้อผิดพลาด', variant: 'destructive' });
+        } finally {
+            setBusy(false);
+        }
+    };
+
+    const handleCreateFromTemplate = async (template: CharacterStudioTemplate) => {
+        setTemplateBusy(true);
+        try {
+            const { sheet, error } = await characterSheetsService.createFromTemplate(template.key);
+            if (error) throw error;
+            queryClient.invalidateQueries({ queryKey: ['character-sheets'] });
+            toast({ title: 'สร้างจากเทมเพลตแล้ว', description: sheet?.title });
+            if (sheet) setEditingSheet(sheet);
+        } catch (err) {
+            toast({
+                title: 'สร้างเทมเพลตไม่สำเร็จ',
+                description: err instanceof Error ? err.message : 'เกิดข้อผิดพลาด',
+                variant: 'destructive',
+            });
+        } finally {
+            setTemplateBusy(false);
+        }
+    };
+
+    return (
+        <>
+            <DialogHeader>
+                <DialogTitle>🐰 คลังตัวละคร</DialogTitle>
+                <DialogDescription>
+                    เทมเพลต · Wizard · Scene thumbnail · Export PNG · ค้นหา/กรอง
+                </DialogDescription>
+            </DialogHeader>
+
+            {editingSheet ? (
+                <div className="space-y-3">
+                    <Button type="button" variant="ghost" size="sm" className="h-8 -ml-2" onClick={() => setEditingSheet(null)}>
+                        <ArrowLeft className="h-4 w-4 mr-1" /> กลับรายการ
+                    </Button>
+                    <CharacterSheetStudio
+                        key={editingSheet.id + String(editingSheet.created_at)}
+                        sheet={editingSheet}
+                        busy={saveBusy}
+                        onSave={(payload) => handleSaveSheet(editingSheet, payload)}
+                    />
+                </div>
+            ) : (
+            <div className="space-y-4">
+                <CharacterTemplatePicker busy={templateBusy} onSelect={handleCreateFromTemplate} />
+                <CharacterCreationWizard busy={busy} onUpload={handleWizardUpload} />
+                <div className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2">
+                    <p className="text-xs text-muted-foreground">ตัดพื้นหลังตอนอัปโหลด (Wizard ขั้น 1)</p>
+                    <Switch checked={removeBg} onCheckedChange={setRemoveBg} />
+                </div>
+
+                <div className="space-y-2 rounded-md border border-border p-3">
+                    <Input
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder="ค้นหาชื่อ / slug / preset…"
+                        className="h-8 text-xs"
+                    />
+                    <div className="flex flex-wrap gap-1">
+                        <Button
+                            type="button"
+                            size="sm"
+                            variant={styleFilter === 'all' ? 'default' : 'outline'}
+                            className="h-7 text-[10px]"
+                            onClick={() => setStyleFilter('all')}
+                        >
+                            ทั้งหมด
+                        </Button>
+                        {(['platformer-2d', 'top-down', 'jump'] as const).map((key) => (
+                            <Button
+                                key={key}
+                                type="button"
+                                size="sm"
+                                variant={styleFilter === key ? 'default' : 'outline'}
+                                className="h-7 text-[10px]"
+                                onClick={() => setStyleFilter(key)}
+                            >
+                                {gamePlayStyleLabel(key)}
+                            </Button>
+                        ))}
+                        <Button
+                            type="button"
+                            size="sm"
+                            variant={onlyAssigned ? 'default' : 'outline'}
+                            className="h-7 text-[10px]"
+                            onClick={() => setOnlyAssigned((v) => !v)}
+                        >
+                            มีเกมผูก
+                        </Button>
+                    </div>
+                </div>
+
+                {isLoading ? (
+                    <p className="text-center text-sm text-muted-foreground py-4">กำลังโหลด...</p>
+                ) : filteredSheets.length === 0 ? (
+                    <p className="text-center text-sm text-muted-foreground py-4">
+                        {(sheets ?? []).length === 0 ? 'ยังไม่มีตัวละครในคลัง' : 'ไม่พบตัวละครตามตัวกรอง'}
+                    </p>
+                ) : (
+                    <ul className="space-y-2 max-h-[40vh] overflow-y-auto">
+                        {filteredSheets.map((s) => {
+                            const anim = parseCharacterAnimationConfig(s.animation_config) ?? getCharacterAnimPreset('platformer-12');
+                            const assigned = gameCounts?.[s.id] ?? 0;
+                            return (
+                                <li key={s.id} className="flex items-center gap-2 rounded-md border border-border p-2">
+                                    <div className="shrink-0 w-[88px]">
+                                        <CharacterSheetScenePreview
+                                            sheetUrl={s.sheet_url}
+                                            frameWidth={s.frame_width}
+                                            frameHeight={s.frame_height}
+                                            frameCount={s.frame_count}
+                                            animationConfig={anim}
+                                            colorConfig={parseCharacterColorConfig(s.color_config)}
+                                            width={88}
+                                            height={52}
+                                            className="[&_canvas]:max-w-[88px]"
+                                        />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium truncate">{s.title}</p>
+                                        <p className="text-xs text-muted-foreground">
+                                            {s.frame_width}×{s.frame_height} · {s.frame_count} เฟรม · {anim.preset}
+                                            {s.sheet_url_p2 ? ' · 2P' : ''}
+                                            {assigned > 0 ? ` · ${assigned} เกม` : ''}
+                                        </p>
+                                    </div>
+                                    <Button variant="outline" size="sm" className="shrink-0" title="สำเนา" onClick={() => handleDuplicate(s)}>
+                                        <CopyPlus className="h-4 w-4" />
+                                    </Button>
+                                    <Button variant="outline" size="sm" className="shrink-0" onClick={() => setEditingSheet(s)}>
+                                        <Pencil className="h-4 w-4" />
+                                    </Button>
+                                    <Button variant="ghost" size="sm" className="text-destructive shrink-0" onClick={() => handleDelete(s)}>
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                )}
+            </div>
+            )}
+
+            <DialogFooter>
+                <Button variant="ghost" onClick={() => { setEditingSheet(null); onClose(); }}>ปิด</Button>
+            </DialogFooter>
+        </>
+    );
+};
+
 // ─── Dialog (unified create + replace) ──────────────────────────────────────
 
 const createSchema = z.object({
@@ -1115,6 +1640,7 @@ const createSchema = z.object({
     preview_video_url: z.string().optional().nullable(),
     grade_levels: z.array(z.string()).default([]),
     tags: z.array(z.string()).default([]),
+    game_play_style: z.enum(GAME_PLAY_STYLE_KEYS as [string, ...string[]]).optional().nullable(),
 });
 
 type CreateValues = z.infer<typeof createSchema>;
@@ -1210,6 +1736,7 @@ const GameUploadDialog = (props: Props) => {
             preview_video_url: '',
             grade_levels: [],
             tags: [],
+            game_play_style: null,
         },
     });
 
@@ -1289,6 +1816,7 @@ const GameUploadDialog = (props: Props) => {
                 game_slug: info.slug,
                 tracked_game: !!info.slug,
                 is_published: true,
+                game_play_style: values.game_play_style ?? null,
             });
             if (insErr) throw insErr;
             props.onSaved((inserted as { id?: string } | null)?.id);
@@ -1506,6 +2034,36 @@ const GameUploadDialog = (props: Props) => {
                             )}
                         />
                     </div>
+
+                    <FormField
+                        control={createForm.control}
+                        name="game_play_style"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>แนวเกม</FormLabel>
+                                <Select
+                                    value={field.value ?? '__unset__'}
+                                    onValueChange={(v) => field.onChange(v === '__unset__' ? null : v)}
+                                >
+                                    <FormControl>
+                                        <SelectTrigger><SelectValue placeholder="เลือกแนวเกม" /></SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="__unset__">ยังไม่ระบุ (ตั้งทีหลังได้)</SelectItem>
+                                        {GAME_PLAY_STYLE_OPTIONS.map((o) => (
+                                            <SelectItem key={o.key} value={o.key}>
+                                                {o.emoji} {o.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <FormDescription className="text-[10px]">
+                                    ใช้กรองรายการในแท็บเกม — เลือกให้ตรงการเล่นจริง
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
 
                     <HtmlInput
                         label="ไฟล์ HTML"

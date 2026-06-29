@@ -124,9 +124,4 @@ body {
   100% { transform: scale(1); opacity: 1; }
 }
 
-/* ย้ายปุ่มเสียงรวมของ KAMPAI เพื่อไม่ให้ทับซ้อน HUD ด้านบน */
-#kampai-snd {
-  top: auto !important;
-  bottom: 16px !important;
-  left: 16px !important;
-}
+/* ปุ่มเสียง SDK — มุมล่างขวา (default) */

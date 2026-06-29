@@ -76,7 +76,7 @@ function renderPlayer() {
   if (!s) return;
   const chip = document.getElementById('player-chip');
   const av = s.photoUrl ? `<img src="${s.photoUrl}" alt="">` : `<div class="pc-init">${(s.displayName||'?')[0]}</div>`;
-  const best = st ? ` · <span class="pc-best">สถิติ ${st.personalBest.toLocaleString()}</span>` : '';
+  const best = st ? ` · <span class="pc-best">สถิติ ${(st.personalBest || 0).toLocaleString()}</span>` : '';
   chip.innerHTML = av + `<span>${s.displayName}${best}</span>`;
   chip.style.display = 'flex';
 }

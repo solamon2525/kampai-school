@@ -1,6 +1,7 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { ChevronLeft, ChevronRight, Eye, Calendar, ArrowRight, FileText, ChevronDown, Database, Heart, Utensils, BookOpen, Briefcase, Building, Send, Award, Trophy, Sparkles, Shield, Star, HeartHandshake } from 'lucide-react';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
@@ -17,6 +18,7 @@ import {
 import FacebookFeedSection from '@/components/home/sections/FacebookFeedSection';
 import { educationalHubService, type EduHubItem } from '@/services/educational-hub.service';
 import { FeaturedGameDialog } from '@/components/home/FeaturedGameDialog';
+import { GameDemoPreview } from '@/components/educational-hub/GameDemoPreview';
 import { GameDemoPreview } from '@/components/educational-hub/GameDemoPreview';
 
 interface NewsItem {
@@ -134,6 +136,7 @@ export const useHomeMainBlocks = () => {
   const [featuredHeroLoading, setFeaturedHeroLoading] = useState(false);
   const [featuredGames, setFeaturedGames] = useState<EduHubItem[]>([]);
   const [selectedGame, setSelectedGame] = useState<EduHubItem | null>(null);
+  const [fgPaused, setFgPaused] = useState(false);
 
   useEffect(() => {
     supabase
@@ -1021,7 +1024,104 @@ export const useHomeMainBlocks = () => {
     </div>
   ) : null;
 
-  // ─── เกมแนะนำ — การ์ดปกเลื่อนแนวนอน + ป๊อปอัปรายละเอียด ───
+  // ─── เกมแนะนำ — แอดมินคุมการแสดงผลจากหลังบ้าน (แถว/โหมด/เฟด) ───
+  const fgRows = settings.featured_games_rows === '2' ? 2 : 1;
+  const fgMode = settings.featured_games_mode || 'scroll'; // 'scroll' | 'marquee' | 'grid'
+  const fgSpeed = Number(settings.featured_games_marquee_speed) || 30;
+  const fgFadeDur = (Number(settings.featured_games_fade_duration) || 400) / 1000;
+  const fgStagger = (Number(settings.featured_games_fade_stagger) || 80) / 1000;
+
+  const fgItemVariants = {
+    hidden: { opacity: 0, y: 8 },
+    visible: { opacity: 1, y: 0, transition: { duration: fgFadeDur } },
+  };
+
+  const renderGameCard = (game: EduHubItem, keyPrefix = '') => (
+    <motion.button
+      key={`${keyPrefix}${game.id}`}
+      type="button"
+      variants={fgMode === 'marquee' ? undefined : fgItemVariants}
+      onClick={() => setSelectedGame(game)}
+      className={cn(
+        'group text-left',
+        fgMode === 'grid' ? 'w-full' : 'flex-shrink-0 w-44 sm:w-52 snap-start'
+      )}
+    >
+      <div className="aspect-video bg-muted rounded-lg overflow-hidden border border-border">
+        {game.thumbnail_url && game.preview_video_url ? (
+          <GameDemoPreview cover={game.thumbnail_url} video={game.preview_video_url} title={game.title} />
+        ) : game.thumbnail_url ? (
+          <img
+            src={game.thumbnail_url}
+            alt={game.title}
+            loading="lazy"
+            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-muted to-secondary flex items-center justify-center">
+            <span className="text-2xl">🎮</span>
+          </div>
+        )}
+      </div>
+      <h4 className="text-xs font-semibold mt-2 line-clamp-2 group-hover:text-primary transition-colors">{game.title}</h4>
+      {game.subject && <p className="text-[10px] text-muted-foreground mt-0.5">{game.subject}</p>}
+    </motion.button>
+  );
+
+  // เลย์เอาต์ภายในตามจำนวนแถว: 2 แถว = วางลง grid 2 row แล้วไหลแนวนอน
+  const fgInnerClass = fgRows === 2 ? 'grid grid-rows-2 grid-flow-col gap-4' : 'flex gap-4';
+
+  let featuredGamesBody: ReactNode;
+  if (fgMode === 'grid') {
+    featuredGamesBody = (
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.15 }}
+        variants={{ visible: { transition: { staggerChildren: fgStagger } } }}
+        className="grid gap-4 p-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"
+      >
+        {featuredGames.map((game) => renderGameCard(game))}
+      </motion.div>
+    );
+  } else if (fgMode === 'marquee') {
+    // เลื่อนอัตโนมัติขวา→ซ้าย (reuse keyframe .news-ticker-track) + duplicate 2 ชุดให้ loop ต่อเนื่อง
+    featuredGamesBody = (
+      <div
+        className="overflow-hidden p-4"
+        onMouseEnter={() => setFgPaused(true)}
+        onMouseLeave={() => setFgPaused(false)}
+        onTouchStart={() => setFgPaused(true)}
+        onTouchEnd={() => setFgPaused(false)}
+      >
+        <div
+          className="news-ticker-track flex w-max"
+          style={{
+            animationDuration: `${fgSpeed}s`,
+            animationPlayState: fgPaused ? 'paused' : 'running',
+          }}
+        >
+          {/* 2 ชุดเหมือนกัน (แต่ละชุด pr-4 ให้หน่วยซ้ำกว้างเท่ากัน) → translate -50% ลูปไร้รอยต่อ */}
+          <div className={cn(fgInnerClass, 'pr-4')}>{featuredGames.map((game) => renderGameCard(game, 'a-'))}</div>
+          <div className={cn(fgInnerClass, 'pr-4')}>{featuredGames.map((game) => renderGameCard(game, 'b-'))}</div>
+        </div>
+      </div>
+    );
+  } else {
+    // scroll (default) — เลื่อนเอง snap
+    featuredGamesBody = (
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.15 }}
+        variants={{ visible: { transition: { staggerChildren: fgStagger } } }}
+        className={cn('p-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory', fgInnerClass)}
+      >
+        {featuredGames.map((game) => renderGameCard(game))}
+      </motion.div>
+    );
+  }
+
   const featuredGamesSection = featuredGames.length > 0 ? (
     <div key="featured_games">
       <motion.div
@@ -1040,35 +1140,7 @@ export const useHomeMainBlocks = () => {
             ดูทั้งหมด <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
-        <div className="flex gap-4 p-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory">
-          {featuredGames.map((game) => (
-            <button
-              key={game.id}
-              type="button"
-              onClick={() => setSelectedGame(game)}
-              className="flex-shrink-0 w-44 sm:w-52 snap-start group text-left"
-            >
-              <div className="aspect-video bg-muted rounded-lg overflow-hidden border border-border">
-                {game.thumbnail_url && game.preview_video_url ? (
-                  <GameDemoPreview cover={game.thumbnail_url} video={game.preview_video_url} title={game.title} />
-                ) : game.thumbnail_url ? (
-                  <img
-                    src={game.thumbnail_url}
-                    alt={game.title}
-                    loading="lazy"
-                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-muted to-secondary flex items-center justify-center">
-                    <span className="text-2xl">🎮</span>
-                  </div>
-                )}
-              </div>
-              <h4 className="text-xs font-semibold mt-2 line-clamp-2 group-hover:text-primary transition-colors">{game.title}</h4>
-              {game.subject && <p className="text-[10px] text-muted-foreground mt-0.5">{game.subject}</p>}
-            </button>
-          ))}
-        </div>
+        {featuredGamesBody}
       </motion.div>
       <FeaturedGameDialog
         game={selectedGame}

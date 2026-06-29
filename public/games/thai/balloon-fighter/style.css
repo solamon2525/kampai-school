@@ -19,9 +19,4 @@ canvas {
   display: block;
 }
 
-/* ปรับตำแหน่งปุ่มควบคุมเสียงของ KAMPAI SDK เพื่อไม่ให้ทับซ้อนกับ HUD คะแนนผู้เล่น */
-#kampai-snd {
-  top: auto !important;
-  bottom: 16px !important;
-  left: 16px !important;
-}
+/* ปุ่มควบคุมเสียง SDK — มุมล่างขวา (default) */

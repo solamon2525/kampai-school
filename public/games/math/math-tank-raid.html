@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Math Tank Raid — รถถังจอมคณิต ป.3-4</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700;800&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;font-family:'Kanit',sans-serif;overflow:hidden;touch-action:none;user-select:none;background:#1e3a8a;color:#fff}
+#wrap{position:fixed;inset:0}
+#gameCanvas{display:block;width:100%;height:100%;touch-action:none}
+#hud{position:fixed;top:0;left:0;right:0;display:none;flex-direction:column;gap:6px;padding:52px 12px 8px;pointer-events:none;z-index:15}
+#hud.on{display:flex}
+.hud-row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.hud-pill{font-weight:700;background:rgba(255,255,255,.92);color:#1e3a8a;padding:5px 12px;border-radius:999px;font-size:clamp(13px,3.2vw,16px);box-shadow:0 3px 10px rgba(0,0,0,.15)}
+#qBanner{text-align:center;background:linear-gradient(135deg,#fef08a,#fde047);color:#854d0e;padding:10px 16px;border-radius:16px;font-size:clamp(22px,6vw,36px);font-weight:800;box-shadow:0 6px 0 #ca8a04,0 10px 24px rgba(0,0,0,.2);border:3px solid #fff}
+#comboPop{position:fixed;top:38%;left:50%;transform:translate(-50%,-50%) scale(0);padding:10px 22px;border-radius:16px;font-weight:800;font-size:clamp(18px,4.5vw,26px);color:#fff;z-index:25;pointer-events:none;opacity:0;background:linear-gradient(90deg,#f472b6,#a78bfa,#38bdf8);background-size:200% 100%}
+#comboPop.show{animation:comboPop .85s ease forwards}
+@keyframes comboPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}35%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}100%{opacity:0;transform:translate(-50%,-60%) scale(1)}}
+.modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;z-index:40;background:rgba(30,58,138,.65);backdrop-filter:blur(8px)}
+.modal.off{display:none}
+.modal-card{width:100%;max-width:440px;background:linear-gradient(165deg,#fff,#dbeafe);border-radius:24px;padding:26px 20px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.2);border:3px solid #fff;color:#334155;max-height:92vh;overflow-y:auto}
+.modal-card h1{font-size:clamp(22px,5vw,28px);color:#1d4ed8;margin:8px 0;line-height:1.25}
+.modal-card p{color:#64748b;font-size:15px;line-height:1.5;margin-bottom:10px}
+.score-big{font-size:46px;font-weight:800;color:#f59e0b;margin:8px 0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 24px;margin:6px;border:none;border-radius:999px;font-family:inherit;font-size:17px;font-weight:700;color:#fff;cursor:pointer;box-shadow:0 5px 14px rgba(0,0,0,.15)}
+.btn:active{transform:scale(.97)}
+.btn-green{background:linear-gradient(135deg,#4ade80,#16a34a)}
+.btn-orange{background:linear-gradient(135deg,#fb923c,#ea580c)}
+.btn-blue{background:linear-gradient(135deg,#60a5fa,#2563eb)}
+.lb-box{background:rgba(255,255,255,.9);border-radius:12px;padding:10px;margin:10px 0;text-align:left;max-height:160px;overflow-y:auto}
+.lb-row{display:flex;gap:8px;padding:4px 0;border-bottom:1px dashed #e2e8f0;font-size:13px}
+.lb-row.me{background:#fef9c3;border-radius:8px;padding:4px 6px}
+#touchZone{position:fixed;inset:0;pointer-events:none;z-index:18}
+#joyMove{position:fixed;left:16px;bottom:16px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,.25);border:3px solid rgba(255,255,255,.5);pointer-events:auto;display:none}
+#joyKnob{position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px;border-radius:50%;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+#btnFire{position:fixed;right:20px;bottom:28px;width:72px;height:72px;border-radius:50%;border:none;background:linear-gradient(135deg,#fca5a5,#ef4444);color:#fff;font-size:28px;font-weight:800;pointer-events:auto;display:none;box-shadow:0 6px 0 #b91c1c}
+#btnFire:active{transform:translateY(4px);box-shadow:0 2px 0 #b91c1c}
+@media (pointer:coarse){#joyMove,#btnFire{display:block}}
+#kampai-snd{top:auto!important;bottom:14px!important;right:12px!important;left:auto!important}
+</style>
+</head>
+<body>
+<div id="wrap">
+<canvas id="gameCanvas"></canvas>
+<div id="hud">
+  <div id="qBanner">6 × 7 = ?</div>
+  <div class="hud-row">
+    <div class="hud-pill" id="scoreHud">⭐ 0</div>
+    <div class="hud-pill" id="lifeHud">❤️❤️❤️</div>
+    <div class="hud-pill" id="waveHud">🌊 Wave 1</div>
+    <div class="hud-pill" id="comboHud">🔥 x0</div>
+  </div>
+</div>
+<div id="comboPop"></div>
+<div id="touchZone"><div id="joyMove"><div id="joyKnob"></div></div><button id="btnFire" type="button" aria-label="ยิง">💥</button></div>
+</div>
+
+<div id="startModal" class="modal">
+  <div class="modal-card">
+    <h1>🛡️ Math Tank Raid</h1>
+    <p>ขับรถถัง · ยิง/ชนลูกโป่งคำตอบ · หลบศัตru<br><strong>ป.3–4</strong> คูณ · หาร · เศษส่วนง่าย</p>
+    <div id="myStats" style="display:none;gap:8px;margin:8px 0"></div>
+    <div id="startLb" class="lb-box" style="display:none"><strong>🏆 อันดับสูงสุด</strong><div id="lbList"></div></div>
+    <button class="btn btn-green" id="btnStart" type="button">▶ เริ่มเกม</button>
+    <button class="btn btn-orange" id="btnVersus" type="button">🏁 แข่ง 2 คน</button>
+  </div>
+</div>
+
+<div id="overModal" class="modal off">
+  <div class="modal-card">
+    <h1>🎉 จบภารกิจ!</h1>
+    <p>คะแนนของคุณ</p>
+    <div class="score-big" id="finalScore">0</div>
+    <div id="kampai-result"></div>
+    <button class="btn btn-green" id="btnRetry" type="button">🔄 เล่นใหม่</button>
+    <button class="btn btn-blue" id="btnHome" type="button">🎮 เลือกเกมใหม่</button>
+  </div>
+</div>
+
+<script src="/games/kampai-sdk.js"></script>
+<script>window.KAMPAI=window.KAMPAI||{isEmbed:false,ready:true,student:null,stats:null,leaderboard:[],classmates:[],onReady:function(cb){cb(this);},setSlug:function(){return this;},submitScore:function(){return false;},goHome:function(){location.href='/h/nattapong';},controls:{mount:function(){return this;}},sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){},speak:function(){}},online:{available:false}};</script>
+<script src="/games/kampai-match.js"></script>
+<script>window.KampaiMatch=window.KampaiMatch||{create:function(){return{available:false,openMenu:function(){},report:function(){},finish:function(){},leave:function(){}};}};</script>
+<script src="/games/kampai-versus.js"></script>
+<script>window.KampaiVersus=window.KampaiVersus||{create:function(o){var m=(window.KampaiMatch&&window.KampaiMatch.create)?window.KampaiMatch.create(o):null;return{available:false,openMenu:function(){if(m)m.openMenu();},report:function(s,i){if(m)m.report(s,i);},finish:function(s,i){if(m){m.finish(s,i);return true;}return false;},leave:function(){},mode:null};}};</script>
+
+<script>
+const GAME_SLUG = 'math-tank-raid';
+KAMPAI.setSlug(GAME_SLUG);
+
+const ARENA = 2200, TANK_R = 20, BULLET_SPD = 11, FIRE_CD = 280;
+const COLORS = ['#93c5fd', '#fca5a5', '#86efac', '#fde68a'];
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+let W = 800, H = 600, dpr = 1, camX = 0, camY = 0;
+let running = false, shakeT = 0, floatTexts = [], particles = [];
+let score = 0, lives = 3, combo = 0, correctCount = 0, wave = 1, correctInWave = 0;
+let enemies = [], bullets = [], answerOrbs = [], powerUps = [];
+let currentQ = null, orbLocked = false, enemyTimer = 0, versusTimer = null;
+let gameRng = Math.random;
+
+const keys = { up: false, down: false, left: false, right: false };
+const mouse = { x: 0, y: 0, worldX: 0, worldY: 0, firing: false };
+const player = { x: 1100, y: 1100, angle: 0, turret: 0, vx: 0, vy: 0, lastShot: 0, invuln: 0 };
+
+function rand(rng) { return rng(); }
+function randInt(a, b, rng) { return a + Math.floor(rng() * (b - a + 1)); }
+function shuffle(arr, rng) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function genQuestion(rng) {
+  const roll = rng();
+  if (roll < 0.42) {
+    const a = randInt(2, 9, rng), b = randInt(2, 9, rng);
+    return { prompt: `${a} × ${b} = ?`, answer: String(a * b), kind: 'mul' };
+  }
+  if (roll < 0.78) {
+    const a = randInt(2, 9, rng), b = randInt(2, 9, rng);
+    const p = a * b;
+    return { prompt: `${p} ÷ ${a} = ?`, answer: String(b), kind: 'div' };
+  }
+  const fracKind = rng();
+  if (fracKind < 0.34) {
+    const n = [4, 6, 8, 10, 12, 16][randInt(0, 5, rng)];
+    return { prompt: `1/2 ของ ${n} = ?`, answer: String(n / 2), kind: 'frac' };
+  }
+  if (fracKind < 0.67) {
+    const den = [2, 3, 4][randInt(0, 2, rng)];
+    const num = randInt(1, 2, rng);
+    const whole = den * randInt(2, 5, rng);
+    return { prompt: `${num}/${den} ของ ${whole} = ?`, answer: String((num * whole) / den), kind: 'frac' };
+  }
+  const opts = shuffle(['1/2', '2/4', '1/3', '3/4', '2/3', '1/4'], rng);
+  return { prompt: '2/4 เท่ากับ?', answer: '1/2', kind: 'fracEq', choices: opts.slice(0, 4) };
+}
+
+function makeDistractors(correct, rng, count) {
+  const n = parseInt(correct, 10);
+  if (!isNaN(n)) {
+    const pool = new Set();
+    pool.add(correct);
+    while (pool.size < count + 1) {
+      const d = n + randInt(-8, 8, rng);
+      if (d > 0 && d !== n) pool.add(String(d));
+    }
+    return shuffle([...pool], rng).slice(0, count + 1);
+  }
+  const all = ['1/2', '1/3', '1/4', '2/3', '3/4', '2/4', '3/6'];
+  const pool = new Set([correct]);
+  for (const x of shuffle(all, rng)) {
+    if (x !== correct) pool.add(x);
+    if (pool.size >= count + 1) break;
+  }
+  return shuffle([...pool], rng).slice(0, count + 1);
+}
+
+function spawnQuestionOrbs(rng) {
+  answerOrbs = [];
+  orbLocked = false;
+  currentQ = genQuestion(rng);
+  document.getElementById('qBanner').textContent = currentQ.prompt;
+
+  let opts;
+  if (currentQ.choices) {
+    opts = currentQ.choices.slice();
+    if (!opts.includes(currentQ.answer)) opts[0] = currentQ.answer;
+    opts = shuffle(opts, rng).slice(0, 4);
+  } else {
+    opts = makeDistractors(currentQ.answer, rng, 3);
+    if (!opts.includes(currentQ.answer)) opts[0] = currentQ.answer;
+    opts = shuffle(opts, rng).slice(0, 4);
+  }
+
+  const cx = player.x, cy = player.y;
+  const dist = 160 + wave * 8;
+  const angles = [0, Math.PI / 2, Math.PI, Math.PI * 1.5];
+  opts.forEach((text, i) => {
+    const a = angles[i] + (rng() - 0.5) * 0.4;
+    let ox = cx + Math.cos(a) * dist;
+    let oy = cy + Math.sin(a) * dist;
+    ox = Math.max(80, Math.min(ARENA - 80, ox));
+    oy = Math.max(80, Math.min(ARENA - 80, oy));
+    answerOrbs.push({
+      x: ox, y: oy, r: 30, text,
+      correct: text === currentQ.answer,
+      col: COLORS[i % 4], wob: rng() * 6.28,
+    });
+  });
+}
+
+function spawnEnemy(rng) {
+  const edge = randInt(0, 3, rng);
+  let x, y;
+  if (edge === 0) { x = rng() * ARENA; y = -30; }
+  else if (edge === 1) { x = ARENA + 30; y = rng() * ARENA; }
+  else if (edge === 2) { x = rng() * ARENA; y = ARENA + 30; }
+  else { x = -30; y = rng() * ARENA; }
+  const fast = rng() < 0.25 + wave * 0.03;
+  enemies.push({
+    x, y, r: fast ? 14 : 18, hp: fast ? 1 : 2,
+    spd: fast ? 2.2 + wave * 0.08 : 1.4 + wave * 0.05,
+    fast, shootT: 0, angle: 0,
+  });
+}
+
+function spawnPowerUp(x, y) {
+  if (Math.random() < 0.35) {
+    powerUps.push({ x, y, r: 14, kind: ['heart', 'shield', 'coin'][randInt(0, 2, Math.random)], bob: 0 });
+  }
+}
+
+function addFloat(x, y, text, col) {
+  floatTexts.push({ x, y, text, col, life: 1 });
+}
+
+function spawnBurst(x, y, col, n) {
+  for (let i = 0; i < n; i++) {
+    particles.push({
+      x, y, vx: (Math.random() - 0.5) * 5, vy: (Math.random() - 0.5) * 5,
+      life: 1, col,
+    });
+  }
+}
+
+function resize() {
+  dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const rect = canvas.getBoundingClientRect();
+  W = Math.max(320, rect.width * dpr);
+  H = Math.max(240, rect.height * dpr);
+  canvas.width = W; canvas.height = H;
+}
+
+function updateHud() {
+  document.getElementById('scoreHud').textContent = '⭐ ' + score;
+  document.getElementById('lifeHud').textContent = '❤️'.repeat(lives) || '💔';
+  document.getElementById('waveHud').textContent = '🌊 Wave ' + wave;
+  document.getElementById('comboHud').textContent = '🔥 x' + combo;
+}
+
+function hitOrb(orb) {
+  if (orbLocked) return;
+  orbLocked = true;
+  if (orb.correct) {
+    combo++;
+    correctCount++;
+    correctInWave++;
+    const bonus = 15 + combo * 4;
+    score += bonus;
+    player.invuln = 20;
+    KAMPAI.sound.correct();
+    addFloat(orb.x, orb.y - 24, 'ถูกต้อง! 🎉', '#16a34a');
+    addFloat(orb.x, orb.y - 48, '+' + bonus, '#f59e0b');
+    spawnBurst(orb.x, orb.y, '#4ade80', 12);
+    answerOrbs = [];
+    if (combo >= 2) {
+      const el = document.getElementById('comboPop');
+      el.textContent = 'คอมโบ x' + combo + '! 🌈';
+      el.classList.remove('show');
+      void el.offsetWidth;
+      el.classList.add('show');
+    }
+    vs.report(score, { correct: correctCount });
+    if (correctInWave >= 5) {
+      correctInWave = 0;
+      wave = Math.min(12, wave + 1);
+      addFloat(player.x, player.y - 50, 'Wave ' + wave + '!', '#38bdf8');
+    }
+    setTimeout(() => spawnQuestionOrbs(gameRng), 450);
+  } else {
+    combo = 0;
+    lives = Math.max(0, lives - 1);
+    shakeT = 14;
+    KAMPAI.sound.wrong();
+    addFloat(orb.x, orb.y - 24, 'ผิด! 💔', '#ef4444');
+    spawnBurst(orb.x, orb.y, '#f87171', 8);
+    orbLocked = false;
+    if (lives <= 0) endGame();
+  }
+  updateHud();
+}
+
+function damagePlayer(n) {
+  if (player.invuln > 0) return;
+  lives = Math.max(0, lives - n);
+  player.invuln = 45;
+  shakeT = 12;
+  KAMPAI.sound.wrong();
+  addFloat(player.x, player.y - 30, '-1 ❤️', '#ef4444');
+  updateHud();
+  if (lives <= 0) endGame();
+}
+
+function fireBullet() {
+  const now = performance.now();
+  if (now - player.lastShot < FIRE_CD) return;
+  player.lastShot = now;
+  const a = player.turret;
+  bullets.push({
+    x: player.x + Math.cos(a) * (TANK_R + 6),
+    y: player.y + Math.sin(a) * (TANK_R + 6),
+    vx: Math.cos(a) * BULLET_SPD,
+    vy: Math.sin(a) * BULLET_SPD,
+    life: 90, friendly: true,
+  });
+}
+
+function updatePlayer() {
+  let mx = 0, my = 0;
+  if (keys.up) my -= 1;
+  if (keys.down) my += 1;
+  if (keys.left) mx -= 1;
+  if (keys.right) mx += 1;
+  if (joyDir.active) { mx = joyDir.x; my = joyDir.y; }
+
+  const spd = 3.6 + Math.min(wave * 0.05, 1.2);
+  if (mx || my) {
+    const len = Math.hypot(mx, my) || 1;
+    player.vx = (mx / len) * spd;
+    player.vy = (my / len) * spd;
+    player.angle = Math.atan2(my, mx);
+  } else {
+    player.vx *= 0.82;
+    player.vy *= 0.82;
+  }
+
+  player.x = Math.max(TANK_R, Math.min(ARENA - TANK_R, player.x + player.vx));
+  player.y = Math.max(TANK_R, Math.min(ARENA - TANK_R, player.y + player.vy));
+
+  const dx = mouse.worldX - player.x;
+  const dy = mouse.worldY - player.y;
+  player.turret = Math.atan2(dy, dx);
+
+  if (mouse.firing) fireBullet();
+  if (player.invuln > 0) player.invuln--;
+}
+
+function updateBullets() {
+  bullets = bullets.filter(b => {
+    b.x += b.vx; b.y += b.vy; b.life--;
+    for (let i = answerOrbs.length - 1; i >= 0; i--) {
+      const o = answerOrbs[i];
+      if (Math.hypot(b.x - o.x, b.y - o.y) < o.r + 4) {
+        hitOrb(o);
+        answerOrbs.splice(i, 1);
+        return false;
+      }
+    }
+    for (let i = enemies.length - 1; i >= 0; i--) {
+      const e = enemies[i];
+      if (Math.hypot(b.x - e.x, b.y - e.y) < e.r + 4) {
+        e.hp--;
+        spawnBurst(e.x, e.y, '#fbbf24', 6);
+        if (e.hp <= 0) {
+          score += e.fast ? 8 : 5;
+          spawnPowerUp(e.x, e.y);
+          enemies.splice(i, 1);
+        }
+        return false;
+      }
+    }
+    return b.life > 0 && b.x > -20 && b.y > -20 && b.x < ARENA + 20 && b.y < ARENA + 20;
+  });
+}
+
+function updateEnemies(dt) {
+  enemyTimer += dt;
+  const interval = Math.max(1800 - wave * 80, 700);
+  if (enemyTimer >= interval) {
+    enemyTimer = 0;
+    spawnEnemy(gameRng);
+    if (wave >= 3 && gameRng() < 0.35) spawnEnemy(gameRng);
+  }
+
+  enemies.forEach(e => {
+    const dx = player.x - e.x, dy = player.y - e.y;
+    const dist = Math.hypot(dx, dy) || 1;
+    e.x += (dx / dist) * e.spd;
+    e.y += (dy / dist) * e.spd;
+    e.angle = Math.atan2(dy, dx);
+    e.shootT += dt;
+    if (e.shootT > 2200 && dist < 420) {
+      e.shootT = 0;
+      const a = Math.atan2(dy, dx);
+      bullets.push({
+        x: e.x, y: e.y, vx: Math.cos(a) * 5, vy: Math.sin(a) * 5,
+        life: 120, friendly: false,
+      });
+    }
+    if (dist < e.r + TANK_R - 4) damagePlayer(1);
+  });
+}
+
+function updateOrbs() {
+  for (let i = answerOrbs.length - 1; i >= 0; i--) {
+    const o = answerOrbs[i];
+    o.wob += 0.06;
+    if (Math.hypot(player.x - o.x, player.y - o.y) < o.r + TANK_R - 2) {
+      hitOrb(o);
+      answerOrbs.splice(i, 1);
+    }
+  }
+}
+
+function updatePowerUps() {
+  powerUps = powerUps.filter(p => {
+    p.bob += 0.07;
+    if (Math.hypot(player.x - p.x, player.y - p.y) < p.r + TANK_R) {
+      if (p.kind === 'heart') { lives = Math.min(5, lives + 1); addFloat(p.x, p.y, '+❤️', '#f472b6'); }
+      else if (p.kind === 'shield') { player.invuln = 90; addFloat(p.x, p.y, '🛡️', '#38bdf8'); }
+      else { score += 10; addFloat(p.x, p.y, '+10', '#fbbf24'); }
+      KAMPAI.sound.correct();
+      updateHud();
+      return false;
+    }
+    return true;
+  });
+}
+
+function update() {
+  updatePlayer();
+  updateBullets();
+  updateEnemies(16);
+  updateOrbs();
+  updatePowerUps();
+
+  bullets.forEach(b => {
+    if (!b.friendly && Math.hypot(b.x - player.x, b.y - player.y) < TANK_R + 3) {
+      b.life = 0;
+      damagePlayer(1);
+    }
+  });
+  bullets = bullets.filter(b => b.life > 0);
+
+  camX += (player.x - W / 2 / dpr - camX) * 0.12;
+  camY += (player.y - H / 2 / dpr - camY) * 0.12;
+  camX = Math.max(0, Math.min(ARENA - W / dpr, camX));
+  camY = Math.max(0, Math.min(ARENA - H / dpr, camY));
+}
+
+function drawGrid() {
+  ctx.strokeStyle = 'rgba(148,163,184,.12)';
+  ctx.lineWidth = 1;
+  const step = 80;
+  const sx = Math.floor(camX / step) * step;
+  const sy = Math.floor(camY / step) * step;
+  for (let x = sx; x < camX + W / dpr + step; x += step) {
+    ctx.beginPath();
+    ctx.moveTo(x - camX, 0);
+    ctx.lineTo(x - camX, H / dpr);
+    ctx.stroke();
+  }
+  for (let y = sy; y < camY + H / dpr + step; y += step) {
+    ctx.beginPath();
+    ctx.moveTo(0, y - camY);
+    ctx.lineTo(W / dpr, y - camY);
+    ctx.stroke();
+  }
+}
+
+function drawOrb(o) {
+  const wob = 1 + Math.sin(o.wob) * 0.07;
+  const x = o.x - camX, y = o.y - camY;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(wob, 1 / wob);
+  const g = ctx.createRadialGradient(-5, -5, 2, 0, 0, o.r);
+  g.addColorStop(0, '#fff');
+  g.addColorStop(0.5, o.col);
+  g.addColorStop(1, o.col);
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.arc(0, 0, o.r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  ctx.fillStyle = '#1e293b';
+  ctx.font = 'bold 22px Kanit';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(o.text, 0, 1);
+  ctx.restore();
+}
+
+function drawTank() {
+  const x = player.x - camX, y = player.y - camY;
+  ctx.save();
+  ctx.translate(x, y);
+  if (player.invuln > 0 && Math.floor(player.invuln / 4) % 2) ctx.globalAlpha = 0.55;
+  ctx.rotate(player.angle);
+  ctx.fillStyle = '#4ade80';
+  ctx.strokeStyle = '#166534';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(-22, -16, 44, 32, 8);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#166534';
+  ctx.fillRect(-10, -18, 8, 6);
+  ctx.fillRect(2, -18, 8, 6);
+  ctx.restore();
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(player.turret);
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(0, -5, 28, 10);
+  ctx.fillStyle = '#64748b';
+  ctx.beginPath();
+  ctx.arc(0, 0, 12, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawEnemy(e) {
+  const x = e.x - camX, y = e.y - camY;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(e.angle);
+  ctx.fillStyle = e.fast ? '#f87171' : '#a855f7';
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.roundRect(-e.r, -e.r * 0.7, e.r * 2, e.r * 1.4, 5);
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+}
+
+function draw() {
+  const sx = shakeT > 0 ? (Math.random() - 0.5) * shakeT * 0.35 : 0;
+  const sy = shakeT > 0 ? (Math.random() - 0.5) * shakeT * 0.25 : 0;
+  if (shakeT > 0) shakeT--;
+
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, W / dpr, H / dpr);
+  ctx.save();
+  ctx.translate(sx, sy);
+
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, '#1e40af');
+  grad.addColorStop(1, '#0f172a');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W / dpr, H / dpr);
+  drawGrid();
+
+  answerOrbs.forEach(drawOrb);
+  powerUps.forEach(p => {
+    const x = p.x - camX, y = p.y - camY + Math.sin(p.bob) * 4;
+    ctx.font = '22px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(p.kind === 'heart' ? '❤️' : p.kind === 'shield' ? '🛡️' : '🪙', x, y);
+  });
+  enemies.forEach(drawEnemy);
+  bullets.forEach(b => {
+    ctx.fillStyle = b.friendly ? '#fde047' : '#fb7185';
+    ctx.beginPath();
+    ctx.arc(b.x - camX, b.y - camY, b.friendly ? 4 : 5, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  drawTank();
+
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy; p.life -= 0.04;
+    ctx.globalAlpha = Math.max(0, p.life);
+    ctx.fillStyle = p.col;
+    ctx.beginPath();
+    ctx.arc(p.x - camX, p.y - camY, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  });
+  particles = particles.filter(p => p.life > 0);
+
+  floatTexts.forEach(f => {
+    f.y -= 1.1; f.life -= 0.016;
+    ctx.globalAlpha = Math.max(0, f.life);
+    ctx.fillStyle = f.col;
+    ctx.font = 'bold 17px Kanit';
+    ctx.textAlign = 'center';
+    ctx.fillText(f.text, f.x - camX, f.y - camY);
+    ctx.globalAlpha = 1;
+  });
+  floatTexts = floatTexts.filter(f => f.life > 0);
+  ctx.restore();
+}
+
+let lastT = 0;
+function loop(t) {
+  if (!running) return;
+  update();
+  draw();
+  lastT = t;
+  requestAnimationFrame(loop);
+}
+
+function startGame(rng) {
+  gameRng = rng || Math.random;
+  score = 0; lives = 3; combo = 0; correctCount = 0; wave = 1; correctInWave = 0;
+  enemies = []; bullets = []; powerUps = []; particles = []; floatTexts = [];
+  player.x = ARENA / 2; player.y = ARENA / 2;
+  player.vx = 0; player.vy = 0; player.invuln = 0;
+  enemyTimer = 0;
+  camX = player.x - W / 2 / dpr;
+  camY = player.y - H / 2 / dpr;
+
+  document.getElementById('startModal').classList.add('off');
+  document.getElementById('overModal').classList.add('off');
+  document.getElementById('hud').classList.add('on');
+  updateHud();
+  spawnQuestionOrbs(gameRng);
+
+  try { KAMPAI.sound.unlock(); KAMPAI.sound.defaultBgm('playful'); KAMPAI.sound.bgmStart(); } catch (e) {}
+  running = true;
+  resize();
+  requestAnimationFrame(loop);
+}
+
+function endGame() {
+  if (vs.finish(score, { correct: correctCount })) {
+    running = false;
+    clearTimeout(versusTimer);
+    return;
+  }
+  running = false;
+  clearTimeout(versusTimer);
+  try { KAMPAI.sound.gameOver(); KAMPAI.sound.bgmStop(); } catch (e) {}
+  document.getElementById('hud').classList.remove('on');
+  document.getElementById('finalScore').textContent = score;
+  document.getElementById('overModal').classList.remove('off');
+  KAMPAI.submitScore(score, { correct: correctCount, wave, combo_max: combo });
+}
+
+const vs = KampaiVersus.create({
+  duration: 90,
+  title: 'Math Tank Raid',
+  rankBy: 'score',
+  onPlay: ({ rng }) => {
+    startGame(rng);
+    clearTimeout(versusTimer);
+    versusTimer = setTimeout(() => { running = false; endGame(); }, 90 * 1000);
+  },
+  onEnd: () => { running = false; },
+});
+
+function renderLeaderboard() {
+  const lb = KAMPAI.leaderboard || [];
+  const stats = KAMPAI.stats;
+  const ms = document.getElementById('myStats');
+  if (stats && (stats.personalBest > 0 || stats.playsCount > 0)) {
+    ms.style.display = 'flex';
+    ms.innerHTML = '<div style="flex:1;background:rgba(255,255,255,.7);border-radius:10px;padding:8px"><div style="font-size:22px;font-weight:800;color:#f59e0b">' + (stats.personalBest || 0) + '</div><div style="font-size:12px;color:#64748b">สถิติสูงสุด</div></div><div style="flex:1;background:rgba(255,255,255,.7);border-radius:10px;padding:8px"><div style="font-size:22px;font-weight:800;color:#6366f1">' + (stats.playsCount || 0) + '</div><div style="font-size:12px;color:#64748b">ครั้งที่เล่น</div></div>';
+  }
+  const box = document.getElementById('startLb');
+  const list = document.getElementById('lbList');
+  if (!lb.length) { box.style.display = 'none'; return; }
+  box.style.display = 'block';
+  list.innerHTML = lb.slice(0, 5).map((row, i) => '<div class="lb-row' + (row.isMe ? ' me' : '') + '"><span>#' + (i + 1) + '</span><span style="flex:1">' + (row.displayName || row.name || '—') + '</span><span>' + row.score + '</span></div>').join('');
+}
+
+KAMPAI.onReady(() => {
+  try { KAMPAI.sound.mountToggles(); KAMPAI.controls.mount({ dpad: true }); } catch (e) {}
+  renderLeaderboard();
+});
+
+document.getElementById('btnStart').onclick = () => startGame(Math.random);
+document.getElementById('btnVersus').onclick = () => vs.openMenu();
+document.getElementById('btnRetry').onclick = () => location.reload();
+document.getElementById('btnHome').onclick = () => KAMPAI.goHome();
+
+window.addEventListener('keydown', e => {
+  if (e.code === 'KeyW' || e.code === 'ArrowUp') keys.up = true;
+  if (e.code === 'KeyS' || e.code === 'ArrowDown') keys.down = true;
+  if (e.code === 'KeyA' || e.code === 'ArrowLeft') keys.left = true;
+  if (e.code === 'KeyD' || e.code === 'ArrowRight') keys.right = true;
+});
+window.addEventListener('keyup', e => {
+  if (e.code === 'KeyW' || e.code === 'ArrowUp') keys.up = false;
+  if (e.code === 'KeyS' || e.code === 'ArrowDown') keys.down = false;
+  if (e.code === 'KeyA' || e.code === 'ArrowLeft') keys.left = false;
+  if (e.code === 'KeyD' || e.code === 'ArrowRight') keys.right = false;
+});
+
+canvas.addEventListener('mousemove', e => {
+  const rect = canvas.getBoundingClientRect();
+  mouse.x = e.clientX - rect.left;
+  mouse.y = e.clientY - rect.top;
+  mouse.worldX = mouse.x + camX;
+  mouse.worldY = mouse.y + camY;
+});
+canvas.addEventListener('mousedown', () => { mouse.firing = true; });
+window.addEventListener('mouseup', () => { mouse.firing = false; });
+
+const joyDir = { x: 0, y: 0, active: false };
+const joyEl = document.getElementById('joyMove');
+const joyKnob = document.getElementById('joyKnob');
+let joyTouchId = null, joyOrigin = { x: 0, y: 0 };
+
+function joyMoveHandler(clientX, clientY) {
+  const max = 36;
+  let dx = clientX - joyOrigin.x, dy = clientY - joyOrigin.y;
+  const len = Math.hypot(dx, dy) || 1;
+  if (len > max) { dx = (dx / len) * max; dy = (dy / len) * max; }
+  joyKnob.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+  joyDir.x = dx / max; joyDir.y = dy / max;
+  joyDir.active = len > 6;
+}
+
+joyEl.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const t = e.changedTouches[0];
+  joyTouchId = t.identifier;
+  const r = joyEl.getBoundingClientRect();
+  joyOrigin = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+}, { passive: false });
+joyEl.addEventListener('touchmove', e => {
+  e.preventDefault();
+  for (const t of e.changedTouches) {
+    if (t.identifier === joyTouchId) joyMoveHandler(t.clientX, t.clientY);
+  }
+}, { passive: false });
+function resetJoy() {
+  joyTouchId = null; joyDir.x = 0; joyDir.y = 0; joyDir.active = false;
+  joyKnob.style.transform = 'translate(0,0)';
+}
+joyEl.addEventListener('touchend', resetJoy);
+joyEl.addEventListener('touchcancel', resetJoy);
+
+document.getElementById('btnFire').addEventListener('touchstart', e => { e.preventDefault(); mouse.firing = true; fireBullet(); }, { passive: false });
+document.getElementById('btnFire').addEventListener('touchend', () => { mouse.firing = false; });
+
+window.addEventListener('resize', resize);
+resize();
+</script>
+</body>
+</html>

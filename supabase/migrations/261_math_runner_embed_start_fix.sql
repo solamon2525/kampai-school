@@ -1,0 +1,25 @@
+-- 261: math-runner — iframe ไม่บล็อก requireLandscape (PlayGame ควบคุม orientation)
+DO $$
+DECLARE
+  v_staff_id UUID;
+  v_url   TEXT := '/games/math/math-runner/index.html';
+  v_feat  TEXT := '📱 embed: requireLandscape ไม่บล็อกเมนู · gameStart ก่อนเล่น · parent overlay';
+BEGIN
+  SELECT id INTO v_staff_id FROM public.staff
+  WHERE name LIKE '%ณัฐพงศ์%สิงห์ชมภู%' AND staff_type = 'teaching'
+  ORDER BY created_at LIMIT 1;
+  IF v_staff_id IS NULL THEN RAISE EXCEPTION 'staff not found'; END IF;
+
+  UPDATE public.game_docs d
+     SET version = 'v2.4.2',
+         notes = 'v2.4.2: แก้กดเริ่มไม่ได้ (live repro) — iframe requireLandscape คืน true เสมอ · gameStart ก่อน · gamePaused แนวตั้ง · ' || COALESCE(d.notes, ''),
+         updated_at = now()
+    FROM public.educational_hub_items i
+   WHERE d.item_id = i.id AND i.owner_staff_id = v_staff_id AND i.external_url = v_url;
+
+  UPDATE public.game_docs d
+     SET features = d.features || v_feat
+    FROM public.educational_hub_items i
+   WHERE d.item_id = i.id AND i.owner_staff_id = v_staff_id AND i.external_url = v_url
+     AND NOT (v_feat = ANY(d.features));
+END $$;

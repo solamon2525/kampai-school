@@ -23,12 +23,14 @@ import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { SEOHead } from '@/components/SEOHead';
 import {
     educationalHubService,
+    sortGamesLibraryItems,
     type EduHubCategory,
     type EduHubItem,
     type EduHubTeacherCard,
 } from '@/services/educational-hub.service';
 import { CategoryChipStrip } from '@/components/educational-hub/CategoryChipStrip';
 import { CategorySection } from '@/components/educational-hub/CategorySection';
+import { GamesCategorySection } from '@/components/educational-hub/GamesCategorySection';
 import { GamificationHub } from '@/components/games/GamificationHub';
 import {
     SectionToolbar,
@@ -140,11 +142,15 @@ const EducationalHubTeacher = () => {
 
     const allItems = useMemo(() => items ?? [], [items]);
 
-    // Apply filters + sort to the full item list (parent-side filtering keeps
-    // category grouping logic untouched downstream)
-    const visibleItems = useMemo(() => {
+    const gamesCategoryId = useMemo(
+        () => categories?.find((c) => c.category_key === 'games')?.id,
+        [categories],
+    );
+
+    // Filter only — sort แยกตามหมวด (เกมใช้กฎปักหมุด+ใหม่ล่าสุด)
+    const filteredItems = useMemo(() => {
         const q = filter.search.trim().toLowerCase();
-        let arr = allItems.filter((it) => {
+        return allItems.filter((it) => {
             if (q) {
                 const hay = `${it.title} ${it.description ?? ''}`.toLowerCase();
                 if (!hay.includes(q)) return false;
@@ -155,27 +161,40 @@ const EducationalHubTeacher = () => {
             if (filter.types.length && !filter.types.includes(it.item_type)) return false;
             return true;
         });
+    }, [allItems, filter]);
 
-        // Sort modes (default = keep ordering from service: sort_order asc, created_at desc)
+    const sortNonGameItems = (arr: EduHubItem[]) => {
         if (sort === 'newest') {
-            arr = [...arr].sort((a, b) => (b.created_at > a.created_at ? 1 : -1));
-        } else if (sort === 'popular') {
-            arr = [...arr].sort((a, b) => b.view_count - a.view_count);
-        } else if (sort === 'alpha') {
-            arr = [...arr].sort((a, b) => a.title.localeCompare(b.title, 'th'));
+            return [...arr].sort((a, b) => (b.created_at > a.created_at ? 1 : -1));
         }
-        return arr;
-    }, [allItems, filter, sort]);
+        if (sort === 'popular') {
+            return [...arr].sort((a, b) => b.view_count - a.view_count);
+        }
+        if (sort === 'alpha') {
+            return [...arr].sort((a, b) => a.title.localeCompare(b.title, 'th'));
+        }
+        return [...arr].sort((a, b) => {
+            if (a.sort_order !== b.sort_order) return a.sort_order - b.sort_order;
+            return b.created_at.localeCompare(a.created_at);
+        });
+    };
 
     const itemsByCategory = useMemo(() => {
         const m = new Map<string, EduHubItem[]>();
-        visibleItems.forEach((it) => {
+        filteredItems.forEach((it) => {
             const arr = m.get(it.category_id) ?? [];
             arr.push(it);
             m.set(it.category_id, arr);
         });
+        for (const [catId, arr] of m) {
+            if (catId === gamesCategoryId) {
+                m.set(catId, sortGamesLibraryItems(arr));
+            } else {
+                m.set(catId, sortNonGameItems(arr));
+            }
+        }
         return m;
-    }, [visibleItems]);
+    }, [filteredItems, gamesCategoryId, sort]);
 
     // Favorites = subset of ALL items (so user can find favorites even if filtered out)
     const favoriteItems = useMemo(
@@ -384,7 +403,7 @@ const EducationalHubTeacher = () => {
 
                             {isAdmin && (
                                 <p className="text-[10px] text-muted-foreground -mb-4 italic">
-                                    💡 โหมด admin: ลากที่ grip ⋮⋮ บน section header เพื่อจัดลำดับหมวด หรือบนการ์ดเกมเพื่อจัดลำดับเกม
+                                    💡 โหมด admin: ลาก grip บนหัวหมวดเพื่อจัดลำดับหมวด · หมวดเกม: กด 📌 ปักหมุด + ลากเรียงเกมที่ปักไว้ (มีผลทุกเครื่อง)
                                 </p>
                             )}
                             <DndContext
@@ -398,17 +417,29 @@ const EducationalHubTeacher = () => {
                                     disabled={!isAdmin}
                                 >
                                     <div className="space-y-10">
-                                        {orderedCategories.map((cat) => (
-                                            <CategorySection
-                                                key={cat.id}
-                                                category={cat}
-                                                items={itemsByCategory.get(cat.id) ?? []}
-                                                viewMode={viewMode}
-                                                isFavorite={isFavorite}
-                                                onToggleFavorite={toggleFav}
-                                                editable={isAdmin}
-                                            />
-                                        ))}
+                                        {orderedCategories.map((cat) =>
+                                            cat.category_key === 'games' ? (
+                                                <GamesCategorySection
+                                                    key={cat.id}
+                                                    category={cat}
+                                                    items={itemsByCategory.get(cat.id) ?? []}
+                                                    viewMode={viewMode}
+                                                    isFavorite={isFavorite}
+                                                    onToggleFavorite={toggleFav}
+                                                    editable={isAdmin}
+                                                />
+                                            ) : (
+                                                <CategorySection
+                                                    key={cat.id}
+                                                    category={cat}
+                                                    items={itemsByCategory.get(cat.id) ?? []}
+                                                    viewMode={viewMode}
+                                                    isFavorite={isFavorite}
+                                                    onToggleFavorite={toggleFav}
+                                                    editable={isAdmin}
+                                                />
+                                            ),
+                                        )}
                                     </div>
                                 </SortableContext>
                             </DndContext>

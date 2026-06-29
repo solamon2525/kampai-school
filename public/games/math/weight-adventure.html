@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <script src="/games/kampai-sdk.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ผจญภัยชั่งน้ำหนัก — Weight Adventure</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Itim&display=swap');
+
+        :root {
+            --arcade-navy: #1f2f70;
+            --arcade-pink: #ff4fb6;
+            --arcade-gold: #ffcc4d;
+            --arcade-mint: #56f2cf;
+            --arcade-red: #ff5a66;
+            --arcade-ink: #28304d;
+            --glass: rgba(255, 255, 255, 0.86);
+            --hud-shadow: 0 10px 0 rgba(20, 30, 84, 0.32), 0 18px 28px rgba(20, 30, 84, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 20%, #d5edff, #9bd8ff 65%, #84b8ff 100%);
+            font-family: 'Itim', cursive, sans-serif;
+            touch-action: none;
+        }
+
+        /* ปุ่มเสียง SDK — มุมล่างขวา (default kampai-sdk.js) */
+
+        #ui-layer {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            padding: 14px;
+            z-index: 10;
+        }
+
+        .hud-box {
+            min-width: 188px;
+            padding: 12px 16px;
+            border-radius: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.9);
+            box-shadow: var(--hud-shadow);
+            font-size: 22px;
+            color: var(--arcade-ink);
+            backdrop-filter: blur(3px);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .hud-stat {
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 12px;
+            padding: 3px 10px 4px;
+            line-height: 1.2;
+            transition: transform 160ms ease, filter 160ms ease, background 220ms ease;
+        }
+
+        .hud-stat.flash {
+            transform: scale(1.07);
+            filter: brightness(1.18);
+            background: rgba(255, 255, 255, 0.97);
+        }
+
+        .hud-stat.warn {
+            background: rgba(255, 90, 102, 0.2);
+            color: #7a1922;
+            animation: pulseWarn 620ms ease-in-out infinite;
+        }
+
+        @keyframes pulseWarn {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.04); }
+        }
+
+        #hud-left {
+            background: linear-gradient(155deg, rgba(255, 214, 120, 0.94), rgba(255, 128, 206, 0.9));
+            flex-shrink: 0;
+        }
+
+        #hud-right {
+            background: linear-gradient(155deg, rgba(118, 248, 226, 0.95), rgba(152, 200, 255, 0.92));
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        #hud-center {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #banner {
+            background: linear-gradient(90deg, var(--arcade-pink), #ff7a98);
+            color: #fff;
+            padding: 8px 18px;
+            border-radius: 999px;
+            border: 3px solid rgba(255, 255, 255, 0.85);
+            font-size: 24px;
+            text-shadow: 0 3px 0 rgba(101, 13, 56, 0.35);
+            box-shadow: 0 10px 20px rgba(136, 22, 77, 0.32);
+            letter-spacing: 0.2px;
+            transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease, background 220ms ease;
+        }
+
+        #banner.is-correct {
+            background: linear-gradient(90deg, #1dd6ad, #48efc4);
+            box-shadow: 0 10px 20px rgba(19, 119, 97, 0.35);
+            animation: bannerBounce 260ms ease;
+        }
+
+        #banner.is-wrong {
+            background: linear-gradient(90deg, #ff6a72, #ff964e);
+            box-shadow: 0 10px 20px rgba(151, 57, 46, 0.35);
+            animation: bannerShake 220ms ease;
+        }
+
+        @keyframes bannerBounce {
+            0% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-2px) scale(1.04); }
+            100% { transform: translateY(0) scale(1); }
+        }
+
+        @keyframes bannerShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-3px); }
+            75% { transform: translateX(3px); }
+        }
+
+        #scale-container {
+            width: 138px;
+            height: 138px;
+            background: radial-gradient(circle at 48% 40%, #ffffff 0%, #f2f8ff 52%, #d4e7ff 100%);
+            border: 7px solid var(--arcade-navy);
+            border-radius: 50%;
+            position: relative;
+            overflow: visible;
+            box-shadow: inset 0 0 0 3px #ffffff, 0 14px 22px rgba(21, 42, 104, 0.38);
+            animation: floatDial 2.4s ease-in-out infinite;
+        }
+
+        @keyframes floatDial {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-2px); }
+        }
+
+        #scale-ticks {
+            position: absolute;
+            inset: 0;
+        }
+
+        .tick-mark {
+            position: absolute;
+            width: 3px;
+            height: 10px;
+            background: var(--arcade-navy);
+            left: 50%;
+            top: 7px;
+            transform-origin: 1.5px 62px;
+            margin-left: -1.5px;
+            opacity: 0.86;
+        }
+
+        .tick-label {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            line-height: 18px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--arcade-navy);
+            transform: translate(-50%, -50%);
+            text-shadow: 0 1px 0 #fff;
+            pointer-events: none;
+        }
+
+        #needle {
+            position: absolute;
+            width: 5px;
+            height: 62px;
+            background: linear-gradient(180deg, #ff9b47, #ff4f57);
+            left: 50%;
+            bottom: 50%;
+            margin-left: -2.5px;
+            transform-origin: bottom center;
+            border-radius: 4px;
+            transition: transform 0.46s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 0 10px rgba(255, 79, 87, 0.62);
+            z-index: 5;
+        }
+
+        #needle::after {
+            content: '';
+            position: absolute;
+            bottom: -7px;
+            left: -4px;
+            width: 13px;
+            height: 13px;
+            background: var(--arcade-navy);
+            border-radius: 50%;
+            border: 2px solid #fff;
+        }
+
+        #fruit-tray {
+            position: absolute;
+            top: -27px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 34px;
+            z-index: 6;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.25));
+        }
+
+        #mobile-controls {
+            position: absolute;
+            bottom: 16px;
+            left: 0;
+            width: 100%;
+            padding: 0 16px;
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .btn-group { display: flex; gap: 12px; }
+
+        .ctrl-btn {
+            width: 78px;
+            height: 78px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(210, 231, 255, 0.95));
+            border: 3px solid rgba(255, 255, 255, 0.95);
+            border-radius: 22px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 32px;
+            color: var(--arcade-navy);
+            pointer-events: auto;
+            box-shadow: 0 9px 0 #7ca8e2, 0 15px 18px rgba(23, 47, 110, 0.34);
+            transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+        }
+
+        .ctrl-btn:active {
+            transform: translateY(8px) scale(0.98);
+            box-shadow: 0 2px 0 #7ca8e2;
+            filter: brightness(1.08);
+        }
+
+        .ctrl-btn.pressed {
+            transform: translateY(8px) scale(0.98);
+            box-shadow: 0 2px 0 #7ca8e2;
+            filter: brightness(1.08);
+        }
+
+        @media (pointer: fine) {
+            #mobile-controls { display: none !important; }
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 50% 20%, rgba(21, 33, 90, 0.55), rgba(17, 23, 63, 0.78));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            pointer-events: auto;
+            overflow-y: auto;
+            padding: 16px;
+            animation: modalFade 220ms ease;
+        }
+
+        @keyframes modalFade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: linear-gradient(160deg, rgba(255, 255, 255, 0.98), rgba(231, 243, 255, 0.95));
+            padding: 24px 28px;
+            border-radius: 28px;
+            border: 4px solid rgba(255, 255, 255, 0.9);
+            text-align: center;
+            box-shadow: 0 22px 36px rgba(11, 22, 69, 0.48);
+            max-width: 460px;
+            width: 100%;
+        }
+
+        .modal-title {
+            font-size: 36px;
+            color: var(--arcade-navy);
+            margin: 0 0 10px 0;
+            text-shadow: 0 3px 0 rgba(84, 117, 188, 0.2);
+        }
+
+        .modal-sub { font-size: 19px; color: #39405f; margin: 0 0 8px; line-height: 1.35; }
+        .modal-hint { font-size: 15px; color: #596183; margin: 0 0 12px; }
+
+        .modal-btn {
+            background: linear-gradient(180deg, #65f4c4, #31d7b0);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            padding: 13px 26px;
+            font-size: 21px;
+            color: #fff;
+            border-radius: 16px;
+            cursor: pointer;
+            font-family: inherit;
+            box-shadow: 0 8px 0 #20a48a, 0 12px 18px rgba(26, 77, 82, 0.3);
+            margin: 6px 4px;
+            transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+            display: inline-block;
+        }
+
+        .modal-btn:active {
+            transform: translateY(7px);
+            box-shadow: 0 2px 0 #20a48a;
+            filter: saturate(1.05);
+        }
+
+        .modal-btn-blue {
+            background: linear-gradient(180deg, #6ea8ff, #4f75ff);
+            box-shadow: 0 8px 0 #3457c8, 0 12px 18px rgba(50, 70, 148, 0.36);
+        }
+
+        .modal-btn-ghost {
+            background: linear-gradient(180deg, #fffaf1, #ffe7c6);
+            color: #493f2d;
+            border: 2px solid #fff7e7;
+            box-shadow: 0 8px 0 #d8b98e, 0 12px 18px rgba(78, 62, 36, 0.23);
+        }
+
+        #player-chip {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+            margin: 8px auto;
+            background: rgba(255,255,255,0.92);
+            padding: 5px 14px 5px 5px;
+            border-radius: 999px;
+            font-size: 14px;
+            color: #2f3758;
+        }
+        #player-chip img, #player-chip .pc-init {
+            width: 30px; height: 30px; border-radius: 50%; object-fit: cover;
+        }
+        #player-chip .pc-init {
+            background: linear-gradient(135deg,#6c5ce7,#a29bfe);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; color: #fff;
+        }
+
+        #my-stats {
+            display: none;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        #my-stats .ms-cell {
+            flex: 1;
+            background: rgba(255,255,255,0.8);
+            border-radius: 14px;
+            padding: 8px;
+        }
+        #my-stats .ms-val { font-size: 1.4rem; color: #3756ce; font-weight: bold; }
+        #my-stats .ms-label { font-size: 0.75rem; color: #596183; }
+
+        .leaderboard-box {
+            background: rgba(255,255,255,0.94);
+            color: #2f3a62;
+            border-radius: 14px;
+            padding: 10px 12px;
+            margin: 10px 0;
+            text-align: left;
+            border: 2px dashed rgba(116, 146, 214, 0.4);
+        }
+        .lb-title { font-size: 1rem; margin: 0 0 6px; }
+        .leaderboard-list { list-style: none; padding: 0; margin: 0; }
+        .leaderboard-list li {
+            display: flex; align-items: center; gap: 8px;
+            padding: 4px 0; border-bottom: 1px dashed #d7deef; font-size: 14px;
+        }
+        .leaderboard-list li:last-child { border-bottom: none; }
+        .leaderboard-list li.is-me { background: #fff1c8; border-radius: 8px; }
+        .lb-loading { color: #6f7a9c; text-align: center; padding: 6px; }
+
+        #go-score { font-size: 24px; color: #2d3660; margin: 8px 0; }
+
+        canvas {
+            display: block;
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        @media (max-width: 980px) {
+            #ui-layer { padding: 10px; }
+            .hud-box { min-width: 156px; font-size: 18px; padding: 9px 12px; }
+            #banner { font-size: 19px; padding: 7px 14px; }
+            #scale-container { width: 116px; height: 116px; }
+            .tick-mark { transform-origin: 1.5px 51px; }
+        }
+
+        @media (max-width: 720px) {
+            #ui-layer {
+                display: grid;
+                grid-template-columns: 1fr auto;
+                grid-template-areas:
+                    "left right"
+                    "center center";
+                row-gap: 10px;
+                column-gap: 8px;
+                align-items: start;
+            }
+            #hud-left { grid-area: left; min-width: 0; }
+            #hud-right { grid-area: right; min-width: 0; }
+            #hud-center { grid-area: center; position: static; transform: none; justify-self: center; }
+            #banner { font-size: 17px; }
+            #scale-container { width: 102px; height: 102px; border-width: 6px; }
+            .tick-mark { transform-origin: 1.5px 44px; top: 6px; }
+            .tick-label { font-size: 11px; }
+            .modal-content { padding: 20px 18px; border-radius: 22px; }
+            .modal-title { font-size: 30px; }
+            .modal-sub { font-size: 16px; }
+            .modal-btn { width: 100%; margin: 6px 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ui-layer">
+        <div id="hud-left" class="hud-box">
+            <div id="ui-lives" class="hud-stat">❤️ พลังชีวิต: 3</div>
+            <div id="ui-score" class="hud-stat">🏆 คะแนน: 0</div>
+            <div id="ui-stars" class="hud-stat">⭐ ดาว: 0</div>
+        </div>
+        <div id="hud-center">
+            <div id="banner">🌸 ผลไม้หนักกี่กิโลกรัม?</div>
+            <div id="scale-container">
+                <div id="fruit-tray">🍎</div>
+                <div id="scale-ticks"></div>
+                <div id="needle"></div>
+            </div>
+        </div>
+        <div id="hud-right" class="hud-box">
+            <div id="ui-time" class="hud-stat">⏳ เวลา: 60s</div>
+            <div id="ui-correct" class="hud-stat">✅ ตอบถูก: 0</div>
+        </div>
+    </div>
+
+    <div id="mobile-controls">
+        <div class="btn-group">
+            <div class="ctrl-btn" id="btn-left">◀</div>
+            <div class="ctrl-btn" id="btn-right">▶</div>
+        </div>
+        <div class="btn-group">
+            <div class="ctrl-btn" id="btn-up">▲</div>
+        </div>
+    </div>
+
+    <div id="start-screen" class="modal-overlay">
+        <div class="modal-content">
+            <h1 class="modal-title">🍃 Weight Adventure</h1>
+            <p class="modal-sub">กระโดดเก็บดาวและโหม่งคำตอบที่ตรงกับน้ำหนักบนเครื่องชั่งสปริง!</p>
+            <p class="modal-hint">การควบคุม: ลูกศรซ้าย/ขวา/ขึ้น หรือปุ่มบนหน้าจอ</p>
+            <div id="player-chip"></div>
+            <div id="my-stats">
+                <div class="ms-cell"><div class="ms-val" id="ms-best">0</div><div class="ms-label">คะแนนสูงสุด</div></div>
+                <div class="ms-cell"><div class="ms-val" id="ms-plays">0</div><div class="ms-label">เล่นแล้ว (ครั้ง)</div></div>
+            </div>
+            <div class="leaderboard-box">
+                <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+                <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+            </div>
+            <button class="modal-btn" type="button" onclick="startSingleGame()">เริ่มเกม 🚀</button>
+            <button class="modal-btn modal-btn-blue" type="button" onclick="vs.openMenu()">⚔️ แข่ง 2 คน</button>
+        </div>
+    </div>
+
+    <div id="game-over-screen" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h1 class="modal-title" id="go-title">🍂 หมดเวลา!</h1>
+            <p id="go-score">คะแนน: 0</p>
+            <div id="kampai-result"></div>
+            <div class="leaderboard-box">
+                <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+                <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+            </div>
+            <button class="modal-btn" type="button" onclick="resetGame()">เล่นอีกครั้ง 🔄</button>
+            <button class="modal-btn modal-btn-ghost" type="button" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+        </div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+<script>
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], classmates:[], input:{}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+</script>
+<script src="/games/kampai-match.js"></script>
+<script>
+window.KampaiMatch = window.KampaiMatch || { create:function(){ return { available:false, openMenu:function(){ alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); }, report:function(){}, finish:function(){}, leave:function(){} }; } };
+</script>
+<script src="/games/kampai-versus.js"></script>
+<script>
+window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window.KampaiMatch&&window.KampaiMatch.create)?window.KampaiMatch.create(o):null; return { available:false, openMenu:function(){ if(m)m.openMenu(); }, report:function(s,i){ if(m)m.report(s,i); }, finish:function(s,i){ if(m){m.finish(s,i);return true;} return false; }, leave:function(){}, mode:null }; } };
+</script>
+
+<script>
+    const GAME_SLUG = 'weight-adventure';
+    const GAME_DURATION = 60;
+    KAMPAI.setSlug(GAME_SLUG);
+    KAMPAI.sound.defaultBgm('cheerful');
+
+    const vs = KampaiVersus.create({
+        duration: GAME_DURATION,
+        title: 'ผจญภัยชั่งน้ำหนัก',
+        rankBy: 'score',
+        onPlay: function () { beginGameplay(); },
+        onEnd: function () {
+            isPlaying = false;
+            clearInterval(timerInterval);
+        },
+    });
+
+    function renderPlayer() {
+        const s = KAMPAI.student, st = KAMPAI.stats;
+        if (!s) return;
+        const chip = document.getElementById('player-chip');
+        const av = s.photoUrl
+            ? '<img src="' + s.photoUrl + '" alt="">'
+            : '<div class="pc-init">' + (s.displayName || '?')[0] + '</div>';
+        chip.innerHTML = av + '<span>' + (s.displayName || '') + (st ? ' · สถิติ ' + (st.personalBest || 0).toLocaleString() : '') + '</span>';
+        chip.style.display = 'flex';
+    }
+
+    function renderMyStats() {
+        const st = KAMPAI.stats;
+        if (!st) return;
+        document.getElementById('ms-best').innerText = (st.personalBest || 0).toLocaleString();
+        document.getElementById('ms-plays').innerText = (st.playsCount || 0).toLocaleString();
+        document.getElementById('my-stats').style.display = 'flex';
+    }
+
+    function renderLeaderboard(listId) {
+        const el = document.getElementById(listId);
+        if (!el) return;
+        const rows = KAMPAI.leaderboard || [];
+        if (!rows.length) {
+            el.innerHTML = '<li class="lb-loading">ยังไม่มีผู้เล่น — เป็นคนแรกสิ!</li>';
+            return;
+        }
+        const medals = ['🥇', '🥈', '🥉'];
+        el.innerHTML = rows.slice(0, 5).map(function (r) {
+            return '<li class="' + (r.isMe ? 'is-me' : '') + '">' +
+                (medals[r.rank - 1] || r.rank) + ' ' +
+                (r.displayName || 'เพื่อน') +
+                (r.isMe ? ' (คุณ)' : '') +
+                ' — ' + (r.personalBest || 0).toLocaleString() + ' คะแนน' +
+                '</li>';
+        }).join('');
+    }
+
+    KAMPAI.onReady(function () {
+        renderPlayer();
+        renderMyStats();
+        renderLeaderboard('score-list');
+        KAMPAI.sound.mountToggles();
+    });
+
+    if (!CanvasRenderingContext2D.prototype.roundRect) {
+        CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+            if (w < 2 * r) r = w / 2;
+            if (h < 2 * r) r = h / 2;
+            this.beginPath();
+            this.moveTo(x + r, y);
+            this.arcTo(x + w, y, x + w, y + h, r);
+            this.arcTo(x + w, y + h, x, y + h, r);
+            this.arcTo(x, y + h, x, y, r);
+            this.arcTo(x, y, x + w, y, r);
+            this.closePath();
+            return this;
+        };
+    }
+
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx;
+
+    function initAudio() {
+        if (!audioCtx) audioCtx = new AudioContext();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        KAMPAI.sound.unlock();
+    }
+
+    function playSound(type) {
+        try {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+            if (type === 'jump') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+                gainNode.gain.setValueAtTime(0.3, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            } else if (type === 'coin') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(880, now);
+                osc.frequency.setValueAtTime(1318.51, now + 0.1);
+                gainNode.gain.setValueAtTime(0.1, now);
+                gainNode.gain.linearRampToValueAtTime(0, now + 0.2);
+                osc.start(now);
+                osc.stop(now + 0.2);
+            }
+        } catch (e) { /* ignore */ }
+    }
+
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d', { alpha: false });
+    let cw, ch;
+
+    function resizeCanvas() {
+        cw = window.innerWidth;
+        ch = window.innerHeight;
+        canvas.width = cw;
+        canvas.height = ch;
+        setupScale();
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    let isPlaying = false;
+    let lastTime = 0;
+    let cameraX = 0;
+    let lastSafePlatform = null;
+    let sessionStartTs = 0;
+    const WORLD_SPEED_BASE = 170;
+    let worldSpeed = WORLD_SPEED_BASE;
+    let spawnTimer = 0;
+    let spawnInterval = 1.05;
+    let targetPlatformY = 0;
+
+    let lives = 3;
+    let score = 0;
+    let starCount = 0;
+    let timeLeft = GAME_DURATION;
+    let correctCount = 0;
+    let timerInterval;
+
+    let currentWeight = 1;
+    let currentAnswers = [];
+    const fruits = ['🍎', '🍊', '🍌', '🍉', '🍇', '🍍'];
+    const hudFlashTimers = {};
+    const hudState = { lives: 3, score: 0, stars: 0, time: GAME_DURATION, correct: 0 };
+
+    let player;
+    let platforms = [];
+    let stars = [];
+    let bubbles = [];
+    let clouds = [];
+    let particles = [];
+    let nextPlatformX = 0;
+
+    const keys = { right: false, left: false, up: false };
+    const baseBannerText = '🌸 ผลไม้หนักกี่กิโลกรัม?';
+    let bannerTimer;
+
+    function pulseHud(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.add('flash');
+        clearTimeout(hudFlashTimers[id]);
+        hudFlashTimers[id] = setTimeout(function () {
+            el.classList.remove('flash');
+        }, 220);
+    }
+
+    function updateHudWarnings() {
+        const livesEl = document.getElementById('ui-lives');
+        const timeEl = document.getElementById('ui-time');
+        if (livesEl) livesEl.classList.toggle('warn', lives <= 1 && isPlaying);
+        if (timeEl) timeEl.classList.toggle('warn', timeLeft <= 10 && isPlaying);
+    }
+
+    function flashBanner(type, text) {
+        const banner = document.getElementById('banner');
+        if (!banner) return;
+        banner.classList.remove('is-correct', 'is-wrong');
+        banner.offsetWidth;
+        banner.innerText = text;
+        if (type) banner.classList.add(type === 'correct' ? 'is-correct' : 'is-wrong');
+        clearTimeout(bannerTimer);
+        bannerTimer = setTimeout(function () {
+            banner.classList.remove('is-correct', 'is-wrong');
+            banner.innerText = baseBannerText;
+        }, 760);
+    }
+
+    window.addEventListener('keydown', function (e) {
+        if (e.code === 'ArrowRight') keys.right = true;
+        if (e.code === 'ArrowLeft') keys.left = true;
+        if (e.code === 'ArrowUp') keys.up = true;
+    });
+    window.addEventListener('keyup', function (e) {
+        if (e.code === 'ArrowRight') keys.right = false;
+        if (e.code === 'ArrowLeft') keys.left = false;
+        if (e.code === 'ArrowUp') keys.up = false;
+    });
+
+    function bindBtn(id, key) {
+        const btn = document.getElementById(id);
+        btn.addEventListener('touchstart', function (e) {
+            e.preventDefault();
+            keys[key] = true;
+            btn.classList.add('pressed');
+        });
+        btn.addEventListener('touchend', function (e) {
+            e.preventDefault();
+            keys[key] = false;
+            btn.classList.remove('pressed');
+        });
+        btn.addEventListener('touchcancel', function (e) {
+            e.preventDefault();
+            keys[key] = false;
+            btn.classList.remove('pressed');
+        });
+    }
+    bindBtn('btn-left', 'left');
+    bindBtn('btn-right', 'right');
+    bindBtn('btn-up', 'up');
+
+    function setupScale() {
+        const scale = document.getElementById('scale-container');
+        const ticksContainer = document.getElementById('scale-ticks');
+        ticksContainer.innerHTML = '';
+        const size = scale ? scale.clientWidth : 120;
+        const cx = size / 2;
+        const cy = size / 2;
+        const tickTop = Math.round(size * 0.06);
+        const tickOrigin = Math.round(size * 0.45);
+        const labelRadius = Math.round(size * 0.33);
+        for (let i = 0; i <= 10; i++) {
+            const angleDeg = i * 36 - 90;
+            const angleRad = angleDeg * Math.PI / 180;
+            const tick = document.createElement('div');
+            tick.className = 'tick-mark';
+            tick.style.top = tickTop + 'px';
+            tick.style.transformOrigin = '1.5px ' + tickOrigin + 'px';
+            tick.style.transform = 'rotate(' + (i * 36) + 'deg)';
+            ticksContainer.appendChild(tick);
+            if (i % 2 === 0) {
+                const label = document.createElement('div');
+                label.className = 'tick-label';
+                label.innerText = String(i);
+                label.style.left = (cx + Math.cos(angleRad) * labelRadius) + 'px';
+                label.style.top = (cy + Math.sin(angleRad) * labelRadius) + 'px';
+                ticksContainer.appendChild(label);
+            }
+        }
+    }
+    setupScale();
+
+    function updateProblem() {
+        currentWeight = Math.floor(Math.random() * 10) + 1;
+        document.getElementById('fruit-tray').innerText = fruits[Math.floor(Math.random() * fruits.length)];
+        document.getElementById('needle').style.transform = 'rotate(' + (currentWeight * 36) + 'deg)';
+        document.getElementById('banner').innerText = baseBannerText;
+
+        currentAnswers = [currentWeight];
+        let loopProtect = 0;
+        while (currentAnswers.length < 3 && loopProtect < 50) {
+            let offset = Math.floor(Math.random() * 6) - 3;
+            if (offset === 0) offset = 1;
+            let fakeWeight = currentWeight + offset;
+            if (fakeWeight < 1) fakeWeight = 1;
+            if (!currentAnswers.includes(fakeWeight)) currentAnswers.push(fakeWeight);
+            loopProtect++;
+        }
+        currentAnswers.sort(function () { return Math.random() - 0.5; });
+    }
+
+    function spawnAnswerBubbles(anchorX, anchorY) {
+        const spread = [-170, 0, 170];
+        const ySpread = [-150, -210, -150];
+        const pairs = currentAnswers.map(function (v) {
+            return { value: v, isCorrect: v === currentWeight };
+        }).sort(function () { return Math.random() - 0.5; });
+
+        for (let i = 0; i < pairs.length; i++) {
+            bubbles.push(new Bubble(anchorX + spread[i], anchorY + ySpread[i], pairs[i].value, pairs[i].isCorrect));
+        }
+    }
+
+    function spawnWave() {
+        const waveX = cw + 150 + Math.random() * 40;
+        targetPlatformY += (Math.random() * 80 - 40);
+        if (targetPlatformY > ch - 120) targetPlatformY = ch - 120;
+        if (targetPlatformY < ch - 260) targetPlatformY = ch - 260;
+
+        const mainW = 170 + Math.random() * 90;
+        const mainPlatform = new Platform(waveX, targetPlatformY, mainW, 56);
+        platforms.push(mainPlatform);
+
+        if (Math.random() > 0.45) {
+            stars.push(new Star(waveX + mainW * 0.5 - 15, targetPlatformY - 58));
+        }
+
+        if (Math.random() > 0.5) {
+            const altY = Math.max(ch - 300, Math.min(ch - 130, targetPlatformY + (Math.random() > 0.5 ? -75 : 75)));
+            const altW = 120 + Math.random() * 70;
+            const altX = waveX + (Math.random() > 0.5 ? -90 : 90);
+            platforms.push(new Platform(altX, altY, altW, 56));
+        }
+
+        if (bubbles.filter(function (b) { return b.active; }).length <= 1) {
+            updateProblem();
+            spawnAnswerBubbles(waveX + mainW * 0.5, targetPlatformY);
+        }
+    }
+
+    class Player {
+        constructor() {
+            this.w = 40;
+            this.h = 60;
+            this.x = 100;
+            this.y = ch / 2;
+            this.vx = 0;
+            this.vy = 0;
+            this.speed = 300;
+            this.jumpForce = -650;
+            this.gravity = 1500;
+            this.onGround = false;
+            this.facingRight = true;
+            this.bobTimer = 0;
+        }
+
+        update(dt) {
+            if (keys.right) { this.vx = this.speed; this.facingRight = true; }
+            else if (keys.left) { this.vx = -this.speed; this.facingRight = false; }
+            else { this.vx = 0; }
+
+            if (keys.up && this.onGround) {
+                this.vy = this.jumpForce;
+                this.onGround = false;
+                playSound('jump');
+            }
+
+            this.vy += this.gravity * dt;
+            this.x += this.vx * dt;
+            this.y += this.vy * dt;
+
+            if (this.x < 20) this.x = 20;
+            if (this.x + this.w > cw - 20) this.x = cw - this.w - 20;
+
+            if (this.vx !== 0 && this.onGround) this.bobTimer += dt * 15;
+            else this.bobTimer = 0;
+
+            if (this.y > ch + 200) takeDamage();
+        }
+
+        draw(ctx) {
+            const drawX = this.x - cameraX;
+            const drawY = this.y + Math.sin(this.bobTimer) * 3;
+            ctx.save();
+            ctx.translate(drawX + this.w / 2, drawY + this.h / 2);
+            if (!this.facingRight) ctx.scale(-1, 1);
+
+            ctx.fillStyle = '#fff';
+            ctx.beginPath(); ctx.ellipse(-10, -35, 6, 20, -0.2, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(10, -35, 6, 20, 0.2, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#ffb7c5';
+            ctx.beginPath(); ctx.ellipse(-10, -32, 3, 14, -0.2, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(10, -32, 3, 14, 0.2, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#fff';
+            ctx.beginPath(); ctx.arc(0, -15, 20, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#000';
+            ctx.beginPath(); ctx.arc(8, -18, 3, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(18, -18, 3, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = 'rgba(255, 105, 180, 0.5)';
+            ctx.beginPath(); ctx.arc(22, -12, 4, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#87ceeb';
+            ctx.roundRect(-15, 0, 30, 25, 10); ctx.fill();
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(-15, 10, 30, 5);
+            ctx.fillStyle = '#fff';
+            ctx.beginPath(); ctx.arc(-8, 28, 6, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(8, 28, 6, 0, Math.PI * 2); ctx.fill();
+            ctx.restore();
+        }
+    }
+
+    class Platform {
+        constructor(x, y, w, h) {
+            this.x = x; this.y = y; this.w = w; this.h = h;
+        }
+        draw(ctx) {
+            const dx = this.x - cameraX;
+            if (dx + this.w < 0 || dx > cw) return;
+            const visualH = Math.min(this.h, 56);
+            ctx.fillStyle = '#8b5a2b';
+            ctx.roundRect(dx, this.y, this.w, visualH, 10);
+            ctx.fill();
+            ctx.fillStyle = '#7ccd7c';
+            ctx.roundRect(dx, this.y, this.w, 15, 10);
+            ctx.fill();
+            ctx.fillStyle = '#548b54';
+            ctx.fillRect(dx, this.y + 15, this.w, 4);
+        }
+    }
+
+    class Star {
+        constructor(x, y) {
+            this.x = x; this.y = y; this.w = 30; this.h = 30;
+            this.collected = false;
+            this.rot = 0;
+        }
+        draw(ctx, dt) {
+            if (this.collected) return;
+            const dx = this.x - cameraX;
+            if (dx + this.w < 0 || dx > cw) return;
+            this.rot += dt;
+            ctx.save();
+            ctx.translate(dx + this.w / 2, this.y + this.h / 2 + Math.sin(this.rot * 3) * 5);
+            ctx.fillStyle = '#ffd700';
+            ctx.beginPath();
+            for (let i = 0; i < 5; i++) {
+                ctx.lineTo(Math.cos((18 + i * 72) / 180 * Math.PI) * 15, -Math.sin((18 + i * 72) / 180 * Math.PI) * 15);
+                ctx.lineTo(Math.cos((54 + i * 72) / 180 * Math.PI) * 6, -Math.sin((54 + i * 72) / 180 * Math.PI) * 6);
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = '#ffeb3b';
+            ctx.beginPath();
+            ctx.lineTo(Math.cos(18 / 180 * Math.PI) * 10, -Math.sin(18 / 180 * Math.PI) * 10);
+            ctx.lineTo(Math.cos(54 / 180 * Math.PI) * 4, -Math.sin(54 / 180 * Math.PI) * 4);
+            ctx.lineTo(Math.cos(90 / 180 * Math.PI) * 10, -Math.sin(90 / 180 * Math.PI) * 10);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+        }
+    }
+
+    class Bubble {
+        constructor(x, y, value, isCorrect) {
+            this.x = x; this.y = y; this.r = 35;
+            this.value = value;
+            this.isCorrect = isCorrect;
+            this.active = true;
+            this.colorBase = ['#ffb3ba', '#baffc9', '#bae1ff'][Math.floor(Math.random() * 3)];
+        }
+        draw(ctx) {
+            if (!this.active) return;
+            const dx = this.x - cameraX;
+            if (dx + this.r < 0 || dx - this.r > cw) return;
+            ctx.save();
+            ctx.translate(dx, this.y + Math.sin(Date.now() / 300 + this.x) * 5);
+            ctx.fillStyle = this.colorBase;
+            ctx.beginPath(); ctx.arc(0, 0, this.r, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = 'rgba(255,255,255,0.4)';
+            ctx.beginPath(); ctx.arc(-5, -5, this.r * 0.6, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = 'rgba(255,255,255,0.8)';
+            ctx.beginPath(); ctx.arc(-10, -10, this.r * 0.2, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#333';
+            ctx.font = "bold 30px 'Itim'";
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(this.value, 0, 2);
+            ctx.restore();
+        }
+    }
+
+    class Cloud {
+        constructor() {
+            this.x = Math.random() * 2000;
+            this.y = Math.random() * (ch / 2);
+            this.speed = Math.random() * 20 + 10;
+            this.scale = Math.random() * 0.5 + 0.5;
+        }
+        update(dt) {
+            this.x -= this.speed * dt;
+            if (this.x - cameraX + 200 < 0) {
+                this.x = cameraX + cw + 200;
+                this.y = Math.random() * (ch / 2);
+            }
+        }
+        draw(ctx) {
+            const dx = this.x - cameraX;
+            if (dx > cw || dx < -200) return;
+            ctx.save();
+            ctx.translate(dx, this.y);
+            ctx.scale(this.scale, this.scale);
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(0, 0, 30, 0, Math.PI * 2);
+            ctx.arc(30, -15, 35, 0, Math.PI * 2);
+            ctx.arc(60, 0, 30, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#333';
+            ctx.beginPath(); ctx.arc(20, -5, 3, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(40, -5, 3, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(30, 5, 4, 0, Math.PI, false); ctx.stroke();
+            ctx.restore();
+        }
+    }
+
+    class Particle {
+        constructor(x, y, color) {
+            this.x = x; this.y = y;
+            this.vx = (Math.random() - 0.5) * 200;
+            this.vy = (Math.random() - 0.5) * 200;
+            this.life = 1.0;
+            this.color = color;
+        }
+        update(dt) {
+            this.x += this.vx * dt;
+            this.y += this.vy * dt;
+            this.life -= dt * 2;
+        }
+        draw(ctx) {
+            if (this.life <= 0) return;
+            const dx = this.x - cameraX;
+            ctx.globalAlpha = this.life;
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.arc(dx, this.y, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1.0;
+        }
+    }
+
+    function spawnParticles(x, y, color) {
+        for (let i = 0; i < 15; i++) particles.push(new Particle(x, y, color));
+    }
+
+    function calcStars() {
+        if (starCount >= 5) return 3;
+        if (starCount >= 2) return 2;
+        if (starCount >= 1) return 1;
+        return 0;
+    }
+
+    function generateChunk() {
+        while (spawnTimer >= spawnInterval) {
+            spawnWave();
+            spawnTimer -= spawnInterval;
+            spawnInterval = 0.88 + Math.random() * 0.22;
+        }
+    }
+
+    function takeDamage() {
+        lives--;
+        KAMPAI.sound.wrong();
+        updateUI();
+        if (lives <= 0) {
+            endGame();
+        } else {
+            player.vx = 0;
+            player.vy = 0;
+            if (lastSafePlatform && lastSafePlatform.x + lastSafePlatform.w > 40) {
+                player.x = lastSafePlatform.x + lastSafePlatform.w / 2;
+                player.y = lastSafePlatform.y - player.h - 10;
+            } else {
+                player.x = 100;
+                player.y = 100;
+            }
+        }
+    }
+
+    function checkCollisions() {
+        player.onGround = false;
+
+        for (let p of platforms) {
+            if (player.x + player.w > p.x && player.x < p.x + p.w) {
+                if (player.vy >= 0 && player.y + player.h <= p.y + 20 && player.y + player.h + player.vy * 0.05 >= p.y) {
+                    player.y = p.y - player.h;
+                    player.vy = 0;
+                    player.onGround = true;
+                    lastSafePlatform = p;
+                }
+            }
+        }
+
+        for (let s of stars) {
+            if (!s.collected && player.x < s.x + s.w && player.x + player.w > s.x && player.y < s.y + s.h && player.y + player.h > s.y) {
+                s.collected = true;
+                score += 10;
+                starCount++;
+                playSound('coin');
+                spawnParticles(s.x + 15, s.y + 15, '#ffd700');
+                updateUI();
+            }
+        }
+
+        for (let b of bubbles) {
+            if (!b.active) continue;
+            const distX = (player.x + player.w / 2) - b.x;
+            const distY = player.y - b.y;
+            const dist = Math.sqrt(distX * distX + distY * distY);
+
+            if (dist < b.r + 20) {
+                b.active = false;
+                if (b.isCorrect) {
+                    score += 55;
+                    timeLeft += 8;
+                    correctCount++;
+                    KAMPAI.sound.correct();
+                    flashBanner('correct', '✅ ถูกต้อง! +8 วินาที');
+                    spawnParticles(b.x, b.y, '#58d68d');
+                    bubbles.forEach(function (sib) { sib.active = false; });
+                    vs.report(score, { correct: correctCount });
+                    updateUI();
+                } else {
+                    flashBanner('wrong', '❌ ยังไม่ใช่ ลองใหม่!');
+                    takeDamage();
+                    spawnParticles(b.x, b.y, '#e74c3c');
+                }
+            }
+        }
+    }
+
+    function garbageCollection() {
+        const deadZone = -280;
+        platforms = platforms.filter(function (p) { return p.x + p.w > deadZone; });
+        stars = stars.filter(function (s) { return s.x > deadZone && !s.collected; });
+        bubbles = bubbles.filter(function (b) { return b.x + b.r > deadZone && b.active; });
+        particles = particles.filter(function (p) { return p.life > 0; });
+    }
+
+    function updateUI() {
+        document.getElementById('ui-lives').innerText = '❤️ พลังชีวิต: ' + lives;
+        document.getElementById('ui-score').innerText = '🏆 คะแนน: ' + score;
+        document.getElementById('ui-stars').innerText = '⭐ ดาว: ' + starCount;
+        document.getElementById('ui-time').innerText = '⏳ เวลา: ' + timeLeft + 's';
+        document.getElementById('ui-correct').innerText = '✅ ตอบถูก: ' + correctCount;
+
+        if (lives !== hudState.lives) pulseHud('ui-lives');
+        if (score !== hudState.score) pulseHud('ui-score');
+        if (starCount !== hudState.stars) pulseHud('ui-stars');
+        if (timeLeft !== hudState.time) pulseHud('ui-time');
+        if (correctCount !== hudState.correct) pulseHud('ui-correct');
+        hudState.lives = lives;
+        hudState.score = score;
+        hudState.stars = starCount;
+        hudState.time = timeLeft;
+        hudState.correct = correctCount;
+        updateHudWarnings();
+    }
+
+    function startSingleGame() {
+        initAudio();
+        beginGameplay();
+    }
+
+    function beginGameplay() {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('game-over-screen').style.display = 'none';
+        document.getElementById('kampai-result').innerHTML = '';
+
+        lives = 3;
+        score = 0;
+        starCount = 0;
+        timeLeft = GAME_DURATION;
+        correctCount = 0;
+        cameraX = 0;
+        nextPlatformX = -100;
+        worldSpeed = WORLD_SPEED_BASE;
+        spawnTimer = 0;
+        spawnInterval = 1.0;
+        platforms = [];
+        stars = [];
+        bubbles = [];
+        particles = [];
+        clouds = [];
+        sessionStartTs = Date.now();
+        targetPlatformY = ch - 180;
+
+        player = new Player();
+        player.x = 170;
+        player.y = targetPlatformY - player.h;
+        for (let i = 0; i < 8; i++) clouds.push(new Cloud());
+
+        updateUI();
+        const startPlatform = new Platform(30, targetPlatformY, Math.max(290, cw * 0.42), 56);
+        platforms.push(startPlatform);
+        lastSafePlatform = startPlatform;
+        updateProblem();
+        spawnAnswerBubbles(cw * 0.62, targetPlatformY);
+
+        isPlaying = true;
+        lastTime = performance.now();
+        updateHudWarnings();
+
+        clearInterval(timerInterval);
+        timerInterval = setInterval(function () {
+            if (!isPlaying) return;
+            timeLeft--;
+            updateUI();
+            if (timeLeft <= 0) endGame();
+        }, 1000);
+
+        KAMPAI.sound.bgmStart();
+        requestAnimationFrame(gameLoop);
+    }
+
+    function resetGame() {
+        document.getElementById('game-over-screen').style.display = 'none';
+        document.getElementById('start-screen').style.display = 'flex';
+        renderLeaderboard('score-list');
+        isPlaying = false;
+        updateHudWarnings();
+        clearInterval(timerInterval);
+        KAMPAI.sound.bgmStop();
+    }
+
+    function endGame() {
+        if (!isPlaying) return;
+        isPlaying = false;
+        updateHudWarnings();
+        clearInterval(timerInterval);
+        KAMPAI.sound.bgmStop();
+        KAMPAI.sound.gameOver();
+
+        const starsEarned = calcStars();
+        const duration = Math.max(1, Math.floor((Date.now() - sessionStartTs) / 1000));
+
+        if (vs.finish(score, { correct: correctCount, stars: starsEarned })) return;
+
+        KAMPAI.submitScore(score, {
+            correct: correctCount,
+            stars: starsEarned,
+            duration: duration,
+        });
+
+        document.getElementById('go-title').innerText = lives <= 0 ? '🍂 พลังชีวิตหมด!' : '🍂 หมดเวลา!';
+        document.getElementById('go-score').innerText = 'คะแนนรวม: ' + score + ' · ตอบถูก ' + correctCount + ' ข้อ';
+        renderLeaderboard('score-list-gameover');
+        document.getElementById('game-over-screen').style.display = 'flex';
+    }
+
+    function gameLoop(timestamp) {
+        if (!isPlaying) return;
+
+        let dt = (timestamp - lastTime) / 1000;
+        lastTime = timestamp;
+        if (dt > 0.05) dt = 0.05;
+
+        player.update(dt);
+        clouds.forEach(function (c) { c.update(dt); });
+        particles.forEach(function (p) { p.update(dt); });
+        spawnTimer += dt;
+        platforms.forEach(function (p) { p.x -= worldSpeed * dt; });
+        stars.forEach(function (s) { s.x -= worldSpeed * dt; });
+        bubbles.forEach(function (b) { b.x -= worldSpeed * dt; });
+
+        generateChunk();
+        checkCollisions();
+        garbageCollection();
+
+        const bgGradient = ctx.createLinearGradient(0, 0, 0, ch);
+        bgGradient.addColorStop(0, '#a1c4fd');
+        bgGradient.addColorStop(1, '#c2e9fb');
+        ctx.fillStyle = bgGradient;
+        ctx.fillRect(0, 0, cw, ch);
+
+        clouds.forEach(function (c) { c.draw(ctx); });
+        platforms.forEach(function (p) { p.draw(ctx); });
+        stars.forEach(function (s) { s.draw(ctx, dt); });
+        bubbles.forEach(function (b) { b.draw(ctx, dt); });
+        particles.forEach(function (p) { p.draw(ctx); });
+        player.draw(ctx);
+
+        requestAnimationFrame(gameLoop);
+    }
+</script>
+</body>
+</html>

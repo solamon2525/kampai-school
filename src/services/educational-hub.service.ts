@@ -3,6 +3,10 @@
  * Supabase queries สำหรับ Educational Hub — categories, profiles, items + counter RPCs
  */
 import { supabase } from '@/integrations/supabase/client';
+import { getCharacterAnimPreset, type CharacterAnimationConfig } from '@/lib/character-animation';
+import { type CharacterColorConfig, presetToColorConfig } from '@/lib/character-color';
+import { getCharacterStudioTemplate } from '@/lib/character-templates';
+import type { PlatformerBlueprintV1 } from '@/lib/game-blueprint';
 
 export type EduHubItemType = 'file' | 'link' | 'youtube' | 'text';
 
@@ -56,8 +60,21 @@ export type EduHubItem = {
     game_slug: string | null;
     tracked_game: boolean;
     homepage_featured: boolean;  // ปักหมุดขึ้นโซน "เกมแนะนำ" หน้าแรก (migration 213)
+    library_pinned?: boolean;     // ปักหมุดในหมวดคลังเกม — มีผลทุกเครื่อง (migration 249)
+    library_pin_order?: number;   // ลำดับในกลุ่มปักหมุด (step 10, 20, …)
     bgm_preset: string | null;   // เพลงประกอบรายเกม (preset key สังเคราะห์ใน KAMPAI.sound) — null = ใช้ default ของเกม
     bgm_url: string | null;      // เพลงอัปโหลด (mp3) — ถ้ามี = เล่นแทน synth
+    character_sheet_id: string | null;
+    character_sheet_url: string | null;
+    character_sheet_url_p2: string | null;
+    character_frame_w: number | null;
+    character_frame_h: number | null;
+    character_frame_count: number | null;
+    character_animation_config: CharacterAnimationConfig | null;
+    character_color_config: CharacterColorConfig | null;
+    game_play_style: string | null;
+    blueprint_id: string | null;
+    blueprint_json: Record<string, unknown> | null;
     created_at: string;
     updated_at: string;
 };
@@ -82,6 +99,26 @@ export type BgmTrack = {
     title: string;
     storage_path: string;
     url: string;
+    created_by: string | null;
+    created_at: string;
+};
+
+/** Sprite sheet ในคลังตัวละคร (game_character_sheets) */
+export type CharacterSheet = {
+    id: string;
+    title: string;
+    slug: string | null;
+    sheet_url: string;
+    sheet_url_p2: string | null;
+    storage_path: string;
+    storage_path_p2: string | null;
+    frame_width: number;
+    frame_height: number;
+    frame_count: number;
+    animation_config: CharacterAnimationConfig | null;
+    color_config: CharacterColorConfig | null;
+    preview_url: string | null;
+    notes: string | null;
     created_by: string | null;
     created_at: string;
 };
@@ -272,6 +309,45 @@ export const educationalHubService = {
         return { error: (firstErr as Error | undefined) ?? null };
     },
 
+    /** ปักหมุด/ปลดหมุดเกมในคลัง (global) — ใช้จากหน้า /h/:identifier (admin) */
+    toggleLibraryPin: async (
+        itemId: string,
+        pinned: boolean,
+        currentPinned: Pick<EduHubItem, 'library_pin_order'>[],
+    ): Promise<{ error: Error | null }> => {
+        if (pinned) {
+            const maxOrder = currentPinned.reduce(
+                (max, i) => Math.max(max, i.library_pin_order ?? 0),
+                0,
+            );
+            const { error } = await supabase
+                .from('educational_hub_items' as never)
+                .update({ library_pinned: true, library_pin_order: maxOrder + 10 } as never)
+                .eq('id', itemId);
+            return { error: (error as Error | null) ?? null };
+        }
+        const { error } = await supabase
+            .from('educational_hub_items' as never)
+            .update({ library_pinned: false, library_pin_order: 0 } as never)
+            .eq('id', itemId);
+        return { error: (error as Error | null) ?? null };
+    },
+
+    bulkUpdateLibraryPinOrder: async (
+        updates: { id: string; library_pin_order: number }[],
+    ): Promise<{ error: Error | null }> => {
+        const results = await Promise.all(
+            updates.map((u) =>
+                supabase
+                    .from('educational_hub_items' as never)
+                    .update({ library_pin_order: u.library_pin_order } as never)
+                    .eq('id', u.id),
+            ),
+        );
+        const firstErr = results.find((r) => r.error)?.error;
+        return { error: (firstErr as Error | undefined) ?? null };
+    },
+
     // ─── Hub layout default (school_settings key='hub_layout_default') ──
     /**
      * Fetch global default hub layout from school_settings.
@@ -424,6 +500,25 @@ export const isGameItem = (item: Pick<EduHubItem, 'item_type' | 'external_url'>)
     !!item.external_url &&
     (item.external_url.includes('/edu-hub-games/') || item.external_url.includes('/games/'));
 
+/** เรียงหมวดคลังเกม: ปักหมุดก่อน (library_pin_order) → ที่เหลือ created_at ใหม่สุดก่อน */
+export function sortGamesLibraryItems(items: EduHubItem[]): EduHubItem[] {
+    const pinned = items
+        .filter((i) => i.library_pinned)
+        .sort((a, b) => (a.library_pin_order ?? 0) - (b.library_pin_order ?? 0));
+    const unpinned = items
+        .filter((i) => !i.library_pinned)
+        .sort((a, b) => b.created_at.localeCompare(a.created_at));
+    return [...pinned, ...unpinned];
+}
+
+export function splitGamesLibraryItems(items: EduHubItem[]) {
+    const sorted = sortGamesLibraryItems(items);
+    return {
+        pinned: sorted.filter((i) => i.library_pinned),
+        unpinned: sorted.filter((i) => !i.library_pinned),
+    };
+}
+
 /** Format file size for display (e.g., "2.4 MB") */
 export const formatFileSize = (bytes: number | null | undefined): string => {
     if (!bytes || bytes <= 0) return '';
@@ -467,6 +562,447 @@ export const bgmTracksService = {
         await educationalHubService.removeFile(storagePath);
         const { error } = await supabase.from('game_bgm_tracks' as never).delete().eq('id', id);
         return { error: (error as Error | null) ?? null };
+    },
+};
+
+// ─── คลัง sprite sheet ตัวละคร (game_character_sheets) ───────────────────────
+
+async function syncCharacterSheetToAssignedGames(sheet: CharacterSheet): Promise<{ error: Error | null }> {
+    const fields = characterAssignmentFromSheet(sheet);
+    const { error } = await supabase
+        .from('educational_hub_items')
+        .update(fields as never)
+        .eq('character_sheet_id', sheet.id);
+    return { error: (error as Error | null) ?? null };
+}
+
+export const characterSheetsService = {
+    list: () =>
+        supabase
+            .from('game_character_sheets' as never)
+            .select('*')
+            .order('created_at', { ascending: false }),
+
+    upload: async (params: {
+        title: string;
+        sheetFile: File;
+        sheetFileP2?: File | null;
+        frameWidth: number;
+        frameHeight: number;
+        frameCount: number;
+        animationPreset?: string;
+        animationConfig?: CharacterAnimationConfig;
+        notes?: string;
+    }): Promise<{ sheet: CharacterSheet | null; error: Error | null }> => {
+        const animationConfig = params.animationConfig
+            ?? getCharacterAnimPreset(params.animationPreset ?? 'grid-3x6-18');
+        const id = crypto.randomUUID();
+        const base = `characters/${id}`;
+        const path1 = `${base}/sheet.png`;
+
+        const { error: up1Err } = await supabase.storage.from(BUCKET).upload(path1, params.sheetFile, {
+            cacheControl: '3600',
+            upsert: false,
+            contentType: params.sheetFile.type || 'image/png',
+        });
+        if (up1Err) return { sheet: null, error: up1Err as Error };
+
+        const url1 = supabase.storage.from(BUCKET).getPublicUrl(path1).data.publicUrl;
+        let path2: string | null = null;
+        let url2: string | null = null;
+
+        if (params.sheetFileP2) {
+            path2 = `${base}/sheet-p2.png`;
+            const { error: up2Err } = await supabase.storage.from(BUCKET).upload(path2, params.sheetFileP2, {
+                cacheControl: '3600',
+                upsert: false,
+                contentType: params.sheetFileP2.type || 'image/png',
+            });
+            if (up2Err) {
+                await educationalHubService.removeFile(path1);
+                return { sheet: null, error: up2Err as Error };
+            }
+            url2 = supabase.storage.from(BUCKET).getPublicUrl(path2).data.publicUrl;
+        }
+
+        const { data, error } = await supabase
+            .from('game_character_sheets' as never)
+            .insert({
+                id,
+                title: params.title.trim() || params.sheetFile.name.replace(/\.[^.]+$/, ''),
+                sheet_url: url1,
+                sheet_url_p2: url2,
+                storage_path: path1,
+                storage_path_p2: path2,
+                frame_width: params.frameWidth,
+                frame_height: params.frameHeight,
+                frame_count: params.frameCount,
+                animation_config: animationConfig,
+                notes: params.notes?.trim() || null,
+            } as never)
+            .select()
+            .single();
+
+        if (error) {
+            await educationalHubService.removeFile(path1);
+            if (path2) await educationalHubService.removeFile(path2);
+            return { sheet: null, error: error as Error };
+        }
+        return { sheet: data as unknown as CharacterSheet, error: null };
+    },
+
+    update: async (
+        id: string,
+        params: {
+            title?: string;
+            frameWidth?: number;
+            frameHeight?: number;
+            frameCount?: number;
+            animationConfig?: CharacterAnimationConfig;
+            colorConfig?: CharacterColorConfig | null;
+            notes?: string | null;
+        },
+    ): Promise<{ sheet: CharacterSheet | null; error: Error | null }> => {
+        const patch: Record<string, unknown> = {};
+        if (params.title != null) patch.title = params.title.trim();
+        if (params.frameWidth != null) patch.frame_width = params.frameWidth;
+        if (params.frameHeight != null) patch.frame_height = params.frameHeight;
+        if (params.frameCount != null) patch.frame_count = params.frameCount;
+        if (params.animationConfig != null) patch.animation_config = params.animationConfig;
+        if (params.colorConfig !== undefined) patch.color_config = params.colorConfig;
+        if (params.notes !== undefined) patch.notes = params.notes;
+
+        const { data, error } = await supabase
+            .from('game_character_sheets' as never)
+            .update(patch as never)
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error || !data) return { sheet: null, error: (error as Error) ?? new Error('update failed') };
+
+        const sheet = data as unknown as CharacterSheet;
+        const syncErr = await syncCharacterSheetToAssignedGames(sheet);
+        if (syncErr.error) return { sheet, error: syncErr.error };
+        return { sheet, error: null };
+    },
+
+    syncAssignedGames: syncCharacterSheetToAssignedGames,
+
+    listAssignedGames: (sheetId: string) =>
+        supabase
+            .from('educational_hub_items')
+            .select('id, title, game_slug, game_play_style')
+            .eq('character_sheet_id', sheetId)
+            .order('title'),
+
+    remove: async (sheet: CharacterSheet): Promise<{ error: Error | null }> => {
+        if (!sheet.storage_path.startsWith('git:')) {
+            await educationalHubService.removeFile(sheet.storage_path);
+        }
+        if (sheet.storage_path_p2 && !sheet.storage_path_p2.startsWith('git:')) {
+            await educationalHubService.removeFile(sheet.storage_path_p2);
+        }
+        const { error } = await supabase.from('game_character_sheets' as never).delete().eq('id', sheet.id);
+        return { error: (error as Error | null) ?? null };
+    },
+
+    listAssignableGames: () =>
+        supabase
+            .from('educational_hub_items')
+            .select('id, title, game_slug, game_play_style, character_sheet_id')
+            .not('game_slug', 'is', null)
+            .order('title'),
+
+    /** จำนวนเกมที่ผูกต่อ sheet — ใช้กรองคลัง */
+    listSheetGameCounts: async (): Promise<{ data: Record<string, number>; error: Error | null }> => {
+        const { data, error } = await supabase
+            .from('educational_hub_items')
+            .select('character_sheet_id')
+            .not('character_sheet_id', 'is', null);
+        if (error) return { data: {}, error: error as Error };
+        const counts: Record<string, number> = {};
+        for (const row of data ?? []) {
+            const id = (row as { character_sheet_id: string }).character_sheet_id;
+            counts[id] = (counts[id] ?? 0) + 1;
+        }
+        return { data: counts, error: null };
+    },
+
+    createFromTemplate: async (
+        templateKey: string,
+        title?: string,
+    ): Promise<{ sheet: CharacterSheet | null; error: Error | null }> => {
+        const t = getCharacterStudioTemplate(templateKey);
+        if (!t) return { sheet: null, error: new Error('ไม่พบเทมเพลต') };
+
+        const id = crypto.randomUUID();
+        const origin = typeof window !== 'undefined' ? window.location.origin : 'https://kampai-school.vercel.app';
+        const abs = (p: string) => (p.startsWith('http') ? p : `${origin}${p}`);
+
+        const colorConfig = t.defaultColorPreset
+            ? presetToColorConfig(t.defaultColorPreset)
+            : null;
+
+        const { data, error } = await supabase
+            .from('game_character_sheets' as never)
+            .insert({
+                id,
+                title: title?.trim() || `${t.label} (ใหม่)`,
+                slug: null,
+                sheet_url: abs(t.sheetUrl),
+                sheet_url_p2: t.sheetUrlP2 ? abs(t.sheetUrlP2) : null,
+                storage_path: t.storagePath,
+                storage_path_p2: t.storagePathP2 ?? null,
+                frame_width: t.frameWidth,
+                frame_height: t.frameHeight,
+                frame_count: t.frameCount,
+                animation_config: t.animationConfig,
+                color_config: colorConfig,
+                notes: `สร้างจากเทมเพลต ${t.key}`,
+            } as never)
+            .select()
+            .single();
+
+        if (error || !data) return { sheet: null, error: (error as Error) ?? new Error('insert failed') };
+        return { sheet: data as unknown as CharacterSheet, error: null };
+    },
+
+    syncGameAssignments: async (
+        sheetId: string,
+        checkedItemIds: string[],
+        sheet: CharacterSheet,
+    ): Promise<{ error: Error | null }> => {
+        const assignFields = characterAssignmentFromSheet(sheet);
+        const clearFields = characterAssignmentFromSheet(null);
+
+        const { data: current, error: listErr } = await supabase
+            .from('educational_hub_items')
+            .select('id')
+            .eq('character_sheet_id', sheetId);
+        if (listErr) return { error: listErr as Error };
+
+        const currentIds = (current ?? []).map((r) => (r as { id: string }).id);
+        const toRemove = currentIds.filter((id) => !checkedItemIds.includes(id));
+        const toAdd = checkedItemIds.filter((id) => !currentIds.includes(id));
+
+        if (toRemove.length) {
+            const { error } = await supabase
+                .from('educational_hub_items')
+                .update(clearFields as never)
+                .in('id', toRemove);
+            if (error) return { error: error as Error };
+        }
+        if (toAdd.length) {
+            const { error } = await supabase
+                .from('educational_hub_items')
+                .update(assignFields as never)
+                .in('id', toAdd);
+            if (error) return { error: error as Error };
+        }
+        return { error: null };
+    },
+
+    duplicate: async (
+        sourceId: string,
+        title?: string,
+    ): Promise<{ sheet: CharacterSheet | null; error: Error | null }> => {
+        const { data: source, error: fetchErr } = await supabase
+            .from('game_character_sheets' as never)
+            .select('*')
+            .eq('id', sourceId)
+            .single();
+        if (fetchErr || !source) {
+            return { sheet: null, error: (fetchErr as Error) ?? new Error('not found') };
+        }
+        const src = source as unknown as CharacterSheet;
+        const id = crypto.randomUUID();
+        const isGit = src.storage_path.startsWith('git:');
+
+        let path1 = src.storage_path;
+        let url1 = src.sheet_url;
+        let path2 = src.storage_path_p2;
+        let url2 = src.sheet_url_p2;
+
+        if (!isGit) {
+            try {
+                const res = await fetch(src.sheet_url);
+                const blob = await res.blob();
+                path1 = `characters/${id}/sheet.png`;
+                const { error: up1Err } = await supabase.storage.from(BUCKET).upload(path1, blob, {
+                    cacheControl: '3600',
+                    upsert: false,
+                    contentType: blob.type || 'image/png',
+                });
+                if (up1Err) return { sheet: null, error: up1Err as Error };
+                url1 = supabase.storage.from(BUCKET).getPublicUrl(path1).data.publicUrl;
+
+                if (src.sheet_url_p2 && src.storage_path_p2) {
+                    const res2 = await fetch(src.sheet_url_p2);
+                    const blob2 = await res2.blob();
+                    path2 = `characters/${id}/sheet-p2.png`;
+                    const { error: up2Err } = await supabase.storage.from(BUCKET).upload(path2, blob2, {
+                        cacheControl: '3600',
+                        upsert: false,
+                        contentType: blob2.type || 'image/png',
+                    });
+                    if (up2Err) {
+                        await educationalHubService.removeFile(path1);
+                        return { sheet: null, error: up2Err as Error };
+                    }
+                    url2 = supabase.storage.from(BUCKET).getPublicUrl(path2).data.publicUrl;
+                }
+            } catch (e) {
+                return { sheet: null, error: e instanceof Error ? e : new Error('duplicate copy failed') };
+            }
+        }
+
+        const dupTitle = title?.trim() || `${src.title} (สำเนา)`;
+        const { data, error } = await supabase
+            .from('game_character_sheets' as never)
+            .insert({
+                id,
+                title: dupTitle,
+                sheet_url: url1,
+                sheet_url_p2: url2,
+                storage_path: path1,
+                storage_path_p2: path2,
+                frame_width: src.frame_width,
+                frame_height: src.frame_height,
+                frame_count: src.frame_count,
+                animation_config: src.animation_config,
+                color_config: src.color_config,
+                notes: src.notes,
+            } as never)
+            .select()
+            .single();
+
+        if (error) {
+            if (!isGit && path1.startsWith(`characters/${id}`)) {
+                await educationalHubService.removeFile(path1);
+                if (path2?.startsWith(`characters/${id}`)) await educationalHubService.removeFile(path2);
+            }
+            return { sheet: null, error: error as Error };
+        }
+        return { sheet: data as unknown as CharacterSheet, error: null };
+    },
+};
+
+/** ค่า denormalize ลง educational_hub_items เมื่อเลือกตัวละคร */
+export function characterAssignmentFromSheet(sheet: CharacterSheet | null | undefined) {
+    if (!sheet) {
+        return {
+            character_sheet_id: null,
+            character_sheet_url: null,
+            character_sheet_url_p2: null,
+            character_frame_w: null,
+            character_frame_h: null,
+            character_frame_count: null,
+            character_animation_config: null,
+            character_color_config: null,
+        };
+    }
+    return {
+        character_sheet_id: sheet.id,
+        character_sheet_url: sheet.sheet_url,
+        character_sheet_url_p2: sheet.sheet_url_p2,
+        character_frame_w: sheet.frame_width,
+        character_frame_h: sheet.frame_height,
+        character_frame_count: sheet.frame_count,
+        character_animation_config: sheet.animation_config,
+        character_color_config: sheet.color_config,
+    };
+}
+
+/** denormalize blueprint ลง educational_hub_items */
+export function blueprintAssignmentFromJson(
+    blueprintId: string | null,
+    blueprint: PlatformerBlueprintV1 | null,
+) {
+    return {
+        blueprint_id: blueprintId,
+        blueprint_json: blueprint as unknown as Record<string, unknown> | null,
+    };
+}
+
+export type GameBlueprintRow = {
+    id: string;
+    title: string;
+    engine: string;
+    blueprint: PlatformerBlueprintV1;
+    owner_staff_id: string | null;
+    created_at: string;
+    updated_at: string;
+};
+
+export const gameBlueprintsService = {
+    list: () =>
+        supabase
+            .from('game_blueprints' as never)
+            .select('*')
+            .order('updated_at', { ascending: false }),
+
+    get: (id: string) =>
+        supabase
+            .from('game_blueprints' as never)
+            .select('*')
+            .eq('id', id)
+            .maybeSingle(),
+
+    create: (title: string, blueprint: PlatformerBlueprintV1, ownerStaffId?: string | null) =>
+        supabase
+            .from('game_blueprints' as never)
+            .insert({
+                title: title.trim() || 'ด่านใหม่',
+                engine: 'platformer-2d',
+                blueprint,
+                owner_staff_id: ownerStaffId ?? null,
+            } as never)
+            .select()
+            .single(),
+
+    update: (id: string, patch: { title?: string; blueprint?: PlatformerBlueprintV1 }) =>
+        supabase
+            .from('game_blueprints' as never)
+            .update({ ...patch, updated_at: new Date().toISOString() } as never)
+            .eq('id', id),
+
+    linkToItem: async (
+        itemId: string,
+        blueprintId: string | null,
+        blueprint: PlatformerBlueprintV1 | null,
+    ): Promise<{ error: Error | null }> => {
+        const { error } = await supabase
+            .from('educational_hub_items')
+            .update(blueprintAssignmentFromJson(blueprintId, blueprint) as never)
+            .eq('id', itemId);
+        return { error: (error as Error | null) ?? null };
+    },
+
+    saveForItem: async (
+        itemId: string,
+        itemTitle: string,
+        blueprint: PlatformerBlueprintV1,
+        existingBlueprintId?: string | null,
+    ): Promise<{ blueprintId: string | null; error: Error | null }> => {
+        let blueprintId = existingBlueprintId ?? null;
+
+        if (blueprintId) {
+            const { error } = await gameBlueprintsService.update(blueprintId, { blueprint });
+            if (error) return { blueprintId: null, error: error as Error };
+        } else {
+            const { data, error } = await gameBlueprintsService.create(
+                `${itemTitle} — ด่าน`,
+                blueprint,
+            );
+            if (error || !data) {
+                return { blueprintId: null, error: (error as Error) ?? new Error('create failed') };
+            }
+            blueprintId = (data as { id: string }).id;
+        }
+
+        const { error: linkErr } = await gameBlueprintsService.linkToItem(itemId, blueprintId, blueprint);
+        return { blueprintId, error: linkErr };
     },
 };
 

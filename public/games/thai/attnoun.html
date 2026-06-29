@@ -169,13 +169,7 @@
             <h1 style="background: linear-gradient(to right, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">จบเกม!</h1>
             <h2 style="font-size:36px; margin: 10px 0;">คะแนนของคุณ: <span id="final-score" style="color: #38bdf8;">0</span></h2>
             
-            <div id="input-section" style="display:none; margin-bottom: 20px;">
-                <p style="color: #4ade80; margin-bottom: 10px; font-weight: bold; font-size: 20px;">🎉 คุณติด 5 อันดับแรก!</p>
-                <div style="display:flex; justify-content:center;">
-                    <input type="text" id="player-name" placeholder="ใส่ชื่อของคุณ" maxlength="10">
-                    <button class="btn-start" style="padding: 10px 20px; font-size: 16px; margin-top: 0;" onclick="submitScore()">บันทึก</button>
-                </div>
-            </div>
+            <!-- Name input removed for Kampai SDK integration -->
 
             <div class="score-list">
                 <div class="score-header"><span>อันดับ</span><span>ชื่อผู้เล่น</span><span>คะแนน</span></div>
@@ -187,41 +181,20 @@
     </div>
 
     <script>
-        // --- postMessage tracking boilerplate ---
-        let studentCode = '';
+        const GAME_SLUG = 'attnoun';
         let gameStartedAt = Date.now();
-
-        window.addEventListener('message', (e) => {
-            if (e.data && e.data.type === 'init') {
-                studentCode = e.data.studentCode;
-                console.log('[Attnoun] Student initialized:', studentCode);
-            }
-        });
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const backBtns = document.querySelectorAll('.back, a[href*="educational-hub"], a[href*="index.html"]');
-            backBtns.forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    window.parent.postMessage({ type: 'navigate', to: '/h/nattapong' }, '*');
-                });
-            });
-        });
 
         window.reportScore = function(score, mode = 'normal', additionalMetadata = {}) {
             const duration = Math.round((Date.now() - gameStartedAt) / 1000);
             console.log('[Attnoun] Reporting score:', score, 'Duration:', duration);
-            window.parent.postMessage({
-                type: 'gameEnd',
-                score: score,
-                mode: mode,
-                metadata: {
+            if (window.KAMPAI) {
+                window.KAMPAI.submitScore(score, {
+                    mode: mode,
                     duration: duration,
                     ...additionalMetadata
-                }
-            }, '*');
+                });
+            }
         };
-        // --- end boilerplate ---
     </script>
 
     <script type="module">
@@ -680,8 +653,11 @@
             document.getElementById('final-score').innerText = score;
             screen.style.display = 'flex';
             document.getElementById('blocker').style.display = 'none'; 
+            if (checkIsHighScore(score)) {
+                const name = (window.KAMPAI && window.KAMPAI.student && window.KAMPAI.student.displayName) || "ผู้เล่นนิรนาม";
+                saveHighScore(name, score);
+            }
             updateScoreLists();
-            if (checkIsHighScore(score)) document.getElementById('input-section').style.display = 'block';
             if (window.reportScore) window.reportScore(score);
         }
 
@@ -781,7 +757,6 @@
         }
 
         window.startGame = () => { initAudio(); document.body.requestPointerLock(); if (colossalTitans.length === 0) { new ColossalTitan(); new BeastTitan(); new BirdTitan(); new TRexTitan(); } };
-        window.submitScore = () => { saveHighScore(document.getElementById('player-name').value.trim() || "ผู้เล่นนิรนาม", score); document.getElementById('input-section').style.display = 'none'; updateScoreLists(); };
 
         updateScoreLists();
         initScene();

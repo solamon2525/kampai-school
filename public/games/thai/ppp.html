@@ -307,16 +307,21 @@
     <div id="enemyProjectileTank"></div>
 </div>
 
+<!-- ═══ KAMPAI SDK + Online framework (single source) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+</script>
 <script>
 // --- postMessage tracking boilerplate ---
+const GAME_SLUG = 'ppp';
+KAMPAI.setSlug(GAME_SLUG);
 window.studentCode = '';
 window.gameStartedAt = Date.now();
 
-window.addEventListener('message', (e) => {
-  if (e.data && e.data.type === 'init') {
-    window.studentCode = e.data.studentCode;
-    console.log('[PPP Fishing] Student initialized:', window.studentCode);
-  }
+KAMPAI.onReady((sdk) => {
+  window.studentCode = sdk.student?.code || '';
+  console.log('[PPP Fishing] Student initialized:', window.studentCode);
 });
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -324,7 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
   backBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
-      window.parent.postMessage({ type: 'navigate', to: '/h/nattapong' }, '*');
+      KAMPAI.goHome();
     });
   });
 });
@@ -332,16 +337,11 @@ document.addEventListener('DOMContentLoaded', () => {
 window.reportScore = function(score, mode = 'normal', additionalMetadata = {}) {
   const duration = Math.round((Date.now() - window.gameStartedAt) / 1000);
   console.log('[PPP Fishing] Reporting score:', score, 'Duration:', duration);
-  window.parent.postMessage({
-    type: 'gameEnd',
-    gameSlug: 'ppp',
-    score: score,
-    mode: mode,
-    metadata: {
-      duration: duration,
-      ...additionalMetadata
-    }
-  }, '*');
+  let stars = 0;
+  if (score >= 100) stars = 3;
+  else if (score >= 60) stars = 2;
+  else if (score >= 30) stars = 1;
+  KAMPAI.submitScore(score, { mode: mode, stars: stars, duration: duration, ...additionalMetadata });
 };
 // --- end boilerplate ---
 </script>
@@ -351,7 +351,7 @@ window.reportScore = function(score, mode = 'normal', additionalMetadata = {}) {
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    const firebaseConfig = JSON.parse(__firebase_config);
+    const firebaseConfig = typeof __firebase_config === 'string' ? JSON.parse(__firebase_config) : (__firebase_config || {});
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);

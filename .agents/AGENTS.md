@@ -92,6 +92,7 @@ Follow these standards strictly when developing, refactoring, or integrating edu
 - **Rule**: The migration must:
   1. Seed the item in `educational_hub_items` (`game_slug`, `tracked_game = true`, `thumbnail_url = '/games/{subject}/{slug}/cover.png'`).
   2. Insert or update the game profile details in `game_docs` using `INSERT ... ON CONFLICT (item_id) DO UPDATE` with game format, features, build version, and notes.
+- **Programmatic Seeding**: Note that writing an SQL migration file in `supabase/migrations` registers the schema but does not automatically populate/publish the game on the live Supabase production database. To make the game immediately visible in the Game Library (คลังเกมการศึกษา), you **MUST** also create a JavaScript seed script under `scripts/seed-{slug}-game.mjs` and execute it (`node scripts/seed-{slug}-game.mjs`) to programmatically upsert the game metadata into `educational_hub_items` and `game_docs` using the Supabase Service Role key from `.env.local`.
 
 ### E. Local Verification
 - Before finalizing a game, run the verification tool:
@@ -127,6 +128,7 @@ Follow these standards strictly when developing, refactoring, or integrating edu
 5. **สเปคทางเทคนิคและสัดส่วนภาพ (Technical Specification):**
    - **ปรับภาพให้พอดีกับขนาด 16:9 (1280×720 pixels):** เนื่องจากระบบสร้างภาพของ AI มักจะส่งออกภาพขนาด 1024×1024 (1:1) เสมอ ดังนั้น **หลังจากรันคำสั่งสร้างภาพแล้ว คุณต้องเรียกใช้สคริปต์ย่อ/ขยายและครอบภาพ (High-Quality Crop/Resize) ให้ได้ขนาด 1280×720 pixels ทันที** ก่อนจะนำไปจัดเก็บที่โฟลเดอร์เกม เพื่อให้ภาพปกแสดงผลได้เต็มช่อง aspect-video อย่างสมบูรณ์ ไม่มีขอบดำ
    - **การจัดวางองค์ประกอบให้เห็นครบถ้วน (Fit to Scale & Full Visibility):** การจัดองค์ประกอบภาพปกจะต้องปรับขนาดแบบรักษาอัตราส่วน (Fit to scale) เพื่อไม่ให้ภาพบิดเบี้ยว และต้องออกแบบในลักษณะ Safe Zone โดยให้ตัวละครหลัก ชื่อภาษาอังกฤษ/ไทย และ HUD ของเกมอยู่ถัดเข้ามาจากขอบ เพื่อรับประกันว่าจะไม่มีส่วนสำคัญใดๆ ถูกตัดขาด (Crop-off) และจะสามารถมองเห็นทุกส่วนของภาพได้อย่างครบถ้วนสมบูรณ์เมื่อแสดงผลบนระบบพอร์ทัล
+   - **กฎการจัด safe zone สำหรับ AI Prompt (AI Prompt Safe Zone Rule)**: ในการเขียน prompt ให้กับ AI ทุกครั้ง ต้องระบุคำสั่งบังคับว่า "ตัวละครหลัก ข้อความพาดหัว และองค์ประกอบที่สื่อถึงเกมทั้งหมด จะต้องอยู่กึ่งกลางภาพภายในพื้นที่ Safe Zone 60% ของภาพ (centered within 60% safe zone) และปล่อยขอบด้านบนและด้านล่าง (อย่างน้อย 20%) เป็นเพียงพื้นหลังเปล่าๆ" เพื่อป้องกันขอบภาพโดนตัดขาดเมื่อย่อ/ครอบสัดส่วนรูปเป็น 16:9 (1280x720)
    - **ชื่อไฟล์ภาพปก:** ต้องเซฟในชื่อ `cover.png` หรือ `{slug}-cover.png` ให้อยู่ในโฟลเดอร์เกมเดียวกับหน้าหลักของเกม
 
 

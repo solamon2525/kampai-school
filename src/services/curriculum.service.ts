@@ -50,6 +50,88 @@ export type StudentIndicatorAssessment = {
     updated_at: string;
 };
 
+// ─── Phase A/B: Student & Parent Mastery Portal (migration 269) ──────────────
+
+/** ตัวชี้วัดหนึ่งตัว พร้อมสถานะความก้าวหน้าของนักเรียน (จาก RPC my_mastery/child_mastery) */
+export type MasteryRow = {
+    indicator_id: string;
+    subject_key: string;
+    grade: string;
+    indicator_code: string;
+    description: string;
+    indicator_kind: 'ระหว่างทาง' | 'ปลายทาง' | null;
+    strand_title: string | null;
+    sort_order: number;
+    status: IndicatorMasteryStatus;
+    attempts: number;
+    best_score: number | null;
+    last_event: string | null;
+    assessed_level: number | null;
+    assessed_source: string | null;
+};
+
+export type MasteryStudent = {
+    id: string;
+    name: string;
+    nickname?: string | null;
+    photo_url: string | null;
+    class: string;
+    room?: string | null;
+    student_code?: string | null;
+    grade: string | null;
+};
+
+export type MasteryStats = {
+    total_xp: number;
+    games_played: number;
+    plays_count: number;
+    active_days?: number;
+    medals_count: number;
+};
+
+/** ผลลัพธ์จาก RPC my_mastery / child_mastery */
+export type MasteryBundle = {
+    student: MasteryStudent;
+    grade: string | null;
+    mastery: MasteryRow[];
+    stats: MasteryStats;
+};
+
+export type GameRecommendationReason = 'indicator_gap' | 'subject_suggest' | 'popular';
+
+/** คำแนะนำเกมถัดไป (จาก RPC recommend_games) */
+export type GameRecommendation = {
+    item_id: string;
+    slug: string;
+    title: string;
+    thumbnail: string | null;
+    subject: string | null;
+    subject_key: string | null;
+    reason: GameRecommendationReason;
+    indicator_desc: string | null;
+    tier: number;
+};
+
+/** แถว heatmap ต่อตัวชี้วัด (จาก RPC class_indicator_heatmap) */
+export type IndicatorHeatmapRow = {
+    indicator_id: string;
+    indicator_code: string;
+    description: string;
+    indicator_kind: 'ระหว่างทาง' | 'ปลายทาง' | null;
+    strand_title: string | null;
+    sort_order: number;
+    total: number;
+    not_started: number;
+    practicing: number;
+    passed: number;
+    mastered: number;
+};
+
+export type ClassHeatmap = {
+    total_students: number;
+    rows: IndicatorHeatmapRow[];
+};
+
 export const curriculumService = {
     // ─── ตัวชี้วัด ──────────────────────────────────────────────────────────
     /** ลิสต์ตัวชี้วัดตามวิชา + ชั้น (เรียงตาม sort_order) */
@@ -207,4 +289,62 @@ export const curriculumService = {
                 { ...data, source: data.source ?? 'manual', updated_at: new Date().toISOString() } as never,
                 { onConflict: 'student_id,indicator_id,academic_year' },
             ),
+
+    // ─── Student & Parent Mastery Portal (migration 269 RPCs) ──────────────────
+
+    /** Student Dashboard (#4): ความเชี่ยวชาญตัวชี้วัด + stats ของนักเรียนตามรหัส */
+    myMasteryByCode: async (studentCode: string): Promise<MasteryBundle> => {
+        const { data, error } = await supabase.rpc('my_mastery' as never, {
+            p_student_code: studentCode,
+        } as never);
+        if (error) throw error;
+        return data as unknown as MasteryBundle;
+    },
+
+    /** Parent Mastery (#2): เหมือน myMastery แต่ resolve ด้วย student_id + ตรวจ is_my_student */
+    childMastery: async (studentId: string): Promise<MasteryBundle> => {
+        const { data, error } = await supabase.rpc('child_mastery' as never, {
+            p_student_id: studentId,
+        } as never);
+        if (error) throw error;
+        return data as unknown as MasteryBundle;
+    },
+
+    /** Game Recommendation (#1): เกมที่ควรเล่นต่อ (3-tier fallback) */
+    recommendGames: async (
+        studentCode: string,
+        limit = 8,
+    ): Promise<GameRecommendation[]> => {
+        const { data, error } = await supabase.rpc('recommend_games' as never, {
+            p_student_code: studentCode,
+            p_limit: limit,
+        } as never);
+        if (error) throw error;
+        return (data as unknown as GameRecommendation[]) ?? [];
+    },
+
+    /** Class Heatmap (#3): สถานะตัวชี้วัดรวมรายห้อง */
+    classHeatmap: async (
+        classroom: string,
+        subjectKey: string,
+        grade: string,
+    ): Promise<ClassHeatmap> => {
+        const { data, error } = await supabase.rpc('class_indicator_heatmap' as never, {
+            p_class: classroom,
+            p_subject_key: subjectKey,
+            p_grade: grade,
+        } as never);
+        if (error) throw error;
+        return data as unknown as ClassHeatmap;
+    },
+
+    /** Batch Map (admin support): แทนที่ mapping หลายเกมใน transaction เดียว */
+    batchSetGameIndicators: async (
+        mappings: Array<{ edu_hub_item_id: string; indicator_ids: string[] }>,
+    ): Promise<{ error: Error | null }> => {
+        const { error } = await supabase.rpc('batch_set_game_indicators' as never, {
+            p_mappings: mappings,
+        } as never);
+        return { error: (error as Error | null) ?? null };
+    },
 };

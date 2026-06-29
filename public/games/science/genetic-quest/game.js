@@ -13,10 +13,7 @@
     KAMPAI.sound.defaultBgm(CFG.BGM_PRESET);
     KAMPAI.sound.mountToggles();
 
-    // Move BGM toggle button to bottom left to avoid overlay conflicts
-    var styleNode = document.createElement('style');
-    styleNode.innerHTML = '#kampai-snd { top: auto !important; bottom: 16px !important; left: 16px !important; z-index: 40 !important; }';
-    document.head.appendChild(styleNode);
+    // ปุ่มเสียง SDK — มุมล่างขวา (default)
 
     // Local state
     var playerData = {
