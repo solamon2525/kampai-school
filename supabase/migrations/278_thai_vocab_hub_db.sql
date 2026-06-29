@@ -115,7 +115,6 @@ CREATE POLICY "thai_vocab_missed_read" ON public.thai_vocab_missed
     public.is_admin()
     OR public.is_teacher()
     OR public.is_my_student(student_id)
-    OR EXISTS (SELECT 1 FROM public.students s WHERE s.id = student_id AND s.user_id = auth.uid())
   );
 
 DROP POLICY IF EXISTS "thai_vocab_missed_admin" ON public.thai_vocab_missed;
@@ -168,7 +167,6 @@ BEGIN
     public.is_admin()
     OR public.is_teacher()
     OR public.is_my_student(p_student_id)
-    OR EXISTS (SELECT 1 FROM public.students s WHERE s.id = p_student_id AND s.user_id = auth.uid())
   ) THEN
     RAISE EXCEPTION 'forbidden' USING ERRCODE = '42501';
   END IF;
@@ -207,7 +205,6 @@ BEGIN
 
   IF NOT (
     public.is_admin()
-    OR EXISTS (SELECT 1 FROM public.students s WHERE s.id = p_student_id AND s.user_id = auth.uid())
     OR public.is_my_student(p_student_id)
   ) THEN
     RAISE EXCEPTION 'forbidden' USING ERRCODE = '42501';
