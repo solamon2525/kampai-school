@@ -139,6 +139,7 @@ async function main() {
   const features = [
     'ตะกร้าตามตำแหน่งตัวผู้เล่น (ar.x จาก framediff) — ไม่พึ่ง CDN · engine kampai-ar.js v1.1.0',
     'แต่ละรอบมีกติกา (รับเลขคู่/พหุคูณ/มากกว่า) → รับถูก +คะแนน · รับผิด -ชีวิต (ฝึกจำแนกประเภท)',
+    'รองรับระบบเล่นแบบดวลสองคนเครื่องเดียวกันและออนไลน์ (KampaiVersus) โดยใช้โจทย์ซิงค์ตรงกัน',
     'fallback ลาก/แตะบนจอเลื่อนตะกร้า (เครื่องไม่มีกล้องเล่นได้)',
     'แก้กติกา/เลขที่ data.js · จูน SPAWN_MS/FALL_SPEED/CATCH_RADIUS ที่ config.js (AR-GAME.md)'
   ];
@@ -150,8 +151,8 @@ async function main() {
       owner_staff_id: staffId,
       game_format: 'AR overlay (arcade) — ของหล่นบนภาพกล้อง ขยับตัว/ลากตะกร้าไปรับเลขให้ตรงกติกา',
       features: features,
-      version: 'v1.0.0',
-      notes: 'รับเลขให้ถูก — เกม AR overlay (ของหล่น-รับ) (programmatic seed)'
+      version: 'v1.1.0',
+      notes: 'เพิ่มระบบผู้เล่น 2 คน (KampaiVersus) และแก้บั๊ก transition timeout leak'
     }, { onConflict: 'item_id' });
 
   if (docError) {

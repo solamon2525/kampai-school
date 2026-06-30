@@ -12,21 +12,38 @@
     KAMPAI.sound.mountToggles();
     KAMPAI.sound.defaultBgm(CFG.BGM || 'cheerful');
 
-    // ── KampaiMatch (online mode) ──
-    var match = KampaiMatch.create({
+    var qrand = Math.random;
+
+    // ── KampaiVersus (online + local 2p mode) ──
+    var vs = window.KampaiVersus ? KampaiVersus.create({
         duration: CFG.ROUNDS * CFG.ROUND_SEC,
         title: 'Catch Numbers',
-        onPlay: function (opts) { startGame(); },
-        onEnd:  function (result) { /* wrapper handles score */ }
-    });
+        rankBy: 'score',
+        onPlay: function (opts) {
+            var rng = opts && opts.rng;
+            var player = opts && opts.player;
+            startVersusRound(rng, player);
+        },
+        onEnd: function () {
+            cleanup();
+            KAMPAI.sound.bgmStop();
+            KAMPAI.sound.gameOver();
+        }
+    }) : null;
+
+    function startVersusRound(rng, player) {
+        qrand = rng || Math.random;
+        if (ar) ar.mode = 'tap';
+        startGame();
+    }
 
     // ── State ──
     var ST = {
-        score: 0, round: 0, lives: CFG.LIVES, sec: 0,
+        score: 0, round: 0, lives: CFG.LIVES, sec: 0, correctCount: 0,
         started: false, roundActive: false,
         basketX: 0.5,         // 0..1 ตำแหน่งตะกร้า
         items: [],            // ตัวเลขที่กำลังตก
-        spawnTimer: null, roundTimer: null,
+        spawnTimer: null, roundTimer: null, nextRoundTimeout: null,
         rafId: 0,
         dragStart: null,
         rule: null            // DATA.rounds[roundIndex]
@@ -98,10 +115,16 @@
         $('loading').textContent = 'กำลังเปิดกล้อง…';
         $('loading').classList.add('on');
         if (!ar) ar = buildAR();
+
+        // Enforce tap mode if in versus/online match
+        if (vs && vs.mode !== null) {
+            ar.mode = 'tap';
+        }
+
         ar.start().then(function (ok) {
             $('loading').classList.remove('on');
             KAMPAI.sound.bgmStart();
-            ST.score = 0; ST.round = 0;
+            ST.score = 0; ST.round = 0; ST.correctCount = 0;
             startRound();
         });
     }
@@ -145,11 +168,11 @@
     function spawnItem() {
         if (!ST.roundActive) return;
         var pool = DATA.numbers;
-        var n = pool[Math.floor(Math.random() * pool.length)];
+        var n = pool[Math.floor(qrand() * pool.length)];
         var speed = CFG.FALL_SPEED + ST.round * CFG.FALL_SPEED_INC;
         ST.items.push({
             n: n,
-            x: 0.08 + Math.random() * 0.84, // สุ่ม x ไม่ชนขอบ
+            x: 0.08 + qrand() * 0.84, // สุ่ม x ไม่ชนขอบ
             y: -0.05,
             speed: speed,
             correct: ST.rule.check(n),
@@ -190,6 +213,7 @@
                 it.caught = true;
                 if (it.correct) {
                     ST.score += CFG.SCORE_CATCH;
+                    ST.correctCount++;
                     KAMPAI.sound.correct();
                     KAMPAI.sound.fxFlash(true);
                     it.flash = 12;
@@ -200,6 +224,7 @@
                     if (ST.lives <= 0) { endRound(false); return; }
                 }
                 updateHUD();
+                if (vs) vs.report(ST.score, { correct: ST.correctCount });
                 return;
             }
 
@@ -286,11 +311,12 @@
             ST.score += ST.sec * CFG.SCORE_BONUS_TIME;
         }
         updateHUD();
+        if (vs) vs.report(ST.score, { correct: ST.correctCount });
 
         ST.round++;
         if (ST.round < DATA.rounds.length) {
             // next round after brief pause
-            setTimeout(startRound, 1800);
+            ST.nextRoundTimeout = setTimeout(startRound, 1800);
         } else {
             finishGame();
         }
@@ -302,6 +328,10 @@
         if (ar) ar.stop();
         KAMPAI.sound.bgmStop();
         KAMPAI.sound.gameOver();
+
+        // Versus handle finish
+        if (vs && vs.finish(ST.score, { correct: ST.correctCount })) return;
+
         showScreen('resultScreen');
         $('final-score').textContent = ST.score;
         $('final-detail').textContent = 'ผ่านครบ ' + DATA.rounds.length + ' รอบ';
@@ -315,6 +345,7 @@
     function cleanup() {
         cancelAnimationFrame(ST.rafId); ST.rafId = 0;
         clearInterval(ST.spawnTimer); clearInterval(ST.roundTimer);
+        clearTimeout(ST.nextRoundTimeout);
         if (ar) ar.stop();
         KAMPAI.sound.bgmStop();
         ST.roundActive = false; ST.started = false;
@@ -338,9 +369,12 @@
     }, { passive: false });
 
     // ── Buttons ──
-    $('startBtn').addEventListener('click', startGame);
+    $('startBtn').addEventListener('click', function () {
+        qrand = Math.random;
+        startGame();
+    });
     var onlineBtn = $('onlineBtn');
-    if (onlineBtn) onlineBtn.addEventListener('click', function () { match.openMenu(); });
+    if (onlineBtn) onlineBtn.addEventListener('click', function () { if (vs) vs.openMenu(); });
     $('restartBtn').addEventListener('click', function () {
         cleanup();
         setTimeout(startGame, 100);

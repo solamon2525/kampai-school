@@ -21,7 +21,7 @@
       📱 ไม่มีกล้อง? <b>เลื่อนนิ้ว</b> บนหน้าจอได้เลย
     </div>
     <button class="btn" id="startBtn">▶️ เริ่มเล่น</button>
-    <button class="btn" id="onlineBtn" style="background:linear-gradient(135deg,#0ea5e9,#0284c7);margin-top:-6px">⚔️ แข่งออนไลน์</button>
+    <button class="btn" id="onlineBtn" style="background:linear-gradient(135deg,#0ea5e9,#0284c7);margin-top:-6px">🏁 แข่ง 2 คน</button>
     <div class="lb-box" id="lbBox" style="display:none">
       <h3>🏆 อันดับ</h3>
       <ul class="lb-list" id="lbList"></ul>
@@ -96,16 +96,19 @@ window.KAMPAI = window.KAMPAI || {
 };
 </script>
 <script src="/games/kampai-match.js"></script>
+<script src="/games/kampai-versus.js"></script>
 <script>
-// KampaiMatch fallback stub
-window.KampaiMatch = window.KampaiMatch || {
-  create: function() {
+// KampaiVersus fallback stub
+window.KampaiVersus = window.KampaiVersus || {
+  create: function(o) {
+    var m = (window.KampaiMatch && window.KampaiMatch.create) ? window.KampaiMatch.create(o) : null;
     return {
       available: false,
-      openMenu: function() { alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); },
-      report: function() {},
-      finish: function() {},
-      leave:  function() {}
+      openMenu: function() { if (m) m.openMenu(); },
+      report: function(s, i) { if (m) m.report(s, i); },
+      finish: function(s, i) { if (m) { m.finish(s, i); return true; } return false; },
+      leave: function() {},
+      mode: null
     };
   }
 };
