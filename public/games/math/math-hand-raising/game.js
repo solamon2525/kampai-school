@@ -31,6 +31,9 @@
     },
     onEnd: function() {
       state.gameState = 'GAMEOVER';
+      clearTimeout(state.cooldownTimeoutId);
+      clearTimeout(state.feedbackTimeoutId);
+      TimerEngine.stop();
       stopCamera();
       KAMPAI.sound.bgmStop();
       KAMPAI.sound.gameOver();
@@ -72,6 +75,7 @@
     currentZone: null,
     results: { correct: 0, wrong: 0, timeUp: 0, bonusCount: 0 },
     cooldownTimeoutId: null,
+    feedbackTimeoutId: null,
     wasInCooldown: false
   };
 
@@ -612,7 +616,7 @@
     state.holdProgress = 0;
     updateProgressBar();
 
-    setTimeout(function () {
+    state.feedbackTimeoutId = setTimeout(function () {
       questionDisplay.style.transform = 'scale(1)';
       nextQuestion();
     }, CFG.FEEDBACK_MS);
@@ -636,11 +640,14 @@
     state.holdProgress = 0;
     updateProgressBar();
 
-    setTimeout(nextQuestion, CFG.FEEDBACK_MS);
+    state.feedbackTimeoutId = setTimeout(nextQuestion, CFG.FEEDBACK_MS);
   }
 
   function endGame() {
     state.gameState = 'GAMEOVER';
+    clearTimeout(state.cooldownTimeoutId);
+    clearTimeout(state.feedbackTimeoutId);
+    TimerEngine.stop();
     stopCamera();
     KAMPAI.sound.bgmStop();
     KAMPAI.sound.gameOver();

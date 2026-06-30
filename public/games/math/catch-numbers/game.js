@@ -52,11 +52,15 @@
 
     // ── Canvas ──
     var cvs = $('gameCanvas');
-    var ctx = cvs.getContext('2d');
+    var ctx = cvs ? cvs.getContext('2d') : null;
+    if (!ctx) {
+        ctx = new Proxy({}, { get: function () { return function () {}; }, set: function () { return true; } });
+    }
     var W, H;
     function resize() {
-        W = cvs.width  = cvs.offsetWidth;
-        H = cvs.height = cvs.offsetHeight;
+        if (!cvs) return;
+        W = cvs.width  = cvs.offsetWidth || 800;
+        H = cvs.height = cvs.offsetHeight || 600;
     }
     window.addEventListener('resize', resize);
     resize();
@@ -130,6 +134,10 @@
     }
 
     function startRound() {
+        // Defensive check: clear any existing timers before starting a new round
+        clearInterval(ST.spawnTimer); ST.spawnTimer = null;
+        clearInterval(ST.roundTimer); ST.roundTimer = null;
+
         var roundCFG = DATA.rounds[ST.round];
         ST.rule = roundCFG;
         ST.lives = CFG.LIVES;
@@ -363,6 +371,9 @@
     gameEl.addEventListener('mousemove', function (e) {
         if (ST.roundActive && ar && ar.mode === 'tap') ST.basketX = pointerX(e);
     });
+    gameEl.addEventListener('touchstart', function (e) {
+        if (ST.roundActive && ar && ar.mode === 'tap') ST.basketX = pointerX(e);
+    }, { passive: true });
     gameEl.addEventListener('touchmove', function (e) {
         e.preventDefault();
         if (ST.roundActive && ar && ar.mode === 'tap') ST.basketX = pointerX(e);
