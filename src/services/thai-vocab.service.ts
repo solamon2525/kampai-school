@@ -11,6 +11,10 @@ export type ThaiVocabWord = {
   grade?: string | null;
   difficulty?: number | null;
   indicator_code?: string | null;
+  classifier_for?: string | null;
+  pair_id?: string | null;
+  synonym_group?: string | null;
+  origin_lang?: string | null;
 };
 
 export type ThaiVocabCategory = {
@@ -34,6 +38,26 @@ export type ThaiVocabMissed = {
   last_missed_at: string;
 };
 
+export type ThaiVocabMissedReportRow = ThaiVocabMissed & {
+  category_title: string;
+  indicator_code?: string | null;
+};
+
+export type ThaiVocabClassMissedRow = {
+  student_id: string;
+  student_name: string;
+  class_number: number | null;
+  total_misses: number;
+  unique_words: number;
+  recent: {
+    word: string;
+    reading: string | null;
+    meaning: string | null;
+    category_slug: string;
+    miss_count: number;
+  }[];
+};
+
 export type ThaiVocabCategoryStat = {
   slug: string;
   title: string;
@@ -50,9 +74,61 @@ export type ThaiVocabImportRow = {
   grade?: string;
   difficulty?: number;
   indicator_code?: string;
+  classifier_for?: string;
+  pair_id?: string;
+  synonym_group?: string;
+  origin_lang?: string;
 };
 
 export const thaiVocabService = {
+  async getCategoriesOnly(): Promise<ThaiVocabCategory[]> {
+    const { data, error } = await supabase.rpc('get_thai_vocab_categories_only' as never);
+    if (error) throw error;
+    return (data ?? []) as ThaiVocabCategory[];
+  },
+
+  async getWordsByCategory(slug: string): Promise<ThaiVocabWord[]> {
+    const { data, error } = await supabase.rpc('get_thai_vocab_words' as never, {
+      p_category_slug: slug,
+    } as never);
+    if (error) throw error;
+    return (data ?? []) as ThaiVocabWord[];
+  },
+
+  async getCatalogLazy(): Promise<{ categories: ThaiVocabCategory[]; lazy: true } | null> {
+    const categories = await this.getCategoriesOnly();
+    if (!categories.length) return null;
+    return { categories, lazy: true };
+  },
+
+  async getMissedReport(studentId: string): Promise<ThaiVocabMissedReportRow[]> {
+    const { data, error } = await supabase.rpc('get_thai_vocab_missed_report' as never, {
+      p_student_id: studentId,
+    } as never);
+    if (error) throw error;
+    return (data ?? []) as ThaiVocabMissedReportRow[];
+  },
+
+  async getClassMissedReport(classLabel: string, limit = 50): Promise<ThaiVocabClassMissedRow[]> {
+    const { data, error } = await supabase.rpc('get_thai_vocab_class_missed' as never, {
+      p_class: classLabel,
+      p_limit: limit,
+    } as never);
+    if (error) throw error;
+    return (data ?? []) as ThaiVocabClassMissedRow[];
+  },
+
+  async recordMissedIndicatorsByCode(studentCode: string, indicatorCodes: string[]): Promise<number> {
+    const unique = [...new Set(indicatorCodes.filter(Boolean))];
+    if (unique.length === 0) return 0;
+    const { data, error } = await supabase.rpc('record_vocab_missed_indicators_by_code' as never, {
+      p_student_code: studentCode,
+      p_indicator_codes: unique,
+    } as never);
+    if (error) throw error;
+    return (data as number) ?? 0;
+  },
+
   async getCatalog(): Promise<ThaiVocabCatalog | null> {
     const { data, error } = await supabase.rpc('get_thai_vocab_catalog' as never);
     if (error) throw error;
@@ -126,6 +202,10 @@ export const thaiVocabService = {
       grade: r.grade && ['ป.4', 'ป.5', 'ป.6'].includes(r.grade) ? r.grade : null,
       difficulty: r.difficulty ?? null,
       indicator_code: r.indicator_code?.trim() || null,
+      classifier_for: r.classifier_for?.trim() || null,
+      pair_id: r.pair_id?.trim() || null,
+      synonym_group: r.synonym_group?.trim() || null,
+      origin_lang: r.origin_lang?.trim() || null,
       sort_order: i,
       updated_at: new Date().toISOString(),
     }));
@@ -139,7 +219,7 @@ export const thaiVocabService = {
   async fetchAllItemsForExport(): Promise<ThaiVocabImportRow[]> {
     const { data, error } = await supabase
       .from('thai_vocab_items' as never)
-      .select('category_slug, word, reading, meaning, emoji, grade, difficulty, indicator_code, sort_order')
+      .select('category_slug, word, reading, meaning, emoji, grade, difficulty, indicator_code, classifier_for, pair_id, synonym_group, origin_lang, sort_order')
       .order('category_slug')
       .order('sort_order');
     if (error) throw error;
@@ -152,6 +232,10 @@ export const thaiVocabService = {
       grade: r.grade ?? undefined,
       difficulty: r.difficulty ?? undefined,
       indicator_code: r.indicator_code ?? undefined,
+      classifier_for: r.classifier_for ?? undefined,
+      pair_id: r.pair_id ?? undefined,
+      synonym_group: r.synonym_group ?? undefined,
+      origin_lang: r.origin_lang ?? undefined,
     }));
   },
 };
@@ -209,7 +293,7 @@ export function parseVocabCsv(text: string): ThaiVocabImportRow[] {
 }
 
 export function vocabRowsToCsv(rows: ThaiVocabImportRow[]): string {
-  const header = 'category_slug,word,reading,meaning,emoji,grade,difficulty,indicator_code';
+  const header = 'category_slug,word,reading,meaning,emoji,grade,difficulty,indicator_code,classifier_for,pair_id,synonym_group,origin_lang';
   const esc = (v: string) => (v.includes(',') || v.includes('"') ? `"${v.replace(/"/g, '""')}"` : v);
   const body = rows.map((r) => [
     r.category_slug,
@@ -220,6 +304,10 @@ export function vocabRowsToCsv(rows: ThaiVocabImportRow[]): string {
     r.grade ?? '',
     r.difficulty != null ? String(r.difficulty) : '',
     r.indicator_code ?? '',
+    r.classifier_for ?? '',
+    r.pair_id ?? '',
+    r.synonym_group ?? '',
+    r.origin_lang ?? '',
   ].map(esc).join(','));
   return [header, ...body].join('\n');
 }

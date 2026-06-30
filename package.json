@@ -23,6 +23,11 @@
     "build:vocab": "node scripts/build-vocab-data.mjs",
     "validate:vocab": "node scripts/validate-vocab.mjs --strict",
     "tag:vocab": "node scripts/tag-vocab-grades.mjs",
+    "link:vocab-indicators": "node scripts/link-vocab-indicators.mjs",
+    "enrich:vocab-metadata": "node scripts/enrich-vocab-metadata.mjs",
+    "dedupe:vocab": "node scripts/dedupe-vocab-cross-category.mjs",
+    "sync:vocab-db": "node scripts/sync-thai-vocab-db-to-json.mjs",
+    "seed:thai-vocab": "node scripts/seed-thai-vocab-db.mjs",
     "process:sprite-bg": "node scripts/process-sprite-background.mjs",
     "seed:bunny-character": "node scripts/seed-bunny-character.mjs"
   },

@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.127.0 (Thai Vocab Hub เฟส D)',
+        version: 'v1.128.0 (Thai Vocab Hub เฟส E/F/G)',
         date: 'ล่าสุด',
+        badge: 'bg-amber-600',
+        items: [
+            '**เฟส E** — รายงานคำพลาด (ครู/ผู้ปกครอง) · Teacher Edu Hub จัดการคำศัพท์ + แท็บชั้นเรียน · quiz กรองตามชั้น',
+            '**เฟส F** — metadata (`classifier_for`, `pair_id`, `synonym_group`, `origin_lang`) · `indicator_code` ทุกหมวด · scripts dedupe/enrich',
+            '**เฟส G** — lazy load คำต่อหมวดจาก DB · ผูก mastery ผ่าน `record_vocab_missed_indicators` · sync DB→JSON · migration 280–281 · game_docs v1.6.0',
+        ],
+    },
+    {
+        version: 'v1.127.0 (Thai Vocab Hub เฟส D)',
+        date: '',
         badge: 'bg-amber-600',
         items: [
             '**Thai Vocab Hub เฟส D** — คลังคำศัพท์ใน Supabase (`thai_vocab_*`) + RPC catalog/missed',

@@ -259,6 +259,10 @@ const PlayGame = () => {
     queryKey: ['thai-vocab-catalog'],
     queryFn: async () => {
       if (resolvedSlug !== 'thai-vocab-hub') return null;
+      const lazy = await thaiVocabService.getCatalogLazy();
+      if (lazy?.categories?.length) {
+        return { categories: lazy.categories, words: {}, lazy: true as const };
+      }
       return await thaiVocabService.getCatalog();
     },
     enabled: resolvedSlug === 'thai-vocab-hub',
@@ -517,6 +521,32 @@ const PlayGame = () => {
     return () => window.removeEventListener('message', navHandler);
   }, [navigate]);
 
+  // Thai Vocab Hub — lazy load คำทีละหมวดจาก DB (เฟส G)
+  useEffect(() => {
+    if (phase !== 'playing' || resolvedSlug !== 'thai-vocab-hub') return;
+    const handler = async (e: MessageEvent) => {
+      const d = e.data as { type?: string; slug?: string } | undefined;
+      if (d?.type !== 'requestVocabWords' || typeof d.slug !== 'string') return;
+      const cw = iframeRef.current?.contentWindow;
+      if (cw && e.source !== cw) return;
+      try {
+        const words = await thaiVocabService.getWordsByCategory(d.slug);
+        (e.source as Window | null)?.postMessage(
+          { type: 'vocabWords', slug: d.slug, words },
+          '*',
+        );
+      } catch (err) {
+        console.warn('vocabWords fetch failed', err);
+        (e.source as Window | null)?.postMessage(
+          { type: 'vocabWords', slug: d.slug, words: [] },
+          '*',
+        );
+      }
+    };
+    window.addEventListener('message', handler);
+    return () => window.removeEventListener('message', handler);
+  }, [phase, resolvedSlug]);
+
   // ─── receive gameEnd from iframe ───────────────────────────────────────────
   useEffect(() => {
     if (phase !== 'playing') return;
@@ -609,6 +639,16 @@ const PlayGame = () => {
               );
               thaiVocabMissedQuery.refetch();
             } catch (e) { console.warn('thai vocab missed sync failed', e); }
+          }
+          const indicatorCodes = Array.isArray(data.metadata?.indicatorCodes)
+            ? (data.metadata.indicatorCodes as string[])
+            : missed
+                .map((w) => (w as { indicator_code?: string }).indicator_code)
+                .filter((c): c is string => !!c);
+          if (indicatorCodes.length > 0) {
+            try {
+              await thaiVocabService.recordMissedIndicatorsByCode(codeInput.trim(), indicatorCodes);
+            } catch (e) { console.warn('vocab indicator events failed', e); }
           }
         }
         // Daily Quest: trigger ฝั่ง DB เครดิตเควสให้แล้วตอน insert session → refetch สถานะ + celebrate

@@ -1,4 +1,4 @@
-import { LayoutDashboard, ClipboardCheck, PenLine, Star, Recycle, Wallet } from 'lucide-react';
+import { LayoutDashboard, ClipboardCheck, PenLine, Star, Recycle, Wallet, BookOpen } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { RolePortalLayout } from '@/components/portal/RolePortalLayout';
 import { Card, CardContent } from '@/components/ui/card';
@@ -13,6 +13,7 @@ const MENU = [
     { id: 'conduct', label: 'ความประพฤติ', icon: Star, path: '/parent/conduct' },
     { id: 'waste-bank', label: 'ธนาคารขยะ', icon: Recycle, path: '/parent/waste-bank' },
     { id: 'savings-bank', label: 'ธนาคารพอเพียง', icon: Wallet, path: '/parent/savings-bank' },
+    { id: 'vocab-review', label: 'คำศัพท์ที่พลาด', icon: BookOpen, path: '/parent/vocab-review' },
 ];
 
 export default function ParentDashboard() {

@@ -4,699 +4,899 @@
     "reading": "ขะ-หยัน",
     "meaning": "ตั้งใจทำงานสม่ำเสมอ (ตรงข้ามกับ เกียจคร้าน)",
     "emoji": "💪",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "pair_id": "pair-1"
   },
   {
     "word": "เกียจคร้าน",
     "reading": "เกียด-คร้าน",
     "meaning": "ไม่อยากทำงาน หลีกเลี่ยงงาน (ตรงข้ามกับ ขยัน)",
     "emoji": "😴",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "pair_id": "pair-1"
   },
   {
     "word": "สูง",
     "reading": "สูง",
     "meaning": "มีระยะจากล่างขึ้นบนมาก (ตรงข้ามกับ ต่ำ เตี้ย)",
     "emoji": "📏",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "pair_id": "pair-2"
   },
   {
     "word": "ต่ำ",
     "reading": "ต่ำ",
     "meaning": "อยู่ในระดับล่าง (ตรงข้ามกับ สูง)",
     "emoji": "⬇️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "pair_id": "pair-2"
   },
   {
     "word": "ใหญ่",
     "reading": "ใหญ่",
     "meaning": "มีขนาดโต (ตรงข้ามกับ เล็ก)",
     "emoji": "🐘",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "pair_id": "pair-3"
   },
   {
     "word": "เล็ก",
     "reading": "เล็ก",
     "meaning": "มีขนาดน้อย (ตรงข้ามกับ ใหญ่)",
     "emoji": "🐜",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "pair_id": "pair-3"
   },
   {
     "word": "มืด",
     "reading": "มืด",
     "meaning": "ไม่มีแสงสว่าง (ตรงข้ามกับ สว่าง)",
     "emoji": "🌑",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "pair_id": "pair-4"
   },
   {
     "word": "สว่าง",
     "reading": "สะ-หว่าง",
     "meaning": "มีแสงมองเห็นได้ชัด (ตรงข้ามกับ มืด)",
     "emoji": "💡",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "pair_id": "pair-4"
   },
   {
     "word": "ร้อน",
     "reading": "ร้อน",
     "meaning": "มีอุณหภูมิสูง (ตรงข้ามกับ หนาว เย็น)",
     "emoji": "🔥",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "pair_id": "pair-5"
   },
   {
     "word": "หนาว",
     "reading": "หนาว",
     "meaning": "มีอุณหภูมิต่ำรู้สึกเย็น (ตรงข้ามกับ ร้อน)",
     "emoji": "❄️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "pair_id": "pair-5"
   },
   {
     "word": "หนัก",
     "reading": "หนัก",
     "meaning": "มีน้ำหนักมาก (ตรงข้ามกับ เบา)",
     "emoji": "🏋️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "pair_id": "pair-6"
   },
   {
     "word": "เบา",
     "reading": "เบา",
     "meaning": "มีน้ำหนักน้อย (ตรงข้ามกับ หนัก)",
     "emoji": "🪶",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "pair_id": "pair-6"
   },
   {
     "word": "เร็ว",
     "reading": "เร็ว",
     "meaning": "ใช้เวลาน้อยในการเคลื่อนที่ (ตรงข้ามกับ ช้า)",
     "emoji": "⚡",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "pair_id": "pair-7"
   },
   {
     "word": "ช้า",
     "reading": "ช้า",
     "meaning": "ใช้เวลามากในการเคลื่อนที่ (ตรงข้ามกับ เร็ว)",
     "emoji": "🐢",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "pair_id": "pair-7"
   },
   {
     "word": "กว้าง",
     "reading": "กว้าง",
     "meaning": "มีระยะด้านขวางมาก (ตรงข้ามกับ แคบ)",
     "emoji": "↔️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "pair_id": "pair-8"
   },
   {
     "word": "แคบ",
     "reading": "แคบ",
     "meaning": "มีระยะด้านขวางน้อย (ตรงข้ามกับ กว้าง)",
     "emoji": "🚪",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "pair_id": "pair-8"
   },
   {
     "word": "ดี",
     "reading": "ดี",
     "meaning": "มีคุณภาพหรือคุณค่า (ตรงข้ามกับ ชั่ว เลว)",
     "emoji": "👍",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "pair_id": "pair-9"
   },
   {
     "word": "ชั่ว",
     "reading": "ชั่ว",
     "meaning": "ไม่ดี ประพฤติเสียหาย (ตรงข้ามกับ ดี)",
     "emoji": "👎",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "pair_id": "pair-9"
   },
   {
     "word": "รวย",
     "reading": "รวย",
     "meaning": "มีทรัพย์สินมาก (ตรงข้ามกับ จน)",
     "emoji": "💰",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "pair_id": "pair-10"
   },
   {
     "word": "จน",
     "reading": "จน",
     "meaning": "มีทรัพย์น้อย ขัดสน (ตรงข้ามกับ รวย)",
     "emoji": "🪙",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "pair_id": "pair-10"
   },
   {
     "word": "แข็ง",
     "reading": "แข็ง",
     "meaning": "ไม่อ่อนไม่ยุบตัว (ตรงข้ามกับ อ่อน นิ่ม)",
     "emoji": "🪨",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "pair_id": "pair-11"
   },
   {
     "word": "อ่อน",
     "reading": "อ่อน",
     "meaning": "ไม่แข็ง นิ่ม ดัดได้ง่าย (ตรงข้ามกับ แข็ง)",
     "emoji": "🧸",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "pair_id": "pair-11"
   },
   {
     "word": "สะอาด",
     "reading": "สะ-อาด",
     "meaning": "ไม่สกปรก ไม่มีสิ่งเปื้อน (ตรงข้ามกับ สกปรก)",
     "emoji": "🧼",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "pair_id": "pair-12"
   },
   {
     "word": "สกปรก",
     "reading": "สก-กะ-ปรก",
     "meaning": "ไม่สะอาด เปื้อนเปรอะ (ตรงข้ามกับ สะอาด)",
     "emoji": "🗑️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "pair_id": "pair-12"
   },
   {
     "word": "เปิด",
     "reading": "เปิด",
     "meaning": "ทำให้ไม่ปิด ให้ผ่านเข้าออกได้ (ตรงข้ามกับ ปิด)",
     "emoji": "🔓",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "pair_id": "pair-13"
   },
   {
     "word": "ปิด",
     "reading": "ปิด",
     "meaning": "ทำให้ไม่เปิด กั้นไว้ (ตรงข้ามกับ เปิด)",
     "emoji": "🔒",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "pair_id": "pair-13"
   },
   {
     "word": "ขึ้น",
     "reading": "ขึ้น",
     "meaning": "เคลื่อนไปสู่ที่สูงกว่า (ตรงข้ามกับ ลง)",
     "emoji": "⬆️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "pair_id": "pair-14"
   },
   {
     "word": "ลง",
     "reading": "ลง",
     "meaning": "เคลื่อนไปสู่ที่ต่ำกว่า (ตรงข้ามกับ ขึ้น)",
     "emoji": "⬇️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "pair_id": "pair-14"
   },
   {
     "word": "จริง",
     "reading": "จิง",
     "meaning": "เป็นไปตามความเป็นจริง (ตรงข้ามกับ เท็จ ปลอม)",
     "emoji": "✅",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "pair_id": "pair-15"
   },
   {
     "word": "เท็จ",
     "reading": "เท็ด",
     "meaning": "ไม่จริง โกหก (ตรงข้ามกับ จริง)",
     "emoji": "❌",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "pair_id": "pair-15"
   },
   {
     "word": "กลางวัน",
     "reading": "กลาง-วัน",
     "meaning": "ช่วงเวลาที่มีแสงอาทิตย์ (ตรงข้ามกับ กลางคืน)",
     "emoji": "☀️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "pair_id": "pair-16"
   },
   {
     "word": "กลางคืน",
     "reading": "กลาง-คืน",
     "meaning": "ช่วงเวลาที่มืดไม่มีแสงอาทิตย์ (ตรงข้ามกับ กลางวัน)",
     "emoji": "🌙",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "pair_id": "pair-16"
   },
   {
     "word": "ใกล้",
     "reading": "ใกล้",
     "meaning": "มีระยะห่างน้อย (ตรงข้ามกับ ไกล)",
     "emoji": "📍",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "pair_id": "pair-17"
   },
   {
     "word": "ไกล",
     "reading": "ไกล",
     "meaning": "มีระยะห่างมาก (ตรงข้ามกับ ใกล้)",
     "emoji": "🛣️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "pair_id": "pair-17"
   },
   {
     "word": "แพง",
     "reading": "แพง",
     "meaning": "มีราคาสูง (ตรงข้ามกับ ถูก)",
     "emoji": "💸",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "pair_id": "pair-18"
   },
   {
     "word": "ถูก",
     "reading": "ถูก",
     "meaning": "มีราคาต่ำ (ตรงข้ามกับ แพง)",
     "emoji": "🏷️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "pair_id": "pair-18"
   },
   {
     "word": "ก่อน",
     "reading": "ก่อน",
     "meaning": "เกิดหรือทำมาแล้วในเวลาที่ผ่านมา (ตรงข้ามกับ หลัง)",
     "emoji": "⏮️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "pair_id": "pair-19"
   },
   {
     "word": "หลัง",
     "reading": "หลัง",
     "meaning": "เกิดหรือทำตามมาในภายหลัง (ตรงข้ามกับ ก่อน)",
     "emoji": "⏭️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "pair_id": "pair-19"
   },
   {
     "word": "แห้ง",
     "reading": "แห้ง",
     "meaning": "ไม่มีน้ำหรือความชื้น (ตรงข้ามกับ เปียก)",
     "emoji": "🏜️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "pair_id": "pair-20"
   },
   {
     "word": "เปียก",
     "reading": "เปียก",
     "meaning": "ชุ่มหรือเต็มไปด้วยน้ำ (ตรงข้ามกับ แห้ง)",
     "emoji": "💦",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "pair_id": "pair-20"
   },
   {
     "word": "สด",
     "reading": "สด",
     "meaning": "ยังใหม่ไม่เน่าเสีย (ตรงข้ามกับ เน่า)",
     "emoji": "🥬",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "pair_id": "pair-21"
   },
   {
     "word": "เน่า",
     "reading": "เน่า",
     "meaning": "เสียหรือเน่าเสียไม่สด (ตรงข้ามกับ สด)",
     "emoji": "🦠",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "pair_id": "pair-21"
   },
   {
     "word": "หนา",
     "reading": "หนา",
     "meaning": "มีความหนามาก (ตรงข้ามกับ บาง)",
     "emoji": "📚",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "pair_id": "pair-22"
   },
   {
     "word": "บาง",
     "reading": "บาง",
     "meaning": "มีความหนาน้อย (ตรงข้ามกับ หนา)",
     "emoji": "📄",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "pair_id": "pair-22"
   },
   {
     "word": "เต็ม",
     "reading": "เต็ม",
     "meaning": "ไม่ว่างมีสิ่งครบ (ตรงข้ามกับ ว่าง)",
     "emoji": "🫙",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "pair_id": "pair-23"
   },
   {
     "word": "ว่าง",
     "reading": "ว่าง",
     "meaning": "ไม่มีสิ่งใดอยู่ภายใน (ตรงข้ามกับ เต็ม)",
     "emoji": "⬜",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "pair_id": "pair-23"
   },
   {
     "word": "เก่า",
     "reading": "เก่า",
     "meaning": "ใช้มานานแล้ว (ตรงข้ามกับ ใหม่)",
     "emoji": "🏚️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "pair_id": "pair-24"
   },
   {
     "word": "ใหม่",
     "reading": "ใหม่",
     "meaning": "เพิ่งได้มาหรือยังไม่เก่า (ตรงข้ามกับ เก่า)",
     "emoji": "✨",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "pair_id": "pair-24"
   },
   {
     "word": "อ้วน",
     "reading": "อ้วน",
     "meaning": "มีเนื้อหนังมาก (ตรงข้ามกับ ผอม)",
     "emoji": "🐷",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "pair_id": "pair-25"
   },
   {
     "word": "ผอม",
     "reading": "ผอม",
     "meaning": "มีเนื้อหนังน้อย (ตรงข้ามกับ อ้วน)",
     "emoji": "🦴",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "pair_id": "pair-25"
   },
   {
     "word": "มาก",
     "reading": "มาก",
     "meaning": "มีจำนวนหรือปริมาณสูง (ตรงข้ามกับ น้อย)",
     "emoji": "📈",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "pair_id": "pair-26"
   },
   {
     "word": "น้อย",
     "reading": "น้อย",
     "meaning": "มีจำนวนหรือปริมาณต่ำ (ตรงข้ามกับ มาก)",
     "emoji": "📉",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "pair_id": "pair-26"
   },
   {
     "word": "ยาก",
     "reading": "ยาก",
     "meaning": "ทำได้ไม่ง่าย (ตรงข้ามกับ ง่าย)",
     "emoji": "🧩",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "pair_id": "pair-27"
   },
   {
     "word": "ง่าย",
     "reading": "ง่าย",
     "meaning": "ทำได้ไม่ยุ่งยาก (ตรงข้ามกับ ยาก)",
     "emoji": "😌",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "pair_id": "pair-27"
   },
   {
     "word": "หวาน",
     "reading": "หวาน",
     "meaning": "รสชาติเหมือนน้ำตาล (ตรงข้ามกับ ขม)",
     "emoji": "🍬",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "pair_id": "pair-28"
   },
   {
     "word": "ขม",
     "reading": "ขม",
     "meaning": "รสชาติไม่หวานคล้ายยา (ตรงข้ามกับ หวาน)",
     "emoji": "😖",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "pair_id": "pair-28"
   },
   {
     "word": "กล้า",
     "reading": "กล้า",
     "meaning": "ไม่หวาดกลัวสิ่งอันตราย (ตรงข้ามกับ ขี้ขลาด)",
     "emoji": "🦁",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "pair_id": "pair-29"
   },
   {
     "word": "ขี้ขลาด",
     "reading": "ขี้-ขลาด",
     "meaning": "กลัวและไม่กล้าทำ (ตรงข้ามกับ กล้า)",
     "emoji": "🐔",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "pair_id": "pair-29"
   },
   {
     "word": "อุ่น",
     "reading": "อุ่น",
     "meaning": "มีความร้อนพอสบาย (ตรงข้ามกับ เย็น)",
     "emoji": "🧣",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "pair_id": "pair-30"
   },
   {
     "word": "เย็น",
     "reading": "เย็น",
     "meaning": "มีอุณหภูมิต่ำสบาย (ตรงข้ามกับ อุ่น)",
     "emoji": "🧊",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "pair_id": "pair-30"
   },
   {
     "word": "ตื้น",
     "reading": "ตื้น",
     "meaning": "ลึกน้อยจากผิวหน้า (ตรงข้ามกับ ลึก)",
     "emoji": "🏖️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "pair_id": "pair-31"
   },
   {
     "word": "ลึก",
     "reading": "ลึก",
     "meaning": "อยู่ไกลจากผิวหน้ามาก (ตรงข้ามกับ ตื้น)",
     "emoji": "🕳️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "pair_id": "pair-31"
   },
   {
     "word": "ยาว",
     "reading": "ยาว",
     "meaning": "มีระยะทางมาก (ตรงข้ามกับ สั้น)",
     "emoji": "📏",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "pair_id": "pair-32"
   },
   {
     "word": "สั้น",
     "reading": "สั้น",
     "meaning": "มีระยะทางน้อย (ตรงข้ามกับ ยาว)",
     "emoji": "✂️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "pair_id": "pair-32"
   },
   {
     "word": "ปลอดภัย",
     "reading": "ปลอด-ภัย",
     "meaning": "ไม่มีอันตราย (ตรงข้ามกับ อันตราย)",
     "emoji": "🛡️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "pair_id": "pair-33"
   },
   {
     "word": "อันตราย",
     "reading": "อัน-ตะ-ราย",
     "meaning": "อาจก่อให้เกิดอันตราย (ตรงข้ามกับ ปลอดภัย)",
     "emoji": "⚠️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "pair_id": "pair-33"
   },
   {
     "word": "สงบ",
     "reading": "สงบ",
     "meaning": "เงียบสงบไม่วุ่นวาย (ตรงข้ามกับ วุ่นวาย)",
     "emoji": "🧘",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "pair_id": "pair-34"
   },
   {
     "word": "วุ่นวาย",
     "reading": "วุ่น-วาย",
     "meaning": "ไม่เป็นระเบียบรีบร้อน (ตรงข้ามกับ สงบ)",
     "emoji": "🌀",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "pair_id": "pair-34"
   },
   {
     "word": "ชัด",
     "reading": "ชัด",
     "meaning": "มองเห็นหรือเข้าใจได้ชัดเจน (ตรงข้ามกับ มัว)",
     "emoji": "🔍",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "pair_id": "pair-35"
   },
   {
     "word": "มัว",
     "reading": "มัว",
     "meaning": "ไม่ชัดเจนมองไม่คม (ตรงข้ามกับ ชัด)",
     "emoji": "🌫️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "pair_id": "pair-35"
   },
   {
     "word": "แน่น",
     "reading": "แน่น",
     "meaning": "ไม่หลวมแน่นหนา (ตรงข้ามกับ หลวม)",
     "emoji": "🤜",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "pair_id": "pair-36"
   },
   {
     "word": "หลวม",
     "reading": "หลวม",
     "meaning": "ไม่แน่นมีช่องว่าง (ตรงข้ามกับ แน่น)",
     "emoji": "🕳️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "pair_id": "pair-36"
   },
   {
     "word": "เพิ่ม",
     "reading": "เพิ่ม",
     "meaning": "ทำให้มากขึ้น (ตรงข้ามกับ ลด)",
     "emoji": "➕",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "pair_id": "pair-37"
   },
   {
     "word": "ลด",
     "reading": "ลด",
     "meaning": "ทำให้น้อยลง (ตรงข้ามกับ เพิ่ม)",
     "emoji": "➖",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "pair_id": "pair-37"
   },
   {
     "word": "เข้า",
     "reading": "เข้า",
     "meaning": "เคลื่อนเข้าสู่ภายใน (ตรงข้ามกับ ออก)",
     "emoji": "🚪",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "pair_id": "pair-38"
   },
   {
     "word": "ออก",
     "reading": "ออก",
     "meaning": "เคลื่อนออกจากภายใน (ตรงข้ามกับ เข้า)",
     "emoji": "🚶",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "pair_id": "pair-38"
   },
   {
     "word": "ตื่น",
     "reading": "ตื่น",
     "meaning": "หยุดนอนและลืมตา (ตรงข้ามกับ หลับ)",
     "emoji": "😃",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "pair_id": "pair-39"
   },
   {
     "word": "หลับ",
     "reading": "หลับ",
     "meaning": "หยุดตื่นและพักผ่อน (ตรงข้ามกับ ตื่น)",
     "emoji": "😴",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "pair_id": "pair-39"
   },
   {
     "word": "ยืน",
     "reading": "ยืน",
     "meaning": "ตั้งลำตัวตรงบนขา (ตรงข้ามกับ นั่ง)",
     "emoji": "🧍",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "pair_id": "pair-40"
   },
   {
     "word": "นั่ง",
     "reading": "นั่ง",
     "meaning": "วางก้นบนที่นั่ง (ตรงข้ามกับ ยืน)",
     "emoji": "🪑",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "pair_id": "pair-40"
   },
   {
     "word": "ซ้าย",
     "reading": "ซ้าย",
     "meaning": "ด้านตรงข้ามมือขวา (ตรงข้ามกับ ขวา)",
     "emoji": "⬅️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "pair_id": "pair-41"
   },
   {
     "word": "ขวา",
     "reading": "ขวา",
     "meaning": "ด้านตรงข้ามมือซ้าย (ตรงข้ามกับ ซ้าย)",
     "emoji": "➡️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "pair_id": "pair-41"
   },
   {
     "word": "ชนะ",
     "reading": "ชะ-นะ",
     "meaning": "เอาชนะคู่แข่งได้ (ตรงข้ามกับ แพ้)",
     "emoji": "🏆",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "pair_id": "pair-42"
   },
   {
     "word": "แพ้",
     "reading": "แพ้",
     "meaning": "พ่ายแพ้ต่อคู่แข่ง (ตรงข้ามกับ ชนะ)",
     "emoji": "😞",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "pair_id": "pair-42"
   },
   {
     "word": "เกิด",
     "reading": "เกิด",
     "meaning": "เริ่มมีชีวิตในโลก (ตรงข้ามกับ ตาย)",
     "emoji": "👶",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "pair_id": "pair-43"
   },
   {
     "word": "ตาย",
     "reading": "ตาย",
     "meaning": "สิ้นชีวิตไม่มีลมหายใจ (ตรงข้ามกับ เกิด)",
     "emoji": "🕯️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "pair_id": "pair-43"
   },
   {
     "word": "พูด",
     "reading": "พูด",
     "meaning": "เปล่งเสียงสื่อความหมาย (ตรงข้ามกับ เงียบ)",
     "emoji": "🗣️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "pair_id": "pair-44"
   },
   {
     "word": "เงียบ",
     "reading": "เงียบ",
     "meaning": "ไม่พูดหรือไม่มีเสียง (ตรงข้ามกับ พูด)",
     "emoji": "🤫",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "pair_id": "pair-44"
   },
   {
     "word": "รับ",
     "reading": "รับ",
     "meaning": "รับเอาสิ่งที่ได้มอบ (ตรงข้ามกับ ส่ง)",
     "emoji": "🤲",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "pair_id": "pair-45"
   },
   {
     "word": "ส่ง",
     "reading": "ส่ง",
     "meaning": "มอบหรือส่งต่อให้ผู้อื่น (ตรงข้ามกับ รับ)",
     "emoji": "📮",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "pair_id": "pair-45"
   },
   {
     "word": "เก็บ",
     "reading": "เก็บ",
     "meaning": "รักษาไว้ไม่ทิ้ง (ตรงข้ามกับ ทิ้ง)",
     "emoji": "📦",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "pair_id": "pair-46"
   },
   {
     "word": "ทิ้ง",
     "reading": "ทิ้ง",
     "meaning": "ไม่เก็บไว้และปล่อยให้หลุดจากมือ (ตรงข้ามกับ เก็บ)",
     "emoji": "🗑️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "pair_id": "pair-46"
   },
   {
     "word": "เตี้ย",
     "reading": "เตี้ย",
     "meaning": "สูงน้อยระดับต่ำ (ตรงข้ามกับ สูง)",
     "emoji": "📐",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "pair_id": "pair-47"
   },
   {
     "word": "เลว",
     "reading": "เลว",
     "meaning": "ไม่ดีมีคุณภาพต่ำ (ตรงข้ามกับ ดี)",
     "emoji": "💔",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "pair_id": "pair-47"
   },
   {
     "word": "นิ่ม",
     "reading": "นิ่ม",
     "meaning": "อ่อนนุ่มไม่แข็ง (ตรงข้ามกับ แข็ง)",
     "emoji": "🧸",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "pair_id": "pair-48"
   },
   {
     "word": "ปลอม",
     "reading": "ปลอม",
     "meaning": "ไม่จริงทำปะปนให้เหมือนของจริง (ตรงข้ามกับ จริง)",
     "emoji": "🎭",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "pair_id": "pair-48"
   },
   {
     "word": "เช้า",
     "reading": "เช้า",
     "meaning": "ช่วงต้นวันก่อนเที่ยง (ตรงข้ามกับ ค่ำ)",
     "emoji": "🌅",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "pair_id": "pair-49"
   },
   {
     "word": "ค่ำ",
     "reading": "ค่ำ",
     "meaning": "ช่วงปลายวันหลังพระอาทิตย์ตก (ตรงข้ามกับ เช้า)",
     "emoji": "🌆",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "pair_id": "pair-49"
   },
   {
     "word": "จืด",
     "reading": "จืด",
     "meaning": "รสไม่เค็มไม่หวาน (ตรงข้ามกับ เข้ม)",
     "emoji": "🥛",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "pair_id": "pair-50"
   },
   {
     "word": "เข้ม",
     "reading": "เข้ม",
     "meaning": "รสจัดหรือเข้มข้น (ตรงข้ามกับ จืด)",
     "emoji": "🧂",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "pair_id": "pair-50"
   }
 ]

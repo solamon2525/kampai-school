@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from 'react';
-import { FolderOpen, Plus, Edit, Trash2, Eye, EyeOff, FileText, ExternalLink as LinkIcon, Youtube, Type, Loader2 } from 'lucide-react';
+import { FolderOpen, Plus, BookOpen, Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -7,7 +7,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { RolePortalLayout } from '@/components/portal/RolePortalLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
@@ -23,15 +22,15 @@ import { useLinkedRecord } from '@/hooks/useLinkedRecord';
 import { useToast } from '@/hooks/use-toast';
 import {
     educationalHubService,
-    formatFileSize,
     type EduHubCategory,
     type EduHubItem,
-    type EduHubItemType,
     type EduHubProfile,
 } from '@/services/educational-hub.service';
 import { EduHubItemForm } from '@/components/admin/educational-hub/EduHubItemForm';
 import { SortableItemsTable } from '@/components/admin/educational-hub/SortableItemsTable';
 import { GameDocsDialog } from '@/components/admin/educational-hub/GameDocsDialog';
+import { ThaiVocabManageDialog } from '@/components/admin/educational-hub/ThaiVocabManageDialog';
+import { ThaiVocabMissedReportClass } from '@/components/thai-vocab/ThaiVocabMissedReport';
 import { staffService } from '@/services/staff.service';
 import TeacherGameAnalytics from './TeacherGameAnalytics';
 
@@ -39,20 +38,6 @@ const MENU = [
     { id: 'dashboard', label: 'แดชบอร์ด', icon: FolderOpen, path: '/teacher' },
     { id: 'edu-hub', label: 'คลังสื่อของฉัน', icon: FolderOpen, path: '/teacher/edu-hub' },
 ];
-
-const ITEM_TYPE_ICON: Record<EduHubItemType, typeof FileText> = {
-    file: FileText,
-    link: LinkIcon,
-    youtube: Youtube,
-    text: Type,
-};
-
-const ITEM_TYPE_LABEL: Record<EduHubItemType, string> = {
-    file: 'ไฟล์',
-    link: 'ลิงก์',
-    youtube: 'YouTube',
-    text: 'ข้อความ',
-};
 
 export default function TeacherEduHubManager() {
     const { data: link } = useLinkedRecord();
@@ -82,10 +67,15 @@ export default function TeacherEduHubManager() {
                             <TabsTrigger value="items">รายการของฉัน</TabsTrigger>
                             <TabsTrigger value="profile">โปรไฟล์คลัง</TabsTrigger>
                             <TabsTrigger value="analytics">วิเคราะห์คะแนนเกม</TabsTrigger>
+                            <TabsTrigger value="vocab-review">
+                                <BookOpen className="h-3.5 w-3.5 mr-1.5" />
+                                คำศัพท์ที่พลาด
+                            </TabsTrigger>
                         </TabsList>
                         <TabsContent value="items"><MyItemsTab staffId={staffId} /></TabsContent>
                         <TabsContent value="profile"><MyProfileTab staffId={staffId} /></TabsContent>
                         <TabsContent value="analytics"><TeacherGameAnalytics staffId={staffId} /></TabsContent>
+                        <TabsContent value="vocab-review"><ThaiVocabMissedReportClass /></TabsContent>
                     </Tabs>
                 )}
             </div>
@@ -102,6 +92,7 @@ const MyItemsTab = ({ staffId }: { staffId: string }) => {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editing, setEditing] = useState<EduHubItem | null>(null);
     const [docsItem, setDocsItem] = useState<EduHubItem | null>(null);
+    const [vocabItem, setVocabItem] = useState<EduHubItem | null>(null);
 
     const { data: items, isLoading } = useQuery({
         queryKey: ['edu-hub', 'items', 'mine', staffId],
@@ -184,6 +175,7 @@ const MyItemsTab = ({ staffId }: { staffId: string }) => {
                                         invalidateKeys={invalidateKeys}
                                         onEdit={(item) => { setEditing(item); setDialogOpen(true); }}
                                         onDocs={(item) => setDocsItem(item)}
+                                        onVocabManage={(item) => setVocabItem(item)}
                                     />
                                 )}
                             </div>
@@ -213,6 +205,14 @@ const MyItemsTab = ({ staffId }: { staffId: string }) => {
                 <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                     {docsItem && (
                         <GameDocsDialog item={docsItem} onClose={() => setDocsItem(null)} />
+                    )}
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={!!vocabItem} onOpenChange={(open) => !open && setVocabItem(null)}>
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                    {vocabItem && (
+                        <ThaiVocabManageDialog item={vocabItem} onClose={() => setVocabItem(null)} />
                     )}
                 </DialogContent>
             </Dialog>

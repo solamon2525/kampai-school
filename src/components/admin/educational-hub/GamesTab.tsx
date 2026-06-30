@@ -96,6 +96,7 @@ import { FeaturedGamesDisplaySettings } from './FeaturedGamesDisplaySettings';
 import { IndicatorPromptDialog } from './IndicatorPromptDialog';
 import { IndicatorCoverageDialog } from './IndicatorCoverageDialog';
 import { ThaiVocabManageDialog } from './ThaiVocabManageDialog';
+import { isThaiVocabHubGame } from '@/lib/thai-vocab-hub';
 import { curriculumService } from '@/services/curriculum.service';
 import { GameIndicatorBatchMapper } from '@/components/admin/curriculum/GameIndicatorBatchMapper';
 
@@ -453,11 +454,6 @@ function DeveloperCheatsheet() {
 }
 
 // ─── Tab ────────────────────────────────────────────────────────────────────
-
-function isThaiVocabHubGame(item: EduHubItem): boolean {
-    return item.game_slug === 'thai-vocab-hub'
-        || (item.external_url ?? '').includes('thai-vocab-hub');
-}
 
 type Teacher = {
     id: string;

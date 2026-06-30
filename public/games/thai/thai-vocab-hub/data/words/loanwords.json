@@ -4,699 +4,899 @@
     "reading": "คอม-พิว-เตอร์",
     "meaning": "เครื่องคำนวณอิเล็กทรอนิกส์ช่วยทำงานอัตโนมัติ",
     "emoji": "💻",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "origin_lang": "en"
   },
   {
     "word": "ไอศกรีม",
     "reading": "ไอ-สะ-กรีม",
     "meaning": "ของหวานแช่แข็งทำจากนมและครีมผสมกลิ่นรส (สะกด ร ควบ)",
     "emoji": "🍦",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "origin_lang": "other"
   },
   {
     "word": "ก๋วยเตี๋ยว",
     "reading": "ก๋วย-เตี๋ยว",
     "meaning": "อาหารประเภทเส้นลวกสุกปรุงด้วยน้ำซุปและเครื่องปรุง",
     "emoji": "🍜",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "origin_lang": "zh"
   },
   {
     "word": "ซาลาเปา",
     "reading": "ซา-ลา-เปา",
     "meaning": "อาหารนึ่งชนิดหนึ่งมีแป้งหุ้มไส้หวานหรือเค็ม",
     "emoji": "🥟",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "origin_lang": "other"
   },
   {
     "word": "คอนเสิร์ต",
     "reading": "คอน-เสิร์ต",
     "meaning": "การแสดงดนตรีต่อหน้าผู้ชมจำนวนมาก",
     "emoji": "🎸",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "origin_lang": "other"
   },
   {
     "word": "ฟุตบอล",
     "reading": "ฟุด-บอน",
     "meaning": "กีฬาประเภทหนึ่งเตะบอลกลมเข้าประตูฝ่ายตรงข้าม",
     "emoji": "⚽",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "origin_lang": "other"
   },
   {
     "word": "ช็อกโกแลต",
     "reading": "ช็อก-โก-แลต",
     "meaning": "ขนมหวานสีน้ำตาลรสหวานเข้มข้นทำจากเมล็ดโกโก้ (ยืมจากอังกฤษ)",
     "emoji": "🍫",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "origin_lang": "other"
   },
   {
     "word": "กอล์ฟ",
     "reading": "ก๊อบ",
     "meaning": "กีฬาชนิดหนึ่งที่ใช้ไม้ตีลูกกลมแข็งให้ลงหลุมที่กำหนด (ยืมจากอังกฤษ)",
     "emoji": "⛳",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "origin_lang": "other"
   },
   {
     "word": "คลินิก",
     "reading": "คลิ-นิก",
     "meaning": "สถานที่รักษาคนไข้ขนาดเล็กไม่มีเตียงผู้ป่วยค้างคืน (ยืมจากอังกฤษ)",
     "emoji": "🏥",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "origin_lang": "other"
   },
   {
     "word": "เก้าอี้",
     "reading": "เก้า-อี้",
     "meaning": "เฟอร์นิเจอร์มีขารองรับสี่สำหรับใช้นั่งคนเดียว (ยืมจากจีน)",
     "emoji": "🪑",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "origin_lang": "other"
   },
   {
     "word": "โต๊ะ",
     "reading": "โต๊ะ",
     "meaning": "เฟอร์นิเจอร์มีแผ่นเรียบด้านบนและขาตั้งใช้ทำงานกินอาหาร (ยืมจากจีน)",
     "emoji": "📥",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "origin_lang": "other"
   },
   {
     "word": "ลิ้นจี่",
     "reading": "ลิ้น-จี่",
     "meaning": "ผลไม้เมืองร้อนเปลือกแดงหนามมีปุ่มเนื้อสีขาวหวานอร่อย (ยืมจากจีน)",
     "emoji": "🍒",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "origin_lang": "other"
   },
   {
     "word": "ปฏิเสธ",
     "reading": "ปะ-ติ-เสด",
     "meaning": "การไม่ยอมรับ ข้อขัดข้อง การปัดไม่ทำงานร่วมด้วย (ยืมจากบาลีสันสกฤต)",
     "emoji": "🙅",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "origin_lang": "other"
   },
   {
     "word": "ภรรยา",
     "reading": "พัน-ระ-ยา",
     "meaning": "หญิงผู้เป็นคู่ครองจดทะเบียนสมรสร่วมกัน (ยืมจากบาลีสันสกฤต)",
     "emoji": "👩‍❤️‍👨",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "origin_lang": "other"
   },
   {
     "word": "เทคโนโลยี",
     "reading": "เทค-โน-โล-ยี",
     "meaning": "วิทยาการที่นำความรู้มาประยุกต์ใช้ให้เกิดประโยชน์ (ยืมจากอังกฤษ)",
     "emoji": "🤖",
-    "grade": "ป.6"
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "origin_lang": "other"
   },
   {
     "word": "โทรทัศน์",
     "reading": "โท-ระ-ทัด",
     "meaning": "เครื่องรับภาพและเสียงที่ส่งมาจากระยะไกล (ยืมจากบาลีสันสกฤต)",
     "emoji": "📺",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "origin_lang": "other"
   },
   {
     "word": "บะหมี่",
     "reading": "บะ-หมี่",
     "meaning": "อาหารเส้นทำจากแป้งสาลีลวกสุกปรุงรส (ยืมจากจีน)",
     "emoji": "🍜",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "origin_lang": "zh"
   },
   {
     "word": "แบตเตอรี่",
     "reading": "แบ็ด-เตอ-รี่",
     "meaning": "อุปกรณ์เก็บและจ่ายพลังงานไฟฟ้า (ยืมจากอังกฤษ)",
     "emoji": "🔋",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "origin_lang": "other"
   },
   {
     "word": "โทรศัพท์",
     "reading": "โท-ระ-สับ",
     "meaning": "เครื่องส่งและรับเสียงพูดในระยะไกล (ประกอบจากรากสันสกฤต)",
     "emoji": "📱",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "origin_lang": "other"
   },
   {
     "word": "วิทยุ",
     "reading": "วิด-ทะ-ยุ",
     "meaning": "เครื่องรับส่งเสียงด้วยคลื่นแม่เหล็กไฟฟ้า (ยืมรากสันสกฤต)",
     "emoji": "📻",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "origin_lang": "other"
   },
   {
     "word": "แชมพู",
     "reading": "แชม-พู",
     "meaning": "น้ำยาทำความสะอาดเส้นผม (ยืมจากอังกฤษ)",
     "emoji": "🧴",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "origin_lang": "other"
   },
   {
     "word": "เค้ก",
     "reading": "เค้ก",
     "meaning": "ขนมอบทำจากแป้ง ไข่ และเนย (ยืมจากอังกฤษ)",
     "emoji": "🍰",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "origin_lang": "other"
   },
   {
     "word": "โซฟา",
     "reading": "โซ-ฟา",
     "meaning": "เก้าอี้ยาวบุนวมนุ่มสำหรับนั่งหลายคน (ยืมจากอังกฤษ)",
     "emoji": "🛋️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "origin_lang": "other"
   },
   {
     "word": "ไมโครโฟน",
     "reading": "ไม-โคร-โฟน",
     "meaning": "เครื่องรับและขยายเสียงพูด (ยืมจากอังกฤษ)",
     "emoji": "🎤",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "origin_lang": "other"
   },
   {
     "word": "แท็กซี่",
     "reading": "แท็ก-ซี่",
     "meaning": "รถยนต์รับจ้างโดยสารคิดค่าโดยสารตามระยะ (ยืมจากอังกฤษ)",
     "emoji": "🚕",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "origin_lang": "other"
   },
   {
     "word": "การ์ตูน",
     "reading": "กา-ตูน",
     "meaning": "ภาพล้อหรือเรื่องที่วาดให้ชวนขันหรือเล่าเรื่อง (ยืมจากอังกฤษ)",
     "emoji": "🎞️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "origin_lang": "other"
   },
   {
     "word": "เนกไท",
     "reading": "เน็ก-ไท",
     "meaning": "ผ้าผูกคอสำหรับสวมกับเสื้อเชิ้ต (ยืมจากอังกฤษ)",
     "emoji": "👔",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "origin_lang": "other"
   },
   {
     "word": "เกี๊ยว",
     "reading": "เกี๊ยว",
     "meaning": "แผ่นแป้งห่อไส้หมูหรือกุ้งแล้วลวกหรือทอด (ยืมจากจีน)",
     "emoji": "🥟",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "origin_lang": "other"
   },
   {
     "word": "เต้าหู้",
     "reading": "เต้า-หู้",
     "meaning": "อาหารทำจากถั่วเหลืองบดเป็นก้อนนุ่ม (ยืมจากจีน)",
     "emoji": "🍲",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "origin_lang": "other"
   },
   {
     "word": "กุยช่าย",
     "reading": "กุย-ช่าย",
     "meaning": "ขนมแป้งนึ่งหรือทอดมีไส้ผักกุยช่าย (ยืมจากจีน)",
     "emoji": "🥬",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "origin_lang": "other"
   },
   {
     "word": "ตะหลิว",
     "reading": "ตะ-หลิว",
     "meaning": "เครื่องมือแบนใช้แซะหรือผัดอาหารในกระทะ (ยืมจากจีน)",
     "emoji": "🍳",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "origin_lang": "other"
   },
   {
     "word": "ซินแส",
     "reading": "ซิน-แส",
     "meaning": "หมอดูหรือผู้รู้ตำราตามความเชื่อแบบจีน (ยืมจากจีน)",
     "emoji": "🔮",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "origin_lang": "other"
   },
   {
     "word": "กวยจั๊บ",
     "reading": "กวย-จั๊บ",
     "meaning": "อาหารเส้นแป้งแผ่นม้วนลวกในน้ำซุป (ยืมจากจีน)",
     "emoji": "🍜",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "origin_lang": "other"
   },
   {
     "word": "เซียมซี",
     "reading": "เซียม-ซี",
     "meaning": "ใบที่มีคำทำนายโชคชะตาจากการเสี่ยงทาย (ยืมจากจีน)",
     "emoji": "🎴",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "origin_lang": "other"
   },
   {
     "word": "ศิลปะ",
     "reading": "สิน-ละ-ปะ",
     "meaning": "ฝีมือเชิงช่างหรือผลงานที่งดงามมีคุณค่า (ยืมจากบาลีสันสกฤต)",
     "emoji": "🎨",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "origin_lang": "other"
   },
   {
     "word": "ประวัติ",
     "reading": "ประ-หวัด",
     "meaning": "เรื่องราวความเป็นมาของบุคคลหรือสิ่งต่างๆ (ยืมจากบาลีสันสกฤต)",
     "emoji": "📜",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "origin_lang": "other"
   },
   {
     "word": "กีฬา",
     "reading": "กี-ลา",
     "meaning": "การเล่นเพื่อออกกำลังกายหรือแข่งขันความสามารถ (ยืมจากบาลี)",
     "emoji": "⚽",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "origin_lang": "other"
   },
   {
     "word": "อากาศ",
     "reading": "อา-กาด",
     "meaning": "แก๊สที่ห่อหุ้มโลก หรือสภาพท้องฟ้า (ยืมจากสันสกฤต)",
     "emoji": "☁️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "origin_lang": "other"
   },
   {
     "word": "ภาษา",
     "reading": "พา-สา",
     "meaning": "ถ้อยคำหรือสัญลักษณ์ที่ใช้สื่อความหมายกัน (ยืมจากบาลีสันสกฤต)",
     "emoji": "🗣️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "origin_lang": "other"
   },
   {
     "word": "นาฬิกา",
     "reading": "นา-ลิ-กา",
     "meaning": "เครื่องบอกเวลาเป็นชั่วโมงและนาที (ยืมจากบาลี)",
     "emoji": "🕐",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "origin_lang": "other"
   },
   {
     "word": "แซนด์วิช",
     "reading": "แซนด์-วิช",
     "meaning": "ขนมปังหนีบไส้ (อังกฤษ)",
     "emoji": "🥪",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "origin_lang": "other"
   },
   {
     "word": "แฮมเบอร์เกอร์",
     "reading": "แฮม-เบอร์-เกอร์",
     "meaning": "แซนด์วิชเนื้อ (อังกฤษ)",
     "emoji": "🍔",
-    "grade": "ป.6"
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "origin_lang": "other"
   },
   {
     "word": "พิซซ่า",
     "reading": "พิด-ซ่า",
     "meaning": "อาหารแป้งอบท็อปปิ้ง (อิตาลี)",
     "emoji": "🍕",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "origin_lang": "other"
   },
   {
     "word": "สปาเก็ตตี้",
     "reading": "สปา-เก็ต-ตี้",
     "meaning": "เส้นพาสต้า (อิตาลี)",
     "emoji": "🍝",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "origin_lang": "other"
   },
   {
     "word": "สเต็ก",
     "reading": "สเต็ก",
     "meaning": "เนื้อย่างชิ้นใหญ่ (อังกฤษ)",
     "emoji": "🥩",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "origin_lang": "other"
   },
   {
     "word": "ป๊อปคอร์น",
     "reading": "ป๊อบ-คอร์น",
     "meaning": "ข้าวโพดคั่ว (อังกฤษ)",
     "emoji": "🍿",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "origin_lang": "other"
   },
   {
     "word": "โยเกิร์ต",
     "reading": "โย-เกิร์ต",
     "meaning": "นมเปรี้ยว (ตุรกี)",
     "emoji": "🥛",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "origin_lang": "other"
   },
   {
     "word": "แพนเค้ก",
     "reading": "แพน-เค้ก",
     "meaning": "แป้งทอดแผ่น (อังกฤษ)",
     "emoji": "🥞",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "origin_lang": "other"
   },
   {
     "word": "วาฟเฟิล",
     "reading": "วาฟ-เฟิล",
     "meaning": "แป้งอบลายตาราง (ดัตช์)",
     "emoji": "🧇",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "origin_lang": "other"
   },
   {
     "word": "คุกกี้",
     "reading": "คุก-กี้",
     "meaning": "ขนมอบกรอบ (อังกฤษ)",
     "emoji": "🍪",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "origin_lang": "other"
   },
   {
     "word": "โดนัท",
     "reading": "โด-นัท",
     "meaning": "ขนมปังทอดรู (อังกฤษ)",
     "emoji": "🍩",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "origin_lang": "other"
   },
   {
     "word": "มัฟฟิน",
     "reading": "มัฟ-ฟิน",
     "meaning": "เค้กถ้วย (อังกฤษ)",
     "emoji": "🧁",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "origin_lang": "other"
   },
   {
     "word": "บิสกิต",
     "reading": "บิส-กิต",
     "meaning": "ขนมปังกรอบ (อังกฤษ)",
     "emoji": "🍪",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "origin_lang": "other"
   },
   {
     "word": "น้ำอัดลม",
     "reading": "น้ำ-อัด-ลม",
     "meaning": "เครื่องดื่มมีฟอง (อังกฤษ)",
     "emoji": "🥤",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "origin_lang": "other"
   },
   {
     "word": "โค้ก",
     "reading": "โค้ก",
     "meaning": "น้ำอัดลมรสโคล่า (อังกฤษ)",
     "emoji": "🥤",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "origin_lang": "other"
   },
   {
     "word": "สมูทตี้",
     "reading": "สมูท-ตี้",
     "meaning": "เครื่องดื่มปั่นผลไม้ (อังกฤษ)",
     "emoji": "🥤",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "origin_lang": "other"
   },
   {
     "word": "ลาเต้",
     "reading": "ลา-เต้",
     "meaning": "กาแฟผสมนม (อิตาลี)",
     "emoji": "☕",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "origin_lang": "other"
   },
   {
     "word": "คาปูชิโน่",
     "reading": "คา-ปู-ชิ-โน่",
     "meaning": "กาแฟฟองนม (อิตาลี)",
     "emoji": "☕",
-    "grade": "ป.6"
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "origin_lang": "other"
   },
   {
     "word": "เอสเปรสโซ่",
     "reading": "เอส-เปรส-โซ่",
     "meaning": "กาแฟเข้มข้น (อิตาลี)",
     "emoji": "☕",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "origin_lang": "other"
   },
   {
     "word": "ชาเขียว",
     "reading": "ชา-เขียว",
     "meaning": "ชาญี่ปุ่น (จีน)",
     "emoji": "🍵",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "origin_lang": "other"
   },
   {
     "word": "บิงซู",
     "reading": "บิง-ซู",
     "meaning": "น้ำแข็งไสหวาน (เกาหลี)",
     "emoji": "🍧",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "origin_lang": "other"
   },
   {
     "word": "ติ่มซำ",
     "reading": "ติ่ม-ซำ",
     "meaning": "อาหารนึ่งจานเล็ก (จีน)",
     "emoji": "🥟",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "origin_lang": "other"
   },
   {
     "word": "หมูแดง",
     "reading": "หมู-แดง",
     "meaning": "หมูย่างสีแดง (จีน)",
     "emoji": "🍖",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "origin_lang": "other"
   },
   {
     "word": "เป็ดย่าง",
     "reading": "เป็ด-ย่าง",
     "meaning": "เป็ดย่างจีน (จีน)",
     "emoji": "🦆",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "origin_lang": "other"
   },
   {
     "word": "ข้าวมันไก่",
     "reading": "ข้าว-มัน-ไก่",
     "meaning": "อาหารไก่จานดัง (จีน)",
     "emoji": "🍗",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "origin_lang": "other"
   },
   {
     "word": "ขนมจีบ",
     "reading": "ขนม-จีบ",
     "meaning": "เกี๊ยวนึ่ง (จีน)",
     "emoji": "🥟",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "origin_lang": "other"
   },
   {
     "word": "ข้าวเหนียวมะม่วง",
     "reading": "ข้าว-เหนียว-มะ-ม่วง",
     "meaning": "ของหวานไทย-จีน (จีน)",
     "emoji": "🥭",
-    "grade": "ป.6"
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "origin_lang": "other"
   },
   {
     "word": "ลอนดรี",
     "reading": "ลอน-ดรี",
     "meaning": "เสื้อผ้าแบบอังกฤษ (อังกฤษ)",
     "emoji": "👗",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "origin_lang": "other"
   },
   {
     "word": "ยีนส์",
     "reading": "ยีนส์",
     "meaning": "กางเกงยีนส์ (อังกฤษ)",
     "emoji": "👖",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "origin_lang": "other"
   },
   {
     "word": "ฮู้ด",
     "reading": "ฮู้ด",
     "meaning": "เสื้อมีฮู้ด (อังกฤษ)",
     "emoji": "🧥",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "origin_lang": "other"
   },
   {
     "word": "สนีกเกอร์",
     "reading": "สนีก-เกอร์",
     "meaning": "รองเท้ากีฬา (อังกฤษ)",
     "emoji": "👟",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "origin_lang": "other"
   },
   {
     "word": "รองเท้าแตะ",
     "reading": "รอง-เท้า-แตะ",
     "meaning": "รองเท้าเปิดส้น (อังกฤษ)",
     "emoji": "🩴",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "origin_lang": "other"
   },
   {
     "word": "แว่นตา",
     "reading": "แว่น-ตา",
     "meaning": "อุปกรณ์สวมบนตา (อังกฤษ)",
     "emoji": "👓",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "origin_lang": "other"
   },
   {
     "word": "นาฬิกาข้อมือ",
     "reading": "นา-ลิ-กา-ข้อ-มือ",
     "meaning": "นาฬิกาสวมข้อมือ (บาลี)",
     "emoji": "⌚",
-    "grade": "ป.6"
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "origin_lang": "other"
   },
   {
     "word": "กระเป๋า",
     "reading": "กระ-เป๋า",
     "meaning": "ถุงใส่ของ (จีน)",
     "emoji": "👜",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "origin_lang": "other"
   },
   {
     "word": "ร่ม",
     "reading": "ร่ม",
     "meaning": "อุปกรณ์กันแดดฝน (จีน)",
     "emoji": "☂️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "origin_lang": "other"
   },
   {
     "word": "หมวก",
     "reading": "หมวก",
     "meaning": "สิ่งคลุมศีรษะ (จีน)",
     "emoji": "🧢",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "origin_lang": "other"
   },
   {
     "word": "เสื้อกันหนาว",
     "reading": "เสื้อ-กัน-หนาว",
     "meaning": "เสื้อใส่กันหนาว (อังกฤษ)",
     "emoji": "🧥",
-    "grade": "ป.6"
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "origin_lang": "other"
   },
   {
     "word": "แอร์",
     "reading": "แอร์",
     "meaning": "เครื่องปรับอากาศ (อังกฤษ)",
     "emoji": "❄️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "origin_lang": "other"
   },
   {
     "word": "พัดลม",
     "reading": "พัด-ลม",
     "meaning": "เครื่องพัดลม (จีน)",
     "emoji": "🌀",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "origin_lang": "other"
   },
   {
     "word": "ตู้เย็น",
     "reading": "ตู้-เย็น",
     "meaning": "ตู้แช่เย็น (อังกฤษ)",
     "emoji": "🧊",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "origin_lang": "other"
   },
   {
     "word": "ไมโครเวฟ",
     "reading": "ไม-โคร-เวฟ",
     "meaning": "เตาอบไมโครเวฟ (อังกฤษ)",
     "emoji": "📻",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "origin_lang": "other"
   },
   {
     "word": "เครื่องซักผ้า",
     "reading": "เครื่อง-ซัก-ผ้า",
     "meaning": "เครื่องซักผ้าอัตโนมัติ (อังกฤษ)",
     "emoji": "🧺",
-    "grade": "ป.6"
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "origin_lang": "other"
   },
   {
     "word": "เครื่องดูดฝุ่น",
     "reading": "เครื่อง-ดูด-ฝุ่น",
     "meaning": "เครื่องดูดฝุ่น (อังกฤษ)",
     "emoji": "🧹",
-    "grade": "ป.6"
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "origin_lang": "other"
   },
   {
     "word": "รีโมท",
     "reading": "รี-โมท",
     "meaning": "เครื่องควบคุมระยะไกล (อังกฤษ)",
     "emoji": "📺",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "origin_lang": "other"
   },
   {
     "word": "อินเทอร์เน็ต",
     "reading": "อิน-เทอร์-เน็ต",
     "meaning": "เครือข่ายคอมพิวเตอร์ (อังกฤษ)",
     "emoji": "🌐",
-    "grade": "ป.6"
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "origin_lang": "other"
   },
   {
     "word": "อีเมล",
     "reading": "อี-เมล",
     "meaning": "จดหมายอิเล็กทรอนิกส์ (อังกฤษ)",
     "emoji": "📧",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "origin_lang": "other"
   },
   {
     "word": "เว็บไซต์",
     "reading": "เว็บ-ไซต์",
     "meaning": "หน้าเว็บบนอินเทอร์เน็ต (อังกฤษ)",
     "emoji": "🌐",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "origin_lang": "other"
   },
   {
     "word": "แอปพลิเคชัน",
     "reading": "แอป-พลิ-เคชัน",
     "meaning": "โปรแกรมบนมือถือ (อังกฤษ)",
     "emoji": "📱",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "origin_lang": "other"
   },
   {
     "word": "สมาร์ทโฟน",
     "reading": "สมาท-โฟน",
     "meaning": "โทรศัพท์อัจฉริยะ (อังกฤษ)",
     "emoji": "📱",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "origin_lang": "other"
   },
   {
     "word": "แท็บเล็ต",
     "reading": "แท็บ-เล็ต",
     "meaning": "คอมพิวเตอร์แผ่นเรียบ (อังกฤษ)",
     "emoji": "📱",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "origin_lang": "other"
   },
   {
     "word": "เซิร์ฟเวอร์",
     "reading": "เซิร์ฟ-เวอร์",
     "meaning": "เครื่องให้บริการเครือข่าย (อังกฤษ)",
     "emoji": "🖥️",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "origin_lang": "other"
   },
   {
     "word": "ดาวน์โหลด",
     "reading": "ดาวน์-โหลด",
     "meaning": "ดึงไฟล์จากอินเทอร์เน็ต (อังกฤษ)",
     "emoji": "⬇️",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "origin_lang": "other"
   },
   {
     "word": "อัปโหลด",
     "reading": "อัป-โหลด",
     "meaning": "ส่งไฟล์ขึ้นเครือข่าย (อังกฤษ)",
     "emoji": "⬆️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "origin_lang": "other"
   },
   {
     "word": "พาสเวิร์ด",
     "reading": "พาส-เวิร์ด",
     "meaning": "รหัสผ่าน (อังกฤษ)",
     "emoji": "🔑",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "origin_lang": "other"
   },
   {
     "word": "ไวรัส",
     "reading": "ไว-รัส",
     "meaning": "เชื้อโรคหรือโปรแกรมอันตราย (ละติน)",
     "emoji": "🦠",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "origin_lang": "other"
   },
   {
     "word": "วัคซีน",
     "reading": "วัก-ซีน",
     "meaning": "ยาป้องกันโรค (ละติน)",
     "emoji": "💉",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "origin_lang": "other"
   },
   {
     "word": "อนุบาล",
     "reading": "อะ-นุ-บาล",
     "meaning": "โรงเรียนสำหรับเด็กเล็ก (บาลี)",
     "emoji": "🏫",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "origin_lang": "other"
   },
   {
     "word": "มหาวิทยาลัย",
     "reading": "มะ-หา-วิด-ทะ-ยา-ลัย",
     "meaning": "สถาบันอุดมศึกษา (บาลี)",
     "emoji": "🎓",
-    "grade": "ป.6"
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "origin_lang": "other"
   },
   {
     "word": "อาจารย์",
     "reading": "อา-จาน",
     "meaning": "ผู้สอนในระดับสูง (บาลี)",
     "emoji": "👨‍🏫",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "origin_lang": "other"
   }
 ]

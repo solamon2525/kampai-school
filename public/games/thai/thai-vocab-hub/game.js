@@ -25,19 +25,24 @@ let sessionCorrect = 0;
 let sessionTotal = 0;
 let missedWords = [];
 let serverMissedWords = [];
+let vocabLazyLoad = false;
 
 function applyVocabFromSdk(sdk) {
   const vocab = sdk && sdk.gameData && sdk.gameData.vocab;
   if (!vocab || !vocab.categories || !vocab.categories.length) return;
 
+  vocabLazyLoad = !!vocab.lazy;
+
   CATEGORIES.length = 0;
   CATEGORIES.push(...vocab.categories);
-  Object.keys(ALL_WORDS).forEach((k) => delete ALL_WORDS[k]);
-  Object.assign(ALL_WORDS, vocab.words || {});
+  if (!vocabLazyLoad) {
+    Object.keys(ALL_WORDS).forEach((k) => delete ALL_WORDS[k]);
+    Object.assign(ALL_WORDS, vocab.words || {});
+  }
 
   if (window.GAME_DATA) {
     window.GAME_DATA.categories = vocab.categories;
-    window.GAME_DATA.words = vocab.words;
+    if (!vocabLazyLoad) window.GAME_DATA.words = vocab.words;
   }
 
   const hubVisible = document.getElementById('hub-view')?.style.display !== 'none';
@@ -48,6 +53,28 @@ function applyVocabFromSdk(sdk) {
     categoryWords = fullCategoryWords;
     if (currentMode === 'auto') renderWordsGrid();
   }
+}
+
+function loadCategoryWordsFromParent(slug) {
+  return new Promise((resolve) => {
+    if (!KAMPAI.isEmbed || !vocabLazyLoad) {
+      resolve(ALL_WORDS[slug] || []);
+      return;
+    }
+    const fallback = ALL_WORDS[slug] || [];
+    const timeout = setTimeout(() => resolve(fallback), 10000);
+    const handler = (e) => {
+      if (e.data?.type === 'vocabWords' && e.data.slug === slug) {
+        clearTimeout(timeout);
+        window.removeEventListener('message', handler);
+        const words = Array.isArray(e.data.words) ? e.data.words : [];
+        ALL_WORDS[slug] = words;
+        resolve(words);
+      }
+    };
+    window.addEventListener('message', handler);
+    window.parent.postMessage({ type: 'requestVocabWords', slug }, '*');
+  });
 }
 
 function applyMissedFromSdk(sdk) {
@@ -229,6 +256,16 @@ function getGridDisplayWords() {
   return words;
 }
 
+/** โหมดฝึก — กรองชั้นเหมือนกริดทบทวน (เฟส E) */
+function getQuizWords() {
+  let words = fullCategoryWords;
+  if (gridGradeFilter !== 'all') {
+    const filtered = words.filter((w) => w.grade === gridGradeFilter);
+    if (filtered.length > 0) words = filtered;
+  }
+  return words;
+}
+
 function updateGridFilterPickerUI() {
   document.querySelectorAll('.grid-grade-btn').forEach((btn) => {
     const active = btn.dataset.grade === gridGradeFilter;
@@ -352,7 +389,7 @@ function initHubGrid() {
   CATEGORIES.forEach(cat => {
     const card = document.createElement('div');
     card.className = 'hub-card';
-    card.onclick = () => selectCategory(cat.slug);
+    card.onclick = () => loadAndSelectCategory(cat.slug);
 
     card.innerHTML = `
       <div class="hc-icon">${cat.icon}</div>
@@ -363,7 +400,15 @@ function initHubGrid() {
   });
 }
 
-// เลือกหมวดหมู่คำศัพท์
+// เลือกหมวดหมู่คำศัพท์ (lazy load จาก wrapper เมื่อ vocabLazyLoad)
+async function loadAndSelectCategory(slug) {
+  const loaded = await loadCategoryWordsFromParent(slug);
+  if (loaded.length) {
+    ALL_WORDS[slug] = loaded;
+  }
+  selectCategory(slug);
+}
+
 function selectCategory(slug) {
   activeCategorySlug = slug;
   activeCategory = CATEGORIES.find(c => c.slug === slug);
@@ -444,12 +489,12 @@ function switchMode(mode) {
     if (mode === 'dictation') {
       document.getElementById('dictation-mode').style.display = 'block';
       // สุ่มเรียงคำศัพท์เพื่อฝึกฝน
-      quizList = shuffle([...categoryWords]);
+      quizList = shuffle([...getQuizWords()]);
       currentWordIndex = 0;
       loadDictationWord();
     } else if (mode === 'choice') {
       document.getElementById('choice-mode').style.display = 'block';
-      quizList = shuffle([...categoryWords]);
+      quizList = shuffle([...getQuizWords()]);
       currentWordIndex = 0;
       loadChoiceWord();
     } else if (mode === 'match') {
@@ -750,7 +795,7 @@ function loadChoiceWord() {
   document.getElementById('tcard').classList.remove('flipped');
 
   // สุ่มคำตอบลวง 3 ข้อจากคลังคำแปลอื่นในหมวดเดียวกัน
-  const decoyList = categoryWords
+  const decoyList = getQuizWords()
     .filter(w => w.word !== wordItem.word)
     .map(w => w.meaning);
 
@@ -822,7 +867,7 @@ function initMatchingGame() {
   selectedMatchRight = null;
 
   // เอาคำศัพท์มา 4 คำสุ่มเพื่อสลับสร้างตารางจับคู่
-  const matchWords = shuffle([...categoryWords]).slice(0, 4);
+  const matchWords = shuffle([...getQuizWords()]).slice(0, 4);
 
   const leftCol = document.getElementById('match-left');
   const rightCol = document.getElementById('match-right');
@@ -1017,7 +1062,9 @@ function endGame() {
         word: w.word,
         reading: w.reading,
         meaning: w.meaning,
+        indicator_code: w.indicator_code || null,
       })),
+      indicatorCodes: missedWords.map((w) => w.indicator_code).filter(Boolean),
     });
   }
 

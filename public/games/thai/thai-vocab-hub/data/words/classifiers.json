@@ -4,699 +4,899 @@
     "reading": "ด้าม",
     "meaning": "ลักษณนามของปากกา (ปากกา 1 ด้าม)",
     "emoji": "🖊️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "classifier_for": "ปากกา"
   },
   {
     "word": "เล่ม",
     "reading": "เล่ม",
     "meaning": "ลักษณนามของสมุด หนังสือ เกวียน เข็ม เทียน",
     "emoji": "📚",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "classifier_for": "สมุด"
   },
   {
     "word": "เชือก",
     "reading": "เชือก",
     "meaning": "ลักษณนามของช้างที่คนนำมาเลี้ยง (ช้างบ้าน)",
     "emoji": "🐘",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "classifier_for": "ช้างที่คนนำมาเลี้ยง"
   },
   {
     "word": "ตัว",
     "reading": "ตัว",
     "meaning": "ลักษณนามของช้างป่า สัตว์ทั่วไป โต๊ะ เก้าอี้",
     "emoji": "🦁",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "classifier_for": "ช้างป่า"
   },
   {
     "word": "เลา",
     "reading": "เลา",
     "meaning": "ลักษณนามของขลุ่ย (ขลุ่ย 1 เลา)",
     "emoji": "🎋",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "classifier_for": "ขลุ่ย"
   },
   {
     "word": "คัน",
     "reading": "คัน",
     "meaning": "ลักษณนามของซอ ช้อน เบ็ดตกปลา ร่ม รถยนต์",
     "emoji": "🚗",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "classifier_for": "ซอ"
   },
   {
     "word": "กระบอก",
     "reading": "กระ-บอก",
     "meaning": "ลักษณนามของปืน กระบอกไม้ไผ่ ข้าวหลาม",
     "emoji": "🎋",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "classifier_for": "ปืน"
   },
   {
     "word": "หลัง",
     "reading": "หลัง",
     "meaning": "ลักษณนามของบ้าน ตึก มุ้ง",
     "emoji": "🏠",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "classifier_for": "บ้าน"
   },
   {
     "word": "ปาก",
     "reading": "ปาก",
     "meaning": "ลักษณนามของเครื่องมือจับปลาจำพวก แห อวน",
     "emoji": "🕸️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "classifier_for": "เครื่องมือจับปลาจำพวก"
   },
   {
     "word": "วง",
     "reading": "วง",
     "meaning": "ลักษณนามของแหวน กำไล หรือกลุ่มดนตรี",
     "emoji": "💍",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "classifier_for": "แหวน"
   },
   {
     "word": "ผืน",
     "reading": "ผืน",
     "meaning": "ลักษณนามของผ้า เสื่อ โฉนดที่ดิน แผนที่",
     "emoji": "🗺️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "classifier_for": "ผ้า"
   },
   {
     "word": "บาน",
     "reading": "บาน",
     "meaning": "ลักษณนามของประตู หน้าต่าง กระจกเงา กรอบรูป",
     "emoji": "🪟",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "classifier_for": "ประตู"
   },
   {
     "word": "เครื่อง",
     "reading": "เครื่อง",
     "meaning": "ลักษณนามของคอมพิวเตอร์ โทรทัศน์ โทรศัพท์ เครื่องใช้ไฟฟ้า",
     "emoji": "💻",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "classifier_for": "คอมพิวเตอร์"
   },
   {
     "word": "สาย",
     "reading": "สาย",
     "meaning": "ลักษณนามของถนน แม่น้ำ ลำคลอง สร้อย เข็มขัด",
     "emoji": "🛣️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "classifier_for": "ถนน"
   },
   {
     "word": "เส้น",
     "reading": "เส้น",
     "meaning": "ลักษณนามของด้าย เชือก เส้นผม ไม้บรรทัด",
     "emoji": "🧵",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "classifier_for": "ด้าย"
   },
   {
     "word": "รูป",
     "reading": "รูบ",
     "meaning": "ลักษณนามของพระภิกษุ สามเณร (พระ 2 รูป)",
     "emoji": "🧎",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "classifier_for": "พระภิกษุ"
   },
   {
     "word": "องค์",
     "reading": "อง",
     "meaning": "ลักษณนามของพระพุทธรูป เจดีย์ และเจ้านายชั้นสูง",
     "emoji": "🛕",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "classifier_for": "พระพุทธรูป"
   },
   {
     "word": "ใบ",
     "reading": "ใบ",
     "meaning": "ลักษณนามของภาชนะ ผลไม้ ตั๋ว ใบไม้ ธนบัตร",
     "emoji": "🍃",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "classifier_for": "ภาชนะ"
   },
   {
     "word": "ลูก",
     "reading": "ลูก",
     "meaning": "ลักษณนามของผลไม้กลม ลูกบอล ภูเขา พายุ",
     "emoji": "⚽",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "classifier_for": "ผลไม้กลม"
   },
   {
     "word": "ดวง",
     "reading": "ดวง",
     "meaning": "ลักษณนามของดวงดาว ดวงอาทิตย์ ไฟ ตราไปรษณียากร",
     "emoji": "⭐",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "classifier_for": "ดวงดาว"
   },
   {
     "word": "เม็ด",
     "reading": "เม็ด",
     "meaning": "ลักษณนามของยา ข้าวสาร กระดุม เพชร พลอย",
     "emoji": "💊",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "classifier_for": "ยา"
   },
   {
     "word": "ก้อน",
     "reading": "ก้อน",
     "meaning": "ลักษณนามของหิน น้ำตาลก้อน เมฆ ดิน",
     "emoji": "🪨",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "classifier_for": "หิน"
   },
   {
     "word": "แท่ง",
     "reading": "แท่ง",
     "meaning": "ลักษณนามของดินสอ ทองคำแท่ง เหล็ก ชอล์ก",
     "emoji": "✏️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "classifier_for": "ดินสอ"
   },
   {
     "word": "ฟอง",
     "reading": "ฟอง",
     "meaning": "ลักษณนามของไข่ (ไข่เป็ด 2 ฟอง)",
     "emoji": "🥚",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "classifier_for": "ไข่"
   },
   {
     "word": "ซี่",
     "reading": "ซี่",
     "meaning": "ลักษณนามของฟัน ซี่โครง ลูกกรง ลวด",
     "emoji": "🦷",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "classifier_for": "ฟัน"
   },
   {
     "word": "กลีบ",
     "reading": "กลีบ",
     "meaning": "ลักษณนามของกลีบดอกไม้ กลีบส้ม กลีบกระเทียม",
     "emoji": "🌸",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "classifier_for": "กลีบดอกไม้"
   },
   {
     "word": "ช่อ",
     "reading": "ช่อ",
     "meaning": "ลักษณนามของดอกไม้ที่จัดรวมกันเป็นกำ",
     "emoji": "💐",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "classifier_for": "ดอกไม้ที่จัดรวมกันเป็นกำ"
   },
   {
     "word": "พวง",
     "reading": "พวง",
     "meaning": "ลักษณนามของพวงองุ่น พวงมาลัย พวงกุญแจ",
     "emoji": "🍇",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "classifier_for": "พวงองุ่น"
   },
   {
     "word": "หัว",
     "reading": "หัว",
     "meaning": "ลักษณนามของเผือก มัน หอม กระเทียม",
     "emoji": "🧅",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "classifier_for": "เผือก"
   },
   {
     "word": "ทะลาย",
     "reading": "ทะ-ลาย",
     "meaning": "ลักษณนามของมะพร้าว หมาก ที่ออกผลรวมกันเป็นกลุ่ม",
     "emoji": "🥥",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "classifier_for": "มะพร้าว"
   },
   {
     "word": "หวี",
     "reading": "หวี",
     "meaning": "ลักษณนามของกล้วยที่ติดกันเป็นแถว (กล้วย 1 หวี)",
     "emoji": "🍌",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "classifier_for": "กล้วยที่ติดกันเป็นแถว"
   },
   {
     "word": "กอ",
     "reading": "กอ",
     "meaning": "ลักษณนามของไผ่ อ้อย หญ้า ที่ขึ้นรวมเป็นกลุ่ม",
     "emoji": "🎋",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "classifier_for": "ไผ่"
   },
   {
     "word": "ต้น",
     "reading": "ต้น",
     "meaning": "ลักษณนามของต้นไม้ เสา",
     "emoji": "🌳",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "classifier_for": "ต้นไม้"
   },
   {
     "word": "ดอก",
     "reading": "ดอก",
     "meaning": "ลักษณนามของกุญแจ ธูป ไม้ขีดไฟ ดอกไม้",
     "emoji": "🔑",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "classifier_for": "กุญแจ"
   },
   {
     "word": "แผ่น",
     "reading": "แผ่น",
     "meaning": "ลักษณนามของกระดาษ กระเบื้อง แผ่นซีดี",
     "emoji": "📄",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "classifier_for": "กระดาษ"
   },
   {
     "word": "ม้วน",
     "reading": "ม้วน",
     "meaning": "ลักษณนามของฟิล์ม กระดาษชำระ เทป ที่ม้วนเป็นวง",
     "emoji": "🧻",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "classifier_for": "ฟิล์ม"
   },
   {
     "word": "คู่",
     "reading": "คู่",
     "meaning": "ลักษณนามของรองเท้า ถุงเท้า ตะเกียบ ที่ใช้เป็นคู่",
     "emoji": "👟",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "classifier_for": "รองเท้า"
   },
   {
     "word": "ชุด",
     "reading": "ชุด",
     "meaning": "ลักษณนามของเสื้อผ้า เครื่องมือ ของที่รวมเป็นชุด",
     "emoji": "👔",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "classifier_for": "เสื้อผ้า"
   },
   {
     "word": "ลำ",
     "reading": "ลำ",
     "meaning": "ลักษณนามของเรือ เครื่องบิน ไม้ไผ่ อ้อย",
     "emoji": "🚢",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "classifier_for": "เรือ"
   },
   {
     "word": "ฝูง",
     "reading": "ฝูง",
     "meaning": "ลักษณนามของสัตว์ที่อยู่รวมกันเป็นกลุ่ม (นก วัว ปลา)",
     "emoji": "🐦",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "classifier_for": "สัตว์ที่อยู่รวมกันเป็นกลุ่ม"
   },
   {
     "word": "อัน",
     "reading": "อัน",
     "meaning": "ลักษณนามทั่วไปของสิ่งของ (ดินสอ 1 อัน)",
     "emoji": "📎",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "classifier_for": "สิ่งของ"
   },
   {
     "word": "ห้อง",
     "reading": "ห้อง",
     "meaning": "ลักษณนามของห้องพัก ห้องเรียน ห้องน้ำ",
     "emoji": "🚪",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "classifier_for": "ห้องพัก"
   },
   {
     "word": "แห่ง",
     "reading": "แห่ง",
     "meaning": "ลักษณนามของสถานที่หรือองค์กร (โรงเรียน 1 แห่ง)",
     "emoji": "🏫",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "classifier_for": "สถานที่หรือองค์กร"
   },
   {
     "word": "เรือน",
     "reading": "เรือน",
     "meaning": "ลักษณนามของบ้านเรือนหรือครอบครัว",
     "emoji": "🏡",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "classifier_for": "บ้านเรือนหรือครอบครัว"
   },
   {
     "word": "ชิ้น",
     "reading": "ชิ้น",
     "meaning": "ลักษณนามของอาหารหรือของที่ตัดเป็นชิ้น (เค้ก 1 ชิ้น)",
     "emoji": "🍰",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "classifier_for": "อาหารหรือของที่ตัดเป็นชิ้น"
   },
   {
     "word": "ผล",
     "reading": "ผล",
     "meaning": "ลักษณนามของผลไม้กลม (ส้ม 1 ผล)",
     "emoji": "🍊",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "classifier_for": "ผลไม้กลม"
   },
   {
     "word": "ขั้น",
     "reading": "ขั้น",
     "meaning": "ลักษณนามของบันไดหรือระดับ (ขั้นที่ 1)",
     "emoji": "🪜",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "classifier_for": "บันไดหรือระดับ"
   },
   {
     "word": "รอบ",
     "reading": "รอบ",
     "meaning": "ลักษณนามของครั้งหรือรอบการแข่งขัน",
     "emoji": "🔄",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "classifier_for": "ครั้งหรือรอบการแข่งขัน"
   },
   {
     "word": "ครั้ง",
     "reading": "ครั้ง",
     "meaning": "ลักษณนามของจำนวนครั้งที่เกิดขึ้น (ครั้งที่ 1)",
     "emoji": "1️⃣",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "classifier_for": "จำนวนครั้งที่เกิดขึ้น"
   },
   {
     "word": "วัน",
     "reading": "วัน",
     "meaning": "ลักษณนามของจำนวนวัน (3 วัน)",
     "emoji": "📅",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "classifier_for": "จำนวนวัน"
   },
   {
     "word": "เดือน",
     "reading": "เดือน",
     "meaning": "ลักษณนามของจำนวนเดือน (6 เดือน)",
     "emoji": "🗓️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "classifier_for": "จำนวนเดือน"
   },
   {
     "word": "ปี",
     "reading": "ปี",
     "meaning": "ลักษณนามของจำนวนปี (ปีการศึกษา 1 ปี)",
     "emoji": "📆",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "classifier_for": "จำนวนปี"
   },
   {
     "word": "เที่ยว",
     "reading": "เที่ยว",
     "meaning": "ลักษณนามของการเดินทางหรือท่องเที่ยว",
     "emoji": "✈️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "classifier_for": "การเดินทางหรือท่องเที่ยว"
   },
   {
     "word": "กล่อง",
     "reading": "กล่อง",
     "meaning": "ลักษณนามของกล่องบรรจุของ (กล่องดินสอ 1 กล่อง)",
     "emoji": "📦",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "classifier_for": "กล่องบรรจุของ"
   },
   {
     "word": "ถ้วย",
     "reading": "ถ้วย",
     "meaning": "ลักษณนามของถ้วยชา ถ้วยกาแฟ ถ้วยน้ำ",
     "emoji": "☕",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "classifier_for": "ถ้วยชา"
   },
   {
     "word": "จาน",
     "reading": "จาน",
     "meaning": "ลักษณนามของจานใส่อาหาร",
     "emoji": "🍽️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "classifier_for": "จานใส่อาหาร"
   },
   {
     "word": "ชาม",
     "reading": "ชาม",
     "meaning": "ลักษณนามของชามใส่ข้าวหรือซุป",
     "emoji": "🥣",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "classifier_for": "ชามใส่ข้าวหรือซุป"
   },
   {
     "word": "ขวด",
     "reading": "ขวด",
     "meaning": "ลักษณนามของขวดน้ำ ขวดนม ขวดยา",
     "emoji": "🧴",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "classifier_for": "ขวดน้ำ"
   },
   {
     "word": "หลอด",
     "reading": "หลอด",
     "meaning": "ลักษณนามของหลอดยา หลอดกาว หลอดไฟ",
     "emoji": "🧪",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "classifier_for": "หลอดยา"
   },
   {
     "word": "แก้ว",
     "reading": "แก้ว",
     "meaning": "ลักษณนามของแก้วน้ำ แก้วมัค",
     "emoji": "🥛",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "classifier_for": "แก้วน้ำ"
   },
   {
     "word": "ถุง",
     "reading": "ถุง",
     "meaning": "ลักษณนามของถุงพลาสติก ถุงขนม ถุงเท้า",
     "emoji": "🛍️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "classifier_for": "ถุงพลาสติก"
   },
   {
     "word": "ซอง",
     "reading": "ซอง",
     "meaning": "ลักษณนามของซองจดหมาย ซองยา ซองขนม",
     "emoji": "✉️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "classifier_for": "ซองจดหมาย"
   },
   {
     "word": "ห่อ",
     "reading": "ห่อ",
     "meaning": "ลักษณนามของของที่ห่อหุ้ม (ขนม 1 ห่อ)",
     "emoji": "🎁",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "classifier_for": "ของที่ห่อหุ้ม"
   },
   {
     "word": "กลุ่ม",
     "reading": "กลุ่ม",
     "meaning": "ลักษณนามของกลุ่มคนหรือสิ่งของที่รวมกัน",
     "emoji": "👥",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "classifier_for": "กลุ่มคนหรือสิ่งของที่รวมกัน"
   },
   {
     "word": "ชั้น",
     "reading": "ชั้น",
     "meaning": "ลักษณนามของชั้นตึก ชั้นเรียน",
     "emoji": "🏢",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "classifier_for": "ชั้นตึก"
   },
   {
     "word": "แผง",
     "reading": "แผง",
     "meaning": "ลักษณนามของแผงขายของ แผงลอย",
     "emoji": "🏪",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "classifier_for": "แผงขายของ"
   },
   {
     "word": "โต๊ะ",
     "reading": "โต๊ะ",
     "meaning": "ลักษณนามของโต๊ะเรียน โต๊ะอาหาร",
     "emoji": "🪑",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "classifier_for": "โต๊ะเรียน"
   },
   {
     "word": "เก้าอี้",
     "reading": "เก้า-อี้",
     "meaning": "ลักษณนามของเก้าอี้นั่ง",
     "emoji": "💺",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "classifier_for": "เก้าอี้นั่ง"
   },
   {
     "word": "เสา",
     "reading": "เสา",
     "meaning": "ลักษณนามของเสาไฟฟ้า เสาธง",
     "emoji": "🏗️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "classifier_for": "เสาไฟฟ้า"
   },
   {
     "word": "โรง",
     "reading": "โรง",
     "meaning": "ลักษณนามของโรงเรียน โรงหนัง โรงงาน",
     "emoji": "🏭",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "classifier_for": "โรงเรียน"
   },
   {
     "word": "ฉบับ",
     "reading": "ฉะ-บับ",
     "meaning": "ลักษณนามของเอกสาร หนังสือ หรือฉบับร่าง",
     "emoji": "📄",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "classifier_for": "เอกสาร"
   },
   {
     "word": "ฉาก",
     "reading": "ฉาก",
     "meaning": "ลักษณนามของฉากในหนัง ละคร หรือภาพวาด",
     "emoji": "🎬",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "classifier_for": "ฉากในหนัง"
   },
   {
     "word": "ตอน",
     "reading": "ตอน",
     "meaning": "ลักษณนามของตอนในหนังสือ ละคร หรือซีรีส์",
     "emoji": "📺",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "classifier_for": "ตอนในหนังสือ"
   },
   {
     "word": "บท",
     "reading": "บท",
     "meaning": "ลักษณนามของบทเรียน บทกวี บทความ",
     "emoji": "📖",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "classifier_for": "บทเรียน"
   },
   {
     "word": "ข้อ",
     "reading": "ข้อ",
     "meaning": "ลักษณนามของข้อความ ข้อสอบ ข้อตกลง",
     "emoji": "📋",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "classifier_for": "ข้อความ"
   },
   {
     "word": "ประโยค",
     "reading": "ประ-โยค",
     "meaning": "ลักษณนามของประโยคในภาษา",
     "emoji": "💬",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "classifier_for": "ประโยคในภาษา"
   },
   {
     "word": "คำ",
     "reading": "คำ",
     "meaning": "ลักษณนามของคำศัพท์หรือคำพูด",
     "emoji": "🔤",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "classifier_for": "คำศัพท์หรือคำพูด"
   },
   {
     "word": "คณะ",
     "reading": "คะ-นะ",
     "meaning": "ลักษณนามของคณะกรรมการ คณะครู คณะผู้บริหาร",
     "emoji": "👔",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "classifier_for": "คณะกรรมการ"
   },
   {
     "word": "กอง",
     "reading": "กอง",
     "meaning": "ลักษณนามของกองทัพ กองโจร กองขยะ",
     "emoji": "🪖",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "classifier_for": "กองทัพ"
   },
   {
     "word": "ทัพ",
     "reading": "ทับ",
     "meaning": "ลักษณนามของกองทัพหรือกำลังทหาร",
     "emoji": "⚔️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "classifier_for": "กองทัพหรือกำลังทหาร"
   },
   {
     "word": "แผ่นดิน",
     "reading": "แผ่น-ดิน",
     "meaning": "ลักษณนามของดินแดนหรือประเทศ",
     "emoji": "🗺️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "classifier_for": "ดินแดนหรือประเทศ"
   },
   {
     "word": "ผื่น",
     "reading": "ผื่น",
     "meaning": "ลักษณนามของผื่นคัน ผื่นแดงบนผิวหนัง",
     "emoji": "🔴",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "classifier_for": "ผื่นคัน"
   },
   {
     "word": "แผล",
     "reading": "แผล",
     "meaning": "ลักษณนามของแผลฉีกขาดบนร่างกาย",
     "emoji": "🩹",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "classifier_for": "แผลฉีกขาดบนร่างกาย"
   },
   {
     "word": "รอย",
     "reading": "รอย",
     "meaning": "ลักษณนามของรอยแผล รอยเขียน รอยยิ้ม",
     "emoji": "✏️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "classifier_for": "รอยแผล"
   },
   {
     "word": "จุด",
     "reading": "จุด",
     "meaning": "ลักษณนามของจุดบนภาพ จุดสังเกต จุดเริ่มต้น",
     "emoji": "📍",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "classifier_for": "จุดบนภาพ"
   },
   {
     "word": "แต้ม",
     "reading": "แต้ม",
     "meaning": "ลักษณนามของคะแนน แต้มสี แต้มจุด",
     "emoji": "🎯",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "classifier_for": "คะแนน"
   },
   {
     "word": "หน่วย",
     "reading": "หน่วย",
     "meaning": "ลักษณนามของหน่วยงาน หน่วยเลข หน่วยนับ",
     "emoji": "🔢",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "classifier_for": "หน่วยงาน"
   },
   {
     "word": "หย่อม",
     "reading": "หย่อม",
     "meaning": "ลักษณนามของต้นไม้ที่ปลูกเป็นกลุ่ม (ไม้ประดับ 1 หย่อม)",
     "emoji": "🌳",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "classifier_for": "ต้นไม้ที่ปลูกเป็นกลุ่ม"
   },
   {
     "word": "ทุ่ง",
     "reading": "ทุ่ง",
     "meaning": "ลักษณนามของทุ่งนา ทุ่งหญ้า ทุ่งดอกไม้",
     "emoji": "🌾",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "classifier_for": "ทุ่งนา"
   },
   {
     "word": "ไร่",
     "reading": "ไร่",
     "meaning": "ลักษณนามของพื้นที่เพาะปลูก (นา 5 ไร่)",
     "emoji": "🌱",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "classifier_for": "พื้นที่เพาะปลูก"
   },
   {
     "word": "ตาราง",
     "reading": "ตา-ราง",
     "meaning": "ลักษณนามของช่องในตารางหรือผืนที่เป็นสี่เหลี่ยม",
     "emoji": "📊",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "classifier_for": "ช่องในตารางหรือผืนที่เป็นสี่เหลี่ยม"
   },
   {
     "word": "แปลง",
     "reading": "แปลง",
     "meaning": "ลักษณนามของแปลงที่ดิน แปลงผัก",
     "emoji": "🥬",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "classifier_for": "แปลงที่ดิน"
   },
   {
     "word": "หลุม",
     "reading": "หลุม",
     "meaning": "ลักษณนามของหลุมดิน หลุมบ่อ",
     "emoji": "🕳️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "classifier_for": "หลุมดิน"
   },
   {
     "word": "บ่อ",
     "reading": "บ่อ",
     "meaning": "ลักษณนามของบ่อน้ำ บ่อปลา",
     "emoji": "🐟",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/4",
+    "classifier_for": "บ่อน้ำ"
   },
   {
     "word": "แอ่ง",
     "reading": "แอ่ง",
     "meaning": "ลักษณนามของแอ่งน้ำ แอ่งมังกร",
     "emoji": "💧",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "classifier_for": "แอ่งน้ำ"
   },
   {
     "word": "ที่",
     "reading": "ที่",
     "meaning": "ลักษณนามของสถานที่ (ที่เที่ยว 1 ที่)",
     "emoji": "📌",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "classifier_for": "สถานที่"
   },
   {
     "word": "ตา",
     "reading": "ตา",
     "meaning": "ลักษณนามของรูตา ตาเข็ม ตาข่าย",
     "emoji": "👁️",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/3",
+    "classifier_for": "รูตา"
   },
   {
     "word": "ปึก",
     "reading": "ปึก",
     "meaning": "ลักษณนามของหนังสือเล่มหนา (หนังสือ 1 ปึก)",
     "emoji": "📕",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "classifier_for": "หนังสือเล่มหนา"
   },
   {
     "word": "ห่อน",
     "reading": "ห่อน",
     "meaning": "ลักษณนามของผึ้งหรือแมลงที่อยู่รวมกัน (ผึ้ง 1 ห่อน)",
     "emoji": "🐝",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "classifier_for": "ผึ้งหรือแมลงที่อยู่รวมกัน"
   },
   {
     "word": "พับ",
     "reading": "พับ",
     "meaning": "ลักษณนามของหมากพับ หมากที่พับเป็นกำ",
     "emoji": "🌿",
-    "grade": "ป.4"
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/3",
+    "classifier_for": "หมากพับ"
   }
 ]

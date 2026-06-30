@@ -4,699 +4,799 @@
     "reading": "กาน",
     "meaning": "งาน, สิ่งที่ทำ (เช่น การงาน)",
     "emoji": "💼",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "กาล",
     "reading": "กาน",
     "meaning": "เวลา (เช่น กาลเวลา, กาลครั้งหนึ่ง)",
     "emoji": "⏳",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "กาญจน์",
     "reading": "กาน",
     "meaning": "ทอง (เช่น จังหวัดกาญจนบุรี)",
     "emoji": "🪙",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "กรรณ",
     "reading": "กาน",
     "meaning": "หู (คำราชาศัพท์)",
     "emoji": "👂",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "กานต์",
     "reading": "กาน",
     "meaning": "เป็นที่รัก (มักใช้ตั้งชื่อคน)",
     "emoji": "💖",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "คุณ",
     "reading": "คุน",
     "meaning": "ความดี, ประโยชน์ (เช่น บุญคุณ, คุณค่า)",
     "emoji": "✨",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "บาด",
     "reading": "บาด",
     "meaning": "ทำให้เกิดแผลฉีกขาดด้วยของมีคม",
     "emoji": "🩹",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "บาท",
     "reading": "บาด",
     "meaning": "หน่วยเงินไทย หรือเท้า (คำสุภาพ)",
     "emoji": "🪙",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "บาตร",
     "reading": "บาด",
     "meaning": "ภาชนะรับอาหารของพระภิกษุสามเณร",
     "emoji": "🪷",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "สระ",
     "reading": "สะ",
     "meaning": "แอ่งน้ำขนาดใหญ่ หรือการทำความสะอาดผม",
     "emoji": "🏊",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "สระ",
     "reading": "สะ-ระ",
     "meaning": "ตัวอักษรใช้แทนเสียงสะท้อน (สระ อะ อา อิ อี)",
     "emoji": "🔤",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "พรรณ",
     "reading": "พัน",
     "meaning": "ชนิด, สี, ประเภท (เช่น พรรณไม้, ผิวพรรณ)",
     "emoji": "🎨",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "พัน",
     "reading": "พัน",
     "meaning": "จำนวนสิบเท่าของร้อย หรือม้วนรอบสิ่งของ",
     "emoji": "🧶",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "พันธุ์",
     "reading": "พัน",
     "meaning": "เชื้อสาย, วงศ์ตระกูล (เช่น พืชพันธุ์, สายพันธุ์)",
     "emoji": "🌱",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "หน้า",
     "reading": "หน้า",
     "meaning": "ใบหน้ามนุษย์ หรือทิศทางตรงข้ามกับหลัง",
     "emoji": "🧑",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "น่า",
     "reading": "น่า",
     "meaning": "คำนำหน้าแสดงความควรทำ (เช่น น่ารัก, น่าชม)",
     "emoji": "👍",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "รด",
     "reading": "รด",
     "meaning": "เทน้ำลงไปบนสิ่งใดสิ่งหนึ่ง (เช่น รดน้ำต้นไม้)",
     "emoji": "💧",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "รส",
     "reading": "รด",
     "meaning": "สัมผัสทางลิ้นของอาหาร (เช่น รสเปรี้ยว, รสเค็ม)",
     "emoji": "👅",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "รถ",
     "reading": "รด",
     "meaning": "ยานพาหนะมีล้อแล่นบนดิน (เช่น รถยนต์, รถไฟ)",
     "emoji": "🚗",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "จันทร์",
     "reading": "จัน",
     "meaning": "ดวงจันทร์ หรือวันที่สองของสัปดาห์",
     "emoji": "🌙",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "จันทน์",
     "reading": "จัน",
     "meaning": "ไม้เนื้อหอมใช้ทำยาและเครื่องหอม (ไม้จันทน์)",
     "emoji": "🪵",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "จัน",
     "reading": "จัน",
     "meaning": "ชื่อผลไม้ชนิดหนึ่งผลกลมแบนกลิ่นหอม (ลูกจัน)",
     "emoji": "🟡",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "พุทธ",
     "reading": "พุด",
     "meaning": "ผู้ตรัสรู้ พระพุทธเจ้า (เช่น พุทธศาสนา)",
     "emoji": "☸️",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "พุธ",
     "reading": "พุด",
     "meaning": "ดาวพระพุธ หรือวันที่สี่ของสัปดาห์",
     "emoji": "🪐",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "พุด",
     "reading": "พุด",
     "meaning": "ชื่อไม้พุ่มดอกสีขาวกลิ่นหอม (ดอกพุด)",
     "emoji": "🌼",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "สัน",
     "reading": "สัน",
     "meaning": "ส่วนหลังที่หนาของมีด หรือแนวที่นูนสูง (สันเขา)",
     "emoji": "🔪",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "สรร",
     "reading": "สัน",
     "meaning": "เลือกเอา, คัดเอา (เช่น สรรหา, เลือกสรร)",
     "emoji": "✅",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "สรรค์",
     "reading": "สัน",
     "meaning": "สร้างให้มีให้เป็นขึ้น (เช่น สร้างสรรค์, รังสรรค์)",
     "emoji": "🎨",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "สาด",
     "reading": "สาด",
     "meaning": "ซัดหรือวักของเหลวให้กระจายออกไป (สาดน้ำ)",
     "emoji": "💦",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "ศาสตร์",
     "reading": "สาด",
     "meaning": "วิชาความรู้ที่จัดเป็นระบบ (เช่น วิทยาศาสตร์)",
     "emoji": "📚",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "ทาน",
     "reading": "ทาน",
     "meaning": "การให้, สิ่งที่ให้ หรือรับประทาน (ให้ทาน)",
     "emoji": "🍚",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "ธาร",
     "reading": "ทาน",
     "meaning": "ลำน้ำ สายน้ำ (เช่น ธารน้ำ, สายธาร)",
     "emoji": "🏞️",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "ทัณฑ์",
     "reading": "ทัน",
     "meaning": "โทษ การลงโทษ (เช่น ภาคทัณฑ์, ทัณฑสถาน)",
     "emoji": "⚖️",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "ทัน",
     "reading": "ทัน",
     "meaning": "ตามถึง, ไม่ช้าเกินกำหนด (เช่น ทันเวลา, ทันสมัย)",
     "emoji": "⏱️",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "วัน",
     "reading": "วัน",
     "meaning": "ระยะเวลา 24 ชั่วโมง ช่วงกลางวันถึงกลางคืน",
     "emoji": "📅",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "วรรณ",
     "reading": "วัน",
     "meaning": "สี ผิว ชนิด หนังสือ (เช่น วรรณกรรม, วรรณะ)",
     "emoji": "📖",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "สิน",
     "reading": "สิน",
     "meaning": "ทรัพย์ เงินทอง (เช่น สินทรัพย์, ทรัพย์สิน)",
     "emoji": "💰",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "ศิลป์",
     "reading": "สิน",
     "meaning": "ฝีมือทางการช่างที่งดงาม (เช่น ศิลปะ, ศิลปิน)",
     "emoji": "🖌️",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "กัน",
     "reading": "กัน",
     "meaning": "ป้องกัน, ตัดให้เหลือ หรือคำแสดงการร่วมกระทำ",
     "emoji": "🛡️",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "กัณฑ์",
     "reading": "กัน",
     "meaning": "ตอนหนึ่งของคำเทศน์หรือเรื่องยาว (เวสสันดร 13 กัณฑ์)",
     "emoji": "📜",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "ขัน",
     "reading": "ขัน",
     "meaning": "เครื่องมือสำหรับตอกตะปู",
     "emoji": "🔨",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "คัน",
     "reading": "ขัน",
     "meaning": "รู้สึกคัน เช่น คันตามตัว",
     "emoji": "🤚",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "ข้าว",
     "reading": "ข้าว",
     "meaning": "เมล็ดพืชใช้เป็นอาหารหลักของคนไทย",
     "emoji": "🍚",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "เข้า",
     "reading": "ข้าว",
     "meaning": "เข้าไปภายใน เช่น เข้าห้องเรียน",
     "emoji": "🚪",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "ขาว",
     "reading": "ข้าว",
     "meaning": "สีขาว สีของกระดาษหรือนม",
     "emoji": "⬜",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "ขา",
     "reading": "ขา",
     "meaning": "อวัยวะส่วนล่างของร่างกายใช้เดิน",
     "emoji": "🦵",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "คา",
     "reading": "ขา",
     "meaning": "ติดอยู่ เช่น คราบคาตามผ้า",
     "emoji": "📌",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "ขอ",
     "reading": "ขอ",
     "meaning": "แสดงความประสงค์ขอร้อง เช่น ขออนุญาต",
     "emoji": "🙏",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "คอ",
     "reading": "ขอ",
     "meaning": "ส่วนที่เชื่อมศีรษะกับลำตัว",
     "emoji": "🧣",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "ขน",
     "reading": "ขน",
     "meaning": "เส้นเล็กๆ ที่ขึ้นตามร่างกายสัตว์",
     "emoji": "🐾",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "คน",
     "reading": "ขน",
     "meaning": "มนุษย์ สิ่งมีชีวิตที่มีสติปัญญา",
     "emoji": "🧑",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "ขวด",
     "reading": "ขวด",
     "meaning": "ภาชนะสำหรับบรรจุของเหลว",
     "emoji": "🍾",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "ควด",
     "reading": "ขวด",
     "meaning": "สัตว์ครึ่งบกครึ่งน้ำคล้ายเต่า (เต่าควด)",
     "emoji": "🐢",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "ขาย",
     "reading": "ขาย",
     "meaning": "แลกเปลี่ยนสินค้าเป็นเงิน",
     "emoji": "💰",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "คาย",
     "reading": "ขาย",
     "meaning": "ปล่อยออกมา เช่น คายน้ำลาย",
     "emoji": "💧",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "ขัด",
     "reading": "ขัด",
     "meaning": "ทำความสะอาดด้วยการถู เช่น ขัดฟัน",
     "emoji": "🪥",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "คัด",
     "reading": "ขัด",
     "meaning": "เลือกเอา เช่น คัดเลือกนักเรียน",
     "emoji": "✅",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "ข้น",
     "reading": "ข้น",
     "meaning": "หนาแน่น เช่น น้ำซุปข้น",
     "emoji": "🍲",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "ค้น",
     "reading": "ข้น",
     "meaning": "ค้นหา เช่น ค้นหาข้อมูล",
     "emoji": "🔍",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "ข้าม",
     "reading": "ข้าม",
     "meaning": "เดินหรือก้าวข้ามไปอีกฝั่ง",
     "emoji": "🚶",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "ค้าม",
     "reading": "ข้าม",
     "meaning": "ค้ำประกัน เช่น ค้ำประกันเงินกู้",
     "emoji": "🤝",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "ขวาง",
     "reading": "ขวาง",
     "meaning": "กีดขวาง ไม่ให้ผ่านไปได้",
     "emoji": "🚧",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "ควาง",
     "reading": "ขวาง",
     "meaning": "งูใหญ่ชนิดหนึ่งในป่า (งูควาง)",
     "emoji": "🐍",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "ข่าว",
     "reading": "ข่าว",
     "meaning": "เรื่องราวที่เกิดขึ้นใหม่ เช่น ข่าวประจำวัน",
     "emoji": "📰",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "เค้า",
     "reading": "ข่าว",
     "meaning": "ส่วนที่นูนขึ้นของพื้น เช่น เค้าโครง",
     "emoji": "🏗️",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "ข้อง",
     "reading": "ข้อง",
     "meaning": "เกี่ยวข้อง เช่น ข้องใจ",
     "emoji": "🔗",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "ค้อง",
     "reading": "ข้อง",
     "meaning": "ผูกไว้ เช่น ค้องคอ",
     "emoji": "🎀",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "ข้า",
     "reading": "ข้า",
     "meaning": "คำสรรพนามแสดงตนเอง (ภาษาโบราณ)",
     "emoji": "👤",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "ค้า",
     "reading": "ข้า",
     "meaning": "การซื้อขาย เช่น ค้าขาย",
     "emoji": "🏪",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "สอน",
     "reading": "สอน",
     "meaning": "ถ่ายทอดความรู้ให้ผู้อื่นเรียนรู้",
     "emoji": "👨‍🏫",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "สน",
     "reading": "สอน",
     "meaning": "ต้นไม้ชนิดหนึ่ง หรือสนามกีฬา",
     "emoji": "🌲",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "ลาว",
     "reading": "ลาว",
     "meaning": "ประเทศเพื่อนบ้านทางตะวันออกเฉียงเหนือของไทย",
     "emoji": "🇱🇦",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "ล่าว",
     "reading": "ลาว",
     "meaning": "เล่าเรื่อง เช่น ล่าวตำนาน",
     "emoji": "📖",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "ร้อย",
     "reading": "ร้อย",
     "meaning": "จำนวนสิบเท่าของสิบ (100)",
     "emoji": "💯",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "รอย",
     "reading": "ร้อย",
     "meaning": "ร่องรอยหรือแผลที่เห็นได้บนผิว",
     "emoji": "✍️",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "แรง",
     "reading": "แรง",
     "meaning": "พลังหรือความเข้มข้น เช่น แรงงาน",
     "emoji": "💪",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "เลง",
     "reading": "แรง",
     "meaning": "จุดไฟ เช่น เลงไฟกองฟาง",
     "emoji": "🔥",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "สอด",
     "reading": "สอด",
     "meaning": "ยัดหรือใส่เข้าไป เช่น สอดใส่กระเป๋า",
     "emoji": "🎒",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "สด",
     "reading": "สอด",
     "meaning": "ยังไม่เน่าเสีย เช่น ผักสด",
     "emoji": "🥬",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "สอบ",
     "reading": "สอบ",
     "meaning": "ทดสอบความรู้ เช่น สอบปลายภาค",
     "emoji": "📝",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "สบ",
     "reading": "สอบ",
     "meaning": "พักผ่อน เช่น สบายดี",
     "emoji": "😌",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "พล",
     "reading": "พล",
     "meaning": "กำลังหรืออำนาจ เช่น พลังงาน",
     "emoji": "⚡",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "ผล",
     "reading": "พล",
     "meaning": "สิ่งที่ได้จากการกระทำ เช่น ผลไม้ ผลสอบ",
     "emoji": "🍎",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "พิณ",
     "reading": "พิน",
     "meaning": "เครื่องดนตรีไทยประเภทเครื่องสี",
     "emoji": "🎵",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "นิน",
     "reading": "นิน",
     "meaning": "คำเสริมความหมาย เช่น นิ่งนิน",
     "emoji": "🤫",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "นิท",
     "reading": "นิน",
     "meaning": "นิทาน เรื่องเล่าสอนใจ",
     "emoji": "📚",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "ยอด",
     "reading": "ยอด",
     "meaning": "จุดสูงสุด เช่น ยอดเขา",
     "emoji": "⛰️",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "ยอ",
     "reading": "ยอด",
     "meaning": "คำเก่าแก่หมายถึง ยอดหรือส่วนปลาย",
     "emoji": "🔝",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "หยด",
     "reading": "หยด",
     "meaning": "น้ำหรือของเหลวที่หยดลงมาเป็นทีละเม็ด",
     "emoji": "💧",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "หยอด",
     "reading": "หยด",
     "meaning": "หยดลง เช่น หยอดยา",
     "emoji": "💊",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "บาน",
     "reading": "บาน",
     "meaning": "ดอกไม้แตกบาน เช่น ดอกบาน",
     "emoji": "🌸",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "บ่าน",
     "reading": "บาน",
     "meaning": "คำเรียกบ้านในภาคเหนือ",
     "emoji": "🏠",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "มาน",
     "reading": "มาน",
     "meaning": "คำเสริม เช่น มานานแล้ว",
     "emoji": "⏳",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "มานต์",
     "reading": "มาน",
     "meaning": "เสน่ห์หรือความงดงาม (มนต์ขลัง)",
     "emoji": "✨",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "ลาน",
     "reading": "ลาน",
     "meaning": "พื้นที่โล่ง เช่น ลานโรงเรียน",
     "emoji": "🏫",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "ล่าน",
     "reading": "ลาน",
     "meaning": "พูดโวหารหรือพูดเกินจริง",
     "emoji": "🗯️",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "ราน",
     "reading": "ราน",
     "meaning": "แผ่นหนังหรือที่วางของ เช่น รองเท้าแตะ",
     "emoji": "🩴",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   },
   {
     "word": "ร่าน",
     "reading": "ราน",
     "meaning": "ประพฤติตัวไม่เหมาะสมทางเพศ",
     "emoji": "🚫",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2"
   },
   {
     "word": "ชาน",
     "reading": "ชาน",
     "meaning": "บริเวณรอบๆ เช่น ชานเมือง",
     "emoji": "🏘️",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1"
   },
   {
     "word": "ฉาน",
     "reading": "ชาน",
     "meaning": "คำเรียกแม่ในภาคอีสาน",
     "emoji": "👩",
-    "grade": "ป.5"
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1"
   }
 ]
