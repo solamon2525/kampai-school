@@ -1,0 +1,46 @@
+/* style.css – Math Quest 3D UI */
+/* Reset and base */
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  background: linear-gradient(135deg, #0d1b2a, #1b263b);
+  color: #f0f0f0;
+  overflow: hidden;
+}
+
+/* Glassmorphism HUD */
+#hud {
+  backdrop-filter: blur(12px) saturate(150%);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  min-width: 120px;
+}
+
+/* Start screen blocker */
+#blocker {
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+}
+
+/* Button styling (Tailwind already provides, but we add smooth hover) */
+button {
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+button:hover {
+  transform: translateY(-2px);
+}
+
+/* Canvas fills the viewport */
+#game-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Home button – visible when game paused */
+#home-button {
+  z-index: 60;
+}

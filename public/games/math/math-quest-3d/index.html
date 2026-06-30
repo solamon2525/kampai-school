@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Math Quest 3D</title>
+  <!-- Tailwind CSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Kampai SDK (fallback stub) -->
+  <script src="/games/kampai-sdk.js"></script>
+</head>
+<body class="bg-gray-900 text-white overflow-hidden relative">
+  <!-- Start Screen (blocker) -->
+  <div id="blocker" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm z-50">
+    <div class="bg-white text-black p-8 rounded-lg shadow-lg">
+      <h1 class="text-3xl font-bold mb-4 text-center">Math Quest 3D</h1>
+      <input id="player-name" type="text" placeholder="Enter your name" class="border p-2 w-full mb-4" />
+      <button id="start-button" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Start Game</button>
+      <p class="mt-2 text-sm">Use WASD / Arrow keys or click on the ground to move.</p>
+    </div>
+  </div>
+
+  <!-- Player profile chip (hidden if not needed) -->
+  <div id="player-chip" class="hidden fixed top-4 left-4 bg-white bg-opacity-20 backdrop-blur-sm rounded-full p-2 flex items-center space-x-2">
+    <span id="player-avatar" class="w-8 h-8 bg-blue-400 rounded-full"></span>
+    <span id="player-name-display" class="font-medium"></span>
+  </div>
+
+  <!-- HUD (glassmorphism) -->
+  <div id="hud" class="fixed top-4 right-4 bg-white bg-opacity-20 backdrop-blur-md rounded-lg p-4 shadow-md flex flex-col items-end space-y-1">
+    <div id="my-stats" class="text-sm">Score: <span id="score">0</span></div>
+    <div id="ms-best" class="text-sm hidden">Best: <span id="best-score">0</span></div>
+    <div id="ms-plays" class="text-sm hidden">Plays: <span id="play-count">0</span></div>
+    <div class="text-sm">Stars: <span id="stars">0</span>/10</div>
+  </div>
+
+  <!-- Home button -->
+  <button id="home-button" class="fixed top-4 right-4 bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition" style="display:none;">Home</button>
+
+  <!-- Game Canvas -->
+  <canvas id="game-canvas" class="w-full h-full"></canvas>
+
+  <!-- Scripts (order matters) -->
+  <script src="config.js"></script>
+  <script src="data.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

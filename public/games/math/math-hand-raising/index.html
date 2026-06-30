@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>เกมคณิตคิดไว ยกมือทายถูกผิด!</title>
+    <meta name="description" content="เกมฝึกคณิตศาสตร์ ป.4-ป.6 เลือกหมวดบวก ลบ คูณ หาร ตอบโดยยกมือผ่านกล้อง AI หรือแตะหน้าจอ">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        if (typeof tailwind !== 'undefined') {
+            tailwind.config = { theme: { extend: { fontFamily: { sans: ['Kanit', 'sans-serif'] } } } };
+        }
+    </script>
+
+    <!-- Font Kanit -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- MediaPipe Hands -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <!-- Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- CRT Scanline Effect -->
+    <div class="scanlines"></div>
+
+    <!-- Hidden Video (webcam source) -->
+    <video id="videoElement" style="display:none;" autoplay playsinline muted></video>
+    <!-- Canvas for webcam + hand dots -->
+    <canvas id="outputCanvas"></canvas>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- SCREEN 1: START SCREEN (#blocker)              -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div id="blocker" class="screen-overlay">
+        <h1 class="text-4xl sm:text-5xl md:text-6xl font-black title-gradient mb-4 text-center leading-tight">
+            🧮 เกมคณิตคิดไว<br>ยกมือทายถูกผิด!
+        </h1>
+
+        <!-- Instructions -->
+        <div class="instructions-box text-sm sm:text-base">
+            <h2 class="text-yellow-400 font-bold text-lg mb-2">🧠 วิธีเล่น</h2>
+            <ul class="text-left space-y-1.5 list-disc list-inside text-slate-200">
+                <li>เลือกหมวดหมู่คณิตศาสตร์ (บวก/ลบ/คูณ/หาร/ผสม)</li>
+                <li>เลือกระดับชั้น (ป.4 / ป.5 / ป.6) โจทย์ยากต่างกัน</li>
+                <li>ระบบจะแสดงโจทย์และอ่านเสียงให้ฟัง</li>
+                <li><strong class="text-green-400">ยกมือซ้าย (✓ ถูก)</strong> หรือ <strong class="text-red-400">ขวา (✗ ผิด)</strong></li>
+                <li>ตอบให้ทันเวลา! มีนาฬิกาจับเวลาแต่ละข้อ ⏱</li>
+                <li><strong class="text-yellow-300">ไม่มีกล้อง?</strong> คลิก/แตะโซนตอบได้เลย!</li>
+            </ul>
+        </div>
+
+        <!-- SDK: My Stats -->
+        <div id="my-stats" class="w-full max-w-sm mb-4 p-3 rounded-xl border border-slate-700 bg-slate-800/60 backdrop-blur-md" style="display:none;">
+            <div class="flex justify-around text-center">
+                <div>
+                    <span class="text-xs text-slate-400">คะแนนสูงสุด</span>
+                    <div id="ms-best" class="text-lg font-bold text-yellow-400">0</div>
+                </div>
+                <div>
+                    <span class="text-xs text-slate-400">เล่นแล้ว</span>
+                    <div id="ms-plays" class="text-lg font-bold text-blue-400">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div id="leaderboard-box" class="leaderboard-box" style="display:none;">
+            <h3 class="text-yellow-400 font-bold text-sm mb-2 flex items-center gap-1.5">🏆 ลีดเดอร์บอร์ด</h3>
+            <ul id="score-list" class="space-y-1.5 text-sm text-slate-300"></ul>
+        </div>
+
+        <!-- Start Buttons -->
+        <div class="flex gap-4 mt-6">
+            <button id="btn-play" class="btn-primary">🎮 เริ่มเล่น!</button>
+            <button id="btn-versus" class="btn-secondary">🏁 แข่ง 2 คน</button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- SCREEN 2: CATEGORY SELECT (#category-screen)   -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div id="category-screen" class="screen-overlay hidden">
+        <h2 class="text-2xl sm:text-3xl font-black mb-6 text-center">📚 เลือกหมวดหมู่คณิตศาสตร์</h2>
+        <div id="category-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 max-w-lg mx-auto w-full px-2">
+            <!-- Dynamically populated by game.js -->
+        </div>
+        <button id="btn-cat-next" class="btn-next disabled">ถัดไป →</button>
+        <button id="btn-cat-back" class="btn-back">← ย้อนกลับ</button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- SCREEN 3: GRADE SELECT (#grade-screen)         -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div id="grade-screen" class="screen-overlay hidden">
+        <h2 class="text-2xl sm:text-3xl font-black mb-6 text-center">🎓 เลือกระดับชั้น</h2>
+        <div id="grade-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto w-full px-2">
+            <!-- Dynamically populated by game.js -->
+        </div>
+        <button id="btn-grade-next" class="btn-next disabled">ถัดไป →</button>
+        <button id="btn-grade-back" class="btn-back">← ย้อนกลับ</button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- SCREEN 4: MODE SELECT (#mode-screen)           -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div id="mode-screen" class="screen-overlay hidden">
+        <h2 class="text-2xl sm:text-3xl font-black mb-4 text-center">🎮 เลือกวิธีเล่น</h2>
+
+        <!-- Selected summary -->
+        <div id="selected-summary" class="selected-summary"></div>
+
+        <div class="flex flex-col gap-3 items-center w-full max-w-sm">
+            <button id="btn-start-camera" class="btn-primary w-full">📷 เล่นโดยใช้กล้อง (AI)</button>
+            <button id="btn-start-touch" class="btn-secondary w-full">🖱️ เล่นด้วยเมาส์ / สัมผัส</button>
+        </div>
+
+        <!-- Camera loading -->
+        <div id="loading-camera" class="hidden flex flex-col items-center mt-4">
+            <svg class="animate-spin h-8 w-8 text-yellow-400 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p id="camera-status-msg" class="text-yellow-300 text-sm">กำลังเปิดกล้อง...</p>
+        </div>
+
+        <button id="btn-mode-back" class="btn-back mt-4">← ย้อนกลับ</button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- SCREEN 5: GAMEPLAY HUD (#uiContainer)          -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div id="uiContainer" class="ui-layer" style="display:none;">
+
+        <!-- HUD Top Bar -->
+        <div class="hud-top">
+            <button id="btn-quit" class="btn-danger text-sm">🏠 ออกเกม</button>
+
+            <!-- Timer Bar -->
+            <div class="timer-bar-wrapper">
+                <div id="timer-fill" class="timer-bar-fill timer-green"></div>
+                <span id="timer-text" class="timer-text">15</span>
+            </div>
+
+            <div class="hud-badge bg-blue-600/90 text-white math-text">
+                คะแนน: <span id="scoreDisplay">0</span>
+            </div>
+            <div class="hud-badge bg-purple-600/90 text-white math-text text-xs sm:text-sm">
+                ข้อ: <span id="roundDisplay">1/10</span>
+            </div>
+        </div>
+
+        <!-- Player Chip (SDK) -->
+        <div id="player-chip" class="absolute top-[70px] left-3 z-30 hidden items-center gap-2 bg-slate-900/80 border border-slate-600 px-3 py-1.5 rounded-full text-xs font-semibold text-white shadow-md"></div>
+
+        <!-- Answer Zone: TRUE (left) -->
+        <div class="answer-zone zone-true" id="zoneTrue">
+            <div class="flex flex-col items-center w-full">
+                <span class="zone-label text-green-400">✓ ถูก</span>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill bg-green-500" id="progressTrue"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Answer Zone: FALSE (right) -->
+        <div class="answer-zone zone-false" id="zoneFalse">
+            <div class="flex flex-col items-center w-full">
+                <span class="zone-label text-red-400">✗ ผิด</span>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill bg-red-500" id="progressFalse"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Question Area (center) -->
+        <div class="question-area">
+            <div id="questionDisplay" class="question-text text-yellow-300">พร้อมไหม?</div>
+            <div id="bonusDisplay" class="bonus-text hidden">⚡ เร็วมาก! +5</div>
+            <div id="feedbackDisplay" class="feedback-text">ยอดเยี่ยม!</div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- SCREEN 6: GAME OVER (#gameover-screen)         -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div id="gameover-screen" class="screen-overlay hidden">
+        <div class="go-stars" id="go-stars"></div>
+        <h2 class="text-3xl sm:text-4xl font-black mb-2 text-center title-gradient">🎉 จบเกมแล้วจ้า!</h2>
+        <p class="text-5xl font-black text-white math-text mb-2"><span id="final-score">0</span> <span class="text-xl text-green-400">คะแนน</span></p>
+        <div id="go-summary" class="go-summary-grid"></div>
+        <div id="go-mode-info" class="text-sm text-slate-400 mb-4"></div>
+        <div id="kampai-result" class="mb-4"></div>
+        <div class="flex flex-col gap-3 items-center w-full max-w-xs">
+            <button id="btn-play-again" class="btn-primary w-full">🎮 เล่นอีกครั้ง</button>
+            <button id="btn-go-home" class="btn-secondary w-full">🏠 กลับหน้าหลัก</button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- SCREEN 7: PAUSE MODAL (#pause-modal)           -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div id="pause-modal" class="screen-overlay hidden" style="background:rgba(0,0,0,0.7);">
+        <div class="modal-card">
+            <h3 class="text-xl font-bold mb-3">⚠️ ต้องการออกจากเกมหรือไม่?</h3>
+            <p class="text-slate-400 text-sm mb-5">คะแนนปัจจุบันจะไม่ถูกบันทึก</p>
+            <div class="flex flex-col gap-3">
+                <button id="btn-resume" class="btn-primary w-full">▶️ เล่นต่อ</button>
+                <button id="btn-confirm-quit" class="btn-secondary w-full">🏠 ออกเกม</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- SDK + SCRIPTS                                  -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <script src="/games/kampai-sdk.js"></script>
+    <script src="/games/kampai-match.js"></script>
+    <script src="/games/kampai-versus.js"></script>
+    <script>
+        /* Fallback stub – ป้องกัน error เมื่อเปิดแบบ standalone */
+        window.KAMPAI = window.KAMPAI || {
+            isEmbed: false, isTouch: false, ready: true,
+            student: null, stats: null, leaderboard: [],
+            input: {},
+            onReady: function(cb) { cb(this); },
+            setSlug: function() { return this; },
+            submitScore: function() { return false; },
+            goHome: function() { window.history.back(); },
+            exit: function() { window.history.back(); },
+            controls: { mount: function() { return this; } },
+            sound: {
+                unlock: function(){}, correct: function(){}, wrong: function(){},
+                timeUp: function(){}, gameOver: function(){}, speak: function(){},
+                stopSpeak: function(){}, fxFlash: function(){}, mountToggles: function(){},
+                defaultBgm: function(){}, bgmStart: function(){}, bgmStop: function(){}
+            }
+        };
+        window.KampaiVersus = window.KampaiVersus || {
+            create: function(o) {
+                var m = (window.KampaiMatch && window.KampaiMatch.create) ? window.KampaiMatch.create(o) : null;
+                return {
+                    available: false,
+                    openMenu: function() { if (m) m.openMenu(); },
+                    report: function(s, i) { if (m) m.report(s, i); },
+                    finish: function(s, i) { if (m) { m.finish(s, i); return true; } return false; },
+                    leave: function() {},
+                    mode: null
+                };
+            }
+        };
+    </script>
+    <script src="config.js"></script>
+    <script src="data.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>

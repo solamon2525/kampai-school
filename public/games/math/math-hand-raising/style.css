@@ -1,0 +1,539 @@
+/* style.css — เกมคณิตคิดไว ยกมือทายถูกผิด! */
+
+/* ─── Base ─── */
+body {
+  font-family: 'Kanit', sans-serif;
+  margin: 0;
+  overflow: hidden;
+  background-color: #0f172a;
+  touch-action: none;
+  user-select: none;
+}
+
+/* ─── Webcam Canvas ─── */
+canvas#outputCanvas {
+  transform: scaleX(-1);
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+/* ─── UI Layer (ทับบน canvas) ─── */
+.ui-layer {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 10;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* ─── Screen Overlay (ทุกหน้าจอ menu) ─── */
+.screen-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.96);
+  backdrop-filter: blur(8px);
+  overflow-y: auto;
+  padding: 2rem 1rem;
+  color: white;
+}
+.screen-overlay.hidden {
+  display: none !important;
+}
+
+/* ─── Title Gradient ─── */
+.title-gradient {
+  background: linear-gradient(135deg, #facc15, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── โจทย์ Math Text (ขอบดำอ่านง่าย) ─── */
+.math-text {
+  text-shadow: 3px 3px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+}
+
+/* ─── Category Cards ─── */
+.cat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem 1rem;
+  border-radius: 1rem;
+  border: 2px solid;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  min-height: 110px;
+}
+.cat-card:hover {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.cat-card.active {
+  ring: 4px;
+  box-shadow: 0 0 0 4px #facc15, 0 8px 24px rgba(250,204,21,0.3);
+  border-color: #facc15 !important;
+  transform: scale(1.06);
+}
+.cat-icon {
+  font-size: 2.75rem;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+.cat-label {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+/* ─── Grade Cards ─── */
+.grade-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1.25rem;
+  border-radius: 1rem;
+  border: 2px solid;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-align: center;
+  min-height: 140px;
+}
+.grade-card:hover {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.grade-card.active {
+  box-shadow: 0 0 0 4px #facc15, 0 8px 24px rgba(250,204,21,0.3);
+  border-color: #facc15 !important;
+  transform: scale(1.06);
+}
+.grade-level {
+  font-size: 2rem;
+  font-weight: 900;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+.grade-desc {
+  font-size: 0.8rem;
+  color: #cbd5e1;
+  display: block;
+  margin-top: 0.25rem;
+}
+.grade-timer {
+  font-size: 0.75rem;
+  color: #fde047;
+  display: block;
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
+
+/* ─── Buttons ─── */
+.btn-next {
+  display: inline-block;
+  margin-top: 1.5rem;
+  padding: 0.75rem 2.5rem;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: white;
+  background: linear-gradient(135deg, #22c55e, #3b82f6);
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 0 20px rgba(34,197,94,0.3);
+}
+.btn-next:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 0 30px rgba(34,197,94,0.5);
+}
+.btn-next.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+  box-shadow: none;
+}
+.btn-back {
+  display: inline-block;
+  margin-top: 0.75rem;
+  padding: 0.5rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #cbd5e1;
+  background: #334155;
+  border: 1px solid #475569;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-back:hover {
+  background: #475569;
+  transform: translateY(-1px);
+}
+.btn-primary {
+  display: inline-block;
+  padding: 0.875rem 2.5rem;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: white;
+  background: linear-gradient(135deg, #22c55e, #3b82f6);
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 0 20px rgba(34,197,94,0.3);
+}
+.btn-primary:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 0 30px rgba(34,197,94,0.5);
+}
+.btn-secondary {
+  display: inline-block;
+  padding: 0.75rem 2rem;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 1rem;
+  color: white;
+  background: #334155;
+  border: 1px solid #475569;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-secondary:hover {
+  background: #475569;
+  transform: translateY(-1px);
+}
+.btn-danger {
+  display: inline-block;
+  padding: 0.625rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 700;
+  color: white;
+  background: #dc2626;
+  border: 2px solid white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-danger:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
+}
+
+/* ─── Answer Zones ─── */
+.answer-zone {
+  width: 25%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease-in-out;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.zone-true {
+  left: 0;
+  border-right: 4px dashed rgba(255,255,255,0.4);
+}
+.zone-true:hover {
+  background-color: rgba(34, 197, 94, 0.1);
+}
+.zone-false {
+  right: 0;
+  border-left: 4px dashed rgba(255,255,255,0.4);
+}
+.zone-false:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+.zone-label {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: white;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+  pointer-events: none;
+}
+@media (min-width: 768px) {
+  .zone-label { font-size: 3.5rem; }
+}
+
+/* ─── Progress Bar (ค้างมือ) ─── */
+.progress-bar-bg {
+  position: absolute;
+  bottom: 30px;
+  width: 85%;
+  height: 24px;
+  background-color: rgba(255,255,255,0.25);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid white;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+.progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  transition: width 0.1s linear;
+  border-radius: 10px;
+}
+
+/* ─── Timer Bar ─── */
+.timer-bar-wrapper {
+  position: relative;
+  width: 180px;
+  height: 32px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+  flex-shrink: 0;
+}
+@media (min-width: 768px) {
+  .timer-bar-wrapper { width: 240px; }
+}
+.timer-bar-fill {
+  height: 100%;
+  width: 100%;
+  border-radius: 14px;
+  transition: width 0.15s linear, background 0.5s ease;
+  background: linear-gradient(90deg, #22c55e, #4ade80);
+}
+.timer-bar-fill.timer-green  { background: linear-gradient(90deg, #22c55e, #4ade80); }
+.timer-bar-fill.timer-yellow { background: linear-gradient(90deg, #eab308, #facc15); }
+.timer-bar-fill.timer-red    { background: linear-gradient(90deg, #ef4444, #f87171); }
+.timer-bar-fill.timer-blink  { animation: timerBlink 0.5s ease-in-out infinite; }
+.timer-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: white;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
+  pointer-events: none;
+}
+
+/* ─── HUD Top Bar ─── */
+.hud-top {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  gap: 0.5rem;
+  z-index: 20;
+  pointer-events: auto;
+  flex-wrap: wrap;
+}
+.hud-badge {
+  padding: 0.375rem 1rem;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  white-space: nowrap;
+}
+
+/* ─── Question Area ─── */
+.question-area {
+  width: 100%;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding-left: 25%;
+  padding-right: 25%;
+  pointer-events: none;
+  margin-bottom: 3rem;
+}
+.question-text {
+  font-size: 3.5rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-align: center;
+  transition: transform 0.3s ease, color 0.3s ease;
+  text-shadow: 3px 3px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000;
+}
+@media (min-width: 768px) {
+  .question-text { font-size: 5.5rem; }
+}
+.feedback-text {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-top: 1rem;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  text-shadow: 2px 2px 0 #000, -1px -1px 0 #000;
+}
+@media (min-width: 768px) {
+  .feedback-text { font-size: 2.5rem; }
+}
+.bonus-text {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #facc15;
+  text-shadow: 2px 2px 0 #000;
+  margin-top: 0.5rem;
+}
+
+/* ─── Modal Card ─── */
+.modal-card {
+  background: rgba(30, 41, 59, 0.95);
+  border: 2px solid #475569;
+  border-radius: 1.5rem;
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+
+/* ─── Game Over Summary ─── */
+.go-summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin: 1rem 0;
+  text-align: center;
+}
+.go-summary-item {
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+.go-summary-num {
+  font-size: 1.75rem;
+  font-weight: 900;
+  display: block;
+}
+.go-summary-label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  display: block;
+  margin-top: 0.125rem;
+}
+
+/* ─── Stars ─── */
+.go-stars {
+  font-size: 2.5rem;
+  letter-spacing: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ─── Scanlines ─── */
+.scanlines {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.08) 50%);
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 40;
+}
+
+/* ─── Animations ─── */
+@keyframes timerBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-12px); }
+  20%, 40%, 60%, 80% { transform: translateX(12px); }
+}
+.shake-effect {
+  animation: shake 0.5s ease-in-out;
+}
+@keyframes flashRed {
+  0%, 100% { box-shadow: inset 0 0 0 rgba(239,68,68,0); background-color: transparent; }
+  50% { box-shadow: inset 0 0 60px 30px rgba(239,68,68,0.7); background-color: rgba(239,68,68,0.15); }
+}
+.flash-red-effect {
+  animation: flashRed 0.5s ease-out;
+}
+@keyframes bonusPop {
+  0%   { transform: scale(0) translateY(0); opacity: 0; }
+  30%  { transform: scale(1.4) translateY(-10px); opacity: 1; }
+  100% { transform: scale(1) translateY(-40px); opacity: 0; }
+}
+.bonus-pop {
+  animation: bonusPop 1.2s ease-out forwards;
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-in-up {
+  animation: fadeInUp 0.4s ease-out forwards;
+}
+
+/* ─── Leaderboard ─── */
+.leaderboard-box {
+  width: 100%;
+  max-width: 24rem;
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid #334155;
+  background: rgba(30,41,59,0.6);
+  backdrop-filter: blur(8px);
+  text-align: left;
+}
+
+/* ─── Instruction Box ─── */
+.instructions-box {
+  max-width: 36rem;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  border: 2px solid #475569;
+  background: rgba(30,41,59,0.8);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  margin-bottom: 1.5rem;
+}
+
+/* ─── Selected Summary Badge ─── */
+.selected-summary {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+.summary-tag {
+  padding: 0.375rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* ─── Hidden helper ─── */
+.hidden-sdk {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  clip: rect(0,0,0,0) !important;
+}
