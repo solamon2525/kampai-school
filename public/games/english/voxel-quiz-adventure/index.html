@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Voxel Quiz Adventure — ผจญภัยตอบคำถามภาษาอังกฤษ</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    /* Mock THREE สำหรับ verify:game smoke-test (JSDOM) */
+    if (!window.THREE) {
+      var noop = function () {};
+      var vec3 = {
+        set: function () { return this; },
+        copy: function () { return this; },
+        subVectors: function () { return this; },
+        normalize: function () { return this; },
+        lerp: function () { return this; },
+        project: function () { return this; },
+        distanceTo: function () { return 99; },
+        add: function () { return this; },
+        x: 0, y: 0, z: 0
+      };
+      window.THREE = {
+        Clock: function () { return { getDelta: function () { return 0.016; } }; },
+        Scene: function () { return { add: noop, remove: noop, background: {}, fog: {} }; },
+        PerspectiveCamera: function () { return { position: vec3, lookAt: noop, aspect: 1, updateProjectionMatrix: noop }; },
+        WebGLRenderer: function () {
+          return { setSize: noop, setPixelRatio: noop, render: noop, domElement: document.createElement('canvas') };
+        },
+        AmbientLight: function () { return {}; },
+        DirectionalLight: function () { return { position: vec3 }; },
+        BoxGeometry: function () { return {}; },
+        MeshLambertMaterial: function () { return {}; },
+        MeshBasicMaterial: function () { return {}; },
+        Mesh: function () { return { position: vec3, rotation: vec3 }; },
+        Group: function () { return { add: noop, remove: noop, position: vec3, rotation: vec3, lookAt: noop }; },
+        Color: function () { return {}; },
+        Vector3: function () { return vec3; },
+        Fog: function () { return {}; }
+      };
+    }
+  </script>
+</head>
+<body>
+  <div id="app">
+    <!-- Start -->
+    <div id="blocker" class="screen active">
+      <div class="screen-card">
+        <h1>🧊 Voxel Quiz Adventure</h1>
+        <p class="sub">ผจญภัยตอบคำถามภาษาอังกฤษในโลก 3D</p>
+        <div id="my-stats" class="my-stats">
+          <div class="cell"><div class="val" id="ms-best">0</div><div class="lbl">คะแนนสูงสุด</div></div>
+          <div class="cell"><div class="val" id="ms-plays">0</div><div class="lbl">เล่นแล้ว (ครั้ง)</div></div>
+        </div>
+        <div id="leaderboard-box" class="leaderboard-box">
+          <h3>🏆 อันดับนักเรียน</h3>
+          <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="startBtn">🎮 เริ่มเกม</button>
+          <button class="btn btn-blue" id="btn-versus">🏁 แข่ง 2 คน</button>
+        </div>
+        <p class="hint">WASD / D-pad · 🟧 คะแนน · 🟨 ควิซ · 🔵 วิ่งเร็ว · 🟣 แช่แข็งศัตรู · หลบ 🔴</p>
+      </div>
+    </div>
+
+    <!-- เลือกหมวด -->
+    <div id="category-screen" class="screen">
+      <div class="screen-card wide">
+        <h2>📚 เลือกหมวดคำศัพท์</h2>
+        <p class="sub">กล่องทองจะถามจากหมวดที่เลือก</p>
+        <div id="topic-grid" class="topic-grid"></div>
+        <button class="btn btn-ghost btn-back" id="btn-cat-back">← ย้อนกลับ</button>
+      </div>
+    </div>
+
+    <!-- เลือกชั้น -->
+    <div id="grade-screen" class="screen">
+      <div class="screen-card">
+        <h2>🎓 เลือกระดับชั้น</h2>
+        <p class="sub" id="grade-topic-label"></p>
+        <div id="grade-grid" class="grade-grid"></div>
+        <button class="btn btn-ghost btn-back" id="btn-grade-back">← ย้อนกลับ</button>
+      </div>
+    </div>
+
+    <!-- HUD -->
+    <div id="hud">
+      <p id="hudLives">❤️❤️❤️</p>
+      <p id="hudScore">คะแนน: 0</p>
+      <p id="hudStars">⭐ 0 / 10</p>
+    </div>
+    <div id="player-chip"></div>
+    <div id="nametag"></div>
+
+    <!-- Minimap + power-up status -->
+    <div id="minimap-wrap">
+      <canvas id="minimap" width="108" height="108"></canvas>
+      <p id="powerup-status"></p>
+    </div>
+    <div id="toast"></div>
+    <div id="fx-layer"></div>
+
+    <!-- Quiz -->
+    <div id="quizModal">
+      <div class="quiz-card">
+        <h2 id="quizQuestion"></h2>
+        <div id="quizChoices"></div>
+        <p id="quizFeedback"></p>
+      </div>
+    </div>
+
+    <!-- Game Over -->
+    <div id="gameover-screen" class="screen">
+      <div class="screen-card">
+        <h2>หมดชีวิตแล้ว!</h2>
+        <p class="go-score" id="goScore"></p>
+        <p class="go-score" id="goStars"></p>
+        <div id="kampai-result"></div>
+        <div id="leaderboard-box-go" class="leaderboard-box" style="display:block">
+          <h3>🏆 อันดับนักเรียน</h3>
+          <ul id="score-list-go" class="leaderboard-list"></ul>
+        </div>
+        <div class="btn-row" style="margin-top:14px">
+          <button class="btn btn-blue" id="replayBtn">🔄 เล่นใหม่</button>
+          <button class="btn btn-ghost" id="btn-home">🎮 เลือกเกมใหม่</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Win -->
+    <div id="win-screen" class="screen">
+      <div class="screen-card">
+        <h2>🎉 ยินดีด้วย!</h2>
+        <p class="sub">คุณสะสมครบ 10 ดาวแล้ว!</p>
+        <p class="go-score" id="winScore"></p>
+        <div id="kampai-result"></div>
+        <div class="btn-row" style="margin-top:14px">
+          <button class="btn btn-green" id="winReplayBtn">🔄 เล่นใหม่</button>
+          <button class="btn btn-ghost" id="btn-home-win">🎮 เลือกเกมใหม่</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/games/kampai-sdk.js"></script>
+  <script src="/games/kampai-match.js"></script>
+  <script src="/games/kampai-versus.js"></script>
+  <script>
+    window.KAMPAI = window.KAMPAI || {
+      isEmbed: false, ready: true, student: null, stats: null, leaderboard: [],
+      input: { up: false, down: false, left: false, right: false, a: false, b: false },
+      onReady: function (cb) { cb(this); }, setSlug: function () { return this; },
+      submitScore: function () { return false; },
+      goHome: function () { location.href = '/h/nattapong'; },
+      controls: { mount: function () { return this; } },
+      sound: {
+        correct: function () {}, wrong: function () {}, timeUp: function () {},
+        gameOver: function () {}, speak: function () {}, stopSpeak: function () {},
+        mountToggles: function () {}, defaultBgm: function () {},
+        bgmStart: function () {}, bgmStop: function () {}, unlock: function () {},
+        fxFlash: function () {}
+      }
+    };
+    window.KampaiMatch = window.KampaiMatch || {
+      create: function () {
+        return { available: false, openMenu: function () {}, report: function () {}, finish: function () {}, leave: function () {} };
+      }
+    };
+    window.KampaiVersus = window.KampaiVersus || {
+      create: function (o) {
+        var m = window.KampaiMatch ? window.KampaiMatch.create(o) : null;
+        return {
+          available: false, openMenu: function () { if (m) m.openMenu(); },
+          report: function (s, i) { if (m) m.report(s, i); },
+          finish: function (s, i) { if (m) { return m.finish(s, i); } return false; },
+          leave: function () {}, mode: null
+        };
+      }
+    };
+    const GAME_SLUG = 'voxel-quiz-adventure';
+    KAMPAI.setSlug(GAME_SLUG);
+  </script>
+  <script src="config.js"></script>
+  <script src="data.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
