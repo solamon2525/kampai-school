@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AR Tracking Calibration Visualizer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- App Container -->
+    <div id="app">
+        <!-- Boilerplate hidden container for SDK/validation compatibility -->
+        <div id="boilerplate-compatibility" style="display: none;">
+            <div id="blocker"></div>
+            <div id="player-chip"></div>
+            <div id="my-stats">
+                <span id="ms-best">0</span>
+                <span id="ms-plays">0</span>
+            </div>
+        </div>
+
+        <!-- Video & Canvas for AR -->
+        <video id="arVideo" autoplay playsinline muted></video>
+        <canvas id="arCanvas"></canvas>
+
+        <!-- Main Dashboard Overlay (Glassmorphism UI) -->
+        <div class="dashboard">
+            <!-- Header -->
+            <header>
+                <div class="logo">⚙️ AR Calibration Tool</div>
+                <div class="hud-stats">
+                    <div class="stat-item"><span class="label">FPS:</span> <span id="fps-val" class="val">--</span></div>
+                    <div class="stat-item"><span class="label">Latency:</span> <span id="latency-val" class="val">-- ms</span></div>
+                    <div class="stat-item"><span class="label">Mode:</span> <span id="mode-val" class="val">--</span></div>
+                </div>
+            </header>
+
+            <!-- Main Layout: Sidebar control panel + bottom logs -->
+            <div class="main-content">
+                <div class="control-panel">
+                    <h3>🛠️ Filter Controls</h3>
+                    
+                    <div class="control-group">
+                        <label for="filter-type">Filter Type</label>
+                        <select id="filter-type">
+                            <option value="ema">Exponential Moving Average (EMA)</option>
+                            <option value="oneeuro">One Euro Filter</option>
+                        </select>
+                    </div>
+
+                    <!-- EMA Parameter Slider -->
+                    <div id="ema-params" class="param-section">
+                        <div class="control-group">
+                            <div class="slider-header">
+                                <label for="smoothing-slider">Smoothing Factor (EMA α)</label>
+                                <span id="smoothing-val" class="slider-val">0.78</span>
+                            </div>
+                            <input type="range" id="smoothing-slider" min="0" max="0.99" step="0.01" value="0.78">
+                            <small>Lower = less smoothing/faster; Higher = more smoothing/more lag.</small>
+                        </div>
+                    </div>
+
+                    <!-- One Euro Parameter Sliders -->
+                    <div id="oneeuro-params" class="param-section hidden">
+                        <div class="control-group">
+                            <div class="slider-header">
+                                <label for="cutoff-slider">Min Cutoff Frequency (Hz)</label>
+                                <span id="cutoff-val" class="slider-val">1.0</span>
+                            </div>
+                            <input type="range" id="cutoff-slider" min="0.1" max="10.0" step="0.1" value="1.0">
+                            <small>Cutoff at low speed. Decreasing this reduces jitter when hands are still.</small>
+                        </div>
+
+                        <div class="control-group">
+                            <div class="slider-header">
+                                <label for="beta-slider">Beta (Speed Coefficient)</label>
+                                <span id="beta-val" class="slider-val">0.007</span>
+                            </div>
+                            <input type="range" id="beta-slider" min="0" max="0.1" step="0.001" value="0.007">
+                            <small>Increases cutoff frequency as speed increases. Higher reduces lag at high speed.</small>
+                        </div>
+
+                        <div class="control-group">
+                            <div class="slider-header">
+                                <label for="dcutoff-slider">Derivative Cutoff Frequency (Hz)</label>
+                                <span id="dcutoff-val" class="slider-val">1.0</span>
+                            </div>
+                            <input type="range" id="dcutoff-slider" min="0.1" max="10.0" step="0.1" value="1.0">
+                            <small>Cutoff frequency for computing velocity.</small>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="detector-select">Detector Mode</label>
+                        <select id="detector-select">
+                            <option value="pose">MediaPipe Pose (Precise)</option>
+                            <option value="framediff">Frame Differencing (Fallback)</option>
+                        </select>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="btn-group">
+                        <button id="btn-toggle-cam" class="btn primary">📷 Start Camera</button>
+                        <button id="btn-copy-config" class="btn secondary">📋 Copy Configuration</button>
+                    </div>
+
+                    <div class="config-output-wrapper">
+                        <textarea id="config-json" readonly placeholder="Your generated config will appear here..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Live Info / Visualizer legend -->
+                <div class="side-info">
+                    <div class="legend-panel">
+                        <h3>🎨 Legend</h3>
+                        <ul class="legend-list">
+                            <li><span class="dot raw-left"></span> Left Hand Raw</li>
+                            <li><span class="dot smoothed-left"></span> Left Hand Smoothed (Filtered)</li>
+                            <li><span class="dot raw-right"></span> Right Hand Raw</li>
+                            <li><span class="dot smoothed-right"></span> Right Hand Smoothed (Filtered)</li>
+                            <li><span class="dot raw-centroid"></span> Centroid Raw</li>
+                            <li><span class="dot smoothed-centroid"></span> Centroid Smoothed (Filtered)</li>
+                        </ul>
+                    </div>
+
+                    <div class="instructions-panel">
+                        <h3>💡 Instructions</h3>
+                        <p>1. Click <b>"Start Camera"</b> to enable AR tracking.</p>
+                        <p>2. Move your hands/body in front of the camera.</p>
+                        <p>3. Compare the raw coordinates (red/orange) against the filtered coordinates (green/blue).</p>
+                        <p>4. Adjust parameters to find the perfect balance between latency and noise/jitter.</p>
+                        <p>5. Click <b>"Copy Configuration"</b> and paste it into your game's <code>config.js</code> under <code>TUNING</code>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status indicator overlay -->
+        <div id="status-overlay" class="status-overlay">
+            <div class="spinner"></div>
+            <div id="status-text">Ready to calibrate</div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script src="data.js"></script>
+    <script src="/games/kampai-sdk.js"></script>
+    <script>window.KAMPAI = window.KAMPAI || { isEmbed:false, ready:true, student:null, stats:null, leaderboard:[], onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/';}, sound:{ unlock:function(){}, correct:function(){}, wrong:function(){}, timeUp:function(){}, gameOver:function(){}, speak:function(){}, stopSpeak:function(){}, fxFlash:function(){}, mountToggles:function(){}, defaultBgm:function(){}, bgmStart:function(){}, bgmStop:function(){} } };</script>
+    <script src="/games/kampai-versus.js"></script>
+    <script>window.KampaiVersus = window.KampaiVersus || { VERSION:'stub', create:function(){ return { openMenu:function(){}, report:function(){}, finish:function(){return false;}, leave:function(){} }; } };</script>
+    <script src="/games/kampai-ar.js"></script>
+    <script>window.KampaiAR = window.KampaiAR || { VERSION:'stub', create:function(){ return { start:function(){return Promise.resolve(false);}, stop:function(){}, setActive:function(){}, tap:function(){}, mode:'tap' }; } };</script>
+    <script src="game.js"></script>
+</body>
+</html>

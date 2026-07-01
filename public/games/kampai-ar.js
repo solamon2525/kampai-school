@@ -27,7 +27,11 @@
         handRaiseMargin: 0.04,        // hands: wrist ต้องสูงกว่าไหล่ (y น้อยกว่า) เกินค่านี้ ถึงนับว่ายก
         jumpVel: 0.045,               // gesture: สะโพกขึ้นเร็วเกินค่านี้ (สัดส่วนจอ/เฟรม) = กระโดด
         squatVel: 0.045,              // gesture: สะโพกลงเร็วเกินค่านี้ = ย่อ
-        gestureCooldownMs: 700        // gesture: เว้นช่วงขั้นต่ำระหว่าง jump/squat กัน double-fire
+        gestureCooldownMs: 700,       // gesture: เว้นช่วงขั้นต่ำระหว่าง jump/squat กัน double-fire
+        filterType: 'ema',            // options: 'ema' | 'oneeuro'
+        oneEuroMinCutoff: 1.0,
+        oneEuroBeta: 0.007,
+        oneEuroDCutoff: 1.0
     };
 
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
@@ -37,6 +41,48 @@
         for (var i = 0; i < cuts.length; i++) { if (x < cuts[i]) return zones[i]; }
         return zones[zones.length - 1];
     }
+
+    function OneEuroFilter(minCutoff, beta, dCutoff) {
+        this.minCutoff = minCutoff || 1.0;
+        this.beta = beta || 0.007;
+        this.dCutoff = dCutoff || 1.0;
+        this.xPrev = null;
+        this.dxPrev = 0;
+        this.tPrev = null;
+    }
+    OneEuroFilter.prototype.filter = function (val, timestamp, minCutoff, beta, dCutoff) {
+        var mc = minCutoff !== undefined ? minCutoff : this.minCutoff;
+        var b = beta !== undefined ? beta : this.beta;
+        var dc = dCutoff !== undefined ? dCutoff : this.dCutoff;
+        
+        if (this.xPrev === null || this.tPrev === null) {
+            this.xPrev = val;
+            this.tPrev = timestamp;
+            return val;
+        }
+        var dt = (timestamp - this.tPrev) / 1000.0;
+        if (dt <= 0) dt = 0.016; // Fallback step (60 FPS)
+        this.tPrev = timestamp;
+        
+        var freq = 1.0 / dt;
+        var dx = (val - this.xPrev) * freq;
+        
+        var alphaD = 1.0 / (1.0 + (1.0 / (2.0 * Math.PI * dc)) / dt);
+        var dxFilt = alphaD * dx + (1.0 - alphaD) * this.dxPrev;
+        this.dxPrev = dxFilt;
+        
+        var cutoff = mc + b * Math.abs(dxFilt);
+        var alphaP = 1.0 / (1.0 + (1.0 / (2.0 * Math.PI * cutoff)) / dt);
+        
+        var xFilt = alphaP * val + (1.0 - alphaP) * this.xPrev;
+        this.xPrev = xFilt;
+        return xFilt;
+    };
+    OneEuroFilter.prototype.reset = function () {
+        this.xPrev = null;
+        this.dxPrev = 0;
+        this.tPrev = null;
+    };
 
     function create(opts) {
         opts = opts || {};
@@ -67,13 +113,35 @@
             hands: { left: false, right: false, both: false }, handZone: null,
             hipBaseline: null, prevHipY: null, lastGestureAt: 0,
             leftHand: { x: 0.5, y: 0.5, active: false },
-            rightHand: { x: 0.5, y: 0.5, active: false }
+            rightHand: { x: 0.5, y: 0.5, active: false },
+            rawX: 0.5, rawY: 0.5,
+            rawLeftHand: { x: 0.5, y: 0.5, active: false },
+            rawRightHand: { x: 0.5, y: 0.5, active: false }
         };
+        st.filters = {
+            centroidX: new OneEuroFilter(tuning.oneEuroMinCutoff, tuning.oneEuroBeta, tuning.oneEuroDCutoff),
+            centroidY: new OneEuroFilter(tuning.oneEuroMinCutoff, tuning.oneEuroBeta, tuning.oneEuroDCutoff),
+            leftX: new OneEuroFilter(tuning.oneEuroMinCutoff, tuning.oneEuroBeta, tuning.oneEuroDCutoff),
+            leftY: new OneEuroFilter(tuning.oneEuroMinCutoff, tuning.oneEuroBeta, tuning.oneEuroDCutoff),
+            rightX: new OneEuroFilter(tuning.oneEuroMinCutoff, tuning.oneEuroBeta, tuning.oneEuroDCutoff),
+            rightY: new OneEuroFilter(tuning.oneEuroMinCutoff, tuning.oneEuroBeta, tuning.oneEuroDCutoff)
+        };
+        function resetFilters() {
+            if (st.filters) {
+                st.filters.centroidX.reset();
+                st.filters.centroidY.reset();
+                st.filters.leftX.reset();
+                st.filters.leftY.reset();
+                st.filters.rightX.reset();
+                st.filters.rightY.reset();
+            }
+        }
         function status(s) { try { cb.onStatus(s); } catch (e) {} }
 
         // ── camera lifecycle ──
         async function start() {
             stopLoop();
+            resetFilters();
             if (!video) { status('error'); return false; }
             try {
                 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('no getUserMedia');
@@ -103,7 +171,13 @@
         }
         function setActive(b) {
             st.active = !!b;
-            if (b) { st.lastZone = null; st.committedZone = null; st.holdProgress = 0; st.handZone = null; }
+            if (b) {
+                st.lastZone = null;
+                st.committedZone = null;
+                st.holdProgress = 0;
+                st.handZone = null;
+                resetFilters();
+            }
         }
 
         // ── detector: framediff ──
@@ -135,17 +209,36 @@
                     st.energy = st.energy * 0.6 + Math.min(1, ratio / 0.06) * 0.4; // normalize ~ พลัง 0..1
                     if (motion.length > Math.floor(offW * offH * tuning.minMotionRatio)) {
                         var target = 1.0 - (sumX / motion.length) / offW; // mirror
-                        st.x = st.x * tuning.smoothing + target * (1 - tuning.smoothing);
                         var ty = (sumY / motion.length) / offH;
-                        st.y = st.y * tuning.smoothing + ty * (1 - tuning.smoothing);
-                        if (tuning.particles && ctx) spawnParticles(motion, offW, offH, canvas);
+                        var now = Date.now();
                         
-                        // Map to left and right hand fallback
-                        st.leftHand.x = st.x;
-                        st.leftHand.y = st.y;
+                        st.rawX = target;
+                        st.rawY = ty;
+                        st.rawLeftHand.x = target;
+                        st.rawLeftHand.y = ty;
+                        st.rawLeftHand.active = true;
+                        st.rawRightHand.x = target;
+                        st.rawRightHand.y = ty;
+                        st.rawRightHand.active = true;
+
+                        if (tuning.filterType === 'oneeuro') {
+                            st.x = st.filters.centroidX.filter(target, now, tuning.oneEuroMinCutoff, tuning.oneEuroBeta, tuning.oneEuroDCutoff);
+                            st.y = st.filters.centroidY.filter(ty, now, tuning.oneEuroMinCutoff, tuning.oneEuroBeta, tuning.oneEuroDCutoff);
+                            st.leftHand.x = st.filters.leftX.filter(target, now, tuning.oneEuroMinCutoff, tuning.oneEuroBeta, tuning.oneEuroDCutoff);
+                            st.leftHand.y = st.filters.leftY.filter(ty, now, tuning.oneEuroMinCutoff, tuning.oneEuroBeta, tuning.oneEuroDCutoff);
+                            st.rightHand.x = st.filters.rightX.filter(target, now, tuning.oneEuroMinCutoff, tuning.oneEuroBeta, tuning.oneEuroDCutoff);
+                            st.rightHand.y = st.filters.rightY.filter(ty, now, tuning.oneEuroMinCutoff, tuning.oneEuroBeta, tuning.oneEuroDCutoff);
+                        } else {
+                            st.x = st.x * tuning.smoothing + target * (1 - tuning.smoothing);
+                            st.y = st.y * tuning.smoothing + ty * (1 - tuning.smoothing);
+                            st.leftHand.x = st.x;
+                            st.leftHand.y = st.y;
+                            st.rightHand.x = st.x;
+                            st.rightHand.y = st.y;
+                        }
+                        
+                        if (tuning.particles && ctx) spawnParticles(motion, offW, offH, canvas);
                         st.leftHand.active = true;
-                        st.rightHand.x = st.x;
-                        st.rightHand.y = st.y;
                         st.rightHand.active = true;
 
                         // ยกมือ framediff (หยาบ — pose แม่นกว่า; tap fallback คุมเสมอ)
@@ -157,6 +250,8 @@
                         setHands(false, false, false);
                         st.leftHand.active = false;
                         st.rightHand.active = false;
+                        st.rawLeftHand.active = false;
+                        st.rawRightHand.active = false;
                     }
                     emitSignals();
                 }
@@ -198,27 +293,55 @@
             var lm = res.poseLandmarks;
             var nose = lm[0];
             var target = 1 - nose.x; // flip x (mirror)
-            st.x = st.x * tuning.smoothing + target * (1 - tuning.smoothing);
-            st.y = st.y * tuning.smoothing + nose.y * (1 - tuning.smoothing);
+            var now = Date.now();
+
+            st.rawX = target;
+            st.rawY = nose.y;
+
+            if (tuning.filterType === 'oneeuro') {
+                st.x = st.filters.centroidX.filter(target, now, tuning.oneEuroMinCutoff, tuning.oneEuroBeta, tuning.oneEuroDCutoff);
+                st.y = st.filters.centroidY.filter(nose.y, now, tuning.oneEuroMinCutoff, tuning.oneEuroBeta, tuning.oneEuroDCutoff);
+            } else {
+                st.x = st.x * tuning.smoothing + target * (1 - tuning.smoothing);
+                st.y = st.y * tuning.smoothing + nose.y * (1 - tuning.smoothing);
+            }
 
             // Left index finger = 19, Right index finger = 20
             var li = lm[19], ri = lm[20];
             if (li) {
                 var lTarget = 1 - li.x; // mirror
-                st.leftHand.x = st.leftHand.x * tuning.smoothing + lTarget * (1 - tuning.smoothing);
-                st.leftHand.y = st.leftHand.y * tuning.smoothing + li.y * (1 - tuning.smoothing);
+                st.rawLeftHand.x = lTarget;
+                st.rawLeftHand.y = li.y;
+                st.rawLeftHand.active = (li.visibility > 0.5);
+                if (tuning.filterType === 'oneeuro') {
+                    st.leftHand.x = st.filters.leftX.filter(lTarget, now, tuning.oneEuroMinCutoff, tuning.oneEuroBeta, tuning.oneEuroDCutoff);
+                    st.leftHand.y = st.filters.leftY.filter(li.y, now, tuning.oneEuroMinCutoff, tuning.oneEuroBeta, tuning.oneEuroDCutoff);
+                } else {
+                    st.leftHand.x = st.leftHand.x * tuning.smoothing + lTarget * (1 - tuning.smoothing);
+                    st.leftHand.y = st.leftHand.y * tuning.smoothing + li.y * (1 - tuning.smoothing);
+                }
                 st.leftHand.active = (li.visibility > 0.5);
             } else {
                 st.leftHand.active = false;
+                st.rawLeftHand.active = false;
             }
 
             if (ri) {
                 var rTarget = 1 - ri.x; // mirror
-                st.rightHand.x = st.rightHand.x * tuning.smoothing + rTarget * (1 - tuning.smoothing);
-                st.rightHand.y = st.rightHand.y * tuning.smoothing + ri.y * (1 - tuning.smoothing);
+                st.rawRightHand.x = rTarget;
+                st.rawRightHand.y = ri.y;
+                st.rawRightHand.active = (ri.visibility > 0.5);
+                if (tuning.filterType === 'oneeuro') {
+                    st.rightHand.x = st.filters.rightX.filter(rTarget, now, tuning.oneEuroMinCutoff, tuning.oneEuroBeta, tuning.oneEuroDCutoff);
+                    st.rightHand.y = st.filters.rightY.filter(ri.y, now, tuning.oneEuroMinCutoff, tuning.oneEuroBeta, tuning.oneEuroDCutoff);
+                } else {
+                    st.rightHand.x = st.rightHand.x * tuning.smoothing + rTarget * (1 - tuning.smoothing);
+                    st.rightHand.y = st.rightHand.y * tuning.smoothing + ri.y * (1 - tuning.smoothing);
+                }
                 st.rightHand.active = (ri.visibility > 0.5);
             } else {
                 st.rightHand.active = false;
+                st.rawRightHand.active = false;
             }
 
             // ── ยกมือ: ข้อมือ (15 ซ้าย, 16 ขวา) เหนือไหล่ (11,12) เกิน margin ── (screen-side ใช้ x mirror)
@@ -323,7 +446,9 @@
             detector: detector, inputMode: inputMode, zones: zones, cuts: cuts, holdMs: holdMs, tuning: tuning,
             get mode() { return st.mode; }, get x() { return st.x; }, get y() { return st.y; },
             get energy() { return st.energy; }, get hands() { return st.hands; }, get zone() { return st.lastZone; },
-            get leftHand() { return st.leftHand; }, get rightHand() { return st.rightHand; }
+            get leftHand() { return st.leftHand; }, get rightHand() { return st.rightHand; },
+            get rawX() { return st.rawX; }, get rawY() { return st.rawY; },
+            get rawLeftHand() { return st.rawLeftHand; }, get rawRightHand() { return st.rawRightHand; }
         };
     }
 

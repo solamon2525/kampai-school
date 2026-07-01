@@ -27,3 +27,50 @@ All modifications must be strictly contained inside the game directories `public
 ### Code Quality & Lifecycle Integrity
 - [ ] Verify that all interval timers, timeout IDs, and canvas frame loops are fully stopped and cleared upon game completion, pause, or exit.
 - [ ] Verify that qrand (seeded RNG) is correctly and uniformly used for all randomized logic (spawn items, math operators) during versus or online matches, and reset back to Math.random for normal solo play.
+
+## Follow-up — 2026-07-01T15:21:07+07:00
+
+Please implement the following AR hand tracking system enhancements and visualizer, based on the approved project prompt:
+
+## Context & Files
+- Working directory: d:\kampai-school-main
+- Primary files:
+  1. `public/games/kampai-ar.js`: The central AR wrapper.
+  2. Any AR-based games (e.g. `public/games/thai/balloon-burst/` and any others found in `public/games/` referencing `kampai-ar.js`).
+  3. A new calibration/debug/visualizer page in `public/games/ar-calibration/` or similar path.
+
+## Tasks & Requirements
+1. **Coordinate Smoothing in `kampai-ar.js`**:
+   - Implement coordinate smoothing (such as One Euro Filter, Exponential Moving Average - EMA, or similar low-pass filter) to eliminate coordinate jitter for both `leftHand` and `rightHand` landmarks.
+   - It should be configurable with parameters (e.g., smoothing factor alpha, or cutoff frequency).
+   - Ensure the latency remains extremely low while providing smooth and stable tracking.
+   - Maintain the getters `ar.leftHand` and `ar.rightHand` returning `{ x, y, active }` coordinates.
+2. **Robust Fallback & JSDOM/Headless Compatibility**:
+   - Verify and harden the fallback mechanism when no camera is present, or when running in a headless test environment (e.g., JSDOM).
+   - Ensure it falls back gracefully to mouse/touch tap controls without throwing any TypeError or runtime exceptions that crash the game.
+   - Ensure proper cleanup of resource handlers (like intervals, timeouts, video streams) upon stop/reset.
+3. **Interactive Calibration & Debug Visualizer Screen**:
+   - Build a beautiful, responsive calibration tool/page at `public/games/ar-calibration/` (including the 5-file architecture: index.html, style.css, config.js, data.js, game.js) or as a toggleable overlay in `kampai-ar.js`. Let's build a standalone calibration tool/page at `public/games/ar-calibration/`.
+   - The visualizer must show:
+     - Real-time video feed (if camera is active) or a fallback interactive canvas.
+     - Hand pointer trails, current raw vs. smoothed coordinate positions.
+     - Interactive controls to adjust smoothing settings (sliders/inputs) in real-time.
+     - Visual latency/FPS counters.
+     - Clean modern design (rich aesthetics, vibrant accents, dark mode/glassmorphism).
+4. **Integration & Verification**:
+   - Integrate these changes so that `balloon-burst` (and any other AR games) automatically benefit from the improved tracking/smoothing.
+   - Verify that the game passes the verification tool: `pnpm verify:game public/games/thai/balloon-burst` and `pnpm verify:game public/games/ar-calibration` (if created as a standard game).
+   - Test compatibility to ensure no regressions in JSDOM smoke tests.
+   - Make sure database migrations or seed scripts are updated/created if registering `ar-calibration` as a game item.
+
+Please perform these tasks carefully, following all workspace rules (including the safety check for boilerplate DOM elements, JSDOM path translations, local storageopaque origin exceptions, and non-violent aesthetics).
+
+## Follow-up — 2026-07-01T08:32:11Z
+
+The user has manually edited `public/games/kampai-ar.js` to implement:
+- OneEuroFilter class and methods
+- Raw coordinate getters (`rawX`, `rawY`, `rawLeftHand`, `rawRightHand`) and st.rawX/Y/LeftHand/RightHand tracking
+- Configuration options under `DEFAULT_TUNING`: `filterType: 'ema'`, `oneEuroMinCutoff: 1.0`, `oneEuroBeta: 0.007`, `oneEuroDCutoff: 1.0`
+- Filtering of coordinates in both framediff and pose detectors using OneEuroFilter when `filterType === 'oneeuro'`
+
+Please review these changes, make sure the JSDOM/headless compatibility fallback mechanism is robust, proceed with building the calibration tool in `public/games/ar-calibration/`, crop the cover art to 1280x720 (using scripts if available), and run the verification checks.
