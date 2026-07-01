@@ -22,8 +22,8 @@ window.GAME_CONFIG = {
         minMotionRatio: 0.015,
         smoothing: 0.70,
         intervalMs: 50,
-        marker: true,      // แสดงจุดตรวจจับตำแหน่งของผู้เล่น
-        particles: true,   // แสดงฝุ่นเวทมนตร์เอฟเฟกต์การขยับตัว
+        marker: false,     // เกมวาด cursor มือเองบน #arCanvas (ไม่ส่ง canvas ให้ engine)
+        particles: false,  // ปิด visualizer engine — ลูกโป่ง/particle อยู่ใน game.js
         // ── One Euro Filter (v1.2.0) — ลดสั่นไหวตอนมือค้าง + ตอบสนองทันทีตอนมือไว ──
         filterType: 'oneeuro',         // เปิดใช้ One Euro Filter แทน EMA
         oneEuroMinCutoff: 1.0,         // Cutoff ขั้นต่ำ (Hz) — นิ่งตอนค้างชี้ลูกโป่ง

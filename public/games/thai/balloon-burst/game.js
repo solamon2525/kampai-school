@@ -106,10 +106,10 @@
     }
 
     // ── AR engine ──
+    // ⚠️ ไม่ส่ง canvas ให้ engine — kampai-ar จะ clearRect ทุกเฟรม; เกมวาดลูกโป่งบน #arCanvas เอง
     function buildAR() {
         return KampaiAR.create({
             video: '#arVideo',
-            canvas: '#arCanvas',
             detector: CFG.DETECTOR,
             holdMs: CFG.HOLD_MS,
             tuning: CFG.TUNING,
