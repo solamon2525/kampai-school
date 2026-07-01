@@ -3,9 +3,10 @@
 > ⚠️ **อ่านไฟล์นี้ก่อนสร้าง/แก้เกม AR ทุกครั้ง** — กันบัคซ้ำเดิม (โดยเฉพาะ layout ยุบ + ไม่มี fallback)
 > เกม AR ใช้ engine กลาง `public/games/kampai-ar.js` (`window.KampaiAR`) — แก้ engine ที่เดียว ทุกเกม AR ดีขึ้นพร้อมกัน
 >
-> **Engine version:** `KampaiAR v1.3.0` · **Doc version:** v1.3.0
+> **Engine version:** `KampaiAR v1.3.1` · **Doc version:** v1.3.1
 
 ## Changelog
+- **v1.3.1** — Hands detector: โครงมือ `leftHandLandmarks`/`rightHandLandmarks` + **ล็อกตำแหน่ง** (`handLockMs`) หลังจับได้ · กันหลุดชั่วคราว
 - **v1.3.0** — 🆕 **`DETECTOR:'hands'`** — MediaPipe Hands ติดตามปลายนิ้วชี้ (landmark 8) ซ้าย/ขวาแยกกัน · knob `handsUrl` / `maxNumHands` / `handsModelComplexity` · fallback framediff ถ้า CDN ล้ม
 - **v1.2.0** — 🆕 **One Euro Filter** (ลด jitter แบบ adaptive ไม่เพิ่ม latency ตอนมือไว) + **Raw Coordinate Getters** (`ar.rawX`, `ar.rawY`, `ar.rawLeftHand`, `ar.rawRightHand`) + เทมเพลตใหม่ `_template-ar-hands/` สำหรับเกม hand tracking (แตะ/ชนวัตถุด้วยมือ 2 ข้าง) + **AR Calibration Visualizer** (`public/games/ar-calibration/`) สำหรับจูนค่า filter แบบสดๆ
 - **v1.1.1** — เพิ่มเวลาตัดสินใจทุกเกม AR: `holdMs` default 2000→**2500** + config ทุกเกม `HOLD_MS:2500` / `ROUND_SEC:20` (ดู Tuning Log §6)
@@ -109,6 +110,7 @@ engine **ไม่สนขนาดที่โชว์กล้อง** — d
 | `minConfidence` | ความมั่นใจขั้นต่ำ (pose/hands) | 0.4–0.6 | ต่ำ=จับง่าย/หลอน · สูง=แม่น/หลุดบ่อย |
 | `maxNumHands` | จำนวนมือสูงสุด (`DETECTOR:'hands'`) | 1–2 | 2=ซ้าย+ขวา · 1=ประหยัด CPU |
 | `handsModelComplexity` | โมเดล Hands (0=lite, 1=full) | 0–1 | 0=เร็ว/แนะนำ · 1=แม่นกว่า/หนัก |
+| `handLockMs` | คงตำแหน่ง/โครงมือหลังหลุดจับชั่วคราว (`hands`) | 400–1200 | สูง=ล็อกนานกว่า · ต่ำ=ตอบสนองเร็ว |
 | `handRaiseMargin` | ข้อมือต้องสูงกว่าไหล่เกินเท่าไร ถึงนับ "ยกมือ" (Tier 2) | 0.03–0.08 | ต่ำ=ยกนิดก็ติด · สูง=ต้องยกสูงชัด |
 | `jumpVel`/`squatVel` | ความเร็วแกน Y ของสะโพกที่นับเป็น กระโดด/ย่อ | 0.03–0.07 | ต่ำ=ไว/ false-fire · สูง=ต้องกระโดดแรง |
 | `gestureCooldownMs` | เว้นช่วงขั้นต่ำระหว่าง gesture | 500–900 | กัน double-fire |
@@ -176,6 +178,10 @@ ar.hands             // {left, right, both} boolean
 ar.zone              // zone ปัจจุบัน | null
 ar.leftHand          // { x, y, active } — พิกัดนิ้วชี้ซ้าย (smoothed)
 ar.rightHand         // { x, y, active } — พิกัดนิ้วชี้ขวา (smoothed)
+ar.leftHandLandmarks // landmark 21 จุด (mirror แล้ว 0..1) — วาดโครงมือเส้น
+ar.rightHandLandmarks
+ar.leftHandLocked    // true ขณะล็อกตำแหน่งหลังจับได้
+ar.rightHandLocked
 
 // ── 🆕 v1.2.0: Raw (ก่อนกรอง) — สำหรับดีบัก/Calibration ──
 ar.rawX, ar.rawY      // centroid (raw, ก่อนกรอง)

@@ -11,7 +11,7 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
     'use strict';
-    var VERSION = '1.3.0';
+    var VERSION = '1.3.1';
 
     // ค่าจูนเริ่มต้น (override ได้ผ่าน opts.tuning ใน config.js) — ดูคำอธิบายช่วงที่แนะนำใน AR-GAME.md
     var DEFAULT_TUNING = {
@@ -25,6 +25,7 @@
         handsUrl: 'https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/', // jsdelivr เท่านั้น
         maxNumHands: 2,               // hands: จำนวนมือสูงสุด (1–2)
         handsModelComplexity: 0,      // hands: 0=lite (เร็ว) · 1=full
+        handLockMs: 650,              // hands: คงตำแหน่ง/โครงมือหลังหลุดจับชั่วคราว (ms)
         particles: true,              // visualizer: ฝุ่นเวทมนตร์ตามการขยับ (framediff)
         marker: true,                 // visualizer: จุดเรืองตำแหน่งผู้เล่น
         // ── Tier 2 (ดู AR-GAME.md): ยกมือ / กระโดด-ย่อ / พลัง ──
@@ -118,6 +119,10 @@
             hipBaseline: null, prevHipY: null, lastGestureAt: 0,
             leftHand: { x: 0.5, y: 0.5, active: false },
             rightHand: { x: 0.5, y: 0.5, active: false },
+            leftHandLock: { locked: false, until: 0 },
+            rightHandLock: { locked: false, until: 0 },
+            leftHandLandmarks: null,
+            rightHandLandmarks: null,
             rawX: 0.5, rawY: 0.5,
             rawLeftHand: { x: 0.5, y: 0.5, active: false },
             rawRightHand: { x: 0.5, y: 0.5, active: false }
@@ -130,6 +135,14 @@
             rightX: new OneEuroFilter(tuning.oneEuroMinCutoff, tuning.oneEuroBeta, tuning.oneEuroDCutoff),
             rightY: new OneEuroFilter(tuning.oneEuroMinCutoff, tuning.oneEuroBeta, tuning.oneEuroDCutoff)
         };
+        function resetHandLocks() {
+            st.leftHandLock.locked = false;
+            st.leftHandLock.until = 0;
+            st.rightHandLock.locked = false;
+            st.rightHandLock.until = 0;
+            st.leftHandLandmarks = null;
+            st.rightHandLandmarks = null;
+        }
         function resetFilters() {
             if (st.filters) {
                 st.filters.centroidX.reset();
@@ -139,6 +152,7 @@
                 st.filters.rightX.reset();
                 st.filters.rightY.reset();
             }
+            resetHandLocks();
         }
         function status(s) { try { cb.onStatus(s); } catch (e) {} }
 
@@ -349,17 +363,51 @@
             }
             hand.active = true;
         }
+        function copyLandmarksMirrored(lm) {
+            var out = new Array(lm.length);
+            for (var j = 0; j < lm.length; j++) {
+                out[j] = { x: 1 - lm[j].x, y: lm[j].y };
+            }
+            return out;
+        }
+        function applyHandLock(side, detected, landmarksCopy, now) {
+            var hand = side === 'left' ? st.leftHand : st.rightHand;
+            var raw = side === 'left' ? st.rawLeftHand : st.rawRightHand;
+            var lock = side === 'left' ? st.leftHandLock : st.rightHandLock;
+            var lmKey = side === 'left' ? 'leftHandLandmarks' : 'rightHandLandmarks';
+            var lockMs = tuning.handLockMs != null ? tuning.handLockMs : 650;
+
+            if (detected) {
+                lock.locked = true;
+                lock.until = now + lockMs;
+                st[lmKey] = landmarksCopy;
+                raw.active = true;
+                return;
+            }
+            if (lock.locked && now < lock.until) {
+                hand.active = true;
+                raw.active = true;
+                return;
+            }
+            lock.locked = false;
+            hand.active = false;
+            raw.active = false;
+            st[lmKey] = null;
+        }
         function onHandsResults(res) {
             var now = Date.now();
-            st.leftHand.active = false;
-            st.rightHand.active = false;
-            st.rawLeftHand.active = false;
-            st.rawRightHand.active = false;
+            var detected = { left: false, right: false };
+            var freshLandmarks = { left: null, right: null };
 
             var landmarks = res && res.multiHandLandmarks;
             if (!landmarks || !landmarks.length) {
+                applyHandLock('left', false, null, now);
+                applyHandLock('right', false, null, now);
                 st.energy *= 0.85;
-                setHands(false, false, false);
+                if (st.leftHand.active && st.rightHand.active) setHands(false, false, true);
+                else if (st.leftHand.active) setHands(true, false, false);
+                else if (st.rightHand.active) setHands(false, true, false);
+                else setHands(false, false, false);
                 emitSignals();
                 evalZone();
                 return;
@@ -376,8 +424,13 @@
                 var hy = tip.y;
                 var side = handednessLabel(handedness[i]) === 'Left' ? 'left' : 'right';
                 updateTrackedHand(side, hx, hy, true, now);
+                detected[side] = true;
+                freshLandmarks[side] = copyLandmarksMirrored(lm);
                 sumX += hx; sumY += hy; count++;
             }
+
+            applyHandLock('left', detected.left, freshLandmarks.left, now);
+            applyHandLock('right', detected.right, freshLandmarks.right, now);
 
             if (count > 0) {
                 var cx = sumX / count, cy = sumY / count;
@@ -562,6 +615,10 @@
             get mode() { return st.mode; }, get x() { return st.x; }, get y() { return st.y; },
             get energy() { return st.energy; }, get hands() { return st.hands; }, get zone() { return st.lastZone; },
             get leftHand() { return st.leftHand; }, get rightHand() { return st.rightHand; },
+            get leftHandLandmarks() { return st.leftHandLandmarks; },
+            get rightHandLandmarks() { return st.rightHandLandmarks; },
+            get leftHandLocked() { return st.leftHandLock.locked && Date.now() < st.leftHandLock.until; },
+            get rightHandLocked() { return st.rightHandLock.locked && Date.now() < st.rightHandLock.until; },
             get rawX() { return st.rawX; }, get rawY() { return st.rawY; },
             get rawLeftHand() { return st.rawLeftHand; }, get rawRightHand() { return st.rawRightHand; }
         };

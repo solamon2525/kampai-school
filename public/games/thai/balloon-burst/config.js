@@ -25,6 +25,7 @@ window.GAME_CONFIG = {
         minConfidence: 0.55,
         maxNumHands: 2,
         handsModelComplexity: 0,
+        handLockMs: 700,       // ล็อกโครงมือ/ตำแหน่งหลังจับได้ (กันสั่นหลุดชั่วคราว)
         marker: false,     // เกมวาด cursor มือเองบน #arCanvas (ไม่ส่ง canvas ให้ engine)
         particles: false,  // ปิด visualizer engine — ลูกโป่ง/particle อยู่ใน game.js
         // ── One Euro Filter (v1.2.0) — ลดสั่นไหวตอนมือค้าง + ตอบสนองทันทีตอนมือไว ──

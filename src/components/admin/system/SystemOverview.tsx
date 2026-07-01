@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.129.0 (KampaiAR Hands detector)',
+        version: 'v1.130.0 (Hand skeleton + lock)',
         date: 'ล่าสุด',
+        badge: 'bg-violet-600',
+        items: [
+            '**KampaiAR v1.3.1** — โครงมือ `leftHandLandmarks`/`rightHandLandmarks` + ล็อกตำแหน่ง `handLockMs` หลังจับได้',
+            '**balloon-burst** วาดโครงมือเส้นแทน cursor วงกลม · แสดง 🔒 ตอนล็อก',
+            'อัปเดต `AR-GAME.md` v1.3.1',
+        ],
+    },
+    {
+        version: 'v1.129.0 (KampaiAR Hands detector)',
+        date: '',
         badge: 'bg-violet-600',
         items: [
             '**KampaiAR v1.3.0** — `DETECTOR:\'hands\'` (MediaPipe Hands) ติดตามปลายนิ้วชี้ซ้าย/ขวา · fallback framediff',

@@ -401,6 +401,67 @@
         }
     }
 
+    var HAND_CONNECTIONS = [
+        [0, 1], [1, 2], [2, 3], [3, 4], [0, 5], [5, 6], [6, 7], [7, 8], [5, 9], [9, 10], [10, 11], [11, 12],
+        [9, 13], [13, 14], [14, 15], [15, 16], [13, 17], [17, 18], [18, 19], [19, 20], [0, 17]
+    ];
+
+    function drawHandSkeleton(landmarks, strokeColor, locked, label) {
+        if (!landmarks || !landmarks.length) return;
+        var w = canvas.width, h = canvas.height;
+        ctx.save();
+        ctx.strokeStyle = locked ? strokeColor : strokeColor.replace('1)', '0.75)');
+        ctx.lineWidth = locked ? 4 : 3;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.shadowColor = strokeColor;
+        ctx.shadowBlur = locked ? 16 : 10;
+        ctx.beginPath();
+        for (var c = 0; c < HAND_CONNECTIONS.length; c++) {
+            var p1 = landmarks[HAND_CONNECTIONS[c][0]];
+            var p2 = landmarks[HAND_CONNECTIONS[c][1]];
+            if (!p1 || !p2) continue;
+            ctx.moveTo(p1.x * w, p1.y * h);
+            ctx.lineTo(p2.x * w, p2.y * h);
+        }
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        var tips = [4, 8, 12, 16, 20];
+        for (var t = 0; t < tips.length; t++) {
+            var pt = landmarks[tips[t]];
+            if (!pt) continue;
+            ctx.beginPath();
+            ctx.arc(pt.x * w, pt.y * h, tips[t] === 8 ? 10 : 5, 0, Math.PI * 2);
+            ctx.fillStyle = tips[t] === 8 ? strokeColor : 'rgba(255,255,255,0.9)';
+            ctx.fill();
+        }
+
+        var wrist = landmarks[0];
+        if (wrist) {
+            ctx.font = "bold 13px 'Sarabun', sans-serif";
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'center';
+            ctx.shadowColor = 'rgba(0,0,0,0.85)';
+            ctx.shadowBlur = 4;
+            ctx.fillText(label + (locked ? ' 🔒' : ''), wrist.x * w, wrist.y * h - 22);
+        }
+        ctx.restore();
+    }
+
+    function drawHandTracking() {
+        if (!ar || ar.detector !== 'hands') {
+            drawPointerCursor();
+            return;
+        }
+        if (leftPointer.active && ar.leftHandLandmarks) {
+            drawHandSkeleton(ar.leftHandLandmarks, 'rgba(75, 224, 122, 1)', ar.leftHandLocked, 'มือซ้าย');
+        }
+        if (rightPointer.active && ar.rightHandLandmarks) {
+            drawHandSkeleton(ar.rightHandLandmarks, 'rgba(255, 206, 84, 1)', ar.rightHandLocked, 'มือขวา');
+        }
+    }
+
     function drawPointerCursor() {
         var t = performance.now() / 300;
         var pulse = 4 * Math.sin(t);
@@ -462,8 +523,8 @@
                 rightPointer.active = false;
             }
             
-            // Fallback to center of motion if neither hand landmark is active
-            if (!leftPointer.active && !rightPointer.active) {
+            // framediff/pose: ใช้จุดเคลื่อนไหวกลางเมื่อไม่มีมือ
+            if (!leftPointer.active && !rightPointer.active && ar.detector !== 'hands') {
                 rightPointer.x = ar.x * canvas.width;
                 rightPointer.y = ar.y * canvas.height;
                 rightPointer.active = true;
@@ -479,7 +540,7 @@
         
         updateAndDrawParticles();
         updateAndDrawPopups();
-        drawPointerCursor();
+        drawHandTracking();
         
         rafId = requestAnimationFrame(gameLoop);
     }
