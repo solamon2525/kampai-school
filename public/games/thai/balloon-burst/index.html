@@ -84,6 +84,8 @@
 <script>window.KampaiVersus = window.KampaiVersus || { VERSION:'stub', create:function(){ return { openMenu:function(){}, report:function(){}, finish:function(){return false;}, leave:function(){} }; } };</script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+<script src="/games/kampai-hands.js"></script>
+<script>window.KampaiHands = window.KampaiHands || { VERSION:'stub', DEFAULT_HANDS:{}, HAND_CONNECTIONS:[], create:function(){ return { start:function(){return Promise.reject(new Error('stub'));}, stop:function(){}, mode:'tap', leftHand:{x:0.5,y:0.5,active:false}, rightHand:{x:0.5,y:0.5,active:false}, leftLandmarks:null, rightLandmarks:null, collectHitProbes:function(){return[];}, clientToCanvas:function(c,x,y){return{x:x,y:y};}, drawSkeleton:function(){} }; } };</script>
 <script src="game.js"></script>
 </body>
 </html>

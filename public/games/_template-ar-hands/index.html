@@ -6,14 +6,12 @@
 <title>AR Hand Tracking Game — Template (โฟลเดอร์ 5 ไฟล์)</title>
 <!--
 ═══════════════════════════════════════════════════════════════════════════
-  KAMPAI-SCHOOL · AR HAND TRACKING GAME TEMPLATE (โฟลเดอร์ 5 ไฟล์)
-  สำหรับเกมที่ใช้มือ 2 ข้างสัมผัส/ชนวัตถุบนจอ (เช่น เจาะลูกโป่ง, รับของ)
+  KAMPAI-SCHOOL · AR FINGER TRACKING TEMPLATE (โฟลเดอร์ 5 ไฟล์)
+  สำหรับเกมที่ใช้ปลายนิ้วชี้จิ้ม/ทับ/ชนวัตถุบนจอ (เช่น เจาะลูกโป่ง, รับของ)
   ───────────────────────────────────────────────────────────────────────
-  ต่างจาก _template-ar (zone quiz) ตรงที่:
-  • ใช้ ar.leftHand / ar.rightHand (พิกัด 2 จุด) แทน zone commit
-  • ตรวจจับการชนด้วยระยะห่าง (radius) ไม่ใช่ hold-to-commit
-  • รองรับ One Euro Filter สำหรับลด jitter ของพิกัดมือ
-  • มี rawLeftHand/rawRightHand สำหรับดีบัก/Calibrate
+  ใช้ KampaiHands (kampai-hands.js) — pattern เดียวกับ balloon-burst
+  • ปลายนิ้วชี้ landmark 8 · MediaPipe Hands + camera_utils
+  • ตรวจจับการชนด้วยระยะห่าง (radius) · มี tap fallback
   ───────────────────────────────────────────────────────────────────────
   วิธีใช้:
   1. cp -r public/games/_template-ar-hands  public/games/{subject}/{slug}
@@ -38,10 +36,10 @@
     <div class="card">
         <div class="logo">🖐️</div>
         <h1 class="title">AR Hand Tracking Game</h1>
-        <div class="subtitle">ใช้มือทั้ง 2 ข้างแตะวัตถุบนหน้าจอ</div>
+        <div class="subtitle">ชี้ปลายนิ้วทับวัตถุที่ลอยบนหน้าจอ</div>
         <div id="player-chip"></div>
         <div class="hint">
-            🎥 เปิดกล้องแล้วใช้ <b>มือซ้าย-ขวา</b> แตะวัตถุที่ลอยขึ้นมา<br>
+            🎥 เปิดกล้องแล้วใช้ <b>ปลายนิ้วชี้</b> ทับวัตถุที่ลอยขึ้นมา<br>
             📱 ไม่มีกล้อง? <b>แตะ/คลิก</b> บนจอได้เลย
         </div>
         <div id="my-stats" style="display:none;">
@@ -92,16 +90,16 @@
     </div>
 </div>
 
-<!-- ═══ SDK + AR Engine + Online + Versus (single source — อย่าแก้) ═══ -->
+<!-- ═══ SDK + KampaiHands + Online + Versus ═══ -->
 <script src="/games/kampai-sdk.js"></script>
 <script>
-/* fallback stub: กันพังถ้าเปิด standalone แล้ว SDK โหลดไม่ได้ */
 window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{ correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
 </script>
-<script src="/games/kampai-ar.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+<script src="/games/kampai-hands.js"></script>
 <script>
-/* fallback stub สำหรับ KampaiAR (ลด runtime error ถ้า engine โหลดไม่ได้) */
-window.KampaiAR = window.KampaiAR || { VERSION:'stub', create:function(){ return { start:function(){return Promise.resolve(false);}, stop:function(){}, setActive:function(){}, tap:function(){}, mode:'tap', leftHand:{x:0.5,y:0.5,active:false}, rightHand:{x:0.5,y:0.5,active:false}, rawLeftHand:{x:0.5,y:0.5,active:false}, rawRightHand:{x:0.5,y:0.5,active:false}, x:0.5, y:0.5, rawX:0.5, rawY:0.5 }; } };
+window.KampaiHands = window.KampaiHands || { VERSION:'stub', DEFAULT_HANDS:{}, HAND_CONNECTIONS:[], create:function(){ return { start:function(){return Promise.reject(new Error('stub'));}, stop:function(){}, mode:'tap', leftHand:{x:0.5,y:0.5,active:false}, rightHand:{x:0.5,y:0.5,active:false}, leftLandmarks:null, rightLandmarks:null, collectHitProbes:function(){return[];}, clientToCanvas:function(c,x,y){return{x:x,y:y};}, drawSkeleton:function(){} }; } };
 </script>
 <script src="/games/kampai-match.js"></script>
 <script>

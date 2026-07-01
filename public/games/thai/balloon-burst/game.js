@@ -1,20 +1,17 @@
-/* game.js — ลอจิกเกม Balloon Burst (config/data + KAMPAI SDK + MediaPipe Hands inline) */
+/* game.js — ลอจิกเกม Balloon Burst (config/data + KAMPAI SDK + KampaiHands) */
 (function () {
     'use strict';
     var CFG = window.GAME_CONFIG, DATA = window.GAME_DATA;
-    var HT = CFG.HANDS || {};
     var $ = function (id) { return document.getElementById(id); };
 
     KAMPAI.setSlug(CFG.SLUG);
     KAMPAI.sound.mountToggles();
     KAMPAI.sound.defaultBgm(CFG.BGM || 'cheerful');
 
-    var canvas, ctx, videoEl;
+    var canvas, ctx;
     var balloons = [];
     var particles = [];
     var popups = [];
-    var leftPointer = { x: -9999, y: -9999, active: false };
-    var rightPointer = { x: -9999, y: -9999, active: false };
     var score = 0;
     var timeLeft = CFG.GAME_DURATION;
     var correctHits = 0;
@@ -27,16 +24,7 @@
     var playerName = 'ผู้เล่น';
     var localLeaderboard = [];
     var seededRng = null;
-
-    // ── MediaPipe Hands (pattern cyberdrop — ไม่ผ่าน KampaiAR) ──
-    var handTracker = {
-        mode: 'tap',       // 'camera' | 'tap'
-        running: false,
-        cameraObj: null,
-        mpHands: null,
-        leftLandmarks: null,
-        rightLandmarks: null
-    };
+    var hands = null;
 
     var vs = window.KampaiVersus ? KampaiVersus.create({
         duration: CFG.GAME_DURATION,
@@ -106,119 +94,23 @@
         });
     }
 
-    // แปลง landmark MediaPipe → พิกัด normalized บน canvas (mirror X เหมือน cyberdrop)
-    function mapLandmark(lm) {
-        return { x: 1 - lm.x, y: lm.y };
-    }
-
-    function mapAllLandmarks(lm) {
-        var out = new Array(lm.length);
-        for (var i = 0; i < lm.length; i++) out[i] = mapLandmark(lm[i]);
-        return out;
-    }
-
-    function lerpPointer(ptr, targetX, targetY) {
-        var s = HT.smoothing != null ? HT.smoothing : 0.4;
-        if (!ptr.active || ptr.x < 0) {
-            ptr.x = targetX;
-            ptr.y = targetY;
-        } else {
-            ptr.x += (targetX - ptr.x) * s;
-            ptr.y += (targetY - ptr.y) * s;
-        }
-        ptr.active = true;
-    }
-
-    function onHandsResults(results) {
-        if (!handTracker.running || handTracker.mode !== 'camera') return;
-
-        handTracker.leftLandmarks = null;
-        handTracker.rightLandmarks = null;
-        leftPointer.active = false;
-        rightPointer.active = false;
-
-        if (!results.multiHandLandmarks || !results.multiHandLandmarks.length) return;
-
-        var w = canvas.width, h = canvas.height;
-        var entries = [];
-        for (var hi = 0; hi < results.multiHandLandmarks.length; hi++) {
-            var lm = results.multiHandLandmarks[hi];
-            var tip = mapLandmark(lm[8]);
-            entries.push({ nx: tip.x, ny: tip.y, mapped: mapAllLandmarks(lm) });
-        }
-        entries.sort(function (a, b) { return a.nx - b.nx; });
-
-        if (entries.length === 1) {
-            var e = entries[0];
-            var side = e.nx < 0.5 ? 'left' : 'right';
-            var px = e.nx * w, py = e.ny * h;
-            if (side === 'left') {
-                lerpPointer(leftPointer, px, py);
-                handTracker.leftLandmarks = e.mapped;
-            } else {
-                lerpPointer(rightPointer, px, py);
-                handTracker.rightLandmarks = e.mapped;
+    function buildHands() {
+        return KampaiHands.create({
+            video: '#arVideo',
+            hands: CFG.HANDS,
+            getCanvasSize: function () {
+                return canvas ? { w: canvas.width, h: canvas.height } : null;
             }
-        } else {
-            lerpPointer(leftPointer, entries[0].nx * w, entries[0].ny * h);
-            handTracker.leftLandmarks = entries[0].mapped;
-            lerpPointer(rightPointer, entries[1].nx * w, entries[1].ny * h);
-            handTracker.rightLandmarks = entries[1].mapped;
-        }
+        });
     }
 
     function startHandTracking() {
-        if (typeof Hands === 'undefined' || typeof Camera === 'undefined') {
-            return Promise.reject(new Error('MediaPipe not loaded'));
-        }
-        if (handTracker.running) return Promise.resolve(true);
-
-        handTracker.mpHands = new Hands({
-            locateFile: function (file) {
-                return 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/' + file;
-            }
-        });
-        handTracker.mpHands.setOptions({
-            maxNumHands: HT.maxNumHands != null ? HT.maxNumHands : 2,
-            modelComplexity: HT.modelComplexity != null ? HT.modelComplexity : 1,
-            minDetectionConfidence: HT.minConfidence || 0.6,
-            minTrackingConfidence: HT.minConfidence || 0.6
-        });
-        handTracker.mpHands.onResults(onHandsResults);
-
-        handTracker.cameraObj = new Camera(videoEl, {
-            onFrame: function () {
-                if (handTracker.mpHands && videoEl.readyState >= 2) {
-                    return handTracker.mpHands.send({ image: videoEl });
-                }
-                return Promise.resolve();
-            },
-            width: HT.cameraWidth || 640,
-            height: HT.cameraHeight || 480
-        });
-
-        return handTracker.cameraObj.start().then(function () {
-            handTracker.mode = 'camera';
-            handTracker.running = true;
-            return true;
-        });
+        if (!hands) hands = buildHands();
+        return hands.start();
     }
 
     function stopHandTracking() {
-        handTracker.running = false;
-        handTracker.mode = 'tap';
-        if (handTracker.cameraObj) {
-            handTracker.cameraObj.stop();
-            handTracker.cameraObj = null;
-        }
-        if (handTracker.mpHands) {
-            handTracker.mpHands.close();
-            handTracker.mpHands = null;
-        }
-        handTracker.leftLandmarks = null;
-        handTracker.rightLandmarks = null;
-        leftPointer.active = false;
-        rightPointer.active = false;
+        if (hands) hands.stop();
     }
 
     var audioCtx = null;
@@ -337,20 +229,11 @@
     }
 
     function clientToCanvas(clientX, clientY) {
-        var rect = canvas.getBoundingClientRect();
-        var scaleX = canvas.width / (rect.width || canvas.width);
-        var scaleY = canvas.height / (rect.height || canvas.height);
-        return {
-            x: (clientX - rect.left) * scaleX,
-            y: (clientY - rect.top) * scaleY
-        };
+        return hands ? hands.clientToCanvas(canvas, clientX, clientY) : { x: clientX, y: clientY };
     }
 
     function collectHitProbes() {
-        var probes = [];
-        if (leftPointer.active) probes.push({ x: leftPointer.x, y: leftPointer.y });
-        if (rightPointer.active) probes.push({ x: rightPointer.x, y: rightPointer.y });
-        return probes;
+        return hands ? hands.collectHitProbes() : [];
     }
 
     function hitsBalloon(b, drawX, probes, pad) {
@@ -497,61 +380,13 @@
         }
     }
 
-    var HAND_CONNECTIONS = [
-        [0, 1], [1, 2], [2, 3], [3, 4], [0, 5], [5, 6], [6, 7], [7, 8], [5, 9], [9, 10], [10, 11], [11, 12],
-        [9, 13], [13, 14], [14, 15], [15, 16], [13, 17], [17, 18], [18, 19], [19, 20], [0, 17]
-    ];
-
-    function drawHandSkeleton(landmarks, strokeColor, label) {
-        if (!landmarks || !landmarks.length) return;
-        var w = canvas.width, h = canvas.height;
-        ctx.save();
-        ctx.strokeStyle = strokeColor;
-        ctx.lineWidth = 3;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.shadowColor = strokeColor;
-        ctx.shadowBlur = 12;
-        ctx.beginPath();
-        for (var c = 0; c < HAND_CONNECTIONS.length; c++) {
-            var p1 = landmarks[HAND_CONNECTIONS[c][0]];
-            var p2 = landmarks[HAND_CONNECTIONS[c][1]];
-            if (!p1 || !p2) continue;
-            ctx.moveTo(p1.x * w, p1.y * h);
-            ctx.lineTo(p2.x * w, p2.y * h);
-        }
-        ctx.stroke();
-        ctx.shadowBlur = 0;
-
-        var tips = [4, 8, 12, 16, 20];
-        for (var t = 0; t < tips.length; t++) {
-            var pt = landmarks[tips[t]];
-            if (!pt) continue;
-            ctx.beginPath();
-            ctx.arc(pt.x * w, pt.y * h, tips[t] === 8 ? 12 : 5, 0, Math.PI * 2);
-            ctx.fillStyle = tips[t] === 8 ? strokeColor : 'rgba(255,255,255,0.9)';
-            ctx.fill();
-        }
-
-        var wrist = landmarks[0];
-        if (wrist) {
-            ctx.font = "bold 13px 'Sarabun', sans-serif";
-            ctx.fillStyle = '#ffffff';
-            ctx.textAlign = 'center';
-            ctx.shadowColor = 'rgba(0,0,0,0.85)';
-            ctx.shadowBlur = 4;
-            ctx.fillText(label, wrist.x * w, wrist.y * h - 22);
-        }
-        ctx.restore();
-    }
-
     function drawHandTracking() {
-        if (handTracker.mode !== 'camera') return;
-        if (handTracker.leftLandmarks) {
-            drawHandSkeleton(handTracker.leftLandmarks, 'rgba(75, 224, 122, 1)', 'มือซ้าย');
+        if (!hands || hands.mode !== 'camera') return;
+        if (hands.leftLandmarks) {
+            hands.drawSkeleton(ctx, hands.leftLandmarks, 'rgba(75, 224, 122, 1)', 'มือซ้าย');
         }
-        if (handTracker.rightLandmarks) {
-            drawHandSkeleton(handTracker.rightLandmarks, 'rgba(255, 206, 84, 1)', 'มือขวา');
+        if (hands.rightLandmarks) {
+            hands.drawSkeleton(ctx, hands.rightLandmarks, 'rgba(255, 206, 84, 1)', 'มือขวา');
         }
     }
 
@@ -721,7 +556,6 @@
     window.addEventListener('load', function () {
         canvas = $('arCanvas');
         ctx = canvas.getContext('2d');
-        videoEl = $('arVideo');
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 

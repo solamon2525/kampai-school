@@ -1,36 +1,31 @@
-/* game.js — ลอจิกเกม AR Hand Tracking (ตัวอย่าง: แตะวัตถุลอยด้วยมือ 2 ข้าง)
+/* game.js — ลอจิกเกม AR Finger Tracking (ตัวอย่าง: แตะวัตถุลอยด้วยปลายนิ้วชี้)
    ───────────────────────────────────────────────────────────────────────────
-   ❗ ไม่มี camera code ที่นี่ — กล้อง/ตรวจจับ/smoothing อยู่ใน kampai-ar.js ทั้งหมด
-   ❗ ใช้ ar.leftHand / ar.rightHand (smoothed) สำหรับการชนวัตถุ
-   ❗ ใช้ ar.rawLeftHand / ar.rawRightHand สำหรับดีบัก/แสดงผลดิบ (ถ้าต้องการ)
-   ───────────────────────────────────────────────────────────────────────────
-   ลบส่วน "GAME LOGIC" แล้วเขียนเกมของคุณ — โครงรอบ ๆ (SDK/leaderboard/AR/cleanup)
-   คือ "วัฒนธรรมมาตรฐาน" คงไว้ทุกเกม */
+   ❗ ใช้ KampaiHands (kampai-hands.js) — ไม่ใช้ KampaiAR สำหรับเกมจิ้ม/ชนวัตถุ
+   ❗ ar.leftHand / ar.rightHand = พิกัด normalized 0..1 (ปลายนิ้วชี้ landmark 8)
+   ❗ ชนวัตถุในลูปเกมด้วยระยะห่าง (radius) — ดู AR-GAME.md Pitfall §8
+   ─────────────────────────────────────────────────────────────────────────── */
 (function () {
     'use strict';
     var CFG = window.GAME_CONFIG, DATA = window.GAME_DATA;
     var $ = function (id) { return document.getElementById(id); };
 
-    // ═══ SDK setup ═══
     KAMPAI.setSlug(CFG.SLUG);
     KAMPAI.sound.mountToggles();
     KAMPAI.sound.defaultBgm(CFG.BGM || 'cheerful');
 
-    // ═══ Game State ═══
     var canvas, ctx;
-    var items = [];           // วัตถุลอยบนจอ [{x,y,vx,vy,kind,emoji,radius,color}]
+    var items = [];
     var score = 0;
     var timeLeft = CFG.GAME_DURATION;
     var correctHits = 0;
     var wrongHits = 0;
-    var gameState = 'start';  // start | playing | end
+    var gameState = 'start';
     var rafId = null;
     var spawnTimer = null;
     var countdownTimer = null;
-    var ar = null;
-    var seededRng = null;     // สำหรับ Versus mode (Seeded RNG)
+    var hands = null;
+    var seededRng = null;
 
-    // ═══ Seeded RNG (Mulberry32) สำหรับโหมด Versus ═══
     function createMulberry32(seed) {
         return function () {
             var t = seed += 0x6D2B79F5;
@@ -41,16 +36,15 @@
     }
     function rng() { return seededRng ? seededRng() : Math.random(); }
 
-    // ═══ KampaiVersus (ออนไลน์ 2 ผู้เล่นซิงค์สด) ═══
     var vs = window.KampaiVersus ? KampaiVersus.create({
         duration: CFG.ONLINE_DURATION || CFG.GAME_DURATION,
         title: 'AR Hand Game',
         rankBy: 'score',
         onPlay: function (opts) {
             if (opts && opts.rng) {
-                var seed = Math.floor(opts.rng() * 4294967296);
-                seededRng = createMulberry32(seed);
+                seededRng = createMulberry32(Math.floor(opts.rng() * 4294967296));
             }
+            if (hands) hands.stop();
             startGame();
         },
         onEnd: function () {
@@ -60,7 +54,6 @@
         }
     }) : null;
 
-    // ═══ Player + Leaderboard (จาก KAMPAI SDK) ═══
     function renderPlayer() {
         var s = KAMPAI.student, stt = KAMPAI.stats, chip = $('player-chip');
         if (!s || !chip) return;
@@ -91,36 +84,31 @@
         renderLeaderboard('lbList', 'lbBox');
     });
 
-    // ═══ Screen management ═══
     function showScreen(id) {
         var els = document.querySelectorAll('.screen');
         for (var i = 0; i < els.length; i++) els[i].classList.remove('active');
         $(id).classList.add('active');
     }
     function setStatus() {
-        var icon = ar && ar.mode === 'camera' ? '🎥 กล้อง' : '✋ แตะ';
+        var icon = hands && hands.mode === 'camera' ? '🎥 กล้อง' : '✋ แตะ';
         var tag = $('status-tag');
         if (tag) tag.textContent = icon;
     }
 
-    // ═══ AR Engine (kampai-ar.js) ═══
-    function buildAR() {
-        return KampaiAR.create({
-            video: '#arVideo', canvas: '#arCanvas',
-            detector: CFG.DETECTOR,
-            holdMs: CFG.HOLD_MS,
-            tuning: CFG.TUNING,
+    function buildHands() {
+        return KampaiHands.create({
+            video: '#arVideo',
+            hands: CFG.HANDS,
+            getCanvasSize: function () {
+                return canvas ? { w: canvas.width, h: canvas.height } : null;
+            },
             onStatus: function () { setStatus(); }
-            // ❗ ไม่ใช้ onZone/onHoldProgress/onCommit — เกม hand tracking ใช้ ar.leftHand/rightHand
-            //    ตรวจจับการชนวัตถุเองในลูปเกม (game loop)
         });
     }
 
-    // ═══ Canvas setup ═══
     function setupCanvas() {
         canvas = $('arCanvas');
         if (!canvas) return;
-        // ⚠️ JSDOM Canvas Guard: ป้องกันแครชบน headless/JSDOM ที่ไม่มี GPU
         ctx = canvas.getContext('2d');
         if (!ctx) {
             ctx = new Proxy({}, { get: function () { return function () {}; } });
@@ -134,9 +122,7 @@
         canvas.height = window.innerHeight;
     }
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    //   GAME LOGIC (เขียนเกมของคุณตรงนี้ — ตัวอย่าง: วัตถุลอยขึ้น แตะด้วยมือ)
-    // ═══════════════════════════════════════════════════════════════════════════
+    // ═══ GAME LOGIC (ตัวอย่าง: วัตถุลอย — ชนด้วยปลายนิ้วชี้) ═══
 
     function spawnItem() {
         var r = rng();
@@ -150,24 +136,20 @@
         }
         var color = DATA.COLORS[Math.floor(rng() * DATA.COLORS.length)];
         items.push({
-            x: 0.1 + rng() * 0.8,      // สัดส่วน 0..1 (⚠️ Proportional — ห้ามใช้พิกเซลตรงๆ)
-            y: 1.1,                       // เริ่มจากนอกจอด้านล่าง
-            vy: -(0.004 + rng() * 0.004), // ลอยขึ้น (สัดส่วน/เฟรม)
-            vx: (rng() - 0.5) * 0.002,   // เบี่ยงซ้ายขวาเล็กน้อย
+            x: 0.1 + rng() * 0.8,
+            y: 1.1,
+            vy: -(0.004 + rng() * 0.004),
+            vx: (rng() - 0.5) * 0.002,
             kind: kind, emoji: emoji, color: color,
             radius: CFG.HIT_RADIUS || 0.06,
             alive: true
         });
     }
 
-    // ⚠️ ตรวจจับการชนมือกับวัตถุ — เปรียบเทียบเป็น **สัดส่วน** (0..1) เสมอ
-    //    ห้ามเปรียบเทียบพิกเซลจริงกับค่าทศนิยมตรงๆ (ดู AR-GAME.md Pitfall §8)
     function checkHandCollision(hand, item) {
         if (!hand || !hand.active || !item.alive) return false;
-        var dx = hand.x - item.x;
-        var dy = hand.y - item.y;
-        var dist = Math.sqrt(dx * dx + dy * dy);
-        return dist < item.radius;
+        var dx = hand.x - item.x, dy = hand.y - item.y;
+        return Math.sqrt(dx * dx + dy * dy) < item.radius;
     }
 
     function onHit(item, px, py) {
@@ -186,7 +168,6 @@
             burstParticles(px, py, item.color);
         }
         updateScoreDisplay();
-        // รายงาน Versus (ถ้าแข่งออนไลน์)
         if (vs) vs.report(score, { correct: correctHits });
     }
 
@@ -195,14 +176,12 @@
         if (el) el.textContent = '⭐ ' + score;
     }
 
-    // [JUICE] คะแนนเด้งลอยขึ้น
     function scorePop(x, y, text, color) {
         var el = document.createElement('div'); el.className = 'score-pop';
         el.textContent = text; el.style.cssText = 'left:' + x + 'px;top:' + y + 'px;color:' + color + ';font-size:24px;';
         document.body.appendChild(el); el.addEventListener('animationend', function () { el.remove(); });
     }
 
-    // [JUICE] particle ตอนแตะ
     function burstParticles(x, y, color) {
         for (var i = 0; i < 8; i++) {
             var p = document.createElement('div'); p.className = 'pop-particle';
@@ -212,22 +191,20 @@
         }
     }
 
-    // ── Game Loop ──
     function loop() {
         if (gameState !== 'playing') return;
         if (!canvas || !ctx) { rafId = requestAnimationFrame(loop); return; }
         var cw = canvas.width, ch = canvas.height;
         ctx.clearRect(0, 0, cw, ch);
 
-        // ดึงพิกัดมือจาก AR engine (smoothed — ผ่าน One Euro Filter/EMA แล้ว)
-        var lh = ar ? ar.leftHand : { x: -1, y: -1, active: false };
-        var rh = ar ? ar.rightHand : { x: -1, y: -1, active: false };
+        var lh = hands ? hands.leftHand : { x: -1, y: -1, active: false };
+        var rh = hands ? hands.rightHand : { x: -1, y: -1, active: false };
 
-        // วาดมือ (pointer) — วงกลมเรืองแสงตามพิกัดมือ
-        if (lh.active) drawHandPointer(ctx, lh.x * cw, lh.y * ch, '#4be07a', 'L');
-        if (rh.active) drawHandPointer(ctx, rh.x * cw, rh.y * ch, '#22d3ee', 'R');
+        if (hands && hands.mode === 'camera') {
+            if (hands.leftLandmarks) hands.drawSkeleton(ctx, hands.leftLandmarks, 'rgba(75, 224, 122, 1)', 'L');
+            if (hands.rightLandmarks) hands.drawSkeleton(ctx, hands.rightLandmarks, 'rgba(34, 211, 238, 1)', 'R');
+        }
 
-        // อัพเดทวัตถุ + ตรวจชน
         for (var i = items.length - 1; i >= 0; i--) {
             var it = items[i];
             if (!it.alive) { items.splice(i, 1); continue; }
@@ -235,58 +212,36 @@
             it.x += it.vx;
             it.y += it.vy;
 
-            // ตรวจจับการชนมือ (ทั้ง 2 มือ)
             if (checkHandCollision(lh, it) || checkHandCollision(rh, it)) {
                 onHit(it, it.x * cw, it.y * ch);
                 continue;
             }
 
-            // วัตถุลอยออกนอกจอด้านบน → ลบทิ้ง
-            // ⚠️ เปรียบเทียบสัดส่วน (it.y < -0.1) ไม่ใช่พิกเซล! (Pitfall §8)
             if (it.y < -0.1) { items.splice(i, 1); continue; }
 
-            // วาดวัตถุ
-            var px = it.x * cw, py = it.y * ch;
             ctx.save();
             ctx.globalAlpha = 0.9;
             ctx.font = '40px serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(it.emoji, px, py);
+            ctx.fillText(it.emoji, it.x * cw, it.y * ch);
             ctx.restore();
         }
 
         rafId = requestAnimationFrame(loop);
     }
 
-    function drawHandPointer(ctx, x, y, color, label) {
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(x, y, 22, 0, Math.PI * 2);
-        ctx.fillStyle = color;
-        ctx.globalAlpha = 0.35;
-        ctx.fill();
-        ctx.globalAlpha = 1;
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 3;
-        ctx.stroke();
-        ctx.font = 'bold 12px Kanit';
-        ctx.fillStyle = '#fff';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(label, x, y);
-        ctx.restore();
-    }
-
-    // ═══ เริ่มเกม / จบเกม ═══
     async function startGame() {
         showScreen('gameScreen');
         setupCanvas();
         KAMPAI.sound.unlock();
 
-        if (!ar) ar = buildAR();
-        await ar.start();    // ขอกล้องตอน gesture (ถ้าไม่ได้ → โหมดแตะอัตโนมัติ)
-        ar.setActive(true);
+        if (!hands) hands = buildHands();
+        try {
+            await hands.start();
+        } catch (e) {
+            console.warn('Camera failed, tap fallback:', e);
+        }
         setStatus();
 
         KAMPAI.sound.bgmStart();
@@ -297,11 +252,9 @@
         updateScoreDisplay();
         var el = $('timerPill'); if (el) el.textContent = '⏱ ' + timeLeft;
 
-        // เริ่มสปอนวัตถุ
         if (spawnTimer) clearInterval(spawnTimer);
         spawnTimer = setInterval(spawnItem, CFG.SPAWN_INTERVAL_MS);
 
-        // นับถอยหลัง
         if (countdownTimer) clearInterval(countdownTimer);
         countdownTimer = setInterval(function () {
             timeLeft--;
@@ -318,7 +271,6 @@
         cleanup();
         KAMPAI.sound.bgmStop(); KAMPAI.sound.gameOver();
 
-        // คะแนน + ดาว
         var stars = score >= 300 ? 3 : score >= 150 ? 2 : score >= 50 ? 1 : 0;
         KAMPAI.submitScore(score, { mode: 'normal', stars: stars, correct: correctHits, wrong: wrongHits });
 
@@ -329,26 +281,23 @@
         renderLeaderboard('lbListEnd', 'lbBoxEnd');
     }
 
-    // ═══ Cleanup (⚠️ ต้องล้างทุก exit — interval/timeout/rAF/AR) ═══
     function cleanup() {
         if (spawnTimer) { clearInterval(spawnTimer); spawnTimer = null; }
         if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
         if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-        if (ar) { ar.stop(); }
-        seededRng = null;    // Reset กลับ Math.random สำหรับ solo play ถัดไป
+        if (hands) hands.stop();
+        seededRng = null;
     }
 
-    // ═══ Touch/Click Fallback (📱 สำหรับเครื่องที่ไม่มีกล้อง) ═══
-    // ⚠️ ต้อง bind ทั้ง touchstart + touchmove เพื่อให้ตอบสนองทันทีที่แตะครั้งแรก (Pitfall §9)
     function handleTouchAt(clientX, clientY) {
-        if (gameState !== 'playing' || !canvas) return;
-        var px = clientX / canvas.width;
-        var py = clientY / canvas.height;
-        // จำลองมือที่ตำแหน่งแตะ แล้วเช็คการชนวัตถุทุกตัว
+        if (gameState !== 'playing' || !canvas || !hands) return;
+        var pt = hands.clientToCanvas(canvas, clientX, clientY);
+        var px = pt.x / canvas.width;
+        var py = pt.y / canvas.height;
         var fakeHand = { x: px, y: py, active: true };
         for (var i = items.length - 1; i >= 0; i--) {
             if (checkHandCollision(fakeHand, items[i])) {
-                onHit(items[i], clientX, clientY);
+                onHit(items[i], pt.x, pt.y);
                 break;
             }
         }
@@ -360,14 +309,12 @@
         handleTouchAt(e.clientX, e.clientY);
     });
 
-    // ═══ ปุ่ม / exit ═══
     $('startBtn').addEventListener('click', startGame);
     $('restartBtn').addEventListener('click', function () { cleanup(); startGame(); });
     $('quitBtn').addEventListener('click', function () { cleanup(); KAMPAI.goHome(); });
     $('homeBtn').addEventListener('click', function () { cleanup(); KAMPAI.goHome(); });
     window.addEventListener('beforeunload', cleanup);
 
-    // ออนไลน์ (ถ้าเปิดใช้)
     if (CFG.ENABLE_ONLINE && vs) {
         var btn = $('onlineBtn');
         if (btn) { btn.style.display = ''; btn.addEventListener('click', function () { vs.openMenu(); }); }

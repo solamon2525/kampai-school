@@ -272,8 +272,17 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.131.0 (Balloon Burst poke fix)',
+        version: 'v1.132.0 (KampaiHands finger poke)',
         date: 'ล่าสุด',
+        badge: 'bg-violet-600',
+        items: [
+            '**KampaiHands v1.0.0** — engine มาตรฐานจิ้ม/ทับ/ชนวัตถุด้วยปลายนิ้วชี้ (MediaPipe Hands + camera_utils)',
+            '**balloon-burst** + **`_template-ar-hands`** ย้ายมาใช้ KampaiHands · อัปเดต `AR-GAME.md` v1.4.0',
+        ],
+    },
+    {
+        version: 'v1.131.0 (Balloon Burst poke fix)',
+        date: '',
         badge: 'bg-violet-600',
         items: [
             '**KampaiAR v1.3.2** — แปลงพิกัดมือให้ตรง object-fit:cover · `displaySize` callback',

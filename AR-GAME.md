@@ -3,9 +3,10 @@
 > ⚠️ **อ่านไฟล์นี้ก่อนสร้าง/แก้เกม AR ทุกครั้ง** — กันบัคซ้ำเดิม (โดยเฉพาะ layout ยุบ + ไม่มี fallback)
 > เกม AR ใช้ engine กลาง `public/games/kampai-ar.js` (`window.KampaiAR`) — แก้ engine ที่เดียว ทุกเกม AR ดีขึ้นพร้อมกัน
 >
-> **Engine version:** `KampaiAR v1.3.2` · **Doc version:** v1.3.2
+> **Engine version:** `KampaiAR v1.3.2` · `KampaiHands v1.0.0` · **Doc version:** v1.4.0
 
 ## Changelog
+- **v1.4.0** — 🆕 **`KampaiHands`** (`kampai-hands.js`) — engine มาตรฐานสำหรับเกม **จิ้ม/ทับ/ชนวัตถุด้วยปลายนิ้วชี้** (MediaPipe Hands + camera_utils · pattern balloon-burst) · **`_template-ar-hands`** ย้ายมาใช้ KampaiHands · **อย่าใช้ `KampaiAR` + `DETECTOR:'hands'`** สำหรับเกมประเภทนี้
 - **v1.3.2** — แปลงพิกัดมือ `videoNormToCanvasNorm` (object-fit:cover) · จัดซ้าย/ขวาจากตำแหน่งจอ · `displaySize` callback
 - **v1.3.1** — Hands detector: โครงมือ `leftHandLandmarks`/`rightHandLandmarks` + **ล็อกตำแหน่ง** (`handLockMs`) หลังจับได้ · กันหลุดชั่วคราว
 - **v1.3.0** — 🆕 **`DETECTOR:'hands'`** — MediaPipe Hands ติดตามปลายนิ้วชี้ (landmark 8) ซ้าย/ขวาแยกกัน · knob `handsUrl` / `maxNumHands` / `handsModelComplexity` · fallback framediff ถ้า CDN ล้ม
@@ -27,20 +28,42 @@
 
 ## 2. สถาปัตยกรรม
 
-```
-config.js  (knob จูน + DETECTOR + เนื้อหา param)  ─┐
-data.js    (โจทย์/เนื้อหา)                          ├─► game.js (logic ล้วน)
-kampai-sdk.js (คะแนน/leaderboard/เสียง)            │     │ สร้าง KampaiAR.create(...) จาก config
-kampai-ar.js  (กล้อง/ตรวจจับ/zone/hold/fallback) ──┘     │ wire onZone/onHoldProgress/onCommit + ar.tap()
-                                                          ▼
-                                              KAMPAI.submitScore ตอนจบ
-```
-- **game.js ไม่มี camera code** — กล้อง/loop/cleanup อยู่ใน engine ทั้งหมด
-- จูนประสิทธิภาพ = แก้ `config.js` (ไม่แตะ engine/logic) · แก้พฤติกรรมร่วมทุกเกม = แก้ `kampai-ar.js`
+### 2.0 เลือก engine ไหน?
 
-### 2.1 Layout: กล้องเต็มจอ vs กล้องมุมจอ (เลือกตามเกม)
+| ประเภทเกม | Engine | เทมเพลต | ตัวอย่าง |
+|---|---|---|---|
+| **จิ้ม/ทับ/ชนวัตถุด้วยนิ้ว** | **`KampaiHands`** (`kampai-hands.js`) | `_template-ar-hands` | `thai/balloon-burst` |
+| **ยืนเลือกโซน / ท่าทางทั้งตัว** | **`KampaiAR`** (`kampai-ar.js`) | `_template-ar` | `demo/ar-zone-quiz`, `math/math-move-quiz` |
+| **จีบนิ้ว = คลิก** (quiz นิ่ง) | inline MediaPipe ใน HTML ได้ | — | `tech/cyberdrop` |
+
+> 🔴 **กฎ:** เกมที่ใช้ปลายนิ้วชี้ชน/จิ้มวัตถุบนจอ → **`KampaiHands.create()`** เท่านั้น — ไม่ผ่าน `KampaiAR` + `DETECTOR:'hands'` (พิสูจน์แล้วว่า stack สั้นกว่าและใช้งานได้จริง)
+
+### 2.1 KampaiAR (zone / body movement)
 
 engine **ไม่สนขนาดที่โชว์กล้อง** — detection อ่าน `ar.x` (0..1) ไม่ขึ้นกับขนาด video/canvas → จัด layout ได้ 2 แบบ:
+
+```
+config.js  (DETECTOR + TUNING)  ─┐
+data.js                         ├─► game.js → KampaiAR.create(...) → onZone/onCommit + ar.tap()
+kampai-sdk.js + kampai-ar.js  ──┘
+```
+- **game.js ไม่มี camera code** — กล้อง/loop/cleanup อยู่ใน KampaiAR
+- จูนประสิทธิภาพ = แก้ `config.js` · แก้พฤติกรรมร่วม = แก้ `kampai-ar.js`
+
+### 2.2 KampaiHands (finger poke / grab)
+
+```
+config.js  (HANDS: {...})  ─┐
+data.js                     ├─► game.js → KampaiHands.create(...) → ชนวัตถุใน loop ด้วย leftHand/rightHand
+kampai-sdk.js               │              + hands.collectHitProbes() ถ้าใช้พิกเซล
+@mediapipe/* + kampai-hands.js ─┘
+```
+- **ปลายนิ้วชี้** = MediaPipe landmark **8** · พิกัด mirror X (`1 - x`) ตรงกับ video `scaleX(-1)`
+- **game.js ไม่มี camera loop** — เรียก `hands.start()` ใน gesture · `hands.stop()` ทุก exit
+- **บังคับ tap fallback** — `hands.clientToCanvas()` + click/touch listener
+- เกมอ้างอิง: `public/games/thai/balloon-burst/`
+
+### 2.3 Layout: กล้องเต็มจอ vs กล้องมุมจอ (KampaiAR)
 
 | แบบ | เหมาะกับ | `#arVideo` / `#arCanvas` | UI เกม |
 |---|---|---|---|
@@ -68,20 +91,21 @@ engine **ไม่สนขนาดที่โชว์กล้อง** — d
 7. ทดสอบ browser จริงที่มีกล้อง + เครื่องไม่มีกล้อง (โหมดแตะ)
 ```
 
-### 3B — 🆕 เกมแตะวัตถุด้วยมือ (Hand Tracking / Touch)
+### 3B — 🆕 เกมจิ้ม/ชนวัตถุด้วยนิ้ว (Finger Poke — KampaiHands)
 ```
 1. cp -r public/games/_template-ar-hands  public/games/{subject}/{slug}
-2. config.js : ตั้ง SLUG, DETECTOR ('hands'|'pose'|'framediff'), HOLD_MS, จูน TUNING
-3. data.js   : ใส่วัตถุ/โจทย์  ·  game.js : ปรับ logic ในส่วน "GAME LOGIC"
-4. ทำปก 16:9 (1280×720) → {slug}/cover.svg|png
-5. migration NNN_seed_{slug}_game.sql (รวม game_docs — ดู GAME.md) + apply remote
-6. pnpm verify:game public/games/{subject}/{slug}
-7. ทดสอบ browser จริง + เครื่องไม่มีกล้อง (โหมดแตะ/คลิก fallback)
+2. config.js : ตั้ง SLUG, HANDS: {...}, HIT_RADIUS / FINGER_HIT_PADDING, จูนเกม
+3. data.js   : ใส่วัตถุ/โจทย์  ·  game.js : logic ชนใน loop (leftHand/rightHand หรือ collectHitProbes)
+4. index.html โหลด: camera_utils → hands.js → kampai-hands.js → game.js
+5. ทำปก 16:9 · migration + game_docs · pnpm verify:game
+6. ทดสอบ browser มีกล้อง + ไม่มีกล้อง (แตะ fallback)
 ```
 
+> **อย่า** ใช้ `_template-ar` + `DETECTOR:'hands'` สำหรับเกมประเภทนี้ — ใช้ `_template-ar-hands` + `KampaiHands`
+
 > **เลือกเทมเพลตไหน?**
-> - ตอบด้วยตำแหน่งร่างกาย (ยืนซ้าย/กลาง/ขวา) → **`_template-ar`** (Zone Quiz)
-> - แตะ/ชน/เก็บวัตถุด้วยมือ (เช่น เจาะลูกโป่ง, รับของตก) → **`_template-ar-hands`** (Hand Tracking)
+> - ตอบด้วยตำแหน่งร่างกาย (ยืนซ้าย/กลาง/ขวา) → **`_template-ar`** + **KampaiAR**
+> - **จิ้ม/ทับ/ชนวัตถุด้วยปลายนิ้วชี้** → **`_template-ar-hands`** + **KampaiHands**
 
 ## 4. 🔴 Pitfalls (บังคับเช็ก — เคยพังจริง)
 
@@ -148,7 +172,8 @@ engine **ไม่สนขนาดที่โชว์กล้อง** — d
 |---|---|---|---|
 | 2026-06-20 | (เริ่มต้น) `fraction-garden-ar` คอมมิตเร็วไป บนแท็บเล็ตโรงเรียน | `HOLD_MS` 1200→2000 | มีเวลาตัดสินใจขึ้น |
 | 2026-06-22 | ทุกเกม AR — ขอเวลาตัดสินใจมากขึ้น (เซนเซอร์รอคำตอบ) | `holdMs` default 2000→2500 + ทุก config `HOLD_MS`→2500, `ROUND_SEC`→20 | ค้างนานขึ้นก่อนล็อก + มีเวลาคิดต่อข้อมากขึ้น (เปลี่ยนใจได้) |
-| 2026-07-01 | `balloon-burst` จิ้ม/ชนลูกโป่งไม่ได้ — พิกัดมือไม่ตรง cover crop | `videoNormToCanvasNorm` v1.3.2 + `FINGER_HIT_PADDING` + ชนหลายปลายนิ้ว | นิ้วทับลูกโป่งบนจอ = เจาะได้ · แตะ fallback scale ถูก |
+| 2026-07-01 | `balloon-burst` ใช้งานได้จริงหลังย้าย stack | สร้าง **`KampaiHands v1.0.0`** (inline MediaPipe + camera_utils) · `_template-ar-hands` ย้ายตาม | เกมจิ้ม/ชนวัตถุ = KampaiHands · zone/body = KampaiAR |
+| 2026-07-01 | `balloon-burst` จิ้ม/ชนลูกโป่งไม่ได้ — พิกัดมือไม่ตรง cover crop | `videoNormToCanvasNorm` v1.3.2 + `FINGER_HIT_PADDING` + ชนหลายปลายนิ้ว | (superseded โดย KampaiHands — map ตรงแบบ cyberdrop) |
 | 2026-07-01 | `balloon-burst` นิ้วไม่ติดตาม — Pose landmark ประมาณ | เพิ่ม `DETECTOR:'hands'` ใน KampaiAR v1.3.0 + สลับเกมไปใช้ MediaPipe Hands | ปลายนิ้วชี้ (landmark 8) ซ้าย/ขวาแยก · fallback framediff ถ้า CDN ล้ม |
 | 2026-07-01 | `balloon-burst` พิกัดมือสั่นไหว (jitter) ตอนค้างอยู่เฉย ทำให้ไม่แม่นยำในการเจาะลูกโป่ง | เพิ่ม One Euro Filter: `filterType:'oneeuro'`, `oneEuroMinCutoff:1.0`, `oneEuroBeta:0.007` | พิกัดนิ่งตอนมือค้าง / ตอบสนองทันทีตอนมือไว — latency แทบไม่เพิ่ม |
 | 2026-07-01 | สร้าง `_template-ar-hands/` + `ar-calibration/` | เพิ่มเทมเพลตเกม hand tracking + หน้าจอจูนค่าเรียลไทม์ | เกม AR ใหม่สร้างได้เร็วขึ้น + จูนค่า filter ได้สะดวก |
@@ -191,9 +216,54 @@ ar.rawLeftHand       // { x, y, active } — พิกัดดิบก่อ�
 ar.rawRightHand      // { x, y, active } — พิกัดดิบก่อนกรอง
 ```
 
-### 7.1 🆕 Hand Tracking Pattern (v1.2.0)
+### 7.1 Finger Tracking (`KampaiHands` v1.0.0)
 
-สำหรับเกมที่ต้องตรวจจับมือชน/สัมผัสวัตถุ (ไม่ใช่ zone commit):
+สำหรับเกมที่ต้อง **จิ้ม/ทับ/ชนวัตถุด้วยปลายนิ้วชี้**:
+
+```js
+// index.html — โหลดก่อน game.js
+// @mediapipe/camera_utils · @mediapipe/hands · /games/kampai-hands.js
+
+const hands = KampaiHands.create({
+  video: '#arVideo',
+  hands: CFG.HANDS,                    // maxNumHands, smoothing, minConfidence, ...
+  getCanvasSize: () => ({ w: canvas.width, h: canvas.height }),
+  onStatus(s) {}                        // 'camera-on' | 'no-camera' | 'stopped'
+});
+await hands.start();                   // ใน handler ปุ่มเริ่ม — reject → tap fallback
+hands.stop();                          // cleanup ทุก exit
+
+// ── Properties ──
+hands.mode                             // 'camera' | 'tap'
+hands.leftHand, hands.rightHand        // { x, y, active } normalized 0..1 (ปลายนิ้วชี้)
+hands.leftPointer, hands.rightPointer  // { x, y, active } พิกเซลบน canvas
+hands.leftLandmarks, hands.rightLandmarks  // 21 จุด normalized — วาดโครงมือ
+hands.collectHitProbes()               // [{x,y}] พิกเซล — ชนวัตถุใน loop
+hands.clientToCanvas(canvas, cx, cy)   // แตะ fallback
+hands.drawSkeleton(ctx, landmarks, color, label)
+```
+
+**ชนวัตถุ (normalized 0..1):**
+```js
+function checkHit(hand, item) {
+  if (!hand.active) return false;
+  var dx = hand.x - item.x, dy = hand.y - item.y;
+  return Math.sqrt(dx * dx + dy * dy) < item.radius;
+}
+```
+
+**ชนวัตถุ (พิกเซล — แบบ balloon-burst):**
+```js
+var probes = hands.collectHitProbes();
+// + FINGER_HIT_PADDING รอบปลายนิ้ว
+```
+
+> เกมอ้างอิง: `public/games/thai/balloon-burst/` · เทมเพลต: `_template-ar-hands/`
+> จูน knob: `config.js` → `HANDS` (ดู `KampaiHands.DEFAULT_HANDS`)
+
+### 7.2 KampaiAR Hand Tracking (deprecated สำหรับ finger poke)
+
+> ⚠️ **`KampaiAR` + `DETECTOR:'hands'`** ยังมีใน engine สำหรับ backward compat / ar-calibration — **เกมใหม่ที่จิ้ม/ชนวัตถุ ใช้ KampaiHands แทน**
 
 ```js
 // ใช้ ar.leftHand / ar.rightHand (smoothed) ในลูปเกม:
@@ -214,12 +284,11 @@ function loop() {
 }
 ```
 
-> เกมอ้างอิง Hand Tracking: `public/games/thai/balloon-burst/` (เจาะลูกโป่งด้วยมือ 2 ข้าง)
-> เทมเพลต: `public/games/_template-ar-hands/`
+> เกมอ้างอิง Zone Quiz: `public/games/demo/ar-zone-quiz/`
 
 ## 8. Testing
 
-1. `pnpm verify:game <path>` → Check 10 AR ต้อง "ใช้ KampaiAR engine"
+1. `pnpm verify:game <path>` → Check 10: **KampaiHands** (finger) หรือ **KampaiAR** (zone/body)
 2. **browser จริงมีกล้อง** (`/play`): ขยับตัว → marker/zone ตาม · ค้างครบ → ตอบ · ปิดสิทธิ์กล้อง → เข้าโหมดแตะ
 3. **headless** (puppeteer `--use-fake-ui-for-media-stream --use-fake-device-for-media-stream`): เช็ก gameScreen ไม่ยุบ 0px · `elementFromPoint(กลางจอ)` = zone · แตะ → commit · `ar.stop()` เคลียร์ loop · ไม่มี console error (ดู pattern ที่เทสต์ `demo/ar-zone-quiz`)
 4. สลับ `DETECTOR:'hands' ↔ 'pose' ↔ 'framediff'` ใน config แล้วเล่นได้ทั้งสาม
@@ -227,8 +296,8 @@ function loop() {
 6. ทดสอบ `pnpm verify:game` ต้องผ่านทั้ง Check 7 (JSDOM) และ Check 10 (AR engine)
 
 > เกมอ้างอิง:
-> - **Zone Quiz**: `public/games/demo/ar-zone-quiz/` (engine ครบ + เล่นได้จริง)
-> - **Hand Tracking**: `public/games/thai/balloon-burst/` (เจาะลูกโป่งด้วยมือ 2 ข้าง + One Euro Filter)
-> - **Calibration**: `public/games/ar-calibration/` (จูนค่า filter แบบสดๆ)
-> - เทมเพลต: `_template-ar/` (zone quiz) · `_template-ar-hands/` (hand tracking)
+> - **Finger Poke**: `public/games/thai/balloon-burst/` (**KampaiHands**)
+> - **Zone Quiz**: `public/games/demo/ar-zone-quiz/` (**KampaiAR**)
+> - **Calibration**: `public/games/ar-calibration/` (KampaiAR — จูน filter)
+> - เทมเพลต: `_template-ar/` (zone) · `_template-ar-hands/` (**finger poke**)
 > - เกม AR เดิม (`english/vocab-move.html`, `math/fraction-garden-ar.html`) ค่อยทยอยย้ายมาใช้ engine (ลง Tuning Log)

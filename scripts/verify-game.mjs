@@ -287,10 +287,13 @@ if (!cover) {
 // ─── Check 10: AR / กล้อง (fire เฉพาะเกมที่ใช้กล้อง) ─────────────────────────
 // เกมที่ใช้ KampaiAR engine → engine จัดการ camera/cleanup/fallback/mediapipe ให้ = ผ่าน
 // เกม raw getUserMedia (ไม่ใช้ engine) → เตือนเรื่อง cleanup/fallback/jsdelivr (ดู AR-GAME.md)
-const usesCamera = /getUserMedia|kampai-ar\.js|KampaiAR/.test(scanSource) || /getUserMedia|kampai-ar\.js/.test(html);
+const usesCamera = /getUserMedia|kampai-ar\.js|KampaiAR|kampai-hands\.js|KampaiHands/.test(scanSource) || /getUserMedia|kampai-ar\.js|kampai-hands\.js/.test(html);
 if (usesCamera) {
+    const usesHandsEngine = /kampai-hands\.js/.test(html) || /KampaiHands\s*\.\s*create/.test(scanSource);
     const usesArEngine = /kampai-ar\.js/.test(html) || /KampaiAR\s*\.\s*create/.test(scanSource);
-    if (usesArEngine) {
+    if (usesHandsEngine) {
+        console.log(`${PASS} Check 10 — AR: ใช้ KampaiHands (finger poke/grab — camera/cleanup จัดการให้)`);
+    } else if (usesArEngine) {
         console.log(`${PASS} Check 10 — AR: ใช้ KampaiAR engine (camera/cleanup/fallback จัดการให้)`);
     } else {
         const arWarn = [];
@@ -300,7 +303,7 @@ if (usesCamera) {
             arWarn.push('AR: ไม่พบ fallback แตะ/no-camera — บังคับมี (เครื่องไม่มีกล้องต้องเล่นได้)');
         if (/@?mediapipe/i.test(scanSource) && !/cdn\.jsdelivr\.net/.test(scanSource))
             arWarn.push('AR: MediaPipe ต้องโหลดจาก cdn.jsdelivr.net เท่านั้น (cdnjs มัก 404)');
-        arWarn.push('AR: แนะนำย้ายมาใช้ /games/kampai-ar.js (engine กลาง) — ดู AR-GAME.md');
+        arWarn.push('AR: แนะนำใช้ /games/kampai-hands.js (จิ้ม/ชนวัตถุ) หรือ /games/kampai-ar.js (zone/body) — ดู AR-GAME.md');
         arWarn.forEach((m) => warnings.push({ check: 'AR', msg: m }));
         console.log(`${WARN} Check 10 — AR: raw camera (${arWarn.length} คำเตือน — ดู AR-GAME.md)`);
     }
