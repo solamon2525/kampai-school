@@ -276,6 +276,71 @@ h1.title {
     color: var(--good);
 }
 
+#ui-practice {
+    background: rgba(5, 6, 20, 0.42);
+    pointer-events: none;
+}
+
+#ui-practice .practice-title,
+#ui-practice .practice-sub,
+#ui-practice .practice-bar-wrap,
+#ui-practice .practice-hint,
+#ui-practice .practice-skip {
+    pointer-events: none;
+}
+
+#ui-practice .practice-title {
+    font-family: 'Mitr', sans-serif;
+    font-size: clamp(26px, 4vw, 36px);
+    color: var(--accent);
+    margin-bottom: 8px;
+}
+
+#ui-practice .practice-sub {
+    font-size: clamp(16px, 2.2vw, 20px);
+    color: #e8ecf8;
+    margin-bottom: 22px;
+}
+
+#ui-practice .practice-sub b {
+    color: var(--good);
+}
+
+.practice-bar-wrap {
+    width: min(420px, 86vw);
+    height: 22px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    margin-bottom: 14px;
+}
+
+.practice-bar {
+    height: 100%;
+    width: 0%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #ff5c72, #ffce54);
+    transition: width 0.08s linear, background 0.2s ease;
+}
+
+.practice-bar.ready {
+    background: linear-gradient(90deg, #2e9e4a, #4be07a);
+}
+
+#ui-practice .practice-hint {
+    font-size: 16px;
+    color: #fff;
+    min-height: 24px;
+}
+
+#ui-practice .practice-skip {
+    margin-top: 18px;
+    font-size: 14px;
+    opacity: 0.75;
+    color: #e8ecf8;
+}
+
 #ui-countdown .count-num {
     font-family: 'Mitr', sans-serif;
     font-weight: 700;

@@ -31,7 +31,7 @@
   </div>
 
   <div id="hint-bar" class="hidden">
-    ยกนิ้ว <b>4 ใน 5 นิ้ว</b> แล้วใช้ปลายนิ้วชี้จิ้มลูกโป่งที่มี <b>คำตอบถูก</b> · หรือแตะหน้าจอ 👆
+    ยกนิ้ว <b>4 ใน 5 นิ้ว</b> ทับลูกโป่งค้างสั้นๆ (วงทองเต็ม) แล้วป็อป! · หรือแตะหน้าจอ 👆
   </div>
 
   <div id="ui-start" class="screen active">
@@ -39,7 +39,7 @@
     <div class="subtitle">Multiply Burst — ฝึกคูณเลขเร็วด้วยลูกโป่งตัวเลข</div>
     <div class="rules-box">
       อ่านโจทย์ด้านบน เช่น <b>2 × 9 = ?</b><br>
-      ยกนิ้ว <span class="right">4 ใน 5 นิ้ว</span> แล้วจิ้มลูกโป่งคำตอบถูก &nbsp;<b>+10</b> คะแนน<br>
+      ยกนิ้ว <span class="right">4 ใน 5 นิ้ว</span> ทับลูกโป่งในโซนล่าง (ช้าลง) &nbsp;<b>+10</b> คะแนน<br>
       เจาะลูกโป่ง <span class="wrong">ตัวเลขผิด</span> &nbsp;<b>-5</b> คะแนน<br>
       เวลาทั้งหมด <b>60 วินาที</b> — ทำคะแนนให้สูงที่สุด!
     </div>
@@ -47,6 +47,16 @@
     <button class="btn" id="btn-start">📷 เริ่มต้นเล่นเกม</button>
     <button class="btn secondary" id="btn-vs" style="margin-top: 16px;">👥 แข่ง 2 คน</button>
     <div id="cam-error"></div>
+  </div>
+
+  <div id="ui-practice" class="screen hidden">
+    <h2 class="practice-title">ฝึกท่ามือก่อนเริ่ม</h2>
+    <p class="practice-sub">ยกนิ้ว <b>4 ใน 5 นิ้ว</b> ให้แถบด้านล่างเขียว</p>
+    <div class="practice-bar-wrap">
+      <div class="practice-bar" id="practice-bar"></div>
+    </div>
+    <p class="practice-hint" id="practice-hint">รอตรวจจับมือ…</p>
+    <p class="practice-skip">หรือรอ <span id="practice-sec">5</span> วิ จะเริ่มอัตโนมัติ</p>
   </div>
 
   <div id="ui-countdown" class="screen hidden">

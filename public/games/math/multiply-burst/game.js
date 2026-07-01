@@ -27,6 +27,11 @@
     var hands = null;
     var currentQuestion = null;
     var wrongPool = [];
+    var holdTarget = null;
+    var practiceSince = 0;
+    var practiceAccum = 0;
+    var lastPracticeFrame = 0;
+    var skipPractice = false;
 
     var vs = window.KampaiVersus ? KampaiVersus.create({
         duration: CFG.GAME_DURATION,
@@ -39,6 +44,7 @@
                 seededRng = createMulberry32(seed);
             }
             stopHandTracking();
+            skipPractice = true;
             startGame();
         },
         onEnd: function () {
@@ -153,10 +159,39 @@
     });
 
     function showScreen(id) {
-        ['ui-start', 'ui-countdown', 'ui-end'].forEach(function (x) {
+        ['ui-start', 'ui-practice', 'ui-countdown', 'ui-end'].forEach(function (x) {
             $(x).classList.toggle('hidden', x !== id);
             $(x).classList.toggle('active', x === id);
         });
+    }
+
+    function isCameraMode() {
+        return hands && hands.mode === 'camera';
+    }
+
+    function balloonRadius(b) {
+        var r = b.radius;
+        if (isCameraMode()) r *= (CFG.CAMERA_RADIUS_MUL || 1.12);
+        return r;
+    }
+
+    function spawnBalloonX(radius) {
+        var w = canvas.width;
+        var margin = radius;
+        var usable = w - margin * 2;
+        if (roll() < (CFG.SPAWN_CENTER_WEIGHT || 0.82)) {
+            var bandL = w * 0.12 + margin;
+            var bandR = w * 0.88 - margin;
+            return bandL + roll() * Math.max(bandR - bandL, 1);
+        }
+        return margin + roll() * usable;
+    }
+
+    function balloonVy(b) {
+        var vy = b.vy;
+        var zoneTop = canvas.height * (CFG.PLAY_ZONE_TOP != null ? CFG.PLAY_ZONE_TOP : 0.4);
+        if (b.y > zoneTop) vy *= (CFG.ZONE_SLOW_MUL != null ? CFG.ZONE_SLOW_MUL : 0.58);
+        return vy;
     }
 
     function buildHands() {
@@ -223,7 +258,7 @@
         var radius = CFG.BALLOON_RADIUS_MIN + roll() * (CFG.BALLOON_RADIUS_MAX - CFG.BALLOON_RADIUS_MIN);
         var colorPair = DATA.BALLOON_COLORS[Math.floor(roll() * DATA.BALLOON_COLORS.length)];
         balloons.push({
-            x: radius + roll() * (canvas.width - radius * 2),
+            x: spawnBalloonX(radius),
             y: canvas.height + radius,
             vy: -(CFG.BALLOON_SPEED_MIN + roll() * (CFG.BALLOON_SPEED_MAX - CFG.BALLOON_SPEED_MIN)),
             sway: roll() * Math.PI * 2,
@@ -280,6 +315,7 @@
         updateScoreHud();
         if (vs) vs.report(score, { correct: correctHits, wrong: wrongHits });
         balloons.splice(index, 1);
+        if (holdTarget && holdTarget.balloon === b) holdTarget = null;
     }
 
     function updateScoreHud() {
@@ -308,15 +344,77 @@
         return hands ? hands.collectHitProbes() : [];
     }
 
-    function hitsBalloon(b, drawX, probes, pad) {
-        var hitR = b.radius + (pad || 0);
-        for (var pi = 0; pi < probes.length; pi++) {
-            var p = probes[pi];
-            var dx = p.x - drawX;
-            var dy = p.y - b.y;
-            if (dx * dx + dy * dy < hitR * hitR) return true;
+    function balloonDrawX(b) {
+        return b.x + Math.sin(b.sway) * 10;
+    }
+
+    function probeBalloonDist(b, drawX, p) {
+        var dx = p.x - drawX;
+        var dy = p.y - b.y;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    function findMagnetHit(probes, pad) {
+        var magnetMul = CFG.MAGNET_RADIUS_MUL || 1.45;
+        var best = null;
+        for (var i = balloons.length - 1; i >= 0; i--) {
+            var b = balloons[i];
+            if (b.popped) continue;
+            var drawX = balloonDrawX(b);
+            var br = balloonRadius(b);
+            var hitR = (br + (pad || 0)) * magnetMul;
+            for (var pi = 0; pi < probes.length; pi++) {
+                var dist = probeBalloonDist(b, drawX, probes[pi]);
+                if (dist < hitR && (!best || dist < best.dist)) {
+                    best = { b: b, index: i, drawX: drawX, dist: dist };
+                }
+            }
         }
-        return false;
+        return best;
+    }
+
+    function processBalloonHit(probes, requireHold) {
+        if (!probes.length) {
+            holdTarget = null;
+            return;
+        }
+        var hit = findMagnetHit(probes, CFG.FINGER_HIT_PADDING || 0);
+        if (!hit) {
+            holdTarget = null;
+            return;
+        }
+        if (!requireHold) {
+            popBalloon(hit.b, balloons.indexOf(hit.b), hit.drawX);
+            holdTarget = null;
+            return;
+        }
+        var now = performance.now();
+        if (holdTarget && holdTarget.balloon === hit.b) {
+            if (now - holdTarget.since >= (CFG.HIT_HOLD_MS || 200)) {
+                popBalloon(hit.b, balloons.indexOf(hit.b), hit.drawX);
+                holdTarget = null;
+            }
+        } else {
+            holdTarget = { balloon: hit.b, index: hit.index, drawX: hit.drawX, since: now };
+        }
+    }
+
+    function drawHoldRing(b, drawX) {
+        if (!holdTarget || holdTarget.balloon !== b) return;
+        var br = balloonRadius(b);
+        var elapsed = performance.now() - holdTarget.since;
+        var need = CFG.HIT_HOLD_MS || 200;
+        var t = Math.min(1, elapsed / need);
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(drawX, b.y, br + 10, -Math.PI / 2, -Math.PI / 2 + t * Math.PI * 2);
+        ctx.strokeStyle = t >= 1 ? '#4be07a' : '#ffce54';
+        ctx.lineWidth = 5;
+        ctx.lineCap = 'round';
+        ctx.shadowColor = 'rgba(255,206,84,0.6)';
+        ctx.shadowBlur = 10;
+        ctx.stroke();
+        ctx.restore();
     }
 
     function handleCanvasTap(e) {
@@ -326,58 +424,56 @@
         if (clientX == null || clientY == null) return;
         if (e.cancelable) e.preventDefault();
         var pt = clientToCanvas(clientX, clientY);
-        var probes = [{ x: pt.x, y: pt.y }];
-
-        for (var i = balloons.length - 1; i >= 0; i--) {
-            var b = balloons[i];
-            if (b.popped) continue;
-            var drawX = b.x + Math.sin(b.sway) * 10;
-            if (hitsBalloon(b, drawX, probes, CFG.FINGER_HIT_PADDING || 0)) {
-                popBalloon(b, i, drawX);
-                break;
-            }
-        }
+        processBalloonHit([{ x: pt.x, y: pt.y }], false);
     }
 
     function updateAndDrawBalloons() {
-        var hitPad = CFG.FINGER_HIT_PADDING || 0;
         var probes = collectHitProbes();
+        var useHold = isCameraMode();
 
         for (var i = balloons.length - 1; i >= 0; i--) {
             var b = balloons[i];
             if (b.popped) continue;
-            b.y += b.vy;
+            b.y += balloonVy(b);
             b.sway += b.swaySpeed;
-            var drawX = b.x + Math.sin(b.sway) * 10;
 
-            if (probes.length && hitsBalloon(b, drawX, probes, hitPad)) {
-                popBalloon(b, i, drawX);
-                continue;
-            }
-
-            if (b.y < -b.radius * 2) {
+            if (b.y < -balloonRadius(b) * 2) {
+                if (holdTarget && holdTarget.balloon === b) holdTarget = null;
                 balloons.splice(i, 1);
-                continue;
             }
-            drawBalloon(b, drawX);
+        }
+
+        if (probes.length) {
+            processBalloonHit(probes, useHold);
+        } else if (useHold) {
+            holdTarget = null;
+        }
+
+        for (var j = 0; j < balloons.length; j++) {
+            var bb = balloons[j];
+            if (bb.popped) continue;
+            var dx = balloonDrawX(bb);
+            drawBalloon(bb, dx);
+            if (useHold) drawHoldRing(bb, dx);
         }
     }
 
     function drawBalloon(b, drawX) {
         var label = String(b.value);
+        var br = balloonRadius(b);
         ctx.save();
         ctx.strokeStyle = 'rgba(255,255,255,0.35)';
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(drawX, b.y + b.radius * 0.95);
-        ctx.lineTo(drawX, b.y + b.radius * 1.35);
+        ctx.moveTo(drawX, b.y + br * 0.95);
+        ctx.lineTo(drawX, b.y + br * 1.35);
         ctx.stroke();
 
-        var grad = ctx.createRadialGradient(drawX - b.radius * 0.3, b.y - b.radius * 0.35, b.radius * 0.15, drawX, b.y, b.radius);
+        var grad = ctx.createRadialGradient(drawX - br * 0.3, b.y - br * 0.35, br * 0.15, drawX, b.y, br);
         grad.addColorStop(0, b.colorLight);
         grad.addColorStop(1, b.colorDark);
         ctx.beginPath();
-        ctx.ellipse(drawX, b.y, b.radius * 0.88, b.radius, 0, 0, Math.PI * 2);
+        ctx.ellipse(drawX, b.y, br * 0.88, br, 0, 0, Math.PI * 2);
         ctx.fillStyle = grad;
         ctx.shadowColor = 'rgba(0,0,0,0.35)';
         ctx.shadowBlur = 14;
@@ -387,19 +483,19 @@
         ctx.shadowOffsetY = 0;
 
         ctx.beginPath();
-        ctx.ellipse(drawX - b.radius * 0.32, b.y - b.radius * 0.4, b.radius * 0.22, b.radius * 0.32, -0.4, 0, Math.PI * 2);
+        ctx.ellipse(drawX - br * 0.32, b.y - br * 0.4, br * 0.22, br * 0.32, -0.4, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(255,255,255,0.35)';
         ctx.fill();
 
         ctx.beginPath();
-        ctx.moveTo(drawX - 6, b.y + b.radius * 0.9);
-        ctx.lineTo(drawX + 6, b.y + b.radius * 0.9);
-        ctx.lineTo(drawX, b.y + b.radius * 1.05);
+        ctx.moveTo(drawX - 6, b.y + br * 0.9);
+        ctx.lineTo(drawX + 6, b.y + br * 0.9);
+        ctx.lineTo(drawX, b.y + br * 1.05);
         ctx.closePath();
         ctx.fillStyle = b.colorDark;
         ctx.fill();
 
-        var fontSize = Math.max(22, b.radius * 0.55);
+        var fontSize = Math.max(22, br * 0.55);
         ctx.font = "800 " + fontSize + "px 'Mitr', sans-serif";
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -453,8 +549,114 @@
         }
     }
 
+    function anyGestureReady() {
+        if (!hands || !hands.isGestureReady) return false;
+        return hands.isGestureReady('left') || hands.isGestureReady('right');
+    }
+
+    function drawPlayZone() {
+        if (!isCameraMode() || gameState !== 'playing') return;
+        var top = canvas.height * (CFG.PLAY_ZONE_TOP != null ? CFG.PLAY_ZONE_TOP : 0.4);
+        ctx.save();
+        ctx.fillStyle = 'rgba(75, 224, 122, 0.06)';
+        ctx.fillRect(0, top, canvas.width, canvas.height - top);
+        ctx.strokeStyle = 'rgba(255, 206, 84, 0.35)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([12, 10]);
+        ctx.beginPath();
+        ctx.moveTo(0, top);
+        ctx.lineTo(canvas.width, top);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.font = "600 13px 'Sarabun', sans-serif";
+        ctx.fillStyle = 'rgba(255, 206, 84, 0.85)';
+        ctx.textAlign = 'right';
+        ctx.fillText('โซนจิ้ม — ลูกโป่งช้าลง', canvas.width - 16, top + 22);
+        ctx.restore();
+    }
+
+    function drawFingerTips() {
+        if (!hands || hands.mode !== 'camera') return;
+        function dot(ptr, side, colorReady, colorWait) {
+            if (!ptr || !ptr.active || ptr.x < 0) return;
+            var ready = hands.isGestureReady && hands.isGestureReady(side);
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(ptr.x, ptr.y, ready ? 16 : 12, 0, Math.PI * 2);
+            ctx.fillStyle = ready ? colorReady : colorWait;
+            ctx.globalAlpha = ready ? 0.85 : 0.45;
+            ctx.fill();
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#fff';
+            ctx.globalAlpha = 1;
+            ctx.stroke();
+            ctx.restore();
+        }
+        dot(hands.leftPointer, 'left', 'rgba(75,224,122,0.9)', 'rgba(255,92,114,0.55)');
+        dot(hands.rightPointer, 'right', 'rgba(255,206,84,0.9)', 'rgba(255,92,114,0.55)');
+    }
+
+    function updatePracticeUi(pct, ready) {
+        var bar = $('practice-bar');
+        var hint = $('practice-hint');
+        var sec = $('practice-sec');
+        if (bar) {
+            bar.style.width = Math.round(pct * 100) + '%';
+            bar.classList.toggle('ready', pct >= 1);
+        }
+        if (hint) {
+            if (ready) {
+                hint.textContent = pct >= 1 ? 'พร้อมแล้ว! กำลังเริ่มเกม…' : 'ดีมาก! ค้างท่านี้ไว้…';
+            } else {
+                hint.textContent = 'ยกนิ้ว 4 ใน 5 ให้ครบ — แถบจะเขียว';
+            }
+        }
+        if (sec) {
+            var left = Math.max(0, Math.ceil(((CFG.PRACTICE_MAX_MS || 5000) - practiceSince) / 1000));
+            sec.textContent = String(left);
+        }
+    }
+
+    function finishPractice() {
+        if (gameState !== 'practice') return;
+        practiceSince = 0;
+        practiceAccum = 0;
+        lastPracticeFrame = 0;
+        $('ui-practice').classList.add('hidden');
+        $('ui-practice').classList.remove('active');
+        beginCountdown();
+    }
+
+    function beginPractice() {
+        if (skipPractice || !isCameraMode()) {
+            beginCountdown();
+            return;
+        }
+        gameState = 'practice';
+        practiceSince = 0;
+        practiceAccum = 0;
+        lastPracticeFrame = performance.now();
+        showScreen('ui-practice');
+        updatePracticeUi(0, false);
+    }
+
+    function updatePractice(dt) {
+        if (gameState !== 'practice') return;
+        practiceSince += dt;
+        var ready = anyGestureReady();
+        var need = CFG.PRACTICE_READY_MS || 1500;
+        if (ready) practiceAccum += dt;
+        else practiceAccum = Math.max(0, practiceAccum - dt * 0.65);
+        var pct = Math.min(1, practiceAccum / need);
+        updatePracticeUi(pct, ready);
+        if (pct >= 1 || practiceSince >= (CFG.PRACTICE_MAX_MS || 5000)) {
+            finishPractice();
+        }
+    }
+
     function drawHandTracking() {
         if (!hands || hands.mode !== 'camera') return;
+        if (gameState !== 'playing' && gameState !== 'practice') return;
         var minF = (CFG.HANDS && CFG.HANDS.minExtendedFingers) || 0;
         if (hands.leftLandmarks) {
             var leftOk = !hands.isGestureReady || hands.isGestureReady('left');
@@ -488,12 +690,21 @@
                 }
             }
         }
+        drawFingerTips();
     }
 
     function gameLoop() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+        if (gameState === 'practice') {
+            var now = performance.now();
+            var dt = lastPracticeFrame ? now - lastPracticeFrame : 16;
+            lastPracticeFrame = now;
+            updatePractice(dt);
+        }
+
         if (gameState === 'playing') {
+            drawPlayZone();
             updateAndDrawBalloons();
         }
 
@@ -512,11 +723,13 @@
 
         startHandTracking().then(function () {
             $('loading').classList.remove('on');
-            beginCountdown();
+            skipPractice = false;
+            beginPractice();
         }).catch(function (err) {
             console.warn('Camera/Hands failed, tap fallback:', err);
             $('cam-error').textContent = 'เปิดกล้องไม่ได้ ระบบสลับไปยังโหมดแตะสัมผัส';
             $('loading').classList.remove('on');
+            skipPractice = true;
             beginCountdown();
         });
     }
@@ -552,6 +765,7 @@
         balloons = [];
         particles = [];
         popups = [];
+        holdTarget = null;
 
         document.getElementById('ui-countdown').classList.add('hidden');
         document.getElementById('hud').classList.remove('hidden');
@@ -580,6 +794,7 @@
         clearInterval(spawnTimer);
         clearInterval(mainTimer);
         balloons = [];
+        holdTarget = null;
         document.getElementById('hud').classList.add('hidden');
         document.getElementById('question-bar').classList.add('hidden');
         document.getElementById('hint-bar').classList.add('hidden');
@@ -646,6 +861,9 @@
         if (spawnTimer) { clearInterval(spawnTimer); spawnTimer = null; }
         if (mainTimer) { clearInterval(mainTimer); mainTimer = null; }
         if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+        practiceSince = 0;
+        practiceAccum = 0;
+        holdTarget = null;
         stopHandTracking();
         if (vs) vs.leave();
         KAMPAI.sound.bgmStop();

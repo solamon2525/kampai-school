@@ -11,7 +11,7 @@
 (function (global) {
     'use strict';
 
-    var VERSION = '1.2.0';
+    var VERSION = '1.3.0';
 
     var DEFAULT_HANDS = {
         maxNumHands: 2,
@@ -21,6 +21,10 @@
         lostHoldMs: 140,
         sweepSteps: 2,
         minExtendedFingers: 0,
+        filterType: 'ema',
+        oneEuroMinCutoff: 1.0,
+        oneEuroBeta: 0.007,
+        oneEuroDCutoff: 1.0,
         cameraWidth: 640,
         cameraHeight: 480,
         handsUrl: 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/'
@@ -32,6 +36,43 @@
     ];
 
     function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
+
+    function OneEuroFilter(minCutoff, beta, dCutoff) {
+        this.minCutoff = minCutoff || 1.0;
+        this.beta = beta || 0.007;
+        this.dCutoff = dCutoff || 1.0;
+        this.xPrev = null;
+        this.dxPrev = 0;
+        this.tPrev = null;
+    }
+    OneEuroFilter.prototype.filter = function (val, timestamp, minCutoff, beta, dCutoff) {
+        var mc = minCutoff !== undefined ? minCutoff : this.minCutoff;
+        var b = beta !== undefined ? beta : this.beta;
+        var dc = dCutoff !== undefined ? dCutoff : this.dCutoff;
+        if (this.xPrev === null || this.tPrev === null) {
+            this.xPrev = val;
+            this.tPrev = timestamp;
+            return val;
+        }
+        var dt = (timestamp - this.tPrev) / 1000.0;
+        if (dt <= 0) dt = 0.016;
+        this.tPrev = timestamp;
+        var freq = 1.0 / dt;
+        var dx = (val - this.xPrev) * freq;
+        var alphaD = 1.0 / (1.0 + (1.0 / (2.0 * Math.PI * dc)) / dt);
+        var dxFilt = alphaD * dx + (1.0 - alphaD) * this.dxPrev;
+        this.dxPrev = dxFilt;
+        var cutoff = mc + b * Math.abs(dxFilt);
+        var alphaP = 1.0 / (1.0 + (1.0 / (2.0 * Math.PI * cutoff)) / dt);
+        var xFilt = alphaP * val + (1.0 - alphaP) * this.xPrev;
+        this.xPrev = xFilt;
+        return xFilt;
+    };
+    OneEuroFilter.prototype.reset = function () {
+        this.xPrev = null;
+        this.dxPrev = 0;
+        this.tPrev = null;
+    };
 
     function resolveEl(elOrSel) {
         if (!elOrSel) return null;
@@ -50,6 +91,10 @@
         var getCanvasSize = opts.getCanvasSize || opts.displaySize;
         var onStatus = typeof opts.onStatus === 'function' ? opts.onStatus : function () {};
 
+        var mc = handsOpt.oneEuroMinCutoff != null ? handsOpt.oneEuroMinCutoff : 1.0;
+        var beta = handsOpt.oneEuroBeta != null ? handsOpt.oneEuroBeta : 0.007;
+        var dc = handsOpt.oneEuroDCutoff != null ? handsOpt.oneEuroDCutoff : 1.0;
+
         var st = {
             mode: 'tap',
             running: false,
@@ -64,7 +109,13 @@
             leftPointer: { x: -9999, y: -9999, prevX: -9999, prevY: -9999, active: false },
             rightPointer: { x: -9999, y: -9999, prevX: -9999, prevY: -9999, active: false },
             leftExtendedCount: 0,
-            rightExtendedCount: 0
+            rightExtendedCount: 0,
+            filters: {
+                leftX: new OneEuroFilter(mc, beta, dc),
+                leftY: new OneEuroFilter(mc, beta, dc),
+                rightX: new OneEuroFilter(mc, beta, dc),
+                rightY: new OneEuroFilter(mc, beta, dc)
+            }
         };
 
         function countExtendedFingers(landmarks) {
@@ -126,6 +177,41 @@
             var out = new Array(lm.length);
             for (var i = 0; i < lm.length; i++) out[i] = mapLandmark(lm[i]);
             return out;
+        }
+
+        function filterPointer(ptr, side, targetX, targetY, now) {
+            ptr.prevX = ptr.x;
+            ptr.prevY = ptr.y;
+            if (handsOpt.filterType === 'oneeuro') {
+                var fx = side === 'left' ? st.filters.leftX : st.filters.rightX;
+                var fy = side === 'left' ? st.filters.leftY : st.filters.rightY;
+                var omc = handsOpt.oneEuroMinCutoff;
+                var ob = handsOpt.oneEuroBeta;
+                var odc = handsOpt.oneEuroDCutoff;
+                if (!ptr.active || ptr.x < 0) {
+                    ptr.x = targetX;
+                    ptr.y = targetY;
+                    ptr.prevX = targetX;
+                    ptr.prevY = targetY;
+                    fx.reset();
+                    fy.reset();
+                    fx.filter(targetX, now, omc, ob, odc);
+                    fy.filter(targetY, now, omc, ob, odc);
+                } else {
+                    ptr.x = fx.filter(targetX, now, omc, ob, odc);
+                    ptr.y = fy.filter(targetY, now, omc, ob, odc);
+                }
+            } else {
+                lerpPointer(ptr, targetX, targetY);
+            }
+            ptr.active = true;
+        }
+
+        function resetFilters() {
+            st.filters.leftX.reset();
+            st.filters.leftY.reset();
+            st.filters.rightX.reset();
+            st.filters.rightY.reset();
         }
 
         function lerpPointer(ptr, targetX, targetY) {
@@ -202,7 +288,7 @@
                 hand.x = e.nx;
                 hand.y = e.ny;
                 hand.active = true;
-                lerpPointer(ptr, px, py);
+                filterPointer(ptr, side, px, py, now);
                 if (side === 'left') st.leftSeenAt = now;
                 else st.rightSeenAt = now;
                 if (side === 'left') st.leftLandmarks = e.mapped;
@@ -283,6 +369,7 @@
                 st.mpHands = null;
             }
             resetPointers();
+            resetFilters();
             onStatus('stopped');
         }
 
