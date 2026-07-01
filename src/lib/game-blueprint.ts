@@ -8,7 +8,7 @@
  * ระบบ engine registry อยู่ใน `src/lib/blueprint-engines.ts`
  */
 
-export type BlueprintEngine = 'platformer-2d' | 'quiz';
+export type BlueprintEngine = 'platformer-2d' | 'quiz' | 'matching';
 
 export type PlatformerPlatform = {
     id: string;
@@ -91,9 +91,45 @@ export type QuizBlueprintV1 = {
     questions: QuizQuestion[];
 };
 
+// ─── Matching Engine (จับคู่คำ/ภาพ) ────────────────────────────────────────
+
+/** คู่ที่ต้องจับให้ถูก — เช่น คำพ้อง, คำตรงข้าม, คำ-ความหมาย, ภาพ-คำ */
+export type MatchingPair = {
+    id: string;
+    /** ฝั่งซ้าย (เช่นคำที่กำลังเรียน) */
+    left: string;
+    /** ฝั่งขวา (เช่นคำคู่/คำแปล) */
+    right: string;
+};
+
+export type MatchingBlueprintV1 = {
+    version: 1;
+    engine: 'matching';
+    meta: {
+        title: string;
+        subject: string;
+        grade?: string;
+    };
+    rules: {
+        /** วินาทีรวม (0 = ไม่จับเวลา) */
+        timeLimitSec: number;
+        pointsPerCorrect: number;
+        /** ใช้ "ค่าความผิดพลาด" คือจับผิดกี่ครั้งต่อคู่ถึงจะหักคะแนน/แสดงผิด */
+        mistakesAllowed: number;
+        /** true = สลับตำแหน่งฝั่งขวาทุกครั้งที่เล่น */
+        shuffleRight: boolean;
+    };
+    theme: {
+        bgPreset: QuizBgPreset;
+        accentColor: string;
+    };
+    pairs: MatchingPair[];
+};
+
 // ─── Union กลางของทุก engine ────────────────────────────────────────────────
 
-export type GameBlueprint = PlatformerBlueprintV1 | QuizBlueprintV1;
+export type GameBlueprint = PlatformerBlueprintV1 | QuizBlueprintV1 | MatchingBlueprintV1;
+
 
 export const BLUEPRINT_WORLD_W = 1280;
 export const BLUEPRINT_WORLD_H = 720;
@@ -347,6 +383,98 @@ export function validateQuizBlueprint(bp: QuizBlueprintV1): string | null {
     return null;
 }
 
+// ─── Matching Engine: createDefault / parse / validate ──────────────────────
+
+export function createDefaultMatchingBlueprint(
+    meta?: Partial<MatchingBlueprintV1['meta']>,
+): MatchingBlueprintV1 {
+    return {
+        version: 1,
+        engine: 'matching',
+        meta: {
+            title: meta?.title ?? 'จับคู่คำใหม่',
+            subject: meta?.subject ?? 'thai',
+            grade: meta?.grade,
+        },
+        rules: {
+            timeLimitSec: 0,
+            pointsPerCorrect: 10,
+            mistakesAllowed: 3,
+            shuffleRight: true,
+        },
+        theme: {
+            bgPreset: 'ocean',
+            accentColor: '#0ea5e9',
+        },
+        pairs: [
+            { id: newBlueprintId('mp'), left: 'ดำ', right: 'ขาว' },
+            { id: newBlueprintId('mp'), left: 'สูง', right: 'ต่ำ' },
+            { id: newBlueprintId('mp'), left: 'ร้อน', right: 'เย็น' },
+        ],
+    };
+}
+
+export function parseMatchingBlueprint(raw: unknown): MatchingBlueprintV1 | null {
+    if (!raw || typeof raw !== 'object') return null;
+    const o = raw as Record<string, unknown>;
+    if (o.version !== 1 || o.engine !== 'matching') return null;
+
+    const metaIn = (o.meta as Record<string, unknown> | undefined) ?? {};
+    const rulesIn = (o.rules as Record<string, unknown> | undefined) ?? {};
+    const themeIn = (o.theme as Record<string, unknown> | undefined) ?? {};
+
+    const pairs = Array.isArray(o.pairs)
+        ? (o.pairs as MatchingPair[])
+              .filter((p) => p && typeof p.left === 'string' && typeof p.right === 'string')
+              .map((p) => ({
+                  id: typeof p.id === 'string' ? p.id : newBlueprintId('mp'),
+                  left: String(p.left),
+                  right: String(p.right),
+              }))
+        : [];
+
+    const bgPresetRaw = themeIn.bgPreset as QuizBgPreset;
+    const bgPreset: QuizBgPreset = QUIZ_BG_PRESETS.includes(bgPresetRaw) ? bgPresetRaw : 'ocean';
+
+    return {
+        version: 1,
+        engine: 'matching',
+        meta: {
+            title: typeof metaIn.title === 'string' ? metaIn.title : 'จับคู่คำ',
+            subject: typeof metaIn.subject === 'string' ? metaIn.subject : 'thai',
+            grade: typeof metaIn.grade === 'string' ? metaIn.grade : undefined,
+        },
+        rules: {
+            timeLimitSec: typeof rulesIn.timeLimitSec === 'number' ? rulesIn.timeLimitSec : 0,
+            pointsPerCorrect:
+                typeof rulesIn.pointsPerCorrect === 'number' ? rulesIn.pointsPerCorrect : 10,
+            mistakesAllowed:
+                typeof rulesIn.mistakesAllowed === 'number' ? rulesIn.mistakesAllowed : 3,
+            shuffleRight: typeof rulesIn.shuffleRight === 'boolean' ? rulesIn.shuffleRight : true,
+        },
+        theme: {
+            bgPreset,
+            accentColor:
+                typeof themeIn.accentColor === 'string' ? themeIn.accentColor : '#0ea5e9',
+        },
+        pairs,
+    };
+}
+
+export function validateMatchingBlueprint(bp: MatchingBlueprintV1): string | null {
+    if (!bp.pairs.length) return 'ต้องมีคู่อย่างน้อย 1 คู่';
+    const seenLeft = new Set<string>();
+    for (const [i, p] of bp.pairs.entries()) {
+        if (!p.left.trim() || !p.right.trim())
+            return `คู่ที่ ${i + 1} มีฝั่งว่าง`;
+        if (seenLeft.has(p.left))
+            return `คู่ที่ ${i + 1} ฝั่งซ้าย "${p.left}" ซ้ำกับคู่อื่น`;
+        seenLeft.add(p.left);
+    }
+    if (bp.rules.pointsPerCorrect < 0) return 'คะแนนต่อคู่ต้องไม่ติดลบ';
+    return null;
+}
+
 // ─── Multi-engine dispatch helpers ──────────────────────────────────────────
 
 /** parse blueprint JSON ตาม engine field — คืน null ถ้า engine ไม่รู้จัก */
@@ -355,6 +483,7 @@ export function parseGameBlueprint(raw: unknown): GameBlueprint | null {
     const engine = (raw as Record<string, unknown>).engine;
     if (engine === 'platformer-2d') return parsePlatformerBlueprint(raw);
     if (engine === 'quiz') return parseQuizBlueprint(raw);
+    if (engine === 'matching') return parseMatchingBlueprint(raw);
     return null;
 }
 
@@ -362,5 +491,6 @@ export function parseGameBlueprint(raw: unknown): GameBlueprint | null {
 export function validateGameBlueprint(bp: GameBlueprint): string | null {
     if (bp.engine === 'platformer-2d') return validatePlatformerBlueprint(bp);
     if (bp.engine === 'quiz') return validateQuizBlueprint(bp);
+    if (bp.engine === 'matching') return validateMatchingBlueprint(bp);
     return null;
 }

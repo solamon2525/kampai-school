@@ -78,6 +78,7 @@
     feedbackTimeoutId: null,
     wasInCooldown: false
   };
+  window.__state = state;
 
   // UI refs
   var $ = function (id) { return document.getElementById(id); };
@@ -343,6 +344,9 @@
     TimerEngine.stop();
     stopCamera();
     KAMPAI.sound.bgmStop();
+    if (vs) vs.leave();
+    clearTimeout(state.cooldownTimeoutId);
+    clearTimeout(state.feedbackTimeoutId);
     KAMPAI.goHome();
   });
 
@@ -829,6 +833,9 @@
   }
 
   function startCamera() {
+    if (!gameRafId) {
+      gameRafId = requestAnimationFrame(renderLoop);
+    }
     if (!isAILoaded) {
       // AI not loaded → fallback to touch
       state.isFallbackMode = true;
@@ -915,8 +922,9 @@
 
   // Render loop for webcam skeleton display (always running)
   function renderLoop() {
-    if (!state.isFallbackMode) {
-      // Canvas is handled by onHandResults → MediaPipe callback
+    if (state.isFallbackMode) {
+      gameRafId = null;
+      return;
     }
     gameRafId = requestAnimationFrame(renderLoop);
   }

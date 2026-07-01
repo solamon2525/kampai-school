@@ -27,7 +27,7 @@ export const GAME_SLUG_PLAY_STYLE: Record<string, GamePlayStyleKey> = {
     'thai-vocab-arena': 'platformer-2d',
     'genetic-quest': 'platformer-2d',
     'probability-zoo-board': 'platformer-2d',
-    'catch-numbers': 'platformer-2d',
+    'catch-numbers': 'puzzle',
     'reading-quest': 'platformer-2d',
     'english-quest': 'platformer-2d',
     'reading-game': 'platformer-2d',

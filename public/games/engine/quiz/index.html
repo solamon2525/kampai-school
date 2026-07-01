@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Quiz Blueprint Engine</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&display=swap');
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;font-family:'Kanit',sans-serif;overflow:hidden;user-select:none;background:#0f172a}
+  #app{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;transition:background .4s ease}
+  /* bg presets — runtime เลือกตาม blueprint.theme.bgPreset */
+  #app.bg-aurora{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%)}
+  #app.bg-sunset{background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%)}
+  #app.bg-ocean{background:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%)}
+  #app.bg-forest{background:linear-gradient(135deg,#43e97b 0%,#38f9d7 100%)}
+  #app.bg-candy{background:linear-gradient(135deg,#fa709a 0%,#fee140 100%)}
+  #app.bg-midnight{background:linear-gradient(135deg,#232526 0%,#414345 100%)}
+
+  /* HUD */
+  #hud{position:fixed;top:12px;left:12px;right:12px;display:none;justify-content:space-between;align-items:center;pointer-events:none;z-index:10;font-weight:700;font-size:clamp(13px,2.6vw,18px)}
+  #hud.on{display:flex}
+  .hud-pill{background:rgba(255,255,255,.92);color:#0f172a;padding:6px 14px;border-radius:999px;box-shadow:0 4px 12px rgba(0,0,0,.18)}
+  .hud-group{display:flex;gap:8px;flex-wrap:wrap}
+
+  /* progress bar */
+  #progress{position:fixed;top:54px;left:12px;right:12px;height:8px;background:rgba(255,255,255,.25);border-radius:999px;overflow:hidden;display:none;z-index:10}
+  #progress.on{display:block}
+  #progressBar{height:100%;width:0;background:#fff;border-radius:999px;transition:width .3s ease}
+
+  /* screens */
+  .screen{width:100%;max-width:640px;display:flex;flex-direction:column;align-items:center;text-align:center;color:#fff}
+  .screen.hidden{display:none}
+
+  h1.title{font-size:clamp(26px,6vw,40px);font-weight:800;text-shadow:0 2px 8px rgba(0,0,0,.3);margin-bottom:8px}
+  p.subtitle{font-size:clamp(14px,3vw,18px);opacity:.92;margin-bottom:20px;text-shadow:0 1px 4px rgba(0,0,0,.3)}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:12px 32px;margin:6px;border:none;border-radius:999px;font-family:inherit;font-size:clamp(16px,3.4vw,20px);font-weight:600;color:#fff;cursor:pointer;background:rgba(255,255,255,.96);color:#1e293b;box-shadow:0 6px 18px rgba(0,0,0,.2);transition:transform .1s}
+  .btn:hover{transform:translateY(-1px)}
+  .btn:active{transform:translateY(1px)}
+  .btn.secondary{background:rgba(255,255,255,.2);color:#fff;border:2px solid rgba(255,255,255,.5)}
+
+  /* question screen */
+  #qPrompt{font-size:clamp(22px,6vw,36px);font-weight:700;line-height:1.35;margin-bottom:24px;min-height:1.4em;text-shadow:0 2px 8px rgba(0,0,0,.3)}
+  #qHint{font-size:clamp(13px,3vw,16px);opacity:.85;margin-top:6px;min-height:1em}
+  #options{display:flex;flex-direction:column;gap:12px;width:100%;max-width:480px}
+  .opt-btn{display:flex;align-items:center;gap:12px;min-height:60px;padding:14px 20px;background:rgba(255,255,255,.96);color:#1e293b;border:3px solid transparent;border-radius:16px;font-family:inherit;font-size:clamp(17px,4vw,22px);font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:all .15s}
+  .opt-btn:hover{background:#fff;transform:translateY(-2px)}
+  .opt-letter{flex:0 0 32px;height:32px;display:flex;align-items:center;justify-content:center;background:#64748b;color:#fff;border-radius:50%;font-size:15px;font-weight:700}
+  .opt-btn.correct{background:#22c55e;color:#fff;border-color:#16a34a}
+  .opt-btn.correct .opt-letter{background:#fff;color:#16a34a}
+  .opt-btn.wrong{background:#ef4444;color:#fff;border-color:#dc2626}
+  .opt-btn.wrong .opt-letter{background:#fff;color:#dc2626}
+  .opt-btn.disabled{pointer-events:none;opacity:.6}
+
+  /* end screen */
+  #finalScore{font-size:clamp(48px,12vw,80px);font-weight:800;line-height:1;margin:8px 0;text-shadow:0 4px 16px rgba(0,0,0,.3)}
+  #endVerdict{font-size:clamp(18px,4vw,24px);font-weight:600;margin-bottom:8px}
+  #endStats{font-size:clamp(14px,3vw,17px);opacity:.9;margin-bottom:16px}
+</style>
+</head>
+<body>
+<div id="app" class="bg-aurora">
+
+  <!-- HUD -->
+  <div id="hud" class="hud">
+    <div class="hud-group">
+      <div class="hud-pill">⭐ <span id="scoreVal">0</span></div>
+      <div class="hud-pill" id="qIdxPill" style="display:none">📝 <span id="qIdxVal">1/1</span></div>
+    </div>
+    <div class="hud-group">
+      <div class="hud-pill" id="timePill" style="display:none">⏱ <span id="timeVal">15</span></div>
+    </div>
+  </div>
+  <div id="progress"><div id="progressBar"></div></div>
+
+  <!-- START screen -->
+  <div id="startScreen" class="screen">
+    <h1 class="title" id="startTitle">📝 แบบทดสอบ</h1>
+    <p class="subtitle" id="startSubtitle">ตอบให้ถูกให้ครบก่อนหมดเวลา!</p>
+    <button class="btn" id="btnStart">▶ เริ่มทำแบบทดสอบ</button>
+  </div>
+
+  <!-- QUESTION screen -->
+  <div id="qScreen" class="screen hidden">
+    <div id="qPrompt">?</div>
+    <div id="qHint"></div>
+    <div id="options" style="margin-top:20px"></div>
+  </div>
+
+  <!-- END screen -->
+  <div id="endScreen" class="screen hidden">
+    <div id="endVerdict">🎉 ยอดเยี่ยม!</div>
+    <div id="finalScore">0</div>
+    <div id="endStats"></div>
+    <button class="btn" id="btnRetry">🔁 ทำอีกครั้ง</button>
+  </div>
+
+</div>
+<script src="/games/kampai-sdk.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

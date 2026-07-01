@@ -648,6 +648,14 @@ export const GamesTab = () => {
                     <Button variant="outline" onClick={() => setDialog({ mode: 'characters' })}>
                         🐰 คลังตัวละคร
                     </Button>
+                    <Button
+                        variant="secondary"
+                        onClick={() => setDialog({ mode: 'builder' })}
+                        disabled={!gamesCategoryId}
+                        title="สร้างเกมจากเทมเพลต โดยไม่ต้องเขียนโค้ด"
+                    >
+                        <Sparkles className="h-4 w-4 mr-1" /> สร้างเกม (Builder)
+                    </Button>
                     <Button onClick={() => setDialog({ mode: 'create' })} disabled={!gamesCategoryId}>
                         <Plus className="h-4 w-4 mr-1" /> อัพโหลดเกมใหม่
                     </Button>
@@ -919,6 +927,7 @@ export const GamesTab = () => {
             <Dialog open={!!dialog} onOpenChange={(open) => !open && setDialog(null)}>
                 <DialogContent className={cn(
                     dialog?.mode === 'blueprint' ? 'max-w-5xl' :
+                    (dialog?.mode === 'builder') ? 'max-w-4xl' :
                     (dialog?.mode === 'characters') ? 'max-w-4xl' : (dialog?.mode === 'settings' || dialog?.mode === 'bgm') ? 'max-w-md' : 'max-w-2xl',
                     'overflow-y-auto max-h-[90vh]',
                 )}>
@@ -930,6 +939,28 @@ export const GamesTab = () => {
                             onSaved={handleSaved}
                             onCancel={() => setDialog(null)}
                         />
+                    )}
+                    {dialog?.mode === 'builder' && gamesCategoryId && (
+                        <>
+                            <DialogHeader>
+                                <DialogTitle className="flex items-center gap-2">
+                                    <Sparkles className="h-5 w-5 text-primary" />
+                                    สร้างเกมการศึกษา (Builder)
+                                </DialogTitle>
+                                <DialogDescription>
+                                    สร้างเกมจากเทมเพลตโดยไม่ต้องเขียนโค้ด — เลือกแนวเกม ใส่เนื้อหา
+                                    แล้วกดเผยแพร่
+                                </DialogDescription>
+                            </DialogHeader>
+                            <GameBuilderWizard
+                                gamesCategoryId={gamesCategoryId}
+                                onSaved={() => {
+                                    handleSaved();
+                                    setDialog(null);
+                                }}
+                                onCancel={() => setDialog(null)}
+                            />
+                        </>
                     )}
                     {dialog?.mode === 'replace' && (
                         <GameUploadDialog

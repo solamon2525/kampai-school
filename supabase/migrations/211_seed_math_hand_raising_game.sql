@@ -39,7 +39,7 @@ BEGIN
   -- 4. Seed item
   INSERT INTO public.educational_hub_items
     (owner_staff_id, category_id, item_type, title, external_url, subject, sort_order)
-  SELECT v_staff_id, v_cat_games, 'link', 'เกมคณิตศาสตร์ ยกมือตอบคำถาม', v_url, 'คณิตศาสตร์', 78
+  SELECT v_staff_id, v_cat_games, 'link', 'เกมคณิตคิดไว ยกมือทายถูกผิด!', v_url, 'คณิตศาสตร์', 78
   WHERE NOT EXISTS (
     SELECT 1 FROM public.educational_hub_items
     WHERE owner_staff_id = v_staff_id AND external_url = v_url
@@ -47,7 +47,8 @@ BEGIN
 
   -- 5. Update settings
   UPDATE public.educational_hub_items
-  SET game_slug = 'math-hand-raising',
+  SET title = 'เกมคณิตคิดไว ยกมือทายถูกผิด!',
+      game_slug = 'math-hand-raising',
       tracked_game = true,
       is_published = true,
       thumbnail_url = '/games/math/math-hand-raising-cover.png',
@@ -61,14 +62,14 @@ BEGIN
          'เกมฝึกทักษะคณิตศาสตร์ระดับประถมศึกษา โดยการตรวจจับและวิเคราะห์ท่าทางเปิด/ปิดมือผ่านกล้องเว็บแคม',
          ARRAY[
            'ควบคุมการเลือกคำตอบด้วยการยกมือ (แบมือ 5 นิ้ว) ในฝั่งที่ต้องการเลือกคำตอบ',
-           'ระบบหน่วงเวลาคำนวณพลัง (FRAMES_TO_CONFIRM) เพื่อป้องกันเด็กตอบคำถามผิดจากการขยับมือผ่านหน้ากล้องโดยไม่ตั้งใจ',
-           'สุ่มสร้างโจทย์ปัญหาคณิตศาสตร์พื้นฐานครบทั้ง 4 ตัวดำเนินการ (บวก, ลบ, คูณ, หาร)',
+           'ระบบนาฬิกาจับเวลาต่อข้อ ปรับเวลาตามระดับชั้น ป.4 (15s), ป.5 (12s), ป.6 (10s)',
+           'หมวดหมู่คณิตศาสตร์หลากหลาย: บวก, ลบ, คูณ, หาร และโหมดสุ่มผสม',
+           'ระบบโบนัสสำหรับการคิดเลขเร็วเมื่อตอบได้ถูกต้องภายในครึ่งเวลา',
            'ระบบช่วยเหลือแบบครบวงจร รองรับการแตะสัมผัสหน้าจอหรือคลิกเมาส์เป็นทางเลือกสำรอง (Fallback Mode)',
-           'เสียงดนตรีและเสียงเอฟเฟกต์กระดิ่ง/ออด ลิงก์ตรงกับ SDK ควบคุมและปิดระบบเสียงได้ตามการกดปุ่มเมนูของแอป',
-           'รองรับการเซฟประวัติคะแนนส่วนตัว บอร์ดคะแนนห้องเรียน (Leaderboard) และการรับส่งข้อมูลโปรไฟล์นักเรียน'
+           'รองรับการเซฟประวัติคะแนนส่วนตัว บอร์ดคะแนนห้องเรียน (Leaderboard) และเล่นคู่แบบดวลสองคน/ออนไลน์ (KampaiVersus)'
          ],
-         'v1.0.0',
-         'เพิ่มเกมคณิตศาสตร์ตอบคำถามด้วยการตรวจจับการเคลื่อนไหวมือแรก'
+         'v1.1.0',
+         'อัปเกรดเป็นระบบ 5-File Architecture พร้อมระบบเลือกหมวดหมู่และระดับชั้น ป.4-ป.6 และระบบจับเวลา'
   FROM public.educational_hub_items i
   WHERE i.owner_staff_id = v_staff_id AND i.external_url = v_url
   ON CONFLICT (item_id) DO UPDATE

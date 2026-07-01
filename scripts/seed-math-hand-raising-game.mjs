@@ -122,10 +122,11 @@ async function main() {
           owner_staff_id: staffId,
           category_id: categoryId,
           item_type: 'link',
-          title: 'เกมคณิตศาสตร์ ยกมือตอบคำถาม',
+          title: 'เกมคณิตคิดไว ยกมือทายถูกผิด!',
           external_url: newUrl,
           subject: 'คณิตศาสตร์',
-          sort_order: 78
+          sort_order: 78,
+          bgm_preset: 'playful'
         })
         .select('id');
 
@@ -145,10 +146,12 @@ async function main() {
   const { error: updateError } = await supabase
     .from('educational_hub_items')
     .update({
+      title: 'เกมคณิตคิดไว ยกมือทายถูกผิด!',
       game_slug: 'math-hand-raising',
       tracked_game: true,
       is_published: true,
       thumbnail_url: coverUrl,
+      bgm_preset: 'playful',
       updated_at: new Date().toISOString()
     })
     .eq('id', itemId);

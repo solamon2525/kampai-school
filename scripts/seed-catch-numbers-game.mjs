@@ -94,10 +94,10 @@ async function main() {
         owner_staff_id: staffId,
         category_id: categoryId,
         item_type: 'link',
-        title: '🧺 รับเลขให้ถูก (AR)',
+        title: '🧺 Catch Numbers — รับตัวเลข AR',
         external_url: url,
         subject: 'คณิตศาสตร์',
-        sort_order: 217,
+        sort_order: 35,
         game_slug: 'catch-numbers',
         tracked_game: true,
         is_published: true,
@@ -118,8 +118,8 @@ async function main() {
     const { error: updateError } = await supabase
       .from('educational_hub_items')
       .update({
-        title: '🧺 รับเลขให้ถูก (AR)',
-        sort_order: 217,
+        title: '🧺 Catch Numbers — รับตัวเลข AR',
+        sort_order: 35,
         game_slug: 'catch-numbers',
         tracked_game: true,
         is_published: true,

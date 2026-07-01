@@ -13,6 +13,16 @@
     KAMPAI.sound.defaultBgm(CFG.BGM || 'cheerful');
 
     var qrand = Math.random;
+    var roundSeeds = [];
+
+    function createMulberry32(seed) {
+        return function() {
+            var t = seed += 0x6D2B79F5;
+            t = Math.imul(t ^ (t >>> 15), t | 1);
+            t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+            return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+    }
 
     // ── KampaiVersus (online + local 2p mode) ──
     var vs = window.KampaiVersus ? KampaiVersus.create({
@@ -32,7 +42,11 @@
     }) : null;
 
     function startVersusRound(rng, player) {
-        qrand = rng || Math.random;
+        var matchRng = rng || Math.random;
+        roundSeeds = [];
+        for (var i = 0; i < 20; i++) {
+            roundSeeds.push(Math.floor(matchRng() * 4294967296));
+        }
         if (ar) ar.mode = 'tap';
         startGame();
     }
@@ -40,14 +54,17 @@
     // ── State ──
     var ST = {
         score: 0, round: 0, lives: CFG.LIVES, sec: 0, correctCount: 0,
+        wrongCount: 0, timeUpCount: 0,
         started: false, roundActive: false,
         basketX: 0.5,         // 0..1 ตำแหน่งตะกร้า
         items: [],            // ตัวเลขที่กำลังตก
         spawnTimer: null, roundTimer: null, nextRoundTimeout: null,
+        ruleCardTimeout: null,
         rafId: 0,
         dragStart: null,
         rule: null            // DATA.rounds[roundIndex]
     };
+    window.__ST = ST;
     var ar = null;
 
     // ── Canvas ──
@@ -128,7 +145,7 @@
         ar.start().then(function (ok) {
             $('loading').classList.remove('on');
             KAMPAI.sound.bgmStart();
-            ST.score = 0; ST.round = 0; ST.correctCount = 0;
+            ST.score = 0; ST.round = 0; ST.correctCount = 0; ST.wrongCount = 0; ST.timeUpCount = 0;
             startRound();
         });
     }
@@ -137,6 +154,13 @@
         // Defensive check: clear any existing timers before starting a new round
         clearInterval(ST.spawnTimer); ST.spawnTimer = null;
         clearInterval(ST.roundTimer); ST.roundTimer = null;
+        clearTimeout(ST.ruleCardTimeout);
+
+        if (vs && vs.mode !== null && roundSeeds && roundSeeds.length > ST.round) {
+            qrand = createMulberry32(roundSeeds[ST.round]);
+        } else {
+            qrand = Math.random;
+        }
 
         var roundCFG = DATA.rounds[ST.round];
         ST.rule = roundCFG;
@@ -156,7 +180,7 @@
         card.querySelector('.rc-label').textContent = roundCFG.label;
         card.querySelector('.rc-hint').textContent = roundCFG.hint;
         card.classList.add('show');
-        setTimeout(function () { card.classList.remove('show'); }, 2200);
+        ST.ruleCardTimeout = setTimeout(function () { card.classList.remove('show'); }, 2200);
 
         // Timers
         var spawnMs = Math.max(600, CFG.SPAWN_MS - ST.round * CFG.SPAWN_MS_DECAY);
@@ -178,7 +202,7 @@
         var pool = DATA.numbers;
         var n = pool[Math.floor(qrand() * pool.length)];
         var speed = CFG.FALL_SPEED + ST.round * CFG.FALL_SPEED_INC;
-        ST.items.push({
+        var it = {
             n: n,
             x: 0.08 + qrand() * 0.84, // สุ่ม x ไม่ชนขอบ
             y: -0.05,
@@ -187,7 +211,8 @@
             caught: false,
             missed: false,
             flash: 0           // frames ของ flash effect
-        });
+        };
+        ST.items.push(it);
     }
 
     function updateHUD() {
@@ -199,8 +224,8 @@
 
     // ── Game loop (canvas) ──
     function loop() {
+        if (!ST.roundActive) { ST.rafId = 0; return; }
         ST.rafId = requestAnimationFrame(loop);
-        if (!ST.roundActive) return;
         ctx.clearRect(0, 0, W, H);
 
         // fall items
@@ -210,6 +235,7 @@
         var cr = CFG.CATCH_RADIUS * W;
 
         ST.items.forEach(function (it) {
+            if (!ST.roundActive) return;
             if (it.caught || it.missed) return;
             it.y += it.speed;
 
@@ -227,24 +253,27 @@
                     it.flash = 12;
                 } else {
                     ST.lives = Math.max(0, ST.lives - 1);
+                    ST.wrongCount++;
                     KAMPAI.sound.wrong();
                     KAMPAI.sound.fxFlash(false);
                     if (ST.lives <= 0) { endRound(false); return; }
                 }
                 updateHUD();
-                if (vs) vs.report(ST.score, { correct: ST.correctCount });
+                if (vs) vs.report(ST.score, { correct: ST.correctCount, wrong: ST.wrongCount, timeUp: ST.timeUpCount });
                 return;
             }
 
             // missed (fell off bottom)
-            if (iy > 1.05) {
+            if (it.y > 1.05) {
                 it.missed = true;
                 if (it.correct) {
                     // ปล่อยตัวเลขที่ควรรับตก = เสียชีวิต
                     ST.lives = Math.max(0, ST.lives - 1);
+                    ST.wrongCount++;
                     KAMPAI.sound.wrong();
                     if (ST.lives <= 0) { endRound(false); return; }
                     updateHUD();
+                    if (vs) vs.report(ST.score, { correct: ST.correctCount, wrong: ST.wrongCount, timeUp: ST.timeUpCount });
                 }
                 return;
             }
@@ -311,6 +340,7 @@
     function endRound(timeUp) {
         if (!ST.roundActive) return;
         ST.roundActive = false;
+        if (timeUp) ST.timeUpCount++;
         clearInterval(ST.spawnTimer); ST.spawnTimer = null;
         clearInterval(ST.roundTimer); ST.roundTimer = null;
 
@@ -319,7 +349,7 @@
             ST.score += ST.sec * CFG.SCORE_BONUS_TIME;
         }
         updateHUD();
-        if (vs) vs.report(ST.score, { correct: ST.correctCount });
+        if (vs) vs.report(ST.score, { correct: ST.correctCount, wrong: ST.wrongCount, timeUp: ST.timeUpCount });
 
         ST.round++;
         if (ST.round < DATA.rounds.length) {
@@ -338,14 +368,20 @@
         KAMPAI.sound.gameOver();
 
         // Versus handle finish
-        if (vs && vs.finish(ST.score, { correct: ST.correctCount })) return;
+        if (vs && vs.finish(ST.score, { correct: ST.correctCount, wrong: ST.wrongCount, timeUp: ST.timeUpCount })) return;
 
         showScreen('resultScreen');
         $('final-score').textContent = ST.score;
         $('final-detail').textContent = 'ผ่านครบ ' + DATA.rounds.length + ' รอบ';
+        $('stat-correct').textContent = ST.correctCount;
+        $('stat-wrong').textContent = ST.wrongCount;
+        $('stat-timeup').textContent = ST.timeUpCount;
         KAMPAI.submitScore(ST.score, {
             mode: 'ar',
-            rounds: DATA.rounds.length
+            rounds: DATA.rounds.length,
+            correct: ST.correctCount,
+            wrong: ST.wrongCount,
+            timeUp: ST.timeUpCount
         });
     }
 
@@ -354,7 +390,9 @@
         cancelAnimationFrame(ST.rafId); ST.rafId = 0;
         clearInterval(ST.spawnTimer); clearInterval(ST.roundTimer);
         clearTimeout(ST.nextRoundTimeout);
+        clearTimeout(ST.ruleCardTimeout);
         if (ar) ar.stop();
+        if (vs) vs.leave();
         KAMPAI.sound.bgmStop();
         ST.roundActive = false; ST.started = false;
     }

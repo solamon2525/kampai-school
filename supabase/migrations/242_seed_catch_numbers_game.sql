@@ -48,6 +48,7 @@ BEGIN
       tracked_game  = true,
       is_published  = true,
       thumbnail_url = '/games/math/catch-numbers/cover.png',
+      bgm_preset    = 'cheerful',
       updated_at    = now()
   WHERE owner_staff_id = v_staff_id AND external_url = v_url;
 
@@ -65,19 +66,14 @@ BEGIN
     v_item_id, v_staff_id,
     'AR Catcher — รับตัวเลขที่ตกลงมาตามกติกา ด้วยการเคลื่อนตัวจริงผ่านกล้อง',
     ARRAY[
-      'AR ตรวจจับการเคลื่อนไหว framediff (ไม่พึ่ง CDN) ผ่าน kampai-ar.js v1.1.0',
-      'ตะกร้าเลื่อนตาม ar.x ตำแหน่งตัวผู้เล่น — fallback ลาก/เลื่อนนิ้วบนจอ',
-      '5 รอบ กติกาต่างกัน: เลขคู่, เลขคี่, พหุคูณ 3, พหุคูณ 5, มากกว่า 50',
-      'ระบบชีวิต 3 หัวใจ — รับผิด/ปล่อยถูกตก = -1 ชีวิต',
-      'spawn rate + fall speed เพิ่มทุกรอบ (เพิ่มความยาก)',
-      'Flash card แสดงกติกาก่อนเริ่มทุกรอบ',
-      'คะแนนโบนัสเวลาที่เหลือ (time bonus) ตอนจบรอบ',
-      'KAMPAI SDK: ส่งคะแนน submitScore, player chip, leaderboard, XP result',
-      'เล่น standalone ได้ (stub ครบ)',
-      'รองรับทั้ง mobile touch และ desktop'
+      'ตะกร้าตามตำแหน่งตัวผู้เล่น (ar.x จาก framediff) — ไม่พึ่ง CDN · engine kampai-ar.js v1.1.0',
+      'แต่ละรอบมีกติกา (รับเลขคู่/พหุคูณ/มากกว่า) → รับถูก +คะแนน · รับผิด -ชีวิต (ฝึกจำแนกประเภท)',
+      'รองรับระบบเล่นแบบดวลสองคนเครื่องเดียวกันและออนไลน์ (KampaiVersus) โดยใช้โจทย์ซิงค์ตรงกัน',
+      'fallback ลาก/แตะบนจอเลื่อนตะกร้า (เครื่องไม่มีกล้องเล่นได้)',
+      'แก้กติกา/เลขที่ data.js · จูน SPAWN_MS/FALL_SPEED/CATCH_RADIUS ที่ config.js (AR-GAME.md)'
     ],
-    'v1.0.0',
-    'v1.0.0: เกม AR Catcher ใหม่ — 5 รอบ กติกาจำแนกประเภทตัวเลข ตะกร้าตาม ar.x'
+    'v1.1.0',
+    'เพิ่มระบบผู้เล่น 2 คน (KampaiVersus) และแก้บั๊ก transition timeout leak'
   )
   ON CONFLICT (item_id) DO UPDATE
   SET game_format = EXCLUDED.game_format,

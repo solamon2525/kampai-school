@@ -37,7 +37,7 @@ const SLUG_STYLE = {
   'attack-on-noun': 'platformer-2d', 'waipot': 'platformer-2d', 'wipod': 'platformer-2d',
   'sonnum': 'platformer-2d', 'attnoun': 'platformer-2d', 'ppp': 'platformer-2d', 'tug-of-war': 'platformer-2d',
   'thai-vocab-arena': 'platformer-2d', 'genetic-quest': 'platformer-2d', 'probability-zoo-board': 'platformer-2d',
-  'catch-numbers': 'platformer-2d', 'reading-quest': 'platformer-2d', 'english-quest': 'platformer-2d',
+  'catch-numbers': 'puzzle', 'reading-quest': 'platformer-2d', 'english-quest': 'platformer-2d',
   'reading-game': 'platformer-2d', 'thai-story': 'platformer-2d', 'pizza-master-chef': 'platformer-2d',
   'thai-edu-rpg': 'top-down', 'battle-city': 'top-down', 'tank-commander': 'top-down', 'robot-path': 'top-down',
   'veggie-garden': 'top-down', 'cyberdrop': 'top-down', 'vocab-move': 'top-down', 'food-chain': 'top-down',
