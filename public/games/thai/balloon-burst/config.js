@@ -23,6 +23,11 @@ window.GAME_CONFIG = {
         smoothing: 0.70,
         intervalMs: 50,
         marker: true,      // แสดงจุดตรวจจับตำแหน่งของผู้เล่น
-        particles: true    // แสดงฝุ่นเวทมนตร์เอฟเฟกต์การขยับตัว
+        particles: true,   // แสดงฝุ่นเวทมนตร์เอฟเฟกต์การขยับตัว
+        // ── One Euro Filter (v1.2.0) — ลดสั่นไหวตอนมือค้าง + ตอบสนองทันทีตอนมือไว ──
+        filterType: 'oneeuro',         // เปิดใช้ One Euro Filter แทน EMA
+        oneEuroMinCutoff: 1.0,         // Cutoff ขั้นต่ำ (Hz) — นิ่งตอนค้างชี้ลูกโป่ง
+        oneEuroBeta: 0.007,            // ค่าสัมประสิทธิ์ความเร็ว — ไวตอนยื่นมือเจาะ
+        oneEuroDCutoff: 1.0            // Cutoff อนุพันธ์ (Hz)
     }
 };
