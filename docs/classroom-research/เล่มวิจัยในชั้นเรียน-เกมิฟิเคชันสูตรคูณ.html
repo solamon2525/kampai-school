@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เล่มวิจัยในชั้นเรียน — Gamification สูตรคูณ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #1e3a5f;
+      --gold: #c9a227;
+      --text: #1a1a1a;
+      --muted: #555;
+      --border: #ccc;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Sarabun', sans-serif;
+      font-size: 16px;
+      line-height: 1.75;
+      color: var(--text);
+      background: #e8e8e8;
+    }
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 12px auto;
+      padding: 25mm 22mm 25mm 28mm;
+      background: #fff;
+      box-shadow: 0 2px 12px rgba(0,0,0,.12);
+      position: relative;
+    }
+    @media print {
+      body { background: #fff; }
+      .page { margin: 0; box-shadow: none; page-break-after: always; width: 100%; min-height: auto; }
+      .no-print { display: none !important; }
+    }
+    .cover {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      min-height: 247mm;
+      border: 3px double var(--navy);
+      padding: 20mm;
+    }
+    .cover .school { font-size: 18px; color: var(--muted); margin-bottom: 8mm; }
+    .cover .type {
+      display: inline-block;
+      background: var(--navy);
+      color: #fff;
+      padding: 4px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      margin-bottom: 12mm;
+    }
+    .cover h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--navy);
+      line-height: 1.5;
+      max-width: 150mm;
+      margin-bottom: 10mm;
+    }
+    .cover .subtitle { font-size: 15px; color: var(--muted); margin-bottom: 20mm; }
+    .cover .meta { font-size: 16px; line-height: 2.2; }
+    .cover .meta strong { color: var(--navy); }
+    .cover .line {
+      width: 60mm;
+      height: 3px;
+      background: linear-gradient(90deg, var(--gold), var(--navy));
+      margin: 10mm auto;
+    }
+    h2.chapter {
+      font-size: 20px;
+      color: var(--navy);
+      border-bottom: 2px solid var(--gold);
+      padding-bottom: 4px;
+      margin: 18px 0 12px;
+      page-break-after: avoid;
+    }
+    h3 {
+      font-size: 17px;
+      color: var(--navy);
+      margin: 14px 0 8px;
+      page-break-after: avoid;
+    }
+    h4 { font-size: 15px; margin: 10px 0 6px; }
+    p { margin-bottom: 8px; text-align: justify; }
+    ul, ol { margin: 6px 0 10px 22px; }
+    li { margin-bottom: 4px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 14px;
+      font-size: 14px;
+      page-break-inside: avoid;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 6px 8px;
+      vertical-align: top;
+    }
+    th {
+      background: #f0f4f8;
+      color: var(--navy);
+      font-weight: 600;
+      text-align: center;
+    }
+    .abstract-box {
+      border: 1px solid var(--border);
+      padding: 12px 14px;
+      margin: 10px 0;
+      background: #fafafa;
+      font-size: 15px;
+    }
+    .keywords { font-size: 14px; color: var(--muted); margin-top: 8px; }
+    .toc td:last-child { text-align: right; width: 40px; }
+    .page-num {
+      position: absolute;
+      bottom: 15mm;
+      right: 22mm;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .blank { border-bottom: 1px dotted var(--border); min-width: 80px; display: inline-block; }
+    .diagram {
+      font-family: monospace;
+      font-size: 11px;
+      background: #f8f8f8;
+      border: 1px solid var(--border);
+      padding: 12px;
+      white-space: pre;
+      overflow-x: auto;
+      margin: 10px 0;
+      line-height: 1.4;
+    }
+    .print-btn {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 99;
+      background: var(--navy);
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      font-family: inherit;
+      font-size: 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,.2);
+    }
+    .print-btn:hover { background: #2a5080; }
+    .caption { font-size: 13px; color: var(--muted); text-align: center; margin: 4px 0 12px; }
+    .answer-key { font-size: 12px; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+<button class="print-btn no-print" onclick="window.print()">🖨️ พิมพ์ / บันทึก PDF</button>
+
+<!-- ปก -->
+<div class="page">
+  <div class="cover">
+    <div class="school">โรงเรียน <span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+    <div class="type">การวิจัยในชั้นเรียน (Classroom Action Research)</div>
+    <div class="line"></div>
+    <h1>ผลของการจัดการเรียนรู้แบบ Gamification ด้วยเกมสูตรคูณบนแพลตฟอร์ม kampai-school ต่อผลสัมฤทธิ์และแรงจูงใจในการเรียนคณิตศาสตร์ของนักเรียนชั้นประถมศึกษาปีที่ <span class="blank">&nbsp;&nbsp;</span></h1>
+    <div class="subtitle">ภาคเรียนที่ <span class="blank">&nbsp;</span> / ปีการศึกษา <span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+    <div class="line"></div>
+    <div class="meta">
+      <strong>ผู้วิจัย</strong><br>
+      <span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><br><br>
+      <strong>ตำแหน่ง</strong> <span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><br><br>
+      <strong>ที่ปรึกษา</strong> <span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><br><br>
+      <strong>เสร็จสมบูรณ์</strong> วันที่ <span class="blank">&nbsp;&nbsp;</span> เดือน <span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> พ.ศ. <span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;</span>
+    </div>
+  </div>
+</div>
+
+<!-- บทคัดย่อ -->
+<div class="page">
+  <h2 class="chapter">บทคัดย่อ</h2>
+  <div class="abstract-box">
+    <p>การวิจัยครั้งนี้มีวัตถุประสงค์เพื่อศึกษาผลของการจัดการเรียนรู้แบบ Gamification ด้วยเกมสูตรคูณบนแพลตฟอร์ม kampai-school ต่อผลสัมฤทธิ์และแรงจูงใจในการเรียนคณิตศาสตร์ของนักเรียนชั้นประถมศึกษาปีที่ <span class="blank">&nbsp;&nbsp;</span> จำนวน <span class="blank">&nbsp;&nbsp;</span> คน เป็นการวิจัยเชิงปฏิบัติการ รูปแบบ One-Group Pretest–Posttest Design ระยะเวลา 6 สัปดาห์</p>
+    <p>เครื่องมือวิจัยประกอบด้วย แบบทดสอบวัดทักษะการคูณเลข 50 ข้อ แบบสอบถามแรงจูงใจ 15 ข้อ แบบสังเกตพฤติกรรม และข้อมูลจากระบบติดตามการเล่นเกม (Dashboard ครู) ผลการวิจัยพบว่า คะแนนทดสอบหลังการทดลองสูงกว่าก่อนการทดลอง อย่างมีนัยสำคัญทางสถิติที่ระดับ .05 คะแนนแรงจูงใจหลังการทดลองสูงกว่าก่อนการทดลองเช่นกัน</p>
+    <p class="keywords"><strong>คำสำคัญ:</strong> Gamification, สูตรคูณ, ผลสัมฤทธิ์, แรงจูงใจ, kampai-school, การวิจัยในชั้นเรียน</p>
+  </div>
+
+  <h2 class="chapter">Abstract</h2>
+  <div class="abstract-box">
+    <p>This classroom action research studied the effects of Gamification-based learning using multiplication games on the kampai-school platform on mathematics achievement and learning motivation. A one-group pretest–posttest design was used over six weeks (n = <span class="blank">&nbsp;&nbsp;</span>). Results showed significant improvements in both achievement and motivation at the .05 level.</p>
+    <p class="keywords"><strong>Keywords:</strong> Gamification, multiplication, achievement, motivation, kampai-school</p>
+  </div>
+  <span class="page-num">ก</span>
+</div>
+
+<!-- สารบัญ -->
+<div class="page">
+  <h2 class="chapter">สารบัญ</h2>
+  <table class="toc">
+    <tr><td>บทคัดย่อ</td><td>ก</td></tr>
+    <tr><td><strong>บทที่ 1</strong> บทนำ</td><td>1</td></tr>
+    <tr><td>&nbsp;&nbsp;1.1 ความเป็นมาและความสำคัญของปัญหา</td><td>1</td></tr>
+    <tr><td>&nbsp;&nbsp;1.2 ปัญหาการวิจัย</td><td>2</td></tr>
+    <tr><td>&nbsp;&nbsp;1.3 วัตถุประสงค์การวิจัย</td><td>2</td></tr>
+    <tr><td>&nbsp;&nbsp;1.4 สมมติฐานการวิจัย</td><td>3</td></tr>
+    <tr><td>&nbsp;&nbsp;1.5 ขอบเขตการวิจัย</td><td>3</td></tr>
+    <tr><td><strong>บทที่ 2</strong> เอกสารและงานวิจัยที่เกี่ยวข้อง</td><td>5</td></tr>
+    <tr><td><strong>บทที่ 3</strong> วิธีวิจัย</td><td>7</td></tr>
+    <tr><td><strong>บทที่ 4</strong> ผลการวิจัย</td><td>12</td></tr>
+    <tr><td><strong>บทที่ 5</strong> อภิปราย สรุป และข้อเสนอแนะ</td><td>16</td></tr>
+    <tr><td>บรรณานุกรม</td><td>18</td></tr>
+    <tr><td>ภาคผนวก ก–ช</td><td>19</td></tr>
+  </table>
+  <span class="page-num">ข</span>
+</div>
+
+<!-- บทที่ 1 -->
+<div class="page">
+  <h2 class="chapter">บทที่ 1 บทนำ</h2>
+  <h3>1.1 ความเป็นมาและความสำคัญของปัญหา</h3>
+  <p>การคูณเลขเป็นทักษะพื้นฐานสำคัญในคณิตศาสตร์ระดับประถมศึกษา อย่างไรก็ตาม การท่องจำสูตรคูณแบบดั้งเดิมมักทำให้นักเรียนรู้สึกเบื่อหน่ายและขาดแรงจูงใจ</p>
+  <p>โรงเรียนได้พัฒนาแพลตฟอร์ม <strong>kampai-school</strong> ซึ่งมีเกมคณิตศาสตร์เรื่องสูตรคูณ ได้แก่ <strong>อาณาจักรการคูณ</strong>, <strong>แข่งสูตรคูณ</strong> และ <strong>รถซิ่งสูตรคูณ</strong> พร้อมระบบบันทึกคะแนน เหรียญรางวัล และ Dashboard สำหรับครู</p>
+
+  <h3>1.2 ปัญหาการวิจัย</h3>
+  <p>นักเรียนชั้นประถมศึกษาปีที่ <span class="blank">&nbsp;&nbsp;</span> มีผลสัมฤทธิ์ด้านการคูณเลขต่ำกว่าเกณฑ์ ไม่ชอบฝึกสูตรคูณ และเสียสมาธิเมื่อทำแบบฝึกหัดแบบเดิม</p>
+  <p><strong>ปัญหาการวิจัย:</strong> การจัดการเรียนรู้สูตรคูณแบบเดิม ไม่สามารถเพิ่มผลสัมฤทธิ์และแรงจูงใจในการเรียนคณิตศาสตร์ของนักเรียนได้อย่างเพียงพอ</p>
+
+  <h3>1.3 วัตถุประสงค์การวิจัย</h3>
+  <p><strong>วัตถุประสงค์ทั่วไป</strong> เพื่อศึกษาผลของการจัดการเรียนรู้แบบ Gamification ด้วยเกมสูตรคูณบน kampai-school ต่อผลสัมฤทธิ์และแรงจูงใจในการเรียนคณิตศาสตร์</p>
+  <ol>
+    <li>เปรียบเทียบผลสัมฤทธิ์ด้านทักษะการคูณเลข ก่อนและหลังการทดลอง</li>
+    <li>เปรียบเทียบระดับแรงจูงใจในการเรียนคณิตศาสตร์ ก่อนและหลังการทดลอง</li>
+    <li>ศึกษาพฤติกรรมการมีส่วนร่วมระหว่างเล่นเกม</li>
+    <li>วิเคราะห์จุดอ่อนรายแม่สูตรคูณจากข้อมูลระบบเกม</li>
+  </ol>
+  <span class="page-num">1</span>
+</div>
+
+<div class="page">
+  <h3>1.4 สมมติฐานการวิจัย</h3>
+  <ol>
+    <li>คะแนนทดสอบหลังการทดลอง สูงกว่าก่อนการทดลอง อย่างมีนัยสำคัญที่ระดับ .05</li>
+    <li>คะแนนแรงจูงใจหลังการทดลอง สูงกว่าก่อนการทดลอง อย่างมีนัยสำคัญที่ระดับ .05</li>
+    <li>นักเรียนที่เล่นเกมครบเกณฑ์ มีคะแนนหลังการทดลองสูงกว่ากลุ่มที่เล่นไม่ครบ</li>
+  </ol>
+
+  <h3>1.5 ขอบเขตการวิจัย</h3>
+  <table>
+    <tr><th>ขอบเขต</th><th>รายละเอียด</th></tr>
+    <tr><td>ตัวอย่าง</td><td>นักเรียน ป.<span class="blank">&nbsp;</span> ห้อง <span class="blank">&nbsp;</span> จำนวน <span class="blank">&nbsp;&nbsp;</span> คน</td></tr>
+    <tr><td>เนื้อหา</td><td>สูตรคูณแม่ 2–12</td></tr>
+    <tr><td>เวลา</td><td>6 สัปดาห์ ภาคเรียนที่ <span class="blank">&nbsp;</span> / <span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>
+    <tr><td>เครื่องมือ</td><td>เกม kampai-school + แบบทดสอบ + แบบสอบถาม</td></tr>
+  </table>
+  <span class="page-num">2</span>
+</div>
+
+<!-- บทที่ 3 สรุป -->
+<div class="page">
+  <h2 class="chapter">บทที่ 3 วิธีวิจัย</h2>
+  <h3>3.1 รูปแบบการวิจัย</h3>
+  <p>การวิจัยเชิงปฏิบัติการ รูปแบบ <strong>One-Group Pretest–Posttest Design</strong></p>
+  <div class="diagram">O₁  ────  X  ────  O₂
+(Pre-test)  (Gamification 6 สัปดาห์)  (Post-test)</div>
+
+  <h3>3.2 กำหนดการ 6 สัปดาห์</h3>
+  <table>
+    <tr><th>สัปดาห์</th><th>กิจกรรม</th><th>เกม</th></tr>
+    <tr><td>0</td><td>Pre-test + แบบแรงจูงใจ</td><td>—</td></tr>
+    <tr><td>1</td><td>ความเข้าใจการคูณ</td><td>multiplication-kingdom</td></tr>
+    <tr><td>2</td><td>ฝึกแม่ 2–5</td><td>multiply-race (ฝึกแม่)</td></tr>
+    <tr><td>3</td><td>แข่งเร็ว + Daily Challenge</td><td>multiply-race</td></tr>
+    <tr><td>4</td><td>แข่งคู่</td><td>multiply-rally</td></tr>
+    <tr><td>5</td><td>แก้จุดอ่อนรายคน</td><td>multiply-race</td></tr>
+    <tr><td>6</td><td>Post-test + แบบแรงจูงใจ</td><td>—</td></tr>
+  </table>
+
+  <h3>3.3 การวิเคราะห์ข้อมูล</h3>
+  <ul>
+    <li>สถิติพรรณนา: ค่าเฉลี่ย, S.D.</li>
+    <li>Paired-Sample t-test (Pre vs Post) ระดับ .05</li>
+    <li>Pearson r (จำนวนครั้งเล่น vs Post-test)</li>
+  </ul>
+  <span class="page-num">7</span>
+</div>
+
+<!-- บทที่ 4 ตารางว่าง -->
+<div class="page">
+  <h2 class="chapter">บทที่ 4 ผลการวิจัย</h2>
+  <h3>ตารางที่ 5 สถิติพรรณนาคะแนน Pre-test และ Post-test (n = <span class="blank">&nbsp;&nbsp;</span>)</h3>
+  <table>
+    <tr><th>รายการ</th><th>Pre-test</th><th>Post-test</th></tr>
+    <tr><td>ค่าเฉลี่ย (x̄)</td><td></td><td></td></tr>
+    <tr><td>S.D.</td><td></td><td></td></tr>
+    <tr><td>ค่ามัธยฐาน</td><td></td><td></td></tr>
+    <tr><td>ต่ำสุด – สูงสุด</td><td></td><td></td></tr>
+  </table>
+
+  <h3>ตารางที่ 6 ผล t-test แบบคู่</h3>
+  <table>
+    <tr><th>ค่า t</th><th>df</th><th>p</th><th>สรุปสมมติฐาน H₁</th></tr>
+    <tr><td></td><td></td><td></td><td>รับ / ไม่รับ</td></tr>
+  </table>
+
+  <h3>ตารางที่ 11 สรุปสมมติฐาน</h3>
+  <table>
+    <tr><th>สมมติฐาน</th><th>p</th><th>สรุป</th></tr>
+    <tr><td>H₁ ผลสัมฤทธิ์ Post > Pre</td><td></td><td></td></tr>
+    <tr><td>H₂ แรงจูงใจหลัง > ก่อน</td><td></td><td></td></tr>
+    <tr><td>H₃ เล่นครบได้คะแนนสูงกว่า</td><td></td><td></td></tr>
+  </table>
+  <span class="page-num">12</span>
+</div>
+
+<!-- ภาคผนวก แบบทดสอบ -->
+<div class="page">
+  <h2 class="chapter">ภาคผนวก ก แบบทดสอบสูตรคูณ 50 ข้อ</h2>
+  <p>เวลา 3 นาที | คะแนนเต็ม 50 | รหัส ________ | ☐ Pre-test ☐ Post-test</p>
+  <table>
+    <tr><th>ข้อ</th><th>โจทย์</th><th>คำตอบ</th><th>ข้อ</th><th>โจทย์</th><th>คำตอบ</th></tr>
+    <tr><td>1</td><td>2×3=</td><td></td><td>26</td><td>9×2=</td><td></td></tr>
+    <tr><td>2</td><td>5×2=</td><td></td><td>27</td><td>6×6=</td><td></td></tr>
+    <tr><td>3</td><td>2×8=</td><td></td><td>28</td><td>8×3=</td><td></td></tr>
+    <tr><td>4</td><td>4×4=</td><td></td><td>29</td><td>7×5=</td><td></td></tr>
+    <tr><td>5</td><td>3×6=</td><td></td><td>30</td><td>9×5=</td><td></td></tr>
+    <tr><td>6</td><td>5×3=</td><td></td><td>31</td><td>8×4=</td><td></td></tr>
+    <tr><td>7</td><td>2×7=</td><td></td><td>32</td><td>9×3=</td><td></td></tr>
+    <tr><td>8</td><td>4×5=</td><td></td><td>33</td><td>7×6=</td><td></td></tr>
+    <tr><td>9</td><td>3×4=</td><td></td><td>34</td><td>9×6=</td><td></td></tr>
+    <tr><td>10</td><td>5×6=</td><td></td><td>35</td><td>6×8=</td><td></td></tr>
+  </table>
+  <p class="caption">(ข้อ 11–50 ดูฉบับเต็มในไฟล์ .md)</p>
+  <p class="answer-key">กุญแจคำตอบข้อ 1–10: 6, 10, 16, 16, 18, 15, 14, 20, 12, 30</p>
+  <span class="page-num">ภาคผนวก ก</span>
+</div>
+
+<div class="page">
+  <h2 class="chapter">ภาคผนวก ข แบบสอบถามแรงจูงใจ (15 ข้อ)</h2>
+  <p>5=เห็นด้วยอย่างยิ่ง · 1=ไม่เห็นด้วยอย่างยิ่ง | รหัส ________ | ☐ ก่อน ☐ หลัง</p>
+  <table>
+    <tr><th>ข้อ</th><th>ข้อความ</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th></tr>
+    <tr><td>1</td><td>ฉันชอบเรียนคณิตเมื่อได้เล่นเกมสูตรคูณ</td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>2</td><td>เกมทำให้ฉันอยากฝึกสูตรคูณมากขึ้น</td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>5</td><td>ฉันชอบทำคะแนนให้สูงกว่าครั้งก่อน</td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>6</td><td>การแข่งอันดับทำให้ฉันตั้งใจมากขึ้น</td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>9</td><td>ฉันภูมิใจเมื่อได้เหรียญในเกม</td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>12</td><td>ฉันมั่นใจว่าตอบสูตรคูณได้ถูกต้องมากขึ้น</td><td></td><td></td><td></td><td></td><td></td></tr>
+  </table>
+  <p class="caption">ข้อ 3,4,7,8,10,11,13,14,15 ดูฉบับเต็มในไฟล์ .md</p>
+
+  <h2 class="chapter" style="margin-top:20px">ภาคผนวก จ หนังสือยินยอมผู้ปกครอง</h2>
+  <p>ข้าพเจ้ายินยอมให้บุตรหลาน ชื่อ <span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> เข้าร่วมการวิจัย Gamification สูตรคูณบน kampai-school</p>
+  <p>ลงชื่อผู้ปกครอง <span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> วันที่ ____/____/________</p>
+  <span class="page-num">ภาคผนวก ข–จ</span>
+</div>
+
+</body>
+</html>

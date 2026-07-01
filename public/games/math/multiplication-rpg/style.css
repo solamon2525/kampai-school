@@ -1,0 +1,1110 @@
+/* style.css — ระบบตกแต่งแบบ Premium Glassmorphism, Modern Neon UI สำหรับ RPG การคูณ */
+
+:root {
+    --bg-dark: #0b1030;
+    --bg-gradient: radial-gradient(circle at 50% 20%, #1a1454 0%, #0b1030 100%);
+    --glass-bg: rgba(255, 255, 255, 0.06);
+    --glass-border: rgba(255, 255, 255, 0.12);
+    --glass-highlight: rgba(255, 255, 255, 0.2);
+    
+    --color-primary: #a29bfe;
+    --color-success: #4be07a;
+    --color-warning: #ffce54;
+    --color-danger: #ff5c72;
+    --color-info: #00d2d3;
+    --color-text: #f5f6fa;
+    --color-muted: #a4b0be;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--bg-dark);
+    font-family: 'Sarabun', 'Mitr', sans-serif;
+    color: var(--color-text);
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+#app {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: var(--bg-gradient);
+}
+
+.font-sarabun {
+    font-family: 'Sarabun', sans-serif;
+}
+
+/* ── ระบบจัดการหน้าจอ (Screens) ── */
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    flex-direction: column;
+    z-index: 10;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.screen.active {
+    display: flex;
+}
+
+/* ── Glassmorphism Card ── */
+.glass-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    color: var(--color-text);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+/* ── ปุ่มกด (Buttons) ── */
+.btn {
+    padding: 12px 28px;
+    font-family: 'Mitr', 'Sarabun', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    border-radius: 30px;
+    border: 1px solid var(--glass-border);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+    color: #fff;
+    border: none;
+}
+
+.btn-primary:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 15px rgba(162, 155, 254, 0.5);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--color-text);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--color-muted);
+}
+
+.btn-ghost:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.btn-glow {
+    animation: buttonGlow 2s infinite alternate;
+}
+
+@keyframes buttonGlow {
+    from { box-shadow: 0 0 5px rgba(162, 155, 254, 0.4); }
+    to { box-shadow: 0 0 20px rgba(162, 155, 254, 0.8); }
+}
+
+/* ── หน้าจอหลัก (Start Screen) ── */
+#start-screen {
+    justify-content: center;
+    align-items: center;
+}
+
+.start-card {
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+}
+
+.game-logo {
+    font-size: 40px;
+    font-family: 'Fredoka', sans-serif;
+    background: linear-gradient(135deg, var(--color-warning) 0%, #ff7675 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 5px;
+    font-weight: 700;
+}
+
+.game-title {
+    font-family: 'Mitr', sans-serif;
+    font-size: 38px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    margin-bottom: 8px;
+}
+
+.game-subtitle {
+    font-size: 14px;
+    color: var(--color-muted);
+    margin-bottom: 24px;
+}
+
+.player-stat-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 24px;
+}
+
+.stat-box {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 12px;
+}
+
+.stat-val {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--color-warning);
+}
+
+.stat-lbl {
+    font-size: 11px;
+    color: var(--color-muted);
+    margin-top: 3px;
+}
+
+/* Leaderboard */
+.leaderboard-section {
+    margin-top: 24px;
+    text-align: left;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    padding: 15px;
+    border: 1px solid var(--glass-border);
+}
+
+.leaderboard-section h3 {
+    font-size: 14px;
+    color: var(--color-warning);
+    margin-bottom: 8px;
+}
+
+.leaderboard-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.leaderboard-list li {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    padding-bottom: 4px;
+    border-bottom: 1px dashed rgba(255,255,255,0.08);
+}
+
+.leaderboard-list li:last-child {
+    border-bottom: none;
+}
+
+.empty-lb {
+    text-align: center;
+    color: var(--color-muted);
+    font-style: italic;
+    padding: 10px;
+}
+
+/* ── หน้าจอเลือกตัวละคร (Character Select Screen) ── */
+.select-header {
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.select-header h2 {
+    font-size: 26px;
+    font-family: 'Mitr', sans-serif;
+    color: #fff;
+}
+
+.select-header p {
+    font-size: 13px;
+    color: var(--color-muted);
+}
+
+.character-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    max-width: 960px;
+    width: 100%;
+    margin: 0 auto 20px;
+}
+
+.char-card {
+    background: var(--glass-bg);
+    border: 2px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.char-card:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-4px);
+}
+
+/* กฎห้ามเลือกเริ่มต้น: แสดงสไตล์เมื่อเลือกการ์ด */
+.char-card.selected {
+    border-color: var(--color-primary);
+    background: rgba(108, 92, 231, 0.15);
+    box-shadow: 0 0 15px rgba(108, 92, 231, 0.4);
+}
+
+.char-card .char-svg-box {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 12px;
+}
+
+.char-card .char-name {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.char-card .char-hp {
+    font-size: 12px;
+    color: var(--color-danger);
+    margin-bottom: 8px;
+}
+
+.char-card .char-desc {
+    font-size: 12px;
+    color: var(--color-muted);
+    line-height: 1.4;
+    flex-grow: 1;
+}
+
+.select-footer {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: auto;
+    padding: 10px;
+}
+
+/* ── หน้าจอแผนที่การเดินทาง (Adventure Map Screen) ── */
+.map-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 12px 20px;
+    margin-bottom: 15px;
+}
+
+.chapter-info h3 {
+    font-size: 16px;
+    color: var(--color-warning);
+}
+
+.chapter-info p {
+    font-size: 12px;
+    color: var(--color-muted);
+}
+
+.map-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    border: 1px solid var(--glass-border);
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-sm:hover {
+    background: rgba(255,255,255,0.15);
+}
+
+.map-container {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    position: relative;
+    overflow-x: auto;
+    overflow-y: hidden;
+    margin-bottom: 15px;
+}
+
+.map-scroll-area {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100%;
+    min-width: 1200px;
+    padding: 0 50px;
+    gap: 60px;
+    position: relative;
+}
+
+/* Map Line Path */
+.map-scroll-area::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 80px;
+    right: 80px;
+    height: 4px;
+    background: dashed rgba(255, 255, 255, 0.15);
+    z-index: 1;
+}
+
+/* Node ด่าน */
+.stage-node {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #2f3542;
+    border: 3px solid #57606f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: bold;
+    font-size: 18px;
+    color: var(--color-muted);
+    cursor: not-allowed;
+    position: relative;
+    z-index: 2;
+    transition: all 0.3s ease;
+}
+
+.stage-node.unlocked {
+    background: #1e3a8a;
+    border-color: #3b82f6;
+    color: #fff;
+    cursor: pointer;
+}
+
+.stage-node.unlocked:hover {
+    transform: scale(1.15);
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.8);
+}
+
+.stage-node.cleared {
+    background: var(--color-success);
+    border-color: #26af5f;
+    color: #fff;
+    cursor: pointer;
+}
+
+.stage-node.cleared:hover {
+    transform: scale(1.15);
+    box-shadow: 0 0 15px rgba(75, 224, 122, 0.8);
+}
+
+/* โหนดบอสพิเศษ */
+.stage-node.boss-node {
+    width: 76px;
+    height: 76px;
+    border-radius: 16px;
+}
+
+.stage-node.boss-node.unlocked {
+    background: linear-gradient(135deg, #d63031 0%, #ff7675 100%);
+    border-color: #ff2222;
+    animation: bossNodePulse 1.5s infinite alternate;
+}
+
+@keyframes bossNodePulse {
+    from { box-shadow: 0 0 10px rgba(255, 34, 34, 0.5); }
+    to { box-shadow: 0 0 25px rgba(255, 34, 34, 0.9); }
+}
+
+.stage-node .node-label {
+    position: absolute;
+    bottom: -28px;
+    font-size: 11px;
+    white-space: nowrap;
+    color: var(--color-muted);
+    font-family: 'Sarabun', sans-serif;
+    font-weight: normal;
+}
+
+.stage-node.unlocked .node-label {
+    color: #fff;
+}
+
+.map-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+}
+
+.player-summary-hud {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    padding: 6px 16px;
+    border-radius: 30px;
+}
+
+.player-summary-hud #player-avatar-hud {
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+}
+
+.hud-text {
+    font-size: 13px;
+}
+
+.score-hud {
+    color: var(--color-warning);
+    font-weight: bold;
+    font-family: 'Fredoka', sans-serif;
+}
+
+/* ── หน้าจอต่อสู้ (Battle Screen) ── */
+.battle-hud {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 10px 20px;
+    margin-bottom: 15px;
+}
+
+.stage-badge {
+    font-weight: bold;
+    color: var(--color-warning);
+    font-size: 14px;
+}
+
+.stage-type-badge {
+    background: rgba(255,255,255,0.08);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    margin-left: 6px;
+}
+
+.timer-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    max-width: 300px;
+    margin: 0 15px;
+}
+
+.timer-bar-container {
+    flex: 1;
+    height: 10px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.timer-bar-fill {
+    height: 100%;
+    background: var(--color-success);
+    width: 100%;
+    transition: width 0.1s linear, background-color 0.3s ease;
+}
+
+.timer-text {
+    font-size: 12px;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: bold;
+    min-width: 30px;
+    text-align: right;
+}
+
+.score-pills {
+    display: flex;
+    gap: 8px;
+}
+
+.pill-score {
+    font-weight: bold;
+    color: var(--color-warning);
+    font-family: 'Fredoka', sans-serif;
+}
+
+.pill-combo {
+    background: linear-gradient(135deg, #ff7675 0%, #ee5253 100%);
+    color: #fff;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: bold;
+    animation: comboPulse 0.4s infinite alternate;
+}
+
+@keyframes comboPulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.08); }
+}
+
+/* Battle Arena (ตัวละครต่อสู้) */
+.battle-arena {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 20px;
+    height: 180px;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.arena-character {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 130px;
+    transition: all 0.3s ease;
+}
+
+.health-container {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 8px;
+    z-index: 5;
+}
+
+.health-name {
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hearts-row {
+    font-size: 16px;
+    letter-spacing: 2px;
+}
+
+.hp-bar-outer {
+    width: 100%;
+    height: 8px;
+    background: rgba(0,0,0,0.4);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.hp-bar-fill {
+    height: 100%;
+    background: var(--color-danger);
+    transition: width 0.3s ease-out;
+}
+
+.hp-text {
+    font-size: 10px;
+    color: var(--color-muted);
+    font-family: 'Fredoka', sans-serif;
+    margin-top: 2px;
+}
+
+.sprite-wrapper {
+    width: 90px;
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.versus-divider {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 22px;
+    font-weight: bold;
+    color: rgba(255,255,255,0.15);
+}
+
+/* ── Boss Glow Aura ── */
+.enemy-side.boss-aura {
+    position: relative;
+}
+
+.enemy-side.boss-aura .sprite-wrapper {
+    filter: drop-shadow(0 0 15px var(--color-danger));
+    animation: bossAuraPulse 1.2s infinite alternate;
+}
+
+@keyframes bossAuraPulse {
+    from { filter: drop-shadow(0 0 8px var(--color-danger)); transform: scale(1.3); }
+    to { filter: drop-shadow(0 0 24px var(--color-danger)); transform: scale(1.34); }
+}
+
+/* ── Animation เอฟเฟกต์ต่อสู้ (RPG Battle Motions) ── */
+.attack-player {
+    animation: playerPunch 0.4s ease-in-out;
+}
+
+@keyframes playerPunch {
+    0% { transform: translateX(0) rotate(0deg); }
+    50% { transform: translateX(50px) rotate(15deg); }
+    100% { transform: translateX(0) rotate(0deg); }
+}
+
+.attack-enemy {
+    animation: enemyPunch 0.4s ease-in-out;
+}
+
+@keyframes enemyPunch {
+    0% { transform: translateX(0) rotate(0deg); }
+    50% { transform: translateX(-50px) rotate(-15deg); }
+    100% { transform: translateX(0) rotate(0deg); }
+}
+
+.damaged {
+    animation: hitShake 0.4s ease-in-out;
+    filter: brightness(2) sepia(1) hue-rotate(-50deg);
+}
+
+@keyframes hitShake {
+    0%, 100% { transform: translate(0, 0); }
+    20% { transform: translate(-8px, 4px); }
+    40% { transform: translate(8px, -4px); }
+    60% { transform: translate(-6px, -3px); }
+    80% { transform: translate(6px, 3px); }
+}
+
+/* Screen Shake */
+.shake-screen {
+    animation: screenShakeAnimation 0.35s ease-in-out;
+}
+
+@keyframes screenShakeAnimation {
+    0%, 100% { transform: translate(0, 0); }
+    10%, 90% { transform: translate(-4px, 2px); }
+    30%, 70% { transform: translate(4px, -2px); }
+    50% { transform: translate(-6px, -4px); }
+}
+
+/* ── Interactive Question & Answer Panels ── */
+.question-box {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+.interactive-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.answer-panel {
+    display: none;
+    flex-direction: column;
+    flex: 1;
+    gap: 10px;
+}
+
+.answer-panel.active {
+    display: flex;
+}
+
+/* โหมด 1: Quiz 4 Choices */
+#panel-quiz {
+    display: none;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 12px;
+}
+
+#panel-quiz.active {
+    display: grid;
+}
+
+.choice-btn {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    padding: 15px;
+    color: #fff;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 16px;
+    text-align: left;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.choice-btn:hover {
+    background: var(--glass-highlight);
+    border-color: rgba(255,255,255,0.25);
+    transform: translateY(-2px);
+}
+
+.choice-letter {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-family: 'Fredoka', sans-serif;
+    color: var(--color-warning);
+}
+
+.choice-btn:hover .choice-letter {
+    background: var(--color-primary);
+    color: #fff;
+}
+
+/* โหมด 2: Drag & Match / Pair Selection */
+.panel-instruction {
+    font-size: 12px;
+    color: var(--color-muted);
+    text-align: center;
+    margin-bottom: 6px;
+}
+
+.match-board {
+    display: flex;
+    gap: 20px;
+    flex: 1;
+}
+
+.match-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.match-item {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    text-align: center;
+    font-family: 'Fredoka', 'Sarabun', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 15px;
+}
+
+.match-item:hover {
+    background: var(--glass-highlight);
+}
+
+.match-item.selected {
+    border-color: var(--color-primary);
+    background: rgba(108, 92, 231, 0.18);
+}
+
+.match-item.matched {
+    border-color: var(--color-success);
+    background: rgba(75, 224, 122, 0.15);
+    color: var(--color-success);
+    opacity: 0.6;
+    cursor: default;
+}
+
+/* โหมด 3: Fill in the Blank */
+.fill-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    flex: 1;
+}
+
+.fill-equation {
+    font-family: 'Fredoka', 'Sarabun', sans-serif;
+    font-size: 26px;
+    font-weight: bold;
+    background: rgba(0,0,0,0.25);
+    padding: 15px 30px;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+    color: #fff;
+    letter-spacing: 1px;
+}
+
+.fill-choices-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.fill-choice-btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.fill-choice-btn:hover {
+    background: var(--color-primary);
+}
+
+/* ── ส่วนท้ายของจอต่อสู้ ── */
+.battle-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding-top: 10px;
+}
+
+.btn-secondary-sm {
+    padding: 8px 16px;
+    font-size: 12px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.05);
+    color: var(--color-muted);
+    border: 1px solid var(--glass-border);
+    cursor: pointer;
+}
+
+.btn-secondary-sm:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.1);
+}
+
+.hint-trigger {
+    font-size: 12px;
+    color: var(--color-warning);
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+/* ── หน้าจอเคลียร์ด่าน / แพ้ด่าน ── */
+#victory-screen, #gameover-screen {
+    justify-content: center;
+    align-items: center;
+}
+
+.finish-card {
+    max-width: 440px;
+    width: 100%;
+    text-align: center;
+}
+
+.finish-icon {
+    font-size: 64px;
+    margin-bottom: 12px;
+}
+
+.victory-glow {
+    filter: drop-shadow(0 0 15px var(--color-warning));
+}
+
+.defeat-glow {
+    filter: drop-shadow(0 0 15px var(--color-danger));
+}
+
+.finish-title {
+    font-size: 32px;
+    font-family: 'Mitr', sans-serif;
+    margin-bottom: 6px;
+}
+
+.finish-subtitle {
+    font-size: 14px;
+    color: var(--color-muted);
+    margin-bottom: 20px;
+}
+
+.star-rating {
+    font-size: 36px;
+    letter-spacing: 5px;
+    margin-bottom: 20px;
+    color: var(--color-warning);
+    text-shadow: 0 0 10px rgba(255, 206, 84, 0.4);
+}
+
+.score-breakdown {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+}
+
+.score-line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+}
+
+.score-line total-line {
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 8px;
+    font-size: 15px;
+    color: var(--color-warning);
+}
+
+.green-text {
+    color: var(--color-success);
+}
+
+.defeat-stats {
+    font-size: 14px;
+    color: var(--color-muted);
+    margin-bottom: 24px;
+    line-height: 1.6;
+}
+
+/* ── โมดัลกล่องสัญญลักษณ์คำใบ้ ── */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(5px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: #1e1b4b;
+    border: 2px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 360px;
+    width: 100%;
+    text-align: center;
+}
+
+.modal-content h3 {
+    font-size: 18px;
+    color: var(--color-warning);
+    margin-bottom: 12px;
+}
+
+.modal-content p {
+    font-size: 14px;
+    color: var(--color-text);
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+/* ── อนิเมชันตัวเลขกระดอนเมื่อชน (Score/Combopops) ── */
+.combo-popup {
+    position: absolute;
+    color: var(--color-warning);
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    pointer-events: none;
+    z-index: 50;
+    animation: floatUpCombo 0.7s ease-out forwards;
+    text-shadow: 0 2px 5px #000;
+}
+
+@keyframes floatUpCombo {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: translateY(-50px) scale(1); opacity: 0; }
+}
+
+/* ── Responsive การแสดงผลบนโมบาย ── */
+@media (max-width: 600px) {
+    .choice-btn {
+        font-size: 14px;
+        padding: 10px 12px;
+    }
+    #panel-quiz {
+        grid-template-columns: 1fr;
+    }
+    .battle-arena {
+        height: 150px;
+    }
+    .sprite-wrapper {
+        width: 70px;
+        height: 70px;
+    }
+    .arena-character {
+        width: 100px;
+    }
+    .game-title {
+        font-size: 28px;
+    }
+}

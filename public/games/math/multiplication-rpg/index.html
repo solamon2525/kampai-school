@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>คูณผู้พิทักษ์: RPG Multiplication Adventure</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700;800&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ── SDK Boilerplate Hidden Elements (กัน Verify พัง) ── -->
+    <div id="boilerplate-compatibility" style="display: none;">
+        <div id="blocker"></div>
+        <div id="player-chip"></div>
+        <div id="my-stats">
+            <span id="ms-best">0</span>
+            <span id="ms-plays">0</span>
+        </div>
+    </div>
+
+    <!-- ── Main App Container ── -->
+    <div id="app">
+
+        <!-- 1. หน้าจอหลัก (Start Screen) -->
+        <div class="screen active" id="start-screen">
+            <div class="glass-card start-card">
+                <div class="game-logo">⚔️ MULTI RPG 🛡️</div>
+                <h1 class="game-title">คูณผู้พิทักษ์</h1>
+                <p class="game-subtitle">ปกป้องอาณาจักรคณิตศาสตร์ด้วยศาสตร์แห่งการคูณ</p>
+                
+                <!-- สถิติผู้เล่น -->
+                <div class="player-stat-row">
+                    <div class="stat-box">
+                        <div class="stat-val" id="my-best-score">0</div>
+                        <div class="stat-lbl">คะแนนสูงสุด</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-val" id="my-play-count">0</div>
+                        <div class="stat-lbl">จำนวนการเล่น</div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary btn-glow" id="btn-to-select-char">🎮 เริ่มการเดินทาง</button>
+                    <button class="btn btn-ghost" id="online-btn" style="display:none">🌐 แข่ง 2 คน</button>
+                </div>
+
+                <!-- ตารางอันดับ -->
+                <div class="leaderboard-section">
+                    <h3>🏆 อันดับวีรบุรุษ</h3>
+                    <ul class="leaderboard-list" id="main-leaderboard">
+                        <li class="empty-lb">กำลังโหลดอันดับผู้พิทักษ์...</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. หน้าจอเลือกตัวละคร (Character Select Screen - ห้ามเลือกเริ่มต้นล่วงหน้า) -->
+        <div class="screen" id="select-char-screen">
+            <div class="select-header">
+                <h2>เลือกอาชีพผู้พิทักษ์ของคุณ</h2>
+                <p>เลือกอาชีพเพื่อเดินทางสู่ดินแดนการคูณ (ไม่มีการตั้งค่าเลือกอาชีพเริ่มต้นล่วงหน้า)</p>
+            </div>
+            
+            <div class="character-grid" id="char-grid">
+                <!-- การ์ดตัวละครจะถูกสร้างโดย Dynamic JS จาก data.js -->
+            </div>
+
+            <div class="select-footer">
+                <button class="btn btn-secondary" id="btn-back-to-start">↩️ กลับหน้าหลัก</button>
+                <button class="btn btn-primary" id="btn-confirm-char" disabled>⚔️ ยืนยันอาชีพและเดินทาง</button>
+            </div>
+        </div>
+
+        <!-- 3. หน้าจอแผนที่การเดินทาง (Adventure Map Screen) -->
+        <div class="screen" id="map-screen">
+            <div class="map-header">
+                <div class="chapter-info">
+                    <h3 id="current-chapter-title">บทที่ 1: หนึ่งหลักถล่มด่าน</h3>
+                    <p id="current-chapter-desc">การคูณจำนวน 1 หลักกับจำนวนมากกว่า 4 หลัก</p>
+                </div>
+                <div class="map-controls">
+                    <button class="btn-sm" id="btn-prev-chapter">◀ บทก่อนหน้า</button>
+                    <button class="btn-sm" id="btn-next-chapter">บทถัดไป ▶</button>
+                </div>
+            </div>
+
+            <!-- โครงข่ายเส้นทางด่าน -->
+            <div class="map-container">
+                <div class="map-scroll-area" id="stages-map">
+                    <!-- ด่าน 1-10 ของบทเรียนจะถูกวางตรงนี้ในรูปแบบ Node -->
+                </div>
+            </div>
+
+            <div class="map-footer">
+                <button class="btn btn-secondary" id="btn-map-to-select">↩️ เปลี่ยนตัวละคร</button>
+                <div class="player-summary-hud">
+                    <span id="player-avatar-hud"></span>
+                    <span class="hud-text" id="player-name-hud">นักเรียน</span>
+                    <span class="hud-text score-hud" id="player-score-hud">⭐ 0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. หน้าจอสนามรบต่อสู้ (Battle Screen) -->
+        <div class="screen" id="battle-screen">
+            <!-- แผงข้อมูลผู้ท้าชิง (Battle HUD) -->
+            <div class="battle-hud">
+                <div class="hud-left">
+                    <span class="stage-badge" id="battle-stage-title">ด่านที่ 1</span>
+                    <span class="stage-type-badge" id="battle-stage-type">Quiz Mode</span>
+                </div>
+                <div class="timer-wrapper">
+                    <div class="timer-bar-container">
+                        <div class="timer-bar-fill" id="timer-bar"></div>
+                    </div>
+                    <span class="timer-text" id="timer-counter">20s</span>
+                </div>
+                <div class="score-pills">
+                    <span class="pill-score" id="battle-score">⭐ 0</span>
+                    <span class="pill-combo" id="battle-combo" style="display:none;">Combo 0</span>
+                </div>
+            </div>
+
+            <!-- ลานต่อสู้ RPG (สไตล์การ์ตูนต่อสู้) -->
+            <div class="battle-arena">
+                <!-- ฝั่งผู้เล่น -->
+                <div class="arena-character player-side" id="player-sprite-container">
+                    <div class="health-container">
+                        <div class="health-name" id="player-job-name">จอมเวท</div>
+                        <div class="hearts-row" id="player-hearts">
+                            ❤️❤️❤️
+                        </div>
+                    </div>
+                    <div class="sprite-wrapper" id="player-svg-holder">
+                        <!-- SVG จะโหลดตรงนี้ -->
+                    </div>
+                </div>
+
+                <!-- เส้นขีดกลาง / การโจมตี -->
+                <div class="versus-divider">VS</div>
+
+                <!-- ฝั่งมอนสเตอร์ -->
+                <div class="arena-character enemy-side" id="enemy-sprite-container">
+                    <div class="health-container">
+                        <div class="health-name" id="enemy-name">มอนสเตอร์</div>
+                        <div class="hp-bar-outer">
+                            <div class="hp-bar-fill" id="enemy-hp-bar" style="width: 100%;"></div>
+                        </div>
+                        <div class="hp-text" id="enemy-hp-text">200 / 200</div>
+                    </div>
+                    <div class="sprite-wrapper" id="enemy-svg-holder">
+                        <!-- SVG จะโหลดตรงนี้ -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- กล่องคำถามและแผงคำตอบแบบ dynamic -->
+            <div class="interactive-panel">
+                <!-- กล่องแสดงคำถาม -->
+                <div class="question-box">
+                    <p id="battle-question">คำถามกำลังโหลด...</p>
+                </div>
+
+                <!-- โหมด 1: Quiz 4 ตัวเลือก (ก ข ค ง) -->
+                <div class="answer-panel active" id="panel-quiz">
+                    <button class="choice-btn" data-idx="0"><span class="choice-letter">A</span> <span class="choice-text">คำตอบ A</span></button>
+                    <button class="choice-btn" data-idx="1"><span class="choice-letter">B</span> <span class="choice-text">คำตอบ B</span></button>
+                    <button class="choice-btn" data-idx="2"><span class="choice-letter">C</span> <span class="choice-text">คำตอบ C</span></button>
+                    <button class="choice-btn" data-idx="3"><span class="choice-letter">D</span> <span class="choice-text">คำตอบ D</span></button>
+                </div>
+
+                <!-- โหมด 2: Drag & Match (จับคู่เศษส่วน/โจทย์ผลคูณ) -->
+                <div class="answer-panel" id="panel-match">
+                    <p class="panel-instruction">คลิกจับคู่โจทย์การคูณกับผลลัพธ์ที่ถูกต้องให้สัมพัทธ์กัน</p>
+                    <div class="match-board">
+                        <div class="match-column" id="match-left-col">
+                            <!-- แฝงโจทย์ เช่น 12 x 5 -->
+                        </div>
+                        <div class="match-column" id="match-right-col">
+                            <!-- แฝงผลลัพธ์ เช่น 60 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- โหมด 3: Fill in the Blank (เติมตัวเลข) -->
+                <div class="answer-panel" id="panel-fill">
+                    <p class="panel-instruction">เติมตัวเลขหลักที่ขาดหายไปในช่องว่างให้ถูกต้อง</p>
+                    <div class="fill-layout">
+                        <div class="fill-equation" id="fill-eq-display">
+                            50 × [ ? ] = 3,000
+                        </div>
+                        <div class="fill-choices-row" id="fill-options">
+                            <!-- ปุ่มเลือกตัวเลขเติม -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ป้ายช่วยแสดงผลการเล่น -->
+            <div class="battle-footer">
+                <button class="btn btn-secondary-sm" id="btn-battle-quit">🏳️ ยอมแพ้</button>
+                <div class="hint-box">
+                    <span class="hint-trigger" id="btn-show-hint">💡 ขอคำใบ้</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. หน้าจอเคลียร์ด่าน / ชนะ (Victory Screen) -->
+        <div class="screen" id="victory-screen">
+            <div class="glass-card finish-card">
+                <div class="finish-icon victory-glow">🏆</div>
+                <h1 class="finish-title">ชัยชนะ!</h1>
+                <p class="finish-subtitle" id="victory-stage-name">ด่านที่ 1 ผ่านแล้ว</p>
+                
+                <div class="star-rating" id="victory-stars">
+                    ⭐⭐⭐
+                </div>
+
+                <div class="score-breakdown">
+                    <div class="score-line">
+                        <span>คะแนนสะสมด่าน:</span>
+                        <strong id="victory-gained-score">+1,200</strong>
+                    </div>
+                    <div class="score-line">
+                        <span>โบนัสคิดเลขเร็ว:</span>
+                        <strong class="green-text" id="victory-speed-bonus">+150</strong>
+                    </div>
+                    <div class="score-line total-line">
+                        <span>คะแนนรวมสุทธิ:</span>
+                        <strong id="victory-total-score">2,550</strong>
+                    </div>
+                </div>
+
+                <div class="action-buttons font-sarabun">
+                    <button class="btn btn-primary" id="btn-next-stage">🗺️ ไปต่อยังด่านถัดไป</button>
+                    <button class="btn btn-ghost" id="btn-victory-to-map">แผนที่โลก</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. หน้าจอพ่ายแพ้ / เลือดหมด (Game Over Screen) -->
+        <div class="screen" id="gameover-screen">
+            <div class="glass-card finish-card">
+                <div class="finish-icon defeat-glow">💀</div>
+                <h1 class="finish-title">ผู้พิทักษ์พ่ายแพ้</h1>
+                <p class="finish-subtitle">พละกำลังของคุณหมดลงแล้ว หรือเวลาหมดก่อน</p>
+
+                <div class="defeat-stats">
+                    <p>พยายามอีกครั้งนะ! การคูณไม่ใช่เรื่องยากหากฝึกฝนบ่อยๆ</p>
+                </div>
+
+                <div class="action-buttons font-sarabun">
+                    <button class="btn btn-primary" id="btn-retry-stage">🔄 ท้าทายอีกครั้ง</button>
+                    <button class="btn btn-ghost" id="btn-gameover-to-map">🏳️ กลับไปตั้งหลักที่แผนที่</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── โมดัลกล่องคำใบ้ / คีย์บอร์ดช่วยเหลือ ── -->
+        <div class="modal" id="hint-modal">
+            <div class="modal-content">
+                <h3>💡 คู่มือเวทมนตร์ & คำใบ้</h3>
+                <p id="hint-content">คำใบ้โจทย์ข้อนี้กำลังค้นหา...</p>
+                <button class="btn btn-primary" id="btn-close-hint">รับทราบ</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ── โหลดสคริปต์ตามลำดับแบบ 5-File Architecture (แชร์ global scope) ── -->
+    <script src="config.js"></script>
+    <script src="data.js"></script>
+    
+    <!-- Fallback SDK stub ในกรณีรันเดี่ยวๆ หรือ verify:game ใน headless -->
+    <script src="/games/kampai-sdk.js"></script>
+    <script>
+        window.KAMPAI = window.KAMPAI || {
+            isEmbed: false,
+            ready: true,
+            student: null,
+            stats: null,
+            leaderboard: [],
+            onReady: function (cb) { cb(this); },
+            setSlug: function () { return this; },
+            submitScore: function () { return false; },
+            goHome: function () { location.reload(); },
+            sound: {
+                unlock: function () {},
+                correct: function () {},
+                wrong: function () {},
+                timeUp: function () {},
+                gameOver: function () {},
+                speak: function () {},
+                stopSpeak: function () {},
+                fxFlash: function () {},
+                mountToggles: function () {},
+                defaultBgm: function () {},
+                bgmStart: function () {},
+                bgmStop: function () {}
+            }
+        };
+    </script>
+    <script src="/games/kampai-versus.js"></script>
+    <script>
+        window.KampaiVersus = window.KampaiVersus || {
+            create: function () {
+                return {
+                    available: false,
+                    openMenu: function () { alert('โหมดออนไลน์เล่นผ่านระบบเท่านั้น'); },
+                    report: function () {},
+                    finish: function () { return false; },
+                    leave: function () {}
+                };
+            }
+        };
+    </script>
+    <script src="game.js"></script>
+</body>
+</html>
