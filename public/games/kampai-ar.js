@@ -113,6 +113,7 @@
 
         var st = {
             stream: null, active: false, running: false, mode: 'tap', // 'camera' | 'tap'
+            activeDetector: 'tap',
             x: 0.5, y: 0.5, energy: 0, lastZone: null, holdStart: 0, holdProgress: 0, committedZone: null,
             rafId: 0, intervalId: 0, prevFrame: null, off: null, offCtx: null, particles: [],
             pose: null, mpHands: null,
@@ -176,6 +177,7 @@
                 return true;
             } catch (err) {
                 st.mode = 'tap'; status('no-camera'); // เกมต้องเปิดโหมดแตะ (บังคับมี fallback)
+                st.activeDetector = 'tap';
                 return false;
             }
         }
@@ -204,6 +206,7 @@
 
         // ── detector: framediff ──
         function startFrameDiff() {
+            st.activeDetector = 'framediff';
             var offW = tuning.downsample.w, offH = tuning.downsample.h;
             st.off = document.createElement('canvas'); st.off.width = offW; st.off.height = offH;
             st.offCtx = st.off.getContext('2d', { willReadFrequently: true });
@@ -285,6 +288,7 @@
 
         // ── detector: pose (MediaPipe) ──
         async function startPose() {
+            st.activeDetector = 'pose';
             status('pose-loading');
             try { await loadPoseLib(); }
             catch (e) { startFrameDiff(); return; } // โหลด lib ไม่ได้ → ใช้ framediff แทน
@@ -312,6 +316,7 @@
         }
         // ── detector: hands (MediaPipe Hands — ปลายนิ้วชี้ landmark 8) ──
         async function startHands() {
+            st.activeDetector = 'hands';
             status('hands-loading');
             try { await loadHandsLib(); }
             catch (e) { startFrameDiff(); return; } // โหลด lib ไม่ได้ → ใช้ framediff แทน
@@ -665,6 +670,7 @@
         return {
             start: start, stop: stop, setActive: setActive, tap: tap,
             detector: detector, inputMode: inputMode, zones: zones, cuts: cuts, holdMs: holdMs, tuning: tuning,
+            get activeDetector() { return st.activeDetector || detector; },
             get mode() { return st.mode; }, get x() { return st.x; }, get y() { return st.y; },
             get energy() { return st.energy; }, get hands() { return st.hands; }, get zone() { return st.lastZone; },
             get leftHand() { return st.leftHand; }, get rightHand() { return st.rightHand; },

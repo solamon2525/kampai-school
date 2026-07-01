@@ -272,7 +272,7 @@
         if (leftPointer.active) addProbe(leftPointer.x, leftPointer.y);
         if (rightPointer.active) addProbe(rightPointer.x, rightPointer.y);
 
-        if (ar && ar.detector === 'hands') {
+        if (ar && ar.activeDetector === 'hands') {
             if (ar.leftHandLandmarks) {
                 for (var li = 0; li < fingerTips.length; li++) {
                     var lpt = ar.leftHandLandmarks[fingerTips[li]];
@@ -489,7 +489,7 @@
     }
 
     function drawHandTracking() {
-        if (!ar || ar.detector !== 'hands') {
+        if (!ar || ar.activeDetector !== 'hands') {
             drawPointerCursor();
             return;
         }
@@ -563,7 +563,7 @@
             }
             
             // framediff/pose: ใช้จุดเคลื่อนไหวกลางเมื่อไม่มีมือ
-            if (!leftPointer.active && !rightPointer.active && ar.detector !== 'hands') {
+            if (!leftPointer.active && !rightPointer.active && ar.activeDetector !== 'hands') {
                 rightPointer.x = ar.x * canvas.width;
                 rightPointer.y = ar.y * canvas.height;
                 rightPointer.active = true;
