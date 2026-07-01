@@ -110,6 +110,9 @@
     function buildAR() {
         return KampaiAR.create({
             video: '#arVideo',
+            displaySize: function () {
+                return canvas ? { w: canvas.width, h: canvas.height } : null;
+            },
             detector: CFG.DETECTOR,
             holdMs: CFG.HOLD_MS,
             tuning: CFG.TUNING,
@@ -247,30 +250,81 @@
     }
 
     // ── Handle Fallback Click / Touch Taps ──
+    function clientToCanvas(clientX, clientY) {
+        var rect = canvas.getBoundingClientRect();
+        var scaleX = canvas.width / (rect.width || canvas.width);
+        var scaleY = canvas.height / (rect.height || canvas.height);
+        return {
+            x: (clientX - rect.left) * scaleX,
+            y: (clientY - rect.top) * scaleY
+        };
+    }
+
+    function collectHitProbes() {
+        var probes = [];
+        var w = canvas.width, h = canvas.height;
+        var fingerTips = [8, 12, 16, 20];
+
+        function addProbe(px, py) {
+            probes.push({ x: px, y: py });
+        }
+
+        if (leftPointer.active) addProbe(leftPointer.x, leftPointer.y);
+        if (rightPointer.active) addProbe(rightPointer.x, rightPointer.y);
+
+        if (ar && ar.detector === 'hands') {
+            if (ar.leftHandLandmarks) {
+                for (var li = 0; li < fingerTips.length; li++) {
+                    var lpt = ar.leftHandLandmarks[fingerTips[li]];
+                    if (lpt) addProbe(lpt.x * w, lpt.y * h);
+                }
+            }
+            if (ar.rightHandLandmarks) {
+                for (var ri = 0; ri < fingerTips.length; ri++) {
+                    var rpt = ar.rightHandLandmarks[fingerTips[ri]];
+                    if (rpt) addProbe(rpt.x * w, rpt.y * h);
+                }
+            }
+        }
+        return probes;
+    }
+
+    function hitsBalloon(b, drawX, probes, pad) {
+        var hitR = b.radius + (pad || 0);
+        for (var pi = 0; pi < probes.length; pi++) {
+            var p = probes[pi];
+            var dx = p.x - drawX;
+            var dy = p.y - b.y;
+            if (dx * dx + dy * dy < hitR * hitR) return true;
+        }
+        return false;
+    }
+
     function handleCanvasTap(e) {
         if (gameState !== 'playing') return;
-        var clientX = e.clientX || (e.touches && e.touches[0] && e.touches[0].clientX);
-        var clientY = e.clientY || (e.touches && e.touches[0] && e.touches[0].clientY);
+        var clientX = e.clientX != null ? e.clientX : (e.touches && e.touches[0] && e.touches[0].clientX);
+        var clientY = e.clientY != null ? e.clientY : (e.touches && e.touches[0] && e.touches[0].clientY);
         if (clientX == null || clientY == null) return;
-        var rect = canvas.getBoundingClientRect();
-        var tapX = clientX - rect.left;
-        var tapY = clientY - rect.top;
+        if (e.cancelable) e.preventDefault();
+        var pt = clientToCanvas(clientX, clientY);
+        var probes = [{ x: pt.x, y: pt.y }];
 
         for (var i = balloons.length - 1; i >= 0; i--) {
             var b = balloons[i];
             if (b.popped) continue;
             var drawX = b.x + Math.sin(b.sway) * 10;
-            var dx = tapX - drawX;
-            var dy = tapY - b.y;
-            if (dx * dx + dy * dy < b.radius * b.radius) {
+            if (hitsBalloon(b, drawX, probes, CFG.FINGER_HIT_PADDING || 0)) {
                 popBalloon(b, i, drawX);
-                break; // pop one balloon per tap
+                break;
             }
         }
     }
 
     // ── Main Game Loop ──
     function updateAndDrawBalloons() {
+        var hitPad = CFG.FINGER_HIT_PADDING || 0;
+        var probes = collectHitProbes();
+
         for (var i = balloons.length - 1; i >= 0; i--) {
             var b = balloons[i];
             if (b.popped) continue;
@@ -278,25 +332,10 @@
             b.sway += b.swaySpeed;
             var drawX = b.x + Math.sin(b.sway) * 10;
 
-            // collision with camera pointers (both hands)
-            var popped = false;
-            if (leftPointer.active) {
-                var dx = leftPointer.x - drawX;
-                var dy = leftPointer.y - b.y;
-                if (dx * dx + dy * dy < b.radius * b.radius) {
-                    popBalloon(b, i, drawX);
-                    popped = true;
-                }
+            if (probes.length && hitsBalloon(b, drawX, probes, hitPad)) {
+                popBalloon(b, i, drawX);
+                continue;
             }
-            if (!popped && rightPointer.active) {
-                var dx = rightPointer.x - drawX;
-                var dy = rightPointer.y - b.y;
-                if (dx * dx + dy * dy < b.radius * b.radius) {
-                    popBalloon(b, i, drawX);
-                    popped = true;
-                }
-            }
-            if (popped) continue;
 
             // check missed / out of bounds
             if (b.y < -b.radius * 2) {

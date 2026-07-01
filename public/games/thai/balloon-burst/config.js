@@ -9,6 +9,7 @@ window.GAME_CONFIG = {
     BALLOON_RADIUS_MAX: 68,
     BALLOON_SPEED_MIN: 0.9,
     BALLOON_SPEED_MAX: 1.9,
+    FINGER_HIT_PADDING: 36,   // รัศมีเพิ่มรอบนิ้วชี้ตอนเช็กชนลูกโป่ง (px)
     MEDAL_GOLD_SCORE: 300,
     MEDAL_SILVER_SCORE: 150,
     BGM: 'cheerful',

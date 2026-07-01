@@ -11,7 +11,7 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
     'use strict';
-    var VERSION = '1.3.1';
+    var VERSION = '1.3.2';
 
     // ค่าจูนเริ่มต้น (override ได้ผ่าน opts.tuning ใน config.js) — ดูคำอธิบายช่วงที่แนะนำใน AR-GAME.md
     var DEFAULT_TUNING = {
@@ -100,6 +100,7 @@
         var inputMode = opts.mode === 'hands' ? 'hands' : 'horizontal';
         var video = resolveEl(opts.video);
         var canvas = resolveEl(opts.canvas);
+        var getDisplaySizeOverride = typeof opts.displaySize === 'function' ? opts.displaySize : null;
         var cb = {
             onZone: opts.onZone || function () {},
             onHoldProgress: opts.onHoldProgress || function () {},
@@ -341,6 +342,39 @@
                 document.head.appendChild(s);
             });
         }
+        function getDisplaySize() {
+            if (getDisplaySizeOverride) {
+                try {
+                    var o = getDisplaySizeOverride();
+                    if (o && o.w > 0 && o.h > 0) return o;
+                } catch (e) {}
+            }
+            if (canvas && canvas.width > 0 && canvas.height > 0) {
+                return { w: canvas.width, h: canvas.height };
+            }
+            if (video) {
+                return {
+                    w: video.clientWidth || video.offsetWidth || window.innerWidth,
+                    h: video.clientHeight || video.offsetHeight || window.innerHeight
+                };
+            }
+            return { w: window.innerWidth, h: window.innerHeight };
+        }
+        // แปลงพิกัด MediaPipe (0..1 ของเฟรมกล้อง) → 0..1 บนจอ canvas (รองรับ object-fit: cover)
+        function videoNormToCanvasNorm(nx, ny) {
+            if (!video || !video.videoWidth) {
+                return { x: clamp(1 - nx, 0, 1), y: clamp(ny, 0, 1) };
+            }
+            var vw = video.videoWidth, vh = video.videoHeight;
+            var ds = getDisplaySize();
+            var cw = ds.w, ch = ds.h;
+            var scale = Math.max(cw / vw, ch / vh);
+            var offX = (cw - vw * scale) / 2;
+            var offY = (ch - vh * scale) / 2;
+            var px = (1 - nx) * vw * scale + offX;
+            var py = ny * vh * scale + offY;
+            return { x: clamp(px / cw, 0, 1), y: clamp(py / ch, 0, 1) };
+        }
         function handednessLabel(entry) {
             if (!entry) return 'Right';
             if (entry.label) return entry.label;
@@ -363,10 +397,11 @@
             }
             hand.active = true;
         }
-        function copyLandmarksMirrored(lm) {
+        function copyLandmarksMapped(lm) {
             var out = new Array(lm.length);
             for (var j = 0; j < lm.length; j++) {
-                out[j] = { x: 1 - lm[j].x, y: lm[j].y };
+                var m = videoNormToCanvasNorm(lm[j].x, lm[j].y);
+                out[j] = { x: m.x, y: m.y };
             }
             return out;
         }
@@ -381,6 +416,7 @@
                 lock.locked = true;
                 lock.until = now + lockMs;
                 st[lmKey] = landmarksCopy;
+                hand.active = true;
                 raw.active = true;
                 return;
             }
@@ -415,18 +451,35 @@
 
             var handedness = res.multiHandedness || [];
             var sumX = 0, sumY = 0, count = 0, prevCx = st.x, prevCy = st.y;
+            var handEntries = [];
 
             for (var i = 0; i < landmarks.length; i++) {
                 var lm = landmarks[i];
                 var tip = lm[8]; // INDEX_FINGER_TIP
                 if (!tip) continue;
-                var hx = 1 - tip.x; // mirror (selfie)
-                var hy = tip.y;
-                var side = handednessLabel(handedness[i]) === 'Left' ? 'left' : 'right';
-                updateTrackedHand(side, hx, hy, true, now);
+                var mapped = videoNormToCanvasNorm(tip.x, tip.y);
+                handEntries.push({
+                    lm: lm,
+                    hx: mapped.x,
+                    hy: mapped.y,
+                    label: handednessLabel(handedness[i])
+                });
+            }
+
+            // จัดซ้าย/ขวาจากตำแหน่งบนจอ (mirror แล้ว) — แม่นกว่า handedness ของ MediaPipe ในโหมด selfie
+            handEntries.sort(function (a, b) { return a.hx - b.hx; });
+            for (var hi = 0; hi < handEntries.length; hi++) {
+                var entry = handEntries[hi];
+                var side;
+                if (handEntries.length >= 2) {
+                    side = hi === 0 ? 'left' : 'right';
+                } else {
+                    side = entry.hx < 0.5 ? 'left' : 'right';
+                }
+                updateTrackedHand(side, entry.hx, entry.hy, true, now);
                 detected[side] = true;
-                freshLandmarks[side] = copyLandmarksMirrored(lm);
-                sumX += hx; sumY += hy; count++;
+                freshLandmarks[side] = copyLandmarksMapped(entry.lm);
+                sumX += entry.hx; sumY += entry.hy; count++;
             }
 
             applyHandLock('left', detected.left, freshLandmarks.left, now);

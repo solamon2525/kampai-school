@@ -3,9 +3,10 @@
 > ⚠️ **อ่านไฟล์นี้ก่อนสร้าง/แก้เกม AR ทุกครั้ง** — กันบัคซ้ำเดิม (โดยเฉพาะ layout ยุบ + ไม่มี fallback)
 > เกม AR ใช้ engine กลาง `public/games/kampai-ar.js` (`window.KampaiAR`) — แก้ engine ที่เดียว ทุกเกม AR ดีขึ้นพร้อมกัน
 >
-> **Engine version:** `KampaiAR v1.3.1` · **Doc version:** v1.3.1
+> **Engine version:** `KampaiAR v1.3.2` · **Doc version:** v1.3.2
 
 ## Changelog
+- **v1.3.2** — แปลงพิกัดมือ `videoNormToCanvasNorm` (object-fit:cover) · จัดซ้าย/ขวาจากตำแหน่งจอ · `displaySize` callback
 - **v1.3.1** — Hands detector: โครงมือ `leftHandLandmarks`/`rightHandLandmarks` + **ล็อกตำแหน่ง** (`handLockMs`) หลังจับได้ · กันหลุดชั่วคราว
 - **v1.3.0** — 🆕 **`DETECTOR:'hands'`** — MediaPipe Hands ติดตามปลายนิ้วชี้ (landmark 8) ซ้าย/ขวาแยกกัน · knob `handsUrl` / `maxNumHands` / `handsModelComplexity` · fallback framediff ถ้า CDN ล้ม
 - **v1.2.0** — 🆕 **One Euro Filter** (ลด jitter แบบ adaptive ไม่เพิ่ม latency ตอนมือไว) + **Raw Coordinate Getters** (`ar.rawX`, `ar.rawY`, `ar.rawLeftHand`, `ar.rawRightHand`) + เทมเพลตใหม่ `_template-ar-hands/` สำหรับเกม hand tracking (แตะ/ชนวัตถุด้วยมือ 2 ข้าง) + **AR Calibration Visualizer** (`public/games/ar-calibration/`) สำหรับจูนค่า filter แบบสดๆ
@@ -147,6 +148,7 @@ engine **ไม่สนขนาดที่โชว์กล้อง** — d
 |---|---|---|---|
 | 2026-06-20 | (เริ่มต้น) `fraction-garden-ar` คอมมิตเร็วไป บนแท็บเล็ตโรงเรียน | `HOLD_MS` 1200→2000 | มีเวลาตัดสินใจขึ้น |
 | 2026-06-22 | ทุกเกม AR — ขอเวลาตัดสินใจมากขึ้น (เซนเซอร์รอคำตอบ) | `holdMs` default 2000→2500 + ทุก config `HOLD_MS`→2500, `ROUND_SEC`→20 | ค้างนานขึ้นก่อนล็อก + มีเวลาคิดต่อข้อมากขึ้น (เปลี่ยนใจได้) |
+| 2026-07-01 | `balloon-burst` จิ้ม/ชนลูกโป่งไม่ได้ — พิกัดมือไม่ตรง cover crop | `videoNormToCanvasNorm` v1.3.2 + `FINGER_HIT_PADDING` + ชนหลายปลายนิ้ว | นิ้วทับลูกโป่งบนจอ = เจาะได้ · แตะ fallback scale ถูก |
 | 2026-07-01 | `balloon-burst` นิ้วไม่ติดตาม — Pose landmark ประมาณ | เพิ่ม `DETECTOR:'hands'` ใน KampaiAR v1.3.0 + สลับเกมไปใช้ MediaPipe Hands | ปลายนิ้วชี้ (landmark 8) ซ้าย/ขวาแยก · fallback framediff ถ้า CDN ล้ม |
 | 2026-07-01 | `balloon-burst` พิกัดมือสั่นไหว (jitter) ตอนค้างอยู่เฉย ทำให้ไม่แม่นยำในการเจาะลูกโป่ง | เพิ่ม One Euro Filter: `filterType:'oneeuro'`, `oneEuroMinCutoff:1.0`, `oneEuroBeta:0.007` | พิกัดนิ่งตอนมือค้าง / ตอบสนองทันทีตอนมือไว — latency แทบไม่เพิ่ม |
 | 2026-07-01 | สร้าง `_template-ar-hands/` + `ar-calibration/` | เพิ่มเทมเพลตเกม hand tracking + หน้าจอจูนค่าเรียลไทม์ | เกม AR ใหม่สร้างได้เร็วขึ้น + จูนค่า filter ได้สะดวก |

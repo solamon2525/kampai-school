@@ -272,8 +272,17 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.130.0 (Hand skeleton + lock)',
+        version: 'v1.131.0 (Balloon Burst poke fix)',
         date: 'ล่าสุด',
+        badge: 'bg-violet-600',
+        items: [
+            '**KampaiAR v1.3.2** — แปลงพิกัดมือให้ตรง object-fit:cover · `displaySize` callback',
+            '**balloon-burst** ชนลูกโป่งด้วยหลายปลายนิ้ว + `FINGER_HIT_PADDING` · แตะ scale พิกัดถูก',
+        ],
+    },
+    {
+        version: 'v1.130.0 (Hand skeleton + lock)',
+        date: '',
         badge: 'bg-violet-600',
         items: [
             '**KampaiAR v1.3.1** — โครงมือ `leftHandLandmarks`/`rightHandLandmarks` + ล็อกตำแหน่ง `handLockMs` หลังจับได้',
