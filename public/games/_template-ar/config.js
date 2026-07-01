@@ -13,7 +13,12 @@ window.GAME_CONFIG = {
         minMotionRatio: 0.015,
         smoothing: 0.78,
         intervalMs: 55,
-        minConfidence: 0.5
+        minConfidence: 0.5,
+        // ── One Euro Filter (v1.2.0) — ลดสั่นไหวดีกว่า EMA (ใช้ได้ทั้ง framediff+pose) ──
+        filterType: 'ema',             // 'ema' (ค่าเริ่มต้น เสถียร) | 'oneeuro' (ลดสั่น แนะนำ)
+        oneEuroMinCutoff: 1.0,         // Cutoff ขั้นต่ำ (Hz) — ต่ำ=นิ่งตอนอยู่เฉย (0.5–3.0)
+        oneEuroBeta: 0.007,            // ค่าสัมประสิทธิ์ความเร็ว — สูง=ตอบเร็วตอนขยับเร็ว (0.001–0.05)
+        oneEuroDCutoff: 1.0            // Cutoff อนุพันธ์ (Hz) (0.5–3.0)
     },
 
     // ── เกม ──
