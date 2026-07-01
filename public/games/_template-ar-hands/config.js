@@ -9,6 +9,8 @@ window.GAME_CONFIG = {
         modelComplexity: 1,
         minConfidence: 0.6,
         smoothing: 0.4,
+        lostHoldMs: 140,
+        sweepSteps: 2,
         cameraWidth: 640,
         cameraHeight: 480
     },

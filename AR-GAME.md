@@ -1,11 +1,12 @@
 # AR-GAME.md — โครงร่าง/มาตรฐานเกม AR (กล้อง + เคลื่อนไหวร่างกาย)
 
 > ⚠️ **อ่านไฟล์นี้ก่อนสร้าง/แก้เกม AR ทุกครั้ง** — กันบัคซ้ำเดิม (โดยเฉพาะ layout ยุบ + ไม่มี fallback)
-> เกม AR ใช้ engine กลาง `public/games/kampai-ar.js` (`window.KampaiAR`) — แก้ engine ที่เดียว ทุกเกม AR ดีขึ้นพร้อมกัน
+> เกม AR มี 2 engine กลาง: `kampai-ar.js` (zone/body) และ `kampai-hands.js` (finger poke/grab)
 >
-> **Engine version:** `KampaiAR v1.3.2` · `KampaiHands v1.0.0` · **Doc version:** v1.4.0
+> **Engine version:** `KampaiAR v1.3.2` · `KampaiHands v1.1.0` · **Doc version:** v1.4.1
 
 ## Changelog
+- **v1.4.1** — **KampaiHands v1.1.0** เพิ่มความแม่นยำ: map พิกัดรองรับ `object-fit: cover`, `lostHoldMs` กันหลุดมือชั่วคราว, และ `sweepSteps` เพิ่ม hit probe ตามเส้นทางนิ้ว (ลดอาการพุ่งทะลุวัตถุ)
 - **v1.4.0** — 🆕 **`KampaiHands`** (`kampai-hands.js`) — engine มาตรฐานสำหรับเกม **จิ้ม/ทับ/ชนวัตถุด้วยปลายนิ้วชี้** (MediaPipe Hands + camera_utils · pattern balloon-burst) · **`_template-ar-hands`** ย้ายมาใช้ KampaiHands · **อย่าใช้ `KampaiAR` + `DETECTOR:'hands'`** สำหรับเกมประเภทนี้
 - **v1.3.2** — แปลงพิกัดมือ `videoNormToCanvasNorm` (object-fit:cover) · จัดซ้าย/ขวาจากตำแหน่งจอ · `displaySize` callback
 - **v1.3.1** — Hands detector: โครงมือ `leftHandLandmarks`/`rightHandLandmarks` + **ล็อกตำแหน่ง** (`handLockMs`) หลังจับได้ · กันหลุดชั่วคราว
@@ -122,7 +123,9 @@ kampai-sdk.js               │              + hands.collectHitProbes() ถ้�
 10. **ล้างค่า Timeout ตัวแปรเปลี่ยนข้อเสมอ (Clear Transition Timeout)**: เมื่อผู้เล่นกดปุ่มออกจากเกม (Quit) หรือรอบการเล่นเสร็จสิ้น ต้องเคลียร์และล้าง Timeout ช่วงดีเลย์ระหว่างรอบหรือฟีดแบ็กเปลี่ยนข้อ (เช่น `ST.nextRoundTimeout` หรือ `state.feedbackTimeoutId`) เสมอ ป้องกันเวลาแอปสุ่มโหลดข้อถัดไปหรือเริ่มจับเวลาผีฟื้นในเบื้องหลัง
 11. **ซิงค์ค่า Seeded RNG ในโหมด Versus**: สำหรับเกมจับคู่ออนไลน์ (Versus) ต้องเปลี่ยนการทำงานสุ่มมาใช้ตัวสร้าง `Mulberry32(seed)` เพื่อคำนวณตำแหน่ง/สุ่มโจทย์ทั้งหมดให้ตรงกัน 100% ทั้งสองฝั่งสะท้อนความเป็นธรรมในการประลองความเร็วคณิตศาสตร์
 
-## 5. ตารางจูนประสิทธิภาพ (`config.js` → `TUNING`)
+## 5. ตารางจูนประสิทธิภาพ
+
+### 5.1 KampaiAR (`config.js` → `TUNING`)
 
 | knob | หน้าที่ | ช่วงแนะนำ | trade-off |
 |---|---|---|---|
@@ -148,6 +151,17 @@ kampai-sdk.js               │              + hands.collectHitProbes() ถ้�
 >
 > 🔧 **AR Calibration Tool** (`/games/ar-calibration/index.html`) — เปิดหน้าเว็บเพื่อปรับค่า filter แบบเรียลไทม์ พร้อมเห็นผลทันทีระหว่าง raw vs smoothed, FPS/latency counter, และปุ่ม Copy Tuning JSON
 
+### 5.2 KampaiHands (`config.js` → `HANDS`)
+
+| knob | หน้าที่ | ช่วงแนะนำ | trade-off |
+|---|---|---|---|
+| `minConfidence` | ความมั่นใจขั้นต่ำของ MediaPipe Hands | 0.5–0.75 | ต่ำ=ติดง่าย/หลอน · สูง=แม่น/หลุด |
+| `smoothing` | EMA ของ pointer พิกเซล | 0.35–0.6 | ต่ำ=ไว/สั่น · สูง=นิ่ง/หน่วง |
+| `lostHoldMs` | คง active มือไว้ช่วงหลุดเฟรมสั้นๆ | 80–220ms | สูง=ลื่นขึ้น/เสี่ยงติดค้าง |
+| `sweepSteps` | จำนวน probe แทรกระหว่างตำแหน่งก่อนหน้า→ปัจจุบัน | 1–4 | สูง=ชนติดง่ายขึ้น/อาจโดนผิดง่าย |
+| `cameraWidth`,`cameraHeight` | ขนาด feed ของ `camera_utils` | 640×480 (เริ่มต้น) | ใหญ่=แม่นขึ้น/หนักขึ้น |
+| `maxNumHands` | จำนวนมือสูงสุด | 1–2 | 2=รองรับสองมือ · 1=เบา |
+
 ### Detector เลือกอย่างไร (`config.js` → `DETECTOR`)
 
 | `DETECTOR` | เทคโนโลยี | เหมาะกับ | ข้อจำกัด |
@@ -172,6 +186,7 @@ kampai-sdk.js               │              + hands.collectHitProbes() ถ้�
 |---|---|---|---|
 | 2026-06-20 | (เริ่มต้น) `fraction-garden-ar` คอมมิตเร็วไป บนแท็บเล็ตโรงเรียน | `HOLD_MS` 1200→2000 | มีเวลาตัดสินใจขึ้น |
 | 2026-06-22 | ทุกเกม AR — ขอเวลาตัดสินใจมากขึ้น (เซนเซอร์รอคำตอบ) | `holdMs` default 2000→2500 + ทุก config `HOLD_MS`→2500, `ROUND_SEC`→20 | ค้างนานขึ้นก่อนล็อก + มีเวลาคิดต่อข้อมากขึ้น (เปลี่ยนใจได้) |
+| 2026-07-01 | เพิ่มความแม่นยำการจิ้ม/ชนวัตถุในระบบกลาง | **KampaiHands v1.1.0**: map `object-fit:cover` + `lostHoldMs` + `sweepSteps` | ลดพิกัดเหลื่อม + ลดหลุดมือ + ลดอาการนิ้วพุ่งทะลุ |
 | 2026-07-01 | `balloon-burst` ใช้งานได้จริงหลังย้าย stack | สร้าง **`KampaiHands v1.0.0`** (inline MediaPipe + camera_utils) · `_template-ar-hands` ย้ายตาม | เกมจิ้ม/ชนวัตถุ = KampaiHands · zone/body = KampaiAR |
 | 2026-07-01 | `balloon-burst` จิ้ม/ชนลูกโป่งไม่ได้ — พิกัดมือไม่ตรง cover crop | `videoNormToCanvasNorm` v1.3.2 + `FINGER_HIT_PADDING` + ชนหลายปลายนิ้ว | (superseded โดย KampaiHands — map ตรงแบบ cyberdrop) |
 | 2026-07-01 | `balloon-burst` นิ้วไม่ติดตาม — Pose landmark ประมาณ | เพิ่ม `DETECTOR:'hands'` ใน KampaiAR v1.3.0 + สลับเกมไปใช้ MediaPipe Hands | ปลายนิ้วชี้ (landmark 8) ซ้าย/ขวาแยก · fallback framediff ถ้า CDN ล้ม |
@@ -216,7 +231,7 @@ ar.rawLeftHand       // { x, y, active } — พิกัดดิบก่อ�
 ar.rawRightHand      // { x, y, active } — พิกัดดิบก่อนกรอง
 ```
 
-### 7.1 Finger Tracking (`KampaiHands` v1.0.0)
+### 7.1 Finger Tracking (`KampaiHands` v1.1.0)
 
 สำหรับเกมที่ต้อง **จิ้ม/ทับ/ชนวัตถุด้วยปลายนิ้วชี้**:
 
@@ -226,7 +241,7 @@ ar.rawRightHand      // { x, y, active } — พิกัดดิบก่อ�
 
 const hands = KampaiHands.create({
   video: '#arVideo',
-  hands: CFG.HANDS,                    // maxNumHands, smoothing, minConfidence, ...
+  hands: CFG.HANDS,                    // + lostHoldMs / sweepSteps
   getCanvasSize: () => ({ w: canvas.width, h: canvas.height }),
   onStatus(s) {}                        // 'camera-on' | 'no-camera' | 'stopped'
 });
@@ -236,7 +251,7 @@ hands.stop();                          // cleanup ทุก exit
 // ── Properties ──
 hands.mode                             // 'camera' | 'tap'
 hands.leftHand, hands.rightHand        // { x, y, active } normalized 0..1 (ปลายนิ้วชี้)
-hands.leftPointer, hands.rightPointer  // { x, y, active } พิกเซลบน canvas
+hands.leftPointer, hands.rightPointer  // { x, y, prevX, prevY, active } พิกเซลบน canvas
 hands.leftLandmarks, hands.rightLandmarks  // 21 จุด normalized — วาดโครงมือ
 hands.collectHitProbes()               // [{x,y}] พิกเซล — ชนวัตถุใน loop
 hands.clientToCanvas(canvas, cx, cy)   // แตะ fallback

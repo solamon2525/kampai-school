@@ -19,7 +19,9 @@ window.GAME_CONFIG = {
         maxNumHands: 2,
         modelComplexity: 1,
         minConfidence: 0.6,
-        smoothing: 0.4,       // lerp ตำแหน่งปลายนิ้วชี้ (0.4 = cyberdrop)
+        smoothing: 0.52,      // ลด lag ของปลายนิ้วให้ชนลูกโป่งที่เคลื่อนที่ได้แม่นขึ้น
+        lostHoldMs: 160,      // กันหลุดชั่วคราวเวลามือสั่น/บังกล้องแว้บเดียว
+        sweepSteps: 3,        // เพิ่ม hit probe ระหว่างตำแหน่งก่อนหน้า→ปัจจุบัน (กันพุ่งทะลุ)
         cameraWidth: 640,
         cameraHeight: 480
     }

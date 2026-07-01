@@ -272,8 +272,17 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.132.0 (KampaiHands finger poke)',
+        version: 'v1.133.0 (KampaiHands precision boost)',
         date: 'ล่าสุด',
+        badge: 'bg-violet-600',
+        items: [
+            '**KampaiHands v1.1.0** — map มือให้ตรง `object-fit:cover` + `lostHoldMs` กันหลุดชั่วคราว',
+            'เพิ่ม `sweepSteps` ใน hit probe (กันนิ้วพุ่งเร็วแล้วทะลุวัตถุ) · จูน `balloon-burst` ให้ชนแม่นขึ้น',
+        ],
+    },
+    {
+        version: 'v1.132.0 (KampaiHands finger poke)',
+        date: '',
         badge: 'bg-violet-600',
         items: [
             '**KampaiHands v1.0.0** — engine มาตรฐานจิ้ม/ทับ/ชนวัตถุด้วยปลายนิ้วชี้ (MediaPipe Hands + camera_utils)',

@@ -11,13 +11,15 @@
 (function (global) {
     'use strict';
 
-    var VERSION = '1.0.0';
+    var VERSION = '1.1.0';
 
     var DEFAULT_HANDS = {
         maxNumHands: 2,
         modelComplexity: 1,
         minConfidence: 0.6,
         smoothing: 0.4,
+        lostHoldMs: 140,
+        sweepSteps: 2,
         cameraWidth: 640,
         cameraHeight: 480,
         handsUrl: 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/'
@@ -52,12 +54,14 @@
             running: false,
             cameraObj: null,
             mpHands: null,
+            leftSeenAt: 0,
+            rightSeenAt: 0,
             leftHand: { x: 0, y: 0, active: false },
             rightHand: { x: 0, y: 0, active: false },
             leftLandmarks: null,
             rightLandmarks: null,
-            leftPointer: { x: -9999, y: -9999, active: false },
-            rightPointer: { x: -9999, y: -9999, active: false }
+            leftPointer: { x: -9999, y: -9999, prevX: -9999, prevY: -9999, active: false },
+            rightPointer: { x: -9999, y: -9999, prevX: -9999, prevY: -9999, active: false }
         };
 
         function canvasSize() {
@@ -76,8 +80,25 @@
             return { w: window.innerWidth, h: window.innerHeight };
         }
 
+        function videoNormToCanvasNorm(nx, ny) {
+            var ds = canvasSize();
+            var cw = ds.w, ch = ds.h;
+            if (!videoEl || !videoEl.videoWidth || !cw || !ch) {
+                return { x: clamp(1 - nx, 0, 1), y: clamp(ny, 0, 1) };
+            }
+            var vw = videoEl.videoWidth;
+            var vh = videoEl.videoHeight;
+            var scale = Math.max(cw / vw, ch / vh);
+            var offX = (cw - vw * scale) / 2;
+            var offY = (ch - vh * scale) / 2;
+
+            var px = (1 - nx) * vw * scale + offX;
+            var py = ny * vh * scale + offY;
+            return { x: clamp(px / cw, 0, 1), y: clamp(py / ch, 0, 1) };
+        }
+
         function mapLandmark(lm) {
-            return { x: 1 - lm.x, y: lm.y };
+            return videoNormToCanvasNorm(lm.x, lm.y);
         }
 
         function mapAllLandmarks(lm) {
@@ -88,9 +109,13 @@
 
         function lerpPointer(ptr, targetX, targetY) {
             var s = handsOpt.smoothing != null ? handsOpt.smoothing : 0.4;
+            ptr.prevX = ptr.x;
+            ptr.prevY = ptr.y;
             if (!ptr.active || ptr.x < 0) {
                 ptr.x = targetX;
                 ptr.y = targetY;
+                ptr.prevX = targetX;
+                ptr.prevY = targetY;
             } else {
                 ptr.x += (targetX - ptr.x) * s;
                 ptr.y += (targetY - ptr.y) * s;
@@ -107,12 +132,28 @@
             st.rightPointer.active = false;
         }
 
+        function preserveRecentHands(now) {
+            var holdMs = handsOpt.lostHoldMs != null ? handsOpt.lostHoldMs : 140;
+            if ((now - st.leftSeenAt) <= holdMs && st.leftPointer.x >= 0) {
+                st.leftHand.active = true;
+                st.leftPointer.active = true;
+            }
+            if ((now - st.rightSeenAt) <= holdMs && st.rightPointer.x >= 0) {
+                st.rightHand.active = true;
+                st.rightPointer.active = true;
+            }
+        }
+
         function onHandsResults(results) {
             if (!st.running || st.mode !== 'camera') return;
+            var now = performance.now();
 
             resetPointers();
 
-            if (!results.multiHandLandmarks || !results.multiHandLandmarks.length) return;
+            if (!results.multiHandLandmarks || !results.multiHandLandmarks.length) {
+                preserveRecentHands(now);
+                return;
+            }
 
             var ds = canvasSize();
             var w = ds.w, h = ds.h;
@@ -133,6 +174,8 @@
                 hand.y = e.ny;
                 hand.active = true;
                 lerpPointer(ptr, px, py);
+                if (side === 'left') st.leftSeenAt = now;
+                else st.rightSeenAt = now;
                 if (side === 'left') st.leftLandmarks = e.mapped;
                 else st.rightLandmarks = e.mapped;
             }
@@ -209,8 +252,25 @@
 
         function collectHitProbes() {
             var probes = [];
-            if (st.leftPointer.active) probes.push({ x: st.leftPointer.x, y: st.leftPointer.y });
-            if (st.rightPointer.active) probes.push({ x: st.rightPointer.x, y: st.rightPointer.y });
+            var steps = clamp(handsOpt.sweepSteps != null ? handsOpt.sweepSteps : 2, 0, 5);
+
+            function pushSwept(ptr) {
+                if (!ptr.active) return;
+                probes.push({ x: ptr.x, y: ptr.y });
+                if (steps <= 0) return;
+                var fromX = isFinite(ptr.prevX) ? ptr.prevX : ptr.x;
+                var fromY = isFinite(ptr.prevY) ? ptr.prevY : ptr.y;
+                for (var i = 1; i <= steps; i++) {
+                    var t = i / (steps + 1);
+                    probes.push({
+                        x: fromX + (ptr.x - fromX) * t,
+                        y: fromY + (ptr.y - fromY) * t
+                    });
+                }
+            }
+
+            pushSwept(st.leftPointer);
+            pushSwept(st.rightPointer);
             return probes;
         }
 
