@@ -5,7 +5,7 @@ window.GAME_CONFIG = {
     SLUG: '_template-ar-hands',   // ⚠️ TODO: ใส่ slug จริง (ตรงกับ game_slug ใน migration)
 
     // ── AR ──
-    DETECTOR: 'pose',                  // 'framediff' (ไม่พึ่ง lib) | 'pose' (MediaPipe jsdelivr · แม่นยำกว่า)
+    DETECTOR: 'hands',                 // 'hands' (นิ้วแม่น · แนะนำ) | 'pose' | 'framediff' (offline)
     HOLD_MS: 0,                        // 0 = ไม่ต้อง hold ค้าง → ตรวจจับสัมผัสทันทีที่มือชน (เหมาะกับเกมแบบ action)
     TUNING: {                          // override DEFAULT_TUNING ของ engine (ดู kampai-ar.js)
         downsample: { w: 120, h: 90 }, // ความละเอียด framediff (ต่ำ=เบา CPU/หยาบ · สูง=แม่น/หนัก)

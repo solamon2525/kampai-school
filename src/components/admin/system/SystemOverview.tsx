@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.128.0 (Thai Vocab Hub เฟส E/F/G)',
+        version: 'v1.129.0 (KampaiAR Hands detector)',
         date: 'ล่าสุด',
+        badge: 'bg-violet-600',
+        items: [
+            '**KampaiAR v1.3.0** — `DETECTOR:\'hands\'` (MediaPipe Hands) ติดตามปลายนิ้วชี้ซ้าย/ขวา · fallback framediff',
+            '**balloon-burst** สลับใช้ `hands` detector · AR Calibration เพิ่มตัวเลือก Hands',
+            'อัปเดต `AR-GAME.md` v1.3.0 + `_template-ar-hands` default `DETECTOR:\'hands\'`',
+        ],
+    },
+    {
+        version: 'v1.128.0 (Thai Vocab Hub เฟส E/F/G)',
+        date: '',
         badge: 'bg-amber-600',
         items: [
             '**เฟส E** — รายงานคำพลาด (ครู/ผู้ปกครอง) · Teacher Edu Hub จัดการคำศัพท์ + แท็บชั้นเรียน · quiz กรองตามชั้น',

@@ -2,15 +2,16 @@
    kampai-ar.js — KAMPAI AR Engine (single source) · window.KampaiAR
    ───────────────────────────────────────────────────────────────────────────
    เครื่องมือกลางสำหรับเกม AR/กล้อง: เปิดกล้อง + ตรวจจับการเคลื่อนไหว + zone/hold
-   + fallback แตะ + cleanup ครบ. รองรับ 2 detector:
+   + fallback แตะ + cleanup ครบ. รองรับ 3 detector:
      - 'framediff' (default) = frame-differencing ไม่พึ่ง lib/CDN (ทนเครื่องโรงเรียน/ออฟไลน์)
-     - 'pose'                = MediaPipe Pose (jsdelivr) แม่นกว่า แต่พึ่ง CDN
+     - 'pose'                = MediaPipe Pose (jsdelivr) ท่าทางทั้งตัว · นิ้วประมาณ
+     - 'hands'               = MediaPipe Hands (jsdelivr) ติดตามปลายนิ้วชี้ 2 มือ · แม่นสำหรับเกมชน/เจาะ
    ⚠️ อย่าแก้ในไฟล์เกม — แก้ที่นี่ที่เดียว มีผลทุกเกม AR. จูน knob ที่ config.js ของเกม
    ดูวิธีใช้ + ตารางจูน + Tuning Log ที่ AR-GAME.md
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
     'use strict';
-    var VERSION = '1.1.1';
+    var VERSION = '1.3.0';
 
     // ค่าจูนเริ่มต้น (override ได้ผ่าน opts.tuning ใน config.js) — ดูคำอธิบายช่วงที่แนะนำใน AR-GAME.md
     var DEFAULT_TUNING = {
@@ -19,8 +20,11 @@
         minMotionRatio: 0.015,         // framediff: สัดส่วนพิกเซลขยับขั้นต่ำ/เฟรม (กัน noise)
         smoothing: 0.78,              // exponential smoothing: เก่า*s + ใหม่*(1-s) (สูง = นิ่ง/หน่วง)
         intervalMs: 55,               // framediff: คาบ loop (~18fps) (ต่ำ = ลื่น/กิน CPU)
-        minConfidence: 0.5,           // pose: ความมั่นใจขั้นต่ำ
+        minConfidence: 0.5,           // pose/hands: ความมั่นใจขั้นต่ำ
         poseUrl: 'https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/', // jsdelivr เท่านั้น
+        handsUrl: 'https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/', // jsdelivr เท่านั้น
+        maxNumHands: 2,               // hands: จำนวนมือสูงสุด (1–2)
+        handsModelComplexity: 0,      // hands: 0=lite (เร็ว) · 1=full
         particles: true,              // visualizer: ฝุ่นเวทมนตร์ตามการขยับ (framediff)
         marker: true,                 // visualizer: จุดเรืองตำแหน่งผู้เล่น
         // ── Tier 2 (ดู AR-GAME.md): ยกมือ / กระโดด-ย่อ / พลัง ──
@@ -90,7 +94,7 @@
         var zones = opts.zones || ['left', 'center', 'right'];
         var cuts = opts.cuts || (zones.length === 3 ? [1 / 3, 2 / 3] : zones.length === 2 ? [0.5] : evenCuts(zones.length));
         var holdMs = opts.holdMs != null ? opts.holdMs : 2500; // default: เผื่อเวลาตัดสินใจ (เกมส่วนใหญ่ override ใน config)
-        var detector = opts.detector === 'pose' ? 'pose' : 'framediff';
+        var detector = opts.detector === 'hands' ? 'hands' : (opts.detector === 'pose' ? 'pose' : 'framediff');
         // input mode: 'horizontal' (default — x→zones, เดิม) | 'hands' (ยกมือ ซ้าย/ขวา/สองมือ → zones)
         var inputMode = opts.mode === 'hands' ? 'hands' : 'horizontal';
         var video = resolveEl(opts.video);
@@ -109,7 +113,7 @@
             stream: null, active: false, running: false, mode: 'tap', // 'camera' | 'tap'
             x: 0.5, y: 0.5, energy: 0, lastZone: null, holdStart: 0, holdProgress: 0, committedZone: null,
             rafId: 0, intervalId: 0, prevFrame: null, off: null, offCtx: null, particles: [],
-            pose: null,
+            pose: null, mpHands: null,
             hands: { left: false, right: false, both: false }, handZone: null,
             hipBaseline: null, prevHipY: null, lastGestureAt: 0,
             leftHand: { x: 0.5, y: 0.5, active: false },
@@ -151,7 +155,9 @@
                 video.srcObject = st.stream; video.muted = true; video.playsInline = true;
                 await video.play();
                 st.mode = 'camera'; status('camera-on');
-                if (detector === 'pose') await startPose(); else startFrameDiff();
+                if (detector === 'hands') await startHands();
+                else if (detector === 'pose') await startPose();
+                else startFrameDiff();
                 return true;
             } catch (err) {
                 st.mode = 'tap'; status('no-camera'); // เกมต้องเปิดโหมดแตะ (บังคับมี fallback)
@@ -160,6 +166,7 @@
         }
         function stop() {
             stopLoop();
+            if (st.mpHands) { try { st.mpHands.close(); } catch (e) {} st.mpHands = null; }
             if (st.stream) { try { st.stream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {} st.stream = null; }
             if (video) { try { video.srcObject = null; } catch (e) {} }
             st.prevFrame = null; st.particles = []; st.active = false; st.committedZone = null;
@@ -288,6 +295,114 @@
                 document.head.appendChild(s);
             });
         }
+        // ── detector: hands (MediaPipe Hands — ปลายนิ้วชี้ landmark 8) ──
+        async function startHands() {
+            status('hands-loading');
+            try { await loadHandsLib(); }
+            catch (e) { startFrameDiff(); return; } // โหลด lib ไม่ได้ → ใช้ framediff แทน
+            st.mpHands = new window.Hands({ locateFile: function (f) { return tuning.handsUrl + f; } });
+            st.mpHands.setOptions({
+                maxNumHands: clamp(tuning.maxNumHands != null ? tuning.maxNumHands : 2, 1, 2),
+                modelComplexity: tuning.handsModelComplexity != null ? tuning.handsModelComplexity : 0,
+                minDetectionConfidence: tuning.minConfidence,
+                minTrackingConfidence: tuning.minConfidence
+            });
+            st.mpHands.onResults(onHandsResults);
+            status('camera-on');
+            var ctx = canvas ? canvas.getContext('2d') : null;
+            st.running = true;
+            (function loop() {
+                if (!st.running) return;
+                if (video.readyState >= 2 && st.mpHands) { st.mpHands.send({ image: video }).catch(function () {}); }
+                if (ctx) drawVisuals(ctx, canvas);
+                st.rafId = requestAnimationFrame(loop);
+            })();
+        }
+        function loadHandsLib() {
+            return new Promise(function (resolve, reject) {
+                if (window.Hands) return resolve();
+                var s = document.createElement('script');
+                s.src = tuning.handsUrl + 'hands.js'; s.crossOrigin = 'anonymous';
+                s.onload = resolve; s.onerror = reject;
+                document.head.appendChild(s);
+            });
+        }
+        function handednessLabel(entry) {
+            if (!entry) return 'Right';
+            if (entry.label) return entry.label;
+            if (entry[0] && entry[0].label) return entry[0].label;
+            return 'Right';
+        }
+        function updateTrackedHand(side, rawX, rawY, active, now) {
+            var hand = side === 'left' ? st.leftHand : st.rightHand;
+            var raw = side === 'left' ? st.rawLeftHand : st.rawRightHand;
+            var fx = side === 'left' ? st.filters.leftX : st.filters.rightX;
+            var fy = side === 'left' ? st.filters.leftY : st.filters.rightY;
+            raw.x = rawX; raw.y = rawY; raw.active = active;
+            if (!active) { hand.active = false; return; }
+            if (tuning.filterType === 'oneeuro') {
+                hand.x = fx.filter(rawX, now, tuning.oneEuroMinCutoff, tuning.oneEuroBeta, tuning.oneEuroDCutoff);
+                hand.y = fy.filter(rawY, now, tuning.oneEuroMinCutoff, tuning.oneEuroBeta, tuning.oneEuroDCutoff);
+            } else {
+                hand.x = hand.x * tuning.smoothing + rawX * (1 - tuning.smoothing);
+                hand.y = hand.y * tuning.smoothing + rawY * (1 - tuning.smoothing);
+            }
+            hand.active = true;
+        }
+        function onHandsResults(res) {
+            var now = Date.now();
+            st.leftHand.active = false;
+            st.rightHand.active = false;
+            st.rawLeftHand.active = false;
+            st.rawRightHand.active = false;
+
+            var landmarks = res && res.multiHandLandmarks;
+            if (!landmarks || !landmarks.length) {
+                st.energy *= 0.85;
+                setHands(false, false, false);
+                emitSignals();
+                evalZone();
+                return;
+            }
+
+            var handedness = res.multiHandedness || [];
+            var sumX = 0, sumY = 0, count = 0, prevCx = st.x, prevCy = st.y;
+
+            for (var i = 0; i < landmarks.length; i++) {
+                var lm = landmarks[i];
+                var tip = lm[8]; // INDEX_FINGER_TIP
+                if (!tip) continue;
+                var hx = 1 - tip.x; // mirror (selfie)
+                var hy = tip.y;
+                var side = handednessLabel(handedness[i]) === 'Left' ? 'left' : 'right';
+                updateTrackedHand(side, hx, hy, true, now);
+                sumX += hx; sumY += hy; count++;
+            }
+
+            if (count > 0) {
+                var cx = sumX / count, cy = sumY / count;
+                st.rawX = cx; st.rawY = cy;
+                if (tuning.filterType === 'oneeuro') {
+                    st.x = st.filters.centroidX.filter(cx, now, tuning.oneEuroMinCutoff, tuning.oneEuroBeta, tuning.oneEuroDCutoff);
+                    st.y = st.filters.centroidY.filter(cy, now, tuning.oneEuroMinCutoff, tuning.oneEuroBeta, tuning.oneEuroDCutoff);
+                } else {
+                    st.x = st.x * tuning.smoothing + cx * (1 - tuning.smoothing);
+                    st.y = st.y * tuning.smoothing + cy * (1 - tuning.smoothing);
+                }
+                st.energy = st.energy * 0.7 + Math.min(1, Math.sqrt((cx - prevCx) * (cx - prevCx) + (cy - prevCy) * (cy - prevCy)) * 12) * 0.3;
+            } else {
+                st.energy *= 0.85;
+            }
+
+            if (st.leftHand.active && st.rightHand.active) setHands(false, false, true);
+            else if (st.leftHand.active) setHands(true, false, false);
+            else if (st.rightHand.active) setHands(false, true, false);
+            else setHands(false, false, false);
+
+            emitSignals();
+            evalZone();
+        }
+
         function onPoseResults(res) {
             if (!res || !res.poseLandmarks || !res.poseLandmarks[0]) return;
             var lm = res.poseLandmarks;

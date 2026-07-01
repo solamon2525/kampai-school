@@ -3,9 +3,10 @@
 > ⚠️ **อ่านไฟล์นี้ก่อนสร้าง/แก้เกม AR ทุกครั้ง** — กันบัคซ้ำเดิม (โดยเฉพาะ layout ยุบ + ไม่มี fallback)
 > เกม AR ใช้ engine กลาง `public/games/kampai-ar.js` (`window.KampaiAR`) — แก้ engine ที่เดียว ทุกเกม AR ดีขึ้นพร้อมกัน
 >
-> **Engine version:** `KampaiAR v1.2.0` · **Doc version:** v1.2.0
+> **Engine version:** `KampaiAR v1.3.0` · **Doc version:** v1.3.0
 
 ## Changelog
+- **v1.3.0** — 🆕 **`DETECTOR:'hands'`** — MediaPipe Hands ติดตามปลายนิ้วชี้ (landmark 8) ซ้าย/ขวาแยกกัน · knob `handsUrl` / `maxNumHands` / `handsModelComplexity` · fallback framediff ถ้า CDN ล้ม
 - **v1.2.0** — 🆕 **One Euro Filter** (ลด jitter แบบ adaptive ไม่เพิ่ม latency ตอนมือไว) + **Raw Coordinate Getters** (`ar.rawX`, `ar.rawY`, `ar.rawLeftHand`, `ar.rawRightHand`) + เทมเพลตใหม่ `_template-ar-hands/` สำหรับเกม hand tracking (แตะ/ชนวัตถุด้วยมือ 2 ข้าง) + **AR Calibration Visualizer** (`public/games/ar-calibration/`) สำหรับจูนค่า filter แบบสดๆ
 - **v1.1.1** — เพิ่มเวลาตัดสินใจทุกเกม AR: `holdMs` default 2000→**2500** + config ทุกเกม `HOLD_MS:2500` / `ROUND_SEC:20` (ดู Tuning Log §6)
 - **doc v1.1.1** — เพิ่ม §2.1 Layout patterns: กล้องเต็มจอ (default) vs **กล้องมุมจอ + เกมเต็มจอ** — อ้างอิง `math/math-move-quiz`
@@ -68,7 +69,7 @@ engine **ไม่สนขนาดที่โชว์กล้อง** — d
 ### 3B — 🆕 เกมแตะวัตถุด้วยมือ (Hand Tracking / Touch)
 ```
 1. cp -r public/games/_template-ar-hands  public/games/{subject}/{slug}
-2. config.js : ตั้ง SLUG, DETECTOR:'pose' (แนะนำ), filterType:'oneeuro', จูน TUNING
+2. config.js : ตั้ง SLUG, DETECTOR ('hands'|'pose'|'framediff'), HOLD_MS, จูน TUNING
 3. data.js   : ใส่วัตถุ/โจทย์  ·  game.js : ปรับ logic ในส่วน "GAME LOGIC"
 4. ทำปก 16:9 (1280×720) → {slug}/cover.svg|png
 5. migration NNN_seed_{slug}_game.sql (รวม game_docs — ดู GAME.md) + apply remote
@@ -105,7 +106,9 @@ engine **ไม่สนขนาดที่โชว์กล้อง** — d
 | `minMotionRatio` | สัดส่วนพิกเซลขยับขั้นต่ำ/เฟรม | 0.008–0.03 | ต่ำ=ไวเกิน(จับ noise) · สูง=ต้องขยับทั้งตัว |
 | `smoothing` | หน่วงตำแหน่ง (เก่า·s + ใหม่·(1-s)) | 0.6–0.88 | สูง=นิ่ง/หน่วง · ต่ำ=ไว/สั่น |
 | `intervalMs` | คาบ loop (framediff) | 40–80 | ต่ำ=ลื่น/กิน CPU · สูง=ประหยัด/หนืด |
-| `minConfidence` | ความมั่นใจขั้นต่ำ (pose) | 0.4–0.6 | ต่ำ=จับง่าย/หลอน · สูง=แม่น/หลุดบ่อย |
+| `minConfidence` | ความมั่นใจขั้นต่ำ (pose/hands) | 0.4–0.6 | ต่ำ=จับง่าย/หลอน · สูง=แม่น/หลุดบ่อย |
+| `maxNumHands` | จำนวนมือสูงสุด (`DETECTOR:'hands'`) | 1–2 | 2=ซ้าย+ขวา · 1=ประหยัด CPU |
+| `handsModelComplexity` | โมเดล Hands (0=lite, 1=full) | 0–1 | 0=เร็ว/แนะนำ · 1=แม่นกว่า/หนัก |
 | `handRaiseMargin` | ข้อมือต้องสูงกว่าไหล่เกินเท่าไร ถึงนับ "ยกมือ" (Tier 2) | 0.03–0.08 | ต่ำ=ยกนิดก็ติด · สูง=ต้องยกสูงชัด |
 | `jumpVel`/`squatVel` | ความเร็วแกน Y ของสะโพกที่นับเป็น กระโดด/ย่อ | 0.03–0.07 | ต่ำ=ไว/ false-fire · สูง=ต้องกระโดดแรง |
 | `gestureCooldownMs` | เว้นช่วงขั้นต่ำระหว่าง gesture | 500–900 | กัน double-fire |
@@ -118,10 +121,20 @@ engine **ไม่สนขนาดที่โชว์กล้อง** — d
 >
 > 🔧 **AR Calibration Tool** (`/games/ar-calibration/index.html`) — เปิดหน้าเว็บเพื่อปรับค่า filter แบบเรียลไทม์ พร้อมเห็นผลทันทีระหว่าง raw vs smoothed, FPS/latency counter, และปุ่ม Copy Tuning JSON
 
+### Detector เลือกอย่างไร (`config.js` → `DETECTOR`)
+
+| `DETECTOR` | เทคโนโลยี | เหมาะกับ | ข้อจำกัด |
+|---|---|---|---|
+| **`hands`** | MediaPipe **Hands** (ปลายนิ้วชี้ landmark 8) | เจาะ/ชน/แตะวัตถุด้วยนิ้ว 2 มือ | พึ่ง CDN jsdelivr · ต้องเห็นมือในเฟรม |
+| **`pose`** | MediaPipe **Pose** (ท่าทางทั้งตัว) | ยืนเลือกโซน · ยกมือ · กระโดด/ย่อ | นิ้วเป็น landmark ประมาณ (19/20) ไม่แม่น |
+| **`framediff`** | frame-differencing (ไม่โหลด lib) | เครื่องโรงเรียน/offline · ขยับตัวทั้งก้อน | ไม่ติดตามนิ้วแยกซ้าย/ขวา |
+
+> โหลด Hands/Pose ไม่ได้ → engine fallback **`framediff`** อัตโนมัติ · กล้องไม่ได้ → โหมด**แตะ**
+
 ### Tier 2 — รูปแบบตรวจจับเพิ่ม (v1.1.0)
 | รูปแบบ | ใช้ยังไง | detector |
 |---|---|---|
-| **ยกมือ** (`mode:'hands'`) | zones = `['left','right','both']` (ยกมือซ้าย/ขวา/สองมือ) → onZone/hold/commit เดิม + `ar.tap('left'\|'right'\|'both')` | pose (framediff = best-effort) |
+| **ยกมือ** (`mode:'hands'`) | zones = `['left','right','both']` (ยกมือซ้าย/ขวา/สองมือ) → onZone/hold/commit เดิม + `ar.tap('left'\|'right'\|'both')` | pose / hands (framediff = best-effort) |
 | **กระโดด/ย่อ** | `onGesture('jump'\|'squat')` (discrete, ไม่ใช้ hold) | pose แนะนำ |
 | **พลังเคลื่อนไหว** | `onEnergy(0..1)` / `ar.energy` (วิ่งอยู่กับที่/เขย่า → เติม meter) | ทั้งสอง |
 > เกมอ้างอิงโหมด hands: `public/games/english/hands-up-quiz/`
@@ -132,6 +145,7 @@ engine **ไม่สนขนาดที่โชว์กล้อง** — d
 |---|---|---|---|
 | 2026-06-20 | (เริ่มต้น) `fraction-garden-ar` คอมมิตเร็วไป บนแท็บเล็ตโรงเรียน | `HOLD_MS` 1200→2000 | มีเวลาตัดสินใจขึ้น |
 | 2026-06-22 | ทุกเกม AR — ขอเวลาตัดสินใจมากขึ้น (เซนเซอร์รอคำตอบ) | `holdMs` default 2000→2500 + ทุก config `HOLD_MS`→2500, `ROUND_SEC`→20 | ค้างนานขึ้นก่อนล็อก + มีเวลาคิดต่อข้อมากขึ้น (เปลี่ยนใจได้) |
+| 2026-07-01 | `balloon-burst` นิ้วไม่ติดตาม — Pose landmark ประมาณ | เพิ่ม `DETECTOR:'hands'` ใน KampaiAR v1.3.0 + สลับเกมไปใช้ MediaPipe Hands | ปลายนิ้วชี้ (landmark 8) ซ้าย/ขวาแยก · fallback framediff ถ้า CDN ล้ม |
 | 2026-07-01 | `balloon-burst` พิกัดมือสั่นไหว (jitter) ตอนค้างอยู่เฉย ทำให้ไม่แม่นยำในการเจาะลูกโป่ง | เพิ่ม One Euro Filter: `filterType:'oneeuro'`, `oneEuroMinCutoff:1.0`, `oneEuroBeta:0.007` | พิกัดนิ่งตอนมือค้าง / ตอบสนองทันทีตอนมือไว — latency แทบไม่เพิ่ม |
 | 2026-07-01 | สร้าง `_template-ar-hands/` + `ar-calibration/` | เพิ่มเทมเพลตเกม hand tracking + หน้าจอจูนค่าเรียลไทม์ | เกม AR ใหม่สร้างได้เร็วขึ้น + จูนค่า filter ได้สะดวก |
 | _เพิ่มแถวใหม่ทุกครั้งที่จูน_ | | | |
@@ -141,7 +155,7 @@ engine **ไม่สนขนาดที่โชว์กล้อง** — d
 ```js
 const ar = KampaiAR.create({
   video:'#arVideo', canvas:'#arCanvas',
-  detector:'framediff'|'pose',
+  detector:'framediff'|'pose'|'hands',
   mode:'horizontal'|'hands',                   // v1.1.0 — 'hands' = zones จากการยกมือ (default 'horizontal')
   zones:['left','center','right'], holdMs:2500, tuning:{...},
   onZone(zone){}, onHoldProgress(zone,pct){}, onCommit(zone){}, onStatus(s){}, // 'camera-on'|'no-camera'|'pose-loading'|'error'
@@ -200,7 +214,7 @@ function loop() {
 1. `pnpm verify:game <path>` → Check 10 AR ต้อง "ใช้ KampaiAR engine"
 2. **browser จริงมีกล้อง** (`/play`): ขยับตัว → marker/zone ตาม · ค้างครบ → ตอบ · ปิดสิทธิ์กล้อง → เข้าโหมดแตะ
 3. **headless** (puppeteer `--use-fake-ui-for-media-stream --use-fake-device-for-media-stream`): เช็ก gameScreen ไม่ยุบ 0px · `elementFromPoint(กลางจอ)` = zone · แตะ → commit · `ar.stop()` เคลียร์ loop · ไม่มี console error (ดู pattern ที่เทสต์ `demo/ar-zone-quiz`)
-4. สลับ `DETECTOR:'framediff' ↔ 'pose'` ใน config แล้วเล่นได้ทั้งคู่
+4. สลับ `DETECTOR:'hands' ↔ 'pose' ↔ 'framediff'` ใน config แล้วเล่นได้ทั้งสาม
 5. 🆕 เปิด **AR Calibration Tool** (`/games/ar-calibration/index.html`) ปรับค่า `filterType` / `oneEuroMinCutoff` / `oneEuroBeta` / `oneEuroDCutoff` แบบเรียลไทม์ → ดูผลว่าค่าพิกัดนิ่ง/ไว → กด Copy Tuning JSON → วางลงใน `config.js`
 6. ทดสอบ `pnpm verify:game` ต้องผ่านทั้ง Check 7 (JSDOM) และ Check 10 (AR engine)
 

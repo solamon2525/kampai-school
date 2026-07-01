@@ -14,7 +14,7 @@ window.GAME_CONFIG = {
     BGM: 'cheerful',
 
     // ── AR ──
-    DETECTOR: 'pose', // 'framediff' (ไม่พึ่ง lib) | 'pose' (MediaPipe jsdelivr)
+    DETECTOR: 'hands', // 'hands' (นิ้วแม่น) | 'pose' (ท่าทาง) | 'framediff' (ไม่พึ่ง lib)
     HOLD_MS: 0,            // เจาะทันทีที่สัมผัส/เคลื่อนทับ ไม่ต้อง hold
     TUNING: {              // override DEFAULT_TUNING ของ engine (ดู kampai-ar.js)
         downsample: { w: 120, h: 90 },
@@ -22,6 +22,9 @@ window.GAME_CONFIG = {
         minMotionRatio: 0.015,
         smoothing: 0.70,
         intervalMs: 50,
+        minConfidence: 0.55,
+        maxNumHands: 2,
+        handsModelComplexity: 0,
         marker: false,     // เกมวาด cursor มือเองบน #arCanvas (ไม่ส่ง canvas ให้ engine)
         particles: false,  // ปิด visualizer engine — ลูกโป่ง/particle อยู่ใน game.js
         // ── One Euro Filter (v1.2.0) — ลดสั่นไหวตอนมือค้าง + ตอบสนองทันทีตอนมือไว ──
