@@ -61,13 +61,17 @@
         return seededRng || Math.random;
     }
 
+    function roll() {
+        return activeRng()();
+    }
+
     function randInt(min, max) {
-        var r = activeRng();
-        return min + Math.floor(r() * (max - min + 1));
+        return min + Math.floor(roll() * (max - min + 1));
     }
 
     function pickPhrase(list) {
-        return list[Math.floor(activeRng() * list.length)];
+        if (!list || !list.length) return '';
+        return list[Math.floor(roll() * list.length)];
     }
 
     function buildWrongAnswers(q) {
@@ -207,26 +211,26 @@
 
     function pickBalloonValue() {
         if (!currentQuestion) return 0;
-        var isCorrect = activeRng() < (CFG.CORRECT_SPAWN_WEIGHT || 0.32);
-        if (isCorrect) return currentQuestion.answer;
-        return wrongPool[Math.floor(activeRng() * wrongPool.length)];
+        if (roll() < (CFG.CORRECT_SPAWN_WEIGHT || 0.32)) return currentQuestion.answer;
+        if (!wrongPool.length) return currentQuestion.answer;
+        return wrongPool[Math.floor(roll() * wrongPool.length)];
     }
 
     function spawnBalloon() {
         if (gameState !== 'playing' || !currentQuestion) return;
-        var r = activeRng();
         var value = pickBalloonValue();
-        var radius = CFG.BALLOON_RADIUS_MIN + r() * (CFG.BALLOON_RADIUS_MAX - CFG.BALLOON_RADIUS_MIN);
-        var colorPair = DATA.BALLOON_COLORS[Math.floor(r() * DATA.BALLOON_COLORS.length)];
+        var answerForBalloon = currentQuestion.answer;
+        var radius = CFG.BALLOON_RADIUS_MIN + roll() * (CFG.BALLOON_RADIUS_MAX - CFG.BALLOON_RADIUS_MIN);
+        var colorPair = DATA.BALLOON_COLORS[Math.floor(roll() * DATA.BALLOON_COLORS.length)];
         balloons.push({
-            x: radius + r() * (canvas.width - radius * 2),
+            x: radius + roll() * (canvas.width - radius * 2),
             y: canvas.height + radius,
-            vy: -(CFG.BALLOON_SPEED_MIN + r() * (CFG.BALLOON_SPEED_MAX - CFG.BALLOON_SPEED_MIN)),
-            sway: r() * Math.PI * 2,
-            swaySpeed: 0.02 + r() * 0.02,
+            vy: -(CFG.BALLOON_SPEED_MIN + roll() * (CFG.BALLOON_SPEED_MAX - CFG.BALLOON_SPEED_MIN)),
+            sway: roll() * Math.PI * 2,
+            swaySpeed: 0.02 + roll() * 0.02,
             radius: radius,
             value: value,
-            isCorrect: value === currentQuestion.answer,
+            questionAnswer: answerForBalloon,
             colorLight: colorPair[0],
             colorDark: colorPair[1],
             popped: false
@@ -255,7 +259,8 @@
 
     function popBalloon(b, index, drawX) {
         b.popped = true;
-        if (b.isCorrect) {
+        var isCorrect = b.value === b.questionAnswer;
+        if (isCorrect) {
             score += CFG.POINTS_CORRECT;
             correctHits++;
             spawnBurst(drawX, b.y, b.colorLight);
