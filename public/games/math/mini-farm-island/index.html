@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Mini Farm Island 🌴 — kampai</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- 3D Container -->
+  <div id="game"></div>
+
+  <!-- Loading Screen -->
+  <div class="loading" id="loading">
+    <div style="text-align:center">
+      <div class="spinner"></div>
+      กำลังสร้างเกาะ...
+    </div>
+  </div>
+
+  <!-- Blocker / Start Screen -->
+  <div id="blocker">
+    <div class="blocker-card">
+      <h1>🌴 Mini Farm Island</h1>
+      <h2>เกาะฟาร์มจิ๋ว — ฝึกคิดเรื่องต้นทุน กำไร</h2>
+
+      <div class="rules">
+        <p>🎮 <b>วิธีเล่น:</b></p>
+        <ul style="padding-left:18px; list-style:disc;">
+          <li>คลิกแปลงดิน → <b>ปลูก</b> (เสีย 10 เหรียญ)</li>
+          <li>รอต้นโตเต็มที่ → คลิก <b>เก็บเกี่ยว</b></li>
+          <li>กด <b>ขายผลผลิต</b> → ได้ 25 เหรียญ/ชิ้น</li>
+          <li>บริหารเงินให้ดี ปลูกเยอะ ขายเยอะ!</li>
+        </ul>
+      </div>
+
+      <!-- Player stats (SDK binds) -->
+      <div id="my-stats">
+        <div class="stat-box">
+          <div class="stat-val" id="ms-best">0</div>
+          <div class="stat-lbl">คะแนนสูงสุด</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="ms-plays">0</div>
+          <div class="stat-lbl">ครั้งที่เล่น</div>
+        </div>
+      </div>
+
+      <button class="start-btn" id="start-btn">🌱 เริ่มเล่น</button>
+    </div>
+  </div>
+
+  <!-- Player Chip (SDK binds) -->
+  <div id="player-chip"></div>
+
+  <!-- HUD -->
+  <div class="hud" id="hud" style="display:none">
+    <div class="title"><span class="dot"></span> Mini Farm Island</div>
+    <div class="stats">
+      <div class="stat money">
+        <div class="ic">🪙</div>
+        <div>
+          <div class="label">เงิน</div>
+          <div class="value"><span id="money">100</span> <small>เหรียญ</small></div>
+        </div>
+      </div>
+      <div class="stat crop">
+        <div class="ic">🥕</div>
+        <div>
+          <div class="label">ผลผลิตในยุ้ง</div>
+          <div class="value"><span id="crops">0</span> <small>ชิ้น</small></div>
+        </div>
+      </div>
+    </div>
+    <button class="sell" id="sellBtn">ขายผลผลิตทั้งหมด</button>
+    <button class="versus-btn" id="versus-btn" style="display:none">🏆 แข่ง 2 คน</button>
+    <div class="legend">
+      <span>ปลูก −10</span>
+      <span>ขาย +25 / ชิ้น</span>
+    </div>
+  </div>
+
+  <!-- Timer HUD (versus mode) -->
+  <div class="timer-hud" id="timer-hud">
+    <div class="timer-label">⏱️ เวลาเหลือ</div>
+    <div class="timer-value" id="timer-value">60</div>
+  </div>
+
+  <!-- Hint -->
+  <div class="hint" id="hint">คลิกแปลงดิน <b>ปลูก</b> → รอต้นโตเต็มที่ → คลิก <b>เก็บเกี่ยว</b></div>
+
+  <!-- Toast notifications -->
+  <div class="toasts" id="toasts"></div>
+
+  <!-- Game Over Overlay -->
+  <div class="game-over-overlay" id="game-over">
+    <div class="game-over-card">
+      <h2>🎉 จบเกม!</h2>
+      <div class="final-score" id="final-score">0</div>
+      <div class="final-label">เหรียญที่ได้ทั้งหมด</div>
+      <button class="start-btn" id="play-again-btn" style="margin-top:12px">🔄 เล่นอีกครั้ง</button>
+    </div>
+  </div>
+
+  <!-- SDK & Frameworks -->
+  <script src="/games/kampai-sdk.js"></script>
+  <script src="/games/kampai-match.js"></script>
+  <script src="/games/kampai-versus.js"></script>
+
+  <!-- Three.js (global script, not ES module) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
+
+  <!-- Game scripts (in order) -->
+  <script src="config.js"></script>
+  <script src="data.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
