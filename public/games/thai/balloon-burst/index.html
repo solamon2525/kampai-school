@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Balloon Burst: คำประวิสรรชนีย์ Challenge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <video id="arVideo" autoplay playsinline muted></video>
+  <canvas id="arCanvas"></canvas>
+
+  <!-- HUD (visible during play) -->
+  <div id="hud" class="hidden">
+    <div class="hud-pill" id="score-pill">
+      <div class="label">คะแนน</div>
+      <div class="value" id="score-value">0</div>
+    </div>
+    <button class="btn secondary" id="btn-quit" style="margin-top:0; padding:10px 24px; font-size:14px; border-radius:12px;">🏠 ออก</button>
+    <div class="hud-pill" id="timer-pill">
+      <div class="label">เวลา</div>
+      <div class="value" id="timer-value">60</div>
+    </div>
+  </div>
+  <div id="hint-bar" class="hidden">
+    เจาะลูกโป่งที่มี <b>คำประวิสรรชนีย์ ( ะ )</b> เท่านั้น! โบกมือ/ขยับหัวทับลูกโป่ง หรือใช้นิ้วแตะ 👆
+  </div>
+
+  <!-- Start screen -->
+  <div id="ui-start" class="screen active">
+    <h1 class="title">🎈 Balloon Burst 🎈</h1>
+    <div class="subtitle">"คำประวิสรรชนีย์" และ "คำไม่ประวิสรรชนีย์" Challenge</div>
+    <div class="rules-box">
+      ขยับร่างกาย/ตำแหน่งตรวจจับให้ทับลูกโป่งที่ลอยขึ้นมา!<br>
+      เจาะลูกโป่ง <span class="right">คำประวิสรรชนีย์ ( ะ )</span> ถูกต้อง &nbsp;<b>+10</b> คะแนน<br>
+      เจาะลูกโป่ง <span class="wrong">คำอื่นที่ไม่ใช่</span> &nbsp;<b>-5</b> คะแนน<br>
+      เวลาทั้งหมด <b>60 วินาที</b> — ทำคะแนนให้สูงที่สุด!
+    </div>
+    <div id="player-chip"></div>
+    <button class="btn" id="btn-start">📷 เริ่มต้นเล่นเกม</button>
+    <button class="btn secondary" id="btn-vs" style="margin-top: 16px;">👥 แข่ง 2 คน</button>
+    <div id="cam-error"></div>
+  </div>
+
+  <!-- Countdown screen -->
+  <div id="ui-countdown" class="screen hidden">
+    <div class="count-num" id="count-num">3</div>
+  </div>
+
+  <!-- End screen -->
+  <div id="ui-end" class="screen hidden">
+    <div class="medal-emoji" id="medal-emoji">🥉</div>
+    <div class="medal-label" id="medal-label">ทองแดง (Bronze)</div>
+    <div class="final-score" id="final-score">0 คะแนน</div>
+    <div class="stats-row">
+      <div class="stat-chip"><div class="num" id="stat-correct" style="color:var(--good)">0</div><div class="lbl">เจาะถูก</div></div>
+      <div class="stat-chip"><div class="num" id="stat-wrong" style="color:var(--danger)">0</div><div class="lbl">เจาะผิด</div></div>
+      <div class="stat-chip"><div class="num" id="stat-accuracy">0%</div><div class="lbl">ความแม่นยำ</div></div>
+    </div>
+    <div class="rank-chip" id="rank-chip" style="display:none">อันดับของคุณ: <b id="rank-value">#1</b> จาก <span id="rank-total">1</span> คน</div>
+    <div id="leaderboard" style="display:none">
+      <div class="lb-title">🏆 ตารางคะแนนสูงสุด</div>
+      <div id="lb-rows"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" id="btn-restart">🔁 เล่นอีกครั้ง</button>
+      <button class="btn ghost" id="btn-home" style="margin-top:26px;">🏠 หน้าหลัก</button>
+    </div>
+  </div>
+
+  <!-- Loading Screen -->
+  <div id="loading">กำลังเปิดกล้อง…</div>
+</div>
+
+<!-- โหลด: config → data → SDK → AR engine → game (เรียงลำดับ, ห้าม import/export) -->
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="/games/kampai-sdk.js"></script>
+<script>window.KAMPAI = window.KAMPAI || { isEmbed:false, ready:true, student:null, stats:null, leaderboard:[], onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/';}, sound:{ unlock:function(){}, correct:function(){}, wrong:function(){}, timeUp:function(){}, gameOver:function(){}, speak:function(){}, stopSpeak:function(){}, fxFlash:function(){}, mountToggles:function(){}, defaultBgm:function(){}, bgmStart:function(){}, bgmStop:function(){} } };</script>
+<script src="/games/kampai-versus.js"></script>
+<script>window.KampaiVersus = window.KampaiVersus || { VERSION:'stub', create:function(){ return { openMenu:function(){}, report:function(){}, finish:function(){return false;}, leave:function(){} }; } };</script>
+<script src="/games/kampai-ar.js"></script>
+<script>window.KampaiAR = window.KampaiAR || { VERSION:'stub', create:function(){ return { start:function(){return Promise.resolve(false);}, stop:function(){}, setActive:function(){}, tap:function(){}, mode:'tap' }; } };</script>
+<script src="game.js"></script>
+</body>
+</html>
