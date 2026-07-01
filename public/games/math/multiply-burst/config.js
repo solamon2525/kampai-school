@@ -2,14 +2,14 @@
 window.GAME_CONFIG = {
     SLUG: 'multiply-burst',
     GAME_DURATION: 60,
-    SPAWN_INTERVAL_MS: 950,
+    SPAWN_INTERVAL_MS: 1150,
     POINTS_CORRECT: 10,
     POINTS_WRONG: -5,
     BALLOON_RADIUS_MIN: 50,
     BALLOON_RADIUS_MAX: 66,
-    BALLOON_SPEED_MIN: 0.95,
-    BALLOON_SPEED_MAX: 1.85,
-    FINGER_HIT_PADDING: 36,
+    BALLOON_SPEED_MIN: 0.38,
+    BALLOON_SPEED_MAX: 0.68,
+    FINGER_HIT_PADDING: 38,
     MEDAL_GOLD_SCORE: 280,
     MEDAL_SILVER_SCORE: 140,
     BGM: 'playful',
@@ -25,6 +25,7 @@ window.GAME_CONFIG = {
         smoothing: 0.52,
         lostHoldMs: 160,
         sweepSteps: 3,
+        minExtendedFingers: 4,
         cameraWidth: 640,
         cameraHeight: 480
     }

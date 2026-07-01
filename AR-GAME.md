@@ -3,9 +3,10 @@
 > ⚠️ **อ่านไฟล์นี้ก่อนสร้าง/แก้เกม AR ทุกครั้ง** — กันบัคซ้ำเดิม (โดยเฉพาะ layout ยุบ + ไม่มี fallback)
 > เกม AR มี 2 engine กลาง: `kampai-ar.js` (zone/body) และ `kampai-hands.js` (finger poke/grab)
 >
-> **Engine version:** `KampaiAR v1.3.2` · `KampaiHands v1.1.0` · **Doc version:** v1.4.1
+> **Engine version:** `KampaiAR v1.3.2` · `KampaiHands v1.2.0` · **Doc version:** v1.4.2
 
 ## Changelog
+- **v1.4.2** — **KampaiHands v1.2.0** — `minExtendedFingers` (default 0): กำหนดจำนวนนิ้วที่ต้องเหยียดก่อน `collectHitProbes()` ทำงาน (เช่น multiply-burst = 4/5) · `isGestureReady()` / `getExtendedFingerCount()`
 - **v1.4.1** — **KampaiHands v1.1.0** เพิ่มความแม่นยำ: map พิกัดรองรับ `object-fit: cover`, `lostHoldMs` กันหลุดมือชั่วคราว, และ `sweepSteps` เพิ่ม hit probe ตามเส้นทางนิ้ว (ลดอาการพุ่งทะลุวัตถุ)
 - **v1.4.0** — 🆕 **`KampaiHands`** (`kampai-hands.js`) — engine มาตรฐานสำหรับเกม **จิ้ม/ทับ/ชนวัตถุด้วยปลายนิ้วชี้** (MediaPipe Hands + camera_utils · pattern balloon-burst) · **`_template-ar-hands`** ย้ายมาใช้ KampaiHands · **อย่าใช้ `KampaiAR` + `DETECTOR:'hands'`** สำหรับเกมประเภทนี้
 - **v1.3.2** — แปลงพิกัดมือ `videoNormToCanvasNorm` (object-fit:cover) · จัดซ้าย/ขวาจากตำแหน่งจอ · `displaySize` callback

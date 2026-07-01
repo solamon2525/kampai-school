@@ -11,7 +11,7 @@
 (function (global) {
     'use strict';
 
-    var VERSION = '1.1.0';
+    var VERSION = '1.2.0';
 
     var DEFAULT_HANDS = {
         maxNumHands: 2,
@@ -20,6 +20,7 @@
         smoothing: 0.4,
         lostHoldMs: 140,
         sweepSteps: 2,
+        minExtendedFingers: 0,
         cameraWidth: 640,
         cameraHeight: 480,
         handsUrl: 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/'
@@ -61,8 +62,28 @@
             leftLandmarks: null,
             rightLandmarks: null,
             leftPointer: { x: -9999, y: -9999, prevX: -9999, prevY: -9999, active: false },
-            rightPointer: { x: -9999, y: -9999, prevX: -9999, prevY: -9999, active: false }
+            rightPointer: { x: -9999, y: -9999, prevX: -9999, prevY: -9999, active: false },
+            leftExtendedCount: 0,
+            rightExtendedCount: 0
         };
+
+        function countExtendedFingers(landmarks) {
+            if (!landmarks || landmarks.length < 21) return 0;
+            var n = 0;
+            if (landmarks[8].y < landmarks[6].y) n++;
+            if (landmarks[12].y < landmarks[10].y) n++;
+            if (landmarks[16].y < landmarks[14].y) n++;
+            if (landmarks[20].y < landmarks[18].y) n++;
+            if (Math.abs(landmarks[4].x - landmarks[3].x) > Math.abs(landmarks[2].x - landmarks[3].x) * 0.85) n++;
+            return n;
+        }
+
+        function gestureReady(side) {
+            var minF = handsOpt.minExtendedFingers != null ? handsOpt.minExtendedFingers : 0;
+            if (minF <= 0) return true;
+            var count = side === 'left' ? st.leftExtendedCount : st.rightExtendedCount;
+            return count >= minF;
+        }
 
         function canvasSize() {
             if (getCanvasSize) {
@@ -132,15 +153,22 @@
             st.rightPointer.active = false;
         }
 
+        function expireStaleGestureCounts(now) {
+            var holdMs = handsOpt.lostHoldMs != null ? handsOpt.lostHoldMs : 140;
+            if ((now - st.leftSeenAt) > holdMs) st.leftExtendedCount = 0;
+            if ((now - st.rightSeenAt) > holdMs) st.rightExtendedCount = 0;
+        }
+
         function preserveRecentHands(now) {
             var holdMs = handsOpt.lostHoldMs != null ? handsOpt.lostHoldMs : 140;
+            var minF = handsOpt.minExtendedFingers != null ? handsOpt.minExtendedFingers : 0;
             if ((now - st.leftSeenAt) <= holdMs && st.leftPointer.x >= 0) {
                 st.leftHand.active = true;
-                st.leftPointer.active = true;
+                if (minF <= 0 || st.leftExtendedCount >= minF) st.leftPointer.active = true;
             }
             if ((now - st.rightSeenAt) <= holdMs && st.rightPointer.x >= 0) {
                 st.rightHand.active = true;
-                st.rightPointer.active = true;
+                if (minF <= 0 || st.rightExtendedCount >= minF) st.rightPointer.active = true;
             }
         }
 
@@ -151,6 +179,7 @@
             resetPointers();
 
             if (!results.multiHandLandmarks || !results.multiHandLandmarks.length) {
+                expireStaleGestureCounts(now);
                 preserveRecentHands(now);
                 return;
             }
@@ -178,6 +207,13 @@
                 else st.rightSeenAt = now;
                 if (side === 'left') st.leftLandmarks = e.mapped;
                 else st.rightLandmarks = e.mapped;
+                var ext = countExtendedFingers(e.mapped);
+                if (side === 'left') st.leftExtendedCount = ext;
+                else st.rightExtendedCount = ext;
+                if (!gestureReady(side)) {
+                    ptr.active = false;
+                    hand.active = true;
+                }
             }
 
             if (entries.length === 1) {
@@ -254,8 +290,8 @@
             var probes = [];
             var steps = clamp(handsOpt.sweepSteps != null ? handsOpt.sweepSteps : 2, 0, 5);
 
-            function pushSwept(ptr) {
-                if (!ptr.active) return;
+            function pushSwept(ptr, side) {
+                if (!ptr.active || !gestureReady(side)) return;
                 probes.push({ x: ptr.x, y: ptr.y });
                 if (steps <= 0) return;
                 var fromX = isFinite(ptr.prevX) ? ptr.prevX : ptr.x;
@@ -269,9 +305,17 @@
                 }
             }
 
-            pushSwept(st.leftPointer);
-            pushSwept(st.rightPointer);
+            pushSwept(st.leftPointer, 'left');
+            pushSwept(st.rightPointer, 'right');
             return probes;
+        }
+
+        function isGestureReady(side) {
+            return gestureReady(side);
+        }
+
+        function getExtendedFingerCount(side) {
+            return side === 'left' ? st.leftExtendedCount : st.rightExtendedCount;
         }
 
         function clientToCanvas(canvas, clientX, clientY) {
@@ -333,6 +377,8 @@
             start: start,
             stop: stop,
             collectHitProbes: collectHitProbes,
+            isGestureReady: isGestureReady,
+            getExtendedFingerCount: getExtendedFingerCount,
             clientToCanvas: clientToCanvas,
             drawSkeleton: drawSkeleton,
             get mode() { return st.mode; },

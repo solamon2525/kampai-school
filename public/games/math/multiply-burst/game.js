@@ -455,11 +455,38 @@
 
     function drawHandTracking() {
         if (!hands || hands.mode !== 'camera') return;
+        var minF = (CFG.HANDS && CFG.HANDS.minExtendedFingers) || 0;
         if (hands.leftLandmarks) {
-            hands.drawSkeleton(ctx, hands.leftLandmarks, 'rgba(75, 224, 122, 1)', 'มือซ้าย');
+            var leftOk = !hands.isGestureReady || hands.isGestureReady('left');
+            hands.drawSkeleton(ctx, hands.leftLandmarks,
+                leftOk ? 'rgba(75, 224, 122, 1)' : 'rgba(255, 92, 114, 0.85)', 'มือซ้าย');
+            if (minF > 0 && hands.getExtendedFingerCount) {
+                var lc = hands.getExtendedFingerCount('left');
+                if (lc > 0 && lc < minF) {
+                    ctx.save();
+                    ctx.font = "600 14px 'Sarabun', sans-serif";
+                    ctx.fillStyle = '#ff5c72';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('นิ้ว ' + lc + '/' + minF, hands.leftLandmarks[0].x * canvas.width, hands.leftLandmarks[0].y * canvas.height - 38);
+                    ctx.restore();
+                }
+            }
         }
         if (hands.rightLandmarks) {
-            hands.drawSkeleton(ctx, hands.rightLandmarks, 'rgba(255, 206, 84, 1)', 'มือขวา');
+            var rightOk = !hands.isGestureReady || hands.isGestureReady('right');
+            hands.drawSkeleton(ctx, hands.rightLandmarks,
+                rightOk ? 'rgba(255, 206, 84, 1)' : 'rgba(255, 92, 114, 0.85)', 'มือขวา');
+            if (minF > 0 && hands.getExtendedFingerCount) {
+                var rc = hands.getExtendedFingerCount('right');
+                if (rc > 0 && rc < minF) {
+                    ctx.save();
+                    ctx.font = "600 14px 'Sarabun', sans-serif";
+                    ctx.fillStyle = '#ff5c72';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('นิ้ว ' + rc + '/' + minF, hands.rightLandmarks[0].x * canvas.width, hands.rightLandmarks[0].y * canvas.height - 38);
+                    ctx.restore();
+                }
+            }
         }
     }
 
