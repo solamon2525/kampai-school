@@ -14,7 +14,8 @@
     var balloons = [];
     var particles = [];
     var popups = [];
-    var pointer = { x: -9999, y: -9999, active: false };
+    var leftPointer = { x: -9999, y: -9999, active: false };
+    var rightPointer = { x: -9999, y: -9999, active: false };
     var score = 0;
     var timeLeft = CFG.GAME_DURATION;
     var correctHits = 0;
@@ -277,15 +278,25 @@
             b.sway += b.swaySpeed;
             var drawX = b.x + Math.sin(b.sway) * 10;
 
-            // collision with camera pointer
-            if (pointer.active) {
-                var dx = pointer.x - drawX;
-                var dy = pointer.y - b.y;
+            // collision with camera pointers (both hands)
+            var popped = false;
+            if (leftPointer.active) {
+                var dx = leftPointer.x - drawX;
+                var dy = leftPointer.y - b.y;
                 if (dx * dx + dy * dy < b.radius * b.radius) {
                     popBalloon(b, i, drawX);
-                    continue;
+                    popped = true;
                 }
             }
+            if (!popped && rightPointer.active) {
+                var dx = rightPointer.x - drawX;
+                var dy = rightPointer.y - b.y;
+                if (dx * dx + dy * dy < b.radius * b.radius) {
+                    popBalloon(b, i, drawX);
+                    popped = true;
+                }
+            }
+            if (popped) continue;
 
             // check missed / out of bounds
             if (b.y < -b.radius * 2) {
@@ -391,36 +402,75 @@
     }
 
     function drawPointerCursor() {
-        if (!pointer.active) return;
-        ctx.save();
         var t = performance.now() / 300;
         var pulse = 4 * Math.sin(t);
-        ctx.beginPath();
-        ctx.arc(pointer.x, pointer.y, 22 + pulse, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(255,255,255,0.85)';
-        ctx.lineWidth = 4;
-        ctx.shadowColor = '#ffce54';
-        ctx.shadowBlur = 18;
-        ctx.stroke();
+        
+        function drawCursor(px, py, color, label) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(px, py, 22 + pulse, 0, Math.PI * 2);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 4;
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 18;
+            ctx.stroke();
 
-        ctx.beginPath();
-        ctx.arc(pointer.x, pointer.y, 6, 0, Math.PI * 2);
-        ctx.fillStyle = '#ffce54';
-        ctx.shadowBlur = 10;
-        ctx.fill();
-        ctx.restore();
+            ctx.beginPath();
+            ctx.arc(px, py, 6, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.shadowBlur = 10;
+            ctx.fill();
+            
+            ctx.font = "bold 14px 'Sarabun', sans-serif";
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'center';
+            ctx.shadowColor = 'rgba(0,0,0,0.85)';
+            ctx.shadowBlur = 4;
+            ctx.fillText(label, px, py - 32);
+            ctx.restore();
+        }
+
+        if (leftPointer.active) {
+            drawCursor(leftPointer.x, leftPointer.y, '#4be07a', 'มือซ้าย');
+        }
+        if (rightPointer.active) {
+            drawCursor(rightPointer.x, rightPointer.y, '#ffce54', 'มือขวา');
+        }
     }
 
     function gameLoop() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // Update pointer location from AR engine
+        // Update pointer locations from AR engine for both hands
         if (ar && ar.mode === 'camera') {
-            pointer.x = ar.x * canvas.width;
-            pointer.y = ar.y * canvas.height;
-            pointer.active = true;
+            var lh = ar.leftHand;
+            var rh = ar.rightHand;
+            
+            if (lh && lh.active) {
+                leftPointer.x = lh.x * canvas.width;
+                leftPointer.y = lh.y * canvas.height;
+                leftPointer.active = true;
+            } else {
+                leftPointer.active = false;
+            }
+            
+            if (rh && rh.active) {
+                rightPointer.x = rh.x * canvas.width;
+                rightPointer.y = rh.y * canvas.height;
+                rightPointer.active = true;
+            } else {
+                rightPointer.active = false;
+            }
+            
+            // Fallback to center of motion if neither hand landmark is active
+            if (!leftPointer.active && !rightPointer.active) {
+                rightPointer.x = ar.x * canvas.width;
+                rightPointer.y = ar.y * canvas.height;
+                rightPointer.active = true;
+            }
         } else {
-            pointer.active = false;
+            leftPointer.active = false;
+            rightPointer.active = false;
         }
 
         if (gameState === 'playing') {

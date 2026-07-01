@@ -14,7 +14,7 @@ window.GAME_CONFIG = {
     BGM: 'cheerful',
 
     // ── AR ──
-    DETECTOR: 'framediff', // 'framediff' (ไม่พึ่ง lib) | 'pose' (MediaPipe jsdelivr)
+    DETECTOR: 'pose', // 'framediff' (ไม่พึ่ง lib) | 'pose' (MediaPipe jsdelivr)
     HOLD_MS: 0,            // เจาะทันทีที่สัมผัส/เคลื่อนทับ ไม่ต้อง hold
     TUNING: {              // override DEFAULT_TUNING ของ engine (ดู kampai-ar.js)
         downsample: { w: 120, h: 90 },

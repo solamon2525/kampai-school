@@ -65,7 +65,9 @@
             rafId: 0, intervalId: 0, prevFrame: null, off: null, offCtx: null, particles: [],
             pose: null,
             hands: { left: false, right: false, both: false }, handZone: null,
-            hipBaseline: null, prevHipY: null, lastGestureAt: 0
+            hipBaseline: null, prevHipY: null, lastGestureAt: 0,
+            leftHand: { x: 0.5, y: 0.5, active: false },
+            rightHand: { x: 0.5, y: 0.5, active: false }
         };
         function status(s) { try { cb.onStatus(s); } catch (e) {} }
 
@@ -137,6 +139,15 @@
                         var ty = (sumY / motion.length) / offH;
                         st.y = st.y * tuning.smoothing + ty * (1 - tuning.smoothing);
                         if (tuning.particles && ctx) spawnParticles(motion, offW, offH, canvas);
+                        
+                        // Map to left and right hand fallback
+                        st.leftHand.x = st.x;
+                        st.leftHand.y = st.y;
+                        st.leftHand.active = true;
+                        st.rightHand.x = st.x;
+                        st.rightHand.y = st.y;
+                        st.rightHand.active = true;
+
                         // ยกมือ framediff (หยาบ — pose แม่นกว่า; tap fallback คุมเสมอ)
                         var topMin = Math.floor(offW * offH * 0.01);
                         var lUp = topLeft > topMin, rUp = topRight > topMin;
@@ -144,6 +155,8 @@
                     } else {
                         st.energy *= 0.85;
                         setHands(false, false, false);
+                        st.leftHand.active = false;
+                        st.rightHand.active = false;
                     }
                     emitSignals();
                 }
@@ -187,6 +200,26 @@
             var target = 1 - nose.x; // flip x (mirror)
             st.x = st.x * tuning.smoothing + target * (1 - tuning.smoothing);
             st.y = st.y * tuning.smoothing + nose.y * (1 - tuning.smoothing);
+
+            // Left index finger = 19, Right index finger = 20
+            var li = lm[19], ri = lm[20];
+            if (li) {
+                var lTarget = 1 - li.x; // mirror
+                st.leftHand.x = st.leftHand.x * tuning.smoothing + lTarget * (1 - tuning.smoothing);
+                st.leftHand.y = st.leftHand.y * tuning.smoothing + li.y * (1 - tuning.smoothing);
+                st.leftHand.active = (li.visibility > 0.5);
+            } else {
+                st.leftHand.active = false;
+            }
+
+            if (ri) {
+                var rTarget = 1 - ri.x; // mirror
+                st.rightHand.x = st.rightHand.x * tuning.smoothing + rTarget * (1 - tuning.smoothing);
+                st.rightHand.y = st.rightHand.y * tuning.smoothing + ri.y * (1 - tuning.smoothing);
+                st.rightHand.active = (ri.visibility > 0.5);
+            } else {
+                st.rightHand.active = false;
+            }
 
             // ── ยกมือ: ข้อมือ (15 ซ้าย, 16 ขวา) เหนือไหล่ (11,12) เกิน margin ── (screen-side ใช้ x mirror)
             var ls = lm[11], rs = lm[12], lw = lm[15], rw = lm[16], m = tuning.handRaiseMargin;
@@ -289,7 +322,8 @@
             start: start, stop: stop, setActive: setActive, tap: tap,
             detector: detector, inputMode: inputMode, zones: zones, cuts: cuts, holdMs: holdMs, tuning: tuning,
             get mode() { return st.mode; }, get x() { return st.x; }, get y() { return st.y; },
-            get energy() { return st.energy; }, get hands() { return st.hands; }, get zone() { return st.lastZone; }
+            get energy() { return st.energy; }, get hands() { return st.hands; }, get zone() { return st.lastZone; },
+            get leftHand() { return st.leftHand; }, get rightHand() { return st.rightHand; }
         };
     }
 
