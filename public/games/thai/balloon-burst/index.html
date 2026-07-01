@@ -26,7 +26,7 @@
     </div>
   </div>
   <div id="hint-bar" class="hidden">
-    เจาะลูกโป่งที่มี <b>คำประวิสรรชนีย์ ( ะ )</b> เท่านั้น! โบกมือ/ขยับหัวทับลูกโป่ง หรือใช้นิ้วแตะ 👆
+    ชี้นิ้วทับลูกโป่งที่มี <b>คำประวิสรรชนีย์ ( ะ )</b> เท่านั้น! หรือแตะหน้าจอ 👆
   </div>
 
   <!-- Start screen -->
@@ -34,7 +34,7 @@
     <h1 class="title">🎈 Balloon Burst 🎈</h1>
     <div class="subtitle">"คำประวิสรรชนีย์" และ "คำไม่ประวิสรรชนีย์" Challenge</div>
     <div class="rules-box">
-      ขยับร่างกาย/ตำแหน่งตรวจจับให้ทับลูกโป่งที่ลอยขึ้นมา!<br>
+      ชี้ปลายนิ้วให้ทับลูกโป่งที่ลอยขึ้นมา!<br>
       เจาะลูกโป่ง <span class="right">คำประวิสรรชนีย์ ( ะ )</span> ถูกต้อง &nbsp;<b>+10</b> คะแนน<br>
       เจาะลูกโป่ง <span class="wrong">คำอื่นที่ไม่ใช่</span> &nbsp;<b>-5</b> คะแนน<br>
       เวลาทั้งหมด <b>60 วินาที</b> — ทำคะแนนให้สูงที่สุด!
@@ -75,15 +75,15 @@
   <div id="loading">กำลังเปิดกล้อง…</div>
 </div>
 
-<!-- โหลด: config → data → SDK → AR engine → game (เรียงลำดับ, ห้าม import/export) -->
+<!-- โหลด: config → data → SDK → MediaPipe Hands → game -->
 <script src="config.js"></script>
 <script src="data.js"></script>
 <script src="/games/kampai-sdk.js"></script>
 <script>window.KAMPAI = window.KAMPAI || { isEmbed:false, ready:true, student:null, stats:null, leaderboard:[], onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/';}, sound:{ unlock:function(){}, correct:function(){}, wrong:function(){}, timeUp:function(){}, gameOver:function(){}, speak:function(){}, stopSpeak:function(){}, fxFlash:function(){}, mountToggles:function(){}, defaultBgm:function(){}, bgmStart:function(){}, bgmStop:function(){} } };</script>
 <script src="/games/kampai-versus.js"></script>
 <script>window.KampaiVersus = window.KampaiVersus || { VERSION:'stub', create:function(){ return { openMenu:function(){}, report:function(){}, finish:function(){return false;}, leave:function(){} }; } };</script>
-<script src="/games/kampai-ar.js"></script>
-<script>window.KampaiAR = window.KampaiAR || { VERSION:'stub', create:function(){ return { start:function(){return Promise.resolve(false);}, stop:function(){}, setActive:function(){}, tap:function(){}, mode:'tap' }; } };</script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
 <script src="game.js"></script>
 </body>
 </html>

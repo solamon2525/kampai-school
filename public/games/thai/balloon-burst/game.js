@@ -1,16 +1,15 @@
-/* game.js — ลอจิกเกม Balloon Burst (อ่าน config/data + KAMPAI SDK + KampaiAR engine) */
+/* game.js — ลอจิกเกม Balloon Burst (config/data + KAMPAI SDK + MediaPipe Hands inline) */
 (function () {
     'use strict';
     var CFG = window.GAME_CONFIG, DATA = window.GAME_DATA;
+    var HT = CFG.HANDS || {};
     var $ = function (id) { return document.getElementById(id); };
 
-    // SDK setup
     KAMPAI.setSlug(CFG.SLUG);
     KAMPAI.sound.mountToggles();
     KAMPAI.sound.defaultBgm(CFG.BGM || 'cheerful');
 
-    // State variables
-    var canvas, ctx;
+    var canvas, ctx, videoEl;
     var balloons = [];
     var particles = [];
     var popups = [];
@@ -23,22 +22,34 @@
     var spawnTimer = null;
     var countdownTimer = null;
     var mainTimer = null;
-    var gameState = 'start'; // start | countdown | playing | end
+    var gameState = 'start';
     var rafId = null;
-    var ar = null;
     var playerName = 'ผู้เล่น';
-    var localLeaderboard = []; // fallback in-memory ranking
+    var localLeaderboard = [];
     var seededRng = null;
 
-    // ── KampaiVersus Setup ──
+    // ── MediaPipe Hands (pattern cyberdrop — ไม่ผ่าน KampaiAR) ──
+    var handTracker = {
+        mode: 'tap',       // 'camera' | 'tap'
+        running: false,
+        cameraObj: null,
+        mpHands: null,
+        leftLandmarks: null,
+        rightLandmarks: null
+    };
+
     var vs = window.KampaiVersus ? KampaiVersus.create({
         duration: CFG.GAME_DURATION,
         title: 'Balloon Burst',
         rankBy: 'score',
         onPlay: function (opts) {
             var rng = opts && opts.rng;
-            var player = opts && opts.player;
-            startVersusRound(rng, player);
+            if (rng) {
+                var seed = Math.floor(rng() * 4294967296);
+                seededRng = createMulberry32(seed);
+            }
+            stopHandTracking();
+            startGame();
         },
         onEnd: function () {
             cleanup();
@@ -46,15 +57,6 @@
             KAMPAI.sound.gameOver();
         }
     }) : null;
-
-    function startVersusRound(rng, player) {
-        if (rng) {
-            var seed = Math.floor(rng() * 4294967296);
-            seededRng = createMulberry32(seed);
-        }
-        if (ar) ar.mode = 'tap'; // versus mode defaults to tap mode
-        startGame();
-    }
 
     function createMulberry32(seed) {
         return function () {
@@ -65,7 +67,6 @@
         };
     }
 
-    // ── Render Student Info from SDK ──
     function renderPlayer() {
         var s = KAMPAI.student, stt = KAMPAI.stats, chip = $('player-chip');
         if (!s || !chip) return;
@@ -105,33 +106,124 @@
         });
     }
 
-    // ── AR engine ──
-    // ⚠️ ไม่ส่ง canvas ให้ engine — kampai-ar จะ clearRect ทุกเฟรม; เกมวาดลูกโป่งบน #arCanvas เอง
-    function buildAR() {
-        return KampaiAR.create({
-            video: '#arVideo',
-            displaySize: function () {
-                return canvas ? { w: canvas.width, h: canvas.height } : null;
-            },
-            detector: CFG.DETECTOR,
-            holdMs: CFG.HOLD_MS,
-            tuning: CFG.TUNING,
-            onStatus: function (status) {
-                if (status === 'camera-on') {
-                    $('loading').classList.remove('on');
-                } else if (status === 'no-camera') {
-                    $('loading').classList.remove('on');
-                }
+    // แปลง landmark MediaPipe → พิกัด normalized บน canvas (mirror X เหมือน cyberdrop)
+    function mapLandmark(lm) {
+        return { x: 1 - lm.x, y: lm.y };
+    }
+
+    function mapAllLandmarks(lm) {
+        var out = new Array(lm.length);
+        for (var i = 0; i < lm.length; i++) out[i] = mapLandmark(lm[i]);
+        return out;
+    }
+
+    function lerpPointer(ptr, targetX, targetY) {
+        var s = HT.smoothing != null ? HT.smoothing : 0.4;
+        if (!ptr.active || ptr.x < 0) {
+            ptr.x = targetX;
+            ptr.y = targetY;
+        } else {
+            ptr.x += (targetX - ptr.x) * s;
+            ptr.y += (targetY - ptr.y) * s;
+        }
+        ptr.active = true;
+    }
+
+    function onHandsResults(results) {
+        if (!handTracker.running || handTracker.mode !== 'camera') return;
+
+        handTracker.leftLandmarks = null;
+        handTracker.rightLandmarks = null;
+        leftPointer.active = false;
+        rightPointer.active = false;
+
+        if (!results.multiHandLandmarks || !results.multiHandLandmarks.length) return;
+
+        var w = canvas.width, h = canvas.height;
+        var entries = [];
+        for (var hi = 0; hi < results.multiHandLandmarks.length; hi++) {
+            var lm = results.multiHandLandmarks[hi];
+            var tip = mapLandmark(lm[8]);
+            entries.push({ nx: tip.x, ny: tip.y, mapped: mapAllLandmarks(lm) });
+        }
+        entries.sort(function (a, b) { return a.nx - b.nx; });
+
+        if (entries.length === 1) {
+            var e = entries[0];
+            var side = e.nx < 0.5 ? 'left' : 'right';
+            var px = e.nx * w, py = e.ny * h;
+            if (side === 'left') {
+                lerpPointer(leftPointer, px, py);
+                handTracker.leftLandmarks = e.mapped;
+            } else {
+                lerpPointer(rightPointer, px, py);
+                handTracker.rightLandmarks = e.mapped;
             }
+        } else {
+            lerpPointer(leftPointer, entries[0].nx * w, entries[0].ny * h);
+            handTracker.leftLandmarks = entries[0].mapped;
+            lerpPointer(rightPointer, entries[1].nx * w, entries[1].ny * h);
+            handTracker.rightLandmarks = entries[1].mapped;
+        }
+    }
+
+    function startHandTracking() {
+        if (typeof Hands === 'undefined' || typeof Camera === 'undefined') {
+            return Promise.reject(new Error('MediaPipe not loaded'));
+        }
+        if (handTracker.running) return Promise.resolve(true);
+
+        handTracker.mpHands = new Hands({
+            locateFile: function (file) {
+                return 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/' + file;
+            }
+        });
+        handTracker.mpHands.setOptions({
+            maxNumHands: HT.maxNumHands != null ? HT.maxNumHands : 2,
+            modelComplexity: HT.modelComplexity != null ? HT.modelComplexity : 1,
+            minDetectionConfidence: HT.minConfidence || 0.6,
+            minTrackingConfidence: HT.minConfidence || 0.6
+        });
+        handTracker.mpHands.onResults(onHandsResults);
+
+        handTracker.cameraObj = new Camera(videoEl, {
+            onFrame: function () {
+                if (handTracker.mpHands && videoEl.readyState >= 2) {
+                    return handTracker.mpHands.send({ image: videoEl });
+                }
+                return Promise.resolve();
+            },
+            width: HT.cameraWidth || 640,
+            height: HT.cameraHeight || 480
+        });
+
+        return handTracker.cameraObj.start().then(function () {
+            handTracker.mode = 'camera';
+            handTracker.running = true;
+            return true;
         });
     }
 
-    // ── Audio Procedural Fallback ──
+    function stopHandTracking() {
+        handTracker.running = false;
+        handTracker.mode = 'tap';
+        if (handTracker.cameraObj) {
+            handTracker.cameraObj.stop();
+            handTracker.cameraObj = null;
+        }
+        if (handTracker.mpHands) {
+            handTracker.mpHands.close();
+            handTracker.mpHands = null;
+        }
+        handTracker.leftLandmarks = null;
+        handTracker.rightLandmarks = null;
+        leftPointer.active = false;
+        rightPointer.active = false;
+    }
+
     var audioCtx = null;
     function ensureAudio() {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
     function playTone(freq, duration, type, gainVal, delay) {
         if (!audioCtx) return;
@@ -153,7 +245,6 @@
     function playSfxGo() { playTone(990, 0.25, 'triangle', 0.22); }
     function playSfxTick() { playTone(500, 0.08, 'square', 0.08); }
 
-    // ── Resize Canvas ──
     function resizeCanvas() {
         if (canvas) {
             canvas.width = window.innerWidth;
@@ -161,7 +252,6 @@
         }
     }
 
-    // ── Spawning Balloons ──
     function spawnBalloon() {
         if (gameState !== 'playing') return;
         var activeRng = seededRng || Math.random;
@@ -186,14 +276,12 @@
         });
     }
 
-    function spawnBurst(x, y, colorLight, good) {
-        var n = 16;
-        for (var i = 0; i < n; i++) {
-            var angle = (Math.PI * 2 * i) / n + Math.random() * 0.3;
+    function spawnBurst(x, y, colorLight) {
+        for (var i = 0; i < 16; i++) {
+            var angle = (Math.PI * 2 * i) / 16 + Math.random() * 0.3;
             var speed = 2 + Math.random() * 3.5;
             particles.push({
-                x: x,
-                y: y,
+                x: x, y: y,
                 vx: Math.cos(angle) * speed,
                 vy: Math.sin(angle) * speed - 1.5,
                 life: 1.0,
@@ -208,20 +296,19 @@
         popups.push({ x: x, y: y, text: text, life: 1.0, good: good });
     }
 
-    // ── Collision and Balloon Popping ──
     function popBalloon(b, index, drawX) {
         b.popped = true;
         if (b.isCorrect) {
             score += CFG.POINTS_CORRECT;
             correctHits++;
-            spawnBurst(drawX, b.y, b.colorLight, true);
-            spawnPopup(drawX, b.y, "+" + CFG.POINTS_CORRECT, true);
+            spawnBurst(drawX, b.y, b.colorLight);
+            spawnPopup(drawX, b.y, '+' + CFG.POINTS_CORRECT, true);
             KAMPAI.sound.correct();
             KAMPAI.sound.fxFlash(true);
         } else {
             score += CFG.POINTS_WRONG;
             wrongHits++;
-            spawnBurst(drawX, b.y, b.colorLight, false);
+            spawnBurst(drawX, b.y, b.colorLight);
             spawnPopup(drawX, b.y, String(CFG.POINTS_WRONG), false);
             KAMPAI.sound.wrong();
             KAMPAI.sound.fxFlash(false);
@@ -249,7 +336,6 @@
         }
     }
 
-    // ── Handle Fallback Click / Touch Taps ──
     function clientToCanvas(clientX, clientY) {
         var rect = canvas.getBoundingClientRect();
         var scaleX = canvas.width / (rect.width || canvas.width);
@@ -262,30 +348,8 @@
 
     function collectHitProbes() {
         var probes = [];
-        var w = canvas.width, h = canvas.height;
-        var fingerTips = [8, 12, 16, 20];
-
-        function addProbe(px, py) {
-            probes.push({ x: px, y: py });
-        }
-
-        if (leftPointer.active) addProbe(leftPointer.x, leftPointer.y);
-        if (rightPointer.active) addProbe(rightPointer.x, rightPointer.y);
-
-        if (ar && ar.activeDetector === 'hands') {
-            if (ar.leftHandLandmarks) {
-                for (var li = 0; li < fingerTips.length; li++) {
-                    var lpt = ar.leftHandLandmarks[fingerTips[li]];
-                    if (lpt) addProbe(lpt.x * w, lpt.y * h);
-                }
-            }
-            if (ar.rightHandLandmarks) {
-                for (var ri = 0; ri < fingerTips.length; ri++) {
-                    var rpt = ar.rightHandLandmarks[fingerTips[ri]];
-                    if (rpt) addProbe(rpt.x * w, rpt.y * h);
-                }
-            }
-        }
+        if (leftPointer.active) probes.push({ x: leftPointer.x, y: leftPointer.y });
+        if (rightPointer.active) probes.push({ x: rightPointer.x, y: rightPointer.y });
         return probes;
     }
 
@@ -320,7 +384,6 @@
         }
     }
 
-    // ── Main Game Loop ──
     function updateAndDrawBalloons() {
         var hitPad = CFG.FINGER_HIT_PADDING || 0;
         var probes = collectHitProbes();
@@ -337,7 +400,6 @@
                 continue;
             }
 
-            // check missed / out of bounds
             if (b.y < -b.radius * 2) {
                 balloons.splice(i, 1);
                 continue;
@@ -348,7 +410,6 @@
 
     function drawBalloon(b, drawX) {
         ctx.save();
-        // String line
         ctx.strokeStyle = 'rgba(255,255,255,0.35)';
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -356,7 +417,6 @@
         ctx.lineTo(drawX, b.y + b.radius * 1.35);
         ctx.stroke();
 
-        // Balloon body
         var grad = ctx.createRadialGradient(drawX - b.radius * 0.3, b.y - b.radius * 0.35, b.radius * 0.15, drawX, b.y, b.radius);
         grad.addColorStop(0, b.colorLight);
         grad.addColorStop(1, b.colorDark);
@@ -370,13 +430,11 @@
         ctx.shadowBlur = 0;
         ctx.shadowOffsetY = 0;
 
-        // Visual Highlight
         ctx.beginPath();
         ctx.ellipse(drawX - b.radius * 0.32, b.y - b.radius * 0.4, b.radius * 0.22, b.radius * 0.32, -0.4, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(255,255,255,0.35)';
         ctx.fill();
 
-        // Knot
         ctx.beginPath();
         ctx.moveTo(drawX - 6, b.y + b.radius * 0.9);
         ctx.lineTo(drawX + 6, b.y + b.radius * 0.9);
@@ -385,7 +443,6 @@
         ctx.fillStyle = b.colorDark;
         ctx.fill();
 
-        // Word text
         var fontSize = Math.max(15, b.radius * 0.42);
         ctx.font = "700 " + fontSize + "px 'Sarabun', sans-serif";
         ctx.textAlign = 'center';
@@ -445,16 +502,16 @@
         [9, 13], [13, 14], [14, 15], [15, 16], [13, 17], [17, 18], [18, 19], [19, 20], [0, 17]
     ];
 
-    function drawHandSkeleton(landmarks, strokeColor, locked, label) {
+    function drawHandSkeleton(landmarks, strokeColor, label) {
         if (!landmarks || !landmarks.length) return;
         var w = canvas.width, h = canvas.height;
         ctx.save();
-        ctx.strokeStyle = locked ? strokeColor : strokeColor.replace('1)', '0.75)');
-        ctx.lineWidth = locked ? 4 : 3;
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = 3;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.shadowColor = strokeColor;
-        ctx.shadowBlur = locked ? 16 : 10;
+        ctx.shadowBlur = 12;
         ctx.beginPath();
         for (var c = 0; c < HAND_CONNECTIONS.length; c++) {
             var p1 = landmarks[HAND_CONNECTIONS[c][0]];
@@ -471,7 +528,7 @@
             var pt = landmarks[tips[t]];
             if (!pt) continue;
             ctx.beginPath();
-            ctx.arc(pt.x * w, pt.y * h, tips[t] === 8 ? 10 : 5, 0, Math.PI * 2);
+            ctx.arc(pt.x * w, pt.y * h, tips[t] === 8 ? 12 : 5, 0, Math.PI * 2);
             ctx.fillStyle = tips[t] === 8 ? strokeColor : 'rgba(255,255,255,0.9)';
             ctx.fill();
         }
@@ -483,132 +540,50 @@
             ctx.textAlign = 'center';
             ctx.shadowColor = 'rgba(0,0,0,0.85)';
             ctx.shadowBlur = 4;
-            ctx.fillText(label + (locked ? ' 🔒' : ''), wrist.x * w, wrist.y * h - 22);
+            ctx.fillText(label, wrist.x * w, wrist.y * h - 22);
         }
         ctx.restore();
     }
 
     function drawHandTracking() {
-        if (!ar || ar.activeDetector !== 'hands') {
-            drawPointerCursor();
-            return;
+        if (handTracker.mode !== 'camera') return;
+        if (handTracker.leftLandmarks) {
+            drawHandSkeleton(handTracker.leftLandmarks, 'rgba(75, 224, 122, 1)', 'มือซ้าย');
         }
-        if (leftPointer.active && ar.leftHandLandmarks) {
-            drawHandSkeleton(ar.leftHandLandmarks, 'rgba(75, 224, 122, 1)', ar.leftHandLocked, 'มือซ้าย');
-        }
-        if (rightPointer.active && ar.rightHandLandmarks) {
-            drawHandSkeleton(ar.rightHandLandmarks, 'rgba(255, 206, 84, 1)', ar.rightHandLocked, 'มือขวา');
-        }
-    }
-
-    function drawPointerCursor() {
-        var t = performance.now() / 300;
-        var pulse = 4 * Math.sin(t);
-        
-        function drawCursor(px, py, color, label) {
-            ctx.save();
-            ctx.beginPath();
-            ctx.arc(px, py, 22 + pulse, 0, Math.PI * 2);
-            ctx.strokeStyle = color;
-            ctx.lineWidth = 4;
-            ctx.shadowColor = color;
-            ctx.shadowBlur = 18;
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.arc(px, py, 6, 0, Math.PI * 2);
-            ctx.fillStyle = color;
-            ctx.shadowBlur = 10;
-            ctx.fill();
-            
-            ctx.font = "bold 14px 'Sarabun', sans-serif";
-            ctx.fillStyle = '#ffffff';
-            ctx.textAlign = 'center';
-            ctx.shadowColor = 'rgba(0,0,0,0.85)';
-            ctx.shadowBlur = 4;
-            ctx.fillText(label, px, py - 32);
-            ctx.restore();
-        }
-
-        if (leftPointer.active) {
-            drawCursor(leftPointer.x, leftPointer.y, '#4be07a', 'มือซ้าย');
-        }
-        if (rightPointer.active) {
-            drawCursor(rightPointer.x, rightPointer.y, '#ffce54', 'มือขวา');
+        if (handTracker.rightLandmarks) {
+            drawHandSkeleton(handTracker.rightLandmarks, 'rgba(255, 206, 84, 1)', 'มือขวา');
         }
     }
 
     function gameLoop() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        // Update pointer locations from AR engine for both hands
-        if (ar && ar.mode === 'camera') {
-            var lh = ar.leftHand;
-            var rh = ar.rightHand;
-            
-            if (lh && lh.active) {
-                leftPointer.x = lh.x * canvas.width;
-                leftPointer.y = lh.y * canvas.height;
-                leftPointer.active = true;
-            } else {
-                leftPointer.active = false;
-            }
-            
-            if (rh && rh.active) {
-                rightPointer.x = rh.x * canvas.width;
-                rightPointer.y = rh.y * canvas.height;
-                rightPointer.active = true;
-            } else {
-                rightPointer.active = false;
-            }
-            
-            // framediff/pose: ใช้จุดเคลื่อนไหวกลางเมื่อไม่มีมือ
-            if (!leftPointer.active && !rightPointer.active && ar.activeDetector !== 'hands') {
-                rightPointer.x = ar.x * canvas.width;
-                rightPointer.y = ar.y * canvas.height;
-                rightPointer.active = true;
-            }
-        } else {
-            leftPointer.active = false;
-            rightPointer.active = false;
-        }
 
         if (gameState === 'playing') {
             updateAndDrawBalloons();
         }
-        
+
         updateAndDrawParticles();
         updateAndDrawPopups();
         drawHandTracking();
-        
+
         rafId = requestAnimationFrame(gameLoop);
     }
 
-    // ── Game Flow Controls ──
     function handleStartClick() {
         ensureAudio();
-        seededRng = null; // Reset versus RNG for normal solo play
+        seededRng = null;
         $('cam-error').textContent = '';
         $('loading').classList.add('on');
 
-        if (!ar) ar = buildAR();
-        
-        try {
-            ar.start().then(function () {
-                $('loading').classList.remove('on');
-                beginCountdown();
-            }).catch(function (err) {
-                console.warn("Camera access denied or failed, switching to Touch fallback mode:", err);
-                $('cam-error').textContent = 'เปิดกล้องไม่ได้ ระบบสลับไปยังโหมดแตะสัมผัส';
-                $('loading').classList.remove('on');
-                beginCountdown();
-            });
-        } catch (err) {
-            console.warn("Camera access denied or failed, switching to Touch fallback mode:", err);
+        startHandTracking().then(function () {
+            $('loading').classList.remove('on');
+            beginCountdown();
+        }).catch(function (err) {
+            console.warn('Camera/Hands failed, tap fallback:', err);
             $('cam-error').textContent = 'เปิดกล้องไม่ได้ ระบบสลับไปยังโหมดแตะสัมผัส';
             $('loading').classList.remove('on');
             beginCountdown();
-        }
+        });
     }
 
     function beginCountdown() {
@@ -649,7 +624,6 @@
         updateScoreHud();
         updateTimerHud();
 
-        if (ar) ar.setActive(true);
         KAMPAI.sound.bgmStart();
 
         spawnTimer = setInterval(spawnBalloon, CFG.SPAWN_INTERVAL_MS);
@@ -659,9 +633,7 @@
             timeLeft--;
             updateTimerHud();
             if (timeLeft <= 5 && timeLeft > 0) playSfxTick();
-            if (timeLeft <= 0) {
-                endGame();
-            }
+            if (timeLeft <= 0) endGame();
         }, 1000);
     }
 
@@ -673,7 +645,7 @@
         document.getElementById('hud').classList.add('hidden');
         document.getElementById('hint-bar').classList.add('hidden');
 
-        if (ar) ar.stop();
+        stopHandTracking();
         KAMPAI.sound.bgmStop();
         KAMPAI.sound.gameOver();
 
@@ -698,7 +670,6 @@
         $('stat-wrong').textContent = wrongHits;
         $('stat-accuracy').textContent = accuracy + '%';
 
-        // --- Local Leaderboard fallback & render ---
         var justPushed = { name: playerName, score: score };
         localLeaderboard.push(justPushed);
         localLeaderboard.sort(function (a, b) { return b.score - a.score; });
@@ -708,12 +679,11 @@
         $('rank-total').textContent = localLeaderboard.length;
         $('rank-chip').style.display = 'block';
 
-        // Render SDK leaderboard or local
         var lbRows = $('lb-rows');
         lbRows.innerHTML = '';
         var sdkRows = KAMPAI.leaderboard || [];
         var rowsToRender = sdkRows.length > 0 ? sdkRows.slice(0, 5) : localLeaderboard.slice(0, 5);
-        
+
         $('leaderboard').style.display = 'block';
 
         rowsToRender.forEach(function (entry, idx) {
@@ -737,7 +707,7 @@
         if (spawnTimer) { clearInterval(spawnTimer); spawnTimer = null; }
         if (mainTimer) { clearInterval(mainTimer); mainTimer = null; }
         if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
-        if (ar) ar.stop();
+        stopHandTracking();
         if (vs) vs.leave();
         KAMPAI.sound.bgmStop();
     }
@@ -748,16 +718,16 @@
         return div.innerHTML;
     }
 
-    // ── Setup listeners ──
     window.addEventListener('load', function () {
         canvas = $('arCanvas');
         ctx = canvas.getContext('2d');
+        videoEl = $('arVideo');
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
         $('btn-start').addEventListener('click', handleStartClick);
         $('btn-restart').addEventListener('click', function () {
-            seededRng = null; // Reset versus RNG
+            seededRng = null;
             showScreen('ui-start');
             gameState = 'start';
         });
@@ -776,7 +746,6 @@
             KAMPAI.goHome();
         });
 
-        // Touch fallback listeners
         canvas.addEventListener('click', handleCanvasTap);
         canvas.addEventListener('touchstart', function (e) {
             handleCanvasTap(e);
