@@ -132,6 +132,30 @@
     window.addEventListener('resize', resize);
     resize();
 
+    var basketImg = new Image();
+    var basketReady = false;
+    basketImg.onload = function () { basketReady = true; };
+    basketImg.onerror = function () { basketReady = false; };
+    basketImg.src = 'basket.png';
+
+    function basketMetrics() {
+        var bw = CFG.BASKET_W * W;
+        var aspect = (basketReady && basketImg.naturalWidth)
+            ? basketImg.naturalHeight / basketImg.naturalWidth
+            : 210 / 515;
+        var bh = bw * aspect;
+        var bottom = H * 0.92;
+        var top = bottom - bh;
+        return {
+            bx: ST.basketX * W,
+            bw: bw,
+            bh: bh,
+            bottom: bottom,
+            top: top,
+            rimY: top + bh * 0.2
+        };
+    }
+
     // ── Player chip + leaderboard ──
     KAMPAI.onReady(function () {
         var s = KAMPAI.student, stt = KAMPAI.stats, chip = $('player-chip');
@@ -250,7 +274,9 @@
         resetColorDeck();
 
         // HUD
-        $('hud-rule').textContent = roundCFG.emoji + ' ' + roundCFG.label;
+        var emojiEl = $('hud-rule-emoji');
+        if (emojiEl) emojiEl.textContent = roundCFG.emoji;
+        $('hud-rule').textContent = roundCFG.label;
         $('hud-hint').textContent = roundCFG.hint;
         updateHUD();
 
@@ -300,10 +326,16 @@
     }
 
     function updateHUD() {
-        $('hud-score').textContent = '⭐ ' + ST.score;
+        $('hud-score').textContent = String(ST.score);
         $('hud-lives').textContent = '❤️'.repeat(ST.lives) + '🖤'.repeat(Math.max(0, CFG.LIVES - ST.lives));
-        $('hud-time').textContent = '⏱ ' + ST.sec + 's';
-        $('hud-round').textContent = 'รอบ ' + (ST.round + 1) + '/' + DATA.rounds.length;
+        $('hud-time').textContent = String(ST.sec);
+        $('hud-round').textContent = (ST.round + 1) + '/' + DATA.rounds.length;
+        var timePill = $('hud-time-pill');
+        if (timePill) timePill.classList.toggle('urgent', ST.sec <= 5 && ST.sec > 0);
+    }
+
+    function bubbleRadius() {
+        return Math.max(34, Math.min(W, H) * 0.048);
     }
 
     // ── Game loop (canvas) ──
@@ -314,9 +346,8 @@
         updateBasketFromHands();
 
         // fall items
-        var bx = ST.basketX * W;
-        var by = H * 0.88;
-        var bw = CFG.BASKET_W * W;
+        var bm = basketMetrics();
+        var bx = bm.bx;
         var cr = CFG.CATCH_RADIUS * W;
 
         ST.items.forEach(function (it) {
@@ -333,8 +364,8 @@
             var ix = it.x * W;
             var iy = it.y * H;
 
-            // catch check
-            if (iy >= by - 30 && Math.abs(ix - bx) < cr) {
+            // catch check — ปากตะกร้า (rim ของ sprite)
+            if (iy >= bm.rimY - 12 && Math.abs(ix - bx) < cr) {
                 it.caught = true;
                 it.catchGood = it.correct;
                 if (it.correct) {
@@ -380,11 +411,11 @@
         });
 
         // draw basket
-        drawBasket(bx, by, bw);
+        drawBasket(bm);
     }
 
     function drawNumberBubble(it, ix, iy) {
-        var r = 30;
+        var r = bubbleRadius();
         ctx.save();
         ctx.shadowBlur = 12;
         ctx.shadowColor = hexToRgba(it.colorDark, 0.45);
@@ -399,7 +430,7 @@
 
         ctx.save();
         ctx.fillStyle = '#fff';
-        ctx.font = 'bold ' + (r * 0.95) + 'px Sarabun, Arial, sans-serif';
+        ctx.font = '800 ' + Math.round(r * 0.92) + 'px Mitr, Sarabun, Arial, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.lineWidth = 3;
@@ -412,7 +443,7 @@
     function drawCatchFlash(it) {
         var ix = it.x * W;
         var iy = it.y * H;
-        var r = 30;
+        var r = bubbleRadius();
         var good = it.catchGood;
         var t = it.flash / 14;
         it.flash--;
@@ -423,37 +454,41 @@
         ctx.strokeStyle = good ? '#34d399' : '#f87171';
         ctx.lineWidth = 4;
         ctx.stroke();
-        ctx.font = 'bold 18px Sarabun, sans-serif';
+        ctx.font = '800 ' + Math.round(Math.max(20, r * 0.55)) + 'px Mitr, Sarabun, sans-serif';
         ctx.textAlign = 'center';
         ctx.fillStyle = good ? '#4be07a' : '#ff5c72';
         ctx.fillText(good ? ('+' + CFG.SCORE_CATCH) : '✗', ix, iy - r - 8);
         ctx.restore();
     }
 
-    function drawBasket(bx, by, bw) {
+    function drawBasket(bm) {
         ctx.save();
-        // shadow
-        ctx.shadowBlur = 18;
-        ctx.shadowColor = 'rgba(99,102,241,0.5)';
-        // basket body
-        ctx.fillStyle = 'rgba(99,102,241,0.25)';
-        ctx.strokeStyle = '#818cf8';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(bx - bw / 2, by - 16);
-        ctx.lineTo(bx - bw / 2 + 8, by + 22);
-        ctx.lineTo(bx + bw / 2 - 8, by + 22);
-        ctx.lineTo(bx + bw / 2, by - 16);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-        // rim
-        ctx.beginPath();
-        ctx.moveTo(bx - bw / 2, by - 16);
-        ctx.lineTo(bx + bw / 2, by - 16);
-        ctx.strokeStyle = '#c7d2fe';
-        ctx.lineWidth = 4;
-        ctx.stroke();
+        if (basketReady && basketImg.complete && basketImg.naturalWidth) {
+            ctx.shadowBlur = 14;
+            ctx.shadowColor = 'rgba(0,0,0,0.35)';
+            ctx.drawImage(
+                basketImg,
+                bm.bx - bm.bw / 2,
+                bm.bottom - bm.bh,
+                bm.bw,
+                bm.bh
+            );
+        } else {
+            var by = bm.bottom - bm.bh * 0.55;
+            ctx.shadowBlur = 18;
+            ctx.shadowColor = 'rgba(99,102,241,0.5)';
+            ctx.fillStyle = 'rgba(99,102,241,0.25)';
+            ctx.strokeStyle = '#818cf8';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(bm.bx - bm.bw / 2, by - 16);
+            ctx.lineTo(bm.bx - bm.bw / 2 + 8, by + 22);
+            ctx.lineTo(bm.bx + bm.bw / 2 - 8, by + 22);
+            ctx.lineTo(bm.bx + bm.bw / 2, by - 16);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+        }
         ctx.restore();
     }
 
