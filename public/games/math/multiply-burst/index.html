@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>สูตรคูณตาไว — Multiply Burst</title>
+<title>คำนวณตาไว — Math Burst</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
@@ -30,7 +30,7 @@
   </div>
 
   <div id="question-bar" class="hidden">
-    <div class="question-label">โจทย์</div>
+    <div class="question-label"><span id="question-op-tag">ผสม</span> · โจทย์</div>
     <div class="question-text" id="question-text">2 × 9 = ?</div>
   </div>
 
@@ -56,14 +56,33 @@
   </div>
 
   <div id="ui-start" class="screen active">
-    <h1 class="title">✖️ สูตรคูณตาไว ✖️</h1>
-    <div class="subtitle">Multiply Burst — ฝึกคูณเลขเร็วด้วยลูกโป่งตัวเลข</div>
-    <div class="rules-box">
-      อ่านโจทย์ด้านบน เช่น <b>2 × 9 = ?</b><br>
-      เล่น <b>5 ด่าน</b> ด่านละ <b>20 ข้อ</b> (รวม 100 ข้อ)<br>
-      ด่าน 1 ลูกโป่งเร็วขึ้น <b>+30%</b> · แต่ละด่านถัดไปเร็วขึ้นอีก <b>+10%</b><br>
-      ยกนิ้ว <span class="right">4 ใน 5 นิ้ว</span> ทับลูกโป่งในโซนล่าง (ช้าลง) &nbsp;<b>+10</b> คะแนน<br>
-      เจาะลูกโป่ง <span class="wrong">ตัวเลขผิด</span> &nbsp;<b>-5</b> คะแนน
+    <h1 class="title">🔢 คำนวณตาไว</h1>
+    <div class="subtitle">Math Burst — ฝึกบวก ลบ คูณ หาร เร็วด้วยลูกโป่งตัวเลข</div>
+    <div class="setup-box">
+      <div class="setup-row">
+        <div class="setup-label">จำนวนด่าน</div>
+        <div class="opt-row" id="stage-options">
+          <button type="button" class="opt-chip" data-stage="1">1</button>
+          <button type="button" class="opt-chip" data-stage="2">2</button>
+          <button type="button" class="opt-chip" data-stage="3">3</button>
+          <button type="button" class="opt-chip" data-stage="4">4</button>
+          <button type="button" class="opt-chip sel" data-stage="5">5</button>
+        </div>
+        <div class="setup-hint">ด่านละ 20 ข้อ · เร็วขึ้นทุกด่าน</div>
+      </div>
+      <div class="setup-row">
+        <div class="setup-label">โหมดคำนวณ</div>
+        <div class="opt-row" id="op-options">
+          <button type="button" class="opt-chip" data-op="add">➕ บวก</button>
+          <button type="button" class="opt-chip" data-op="sub">➖ ลบ</button>
+          <button type="button" class="opt-chip" data-op="mul">✖️ คูณ</button>
+          <button type="button" class="opt-chip" data-op="div">➗ หาร</button>
+          <button type="button" class="opt-chip sel" data-op="mixed">🔀 ผสม</button>
+        </div>
+      </div>
+    </div>
+    <div class="rules-box" id="rules-summary">
+      ยกนิ้ว <span class="right">4 ใน 5 นิ้ว</span> ทับลูกโป่งในโzoนล่าง &nbsp;<b>+10</b> · ตัวเลขผิด <span class="wrong">-5</span>
     </div>
     <div id="player-chip"></div>
     <button class="btn" id="btn-start">📷 เริ่มต้นเล่นเกม</button>

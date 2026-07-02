@@ -12,7 +12,7 @@
     function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
 
     function blankPlayer() {
-        return { x: 0, y: 0, active: false, lastSeen: 0 };
+        return { x: 0, y: 0, active: false, lastSeen: 0, hasPos: false };
     }
 
     function create(opts) {
@@ -22,13 +22,29 @@
             return { w: window.innerWidth, h: window.innerHeight };
         };
         var holdMs = opts.lostHoldMs != null ? opts.lostHoldMs : 600;
+        var smooth = opts.smoothing != null ? opts.smoothing : 0.35;
+        var faceModel = opts.model === 'short' ? 'short' : 'full';
 
         var st = {
             running: false,
             mpFace: null,
             pending: false,
+            smooth: smooth,
             players: { 1: blankPlayer(), 2: blankPlayer() }
         };
+
+        function smoothPoint(id, x, y) {
+            var p = st.players[id];
+            if (!p.hasPos) {
+                p.x = x;
+                p.y = y;
+                p.hasPos = true;
+                return;
+            }
+            var s = st.smooth;
+            p.x += (x - p.x) * s;
+            p.y += (y - p.y) * s;
+        }
 
         function canvasSize() {
             try {
@@ -58,8 +74,7 @@
         function assignFace(id, best, now) {
             var p = st.players[id];
             if (best) {
-                p.x = best.x;
-                p.y = best.y;
+                smoothPoint(id, best.x, best.y);
                 p.active = true;
                 p.lastSeen = now;
             } else if (now - p.lastSeen > holdMs) {
@@ -115,7 +130,7 @@
                         locateFile: function (f) { return FACE_URL + f; }
                     });
                     st.mpFace.setOptions({
-                        model: 'short',
+                        model: faceModel,
                         minDetectionConfidence: opts.minConfidence != null ? opts.minConfidence : 0.5
                     });
                     st.mpFace.onResults(onResults);
@@ -126,7 +141,7 @@
                 locateFile: function (f) { return FACE_URL + f; }
             });
             st.mpFace.setOptions({
-                model: 'short',
+                model: faceModel,
                 minDetectionConfidence: opts.minConfidence != null ? opts.minConfidence : 0.5
             });
             st.mpFace.onResults(onResults);

@@ -8,6 +8,14 @@ window.GAME_DATA = {
         'สุดยอด!'
     ],
 
+    OP_MODES: {
+        add: { label: 'บวก', symbol: '+', icon: '➕' },
+        sub: { label: 'ลบ', symbol: '−', icon: '➖' },
+        mul: { label: 'คูณ', symbol: '×', icon: '✖️' },
+        div: { label: 'หาร', symbol: '÷', icon: '➗' },
+        mixed: { label: 'ผสม', symbol: '?', icon: '🔀' }
+    },
+
     BALLOON_COLORS: [
         ['#ff6b81', '#c0392b'],
         ['#4bd0ff', '#1a73b8'],

@@ -38,6 +38,10 @@
     var stageBanner = null;
     var splitEntryMode = false;
     var splitPresence = null;
+    var soloSettings = {
+        stageCount: CFG.DEFAULT_STAGE_COUNT != null ? CFG.DEFAULT_STAGE_COUNT : 5,
+        opMode: CFG.DEFAULT_OP_MODE || 'mixed'
+    };
 
     var vs = window.KampaiVersus ? KampaiVersus.create({
         duration: CFG.GAME_DURATION,
@@ -89,41 +93,112 @@
         return list[Math.floor(roll() * list.length)];
     }
 
+    function opMeta(op) {
+        var modes = DATA.OP_MODES || {};
+        return modes[op] || { label: op, symbol: '?', icon: '?' };
+    }
+
+    function opModeLabel(mode) {
+        var m = opMeta(mode);
+        return m.icon + ' ' + m.label;
+    }
+
+    function pickConcreteOp() {
+        var mode = soloSettings.opMode || 'mixed';
+        if (mode !== 'mixed') return mode;
+        var pool = ['add', 'sub', 'mul', 'div'];
+        return pool[Math.floor(roll() * pool.length)];
+    }
+
+    function createQuestion() {
+        var min = CFG.TABLE_MIN;
+        var max = CFG.TABLE_MAX;
+        var op = pickConcreteOp();
+        var a, b, answer, symbol = opMeta(op).symbol;
+        if (op === 'add') {
+            a = randInt(min, max);
+            b = randInt(min, max);
+            answer = a + b;
+        } else if (op === 'sub') {
+            a = randInt(min, max);
+            b = randInt(min, a);
+            answer = a - b;
+        } else if (op === 'mul') {
+            a = randInt(min, max);
+            b = randInt(min, max);
+            answer = a * b;
+        } else {
+            b = randInt(Math.max(2, min), max);
+            answer = randInt(min, max);
+            a = b * answer;
+        }
+        return { a: a, b: b, op: op, symbol: symbol, answer: answer };
+    }
+
+    function formatQuestion(q) {
+        if (!q) return '';
+        return q.a + ' ' + q.symbol + ' ' + q.b + ' = ?';
+    }
+
     function buildWrongAnswers(q) {
         var ans = q.answer;
         var a = q.a;
         var b = q.b;
+        var op = q.op;
         var set = {};
         var wrong = [];
 
         function add(v) {
-            if (v === ans || v <= 0 || v > 100 || set[v]) return;
+            if (v === ans || v < 0 || v > 100 || set[v]) return;
             set[v] = true;
             wrong.push(v);
         }
 
-        add(a * (b + 1));
-        add(a * (b - 1));
-        add((a + 1) * b);
-        add((a - 1) * b);
-        add(ans + randInt(1, 5));
-        add(ans - randInt(1, 5));
-        add(a + b);
-        add(Math.abs(a - b) * Math.max(a, b));
+        if (op === 'add') {
+            add(a + b + 1);
+            add(a + b - 1);
+            add(a + (b + 1));
+            add((a + 1) + b);
+            add(a + b + randInt(2, 5));
+            add(Math.max(0, a + b - randInt(2, 5)));
+        } else if (op === 'sub') {
+            add(a - b + 1);
+            add(a - b - 1);
+            add(a - (b + 1));
+            add((a + 1) - b);
+            add(a - Math.max(0, b - 1));
+        } else if (op === 'mul') {
+            add(a * (b + 1));
+            add(a * (b - 1));
+            add((a + 1) * b);
+            add((a - 1) * b);
+            add(ans + randInt(1, 5));
+            add(ans - randInt(1, 5));
+            add(a + b);
+        } else {
+            add(ans + 1);
+            add(Math.max(1, ans - 1));
+            add(Math.max(1, ans + 2));
+            add(b * (ans + 1));
+            if (ans > 1) add(b * (ans - 1));
+            add(a + b);
+            add(Math.abs(a - b));
+        }
 
         while (wrong.length < 6) {
-            var ta = randInt(CFG.TABLE_MIN, CFG.TABLE_MAX);
-            var tb = randInt(CFG.TABLE_MIN, CFG.TABLE_MAX);
-            add(ta * tb);
+            add(ans + randInt(-6, 6));
+            add(randInt(CFG.TABLE_MIN, CFG.TABLE_MAX) * randInt(CFG.TABLE_MIN, CFG.TABLE_MAX));
         }
 
         return wrong;
     }
 
+    function getSoloStageCount() {
+        return soloSettings.stageCount || CFG.DEFAULT_STAGE_COUNT || 5;
+    }
+
     function newQuestion() {
-        var a = randInt(CFG.TABLE_MIN, CFG.TABLE_MAX);
-        var b = randInt(CFG.TABLE_MIN, CFG.TABLE_MAX);
-        currentQuestion = { a: a, b: b, answer: a * b };
+        currentQuestion = createQuestion();
         wrongPool = buildWrongAnswers(currentQuestion);
         updateQuestionHud();
         if (gameState === 'playing') {
@@ -184,6 +259,8 @@
             video: '#arVideo',
             lostHoldMs: CFG.HEAD_HOLD_MS != null ? CFG.HEAD_HOLD_MS : 600,
             minConfidence: CFG.FACE_MIN_CONFIDENCE != null ? CFG.FACE_MIN_CONFIDENCE : 0.5,
+            model: CFG.FACE_MODEL || 'full',
+            smoothing: CFG.FACE_SMOOTHING != null ? CFG.FACE_SMOOTHING : 0.35,
             getCanvasSize: function () {
                 return canvas ? { w: canvas.width, h: canvas.height } : null;
             }
@@ -218,7 +295,7 @@
     function updateStageHud() {
         var el = $('stage-value');
         if (!el) return;
-        var totalStages = CFG.STAGE_COUNT != null ? CFG.STAGE_COUNT : 5;
+        var totalStages = getSoloStageCount();
         var perStage = CFG.QUESTIONS_PER_STAGE != null ? CFG.QUESTIONS_PER_STAGE : 20;
         el.textContent = currentStage + '/' + totalStages + ' · ' + questionInStage + '/' + perStage;
     }
@@ -259,7 +336,7 @@
     }
 
     function advanceCampaignProgress() {
-        var totalStages = CFG.STAGE_COUNT != null ? CFG.STAGE_COUNT : 5;
+        var totalStages = getSoloStageCount();
         var perStage = CFG.QUESTIONS_PER_STAGE != null ? CFG.QUESTIONS_PER_STAGE : 20;
         questionInStage++;
         updateStageHud();
@@ -272,15 +349,58 @@
         questionInStage = 0;
         updateStageHud();
         var pct = Math.round((stageSpeedMultiplier() - 1) * 100);
-        showStageBanner('ด่าน ' + currentStage, 'ลูกโป่งเร็วขึ้น +' + pct + '%');
+        var sub = opModeLabel(soloSettings.opMode) + ' · เร็ว +' + pct + '%';
+        showStageBanner('ด่าน ' + currentStage, sub);
         return true;
     }
 
     function updateQuestionHud() {
         var el = $('question-text');
-        if (el && currentQuestion) {
-            el.textContent = currentQuestion.a + ' × ' + currentQuestion.b + ' = ?';
+        var tag = $('question-op-tag');
+        if (el && currentQuestion) el.textContent = formatQuestion(currentQuestion);
+        if (tag) {
+            if (soloSettings.opMode === 'mixed' && currentQuestion) {
+                tag.textContent = opMeta(currentQuestion.op).label;
+            } else {
+                tag.textContent = opMeta(soloSettings.opMode).label;
+            }
         }
+    }
+
+    function updateRulesSummary() {
+        var el = $('rules-summary');
+        if (!el) return;
+        var stages = getSoloStageCount();
+        var per = CFG.QUESTIONS_PER_STAGE || 20;
+        var op = opModeLabel(soloSettings.opMode);
+        el.innerHTML = 'โหมด <b>' + op + '</b> · <b>' + stages + '</b> ด่าน × ' + per + ' ข้อ (รวม ' + (stages * per) + ' ข้อ)<br>' +
+            'ยกนิ้ว <span class="right">4 ใน 5 นิ้ว</span> ทับลูกโป่ง &nbsp;<b>+10</b> · ผิด <span class="wrong">-5</span>';
+    }
+
+    function initSoloSetup() {
+        var stageRow = $('stage-options');
+        var opRow = $('op-options');
+        if (stageRow) {
+            stageRow.querySelectorAll('[data-stage]').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    soloSettings.stageCount = parseInt(btn.getAttribute('data-stage'), 10) || 5;
+                    stageRow.querySelectorAll('.opt-chip').forEach(function (b) { b.classList.remove('sel'); });
+                    btn.classList.add('sel');
+                    updateRulesSummary();
+                });
+            });
+        }
+        if (opRow) {
+            opRow.querySelectorAll('[data-op]').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    soloSettings.opMode = btn.getAttribute('data-op') || 'mixed';
+                    opRow.querySelectorAll('.opt-chip').forEach(function (b) { b.classList.remove('sel'); });
+                    btn.classList.add('sel');
+                    updateRulesSummary();
+                });
+            });
+        }
+        updateRulesSummary();
     }
 
     function renderPlayer() {
@@ -1091,7 +1211,7 @@
 
         if (campaignMode) {
             var pct = Math.round((stageSpeedMultiplier() - 1) * 100);
-            showStageBanner('ด่าน 1', 'ลูกโป่งเร็วขึ้น +' + pct + '%');
+            showStageBanner('ด่าน 1', opModeLabel(soloSettings.opMode) + ' · เร็ว +' + pct + '%');
         } else {
             mainTimer = setInterval(function () {
                 timeLeft--;
@@ -1197,6 +1317,7 @@
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
         initSplitMode();
+        initSoloSetup();
 
         $('btn-start').addEventListener('click', handleStartClick);
         if ($('btn-split')) $('btn-split').addEventListener('click', handleSplitClick);
