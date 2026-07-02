@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Catch Numbers — รับตัวเลข AR (คณิตศาสตร์)</title>
-<meta name="description" content="เกม AR รับตัวเลขที่ตกลงมาตามกติกา เลขคู่ เลขคี่ พหุคูณ — เคลื่อนตัวด้วยกล้อง">
+<meta name="description" content="เกม AR รับตัวเลขที่ตกลงมาตามกติกา เลขคู่ เลขคี่ พหุคูณ — เลื่อนตะกร้าด้วยมือ">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -14,10 +14,10 @@
   <div class="card">
     <div class="logo">🧺</div>
     <h1 class="title">Catch Numbers</h1>
-    <div class="subtitle">รับตัวเลขที่ตกลงมาตามกติกา — เลื่อนตัวด้วยกล้อง!</div>
+    <div class="subtitle">รับตัวเลขที่ตกลงมาตามกติกา — เลื่อนตะกร้าด้วยมือ!</div>
     <div id="player-chip"></div>
     <div class="hint">
-      🎥 ขยับตัว <b>ซ้าย-ขวา</b> ให้ตะกร้าอยู่ใต้ตัวเลขที่ต้องการ<br>
+      🎥 เปิดกล้องแล้ว <b>ขยับมือซ้าย-ขวา</b> ให้ตะกร้าอยู่ใต้ตัวเลขที่ต้องการ<br>
       📱 ไม่มีกล้อง? <b>เลื่อนนิ้ว</b> บนหน้าจอได้เลย
     </div>
     <button class="btn" id="startBtn">▶️ เริ่มเล่น</button>
@@ -31,10 +31,8 @@
 
 <!-- ── หน้าเล่น (เต็มจอ) ── -->
 <div class="screen" id="gameScreen">
-  <!-- กล้อง + AR overlay -->
+  <!-- กล้อง + canvas เกม (วาดตัวเลข + ตะกร้า) -->
   <video id="arVideo" autoplay playsinline muted></video>
-  <canvas id="arOverlay"></canvas>
-  <!-- canvas เกม (วาดตัวเลข + ตะกร้า) -->
   <canvas id="gameCanvas"></canvas>
 
   <!-- HUD บนสุด -->
@@ -118,19 +116,22 @@ window.KampaiVersus = window.KampaiVersus || {
   }
 };
 </script>
-<script src="/games/kampai-ar.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+<script src="/games/kampai-hands.js"></script>
 <script>
-// KampaiAR fallback stub
-window.KampaiAR = window.KampaiAR || {
+// KampaiHands fallback stub
+window.KampaiHands = window.KampaiHands || {
   VERSION: 'stub',
-  create: function() {
+  create: function () {
     return {
-      start: function(){ return Promise.resolve(false); },
-      stop:  function(){},
-      setActive: function(){},
-      tap:   function(){},
-      mode:  'tap',
-      x: 0.5, y: 0.5, zone: null
+      start: function () { return Promise.resolve(false); },
+      stop: function () {},
+      mode: 'tap',
+      leftHand: { x: 0.5, y: 0.5, active: false },
+      rightHand: { x: 0.5, y: 0.5, active: false },
+      leftPointer: { x: -1, y: -1, active: false },
+      rightPointer: { x: -1, y: -1, active: false }
     };
   }
 };

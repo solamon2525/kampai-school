@@ -1,7 +1,7 @@
 /* game.js — AR Catcher "Catch Numbers" ลอจิกหลัก
-   ตะกร้าเลื่อนตาม ar.x (จากกล้อง) หรือลาก/แตะ (fallback)
+   ตะกร้าเลื่อนตามตำแหน่งมือ (KampaiHands) หรือลาก/แตะ (fallback)
    ตัวเลขตกจากด้านบน — รับถูกตามกติการอบ = +คะแนน, รับผิด/ตก = -ชีวิต
-   ❗ Camera/AR อยู่ใน kampai-ar.js ทั้งหมด อย่าแก้ที่นี่ */
+   ❗ Camera/Hands อยู่ใน kampai-hands.js ทั้งหมด อย่าแก้ที่นี่ */
 (function () {
     'use strict';
     var CFG = window.GAME_CONFIG;
@@ -47,7 +47,7 @@
         for (var i = 0; i < 20; i++) {
             roundSeeds.push(Math.floor(matchRng() * 4294967296));
         }
-        if (ar) ar.mode = 'tap';
+        if (hands) hands.mode = 'tap';
         startGame();
     }
 
@@ -65,7 +65,7 @@
         rule: null            // DATA.rounds[roundIndex]
     };
     window.__ST = ST;
-    var ar = null;
+    var hands = null;
 
     // ── Canvas ──
     var cvs = $('gameCanvas');
@@ -112,21 +112,38 @@
         $(id).classList.add('active');
     }
 
-    // ── AR engine ──
-    function buildAR() {
-        return KampaiAR.create({
-            video: '#arVideo', canvas: '#arOverlay',
-            detector: CFG.DETECTOR,
-            zones: [],        // ไม่ใช้ zone — ใช้ onSignals แทน
-            holdMs: 99999,    // ปิด hold/commit
-            tuning: CFG.TUNING,
-            onSignals: function (sig) {
-                // sig.x = 0 (ซ้าย) .. 1 (ขวา) — mirror จากกล้องด้านหน้า
-                // กล้องหน้า = mirror → ซ้ายจอ = x ต่ำ (ถูกแล้ว)
-                if (ST.roundActive) ST.basketX = sig.x;
-            },
-            onStatus: function () {}
+    // ── Hand tracking (เลื่อนตะกร้า) ──
+    function buildHands() {
+        return KampaiHands.create({
+            video: '#arVideo',
+            hands: CFG.HANDS,
+            getCanvasSize: function () {
+                return cvs ? { w: cvs.width, h: cvs.height } : null;
+            }
         });
+    }
+
+    function handNormX(side) {
+        if (!hands) return null;
+        var ptr = side === 'left' ? hands.leftPointer : hands.rightPointer;
+        var hand = side === 'left' ? hands.leftHand : hands.rightHand;
+        if (!hand || !hand.active) return null;
+        if (ptr && ptr.x >= 0 && W > 0) return ptr.x / W;
+        if (hand.x >= 0) return hand.x;
+        return null;
+    }
+
+    function updateBasketFromHands() {
+        if (!hands || hands.mode !== 'camera' || !ST.roundActive || W <= 0) return;
+        var xs = [];
+        var lx = handNormX('left');
+        var rx = handNormX('right');
+        if (lx != null) xs.push(lx);
+        if (rx != null) xs.push(rx);
+        if (!xs.length) return;
+        var x = xs.reduce(function (a, b) { return a + b; }, 0) / xs.length;
+        var edge = CFG.BASKET_EDGE != null ? CFG.BASKET_EDGE : 0.05;
+        ST.basketX = Math.max(edge, Math.min(1 - edge, x));
     }
 
     // ── Round setup ──
@@ -135,14 +152,14 @@
         showScreen('gameScreen');
         $('loading').textContent = 'กำลังเปิดกล้อง…';
         $('loading').classList.add('on');
-        if (!ar) ar = buildAR();
+        if (!hands) hands = buildHands();
 
         // Enforce tap mode if in versus/online match
         if (vs && vs.mode !== null) {
-            ar.mode = 'tap';
+            hands.mode = 'tap';
         }
 
-        ar.start().then(function (ok) {
+        hands.start().catch(function () {}).then(function () {
             $('loading').classList.remove('on');
             KAMPAI.sound.bgmStart();
             ST.score = 0; ST.round = 0; ST.correctCount = 0; ST.wrongCount = 0; ST.timeUpCount = 0;
@@ -227,6 +244,7 @@
         if (!ST.roundActive) { ST.rafId = 0; return; }
         ST.rafId = requestAnimationFrame(loop);
         ctx.clearRect(0, 0, W, H);
+        updateBasketFromHands();
 
         // fall items
         var bx = ST.basketX * W;
@@ -363,7 +381,7 @@
     // ── Finish game ──
     function finishGame() {
         cancelAnimationFrame(ST.rafId); ST.rafId = 0;
-        if (ar) ar.stop();
+        if (hands) hands.stop();
         KAMPAI.sound.bgmStop();
         KAMPAI.sound.gameOver();
 
@@ -377,7 +395,7 @@
         $('stat-wrong').textContent = ST.wrongCount;
         $('stat-timeup').textContent = ST.timeUpCount;
         KAMPAI.submitScore(ST.score, {
-            mode: 'ar',
+            mode: 'hands',
             rounds: DATA.rounds.length,
             correct: ST.correctCount,
             wrong: ST.wrongCount,
@@ -391,7 +409,7 @@
         clearInterval(ST.spawnTimer); clearInterval(ST.roundTimer);
         clearTimeout(ST.nextRoundTimeout);
         clearTimeout(ST.ruleCardTimeout);
-        if (ar) ar.stop();
+        if (hands) hands.stop();
         if (vs) vs.leave();
         KAMPAI.sound.bgmStop();
         ST.roundActive = false; ST.started = false;
@@ -407,14 +425,14 @@
     }
 
     gameEl.addEventListener('mousemove', function (e) {
-        if (ST.roundActive && ar && ar.mode === 'tap') ST.basketX = pointerX(e);
+        if (ST.roundActive && hands && hands.mode === 'tap') ST.basketX = pointerX(e);
     });
     gameEl.addEventListener('touchstart', function (e) {
-        if (ST.roundActive && ar && ar.mode === 'tap') ST.basketX = pointerX(e);
+        if (ST.roundActive && hands && hands.mode === 'tap') ST.basketX = pointerX(e);
     }, { passive: true });
     gameEl.addEventListener('touchmove', function (e) {
         e.preventDefault();
-        if (ST.roundActive && ar && ar.mode === 'tap') ST.basketX = pointerX(e);
+        if (ST.roundActive && hands && hands.mode === 'tap') ST.basketX = pointerX(e);
     }, { passive: false });
 
     // ── Buttons ──
