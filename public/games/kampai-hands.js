@@ -11,7 +11,7 @@
 (function (global) {
     'use strict';
 
-    var VERSION = '1.3.0';
+    var VERSION = '1.3.1';
 
     var DEFAULT_HANDS = {
         maxNumHands: 2,
@@ -258,6 +258,31 @@
             }
         }
 
+        function releaseVideo() {
+            if (!videoEl) return;
+            try {
+                var stream = videoEl.srcObject;
+                if (stream && typeof stream.getTracks === 'function') {
+                    stream.getTracks().forEach(function (track) {
+                        try { track.stop(); } catch (e) {}
+                    });
+                }
+                videoEl.srcObject = null;
+            } catch (e) {}
+        }
+
+        function teardownMedia() {
+            if (st.cameraObj) {
+                try { st.cameraObj.stop(); } catch (e) {}
+                st.cameraObj = null;
+            }
+            if (st.mpHands) {
+                try { st.mpHands.close(); } catch (e) {}
+                st.mpHands = null;
+            }
+            releaseVideo();
+        }
+
         function onHandsResults(results) {
             if (!st.running || st.mode !== 'camera') return;
             var now = performance.now();
@@ -323,6 +348,8 @@
             }
             if (st.running) return Promise.resolve(true);
 
+            teardownMedia();
+
             st.mpHands = new global.Hands({
                 locateFile: function (file) { return handsOpt.handsUrl + file; }
             });
@@ -360,14 +387,7 @@
         function stop() {
             st.running = false;
             st.mode = 'tap';
-            if (st.cameraObj) {
-                st.cameraObj.stop();
-                st.cameraObj = null;
-            }
-            if (st.mpHands) {
-                st.mpHands.close();
-                st.mpHands = null;
-            }
+            teardownMedia();
             resetPointers();
             resetFilters();
             onStatus('stopped');
@@ -469,6 +489,7 @@
             clientToCanvas: clientToCanvas,
             drawSkeleton: drawSkeleton,
             get mode() { return st.mode; },
+            set mode(v) { st.mode = v; },
             get leftHand() { return st.leftHand; },
             get rightHand() { return st.rightHand; },
             get leftLandmarks() { return st.leftLandmarks; },

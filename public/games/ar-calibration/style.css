@@ -212,6 +212,20 @@ small {
     margin-top: 10px;
 }
 
+.cal-tip {
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.cal-tip code {
+    font-size: 11px;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 1px 5px;
+    border-radius: 4px;
+}
+
 .btn {
     flex: 1;
     padding: 12px;

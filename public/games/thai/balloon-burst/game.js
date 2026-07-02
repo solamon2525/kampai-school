@@ -105,12 +105,16 @@
     }
 
     function startHandTracking() {
-        if (!hands) hands = buildHands();
+        stopHandTracking();
+        hands = buildHands();
         return hands.start();
     }
 
     function stopHandTracking() {
-        if (hands) hands.stop();
+        if (hands) {
+            hands.stop();
+            hands = null;
+        }
     }
 
     var audioCtx = null;

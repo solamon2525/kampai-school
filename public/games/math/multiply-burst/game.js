@@ -518,12 +518,16 @@
     }
 
     function startHandTracking() {
-        if (!hands) hands = buildHands();
+        stopHandTracking();
+        hands = buildHands();
         return hands.start();
     }
 
     function stopHandTracking() {
-        if (hands) hands.stop();
+        if (hands) {
+            hands.stop();
+            hands = null;
+        }
     }
 
     var audioCtx = null;
@@ -1233,6 +1237,7 @@
         document.getElementById('hint-bar').classList.add('hidden');
 
         stopHandTracking();
+        stopSplitPresence();
         KAMPAI.sound.bgmStop();
         KAMPAI.sound.gameOver();
 
@@ -1322,6 +1327,7 @@
         $('btn-start').addEventListener('click', handleStartClick);
         if ($('btn-split')) $('btn-split').addEventListener('click', handleSplitClick);
         $('btn-restart').addEventListener('click', function () {
+            cleanup();
             seededRng = null;
             campaignMode = true;
             splitEntryMode = false;

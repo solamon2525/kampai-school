@@ -230,9 +230,14 @@ export function newBlueprintId(prefix: string): string {
 }
 
 /** เกมที่เปิด visual blueprint editor ได้ — registry-driven */
-const BLUEPRINT_PLAY_STYLES = new Set(['platformer', 'platformer-2d', 'quiz']);
-const BLUEPRINT_SLUGS = new Set(['thai-sara-run', 'platformer-blueprint', 'quiz-builder']);
-const BLUEPRINT_ENGINE_KEYWORDS = ['platformer-2d', 'quiz'];
+const BLUEPRINT_PLAY_STYLES = new Set(['platformer', 'platformer-2d', 'quiz', 'matching']);
+const BLUEPRINT_SLUGS = new Set([
+    'thai-sara-run',
+    'platformer-blueprint',
+    'quiz-builder',
+    'matching-builder',
+]);
+const BLUEPRINT_ENGINE_KEYWORDS = ['platformer-2d', 'quiz', 'matching'];
 
 export function supportsBlueprintEditor(item: {
     game_play_style?: string | null;

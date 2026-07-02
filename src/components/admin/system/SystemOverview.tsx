@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.133.0 (KampaiHands precision boost)',
+        version: 'v1.134.0 (KampaiHands restart + AR tuning log)',
         date: 'ล่าสุด',
+        badge: 'bg-violet-600',
+        items: [
+            '**KampaiHands v1.3.1** — `stop()` ปล่อย camera tracks + `srcObject=null` · `start()` teardown ก่อนเปิดใหม่ · `set mode()`',
+            'แก้บัค restart กล้องไม่ทำงาน (`catch-numbers`, `multiply-burst`) · แพทเทิร์น `hands=null` หลัง stop',
+            '**catch-numbers** ย้าย framediff → KampaiHands (เลื่อนตะกร้าด้วยมือ) · **AR-GAME.md v1.4.4** + Presets จูน + Pitfall §4.12',
+        ],
+    },
+    {
+        version: 'v1.133.0 (KampaiHands precision boost)',
+        date: '',
         badge: 'bg-violet-600',
         items: [
             '**KampaiHands v1.1.0** — map มือให้ตรง `object-fit:cover` + `lostHoldMs` กันหลุดชั่วคราว',

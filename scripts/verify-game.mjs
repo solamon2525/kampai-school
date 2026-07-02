@@ -293,6 +293,13 @@ if (usesCamera) {
     const usesArEngine = /kampai-ar\.js/.test(html) || /KampaiAR\s*\.\s*create/.test(scanSource);
     if (usesHandsEngine) {
         console.log(`${PASS} Check 10 — AR: ใช้ KampaiHands (finger poke/grab — camera/cleanup จัดการให้)`);
+        if (/hands\.stop\(\)/.test(scanSource) && !/hands\s*=\s*null/.test(scanSource)) {
+            warnings.push({
+                check: 'AR-restart',
+                msg: 'KampaiHands: หลัง hands.stop() ควร hands=null ก่อน restart — ดู AR-GAME.md §4.12',
+            });
+            console.log(`${WARN} Check 10 — AR restart: ไม่พบ hands=null หลัง stop (แนะนำ — AR-GAME.md §4.12)`);
+        }
     } else if (usesArEngine) {
         console.log(`${PASS} Check 10 — AR: ใช้ KampaiAR engine (camera/cleanup/fallback จัดการให้)`);
     } else {

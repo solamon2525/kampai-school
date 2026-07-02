@@ -44,7 +44,7 @@
             if (opts && opts.rng) {
                 seededRng = createMulberry32(Math.floor(opts.rng() * 4294967296));
             }
-            if (hands) hands.stop();
+            stopHands();
             startGame();
         },
         onEnd: function () {
@@ -93,6 +93,10 @@
         var icon = hands && hands.mode === 'camera' ? '🎥 กล้อง' : '✋ แตะ';
         var tag = $('status-tag');
         if (tag) tag.textContent = icon;
+    }
+
+    function stopHands() {
+        if (hands) { hands.stop(); hands = null; }
     }
 
     function buildHands() {
@@ -236,7 +240,8 @@
         setupCanvas();
         KAMPAI.sound.unlock();
 
-        if (!hands) hands = buildHands();
+        stopHands();
+        hands = buildHands();
         try {
             await hands.start();
         } catch (e) {
@@ -285,7 +290,7 @@
         if (spawnTimer) { clearInterval(spawnTimer); spawnTimer = null; }
         if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
         if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-        if (hands) hands.stop();
+        stopHands();
         seededRng = null;
     }
 

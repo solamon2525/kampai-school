@@ -47,8 +47,7 @@
         for (var i = 0; i < 20; i++) {
             roundSeeds.push(Math.floor(matchRng() * 4294967296));
         }
-        if (hands) hands.mode = 'tap';
-        startGame();
+        startGame(true);
     }
 
     // ── State ──
@@ -112,7 +111,13 @@
         $(id).classList.add('active');
     }
 
-    // ── Hand tracking (เลื่อนตะกร้า) ──
+    function stopHands() {
+        if (hands) {
+            hands.stop();
+            hands = null;
+        }
+    }
+
     function buildHands() {
         return KampaiHands.create({
             video: '#arVideo',
@@ -146,24 +151,30 @@
         ST.basketX = Math.max(edge, Math.min(1 - edge, x));
     }
 
+    function beginSession() {
+        $('loading').classList.remove('on');
+        KAMPAI.sound.bgmStart();
+        ST.score = 0; ST.round = 0; ST.correctCount = 0; ST.wrongCount = 0; ST.timeUpCount = 0;
+        startRound();
+    }
+
     // ── Round setup ──
-    function startGame() {
+    function startGame(tapOnly) {
         KAMPAI.sound.unlock();
         showScreen('gameScreen');
-        $('loading').textContent = 'กำลังเปิดกล้อง…';
+        $('loading').textContent = tapOnly ? 'กำลังเริ่มเกม…' : 'กำลังเปิดกล้อง…';
         $('loading').classList.add('on');
-        if (!hands) hands = buildHands();
+        stopHands();
+        hands = buildHands();
 
-        // Enforce tap mode if in versus/online match
-        if (vs && vs.mode !== null) {
+        if (tapOnly || (vs && vs.mode !== null)) {
             hands.mode = 'tap';
+            beginSession();
+            return;
         }
 
         hands.start().catch(function () {}).then(function () {
-            $('loading').classList.remove('on');
-            KAMPAI.sound.bgmStart();
-            ST.score = 0; ST.round = 0; ST.correctCount = 0; ST.wrongCount = 0; ST.timeUpCount = 0;
-            startRound();
+            beginSession();
         });
     }
 
@@ -381,7 +392,7 @@
     // ── Finish game ──
     function finishGame() {
         cancelAnimationFrame(ST.rafId); ST.rafId = 0;
-        if (hands) hands.stop();
+        stopHands();
         KAMPAI.sound.bgmStop();
         KAMPAI.sound.gameOver();
 
@@ -409,7 +420,7 @@
         clearInterval(ST.spawnTimer); clearInterval(ST.roundTimer);
         clearTimeout(ST.nextRoundTimeout);
         clearTimeout(ST.ruleCardTimeout);
-        if (hands) hands.stop();
+        stopHands();
         if (vs) vs.leave();
         KAMPAI.sound.bgmStop();
         ST.roundActive = false; ST.started = false;
