@@ -61,7 +61,8 @@
         ruleCardTimeout: null,
         rafId: 0,
         dragStart: null,
-        rule: null            // DATA.rounds[roundIndex]
+        rule: null,           // DATA.rounds[roundIndex]
+        problem: null         // โจทย์ที่สร้างแล้วของรอบนี้
     };
     window.__ST = ST;
     var hands = null;
@@ -267,6 +268,7 @@
 
         var roundCFG = DATA.rounds[ST.round];
         ST.rule = roundCFG;
+        ST.problem = DATA.buildRoundProblem(roundCFG, qrand);
         ST.lives = CFG.LIVES;
         ST.items = [];
         ST.roundActive = true;
@@ -276,15 +278,15 @@
         // HUD
         var emojiEl = $('hud-rule-emoji');
         if (emojiEl) emojiEl.textContent = roundCFG.emoji;
-        $('hud-rule').textContent = roundCFG.label;
-        $('hud-hint').textContent = roundCFG.hint;
+        $('hud-rule').textContent = ST.problem.label;
+        $('hud-hint').textContent = ST.problem.hint;
         updateHUD();
 
         // Rule card flash
         var card = $('rule-card');
         card.querySelector('.rc-emoji').textContent = roundCFG.emoji;
-        card.querySelector('.rc-label').textContent = roundCFG.label;
-        card.querySelector('.rc-hint').textContent = roundCFG.hint;
+        card.querySelector('.rc-label').textContent = ST.problem.label;
+        card.querySelector('.rc-hint').textContent = ST.problem.hint;
         card.classList.add('show');
         ST.ruleCardTimeout = setTimeout(function () { card.classList.remove('show'); }, 2200);
 
@@ -318,8 +320,7 @@
     function spawnItem() {
         if (!ST.roundActive) return;
         if (!spawnGapClear()) return;
-        var pool = DATA.numbers;
-        var n = pool[Math.floor(qrand() * pool.length)];
+        var n = DATA.pickSpawnNumber(ST.problem, qrand);
         var speed = CFG.FALL_SPEED + ST.round * CFG.FALL_SPEED_INC;
         var colorPair = pickItemColorPair();
         var it = {
@@ -327,7 +328,7 @@
             x: 0.08 + qrand() * 0.84, // สุ่ม x ไม่ชนขอบ
             y: -0.05,
             speed: speed,
-            correct: ST.rule.check(n),
+            correct: ST.problem.check(n),
             caught: false,
             missed: false,
             catchGood: null,
