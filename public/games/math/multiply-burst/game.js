@@ -187,6 +187,42 @@
         return margin + roll() * usable;
     }
 
+    function isSpawnPositionClear(x, radius) {
+        var gap = CFG.MIN_SPAWN_GAP != null ? CFG.MIN_SPAWN_GAP : 52;
+        var band = canvas.height * (CFG.SPAWN_CHECK_BAND != null ? CFG.SPAWN_CHECK_BAND : 0.5);
+        var bandTop = canvas.height - band;
+        for (var i = 0; i < balloons.length; i++) {
+            var b = balloons[i];
+            if (b.popped || b.y < bandTop) continue;
+            var br = b.radius;
+            if (Math.abs(x - b.x) < radius + br + gap) return false;
+        }
+        return true;
+    }
+
+    function findSpawnPosition(radius) {
+        var attempts = CFG.SPAWN_ATTEMPTS != null ? CFG.SPAWN_ATTEMPTS : 14;
+        for (var a = 0; a < attempts; a++) {
+            var x = spawnBalloonX(radius);
+            if (isSpawnPositionClear(x, radius)) return x;
+        }
+        return null;
+    }
+
+    function spawnYFor(x, radius) {
+        var gap = CFG.MIN_SPAWN_GAP != null ? CFG.MIN_SPAWN_GAP : 52;
+        var y = canvas.height + radius;
+        var bandTop = canvas.height - canvas.height * (CFG.SPAWN_CHECK_BAND != null ? CFG.SPAWN_CHECK_BAND : 0.5);
+        for (var i = 0; i < balloons.length; i++) {
+            var b = balloons[i];
+            if (b.popped || b.y < bandTop) continue;
+            if (Math.abs(x - b.x) < radius + b.radius + gap) {
+                y = Math.max(y, b.y + radius + b.radius + gap * 0.55);
+            }
+        }
+        return y;
+    }
+
     function balloonVy(b) {
         var vy = b.vy;
         var zoneTop = canvas.height * (CFG.PLAY_ZONE_TOP != null ? CFG.PLAY_ZONE_TOP : 0.4);
@@ -253,13 +289,17 @@
 
     function spawnBalloon() {
         if (gameState !== 'playing' || !currentQuestion) return;
+        var maxOnScreen = CFG.MAX_BALLOONS != null ? CFG.MAX_BALLOONS : 5;
+        if (balloons.length >= maxOnScreen) return;
         var value = pickBalloonValue();
         var answerForBalloon = currentQuestion.answer;
         var radius = CFG.BALLOON_RADIUS_MIN + roll() * (CFG.BALLOON_RADIUS_MAX - CFG.BALLOON_RADIUS_MIN);
+        var x = findSpawnPosition(radius);
+        if (x == null) return;
         var colorPair = DATA.BALLOON_COLORS[Math.floor(roll() * DATA.BALLOON_COLORS.length)];
         balloons.push({
-            x: spawnBalloonX(radius),
-            y: canvas.height + radius,
+            x: x,
+            y: spawnYFor(x, radius),
             vy: -(CFG.BALLOON_SPEED_MIN + roll() * (CFG.BALLOON_SPEED_MAX - CFG.BALLOON_SPEED_MIN)),
             sway: roll() * Math.PI * 2,
             swaySpeed: 0.02 + roll() * 0.02,
@@ -778,7 +818,6 @@
         KAMPAI.sound.bgmStart();
 
         spawnTimer = setInterval(spawnBalloon, CFG.SPAWN_INTERVAL_MS);
-        spawnBalloon();
         spawnBalloon();
 
         mainTimer = setInterval(function () {
