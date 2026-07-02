@@ -39,13 +39,17 @@ import {
     type SubjectKey,
 } from '@/lib/blueprint-engines';
 import {
+    parseMatchingBlueprint,
     parseQuizBlueprint,
+    validateMatchingBlueprint,
     validateQuizBlueprint,
     type GameBlueprint,
+    type MatchingBlueprintV1,
     type QuizBlueprintV1,
 } from '@/lib/game-blueprint';
 import { educationalHubService } from '@/services/educational-hub.service';
 import { QuizBlueprintEditor } from './QuizBlueprintEditor';
+import { MatchingBlueprintEditor } from './MatchingBlueprintEditor';
 import { useToast } from '@/hooks/use-toast';
 
 const SUBJECTS: { value: SubjectKey; label: string; folder: string }[] = [
@@ -91,6 +95,9 @@ export function GameBuilderWizard({ gamesCategoryId, onSaved, onCancel }: Props)
             if (!blueprint) return false;
             if (engine?.key === 'quiz') {
                 return !validateQuizBlueprint(blueprint as QuizBlueprintV1);
+            }
+            if (engine?.key === 'matching') {
+                return !validateMatchingBlueprint(blueprint as MatchingBlueprintV1);
             }
             return true;
         }
@@ -324,10 +331,24 @@ export function GameBuilderWizard({ gamesCategoryId, onSaved, onCancel }: Props)
                             onCancel={() => {}}
                         />
                     )}
-                    {engine && engine.key !== 'quiz' && (
+                    {engine?.key === 'matching' && blueprint && (
+                        <MatchingBlueprintEditor
+                            key={`wiz-${engine.key}`}
+                            itemId="wizard-draft"
+                            itemTitle={title}
+                            previewEngineUrl={engine.runtimeUrl}
+                            initialBlueprint={blueprint}
+                            onBlueprintChange={(next) => setBlueprint(next)}
+                            onSaved={() => {
+                                toast({ title: 'บันทึกฉบับร่างแล้ว (ยังไม่เผยแพร่)' });
+                            }}
+                            onCancel={() => {}}
+                        />
+                    )}
+                    {engine && engine.key !== 'quiz' && engine.key !== 'matching' && (
                         <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-                            Editor สำหรับแนว &laquo;{engine.label}&raquo; จะเพิ่มใน Phase 3 —
-                            ตอนนี้รองรับแนว Quiz ใน Builder
+                            Editor สำหรับแนว &laquo;{engine.label}&raquo; จะเพิ่มในภายหลัง —
+                            ตอนนี้ Builder รองรับแนว Quiz และจับคู่คำ
                         </div>
                     )}
                 </div>
@@ -421,6 +442,29 @@ function BlueprintSummary({
                 </li>
                 <li>
                     <b>สลับตัวเลือก:</b> {q.rules.shuffleOptions ? 'เปิด' : 'ปิด'} · <b>พื้นหลัง:</b> {q.theme.bgPreset}
+                </li>
+            </ul>
+        );
+    }
+    if (blueprint.engine === 'matching') {
+        const m = parseMatchingBlueprint(blueprint) ?? blueprint;
+        return (
+            <ul className="space-y-1 text-sm">
+                <li>
+                    <b>แนวเกม:</b> {engine.emoji} {engine.label}
+                </li>
+                <li>
+                    <b>จำนวนคู่:</b> {m.pairs.length} คู่
+                </li>
+                <li>
+                    <b>เวลารวม:</b> {m.rules.timeLimitSec > 0 ? `${m.rules.timeLimitSec} วินาที` : 'ไม่จับเวลา'}
+                </li>
+                <li>
+                    <b>คะแนน/คู่:</b> {m.rules.pointsPerCorrect} · <b>ผิดได้สูงสุด:</b>{' '}
+                    {m.rules.mistakesAllowed > 0 ? m.rules.mistakesAllowed : 'ไม่จำกัด'}
+                </li>
+                <li>
+                    <b>สลับฝั่งขวา:</b> {m.rules.shuffleRight ? 'เปิด' : 'ปิด'} · <b>พื้นหลัง:</b> {m.theme.bgPreset}
                 </li>
             </ul>
         );

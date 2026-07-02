@@ -46,6 +46,9 @@ export function BlueprintEditorRouter(props: Props) {
     if (engine?.key === 'quiz') {
         return <QuizBlueprintEditor {...props} />;
     }
+    if (engine?.key === 'matching') {
+        return <MatchingBlueprintEditor {...props} />;
+    }
 
     // default (platformer-2d หรือ engine ไม่รู้จัก) → ใช้ editor เดิม
     return <GameBlueprintEditor {...props} />;
