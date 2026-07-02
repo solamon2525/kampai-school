@@ -32,6 +32,12 @@
     var practiceAccum = 0;
     var lastPracticeFrame = 0;
     var skipPractice = false;
+    var campaignMode = true;
+    var currentStage = 1;
+    var questionInStage = 0;
+    var stageBanner = null;
+    var splitEntryMode = false;
+    var splitPresence = null;
 
     var vs = window.KampaiVersus ? KampaiVersus.create({
         duration: CFG.GAME_DURATION,
@@ -45,6 +51,9 @@
             }
             stopHandTracking();
             skipPractice = true;
+            campaignMode = false;
+            splitEntryMode = false;
+            if (window.MultiplySplitMode) MultiplySplitMode.leave();
             startGame();
         },
         onEnd: function () {
@@ -148,6 +157,123 @@
     function ensureCorrectBalloon() {
         if (gameState !== 'playing' || !currentQuestion) return;
         if (!hasCorrectBalloonOnScreen()) spawnBalloon(currentQuestion.answer);
+    }
+
+    function initSplitMode() {
+        if (!window.MultiplySplitMode) return;
+        MultiplySplitMode.init({
+            canvas: canvas,
+            ctx: ctx,
+            $: $,
+            hands: hands,
+            presence: splitPresence,
+            cfg: CFG,
+            data: DATA,
+            onEnd: function () {
+                stopSplitPresence();
+                stopHandTracking();
+                showScreen('ui-end');
+                gameState = 'end';
+            }
+        });
+    }
+
+    function buildSplitPresence() {
+        if (!window.MultiplySplitPresence) return null;
+        return MultiplySplitPresence.create({
+            video: '#arVideo',
+            lostHoldMs: CFG.HEAD_HOLD_MS != null ? CFG.HEAD_HOLD_MS : 600,
+            minConfidence: CFG.FACE_MIN_CONFIDENCE != null ? CFG.FACE_MIN_CONFIDENCE : 0.5,
+            getCanvasSize: function () {
+                return canvas ? { w: canvas.width, h: canvas.height } : null;
+            }
+        });
+    }
+
+    function startSplitPresence() {
+        if (!splitPresence) splitPresence = buildSplitPresence();
+        if (!splitPresence) return Promise.resolve();
+        if (MultiplySplitMode) MultiplySplitMode.setPresence(splitPresence);
+        return splitPresence.start().catch(function (err) {
+            console.warn('Face presence unavailable:', err);
+        });
+    }
+
+    function stopSplitPresence() {
+        if (splitPresence) splitPresence.stop();
+        if (MultiplySplitMode) MultiplySplitMode.setPresence(null);
+    }
+
+    function isSplitMode() {
+        return splitEntryMode && window.MultiplySplitMode && MultiplySplitMode.isActive();
+    }
+
+    function stageSpeedMultiplier() {
+        if (!campaignMode) return 1;
+        var first = CFG.STAGE_SPEED_FIRST != null ? CFG.STAGE_SPEED_FIRST : 1.30;
+        var step = CFG.STAGE_SPEED_STEP != null ? CFG.STAGE_SPEED_STEP : 0.10;
+        return first + (currentStage - 1) * step;
+    }
+
+    function updateStageHud() {
+        var el = $('stage-value');
+        if (!el) return;
+        var totalStages = CFG.STAGE_COUNT != null ? CFG.STAGE_COUNT : 5;
+        var perStage = CFG.QUESTIONS_PER_STAGE != null ? CFG.QUESTIONS_PER_STAGE : 20;
+        el.textContent = currentStage + '/' + totalStages + ' · ' + questionInStage + '/' + perStage;
+    }
+
+    function showStageBanner(text, sub) {
+        stageBanner = {
+            text: text,
+            sub: sub || '',
+            until: performance.now() + (CFG.STAGE_BANNER_MS != null ? CFG.STAGE_BANNER_MS : 2200)
+        };
+    }
+
+    function drawStageBanner() {
+        if (!stageBanner || performance.now() > stageBanner.until) {
+            stageBanner = null;
+            return;
+        }
+        var t = stageBanner.until - performance.now();
+        var alpha = Math.min(1, t / 400, (CFG.STAGE_BANNER_MS || 2200) - t > 400 ? 1 : t / 400);
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = 'rgba(5, 6, 20, 0.72)';
+        ctx.fillRect(0, canvas.height * 0.38, canvas.width, canvas.height * 0.24);
+        ctx.font = "800 clamp(28px, 5vw, 44px) 'Mitr', sans-serif";
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#ffce54';
+        ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+        ctx.lineWidth = 5;
+        ctx.strokeText(stageBanner.text, canvas.width / 2, canvas.height * 0.46);
+        ctx.fillText(stageBanner.text, canvas.width / 2, canvas.height * 0.46);
+        if (stageBanner.sub) {
+            ctx.font = "600 clamp(16px, 3vw, 22px) 'Sarabun', sans-serif";
+            ctx.fillStyle = '#fff';
+            ctx.fillText(stageBanner.sub, canvas.width / 2, canvas.height * 0.54);
+        }
+        ctx.restore();
+    }
+
+    function advanceCampaignProgress() {
+        var totalStages = CFG.STAGE_COUNT != null ? CFG.STAGE_COUNT : 5;
+        var perStage = CFG.QUESTIONS_PER_STAGE != null ? CFG.QUESTIONS_PER_STAGE : 20;
+        questionInStage++;
+        updateStageHud();
+        if (questionInStage < perStage) return true;
+        if (currentStage >= totalStages) {
+            endGame();
+            return false;
+        }
+        currentStage++;
+        questionInStage = 0;
+        updateStageHud();
+        var pct = Math.round((stageSpeedMultiplier() - 1) * 100);
+        showStageBanner('ด่าน ' + currentStage, 'ลูกโป่งเร็วขึ้น +' + pct + '%');
+        return true;
     }
 
     function updateQuestionHud() {
@@ -335,10 +461,11 @@
             x = canvas.width * 0.5;
         }
         var colorPair = DATA.BALLOON_COLORS[Math.floor(roll() * DATA.BALLOON_COLORS.length)];
+        var baseVy = CFG.BALLOON_SPEED_MIN + roll() * (CFG.BALLOON_SPEED_MAX - CFG.BALLOON_SPEED_MIN);
         balloons.push({
             x: x,
             y: spawnYFor(x, radius),
-            vy: -(CFG.BALLOON_SPEED_MIN + roll() * (CFG.BALLOON_SPEED_MAX - CFG.BALLOON_SPEED_MIN)),
+            vy: -baseVy * stageSpeedMultiplier(),
             sway: roll() * Math.PI * 2,
             swaySpeed: 0.02 + roll() * 0.02,
             radius: radius,
@@ -393,6 +520,7 @@
         if (vs) vs.report(score, { correct: correctHits, wrong: wrongHits });
         balloons.splice(index, 1);
         if (holdTarget && holdTarget.balloon === b) holdTarget = null;
+        if (campaignMode && !advanceCampaignProgress()) return;
         newQuestion();
     }
 
@@ -501,6 +629,10 @@
         var clientY = e.clientY != null ? e.clientY : (e.touches && e.touches[0] && e.touches[0].clientY);
         if (clientX == null || clientY == null) return;
         if (e.cancelable) e.preventDefault();
+        if (isSplitMode()) {
+            MultiplySplitMode.handleTap(clientX, clientY);
+            return;
+        }
         var pt = clientToCanvas(clientX, clientY);
         processBalloonHit([{ x: pt.x, y: pt.y }], false);
     }
@@ -674,6 +806,27 @@
         dot(hands.rightPointer, 'right', 'rgba(255,206,84,0.9)', 'rgba(255,92,114,0.55)');
     }
 
+    function updateSplitPracticeUi(pct, both) {
+        var bar = $('practice-bar');
+        var hint = $('practice-hint');
+        var sec = $('practice-sec');
+        if (bar) {
+            bar.style.width = Math.round(pct * 100) + '%';
+            bar.classList.toggle('ready', pct >= 1);
+        }
+        if (hint) {
+            if (both) {
+                hint.textContent = pct >= 1 ? 'พบ P1 + P2 แล้ว! กำลังเริ่ม…' : 'ดีมาก! ค้างให้ทั้งสองฝั่งอยู่ในกล้อง…';
+            } else {
+                hint.textContent = 'ให้ P1 ยืนซ้าย · P2 ยืนขวา — รอวงที่หัวทั้งคู่';
+            }
+        }
+        if (sec) {
+            var left = Math.max(0, Math.ceil(((CFG.PRACTICE_MAX_MS || 5000) - practiceSince) / 1000));
+            sec.textContent = String(left);
+        }
+    }
+
     function updatePracticeUi(pct, ready) {
         var bar = $('practice-bar');
         var hint = $('practice-hint');
@@ -714,22 +867,38 @@
         practiceSince = 0;
         practiceAccum = 0;
         lastPracticeFrame = performance.now();
+        if (!splitEntryMode) {
+            var pt = $('practice-title');
+            var ps = $('practice-sub');
+            if (pt) pt.textContent = 'ฝึกท่ามือก่อนเริ่ม';
+            if (ps) ps.innerHTML = 'ยกนิ้ว <b>4 ใน 5 นิ้ว</b> ให้แถบด้านล่างเขียว';
+        }
         showScreen('ui-practice');
         updatePracticeUi(0, false);
+        updateSplitPracticeUi(0, false);
     }
 
     function updatePractice(dt) {
         if (gameState !== 'practice') return;
         practiceSince += dt;
+        if (splitEntryMode && splitPresence) {
+            splitPresence.tick();
+            var both = splitPresence.bothPresent();
+            var need = CFG.HEAD_REQUIRED_MS != null ? CFG.HEAD_REQUIRED_MS : 1500;
+            if (both) practiceAccum += dt;
+            else practiceAccum = Math.max(0, practiceAccum - dt * 0.5);
+            var pctHead = Math.min(1, practiceAccum / need);
+            updateSplitPracticeUi(pctHead, both);
+            if (pctHead >= 1 || practiceSince >= (CFG.PRACTICE_MAX_MS || 5000)) finishPractice();
+            return;
+        }
         var ready = anyGestureReady();
-        var need = CFG.PRACTICE_READY_MS || 1500;
+        var needFinger = CFG.PRACTICE_READY_MS || 1500;
         if (ready) practiceAccum += dt;
         else practiceAccum = Math.max(0, practiceAccum - dt * 0.65);
-        var pct = Math.min(1, practiceAccum / need);
+        var pct = Math.min(1, practiceAccum / needFinger);
         updatePracticeUi(pct, ready);
-        if (pct >= 1 || practiceSince >= (CFG.PRACTICE_MAX_MS || 5000)) {
-            finishPractice();
-        }
+        if (pct >= 1 || practiceSince >= (CFG.PRACTICE_MAX_MS || 5000)) finishPractice();
     }
 
     function drawHandTracking() {
@@ -779,15 +948,23 @@
             var dt = lastPracticeFrame ? now - lastPracticeFrame : 16;
             lastPracticeFrame = now;
             updatePractice(dt);
+            if (splitEntryMode && window.MultiplySplitMode) MultiplySplitMode.drawHeadMarkersOnly();
         }
 
         if (gameState === 'playing') {
-            drawPlayZone();
-            updateAndDrawBalloons();
+            if (isSplitMode()) {
+                MultiplySplitMode.drawFrame();
+            } else {
+                drawPlayZone();
+                updateAndDrawBalloons();
+                drawStageBanner();
+            }
         }
 
-        updateAndDrawParticles();
-        updateAndDrawPopups();
+        if (!isSplitMode()) {
+            updateAndDrawParticles();
+            updateAndDrawPopups();
+        }
         drawHandTracking();
 
         rafId = requestAnimationFrame(gameLoop);
@@ -796,6 +973,9 @@
     function handleStartClick() {
         ensureAudio();
         seededRng = null;
+        campaignMode = true;
+        splitEntryMode = false;
+        if (window.MultiplySplitMode) MultiplySplitMode.leave();
         $('cam-error').textContent = '';
         $('loading').classList.add('on');
 
@@ -806,6 +986,35 @@
         }).catch(function (err) {
             console.warn('Camera/Hands failed, tap fallback:', err);
             $('cam-error').textContent = 'เปิดกล้องไม่ได้ ระบบสลับไปยังโหมดแตะสัมผัส';
+            $('loading').classList.remove('on');
+            skipPractice = true;
+            beginCountdown();
+        });
+    }
+
+    function handleSplitClick() {
+        ensureAudio();
+        seededRng = null;
+        campaignMode = false;
+        splitEntryMode = true;
+        if (window.MultiplySplitMode) MultiplySplitMode.enter();
+        $('cam-error').textContent = '';
+        $('loading').classList.add('on');
+
+        startHandTracking().then(function () {
+            if (MultiplySplitMode) MultiplySplitMode.setHands(hands);
+            return startSplitPresence();
+        }).then(function () {
+            $('loading').classList.remove('on');
+            skipPractice = false;
+            var pt = $('practice-title');
+            var ps = $('practice-sub');
+            if (pt) pt.textContent = 'ตรวจผู้เล่นทั้งสองฝั่ง';
+            if (ps) ps.innerHTML = 'ยืน <b>ซ้าย = P1</b> · <b>ขวา = P2</b> ให้วง <b>P1/P2</b> ขึ้นที่หัว';
+            beginPractice();
+        }).catch(function (err) {
+            console.warn('Split mode camera failed:', err);
+            $('cam-error').textContent = 'เปิดกล้องไม่ได้ — ลองโหมดแตะสัมผัส (แตะซ้าย/ขวา)';
             $('loading').classList.remove('on');
             skipPractice = true;
             beginCountdown();
@@ -836,22 +1045,41 @@
 
     function startGame() {
         gameState = 'playing';
+        if (isSplitMode()) {
+            MultiplySplitMode.startGame();
+            return;
+        }
         score = 0;
-        timeLeft = CFG.GAME_DURATION;
         correctHits = 0;
         wrongHits = 0;
         balloons = [];
         particles = [];
         popups = [];
         holdTarget = null;
+        stageBanner = null;
+        currentStage = 1;
+        questionInStage = 0;
 
         document.getElementById('ui-countdown').classList.add('hidden');
         document.getElementById('hud').classList.remove('hidden');
         document.getElementById('question-bar').classList.remove('hidden');
         document.getElementById('hint-bar').classList.remove('hidden');
+
+        var stagePill = $('stage-pill');
+        var timerPill = $('timer-pill');
+        if (campaignMode) {
+            if (stagePill) stagePill.classList.remove('hidden');
+            if (timerPill) timerPill.classList.add('hidden');
+            updateStageHud();
+        } else {
+            if (stagePill) stagePill.classList.add('hidden');
+            if (timerPill) timerPill.classList.remove('hidden');
+            timeLeft = CFG.GAME_DURATION;
+            updateTimerHud();
+        }
+
         newQuestion();
         updateScoreHud();
-        updateTimerHud();
 
         KAMPAI.sound.bgmStart();
 
@@ -861,12 +1089,17 @@
         }, CFG.SPAWN_INTERVAL_MS);
         spawnBalloon();
 
-        mainTimer = setInterval(function () {
-            timeLeft--;
-            updateTimerHud();
-            if (timeLeft <= 5 && timeLeft > 0) playSfxTick();
-            if (timeLeft <= 0) endGame();
-        }, 1000);
+        if (campaignMode) {
+            var pct = Math.round((stageSpeedMultiplier() - 1) * 100);
+            showStageBanner('ด่าน 1', 'ลูกโป่งเร็วขึ้น +' + pct + '%');
+        } else {
+            mainTimer = setInterval(function () {
+                timeLeft--;
+                updateTimerHud();
+                if (timeLeft <= 5 && timeLeft > 0) playSfxTick();
+                if (timeLeft <= 0) endGame();
+            }, 1000);
+        }
     }
 
     function endGame() {
@@ -945,6 +1178,9 @@
         practiceAccum = 0;
         holdTarget = null;
         stopHandTracking();
+        stopSplitPresence();
+        if (window.MultiplySplitMode) MultiplySplitMode.cleanup();
+        splitEntryMode = false;
         if (vs) vs.leave();
         KAMPAI.sound.bgmStop();
     }
@@ -960,10 +1196,15 @@
         ctx = canvas.getContext('2d');
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
+        initSplitMode();
 
         $('btn-start').addEventListener('click', handleStartClick);
+        if ($('btn-split')) $('btn-split').addEventListener('click', handleSplitClick);
         $('btn-restart').addEventListener('click', function () {
             seededRng = null;
+            campaignMode = true;
+            splitEntryMode = false;
+            if (window.MultiplySplitMode) MultiplySplitMode.leave();
             showScreen('ui-start');
             gameState = 'start';
         });

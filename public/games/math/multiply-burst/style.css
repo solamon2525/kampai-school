@@ -218,6 +218,87 @@ h1.title {
     animation: pulse 0.6s infinite;
 }
 
+#stage-pill .value {
+    color: #fff;
+    font-size: clamp(18px, 3vw, 28px);
+}
+
+#stage-pill .label {
+    font-size: 11px;
+}
+
+#split-hud {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 9;
+    display: flex;
+    align-items: stretch;
+    pointer-events: none;
+    font-family: 'Mitr', sans-serif;
+    color: #fff;
+}
+
+.split-panel {
+    flex: 1;
+    padding: 10px 12px 8px;
+    text-align: center;
+    backdrop-filter: blur(4px);
+}
+
+.split-panel.split-p1 {
+    background: linear-gradient(180deg, rgba(59, 130, 246, 0.55), rgba(59, 130, 246, 0.12));
+    border-bottom: 2px solid rgba(59, 130, 246, 0.45);
+}
+
+.split-panel.split-p2 {
+    background: linear-gradient(180deg, rgba(249, 115, 22, 0.55), rgba(249, 115, 22, 0.12));
+    border-bottom: 2px solid rgba(249, 115, 22, 0.45);
+}
+
+.split-tag {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    opacity: 0.9;
+}
+
+.split-tag.p1 { color: #93c5fd; }
+.split-tag.p2 { color: #fdba74; }
+
+.split-score {
+    font-size: clamp(22px, 4vw, 32px);
+    font-weight: 800;
+    color: #ffce54;
+    line-height: 1.1;
+}
+
+.split-q {
+    font-size: clamp(16px, 3.2vw, 24px);
+    font-weight: 700;
+    margin-top: 2px;
+}
+
+.split-timer-pill {
+    flex: 0 0 auto;
+    min-width: 72px;
+    padding: 8px 10px;
+    text-align: center;
+    background: rgba(10, 10, 30, 0.72);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.split-timer-pill .label {
+    font-size: 10px;
+    opacity: 0.75;
+}
+
+.split-timer-pill .value {
+    font-size: clamp(20px, 3.5vw, 28px);
+    font-weight: 700;
+}
+
 @keyframes pulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.4; }

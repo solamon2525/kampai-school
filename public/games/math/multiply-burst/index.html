@@ -18,6 +18,10 @@
       <div class="label">คะแนน</div>
       <div class="value" id="score-value">0</div>
     </div>
+    <div class="hud-pill hidden" id="stage-pill">
+      <div class="label">ด่าน · ข้อ</div>
+      <div class="value" id="stage-value">1/5 · 0/20</div>
+    </div>
     <button class="btn secondary" id="btn-quit" style="margin-top:0; padding:10px 24px; font-size:14px; border-radius:12px;">🏠 ออก</button>
     <div class="hud-pill" id="timer-pill">
       <div class="label">เวลา</div>
@@ -34,24 +38,43 @@
     ยกนิ้ว <b>4 ใน 5 นิ้ว</b> ทับลูกโป่งค้างสั้นๆ (วงทองเต็ม) แล้วป็อป! · หรือแตะหน้าจอ 👆
   </div>
 
+  <div id="split-hud" class="hidden">
+    <div class="split-panel split-p1">
+      <div class="split-tag p1">P1 · มือซ้าย</div>
+      <div class="split-score" id="split-p1-score">0</div>
+      <div class="split-q" id="split-p1-q">2 × 9 = ?</div>
+    </div>
+    <div class="split-timer-pill">
+      <div class="label">เวลา</div>
+      <div class="value" id="split-timer">60</div>
+    </div>
+    <div class="split-panel split-p2">
+      <div class="split-tag p2">P2 · มือขวา</div>
+      <div class="split-score" id="split-p2-score">0</div>
+      <div class="split-q" id="split-p2-q">2 × 9 = ?</div>
+    </div>
+  </div>
+
   <div id="ui-start" class="screen active">
     <h1 class="title">✖️ สูตรคูณตาไว ✖️</h1>
     <div class="subtitle">Multiply Burst — ฝึกคูณเลขเร็วด้วยลูกโป่งตัวเลข</div>
     <div class="rules-box">
       อ่านโจทย์ด้านบน เช่น <b>2 × 9 = ?</b><br>
+      เล่น <b>5 ด่าน</b> ด่านละ <b>20 ข้อ</b> (รวม 100 ข้อ)<br>
+      ด่าน 1 ลูกโป่งเร็วขึ้น <b>+30%</b> · แต่ละด่านถัดไปเร็วขึ้นอีก <b>+10%</b><br>
       ยกนิ้ว <span class="right">4 ใน 5 นิ้ว</span> ทับลูกโป่งในโซนล่าง (ช้าลง) &nbsp;<b>+10</b> คะแนน<br>
-      เจาะลูกโป่ง <span class="wrong">ตัวเลขผิด</span> &nbsp;<b>-5</b> คะแนน<br>
-      เวลาทั้งหมด <b>60 วินาที</b> — ทำคะแนนให้สูงที่สุด!
+      เจาะลูกโป่ง <span class="wrong">ตัวเลขผิด</span> &nbsp;<b>-5</b> คะแนน
     </div>
     <div id="player-chip"></div>
     <button class="btn" id="btn-start">📷 เริ่มต้นเล่นเกม</button>
-    <button class="btn secondary" id="btn-vs" style="margin-top: 16px;">👥 แข่ง 2 คน</button>
+    <button class="btn secondary" id="btn-split" style="margin-top: 16px;">👥 แข่งแบ่งจอ (2 คน)</button>
+    <button class="btn secondary" id="btn-vs" style="margin-top: 8px;">🏁 แข่งผลัดกัน / ออนไลน์</button>
     <div id="cam-error"></div>
   </div>
 
   <div id="ui-practice" class="screen hidden">
-    <h2 class="practice-title">ฝึกท่ามือก่อนเริ่ม</h2>
-    <p class="practice-sub">ยกนิ้ว <b>4 ใน 5 นิ้ว</b> ให้แถบด้านล่างเขียว</p>
+    <h2 class="practice-title" id="practice-title">ฝึกท่ามือก่อนเริ่ม</h2>
+    <p class="practice-sub" id="practice-sub">ยกนิ้ว <b>4 ใน 5 นิ้ว</b> ให้แถบด้านล่างเขียว</p>
     <div class="practice-bar-wrap">
       <div class="practice-bar" id="practice-bar"></div>
     </div>
@@ -95,7 +118,10 @@
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
 <script src="/games/kampai-hands.js"></script>
-<script>window.KampaiHands = window.KampaiHands || { VERSION:'stub', DEFAULT_HANDS:{}, HAND_CONNECTIONS:[], create:function(){ return { start:function(){return Promise.reject(new Error('stub'));}, stop:function(){}, mode:'tap', leftHand:{x:0.5,y:0.5,active:false}, rightHand:{x:0.5,y:0.5,active:false}, leftLandmarks:null, rightLandmarks:null, collectHitProbes:function(){return[];}, clientToCanvas:function(c,x,y){return{x:x,y:y};}, drawSkeleton:function(){} }; } };</script>
+<script>window.KampaiHands = window.KampaiHands || { VERSION:'stub', DEFAULT_HANDS:{}, HAND_CONNECTIONS:[], create:function(){ return { start:function(){return Promise.reject(new Error('stub'));}, stop:function(){}, mode:'tap', leftHand:{x:0.5,y:0.5,active:false}, rightHand:{x:0.5,y:0.5,active:false}, leftLandmarks:null, rightLandmarks:null, leftPointer:{x:0,y:0,active:false}, rightPointer:{x:0,y:0,active:false}, isGestureReady:function(){return true;}, collectHitProbes:function(){return[];}, clientToCanvas:function(c,x,y){return{x:x,y:y};}, drawSkeleton:function(){} }; } };</script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/face_detection.js" crossorigin="anonymous"></script>
+<script src="split-presence.js"></script>
+<script src="split-mode.js"></script>
 <script src="game.js"></script>
 </body>
 </html>
