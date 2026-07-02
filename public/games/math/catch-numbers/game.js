@@ -289,7 +289,10 @@
         ST.ruleCardTimeout = setTimeout(function () { card.classList.remove('show'); }, 2200);
 
         // Timers
-        var spawnMs = Math.max(600, CFG.SPAWN_MS - ST.round * CFG.SPAWN_MS_DECAY);
+        var spawnMs = Math.max(
+            CFG.SPAWN_MS_MIN != null ? CFG.SPAWN_MS_MIN : 1400,
+            CFG.SPAWN_MS - ST.round * CFG.SPAWN_MS_DECAY
+        );
         ST.spawnTimer = setInterval(spawnItem, spawnMs);
         ST.sec = CFG.ROUND_SEC;
         ST.roundTimer = setInterval(tickRoundTimer, 1000);
@@ -303,8 +306,18 @@
         if (ST.sec <= 0) endRound(true);
     }
 
+    function spawnGapClear() {
+        var gap = CFG.SPAWN_MIN_GAP_Y != null ? CFG.SPAWN_MIN_GAP_Y : 0.14;
+        for (var i = 0; i < ST.items.length; i++) {
+            var it = ST.items[i];
+            if (!it.caught && !it.missed && it.y < gap) return false;
+        }
+        return true;
+    }
+
     function spawnItem() {
         if (!ST.roundActive) return;
+        if (!spawnGapClear()) return;
         var pool = DATA.numbers;
         var n = pool[Math.floor(qrand() * pool.length)];
         var speed = CFG.FALL_SPEED + ST.round * CFG.FALL_SPEED_INC;
@@ -335,7 +348,7 @@
     }
 
     function bubbleRadius() {
-        return Math.max(34, Math.min(W, H) * 0.048);
+        return Math.max(26, Math.min(W, H) * 0.036);
     }
 
     // ── Game loop (canvas) ──
