@@ -279,14 +279,12 @@
         var emojiEl = $('hud-rule-emoji');
         if (emojiEl) emojiEl.textContent = roundCFG.emoji;
         $('hud-rule').textContent = ST.problem.label;
-        $('hud-hint').textContent = ST.problem.hint;
         updateHUD();
 
         // Rule card flash
         var card = $('rule-card');
         card.querySelector('.rc-emoji').textContent = roundCFG.emoji;
         card.querySelector('.rc-label').textContent = ST.problem.label;
-        card.querySelector('.rc-hint').textContent = ST.problem.hint;
         card.classList.add('show');
         ST.ruleCardTimeout = setTimeout(function () { card.classList.remove('show'); }, 2200);
 
@@ -321,7 +319,7 @@
         if (!ST.roundActive) return;
         if (!spawnGapClear()) return;
         var n = DATA.pickSpawnNumber(ST.problem, qrand);
-        var speed = CFG.FALL_SPEED + ST.round * CFG.FALL_SPEED_INC;
+        var speed = CFG.FALL_SPEED;
         var colorPair = pickItemColorPair();
         var it = {
             n: n,

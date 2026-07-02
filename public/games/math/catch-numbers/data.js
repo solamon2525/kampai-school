@@ -43,7 +43,7 @@ window.GAME_DATA = {
                 type: 'add',
                 answer: sum,
                 label: a + ' + ' + b + ' = ?',
-                hint: 'รับ ' + sum,
+                hint: roundCFG.hint,
                 check: function (n) { return n === sum; }
             };
         }
@@ -56,7 +56,7 @@ window.GAME_DATA = {
                 type: 'sub',
                 answer: diff,
                 label: minuend + ' − ' + subtrahend + ' = ?',
-                hint: 'รับ ' + diff,
+                hint: roundCFG.hint,
                 check: function (n) { return n === diff; }
             };
         }
@@ -69,7 +69,7 @@ window.GAME_DATA = {
                 type: 'mul',
                 answer: prod,
                 label: x + ' × ' + y + ' = ?',
-                hint: 'รับ ' + prod,
+                hint: roundCFG.hint,
                 check: function (n) { return n === prod; }
             };
         }
@@ -82,7 +82,7 @@ window.GAME_DATA = {
                 type: 'div',
                 answer: quotient,
                 label: dividend + ' ÷ ' + divisor + ' = ?',
-                hint: 'รับ ' + quotient,
+                hint: roundCFG.hint,
                 check: function (n) { return n === quotient; }
             };
         }
@@ -93,7 +93,7 @@ window.GAME_DATA = {
                 type: 'gt',
                 answer: null,
                 label: 'รับเลข > ' + gtVal,
-                hint: 'มากกว่า ' + gtVal + ' เท่านั้น',
+                hint: roundCFG.hint,
                 check: function (n) { return n > gtVal; }
             };
         }
@@ -104,7 +104,7 @@ window.GAME_DATA = {
                 type: 'lt',
                 answer: null,
                 label: 'รับเลข < ' + ltVal,
-                hint: 'น้อยกว่า ' + ltVal + ' เท่านั้น',
+                hint: roundCFG.hint,
                 check: function (n) { return n < ltVal; }
             };
         }

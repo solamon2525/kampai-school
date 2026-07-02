@@ -11,7 +11,6 @@
     --cyan: #67e8f9;
     --text: #f1f5f9;
     --muted: #cbd5e1;
-    --hud-h: clamp(118px, 18vh, 156px);
 }
 
 html, body {
@@ -207,13 +206,18 @@ html, body {
     z-index: 2;
 }
 
-/* ── HUD (ใหญ่ อ่านง่าย) ── */
+/* ── HUD — กะทัดรัด ไม่บังจอ ── */
 .hud {
     position: absolute; top: 0; left: 0; right: 0;
     z-index: 10;
     pointer-events: none;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.15) 72%, transparent 100%);
-    padding: clamp(8px, 1.2vw, 12px) clamp(10px, 1.8vw, 16px) clamp(10px, 1.5vw, 14px);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: clamp(6px, 1vw, 10px) clamp(8px, 1.4vw, 12px);
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.28) 0%, transparent 100%);
+    max-height: 28%;
 }
 
 .hud-top {
@@ -252,14 +256,14 @@ html, body {
     align-items: center;
     justify-content: center;
     gap: 2px;
-    padding: clamp(6px, 1vw, 10px) clamp(4px, 0.8vw, 8px);
-    border-radius: 14px;
-    background: rgba(0, 0, 0, 0.5);
-    border: 2px solid rgba(255, 255, 255, 0.14);
-    min-height: clamp(52px, 8vh, 64px);
+    padding: clamp(4px, 0.8vw, 8px) clamp(3px, 0.6vw, 6px);
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.42);
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
+    min-height: clamp(44px, 6.5vh, 52px);
 }
 .hud-pill .lbl {
-    font-size: clamp(11px, 1.6vw, 13px);
+    font-size: clamp(10px, 1.4vw, 12px);
     font-weight: 700;
     color: rgba(255, 255, 255, 0.65);
     letter-spacing: 0.02em;
@@ -267,7 +271,7 @@ html, body {
 }
 .hud-pill .val {
     font-family: 'Mitr', 'Sarabun', sans-serif;
-    font-size: clamp(20px, 3.8vw, 30px);
+    font-size: clamp(17px, 3vw, 24px);
     font-weight: 800;
     line-height: 1.1;
     color: #fff;
@@ -289,73 +293,62 @@ html, body {
     50% { opacity: 0.72; }
 }
 
-.rule-banner {
+.rule-chip {
     pointer-events: none;
-    margin-top: clamp(8px, 1.2vw, 12px);
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: clamp(10px, 2vw, 16px);
-    padding: clamp(10px, 1.6vw, 14px) clamp(14px, 2.5vw, 20px);
-    border-radius: 16px;
-    background: rgba(15, 23, 42, 0.72);
-    border: 2px solid rgba(251, 191, 36, 0.45);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+    gap: 6px;
+    width: fit-content;
+    max-width: min(92vw, 420px);
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.38);
+    border: 1.5px solid rgba(251, 191, 36, 0.45);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
 }
-.rb-emoji {
-    font-size: clamp(36px, 6vw, 52px);
+.chip-emoji {
+    font-size: clamp(16px, 2.8vw, 20px);
     line-height: 1;
     flex-shrink: 0;
 }
-.rb-text { flex: 1; min-width: 0; text-align: left; }
-.rb-label {
+.chip-label {
     font-family: 'Mitr', 'Sarabun', sans-serif;
-    font-size: clamp(22px, 4.2vw, 34px);
+    font-size: clamp(14px, 2.6vw, 18px);
     font-weight: 800;
     color: var(--gold);
     line-height: 1.2;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-}
-.rb-hint {
-    font-size: clamp(16px, 2.6vw, 22px);
-    font-weight: 600;
-    color: #e2e8f0;
-    margin-top: 2px;
-    line-height: 1.35;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.65);
 }
 
 /* ── Rule Card flash (เริ่มรอบ) ── */
 #rule-card {
     position: absolute; top: 50%; left: 50%;
     transform: translate(-50%, -50%) scale(0.55);
-    background: rgba(15, 23, 42, 0.82);
-    border: 3px solid var(--gold);
-    border-radius: 24px;
-    padding: clamp(28px, 5vw, 40px) clamp(32px, 6vw, 48px);
+    background: rgba(15, 23, 42, 0.78);
+    border: 2px solid var(--gold);
+    border-radius: 18px;
+    padding: clamp(18px, 3.5vw, 28px) clamp(22px, 4vw, 32px);
     text-align: center; z-index: 20;
     opacity: 0; pointer-events: none;
     transition: opacity 0.28s, transform 0.28s;
-    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
-    max-width: min(92vw, 640px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+    max-width: min(88vw, 480px);
 }
 #rule-card.show {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
 }
-.rc-emoji { font-size: clamp(72px, 14vw, 112px); line-height: 1; }
+.rc-emoji { font-size: clamp(40px, 8vw, 56px); line-height: 1; }
 .rc-label {
     font-family: 'Mitr', 'Sarabun', sans-serif;
-    font-size: clamp(28px, 5.5vw, 44px);
+    font-size: clamp(20px, 4vw, 28px);
     font-weight: 800;
     color: var(--gold);
-    margin-top: 10px;
-    line-height: 1.2;
-}
-.rc-hint {
-    font-size: clamp(18px, 3vw, 26px);
-    font-weight: 600;
-    color: var(--muted);
     margin-top: 8px;
-    line-height: 1.4;
+    line-height: 1.2;
 }
 
 #loading {
@@ -423,9 +416,4 @@ html, body {
     .hud-stats { grid-template-columns: repeat(2, 1fr); }
     .hud-top { flex-direction: column; align-items: stretch; }
     .back-btn { align-self: flex-start; }
-}
-
-@media (max-width: 400px) {
-    .rule-banner { flex-direction: column; text-align: center; }
-    .rb-text { text-align: center; }
 }
