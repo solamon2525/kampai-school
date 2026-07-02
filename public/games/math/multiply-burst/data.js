@@ -16,6 +16,7 @@ window.GAME_DATA = {
         mixed: { label: 'ผสม', symbol: '?', icon: '🔀' }
     },
 
+    // สีลูกโป่ง — สลับจาก deck (ไม่ผูกกับตัวเลข) เพื่อไม่ให้ผู้เล่นจำสีแทนคำตอบ
     BALLOON_COLORS: [
         ['#ff6b81', '#c0392b'],
         ['#4bd0ff', '#1a73b8'],

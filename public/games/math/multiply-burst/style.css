@@ -307,7 +307,6 @@ h1.title {
     flex: 1;
     padding: 10px 12px 8px;
     text-align: center;
-    backdrop-filter: blur(4px);
 }
 
 .split-panel.split-p1 {
@@ -423,6 +422,41 @@ h1.title {
 #ui-practice {
     background: rgba(5, 6, 20, 0.42);
     pointer-events: none;
+}
+
+/* แบ่งจอ: ไม่ blur/มืดทับกล้อง — ให้เห็นหัว P1/P2 และลูกโป่งชัด */
+#app.split-mode #ui-practice,
+#app.split-mode #ui-countdown {
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    justify-content: flex-end;
+    padding-bottom: max(20px, env(safe-area-inset-bottom, 20px));
+}
+
+#app.split-mode #ui-practice .practice-title {
+    font-size: clamp(17px, 3vw, 22px);
+    margin-bottom: 4px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+}
+
+#app.split-mode #ui-practice .practice-sub {
+    font-size: clamp(14px, 2vw, 17px);
+    margin-bottom: 12px;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.85);
+}
+
+#app.split-mode #ui-practice .practice-hint,
+#app.split-mode #ui-practice .practice-skip {
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.85);
+}
+
+#app.split-mode #ui-countdown .count-num {
+    text-shadow: 0 4px 28px rgba(0, 0, 0, 0.95), 0 0 48px rgba(0, 0, 0, 0.65);
+}
+
+#app.split-mode #arVideo {
+    filter: brightness(0.92) saturate(1.05);
 }
 
 #ui-practice .practice-title,

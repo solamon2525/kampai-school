@@ -14,6 +14,8 @@
     var timeLeft = 60;
     var splitHold = { 1: null, 2: null };
     var pausedForPresence = false;
+    var colorDeck = [];
+    var colorDeckIdx = 0;
     var players = {
         1: blankPlayer(1),
         2: blankPlayer(2)
@@ -44,6 +46,48 @@
     function pickPhrase(list) {
         if (!list || !list.length) return '';
         return list[Math.floor(roll() * list.length)];
+    }
+
+    function resetColorDeck() {
+        var src = (DATA && DATA.BALLOON_COLORS) || [];
+        colorDeck = [];
+        for (var i = 0; i < src.length; i++) colorDeck.push(src[i]);
+        for (var j = colorDeck.length - 1; j > 0; j--) {
+            var k = Math.floor(roll() * (j + 1));
+            var tmp = colorDeck[j];
+            colorDeck[j] = colorDeck[k];
+            colorDeck[k] = tmp;
+        }
+        colorDeckIdx = 0;
+    }
+
+    function balloonColorsInUse() {
+        var used = {};
+        for (var i = 0; i < balloons.length; i++) {
+            var b = balloons[i];
+            if (!b.popped) used[b.colorLight] = true;
+        }
+        return used;
+    }
+
+    function pickBalloonColorPair() {
+        var palette = (DATA && DATA.BALLOON_COLORS) || [];
+        if (!palette.length) return ['#ff6b81', '#c0392b'];
+        var used = balloonColorsInUse();
+        if (!colorDeck.length || colorDeckIdx >= colorDeck.length) resetColorDeck();
+
+        for (var pass = 0; pass < 2; pass++) {
+            for (var d = 0; d < colorDeck.length; d++) {
+                var pair = colorDeck[colorDeckIdx % colorDeck.length];
+                colorDeckIdx++;
+                if (!used[pair[0]]) return [pair[0], pair[1]];
+            }
+            resetColorDeck();
+        }
+        var open = palette.filter(function (p) { return !used[p[0]]; });
+        var pick = open.length ? open : palette;
+        var chosen = pick[Math.floor(roll() * pick.length)];
+        return [chosen[0], chosen[1]];
     }
 
     function buildWrongAnswers(q) {
@@ -206,7 +250,7 @@
             if (!mustBeCorrect) return;
             x = owner === 1 ? splitMid() * 0.5 : splitMid() + splitMid() * 0.5;
         }
-        var colorPair = DATA.BALLOON_COLORS[Math.floor(roll() * DATA.BALLOON_COLORS.length)];
+        var colorPair = pickBalloonColorPair();
         var baseVy = CFG.BALLOON_SPEED_MIN + roll() * (CFG.BALLOON_SPEED_MAX - CFG.BALLOON_SPEED_MIN);
         balloons.push({
             owner: owner,
@@ -238,6 +282,7 @@
             if (balloons[i].owner === owner) balloons.splice(i, 1);
         }
         splitHold[owner] = null;
+        resetColorDeck();
         spawnBalloon(owner, p.question.answer);
         updateSplitHud();
     }
@@ -412,19 +457,20 @@
 
     function drawSplitDivider() {
         var mid = splitMid();
+        var top = canvas.height * (CFG.PLAY_ZONE_TOP != null ? CFG.PLAY_ZONE_TOP : 0.4);
         ctx.save();
-        ctx.strokeStyle = 'rgba(255,255,255,0.35)';
-        ctx.lineWidth = 3;
+        ctx.fillStyle = 'rgba(59,130,246,0.06)';
+        ctx.fillRect(0, top, mid, canvas.height - top);
+        ctx.fillStyle = 'rgba(249,115,22,0.06)';
+        ctx.fillRect(mid, top, mid, canvas.height - top);
+        ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+        ctx.lineWidth = 2;
         ctx.setLineDash([10, 8]);
         ctx.beginPath();
-        ctx.moveTo(mid, 0);
+        ctx.moveTo(mid, top * 0.35);
         ctx.lineTo(mid, canvas.height);
         ctx.stroke();
         ctx.setLineDash([]);
-        ctx.fillStyle = 'rgba(59,130,246,0.08)';
-        ctx.fillRect(0, 0, mid, canvas.height);
-        ctx.fillStyle = 'rgba(249,115,22,0.08)';
-        ctx.fillRect(mid, 0, mid, canvas.height);
         ctx.restore();
     }
 
@@ -474,17 +520,6 @@
             }
             ctx.restore();
         });
-    }
-
-    function drawPlayZone(owner) {
-        if (!isCameraMode()) return;
-        var mid = splitMid();
-        var top = canvas.height * (CFG.PLAY_ZONE_TOP != null ? CFG.PLAY_ZONE_TOP : 0.4);
-        ctx.save();
-        ctx.fillStyle = owner === 1 ? 'rgba(59,130,246,0.07)' : 'rgba(249,115,22,0.07)';
-        if (owner === 1) ctx.fillRect(0, top, mid, canvas.height - top);
-        else ctx.fillRect(mid, top, mid, canvas.height - top);
-        ctx.restore();
     }
 
     function updateAndDrawBalloons() {
@@ -562,31 +597,43 @@
     }
 
     function drawPauseOverlay() {
+        var mid = splitMid();
+        var p1 = !presence || presence.playerPresent(1);
+        var p2 = !presence || presence.playerPresent(2);
         ctx.save();
-        ctx.fillStyle = 'rgba(5, 6, 20, 0.58)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.font = "800 24px 'Mitr', sans-serif";
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#ffce54';
-        ctx.fillText('รอผู้เล่นทั้งสองฝั่ง…', canvas.width / 2, canvas.height * 0.47);
-        ctx.font = "600 15px 'Sarabun', sans-serif";
-        ctx.fillStyle = '#fff';
-        var missing = [];
-        if (presence && !presence.playerPresent(1)) missing.push('P1');
-        if (presence && !presence.playerPresent(2)) missing.push('P2');
-        if (missing.length) {
-            ctx.fillText('ไม่พบ ' + missing.join(' · ') + ' — ให้ยืนในฝั่งของตัวเอง', canvas.width / 2, canvas.height * 0.53);
+        if (!p1) {
+            ctx.fillStyle = 'rgba(5, 6, 20, 0.5)';
+            ctx.fillRect(0, 0, mid, canvas.height);
+        }
+        if (!p2) {
+            ctx.fillStyle = 'rgba(5, 6, 20, 0.5)';
+            ctx.fillRect(mid, 0, mid, canvas.height);
+        }
+        if (!p1 || !p2) {
+            var missing = [];
+            if (!p1) missing.push('P1');
+            if (!p2) missing.push('P2');
+            ctx.font = "800 22px 'Mitr', sans-serif";
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = '#ffce54';
+            ctx.fillText('รอ ' + missing.join(' · ') + '…', canvas.width / 2, canvas.height * 0.2);
+            ctx.font = "600 14px 'Sarabun', sans-serif";
+            ctx.fillStyle = '#fff';
+            ctx.fillText('ให้ยืนในฝั่งของตัวเอง — กล้องต้องเห็นหัวทั้งคู่', canvas.width / 2, canvas.height * 0.2 + 28);
         }
         ctx.restore();
+    }
+
+    function drawPracticeGuide() {
+        drawSplitDivider();
+        drawHeadMarkers();
     }
 
     function drawFrame() {
         drawHeadMarkers();
         pausedForPresence = !bothPlayersPresent();
         drawSplitDivider();
-        drawPlayZone(1);
-        drawPlayZone(2);
         if (pausedForPresence) {
             drawBalloonsStatic();
         } else {
@@ -698,6 +745,7 @@
         drawFrame: drawFrame,
         handleTap: handleTap,
         drawHeadMarkersOnly: drawHeadMarkers,
+        drawPracticeGuide: drawPracticeGuide,
         bothPresent: function () { return presence && presence.bothPresent(); },
         endGame: endSplitGame,
         cleanup: function () {

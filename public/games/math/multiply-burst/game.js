@@ -42,6 +42,8 @@
         stageCount: CFG.DEFAULT_STAGE_COUNT != null ? CFG.DEFAULT_STAGE_COUNT : 5,
         opMode: CFG.DEFAULT_OP_MODE || 'mixed'
     };
+    var colorDeck = [];
+    var colorDeckIdx = 0;
 
     var vs = window.KampaiVersus ? KampaiVersus.create({
         duration: CFG.GAME_DURATION,
@@ -57,6 +59,7 @@
             skipPractice = true;
             campaignMode = false;
             splitEntryMode = false;
+            setAppSplitMode(false);
             if (window.MultiplySplitMode) MultiplySplitMode.leave();
             startGame();
         },
@@ -197,9 +200,52 @@
         return soloSettings.stageCount || CFG.DEFAULT_STAGE_COUNT || 5;
     }
 
+    function resetColorDeck() {
+        var src = (DATA && DATA.BALLOON_COLORS) || [];
+        colorDeck = [];
+        for (var i = 0; i < src.length; i++) colorDeck.push(src[i]);
+        for (var j = colorDeck.length - 1; j > 0; j--) {
+            var k = Math.floor(roll() * (j + 1));
+            var tmp = colorDeck[j];
+            colorDeck[j] = colorDeck[k];
+            colorDeck[k] = tmp;
+        }
+        colorDeckIdx = 0;
+    }
+
+    function balloonColorsInUse() {
+        var used = {};
+        for (var i = 0; i < balloons.length; i++) {
+            var b = balloons[i];
+            if (!b.popped) used[b.colorLight] = true;
+        }
+        return used;
+    }
+
+    function pickBalloonColorPair() {
+        var palette = (DATA && DATA.BALLOON_COLORS) || [];
+        if (!palette.length) return ['#ff6b81', '#c0392b'];
+        var used = balloonColorsInUse();
+        if (!colorDeck.length || colorDeckIdx >= colorDeck.length) resetColorDeck();
+
+        for (var pass = 0; pass < 2; pass++) {
+            for (var d = 0; d < colorDeck.length; d++) {
+                var pair = colorDeck[colorDeckIdx % colorDeck.length];
+                colorDeckIdx++;
+                if (!used[pair[0]]) return [pair[0], pair[1]];
+            }
+            resetColorDeck();
+        }
+        var open = palette.filter(function (p) { return !used[p[0]]; });
+        var pick = open.length ? open : palette;
+        var chosen = pick[Math.floor(roll() * pick.length)];
+        return [chosen[0], chosen[1]];
+    }
+
     function newQuestion() {
         currentQuestion = createQuestion();
         wrongPool = buildWrongAnswers(currentQuestion);
+        resetColorDeck();
         updateQuestionHud();
         if (gameState === 'playing') {
             balloons = [];
@@ -442,6 +488,11 @@
         });
     }
 
+    function setAppSplitMode(on) {
+        var app = $('app');
+        if (app) app.classList.toggle('split-mode', !!on);
+    }
+
     function isCameraMode() {
         return hands && hands.mode === 'camera';
     }
@@ -584,7 +635,7 @@
             if (!mustBeCorrect) return;
             x = canvas.width * 0.5;
         }
-        var colorPair = DATA.BALLOON_COLORS[Math.floor(roll() * DATA.BALLOON_COLORS.length)];
+        var colorPair = pickBalloonColorPair();
         var baseVy = CFG.BALLOON_SPEED_MIN + roll() * (CFG.BALLOON_SPEED_MAX - CFG.BALLOON_SPEED_MIN);
         balloons.push({
             x: x,
@@ -1072,7 +1123,10 @@
             var dt = lastPracticeFrame ? now - lastPracticeFrame : 16;
             lastPracticeFrame = now;
             updatePractice(dt);
-            if (splitEntryMode && window.MultiplySplitMode) MultiplySplitMode.drawHeadMarkersOnly();
+            if (splitEntryMode && window.MultiplySplitMode) {
+                if (MultiplySplitMode.drawPracticeGuide) MultiplySplitMode.drawPracticeGuide();
+                else MultiplySplitMode.drawHeadMarkersOnly();
+            }
         }
 
         if (gameState === 'playing') {
@@ -1099,6 +1153,7 @@
         seededRng = null;
         campaignMode = true;
         splitEntryMode = false;
+        setAppSplitMode(false);
         if (window.MultiplySplitMode) MultiplySplitMode.leave();
         $('cam-error').textContent = '';
         $('loading').classList.add('on');
@@ -1121,6 +1176,7 @@
         seededRng = null;
         campaignMode = false;
         splitEntryMode = true;
+        setAppSplitMode(true);
         if (window.MultiplySplitMode) MultiplySplitMode.enter();
         $('cam-error').textContent = '';
         $('loading').classList.add('on');
@@ -1306,6 +1362,7 @@
         stopSplitPresence();
         if (window.MultiplySplitMode) MultiplySplitMode.cleanup();
         splitEntryMode = false;
+        setAppSplitMode(false);
         if (vs) vs.leave();
         KAMPAI.sound.bgmStop();
     }
@@ -1331,6 +1388,7 @@
             seededRng = null;
             campaignMode = true;
             splitEntryMode = false;
+            setAppSplitMode(false);
             if (window.MultiplySplitMode) MultiplySplitMode.leave();
             showScreen('ui-start');
             gameState = 'start';

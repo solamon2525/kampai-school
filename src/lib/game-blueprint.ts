@@ -8,7 +8,7 @@
  * ระบบ engine registry อยู่ใน `src/lib/blueprint-engines.ts`
  */
 
-export type BlueprintEngine = 'platformer-2d' | 'quiz' | 'matching';
+export type BlueprintEngine = 'platformer-2d' | 'quiz' | 'matching' | 'drag-sort';
 
 export type PlatformerPlatform = {
     id: string;
@@ -257,6 +257,7 @@ export function blueprintPreviewEngineUrl(item: {
 }): string {
     if (item.game_slug === 'thai-sara-run') return '/games/thai/thai-sara-run.html';
     if (item.external_url?.includes('quiz')) return '/games/engine/quiz/index.html';
+    if (item.external_url?.includes('matching')) return '/games/engine/matching/index.html';
     if (item.external_url?.includes('.html')) return item.external_url;
     return '/games/engine/platformer-2d/index.html';
 }
