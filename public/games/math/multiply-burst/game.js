@@ -117,6 +117,37 @@
         currentQuestion = { a: a, b: b, answer: a * b };
         wrongPool = buildWrongAnswers(currentQuestion);
         updateQuestionHud();
+        if (gameState === 'playing') {
+            balloons = [];
+            holdTarget = null;
+            spawnBalloon(currentQuestion.answer);
+        }
+    }
+
+    function hasCorrectBalloonOnScreen() {
+        if (!currentQuestion) return false;
+        for (var i = 0; i < balloons.length; i++) {
+            var b = balloons[i];
+            if (!b.popped && b.value === currentQuestion.answer) return true;
+        }
+        return false;
+    }
+
+    function makeRoomForBalloon() {
+        var maxOnScreen = CFG.MAX_BALLOONS != null ? CFG.MAX_BALLOONS : 5;
+        if (balloons.length < maxOnScreen) return;
+        for (var i = balloons.length - 1; i >= 0; i--) {
+            if (currentQuestion && balloons[i].value !== currentQuestion.answer) {
+                balloons.splice(i, 1);
+                return;
+            }
+        }
+        balloons.shift();
+    }
+
+    function ensureCorrectBalloon() {
+        if (gameState !== 'playing' || !currentQuestion) return;
+        if (!hasCorrectBalloonOnScreen()) spawnBalloon(currentQuestion.answer);
     }
 
     function updateQuestionHud() {
@@ -287,15 +318,22 @@
         return wrongPool[Math.floor(roll() * wrongPool.length)];
     }
 
-    function spawnBalloon() {
+    function spawnBalloon(forcedValue) {
         if (gameState !== 'playing' || !currentQuestion) return;
         var maxOnScreen = CFG.MAX_BALLOONS != null ? CFG.MAX_BALLOONS : 5;
-        if (balloons.length >= maxOnScreen) return;
-        var value = pickBalloonValue();
+        var mustBeCorrect = forcedValue === currentQuestion.answer;
+        if (balloons.length >= maxOnScreen) {
+            if (mustBeCorrect) makeRoomForBalloon();
+            else return;
+        }
+        var value = forcedValue != null ? forcedValue : pickBalloonValue();
         var answerForBalloon = currentQuestion.answer;
         var radius = CFG.BALLOON_RADIUS_MIN + roll() * (CFG.BALLOON_RADIUS_MAX - CFG.BALLOON_RADIUS_MIN);
         var x = findSpawnPosition(radius);
-        if (x == null) return;
+        if (x == null) {
+            if (!mustBeCorrect) return;
+            x = canvas.width * 0.5;
+        }
         var colorPair = DATA.BALLOON_COLORS[Math.floor(roll() * DATA.BALLOON_COLORS.length)];
         balloons.push({
             x: x,
@@ -343,7 +381,6 @@
             KAMPAI.sound.correct();
             KAMPAI.sound.speak(pickPhrase(DATA.CORRECT_PHRASES), 'th-TH');
             KAMPAI.sound.fxFlash(true);
-            newQuestion();
         } else {
             score += CFG.POINTS_WRONG;
             wrongHits++;
@@ -356,6 +393,7 @@
         if (vs) vs.report(score, { correct: correctHits, wrong: wrongHits });
         balloons.splice(index, 1);
         if (holdTarget && holdTarget.balloon === b) holdTarget = null;
+        newQuestion();
     }
 
     function updateScoreHud() {
@@ -817,7 +855,10 @@
 
         KAMPAI.sound.bgmStart();
 
-        spawnTimer = setInterval(spawnBalloon, CFG.SPAWN_INTERVAL_MS);
+        spawnTimer = setInterval(function () {
+            spawnBalloon();
+            ensureCorrectBalloon();
+        }, CFG.SPAWN_INTERVAL_MS);
         spawnBalloon();
 
         mainTimer = setInterval(function () {
