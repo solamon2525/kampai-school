@@ -65,6 +65,57 @@
     };
     window.__ST = ST;
     var hands = null;
+    var colorDeck = [];
+    var colorDeckIdx = 0;
+
+    function resetColorDeck() {
+        var src = (DATA && DATA.NUMBER_COLORS) || [];
+        colorDeck = [];
+        for (var i = 0; i < src.length; i++) colorDeck.push(src[i]);
+        for (var j = colorDeck.length - 1; j > 0; j--) {
+            var k = Math.floor(qrand() * (j + 1));
+            var tmp = colorDeck[j];
+            colorDeck[j] = colorDeck[k];
+            colorDeck[k] = tmp;
+        }
+        colorDeckIdx = 0;
+    }
+
+    function itemColorsInUse() {
+        var used = {};
+        ST.items.forEach(function (it) {
+            if (!it.caught && !it.missed && it.colorLight) used[it.colorLight] = true;
+        });
+        return used;
+    }
+
+    function pickItemColorPair() {
+        var palette = (DATA && DATA.NUMBER_COLORS) || [];
+        if (!palette.length) return ['#818cf8', '#4f46e5'];
+        var used = itemColorsInUse();
+        if (!colorDeck.length || colorDeckIdx >= colorDeck.length) resetColorDeck();
+        for (var pass = 0; pass < 2; pass++) {
+            for (var d = 0; d < colorDeck.length; d++) {
+                var pair = colorDeck[colorDeckIdx % colorDeck.length];
+                colorDeckIdx++;
+                if (!used[pair[0]]) return [pair[0], pair[1]];
+            }
+            resetColorDeck();
+        }
+        var open = palette.filter(function (p) { return !used[p[0]]; });
+        var pick = open.length ? open : palette;
+        var chosen = pick[Math.floor(qrand() * pick.length)];
+        return [chosen[0], chosen[1]];
+    }
+
+    function hexToRgba(hex, alpha) {
+        var h = hex.replace('#', '');
+        if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+        var r = parseInt(h.slice(0, 2), 16);
+        var g = parseInt(h.slice(2, 4), 16);
+        var b = parseInt(h.slice(4, 6), 16);
+        return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+    }
 
     // ── Canvas ──
     var cvs = $('gameCanvas');
@@ -196,6 +247,7 @@
         ST.items = [];
         ST.roundActive = true;
         ST.basketX = 0.5;
+        resetColorDeck();
 
         // HUD
         $('hud-rule').textContent = roundCFG.emoji + ' ' + roundCFG.label;
@@ -230,6 +282,7 @@
         var pool = DATA.numbers;
         var n = pool[Math.floor(qrand() * pool.length)];
         var speed = CFG.FALL_SPEED + ST.round * CFG.FALL_SPEED_INC;
+        var colorPair = pickItemColorPair();
         var it = {
             n: n,
             x: 0.08 + qrand() * 0.84, // สุ่ม x ไม่ชนขอบ
@@ -238,7 +291,10 @@
             correct: ST.rule.check(n),
             caught: false,
             missed: false,
-            flash: 0           // frames ของ flash effect
+            catchGood: null,
+            flash: 0,
+            colorLight: colorPair[0],
+            colorDark: colorPair[1]
         };
         ST.items.push(it);
     }
@@ -265,7 +321,13 @@
 
         ST.items.forEach(function (it) {
             if (!ST.roundActive) return;
-            if (it.caught || it.missed) return;
+
+            if (it.caught) {
+                if (it.flash > 0) drawCatchFlash(it);
+                return;
+            }
+            if (it.missed) return;
+
             it.y += it.speed;
 
             var ix = it.x * W;
@@ -274,12 +336,12 @@
             // catch check
             if (iy >= by - 30 && Math.abs(ix - bx) < cr) {
                 it.caught = true;
+                it.catchGood = it.correct;
                 if (it.correct) {
                     ST.score += CFG.SCORE_CATCH;
                     ST.correctCount++;
                     KAMPAI.sound.correct();
                     KAMPAI.sound.fxFlash(true);
-                    it.flash = 12;
                 } else {
                     ST.lives = Math.max(0, ST.lives - 1);
                     ST.wrongCount++;
@@ -287,6 +349,7 @@
                     KAMPAI.sound.fxFlash(false);
                     if (ST.lives <= 0) { endRound(false); return; }
                 }
+                it.flash = 14;
                 updateHUD();
                 if (vs) vs.report(ST.score, { correct: ST.correctCount, wrong: ST.wrongCount, timeUp: ST.timeUpCount });
                 return;
@@ -307,35 +370,64 @@
                 return;
             }
 
-            // draw number bubble
-            var r = 30;
-            ctx.save();
-            var correct = it.correct;
-            ctx.shadowBlur = 14;
-            ctx.shadowColor = correct ? '#34d399' : '#f87171';
-            ctx.fillStyle = correct ? 'rgba(52,211,153,0.18)' : 'rgba(248,113,113,0.14)';
-            ctx.strokeStyle = correct ? '#34d399' : '#f87171';
-            ctx.lineWidth = 2.5;
-            ctx.beginPath();
-            ctx.arc(ix, iy, r, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.stroke();
-            ctx.restore();
-
-            ctx.save();
-            ctx.fillStyle = '#fff';
-            ctx.font = 'bold ' + (r * 0.95) + 'px Sarabun, Arial, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(it.n, ix, iy);
-            ctx.restore();
+            drawNumberBubble(it, ix, iy);
         });
 
         // clean up caught/missed
-        ST.items = ST.items.filter(function (it) { return !it.caught && !it.missed; });
+        ST.items = ST.items.filter(function (it) {
+            if (it.caught) return it.flash > 0;
+            return !it.missed;
+        });
 
         // draw basket
         drawBasket(bx, by, bw);
+    }
+
+    function drawNumberBubble(it, ix, iy) {
+        var r = 30;
+        ctx.save();
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = hexToRgba(it.colorDark, 0.45);
+        ctx.fillStyle = hexToRgba(it.colorLight, 0.24);
+        ctx.strokeStyle = it.colorDark;
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(ix, iy, r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+
+        ctx.save();
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold ' + (r * 0.95) + 'px Sarabun, Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = 'rgba(0,0,0,0.45)';
+        ctx.strokeText(String(it.n), ix, iy);
+        ctx.fillText(String(it.n), ix, iy);
+        ctx.restore();
+    }
+
+    function drawCatchFlash(it) {
+        var ix = it.x * W;
+        var iy = it.y * H;
+        var r = 30;
+        var good = it.catchGood;
+        var t = it.flash / 14;
+        it.flash--;
+        ctx.save();
+        ctx.globalAlpha = Math.max(0.15, t * 0.85);
+        ctx.beginPath();
+        ctx.arc(ix, iy, r + (14 - it.flash) * 2.2, 0, Math.PI * 2);
+        ctx.strokeStyle = good ? '#34d399' : '#f87171';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+        ctx.font = 'bold 18px Sarabun, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillStyle = good ? '#4be07a' : '#ff5c72';
+        ctx.fillText(good ? ('+' + CFG.SCORE_CATCH) : '✗', ix, iy - r - 8);
+        ctx.restore();
     }
 
     function drawBasket(bx, by, bw) {
@@ -420,10 +512,16 @@
         clearInterval(ST.spawnTimer); clearInterval(ST.roundTimer);
         clearTimeout(ST.nextRoundTimeout);
         clearTimeout(ST.ruleCardTimeout);
+        ST.spawnTimer = null;
+        ST.roundTimer = null;
+        ST.nextRoundTimeout = null;
+        ST.items = [];
         stopHands();
         if (vs) vs.leave();
         KAMPAI.sound.bgmStop();
-        ST.roundActive = false; ST.started = false;
+        ST.roundActive = false;
+        ST.started = false;
+        ST.round = 0;
     }
 
     // ── Fallback: drag / touch basket ──
@@ -455,6 +553,8 @@
     if (onlineBtn) onlineBtn.addEventListener('click', function () { if (vs) vs.openMenu(); });
     $('restartBtn').addEventListener('click', function () {
         cleanup();
+        roundSeeds = [];
+        qrand = Math.random;
         setTimeout(startGame, 100);
     });
     $('quitBtn').addEventListener('click', function () { cleanup(); KAMPAI.goHome(); });
