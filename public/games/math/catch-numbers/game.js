@@ -62,7 +62,8 @@
         rafId: 0,
         dragStart: null,
         rule: null,           // DATA.rounds[roundIndex]
-        problem: null         // โจทย์ที่สร้างแล้วของรอบนี้
+        problem: null,        // โจทย์ปัจจุบัน
+        roundCorrect: 0       // ตอบถูกในรอบนี้ (sync โจทย์ versus)
     };
     window.__ST = ST;
     var hands = null;
@@ -145,7 +146,8 @@
             ? basketImg.naturalHeight / basketImg.naturalWidth
             : 210 / 515;
         var bh = bw * aspect;
-        var bottom = H * 0.92;
+        var pad = Math.max(4, H * (CFG.BASKET_BOTTOM_PAD != null ? CFG.BASKET_BOTTOM_PAD : 0.018));
+        var bottom = H - pad;
         var top = bottom - bh;
         return {
             bx: ST.basketX * W,
@@ -234,6 +236,41 @@
         startRound();
     }
 
+    function problemRng() {
+        if (vs && vs.mode !== null && roundSeeds && roundSeeds.length > ST.round) {
+            var seed = (roundSeeds[ST.round] + ST.roundCorrect * 991) >>> 0;
+            return createMulberry32(seed);
+        }
+        return qrand;
+    }
+
+    function fallSpeedNow() {
+        var base = CFG.FALL_SPEED + ST.round * (CFG.FALL_SPEED_INC || 0);
+        base += ST.roundCorrect * (CFG.FALL_SPEED_INC_CORRECT || 0);
+        var max = CFG.FALL_SPEED_MAX != null ? CFG.FALL_SPEED_MAX : 0.002;
+        return Math.min(max, base);
+    }
+
+    function applyProblemHUD() {
+        var emojiEl = $('hud-rule-emoji');
+        if (emojiEl && ST.rule) emojiEl.textContent = ST.rule.emoji;
+        if ($('hud-rule')) $('hud-rule').textContent = ST.problem.label;
+    }
+
+    function rollProblem() {
+        ST.problem = DATA.buildRoundProblem(ST.rule, problemRng());
+        applyProblemHUD();
+    }
+
+    function advanceProblem() {
+        ST.roundCorrect++;
+        rollProblem();
+        ST.items = ST.items.filter(function (it) {
+            return it.caught && it.flash > 0;
+        });
+        spawnItem(true);
+    }
+
     // ── Round setup ──
     function startGame(tapOnly) {
         KAMPAI.sound.unlock();
@@ -268,17 +305,15 @@
 
         var roundCFG = DATA.rounds[ST.round];
         ST.rule = roundCFG;
-        ST.problem = DATA.buildRoundProblem(roundCFG, qrand);
+        ST.roundCorrect = 0;
+        ST.problem = DATA.buildRoundProblem(roundCFG, problemRng());
         ST.lives = CFG.LIVES;
         ST.items = [];
         ST.roundActive = true;
         ST.basketX = 0.5;
         resetColorDeck();
 
-        // HUD
-        var emojiEl = $('hud-rule-emoji');
-        if (emojiEl) emojiEl.textContent = roundCFG.emoji;
-        $('hud-rule').textContent = ST.problem.label;
+        applyProblemHUD();
         updateHUD();
 
         // Rule card flash
@@ -296,6 +331,8 @@
         ST.spawnTimer = setInterval(spawnItem, spawnMs);
         ST.sec = CFG.ROUND_SEC;
         ST.roundTimer = setInterval(tickRoundTimer, 1000);
+
+        spawnItem(true);
 
         if (!ST.rafId) loop();
     }
@@ -315,11 +352,11 @@
         return true;
     }
 
-    function spawnItem() {
+    function spawnItem(force) {
         if (!ST.roundActive) return;
-        if (!spawnGapClear()) return;
-        var n = DATA.pickSpawnNumber(ST.problem, qrand);
-        var speed = CFG.FALL_SPEED;
+        if (!force && !spawnGapClear()) return;
+        var n = DATA.pickSpawnNumber(ST.problem, problemRng());
+        var speed = fallSpeedNow();
         var colorPair = pickItemColorPair();
         var it = {
             n: n,
@@ -371,7 +408,7 @@
             }
             if (it.missed) return;
 
-            it.y += it.speed;
+            it.y += fallSpeedNow();
 
             var ix = it.x * W;
             var iy = it.y * H;
@@ -385,6 +422,11 @@
                     ST.correctCount++;
                     KAMPAI.sound.correct();
                     KAMPAI.sound.fxFlash(true);
+                    it.flash = 14;
+                    updateHUD();
+                    if (vs) vs.report(ST.score, { correct: ST.correctCount, wrong: ST.wrongCount, timeUp: ST.timeUpCount });
+                    advanceProblem();
+                    return;
                 } else {
                     ST.lives = Math.max(0, ST.lives - 1);
                     ST.wrongCount++;
