@@ -83,9 +83,8 @@ kampai-sdk.js               │              + hands.collectHitProbes() ถ้�
 | แบบ | เหมาะกับ | `#arVideo` / `#arCanvas` | UI เกม |
 |---|---|---|---|
 | **A · กล้องเต็มจอ** (default `_template-ar`) | ยืนในโซน · เล่นกลุ่มจอใหญ่ · เห็นตัวเองเต็ม | `position:absolute; inset:0; width:100%; height:100%` (เป็น background) | zone/HUD ลอยทับกล้อง |
-| **B · กล้องมุมจอ + เกมเต็มจอ** | โจทย์/คำตอบต้องเด่น (quiz) · เอียงตัวเลือก · เน้นเนื้อหา | กล่องเล็ก `#camBox` (`position:absolute; right/bottom:14px; width:~180px; aspect-ratio:4/3`) — video/canvas เต็มกล่อง | เวที่เกมเต็มจอ (`#gameScreen` มี background เอง) |
-
-> อ้างอิงแบบ B: `public/games/math/math-move-quiz/` (เอียงซ้าย/ขวาเลือก A/B · กล้องมุมล่างขวา · มี tap fallback)
+| **B · กล้องเต็มจอ + แผนคำตอบซ้าย/ขวา** | โจทย์ quiz 2 ตัวเลือก · เห็นตัวเองบนจอ · เอียงเลือก A/B | video/canvas `inset:0` + overlay แผน semi-transparent | `math/math-move-quiz` |
+| **C · กล้องมุมจอ + เกมเต็มจอ** (legacy) | โจทย์เด่น · กล้องเล็กมุม | `#camBox` มุมล่างขวา | — (ย้ายไปแบบ B แล้ว) |
 
 **ทำแบบ B จากเทมเพลต** (หลัง `cp -r _template-ar`):
 1. ห่อ `#arVideo`+`#arCanvas` ใน `<div id="camBox">` แล้วตั้ง camBox เป็นกล่องเล็กมุมจอใน `style.css`

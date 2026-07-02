@@ -1,6 +1,5 @@
 /* game.js — ลอจิกเกม "ขยับตอบเลข" (อ่าน config/data + KAMPAI SDK + KampaiAR engine)
-   ❗ ไม่มี camera code ที่นี่ — กล้อง/ตรวจจับ/cleanup อยู่ใน kampai-ar.js ทั้งหมด
-   2 ตัวเลือก: เอียงตัวซ้าย = A (panelLeft) · เอียงตัวขวา = B (panelRight) · ไม่มีกล้อง → แตะแผงได้ */
+   กล้องจริงเต็มจอ + แผนคำตอบซ้าย/ขวา · เอียงตัวค้างจนแถบเต็ม · ไม่มีกล้อง → แตะแผง */
 (function () {
     'use strict';
     var CFG = window.GAME_CONFIG, DATA = window.GAME_DATA;
@@ -12,10 +11,9 @@
     KAMPAI.sound.mountToggles();
     KAMPAI.sound.defaultBgm(CFG.BGM || 'cheerful');
 
-    var ST = { score: 0, round: 0, questions: [], timer: null, sec: 0, roundLocked: true, started: false };
+    var ST = { score: 0, round: 0, questions: [], timer: null, sec: 0, roundLocked: true, started: false, correctCount: 0, wrongCount: 0, timeUpCount: 0 };
     var ar = null;
 
-    // ── จอเริ่ม: player chip + leaderboard ──
     function renderPlayer() {
         var s = KAMPAI.student, stt = KAMPAI.stats, chip = $('player-chip');
         if (!s || !chip) return;
@@ -43,11 +41,18 @@
         $(id).classList.add('active');
     }
     function setStatus() {
-        var icon = ar && ar.mode === 'camera' ? '🎥 ขยับตัว' : '✋ แตะแผง';
-        $('status-tag').textContent = icon + (ST.sec > 0 ? ' · ⏱ ' + ST.sec + 's' : '');
+        var holdSec = Math.round((CFG.HOLD_MS || 4000) / 1000);
+        var mode = ar && ar.mode === 'camera' ? '🎥 เอียงตัวค้าง ~' + holdSec + 'วิ' : '✋ แตะแผง';
+        $('status-tag').textContent = mode + (ST.sec > 0 ? ' · ⏱ ' + ST.sec + 's' : '');
     }
 
-    // ── AR engine: เชื่อม signal → แผง A/B (เต็มจอ) ──
+    function stopAR() {
+        if (ar) {
+            ar.stop();
+            ar = null;
+        }
+    }
+
     function buildAR() {
         return KampaiAR.create({
             video: '#arVideo', canvas: '#arCanvas',
@@ -56,8 +61,11 @@
                 SIDES.forEach(function (z) { $(ZONE_EL[z]).classList.toggle('active-zone', z === zone); });
             },
             onHoldProgress: function (zone, pct) {
-                var el = $(ZONE_EL[zone]); var fill = el && el.querySelector('.hold-fill');
-                if (fill) fill.style.width = (pct * 100) + '%';
+                SIDES.forEach(function (z) {
+                    var el = $(ZONE_EL[z]);
+                    var fill = el && el.querySelector('.hold-fill');
+                    if (fill) fill.style.width = (z === zone ? pct * 100 : 0) + '%';
+                });
             },
             onCommit: function (zone) { commitAnswer(zone); },
             onStatus: function () { setStatus(); }
@@ -70,40 +78,67 @@
         return a;
     }
 
-    // ── เริ่มเกม / รอบ ──
+    function resetPanels() {
+        SIDES.forEach(function (z) {
+            var el = $(ZONE_EL[z]);
+            if (!el) return;
+            el.classList.remove('active-zone', 'correct', 'wrong');
+            var fill = el.querySelector('.hold-fill');
+            if (fill) fill.style.width = '0%';
+        });
+    }
+
     async function startGame() {
         showScreen('gameScreen');
         $('loading').classList.add('on');
         KAMPAI.sound.unlock();
-        if (!ar) ar = buildAR();
-        await ar.start();                  // ขอกล้องตอน gesture (reject → engine สลับโหมดแตะอัตโนมัติ)
+        stopAR();
+        ar = buildAR();
+        try {
+            await ar.start();
+        } catch (e) {
+            console.warn('Camera failed, tap fallback:', e);
+        }
         $('loading').classList.remove('on');
         KAMPAI.sound.bgmStart();
-        ST.score = 0; ST.round = 0; ST.started = true;
+        ST.score = 0;
+        ST.round = 0;
+        ST.correctCount = 0;
+        ST.wrongCount = 0;
+        ST.timeUpCount = 0;
+        ST.started = true;
         ST.questions = shuffle(DATA.questions).slice(0, CFG.ROUNDS);
         $('scorePill').textContent = '⭐ 0';
         loadRound();
     }
+
     function loadRound() {
         var q = ST.questions[ST.round];
         ST.roundLocked = false;
         $('question').textContent = q.q;
         $('roundPill').textContent = 'ข้อ ' + (ST.round + 1) + '/' + ST.questions.length;
+        resetPanels();
         SIDES.forEach(function (z, i) {
-            var el = $(ZONE_EL[z]);
-            el.classList.remove('active-zone', 'correct', 'wrong');
-            el.querySelector('.choice').textContent = q.choices[i];
-            el.querySelector('.hold-fill').style.width = '0%';
+            $(ZONE_EL[z]).querySelector('.choice').textContent = q.choices[i];
         });
-        ar.setActive(true);
+        if (ar) ar.setActive(true);
         startTimer();
     }
+
     function startTimer() {
         if (ST.timer) clearInterval(ST.timer);
-        ST.sec = CFG.ROUND_SEC; setStatus();
+        ST.sec = CFG.ROUND_SEC;
+        setStatus();
         ST.timer = setInterval(function () {
-            ST.sec--; setStatus();
-            if (ST.sec <= 0) { clearInterval(ST.timer); ST.timer = null; commitAnswer(ar ? ar.zone : null); }
+            ST.sec--;
+            setStatus();
+            if (ST.sec <= 0) {
+                clearInterval(ST.timer);
+                ST.timer = null;
+                ST.timeUpCount++;
+                KAMPAI.sound.timeUp();
+                commitAnswer(null);
+            }
         }, 1000);
     }
 
@@ -112,49 +147,75 @@
         ST.roundLocked = true;
         if (ar) ar.setActive(false);
         if (ST.timer) { clearInterval(ST.timer); ST.timer = null; }
-        var bonus = Math.max(0, ST.sec) * 5;   // โบนัสตอบไว — เก็บก่อน reset ST.sec (ไม่งั้นโบนัสเป็น 0 เสมอ)
-        ST.sec = 0; setStatus();
+
+        var bonusPerSec = CFG.BONUS_PER_SEC != null ? CFG.BONUS_PER_SEC : 2;
+        var baseScore = CFG.SCORE_BASE != null ? CFG.SCORE_BASE : 100;
+        var bonus = Math.max(0, ST.sec) * bonusPerSec;
+        ST.sec = 0;
+        setStatus();
+
         var q = ST.questions[ST.round];
-        var correctSide = SIDES[q.answer];     // 'left' | 'right'
-        var correct = zone === correctSide;    // zone = null (หมดเวลา) → false
-        // เฉลย: ไฮไลต์แผงที่ถูก (+ แผงที่ตอบผิดถ้ามี)
+        var correctSide = SIDES[q.answer];
+        var correct = zone === correctSide;
+
+        resetPanels();
         $(ZONE_EL[correctSide]).classList.add('correct');
         if (zone && !correct) $(ZONE_EL[zone]).classList.add('wrong');
+
         if (correct) {
-            ST.score += 100 + bonus;
+            ST.score += baseScore + bonus;
+            ST.correctCount++;
             $('scorePill').textContent = '⭐ ' + ST.score;
-            KAMPAI.sound.correct(); KAMPAI.sound.fxFlash(true);
+            KAMPAI.sound.correct();
+            KAMPAI.sound.fxFlash(true);
         } else {
-            KAMPAI.sound.wrong(); KAMPAI.sound.fxFlash(false);
+            ST.wrongCount++;
+            KAMPAI.sound.wrong();
+            KAMPAI.sound.fxFlash(false);
         }
+
+        var pause = CFG.FEEDBACK_MS != null ? CFG.FEEDBACK_MS : 2200;
         setTimeout(function () {
             ST.round++;
-            if (ST.round < ST.questions.length) loadRound(); else finishGame();
-        }, 1600);
+            if (ST.round < ST.questions.length) loadRound();
+            else finishGame();
+        }, pause);
     }
 
     function finishGame() {
         if (ST.timer) { clearInterval(ST.timer); ST.timer = null; }
         ST.started = false;
-        if (ar) ar.stop();
-        KAMPAI.sound.bgmStop(); KAMPAI.sound.gameOver();
+        stopAR();
+        KAMPAI.sound.bgmStop();
+        KAMPAI.sound.gameOver();
         showScreen('resultScreen');
         $('final-score').textContent = ST.score;
-        $('final-detail').textContent = 'จาก ' + ST.questions.length + ' ข้อ';
-        KAMPAI.submitScore(ST.score, { mode: 'normal' });
+        $('final-detail').textContent = 'จาก ' + ST.questions.length + ' ข้อ · ถูก ' + ST.correctCount + ' · ผิด/หมดเวลา ' + ST.wrongCount;
+        KAMPAI.submitScore(ST.score, {
+            mode: 'normal',
+            correct: ST.correctCount,
+            wrong: ST.wrongCount,
+            timeUp: ST.timeUpCount
+        });
     }
 
     function cleanup() {
         if (ST.timer) { clearInterval(ST.timer); ST.timer = null; }
-        if (ar) ar.stop();
+        stopAR();
         KAMPAI.sound.bgmStop();
+        ST.started = false;
+        ST.roundLocked = true;
     }
 
-    // ── ปุ่ม / fallback แตะ / exit ──
     $('startBtn').addEventListener('click', startGame);
-    $('restartBtn').addEventListener('click', startGame);
+    $('restartBtn').addEventListener('click', function () {
+        cleanup();
+        setTimeout(startGame, 120);
+    });
     SIDES.forEach(function (z) {
-        $(ZONE_EL[z]).addEventListener('click', function () { if (ar && !ST.roundLocked) ar.tap(z); });
+        $(ZONE_EL[z]).addEventListener('click', function () {
+            if (ar && !ST.roundLocked) ar.tap(z);
+        });
     });
     $('quitBtn').addEventListener('click', function () { cleanup(); KAMPAI.goHome(); });
     $('homeBtn').addEventListener('click', function () { cleanup(); KAMPAI.goHome(); });
