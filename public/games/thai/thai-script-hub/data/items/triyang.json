@@ -1,0 +1,202 @@
+[
+  {
+    "word": "กา",
+    "reading": "ก+า",
+    "meaning": "นกกา · ส่วนประกอบ: ก+า",
+    "emoji": "🐦",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "item_type": "triyang",
+    "parts": "ก+า"
+  },
+  {
+    "word": "ม้า",
+    "reading": "ม+า+้",
+    "meaning": "สัตว์ขี่ได้ · ส่วนประกอบ: ม+า+้",
+    "emoji": "🐴",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "item_type": "triyang",
+    "parts": "ม+า+้"
+  },
+  {
+    "word": "ปู",
+    "reading": "ป+ู",
+    "meaning": "สัตว์มีกรง · ส่วนประกอบ: ป+ู",
+    "emoji": "🦀",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "item_type": "triyang",
+    "parts": "ป+ู"
+  },
+  {
+    "word": "ไก่",
+    "reading": "ไ+ก+่",
+    "meaning": "สัตว์เลี้ยง · ส่วนประกอบ: ไ+ก+่",
+    "emoji": "🐔",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "item_type": "triyang",
+    "parts": "ไ+ก+่"
+  },
+  {
+    "word": "ช้าง",
+    "reading": "ช+า+้",
+    "meaning": "สัตว์ใหญ่ · ส่วนประกอบ: ช+า+้",
+    "emoji": "🐘",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "item_type": "triyang",
+    "parts": "ช+า+้"
+  },
+  {
+    "word": "นัก",
+    "reading": "น+ั+ก",
+    "meaning": "ผู้ที่… · ส่วนประกอบ: น+ั+ก",
+    "emoji": "🏃",
+    "grade": "ป.2",
+    "indicator_code": "ท 4.1 ป.2/1",
+    "item_type": "triyang",
+    "parts": "น+ั+ก"
+  },
+  {
+    "word": "รถ",
+    "reading": "ร+ถ",
+    "meaning": "ยานพาหนะ · ส่วนประกอบ: ร+ถ",
+    "emoji": "🚗",
+    "grade": "ป.2",
+    "indicator_code": "ท 4.1 ป.2/1",
+    "item_type": "triyang",
+    "parts": "ร+ถ"
+  },
+  {
+    "word": "ดิน",
+    "reading": "ด+ิ+น",
+    "meaning": "ผิวโลก · ส่วนประกอบ: ด+ิ+น",
+    "emoji": "🌍",
+    "grade": "ป.2",
+    "indicator_code": "ท 4.1 ป.2/1",
+    "item_type": "triyang",
+    "parts": "ด+ิ+น"
+  },
+  {
+    "word": "แม่",
+    "reading": "แ+ม+่",
+    "meaning": "ผู้ให้กำเนิด · ส่วนประกอบ: แ+ม+่",
+    "emoji": "👩",
+    "grade": "ป.2",
+    "indicator_code": "ท 4.1 ป.2/1",
+    "item_type": "triyang",
+    "parts": "แ+ม+่"
+  },
+  {
+    "word": "โรง",
+    "reading": "โ+ร+ง",
+    "meaning": "อาคาร · ส่วนประกอบ: โ+ร+ง",
+    "emoji": "🏫",
+    "grade": "ป.2",
+    "indicator_code": "ท 4.1 ป.2/1",
+    "item_type": "triyang",
+    "parts": "โ+ร+ง"
+  },
+  {
+    "word": "เรา",
+    "reading": "ร+เ+า",
+    "meaning": "ตัวเรา · ส่วนประกอบ: ร+เ+า",
+    "emoji": "🙋",
+    "grade": "ป.2",
+    "indicator_code": "ท 4.1 ป.2/1",
+    "item_type": "triyang",
+    "parts": "ร+เ+า"
+  },
+  {
+    "word": "เด็ก",
+    "reading": "ด+เ+็+ก",
+    "meaning": "คนเล็ก · ส่วนประกอบ: ด+เ+็+ก",
+    "emoji": "👶",
+    "grade": "ป.2",
+    "indicator_code": "ท 4.1 ป.2/1",
+    "item_type": "triyang",
+    "parts": "ด+เ+็+ก"
+  },
+  {
+    "word": "หมา",
+    "reading": "ห+ม+า",
+    "meaning": "สัตว์เลี้ยง · ส่วนประกอบ: ห+ม+า",
+    "emoji": "🐕",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "item_type": "triyang",
+    "parts": "ห+ม+า"
+  },
+  {
+    "word": "ปลา",
+    "reading": "ป+ล+า",
+    "meaning": "สัตว์น้ำ · ส่วนประกอบ: ป+ล+า",
+    "emoji": "🐟",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "item_type": "triyang",
+    "parts": "ป+ล+า"
+  },
+  {
+    "word": "นก",
+    "reading": "น+ก",
+    "meaning": "สัตว์ปีก · ส่วนประกอบ: น+ก",
+    "emoji": "🐦",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "item_type": "triyang",
+    "parts": "น+ก"
+  },
+  {
+    "word": "ฟัน",
+    "reading": "ฟ+ั+น",
+    "meaning": "ในปาก · ส่วนประกอบ: ฟ+ั+น",
+    "emoji": "🦷",
+    "grade": "ป.2",
+    "indicator_code": "ท 4.1 ป.2/1",
+    "item_type": "triyang",
+    "parts": "ฟ+ั+น"
+  },
+  {
+    "word": "รัน",
+    "reading": "ร+ั+น",
+    "meaning": "วิ่งเร็ว · ส่วนประกอบ: ร+ั+น",
+    "emoji": "🏃",
+    "grade": "ป.2",
+    "indicator_code": "ท 4.1 ป.2/1",
+    "item_type": "triyang",
+    "parts": "ร+ั+น"
+  },
+  {
+    "word": "สัตว์",
+    "reading": "ส+ั+ต+์+ว",
+    "meaning": "สิ่งมีชีวิต · ส่วนประกอบ: ส+ั+ต+์+ว",
+    "emoji": "🐾",
+    "grade": "ป.3",
+    "indicator_code": "ท 4.1 ป.2/1",
+    "item_type": "triyang",
+    "parts": "ส+ั+ต+์+ว"
+  },
+  {
+    "word": "ครู",
+    "reading": "ค+ร+ู",
+    "meaning": "ผู้สอน · ส่วนประกอบ: ค+ร+ู",
+    "emoji": "👩‍🏫",
+    "grade": "ป.3",
+    "indicator_code": "ท 4.1 ป.2/1",
+    "item_type": "triyang",
+    "parts": "ค+ร+ู"
+  },
+  {
+    "word": "น้ำ",
+    "reading": "น+้+ำ",
+    "meaning": "ของเหลว · ส่วนประกอบ: น+้+ำ",
+    "emoji": "💧",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "item_type": "triyang",
+    "parts": "น+้+ำ"
+  }
+]

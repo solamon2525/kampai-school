@@ -1,0 +1,82 @@
+[
+  {
+    "word": "่",
+    "reading": "ไม้เอก",
+    "meaning": "เสียงเอก (สามัญ) · ตัวอย่าง: ม้า → ม่า",
+    "emoji": "🎵",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "item_type": "tone",
+    "name": "ไม้เอก"
+  },
+  {
+    "word": "้",
+    "reading": "ไม้โท",
+    "meaning": "เสียงโท · ตัวอย่าง: มา → ม้า",
+    "emoji": "🎶",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "item_type": "tone",
+    "name": "ไม้โท"
+  },
+  {
+    "word": "๊",
+    "reading": "ไม้ตรี",
+    "meaning": "เสียงตรี · ตัวอย่าง: น้ำ → น้๊า",
+    "emoji": "🎼",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "item_type": "tone",
+    "name": "ไม้ตรี"
+  },
+  {
+    "word": "๋",
+    "reading": "ไม้จัตวา",
+    "meaning": "เสียงจัตวา · ตัวอย่าง: เมื่อ → เมื่อ๋",
+    "emoji": "🎹",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "item_type": "tone",
+    "name": "ไม้จัตวา"
+  },
+  {
+    "word": "็",
+    "reading": "ไม้ยักก์",
+    "meaning": "ตัดสระสั้น · ตัวอย่าง: เด็ก, แก็ต",
+    "emoji": "✂️",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "item_type": "tone",
+    "name": "ไม้ยักก์"
+  },
+  {
+    "word": "์",
+    "reading": "ไม้ยมก",
+    "meaning": "ไม่พูดพยัญชนะท้าย · ตัวอย่าง: ความ, คุณ",
+    "emoji": "🔕",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "item_type": "tone",
+    "name": "ไม้ยมก"
+  },
+  {
+    "word": "–",
+    "reading": "สระเอง",
+    "meaning": "ไม่มีวรรณยุกต์ · ตัวอย่าง: กา, มา",
+    "emoji": "➖",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "item_type": "tone",
+    "name": "สระเอง"
+  },
+  {
+    "word": "?",
+    "reading": "หลักเสียง",
+    "meaning": "ขึ้นกับหมู่อักษร+สระ · ตัวอย่าง: สูง+อา=เอก",
+    "emoji": "❓",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "item_type": "tone",
+    "name": "หลักเสียง"
+  }
+]

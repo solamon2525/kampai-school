@@ -1,0 +1,92 @@
+[
+  {
+    "word": "เ–ีย",
+    "reading": "สระ เอีย",
+    "meaning": "สระ เอีย · ตัวอย่าง: เกียว, เสียง",
+    "emoji": "🦋",
+    "grade": "ป.2",
+    "indicator_code": "ท 4.1 ป.2/1",
+    "item_type": "vowel-compound",
+    "name": "สระ เอีย"
+  },
+  {
+    "word": "เ–ือ",
+    "reading": "สระ เอือ",
+    "meaning": "สระ เอือ · ตัวอย่าง: เกือก, เรือ",
+    "emoji": "🌾",
+    "grade": "ป.2",
+    "indicator_code": "ท 4.1 ป.2/1",
+    "item_type": "vowel-compound",
+    "name": "สระ เอือ"
+  },
+  {
+    "word": "–ัว",
+    "reading": "สระ อัว",
+    "meaning": "สระ อัว · ตัวอย่าง: ควาย, งวง",
+    "emoji": "🌴",
+    "grade": "ป.2",
+    "indicator_code": "ท 4.1 ป.2/1",
+    "item_type": "vowel-compound",
+    "name": "สระ อัว"
+  },
+  {
+    "word": "เ–า",
+    "reading": "สระ เอา",
+    "meaning": "สระ เอา · ตัวอย่าง: เรา, เจ้า",
+    "emoji": "🤝",
+    "grade": "ป.2",
+    "indicator_code": "ท 4.1 ป.2/1",
+    "item_type": "vowel-compound",
+    "name": "สระ เอา"
+  },
+  {
+    "word": "–ั",
+    "reading": "สระ อั",
+    "meaning": "สระ อั · ตัวอย่าง: นัก, มัด",
+    "emoji": "📝",
+    "grade": "ป.2",
+    "indicator_code": "ท 4.1 ป.2/1",
+    "item_type": "vowel-compound",
+    "name": "สระ อั"
+  },
+  {
+    "word": "–็",
+    "reading": "ไม้ยักก์",
+    "meaning": "ไม้ยักก์ · ตัวอย่าง: เด็ก, แก็ต",
+    "emoji": "✏️",
+    "grade": "ป.2",
+    "indicator_code": "ท 4.1 ป.2/1",
+    "item_type": "vowel-compound",
+    "name": "ไม้ยักก์"
+  },
+  {
+    "word": "–์",
+    "reading": "ไม้ยมก",
+    "meaning": "ไม้ยมก · ตัวอย่าง: ความ, คุณ",
+    "emoji": "🔇",
+    "grade": "ป.2",
+    "indicator_code": "ท 4.1 ป.2/1",
+    "item_type": "vowel-compound",
+    "name": "ไม้ยมก"
+  },
+  {
+    "word": "–ื",
+    "reading": "สระ อือ",
+    "meaning": "สระ อือ · ตัวอย่าง: มือ, ชื่อ",
+    "emoji": "🌬️",
+    "grade": "ป.2",
+    "indicator_code": "ท 4.1 ป.2/1",
+    "item_type": "vowel-compound",
+    "name": "สระ อือ"
+  },
+  {
+    "word": "–ึ",
+    "reading": "สระ อึ",
+    "meaning": "สระ อึ · ตัวอย่าง: ึก, ืด",
+    "emoji": "🌫️",
+    "grade": "ป.2",
+    "indicator_code": "ท 4.1 ป.2/1",
+    "item_type": "vowel-compound",
+    "name": "สระ อึ"
+  }
+]

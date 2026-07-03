@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.136.0 (Thai Vocab Hub — grid span loop)',
+        version: 'v1.137.0 (Thai Script Hub — ไตรยางศ์ ป.1-4)',
         date: 'ล่าสุด',
+        badge: 'bg-amber-600',
+        items: [
+            '**คลังอักษรไทย** (`thai-script-hub`) — 12 หมวด 188 รายการ: พยัญชนะ 3 หมู่ สระ วรรณยุกต์ ไตรยางศ์',
+            '**ป.4** — อักษรนำ หลักออกเสียง มาตราสะกด ไตรยางศ์ขั้นสูง · โหมดทายหมู่/กฎ',
+            'scripts `seed-thai-script-data` + `build:script` · migration 290 · game_docs v1.0.0',
+        ],
+    },
+    {
+        version: 'v1.136.0 (Thai Vocab Hub — grid span loop)',
+        date: '',
         badge: 'bg-amber-600',
         items: [
             '**กริด span refit** — ResizeObserver ตอบสนองแค่ความกว้างกริดเปลี่ยน ไม่ refit เมื่อความสูงเปลี่ยนจากพลิกหลัง',

@@ -1,0 +1,152 @@
+[
+  {
+    "word": "ข",
+    "reading": "ขอ ไข่",
+    "meaning": "พยัญชนะสูง · ข ไข่ · ตัวอย่าง: ขา, ขัน, ข้าว",
+    "emoji": "🥚",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "high",
+    "item_type": "consonant",
+    "name": "ข ไข่",
+    "examples": [
+      "ขา",
+      "ขัน",
+      "ข้าว"
+    ]
+  },
+  {
+    "word": "ฉ",
+    "reading": "ฉอ ฉิ่ง",
+    "meaning": "พยัญชนะสูง · ฉ ฉิ่ง · ตัวอย่าง: ฉัน, ฉลาม",
+    "emoji": "🔔",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "high",
+    "item_type": "consonant",
+    "name": "ฉ ฉิ่ง",
+    "examples": [
+      "ฉัน",
+      "ฉลาม"
+    ]
+  },
+  {
+    "word": "ฐ",
+    "reading": "ฐอ ฐาน",
+    "meaning": "พยัญชนะสูง · ฐ ฐาน · ตัวอย่าง: ฐาน, ฐานะ",
+    "emoji": "🏛️",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "high",
+    "item_type": "consonant",
+    "name": "ฐ ฐาน",
+    "examples": [
+      "ฐาน",
+      "ฐานะ"
+    ]
+  },
+  {
+    "word": "ถ",
+    "reading": "ถอ ถุง",
+    "meaning": "พยัญชนะสูง · ถ ถุง · ตัวอย่าง: ถนน, ถัง",
+    "emoji": "👜",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "high",
+    "item_type": "consonant",
+    "name": "ถ ถุง",
+    "examples": [
+      "ถนน",
+      "ถัง"
+    ]
+  },
+  {
+    "word": "ผ",
+    "reading": "ผอ ผึ้ง",
+    "meaning": "พยัญชนะสูง · ผ ผึ้ง · ตัวอย่าง: ผึ้ง, ผลไม้",
+    "emoji": "🐝",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "high",
+    "item_type": "consonant",
+    "name": "ผ ผึ้ง",
+    "examples": [
+      "ผึ้ง",
+      "ผลไม้"
+    ]
+  },
+  {
+    "word": "ฝ",
+    "reading": "ฝอ ฝา",
+    "meaning": "พยัญชนะสูง · ฝ ฝา · ตัวอย่าง: ฝน, ฝา",
+    "emoji": "🌧️",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "high",
+    "item_type": "consonant",
+    "name": "ฝ ฝา",
+    "examples": [
+      "ฝน",
+      "ฝา"
+    ]
+  },
+  {
+    "word": "ศ",
+    "reading": "ศอ ศาลา",
+    "meaning": "พยัญชนะสูง · ศ ศาลา · ตัวอย่าง: ศาลา, ศิลป์",
+    "emoji": "🛖",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "high",
+    "item_type": "consonant",
+    "name": "ศ ศาลา",
+    "examples": [
+      "ศาลา",
+      "ศิลป์"
+    ]
+  },
+  {
+    "word": "ษ",
+    "reading": "สอ ฤๅษี",
+    "meaning": "พยัญชนะสูง · ษ ฤๅษี · ตัวอย่าง: ฤๅษี",
+    "emoji": "🧘",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "high",
+    "item_type": "consonant",
+    "name": "ษ ฤๅษี",
+    "examples": [
+      "ฤๅษี"
+    ]
+  },
+  {
+    "word": "ส",
+    "reading": "สอ เสือ",
+    "meaning": "พยัญชนะสูง · ส เสือ · ตัวอย่าง: สวน, เสือ",
+    "emoji": "🐯",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "high",
+    "item_type": "consonant",
+    "name": "ส เสือ",
+    "examples": [
+      "สวน",
+      "เสือ"
+    ]
+  },
+  {
+    "word": "ห",
+    "reading": "หอ หีบ",
+    "meaning": "พยัญชนะสูง · ห หีบ · ตัวอย่าง: หมา, หีบ",
+    "emoji": "📦",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "high",
+    "item_type": "consonant",
+    "name": "ห หีบ",
+    "examples": [
+      "หมา",
+      "หีบ"
+    ]
+  }
+]

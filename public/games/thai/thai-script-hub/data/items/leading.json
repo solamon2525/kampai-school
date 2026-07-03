@@ -1,0 +1,152 @@
+[
+  {
+    "word": "กบ",
+    "reading": "ก(กลาง)+บ(ต่ำ)",
+    "meaning": "กลางนำต่ำ · ก(กลาง)+บ(ต่ำ)",
+    "emoji": "🐸",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "leading",
+    "rule": "กลางนำต่ำ"
+  },
+  {
+    "word": "จาน",
+    "reading": "จ(กลาง)+าน",
+    "meaning": "กลางนำต่ำ · จ(กลาง)+าน",
+    "emoji": "🍽️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "leading",
+    "rule": "กลางนำต่ำ"
+  },
+  {
+    "word": "ขัน",
+    "reading": "ข(สูง)+ัน",
+    "meaning": "สูงนำต่ำ · ข(สูง)+ัน",
+    "emoji": "🪣",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "leading",
+    "rule": "สูงนำต่ำ"
+  },
+  {
+    "word": "นก",
+    "reading": "น(ต่ำ)+ก(กลาง)",
+    "meaning": "ต่ำนำกลาง · น(ต่ำ)+ก(กลาง)",
+    "emoji": "🐦",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "leading",
+    "rule": "ต่ำนำกลาง"
+  },
+  {
+    "word": "ครู",
+    "reading": "ค(ต่ำ)+รู",
+    "meaning": "ต่ำนำต่ำ · ค(ต่ำ)+รู",
+    "emoji": "👩‍🏫",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "leading",
+    "rule": "ต่ำนำต่ำ"
+  },
+  {
+    "word": "กรรม",
+    "reading": "ก(กลาง)+รร",
+    "meaning": "กลาง+คำควบ · ก(กลาง)+รร",
+    "emoji": "⚖️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "leading",
+    "rule": "กลาง+คำควบ"
+  },
+  {
+    "word": "ประเทศ",
+    "reading": "ป(กลาง)+ร(ต่ำ)",
+    "meaning": "กลางนำต่ำ · ป(กลาง)+ร(ต่ำ)",
+    "emoji": "🇹🇭",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "leading",
+    "rule": "กลางนำต่ำ"
+  },
+  {
+    "word": "สังคม",
+    "reading": "ส(สูง)+งคม",
+    "meaning": "สูงนำต่ำ · ส(สูง)+งคม",
+    "emoji": "👥",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "leading",
+    "rule": "สูงนำต่ำ"
+  },
+  {
+    "word": "ตระกร้า",
+    "reading": "ต(กลาง)+ร(ต่ำ)",
+    "meaning": "กลางนำต่ำ · ต(กลาง)+ร(ต่ำ)",
+    "emoji": "🧺",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "leading",
+    "rule": "กลางนำต่ำ"
+  },
+  {
+    "word": "กระดาน",
+    "reading": "ก(กลาง)+ร(ต่ำ)",
+    "meaning": "กลางนำต่ำ · ก(กลาง)+ร(ต่ำ)",
+    "emoji": "📋",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "leading",
+    "rule": "กลางนำต่ำ"
+  },
+  {
+    "word": "จักร",
+    "reading": "จ(กลาง)+ักร",
+    "meaning": "กลางนำต่ำ · จ(กลาง)+ักร",
+    "emoji": "⚙️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "leading",
+    "rule": "กลางนำต่ำ"
+  },
+  {
+    "word": "บัก",
+    "reading": "บ(กลาง)+ัก",
+    "meaning": "กลาง+มาตรากก · บ(กลาง)+ัก",
+    "emoji": "🌿",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "leading",
+    "rule": "กลาง+มาตรากก"
+  },
+  {
+    "word": "รัก",
+    "reading": "ร(ต่ำ)+ัก",
+    "meaning": "ต่ำ+มาตรากก · ร(ต่ำ)+ัก",
+    "emoji": "❤️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "leading",
+    "rule": "ต่ำ+มาตรากก"
+  },
+  {
+    "word": "จัด",
+    "reading": "จ(กลาง)+ัด",
+    "meaning": "กลาง+มาตรากด · จ(กลาง)+ัด",
+    "emoji": "📦",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "leading",
+    "rule": "กลาง+มาตรากด"
+  },
+  {
+    "word": "จับ",
+    "reading": "จ(กลาง)+ับ",
+    "meaning": "กลาง+มาตรากบ · จ(กลาง)+ับ",
+    "emoji": "🤲",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "leading",
+    "rule": "กลาง+มาตรากบ"
+  }
+]

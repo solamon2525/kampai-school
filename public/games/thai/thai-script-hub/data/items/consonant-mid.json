@@ -1,0 +1,136 @@
+[
+  {
+    "word": "ก",
+    "reading": "กอ ไก่",
+    "meaning": "พยัญชนะกลาง · ก ไก่ · ตัวอย่าง: กา, กบ, ไก่",
+    "emoji": "🐔",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "mid",
+    "item_type": "consonant",
+    "name": "ก ไก่",
+    "examples": [
+      "กา",
+      "กบ",
+      "ไก่"
+    ]
+  },
+  {
+    "word": "จ",
+    "reading": "จอ จาน",
+    "meaning": "พยัญชนะกลาง · จ จาน · ตัวอย่าง: จาน, จักร",
+    "emoji": "🍽️",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "mid",
+    "item_type": "consonant",
+    "name": "จ จาน",
+    "examples": [
+      "จาน",
+      "จักร"
+    ]
+  },
+  {
+    "word": "ฎ",
+    "reading": "ดอ ชฎา",
+    "meaning": "พยัญชนะกลาง · ฎ ชฎา · ตัวอย่าง: ชฎา",
+    "emoji": "👑",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "mid",
+    "item_type": "consonant",
+    "name": "ฎ ชฎา",
+    "examples": [
+      "ชฎา"
+    ]
+  },
+  {
+    "word": "ฏ",
+    "reading": "ตอ ปฏัก",
+    "meaning": "พยัญชนะกลาง · ฏ ปฏัก · ตัวอย่าง: ปฏัก",
+    "emoji": "🔱",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "mid",
+    "item_type": "consonant",
+    "name": "ฏ ปฏัก",
+    "examples": [
+      "ปฏัก"
+    ]
+  },
+  {
+    "word": "ด",
+    "reading": "ดอ เด็ก",
+    "meaning": "พยัญชนะกลาง · ด เด็ก · ตัวอย่าง: เด็ก, ดิน",
+    "emoji": "👶",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "mid",
+    "item_type": "consonant",
+    "name": "ด เด็ก",
+    "examples": [
+      "เด็ก",
+      "ดิน"
+    ]
+  },
+  {
+    "word": "ต",
+    "reading": "ตอ เต่า",
+    "meaning": "พยัญชนะกลาง · ต เต่า · ตัวอย่าง: เต่า, ตา",
+    "emoji": "🐢",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "mid",
+    "item_type": "consonant",
+    "name": "ต เต่า",
+    "examples": [
+      "เต่า",
+      "ตา"
+    ]
+  },
+  {
+    "word": "บ",
+    "reading": "บอ ใบไม้",
+    "meaning": "พยัญชนะกลาง · บ ใบไม้ · ตัวอย่าง: บ้าน, ใบไม้",
+    "emoji": "🍃",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "mid",
+    "item_type": "consonant",
+    "name": "บ ใบไม้",
+    "examples": [
+      "บ้าน",
+      "ใบไม้"
+    ]
+  },
+  {
+    "word": "ป",
+    "reading": "ปอ ปลา",
+    "meaning": "พยัญชนะกลาง · ป ปลา · ตัวอย่าง: ปลา, ปู",
+    "emoji": "🐟",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "mid",
+    "item_type": "consonant",
+    "name": "ป ปลา",
+    "examples": [
+      "ปลา",
+      "ปู"
+    ]
+  },
+  {
+    "word": "อ",
+    "reading": "ออ อ่าง",
+    "meaning": "พยัญชนะกลาง · อ อ่าง · ตัวอย่าง: อ่าง, อาหาร",
+    "emoji": "🪣",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "mid",
+    "item_type": "consonant",
+    "name": "อ อ่าง",
+    "examples": [
+      "อ่าง",
+      "อาหาร"
+    ]
+  }
+]

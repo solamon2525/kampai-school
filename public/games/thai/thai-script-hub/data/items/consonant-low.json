@@ -1,0 +1,348 @@
+[
+  {
+    "word": "ค",
+    "reading": "คอ ควาย",
+    "meaning": "พยัญชนะต่ำ · ค ควาย · ตัวอย่าง: ควาย, ครู",
+    "emoji": "🐃",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "low",
+    "item_type": "consonant",
+    "name": "ค ควาย",
+    "examples": [
+      "ควาย",
+      "ครู"
+    ]
+  },
+  {
+    "word": "ฅ",
+    "reading": "คอ คน",
+    "meaning": "พยัญชนะต่ำ · ฅ คน · ตัวอย่าง: คน",
+    "emoji": "👤",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "low",
+    "item_type": "consonant",
+    "name": "ฅ คน",
+    "examples": [
+      "คน"
+    ]
+  },
+  {
+    "word": "ฆ",
+    "reading": "คอ ระฆัง",
+    "meaning": "พยัญชนะต่ำ · ฆ ระฆัง · ตัวอย่าง: ระฆัง",
+    "emoji": "🔔",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "low",
+    "item_type": "consonant",
+    "name": "ฆ ระฆัง",
+    "examples": [
+      "ระฆัง"
+    ]
+  },
+  {
+    "word": "ง",
+    "reading": "งอ งู",
+    "meaning": "พยัญชนะต่ำ · ง งู · ตัวอย่าง: งู, งาน",
+    "emoji": "🐍",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "low",
+    "item_type": "consonant",
+    "name": "ง งู",
+    "examples": [
+      "งู",
+      "งาน"
+    ]
+  },
+  {
+    "word": "ช",
+    "reading": "ชอ ช้าง",
+    "meaning": "พยัญชนะต่ำ · ช ช้าง · ตัวอย่าง: ช้าง, ชาย",
+    "emoji": "🐘",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "low",
+    "item_type": "consonant",
+    "name": "ช ช้าง",
+    "examples": [
+      "ช้าง",
+      "ชาย"
+    ]
+  },
+  {
+    "word": "ซ",
+    "reading": "ซอ โซ่",
+    "meaning": "พยัญชนะต่ำ · ซ โซ่ · ตัวอย่าง: โซ่",
+    "emoji": "⛓️",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "low",
+    "item_type": "consonant",
+    "name": "ซ โซ่",
+    "examples": [
+      "โซ่"
+    ]
+  },
+  {
+    "word": "ฌ",
+    "reading": "ชอ เฌอ",
+    "meaning": "พยัญชนะต่ำ · ฌ เฌอ · ตัวอย่าง: เฌอ",
+    "emoji": "🌳",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "low",
+    "item_type": "consonant",
+    "name": "ฌ เฌอ",
+    "examples": [
+      "เฌอ"
+    ]
+  },
+  {
+    "word": "ญ",
+    "reading": "ยอ หญิง",
+    "meaning": "พยัญชนะต่ำ · ญ หญิง · ตัวอย่าง: หญิง",
+    "emoji": "👩",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "low",
+    "item_type": "consonant",
+    "name": "ญ หญิง",
+    "examples": [
+      "หญิง"
+    ]
+  },
+  {
+    "word": "ฑ",
+    "reading": "ทอ มณโฑ",
+    "meaning": "พยัญชนะต่ำ · ฑ มณโฑ · ตัวอย่าง: มณโฑ",
+    "emoji": "👸",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "low",
+    "item_type": "consonant",
+    "name": "ฑ มณโฑ",
+    "examples": [
+      "มณโฑ"
+    ]
+  },
+  {
+    "word": "ฒ",
+    "reading": "ทอ ผู้เฒ่า",
+    "meaning": "พยัญชนะต่ำ · ฒ ผู้เฒ่า · ตัวอย่าง: ผู้เฒ่า",
+    "emoji": "👴",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "low",
+    "item_type": "consonant",
+    "name": "ฒ ผู้เฒ่า",
+    "examples": [
+      "ผู้เฒ่า"
+    ]
+  },
+  {
+    "word": "ณ",
+    "reading": "นอ เณร",
+    "meaning": "พยัญชนะต่ำ · ณ เณร · ตัวอย่าง: เณร",
+    "emoji": "🙏",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "low",
+    "item_type": "consonant",
+    "name": "ณ เณร",
+    "examples": [
+      "เณร"
+    ]
+  },
+  {
+    "word": "ท",
+    "reading": "ทอ ทหาร",
+    "meaning": "พยัญชนะต่ำ · ท ทหาร · ตัวอย่าง: ทหาร, ทาง",
+    "emoji": "🪖",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "low",
+    "item_type": "consonant",
+    "name": "ท ทหาร",
+    "examples": [
+      "ทหาร",
+      "ทาง"
+    ]
+  },
+  {
+    "word": "ธ",
+    "reading": "ทอ ธง",
+    "meaning": "พยัญชนะต่ำ · ธ ธง · ตัวอย่าง: ธง",
+    "emoji": "🚩",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "low",
+    "item_type": "consonant",
+    "name": "ธ ธง",
+    "examples": [
+      "ธง"
+    ]
+  },
+  {
+    "word": "น",
+    "reading": "นอ หนู",
+    "meaning": "พยัญชนะต่ำ · น หนู · ตัวอย่าง: หนู, นก",
+    "emoji": "🐭",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "low",
+    "item_type": "consonant",
+    "name": "น หนู",
+    "examples": [
+      "หนู",
+      "นก"
+    ]
+  },
+  {
+    "word": "พ",
+    "reading": "พอ พาน",
+    "meaning": "พยัญชนะต่ำ · พ พาน · ตัวอย่าง: พาน, พ่อ",
+    "emoji": "🏺",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "low",
+    "item_type": "consonant",
+    "name": "พ พาน",
+    "examples": [
+      "พาน",
+      "พ่อ"
+    ]
+  },
+  {
+    "word": "ฟ",
+    "reading": "ฟอ ฟัน",
+    "meaning": "พยัญชนะต่ำ · ฟ ฟัน · ตัวอย่าง: ฟัน",
+    "emoji": "🦷",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "low",
+    "item_type": "consonant",
+    "name": "ฟ ฟัน",
+    "examples": [
+      "ฟัน"
+    ]
+  },
+  {
+    "word": "ภ",
+    "reading": "พอ สำเภา",
+    "meaning": "พยัญชนะต่ำ · ภ สำเภา · ตัวอย่าง: สำเภา",
+    "emoji": "⛵",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "low",
+    "item_type": "consonant",
+    "name": "ภ สำเภา",
+    "examples": [
+      "สำเภา"
+    ]
+  },
+  {
+    "word": "ม",
+    "reading": "มอ ม้า",
+    "meaning": "พยัญชนะต่ำ · ม ม้า · ตัวอย่าง: ม้า, แม่",
+    "emoji": "🐴",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "low",
+    "item_type": "consonant",
+    "name": "ม ม้า",
+    "examples": [
+      "ม้า",
+      "แม่"
+    ]
+  },
+  {
+    "word": "ย",
+    "reading": "ยอ ยักษ์",
+    "meaning": "พยัญชนะต่ำ · ย ยักษ์ · ตัวอย่าง: ยักษ์",
+    "emoji": "👹",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "low",
+    "item_type": "consonant",
+    "name": "ย ยักษ์",
+    "examples": [
+      "ยักษ์"
+    ]
+  },
+  {
+    "word": "ร",
+    "reading": "รอ เรือ",
+    "meaning": "พยัญชนะต่ำ · ร เรือ · ตัวอย่าง: เรือ, รถ",
+    "emoji": "🚢",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "low",
+    "item_type": "consonant",
+    "name": "ร เรือ",
+    "examples": [
+      "เรือ",
+      "รถ"
+    ]
+  },
+  {
+    "word": "ล",
+    "reading": "ลอ ลิง",
+    "meaning": "พยัญชนะต่ำ · ล ลิง · ตัวอย่าง: ลิง, ลม",
+    "emoji": "🐒",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "low",
+    "item_type": "consonant",
+    "name": "ล ลิง",
+    "examples": [
+      "ลิง",
+      "ลม"
+    ]
+  },
+  {
+    "word": "ว",
+    "reading": "วอ แหวน",
+    "meaning": "พยัญชนะต่ำ · ว แหวน · ตัวอย่าง: แหวน, วัน",
+    "emoji": "💍",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "low",
+    "item_type": "consonant",
+    "name": "ว แหวน",
+    "examples": [
+      "แหวน",
+      "วัน"
+    ]
+  },
+  {
+    "word": "ฬ",
+    "reading": "ลอ จุฬา",
+    "meaning": "พยัญชนะต่ำ · ฬ จุฬา · ตัวอย่าง: จุฬา",
+    "emoji": "🪁",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "low",
+    "item_type": "consonant",
+    "name": "ฬ จุฬา",
+    "examples": [
+      "จุฬา"
+    ]
+  },
+  {
+    "word": "ฮ",
+    "reading": "ฮอ นกฮูก",
+    "meaning": "พยัญชนะต่ำ · ฮ นกฮูก · ตัวอย่าง: นกฮูก",
+    "emoji": "🦉",
+    "grade": "ป.1",
+    "indicator_code": "ท 4.1 ป.1/1",
+    "char_class": "low",
+    "item_type": "consonant",
+    "name": "ฮ นกฮูก",
+    "examples": [
+      "นกฮูก"
+    ]
+  }
+]

@@ -1,0 +1,152 @@
+[
+  {
+    "word": "ก+า",
+    "reading": "กลาง+อา",
+    "meaning": "ได้เสียง: อ่า (สามัญ)",
+    "emoji": "🟡",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "tone-rule",
+    "tone_result": "อ่า (สามัญ)"
+  },
+  {
+    "word": "ข+า",
+    "reading": "สูง+อา",
+    "meaning": "ได้เสียง: ข่า (เอก)",
+    "emoji": "🔴",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "tone-rule",
+    "tone_result": "ข่า (เอก)"
+  },
+  {
+    "word": "ค+า",
+    "reading": "ต่ำ+อา",
+    "meaning": "ได้เสียง: คา (สามัญ)",
+    "emoji": "🔵",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "tone-rule",
+    "tone_result": "คา (สามัญ)"
+  },
+  {
+    "word": "ด+า",
+    "reading": "กลาง+อา",
+    "meaning": "ได้เสียง: ดา (สามัญ)",
+    "emoji": "🟡",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "tone-rule",
+    "tone_result": "ดา (สามัญ)"
+  },
+  {
+    "word": "ท+า",
+    "reading": "ต่ำ+อา",
+    "meaning": "ได้เสียง: ทา (สามัญ)",
+    "emoji": "🔵",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "tone-rule",
+    "tone_result": "ทา (สามัญ)"
+  },
+  {
+    "word": "บ+า",
+    "reading": "กลาง+อา",
+    "meaning": "ได้เสียง: บา (สามัญ)",
+    "emoji": "🟡",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "tone-rule",
+    "tone_result": "บา (สามัญ)"
+  },
+  {
+    "word": "ม+า+้",
+    "reading": "กลาง+อา+โท",
+    "meaning": "ได้เสียง: ม้า (โท)",
+    "emoji": "🟡",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "tone-rule",
+    "tone_result": "ม้า (โท)"
+  },
+  {
+    "word": "ช+า+้",
+    "reading": "ต่ำ+อา+โท",
+    "meaning": "ได้เสียง: ช้าง (โท)",
+    "emoji": "🔵",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "tone-rule",
+    "tone_result": "ช้าง (โท)"
+  },
+  {
+    "word": "ผ+า",
+    "reading": "สูง+อา",
+    "meaning": "ได้เสียง: ผ่า (เอก)",
+    "emoji": "🔴",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "tone-rule",
+    "tone_result": "ผ่า (เอก)"
+  },
+  {
+    "word": "ห+ม+า",
+    "reading": "สูง+มา",
+    "meaning": "ได้เสียง: หมา (เอก)",
+    "emoji": "🔴",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "tone-rule",
+    "tone_result": "หมา (เอก)"
+  },
+  {
+    "word": "น+า",
+    "reading": "ต่ำ+อา",
+    "meaning": "ได้เสียง: นา (สามัญ)",
+    "emoji": "🔵",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "tone-rule",
+    "tone_result": "นา (สามัญ)"
+  },
+  {
+    "word": "ร+า",
+    "reading": "ต่ำ+อา",
+    "meaning": "ได้เสียง: รา (สามัญ)",
+    "emoji": "🔵",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "tone-rule",
+    "tone_result": "รา (สามัญ)"
+  },
+  {
+    "word": "ส+า",
+    "reading": "สูง+อา",
+    "meaning": "ได้เสียง: ส่า (เอก)",
+    "emoji": "🔴",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "tone-rule",
+    "tone_result": "ส่า (เอก)"
+  },
+  {
+    "word": "ป+า",
+    "reading": "กลาง+อา",
+    "meaning": "ได้เสียง: ปา (สามัญ)",
+    "emoji": "🟡",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "tone-rule",
+    "tone_result": "ปา (สามัญ)"
+  },
+  {
+    "word": "ต+า",
+    "reading": "กลาง+อา",
+    "meaning": "ได้เสียง: ตา (สามัญ)",
+    "emoji": "🟡",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "item_type": "tone-rule",
+    "tone_result": "ตา (สามัญ)"
+  }
+]
