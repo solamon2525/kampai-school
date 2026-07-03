@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.134.0 (KampaiHands restart + AR tuning log)',
+        version: 'v1.135.0 (Thai Vocab Hub — TTS lifecycle)',
         date: 'ล่าสุด',
+        badge: 'bg-amber-600',
+        items: [
+            '**disposeGameSession** — หยุด TTS + autoplay เมื่อ goHome / กลับ hub / ซ่อนแท็บ / parent navigate',
+            '**speechGen** — ยกเลิกลำดับอ่าน (`setTimeout`) ค้างหลัง cancelSpeech · debounce ResizeObserver กริด',
+            'autoplay scrollIntoView เฉพาะการ์ดนอกจอ · migration 288 · game_docs v1.7.2',
+        ],
+    },
+    {
+        version: 'v1.134.0 (KampaiHands restart + AR tuning log)',
+        date: '',
         badge: 'bg-violet-600',
         items: [
             '**KampaiHands v1.3.1** — `stop()` ปล่อย camera tracks + `srcObject=null` · `start()` teardown ก่อนเปิดใหม่ · `set mode()`',

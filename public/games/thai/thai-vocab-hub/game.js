@@ -25,6 +25,10 @@ let autoplayPauseMs = 1500;
 let autoReadMode = 'full';
 let autoFlipEnabled = true;
 let autoSoundEnabled = true;
+let speechGen = 0;
+let speechGapTimer = null;
+let speechStartTimer = null;
+let gridSpanResizeTimer = null;
 
 // Flash deck (โหมดสุ่มการ์ด)
 let flashDeck = [];
@@ -329,16 +333,32 @@ function adjustAllFlippedGridBackExpands() {
 
 let gridSpanResizeObs = null;
 
+function unbindGridSpanResizeObserver() {
+  if (gridSpanResizeObs) {
+    gridSpanResizeObs.disconnect();
+    gridSpanResizeObs = null;
+  }
+  if (gridSpanResizeTimer) {
+    clearTimeout(gridSpanResizeTimer);
+    gridSpanResizeTimer = null;
+  }
+}
+
 function bindGridSpanResizeObserver() {
   const grid = document.getElementById('words-grid');
-  if (!grid || gridSpanResizeObs) return;
-  gridSpanResizeObs = new ResizeObserver(() => {
-    if (currentMode === 'auto') {
-      fitGridWordSpans();
-      adjustAllFlippedGridBackExpands();
-    }
-  });
-  gridSpanResizeObs.observe(grid);
+  if (!grid) return;
+  if (!gridSpanResizeObs) {
+    gridSpanResizeObs = new ResizeObserver(() => {
+      if (currentMode !== 'auto') return;
+      clearTimeout(gridSpanResizeTimer);
+      gridSpanResizeTimer = setTimeout(() => {
+        gridSpanResizeTimer = null;
+        fitGridWordSpans();
+        adjustAllFlippedGridBackExpands();
+      }, 150);
+    });
+    gridSpanResizeObs.observe(grid);
+  }
 }
 
 function updateGridSizePickerUI() {
@@ -586,6 +606,8 @@ KAMPAI.onReady((sdk) => {
     }
 
     mountFontSizeSlider();
+    patchKampaiExit();
+    bindPageLifecycleCleanup();
   } catch (e) {
     /* เสียง/ชิป/SDK ล้ม ต้องไม่ทำให้เกมเล่นไม่ได้ */
   }
@@ -751,6 +773,7 @@ function switchMode(mode) {
 
 function renderWordsGrid() {
   const grid = document.getElementById('words-grid');
+  cancelSpeech();
   grid.innerHTML = '';
   gridDisplayWords = getGridDisplayWords();
 
@@ -1485,8 +1508,57 @@ function selectMatch(id, cardElement, side) {
 // ═══ WEB SPEECH TEXT-TO-SPEECH (ภาษาไทย) ═══
 
 function cancelSpeech() {
+  speechGen += 1;
+  if (speechGapTimer) {
+    clearTimeout(speechGapTimer);
+    speechGapTimer = null;
+  }
+  if (speechStartTimer) {
+    clearTimeout(speechStartTimer);
+    speechStartTimer = null;
+  }
   if ('speechSynthesis' in window) window.speechSynthesis.cancel();
   if (KAMPAI.sound && KAMPAI.sound.stopSpeak) KAMPAI.sound.stopSpeak();
+}
+
+/** หยุด TTS + autoplay + timer ทั้งหมด (ออกจากหน้า / ซ่อนแท็บ / กลับ hub) */
+function stopAllMediaAndTimers() {
+  stopAutoplay();
+  cancelSpeech();
+  clearAutoplayTimers();
+}
+
+function disposeGameSession() {
+  stopAllMediaAndTimers();
+  unbindGridSpanResizeObserver();
+  document.querySelectorAll('.grid-flip-card').forEach((c) => {
+    c.classList.remove('flipped', 'grid-flip-card--expand-back', 'autoplay-active');
+    c.style.removeProperty('--grid-expand-h');
+  });
+}
+
+function patchKampaiExit() {
+  if (patchKampaiExit.done) return;
+  patchKampaiExit.done = true;
+  const wrap = (fn) => function wrappedExit() {
+    disposeGameSession();
+    return fn && fn.apply(this, arguments);
+  };
+  if (typeof KAMPAI.goHome === 'function') KAMPAI.goHome = wrap(KAMPAI.goHome);
+  if (typeof KAMPAI.exit === 'function') KAMPAI.exit = wrap(KAMPAI.exit);
+}
+
+function bindPageLifecycleCleanup() {
+  if (bindPageLifecycleCleanup.done) return;
+  bindPageLifecycleCleanup.done = true;
+  const onHide = () => disposeGameSession();
+  window.addEventListener('pagehide', onHide);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') onHide();
+  });
+  window.addEventListener('message', (e) => {
+    if (e.data && e.data.type === 'navigate') disposeGameSession();
+  });
 }
 
 /** อ่านภาษาไทยพร้อม callback เมื่อจบ (ใช้กับอ่านอัตโนมัติ) */
@@ -1496,15 +1568,27 @@ function speakThaiAsync(text, onDone, cancelFirst) {
 
   if (!('speechSynthesis' in window)) { if (onDone) onDone(); return; }
 
-  const done = () => { if (onDone) onDone(); };
+  const gen = speechGen;
+  const done = () => {
+    if (gen !== speechGen) return;
+    if (onDone) onDone();
+  };
   try {
-    if (cancelFirst !== false) window.speechSynthesis.cancel();
+    if (cancelFirst !== false) {
+      if (speechStartTimer) {
+        clearTimeout(speechStartTimer);
+        speechStartTimer = null;
+      }
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    }
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'th-TH';
     utterance.rate = 0.82;
     utterance.onend = done;
     utterance.onerror = done;
-    setTimeout(() => {
+    speechStartTimer = setTimeout(() => {
+      speechStartTimer = null;
+      if (gen !== speechGen) return;
       try { window.speechSynthesis.speak(utterance); } catch (_) { done(); }
     }, cancelFirst !== false ? 80 : 40);
   } catch (_) {
@@ -1515,11 +1599,19 @@ function speakThaiAsync(text, onDone, cancelFirst) {
 function speakThaiSequence(texts, onDone) {
   const list = (texts || []).filter(Boolean);
   if (!list.length) { if (onDone) onDone(); return; }
+  const gen = speechGen;
   let i = 0;
   const next = () => {
+    if (gen !== speechGen) return;
     if (i >= list.length) { if (onDone) onDone(); return; }
     const t = list[i++];
-    speakThaiAsync(t, () => setTimeout(next, 220), i === 1);
+    speakThaiAsync(t, () => {
+      if (gen !== speechGen) return;
+      speechGapTimer = setTimeout(() => {
+        speechGapTimer = null;
+        next();
+      }, 220);
+    }, i === 1);
   };
   next();
 }
@@ -1531,12 +1623,7 @@ function speakThai(text) {
 // ═══ NAVIGATION & HUD ═══
 
 function returnToHub() {
-  // หยุดเสียงพูดและการเล่นอัตโนมัติ
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel();
-  }
-  if (KAMPAI.sound && KAMPAI.sound.stopSpeak) KAMPAI.sound.stopSpeak();
-  stopAutoplay();
+  disposeGameSession();
   document.getElementById('hub-view').style.display = 'flex';
   document.getElementById('topic-view').style.display = 'none';
   document.getElementById('gameover-screen').style.display = 'none';
@@ -1568,10 +1655,7 @@ function recordAnswer(wordItem, correct) {
 
 // สรุปจบรอบฝึก (คลังสื่อ — ไม่ส่งคะแนนขึ้นระบบ)
 function endGame() {
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel();
-  }
-  stopAutoplay();
+  stopAllMediaAndTimers();
 
   const total = sessionTotal;
   const correct = sessionCorrect;
@@ -1819,6 +1903,12 @@ function buildAutoplayTexts(item, side) {
   return texts;
 }
 
+function isGridCardInView(card) {
+  const r = card.getBoundingClientRect();
+  const vh = window.innerHeight || document.documentElement.clientHeight;
+  return r.top >= -8 && r.bottom <= vh + 8;
+}
+
 function highlightAutoplayCard(idx) {
   document.querySelectorAll('.grid-flip-card').forEach((c, i) => {
     c.classList.toggle('autoplay-active', i === idx);
@@ -1884,7 +1974,9 @@ function runAutoplayStep(forcedGen) {
   if (card) {
     card.classList.remove('flipped');
     resetGridCardBackExpand(card);
-    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    if (!isGridCardInView(card)) {
+      card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
   }
 
   let finished = false;
@@ -1951,6 +2043,8 @@ function toggleAutoplay() {
 
 function startAutoplay() {
   if (currentMode !== 'auto' || !gridDisplayWords.length) return;
+  clearAutoplayTimers();
+  cancelSpeech();
   isAutoplayActive = true;
   autoplayPaused = false;
   autoplayGen += 1;
@@ -1994,6 +2088,8 @@ function resumeAutoplay() {
 }
 
 loadAutoplayPrefs();
+bindPageLifecycleCleanup();
+patchKampaiExit();
 
 // ═══ KEYBOARD CONTROLS ═══
 // ทบทวน: ← → เปลี่ยนคำ, Space พลิกการ์ด · ทายความหมาย: 1-4 เลือกตัวเลือก
