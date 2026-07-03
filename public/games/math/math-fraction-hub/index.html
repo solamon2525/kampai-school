@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <script src="/games/kampai-sdk.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สื่อการสอนคณิตศาสตร์ — เศษส่วน ป.4</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background: linear-gradient(135deg, #fdba74 0%, #fde68a 45%, #fed7aa 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+        .main-container {
+            width: 100%;
+            max-width: 1152px;
+            background: rgba(255,255,255,0.96);
+            backdrop-filter: blur(4px);
+            border-radius: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.5);
+            height: 90vh;
+            min-height: 600px;
+        }
+        @media (min-width: 768px) {
+            .main-container { flex-direction: row; height: 85vh; }
+        }
+        .sidebar {
+            background: #9a3412;
+            color: #fff;
+            padding: 24px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 12px rgba(0,0,0,0.15);
+            z-index: 10;
+            flex-shrink: 0;
+        }
+        @media (min-width: 768px) {
+            .sidebar { width: 320px; padding: 32px; }
+        }
+        .sidebar h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .field-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #fed7aa;
+            margin-bottom: 8px;
+        }
+        .field-group { margin-bottom: 16px; }
+        .field-group.grow { flex-grow: 1; }
+        .input-field, .select-field {
+            width: 100%;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(253,186,116,0.35);
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #fff;
+            outline: none;
+            transition: all 0.2s;
+            appearance: none;
+        }
+        .input-field:focus, .select-field:focus {
+            box-shadow: 0 0 0 4px rgba(251,146,60,0.45);
+            background: rgba(255,255,255,0.18);
+        }
+        .select-field option { color: #1e293b; }
+        .frac-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .frac-row.hidden { display: none; }
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+        .btn-group { display: flex; flex-direction: column; gap: 12px; }
+        .btn {
+            width: 100%;
+            font-family: 'Sarabun', sans-serif;
+            font-weight: 700;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-size: 1.25rem;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .btn:hover { transform: translateY(-3px); }
+        .btn:active { transform: translateY(0); }
+        .btn-random { background: #f59e0b; color: #fff; box-shadow: 0 8px 16px rgba(245,158,11,0.3); }
+        .btn-answer { background: #10b981; color: #fff; box-shadow: 0 8px 16px rgba(16,185,129,0.3); }
+        .btn-fullscreen { background: #334155; color: #fff; }
+        .btn-back {
+            background: rgba(255,255,255,0.1);
+            color: #fed7aa;
+            font-size: 1rem;
+            padding: 10px 16px;
+            border: 1px solid rgba(253,186,116,0.35);
+            text-decoration: none;
+            text-align: center;
+        }
+        .display-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            position: relative;
+            background: radial-gradient(ellipse at center, #fff7ed 0%, #ffffff 100%);
+            overflow-y: auto;
+        }
+        .main-title {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            padding: 0 16px;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #c2410c;
+        }
+        @media (min-width: 768px) { .main-title { font-size: 2.25rem; } }
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 640px;
+            margin-top: 56px;
+            gap: 16px;
+        }
+        .question-text {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #ea580c;
+            text-align: center;
+            line-height: 1.2;
+        }
+        @media (min-width: 768px) { .question-text { font-size: 3.5rem; } }
+        .bar-wrap {
+            width: 100%;
+            max-width: 520px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+        }
+        .bar-label {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #64748b;
+        }
+        .frac-bar {
+            display: flex;
+            width: 100%;
+            height: 48px;
+            border: 3px solid #fdba74;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fff;
+        }
+        .frac-seg {
+            flex: 1;
+            border-right: 2px solid #fdba74;
+            background: #fff7ed;
+            transition: background 0.3s;
+        }
+        .frac-seg:last-child { border-right: none; }
+        .frac-seg.filled { background: linear-gradient(180deg, #fb923c, #ea580c); }
+        .compare-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+        }
+        .bounce-arrow {
+            font-size: 2.5rem;
+            color: #94a3b8;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-12px); }
+            60% { transform: translateY(-6px); }
+        }
+        .answer-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        .answer-container.show {
+            display: flex;
+            animation: fadeInUp 0.45s ease-out forwards;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .result-text {
+            font-size: 2.75rem;
+            font-weight: 700;
+            color: #059669;
+            text-align: center;
+        }
+        @media (min-width: 768px) { .result-text { font-size: 3.5rem; } }
+        .explain-box {
+            font-size: 1.125rem;
+            margin-top: 16px;
+            color: #334155;
+            text-align: center;
+            font-weight: 500;
+            background: #ecfdf5;
+            padding: 16px 24px;
+            border-radius: 16px;
+            border: 1px solid #d1fae5;
+            line-height: 1.75;
+            width: 100%;
+        }
+        .placeholder-text {
+            font-size: 1.35rem;
+            color: #cbd5e1;
+            font-weight: 500;
+            padding: 24px 0;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+        .placeholder-text.hidden { display: none; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .footer {
+            position: absolute;
+            bottom: 16px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+        }
+        .footer span {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #94a3b8;
+            background: rgba(255,255,255,0.85);
+            padding: 8px 20px;
+            border-radius: 9999px;
+            border: 1px solid #f1f5f9;
+        }
+        .c-orange { color: #ea580c; font-weight: 700; }
+        .c-emerald { color: #059669; font-weight: 700; }
+        .c-slate { color: #64748b; }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="sidebar">
+            <a href="#" class="btn btn-back" id="btnBack" style="margin-bottom:16px;">← กลับคลังสื่อ</a>
+            <h2><span>🍕</span> แผงควบคุม</h2>
+
+            <div class="field-group">
+                <label for="topic" class="field-label">เรื่องที่สอน</label>
+                <select id="topic" class="select-field">
+                    <option value="bar">📊 แท่งเศษส่วน</option>
+                    <option value="compare">⚖️ เทียบเศษส่วน</option>
+                    <option value="add">➕ บวกตัวสะดาด</option>
+                    <option value="subtract">➖ ลบตัวสะดาด</option>
+                    <option value="whole">🔢 จำนวนเต็ม + เศษส่วน</option>
+                </select>
+            </div>
+
+            <div class="field-group frac-row" id="manualBar">
+                <div>
+                    <label for="num" class="field-label">ตัวเศษ</label>
+                    <input type="number" id="num" min="0" max="20" value="3" class="input-field">
+                </div>
+                <div>
+                    <label for="den" class="field-label">ตัวส่วน</label>
+                    <input type="number" id="den" min="2" max="12" value="4" class="input-field">
+                </div>
+            </div>
+
+            <div class="field-group grow">
+                <label for="level" class="field-label">ระดับการสุ่ม</label>
+                <select id="level" class="select-field">
+                    <option value="easy">🌱 ง่าย (ตัวส่วน 2–5)</option>
+                    <option value="mid">📘 ป.4 (ตัวส่วน 2–8)</option>
+                    <option value="hard">🔥 ท้าทาย (ตัวส่วน 2–12)</option>
+                </select>
+            </div>
+
+            <div class="btn-group">
+                <button type="button" onclick="randomProblem()" class="btn btn-random">🎲 สุ่มโจทย์</button>
+                <button type="button" onclick="showAnswer()" class="btn btn-answer">✅ แสดงเฉลย</button>
+                <button type="button" onclick="toggleFullscreen()" class="btn btn-fullscreen">🖥️ เต็มจอ</button>
+            </div>
+        </div>
+
+        <div class="display-area">
+            <h1 id="mainTitle" class="main-title">แท่งเศษส่วน — ส่วนที่แบ่งเท่า ๆ</h1>
+            <div class="content-area">
+                <div id="questionText" class="question-text">3/4</div>
+                <div id="visualArea" class="bar-wrap"></div>
+                <div class="bounce-arrow">↓</div>
+                <div id="answerContainer" class="answer-container">
+                    <div id="result" class="result-text">3/4</div>
+                    <div id="explain" class="explain-box"></div>
+                </div>
+                <div id="placeholder" class="placeholder-text">กด "แสดงเฉลย" เพื่อดูคำอธิบาย</div>
+            </div>
+            <div class="footer"><span>🏫 สื่อเศษส่วน ป.4 — คลังสื่อการสอน</span></div>
+        </div>
+    </div>
+
+    <script>
+        const GAME_SLUG = 'math-fraction-hub';
+        if (window.KAMPAI) {
+            window.KAMPAI.setSlug(GAME_SLUG);
+        }
+
+        document.getElementById('btnBack').addEventListener('click', function (e) {
+            e.preventDefault();
+            if (window.KAMPAI && typeof window.KAMPAI.goHome === 'function') {
+                window.KAMPAI.goHome();
+            } else {
+                location.href = '/h/nattapong';
+            }
+        });
+
+        const topicSelect = document.getElementById('topic');
+        const levelSelect = document.getElementById('level');
+        const numInput = document.getElementById('num');
+        const denInput = document.getElementById('den');
+        const manualBar = document.getElementById('manualBar');
+        const mainTitle = document.getElementById('mainTitle');
+        const questionText = document.getElementById('questionText');
+        const visualArea = document.getElementById('visualArea');
+        const answerContainer = document.getElementById('answerContainer');
+        const placeholder = document.getElementById('placeholder');
+        const explain = document.getElementById('explain');
+        const resultEl = document.getElementById('result');
+
+        let state = { topic: 'bar', problem: null };
+
+        const TITLES = {
+            bar: 'แท่งเศษส่วน — ส่วนที่แบ่งเท่า ๆ',
+            compare: 'เทียบเศษส่วน (ส่วนเท่ากัน)',
+            add: 'บวกเศษส่วนตัวสะดาด',
+            subtract: 'ลบเศษส่วนตัวสะดาด',
+            whole: 'จำนวนเต็ม + เศษส่วน',
+        };
+
+        function gcd(a, b) {
+            a = Math.abs(a);
+            b = Math.abs(b);
+            while (b) { const t = b; b = a % b; a = t; }
+            return a || 1;
+        }
+
+        function simplify(n, d) {
+            const g = gcd(n, d);
+            return [n / g, d / g];
+        }
+
+        function fracStr(n, d) {
+            return n + '/' + d;
+        }
+
+        function mixedStr(whole, n, d) {
+            if (n === 0) return String(whole);
+            return whole + ' ' + n + '/' + d;
+        }
+
+        function pickDenom(level) {
+            const pools = {
+                easy: [2, 3, 4, 5],
+                mid: [2, 3, 4, 5, 6, 8],
+                hard: [2, 3, 4, 5, 6, 7, 8, 10, 12],
+            };
+            const pool = pools[level] || pools.mid;
+            return pool[Math.floor(Math.random() * pool.length)];
+        }
+
+        function renderBar(n, d, label) {
+            const wrap = document.createElement('div');
+            wrap.className = 'bar-wrap';
+            if (label) {
+                const lb = document.createElement('div');
+                lb.className = 'bar-label';
+                lb.textContent = label;
+                wrap.appendChild(lb);
+            }
+            const bar = document.createElement('div');
+            bar.className = 'frac-bar';
+            bar.setAttribute('role', 'img');
+            bar.setAttribute('aria-label', 'แท่งเศษส่วน ' + n + ' ใน ' + d);
+            for (let i = 0; i < d; i++) {
+                const seg = document.createElement('div');
+                seg.className = 'frac-seg' + (i < n ? ' filled' : '');
+                bar.appendChild(seg);
+            }
+            wrap.appendChild(bar);
+            return wrap;
+        }
+
+        function hideAnswer() {
+            answerContainer.classList.remove('show');
+            placeholder.classList.remove('hidden');
+        }
+
+        function setProblem(p) {
+            state.problem = p;
+            hideAnswer();
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const p = state.problem;
+            if (!p) return;
+            visualArea.innerHTML = '';
+            mainTitle.textContent = TITLES[p.topic] || '';
+
+            if (p.topic === 'bar') {
+                questionText.textContent = fracStr(p.n, p.d);
+                visualArea.appendChild(renderBar(p.n, p.d, 'เติม ' + p.n + ' ส่วนจาก ' + p.d + ' ส่วนเท่า ๆ'));
+            } else if (p.topic === 'compare') {
+                questionText.textContent = fracStr(p.n1, p.d) + '  กับ  ' + fracStr(p.n2, p.d);
+                const box = document.createElement('div');
+                box.className = 'compare-bars';
+                box.appendChild(renderBar(p.n1, p.d, 'เศษส่วนที่ 1'));
+                box.appendChild(renderBar(p.n2, p.d, 'เศษส่วนที่ 2'));
+                visualArea.appendChild(box);
+            } else if (p.topic === 'add') {
+                questionText.textContent = fracStr(p.n1, p.d) + ' + ' + fracStr(p.n2, p.d) + ' = ?';
+                visualArea.appendChild(renderBar(p.n1, p.d, 'เศษส่วนที่ 1'));
+                visualArea.appendChild(renderBar(p.n2, p.d, 'เศษส่วนที่ 2'));
+            } else if (p.topic === 'subtract') {
+                questionText.textContent = fracStr(p.n1, p.d) + ' − ' + fracStr(p.n2, p.d) + ' = ?';
+                visualArea.appendChild(renderBar(p.n1, p.d, 'เศษส่วนที่ 1'));
+                visualArea.appendChild(renderBar(p.n2, p.d, 'เศษส่วนที่ 2'));
+            } else if (p.topic === 'whole') {
+                questionText.textContent = p.whole + ' + ' + fracStr(p.n, p.d) + ' = ?';
+                const note = document.createElement('div');
+                note.className = 'bar-label';
+                note.textContent = 'จำนวนเต็ม ' + p.whole + ' ชิ้น + เศษส่วน ' + fracStr(p.n, p.d);
+                visualArea.appendChild(note);
+                for (let i = 0; i < p.whole; i++) {
+                    visualArea.appendChild(renderBar(p.d, p.d, 'เต็ม 1 ชิ้น'));
+                }
+                visualArea.appendChild(renderBar(p.n, p.d, 'เศษส่วนเพิ่ม'));
+            }
+        }
+
+        function buildBarProblem() {
+            const d = Math.max(2, Math.min(12, parseInt(denInput.value, 10) || 4));
+            let n = parseInt(numInput.value, 10);
+            if (Number.isNaN(n)) n = 1;
+            n = Math.max(0, Math.min(d, n));
+            numInput.value = n;
+            denInput.value = d;
+            return { topic: 'bar', n, d };
+        }
+
+        function randomProblem() {
+            const topic = topicSelect.value;
+            const level = levelSelect.value;
+            let p = null;
+
+            if (topic === 'bar') {
+                const d = pickDenom(level);
+                const n = Math.floor(Math.random() * (d + 1));
+                numInput.value = n;
+                denInput.value = d;
+                p = { topic: 'bar', n, d };
+            } else if (topic === 'compare') {
+                const d = pickDenom(level);
+                let n1 = Math.floor(Math.random() * d) + 1;
+                let n2 = Math.floor(Math.random() * d) + 1;
+                while (n1 === n2) n2 = Math.floor(Math.random() * d) + 1;
+                p = { topic: 'compare', n1, n2, d };
+            } else if (topic === 'add') {
+                const d = pickDenom(level);
+                const n1 = Math.floor(Math.random() * (d - 1)) + 1;
+                const n2 = Math.floor(Math.random() * (d - n1)) + 1;
+                p = { topic: 'add', n1, n2, d };
+            } else if (topic === 'subtract') {
+                const d = pickDenom(level);
+                const n1 = Math.floor(Math.random() * (d - 1)) + 2;
+                const n2 = Math.floor(Math.random() * (n1 - 1)) + 1;
+                p = { topic: 'subtract', n1, n2, d };
+            } else if (topic === 'whole') {
+                const d = pickDenom(level);
+                const n = Math.floor(Math.random() * (d - 1)) + 1;
+                const whole = Math.floor(Math.random() * 4) + 1;
+                p = { topic: 'whole', whole, n, d };
+            }
+
+            setProblem(p);
+        }
+
+        function showAnswer() {
+            const topic = topicSelect.value;
+            let p = state.problem;
+            if (topic === 'bar') p = buildBarProblem();
+            if (!p) return;
+
+            if (window.KAMPAI && typeof window.KAMPAI.submitScore === 'function') {
+                window.KAMPAI.submitScore(100, { mode: 'learn', topic: p.topic });
+            }
+
+            let resultText = '';
+            let explainHtml = '';
+
+            if (p.topic === 'bar') {
+                resultText = fracStr(p.n, p.d);
+                const pct = Math.round((p.n / p.d) * 100);
+                explainHtml = 'แบ่งเป็น <span class="c-orange">' + p.d + '</span> ส่วนเท่า ๆ เติมไป <span class="c-orange">' + p.n + '</span> ส่วน<br>อ่านว่า <span class="c-emerald">' + p.n + ' ส่วนใน ' + p.d + ' ส่วน</span> (' + pct + '% ของทั้งหมด)';
+            } else if (p.topic === 'compare') {
+                const bigger = p.n1 > p.n2 ? 1 : 2;
+                const bigN = bigger === 1 ? p.n1 : p.n2;
+                const smallN = bigger === 1 ? p.n2 : p.n1;
+                resultText = fracStr(bigN, p.d) + ' มากกว่า';
+                explainHtml = 'ส่วนเท่ากัน (<span class="c-slate">/' + p.d + '</span>) เปรียบเทียบตัวเศษ<br><span class="c-orange">' + p.n1 + '</span> กับ <span class="c-orange">' + p.n2 + '</span> → <span class="c-emerald">' + bigN + '/' + p.d + '</span> มากกว่า <span class="c-emerald">' + smallN + '/' + p.d + '</span>';
+            } else if (p.topic === 'add') {
+                const sum = p.n1 + p.n2;
+                const [sn, sd] = simplify(sum, p.d);
+                resultText = fracStr(sn, sd);
+                explainHtml = 'ตัวสะดาด → บวกเฉพาะตัวเศษ: <span class="c-orange">' + p.n1 + ' + ' + p.n2 + ' = ' + sum + '</span><br>ได้ <span class="c-emerald">' + sum + '/' + p.d + '</span>';
+                if (sum > p.d) {
+                    const whole = Math.floor(sum / p.d);
+                    const rem = sum % p.d;
+                    const [rn, rd] = simplify(rem, p.d);
+                    explainHtml += '<br>เกิน 1 เต็ม → <span class="c-emerald">' + mixedStr(whole, rn, rd) + '</span>';
+                } else if (sn !== sum || sd !== p.d) {
+                    explainHtml += '<br>ย่อส่วน → <span class="c-emerald">' + fracStr(sn, sd) + '</span>';
+                }
+            } else if (p.topic === 'subtract') {
+                const diff = p.n1 - p.n2;
+                const [dn, dd] = simplify(diff, p.d);
+                resultText = fracStr(dn, dd);
+                explainHtml = 'ตัวสะดาด → ลบตัวเศษ: <span class="c-orange">' + p.n1 + ' − ' + p.n2 + ' = ' + diff + '</span><br>ได้ <span class="c-emerald">' + diff + '/' + p.d + '</span>';
+                if (dn !== diff || dd !== p.d) {
+                    explainHtml += '<br>ย่อส่วน → <span class="c-emerald">' + fracStr(dn, dd) + '</span>';
+                }
+            } else if (p.topic === 'whole') {
+                const improper = p.whole * p.d + p.n;
+                const [mn, md] = simplify(improper, p.d);
+                resultText = mixedStr(p.whole, p.n, p.d) + ' = ' + fracStr(improper, p.d);
+                explainHtml = 'จำนวนคละ = จำนวนเต็ม + เศษส่วน<br><span class="c-orange">' + p.whole + ' + ' + fracStr(p.n, p.d) + '</span> = <span class="c-emerald">' + improper + '/' + p.d + '</span>';
+                if (mn !== improper || md !== p.d) {
+                    explainHtml += '<br>ย่อส่วน → <span class="c-emerald">' + fracStr(mn, md) + '</span>';
+                }
+            }
+
+            resultEl.textContent = resultText;
+            explain.innerHTML = explainHtml;
+            placeholder.classList.add('hidden');
+            answerContainer.classList.add('show');
+            state.problem = p;
+        }
+
+        function onTopicChange() {
+            const topic = topicSelect.value;
+            state.topic = topic;
+            mainTitle.textContent = TITLES[topic] || '';
+            manualBar.classList.toggle('hidden', topic !== 'bar');
+            hideAnswer();
+            randomProblem();
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(function () {});
+            } else if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+
+        topicSelect.addEventListener('change', onTopicChange);
+        numInput.addEventListener('input', function () {
+            if (topicSelect.value === 'bar') {
+                setProblem(buildBarProblem());
+            }
+        });
+        denInput.addEventListener('input', function () {
+            if (topicSelect.value === 'bar') {
+                setProblem(buildBarProblem());
+            }
+        });
+
+        onTopicChange();
+    </script>
+    <script src="/games/kampai-match.js"></script>
+    <script>
+    window.KampaiMatch = window.KampaiMatch || {
+        create: function () {
+            return {
+                available: false,
+                openMenu: function () {},
+                report: function () {},
+                finish: function () { return false; },
+                leave: function () {},
+            };
+        },
+    };
+    KampaiMatch.create({ slug: 'math-fraction-hub' });
+    </script>
+</body>
+</html>

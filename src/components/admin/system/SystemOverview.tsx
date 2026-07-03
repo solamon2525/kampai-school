@@ -272,8 +272,28 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.137.0 (Thai Script Hub — ไตรยางศ์ ป.1-4)',
+        version: 'v1.139.0 (Math Fraction Hub — เศษส่วน ป.4)',
         date: 'ล่าสุด',
+        badge: 'bg-amber-600',
+        items: [
+            '**สื่อเศษส่วน** (`math-fraction-hub`) — 5 เรื่อง: แท่ง เทียบ บวก ลบ จำนวนเต็ม+เศษส่วน',
+            '**แนว rounding** — sidebar สุ่มโจทย์ + แสดงเฉลยพร้อมแท่งภาพและคำอธิบาย',
+            'migration 317 · path `/games/math/math-fraction-hub/` · game_docs v1.0.0',
+        ],
+    },
+    {
+        version: 'v1.138.0 (Thai Grammar Hub — ไวยากรณ์ ป.4-5)',
+        date: '',
+        badge: 'bg-amber-600',
+        items: [
+            '**คลังไวยากรณ์ไทย** (`thai-grammar-hub`) — 9 หมวด 112 รายการ: นาม กริยา คุณศัพท์ บุพบท สันธาน',
+            '**โหมดทายชนิดคำ** — ถามจากประโยคตัวอย่าง · จับคู่คำ–ชนิด · badge สีตาม POS',
+            'scripts `seed-thai-grammar-data` + `build:grammar` · migration 316 · game_docs v1.0.0',
+        ],
+    },
+    {
+        version: 'v1.137.0 (Thai Script Hub — ไตรยางศ์ ป.1-4)',
+        date: '',
         badge: 'bg-amber-600',
         items: [
             '**คลังอักษรไทย** (`thai-script-hub`) — 12 หมวด 188 รายการ: พยัญชนะ 3 หมู่ สระ วรรณยุกต์ ไตรยางศ์',
