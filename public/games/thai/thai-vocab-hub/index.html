@@ -60,19 +60,34 @@
         </div>
     </div>
 
-    <!-- Autoplay controls (only visible in auto mode) -->
+    <!-- Autoplay controls (โหมดทบทวนกริด) -->
     <div id="autoplay-controls" class="autoplay-bar" style="display:none">
-        <button class="btn-nav" onclick="prevWord()" title="คำก่อนหน้า (←)">◀</button>
-        <button id="btn-autoplay-toggle" class="btn-autoplay" onclick="toggleAutoplay()">▶ เล่นอัตโนมัติ</button>
-        <button class="btn-nav" onclick="nextWord()" title="คำถัดไป (→)">▶</button>
+        <button class="btn-nav" onclick="autoplayPrev()" title="คำก่อนหน้า (←)">◀</button>
+        <button id="btn-autoplay-toggle" class="btn-autoplay" onclick="toggleAutoplay()">▶ อ่านอัตโนมัติ</button>
+        <button id="btn-autoplay-pause" class="btn-autoplay-pause" onclick="toggleAutoplayPause()" title="หยุดชั่วคราว" style="display:none">⏸</button>
+        <button class="btn-nav" onclick="autoplayNext()" title="คำถัดไป (→)">▶</button>
+        <span id="autoplay-progress" class="autoplay-progress" aria-live="polite">—</span>
         <div class="autoplay-speed-group">
-            <span class="speed-label">ความเร็ว:</span>
-            <select id="autoplay-speed-select" class="speed-select" onchange="changeAutoplaySpeed(this.value)">
-                <option value="5000">ช้า (5 วิ)</option>
-                <option value="3000" selected>ปานกลาง (3 วิ)</option>
-                <option value="1500">เร็ว (1.5 วิ)</option>
+            <span class="speed-label">หน่วง</span>
+            <div class="autoplay-spd-btns" role="group" aria-label="หน่วงหลังอ่านจบ">
+                <button type="button" class="autoplay-spd" data-ms="500">0.5s</button>
+                <button type="button" class="autoplay-spd" data-ms="1000">1s</button>
+                <button type="button" class="autoplay-spd active" data-ms="1500">1.5s</button>
+                <button type="button" class="autoplay-spd" data-ms="2000">2s</button>
+                <button type="button" class="autoplay-spd" data-ms="3000">3s</button>
+            </div>
+        </div>
+        <div class="autoplay-speed-group">
+            <span class="speed-label">อ่าน</span>
+            <select id="autoplay-read-mode" class="speed-select" onchange="setAutoReadMode(this.value)" aria-label="โหมดการอ่าน">
+                <option value="word">คำศัพท์</option>
+                <option value="reading">คำ + คำอ่าน</option>
+                <option value="meaning">คำ + ความหมาย</option>
+                <option value="full" selected>ครบ (คำ→อ่าน→ความ)</option>
             </select>
         </div>
+        <button type="button" id="btn-auto-flip" class="autoplay-opt-btn on" onclick="toggleAutoFlip()" title="พลิกการ์ดดูความหมาย">🔄 พลิก</button>
+        <button type="button" id="btn-auto-sound" class="autoplay-opt-btn on" onclick="toggleAutoSound()" title="เปิด/ปิดเสียงอ่าน">🔊</button>
     </div>
 
     <!-- Mode views (injected here) -->

@@ -319,6 +319,16 @@ const versionHistory = [
         ],
     },
     {
+        version: 'v1.130.0 (Thai Vocab Hub — กริดคำยาว + อ่านอัตโนมัติ)',
+        date: '',
+        badge: 'bg-amber-600',
+        items: [
+            '**กริดทบทวน** — คำยาวขยายแนวนอน (span 2–3) แทนตัดบรรทัดกลางพยางค์ · ตัวอักษรใหญ่ใน 3×3/4×4 (cqh)',
+            '**อ่านอัตโนมัติ** — รอ TTS จบ → หน่วง → คำถัดไป · โหมด คำ/คำอ่าน/ความหมาย/ครบ · พลิกการ์ด · ไฮไลต์การ์ด',
+            'migration 284 · game_docs v1.6.1',
+        ],
+    },
+    {
         version: 'v1.129.0 (KampaiAR Hands detector)',
         date: '',
         badge: 'bg-violet-600',
