@@ -263,6 +263,18 @@ function fitGridWordSpans(force) {
   const cards = grid.querySelectorAll('.grid-flip-card');
   if (!cards.length) return;
 
+  const needsSpan = [...cards].some((card) => {
+    const textEl = card.querySelector('.grid-word-text');
+    if (!textEl) return false;
+    return (textEl.textContent || '').trim().length > 1;
+  });
+  if (!needsSpan) {
+    lastGridFitWidth = w;
+    lastGridObservedWidth = w;
+    grid.dataset.spansReady = '1';
+    return;
+  }
+
   gridSpanFitting = true;
   cards.forEach((card) => {
     card.classList.remove('grid-flip-card--span2', 'grid-flip-card--span3');
@@ -289,7 +301,6 @@ function fitGridWordSpans(force) {
     lastGridObservedWidth = lastGridFitWidth;
     grid.dataset.spansReady = '1';
     gridSpanFitting = false;
-    adjustAllFlippedGridBackExpands();
   }
 
   function runPass() {
@@ -341,24 +352,22 @@ function adjustGridCardBackExpand(card) {
   resetGridCardBackExpand(card);
   if (!card.classList.contains('flipped')) return;
 
+  gridExpandBusy += 1;
   requestAnimationFrame(() => {
-    if (!gridMeaningOverflows(card)) return;
+    try {
+      if (!card.classList.contains('flipped') || !gridMeaningOverflows(card)) return;
 
-    const meaning = card.querySelector('.grid-meaning');
-    const baseH = card.getBoundingClientRect().height;
-    const overflow = meaning.scrollHeight - meaning.clientHeight;
-    const maxH = baseH * 2.75;
-    let newH = Math.min(baseH + overflow + 6, maxH);
+      const meaning = card.querySelector('.grid-meaning');
+      const baseH = card.getBoundingClientRect().height;
+      const overflow = meaning.scrollHeight - meaning.clientHeight;
+      const maxH = baseH * 2.75;
+      const newH = Math.min(baseH + overflow + 6, maxH);
 
-    card.classList.add('grid-flip-card--expand-back');
-    card.style.setProperty('--grid-expand-h', `${newH}px`);
-
-    requestAnimationFrame(() => {
-      if (!gridMeaningOverflows(card)) return;
-      const extra = meaning.scrollHeight - meaning.clientHeight + 6;
-      newH = newH + extra;
+      card.classList.add('grid-flip-card--expand-back');
       card.style.setProperty('--grid-expand-h', `${newH}px`);
-    });
+    } finally {
+      gridExpandBusy = Math.max(0, gridExpandBusy - 1);
+    }
   });
 }
 
@@ -367,6 +376,7 @@ function adjustAllFlippedGridBackExpands() {
 }
 
 let gridSpanResizeObs = null;
+let gridExpandBusy = 0;
 
 function unbindGridSpanResizeObserver() {
   if (gridSpanResizeObs) {
@@ -387,7 +397,7 @@ function bindGridSpanResizeObserver() {
   if (!grid) return;
   if (!gridSpanResizeObs) {
     gridSpanResizeObs = new ResizeObserver((entries) => {
-      if (currentMode !== 'auto' || gridSpanFitting) return;
+      if (currentMode !== 'auto' || gridSpanFitting || gridExpandBusy > 0) return;
       const entry = entries[0];
       if (!entry) return;
       /* สนใจแค่ความกว้าง — ความสูงเปลี่ยนจากพลิกหลัง/ขยายการ์ดไม่ต้อง refit span (กันลูปกระตุก) */
