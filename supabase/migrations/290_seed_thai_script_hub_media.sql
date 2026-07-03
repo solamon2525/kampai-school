@@ -41,7 +41,7 @@ BEGIN
     'ภาษาไทย',
     ARRAY['ป.1','ป.2','ป.3','ป.4'],
     ARRAY['พยัญชนะ','สระ','วรรณยุกต์','อักษรกลาง สูง ต่ำ','ไตรยางศ์','อักษรนำ','มาตราตัวสะกด'],
-    '/games/thai/thai-script-hub/cover.svg',
+    '/games/thai/thai-script-hub/cover.png',
     11
   WHERE NOT EXISTS (
     SELECT 1 FROM public.educational_hub_items
