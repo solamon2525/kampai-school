@@ -745,7 +745,6 @@ body {
 /* ไฮไลต์การ์ดที่กำลังอ่านอัตโนมัติ */
 .grid-flip-card.autoplay-active .grid-flip-inner {
   box-shadow: 0 0 0 3px #fbbf24, 0 8px 24px rgba(251, 191, 36, 0.35);
-  transform: scale(1.03);
 }
 
 .grid-flip-card.autoplay-active {

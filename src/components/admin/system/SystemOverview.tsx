@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.135.0 (Thai Vocab Hub — TTS lifecycle)',
+        version: 'v1.136.0 (Thai Vocab Hub — grid span loop)',
         date: 'ล่าสุด',
+        badge: 'bg-amber-600',
+        items: [
+            '**กริด span refit** — ResizeObserver ตอบสนองแค่ความกว้างกริดเปลี่ยน ไม่ refit เมื่อความสูงเปลี่ยนจากพลิกหลัง',
+            '**gridSpanFitting** — ล็อกวัด layout กันซ้อน · retry cqh ครั้งเดียว · เอา scale autoplay ออก',
+            'migration 289 · game_docs v1.7.3',
+        ],
+    },
+    {
+        version: 'v1.135.0 (Thai Vocab Hub — TTS lifecycle)',
+        date: '',
         badge: 'bg-amber-600',
         items: [
             '**disposeGameSession** — หยุด TTS + autoplay เมื่อ goHome / กลับ hub / ซ่อนแท็บ / parent navigate',

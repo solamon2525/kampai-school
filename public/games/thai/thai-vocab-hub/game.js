@@ -29,6 +29,9 @@ let speechGen = 0;
 let speechGapTimer = null;
 let speechStartTimer = null;
 let gridSpanResizeTimer = null;
+let lastGridFitWidth = 0;
+let lastGridObservedWidth = 0;
+let gridSpanFitting = false;
 
 // Flash deck (โหมดสุ่มการ์ด)
 let flashDeck = [];
@@ -235,15 +238,32 @@ function applyGridColsLayout() {
   } else {
     grid.style.setProperty('--grid-cols-num', gridCols);
   }
-  fitGridWordSpans();
+  lastGridFitWidth = 0;
+  delete grid.dataset.spansReady;
+  fitGridWordSpans(true);
+}
+
+function scheduleGridSpanFit(force) {
+  clearTimeout(gridSpanResizeTimer);
+  gridSpanResizeTimer = setTimeout(() => {
+    gridSpanResizeTimer = null;
+    fitGridWordSpans(!!force);
+  }, 200);
 }
 
 /** วัดว่าข้อความล้นช่องหรือไม่ — ขยายการ์ดข้าม 2–3 คอลัมน์แทนการตัดบรรทัด */
-function fitGridWordSpans() {
+function fitGridWordSpans(force) {
   const grid = document.getElementById('words-grid');
   if (!grid || currentMode !== 'auto') return;
+  if (gridSpanFitting) return;
+
+  const w = Math.round(grid.clientWidth);
+  if (!force && w === lastGridFitWidth && grid.dataset.spansReady === '1') return;
 
   const cards = grid.querySelectorAll('.grid-flip-card');
+  if (!cards.length) return;
+
+  gridSpanFitting = true;
   cards.forEach((card) => {
     card.classList.remove('grid-flip-card--span2', 'grid-flip-card--span3');
     card.dataset.spanLevel = '1';
@@ -253,10 +273,24 @@ function fitGridWordSpans() {
     ? 3
     : Math.min(3, parseInt(gridCols, 10) || 3);
 
-  if (maxSpan < 2) return;
+  if (maxSpan < 2) {
+    lastGridFitWidth = w;
+    grid.dataset.spansReady = '1';
+    gridSpanFitting = false;
+    return;
+  }
 
   let pass = 0;
+  let fontRetried = false;
   const maxPasses = maxSpan;
+
+  function finishFit() {
+    lastGridFitWidth = Math.round(grid.clientWidth);
+    lastGridObservedWidth = lastGridFitWidth;
+    grid.dataset.spansReady = '1';
+    gridSpanFitting = false;
+    adjustAllFlippedGridBackExpands();
+  }
 
   function runPass() {
     let changed = false;
@@ -277,11 +311,12 @@ function fitGridWordSpans() {
     pass += 1;
     if (changed && pass < maxPasses) {
       requestAnimationFrame(runPass);
-    } else if (pass === 1 && !changed) {
-      /* รอ font-size จาก cqh ปรับเสร็จแล้ววัดซ้ำ (เช่น สลับเป็น 3×3) */
+    } else if (pass === 1 && !changed && !fontRetried) {
+      /* รอ font-size จาก cqh ปรับเสร็จแล้ววัดซ้ำครั้งเดียว (เช่น สลับเป็น 3×3) */
+      fontRetried = true;
       requestAnimationFrame(() => requestAnimationFrame(runPass));
     } else {
-      adjustAllFlippedGridBackExpands();
+      finishFit();
     }
   }
 
@@ -342,22 +377,27 @@ function unbindGridSpanResizeObserver() {
     clearTimeout(gridSpanResizeTimer);
     gridSpanResizeTimer = null;
   }
+  lastGridFitWidth = 0;
+  lastGridObservedWidth = 0;
+  gridSpanFitting = false;
 }
 
 function bindGridSpanResizeObserver() {
   const grid = document.getElementById('words-grid');
   if (!grid) return;
   if (!gridSpanResizeObs) {
-    gridSpanResizeObs = new ResizeObserver(() => {
-      if (currentMode !== 'auto') return;
-      clearTimeout(gridSpanResizeTimer);
-      gridSpanResizeTimer = setTimeout(() => {
-        gridSpanResizeTimer = null;
-        fitGridWordSpans();
-        adjustAllFlippedGridBackExpands();
-      }, 150);
+    gridSpanResizeObs = new ResizeObserver((entries) => {
+      if (currentMode !== 'auto' || gridSpanFitting) return;
+      const entry = entries[0];
+      if (!entry) return;
+      /* สนใจแค่ความกว้าง — ความสูงเปลี่ยนจากพลิกหลัง/ขยายการ์ดไม่ต้อง refit span (กันลูปกระตุก) */
+      const w = Math.round(entry.contentRect.width);
+      if (Math.abs(w - lastGridObservedWidth) < 2) return;
+      lastGridObservedWidth = w;
+      scheduleGridSpanFit(true);
     });
     gridSpanResizeObs.observe(grid);
+    lastGridObservedWidth = Math.round(grid.clientWidth);
   }
 }
 
@@ -578,7 +618,7 @@ function mountFontSizeSlider() {
     const v = parseFloat(slider.value);
     document.documentElement.style.setProperty('--font-scale', String(v));
     localStorage.setItem(FS_KEY, String(v));
-    if (currentMode === 'auto') fitGridWordSpans();
+    if (currentMode === 'auto') fitGridWordSpans(true);
   });
 }
 
@@ -774,6 +814,8 @@ function switchMode(mode) {
 function renderWordsGrid() {
   const grid = document.getElementById('words-grid');
   cancelSpeech();
+  lastGridFitWidth = 0;
+  lastGridObservedWidth = 0;
   grid.innerHTML = '';
   gridDisplayWords = getGridDisplayWords();
 
