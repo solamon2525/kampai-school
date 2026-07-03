@@ -177,6 +177,48 @@ body {
   line-height: 1.45;
 }
 
+.missed-banner-click {
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.missed-banner-click:hover {
+  background: rgba(251, 191, 36, 0.2);
+  border-color: rgba(251, 191, 36, 0.55);
+}
+
+.hub-dash-link {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.hc-progress {
+  width: 80%;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.12);
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.hc-prog-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #38bdf8, #4ade80);
+  transition: width 0.4s ease;
+}
+
+.hc-prog-fill.done {
+  background: linear-gradient(90deg, #fbbf24, #f97316);
+}
+
+.hc-prog-pct {
+  font-size: calc(12px * var(--font-scale));
+  color: #64748b;
+  margin-top: 2px;
+}
+
 #hub-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -381,6 +423,77 @@ body {
   flex-shrink: 0;
   margin: 4px auto 6px;
   max-width: calc(100% - 16px);
+}
+
+#topic-view.flash-mode #word-area {
+  flex: 1 1 auto;
+  min-height: clamp(240px, 42vh, 480px);
+}
+
+#topic-view.flash-mode #play-area {
+  display: none;
+}
+
+#topic-view.flash-mode #flash-controls {
+  display: flex;
+}
+
+.flash-controls {
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px 14px;
+  padding: 8px 14px 12px;
+  margin: 0 auto;
+  max-width: 100%;
+}
+
+.flash-score {
+  font-size: calc(15px * var(--font-scale));
+  font-weight: 700;
+  color: #fbbf24;
+  width: 100%;
+  text-align: center;
+}
+
+.flash-variant-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.flash-var-btn {
+  font-family: inherit;
+  font-size: calc(12px * var(--font-scale));
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 99px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.flash-var-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f1f5f9;
+}
+
+.flash-var-btn.active {
+  background: #f97316;
+  border-color: #fdba74;
+  color: #fff;
+}
+
+.flash-action-btns {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
 }
 
 /* 1. Words Grid — การ์ดพลิกเต็มจอ */
@@ -602,6 +715,31 @@ body {
 .grid-flip-card--span3 {
   grid-column: span 3;
   aspect-ratio: 3 / 1;
+}
+
+/* พลิกหลัง — ความหมายยาวขยายความสูงชั่วคราว แทน scrollbar */
+.grid-flip-card--expand-back {
+  aspect-ratio: unset;
+  align-self: start;
+  z-index: 8;
+  height: var(--grid-expand-h, auto);
+  min-height: var(--grid-expand-h, auto);
+  overflow: visible;
+}
+
+.grid-flip-card.autoplay-active.grid-flip-card--expand-back {
+  z-index: 9;
+}
+
+.grid-flip-card--expand-back .grid-flip-face {
+  overflow: visible;
+}
+
+.grid-flip-card--expand-back .grid-meaning {
+  overflow: visible;
+  overflow-y: visible;
+  flex: 0 1 auto;
+  max-height: none;
 }
 
 /* ไฮไลต์การ์ดที่กำลังอ่านอัตโนมัติ */
@@ -954,11 +1092,6 @@ body {
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   padding: 8px 16px;
   width: 100%;
-}
-
-#controls-row {
-  display: flex;
-  gap: 8px;
 }
 
 .cbtn {

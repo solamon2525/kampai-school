@@ -32,7 +32,10 @@
     <button class="cbtn" style="align-self:flex-start;margin-bottom:8px" onclick="KAMPAI.goHome()">← กลับหน้าหลัก</button>
     <div id="hub-title">คลังคำศัพท์ภาษาไทย ป.4-6</div>
     <div id="hub-sub">ฝึกฝนทักษะการอ่าน การเขียนตามคำบอก และความหมายของคำศัพท์</div>
-    <div id="missed-banner" class="missed-banner" style="display:none" aria-live="polite"></div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px">
+        <a class="cbtn hub-dash-link" href="/play/thai-vocab-hub/dashboard" target="_top">📊 แดชบอร์ด / อันดับ</a>
+    </div>
+    <div id="missed-banner" class="missed-banner missed-banner-click" style="display:none" aria-live="polite" role="button" tabindex="0" title="คลิกเพื่อฝึกคำที่เคยพลาด"></div>
     <div id="hub-grid">
         <!-- populated dynamically -->
     </div>
@@ -57,6 +60,24 @@
                     <span id="wback-meaning">ความหมาย...</span>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Flash controls (โหมดสุ่มการ์ด) -->
+    <div id="flash-controls" class="flash-controls" style="display:none">
+        <div id="flash-score" class="flash-score" aria-live="polite">รู้แล้ว 0/0</div>
+        <div class="flash-variant-picker" role="group" aria-label="ทิศการ์ด">
+            <span class="speed-label">การ์ด</span>
+            <button type="button" class="flash-var-btn active" data-v="word2meaning">คำ→ความ</button>
+            <button type="button" class="flash-var-btn" data-v="meaning2word">ความ→คำ</button>
+            <button type="button" class="flash-var-btn" data-v="audio2word">🔊→คำ</button>
+            <button type="button" class="flash-var-btn" data-v="mixed">🎲</button>
+        </div>
+        <div class="flash-action-btns">
+            <button type="button" class="btn btn-primary" id="btn-flash-reveal">เปิดดูคำตอบ</button>
+            <button type="button" class="btn btn-blue flash-quiz-btn" id="btn-flash-know" style="display:none">✅ รู้แล้ว</button>
+            <button type="button" class="btn btn-blue flash-quiz-btn" id="btn-flash-review" style="display:none">🔁 ทบทวน</button>
+            <button type="button" class="cbtn" id="btn-flash-reset" title="ล้างความคืบหน้ารู้แล้ว">↺ เริ่มใหม่</button>
         </div>
     </div>
 
@@ -122,16 +143,27 @@
                 <div id="match-right" class="match-column"></div>
             </div>
         </div>
+
+        <!-- 5. Listen (ฟังเสียงทายคำ) -->
+        <div id="listen-mode" class="mode-panel" style="display:none">
+            <div class="choice-card">
+                <button type="button" class="voice-btn" onclick="replayListenWord()">🔊 ฟังเสียงอีกครั้ง</button>
+                <p class="dictation-hint" id="listen-hint">ได้ยินคำว่าอะไร? เลือกคำที่ถูกต้อง</p>
+                <div id="listen-options" class="options-grid"></div>
+            </div>
+        </div>
     </div>
 
     <!-- Bottom Toolbar -->
     <div id="bottom-bar">
         <div id="controls-row">
             <button class="cbtn" id="btn-home" onclick="returnToHub()">← คลังหัวข้อ</button>
-            <button class="cbtn mbtn active" id="m-auto" onclick="switchMode('auto')">📋 ดูภาพรวมคำศัพท์</button>
+            <button class="cbtn mbtn active" id="m-auto" onclick="switchMode('auto')">📋 ภาพรวม</button>
+            <button class="cbtn mbtn" id="m-flash" onclick="switchMode('flash')">🎲 สุ่มการ์ด</button>
+            <button class="cbtn mbtn" id="m-listen" onclick="switchMode('listen')">🎧 ฟังทายคำ</button>
             <button class="cbtn mbtn" id="m-dictation" onclick="switchMode('dictation')">✍️ เขียนตามคำบอก</button>
             <button class="cbtn mbtn" id="m-choice" onclick="switchMode('choice')">🎯 ทายความหมาย</button>
-            <button class="cbtn mbtn" id="m-match" onclick="switchMode('match')">🔗 จับคู่คำอ่าน</button>
+            <button class="cbtn mbtn" id="m-match" onclick="switchMode('match')">🔗 จับคู่</button>
         </div>
         <div id="dots"></div>
         <div id="score-display" style="display:none">

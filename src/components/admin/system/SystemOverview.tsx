@@ -319,6 +319,19 @@ const versionHistory = [
         ],
     },
     {
+        version: 'v1.131.0 (Thai Vocab Hub เฟส H)',
+        date: '',
+        badge: 'bg-amber-600',
+        items: [
+            '**โหมดสุ่มการ์ด (Flash)** — รู้แล้ว/ทบทวน spaced repetition · ทิศ คำ→ความ / ความ→คำ / 🔊→คำ · ความคืบหน้า % บนการ์ดหมวด',
+            '**ฟังทายคำ** — ฟัง TTS เลือกคำ (homophones ใช้ decoy กลุ่ม reading)',
+            '**ฝึกคำที่พลาด** — แบนเนอร์คลิกได้ + ตัวกรองกริด "คำที่พลาด" · ลิงก์แดชบอร์ด',
+            '**Quiz ตาม metadata** — antonyms จับคู่ pair_id · classifiers โจทย์เติมคำ · synonyms decoy กลุ่มเดียว',
+            '**กริดพลิกหลัง** — ความหมายยาวขยายความสูงชั่วคราว แทน scrollbar (อ่านจากระยะได้ครบ)',
+            'migration 285 · game_docs v1.7.1',
+        ],
+    },
+    {
         version: 'v1.130.0 (Thai Vocab Hub — กริดคำยาว + อ่านอัตโนมัติ)',
         date: '',
         badge: 'bg-amber-600',

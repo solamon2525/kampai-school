@@ -26,6 +26,17 @@ let autoReadMode = 'full';
 let autoFlipEnabled = true;
 let autoSoundEnabled = true;
 
+// Flash deck (โหมดสุ่มการ์ด)
+let flashDeck = [];
+let flashKnown = new Set();
+let flashTotal = 0;
+let flashRevealed = false;
+let flashVariant = 'word2meaning';
+let flashReviewCount = {};
+let practiceMissedOnEnter = false;
+
+const FLASH_VARIANT_KEY = 'tvh_flash_variant';
+
 // สรุปผลรายรอบ (โหมดฝึก) — เก็บถูก/ทั้งหมด + คำที่พลาด
 let sessionCorrect = 0;
 let sessionTotal = 0;
@@ -88,6 +99,7 @@ function applyMissedFromSdk(sdk) {
   if (!Array.isArray(missed)) return;
   serverMissedWords = missed;
   renderMissedBanner();
+  updateGridFilterPickerUI();
 }
 
 function renderMissedBanner() {
@@ -100,8 +112,57 @@ function renderMissedBanner() {
   const top = serverMissedWords.slice(0, 5);
   const more = serverMissedWords.length - top.length;
   const sample = top.map((m) => m.word).join(', ');
-  el.textContent = `📝 คำที่เคยพลาด (${serverMissedWords.length}): ${sample}${more > 0 ? ` +${more}` : ''}`;
+  el.textContent = `📝 คำที่เคยพลาด (${serverMissedWords.length}): ${sample}${more > 0 ? ` +${more}` : ''} — แตะเพื่อฝึก`;
   el.style.display = 'block';
+}
+
+function mountMissedBannerClick() {
+  const el = document.getElementById('missed-banner');
+  if (!el || el.dataset.tvhBound) return;
+  el.dataset.tvhBound = '1';
+  const go = () => startPracticeMissedFromHub();
+  el.addEventListener('click', go);
+  el.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); }
+  });
+}
+
+function startPracticeMissedFromHub() {
+  if (!serverMissedWords.length) return;
+  const missedSet = new Set(serverMissedWords.map((m) => m.word));
+  const cat = CATEGORIES.find((c) => (ALL_WORDS[c.slug] || []).some((w) => missedSet.has(w.word)));
+  if (!cat) return;
+  practiceMissedOnEnter = true;
+  loadAndSelectCategory(cat.slug);
+}
+
+function getMissedWordsInCategory() {
+  if (!serverMissedWords.length) return [];
+  const missedSet = new Set(serverMissedWords.map((m) => m.word));
+  return fullCategoryWords.filter((w) => missedSet.has(w.word));
+}
+
+function flashKnownKey(slug) {
+  return `tvh_flash_known_${slug || 'default'}`;
+}
+
+function loadFlashKnown(slug) {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(flashKnownKey(slug)) || '[]'));
+  } catch (_) {
+    return new Set();
+  }
+}
+
+function saveFlashKnown(slug) {
+  if (!slug) return;
+  localStorage.setItem(flashKnownKey(slug), JSON.stringify([...flashKnown]));
+}
+
+function getFlashProgressPct(slug) {
+  const total = (ALL_WORDS[slug] || []).length;
+  if (!total) return 0;
+  return Math.min(100, Math.round((loadFlashKnown(slug).size / total) * 100));
 }
 
 function resetSession() {
@@ -126,9 +187,10 @@ function safeInitHubGrid() {
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', safeInitHubGrid);
+  document.addEventListener('DOMContentLoaded', () => { safeInitHubGrid(); mountMissedBannerClick(); });
 } else {
   safeInitHubGrid();
+  mountMissedBannerClick();
 }
 
 // ตัวขยาย/ย่อขนาดตัวอักษร — จำค่าไว้ใน localStorage (เฉพาะเกมนี้ ไม่เกี่ยวกับ SDK)
@@ -214,10 +276,55 @@ function fitGridWordSpans() {
     } else if (pass === 1 && !changed) {
       /* รอ font-size จาก cqh ปรับเสร็จแล้ววัดซ้ำ (เช่น สลับเป็น 3×3) */
       requestAnimationFrame(() => requestAnimationFrame(runPass));
+    } else {
+      adjustAllFlippedGridBackExpands();
     }
   }
 
   requestAnimationFrame(runPass);
+}
+
+function resetGridCardBackExpand(card) {
+  if (!card) return;
+  card.classList.remove('grid-flip-card--expand-back');
+  card.style.removeProperty('--grid-expand-h');
+}
+
+function gridMeaningOverflows(card) {
+  const meaning = card.querySelector('.grid-meaning');
+  if (!meaning) return false;
+  return meaning.scrollHeight > meaning.clientHeight + 2;
+}
+
+/** ขยายความสูงการ์ดชั่วคราวเมื่อพลิกหลังแล้วความหมายยาวเกินช่อง */
+function adjustGridCardBackExpand(card) {
+  if (!card) return;
+  resetGridCardBackExpand(card);
+  if (!card.classList.contains('flipped')) return;
+
+  requestAnimationFrame(() => {
+    if (!gridMeaningOverflows(card)) return;
+
+    const meaning = card.querySelector('.grid-meaning');
+    const baseH = card.getBoundingClientRect().height;
+    const overflow = meaning.scrollHeight - meaning.clientHeight;
+    const maxH = baseH * 2.75;
+    let newH = Math.min(baseH + overflow + 6, maxH);
+
+    card.classList.add('grid-flip-card--expand-back');
+    card.style.setProperty('--grid-expand-h', `${newH}px`);
+
+    requestAnimationFrame(() => {
+      if (!gridMeaningOverflows(card)) return;
+      const extra = meaning.scrollHeight - meaning.clientHeight + 6;
+      newH = newH + extra;
+      card.style.setProperty('--grid-expand-h', `${newH}px`);
+    });
+  });
+}
+
+function adjustAllFlippedGridBackExpands() {
+  document.querySelectorAll('.grid-flip-card.flipped').forEach(adjustGridCardBackExpand);
 }
 
 let gridSpanResizeObs = null;
@@ -226,7 +333,10 @@ function bindGridSpanResizeObserver() {
   const grid = document.getElementById('words-grid');
   if (!grid || gridSpanResizeObs) return;
   gridSpanResizeObs = new ResizeObserver(() => {
-    if (currentMode === 'auto') fitGridWordSpans();
+    if (currentMode === 'auto') {
+      fitGridWordSpans();
+      adjustAllFlippedGridBackExpands();
+    }
   });
   gridSpanResizeObs.observe(grid);
 }
@@ -280,6 +390,7 @@ const GRID_GRADE_OPTIONS = [
 const GRID_VIEW_OPTIONS = [
   { value: 'all', label: 'ทั้งหมด' },
   { value: 'sample', label: 'สุ่ม 20' },
+  { value: 'missed', label: 'คำที่พลาด' },
 ];
 let gridGradeFilter = 'all';
 let gridViewMode = 'all';
@@ -316,20 +427,49 @@ function getGridDisplayWords() {
   if (gridGradeFilter !== 'all') {
     words = words.filter((w) => w.grade === gridGradeFilter);
   }
-  if (gridViewMode === 'sample' && words.length > RANDOM_SAMPLE) {
+  if (gridViewMode === 'missed') {
+    words = getMissedWordsInCategory().filter((w) =>
+      gridGradeFilter === 'all' || w.grade === gridGradeFilter
+    );
+  } else if (gridViewMode === 'sample' && words.length > RANDOM_SAMPLE) {
     words = shuffle([...words]).slice(0, RANDOM_SAMPLE);
   }
   return words;
 }
 
-/** โหมดฝึก — กรองชั้นเหมือนกริดทบทวน (เฟส E) */
+/** โหมดฝึก — กรองชั้น + โหมดคำที่พลาด */
 function getQuizWords() {
+  if (gridViewMode === 'missed') {
+    let words = getMissedWordsInCategory();
+    if (gridGradeFilter !== 'all') {
+      const filtered = words.filter((w) => w.grade === gridGradeFilter);
+      if (filtered.length > 0) words = filtered;
+    }
+    return words;
+  }
   let words = fullCategoryWords;
   if (gridGradeFilter !== 'all') {
     const filtered = words.filter((w) => w.grade === gridGradeFilter);
     if (filtered.length > 0) words = filtered;
   }
   return words;
+}
+
+/** ตัวเลือกลวง — คำพ้องเสียงใช้กลุ่ม reading เดียวกัน */
+function pickWordDecoys(wordItem, pool, count) {
+  if (activeCategorySlug === 'homophones' && wordItem.reading) {
+    const same = pool.filter((w) => w.reading === wordItem.reading && w.word !== wordItem.word);
+    if (same.length >= count) return shuffle([...same]).slice(0, count);
+  }
+  return shuffle(pool.filter((w) => w.word !== wordItem.word)).slice(0, count);
+}
+
+function pickMeaningDecoys(wordItem, pool, count) {
+  if (activeCategorySlug === 'synonyms' && wordItem.synonym_group) {
+    const grp = pool.filter((w) => w.synonym_group === wordItem.synonym_group && w.word !== wordItem.word);
+    if (grp.length >= count) return shuffle(grp.map((w) => w.meaning)).slice(0, count);
+  }
+  return shuffle(pool.filter((w) => w.word !== wordItem.word).map((w) => w.meaning)).slice(0, count);
 }
 
 function updateGridFilterPickerUI() {
@@ -347,6 +487,9 @@ function updateGridFilterPickerUI() {
   if (reshuffleBtn) {
     reshuffleBtn.style.display = gridViewMode === 'sample' ? 'inline-flex' : 'none';
   }
+  document.querySelectorAll('.grid-view-btn[data-view="missed"]').forEach((btn) => {
+    btn.style.display = serverMissedWords.length ? '' : 'none';
+  });
 }
 
 function buildGridFilterPickers(header) {
@@ -458,10 +601,17 @@ function initHubGrid() {
     card.className = 'hub-card';
     card.onclick = () => loadAndSelectCategory(cat.slug);
 
+    const pct = getFlashProgressPct(cat.slug);
+    const count = (ALL_WORDS[cat.slug] || []).length;
+    const progBlock = pct > 0
+      ? `<div class="hc-progress"><div class="hc-prog-fill${pct >= 100 ? ' done' : ''}" style="width:${pct}%"></div></div><span class="hc-prog-pct">รู้แล้ว ${pct}%</span>`
+      : (count ? `<span class="hc-prog-pct">${count} คำ</span>` : '');
+
     card.innerHTML = `
       <div class="hc-icon">${cat.icon}</div>
       <div class="hc-th">${cat.title}</div>
       <div class="hc-desc">${cat.desc}</div>
+      ${progBlock}
     `;
     grid.appendChild(card);
   });
@@ -496,6 +646,11 @@ function selectCategory(slug) {
   updateHUD();
 
   // สลับเข้าสู่โหมดรีวิว (ทบทวน) เป็นอันดับแรก
+  if (practiceMissedOnEnter && getMissedWordsInCategory().length) {
+    practiceMissedOnEnter = false;
+    gridViewMode = 'missed';
+    localStorage.setItem(GRID_VIEW_KEY, 'missed');
+  }
   switchMode('auto');
 }
 
@@ -510,8 +665,9 @@ function switchMode(mode) {
   // โหมดทบทวน (auto) = เปิดดูเฉย ๆ ไม่นับคะแนน/ชีวิต → ซ่อนแถบคะแนน
   // โหมดฝึก (dictation/choice/match) = เริ่มรอบใหม่: รีเซ็ตชีวิต/คะแนน/สรุปผล
   const sd = document.getElementById('score-display');
-  if (sd) sd.style.display = (mode === 'auto') ? 'none' : 'flex';
-  if (mode !== 'auto') {
+  const scoredModes = ['dictation', 'choice', 'match', 'listen'];
+  if (sd) sd.style.display = (mode === 'auto' || mode === 'flash') ? 'none' : 'flex';
+  if (scoredModes.includes(mode)) {
     currentScore = 0;
     currentLives = CONFIG.LIVES;
     resetSession();
@@ -530,10 +686,14 @@ function switchMode(mode) {
   document.getElementById('dictation-mode').style.display = 'none';
   document.getElementById('choice-mode').style.display = 'none';
   document.getElementById('match-mode').style.display = 'none';
+  document.getElementById('listen-mode').style.display = 'none';
+  const flashControls = document.getElementById('flash-controls');
+  if (flashControls) flashControls.style.display = 'none';
 
   // พลิกการ์ดกลับมาหน้าหลัก
   const card = document.getElementById('tcard');
   card.classList.remove('flipped');
+  flashRevealed = false;
 
   // จัดการแผงควบคุมการเล่นอัตโนมัติ
   const autoplayControls = document.getElementById('autoplay-controls');
@@ -541,6 +701,8 @@ function switchMode(mode) {
   // เลือกแผงตามโหมด
   const topicView = document.getElementById('topic-view');
   const wordArea = document.getElementById('word-area');
+  if (topicView) topicView.classList.remove('flash-mode');
+
   if (mode === 'auto') {
     if (topicView) topicView.classList.add('auto-grid-mode');
     if (wordArea) wordArea.style.display = 'none';
@@ -551,6 +713,13 @@ function switchMode(mode) {
     mountAutoplayControls();
     updateAutoplayProgress();
     document.getElementById('bar').style.width = '0%';
+  } else if (mode === 'flash') {
+    if (topicView) topicView.classList.add('flash-mode');
+    if (wordArea) wordArea.style.display = '';
+    if (autoplayControls) autoplayControls.style.display = 'none';
+    if (sd) sd.style.display = 'none';
+    mountFlashControls();
+    startFlashMode();
   } else {
     if (topicView) topicView.classList.remove('auto-grid-mode');
     if (wordArea) wordArea.style.display = '';
@@ -569,6 +738,11 @@ function switchMode(mode) {
     } else if (mode === 'match') {
       document.getElementById('match-mode').style.display = 'flex';
       initMatchingGame();
+    } else if (mode === 'listen') {
+      document.getElementById('listen-mode').style.display = 'block';
+      quizList = shuffle([...getQuizWords()]);
+      currentWordIndex = 0;
+      loadListenWord();
     }
   }
 }
@@ -600,7 +774,9 @@ function renderWordsGrid() {
   if (gridDisplayWords.length === 0) {
     const empty = document.createElement('div');
     empty.className = 'grid-empty-msg';
-    empty.textContent = 'ไม่มีคำในชั้นที่เลือก — ลองเปลี่ยนตัวกรอง';
+    empty.textContent = gridViewMode === 'missed'
+      ? 'ไม่มีคำที่เคยพลาดในหมวดนี้'
+      : 'ไม่มีคำในชั้นที่เลือก — ลองเปลี่ยนตัวกรอง';
     grid.appendChild(empty);
     applyGridColsLayout();
     stopAutoplay();
@@ -669,6 +845,11 @@ function toggleGridCard(card, idx) {
   if (isAutoplayActive && !autoplayPaused) pauseAutoplay(true);
   const wasFlipped = card.classList.contains('flipped');
   card.classList.toggle('flipped');
+  if (card.classList.contains('flipped')) {
+    adjustGridCardBackExpand(card);
+  } else {
+    resetGridCardBackExpand(card);
+  }
   goToAutoplayIndex(idx, { speak: !wasFlipped, scroll: false });
 }
 
@@ -713,6 +894,10 @@ function loadWord(index) {
 }
 
 function flipCard() {
+  if (currentMode === 'flash') {
+    revealFlashCard();
+    return;
+  }
   document.getElementById('tcard').classList.toggle('flipped');
 }
 
@@ -845,9 +1030,13 @@ function loadChoiceWord() {
   }
 
   const wordItem = quizList[currentWordIndex];
+  const pool = getQuizWords();
 
-  // นำคำใบ้มาใส่คำถาม
-  document.getElementById('choice-question-text').textContent = `คำว่า "${wordItem.word}" มีความหมายตรงกับข้อใด?`;
+  let questionText = `คำว่า "${wordItem.word}" มีความหมายตรงกับข้อใด?`;
+  if (activeCategorySlug === 'classifiers' && wordItem.classifier_for) {
+    questionText = `"${wordItem.classifier_for} 1 ___" — เลือกลักษณนามที่ถูก`;
+  }
+  document.getElementById('choice-question-text').textContent = questionText;
   
   // ซ่อนเนื้อหาการ์ดหลัก
   document.getElementById('wfront-emoji').textContent = '🎯';
@@ -860,12 +1049,8 @@ function loadChoiceWord() {
   document.getElementById('tcard').classList.remove('flipped');
 
   // สุ่มคำตอบลวง 3 ข้อจากคลังคำแปลอื่นในหมวดเดียวกัน
-  const decoyList = getQuizWords()
-    .filter(w => w.word !== wordItem.word)
-    .map(w => w.meaning);
-
-  const shuffledDecoys = shuffle(decoyList).slice(0, 3);
-  const options = shuffle([wordItem.meaning, ...shuffledDecoys]);
+  const decoys = pickMeaningDecoys(wordItem, pool, 3);
+  const options = shuffle([wordItem.meaning, ...decoys]);
 
   const container = document.getElementById('choice-options');
   container.innerHTML = '';
@@ -924,6 +1109,248 @@ function selectChoiceAnswer(selectedOpt, clickedBtn) {
   updateHUD();
 }
 
+// ═══ MODE 5: LISTEN (ฟังเสียงทายคำ) ═══
+
+function loadListenWord() {
+  isAnswered = false;
+  if (currentWordIndex >= quizList.length || currentLives <= 0) {
+    endGame();
+    return;
+  }
+
+  const wordItem = quizList[currentWordIndex];
+  const pool = getQuizWords();
+  const hint = document.getElementById('listen-hint');
+  if (hint) {
+    hint.textContent = activeCategorySlug === 'homophones'
+      ? 'ได้ยินคำอ่านเดียวกัน — เลือกคำที่ถูกต้อง'
+      : 'ได้ยินคำว่าอะไร? เลือกคำที่ถูกต้อง';
+  }
+
+  document.getElementById('wfront-emoji').textContent = '🎧';
+  document.getElementById('wfront-word').textContent = 'ฟังเสียง...';
+  document.getElementById('wfront-cat').textContent = 'โหมดฟังทายคำ';
+  document.getElementById('wback-reading').textContent = '— ซ่อนคำตอบ —';
+  document.getElementById('wback-meaning').textContent = wordItem.meaning;
+  document.getElementById('tcard').classList.remove('flipped');
+
+  const decoys = pickWordDecoys(wordItem, pool, 3).map((w) => w.word);
+  const options = shuffle([wordItem.word, ...decoys]);
+
+  const container = document.getElementById('listen-options');
+  container.innerHTML = '';
+  options.forEach((opt) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = opt;
+    btn.onclick = () => selectListenAnswer(opt, btn);
+    container.appendChild(btn);
+  });
+
+  speakThai(wordItem.word);
+
+  const pct = (currentWordIndex / quizList.length) * 100;
+  document.getElementById('bar').style.width = `${pct}%`;
+}
+
+function replayListenWord() {
+  if (currentWordIndex < quizList.length) speakThai(quizList[currentWordIndex].word);
+}
+
+function selectListenAnswer(selectedWord, clickedBtn) {
+  if (isAnswered) return;
+  isAnswered = true;
+  const wordItem = quizList[currentWordIndex];
+  const btns = document.querySelectorAll('#listen-options .option-btn');
+  btns.forEach((btn) => { btn.disabled = true; });
+
+  if (selectedWord === wordItem.word) {
+    clickedBtn.classList.add('correct');
+    currentScore += CONFIG.BASE_SCORE;
+    recordAnswer(wordItem, true);
+    showToast('ถูกต้อง! 🎉', 'correct');
+    KAMPAI.sound.correct();
+  } else {
+    clickedBtn.classList.add('wrong');
+    btns.forEach((btn) => {
+      if (btn.textContent === wordItem.word) btn.classList.add('correct');
+    });
+    currentLives--;
+    recordAnswer(wordItem, false);
+    showToast('ยังไม่ถูกต้องนะ 😢', 'wrong');
+    KAMPAI.sound.wrong();
+  }
+
+  document.getElementById('wfront-word').textContent = wordItem.word;
+  document.getElementById('wback-reading').textContent = `คำอ่าน: [ ${wordItem.reading} ]`;
+  document.getElementById('tcard').classList.add('flipped');
+
+  setTimeout(() => {
+    if (currentLives <= 0) endGame();
+    else { currentWordIndex++; loadListenWord(); }
+  }, 2800);
+  updateHUD();
+}
+
+// ═══ MODE 6: FLASH (สุ่มการ์ด — รู้แล้ว/ทบทวน) ═══
+
+function mountFlashControls() {
+  const saved = localStorage.getItem(FLASH_VARIANT_KEY);
+  if (['word2meaning', 'meaning2word', 'audio2word', 'mixed'].includes(saved)) flashVariant = saved;
+
+  document.querySelectorAll('.flash-var-btn').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.v === flashVariant);
+    if (!btn.dataset.tvhBound) {
+      btn.dataset.tvhBound = '1';
+      btn.addEventListener('click', () => {
+        flashVariant = btn.dataset.v;
+        localStorage.setItem(FLASH_VARIANT_KEY, flashVariant);
+        document.querySelectorAll('.flash-var-btn').forEach((b) => b.classList.toggle('active', b === btn));
+        if (currentMode === 'flash') renderFlashCard();
+      });
+    }
+  });
+
+  const reveal = document.getElementById('btn-flash-reveal');
+  const know = document.getElementById('btn-flash-know');
+  const review = document.getElementById('btn-flash-review');
+  const reset = document.getElementById('btn-flash-reset');
+
+  if (reveal && !reveal.dataset.tvhBound) {
+    reveal.dataset.tvhBound = '1';
+    reveal.addEventListener('click', () => revealFlashCard());
+  }
+  if (know && !know.dataset.tvhBound) {
+    know.dataset.tvhBound = '1';
+    know.addEventListener('click', () => flashMarkKnown(true));
+  }
+  if (review && !review.dataset.tvhBound) {
+    review.dataset.tvhBound = '1';
+    review.addEventListener('click', () => flashMarkKnown(false));
+  }
+  if (reset && !reset.dataset.tvhBound) {
+    reset.dataset.tvhBound = '1';
+    reset.addEventListener('click', () => resetFlashProgress());
+  }
+}
+
+function pickFlashVariant() {
+  if (flashVariant !== 'mixed') return flashVariant;
+  const pool = ['word2meaning', 'meaning2word'];
+  if (activeCategorySlug === 'homophones') pool.push('audio2word');
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function startFlashMode() {
+  const words = getQuizWords();
+  if (!words.length) {
+    showToast('ไม่มีคำในชุดนี้', 'wrong');
+    return;
+  }
+  flashTotal = words.length;
+  flashKnown = loadFlashKnown(activeCategorySlug);
+  flashReviewCount = {};
+  flashDeck = shuffle(words.map((_, i) => i));
+  flashRevealed = false;
+  renderFlashCard();
+}
+
+function resetFlashProgress() {
+  flashKnown = new Set();
+  saveFlashKnown(activeCategorySlug);
+  flashReviewCount = {};
+  startFlashMode();
+}
+
+function updateFlashScore() {
+  const el = document.getElementById('flash-score');
+  if (el) el.textContent = `รู้แล้ว ${flashKnown.size}/${flashTotal} · เหลือ ${Math.max(0, flashTotal - flashKnown.size)}`;
+  document.getElementById('bar').style.width = flashTotal ? `${(flashKnown.size / flashTotal) * 100}%` : '0%';
+}
+
+function renderFlashCard() {
+  const words = getQuizWords();
+  while (flashDeck.length && flashKnown.has(words[flashDeck[0]]?.word)) flashDeck.shift();
+
+  if (!flashDeck.length || !words.length) {
+    showToast('รู้แล้วครบทุกคำ! 🎉', 'correct');
+    initConfetti();
+    updateFlashScore();
+    return;
+  }
+
+  const idx = flashDeck[0];
+  const item = words[idx];
+  if (!item) { flashDeck.shift(); renderFlashCard(); return; }
+
+  flashRevealed = false;
+  const v = pickFlashVariant();
+  const tcard = document.getElementById('tcard');
+  tcard.classList.remove('flipped');
+
+  document.getElementById('btn-flash-reveal').style.display = '';
+  document.getElementById('btn-flash-know').style.display = 'none';
+  document.getElementById('btn-flash-review').style.display = 'none';
+
+  const emojiEl = document.getElementById('wfront-emoji');
+  const wordEl = document.getElementById('wfront-word');
+  const catEl = document.getElementById('wfront-cat');
+
+  if (activeCategorySlug === 'classifiers' && item.classifier_for && v !== 'meaning2word') {
+    emojiEl.textContent = item.emoji || '🏷️';
+    wordEl.textContent = `${item.classifier_for} 1 ___`;
+    catEl.textContent = 'เติมลักษณนาม';
+  } else if (v === 'meaning2word') {
+    emojiEl.textContent = item.emoji || '💭';
+    wordEl.textContent = item.meaning;
+    catEl.textContent = 'ความหมาย';
+  } else if (v === 'audio2word') {
+    emojiEl.textContent = '🔊';
+    wordEl.textContent = 'ฟังเสียง...';
+    catEl.textContent = 'ทายคำ';
+    speakThai(item.word);
+  } else {
+    emojiEl.textContent = item.emoji || activeCategory?.icon || '📝';
+    wordEl.textContent = item.word;
+    catEl.textContent = activeCategory?.title || '';
+  }
+
+  document.getElementById('wback-reading').textContent = `คำอ่าน: [ ${item.reading} ]`;
+  document.getElementById('wback-meaning').textContent = item.meaning;
+  updateFlashScore();
+}
+
+function revealFlashCard() {
+  if (flashRevealed) return;
+  flashRevealed = true;
+  document.getElementById('tcard').classList.add('flipped');
+  document.getElementById('btn-flash-reveal').style.display = 'none';
+  document.getElementById('btn-flash-know').style.display = '';
+  document.getElementById('btn-flash-review').style.display = '';
+
+  const words = getQuizWords();
+  const item = words[flashDeck[0]];
+  if (item && flashVariant !== 'audio2word') speakThai(item.word);
+}
+
+function flashMarkKnown(isKnown) {
+  if (!flashRevealed) return;
+  const words = getQuizWords();
+  const idx = flashDeck.shift();
+  const item = words[idx];
+  if (!item) { renderFlashCard(); return; }
+
+  if (isKnown) {
+    flashKnown.add(item.word);
+    saveFlashKnown(activeCategorySlug);
+  } else {
+    flashReviewCount[idx] = (flashReviewCount[idx] || 0) + 1;
+    const gap = Math.max(1, Math.ceil(flashDeck.length / (flashReviewCount[idx] + 1)));
+    flashDeck.splice(Math.min(gap, flashDeck.length), 0, idx);
+  }
+  renderFlashCard();
+}
+
 // ═══ MODE 4: MATCHING GAME (จับคู่คำอ่าน) ═══
 
 function initMatchingGame() {
@@ -931,8 +1358,17 @@ function initMatchingGame() {
   selectedMatchLeft = null;
   selectedMatchRight = null;
 
-  // เอาคำศัพท์มา 4 คำสุ่มเพื่อสลับสร้างตารางจับคู่
-  const matchWords = shuffle([...getQuizWords()]).slice(0, 4);
+  const pool = getQuizWords();
+  let matchWords = shuffle([...pool]).slice(0, 4);
+
+  if (activeCategorySlug === 'antonyms') {
+    const byPair = new Map();
+    pool.forEach((w) => {
+      if (w.pair_id) byPair.set(w.pair_id, [...(byPair.get(w.pair_id) || []), w]);
+    });
+    const groups = shuffle([...byPair.values()].filter((g) => g.length >= 2)).slice(0, 2);
+    if (groups.length >= 2) matchWords = groups.flat();
+  }
 
   const leftCol = document.getElementById('match-left');
   const rightCol = document.getElementById('match-right');
@@ -940,9 +1376,19 @@ function initMatchingGame() {
   leftCol.innerHTML = '';
   rightCol.innerHTML = '';
 
-  // สุ่มลำดับสำหรับข้างซ้าย (คำเขียน) และข้างขวา (คำอ่าน)
-  const leftItems = shuffle(matchWords.map(w => ({ id: w.word, text: w.word })));
-  const rightItems = shuffle(matchWords.map(w => ({ id: w.word, text: w.reading })));
+  let leftItems;
+  let rightItems;
+
+  if (activeCategorySlug === 'antonyms') {
+    leftItems = shuffle(matchWords.map((w) => ({ id: w.pair_id || w.word, text: w.word })));
+    rightItems = shuffle(matchWords.map((w) => {
+      const partner = pool.find((p) => p.pair_id === w.pair_id && p.word !== w.word);
+      return { id: w.pair_id || w.word, text: partner ? partner.word : w.word };
+    }));
+  } else {
+    leftItems = shuffle(matchWords.map((w) => ({ id: w.word, text: w.word })));
+    rightItems = shuffle(matchWords.map((w) => ({ id: w.word, text: w.reading })));
+  }
 
   leftItems.forEach(item => {
     const card = document.createElement('div');
@@ -1437,6 +1883,7 @@ function runAutoplayStep(forcedGen) {
 
   if (card) {
     card.classList.remove('flipped');
+    resetGridCardBackExpand(card);
     card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
@@ -1455,7 +1902,10 @@ function runAutoplayStep(forcedGen) {
     if (gen !== autoplayGen || !isAutoplayActive || autoplayPaused) return;
     const backTexts = buildAutoplayTexts(item, 'back');
     const needsFlip = autoFlipEnabled && backTexts.length > 0;
-    if (needsFlip && card) card.classList.add('flipped');
+    if (needsFlip && card) {
+      card.classList.add('flipped');
+      adjustGridCardBackExpand(card);
+    }
     if (backTexts.length) {
       speakThaiSequence(backTexts, finishStep);
     } else {
@@ -1468,7 +1918,10 @@ function runAutoplayStep(forcedGen) {
   } else if (autoReadMode === 'word' && autoFlipEnabled) {
     speakThaiSequence(frontTexts, () => {
       if (gen !== autoplayGen) return;
-      if (card) card.classList.add('flipped');
+      if (card) {
+        card.classList.add('flipped');
+        adjustGridCardBackExpand(card);
+      }
       finishStep();
     });
   } else {
@@ -1563,6 +2016,10 @@ document.addEventListener('keydown', (e) => {
     }
   } else if (currentMode === 'choice' && e.key >= '1' && e.key <= '4') {
     const btns = document.querySelectorAll('#choice-options .option-btn');
+    const btn = btns[parseInt(e.key, 10) - 1];
+    if (btn && !btn.disabled) btn.click();
+  } else if (currentMode === 'listen' && e.key >= '1' && e.key <= '4') {
+    const btns = document.querySelectorAll('#listen-options .option-btn');
     const btn = btns[parseInt(e.key, 10) - 1];
     if (btn && !btn.disabled) btn.click();
   }
