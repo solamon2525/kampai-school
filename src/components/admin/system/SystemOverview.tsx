@@ -278,8 +278,9 @@ const versionHistory = [
         items: [
             'แก้ปกซ้ำ 3 ชิ้นที่ใช้ไฟล์เดียวกัน (math-fraction-hub / thai-grammar-hub / thai-script-hub)',
             'สร้างปกใหม่ตรงเนื้อหา: **แท่งเศษส่วนบวกลบ** · **คลังไวยากรณ์ไทย** · **Phonics A-apple B-ball C-cat**',
-            'คลังสื่อ 12 ชิ้นมีปก PNG 1280×720 ไม่ซ้ำกัน · Migration 324 cache-bust thumbnail',
+            'ใช้ชื่อไฟล์ใหม่ `cover-bars.png` / `cover-pos.png` ตัด cache ปกเก่า · Migration 324–325',
         ],
+
     },
     {
         version: 'v1.146.0 (สื่อมาตราตัวสะกด — T2)',
