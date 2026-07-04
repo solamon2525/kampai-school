@@ -48,6 +48,7 @@
   var isPlaying = false;
   var isVersus = false;
   var versusTimeLeft = 0;
+  var activeOrder = null;
   var versusTimerId = null;
   var animFrameId = null;
   var ledgerTransactions = [];
@@ -493,6 +494,8 @@
   var barnMesh = null;
   var scarecrowMesh = null;
   var processingMesh = null;
+  var shippingBoardMesh = null;
+  var cargoBoatMesh = null;
   function spawnScarecrowMesh() {
     if (scarecrowMesh) return;
     scarecrowMesh = new THREE.Group();
@@ -671,6 +674,32 @@
       if (processingMesh) processingMesh.scale.set(sc, sc, sc);
       if (pct >= 1.0) clearInterval(scaleInterval);
     }, 16);
+  }
+
+  function spawnShippingBoardMesh() {
+    if (shippingBoardMesh) return;
+    shippingBoardMesh = new THREE.Group();
+    shippingBoardMesh.position.set(-1.2, GROUND_Y, -1.5);
+    shippingBoardMesh.rotation.y = 0.5;
+    
+    var postMat = new THREE.MeshStandardMaterial({ color: '#7c2d12', roughness: 0.9 });
+    var post = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.55, 0.04), postMat);
+    post.position.y = 0.275;
+    post.castShadow = true;
+    shippingBoardMesh.add(post);
+    
+    var boardMat = new THREE.MeshStandardMaterial({ color: '#a16207', roughness: 0.8 });
+    var board = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.24, 0.04), boardMat);
+    board.position.y = 0.5;
+    board.castShadow = true;
+    shippingBoardMesh.add(board);
+    
+    var paperMat = new THREE.MeshStandardMaterial({ color: '#f8fafc', roughness: 0.9 });
+    var paper = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.18, 0.042), paperMat);
+    paper.position.set(0, 0.5, 0.005);
+    shippingBoardMesh.add(paper);
+    
+    islandGroup.add(shippingBoardMesh);
   }
 
   /* ========== Phase 3: Animal Husbandry Spawning & Balloons ========== */
@@ -924,6 +953,340 @@
     });
 
     quizOverlay.style.display = 'flex';
+  }
+
+  function spawnCargoBoat() {
+    if (cargoBoatMesh) {
+      scene.remove(cargoBoatMesh);
+      cargoBoatMesh = null;
+    }
+    cargoBoatMesh = new THREE.Group();
+    cargoBoatMesh.position.set(-3.5, -0.6, -3.5);
+    cargoBoatMesh.rotation.y = Math.PI * 0.75;
+    
+    var hullMat = new THREE.MeshStandardMaterial({ color: '#7c2d12', roughness: 0.8 });
+    var hull = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.16, 0.8), hullMat);
+    hull.position.y = 0.08;
+    cargoBoatMesh.add(hull);
+    
+    var deckMat = new THREE.MeshStandardMaterial({ color: '#f8fafc', roughness: 0.9 });
+    var deck = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.14, 0.3), deckMat);
+    deck.position.set(0, 0.23, -0.15);
+    cargoBoatMesh.add(deck);
+    
+    var boxMat1 = new THREE.MeshStandardMaterial({ color: '#fbbf24', roughness: 0.8 });
+    var box1 = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.16, 0.18), boxMat1);
+    box1.position.set(-0.06, 0.16, 0.2);
+    cargoBoatMesh.add(box1);
+    
+    var boxMat2 = new THREE.MeshStandardMaterial({ color: '#10b981', roughness: 0.8 });
+    var box2 = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.14, 0.14), boxMat2);
+    box2.position.set(0.06, 0.15, 0.18);
+    cargoBoatMesh.add(box2);
+    
+    scene.add(cargoBoatMesh);
+    
+    var startTime = clock.elapsedTime;
+    var boatInterval = setInterval(function () {
+      if (!cargoBoatMesh) {
+        clearInterval(boatInterval);
+        return;
+      }
+      var elapsed = clock.elapsedTime - startTime;
+      var pct = Math.min(1.0, elapsed / 3.0);
+      
+      var startX = -3.5, startZ = -3.5;
+      var targetX = -12.0, targetZ = -12.0;
+      cargoBoatMesh.position.x = startX + (targetX - startX) * pct;
+      cargoBoatMesh.position.z = startZ + (targetZ - startZ) * pct;
+      
+      cargoBoatMesh.position.y = -0.6 + Math.sin(clock.elapsedTime * 6.0) * 0.03;
+      
+      if (pct >= 1.0) {
+        scene.remove(cargoBoatMesh);
+        cargoBoatMesh = null;
+        clearInterval(boatInterval);
+      }
+    }, 16);
+  }
+
+  function triggerShippingQuiz(order, callback) {
+    var quizOverlay = document.getElementById('quizModal');
+    var quizQuestionEl = document.getElementById('quizQuestion');
+    var quizChoicesEl = document.getElementById('quizChoices');
+    var quizTimerEl = document.getElementById('quizTimer');
+    if (!quizOverlay || !quizQuestionEl || !quizChoicesEl) return;
+
+    var mode = order.mode;
+    var answer = 0;
+    var qText = "";
+    
+    if (mode === 1) {
+      var t = order.time;
+      var d = order.distance;
+      answer = d / t;
+      qText = "🚢 เรือขนส่งแล่นออกจากท่าไปยังเกาะลูกจ้างระยะทาง " + d + " กิโลเมตร หากต้องการจัดส่งให้ถึงภายในเวลา " + t + " ชั่วโมง จะต้องควบคุมเรือด้วยความเร็วเฉลี่ยกี่กิโลเมตรต่อชั่วโมง (กม./ชม.)?";
+    } else if (mode === 2) {
+      var v = order.speed;
+      var t = order.time;
+      answer = v * t;
+      qText = "🚢 เรือแล่นส่งของไปยังเกาะข้างเคียงด้วยความเร็วเฉลี่ยคงที่ " + v + " กิโลเมตรต่อชั่วโมง เป็นเวลาติดต่อกัน " + t + " ชั่วโมง เรือจะแล่นเป็นระยะทางรวมเท่าใด?";
+    } else {
+      var d = order.distance;
+      var v = order.speed;
+      answer = d / v;
+      qText = "🚢 เรือจัดส่งพายแครอทข้ามเกาะเป็นระยะทาง " + d + " กิโลเมตร ถ้าแล่นเรือด้วยความเร็วปกติ " + v + " กิโลเมตรต่อชั่วโมง จะใช้เวลาเดินทางทั้งหมดกี่ชั่วโมง?";
+    }
+
+    quizQuestionEl.textContent = qText;
+    quizChoicesEl.innerHTML = '';
+
+    var quizTimeLeft = 20;
+    if (quizTimerEl) quizTimerEl.textContent = '⏱️ เดินเรือ: ' + quizTimeLeft + ' วินาที';
+
+    if (quizIntervalId) clearInterval(quizIntervalId);
+    quizIntervalId = setInterval(function () {
+      quizTimeLeft--;
+      if (quizTimerEl) quizTimerEl.textContent = '⏱️ เดินเรือ: ' + quizTimeLeft + ' วินาที';
+      if (quizTimeLeft <= 0) {
+        handleShippingAnswer(false);
+      }
+    }, 1000);
+
+    function handleShippingAnswer(isCorrect) {
+      if (quizIntervalId) {
+        clearInterval(quizIntervalId);
+        quizIntervalId = null;
+      }
+      quizOverlay.style.display = 'none';
+      callback(isCorrect);
+    }
+
+    var choices = getQuizChoices(answer, 'medium');
+    choices.forEach(function (choice) {
+      var btn = document.createElement('button');
+      btn.className = 'quiz-choice-btn';
+      btn.textContent = choice;
+      btn.addEventListener('click', function () {
+        handleShippingAnswer(choice === answer);
+      });
+      quizChoicesEl.appendChild(btn);
+    });
+
+    quizOverlay.style.display = 'flex';
+  }
+
+  function openShippingModal() {
+    var modal = document.getElementById('shippingModal');
+    if (!modal) return;
+    
+    if (!activeOrder) {
+      var npcs = ["ลุงบุญส่ง 🧔", "ป้าสมใจ 👵", "พี่เก่ง 👦", "น้องมีนา 👧"];
+      var npc = npcs[Math.floor(getRandom() * npcs.length)];
+      
+      var reqs = [];
+      var pool = [
+        { key: 'pie', name: 'พายแครอท 🥧', price: 90 },
+        { key: 'butterCorn', name: 'ข้าวโพดอบเนย 🍿', price: 220 },
+        { key: 'melonIceCream', name: 'ไอศกรีมเมล่อน 🍦', price: 380 },
+        { key: 'carrot', name: 'แครอท 🥕', price: cropPrices.carrot },
+        { key: 'corn', name: 'ข้าวโพด 🌽', price: cropPrices.corn },
+        { key: 'melon', name: 'แตงโม 🍉', price: cropPrices.melon },
+        { key: 'egg', name: 'ไข่ไก่ 🥚', price: 25 },
+        { key: 'milk', name: 'นมสด 🥛', price: 65 }
+      ];
+      
+      var idx1 = Math.floor(getRandom() * pool.length);
+      var idx2 = Math.floor(getRandom() * pool.length);
+      if (idx1 === idx2) idx2 = (idx1 + 1) % pool.length;
+      
+      var item1 = pool[idx1];
+      var qty1 = Math.floor(getRandom() * 2) + 1;
+      if (item1.key === 'carrot' || item1.key === 'corn' || item1.key === 'egg') qty1 += 2;
+      
+      var item2 = pool[idx2];
+      var qty2 = Math.floor(getRandom() * 2) + 1;
+      if (item2.key === 'carrot' || item2.key === 'corn' || item2.key === 'egg') qty2 += 2;
+      
+      reqs.push({ key: item1.key, name: item1.name, qty: qty1, val: item1.price });
+      reqs.push({ key: item2.key, name: item2.name, qty: qty2, val: item2.price });
+      
+      var baseVal = (qty1 * item1.price) + (qty2 * item2.price);
+      var reward = Math.round(baseVal * 1.5);
+      
+      var mode = Math.floor(getRandom() * 3) + 1;
+      var distance = 0, time = 0, speed = 0;
+      if (mode === 1) {
+        time = [2, 3, 4][Math.floor(getRandom() * 3)];
+        speed = [5, 8, 10, 12][Math.floor(getRandom() * 4)];
+        distance = speed * time;
+      } else if (mode === 2) {
+        time = [2, 3, 4][Math.floor(getRandom() * 3)];
+        speed = [5, 8, 10, 12][Math.floor(getRandom() * 4)];
+        distance = speed * time;
+      } else {
+        speed = [5, 8, 10][Math.floor(getRandom() * 3)];
+        time = [2, 3, 4][Math.floor(getRandom() * 3)];
+        distance = speed * time;
+      }
+      
+      activeOrder = {
+        npc: npc,
+        items: reqs,
+        reward: reward,
+        mode: mode,
+        distance: distance,
+        time: time,
+        speed: speed
+      };
+    }
+    
+    var questNPC = document.getElementById('questNPC');
+    var questReward = document.getElementById('questReward');
+    var questItemsList = document.getElementById('questItemsList');
+    if (questNPC) questNPC.textContent = activeOrder.npc;
+    if (questReward) questReward.textContent = activeOrder.reward;
+    
+    if (questItemsList) {
+      questItemsList.innerHTML = '';
+      var allMet = true;
+      activeOrder.items.forEach(function (req) {
+        var current = crops[req.key] || 0;
+        var met = current >= req.qty;
+        if (!met) allMet = false;
+        
+        var row = document.createElement('div');
+        row.style.display = 'flex';
+        row.style.justifyContent = 'space-between';
+        row.style.alignItems = 'center';
+        row.style.fontSize = '13px';
+        
+        var nameSpan = document.createElement('span');
+        nameSpan.textContent = req.name + " x" + req.qty;
+        
+        var statusSpan = document.createElement('span');
+        if (met) {
+          statusSpan.textContent = "มีครบ (มี " + current + ") ✓";
+          statusSpan.style.color = "#059669";
+          statusSpan.style.fontWeight = "bold";
+        } else {
+          statusSpan.textContent = "ขาด " + (req.qty - current) + " (มี " + current + ") ✗";
+          statusSpan.style.color = "#dc2626";
+          statusSpan.style.fontWeight = "bold";
+        }
+        
+        row.appendChild(nameSpan);
+        row.appendChild(statusSpan);
+        questItemsList.appendChild(row);
+      });
+      
+      var btnDeliverOrder = document.getElementById('btnDeliverOrder');
+      if (btnDeliverOrder) {
+        btnDeliverOrder.disabled = !allMet;
+        if (allMet) {
+          btnDeliverOrder.textContent = "เริ่มการจัดส่งสินค้า 🚢";
+          btnDeliverOrder.style.opacity = '1.0';
+        } else {
+          btnDeliverOrder.textContent = "วัตถุดิบไม่ครบถ้วน ❌";
+          btnDeliverOrder.style.opacity = '0.6';
+        }
+      }
+    }
+    
+    var shippingQuizSection = document.getElementById('shippingQuizSection');
+    if (shippingQuizSection) shippingQuizSection.style.display = 'none';
+
+    modal.style.display = 'flex';
+  }
+
+  var closeShippingBtn = document.getElementById('closeShippingBtn');
+  if (closeShippingBtn) {
+    closeShippingBtn.addEventListener('click', function () {
+      document.getElementById('shippingModal').style.display = 'none';
+    });
+  }
+
+  var btnDeliverOrder = document.getElementById('btnDeliverOrder');
+  if (btnDeliverOrder) {
+    btnDeliverOrder.addEventListener('click', function () {
+      if (!activeOrder) return;
+      
+      var shippingQuizSection = document.getElementById('shippingQuizSection');
+      if (shippingQuizSection) {
+        shippingQuizSection.style.display = 'block';
+        
+        var qText = "";
+        var mode = activeOrder.mode;
+        var distance = activeOrder.distance;
+        var time = activeOrder.time;
+        var speed = activeOrder.speed;
+        var answer = 0;
+        
+        if (mode === 1) {
+          answer = distance / time;
+          qText = "🚢 ใบสั่งส่งเรือ: เพื่อไปส่งพัสดุข้ามเกาะระยะทาง " + distance + " กม. ให้ทันภายในเวลา " + time + " ชม. เรือส่งสินค้าจะต้องแล่นเรือเฉลี่ยกี่ กม./ชม.?";
+        } else if (mode === 2) {
+          answer = speed * time;
+          qText = "🚢 ใบสั่งส่งเรือ: เรือขนส่งออกเดินทางด้วยความเร็วเฉลี่ย " + speed + " กม./ชม. เป็นเวลา " + time + " ชม. เรือจะแล่นเป็นระยะทางกี่กิโลเมตร?";
+        } else {
+          answer = distance / speed;
+          qText = "🚢 ใบสั่งส่งเรือ: ท่าเรือปลายทางห่างออกไป " + distance + " กม. ถ้าเรือขนส่งแล่นด้วยความเร็วคงที่ " + speed + " กม./ชม. จะต้องเดินทางกี่ชั่วโมง?";
+        }
+        
+        var shippingQuestionText = document.getElementById('shippingQuestionText');
+        if (shippingQuestionText) shippingQuestionText.textContent = qText;
+        
+        var shippingChoices = document.getElementById('shippingChoices');
+        if (shippingChoices) {
+          shippingChoices.innerHTML = '';
+          var choices = getQuizChoices(answer, 'medium');
+          choices.forEach(function (choice) {
+            var btn = document.createElement('button');
+            btn.className = 'quiz-choice-btn';
+            btn.textContent = choice;
+            btn.addEventListener('click', function () {
+              handleShippingQuizResult(choice === answer);
+            });
+            shippingChoices.appendChild(btn);
+          });
+        }
+      }
+    });
+  }
+
+  function handleShippingQuizResult(isCorrect) {
+    document.getElementById('shippingModal').style.display = 'none';
+    if (!activeOrder) return;
+    
+    if (isCorrect) {
+      activeOrder.items.forEach(function (req) {
+        crops[req.key] -= req.qty;
+      });
+      
+      money += activeOrder.reward;
+      totalEarned += activeOrder.reward;
+      
+      var orderDesc = "ส่งสินค้าข้ามเกาะให้ " + activeOrder.npc;
+      addLedgerEntry(orderDesc, "revenue", activeOrder.reward);
+      toast("🎉 ขนส่งสำเร็จ! เรือออกตัวอย่างปลอดภัย ได้รับ +" + activeOrder.reward + " 🪙", "good");
+      
+      if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.correct) {
+        try { KAMPAI.sound.correct(); } catch (e) { /* */ }
+      }
+      
+      spawnCargoBoat();
+      activeOrder = null;
+    } else {
+      var penalty = 50;
+      money -= penalty;
+      toast("❌ ส่งของล้มเหลวเนื่องจากเรือเสียหลัก/คำนวณคลาดเคลื่อน! (โดนปรับค่ากู้เรือ 50 🪙)", "warn");
+      addLedgerEntry("ค่ากู้ภัยจัดส่งสินค้าล้มเหลว", "expense", penalty);
+      
+      if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.wrong) {
+        try { KAMPAI.sound.wrong(); } catch (e) { /* */ }
+      }
+    }
+    refreshHud();
   }
 
   function triggerFractionQuiz(recipe, batch, callback) {
@@ -1958,6 +2321,7 @@
     islandGroup.add(stem);
     islandGroup.add(bud);
   }
+  spawnShippingBoardMesh();
 
   /* ========== Farm Plots ========== */
   var plots = [];
@@ -2265,6 +2629,16 @@
       var factoryHit = raycaster.intersectObjects(factoryMeshes)[0];
       if (factoryHit) {
         openProcessingModal();
+        return;
+      }
+    }
+
+    if (shippingBoardMesh) {
+      var boardMeshes = [];
+      shippingBoardMesh.traverse(function (o) { if (o.isMesh) boardMeshes.push(o); });
+      var boardHit = raycaster.intersectObjects(boardMeshes)[0];
+      if (boardHit) {
+        openShippingModal();
         return;
       }
     }
@@ -2703,6 +3077,7 @@
     shownMoney = money;
     wormSpawnTimer = 25.0;
 
+    activeOrder = null;
     bankBalance = 0;
     shownBankBalance = 0;
     cropPrices = {
@@ -2749,6 +3124,10 @@
     if (processingMesh) {
       islandGroup.remove(processingMesh);
       processingMesh = null;
+    }
+    if (cargoBoatMesh) {
+      scene.remove(cargoBoatMesh);
+      cargoBoatMesh = null;
     }
 
     chickensList.forEach(function (c) {

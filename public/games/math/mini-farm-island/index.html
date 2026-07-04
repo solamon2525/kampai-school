@@ -410,6 +410,51 @@
     </div>
   </div>
 
+  <!-- Shipping Modal -->
+  <div class="modal-overlay" id="shippingModal" style="display:none">
+    <div class="modal-card" style="max-width: 420px; text-align: left;">
+      <h2 style="margin-top: 0; color: #0284c7; display: flex; align-items: center; gap: 8px;">
+        🚢 ท่าเรือ & ใบสั่งซื้อสินค้า
+      </h2>
+      <p style="color: #64748b; font-size: 13px; margin-bottom: 18px; line-height: 1.4;">
+        จัดส่งผลผลิตข้ามเกาะโดยคำนวณการเดินเรือขนส่งให้ตรงเวลาเพื่อรับเหรียญรางวัลพิเศษ!
+      </p>
+      
+      <!-- Quest Details Card -->
+      <div id="questDetailsCard" style="background: rgba(2, 132, 199, 0.05); border: 1px dashed #0284c7; padding: 14px; border-radius: 12px; margin-bottom: 16px;">
+        <div style="font-weight: bold; font-size: 15px; color: #0369a1; display: flex; justify-content: space-between;">
+          <span>📋 ออเดอร์จาก: <span id="questNPC">ลุงทองดี</span></span>
+          <span style="color: #059669;">💰 รางวัล: +<span id="questReward">400</span> 🪙</span>
+        </div>
+        
+        <!-- Required items checklist -->
+        <div style="margin-top: 10px; font-size: 13px; color: #334155;">
+          <div style="font-weight: 600; margin-bottom: 4px;">ผลผลิตที่ต้องการส่งมอบ:</div>
+          <div id="questItemsList" style="padding-left: 8px; display: flex; flex-direction: column; gap: 4px;">
+            <!-- dynamic checklist -->
+          </div>
+        </div>
+      </div>
+      
+      <!-- Shipping Quiz Section -->
+      <div id="shippingQuizSection" style="display: none; border-top: 1px solid rgba(0,0,0,0.06); padding-top: 14px;">
+        <div style="font-weight: bold; font-size: 14px; color: #1e293b; margin-bottom: 8px;">📐 โจทย์คำนวณเดินเรือ (ระยะทาง-เวลา-ความเร็ว):</div>
+        <p id="shippingQuestionText" style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.5; color: #334155; margin-bottom: 14px;">
+          โจทย์คำนวณ...
+        </p>
+        
+        <div id="shippingChoices" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px;">
+          <!-- choices buttons -->
+        </div>
+      </div>
+      
+      <button id="btnDeliverOrder" class="sell" style="width: 100%; background: linear-gradient(180deg, #0284c7, #0369a1); color: white; border: none; padding: 12px; border-radius: 14px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(2,132,199,0.25);">
+        เริ่มตระเตรียมการจัดส่ง 📦
+      </button>
+      <button class="close-btn" id="closeShippingBtn" style="margin-top: 10px; padding: 10px;">❌ ปิดหน้าต่าง</button>
+    </div>
+  </div>
+
   <!-- Toast notifications -->
   <div class="toasts" id="toasts"></div>
 
