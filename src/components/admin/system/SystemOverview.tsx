@@ -272,13 +272,23 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.148.0 (balloon-burst ปกจิบิใหม่)',
+        version: 'v1.149.0 (แทนปก SVG ทั้งหมดเป็น PNG เต็มขอบ)',
         date: 'ล่าสุด',
+        badge: 'bg-indigo-600',
+        items: [
+            'แทนปก SVG/แบบเวกเตอร์เก่าด้วย PNG เต็มขอบ 1280×720 + ชื่อไทย/อังกฤษ: **Multiply Burst** · **Math Rally** · **Voxel Quiz** · **Platformer Blueprint**',
+            'ลบ `cover.svg` ที่เหลือในเกมจริง · Migration 328',
+        ],
+    },
+    {
+        version: 'v1.148.0 (balloon-burst ปกจิบิใหม่)',
+        date: '',
         badge: 'bg-pink-500',
         items: [
             '**Balloon Burst** — ปกจิบิเต็มขอบ 1280×720 มีชื่อ **Balloon Burst** + **คำประวิสรรชนีย์**',
             '`cover-chibi-full.png` · Migration 326–327',
         ],
+
 
     },
     {
