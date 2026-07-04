@@ -272,8 +272,17 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.149.0 (แทนปก SVG ทั้งหมดเป็น PNG เต็มขอบ)',
+        version: 'v1.150.0 (mini-farm-island ปกเต็มขอบ)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            '**Mini Farm Island** — ปกจิบิเต็มขอบ 1280×720 มีชื่อ **มินิฟาร์มไอส์แลนด์** + **Mini Farm Island** ไม่ถูกตัด',
+            'อัปเดต `cover.png` + cache bust `?v=2` · Migration 329',
+        ],
+    },
+    {
+        version: 'v1.149.0 (แทนปก SVG ทั้งหมดเป็น PNG เต็มขอบ)',
+        date: '',
         badge: 'bg-indigo-600',
         items: [
             'แทนปก SVG/แบบเวกเตอร์เก่าด้วย PNG เต็มขอบ 1280×720 + ชื่อไทย/อังกฤษ: **Multiply Burst** · **Math Rally** · **Voxel Quiz** · **Platformer Blueprint**',
