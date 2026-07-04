@@ -272,14 +272,25 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.142.0 (สื่อ Phonics Chart — E1)',
+        version: 'v1.143.0 (Phonics โหมดฝึก + แผนภาพสระไทย T1)',
         date: 'ล่าสุด',
+        badge: 'bg-orange-600',
+        items: [
+            '**Phonics Chart** — เสียงแบบห้องเรียน “a as in apple” + โหมด **✏️ ฝึก** (ฟังแล้วเลือกคำ · streak)',
+            '**สื่อ T1** `thai-sara-chart` — แผนภาพสระไทย ป.1–2: สระสั้น / ยาว / ประสม แตะฟัง + คำตัวอย่าง · คู่เกม `thai-sara-run`',
+            'Migration 320 seed · ปก PNG · หมวดคลังสื่อการสอน',
+        ],
+    },
+    {
+        version: 'v1.142.0 (สื่อ Phonics Chart — E1)',
+        date: '',
         badge: 'bg-cyan-600',
         items: [
             '**สื่อการสอน** `phonics-chart` — แผนภูมิ phonics ป.1–3: A–Z · blends · digraphs แตะฟังเสียง + คำตัวอย่าง (TTS)',
             'หมวด **คลังสื่อการสอน** · `tracked_game=false` · ปก PNG 1280×720 · Migration 319 · ลิงก์ไปคลังคำศัพท์อังกฤษ',
         ],
     },
+
     {
         version: 'v1.141.0 (เครื่องมือสร้างสื่อ — เทมเพลต + Prompt + ปก)',
         date: '',
