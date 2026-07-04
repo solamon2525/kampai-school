@@ -17,6 +17,7 @@ import { Link } from 'react-router-dom';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { gamePlayService } from '@/services/game-play.service';
 import { GameDemoPreview } from '@/components/educational-hub/GameDemoPreview';
+import { GameCoverThumb } from '@/components/educational-hub/GameCoverThumb';
 import type { EduHubItem } from '@/services/educational-hub.service';
 
 export const FeaturedGameDialog = ({
@@ -41,7 +42,9 @@ export const FeaturedGameDialog = ({
 
     const handlePlay = () => {
         onOpenChange(false);
-        if (game.game_slug) {
+        if (game.game_slug === 'english-quest') {
+            navigate('/english-quest');
+        } else if (game.game_slug) {
             navigate(`/play/${game.game_slug}`);
         } else if (game.external_url) {
             window.open(game.external_url, '_blank', 'noopener,noreferrer');
@@ -58,13 +61,13 @@ export const FeaturedGameDialog = ({
                 </DialogHeader>
 
                 {/* ปก */}
-                <div className="aspect-video w-full overflow-hidden rounded-lg border border-border bg-muted">
+                <div className="w-full overflow-hidden rounded-lg border border-border">
                     {game.thumbnail_url && game.preview_video_url ? (
                         <GameDemoPreview cover={game.thumbnail_url} video={game.preview_video_url} title={game.title} />
                     ) : game.thumbnail_url ? (
-                        <img src={game.thumbnail_url} alt={game.title} className="w-full h-full object-contain" />
+                        <GameCoverThumb src={game.thumbnail_url} alt={game.title} />
                     ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-muted to-secondary flex items-center justify-center text-4xl">🎮</div>
+                        <div className="aspect-video w-full bg-gradient-to-br from-muted to-secondary flex items-center justify-center text-4xl">🎮</div>
                     )}
                 </div>
 

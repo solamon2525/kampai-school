@@ -23,6 +23,7 @@ import {
 import { gamePlayService } from '@/services/game-play.service';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { GameDemoPreview } from './GameDemoPreview';
+import { GameCoverThumb } from './GameCoverThumb';
 import type { ViewMode } from '@/hooks/useViewMode';
 
 interface Props {
@@ -89,6 +90,11 @@ export const EduHubItemCard = ({
     };
 
     const handleClick = () => {
+        if (item.game_slug === 'english-quest') {
+            trackView();
+            navigate('/english-quest');
+            return;
+        }
         if (item.tracked_game && item.game_slug) {
             trackView();
             navigate(`/play/${item.game_slug}`);
@@ -466,14 +472,7 @@ const ItemThumbnail = ({ item }: { item: EduHubItem }) => {
             );
         }
         return (
-            <div className="aspect-video w-full overflow-hidden bg-muted">
-                <img
-                    src={item.thumbnail_url}
-                    alt={item.title}
-                    loading="lazy"
-                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
-                />
-            </div>
+            <GameCoverThumb src={item.thumbnail_url!} alt={item.title} />
         );
     }
 

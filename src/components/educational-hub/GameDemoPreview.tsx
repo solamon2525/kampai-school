@@ -67,12 +67,12 @@ export const GameDemoPreview = ({ cover, video, title, delayMs = 2000 }: Props) 
     }, [video, delayMs]);
 
     return (
-        <div ref={containerRef} className="aspect-video w-full overflow-hidden bg-muted relative">
+        <div ref={containerRef} className="aspect-video w-full overflow-hidden bg-muted relative p-2">
             <img
                 src={cover}
                 alt={title}
                 loading="lazy"
-                className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                className="w-full h-full object-contain"
             />
             <video
                 ref={videoRef}

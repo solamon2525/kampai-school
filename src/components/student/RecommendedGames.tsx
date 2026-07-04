@@ -12,6 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Loader2, Sparkles, TrendingUp, Target } from 'lucide-react';
 import { curriculumService, type GameRecommendationReason } from '@/services/curriculum.service';
+import { GameCoverThumb } from '@/components/educational-hub/GameCoverThumb';
 import { cn } from '@/lib/utils';
 
 const REASON_META: Record<GameRecommendationReason, { label: string; icon: typeof Target; cls: string }> = {
@@ -62,15 +63,11 @@ export const RecommendedGames = ({
                         to={`/play/${g.slug}`}
                         className="group rounded-xl border bg-card overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all"
                     >
-                        <div className="aspect-video bg-muted relative overflow-hidden">
+                        <div className="relative">
                             {g.thumbnail ? (
-                                <img
-                                    src={g.thumbnail}
-                                    alt={g.title}
-                                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
-                                />
+                                <GameCoverThumb src={g.thumbnail} alt={g.title} />
                             ) : (
-                                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                                <div className="aspect-video w-full flex items-center justify-center bg-muted text-muted-foreground">
                                     <Sparkles className="w-8 h-8" />
                                 </div>
                             )}

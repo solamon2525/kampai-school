@@ -19,7 +19,7 @@ import FacebookFeedSection from '@/components/home/sections/FacebookFeedSection'
 import { educationalHubService, type EduHubItem } from '@/services/educational-hub.service';
 import { FeaturedGameDialog } from '@/components/home/FeaturedGameDialog';
 import { GameDemoPreview } from '@/components/educational-hub/GameDemoPreview';
-import { GameDemoPreview } from '@/components/educational-hub/GameDemoPreview';
+import { GameCoverThumb } from '@/components/educational-hub/GameCoverThumb';
 
 interface NewsItem {
   id: string;
@@ -1047,22 +1047,23 @@ export const useHomeMainBlocks = () => {
         fgMode === 'grid' ? 'w-full' : 'flex-shrink-0 w-44 sm:w-52 snap-start'
       )}
     >
-      <div className="aspect-video bg-muted rounded-lg overflow-hidden border border-border">
-        {game.thumbnail_url && game.preview_video_url ? (
-          <GameDemoPreview cover={game.thumbnail_url} video={game.preview_video_url} title={game.title} />
-        ) : game.thumbnail_url ? (
-          <img
-            src={game.thumbnail_url}
-            alt={game.title}
-            loading="lazy"
-            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-muted to-secondary flex items-center justify-center">
-            <span className="text-2xl">🎮</span>
-          </div>
-        )}
-      </div>
+      {game.thumbnail_url && game.preview_video_url ? (
+        <GameDemoPreview
+          cover={game.thumbnail_url}
+          video={game.preview_video_url}
+          title={game.title}
+        />
+      ) : game.thumbnail_url ? (
+        <GameCoverThumb
+          src={game.thumbnail_url}
+          alt={game.title}
+          className="rounded-lg border border-border"
+        />
+      ) : (
+        <div className="aspect-video bg-muted rounded-lg overflow-hidden border border-border flex items-center justify-center">
+          <span className="text-2xl">🎮</span>
+        </div>
+      )}
       <h4 className="text-xs font-semibold mt-2 line-clamp-2 group-hover:text-primary transition-colors">{game.title}</h4>
       {game.subject && <p className="text-[10px] text-muted-foreground mt-0.5">{game.subject}</p>}
     </motion.button>

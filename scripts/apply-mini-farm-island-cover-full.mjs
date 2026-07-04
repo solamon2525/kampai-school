@@ -13,7 +13,7 @@ const sb = createClient(url, key, { auth: { persistSession: false, autoRefreshTo
 const { data, error } = await sb
   .from('educational_hub_items')
   .update({
-    thumbnail_url: '/games/math/mini-farm-island/cover.png?v=2',
+    thumbnail_url: '/games/math/mini-farm-island/cover.png?v=3',
     updated_at: new Date().toISOString(),
   })
   .eq('game_slug', 'mini-farm-island')
