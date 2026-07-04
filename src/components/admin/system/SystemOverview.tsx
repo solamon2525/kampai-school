@@ -276,9 +276,10 @@ const versionHistory = [
         date: 'ล่าสุด',
         badge: 'bg-pink-500',
         items: [
-            '**Balloon Burst** — ปกใหม่แนวจิบิ (เด็กชี้เจาะลูกโป่งสีสด) · `cover-chibi.png` 1280×720',
-            'Migration 326 อัป thumbnail ตัด cache ปกเก่า',
+            '**Balloon Burst** — ปกจิบิเต็มขอบ 1280×720 มีชื่อ **Balloon Burst** + **คำประวิสรรชนีย์**',
+            '`cover-chibi-full.png` · Migration 326–327',
         ],
+
     },
     {
         version: 'v1.147.0 (ปกคลังสื่อ — ไม่ซ้ำ + ตรงเนื้อหา)',
