@@ -41,7 +41,7 @@
 
   /* ========== Game State ========== */
   var money = CFG.START_MONEY;
-  var crops = { carrot: 0, corn: 0, melon: 0, egg: 0, milk: 0 };
+  var crops = { carrot: 0, corn: 0, melon: 0, egg: 0, milk: 0, pie: 0, butterCorn: 0, melonIceCream: 0 };
   var selectedCropId = 'carrot';
   var totalEarned = 0;         // total money earned (score)
   var shownMoney = money;      // for count-up animation
@@ -59,7 +59,8 @@
     barn: false,
     chickenFeed: 0,
     cowFeed: 0,
-    islandLevel: 0
+    islandLevel: 0,
+    processing: false
   };
   var pendingWorms = [];       // store active 3D worm objects
   var chickensList = [];       // store active chicken 3D objects
@@ -491,6 +492,7 @@
   var coopMesh = null;
   var barnMesh = null;
   var scarecrowMesh = null;
+  var processingMesh = null;
   function spawnScarecrowMesh() {
     if (scarecrowMesh) return;
     scarecrowMesh = new THREE.Group();
@@ -626,6 +628,47 @@
       var pct = Math.min(1.0, elapsed / 0.5);
       var sc = easeOut(pct) * 1.0;
       if (barnMesh) barnMesh.scale.set(sc, sc, sc);
+      if (pct >= 1.0) clearInterval(scaleInterval);
+    }, 16);
+  }
+
+  function spawnProcessingMesh() {
+    if (processingMesh) return;
+    processingMesh = new THREE.Group();
+    processingMesh.position.set(0, GROUND_Y, 1.8);
+    processingMesh.scale.set(0.001, 0.001, 0.001);
+    
+    var wallMat = new THREE.MeshStandardMaterial({ color: '#475569', roughness: 0.7 });
+    var body = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.7, 0.9), wallMat);
+    body.position.y = 0.35;
+    body.castShadow = true; body.receiveShadow = true;
+    processingMesh.add(body);
+    
+    var roofMat = new THREE.MeshStandardMaterial({ color: '#1e1b4b', roughness: 0.8 });
+    var roof = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.2, 1.0), roofMat);
+    roof.position.y = 0.75;
+    roof.castShadow = true;
+    processingMesh.add(roof);
+    
+    var doorMat = new THREE.MeshStandardMaterial({ color: '#7c2d12', roughness: 0.9 });
+    var door = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.5, 0.04), doorMat);
+    door.position.set(0, 0.25, 0.46);
+    processingMesh.add(door);
+    
+    var chimneyMat = new THREE.MeshStandardMaterial({ color: '#94a3b8', roughness: 0.3, metalness: 0.8 });
+    var chimney = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.6, 8), chimneyMat);
+    chimney.position.set(0.3, 0.95, -0.3);
+    chimney.castShadow = true;
+    processingMesh.add(chimney);
+    
+    islandGroup.add(processingMesh);
+    
+    var startTime = clock.elapsedTime;
+    var scaleInterval = setInterval(function () {
+      var elapsed = clock.elapsedTime - startTime;
+      var pct = Math.min(1.0, elapsed / 0.5);
+      var sc = easeOut(pct) * 1.0;
+      if (processingMesh) processingMesh.scale.set(sc, sc, sc);
       if (pct >= 1.0) clearInterval(scaleInterval);
     }, 16);
   }
@@ -883,6 +926,248 @@
     quizOverlay.style.display = 'flex';
   }
 
+  function triggerFractionQuiz(recipe, batch, callback) {
+    var quizOverlay = document.getElementById('quizModal');
+    var quizQuestionEl = document.getElementById('quizQuestion');
+    var quizChoicesEl = document.getElementById('quizChoices');
+    var quizTimerEl = document.getElementById('quizTimer');
+    if (!quizOverlay || !quizQuestionEl || !quizChoicesEl) return;
+
+    var qText = "";
+    var correctAnswer = "";
+    var choices = [];
+
+    if (recipe === 'pie') {
+      qText = "🥧 โจทย์เศษส่วน: สูตรพายแครอท 1 ถาด ใช้ไข่ 1/3 ถ้วยตวง ถ้าต้องการแปรรูป " + batch + " ถาด จะต้องใช้ไข่รวมกี่ถ้วยตวง?";
+      if (batch === 1) { correctAnswer = "1/3"; choices = ["1/4", "1/3", "1/2", "2/3"]; }
+      else if (batch === 2) { correctAnswer = "2/3"; choices = ["1/3", "1/2", "2/3", "1"]; }
+      else if (batch === 3) { correctAnswer = "1"; choices = ["2/3", "1", "1 1/3", "1 1/2"]; }
+      else if (batch === 4) { correctAnswer = "1 1/3"; choices = ["1", "1 1/3", "1 2/3", "2"]; }
+      else { correctAnswer = "1 2/3"; choices = ["1 1/2", "1 2/3", "2", "2 1/3"]; }
+    } else if (recipe === 'corn') {
+      qText = "🍿 โจทย์เศษส่วน: สูตรข้าวโพดคลุกเนย 1 ถ้วย ใช้น้ำนมสด 3/4 แก้ว ถ้าต้องการแปรรูป " + batch + " ถ้วย จะต้องใช้น้ำนมสดรวมกี่แก้ว?";
+      if (batch === 1) { correctAnswer = "3/4"; choices = ["1/2", "3/4", "1", "1 1/4"]; }
+      else if (batch === 2) { correctAnswer = "1 1/2"; choices = ["1 1/4", "1 1/2", "1 3/4", "2"]; }
+      else if (batch === 3) { correctAnswer = "2 1/4"; choices = ["2", "2 1/4", "2 1/2", "2 3/4"]; }
+      else if (batch === 4) { correctAnswer = "3"; choices = ["2 3/4", "3", "3 1/4", "3 1/2"]; }
+      else { correctAnswer = "3 3/4"; choices = ["3 1/2", "3 3/4", "4", "4 1/4"]; }
+    } else { // icecream
+      qText = "🍦 โจทย์เศษส่วน: สูตรไอศกรีมเมล่อน 1 ถ้วย ใช้แตงโม 1/4 ลูก ถ้าต้องการแปรรูป " + batch + " ถ้วย จะต้องใช้แตงโมรวมกี่ลูก?";
+      if (batch === 1) { correctAnswer = "1/4"; choices = ["1/8", "1/4", "1/2", "3/4"]; }
+      else if (batch === 2) { correctAnswer = "1/2"; choices = ["1/4", "1/2", "3/4", "1"]; }
+      else if (batch === 3) { correctAnswer = "3/4"; choices = ["1/2", "3/4", "1", "1 1/4"]; }
+      else if (batch === 4) { correctAnswer = "1"; choices = ["3/4", "1", "1 1/4", "1 1/2"]; }
+      else { correctAnswer = "1 1/4"; choices = ["1", "1 1/4", "1 1/2", "1 3/4"]; }
+    }
+
+    quizQuestionEl.textContent = qText;
+    quizChoicesEl.innerHTML = '';
+
+    var quizTimeLeft = 20;
+    if (quizTimerEl) quizTimerEl.textContent = '⏱️ ตวงเศษส่วน: ' + quizTimeLeft + ' วินาที';
+
+    if (quizIntervalId) clearInterval(quizIntervalId);
+    quizIntervalId = setInterval(function () {
+      quizTimeLeft--;
+      if (quizTimerEl) quizTimerEl.textContent = '⏱️ ตวงเศษส่วน: ' + quizTimeLeft + ' วินาที';
+      if (quizTimeLeft <= 0) {
+        handleFractionAnswer(false);
+      }
+    }, 1000);
+
+    function handleFractionAnswer(isCorrect) {
+      if (quizIntervalId) {
+        clearInterval(quizIntervalId);
+        quizIntervalId = null;
+      }
+      quizOverlay.style.display = 'none';
+      callback(isCorrect);
+    }
+
+    choices.forEach(function (choice) {
+      var btn = document.createElement('button');
+      btn.className = 'quiz-choice-btn';
+      btn.textContent = choice;
+      btn.addEventListener('click', function () {
+        handleFractionAnswer(choice === correctAnswer);
+      });
+      quizChoicesEl.appendChild(btn);
+    });
+
+    quizOverlay.style.display = 'flex';
+  }
+
+  var selectedRecipe = 'pie';
+  var batchSize = 1;
+
+  function openProcessingModal() {
+    var modal = document.getElementById('processingModal');
+    if (!modal) return;
+    
+    var shedCarrot = document.getElementById('shedCarrot');
+    var shedCorn = document.getElementById('shedCorn');
+    var shedMelon = document.getElementById('shedMelon');
+    var shedEgg = document.getElementById('shedEgg');
+    var shedMilk = document.getElementById('shedMilk');
+    
+    if (shedCarrot) shedCarrot.textContent = crops.carrot;
+    if (shedCorn) shedCorn.textContent = crops.corn;
+    if (shedMelon) shedMelon.textContent = crops.melon;
+    if (shedEgg) shedEgg.textContent = crops.egg;
+    if (shedMilk) shedMilk.textContent = crops.milk;
+    
+    batchSize = 1;
+    updateBatchUI();
+    selectRecipe('pie');
+    
+    modal.style.display = 'flex';
+  }
+
+  function selectRecipe(recipe) {
+    selectedRecipe = recipe;
+    var cards = ['recipePie', 'recipeCorn', 'recipeIcecream'];
+    cards.forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) {
+        if ((id === 'recipePie' && recipe === 'pie') ||
+            (id === 'recipeCorn' && recipe === 'corn') ||
+            (id === 'recipeIcecream' && recipe === 'icecream')) {
+          el.style.borderColor = '#4f46e5';
+          el.style.background = 'rgba(79, 70, 229, 0.05)';
+          var chk = el.querySelector('.chk-indicator');
+          if (chk) {
+            chk.textContent = '✓';
+            chk.style.background = '#4f46e5';
+            chk.style.color = 'white';
+          }
+        } else {
+          el.style.borderColor = '#e2e8f0';
+          el.style.background = '';
+          var chk = el.querySelector('.chk-indicator');
+          if (chk) {
+            chk.textContent = '';
+            chk.style.background = '';
+          }
+        }
+      }
+    });
+  }
+
+  function updateBatchUI() {
+    var valEl = document.getElementById('batchSizeVal');
+    if (valEl) valEl.textContent = batchSize;
+  }
+
+  var closeProcessingBtn = document.getElementById('closeProcessingBtn');
+  if (closeProcessingBtn) {
+    closeProcessingBtn.addEventListener('click', function () {
+      document.getElementById('processingModal').style.display = 'none';
+    });
+  }
+
+  var recipePie = document.getElementById('recipePie');
+  if (recipePie) {
+    recipePie.addEventListener('click', function () { selectRecipe('pie'); });
+  }
+  var recipeCorn = document.getElementById('recipeCorn');
+  if (recipeCorn) {
+    recipeCorn.addEventListener('click', function () { selectRecipe('corn'); });
+  }
+  var recipeIcecream = document.getElementById('recipeIcecream');
+  if (recipeIcecream) {
+    recipeIcecream.addEventListener('click', function () { selectRecipe('icecream'); });
+  }
+
+  var btnBatchDec = document.getElementById('btnBatchDec');
+  if (btnBatchDec) {
+    btnBatchDec.addEventListener('click', function () {
+      if (batchSize > 1) {
+        batchSize--;
+        updateBatchUI();
+      }
+    });
+  }
+  var btnBatchInc = document.getElementById('btnBatchInc');
+  if (btnBatchInc) {
+    btnBatchInc.addEventListener('click', function () {
+      if (batchSize < 5) {
+        batchSize++;
+        updateBatchUI();
+      }
+    });
+  }
+
+  var btnStartProcess = document.getElementById('btnStartProcess');
+  if (btnStartProcess) {
+    btnStartProcess.addEventListener('click', function () {
+      var req = { carrot: 0, corn: 0, melon: 0, egg: 0, milk: 0 };
+      if (selectedRecipe === 'pie') {
+        req.carrot = batchSize * 2;
+        req.egg = batchSize * 1;
+      } else if (selectedRecipe === 'corn') {
+        req.corn = batchSize * 3;
+        req.milk = batchSize * 2;
+      } else {
+        req.melon = batchSize * 1;
+        req.milk = batchSize * 2;
+      }
+
+      if (crops.carrot < req.carrot || crops.corn < req.corn || crops.melon < req.melon || crops.egg < req.egg || crops.milk < req.milk) {
+        toast("❌ วัตถุดิบในฟาร์มไม่เพียงพอสำหรับผลิต!", "warn");
+        return;
+      }
+
+      document.getElementById('processingModal').style.display = 'none';
+
+      triggerFractionQuiz(selectedRecipe, batchSize, function (isCorrect) {
+        if (isCorrect) {
+          crops.carrot -= req.carrot;
+          crops.corn -= req.corn;
+          crops.melon -= req.melon;
+          crops.egg -= req.egg;
+          crops.milk -= req.milk;
+
+          var name = "";
+          if (selectedRecipe === 'pie') { crops.pie += batchSize; name = "🥧 พายแครอท"; }
+          else if (selectedRecipe === 'corn') { crops.butterCorn += batchSize; name = "🍿 ข้าวโพดอบเนย"; }
+          else { crops.melonIceCream += batchSize; name = "🍦 ไอศกรีมเมล่อน"; }
+
+          toast("🎉 แปรรูปสำเร็จ! ได้รับ " + name + " x" + batchSize + " ชิ้น เก็บเข้ายุ้งฉางแล้ว!", "good");
+          
+          if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.correct) {
+            try { KAMPAI.sound.correct(); } catch (e) { /* */ }
+          }
+          
+          if (processingMesh) {
+            var wp = new THREE.Vector3();
+            processingMesh.getWorldPosition(wp);
+            wp.y += 0.4;
+            burst(wp, ['#a855f7', '#ec4899', '#3b82f6'], 16, { up: 1.5, spread: 1.3 });
+          }
+        } else {
+          var wasteCarrot = Math.floor(req.carrot / 2);
+          var wasteCorn = Math.floor(req.corn / 2);
+          var wasteMelon = Math.floor(req.melon / 2);
+          var wasteEgg = Math.floor(req.egg / 2);
+          var wasteMilk = Math.floor(req.milk / 2);
+
+          crops.carrot -= wasteCarrot;
+          crops.corn -= wasteCorn;
+          crops.melon -= wasteMelon;
+          crops.egg -= wasteEgg;
+          crops.milk -= wasteMilk;
+
+          toast("❌ แปรรูปล้มเหลวเนื่องจากตวงสูตรผิดพลาด! สูญเสียวัตถุดิบบางส่วนในการทำอาหารเสีย", "warn");
+          
+          if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.wrong) {
+            try { KAMPAI.sound.wrong(); } catch (e) { /* */ }
+          }
+        }
+        refreshHud();
+      });
+    });
+  }
+
   function refreshPlotsVisibility(animateSpawn) {
     plots.forEach(function (g) {
       var d = g.userData;
@@ -1106,6 +1391,7 @@
     var buyFertilizerBtn = document.getElementById('buyFertilizerBtn');
     var buyExpandBtn = document.getElementById('buyExpandBtn');
     var expandDesc = document.getElementById('expandDesc');
+    var buyProcessingBtn = document.getElementById('buyProcessingBtn');
     
     var buyCoopBtn = document.getElementById('buyCoopBtn');
     var buyBarnBtn = document.getElementById('buyBarnBtn');
@@ -1123,6 +1409,11 @@
       buyScarecrowBtn.disabled = upgrades.scarecrow || money < 350;
       if (upgrades.scarecrow) buyScarecrowBtn.textContent = 'เป็นเจ้าของแล้ว ✅';
       else buyScarecrowBtn.textContent = 'ซื้อราคา 350 🪙';
+    }
+    if (buyProcessingBtn) {
+      buyProcessingBtn.disabled = upgrades.processing || money < 400;
+      if (upgrades.processing) buyProcessingBtn.textContent = 'สร้างเสร็จแล้ว ✅';
+      else buyProcessingBtn.textContent = 'ซื้อราคา 400 🪙';
     }
     if (buyExpandBtn && expandDesc) {
       if (upgrades.islandLevel === 0) {
@@ -1366,6 +1657,24 @@
     });
   }
 
+  var buyProcessingBtn = document.getElementById('buyProcessingBtn');
+  if (buyProcessingBtn) {
+    buyProcessingBtn.addEventListener('click', function () {
+      if (money >= 400 && !upgrades.processing) {
+        money -= 400;
+        upgrades.processing = true;
+        addLedgerEntry("สร้างโรงแปรรูปผลผลิต", "expense", 400);
+        toast("สร้างโรงแปรรูปผลผลิตสำเร็จ! 🏭🥧", "good");
+        spawnProcessingMesh();
+        refreshShopUI();
+        refreshHud();
+        if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.correct) {
+          try { KAMPAI.sound.correct(); } catch (e) { /* */ }
+        }
+      }
+    });
+  }
+
   /* ========== HUD Update ========== */
   function refreshHud() {
     var moneyEl = document.getElementById('money');
@@ -1378,12 +1687,20 @@
     var melonCountEl = document.getElementById('crop-melon');
     var eggCountEl = document.getElementById('crop-egg');
     var milkCountEl = document.getElementById('crop-milk');
+    var pieCountEl = document.getElementById('crop-pie');
+    var butterCornCountEl = document.getElementById('crop-butterCorn');
+    var melonIceCreamCountEl = document.getElementById('crop-melonIceCream');
+
     if (carrotCountEl) carrotCountEl.textContent = crops.carrot;
     if (cornCountEl) cornCountEl.textContent = crops.corn;
     if (melonCountEl) melonCountEl.textContent = crops.melon;
     if (eggCountEl) eggCountEl.textContent = crops.egg;
     if (milkCountEl) milkCountEl.textContent = crops.milk;
-    var totalCrops = crops.carrot + crops.corn + crops.melon + crops.egg + crops.milk;
+    if (pieCountEl) pieCountEl.textContent = crops.pie;
+    if (butterCornCountEl) butterCornCountEl.textContent = crops.butterCorn;
+    if (melonIceCreamCountEl) melonIceCreamCountEl.textContent = crops.melonIceCream;
+
+    var totalCrops = crops.carrot + crops.corn + crops.melon + crops.egg + crops.milk + crops.pie + crops.butterCorn + crops.melonIceCream;
     if (sellBtn) sellBtn.disabled = totalCrops <= 0;
   }
 
@@ -1942,6 +2259,16 @@
       return;
     }
 
+    if (upgrades.processing && processingMesh) {
+      var factoryMeshes = [];
+      processingMesh.traverse(function (o) { if (o.isMesh) factoryMeshes.push(o); });
+      var factoryHit = raycaster.intersectObjects(factoryMeshes)[0];
+      if (factoryHit) {
+        openProcessingModal();
+        return;
+      }
+    }
+
     var hit = raycaster.intersectObjects(soilMeshes())[0];
     if (hit) handlePlot(hit.object.userData.group);
   });
@@ -2251,7 +2578,7 @@
   /* ========== Sell ========== */
   if (sellBtn) {
     sellBtn.addEventListener('click', function () {
-      var totalCrops = crops.carrot + crops.corn + crops.melon + crops.egg + crops.milk;
+      var totalCrops = crops.carrot + crops.corn + crops.melon + crops.egg + crops.milk + crops.pie + crops.butterCorn + crops.melonIceCream;
       if (!isPlaying || totalCrops <= 0) {
         toast(DATA.MSG.noSell, 'warn');
         return;
@@ -2261,11 +2588,14 @@
                        crops.corn * cropPrices.corn +
                        crops.melon * cropPrices.melon +
                        crops.egg * cropPrices.egg +
-                       crops.milk * cropPrices.milk;
+                       crops.milk * cropPrices.milk +
+                       crops.pie * 90 +
+                       crops.butterCorn * 220 +
+                       crops.melonIceCream * 380;
 
       var difficulty = 'easy';
-      if (crops.melon > 0 || crops.milk > 0) difficulty = 'hard';
-      else if (crops.corn > 0 || crops.egg > 0) difficulty = 'medium';
+      if (crops.melon > 0 || crops.milk > 0 || crops.butterCorn > 0 || crops.melonIceCream > 0) difficulty = 'hard';
+      else if (crops.corn > 0 || crops.egg > 0 || crops.pie > 0) difficulty = 'medium';
 
       var quizOverlay = document.getElementById('quizModal');
       var quizQuestionEl = document.getElementById('quizQuestion');
@@ -2304,6 +2634,9 @@
         if (crops.melon > 0) soldCropList.push(crops.melon + ' แตงโม');
         if (crops.egg > 0) soldCropList.push(crops.egg + ' ไข่ไก่');
         if (crops.milk > 0) soldCropList.push(crops.milk + ' นมสด');
+        if (crops.pie > 0) soldCropList.push(crops.pie + ' พายแครอท');
+        if (crops.butterCorn > 0) soldCropList.push(crops.butterCorn + ' ข้าวโพดอบเนย');
+        if (crops.melonIceCream > 0) soldCropList.push(crops.melonIceCream + ' ไอศกรีมเมล่อน');
         var soldDesc = 'ขาย ' + soldCropList.join(', ');
 
         if (isCorrect) {
@@ -2329,7 +2662,7 @@
           addLedgerEntry(soldDesc + ' (โดนกดราคา 30%)', 'revenue', finalPayout);
         }
 
-        crops = { carrot: 0, corn: 0, melon: 0, egg: 0, milk: 0 };
+        crops = { carrot: 0, corn: 0, melon: 0, egg: 0, milk: 0, pie: 0, butterCorn: 0, melonIceCream: 0 };
         refreshHud();
 
         if (vs && isVersus) {
@@ -2365,7 +2698,7 @@
     isVersus = !!versusMode;
     activeRng = rng;
     money = CFG.START_MONEY;
-    crops = { carrot: 0, corn: 0, melon: 0, egg: 0, milk: 0 };
+    crops = { carrot: 0, corn: 0, melon: 0, egg: 0, milk: 0, pie: 0, butterCorn: 0, melonIceCream: 0 };
     totalEarned = 0;
     shownMoney = money;
     wormSpawnTimer = 25.0;
@@ -2397,7 +2730,8 @@
       barn: false,
       chickenFeed: 0,
       cowFeed: 0,
-      islandLevel: 0
+      islandLevel: 0,
+      processing: false
     };
     
     if (scarecrowMesh) {
@@ -2411,6 +2745,10 @@
     if (barnMesh) {
       islandGroup.remove(barnMesh);
       barnMesh = null;
+    }
+    if (processingMesh) {
+      islandGroup.remove(processingMesh);
+      processingMesh = null;
     }
 
     chickensList.forEach(function (c) {
@@ -2523,13 +2861,16 @@
     var cropSelectorEl = document.getElementById('cropSelector');
     if (cropSelectorEl) cropSelectorEl.style.display = 'none';
 
-    var totalCrops = crops.carrot + crops.corn + crops.melon + crops.egg + crops.milk;
+    var totalCrops = crops.carrot + crops.corn + crops.melon + crops.egg + crops.milk + crops.pie + crops.butterCorn + crops.melonIceCream;
     if (totalCrops > 0) {
       var income = crops.carrot * cropPrices.carrot +
                    crops.corn * cropPrices.corn +
                    crops.melon * cropPrices.melon +
                    crops.egg * cropPrices.egg +
-                   crops.milk * cropPrices.milk;
+                   crops.milk * cropPrices.milk +
+                   crops.pie * 90 +
+                   crops.butterCorn * 220 +
+                   crops.melonIceCream * 380;
       money += income;
       totalEarned += income;
       
@@ -2539,10 +2880,13 @@
       if (crops.melon > 0) soldCropList.push(crops.melon + ' แตงโม');
       if (crops.egg > 0) soldCropList.push(crops.egg + ' ไข่ไก่');
       if (crops.milk > 0) soldCropList.push(crops.milk + ' นมสด');
+      if (crops.pie > 0) soldCropList.push(crops.pie + ' พายแครอท');
+      if (crops.butterCorn > 0) soldCropList.push(crops.butterCorn + ' ข้าวโพดอบเนย');
+      if (crops.melonIceCream > 0) soldCropList.push(crops.melonIceCream + ' ไอศกรีมเมล่อน');
       var soldDesc = 'ขายออโต้ตอนหมดเวลา: ' + soldCropList.join(', ');
       
       addLedgerEntry(soldDesc, 'revenue', income);
-      crops = { carrot: 0, corn: 0, melon: 0, egg: 0, milk: 0 };
+      crops = { carrot: 0, corn: 0, melon: 0, egg: 0, milk: 0, pie: 0, butterCorn: 0, melonIceCream: 0 };
       refreshHud();
     }
 
