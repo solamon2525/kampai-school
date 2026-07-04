@@ -272,9 +272,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.147.0 (ปกคลังสื่อ — ไม่ซ้ำ + ตรงเนื้อหา)',
+        version: 'v1.148.0 (balloon-burst ปกจิบิใหม่)',
         date: 'ล่าสุด',
+        badge: 'bg-pink-500',
+        items: [
+            '**Balloon Burst** — ปกใหม่แนวจิบิ (เด็กชี้เจาะลูกโป่งสีสด) · `cover-chibi.png` 1280×720',
+            'Migration 326 อัป thumbnail ตัด cache ปกเก่า',
+        ],
+    },
+    {
+        version: 'v1.147.0 (ปกคลังสื่อ — ไม่ซ้ำ + ตรงเนื้อหา)',
+        date: '',
         badge: 'bg-violet-600',
+
         items: [
             'แก้ปกซ้ำ 3 ชิ้นที่ใช้ไฟล์เดียวกัน (math-fraction-hub / thai-grammar-hub / thai-script-hub)',
             'สร้างปกใหม่ตรงเนื้อหา: **แท่งเศษส่วนบวกลบ** · **คลังไวยากรณ์ไทย** · **Phonics A-apple B-ball C-cat**',
