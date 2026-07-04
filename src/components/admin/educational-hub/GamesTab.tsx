@@ -226,6 +226,63 @@ function CommandBlock({ label, command, note }: CommandBlockProps) {
     );
 }
 
+function AiMediaKit() {
+    const { toast } = useToast();
+    const [copied, setCopied] = useState(false);
+
+    const copyPrompt = async () => {
+        try {
+            const res = await fetch('/MEDIA-PROMPT.md');
+            const text = await res.text();
+            await navigator.clipboard.writeText(text);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1500);
+            toast({
+                title: 'คัดลอก Prompt สื่อแล้ว',
+                description: 'วางให้ AI พร้อมไอเดียสื่อการสอน (ไม่ใช่เกมแข่งคะแนน)',
+            });
+        } catch {
+            toast({ title: 'คัดลอกไม่สำเร็จ', variant: 'destructive' });
+        }
+    };
+
+    return (
+        <Card className="border-amber-500/30 bg-amber-500/5">
+            <CardContent className="p-4 space-y-3">
+                <div className="flex items-center gap-2">
+                    <Code2 className="h-4 w-4 text-amber-700" />
+                    <span className="text-sm font-semibold text-foreground">📚 สร้างสื่อการสอนด้วย AI</span>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                    สื่อสาธิตในห้องเรียน — ไม่มีคะแนน / อันดับ · ดาวน์โหลดเทมเพลต → คัดลอก Prompt → ได้ HTML →
+                    อัปเป็นหมวด <strong>คลังสื่อการสอน</strong> · ปกใช้ชุดสำเร็จรูป <strong>📚 สื่อการสอน</strong> ในปุ่มปก AI
+                </p>
+                <div className="flex flex-wrap gap-2">
+                    <Button asChild size="sm" variant="outline">
+                        <a href="/games/_template-media.html" download>
+                            <Download className="h-3.5 w-3.5 mr-1" /> เทมเพลตสื่อ
+                        </a>
+                    </Button>
+                    <Button size="sm" onClick={copyPrompt}>
+                        {copied ? <Check className="h-3.5 w-3.5 mr-1" /> : <Copy className="h-3.5 w-3.5 mr-1" />}
+                        คัดลอก Prompt สื่อ
+                    </Button>
+                    <Button asChild size="sm" variant="ghost">
+                        <a href="/MEDIA-PROMPT.md" target="_blank" rel="noreferrer">
+                            <ExternalLink className="h-3.5 w-3.5 mr-1" /> ดู Prompt
+                        </a>
+                    </Button>
+                    <Button asChild size="sm" variant="ghost">
+                        <a href="/games/_template-media.html" target="_blank" rel="noreferrer">
+                            <ExternalLink className="h-3.5 w-3.5 mr-1" /> เปิดตัวอย่าง
+                        </a>
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
+
 function AiGameKit({
     onOpenPrompt,
     pendingCount,
@@ -662,6 +719,7 @@ export const GamesTab = () => {
                 </div>
             </div>
 
+            <AiMediaKit />
             <AiGameKit
                 onOpenPrompt={() => setDialog({ mode: 'prompt' })}
                 pendingCount={pendingIndicatorIds.length}

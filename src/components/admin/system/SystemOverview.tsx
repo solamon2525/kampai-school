@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.140.0 (สื่อเศษส่วนวงกลม / แท่ง — M3)',
+        version: 'v1.141.0 (เครื่องมือสร้างสื่อ — เทมเพลต + Prompt + ปก)',
         date: 'ล่าสุด',
+        badge: 'bg-amber-600',
+        items: [
+            '**W1** `public/games/_template-media.html` — เทมเพลตสื่อการสอน (sidebar + แสดงเฉลย · ไม่มีคะแนน/อันดับ)',
+            '**W2** `public/MEDIA-PROMPT.md` — contract ให้ AI สร้างสื่อ interactive · การ์ด **📚 สร้างสื่อการสอนด้วย AI** ใน GamesTab',
+            '**W5** ชุดสำเร็จรูปปก **📚 สื่อการสอน** + สไตล์ `edu_poster` + ฉากสาธิตบนกระดาน — โทนห้องเรียน ไม่ใช่เกมอาร์เคด',
+        ],
+    },
+    {
+        version: 'v1.140.0 (สื่อเศษส่วนวงกลม / แท่ง — M3)',
+        date: '',
         badge: 'bg-orange-500',
         items: [
             '**สื่อการสอน** `fraction-pieces` — โมเดลเศษส่วนแบบวงกลมและแท่ง ป.3–5: แตะ/ลากชิ้นส่วนเทียบสมมูล (เช่น ½ = ²⁄₄) · preset ตัวอย่าง + สุ่มฝึก · ลิงก์ไปเกม Pizza (`math-pizza`)',
@@ -281,6 +291,7 @@ const versionHistory = [
             'เอกสาร backlog: `ไอเดียทำสื่อ.md` ติ๊ก M3 เสร็จ · คู่กับ `math-fraction-hub` (บวก/ลบ/เทียบ)',
         ],
     },
+
     {
         version: 'v1.139.0 (Math Fraction Hub — เศษส่วน ป.4)',
         date: '',

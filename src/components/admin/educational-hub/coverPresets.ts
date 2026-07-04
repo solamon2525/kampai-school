@@ -35,8 +35,10 @@ export const COVER_GROUPS: CoverGroup[] = [
             { id: 'voxel', label: '3D วอกเซล (บล็อก)', fragment: 'cute isometric 3D voxel art, blocky cubes, playful Minecraft-like world' },
             { id: 'crayon', label: 'สีเทียนเด็กวาด', fragment: 'playful crayon and colored-pencil childlike drawing, hand-drawn doodle charm' },
             { id: 'vector', label: 'เวกเตอร์แฟลตโมเดิร์น', fragment: 'modern flat vector illustration, clean geometric shapes, smooth gradients, minimal lines' },
+            { id: 'edu_poster', label: 'โปสเตอร์สื่อการสอน', fragment: 'clean educational classroom poster illustration, polished teaching-media style, NOT arcade game art, bright but calm, whiteboard and learning tools visible, friendly for elementary school, professional textbook-cover quality' },
         ],
     },
+
     {
         key: 'mood',
         label: 'อารมณ์ภาพ',
@@ -124,6 +126,7 @@ export const COVER_GROUPS: CoverGroup[] = [
             { id: 'race', label: 'แข่งวิ่ง / ความเร็ว', fragment: 'racing forward at high speed with motion lines' },
             { id: 'battle', label: 'สังเวียนต่อสู้', fragment: 'facing off in an epic battle arena, ready to duel' },
             { id: 'quiz', label: 'ตอบควิซ/ยกมือ', fragment: 'excitedly answering a quiz, raising hand among answer choices' },
+            { id: 'teaching_demo', label: 'สาธิตบนกระดาน', fragment: 'demonstrating a clear lesson on a whiteboard with diagrams, charts, and teaching aids, calm classroom focus' },
             { id: 'match', label: 'จับคู่/เรียงการ์ด', fragment: 'matching and sorting glowing cards in a puzzle' },
             { id: 'cooking', label: 'ทำอาหาร / ครัว', fragment: 'cooking happily in a busy kitchen' },
             { id: 'market', label: 'ตลาด/ซื้อขาย', fragment: 'running a cheerful little market shop, counting coins' },
@@ -199,6 +202,22 @@ export const COVER_GROUPS: CoverGroup[] = [
 
 /** ชุดสำเร็จรูป: คลิกเดียวเซ็ตทุกแกน */
 export const STYLE_PACKS: { id: string; label: string; pick: CoverSelection }[] = [
+    {
+        id: 'teaching',
+        label: '📚 สื่อการสอน',
+        pick: {
+            style: 'edu_poster',
+            mood: 'cozy',
+            colors: 'blue_navy',
+            character: 'teacher',
+            charsize: 'medium',
+            scene: ['teaching_demo'],
+            background: 'classroom',
+            composition: 'front',
+            effects: ['sparkle'],
+            detail: ['minimal', 'vibrant'],
+        },
+    },
     {
         id: 'cute',
         label: '🧸 การ์ตูนน่ารัก',

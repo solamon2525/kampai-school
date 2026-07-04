@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>สื่อการสอน — Template (kampai-school)</title>
+  <!--
+  ═══════════════════════════════════════════════════════════════════════════
+    KAMPAI-SCHOOL · MEDIA TEMPLATE (vanilla, single-file)
+    สื่อการสอน — ไม่ใช่เกม: ไม่มีคะแนน / leaderboard / lives
+
+    วิธีใช้:
+    1. cp public/games/_template-media.html public/games/{subject}/{slug}.html
+    2. แก้ MEDIA_SLUG + ชื่อหัวข้อ + สีโทน (ถ้าต้องการ)
+    3. เขียนเนื้อหาใน SECTION B (sidebar controls + content + เฉลย)
+    4. migration seed: category_key='media', tracked_game=false, item_type='link'
+    5. ปก PNG 1280×720 — ใช้ชุดสำเร็จรูป "📚 สื่อการสอน" ในปุ่มปก AI
+
+    สัญญาเต็ม: /MEDIA-PROMPT.md · backlog: ไอเดียทำสื่อ.md
+  ═══════════════════════════════════════════════════════════════════════════
+  -->
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #1e3a8a;
+      --sky: #60a5fa;
+      --cream: #eff6ff;
+      --card: #ffffff;
+      --muted: #64748b;
+      --ok: #16a34a;
+      --line: #bfdbfe;
+    }
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: linear-gradient(145deg, #dbeafe 0%, #eff6ff 45%, #bfdbfe 100%);
+      min-height: 100vh;
+      color: #0f172a;
+      padding: 12px;
+    }
+    .shell {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: var(--card);
+      border-radius: 1.5rem;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: calc(100vh - 24px);
+    }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: linear-gradient(90deg, #1e3a8a, #1d4ed8 55%, #2563eb);
+      color: #fff;
+    }
+    header h1 { font-size: 1.15rem; font-weight: 800; flex: 1; min-width: 160px; }
+    header .badge {
+      font-size: 0.75rem;
+      background: rgba(255,255,255,0.2);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+    .btn {
+      font-family: inherit;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: transform 0.15s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-back {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.35);
+      padding: 8px 12px;
+      font-size: 0.85rem;
+    }
+    .btn-primary { background: var(--navy); color: #fff; width: 100%; }
+    .btn-accent { background: #fbbf24; color: #78350f; width: 100%; }
+    .btn-ghost {
+      background: #fff;
+      color: var(--navy);
+      border: 2px solid var(--line);
+      width: 100%;
+    }
+    .body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    @media (min-width: 768px) {
+      .body { flex-direction: row; }
+    }
+    .sidebar {
+      background: var(--navy);
+      color: #fff;
+      padding: 20px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    @media (min-width: 768px) {
+      .sidebar { width: 300px; }
+    }
+    .sidebar h2 { font-size: 1.15rem; font-weight: 800; }
+    .field-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #93c5fd;
+      margin-bottom: 6px;
+    }
+    .field-group { margin-bottom: 4px; }
+    .input-field, .select-field {
+      width: 100%;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(96,165,250,0.35);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-family: inherit;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #fff;
+      outline: none;
+    }
+    .select-field option { color: #0f172a; }
+    .hint { font-size: 0.8rem; color: #bfdbfe; line-height: 1.4; }
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      background: var(--cream);
+    }
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      gap: 16px;
+      text-align: center;
+    }
+    .display-main {
+      font-size: clamp(2.5rem, 10vw, 4.5rem);
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1.1;
+    }
+    .answer-box {
+      display: none;
+      background: #fff;
+      border: 2px solid #86efac;
+      border-radius: 1rem;
+      padding: 16px 20px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 8px 24px rgba(22, 163, 74, 0.12);
+    }
+    .answer-box.show { display: block; }
+    .answer-box .result {
+      font-size: clamp(2rem, 8vw, 3rem);
+      font-weight: 800;
+      color: var(--ok);
+    }
+    .answer-box .explain {
+      margin-top: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #166534;
+      line-height: 1.45;
+    }
+    .placeholder {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .placeholder.hidden { display: none; }
+    .footer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 10px 16px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      background: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <a class="btn btn-back" href="/h/nattapong">← กลับคลังสื่อ</a>
+      <h1 id="mediaTitle">📐 สื่อตัวอย่าง — แก้ชื่อที่นี่</h1>
+      <span class="badge" id="mediaBadge">ป.x · วิชา</span>
+    </header>
+
+    <div class="body">
+      <!-- ═══ SECTION A: Sidebar controls (แก้ตามสื่อ) ═══ -->
+      <aside class="sidebar">
+        <h2 id="sidebarTitle">ตั้งค่า</h2>
+
+        <div class="field-group">
+          <label class="field-label" for="demoInput">ตัวเลขตัวอย่าง</label>
+          <input id="demoInput" class="input-field" type="number" value="24" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="demoMode">โหมด</label>
+          <select id="demoMode" class="select-field">
+            <option value="half">ครึ่งหนึ่ง</option>
+            <option value="double">สองเท่า</option>
+          </select>
+        </div>
+
+        <button type="button" class="btn btn-accent" id="btnRandom">🎲 สุ่ม</button>
+        <button type="button" class="btn btn-primary" id="btnReveal">✅ แสดงเฉลย</button>
+        <button type="button" class="btn btn-ghost" id="btnHide">ซ่อนเฉลย</button>
+        <button type="button" class="btn btn-ghost" id="btnFs">⛶ เต็มจอ</button>
+
+        <p class="hint">เทมเพลตสื่อ: ไม่มีคะแนน / อันดับ — ใช้สาธิตบนโปรเจคเตอร์หรือแท็บเล็ต</p>
+      </aside>
+
+      <!-- ═══ SECTION B: Main content + answer ═══ -->
+      <main class="main">
+        <div class="content">
+          <div class="display-main" id="displayMain">24</div>
+          <div class="placeholder" id="placeholder">กด “แสดงเฉลย” เพื่อดูคำตอบ</div>
+          <div class="answer-box" id="answerBox">
+            <div class="result" id="resultVal">12</div>
+            <div class="explain" id="explainVal">ครึ่งหนึ่งของ 24 คือ 12</div>
+          </div>
+        </div>
+        <div class="footer">
+          <span>🏫 โรงเรียนบ้านคำไผ่ · สื่อการสอน</span>
+          <span>slug: <code id="slugLabel">media-template</code></span>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      // ═══ SECTION C: Logic (แก้ตามสื่อ) ═══
+      var MEDIA_SLUG = 'media-template'; // ← เปลี่ยนเป็น slug จริง เช่น 'number-line'
+
+      if (window.KAMPAI) {
+        try { window.KAMPAI.setSlug(MEDIA_SLUG); } catch (e) {}
+      }
+      document.getElementById('slugLabel').textContent = MEDIA_SLUG;
+
+      var input = document.getElementById('demoInput');
+      var mode = document.getElementById('demoMode');
+      var displayMain = document.getElementById('displayMain');
+      var placeholder = document.getElementById('placeholder');
+      var answerBox = document.getElementById('answerBox');
+      var resultVal = document.getElementById('resultVal');
+      var explainVal = document.getElementById('explainVal');
+
+      function hideAnswer() {
+        answerBox.classList.remove('show');
+        placeholder.classList.remove('hidden');
+      }
+
+      function syncDisplay() {
+        displayMain.textContent = input.value === '' ? '?' : input.value;
+        hideAnswer();
+      }
+
+      function reveal() {
+        var n = parseInt(input.value, 10);
+        if (isNaN(n)) return;
+        var m = mode.value;
+        var out = m === 'double' ? n * 2 : n / 2;
+        var label = m === 'double' ? 'สองเท่า' : 'ครึ่งหนึ่ง';
+        resultVal.textContent = String(out);
+        explainVal.textContent = label + 'ของ ' + n + ' คือ ' + out;
+        placeholder.classList.add('hidden');
+        answerBox.classList.add('show');
+
+        // สื่อไม่บังคับคะแนน — ถ้าอยาก log การใช้ (optional):
+        // if (window.KAMPAI) KAMPAI.submitScore(100, { mode: 'learn', value: n });
+      }
+
+      function randomize() {
+        input.value = String(Math.floor(Math.random() * 40) + 2);
+        syncDisplay();
+      }
+
+      input.addEventListener('input', syncDisplay);
+      mode.addEventListener('change', hideAnswer);
+      document.getElementById('btnReveal').addEventListener('click', reveal);
+      document.getElementById('btnHide').addEventListener('click', hideAnswer);
+      document.getElementById('btnRandom').addEventListener('click', randomize);
+      document.getElementById('btnFs').addEventListener('click', function () {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(function () {});
+        } else if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      });
+
+      syncDisplay();
+    })();
+  </script>
+</body>
+</html>
