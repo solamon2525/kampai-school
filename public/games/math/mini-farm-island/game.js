@@ -41,7 +41,7 @@
 
   /* ========== Game State ========== */
   var money = CFG.START_MONEY;
-  var crops = { carrot: 0, corn: 0, melon: 0 };
+  var crops = { carrot: 0, corn: 0, melon: 0, egg: 0, milk: 0 };
   var selectedCropId = 'carrot';
   var totalEarned = 0;         // total money earned (score)
   var shownMoney = money;      // for count-up animation
@@ -54,9 +54,24 @@
   var upgrades = {
     sprinkler: false,
     scarecrow: false,
-    fertilizer: 0
+    fertilizer: 0,
+    coop: false,
+    barn: false,
+    chickenFeed: 0,
+    cowFeed: 0
   };
   var pendingWorms = [];       // store active 3D worm objects
+  var chickensList = [];       // store active chicken 3D objects
+  var cowsList = [];           // store active cow 3D objects
+
+  // Phase 2 New States
+  var bankBalance = 0;
+  var shownBankBalance = 0;
+  var cropPrices = { carrot: 25, corn: 75, melon: 210, egg: 25, milk: 65 };
+  var marketTimer = 30.0;
+  var bankInterestTimer = 30.0;
+  var weatherState = 'sunny'; // 'sunny', 'rainy', 'drought'
+  var weatherTimer = 45.0;
 
   /* ========== Versus ========== */
   var vs = null;
@@ -201,6 +216,279 @@
     });
   }
 
+  /* ========== Market Modal Triggers ========== */
+  var marketBtn = document.getElementById('marketBtn');
+  var marketModal = document.getElementById('marketModal');
+  var closeMarketBtn = document.getElementById('closeMarketBtn');
+  if (marketBtn && marketModal) {
+    marketBtn.addEventListener('click', function () {
+      updateMarketUI();
+      marketModal.style.display = 'flex';
+    });
+  }
+  if (closeMarketBtn && marketModal) {
+    closeMarketBtn.addEventListener('click', function () {
+      marketModal.style.display = 'none';
+    });
+  }
+
+  function updateMarketPrices() {
+    var carrotDiff = Math.floor(getRandom() * 11) - 5; // -5 to +5
+    cropPrices.carrot = Math.max(12, Math.min(38, cropPrices.carrot + carrotDiff));
+    
+    var cornDiff = Math.floor(getRandom() * 25) - 12; // -12 to +12
+    cropPrices.corn = Math.max(40, Math.min(110, cropPrices.corn + cornDiff));
+    
+    var melonDiff = Math.floor(getRandom() * 71) - 35; // -35 to +35
+    cropPrices.melon = Math.max(110, Math.min(310, cropPrices.melon + melonDiff));
+    
+    toast("📈 ตลาดผันผวน! ราคากลางปรับตามกลไกตลาด", "info");
+    updateMarketUI();
+  }
+
+  function updateMarketUI() {
+    var carrotBar = document.getElementById('carrotBar');
+    var cornBar = document.getElementById('cornBar');
+    var melonBar = document.getElementById('melonBar');
+    var carrotPriceVal = document.getElementById('carrotPriceVal');
+    var cornPriceVal = document.getElementById('cornPriceVal');
+    var melonPriceVal = document.getElementById('melonPriceVal');
+    
+    if (carrotPriceVal) carrotPriceVal.textContent = cropPrices.carrot;
+    if (cornPriceVal) cornPriceVal.textContent = cropPrices.corn;
+    if (melonPriceVal) melonPriceVal.textContent = cropPrices.melon;
+
+    if (carrotBar) carrotBar.style.height = Math.round((cropPrices.carrot / 40) * 100) + '%';
+    if (cornBar) cornBar.style.height = Math.round((cropPrices.corn / 120) * 100) + '%';
+    if (melonBar) melonBar.style.height = Math.round((cropPrices.melon / 320) * 100) + '%';
+  }
+
+  function updateWeather(newWeather) {
+    weatherState = newWeather;
+    
+    if (newWeather === 'sunny') {
+      scene.fog.color.setHex(0xffd9a8);
+      if (sun) sun.intensity = 2.4;
+      if (rainPoints) rainPoints.visible = false;
+      toast("☀️ สภาพอากาศวันนี้: ท้องฟ้าแจ่มใส ปลูกพืชได้ดี!", "good");
+    } else if (newWeather === 'rainy') {
+      scene.fog.color.setHex(0x475569);
+      if (sun) sun.intensity = 1.0;
+      if (rainPoints) rainPoints.visible = true;
+      toast("🌧️ สภาพอากาศวันนี้: ฝนตกชุ่มฉ่ำ! พืชทุกชนิดโตเร็วขึ้น 50%", "good");
+    } else if (newWeather === 'drought') {
+      scene.fog.color.setHex(0xd97706);
+      if (sun) sun.intensity = 2.9;
+      if (rainPoints) rainPoints.visible = false;
+      toast("🍂 สภาพอากาศวันนี้: ภัยแล้ง! พืชหยุดโตชั่วคราว ต้องรดน้ำแปลงดิน", "warn");
+    }
+    
+    plots.forEach(function (g) {
+      var d = g.userData;
+      d.isWatered = false;
+      d.wateredAt = 0;
+      d.soilMat.emissive.setHex(0x000000);
+    });
+  }
+
+  /* ========== Bank Modal Triggers ========== */
+  var bankBtn = document.getElementById('bankBtn');
+  var bankModal = document.getElementById('bankModal');
+  var closeBankBtn = document.getElementById('closeBankBtn');
+  if (bankBtn && bankModal) {
+    bankBtn.addEventListener('click', function () {
+      document.getElementById('bankBalanceVal').textContent = bankBalance;
+      bankModal.style.display = 'flex';
+    });
+  }
+  if (closeBankBtn && bankModal) {
+    closeBankBtn.addEventListener('click', function () {
+      bankModal.style.display = 'none';
+    });
+  }
+
+  function triggerBankQuiz(amount, type, callback) {
+    var quizOverlay = document.getElementById('quizModal');
+    var quizQuestionEl = document.getElementById('quizQuestion');
+    var quizChoicesEl = document.getElementById('quizChoices');
+    var quizTimerEl = document.getElementById('quizTimer');
+    if (!quizOverlay || !quizQuestionEl || !quizChoicesEl) return;
+
+    var a = amount;
+    var rate = 5;
+    var answer = 0;
+    var qText = "";
+    
+    if (type === 'deposit') {
+      answer = Math.round(a * (rate / 100));
+      qText = "🏦 บริการฝากเงิน " + a + " เหรียญ: หากธนาคารให้อัตราดอกเบี้ยร้อยละ " + rate + " ต่อปี เมื่อฝากครบ 1 ปีจะได้รับดอกเบี้ยกี่เหรียญ?";
+    } else {
+      rate = 10;
+      answer = Math.round(a * (rate / 100));
+      qText = "🏦 บริการถอนเงิน " + a + " เหรียญ: หากต้องเสียภาษีค่าธรรมเนียมถอนเงินร้อยละ " + rate + " จะต้องจ่ายค่าธรรมเนียมกี่เหรียญ?";
+    }
+
+    quizQuestionEl.textContent = qText;
+    quizChoicesEl.innerHTML = '';
+
+    var quizTimeLeft = 15;
+    if (quizTimerEl) quizTimerEl.textContent = '⏱/ คิดเงินร้อยละ: ' + quizTimeLeft + ' วินาที';
+
+    if (quizIntervalId) clearInterval(quizIntervalId);
+    quizIntervalId = setInterval(function () {
+      quizTimeLeft--;
+      if (quizTimerEl) quizTimerEl.textContent = '⏱/ คิดเงินร้อยละ: ' + quizTimeLeft + ' วินาที';
+      if (quizTimeLeft <= 0) {
+        handleBankAnswer(false);
+      }
+    }, 1000);
+
+    function handleBankAnswer(isCorrect) {
+      if (quizIntervalId) {
+        clearInterval(quizIntervalId);
+        quizIntervalId = null;
+      }
+      quizOverlay.style.display = 'none';
+      callback(isCorrect);
+    }
+
+    var choices = getQuizChoices(answer, 'medium');
+    choices.forEach(function (choice) {
+      var btn = document.createElement('button');
+      btn.className = 'quiz-choice-btn';
+      btn.textContent = choice;
+      btn.addEventListener('click', function () {
+        handleBankAnswer(choice === answer);
+      });
+      quizChoicesEl.appendChild(btn);
+    });
+
+    quizOverlay.style.display = 'flex';
+  }
+
+  var depositBtn = document.getElementById('depositBtn');
+  var depositAllBtn = document.getElementById('depositAllBtn');
+  var withdrawBtn = document.getElementById('withdrawBtn');
+  var withdrawAllBtn = document.getElementById('withdrawAllBtn');
+
+  if (depositBtn) {
+    depositBtn.addEventListener('click', function () {
+      var amt = Math.min(50, money);
+      if (amt <= 0) {
+        toast("เงินสดไม่เพียงพอ", "warn");
+        return;
+      }
+      triggerBankQuiz(amt, 'deposit', function (isCorrect) {
+        if (isCorrect) {
+          money -= amt;
+          bankBalance += amt;
+          toast("ฝากเงินสำเร็จ +" + amt + " เหรียญ (ตอบถูก ฟรีค่าธรรมเนียม)", "good");
+          addLedgerEntry("ฝากเงินเข้าธนาคาร", "expense", amt);
+        } else {
+          var fee = Math.max(1, Math.round(amt * 0.1));
+          money -= (amt + fee);
+          bankBalance += amt;
+          toast("ฝากเงินสำเร็จ แต่โดนปรับ " + fee + " เหรียญ เนื่องจากคิดเลขผิด", "warn");
+          addLedgerEntry("ฝากเงินเข้าธนาคาร (โดนปรับ " + fee + ")", "expense", amt + fee);
+          if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.wrong) {
+            try { KAMPAI.sound.wrong(); } catch (e) { /* */ }
+          }
+        }
+        refreshHud();
+        document.getElementById('bankBalanceVal').textContent = bankBalance;
+      });
+    });
+  }
+
+  if (depositAllBtn) {
+    depositAllBtn.addEventListener('click', function () {
+      var amt = money;
+      if (amt <= 0) {
+        toast("เงินสดไม่เพียงพอ", "warn");
+        return;
+      }
+      triggerBankQuiz(amt, 'deposit', function (isCorrect) {
+        if (isCorrect) {
+          money -= amt;
+          bankBalance += amt;
+          toast("ฝากเงินสำเร็จ +" + amt + " เหรียญ (ตอบถูก ฟรีค่าธรรมเนียม)", "good");
+          addLedgerEntry("ฝากเงินเข้าธนาคารทั้งหมด", "expense", amt);
+        } else {
+          var fee = Math.max(1, Math.round(amt * 0.1));
+          money -= (amt + fee);
+          bankBalance += amt;
+          toast("ฝากเงินสำเร็จ แต่โดนปรับ " + fee + " เหรียญ เนื่องจากคิดเลขผิด", "warn");
+          addLedgerEntry("ฝากเงินเข้าธนาคารทั้งหมด (โดนปรับ " + fee + ")", "expense", amt + fee);
+          if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.wrong) {
+            try { KAMPAI.sound.wrong(); } catch (e) { /* */ }
+          }
+        }
+        refreshHud();
+        document.getElementById('bankBalanceVal').textContent = bankBalance;
+      });
+    });
+  }
+
+  if (withdrawBtn) {
+    withdrawBtn.addEventListener('click', function () {
+      var amt = Math.min(50, bankBalance);
+      if (amt <= 0) {
+        toast("ไม่มีเงินฝากในตู้เซฟ", "warn");
+        return;
+      }
+      triggerBankQuiz(amt, 'withdraw', function (isCorrect) {
+        if (isCorrect) {
+          bankBalance -= amt;
+          money += amt;
+          toast("ถอนเงินสำเร็จ +" + amt + " เหรียญ (ตอบถูก ฟรีค่าธรรมเนียม)", "good");
+          addLedgerEntry("ถอนเงินออกจากธนาคาร", "revenue", amt);
+        } else {
+          var fee = Math.max(1, Math.round(amt * 0.1));
+          bankBalance -= amt;
+          money += (amt - fee);
+          toast("ถอนเงินสำเร็จ แต่โดนหักภาษีถอน " + fee + " เหรียญ เนื่องจากคิดเลขผิด", "warn");
+          addLedgerEntry("ถอนเงินออกจากธนาคาร (โดนปรับ " + fee + ")", "revenue", amt - fee);
+          if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.wrong) {
+            try { KAMPAI.sound.wrong(); } catch (e) { /* */ }
+          }
+        }
+        refreshHud();
+        document.getElementById('bankBalanceVal').textContent = bankBalance;
+      });
+    });
+  }
+
+  if (withdrawAllBtn) {
+    withdrawAllBtn.addEventListener('click', function () {
+      var amt = bankBalance;
+      if (amt <= 0) {
+        toast("ไม่มีเงินฝากในตู้เซฟ", "warn");
+        return;
+      }
+      triggerBankQuiz(amt, 'withdraw', function (isCorrect) {
+        if (isCorrect) {
+          bankBalance -= amt;
+          money += amt;
+          toast("ถอนเงินสำเร็จ +" + amt + " เหรียญ (ตอบถูก ฟรีค่าธรรมเนียม)", "good");
+          addLedgerEntry("ถอนเงินทั้งหมดออกจากธนาคาร", "revenue", amt);
+        } else {
+          var fee = Math.max(1, Math.round(amt * 0.1));
+          bankBalance -= amt;
+          money += (amt - fee);
+          toast("ถอนเงินสำเร็จ แต่โดนหักภาษีถอน " + fee + " เหรียญ เนื่องจากคิดเลขผิด", "warn");
+          addLedgerEntry("ถอนเงินทั้งหมดออกจากธนาคาร (โดนปรับ " + fee + ")", "revenue", amt - fee);
+          if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.wrong) {
+            try { KAMPAI.sound.wrong(); } catch (e) { /* */ }
+          }
+        }
+        refreshHud();
+        document.getElementById('bankBalanceVal').textContent = bankBalance;
+      });
+    });
+  }
+
+  var coopMesh = null;
+  var barnMesh = null;
   var scarecrowMesh = null;
   function spawnScarecrowMesh() {
     if (scarecrowMesh) return;
@@ -258,12 +546,429 @@
     }, 16);
   }
 
+  function spawnCoopMesh() {
+    if (coopMesh) return;
+    coopMesh = new THREE.Group();
+    coopMesh.position.set(-2.2, GROUND_Y, 1.8);
+    coopMesh.scale.set(0.001, 0.001, 0.001);
+    
+    var poleMat = new THREE.MeshStandardMaterial({ color: '#7c4a25', roughness: 0.9 });
+    var base = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.1, 0.8), poleMat);
+    base.position.y = 0.05;
+    coopMesh.add(base);
+    
+    var wallMat = new THREE.MeshStandardMaterial({ color: '#c65b3b', roughness: 0.8 });
+    var wall = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.5, 0.7), wallMat);
+    wall.position.y = 0.35;
+    wall.castShadow = true; wall.receiveShadow = true;
+    coopMesh.add(wall);
+    
+    var roofMat = new THREE.MeshStandardMaterial({ color: '#ca8a04', roughness: 0.9 });
+    var roof = new THREE.Mesh(new THREE.ConeGeometry(0.55, 0.3, 4), roofMat);
+    roof.position.y = 0.75;
+    roof.rotation.y = Math.PI / 4;
+    roof.castShadow = true;
+    coopMesh.add(roof);
+    
+    var ramp = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.04, 0.4), poleMat);
+    ramp.position.set(0, 0.1, 0.45);
+    ramp.rotation.x = 0.4;
+    coopMesh.add(ramp);
+    
+    islandGroup.add(coopMesh);
+    
+    var startTime = clock.elapsedTime;
+    var scaleInterval = setInterval(function () {
+      var elapsed = clock.elapsedTime - startTime;
+      var pct = Math.min(1.0, elapsed / 0.5);
+      var sc = easeOut(pct) * 1.0;
+      if (coopMesh) coopMesh.scale.set(sc, sc, sc);
+      if (pct >= 1.0) clearInterval(scaleInterval);
+    }, 16);
+  }
+
+  function spawnBarnMesh() {
+    if (barnMesh) return;
+    barnMesh = new THREE.Group();
+    barnMesh.position.set(2.2, GROUND_Y, 1.8);
+    barnMesh.scale.set(0.001, 0.001, 0.001);
+    
+    var wallMat = new THREE.MeshStandardMaterial({ color: '#b91c1c', roughness: 0.8 });
+    var body = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.7, 0.9), wallMat);
+    body.position.y = 0.35;
+    body.castShadow = true; body.receiveShadow = true;
+    barnMesh.add(body);
+    
+    var roofMat = new THREE.MeshStandardMaterial({ color: '#334155', roughness: 0.8 });
+    var roof = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.2, 1.0), roofMat);
+    roof.position.y = 0.75;
+    roof.rotation.z = 0.15;
+    roof.castShadow = true;
+    barnMesh.add(roof);
+    
+    var doorMat = new THREE.MeshStandardMaterial({ color: '#f8fafc', roughness: 0.9 });
+    var door = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.45, 0.04), doorMat);
+    door.position.set(0, 0.225, 0.46);
+    barnMesh.add(door);
+    
+    var crossMat = new THREE.MeshStandardMaterial({ color: '#b91c1c', roughness: 0.9 });
+    var cross1 = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.5, 0.02), crossMat);
+    cross1.rotation.z = 0.7;
+    cross1.position.set(0, 0.225, 0.485);
+    barnMesh.add(cross1);
+    
+    islandGroup.add(barnMesh);
+    
+    var startTime = clock.elapsedTime;
+    var scaleInterval = setInterval(function () {
+      var elapsed = clock.elapsedTime - startTime;
+      var pct = Math.min(1.0, elapsed / 0.5);
+      var sc = easeOut(pct) * 1.0;
+      if (barnMesh) barnMesh.scale.set(sc, sc, sc);
+      if (pct >= 1.0) clearInterval(scaleInterval);
+    }, 16);
+  }
+
+  /* ========== Phase 3: Animal Husbandry Spawning & Balloons ========== */
+  function createAnimalBalloon(emoji) {
+    var canvas = document.createElement('canvas');
+    canvas.width = 64; canvas.height = 64;
+    var ctx = canvas.getContext('2d');
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(32, 28, 22, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.beginPath();
+    ctx.moveTo(32, 50);
+    ctx.lineTo(26, 42);
+    ctx.lineTo(38, 42);
+    ctx.closePath();
+    ctx.fill();
+    
+    ctx.font = '28px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(emoji, 32, 28);
+    
+    var tex = new THREE.CanvasTexture(canvas);
+    var mat = new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true });
+    var sprite = new THREE.Sprite(mat);
+    sprite.scale.set(0.48, 0.48, 0.48);
+    sprite.position.y = 0.48;
+    return sprite;
+  }
+
+  function updateBalloonEmoji(sprite, emoji) {
+    var canvas = document.createElement('canvas');
+    canvas.width = 64; canvas.height = 64;
+    var ctx = canvas.getContext('2d');
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(32, 28, 22, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.beginPath();
+    ctx.moveTo(32, 50);
+    ctx.lineTo(26, 42);
+    ctx.lineTo(38, 42);
+    ctx.closePath();
+    ctx.fill();
+    
+    ctx.font = '28px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(emoji, 32, 28);
+    
+    if (sprite.material.map) sprite.material.map.dispose();
+    sprite.material.map = new THREE.CanvasTexture(canvas);
+    sprite.material.map.needsUpdate = true;
+    sprite.material.needsUpdate = true;
+  }
+
+  function spawnChicken() {
+    var mesh = new THREE.Group();
+    mesh.position.set(-2.2 + (getRandom() - 0.5) * 0.5, GROUND_Y, 1.8 + (getRandom() - 0.5) * 0.5);
+    
+    var bodyMat = new THREE.MeshStandardMaterial({ color: '#f8fafc', roughness: 0.8 });
+    var body = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 0.15), bodyMat);
+    body.position.y = 0.06;
+    body.castShadow = true;
+    mesh.add(body);
+    
+    var head = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.08), bodyMat);
+    head.position.set(0, 0.14, 0.04);
+    head.castShadow = true;
+    mesh.add(head);
+    
+    var beakMat = new THREE.MeshStandardMaterial({ color: '#fbbf24', roughness: 0.5 });
+    var beak = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.03, 0.04), beakMat);
+    beak.position.set(0, 0.14, 0.09);
+    mesh.add(beak);
+    
+    var combMat = new THREE.MeshStandardMaterial({ color: '#dc2626', roughness: 0.9 });
+    var comb = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.04, 0.04), combMat);
+    comb.position.set(0, 0.19, 0.03);
+    mesh.add(comb);
+    
+    islandGroup.add(mesh);
+    
+    var balloon = createAnimalBalloon('😋');
+    mesh.add(balloon);
+    
+    var ch = {
+      mesh: mesh,
+      state: 'hungry', // 'hungry', 'growing', 'ready', 'idle'
+      fedAt: 0,
+      targetPos: mesh.position.clone(),
+      basePos: new THREE.Vector3(-2.2, GROUND_Y, 1.8),
+      wanderTimer: 0,
+      type: 'chicken',
+      progress: 0,
+      idleTimer: 0,
+      balloon: balloon
+    };
+    chickensList.push(ch);
+    
+    var wp = new THREE.Vector3();
+    mesh.getWorldPosition(wp);
+    burst(wp, ['#f8fafc', '#f1f5f9'], 8, { up: 1.2, spread: 1.0 });
+  }
+
+  function spawnCow() {
+    var mesh = new THREE.Group();
+    mesh.position.set(2.2 + (getRandom() - 0.5) * 0.6, GROUND_Y, 1.8 + (getRandom() - 0.5) * 0.6);
+    
+    var bodyMat = new THREE.MeshStandardMaterial({ color: '#f8fafc', roughness: 0.8 });
+    var body = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.2, 0.35), bodyMat);
+    body.position.y = 0.16;
+    body.castShadow = true;
+    mesh.add(body);
+    
+    var spotMat = new THREE.MeshStandardMaterial({ color: '#1e293b', roughness: 0.8 });
+    var spot1 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.08), spotMat);
+    spot1.position.set(0.121, 0.18, 0.05);
+    mesh.add(spot1);
+    var spot2 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.08), spotMat);
+    spot2.position.set(-0.121, 0.14, -0.05);
+    mesh.add(spot2);
+    
+    var head = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.14, 0.14), bodyMat);
+    head.position.set(0, 0.28, 0.14);
+    head.castShadow = true;
+    mesh.add(head);
+    
+    var snoutMat = new THREE.MeshStandardMaterial({ color: '#fda4af', roughness: 0.7 });
+    var snout = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.06, 0.06), snoutMat);
+    snout.position.set(0, 0.24, 0.22);
+    mesh.add(snout);
+    
+    var hornMat = new THREE.MeshStandardMaterial({ color: '#e2e8f0', roughness: 0.4 });
+    var hornL = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.06, 0.02), hornMat);
+    hornL.position.set(0.06, 0.36, 0.14);
+    mesh.add(hornL);
+    var hornR = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.06, 0.02), hornMat);
+    hornR.position.set(-0.06, 0.36, 0.14);
+    mesh.add(hornR);
+    
+    islandGroup.add(mesh);
+    
+    var balloon = createAnimalBalloon('😋');
+    mesh.add(balloon);
+    
+    var cw = {
+      mesh: mesh,
+      state: 'hungry', // 'hungry', 'growing', 'ready', 'idle'
+      fedAt: 0,
+      targetPos: mesh.position.clone(),
+      basePos: new THREE.Vector3(2.2, GROUND_Y, 1.8),
+      wanderTimer: 0,
+      type: 'cow',
+      progress: 0,
+      idleTimer: 0,
+      balloon: balloon
+    };
+    cowsList.push(cw);
+    
+    var wp = new THREE.Vector3();
+    mesh.getWorldPosition(wp);
+    burst(wp, ['#f8fafc', '#fda4af'], 8, { up: 1.2, spread: 1.0 });
+  }
+
+  function updateAnimalState(animal, dt) {
+    if (animal.state === 'growing') {
+      var growSpeed = weatherState === 'rainy' ? 1.5 : 1.0;
+      animal.progress += (dt / (animal.type === 'chicken' ? 15.0 : 25.0)) * growSpeed;
+      
+      // Update balloon with fraction progress clock emoji
+      var clockEmojis = ['🕐', '🕒', '🕕', '🕘', '🕛'];
+      var emojiIdx = Math.min(clockEmojis.length - 1, Math.floor(animal.progress * clockEmojis.length));
+      updateBalloonEmoji(animal.balloon, clockEmojis[emojiIdx]);
+
+      if (animal.progress >= 1.0) {
+        animal.state = 'ready';
+        animal.progress = 0;
+        updateBalloonEmoji(animal.balloon, animal.type === 'chicken' ? '🥚' : '🥛');
+        toast(animal.type === 'chicken' ? "🐔 แม่ไก่ไข่พร้อมเก็บเกี่ยวแล้ว! 🥚" : "🐄 แม่วัวนมพร้อมรีดนมแล้ว! 🥛", "info");
+      }
+    } else if (animal.state === 'idle') {
+      animal.idleTimer -= dt;
+      if (animal.idleTimer <= 0) {
+        animal.state = 'hungry';
+        updateBalloonEmoji(animal.balloon, '😋');
+      }
+    }
+  }
+
+  function triggerRatioQuiz(animal, callback) {
+    var quizOverlay = document.getElementById('quizModal');
+    var quizQuestionEl = document.getElementById('quizQuestion');
+    var quizChoicesEl = document.getElementById('quizChoices');
+    var quizTimerEl = document.getElementById('quizTimer');
+    if (!quizOverlay || !quizQuestionEl || !quizChoicesEl) return;
+
+    var answer = 0;
+    var qText = "";
+    
+    if (animal.type === 'chicken') {
+      var n = Math.floor(getRandom() * 6) + 2; // 2 to 7
+      if (n === 3) n = 8;
+      answer = n * 20;
+      qText = "🐔 โจทย์สัดส่วน: ไก่ 3 ตัว กินอาหาร 60 กรัมต่อวัน ถ้ามีไก่ " + n + " ตัว ต้องเตรียมอาหารกี่กรัม?";
+    } else {
+      var x = Math.floor(getRandom() * 5) + 2; // 2 to 6
+      answer = x * 2;
+      var water = x * 8;
+      qText = "🐄 โจทย์สัดส่วน: นมผงชงลูกวัวใช้อัตราส่วน นมผง 2 ช้อน ต่อน้ำ 8 ออนซ์ หากมีน้ำ " + water + " ออนซ์ ต้องใช้นมผงกี่ช้อน?";
+    }
+
+    quizQuestionEl.textContent = qText;
+    quizChoicesEl.innerHTML = '';
+
+    var quizTimeLeft = 15;
+    if (quizTimerEl) quizTimerEl.textContent = '⏱️ เวลาคิดสัดส่วน: ' + quizTimeLeft + ' วินาที';
+
+    if (quizIntervalId) clearInterval(quizIntervalId);
+    quizIntervalId = setInterval(function () {
+      quizTimeLeft--;
+      if (quizTimerEl) quizTimerEl.textContent = '⏱️ เวลาคิดสัดส่วน: ' + quizTimeLeft + ' วินาที';
+      if (quizTimeLeft <= 0) {
+        handleRatioAnswer(false);
+      }
+    }, 1000);
+
+    function handleRatioAnswer(isCorrect) {
+      if (quizIntervalId) {
+        clearInterval(quizIntervalId);
+        quizIntervalId = null;
+      }
+      quizOverlay.style.display = 'none';
+      callback(isCorrect);
+    }
+
+    var choices = getQuizChoices(answer, 'medium');
+    choices.forEach(function (choice) {
+      var btn = document.createElement('button');
+      btn.className = 'quiz-choice-btn';
+      btn.textContent = choice;
+      btn.addEventListener('click', function () {
+        handleRatioAnswer(choice === answer);
+      });
+      quizChoicesEl.appendChild(btn);
+    });
+
+    quizOverlay.style.display = 'flex';
+  }
+
+  function handleAnimalClick(animal) {
+    if (!animal) return;
+    
+    if (animal.state === 'hungry') {
+      var hasFeed = animal.type === 'chicken' ? (upgrades.chickenFeed > 0) : (upgrades.cowFeed > 0);
+      if (!hasFeed) {
+        toast("❌ ไม่มีอาหารในสต็อก! ซื้ออาหารที่ร้านค้า 🛒", "warn");
+        return;
+      }
+      
+      triggerRatioQuiz(animal, function (isCorrect) {
+        if (isCorrect) {
+          if (animal.type === 'chicken') upgrades.chickenFeed--;
+          else upgrades.cowFeed--;
+          
+          animal.state = 'growing';
+          animal.progress = 0;
+          updateBalloonEmoji(animal.balloon, '⏳');
+          toast("ให้อาหารสำเร็จ! สัตว์เริ่มผลิตสินค้า 😋", "good");
+          if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.correct) {
+            try { KAMPAI.sound.correct(); } catch (e) { /* */ }
+          }
+        } else {
+          if (animal.type === 'chicken') upgrades.chickenFeed--;
+          else upgrades.cowFeed--;
+          toast("ให้อาหารพลาด! อาหารร่วงหกเสียหาย เนื่องจากกะสัดส่วนผิด ❌", "warn");
+          if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.wrong) {
+            try { KAMPAI.sound.wrong(); } catch (e) { /* */ }
+          }
+        }
+        refreshShopUI();
+      });
+    } else if (animal.state === 'growing') {
+      var sec = Math.ceil((1.0 - animal.progress) * (animal.type === 'chicken' ? 15.0 : 25.0));
+      toast("⏳ สัตว์เลี้ยงกำลังเติบโต/ผลิตสินค้า (เหลืออีก " + sec + " วินาที)", "info");
+    } else if (animal.state === 'ready') {
+      if (animal.type === 'chicken') {
+        crops.egg++;
+        toast("เก็บเกี่ยว ไข่ไก่ 🥚 สำเร็จ! เก็บในโรงฉางแล้ว", "good");
+      } else {
+        crops.milk++;
+        toast("เก็บเกี่ยว นมสด 🥛 สำเร็จ! เก็บในโรงฉางแล้ว", "good");
+      }
+      
+      animal.state = 'idle';
+      animal.idleTimer = 15.0;
+      updateBalloonEmoji(animal.balloon, '💤');
+      refreshHud();
+      
+      var wp = new THREE.Vector3();
+      animal.mesh.getWorldPosition(wp);
+      wp.y += 0.3;
+      burst(wp, animal.type === 'chicken' ? ['#fbbf24', '#f1f5f9'] : ['#fda4af', '#f1f5f9'], 8, { up: 1.3, spread: 1.1 });
+      
+      if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.correct) {
+        try { KAMPAI.sound.correct(); } catch (e) { /* */ }
+      }
+    } else if (animal.state === 'idle') {
+      toast("💤 สัตว์เลี้ยงอิ่มแล้วและกำลังพักผ่อนนอนหลับ", "info");
+    }
+  }
+
   function refreshShopUI() {
     var fertCountEl = document.getElementById('fertilizerCount');
     if (fertCountEl) fertCountEl.textContent = upgrades.fertilizer;
+    
+    // Phase 3 Inventory Labels
+    var chickenFeedCountEl = document.getElementById('chickenFeedCount');
+    if (chickenFeedCountEl) chickenFeedCountEl.textContent = upgrades.chickenFeed;
+    var cowFeedCountEl = document.getElementById('cowFeedCount');
+    if (cowFeedCountEl) cowFeedCountEl.textContent = upgrades.cowFeed;
+    var chickenCountEl = document.getElementById('chickenCount');
+    if (chickenCountEl) chickenCountEl.textContent = chickensList.length;
+    var cowCountEl = document.getElementById('cowCount');
+    if (cowCountEl) cowCountEl.textContent = cowsList.length;
+
     var buySprinklerBtn = document.getElementById('buySprinklerBtn');
     var buyScarecrowBtn = document.getElementById('buyScarecrowBtn');
     var buyFertilizerBtn = document.getElementById('buyFertilizerBtn');
+    
+    var buyCoopBtn = document.getElementById('buyCoopBtn');
+    var buyBarnBtn = document.getElementById('buyBarnBtn');
+    var buyChickenBtn = document.getElementById('buyChickenBtn');
+    var buyCowBtn = document.getElementById('buyCowBtn');
+    var buyChickenFeedBtn = document.getElementById('buyChickenFeedBtn');
+    var buyCowFeedBtn = document.getElementById('buyCowFeedBtn');
+
     if (buySprinklerBtn) {
       buySprinklerBtn.disabled = upgrades.sprinkler || money < 200;
       if (upgrades.sprinkler) buySprinklerBtn.textContent = 'เป็นเจ้าของแล้ว ✅';
@@ -276,6 +981,33 @@
     }
     if (buyFertilizerBtn) {
       buyFertilizerBtn.disabled = money < 50;
+    }
+
+    if (buyCoopBtn) {
+      buyCoopBtn.disabled = upgrades.coop || money < 150;
+      if (upgrades.coop) buyCoopBtn.textContent = 'สร้างเสร็จแล้ว ✅';
+      else buyCoopBtn.textContent = 'ซื้อราคา 150 🪙';
+    }
+    if (buyBarnBtn) {
+      buyBarnBtn.disabled = upgrades.barn || money < 300;
+      if (upgrades.barn) buyBarnBtn.textContent = 'สร้างเสร็จแล้ว ✅';
+      else buyBarnBtn.textContent = 'ซื้อราคา 300 🪙';
+    }
+    if (buyChickenBtn) {
+      buyChickenBtn.disabled = !upgrades.coop || chickensList.length >= 3 || money < 50;
+      if (chickensList.length >= 3) buyChickenBtn.textContent = 'เต็มความจุ ❌';
+      else buyChickenBtn.textContent = 'ซื้อราคา 50 🪙';
+    }
+    if (buyCowBtn) {
+      buyCowBtn.disabled = !upgrades.barn || cowsList.length >= 2 || money < 100;
+      if (cowsList.length >= 2) buyCowBtn.textContent = 'เต็มความจุ ❌';
+      else buyCowBtn.textContent = 'ซื้อราคา 100 🪙';
+    }
+    if (buyChickenFeedBtn) {
+      buyChickenFeedBtn.disabled = money < 10;
+    }
+    if (buyCowFeedBtn) {
+      buyCowFeedBtn.disabled = money < 20;
     }
   }
 
@@ -333,15 +1065,130 @@
     });
   }
 
+  /* ========== Phase 3: Animal Upgrades Buying Listeners ========== */
+  var buyCoopBtn = document.getElementById('buyCoopBtn');
+  var buyBarnBtn = document.getElementById('buyBarnBtn');
+  var buyChickenBtn = document.getElementById('buyChickenBtn');
+  var buyCowBtn = document.getElementById('buyCowBtn');
+  var buyChickenFeedBtn = document.getElementById('buyChickenFeedBtn');
+  var buyCowFeedBtn = document.getElementById('buyCowFeedBtn');
+
+  if (buyCoopBtn) {
+    buyCoopBtn.addEventListener('click', function () {
+      if (money >= 150 && !upgrades.coop) {
+        money -= 150;
+        upgrades.coop = true;
+        addLedgerEntry("สร้างเล้าไก่ไข่", "expense", 150);
+        toast("สร้างเล้าไก่ไข่สำเร็จ! 🏠🐔", "good");
+        spawnCoopMesh();
+        refreshShopUI();
+        refreshHud();
+        if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.correct) {
+          try { KAMPAI.sound.correct(); } catch (e) { /* */ }
+        }
+      }
+    });
+  }
+
+  if (buyBarnBtn) {
+    buyBarnBtn.addEventListener('click', function () {
+      if (money >= 300 && !upgrades.barn) {
+        money -= 300;
+        upgrades.barn = true;
+        addLedgerEntry("สร้างคอกวัวนม", "expense", 300);
+        toast("สร้างคอกวัวนมสำเร็จ! 🏠🐄", "good");
+        spawnBarnMesh();
+        refreshShopUI();
+        refreshHud();
+        if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.correct) {
+          try { KAMPAI.sound.correct(); } catch (e) { /* */ }
+        }
+      }
+    });
+  }
+
+  if (buyChickenBtn) {
+    buyChickenBtn.addEventListener('click', function () {
+      if (money >= 50 && upgrades.coop && chickensList.length < 3) {
+        money -= 50;
+        addLedgerEntry("ซื้อแม่ไก่พันธุ์ไข่", "expense", 50);
+        toast("ซื้อแม่ไก่สำเร็จ! 🐔", "good");
+        spawnChicken();
+        refreshShopUI();
+        refreshHud();
+        if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.correct) {
+          try { KAMPAI.sound.correct(); } catch (e) { /* */ }
+        }
+      }
+    });
+  }
+
+  if (buyCowBtn) {
+    buyCowBtn.addEventListener('click', function () {
+      if (money >= 100 && upgrades.barn && cowsList.length < 2) {
+        money -= 100;
+        addLedgerEntry("ซื้อแม่วัวนม", "expense", 100);
+        toast("ซื้อแม่วัวนมสำเร็จ! 🐄", "good");
+        spawnCow();
+        refreshShopUI();
+        refreshHud();
+        if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.correct) {
+          try { KAMPAI.sound.correct(); } catch (e) { /* */ }
+        }
+      }
+    });
+  }
+
+  if (buyChickenFeedBtn) {
+    buyChickenFeedBtn.addEventListener('click', function () {
+      if (money >= 10) {
+        money -= 10;
+        upgrades.chickenFeed++;
+        addLedgerEntry("ซื้ออาหารไก่ (1 ถุง)", "expense", 10);
+        toast("ซื้ออาหารไก่สำเร็จ! 🌾🎒", "good");
+        refreshShopUI();
+        refreshHud();
+        if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.correct) {
+          try { KAMPAI.sound.correct(); } catch (e) { /* */ }
+        }
+      }
+    });
+  }
+
+  if (buyCowFeedBtn) {
+    buyCowFeedBtn.addEventListener('click', function () {
+      if (money >= 20) {
+        money -= 20;
+        upgrades.cowFeed++;
+        addLedgerEntry("ซื้ออาหารวัว (1 ถุง)", "expense", 20);
+        toast("ซื้ออาหารวัวสำเร็จ! 🍀🎒", "good");
+        refreshShopUI();
+        refreshHud();
+        if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.correct) {
+          try { KAMPAI.sound.correct(); } catch (e) { /* */ }
+        }
+      }
+    });
+  }
+
   /* ========== HUD Update ========== */
   function refreshHud() {
+    var moneyEl = document.getElementById('money');
+    var bankMoneyEl = document.getElementById('bank-money');
+    if (moneyEl) moneyEl.textContent = Math.round(shownMoney);
+    if (bankMoneyEl) bankMoneyEl.textContent = Math.round(shownBankBalance);
+
     var carrotCountEl = document.getElementById('crop-carrot');
     var cornCountEl = document.getElementById('crop-corn');
     var melonCountEl = document.getElementById('crop-melon');
+    var eggCountEl = document.getElementById('crop-egg');
+    var milkCountEl = document.getElementById('crop-milk');
     if (carrotCountEl) carrotCountEl.textContent = crops.carrot;
     if (cornCountEl) cornCountEl.textContent = crops.corn;
     if (melonCountEl) melonCountEl.textContent = crops.melon;
-    var totalCrops = crops.carrot + crops.corn + crops.melon;
+    if (eggCountEl) eggCountEl.textContent = crops.egg;
+    if (milkCountEl) milkCountEl.textContent = crops.milk;
+    var totalCrops = crops.carrot + crops.corn + crops.melon + crops.egg + crops.milk;
     if (sellBtn) sellBtn.disabled = totalCrops <= 0;
   }
 
@@ -368,6 +1215,26 @@
 
   var scene = new THREE.Scene();
   scene.fog = new THREE.Fog(0xffd9a8, 22, 55);
+
+  /* ========== Rain Particles ========== */
+  var rainGeo = new THREE.BufferGeometry();
+  var rainCount = 180;
+  var rainPositions = new Float32Array(rainCount * 3);
+  for (var i = 0; i < rainCount; i++) {
+    rainPositions[i * 3] = (Math.random() - 0.5) * 16.0;      // x
+    rainPositions[i * 3 + 1] = GROUND_Y + Math.random() * 6.0; // y
+    rainPositions[i * 3 + 2] = (Math.random() - 0.5) * 16.0;  // z
+  }
+  rainGeo.setAttribute('position', new THREE.BufferAttribute(rainPositions, 3));
+  var rainMat = new THREE.PointsMaterial({
+    color: '#93c5fd',
+    size: 0.08,
+    transparent: true,
+    opacity: 0.65
+  });
+  var rainPoints = new THREE.Points(rainGeo, rainMat);
+  rainPoints.visible = false;
+  scene.add(rainPoints);
 
   var camera = new THREE.PerspectiveCamera(CFG.CAM_FOV, window.innerWidth / window.innerHeight, 0.1, 200);
   camera.position.set(CFG.CAM_POS.x, CFG.CAM_POS.y, CFG.CAM_POS.z);
@@ -651,12 +1518,17 @@
     return plant;
   }
 
-  function makePlot(x, z) {
+  function makePlot(x, z, row, col) {
     var g = new THREE.Group();
     g.position.set(x, GROUND_Y, z);
     g.userData.baseY = GROUND_Y;
 
-    var soilMat = new THREE.MeshStandardMaterial({ color: dirtColor.clone(), roughness: 1, emissive: 0x000000 });
+    var isLoamy = (row + col) % 2 === 0;
+    var soilType = isLoamy ? 'loamy' : 'sandy';
+    var soilCol = isLoamy ? '#52361b' : '#cda775';
+    var frameCol = isLoamy ? '#704825' : '#bfa58a';
+
+    var soilMat = new THREE.MeshStandardMaterial({ color: soilCol, roughness: 1, emissive: 0x000000 });
     var soil = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.2, 0.95), soilMat);
     soil.position.y = 0.02;
     soil.receiveShadow = true; soil.castShadow = true;
@@ -664,7 +1536,7 @@
     g.add(soil);
 
     // Wooden frame
-    var frameMat = new THREE.MeshStandardMaterial({ color: '#a06a38', roughness: 0.9 });
+    var frameMat = new THREE.MeshStandardMaterial({ color: frameCol, roughness: 0.9 });
     var framePositions = [[0, 0.5], [0, -0.5], [0.5, 0], [-0.5, 0]];
     for (var i = 0; i < framePositions.length; i++) {
       var fPos = framePositions[i];
@@ -710,6 +1582,7 @@
       state: 'empty',
       soil: soil,
       soilMat: soilMat,
+      soilType: soilType,
       plants: {
         carrot: plantCarrot,
         corn: plantCorn,
@@ -722,7 +1595,9 @@
       barFill: barFill,
       barFillMat: barFillMat,
       plantedAt: 0,
-      hover: 0
+      hover: 0,
+      isWatered: false,
+      wateredAt: 0
     };
     islandGroup.add(g);
     plots.push(g);
@@ -732,7 +1607,7 @@
   var ox = CFG.PLOT_OFFSET_X, oz = CFG.PLOT_OFFSET_Z;
   for (var row = 0; row < CFG.PLOT_ROWS; row++) {
     for (var col = 0; col < CFG.PLOT_COLS; col++) {
-      makePlot(ox + col * CFG.PLOT_GAP, oz + row * CFG.PLOT_GAP - 0.56);
+      makePlot(ox + col * CFG.PLOT_GAP, oz + row * CFG.PLOT_GAP - 0.56, row, col);
     }
   }
 
@@ -823,6 +1698,23 @@
     if (g !== hovered) {
       hovered = g;
       renderer.domElement.style.cursor = g ? 'pointer' : 'grab';
+      
+      var legendPEl = document.getElementById('legend-p');
+      if (legendPEl) {
+        if (g) {
+          var d = g.userData;
+          if (d.soilType === 'sandy') {
+            legendPEl.textContent = "🏜️ แปลงดินทราย: ปลูกแตงโม 🍉 โตเร็ว 30% / พืชอื่นโตช้า";
+            legendPEl.style.color = "#bfa58a";
+          } else {
+            legendPEl.textContent = "🟫 แปลงดินร่วน: ปลูกแครอท 🥕 ข้าวโพด 🌽 โตเร็ว 30% / แตงโมโตช้า";
+            legendPEl.style.color = "#eab308";
+          }
+        } else {
+          legendPEl.textContent = "คลิกแปลงดินปลูกผักตามที่เลือก";
+          legendPEl.style.color = "";
+        }
+      }
     }
   });
 
@@ -838,6 +1730,21 @@
     if (moved > 6) return; // drag, not click
     setPointer(e);
     raycaster.setFromCamera(pointer, camera);
+
+    var animalMeshes = [];
+    chickensList.forEach(function (c) {
+      c.mesh.traverse(function (o) { if (o.isMesh) { o.userData.animal = c; animalMeshes.push(o); } });
+    });
+    cowsList.forEach(function (c) {
+      c.mesh.traverse(function (o) { if (o.isMesh) { o.userData.animal = c; animalMeshes.push(o); } });
+    });
+    
+    var animHit = raycaster.intersectObjects(animalMeshes)[0];
+    if (animHit) {
+      handleAnimalClick(animHit.object.userData.animal);
+      return;
+    }
+
     var hit = raycaster.intersectObjects(soilMeshes())[0];
     if (hit) handlePlot(hit.object.userData.group);
   });
@@ -879,6 +1786,16 @@
         try { KAMPAI.sound.correct(); } catch (e) { /* */ }
       }
     } else if (d.state === 'growing') {
+      if (weatherState === 'drought' && !d.isWatered) {
+        d.isWatered = true;
+        d.wateredAt = clock.elapsedTime;
+        toast("💧 รดน้ำพืชสำเร็จ! ดินชุ่มชื้นพืชโตต่อได้แล้ว", "good");
+        if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.correct) {
+          try { KAMPAI.sound.correct(); } catch (e) { /* */ }
+        }
+        return;
+      }
+      
       // Check if user has instant fertilizer
       if (upgrades.fertilizer > 0) {
         var useFert = confirm("ต้องการใช้ ปุ๋ยชีวภาพเร่งโต เพื่อให้พืชโตทันทีหรือไม่? (เหลือ " + upgrades.fertilizer + " ถุง)");
@@ -894,6 +1811,13 @@
       
       var cropConfig = CFG.CROP_TYPES[d.plantedCropId];
       var totalGrowTime = cropConfig.growTime * (upgrades.sprinkler ? 0.75 : 1.0);
+      if (d.soilType === 'sandy') {
+        if (d.plantedCropId === 'melon') totalGrowTime *= 0.7;
+        else totalGrowTime *= 1.3;
+      } else if (d.soilType === 'loamy') {
+        if (d.plantedCropId !== 'melon') totalGrowTime *= 0.7;
+        else totalGrowTime *= 1.3;
+      }
       var left = Math.max(0, totalGrowTime - (clock.elapsedTime - d.plantedAt));
       toast(DATA.MSG.growing.replace('{n}', left.toFixed(0)), 'warn');
     } else if (d.state === 'ready') {
@@ -1130,19 +2054,21 @@
   /* ========== Sell ========== */
   if (sellBtn) {
     sellBtn.addEventListener('click', function () {
-      var totalCrops = crops.carrot + crops.corn + crops.melon;
+      var totalCrops = crops.carrot + crops.corn + crops.melon + crops.egg + crops.milk;
       if (!isPlaying || totalCrops <= 0) {
         toast(DATA.MSG.noSell, 'warn');
         return;
       }
 
-      var totalValue = crops.carrot * CFG.CROP_TYPES.carrot.sellPrice +
-                       crops.corn * CFG.CROP_TYPES.corn.sellPrice +
-                       crops.melon * CFG.CROP_TYPES.melon.sellPrice;
+      var totalValue = crops.carrot * cropPrices.carrot +
+                       crops.corn * cropPrices.corn +
+                       crops.melon * cropPrices.melon +
+                       crops.egg * cropPrices.egg +
+                       crops.milk * cropPrices.milk;
 
       var difficulty = 'easy';
-      if (crops.melon > 0) difficulty = 'hard';
-      else if (crops.corn > 0) difficulty = 'medium';
+      if (crops.melon > 0 || crops.milk > 0) difficulty = 'hard';
+      else if (crops.corn > 0 || crops.egg > 0) difficulty = 'medium';
 
       var quizOverlay = document.getElementById('quizModal');
       var quizQuestionEl = document.getElementById('quizQuestion');
@@ -1179,6 +2105,8 @@
         if (crops.carrot > 0) soldCropList.push(crops.carrot + ' แครอท');
         if (crops.corn > 0) soldCropList.push(crops.corn + ' ข้าวโพด');
         if (crops.melon > 0) soldCropList.push(crops.melon + ' แตงโม');
+        if (crops.egg > 0) soldCropList.push(crops.egg + ' ไข่ไก่');
+        if (crops.milk > 0) soldCropList.push(crops.milk + ' นมสด');
         var soldDesc = 'ขาย ' + soldCropList.join(', ');
 
         if (isCorrect) {
@@ -1204,7 +2132,7 @@
           addLedgerEntry(soldDesc + ' (โดนกดราคา 30%)', 'revenue', finalPayout);
         }
 
-        crops = { carrot: 0, corn: 0, melon: 0 };
+        crops = { carrot: 0, corn: 0, melon: 0, egg: 0, milk: 0 };
         refreshHud();
 
         if (vs && isVersus) {
@@ -1240,21 +2168,61 @@
     isVersus = !!versusMode;
     activeRng = rng;
     money = CFG.START_MONEY;
-    crops = { carrot: 0, corn: 0, melon: 0 };
+    crops = { carrot: 0, corn: 0, melon: 0, egg: 0, milk: 0 };
     totalEarned = 0;
     shownMoney = money;
     wormSpawnTimer = 25.0;
+
+    bankBalance = 0;
+    shownBankBalance = 0;
+    cropPrices = {
+      carrot: CFG.CROP_TYPES.carrot.sellPrice,
+      corn: CFG.CROP_TYPES.corn.sellPrice,
+      melon: CFG.CROP_TYPES.melon.sellPrice,
+      egg: 25,
+      milk: 65
+    };
+    marketTimer = 30.0;
+    bankInterestTimer = 30.0;
+    weatherState = 'sunny';
+    weatherTimer = 45.0;
+    
+    // Apply sunny weather visually
+    scene.fog.color.setHex(0xffd9a8);
+    if (sun) sun.intensity = 2.4;
+    if (rainPoints) rainPoints.visible = false;
     
     upgrades = {
       sprinkler: false,
       scarecrow: false,
-      fertilizer: 0
+      fertilizer: 0,
+      coop: false,
+      barn: false,
+      chickenFeed: 0,
+      cowFeed: 0
     };
     
     if (scarecrowMesh) {
       islandGroup.remove(scarecrowMesh);
       scarecrowMesh = null;
     }
+    if (coopMesh) {
+      islandGroup.remove(coopMesh);
+      coopMesh = null;
+    }
+    if (barnMesh) {
+      islandGroup.remove(barnMesh);
+      barnMesh = null;
+    }
+
+    chickensList.forEach(function (c) {
+      islandGroup.remove(c.mesh);
+    });
+    cowsList.forEach(function (c) {
+      islandGroup.remove(c.mesh);
+    });
+    chickensList = [];
+    cowsList = [];
 
     plots.forEach(function (g) {
       var d = g.userData;
@@ -1271,6 +2239,8 @@
         d.wormObj = null;
       }
       
+      d.isWatered = false;
+      d.wateredAt = 0;
       d.bar.visible = false;
       d.ring.material.opacity = 0;
       d.soilMat.emissive.setHex(0x000000);
@@ -1344,14 +2314,22 @@
     var shopModal = document.getElementById('shopModal');
     if (shopModal) shopModal.style.display = 'none';
 
+    var marketModal = document.getElementById('marketModal');
+    if (marketModal) marketModal.style.display = 'none';
+
+    var bankModal = document.getElementById('bankModal');
+    if (bankModal) bankModal.style.display = 'none';
+
     var cropSelectorEl = document.getElementById('cropSelector');
     if (cropSelectorEl) cropSelectorEl.style.display = 'none';
 
-    var totalCrops = crops.carrot + crops.corn + crops.melon;
+    var totalCrops = crops.carrot + crops.corn + crops.melon + crops.egg + crops.milk;
     if (totalCrops > 0) {
-      var income = crops.carrot * CFG.CROP_TYPES.carrot.sellPrice +
-                   crops.corn * CFG.CROP_TYPES.corn.sellPrice +
-                   crops.melon * CFG.CROP_TYPES.melon.sellPrice;
+      var income = crops.carrot * cropPrices.carrot +
+                   crops.corn * cropPrices.corn +
+                   crops.melon * cropPrices.melon +
+                   crops.egg * cropPrices.egg +
+                   crops.milk * cropPrices.milk;
       money += income;
       totalEarned += income;
       
@@ -1359,10 +2337,12 @@
       if (crops.carrot > 0) soldCropList.push(crops.carrot + ' แครอท');
       if (crops.corn > 0) soldCropList.push(crops.corn + ' ข้าวโพด');
       if (crops.melon > 0) soldCropList.push(crops.melon + ' แตงโม');
+      if (crops.egg > 0) soldCropList.push(crops.egg + ' ไข่ไก่');
+      if (crops.milk > 0) soldCropList.push(crops.milk + ' นมสด');
       var soldDesc = 'ขายออโต้ตอนหมดเวลา: ' + soldCropList.join(', ');
       
       addLedgerEntry(soldDesc, 'revenue', income);
-      crops = { carrot: 0, corn: 0, melon: 0 };
+      crops = { carrot: 0, corn: 0, melon: 0, egg: 0, milk: 0 };
       refreshHud();
     }
 
@@ -1372,6 +2352,8 @@
         g.remove(d.wormObj);
         d.wormObj = null;
       }
+      d.isWatered = false;
+      d.wateredAt = 0;
       d.soilMat.emissive.setHex(0x000000);
     });
 
@@ -1448,8 +2430,9 @@
     smokeTimer -= dt;
     if (!REDUCED && smokeTimer <= 0) { smoke(); smokeTimer = CFG.SMOKE_INTERVAL; }
 
-    // Worm spawning timer
+    // Worm spawning, Market, and Bank Interest timers
     if (isPlaying) {
+      // Worm spawning
       wormSpawnTimer -= dt;
       if (wormSpawnTimer <= 0) {
         var intervalMin = upgrades.scarecrow ? 60 : 30;
@@ -1457,6 +2440,62 @@
         wormSpawnTimer = intervalMin + getRandom() * (intervalMax - intervalMin);
         spawnWorm();
       }
+
+      // Market Prices
+      marketTimer -= dt;
+      if (marketTimer <= 0) {
+        marketTimer = 30.0;
+        updateMarketPrices();
+      }
+
+      // Bank Interest
+      bankInterestTimer -= dt;
+      if (bankInterestTimer <= 0) {
+        bankInterestTimer = 30.0;
+        if (bankBalance > 0) {
+          var interest = Math.max(1, Math.round(bankBalance * 0.05));
+          bankBalance += interest;
+          toast("🏦 ได้รับดอกเบี้ยเงินฝากสะสม +" + interest + " เหรียญ 🪙", "good");
+          addLedgerEntry("ดอกเบี้ยสะสมร้อยละ 5", "revenue", interest);
+          
+          var bankBalanceValEl = document.getElementById('bankBalanceVal');
+          if (bankBalanceValEl) bankBalanceValEl.textContent = bankBalance;
+        }
+      }
+
+      // Chickens and Cows update loop
+      chickensList.concat(cowsList).forEach(function (animal) {
+        animal.wanderTimer -= dt;
+        if (animal.wanderTimer <= 0) {
+          animal.wanderTimer = 3.0 + getRandom() * 4.0;
+          var wanderDist = animal.type === 'chicken' ? 0.6 : 0.8;
+          animal.targetPos.set(
+            animal.basePos.x + (getRandom() - 0.5) * wanderDist,
+            GROUND_Y,
+            animal.basePos.z + (getRandom() - 0.5) * wanderDist
+          );
+        }
+        
+        var dir = new THREE.Vector3().subVectors(animal.targetPos, animal.mesh.position);
+        var dist = dir.length();
+        if (dist > 0.05) {
+          dir.normalize();
+          var speed = animal.type === 'chicken' ? 0.25 : 0.15;
+          animal.mesh.position.addScaledVector(dir, speed * dt);
+          
+          var angle = Math.atan2(dir.x, dir.z);
+          animal.mesh.rotation.y = angle;
+          
+          var bounceSpeed = animal.type === 'chicken' ? 12 : 8;
+          animal.mesh.position.y = GROUND_Y + Math.abs(Math.sin(t * bounceSpeed)) * 0.04;
+        } else {
+          animal.mesh.position.y = GROUND_Y;
+        }
+        
+        if (animal.balloon) animal.balloon.quaternion.copy(camera.quaternion);
+
+        updateAnimalState(animal, dt);
+      });
     }
 
     // Plots
@@ -1478,9 +2517,38 @@
         d.plantedAt += dt;
       }
 
+      // Sสภาพอากาศแปรปรวน (Weather System) modifications
       if (d.state === 'growing') {
+        if (weatherState === 'drought') {
+          if (d.isWatered) {
+            d.soilMat.emissive.setRGB(0, 0.05, 0.12);
+            if (t - d.wateredAt > 10.0) {
+              d.isWatered = false;
+              toast("🍂 ดินแห้งแล้ว! แปลงพืชต้องการน้ำอีกครั้ง", "warn");
+            }
+          } else {
+            d.plantedAt += dt;
+            var pulseRed = (Math.sin(t * 8) + 1) * 0.5;
+            d.soilMat.emissive.setRGB(0.18 + pulseRed * 0.08, 0, 0);
+          }
+        } else if (weatherState === 'rainy') {
+          d.plantedAt -= dt * 0.5;
+          d.soilMat.emissive.setRGB(0, 0.04, 0.08);
+        } else {
+          d.soilMat.emissive.setHex(0x000000);
+        }
+
         var cropConfig = CFG.CROP_TYPES[d.plantedCropId];
         var totalGrowTime = cropConfig.growTime * (upgrades.sprinkler ? 0.75 : 1.0);
+        
+        if (d.soilType === 'sandy') {
+          if (d.plantedCropId === 'melon') totalGrowTime *= 0.7;
+          else totalGrowTime *= 1.3;
+        } else if (d.soilType === 'loamy') {
+          if (d.plantedCropId !== 'melon') totalGrowTime *= 0.7;
+          else totalGrowTime *= 1.3;
+        }
+
         var prog = Math.min(1, (t - d.plantedAt) / totalGrowTime);
         var s = 0.15 + easeOut(prog) * 0.95;
         
@@ -1519,9 +2587,22 @@
 
     updateParticles(dt);
 
-    // Money count-up animation
+    // Rain droplets animation
+    if (rainPoints && weatherState === 'rainy') {
+      var positions = rainGeo.attributes.position.array;
+      for (var i = 0; i < positions.length; i += 3) {
+        positions[i+1] -= dt * 6.0; // fall speed
+        if (positions[i+1] < GROUND_Y) {
+          positions[i+1] = GROUND_Y + 6.0; // loop back up
+        }
+      }
+      rainGeo.attributes.position.needsUpdate = true;
+    }
+
+    // Money and bank count-up animation
     shownMoney += (money - shownMoney) * Math.min(1, dt * 6);
-    if (moneyEl) moneyEl.textContent = Math.round(shownMoney);
+    shownBankBalance += (bankBalance - shownBankBalance) * Math.min(1, dt * 6);
+    refreshHud();
 
     controls.update();
     renderer.render(scene, camera);

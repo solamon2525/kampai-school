@@ -59,28 +59,35 @@
     <div class="stats">
       <div class="stat money">
         <div class="ic">🪙</div>
-        <div>
-          <div class="label">เงินทุน</div>
-          <div class="value"><span id="money">100</span> <small>เหรียญ</small></div>
+        <div style="flex-grow:1">
+          <div class="label">การเงิน</div>
+          <div class="money-details" style="display:flex; justify-content:space-between; font-size:15px; font-weight:600;">
+            <span>💵สด: <span id="money">100</span></span>
+            <span>🏦ฝาก: <span id="bank-money">0</span></span>
+          </div>
         </div>
       </div>
       <div class="stat crops-list">
         <div class="ic">🌾</div>
         <div style="flex-grow:1">
           <div class="label">ผลผลิตในยุ้งฉาง</div>
-          <div class="crop-counts">
+          <div class="crop-counts" style="flex-wrap: wrap;">
             <span class="crop-count-item">🥕<span id="crop-carrot">0</span></span>
             <span class="crop-count-item">🌽<span id="crop-corn">0</span></span>
             <span class="crop-count-item">🍉<span id="crop-melon">0</span></span>
+            <span class="crop-count-item">🥚<span id="crop-egg">0</span></span>
+            <span class="crop-count-item">🥛<span id="crop-milk">0</span></span>
           </div>
         </div>
       </div>
     </div>
     
     <button class="sell" id="sellBtn">ขายผลผลิตทั้งหมด</button>
-    <div class="hud-actions">
-      <button class="hud-action-btn" id="ledgerBtn">📖 บัญชีฟาร์ม</button>
+    <div class="hud-actions" style="grid-template-columns: 1fr 1fr; display: grid; gap: 6px;">
+      <button class="hud-action-btn" id="ledgerBtn">📖 บัญชี</button>
       <button class="hud-action-btn" id="shopBtn">🛒 ร้านค้า</button>
+      <button class="hud-action-btn" id="marketBtn">📈 ตลาด</button>
+      <button class="hud-action-btn" id="bankBtn">🏦 ธนาคาร</button>
     </div>
     <button class="versus-btn" id="versus-btn" style="display:none">🏆 แข่ง 2 คน</button>
     
@@ -172,10 +179,12 @@
   <div class="modal-overlay" id="shopModal" style="display:none">
     <div class="modal-card shop-card">
       <h2>🛒 ร้านค้าอัปเกรดเกาะ</h2>
-      <div class="shop-inventory-info">
-        คุณมีปุ๋ยชีวภาพเร่งโต: <span id="fertilizerCount" class="green-text" style="font-weight:bold">0</span> ถุง
+      <div class="shop-inventory-info" style="display:flex; flex-direction:column; gap:4px; font-size:13px; margin-bottom:12px; background:rgba(0,0,0,0.03); padding:8px; border-radius:8px;">
+        <div>🧪 ปุ๋ยชีวภาพเร่งโต: <span id="fertilizerCount" class="green-text" style="font-weight:bold">0</span> ถุง</div>
+        <div>🌾 อาหารไก่: <span id="chickenFeedCount" style="font-weight:bold; color:#d97706;">0</span> ถุง | 🍀 อาหารวัว: <span id="cowFeedCount" style="font-weight:bold; color:#16a34a;">0</span> ถุง</div>
+        <div>🐔 แม่ไก่ในเล้า: <span id="chickenCount" style="font-weight:bold; color:#475569;">0</span>/3 ตัว | 🐄 แม่วัวในคอก: <span id="cowCount" style="font-weight:bold; color:#475569;">0</span>/2 ตัว</div>
       </div>
-      <div class="shop-items">
+      <div class="shop-items" style="max-height:280px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;">
         <div class="shop-item" id="itemSprinkler">
           <div class="item-icon">💦</div>
           <div class="item-info">
@@ -200,8 +209,117 @@
           </div>
           <button class="buy-btn" id="buyFertilizerBtn">ซื้อราคา 50 🪙</button>
         </div>
+        <div class="shop-item" id="itemCoop">
+          <div class="item-icon">🏠🐔</div>
+          <div class="item-info">
+            <div class="item-name">เล้าไก่ไข่</div>
+            <div class="item-desc">ขยายเกาะเพื่อเลี้ยงไก่ได้สูงสุด 3 ตัว</div>
+          </div>
+          <button class="buy-btn" id="buyCoopBtn">ซื้อราคา 150 🪙</button>
+        </div>
+        <div class="shop-item" id="itemBarn">
+          <div class="item-icon">🏠🐄</div>
+          <div class="item-info">
+            <div class="item-name">คอกวัวนม</div>
+            <div class="item-desc">ขยายเกาะเพื่อเลี้ยงวัวได้สูงสุด 2 ตัว</div>
+          </div>
+          <button class="buy-btn" id="buyBarnBtn">ซื้อราคา 300 🪙</button>
+        </div>
+        <div class="shop-item" id="itemChicken">
+          <div class="item-icon">🐔</div>
+          <div class="item-info">
+            <div class="item-name">ซื้อแม่ไก่พันธุ์ไข่</div>
+            <div class="item-desc">ให้ผลผลิตเป็นไข่ไก่ 🥚 (ต้องการเล้าไก่)</div>
+          </div>
+          <button class="buy-btn" id="buyChickenBtn">ซื้อราคา 50 🪙</button>
+        </div>
+        <div class="shop-item" id="itemCow">
+          <div class="item-icon">🐄</div>
+          <div class="item-info">
+            <div class="item-name">ซื้อแม่วัวนม</div>
+            <div class="item-desc">ให้ผลผลิตเป็นนมวัว 🥛 (ต้องการคอกวัว)</div>
+          </div>
+          <button class="buy-btn" id="buyCowBtn">ซื้อราคา 100 🪙</button>
+        </div>
+        <div class="shop-item" id="itemChickenFeed">
+          <div class="item-icon">🌾🎒</div>
+          <div class="item-info">
+            <div class="item-name">อาหารไก่ (ถุง)</div>
+            <div class="item-desc">อาหารสำหรับใช้เลี้ยงไก่ในเล้า</div>
+          </div>
+          <button class="buy-btn" id="buyChickenFeedBtn">ซื้อราคา 10 🪙</button>
+        </div>
+        <div class="shop-item" id="itemCowFeed">
+          <div class="item-icon">🍀🎒</div>
+          <div class="item-info">
+            <div class="item-name">อาหารวัว (ถุง)</div>
+            <div class="item-desc">อาหารสำหรับใช้เลี้ยงวัวในคอก</div>
+          </div>
+          <button class="buy-btn" id="buyCowFeedBtn">ซื้อราคา 20 🪙</button>
+        </div>
       </div>
       <button class="close-btn" id="closeShopBtn">❌ ปิดหน้าต่าง</button>
+    </div>
+  </div>
+
+  <!-- Market Modal -->
+  <div class="modal-overlay" id="marketModal" style="display:none">
+    <div class="modal-card market-card">
+      <h2>📈 ตลาดราคากลางแปรผัน</h2>
+      <p style="font-size:12px; opacity:0.75; text-align:center; margin-top:-10px; margin-bottom:15px;">ราคากลางปรับขึ้นลงทุกๆ 30 วินาทีตามดีมานด์ซัพพลายตลาด</p>
+      
+      <!-- CSS Bar Chart -->
+      <div class="price-chart" style="display:flex; justify-content:space-around; align-items:flex-end; height:180px; margin-bottom:20px; padding:10px; background:rgba(255,255,255,0.4); border-radius:16px; border:1px solid rgba(0,0,0,0.04);">
+        <!-- Carrot Column -->
+        <div class="chart-col" style="display:flex; flex-direction:column; align-items:center; width:30%; height:100%; justify-content:flex-end;">
+          <div class="chart-bar-wrapper" style="width:100%; height:80%; display:flex; align-items:flex-end; justify-content:center;">
+            <div class="chart-bar carrot-bar" id="carrotBar" style="height:50%; width:30px; background:linear-gradient(to top, #ea580c, #f97316); border-radius:8px 8px 0 0; display:flex; align-items:flex-end; justify-content:center; position:relative; transition:height 0.4s ease;">
+              <span class="bar-value" id="carrotPriceVal" style="position:absolute; top:-25px; font-weight:700; font-size:13px;">25</span>
+            </div>
+          </div>
+          <span class="chart-label" style="font-size:12px; font-weight:600; margin-top:8px;">🥕 แครอท</span>
+        </div>
+        <!-- Corn Column -->
+        <div class="chart-col" style="display:flex; flex-direction:column; align-items:center; width:30%; height:100%; justify-content:flex-end;">
+          <div class="chart-bar-wrapper" style="width:100%; height:80%; display:flex; align-items:flex-end; justify-content:center;">
+            <div class="chart-bar corn-bar" id="cornBar" style="height:50%; width:30px; background:linear-gradient(to top, #ca8a04, #facc15); border-radius:8px 8px 0 0; display:flex; align-items:flex-end; justify-content:center; position:relative; transition:height 0.4s ease;">
+              <span class="bar-value" id="cornPriceVal" style="position:absolute; top:-25px; font-weight:700; font-size:13px;">75</span>
+            </div>
+          </div>
+          <span class="chart-label" style="font-size:12px; font-weight:600; margin-top:8px;">🌽 ข้าวโพด</span>
+        </div>
+        <!-- Melon Column -->
+        <div class="chart-col" style="display:flex; flex-direction:column; align-items:center; width:30%; height:100%; justify-content:flex-end;">
+          <div class="chart-bar-wrapper" style="width:100%; height:80%; display:flex; align-items:flex-end; justify-content:center;">
+            <div class="chart-bar melon-bar" id="melonBar" style="height:50%; width:30px; background:linear-gradient(to top, #166534, #22c55e); border-radius:8px 8px 0 0; display:flex; align-items:flex-end; justify-content:center; position:relative; transition:height 0.4s ease;">
+              <span class="bar-value" id="melonPriceVal" style="position:absolute; top:-25px; font-weight:700; font-size:13px;">210</span>
+            </div>
+          </div>
+          <span class="chart-label" style="font-size:12px; font-weight:600; margin-top:8px;">🍉 แตงโม</span>
+        </div>
+      </div>
+      <button class="close-btn" id="closeMarketBtn">❌ ปิดหน้าต่าง</button>
+    </div>
+  </div>
+
+  <!-- Bank Modal -->
+  <div class="modal-overlay" id="bankModal" style="display:none">
+    <div class="modal-card bank-card">
+      <h2>🏦 ธนาคารเกาะสะสมเงินฝาก</h2>
+      <div class="bank-info-box" style="background:rgba(255,255,255,0.5); padding:16px; border-radius:18px; text-align:center; margin-bottom:18px; border:1px solid rgba(0,0,0,0.04);">
+        <div style="font-size:13px; opacity:0.6; margin-bottom:4px;">ยอดเงินฝากในตู้เซฟ</div>
+        <div style="font-size:32px; font-weight:700; color:#1e3a8a;"><span id="bankBalanceVal">0</span> 🪙</div>
+        <div style="font-size:11px; color:#15803d; font-weight:600; margin-top:6px; background:#dcfce7; display:inline-block; padding:2px 8px; border-radius:12px;">📈 อัตราดอกเบี้ยร้อยละ 5 ทุกๆ 30 วินาที</div>
+      </div>
+      
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <button class="sell" id="depositBtn" style="margin-top:0; background:linear-gradient(180deg, #3b82f6, #1d4ed8); color:#fff; box-shadow:0 4px 10px rgba(59,130,246,0.3);">📥 ฝากเงิน 50</button>
+        <button class="sell" id="depositAllBtn" style="margin-top:0; background:linear-gradient(180deg, #60a5fa, #2563eb); color:#fff; box-shadow:0 4px 10px rgba(96,165,250,0.3);">📥 ฝากทั้งหมด</button>
+        <button class="close-btn" id="withdrawBtn" style="margin-top:0; padding:13px; border-radius:16px; background:linear-gradient(180deg, #f87171, #dc2626); color:#fff; box-shadow:0 4px 10px rgba(239,68,68,0.25);">📤 ถอนเงิน 50</button>
+        <button class="close-btn" id="withdrawAllBtn" style="margin-top:0; padding:13px; border-radius:16px; background:linear-gradient(180deg, #fca5a5, #ef4444); color:#fff; box-shadow:0 4px 10px rgba(248,113,113,0.25);">📤 ถอนทั้งหมด</button>
+      </div>
+      
+      <button class="close-btn" id="closeBankBtn">❌ ปิดหน้าต่าง</button>
     </div>
   </div>
 
