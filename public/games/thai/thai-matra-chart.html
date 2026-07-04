@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>สื่อมาตราตัวสะกด — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --deep: #9f1239; --line: #fda4af; --muted: #64748b;
+      --ok: #16a34a; --bad: #dc2626;
+    }
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: linear-gradient(145deg, #ffe4e6 0%, #fff1f2 40%, #fecdd3 100%);
+      min-height: 100vh; color: #0f172a; padding: 12px;
+    }
+    .shell {
+      max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem;
+      box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden;
+      display: flex; flex-direction: column; min-height: calc(100vh - 24px);
+    }
+    header {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px;
+      background: linear-gradient(90deg, #9f1239, #be123c 50%, #e11d48); color: #fff;
+    }
+    header h1 { font-size: 1.15rem; font-weight: 800; flex: 1; min-width: 160px; }
+    header .badge {
+      font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px;
+      border-radius: 999px; font-weight: 700;
+    }
+    .btn {
+      font-family: inherit; font-weight: 700; border: none; border-radius: 12px;
+      padding: 10px 14px; cursor: pointer; font-size: .95rem; text-decoration: none;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-back {
+      background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35);
+      padding: 8px 12px; font-size: .85rem;
+    }
+    .btn-primary { background: var(--deep); color: #fff; }
+    .btn-accent { background: #fbbf24; color: #78350f; }
+    .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
+    .btn-ok { background: var(--ok); color: #fff; }
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; background: #fff1f2;
+      border-bottom: 1px solid #fecdd3; align-items: center;
+    }
+    .seg { display: inline-flex; border-radius: 12px; overflow: hidden; border: 2px solid #fb7185; }
+    .seg button {
+      font-family: inherit; font-weight: 800; border: none; background: #fff;
+      color: var(--deep); padding: 8px 14px; cursor: pointer; font-size: .9rem;
+    }
+    .seg button.on { background: var(--deep); color: #fff; }
+    .hint { font-size: .85rem; color: #9f1239; font-weight: 600; flex: 1; min-width: 160px; }
+    .stage { flex: 1; display: grid; grid-template-columns: 1fr; min-height: 0; }
+    @media (min-width: 820px) { .stage { grid-template-columns: 1fr 300px; } }
+    .grid-wrap { padding: 14px; overflow: auto; }
+    .grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px;
+    }
+    .tile {
+      border-radius: 16px; border: 2px solid #fda4af; background: #fff; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 4px; font-weight: 800; color: var(--deep); min-height: 88px; padding: 10px;
+      user-select: none; text-align: center;
+    }
+    .tile:hover { border-color: #e11d48; background: #fff1f2; }
+    .tile.on {
+      background: linear-gradient(145deg, #fb7185, #e11d48); color: #fff; border-color: #9f1239;
+    }
+    .tile .name { font-size: 1.15rem; line-height: 1.2; }
+    .tile .letters { font-size: .8rem; font-weight: 700; opacity: .85; }
+    .detail {
+      background: #fff1f2; border-top: 1px solid #fecdd3; padding: 16px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    @media (min-width: 820px) { .detail { border-top: none; border-left: 1px solid #fecdd3; } }
+    .detail-empty { color: var(--muted); font-weight: 600; text-align: center; margin: auto 0; line-height: 1.5; }
+    .detail-card, .practice-card { display: none; flex-direction: column; gap: 10px; align-items: center; text-align: center; }
+    .detail-card.show, .practice-card.show { display: flex; }
+    .big-name { font-size: 2rem; font-weight: 800; color: var(--deep); }
+    .letter-chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+    .letter-chips span {
+      background: #fff; border: 2px solid #fda4af; border-radius: 10px;
+      padding: 6px 10px; font-weight: 800; font-size: 1.1rem; color: var(--deep);
+    }
+    .tip {
+      font-size: .9rem; font-weight: 700; color: #9f1239;
+      background: #fff; border: 2px dashed #fda4af; border-radius: 12px; padding: 8px 12px; width: 100%;
+    }
+    .words { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+    .word-btn, .choice-btn {
+      font-family: inherit; font-weight: 800; font-size: 1.15rem; border: 2px solid #fda4af;
+      background: #fff; border-radius: 14px; padding: 12px 14px; cursor: pointer;
+      display: flex; align-items: center; gap: 10px; color: #0f172a; text-align: left; width: 100%;
+    }
+    .word-btn:hover, .choice-btn:hover { background: #ffe4e6; }
+    .choice-btn.correct { background: #dcfce7; border-color: #86efac; }
+    .choice-btn.wrong { background: #fee2e2; border-color: #fca5a5; }
+    .choice-btn:disabled { cursor: default; }
+    .word-btn .emoji, .choice-btn .emoji { font-size: 1.5rem; }
+    .word-btn .meta, .choice-btn .meta { display: flex; flex-direction: column; gap: 2px; }
+    .word-btn .th, .choice-btn .th { font-size: 1.25rem; }
+    .word-btn .note, .choice-btn .note { font-size: .8rem; font-weight: 600; color: var(--muted); }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
+    .actions .btn { flex: 1; min-width: 110px; }
+    .practice-prompt {
+      font-size: 1.1rem; font-weight: 800; color: var(--deep);
+      background: #fff; border-radius: 14px; padding: 12px; width: 100%; border: 2px dashed #fda4af;
+    }
+    .practice-word { font-size: 2.6rem; font-weight: 800; color: var(--deep); }
+    .practice-fb { min-height: 28px; font-weight: 800; }
+    .practice-fb.ok { color: var(--ok); }
+    .practice-fb.no { color: var(--bad); }
+    .streak { font-size: .85rem; font-weight: 700; color: #9f1239; }
+    .footer {
+      display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px;
+      padding: 10px 16px; font-size: .8rem; color: var(--muted); border-top: 1px solid #fecdd3;
+    }
+    .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+    .learn-panel { display: contents; }
+    .shell.mode-practice .learn-panel { display: none; }
+    .practice-wrap { display: none; padding: 16px; max-width: 440px; margin: 0 auto; width: 100%; }
+    .shell.mode-practice .practice-wrap { display: block; }
+    .shell.mode-practice .stage { display: none; }
+  </style>
+</head>
+<body>
+  <div class="shell" id="shell">
+    <header>
+      <a class="btn btn-back" href="/h/nattapong">← กลับคลังสื่อ</a>
+      <h1>🎣 มาตราตัวสะกด</h1>
+      <span class="badge">ป.1–3 · ภาษาไทย</span>
+    </header>
+
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
+        <button type="button" data-mode="practice">✏️ ฝึก</button>
+      </span>
+      <p class="hint" id="hintText">แตะแม่มาตรา → ดูตัวสะกด + คำตัวอย่าง · คู่กับเกมตกปลามาตราตัวสะกด</p>
+      <button type="button" class="btn btn-ghost" id="btnFs">⛶ เต็มจอ</button>
+    </div>
+
+    <div class="stage learn-panel">
+      <div class="grid-wrap">
+        <div class="grid" id="grid"></div>
+      </div>
+      <aside class="detail">
+        <div class="detail-empty" id="detailEmpty">แตะแม่มาตราทางซ้าย<br>เพื่อดูตัวสะกดและคำตัวอย่าง</div>
+        <div class="detail-card" id="detailCard">
+          <div class="big-name" id="bigName"></div>
+          <div class="letter-chips" id="letterChips"></div>
+          <p class="tip" id="tipText"></p>
+          <div class="words" id="words"></div>
+          <div class="actions">
+            <button type="button" class="btn btn-accent" id="btnSpeak">🔊 อ่านแม่มาตรา</button>
+            <button type="button" class="btn btn-primary" id="btnAllWords">🗣️ อ่านคำทั้งหมด</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="practice-wrap">
+      <div class="practice-card show">
+        <p class="streak" id="streakLabel">ถูกติดกัน: 0</p>
+        <div class="practice-prompt">คำนี้อยู่ในมาตราใด?</div>
+        <div class="practice-word" id="practiceWord">นก</div>
+        <div class="words" id="practiceChoices"></div>
+        <div class="practice-fb" id="practiceFb"></div>
+        <div class="actions">
+          <button type="button" class="btn btn-accent" id="btnPracticeSpeak">🔊 อ่านคำ</button>
+          <button type="button" class="btn btn-ok" id="btnPracticeNext">ข้อถัดไป →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>🏫 โรงเรียนบ้านคำไผ่ · สื่อการสอน</span>
+      <a href="/play/fishing">เล่นเกมตกปลามาตราตัวสะกด →</a>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var MEDIA_SLUG = 'thai-matra-chart';
+      if (window.KAMPAI) { try { window.KAMPAI.setSlug(MEDIA_SLUG); } catch (e) {} }
+
+      function m(id, name, letters, tip, words) {
+        return { id: id, name: name, letters: letters, tip: tip, words: words };
+      }
+      function w(th, note, emoji) { return { th: th, note: note, emoji: emoji }; }
+
+      var MATRAS = [
+        m('kk', 'แม่กก', ['ก', 'ข', 'ค', 'ฆ'],
+          'ตัวสะกดเสียง ก — เช่น นก หมวก เด็ก',
+          [w('นก', 'น + ก', '🐦'), w('หมวก', 'หมว + ก', '🎩'), w('เด็ก', 'เด็ + ก', '🧒'), w('ผัก', 'ผั + ก', '🥬')]),
+        m('ng', 'แม่กง', ['ง'],
+          'ตัวสะกดเสียง ง — เช่น นาง ลิง ช้าง',
+          [w('นาง', 'นา + ง', '👩'), w('ลิง', 'ลิ + ง', '🐒'), w('ช้าง', 'ชา + ง', '🐘'), w('เพลง', 'เพล + ง', '🎵')]),
+        m('kd', 'แม่กด', ['ด', 'จ', 'ฎ', 'ฏ', 'ต', 'ถ', 'ท', 'ธ', 'ฑ', 'ฒ', 'ช', 'ซ', 'ศ', 'ษ', 'ส'],
+          'ตัวสะกดเสียง ด — เช่น รถ บาด ประเทศ',
+          [w('รถ', 'ร + ถ', '🚗'), w('บาด', 'บา + ด', '🩹'), w('ประเทศ', 'ประเท + ศ', '🇹🇭'), w('จด', 'จ + ด', '📝')]),
+        m('kn', 'แม่กน', ['น', 'ณ', 'ญ', 'ร', 'ล', 'ฬ'],
+          'ตัวสะกดเสียง น — เช่น คน บ้าน น้ำ',
+          [w('คน', 'ค + น', '👤'), w('บ้าน', 'บ้า + น', '🏠'), w('น้ำ', 'น้ำ (อำ)', '💧'), w('การ', 'กา + ร', '📋')]),
+        m('kb', 'แม่กบ', ['บ', 'ป', 'พ', 'ฟ', 'ภ'],
+          'ตัวสะกดเสียง บ — เช่น พบ รูป สุขภาพ',
+          [w('พบ', 'พ + บ', '🤝'), w('รูป', 'รู + ป', '🖼️'), w('สุขภาพ', 'สุขภา + พ', '💪'), w('คบ', 'ค + บ', '👫')]),
+        m('km', 'แม่กม', ['ม'],
+          'ตัวสะกดเสียง ม — เช่น ลม ชม ธรรม',
+          [w('ลม', 'ล + ม', '💨'), w('ชม', 'ช + ม', '👏'), w('ธรรม', 'ธร + ม', '⚖️'), w('ขม', 'ข + ม', '😖')]),
+        m('ky', 'แม่เกย', ['ย'],
+          'ตัวสะกดเสียง ย — เช่น ไทย ใหญ่ เคย',
+          [w('ไทย', 'ไท + ย', '🇹🇭'), w('ใหญ่', 'ใหญ', '📐'), w('เคย', 'เค + ย', '💭'), w('สวย', 'สว + ย', '✨')]),
+        m('kw', 'แม่เกอว', ['ว'],
+          'ตัวสะกดเสียง ว — เช่น แมว เร็ว ดาว',
+          [w('แมว', 'แม + ว', '🐱'), w('เร็ว', 'เร็ + ว', '⚡'), w('ดาว', 'ดา + ว', '⭐'), w('แก้ว', 'แก๊ + ว', '🥛')]),
+      ];
+
+      var mode = 'learn';
+      var selected = null;
+      var practiceItem = null;
+      var practiceWord = null;
+      var practiceAnswered = false;
+      var streak = 0;
+
+      var shell = document.getElementById('shell');
+      var grid = document.getElementById('grid');
+      var detailEmpty = document.getElementById('detailEmpty');
+      var detailCard = document.getElementById('detailCard');
+
+      function speak(text) {
+        if (window.KAMPAI && KAMPAI.sound && typeof KAMPAI.sound.speak === 'function') {
+          try {
+            if (KAMPAI.sound.speak.length >= 3) KAMPAI.sound.speak(text, 'th-TH', true);
+            else KAMPAI.sound.speak(text, 'th-TH');
+            return;
+          } catch (e) {}
+        }
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          var u = new SpeechSynthesisUtterance(text);
+          u.lang = 'th-TH';
+          u.rate = 0.95;
+          window.speechSynthesis.speak(u);
+        }
+      }
+
+      function renderGrid() {
+        grid.innerHTML = '';
+        MATRAS.forEach(function (it) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'tile' + (selected && selected.id === it.id ? ' on' : '');
+          btn.innerHTML = '<span class="name">' + it.name + '</span><span class="letters">' +
+            it.letters.slice(0, 4).join(' ') + (it.letters.length > 4 ? '…' : '') + '</span>';
+          btn.addEventListener('click', function () { selectItem(it); });
+          grid.appendChild(btn);
+        });
+      }
+
+      function selectItem(it) {
+        selected = it;
+        renderGrid();
+        detailEmpty.style.display = 'none';
+        detailCard.classList.add('show');
+        document.getElementById('bigName').textContent = it.name;
+        var chips = document.getElementById('letterChips');
+        chips.innerHTML = '';
+        it.letters.forEach(function (ch) {
+          var s = document.createElement('span');
+          s.textContent = ch;
+          chips.appendChild(s);
+        });
+        document.getElementById('tipText').textContent = '💡 ' + it.tip;
+        var wordsEl = document.getElementById('words');
+        wordsEl.innerHTML = '';
+        it.words.forEach(function (word) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'word-btn';
+          b.innerHTML = '<span class="emoji">' + word.emoji + '</span><span class="meta"><span class="th">' +
+            word.th + '</span><span class="note">' + word.note + '</span></span>';
+          b.addEventListener('click', function () { speak(word.th); });
+          wordsEl.appendChild(b);
+        });
+        speak(it.name + ' ' + it.tip);
+      }
+
+      function setMode(m) {
+        mode = m;
+        shell.classList.toggle('mode-practice', m === 'practice');
+        document.querySelectorAll('#modeSeg button').forEach(function (b) {
+          b.classList.toggle('on', b.dataset.mode === m);
+        });
+        document.getElementById('hintText').textContent = m === 'practice'
+          ? 'อ่านคำแล้วเลือกแม่มาตราที่ถูกต้อง'
+          : 'แตะแม่มาตรา → ดูตัวสะกด + คำตัวอย่าง · คู่กับเกมตกปลามาตราตัวสะกด';
+        if (m === 'practice') nextPractice();
+      }
+
+      function nextPractice() {
+        practiceAnswered = false;
+        document.getElementById('practiceFb').textContent = '';
+        document.getElementById('practiceFb').className = 'practice-fb';
+        practiceItem = MATRAS[Math.floor(Math.random() * MATRAS.length)];
+        practiceWord = practiceItem.words[Math.floor(Math.random() * practiceItem.words.length)];
+        document.getElementById('practiceWord').textContent = practiceWord.th;
+        document.getElementById('streakLabel').textContent = 'ถูกติดกัน: ' + streak;
+
+        var choices = [practiceItem];
+        var pool = MATRAS.slice().sort(function () { return Math.random() - 0.5; });
+        for (var i = 0; i < pool.length && choices.length < 4; i++) {
+          if (pool[i].id !== practiceItem.id) choices.push(pool[i]);
+        }
+        choices.sort(function () { return Math.random() - 0.5; });
+
+        var box = document.getElementById('practiceChoices');
+        box.innerHTML = '';
+        choices.forEach(function (it) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'choice-btn';
+          b.innerHTML = '<span class="emoji">📌</span><span class="meta"><span class="th">' +
+            it.name + '</span><span class="note">' + it.letters.slice(0, 4).join(' ') + '</span></span>';
+          b.addEventListener('click', function () { onPick(b, it); });
+          box.appendChild(b);
+        });
+        speak(practiceWord.th);
+      }
+
+      function onPick(btn, it) {
+        if (practiceAnswered) return;
+        practiceAnswered = true;
+        var ok = it.id === practiceItem.id;
+        document.querySelectorAll('#practiceChoices .choice-btn').forEach(function (el) {
+          el.disabled = true;
+          var name = el.querySelector('.th').textContent;
+          if (name === practiceItem.name) el.classList.add('correct');
+        });
+        var fb = document.getElementById('practiceFb');
+        if (ok) {
+          streak++;
+          btn.classList.add('correct');
+          fb.textContent = '✅ ถูกต้อง! "' + practiceWord.th + '" อยู่ใน' + practiceItem.name;
+          fb.className = 'practice-fb ok';
+          if (window.KAMPAI && KAMPAI.sound) try { KAMPAI.sound.correct(); } catch (e) {}
+        } else {
+          streak = 0;
+          btn.classList.add('wrong');
+          fb.textContent = '❌ คำตอบคือ ' + practiceItem.name;
+          fb.className = 'practice-fb no';
+          if (window.KAMPAI && KAMPAI.sound) try { KAMPAI.sound.wrong(); } catch (e) {}
+        }
+        document.getElementById('streakLabel').textContent = 'ถูกติดกัน: ' + streak;
+        speak(practiceWord.th + ' อยู่ใน' + practiceItem.name);
+      }
+
+      document.getElementById('modeSeg').addEventListener('click', function (e) {
+        var btn = e.target.closest('button[data-mode]');
+        if (btn) setMode(btn.dataset.mode);
+      });
+      document.getElementById('btnSpeak').addEventListener('click', function () {
+        if (selected) speak(selected.name + ' ' + selected.tip);
+      });
+      document.getElementById('btnAllWords').addEventListener('click', function () {
+        if (!selected) return;
+        var i = 0;
+        speak(selected.name);
+        setTimeout(function next() {
+          if (i >= selected.words.length) return;
+          speak(selected.words[i].th);
+          i++;
+          setTimeout(next, 1100);
+        }, 1200);
+      });
+      document.getElementById('btnPracticeSpeak').addEventListener('click', function () {
+        if (practiceWord) speak(practiceWord.th);
+      });
+      document.getElementById('btnPracticeNext').addEventListener('click', nextPractice);
+      document.getElementById('btnFs').addEventListener('click', function () {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(function () {});
+        else if (document.exitFullscreen) document.exitFullscreen();
+      });
+
+      renderGrid();
+    })();
+  </script>
+</body>
+</html>
