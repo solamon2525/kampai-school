@@ -389,7 +389,7 @@
           addLedgerEntry("ฝากเงินเข้าธนาคาร", "expense", amt);
         } else {
           var fee = Math.max(1, Math.round(amt * 0.1));
-          money -= (amt + fee);
+          money = Math.max(0, money - (amt + fee));
           bankBalance += amt;
           toast("ฝากเงินสำเร็จ แต่โดนปรับ " + fee + " เหรียญ เนื่องจากคิดเลขผิด", "warn");
           addLedgerEntry("ฝากเงินเข้าธนาคาร (โดนปรับ " + fee + ")", "expense", amt + fee);
@@ -418,7 +418,7 @@
           addLedgerEntry("ฝากเงินเข้าธนาคารทั้งหมด", "expense", amt);
         } else {
           var fee = Math.max(1, Math.round(amt * 0.1));
-          money -= (amt + fee);
+          money = Math.max(0, money - (amt + fee));
           bankBalance += amt;
           toast("ฝากเงินสำเร็จ แต่โดนปรับ " + fee + " เหรียญ เนื่องจากคิดเลขผิด", "warn");
           addLedgerEntry("ฝากเงินเข้าธนาคารทั้งหมด (โดนปรับ " + fee + ")", "expense", amt + fee);
@@ -2409,6 +2409,7 @@
     soil.position.y = 0.02;
     soil.receiveShadow = true; soil.castShadow = true;
     soil.userData.group = g;
+    g.userData.soil = soil;
     g.add(soil);
 
     // Wooden frame
@@ -3132,9 +3133,17 @@
 
     chickensList.forEach(function (c) {
       islandGroup.remove(c.mesh);
+      if (c.balloon) {
+        if (c.balloon.material.map) c.balloon.material.map.dispose();
+        c.balloon.material.dispose();
+      }
     });
     cowsList.forEach(function (c) {
       islandGroup.remove(c.mesh);
+      if (c.balloon) {
+        if (c.balloon.material.map) c.balloon.material.map.dispose();
+        c.balloon.material.dispose();
+      }
     });
     chickensList = [];
     cowsList = [];
