@@ -41,7 +41,8 @@
 
   /* ========== Game State ========== */
   var money = CFG.START_MONEY;
-  var crops = 0;
+  var crops = { carrot: 0, corn: 0, melon: 0 };
+  var selectedCropId = 'carrot';
   var totalEarned = 0;         // total money earned (score)
   var shownMoney = money;      // for count-up animation
   var isPlaying = false;
@@ -49,6 +50,13 @@
   var versusTimeLeft = 0;
   var versusTimerId = null;
   var animFrameId = null;
+  var ledgerTransactions = [];
+  var upgrades = {
+    sprinkler: false,
+    scarecrow: false,
+    fertilizer: 0
+  };
+  var pendingWorms = [];       // store active 3D worm objects
 
   /* ========== Versus ========== */
   var vs = null;
@@ -70,7 +78,6 @@
   /* ========== SDK Ready ========== */
   if (window.KAMPAI && KAMPAI.onReady) {
     KAMPAI.onReady(function (k) {
-      // Player chip
       if (k.student && playerChipEl) {
         var photo = k.student.photoUrl
           ? '<img src="' + k.student.photoUrl + '" style="width:24px;height:24px;border-radius:50%;object-fit:cover">'
@@ -78,7 +85,6 @@
         playerChipEl.innerHTML = photo + ' ' + (k.student.displayName || '');
         playerChipEl.style.display = 'flex';
       }
-      // Stats
       if (k.stats && myStatsEl) {
         if (msBestEl) msBestEl.textContent = k.stats.personalBest || 0;
         if (msPlaysEl) msPlaysEl.textContent = k.stats.playsCount || 0;
@@ -101,10 +107,242 @@
     while (toastsEl.children.length > 3) toastsEl.firstChild.remove();
   }
 
+  /* ========== Ledger Logging Helper ========== */
+  function addLedgerEntry(cropName, type, amount) {
+    var timeSec = Math.round(clock.elapsedTime);
+    ledgerTransactions.push({
+      time: timeSec,
+      item: cropName,
+      type: type,
+      amount: amount
+    });
+    updateLedgerUI();
+  }
+
+  function updateLedgerUI() {
+    var body = document.getElementById('ledgerBody');
+    if (!body) return;
+    body.innerHTML = '';
+    var totalRev = 0;
+    var totalExp = 0;
+    ledgerTransactions.forEach(function (tx) {
+      var rowEl = document.createElement('tr');
+      var colTime = document.createElement('td'); colTime.textContent = tx.time;
+      var colItem = document.createElement('td'); colItem.textContent = tx.item;
+      var colType = document.createElement('td');
+      colType.textContent = tx.type === 'expense' ? 'รายจ่าย 🟥' : 'รายรับ 🟩';
+      colType.className = tx.type === 'expense' ? 'red-text' : 'green-text';
+      var colAmt = document.createElement('td');
+      colAmt.textContent = tx.amount + ' 🪙';
+      colAmt.style.fontWeight = 'bold';
+      if (tx.type === 'expense') {
+        colAmt.className = 'red-text';
+        totalExp += tx.amount;
+      } else {
+        colAmt.className = 'gold-text';
+        totalRev += tx.amount;
+      }
+      rowEl.appendChild(colTime);
+      rowEl.appendChild(colItem);
+      rowEl.appendChild(colType);
+      rowEl.appendChild(colAmt);
+      body.appendChild(rowEl);
+    });
+    var netProfit = totalRev - totalExp;
+    var revEl = document.getElementById('ledgerRevenue');
+    var expEl = document.getElementById('ledgerExpenses');
+    var profitEl = document.getElementById('ledgerProfit');
+    if (revEl) revEl.textContent = totalRev;
+    if (expEl) expEl.textContent = totalExp;
+    if (profitEl) {
+      profitEl.textContent = netProfit;
+      profitEl.className = netProfit >= 0 ? 'green-text' : 'red-text';
+    }
+  }
+
+  /* ========== Crop Selection Listener ========== */
+  var cropOptions = document.querySelectorAll('.crop-option');
+  cropOptions.forEach(function (opt) {
+    opt.addEventListener('click', function () {
+      cropOptions.forEach(function (o) { o.classList.remove('active'); });
+      opt.classList.add('active');
+      selectedCropId = opt.getAttribute('data-crop');
+    });
+  });
+
+  /* ========== Modals Toggle Buttons ========== */
+  var ledgerBtn = document.getElementById('ledgerBtn');
+  var ledgerModal = document.getElementById('ledgerModal');
+  var closeLedgerBtn = document.getElementById('closeLedgerBtn');
+  if (ledgerBtn && ledgerModal) {
+    ledgerBtn.addEventListener('click', function () {
+      updateLedgerUI();
+      ledgerModal.style.display = 'flex';
+    });
+  }
+  if (closeLedgerBtn && ledgerModal) {
+    closeLedgerBtn.addEventListener('click', function () {
+      ledgerModal.style.display = 'none';
+    });
+  }
+
+  var shopBtn = document.getElementById('shopBtn');
+  var shopModal = document.getElementById('shopModal');
+  var closeShopBtn = document.getElementById('closeShopBtn');
+  if (shopBtn && shopModal) {
+    shopBtn.addEventListener('click', function () {
+      refreshShopUI();
+      shopModal.style.display = 'flex';
+    });
+  }
+  if (closeShopBtn && shopModal) {
+    closeShopBtn.addEventListener('click', function () {
+      shopModal.style.display = 'none';
+    });
+  }
+
+  var scarecrowMesh = null;
+  function spawnScarecrowMesh() {
+    if (scarecrowMesh) return;
+    scarecrowMesh = new THREE.Group();
+    scarecrowMesh.position.set(0.7, GROUND_Y, -1.5);
+    scarecrowMesh.scale.set(0.001, 0.001, 0.001);
+    
+    // Wooden pole
+    var poleGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.8, 6);
+    var woodMat = new THREE.MeshStandardMaterial({ color: '#8a5a34', roughness: 0.9 });
+    var pole = new THREE.Mesh(poleGeo, woodMat);
+    pole.position.y = 0.4;
+    pole.castShadow = true;
+    scarecrowMesh.add(pole);
+
+    // Cross bar
+    var cross = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.04, 0.04), woodMat);
+    cross.position.y = 0.58;
+    cross.castShadow = true;
+    scarecrowMesh.add(cross);
+
+    // Clothes (ragged blue shirt)
+    var shirtMat = new THREE.MeshStandardMaterial({ color: '#3b82f6', roughness: 0.8 });
+    var shirt = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.35, 0.15), shirtMat);
+    shirt.position.y = 0.5;
+    shirt.castShadow = true;
+    scarecrowMesh.add(shirt);
+
+    // Straw hat
+    var strawMat = new THREE.MeshStandardMaterial({ color: '#fef08a', roughness: 0.9 });
+    var brim = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.02, 10), strawMat);
+    brim.position.y = 0.72;
+    var crown = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.11, 0.1, 8), strawMat);
+    crown.position.y = 0.77;
+    brim.castShadow = true; crown.castShadow = true;
+    scarecrowMesh.add(brim, crown);
+
+    // Face / head
+    var headMat = new THREE.MeshStandardMaterial({ color: '#eab308', roughness: 0.8 });
+    var head = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 8), headMat);
+    head.position.y = 0.68;
+    head.castShadow = true;
+    scarecrowMesh.add(head);
+
+    islandGroup.add(scarecrowMesh);
+
+    // Animate scale up
+    var startTime = clock.elapsedTime;
+    var scaleInterval = setInterval(function () {
+      var elapsed = clock.elapsedTime - startTime;
+      var pct = Math.min(1.0, elapsed / 0.5);
+      var sc = easeOut(pct) * 1.0;
+      if (scarecrowMesh) scarecrowMesh.scale.set(sc, sc, sc);
+      if (pct >= 1.0) clearInterval(scaleInterval);
+    }, 16);
+  }
+
+  function refreshShopUI() {
+    var fertCountEl = document.getElementById('fertilizerCount');
+    if (fertCountEl) fertCountEl.textContent = upgrades.fertilizer;
+    var buySprinklerBtn = document.getElementById('buySprinklerBtn');
+    var buyScarecrowBtn = document.getElementById('buyScarecrowBtn');
+    var buyFertilizerBtn = document.getElementById('buyFertilizerBtn');
+    if (buySprinklerBtn) {
+      buySprinklerBtn.disabled = upgrades.sprinkler || money < 200;
+      if (upgrades.sprinkler) buySprinklerBtn.textContent = 'เป็นเจ้าของแล้ว ✅';
+      else buySprinklerBtn.textContent = 'ซื้อราคา 200 🪙';
+    }
+    if (buyScarecrowBtn) {
+      buyScarecrowBtn.disabled = upgrades.scarecrow || money < 350;
+      if (upgrades.scarecrow) buyScarecrowBtn.textContent = 'เป็นเจ้าของแล้ว ✅';
+      else buyScarecrowBtn.textContent = 'ซื้อราคา 350 🪙';
+    }
+    if (buyFertilizerBtn) {
+      buyFertilizerBtn.disabled = money < 50;
+    }
+  }
+
+  /* ========== Shop Buying Listeners ========== */
+  var buySprinklerBtn = document.getElementById('buySprinklerBtn');
+  var buyScarecrowBtn = document.getElementById('buyScarecrowBtn');
+  var buyFertilizerBtn = document.getElementById('buyFertilizerBtn');
+  
+  if (buySprinklerBtn) {
+    buySprinklerBtn.addEventListener('click', function () {
+      if (money >= 200 && !upgrades.sprinkler) {
+        money -= 200;
+        upgrades.sprinkler = true;
+        addLedgerEntry(DATA.MSG.upgradeWater, 'expense', 200);
+        toast(DATA.MSG.buySuccess.replace('{item}', DATA.MSG.upgradeWater), 'good');
+        refreshShopUI();
+        refreshHud();
+        if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.correct) {
+          try { KAMPAI.sound.correct(); } catch (e) { /* */ }
+        }
+      }
+    });
+  }
+
+  if (buyScarecrowBtn) {
+    buyScarecrowBtn.addEventListener('click', function () {
+      if (money >= 350 && !upgrades.scarecrow) {
+        money -= 350;
+        upgrades.scarecrow = true;
+        addLedgerEntry(DATA.MSG.upgradeScarecrow, 'expense', 350);
+        toast(DATA.MSG.buySuccess.replace('{item}', DATA.MSG.upgradeScarecrow), 'good');
+        refreshShopUI();
+        refreshHud();
+        spawnScarecrowMesh();
+        if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.correct) {
+          try { KAMPAI.sound.correct(); } catch (e) { /* */ }
+        }
+      }
+    });
+  }
+
+  if (buyFertilizerBtn) {
+    buyFertilizerBtn.addEventListener('click', function () {
+      if (money >= 50) {
+        money -= 50;
+        upgrades.fertilizer++;
+        addLedgerEntry(DATA.MSG.upgradeFertilizer, 'expense', 50);
+        toast(DATA.MSG.buySuccess.replace('{item}', DATA.MSG.upgradeFertilizer), 'good');
+        refreshShopUI();
+        refreshHud();
+        if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.correct) {
+          try { KAMPAI.sound.correct(); } catch (e) { /* */ }
+        }
+      }
+    });
+  }
+
   /* ========== HUD Update ========== */
   function refreshHud() {
-    if (cropsEl) cropsEl.textContent = crops;
-    if (sellBtn) sellBtn.disabled = crops <= 0;
+    var carrotCountEl = document.getElementById('crop-carrot');
+    var cornCountEl = document.getElementById('crop-corn');
+    var melonCountEl = document.getElementById('crop-melon');
+    if (carrotCountEl) carrotCountEl.textContent = crops.carrot;
+    if (cornCountEl) cornCountEl.textContent = crops.corn;
+    if (melonCountEl) melonCountEl.textContent = crops.melon;
+    var totalCrops = crops.carrot + crops.corn + crops.melon;
+    if (sellBtn) sellBtn.disabled = totalCrops <= 0;
   }
 
   /* ========== Three.js Detection ========== */
@@ -349,6 +587,70 @@
   var clock = new THREE.Clock();
   var dirtColor = new THREE.Color(CFG.COLORS.dirt);
 
+  function createPlantMesh(cropId) {
+    var plant = new THREE.Group();
+    plant.position.y = 0.12;
+
+    if (cropId === 'carrot') {
+      // Carrot: Orange root sticking down + green leaves
+      var rootGeo = new THREE.CylinderGeometry(0.01, 0.07, 0.28, 8);
+      var rootMat = new THREE.MeshStandardMaterial({ color: '#f97316', roughness: 0.6 }); // Orange
+      var root = new THREE.Mesh(rootGeo, rootMat);
+      root.position.y = 0.14;
+      plant.add(root);
+
+      var leafMat = new THREE.MeshStandardMaterial({ color: '#16a34a', roughness: 0.8 });
+      for (var i = 0; i < 3; i++) {
+        var leaf = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.22, 0.04), leafMat);
+        leaf.position.y = 0.28;
+        leaf.rotation.z = (i - 1) * 0.25 + (Math.random() - 0.5) * 0.1;
+        leaf.rotation.x = (Math.random() - 0.5) * 0.2;
+        plant.add(leaf);
+      }
+    } else if (cropId === 'corn') {
+      // Corn: Tall green stalk + yellow cobs
+      var stalkGeo = new THREE.CylinderGeometry(0.03, 0.04, 0.55, 6);
+      var stalkMat = new THREE.MeshStandardMaterial({ color: '#22c55e', roughness: 0.8 });
+      var stalk = new THREE.Mesh(stalkGeo, stalkMat);
+      stalk.position.y = 0.27;
+      plant.add(stalk);
+
+      var leafMat = new THREE.MeshStandardMaterial({ color: '#15803d', roughness: 0.8 });
+      for (var i = 0; i < 2; i++) {
+        var leaf = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.04, 0.08), leafMat);
+        leaf.position.set(i === 0 ? 0.08 : -0.08, 0.35, 0);
+        leaf.rotation.z = i === 0 ? -0.4 : 0.4;
+        plant.add(leaf);
+      }
+
+      var cobMat = new THREE.MeshStandardMaterial({ color: '#facc15', roughness: 0.5 });
+      var cob1 = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.18, 8), cobMat);
+      cob1.position.set(0.07, 0.28, 0.04);
+      cob1.rotation.z = -0.3;
+      var cob2 = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.18, 8), cobMat);
+      cob2.position.set(-0.07, 0.38, -0.04);
+      cob2.rotation.z = 0.3;
+      plant.add(cob1, cob2);
+    } else if (cropId === 'melon') {
+      // Melon: Dark green vine crawling + big round melon
+      var vineMat = new THREE.MeshStandardMaterial({ color: '#14532d', roughness: 0.9 });
+      var vine = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.04, 0.08), vineMat);
+      vine.position.y = 0.02;
+      vine.rotation.y = 0.5;
+      plant.add(vine);
+
+      var melonMat = new THREE.MeshStandardMaterial({ color: '#15803d', roughness: 0.6 });
+      var melon = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 12), melonMat);
+      melon.position.set(0.08, 0.14, 0.04);
+      plant.add(melon);
+    }
+
+    plant.traverse(function (o) { if (o.isMesh) o.castShadow = true; });
+    plant.scale.setScalar(0.001);
+    plant.visible = false;
+    return plant;
+  }
+
   function makePlot(x, z) {
     var g = new THREE.Group();
     g.position.set(x, GROUND_Y, z);
@@ -375,28 +677,11 @@
       g.add(bar);
     }
 
-    // Crop plant
-    var plant = new THREE.Group();
-    plant.position.y = 0.12;
-    var cropStem = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.04, 0.06, 0.4, 6),
-      new THREE.MeshStandardMaterial({ color: '#4e9d3f', roughness: 0.8 })
-    );
-    cropStem.position.y = 0.2;
-    var bushMat = new THREE.MeshStandardMaterial({ color: DATA.CROP_START_COLOR, roughness: 0.7, flatShading: true });
-    var bush = new THREE.Mesh(new THREE.IcosahedronGeometry(0.24, 0), bushMat);
-    bush.position.y = 0.45;
-    var fruitMat = new THREE.MeshStandardMaterial({ color: DATA.FRUIT_COLOR, emissive: DATA.FRUIT_EMISSIVE, emissiveIntensity: 0, roughness: 0.5 });
-    var fruit = new THREE.Mesh(new THREE.SphereGeometry(0.11, 10, 10), fruitMat);
-    fruit.position.set(0.14, 0.4, 0.05);
-    var fruit2Mat = new THREE.MeshStandardMaterial({ color: DATA.FRUIT_COLOR, emissive: DATA.FRUIT_EMISSIVE, emissiveIntensity: 0, roughness: 0.5 });
-    var fruit2 = new THREE.Mesh(new THREE.SphereGeometry(0.11, 10, 10), fruit2Mat);
-    fruit2.position.set(-0.12, 0.5, -0.08);
-    plant.add(cropStem, bush, fruit, fruit2);
-    plant.traverse(function (o) { if (o.isMesh) o.castShadow = true; });
-    plant.scale.setScalar(0.001);
-    plant.visible = false;
-    g.add(plant);
+    // Pre-create plants for all types
+    var plantCarrot = createPlantMesh('carrot');
+    var plantCorn = createPlantMesh('corn');
+    var plantMelon = createPlantMesh('melon');
+    g.add(plantCarrot, plantCorn, plantMelon);
 
     // Ready glow ring
     var ring = new THREE.Mesh(
@@ -425,12 +710,13 @@
       state: 'empty',
       soil: soil,
       soilMat: soilMat,
-      plant: plant,
-      bushMat: bushMat,
-      fruit: fruit,
-      fruitMat: fruitMat,
-      fruit2: fruit2,
-      fruit2Mat: fruit2Mat,
+      plants: {
+        carrot: plantCarrot,
+        corn: plantCorn,
+        melon: plantMelon
+      },
+      activePlant: null,
+      plantedCropId: null,
       ring: ring,
       bar: progressBar,
       barFill: barFill,
@@ -558,17 +844,32 @@
 
   function handlePlot(g) {
     var d = g.userData;
+    
+    // Check if there is an active worm on this plot!
+    if (d.wormObj) {
+      triggerWormQuiz(g);
+      return;
+    }
+
     if (d.state === 'empty') {
-      if (money < CFG.PLANT_COST) {
-        toast(DATA.MSG.notEnough, 'warn');
+      var cropConfig = CFG.CROP_TYPES[selectedCropId];
+      if (money < cropConfig.cost) {
+        toast(DATA.MSG.notEnough.replace('10', cropConfig.cost), 'warn');
         return;
       }
-      money -= CFG.PLANT_COST;
+      money -= cropConfig.cost;
+      addLedgerEntry('เมล็ดพันธุ์' + cropConfig.name, 'expense', cropConfig.cost);
+
       d.state = 'growing';
+      d.plantedCropId = selectedCropId;
       d.plantedAt = clock.elapsedTime;
-      d.plant.visible = true;
-      d.plant.scale.setScalar(0.001);
+      
+      // Make the selected crop plant visible
+      d.activePlant = d.plants[selectedCropId];
+      d.activePlant.visible = true;
+      d.activePlant.scale.setScalar(0.001);
       d.bar.visible = true;
+      
       var wp = new THREE.Vector3();
       g.getWorldPosition(wp);
       wp.y += 0.2;
@@ -578,47 +879,351 @@
         try { KAMPAI.sound.correct(); } catch (e) { /* */ }
       }
     } else if (d.state === 'growing') {
-      var left = Math.max(0, CFG.GROW_TIME - (clock.elapsedTime - d.plantedAt));
+      // Check if user has instant fertilizer
+      if (upgrades.fertilizer > 0) {
+        var useFert = confirm("ต้องการใช้ ปุ๋ยชีวภาพเร่งโต เพื่อให้พืชโตทันทีหรือไม่? (เหลือ " + upgrades.fertilizer + " ถุง)");
+        if (useFert) {
+          upgrades.fertilizer--;
+          d.plantedAt = clock.elapsedTime - 999; // force mature
+          var fertCountEl = document.getElementById('fertilizerCount');
+          if (fertCountEl) fertCountEl.textContent = upgrades.fertilizer;
+          toast("ใช้ปุ๋ยเร่งโตสำเร็จ! พืชโตเต็มที่แล้ว 🌱✨", "good");
+          return;
+        }
+      }
+      
+      var cropConfig = CFG.CROP_TYPES[d.plantedCropId];
+      var totalGrowTime = cropConfig.growTime * (upgrades.sprinkler ? 0.75 : 1.0);
+      var left = Math.max(0, totalGrowTime - (clock.elapsedTime - d.plantedAt));
       toast(DATA.MSG.growing.replace('{n}', left.toFixed(0)), 'warn');
     } else if (d.state === 'ready') {
-      crops += 1;
+      var cropId = d.plantedCropId;
+      var cropConfig = CFG.CROP_TYPES[cropId];
+      crops[cropId] += 1;
+      
       d.state = 'empty';
-      d.plant.visible = false;
+      d.activePlant.visible = false;
+      d.activePlant.scale.setScalar(0.001);
+      d.activePlant = null;
+      d.plantedCropId = null;
+      
       d.bar.visible = false;
       d.ring.material.opacity = 0;
       d.soilMat.emissive.setHex(0x000000);
       refreshHud();
+      
       var wp2 = new THREE.Vector3();
       g.getWorldPosition(wp2);
       wp2.y += 0.6;
       burst(wp2, DATA.HARVEST_BURST, 18, { up: 3, spread: 2.6, life: 1.0 });
-      toast(DATA.MSG.harvested, 'good');
+      toast(DATA.MSG.harvested.replace('{emoji}', cropConfig.emoji).replace('{name}', cropConfig.name), 'good');
       if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.correct) {
         try { KAMPAI.sound.correct(); } catch (e) { /* */ }
       }
     }
   }
 
+  /* ========== Quiz Generator & Helpers ========== */
+  var activeRng = null;
+  var quizIntervalId = null;
+
+  function getRandom() {
+    if (isVersus && typeof activeRng === 'function') {
+      return activeRng();
+    }
+    return Math.random();
+  }
+
+  function generateQuizQuestion(difficulty) {
+    var templates = DATA.MSG.mathTemplates[difficulty];
+    var template = templates[Math.floor(getRandom() * templates.length)];
+    
+    var a = 0, b = 0, c = 0;
+    if (difficulty === 'easy') {
+      a = Math.floor(getRandom() * 8) + 2;   // 2 to 9
+      b = Math.floor(getRandom() * 8) + 2;   // 2 to 9
+    } else if (difficulty === 'medium') {
+      a = Math.floor(getRandom() * 8) + 3;   // 3 to 10
+      b = Math.floor(getRandom() * 8) + 5;   // 5 to 12
+    } else if (difficulty === 'hard') {
+      a = Math.floor(getRandom() * 5) + 2;   // 2 to 6
+      b = Math.floor(getRandom() * 6) + 10;  // 10 to 15
+      c = Math.floor(getRandom() * 20) + 10; // 10 to 29
+    }
+    
+    var qText = template.q.replace('{a}', a).replace('{b}', b).replace('{c}', c);
+    var evalStr = template.a.replace('{a}', a).replace('{b}', b).replace('{c}', c);
+    var answer = 0;
+    try {
+      answer = eval(evalStr);
+    } catch (e) {
+      answer = a * b; // fallback
+    }
+    
+    return {
+      question: qText,
+      answer: answer,
+      difficulty: difficulty
+    };
+  }
+
+  function getQuizChoices(correctAnswer, difficulty) {
+    var choices = [correctAnswer];
+    var attempts = 0;
+    while (choices.length < 4 && attempts < 100) {
+      attempts++;
+      var offset = 0;
+      if (difficulty === 'easy') {
+        offset = (Math.floor(getRandom() * 7) + 1) * (getRandom() < 0.5 ? -1 : 1);
+      } else if (difficulty === 'medium') {
+        offset = (Math.floor(getRandom() * 10) + 1) * (getRandom() < 0.5 ? -1 : 1);
+      } else {
+        offset = (Math.floor(getRandom() * 20) + 2) * (getRandom() < 0.5 ? -1 : 1);
+      }
+      var wrongAns = correctAnswer + offset;
+      if (wrongAns > 0 && choices.indexOf(wrongAns) === -1) {
+        choices.push(wrongAns);
+      }
+    }
+    choices.sort(function() { return getRandom() - 0.5; });
+    return choices;
+  }
+
+  /* ========== Worm Spawning & Quiz ========== */
+  var wormSpawnTimer = 25.0;
+
+  function spawnWorm() {
+    var growingPlots = plots.filter(function (g) {
+      return g.userData.state === 'growing' && !g.userData.wormObj;
+    });
+    
+    if (growingPlots.length === 0) {
+      wormSpawnTimer = 5.0;
+      return;
+    }
+    
+    var g = growingPlots[Math.floor(getRandom() * growingPlots.length)];
+    var d = g.userData;
+    
+    // Create cute pink worm
+    var worm = new THREE.Group();
+    var wormMat = new THREE.MeshStandardMaterial({ color: '#ff85a2', roughness: 0.6 });
+    for (var i = 0; i < 3; i++) {
+      var segment = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), wormMat);
+      segment.position.x = (i - 1) * 0.08;
+      segment.position.y = Math.sin(i * 1.5) * 0.04;
+      segment.castShadow = true;
+      worm.add(segment);
+    }
+    worm.position.set(0, 0.12, 0);
+    g.add(worm);
+    d.wormObj = worm;
+    
+    d.soilMat.emissive.setHex(0xff3333);
+    
+    toast(DATA.MSG.wormAlert, 'warn');
+    if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.wrong) {
+      try { KAMPAI.sound.wrong(); } catch (e) { /* */ }
+    }
+  }
+
+  function triggerWormQuiz(g) {
+    var d = g.userData;
+    var quizOverlay = document.getElementById('quizModal');
+    var quizQuestionEl = document.getElementById('quizQuestion');
+    var quizChoicesEl = document.getElementById('quizChoices');
+    var quizTimerEl = document.getElementById('quizTimer');
+    if (!quizOverlay || !quizQuestionEl || !quizChoicesEl) return;
+    
+    var a = 0, b = 0, answer = 0;
+    var qText = "";
+    if (getRandom() < 0.5) {
+      b = Math.floor(getRandom() * 7) + 3;  // 3 to 9
+      answer = Math.floor(getRandom() * 8) + 2; // 2 to 9
+      a = b * answer;
+      qText = "กำจัดหนอนบุกแปลงผัก: " + a + " ÷ " + b + " = ?";
+    } else {
+      a = Math.floor(getRandom() * 50) + 40; // 40 to 89
+      b = Math.floor(getRandom() * 30) + 10; // 10 to 39
+      answer = a - b;
+      qText = "กำจัดหนอนบุกแปลงผัก: " + a + " − " + b + " = ?";
+    }
+    
+    quizQuestionEl.textContent = qText;
+    quizChoicesEl.innerHTML = '';
+    
+    var quizTimeLeft = 10;
+    if (quizTimerEl) quizTimerEl.textContent = '⏱️ กำจัดหนอน: ' + quizTimeLeft + ' วินาที';
+    
+    if (quizIntervalId) clearInterval(quizIntervalId);
+    quizIntervalId = setInterval(function () {
+      quizTimeLeft--;
+      if (quizTimerEl) quizTimerEl.textContent = '⏱️ กำจัดหนอน: ' + quizTimeLeft + ' วินาที';
+      if (quizTimeLeft <= 0) {
+        handleWormAnswer(false);
+      }
+    }, 1000);
+    
+    function handleWormAnswer(isCorrect) {
+      if (quizIntervalId) {
+        clearInterval(quizIntervalId);
+        quizIntervalId = null;
+      }
+      quizOverlay.style.display = 'none';
+      
+      if (isCorrect) {
+        if (d.wormObj) {
+          g.remove(d.wormObj);
+          d.wormObj = null;
+        }
+        d.soilMat.emissive.setHex(0x000000);
+        
+        var reward = 20;
+        money += reward;
+        totalEarned += reward;
+        
+        toast(DATA.MSG.wormCleared.replace('{n}', reward), 'good');
+        if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.correct) {
+          try { KAMPAI.sound.correct(); } catch (e) { /* */ }
+        }
+        addLedgerEntry('กำจัดศัตรูพืชสำเร็จ', 'revenue', reward);
+      } else {
+        if (d.wormObj) {
+          g.remove(d.wormObj);
+          d.wormObj = null;
+        }
+        d.soilMat.emissive.setHex(0x000000);
+        
+        var cropName = CFG.CROP_TYPES[d.plantedCropId].name;
+        d.state = 'empty';
+        if (d.activePlant) {
+          d.activePlant.visible = false;
+          d.activePlant.scale.setScalar(0.001);
+          d.activePlant = null;
+        }
+        d.plantedCropId = null;
+        d.bar.visible = false;
+        
+        toast("หนอนกัดกินต้น" + cropName + "จนเสียหาย! 😢", 'warn');
+        if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.wrong) {
+          try { KAMPAI.sound.wrong(); } catch (e) { /* */ }
+        }
+      }
+      
+      refreshHud();
+    }
+    
+    var choices = getQuizChoices(answer, 'easy');
+    choices.forEach(function (choice) {
+      var btn = document.createElement('button');
+      btn.className = 'quiz-choice-btn';
+      btn.textContent = choice;
+      btn.addEventListener('click', function () {
+        handleWormAnswer(choice === answer);
+      });
+      quizChoicesEl.appendChild(btn);
+    });
+    
+    quizOverlay.style.display = 'flex';
+  }
+
   /* ========== Sell ========== */
   if (sellBtn) {
     sellBtn.addEventListener('click', function () {
-      if (!isPlaying || crops <= 0) {
+      var totalCrops = crops.carrot + crops.corn + crops.melon;
+      if (!isPlaying || totalCrops <= 0) {
         toast(DATA.MSG.noSell, 'warn');
         return;
       }
-      var income = crops * CFG.SELL_PRICE;
-      money += income;
-      totalEarned += income;
-      crops = 0;
-      refreshHud();
-      toast(DATA.MSG.sold.replace('{n}', income), 'gold');
-      if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.correct) {
-        try { KAMPAI.sound.correct(); } catch (e) { /* */ }
+
+      var totalValue = crops.carrot * CFG.CROP_TYPES.carrot.sellPrice +
+                       crops.corn * CFG.CROP_TYPES.corn.sellPrice +
+                       crops.melon * CFG.CROP_TYPES.melon.sellPrice;
+
+      var difficulty = 'easy';
+      if (crops.melon > 0) difficulty = 'hard';
+      else if (crops.corn > 0) difficulty = 'medium';
+
+      var quizOverlay = document.getElementById('quizModal');
+      var quizQuestionEl = document.getElementById('quizQuestion');
+      var quizChoicesEl = document.getElementById('quizChoices');
+      var quizTimerEl = document.getElementById('quizTimer');
+      if (!quizOverlay || !quizQuestionEl || !quizChoicesEl) return;
+
+      var quiz = generateQuizQuestion(difficulty);
+      quizQuestionEl.textContent = quiz.question;
+      quizChoicesEl.innerHTML = '';
+
+      var quizTimeLeft = 15;
+      if (quizTimerEl) quizTimerEl.textContent = '⏱️ เวลาคิดเลข: ' + quizTimeLeft + ' วินาที';
+
+      if (quizIntervalId) clearInterval(quizIntervalId);
+      quizIntervalId = setInterval(function () {
+        quizTimeLeft--;
+        if (quizTimerEl) quizTimerEl.textContent = '⏱️ เวลาคิดเลข: ' + quizTimeLeft + ' วินาที';
+        if (quizTimeLeft <= 0) {
+          handleAnswer(false);
+        }
+      }, 1000);
+
+      function handleAnswer(isCorrect, choiceText) {
+        if (quizIntervalId) {
+          clearInterval(quizIntervalId);
+          quizIntervalId = null;
+        }
+        quizOverlay.style.display = 'none';
+
+        var finalPayout = 0;
+        var bonus = 0;
+        var soldCropList = [];
+        if (crops.carrot > 0) soldCropList.push(crops.carrot + ' แครอท');
+        if (crops.corn > 0) soldCropList.push(crops.corn + ' ข้าวโพด');
+        if (crops.melon > 0) soldCropList.push(crops.melon + ' แตงโม');
+        var soldDesc = 'ขาย ' + soldCropList.join(', ');
+
+        if (isCorrect) {
+          bonus = Math.round(totalValue * 0.1);
+          finalPayout = totalValue + bonus;
+          money += finalPayout;
+          totalEarned += finalPayout;
+          
+          toast(DATA.MSG.quizCorrect.replace('{n}', totalValue).replace('{bonus}', bonus), 'good');
+          if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.correct) {
+            try { KAMPAI.sound.correct(); } catch (e) { /* */ }
+          }
+          addLedgerEntry(soldDesc, 'revenue', finalPayout);
+        } else {
+          finalPayout = Math.round(totalValue * 0.7);
+          money += finalPayout;
+          totalEarned += finalPayout;
+
+          toast(DATA.MSG.quizIncorrect.replace('{n}', finalPayout), 'warn');
+          if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.wrong) {
+            try { KAMPAI.sound.wrong(); } catch (e) { /* */ }
+          }
+          addLedgerEntry(soldDesc + ' (โดนกดราคา 30%)', 'revenue', finalPayout);
+        }
+
+        crops = { carrot: 0, corn: 0, melon: 0 };
+        refreshHud();
+
+        if (vs && isVersus) {
+          vs.report(totalEarned, { correct: isCorrect });
+        }
       }
-      // Report to versus system
-      if (vs && isVersus) {
-        vs.report(totalEarned, { correct: true });
-      }
+
+      var choices = getQuizChoices(quiz.answer, difficulty);
+      choices.forEach(function (choice) {
+        var btn = document.createElement('button');
+        btn.className = 'quiz-choice-btn';
+        btn.textContent = choice;
+        btn.addEventListener('click', function () {
+          handleAnswer(choice === quiz.answer, choice);
+        });
+        quizChoicesEl.appendChild(btn);
+      });
+
+      quizOverlay.style.display = 'flex';
     });
   }
 
@@ -633,16 +1238,39 @@
   function startGame(versusMode, rng) {
     isPlaying = true;
     isVersus = !!versusMode;
+    activeRng = rng;
     money = CFG.START_MONEY;
-    crops = 0;
+    crops = { carrot: 0, corn: 0, melon: 0 };
     totalEarned = 0;
     shownMoney = money;
+    wormSpawnTimer = 25.0;
+    
+    upgrades = {
+      sprinkler: false,
+      scarecrow: false,
+      fertilizer: 0
+    };
+    
+    if (scarecrowMesh) {
+      islandGroup.remove(scarecrowMesh);
+      scarecrowMesh = null;
+    }
 
-    // Reset plots
     plots.forEach(function (g) {
       var d = g.userData;
       d.state = 'empty';
-      d.plant.visible = false;
+      for (var key in d.plants) {
+        d.plants[key].visible = false;
+        d.plants[key].scale.setScalar(0.001);
+      }
+      d.activePlant = null;
+      d.plantedCropId = null;
+      
+      if (d.wormObj) {
+        g.remove(d.wormObj);
+        d.wormObj = null;
+      }
+      
       d.bar.visible = false;
       d.ring.material.opacity = 0;
       d.soilMat.emissive.setHex(0x000000);
@@ -650,19 +1278,32 @@
       d.plantedAt = 0;
     });
 
+    ledgerTransactions = [];
+    updateLedgerUI();
+
     refreshHud();
 
-    // Hide blocker, show HUD
     if (blockerEl) blockerEl.style.display = 'none';
     if (hudEl) hudEl.style.display = '';
+    
+    var cropSelectorEl = document.getElementById('cropSelector');
+    if (cropSelectorEl) cropSelectorEl.style.display = 'flex';
+    
+    cropOptions.forEach(function (o) { o.classList.remove('active'); });
+    var carrotOpt = document.querySelector('.crop-option[data-crop="carrot"]');
+    if (carrotOpt) {
+      carrotOpt.classList.add('active');
+      selectedCropId = 'carrot';
+    }
+
     if (hintEl) hintEl.style.display = '';
     if (gameOverEl) gameOverEl.classList.remove('show');
 
-    // Versus timer
     if (isVersus) {
       versusTimeLeft = CFG.VERSUS_DURATION;
       if (timerHudEl) timerHudEl.style.display = '';
       if (timerValueEl) timerValueEl.textContent = versusTimeLeft;
+      if (versusTimerId) clearInterval(versusTimerId);
       versusTimerId = setInterval(function () {
         versusTimeLeft--;
         if (timerValueEl) {
@@ -679,40 +1320,67 @@
       if (timerHudEl) timerHudEl.style.display = 'none';
     }
 
-    // Unlock audio
     if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.unlock) {
       try { KAMPAI.sound.unlock(); } catch (e) { /* */ }
     }
-    if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.bgmStart) {
-      try { KAMPAI.sound.bgmStart(); } catch (e) { /* */ }
+    if (window.KAMPAI && window.KAMPAI.sound && window.KAMPAI.sound.bgmStart) {
+      try { window.KAMPAI.sound.bgmStart(); } catch (e) { /* */ }
     }
   }
 
   function endGame() {
     isPlaying = false;
 
-    // Clear versus timer
     if (versusTimerId) { clearInterval(versusTimerId); versusTimerId = null; }
     if (timerHudEl) timerHudEl.style.display = 'none';
 
-    // Auto-sell remaining crops
-    if (crops > 0) {
-      var income = crops * CFG.SELL_PRICE;
+    if (quizIntervalId) { clearInterval(quizIntervalId); quizIntervalId = null; }
+    var quizOverlay = document.getElementById('quizModal');
+    if (quizOverlay) quizOverlay.style.display = 'none';
+    
+    var ledgerModal = document.getElementById('ledgerModal');
+    if (ledgerModal) ledgerModal.style.display = 'none';
+    
+    var shopModal = document.getElementById('shopModal');
+    if (shopModal) shopModal.style.display = 'none';
+
+    var cropSelectorEl = document.getElementById('cropSelector');
+    if (cropSelectorEl) cropSelectorEl.style.display = 'none';
+
+    var totalCrops = crops.carrot + crops.corn + crops.melon;
+    if (totalCrops > 0) {
+      var income = crops.carrot * CFG.CROP_TYPES.carrot.sellPrice +
+                   crops.corn * CFG.CROP_TYPES.corn.sellPrice +
+                   crops.melon * CFG.CROP_TYPES.melon.sellPrice;
       money += income;
       totalEarned += income;
-      crops = 0;
+      
+      var soldCropList = [];
+      if (crops.carrot > 0) soldCropList.push(crops.carrot + ' แครอท');
+      if (crops.corn > 0) soldCropList.push(crops.corn + ' ข้าวโพด');
+      if (crops.melon > 0) soldCropList.push(crops.melon + ' แตงโม');
+      var soldDesc = 'ขายออโต้ตอนหมดเวลา: ' + soldCropList.join(', ');
+      
+      addLedgerEntry(soldDesc, 'revenue', income);
+      crops = { carrot: 0, corn: 0, melon: 0 };
       refreshHud();
     }
 
-    // Show final score
+    plots.forEach(function (g) {
+      var d = g.userData;
+      if (d.wormObj) {
+        g.remove(d.wormObj);
+        d.wormObj = null;
+      }
+      d.soilMat.emissive.setHex(0x000000);
+    });
+
     if (finalScoreEl) finalScoreEl.textContent = totalEarned;
     if (gameOverEl) gameOverEl.classList.add('show');
 
-    // Submit to versus or SDK
     if (vs && isVersus) {
       vs.finish(totalEarned, { correct: true });
     } else {
-      // Solo mode - submit to SDK
       if (window.KAMPAI && KAMPAI.submitScore) {
         KAMPAI.submitScore(totalEarned, {
           mode: 'normal',
@@ -780,6 +1448,17 @@
     smokeTimer -= dt;
     if (!REDUCED && smokeTimer <= 0) { smoke(); smokeTimer = CFG.SMOKE_INTERVAL; }
 
+    // Worm spawning timer
+    if (isPlaying) {
+      wormSpawnTimer -= dt;
+      if (wormSpawnTimer <= 0) {
+        var intervalMin = upgrades.scarecrow ? 60 : 30;
+        var intervalMax = upgrades.scarecrow ? 90 : 45;
+        wormSpawnTimer = intervalMin + getRandom() * (intervalMax - intervalMin);
+        spawnWorm();
+      }
+    }
+
     // Plots
     plots.forEach(function (g) {
       var d = g.userData;
@@ -788,16 +1467,28 @@
       g.position.y = d.baseY + d.hover * 0.14;
       if (d.state === 'empty') d.soilMat.emissive.setRGB(d.hover * 0.12, d.hover * 0.1, 0);
 
+      // Rotate worm if any
+      if (d.wormObj) {
+        d.wormObj.rotation.y += dt * 2;
+        d.wormObj.position.y = 0.12 + Math.sin(t * 5) * 0.03;
+      }
+
+      // Freeze growth if worm exists on this plot
+      if (d.state === 'growing' && d.wormObj) {
+        d.plantedAt += dt;
+      }
+
       if (d.state === 'growing') {
-        var prog = Math.min(1, (t - d.plantedAt) / CFG.GROW_TIME);
+        var cropConfig = CFG.CROP_TYPES[d.plantedCropId];
+        var totalGrowTime = cropConfig.growTime * (upgrades.sprinkler ? 0.75 : 1.0);
+        var prog = Math.min(1, (t - d.plantedAt) / totalGrowTime);
         var s = 0.15 + easeOut(prog) * 0.95;
-        d.plant.scale.setScalar(s);
-        d.plant.position.y = 0.12 + Math.sin(t * 2 + g.position.x) * 0.015;
-        // Fruit ripens
-        var ripe = Math.max(0, (prog - 0.6) / 0.4);
-        d.fruitMat.emissiveIntensity = ripe * 0.4;
-        d.fruit2Mat.emissiveIntensity = ripe * 0.4;
-        d.bushMat.color.lerpColors(startColor, endColor, prog);
+        
+        if (d.activePlant) {
+          d.activePlant.scale.setScalar(s);
+          d.activePlant.position.y = 0.12 + Math.sin(t * 2 + g.position.x) * 0.015;
+        }
+
         // Progress bar
         d.barFill.scale.x = prog;
         d.barFill.position.x = -0.33 * (1 - prog);
@@ -815,8 +1506,10 @@
         var pulse = (Math.sin(t * 4) + 1) * 0.5;
         d.ring.material.opacity = 0.35 + pulse * 0.4;
         d.ring.scale.setScalar(1 + pulse * 0.08);
-        d.plant.position.y = 0.12 + Math.sin(t * 3) * 0.03;
-        d.plant.rotation.y = Math.sin(t * 1.5) * 0.1;
+        if (d.activePlant) {
+          d.activePlant.position.y = 0.12 + Math.sin(t * 3) * 0.03;
+          d.activePlant.rotation.y = Math.sin(t * 1.5) * 0.1;
+        }
         d.soilMat.emissive.setRGB(0.15, 0.12, 0);
       }
 

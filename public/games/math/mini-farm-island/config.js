@@ -9,9 +9,37 @@ window.GAME_CONFIG = {
 
   /* ---------- Economy ---------- */
   START_MONEY: 100,
-  PLANT_COST: 10,
-  SELL_PRICE: 25,
-  GROW_TIME: 6.0,          // seconds until crop is ready
+
+  /* ---------- Crops Setup ---------- */
+  CROP_TYPES: {
+    carrot: {
+      id: 'carrot',
+      name: 'แครอท',
+      emoji: '🥕',
+      cost: 10,
+      sellPrice: 25,
+      growTime: 5.0,
+      difficulty: 'easy'
+    },
+    corn: {
+      id: 'corn',
+      name: 'ข้าวโพด',
+      emoji: '🌽',
+      cost: 30,
+      sellPrice: 75,
+      growTime: 10.0,
+      difficulty: 'medium'
+    },
+    melon: {
+      id: 'melon',
+      name: 'แตงโม',
+      emoji: '🍉',
+      cost: 80,
+      sellPrice: 210,
+      growTime: 18.0,
+      difficulty: 'hard'
+    }
+  },
 
   /* ---------- Versus ---------- */
   VERSUS_DURATION: 60,     // seconds per versus round

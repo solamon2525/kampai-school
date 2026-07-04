@@ -60,23 +60,61 @@
       <div class="stat money">
         <div class="ic">🪙</div>
         <div>
-          <div class="label">เงิน</div>
+          <div class="label">เงินทุน</div>
           <div class="value"><span id="money">100</span> <small>เหรียญ</small></div>
         </div>
       </div>
-      <div class="stat crop">
-        <div class="ic">🥕</div>
-        <div>
-          <div class="label">ผลผลิตในยุ้ง</div>
-          <div class="value"><span id="crops">0</span> <small>ชิ้น</small></div>
+      <div class="stat crops-list">
+        <div class="ic">🌾</div>
+        <div style="flex-grow:1">
+          <div class="label">ผลผลิตในยุ้งฉาง</div>
+          <div class="crop-counts">
+            <span class="crop-count-item">🥕<span id="crop-carrot">0</span></span>
+            <span class="crop-count-item">🌽<span id="crop-corn">0</span></span>
+            <span class="crop-count-item">🍉<span id="crop-melon">0</span></span>
+          </div>
         </div>
       </div>
     </div>
+    
     <button class="sell" id="sellBtn">ขายผลผลิตทั้งหมด</button>
+    <div class="hud-actions">
+      <button class="hud-action-btn" id="ledgerBtn">📖 บัญชีฟาร์ม</button>
+      <button class="hud-action-btn" id="shopBtn">🛒 ร้านค้า</button>
+    </div>
     <button class="versus-btn" id="versus-btn" style="display:none">🏆 แข่ง 2 คน</button>
+    
     <div class="legend">
-      <span>ปลูก −10</span>
-      <span>ขาย +25 / ชิ้น</span>
+      <span id="legend-p">คลิกแปลงดินปลูกผักตามที่เลือก</span>
+      <span id="legend-s">ตอบถูก = ได้เงินเต็มจำนวน!</span>
+    </div>
+  </div>
+
+  <!-- Crop Selector -->
+  <div class="crop-selector" id="cropSelector" style="display:none">
+    <div class="crop-option active" data-crop="carrot">
+      <span class="crop-emoji">🥕</span>
+      <div class="crop-info">
+        <span class="crop-name">แครอท</span>
+        <span class="crop-cost">🪙 10</span>
+      </div>
+      <span class="crop-diff easy">ง่าย</span>
+    </div>
+    <div class="crop-option" data-crop="corn">
+      <span class="crop-emoji">🌽</span>
+      <div class="crop-info">
+        <span class="crop-name">ข้าวโพด</span>
+        <span class="crop-cost">🪙 30</span>
+      </div>
+      <span class="crop-diff medium">กลาง</span>
+    </div>
+    <div class="crop-option" data-crop="melon">
+      <span class="crop-emoji">🍉</span>
+      <div class="crop-info">
+        <span class="crop-name">แตงโม</span>
+        <span class="crop-cost">🪙 80</span>
+      </div>
+      <span class="crop-diff hard">ยาก</span>
     </div>
   </div>
 
@@ -88,6 +126,84 @@
 
   <!-- Hint -->
   <div class="hint" id="hint">คลิกแปลงดิน <b>ปลูก</b> → รอต้นโตเต็มที่ → คลิก <b>เก็บเกี่ยว</b></div>
+
+  <!-- Quiz Modal -->
+  <div class="modal-overlay" id="quizModal" style="display:none">
+    <div class="modal-card quiz-card">
+      <div class="quiz-badge">🧠 คณิตคิดไว</div>
+      <h2 id="quizTitle">🧑‍🌾 คำนวณราคากับพ่อค้าคนกลาง</h2>
+      <div class="quiz-question" id="quizQuestion">คำถามกำลังโหลด...</div>
+      <div class="quiz-choices" id="quizChoices">
+        <!-- 4 buttons dynamically inserted here -->
+      </div>
+      <div class="quiz-timer" id="quizTimer">⏱️ เวลาคิดเลข: 15 วินาที</div>
+    </div>
+  </div>
+
+  <!-- Ledger Modal -->
+  <div class="modal-overlay" id="ledgerModal" style="display:none">
+    <div class="modal-card ledger-card">
+      <h2>📖 บันทึกรายรับ-รายจ่ายฟาร์ม</h2>
+      <div class="ledger-summary">
+        <div>รายรับ: <span id="ledgerRevenue" class="gold-text">0</span> 🪙</div>
+        <div>รายจ่าย: <span id="ledgerExpenses" class="red-text">0</span> 🪙</div>
+        <div>กำไรสุทธิ: <span id="ledgerProfit" class="green-text">0</span> 🪙</div>
+      </div>
+      <div class="ledger-table-container">
+        <table class="ledger-table">
+          <thead>
+            <tr>
+              <th>เวลา (วิ)</th>
+              <th>รายการสินค้า</th>
+              <th>ประเภทการเงิน</th>
+              <th>จำนวนเงิน</th>
+            </tr>
+          </thead>
+          <tbody id="ledgerBody">
+            <!-- Table rows dynamically inserted -->
+          </tbody>
+        </table>
+      </div>
+      <button class="close-btn" id="closeLedgerBtn">❌ ปิดหน้าต่าง</button>
+    </div>
+  </div>
+
+  <!-- Shop Modal -->
+  <div class="modal-overlay" id="shopModal" style="display:none">
+    <div class="modal-card shop-card">
+      <h2>🛒 ร้านค้าอัปเกรดเกาะ</h2>
+      <div class="shop-inventory-info">
+        คุณมีปุ๋ยชีวภาพเร่งโต: <span id="fertilizerCount" class="green-text" style="font-weight:bold">0</span> ถุง
+      </div>
+      <div class="shop-items">
+        <div class="shop-item" id="itemSprinkler">
+          <div class="item-icon">💦</div>
+          <div class="item-info">
+            <div class="item-name">บัวรดน้ำทองคำ</div>
+            <div class="item-desc">พืชทุกชนิดโตเร็วขึ้น 25% (ถาวร)</div>
+          </div>
+          <button class="buy-btn" id="buySprinklerBtn">ซื้อราคา 200 🪙</button>
+        </div>
+        <div class="shop-item" id="itemScarecrow">
+          <div class="item-icon">🌾</div>
+          <div class="item-info">
+            <div class="item-name">หุ่นไล่กาคอยกวน</div>
+            <div class="item-desc">ลดโอกาสหนอนบุกแปลงผักลง 50% (ถาวร)</div>
+          </div>
+          <button class="buy-btn" id="buyScarecrowBtn">ซื้อราคา 350 🪙</button>
+        </div>
+        <div class="shop-item" id="itemFertilizer">
+          <div class="item-icon">🧪</div>
+          <div class="item-info">
+            <div class="item-name">ปุ๋ยชีวภาพเร่งโต</div>
+            <div class="item-desc">ซื้อเก็บไว้ คลิกพืชเพื่อเร่งให้โตทันที</div>
+          </div>
+          <button class="buy-btn" id="buyFertilizerBtn">ซื้อราคา 50 🪙</button>
+        </div>
+      </div>
+      <button class="close-btn" id="closeShopBtn">❌ ปิดหน้าต่าง</button>
+    </div>
+  </div>
 
   <!-- Toast notifications -->
   <div class="toasts" id="toasts"></div>
