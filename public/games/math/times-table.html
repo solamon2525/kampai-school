@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>สื่อตารางสูตรคูณ — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --deep: #1e3a8a; --line: #93c5fd; --muted: #64748b;
+      --ok: #16a34a; --bad: #dc2626; --hi-row: #fef08a; --hi-col: #bbf7d0; --hi-cell: #fb923c;
+    }
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: linear-gradient(145deg, #dbeafe 0%, #eff6ff 40%, #bfdbfe 100%);
+      min-height: 100vh; color: #0f172a; padding: 12px;
+    }
+    .shell {
+      max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem;
+      box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden;
+      display: flex; flex-direction: column; min-height: calc(100vh - 24px);
+    }
+    header {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px;
+      background: linear-gradient(90deg, #1e3a8a, #1d4ed8 50%, #2563eb); color: #fff;
+    }
+    header h1 { font-size: 1.15rem; font-weight: 800; flex: 1; min-width: 160px; }
+    header .badge {
+      font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px;
+      border-radius: 999px; font-weight: 700;
+    }
+    .btn {
+      font-family: inherit; font-weight: 700; border: none; border-radius: 12px;
+      padding: 10px 14px; cursor: pointer; font-size: .95rem; text-decoration: none;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-back {
+      background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35);
+      padding: 8px 12px; font-size: .85rem;
+    }
+    .btn-primary { background: var(--deep); color: #fff; }
+    .btn-accent { background: #fbbf24; color: #78350f; }
+    .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
+    .btn-ok { background: var(--ok); color: #fff; }
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; background: #eff6ff;
+      border-bottom: 1px solid var(--line); align-items: center;
+    }
+    .seg { display: inline-flex; border-radius: 12px; overflow: hidden; border: 2px solid #60a5fa; }
+    .seg button {
+      font-family: inherit; font-weight: 800; border: none; background: #fff;
+      color: var(--deep); padding: 8px 14px; cursor: pointer; font-size: .9rem;
+    }
+    .seg button.on { background: var(--deep); color: #fff; }
+    .hint { font-size: .85rem; color: #1e40af; font-weight: 600; flex: 1; min-width: 160px; }
+    .stage { flex: 1; display: grid; grid-template-columns: 1fr; min-height: 0; }
+    @media (min-width: 860px) { .stage { grid-template-columns: 1.3fr .9fr; } }
+    .table-wrap { padding: 12px; overflow: auto; }
+    table.grid {
+      border-collapse: separate; border-spacing: 3px; margin: 0 auto; width: 100%;
+      max-width: 520px;
+    }
+    table.grid th, table.grid td {
+      width: 9%; aspect-ratio: 1; text-align: center; font-weight: 800;
+      border-radius: 8px; font-size: clamp(.7rem, 2.2vw, 1rem);
+      user-select: none;
+    }
+    table.grid th {
+      background: #1e3a8a; color: #fff; cursor: pointer;
+    }
+    table.grid th:hover { background: #2563eb; }
+    table.grid th.hi { background: #f59e0b; color: #fff; }
+    table.grid td {
+      background: #f8fafc; border: 2px solid #e2e8f0; cursor: pointer; color: #0f172a;
+    }
+    table.grid td:hover { border-color: #60a5fa; }
+    table.grid td.row-hi { background: var(--hi-row); border-color: #facc15; }
+    table.grid td.col-hi { background: var(--hi-col); border-color: #4ade80; }
+    table.grid td.row-hi.col-hi,
+    table.grid td.cell-hi {
+      background: var(--hi-cell); color: #fff; border-color: #ea580c;
+      transform: scale(1.06); box-shadow: 0 4px 12px rgba(234,88,12,.35);
+    }
+    table.grid td.corner {
+      background: #312e81; color: #fff; cursor: default; border-color: #312e81;
+    }
+    .detail {
+      padding: 16px; display: flex; flex-direction: column; gap: 12px;
+      background: #eff6ff; border-top: 1px solid var(--line);
+    }
+    @media (min-width: 860px) { .detail { border-top: none; border-left: 1px solid var(--line); } }
+    .detail-empty { color: var(--muted); font-weight: 600; text-align: center; margin: auto 0; line-height: 1.5; }
+    .detail-card, .practice-card { display: none; flex-direction: column; gap: 10px; align-items: center; text-align: center; }
+    .detail-card.show, .practice-card.show { display: flex; }
+    .eq {
+      font-size: clamp(2rem, 8vw, 3rem); font-weight: 800; color: var(--deep); line-height: 1.1;
+    }
+    .eq .op { color: #f59e0b; margin: 0 .15em; }
+    .eq .ans { color: #ea580c; }
+    .fact-tip {
+      background: #fff; border: 2px dashed #93c5fd; border-radius: 12px;
+      padding: 10px 14px; font-size: .95rem; font-weight: 600; color: #1e40af; width: 100%;
+    }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
+    .actions .btn { flex: 1; min-width: 110px; }
+    .practice-prompt {
+      font-size: 1.15rem; font-weight: 800; color: var(--deep);
+      background: #fff; border-radius: 14px; padding: 12px; width: 100%; border: 2px dashed #93c5fd;
+    }
+    .practice-eq { font-size: 2.4rem; font-weight: 800; color: var(--deep); }
+    .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
+    .choice-btn {
+      font-family: inherit; font-weight: 800; font-size: 1.4rem; border: 2px solid #93c5fd;
+      background: #fff; border-radius: 14px; padding: 14px; cursor: pointer; color: var(--deep);
+    }
+    .choice-btn:hover { background: #dbeafe; }
+    .choice-btn.correct { background: #dcfce7; border-color: #86efac; color: var(--ok); }
+    .choice-btn.wrong { background: #fee2e2; border-color: #fca5a5; color: var(--bad); }
+    .choice-btn:disabled { cursor: default; }
+    .practice-fb { min-height: 28px; font-weight: 800; }
+    .practice-fb.ok { color: var(--ok); }
+    .practice-fb.no { color: var(--bad); }
+    .streak { font-size: .85rem; font-weight: 700; color: #1e40af; }
+    .footer {
+      display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px;
+      padding: 10px 16px; font-size: .8rem; color: var(--muted); border-top: 1px solid var(--line);
+    }
+    .learn-panel { display: contents; }
+    .shell.mode-practice .learn-panel { display: none; }
+    .practice-wrap { display: none; padding: 16px; max-width: 420px; margin: 0 auto; width: 100%; }
+    .shell.mode-practice .practice-wrap { display: block; }
+    .shell.mode-practice .stage { display: none; }
+    .range-row { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; width: 100%; }
+    .range-row button {
+      font-family: inherit; font-weight: 800; font-size: .85rem; border: 2px solid #93c5fd;
+      background: #fff; color: var(--deep); border-radius: 999px; padding: 6px 12px; cursor: pointer;
+    }
+    .range-row button.on { background: var(--deep); color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="shell" id="shell">
+    <header>
+      <a class="btn btn-back" href="/h/nattapong">← กลับคลังสื่อ</a>
+      <h1>✖️ ตารางสูตรคูณ</h1>
+      <span class="badge">ป.2–4 · คณิตศาสตร์</span>
+    </header>
+
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
+        <button type="button" data-mode="practice">✏️ ฝึก</button>
+      </span>
+      <p class="hint" id="hintText">แตะช่องในตาราง → ไฮไลต์แถว/คอลัมน์ + อ่านสูตรคูณ</p>
+      <button type="button" class="btn btn-ghost" id="btnFs">⛶ เต็มจอ</button>
+    </div>
+
+    <div class="stage learn-panel">
+      <div class="table-wrap">
+        <table class="grid" id="table" aria-label="ตารางสูตรคูณ"></table>
+      </div>
+      <aside class="detail">
+        <div class="detail-empty" id="detailEmpty">แตะช่องในตาราง<br>เพื่อดูสูตรคูณและฟังเสียง</div>
+        <div class="detail-card" id="detailCard">
+          <div class="eq" id="eqText"></div>
+          <p class="fact-tip" id="factTip"></p>
+          <div class="actions">
+            <button type="button" class="btn btn-accent" id="btnSpeak">🔊 อ่านสูตร</button>
+            <button type="button" class="btn btn-primary" id="btnRow">อ่านทั้งแถว</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="practice-wrap">
+      <div class="practice-card show">
+        <p class="streak" id="streakLabel">ถูกติดกัน: 0</p>
+        <div class="range-row" id="rangeRow">
+          <button type="button" data-max="5" class="on">แม่ 1–5</button>
+          <button type="button" data-max="9">แม่ 1–9</button>
+          <button type="button" data-max="12">แม่ 1–12</button>
+        </div>
+        <div class="practice-prompt">เท่ากับเท่าไร?</div>
+        <div class="practice-eq" id="practiceEq">3 × 4 = ?</div>
+        <div class="choices" id="choices"></div>
+        <div class="practice-fb" id="practiceFb"></div>
+        <div class="actions">
+          <button type="button" class="btn btn-accent" id="btnPracticeSpeak">🔊 อ่านโจทย์</button>
+          <button type="button" class="btn btn-ok" id="btnPracticeNext">ข้อถัดไป →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>🏫 โรงเรียนบ้านคำไผ่ · สื่อการสอน</span>
+      <span>คณิตศาสตร์ · สูตรคูณ</span>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var MEDIA_SLUG = 'times-table';
+      if (window.KAMPAI) { try { window.KAMPAI.setSlug(MEDIA_SLUG); } catch (e) {} }
+
+      var SIZE = 12;
+      var mode = 'learn';
+      var selR = 0;
+      var selC = 0;
+      var practiceMax = 5;
+      var practiceA = 2;
+      var practiceB = 3;
+      var practiceAnswered = false;
+      var streak = 0;
+
+      var shell = document.getElementById('shell');
+      var table = document.getElementById('table');
+      var detailEmpty = document.getElementById('detailEmpty');
+      var detailCard = document.getElementById('detailCard');
+
+      function speak(text, lang) {
+        lang = lang || 'th-TH';
+        if (window.KAMPAI && KAMPAI.sound && typeof KAMPAI.sound.speak === 'function') {
+          try {
+            if (KAMPAI.sound.speak.length >= 3) KAMPAI.sound.speak(text, lang, true);
+            else KAMPAI.sound.speak(text, lang);
+            return;
+          } catch (e) {}
+        }
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          var u = new SpeechSynthesisUtterance(text);
+          u.lang = lang;
+          u.rate = 0.95;
+          window.speechSynthesis.speak(u);
+        }
+      }
+
+      function factSpeak(r, c) {
+        return r + ' คูณ ' + c + ' เท่ากับ ' + (r * c);
+      }
+
+      function tipFor(r, c) {
+        var p = r * c;
+        if (r === c) return 'กำลังสอง: ' + r + ' × ' + r + ' = ' + p;
+        if (r === 1 || c === 1) return 'คูณ 1 ได้ตัวเดิม';
+        if (r === 10) return 'คูณ 10 = เติมศูนย์ท้าย ' + c + ' → ' + p;
+        if (c === 10) return 'คูณ 10 = เติมศูนย์ท้าย ' + r + ' → ' + p;
+        if (r === 5 || c === 5) return 'แม่ 5 มักลงท้ายด้วย 0 หรือ 5';
+        if (r === 2 || c === 2) return 'คูณ 2 = บวกตัวเดิมซ้ำ';
+        return 'แถว ' + r + ' คอลัมน์ ' + c + ' ตัดกันที่ ' + p;
+      }
+
+      function buildTable() {
+        table.innerHTML = '';
+        var thead = document.createElement('thead');
+        var hr = document.createElement('tr');
+        var corner = document.createElement('td');
+        corner.className = 'corner';
+        corner.textContent = '×';
+        hr.appendChild(corner);
+        for (var c = 1; c <= SIZE; c++) {
+          var th = document.createElement('th');
+          th.textContent = String(c);
+          th.dataset.col = String(c);
+          th.addEventListener('click', (function (col) {
+            return function () { selectCell(selR || 1, col, true); };
+          })(c));
+          hr.appendChild(th);
+        }
+        thead.appendChild(hr);
+        table.appendChild(thead);
+
+        var tbody = document.createElement('tbody');
+        for (var r = 1; r <= SIZE; r++) {
+          var tr = document.createElement('tr');
+          var rh = document.createElement('th');
+          rh.textContent = String(r);
+          rh.dataset.row = String(r);
+          rh.addEventListener('click', (function (row) {
+            return function () { selectCell(row, selC || 1, true); };
+          })(r));
+          tr.appendChild(rh);
+          for (var c2 = 1; c2 <= SIZE; c2++) {
+            var td = document.createElement('td');
+            td.textContent = String(r * c2);
+            td.dataset.row = String(r);
+            td.dataset.col = String(c2);
+            td.addEventListener('click', (function (row, col) {
+              return function () { selectCell(row, col, true); };
+            })(r, c2));
+            tr.appendChild(td);
+          }
+          tbody.appendChild(tr);
+        }
+        table.appendChild(tbody);
+      }
+
+      function clearHi() {
+        table.querySelectorAll('td, th').forEach(function (el) {
+          el.classList.remove('row-hi', 'col-hi', 'cell-hi', 'hi');
+        });
+      }
+
+      function selectCell(r, c, withSpeak) {
+        selR = r;
+        selC = c;
+        clearHi();
+        table.querySelectorAll('td[data-row="' + r + '"]').forEach(function (el) {
+          el.classList.add('row-hi');
+        });
+        table.querySelectorAll('td[data-col="' + c + '"]').forEach(function (el) {
+          el.classList.add('col-hi');
+        });
+        var cell = table.querySelector('td[data-row="' + r + '"][data-col="' + c + '"]');
+        if (cell) cell.classList.add('cell-hi');
+        var thR = table.querySelector('th[data-row="' + r + '"]');
+        var thC = table.querySelector('th[data-col="' + c + '"]');
+        if (thR) thR.classList.add('hi');
+        if (thC) thC.classList.add('hi');
+
+        detailEmpty.style.display = 'none';
+        detailCard.classList.add('show');
+        var p = r * c;
+        document.getElementById('eqText').innerHTML =
+          r + '<span class="op">×</span>' + c + '<span class="op">=</span><span class="ans">' + p + '</span>';
+        document.getElementById('factTip').textContent = '💡 ' + tipFor(r, c);
+        if (withSpeak) speak(factSpeak(r, c));
+      }
+
+      function speakRow() {
+        if (!selR) return;
+        var i = 1;
+        function next() {
+          if (i > SIZE) return;
+          selectCell(selR, i, false);
+          speak(factSpeak(selR, i));
+          i++;
+          setTimeout(next, 1400);
+        }
+        next();
+      }
+
+      function setMode(m) {
+        mode = m;
+        shell.classList.toggle('mode-practice', m === 'practice');
+        document.querySelectorAll('#modeSeg button').forEach(function (b) {
+          b.classList.toggle('on', b.dataset.mode === m);
+        });
+        document.getElementById('hintText').textContent = m === 'practice'
+          ? 'เลือกช่วงแม่สูตร แล้วตอบผลคูณ · กดข้อถัดไปเมื่อพร้อม'
+          : 'แตะช่องในตาราง → ไฮไลต์แถว/คอลัมน์ + อ่านสูตรคูณ';
+        if (m === 'practice') nextPractice();
+      }
+
+      function nextPractice() {
+        practiceAnswered = false;
+        document.getElementById('practiceFb').textContent = '';
+        document.getElementById('practiceFb').className = 'practice-fb';
+        practiceA = 1 + Math.floor(Math.random() * practiceMax);
+        practiceB = 1 + Math.floor(Math.random() * practiceMax);
+        var ans = practiceA * practiceB;
+        document.getElementById('practiceEq').textContent = practiceA + ' × ' + practiceB + ' = ?';
+        document.getElementById('streakLabel').textContent = 'ถูกติดกัน: ' + streak;
+
+        var opts = [ans];
+        while (opts.length < 4) {
+          var wrong = ans + (Math.floor(Math.random() * 11) - 5);
+          if (wrong <= 0) wrong = ans + opts.length + 1;
+          if (opts.indexOf(wrong) === -1) opts.push(wrong);
+        }
+        opts.sort(function () { return Math.random() - 0.5; });
+
+        var box = document.getElementById('choices');
+        box.innerHTML = '';
+        opts.forEach(function (n) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'choice-btn';
+          b.textContent = String(n);
+          b.addEventListener('click', function () { onPick(b, n, ans); });
+          box.appendChild(b);
+        });
+        speak(practiceA + ' คูณ ' + practiceB + ' เท่ากับเท่าไร');
+      }
+
+      function onPick(btn, n, ans) {
+        if (practiceAnswered) return;
+        practiceAnswered = true;
+        var ok = n === ans;
+        document.querySelectorAll('#choices .choice-btn').forEach(function (el) {
+          el.disabled = true;
+          if (parseInt(el.textContent, 10) === ans) el.classList.add('correct');
+        });
+        var fb = document.getElementById('practiceFb');
+        if (ok) {
+          streak++;
+          btn.classList.add('correct');
+          fb.textContent = '✅ ถูกต้อง! ' + practiceA + ' × ' + practiceB + ' = ' + ans;
+          fb.className = 'practice-fb ok';
+          if (window.KAMPAI && KAMPAI.sound) try { KAMPAI.sound.correct(); } catch (e) {}
+        } else {
+          streak = 0;
+          btn.classList.add('wrong');
+          fb.textContent = '❌ คำตอบคือ ' + ans;
+          fb.className = 'practice-fb no';
+          if (window.KAMPAI && KAMPAI.sound) try { KAMPAI.sound.wrong(); } catch (e) {}
+        }
+        document.getElementById('streakLabel').textContent = 'ถูกติดกัน: ' + streak;
+        speak(factSpeak(practiceA, practiceB));
+      }
+
+      document.getElementById('modeSeg').addEventListener('click', function (e) {
+        var btn = e.target.closest('button[data-mode]');
+        if (btn) setMode(btn.dataset.mode);
+      });
+      document.getElementById('btnSpeak').addEventListener('click', function () {
+        if (selR && selC) speak(factSpeak(selR, selC));
+      });
+      document.getElementById('btnRow').addEventListener('click', speakRow);
+      document.getElementById('btnPracticeSpeak').addEventListener('click', function () {
+        speak(practiceA + ' คูณ ' + practiceB + ' เท่ากับเท่าไร');
+      });
+      document.getElementById('btnPracticeNext').addEventListener('click', nextPractice);
+      document.getElementById('rangeRow').addEventListener('click', function (e) {
+        var btn = e.target.closest('button[data-max]');
+        if (!btn) return;
+        practiceMax = parseInt(btn.dataset.max, 10);
+        document.querySelectorAll('#rangeRow button').forEach(function (b) {
+          b.classList.toggle('on', b === btn);
+        });
+        nextPractice();
+      });
+      document.getElementById('btnFs').addEventListener('click', function () {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(function () {});
+        else if (document.exitFullscreen) document.exitFullscreen();
+      });
+
+      buildTable();
+      selectCell(3, 4, false);
+    })();
+  </script>
+</body>
+</html>
