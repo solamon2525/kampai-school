@@ -93,6 +93,13 @@ const PlayGame = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  // Redirect standalone React games/apps directly to their routes
+  useEffect(() => {
+    if (gameSlug === 'english-quest') {
+      navigate('/english-quest', { replace: true });
+    }
+  }, [gameSlug, navigate]);
+
   const [phase, setPhase] = useState<Phase>('lookup');
   const [codeInput, setCodeInput] = useState('');
   const [student, setStudent] = useState<StudentLookup | null>(null);
