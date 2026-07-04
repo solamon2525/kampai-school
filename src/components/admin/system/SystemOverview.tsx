@@ -272,8 +272,17 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.141.0 (เครื่องมือสร้างสื่อ — เทมเพลต + Prompt + ปก)',
+        version: 'v1.142.0 (สื่อ Phonics Chart — E1)',
         date: 'ล่าสุด',
+        badge: 'bg-cyan-600',
+        items: [
+            '**สื่อการสอน** `phonics-chart` — แผนภูมิ phonics ป.1–3: A–Z · blends · digraphs แตะฟังเสียง + คำตัวอย่าง (TTS)',
+            'หมวด **คลังสื่อการสอน** · `tracked_game=false` · ปก PNG 1280×720 · Migration 319 · ลิงก์ไปคลังคำศัพท์อังกฤษ',
+        ],
+    },
+    {
+        version: 'v1.141.0 (เครื่องมือสร้างสื่อ — เทมเพลต + Prompt + ปก)',
+        date: '',
         badge: 'bg-amber-600',
         items: [
             '**W1** `public/games/_template-media.html` — เทมเพลตสื่อการสอน (sidebar + แสดงเฉลย · ไม่มีคะแนน/อันดับ)',
@@ -281,6 +290,7 @@ const versionHistory = [
             '**W5** ชุดสำเร็จรูปปก **📚 สื่อการสอน** + สไตล์ `edu_poster` + ฉากสาธิตบนกระดาน — โทนห้องเรียน ไม่ใช่เกมอาร์เคด',
         ],
     },
+
     {
         version: 'v1.140.0 (สื่อเศษส่วนวงกลม / แท่ง — M3)',
         date: '',

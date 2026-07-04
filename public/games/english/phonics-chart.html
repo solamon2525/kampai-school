@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>สื่อ Phonics Chart — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #0e7490;
+      --deep: #155e75;
+      --mint: #67e8f9;
+      --cream: #ecfeff;
+      --card: #ffffff;
+      --muted: #64748b;
+      --line: #a5f3fc;
+      --pink: #f472b6;
+      --amber: #fbbf24;
+      --green: #34d399;
+    }
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: linear-gradient(145deg, #cffafe 0%, #ecfeff 40%, #a5f3fc 100%);
+      min-height: 100vh;
+      color: #0f172a;
+      padding: 12px;
+    }
+    .shell {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: var(--card);
+      border-radius: 1.5rem;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: calc(100vh - 24px);
+    }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: linear-gradient(90deg, #155e75, #0e7490 50%, #0891b2);
+      color: #fff;
+    }
+    header h1 { font-size: 1.15rem; font-weight: 800; flex: 1; min-width: 180px; }
+    header .badge {
+      font-size: 0.75rem;
+      background: rgba(255,255,255,0.2);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+    .btn {
+      font-family: inherit;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: transform 0.15s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-back {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.35);
+      padding: 8px 12px;
+      font-size: 0.85rem;
+    }
+    .btn-primary { background: var(--deep); color: #fff; }
+    .btn-accent { background: var(--amber); color: #78350f; }
+    .btn-ghost {
+      background: #fff;
+      color: var(--deep);
+      border: 2px solid var(--line);
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px 16px;
+      background: #ecfeff;
+      border-bottom: 1px solid var(--line);
+      align-items: center;
+    }
+    .seg {
+      display: inline-flex;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid #67e8f9;
+    }
+    .seg button {
+      font-family: inherit;
+      font-weight: 800;
+      border: none;
+      background: #fff;
+      color: var(--deep);
+      padding: 8px 14px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .seg button.on {
+      background: var(--deep);
+      color: #fff;
+    }
+    .hint {
+      font-size: 0.85rem;
+      color: #0e7490;
+      font-weight: 600;
+      flex: 1;
+      min-width: 180px;
+    }
+    .stage {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
+      min-height: 0;
+    }
+    @media (min-width: 820px) {
+      .stage { grid-template-columns: 1fr 300px; }
+    }
+    .grid-wrap {
+      padding: 14px;
+      overflow: auto;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+      gap: 8px;
+    }
+    .grid.blends {
+      grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+    }
+    .tile {
+      aspect-ratio: 1;
+      border-radius: 14px;
+      border: 2px solid #a5f3fc;
+      background: #fff;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      font-weight: 800;
+      color: var(--deep);
+      box-shadow: 0 2px 8px rgba(14, 116, 144, 0.08);
+      transition: transform 0.12s, border-color 0.12s, background 0.12s;
+      user-select: none;
+      min-height: 56px;
+    }
+    .tile:hover { transform: translateY(-2px); border-color: #22d3ee; }
+    .tile:active { transform: scale(0.96); }
+    .tile.on {
+      background: linear-gradient(145deg, #22d3ee, #06b6d4);
+      color: #fff;
+      border-color: #0891b2;
+      box-shadow: 0 6px 16px rgba(8, 145, 178, 0.35);
+    }
+    .tile .letter {
+      font-size: clamp(1.25rem, 4vw, 1.75rem);
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .tile .sub {
+      font-size: 0.65rem;
+      font-weight: 700;
+      opacity: 0.75;
+      text-transform: lowercase;
+    }
+    .detail {
+      background: #ecfeff;
+      border-top: 1px solid var(--line);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    @media (min-width: 820px) {
+      .detail {
+        border-top: none;
+        border-left: 1px solid var(--line);
+      }
+    }
+    .detail-empty {
+      color: var(--muted);
+      font-weight: 600;
+      text-align: center;
+      margin: auto 0;
+      line-height: 1.5;
+    }
+    .detail-card {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+      text-align: center;
+    }
+    .detail-card.show { display: flex; }
+    .big-letter {
+      font-size: 4rem;
+      font-weight: 800;
+      color: var(--deep);
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .big-letter .lower {
+      font-size: 2.4rem;
+      color: #0891b2;
+      margin-left: 6px;
+    }
+    .sound-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #fff;
+      border: 2px solid #67e8f9;
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-weight: 800;
+      color: var(--deep);
+      font-size: 1.15rem;
+    }
+    .thai-hint {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #0e7490;
+    }
+    .words {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+    }
+    .word-btn {
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 1.15rem;
+      border: 2px solid #a5f3fc;
+      background: #fff;
+      border-radius: 14px;
+      padding: 12px 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #0f172a;
+      text-align: left;
+    }
+    .word-btn:hover { background: #cffafe; }
+    .word-btn .emoji { font-size: 1.6rem; }
+    .word-btn .meta { display: flex; flex-direction: column; gap: 2px; }
+    .word-btn .en { font-size: 1.2rem; }
+    .word-btn .th { font-size: 0.8rem; font-weight: 600; color: var(--muted); }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      width: 100%;
+    }
+    .actions .btn { flex: 1; min-width: 120px; }
+    .footer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 10px 16px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      background: #fff;
+    }
+    .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <a class="btn btn-back" href="/h/nattapong">← กลับคลังสื่อ</a>
+      <h1>🔤 Phonics Chart — เสียงตัวอักษรอังกฤษ</h1>
+      <span class="badge">ป.1–3 · ภาษาอังกฤษ</span>
+    </header>
+
+    <div class="toolbar">
+      <span class="seg" id="tabSeg">
+        <button type="button" data-tab="letters" class="on">A–Z</button>
+        <button type="button" data-tab="blends">Blends</button>
+        <button type="button" data-tab="digraphs">Digraphs</button>
+      </span>
+      <p class="hint">แตะตัวอักษร/กลุ่มเสียง → ฟังเสียง + คำตัวอย่าง · กดคำเพื่อฟังทั้งคำ</p>
+      <button type="button" class="btn btn-ghost" id="btnFs">⛶ เต็มจอ</button>
+    </div>
+
+    <div class="stage">
+      <div class="grid-wrap">
+        <div class="grid" id="grid"></div>
+      </div>
+      <aside class="detail">
+        <div class="detail-empty" id="detailEmpty">แตะตัวอักษรทางซ้าย<br>เพื่อฟังเสียงและดูคำตัวอย่าง</div>
+        <div class="detail-card" id="detailCard">
+          <div class="big-letter" id="bigLetter"></div>
+          <div class="sound-chip" id="soundChip"></div>
+          <p class="thai-hint" id="thaiHint"></p>
+          <div class="words" id="words"></div>
+          <div class="actions">
+            <button type="button" class="btn btn-accent" id="btnSound">🔊 ฟังเสียง</button>
+            <button type="button" class="btn btn-primary" id="btnAllWords">🗣️ อ่านคำทั้งหมด</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="footer">
+      <span>🏫 โรงเรียนบ้านคำไผ่ · สื่อการสอน</span>
+      <a href="/play/vocab-hub">คลังคำศัพท์อังกฤษ →</a>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var MEDIA_SLUG = 'phonics-chart';
+      if (window.KAMPAI) {
+        try { window.KAMPAI.setSlug(MEDIA_SLUG); } catch (e) {}
+      }
+
+      /** @type {{id:string, label:string, sound:string, thai:string, words:{en:string,th:string,emoji:string}[]}[]} */
+      var LETTERS = [
+        { id: 'a', label: 'Aa', sound: 'æ', thai: 'เสียงสั้นเหมือน "แอ" ใน apple', words: [
+          { en: 'apple', th: 'แอปเปิล', emoji: '🍎' },
+          { en: 'ant', th: 'มด', emoji: '🐜' },
+        ]},
+        { id: 'b', label: 'Bb', sound: 'b', thai: 'เสียง "บ" ปิดปากแล้วเปิด', words: [
+          { en: 'ball', th: 'ลูกบอล', emoji: '⚽' },
+          { en: 'book', th: 'หนังสือ', emoji: '📖' },
+        ]},
+        { id: 'c', label: 'Cc', sound: 'k', thai: 'เสียงแข็ง "ค" (cat) — ไม่ใช่ "ซ"', words: [
+          { en: 'cat', th: 'แมว', emoji: '🐱' },
+          { en: 'cup', th: 'ถ้วย', emoji: '🥤' },
+        ]},
+        { id: 'd', label: 'Dd', sound: 'd', thai: 'เสียง "ด"', words: [
+          { en: 'dog', th: 'หมา', emoji: '🐶' },
+          { en: 'duck', th: 'เป็ด', emoji: '🦆' },
+        ]},
+        { id: 'e', label: 'Ee', sound: 'e', thai: 'เสียงสั้น "เอะ" ใน egg', words: [
+          { en: 'egg', th: 'ไข่', emoji: '🥚' },
+          { en: 'elephant', th: 'ช้าง', emoji: '🐘' },
+        ]},
+        { id: 'f', label: 'Ff', sound: 'f', thai: 'เสียง "ฟ" ฟันบนแตะปากล่าง', words: [
+          { en: 'fish', th: 'ปลา', emoji: '🐟' },
+          { en: 'fan', th: 'พัดลม', emoji: '🪭' },
+        ]},
+        { id: 'g', label: 'Gg', sound: 'g', thai: 'เสียงแข็ง "ก" (goat)', words: [
+          { en: 'goat', th: 'แพะ', emoji: '🐐' },
+          { en: 'grape', th: 'องุ่น', emoji: '🍇' },
+        ]},
+        { id: 'h', label: 'Hh', sound: 'h', thai: 'เสียงลมหายใจ "ฮ"', words: [
+          { en: 'hat', th: 'หมวก', emoji: '🎩' },
+          { en: 'hand', th: 'มือ', emoji: '✋' },
+        ]},
+        { id: 'i', label: 'Ii', sound: 'ɪ', thai: 'เสียงสั้น "อิ" ใน igloo', words: [
+          { en: 'igloo', th: 'บ้านน้ำแข็ง', emoji: '🏠' },
+          { en: 'insect', th: 'แมลง', emoji: '🐛' },
+        ]},
+        { id: 'j', label: 'Jj', sound: 'dʒ', thai: 'เสียง "จ" นุ่ม (jam)', words: [
+          { en: 'jam', th: 'แยม', emoji: '🍓' },
+          { en: 'juice', th: 'น้ำผลไม้', emoji: '🧃' },
+        ]},
+        { id: 'k', label: 'Kk', sound: 'k', thai: 'เสียง "ค" เหมือน c ใน cat', words: [
+          { en: 'kite', th: 'ว่าว', emoji: '🪁' },
+          { en: 'key', th: 'กุญแจ', emoji: '🔑' },
+        ]},
+        { id: 'l', label: 'Ll', sound: 'l', thai: 'เสียง "ล" ปลายลิ้นแตะเพดาน', words: [
+          { en: 'lion', th: 'สิงโต', emoji: '🦁' },
+          { en: 'leaf', th: 'ใบไม้', emoji: '🍃' },
+        ]},
+        { id: 'm', label: 'Mm', sound: 'm', thai: 'เสียง "ม" ปิดปาก', words: [
+          { en: 'moon', th: 'พระจันทร์', emoji: '🌙' },
+          { en: 'milk', th: 'นม', emoji: '🥛' },
+        ]},
+        { id: 'n', label: 'Nn', sound: 'n', thai: 'เสียง "น"', words: [
+          { en: 'nose', th: 'จมูก', emoji: '👃' },
+          { en: 'net', th: 'ตาข่าย', emoji: '🥅' },
+        ]},
+        { id: 'o', label: 'Oo', sound: 'ɒ', thai: 'เสียงสั้น "ออ" ใน octopus', words: [
+          { en: 'octopus', th: 'ปลาหมึก', emoji: '🐙' },
+          { en: 'orange', th: 'ส้ม', emoji: '🍊' },
+        ]},
+        { id: 'p', label: 'Pp', sound: 'p', thai: 'เสียง "ป" พ่นลม', words: [
+          { en: 'pig', th: 'หมู', emoji: '🐷' },
+          { en: 'pen', th: 'ปากกา', emoji: '🖊️' },
+        ]},
+        { id: 'q', label: 'Qq', sound: 'kw', thai: 'มักคู่กับ u = "คว" (queen)', words: [
+          { en: 'queen', th: 'ราชินี', emoji: '👑' },
+          { en: 'quilt', th: 'ผ้าห่ม', emoji: '🛏️' },
+        ]},
+        { id: 'r', label: 'Rr', sound: 'r', thai: 'เสียง "ร" แบบอังกฤษ (ไม่ม้วนมาก)', words: [
+          { en: 'rabbit', th: 'กระต่าย', emoji: '🐰' },
+          { en: 'red', th: 'สีแดง', emoji: '🔴' },
+        ]},
+        { id: 's', label: 'Ss', sound: 's', thai: 'เสียง "ซ/ส" ลมยาว', words: [
+          { en: 'sun', th: 'พระอาทิตย์', emoji: '☀️' },
+          { en: 'snake', th: 'งู', emoji: '🐍' },
+        ]},
+        { id: 't', label: 'Tt', sound: 't', thai: 'เสียง "ท/ต" พ่นลม', words: [
+          { en: 'tiger', th: 'เสือ', emoji: '🐯' },
+          { en: 'tree', th: 'ต้นไม้', emoji: '🌳' },
+        ]},
+        { id: 'u', label: 'Uu', sound: 'ʌ', thai: 'เสียงสั้น "อะ" ใน umbrella', words: [
+          { en: 'umbrella', th: 'ร่ม', emoji: '☂️' },
+          { en: 'up', th: 'ขึ้น', emoji: '⬆️' },
+        ]},
+        { id: 'v', label: 'Vv', sound: 'v', thai: 'เสียง "ว" สั่น (ฟันบนแตะปากล่าง)', words: [
+          { en: 'van', th: 'รถตู้', emoji: '🚐' },
+          { en: 'violin', th: 'ไวโอลิน', emoji: '🎻' },
+        ]},
+        { id: 'w', label: 'Ww', sound: 'w', thai: 'เสียง "ว" กลมปาก', words: [
+          { en: 'water', th: 'น้ำ', emoji: '💧' },
+          { en: 'wolf', th: 'หมาป่า', emoji: '🐺' },
+        ]},
+        { id: 'x', label: 'Xx', sound: 'ks', thai: 'เสียง "คซ" มักอยู่ท้ายคำ (box)', words: [
+          { en: 'box', th: 'กล่อง', emoji: '📦' },
+          { en: 'fox', th: 'จิ้งจอก', emoji: '🦊' },
+        ]},
+        { id: 'y', label: 'Yy', sound: 'j', thai: 'ต้นคำเสียง "ย" (yellow)', words: [
+          { en: 'yellow', th: 'สีเหลือง', emoji: '💛' },
+          { en: 'yo-yo', th: 'โยโย่', emoji: '🪀' },
+        ]},
+        { id: 'z', label: 'Zz', sound: 'z', thai: 'เสียง "ซ" สั่น', words: [
+          { en: 'zebra', th: 'ม้าลาย', emoji: '🦓' },
+          { en: 'zoo', th: 'สวนสัตว์', emoji: '🦁' },
+        ]},
+      ];
+
+      var BLENDS = [
+        { id: 'bl', label: 'bl', sound: 'bl', thai: 'b + l พร้อมกัน', words: [
+          { en: 'blue', th: 'สีน้ำเงิน', emoji: '💙' },
+          { en: 'black', th: 'สีดำ', emoji: '⬛' },
+        ]},
+        { id: 'br', label: 'br', sound: 'br', thai: 'b + r', words: [
+          { en: 'bread', th: 'ขนมปัง', emoji: '🍞' },
+          { en: 'brush', th: 'แปรง', emoji: '🪥' },
+        ]},
+        { id: 'cl', label: 'cl', sound: 'cl', thai: 'c + l', words: [
+          { en: 'clock', th: 'นาฬิกา', emoji: '🕐' },
+          { en: 'cloud', th: 'เมฆ', emoji: '☁️' },
+        ]},
+        { id: 'cr', label: 'cr', sound: 'cr', thai: 'c + r', words: [
+          { en: 'crab', th: 'ปู', emoji: '🦀' },
+          { en: 'cry', th: 'ร้องไห้', emoji: '😢' },
+        ]},
+        { id: 'dr', label: 'dr', sound: 'dr', thai: 'd + r', words: [
+          { en: 'drum', th: 'กลอง', emoji: '🥁' },
+          { en: 'dress', th: 'ชุดกระโปรง', emoji: '👗' },
+        ]},
+        { id: 'fl', label: 'fl', sound: 'fl', thai: 'f + l', words: [
+          { en: 'flag', th: 'ธง', emoji: '🚩' },
+          { en: 'flower', th: 'ดอกไม้', emoji: '🌸' },
+        ]},
+        { id: 'fr', label: 'fr', sound: 'fr', thai: 'f + r', words: [
+          { en: 'frog', th: 'กบ', emoji: '🐸' },
+          { en: 'fruit', th: 'ผลไม้', emoji: '🍎' },
+        ]},
+        { id: 'gl', label: 'gl', sound: 'gl', thai: 'g + l', words: [
+          { en: 'glass', th: 'แก้ว', emoji: '🥛' },
+          { en: 'glue', th: 'กาว', emoji: '🧴' },
+        ]},
+        { id: 'gr', label: 'gr', sound: 'gr', thai: 'g + r', words: [
+          { en: 'green', th: 'สีเขียว', emoji: '💚' },
+          { en: 'grape', th: 'องุ่น', emoji: '🍇' },
+        ]},
+        { id: 'pl', label: 'pl', sound: 'pl', thai: 'p + l', words: [
+          { en: 'plane', th: 'เครื่องบิน', emoji: '✈️' },
+          { en: 'plant', th: 'ต้นไม้', emoji: '🌱' },
+        ]},
+        { id: 'pr', label: 'pr', sound: 'pr', thai: 'p + r', words: [
+          { en: 'prize', th: 'รางวัล', emoji: '🏆' },
+          { en: 'proud', th: 'ภูมิใจ', emoji: '😊' },
+        ]},
+        { id: 'sc', label: 'sc', sound: 'sk', thai: 'มักเสียง "สก"', words: [
+          { en: 'scarf', th: 'ผ้าพันคอ', emoji: '🧣' },
+          { en: 'school', th: 'โรงเรียน', emoji: '🏫' },
+        ]},
+        { id: 'sk', label: 'sk', sound: 'sk', thai: 's + k', words: [
+          { en: 'sky', th: 'ท้องฟ้า', emoji: '🌌' },
+          { en: 'skate', th: 'สเก็ต', emoji: '⛸️' },
+        ]},
+        { id: 'sl', label: 'sl', sound: 'sl', thai: 's + l', words: [
+          { en: 'slide', th: 'สไลเดอร์', emoji: '🛝' },
+          { en: 'sleep', th: 'นอน', emoji: '😴' },
+        ]},
+        { id: 'sm', label: 'sm', sound: 'sm', thai: 's + m', words: [
+          { en: 'smile', th: 'ยิ้ม', emoji: '😊' },
+          { en: 'small', th: 'เล็ก', emoji: '🔹' },
+        ]},
+        { id: 'sn', label: 'sn', sound: 'sn', thai: 's + n', words: [
+          { en: 'snake', th: 'งู', emoji: '🐍' },
+          { en: 'snow', th: 'หิมะ', emoji: '❄️' },
+        ]},
+        { id: 'sp', label: 'sp', sound: 'sp', thai: 's + p', words: [
+          { en: 'spoon', th: 'ช้อน', emoji: '🥄' },
+          { en: 'spider', th: 'แมงมุม', emoji: '🕷️' },
+        ]},
+        { id: 'st', label: 'st', sound: 'st', thai: 's + t', words: [
+          { en: 'star', th: 'ดาว', emoji: '⭐' },
+          { en: 'stop', th: 'หยุด', emoji: '🛑' },
+        ]},
+        { id: 'sw', label: 'sw', sound: 'sw', thai: 's + w', words: [
+          { en: 'swim', th: 'ว่ายน้ำ', emoji: '🏊' },
+          { en: 'swing', th: 'ชิงช้า', emoji: '🪑' },
+        ]},
+        { id: 'tr', label: 'tr', sound: 'tr', thai: 't + r', words: [
+          { en: 'tree', th: 'ต้นไม้', emoji: '🌳' },
+          { en: 'train', th: 'รถไฟ', emoji: '🚂' },
+        ]},
+        { id: 'tw', label: 'tw', sound: 'tw', thai: 't + w', words: [
+          { en: 'twin', th: 'ฝาแฝด', emoji: '👯' },
+          { en: 'twelve', th: 'สิบสอง', emoji: '🔢' },
+        ]},
+      ];
+
+      var DIGRAPHS = [
+        { id: 'ch', label: 'ch', sound: 'tʃ', thai: 'เสียง "ช" (chair)', words: [
+          { en: 'chair', th: 'เก้าอี้', emoji: '🪑' },
+          { en: 'cheese', th: 'ชีส', emoji: '🧀' },
+        ]},
+        { id: 'sh', label: 'sh', sound: 'ʃ', thai: 'เสียง "ช" ลมยาว (ship)', words: [
+          { en: 'ship', th: 'เรือ', emoji: '🚢' },
+          { en: 'fish', th: 'ปลา', emoji: '🐟' },
+        ]},
+        { id: 'th', label: 'th', sound: 'θ', thai: 'ลิ้นแตะฟัน (think) — ลมเบา', words: [
+          { en: 'three', th: 'สาม', emoji: '3️⃣' },
+          { en: 'thumb', th: 'นิ้วโป้ง', emoji: '👍' },
+        ]},
+        { id: 'wh', label: 'wh', sound: 'w', thai: 'มักเสียงเหมือน w (whale)', words: [
+          { en: 'whale', th: 'วาฬ', emoji: '🐋' },
+          { en: 'white', th: 'สีขาว', emoji: '⬜' },
+        ]},
+        { id: 'ph', label: 'ph', sound: 'f', thai: 'เสียง "ฟ" (phone)', words: [
+          { en: 'phone', th: 'โทรศัพท์', emoji: '📱' },
+          { en: 'photo', th: 'รูปภาพ', emoji: '📷' },
+        ]},
+        { id: 'ck', label: 'ck', sound: 'k', thai: 'ท้ายคำเสียง "ค" (duck)', words: [
+          { en: 'duck', th: 'เป็ด', emoji: '🦆' },
+          { en: 'sock', th: 'ถุงเท้า', emoji: '🧦' },
+        ]},
+        { id: 'ng', label: 'ng', sound: 'ŋ', thai: 'เสียง "ง" ท้ายคำ (ring)', words: [
+          { en: 'ring', th: 'แหวน', emoji: '💍' },
+          { en: 'king', th: 'ราชา', emoji: '🤴' },
+        ]},
+        { id: 'qu', label: 'qu', sound: 'kw', thai: 'q + u = "คว"', words: [
+          { en: 'queen', th: 'ราชินี', emoji: '👑' },
+          { en: 'quiet', th: 'เงียบ', emoji: '🤫' },
+        ]},
+      ];
+
+      var DATA = { letters: LETTERS, blends: BLENDS, digraphs: DIGRAPHS };
+      var tab = 'letters';
+      var selected = null;
+
+      var grid = document.getElementById('grid');
+      var detailEmpty = document.getElementById('detailEmpty');
+      var detailCard = document.getElementById('detailCard');
+      var bigLetter = document.getElementById('bigLetter');
+      var soundChip = document.getElementById('soundChip');
+      var thaiHint = document.getElementById('thaiHint');
+      var wordsEl = document.getElementById('words');
+
+      function speak(text, lang) {
+        lang = lang || 'en-US';
+        if (window.KAMPAI && KAMPAI.sound && typeof KAMPAI.sound.speak === 'function') {
+          try {
+            if (KAMPAI.sound.speak.length >= 3) {
+              KAMPAI.sound.speak(text, lang, true);
+            } else {
+              KAMPAI.sound.speak(text, lang);
+            }
+            return;
+          } catch (e) {}
+        }
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          var u = new SpeechSynthesisUtterance(text);
+          u.lang = lang;
+          u.rate = 0.9;
+          window.speechSynthesis.speak(u);
+        }
+      }
+
+      function speakSound(item) {
+        // พูดตัวอักษร/กลุ่มเสียงแบบ phonics (ช้า)
+        var say = item.id.length === 1 ? item.id : item.id;
+        speak(say, 'en-US');
+      }
+
+      function speakWord(en) {
+        speak(en, 'en-US');
+      }
+
+      function renderGrid() {
+        var list = DATA[tab];
+        grid.className = 'grid' + (tab !== 'letters' ? ' blends' : '');
+        grid.innerHTML = '';
+        list.forEach(function (item) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'tile' + (selected && selected.id === item.id ? ' on' : '');
+          btn.dataset.id = item.id;
+          var letterHtml = tab === 'letters'
+            ? '<span class="letter">' + item.id.toUpperCase() + '</span><span class="sub">' + item.id + '</span>'
+            : '<span class="letter" style="font-size:1.2rem">' + item.label + '</span>';
+          btn.innerHTML = letterHtml;
+          btn.addEventListener('click', function () { selectItem(item); });
+          grid.appendChild(btn);
+        });
+      }
+
+      function selectItem(item) {
+        selected = item;
+        renderGrid();
+        detailEmpty.style.display = 'none';
+        detailCard.classList.add('show');
+
+        if (tab === 'letters') {
+          bigLetter.innerHTML = item.id.toUpperCase() + '<span class="lower">' + item.id + '</span>';
+        } else {
+          bigLetter.textContent = item.label;
+        }
+        soundChip.textContent = '/' + item.sound + '/';
+        thaiHint.textContent = item.thai;
+
+        wordsEl.innerHTML = '';
+        item.words.forEach(function (w) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'word-btn';
+          b.innerHTML =
+            '<span class="emoji">' + w.emoji + '</span>' +
+            '<span class="meta"><span class="en">' + w.en + '</span><span class="th">' + w.th + '</span></span>';
+          b.addEventListener('click', function () { speakWord(w.en); });
+          wordsEl.appendChild(b);
+        });
+
+        speakSound(item);
+      }
+
+      document.getElementById('tabSeg').addEventListener('click', function (e) {
+        var btn = e.target.closest('button[data-tab]');
+        if (!btn) return;
+        tab = btn.dataset.tab;
+        document.querySelectorAll('#tabSeg button').forEach(function (b) {
+          b.classList.toggle('on', b === btn);
+        });
+        selected = null;
+        detailCard.classList.remove('show');
+        detailEmpty.style.display = 'block';
+        renderGrid();
+      });
+
+      document.getElementById('btnSound').addEventListener('click', function () {
+        if (selected) speakSound(selected);
+      });
+
+      document.getElementById('btnAllWords').addEventListener('click', function () {
+        if (!selected) return;
+        var i = 0;
+        function next() {
+          if (i >= selected.words.length) return;
+          speakWord(selected.words[i].en);
+          i++;
+          setTimeout(next, 1200);
+        }
+        next();
+      });
+
+      document.getElementById('btnFs').addEventListener('click', function () {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(function () {});
+        } else if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      });
+
+      renderGrid();
+    })();
+  </script>
+</body>
+</html>
