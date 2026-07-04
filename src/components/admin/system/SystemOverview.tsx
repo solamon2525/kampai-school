@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.143.0 (Phonics โหมดฝึก + แผนภาพสระไทย T1)',
+        version: 'v1.144.0 (สื่อวัฏจักรน้ำ — S1)',
         date: 'ล่าสุด',
+        badge: 'bg-teal-600',
+        items: [
+            '**สื่อการสอน** `water-cycle` — วัฏจักรน้ำ ป.3–5: แผนภาพ 4 ขั้น (ระเหย · ควบแน่น · หยาดน้ำฟ้า · รวมตัว)',
+            'โหมดเรียนรู้: แตะขั้น / เล่นวนอัตโนมัติ / TTS · โหมด **เรียงลำดับ** ลากตรวจคำตอบ',
+            'หมวดคลังสื่อการสอน · Migration 321 · ปิดช่องว่างวิชาวิทยาศาสตร์',
+        ],
+    },
+    {
+        version: 'v1.143.0 (Phonics โหมดฝึก + แผนภาพสระไทย T1)',
+        date: '',
         badge: 'bg-orange-600',
         items: [
             '**Phonics Chart** — เสียงแบบห้องเรียน “a as in apple” + โหมด **✏️ ฝึก** (ฟังแล้วเลือกคำ · streak)',
@@ -281,6 +291,7 @@ const versionHistory = [
             'Migration 320 seed · ปก PNG · หมวดคลังสื่อการสอน',
         ],
     },
+
     {
         version: 'v1.142.0 (สื่อ Phonics Chart — E1)',
         date: '',
