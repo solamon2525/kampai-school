@@ -58,7 +58,8 @@
     coop: false,
     barn: false,
     chickenFeed: 0,
-    cowFeed: 0
+    cowFeed: 0,
+    islandLevel: 0
   };
   var pendingWorms = [];       // store active 3D worm objects
   var chickensList = [];       // store active chicken 3D objects
@@ -822,6 +823,148 @@
     }
   }
 
+  function triggerExpandQuiz(callback) {
+    var quizOverlay = document.getElementById('quizModal');
+    var quizQuestionEl = document.getElementById('quizQuestion');
+    var quizChoicesEl = document.getElementById('quizChoices');
+    var quizTimerEl = document.getElementById('quizTimer');
+    if (!quizOverlay || !quizQuestionEl || !quizChoicesEl) return;
+
+    var isArea = getRandom() < 0.5;
+    var answer = 0;
+    var qText = "";
+    
+    if (isArea) {
+      var w = Math.floor(getRandom() * 6) + 4; // 4 to 9
+      var l = Math.floor(getRandom() * 8) + 5; // 5 to 12
+      answer = w * l;
+      qText = "📐 โจทย์เรขาคณิต: แปลงที่ดินขยายเกาะรูปสี่เหลี่ยมผืนผ้า กว้าง " + w + " เมตร และยาว " + l + " เมตร จะมีพื้นที่รวมกี่ตารางเมตร?";
+    } else {
+      var s = Math.floor(getRandom() * 10) + 6; // 6 to 15
+      answer = s * 4;
+      qText = "📐 โจทย์เรขาคณิต: แปลงเพาะปลูกรูปสี่เหลี่ยมจัตุรัสมีความยาวด้านละ " + s + " เมตร จะมีความยาวรั้วล้อมรอบ (เส้นรอบรูป) กี่เมตร?";
+    }
+
+    quizQuestionEl.textContent = qText;
+    quizChoicesEl.innerHTML = '';
+
+    var quizTimeLeft = 15;
+    if (quizTimerEl) quizTimerEl.textContent = '⏱️ คิดเรขาคณิต: ' + quizTimeLeft + ' วินาที';
+
+    if (quizIntervalId) clearInterval(quizIntervalId);
+    quizIntervalId = setInterval(function () {
+      quizTimeLeft--;
+      if (quizTimerEl) quizTimerEl.textContent = '⏱️ คิดเรขาคณิต: ' + quizTimeLeft + ' วินาที';
+      if (quizTimeLeft <= 0) {
+        handleExpandAnswer(false);
+      }
+    }, 1000);
+
+    function handleExpandAnswer(isCorrect) {
+      if (quizIntervalId) {
+        clearInterval(quizIntervalId);
+        quizIntervalId = null;
+      }
+      quizOverlay.style.display = 'none';
+      callback(isCorrect);
+    }
+
+    var choices = getQuizChoices(answer, 'medium');
+    choices.forEach(function (choice) {
+      var btn = document.createElement('button');
+      btn.className = 'quiz-choice-btn';
+      btn.textContent = choice;
+      btn.addEventListener('click', function () {
+        handleExpandAnswer(choice === answer);
+      });
+      quizChoicesEl.appendChild(btn);
+    });
+
+    quizOverlay.style.display = 'flex';
+  }
+
+  function refreshPlotsVisibility(animateSpawn) {
+    plots.forEach(function (g) {
+      var d = g.userData;
+      var isActive = false;
+      if (upgrades.islandLevel === 0) {
+        isActive = (d.gridRow < 2 && d.gridCol < 3);
+      } else if (upgrades.islandLevel === 1) {
+        isActive = (d.gridRow < 3 && d.gridCol < 3);
+      } else {
+        isActive = (d.gridRow < 3 && d.gridCol < 4);
+      }
+      
+      if (isActive) {
+        if (!g.visible) {
+          g.visible = true;
+          if (animateSpawn) {
+            g.scale.set(0.001, 0.001, 0.001);
+            var startTime = clock.elapsedTime;
+            var scaleInterval = setInterval(function () {
+              var elapsed = clock.elapsedTime - startTime;
+              var pct = Math.min(1.0, elapsed / 0.5);
+              var sc = easeOut(pct) * 1.0;
+              g.scale.set(sc, sc, sc);
+              if (pct >= 1.0) clearInterval(scaleInterval);
+            }, 16);
+            
+            var wp = new THREE.Vector3();
+            g.getWorldPosition(wp);
+            wp.y += 0.2;
+            burst(wp, ['#ca8a04', '#6ec25a'], 10, { up: 1.4, spread: 1.2 });
+          } else {
+            g.scale.set(1.0, 1.0, 1.0);
+          }
+        }
+      } else {
+        g.visible = false;
+        d.state = 'empty';
+        d.plantedCropId = null;
+        if (d.activePlant) {
+          g.remove(d.activePlant);
+          d.activePlant = null;
+        }
+        if (d.wormObj) {
+          g.remove(d.wormObj);
+          d.wormObj = null;
+        }
+        d.isWatered = false;
+        d.wateredAt = 0;
+        d.soilMat.emissive.setHex(0x000000);
+        d.bar.visible = false;
+      }
+    });
+  }
+
+  function expandIslandGrid() {
+    refreshPlotsVisibility(true);
+    
+    var targetScaleX = 1.0;
+    var targetScaleZ = 1.0;
+    if (upgrades.islandLevel === 1) {
+      targetScaleX = 1.12;
+      targetScaleZ = 1.12;
+    } else if (upgrades.islandLevel === 2) {
+      targetScaleX = 1.25;
+      targetScaleZ = 1.25;
+    }
+    
+    var startScaleX = islandGroup.scale.x;
+    var startScaleZ = islandGroup.scale.z;
+    var startTime = clock.elapsedTime;
+    
+    var scaleInterval = setInterval(function () {
+      var elapsed = clock.elapsedTime - startTime;
+      var pct = Math.min(1.0, elapsed / 0.8);
+      var scX = startScaleX + (targetScaleX - startScaleX) * easeOut(pct);
+      var scZ = startScaleZ + (targetScaleZ - startScaleZ) * easeOut(pct);
+      
+      islandGroup.scale.set(scX, 1.0, scZ);
+      if (pct >= 1.0) clearInterval(scaleInterval);
+    }, 16);
+  }
+
   function triggerRatioQuiz(animal, callback) {
     var quizOverlay = document.getElementById('quizModal');
     var quizQuestionEl = document.getElementById('quizQuestion');
@@ -961,6 +1104,8 @@
     var buySprinklerBtn = document.getElementById('buySprinklerBtn');
     var buyScarecrowBtn = document.getElementById('buyScarecrowBtn');
     var buyFertilizerBtn = document.getElementById('buyFertilizerBtn');
+    var buyExpandBtn = document.getElementById('buyExpandBtn');
+    var expandDesc = document.getElementById('expandDesc');
     
     var buyCoopBtn = document.getElementById('buyCoopBtn');
     var buyBarnBtn = document.getElementById('buyBarnBtn');
@@ -978,6 +1123,21 @@
       buyScarecrowBtn.disabled = upgrades.scarecrow || money < 350;
       if (upgrades.scarecrow) buyScarecrowBtn.textContent = 'เป็นเจ้าของแล้ว ✅';
       else buyScarecrowBtn.textContent = 'ซื้อราคา 350 🪙';
+    }
+    if (buyExpandBtn && expandDesc) {
+      if (upgrades.islandLevel === 0) {
+        expandDesc.textContent = "ระดับ 1: เพิ่มแปลงเพาะปลูกเป็น 3x3 แปลง (9 แปลง)";
+        buyExpandBtn.textContent = "ซื้อราคา 250 🪙";
+        buyExpandBtn.disabled = money < 250;
+      } else if (upgrades.islandLevel === 1) {
+        expandDesc.textContent = "ระดับ 2: เพิ่มแปลงเพาะปลูกเป็น 3x4 แปลง (12 แปลง)";
+        buyExpandBtn.textContent = "ซื้อราคา 500 🪙";
+        buyExpandBtn.disabled = money < 500;
+      } else {
+        expandDesc.textContent = "ขยายพื้นที่สูงสุดแล้ว ✅";
+        buyExpandBtn.textContent = "สำเร็จแล้ว ✅";
+        buyExpandBtn.disabled = true;
+      }
     }
     if (buyFertilizerBtn) {
       buyFertilizerBtn.disabled = money < 50;
@@ -1046,6 +1206,41 @@
           try { KAMPAI.sound.correct(); } catch (e) { /* */ }
         }
       }
+    });
+  }
+
+  var buyExpandBtn = document.getElementById('buyExpandBtn');
+  if (buyExpandBtn) {
+    buyExpandBtn.addEventListener('click', function () {
+      var cost = upgrades.islandLevel === 0 ? 250 : 500;
+      if (money < cost) {
+        toast("เงินสดไม่เพียงพอ", "warn");
+        return;
+      }
+      triggerExpandQuiz(function (isCorrect) {
+        if (isCorrect) {
+          money -= cost;
+          upgrades.islandLevel++;
+          addLedgerEntry("ขยายที่ดินเกาะจำลอง", "expense", cost);
+          toast("ขยายที่ดินเกาะสำเร็จ! ปลดล็อกแปลงเพาะปลูกใหม่ 🎉🏝️", "good");
+          expandIslandGrid();
+          refreshShopUI();
+          refreshHud();
+          if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.correct) {
+            try { KAMPAI.sound.correct(); } catch (e) { /* */ }
+          }
+        } else {
+          var penalty = Math.round(cost * 0.1);
+          money -= penalty;
+          toast("ขยายที่ดินล้มเหลวเนื่องจากตอบคำถามผิด! (เสียค่าปรับรังวัด " + penalty + " 🪙)", "warn");
+          addLedgerEntry("ค่ารังวัดที่ดินล้มเหลว", "expense", penalty);
+          if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.wrong) {
+            try { KAMPAI.sound.wrong(); } catch (e) { /* */ }
+          }
+          refreshShopUI();
+          refreshHud();
+        }
+      });
     });
   }
 
@@ -1583,6 +1778,8 @@
       soil: soil,
       soilMat: soilMat,
       soilType: soilType,
+      gridRow: row,
+      gridCol: col,
       plants: {
         carrot: plantCarrot,
         corn: plantCorn,
@@ -1605,8 +1802,8 @@
 
   // Create plot grid
   var ox = CFG.PLOT_OFFSET_X, oz = CFG.PLOT_OFFSET_Z;
-  for (var row = 0; row < CFG.PLOT_ROWS; row++) {
-    for (var col = 0; col < CFG.PLOT_COLS; col++) {
+  for (var row = 0; row < 3; row++) {
+    for (var col = 0; col < 4; col++) {
       makePlot(ox + col * CFG.PLOT_GAP, oz + row * CFG.PLOT_GAP - 0.56, row, col);
     }
   }
@@ -1679,7 +1876,7 @@
 
   /* ========== Interaction ========== */
   function soilMeshes() {
-    return plots.map(function (p) { return p.userData.soil; });
+    return plots.filter(function (p) { return p.visible; }).map(function (p) { return p.userData.soil; });
   }
   var hovered = null;
 
@@ -2199,7 +2396,8 @@
       coop: false,
       barn: false,
       chickenFeed: 0,
-      cowFeed: 0
+      cowFeed: 0,
+      islandLevel: 0
     };
     
     if (scarecrowMesh) {
@@ -2252,6 +2450,8 @@
     updateLedgerUI();
 
     refreshHud();
+    islandGroup.scale.set(1.0, 1.0, 1.0);
+    refreshPlotsVisibility(false);
 
     if (blockerEl) blockerEl.style.display = 'none';
     if (hudEl) hudEl.style.display = '';
