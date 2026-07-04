@@ -134,6 +134,7 @@ export const ImageUpload = ({
     };
 
     const isProfile = compressionPreset === 'profile' || compressionPreset === 'avatar';
+    const isCover = compressionPreset === 'cover';
 
     return (
         <div className="space-y-4">
@@ -172,6 +173,23 @@ export const ImageUpload = ({
                             disabled={isUploading}
                         >
                             เปลี่ยนรูป
+                        </Button>
+                    </div>
+                ) : isCover ? (
+                    <div className="relative aspect-video w-full max-w-sm overflow-hidden rounded-lg border-2 border-border bg-muted">
+                        <img
+                            src={preview}
+                            alt="Preview"
+                            className="w-full h-full object-contain"
+                        />
+                        <Button
+                            variant="destructive"
+                            size="icon"
+                            className="absolute top-2 right-2"
+                            onClick={handleRemove}
+                            disabled={isUploading}
+                        >
+                            <X className="h-4 w-4" />
                         </Button>
                     </div>
                 ) : (
