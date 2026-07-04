@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.146.0 (สื่อมาตราตัวสะกด — T2)',
+        version: 'v1.147.0 (ปกคลังสื่อ — ไม่ซ้ำ + ตรงเนื้อหา)',
         date: 'ล่าสุด',
+        badge: 'bg-violet-600',
+        items: [
+            'แก้ปกซ้ำ 3 ชิ้นที่ใช้ไฟล์เดียวกัน (math-fraction-hub / thai-grammar-hub / thai-script-hub)',
+            'สร้างปกใหม่ตรงเนื้อหา: **แท่งเศษส่วนบวกลบ** · **คลังไวยากรณ์ไทย** · **Phonics A-apple B-ball C-cat**',
+            'คลังสื่อ 12 ชิ้นมีปก PNG 1280×720 ไม่ซ้ำกัน · Migration 324 cache-bust thumbnail',
+        ],
+    },
+    {
+        version: 'v1.146.0 (สื่อมาตราตัวสะกด — T2)',
+        date: '',
         badge: 'bg-rose-600',
         items: [
             '**สื่อการสอน** `thai-matra-chart` — มาตราตัวสะกด ป.1–3: 8 แม่ (กก กง กด กน กบ กม เกย เกอว) + ตัวสะกด + คำตัวอย่าง',
@@ -281,6 +291,7 @@ const versionHistory = [
             'หมวดคลังสื่อการสอน · Migration 323',
         ],
     },
+
     {
         version: 'v1.145.0 (สื่อตารางสูตรคูณ — M2)',
         date: '',
