@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>จำแนกสัตว์มี/ไม่มีกระดูกสันหลัง — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --deep: #047857; --line: #a7f3d0; --vert: #2563eb; --invt: #ea580c; --muted: #64748b; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(145deg, #d1fae5, #a7f3d0); min-height: 100vh; padding: 12px; }
+    .shell { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+    header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #047857, #059669); color: #fff; }
+    header h1 { font-size: 1.05rem; font-weight: 800; flex: 1; }
+    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+    .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
+    .btn-primary { background: var(--deep); color: #fff; }
+    .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; background: #ecfdf5; border-bottom: 1px solid var(--line); align-items: center; }
+    .seg { display: inline-flex; border-radius: 12px; overflow: hidden; border: 2px solid #6ee7b7; }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 14px; cursor: pointer; }
+    .seg button.on { background: var(--deep); color: #fff; }
+    .hint { font-size: .85rem; color: #047857; font-weight: 600; flex: 1; }
+    .stage { flex: 1; padding: 16px; overflow: auto; }
+    .learn { max-width: 720px; margin: 0 auto 16px; display: grid; gap: 12px; }
+    @media (min-width: 700px) { .learn { grid-template-columns: 1fr 1fr; } }
+    .box { border-radius: 16px; padding: 16px; border: 3px solid; }
+    .box.v { border-color: var(--vert); background: #eff6ff; }
+    .box.i { border-color: var(--invt); background: #fff7ed; }
+    .box h3 { margin-bottom: 8px; }
+    .box.v h3 { color: var(--vert); }
+    .box.i h3 { color: var(--invt); }
+    .box p { font-weight: 600; line-height: 1.5; margin-bottom: 10px; }
+    .animals { display: flex; flex-wrap: wrap; gap: 8px; }
+    .an { font-size: 1.8rem; padding: 6px 10px; background: #fff; border-radius: 12px; border: 2px solid #e2e8f0; }
+    .sort-game { display: none; flex-direction: column; gap: 14px; max-width: 640px; margin: 0 auto; }
+    .sort-game.on { display: flex; }
+    .learn.hide { display: none; }
+    .pool { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; min-height: 72px; padding: 12px; background: #f8fafc; border-radius: 14px; border: 2px dashed #cbd5e1; }
+    .card { font-family: inherit; font-size: 2rem; padding: 12px 16px; border: 3px solid #e2e8f0; border-radius: 14px; background: #fff; cursor: pointer; transition: transform .1s; }
+    .card:hover { transform: scale(1.05); }
+    .card.selected { border-color: var(--deep); box-shadow: 0 0 0 3px #a7f3d0; }
+    .bins { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .bin { min-height: 120px; border-radius: 16px; border: 3px dashed; padding: 10px; }
+    .bin.v { border-color: var(--vert); background: #eff6ff; }
+    .bin.i { border-color: var(--invt); background: #fff7ed; }
+    .bin h4 { text-align: center; font-size: .9rem; margin-bottom: 8px; }
+    .bin.v h4 { color: var(--vert); }
+    .bin.i h4 { color: var(--invt); }
+    .bin-cards { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+    .score { text-align: center; font-weight: 800; color: var(--deep); }
+    .quiz { display: none; flex-direction: column; gap: 12px; max-width: 480px; margin: 0 auto; align-items: center; }
+    .quiz.on { display: flex; }
+    .sort-game.hide { display: none !important; }
+    .q-an { font-size: 4rem; }
+    .opts { display: flex; gap: 10px; width: 100%; }
+    .opts button { flex: 1; font-family: inherit; font-weight: 800; padding: 14px; border-radius: 14px; border: 3px solid; cursor: pointer; }
+    .opts .v { border-color: var(--vert); color: var(--vert); background: #fff; }
+    .opts .i { border-color: var(--invt); color: var(--invt); background: #fff; }
+    .opts button.ok { background: #dcfce7; border-color: #86efac; color: #166534; }
+    .opts button.no { background: #fee2e2; border-color: #fca5a5; }
+    .fb { font-weight: 800; min-height: 24px; }
+    .footer { padding: 10px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
+    .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <a class="btn btn-back" href="/h/nattapong">← กลับคลังสื่อ</a>
+      <h1>🦴 สัตว์มีกระดูกสันหลัง vs ไม่มีกระดูกสันหลัง</h1>
+      <span class="badge">ป.4 · วิทยาศาสตร์</span>
+    </header>
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
+        <button type="button" data-mode="sort">🎯 จัดกลุ่ม</button>
+        <button type="button" data-mode="quiz">✏️ ทดสอบ</button>
+      </span>
+      <p class="hint">มีกระดูกสันหลัง = เลือดอุ่น มีกระดูกสันหลัง</p>
+      <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
+    </div>
+    <div class="stage">
+      <div class="learn" id="learn">
+        <div class="box v">
+          <h3>🦴 สัตว์มีกระดูกสันหลัง</h3>
+          <p>มี<strong>กระดูกสันหลัง</strong> ภายในร่างกาย · ส่วนใหญ่เลือดอุ่น · เลี้ยงลูกด้วยนม (สัตว์เลี้ยงลูกด้วยนม)</p>
+          <div class="animals"><span class="an">🐘</span><span class="an">🐟</span><span class="an">🐦</span><span class="an">🐍</span><span class="an">🐸</span></div>
+        </div>
+        <div class="box i">
+          <h3>🐛 สัตว์ไม่มีกระดูกสันหลัง</h3>
+          <p>ไม่มีกระดูกสันหลัง · มี<strong>เปลือกแข็งหรือร่างอ่อน</strong> · เช่น แมลง หอย ปลาหมึก</p>
+          <div class="animals"><span class="an">🦋</span><span class="an">🐌</span><span class="an">🦀</span><span class="an">🐙</span><span class="an">🪱</span></div>
+        </div>
+      </div>
+      <div class="sort-game" id="sortGame">
+        <p class="score" id="sortScore">แตะสัตว์ → แตะกล่องเพื่อจัดกลุ่ม</p>
+        <div class="pool" id="pool"></div>
+        <div class="bins">
+          <div class="bin v" data-type="vertebrate"><h4>มีกระดูกสันหลัง</h4><div class="bin-cards" id="binV"></div></div>
+          <div class="bin i" data-type="invertebrate"><h4>ไม่มีกระดูกสันหลัง</h4><div class="bin-cards" id="binI"></div></div>
+        </div>
+        <button type="button" class="btn btn-primary" id="btnReset">เริ่มใหม่</button>
+      </div>
+      <div class="quiz" id="quiz">
+        <p class="q-an" id="qAn">🐘</p>
+        <p style="font-weight:800;color:var(--deep)" id="qName">ช้าง</p>
+        <div class="opts">
+          <button type="button" class="v" data-a="vertebrate">มีกระดูกสันหลัง</button>
+          <button type="button" class="i" data-a="invertebrate">ไม่มีกระดูกสันหลัง</button>
+        </div>
+        <p class="fb" id="qfb"></p>
+        <button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button>
+      </div>
+    </div>
+    <footer>ตัวชี้วัด <strong>ว 1.3 ป.4/3–4</strong> · คู่เกม <a href="/play/blocky-safari">Blocky Safari</a></footer>
+  </div>
+  <script>
+    if (window.KAMPAI) window.KAMPAI.setSlug('vertebrate-sort');
+
+    const ANIMALS = [
+      { e: '🐘', n: 'ช้าง', t: 'vertebrate' }, { e: '🦋', n: 'ผีเสื้อ', t: 'invertebrate' },
+      { e: '🐟', n: 'ปลา', t: 'vertebrate' }, { e: '🦀', n: 'ปู', t: 'invertebrate' },
+      { e: '🐦', n: 'นก', t: 'vertebrate' }, { e: '🐌', n: 'หอยทาก', t: 'invertebrate' },
+      { e: '🐍', n: 'งู', t: 'vertebrate' }, { e: '🐙', n: 'ปลาหมึก', t: 'invertebrate' },
+      { e: '🐸', n: 'กบ', t: 'vertebrate' }, { e: '🪱', n: 'ไส้เดือน', t: 'invertebrate' },
+      { e: '🐱', n: 'แมว', t: 'vertebrate' }, { e: '🐝', n: 'ผึ้ง', t: 'invertebrate' },
+    ];
+
+    let selected = null;
+    let poolData = [];
+
+    function initSort() {
+      poolData = [...ANIMALS].sort(() => Math.random() - 0.5);
+      selected = null;
+      document.getElementById('binV').innerHTML = '';
+      document.getElementById('binI').innerHTML = '';
+      document.getElementById('pool').innerHTML = poolData.map((a, i) =>
+        `<button type="button" class="card" data-i="${i}" title="${a.n}">${a.e}</button>`
+      ).join('');
+      document.getElementById('sortScore').textContent = 'แตะสัตว์ → แตะกล่องเพื่อจัดกลุ่ม';
+      document.querySelectorAll('#pool .card').forEach(c => {
+        c.onclick = () => {
+          document.querySelectorAll('.card').forEach(x => x.classList.remove('selected'));
+          c.classList.add('selected');
+          selected = +c.dataset.i;
+        };
+      });
+    }
+
+    function placeInBin(type) {
+      if (selected === null) return;
+      const a = poolData[selected];
+      if (!a) return;
+      const ok = a.t === type;
+      const el = document.createElement('span');
+      el.className = 'card';
+      el.textContent = a.e;
+      el.title = a.n;
+      if (!ok) el.style.borderColor = '#fca5a5';
+      document.getElementById(type === 'vertebrate' ? 'binV' : 'binI').appendChild(el);
+      poolData[selected] = null;
+      document.getElementById('pool').querySelector(`[data-i="${selected}"]`)?.remove();
+      selected = null;
+      document.querySelectorAll('.card').forEach(x => x.classList.remove('selected'));
+      const left = poolData.filter(Boolean).length;
+      document.getElementById('sortScore').textContent = left ? `เหลือ ${left} ตัว` : '✓ จัดครบแล้ว!';
+    }
+
+    document.querySelectorAll('.bin').forEach(bin => {
+      bin.onclick = () => placeInBin(bin.dataset.type);
+    });
+    document.getElementById('btnReset').onclick = initSort;
+
+    function nextQuiz() {
+      const a = ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
+      document.getElementById('qAn').textContent = a.e;
+      document.getElementById('qName').textContent = a.n;
+      document.getElementById('qfb').textContent = '';
+      document.querySelectorAll('.opts button').forEach(btn => {
+        btn.disabled = false;
+        btn.classList.remove('ok', 'no');
+        btn.onclick = () => {
+          const ok = btn.dataset.a === a.t;
+          btn.classList.add(ok ? 'ok' : 'no');
+          document.querySelectorAll('.opts button').forEach(b => {
+            b.disabled = true;
+            if (b.dataset.a === a.t) b.classList.add('ok');
+          });
+          document.getElementById('qfb').textContent = ok ? '✓ ถูกต้อง!' : `✗ ${a.n} = ${a.t === 'vertebrate' ? 'มี' : 'ไม่มี'}กระดูกสันหลัง`;
+          document.getElementById('qfb').style.color = ok ? '#16a34a' : '#dc2626';
+        };
+      });
+    }
+    document.getElementById('btnNext').onclick = nextQuiz;
+
+    document.getElementById('modeSeg').querySelectorAll('button').forEach(btn => {
+      btn.onclick = () => {
+        const m = btn.dataset.mode;
+        document.getElementById('modeSeg').querySelectorAll('button').forEach(b => b.classList.toggle('on', b === btn));
+        document.getElementById('learn').classList.toggle('hide', m !== 'learn');
+        document.getElementById('sortGame').classList.toggle('on', m === 'sort');
+        document.getElementById('quiz').classList.toggle('on', m === 'quiz');
+        if (m === 'sort') initSort();
+        if (m === 'quiz') nextQuiz();
+      };
+    });
+
+    document.getElementById('btnFs').onclick = () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    };
+  </script>
+</body>
+</html>

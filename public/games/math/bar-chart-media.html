@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>แผนภูมิแท่ง — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --deep: #1e3a8a; --line: #bfdbfe; --muted: #64748b; --ok: #16a34a; --bad: #dc2626; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(135deg, #60a5fa, #bfdbfe); min-height: 100vh; padding: 12px; }
+    .shell { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+    header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #1e3a8a, #2563eb); color: #fff; }
+    header h1 { font-size: 1.1rem; font-weight: 800; flex: 1; }
+    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+    .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
+    .btn-primary { background: var(--deep); color: #fff; }
+    .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; background: #eff6ff; border-bottom: 1px solid var(--line); align-items: center; }
+    .seg { display: inline-flex; border-radius: 12px; overflow: hidden; border: 2px solid #93c5fd; }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 14px; cursor: pointer; }
+    .seg button.on { background: var(--deep); color: #fff; }
+    .stage { flex: 1; display: grid; grid-template-columns: 1fr; min-height: 0; }
+    @media (min-width: 860px) { .stage { grid-template-columns: 1fr 300px; } }
+    .chart-wrap { padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 12px; background: #f8fafc; }
+    .chart-title { font-weight: 800; color: var(--deep); font-size: 1.1rem; text-align: center; }
+    .chart-svg { width: 100%; max-width: 520px; height: auto; }
+    .side { padding: 16px; background: #eff6ff; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; overflow: auto; }
+    @media (min-width: 860px) { .side { border-top: none; border-left: 1px solid var(--line); } }
+    .preset-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+    .preset-btns button { font-family: inherit; font-weight: 700; font-size: .8rem; padding: 6px 10px; border: 2px solid var(--line); border-radius: 10px; background: #fff; cursor: pointer; }
+    .preset-btns button.on { background: var(--deep); color: #fff; border-color: var(--deep); }
+    .data-row { display: grid; grid-template-columns: 1fr 64px; gap: 8px; align-items: center; }
+    .data-row label { font-weight: 700; font-size: .9rem; }
+    .data-row input { width: 100%; padding: 8px; border: 2px solid var(--line); border-radius: 10px; font-family: inherit; font-weight: 800; text-align: center; }
+    .readout { background: #fff; border: 2px dashed #93c5fd; border-radius: 12px; padding: 12px; font-weight: 600; line-height: 1.55; }
+    .practice { display: none; flex-direction: column; gap: 12px; padding: 20px; max-width: 520px; margin: 0 auto; width: 100%; }
+    .practice.on { display: flex; }
+    .chart-wrap.hide, .side.hide { display: none; }
+    .q { font-weight: 800; color: var(--deep); text-align: center; line-height: 1.45; }
+    .opts { display: flex; flex-direction: column; gap: 8px; }
+    .opt { font-family: inherit; font-weight: 700; padding: 12px; border: 2px solid var(--line); border-radius: 12px; background: #fff; cursor: pointer; text-align: left; }
+    .opt.ok { background: #dcfce7; border-color: #86efac; }
+    .opt.no { background: #fee2e2; border-color: #fca5a5; }
+    .fb { font-weight: 800; text-align: center; min-height: 24px; }
+    .footer { padding: 10px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <a class="btn btn-back" href="/h/nattapong">← กลับคลังสื่อ</a>
+      <h1>📊 แผนภูมิแท่ง — อ่านและเปรียบเทียบข้อมูล</h1>
+      <span class="badge">ป.4 · คณิตศาสตร์</span>
+    </header>
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="learn" class="on">📖 สร้างกราฟ</button>
+        <button type="button" data-mode="practice">✏️ ฝึกอ่าน</button>
+      </span>
+      <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
+    </div>
+    <div class="stage">
+      <div class="chart-wrap" id="chartWrap">
+        <p class="chart-title" id="chartTitle">ผลไม้ที่นักเรียนชอบ (คน)</p>
+        <svg class="chart-svg" id="chart" viewBox="0 0 520 320" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div class="readout" id="readout"></div>
+      </div>
+      <aside class="side" id="side">
+        <p style="font-weight:800;color:var(--deep)">ชุดข้อมูลตัวอย่าง</p>
+        <div class="preset-btns" id="presets"></div>
+        <p style="font-weight:800;color:var(--deep);margin-top:8px">แก้ตัวเลข (0–20)</p>
+        <div id="inputs"></div>
+        <button type="button" class="btn btn-primary" id="btnDraw">วาดกราฟใหม่</button>
+      </aside>
+    </div>
+    <div class="practice" id="practice">
+      <p class="q" id="pq"></p>
+      <div class="opts" id="popts"></div>
+      <p class="fb" id="pfb"></p>
+      <button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button>
+    </div>
+    <footer>ตัวชี้วัด <strong>ค 3.1 ป.4/1</strong> · อ่านแผนภูมิแท่งเปรียบเทียบจำนวน</footer>
+  </div>
+  <script>
+    if (window.KAMPAI) window.KAMPAI.setSlug('bar-chart-media');
+
+    const COLORS = ['#2563eb', '#16a34a', '#ea580c', '#c026d3', '#0891b2'];
+    const PRESETS = [
+      { title: 'ผลไม้ที่ชอบ (คน)', labels: ['มะม่วง', 'ส้ม', 'กล้วย', 'แอปเปิ้ล'], values: [12, 8, 15, 6] },
+      { title: 'สัตว์เลี้ยงในห้อง (ตัว)', labels: ['หมา', 'แมว', 'ปลา', 'นก'], values: [5, 9, 4, 3] },
+      { title: 'กีฬาที่เล่น (ครั้ง/สัปดาห์)', labels: ['ฟุตบอล', 'วอลเลย์', 'วิ่ง', 'ว่ายน้ำ'], values: [10, 7, 14, 5] },
+    ];
+    let data = structuredClone(PRESETS[0]);
+
+    function drawChart() {
+      const max = Math.max(...data.values, 1);
+      const scale = 200 / max;
+      const barW = 72;
+      const gap = 24;
+      const startX = 60;
+      const baseY = 260;
+      let svg = `<line x1="50" y1="${baseY}" x2="500" y2="${baseY}" stroke="#94a3b8" stroke-width="2"/>`;
+      svg += `<text x="20" y="30" font-family="Sarabun,sans-serif" font-size="12" fill="#64748b" font-weight="700">จำนวน</text>`;
+      data.labels.forEach((lbl, i) => {
+        const h = data.values[i] * scale;
+        const x = startX + i * (barW + gap);
+        const y = baseY - h;
+        const c = COLORS[i % COLORS.length];
+        svg += `<rect x="${x}" y="${y}" width="${barW}" height="${h}" rx="8" fill="${c}"/>`;
+        svg += `<text x="${x + barW/2}" y="${y - 8}" text-anchor="middle" font-family="Sarabun,sans-serif" font-size="16" font-weight="800" fill="${c}">${data.values[i]}</text>`;
+        svg += `<text x="${x + barW/2}" y="${baseY + 22}" text-anchor="middle" font-family="Sarabun,sans-serif" font-size="13" font-weight="700" fill="#334155">${lbl}</text>`;
+      });
+      document.getElementById('chart').innerHTML = svg;
+      document.getElementById('chartTitle').textContent = data.title;
+      const maxIdx = data.values.indexOf(Math.max(...data.values));
+      const minIdx = data.values.indexOf(Math.min(...data.values));
+      const diff = data.values[maxIdx] - data.values[minIdx];
+      document.getElementById('readout').innerHTML =
+        `<strong>อ่านกราฟ:</strong> ${data.labels[maxIdx]} มากที่สุด (${data.values[maxIdx]}) · ` +
+        `${data.labels[minIdx]} น้อยที่สุด (${data.values[minIdx]}) · ต่างกัน ${diff}`;
+    }
+
+    function buildInputs() {
+      document.getElementById('inputs').innerHTML = data.labels.map((l, i) =>
+        `<div class="data-row"><label>${l}</label><input type="number" min="0" max="20" value="${data.values[i]}" data-i="${i}"/></div>`
+      ).join('');
+    }
+
+    document.getElementById('presets').innerHTML = PRESETS.map((p, i) =>
+      `<button type="button" data-i="${i}" class="${i === 0 ? 'on' : ''}">${p.title.split('(')[0].trim()}</button>`
+    ).join('');
+    document.getElementById('presets').querySelectorAll('button').forEach(btn => {
+      btn.onclick = () => {
+        data = structuredClone(PRESETS[+btn.dataset.i]);
+        document.getElementById('presets').querySelectorAll('button').forEach(b => b.classList.toggle('on', b === btn));
+        buildInputs();
+        drawChart();
+      };
+    });
+
+    document.getElementById('btnDraw').onclick = () => {
+      document.querySelectorAll('#inputs input').forEach(inp => {
+        data.values[+inp.dataset.i] = Math.min(20, Math.max(0, +inp.value || 0));
+      });
+      drawChart();
+    };
+
+    const QUESTIONS = [
+      { q: 'จากกราฟผลไม้ ผลไม้ใดได้คะแนนมากที่สุด?', opts: ['มะม่วง', 'ส้ม', 'กล้วย', 'แอปเปิ้ล'], a: 'กล้วย' },
+      { q: 'กล้วยได้กี่คะแนน?', opts: ['12', '8', '15', '6'], a: '15' },
+      { q: 'มะม่วงมากกว่าแอปเปิ้ลกี่คะแนน?', opts: ['4', '6', '8', '2'], a: '6' },
+      { q: 'สัตว์เลี้ยงใดมีมากที่สุดในห้อง?', opts: ['หมา', 'แมว', 'ปลา', 'นก'], a: 'แมว' },
+      { q: 'ปลามีกี่ตัว?', opts: ['5', '9', '4', '3'], a: '4' },
+      { q: 'กีฬาใดเล่นบ่อยที่สุด?', opts: ['ฟุตบอล', 'วอลเลย์', 'วิ่ง', 'ว่ายน้ำ'], a: 'วิ่ง' },
+    ];
+
+    function nextPractice() {
+      const item = QUESTIONS[Math.floor(Math.random() * QUESTIONS.length)];
+      document.getElementById('pq').textContent = item.q;
+      document.getElementById('pfb').textContent = '';
+      document.getElementById('popts').innerHTML = item.opts.map(o =>
+        `<button type="button" class="opt" data-a="${o}">${o}</button>`
+      ).join('');
+      document.querySelectorAll('.opt').forEach(btn => {
+        btn.onclick = () => {
+          const ok = btn.dataset.a === item.a;
+          btn.classList.add(ok ? 'ok' : 'no');
+          document.querySelectorAll('.opt').forEach(b => {
+            b.disabled = true;
+            if (b.dataset.a === item.a) b.classList.add('ok');
+          });
+          document.getElementById('pfb').textContent = ok ? '✓ ถูกต้อง!' : `✗ คำตอบ: ${item.a}`;
+          document.getElementById('pfb').style.color = ok ? '#16a34a' : '#dc2626';
+        };
+      });
+    }
+    document.getElementById('btnNext').onclick = nextPractice;
+
+    document.getElementById('modeSeg').querySelectorAll('button').forEach(btn => {
+      btn.onclick = () => {
+        const pr = btn.dataset.mode === 'practice';
+        document.getElementById('modeSeg').querySelectorAll('button').forEach(b => b.classList.toggle('on', b === btn));
+        document.getElementById('chartWrap').classList.toggle('hide', pr);
+        document.getElementById('side').classList.toggle('hide', pr);
+        document.getElementById('practice').classList.toggle('on', pr);
+        if (pr) nextPractice();
+      };
+    });
+
+    document.getElementById('btnFs').onclick = () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    };
+
+    buildInputs();
+    drawChart();
+  </script>
+</body>
+</html>

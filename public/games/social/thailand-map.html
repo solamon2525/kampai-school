@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>แผนที่ประเทศไทย — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --deep: #b45309; --line: #fde68a; --muted: #64748b; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(145deg, #fef3c7, #fde68a); min-height: 100vh; padding: 12px; }
+    .shell { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+    header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #92400e, #b45309); color: #fff; }
+    header h1 { font-size: 1.1rem; font-weight: 800; flex: 1; }
+    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 8px 12px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+    .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); font-size: .85rem; }
+    .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); margin-left: auto; }
+    .stage { flex: 1; display: grid; grid-template-columns: 1fr; min-height: 0; }
+    @media (min-width: 860px) { .stage { grid-template-columns: 1.2fr 1fr; } }
+    .map-wrap { padding: 16px; background: #fffbeb; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .map-svg { width: 100%; max-width: 420px; height: auto; }
+    .region { cursor: pointer; transition: filter .15s, opacity .15s; stroke: #fff; stroke-width: 2; }
+    .region:hover { filter: brightness(1.08); }
+    .region.on { filter: brightness(1.15); stroke: #fbbf24; stroke-width: 3; }
+    .legend { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; font-size: .75rem; font-weight: 700; }
+    .legend span { padding: 4px 8px; border-radius: 8px; color: #fff; }
+    .detail { padding: 16px; background: #fffbeb; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; overflow: auto; }
+    @media (min-width: 860px) { .detail { border-top: none; border-left: 1px solid var(--line); } }
+    .empty { color: var(--muted); font-weight: 600; text-align: center; margin: auto; line-height: 1.6; }
+    .region-title { font-size: 1.6rem; font-weight: 800; color: var(--deep); }
+    .region-en { font-size: .95rem; color: #d97706; font-weight: 700; }
+    .prov-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .prov { background: #fff; border: 2px solid #fde68a; border-radius: 10px; padding: 8px 12px; font-weight: 700; font-size: .9rem; }
+    .fact { background: #fff; border-radius: 12px; padding: 12px; border: 2px dashed #fcd34d; font-weight: 600; line-height: 1.55; }
+    .quiz { margin-top: 8px; }
+    .quiz h4 { color: var(--deep); margin-bottom: 8px; }
+    .quiz-btns { display: flex; flex-direction: column; gap: 6px; }
+    .quiz-btns button { font-family: inherit; font-weight: 700; padding: 10px; border: 2px solid var(--line); border-radius: 10px; background: #fff; cursor: pointer; text-align: left; }
+    .quiz-btns button.ok { background: #dcfce7; border-color: #86efac; }
+    .quiz-btns button.no { background: #fee2e2; border-color: #fca5a5; }
+    .footer { padding: 10px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
+    .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <a class="btn btn-back" href="/h/nattapong">← กลับคลังสื่อ</a>
+      <h1>🗺️ แผนที่ประเทศไทย — ภาคและจังหวัด</h1>
+      <span class="badge">ป.4 · สังคมศึกษา</span>
+      <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
+    </header>
+    <div class="stage">
+      <div class="map-wrap">
+        <svg class="map-svg" viewBox="0 0 400 520" xmlns="http://www.w3.org/2000/svg" aria-label="แผนที่ประเทศไทยแบ่งภาค">
+          <!-- ภาคเหนือ -->
+          <path class="region" data-id="north" fill="#3b82f6" d="M120,20 L280,20 L300,80 L260,140 L140,130 Z"/>
+          <!-- ภาคตะวันออกเฉียงเหนือ -->
+          <path class="region" data-id="ne" fill="#22c55e" d="M300,80 L380,100 L370,200 L300,220 L260,140 Z"/>
+          <!-- ภาคกลาง -->
+          <path class="region" data-id="central" fill="#f59e0b" d="M140,130 L260,140 L280,220 L200,250 L120,200 Z"/>
+          <!-- ภาคตะวันออก -->
+          <path class="region" data-id="east" fill="#ec4899" d="M280,220 L370,200 L360,300 L280,310 Z"/>
+          <!-- ภาคตะวันตก -->
+          <path class="region" data-id="west" fill="#8b5cf6" d="M80,200 L120,200 L200,250 L180,320 L60,280 Z"/>
+          <!-- ภาคใต้ -->
+          <path class="region" data-id="south" fill="#06b6d4" d="M180,320 L280,310 L300,400 L220,480 L140,400 Z"/>
+        </svg>
+        <div class="legend">
+          <span style="background:#3b82f6">เหนือ</span>
+          <span style="background:#22c55e">อีสาน</span>
+          <span style="background:#f59e0b">กลาง</span>
+          <span style="background:#ec4899">ตะวันออก</span>
+          <span style="background:#8b5cf6">ตะวันตก</span>
+          <span style="background:#06b6d4">ใต้</span>
+        </div>
+        <p style="font-weight:600;color:#92400e;font-size:.9rem">แตะภาคบนแผนที่เพื่อดูจังหวัดตัวอย่างและสถานที่สำคัญ</p>
+      </div>
+      <div class="detail" id="detail">
+        <p class="empty" id="empty">เลือกภาคบนแผนที่<br>เพื่อเรียนรู้ลักษณะทางกายภาพและจังหวัด</p>
+        <div id="content" style="display:none">
+          <h2 class="region-title" id="rTitle"></h2>
+          <p class="region-en" id="rEn"></p>
+          <p class="fact" id="rFact"></p>
+          <div><strong>จังหวัดตัวอย่าง:</strong><div class="prov-list" id="rProvs"></div></div>
+          <div class="quiz" id="quizBox" style="display:none">
+            <h4>✏️ จังหวัดนี้อยู่ภาคใด?</h4>
+            <p id="quizProv" style="font-weight:800;margin-bottom:8px"></p>
+            <div class="quiz-btns" id="quizBtns"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer>ตัวชี้วัด <strong>ส 5.1 ป.4/1–2</strong> · คู่เกม <a href="/play/globe-3d">ลูกโลก 3D</a></footer>
+  </div>
+  <script>
+    if (window.KAMPAI) window.KAMPAI.setSlug('thailand-map');
+
+    const REGIONS = {
+      north: { title: 'ภาคเหนือ', en: 'Northern Region', color: '#3b82f6',
+        fact: 'ภูเขาสูง อากาศเย็น · ขึ้นชื่อเรื่องลำไย ดอกพญาเสือโคร่ง · แหล่งท่องเที่ยวเชียงใหม่',
+        provs: ['เชียงใหม่', 'เชียงราย', 'ลำปาง', 'พะเยา', 'น่าน'] },
+      ne: { title: 'ภาคตะวันออกเฉียงเหนือ', en: 'Northeastern Region (Isan)', color: '#22c55e',
+        fact: 'ที่ราบสูงอีสาน · วัฒนธรรมผ้าไหม บุญบั้งไฟ · ข้าวเหนียว ปลาตากแห้ง',
+        provs: ['ขอนแก่น', 'อุดรธานี', 'นครราชสีมา', 'อุบลราชธานี', 'สกลนคร'] },
+      central: { title: 'ภาคกลาง', en: 'Central Region', color: '#f59e0b',
+        fact: 'ที่ราบลุ่มแม่น้ำเจ้าพระยา · กรุงเทพเป็นเมืองหลวง · นาข้าว แหล่งเศรษฐกิจ',
+        provs: ['กรุงเทพมหานคร', 'พระนครศรีอยุธยา', 'นครปฐม', 'สมุทรปราการ', 'สุพรรณบุรี'] },
+      east: { title: 'ภาคตะวันออก', en: 'Eastern Region', color: '#ec4899',
+        fact: 'ชายทะเลอ่าวไทย · อุตสาหกรรม ชลบุรี · ผลไม้ ทุเรียน มังคุด',
+        provs: ['ชลบุรี', 'ระยอง', 'จันทบุรี', 'ตราด', 'ฉะเชิงเทรา'] },
+      west: { title: 'ภาคตะวันตก', en: 'Western Region', color: '#8b5cf6',
+        fact: 'เทือกเขาตะวันตก · แม่น้ำแคว · กาญจนบุรี สะพานข้ามแม่น้ำแคว',
+        provs: ['กาญจนบุรี', 'ราชบุรี', 'เพชรบุรี', 'ประจวบคีรีขันธ์', 'ตาก'] },
+      south: { title: 'ภาคใต้', en: 'Southern Region', color: '#06b6d4',
+        fact: 'คาบสมุทร · ชายทะเลอันดามันและอ่าวไทย · ยางพารา ปลาทูน่า เกาะท่องเที่ยว',
+        provs: ['สุราษฎร์ธานี', 'นครศรีธรรมราช', 'ภูเก็ต', 'สงขลา', 'พัทลุง'] },
+    };
+
+    const ALL_PROVS = Object.entries(REGIONS).flatMap(([id, r]) =>
+      r.provs.map(p => ({ name: p, region: id }))
+    );
+
+    function selectRegion(id) {
+      const r = REGIONS[id];
+      document.querySelectorAll('.region').forEach(el => el.classList.toggle('on', el.dataset.id === id));
+      document.getElementById('empty').style.display = 'none';
+      document.getElementById('content').style.display = '';
+      document.getElementById('rTitle').textContent = r.title;
+      document.getElementById('rEn').textContent = r.en;
+      document.getElementById('rFact').textContent = r.fact;
+      document.getElementById('rProvs').innerHTML = r.provs.map(p => `<span class="prov">${p}</span>`).join('');
+      startQuiz();
+    }
+
+    document.querySelectorAll('.region').forEach(el => {
+      el.addEventListener('click', () => selectRegion(el.dataset.id));
+    });
+
+    function startQuiz() {
+      const item = ALL_PROVS[Math.floor(Math.random() * ALL_PROVS.length)];
+      document.getElementById('quizBox').style.display = '';
+      document.getElementById('quizProv').textContent = `📍 ${item.name}`;
+      const names = Object.values(REGIONS).map(r => r.title);
+      const correct = REGIONS[item.region].title;
+      const opts = [correct, ...names.filter(n => n !== correct).sort(() => Math.random() - 0.5).slice(0, 2)]
+        .sort(() => Math.random() - 0.5);
+      document.getElementById('quizBtns').innerHTML = opts.map(o =>
+        `<button type="button" data-a="${o}">${o}</button>`
+      ).join('');
+      document.getElementById('quizBtns').querySelectorAll('button').forEach(btn => {
+        btn.onclick = () => {
+          const ok = btn.dataset.a === correct;
+          btn.classList.add(ok ? 'ok' : 'no');
+          document.getElementById('quizBtns').querySelectorAll('button').forEach(b => {
+            b.disabled = true;
+            if (b.dataset.a === correct) b.classList.add('ok');
+          });
+          setTimeout(startQuiz, 1500);
+        };
+      });
+    }
+
+    document.getElementById('btnFs').onclick = () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    };
+  </script>
+</body>
+</html>

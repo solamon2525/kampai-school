@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>สื่อทศนิยม — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --navy: #1e3a8a; --sky: #60a5fa; --line: #bfdbfe; --muted: #64748b; --ok: #16a34a; --bad: #dc2626; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(135deg, #60a5fa, #bfdbfe); min-height: 100vh; padding: 12px; color: #0f172a; }
+    .shell { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+    header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #1e3a8a, #2563eb); color: #fff; }
+    header h1 { font-size: 1.15rem; font-weight: 800; flex: 1; min-width: 160px; }
+    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; font-size: .95rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+    .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
+    .btn-primary { background: var(--navy); color: #fff; }
+    .btn-accent { background: #fbbf24; color: #78350f; }
+    .btn-ghost { background: #fff; color: var(--navy); border: 2px solid var(--line); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; background: #eff6ff; border-bottom: 1px solid var(--line); align-items: center; }
+    .seg { display: inline-flex; border-radius: 12px; overflow: hidden; border: 2px solid #93c5fd; }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--navy); padding: 8px 14px; cursor: pointer; font-size: .9rem; }
+    .seg button.on { background: var(--navy); color: #fff; }
+    .hint { font-size: .85rem; color: #1d4ed8; font-weight: 600; flex: 1; min-width: 140px; }
+    .body { flex: 1; display: grid; grid-template-columns: 1fr; }
+    @media (min-width: 860px) { .body { grid-template-columns: 300px 1fr; } }
+    .side { background: #1e3a8a; color: #fff; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .side label { font-size: .85rem; color: #93c5fd; font-weight: 600; }
+    .side input, .side select { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #3b82f6; background: rgba(255,255,255,.1); color: #fff; font-family: inherit; font-size: 1.1rem; font-weight: 700; text-align: center; }
+    .side select option { color: #0f172a; }
+    .main { padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    .big-num { font-size: clamp(3rem, 12vw, 5rem); font-weight: 800; color: var(--navy); line-height: 1; }
+    .pv-chart { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+    .pv-col { text-align: center; min-width: 64px; }
+    .pv-head { font-size: .75rem; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+    .pv-digit { font-size: 2.5rem; font-weight: 800; background: #eff6ff; border: 2px solid var(--line); border-radius: 12px; padding: 8px 12px; min-width: 56px; }
+    .pv-dot { font-size: 2.5rem; font-weight: 800; color: var(--navy); align-self: flex-end; padding-bottom: 8px; }
+    .explain { background: #eff6ff; border: 2px dashed #93c5fd; border-radius: 14px; padding: 14px; width: 100%; max-width: 520px; font-weight: 600; line-height: 1.6; text-align: center; }
+    .compare-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; }
+    .compare-box { background: #eff6ff; border: 2px solid var(--line); border-radius: 14px; padding: 16px 24px; font-size: 2rem; font-weight: 800; color: var(--navy); }
+    .compare-sym { font-size: 2.5rem; font-weight: 800; color: #ea580c; }
+    .practice-q { font-size: 1.2rem; font-weight: 800; color: var(--navy); text-align: center; }
+    .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 400px; }
+    .choice { font-family: inherit; font-weight: 800; font-size: 1.2rem; padding: 14px; border: 2px solid var(--line); border-radius: 14px; background: #fff; cursor: pointer; }
+    .choice:hover { background: #eff6ff; }
+    .choice.ok { border-color: #86efac; background: #dcfce7; }
+    .choice.no { border-color: #fca5a5; background: #fee2e2; }
+    .fb { min-height: 28px; font-weight: 800; }
+    .fb.ok { color: var(--ok); } .fb.no { color: var(--bad); }
+    .panel { display: none; width: 100%; flex-direction: column; align-items: center; gap: 14px; }
+    .panel.on { display: flex; }
+    .footer { padding: 10px 16px; font-size: .8rem; color: var(--muted); border-top: 1px solid var(--line); text-align: center; }
+    .footer a { color: var(--navy); font-weight: 700; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <a class="btn btn-back" href="/h/nattapong">← กลับคลังสื่อ</a>
+      <h1>🔢 ทศนิยม — อ่าน · เปรียบเทียบ · บวกลบ</h1>
+      <span class="badge">ป.4 · คณิตศาสตร์</span>
+    </header>
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
+        <button type="button" data-mode="compare">⚖️ เปรียบเทียบ</button>
+        <button type="button" data-mode="practice">✏️ ฝึกทำ</button>
+      </span>
+      <p class="hint" id="hint">แตะหลักสิบ · หลักสิบย่อย · หลักร้อยย่อย</p>
+      <button type="button" class="btn btn-ghost" id="btnFs">⛶ เต็มจอ</button>
+    </div>
+    <div class="body">
+      <aside class="side" id="sideLearn">
+        <div><label>ทศนิยม (ไม่เกิน 3 ตำแหน่ง)</label><input type="number" id="decIn" step="0.001" value="3.45" /></div>
+        <button type="button" class="btn btn-accent" id="btnRand">🎲 สุ่มตัวเลข</button>
+        <button type="button" class="btn btn-primary" id="btnShow">แสดงคำอธิบาย</button>
+      </aside>
+      <aside class="side" id="sideCompare" style="display:none">
+        <div><label>ตัวที่ 1</label><input type="number" id="cmpA" step="0.01" value="2.5" /></div>
+        <div><label>ตัวที่ 2</label><input type="number" id="cmpB" step="0.01" value="2.50" /></div>
+        <button type="button" class="btn btn-primary" id="btnCmp">เปรียบเทียบ</button>
+      </aside>
+      <main class="main">
+        <div class="panel on" id="panelLearn">
+          <div class="big-num" id="bigNum">3.45</div>
+          <div class="pv-chart" id="pvChart"></div>
+          <div class="explain" id="explain">กด "แสดงคำอธิบาย" เพื่อดูความหมายแต่ละหลัก</div>
+        </div>
+        <div class="panel" id="panelCompare">
+          <div class="compare-row">
+            <div class="compare-box" id="boxA">2.5</div>
+            <div class="compare-sym" id="sym">?</div>
+            <div class="compare-box" id="boxB">2.50</div>
+          </div>
+          <div class="explain" id="cmpExplain">กดเปรียบเทียบ</div>
+        </div>
+        <div class="panel" id="panelPractice">
+          <p class="practice-q" id="prQ">3.2 + 1.4 = ?</p>
+          <div class="choices" id="prChoices"></div>
+          <p class="fb" id="prFb"></p>
+          <button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป →</button>
+        </div>
+      </main>
+    </div>
+    <footer>ตัวชี้วัด <strong>ค 1.1 ป.4/5–6</strong> · <strong>ค 1.1 ป.4/15–16</strong> · คู่ <a href="/games/math/rounding.html">ค่าประมาณ</a></footer>
+  </div>
+  <script>
+    if (window.KAMPAI) window.KAMPAI.setSlug('decimal-media');
+
+    const TH = ['ศูนย์','หนึ่ง','สอง','สาม','สี่','ห้า','หก','เจ็ด','แปด','เก้า'];
+    const modeSeg = document.getElementById('modeSeg');
+    const panels = { learn: panelLearn, compare: panelCompare, practice: panelPractice };
+    let mode = 'learn';
+
+    function fmt(n) {
+      const s = Number(n).toFixed(3).replace(/\.?0+$/,'');
+      return s.includes('.') ? s : s + '';
+    }
+
+    function buildPv(n) {
+      const parts = fmt(n).split('.');
+      const int = parts[0].padStart(1,'0');
+      const dec = (parts[1] || '').padEnd(3,'0').slice(0,3);
+      const cols = [];
+      [...int].forEach((d,i,a) => {
+        const names = a.length===1?['หน่วย']:a.length===2?['สิบ','หน่วย']:['ร้อย','สิบ','หน่วย'];
+        cols.push({ d, label: names[i] || 'หน่วย' });
+      });
+      if (dec.length) {
+        cols.push({ dot: true });
+        const dl = ['สิบ','ร้อย','พัน'];
+        dec.split('').forEach((d,i) => cols.push({ d, label: 'เศษ' + dl[i] }));
+      }
+      return cols;
+    }
+
+    function renderPv(n) {
+      document.getElementById('bigNum').textContent = fmt(n);
+      const chart = document.getElementById('pvChart');
+      chart.innerHTML = buildPv(n).map(c => c.dot
+        ? '<span class="pv-dot">.</span>'
+        : `<div class="pv-col"><div class="pv-head">${c.label}</div><div class="pv-digit">${c.d}</div></div>`
+      ).join('');
+    }
+
+    function explainDec(n) {
+      const s = fmt(n);
+      const [i, d] = s.split('.');
+      let t = `<strong>${s}</strong> อ่านว่า `;
+      if (!d) t += `จำนวนเต็ม ${i}`;
+      else {
+        t += `${i} จุด`;
+        t += d.split('').map(x => TH[+x]).join('');
+        t += `<br><small>หลักสิบ = ${d[0]||'0'} · หลักร้อยย่อย = ${d[1]||'0'} · หลักพันย่อย = ${d[2]||'0'}</small>`;
+      }
+      document.getElementById('explain').innerHTML = t;
+    }
+
+    document.getElementById('decIn').addEventListener('input', e => renderPv(e.target.value || 0));
+    document.getElementById('btnShow').onclick = () => explainDec(document.getElementById('decIn').value || 0);
+    document.getElementById('btnRand').onclick = () => {
+      const v = (Math.floor(Math.random() * 9999) / 100).toFixed(2);
+      document.getElementById('decIn').value = v;
+      renderPv(v);
+      explainDec(v);
+    };
+
+    document.getElementById('btnCmp').onclick = () => {
+      const a = parseFloat(document.getElementById('cmpA').value);
+      const b = parseFloat(document.getElementById('cmpB').value);
+      document.getElementById('boxA').textContent = fmt(a);
+      document.getElementById('boxB').textContent = fmt(b);
+      const sym = a > b ? '>' : a < b ? '<' : '=';
+      document.getElementById('sym').textContent = sym;
+      document.getElementById('cmpExplain').innerHTML =
+        sym === '=' ? 'ค่าเท่ากัน (ทศนิยมท้ายศูนย์ไม่เปลี่ยนค่า)' :
+        `${fmt(a)} ${sym} ${fmt(b)} — เปรียบเทียบทีละหลักจากซ้ายไปขวา`;
+    };
+
+    let prAns = 0;
+    function newPractice() {
+      const ops = ['+','-'];
+      const op = ops[Math.floor(Math.random() * 2)];
+      let a = +(Math.random() * 8 + 1).toFixed(1);
+      let b = +(Math.random() * 5 + 0.1).toFixed(1);
+      if (op === '-' && b > a) [a, b] = [b, a];
+      prAns = +(op === '+' ? a + b : a - b).toFixed(2);
+      document.getElementById('prQ').textContent = `${fmt(a)} ${op} ${fmt(b)} = ?`;
+      const wrong = [prAns + 0.1, prAns - 0.1, prAns + 1].map(x => +x.toFixed(2)).filter(x => x !== prAns && x >= 0);
+      const opts = [prAns, ...wrong.slice(0,3)].sort(() => Math.random() - 0.5);
+      document.getElementById('prChoices').innerHTML = opts.map(o =>
+        `<button type="button" class="choice" data-v="${o}">${fmt(o)}</button>`
+      ).join('');
+      document.getElementById('prFb').textContent = '';
+      document.querySelectorAll('.choice').forEach(btn => {
+        btn.onclick = () => {
+          const ok = parseFloat(btn.dataset.v) === prAns;
+          btn.classList.add(ok ? 'ok' : 'no');
+          document.getElementById('prFb').textContent = ok ? '✓ ถูกต้อง!' : `✗ คำตอบคือ ${fmt(prAns)}`;
+          document.getElementById('prFb').className = 'fb ' + (ok ? 'ok' : 'no');
+          document.querySelectorAll('.choice').forEach(b => { b.disabled = true; if (parseFloat(b.dataset.v) === prAns) b.classList.add('ok'); });
+        };
+      });
+    }
+    document.getElementById('btnNext').onclick = newPractice;
+
+    modeSeg.querySelectorAll('button').forEach(btn => {
+      btn.onclick = () => {
+        mode = btn.dataset.mode;
+        modeSeg.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === btn));
+        Object.entries(panels).forEach(([k, el]) => el.classList.toggle('on', k === mode));
+        document.getElementById('sideLearn').style.display = mode === 'learn' ? '' : 'none';
+        document.getElementById('sideCompare').style.display = mode === 'compare' ? '' : 'none';
+        const hints = { learn: 'แตะหลักสิบ · หลักสิบย่อย · หลักร้อยย่อย', compare: 'ใช้เครื่องหมาย > < =', practice: 'บวกลบทศนิยมไม่เกิน 3 ตำแหน่ง' };
+        document.getElementById('hint').textContent = hints[mode];
+        if (mode === 'practice') newPractice();
+      };
+    });
+
+    document.getElementById('btnFs').onclick = () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    };
+
+    renderPv(3.45);
+    explainDec(3.45);
+  </script>
+</body>
+</html>
