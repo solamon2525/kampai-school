@@ -284,6 +284,26 @@ if (!cover) {
     }
 }
 
+// ─── Check 9b: ปก safe zone หัวข้อไทย (หัวข้อฝังใน PNG ชิดขอบบน) ───────────────
+if (cover && /\.png$/i.test(cover.name)) {
+    try {
+        const { analyzeTopTitleBand } = await import('./lib/cover-safe-zone.mjs');
+        const band = await analyzeTopTitleBand(join(gameDir, cover.name));
+        if (band.risky) {
+            warnings.push({
+                check: 'cover-safe-top',
+                msg: `ปก ${cover.name} มีหัวข้อขาวฝังชิดขอบบน (bright=${band.brightPct}% row@${band.topBrightPct}%) → สระไทยอาจล้นกรอบการ์ด. ใช้ปุ่ม "ปก AI" (overlay Sarabun) หรือ pnpm fix:covers-safe-top`,
+            });
+            console.log(`${WARN} Check 9b — cover safe-top: หัวข้อชิดขอบบน (pnpm fix:covers-safe-top ${join(gameDir, cover.name)})`);
+        } else {
+            console.log(`${PASS} Check 9b — cover safe-top: หัวข้อไม่ชิดขอบบน`);
+        }
+    } catch (e) {
+        warnings.push({ check: 'cover-safe-top', msg: `วิเคราะห์ safe zone ไม่ได้: ${e.message}` });
+        console.log(`${WARN} Check 9b — cover safe-top: ข้าม (${e.message})`);
+    }
+}
+
 // ─── Check 10: AR / กล้อง (fire เฉพาะเกมที่ใช้กล้อง) ─────────────────────────
 // เกมที่ใช้ KampaiAR engine → engine จัดการ camera/cleanup/fallback/mediapipe ให้ = ผ่าน
 // เกม raw getUserMedia (ไม่ใช้ engine) → เตือนเรื่อง cleanup/fallback/jsdelivr (ดู AR-GAME.md)

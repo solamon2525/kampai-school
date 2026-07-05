@@ -272,8 +272,17 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.150.0 (mini-farm-island ปกเต็มขอบ)',
+        version: 'v1.151.0 (ปก safe zone — หัวข้อไทยไม่ล้น)',
         date: 'ล่าสุด',
+        badge: 'bg-sky-600',
+        items: [
+            'Reframe ปกที่หัวข้อฝังชิดขอบบน **50 ไฟล์** · `GameCoverThumb` + padding · สคริปต์ `audit:covers` / `fix:covers-safe-top`',
+            '`verify:game` **Check 9b** เตือน safe zone · อัปเดต `COVER-PROMPT.md` + `GAME.md`',
+        ],
+    },
+    {
+        version: 'v1.150.0 (mini-farm-island ปกเต็มขอบ)',
+        date: '',
         badge: 'bg-emerald-600',
         items: [
             '**Mini Farm Island** — ปกจิบิเต็มขอบ 1280×720 มีชื่อ **มินิฟาร์มไอส์แลนด์** + **Mini Farm Island** ไม่ถูกตัด',

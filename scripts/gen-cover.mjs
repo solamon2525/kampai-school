@@ -48,7 +48,9 @@ if (args.list) {
 }
 
 const model = args.model || 'gemini-2.5-flash-image-preview';
-const prompt = args['prompt-file'] ? readFileSync(resolve(process.cwd(), args['prompt-file']), 'utf8') : args.prompt;
+const promptRaw = args['prompt-file'] ? readFileSync(resolve(process.cwd(), args['prompt-file']), 'utf8') : args.prompt;
+const SAFE = '\n\nCRITICAL: Artwork ONLY — no text/titles in the image. Leave the top 10% empty (sky/background margin). Titles are added separately by the app with Thai-safe fonts.';
+const prompt = promptRaw ? `${promptRaw}${SAFE}` : promptRaw;
 const out = args.out;
 if (!prompt || !out) { console.error('usage: node scripts/gen-cover.mjs --prompt="..." --out=public/games/.../x-cover.png'); process.exit(1); }
 

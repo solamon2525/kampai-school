@@ -20,6 +20,8 @@
     "generate:og": "node scripts/generate-og-image.mjs",
     "optimize:logos": "node scripts/optimize-logos.mjs",
     "verify:game": "node scripts/verify-game.mjs",
+    "audit:covers": "node scripts/audit-cover-safe-top.mjs",
+    "fix:covers-safe-top": "node scripts/reframe-cover-safe-top.mjs --all-risky",
     "build:vocab": "node scripts/build-vocab-data.mjs",
     "build:script": "node scripts/seed-thai-script-data.mjs && node scripts/build-script-data.mjs",
     "build:grammar": "node scripts/seed-thai-grammar-data.mjs && node scripts/build-grammar-data.mjs",
