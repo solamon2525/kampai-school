@@ -39,6 +39,7 @@ import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
+import { GameCoverThumb } from '@/components/educational-hub/GameCoverThumb';
 import { ImageUpload } from '@/components/admin/shared/ImageUpload';
 import { VideoUpload } from '@/components/admin/shared/VideoUpload';
 import { ConfirmDialog } from '@/components/admin/shared/ConfirmDialog';
@@ -814,10 +815,10 @@ export const GamesTab = () => {
                                             <tr key={item.id} className="border-b border-border last:border-0 hover:bg-muted/20">
                                                 <td className="px-4 py-3">
                                                     {item.thumbnail_url ? (
-                                                        <img
+                                                        <GameCoverThumb
                                                             src={item.thumbnail_url}
                                                             alt=""
-                                                            className="h-12 w-16 object-contain bg-muted rounded border border-border"
+                                                            className="h-12 w-16 rounded border border-border shrink-0"
                                                         />
                                                     ) : (
                                                         <div className="h-12 w-16 bg-muted rounded border border-border" />

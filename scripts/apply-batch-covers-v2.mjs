@@ -11,11 +11,11 @@ const key = env.match(/SUPABASE_SERVICE_ROLE_KEY="?([^\r\n"]+)/)?.[1];
 const sb = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
 
 const updates = [
-  { slug: 'multiply-burst', thumbnail_url: '/games/math/multiply-burst/cover.png?v=2' },
-  { slug: 'catch-numbers', thumbnail_url: '/games/math/catch-numbers/cover.png?v=2' },
-  { slug: 'math-rally', thumbnail_url: '/games/math/math-rally/cover.png?v=2' },
-  { slug: 'net-3d', thumbnail_url: '/games/math/net-3d-cover.png?v=2' },
-  { slug: 'ai-hand-gesture-game', thumbnail_url: '/games/thai/ai-hand-gesture-game-cover.png?v=2' },
+  { slug: 'multiply-burst', thumbnail_url: '/games/math/multiply-burst/cover.png?v=3' },
+  { slug: 'catch-numbers', thumbnail_url: '/games/math/catch-numbers/cover.png?v=3' },
+  { slug: 'math-rally', thumbnail_url: '/games/math/math-rally/cover.png?v=3' },
+  { slug: 'net-3d', thumbnail_url: '/games/math/net-3d-cover.png?v=3' },
+  { slug: 'ai-hand-gesture-game', thumbnail_url: '/games/thai/ai-hand-gesture-game-cover.png?v=3' },
 ];
 
 for (const { slug, thumbnail_url } of updates) {
@@ -30,7 +30,7 @@ for (const { slug, thumbnail_url } of updates) {
 }
 
 // math-rally อาจ slug เก่า multiply-rally หรือ external_url อย่างเดียว
-const rallyUrl = '/games/math/math-rally/cover.png?v=2';
+const rallyUrl = '/games/math/math-rally/cover.png?v=3';
 const { data: rally, error: rallyErr } = await sb
   .from('educational_hub_items')
   .update({ thumbnail_url: rallyUrl, updated_at: new Date().toISOString() })
@@ -39,4 +39,4 @@ const { data: rally, error: rallyErr } = await sb
 if (rallyErr) throw rallyErr;
 console.log('math-rally:', rally);
 
-console.log('Done 5 covers v2');
+console.log('Done 5 covers v3');
