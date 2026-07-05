@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ระบบย่อยอาหาร — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --deep: #c2410c; --line: #fed7aa; --muted: #64748b; --ok: #16a34a; --bad: #dc2626; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(160deg, #fff7ed, #ffedd5); min-height: 100vh; padding: 12px; color: #0f172a; }
+    .shell { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+    header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #9a3412, #ea580c); color: #fff; }
+    header h1 { font-size: 1.15rem; font-weight: 800; flex: 1; min-width: 160px; }
+    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn:active { transform: scale(.97); }
+    .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
+    .btn-primary { background: var(--deep); color: #fff; }
+    .btn-accent { background: #fbbf24; color: #78350f; }
+    .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; background: #fff7ed; border-bottom: 1px solid var(--line); align-items: center; }
+    .seg { display: inline-flex; border-radius: 12px; overflow: hidden; border: 2px solid #fdba74; }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 14px; cursor: pointer; font-size: .9rem; }
+    .seg button.on { background: var(--deep); color: #fff; }
+    .hint { font-size: .85rem; color: #c2410c; font-weight: 600; flex: 1; min-width: 160px; }
+    .stage { flex: 1; display: grid; grid-template-columns: 1fr; min-height: 0; }
+    @media (min-width: 860px) { .stage { grid-template-columns: 1.15fr 1fr; } }
+    .diagram-wrap { padding: 16px; background: linear-gradient(180deg, #fef3c7 0%, #fed7aa 100%); display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .diagram { width: 100%; max-width: 340px; aspect-ratio: 3/4; position: relative; }
+    .diagram svg { width: 100%; height: 100%; display: block; }
+    .hotspot { cursor: pointer; transition: filter .15s; }
+    .hotspot:hover { filter: brightness(1.06); }
+    .hotspot.on .hs-body { stroke: #fbbf24; stroke-width: 4; filter: drop-shadow(0 0 6px #fbbf24); }
+    .hotspot.done .hs-body { opacity: .85; }
+    .step-row { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; max-width: 340px; }
+    .step-chip { font-family: inherit; font-weight: 800; font-size: .78rem; border: 2px solid #fdba74; background: #fff; color: var(--deep); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+    .step-chip.on { background: var(--deep); color: #fff; border-color: var(--deep); }
+    .step-chip.done { background: #dcfce7; border-color: #86efac; color: #166534; }
+    .detail { padding: 16px; background: #fff7ed; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; }
+    @media (min-width: 860px) { .detail { border-top: none; border-left: 1px solid var(--line); } }
+    .detail-empty { color: var(--muted); font-weight: 600; text-align: center; margin: auto 0; line-height: 1.55; padding: 20px; }
+    .detail-card { display: none; flex-direction: column; gap: 10px; }
+    .detail-card.show { display: flex; }
+    .step-num { align-self: flex-start; background: var(--deep); color: #fff; font-weight: 800; border-radius: 999px; padding: 4px 12px; font-size: .85rem; }
+    .step-title { font-size: 1.45rem; font-weight: 800; color: var(--deep); }
+    .step-emoji { font-size: 2.5rem; line-height: 1; }
+    .step-body { font-size: 1.05rem; font-weight: 600; line-height: 1.55; color: #431407; }
+    .step-tip { background: #fff; border: 2px dashed #fdba74; border-radius: 12px; padding: 10px 12px; font-size: .9rem; font-weight: 600; color: var(--muted); }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .actions .btn { flex: 1; min-width: 120px; }
+    .learn-panel { display: contents; }
+    .shell.mode-path .learn-panel { display: none; }
+    .path-wrap { display: none; padding: 20px 16px; max-width: 520px; margin: 0 auto; width: 100%; flex-direction: column; gap: 14px; }
+    .shell.mode-path .path-wrap { display: flex; }
+    .shell.mode-path .stage { display: none; }
+    .path-prompt { font-weight: 800; color: var(--deep); text-align: center; background: #fff; border: 2px dashed #fdba74; border-radius: 14px; padding: 12px; line-height: 1.45; }
+    .path-track { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+    .path-slot { width: 44px; height: 44px; border-radius: 12px; border: 2px dashed #fdba74; background: #fff7ed; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 800; color: #fdba74; }
+    .path-slot.filled { border-style: solid; border-color: #86efac; background: #dcfce7; color: #166534; }
+    .path-pool { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .path-btn { font-family: inherit; font-weight: 700; border: 2px solid var(--line); border-radius: 14px; background: #fff; padding: 14px 10px; cursor: pointer; text-align: center; line-height: 1.35; font-size: .95rem; color: #431407; }
+    .path-btn:active { transform: scale(.98); }
+    .path-btn.done { background: #dcfce7; border-color: #86efac; opacity: .6; pointer-events: none; }
+    .path-btn.bad { animation: shake .35s; background: #fee2e2; border-color: #fca5a5; }
+    .path-fb { font-weight: 800; text-align: center; min-height: 24px; }
+    .path-fb.ok { color: var(--ok); }
+    .path-fb.no { color: var(--bad); }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+    .footer { padding: 10px 16px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
+    .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="shell" id="shell">
+    <header>
+      <a class="btn btn-back" href="/h/nattapong">← กลับคลังสื่อ</a>
+      <h1>🍽️ ระบบย่อยอาหาร</h1>
+      <span class="badge">ป.4–6 · วิทยาศาสตร์</span>
+    </header>
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
+        <button type="button" data-mode="path">🔗 เรียงเส้นทาง</button>
+      </span>
+      <p class="hint" id="hintText">แตะอวัยวะตามลำดับ ปาก → หลอดอาหาร → กระเพาะ → ลำไส้</p>
+      <button type="button" class="btn btn-accent learn-panel" id="btnPlay">▶ เล่นวน</button>
+      <button type="button" class="btn btn-ghost" id="btnFs">⛶ เต็มจอ</button>
+    </div>
+    <div class="stage learn-panel">
+      <div class="diagram-wrap">
+        <div class="diagram" aria-label="แผนภาพระบบย่อยอาหาร">
+          <svg viewBox="0 0 300 400" role="img">
+            <defs>
+              <linearGradient id="bodyG" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#fecdd3"/>
+                <stop offset="100%" stop-color="#fda4af"/>
+              </linearGradient>
+            </defs>
+            <!-- body outline -->
+            <ellipse cx="150" cy="200" rx="90" ry="170" fill="url(#bodyG)" opacity=".35"/>
+            <!-- mouth -->
+            <g class="hotspot" data-step="0" id="hs0">
+              <ellipse class="hs-body" cx="150" cy="42" rx="36" ry="22" fill="#fb7185" stroke="#e11d48" stroke-width="2"/>
+              <text x="150" y="78" text-anchor="middle" font-size="12" font-weight="800" fill="#9f1239">1 ปาก</text>
+            </g>
+            <!-- esophagus -->
+            <g class="hotspot" data-step="1" id="hs1">
+              <rect class="hs-body" x="138" y="64" width="24" height="72" rx="12" fill="#f472b6" stroke="#db2777" stroke-width="2"/>
+              <text x="210" y="105" font-size="12" font-weight="800" fill="#9f1239">2 หลอดอาหาร</text>
+            </g>
+            <!-- stomach -->
+            <g class="hotspot" data-step="2" id="hs2">
+              <ellipse class="hs-body" cx="155" cy="175" rx="48" ry="38" fill="#ef4444" stroke="#b91c1c" stroke-width="2"/>
+              <text x="155" y="230" text-anchor="middle" font-size="12" font-weight="800" fill="#9f1239">3 กระเพาะ</text>
+            </g>
+            <!-- intestine (coiled) -->
+            <g class="hotspot" data-step="3" id="hs3">
+              <path class="hs-body" d="M110 240 Q90 280 120 310 Q150 340 180 310 Q210 280 190 250 Q170 230 150 245 Q130 260 110 240" fill="none" stroke="#f97316" stroke-width="18" stroke-linecap="round"/>
+              <path class="hs-body" d="M130 255 Q150 275 170 265 Q185 255 175 240" fill="none" stroke="#ea580c" stroke-width="14" stroke-linecap="round"/>
+              <text x="150" y="355" text-anchor="middle" font-size="12" font-weight="800" fill="#9f1239">4 ลำไส้</text>
+            </g>
+            <!-- food dot animation path -->
+            <circle id="foodDot" cx="150" cy="42" r="6" fill="#fbbf24" opacity="0"/>
+          </svg>
+        </div>
+        <div class="step-row" id="stepChips"></div>
+      </div>
+      <div class="detail">
+        <div class="detail-empty" id="detailEmpty">แตะอวัยวะบนแผนภาพหรือป้ายด้านล่าง<br>เพื่ออ่านหน้าที่ของแต่ละส่วน</div>
+        <div class="detail-card" id="detailCard">
+          <span class="step-num" id="dNum"></span>
+          <span class="step-emoji" id="dEmoji"></span>
+          <h2 class="step-title" id="dTitle"></h2>
+          <p class="step-body" id="dBody"></p>
+          <p class="step-tip" id="dTip"></p>
+          <div class="actions">
+            <button type="button" class="btn btn-ghost" id="btnPrev">← ก่อนหน้า</button>
+            <button type="button" class="btn btn-primary" id="btnNext">ถัดไป →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="path-wrap">
+      <p class="path-prompt" id="pathPrompt">แตะอวัยวะให้ถูกลำดับ <strong>1 → 4</strong><br>ขั้นถัดไป: <span id="pathNext">ปาก</span></p>
+      <div class="path-track" id="pathTrack"></div>
+      <p class="path-fb" id="pathFb"></p>
+      <div class="path-pool" id="pathPool"></div>
+      <button type="button" class="btn btn-primary" id="btnPathReset" style="align-self:center">🔄 เริ่มใหม่</button>
+    </div>
+    <footer>ตัวชี้วัด <strong>ว 1.2 ป.6/4</strong> · อธิบายการย่อยอาหาร · คู่เกม <a href="/games/science/digestive-ar/index.html">ระบบย่อย AR</a></footer>
+  </div>
+  <script>
+    if (window.KAMPAI) window.KAMPAI.setSlug('digestive-system-media');
+
+    const STEPS = [
+      { id: 'mouth', title: 'ปาก', emoji: '👄', body: 'เคี้ยวอาหารให้เล็กลง และผสมกับน้ำลาย (อะไมเลส) เพื่อเริ่มย่อยแป้ง', tip: 'เคี้ยวให้ละเอียดก่อนกลืน — ช่วยให้กระเพาะทำงานง่ายขึ้น' },
+      { id: 'esophagus', title: 'หลอดอาหาร', emoji: '⬇️', body: 'ท่อยาวเชื่อมปากกับกระเพาะ บีบรัด (กลืน) ส่งอาหารลงกระเพาะทีละน้อย', tip: 'การกลืนเป็น reflex — อาหารไม่เข้าหลอดลม' },
+      { id: 'stomach', title: 'กระเพาะอาหาร', emoji: '🫁', body: 'ใช้กรดและเอนไซม์ย่อยโปรตีน อาหารกลายเป็นแหลวคล้ายซุป', tip: 'กระเพาะมีกรดแรง — มีผนังหนาป้องกันตัวเอง' },
+      { id: 'intestine', title: 'ลำไส้', emoji: '🌀', body: 'ลำไส้เล็กดูดซึมสารอาหารเข้าเลือด · ลำไส้ใหญ่ดูดซึมน้ำและขับของเสีย', tip: 'ลำไส้เล็กยาวมาก — มีรากทอง (villi) ช่วยดูดซึม' },
+    ];
+
+    let curStep = -1;
+    let playTimer = null;
+    let pathExpected = 1;
+    let pathDone = 0;
+
+    function renderChips() {
+      document.getElementById('stepChips').innerHTML = STEPS.map(function (s, i) {
+        return '<button type="button" class="step-chip" data-i="' + i + '">' + (i + 1) + ' ' + s.title + '</button>';
+      }).join('');
+      document.querySelectorAll('.step-chip').forEach(function (btn) {
+        btn.onclick = function () { showStep(+btn.dataset.i); stopPlay(); };
+      });
+    }
+
+    function showStep(i) {
+      if (i < 0 || i >= STEPS.length) return;
+      curStep = i;
+      const s = STEPS[i];
+      document.querySelectorAll('.hotspot').forEach(function (el, j) {
+        el.classList.toggle('on', j === i);
+        el.classList.toggle('done', j < i);
+      });
+      document.querySelectorAll('.step-chip').forEach(function (el, j) {
+        el.classList.toggle('on', j === i);
+        el.classList.toggle('done', j < i);
+      });
+      document.getElementById('detailEmpty').style.display = 'none';
+      const card = document.getElementById('detailCard');
+      card.classList.add('show');
+      document.getElementById('dNum').textContent = 'ขั้นที่ ' + (i + 1);
+      document.getElementById('dEmoji').textContent = s.emoji;
+      document.getElementById('dTitle').textContent = s.title;
+      document.getElementById('dBody').textContent = s.body;
+      document.getElementById('dTip').textContent = '💡 ' + s.tip;
+      var dot = document.getElementById('foodDot');
+      var positions = [{ x: 150, y: 42 }, { x: 150, y: 100 }, { x: 155, y: 175 }, { x: 150, y: 290 }];
+      dot.setAttribute('cx', positions[i].x);
+      dot.setAttribute('cy', positions[i].y);
+      dot.setAttribute('opacity', '1');
+    }
+
+    document.querySelectorAll('.hotspot').forEach(function (el) {
+      el.onclick = function () { showStep(+el.dataset.step); stopPlay(); };
+    });
+
+    document.getElementById('btnPrev').onclick = function () { if (curStep > 0) showStep(curStep - 1); };
+    document.getElementById('btnNext').onclick = function () { if (curStep < STEPS.length - 1) showStep(curStep + 1); else showStep(0); };
+
+    function stopPlay() {
+      if (playTimer) { clearInterval(playTimer); playTimer = null; }
+      document.getElementById('btnPlay').textContent = '▶ เล่นวน';
+    }
+
+    document.getElementById('btnPlay').onclick = function () {
+      if (playTimer) { stopPlay(); return; }
+      if (curStep < 0) showStep(0);
+      document.getElementById('btnPlay').textContent = '⏸ หยุด';
+      playTimer = setInterval(function () {
+        showStep(curStep >= STEPS.length - 1 ? 0 : curStep + 1);
+      }, 2800);
+    };
+
+    function shuffled(arr) {
+      var a = arr.slice();
+      for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = a[i]; a[i] = a[j]; a[j] = t;
+      }
+      return a;
+    }
+
+    function initPath() {
+      pathExpected = 1;
+      pathDone = 0;
+      document.getElementById('pathFb').textContent = '';
+      document.getElementById('pathFb').className = 'path-fb';
+      document.getElementById('pathNext').textContent = STEPS[0].title;
+      document.getElementById('pathTrack').innerHTML = STEPS.map(function (_, i) {
+        return '<div class="path-slot" id="ps' + i + '">' + (i + 1) + '</div>';
+      }).join('');
+      var order = shuffled(STEPS.map(function (_, i) { return i; }));
+      document.getElementById('pathPool').innerHTML = order.map(function (i) {
+        var s = STEPS[i];
+        return '<button type="button" class="path-btn" data-i="' + i + '"><span style="font-size:1.4rem">' + s.emoji + '</span><br>' + s.title + '</button>';
+      }).join('');
+      document.querySelectorAll('.path-btn').forEach(function (btn) {
+        btn.onclick = function () { pathTap(+btn.dataset.i, btn); };
+      });
+    }
+
+    function pathTap(i, btn) {
+      if (btn.classList.contains('done')) return;
+      if (i + 1 === pathExpected) {
+        btn.classList.add('done');
+        var slot = document.getElementById('ps' + (pathExpected - 1));
+        slot.classList.add('filled');
+        slot.textContent = STEPS[i].emoji;
+        pathDone++;
+        pathExpected++;
+        document.getElementById('pathFb').className = 'path-fb ok';
+        document.getElementById('pathFb').textContent = '✓ ถูกต้อง! ' + STEPS[i].title;
+        if (pathExpected <= STEPS.length) {
+          document.getElementById('pathNext').textContent = STEPS[pathExpected - 1].title;
+        } else {
+          document.getElementById('pathNext').textContent = '—';
+          document.getElementById('pathPrompt').innerHTML = '🎉 เรียงครบทั้ง 4 ขั้นแล้ว!<br>อาหารเดินทาง ปาก → หลอดอาหาร → กระเพาะ → ลำไส้';
+          document.getElementById('pathFb').textContent = '✓ เก่งมาก! ลองเล่นใหม่หรือไปเล่นเกม AR';
+        }
+        if (window.KAMPAI && KAMPAI.sound) KAMPAI.sound.correct();
+      } else {
+        btn.classList.add('bad');
+        setTimeout(function () { btn.classList.remove('bad'); }, 400);
+        document.getElementById('pathFb').className = 'path-fb no';
+        document.getElementById('pathFb').textContent = '✗ ยังไม่ใช่ลำดับนี้ — ต้องเป็น ' + STEPS[pathExpected - 1].title;
+        if (window.KAMPAI && KAMPAI.sound) KAMPAI.sound.wrong();
+      }
+    }
+
+    document.getElementById('btnPathReset').onclick = initPath;
+
+    document.getElementById('modeSeg').querySelectorAll('button').forEach(function (btn) {
+      btn.onclick = function () {
+        stopPlay();
+        var isPath = btn.dataset.mode === 'path';
+        document.getElementById('shell').classList.toggle('mode-path', isPath);
+        document.getElementById('modeSeg').querySelectorAll('button').forEach(function (b) {
+          b.classList.toggle('on', b === btn);
+        });
+        document.getElementById('hintText').textContent = isPath
+          ? 'แตะอวัยวะให้ถูกลำดับ 1 → 4'
+          : 'แตะอวัยวะตามลำดับ ปาก → หลอดอาหาร → กระเพาะ → ลำไส้';
+        if (isPath) initPath();
+      };
+    });
+
+    document.getElementById('btnFs').onclick = function () {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    };
+
+    renderChips();
+    showStep(0);
+  </script>
+</body>
+</html>

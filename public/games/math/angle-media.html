@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>มุม — แหลม · ฉาก · ป้าน — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --deep: #0369a1; --line: #7dd3fc; --acute: #2563eb; --right: #16a34a; --obtuse: #ea580c; --muted: #64748b; --ok: #16a34a; --bad: #dc2626; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(145deg, #e0f2fe, #bae6fd); min-height: 100vh; padding: 12px; color: #0f172a; }
+    .shell { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+    header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #0369a1, #0284c7); color: #fff; }
+    header h1 { font-size: 1.1rem; font-weight: 800; flex: 1; }
+    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+    .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
+    .btn-primary { background: var(--deep); color: #fff; }
+    .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; background: #f0f9ff; border-bottom: 1px solid var(--line); align-items: center; }
+    .seg { display: inline-flex; border-radius: 12px; overflow: hidden; border: 2px solid #38bdf8; }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 14px; cursor: pointer; }
+    .seg button.on { background: var(--deep); color: #fff; }
+    .hint { font-size: .85rem; color: #0369a1; font-weight: 600; flex: 1; }
+    .stage { flex: 1; display: grid; grid-template-columns: 1fr; min-height: 0; }
+    @media (min-width: 860px) { .stage { grid-template-columns: 1.1fr 1fr; } }
+    .demo { padding: 20px; background: linear-gradient(180deg, #e0f2fe 0%, #f0f9ff 100%); display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    .protractor-wrap { position: relative; width: 100%; max-width: 340px; }
+    .protractor-wrap svg { width: 100%; height: auto; display: block; }
+    .angle-val { font-size: 2rem; font-weight: 800; color: var(--deep); }
+    .angle-type { font-size: 1.15rem; font-weight: 800; padding: 6px 16px; border-radius: 999px; color: #fff; }
+    .angle-type.acute { background: var(--acute); }
+    .angle-type.right { background: var(--right); }
+    .angle-type.obtuse { background: var(--obtuse); }
+    .slider-wrap { width: 100%; max-width: 320px; }
+    .slider-wrap label { font-weight: 800; color: var(--deep); display: block; margin-bottom: 8px; }
+    input[type=range] { width: 100%; accent-color: #0284c7; }
+    .preset-btns { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .preset-btns button { font-family: inherit; font-weight: 700; padding: 8px 12px; border-radius: 10px; border: 2px solid var(--line); background: #fff; color: var(--deep); cursor: pointer; font-size: .85rem; }
+    .preset-btns button.on { background: var(--deep); color: #fff; border-color: var(--deep); }
+    .detail { padding: 16px; background: #f0f9ff; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; overflow: auto; }
+    @media (min-width: 860px) { .detail { border-top: none; border-left: 1px solid var(--line); } }
+    .def { border-radius: 14px; padding: 14px; border: 3px solid; }
+    .def.acute { border-color: var(--acute); background: #eff6ff; }
+    .def.right { border-color: var(--right); background: #f0fdf4; }
+    .def.obtuse { border-color: var(--obtuse); background: #fff7ed; }
+    .def h3 { font-size: 1.05rem; margin-bottom: 6px; }
+    .def.acute h3 { color: var(--acute); }
+    .def.right h3 { color: var(--right); }
+    .def.obtuse h3 { color: var(--obtuse); }
+    .def p { font-weight: 600; line-height: 1.5; font-size: .95rem; }
+    .practice { display: none; flex-direction: column; gap: 14px; padding: 20px; align-items: center; grid-column: 1 / -1; }
+    .practice.on { display: flex; }
+    .demo.hide, .detail.hide { display: none; }
+    .pr-svg { width: 100%; max-width: 280px; }
+    .pr-q { font-weight: 800; font-size: 1.15rem; color: var(--deep); text-align: center; }
+    .pick { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; width: 100%; max-width: 480px; }
+    .pick button { font-family: inherit; font-weight: 800; font-size: .95rem; padding: 14px 8px; border-radius: 14px; border: 3px solid; cursor: pointer; }
+    .pick .a { border-color: var(--acute); color: var(--acute); background: #fff; }
+    .pick .r { border-color: var(--right); color: var(--right); background: #fff; }
+    .pick .o { border-color: var(--obtuse); color: var(--obtuse); background: #fff; }
+    .pick button.ok { background: #dcfce7; border-color: #86efac; color: #166534; }
+    .pick button.no { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
+    .fb { font-weight: 800; min-height: 28px; text-align: center; }
+    .streak { font-size: .9rem; color: #0369a1; font-weight: 700; }
+    .footer { padding: 10px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
+    .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <a class="btn btn-back" href="/h/nattapong">← กลับคลังสื่อ</a>
+      <h1>📐 มุม — แหลม · ฉาก · ป้าน</h1>
+      <span class="badge">ป.4 · คณิตศาสตร์</span>
+    </header>
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
+        <button type="button" data-mode="practice">✏️ ฝึกจำแนก</button>
+      </span>
+      <p class="hint">ลากสไลเดอร์หรือกดตัวอย่างดูมุมบนครึ่งวงกลม</p>
+      <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
+    </div>
+    <div class="stage">
+      <div class="demo" id="demo">
+        <div class="protractor-wrap">
+          <svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg" aria-label="ครึ่งวงกลมโปรแทรกเตอร์">
+            <defs>
+              <linearGradient id="arcGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#bae6fd"/>
+                <stop offset="100%" stop-color="#e0f2fe"/>
+              </linearGradient>
+            </defs>
+            <!-- ครึ่งวงกลม -->
+            <path d="M 20 170 A 140 140 0 0 1 300 170 Z" fill="url(#arcGrad)" stroke="#0284c7" stroke-width="3"/>
+            <!-- เส้นองศา -->
+            <g id="tickMarks" stroke="#64748b" stroke-width="1"></g>
+            <!-- เส้นฐาน -->
+            <line x1="20" y1="170" x2="300" y2="170" stroke="#0369a1" stroke-width="3"/>
+            <!-- แขนมุม -->
+            <line id="armA" x1="160" y1="170" x2="300" y2="170" stroke="#0369a1" stroke-width="4" stroke-linecap="round"/>
+            <line id="armB" x1="160" y1="170" x2="160" y2="170" stroke="#ea580c" stroke-width="4" stroke-linecap="round"/>
+            <!-- ส่วนโค้งมุม -->
+            <path id="angleArc" fill="none" stroke="#ea580c" stroke-width="3"/>
+            <!-- จุดยอด -->
+            <circle cx="160" cy="170" r="6" fill="#0369a1"/>
+            <!-- ป้ายองศา -->
+            <text id="degLabel" x="160" y="130" text-anchor="middle" font-family="Sarabun,sans-serif" font-size="18" font-weight="800" fill="#0369a1">0°</text>
+          </svg>
+        </div>
+        <p class="angle-val"><span id="angleNum">45</span>°</p>
+        <span class="angle-type acute" id="typeBadge">มุมแหลม</span>
+        <div class="slider-wrap">
+          <label>ขนาดมุม: <span id="sliderVal">45</span>°</label>
+          <input type="range" id="angleSlider" min="5" max="175" value="45" />
+        </div>
+        <div class="preset-btns">
+          <button type="button" data-deg="30">30° แหลม</button>
+          <button type="button" data-deg="45" class="on">45° แหลม</button>
+          <button type="button" data-deg="90">90° ฉาก</button>
+          <button type="button" data-deg="120">120° ป้าน</button>
+          <button type="button" data-deg="150">150° ป้าน</button>
+        </div>
+      </div>
+      <div class="detail" id="detail">
+        <div class="def acute">
+          <h3>📐 มุมแหลม</h3>
+          <p>ขนาดมุม<strong>น้อยกว่า 90°</strong> — ดูแคบกว่ามุมฉาก เช่น 30° 45° 60°</p>
+        </div>
+        <div class="def right">
+          <h3>📏 มุมฉาก</h3>
+          <p>ขนาดมุม<strong>เท่ากับ 90°</strong> — มุมตรงเหมือนมุมหนังสือหรือมุมโต๊ะ</p>
+        </div>
+        <div class="def obtuse">
+          <h3>📐 มุมป้าน</h3>
+          <p>ขนาดมุม<strong>มากกว่า 90° แต่น้อยกว่า 180°</strong> — ดูกว้างกว่ามุมฉาก เช่น 120° 150°</p>
+        </div>
+        <p style="font-weight:700;color:#0369a1;text-align:center;font-size:.9rem">ใช้ครึ่งวงกลมวัดมุมได้ 0°–180°</p>
+      </div>
+      <div class="practice" id="practice">
+        <p class="streak" id="streak">🔥 0 ติดต่อกัน</p>
+        <svg class="pr-svg" id="prSvg" viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg"></svg>
+        <p class="pr-q">มุมนี้เป็นมุมประเภทใด?</p>
+        <div class="pick">
+          <button type="button" class="a" data-a="acute">มุมแหลม</button>
+          <button type="button" class="r" data-a="right">มุมฉาก</button>
+          <button type="button" class="o" data-a="obtuse">มุมป้าน</button>
+        </div>
+        <p class="fb" id="fb"></p>
+        <button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button>
+      </div>
+    </div>
+    <footer>ตัวชี้วัด <strong>ค 2.2 ป.4/1–2</strong> · สื่อมุมแหลม ฉาก ป้าน</footer>
+  </div>
+  <script>
+    if (window.KAMPAI) window.KAMPAI.setSlug('angle-media');
+
+    const CX = 160, CY = 170, R = 140;
+
+    function classify(deg) {
+      if (deg < 90) return { key: 'acute', label: 'มุมแหลม' };
+      if (deg === 90) return { key: 'right', label: 'มุมฉาก' };
+      return { key: 'obtuse', label: 'มุมป้าน' };
+    }
+
+    function degToRad(d) { return (d * Math.PI) / 180; }
+
+    function updateAngle(deg) {
+      deg = Math.max(5, Math.min(175, +deg));
+      const rad = degToRad(deg);
+      const ex = CX + R * Math.cos(Math.PI - rad);
+      const ey = CY - R * Math.sin(Math.PI - rad);
+      document.getElementById('armB').setAttribute('x2', ex);
+      document.getElementById('armB').setAttribute('y2', ey);
+      const arcR = 40;
+      const ax = CX + arcR * Math.cos(Math.PI - rad);
+      const ay = CY - arcR * Math.sin(Math.PI - rad);
+      const large = deg > 90 ? 1 : 0;
+      document.getElementById('angleArc').setAttribute('d',
+        `M ${CX + arcR} ${CY} A ${arcR} ${arcR} 0 ${large} 0 ${ax} ${ay}`);
+      document.getElementById('degLabel').textContent = deg + '°';
+      document.getElementById('angleNum').textContent = deg;
+      document.getElementById('sliderVal').textContent = deg;
+      document.getElementById('angleSlider').value = deg;
+      const c = classify(deg);
+      const badge = document.getElementById('typeBadge');
+      badge.textContent = c.label;
+      badge.className = 'angle-type ' + c.key;
+      document.querySelectorAll('.preset-btns button').forEach(b =>
+        b.classList.toggle('on', +b.dataset.deg === deg));
+    }
+
+    (function buildTicks() {
+      const g = document.getElementById('tickMarks');
+      for (let d = 0; d <= 180; d += 10) {
+        const rad = degToRad(d);
+        const x1 = CX + (R - (d % 30 === 0 ? 14 : 8)) * Math.cos(Math.PI - rad);
+        const y1 = CY - (R - (d % 30 === 0 ? 14 : 8)) * Math.sin(Math.PI - rad);
+        const x2 = CX + R * Math.cos(Math.PI - rad);
+        const y2 = CY - R * Math.sin(Math.PI - rad);
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+        line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+        line.setAttribute('stroke-width', d % 30 === 0 ? 2 : 1);
+        g.appendChild(line);
+        if (d % 30 === 0 && d > 0 && d < 180) {
+          const tx = CX + (R - 28) * Math.cos(Math.PI - rad);
+          const ty = CY - (R - 28) * Math.sin(Math.PI - rad);
+          const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          t.setAttribute('x', tx); t.setAttribute('y', ty + 4);
+          t.setAttribute('text-anchor', 'middle');
+          t.setAttribute('font-family', 'Sarabun,sans-serif');
+          t.setAttribute('font-size', '11');
+          t.setAttribute('font-weight', '700');
+          t.setAttribute('fill', '#475569');
+          t.textContent = d;
+          g.appendChild(t);
+        }
+      }
+    })();
+
+    document.getElementById('angleSlider').oninput = e => updateAngle(+e.target.value);
+    document.querySelectorAll('.preset-btns button').forEach(btn => {
+      btn.onclick = () => updateAngle(+btn.dataset.deg);
+    });
+
+    const PR_ANGLES = [25, 45, 60, 75, 90, 100, 110, 120, 135, 150, 160];
+    let currentDeg = 45;
+    let streak = 0;
+
+    function drawPrAngle(deg) {
+      currentDeg = deg;
+      const rad = degToRad(deg);
+      const len = 70;
+      const bx = 30, by = 110;
+      const ex = bx + len;
+      const ey = by;
+      const ax = bx + len * Math.cos(Math.PI - rad);
+      const ay = by - len * Math.sin(Math.PI - rad);
+      const arcR = 22;
+      const arx = bx + arcR * Math.cos(Math.PI - rad);
+      const ary = by - arcR * Math.sin(Math.PI - rad);
+      const large = deg > 90 ? 1 : 0;
+      document.getElementById('prSvg').innerHTML = `
+        <line x1="${bx}" y1="${by}" x2="${ex}" y2="${ey}" stroke="#0369a1" stroke-width="4" stroke-linecap="round"/>
+        <line x1="${bx}" y1="${by}" x2="${ax}" y2="${ay}" stroke="#ea580c" stroke-width="4" stroke-linecap="round"/>
+        <path d="M ${bx + arcR} ${by} A ${arcR} ${arcR} 0 ${large} 0 ${arx} ${ary}" fill="none" stroke="#ea580c" stroke-width="2.5"/>
+        <circle cx="${bx}" cy="${by}" r="4" fill="#0369a1"/>
+        <text x="100" y="30" text-anchor="middle" font-family="Sarabun,sans-serif" font-size="16" font-weight="800" fill="#64748b">?</text>`;
+    }
+
+    function nextQ() {
+      const deg = PR_ANGLES[Math.floor(Math.random() * PR_ANGLES.length)];
+      drawPrAngle(deg);
+      document.getElementById('fb').textContent = '';
+      document.querySelectorAll('.pick button').forEach(b => {
+        b.disabled = false;
+        b.classList.remove('ok', 'no');
+      });
+    }
+
+    document.querySelectorAll('.pick button').forEach(btn => {
+      btn.onclick = () => {
+        const answer = classify(currentDeg).key;
+        const ok = btn.dataset.a === answer;
+        streak = ok ? streak + 1 : 0;
+        document.getElementById('streak').textContent = `🔥 ${streak} ติดต่อกัน`;
+        btn.classList.add(ok ? 'ok' : 'no');
+        document.querySelectorAll('.pick button').forEach(b => {
+          b.disabled = true;
+          if (b.dataset.a === answer) b.classList.add('ok');
+        });
+        const labels = { acute: 'มุมแหลม', right: 'มุมฉาก', obtuse: 'มุมป้าน' };
+        document.getElementById('fb').textContent = ok
+          ? '✓ ถูกต้อง!'
+          : `✗ คำตอบ: ${labels[answer]} (${currentDeg}°)`;
+        document.getElementById('fb').style.color = ok ? '#16a34a' : '#dc2626';
+      };
+    });
+    document.getElementById('btnNext').onclick = nextQ;
+
+    document.getElementById('modeSeg').querySelectorAll('button').forEach(btn => {
+      btn.onclick = () => {
+        const pr = btn.dataset.mode === 'practice';
+        document.getElementById('modeSeg').querySelectorAll('button').forEach(b => b.classList.toggle('on', b === btn));
+        document.getElementById('demo').classList.toggle('hide', pr);
+        document.getElementById('detail').classList.toggle('hide', pr);
+        document.getElementById('practice').classList.toggle('on', pr);
+        if (pr) nextQ();
+      };
+    });
+
+    document.getElementById('btnFs').onclick = () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    };
+
+    updateAngle(45);
+  </script>
+</body>
+</html>

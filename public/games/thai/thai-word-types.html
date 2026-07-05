@@ -143,6 +143,14 @@
     .shell.mode-practice .practice-wrap { display: block; }
     .shell.mode-practice .stage > .main-panel,
     .shell.mode-practice .stage > .detail { display: none; }
+    .idiom-wrap { display: none; padding: 20px; max-width: 720px; margin: 0 auto; }
+    .shell.mode-idiom .idiom-wrap { display: block; }
+    .shell.mode-idiom .learn-only { display: none !important; }
+    .shell.mode-idiom .practice-wrap { display: none; }
+    .idiom-card { background: #fff7ed; border: 2px solid #fdba74; border-radius: 14px; padding: 14px; margin-bottom: 10px; cursor: pointer; }
+    .idiom-card.on { border-color: #c2410c; background: #ffedd5; }
+    .idiom-phrase { font-size: 1.4rem; font-weight: 800; color: #7c2d12; }
+    .idiom-mean { font-weight: 600; color: #9a3412; margin-top: 6px; }
     .pool-label { font-size: .85rem; font-weight: 800; color: #9a3412; margin: 12px 0 8px; }
     .selected-hint { font-size: .8rem; color: var(--muted); font-weight: 600; min-height: 1.2em; }
   </style>
@@ -160,6 +168,7 @@
         <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
         <button type="button" data-mode="practice">✏️ ฝึก</button>
         <button type="button" data-mode="sort">🧺 จัดกล่อง</button>
+        <button type="button" data-mode="idiom">💬 สำนวน</button>
       </span>
       <p class="hint" id="hintText">แตะชนิดของคำ → ดูคำตัวอย่างและคำอธิบาย</p>
       <button type="button" class="btn btn-ghost" id="btnFs">⛶ เต็มจอ</button>
@@ -196,6 +205,11 @@
         </div>
         <p class="practice-fb" id="sortFb"></p>
       </div>
+    </div>
+
+    <div class="idiom-wrap" id="idiomWrap">
+      <p style="font-weight:700;color:#9a3412;margin-bottom:12px">สำนวนไทย — แตะการ์ดเพื่อฟังความหมาย</p>
+      <div id="idiomList"></div>
     </div>
 
     <div class="practice-wrap">
@@ -250,6 +264,17 @@
         { w: 'อร่อย', t: 'adj', ex: 'อาหารอร่อย' },
       ];
 
+      var IDIOMS = [
+        { p: 'น้ำท่วมทุ่ง', m: 'มีคนมากมาย' },
+        { p: 'ช้างเผือก', m: 'คนที่มีความสามารถพิเศษ' },
+        { p: 'ปลาใหญ่กินปลาเล็ก', m: 'ผู้มีอำนาจเอาเปรียบผู้อ่อนแอ' },
+        { p: 'น้ำขึ้นให้รีบตัก', m: 'มีโอกาสดีต้องรีบคว้า' },
+        { p: 'ชาติหน้า', m: 'ชีวิตครั้งต่อไป (ตามความเชื่อ)' },
+        { p: 'ใจดำ', m: 'ใจร้าย ไม่มีความเมตตา' },
+        { p: 'ปากหวาน', m: 'พูดจาไพเราะ' },
+        { p: 'ตาไว', m: 'สังเกตเห็นเร็ว' },
+      ];
+
       var shell = document.getElementById('shell');
       var mode = 'learn';
       var activeType = 'noun';
@@ -271,12 +296,14 @@
       function setMode(m) {
         mode = m;
         shell.classList.toggle('mode-practice', m === 'practice');
+        shell.classList.toggle('mode-idiom', m === 'idiom');
         document.getElementById('learnStage').style.display = (m === 'learn') ? '' : 'none';
         document.getElementById('sortStage').style.display = (m === 'sort') ? '' : 'none';
         var hints = {
           learn: 'แตะชนิดของคำ → ดูคำตัวอย่างและคำอธิบาย',
           practice: 'เลือกชนิดของคำให้ถูก — ไม่จับเวลา',
           sort: 'แตะคำแล้วแตะกล่อง หรือลากวางให้ถูกกล่อง',
+          idiom: 'สำนวนไทย — แตะการ์ดเพื่อฟังและดูความหมาย',
         };
         document.getElementById('hintText').textContent = hints[m] || '';
         document.querySelectorAll('#modeSeg button').forEach(function (b) {
@@ -467,6 +494,25 @@
       renderTypeTabs();
       renderLearnWords();
       resetSort();
+      (function renderIdioms() {
+        var el = document.getElementById('idiomList');
+        el.innerHTML = '';
+        IDIOMS.forEach(function (item) {
+          var card = document.createElement('div');
+          card.className = 'idiom-card';
+          card.innerHTML = '<div class="idiom-phrase">' + item.p + '</div><div class="idiom-mean" style="display:none">' + item.m + '</div>';
+          card.addEventListener('click', function () {
+            document.querySelectorAll('.idiom-card').forEach(function (c) {
+              c.classList.remove('on');
+              c.querySelector('.idiom-mean').style.display = 'none';
+            });
+            card.classList.add('on');
+            card.querySelector('.idiom-mean').style.display = '';
+            speak(item.p + ' หมายถึง ' + item.m);
+          });
+          el.appendChild(card);
+        });
+      })();
     })();
   </script>
 </body>

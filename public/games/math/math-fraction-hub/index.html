@@ -289,6 +289,8 @@
                     <option value="add">➕ บวกตัวสะดาด</option>
                     <option value="subtract">➖ ลบตัวสะดาด</option>
                     <option value="whole">🔢 จำนวนเต็ม + เศษส่วน</option>
+                    <option value="mixed_add">➕ บวกจำนวนคละ</option>
+                    <option value="mixed_sub">➖ ลบจำนวนคละ</option>
                 </select>
             </div>
 
@@ -371,6 +373,8 @@
             add: 'บวกเศษส่วนตัวสะดาด',
             subtract: 'ลบเศษส่วนตัวสะดาด',
             whole: 'จำนวนเต็ม + เศษส่วน',
+            mixed_add: 'บวกจำนวนคละ (สองขั้น)',
+            mixed_sub: 'ลบจำนวนคละ (สองขั้น)',
         };
 
         function gcd(a, b) {
@@ -471,6 +475,13 @@
                     visualArea.appendChild(renderBar(p.d, p.d, 'เต็ม 1 ชิ้น'));
                 }
                 visualArea.appendChild(renderBar(p.n, p.d, 'เศษส่วนเพิ่ม'));
+            } else if (p.topic === 'mixed_add' || p.topic === 'mixed_sub') {
+                const op = p.topic === 'mixed_add' ? '+' : '−';
+                questionText.textContent = mixedStr(p.w1, p.n1, p.d) + ' ' + op + ' ' + mixedStr(p.w2, p.n2, p.d) + ' = ?';
+                const note = document.createElement('div');
+                note.className = 'bar-label';
+                note.textContent = 'จำนวนคละ — แปลงเป็นเศษส่วนเกินก่อนบวก/ลบ';
+                visualArea.appendChild(note);
             }
         }
 
@@ -516,6 +527,20 @@
                 const n = Math.floor(Math.random() * (d - 1)) + 1;
                 const whole = Math.floor(Math.random() * 4) + 1;
                 p = { topic: 'whole', whole, n, d };
+            } else if (topic === 'mixed_add') {
+                const d = pickDenom(level);
+                const w1 = Math.floor(Math.random() * 3) + 1;
+                const w2 = Math.floor(Math.random() * 3) + 1;
+                const n1 = Math.floor(Math.random() * (d - 1)) + 1;
+                const n2 = Math.floor(Math.random() * (d - 1)) + 1;
+                p = { topic: 'mixed_add', w1, w2, n1, n2, d };
+            } else if (topic === 'mixed_sub') {
+                const d = pickDenom(level);
+                const w1 = Math.floor(Math.random() * 3) + 2;
+                const w2 = Math.floor(Math.random() * 2) + 1;
+                const n1 = Math.floor(Math.random() * (d - 1)) + 1;
+                const n2 = Math.floor(Math.random() * (d - 1)) + 1;
+                p = { topic: 'mixed_sub', w1, w2, n1, n2, d };
             }
 
             setProblem(p);
@@ -573,6 +598,24 @@
                 if (mn !== improper || md !== p.d) {
                     explainHtml += '<br>ย่อส่วน → <span class="c-emerald">' + fracStr(mn, md) + '</span>';
                 }
+            } else if (p.topic === 'mixed_add') {
+                const imp1 = p.w1 * p.d + p.n1;
+                const imp2 = p.w2 * p.d + p.n2;
+                const sum = imp1 + imp2;
+                const whole = Math.floor(sum / p.d);
+                const rem = sum % p.d;
+                const [rn, rd] = simplify(rem, p.d);
+                resultText = mixedStr(whole, rn, rd);
+                explainHtml = 'แปลงเป็นส่วนเกิน: <span class="c-orange">' + imp1 + '/' + p.d + ' + ' + imp2 + '/' + p.d + ' = ' + sum + '/' + p.d + '</span><br>ได้ <span class="c-emerald">' + mixedStr(whole, rn, rd) + '</span>';
+            } else if (p.topic === 'mixed_sub') {
+                const imp1 = p.w1 * p.d + p.n1;
+                const imp2 = p.w2 * p.d + p.n2;
+                const diff = Math.max(imp1 - imp2, 1);
+                const whole = Math.floor(diff / p.d);
+                const rem = diff % p.d;
+                const [rn, rd] = simplify(rem, p.d);
+                resultText = mixedStr(whole, rn, rd);
+                explainHtml = 'แปลงเป็นส่วนเกิน: <span class="c-orange">' + imp1 + '/' + p.d + ' − ' + imp2 + '/' + p.d + ' = ' + diff + '/' + p.d + '</span><br>ได้ <span class="c-emerald">' + mixedStr(whole, rn, rd) + '</span>';
             }
 
             resultEl.textContent = resultText;

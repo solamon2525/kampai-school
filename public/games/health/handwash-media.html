@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ล้างมือ 7 ขั้น — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --deep: #0e7490; --line: #a5f3fc; --muted: #64748b; --ok: #16a34a; --bad: #dc2626; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(160deg, #ecfeff, #cffafe); min-height: 100vh; padding: 12px; color: #0f172a; }
+    .shell { max-width: 1000px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+    header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #0e7490, #0891b2); color: #fff; }
+    header h1 { font-size: 1.15rem; font-weight: 800; flex: 1; min-width: 160px; }
+    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn:active { transform: scale(.97); }
+    .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
+    .btn-primary { background: var(--deep); color: #fff; }
+    .btn-accent { background: #fbbf24; color: #78350f; }
+    .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; background: #ecfeff; border-bottom: 1px solid var(--line); align-items: center; }
+    .seg { display: inline-flex; border-radius: 12px; overflow: hidden; border: 2px solid #67e8f9; }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 14px; cursor: pointer; font-size: .9rem; }
+    .seg button.on { background: var(--deep); color: #fff; }
+    .hint { font-size: .85rem; color: #0e7490; font-weight: 600; flex: 1; min-width: 160px; }
+    .stage { flex: 1; display: grid; grid-template-columns: 1fr; min-height: 0; }
+    @media (min-width: 860px) { .stage { grid-template-columns: 1fr 1fr; } }
+    .demo { padding: 20px 16px; background: linear-gradient(180deg, #e0f2fe, #cffafe); display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    .hand-visual { width: 160px; height: 160px; border-radius: 50%; background: #fff; border: 4px solid #67e8f9; display: flex; align-items: center; justify-content: center; font-size: 5rem; box-shadow: 0 12px 30px rgba(8,145,178,.15); transition: transform .2s; }
+    .hand-visual.pop { transform: scale(1.06); }
+    .step-nav { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; max-width: 360px; }
+    .step-dot { font-family: inherit; width: 36px; height: 36px; border-radius: 50%; border: 2px solid #67e8f9; background: #fff; color: var(--deep); font-weight: 800; cursor: pointer; font-size: .9rem; }
+    .step-dot.on { background: var(--deep); color: #fff; border-color: var(--deep); }
+    .step-dot.done { background: #dcfce7; border-color: #86efac; color: #166534; }
+    .detail { padding: 16px; background: #f0fdfa; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; }
+    @media (min-width: 860px) { .detail { border-top: none; border-left: 1px solid var(--line); } }
+    .step-num { align-self: flex-start; background: var(--deep); color: #fff; font-weight: 800; border-radius: 999px; padding: 4px 12px; font-size: .85rem; }
+    .step-title { font-size: 1.4rem; font-weight: 800; color: var(--deep); line-height: 1.3; }
+    .step-body { font-size: 1.05rem; font-weight: 600; line-height: 1.55; color: #134e4a; }
+    .step-tip { background: #fff; border: 2px dashed #67e8f9; border-radius: 12px; padding: 10px 12px; font-size: .9rem; font-weight: 600; color: var(--muted); }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .actions .btn { flex: 1; min-width: 120px; }
+    .learn-panel { display: contents; }
+    .shell.mode-order .learn-panel { display: none; }
+    .order-wrap { display: none; padding: 20px 16px; max-width: 520px; margin: 0 auto; width: 100%; flex-direction: column; gap: 14px; }
+    .shell.mode-order .order-wrap { display: flex; }
+    .shell.mode-order .stage { display: none; }
+    .order-prompt { font-weight: 800; color: var(--deep); text-align: center; background: #fff; border: 2px dashed #67e8f9; border-radius: 14px; padding: 12px; line-height: 1.45; }
+    .order-track { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+    .order-slot { width: 40px; height: 40px; border-radius: 12px; border: 2px dashed #67e8f9; background: #ecfeff; display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 800; color: #67e8f9; }
+    .order-slot.filled { border-style: solid; border-color: #86efac; background: #dcfce7; color: #166534; font-size: 1.1rem; }
+    .order-pool { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (min-width: 480px) { .order-pool { grid-template-columns: repeat(4, 1fr); } }
+    .order-btn { font-family: inherit; font-weight: 700; border: 2px solid var(--line); border-radius: 14px; background: #fff; padding: 12px 8px; cursor: pointer; text-align: center; line-height: 1.3; font-size: .82rem; color: #134e4a; min-height: 88px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+    .order-btn .emo { font-size: 1.8rem; line-height: 1; }
+    .order-btn.done { background: #dcfce7; border-color: #86efac; opacity: .55; pointer-events: none; }
+    .order-btn.bad { animation: shake .35s; background: #fee2e2; border-color: #fca5a5; }
+    .order-fb { font-weight: 800; text-align: center; min-height: 24px; }
+    .order-fb.ok { color: var(--ok); }
+    .order-fb.no { color: var(--bad); }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+    .footer { padding: 10px 16px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
+    .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="shell" id="shell">
+    <header>
+      <a class="btn btn-back" href="/h/nattapong">← กลับคลังสื่อ</a>
+      <h1>🧼 ล้างมือ 7 ขั้น</h1>
+      <span class="badge">ป.3–4 · สุขศึกษา</span>
+    </header>
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
+        <button type="button" data-mode="order">✏️ เรียงลำดับ</button>
+      </span>
+      <p class="hint" id="hintText">เรียน 7 ขั้นตอนล้างมือให้สะอาด — ใช้สบู่และน้ำ</p>
+      <button type="button" class="btn btn-accent learn-panel" id="btnPlay">▶ เล่นวน</button>
+      <button type="button" class="btn btn-ghost" id="btnFs">⛶ เต็มจอ</button>
+    </div>
+    <div class="stage learn-panel">
+      <div class="demo">
+        <div class="hand-visual" id="handVisual">🤲</div>
+        <div class="step-nav" id="stepNav"></div>
+      </div>
+      <div class="detail">
+        <span class="step-num" id="dNum">ขั้นที่ 1</span>
+        <h2 class="step-title" id="dTitle">ฝ่ามือถูฝ่ามือ</h2>
+        <p class="step-body" id="dBody"></p>
+        <p class="step-tip" id="dTip"></p>
+        <div class="actions">
+          <button type="button" class="btn btn-ghost" id="btnPrev">← ก่อนหน้า</button>
+          <button type="button" class="btn btn-primary" id="btnNext">ถัดไป →</button>
+        </div>
+      </div>
+    </div>
+    <div class="order-wrap">
+      <p class="order-prompt" id="orderPrompt">แตะการ์ดให้ถูกลำดับ <strong>1 → 7</strong><br>ขั้นถัดไป: <span id="orderNext">ฝ่ามือถูฝ่ามือ</span></p>
+      <div class="order-track" id="orderTrack"></div>
+      <p class="order-fb" id="orderFb"></p>
+      <div class="order-pool" id="orderPool"></div>
+      <button type="button" class="btn btn-primary" id="btnOrderReset" style="align-self:center">🔄 เริ่มใหม่</button>
+    </div>
+    <footer>ตัวชี้วัด <strong>พ 4.1 ป.3/1</strong> · <strong>ว 1.2 ป.3/2</strong> · คู่เกม <a href="/games/health/handwash-order.html">ล้างมือ 7 ขั้น (เกม)</a></footer>
+  </div>
+  <script>
+    if (window.KAMPAI) window.KAMPAI.setSlug('handwash-media');
+
+    const STEPS = [
+      { n: 1, emoji: '🤲', label: 'ฝ่ามือถูฝ่ามือ', body: 'ทาสบู่ที่ฝ่ามือทั้งสองข้าง แล้วถูฝ่ามือเข้าหากันให้ทั่ว', tip: 'ใช้สบู่เหลวหรือแท่ง — ชโลมให้ทั่วก่อนถู' },
+      { n: 2, emoji: '🖐️', label: 'ฝ่ามือถูหลังมือ', body: 'ฝ่ามือข้างหนึ่งถูหลังมืออีกข้าง สลับมือ ทำซ้ำทั้งสองข้าง', tip: 'อย่าลืมซอกนิ้ว — จุดที่สกปรกบ่อย' },
+      { n: 3, emoji: '🙏', label: 'ประสานนิ้ว', body: 'ประสานนิ้วมือเข้าหากัน แล้วถูซอกนิ้วไปมา', tip: 'นิ้วกลางและนิ้วนางมักมีเชื้อโรค' },
+      { n: 4, emoji: '✊', label: 'หลังนิ้ว', body: 'กำมือ เอานิ้วมือข้างหนึ่งถูฝ่ามืออีกข้าง สลับมือ', tip: 'หลังนิ้วและข้อนิ้วต้องได้รับสบู่' },
+      { n: 5, emoji: '👍', label: 'นิ้วหัวแม่มือ', body: 'บีบนิ้วหัวแม่มือของมือหนึ่งด้วยมืออีกข้าง หมุนโรล สลับมือ', tip: 'หัวแม่มือใช้จับสิ่งของบ่อย — อย่าข้าม' },
+      { n: 6, emoji: '👆', label: 'ปลายนิ้ว', body: 'ประสานนิ้วมือ แล้วถูปลายนิ้วลงบนฝ่ามืออีกข้าง สลับมือ', tip: 'ปลายนิ้วสัมผัสสิ่งของมากที่สุด' },
+      { n: 7, emoji: '🔄', label: 'ข้อมือ', body: 'ถูรอบข้อมือทั้งสองข้างด้วยสบู่ แล้วล้างน้ำออกให้หมด', tip: 'ล้างน้ำอย่างน้อย 20 วินาที · เช็ดมือให้แห้ง' },
+    ];
+
+    let cur = 0;
+    let playTimer = null;
+    let orderExpected = 1;
+
+    function renderNav() {
+      document.getElementById('stepNav').innerHTML = STEPS.map(function (s, i) {
+        return '<button type="button" class="step-dot' + (i === cur ? ' on' : '') + (i < cur ? ' done' : '') + '" data-i="' + i + '">' + s.n + '</button>';
+      }).join('');
+      document.querySelectorAll('.step-dot').forEach(function (btn) {
+        btn.onclick = function () { showStep(+btn.dataset.i); stopPlay(); };
+      });
+    }
+
+    function showStep(i) {
+      if (i < 0 || i >= STEPS.length) return;
+      cur = i;
+      var s = STEPS[i];
+      var vis = document.getElementById('handVisual');
+      vis.textContent = s.emoji;
+      vis.classList.add('pop');
+      setTimeout(function () { vis.classList.remove('pop'); }, 200);
+      document.getElementById('dNum').textContent = 'ขั้นที่ ' + s.n;
+      document.getElementById('dTitle').textContent = s.label;
+      document.getElementById('dBody').textContent = s.body;
+      document.getElementById('dTip').textContent = '💡 ' + s.tip;
+      renderNav();
+    }
+
+    document.getElementById('btnPrev').onclick = function () { if (cur > 0) showStep(cur - 1); };
+    document.getElementById('btnNext').onclick = function () { showStep(cur >= STEPS.length - 1 ? 0 : cur + 1); };
+
+    function stopPlay() {
+      if (playTimer) { clearInterval(playTimer); playTimer = null; }
+      document.getElementById('btnPlay').textContent = '▶ เล่นวน';
+    }
+
+    document.getElementById('btnPlay').onclick = function () {
+      if (playTimer) { stopPlay(); return; }
+      document.getElementById('btnPlay').textContent = '⏸ หยุด';
+      playTimer = setInterval(function () {
+        showStep(cur >= STEPS.length - 1 ? 0 : cur + 1);
+      }, 3200);
+    };
+
+    function shuffled(arr) {
+      var a = arr.slice();
+      for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = a[i]; a[i] = a[j]; a[j] = t;
+      }
+      return a;
+    }
+
+    function initOrder() {
+      orderExpected = 1;
+      document.getElementById('orderFb').textContent = '';
+      document.getElementById('orderFb').className = 'order-fb';
+      document.getElementById('orderNext').textContent = STEPS[0].label;
+      document.getElementById('orderPrompt').innerHTML = 'แตะการ์ดให้ถูกลำดับ <strong>1 → 7</strong><br>ขั้นถัดไป: <span id="orderNext">' + STEPS[0].label + '</span>';
+      document.getElementById('orderTrack').innerHTML = STEPS.map(function (s) {
+        return '<div class="order-slot" id="os' + s.n + '">' + s.n + '</div>';
+      }).join('');
+      var order = shuffled(STEPS.map(function (_, i) { return i; }));
+      document.getElementById('orderPool').innerHTML = order.map(function (i) {
+        var s = STEPS[i];
+        return '<button type="button" class="order-btn" data-n="' + s.n + '"><span class="emo">' + s.emoji + '</span>' + s.label + '</button>';
+      }).join('');
+      document.querySelectorAll('.order-btn').forEach(function (btn) {
+        btn.onclick = function () { orderTap(+btn.dataset.n, btn); };
+      });
+    }
+
+    function orderTap(n, btn) {
+      if (btn.classList.contains('done')) return;
+      if (n === orderExpected) {
+        btn.classList.add('done');
+        var slot = document.getElementById('os' + n);
+        slot.classList.add('filled');
+        slot.textContent = STEPS[n - 1].emoji;
+        orderExpected++;
+        document.getElementById('orderFb').className = 'order-fb ok';
+        document.getElementById('orderFb').textContent = '✓ ถูกต้อง! ' + STEPS[n - 1].label;
+        var nextEl = document.getElementById('orderNext');
+        if (orderExpected <= STEPS.length) {
+          if (nextEl) nextEl.textContent = STEPS[orderExpected - 1].label;
+        } else {
+          if (nextEl) nextEl.textContent = '—';
+          document.getElementById('orderPrompt').innerHTML = '🎉 เรียงครบ 7 ขั้นแล้ว!<br>มือสะอาด พร้อมกินอาหาร';
+          document.getElementById('orderFb').textContent = '✓ เก่งมาก! ลองเล่นเกมแข่งเร็วได้';
+        }
+        if (window.KAMPAI && KAMPAI.sound) KAMPAI.sound.correct();
+      } else {
+        btn.classList.add('bad');
+        setTimeout(function () { btn.classList.remove('bad'); }, 400);
+        document.getElementById('orderFb').className = 'order-fb no';
+        document.getElementById('orderFb').textContent = '✗ ยังไม่ใช่ลำดับนี้ — ต้องเป็น ' + STEPS[orderExpected - 1].label;
+        if (window.KAMPAI && KAMPAI.sound) KAMPAI.sound.wrong();
+      }
+    }
+
+    document.getElementById('btnOrderReset').onclick = initOrder;
+
+    document.getElementById('modeSeg').querySelectorAll('button').forEach(function (btn) {
+      btn.onclick = function () {
+        stopPlay();
+        var isOrder = btn.dataset.mode === 'order';
+        document.getElementById('shell').classList.toggle('mode-order', isOrder);
+        document.getElementById('modeSeg').querySelectorAll('button').forEach(function (b) {
+          b.classList.toggle('on', b === btn);
+        });
+        document.getElementById('hintText').textContent = isOrder
+          ? 'แตะการ์ดให้ถูกลำดับ 1 → 7'
+          : 'เรียน 7 ขั้นตอนล้างมือให้สะอาด — ใช้สบู่และน้ำ';
+        if (isOrder) initOrder();
+      };
+    });
+
+    document.getElementById('btnFs').onclick = function () {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    };
+
+    showStep(0);
+  </script>
+</body>
+</html>

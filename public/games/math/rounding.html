@@ -350,7 +350,7 @@
 
             <div class="field-group">
                 <label for="num" class="field-label">กำหนดจำนวนเต็ม</label>
-                <input type="number" id="num" value="67" class="input-field" placeholder="ใส่ตัวเลข">
+                <input type="number" id="num" value="67" step="any" class="input-field" placeholder="ใส่ตัวเลข">
             </div>
 
             <!-- เมนูเรื่องที่สอน -->
@@ -360,6 +360,7 @@
                     <option value="10">🔟 เต็มสิบ</option>
                     <option value="100">💯 เต็มร้อย</option>
                     <option value="1000">🇰 เต็มพัน</option>
+                    <option value="decimal">🔢 ทศนิม (หลักสิบ)</option>
                 </select>
             </div>
 
@@ -446,6 +447,8 @@
                 mainTitle.innerText = 'ค่าประมาณเป็นจำนวนเต็มร้อย';
             } else if (level === '1000') {
                 mainTitle.innerText = 'ค่าประมาณเป็นจำนวนเต็มพัน';
+            } else if (level === 'decimal') {
+                mainTitle.innerText = 'ค่าประมาณทศนิยม (หลักสิบ)';
             }
             hideAnswer();
         });
@@ -465,49 +468,61 @@
         function showAnswer() {
             if (numInput.value === '') return;
 
-            var n = parseInt(numInput.value);
-            var roundValue = parseInt(roundLevelSelect.value);
+            var level = roundLevelSelect.value;
+            var n = parseFloat(numInput.value);
+            if (isNaN(n)) return;
 
             if (window.KAMPAI) {
                 window.KAMPAI.submitScore(100, {
                     mode: 'learn',
                     number: n,
-                    round_level: roundValue
+                    round_level: level
                 });
             }
 
-            // ตรรกะการหาค่าประมาณตามหลักที่เลือก
-            var rounded = Math.round(n / roundValue) * roundValue;
-            var lower = Math.floor(n / roundValue) * roundValue;
-            var upper = lower + roundValue;
+            var rounded, lower, upper, digitName, digitValue, explainText;
 
-            // หาชื่อหลักและตัวเลขที่จะต้องใช้พิจารณา
-            var digitName = "";
-            var digitValue = 0;
-
-            if (roundValue === 10) {
-                digitName = "หลักหน่วย";
-                digitValue = n % 10;
-            } else if (roundValue === 100) {
-                digitName = "หลักสิบ";
-                digitValue = Math.floor((n % 100) / 10);
-            } else if (roundValue === 1000) {
-                digitName = "หลักร้อย";
-                digitValue = Math.floor((n % 1000) / 100);
-            }
-
-            // อัปเดตข้อมูล
-            document.getElementById('result').innerText = rounded;
-
-            // สร้างคำอธิบายให้สอดคล้องกับหลักคณิตศาสตร์
-            var explainText = '';
-            if (n % roundValue === 0) {
-                var labelText = roundValue === 10 ? 'สิบ' : roundValue === 100 ? 'ร้อย' : 'พัน';
-                explainText = '<span class="c-blue">' + n + '</span> เป็นจำนวนเต็ม' + labelText + 'อยู่แล้ว';
-            } else if (digitValue < 5) {
-                explainText = '<span class="c-blue">' + n + '</span> อยู่ระหว่าง <span class="c-slate">' + lower + '</span> และ <span class="c-slate">' + upper + '</span><br>' + digitName + 'คือ <span class="c-rose">' + digitValue + '</span> (น้อยกว่า 5) จึงปัดลงเป็น <span class="c-emerald-dark">' + rounded + '</span>';
+            if (level === 'decimal') {
+                rounded = Math.round(n * 10) / 10;
+                lower = Math.floor(n * 10) / 10;
+                upper = lower + 0.1;
+                digitName = 'หลักสิบของทศนิยม';
+                digitValue = Math.round((n * 100) % 10);
+                document.getElementById('result').innerText = rounded.toFixed(1);
+                if (Math.abs(n - rounded) < 0.0001) {
+                    explainText = '<span class="c-blue">' + n + '</span> อยู่ที่หลักสิบของทศนิยมแล้ว';
+                } else if (digitValue < 5) {
+                    explainText = '<span class="c-blue">' + n + '</span> อยู่ระหว่าง <span class="c-slate">' + lower.toFixed(1) + '</span> และ <span class="c-slate">' + upper.toFixed(1) + '</span><br>' + digitName + 'คือ <span class="c-rose">' + digitValue + '</span> (น้อยกว่า 5) จึงปัดลงเป็น <span class="c-emerald-dark">' + rounded.toFixed(1) + '</span>';
+                } else {
+                    explainText = '<span class="c-blue">' + n + '</span> อยู่ระหว่าง <span class="c-slate">' + lower.toFixed(1) + '</span> และ <span class="c-slate">' + upper.toFixed(1) + '</span><br>' + digitName + 'คือ <span class="c-emerald">' + digitValue + '</span> (ตั้งแต่ 5 ขึ้นไป) จึงปัดขึ้นเป็น <span class="c-emerald-dark">' + rounded.toFixed(1) + '</span>';
+                }
             } else {
-                explainText = '<span class="c-blue">' + n + '</span> อยู่ระหว่าง <span class="c-slate">' + lower + '</span> และ <span class="c-slate">' + upper + '</span><br>' + digitName + 'คือ <span class="c-emerald">' + digitValue + '</span> (ตั้งแต่ 5 ขึ้นไป) จึงปัดขึ้นเป็น <span class="c-emerald-dark">' + rounded + '</span>';
+                var roundValue = parseInt(level, 10);
+                n = Math.round(n);
+                rounded = Math.round(n / roundValue) * roundValue;
+                lower = Math.floor(n / roundValue) * roundValue;
+                upper = lower + roundValue;
+                digitName = '';
+                digitValue = 0;
+                if (roundValue === 10) {
+                    digitName = 'หลักหน่วย';
+                    digitValue = n % 10;
+                } else if (roundValue === 100) {
+                    digitName = 'หลักสิบ';
+                    digitValue = Math.floor((n % 100) / 10);
+                } else if (roundValue === 1000) {
+                    digitName = 'หลักร้อย';
+                    digitValue = Math.floor((n % 1000) / 100);
+                }
+                document.getElementById('result').innerText = rounded;
+                if (n % roundValue === 0) {
+                    var labelText = roundValue === 10 ? 'สิบ' : roundValue === 100 ? 'ร้อย' : 'พัน';
+                    explainText = '<span class="c-blue">' + n + '</span> เป็นจำนวนเต็ม' + labelText + 'อยู่แล้ว';
+                } else if (digitValue < 5) {
+                    explainText = '<span class="c-blue">' + n + '</span> อยู่ระหว่าง <span class="c-slate">' + lower + '</span> และ <span class="c-slate">' + upper + '</span><br>' + digitName + 'คือ <span class="c-rose">' + digitValue + '</span> (น้อยกว่า 5) จึงปัดลงเป็น <span class="c-emerald-dark">' + rounded + '</span>';
+                } else {
+                    explainText = '<span class="c-blue">' + n + '</span> อยู่ระหว่าง <span class="c-slate">' + lower + '</span> และ <span class="c-slate">' + upper + '</span><br>' + digitName + 'คือ <span class="c-emerald">' + digitValue + '</span> (ตั้งแต่ 5 ขึ้นไป) จึงปัดขึ้นเป็น <span class="c-emerald-dark">' + rounded + '</span>';
+                }
             }
             explain.innerHTML = explainText;
 

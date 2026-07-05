@@ -124,7 +124,7 @@
   <div class="shell" id="shell">
     <header>
       <a class="btn btn-back" href="/h/nattapong">← กลับคลังสื่อ</a>
-      <h1>📝 Grammar Mini — is/are · a/an</h1>
+      <h1>📝 Grammar Mini — is/are · a/an · this/that</h1>
       <span class="badge">ป.3–4 · ภาษาอังกฤษ</span>
     </header>
 
@@ -219,6 +219,22 @@
             { parts: [null, 'ball'], answer: 'a', opts: ['a', 'an'] },
           ],
         },
+        demonstratives: {
+          label: 'this/that',
+          rule: '<h3>this · that · these · those</h3><p><strong>this/these</strong> = ใกล้ผู้พูด · <strong>that/those</strong> = ไกลผู้พูด<br>this/that + เอกพจน์ · these/those + พหูพจน์</p>',
+          examples: [
+            { en: 'This is my book.', th: 'นี่คือหนังสือของฉัน', tip: 'this + เอกพจน์ ใกล้' },
+            { en: 'That is a tree.', th: 'นั่นคือต้นไม้', tip: 'that + เอกพจน์ ไกล' },
+            { en: 'These are apples.', th: 'นี่คือแอปเปิ้ล (หลายลูก)', tip: 'these + พหูพจน์ ใกล้' },
+            { en: 'Those are birds.', th: 'นั่นคือนก (หลายตัว)', tip: 'those + พหูพจน์ ไกล' },
+          ],
+          practice: [
+            { parts: [null, 'is my pen.'], answer: 'This', opts: ['This', 'That', 'These', 'Those'] },
+            { parts: [null, 'are my friends.'], answer: 'Those', opts: ['This', 'That', 'These', 'Those'] },
+            { parts: [null, 'are cats.'], answer: 'These', opts: ['This', 'That', 'These', 'Those'] },
+            { parts: [null, 'is a school.'], answer: 'That', opts: ['This', 'That', 'These', 'Those'] },
+          ],
+        },
       };
 
       var activeTopic = 'isare';
@@ -285,9 +301,11 @@
       }
 
       function nextPractice() {
-        var pool = TOPICS.isare.practice.concat(TOPICS.aan.practice);
+        var pool = TOPICS.isare.practice.concat(TOPICS.aan.practice, TOPICS.demonstratives.practice);
         practiceQ = pool[Math.floor(Math.random() * pool.length)];
-        var topicKey = TOPICS.isare.practice.indexOf(practiceQ) >= 0 ? 'isare' : 'aan';
+        var topicKey = 'demonstratives';
+        if (TOPICS.isare.practice.indexOf(practiceQ) >= 0) topicKey = 'isare';
+        else if (TOPICS.aan.practice.indexOf(practiceQ) >= 0) topicKey = 'aan';
         document.getElementById('practiceTopic').textContent = TOPICS[topicKey].label;
         document.getElementById('practiceSentence').innerHTML = renderPracticeSentence(practiceQ);
         document.getElementById('practiceFb').textContent = '';

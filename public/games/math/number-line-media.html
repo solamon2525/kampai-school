@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>เส้นจำนวน — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --deep: #1e3a8a; --line: #bfdbfe; --muted: #64748b; --ok: #16a34a; --bad: #dc2626; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(135deg, #60a5fa, #bfdbfe); min-height: 100vh; padding: 12px; color: #0f172a; }
+    .shell { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+    header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #1e3a8a, #2563eb); color: #fff; }
+    header h1 { font-size: 1.15rem; font-weight: 800; flex: 1; min-width: 160px; }
+    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn:active { transform: scale(.97); }
+    .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
+    .btn-primary { background: var(--deep); color: #fff; width: 100%; }
+    .btn-accent { background: #fbbf24; color: #78350f; width: 100%; }
+    .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; background: #eff6ff; border-bottom: 1px solid var(--line); align-items: center; }
+    .hint { font-size: .85rem; color: #1d4ed8; font-weight: 600; flex: 1; min-width: 140px; }
+    .body { flex: 1; display: grid; grid-template-columns: 1fr; min-height: 0; }
+    @media (min-width: 860px) { .body { grid-template-columns: 280px 1fr; } }
+    .side { background: #1e3a8a; color: #fff; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .side label { font-size: .85rem; color: #93c5fd; font-weight: 700; display: block; margin-bottom: 6px; }
+    .side input[type=number] { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #3b82f6; background: rgba(255,255,255,.1); color: #fff; font-family: inherit; font-size: 1.4rem; font-weight: 800; text-align: center; }
+    .side-hint { font-size: .8rem; color: #bfdbfe; line-height: 1.45; }
+    .main { padding: 20px 16px; display: flex; flex-direction: column; align-items: center; gap: 16px; background: #eff6ff; flex: 1; }
+    .target-box { text-align: center; }
+    .target-label { font-size: .95rem; font-weight: 700; color: var(--muted); }
+    .target-num { font-size: clamp(2.5rem, 10vw, 4rem); font-weight: 800; color: var(--deep); line-height: 1.1; }
+    .line-wrap { width: 100%; max-width: 640px; padding: 8px 4px; }
+    .line-area { position: relative; height: 72px; cursor: crosshair; touch-action: none; }
+    .track { position: absolute; top: 50%; left: 0; right: 0; height: 6px; transform: translateY(-50%); background: #93c5fd; border-radius: 999px; }
+    .tick { position: absolute; top: 50%; width: 2px; height: 14px; background: #64748b; transform: translate(-50%, -50%); }
+    .tick.major { height: 22px; width: 3px; background: var(--deep); }
+    .tick-label { position: absolute; top: calc(50% + 18px); transform: translateX(-50%); font-size: .85rem; font-weight: 800; color: var(--deep); }
+    .marker { position: absolute; top: 50%; width: 28px; height: 28px; transform: translate(-50%, -50%); background: linear-gradient(135deg, #fbbf24, #f59e0b); border: 3px solid #fff; border-radius: 50%; box-shadow: 0 3px 10px rgba(30,58,138,.35); pointer-events: none; transition: left .08s; }
+    .marker .val { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); font-size: .9rem; font-weight: 800; color: #fff; background: var(--deep); padding: 2px 10px; border-radius: 999px; white-space: nowrap; }
+    .answer-mark { position: absolute; top: 50%; width: 4px; height: 36px; transform: translate(-50%, -50%); background: var(--ok); border-radius: 2px; opacity: 0; transition: opacity .2s; box-shadow: 0 0 8px rgba(22,163,74,.5); pointer-events: none; }
+    .answer-mark.show { opacity: 1; }
+    .line-ends { display: flex; justify-content: space-between; font-weight: 800; color: var(--deep); font-size: 1rem; margin-top: 4px; padding: 0 2px; }
+    .readout { background: #fff; border: 2px dashed #93c5fd; border-radius: 14px; padding: 14px 18px; width: 100%; max-width: 520px; font-weight: 600; line-height: 1.55; text-align: center; min-height: 52px; }
+    .readout.ok { border-color: #86efac; background: #dcfce7; color: #166534; }
+    .readout.no { border-color: #fca5a5; background: #fee2e2; color: #991b1b; }
+    .compare-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; width: 100%; max-width: 520px; }
+    .cmp-card { flex: 1; min-width: 120px; background: #fff; border: 2px solid var(--line); border-radius: 14px; padding: 12px; text-align: center; }
+    .cmp-card .lbl { font-size: .8rem; color: var(--muted); font-weight: 700; }
+    .cmp-card .num { font-size: 1.8rem; font-weight: 800; color: var(--deep); }
+    .footer { padding: 10px 16px; font-size: .8rem; color: var(--muted); border-top: 1px solid var(--line); text-align: center; }
+    .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <a class="btn btn-back" href="/h/nattapong">← กลับคลังสื่อ</a>
+      <h1>📏 เส้นจำนวน 0–20</h1>
+      <span class="badge">ป.1–3 · คณิตศาสตร์</span>
+    </header>
+    <div class="toolbar">
+      <p class="hint" id="hint">แตะบนเส้นจำนวนเพื่อวางจุด · เปรียบเทียบกับตัวเลขเป้า</p>
+      <button type="button" class="btn btn-ghost" id="btnFs">⛶ เต็มจอ</button>
+    </div>
+    <div class="body">
+      <aside class="side">
+        <div>
+          <label for="targetIn">ตัวเลขเป้า (0–20)</label>
+          <input type="number" id="targetIn" min="0" max="20" value="7" />
+        </div>
+        <button type="button" class="btn btn-accent" id="btnRand">🎲 สุ่มตัวเลข</button>
+        <button type="button" class="btn btn-primary" id="btnCheck">✅ ตรวจคำตอบ</button>
+        <button type="button" class="btn btn-primary" id="btnReveal" style="background:#2563eb">👁 แสดงตำแหน่งที่ถูก</button>
+        <button type="button" class="btn btn-primary" id="btnClear" style="background:#475569">↺ ล้างจุด</button>
+        <p class="side-hint">สื่อการสอน — ไม่มีคะแนน · ใช้สาธิตบนโปรเจคเตอร์หรือให้นักเรียนแตะวางจุด</p>
+      </aside>
+      <main class="main">
+        <div class="target-box">
+          <p class="target-label">วางจุดที่ตัวเลข</p>
+          <p class="target-num" id="targetDisplay">7</p>
+        </div>
+        <div class="line-wrap">
+          <div class="line-area" id="lineArea">
+            <div class="track"></div>
+            <div id="ticks"></div>
+            <div class="answer-mark" id="answerMark"></div>
+            <div class="marker" id="marker" style="left:50%"><span class="val" id="markerVal">?</span></div>
+          </div>
+          <div class="line-ends"><span>0</span><span>20</span></div>
+        </div>
+        <div class="compare-row">
+          <div class="cmp-card"><div class="lbl">จุดที่วาง</div><div class="num" id="placedNum">—</div></div>
+          <div class="cmp-card"><div class="lbl">ตัวเลขเป้า</div><div class="num" id="goalNum">7</div></div>
+        </div>
+        <div class="readout" id="readout">แตะบนเส้นจำนวนเพื่อวางจุด แล้วกด "ตรวจคำตอบ"</div>
+      </main>
+    </div>
+    <footer>ตัวชี้วัด <strong>ค 1.1 ป.2/3</strong> · เปรียบเทียบและเรียงลำดับจำนวน · คู่เกม <a href="/games/math/number-line.html">เส้นจำนวนแม่นเป้า</a></footer>
+  </div>
+  <script>
+    if (window.KAMPAI) window.KAMPAI.setSlug('number-line-media');
+
+    const MIN = 0, MAX = 20, SPAN = MAX - MIN;
+    const lineArea = document.getElementById('lineArea');
+    const marker = document.getElementById('marker');
+    const answerMark = document.getElementById('answerMark');
+    const targetIn = document.getElementById('targetIn');
+    let placed = null;
+
+    function buildTicks() {
+      let html = '';
+      for (let i = MIN; i <= MAX; i++) {
+        const pct = (i / SPAN) * 100;
+        const major = i % 5 === 0;
+        html += `<div class="tick${major ? ' major' : ''}" style="left:${pct}%"></div>`;
+        if (major) html += `<span class="tick-label" style="left:${pct}%">${i}</span>`;
+      }
+      document.getElementById('ticks').innerHTML = html;
+    }
+
+    function fracFromX(clientX) {
+      const rect = lineArea.getBoundingClientRect();
+      const x = Math.max(0, Math.min(rect.width, clientX - rect.left));
+      return x / rect.width;
+    }
+
+    function valueFromFrac(f) {
+      return Math.round(MIN + f * SPAN);
+    }
+
+    function fracFromValue(v) {
+      return (v - MIN) / SPAN;
+    }
+
+    function placeAtFrac(f) {
+      const v = valueFromFrac(f);
+      placed = v;
+      marker.style.left = (f * 100) + '%';
+      document.getElementById('markerVal').textContent = v;
+      document.getElementById('placedNum').textContent = v;
+      answerMark.classList.remove('show');
+      document.getElementById('readout').className = 'readout';
+      document.getElementById('readout').textContent = 'วางจุดที่ ' + v + ' แล้ว — กด "ตรวจคำตอบ"';
+    }
+
+    function getTarget() {
+      let t = parseInt(targetIn.value, 10);
+      if (isNaN(t)) t = 0;
+      return Math.max(MIN, Math.min(MAX, t));
+    }
+
+    function syncTarget() {
+      const t = getTarget();
+      targetIn.value = t;
+      document.getElementById('targetDisplay').textContent = t;
+      document.getElementById('goalNum').textContent = t;
+    }
+
+    function pointerPlace(e) {
+      const x = e.touches ? e.touches[0].clientX : e.clientX;
+      placeAtFrac(fracFromX(x));
+    }
+
+    lineArea.addEventListener('click', pointerPlace);
+    lineArea.addEventListener('touchstart', function (e) {
+      e.preventDefault();
+      pointerPlace(e);
+    }, { passive: false });
+
+    document.getElementById('btnRand').onclick = function () {
+      targetIn.value = Math.floor(Math.random() * (MAX + 1));
+      syncTarget();
+      placed = null;
+      marker.style.left = '50%';
+      document.getElementById('markerVal').textContent = '?';
+      document.getElementById('placedNum').textContent = '—';
+      answerMark.classList.remove('show');
+      document.getElementById('readout').className = 'readout';
+      document.getElementById('readout').textContent = 'สุ่มตัวเลขใหม่แล้ว — แตะบนเส้นจำนวนเพื่อวางจุด';
+    };
+
+    document.getElementById('btnCheck').onclick = function () {
+      const t = getTarget();
+      syncTarget();
+      if (placed === null) {
+        document.getElementById('readout').className = 'readout';
+        document.getElementById('readout').textContent = 'แตะบนเส้นจำนวนก่อนนะ';
+        return;
+      }
+      const ok = placed === t;
+      const ro = document.getElementById('readout');
+      ro.className = 'readout ' + (ok ? 'ok' : 'no');
+      if (ok) {
+        ro.textContent = '✓ ถูกต้อง! จุดอยู่ที่ ' + t + ' พอดี';
+        if (window.KAMPAI && KAMPAI.sound) KAMPAI.sound.correct();
+      } else {
+        const cmp = placed > t ? 'มากกว่า' : 'น้อยกว่า';
+        ro.textContent = '✗ วางที่ ' + placed + ' (' + cmp + ' ' + t + ') — กด "แสดงตำแหน่งที่ถูก" เพื่อดูเฉลย';
+        if (window.KAMPAI && KAMPAI.sound) KAMPAI.sound.wrong();
+      }
+    };
+
+    document.getElementById('btnReveal').onclick = function () {
+      const t = getTarget();
+      syncTarget();
+      const f = fracFromValue(t);
+      answerMark.style.left = (f * 100) + '%';
+      answerMark.classList.add('show');
+      document.getElementById('readout').className = 'readout ok';
+      document.getElementById('readout').textContent = 'ตำแหน่งที่ถูกคือ ' + t + ' (เส้นสีเขียว)';
+    };
+
+    document.getElementById('btnClear').onclick = function () {
+      placed = null;
+      marker.style.left = '50%';
+      document.getElementById('markerVal').textContent = '?';
+      document.getElementById('placedNum').textContent = '—';
+      answerMark.classList.remove('show');
+      document.getElementById('readout').className = 'readout';
+      document.getElementById('readout').textContent = 'ล้างจุดแล้ว — แตะบนเส้นจำนวนเพื่อวางใหม่';
+    };
+
+    targetIn.addEventListener('input', syncTarget);
+
+    document.getElementById('btnFs').onclick = function () {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    };
+
+    buildTicks();
+    syncTarget();
+  </script>
+</body>
+</html>
