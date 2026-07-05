@@ -7,14 +7,14 @@ interface GameCoverThumbProps {
     imgClassName?: string;
 }
 
-/** ปกเกม 16:9 — object-contain + padding กัน tone mark ไทยโดนตัด (GAME.md) */
+/** ปกเกม 16:9 — 1280×720 fit เต็มกรอบ aspect-video (GAME.md) */
 export const GameCoverThumb = ({ src, alt, className, imgClassName }: GameCoverThumbProps) => (
-    <div className={cn('aspect-video w-full overflow-hidden bg-muted p-2', className)}>
+    <div className={cn('aspect-video w-full overflow-hidden bg-muted', className)}>
         <img
             src={src}
             alt={alt}
             loading="lazy"
-            className={cn('w-full h-full object-contain', imgClassName)}
+            className={cn('w-full h-full object-cover', imgClassName)}
         />
     </div>
 );
