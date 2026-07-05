@@ -27,7 +27,7 @@
     body {
       font-family: 'Sarabun', sans-serif;
       background: linear-gradient(145deg, #fff7ed 0%, #ffedd5 40%, #fed7aa 100%);
-      min-height: 100vh;
+      min-height: 100%;
       color: #0f172a;
       padding: 12px;
     }
@@ -366,7 +366,7 @@
 <body>
   <div class="shell">
     <header>
-      <a class="btn btn-back" href="/h/nattapong">← กลับคลังสื่อ</a>
+      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
       <h1>🍕 สื่อเศษส่วนวงกลม / แท่ง</h1>
       <span class="badge">ป.3–5 · คณิตศาสตร์</span>
     </header>

@@ -342,9 +342,7 @@
 
         <!-- Sidebar Controls -->
         <div class="sidebar">
-            <a href="/h/nattapong" class="btn btn-back" style="margin-bottom:16px; text-decoration:none; text-align:center;">
-                ← กลับคลังสื่อ
-            </a>
+            <button type="button" class="btn btn-back" style="margin-bottom:16px;width:100%;" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
 
             <h2><span>⚙️</span> แผงควบคุม</h2>
 
@@ -471,14 +469,6 @@
             var level = roundLevelSelect.value;
             var n = parseFloat(numInput.value);
             if (isNaN(n)) return;
-
-            if (window.KAMPAI) {
-                window.KAMPAI.submitScore(100, {
-                    mode: 'learn',
-                    number: n,
-                    round_level: level
-                });
-            }
 
             var rounded, lower, upper, digitName, digitValue, explainText;
 

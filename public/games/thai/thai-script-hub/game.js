@@ -166,6 +166,9 @@ function resetSession() {
 }
 
 const CONFIG = window.GAME_CONFIG || {};
+if (CONFIG.SLUG && window.KAMPAI && typeof window.KAMPAI.setSlug === 'function') {
+  window.KAMPAI.setSlug(CONFIG.SLUG);
+}
 const CATEGORIES = (window.GAME_DATA && window.GAME_DATA.categories) || [];
 const ALL_WORDS = (window.GAME_DATA && window.GAME_DATA.words) || {};
 
@@ -1901,20 +1904,8 @@ function endGame() {
     starDisplay.style.display = 'block';
   }
 
-  // ส่งคะแนนรอบฝึกขึ้นระบบ (เฉพาะเมื่อมีการตอบอย่างน้อย 1 ข้อ — โหมดทบทวนไม่เรียก endGame)
-  if (total > 0 && KAMPAI.submitScore) {
-    KAMPAI.submitScore(currentScore, {
-      stars: stars,
-      categorySlug: activeCategorySlug,
-      missedWords: missedWords.map((w) => ({
-        word: w.word,
-        reading: w.reading,
-        meaning: w.meaning,
-        indicator_code: w.indicator_code || null,
-      })),
-      indicatorCodes: missedWords.map((w) => w.indicator_code).filter(Boolean),
-    });
-  }
+  // สื่อ media (tracked_game=false) — ไม่ส่งคะแนน
+  // if (total > 0 && KAMPAI.submitScore) { ... }
 
   const titleEl = document.getElementById('go-title');
   if (titleEl) titleEl.textContent = (currentLives <= 0) ? 'พยายามอีกครั้ง!' : 'ทบทวนสำเร็จ!';

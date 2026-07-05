@@ -9,7 +9,7 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root { --deep: #0d9488; --line: #99f6e4; --muted: #64748b; --ok: #16a34a; --bad: #dc2626; }
-    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(145deg, #ccfbf1, #99f6e4); min-height: 100vh; padding: 12px; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(145deg, #ccfbf1, #99f6e4); min-height: 100%; padding: 12px; }
     .shell { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
     header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #0f766e, #14b8a6); color: #fff; }
     header h1 { font-size: 1.1rem; font-weight: 800; flex: 1; }
@@ -61,7 +61,7 @@
 <body>
   <div class="shell" id="shell">
     <header>
-      <a class="btn btn-back" href="/h/nattapong">← กลับคลังสื่อ</a>
+      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
       <h1>👁️ Sight Words — คำอ่านจำ ป.4</h1>
       <span class="badge">ป.4 · ภาษาอังกฤษ</span>
     </header>

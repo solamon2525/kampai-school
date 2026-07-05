@@ -46,6 +46,7 @@
     _readyCbs: [],
     _submitted: false,
     _online: { room: null, onJoined: null, onPresence: null, onEvent: null },
+    hubUrl: '/h/nattapong',
   };
 
   // ─── lifecycle ──────────────────────────────────────────────────────────────
@@ -108,8 +109,9 @@
 
   /** กลับหน้าหลัก (iframe-safe) */
   K.goHome = function () {
-    if (IS_EMBED) { try { window.parent.postMessage({ type: 'navigate', to: '/h/nattapong' }, '*'); } catch (e) { /* */ } }
-    else { window.location.href = '/h/nattapong'; }
+    var home = K.hubUrl || '/h/nattapong';
+    if (IS_EMBED) { try { window.parent.postMessage({ type: 'navigate', to: home }, '*'); } catch (e) { /* */ } }
+    else { window.location.href = home; }
   };
   K.exit = K.goHome;
 
@@ -433,6 +435,7 @@
         if (d.audio.bgmUrl) { _bgmFromInit = true; K.sound.setBgmUrl(d.audio.bgmUrl); }
         else if (d.audio.bgm) { _bgmFromInit = true; K.sound.setBgm(d.audio.bgm); }
       }
+      if (typeof d.hubUrl === 'string' && d.hubUrl.startsWith('/')) K.hubUrl = d.hubUrl;
       K._startTs = Date.now();
       fireReady();
     });

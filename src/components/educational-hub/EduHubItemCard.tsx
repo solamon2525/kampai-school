@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -571,6 +571,30 @@ const DetailDialog = ({
 const EmbedDialog = ({
     item, open, onOpenChange,
 }: { item: EduHubItem; open: boolean; onOpenChange: (v: boolean) => void }) => {
+    const iframeRef = useRef<HTMLIFrameElement>(null);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const navHandler = (e: MessageEvent) => {
+            const d = e.data as { type?: string; to?: string } | undefined;
+            if (d?.type === 'navigate' && typeof d.to === 'string' && d.to.startsWith('/')) {
+                onOpenChange(false);
+                navigate(d.to);
+            }
+        };
+        window.addEventListener('message', navHandler);
+        return () => window.removeEventListener('message', navHandler);
+    }, [navigate, onOpenChange]);
+
+    const handleIframeLoad = useCallback(() => {
+        if (item.tracked_game) return;
+        iframeRef.current?.contentWindow?.postMessage({
+            type: 'init',
+            hubUrl: window.location.pathname,
+            media: true,
+        }, '*');
+    }, [item.tracked_game]);
+
     if (!item.external_url) return null;
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -589,12 +613,14 @@ const EmbedDialog = ({
                     </DialogTitle>
                 </DialogHeader>
                 <iframe
+                    ref={iframeRef}
                     src={item.external_url}
                     title={item.title}
                     className="flex-1 w-full border-0"
                     sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-modals allow-forms"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen; pointer-lock"
                     allowFullScreen
+                    onLoad={handleIframeLoad}
                 />
             </DialogContent>
         </Dialog>

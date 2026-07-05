@@ -9,7 +9,7 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root { --deep: #7c3aed; --line: #ddd6fe; --ok: #16a34a; --bad: #dc2626; --muted: #64748b; }
-    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(160deg, #ede9fe, #c4b5fd); min-height: 100vh; padding: 12px; color: #0f172a; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(160deg, #ede9fe, #c4b5fd); min-height: 100%; padding: 12px; color: #0f172a; }
     .shell { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
     header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #5b21b6, #7c3aed); color: #fff; }
     header h1 { font-size: 1.15rem; font-weight: 800; flex: 1; }
@@ -55,7 +55,7 @@
 <body>
   <div class="shell">
     <header>
-      <a class="btn btn-back" href="/h/nattapong">← กลับคลังสื่อ</a>
+      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
       <h1>🧊 สถานะของสสาร — ของแข็ง · ของเหลว · ของแก๊ส</h1>
       <span class="badge">ป.4 · วิทยาศาสตร์</span>
     </header>

@@ -9,7 +9,7 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root { --deep: #0e7490; --line: #a5f3fc; --muted: #64748b; --ok: #16a34a; --bad: #dc2626; }
-    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(160deg, #ecfeff, #cffafe); min-height: 100vh; padding: 12px; color: #0f172a; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(160deg, #ecfeff, #cffafe); min-height: 100%; padding: 12px; color: #0f172a; }
     .shell { max-width: 1000px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
     header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #0e7490, #0891b2); color: #fff; }
     header h1 { font-size: 1.15rem; font-weight: 800; flex: 1; min-width: 160px; }
@@ -68,7 +68,7 @@
 <body>
   <div class="shell" id="shell">
     <header>
-      <a class="btn btn-back" href="/h/nattapong">← กลับคลังสื่อ</a>
+      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
       <h1>🧼 ล้างมือ 7 ขั้น</h1>
       <span class="badge">ป.3–4 · สุขศึกษา</span>
     </header>
@@ -176,8 +176,7 @@
       orderExpected = 1;
       document.getElementById('orderFb').textContent = '';
       document.getElementById('orderFb').className = 'order-fb';
-      document.getElementById('orderNext').textContent = STEPS[0].label;
-      document.getElementById('orderPrompt').innerHTML = 'แตะการ์ดให้ถูกลำดับ <strong>1 → 7</strong><br>ขั้นถัดไป: <span id="orderNext">' + STEPS[0].label + '</span>';
+      document.getElementById('orderPrompt').innerHTML = 'แตะการ์ดให้ถูกลำดับ <strong>1 → 7</strong><br>ขั้นถัดไป: <span class="order-next-label">' + STEPS[0].label + '</span>';
       document.getElementById('orderTrack').innerHTML = STEPS.map(function (s) {
         return '<div class="order-slot" id="os' + s.n + '">' + s.n + '</div>';
       }).join('');
@@ -201,7 +200,7 @@
         orderExpected++;
         document.getElementById('orderFb').className = 'order-fb ok';
         document.getElementById('orderFb').textContent = '✓ ถูกต้อง! ' + STEPS[n - 1].label;
-        var nextEl = document.getElementById('orderNext');
+        var nextEl = document.querySelector('.order-next-label');
         if (orderExpected <= STEPS.length) {
           if (nextEl) nextEl.textContent = STEPS[orderExpected - 1].label;
         } else {

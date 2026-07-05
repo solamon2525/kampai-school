@@ -536,10 +536,17 @@
                 p = { topic: 'mixed_add', w1, w2, n1, n2, d };
             } else if (topic === 'mixed_sub') {
                 const d = pickDenom(level);
-                const w1 = Math.floor(Math.random() * 3) + 2;
-                const w2 = Math.floor(Math.random() * 2) + 1;
-                const n1 = Math.floor(Math.random() * (d - 1)) + 1;
-                const n2 = Math.floor(Math.random() * (d - 1)) + 1;
+                let w1, w2, n1, n2, imp1, imp2, tries = 0;
+                do {
+                    w1 = Math.floor(Math.random() * 3) + 2;
+                    w2 = Math.floor(Math.random() * 2) + 1;
+                    n1 = Math.floor(Math.random() * (d - 1)) + 1;
+                    n2 = Math.floor(Math.random() * (d - 1)) + 1;
+                    imp1 = w1 * d + n1;
+                    imp2 = w2 * d + n2;
+                    tries++;
+                } while (imp1 <= imp2 && tries < 40);
+                if (imp1 <= imp2) { w1 = w2 + 2; imp1 = w1 * d + n1; }
                 p = { topic: 'mixed_sub', w1, w2, n1, n2, d };
             }
 
@@ -551,10 +558,6 @@
             let p = state.problem;
             if (topic === 'bar') p = buildBarProblem();
             if (!p) return;
-
-            if (window.KAMPAI && typeof window.KAMPAI.submitScore === 'function') {
-                window.KAMPAI.submitScore(100, { mode: 'learn', topic: p.topic });
-            }
 
             let resultText = '';
             let explainHtml = '';
@@ -610,7 +613,7 @@
             } else if (p.topic === 'mixed_sub') {
                 const imp1 = p.w1 * p.d + p.n1;
                 const imp2 = p.w2 * p.d + p.n2;
-                const diff = Math.max(imp1 - imp2, 1);
+                const diff = imp1 - imp2;
                 const whole = Math.floor(diff / p.d);
                 const rem = diff % p.d;
                 const [rn, rd] = simplify(rem, p.d);

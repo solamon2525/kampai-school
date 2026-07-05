@@ -20,6 +20,7 @@
     "generate:og": "node scripts/generate-og-image.mjs",
     "optimize:logos": "node scripts/optimize-logos.mjs",
     "verify:game": "node scripts/verify-game.mjs",
+    "verify:media": "node scripts/verify-media.mjs",
     "audit:covers": "node scripts/audit-cover-safe-top.mjs",
     "fix:covers-safe-top": "node scripts/reframe-cover-safe-top.mjs --all-risky",
     "build:vocab": "node scripts/build-vocab-data.mjs",
