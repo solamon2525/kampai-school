@@ -35,8 +35,13 @@
         </div>
 
         <div class="text-right">
-            <div class="text-sm sm:text-lg font-bold text-yellow-400 leading-none mb-1 flex justify-end gap-1">
-                คะแนน: <div id="scoreDisplay" class="inline-block w-8 text-right">0</div>
+            <div id="scoreContainer" class="text-sm sm:text-lg font-bold leading-none mb-1 flex justify-end gap-1">
+                <span id="soloScoreLabel" class="text-yellow-400">คะแนน: <span id="scoreDisplay">0</span></span>
+                <span id="coopScoreLabel" class="hidden">
+                    <span class="text-yellow-400">P1: <span id="p1ScoreDisplay">0</span></span>
+                    <span class="text-slate-500 mx-1">|</span>
+                    <span class="text-sky-400">P2: <span id="p2ScoreDisplay">0</span></span>
+                </span>
             </div>
             <div class="flex flex-col sm:flex-row gap-1 sm:gap-2 justify-end">
                 <div id="p1LivesContainer" class="text-[10px] sm:text-xs font-bold text-yellow-400 leading-none tracking-widest bg-slate-800 px-1.5 py-1 rounded border border-yellow-500/50">
@@ -94,10 +99,10 @@
                     👤 เล่นคนเดียว
                 </button>
                 <button onclick="startGame('coop')" class="px-5 py-3 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold text-sm sm:text-base rounded-xl shadow-lg shadow-sky-500/20 transform active:scale-95 transition-all">
-                    👥 เล่นสองคน (Co-op)
+                    👥 ดวล 2 คน (เครื่องเดียว)
                 </button>
                 <button onclick="vs.openMenu()" class="px-5 py-3 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-400 hover:to-red-500 text-white font-bold text-sm sm:text-base rounded-xl shadow-lg shadow-orange-500/20 transform active:scale-95 transition-all">
-                    ⚔️ แข่ง 2 คน
+                    ⚔️ แข่งออนไลน์
                 </button>
             </div>
         </div>

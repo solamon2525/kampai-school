@@ -5,6 +5,8 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreDisplay = document.getElementById('scoreDisplay');
+const p1ScoreDisplay = document.getElementById('p1ScoreDisplay');
+const p2ScoreDisplay = document.getElementById('p2ScoreDisplay');
 const p1LivesDisplay = document.getElementById('p1LivesDisplay');
 const p2LivesDisplay = document.getElementById('p2LivesDisplay');
 const p1LivesContainer = document.getElementById('p1LivesContainer');
@@ -26,8 +28,11 @@ let animationId;
 let isPlaying = false;
 let gameMode = 'single'; // 'single', 'coop', 'versus'
 let score = 0;
+let scoreP2 = 0;
 let correctCount = 0;
+let correctCountP2 = 0;
 let comboStreak = 0;
+let comboStreakP2 = 0;
 
 let problemStartTime = 0;
 const problemDuration = DATA.problemDuration || 15000;
@@ -624,15 +629,30 @@ function createFloatingText(x, y, text, color) {
 }
 
 function updateComboUI() {
-    if (comboStreak >= 3) {
-        comboDisplay.innerText = `🔥 Combo x${comboStreak}!`;
-        comboDisplay.classList.remove('hidden');
+    if (gameMode === 'coop') {
+        let text = '';
+        if (comboStreak >= 3) text += `🔥 P1 x${comboStreak} `;
+        if (comboStreakP2 >= 3) text += `${text ? '| ' : ''}🔥 P2 x${comboStreakP2}`;
         
-        comboDisplay.classList.remove('animate-pop');
-        void comboDisplay.offsetWidth;
-        comboDisplay.classList.add('animate-pop');
+        if (text) {
+            comboDisplay.innerText = text;
+            comboDisplay.classList.remove('hidden');
+            comboDisplay.classList.remove('animate-pop');
+            void comboDisplay.offsetWidth;
+            comboDisplay.classList.add('animate-pop');
+        } else {
+            comboDisplay.classList.add('hidden');
+        }
     } else {
-        comboDisplay.classList.add('hidden');
+        if (comboStreak >= 3) {
+            comboDisplay.innerText = `🔥 Combo x${comboStreak}!`;
+            comboDisplay.classList.remove('hidden');
+            comboDisplay.classList.remove('animate-pop');
+            void comboDisplay.offsetWidth;
+            comboDisplay.classList.add('animate-pop');
+        } else {
+            comboDisplay.classList.add('hidden');
+        }
     }
 }
 
@@ -643,8 +663,11 @@ function startGameInternal(mode, rngFn) {
     isPlaying = true;
     gameMode = mode || 'single';
     score = 0;
+    scoreP2 = 0;
     correctCount = 0;
+    correctCountP2 = 0;
     comboStreak = 0;
+    comboStreakP2 = 0;
     items = [];
     particles = [];
     floatingTexts = [];
@@ -656,6 +679,9 @@ function startGameInternal(mode, rngFn) {
     if (versusTimer) clearTimeout(versusTimer);
 
     // Dynamic HUD configurations
+    const soloLabel = document.getElementById('soloScoreLabel');
+    const coopLabel = document.getElementById('coopScoreLabel');
+
     if (gameMode === 'coop') {
         players = [
             new Player(1 * tileSize + tileSize/2, 1 * tileSize + tileSize/2, '#facc15', { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight' }, 1),
@@ -663,12 +689,16 @@ function startGameInternal(mode, rngFn) {
         ];
         p2LivesContainer.style.display = 'inline-block';
         document.getElementById('controls-desc').innerText = "P1 (🟡): ลูกศร | P2 (🔵): WASD";
+        if (soloLabel) soloLabel.classList.add('hidden');
+        if (coopLabel) coopLabel.classList.remove('hidden');
     } else {
         players = [
             new Player(1 * tileSize + tileSize/2, 1 * tileSize + tileSize/2, '#facc15', { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight' }, 1)
         ];
         p2LivesContainer.style.display = 'none';
         document.getElementById('controls-desc').innerText = "ผู้เล่น (🟡): ลูกศร หรือ WASD";
+        if (soloLabel) soloLabel.classList.remove('hidden');
+        if (coopLabel) coopLabel.classList.add('hidden');
     }
 
     updateUI();
@@ -683,9 +713,17 @@ function startGameInternal(mode, rngFn) {
 }
 
 function updateUI() {
-    scoreDisplay.innerText = score;
-    p1LivesDisplay.innerText = players[0] && players[0].lives > 0 ? '❤️'.repeat(players[0].lives) : '💀';
-    if (gameMode === 'coop' && players[1]) {
+    if (gameMode === 'coop') {
+        if (p1ScoreDisplay) p1ScoreDisplay.innerText = score;
+        if (p2ScoreDisplay) p2ScoreDisplay.innerText = scoreP2;
+    } else {
+        if (scoreDisplay) scoreDisplay.innerText = score;
+    }
+
+    if (p1LivesDisplay) {
+        p1LivesDisplay.innerText = players[0] && players[0].lives > 0 ? '❤️'.repeat(players[0].lives) : '💀';
+    }
+    if (gameMode === 'coop' && players[1] && p2LivesDisplay) {
         p2LivesDisplay.innerText = players[1].lives > 0 ? '❤️'.repeat(players[1].lives) : '💀';
     }
 }
@@ -712,25 +750,45 @@ function checkCollisions() {
             if (Math.sqrt(dx*dx + dy*dy) < p.radius + ans.radius) {
                 if (ans.isCorrect) {
                     try { KAMPAI.sound.correct(); } catch(e) {}
-                    score += 10;
-                    correctCount++;
-                    comboStreak++;
                     
-                    createExplosion(ans.x, ans.y, '#38bdf8', 18);
-                    createFloatingText(ans.x, ans.y, `+10 ${comboStreak >= 3 ? `🔥` : ''}`, '#eab308');
+                    if (p.id === 1) {
+                        score += 10;
+                        correctCount++;
+                        comboStreak++;
+                        createExplosion(ans.x, ans.y, '#facc15', 18);
+                        createFloatingText(ans.x, ans.y, `P1 +10 ${comboStreak >= 3 ? `🔥` : ''}`, '#facc15');
+                        
+                        const popEl = (gameMode === 'coop') ? p1ScoreDisplay : scoreDisplay;
+                        if (popEl) {
+                            popEl.classList.remove('animate-pop-straight');
+                            void popEl.offsetWidth; 
+                            popEl.classList.add('animate-pop-straight');
+                        }
+                    } else {
+                        scoreP2 += 10;
+                        correctCountP2++;
+                        comboStreakP2++;
+                        createExplosion(ans.x, ans.y, '#38bdf8', 18);
+                        createFloatingText(ans.x, ans.y, `P2 +10 ${comboStreakP2 >= 3 ? `🔥` : ''}`, '#38bdf8');
+                        
+                        if (p2ScoreDisplay) {
+                            p2ScoreDisplay.classList.remove('animate-pop-straight');
+                            void p2ScoreDisplay.offsetWidth; 
+                            p2ScoreDisplay.classList.add('animate-pop-straight');
+                        }
+                    }
 
-                    // Report score to Versus Mode
-                    vs.report(score, { correct: correctCount });
+                    // Report score to Versus Mode (only relevant in versus mode, which only has P1 anyway)
+                    if (gameMode === 'versus') {
+                        vs.report(score, { correct: correctCount });
+                    }
 
                     updateUI();
                     updateComboUI();
-                    
-                    scoreDisplay.classList.remove('animate-pop-straight');
-                    void scoreDisplay.offsetWidth; 
-                    scoreDisplay.classList.add('animate-pop-straight');
 
-                    // Spawn extra ghosts as score increases
-                    if (score % 60 === 0 && ghosts.length < 15) {
+                    // Spawn extra ghosts as total score increases
+                    const totalScore = score + scoreP2;
+                    if (totalScore % 60 === 0 && ghosts.length < 15) {
                         const paths = getEmptyPathTiles();
                         if (paths.length > 0) ghosts.push(new Ghost(paths[0].x, paths[0].y));
                     }
@@ -741,9 +799,10 @@ function checkCollisions() {
                 } else {
                     try { KAMPAI.sound.wrong(); } catch(e) {}
                     p.lives -= 1;
-                    comboStreak = 0; 
+                    if (p.id === 1) comboStreak = 0; else comboStreakP2 = 0;
+                    
                     createExplosion(ans.x, ans.y, '#ef4444', 15);
-                    createFloatingText(ans.x, ans.y, "-1 Life ❌", '#ef4444');
+                    createFloatingText(ans.x, ans.y, `${p.id === 1 ? 'P1' : 'P2'} -1 Life ❌`, '#ef4444');
                     
                     if (p.lives <= 0) {
                         p.isDead = true;
@@ -764,9 +823,9 @@ function checkCollisions() {
                 if (p.invulnerable <= 0) {
                     try { KAMPAI.sound.wrong(); } catch(e) {}
                     p.lives -= 1;
-                    comboStreak = 0; 
+                    if (p.id === 1) comboStreak = 0; else comboStreakP2 = 0;
                     createExplosion(p.x, p.y, '#ef4444', 20);
-                    createFloatingText(p.x, p.y, "-1 Life 👻", '#ef4444');
+                    createFloatingText(p.x, p.y, `${p.id === 1 ? 'P1' : 'P2'} -1 Life 👻`, '#ef4444');
                     
                     if (p.lives <= 0) {
                         p.isDead = true;
@@ -802,27 +861,60 @@ function triggerGameOver(reason) {
     } catch(e) {}
     
     // Submit score
+    // Submit score (uses highest score for stats submission)
+    const finalScore = Math.max(score, scoreP2);
+    const finalCorrect = Math.max(correctCount, correctCountP2);
+
     let stars = 0;
-    if (score >= 120) stars = 3;
-    else if (score >= 70) stars = 2;
-    else if (score >= 30) stars = 1;
+    if (finalScore >= 120) stars = 3;
+    else if (finalScore >= 70) stars = 2;
+    else if (finalScore >= 30) stars = 1;
     
     // Let Versus framework handle versus screens, otherwise show solo overlays
-    if (vs.finish(score, { correct: correctCount })) return;
+    if (vs.finish(finalScore, { correct: finalCorrect })) return;
 
-    KAMPAI.submitScore(score, { stars: stars });
+    KAMPAI.submitScore(finalScore, { stars: stars });
     
     const titleEl = document.getElementById('msg-title');
     const descEl = document.getElementById('msg-desc');
     
-    if (titleEl) titleEl.innerText = "สิ้นสุดภารกิจ!";
+    if (titleEl) {
+        titleEl.innerText = gameMode === 'coop' ? "สิ้นสุดการดวล!" : "สิ้นสุดภารกิจ!";
+    }
     if (descEl) {
-        descEl.innerHTML = `
-            <p style="color:#f87171; font-weight:bold;">${reason}</p>
-            <p>คะแนนสะสม: <strong class="text-xl text-yellow-400">${score}</strong> คะแนน</p>
-            <p>ตอบคำถามถูกต้อง: <strong>${correctCount}</strong> ข้อ</p>
-            <p class="mt-2 text-shadow-fire text-amber-500 font-bold">${'⭐'.repeat(stars) + '☆'.repeat(3 - stars)}</p>
-        `;
+        if (gameMode === 'coop') {
+            let winText = '';
+            if (score > scoreP2) {
+                winText = `<p class="text-xl font-bold text-yellow-400 mb-2">🎉 P1 (สีเหลือง) ชนะการดวล! 🎉</p>`;
+            } else if (scoreP2 > score) {
+                winText = `<p class="text-xl font-bold text-sky-400 mb-2">🎉 P2 (สีฟ้า) ชนะการดวล! 🎉</p>`;
+            } else {
+                winText = `<p class="text-xl font-bold text-slate-300 mb-2">🤝 ผลการดวล: เสมอกัน! 🤝</p>`;
+            }
+            descEl.innerHTML = `
+                ${winText}
+                <div class="flex justify-around items-center bg-slate-950/40 p-3 rounded-xl border border-slate-800 my-3 text-sm">
+                    <div class="text-center">
+                        <span class="text-yellow-400 font-bold block mb-1">P1 Score (🟡)</span>
+                        <span class="block text-2xl font-black text-white">${score}</span>
+                        <span class="text-[10px] text-slate-500 block">ตอบถูก ${correctCount} ข้อ</span>
+                    </div>
+                    <div class="h-10 w-px bg-slate-800 mx-2"></div>
+                    <div class="text-center">
+                        <span class="text-sky-400 font-bold block mb-1">P2 Score (🔵)</span>
+                        <span class="block text-2xl font-black text-white">${scoreP2}</span>
+                        <span class="text-[10px] text-slate-500 block">ตอบถูก ${correctCountP2} ข้อ</span>
+                    </div>
+                </div>
+            `;
+        } else {
+            descEl.innerHTML = `
+                <p style="color:#f87171; font-weight:bold;">${reason}</p>
+                <p>คะแนนสะสม: <strong class="text-xl text-yellow-400">${score}</strong> คะแนน</p>
+                <p>ตอบคำถามถูกต้อง: <strong>${correctCount}</strong> ข้อ</p>
+                <p class="mt-2 text-shadow-fire text-amber-500 font-bold">${'⭐'.repeat(stars) + '☆'.repeat(3 - stars)}</p>
+            `;
+        }
     }
     
     renderLeaderboard(KAMPAI.leaderboard, 'score-list-gameover');
