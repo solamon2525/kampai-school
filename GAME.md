@@ -392,6 +392,7 @@ document.getElementById('gameover-screen')?.classList.add('hidden');
 |---|---|---|
 | `init` | parent → iframe | `{type:'init', studentCode, displayName?}` |
 | `gameStart` | iframe → parent | `{type:'gameStart'}` — เริ่มรอบใหม่ (wrapper รีเซ็ต gate บันทึก `gameEnd`) |
+| `gameEnd` | iframe → parent | `{type:'gameEnd', gameSlug, studentCode, score, mode, metadata:{duration,...}}` |
 | `gameResult` | parent → iframe | `{type:'gameResult', result, level, leveledUp?}` — หลังบันทึก session · SDK รีเซ็ต `_submitted` + แสดง XP · wrapper ส่ง `init` ซ้ำ (stats/leaderboard ใหม่) |
 | `navigate` | iframe → parent | `{type:'navigate', to:'/h/nattapong'}` |
 | `rtJoin` | iframe → parent | `{type:'rtJoin', room, meta}` — เข้าห้องออนไลน์ (wrapper เปิด channel) |
