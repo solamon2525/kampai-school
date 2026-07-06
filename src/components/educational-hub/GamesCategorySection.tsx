@@ -59,7 +59,7 @@ const COLOR_TO_BG: Record<string, string> = {
 
 const GRID_CLASS: Record<ViewMode, string> = {
     compact: 'grid grid-cols-1 gap-2',
-    grid: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4',
+    grid: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch [&>*]:h-full',
     spotlight: 'grid grid-cols-1 lg:grid-cols-2 gap-6',
 };
 
@@ -164,6 +164,7 @@ export const GamesCategorySection = ({
             onToggleLibraryPin={editable ? () => handleToggleLibraryPin(item) : undefined}
             libraryPinLoading={pinningId === item.id}
             linkedIndicators={indicatorMap?.get(item.id)}
+            reserveLeaderboardSlot={viewMode !== 'compact'}
         />
     );
 

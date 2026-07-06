@@ -43,6 +43,8 @@ interface Props {
     libraryPinLoading?: boolean;
     /** ตัวชี้วัดที่ผูกกับเกม (จาก batch query ของ parent) */
     linkedIndicators?: GameCardIndicator[];
+    /** คลังเกม — เผื่อช่องอันดับเสมอให้แถบตัวชี้วัดอยู่แนวเดียวกัน */
+    reserveLeaderboardSlot?: boolean;
 }
 
 export const EduHubItemCard = ({
@@ -56,6 +58,7 @@ export const EduHubItemCard = ({
     onToggleLibraryPin,
     libraryPinLoading = false,
     linkedIndicators,
+    reserveLeaderboardSlot = false,
 }: Props) => {
     // Redefine item with backward compatibility mapping
     const item = originalItem.game_slug === 'multiply-rally' || originalItem.external_url?.includes('/multiply-rally/')
@@ -80,6 +83,11 @@ export const EduHubItemCard = ({
 
     // Leaderboard strip — only for tracked games in non-compact views
     const isCompact = viewMode === 'compact';
+    const isSpotlight = viewMode === 'spotlight';
+    const showFooterStrips = !isCompact;
+    const showLeaderboardStrip =
+        showFooterStrips
+        && (reserveLeaderboardSlot || (!!item.tracked_game && !!item.game_slug));
     const { data: leaders } = useQuery({
         queryKey: ['game-leaderboard-card', item.game_slug],
         queryFn: () => gamePlayService.getLeaderboard(item.game_slug!, 10),
@@ -192,7 +200,6 @@ export const EduHubItemCard = ({
     }
 
     // ─── GRID + SPOTLIGHT view: card layout ────────────────────────────
-    const isSpotlight = viewMode === 'spotlight';
 
     return (
         <>
@@ -276,30 +283,48 @@ export const EduHubItemCard = ({
                 </div>
 
                 {/* Media preview */}
-                <ItemThumbnail item={item} />
+                <div className="shrink-0">
+                    <ItemThumbnail item={item} />
+                </div>
 
-                {/* Body */}
-                <div className={cn('p-3 space-y-1 flex-1 flex flex-col', isSpotlight && 'p-4 space-y-2')}>
-                    <div className="flex items-start justify-between gap-2">
-                        <h4 className={cn(
-                            'font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors',
-                            isSpotlight ? 'text-base' : 'text-sm',
-                        )}>
+                {/* Body — ชื่อ/แท็กสูงคงที่ แถบตัวชี้วัดอยู่ footer ล่างการ์ดเสมอ */}
+                <div
+                    className={cn(
+                        'flex-1 min-h-0 flex flex-col px-3 pt-3 pb-0',
+                        isSpotlight && 'px-4 pt-4',
+                    )}
+                >
+                    <div className="flex items-start justify-between gap-2 shrink-0">
+                        <h4
+                            className={cn(
+                                'font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors flex-1 min-w-0',
+                                isSpotlight ? 'text-base min-h-[2.75rem]' : 'text-sm min-h-[2.5rem]',
+                            )}
+                        >
                             {item.title}
                         </h4>
                         <TypeIcon item={item} />
                     </div>
                     {item.description && (
-                        <p className={cn(
-                            'text-muted-foreground',
-                            isSpotlight ? 'text-sm line-clamp-3' : 'text-xs line-clamp-2',
-                        )}>
+                        <p
+                            className={cn(
+                                'text-muted-foreground shrink-0 mt-1',
+                                isSpotlight ? 'text-sm line-clamp-3' : 'text-xs line-clamp-2',
+                            )}
+                        >
                             {item.description}
                         </p>
                     )}
 
-                    {/* Meta row */}
-                    <div className="flex items-center justify-between pt-2 text-[10px] text-muted-foreground gap-2">
+                    <div className="flex-1 min-h-0" aria-hidden />
+
+                    {/* Meta row — เผื่อ 2 แถวแท็ก */}
+                    <div
+                        className={cn(
+                            'shrink-0 flex items-end justify-between pt-1 text-[10px] text-muted-foreground gap-2',
+                            isSpotlight ? 'min-h-[3rem]' : 'min-h-[2.5rem]',
+                        )}
+                    >
                         <div className="flex items-center gap-1.5 flex-wrap">
                             {item.subject && <Badge variant="outline" className="text-[10px]">{item.subject}</Badge>}
                             {item.tracked_game && (
@@ -323,17 +348,16 @@ export const EduHubItemCard = ({
                         </div>
                         <ActionStat item={item} />
                     </div>
-
-                    {/* แถบล่าง: ตัวชี้วัด 2 แถวคงที่ + อันดับช่องคงที่ */}
-                    {!isCompact && (
-                        <div className="mt-auto pt-1 border-t border-border flex flex-col gap-0.5 shrink-0">
-                            <IndicatorMarqueeStrip indicators={linkedIndicators ?? []} />
-                            {item.tracked_game && item.game_slug && (
-                                <LeaderboardMarqueeStrip leaders={leaders ?? []} />
-                            )}
-                        </div>
-                    )}
                 </div>
+
+                {showFooterStrips && (
+                    <div className="shrink-0 px-3 pt-1 pb-3 border-t border-border flex flex-col gap-0.5">
+                        <IndicatorMarqueeStrip indicators={linkedIndicators ?? []} />
+                        {showLeaderboardStrip && (
+                            <LeaderboardMarqueeStrip leaders={leaders ?? []} />
+                        )}
+                    </div>
+                )}
             </Card>
 
             <DetailDialog item={item} open={openDialog} onOpenChange={setOpenDialog} />

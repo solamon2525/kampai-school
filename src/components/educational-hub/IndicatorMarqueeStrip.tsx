@@ -11,8 +11,8 @@ interface Props {
 const MARQUEE_SPEED_S = 22;
 const MAX_VISIBLE = 6;
 /** สูง 2 แถวคงที่ — แถวล่างเว้นว่างเสมอ ไม่ดึง leaderboard ขึ้น */
-const SLOT_H = 'h-10';
-const ROW_H = 'h-5';
+const SLOT_H = 'h-[3.125rem]';
+const ROW_H = 'h-6';
 
 /** แถบสไลด์ตัวชี้วัดบนการ์ดเกม — วนซ้ายอัตโนมัติ หยุดเมื่อชี้ (สูงสุด 6 ตัว) */
 export const IndicatorMarqueeStrip = ({ indicators, className }: Props) => {
@@ -31,7 +31,7 @@ export const IndicatorMarqueeStrip = ({ indicators, className }: Props) => {
                 )}
                 title="ยังไม่ผูกตัวชี้วัดหลักสูตร"
             >
-                <span className="text-[9px] text-muted-foreground font-medium tracking-wide">
+                <span className="text-[10px] text-muted-foreground font-medium tracking-wide">
                     ทดสอบ
                 </span>
             </div>
@@ -49,7 +49,7 @@ export const IndicatorMarqueeStrip = ({ indicators, className }: Props) => {
                 }
             >
                 <div
-                    className="news-ticker-track flex w-max items-center gap-1 px-0.5 h-full"
+                    className="news-ticker-track flex w-max items-center gap-2.5 px-1 h-full"
                     style={{
                         animationDuration: `${MARQUEE_SPEED_S}s`,
                         animationPlayState: paused ? 'paused' : 'running',
@@ -60,7 +60,7 @@ export const IndicatorMarqueeStrip = ({ indicators, className }: Props) => {
                             key={`${ind.indicator_code}-${idx}`}
                             variant="outline"
                             className={cn(
-                                'shrink-0 text-[8px] px-1 py-0 h-4 font-semibold leading-none',
+                                'shrink-0 text-[10px] px-2 py-0 h-5 font-semibold leading-none',
                                 'bg-muted text-foreground border-border',
                                 ind.grade === 'ป.4' && 'border-primary/35',
                             )}
