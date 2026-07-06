@@ -87,17 +87,52 @@ export function wrapCover({ bgStops, accent, title, subtitle, footer, decor, boa
 </svg>`;
 }
 
-/** overlay ชื่อไทย + แถบล่าง ทับภาพ AI (แบบ GameCoverAiDialog) */
+/** ขนาดหัวข้ออัตโนมัติ — ยาว = เล็กลงนิดหน่อย แต่ยังใหญ่ชัด */
+function titleFontSize(title) {
+  const len = String(title).length;
+  if (len > 18) return 62;
+  if (len > 14) return 70;
+  return 78;
+}
+
+/**
+ * overlay ชื่อไทย + แถบล่าง ทับภาพ AI
+ * กฎตัวหนังสือ: ใหญ่ · สีสดใส · ขอบหนา · อ่านง่ายบนพื้นหลังสีเข้ม
+ */
 export function titleOverlaySvg({ title, subtitle, footer, accent = '#1e3a5f', grade }) {
   const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const titleSize = titleFontSize(title);
+  const subSize = 34;
+  const titleY = 62;
+  const subY = titleY + Math.round(titleSize * 0.62);
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
-  <defs><style>${FONT}</style></defs>
-  <text x="640" y="58" text-anchor="middle" font-family="Sarabun,sans-serif" font-size="64" font-weight="800" fill="#ffffff" stroke="${accent}" stroke-width="3">${esc(title)}</text>
-  <text x="640" y="108" text-anchor="middle" font-family="Sarabun,sans-serif" font-size="28" font-weight="700" fill="#fef9c3">${esc(subtitle)}</text>
+  <defs>
+    <style>${FONT}</style>
+    <linearGradient id="titlePop" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fff7cc"/>
+      <stop offset="45%" stop-color="#fde047"/>
+      <stop offset="100%" stop-color="#fb923c"/>
+    </linearGradient>
+    <linearGradient id="subPop" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="50%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#fda4af"/>
+    </linearGradient>
+    <filter id="titleShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="rgba(0,0,0,0.55)"/>
+    </filter>
+  </defs>
+  <rect x="0" y="0" width="${W}" height="148" fill="rgba(15,23,42,0.42)"/>
+  <rect x="0" y="0" width="${W}" height="8" fill="${accent}" opacity=".95"/>
+  <text x="640" y="${titleY}" text-anchor="middle" font-family="Sarabun,sans-serif" font-size="${titleSize}" font-weight="800"
+    fill="url(#titlePop)" stroke="#7c2d12" stroke-width="5" paint-order="stroke" filter="url(#titleShadow)">${esc(title)}</text>
+  <text x="640" y="${subY}" text-anchor="middle" font-family="Sarabun,sans-serif" font-size="${subSize}" font-weight="800"
+    fill="url(#subPop)" stroke="#9a3412" stroke-width="3" paint-order="stroke">${esc(subtitle)}</text>
   ${grade ? mediaBadge(grade) : ''}
-  <rect x="0" y="${H - 52}" width="${W}" height="52" fill="${accent}" opacity=".94"/>
-  <text x="640" y="${H - 16}" text-anchor="middle" font-family="Sarabun,sans-serif" font-size="24" font-weight="700" fill="#fff">${esc(footer)}</text>
+  <rect x="0" y="${H - 58}" width="${W}" height="58" fill="${accent}" opacity=".96"/>
+  <rect x="0" y="${H - 58}" width="${W}" height="6" fill="#fde047" opacity=".9"/>
+  <text x="640" y="${H - 18}" text-anchor="middle" font-family="Sarabun,sans-serif" font-size="28" font-weight="800" fill="#fff" stroke="#0f172a" stroke-width="1.5" paint-order="stroke">${esc(footer)}</text>
 </svg>`;
 }
 
@@ -108,8 +143,10 @@ const EDU_STYLE =
 const MALE_TEACHER =
   'main character: a friendly male Thai elementary school teacher, short neat hair, light blue polo shirt with dark trousers, warm smile, pointing at whiteboard with marker — clearly male, NOT female';
 const FOOTER_RULE =
-  'STRICT: absolutely no text, no letters, no words, no numbers, no logos in the image. Leave the TOP 18% empty clear for title overlay. Keep teacher and whiteboard in center-bottom. Full frame illustration.';
+  'STRICT: absolutely no text, no letters, no words, no numbers, no logos in the image. Leave the TOP 20% empty clear for large bright Thai title overlay. Keep teacher and whiteboard in center-bottom. Full frame illustration.';
+const TEXT_OVERLAY_RULE =
+  'Thai title and subtitle will be added later as large bright colorful Sarabun text overlay — do not bake any letters into the artwork.';
 
 export function buildAiPrompt(scene, colors) {
-  return [EDU_BASE, EDU_STYLE, MALE_TEACHER, `Subject scene: ${scene}.`, colors, FOOTER_RULE].join(' ');
+  return [EDU_BASE, EDU_STYLE, MALE_TEACHER, `Subject scene: ${scene}.`, colors, FOOTER_RULE, TEXT_OVERLAY_RULE].join(' ');
 }

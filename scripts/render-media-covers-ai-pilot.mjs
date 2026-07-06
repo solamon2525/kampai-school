@@ -56,6 +56,17 @@ const SPECS = {
       'male teacher pointing at a whiteboard showing a clear contrast between Fact (a blue box with a checkmark) and Opinion (a pink box with a thought bubble), cute cartoon style classroom, happy atmosphere',
     colors: 'main color tone: warm orange, blue and pink accents',
   },
+  'thai-literature-hub': {
+    out: 'public/games/thai/thai-literature-hub/cover.png',
+    title: 'คลังวรรณคดีวรรณกรรม',
+    subtitle: 'นิทาน · สุภาษิต · ข้อคิด',
+    footer: 'ป.4-5 · ภาษาไทย · สื่อการสอน Hub',
+    grade: 'ป.4-5',
+    accent: '#a16207',
+    scene:
+      'male chibi Thai teacher reading Thai folktale to elementary students, whiteboard shows open storybook turtle character speech bubble proverb scroll moral lesson icons, warm golden yellow literature classroom, Thai decorative patterns, cute bright primary school poster',
+    colors: 'main color tone: warm gold amber yellow and soft orange',
+  },
 };
 
 async function fetchAiImage(prompt, seed) {
