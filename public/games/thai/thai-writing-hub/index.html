@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>คลังแต่งข้อความ ป.4-5 — ภาษาไทย</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --navy: #4c1d95; --line: #c4b5fd; --ok: #16a34a; --bad: #dc2626; --muted: #64748b; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(145deg, #ede9fe, #f5f3ff); min-height: 100%; padding: 12px; }
+    .shell { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.1); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+    header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #4c1d95, #6d28d9); color: #fff; }
+    header h1 { font-size: 1.1rem; font-weight: 800; flex: 1; }
+    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; }
+    .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+    .tabs { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 16px; background: #f5f3ff; border-bottom: 1px solid var(--line); }
+    .tabs button { font-family: inherit; font-weight: 800; border: 2px solid var(--line); background: #fff; color: var(--navy); padding: 8px 14px; border-radius: 12px; cursor: pointer; }
+    .tabs button.on { background: var(--navy); color: #fff; border-color: var(--navy); }
+    .stage { flex: 1; padding: 16px; overflow: auto; }
+    .panel { display: none; }
+    .panel.on { display: block; }
+    .grid2 { display: grid; gap: 12px; margin-bottom: 16px; }
+    @media (min-width: 700px) { .grid2 { grid-template-columns: 1fr 1fr; } }
+    .card { border-radius: 14px; padding: 14px; border: 2px solid; }
+    .card.good { border-color: var(--ok); background: #f0fdf4; }
+    .card.bad { border-color: var(--bad); background: #fef2f2; }
+    .card h3 { font-size: 1rem; margin-bottom: 8px; }
+    .card.good h3 { color: var(--ok); }
+    .card.bad h3 { color: var(--bad); }
+    .card p { line-height: 1.65; font-weight: 500; white-space: pre-wrap; }
+    .checklist { background: #faf5ff; border: 2px dashed var(--line); border-radius: 14px; padding: 14px; margin-bottom: 14px; }
+    .checklist h3 { color: var(--navy); margin-bottom: 8px; font-size: 1rem; }
+    .checklist label { display: flex; gap: 8px; align-items: flex-start; margin: 6px 0; font-weight: 600; cursor: pointer; }
+    .checklist input { margin-top: 4px; }
+    .prompt { font-weight: 800; color: var(--navy); margin-bottom: 8px; }
+    textarea { width: 100%; min-height: 140px; font-family: inherit; font-size: 1rem; padding: 12px; border: 2px solid var(--line); border-radius: 12px; resize: vertical; line-height: 1.6; }
+    .hint { font-size: .85rem; color: var(--muted); margin-top: 8px; font-weight: 600; }
+    .footer { padding: 10px; text-align: center; font-size: .8rem; color: var(--muted); border-top: 1px solid var(--line); }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
+      <h1>✍️ คลังแต่งข้อความ ป.4-5</h1>
+      <span class="badge">ท 2.1 · ท 4.1</span>
+    </header>
+    <div class="tabs" id="tabs">
+      <button type="button" data-tab="summary" class="on">📝 สรุปความ</button>
+      <button type="button" data-tab="diary">📔 บันทึก</button>
+      <button type="button" data-tab="letter">✉️ จดหมาย</button>
+      <button type="button" data-tab="slogan">💬 คำขวัญ</button>
+    </div>
+    <div class="stage">
+      <div class="panel on" id="panel-summary">
+        <p class="prompt">โจทย์ฝึก: อ่านเรื่องสั้นแล้วสรุป 3–5 ประโยค</p>
+        <div class="grid2">
+          <div class="card good"><h3>✓ ตัวอย่างดี</h3><p>วันนี้โรงเรียนจัดกิจกรรมปลูกต้นไม้ นักเรียนช่วยกันขุดดินและรดน้ำ ทุกคนตั้งใจทำงาน โรงเรียนสวยขึ้นและอากาศดีขึ้น</p></div>
+          <div class="card bad"><h3>✗ ตัวอย่างไม่ดี</h3><p>วันนี้ไปโรงเรียน มีกิจกรรม สนุกมาก กลับบ้าน</p></div>
+        </div>
+        <div class="checklist" data-check="summary">
+          <h3>✅ เช็กตัวเองก่อนส่ง</h3>
+          <label><input type="checkbox" /> มีประโยคเปิดที่บอกเรื่องโดยรวม</label>
+          <label><input type="checkbox" /> บอกเหตุการณ์สำคัญ ไม่ยืดทุกรายละเอียด</label>
+          <label><input type="checkbox" /> มีประโยคปิด/ข้อคิด (ถ้าเหมาะ)</label>
+          <label><input type="checkbox" /> ใช้คำเชื่อม เช่น แล้ว · ต่อมา · สรุปแล้ว</label>
+        </div>
+        <textarea placeholder="ลองเขียนสรุปความที่นี่… (ไม่บันทึกลงระบบ)"></textarea>
+      </div>
+      <div class="panel" id="panel-diary">
+        <p class="prompt">โจทย์ฝึก: เขียนบันทึกเหตุการณ์วันนี้ 4–6 ประโยค</p>
+        <div class="grid2">
+          <div class="card good"><h3>✓ ตัวอย่างดี</h3><p>วันจันทร์ที่ 5 กรกฎาคม 2568
+เช้านี้ฝนตก ฉันร่มกับแม่ไปโรงเรียน
+ชั้นเรียนมีสอบคำศัพท์ ฉันตอบได้ดี
+บ่ายเล่นกีฬากับเพื่อน รู้สึกสนุกและเหนื่อยเล็กน้อย</p></div>
+          <div class="card bad"><h3>✗ ตัวอย่างไม่ดี</h3><p>วันนี้โรงเรียน สอบ กลับบ้านนอน</p></div>
+        </div>
+        <div class="checklist">
+          <h3>✅ เช็กตัวเอง</h3>
+          <label><input type="checkbox" /> มีวันที่หรือเวลา</label>
+          <label><input type="checkbox" /> เล่าเหตุการณ์ตามลำดับ</label>
+          <label><input type="checkbox" /> บอกความรู้สึก</label>
+          <label><input type="checkbox" /> ใช้สรรพนาม ฉัน/เรา สม่ำเสมอ</label>
+        </div>
+        <textarea placeholder="เขียนบันทึกประจำวัน…"></textarea>
+      </div>
+      <div class="panel" id="panel-letter">
+        <p class="prompt">โจทย์ฝึก: เขียนจดหมายถึงเพื่อนหรือญาติ</p>
+        <div class="grid2">
+          <div class="card good"><h3>✓ ตัวอย่างดี</h3><p>เรียน เพื่อนน้องแก้ว
+สวัสดี หวัดดี หวังว่าจะสบายดี
+ฉันคิดถึงเธอ อยากชวนมาเที่ยวห้องสมุดวันเสาร์
+รอจดหมายตอบนะ
+ด้วยรักจาก
+เพื่อนน้องมะลิ</p></div>
+          <div class="card bad"><h3>✗ ตัวอย่างไม่ดี</h3><p>เฮ้ย ไปเที่ยวกัน บาย</p></div>
+        </div>
+        <div class="checklist">
+          <h3>✅ เช็กตัวเอง</h3>
+          <label><input type="checkbox" /> มีคำขึ้นต้น เรียน/ถึง</label>
+          <label><input type="checkbox" /> มีคำทักทายและเนื้อหา</label>
+          <label><input type="checkbox" /> มีคำลงท้าย ด้วยรัก/ขอแสดงความนับถือ</label>
+          <label><input type="checkbox" /> ลงชื่อผู้เขียน</label>
+        </div>
+        <textarea placeholder="เขียนจดหมาย…"></textarea>
+      </div>
+      <div class="panel" id="panel-slogan">
+        <p class="prompt">โจทย์ฝึก: สร้างคำขวัญ 2 บรรทัด สัมผัสได้ยิ่งดี</p>
+        <div class="grid2">
+          <div class="card good"><h3>✓ ตัวอย่างดี</h3><p>ตั้งใจเรียนทุกวัน
+เก่งกาจในอนาคต</p></div>
+          <div class="card bad"><h3>✗ ตัวอย่างไม่ดี</h3><p>เรียนหน่อย
+อย่าเล่นมาก</p></div>
+        </div>
+        <div class="checklist">
+          <h3>✅ เช็กตัวเอง</h3>
+          <label><input type="checkbox" /> สั้น กระชับ จำง่าย</label>
+          <label><input type="checkbox" /> มีข้อคิดหรือแรงบันดาลใจ</label>
+          <label><input type="checkbox" /> บรรทัดละความยาวพอๆ กัน (ถ้าเป็นกลอน)</label>
+          <label><input type="checkbox" /> สัมผัสหรือจังหวะฟังลื่นหู</label>
+        </div>
+        <textarea placeholder="เขียนคำขวัญ 2 บรรทัด…"></textarea>
+      </div>
+    </div>
+    <div class="footer">สื่อฝึกเขียน — ไม่บันทึกข้อความ · ใช้เช็กลิสต์ตรวจตัวเองในห้องเรียน</div>
+  </div>
+  <script>
+    const GAME_SLUG = 'thai-writing-hub';
+    if (window.KAMPAI) window.KAMPAI.setSlug(GAME_SLUG);
+    document.getElementById('btnBack').onclick = function () {
+      if (window.KAMPAI && KAMPAI.goHome) KAMPAI.goHome();
+      else location.href = '/h/nattapong';
+    };
+    document.getElementById('tabs').addEventListener('click', function (e) {
+      const btn = e.target.closest('button[data-tab]');
+      if (!btn) return;
+      document.querySelectorAll('.tabs button').forEach((b) => b.classList.remove('on'));
+      document.querySelectorAll('.panel').forEach((p) => p.classList.remove('on'));
+      btn.classList.add('on');
+      document.getElementById('panel-' + btn.dataset.tab).classList.add('on');
+    });
+  </script>
+</body>
+</html>

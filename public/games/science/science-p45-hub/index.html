@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <script src="/games/kampai-sdk.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คลังวิทยาศาสตร์ ป.4-5</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Sarabun',sans-serif;background:linear-gradient(160deg,#ede9fe,#c4b5fd);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:16px}
+        .main-container{width:100%;max-width:1152px;background:#fff;border-radius:2rem;box-shadow:0 25px 50px -12px rgba(0,0,0,.25);display:flex;flex-direction:column;overflow:hidden;height:90vh;min-height:600px}
+        @media(min-width:768px){.main-container{flex-direction:row;height:85vh}}
+        .sidebar{background:#5b21b6;color:#fff;padding:24px;width:100%;display:flex;flex-direction:column;flex-shrink:0}
+        @media(min-width:768px){.sidebar{width:300px}}
+        .sidebar h2{font-size:1.3rem;font-weight:800;margin-bottom:16px}
+        .field-label{font-size:.85rem;color:#ddd6fe;margin-bottom:6px;display:block;font-weight:600}
+        .field-group{margin-bottom:12px}
+        .select-field{width:100%;background:rgba(255,255,255,.12);border:1px solid rgba(221,214,254,.4);border-radius:12px;padding:12px;font-family:inherit;font-size:1rem;color:#fff}
+        .select-field option{color:#1e293b}
+        .btn{width:100%;font-family:inherit;font-weight:700;padding:14px;border-radius:12px;border:none;cursor:pointer;font-size:1.05rem;margin-bottom:8px}
+        .btn-random{background:#f59e0b;color:#fff}
+        .btn-answer{background:#10b981;color:#fff}
+        .btn-back{background:rgba(255,255,255,.15);color:#ede9fe;font-size:.95rem}
+        .display-area{flex:1;padding:20px 24px;overflow:auto}
+        .main-title{font-size:1.2rem;font-weight:800;color:#5b21b6;margin-bottom:14px}
+        .demo-box{background:#f5f3ff;border:2px solid #ddd6fe;border-radius:16px;padding:20px;text-align:center;margin:12px 0}
+        .demo-icon{font-size:4rem;margin:8px 0}
+        .step-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0}
+        .step{font-family:inherit;font-weight:700;padding:10px 14px;border:2px solid #c4b5fd;border-radius:12px;background:#fff;cursor:pointer;font-size:.9rem}
+        .step.on{background:#5b21b6;color:#fff;border-color:#5b21b6}
+        .animal-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;max-width:400px;margin:0 auto}
+        .animal{font-family:inherit;font-weight:700;padding:14px;border:2px solid #ddd6fe;border-radius:14px;background:#fff;cursor:pointer}
+        .animal.ok{background:#dcfce7;border-color:#86efac}
+        .animal.no{background:#fee2e2;border-color:#fca5a5}
+        .explain-box{background:#faf5ff;border:2px dashed #c4b5fd;border-radius:14px;padding:16px;line-height:1.65;font-weight:600;margin-top:12px}
+        .choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:480px;margin:12px auto}
+        .choice{font-family:inherit;font-weight:800;font-size:1rem;padding:14px;border:2px solid #ddd6fe;border-radius:14px;background:#fff;cursor:pointer}
+        .choice.ok{background:#dcfce7;border-color:#86efac}
+        .choice.no{background:#fee2e2;border-color:#fca5a5}
+        .practice-q{font-size:1.15rem;font-weight:800;text-align:center;color:#5b21b6;margin:12px 0}
+        input[type=range]{width:100%;accent-color:#7c3aed;margin:12px 0}
+        .hidden{display:none!important}
+        .footer{text-align:center;font-size:.8rem;color:#64748b;padding-top:12px;margin-top:auto}
+        .footer a{color:#5b21b6;font-weight:700;text-decoration:none}
+    </style>
+</head>
+<body>
+<div class="main-container">
+    <div class="sidebar">
+        <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
+        <h2>🔬 วิทย์ ป.4-5 Hub</h2>
+        <div class="field-group">
+            <label class="field-label" for="topic">หัวข้อ</label>
+            <select id="topic" class="select-field">
+                <option value="matter">🧊 สถานะสสาร</option>
+                <option value="water">💧 วัฏจักรน้ำ</option>
+                <option value="animals">🦴 สัตว์มีกระดูกสันหลัง</option>
+                <option value="body">🫁 ระบบย่อยอาหาร</option>
+            </select>
+        </div>
+        <div id="ctrlMatter">
+            <label class="field-label">อุณหภูมิ (°C)</label>
+            <input type="range" id="temp" min="-20" max="120" value="25">
+            <p id="tempVal" style="text-align:center;font-weight:800;margin-top:4px">25 °C</p>
+        </div>
+        <button type="button" class="btn btn-random" onclick="randomAction()">🎲 สุ่มคำถาม</button>
+        <button type="button" class="btn btn-answer" onclick="showAnswer()">✅ แสดงเฉลย</button>
+    </div>
+    <div class="display-area">
+        <h1 id="mainTitle" class="main-title">สถานะของสสาร — ของแข็ง · ของเหลว · ของแก๊ส</h1>
+        <div id="viewMatter" class="demo-box">
+            <p id="stateLabel" style="font-size:1.3rem;font-weight:800;color:#5b21b6">ของเหลว</p>
+            <div class="demo-icon" id="matterIcon">💧</div>
+            <p id="matterDesc" style="font-weight:600;color:#64748b">น้ำเป็นของเหลว มีรูปร่างตามภาชนะ</p>
+        </div>
+        <div id="viewWater" class="hidden">
+            <div class="step-row" id="waterSteps"></div>
+            <div class="demo-box"><div class="demo-icon" id="waterIcon">☀️</div><p id="waterDesc" style="font-weight:600">แสงอาทิตย์ทำให้น้ำระเหย</p></div>
+        </div>
+        <div id="viewAnimals" class="hidden">
+            <p class="practice-q" id="animalQ">จัดกลุ่ม: ปลา — มีกระดูกสันหลังหรือไม่?</p>
+            <div class="animal-grid" id="animalBtns"></div>
+        </div>
+        <div id="viewBody" class="hidden">
+            <p class="practice-q">เรียงลำดับการย่อยอาหาร (คลิกตามลำดับ)</p>
+            <div class="step-row" id="bodyParts"></div>
+            <p id="bodyProg" style="text-align:center;font-weight:700;color:#5b21b6;margin-top:8px">เลือก 0/6</p>
+        </div>
+        <div id="viewQuiz" class="hidden">
+            <p class="practice-q" id="prQ">—</p>
+            <div class="choices" id="prChoices"></div>
+        </div>
+        <div id="explain" class="explain-box">เลือกหัวข้อแล้วสำรวจหรือฝึกทำ</div>
+        <div class="footer">ป.4-5 · คู่ <a href="/games/science/states-of-matter.html">states-of-matter</a> · <a href="/games/science/water-cycle.html">water-cycle</a></div>
+    </div>
+</div>
+<script>
+const GAME_SLUG='science-p45-hub';
+if(window.KAMPAI)window.KAMPAI.setSlug(GAME_SLUG);
+document.getElementById('btnBack').onclick=()=>{if(KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else location.href='/h/nattapong';};
+const WATER=[
+    {id:'evap',label:'ระเหย',icon:'☀️',desc:'แสงอาทิตย์ทำให้น้ำกลายเป็นไอน้ำ'},
+    {id:'cond',label:'ควบแน่น',icon:'☁️',desc:'ไอน้ำเย็นตัวกลายเป็นเม็ดน้ำในความชื้น'},
+    {id:'prec',label:'ตกตัว',icon:'🌧️',desc:'เม็ดน้ำรวมตัวตกเป็นฝน หิมะ หรือลูกเห็บ'},
+    {id:'coll',label:'ไหลบ่',icon:'🌊',desc:'น้ำไหลลงสู่แหล่งน้ำและเริ่มวัฏจักรใหม่'},
+];
+const ANIMALS=[
+    {name:'ปลา',vert:true},{name:'กบ',vert:true},{name:'นก',vert:true},{name:'แมลง',vert:false},
+    {name:'หอย',vert:false},{name:'แมงกะพรุน',vert:false},
+];
+const BODY=['ปาก','หลอดอาหาร','กระเพาะอาหาร','ลำไส้เล็ก','ลำไส้ใหญ่','ทวารหนัก'];
+const QUIZ={
+    matter:[{q:'น้ำแข็งเป็นสถานะใด?',opts:['ของแข็ง','ของเหลว','ของแก๊ส','พลาสมา'],a:0},{q:'ไอน้ำเป็นสถานะใด?',opts:['ของแข็ง','ของเหลว','ของแก๊ส','ของเหลว+แก๊ส'],a:2}],
+    water:[{q:'ขั้นตอนแรกของวัฏจักรน้ำคือ?',opts:['ระเหย','ตกตัว','ควบแน่น','ไหลบ่'],a:0},{q:'เมฆเกิดจากขั้นตอนใด?',opts:['ระเหย','ควบแน่น','ตกตัว','ไหลบ่'],a:1}],
+    animals:[{q:'สัตว์ใดไม่มีกระดูกสันหลัง?',opts:['ปลา','นก','แมลง','กบ'],a:2}],
+    body:[{q:'อาหารย่อยหลักที่ใด?',opts:['ปาก','กระเพาะ','ลำไส้เล็ก','ทวาร'],a:2}],
+};
+const TITLES={matter:'สถานะของสสาร — ของแข็ง · ของเหลว · ของแก๊ส',water:'วัฏจักรน้ำ — ระเหย · ควบแน่น · ตกตัว · ไหลบ่',animals:'จำแนกสัตว์ — มี/ไม่มีกระดูกสันหลัง',body:'ระบบย่อยอาหาร — เรียงลำดับ'};
+let topic='matter',waterIdx=0,animalItem=null,bodyOrder=[],quizItem=null,bodyQuiz=false;
+function matterState(t){
+    if(t<=0)return{label:'ของแข็ง (น้ำแข็ง)',icon:'🧊',desc:'โมเลกุลเรียงตัวแน่น มีรูปร่างคงที่'};
+    if(t>=100)return{label:'ของแก๊ส (ไอน้ำ)',icon:'💨',desc:'โมเลกุลกระจายตัว ไม่มีรูปร่างคงที่'};
+    return{label:'ของเหลว (น้ำ)',icon:'💧',desc:'มีปริมาตรคงที่ รูปร่างตามภาชนะ'};
+}
+function updateMatter(){
+    const t=+document.getElementById('temp').value;
+    document.getElementById('tempVal').textContent=t+' °C';
+    const s=matterState(t);
+    document.getElementById('stateLabel').textContent=s.label;
+    document.getElementById('matterIcon').textContent=s.icon;
+    document.getElementById('matterDesc').textContent=s.desc;
+}
+function buildWater(){
+    document.getElementById('waterSteps').innerHTML=WATER.map((w,i)=>`<button type="button" class="step ${i===waterIdx?'on':''}" data-i="${i}">${w.icon} ${w.label}</button>`).join('');
+    document.getElementById('waterSteps').querySelectorAll('.step').forEach(btn=>{
+        btn.onclick=()=>{waterIdx=+btn.dataset.i;const w=WATER[waterIdx];document.getElementById('waterIcon').textContent=w.icon;document.getElementById('waterDesc').textContent=w.desc;buildWater();};
+    });
+    const w=WATER[waterIdx];
+    document.getElementById('waterIcon').textContent=w.icon;
+    document.getElementById('waterDesc').textContent=w.desc;
+}
+function pickAnimal(){
+    animalItem=ANIMALS[Math.floor(Math.random()*ANIMALS.length)];
+    document.getElementById('animalQ').textContent=`จัดกลุ่ม: ${animalItem.name} — มีกระดูกสันหลังหรือไม่?`;
+    document.getElementById('animalBtns').innerHTML=['มีกระดูกสันหลัง','ไม่มีกระดูกสันหลัง'].map((l,i)=>`<button type="button" class="animal" data-v="${i===0}">${l}</button>`).join('');
+    document.getElementById('animalBtns').querySelectorAll('.animal').forEach(btn=>{
+        btn.onclick=()=>{const ok=btn.dataset.v==='true'===animalItem.vert;btn.classList.add(ok?'ok':'no');
+            document.getElementById('explain').innerHTML=ok?'✓ ถูกต้อง!':`✗ ${animalItem.name} ${animalItem.vert?'มี':'ไม่มี'}กระดูกสันหลัง`;
+            document.getElementById('animalBtns').querySelectorAll('.animal').forEach(b=>b.disabled=true);};
+    });
+}
+function buildBody(){
+    bodyOrder=[];
+    document.getElementById('bodyParts').innerHTML=BODY.map((p,i)=>`<button type="button" class="step" data-i="${i}">${p}</button>`).join('');
+    document.getElementById('bodyProg').textContent='เลือก 0/6';
+    document.getElementById('bodyParts').querySelectorAll('.step').forEach(btn=>{
+        btn.onclick=()=>{
+            if(btn.classList.contains('on'))return;
+            const expect=bodyOrder.length;
+            if(+btn.dataset.i===expect){bodyOrder.push(+btn.dataset.i);btn.classList.add('on');
+                document.getElementById('bodyProg').textContent=`เลือก ${bodyOrder.length}/6`;
+                if(bodyOrder.length===6)document.getElementById('explain').innerHTML='✓ เรียงลำดับถูกต้อง! ปาก→หลอดอาหาร→กระเพาะ→ลำไส้เล็ก→ลำไส้ใหญ่→ทวาร';
+            }else{btn.classList.add('no');setTimeout(()=>btn.classList.remove('no'),400);}
+        };
+    });
+}
+function nextQuiz(){
+    const pool=QUIZ[topic]||QUIZ.matter;
+    quizItem=pool[Math.floor(Math.random()*pool.length)];
+    document.getElementById('prQ').textContent=quizItem.q;
+    const el=document.getElementById('prChoices');
+    el.innerHTML=quizItem.opts.map((o,i)=>`<button type="button" class="choice" data-i="${i}">${o}</button>`).join('');
+    el.querySelectorAll('.choice').forEach(btn=>{
+        btn.onclick=()=>{const ok=+btn.dataset.i===quizItem.a;btn.classList.add(ok?'ok':'no');
+            el.querySelectorAll('.choice').forEach(b=>{b.disabled=true;if(+b.dataset.i===quizItem.a)b.classList.add('ok');});
+            document.getElementById('explain').innerHTML=ok?'✓ ถูกต้อง!':`✗ คำตอบ: ${quizItem.opts[quizItem.a]}`;};
+    });
+}
+function render(){
+    bodyQuiz=false;
+    document.getElementById('mainTitle').textContent=TITLES[topic];
+    document.getElementById('viewMatter').classList.toggle('hidden',topic!=='matter');
+    document.getElementById('viewWater').classList.toggle('hidden',topic!=='water');
+    document.getElementById('viewAnimals').classList.toggle('hidden',topic!=='animals');
+    document.getElementById('viewBody').classList.toggle('hidden',topic!=='body');
+    document.getElementById('viewQuiz').classList.add('hidden');
+    document.getElementById('ctrlMatter').classList.toggle('hidden',topic!=='matter');
+    if(topic==='matter')updateMatter();
+    else if(topic==='water')buildWater();
+    else if(topic==='animals')pickAnimal();
+    else if(topic==='body')buildBody();
+    document.getElementById('explain').innerHTML=topic==='matter'?'ลากสไลเดอร์ดูการเปลี่ยนสถานะของน้ำ':'เลือกแล้วทำตามคำถาม';
+}
+function randomAction(){
+    bodyQuiz=true;
+    document.getElementById('viewMatter').classList.add('hidden');
+    document.getElementById('viewWater').classList.add('hidden');
+    document.getElementById('viewAnimals').classList.add('hidden');
+    document.getElementById('viewBody').classList.add('hidden');
+    document.getElementById('viewQuiz').classList.remove('hidden');
+    nextQuiz();
+}
+function showAnswer(){
+    if(bodyQuiz&&quizItem)document.getElementById('explain').innerHTML=`คำตอบ: <strong>${quizItem.opts[quizItem.a]}</strong>`;
+    else if(topic==='water')document.getElementById('explain').innerHTML=WATER.map(w=>`${w.icon} <strong>${w.label}</strong>: ${w.desc}`).join('<br>');
+    else if(topic==='body')document.getElementById('explain').innerHTML='ลำดับ: '+BODY.join(' → ');
+    else if(topic==='animals'&&animalItem)document.getElementById('explain').innerHTML=`${animalItem.name}: ${animalItem.vert?'มี':'ไม่มี'}กระดูกสันหลัง`;
+    else updateMatter();
+}
+document.getElementById('temp').oninput=updateMatter;
+document.getElementById('topic').onchange=e=>{topic=e.target.value;render();};
+render();
+</script>
+</body>
+</html>

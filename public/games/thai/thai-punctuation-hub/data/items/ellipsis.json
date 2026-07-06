@@ -1,0 +1,62 @@
+[
+  {
+    "word": "ลาก ( ... )",
+    "reading": "ลาก",
+    "meaning": "ข้อความค้าง · ตัวอย่าง: เขาคิดว่า...",
+    "emoji": "⋯",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "item_type": "punctuation",
+    "pos": "mark",
+    "pos_label": "...",
+    "mark": "...",
+    "sentence": "เขาคิดว่า___",
+    "sentence_answer": "เขาคิดว่า...",
+    "highlight": "..."
+  },
+  {
+    "word": "ลาก ( ... )",
+    "reading": "ลาก",
+    "meaning": "แสดงความต่อเนื่อง · ตัวอย่าง: และอื่นๆ อีกมากมาย...",
+    "emoji": "⋯",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "item_type": "punctuation",
+    "pos": "mark",
+    "pos_label": "...",
+    "mark": "...",
+    "sentence": "และอื่นๆ อีกมากมาย___",
+    "sentence_answer": "และอื่นๆ อีกมากมาย...",
+    "highlight": "..."
+  },
+  {
+    "word": "ลาก ( ... )",
+    "reading": "ลาก",
+    "meaning": "ลดทอนคำพูด · ตัวอย่าง: ฉันจะบอกว่า...",
+    "emoji": "⋯",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "item_type": "punctuation",
+    "pos": "mark",
+    "pos_label": "...",
+    "mark": "...",
+    "sentence": "ฉันจะบอกว่า___",
+    "sentence_answer": "ฉันจะบอกว่า...",
+    "highlight": "..."
+  },
+  {
+    "word": "ลาก ( ... )",
+    "reading": "ลาก",
+    "meaning": "แสดงความลุ้น · ตัวอย่าง: จะเกิดอะไรขึ้นต่อไป...",
+    "emoji": "⋯",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "item_type": "punctuation",
+    "pos": "mark",
+    "pos_label": "...",
+    "mark": "...",
+    "sentence": "จะเกิดอะไรขึ้นต่อไป___",
+    "sentence_answer": "จะเกิดอะไรขึ้นต่อไป...",
+    "highlight": "..."
+  }
+]

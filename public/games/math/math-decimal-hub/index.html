@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <script src="/games/kampai-sdk.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สื่อทศนิยม ป.4-5 — คณิตศาสตร์</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Sarabun',sans-serif;background:linear-gradient(135deg,#60a5fa,#bfdbfe);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:16px}
+        .main-container{width:100%;max-width:1152px;background:#fff;border-radius:2rem;box-shadow:0 25px 50px -12px rgba(0,0,0,.25);display:flex;flex-direction:column;overflow:hidden;height:90vh;min-height:600px}
+        @media(min-width:768px){.main-container{flex-direction:row;height:85vh}}
+        .sidebar{background:#1e40af;color:#fff;padding:24px;width:100%;display:flex;flex-direction:column;flex-shrink:0}
+        @media(min-width:768px){.sidebar{width:300px}}
+        .sidebar h2{font-size:1.3rem;font-weight:800;margin-bottom:16px}
+        .field-label{font-size:.85rem;color:#bfdbfe;margin-bottom:6px;display:block;font-weight:600}
+        .field-group{margin-bottom:12px}
+        .select-field,.input-field{width:100%;background:rgba(255,255,255,.12);border:1px solid rgba(191,219,254,.4);border-radius:12px;padding:12px;font-family:inherit;font-size:1rem;color:#fff}
+        .select-field option{color:#1e293b}
+        .btn{width:100%;font-family:inherit;font-weight:700;padding:14px;border-radius:12px;border:none;cursor:pointer;font-size:1.05rem;margin-bottom:8px}
+        .btn-random{background:#f59e0b;color:#fff}
+        .btn-answer{background:#10b981;color:#fff}
+        .btn-back{background:rgba(255,255,255,.15);color:#dbeafe;font-size:.95rem}
+        .display-area{flex:1;padding:20px 24px;overflow:auto}
+        .main-title{font-size:1.2rem;font-weight:800;color:#1e3a8a;margin-bottom:14px}
+        .big-num{font-size:clamp(2.5rem,10vw,4rem);font-weight:800;color:#1e40af;text-align:center;margin:12px 0}
+        .pv-chart{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:12px 0}
+        .pv-col{text-align:center;min-width:56px}
+        .pv-head{font-size:.75rem;color:#64748b;font-weight:700}
+        .pv-digit{font-size:2rem;font-weight:800;background:#eff6ff;border:2px solid #bfdbfe;border-radius:12px;padding:8px 12px}
+        .pv-dot{font-size:2rem;font-weight:800;color:#1e40af;align-self:flex-end;padding-bottom:8px}
+        .explain-box{background:#eff6ff;border:2px dashed #93c5fd;border-radius:14px;padding:16px;line-height:1.65;font-weight:600;margin-top:12px}
+        .compare-row{display:flex;align-items:center;gap:12px;justify-content:center;flex-wrap:wrap;margin:16px 0}
+        .compare-box{background:#eff6ff;border:2px solid #bfdbfe;border-radius:14px;padding:16px 24px;font-size:1.8rem;font-weight:800;color:#1e40af}
+        .compare-sym{font-size:2.2rem;font-weight:800;color:#ea580c}
+        .choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:400px;margin:12px auto}
+        .choice{font-family:inherit;font-weight:800;font-size:1.1rem;padding:14px;border:2px solid #bfdbfe;border-radius:14px;background:#fff;cursor:pointer}
+        .choice.ok{background:#dcfce7;border-color:#86efac}
+        .choice.no{background:#fee2e2;border-color:#fca5a5}
+        .practice-q{font-size:1.2rem;font-weight:800;text-align:center;color:#1e3a8a;margin:12px 0}
+        .hidden{display:none!important}
+        .footer{text-align:center;font-size:.8rem;color:#64748b;padding-top:12px;margin-top:auto}
+    </style>
+</head>
+<body>
+<div class="main-container">
+    <div class="sidebar">
+        <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
+        <h2>🔢 ทศนิยม Hub</h2>
+        <div class="field-group">
+            <label class="field-label" for="topic">หัวข้อ</label>
+            <select id="topic" class="select-field">
+                <option value="read">📖 อ่านทศนิยม</option>
+                <option value="compare">⚖️ เปรียบเทียบ</option>
+                <option value="addsub">➕➖ บวกลบ</option>
+                <option value="money">💰 เงินบาท/สตางค์</option>
+            </select>
+        </div>
+        <div id="ctrlRead">
+            <div class="field-group"><label class="field-label">ทศนิยม</label><input type="number" id="decIn" step="0.001" value="3.45" class="input-field"></div>
+        </div>
+        <div id="ctrlCompare" class="hidden">
+            <div class="field-group"><label class="field-label">ตัวที่ 1</label><input type="number" id="cmpA" step="0.01" value="2.5" class="input-field"></div>
+            <div class="field-group"><label class="field-label">ตัวที่ 2</label><input type="number" id="cmpB" step="0.01" value="3.1" class="input-field"></div>
+        </div>
+        <button type="button" class="btn btn-random" onclick="randomAction()">🎲 สุ่ม</button>
+        <button type="button" class="btn btn-answer" onclick="showAnswer()">✅ แสดงเฉลย</button>
+    </div>
+    <div class="display-area">
+        <h1 id="mainTitle" class="main-title">อ่านทศนิยม — หลักสิบ · สิบย่อย · ร้อยย่อย</h1>
+        <div id="viewRead">
+            <div class="big-num" id="bigNum">3.45</div>
+            <div class="pv-chart" id="pvChart"></div>
+        </div>
+        <div id="viewCompare" class="hidden">
+            <div class="compare-row">
+                <div class="compare-box" id="boxA">2.5</div>
+                <div class="compare-sym" id="sym">?</div>
+                <div class="compare-box" id="boxB">3.1</div>
+            </div>
+        </div>
+        <div id="viewPractice" class="hidden">
+            <p class="practice-q" id="prQ">—</p>
+            <div class="choices" id="prChoices"></div>
+        </div>
+        <div id="explain" class="explain-box">กดแสดงเฉลยเพื่อดูคำอธิบาย</div>
+        <div class="footer">ป.4-5 · คู่ <a href="/games/math/decimal-media.html">decimal-media</a> · rounding</div>
+    </div>
+</div>
+<script>
+const GAME_SLUG='math-decimal-hub';
+if(window.KAMPAI)window.KAMPAI.setSlug(GAME_SLUG);
+document.getElementById('btnBack').onclick=()=>{if(KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else location.href='/h/nattapong';};
+const TH=['ศูนย์','หนึ่ง','สอง','สาม','สี่','ห้า','หก','เจ็ด','แปด','เก้า'];
+const TITLES={read:'อ่านทศนิยม — หลักสิบ · สิบย่อย · ร้อยย่อย',compare:'เปรียบเทียบทศนิยม',addsub:'บวกลบทศนิยม',money:'เงินบาทและสตางค์'};
+let topic='read',prAns=0,state={};
+function fmt(n){return Number(n).toFixed(3).replace(/\.?0+$/,'')||'0'}
+function buildPv(n){
+    const parts=fmt(n).split('.');const int=parts[0];const dec=(parts[1]||'').padEnd(3,'0').slice(0,3);
+    const cols=[];[...int].forEach((d,i,a)=>{const names=a.length===1?['หน่วย']:a.length===2?['สิบ','หน่วย']:['ร้อย','สิบ','หน่วย'];cols.push({d,label:names[i]||'หน่วย'});});
+    if(dec.length){cols.push({dot:true});const dl=['สิบ','ร้อย','พัน'];dec.split('').forEach((d,i)=>cols.push({d,label:'เศษ'+dl[i]}));}
+    return cols;
+}
+function renderPv(n){
+    document.getElementById('bigNum').textContent=fmt(n);
+    document.getElementById('pvChart').innerHTML=buildPv(n).map(c=>c.dot?'<span class="pv-dot">.</span>':`<div class="pv-col"><div class="pv-head">${c.label}</div><div class="pv-digit">${c.d}</div></div>`).join('');
+}
+function explainRead(n){
+    const s=fmt(n);const[i,d]=s.split('.');
+    let t=`<strong>${s}</strong> อ่านว่า `;
+    if(!d)t+=`จำนวนเต็ม ${i}`;else{t+=`${i} จุด`+d.split('').map(x=>TH[+x]).join('');t+=`<br>เศษสิบ=${d[0]||0} · เศษร้อย=${d[1]||0}`;}
+    return t;
+}
+function genAddSub(){
+    const op=Math.random()>0.5?'+':'-';let a=+(Math.random()*8+1).toFixed(1);let b=+(Math.random()*5+0.1).toFixed(1);
+    if(op==='-'&&b>a)[a,b]=[b,a];prAns=+(op==='+'?a+b:a-b).toFixed(2);
+    state={type:'addsub',text:`${fmt(a)} ${op} ${fmt(b)} = ?`,answer:prAns};
+}
+function genMoney(){
+    const baht=Math.floor(Math.random()*90+10);const satang=Math.floor(Math.random()*99);
+    const total=+(baht+satang/100).toFixed(2);
+    const pay=Math.ceil(total);const change=+(pay-total).toFixed(2);
+    state={type:'money',text:`ซื้อของ ${fmt(total)} บาท จ่าย ${pay} บาท เงินทอนกี่บาท?`,answer:change};
+    prAns=change;
+}
+function genCompare(){
+    const a=+(Math.random()*9+0.1).toFixed(2);const b=+(Math.random()*9+0.1).toFixed(2);
+    state={type:'compare',a,b};
+}
+function randomAction(){
+    topic=document.getElementById('topic').value;
+    if(topic==='read'){const v=(Math.floor(Math.random()*9999)/100).toFixed(2);document.getElementById('decIn').value=v;renderPv(v);state={type:'read',n:v};}
+    else if(topic==='compare'){genCompare();document.getElementById('cmpA').value=state.a;document.getElementById('cmpB').value=state.b;}
+    else if(topic==='addsub')genAddSub();
+    else genMoney();
+    document.getElementById('prQ').textContent=state.text||'';
+    document.getElementById('explain').textContent='กดแสดงเฉลย';
+    document.getElementById('prChoices').innerHTML='';
+}
+function showAnswer(){
+    topic=document.getElementById('topic').value;
+    const ex=document.getElementById('explain');
+    if(topic==='read'){
+        const n=document.getElementById('decIn').value||0;renderPv(n);ex.innerHTML=explainRead(n);
+    }else if(topic==='compare'){
+        const a=parseFloat(document.getElementById('cmpA').value);const b=parseFloat(document.getElementById('cmpB').value);
+        document.getElementById('boxA').textContent=fmt(a);document.getElementById('boxB').textContent=fmt(b);
+        const sym=a>b?'>':a<b?'<':'=';document.getElementById('sym').textContent=sym;
+        ex.innerHTML=sym==='='?'ค่าเท่ากัน':`${fmt(a)} ${sym} ${fmt(b)} — เปรียบทีละหลักจากซ้าย`;
+    }else if(topic==='addsub'||topic==='money'){
+        if(!state.text)randomAction();
+        document.getElementById('prQ').textContent=state.text;
+        ex.innerHTML=`<strong>คำตอบ: ${fmt(state.answer)}</strong> บาท`;
+        const wrong=[state.answer+0.1,state.answer-0.1,state.answer+1].map(x=>+x.toFixed(2)).filter(x=>x>=0&&x!==state.answer);
+        const opts=[state.answer,...wrong.slice(0,3)].sort(()=>Math.random()-0.5);
+        document.getElementById('prChoices').innerHTML=opts.map(o=>`<button type="button" class="choice" data-v="${o}">${fmt(o)}</button>`).join('');
+        document.querySelectorAll('.choice').forEach(btn=>{btn.onclick=()=>{const ok=parseFloat(btn.dataset.v)===state.answer;btn.classList.add(ok?'ok':'no');document.querySelectorAll('.choice').forEach(b=>{b.disabled=true;if(parseFloat(b.dataset.v)===state.answer)b.classList.add('ok');});};});
+    }
+}
+function onTopicChange(){
+    topic=document.getElementById('topic').value;
+    document.getElementById('mainTitle').textContent=TITLES[topic];
+    document.getElementById('ctrlRead').classList.toggle('hidden',topic!=='read');
+    document.getElementById('ctrlCompare').classList.toggle('hidden',topic!=='compare');
+    document.getElementById('viewRead').classList.toggle('hidden',topic!=='read');
+    document.getElementById('viewCompare').classList.toggle('hidden',topic!=='compare');
+    document.getElementById('viewPractice').classList.toggle('hidden',topic!=='addsub'&&topic!=='money');
+    randomAction();
+}
+document.getElementById('topic').onchange=onTopicChange;
+document.getElementById('decIn').oninput=e=>renderPv(e.target.value||0);
+onTopicChange();
+</script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <script src="/games/kampai-sdk.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คลังข้อมูลและกราฟ ป.4-5 — คณิตศาสตร์</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Sarabun',sans-serif;background:linear-gradient(135deg,#059669,#6ee7b7);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:16px}
+        .main-container{width:100%;max-width:1152px;background:#fff;border-radius:2rem;box-shadow:0 25px 50px -12px rgba(0,0,0,.25);display:flex;flex-direction:column;overflow:hidden;height:90vh;min-height:600px}
+        @media(min-width:768px){.main-container{flex-direction:row;height:85vh}}
+        .sidebar{background:#065f46;color:#fff;padding:24px;width:100%;display:flex;flex-direction:column;flex-shrink:0}
+        @media(min-width:768px){.sidebar{width:300px}}
+        .sidebar h2{font-size:1.3rem;font-weight:800;margin-bottom:16px}
+        .field-label{font-size:.85rem;color:#a7f3d0;margin-bottom:6px;display:block;font-weight:600}
+        .field-group{margin-bottom:12px}
+        .select-field,.input-field{width:100%;background:rgba(255,255,255,.12);border:1px solid rgba(167,243,208,.4);border-radius:12px;padding:12px;font-family:inherit;font-size:1rem;color:#fff}
+        .select-field option{color:#1e293b}
+        .btn{width:100%;font-family:inherit;font-weight:700;padding:14px;border-radius:12px;border:none;cursor:pointer;font-size:1.05rem;margin-bottom:8px}
+        .btn-random{background:#f59e0b;color:#fff}
+        .btn-answer{background:#10b981;color:#fff}
+        .btn-back{background:rgba(255,255,255,.15);color:#d1fae5;font-size:.95rem}
+        .display-area{flex:1;padding:20px 24px;overflow:auto}
+        .main-title{font-size:1.2rem;font-weight:800;color:#065f46;margin-bottom:14px}
+        .chart-svg{width:100%;max-width:520px;height:auto;margin:0 auto;display:block}
+        .table-wrap{overflow:auto;margin:12px 0}
+        table{width:100%;border-collapse:collapse;font-weight:600}
+        th,td{border:2px solid #a7f3d0;padding:10px 14px;text-align:center}
+        th{background:#d1fae5;color:#065f46}
+        .explain-box{background:#ecfdf5;border:2px dashed #6ee7b7;border-radius:14px;padding:16px;line-height:1.65;font-weight:600;margin-top:12px}
+        .choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:480px;margin:12px auto}
+        .choice{font-family:inherit;font-weight:800;font-size:1rem;padding:14px;border:2px solid #a7f3d0;border-radius:14px;background:#fff;cursor:pointer}
+        .choice.ok{background:#dcfce7;border-color:#86efac}
+        .choice.no{background:#fee2e2;border-color:#fca5a5}
+        .practice-q{font-size:1.15rem;font-weight:800;text-align:center;color:#065f46;margin:12px 0;line-height:1.5}
+        .preset-btns{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+        .preset-btns button{font-family:inherit;font-weight:700;font-size:.8rem;padding:6px 10px;border:2px solid #a7f3d0;border-radius:10px;background:#fff;color:#065f46;cursor:pointer}
+        .preset-btns button.on{background:#065f46;color:#fff;border-color:#065f46}
+        .hidden{display:none!important}
+        .footer{text-align:center;font-size:.8rem;color:#64748b;padding-top:12px;margin-top:auto}
+    </style>
+</head>
+<body>
+<div class="main-container">
+    <div class="sidebar">
+        <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
+        <h2>📊 ข้อมูล Hub</h2>
+        <div class="field-group">
+            <label class="field-label" for="topic">หัวข้อ</label>
+            <select id="topic" class="select-field">
+                <option value="bar">📊 แผนภูมิแท่ง</option>
+                <option value="picto">🖼️ แผนภาพรูปภาพ</option>
+                <option value="table">📋 ตารางข้อมูล</option>
+                <option value="quiz">✏️ ฝึกอ่านกราฟ</option>
+            </select>
+        </div>
+        <div id="ctrlBar">
+            <p class="field-label">ชุดข้อมูล</p>
+            <div class="preset-btns" id="presets"></div>
+        </div>
+        <button type="button" class="btn btn-random" onclick="randomAction()">🎲 สุ่ม</button>
+        <button type="button" class="btn btn-answer" onclick="showAnswer()">✅ แสดงเฉลย</button>
+    </div>
+    <div class="display-area">
+        <h1 id="mainTitle" class="main-title">แผนภูมิแท่ง — อ่านและเปรียบเทียบ</h1>
+        <div id="viewChart"><svg class="chart-svg" id="chart" viewBox="0 0 520 320"></svg></div>
+        <div id="viewTable" class="hidden table-wrap"><table id="dataTable"></table></div>
+        <div id="viewQuiz" class="hidden">
+            <p class="practice-q" id="prQ">—</p>
+            <div class="choices" id="prChoices"></div>
+        </div>
+        <div id="explain" class="explain-box">กดแสดงเฉลยเพื่อดูคำอธิบาย</div>
+        <div class="footer">ป.4-5 · คู่ <a href="/games/math/bar-chart-media.html">bar-chart-media</a></div>
+    </div>
+</div>
+<script>
+const GAME_SLUG='math-data-hub';
+if(window.KAMPAI)window.KAMPAI.setSlug(GAME_SLUG);
+document.getElementById('btnBack').onclick=()=>{if(KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else location.href='/h/nattapong';};
+const COLORS=['#059669','#2563eb','#ea580c','#c026d3','#0891b2'];
+const PRESETS=[
+    {title:'ผลไม้ที่ชอบ (คน)',labels:['มะม่วง','ส้ม','กล้วย','แอปเปิ้ล'],values:[12,8,15,6]},
+    {title:'สัตว์เลี้ยงในห้อง (ตัว)',labels:['หมา','แมว','ปลา','นก'],values:[5,9,4,3]},
+    {title:'กีฬาที่เล่น (ครั้ง/สัปดาห์)',labels:['ฟุตบอล','วอลเลย์','วิ่ง','ว่ายน้ำ'],values:[10,7,14,5]},
+];
+const QUIZ=[
+    {preset:0,q:'ผลไม้ใดได้คะแนนมากที่สุด?',opts:['มะม่วง','ส้ม','กล้วย','แอปเปิ้ล'],a:2},
+    {preset:0,q:'กล้วยได้กี่คะแนน?',opts:['12','8','15','6'],a:2},
+    {preset:0,q:'มะม่วงมากกว่าแอปเปิ้ลกี่คะแนน?',opts:['4','6','8','2'],a:1},
+    {preset:1,q:'สัตว์เลี้ยงใดมีมากที่สุด?',opts:['หมา','แมว','ปลา','นก'],a:1},
+    {preset:2,q:'กีฬาใดเล่นบ่อยที่สุด?',opts:['ฟุตบอล','วอลเลย์','วิ่ง','ว่ายน้ำ'],a:2},
+];
+const TITLES={bar:'แผนภูมิแท่ง — อ่านและเปรียบเทียบ',picto:'แผนภาพรูปภาพ — สัญลักษณ์แทนจำนวน',table:'ตารางข้อมูล — อ่านค่าจากตาราง',quiz:'ฝึกอ่านกราฟและตาราง'};
+let topic='bar',data=JSON.parse(JSON.stringify(PRESETS[0])),quizItem=null;
+function drawBar(){
+    const max=Math.max(...data.values,1),scale=200/max,barW=72,gap=24,startX=60,baseY=260;
+    let svg=`<line x1="50" y1="${baseY}" x2="500" y2="${baseY}" stroke="#94a3b8" stroke-width="2"/>`;
+    data.labels.forEach((lbl,i)=>{
+        const h=data.values[i]*scale,x=startX+i*(barW+gap),y=baseY-h,c=COLORS[i%COLORS.length];
+        svg+=`<rect x="${x}" y="${y}" width="${barW}" height="${h}" rx="8" fill="${c}"/>`;
+        svg+=`<text x="${x+barW/2}" y="${y-8}" text-anchor="middle" font-family="Sarabun,sans-serif" font-size="16" font-weight="800" fill="${c}">${data.values[i]}</text>`;
+        svg+=`<text x="${x+barW/2}" y="${baseY+22}" text-anchor="middle" font-family="Sarabun,sans-serif" font-size="13" font-weight="700" fill="#334155">${lbl}</text>`;
+    });
+    document.getElementById('chart').innerHTML=svg;
+}
+function drawPicto(){
+    const max=Math.max(...data.values,1),cell=28,gap=16,startX=80,baseY=260;
+    let svg=`<line x1="50" y1="${baseY}" x2="500" y2="${baseY}" stroke="#94a3b8" stroke-width="2"/>`;
+    data.labels.forEach((lbl,i)=>{
+        const n=data.values[i],x=startX+i*(cell*5+gap);
+        for(let r=0;r<n;r++){
+            const col=r%5,row=Math.floor(r/5);
+            svg+=`<text x="${x+col*cell}" y="${baseY-12-row*cell}" font-size="22">⭐</text>`;
+        }
+        svg+=`<text x="${x+cell*2}" y="${baseY+22}" text-anchor="middle" font-family="Sarabun,sans-serif" font-size="13" font-weight="700" fill="#334155">${lbl} (${n})</text>`;
+    });
+    document.getElementById('chart').innerHTML=svg;
+}
+function drawTable(){
+    const rows=data.labels.map((l,i)=>`<tr><td>${l}</td><td>${data.values[i]}</td></tr>`).join('');
+    document.getElementById('dataTable').innerHTML=`<thead><tr><th>รายการ</th><th>จำนวน</th></tr></thead><tbody>${rows}</tbody>`;
+}
+function explainData(){
+    const maxI=data.values.indexOf(Math.max(...data.values));
+    const minI=data.values.indexOf(Math.min(...data.values));
+    const diff=data.values[maxI]-data.values[minI];
+    return `<strong>${data.title}</strong><br>${data.labels[maxI]} มากที่สุด (${data.values[maxI]}) · ${data.labels[minI]} น้อยที่สุด (${data.values[minI]}) · ต่างกัน ${diff}`;
+}
+function render(){
+    document.getElementById('viewChart').classList.toggle('hidden',topic==='table'||topic==='quiz');
+    document.getElementById('viewTable').classList.toggle('hidden',topic!=='table');
+    document.getElementById('viewQuiz').classList.toggle('hidden',topic!=='quiz');
+    document.getElementById('ctrlBar').classList.toggle('hidden',topic==='quiz');
+    if(topic==='bar')drawBar();
+    else if(topic==='picto')drawPicto();
+    else if(topic==='table')drawTable();
+    else if(topic==='quiz')nextQuiz();
+    document.getElementById('explain').innerHTML=topic==='quiz'?'เลือกคำตอบที่ถูกต้อง':explainData();
+}
+function nextQuiz(){
+    quizItem=QUIZ[Math.floor(Math.random()*QUIZ.length)];
+    data=JSON.parse(JSON.stringify(PRESETS[quizItem.preset]));
+    document.getElementById('prQ').textContent=quizItem.q;
+    const el=document.getElementById('prChoices');
+    el.innerHTML=quizItem.opts.map((o,i)=>`<button type="button" class="choice" data-i="${i}">${o}</button>`).join('');
+    el.querySelectorAll('.choice').forEach(btn=>{
+        btn.onclick=()=>{
+            const ok=+btn.dataset.i===quizItem.a;
+            btn.classList.add(ok?'ok':'no');
+            el.querySelectorAll('.choice').forEach(b=>{b.disabled=true;if(+b.dataset.i===quizItem.a)b.classList.add('ok');});
+            document.getElementById('explain').innerHTML=ok?'✓ ถูกต้อง!':`✗ คำตอบ: ${quizItem.opts[quizItem.a]}`;
+        };
+    });
+}
+function randomAction(){
+    if(topic==='quiz')nextQuiz();
+    else{data=JSON.parse(JSON.stringify(PRESETS[Math.floor(Math.random()*PRESETS.length)]));
+        document.querySelectorAll('#presets button').forEach((b,i)=>b.classList.toggle('on',PRESETS[i].title===data.title));
+        render();}
+}
+function showAnswer(){
+    if(topic==='quiz'&&quizItem)document.getElementById('explain').innerHTML=`คำตอบ: <strong>${quizItem.opts[quizItem.a]}</strong>`;
+    else document.getElementById('explain').innerHTML=explainData();
+}
+document.getElementById('presets').innerHTML=PRESETS.map((p,i)=>`<button type="button" class="${i===0?'on':''}">${p.title.split('(')[0].trim()}</button>`).join('');
+document.getElementById('presets').querySelectorAll('button').forEach((btn,i)=>{
+    btn.onclick=()=>{data=JSON.parse(JSON.stringify(PRESETS[i]));document.querySelectorAll('#presets button').forEach((b,j)=>b.classList.toggle('on',j===i));render();};
+});
+document.getElementById('topic').onchange=e=>{topic=e.target.value;document.getElementById('mainTitle').textContent=TITLES[topic];render();};
+render();
+</script>
+</body>
+</html>

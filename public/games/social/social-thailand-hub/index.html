@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <script src="/games/kampai-sdk.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คลังสังคมศึกษาไทย ป.4-5</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Sarabun',sans-serif;background:linear-gradient(145deg,#fef3c7,#fde68a);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:16px}
+        .main-container{width:100%;max-width:1152px;background:#fff;border-radius:2rem;box-shadow:0 25px 50px -12px rgba(0,0,0,.25);display:flex;flex-direction:column;overflow:hidden;height:90vh;min-height:600px}
+        @media(min-width:768px){.main-container{flex-direction:row;height:85vh}}
+        .sidebar{background:#92400e;color:#fff;padding:24px;width:100%;display:flex;flex-direction:column;flex-shrink:0}
+        @media(min-width:768px){.sidebar{width:300px}}
+        .sidebar h2{font-size:1.3rem;font-weight:800;margin-bottom:16px}
+        .field-label{font-size:.85rem;color:#fde68a;margin-bottom:6px;display:block;font-weight:600}
+        .select-field{width:100%;background:rgba(255,255,255,.12);border:1px solid rgba(253,230,138,.4);border-radius:12px;padding:12px;font-family:inherit;font-size:1rem;color:#fff}
+        .select-field option{color:#1e293b}
+        .btn{width:100%;font-family:inherit;font-weight:700;padding:14px;border-radius:12px;border:none;cursor:pointer;font-size:1.05rem;margin-bottom:8px}
+        .btn-random{background:#f59e0b;color:#fff}
+        .btn-answer{background:#10b981;color:#fff}
+        .btn-back{background:rgba(255,255,255,.15);color:#fef3c7;font-size:.95rem}
+        .display-area{flex:1;padding:20px 24px;overflow:auto}
+        .main-title{font-size:1.2rem;font-weight:800;color:#92400e;margin-bottom:14px}
+        .map-svg{width:100%;max-width:400px;height:auto;margin:0 auto;display:block}
+        .region{cursor:pointer;stroke:#fff;stroke-width:2;transition:filter .15s}
+        .region.on{filter:brightness(1.15);stroke:#fbbf24;stroke-width:3}
+        .legend{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0;font-size:.75rem;font-weight:700}
+        .legend span{padding:4px 8px;border-radius:8px;color:#fff}
+        .timeline{padding-left:24px;position:relative}
+        .timeline::before{content:'';position:absolute;left:8px;top:4px;bottom:4px;width:4px;background:#fcd34d;border-radius:4px}
+        .tl-item{position:relative;margin-bottom:12px;cursor:pointer;padding-left:8px}
+        .tl-item::before{content:'';position:absolute;left:-20px;top:12px;width:12px;height:12px;border-radius:50%;background:#fff;border:3px solid #d97706}
+        .tl-item.on::before{background:#b45309}
+        .tl-card{background:#fffbeb;border:2px solid #fde68a;border-radius:12px;padding:10px 12px}
+        .tl-item.on .tl-card{border-color:#b45309}
+        .traits{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+        .trait{background:#fffbeb;border:2px solid #fde68a;border-radius:12px;padding:10px;font-weight:600;font-size:.9rem}
+        .trait h4{color:#92400e;font-size:.95rem;margin-bottom:4px}
+        .explain-box{background:#fffbeb;border:2px dashed #fcd34d;border-radius:14px;padding:16px;line-height:1.65;font-weight:600;margin-top:12px}
+        .choices{display:flex;flex-direction:column;gap:8px;max-width:480px;margin:12px auto}
+        .choice{font-family:inherit;font-weight:700;padding:12px;border:2px solid #fde68a;border-radius:12px;background:#fff;cursor:pointer;text-align:left}
+        .choice.ok{background:#dcfce7;border-color:#86efac}
+        .choice.no{background:#fee2e2;border-color:#fca5a5}
+        .practice-q{font-size:1.1rem;font-weight:800;text-align:center;color:#92400e;margin:12px 0;line-height:1.5}
+        .scene{font-size:3rem;text-align:center}
+        .prov-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+        .prov{background:#fff;border:2px solid #fde68a;border-radius:10px;padding:6px 10px;font-weight:700;font-size:.85rem}
+        .hidden{display:none!important}
+        .footer{text-align:center;font-size:.8rem;color:#64748b;padding-top:12px;margin-top:auto}
+        .footer a{color:#92400e;font-weight:700;text-decoration:none}
+    </style>
+</head>
+<body>
+<div class="main-container">
+    <div class="sidebar">
+        <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
+        <h2>🇹🇭 สังคม Hub</h2>
+        <div class="field-group">
+            <label class="field-label" for="topic">หัวข้อ</label>
+            <select id="topic" class="select-field">
+                <option value="map">🗺️ แผนที่ไทย</option>
+                <option value="history">🏛️ สมัยสุโขทัย</option>
+                <option value="citizen">🤝 พลเมืองดี</option>
+            </select>
+        </div>
+        <button type="button" class="btn btn-random" onclick="randomAction()">🎲 สุ่มคำถาม</button>
+        <button type="button" class="btn btn-answer" onclick="showAnswer()">✅ แสดงเฉลย</button>
+    </div>
+    <div class="display-area">
+        <h1 id="mainTitle" class="main-title">แผนที่ประเทศไทย — ภาคและจังหวัด</h1>
+        <div id="viewMap">
+            <svg class="map-svg" viewBox="0 0 400 520">
+                <path class="region" data-id="north" fill="#3b82f6" d="M120,20 L280,20 L300,80 L260,140 L140,130 Z"/>
+                <path class="region" data-id="ne" fill="#22c55e" d="M300,80 L380,100 L370,200 L300,220 L260,140 Z"/>
+                <path class="region" data-id="central" fill="#f59e0b" d="M140,130 L260,140 L280,220 L200,250 L120,200 Z"/>
+                <path class="region" data-id="east" fill="#ec4899" d="M280,220 L370,200 L360,300 L280,310 Z"/>
+                <path class="region" data-id="west" fill="#8b5cf6" d="M80,200 L120,200 L200,250 L180,320 L60,280 Z"/>
+                <path class="region" data-id="south" fill="#06b6d4" d="M180,320 L280,310 L300,400 L220,480 L140,400 Z"/>
+            </svg>
+            <div class="legend">
+                <span style="background:#3b82f6">เหนือ</span><span style="background:#22c55e">อีสาน</span>
+                <span style="background:#f59e0b">กลาง</span><span style="background:#ec4899">ตะวันออก</span>
+                <span style="background:#8b5cf6">ตะวันตก</span><span style="background:#06b6d4">ใต้</span>
+            </div>
+            <div id="mapDetail" style="margin-top:12px;font-weight:600;color:#92400e;text-align:center">แตะภาคบนแผนที่</div>
+        </div>
+        <div id="viewHistory" class="hidden"><div class="timeline" id="timeline"></div></div>
+        <div id="viewCitizen" class="hidden">
+            <div class="traits" id="traits"></div>
+        </div>
+        <div id="viewQuiz" class="hidden">
+            <p class="scene" id="sceneIcon">🏫</p>
+            <p class="practice-q" id="prQ">—</p>
+            <div class="choices" id="prChoices"></div>
+        </div>
+        <div id="explain" class="explain-box">เลือกหัวข้อแล้วสำรวจหรือฝึกทำ</div>
+        <div class="footer">ป.4-5 · คู่ <a href="/games/social/thailand-map.html">thailand-map</a> · <a href="/games/social/sukhothai-timeline.html">sukhothai</a></div>
+    </div>
+</div>
+<script>
+const GAME_SLUG='social-thailand-hub';
+if(window.KAMPAI)window.KAMPAI.setSlug(GAME_SLUG);
+document.getElementById('btnBack').onclick=()=>{if(KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else location.href='/h/nattapong';};
+const REGIONS={
+    north:{title:'ภาคเหนือ',fact:'ภูเขาสูง อากาศเย็น · ลำไย ดอกพญาเสือโคร่ง',provs:['เชียงใหม่','เชียงราย','ลำปาง']},
+    ne:{title:'ภาคตะวันออกเฉียงเหนือ',fact:'ที่ราบสูงอีสาน · ผ้าไหม บุญบั้งไฟ',provs:['ขอนแก่น','อุดรธานี','นครราชสีมา']},
+    central:{title:'ภาคกลาง',fact:'ที่ราบลุ่มแม่น้ำเจ้าพระยา · กรุงเทพเป็นเมืองหลวง',provs:['กรุงเทพ','อยุธยา','นครปฐม']},
+    east:{title:'ภาคตะวันออก',fact:'ชายทะเลอ่าวไทย · อุตสาหกรรมชลบุรี',provs:['ชลบุรี','ระยอง','จันทบุรี']},
+    west:{title:'ภาคตะวันตก',fact:'เทือกเขาตะวันตก · แม่น้ำแคว',provs:['กาญจนบุรี','ราชบุรี','เพชรบุรี']},
+    south:{title:'ภาคใต้',fact:'คาบสมุทร · ยางพารา เกาะท่องเที่ยว',provs:['ภูเก็ต','สงขลา','นครศรีธรรมราช']}
+};
+const EVENTS=[
+    {id:'found',year:'พ.ศ. 1781',title:'ก่อตั้งอาณาจักรสุโขทัย',body:'พ่อขุนไชยแสงทองปลดปล่อยจากอาคาเดีย'},
+    {id:'ram',year:'พ.ศ. 1826–1890',title:'พ่อขุนรามคำแหงมหาราช',body:'ขยายอาณาเขต สร้างอักษรไทย ศิลาจารึกที่ 1'},
+    {id:'insc',year:'พ.ศ. 1835',title:'ศิลาจารึกที่ 1',body:'หลักฐานสำคัญที่วัดมหาธาตุ สุโขทัย'},
+    {id:'decline',year:'พ.ศ. 1988',title:'เสื่อมสู่อยุธยา',body:'อาณาจักรสุโขทัยถูกรวมเข้ากับอยุธยา'}
+];
+const TRAITS=[
+    {h:'🙏 เคารพกฎ',p:'ปฏิบัติตามกฎหมายและกฎโรงเรียน'},
+    {h:'❤️ มีน้ำใจ',p:'ช่วยเหลือผู้อื่น ไม่รังแกเพื่อน'},
+    {h:'🧹 รักษาความสะอาด',p:'ทิ้งขยะถูกที่'},
+    {h:'🇹🇭 รักชาติ',p:'ภูมิใจในความเป็นไทย'},
+    {h:'⚖️ ซื่อสัตย์',p:'ไม่โกง ไม่ขโมย'},
+    {h:'📚 เรียนรู้',p:'ตั้งใจเรียน เปิดรับความรู้'}
+];
+const CITIZEN=[
+    {icon:'🏫',q:'เพื่อนขอลอกการบ้าน คุณจะทำอย่างไร?',opts:['ให้ลอกเพราะเป็นเพื่อน','ปฏิเสธและชวนทบทวน','บอกครูทันที'],a:1,why:'พลเมืองดีซื่อสัตย์และช่วยเหลืออย่างถูกต้อง'},
+    {icon:'🚦',q:'ไฟแดงติด ไม่มีรถ คุณจะทำอย่างไร?',opts:['ข้ามเลย','รอไฟเขียว','วิ่งข้าม'],a:1,why:'เคารพสัญญาณไฟเสมอ'},
+    {icon:'🗑️',q:'กินขนมเสร็จ ถังขยะอยู่ไกล',opts:['ทิ้งพื้น','เก็บไว้จนเจอถัง','โยนลงคลอง'],a:1,why:'รักษาความสะอาดสาธารณะ'}
+];
+const MAP_QUIZ=Object.entries(REGIONS).flatMap(([id,r])=>r.provs.map(p=>({prov:p,region:r.title})));
+const HIST_QUIZ=[
+    {q:'ใครสร้างอักษรไทยตามศิลาจารึกที่ 1?',opts:['พ่อขุนรามคำแหง','พ่อขุนไชยแสงทอง','นายมหาธม'],a:0},
+    {q:'อาณาจักรสุโขทัยก่อตั้งปี พ.ศ. เท่าไร?',opts:['1781','1988','2325'],a:0}
+];
+const TITLES={map:'แผนที่ประเทศไทย — ภาคและจังหวัด',history:'สมัยสุโขทัย — ไทม์ไลน์',citizen:'พลเมืองดี — หน้าที่และจริยธรรม'};
+let topic='map',histIdx=0,quizItem=null,bodyQuiz=false,selectedRegion=null;
+function buildTimeline(){
+    document.getElementById('timeline').innerHTML=EVENTS.map((e,i)=>`<div class="tl-item ${i===histIdx?'on':''}" data-i="${i}"><div class="tl-card"><strong>${e.year}</strong> — ${e.title}</div></div>`).join('');
+    document.querySelectorAll('.tl-item').forEach(el=>{el.onclick=()=>{histIdx=+el.dataset.i;buildTimeline();document.getElementById('explain').innerHTML=EVENTS[histIdx].body;};});
+}
+function buildTraits(){
+    document.getElementById('traits').innerHTML=TRAITS.map(t=>`<div class="trait"><h4>${t.h}</h4>${t.p}</div>`).join('');
+}
+document.querySelectorAll('.region').forEach(el=>{
+    el.onclick=()=>{
+        const r=REGIONS[el.dataset.id];selectedRegion=r;
+        document.querySelectorAll('.region').forEach(x=>x.classList.toggle('on',x===el));
+        document.getElementById('mapDetail').innerHTML=`<strong>${r.title}</strong><br>${r.fact}<div class="prov-list">${r.provs.map(p=>`<span class="prov">${p}</span>`).join('')}</div>`;
+        document.getElementById('explain').innerHTML=r.fact;
+    };
+});
+function nextQuiz(){
+    if(topic==='map'){
+        const item=MAP_QUIZ[Math.floor(Math.random()*MAP_QUIZ.length)];
+        quizItem={q:`จังหวัด ${item.prov} อยู่ภาคใด?`,opts:Object.values(REGIONS).map(r=>r.title).sort(()=>Math.random()-0.5).slice(0,4),a:item.region};
+        if(!quizItem.opts.includes(item.region))quizItem.opts[0]=item.region;
+        quizItem.opts=quizItem.opts.sort(()=>Math.random()-0.5);
+    }else if(topic==='history'){
+        const h=HIST_QUIZ[Math.floor(Math.random()*HIST_QUIZ.length)];
+        quizItem={q:h.q,opts:h.opts,a:h.opts[h.a],why:''};
+    }else{
+        const c=CITIZEN[Math.floor(Math.random()*CITIZEN.length)];
+        quizItem={q:c.q,opts:c.opts,a:c.opts[c.a],why:c.why,icon:c.icon};
+    }
+    document.getElementById('sceneIcon').textContent=quizItem.icon||'❓';
+    document.getElementById('prQ').textContent=quizItem.q;
+    const el=document.getElementById('prChoices');
+    el.innerHTML=quizItem.opts.map(o=>`<button type="button" class="choice">${o}</button>`).join('');
+    el.querySelectorAll('.choice').forEach(btn=>{
+        btn.onclick=()=>{const ok=btn.textContent===quizItem.a;btn.classList.add(ok?'ok':'no');
+            el.querySelectorAll('.choice').forEach(b=>{b.disabled=true;if(b.textContent===quizItem.a)b.classList.add('ok');});
+            document.getElementById('explain').innerHTML=ok?'✓ ถูกต้อง!':`✗ คำตอบ: ${quizItem.a}${quizItem.why?'<br>'+quizItem.why:''}`;};
+    });
+}
+function render(){
+    bodyQuiz=false;
+    document.getElementById('mainTitle').textContent=TITLES[topic];
+    document.getElementById('viewMap').classList.toggle('hidden',topic!=='map');
+    document.getElementById('viewHistory').classList.toggle('hidden',topic!=='history');
+    document.getElementById('viewCitizen').classList.toggle('hidden',topic!=='citizen');
+    document.getElementById('viewQuiz').classList.add('hidden');
+    if(topic==='history'){buildTimeline();document.getElementById('explain').innerHTML=EVENTS[histIdx].body;}
+    else if(topic==='citizen'){buildTraits();document.getElementById('explain').innerHTML='เลือกสถานการณ์เพื่อฝึกตัดสินใจ';}
+    else document.getElementById('explain').innerHTML='แตะภาคบนแผนที่เพื่อเรียนรู้';
+}
+function randomAction(){
+    bodyQuiz=true;
+    document.getElementById('viewMap').classList.add('hidden');
+    document.getElementById('viewHistory').classList.add('hidden');
+    document.getElementById('viewCitizen').classList.add('hidden');
+    document.getElementById('viewQuiz').classList.remove('hidden');
+    nextQuiz();
+}
+function showAnswer(){
+    if(bodyQuiz&&quizItem)document.getElementById('explain').innerHTML=`คำตอบ: <strong>${quizItem.a}</strong>`;
+    else if(topic==='history')document.getElementById('explain').innerHTML=EVENTS.map(e=>`<strong>${e.year}</strong> ${e.title}: ${e.body}`).join('<br>');
+    else if(selectedRegion)document.getElementById('explain').innerHTML=selectedRegion.fact;
+    else document.getElementById('explain').innerHTML='เลือกภาคบนแผนที่หรือกดสุ่มคำถาม';
+}
+document.getElementById('topic').onchange=e=>{topic=e.target.value;render();};
+render();
+</script>
+</body>
+</html>

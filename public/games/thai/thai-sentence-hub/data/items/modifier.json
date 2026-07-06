@@ -1,0 +1,67 @@
+[
+  {
+    "word": "ส่วนขยาย",
+    "reading": "ส่วนขยาย",
+    "meaning": "ขยายนาม · ประโยค: เด็กชายตัวเล็กวิ่งเร็ว",
+    "emoji": "✨",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "item_type": "sentence",
+    "pos": "modifier",
+    "pos_label": "ส่วนขยาย",
+    "sentence": "เด็กชายตัวเล็กวิ่งเร็ว",
+    "highlight": "ตัวเล็ก"
+  },
+  {
+    "word": "ส่วนขยาย",
+    "reading": "ส่วนขยาย",
+    "meaning": "ขยายกริยา · ประโยค: เขาวิ่งอย่างเร็ว",
+    "emoji": "✨",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "item_type": "sentence",
+    "pos": "modifier",
+    "pos_label": "ส่วนขยาย",
+    "sentence": "เขาวิ่งอย่างเร็ว",
+    "highlight": "อย่างเร็ว"
+  },
+  {
+    "word": "ส่วนขยาย",
+    "reading": "ส่วนขยาย",
+    "meaning": "ขยายคุณศัพท์ · ประโยค: ดอกไม้สีแดงสวยมาก",
+    "emoji": "✨",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "item_type": "sentence",
+    "pos": "modifier",
+    "pos_label": "ส่วนขยาย",
+    "sentence": "ดอกไม้สีแดงสวยมาก",
+    "highlight": "สีแดง"
+  },
+  {
+    "word": "ส่วนขยาย",
+    "reading": "ส่วนขยาย",
+    "meaning": "วลีขยาย · ประโยค: เมื่อฝนตกเราหยุดเล่น",
+    "emoji": "✨",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "item_type": "sentence",
+    "pos": "modifier",
+    "pos_label": "ส่วนขยาย",
+    "sentence": "เมื่อฝนตกเราหยุดเล่น",
+    "highlight": "เมื่อฝนตก"
+  },
+  {
+    "word": "ส่วนขยาย",
+    "reading": "ส่วนขยาย",
+    "meaning": "บอกสถานที่ · ประโยค: นกบินในท้องฟ้า",
+    "emoji": "✨",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "item_type": "sentence",
+    "pos": "modifier",
+    "pos_label": "ส่วนขยาย",
+    "sentence": "นกบินในท้องฟ้า",
+    "highlight": "ในท้องฟ้า"
+  }
+]

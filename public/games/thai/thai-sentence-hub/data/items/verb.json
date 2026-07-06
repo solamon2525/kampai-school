@@ -1,0 +1,80 @@
+[
+  {
+    "word": "กริยา",
+    "reading": "กริยา",
+    "meaning": "แสดงการกระทำ · ประโยค: นกบินบนท้องฟ้า",
+    "emoji": "🏃",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "item_type": "sentence",
+    "pos": "verb",
+    "pos_label": "กริยา",
+    "sentence": "นกบินบนท้องฟ้า",
+    "highlight": "บิน"
+  },
+  {
+    "word": "กริยา",
+    "reading": "กริยา",
+    "meaning": "กริยาสภาวะ · ประโยค: ดอกไม้สวยงาม",
+    "emoji": "🏃",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "item_type": "sentence",
+    "pos": "verb",
+    "pos_label": "กริยา",
+    "sentence": "ดอกไม้สวยงาม",
+    "highlight": "สวยงาม"
+  },
+  {
+    "word": "กริยา",
+    "reading": "กริยา",
+    "meaning": "กริยาในอดีต · ประโยค: แม่ทำอาหารเช้า",
+    "emoji": "🏃",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "item_type": "sentence",
+    "pos": "verb",
+    "pos_label": "กริยา",
+    "sentence": "แม่ทำอาหารเช้า",
+    "highlight": "ทำ"
+  },
+  {
+    "word": "กริยา",
+    "reading": "กริยา",
+    "meaning": "กริยาในอนาคต · ประโยค: พรุ่งนี้เราจะไปเที่ยว",
+    "emoji": "🏃",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "item_type": "sentence",
+    "pos": "verb",
+    "pos_label": "กริยา",
+    "sentence": "พรุ่งนี้เราจะไปเที่ยว",
+    "highlight": "จะไป"
+  },
+  {
+    "word": "กริยา",
+    "reading": "กริยา",
+    "meaning": "กริยาสองคำ · ประโยค: ครูกำลังสอนหนังสือ",
+    "emoji": "🏃",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "item_type": "sentence",
+    "pos": "verb",
+    "pos_label": "กริยา",
+    "sentence": "ครูกำลังสอนหนังสือ",
+    "highlight": "กำลังสอน"
+  },
+  {
+    "word": "กริยา",
+    "reading": "กริยา",
+    "meaning": "กริยาเชิงคุณภาพ · ประโยค: อาหารรสชาติดี",
+    "emoji": "🏃",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "item_type": "sentence",
+    "pos": "verb",
+    "pos_label": "กริยา",
+    "sentence": "อาหารรสชาติดี",
+    "highlight": "รสชาติดี"
+  }
+]

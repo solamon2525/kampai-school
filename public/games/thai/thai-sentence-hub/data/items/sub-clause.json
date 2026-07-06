@@ -1,0 +1,41 @@
+[
+  {
+    "word": "ประโยคคำย่อย",
+    "reading": "ประโยคคำย่อย",
+    "meaning": "บอกเงื่อนไข · ประโยค: เมื่อฝนตก เราหยุดเล่น",
+    "emoji": "📎",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "item_type": "sentence",
+    "pos": "sub-clause",
+    "pos_label": "ประโยคคำย่อย",
+    "sentence": "เมื่อฝนตก เราหยุดเล่น",
+    "highlight": "เมื่อฝนตก"
+  },
+  {
+    "word": "ประโยคคำย่อย",
+    "reading": "ประโยคคำย่อย",
+    "meaning": "บอกเหตุผล · ประโยค: เพราะฝนตก เราจึงไม่ไปเที่ยว",
+    "emoji": "📎",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "item_type": "sentence",
+    "pos": "sub-clause",
+    "pos_label": "ประโยคคำย่อย",
+    "sentence": "เพราะฝนตก เราจึงไม่ไปเที่ยว",
+    "highlight": "เพราะฝนตก"
+  },
+  {
+    "word": "ประโยคคำย่อย",
+    "reading": "ประโยคคำย่อย",
+    "meaning": "บอกเวลา · ประโยค: ตอนเช้า นกร้องเพลง",
+    "emoji": "📎",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "item_type": "sentence",
+    "pos": "sub-clause",
+    "pos_label": "ประโยคคำย่อย",
+    "sentence": "ตอนเช้า นกร้องเพลง",
+    "highlight": "ตอนเช้า"
+  }
+]

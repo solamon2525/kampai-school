@@ -272,8 +272,84 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.151.0 (ปก safe zone — หัวข้อไทยไม่ล้น)',
+        version: 'v1.158.0 (คำขวัญ · โดยนัย · อาขยาน)',
         date: 'ล่าสุด',
+        badge: 'bg-orange-600',
+        items: [
+            '**คำขวัญ** ขยายใน poetry-hub 12 บท · build:poetry',
+            '**ความหมายโดยนัย** — `thai-implied-meaning-media.html` · migration 364–365',
+            '**บทอาขยาน** หมวดใหม่ใน literature-hub 5 บท · build:literature',
+        ],
+    },
+    {
+        version: 'v1.157.0 (ปก Hub · vocab 100 · บรรยาย/พรรณนา)',
+        date: 'ก่อนหน้า',
+        badge: 'bg-orange-600',
+        items: [
+            '**ปก Hub มาตรฐาน** 15 ชิ้น — `pnpm build:hub-covers` (1280×720 SVG)',
+            '**p5-focus** ขยายเป็น 100 คำ · `pnpm build:vocab-p5`',
+            '**บทร้อยกรอง** ขยายใน poetry-hub 9 บท · build:poetry',
+            '**บรรยาย vs พรรณนา** — `thai-narration-style-media.html` · migration 362–363',
+        ],
+    },
+    {
+        version: 'v1.156.0 (สังคม · อังกฤษ Hub + vocab ป.5)',
+        date: '',
+        badge: 'bg-amber-600',
+        items: [
+            '**คลังสังคมศึกษาไทย** (`social-thailand-hub`) — แผนที่/สุโขทัย/พลเมือง · migration 359',
+            '**คลังอังกฤษ ป.4-5** (`english-grammar-p45-hub`) — grammar/sight/instructions · migration 360',
+            '**ขยาย vocab ป.5** — หมวด `p5-focus` 15 คำ · `pnpm build:vocab-p5`',
+            'ผูกตัวชี้วัด migration 361 · backlog 17/17 เสร็จครบ',
+        ],
+    },
+    {
+        version: 'v1.155.0 (ข้อมูล · วิทย์ · สำนวน Hub)',
+        date: '',
+        badge: 'bg-teal-600',
+        items: [
+            '**คลังข้อมูลและกราฟ** (`math-data-hub`) — แท่ง/รูปภาพ/ตาราง/ฝึกอ่าน · migration 355',
+            '**คลังวิทยาศาสตร์ ป.4-5** (`science-p45-hub`) — สสาร/น้ำ/สัตว์/ย่อย · migration 356',
+            '**คลังสำนวนไทย** (`thai-idiom-hub`) — 5 หมวด 48 รายการ · migration 357',
+            'ผูกตัวชี้วัด migration 358 · backlog 14/17 เสร็จเต็ม',
+        ],
+    },
+    {
+        version: 'v1.154.0 (วรรณกรรม · ทศนิยม · เรขา Hub)',
+        date: '',
+        badge: 'bg-indigo-600',
+        items: [
+            '**คลังวรรณคดีวรรณกรรม** (`thai-literature-hub`) — 6 หมวด 26 รายการ · migration 351',
+            '**คลังทศนิยม** (`math-decimal-hub`) — อ่าน/เทียบ/บวกลบ/เงิน · migration 352',
+            '**คลังเรขาคณิต** (`math-geometry-hub`) — มุม/เส้นรอบ/พื้นที่/รูป2D · migration 353',
+            'ผูกตัวชี้วัด migration 354 · backlog 17/17 เสร็จครบ',
+        ],
+    },
+    {
+        version: 'v1.153.0 (บทร้อยกรรม · โจทย์ปัญหา · แต่งข้อความ)',
+        date: '',
+        badge: 'bg-violet-600',
+        items: [
+            '**คลังบทร้อยกรรม** (`thai-poetry-hub`) — 7 หมวด 36 รายการ · ท่องบท TTS · migration 347',
+            '**โจทย์ปัญหา** (`math-word-problem-hub`) — บวกลบ/คูณหาร/2 ขั้น · คำสำคัญ+เฉลย · migration 348',
+            '**คลังแต่งข้อความ** (`thai-writing-hub`) — สรุป/บันทึก/จดหมาย/คำขวัญ + checklist · migration 349',
+            'ผูกตัวชี้วัด migration 350 · `pnpm build:poetry`',
+        ],
+    },
+    {
+        version: 'v1.152.0 (Hub ไทย 3 ชิ้น — วรรคตอน · ประโยค · อ่าน)',
+        date: '',
+        badge: 'bg-amber-600',
+        items: [
+            '**คลังวรรคตอน** (`thai-punctuation-hub`) — 9 หมวด 66 รายการ · โหมดเติมเครื่องหมาย · migration 343',
+            '**คลังประโยคไทย** (`thai-sentence-hub`) — 9 หมวด 61 รายการ · ทายส่วนประโยค · migration 344',
+            '**คลังอ่านจับใจความ** (`thai-reading-hub`) — 5 หมวด 18 บทอ่าน · โหมดอ่านแล้วตอบ · migration 345',
+            'ผูกตัวชี้วัด migration 346 · อัปเดต `docs/TEACHING-MEDIA-IDEAS.md`',
+        ],
+    },
+    {
+        version: 'v1.151.0 (ปก safe zone — หัวข้อไทยไม่ล้น)',
+        date: '',
         badge: 'bg-sky-600',
         items: [
             'Reframe ปกที่หัวข้อฝังชิดขอบบน **50 ไฟล์** · `GameCoverThumb` + padding · สคริปต์ `audit:covers` / `fix:covers-safe-top`',

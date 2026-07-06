@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>บรรยาย vs พรรณนา — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --deep: #9a3412; --line: #fdba74; --nar: #2563eb; --des: #c026d3; --muted: #64748b; --ok: #16a34a; --bad: #dc2626; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(145deg, #ffedd5, #fff7ed); min-height: 100%; padding: 12px; }
+    .shell { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+    header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #7c2d12, #c2410c); color: #fff; }
+    header h1 { font-size: 1.1rem; font-weight: 800; flex: 1; }
+    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+    .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
+    .btn-primary { background: var(--deep); color: #fff; }
+    .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; background: #fff7ed; border-bottom: 1px solid var(--line); align-items: center; }
+    .seg { display: inline-flex; border-radius: 12px; overflow: hidden; border: 2px solid #fb923c; }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 14px; cursor: pointer; }
+    .seg button.on { background: var(--deep); color: #fff; }
+    .hint { font-size: .85rem; color: #9a3412; font-weight: 600; flex: 1; }
+    .stage { flex: 1; padding: 16px; overflow: auto; }
+    .learn-grid { display: grid; gap: 12px; max-width: 720px; margin: 0 auto 16px; }
+    @media (min-width: 700px) { .learn-grid { grid-template-columns: 1fr 1fr; } }
+    .def { border-radius: 16px; padding: 16px; border: 3px solid; }
+    .def.nar { border-color: var(--nar); background: #eff6ff; }
+    .def.des { border-color: var(--des); background: #fdf4ff; }
+    .def h3 { font-size: 1.2rem; margin-bottom: 8px; }
+    .def.nar h3 { color: var(--nar); }
+    .def.des h3 { color: var(--des); }
+    .def p { font-weight: 600; line-height: 1.55; }
+    .examples { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+    .ex { font-weight: 700; padding: 10px 12px; border-radius: 10px; font-size: .9rem; line-height: 1.45; }
+    .ex.n { background: #dbeafe; color: #1d4ed8; }
+    .ex.d { background: #fae8ff; color: #a21caf; }
+    .practice { display: none; flex-direction: column; gap: 14px; max-width: 560px; margin: 0 auto; align-items: center; }
+    .practice.on { display: flex; }
+    .learn-panel.hide { display: none; }
+    .stmt { font-size: 1.2rem; font-weight: 800; color: var(--deep); text-align: center; line-height: 1.5; padding: 16px; background: #fff7ed; border: 2px dashed var(--line); border-radius: 14px; width: 100%; }
+    .pick { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+    .pick button { font-family: inherit; font-weight: 800; font-size: 1rem; padding: 16px; border-radius: 14px; border: 3px solid; cursor: pointer; }
+    .pick .n { border-color: var(--nar); background: #fff; color: var(--nar); }
+    .pick .d { border-color: var(--des); background: #fff; color: var(--des); }
+    .pick button.ok { background: #dcfce7; border-color: #86efac; color: #166534; }
+    .pick button.no { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
+    .fb { font-weight: 800; min-height: 28px; text-align: center; }
+    .streak { font-size: .9rem; color: #9a3412; font-weight: 700; }
+    .footer { padding: 10px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
+    .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
+      <h1>📖 การบรรยาย vs การพรรณนา</h1>
+      <span class="badge">ป.5 · ภาษาไทย</span>
+    </header>
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
+        <button type="button" data-mode="practice">✏️ ฝึกจำแนก</button>
+      </span>
+      <p class="hint">บรรยาย = เล่าเหตุการณ์ · พรรณนา = บรรยายลักษณะ/ภาพ</p>
+      <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
+    </div>
+    <div class="stage">
+      <div class="learn-panel" id="learn">
+        <div class="learn-grid">
+          <div class="def nar">
+            <h3>📖 การบรรยาย</h3>
+            <p>เล่า<strong>เหตุการณ์ ลำดับเวลา การกระทำ</strong> ว่าเกิดอะไรขึ้นก่อน–หลัง</p>
+            <div class="examples">
+              <span class="ex n">เช้านี้ฉันตื่นนอนแล้วแต่งตัวไปโรงเรียน</span>
+              <span class="ex n">แม่ทำอาหารเช้า จากนั้นทุกคนนั่งกินด้วยกัน</span>
+              <span class="ex n">ฝนตกหนัก เราจึงหยุดเล่นกลางแจ้ง</span>
+            </div>
+          </div>
+          <div class="def des">
+            <h3>🎨 การพรรณนา</h3>
+            <p>บรรยาย<strong>ลักษณะ สี รูปร่าง ความรู้สึก บรรยากาศ</strong> ให้เห็นภาพ</p>
+            <div class="examples">
+              <span class="ex d">ท้องฟ้าสีครามสดใส มีเมฆขาวฟูฟ่อง</span>
+              <span class="ex d">ดอกไม้สีชมพูบานสะพรั่งหอมหวาน</span>
+              <span class="ex d">ห้องเรียนสะอาดเงียบสงบ</span>
+            </div>
+          </div>
+        </div>
+        <p style="text-align:center;font-weight:700;color:#9a3412;margin-top:8px">คำถามช่วย: “เล่าเรื่องหรือบรรยายลักษณะ?” เหตุการณ์ = บรรยาย · ภาพ/ลักษณะ = พรรณนา</p>
+      </div>
+      <div class="practice" id="practice">
+        <p class="streak" id="streak">🔥 0 ติดต่อกัน</p>
+        <p class="stmt" id="stmt"></p>
+        <div class="pick">
+          <button type="button" class="n" data-a="narration">📖 การบรรยาย</button>
+          <button type="button" class="d" data-a="description">🎨 การพรรณนา</button>
+        </div>
+        <p class="fb" id="fb"></p>
+        <button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button>
+      </div>
+    </div>
+    <footer>ตัวชี้วัด <strong>ท 1.1 ป.5/4</strong> · คู่ <a href="/games/thai/thai-reading-hub/index.html">คลังอ่านจับใจความ</a></footer>
+  </div>
+  <script>
+    if (window.KAMPAI) window.KAMPAI.setSlug('thai-narration-style-media');
+
+    const ITEMS = [
+      { t: 'เด็กๆ วิ่งเล่นในสนาม จากนั้นกลับเข้าห้องเรียน', a: 'narration', why: 'เล่าลำดับเหตุการณ์' },
+      { t: 'ต้นมะม่วงใหญ่ ใบเขียวหนา เงาเย็นสบาย', a: 'description', why: 'บรรยายลักษณะต้นไม้' },
+      { t: 'ครูอธิบายบทเรียน แล้วให้ทำแบบฝึกหัด', a: 'narration', why: 'เล่าสิ่งที่เกิดขึ้นตามลำดับ' },
+      { t: 'ทะเลสีฟ้าใส คลื่นซัดชายหาดทรายขาว', a: 'description', why: 'บรรยายภาพทะเล' },
+      { t: 'ฉันลืมการบ้าน จึงขอโทษครูและสัญญาจะทำให้ทัน', a: 'narration', why: 'เล่าเหตุการณ์และผลที่ตามมา' },
+      { t: 'ยามเย็นท้องฟ้าเปลี่ยนเป็นสีส้มทอง', a: 'description', why: 'บรรยายสีของฟ้า' },
+      { t: 'แม่ไปตลาด ซื้อผักและผลไม้ แล้วกลับมาทำอาหาร', a: 'narration', why: 'เล่ากิจกรรมตามลำดับ' },
+      { t: 'ลมพัดเบาๆ ใบไม้ไหวโซ่แซว', a: 'description', why: 'บรรยายบรรยากาศและการเคลื่อนไหว' },
+      { t: 'นักเรียนตั้งแถวสวดมนต์ แล้วเดินเข้าห้องเรียน', a: 'narration', why: 'เล่าขั้นตอนในโรงเรียน' },
+      { t: 'ห้องสมุดเงียบสงบ มีชั้นหนังสือเรียงเป็นแถว', a: 'description', why: 'บรรยายลักษณะห้องสมุด' },
+      { t: 'วันหยุดเราไปเที่ยววัด ปล่อยปลาและไหว้พระ', a: 'narration', why: 'เล่าเหตุการณ์ท่องเที่ยว' },
+      { t: 'ผีเสื้อมีปีกสีสันสดใสบินไปมาในสวน', a: 'description', why: 'บรรยายลักษณะผีเสื้อ' },
+    ];
+
+    let current = null;
+    let streak = 0;
+
+    function nextQ() {
+      current = ITEMS[Math.floor(Math.random() * ITEMS.length)];
+      document.getElementById('stmt').textContent = `"${current.t}"`;
+      document.getElementById('fb').textContent = '';
+      document.querySelectorAll('.pick button').forEach(b => {
+        b.disabled = false;
+        b.classList.remove('ok', 'no');
+      });
+    }
+
+    document.querySelectorAll('.pick button').forEach(btn => {
+      btn.onclick = () => {
+        const ok = btn.dataset.a === current.a;
+        streak = ok ? streak + 1 : 0;
+        document.getElementById('streak').textContent = `🔥 ${streak} ติดต่อกัน`;
+        btn.classList.add(ok ? 'ok' : 'no');
+        document.querySelectorAll('.pick button').forEach(b => {
+          b.disabled = true;
+          if (b.dataset.a === current.a) b.classList.add('ok');
+        });
+        document.getElementById('fb').textContent = ok ? '✓ ถูกต้อง!' : `✗ ${current.why}`;
+        document.getElementById('fb').style.color = ok ? '#16a34a' : '#dc2626';
+      };
+    });
+    document.getElementById('btnNext').onclick = nextQ;
+
+    document.getElementById('modeSeg').querySelectorAll('button').forEach(btn => {
+      btn.onclick = () => {
+        const pr = btn.dataset.mode === 'practice';
+        document.getElementById('modeSeg').querySelectorAll('button').forEach(b => b.classList.toggle('on', b === btn));
+        document.getElementById('learn').classList.toggle('hide', pr);
+        document.getElementById('practice').classList.toggle('on', pr);
+        if (pr) nextQ();
+      };
+    });
+
+    document.getElementById('btnFs').onclick = () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    };
+  </script>
+</body>
+</html>

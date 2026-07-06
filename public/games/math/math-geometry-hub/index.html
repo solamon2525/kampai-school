@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <script src="/games/kampai-sdk.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สื่อเรขาคณิต ป.4-5 — คณิตศาสตร์</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Sarabun',sans-serif;background:linear-gradient(135deg,#7dd3fc,#e0f2fe);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:16px}
+        .main-container{width:100%;max-width:1152px;background:#fff;border-radius:2rem;box-shadow:0 25px 50px -12px rgba(0,0,0,.25);display:flex;flex-direction:column;overflow:hidden;height:90vh;min-height:600px}
+        @media(min-width:768px){.main-container{flex-direction:row;height:85vh}}
+        .sidebar{background:#0369a1;color:#fff;padding:24px;width:100%;flex-shrink:0}
+        @media(min-width:768px){.sidebar{width:300px}}
+        .sidebar h2{font-size:1.3rem;font-weight:800;margin-bottom:16px}
+        .field-label{font-size:.85rem;color:#bae6fd;margin-bottom:6px;display:block;font-weight:600}
+        .field-group{margin-bottom:12px}
+        .select-field,.input-field{width:100%;background:rgba(255,255,255,.12);border:1px solid rgba(125,211,252,.4);border-radius:12px;padding:12px;font-family:inherit;font-size:1rem;color:#fff}
+        .select-field option{color:#0f172a}
+        .frac-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+        .btn{width:100%;font-family:inherit;font-weight:700;padding:14px;border-radius:12px;border:none;cursor:pointer;font-size:1.05rem;margin-bottom:8px}
+        .btn-random{background:#f59e0b;color:#fff}
+        .btn-answer{background:#10b981;color:#fff}
+        .btn-back{background:rgba(255,255,255,.15);color:#e0f2fe;font-size:.95rem}
+        .display-area{flex:1;padding:20px 24px;overflow:auto}
+        .main-title{font-size:1.2rem;font-weight:800;color:#0369a1;margin-bottom:14px}
+        .visual{text-align:center;margin:16px 0}
+        .angle-badge{display:inline-block;font-size:1.5rem;font-weight:800;padding:8px 20px;border-radius:999px;color:#fff;margin:8px}
+        .acute{background:#2563eb}.right{background:#16a34a}.obtuse{background:#ea580c}
+        .shape-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:12px;max-width:480px;margin:0 auto}
+        .shape-card{border:2px solid #7dd3fc;border-radius:14px;padding:16px;text-align:center;font-weight:800;color:#0369a1;background:#f0f9ff}
+        .explain-box{background:#f0f9ff;border:2px dashed #38bdf8;border-radius:14px;padding:16px;line-height:1.65;font-weight:600;margin-top:12px}
+        .formula{font-size:1.4rem;font-weight:800;color:#0369a1;text-align:center;margin:12px 0}
+        .hidden{display:none!important}
+        .footer{text-align:center;font-size:.8rem;color:#64748b;padding-top:12px;margin-top:auto}
+    </style>
+</head>
+<body>
+<div class="main-container">
+    <div class="sidebar">
+        <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
+        <h2>📐 เรขาคณิต Hub</h2>
+        <div class="field-group">
+            <label class="field-label" for="topic">หัวข้อ</label>
+            <select id="topic" class="select-field">
+                <option value="angle">📐 มุม (แหลม·ฉาก·ป้าน)</option>
+                <option value="perimeter">📏 เส้นรอบรูป</option>
+                <option value="area">⬜ พื้นที่สี่เหลี่ยม</option>
+                <option value="shapes">🔷 รูปเรขา 2D</option>
+            </select>
+        </div>
+        <div id="ctrlDim" class="frac-row">
+            <div class="field-group"><label class="field-label" id="lblW">กว้าง/ด้าน</label><input type="number" id="dimW" min="1" max="99" value="5" class="input-field"></div>
+            <div class="field-group"><label class="field-label" id="lblH">ยาว</label><input type="number" id="dimH" min="1" max="99" value="3" class="input-field"></div>
+        </div>
+        <div id="ctrlAngle" class="field-group hidden">
+            <label class="field-label">องศา</label>
+            <input type="range" id="angleDeg" min="15" max="170" value="60" class="input-field">
+        </div>
+        <button type="button" class="btn btn-random" onclick="randomProblem()">🎲 สุ่ม</button>
+        <button type="button" class="btn btn-answer" onclick="showAnswer()">✅ แสดงเฉลย</button>
+    </div>
+    <div class="display-area">
+        <h1 id="mainTitle" class="main-title">มุม — แหลม · ฉาก · ป้าน</h1>
+        <div class="visual" id="visual">
+            <div class="angle-badge acute" id="angleBadge">60° มุมแหลม</div>
+        </div>
+        <div class="formula" id="formula">—</div>
+        <div id="explain" class="explain-box">กดสุ่มโจทย์หรือแสดงเฉลย</div>
+        <div class="footer">ป.4-5 · คู่ <a href="/games/math/angle-media.html">angle-media</a></div>
+    </div>
+</div>
+<script>
+const GAME_SLUG='math-geometry-hub';
+if(window.KAMPAI)window.KAMPAI.setSlug(GAME_SLUG);
+document.getElementById('btnBack').onclick=()=>{if(KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else location.href='/h/nattapong';};
+const TITLES={angle:'มุม — แหลม · ฉาก · ป้าน',perimeter:'เส้นรอบรูป — สี่เหลี่ยม',area:'พื้นที่ — สี่เหลี่ยมผืนผ้า',shapes:'รูปเรขาคณิต 2D'};
+let state={topic:'angle'};
+function angleType(deg){
+    if(deg<90)return{label:'มุมแหลม',cls:'acute',desc:'น้อยกว่า 90°'};
+    if(deg===90)return{label:'มุมฉาก',cls:'right',desc:'เท่ากับ 90°'};
+    return{label:'มุมป้าน',cls:'obtuse',desc:'มากกว่า 90° แต่น้อยกว่า 180°'};
+}
+function randomProblem(){
+    const topic=document.getElementById('topic').value;
+    state.topic=topic;
+    if(topic==='angle'){
+        const deg=[30,45,60,90,120,135][Math.floor(Math.random()*6)];
+        document.getElementById('angleDeg').value=deg;
+        state={topic,deg};
+        const t=angleType(deg);
+        const badge=document.getElementById('angleBadge');
+        badge.textContent=deg+'° '+t.label;
+        badge.className='angle-badge '+t.cls;
+        document.getElementById('formula').textContent='';
+    }else if(topic==='perimeter'||topic==='area'){
+        const w=Math.floor(Math.random()*12+2);const h=Math.floor(Math.random()*10+2);
+        document.getElementById('dimW').value=w;document.getElementById('dimH').value=h;
+        state={topic,w,h};
+        document.getElementById('visual').innerHTML=`<svg width="200" height="120" viewBox="0 0 200 120"><rect x="20" y="20" width="160" height="80" fill="#e0f2fe" stroke="#0369a1" stroke-width="3"/><text x="100" y="115" text-anchor="middle" font-size="14" fill="#0369a1">${w} × ${h}</text></svg>`;
+    }else{
+        const shapes=['สามเหลี่ยม','สี่เหลี่ยม','สี่เหลี่ยมผืนผ้า','วงกลม','สี่เหลี่ยมด้านขนาน'];
+        const sides=[3,4,4,0,4];
+        const i=Math.floor(Math.random()*shapes.length);
+        state={topic,shape:shapes[i],sides:sides[i]};
+        document.getElementById('visual').innerHTML='<div class="shape-grid">'+shapes.map((s,j)=>`<div class="shape-card" style="${j===i?'border-color:#0369a1;background:#bae6fd':''}">${s}<br><small>${sides[j]?sides[j]+' ด้าน':'ไม่มีด้านตรง'}</small></div>`).join('')+'</div>';
+    }
+    document.getElementById('explain').textContent='กดแสดงเฉลย';
+    document.getElementById('formula').textContent='';
+}
+function showAnswer(){
+    const topic=state.topic||document.getElementById('topic').value;
+    const ex=document.getElementById('explain');
+    const form=document.getElementById('formula');
+    if(topic==='angle'){
+        const deg=state.deg??+document.getElementById('angleDeg').value;
+        const t=angleType(deg);
+        form.textContent=deg+'° = '+t.label;
+        ex.innerHTML=`<strong>${t.label}</strong> (${t.desc})<br>มุมแหลม &lt;90° · มุมฉาก =90° · มุมป้าน &gt;90°`;
+    }else if(topic==='perimeter'){
+        const w=state.w??+document.getElementById('dimW').value;
+        const h=state.h??+document.getElementById('dimH').value;
+        const p=2*(w+h);
+        form.textContent='P = 2×(กว้าง+ยาว)';
+        ex.innerHTML=`เส้นรอบรูป = 2×(${w}+${h}) = <strong>${p}</strong> หน่วย`;
+    }else if(topic==='area'){
+        const w=state.w??+document.getElementById('dimW').value;
+        const h=state.h??+document.getElementById('dimH').value;
+        const a=w*h;
+        form.textContent='A = กว้าง × ยาว';
+        ex.innerHTML=`พื้นที่ = ${w}×${h} = <strong>${a}</strong> ตารางหน่วย`;
+    }else{
+        ex.innerHTML=`<strong>${state.shape}</strong> มี ${state.sides?state.sides+' ด้าน':'เส้นรอบวง (ไม่มีมุม)'}<br>จำชื่อรูปและจำนวนด้าน/ลักษณะ`;
+        form.textContent=state.shape;
+    }
+}
+function onTopicChange(){
+    const topic=document.getElementById('topic').value;
+    document.getElementById('mainTitle').textContent=TITLES[topic];
+    document.getElementById('ctrlAngle').classList.toggle('hidden',topic!=='angle');
+    document.getElementById('ctrlDim').classList.toggle('hidden',topic==='angle'||topic==='shapes');
+    document.getElementById('lblH').parentElement.classList.toggle('hidden',topic==='perimeter'&&false);
+    randomProblem();
+}
+document.getElementById('topic').onchange=onTopicChange;
+document.getElementById('angleDeg').oninput=e=>{
+    const deg=+e.target.value;const t=angleType(deg);
+    const badge=document.getElementById('angleBadge');
+    if(badge){badge.textContent=deg+'° '+t.label;badge.className='angle-badge '+t.cls;}
+    state={topic:'angle',deg};
+};
+onTopicChange();
+</script>
+</body>
+</html>

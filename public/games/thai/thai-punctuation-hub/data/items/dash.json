@@ -1,0 +1,62 @@
+[
+  {
+    "word": "ขีด ( - )",
+    "reading": "ขีด",
+    "meaning": "เชื่อมคำประกอบ · ตัวอย่าง: รถ-ไฟ",
+    "emoji": "➿",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "item_type": "punctuation",
+    "pos": "mark",
+    "pos_label": "-",
+    "mark": "-",
+    "sentence": "รถ___ไฟ",
+    "sentence_answer": "รถ-ไฟ",
+    "highlight": "-"
+  },
+  {
+    "word": "ขีด ( - )",
+    "reading": "ขีด",
+    "meaning": "แทรกข้อความ · ตัวอย่าง: วันนี้—อากาศดี—เราไปเที่ยว",
+    "emoji": "➿",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "item_type": "punctuation",
+    "pos": "mark",
+    "pos_label": "-",
+    "mark": "-",
+    "sentence": "วันนี้___อากาศดี___เราไปเที่ยว",
+    "sentence_answer": "วันนี้—อากาศดี—เราไปเที่ยว",
+    "highlight": "-"
+  },
+  {
+    "word": "ขีด ( - )",
+    "reading": "ขีด",
+    "meaning": "คั่นช่วงเวลา · ตัวอย่าง: ปี ๒๕๖๗-๒๕๖๘",
+    "emoji": "➿",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "item_type": "punctuation",
+    "pos": "mark",
+    "pos_label": "-",
+    "mark": "-",
+    "sentence": "ปี___๒๕๖๗___๒๕๖๘",
+    "sentence_answer": "ปี ๒๕๖๗-๒๕๖๘",
+    "highlight": "-"
+  },
+  {
+    "word": "ขีด ( - )",
+    "reading": "ขีด",
+    "meaning": "เชื่อมชื่อสถานที่ · ตัวอย่าง: สุวรรณภูมิ-กรุงเทพฯ",
+    "emoji": "➿",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/3",
+    "item_type": "punctuation",
+    "pos": "mark",
+    "pos_label": "-",
+    "mark": "-",
+    "sentence": "สุวรรณภูมิ___กรุงเทพฯ",
+    "sentence_answer": "สุวรรณภูมิ-กรุงเทพฯ",
+    "highlight": "-"
+  }
+]

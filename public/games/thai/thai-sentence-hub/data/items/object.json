@@ -1,0 +1,67 @@
+[
+  {
+    "word": "กรรม",
+    "reading": "กรรม",
+    "meaning": "สิ่งที่รับการกระทำ · ประโยค: ครูอ่านหนังสือ",
+    "emoji": "🎯",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "item_type": "sentence",
+    "pos": "object",
+    "pos_label": "กรรม",
+    "sentence": "ครูอ่านหนังสือ",
+    "highlight": "หนังสือ"
+  },
+  {
+    "word": "กรรม",
+    "reading": "กรรม",
+    "meaning": "ผู้ถูกกระทำ · ประโยค: เด็กชายช่วยเพื่อน",
+    "emoji": "🎯",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "item_type": "sentence",
+    "pos": "object",
+    "pos_label": "กรรม",
+    "sentence": "เด็กชายช่วยเพื่อน",
+    "highlight": "เพื่อน"
+  },
+  {
+    "word": "กรรม",
+    "reading": "กรรม",
+    "meaning": "กรรมเป็นสถานที่ · ประโยค: เราไปโรงเรียน",
+    "emoji": "🎯",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "item_type": "sentence",
+    "pos": "object",
+    "pos_label": "กรรม",
+    "sentence": "เราไปโรงเรียน",
+    "highlight": "โรงเรียน"
+  },
+  {
+    "word": "กรรม",
+    "reading": "กรรม",
+    "meaning": "กรรมเป็นสิ่งของ · ประโยค: แม่ซื้อผลไม้",
+    "emoji": "🎯",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "item_type": "sentence",
+    "pos": "object",
+    "pos_label": "กรรม",
+    "sentence": "แม่ซื้อผลไม้",
+    "highlight": "ผลไม้"
+  },
+  {
+    "word": "กรรม",
+    "reading": "กรรม",
+    "meaning": "กรรมชัดเจน · ประโยค: นักเรียนเขียนคำตอบ",
+    "emoji": "🎯",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "item_type": "sentence",
+    "pos": "object",
+    "pos_label": "กรรม",
+    "sentence": "นักเรียนเขียนคำตอบ",
+    "highlight": "คำตอบ"
+  }
+]

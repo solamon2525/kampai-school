@@ -1,0 +1,54 @@
+[
+  {
+    "word": "ประโยคคู่",
+    "reading": "ประโยคคู่",
+    "meaning": "เชื่อมด้วยและ · ประโยค: ฝนตกและลมแรง",
+    "emoji": "🔗",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "item_type": "sentence",
+    "pos": "compound",
+    "pos_label": "ประโยคคู่",
+    "sentence": "ฝนตกและลมแรง",
+    "highlight": "และ"
+  },
+  {
+    "word": "ประโยคคู่",
+    "reading": "ประโยคคู่",
+    "meaning": "เชื่อมด้วยแต่ · ประโยค: อากาศร้อนแต่มีลม",
+    "emoji": "🔗",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "item_type": "sentence",
+    "pos": "compound",
+    "pos_label": "ประโยคคู่",
+    "sentence": "อากาศร้อนแต่มีลม",
+    "highlight": "แต่"
+  },
+  {
+    "word": "ประโยคคู่",
+    "reading": "ประโยคคู่",
+    "meaning": "เชื่อมด้วยหรือ · ประโยค: จะไปเที่ยวหรืออยู่บ้าน",
+    "emoji": "🔗",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "item_type": "sentence",
+    "pos": "compound",
+    "pos_label": "ประโยคคู่",
+    "sentence": "จะไปเที่ยวหรืออยู่บ้าน",
+    "highlight": "หรือ"
+  },
+  {
+    "word": "ประโยคคู่",
+    "reading": "ประโยคคู่",
+    "meaning": "สองเหตุการณ์ · ประโยค: แม่ทำอาหารและพ่อล้างจาน",
+    "emoji": "🔗",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "item_type": "sentence",
+    "pos": "compound",
+    "pos_label": "ประโยคคู่",
+    "sentence": "แม่ทำอาหารและพ่อล้างจาน",
+    "highlight": "และ"
+  }
+]

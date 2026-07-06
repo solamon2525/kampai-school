@@ -1,0 +1,67 @@
+[
+  {
+    "word": "แบบ ก.+ข.",
+    "reading": "แบบ ก.+ข.",
+    "meaning": "ประธาน+ส่วนขยาย · ประโยค: เด็กชายตัวเล็กวิ่งเร็ว",
+    "emoji": "📐",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "item_type": "sentence",
+    "pos": "sv-pattern",
+    "pos_label": "แบบ ก.+ข.",
+    "sentence": "เด็กชายตัวเล็กวิ่งเร็ว",
+    "highlight": "เด็กชายตัวเล็ก"
+  },
+  {
+    "word": "แบบ ก.+ข.",
+    "reading": "แบบ ก.+ข.",
+    "meaning": "นาม+คุณศัพท์ · ประโยค: ดอกไม้สีแดงหอมหวาน",
+    "emoji": "📐",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "item_type": "sentence",
+    "pos": "sv-pattern",
+    "pos_label": "แบบ ก.+ข.",
+    "sentence": "ดอกไม้สีแดงหอมหวาน",
+    "highlight": "ดอกไม้สีแดง"
+  },
+  {
+    "word": "แบบ ก.+ข.",
+    "reading": "แบบ ก.+ข.",
+    "meaning": "กริยา+วิเศษณ์ · ประโยค: เขาพูดอย่างชัดเจน",
+    "emoji": "📐",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "item_type": "sentence",
+    "pos": "sv-pattern",
+    "pos_label": "แบบ ก.+ข.",
+    "sentence": "เขาพูดอย่างชัดเจน",
+    "highlight": "อย่างชัดเจน"
+  },
+  {
+    "word": "แบบ ก.+ข.",
+    "reading": "แบบ ก.+ข.",
+    "meaning": "สถานที่+คำบอก · ประโยค: บ้านหลังนี้สวยงาม",
+    "emoji": "📐",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "item_type": "sentence",
+    "pos": "sv-pattern",
+    "pos_label": "แบบ ก.+ข.",
+    "sentence": "บ้านหลังนี้สวยงาม",
+    "highlight": "บ้านหลังนี้"
+  },
+  {
+    "word": "แบบ ก.+ข.",
+    "reading": "แบบ ก.+ข.",
+    "meaning": "รวมหลายส่วนขยาย · ประโยค: นักเรียนตัวเล็กตั้งใจเรียนมาก",
+    "emoji": "📐",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "item_type": "sentence",
+    "pos": "sv-pattern",
+    "pos_label": "แบบ ก.+ข.",
+    "sentence": "นักเรียนตัวเล็กตั้งใจเรียนมาก",
+    "highlight": "นักเรียนตัวเล็ก"
+  }
+]

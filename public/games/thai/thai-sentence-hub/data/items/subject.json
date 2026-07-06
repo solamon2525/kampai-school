@@ -1,0 +1,80 @@
+[
+  {
+    "word": "ประธาน",
+    "reading": "ประธาน",
+    "meaning": "ผู้กระทำหรือสิ่งที่ประโยคพูดถึง · ประโยค: เด็กชายเล่นฟุตบอล",
+    "emoji": "👤",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "item_type": "sentence",
+    "pos": "subject",
+    "pos_label": "ประธาน",
+    "sentence": "เด็กชายเล่นฟุตบอล",
+    "highlight": "เด็กชาย"
+  },
+  {
+    "word": "ประธาน",
+    "reading": "ประธาน",
+    "meaning": "ประธานเป็นสัตว์ · ประโยค: แมวนอนบนเก้าอี้",
+    "emoji": "👤",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "item_type": "sentence",
+    "pos": "subject",
+    "pos_label": "ประธาน",
+    "sentence": "แมวนอนบนเก้าอี้",
+    "highlight": "แมว"
+  },
+  {
+    "word": "ประธาน",
+    "reading": "ประธาน",
+    "meaning": "ประธานเป็นสิ่งของ · ประโยค: หนังสือเล่มนี้น่าสนใจ",
+    "emoji": "👤",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "item_type": "sentence",
+    "pos": "subject",
+    "pos_label": "ประธาน",
+    "sentence": "หนังสือเล่มนี้น่าสนใจ",
+    "highlight": "หนังสือเล่มนี้"
+  },
+  {
+    "word": "ประธาน",
+    "reading": "ประธาน",
+    "meaning": "ประธานเป็นสถานที่ · ประโยค: โรงเรียนเปิดเว้าแรก",
+    "emoji": "👤",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "item_type": "sentence",
+    "pos": "subject",
+    "pos_label": "ประธาน",
+    "sentence": "โรงเรียนเปิดเว้าแรก",
+    "highlight": "โรงเรียน"
+  },
+  {
+    "word": "ประธาน",
+    "reading": "ประธาน",
+    "meaning": "ประธานเป็นกลุ่มคน · ประโยค: นักเรียนตั้งใจเรียน",
+    "emoji": "👤",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "item_type": "sentence",
+    "pos": "subject",
+    "pos_label": "ประธาน",
+    "sentence": "นักเรียนตั้งใจเรียน",
+    "highlight": "นักเรียน"
+  },
+  {
+    "word": "ประธาน",
+    "reading": "ประธาน",
+    "meaning": "ประธานมีส่วนขยาย · ประโยค: เด็กหญิงตัวเล็กร้องเพลง",
+    "emoji": "👤",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/2",
+    "item_type": "sentence",
+    "pos": "subject",
+    "pos_label": "ประธาน",
+    "sentence": "เด็กหญิงตัวเล็กร้องเพลง",
+    "highlight": "เด็กหญิงตัวเล็ก"
+  }
+]

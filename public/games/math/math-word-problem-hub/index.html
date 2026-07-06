@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <script src="/games/kampai-sdk.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สื่อโจทย์ปัญหา ป.4-5 — คณิตศาสตร์</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background: linear-gradient(135deg, #93c5fd 0%, #dbeafe 50%, #bfdbfe 100%);
+            min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 16px;
+        }
+        .main-container {
+            width: 100%; max-width: 1152px; background: rgba(255,255,255,0.97);
+            border-radius: 2rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            display: flex; flex-direction: column; overflow: hidden;
+            height: 90vh; min-height: 600px; border: 1px solid rgba(255,255,255,0.6);
+        }
+        @media (min-width: 768px) { .main-container { flex-direction: row; height: 85vh; } }
+        .sidebar {
+            background: #1e40af; color: #fff; padding: 24px; width: 100%;
+            display: flex; flex-direction: column; flex-shrink: 0;
+        }
+        @media (min-width: 768px) { .sidebar { width: 300px; padding: 28px; } }
+        .sidebar h2 { font-size: 1.35rem; font-weight: 800; margin-bottom: 20px; }
+        .field-label { font-size: 0.85rem; color: #bfdbfe; margin-bottom: 6px; display: block; font-weight: 600; }
+        .field-group { margin-bottom: 14px; }
+        .select-field {
+            width: 100%; background: rgba(255,255,255,0.12); border: 1px solid rgba(191,219,254,0.4);
+            border-radius: 12px; padding: 12px; font-family: inherit; font-size: 1rem; color: #fff;
+        }
+        .select-field option { color: #1e293b; }
+        .btn {
+            width: 100%; font-family: inherit; font-weight: 700; padding: 14px; border-radius: 12px;
+            border: none; cursor: pointer; font-size: 1.1rem; margin-bottom: 10px;
+        }
+        .btn-random { background: #f59e0b; color: #fff; }
+        .btn-answer { background: #10b981; color: #fff; }
+        .btn-back { background: rgba(255,255,255,0.15); color: #dbeafe; font-size: 0.95rem; }
+        .display-area { flex: 1; display: flex; flex-direction: column; padding: 20px 24px; overflow: auto; }
+        .main-title { font-size: 1.25rem; font-weight: 800; color: #1e3a8a; margin-bottom: 16px; }
+        .question-text {
+            font-size: 1.35rem; font-weight: 700; line-height: 1.65; color: #0f172a;
+            padding: 20px; background: #eff6ff; border-radius: 16px; border: 2px dashed #93c5fd;
+            margin-bottom: 16px;
+        }
+        .keyword { background: #fef08a; padding: 0 4px; border-radius: 4px; font-weight: 800; }
+        .answer-container { display: none; }
+        .answer-container.show { display: block; }
+        .result-text { font-size: 2rem; font-weight: 800; color: #059669; text-align: center; margin: 12px 0; }
+        .steps-box {
+            background: #f0fdf4; border: 2px solid #86efac; border-radius: 14px;
+            padding: 16px; font-size: 1.05rem; line-height: 1.7; color: #14532d;
+        }
+        .steps-box ol { margin: 8px 0 0 20px; }
+        .placeholder { text-align: center; color: #64748b; font-weight: 600; padding: 24px; }
+        .footer { text-align: center; font-size: 0.8rem; color: #64748b; padding-top: 12px; margin-top: auto; }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="sidebar">
+            <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
+            <h2>🧮 โจทย์ปัญหา</h2>
+            <div class="field-group">
+                <label class="field-label" for="topic">ประเภทโจทย์</label>
+                <select id="topic" class="select-field">
+                    <option value="add_sub">➕➖ บวกลบ 1 ขั้นตอน</option>
+                    <option value="mul_div">✖️➗ คูณหาร 1 ขั้นตอน</option>
+                    <option value="two_step">🔢 สองขั้นตอน (บวกแล้วลบ)</option>
+                </select>
+            </div>
+            <div class="field-group">
+                <label class="field-label" for="level">ระดับ</label>
+                <select id="level" class="select-field">
+                    <option value="p4">ป.4 (ตัวเลขไม่เกิน 100)</option>
+                    <option value="p5">ป.5 (ตัวเลขไม่เกิน 500)</option>
+                </select>
+            </div>
+            <button type="button" class="btn btn-random" onclick="randomProblem()">🎲 สุ่มโจทย์</button>
+            <button type="button" class="btn btn-answer" onclick="showAnswer()">✅ แสดงเฉลย + ขั้นตอน</button>
+        </div>
+        <div class="display-area">
+            <h1 id="mainTitle" class="main-title">โจทย์ปัญหา — บวกลบ 1 ขั้นตอน</h1>
+            <div id="questionText" class="question-text">กดสุ่มโจทย์เพื่อเริ่ม</div>
+            <div id="answerContainer" class="answer-container">
+                <div id="result" class="result-text"></div>
+                <div id="steps" class="steps-box"></div>
+            </div>
+            <div id="placeholder" class="placeholder">อ่านโจทย์ → คิดเอง → กดแสดงเฉลยดูคำสำคัญและขั้นตอน</div>
+            <div class="footer">🏫 สื่อโจทย์ปัญหา ป.4-5 — ไม่เก็บคะแนน</div>
+        </div>
+    </div>
+    <script>
+        const GAME_SLUG = 'math-word-problem-hub';
+        if (window.KAMPAI) window.KAMPAI.setSlug(GAME_SLUG);
+
+        document.getElementById('btnBack').onclick = function () {
+            if (window.KAMPAI && KAMPAI.goHome) KAMPAI.goHome();
+            else location.href = '/h/nattapong';
+        };
+
+        const topicSelect = document.getElementById('topic');
+        const levelSelect = document.getElementById('level');
+        const mainTitle = document.getElementById('mainTitle');
+        const questionText = document.getElementById('questionText');
+        const answerContainer = document.getElementById('answerContainer');
+        const placeholder = document.getElementById('placeholder');
+        const resultEl = document.getElementById('result');
+        const stepsEl = document.getElementById('steps');
+
+        const TITLES = {
+            add_sub: 'โจทย์ปัญหา — บวกลบ 1 ขั้นตอน',
+            mul_div: 'โจทย์ปัญหา — คูณหาร 1 ขั้นตอน',
+            two_step: 'โจทย์ปัญหา — สองขั้นตอน',
+        };
+
+        const NAMES = ['สมชาย', 'สมหญิง', 'นักเรียน', 'แม่', 'ครู', 'เพื่อน'];
+        const ITEMS = ['ดินสอ', 'สมุด', 'ลูกบอล', 'ขนม', 'สติกเกอร์', 'ผลไม้'];
+        const UNITS = ['แท่ง', 'เล่ม', 'ลูก', 'ชิ้น', 'แผ่น', 'ผล'];
+
+        let state = { problem: null };
+
+        function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+        function pick(a) { return a[rand(0, a.length - 1)]; }
+
+        function hideAnswer() {
+            answerContainer.classList.remove('show');
+            placeholder.style.display = 'block';
+        }
+
+        function genAddSub(max) {
+            const name = pick(NAMES);
+            const item = pick(ITEMS);
+            const unit = pick(UNITS);
+            const has = rand(5, Math.min(40, max));
+            const buy = rand(2, 15);
+            const isAdd = Math.random() > 0.45;
+            if (isAdd) {
+                const ans = has + buy;
+                return {
+                    topic: 'add_sub',
+                    text: `${name}มี${item} ${has} ${unit} ซื้อเพิ่มอีก ${buy} ${unit} ถามว่ามี${item}ทั้งหมดกี่${unit}`,
+                    keywords: ['ซื้อเพิ่ม', 'ทั้งหมด'],
+                    answer: ans,
+                    unit,
+                    item,
+                    steps: [
+                        `อ่านคำสำคัญ: <span class="keyword">ซื้อเพิ่ม</span> = บวก · <span class="keyword">ทั้งหมด</span> = ผลลัพธ์สุดท้าย`,
+                        `เขียน: ${has} + ${buy} = ${ans}`,
+                        `ตอบ: ${ans} ${unit}`,
+                    ],
+                };
+            }
+            const give = rand(2, Math.min(buy, has - 1));
+            const ans = has - give;
+            return {
+                topic: 'add_sub',
+                text: `${name}มี${item} ${has} ${unit} ให้เพื่อนไป ${give} ${unit} ถามว่าเหลือ${item}กี่${unit}`,
+                keywords: ['ให้ไป', 'เหลือ'],
+                answer: ans,
+                unit,
+                item,
+                steps: [
+                    `อ่านคำสำคัญ: <span class="keyword">ให้ไป</span> = ลบ · <span class="keyword">เหลือ</span> = ผลลัพธ์`,
+                    `เขียน: ${has} − ${give} = ${ans}`,
+                    `ตอบ: ${ans} ${unit}`,
+                ],
+            };
+        }
+
+        function genMulDiv(max) {
+            const name = pick(NAMES);
+            const item = pick(ITEMS);
+            const unit = pick(UNITS);
+            const groups = rand(2, 6);
+            const each = rand(2, Math.min(12, Math.floor(max / groups)));
+            const isMul = Math.random() > 0.4;
+            if (isMul) {
+                const ans = groups * each;
+                return {
+                    topic: 'mul_div',
+                    text: `มี${item}วางเป็น ${groups} กลุ่ม กลุ่มละ ${each} ${unit} ถามว่ามี${item}ทั้งหมดกี่${unit}`,
+                    keywords: ['กลุ่มละ', 'ทั้งหมด'],
+                    answer: ans,
+                    unit,
+                    steps: [
+                        `คำสำคัญ: <span class="keyword">กลุ่มละ</span> × จำนวนกลุ่ม = <span class="keyword">ทั้งหมด</span>`,
+                        `เขียน: ${groups} × ${each} = ${ans}`,
+                        `ตอบ: ${ans} ${unit}`,
+                    ],
+                };
+            }
+            const total = groups * each;
+            return {
+                topic: 'mul_div',
+                text: `มี${item} ${total} ${unit} แบ่งให้เท่าๆ กัน ${groups} กลุ่ม ถามว่ากลุ่มละได้กี่${unit}`,
+                keywords: ['แบ่งให้เท่าๆ กัน', 'กลุ่มละ'],
+                answer: each,
+                unit,
+                steps: [
+                    `คำสำคัญ: <span class="keyword">แบ่งเท่าๆ กัน</span> = หาร`,
+                    `เขียน: ${total} ÷ ${groups} = ${each}`,
+                    `ตอบ: กลุ่มละ ${each} ${unit}`,
+                ],
+            };
+        }
+
+        function genTwoStep(max) {
+            const name = pick(NAMES);
+            const item = pick(ITEMS);
+            const unit = pick(UNITS);
+            const start = rand(20, Math.min(80, max));
+            const add = rand(5, 25);
+            const sub = rand(3, Math.min(add, start + add - 5));
+            const mid = start + add;
+            const ans = mid - sub;
+            return {
+                topic: 'two_step',
+                text: `${name}มีเงิน ${start} บาท ได้รับเพิ่ม ${add} บาท แล้วซื้อ${item} ${sub} บาท ถามว่าเหลือเงินกี่บาท`,
+                keywords: ['ได้รับเพิ่ม', 'ซื้อ', 'เหลือ'],
+                answer: ans,
+                unit: 'บาท',
+                steps: [
+                    `ขั้น 1: <span class="keyword">ได้รับเพิ่ม</span> → ${start} + ${add} = ${mid} บาท`,
+                    `ขั้น 2: <span class="keyword">ซื้อ</span> (ลบ) → ${mid} − ${sub} = ${ans} บาท`,
+                    `ตอบ: เหลือ ${ans} บาท`,
+                ],
+            };
+        }
+
+        function randomProblem() {
+            hideAnswer();
+            const topic = topicSelect.value;
+            const max = levelSelect.value === 'p5' ? 500 : 100;
+            let p;
+            if (topic === 'add_sub') p = genAddSub(max);
+            else if (topic === 'mul_div') p = genMulDiv(max);
+            else p = genTwoStep(max);
+            state.problem = p;
+            questionText.textContent = p.text;
+        }
+
+        function showAnswer() {
+            const p = state.problem;
+            if (!p) { randomProblem(); return showAnswer(); }
+            resultEl.textContent = `คำตอบ: ${p.answer}${p.unit ? ' ' + p.unit : ''}`;
+            stepsEl.innerHTML = '<strong>ขั้นตอนคิด:</strong><ol>' + p.steps.map((s) => `<li>${s}</li>`).join('') + '</ol>';
+            answerContainer.classList.add('show');
+            placeholder.style.display = 'none';
+        }
+
+        topicSelect.onchange = function () {
+            mainTitle.textContent = TITLES[topicSelect.value] || '';
+            hideAnswer();
+            randomProblem();
+        };
+        levelSelect.onchange = function () { hideAnswer(); randomProblem(); };
+
+        mainTitle.textContent = TITLES.add_sub;
+        randomProblem();
+    </script>
+</body>
+</html>

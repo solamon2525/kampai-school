@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ความหมายโดยนัย — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --deep: #1e3a8a; --line: #93c5fd; --lit: #0d9488; --imp: #7c3aed; --muted: #64748b; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(145deg, #dbeafe, #eff6ff); min-height: 100%; padding: 12px; }
+    .shell { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+    header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #1e3a8a, #2563eb); color: #fff; }
+    header h1 { font-size: 1.1rem; font-weight: 800; flex: 1; }
+    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; }
+    .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
+    .btn-primary { background: var(--deep); color: #fff; }
+    .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; background: #eff6ff; border-bottom: 1px solid var(--line); align-items: center; }
+    .seg { display: inline-flex; border-radius: 12px; overflow: hidden; border: 2px solid #60a5fa; }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 14px; cursor: pointer; }
+    .seg button.on { background: var(--deep); color: #fff; }
+    .hint { font-size: .85rem; color: #1e40af; font-weight: 600; flex: 1; }
+    .stage { flex: 1; padding: 16px; overflow: auto; }
+    .learn-grid { display: grid; gap: 12px; max-width: 720px; margin: 0 auto 16px; }
+    @media (min-width: 700px) { .learn-grid { grid-template-columns: 1fr 1fr; } }
+    .def { border-radius: 16px; padding: 16px; border: 3px solid; }
+    .def.lit { border-color: var(--lit); background: #f0fdfa; }
+    .def.imp { border-color: var(--imp); background: #f5f3ff; }
+    .def h3 { font-size: 1.2rem; margin-bottom: 8px; }
+    .def.lit h3 { color: var(--lit); }
+    .def.imp h3 { color: var(--imp); }
+    .def p { font-weight: 600; line-height: 1.55; }
+    .examples { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+    .ex { font-weight: 700; padding: 10px 12px; border-radius: 10px; font-size: .9rem; line-height: 1.45; }
+    .ex.l { background: #ccfbf1; color: #0f766e; }
+    .ex.i { background: #ede9fe; color: #6d28d9; }
+    .practice { display: none; flex-direction: column; gap: 14px; max-width: 600px; margin: 0 auto; align-items: center; }
+    .practice.on { display: flex; }
+    .learn-panel.hide { display: none; }
+    .stmt { font-size: 1.25rem; font-weight: 800; color: var(--deep); text-align: center; line-height: 1.5; padding: 16px; background: #eff6ff; border: 2px dashed var(--line); border-radius: 14px; width: 100%; }
+    .pick { display: grid; gap: 10px; width: 100%; }
+    .pick button { font-family: inherit; font-weight: 800; font-size: .95rem; padding: 14px; border-radius: 14px; border: 3px solid var(--line); background: #fff; color: var(--deep); cursor: pointer; text-align: left; line-height: 1.4; }
+    .pick button.ok { background: #dcfce7; border-color: #86efac; color: #166534; }
+    .pick button.no { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
+    .fb { font-weight: 800; min-height: 28px; text-align: center; }
+    .streak { font-size: .9rem; color: #1e40af; font-weight: 700; }
+    .footer { padding: 10px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
+    .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
+      <h1>🔍 ความหมายตรงตัว vs โดยนัย</h1>
+      <span class="badge">ป.5 · ภาษาไทย</span>
+    </header>
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
+        <button type="button" data-mode="practice">✏️ ฝึกทายความหมาย</button>
+      </span>
+      <p class="hint">โดยนัย = ความหมายซ่อน · ไม่ได้หมายตามตัวอักษรตรงๆ</p>
+      <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
+    </div>
+    <div class="stage">
+      <div class="learn-panel" id="learn">
+        <div class="learn-grid">
+          <div class="def lit">
+            <h3>📋 ความหมายตรงตัว</h3>
+            <p>หมายความ<strong>ตามที่อ่านได้ทันที</strong> ไม่มีการอุปมา</p>
+            <div class="examples">
+              <span class="ex l">"แมวสีขาวนอนบนเก้าอี้" = แมวตัวจริงนอนจริง</span>
+              <span class="ex l">"ฝนตกหนัก" = มีฝนตกจริง</span>
+            </div>
+          </div>
+          <div class="def imp">
+            <h3>🔮 ความหมายโดยนัย</h3>
+            <p>หมายความ<strong>ซ่อนเร้น อุปมา เปรียบเทียบ</strong> ต้องคิดตีความ</p>
+            <div class="examples">
+              <span class="ex i">"เขามีหัวใจทองคำ" = ใจดี ไม่ใช่หัวใจทองจริง</span>
+              <span class="ex i">"น้ำท่วมปาก" = ปากแข็ง ไม่พูดความลับ</span>
+              <span class="ex i">"ปากหวาน" = พูดจาดี ไม่ได้หวานจริง</span>
+            </div>
+          </div>
+        </div>
+        <p style="text-align:center;font-weight:700;color:#1e40af;margin-top:8px">คำถามช่วย: “ถ้าเอาตามตัวอักษรได้เลยไหม?” ได้เลย = ตรงตัว · ต้องคิดเพิ่ม = โดยนัย</p>
+      </div>
+      <div class="practice" id="practice">
+        <p class="streak" id="streak">🔥 0 ติดต่อกัน</p>
+        <p class="stmt" id="phrase"></p>
+        <div class="pick" id="pick"></div>
+        <p class="fb" id="fb"></p>
+        <button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button>
+      </div>
+    </div>
+    <footer>ตัวชี้วัด <strong>ท 1.1 ป.5/5</strong> · คู่ <a href="/games/thai/thai-reading-hub/index.html">คลังอ่านจับใจความ</a></footer>
+  </div>
+  <script>
+    if (window.KAMPAI) window.KAMPAI.setSlug('thai-implied-meaning-media');
+
+    const ITEMS = [
+      { p: 'เขามีหัวใจทองคำ', options: ['ใจดี มีน้ำใจ', 'หัวใจทำจากทองคำ', 'ชอบสีทอง', 'ป่วยหัวใจ'], answer: 0, why: 'โดยนัย = ใจดี' },
+      { p: 'น้ำท่วมปาก', options: ['ปากแข็ง ไม่พูดความลับ', 'น้ำเข้าปากจริง', 'ชอบดื่มน้ำ', 'พูดมาก'], answer: 0, why: 'สำนวนโดยนัย' },
+      { p: 'ปากหวาน', options: ['พูดจาดี ไพเราะ', 'ปากรสหวาน', 'กินขนมมาก', 'ชอบน้ำตาล'], answer: 0, why: 'โดยนัย = พูดดี' },
+      { p: 'แมวสีขาวนอนบนเก้าอี้', options: ['แมวตัวขาวนอนบนเก้าอี้', 'คนใจดี', 'อากาศเย็น', 'ห้องสะอาด'], answer: 0, why: 'ความหมายตรงตัว' },
+      { p: 'หูตาล่าไปทั่ว', options: ['อยากรู้อยากเห็น สนใจทุกอย่าง', 'หูและตาเคลื่อนที่', 'ป่วยหูตา', 'วิ่งเร็ว'], answer: 0, why: 'โดยนัย = อยากรู้' },
+      { p: 'ฝนตกหนักมาก', options: ['มีฝนตกจริงและแรง', 'คนร้องไห้', 'น้ำท่วมปาก', 'ฟ้าผ่าใจ'], answer: 0, why: 'ตรงตัว — บรรยากาศฝน' },
+      { p: 'มือทอง', options: ['ทำงานเก่ง สร้างผลงานดี', 'มือทำจากทอง', 'ถุงมือสีทอง', 'ไม่ทำงาน'], answer: 0, why: 'โดยนัย = เก่ง' },
+      { p: 'ใจแข็ง', options: ['อดทน ไม่ยอมแพ้ง่าย', 'หัวใจแข็งเหมือนหิน', 'ป่วยหัวใจ', 'โกรธบ่อย'], answer: 0, why: 'โดยนัย = อดทน' },
+      { p: 'นกสีฟ้าบินบนท้องฟ้า', options: ['นกตัวจริงบินบนฟ้า', 'คนวิ่งเร็ว', 'ทะเลสวย', 'ใจโล่ง'], answer: 0, why: 'ตรงตัว' },
+      { p: 'น้ำใจดี', options: ['มีน้ำใจ ช่วยเหลือผู้อื่น', 'น้ำในใจใส', 'ดื่มน้ำมาก', 'ใจเย็น'], answer: 0, why: 'โดยนัย = ใจดี' },
+      { p: 'ตาไม่ดี', options: ['มองเห็นไม่ชัด สายตาไม่ดี', 'ตาโกรธ', 'ตาสีไม่สวย', 'หลับตา'], answer: 0, why: 'ส่วนใหญ่ตรงตัว — สายตา' },
+      { p: 'กินลิ้นกินเสียง', options: ['อิจฉา เห็นคนอื่นดีแล้วไม่พอใจ', 'กินอาหารเงียบๆ', 'ชอบกิน', 'ปากหวาน'], answer: 0, why: 'สำนวนโดยนัย' },
+    ];
+
+    let current = null;
+    let streak = 0;
+
+    function shuffle(a) {
+      const arr = [...a];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function nextQ() {
+      current = ITEMS[Math.floor(Math.random() * ITEMS.length)];
+      document.getElementById('phrase').textContent = `"${current.p}"`;
+      document.getElementById('fb').textContent = '';
+      const pick = document.getElementById('pick');
+      pick.innerHTML = '';
+      shuffle(current.options.map((text, i) => ({ text, i }))).forEach(({ text, i }) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = text;
+        btn.onclick = () => {
+          const ok = i === current.answer;
+          streak = ok ? streak + 1 : 0;
+          document.getElementById('streak').textContent = `🔥 ${streak} ติดต่อกัน`;
+          pick.querySelectorAll('button').forEach(b => {
+            b.disabled = true;
+            const idx = current.options.indexOf(b.textContent);
+            if (idx === current.answer) b.classList.add('ok');
+            else if (b === btn && !ok) b.classList.add('no');
+          });
+          document.getElementById('fb').textContent = ok ? '✓ ถูกต้อง!' : `✗ ${current.why}`;
+          document.getElementById('fb').style.color = ok ? '#16a34a' : '#dc2626';
+        };
+        pick.appendChild(btn);
+      });
+    }
+
+    document.getElementById('btnNext').onclick = nextQ;
+
+    document.getElementById('modeSeg').querySelectorAll('button').forEach(btn => {
+      btn.onclick = () => {
+        const pr = btn.dataset.mode === 'practice';
+        document.getElementById('modeSeg').querySelectorAll('button').forEach(b => b.classList.toggle('on', b === btn));
+        document.getElementById('learn').classList.toggle('hide', pr);
+        document.getElementById('practice').classList.toggle('on', pr);
+        if (pr) nextQ();
+      };
+    });
+
+    document.getElementById('btnFs').onclick = () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    };
+  </script>
+</body>
+</html>
