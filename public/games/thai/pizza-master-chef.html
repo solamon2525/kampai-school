@@ -731,9 +731,10 @@
         }
         .rank-num { font-weight: bold; width: 22px; }
 
-        /* Embed mode hides name input & leaderboard */
+        /* Embed mode hides name input, leaderboard & practice (ไม่บันทึกคะแนน) */
         html.embed-mode .name-input,
-        html.embed-mode .leaderboard-box { display: none !important; }
+        html.embed-mode .leaderboard-box,
+        html.embed-mode .btn-practice { display: none !important; }
 
         /* Game Over Screen */
         #gameover-screen {
@@ -1139,6 +1140,7 @@
            SECTION A: EMBED MODE (postMessage)
            ============================================ */
         const GAME_SLUG = 'pizza-master-chef';
+        if (window.KAMPAI) window.KAMPAI.setSlug(GAME_SLUG);
         const EMBED = (window.parent !== window) ||
                       (new URLSearchParams(location.search).get('embed') === '1');
         let STUDENT_CODE = null;
@@ -1578,11 +1580,19 @@
                 this.state.isPaused = false;
                 const pauseModal = document.getElementById('pause-modal');
                 if (pauseModal) pauseModal.classList.remove('show');
+                document.getElementById('gameover-screen').classList.add('hidden');
 
                 const displayName = (window.KAMPAI && window.KAMPAI.student && window.KAMPAI.student.displayName);
                 const nameEl = document.getElementById('chef-name');
                 this.state.playerName = EMBED ? (displayName || 'เชฟนิรนาม') : ((nameEl ? nameEl.value.trim() : '') || 'เชฟนิรนาม');
-                if (EMBED) SESSION_START_TS = Date.now();
+                if (EMBED) {
+                    SESSION_START_TS = Date.now();
+                    if (window.KAMPAI) {
+                        window.KAMPAI._submitted = false;
+                        window.KAMPAI._startTs = SESSION_START_TS;
+                    }
+                    try { window.parent.postMessage({ type: 'gameStart' }, '*'); } catch (_e) { /* */ }
+                }
 
                 this.state.mode = modeName;
                 const modeConfig = CONFIG.modes[modeName];
@@ -1715,7 +1725,7 @@
 
                 // A6: โหมดฝึกไม่บันทึกคะแนน (ทั้ง local + เข้าระบบ) — กัน leaderboard เพี้ยน
                 if (this.state.practice) {
-                    // ไม่ส่งคะแนน
+                    console.info('[pizza] practice mode — score not submitted');
                 } else if (!EMBED) {
                     this.highScoreManager.saveScore(this.state.playerName, this.player.score);
                 } else {

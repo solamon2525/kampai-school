@@ -96,6 +96,7 @@ function toggleMusic() {
 KAMPAI.onReady((sdk) => {
     try {
         KAMPAI.sound.mountToggles();
+        KAMPAI.controls.mount({ dpad: true, buttons: [] });
         KAMPAI.sound.defaultBgm(CONFIG.BGM || 'cheerful');
     } catch(e) {}
     
@@ -239,7 +240,7 @@ function isCollidingWithWall(x, y, radius) {
 
     for (let r = top; r <= bottom; r++) {
         for (let c = left; c <= right; c++) {
-            if (r < 0 || r >= map.length || c < 0 || c >= map[0].length) {
+            if (r < 0 || r >= map.length || !map[r] || c < 0 || c >= map[r].length) {
                 continue;
             }
             if (map[r][c] === 1) {
@@ -275,17 +276,23 @@ class Player {
         if (this.isDead) return;
         if (this.invulnerable > 0) this.invulnerable--;
 
-        let up = keys[this.controls.up];
-        let down = keys[this.controls.down];
-        let left = keys[this.controls.left];
-        let right = keys[this.controls.right];
+        // Read mobile/SDK input signals
+        const inputUp = window.KAMPAI && window.KAMPAI.input && window.KAMPAI.input.up;
+        const inputDown = window.KAMPAI && window.KAMPAI.input && window.KAMPAI.input.down;
+        const inputLeft = window.KAMPAI && window.KAMPAI.input && window.KAMPAI.input.left;
+        const inputRight = window.KAMPAI && window.KAMPAI.input && window.KAMPAI.input.right;
+
+        let up = keys[this.controls.up] || (this.id === 1 && inputUp);
+        let down = keys[this.controls.down] || (this.id === 1 && inputDown);
+        let left = keys[this.controls.left] || (this.id === 1 && inputLeft);
+        let right = keys[this.controls.right] || (this.id === 1 && inputRight);
 
         // Extra accessibility check: P1 can also use WASD if in single player mode
         if (this.id === 1 && gameMode === 'single') {
-            up = up || keys['KeyW'];
-            down = down || keys['KeyS'];
-            left = left || keys['KeyA'];
-            right = right || keys['KeyD'];
+            up = up || keys['KeyW'] || inputUp;
+            down = down || keys['KeyS'] || inputDown;
+            left = left || keys['KeyA'] || inputLeft;
+            right = right || keys['KeyD'] || inputRight;
         }
 
         let movedY = false;
@@ -317,8 +324,13 @@ class Player {
 
         let mouthAngle = 0.2 * Math.PI * (Math.sin(Date.now() / 80) + 1);
         
+        const inputUp = window.KAMPAI && window.KAMPAI.input && window.KAMPAI.input.up;
+        const inputDown = window.KAMPAI && window.KAMPAI.input && window.KAMPAI.input.down;
+        const inputLeft = window.KAMPAI && window.KAMPAI.input && window.KAMPAI.input.left;
+        const inputRight = window.KAMPAI && window.KAMPAI.input && window.KAMPAI.input.right;
+
         // Stationary check
-        let isMoving = keys[this.controls.up] || keys[this.controls.down] || keys[this.controls.left] || keys[this.controls.right];
+        let isMoving = keys[this.controls.up] || keys[this.controls.down] || keys[this.controls.left] || keys[this.controls.right] || (this.id === 1 && (inputUp || inputDown || inputLeft || inputRight));
         if (this.id === 1 && gameMode === 'single') {
             isMoving = isMoving || keys['KeyW'] || keys['KeyS'] || keys['KeyA'] || keys['KeyD'];
         }

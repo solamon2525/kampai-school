@@ -132,6 +132,8 @@
         isEmbed: false, isTouch: false, ready: true, student: null, stats: null, leaderboard: [], 
         onReady: function(cb) { cb(this); }, setSlug: function() { return this; }, 
         submitScore: function() { return false; }, goHome: function() { location.href = '/'; }, 
+        controls: { mount: function() { return this; } },
+        input: { up: false, down: false, left: false, right: false, a: false, b: false },
         sound: { 
             correct: function() {}, wrong: function() {}, timeUp: function() {}, gameOver: function() {}, 
             speak: function() {}, stopSpeak: function() {}, defaultBgm: function() {}, 
