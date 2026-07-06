@@ -37,7 +37,13 @@ let comboStreakP2 = 0;
 let problemStartTime = 0;
 const problemDuration = DATA.problemDuration || 15000;
 let freezeGhostsUntil = 0;
+let frightenedGhostsUntil = 0;
+let roundStartTime = 0;
+let lastMunchTime = 0;
+let audioCtx = null;
 
+let dots = [];
+let powerPellets = [];
 let particles = [];
 let floatingTexts = [];
 let items = [];
@@ -237,6 +243,70 @@ function drawMaze() {
     }
 }
 
+function respawnDots() {
+    dots = [];
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            if (map[r] && map[r][c] === 0) {
+                // Skip player start areas (within 2 tiles) to prevent spawn collection
+                if (Math.abs(r - 1) <= 1 && Math.abs(c - 1) <= 1) continue;
+                if (Math.abs(r - 1) <= 1 && Math.abs(c - (cols - 2)) <= 1) continue;
+
+                // Skip center ghost spawn box (within 2 tiles)
+                let midR = Math.floor(rows / 2);
+                let midC = Math.floor(cols / 2);
+                if (midR % 2 === 0) midR++;
+                if (midC % 2 === 0) midC++;
+                if (Math.abs(r - midR) <= 2 && Math.abs(c - midC) <= 2) continue;
+
+                dots.push({ r: r, c: c, active: true });
+            }
+        }
+    }
+}
+
+function respawnPowerPellets() {
+    // 4 corners of the walkable corridors
+    powerPellets = [
+        { r: 3, c: 1, active: true },
+        { r: 3, c: cols - 2, active: true },
+        { r: rows - 4, c: 1, active: true },
+        { r: rows - 4, c: cols - 2, active: true }
+    ];
+}
+
+function playMunchSound() {
+    try {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        let isAlt = Math.floor(Date.now() / 200) % 2 === 0;
+        let startFreq = isAlt ? 250 : 350;
+        let endFreq = isAlt ? 450 : 600;
+
+        let osc = audioCtx.createOscillator();
+        let gainNode = audioCtx.createGain();
+
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(startFreq, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(endFreq, audioCtx.currentTime + 0.08);
+
+        gainNode.gain.setValueAtTime(0.04, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.08);
+
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.08);
+    } catch (e) {
+        // Fallback for context blocking
+    }
+}
+
 function isCollidingWithWall(x, y, radius) {
     const margin = 4; 
     const left = Math.floor((x - radius + margin) / tileSize);
@@ -423,7 +493,8 @@ class Ghost {
         this.x = x;
         this.y = y;
         this.radius = 11; 
-        this.speed = 1; 
+        this.speed = 1.0; 
+        this.respawnCooldown = 0; // Cooldown after being eaten
         const dirs = [{x:this.speed, y:0}, {x:-this.speed, y:0}, {x:0, y:this.speed}, {x:0, y:-this.speed}];
         const d = dirs[Math.floor(Math.random() * dirs.length)];
         this.vx = d.x;
@@ -432,6 +503,45 @@ class Ghost {
 
     update() {
         if (Date.now() < freezeGhostsUntil) return;
+
+        // If in respawn cooldown, stay in center box
+        if (Date.now() < this.respawnCooldown) {
+            let midR = Math.floor(rows / 2);
+            let midC = Math.floor(cols / 2);
+            if (midR % 2 === 0) midR++;
+            if (midC % 2 === 0) midC++;
+            this.x = midC * tileSize + tileSize / 2;
+            this.y = midR * tileSize + tileSize / 2;
+            this.vx = 0;
+            this.vy = 0;
+            return;
+        }
+
+        // Calculate current speed based on frightened or elapsed time (Chase Mode)
+        let currentSpeed = 1.0;
+        if (Date.now() < frightenedGhostsUntil) {
+            currentSpeed = 0.6; // Frightened: Slow down
+        } else {
+            let elapsed = Date.now() - roundStartTime;
+            if (elapsed > 45000) {
+                currentSpeed = 1.45; // Fast chase mode
+            } else if (elapsed > 20000) {
+                currentSpeed = 1.25; // Medium chase mode
+            }
+        }
+        
+        this.speed = currentSpeed;
+
+        // Align velocity magnitude if it changed
+        let mag = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+        if (mag > 0) {
+            this.vx = (this.vx / mag) * this.speed;
+            this.vy = (this.vy / mag) * this.speed;
+        } else {
+            // If they were stopped/cooldown, give them a starting velocity
+            this.vx = this.speed;
+            this.vy = 0;
+        }
 
         if (this.x % tileSize === tileSize/2 && this.y % tileSize === tileSize/2) {
             let c = Math.floor(this.x / tileSize);
@@ -453,7 +563,12 @@ class Ghost {
             });
 
             if (validDirs.length > 0) {
-                let notBackwards = validDirs.filter(d => d.vx !== -this.vx || d.vy !== -this.vy);
+                let notBackwards = validDirs.filter(d => {
+                    let magSelf = Math.sqrt(this.vx * this.vx + this.vy * this.vy) || 1;
+                    let magD = Math.sqrt(d.vx * d.vx + d.vy * d.vy) || 1;
+                    let dot = (this.vx / magSelf) * (d.vx / magD) + (this.vy / magSelf) * (d.vy / magD);
+                    return dot > -0.9; // Prevent going directly backwards unless it's a dead end
+                });
                 let choices = notBackwards.length > 0 ? notBackwards : validDirs;
 
                 let chosen = choices[Math.floor(Math.random() * choices.length)];
@@ -472,30 +587,73 @@ class Ghost {
     }
 
     draw() {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, Math.PI, 0); 
-        ctx.lineTo(this.x + this.radius, this.y + this.radius);
-        ctx.lineTo(this.x + this.radius/2, this.y + this.radius - 4);
-        ctx.lineTo(this.x, this.y + this.radius);
-        ctx.lineTo(this.x - this.radius/2, this.y + this.radius - 4);
-        ctx.lineTo(this.x - this.radius, this.y + this.radius);
-        
-        ctx.fillStyle = (Date.now() < freezeGhostsUntil) ? '#bae6fd' : '#f97316'; 
-        ctx.fill();
-        ctx.closePath();
-        
-        ctx.fillStyle = 'white';
+        let isFrightened = Date.now() < frightenedGhostsUntil;
+        let isFrozen = Date.now() < freezeGhostsUntil;
+        let isRespawning = Date.now() < this.respawnCooldown;
+
+        // 1. Draw body (if not respawning)
+        if (!isRespawning) {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, Math.PI, 0); 
+            ctx.lineTo(this.x + this.radius, this.y + this.radius);
+            ctx.lineTo(this.x + this.radius/2, this.y + this.radius - 4);
+            ctx.lineTo(this.x, this.y + this.radius);
+            ctx.lineTo(this.x - this.radius/2, this.y + this.radius - 4);
+            ctx.lineTo(this.x - this.radius, this.y + this.radius);
+            
+            if (isFrozen) {
+                ctx.fillStyle = '#bae6fd'; 
+            } else if (isFrightened) {
+                let timeLeft = frightenedGhostsUntil - Date.now();
+                if (timeLeft < 2000 && Math.floor(Date.now() / 150) % 2 === 0) {
+                    ctx.fillStyle = '#ffffff'; // Blink white
+                } else {
+                    ctx.fillStyle = '#1d4ed8'; // Frightened blue
+                }
+            } else {
+                let elapsed = Date.now() - roundStartTime;
+                if (elapsed > 45000) {
+                    ctx.fillStyle = '#dc2626'; // Red angry
+                } else if (elapsed > 20000) {
+                    ctx.fillStyle = '#ea580c'; // Orange-red medium
+                } else {
+                    ctx.fillStyle = '#f97316'; // Orange default
+                }
+            }
+            
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        // 2. Draw eyes
+        if (isFrightened) {
+            ctx.fillStyle = '#fde047'; // Yellow eyes
+        } else {
+            ctx.fillStyle = 'white';
+        }
+
         ctx.beginPath();
         ctx.arc(this.x - 4, this.y - 3, 3, 0, Math.PI * 2);
         ctx.arc(this.x + 4, this.y - 3, 3, 0, Math.PI * 2);
         ctx.fill();
         
-        ctx.fillStyle = '#1e3a8a';
+        // 3. Draw pupils
+        if (isFrightened) {
+            ctx.fillStyle = '#ef4444'; // Red pupils in fright mode
+        } else {
+            let elapsed = Date.now() - roundStartTime;
+            if (elapsed > 20000) {
+                ctx.fillStyle = '#ef4444'; // Angry red pupils in chase mode
+            } else {
+                ctx.fillStyle = '#1e3a8a'; // Blue pupils
+            }
+        }
+        
         ctx.beginPath();
         let px = this.vx > 0 ? 1 : this.vx < 0 ? -1 : 0;
         let py = this.vy > 0 ? 1 : this.vy < 0 ? -1 : 0;
-        ctx.arc(this.x - 4 + px*1.5, this.y - 3 + py*1.5, 1.5, 0, Math.PI * 2);
-        ctx.arc(this.x + 4 + px*1.5, this.y - 3 + py*1.5, 1.5, 0, Math.PI * 2);
+        ctx.arc(this.x - 4 + px*1.2, this.y - 3 + py*1.2, 1.2, 0, Math.PI * 2);
+        ctx.arc(this.x + 4 + px*1.2, this.y - 3 + py*1.2, 1.2, 0, Math.PI * 2);
         ctx.fill();
     }
 }
@@ -728,6 +886,10 @@ function startGameInternal(mode, rngFn) {
     particles = [];
     floatingTexts = [];
     freezeGhostsUntil = 0;
+    frightenedGhostsUntil = 0;
+    roundStartTime = Date.now();
+    respawnDots();
+    respawnPowerPellets();
 
     // Seeded Random Generator setup
     qrand = rngFn || Math.random;
@@ -788,6 +950,76 @@ function checkCollisions() {
     for (let p of players) {
         if (p.isDead) continue;
 
+        // Small dots collection check
+        for (let i = dots.length - 1; i >= 0; i--) {
+            let dot = dots[i];
+            if (!dot.active) continue;
+            
+            let dotX = dot.c * tileSize + tileSize / 2;
+            let dotY = dot.r * tileSize + tileSize / 2;
+            const dx = p.x - dotX, dy = p.y - dotY;
+            
+            if (Math.sqrt(dx*dx + dy*dy) < p.radius + 3) {
+                dot.active = false;
+                dots.splice(i, 1);
+                
+                if (p.id === 1) {
+                    score += 1;
+                } else {
+                    scoreP2 += 1;
+                }
+                
+                if (Date.now() - lastMunchTime > 120) {
+                    lastMunchTime = Date.now();
+                    playMunchSound();
+                }
+                
+                updateUI();
+                
+                if (dots.length === 0) {
+                    if (p.id === 1) score += 50; else scoreP2 += 50;
+                    createFloatingText(p.x, p.y - 20, "CLEAR! +50 🌟", '#10b981');
+                    try { KAMPAI.sound.correct(); } catch(e) {}
+                    respawnDots();
+                }
+            }
+        }
+
+        // Power pellets collection check
+        for (let i = powerPellets.length - 1; i >= 0; i--) {
+            let pp = powerPellets[i];
+            if (!pp.active) continue;
+            
+            let ppX = pp.c * tileSize + tileSize / 2;
+            let ppY = pp.r * tileSize + tileSize / 2;
+            const dx = p.x - ppX, dy = p.y - ppY;
+            
+            if (Math.sqrt(dx*dx + dy*dy) < p.radius + 6) {
+                pp.active = false;
+                powerPellets.splice(i, 1);
+                
+                if (p.id === 1) {
+                    score += 50;
+                } else {
+                    scoreP2 += 50;
+                }
+                
+                createFloatingText(p.x, p.y - 20, "GHOST HUNTER! ⚡", '#38bdf8');
+                createExplosion(ppX, ppY, '#38bdf8', 15);
+                
+                try { KAMPAI.sound.correct(); } catch(e) {}
+                
+                frightenedGhostsUntil = Date.now() + 8000;
+                
+                for (let g of ghosts) {
+                    g.vx = -g.vx;
+                    g.vy = -g.vy;
+                }
+                
+                updateUI();
+            }
+        }
+
         // Item collection check
         for (let i = items.length - 1; i >= 0; i--) {
             let item = items[i];
@@ -834,7 +1066,6 @@ function checkCollisions() {
                         }
                     }
 
-                    // Report score to Versus Mode (only relevant in versus mode, which only has P1 anyway)
                     if (gameMode === 'versus') {
                         vs.report(score, { correct: correctCount });
                     }
@@ -842,7 +1073,6 @@ function checkCollisions() {
                     updateUI();
                     updateComboUI();
 
-                    // Spawn extra ghosts as total score increases
                     const totalScore = score + scoreP2;
                     if (totalScore % 60 === 0 && ghosts.length < 15) {
                         const paths = getEmptyPathTiles();
@@ -874,27 +1104,46 @@ function checkCollisions() {
 
         // Ghost collision check
         for (let g of ghosts) {
+            if (Date.now() < g.respawnCooldown) continue;
+
             const dx = p.x - g.x, dy = p.y - g.y;
             if (Math.sqrt(dx*dx + dy*dy) < p.radius + g.radius - 3) {
-                if (p.invulnerable <= 0) {
-                    try { KAMPAI.sound.wrong(); } catch(e) {}
-                    p.lives -= 1;
-                    if (p.id === 1) comboStreak = 0; else comboStreakP2 = 0;
-                    createExplosion(p.x, p.y, '#ef4444', 20);
-                    createFloatingText(p.x, p.y, `${p.id === 1 ? 'P1' : 'P2'} -1 Life 👻`, '#ef4444');
-                    
-                    if (p.lives <= 0) {
-                        p.isDead = true;
-                        createExplosion(p.x, p.y, p.color, 30);
+                if (Date.now() < frightenedGhostsUntil) {
+                    // Eat ghost
+                    g.respawnCooldown = Date.now() + 4000;
+                    if (p.id === 1) {
+                        score += 200;
+                        comboStreak++;
+                        createFloatingText(p.x, p.y - 20, `P1 EAT GHOST! +200 👻`, '#facc15');
                     } else {
-                        // Respawn at starter tiles
-                        p.x = (p.id === 1 ? 1 : cols - 2) * tileSize + tileSize/2;
-                        p.y = 1 * tileSize + tileSize/2;
-                        p.invulnerable = 120; 
+                        scoreP2 += 200;
+                        comboStreakP2++;
+                        createFloatingText(p.x, p.y - 20, `P2 EAT GHOST! +200 👻`, '#38bdf8');
                     }
+                    createExplosion(g.x, g.y, '#3b82f6', 25);
+                    try { KAMPAI.sound.correct(); } catch(e) {}
                     updateUI();
                     updateComboUI();
-                    checkGameOver();
+                } else {
+                    if (p.invulnerable <= 0) {
+                        try { KAMPAI.sound.wrong(); } catch(e) {}
+                        p.lives -= 1;
+                        if (p.id === 1) comboStreak = 0; else comboStreakP2 = 0;
+                        createExplosion(p.x, p.y, '#ef4444', 20);
+                        createFloatingText(p.x, p.y, `${p.id === 1 ? 'P1' : 'P2'} -1 Life 👻`, '#ef4444');
+                        
+                        if (p.lives <= 0) {
+                            p.isDead = true;
+                            createExplosion(p.x, p.y, p.color, 30);
+                        } else {
+                            p.x = (p.id === 1 ? 1 : cols - 2) * tileSize + tileSize/2;
+                            p.y = 1 * tileSize + tileSize/2;
+                            p.invulnerable = 120; 
+                        }
+                        updateUI();
+                        updateComboUI();
+                        checkGameOver();
+                    }
                 }
             }
         }
@@ -1013,6 +1262,40 @@ function update() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     drawMaze();
+
+    // Draw small dots
+    ctx.fillStyle = '#fde047';
+    dots.forEach(d => {
+        if (d.active) {
+            let dotX = d.c * tileSize + tileSize / 2;
+            let dotY = d.r * tileSize + tileSize / 2;
+            ctx.beginPath();
+            ctx.arc(dotX, dotY, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    });
+
+    // Draw blinking Power Pellets
+    let showPellets = Math.floor(Date.now() / 150) % 2 === 0;
+    if (showPellets) {
+        powerPellets.forEach(pp => {
+            if (pp.active) {
+                let ppX = pp.c * tileSize + tileSize / 2;
+                let ppY = pp.r * tileSize + tileSize / 2;
+                ctx.beginPath();
+                ctx.arc(ppX, ppY, 6, 0, Math.PI * 2);
+                ctx.fillStyle = '#fde047';
+                ctx.fill();
+                
+                // Add a subtle glowing ring
+                ctx.strokeStyle = 'rgba(253, 224, 71, 0.4)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(ppX, ppY, 10, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        });
+    }
 
     // Items
     items.forEach(i => i.draw());
