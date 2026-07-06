@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700;800&family=Press+Start+2P&display=swap');
+
+body {
+    font-family: 'Kanit', sans-serif;
+    background-color: #0b0f19;
+    color: white;
+    overflow: hidden;
+    touch-action: none;
+}
+
+canvas {
+    display: block;
+    margin: 0 auto;
+    background-color: #000000;
+    border-radius: 0.75rem;
+    box-shadow: 0 0 30px rgba(56, 189, 248, 0.25);
+    border: 4px solid #1e3a8a;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+/* --- Font Style Arcade 8-bit --- */
+.font-arcade {
+    font-family: 'Press Start 2P', cursive;
+}
+
+/* --- Combo Fire Text Effect --- */
+.text-shadow-fire {
+    text-shadow: 0 0 5px #f97316, 0 0 10px #ef4444;
+}
+
+/* --- Animations --- */
+@keyframes pop {
+    0% { transform: scale(1) rotate(12deg); }
+    50% { transform: scale(1.4) rotate(12deg); color: #fff; }
+    100% { transform: scale(1) rotate(12deg); }
+}
+.animate-pop { animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
+
+@keyframes pop-straight {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.8); color: #fff; }
+    100% { transform: scale(1); }
+}
+.animate-pop-straight { animation: pop-straight 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
+
+@keyframes glow {
+    0% { box-shadow: 0 0 10px rgba(56, 189, 248, 0.4); border-color: #38bdf8; }
+    50% { box-shadow: 0 0 30px rgba(250, 204, 21, 0.8); border-color: #facc15; }
+    100% { box-shadow: 0 0 10px rgba(56, 189, 248, 0.4); border-color: #38bdf8; }
+}
+.animate-glow { animation: glow 0.5s ease-out; }
+
+/* Leaderboards styling */
+.leaderboard-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.leaderboard-list li.me {
+    background: linear-gradient(90deg, rgba(234, 179, 8, 0.15), rgba(56, 189, 248, 0.15));
+    border: 1px solid rgba(234, 179, 8, 0.3);
+    color: #eab308;
+    font-weight: bold;
+}
