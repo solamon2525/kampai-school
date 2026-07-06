@@ -898,6 +898,23 @@
         }
         html.embed-mode .shield-indicator { top: 5px; }
 
+        /* แมลงวัน — DOM overlay (canvas emoji ไม่แสดงบน Windows) */
+        .fly-sprite {
+            position: absolute;
+            z-index: 8;
+            font-size: 38px;
+            line-height: 1;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.35));
+            font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+            animation: flyBuzz 0.12s ease-in-out infinite alternate;
+        }
+        @keyframes flyBuzz {
+            from { transform: translate(-50%, -50%) rotate(-10deg) scale(1); }
+            to { transform: translate(-50%, -50%) rotate(10deg) scale(1.08); }
+        }
+
         /* ============================================
            SECTION 10: Animations
            ============================================ */
@@ -943,6 +960,7 @@
          ============================================ -->
     <div id="game-container">
         <canvas id="gameCanvas"></canvas>
+        <div id="fly-sprite" class="fly-sprite hidden" aria-hidden="true">🪰</div>
 
         <div id="ui-layer">
             <!-- HUD Top Bar -->
@@ -1535,6 +1553,18 @@
                 ctx.restore();
             }
 
+            syncFlySprite() {
+                const el = document.getElementById('fly-sprite');
+                if (!el) return;
+                if (this.state.isPlaying && this.fly.active) {
+                    el.classList.remove('hidden');
+                    el.style.left = `${this.fly.x}px`;
+                    el.style.top = `${this.fly.y}px`;
+                } else {
+                    el.classList.add('hidden');
+                }
+            }
+
             /* --- Resize & Layout --- */
             resize() {
                 this.width = window.innerWidth;
@@ -1595,6 +1625,7 @@
                 document.getElementById('p1-area').classList.add('hidden');
                 document.getElementById('hud-bar').classList.add('hidden');
                 document.getElementById('game-container')?.classList.remove('compare-mode');
+                this.syncFlySprite();
                 document.getElementById('shield-indicator').classList.add('hidden');
                 document.body.classList.remove('fever-bg');
                 this.highScoreManager.display('leaderboard-list');
@@ -1782,6 +1813,8 @@
             /* --- Game Over --- */
             gameOver() {
                 this.state.isPlaying = false;
+                this.fly.active = false;
+                this.syncFlySprite();
                 this.sound.stopBGM();
                 document.body.classList.remove('fever-bg');
 
@@ -2686,6 +2719,7 @@
                     const dF = Math.sqrt((x - this.fly.x) ** 2 + (y - this.fly.y) ** 2);
                     if (dF < 45) {
                         this.fly.active = false;
+                        this.syncFlySprite();
                         this.state.timeLeft = Math.min(this.state.timeLeft + 3, this.state.maxTime + 15);
                         this.spawnFloatingText('+3s 🪰', '#2196F3');
                         this.sound.playSelect();
@@ -2978,6 +3012,14 @@
                     this.fly.x = Math.random() * this.width;
                     this.fly.y = 60 + Math.random() * (this.height - 120);
                 }
+                if (this.fly.active) {
+                    this.fly.buzz = (this.fly.buzz || 0) + dt * 10;
+                    this.fly.x += Math.sin(this.fly.buzz) * 1.2;
+                    this.fly.y += Math.cos(this.fly.buzz * 1.4) * 0.8;
+                    this.fly.x = Math.max(30, Math.min(this.width - 30, this.fly.x));
+                    this.fly.y = Math.max(50, Math.min(this.height - 80, this.fly.y));
+                }
+                this.syncFlySprite();
 
                 // Power-ups
                 this.powerUpTimer += dt;
@@ -3111,10 +3153,7 @@
                     ctx.globalAlpha = 1;
                 }
 
-                // Draw fly
-                if (this.fly.active) {
-                    this.drawCanvasEmoji('🪰', this.fly.x, this.fly.y, 35);
-                }
+                // Draw fly → DOM overlay (#fly-sprite) แทน canvas
 
                 // Draw power-ups
                 this.powerUps.forEach(pu => {
