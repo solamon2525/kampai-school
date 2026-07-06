@@ -6,7 +6,7 @@
 import sharp from 'sharp';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildAiPrompt, titleOverlaySvg, W, H } from './lib/edu-cover-fullbleed.mjs';
+import { buildAiPrompt, titleOverlaySvg, titleOverlayHeroSvg, W, H } from './lib/edu-cover-fullbleed.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const POLLINATIONS = 'https://image.pollinations.ai/prompt';
@@ -67,6 +67,20 @@ const SPECS = {
       'male chibi Thai teacher reading Thai folktale to elementary students, whiteboard shows open storybook turtle character speech bubble proverb scroll moral lesson icons, warm golden yellow literature classroom, Thai decorative patterns, cute bright primary school poster',
     colors: 'main color tone: warm gold amber yellow and soft orange',
   },
+  'vertebrate-sort': {
+    out: 'public/games/science/vertebrate-sort-cover.png',
+    overlay: 'hero',
+    topClearPct: 32,
+    title: 'สัตว์มี/ไม่มี',
+    titleLine2: 'กระดูกสันหลัง',
+    subtitle: 'ช้าง · ปลา · นก  ↔  ผีเสื้อ · หอย · ปู',
+    footer: 'ป.3-4 · วิทยาศาสตร์ · สื่อการสอน',
+    grade: 'ป.3-4',
+    accent: '#047857',
+    scene:
+      'male chibi Thai science teacher helping elementary students sort animals into two colorful bins, left bin blue with elephant fish bird vertebrate animals, right bin orange with butterfly snail crab invertebrate animals, cute bright science classroom green nature theme, sorting game poster',
+    colors: 'main color tone: emerald green mint blue and warm orange accents',
+  },
 };
 
 async function fetchAiImage(prompt, seed) {
@@ -81,20 +95,20 @@ async function fetchAiImage(prompt, seed) {
 }
 
 async function renderOne(slug, spec) {
-  const prompt = buildAiPrompt(spec.scene, spec.colors);
+  const prompt = buildAiPrompt(spec.scene, spec.colors, { topClearPct: spec.topClearPct });
   const seed = 40_000 + [...slug].reduce((a, c) => a + c.charCodeAt(0), 0);
   console.log(`… ${slug} — สร้างภาพ AI (seed ${seed})`);
   const raw = await fetchAiImage(prompt, seed);
-  const overlay = Buffer.from(
-    titleOverlaySvg({
-      title: spec.title,
-      subtitle: spec.subtitle,
-      footer: spec.footer,
-      accent: spec.accent,
-      grade: spec.grade,
-    }),
-    'utf8',
-  );
+  const overlayArgs = {
+    title: spec.title,
+    titleLine2: spec.titleLine2,
+    subtitle: spec.subtitle,
+    footer: spec.footer,
+    accent: spec.accent,
+    grade: spec.grade,
+  };
+  const overlaySvg = spec.overlay === 'hero' ? titleOverlayHeroSvg(overlayArgs) : titleOverlaySvg(overlayArgs);
+  const overlay = Buffer.from(overlaySvg, 'utf8');
   const dest = resolve(root, spec.out);
   await sharp(raw)
     .resize(W, H, { fit: 'cover', position: 'centre' })

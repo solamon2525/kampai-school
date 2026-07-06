@@ -95,6 +95,66 @@ function titleFontSize(title) {
   return 78;
 }
 
+/** แถบข้อความบนปก — อย่างน้อย 30% ของความสูง (216px @ 720p) */
+export const TEXT_BAND_MIN_RATIO = 0.3;
+
+/**
+ * overlay แบบ hero — ตัวหนังสือกินพื้นที่ ≥30% ของปก จัดกลางสวยงาม
+ */
+export function titleOverlayHeroSvg({
+  title,
+  titleLine2,
+  subtitle,
+  footer,
+  accent = '#047857',
+  grade,
+}) {
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const bandH = Math.round(H * TEXT_BAND_MIN_RATIO);
+  const line1Size = titleLine2 ? 92 : 108;
+  const line2Size = 84;
+  const subSize = 38;
+  const line1Y = titleLine2 ? 98 : 120;
+  const line2Y = line1Y + Math.round(line2Size * 0.95);
+  const subY = titleLine2 ? line2Y + Math.round(subSize * 1.05) : line1Y + Math.round(line1Size * 0.72);
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+  <defs>
+    <style>${FONT}</style>
+    <linearGradient id="heroBand" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="rgba(4,120,87,0.92)"/>
+      <stop offset="100%" stop-color="rgba(15,23,42,0.78)"/>
+    </linearGradient>
+    <linearGradient id="heroTitle" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="50%" stop-color="#fde047"/>
+      <stop offset="100%" stop-color="#6ee7b7"/>
+    </linearGradient>
+    <linearGradient id="heroSub" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#93c5fd"/>
+      <stop offset="50%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#fdba74"/>
+    </linearGradient>
+    <filter id="heroShadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="rgba(0,0,0,0.6)"/>
+    </filter>
+  </defs>
+  <rect x="0" y="0" width="${W}" height="${bandH}" fill="url(#heroBand)"/>
+  <rect x="0" y="0" width="${W}" height="10" fill="${accent}"/>
+  <rect x="0" y="${bandH - 6}" width="${W}" height="6" fill="#fde047" opacity=".85"/>
+  <text x="640" y="${line1Y}" text-anchor="middle" font-family="Sarabun,sans-serif" font-size="${line1Size}" font-weight="800"
+    fill="url(#heroTitle)" stroke="#064e3b" stroke-width="6" paint-order="stroke" filter="url(#heroShadow)">${esc(title)}</text>
+  ${titleLine2 ? `<text x="640" y="${line2Y}" text-anchor="middle" font-family="Sarabun,sans-serif" font-size="${line2Size}" font-weight="800"
+    fill="url(#heroTitle)" stroke="#064e3b" stroke-width="5" paint-order="stroke" filter="url(#heroShadow)">${esc(titleLine2)}</text>` : ''}
+  <text x="640" y="${subY}" text-anchor="middle" font-family="Sarabun,sans-serif" font-size="${subSize}" font-weight="800"
+    fill="url(#heroSub)" stroke="#1e3a8a" stroke-width="3" paint-order="stroke">${esc(subtitle)}</text>
+  ${grade ? `<g transform="translate(0,12)">${mediaBadge(grade, '#fde047')}</g>` : ''}
+  <rect x="0" y="${H - 58}" width="${W}" height="58" fill="${accent}" opacity=".96"/>
+  <rect x="0" y="${H - 58}" width="${W}" height="6" fill="#6ee7b7" opacity=".95"/>
+  <text x="640" y="${H - 18}" text-anchor="middle" font-family="Sarabun,sans-serif" font-size="28" font-weight="800" fill="#fff" stroke="#022c22" stroke-width="1.5" paint-order="stroke">${esc(footer)}</text>
+</svg>`;
+}
+
 /**
  * overlay ชื่อไทย + แถบล่าง ทับภาพ AI
  * กฎตัวหนังสือ: ใหญ่ · สีสดใส · ขอบหนา · อ่านง่ายบนพื้นหลังสีเข้ม
@@ -142,11 +202,14 @@ const EDU_STYLE =
   'clean educational classroom poster illustration, polished teaching-media style, NOT arcade game art, bright but calm, professional textbook-cover quality, friendly for elementary school.';
 const MALE_TEACHER =
   'main character: a friendly male Thai elementary school teacher, short neat hair, light blue polo shirt with dark trousers, warm smile, pointing at whiteboard with marker — clearly male, NOT female';
-const FOOTER_RULE =
-  'STRICT: absolutely no text, no letters, no words, no numbers, no logos in the image. Leave the TOP 20% empty clear for large bright Thai title overlay. Keep teacher and whiteboard in center-bottom. Full frame illustration.';
 const TEXT_OVERLAY_RULE =
   'Thai title and subtitle will be added later as large bright colorful Sarabun text overlay — do not bake any letters into the artwork.';
 
-export function buildAiPrompt(scene, colors) {
-  return [EDU_BASE, EDU_STYLE, MALE_TEACHER, `Subject scene: ${scene}.`, colors, FOOTER_RULE, TEXT_OVERLAY_RULE].join(' ');
+export function buildAiPrompt(scene, colors, opts = {}) {
+  const topPct = opts.topClearPct ?? 20;
+  const topRule =
+    `STRICT: absolutely no text, no letters, no words, no numbers, no logos in the image. ` +
+    `Leave the TOP ${topPct}% empty clear for large bright Thai title overlay. ` +
+    'Keep teacher and lesson content in center-bottom. Full frame illustration.';
+  return [EDU_BASE, EDU_STYLE, MALE_TEACHER, `Subject scene: ${scene}.`, colors, topRule, TEXT_OVERLAY_RULE].join(' ');
 }
