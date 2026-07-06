@@ -276,6 +276,8 @@ class Player {
         this.lives = CONFIG.LIVES;
         this.isDead = false;
         this.id = id; // 1 or 2
+        this.currentDir = null;
+        this.desiredDir = null;
     }
 
     update() {
@@ -301,19 +303,73 @@ class Player {
             right = right || keys['KeyD'] || inputRight;
         }
 
-        let movedY = false;
-        
-        if (up && !isCollidingWithWall(this.x, this.y - this.speed, this.radius)) {
-            this.y -= this.speed; this.angle = -Math.PI / 2; movedY = true;
-        } else if (down && !isCollidingWithWall(this.x, this.y + this.speed, this.radius)) {
-            this.y += this.speed; this.angle = Math.PI / 2; movedY = true;
+        // Set buffered/desired direction
+        if (up) this.desiredDir = 'up';
+        else if (down) this.desiredDir = 'down';
+        else if (left) this.desiredDir = 'left';
+        else if (right) this.desiredDir = 'right';
+
+        // Grid positions for snapping
+        let col = Math.floor(this.x / tileSize);
+        let row = Math.floor(this.y / tileSize);
+        let tileCenterX = col * tileSize + tileSize / 2;
+        let tileCenterY = row * tileSize + tileSize / 2;
+
+        const snapThreshold = 8; // Max pixels to automatically snap to corridor center
+
+        const isPath = (r, c) => {
+            let targetR = r;
+            let targetC = c;
+            if (targetC < 0) targetC += cols;
+            if (targetC >= cols) targetC -= cols;
+            if (targetR < 0) targetR += rows;
+            if (targetR >= rows) targetR -= rows;
+            return map[targetR] && map[targetR][targetC] === 0;
+        };
+
+        // Attempt turning in the desired direction
+        if (this.desiredDir) {
+            if (this.desiredDir === 'left' || this.desiredDir === 'right') {
+                // If turning horizontally, player must be aligned vertically
+                if (Math.abs(this.y - tileCenterY) <= snapThreshold) {
+                    let offsetC = (this.desiredDir === 'left') ? -1 : 1;
+                    if (isPath(row, col + offsetC) || isPath(row, col)) {
+                        this.y = tileCenterY; // Auto-align vertically
+                        this.currentDir = this.desiredDir;
+                    }
+                }
+            } else if (this.desiredDir === 'up' || this.desiredDir === 'down') {
+                // If turning vertically, player must be aligned horizontally
+                if (Math.abs(this.x - tileCenterX) <= snapThreshold) {
+                    let offsetR = (this.desiredDir === 'up') ? -1 : 1;
+                    if (isPath(row + offsetR, col) || isPath(row, col)) {
+                        this.x = tileCenterX; // Auto-align horizontally
+                        this.currentDir = this.desiredDir;
+                    }
+                }
+            }
         }
 
-        if (!movedY) {
-            if (left && !isCollidingWithWall(this.x - this.speed, this.y, this.radius)) {
-                this.x -= this.speed; this.angle = Math.PI;
-            } else if (right && !isCollidingWithWall(this.x + this.speed, this.y, this.radius)) {
-                this.x += this.speed; this.angle = 0;
+        // Apply movement in the current direction
+        if (this.currentDir) {
+            let dx = 0;
+            let dy = 0;
+            if (this.currentDir === 'up') { dy = -this.speed; this.angle = -Math.PI / 2; }
+            else if (this.currentDir === 'down') { dy = this.speed; this.angle = Math.PI / 2; }
+            else if (this.currentDir === 'left') { dx = -this.speed; this.angle = Math.PI; }
+            else if (this.currentDir === 'right') { dx = this.speed; this.angle = 0; }
+
+            // Walk if no wall collision
+            if (!isCollidingWithWall(this.x + dx, this.y + dy, this.radius)) {
+                this.x += dx;
+                this.y += dy;
+            } else {
+                // Snap to current tile center if stuck against a wall
+                if (this.currentDir === 'up' || this.currentDir === 'down') {
+                    this.y = tileCenterY;
+                } else {
+                    this.x = tileCenterX;
+                }
             }
         }
 

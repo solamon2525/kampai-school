@@ -960,9 +960,9 @@
             </div>
             <!-- A1: ปุ่มเปรียบเทียบ (โชว์เฉพาะโหมดเทียบเศษส่วน) -->
             <div id="compare-controls" class="compare-controls hidden">
-                <button type="button" class="btn-compare" onclick="game.answerCompare('>')">&gt;<span>ซ้ายมากกว่า</span></button>
-                <button type="button" class="btn-compare btn-compare-eq" onclick="game.answerCompare('=')">=<span>เท่ากัน</span></button>
-                <button type="button" class="btn-compare" onclick="game.answerCompare('<')">&lt;<span>ขวามากกว่า</span></button>
+                <button type="button" class="btn-compare" data-compare-sign=">">&gt;<span>ซ้ายมากกว่า</span></button>
+                <button type="button" class="btn-compare btn-compare-eq" data-compare-sign="=">=<span>เท่ากัน</span></button>
+                <button type="button" class="btn-compare" data-compare-sign="<">&lt;<span>ขวามากกว่า</span></button>
             </div>
             <div id="challenge-mcq" class="challenge-mcq hidden"></div>
         </div>
@@ -984,7 +984,7 @@
           /* A5 รูปเศษส่วน (วงกลม) ข้างตั๋วออเดอร์ */
           #frac-visual { width:54px; height:54px; border-radius:50%; margin:6px auto 0; border:3px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,0.2); }
           /* A1 ปุ่มเทียบเศษส่วน */
-          .compare-controls { position:fixed; left:50%; bottom:22px; transform:translateX(-50%); display:flex; gap:12px; z-index:40; }
+          .compare-controls { position:fixed; left:50%; bottom:22px; transform:translateX(-50%); display:flex; gap:12px; z-index:50; pointer-events:auto; }
           .compare-controls.hidden { display:none; }
           .btn-compare { min-width:96px; min-height:64px; padding:8px 10px; border:none; border-radius:16px; background:#C0392B; color:#fff; font-size:2rem; font-weight:800; font-family:inherit; cursor:pointer; box-shadow:0 6px 0 #8e2a20; line-height:1; display:flex; flex-direction:column; align-items:center; justify-content:center; }
           .btn-compare.btn-compare-eq { background:#2E7D32; box-shadow:0 6px 0 #1b5e20; }
@@ -1343,6 +1343,8 @@
         /* ============================================
            SECTION D: GAME CONFIG
            ============================================ */
+        const CANVAS_EMOJI_FONT = "'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', 'Noto Emoji', sans-serif";
+
         const CONFIG = {
             comboThreshold: 5,
             colors: {
@@ -1480,6 +1482,9 @@
                 window.addEventListener('resize', () => this.resize());
                 this.canvas.addEventListener('pointerdown', (e) => this.handleInput(e));
                 document.getElementById('btn-serve-0').addEventListener('click', () => this.checkOrder());
+                document.querySelectorAll('#compare-controls [data-compare-sign]').forEach((btn) => {
+                    btn.addEventListener('click', () => this.answerCompare(btn.dataset.compareSign));
+                });
 
                 this.highScoreManager.display('leaderboard-list');
                 this.badgeManager.display('badges-row');
@@ -1487,6 +1492,16 @@
                 this.resize();
                 requestAnimationFrame((t) => this.loop(t));
                 this.applyUrlParams();
+            }
+
+            drawCanvasEmoji(emoji, x, y, sizePx) {
+                const ctx = this.ctx;
+                ctx.save();
+                ctx.font = `${sizePx}px ${CANVAS_EMOJI_FONT}`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(emoji, x, y);
+                ctx.restore();
             }
 
             /* --- Resize & Layout --- */
@@ -1661,6 +1676,7 @@
                 const isCompare = modeName === 'compare';
                 document.getElementById('btn-serve-0').classList.toggle('hidden', isCompare);
                 document.getElementById('compare-controls').classList.toggle('hidden', !isCompare);
+                this.setPlayerAreaPointerBlock(isCompare);
 
                 // Show wave badge for applicable modes
                 const waveBadge = document.getElementById('wave-badge');
@@ -1879,6 +1895,12 @@
                 if (mcq) mcq.classList.add('hidden');
                 if (cmp) cmp.classList.add('hidden');
                 if (serve) serve.classList.remove('hidden');
+                if (this.state.mode !== 'compare') this.setPlayerAreaPointerBlock(false);
+            }
+
+            setPlayerAreaPointerBlock(block) {
+                const area = document.getElementById('p1-area');
+                if (area) area.style.pointerEvents = block ? 'none' : '';
             }
 
             showMissionControls(type) {
@@ -1886,6 +1908,7 @@
                 if (type === 'compare') {
                     document.getElementById('compare-controls')?.classList.remove('hidden');
                     document.getElementById('btn-serve-0')?.classList.add('hidden');
+                    this.setPlayerAreaPointerBlock(true);
                 } else if (type === 'fill') {
                     document.getElementById('challenge-mcq')?.classList.remove('hidden');
                     document.getElementById('btn-serve-0')?.classList.add('hidden');
@@ -2908,7 +2931,7 @@
 
                 // Fly bonus
                 this.fly.timer += dt;
-                if (!this.fly.active && this.fly.timer > this.fly.nextSpawn) {
+                if (!this.isCompareActive() && !this.fly.active && this.fly.timer > this.fly.nextSpawn) {
                     this.fly.active = true;
                     this.fly.timer = 0;
                     this.fly.x = Math.random() * this.width;
@@ -3049,10 +3072,7 @@
 
                 // Draw fly
                 if (this.fly.active) {
-                    ctx.font = '35px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText('🪰', this.fly.x, this.fly.y);
+                    this.drawCanvasEmoji('🪰', this.fly.x, this.fly.y, 35);
                 }
 
                 // Draw power-ups
@@ -3062,10 +3082,7 @@
                     // Glow
                     ctx.shadowColor = '#FFD700';
                     ctx.shadowBlur = 15;
-                    ctx.font = '30px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(pu.emoji, pu.x, pu.y);
+                    this.drawCanvasEmoji(pu.emoji, pu.x, pu.y, 30);
                     ctx.restore();
                 });
 
@@ -3287,7 +3304,7 @@
                         ctx.stroke();
                         ctx.setLineDash([]);
                         const m2 = s + sliceAngle / 2;
-                        ctx.font = `${Math.max(14, r * 0.22)}px Arial`;
+                        ctx.font = `${Math.max(14, r * 0.22)}px ${CANVAS_EMOJI_FONT}`;
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
                         ctx.fillText('🔒', Math.cos(m2) * r * 0.45, Math.sin(m2) * r * 0.45);
@@ -3327,7 +3344,7 @@
                     ctx.save();
                     ctx.translate(x, y);
                     ctx.rotate(a + Math.PI / 2);
-                    ctx.font = `${size * 0.55}px Arial`;
+                    ctx.font = `${size * 0.55}px ${CANVAS_EMOJI_FONT}`;
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     ctx.fillText(emoji, 0, 0);
