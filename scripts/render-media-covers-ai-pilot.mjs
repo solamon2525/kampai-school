@@ -45,6 +45,17 @@ const SPECS = {
       'male teacher explaining decimal number 3.45 on whiteboard with place value blocks ones tenths hundredths, math classroom, blue educational poster',
     colors: 'main color tone: bright blue and navy',
   },
+  'fact-opinion': {
+    out: 'public/games/thai/fact-opinion-cover.png',
+    title: 'ข้อเท็จจริง vs ความคิดเห็น',
+    subtitle: 'Fact vs Opinion · แยกแยะความจริงกับความรู้สึก',
+    footer: 'ป.4 · ภาษาไทย · สื่อการสอน',
+    grade: 'ป.4',
+    accent: '#7c2d12',
+    scene:
+      'male teacher pointing at a whiteboard showing a clear contrast between Fact (a blue box with a checkmark) and Opinion (a pink box with a thought bubble), cute cartoon style classroom, happy atmosphere',
+    colors: 'main color tone: warm orange, blue and pink accents',
+  },
 };
 
 async function fetchAiImage(prompt, seed) {
