@@ -40,7 +40,12 @@ export const LeaderboardMarqueeStrip = ({ leaders, className }: Props) => {
         </div>
     ));
 
-    const doubled = chips.length > 1 ? [...chips, ...chips] : chips;
+    // ช่องว่างปลายลูป — อันดับสุดท้ายกับอันดับ 1 ไม่ชิด (แต่ละ segment ต้องเหมือนกันเพื่อ animation -50%)
+    const renderSegment = (suffix: string) => [
+        ...chips,
+        <div key={`loop-seam-${suffix}`} className="shrink-0 w-8" aria-hidden />,
+    ];
+    const doubled = chips.length > 1 ? [...renderSegment('a'), ...renderSegment('b')] : chips;
 
     return (
         <div

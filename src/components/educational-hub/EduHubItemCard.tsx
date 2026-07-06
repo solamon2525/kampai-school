@@ -351,7 +351,7 @@ export const EduHubItemCard = ({
                 </div>
 
                 {showFooterStrips && (
-                    <div className="shrink-0 px-3 pt-1 pb-3 border-t border-border flex flex-col gap-0.5">
+                    <div className="shrink-0 px-3 pt-1 pb-2 border-t border-border flex flex-col gap-px">
                         <IndicatorMarqueeStrip indicators={linkedIndicators ?? []} />
                         {showLeaderboardStrip && (
                             <LeaderboardMarqueeStrip leaders={leaders ?? []} />
