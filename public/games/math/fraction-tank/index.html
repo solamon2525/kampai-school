@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fraction Tank: ศึกรถถังพิชิตน่านฟ้าเศษส่วน</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="game-container">
+    <canvas id="canvas"></canvas>
+    
+    <!-- Title Screen / Blocker -->
+    <div id="blocker">
+        <h1 class="glow-title">FRACTION TANK</h1>
+        <h2>ศึกรถถังพิชิตน่านฟ้าเศษส่วน</h2>
+        
+        <!-- Player Avatar Info -->
+        <div id="player-chip" style="display: none;"></div>
+
+        <!-- Student Statistics -->
+        <div id="my-stats">
+            <div class="stat-box">
+                <span class="stat-val" id="ms-best">0</span>
+                <span class="stat-label">คะแนนสูงสุด</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-val" id="ms-plays">0</span>
+                <span class="stat-label">ภารกิจที่ทำ (ครั้ง)</span>
+            </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="leaderboard-box">
+            <h3>🏆 อันดับกองทัพรถถัง</h3>
+            <ul id="score-list" class="leaderboard-list">
+                <li class="lb-loading">กำลังโหลดอันดับผู้พิทักษ์น่านฟ้า...</li>
+            </ul>
+        </div>
+
+        <div class="menu-buttons">
+            <button id="btn-start" onclick="startGame()">เริ่มปฏิบัติการ 🚀</button>
+            <button id="btn-versus" onclick="vs.openMenu()">⚔️ แข่ง 2 คน</button>
+        </div>
+    </div>
+
+    <!-- BGM Control Button -->
+    <button id="music-btn" onclick="toggleMusic()">🔊</button>
+
+    <!-- Top Mission Panel -->
+    <div id="ui-layer">
+        <div class="panel">
+            <div id="mission-display" class="mission-text">
+                <span>ภารกิจ: ยิงลำที่</span> 
+                <span id="op-text">มากกว่า</span> 
+                <div class="fraction-display">
+                    <span class="fraction-n" id="target-n">1</span>
+                    <span class="fraction-d" id="target-d">2</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Power Bar (Follows Tank) -->
+    <div id="power-container">
+        <div id="power-fill"></div>
+    </div>
+    
+    <!-- Bottom HUD -->
+    <div id="bottom-hud">
+        <div class="hud-section">
+            <div class="hud-label">สถานะรถถัง</div>
+            <div id="lives-display">❤️❤️❤️❤️❤️</div>
+            <div id="speed-status">เครื่องยนต์: 100%</div>
+        </div>
+
+        <div class="hud-section">
+            <div class="hud-label">สภาพอากาศ</div>
+            <div id="wind-container">
+                <span id="wind-arrow">➔</span> 
+                <span id="wind-val">0</span>
+            </div>
+        </div>
+
+        <div class="hud-section">
+            <div class="hud-label">คลังแสง</div>
+            <div id="ammo-display">💣 ปืนหลัก: <span id="ammo-val">5</span></div>
+            <div id="p-missile-display">🚀 มิสไซล์: <span id="p-missile-val">2/5</span></div>
+        </div>
+
+        <div class="hud-section">
+            <div class="hud-label">คะแนนภารกิจ</div>
+            <div id="score-val">0</div>
+        </div>
+    </div>
+
+    <!-- Message / Game Over Dialog -->
+    <div id="msg-box">
+        <h2 id="msg-title">จบภารกิจ!</h2>
+        <div id="msg-desc"></div>
+        
+        <!-- Game Over Leaderboard -->
+        <div class="leaderboard-box" style="margin-top: 15px;">
+            <h3>🏆 อันดับทหารกล้า</h3>
+            <ul id="score-list-gameover" class="leaderboard-list">
+                <li class="lb-loading">—</li>
+            </ul>
+        </div>
+
+        <div class="modal-buttons">
+            <button id="msg-btn" class="btn-std" onclick="location.reload()">🔄 เล่นใหม่</button>
+            <button class="btn-std btn-secondary" onclick="KAMPAI.goHome()">🎮 กลับหน้าหลัก</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ KAMPAI SDK ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+window.KAMPAI = window.KAMPAI || { 
+    isEmbed: false, isTouch: false, ready: true, student: null, stats: null, leaderboard: [], 
+    onReady: function(cb) { cb(this); }, setSlug: function() { return this; }, 
+    submitScore: function() { return false; }, goHome: function() { location.href = '/'; }, 
+    sound: { 
+        correct: function() {}, wrong: function() {}, timeUp: function() {}, gameOver: function() {}, 
+        speak: function() {}, stopSpeak: function() {}, defaultBgm: function() {}, 
+        bgmStart: function() {}, bgmStop: function() {}, unlock: function() {} 
+    } 
+};
+</script>
+<script src="/games/kampai-match.js"></script>
+<script>
+window.KampaiMatch = window.KampaiMatch || { 
+    create: function() { 
+        return { available: false, openMenu: function() {}, report: function() {}, finish: function() {}, leave: function() {} }; 
+    } 
+};
+</script>
+<script src="/games/kampai-versus.js"></script>
+<script>
+window.KampaiVersus = window.KampaiVersus || { 
+    create: function() { 
+        return { available: false, openMenu: function() { alert('ระบบประลอง 2 คนเล่นผ่านพอร์ทัลเท่านั้น'); } }; 
+    } 
+};
+</script>
+
+<!-- Game Scripts (config -> data -> game) -->
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

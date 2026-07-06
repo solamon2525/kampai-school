@@ -6,7 +6,7 @@
 import sharp from 'sharp';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildAiPrompt, titleOverlaySvg, titleOverlayHeroSvg, titleOverlayBannerSvg, W, H } from './lib/edu-cover-fullbleed.mjs';
+import { buildAiPrompt, titleOverlaySvg, titleOverlayHeroSvg, titleOverlayBannerSvg, titleOverlayCleanSvg, W, H } from './lib/edu-cover-fullbleed.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const POLLINATIONS = 'https://image.pollinations.ai/prompt';
@@ -146,6 +146,24 @@ const SPECS = {
       'male chibi Thai English teacher showing phonics chart with apple ball cat pictures on whiteboard, colorful letters blocks, Thai students learning English sounds, bright green classroom',
     colors: 'main color tone: fresh green lime and cheerful primary colors',
   },
+  'thai-sentence-hub': {
+    out: 'public/games/thai/thai-sentence-hub/cover.png',
+    overlay: 'banner',
+    overlayXl: true,
+    darkText: true,
+    noTeacher: true,
+    serious: true,
+    topClearPct: 30,
+    seedOffset: 85,
+    title: 'คลังประโยคไทย',
+    subtitle: 'ประธาน · กริยา · กรรม · ส่วนขยาย',
+    footer: 'ป.4-5 · ภาษาไทย · สื่อการสอน Hub',
+    grade: 'ป.4-5',
+    accent: '#15803d',
+    scene:
+      'polished 3D semi-realistic educational illustration like premium animation classroom, warm bright classroom with large whiteboard showing four colorful sentence blocks blue green orange purple connected with arrows, EXACTLY FOUR Thai elementary students seen from behind at wooden desks facing the whiteboard two boys two girls natural proportions NOT chibi, question mark quiz cards on board, soft warm natural lighting, NO teacher NO adult NO fifth child, professional Thai teaching media cover',
+    colors: 'main color tone: warm peach orange classroom with mint green accents on whiteboard blocks, soft cinematic lighting',
+  },
 };
 
 async function fetchAiImage(prompt, seed) {
@@ -163,8 +181,10 @@ async function renderOne(slug, spec) {
   const prompt = buildAiPrompt(spec.scene, spec.colors, {
     topClearPct: spec.topClearPct,
     overlay: spec.overlay,
+    noTeacher: spec.noTeacher,
+    serious: spec.serious,
   });
-  const seed = 40_000 + [...slug].reduce((a, c) => a + c.charCodeAt(0), 0);
+  const seed = 40_000 + [...slug].reduce((a, c) => a + c.charCodeAt(0), 0) + (spec.seedOffset || 0);
   console.log(`… ${slug} — สร้างภาพ AI (seed ${seed})`);
   const raw = await fetchAiImage(prompt, seed);
   const overlayArgs = {
@@ -174,13 +194,19 @@ async function renderOne(slug, spec) {
     footer: spec.footer,
     accent: spec.accent,
     grade: spec.grade,
+    large: spec.overlayLarge,
+    xl: spec.overlayXl,
+    subtitlePlain: spec.subtitlePlain,
+    darkText: spec.darkText,
   };
   const overlaySvg =
     spec.overlay === 'hero'
       ? titleOverlayHeroSvg(overlayArgs)
       : spec.overlay === 'banner'
         ? titleOverlayBannerSvg(overlayArgs)
-        : titleOverlaySvg(overlayArgs);
+        : spec.overlay === 'clean'
+          ? titleOverlayCleanSvg(overlayArgs)
+          : titleOverlaySvg(overlayArgs);
   const overlay = Buffer.from(overlaySvg, 'utf8');
   const dest = resolve(root, spec.out);
   await sharp(raw)
