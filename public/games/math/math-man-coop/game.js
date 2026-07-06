@@ -637,7 +637,7 @@ function updateComboUI() {
 }
 
 // Initialize / Restart Game
-function startGame(mode, rngFn) {
+function startGameInternal(mode, rngFn) {
     blocker.style.display = 'none';
     msgBox.style.display = 'none';
     isPlaying = true;
@@ -938,7 +938,7 @@ const vs = KampaiVersus.create({
     title: 'Math-Man Co-op',
     rankBy: 'score',
     onPlay: ({ rng, player }) => {
-        startGame('versus', rng);
+        startGameInternal('versus', rng);
         if (versusTimer) clearTimeout(versusTimer);
         versusTimer = setTimeout(() => {
             triggerGameOver("หมดเวลาประลองรอบนี้!");
@@ -952,7 +952,7 @@ const vs = KampaiVersus.create({
 
 // Global functions
 window.startGame = function(mode) {
-    startGame(mode, Math.random);
+    startGameInternal(mode, Math.random);
 };
 window.toggleMusic = toggleMusic;
 window.vs = vs;
