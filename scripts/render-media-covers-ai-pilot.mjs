@@ -6,7 +6,7 @@
 import sharp from 'sharp';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildAiPrompt, titleOverlaySvg, titleOverlayHeroSvg, W, H } from './lib/edu-cover-fullbleed.mjs';
+import { buildAiPrompt, titleOverlaySvg, titleOverlayHeroSvg, titleOverlayBannerSvg, W, H } from './lib/edu-cover-fullbleed.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const POLLINATIONS = 'https://image.pollinations.ai/prompt';
@@ -81,6 +81,71 @@ const SPECS = {
       'male chibi Thai science teacher helping elementary students sort animals into two colorful bins, left bin blue with elephant fish bird vertebrate animals, right bin orange with butterfly snail crab invertebrate animals, cute bright science classroom green nature theme, sorting game poster',
     colors: 'main color tone: emerald green mint blue and warm orange accents',
   },
+  'water-cycle': {
+    out: 'public/games/science/water-cycle-cover.png',
+    overlay: 'banner',
+    topClearPct: 24,
+    title: 'วัฏจักรน้ำ',
+    subtitle: 'ระเหย · ควบแน่น · ฝน · รวมตัว',
+    footer: 'ป.3-5 · วิทยาศาสตร์ · สื่อการสอน',
+    grade: 'ป.3-5',
+    accent: '#0f766e',
+    scene:
+      'male chibi Thai science teacher explaining water cycle diagram on whiteboard with evaporation condensation precipitation collection arrows, mountains river sun clouds rain, Thai students watching, teal blue nature classroom poster',
+    colors: 'main color tone: teal cyan blue and fresh green',
+  },
+  'bar-chart-media': {
+    out: 'public/games/math/bar-chart-media-cover.png',
+    overlay: 'banner',
+    topClearPct: 24,
+    title: 'แผนภูมิแท่ง',
+    subtitle: 'อ่าน · เปรียบเทียบ · วิเคราะห์ข้อมูล',
+    footer: 'ป.4-5 · คณิตศาสตร์ · สื่อการสอน',
+    grade: 'ป.4-5',
+    accent: '#1e3a8a',
+    scene:
+      'male chibi Thai math teacher showing colorful bar chart on whiteboard with rising bars blue green orange purple, students with notebooks, bright math classroom statistics lesson',
+    colors: 'main color tone: bright blue navy and colorful chart bars',
+  },
+  'thai-matra-chart': {
+    out: 'public/games/thai/thai-matra-chart-cover.png',
+    overlay: 'banner',
+    topClearPct: 24,
+    title: 'มาตราตัวสะกด',
+    subtitle: 'กก · กง · กด · กน · กบ · กม',
+    footer: 'ป.1-3 · ภาษาไทย · สื่อการสอน',
+    grade: 'ป.1-3',
+    accent: '#be123c',
+    scene:
+      'male chibi Thai teacher pointing at Thai spelling rules chart matra table on whiteboard, pink rose classroom, cute Thai elementary students, spelling lesson poster',
+    colors: 'main color tone: rose pink warm red and soft cream',
+  },
+  'states-of-matter': {
+    out: 'public/games/science/states-of-matter-cover.png',
+    overlay: 'banner',
+    topClearPct: 24,
+    title: 'สสาร 3 สถานะ',
+    subtitle: 'แข็ง · ของเหลว · ก๊าซ',
+    footer: 'ป.3-4 · วิทยาศาสตร์ · สื่อการสอน',
+    grade: 'ป.3-4',
+    accent: '#0369a1',
+    scene:
+      'male chibi Thai science teacher demonstrating ice water steam states of matter with thermometer slider on whiteboard, H2O molecule icons, bright cool blue classroom',
+    colors: 'main color tone: ice blue cyan and white steam effects',
+  },
+  'phonics-chart': {
+    out: 'public/games/english/phonics-chart-cover.png',
+    overlay: 'banner',
+    topClearPct: 24,
+    title: 'Phonics Chart',
+    subtitle: 'A–Z · blends · digraphs · เสียงตัวอักษร',
+    footer: 'ป.1-3 · ภาษาอังกฤษ · สื่อการสอน',
+    grade: 'ป.1-3',
+    accent: '#15803d',
+    scene:
+      'male chibi Thai English teacher showing phonics chart with apple ball cat pictures on whiteboard, colorful letters blocks, Thai students learning English sounds, bright green classroom',
+    colors: 'main color tone: fresh green lime and cheerful primary colors',
+  },
 };
 
 async function fetchAiImage(prompt, seed) {
@@ -95,7 +160,10 @@ async function fetchAiImage(prompt, seed) {
 }
 
 async function renderOne(slug, spec) {
-  const prompt = buildAiPrompt(spec.scene, spec.colors, { topClearPct: spec.topClearPct });
+  const prompt = buildAiPrompt(spec.scene, spec.colors, {
+    topClearPct: spec.topClearPct,
+    overlay: spec.overlay,
+  });
   const seed = 40_000 + [...slug].reduce((a, c) => a + c.charCodeAt(0), 0);
   console.log(`… ${slug} — สร้างภาพ AI (seed ${seed})`);
   const raw = await fetchAiImage(prompt, seed);
@@ -107,7 +175,12 @@ async function renderOne(slug, spec) {
     accent: spec.accent,
     grade: spec.grade,
   };
-  const overlaySvg = spec.overlay === 'hero' ? titleOverlayHeroSvg(overlayArgs) : titleOverlaySvg(overlayArgs);
+  const overlaySvg =
+    spec.overlay === 'hero'
+      ? titleOverlayHeroSvg(overlayArgs)
+      : spec.overlay === 'banner'
+        ? titleOverlayBannerSvg(overlayArgs)
+        : titleOverlaySvg(overlayArgs);
   const overlay = Buffer.from(overlaySvg, 'utf8');
   const dest = resolve(root, spec.out);
   await sharp(raw)

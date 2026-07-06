@@ -87,16 +87,83 @@ export function wrapCover({ bgStops, accent, title, subtitle, footer, decor, boa
 </svg>`;
 }
 
-/** ขนาดหัวข้ออัตโนมัติ — ยาว = เล็กลงนิดหน่อย แต่ยังใหญ่ชัด */
+/** ขนาดหัวข้ออัตโนมัติ — ใหญ่ชัด ไม่บังเนื้อหา */
 function titleFontSize(title) {
   const len = String(title).length;
-  if (len > 18) return 62;
-  if (len > 14) return 70;
-  return 78;
+  if (len > 18) return 68;
+  if (len > 14) return 76;
+  return 84;
+}
+
+function bannerTitleSize(title, hasLine2) {
+  const len = String(title).length;
+  if (hasLine2) return len > 10 ? 68 : 76;
+  if (len > 16) return 72;
+  if (len > 12) return 80;
+  return 88;
 }
 
 /** แถบข้อความบนปก — อย่างน้อย 30% ของความสูง (216px @ 720p) */
 export const TEXT_BAND_MIN_RATIO = 0.3;
+/** แถบ banner — ตัวหนังสือใหญ่ แต่ fade ก่อนถึงเนื้อหาหลัก (~22% สูง) */
+export const TEXT_BANNER_MAX_RATIO = 0.22;
+
+/**
+ * overlay แบบ banner — ตัวหนังสือใหญ่สีสดใส แถบบน fade ลง ไม่บังภาพเนื้อหา
+ */
+export function titleOverlayBannerSvg({
+  title,
+  titleLine2,
+  subtitle,
+  footer,
+  accent = '#1e3a5f',
+  grade,
+}) {
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const bandH = Math.round(H * TEXT_BANNER_MAX_RATIO);
+  const line1Size = bannerTitleSize(title, Boolean(titleLine2));
+  const line2Size = 72;
+  const subSize = 32;
+  const line1Y = titleLine2 ? 78 : 88;
+  const line2Y = line1Y + Math.round(line2Size * 0.9);
+  const subY = titleLine2 ? line2Y + Math.round(subSize * 1.0) : line1Y + Math.round(line1Size * 0.68);
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+  <defs>
+    <style>${FONT}</style>
+    <linearGradient id="banFade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="rgba(15,23,42,0.88)"/>
+      <stop offset="65%" stop-color="rgba(15,23,42,0.45)"/>
+      <stop offset="100%" stop-color="rgba(15,23,42,0)"/>
+    </linearGradient>
+    <linearGradient id="banTitle" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="45%" stop-color="#fde047"/>
+      <stop offset="100%" stop-color="#fb923c"/>
+    </linearGradient>
+    <linearGradient id="banSub" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#a5f3fc"/>
+      <stop offset="50%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#fbcfe8"/>
+    </linearGradient>
+    <filter id="banShadow" x="-12%" y="-12%" width="124%" height="124%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="rgba(0,0,0,0.55)"/>
+    </filter>
+  </defs>
+  <rect x="0" y="0" width="${W}" height="${bandH}" fill="url(#banFade)"/>
+  <rect x="0" y="0" width="${W}" height="8" fill="${accent}"/>
+  <text x="640" y="${line1Y}" text-anchor="middle" font-family="Sarabun,sans-serif" font-size="${line1Size}" font-weight="800"
+    fill="url(#banTitle)" stroke="#7c2d12" stroke-width="5" paint-order="stroke" filter="url(#banShadow)">${esc(title)}</text>
+  ${titleLine2 ? `<text x="640" y="${line2Y}" text-anchor="middle" font-family="Sarabun,sans-serif" font-size="${line2Size}" font-weight="800"
+    fill="url(#banTitle)" stroke="#7c2d12" stroke-width="4" paint-order="stroke" filter="url(#banShadow)">${esc(titleLine2)}</text>` : ''}
+  <text x="640" y="${subY}" text-anchor="middle" font-family="Sarabun,sans-serif" font-size="${subSize}" font-weight="800"
+    fill="url(#banSub)" stroke="#1e3a8a" stroke-width="2.5" paint-order="stroke">${esc(subtitle)}</text>
+  ${grade ? `<g transform="translate(0,8)">${mediaBadge(grade, '#fde047')}</g>` : ''}
+  <rect x="0" y="${H - 54}" width="${W}" height="54" fill="${accent}" opacity=".95"/>
+  <rect x="0" y="${H - 54}" width="${W}" height="5" fill="#fde047" opacity=".9"/>
+  <text x="640" y="${H - 17}" text-anchor="middle" font-family="Sarabun,sans-serif" font-size="26" font-weight="800" fill="#fff" stroke="#0f172a" stroke-width="1.5" paint-order="stroke">${esc(footer)}</text>
+</svg>`;
+}
 
 /**
  * overlay แบบ hero — ตัวหนังสือกินพื้นที่ ≥30% ของปก จัดกลางสวยงาม
@@ -207,9 +274,13 @@ const TEXT_OVERLAY_RULE =
 
 export function buildAiPrompt(scene, colors, opts = {}) {
   const topPct = opts.topClearPct ?? 20;
+  const contentRule = opts.overlay === 'banner'
+    ? `Keep the main lesson illustration large and centered in the bottom ${100 - topPct - 8}% of the frame — do not place important content under the top title band. `
+    : '';
   const topRule =
     `STRICT: absolutely no text, no letters, no words, no numbers, no logos in the image. ` +
-    `Leave the TOP ${topPct}% empty clear for large bright Thai title overlay. ` +
-    'Keep teacher and lesson content in center-bottom. Full frame illustration.';
+    `Leave the TOP ${topPct}% relatively clear/soft for large bright Thai title overlay. ` +
+    contentRule +
+    'Full frame illustration edge to edge.';
   return [EDU_BASE, EDU_STYLE, MALE_TEACHER, `Subject scene: ${scene}.`, colors, topRule, TEXT_OVERLAY_RULE].join(' ');
 }
