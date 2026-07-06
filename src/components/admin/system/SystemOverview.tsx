@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.160.0 (Pizza ภารกิจเชฟ v2)',
+        version: 'v1.161.0 (การ์ดเกม — แถบตัวชี้วัด)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            '**EduHubItemCard** — แถบสไลด์ตัวชี้วัดบน + leaderboard Top 5 ล่าง (ทุกคนเห็น)',
+            'ยังไม่ผูกตัวชี้วัด → แสดง **ทดสอบ** · วนซ้ายอัตโนมัติ หยุดเมื่อชี้',
+            'migration 369 — ผูกตัวชี้วัด ป.4 กับเกมยอดนิยม top 20',
+        ],
+    },
+    {
+        version: 'v1.160.0 (Pizza ภารกิจเชฟ v2)',
+        date: '',
         badge: 'bg-orange-600',
         items: [
             '**pizza-master-chef v2.0.0** — โหมดภารกิจเชฟ สลับ 4 แบบ (หั่น / เติมเต็ม / เทียบ / สมมูล) ไม่ซ้ำจำเสีย',
