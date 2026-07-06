@@ -272,8 +272,17 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.158.0 (คำขวัญ · โดยนัย · อาขยาน)',
+        version: 'v1.159.0 (กฎเก็บคะแนนเกม · pizza fix)',
         date: 'ล่าสุด',
+        badge: 'bg-orange-600',
+        items: [
+            '**fix เก็บคะแนนรอบ 2+ (ทุกเกม):** SDK รีเซ็ต `_submitted` ตอนรับ `gameResult` · PlayGame รีเซ็ต `sessionSubmittedRef` + ส่ง `init` ซ้ำหลังบันทึก (stats/leaderboard อัปเดตทันที)',
+            '**KAMPAI.beginRound()** + `pnpm audit:game-scores` + GAME.md §กฎเก็บคะแนน (incident pizza)',
+        ],
+    },
+    {
+        version: 'v1.158.0 (คำขวัญ · โดยนัย · อาขยาน)',
+        date: 'ก่อนหน้า',
         badge: 'bg-orange-600',
         items: [
             '**คำขวัญ** ขยายใน poetry-hub 12 บท · build:poetry',

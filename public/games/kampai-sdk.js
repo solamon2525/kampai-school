@@ -107,6 +107,16 @@
     return K._doSubmit(score, opts);
   };
 
+  /** เริ่มรอบใหม่ (ปุ่ม "เล่นอีกครั้ง") — รีเซ็ต gate ส่งคะแนน + แจ้ง wrapper (PlayGame รีเซ็ต sessionSubmittedRef) */
+  K.beginRound = function () {
+    K._submitted = false;
+    K._startTs = Date.now();
+    if (IS_EMBED) {
+      try { window.parent.postMessage({ type: 'gameStart' }, '*'); } catch (e) { /* */ }
+    }
+    return K;
+  };
+
   /** กลับหน้าหลัก (iframe-safe) */
   K.goHome = function () {
     var home = K.hubUrl || '/h/nattapong';
@@ -436,6 +446,7 @@
         else if (d.audio.bgm) { _bgmFromInit = true; K.sound.setBgm(d.audio.bgm); }
       }
       if (typeof d.hubUrl === 'string' && d.hubUrl.startsWith('/')) K.hubUrl = d.hubUrl;
+      K._submitted = false;
       K._startTs = Date.now();
       fireReady();
     });
@@ -448,6 +459,7 @@
       else if (d.type === 'rtEvent') { if (o.onEvent) try { o.onEvent(d.event, d.payload, d.fromKey); } catch (x) { /* */ } }
       else if (d.type === 'gameResult') {   // ผล XP กลับจาก wrapper → ฝังลงจอจบของเกม
         K.lastResult = d.result || null;
+        K._submitted = false;   // บันทึกรอบนี้เสร็จแล้ว → พร้อม submitScore รอบถัดไป (เกมที่ไม่ยิง gameStart)
         if (K._onResult) { try { K._onResult(d.result, d); } catch (x) { /* */ } }
         else { try { K.showResult(d); } catch (x) { /* */ } }
       }

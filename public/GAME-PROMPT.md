@@ -32,8 +32,12 @@
     ในหน้าเริ่มเกม**: คะแนนสูงสุด (`personalBest`) + จำนวนครั้งที่เล่น (`playsCount`)
   - `k.leaderboard` = array ของ `{ rank, displayName, photoUrl, classLabel, personalBest, isMe }`
     — **เอาไปแสดงตาราง 5 อันดับในหน้าเริ่มเกมและหน้าจบเกม** (ไฮไลต์คนที่ `isMe === true`)
+- `KAMPAI.setSlug('game-slug')` — เรียกครั้งเดียวตอนโหลด ต้องตรง `game_slug` ใน DB
 - `KAMPAI.submitScore(score, { mode:'normal', ...extra })` — **เรียกทุกครั้งที่เกมจบ** (สำคัญที่สุด!
   ถ้าไม่เรียก คะแนนจะไม่ถูกบันทึก). `score` เป็นจำนวนเต็ม. `extra` ใส่ข้อมูลเสริมได้ (combo, accuracy ฯลฯ)
+- **เริ่มรอบใหม่** (ปุ่ม "เล่นอีกครั้ง"): `KAMPAI._submitted = false` + `postMessage({ type:'gameStart' })` + ซ่อนจอ game-over —
+  ไม่งั้นรอบ 2+ ใน `/play/` จะไม่บันทึก
+- **โหมดฝึกซ้อม:** ถ้ามี practice mode ห้าม `submitScore` และซ่อนปุ่มใน embed (`html.embed-mode`)
 - `KAMPAI.goHome()` — ใช้กับปุ่ม "กลับหน้าหลัก" / "เลือกเกมใหม่"
 
 ## รองรับ Desktop + มือถือ (บังคับ)

@@ -1587,11 +1587,12 @@
                 this.state.playerName = EMBED ? (displayName || 'เชฟนิรนาม') : ((nameEl ? nameEl.value.trim() : '') || 'เชฟนิรนาม');
                 if (EMBED) {
                     SESSION_START_TS = Date.now();
-                    if (window.KAMPAI) {
+                    if (window.KAMPAI && window.KAMPAI.beginRound) window.KAMPAI.beginRound();
+                    else if (window.KAMPAI) {
                         window.KAMPAI._submitted = false;
                         window.KAMPAI._startTs = SESSION_START_TS;
+                        try { window.parent.postMessage({ type: 'gameStart' }, '*'); } catch (_e) { /* */ }
                     }
-                    try { window.parent.postMessage({ type: 'gameStart' }, '*'); } catch (_e) { /* */ }
                 }
 
                 this.state.mode = modeName;

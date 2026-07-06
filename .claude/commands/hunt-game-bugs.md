@@ -143,7 +143,7 @@ HUD/ปุ่มเกมทับ **ปุ่มเสียง top-left** (`#k
 
 **KAMPAI SDK** (`kampai-sdk.js`):
 - `submitScore` คืน `false` (no-op) ตอน standalone / `!student` = **ปกติสำหรับเทสต์** · ธง `_submitted` กันส่ง score ซ้ำแล้ว
-  (ยกเว้น `opts.allowResubmit`) → **อย่าเตือน "submit ซ้ำ"**
+  (ยกเว้น `opts.allowResubmit`) → **อย่าเตือน "submit ซ้ำ"** · แต่ถ้าเกมมีปุ่ม "เล่นอีกครั้ง" โดยไม่รีเซ็ต `_submitted` + ไม่ยิง `gameStart` = **บั๊กจริง** (ดู GAME.md §กฎเก็บคะแนน)
 - `_ac()` resume AudioContext + `Sound.unlock()` = **เกมไม่ต้องจัด autoplay เอง** · BGM `_bgmAudio.play().catch()` กัน autoplay แล้ว
 - `setTimeout(fireReady, 1200)` = fallback กันค้างถ้า init ไม่มา (ตั้งใจ ไม่ใช่ leak) · `Sound.speak()` early-return เมื่อ `speaking` = กันพูดซ้อน
 - `postMessage(..., '*')` = wire format มาตรฐานของระบบ → **ไม่ใช่ช่องโหว่ที่ต้องแก้ในเกม**

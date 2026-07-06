@@ -1,0 +1,228 @@
+{
+  "topResults": [
+    {
+      "slug": "math-runner",
+      "count": 142,
+      "title": "Math Runner (วิ่งสู้สูตรคูณ)",
+      "filePath": "D:\\kampai-school-main\\public\\games\\math\\math-runner\\index.html",
+      "usesSdk": true,
+      "hasSubmit": true,
+      "hasSetSlug": true,
+      "hasGameStart": true,
+      "resetsSubmitted": true,
+      "allowResubmit": true,
+      "hasPracticeBlock": false,
+      "hidesPracticeEmbed": false,
+      "issues": [],
+      "risk": "ok"
+    },
+    {
+      "slug": "math-jumper",
+      "count": 93,
+      "title": "Math Jumper",
+      "filePath": "D:\\kampai-school-main\\public\\games\\math\\math-jumper.html",
+      "usesSdk": true,
+      "hasSubmit": true,
+      "hasSetSlug": true,
+      "hasGameStart": false,
+      "resetsSubmitted": false,
+      "allowResubmit": false,
+      "hasPracticeBlock": false,
+      "hidesPracticeEmbed": false,
+      "issues": [
+        "no_gameStart_replay"
+      ],
+      "risk": "high"
+    },
+    {
+      "slug": "multiply-race",
+      "count": 71,
+      "title": "แข่งสูตรคูณ",
+      "filePath": "D:\\kampai-school-main\\public\\games\\math\\multiply-race.html",
+      "usesSdk": true,
+      "hasSubmit": true,
+      "hasSetSlug": true,
+      "hasGameStart": false,
+      "resetsSubmitted": false,
+      "allowResubmit": false,
+      "hasPracticeBlock": true,
+      "hidesPracticeEmbed": false,
+      "issues": [
+        "no_gameStart_replay",
+        "practice_visible_embed"
+      ],
+      "risk": "high"
+    },
+    {
+      "slug": "pizza-master-chef",
+      "count": 59,
+      "title": "Pizza Master Chef",
+      "filePath": "D:\\kampai-school-main\\public\\games\\thai\\pizza-master-chef.html",
+      "usesSdk": true,
+      "hasSubmit": true,
+      "hasSetSlug": true,
+      "hasGameStart": true,
+      "resetsSubmitted": true,
+      "allowResubmit": false,
+      "hasPracticeBlock": true,
+      "hidesPracticeEmbed": true,
+      "issues": [],
+      "risk": "ok"
+    },
+    {
+      "slug": "waste-sort",
+      "count": 52,
+      "title": "แยกขยะ 4 ถัง",
+      "filePath": "D:\\kampai-school-main\\public\\games\\career\\waste-sort.html",
+      "usesSdk": true,
+      "hasSubmit": true,
+      "hasSetSlug": true,
+      "hasGameStart": false,
+      "resetsSubmitted": false,
+      "allowResubmit": false,
+      "hasPracticeBlock": true,
+      "hidesPracticeEmbed": false,
+      "issues": [
+        "no_gameStart_replay",
+        "practice_visible_embed"
+      ],
+      "risk": "high"
+    },
+    {
+      "slug": "vocab-race",
+      "count": 42,
+      "title": "แข่งคำศัพท์",
+      "filePath": "D:\\kampai-school-main\\public\\games\\english\\vocab-race.html",
+      "usesSdk": true,
+      "hasSubmit": true,
+      "hasSetSlug": true,
+      "hasGameStart": false,
+      "resetsSubmitted": false,
+      "allowResubmit": false,
+      "hasPracticeBlock": true,
+      "hidesPracticeEmbed": false,
+      "issues": [
+        "no_gameStart_replay",
+        "practice_visible_embed"
+      ],
+      "risk": "high"
+    },
+    {
+      "slug": "tank-commander",
+      "count": 40,
+      "title": "Tank Commander : Learning Edition",
+      "filePath": "D:\\kampai-school-main\\public\\games\\tech\\tank-commander.html",
+      "usesSdk": true,
+      "hasSubmit": true,
+      "hasSetSlug": true,
+      "hasGameStart": false,
+      "resetsSubmitted": false,
+      "allowResubmit": false,
+      "hasPracticeBlock": false,
+      "hidesPracticeEmbed": false,
+      "issues": [
+        "no_gameStart_replay"
+      ],
+      "risk": "high"
+    },
+    {
+      "slug": "spelling",
+      "count": 37,
+      "title": "มือปราบคำผิด Top-Down",
+      "filePath": "D:\\kampai-school-main\\public\\games\\thai\\spelling.html",
+      "usesSdk": true,
+      "hasSubmit": true,
+      "hasSetSlug": true,
+      "hasGameStart": false,
+      "resetsSubmitted": false,
+      "allowResubmit": false,
+      "hasPracticeBlock": false,
+      "hidesPracticeEmbed": false,
+      "issues": [
+        "no_gameStart_replay"
+      ],
+      "risk": "high"
+    },
+    {
+      "slug": "sci-sort",
+      "count": 27,
+      "title": "จำแนกวิทย์",
+      "filePath": "D:\\kampai-school-main\\public\\games\\science\\sci-sort.html",
+      "usesSdk": true,
+      "hasSubmit": true,
+      "hasSetSlug": true,
+      "hasGameStart": false,
+      "resetsSubmitted": false,
+      "allowResubmit": false,
+      "hasPracticeBlock": true,
+      "hidesPracticeEmbed": false,
+      "issues": [
+        "no_gameStart_replay",
+        "practice_visible_embed"
+      ],
+      "risk": "high"
+    },
+    {
+      "slug": "good-citizen",
+      "count": 26,
+      "title": "พลเมืองดี",
+      "filePath": "D:\\kampai-school-main\\public\\games\\social\\good-citizen.html",
+      "usesSdk": true,
+      "hasSubmit": true,
+      "hasSetSlug": true,
+      "hasGameStart": false,
+      "resetsSubmitted": false,
+      "allowResubmit": false,
+      "hasPracticeBlock": true,
+      "hidesPracticeEmbed": false,
+      "issues": [
+        "no_gameStart_replay",
+        "practice_visible_embed"
+      ],
+      "risk": "high"
+    },
+    {
+      "slug": "energy-rocket",
+      "count": 24,
+      "title": "🚀 จรวดพลังงาน (AR)",
+      "filePath": "D:\\kampai-school-main\\public\\games\\science\\energy-rocket\\index.html",
+      "usesSdk": true,
+      "hasSubmit": true,
+      "hasSetSlug": true,
+      "hasGameStart": false,
+      "resetsSubmitted": false,
+      "allowResubmit": false,
+      "hasPracticeBlock": false,
+      "hidesPracticeEmbed": false,
+      "issues": [
+        "no_gameStart_replay"
+      ],
+      "risk": "high"
+    },
+    {
+      "slug": "thai-sara-run",
+      "count": 23,
+      "title": "เกมภาษาไทย: ตะลุยด่านสระพาสนุก ป.1-6",
+      "filePath": "D:\\kampai-school-main\\public\\games\\thai\\thai-sara-run.html",
+      "usesSdk": true,
+      "hasSubmit": true,
+      "hasSetSlug": true,
+      "hasGameStart": false,
+      "resetsSubmitted": false,
+      "allowResubmit": false,
+      "hasPracticeBlock": false,
+      "hidesPracticeEmbed": false,
+      "issues": [
+        "no_gameStart_replay"
+      ],
+      "risk": "high"
+    }
+  ],
+  "issueBreakdown": {
+    "no_gameStart_replay": 80,
+    "practice_visible_embed": 30,
+    "file_missing": 2,
+    "no_setSlug": 4
+  },
+  "generatedAt": "2026-07-06T10:42:25.154Z"
+}

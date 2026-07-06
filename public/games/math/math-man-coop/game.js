@@ -153,8 +153,9 @@ function renderLeaderboard(leaderboardData, containerId) {
 // Maze Generation
 function generateMap() {
     const header = document.getElementById('header-ui');
+    const headerHeight = header ? (header.offsetHeight || 60) : 60;
     const availWidth = window.innerWidth - 16;
-    const availHeight = window.innerHeight - header.offsetHeight - 24;
+    const availHeight = window.innerHeight - headerHeight - 24;
 
     cols = Math.floor(availWidth / tileSize);
     rows = Math.floor(availHeight / tileSize);
@@ -564,6 +565,7 @@ function spawnAnswers() {
 
     const paths = getEmptyPathTiles();
     for (let i = 0; i < 4; i++) {
+        if (!paths[i]) break;
         let isCorrect = (choices[i] === currentCorrectAnswer);
         answers.push(new AnswerOrb(paths[i].x, paths[i].y, choices[i], isCorrect));
     }

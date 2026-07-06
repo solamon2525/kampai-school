@@ -129,7 +129,8 @@
 | `KAMPAI.student` | `{id, code, displayName, photoUrl, classLabel}` |
 | `KAMPAI.stats` | `{playsCount, personalBest, totalXp, level}` |
 | `KAMPAI.leaderboard` | `[{rank, studentId, displayName, photoUrl, classLabel, personalBest, isMe}]` |
-| `KAMPAI.submitScore(score,{mode,...meta})` | ส่งคะแนนตอนจบเกม (= gameEnd เดิม) — **ต้องเรียก** |
+| `KAMPAI.submitScore(score,{mode,...meta})` | ส่งคะแนนตอนจบเกม (= gameEnd เดิม) — **ต้องเรียก** · SDK ตั้ง `_submitted` ครั้งเดียวต่อรอบ — รอบใหม่ต้อง `beginRound()` (ดู §กฎเก็บคะแนน) |
+| `KAMPAI.beginRound()` | เริ่มรอบใหม่ — รีเซ็ต `_submitted` + `_startTs` + `postMessage gameStart` (เรียกใน `startGame` ทุกครั้ง) |
 | `KAMPAI.goHome()` | ปุ่มกลับหน้าหลัก (= navigate เดิม) |
 | `KAMPAI.controls.mount({dpad,buttons,onTap})` | วาด D-pad+ปุ่มบนมือถือ + sync คีย์บอร์ด → อ่าน `KAMPAI.input{up,down,left,right,a,b}` |
 | `KAMPAI.sound.mountToggles()` | วางปุ่ม 🔊/🗣️/🎵 (เปิด/ปิด SFX·TTS·BGM) มุมล่างขวา — เรียกตอนเริ่ม |
@@ -360,12 +361,38 @@ function navigateBack() {
 
 ---
 
+## 🔴 กฎเก็บคะแนน (บทเรียน incident `pizza-master-chef`)
+
+นักเรียนเล่นแล้วคะแนนในเกมขึ้น แต่ leaderboard/XP ไม่ขึ้น — มักมาจากข้อใดข้อหนึ่งด้านล่าง เกม embed **ต้องผ่าน checklist นี้ก่อน ship:**
+
+| # | กฎ | ผลถ้าขาด |
+|---|---|---|
+| 1 | เรียก **`KAMPAI.setSlug('slug')`** ทันทีหลังโหลด SDK — ตรง `educational_hub_items.game_slug` | `gameEnd` ส่ง slug ผิด/ว่าง |
+| 2 | **เริ่มรอบใหม่ทุกครั้ง** (`startGame` / ปุ่ม "เล่นอีกครั้ง"): เรียก **`KAMPAI.beginRound()`** (หรือเทียบเท่า: `_submitted=false` + `gameStart`) · ซ่อนจอ game-over | รอบ 2+ ใน iframe เดิม **ไม่บันทึก** (SDK + `PlayGame.tsx` gate) |
+| 3 | **`submitScore` ตอนจบรอบจริงเท่านั้น** — มีจุดจบชัด (หมดเวลา / หมดชีวิต / ผ่านด่าน) | ปิดแท็บกลางเกม = ไม่มี session |
+| 4 | **โหมดฝึกซ้อม (practice):** ห้าม `submitScore` · ใน embed **ซ่อนปุ่ม practice** (`html.embed-mode .btn-practice { display:none }`) | คะแนน HUD ขึ้นแต่ portal ไม่บันทึก · practice มักไม่มี timer จบเอง |
+| 5 | นักเรียนต้องเล่นผ่าน **`/play/[slug]`** + รหัส — ไม่ใช่เปิด `/games/.../*.html` ตรง ๆ | `submitScore` = no-op (`!IS_EMBED`) |
+| 6 | **คะแนนสมุดเกรด** (เก็บ / กลางภาค / ปลายภาค) ≠ leaderboard XP — ครูโอนเองใน TeacherGameAnalytics | ครูเห็น XP แต่สมุดเกรดว่าง |
+
+**ทุกโหมดในเกมเดียว** (เช่น classic / compare / daily) ใช้ `submitScore(score, { mode: '<ชื่อโหมด>' })` ชุดเดียวกัน — ระบบเก็บ `mode` ใน `game_sessions.mode` ไม่แยกตารางต่อโหมด
+
+```js
+// ต้นฉบับใน startGame() / start(mode) — คัดลอกได้
+if (window.KAMPAI && KAMPAI.isEmbed) {
+  KAMPAI.beginRound();   // รีเซ็ต _submitted + _startTs + postMessage gameStart
+}
+document.getElementById('gameover-screen')?.classList.add('hidden');
+```
+
+---
+
 ## 📨 postMessage Protocol
 
 | message | direction | fields |
 |---|---|---|
 | `init` | parent → iframe | `{type:'init', studentCode, displayName?}` |
-| `gameEnd` | iframe → parent | `{type:'gameEnd', gameSlug, studentCode, score, mode, metadata:{duration,...}}` |
+| `gameStart` | iframe → parent | `{type:'gameStart'}` — เริ่มรอบใหม่ (wrapper รีเซ็ต gate บันทึก `gameEnd`) |
+| `gameResult` | parent → iframe | `{type:'gameResult', result, level, leveledUp?}` — หลังบันทึก session · SDK รีเซ็ต `_submitted` + แสดง XP · wrapper ส่ง `init` ซ้ำ (stats/leaderboard ใหม่) |
 | `navigate` | iframe → parent | `{type:'navigate', to:'/h/nattapong'}` |
 | `rtJoin` | iframe → parent | `{type:'rtJoin', room, meta}` — เข้าห้องออนไลน์ (wrapper เปิด channel) |
 | `rtSend` | iframe → parent | `{type:'rtSend', event, payload}` — broadcast ให้ทุกคนในห้อง |

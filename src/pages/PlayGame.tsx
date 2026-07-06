@@ -414,22 +414,15 @@ const PlayGame = () => {
     };
   }, [isMathRunnerMobilePlay]);
 
-  // ─── send init to iframe once loaded ───────────────────────────────────────
-  // ส่งทั้ง studentCode (เดิม — เกมเก่าใช้ได้) + student/stats/leaderboard (ใหม่ — KAMPAI SDK
-  // เอาไปโชว์ชื่อ/คะแนน/อันดับในหน้าเกม โดยไม่ต้องยิง Supabase เอง)
-  const handleIframeLoad = useCallback(() => {
-    setGameSessionStarted(false);
-    if (resolvedSlug === 'math-runner') {
-      requestAnimationFrame(() => postParentViewport());
-      setTimeout(postParentViewport, 100);
-      setTimeout(postParentViewport, 500);
-    }
+  // ─── post init/stats refresh to iframe (โหลดครั้งแรก + หลังบันทึกคะแนนแต่ละรอบ) ──
+  const postInitToIframe = useCallback((
+    statsOverride?: Awaited<ReturnType<typeof gameStatsService.getForStudent>>['data'],
+    leaderboardOverride?: Awaited<ReturnType<typeof gamePlayService.getLeaderboard>>,
+  ) => {
     if (!student || !iframeRef.current?.contentWindow) return;
-    // เกม (re)load — รวมกรณีกดปุ่ม "🔄 เล่นอีกครั้ง" ในเกม (location.reload) → เริ่มรอบใหม่สะอาด
-    setShowReward(false);
-    setResult(null);
-    sessionSubmittedRef.current = false;
-    const s = statsQuery.data;
+    const s = statsOverride ?? statsQuery.data;
+    const lb = leaderboardOverride ?? leaderboardQuery.data ?? [];
+    const lvl = levelFromXp(s?.total_xp ?? 0).level;
     iframeRef.current.contentWindow.postMessage(
       {
         type: 'init',
@@ -444,9 +437,9 @@ const PlayGame = () => {
           playsCount: s?.plays_count ?? 0,
           personalBest: s?.personal_best ?? 0,
           totalXp: s?.total_xp ?? 0,
-          level: levelInfo.level,
+          level: lvl,
         },
-        leaderboard: (leaderboardQuery.data ?? []).map((r, i) => ({
+        leaderboard: lb.map((r, i) => ({
           rank: i + 1,
           studentId: r.student_id,
           displayName: r.display_name,
@@ -462,8 +455,6 @@ const PlayGame = () => {
           photoUrl: c.photo_url,
           classNumber: c.class_number,
         })),
-        // เพลงประกอบรายเกม (ตั้งจากหลังบ้าน) → KAMPAI.sound override default ของเกม
-        // bgmUrl (mp3 อัปโหลด) มาก่อน synth preset
         audio: { bgm: gameQuery.data?.bgm_preset ?? null, bgmUrl: gameQuery.data?.bgm_url ?? null },
         character: gameQuery.data?.character_sheet_url
           ? {
@@ -483,7 +474,6 @@ const PlayGame = () => {
               ),
             }
           : null,
-        // Phase 2/3: per-game data (เกมตัดสินใจใช้หรือไม่)
         gameData: resolvedSlug === 'thai-vocab-hub'
           ? {
               vocab: thaiVocabCatalogQuery.data ?? null,
@@ -502,7 +492,25 @@ const PlayGame = () => {
       },
       '*',
     );
-  }, [student, codeInput, statsQuery.data, levelInfo.level, leaderboardQuery.data, classmatesQuery.data, gameQuery.data?.bgm_preset, gameQuery.data?.bgm_url, gameQuery.data?.character_sheet_url, gameQuery.data?.character_sheet_url_p2, gameQuery.data?.character_frame_w, gameQuery.data?.character_frame_h, gameQuery.data?.character_frame_count, (gameQuery.data as { character_color_config?: unknown } | undefined)?.character_color_config, (gameQuery.data as { blueprint_json?: unknown } | undefined)?.blueprint_json, resolvedSlug, masteryQuery.data, dailyStatusQuery.data, dailyLeaderboardQuery.data, thaiVocabCatalogQuery.data, thaiVocabMissedQuery.data, postParentViewport]);
+  }, [student, codeInput, statsQuery.data, leaderboardQuery.data, classmatesQuery.data, gameQuery.data, resolvedSlug, gameSlug, masteryQuery.data, dailyStatusQuery.data, dailyLeaderboardQuery.data, thaiVocabCatalogQuery.data, thaiVocabMissedQuery.data]);
+
+  // ─── send init to iframe once loaded ───────────────────────────────────────
+  // ส่งทั้ง studentCode (เดิม — เกมเก่าใช้ได้) + student/stats/leaderboard (ใหม่ — KAMPAI SDK
+  // เอาไปโชว์ชื่อ/คะแนน/อันดับในหน้าเกม โดยไม่ต้องยิง Supabase เอง)
+  const handleIframeLoad = useCallback(() => {
+    setGameSessionStarted(false);
+    if (resolvedSlug === 'math-runner') {
+      requestAnimationFrame(() => postParentViewport());
+      setTimeout(postParentViewport, 100);
+      setTimeout(postParentViewport, 500);
+    }
+    if (!student || !iframeRef.current?.contentWindow) return;
+    // เกม (re)load — รวมกรณีกดปุ่ม "🔄 เล่นอีกครั้ง" ในเกม (location.reload) → เริ่มรอบใหม่สะอาด
+    setShowReward(false);
+    setResult(null);
+    sessionSubmittedRef.current = false;
+    postInitToIframe();
+  }, [student, resolvedSlug, postParentViewport, postInitToIframe]);
 
   // ─── auto-login จาก localStorage (ลดเวลากรอกรหัสเมื่อเปลี่ยนเกม) ────────
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -612,9 +620,13 @@ const PlayGame = () => {
             '*',
           );
         } catch { /* */ }
-        statsQuery.refetch();
-        unlockedQuery.refetch();
-        leaderboardQuery.refetch();
+        const [statsRes, lbRes] = await Promise.all([
+          statsQuery.refetch(),
+          leaderboardQuery.refetch(),
+          unlockedQuery.refetch(),
+        ]);
+        postInitToIframe(statsRes.data, lbRes.data ?? []);
+        sessionSubmittedRef.current = false;
         // Phase 2: บันทึก per-table mastery (multiply-race)
         if (gameSlug === 'multiply-race' && Array.isArray(data.metadata?.perTable)) {
           const perTable = (data.metadata.perTable as PerTableStats[]) ?? [];
@@ -702,12 +714,13 @@ const PlayGame = () => {
             variant: 'destructive',
           });
         }
+        sessionSubmittedRef.current = false;
         setPhase('pre-game');
       }
     };
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
-  }, [phase, student, codeInput, resolvedSlug, toast, statsQuery, unlockedQuery, leaderboardQuery, queryClient, postParentViewport]);
+  }, [phase, student, codeInput, resolvedSlug, gameSlug, toast, statsQuery, unlockedQuery, leaderboardQuery, queryClient, postParentViewport, postInitToIframe, prevLevel]);
 
   // ─── โหมด 2 คน (Versus) — บันทึก 2 session + ส่ง head-to-head/แชมป์ห้องกลับเข้าเกม ──
   useEffect(() => {
