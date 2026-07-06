@@ -592,6 +592,37 @@
         .landscape .order-bubble::after { content: ''; position: absolute; top: -11px; left: 50%; transform: translateX(-50%); border-width: 0 6px 12px 6px; border-style: solid; border-color: transparent transparent rgba(255,255,255,0.95) transparent; }
         .landscape .player-area .btn-serve { bottom: 15%; left: 20%; transform: translateX(-50%); }
 
+        /* โหมดเทียบ: ย้ายลูกค้า+ออเดอร์ขึ้นกลางบน — ไม่บังถาดซ้าย/ขวา */
+        .compare-mode.portrait .player-area .order-area,
+        .compare-mode.landscape .player-area .order-area {
+            top: calc(var(--nav-height) + 6px);
+            left: 50%;
+            transform: translateX(-50%);
+            flex-direction: row;
+            width: auto;
+            max-width: min(94vw, 480px);
+            gap: 6px;
+            z-index: 25;
+        }
+        html.embed-mode .compare-mode.portrait .player-area .order-area,
+        html.embed-mode .compare-mode.landscape .player-area .order-area {
+            top: 6px;
+        }
+        .compare-mode .customer-container {
+            width: 68px;
+            height: 68px;
+            flex-shrink: 0;
+        }
+        .compare-mode .customer-emoji { font-size: 52px; }
+        .compare-mode .order-bubble {
+            min-width: 0;
+            padding: 8px 14px;
+            margin: 0;
+        }
+        .compare-mode .order-fraction { font-size: 1.85rem; }
+        .compare-mode .order-bubble::before,
+        .compare-mode .order-bubble::after { display: none; }
+
         /* ============================================
            SECTION 6: Screens (Start, Game Over)
            ============================================ */
@@ -1527,10 +1558,10 @@
                 if (this.isCompareActive()) {
                     const navHc = (EMBED ? 0 : 44);
                     const availH = this.height - navHc;
-                    const r = Math.max(40, Math.min(this.width * 0.21, availH * 0.24));
-                    const cy = navHc + availH * 0.44;
-                    this.pizzaLayouts.push({ cx: this.width * 0.28, cy, r });
-                    this.pizzaLayouts.push({ cx: this.width * 0.72, cy, r });
+                    const r = Math.max(40, Math.min(this.width * 0.2, availH * 0.22));
+                    const cy = navHc + availH * 0.5;
+                    this.pizzaLayouts.push({ cx: this.width * 0.27, cy, r });
+                    this.pizzaLayouts.push({ cx: this.width * 0.73, cy, r });
                     return;
                 }
                 const pCount = (this.state.mode === 'mixed') ? 2 : 1;
@@ -1563,6 +1594,7 @@
                 document.getElementById('start-screen').classList.remove('hidden');
                 document.getElementById('p1-area').classList.add('hidden');
                 document.getElementById('hud-bar').classList.add('hidden');
+                document.getElementById('game-container')?.classList.remove('compare-mode');
                 document.getElementById('shield-indicator').classList.add('hidden');
                 document.body.classList.remove('fever-bg');
                 this.highScoreManager.display('leaderboard-list');
@@ -1677,6 +1709,7 @@
                 document.getElementById('btn-serve-0').classList.toggle('hidden', isCompare);
                 document.getElementById('compare-controls').classList.toggle('hidden', !isCompare);
                 this.setPlayerAreaPointerBlock(isCompare);
+                this.syncCompareUILayout();
 
                 // Show wave badge for applicable modes
                 const waveBadge = document.getElementById('wave-badge');
@@ -1883,6 +1916,11 @@
                 return `${n} ใน ${d} ถาด`;
             }
 
+            syncCompareUILayout() {
+                const container = document.getElementById('game-container');
+                if (container) container.classList.toggle('compare-mode', this.isCompareActive());
+            }
+
             isCompareActive() {
                 return this.state.mode === 'compare' ||
                     (this.state.mode === 'mission' && this.missionChallenge === 'compare');
@@ -1896,6 +1934,7 @@
                 if (cmp) cmp.classList.add('hidden');
                 if (serve) serve.classList.remove('hidden');
                 if (this.state.mode !== 'compare') this.setPlayerAreaPointerBlock(false);
+                this.syncCompareUILayout();
             }
 
             setPlayerAreaPointerBlock(block) {
@@ -2384,6 +2423,8 @@
                     cheeseBubbles: [], displayFrac: null, compare: true
                 };
                 this.updateUI();
+                this.syncCompareUILayout();
+                this.updatePizzaLayout();
             }
 
             answerCompare(sign) {
