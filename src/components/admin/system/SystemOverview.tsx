@@ -272,8 +272,17 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.161.0 (การ์ดเกม — แถบตัวชี้วัด)',
+        version: 'v1.161.1 (การ์ดเกม — แถบแคบสไลด์)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'แถบตัวชี้วัด/อันดับ คงที่ ~20px/แถว — ไม่ wrap หลายระดับ',
+            'อันดับ 1–10 สไลด์แนวนอน (รูป+เลข+คะแนน) · ตัวชี้วัด muted เข้ม สูงสุด 6',
+        ],
+    },
+    {
+        version: 'v1.161.0 (การ์ดเกม — แถบตัวชี้วัด)',
+        date: '',
         badge: 'bg-emerald-600',
         items: [
             '**EduHubItemCard** — แถบสไลด์ตัวชี้วัดบน + leaderboard Top 5 ล่าง (ทุกคนเห็น)',
