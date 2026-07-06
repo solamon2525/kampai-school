@@ -324,9 +324,9 @@ export const EduHubItemCard = ({
                         <ActionStat item={item} />
                     </div>
 
-                    {/* แถบล่าง: ตัวชี้วัด (สไลด์) + leaderboard — ความสูงคงที่ ~20px/แถว */}
+                    {/* แถบล่าง: ตัวชี้วัด 2 แถวคงที่ + อันดับช่องคงที่ */}
                     {!isCompact && (
-                        <div className="mt-auto pt-1 border-t border-border flex flex-col gap-0.5">
+                        <div className="mt-auto pt-1 border-t border-border flex flex-col gap-0.5 shrink-0">
                             <IndicatorMarqueeStrip indicators={linkedIndicators ?? []} />
                             {item.tracked_game && item.game_slug && (
                                 <LeaderboardMarqueeStrip leaders={leaders ?? []} />
