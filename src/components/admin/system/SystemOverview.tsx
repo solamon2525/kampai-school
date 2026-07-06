@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.159.0 (กฎเก็บคะแนนเกม · pizza fix)',
+        version: 'v1.160.0 (Pizza ภารกิจเชฟ v2)',
         date: 'ล่าสุด',
+        badge: 'bg-orange-600',
+        items: [
+            '**pizza-master-chef v2.0.0** — โหมดภารกิจเชฟ สลับ 4 แบบ (หั่น / เติมเต็ม / เทียบ / สมมูล) ไม่ซ้ำจำเสีย',
+            'ฝึกซ้ำเศษที่พลาดอัตโนมัติ + ออเดอร์คำไทย (ครึ่งถาด ฯลฯ) · migration 368 game_docs',
+            'ครูมอบหมาย `?mode=mission` ได้จากหน้าวิเคราะห์เกม',
+        ],
+    },
+    {
+        version: 'v1.159.0 (กฎเก็บคะแนนเกม · pizza fix)',
+        date: 'ก่อนหน้า',
         badge: 'bg-orange-600',
         items: [
             '**fix เก็บคะแนนรอบ 2+ (ทุกเกม):** SDK รีเซ็ต `_submitted` ตอนรับ `gameResult` · PlayGame รีเซ็ต `sessionSubmittedRef` + ส่ง `init` ซ้ำหลังบันทึก (stats/leaderboard อัปเดตทันที)',

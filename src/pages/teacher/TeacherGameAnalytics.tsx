@@ -579,6 +579,7 @@ export default function TeacherGameAnalytics({ staffId }: { staffId: string }) {
                 <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="any">ไม่ระบุ (เลือกในเกม)</SelectItem>
+                  <SelectItem value="mission">ภารกิจเชฟ (แนะนำ)</SelectItem>
                   <SelectItem value="classic">คลาสสิก</SelectItem>
                   <SelectItem value="equivalent">เศษส่วนสมมูล</SelectItem>
                   <SelectItem value="compare">เทียบเศษส่วน</SelectItem>
