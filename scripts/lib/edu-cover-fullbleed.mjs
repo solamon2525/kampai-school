@@ -86,3 +86,30 @@ export function wrapCover({ bgStops, accent, title, subtitle, footer, decor, boa
   <text x="640" y="${H - 16}" text-anchor="middle" font-family="Sarabun,sans-serif" font-size="24" font-weight="700" fill="#fff">${footer}</text>
 </svg>`;
 }
+
+/** overlay ชื่อไทย + แถบล่าง ทับภาพ AI (แบบ GameCoverAiDialog) */
+export function titleOverlaySvg({ title, subtitle, footer, accent = '#1e3a5f', grade }) {
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+  <defs><style>${FONT}</style></defs>
+  <text x="640" y="58" text-anchor="middle" font-family="Sarabun,sans-serif" font-size="64" font-weight="800" fill="#ffffff" stroke="${accent}" stroke-width="3">${esc(title)}</text>
+  <text x="640" y="108" text-anchor="middle" font-family="Sarabun,sans-serif" font-size="28" font-weight="700" fill="#fef9c3">${esc(subtitle)}</text>
+  ${grade ? mediaBadge(grade) : ''}
+  <rect x="0" y="${H - 52}" width="${W}" height="52" fill="${accent}" opacity=".94"/>
+  <text x="640" y="${H - 16}" text-anchor="middle" font-family="Sarabun,sans-serif" font-size="24" font-weight="700" fill="#fff">${esc(footer)}</text>
+</svg>`;
+}
+
+const EDU_BASE =
+  'High-quality illustration for a Thai elementary-school educational media cover poster, 16:9 wide aspect, full-bleed edge-to-edge illustration filling entire frame, no empty side margins.';
+const EDU_STYLE =
+  'clean educational classroom poster illustration, polished teaching-media style, NOT arcade game art, bright but calm, professional textbook-cover quality, friendly for elementary school.';
+const MALE_TEACHER =
+  'main character: a friendly male Thai elementary school teacher, short neat hair, light blue polo shirt with dark trousers, warm smile, pointing at whiteboard with marker — clearly male, NOT female';
+const FOOTER_RULE =
+  'STRICT: absolutely no text, no letters, no words, no numbers, no logos in the image. Leave the TOP 18% empty clear for title overlay. Keep teacher and whiteboard in center-bottom. Full frame illustration.';
+
+export function buildAiPrompt(scene, colors) {
+  return [EDU_BASE, EDU_STYLE, MALE_TEACHER, `Subject scene: ${scene}.`, colors, FOOTER_RULE].join(' ');
+}
