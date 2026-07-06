@@ -17,8 +17,10 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { useGameCardIndicators } from '@/hooks/useGameCardIndicators';
 import { EduHubItemCard } from './EduHubItemCard';
 import {
     educationalHubService,
@@ -78,6 +80,8 @@ export const CategorySection = ({
 }: Props) => {
     const { toast } = useToast();
     const queryClient = useQueryClient();
+    const itemIds = useMemo(() => items.map((it) => it.id), [items]);
+    const { data: indicatorMap } = useGameCardIndicators(itemIds);
     const [orderedItems, setOrderedItems] = useState(items);
     const [savingOrder, setSavingOrder] = useState(false);
 
@@ -158,6 +162,7 @@ export const CategorySection = ({
                     isFavorite={isFavorite?.(item.id) ?? false}
                     onToggleFavorite={onToggleFavorite ? () => onToggleFavorite(item.id) : undefined}
                     editable={editable && !!category}
+                    linkedIndicators={indicatorMap?.get(item.id)}
                 />
             ))}
         </div>

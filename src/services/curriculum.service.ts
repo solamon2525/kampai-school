@@ -22,6 +22,15 @@ export type CurriculumIndicator = {
     is_active: boolean;
 };
 
+/** ตัวชี้วัดย่อบนการ์ดเกม (marquee strip) */
+export type GameCardIndicator = {
+    indicator_code: string;
+    indicator_kind: string | null;
+    grade: string;
+    description: string;
+    sort_order: number;
+};
+
 /** สถานะความก้าวหน้าต่อ (นักเรียน, ตัวชี้วัด) จาก view รวม */
 export type IndicatorMasteryStatus = 'not_started' | 'practicing' | 'passed' | 'mastered';
 
@@ -179,6 +188,59 @@ export const curriculumService = {
         }));
         const ins = await supabase.from('indicator_games' as never).insert(rows as never);
         return { error: (ins.error as Error | null) ?? null };
+    },
+
+    /** ตัวชี้วัดที่ผูกกับเกมหลายรายการ — สำหรับแถบสไลด์บนการ์ด (batch) */
+    listIndicatorsByGameIds: async (
+        itemIds: string[],
+    ): Promise<Map<string, GameCardIndicator[]>> => {
+        const result = new Map<string, GameCardIndicator[]>();
+        if (itemIds.length === 0) return result;
+
+        const { data, error } = await supabase
+            .from('indicator_games' as never)
+            .select(
+                'edu_hub_item_id, curriculum_indicators(indicator_code, indicator_kind, grade, sort_order, description)',
+            )
+            .in('edu_hub_item_id', itemIds);
+        if (error) throw error;
+
+        type Row = {
+            edu_hub_item_id: string;
+            curriculum_indicators: {
+                indicator_code: string;
+                indicator_kind: string | null;
+                grade: string;
+                sort_order: number;
+                description: string;
+            } | null;
+        };
+
+        for (const row of (data ?? []) as Row[]) {
+            const ind = row.curriculum_indicators;
+            if (!ind) continue;
+            const list = result.get(row.edu_hub_item_id) ?? [];
+            list.push({
+                indicator_code: ind.indicator_code,
+                indicator_kind: ind.indicator_kind,
+                grade: ind.grade,
+                description: ind.description,
+                sort_order: ind.sort_order,
+            });
+            result.set(row.edu_hub_item_id, list);
+        }
+
+        for (const [id, list] of result) {
+            list.sort((a, b) => {
+                const aP4 = a.grade === 'ป.4' ? 0 : 1;
+                const bP4 = b.grade === 'ป.4' ? 0 : 1;
+                if (aP4 !== bP4) return aP4 - bP4;
+                return a.sort_order - b.sort_order;
+            });
+            result.set(id, list);
+        }
+
+        return result;
     },
 
     /** นับจำนวนตัวชี้วัดที่ผูกต่อเกม → Map(edu_hub_item_id → count) สำหรับ badge ในตาราง */

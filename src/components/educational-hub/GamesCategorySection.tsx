@@ -17,8 +17,10 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { useGameCardIndicators } from '@/hooks/useGameCardIndicators';
 import { EduHubItemCard } from './EduHubItemCard';
 import {
     educationalHubService,
@@ -72,6 +74,8 @@ export const GamesCategorySection = ({
     const { toast } = useToast();
     const queryClient = useQueryClient();
     const { pinned, unpinned } = splitGamesLibraryItems(items);
+    const itemIds = useMemo(() => items.map((it) => it.id), [items]);
+    const { data: indicatorMap } = useGameCardIndicators(itemIds);
     const [orderedPinned, setOrderedPinned] = useState(pinned);
     const [savingOrder, setSavingOrder] = useState(false);
     const [pinningId, setPinningId] = useState<string | null>(null);
@@ -159,6 +163,7 @@ export const GamesCategorySection = ({
             showLibraryPinControl={editable}
             onToggleLibraryPin={editable ? () => handleToggleLibraryPin(item) : undefined}
             libraryPinLoading={pinningId === item.id}
+            linkedIndicators={indicatorMap?.get(item.id)}
         />
     );
 

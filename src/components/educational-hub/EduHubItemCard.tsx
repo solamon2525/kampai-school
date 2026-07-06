@@ -24,6 +24,8 @@ import { gamePlayService } from '@/services/game-play.service';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { GameDemoPreview } from './GameDemoPreview';
 import { GameCoverThumb } from './GameCoverThumb';
+import { IndicatorMarqueeStrip } from './IndicatorMarqueeStrip';
+import type { GameCardIndicator } from '@/services/curriculum.service';
 import type { ViewMode } from '@/hooks/useViewMode';
 
 interface Props {
@@ -39,6 +41,8 @@ interface Props {
     showLibraryPinControl?: boolean;
     onToggleLibraryPin?: () => void;
     libraryPinLoading?: boolean;
+    /** ตัวชี้วัดที่ผูกกับเกม (จาก batch query ของ parent) */
+    linkedIndicators?: GameCardIndicator[];
 }
 
 export const EduHubItemCard = ({
@@ -51,6 +55,7 @@ export const EduHubItemCard = ({
     showLibraryPinControl = false,
     onToggleLibraryPin,
     libraryPinLoading = false,
+    linkedIndicators,
 }: Props) => {
     // Redefine item with backward compatibility mapping
     const item = originalItem.game_slug === 'multiply-rally' || originalItem.external_url?.includes('/multiply-rally/')
@@ -319,33 +324,38 @@ export const EduHubItemCard = ({
                         <ActionStat item={item} />
                     </div>
 
-                    {/* Leaderboard strip — top-5 players; pin ล่างสุด (mt-auto) + กันแถวไว้เสมอ → ทุกการ์ดอยู่แนวเดียวกัน */}
-                    {item.tracked_game && item.game_slug && (
-                        <div className="mt-auto pt-2 border-t border-border min-h-[2.75rem] flex items-center">
-                            {(leaders?.length ?? 0) > 0 ? (
-                                <div className="flex items-end justify-around w-full">
-                                    {leaders!.map((row, i) => (
-                                        <div
-                                            key={row.student_id}
-                                            className="flex flex-col items-center gap-0.5 min-w-0"
-                                            title={`${i + 1}. ${row.display_name} — ${row.personal_best.toLocaleString('th-TH')} คะแนน`}
-                                        >
-                                            <div className="relative">
-                                                <PersonAvatar name={row.display_name} photoUrl={row.photo_url} size="xs" />
-                                                <span className="absolute -top-1 -left-1 text-[8px] font-bold bg-primary text-primary-foreground rounded-full w-3.5 h-3.5 flex items-center justify-center leading-none shadow-sm">
-                                                    {i + 1}
-                                                </span>
-                                            </div>
-                                            <span className="text-[8px] text-muted-foreground font-medium leading-none">
-                                                {row.personal_best.toLocaleString('th-TH')}
-                                            </span>
+                    {/* แถบล่าง: ตัวชี้วัด (สไลด์) + leaderboard */}
+                    {!isCompact && (
+                        <div className="mt-auto pt-2 border-t border-border flex flex-col gap-1.5 min-h-[4.75rem]">
+                            <IndicatorMarqueeStrip indicators={linkedIndicators ?? []} />
+                            {item.tracked_game && item.game_slug && (
+                                <div className="min-h-[2.75rem] flex items-center">
+                                    {(leaders?.length ?? 0) > 0 ? (
+                                        <div className="flex items-end justify-around w-full">
+                                            {leaders!.map((row, i) => (
+                                                <div
+                                                    key={row.student_id}
+                                                    className="flex flex-col items-center gap-0.5 min-w-0"
+                                                    title={`${i + 1}. ${row.display_name} — ${row.personal_best.toLocaleString('th-TH')} คะแนน`}
+                                                >
+                                                    <div className="relative">
+                                                        <PersonAvatar name={row.display_name} photoUrl={row.photo_url} size="xs" />
+                                                        <span className="absolute -top-1 -left-1 text-[8px] font-bold bg-primary text-primary-foreground rounded-full w-3.5 h-3.5 flex items-center justify-center leading-none shadow-sm">
+                                                            {i + 1}
+                                                        </span>
+                                                    </div>
+                                                    <span className="text-[8px] text-muted-foreground font-medium leading-none">
+                                                        {row.personal_best.toLocaleString('th-TH')}
+                                                    </span>
+                                                </div>
+                                            ))}
                                         </div>
-                                    ))}
+                                    ) : (
+                                        <span className="w-full text-center text-[10px] text-muted-foreground/60">
+                                            ยังไม่มีผู้เล่น — เป็นคนแรกเลย!
+                                        </span>
+                                    )}
                                 </div>
-                            ) : (
-                                <span className="w-full text-center text-[10px] text-muted-foreground/60">
-                                    ยังไม่มีผู้เล่น — เป็นคนแรกเลย!
-                                </span>
                             )}
                         </div>
                     )}
