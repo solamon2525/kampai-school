@@ -272,8 +272,16 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.161.7 (วิจัยเกมในชั้นเรียน — หน้าแยก)',
+        version: 'v1.161.8 (วิจัยเกม — เมนูหลังบ้าน)',
         date: 'ล่าสุด',
+        badge: 'bg-violet-600',
+        items: [
+            'Admin sidebar + Quick Menu catalog + Cmd-K **วิจัยเกมในชั้นเรียน** → `/teacher/game-research` (ข้าง คลังสื่อ/เกม · การเล่นเกม)',
+        ],
+    },
+    {
+        version: 'v1.161.7 (วิจัยเกมในชั้นเรียน — หน้าแยก)',
+        date: '',
         badge: 'bg-violet-600',
         items: [
             '**game_research_studies** (migration 372) — โครงการวิจัย pre/post: เกม+โหมด+ชั้น+ช่วงวันที่+จำกัดรอบ/วัน · RLS เจ้าของเกม',

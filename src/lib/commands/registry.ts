@@ -81,6 +81,7 @@ export const STATIC_COMMANDS: CommandEntry[] = [
   { id: 'adm-scan', label: 'สแกน QR ด่วน', group: 'แอดมิน', icon: QrCode, roles: ['admin', 'teacher'], shortcut: '⌃⇧S', action: { type: 'navigate', path: '/admin/dashboard/scan' } },
   { id: 'adm-docs-hub', label: 'ศูนย์เอกสาร', group: 'แอดมิน', icon: FileText, roles: ['admin'], action: { type: 'navigate', path: '/admin/dashboard/docs-hub' } },
   { id: 'adm-games', label: 'การเล่นเกม (analytics)', group: 'แอดมิน', icon: Gamepad2, roles: ['admin'], action: { type: 'navigate', path: '/admin/dashboard/games' } },
+  { id: 'adm-game-research', label: 'วิจัยเกมในชั้นเรียน', group: 'แอดมิน', icon: FlaskConical, roles: ['admin', 'teacher'], keywords: ['research', 'game', 'วิจัย', 'เกม'], action: { type: 'navigate', path: '/teacher/game-research' } },
   { id: 'adm-analytics', label: 'Analytics', group: 'แอดมิน', icon: BarChart2, roles: ['admin'], action: { type: 'navigate', path: '/admin/dashboard/analytics' } },
   { id: 'adm-settings', label: 'ตั้งค่าระบบ', group: 'แอดมิน', icon: Settings, roles: ['admin'], action: { type: 'navigate', path: '/admin/dashboard/settings' } },
   { id: 'adm-system', label: 'ภาพรวมระบบ (Version)', group: 'แอดมิน', icon: Sparkles, roles: ['admin'], action: { type: 'navigate', path: '/admin/dashboard/system-overview' } },

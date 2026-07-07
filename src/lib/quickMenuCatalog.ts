@@ -8,7 +8,7 @@ import {
   Info, Gift,
   // newly added admin routes (educational-hub, docs-hub family, system)
   Sparkles, Folder, DollarSign, FileCheck2, NotebookText, Target, Files, IdCard,
-  Bell, QrCode,
+  Bell, QrCode, FlaskConical,
 } from 'lucide-react';
 
 export type QuickMenuOption = {
@@ -35,6 +35,7 @@ export const ADMIN_QUICK_MENU_CATALOG: QuickMenuOption[] = [
   { id: 'gallery', label: 'แกลเลอรี่', icon: Image, path: '/admin/dashboard/gallery', group: 'เว็บไซต์' },
   { id: 'events', label: 'ปฏิทิน', icon: Calendar, path: '/admin/dashboard/events', group: 'เว็บไซต์' },
   { id: 'educational-hub', label: 'คลังสื่อและเกม', icon: Sparkles, path: '/admin/dashboard/educational-hub', group: 'เว็บไซต์' },
+  { id: 'game-research', label: 'วิจัยเกมในชั้นเรียน', icon: FlaskConical, path: '/teacher/game-research', group: 'ระบบบริการ' },
 
   // ศูนย์เอกสาร (docs-hub family, v1.19.x — เพิ่งเพิ่ม)
   { id: 'docs-hub', label: 'ศูนย์เอกสาร', icon: Folder, path: '/admin/dashboard/docs-hub', group: 'ศูนย์เอกสาร' },
