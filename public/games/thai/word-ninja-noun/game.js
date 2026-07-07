@@ -128,6 +128,7 @@
     let fingertip = null; // {x,y}
     let smoothX = null, smoothY = null;
     let videoLayout = { scale: 1, dw: 1280, dh: 720, dx: 0, dy: 0 };
+    let cutMarks = []; // active correct cuts to draw
     let flashColor = null, flashTime = 0;
 
     const COLORS = ["#e8b64c", "#7fbf8a", "#e07a5f", "#81b29a", "#f2cc8f", "#c1442d"];
@@ -201,6 +202,7 @@
         timeLeft = GAME_DURATION;
         words = [];
         particles = [];
+        cutMarks = [];
         spawnTimer = 0;
         spawnInterval = CFG.SPAWN_INTERVAL;
         elapsed = 0;
@@ -222,9 +224,13 @@
         const text = bank[Math.floor(qrand() * bank.length)];
         const r = Math.max(46, 20 + text.length * 7);
         const x = r + qrand() * (canvas.width - r * 2);
-        const vx = (qrand() - 0.5) * 160;
-        const targetHeightFrac = 0.25 + qrand() * 0.25;
-        const vy = -Math.sqrt(2 * gravity * (canvas.height * (1 - targetHeightFrac)));
+        
+        // Launch with higher velocity so words fly completely above the screen and fall back down
+        const vx = (qrand() - 0.5) * 140;
+        const peakHeight = -120 - qrand() * 150; // peak is between 120px and 270px above the top edge
+        const h = (canvas.height + r) - peakHeight;
+        const vy = -Math.sqrt(2 * gravity * h);
+        
         words.push({
             text, isTarget, category, x, y: canvas.height + r,
             vx, vy, r, sliced: false,
@@ -471,7 +477,25 @@
             const d = pointSegDist(w.x, w.y, p1.x, p1.y, p2.x, p2.y);
             if (d < w.r) {
                 w.sliced = true;
-                if (w.isTarget) addScore(w); else wrongSlice(w);
+                if (w.isTarget) {
+                    addScore(w);
+                    // Spawn a visual slash cut mark aligned with the slice angle passing through the word center
+                    const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+                    const L = w.r * 2.2;
+                    const x1 = w.x - Math.cos(angle) * L;
+                    const y1 = w.y - Math.sin(angle) * L;
+                    const x2 = w.x + Math.cos(angle) * L;
+                    const y2 = w.y + Math.sin(angle) * L;
+                    cutMarks.push({
+                        x1, y1, x2, y2,
+                        color: '#ffffff',
+                        glowColor: w.color,
+                        life: 0.35,
+                        age: 0
+                    });
+                } else {
+                    wrongSlice(w);
+                }
             }
         }
     }
@@ -566,6 +590,34 @@
         }
     }
 
+    function drawCutMarks() {
+        ctx.save();
+        for (const c of cutMarks) {
+            const progress = c.age / c.life;
+            const alpha = 1 - progress;
+            ctx.globalAlpha = alpha;
+            
+            // Outer glow line
+            ctx.strokeStyle = c.glowColor;
+            ctx.lineWidth = 14 * (1 - progress * 0.4);
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(c.x1, c.y1);
+            ctx.lineTo(c.x2, c.y2);
+            ctx.stroke();
+            
+            // Inner white core line
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 4 * (1 - progress * 0.4);
+            ctx.beginPath();
+            ctx.moveTo(c.x1, c.y1);
+            ctx.lineTo(c.x2, c.y2);
+            ctx.stroke();
+        }
+        ctx.restore();
+        ctx.globalAlpha = 1.0;
+    }
+
     function drawTrail() {
         if (handTrail.length < 2) return;
         ctx.save();
@@ -602,6 +654,12 @@
         // Decaying slice trail points dynamically to keep drawing smooth
         const now = performance.now();
         handTrail = handTrail.filter(pt => now - pt.t < 180);
+
+        // Update cut marks age
+        for (const c of cutMarks) {
+            c.age += dt;
+        }
+        cutMarks = cutMarks.filter(c => c.age < c.life);
 
         // Clear canvas with solid white background
         ctx.fillStyle = '#ffffff';
@@ -642,6 +700,7 @@
 
         drawWords();
         drawParticles();
+        drawCutMarks();
         drawTrail();
 
         if (flashTime > 0) {
