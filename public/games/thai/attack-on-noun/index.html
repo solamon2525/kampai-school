@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ผู้พิทักษ์ลักษณะนาม: ปะทะ 3 ขุนพลไททัน</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="crosshair"></div>
+    <div id="ui-layer">
+        <div id="score-container">⭐ <span id="score-value">0</span></div>
+        <div id="top-ui">
+            <div id="heart-container">❤️❤️❤️❤️❤️</div>
+        </div>
+        <div id="radar-status">⚠️ ตรวจพบศัตรูใกล้ตัว!</div>
+        <div id="ammo-container"><span>🔫</span> <span id="ammo-count">20</span></div>
+        <div id="message-area"></div>
+    </div>
+
+    <!-- Start Screen -->
+    <div id="blocker">
+        <div id="instructions">
+            <h1 style="margin-top:0;">ผู้พิทักษ์ลักษณะนาม</h1>
+            <p style="font-size: 16px; margin: 5px 0 15px;">กำจัดไททันขุนพลด้วยการเล็งยิงป้ายคำตอบลักษณะนามที่ถูกต้อง!</p>
+            <div style="background:rgba(255,255,255,0.08); padding:15px; border-radius:10px; text-align:left; display:inline-block; font-size: 14px; width: 100%; box-sizing: border-box; line-height: 1.6;">
+                <div>🎮 <b>W, A, S, D</b> : เคลื่อนที่ | 💨 <b>Space</b> : กระโดด (2 ครั้งซ้อนได้)</div>
+                <div>👹 <b>ยิงลักษณะนามที่ถูกต้อง:</b> ยิงโดนคำตอบถูกทำลายไททัน (+100 คะแนน)</div>
+                <div>⚠️ <b>ยิงตอบผิด:</b> โดนโจมตีหัวใจลด และไททันจะเคาท์ดาวน์ระเบิดตัวเองหากเข้าใกล้!</div>
+                <div>❤️ <b>ไอเทมหัวใจ:</b> ดรอปจากไททันย่อยเพื่อเก็บเพิ่มพลังชีวิต</div>
+                <div>🖱️ <b>คลิกขวา (หรือกดเล็งในมือถือ)</b> : เพื่อซูมกล้องเล็งยิง</div>
+            </div>
+            
+            <!-- Required boilerplate element player-chip -->
+            <div id="player-chip"></div>
+            
+            <div class="row">
+                <button class="btn-start" id="startBtn">⚔️ เริ่มภารกิจ</button>
+                <button class="btn-start vs-btn" id="vsBtn" style="background: linear-gradient(45deg, #FF9800, #F57C00);">🏁 แข่ง 2 คน</button>
+            </div>
+            <div class="row">
+                <button class="secondary" id="showLbFromStart">🏆 กระดานผู้นำ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="gameover-screen">
+        <h1 style="color: #FF5722; margin: 0 0 15px 0; font-size: 40px;">ภารกิจล้มเหลว!</h1>
+        <h2 style="font-size:22px; color: #fff; margin-bottom: 10px;">พลังชีวิตของคุณหมดลง</h2>
+        <div style="font-size: 20px; color: #fff; margin-bottom: 25px;">
+            คะแนนสุดท้าย: <span id="final-score" style="color: #FFD700; font-weight: bold; font-size: 28px;">0</span>
+        </div>
+        <div class="row">
+            <button class="btn-start" id="nextPlayerBtn">👤 ผู้เล่นคนต่อไป</button>
+            <button class="secondary" id="showLbFromEnd">🏆 กระดานผู้นำ</button>
+        </div>
+    </div>
+
+    <!-- Leaderboard Screen -->
+    <div id="leaderboardScreen">
+        <h1 style="color: #FFD700; margin: 0 0 15px 0; font-size: 32px;">กระดานผู้นำ</h1>
+        <div class="lb-panel">
+            <ul class="lb-list" id="lbList"></ul>
+        </div>
+        <button class="secondary" id="closeLbBtn">ปิด</button>
+    </div>
+
+    <!-- Mobile touch controls (revealed when IS_TOUCH) -->
+    <div id="mobile-controls">
+        <div id="look-pad" aria-label="ลากเพื่อหันกล้อง"></div>
+        <div id="joystick-base" aria-label="จอยสติก เคลื่อนที่">
+            <div id="joystick-knob"></div>
+        </div>
+        <button id="btn-zoom" type="button" aria-label="ซูม">🎯</button>
+        <button id="btn-jump" type="button" aria-label="กระโดด">⬆</button>
+        <button id="btn-fire" type="button" aria-label="ยิง">●</button>
+    </div>
+
+    <!-- Load Scripts in Sequence -->
+    <script src="config.js"></script>
+    <script src="data.js"></script>
+    <script src="/games/kampai-sdk.js"></script>
+    <script>
+      // Stub SDK fallback to support standalone play
+      window.KAMPAI = window.KAMPAI || {
+        isEmbed: false, ready: true, student: null, stats: null, leaderboard: [], classmates: [],
+        onReady: function(cb){ cb(this); }, setSlug: function(){ return this; }, submitScore: function(){ return false; },
+        goHome: function(){ location.reload(); },
+        sound: {
+          correct: function(){}, wrong: function(){}, timeUp: function(){}, gameOver: function(){},
+          bgmStart: function(){}, bgmStop: function(){}, unlock: function(){}
+        }
+      };
+    </script>
+    <script src="/games/kampai-match.js"></script>
+    <script>
+      window.KampaiMatch = window.KampaiMatch || {
+        create: function(){
+          return {
+            available: false,
+            openMenu: function(){ alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); },
+            report: function(){}, finish: function(){}, leave: function(){}
+          };
+        }
+      };
+    </script>
+    <script src="/games/kampai-versus.js"></script>
+    <script>
+      window.KampaiVersus = window.KampaiVersus || {
+        create: function(o){
+          var m = (window.KampaiMatch && window.KampaiMatch.create) ? window.KampaiMatch.create(o) : null;
+          return {
+            available: false,
+            openMenu: function(){ if(m) m.openMenu(); },
+            report: function(s,i){ if(m) m.report(s,i); },
+            finish: function(s,i){ if(m){ m.finish(s,i); return true; } return false; },
+            leave: function(){}, mode: null
+          };
+        }
+      };
+    </script>
+
+    <!-- Three.js (non-ESM Global) -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.126.0/build/three.min.js"></script>
+    <!-- Main Game Script -->
+    <script src="game.js"></script>
+</body>
+</html>
