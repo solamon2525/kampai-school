@@ -516,14 +516,10 @@
         if (vw && vh) {
             updateVideoLayout();
             const { dw, dh, dx, dy } = videoLayout;
-            ctx.globalAlpha = 0.55;
+            ctx.globalAlpha = 1.0;
             ctx.drawImage(videoEl, dx, dy, dw, dh);
-            ctx.globalAlpha = 1;
         }
         ctx.restore();
-        // subtle dark overlay for contrast
-        ctx.fillStyle = 'rgba(11,22,32,0.35)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
     function drawWords() {
@@ -584,7 +580,9 @@
         const now = performance.now();
         handTrail = handTrail.filter(pt => now - pt.t < 180);
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Clear canvas with solid white background
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         drawVideoMirrored();
 
         if (state === 'playing') {
