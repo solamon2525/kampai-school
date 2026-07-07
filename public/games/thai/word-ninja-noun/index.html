@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ตัดคำนามนินจา</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- MediaPipe Hands SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <video id="inputVideo" playsinline></video>
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- HUD -->
+  <div id="hud" class="hidden">
+    <div class="hud-box">
+      <span id="scoreBox">0</span>
+      <span id="comboText">คอมโบ x0</span>
+    </div>
+    <div class="hud-box" id="lives"></div>
+    <div class="hud-box" id="timerBox">60</div>
+  </div>
+  <div id="playerNameTag" class="hidden"></div>
+
+  <!-- Start Screen -->
+  <div id="startScreen" class="screen">
+    <h1 class="title">ตัดคำนามนินจา</h1>
+    <div class="subtitle">ใช้นิ้วชี้ลากตัด "คำนาม" ที่ลอยขึ้นมา ระวังคำหลอก!</div>
+    <div class="panel">
+      <p>🥷 ยกนิ้วชี้ขึ้นแล้วเหวี่ยงมือตัดคำที่เป็น <b>คำนาม</b></p>
+      <p>⚠️ ถ้าตัดคำที่ไม่ใช่คำนาม หรือปล่อยคำนามหลุดจอ จะเสียชีวิต</p>
+      <p>⏱️ เล่นได้ 60 วินาที ทำคอมโบให้ต่อเนื่องเพื่อคะแนนสูงสุด!</p>
+      <!-- Required boilerplate element player-chip -->
+      <div id="player-chip"></div>
+      <input type="text" id="playerNameInput" placeholder="ชื่อผู้เล่น" maxlength="20">
+    </div>
+    <div class="row">
+      <button id="camBtn">📷 ขออนุญาตใช้กล้อง</button>
+      <button id="startBtn" disabled>⚔️ เริ่มเกม</button>
+      <button id="vsBtn" class="vs-btn">🏁 แข่ง 2 คน</button>
+    </div>
+    <div id="camStatus"></div>
+    <button class="secondary" id="showLbFromStart">🏆 กระดานผู้นำ</button>
+  </div>
+
+  <!-- Game Over Screen -->
+  <div id="gameOverScreen" class="screen hidden">
+    <h1 class="title" style="font-size:36px;">หมดเวลา!</h1>
+    <div class="final-score" id="finalScore">0</div>
+    <div class="subtitle" id="finalCombo"></div>
+    <div class="row">
+      <button id="nextPlayerBtn">👤 ผู้เล่นคนต่อไป</button>
+      <button class="secondary" id="showLbFromEnd">🏆 กระดานผู้นำ</button>
+    </div>
+  </div>
+
+  <!-- Leaderboard Screen -->
+  <div id="leaderboardScreen" class="screen hidden">
+    <h1 class="title" style="font-size:34px;">กระดานผู้นำ</h1>
+    <div class="panel">
+      <ul class="lb-list" id="lbList"></ul>
+    </div>
+    <button id="closeLbBtn">ปิด</button>
+  </div>
+</div>
+
+<!-- Load Scripts in Sequence -->
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="/games/kampai-sdk.js"></script>
+<script>
+  // Stub SDK fallback
+  window.KAMPAI = window.KAMPAI || {
+    isEmbed: false, ready: true, student: null, stats: null, leaderboard: [], classmates: [],
+    onReady: function(cb){ cb(this); }, setSlug: function(){ return this; }, submitScore: function(){ return false; },
+    goHome: function(){ location.reload(); },
+    sound: {
+      correct: function(){}, wrong: function(){}, timeUp: function(){}, gameOver: function(){},
+      bgmStart: function(){}, bgmStop: function(){}, unlock: function(){}
+    }
+  };
+</script>
+<script src="/games/kampai-match.js"></script>
+<script>
+  window.KampaiMatch = window.KampaiMatch || {
+    create: function(){
+      return {
+        available: false,
+        openMenu: function(){ alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); },
+        report: function(){}, finish: function(){}, leave: function(){}
+      };
+    }
+  };
+</script>
+<script src="/games/kampai-versus.js"></script>
+<script>
+  window.KampaiVersus = window.KampaiVersus || {
+    create: function(o){
+      var m = (window.KampaiMatch && window.KampaiMatch.create) ? window.KampaiMatch.create(o) : null;
+      return {
+        available: false,
+        openMenu: function(){ if(m) m.openMenu(); },
+        report: function(s,i){ if(m) m.report(s,i); },
+        finish: function(s,i){ if(m){ m.finish(s,i); return true; } return false; },
+        leave: function(){}, mode: null
+      };
+    }
+  };
+</script>
+<script src="game.js"></script>
+</body>
+</html>
