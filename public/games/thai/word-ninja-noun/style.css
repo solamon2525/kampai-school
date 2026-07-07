@@ -282,3 +282,38 @@ ul.lb-list li .sc {
   color: var(--gold-light);
   font-weight: 700;
 }
+
+#player-chip {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  padding: 5px 16px 5px 5px;
+  margin: 8px auto 12px;
+  width: fit-content;
+  font-size: 14px;
+  border: 1px solid rgba(232, 182, 76, 0.25);
+}
+
+#player-chip img, #player-chip .pc-init {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+#player-chip .pc-init {
+  background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+#player-chip .pc-best {
+  color: #ffd700;
+  font-weight: 700;
+}
+

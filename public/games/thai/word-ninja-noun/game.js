@@ -27,7 +27,6 @@
     const startBtn = document.getElementById('startBtn');
     const vsBtn = document.getElementById('vsBtn');
     const camStatus = document.getElementById('camStatus');
-    const playerNameInput = document.getElementById('playerNameInput');
 
     function resizeCanvas() {
         canvas.width = window.innerWidth;
@@ -124,19 +123,31 @@
     let vs = null;
     let qrand = Math.random;
 
+    function renderPlayer() {
+        const s = ksdk ? ksdk.student : null;
+        const st = ksdk ? ksdk.stats : null;
+        const chip = document.getElementById('player-chip');
+        if (!chip) return;
+        if (!s) {
+            chip.style.display = 'none';
+            return;
+        }
+        const av = s.photoUrl ? `<img src="${s.photoUrl}" alt="">` : `<div class="pc-init">${(s.displayName || s.name || '?')[0]}</div>`;
+        const best = st ? ` · <span class="pc-best">สถิติ ${st.personalBest.toLocaleString()}</span>` : '';
+        chip.innerHTML = av + `<span>${s.displayName || s.name}${best}</span>`;
+        chip.style.display = 'flex';
+    }
+
     if (window.KAMPAI) {
         window.KAMPAI.onReady((k) => {
             ksdk = k;
-            if (k.student) {
-                playerNameInput.value = k.student.name || '';
-            }
+            renderPlayer();
             
             // Setup Versus mode (Check 11 requirement)
             vs = window.KampaiVersus.create({
                 onPlay: ({ rng, player }) => {
                     qrand = rng || Math.random;
-                    playerName = (player && player.name) ? player.name : (ksdk.student ? ksdk.student.name : 'ผู้เล่น');
-                    playerNameInput.value = playerName;
+                    playerName = (player && player.name) ? player.name : (ksdk.student ? (ksdk.student.displayName || ksdk.student.name) : 'ผู้เล่น');
                     startGame();
                 },
                 onEnd: () => {
@@ -550,7 +561,7 @@
     }
 
     function startGame() {
-        playerName = playerNameInput.value.trim() || 'ผู้เล่น';
+        playerName = (ksdk && ksdk.student) ? (ksdk.student.displayName || ksdk.student.name) : 'ผู้เล่น';
         ensureAudio();
         resetGame();
         renderLives();
@@ -653,7 +664,6 @@
     });
     
     document.getElementById('nextPlayerBtn').addEventListener('click', () => {
-        playerNameInput.value = (ksdk && ksdk.student) ? ksdk.student.name : '';
         stopCamera();
         showScreen(startScreen);
     });
