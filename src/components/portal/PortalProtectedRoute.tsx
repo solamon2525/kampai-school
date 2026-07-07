@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth, type UserRole } from '@/contexts/AuthProvider';
 
 interface Props {
@@ -9,6 +9,9 @@ interface Props {
 
 export const PortalProtectedRoute = ({ children, allow }: Props) => {
     const { session, role, loading } = useAuth();
+    const location = useLocation();
+
+    const loginRedirect = `/admin?redirect=${encodeURIComponent(location.pathname + location.search)}`;
 
     if (loading) {
         return (
@@ -18,8 +21,8 @@ export const PortalProtectedRoute = ({ children, allow }: Props) => {
         );
     }
 
-    if (!session) return <Navigate to="/admin" replace />;
-    if (!allow.includes(role)) return <Navigate to="/admin" replace />;
+    if (!session) return <Navigate to={loginRedirect} replace />;
+    if (!allow.includes(role)) return <Navigate to={loginRedirect} replace />;
 
     return <>{children}</>;
 };

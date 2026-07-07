@@ -26,6 +26,7 @@ import {
   Star,
   BarChart2,
   Sparkles,
+  FlaskConical,
   LogOut,
   Facebook,
   Lightbulb,
@@ -105,6 +106,7 @@ export const STATIC_COMMANDS: CommandEntry[] = [
   { id: 't-scores', label: 'บันทึกคะแนน', group: 'พอร์ทัลครู', icon: PenLine, roles: ['teacher', 'admin'], action: { type: 'navigate', path: '/teacher/scores' } },
   { id: 't-rewards', label: 'อนุมัติของรางวัล', group: 'พอร์ทัลครู', icon: Award, roles: ['teacher', 'admin'], action: { type: 'navigate', path: '/teacher/rewards-approval' } },
   { id: 't-edu-hub', label: 'จัดการคลังสื่อของฉัน', group: 'พอร์ทัลครู', icon: Sparkles, roles: ['teacher', 'admin'], action: { type: 'navigate', path: '/teacher/edu-hub' } },
+  { id: 't-game-research', label: 'วิจัยเกมในชั้นเรียน', group: 'พอร์ทัลครู', icon: FlaskConical, roles: ['teacher', 'admin'], keywords: ['research', 'game', 'วิจัย', 'เกม'], action: { type: 'navigate', path: '/teacher/game-research' } },
   { id: 't-assignments', label: 'จัดการการบ้าน', group: 'พอร์ทัลครู', icon: ClipboardCheck, roles: ['teacher', 'admin'], keywords: ['homework', 'assignment', 'การบ้าน'], action: { type: 'navigate', path: '/teacher/assignments' } },
   { id: 't-conferences', label: 'ตารางนัดผู้ปกครอง', group: 'พอร์ทัลครู', icon: Calendar, roles: ['teacher', 'admin'], keywords: ['conference', 'slot', 'นัด'], action: { type: 'navigate', path: '/teacher/conferences' } },
 

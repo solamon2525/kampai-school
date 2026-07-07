@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import SchoolLogoMark from '@/components/SchoolLogoMark';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,15 +14,38 @@ const AdminLogin = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
 
+  const safeRedirect = (path: string | null) => {
+    if (!path || !path.startsWith('/') || path.startsWith('//')) return null;
+    return path;
+  };
+
   const redirectByRole = async (userId: string) => {
+    const pending = safeRedirect(searchParams.get('redirect'));
     const { data } = await supabase
       .from('user_roles' as any)
       .select('role')
       .eq('user_id', userId)
       .maybeSingle();
     const role = (data as any)?.role ?? 'admin';
+
+    if (pending) {
+      const teacherPaths = pending.startsWith('/teacher');
+      const parentPaths = pending.startsWith('/parent');
+      const adminPaths = pending.startsWith('/admin');
+      const allowed =
+        (role === 'teacher' && teacherPaths) ||
+        (role === 'parent' && parentPaths) ||
+        (role === 'admin' && (adminPaths || teacherPaths || parentPaths)) ||
+        (role === 'viewer' && !teacherPaths && !parentPaths && !adminPaths);
+      if (allowed) {
+        navigate(pending);
+        return;
+      }
+    }
+
     if (role === 'teacher') navigate('/teacher');
     else if (role === 'parent') navigate('/parent');
     else navigate('/admin/dashboard');
