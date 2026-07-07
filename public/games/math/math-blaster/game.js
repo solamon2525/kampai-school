@@ -498,8 +498,8 @@
             // ปุ่มกดยิง/เดิน จาก Keyboard และ SDK Input
             const checkKey = (keyArr) => {
                 let pressed = keyArr.some(k => keys[k]);
-                // เช็ค SDK controls
-                if (window.KAMPAI && window.KAMPAI.input) {
+                // เช็ค SDK controls (เฉพาะเมื่อเล่นคนเดียว เพื่อป้องกันปุ่มชนกันในโหมด 2 คน)
+                if (playerCount === 1 && window.KAMPAI && window.KAMPAI.input) {
                     keyArr.forEach(k => {
                         if (k === 'ArrowUp' || k === 'KeyW') pressed = pressed || window.KAMPAI.input.up;
                         if (k === 'ArrowDown' || k === 'KeyS') pressed = pressed || window.KAMPAI.input.down;
@@ -1092,6 +1092,7 @@
             SoundFX.playExplosion();
         } else {
             p.lives--;
+            if (p.lives < 0) p.lives = 0;
             p.combo = 0;
             p.invulnerableTimer = 90;
             screenShake = 22;
@@ -1490,7 +1491,7 @@
                 ctx.fillStyle = player1.color;
                 ctx.fillText(player1.name, 20, 30);
                 
-                let hearts = '❤️'.repeat(player1.lives);
+                let hearts = '❤️'.repeat(Math.max(0, player1.lives));
                 ctx.font = '12px Arial';
                 ctx.fillText(hearts || '💀 DEAD', 20, 50);
                 
@@ -1526,7 +1527,7 @@
                 ctx.fillStyle = player2.color;
                 ctx.fillText(player2.name, canvas.width - 20, 30);
                 
-                let hearts = '❤️'.repeat(player2.lives);
+                let hearts = '❤️'.repeat(Math.max(0, player2.lives));
                 ctx.font = '12px Arial';
                 ctx.fillText(hearts || '💀 DEAD', canvas.width - 20, 50);
                 
