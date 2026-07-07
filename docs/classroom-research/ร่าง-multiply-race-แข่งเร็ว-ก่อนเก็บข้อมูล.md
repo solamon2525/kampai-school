@@ -95,6 +95,7 @@
 เปิดในเบราว์เซอร์แล้วกด **พิมพ์ / บันทึก PDF**:
 
 - **บนเว็บ (หลัง deploy):** https://kampai-school.vercel.app/docs/classroom-research/p4-multiply-race-research-9pages.html
+- **ฉบับเติมข้อมูลจริง (ครู+นักเรียน ป.4):** https://kampai-school.vercel.app/docs/classroom-research/p4-multiply-race-research-filled.html
 - **ใน repo:** `docs/classroom-research/เล่มวิจัย-ป4-multiply-race-แข่งเร็ว-9หน้า.html`
 - **สำเนา public:** `public/docs/classroom-research/p4-multiply-race-research-9pages.html`
 
