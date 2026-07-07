@@ -964,6 +964,7 @@
             document.getElementById('p2-name').style.display = 'none';
         } else {
             document.querySelector('.p1-color').innerText = "P1 (ซ้าย): WASD เคลื่อนที่ | SPACE ยิง";
+            document.getElementById('p2-desc').innerText = "P2 (ขวา): ลูกศร เคลื่อนที่ | SHIFT ยิง";
             document.getElementById('p2-desc').style.display = 'inline';
             document.getElementById('p2-name').style.display = 'inline-block';
         }
@@ -996,7 +997,7 @@
                 up: ['KeyW'], down: ['KeyS'], left: ['KeyA'], right: ['KeyD'], shoot: ['Space']
             }, 200, 500);
             player2 = new Player(2, p2Name, '#FF3366', {
-                up: ['ArrowUp'], down: ['ArrowDown'], left: ['ArrowLeft'], right: ['ArrowRight'], shoot: ['Numpad1', 'NumpadAdd']
+                up: ['ArrowUp'], down: ['ArrowDown'], left: ['ArrowLeft'], right: ['ArrowRight'], shoot: ['ShiftRight', 'ShiftLeft']
             }, 600, 500);
         }
     }
