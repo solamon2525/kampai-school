@@ -114,6 +114,8 @@
 
     let handTrail = []; // {x,y,t}
     let fingertip = null; // {x,y}
+    let smoothX = null, smoothY = null;
+    let videoLayout = { scale: 1, dw: 1280, dh: 720, dx: 0, dy: 0 };
     let flashColor = null, flashTime = 0;
 
     const COLORS = ["#e8b64c", "#7fbf8a", "#e07a5f", "#81b29a", "#f2cc8f", "#c1442d"];
@@ -311,13 +313,30 @@
     function onHandResults(results) {
         if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
             const lm = results.multiHandLandmarks[0][8]; // index fingertip
-            const mx = canvas.width - lm.x * canvas.width; // mirror to match flipped video draw
-            const my = lm.y * canvas.height;
-            fingertip = { x: mx, y: my };
-            handTrail.push({ x: mx, y: my, t: performance.now() });
+            
+            // Map relative video coordinates to canvas layout (cover fit alignment)
+            const { dw, dh, dx, dy } = videoLayout;
+            const targetX = dx + (1 - lm.x) * dw;
+            const targetY = dy + lm.y * dh;
+            
+            // Apply exponential moving average filter for jitter reduction
+            const filterFactor = 0.55; // higher = smoother, lower = faster but jittery
+            if (smoothX === null || smoothY === null) {
+                smoothX = targetX;
+                smoothY = targetY;
+            } else {
+                smoothX = smoothX + (targetX - smoothX) * filterFactor;
+                smoothY = smoothY + (targetY - smoothY) * filterFactor;
+            }
+            
+            fingertip = { x: smoothX, y: smoothY };
+            handTrail.push({ x: smoothX, y: smoothY, t: performance.now() });
             if (handTrail.length > 8) handTrail.shift();
         } else {
             fingertip = null;
+            handTrail = [];
+            smoothX = null;
+            smoothY = null;
         }
     }
 
@@ -439,17 +458,25 @@
     }
 
     /* ================= DRAWING ================= */
+    function updateVideoLayout() {
+        const vw = videoEl.videoWidth || 1280;
+        const vh = videoEl.videoHeight || 720;
+        const scale = Math.max(canvas.width / vw, canvas.height / vh);
+        const dw = vw * scale, dh = vh * scale;
+        const dx = (canvas.width - dw) / 2, dy = (canvas.height - dh) / 2;
+        videoLayout = { scale, dw, dh, dx, dy };
+    }
+
     function drawVideoMirrored() {
         if (videoEl.readyState < 2) return;
         ctx.save();
         ctx.translate(canvas.width, 0);
         ctx.scale(-1, 1);
-        // cover-fit
+        
         const vw = videoEl.videoWidth, vh = videoEl.videoHeight;
         if (vw && vh) {
-            const scale = Math.max(canvas.width / vw, canvas.height / vh);
-            const dw = vw * scale, dh = vh * scale;
-            const dx = (canvas.width - dw) / 2, dy = (canvas.height - dh) / 2;
+            updateVideoLayout();
+            const { dw, dh, dx, dy } = videoLayout;
             ctx.globalAlpha = 0.55;
             ctx.drawImage(videoEl, dx, dy, dw, dh);
             ctx.globalAlpha = 1;
