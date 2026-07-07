@@ -21,21 +21,33 @@
       <span id="scoreBox">0</span>
       <span id="comboText">คอมโบ x0</span>
     </div>
-    <div class="hud-box" id="lives"></div>
     <div class="hud-box" id="timerBox">60</div>
   </div>
+  
+  <div id="targetInstructionBanner" class="target-banner hidden">ฟันเฉพาะ: คำนาม</div>
   <div id="playerNameTag" class="hidden"></div>
 
   <!-- Start Screen -->
   <div id="startScreen" class="screen">
-    <h1 class="title">ตัดคำนามนินจา</h1>
-    <div class="subtitle">ใช้นิ้วชี้ลากตัด "คำนาม" ที่ลอยขึ้นมา ระวังคำหลอก!</div>
+    <h1 class="title">ตัดคำไวยากรณ์นินจา</h1>
+    <div class="subtitle">ใช้นิ้วชี้ลากตัดคำเป้าหมายที่ลอยขึ้นมาตามคำสั่ง!</div>
     <div class="panel">
-      <p>🥷 ยกนิ้วชี้ขึ้นแล้วเหวี่ยงมือตัดคำที่เป็น <b>คำนาม</b></p>
-      <p>⚠️ ถ้าตัดคำที่ไม่ใช่คำนาม หรือปล่อยคำนามหลุดจอ จะเสียชีวิต</p>
-      <p>⏱️ เล่นได้ 60 วินาที ทำคอมโบให้ต่อเนื่องเพื่อคะแนนสูงสุด!</p>
+      <p>🥷 ยกนิ้วชี้ขึ้นลากตัดคำที่กำหนดตามแถบคำสั่งสีทองด้านบน</p>
+      <p>⏱️ โหมดจับเวลา 60 วินาที ตอบถูกเพิ่มเวลา ตอบผิดหรือหลุดจอจะหักเวลา!</p>
       <!-- Required boilerplate element player-chip -->
       <div id="player-chip"></div>
+      
+      <!-- Category Selector -->
+      <div class="category-panel">
+        <div class="category-title">🎯 เลือกหมวดหมู่ที่ต้องการฟัน:</div>
+        <div class="category-grid">
+          <button class="cat-btn active" data-category="noun">คำนาม</button>
+          <button class="cat-btn" data-category="verb">คำกริยา</button>
+          <button class="cat-btn" data-category="pronoun">คำสรรพนาม</button>
+          <button class="cat-btn" data-category="adjective">คำวิเศษณ์</button>
+        </div>
+        <button class="cat-btn mix-btn" data-category="mix">⚡ โหมดสลับเป้าหมาย (ท้าทาย)</button>
+      </div>
     </div>
     <div class="row">
       <button id="camBtn">📷 ขออนุญาตใช้กล้อง</button>

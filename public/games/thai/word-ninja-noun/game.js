@@ -20,8 +20,8 @@
     const hud = document.getElementById('hud');
     const scoreBox = document.getElementById('scoreBox');
     const comboText = document.getElementById('comboText');
-    const livesBox = document.getElementById('lives');
     const timerBox = document.getElementById('timerBox');
+    const targetInstructionBanner = document.getElementById('targetInstructionBanner');
     const playerNameTag = document.getElementById('playerNameTag');
     const camBtn = document.getElementById('camBtn');
     const startBtn = document.getElementById('startBtn');
@@ -112,6 +112,18 @@
     let lastFrameTime = 0;
     let gravity = CFG.GRAVITY; // px/s^2
 
+    // Grammar category settings
+    let selectedMode = 'noun'; // 'noun' | 'verb' | 'pronoun' | 'adjective' | 'mix'
+    let targetCategory = 'noun'; // the current target category to slice (e.g. 'noun')
+    let mixTimer = 0; // timer to track category rotation in mixed mode
+    const CATEGORIES = ['noun', 'verb', 'pronoun', 'adjective'];
+    const CATEGORY_NAMES_TH = {
+        'noun': 'คำนาม',
+        'verb': 'คำกริยา',
+        'pronoun': 'คำสรรพนาม',
+        'adjective': 'คำวิเศษณ์'
+    };
+
     let handTrail = []; // {x,y,t}
     let fingertip = null; // {x,y}
     let smoothX = null, smoothY = null;
@@ -119,6 +131,30 @@
     let flashColor = null, flashTime = 0;
 
     const COLORS = ["#e8b64c", "#7fbf8a", "#e07a5f", "#81b29a", "#f2cc8f", "#c1442d"];
+
+    function getWordList(category) {
+        if (category === 'noun') return DATA.NOUNS;
+        if (category === 'verb') return DATA.VERBS;
+        if (category === 'pronoun') return DATA.PRONOUNS;
+        if (category === 'adjective') return DATA.ADJECTIVES;
+        return DATA.NOUNS;
+    }
+
+    function updateTargetBanner() {
+        if (!targetInstructionBanner) return;
+        targetInstructionBanner.textContent = `ฟันเฉพาะ: ${CATEGORY_NAMES_TH[targetCategory]}`;
+        targetInstructionBanner.classList.remove('hidden');
+    }
+
+    function rotateTargetCategory() {
+        const choices = CATEGORIES.filter(c => c !== targetCategory);
+        targetCategory = choices[Math.floor(qrand() * choices.length)];
+        updateTargetBanner();
+        sfxCombo();
+        flashColor = 'rgba(232, 182, 76, 0.2)';
+        flashTime = 0.35;
+        spawnTextParticle(canvas.width / 2, canvas.height / 2, `เป้าหมายใหม่: ฟัน ${CATEGORY_NAMES_TH[targetCategory]}!`, '#ff9f43');
+    }
 
     /* ================= SDK / VERSUS INTEGRATION ================= */
     let ksdk = null;
@@ -161,7 +197,6 @@
 
     function resetGame() {
         score = 0;
-        lives = LIVES_START;
         combo = 0;
         timeLeft = GAME_DURATION;
         words = [];
@@ -172,29 +207,26 @@
         handTrail = [];
     }
 
-    function renderLives() {
-        livesBox.innerHTML = '';
-        for (let i = 0; i < LIVES_START; i++) {
-            const span = document.createElement('span');
-            span.textContent = i < lives ? '⭐' : '☆';
-            span.style.fontSize = '18px';
-            span.style.marginRight = '2px';
-            livesBox.appendChild(span);
-        }
-    }
-
     /* ================= WORD SPAWNING & PHYSICS ================= */
     function spawnWord() {
-        const isNoun = qrand() < 0.62;
-        const bank = isNoun ? NOUNS : NON_NOUNS;
+        const isTarget = qrand() < 0.40; // 40% chance for target category
+        let category;
+        if (isTarget) {
+            category = targetCategory;
+        } else {
+            const nonTargets = CATEGORIES.filter(c => c !== targetCategory);
+            category = nonTargets[Math.floor(qrand() * nonTargets.length)];
+        }
+        
+        const bank = getWordList(category);
         const text = bank[Math.floor(qrand() * bank.length)];
         const r = Math.max(46, 20 + text.length * 7);
         const x = r + qrand() * (canvas.width - r * 2);
         const vx = (qrand() - 0.5) * 160;
-        const targetHeightFrac = 0.25 + qrand() * 0.25; // how high up the arc peaks
+        const targetHeightFrac = 0.25 + qrand() * 0.25;
         const vy = -Math.sqrt(2 * gravity * (canvas.height * (1 - targetHeightFrac)));
         words.push({
-            text, isNoun, x, y: canvas.height + r,
+            text, isTarget, category, x, y: canvas.height + r,
             vx, vy, r, sliced: false,
             color: COLORS[Math.floor(qrand() * COLORS.length)]
         });
@@ -209,11 +241,10 @@
         // remove offscreen
         words = words.filter(w => {
             const gone = w.y - w.r > canvas.height + 40 || w.x < -w.r - 40 || w.x > canvas.width + w.r + 40;
-            if (gone && !w.sliced && w.isNoun && w.vy > 0) {
-                // missed a noun that fell past bottom
+            if (gone && !w.sliced && w.isTarget && w.vy > 0) {
+                // missed a target word that fell past bottom
                 timeLeft = Math.max(0, timeLeft - 3);
                 spawnTextParticle(w.x, canvas.height - 30, 'หลุดจอ! -3 วินาที', '#c1442d');
-                loseLife();
                 sfxMiss();
             }
             return !gone;
@@ -287,13 +318,10 @@
         timeLeft = Math.min(90, timeLeft + 1.5);
         spawnTextParticle(w.x, w.y - 20, '+1.5 วินาที', '#7fbf8a');
 
-        // Combo reward: recover 1 life every 15 combo
+        // Combo reward: extra time at 15 combo
         if (combo > 0 && combo % 15 === 0) {
-            if (lives < LIVES_START) {
-                lives++;
-                renderLives();
-                spawnTextParticle(w.x, w.y - 45, '+1 ❤️', '#f6d98a');
-            }
+            timeLeft = Math.min(90, timeLeft + 3.0);
+            spawnTextParticle(w.x, w.y - 45, 'คอมโบโบนัส +3s ⚡', '#f6d98a');
         }
 
         sfxSlice();
@@ -316,18 +344,10 @@
         spawnTextParticle(w.x, w.y - 20, '-4 วินาที', '#c1442d');
 
         sfxWrong();
-        loseLife();
         flashColor = 'rgba(193,68,45,0.22)';
         flashTime = 0.2;
         if (vs) {
             vs.report(score, { correct: score });
-        }
-    }
-    function loseLife() {
-        lives = Math.max(0, lives - 1);
-        renderLives();
-        if (lives <= 0) {
-            endGame();
         }
     }
 
@@ -424,6 +444,9 @@
         hands = null;
         camBtn.disabled = false;
         camStatus.textContent = '';
+        if (targetInstructionBanner) {
+            targetInstructionBanner.classList.add('hidden');
+        }
     }
 
     /* ================= SLICE DETECTION ================= */
@@ -448,7 +471,7 @@
             const d = pointSegDist(w.x, w.y, p1.x, p1.y, p2.x, p2.y);
             if (d < w.r) {
                 w.sliced = true;
-                if (w.isNoun) addScore(w); else wrongSlice(w);
+                if (w.isTarget) addScore(w); else wrongSlice(w);
             }
         }
     }
@@ -588,6 +611,16 @@
         if (state === 'playing') {
             elapsed += dt;
             spawnTimer += dt;
+            
+            // Mixed Mode: Rotate target category every 15 seconds
+            if (selectedMode === 'mix') {
+                mixTimer += dt;
+                if (mixTimer >= 15) {
+                    mixTimer = 0;
+                    rotateTargetCategory();
+                }
+            }
+
             // difficulty ramp
             spawnInterval = Math.max(550, CFG.SPAWN_INTERVAL - elapsed * 12);
             if (spawnTimer > spawnInterval / 1000) {
@@ -634,7 +667,6 @@
         playerName = (ksdk && ksdk.student) ? (ksdk.student.displayName || ksdk.student.name) : 'ผู้เล่น';
         ensureAudio();
         resetGame();
-        renderLives();
         scoreBox.textContent = '0';
         comboText.textContent = 'คอมโบ x0';
         timerBox.textContent = GAME_DURATION;
@@ -643,6 +675,14 @@
         hud.classList.remove('hidden');
         hideAllScreens();
         
+        if (selectedMode === 'mix') {
+            targetCategory = CATEGORIES[Math.floor(qrand() * CATEGORIES.length)];
+            mixTimer = 0;
+        } else {
+            targetCategory = selectedMode;
+        }
+        updateTargetBanner();
+
         if (ksdk && ksdk.sound && typeof ksdk.sound.bgmStart === 'function') {
             ksdk.sound.defaultBgm ? ksdk.sound.defaultBgm(CFG.BGM_PRESET) : ksdk.sound.bgmStart();
         }
@@ -655,6 +695,9 @@
         state = 'over';
         hud.classList.add('hidden');
         playerNameTag.classList.add('hidden');
+        if (targetInstructionBanner) {
+            targetInstructionBanner.classList.add('hidden');
+        }
         
         if (ksdk && ksdk.sound && typeof ksdk.sound.bgmStop === 'function') {
             ksdk.sound.bgmStop();
@@ -745,6 +788,16 @@
         renderLB();
         showScreen(leaderboardScreen);
     });
+    // Bind category selection buttons
+    const catButtons = document.querySelectorAll('.cat-btn');
+    catButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            catButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedMode = btn.dataset.category;
+        });
+    });
+
     document.getElementById('closeLbBtn').addEventListener('click', () => {
         showScreen(state === 'over' ? gameOverScreen : startScreen);
     });
