@@ -1,6 +1,7 @@
 (function () {
     const CFG = window.GAME_CONFIG;
     const DATA = window.GAME_DATA;
+    let qrand = Math.random;
 
     if (window.KAMPAI) {
         window.KAMPAI.setSlug(CFG.SLUG);
@@ -171,6 +172,39 @@
     let selectedCategory = CFG.DEFAULT_CATEGORY;
     let currentDifficulty = CFG.DEFAULT_DIFFICULTY;
 
+    const vs = window.KampaiVersus ? KampaiVersus.create({
+        duration: CFG.TIME_LIMIT,
+        title: 'Super Math-Blaster: Galactic Duel',
+        rankBy: 'score',
+        onPlay: ({ rng, player }) => {
+            playerCount = 1;
+            qrand = rng || Math.random;
+            
+            // Randomize stage ID using qrand
+            let stageId = Math.floor(qrand() * 3) + 1; // 1, 2, 3
+            
+            // Set name based on player P1 or P2
+            let pName = 'PLAYER 1';
+            if (window.KAMPAI && window.KAMPAI.student && window.KAMPAI.student.displayName) {
+                pName = window.KAMPAI.student.displayName.toUpperCase();
+            }
+            if (player === 'P2') {
+                pName = 'PLAYER 2';
+            }
+            const p1NameInput = document.getElementById('p1-name');
+            if (p1NameInput) p1NameInput.value = pName;
+            
+            startGame(stageId);
+        },
+        onEnd: () => {
+            isLooping = false;
+            gameState = 'ENDED';
+            BGM.stop();
+            document.getElementById('report-screen').style.display = 'flex';
+        }
+    }) : null;
+    window.vs = vs;
+
     window.setDifficulty = function(level) {
         currentDifficulty = level;
         for (let i = 1; i <= 5; i++) {
@@ -193,11 +227,11 @@
             let type = selectedCategory;
             if (type === 'mixed') {
                 const types = ['addition', 'subtraction', 'multiplication', 'division', 'fraction', 'decimal'];
-                type = types[Math.floor(Math.random() * types.length)];
+                type = types[Math.floor(qrand() * types.length)];
             }
             
             let q = "", a = "", distractors = new Set();
-            const r = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+            const r = (min, max) => Math.floor(qrand() * (max - min + 1)) + min;
             let d = currentDifficulty;
 
             if (type === 'addition') {
@@ -228,7 +262,7 @@
             }
             else if (type === 'fraction') {
                 let dLists = [ [2,3,4], [4,5], [6,8], [8,10], [10,12,15] ];
-                let denom = dLists[d-1][Math.floor(Math.random() * dLists[d-1].length)];
+                let denom = dLists[d-1][Math.floor(qrand() * dLists[d-1].length)];
                 let n1, n2;
                 if (d===1) { n1 = 1; n2 = 1; }
                 else if (d===2) { n1 = r(1,2); n2 = r(1,2); }
@@ -287,7 +321,7 @@
             while (distractors.size < 3 && safeCounter < 20) {
                 let numAns = parseFloat(a);
                 if (!isNaN(numAns)) {
-                    let offset = Math.floor(Math.random() * 5) + 1;
+                    let offset = Math.floor(qrand() * 5) + 1;
                     if (a.includes('.')) {
                         distractors.add((numAns + offset/10).toFixed(1));
                     } else {
@@ -300,7 +334,7 @@
             let options = Array.from(distractors).slice(0, 3);
             options.push(a);
             for (let i = options.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
+                const j = Math.floor(qrand() * (i + 1));
                 [options[i], options[j]] = [options[j], options[i]];
             }
             return { question: q, answer: a, options: options };
@@ -880,9 +914,9 @@
         }));
 
         if (currentStageIndex > 1) {
-            currentDifficulty = Math.floor(Math.random() * 5) + 1;
+            currentDifficulty = Math.floor(qrand() * 5) + 1;
             const modes = ['addition', 'subtraction', 'multiplication', 'division', 'fraction', 'decimal', 'mixed'];
-            selectedCategory = modes[Math.floor(Math.random() * modes.length)];
+            selectedCategory = modes[Math.floor(qrand() * modes.length)];
         }
     }
 
@@ -898,7 +932,7 @@
             const spacing = canvas.width / 4;
             for (let i=0; i<4; i++) {
                 let isCorr = (currentMathData.options[i] === currentMathData.answer);
-                let ast = new Asteroid((i * spacing) + (spacing/2), boss.y + boss.height + 40 + Math.random()*20, currentMathData.options[i], isCorr);
+                let ast = new Asteroid((i * spacing) + (spacing/2), boss.y + boss.height + 40 + qrand()*20, currentMathData.options[i], isCorr);
                 ast.speed = 0.3; // อุกกาบาตของบอสลอยช้า ๆ ให้ผู้เล่นเล็ง
                 asteroids.push(ast);
             }
@@ -907,7 +941,7 @@
             const spacing = canvas.width / 4;
             for (let i=0; i<4; i++) {
                 let isCorr = (currentMathData.options[i] === currentMathData.answer);
-                let ast = new Asteroid((i * spacing) + (spacing/2), -50 - Math.random() * 50, currentMathData.options[i], isCorr);
+                let ast = new Asteroid((i * spacing) + (spacing/2), -50 - qrand() * 50, currentMathData.options[i], isCorr);
                 ast.speed *= speedMultiplier; 
                 asteroids.push(ast);
             }
@@ -1038,7 +1072,7 @@
             document.getElementById('transition-random-info').innerText = "(ระบบกำลังสุ่มความยาก และ หมวดคณิตศาสตร์!)";
 
             setTimeout(() => {
-                let nextId = unplayedStages.splice(Math.floor(Math.random() * unplayedStages.length), 1)[0];
+                let nextId = unplayedStages.splice(Math.floor(qrand() * unplayedStages.length), 1)[0];
                 currentStageIndex++;
                 setupStage(nextId);
                 startStageLoop();
@@ -1172,6 +1206,9 @@
                         if (b.owner.doubleTimer > 0) bossPoints *= 2; 
                         b.owner.score += bossPoints; 
                         b.owner.hits++;
+                        if (vs && b.owner === player1) {
+                            vs.report(player1.score, { correct: player1.hits });
+                        }
                     }
                     
                     if (boss.hp <= 0 && !isBossEnding) {
@@ -1181,6 +1218,9 @@
                         let killPoints = 5000;
                         if (b.owner.doubleTimer > 0) killPoints *= 2;
                         b.owner.score += killPoints; 
+                        if (vs && b.owner === player1) {
+                            vs.report(player1.score, { correct: player1.hits });
+                        }
                         
                         screenShake = 60;
                         createExplosion(boss.x + boss.width/2, boss.y + boss.height/2, '#FFFFFF');
@@ -1233,6 +1273,10 @@
                         
                         updateComboFireHUD();
 
+                        if (vs && b.owner === player1) {
+                            vs.report(player1.score, { correct: player1.hits });
+                        }
+
                         if (boss && boss.active && boss.hasShield) {
                             // การสู้บอส: ตอบถูกลดพลังเกราะ
                             boss.shieldHp--;
@@ -1253,9 +1297,9 @@
                         }
                         
                         // สุ่มปล่อยไอเทม
-                        if (Math.random() < 0.35) {
+                        if (qrand() < 0.35) {
                             const types = ['SPEED', 'RAPID', 'HEAL', 'SHIELD', 'SPREAD', 'HOMING', 'DOUBLE', 'FREEZE', 'BOMB', 'SABOTAGE'];
-                            items.push(new Item(a.x, a.y, types[Math.floor(Math.random() * types.length)]));
+                            items.push(new Item(a.x, a.y, types[Math.floor(qrand() * types.length)]));
                         }
                         spawnWave();
                     } else {
@@ -1528,6 +1572,14 @@
         isLooping = false;
         gameState = 'ENDED';
         BGM.stop();
+
+        if (vs) {
+            let finalScore = player1 ? player1.score : 0;
+            let finalCorrect = player1 ? player1.hits : 0;
+            if (vs.finish(finalScore, { correct: finalCorrect })) {
+                return;
+            }
+        }
 
         if (win) {
             SoundFX.playPowerup();

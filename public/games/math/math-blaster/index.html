@@ -61,6 +61,7 @@
 
         <button class="btn blink" onclick="goToStageSelect()" style="font-size:16px; border-color:#00FF00; color:#00FF00;">>>> NEXT: เลือกด่าน <<<</button>
         <div style="display:flex; justify-content:center; gap:10px; margin-top:10px;">
+            <button class="btn" onclick="if(window.vs)vs.openMenu()" style="border-color: #f59e0b; color: #f97316; font-size:10px; margin:0;">🏁 แข่ง 2 คน</button>
             <button class="btn" onclick="showLeaderboard()" style="border-color: #FFD700; color: #FFD700; font-size:10px; margin:0;">LEADERBOARD</button>
             <button class="btn" onclick="if(window.KAMPAI)window.KAMPAI.goHome()" style="border-color: #7f8c8d; color: #bdc3c7; font-size:10px; margin:0;">EXIT (ออก)</button>
         </div>
@@ -133,11 +134,15 @@
     </div>
 </div>
 
-<!-- ═══ KAMPAI SDK ═══ -->
+<!-- ═══ KAMPAI SDK + FRAMEWORK ═══ -->
 <script src="/games/kampai-sdk.js"></script>
 <script>
-window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], classmates:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}}, online:{available:false} };
 </script>
+<script src="/games/kampai-match.js"></script>
+<script>window.KampaiMatch = window.KampaiMatch || { create:function(){ return { available:false, openMenu:function(){ alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); }, report:function(){}, finish:function(){}, leave:function(){} }; } };</script>
+<script src="/games/kampai-versus.js"></script>
+<script>window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window.KampaiMatch&&window.KampaiMatch.create)?window.KampaiMatch.create(o):null; return { available:false, openMenu:function(){ if(m)m.openMenu(); }, report:function(s,i){ if(m)m.report(s,i); }, finish:function(s,i){ if(m){m.finish(s,i);return true;} return false; }, leave:function(){}, mode:null }; } };</script>
 <script src="config.js"></script>
 <script src="data.js"></script>
 <script src="game.js"></script>
