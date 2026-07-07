@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>เกม 24 — วิธีคิดทีละขั้น</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: linear-gradient(145deg, #fef3c7 0%, #fffbeb 40%, #fde68a 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 12px;
+      color: #0f172a;
+    }
+    .shell {
+      width: 100%;
+      max-width: 1152px;
+      background: rgba(255,255,255,0.98);
+      border-radius: 1.75rem;
+      box-shadow: 0 24px 48px rgba(15, 23, 42, 0.12);
+      border: 1px solid rgba(255,255,255,0.8);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 90vh;
+    }
+    @media (min-width: 768px) { .shell { flex-direction: row; min-height: 85vh; } }
+    .sidebar {
+      background: linear-gradient(180deg, #1e3a8a, #1d4ed8);
+      color: #fff;
+      padding: 20px;
+      width: 100%;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    @media (min-width: 768px) { .sidebar { width: 300px; padding: 24px; } }
+    .sidebar h2 { font-size: 1.25rem; font-weight: 800; margin-bottom: 4px; }
+    .field-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #93c5fd;
+      margin-bottom: 6px;
+      display: block;
+    }
+    .num-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .input-field {
+      width: 100%;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(147,197,253,0.45);
+      border-radius: 12px;
+      padding: 12px;
+      font-family: inherit;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #fff;
+      text-align: center;
+      outline: none;
+    }
+    .btn {
+      font-family: inherit;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 14px;
+      cursor: pointer;
+      font-size: 1rem;
+      width: 100%;
+    }
+    .btn-back { background: rgba(255,255,255,0.15); color: #e0e7ff; border: 1px solid rgba(255,255,255,0.25); }
+    .btn-random { background: #f59e0b; color: #fff; }
+    .btn-primary { background: #10b981; color: #fff; }
+    .btn-ghost { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+    .btn-link { background: #fbbf24; color: #78350f; text-decoration: none; text-align: center; display: block; }
+    .hint { font-size: 0.78rem; color: #bfdbfe; line-height: 1.45; }
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      background: #fffbeb;
+    }
+    .content {
+      flex: 1;
+      padding: 20px 24px;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .goal-box {
+      text-align: center;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #1e3a8a;
+      padding: 12px 16px;
+      background: #eff6ff;
+      border: 2px dashed #93c5fd;
+      border-radius: 14px;
+    }
+    .cards-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+    }
+    .num-card {
+      width: 72px;
+      height: 88px;
+      border-radius: 14px;
+      background: linear-gradient(145deg, #fff, #fef3c7);
+      border: 3px solid #f59e0b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: 800;
+      color: #b45309;
+      box-shadow: 0 6px 16px rgba(245, 158, 11, 0.2);
+    }
+    .placeholder {
+      text-align: center;
+      color: #64748b;
+      font-weight: 600;
+      padding: 20px;
+      background: #fff;
+      border-radius: 14px;
+      border: 1px dashed #cbd5e1;
+    }
+    .error-box {
+      display: none;
+      background: #fef2f2;
+      border: 2px solid #fca5a5;
+      color: #991b1b;
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-weight: 700;
+      text-align: center;
+    }
+    .error-box.show { display: block; }
+    .answer-wrap { display: none; }
+    .answer-wrap.show { display: block; }
+    .expr-line {
+      text-align: center;
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #059669;
+      margin-bottom: 12px;
+      word-break: break-word;
+    }
+    .steps-box {
+      background: #f0fdf4;
+      border: 2px solid #86efac;
+      border-radius: 14px;
+      padding: 16px 18px;
+      color: #14532d;
+    }
+    .steps-box h3 { font-size: 1.05rem; margin-bottom: 10px; }
+    .steps-box ol { margin: 0 0 0 22px; line-height: 1.75; font-size: 1.02rem; }
+    .steps-box li { margin-bottom: 6px; }
+    .steps-box .sub { display: block; font-size: 0.92rem; color: #166534; margin-top: 2px; }
+    .keyword { background: #fef08a; padding: 0 4px; border-radius: 4px; font-weight: 800; }
+    .footer {
+      padding: 10px 16px;
+      font-size: 0.78rem;
+      color: #64748b;
+      border-top: 1px solid #fde68a;
+      background: #fff;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .footer a { color: #1d4ed8; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
+      <h2>🧠 เกม 24 — วิธีคิด</h2>
+      <p class="hint">กรอกตัวเลข 4 ตัว (1–13) แล้วกดแสดงวิธีคิดทีละขั้น</p>
+
+      <div class="num-grid">
+        <div>
+          <label class="field-label" for="n1">ตัวที่ 1</label>
+          <input id="n1" class="input-field" type="number" min="1" max="13" value="3" />
+        </div>
+        <div>
+          <label class="field-label" for="n2">ตัวที่ 2</label>
+          <input id="n2" class="input-field" type="number" min="1" max="13" value="8" />
+        </div>
+        <div>
+          <label class="field-label" for="n3">ตัวที่ 3</label>
+          <input id="n3" class="input-field" type="number" min="1" max="13" value="3" />
+        </div>
+        <div>
+          <label class="field-label" for="n4">ตัวที่ 4</label>
+          <input id="n4" class="input-field" type="number" min="1" max="13" value="3" />
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-random" id="btnRandom">🎲 สุ่มชุดที่ทำได้</button>
+      <button type="button" class="btn btn-primary" id="btnReveal">✅ แสดงวิธีคิด</button>
+      <button type="button" class="btn btn-ghost" id="btnHide">ซ่อนเฉลย</button>
+      <button type="button" class="btn btn-ghost" id="btnSpeak">🔊 ฟังอธิบาย</button>
+      <a class="btn btn-link" href="/games/math/24.html" target="_blank" rel="noopener">🎯 ไปเล่นเกม 24</a>
+    </aside>
+
+    <main class="main">
+      <div class="content">
+        <div class="goal-box">
+          ใช้เครื่องหมาย <span class="keyword">+ − × ÷</span> กับตัวเลขทั้ง 4 ตัว
+          <strong>อย่างละครั้ง</strong> จนเหลือตัวเลขเดียว = <strong>24</strong>
+        </div>
+        <div class="cards-row" id="cardsRow"></div>
+        <div class="placeholder" id="placeholder">กรอกตัวเลข → กด “แสดงวิธีคิด” เพื่อดูขั้นตอน</div>
+        <div class="error-box" id="errorBox"></div>
+        <div class="answer-wrap" id="answerWrap">
+          <div class="expr-line" id="exprLine"></div>
+          <div class="steps-box">
+            <h3>📝 ขั้นตอนคิด</h3>
+            <ol id="stepsList"></ol>
+          </div>
+        </div>
+      </div>
+      <div class="footer">
+        <span>ตัวชี้วัด ป.4: ค 1.1 ป.4/10 · ค 1.1 ป.4/12</span>
+        <span>คู่เกม <a href="/games/math/24.html">math-24</a></span>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      var MEDIA_SLUG = 'math-24-thinking-media';
+      if (window.KAMPAI) {
+        try { window.KAMPAI.setSlug(MEDIA_SLUG); } catch (e) {}
+      }
+
+      var inputs = [
+        document.getElementById('n1'),
+        document.getElementById('n2'),
+        document.getElementById('n3'),
+        document.getElementById('n4'),
+      ];
+      var cardsRow = document.getElementById('cardsRow');
+      var placeholder = document.getElementById('placeholder');
+      var errorBox = document.getElementById('errorBox');
+      var answerWrap = document.getElementById('answerWrap');
+      var exprLine = document.getElementById('exprLine');
+      var stepsList = document.getElementById('stepsList');
+
+      var operators = {
+        '+': function (a, b) { return a + b; },
+        '-': function (a, b) { return a - b; },
+        '*': function (a, b) { return a * b; },
+        '/': function (a, b) { return b !== 0 ? a / b : null; },
+      };
+      var opSyms = ['+', '-', '*', '/'];
+      var EPS = 0.0001;
+
+      function opLabel(sym) {
+        if (sym === '+') return '+';
+        if (sym === '-') return '−';
+        if (sym === '*') return '×';
+        if (sym === '/') return '÷';
+        return sym;
+      }
+
+      function fmt(n) {
+        if (n === null || n === undefined || isNaN(n)) return '?';
+        if (Math.abs(n - Math.round(n)) < EPS) return String(Math.round(n));
+        return Number(n.toFixed(2)).toString();
+      }
+
+      function isCloseTo24(val) {
+        return val !== null && !isNaN(val) && Math.abs(val - 24) < EPS;
+      }
+
+      function permute(arr) {
+        var res = [];
+        function dfs(curr, remaining) {
+          if (remaining.length === 0) { res.push(curr); return; }
+          for (var i = 0; i < remaining.length; i++) {
+            dfs(curr.concat([remaining[i]]), remaining.slice(0, i).concat(remaining.slice(i + 1)));
+          }
+        }
+        dfs([], arr);
+        return res;
+      }
+
+      function stepThink(html) {
+        return { html: html, sub: '' };
+      }
+
+      function stepCalc(left, op, right, result, after) {
+        return {
+          html: 'คำนวณ <span class="keyword">' + fmt(left) + ' ' + opLabel(op) + ' ' + fmt(right) + ' = ' + fmt(result) + '</span>',
+          sub: after || '',
+        };
+      }
+
+      function stepDone() {
+        return { html: '<strong>ได้ 24 แล้ว!</strong> เป้าหมายสำเร็จ ✓', sub: 'ตรวจสอบว่าทุกตัวเลขถูกใช้ครบและได้ผลลัพธ์ 24' };
+      }
+
+      function buildSolution(steps, expression) {
+        return { steps: steps, expression: expression };
+      }
+
+      function tryAllTrees(a, b, c, d, op1, op2, op3) {
+        var r1, r2, r3;
+
+        r1 = operators[op1](a, b);
+        if (r1 !== null) {
+          r2 = operators[op2](r1, c);
+          if (r2 !== null) {
+            r3 = operators[op3](r2, d);
+            if (isCloseTo24(r3)) {
+              return buildSolution([
+                stepThink('เริ่มจากตัวเลข <span class="keyword">' + [a, b, c, d].join(', ') + '</span>'),
+                stepCalc(a, op1, b, r1, 'เหลือตัวเลข: ' + fmt(r1) + ', ' + c + ', ' + d),
+                stepCalc(r1, op2, c, r2, 'เหลือตัวเลข: ' + fmt(r2) + ', ' + d),
+                stepCalc(r2, op3, d, r3, 'เหลือตัวเลขเดียว'),
+                stepDone(),
+              ], '(((' + a + ' ' + op1 + ' ' + b + ') ' + op2 + ' ' + c + ') ' + op3 + ' ' + d + ')');
+            }
+          }
+        }
+
+        r1 = operators[op2](b, c);
+        if (r1 !== null) {
+          r2 = operators[op1](a, r1);
+          if (r2 !== null) {
+            r3 = operators[op3](r2, d);
+            if (isCloseTo24(r3)) {
+              return buildSolution([
+                stepThink('เริ่มจากตัวเลข <span class="keyword">' + [a, b, c, d].join(', ') + '</span>'),
+                stepCalc(b, op2, c, r1, 'ได้ค่ากลาง ' + fmt(r1) + ' จาก ' + b + ' กับ ' + c),
+                stepCalc(a, op1, r1, r2, 'นำ ' + a + ' มาคำนวณกับผลกลาง → เหลือ ' + fmt(r2) + ', ' + d),
+                stepCalc(r2, op3, d, r3, 'เหลือตัวเลขเดียว'),
+                stepDone(),
+              ], '((' + a + ' ' + op1 + ' (' + b + ' ' + op2 + ' ' + c + ')) ' + op3 + ' ' + d + ')');
+            }
+          }
+        }
+
+        r1 = operators[op2](b, c);
+        if (r1 !== null) {
+          r2 = operators[op3](r1, d);
+          if (r2 !== null) {
+            r3 = operators[op1](a, r2);
+            if (isCloseTo24(r3)) {
+              return buildSolution([
+                stepThink('เริ่มจากตัวเลข <span class="keyword">' + [a, b, c, d].join(', ') + '</span>'),
+                stepCalc(b, op2, c, r1, 'คำนวณคู่กลางก่อน'),
+                stepCalc(r1, op3, d, r2, 'ต่อด้วยตัวที่ ' + d + ' → ได้ ' + fmt(r2)),
+                stepCalc(a, op1, r2, r3, 'นำ ' + a + ' มารวมผลลัพธ์สุดท้าย'),
+                stepDone(),
+              ], '(' + a + ' ' + op1 + ' ((' + b + ' ' + op2 + ' ' + c + ') ' + op3 + ' ' + d + '))');
+            }
+          }
+        }
+
+        r1 = operators[op3](c, d);
+        if (r1 !== null) {
+          r2 = operators[op2](b, r1);
+          if (r2 !== null) {
+            r3 = operators[op1](a, r2);
+            if (isCloseTo24(r3)) {
+              return buildSolution([
+                stepThink('เริ่มจากตัวเลข <span class="keyword">' + [a, b, c, d].join(', ') + '</span>'),
+                stepCalc(c, op3, d, r1, 'เริ่มจากคู่ท้าย ' + c + ' กับ ' + d),
+                stepCalc(b, op2, r1, r2, 'นำผลลัพธ์มาคำนวณกับ ' + b),
+                stepCalc(a, op1, r2, r3, 'รวมกับตัวสุดท้าย ' + a),
+                stepDone(),
+              ], '(' + a + ' ' + op1 + ' (' + b + ' ' + op2 + ' (' + c + ' ' + op3 + ' ' + d + ')))');
+            }
+          }
+        }
+
+        r1 = operators[op1](a, b);
+        r2 = operators[op3](c, d);
+        if (r1 !== null && r2 !== null) {
+          r3 = operators[op2](r1, r2);
+          if (isCloseTo24(r3)) {
+            return buildSolution([
+              stepThink('เริ่มจากตัวเลข <span class="keyword">' + [a, b, c, d].join(', ') + '</span>'),
+              stepCalc(a, op1, b, r1, 'แยกคิดสองคู่: คู่ซ้าย = ' + fmt(r1)),
+              stepCalc(c, op3, d, r2, 'คู่ขวา = ' + fmt(r2)),
+              stepCalc(r1, op2, r2, r3, 'นำผลสองคู่มารวมกัน'),
+              stepDone(),
+            ], '((' + a + ' ' + op1 + ' ' + b + ') ' + op2 + ' (' + c + ' ' + op3 + ' ' + d + '))');
+          }
+        }
+
+        return null;
+      }
+
+      function solve24WithSteps(numbers) {
+        var perms = permute(numbers);
+        var i, j, k, p, op1, op2, op3, found;
+        for (i = 0; i < perms.length; i++) {
+          p = perms[i];
+          for (j = 0; j < opSyms.length; j++) {
+            for (k = 0; k < opSyms.length; k++) {
+              for (var m = 0; m < opSyms.length; m++) {
+                op1 = opSyms[j];
+                op2 = opSyms[k];
+                op3 = opSyms[m];
+                found = tryAllTrees(p[0], p[1], p[2], p[3], op1, op2, op3);
+                if (found) return found;
+              }
+            }
+          }
+        }
+        return null;
+      }
+
+      function generateSolvableSet() {
+        var nums, sol, attempt = 0;
+        while (attempt < 500) {
+          nums = [
+            Math.floor(Math.random() * 9) + 1,
+            Math.floor(Math.random() * 9) + 1,
+            Math.floor(Math.random() * 9) + 1,
+            Math.floor(Math.random() * 9) + 1,
+          ];
+          sol = solve24WithSteps(nums);
+          if (sol) return { nums: nums, sol: sol };
+          attempt++;
+        }
+        return { nums: [3, 8, 3, 3], sol: solve24WithSteps([3, 8, 3, 3]) };
+      }
+
+      function readNumbers() {
+        var nums = [];
+        for (var i = 0; i < inputs.length; i++) {
+          var v = parseInt(inputs[i].value, 10);
+          if (isNaN(v) || v < 1 || v > 13) return null;
+          nums.push(v);
+        }
+        return nums;
+      }
+
+      function renderCards(nums) {
+        cardsRow.innerHTML = '';
+        for (var i = 0; i < nums.length; i++) {
+          var el = document.createElement('div');
+          el.className = 'num-card';
+          el.textContent = String(nums[i]);
+          cardsRow.appendChild(el);
+        }
+      }
+
+      function hideAnswer() {
+        answerWrap.classList.remove('show');
+        errorBox.classList.remove('show');
+        placeholder.style.display = 'block';
+      }
+
+      function syncCards() {
+        var nums = readNumbers();
+        if (!nums) {
+          cardsRow.innerHTML = '';
+          hideAnswer();
+          return;
+        }
+        renderCards(nums);
+        hideAnswer();
+      }
+
+      function renderSteps(solution) {
+        stepsList.innerHTML = '';
+        for (var i = 0; i < solution.steps.length; i++) {
+          var li = document.createElement('li');
+          li.innerHTML = solution.steps[i].html;
+          if (solution.steps[i].sub) {
+            var sub = document.createElement('span');
+            sub.className = 'sub';
+            sub.textContent = solution.steps[i].sub;
+            li.appendChild(sub);
+          }
+          stepsList.appendChild(li);
+        }
+        exprLine.textContent = 'สมการ: ' + solution.expression.replace(/\*/g, '×').replace(/\//g, '÷');
+      }
+
+      function reveal() {
+        var nums = readNumbers();
+        if (!nums) {
+          errorBox.textContent = 'กรุณากรอกตัวเลข 1–13 ครบทั้ง 4 ช่อง';
+          errorBox.classList.add('show');
+          answerWrap.classList.remove('show');
+          placeholder.style.display = 'none';
+          return;
+        }
+        renderCards(nums);
+        var solution = solve24WithSteps(nums);
+        if (!solution) {
+          errorBox.textContent = 'ชุดตัวเลขนี้ทำ 24 ไม่ได้ — ลองกด “สุ่มชุดที่ทำได้”';
+          errorBox.classList.add('show');
+          answerWrap.classList.remove('show');
+          placeholder.style.display = 'none';
+          return;
+        }
+        errorBox.classList.remove('show');
+        placeholder.style.display = 'none';
+        renderSteps(solution);
+        answerWrap.classList.add('show');
+        window._lastSolution = solution;
+      }
+
+      function speakSteps() {
+        if (!window._lastSolution || !window.KAMPAI || !KAMPAI.sound || !KAMPAI.sound.speak) return;
+        var parts = [];
+        for (var i = 0; i < window._lastSolution.steps.length; i++) {
+          var t = window._lastSolution.steps[i].html.replace(/<[^>]+>/g, '');
+          if (window._lastSolution.steps[i].sub) t += ' ' + window._lastSolution.steps[i].sub;
+          parts.push(t);
+        }
+        KAMPAI.sound.speak(parts.join(' ขั้นต่อไป '), 'th-TH');
+      }
+
+      function randomize() {
+        var data = generateSolvableSet();
+        inputs[0].value = String(data.nums[0]);
+        inputs[1].value = String(data.nums[1]);
+        inputs[2].value = String(data.nums[2]);
+        inputs[3].value = String(data.nums[3]);
+        renderCards(data.nums);
+        hideAnswer();
+      }
+
+      document.getElementById('btnBack').onclick = function () {
+        if (window.KAMPAI && KAMPAI.goHome) KAMPAI.goHome();
+        else history.back();
+      };
+      document.getElementById('btnReveal').onclick = reveal;
+      document.getElementById('btnHide').onclick = hideAnswer;
+      document.getElementById('btnRandom').onclick = randomize;
+      document.getElementById('btnSpeak').onclick = speakSteps;
+      inputs.forEach(function (inp) { inp.addEventListener('input', syncCards); });
+
+      syncCards();
+    })();
+  </script>
+</body>
+</html>

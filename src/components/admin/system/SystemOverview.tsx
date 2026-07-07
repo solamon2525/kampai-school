@@ -272,8 +272,17 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.161.5 (ตัวชี้วัด สื่อ+เศษส่วน+สะกด)',
+        version: 'v1.161.6 (สื่อเกม 24 วิธีคิด)',
         date: 'ล่าสุด',
+        badge: 'bg-amber-600',
+        items: [
+            '**math-24-thinking-media** — กรอกตัวเลข 4 ตัว แสดงวิธีคิดทีละขั้นจนได้ 24',
+            'migration 371 — seed คลังสื่อ + ตัวชี้วัด ค 1.1 ป.4/10–12 · คู่เกม math-24',
+        ],
+    },
+    {
+        version: 'v1.161.5 (ตัวชี้วัด สื่อ+เศษส่วน+สะกด)',
+        date: '',
         badge: 'bg-emerald-600',
         items: [
             'migration 370 — ผูก ป.4: สื่อ hub 4 รายการ (โจทย์ปัญหา/คำศัพท์ไทย-อังกฤษ/AR cal)',
