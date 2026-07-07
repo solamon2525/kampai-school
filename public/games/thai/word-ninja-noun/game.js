@@ -226,7 +226,7 @@
         const x = r + qrand() * (canvas.width - r * 2);
         
         // Launch with higher velocity so words fly completely above the screen and fall back down
-        const vx = (qrand() - 0.5) * 140;
+        const vx = (qrand() - 0.5) * 80;
         const peakHeight = -120 - qrand() * 150; // peak is between 120px and 270px above the top edge
         const h = (canvas.height + r) - peakHeight;
         const vy = -Math.sqrt(2 * gravity * h);
