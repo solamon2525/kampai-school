@@ -369,10 +369,13 @@ export function buildAiPrompt(scene, colors, opts = {}) {
   const contentRule = opts.overlay === 'banner'
     ? `Keep the main lesson illustration large and centered in the bottom ${100 - topPct - 8}% of the frame — do not place important content under the top title band. `
     : '';
+  const safeZoneRule = 'All main characters, focal elements, and lesson items must be centered within 60% safe zone of the image, leaving the top 20% and bottom 20% margins relatively clear and empty. ';
   const topRule =
     `STRICT: absolutely no text, no letters, no words, no numbers, no logos in the image. ` +
     `Leave the TOP ${topPct}% relatively clear/soft for large bright Thai title overlay. ` +
     contentRule +
+    safeZoneRule +
     'Full frame illustration edge to edge.';
   return [EDU_BASE, style, character, `Subject scene: ${scene}.`, colors, topRule, TEXT_OVERLAY_RULE].join(' ');
 }
+
