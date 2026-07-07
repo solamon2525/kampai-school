@@ -365,7 +365,6 @@
         handsReady = false;
         hands = null;
         camBtn.disabled = false;
-        startBtn.disabled = true;
         camStatus.textContent = '';
     }
 
@@ -410,10 +409,12 @@
     canvas.addEventListener('mouseup', () => {
         isMouseDown = false;
         fingertip = null;
+        handTrail = [];
     });
     canvas.addEventListener('mouseleave', () => {
         isMouseDown = false;
         fingertip = null;
+        handTrail = [];
     });
 
     canvas.addEventListener('touchstart', (e) => {
@@ -428,6 +429,7 @@
     });
     canvas.addEventListener('touchend', () => {
         fingertip = null;
+        handTrail = [];
     });
 
     function updateTrailPos(mx, my) {
@@ -511,6 +513,10 @@
         if (!lastFrameTime) lastFrameTime = ts;
         const dt = Math.min(0.05, (ts - lastFrameTime) / 1000);
         lastFrameTime = ts;
+
+        // Decaying slice trail points dynamically to keep drawing smooth
+        const now = performance.now();
+        handTrail = handTrail.filter(pt => now - pt.t < 180);
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawVideoMirrored();
