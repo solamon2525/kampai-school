@@ -436,7 +436,12 @@ function init() {
     window.addEventListener('keyup', (e) => { 
         if(e.code==='ArrowLeft') gameState.keys.left=false; 
         if(e.code==='ArrowRight') gameState.keys.right=false; 
-        if(e.code==='Space') gameState.keys.space=false;
+        if(e.code==='Space') {
+            if (gameState.isPlaying && gameState.keys.space) {
+                releaseSpacebarMissile();
+            }
+            gameState.keys.space=false;
+        }
     });
     canvas.addEventListener('mousedown', (e) => { if(!gameState.isPlaying) return; tryStartMusic(); startCharge(); });
     window.addEventListener('mousemove', updateMouse);
@@ -638,63 +643,142 @@ function drawVectorEnemyTank(tank, flash = 0) {
     ctx.restore();
 }
 
-function drawEnemyCreature(t) {
+function drawEnemyPlane(t) {
     ctx.save();
     ctx.translate(t.x, t.y);
     if (t.vx < 0) ctx.scale(-1, 1);
 
-    // Flap animation
-    const flap = Math.sin(t.propAngle * 0.5) * 0.2;
+    // Animation factor (spinning rotors/propellers)
+    t.propAngle += 0.25;
 
     if (t.type === 0) { 
-        // 1. GRIFFON (Feathered Wings)
+        // 1. PROPELLER PLANE
         ctx.fillStyle = t.color;
-        ctx.beginPath(); ctx.ellipse(0, 0, 35, 15, 0, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.arc(25, -10, 12, 0, Math.PI*2); ctx.fill();
-        ctx.fillStyle = "#f1c40f";
-        ctx.beginPath(); ctx.moveTo(35, -10); ctx.lineTo(45, -5); ctx.lineTo(35, 0); ctx.fill();
-        // Wing (Back)
-        ctx.fillStyle = "#5d4037";
-        ctx.save(); ctx.rotate(-0.2 + flap);
-        ctx.beginPath(); ctx.moveTo(-10, -5); ctx.quadraticCurveTo(10, -40, 40, -10); ctx.quadraticCurveTo(10, -20, -10, -5); ctx.fill();
-        ctx.restore();
-        // Wing (Front)
-        ctx.fillStyle = "#795548";
-        ctx.save(); ctx.rotate(0.1 + flap);
-        ctx.beginPath(); ctx.moveTo(-5, 0); ctx.quadraticCurveTo(15, -45, 45, -15); ctx.quadraticCurveTo(15, -25, -5, 0); ctx.fill();
-        ctx.restore();
-        // Tail
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 30, 10, 0, 0, Math.PI*2);
+        ctx.fill();
+        
+        ctx.beginPath();
+        ctx.moveTo(-25, -5);
+        ctx.lineTo(-35, -20);
+        ctx.lineTo(-20, -5);
+        ctx.fill();
+        
+        ctx.fillStyle = "rgba(0,0,0,0.15)";
+        ctx.fillRect(-10, -22, 10, 15);
+        
         ctx.fillStyle = t.color;
-        ctx.beginPath(); ctx.moveTo(-30, 0); ctx.lineTo(-50, -10); ctx.lineTo(-45, 5); ctx.fill();
+        ctx.fillRect(-5, 0, 12, 25);
+        
+        ctx.fillStyle = "#38bdf8";
+        ctx.beginPath();
+        ctx.arc(8, -5, 6, Math.PI, 0);
+        ctx.fill();
+        
+        ctx.fillStyle = "#475569";
+        ctx.fillRect(30, -3, 3, 6);
+        
+        ctx.strokeStyle = "#cbd5e1";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        const pY = Math.sin(t.propAngle) * 18;
+        ctx.moveTo(31, -pY);
+        ctx.lineTo(31, pY);
+        ctx.stroke();
 
     } else if (t.type === 1) { 
-        // 2. WYVERN (Dragon)
+        // 2. FIGHTER JET
+        ctx.fillStyle = "rgba(0,0,0,0.2)";
+        ctx.beginPath();
+        ctx.moveTo(-15, 0);
+        ctx.lineTo(-30, -18);
+        ctx.lineTo(5, 0);
+        ctx.fill();
+        
         ctx.fillStyle = t.color;
-        ctx.beginPath(); ctx.moveTo(-40, 0); ctx.quadraticCurveTo(0, -10, 40, 0); ctx.quadraticCurveTo(0, 10, -40, 0); ctx.fill();
-        ctx.beginPath(); ctx.moveTo(30, 0); ctx.quadraticCurveTo(45, -10, 55, -5); ctx.lineTo(60, 0); ctx.lineTo(50, 5); ctx.fill();
-        // Wing (Webbed)
-        ctx.fillStyle = "rgba(0,0,0,0.3)";
-        ctx.save(); ctx.rotate(flap);
-        ctx.beginPath(); ctx.moveTo(10, -5); ctx.lineTo(40, -40); ctx.lineTo(20, -30); ctx.lineTo(0, -40); ctx.lineTo(-10, -5); ctx.fill();
-        ctx.strokeStyle = t.color; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.moveTo(10, -5); ctx.lineTo(40, -40); ctx.stroke();
-        ctx.restore();
-        // Tail
-        ctx.strokeStyle = t.color;
-        ctx.beginPath(); ctx.moveTo(-40, 0); ctx.quadraticCurveTo(-60, 10 + flap*20, -80, 0); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(-15, 0);
+        ctx.lineTo(-25, 22);
+        ctx.lineTo(10, 0);
+        ctx.fill();
+        
+        ctx.beginPath();
+        ctx.moveTo(-35, 0);
+        ctx.lineTo(32, 0);
+        ctx.lineTo(35, -3);
+        ctx.lineTo(25, -6);
+        ctx.lineTo(-35, -4);
+        ctx.closePath();
+        ctx.fill();
+        
+        ctx.beginPath();
+        ctx.moveTo(-25, -3);
+        ctx.lineTo(-38, -18);
+        ctx.lineTo(-28, -18);
+        ctx.lineTo(-15, -3);
+        ctx.fill();
+        
+        ctx.fillStyle = "#38bdf8";
+        ctx.beginPath();
+        ctx.moveTo(8, -4);
+        ctx.quadraticCurveTo(18, -4, 20, -1);
+        ctx.lineTo(5, -1);
+        ctx.closePath();
+        ctx.fill();
+        
+        if (gameState.frame % 3 === 0) {
+            gameState.particles.push({
+                x: t.x - (t.vx < 0 ? -38 : 38),
+                y: t.y,
+                vx: (t.vx < 0 ? 2 : -2) + (Math.random()-0.5),
+                vy: (Math.random()-0.5),
+                life: 0.5,
+                color: 'rgba(239, 68, 68, 0.7)',
+                size: 3 + Math.random()*3
+            });
+        }
 
     } else { 
-        // 3. GIANT BAT
-        ctx.fillStyle = "#2c3e50";
-        ctx.beginPath(); ctx.ellipse(0, 0, 20, 10, 0, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.arc(15, -5, 8, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.moveTo(12, -10); ctx.lineTo(10, -20); ctx.lineTo(18, -10); ctx.fill();
-        ctx.beginPath(); ctx.moveTo(18, -10); ctx.lineTo(20, -20); ctx.lineTo(24, -10); ctx.fill();
-        // Wings
-        ctx.fillStyle = "#34495e";
-        ctx.save(); ctx.rotate(flap * 1.5);
-        ctx.beginPath(); ctx.moveTo(5, -5); ctx.lineTo(35, -35); ctx.lineTo(15, -15); ctx.lineTo(-5, -35); ctx.lineTo(-15, -5); ctx.fill();
-        ctx.restore();
+        // 3. HELICOPTER
+        ctx.fillStyle = t.color;
+        ctx.beginPath();
+        ctx.arc(0, 2, 16, 0, Math.PI*2);
+        ctx.fill();
+        
+        ctx.fillRect(-30, -2, 20, 6);
+        
+        ctx.fillStyle = "#475569";
+        ctx.fillRect(-30, -8, 3, 14);
+        ctx.strokeStyle = "#cbd5e1";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        const trVal = Math.sin(t.propAngle * 2) * 8;
+        ctx.moveTo(-28, -2 - trVal);
+        ctx.lineTo(-28, -2 + trVal);
+        ctx.stroke();
+        
+        ctx.strokeStyle = "#475569";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-10, 18); ctx.lineTo(-10, 23); ctx.lineTo(12, 23);
+        ctx.moveTo(8, 18); ctx.lineTo(8, 23);
+        ctx.stroke();
+        
+        ctx.fillStyle = "#38bdf8";
+        ctx.beginPath();
+        ctx.arc(6, 0, 8, -Math.PI/2, Math.PI/2);
+        ctx.fill();
+        
+        ctx.fillStyle = "#475569";
+        ctx.fillRect(-2, -18, 4, 6);
+        
+        ctx.strokeStyle = "#cbd5e1";
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        const rX = Math.cos(t.propAngle) * 32;
+        ctx.moveTo(-rX, -18);
+        ctx.lineTo(rX, -18);
+        ctx.stroke();
     }
     
     ctx.restore();
@@ -751,38 +835,68 @@ function createFloatingText(x, y, text, color) {
     gameState.floatingTexts.push({x, y, text, color, life: 1.0});
 }
 
-function firePlayerMissile() {
-    for (let i = 0; i < 2; i++) {
-        let targets = [];
-        gameState.enemyTanks.forEach(t => targets.push({type: 'tank', ref: t}));
-        gameState.balloons.forEach(b => targets.push({type: 'balloon', ref: b}));
-
+function firePlayerMissile(count) {
+    if (count <= 0) return;
+    
+    let potentialTargets = [];
+    gameState.targets.forEach(t => potentialTargets.push({type: 'target', ref: t}));
+    gameState.enemyTanks.forEach(t => potentialTargets.push({type: 'tank', ref: t}));
+    gameState.balloons.forEach(b => potentialTargets.push({type: 'balloon', ref: b}));
+    
+    for (let i = 0; i < count; i++) {
         let selectedTarget = null;
-        let willHit = false;
-
-        if (targets.length > 0) {
-            selectedTarget = targets[Math.floor(Math.random() * targets.length)];
+        let willHit = true;
+        
+        if (potentialTargets.length > 0) {
+            const idx = Math.floor(Math.random() * potentialTargets.length);
+            selectedTarget = potentialTargets[idx];
+            potentialTargets.splice(idx, 1);
+            
             if (selectedTarget.type === 'tank') {
                 willHit = Math.random() < 0.8;
-            } else {
-                willHit = true;
             }
         }
-
+        
+        const offsetX = (count === 1) ? 0 : (-20 + (i / (count - 1)) * 40);
+        const vx = (count === 1) ? 0 : (-3 + (i / (count - 1)) * 6);
+        
         gameState.playerMissiles.push({
-            x: gameState.tankX + (i === 0 ? -15 : 15),
+            x: gameState.tankX + offsetX,
             y: gameState.groundY - 50,
-            vx: (i === 0 ? -2 : 2),
+            vx: vx,
             vy: -8,
             target: selectedTarget,
             willHit: willHit,
-            life: 300, 
+            life: 300,
             trailCount: 0
         });
     }
-    sfx.shoot(); 
-    gameState.shotsFired += 2;
+    sfx.shoot();
+    gameState.shotsFired += count;
 }
+
+function releaseSpacebarMissile() {
+    if (gameState.pMissiles <= 0 || gameState.pMissileCooldown > 0) {
+        gameState.pMissileCharge = 0;
+        return;
+    }
+    
+    let count = 0;
+    if (gameState.pMissileCharge >= 80) count = 3;
+    else if (gameState.pMissileCharge >= 45) count = 2;
+    else if (gameState.pMissileCharge >= 15) count = 1;
+    
+    count = Math.min(count, gameState.pMissiles);
+    
+    if (count > 0) {
+        firePlayerMissile(count);
+        gameState.pMissiles -= count;
+        gameState.pMissileCooldown = 60; // 1 second cooldown
+        updatePMissileUI();
+    }
+    gameState.pMissileCharge = 0;
+}
+
 
 function updateMouse(e) {
     const rect = canvas.getBoundingClientRect();
@@ -910,16 +1024,11 @@ function update() {
 
     // --- PLAYER MISSILE CHARGING (Spacebar) ---
     if (gameState.keys.space && gameState.pMissiles > 0 && gameState.pMissileCooldown <= 0) {
-        gameState.pMissileCharge++;
-        if (gameState.pMissileCharge >= 120) { // 2 seconds charge
-            firePlayerMissile();
+        gameState.pMissileCharge = Math.min(gameState.pMissileCharge + 1, 90);
+    } else {
+        if (!gameState.keys.space) {
             gameState.pMissileCharge = 0;
-            gameState.pMissiles--;
-            gameState.pMissileCooldown = 180; // 3 seconds cooldown
-            updatePMissileUI();
         }
-    } else if (!gameState.keys.space) {
-        gameState.pMissileCharge = 0; 
     }
 
     if (gameState.pMissileCooldown > 0) {
@@ -1211,12 +1320,27 @@ function update() {
         pm.life--;
         
         if (pm.target && pm.target.ref) {
+            // Check if target still exists in the game
+            let stillExists = false;
+            if (pm.target.type === 'target') {
+                stillExists = gameState.targets.includes(pm.target.ref);
+            } else if (pm.target.type === 'tank') {
+                stillExists = gameState.enemyTanks.includes(pm.target.ref);
+            } else if (pm.target.type === 'balloon') {
+                stillExists = gameState.balloons.includes(pm.target.ref);
+            }
+            
+            if (!stillExists) {
+                pm.target = null;
+            }
+        }
+        
+        if (pm.target && pm.target.ref) {
             const dx = pm.target.ref.x - pm.x;
             const dy = pm.target.ref.y - pm.y;
             const dist = Math.sqrt(dx*dx + dy*dy);
             
             if (dist < 40) {
-                // Hit target
                 sfx.explode();
                 createExplosion(pm.x, pm.y, "orange", 20);
                 
@@ -1241,6 +1365,36 @@ function update() {
                     const bi = gameState.balloons.indexOf(pm.target.ref);
                     if (bi !== -1) gameState.balloons.splice(bi, 1);
                     gameState.score += 5;
+                } else if (pm.target.type === 'target') {
+                    sfx.hit(pm.target.ref.isCorrect);
+                    createExplosion(pm.target.ref.x, pm.target.ref.y, pm.target.ref.color, 20);
+                    
+                    const ti = gameState.targets.indexOf(pm.target.ref);
+                    if (ti !== -1) {
+                        if (pm.target.ref.isCorrect) {
+                            gameState.score += CONFIG.BASE_SCORE;
+                            document.getElementById('score-val').innerText = gameState.score;
+                            
+                            gameState.crates.push({
+                                x: pm.target.ref.x, y: pm.target.ref.y, vy: 0.8, vx: gameState.wind * 3, radius: 20,
+                                hasParachute: true, amount: 5, text: "+5 💣", type: 'ammo', despawnTimer: 600
+                            });
+                            
+                            createFloatingText(pm.target.ref.x, pm.target.ref.y - 20, "ถูกต้อง! 🎉", "#10b981");
+                            gameState.levelComplete = true;
+                        } else {
+                            gameState.lives = Math.max(0, gameState.lives - 1);
+                            gameState.mistakes++;
+                            gameState.isHitFlash = 10;
+                            updateLivesUI();
+                            createFloatingText(pm.target.ref.x, pm.target.ref.y - 20, "ผิดพลาด! ❌", "#ef4444");
+                            
+                            if (gameState.lives <= 0) {
+                                triggerGameOver("พลังชีวิตหมดจากการโจมตีเป้าหมายผิด!");
+                            }
+                        }
+                        gameState.targets.splice(ti, 1);
+                    }
                 }
                 
                 gameState.playerMissiles.splice(idx, 1);
@@ -1249,15 +1403,12 @@ function update() {
                 return;
             }
             
-            // Adjust velocity
             pm.vx += dx * 0.005;
             pm.vy += dy * 0.005;
         } else {
-            // No target, fly up
             pm.vy -= 0.1;
         }
         
-        // Speed limit
         const sp = Math.sqrt(pm.vx*pm.vx + pm.vy*pm.vy);
         if (sp > 8) {
             pm.vx = (pm.vx / sp) * 8;
@@ -1267,7 +1418,6 @@ function update() {
         pm.x += pm.vx;
         pm.y += pm.vy;
 
-        // Trail smoke
         if (gameState.frame % 2 === 0) {
             gameState.particles.push({
                 x: pm.x, y: pm.y,
@@ -1282,6 +1432,7 @@ function update() {
         if (pm.y < -100 || pm.life <= 0) {
             gameState.playerMissiles.splice(idx, 1);
         }
+
     });
 
     // --- CRATES & LOOT DROPS UPDATES ---
@@ -1561,9 +1712,9 @@ function draw() {
         ctx.restore();
     });
 
-    // Draw Targets (Winged Beasts)
+    // Draw Targets (Airplanes)
     gameState.targets.forEach((t) => {
-        drawEnemyCreature(t);
+        drawEnemyPlane(t);
     });
 
     // Draw Crates
@@ -1664,6 +1815,50 @@ function draw() {
 
     // Draw Trajectory
     drawTrajectory();
+
+    // Draw Spacebar Homing Missile Charge UI
+    if (gameState.keys.space && gameState.pMissiles > 0 && gameState.pMissileCooldown <= 0) {
+        const chargeX = gameState.tankX;
+        const chargeY = gameState.groundY - 120;
+        
+        ctx.fillStyle = "rgba(15, 23, 42, 0.85)";
+        ctx.strokeStyle = "rgba(56, 189, 248, 0.4)";
+        ctx.lineWidth = 1.5;
+        ctx.drawRoundedRect(chargeX - 60, chargeY - 25, 120, 32, 6);
+        ctx.stroke();
+        
+        const activeCount = gameState.pMissileCharge >= 80 ? 3 : (gameState.pMissileCharge >= 45 ? 2 : (gameState.pMissileCharge >= 15 ? 1 : 0));
+        const slots = 3;
+        for (let i = 0; i < slots; i++) {
+            const slotX = chargeX - 35 + i * 35;
+            ctx.font = "16px Arial";
+            ctx.textAlign = "center";
+            
+            if (i < activeCount) {
+                ctx.fillStyle = "#38bdf8";
+                ctx.fillText("🚀", slotX, chargeY - 3);
+            } else {
+                ctx.fillStyle = "rgba(100, 116, 139, 0.4)";
+                ctx.fillText("🚀", slotX, chargeY - 3);
+            }
+        }
+        
+        let nextLimit = 15;
+        let prevLimit = 0;
+        if (activeCount === 1) { prevLimit = 15; nextLimit = 45; }
+        else if (activeCount === 2) { prevLimit = 45; nextLimit = 80; }
+        
+        if (activeCount < 3) {
+            const ratio = (gameState.pMissileCharge - prevLimit) / (nextLimit - prevLimit);
+            ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
+            ctx.fillRect(chargeX - 50, chargeY + 12, 100, 4);
+            ctx.fillStyle = "#38bdf8";
+            ctx.fillRect(chargeX - 50, chargeY + 12, 100 * Math.max(0, Math.min(1, ratio)), 4);
+        } else {
+            ctx.fillStyle = "#fbbf24";
+            ctx.fillRect(chargeX - 50, chargeY + 12, 100, 4);
+        }
+    }
 
     // Draw Player Tank
     const mouseBarrelAngle = Math.atan2(
