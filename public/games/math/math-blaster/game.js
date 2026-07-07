@@ -1415,11 +1415,6 @@
      */
     function draw() {
         ctx.save();
-        if (screenShake > 0) {
-            let dx = (Math.random() - 0.5) * screenShake;
-            let dy = (Math.random() - 0.5) * screenShake;
-            ctx.translate(dx, dy);
-        }
         
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
