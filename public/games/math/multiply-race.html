@@ -1413,5 +1413,21 @@ window.addEventListener('message', function(e) {
     }
 });
 </script>
+<script>
+/* โหมดจาก URL (?mode=race|endless|daily) — งานวิจัย/ครูมอบหมาย: ข้ามเมนูเลือกโหมด */
+(function applyResearchUrlMode() {
+    try {
+        var p = new URLSearchParams(location.search);
+        var m = p.get('mode');
+        if (!m) return;
+        var allowed = { race: 1, endless: 1, daily: 1 };
+        if (!allowed[m]) return;
+        requestAnimationFrame(function() {
+            if (typeof started !== 'undefined' && started) return;
+            if (typeof chooseMode === 'function') chooseMode(m);
+        });
+    } catch (_) {}
+})();
+</script>
 </body>
 </html>

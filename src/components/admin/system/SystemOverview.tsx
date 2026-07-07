@@ -272,8 +272,20 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.161.6 (สื่อเกม 24 วิธีคิด)',
+        version: 'v1.161.7 (วิจัยเกมในชั้นเรียน — หน้าแยก)',
         date: 'ล่าสุด',
+        badge: 'bg-violet-600',
+        items: [
+            '**game_research_studies** (migration 372) — โครงการวิจัย pre/post: เกม+โหมด+ชั้น+ช่วงวันที่+จำกัดรอบ/วัน · RLS เจ้าของเกม',
+            '**record_game_session** +7th arg `p_research_study_id` — บันทึก research_study_id · จำกัด 3 รอบ/วัน · RPC count_research_rounds_today',
+            'หน้าใหม่ `/teacher/game-research` — แดชบอร์ดรอบวันนี้ · รายงาน 5 บท · Export CSV',
+            '**หน้าบ้าน `/research/:studyId`** (migration 373) — นักเรียนกรอกรหัสยืนยัน · ลิงก์สั้น · โหมดฝังใน URL · autostart เข้าเกมทันที',
+            'migration 374 — `show_on_homepage` + RPC list_research_studies_public · โซนหน้าแรก `research_play` · QR พิมพ์ในแท็บลิงก์ครู · `/research` รายการโครงการ',
+        ],
+    },
+    {
+        version: 'v1.161.6 (สื่อเกม 24 วิธีคิด)',
+        date: '',
         badge: 'bg-amber-600',
         items: [
             '**math-24-thinking-media** — กรอกตัวเลข 4 ตัว แสดงวิธีคิดทีละขั้นจนได้ 24',

@@ -56,6 +56,7 @@ export type RecordSessionParams = {
   mode?: string | null;
   durationSec?: number | null;
   metadata?: Record<string, unknown>;
+  researchStudyId?: string | null;
 };
 
 // ─── Level curve (doubling: L(n) = 100 * (2^(n-1) - 1)) ──────────────────────
@@ -106,6 +107,7 @@ export const gamePlayService = {
       p_mode: p.mode ?? null,
       p_duration_sec: p.durationSec ?? null,
       p_metadata: (p.metadata ?? {}) as never,
+      p_research_study_id: p.researchStudyId ?? null,
     });
     if (error) throw error;
     return data as unknown as RecordSessionResult;

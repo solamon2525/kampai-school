@@ -50,6 +50,7 @@ import {
   type LevelInfo,
 } from '@/services/game-play.service';
 import { multiplyRaceService, type PerTableStats } from '@/services/multiply-race.service';
+import { gameResearchService } from '@/services/game-research.service';
 import { thaiVocabService } from '@/services/thai-vocab.service';
 import { HonorWall } from '@/components/games/HonorWall';
 import { DailyQuestPanel, dailyQuestQueryKey } from '@/components/games/DailyQuestPanel';
@@ -89,6 +90,8 @@ const PlayGame = () => {
   const { gameSlug: originalSlug = '' } = useParams<{ gameSlug: string }>();
   const gameSlug = originalSlug === 'multiply-rally' ? 'math-rally' : originalSlug;
   const [searchParams] = useSearchParams();
+  const researchStudyId = searchParams.get('study') || null;
+  const autostart = searchParams.get('autostart') === '1';
   const { toast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -153,6 +156,13 @@ const PlayGame = () => {
   });
 
   const resolvedSlug = gameQuery.data?.game_slug || gameSlug;
+
+  const researchRoundsQuery = useQuery({
+    queryKey: ['research-rounds', researchStudyId, codeInput],
+    queryFn: () => gameResearchService.countRoundsToday(researchStudyId!, codeInput.trim()),
+    enabled: !!researchStudyId && codeInput.trim().length > 0,
+    refetchInterval: phase === 'playing' ? 30_000 : false,
+  });
 
   const isMathRunnerMobilePlay =
     phase === 'playing' && resolvedSlug === 'math-runner' && isTouchDevice;
@@ -298,18 +308,51 @@ const PlayGame = () => {
         localStorage.removeItem('kampai_student_code');
         return;
       }
+      if (researchStudyId) {
+        const rounds = await gameResearchService.countRoundsToday(researchStudyId, code);
+        if (!rounds.ok) {
+          setLookupError('ไม่พบโครงการวิจัยนี้');
+          return;
+        }
+        if (rounds.class_name && found.class_label !== rounds.class_name) {
+          setLookupError(`รหัสนี้ไม่ใช่ชั้น ${rounds.class_name}`);
+          return;
+        }
+        if ((rounds.remaining ?? 0) <= 0) {
+          setLookupError(`ครบ ${rounds.max_rounds} รอบวันนี้แล้ว — กลับมาใหม่พรุ่งนี้`);
+          return;
+        }
+      }
       setStudent(found);
       localStorage.setItem('kampai_student_code', code);
-      setPhase('confirm');
+      if (autostart && researchStudyId) {
+        setPrevLevel(levelInfo);
+        prevQuestRef.current = questQuery.data ?? null;
+        setResult(null);
+        setShowReward(false);
+        sessionSubmittedRef.current = false;
+        setGameSessionStarted(false);
+        setPhase('playing');
+      } else {
+        setPhase('confirm');
+      }
     } catch {
       setLookupError('เกิดข้อผิดพลาด โปรดลองใหม่');
     } finally {
       setLookupLoading(false);
     }
-  }, [codeInput]);
+  }, [codeInput, researchStudyId, autostart, levelInfo, questQuery.data]);
 
   // ─── start game ────────────────────────────────────────────────────────────
   const handleStart = useCallback(() => {
+    if (researchStudyId && researchRoundsQuery.data?.ok && (researchRoundsQuery.data.remaining ?? 0) <= 0) {
+      toast({
+        title: 'ครบจำนวนรอบวันนี้แล้ว',
+        description: 'กลับมาเล่นใหม่พรุ่งนี้ตามที่ครูกำหนด',
+        variant: 'destructive',
+      });
+      return;
+    }
     setPrevLevel(levelInfo);
     prevQuestRef.current = questQuery.data ?? null;
     setResult(null);
@@ -317,7 +360,7 @@ const PlayGame = () => {
     sessionSubmittedRef.current = false;
     setGameSessionStarted(false);
     setPhase('playing');
-  }, [levelInfo, questQuery.data]);
+  }, [levelInfo, questQuery.data, researchStudyId, researchRoundsQuery.data, toast]);
 
   const postParentViewport = useCallback(() => {
     if (!iframeRef.current?.contentWindow || resolvedSlug !== 'math-runner') return;
@@ -521,7 +564,7 @@ const PlayGame = () => {
       handleLookup(saved);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // run once on mount only
+  }, [researchStudyId, autostart]);
 
   // ─── receive `navigate` from iframe (exit / select-another-game buttons) ──
   // Not gated by phase — game can request navigation anytime (pause modal, etc.)
@@ -610,7 +653,9 @@ const PlayGame = () => {
               ? (data.metadata.duration as number)
               : null,
           metadata: data.metadata ?? {},
+          researchStudyId: researchStudyId,
         });
+        if (researchStudyId) researchRoundsQuery.refetch();
         setResult(submitted);
         // ส่งผล XP กลับเข้าเกม → SDK ฝังลงจอจบของเกม (จอเดียว); เกมที่ฝังเองจะ ack กัน RewardPopup ลอยซ้ำ
         try {
@@ -705,6 +750,24 @@ const PlayGame = () => {
           toast({
             title: 'เล่นเร็วเกินไป',
             description: 'รอสักครู่แล้วลองใหม่นะคะ',
+            variant: 'destructive',
+          });
+        } else if (msg.includes('research_round_limit')) {
+          toast({
+            title: 'ครบจำนวนรอบวันนี้แล้ว',
+            description: 'โครงการวิจัยจำกัดจำนวนรอบต่อวัน — กลับมาเล่นใหม่พรุ่งนี้',
+            variant: 'destructive',
+          });
+        } else if (msg.includes('research_mode_mismatch')) {
+          toast({
+            title: 'โหมดไม่ตรงกับงานวิจัย',
+            description: 'กรุณาเล่นในโหมดที่ครูกำหนด (เช่น แข่งเร็ว)',
+            variant: 'destructive',
+          });
+        } else if (msg.includes('research_class_mismatch')) {
+          toast({
+            title: 'ชั้นเรียนไม่ตรงกับงานวิจัย',
+            description: 'รหัสนักเรียนนี้ไม่อยู่ในชั้นที่ครูกำหนด',
             variant: 'destructive',
           });
         } else {
@@ -973,9 +1036,9 @@ const PlayGame = () => {
           <div className="flex items-center gap-2">
             {phase !== 'playing' && (
               <Button asChild variant="outline" size="sm">
-                <Link to="/h/nattapong">
+                <Link to={researchStudyId ? `/research/${researchStudyId}` : '/h/nattapong'}>
                   <ArrowLeft className="mr-2 h-4 w-4" />
-                  กลับไปเลือกเกมอื่น
+                  {researchStudyId ? 'กลับหน้างานวิจัย' : 'กลับไปเลือกเกมอื่น'}
                 </Link>
               </Button>
             )}
@@ -990,7 +1053,25 @@ const PlayGame = () => {
       )}
 
       <main className={cn('mx-auto w-full', phase === 'playing' ? 'min-h-0 flex-1 max-w-none p-0' : 'max-w-5xl p-4 sm:p-6')}>
-        {phase === 'lookup' && (
+        {phase === 'lookup' && autostart && researchStudyId && lookupLoading && (
+          <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-3">
+            <Loader2 className="h-8 w-8 animate-spin" />
+            <p className="text-sm">กำลังเข้าเกมงานวิจัย...</p>
+          </div>
+        )}
+
+        {phase === 'lookup' && autostart && researchStudyId && lookupError && !lookupLoading && (
+          <Card className="max-w-md mx-auto">
+            <CardContent className="p-6 space-y-4 text-center">
+              <p className="text-destructive text-sm">{lookupError}</p>
+              <Button asChild variant="outline">
+                <Link to={`/research/${researchStudyId}`}>กลับไปกรอกรหัสใหม่</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {phase === 'lookup' && !(autostart && researchStudyId) && (
           <LookupPanel
             value={codeInput}
             onChange={setCodeInput}
@@ -1010,6 +1091,27 @@ const PlayGame = () => {
 
         {phase === 'pre-game' && student && (
           <div className="space-y-4">
+            {researchStudyId && researchRoundsQuery.data?.ok && (
+              <Card className="border-primary/30 bg-primary/5">
+                <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">
+                      งานวิจัย: {researchRoundsQuery.data.title}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      เล่นได้ {researchRoundsQuery.data.max_rounds} รอบ/วัน · เหลือวันนี้{' '}
+                      <span className="font-medium text-foreground">{researchRoundsQuery.data.remaining}</span> รอบ
+                      {resolvedSlug === 'multiply-race' && researchRoundsQuery.data.game_mode === 'normal' && !searchParams.get('mode') && (
+                        <> · เลือกโหมด <strong>แข่งเร็ว</strong> ในเกม</>
+                      )}
+                    </p>
+                  </div>
+                  {(researchRoundsQuery.data.remaining ?? 0) <= 0 && (
+                    <Badge variant="destructive">ครบรอบวันนี้แล้ว</Badge>
+                  )}
+                </CardContent>
+              </Card>
+            )}
             {/* โปรไฟล์ XP รวม + เหรียญล่าสุด (gamification กลาง) */}
             <HonorWall studentCode={codeInput} variant="compact" />
             {/* ภารกิจประจำวัน — เหลือเควสวิชาอะไรบ้างวันนี้ */}

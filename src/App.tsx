@@ -79,6 +79,9 @@ const TeacherRewardsApproval = lazyWithRetry(() => import("./pages/teacher/Teach
 const TeacherEduHubManager = lazyWithRetry(() => import("./pages/teacher/TeacherEduHubManager"));
 const TeacherCctv = lazyWithRetry(() => import("./pages/teacher/TeacherCctv"));
 const TeacherMultiplyRaceDashboard = lazyWithRetry(() => import("./pages/teacher/TeacherMultiplyRaceDashboard"));
+const TeacherGameResearch = lazyWithRetry(() => import("./pages/teacher/TeacherGameResearch"));
+const ResearchPlay = lazyWithRetry(() => import("./pages/ResearchPlay"));
+const ResearchPlayIndex = lazyWithRetry(() => import("./pages/ResearchPlayIndex"));
 const TeacherMasteryHeatmap = lazyWithRetry(() => import("./pages/teacher/TeacherMasteryHeatmap"));
 const ParentDashboard = lazyWithRetry(() => import("./pages/parent/ParentDashboard"));
 const ParentChildView = lazyWithRetry(() => import("./pages/parent/ParentChildView"));
@@ -191,6 +194,8 @@ const App = () => (
             <Route path="/h/:identifier" element={<EducationalHubTeacher />} />
             <Route path="/play/:gameSlug" element={<PlayGame />} />
             <Route path="/play/:gameSlug/dashboard" element={<GameDashboard />} />
+            <Route path="/research" element={<ResearchPlayIndex />} />
+            <Route path="/research/:studyId" element={<ResearchPlay />} />
             {/* Student Self-Dashboard — เข้าด้วย student_code (public) */}
             <Route path="/my" element={<MyLearning />} />
             <Route path="/english-quest" element={<EnglishQuest />} />
@@ -224,6 +229,9 @@ const App = () => (
             } />
             <Route path="/teacher/games/multiply-race" element={
               <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherMultiplyRaceDashboard /></PortalProtectedRoute>
+            } />
+            <Route path="/teacher/game-research" element={
+              <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherGameResearch /></PortalProtectedRoute>
             } />
             <Route path="/teacher/mastery" element={
               <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherMasteryHeatmap /></PortalProtectedRoute>
