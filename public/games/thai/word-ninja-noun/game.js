@@ -211,6 +211,8 @@
             const gone = w.y - w.r > canvas.height + 40 || w.x < -w.r - 40 || w.x > canvas.width + w.r + 40;
             if (gone && !w.sliced && w.isNoun && w.vy > 0) {
                 // missed a noun that fell past bottom
+                timeLeft = Math.max(0, timeLeft - 3);
+                spawnTextParticle(w.x, canvas.height - 30, 'หลุดจอ! -3 วินาที', '#c1442d');
                 loseLife();
                 sfxMiss();
             }
@@ -242,14 +244,32 @@
         }
         particles = particles.filter(p => p.age < p.life);
     }
+    function spawnTextParticle(x, y, text, color = '#7fbf8a') {
+        particles.push({
+            x, y,
+            vx: (qrand() - 0.5) * 50,
+            vy: -80 - qrand() * 40,
+            life: 0.9,
+            age: 0,
+            color,
+            text
+        });
+    }
+
     function drawParticles() {
         for (const p of particles) {
             const a = 1 - (p.age / p.life);
             ctx.globalAlpha = Math.max(a, 0);
             ctx.fillStyle = p.color;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
-            ctx.fill();
+            if (p.text) {
+                ctx.font = "bold 20px 'Mitr', sans-serif";
+                ctx.textAlign = 'center';
+                ctx.fillText(p.text, p.x, p.y);
+            } else {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+                ctx.fill();
+            }
         }
         ctx.globalAlpha = 1;
     }
@@ -262,6 +282,20 @@
         scoreBox.textContent = score;
         comboText.textContent = 'คอมโบ x' + combo;
         spawnParticles(w.x, w.y, w.color, 22);
+        
+        // Time extension reward
+        timeLeft = Math.min(90, timeLeft + 1.5);
+        spawnTextParticle(w.x, w.y - 20, '+1.5 วินาที', '#7fbf8a');
+
+        // Combo reward: recover 1 life every 15 combo
+        if (combo > 0 && combo % 15 === 0) {
+            if (lives < LIVES_START) {
+                lives++;
+                renderLives();
+                spawnTextParticle(w.x, w.y - 45, '+1 ❤️', '#f6d98a');
+            }
+        }
+
         sfxSlice();
         if (combo > 0 && combo % 5 === 0) sfxCombo();
         flashColor = 'rgba(127,191,138,0.18)';
@@ -276,6 +310,11 @@
         scoreBox.textContent = score;
         comboText.textContent = 'คอมโบ x0';
         spawnParticles(w.x, w.y, '#c1442d', 18);
+        
+        // Time penalty
+        timeLeft = Math.max(0, timeLeft - 4);
+        spawnTextParticle(w.x, w.y - 20, '-4 วินาที', '#c1442d');
+
         sfxWrong();
         loseLife();
         flashColor = 'rgba(193,68,45,0.22)';
