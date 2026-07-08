@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.161.8 (วิจัยเกม — เมนูหลังบ้าน)',
+        version: 'v1.161.9 (พรีวิววิดีโอการ์ดเกม — สลับปกวนซ้ำ)',
         date: 'ล่าสุด',
+        badge: 'bg-sky-600',
+        items: [
+            '**GameDemoPreview** สลับปก ↔ วิดีโอเดโมแบบวนซ้ำ (เดิมโชว์ปก ~2 วิ แล้วเล่นวิดีโอค้าง)',
+            'หลังบ้าน GamesTab → ตั้งค่า **โชว์ปกกี่วิ / โชว์วิดีโอกี่วิ** (`game_preview_cover_seconds` · `game_preview_video_seconds`) — ค่าเริ่มต้นปก 2 วิ / วิดีโอ 5 วิ · ตั้งวิดีโอ = 0 เพื่อเล่นค้างแบบเดิม',
+            'ใช้กับหน้ารวมเกม (`EduHubItemCard`) + โซนเกมแนะนำหน้าแรก + FeaturedGameDialog',
+        ],
+    },
+    {
+        version: 'v1.161.8 (วิจัยเกม — เมนูหลังบ้าน)',
+        date: '',
         badge: 'bg-violet-600',
         items: [
             'Admin sidebar + Quick Menu catalog + Cmd-K **วิจัยเกมในชั้นเรียน** → `/teacher/game-research` (ข้าง คลังสื่อ/เกม · การเล่นเกม)',

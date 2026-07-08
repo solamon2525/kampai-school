@@ -5,66 +5,160 @@ interface Props {
     cover: string;
     video: string;
     title: string;
-    /** หน่วงรูปปกกี่ ms ก่อนเล่นเดโม (default 2000) */
+    /**
+     * เวลาโชว์รูปปกก่อน/ระหว่างสลับกลับ (ms)
+     * ค่าเริ่มต้น 2000 — หลังบ้านตั้งได้ผ่าน school_settings.game_preview_cover_seconds
+     */
+    coverMs?: number;
+    /**
+     * เวลาโชว์วิดีโอก่อนสลับกลับไปปก (ms) · 0 = เล่นจนจบคลิป/วนวิดีโออย่างเดียวไม่สลับกลับ
+     * ค่าเริ่มต้น 0 (พฤติกรรมเดิม: เข้าจอแล้วเล่นวิดีโอค้าง)
+     * หลังบ้าน: school_settings.game_preview_video_seconds
+     */
+    videoMs?: number;
+    /** @deprecated ใช้ coverMs แทน — คงไว้เพื่อไม่พัง caller เดิม */
     delayMs?: number;
 }
 
 /**
- * การ์ดกริดวิดีโอ: โชว์รูปปกก่อน → เข้าจอครบ delayMs → เล่นคลิปเดโม (มิวต์ วน) ทับปกแบบ fade.
- * - auto-play เฉพาะการ์ด "ในจอ" (IntersectionObserver) — off-screen ไม่โหลด/ไม่เล่น (lazy `src`)
- * - เคารพ prefers-reduced-motion + data-saver → โชว์รูปปกเฉย ๆ (ไม่โหลดวิดีโอ)
- * - ออกจอ → หยุด + คาย src กัน memory (กลับมา = หน่วงใหม่แล้วโหลด)
+ * การ์ดกริดวิดีโอ: โชว์รูปปก ↔ คลิปเดโม (มิวต์) สลับวนซ้ำ
+ * - coverMs: โชว์ปกก่อนเริ่ม / ระหว่างรอบ
+ * - videoMs > 0: เล่นวิดีโซ่แล้วกลับปก วนซ้ำ · videoMs = 0: เล่นวิดีโอค้าง (loop attribute)
+ * - auto-play เฉพาะการ์ดในจอ (IntersectionObserver) · prefers-reduced-motion / Save-Data → ปกอย่างเดียว
  */
-export const GameDemoPreview = ({ cover, video, title, delayMs = 2000 }: Props) => {
+export const GameDemoPreview = ({
+    cover,
+    video,
+    title,
+    coverMs,
+    videoMs = 0,
+    delayMs,
+}: Props) => {
+    const coverDelay = coverMs ?? delayMs ?? 2000;
+    const videoHold = Math.max(0, videoMs);
+
     const containerRef = useRef<HTMLDivElement>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
     const [playing, setPlaying] = useState(false);
+    const [inView, setInView] = useState(false);
 
+    // ติดตามว่าการ์ดอยู่ในจอหรือไม่
     useEffect(() => {
         const el = containerRef.current;
-        const v = videoRef.current;
-        if (!el || !v) return;
+        if (!el) return;
 
-        // ★ บังคับ muted "property" (ไม่ใช่แค่ attribute) — React บางทีไม่เซ็ต property ให้ → browser บล็อก autoplay
-        v.muted = true;
-        v.defaultMuted = true;
-
-        // Guard: ผู้ใช้ตั้งลดการเคลื่อนไหว หรือโหมดประหยัดเน็ต → ไม่เล่นวิดีโอเลย
         const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
         const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
         if (reduce || saveData) return;
 
-        let timer: ReturnType<typeof setTimeout> | undefined;
-        const onPlaying = () => setPlaying(true);   // ใช้ event 'playing' (เชื่อถือได้กว่า promise) → fade วิดีโอขึ้น
-        v.addEventListener('playing', onPlaying);
-
         const io = new IntersectionObserver(
             (entries) => {
-                const entry = entries[0];
-                if (entry.isIntersecting) {
-                    timer = setTimeout(() => {
-                        if (!v.getAttribute('src')) { v.setAttribute('src', video); v.load(); } // lazy load ตอนจะเล่น
-                        v.muted = true;
-                        const p = v.play();
-                        if (p && typeof p.catch === 'function') p.catch(() => { /* autoplay ถูกบล็อก → คงรูปปก */ });
-                    }, delayMs);
-                } else {
-                    if (timer) { clearTimeout(timer); timer = undefined; }
-                    setPlaying(false);
-                    v.pause();
-                    if (v.getAttribute('src')) { v.removeAttribute('src'); v.load(); }  // คาย memory
-                }
+                setInView(!!entries[0]?.isIntersecting);
             },
             { threshold: 0.25 },
         );
-
         io.observe(el);
-        return () => {
-            io.disconnect();
-            if (timer) clearTimeout(timer);
-            v.removeEventListener('playing', onPlaying);
+        return () => io.disconnect();
+    }, []);
+
+    // วงจรปก ↔ วิดีโอ เมื่ออยู่ในจอ
+    useEffect(() => {
+        const v = videoRef.current;
+        if (!v) return;
+
+        v.muted = true;
+        v.defaultMuted = true;
+
+        let coverTimer: ReturnType<typeof setTimeout> | undefined;
+        let videoTimer: ReturnType<typeof setTimeout> | undefined;
+        let cancelled = false;
+
+        const clearTimers = () => {
+            if (coverTimer) { clearTimeout(coverTimer); coverTimer = undefined; }
+            if (videoTimer) { clearTimeout(videoTimer); videoTimer = undefined; }
         };
-    }, [video, delayMs]);
+
+        const hideVideo = () => {
+            setPlaying(false);
+            v.pause();
+        };
+
+        const unload = () => {
+            hideVideo();
+            if (v.getAttribute('src')) {
+                v.removeAttribute('src');
+                v.load();
+            }
+        };
+
+        const ensureSrc = () => {
+            if (!v.getAttribute('src')) {
+                v.setAttribute('src', video);
+                v.load();
+            }
+        };
+
+        const playOnce = () => {
+            if (cancelled) return;
+            ensureSrc();
+            v.muted = true;
+            // โหมดวนวิดีโอค้าง: ใช้ loop attribute
+            v.loop = videoHold <= 0;
+            const p = v.play();
+            if (p && typeof p.catch === 'function') {
+                p.catch(() => { /* autoplay ถูกบล็อก → คงรูปปก */ });
+            }
+        };
+
+        const onPlaying = () => {
+            if (cancelled) return;
+            setPlaying(true);
+            // โหมดสลับ: ถือวิดีโอ videoHold แล้วกลับปก → วนซ้ำ
+            if (videoHold > 0) {
+                if (videoTimer) clearTimeout(videoTimer);
+                videoTimer = setTimeout(() => {
+                    if (cancelled) return;
+                    hideVideo();
+                    try { v.currentTime = 0; } catch { /* ignore */ }
+                    coverTimer = setTimeout(() => {
+                        if (!cancelled) playOnce();
+                    }, coverDelay);
+                }, videoHold);
+            }
+        };
+
+        const onEnded = () => {
+            // กรณี videoHold > 0 แต่คลิปสั้นกว่า → จบคลิปแล้วก็กลับปก
+            if (cancelled || videoHold <= 0) return;
+            if (videoTimer) { clearTimeout(videoTimer); videoTimer = undefined; }
+            hideVideo();
+            try { v.currentTime = 0; } catch { /* ignore */ }
+            coverTimer = setTimeout(() => {
+                if (!cancelled) playOnce();
+            }, coverDelay);
+        };
+
+        v.addEventListener('playing', onPlaying);
+        v.addEventListener('ended', onEnded);
+
+        if (inView) {
+            coverTimer = setTimeout(() => {
+                if (!cancelled) playOnce();
+            }, coverDelay);
+        } else {
+            clearTimers();
+            unload();
+        }
+
+        return () => {
+            cancelled = true;
+            clearTimers();
+            v.removeEventListener('playing', onPlaying);
+            v.removeEventListener('ended', onEnded);
+            if (!inView) unload();
+            else hideVideo();
+        };
+    }, [video, coverDelay, videoHold, inView]);
 
     return (
         <div ref={containerRef} className="aspect-video w-full overflow-hidden bg-muted relative">
@@ -77,7 +171,6 @@ export const GameDemoPreview = ({ cover, video, title, delayMs = 2000 }: Props) 
             <video
                 ref={videoRef}
                 muted
-                loop
                 playsInline
                 preload="none"
                 aria-hidden="true"

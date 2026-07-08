@@ -124,6 +124,10 @@ export interface SchoolSettings {
     featured_games_marquee_speed: string;   // วินาที/รอบ (marquee)
     featured_games_fade_duration: string;   // ms
     featured_games_fade_stagger: string;    // ms
+
+    // พรีวิวการ์ดเกม (ปก ↔ วิดีโอเดโม) — ใช้ทุก grid ที่มี preview_video_url
+    game_preview_cover_seconds: string;     // วินาทีโชว์ปกก่อน/ระหว่างสลับ (default 2)
+    game_preview_video_seconds: string;     // วินาทีโชว์วิดีโอก่อนกลับปก · 0 = เล่นวิดีโอค้างไม่สลับ (default 5)
 }
 
 const defaultSettings: SchoolSettings = {
@@ -227,6 +231,10 @@ const defaultSettings: SchoolSettings = {
     featured_games_marquee_speed: '30',
     featured_games_fade_duration: '400',
     featured_games_fade_stagger: '80',
+
+    // พรีวิวการ์ดเกม: ปก 2 วิ → วิดีโอ 5 วิ → กลับปก วนซ้ำ
+    game_preview_cover_seconds: '2',
+    game_preview_video_seconds: '5',
 };
 
 const CACHE_KEY = 'school_settings_cache';

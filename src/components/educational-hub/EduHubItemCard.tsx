@@ -25,6 +25,7 @@ import { GameDemoPreview } from './GameDemoPreview';
 import { GameCoverThumb } from './GameCoverThumb';
 import { IndicatorMarqueeStrip } from './IndicatorMarqueeStrip';
 import { LeaderboardMarqueeStrip } from './LeaderboardMarqueeStrip';
+import { useGamePreviewTiming } from '@/hooks/useGamePreviewTiming';
 import type { GameCardIndicator } from '@/services/curriculum.service';
 import type { ViewMode } from '@/hooks/useViewMode';
 
@@ -468,14 +469,17 @@ const CompactThumb = ({ item }: { item: EduHubItem }) => {
 };
 
 const ItemThumbnail = ({ item }: { item: EduHubItem }) => {
+    const { coverMs, videoMs } = useGamePreviewTiming();
     if (item.thumbnail_url) {
-        // กริดวิดีโอ: มีรูปปก + คลิปเดโม → โชว์ปก 2 วิ แล้วเล่นเดโมอัตโนมัติ (เฉพาะการ์ดในจอ)
+        // กริดวิดีโอ: มีรูปปก + คลิปเดโม → สลับปก ↔ วิดีโอวนซ้ำ (จังหวะจากหลังบ้าน)
         if (item.preview_video_url) {
             return (
                 <GameDemoPreview
                     cover={item.thumbnail_url}
                     video={item.preview_video_url}
                     title={item.title}
+                    coverMs={coverMs}
+                    videoMs={videoMs}
                 />
             );
         }

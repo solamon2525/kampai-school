@@ -18,6 +18,7 @@ import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { gamePlayService } from '@/services/game-play.service';
 import { GameDemoPreview } from '@/components/educational-hub/GameDemoPreview';
 import { GameCoverThumb } from '@/components/educational-hub/GameCoverThumb';
+import { useGamePreviewTiming } from '@/hooks/useGamePreviewTiming';
 import type { EduHubItem } from '@/services/educational-hub.service';
 
 export const FeaturedGameDialog = ({
@@ -30,6 +31,7 @@ export const FeaturedGameDialog = ({
     onOpenChange: (open: boolean) => void;
 }) => {
     const navigate = useNavigate();
+    const { coverMs, videoMs } = useGamePreviewTiming();
 
     const { data: leaders } = useQuery({
         queryKey: ['game-leaderboard-card', game?.game_slug],
@@ -63,7 +65,13 @@ export const FeaturedGameDialog = ({
                 {/* ปก */}
                 <div className="w-full overflow-hidden rounded-lg border border-border">
                     {game.thumbnail_url && game.preview_video_url ? (
-                        <GameDemoPreview cover={game.thumbnail_url} video={game.preview_video_url} title={game.title} />
+                        <GameDemoPreview
+                            cover={game.thumbnail_url}
+                            video={game.preview_video_url}
+                            title={game.title}
+                            coverMs={coverMs}
+                            videoMs={videoMs}
+                        />
                     ) : game.thumbnail_url ? (
                         <GameCoverThumb src={game.thumbnail_url} alt={game.title} />
                     ) : (

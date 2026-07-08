@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { ChevronLeft, ChevronRight, Eye, Calendar, ArrowRight, FileText, ChevronDown, Database, Heart, Utensils, BookOpen, Briefcase, Building, Send, Award, Trophy, Sparkles, Shield, Star, HeartHandshake } from 'lucide-react';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
+import { useGamePreviewTiming } from '@/hooks/useGamePreviewTiming';
 import { MapEmbed } from '@/components/MapEmbed';
 import { conductService, type ConductRecord, type HeroProfile } from '@/services/conduct.service';
 import {
@@ -117,6 +118,7 @@ const ContactFormBlock = () => {
 
 export const useHomeMainBlocks = () => {
   const { settings } = useSchoolSettings();
+  const { coverMs: previewCoverMs, videoMs: previewVideoMs } = useGamePreviewTiming();
   const [news, setNews] = useState<NewsItem[]>([]);
   const [slides, setSlides] = useState<{ url: string; title: string; fit: 'cover' | 'contain' }[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -1053,6 +1055,8 @@ export const useHomeMainBlocks = () => {
           cover={game.thumbnail_url}
           video={game.preview_video_url}
           title={game.title}
+          coverMs={previewCoverMs}
+          videoMs={previewVideoMs}
         />
       ) : game.thumbnail_url ? (
         <GameCoverThumb
