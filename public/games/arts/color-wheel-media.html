@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>วงล้อสีวรรณะอุ่น–เย็น — สื่อการสอน — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --deep: #7e22ce; --line: #e9d5ff; --muted: #64748b; --ok: #16a34a; --bad: #dc2626; --cream: #faf5ff; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(160deg, #fce7f3, #e9d5ff); min-height: 100%; padding: 12px; color: #0f172a; }
+    .shell { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+    header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #6b21a8, #db2777); color: #fff; }
+    header h1 { font-size: 1.1rem; font-weight: 800; flex: 1; min-width: 140px; }
+    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn:active { transform: scale(.97); }
+    .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
+    .btn-primary { background: var(--deep); color: #fff; }
+    .btn-accent { background: #f9a8d4; color: #831843; }
+    .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 16px; background: var(--cream); border-bottom: 1px solid var(--line); align-items: center; }
+    .seg { display: inline-flex; flex-wrap: wrap; border-radius: 12px; overflow: hidden; border: 2px solid #d8b4fe; }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 12px; cursor: pointer; font-size: .82rem; }
+    .seg button.on { background: var(--deep); color: #fff; }
+    .hint { font-size: .85rem; color: #7e22ce; font-weight: 600; flex: 1; min-width: 120px; }
+    .stage { flex: 1; padding: 16px; overflow: auto; }
+    .panel { display: none; flex-direction: column; gap: 14px; max-width: 960px; margin: 0 auto; }
+    .panel.on { display: flex; }
+    .wheel-wrap { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: center; }
+    .wheel { position: relative; width: min(320px, 90vw); height: min(320px, 90vw); border-radius: 50%; box-shadow: 0 8px 28px rgba(126,34,206,.25); }
+    .slice { position: absolute; inset: 0; border-radius: 50%; clip-path: polygon(50% 50%, 50% 0%, 93.3% 25%); transform-origin: 50% 50%; cursor: pointer; }
+    .slice.dim { opacity: .28; }
+    .slice.hot { filter: brightness(1.08); outline: 3px solid #fff; z-index: 2; }
+    .hub { position: absolute; left: 50%; top: 50%; width: 42%; height: 42%; transform: translate(-50%,-50%); border-radius: 50%; background: #fff; border: 3px solid var(--line); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5; text-align: center; pointer-events: none; }
+    .hub .dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #ddd; margin-bottom: 4px; }
+    .hub b { font-size: .9rem; color: var(--deep); }
+    .hub small { font-size: .7rem; color: var(--muted); font-weight: 700; }
+    .info { flex: 1; min-width: 240px; background: var(--cream); border: 2px solid var(--line); border-radius: 16px; padding: 14px; }
+    .info h3 { color: var(--deep); font-weight: 800; margin-bottom: 8px; }
+    .info p { font-weight: 600; line-height: 1.5; margin-bottom: 6px; }
+    .tone-badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-weight: 800; font-size: .8rem; color: #fff; }
+    .tone-warm { background: #ea580c; }
+    .tone-cool { background: #0284c7; }
+    .tone-both { background: #7c3aed; }
+    .swatch-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .sw { width: 72px; height: 72px; border-radius: 14px; border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,.15); cursor: pointer; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 4px; }
+    .sw span { font-size: .65rem; font-weight: 800; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.5); }
+    .legend { display: grid; gap: 10px; }
+    @media (min-width: 700px) { .legend { grid-template-columns: 1fr 1fr; } }
+    .leg { border-radius: 16px; padding: 14px; color: #fff; font-weight: 700; line-height: 1.45; }
+    .leg.w { background: linear-gradient(135deg, #ea580c, #fbbf24); }
+    .leg.c { background: linear-gradient(135deg, #0284c7, #22c55e); }
+    .scene-grid { display: grid; gap: 10px; }
+    @media (min-width: 700px) { .scene-grid { grid-template-columns: repeat(3, 1fr); } }
+    .scene { border: 2px solid var(--line); border-radius: 14px; padding: 12px; background: #fff; cursor: pointer; text-align: left; font-family: inherit; }
+    .scene.on { border-color: var(--deep); box-shadow: 0 0 0 3px #e9d5ff; }
+    .scene h4 { font-weight: 800; color: var(--deep); margin-bottom: 4px; }
+    .scene p { font-size: .8rem; font-weight: 600; color: #475569; }
+    .palette { display: flex; gap: 6px; margin-top: 8px; }
+    .palette i { width: 28px; height: 28px; border-radius: 8px; display: block; border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.2); }
+    .mix-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: center; }
+    .mix-card { background: var(--cream); border: 2px solid var(--line); border-radius: 16px; padding: 14px 18px; text-align: center; min-width: 200px; }
+    .mix-card .balls { display: flex; gap: 8px; justify-content: center; align-items: center; margin: 10px 0; }
+    .ball { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
+    .plus, .eq { font-weight: 900; color: var(--deep); font-size: 1.2rem; }
+    .q-box { text-align: center; max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+    .q-text { font-weight: 800; font-size: 1.15rem; color: var(--deep); }
+    .opts { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 420px; }
+    .opt { font-family: inherit; font-weight: 700; padding: 12px; border: 2px solid var(--line); border-radius: 12px; background: #fff; cursor: pointer; text-align: left; }
+    .opt.ok { background: #dcfce7; border-color: #86efac; }
+    .opt.no { background: #fee2e2; border-color: #fca5a5; }
+    .fb { text-align: center; font-weight: 800; min-height: 24px; }
+    .fb.ok { color: var(--ok); }
+    .fb.no { color: var(--bad); }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .footer { padding: 10px 16px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
+    .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
+      <h1>🎨 วงล้อสีวรรณะอุ่น–เย็น</h1>
+      <span class="badge">ป.1–4 · ศิลปะ</span>
+    </header>
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="wheel" class="on">🎡 วงล้อสำรวจ</button>
+        <button type="button" data-mode="tones">🔥 อุ่น vs เย็น</button>
+        <button type="button" data-mode="scene">🖼️ จัดฉาก</button>
+        <button type="button" data-mode="mix">🧪 ผสมแม่สี</button>
+        <button type="button" data-mode="quiz">❓ ถูก/ผิด</button>
+      </span>
+      <p class="hint" id="hintText">แตะสีบนวงล้อเพื่อดูวรรณะและอารมณ์</p>
+      <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
+    </div>
+    <div class="stage">
+      <div class="panel on" id="p-wheel"></div>
+      <div class="panel" id="p-tones"></div>
+      <div class="panel" id="p-scene"></div>
+      <div class="panel" id="p-mix"></div>
+      <div class="panel" id="p-quiz"></div>
+    </div>
+    <footer class="footer">ตัวชี้วัด <strong>ศ 1.1 ป.4/2</strong> · <strong>ศ 1.1 ป.4/7</strong> · คู่เกม <a href="/play/color-wheel">วงล้อสี</a></footer>
+  </div>
+  <script>
+    const MEDIA_SLUG = 'color-wheel-media';
+    if (window.KAMPAI) KAMPAI.setSlug(MEDIA_SLUG);
+
+    /* reuse name/hex/hue/level/tone จาก color-wheel/data.js + เติม emotion + exampleScene */
+    const COLORS = [
+      { id: 0, nameTh: 'แดง', nameEn: 'Red', hue: 0, hex: '#ef4444', level: 1, tone: 'warm', emotion: 'เร่าร้อน กล้า ความรัก', exampleScene: 'พระอาทิตย์ตก ทานตะวัน' },
+      { id: 1, nameTh: 'ส้มแดง', nameEn: 'Red-Orange', hue: 30, hex: '#f97316', level: 3, tone: 'warm', emotion: 'กระตือรือร้น มีชีวิตชีวา', exampleScene: 'เปลวไฟ ใบไม้ร่วง' },
+      { id: 2, nameTh: 'ส้ม', nameEn: 'Orange', hue: 60, hex: '#ea580c', level: 2, tone: 'warm', emotion: 'สนุก อบอุ่น เป็นมิตร', exampleScene: 'ส้มสุก ไฟแคมป์' },
+      { id: 3, nameTh: 'ส้มเหลือง', nameEn: 'Yellow-Orange', hue: 90, hex: '#f59e0b', level: 3, tone: 'warm', emotion: 'สดใส มีพลัง', exampleScene: 'แสงยามเช้า น้ำผึ้ง' },
+      { id: 4, nameTh: 'เหลือง', nameEn: 'Yellow', hue: 120, hex: '#eab308', level: 1, tone: 'both', emotion: 'ร่าเริง ความหวัง (กลางได้ทั้งอุ่น/เย็น)', exampleScene: 'ดอกทานตะวัน ทุ่งนา' },
+      { id: 5, nameTh: 'เขียวเหลือง', nameEn: 'Yellow-Green', hue: 150, hex: '#84cc16', level: 3, tone: 'cool', emotion: 'สดชื่น เติบโต', exampleScene: 'ใบอ่อน ทุ่งหญ้าเช้า' },
+      { id: 6, nameTh: 'เขียว', nameEn: 'Green', hue: 180, hex: '#22c55e', level: 2, tone: 'cool', emotion: 'สงบ เป็นธรรมชาติ', exampleScene: 'ป่าไม้ สวน' },
+      { id: 7, nameTh: 'เขียวแกมน้ำเงิน', nameEn: 'Blue-Green', hue: 210, hex: '#06b6d4', level: 3, tone: 'cool', emotion: 'เย็นสด ลึกลับเบา', exampleScene: 'ทะเลตื้น ปะการัง' },
+      { id: 8, nameTh: 'น้ำเงิน', nameEn: 'Blue', hue: 240, hex: '#3b82f6', level: 1, tone: 'cool', emotion: 'สงบ เชื่อถือได้', exampleScene: 'ท้องฟ้า ใต้ทะเลลึก' },
+      { id: 9, nameTh: 'ม่วงน้ำเงิน', nameEn: 'Blue-Violet', hue: 270, hex: '#6366f1', level: 3, tone: 'cool', emotion: 'ฝัน จินตนาการ', exampleScene: 'ฟ้ายามค่ำ ภูเขาสีคราม' },
+      { id: 10, nameTh: 'ม่วง', nameEn: 'Violet', hue: 300, hex: '#a855f7', level: 2, tone: 'both', emotion: 'ลึกลับ สง่างาม (กลางได้ทั้งอุ่น/เย็น)', exampleScene: 'ดอกอัญชัน ยามค่ำ' },
+      { id: 11, nameTh: 'ม่วงแดง', nameEn: 'Red-Violet', hue: 330, hex: '#ec4899', level: 3, tone: 'warm', emotion: 'โรแมนติก นุ่มนวล', exampleScene: 'ดอกกุหลาบ แสงยามเย็น' },
+    ];
+
+    const MOOD_SCENES = [
+      { id: 'sunset', title: 'พระอาทิตย์ตก', recommendedTone: 'warm', why: 'แสงอุ่นส้ม–แดงสื่อความอบอุ่นและสิ้นวัน', samplePalette: [0, 1, 2, 3] },
+      { id: 'campfire', title: 'ไฟแคมป์', recommendedTone: 'warm', why: 'เปลวไฟเป็นวรรณะอุ่น ให้ความรู้สึกอบอุ่น มั่นใจ', samplePalette: [1, 2, 3, 0] },
+      { id: 'meadow', title: 'ทุ่งหญ้าเช้า', recommendedTone: 'cool', why: 'ใบเขียวและฟ้าอ่อนเป็นวรรณะเย็น สดชื่น (อาจผสมเหลืองกลาง)', samplePalette: [5, 6, 4, 8] },
+      { id: 'undersea', title: 'ใต้ทะเล', recommendedTone: 'cool', why: 'น้ำเงิน–เขียวแกมน้ำเงินสื่อความลึกและเย็น', samplePalette: [7, 8, 9, 6] },
+      { id: 'rain', title: 'ฝนตกบนหน้าต่าง', recommendedTone: 'cool', why: 'ฟ้าเทา–ม่วงน้ำเงินให้ความรู้สึกสงบและเงียบ', samplePalette: [8, 9, 10, 7] },
+      { id: 'party', title: 'งานเลี้ยงวันเกิด', recommendedTone: 'warm', why: 'สีอุ่นสดใสและม่วงแดงสร้างความสนุกมีพลัง', samplePalette: [0, 2, 4, 11] },
+    ];
+
+    const MIXES = [
+      { a: 0, b: 4, result: 2, label: 'แดง + เหลือง = ส้ม' },
+      { a: 4, b: 8, result: 6, label: 'เหลือง + น้ำเงิน = เขียว' },
+      { a: 0, b: 8, result: 10, label: 'แดง + น้ำเงิน = ม่วง' },
+    ];
+
+    function colorById(id) { return COLORS.find((c) => c.id === id); }
+    function toneLabel(t) {
+      if (t === 'warm') return 'วรรณะอุ่น';
+      if (t === 'cool') return 'วรรณะเย็น';
+      return 'กลาง (อุ่น/เย็นได้)';
+    }
+    function toneClass(t) {
+      if (t === 'warm') return 'tone-warm';
+      if (t === 'cool') return 'tone-cool';
+      return 'tone-both';
+    }
+    function levelLabel(l) {
+      if (l === 1) return 'แม่สีขั้น 1';
+      if (l === 2) return 'สีขั้น 2';
+      return 'สีขั้น 3';
+    }
+    function shuffle(a) {
+      a = a.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = (Math.random() * (i + 1)) | 0;
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+    function speak(t) {
+      if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.speak) KAMPAI.sound.speak(t, 'th-TH');
+      else if (window.speechSynthesis) {
+        const u = new SpeechSynthesisUtterance(t);
+        u.lang = 'th-TH';
+        speechSynthesis.speak(u);
+      }
+    }
+
+    let mode = 'wheel', selColor = 0, toneFilter = 'all', selScene = 'sunset';
+    let quizQ = null, quizAnswered = false;
+
+    const hints = {
+      wheel: 'แตะสีบนวงล้อ — ดูวรรณะ อารมณ์ และตัวอย่างฉาก',
+      tones: 'เปรียบเทียบวรรณะอุ่นและเย็นกับอารมณ์ที่สื่อ',
+      scene: 'เลือกฉากแล้วเลือกวรรณะที่เหมาะ · ดูเฉลยคำอธิบาย',
+      mix: 'แม่สีผสมกันได้อย่างไร (สาธิต)',
+      quiz: 'ตอบคำถามวรรณะและอารมณ์สี',
+    };
+
+    function setMode(m) {
+      mode = m;
+      document.querySelectorAll('#modeSeg button').forEach((b) => b.classList.toggle('on', b.dataset.mode === m));
+      document.querySelectorAll('.panel').forEach((p) => p.classList.remove('on'));
+      document.getElementById('p-' + m).classList.add('on');
+      document.getElementById('hintText').textContent = hints[m];
+      if (m === 'wheel') renderWheel();
+      if (m === 'tones') renderTones();
+      if (m === 'scene') renderScene();
+      if (m === 'mix') renderMix();
+      if (m === 'quiz') { if (!quizQ) nextQuiz(); else renderQuiz(); }
+    }
+
+    function renderWheel() {
+      const el = document.getElementById('p-wheel');
+      const c = colorById(selColor);
+      const slices = COLORS.map((col, i) => {
+        const rot = i * 30;
+        return '<div class="slice' + (selColor === col.id ? ' hot' : '') + '" data-id="' + col.id +
+          '" style="background:' + col.hex + ';transform:rotate(' + rot + 'deg)"></div>';
+      }).join('');
+      el.innerHTML =
+        '<div class="wheel-wrap">' +
+        '<div class="wheel">' + slices +
+        '<div class="hub"><div class="dot" style="background:' + c.hex + '"></div><b>' + c.nameTh +
+        '</b><small>' + c.nameEn + '</small></div></div>' +
+        '<div class="info">' +
+        '<h3>' + c.nameTh + ' (' + c.nameEn + ')</h3>' +
+        '<p><span class="tone-badge ' + toneClass(c.tone) + '">' + toneLabel(c.tone) + '</span> · ' +
+        levelLabel(c.level) + '</p>' +
+        '<p><strong>อารมณ์:</strong> ' + c.emotion + '</p>' +
+        '<p><strong>ใช้ระบาย:</strong> ' + c.exampleScene + '</p>' +
+        '<div class="actions" style="justify-content:flex-start;margin-top:8px">' +
+        '<button type="button" class="btn btn-ghost" id="btnSpeakC">🔊 อ่านชื่อสี</button></div>' +
+        '</div></div>';
+      el.querySelectorAll('.slice').forEach((s) => {
+        s.onclick = () => { selColor = +s.dataset.id; renderWheel(); };
+      });
+      document.getElementById('btnSpeakC').onclick = () => speak('สี' + c.nameTh);
+    }
+
+    function renderTones() {
+      const el = document.getElementById('p-tones');
+      const warm = COLORS.filter((c) => c.tone === 'warm' || c.tone === 'both');
+      const cool = COLORS.filter((c) => c.tone === 'cool' || c.tone === 'both');
+      const show = toneFilter === 'warm' ? COLORS.filter((c) => c.tone === 'warm')
+        : toneFilter === 'cool' ? COLORS.filter((c) => c.tone === 'cool')
+        : COLORS;
+      el.innerHTML =
+        '<div class="legend">' +
+        '<div class="leg w"><strong>🔥 วรรณะอุ่น</strong><br>แดง–ส้ม–เหลือง (+ม่วงแดง)<br>ให้ความรู้สึกอบอุ่น มีพลัง ใกล้ชิด</div>' +
+        '<div class="leg c"><strong>❄️ วรรณะเย็น</strong><br>เขียว–น้ำเงิน–ม่วง<br>ให้ความรู้สึกสงบ เย็นสบาย ไกลลึก</div>' +
+        '</div>' +
+        '<div class="actions">' +
+        '<button type="button" class="btn ' + (toneFilter === 'all' ? 'btn-primary' : 'btn-ghost') + '" data-tf="all">ทั้งหมด</button>' +
+        '<button type="button" class="btn ' + (toneFilter === 'warm' ? 'btn-primary' : 'btn-ghost') + '" data-tf="warm">ไฮไลต์อุ่น</button>' +
+        '<button type="button" class="btn ' + (toneFilter === 'cool' ? 'btn-primary' : 'btn-ghost') + '" data-tf="cool">ไฮไลต์เย็น</button>' +
+        '</div>' +
+        '<div class="wheel-wrap"><div class="wheel">' +
+        COLORS.map((col, i) => {
+          const dim = toneFilter !== 'all' && col.tone !== toneFilter && col.tone !== 'both';
+          return '<div class="slice' + (dim ? ' dim' : '') + '" style="background:' + col.hex +
+            ';transform:rotate(' + (i * 30) + 'deg)"></div>';
+        }).join('') +
+        '<div class="hub"><b>วรรณะ</b><small>อุ่น / เย็น</small></div></div></div>' +
+        '<div class="swatch-row">' +
+        show.map((c) =>
+          '<div class="sw" style="background:' + c.hex + '" title="' + c.nameTh + '"><span>' + c.nameTh + '</span></div>'
+        ).join('') +
+        '</div>' +
+        '<div class="info"><p>💡 สีเหลืองและม่วงจัดเป็น<strong>สีกลาง</strong> — วางคู่กับฝั่งไหนก็ช่วยดึงวรรณะนั้น (ศ 1.1 ป.4/2)</p>' +
+        '<p>อุ่นตัวอย่าง: ' + warm.map((c) => c.nameTh).join(', ') + '</p>' +
+        '<p>เย็นตัวอย่าง: ' + cool.map((c) => c.nameTh).join(', ') + '</p></div>';
+      el.querySelectorAll('[data-tf]').forEach((b) => {
+        b.onclick = () => { toneFilter = b.dataset.tf; renderTones(); };
+      });
+    }
+
+    function renderScene() {
+      const el = document.getElementById('p-scene');
+      const sc = MOOD_SCENES.find((s) => s.id === selScene) || MOOD_SCENES[0];
+      el.innerHTML =
+        '<div class="scene-grid">' +
+        MOOD_SCENES.map((s) =>
+          '<button type="button" class="scene' + (s.id === selScene ? ' on' : '') + '" data-sid="' + s.id + '">' +
+          '<h4>' + s.title + '</h4><p>แนะนำวรรณะ' + (s.recommendedTone === 'warm' ? 'อุ่น' : 'เย็น') + '</p>' +
+          '<div class="palette">' + s.samplePalette.map((id) => {
+            const c = colorById(id);
+            return '<i style="background:' + c.hex + '" title="' + c.nameTh + '"></i>';
+          }).join('') + '</div></button>'
+        ).join('') +
+        '</div>' +
+        '<div class="info">' +
+        '<h3>🖼️ ' + sc.title + '</h3>' +
+        '<p><span class="tone-badge ' + toneClass(sc.recommendedTone) + '">' + toneLabel(sc.recommendedTone) + '</span></p>' +
+        '<p><strong>ทำไม:</strong> ' + sc.why + '</p>' +
+        '<p><strong>จานสีตัวอย่าง:</strong> ' + sc.samplePalette.map((id) => colorById(id).nameTh).join(' · ') + '</p>' +
+        '<div class="palette" style="margin-top:10px">' +
+        sc.samplePalette.map((id) => '<i style="background:' + colorById(id).hex + ';width:40px;height:40px"></i>').join('') +
+        '</div></div>';
+      el.querySelectorAll('[data-sid]').forEach((b) => {
+        b.onclick = () => { selScene = b.dataset.sid; renderScene(); };
+      });
+    }
+
+    function renderMix() {
+      const el = document.getElementById('p-mix');
+      el.innerHTML =
+        '<p style="text-align:center;font-weight:800;color:var(--deep)" >แม่สีขั้น 1 ผสมกันได้สีขั้น 2</p>' +
+        '<div class="mix-row">' +
+        MIXES.map((m) => {
+          const a = colorById(m.a), b = colorById(m.b), r = colorById(m.result);
+          return '<div class="mix-card"><strong>' + m.label + '</strong>' +
+            '<div class="balls">' +
+            '<div class="ball" style="background:' + a.hex + '" title="' + a.nameTh + '"></div>' +
+            '<span class="plus">+</span>' +
+            '<div class="ball" style="background:' + b.hex + '" title="' + b.nameTh + '"></div>' +
+            '<span class="eq">=</span>' +
+            '<div class="ball" style="background:' + r.hex + '" title="' + r.nameTh + '"></div>' +
+            '</div>' +
+            '<small style="font-weight:700;color:#64748b">' + a.nameTh + ' + ' + b.nameTh + ' → ' + r.nameTh + '</small></div>';
+        }).join('') +
+        '</div>' +
+        '<div class="info"><p>แม่สีขั้น 1: <strong>แดง · เหลือง · น้ำเงิน</strong> — ไม่เกิดจากการผสมสีอื่น</p>' +
+        '<p>สีขั้น 3 = ผสมแม่สีกับสีขั้น 2 ที่อยู่ข้างเคียง เช่น ส้มแดง = แดง+ส้ม</p></div>';
+    }
+
+    function nextQuiz() {
+      const kinds = ['tone', 'emotion', 'mix', 'scene'];
+      const kind = kinds[(Math.random() * kinds.length) | 0];
+      if (kind === 'tone') {
+        const c = COLORS[(Math.random() * COLORS.length) | 0];
+        const ans = c.tone === 'both' ? 'กลาง (อุ่น/เย็นได้)' : toneLabel(c.tone);
+        const opts = shuffle(['วรรณะอุ่น', 'วรรณะเย็น', 'กลาง (อุ่น/เย็นได้)', 'ไม่มีวรรณะ']);
+        quizQ = {
+          q: 'สี' + c.nameTh + ' จัดอยู่ในวรรณะใด?',
+          opts,
+          answer: ans,
+          explain: c.nameTh + ' เป็น' + toneLabel(c.tone) + ' — ' + c.emotion,
+          color: c.hex,
+        };
+      } else if (kind === 'emotion') {
+        const c = COLORS[(Math.random() * COLORS.length) | 0];
+        const wrong = shuffle(COLORS.filter((x) => x.id !== c.id)).slice(0, 3).map((x) => x.emotion);
+        quizQ = {
+          q: 'สี' + c.nameTh + ' สื่ออารมณ์อย่างไร?',
+          opts: shuffle([c.emotion].concat(wrong)),
+          answer: c.emotion,
+          explain: 'สี' + c.nameTh + ' มักใช้กับฉาก: ' + c.exampleScene,
+          color: c.hex,
+        };
+      } else if (kind === 'mix') {
+        const m = MIXES[(Math.random() * MIXES.length) | 0];
+        const r = colorById(m.result);
+        const wrong = shuffle(COLORS.filter((x) => x.id !== r.id)).slice(0, 3).map((x) => 'สี' + x.nameTh);
+        quizQ = {
+          q: colorById(m.a).nameTh + ' + ' + colorById(m.b).nameTh + ' ได้สีอะไร?',
+          opts: shuffle(['สี' + r.nameTh].concat(wrong)),
+          answer: 'สี' + r.nameTh,
+          explain: m.label,
+          color: r.hex,
+        };
+      } else {
+        const sc = MOOD_SCENES[(Math.random() * MOOD_SCENES.length) | 0];
+        const ans = sc.recommendedTone === 'warm' ? 'วรรณะอุ่น' : 'วรรณะเย็น';
+        quizQ = {
+          q: 'ฉาก “‘ + sc.title + '” เหมาะกับวรรณะใด?',
+          opts: shuffle(['วรรณะอุ่น', 'วรรณะเย็น', 'ไม่ใช้สี', 'สีขาวอย่างเดียว']),
+          answer: ans,
+          explain: sc.why,
+          color: colorById(sc.samplePalette[0]).hex,
+        };
+      }
+      quizAnswered = false;
+      renderQuiz();
+    }
+
+    function renderQuiz() {
+      const el = document.getElementById('p-quiz');
+      if (!quizQ) return;
+      el.innerHTML =
+        '<div class="q-box">' +
+        (quizQ.color ? '<div style="width:64px;height:64px;border-radius:16px;background:' + quizQ.color + ';border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.2)"></div>' : '') +
+        '<p class="q-text">' + quizQ.q + '</p>' +
+        '<div class="opts">' +
+        quizQ.opts.map((o) => '<button type="button" class="opt" data-v="' + o.replace(/"/g, '&quot;') + '">' + o + '</button>').join('') +
+        '</div>' +
+        '<p class="fb" id="quizFb"></p>' +
+        '<div class="actions"><button type="button" class="btn btn-primary" id="btnNextQ">ข้อถัดไป</button></div>' +
+        '</div>';
+      el.querySelectorAll('.opt').forEach((b) => {
+        b.onclick = () => {
+          if (quizAnswered) return;
+          quizAnswered = true;
+          const v = b.dataset.v;
+          const ok = v === quizQ.answer;
+          el.querySelectorAll('.opt').forEach((o) => {
+            if (o.dataset.v === quizQ.answer) o.classList.add('ok');
+            else if (o === b) o.classList.add('no');
+          });
+          document.getElementById('quizFb').className = 'fb ' + (ok ? 'ok' : 'no');
+          document.getElementById('quizFb').textContent = (ok ? '✅ ถูกต้อง! ' : '❌ ') + quizQ.explain;
+        };
+      });
+      document.getElementById('btnNextQ').onclick = nextQuiz;
+    }
+
+    document.getElementById('modeSeg').onclick = (e) => {
+      const b = e.target.closest('button[data-mode]');
+      if (b) setMode(b.dataset.mode);
+    };
+    document.getElementById('btnFs').onclick = () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    };
+
+    setMode('wheel');
+  </script>
+</body>
+</html>

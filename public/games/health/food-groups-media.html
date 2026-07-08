@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>อาหารหลัก 5 หมู่ — สื่อการสอน — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --deep: #c2410c; --line: #fdba74; --muted: #64748b; --ok: #16a34a; --bad: #dc2626; --cream: #fff7ed; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(160deg, #ffedd5, #fecaca); min-height: 100%; padding: 12px; color: #0f172a; }
+    .shell { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+    header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #9a3412, #ea580c); color: #fff; }
+    header h1 { font-size: 1.1rem; font-weight: 800; flex: 1; min-width: 140px; }
+    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn:active { transform: scale(.97); }
+    .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
+    .btn-primary { background: var(--deep); color: #fff; }
+    .btn-accent { background: #fbbf24; color: #78350f; }
+    .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 16px; background: var(--cream); border-bottom: 1px solid var(--line); align-items: center; }
+    .seg { display: inline-flex; flex-wrap: wrap; border-radius: 12px; overflow: hidden; border: 2px solid #fb923c; }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 12px; cursor: pointer; font-size: .82rem; }
+    .seg button.on { background: var(--deep); color: #fff; }
+    .hint { font-size: .85rem; color: #9a3412; font-weight: 600; flex: 1; min-width: 120px; }
+    .stage { flex: 1; padding: 16px; overflow: auto; }
+    .panel { display: none; flex-direction: column; gap: 14px; max-width: 960px; margin: 0 auto; }
+    .panel.on { display: flex; }
+    .g-grid { display: grid; gap: 10px; }
+    @media (min-width: 700px) { .g-grid { grid-template-columns: repeat(5, 1fr); } }
+    .g-card { border-radius: 16px; padding: 14px; border: 3px solid; background: #fff; cursor: pointer; text-align: center; transition: transform .15s; }
+    .g-card:hover { transform: translateY(-2px); }
+    .g-card .e { font-size: 2rem; }
+    .g-card h3 { font-weight: 800; font-size: .95rem; margin: 6px 0 4px; }
+    .g-card p { font-size: .78rem; font-weight: 600; color: #475569; line-height: 1.4; }
+    .detail { background: var(--cream); border: 2px solid var(--line); border-radius: 16px; padding: 14px; }
+    .detail h3 { color: var(--deep); font-weight: 800; margin-bottom: 6px; }
+    .detail p { font-weight: 600; line-height: 1.5; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .chip { background: #fff; border: 2px solid var(--line); border-radius: 999px; padding: 4px 10px; font-weight: 700; font-size: .8rem; }
+    .food-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
+    .f-btn { font-family: inherit; border: 2px solid #fed7aa; background: #fff; border-radius: 14px; padding: 10px 6px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 84px; }
+    .f-btn .fe { font-size: 1.7rem; }
+    .f-btn .fn { font-size: .78rem; font-weight: 800; text-align: center; color: #9a3412; }
+    .f-btn.on { box-shadow: 0 0 0 3px var(--deep); }
+    .f-btn.dim { opacity: .35; }
+    .filters { display: flex; flex-wrap: wrap; gap: 6px; }
+    .filters button { font-family: inherit; font-weight: 800; border: 2px solid var(--line); background: #fff; color: var(--deep); border-radius: 999px; padding: 6px 12px; cursor: pointer; font-size: .8rem; }
+    .filters button.on { background: var(--deep); color: #fff; border-color: var(--deep); }
+    .plate { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+    .slot { border: 2px dashed var(--line); border-radius: 14px; padding: 10px; min-height: 90px; background: #fff7ed; }
+    .slot.ok { border-style: solid; background: #ffedd5; }
+    .slot h4 { font-size: .8rem; font-weight: 800; margin-bottom: 6px; }
+    .slot .picked { font-size: 1.4rem; text-align: center; }
+    .meal-tag { text-align: center; font-weight: 800; color: var(--deep); font-size: 1.1rem; }
+    .pool { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .pool .f-btn { min-width: 88px; }
+    .pool .f-btn.used { opacity: .35; pointer-events: none; }
+    .fb { text-align: center; font-weight: 800; min-height: 24px; }
+    .fb.ok { color: var(--ok); }
+    .fb.no { color: var(--bad); }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .q-box { text-align: center; max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+    .q-text { font-weight: 800; font-size: 1.15rem; color: var(--deep); }
+    .opts { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 420px; }
+    .opt { font-family: inherit; font-weight: 700; padding: 12px; border: 2px solid var(--line); border-radius: 12px; background: #fff; cursor: pointer; text-align: left; }
+    .opt.ok { background: #dcfce7; border-color: #86efac; }
+    .opt.no { background: #fee2e2; border-color: #fca5a5; }
+    .meal-card { border: 2px solid var(--line); border-radius: 16px; padding: 14px; background: var(--cream); }
+    .meal-card h3 { color: var(--deep); font-weight: 800; margin-bottom: 8px; }
+    .meal-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .meal-item { background: #fff; border: 2px solid var(--line); border-radius: 12px; padding: 8px 10px; font-weight: 700; font-size: .85rem; }
+    .footer { padding: 10px 16px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
+    .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
+      <h1>🍽️ อาหารหลัก 5 หมู่</h1>
+      <span class="badge">ป.3–4 · สุขศึกษา</span>
+    </header>
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="learn" class="on">📖 เรียนรู้หมู่</button>
+        <button type="button" data-mode="explore">🔍 สำรวจอาหาร</button>
+        <button type="button" data-mode="plate">🥗 จัดจาน</button>
+        <button type="button" data-mode="quiz">❓ ถูก/ผิด</button>
+        <button type="button" data-mode="teacher">👩‍🏫 จานครู</button>
+      </span>
+      <p class="hint" id="hintText">แตะหมู่เพื่อดูบทบาทและตัวอย่าง</p>
+      <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
+    </div>
+    <div class="stage">
+      <div class="panel on" id="p-learn"></div>
+      <div class="panel" id="p-explore"></div>
+      <div class="panel" id="p-plate"></div>
+      <div class="panel" id="p-quiz"></div>
+      <div class="panel" id="p-teacher"></div>
+    </div>
+    <footer class="footer">ตัวชี้วัด <strong>พ 4.1 ป.3/2</strong> · <strong>พ 4.1 ป.3/3</strong> · คู่เกม <a href="/play/plate-builder">จัดจานอาหาร</a></footer>
+  </div>
+  <script>
+    const MEDIA_SLUG = 'food-groups-media';
+    if (window.KAMPAI) KAMPAI.setSlug(MEDIA_SLUG);
+
+    const GROUPS = [
+      { id: 1, nameTh: 'โปรตีน', shortName: 'โปรตีน', color: '#ef4444', role: 'สร้างกล้ามเนื้อ ซ่อมแซมเนื้อเยื่อ', tip: 'ประมาณ 1 ส่วน / มื้อ', emoji: '🥩' },
+      { id: 2, nameTh: 'คาร์โบไฮเดรต', shortName: 'คาร์บ', color: '#f59e0b', role: 'ให้พลังงานหลักแก่ร่างกาย', tip: 'ประมาณ 2–3 ส่วน / มื้อ', emoji: '🍚' },
+      { id: 3, nameTh: 'ผัก', shortName: 'ผัก', color: '#22c55e', role: 'วิตามิน แร่ธาตุ และใยอาหาร', tip: 'ให้มากในทุกมื้อ', emoji: '🥬' },
+      { id: 4, nameTh: 'ผลไม้', shortName: 'ผลไม้', color: '#ec4899', role: 'วิตามินและหวานธรรมชาติ', tip: '1–2 ส่วน / วัน', emoji: '🍎' },
+      { id: 5, nameTh: 'ไขมันดี', shortName: 'ไขมัน', color: '#a855f7', role: 'พลังงานสำรองและช่วยดูดซึมวิตามิน', tip: 'น้อยแต่จำเป็น · ใช้พอดี', emoji: '🥑' },
+    ];
+
+    const FOODS = [
+      { id: 'egg', nameTh: 'ไข่', emoji: '🥚', groupId: 1, note: 'โปรตีนครบ ราคาถูก' },
+      { id: 'chicken', nameTh: 'ไก่', emoji: '🍗', groupId: 1 },
+      { id: 'fish', nameTh: 'ปลา', emoji: '🐟', groupId: 1, note: 'ไขมันดีชนิดโอเมกา' },
+      { id: 'pork', nameTh: 'หมู', emoji: '🥩', groupId: 1 },
+      { id: 'tofu', nameTh: 'เต้าหู้', emoji: '🧈', groupId: 1, note: 'โปรตีนจากพืช' },
+      { id: 'milk', nameTh: 'นม', emoji: '🥛', groupId: 1 },
+      { id: 'shrimp', nameTh: 'กุ้ง', emoji: '🦐', groupId: 1 },
+      { id: 'peanut', nameTh: 'ถั่วลิสง', emoji: '🥜', groupId: 1, note: 'มีไขมันด้วย — กินพอดี' },
+      { id: 'rice', nameTh: 'ข้าวสวย', emoji: '🍚', groupId: 2 },
+      { id: 'sticky', nameTh: 'ข้าวเหนียว', emoji: '🍙', groupId: 2 },
+      { id: 'noodle', nameTh: 'ก๋วยเตี๋ยว', emoji: '🍜', groupId: 2 },
+      { id: 'bread', nameTh: 'ขนมปัง', emoji: '🍞', groupId: 2 },
+      { id: 'taro', nameTh: 'เผือก', emoji: '🟣', groupId: 2 },
+      { id: 'potato', nameTh: 'มันฝรั่ง', emoji: '🥔', groupId: 2 },
+      { id: 'corn', nameTh: 'ข้าวโพด', emoji: '🌽', groupId: 2 },
+      { id: 'porridge', nameTh: 'โจ๊ก', emoji: '🥣', groupId: 2, exampleMeal: 'มื้อเช้า' },
+      { id: 'morningglory', nameTh: 'ผักบุ้ง', emoji: '🌿', groupId: 3 },
+      { id: 'kale', nameTh: 'คะน้า', emoji: '🥦', groupId: 3 },
+      { id: 'cucumber', nameTh: 'แตงกวา', emoji: '🥒', groupId: 3 },
+      { id: 'carrot', nameTh: 'แครอท', emoji: '🥕', groupId: 3 },
+      { id: 'cabbage', nameTh: 'ผักกาด', emoji: '🥬', groupId: 3 },
+      { id: 'tomato', nameTh: 'มะเขือเทศ', emoji: '🍅', groupId: 3 },
+      { id: 'longbean', nameTh: 'ถั่วฝักยาว', emoji: '🫛', groupId: 3 },
+      { id: 'salad', nameTh: 'สลัด', emoji: '🥗', groupId: 3 },
+      { id: 'banana', nameTh: 'กล้วย', emoji: '🍌', groupId: 4 },
+      { id: 'orange', nameTh: 'ส้ม', emoji: '🍊', groupId: 4 },
+      { id: 'apple', nameTh: 'แอปเปิล', emoji: '🍎', groupId: 4 },
+      { id: 'watermelon', nameTh: 'แตงโม', emoji: '🍉', groupId: 4 },
+      { id: 'mango', nameTh: 'มะม่วง', emoji: '🥭', groupId: 4 },
+      { id: 'guava', nameTh: 'ฝรั่ง', emoji: '🟢', groupId: 4 },
+      { id: 'papaya', nameTh: 'มะละกอ', emoji: '🧡', groupId: 4 },
+      { id: 'grape', nameTh: 'องุ่น', emoji: '🍇', groupId: 4 },
+      { id: 'oil', nameTh: 'น้ำมันพืช', emoji: '🫙', groupId: 5, note: 'ใช้ทอด/ผัดพอดี' },
+      { id: 'avocado', nameTh: 'อะโวคาโด', emoji: '🥑', groupId: 5 },
+      { id: 'sesame', nameTh: 'งา', emoji: '🌰', groupId: 5 },
+      { id: 'butter', nameTh: 'เนย', emoji: '🧈', groupId: 5, note: 'ใช้พอดี' },
+      { id: 'nuts', nameTh: 'ถั่วเปลือกแข็ง', emoji: '🥜', groupId: 5 },
+      { id: 'coconut', nameTh: 'กะทิ', emoji: '🥥', groupId: 5, note: 'หวานมัน — กินพอดี' },
+    ];
+
+    const TEACHER_MEALS = [
+      {
+        id: 'breakfast', title: '🌅 มื้อเช้า',
+        items: [
+          { foodId: 'porridge', why: 'คาร์บให้พลังงานเริ่มวัน' },
+          { foodId: 'egg', why: 'โปรตีนอิ่มนาน' },
+          { foodId: 'cucumber', why: 'ผักเพิ่มใยอาหาร' },
+          { foodId: 'banana', why: 'ผลไม้หวานธรรมชาติ' },
+          { foodId: 'milk', why: 'นมเสริมโปรตีนและแคลเซียม' },
+        ],
+        tip: 'เช้าควรมีคาร์บ + โปรตีนเพื่อพลังงานเรียน',
+      },
+      {
+        id: 'lunch', title: '☀️ มื้อกลางวัน',
+        items: [
+          { foodId: 'rice', why: 'ข้าวเป็นพลังงานหลัก' },
+          { foodId: 'fish', why: 'ปลาให้โปรตีนคุณภาพ' },
+          { foodId: 'morningglory', why: 'ผักบุ้งผัด/ต้ม' },
+          { foodId: 'orange', why: 'ผลไม้หลังข้าว' },
+          { foodId: 'oil', why: 'น้ำมันพืชเล็กน้อยในการผัด' },
+        ],
+        tip: 'จานกลางวันควรครบ 5 หมู่ ผักให้มาก',
+      },
+      {
+        id: 'dinner', title: '🌙 มื้อเย็น',
+        items: [
+          { foodId: 'noodle', why: 'คาร์บไม่หนักเกินไป' },
+          { foodId: 'tofu', why: 'โปรตีนจากพืชย่อยง่าย' },
+          { foodId: 'salad', why: 'ผักสดมาก' },
+          { foodId: 'papaya', why: 'ผลไม้ช่วยย่อย' },
+          { foodId: 'sesame', why: 'งาโรยเล็กน้อย = ไขมันดี' },
+        ],
+        tip: 'เย็นลดของทอดหนัก เน้นผักและโปรตีนย่อยง่าย',
+      },
+    ];
+
+    const MEAL_LABELS = ['มื้อเช้า', 'มื้อกลางวัน', 'มื้อเย็น'];
+
+    function groupById(id) { return GROUPS.find((g) => g.id === id); }
+    function foodById(id) { return FOODS.find((f) => f.id === id); }
+    function foodsOf(gid) { return FOODS.filter((f) => f.groupId === gid); }
+    function shuffle(a) {
+      a = a.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = (Math.random() * (i + 1)) | 0;
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+    function speak(t) {
+      if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.speak) KAMPAI.sound.speak(t, 'th-TH');
+      else if (window.speechSynthesis) {
+        const u = new SpeechSynthesisUtterance(t);
+        u.lang = 'th-TH';
+        speechSynthesis.speak(u);
+      }
+    }
+
+    let mode = 'learn', selectedGroup = 1, exploreFilter = 0, explorePick = null;
+    let plateMeal = 'มื้อเช้า', platePicks = {}, platePool = [];
+    let quizQ = null, quizAnswered = false;
+
+    const hints = {
+      learn: 'แตะหมู่เพื่อดูบทบาท สัดส่วน และตัวอย่างอาหาร',
+      explore: 'แตะอาหาร → ดูว่าอยู่ในหมู่อะไร',
+      plate: 'เลือกอาหารให้ครบทั้ง 5 หมู่ในจานเดียว (ไม่มีการให้คะแนน)',
+      quiz: 'เลือกหมู่ที่ถูกต้องจากอาหารที่แสดง',
+      teacher: 'ดูจานตัวอย่าง 3 มื้อที่ครูจัดไว้',
+    };
+
+    function setMode(m) {
+      mode = m;
+      document.querySelectorAll('#modeSeg button').forEach((b) => b.classList.toggle('on', b.dataset.mode === m));
+      document.querySelectorAll('.panel').forEach((p) => p.classList.remove('on'));
+      document.getElementById('p-' + m).classList.add('on');
+      document.getElementById('hintText').textContent = hints[m];
+      if (m === 'learn') renderLearn();
+      if (m === 'explore') renderExplore();
+      if (m === 'plate') { if (!platePool.length) resetPlate(); else renderPlate(); }
+      if (m === 'quiz') { if (!quizQ) nextQuiz(); else renderQuiz(); }
+      if (m === 'teacher') renderTeacher();
+    }
+
+    function renderLearn() {
+      const el = document.getElementById('p-learn');
+      const g = groupById(selectedGroup);
+      const samples = foodsOf(selectedGroup).slice(0, 6);
+      el.innerHTML =
+        '<div class="g-grid">' +
+        GROUPS.map((x) =>
+          '<button type="button" class="g-card" style="border-color:' + x.color + '"' +
+          ' data-gid="' + x.id + '"><div class="e">' + x.emoji + '</div><h3 style="color:' + x.color + '">' +
+          x.nameTh + '</h3><p>' + x.tip + '</p></button>'
+        ).join('') +
+        '</div>' +
+        '<div class="detail" style="border-color:' + g.color + '">' +
+        '<h3 style="color:' + g.color + '">' + g.emoji + ' ' + g.nameTh + '</h3>' +
+        '<p><strong>บทบาท:</strong> ' + g.role + '</p>' +
+        '<p style="margin-top:6px"><strong>สัดส่วน:</strong> ' + g.tip + '</p>' +
+        '<div class="chips">' + samples.map((f) => '<span class="chip">' + f.emoji + ' ' + f.nameTh + '</span>').join('') + '</div>' +
+        '<div class="actions" style="margin-top:10px"><button type="button" class="btn btn-ghost" id="btnSpeakG">🔊 อ่านหมู่</button></div>' +
+        '</div>';
+      el.querySelectorAll('[data-gid]').forEach((b) => {
+        b.onclick = () => { selectedGroup = +b.dataset.gid; renderLearn(); };
+      });
+      const sp = document.getElementById('btnSpeakG');
+      if (sp) sp.onclick = () => speak(g.nameTh + ' ' + g.role);
+    }
+
+    function renderExplore() {
+      const el = document.getElementById('p-explore');
+      const list = exploreFilter ? FOODS.filter((f) => f.groupId === exploreFilter) : FOODS;
+      const pick = explorePick ? foodById(explorePick) : null;
+      const pg = pick ? groupById(pick.groupId) : null;
+      el.innerHTML =
+        '<div class="filters">' +
+        '<button type="button" data-f="0" class="' + (exploreFilter === 0 ? 'on' : '') + '">ทั้งหมด</button>' +
+        GROUPS.map((g) =>
+          '<button type="button" data-f="' + g.id + '" class="' + (exploreFilter === g.id ? 'on' : '') + '">' +
+          g.emoji + ' ' + g.shortName + '</button>'
+        ).join('') +
+        '</div>' +
+        '<div class="food-grid">' +
+        list.map((f) => {
+          const g = groupById(f.groupId);
+          const on = explorePick === f.id;
+          return '<button type="button" class="f-btn' + (on ? ' on' : '') + '" data-fid="' + f.id +
+            '" style="border-color:' + g.color + '"><span class="fe">' + f.emoji + '</span><span class="fn">' +
+            f.nameTh + '</span></button>';
+        }).join('') +
+        '</div>' +
+        (pick
+          ? '<div class="detail" style="border-color:' + pg.color + '"><h3>' + pick.emoji + ' ' + pick.nameTh +
+            '</h3><p>อยู่ในหมู่ <strong style="color:' + pg.color + '">' + pg.emoji + ' ' + pg.nameTh +
+            '</strong> — ' + pg.role + '</p>' +
+            (pick.note ? '<p style="margin-top:6px;color:#9a3412">💡 ' + pick.note + '</p>' : '') +
+            '<div class="actions" style="margin-top:8px"><button type="button" class="btn btn-ghost" id="btnSpeakF">🔊 อ่าน</button></div></div>'
+          : '<div class="detail"><p>แตะอาหารเพื่อไฮไลต์หมู่</p></div>');
+      el.querySelectorAll('[data-f]').forEach((b) => {
+        b.onclick = () => { exploreFilter = +b.dataset.f; renderExplore(); };
+      });
+      el.querySelectorAll('[data-fid]').forEach((b) => {
+        b.onclick = () => { explorePick = b.dataset.fid; renderExplore(); };
+      });
+      const sp = document.getElementById('btnSpeakF');
+      if (sp && pick) sp.onclick = () => speak(pick.nameTh + ' หมู่' + pg.nameTh);
+    }
+
+    function resetPlate() {
+      plateMeal = MEAL_LABELS[(Math.random() * MEAL_LABELS.length) | 0];
+      platePicks = {};
+      const need = GROUPS.map((g) => {
+        const pool = foodsOf(g.id);
+        return pool[(Math.random() * pool.length) | 0];
+      });
+      const extras = shuffle(FOODS.filter((f) => !need.find((n) => n.id === f.id))).slice(0, 7);
+      platePool = shuffle(need.concat(extras));
+      renderPlate();
+    }
+
+    function renderPlate() {
+      const el = document.getElementById('p-plate');
+      const done = GROUPS.every((g) => platePicks[g.id]);
+      el.innerHTML =
+        '<p class="meal-tag">โจทย์: จัดจาน' + plateMeal + ' ให้ครบ 5 หมู่</p>' +
+        '<div class="plate">' +
+        GROUPS.map((g) => {
+          const p = platePicks[g.id] ? foodById(platePicks[g.id]) : null;
+          return '<div class="slot' + (p ? ' ok' : '') + '" style="border-color:' + g.color +
+            '"><h4 style="color:' + g.color + '">' + g.emoji + ' ' + g.shortName + '</h4>' +
+            '<div class="picked">' + (p ? p.emoji + '<br><small>' + p.nameTh + '</small>' : '—') +
+            '</div></div>';
+        }).join('') +
+        '</div>' +
+        '<p class="fb ' + (done ? 'ok' : '') + '" id="plateFb">' +
+        (done ? '✅ ครบ 5 หมู่แล้ว! จานสมดุลดี — ไม่มีการให้คะแนน' : 'เลือกอาหารจากด้านล่างใส่ในแต่ละหมู่') + '</p>' +
+        '<div class="pool">' +
+        platePool.map((f) => {
+          const used = Object.values(platePicks).includes(f.id);
+          const g = groupById(f.groupId);
+          return '<button type="button" class="f-btn' + (used ? ' used' : '') + '" data-fid="' + f.id +
+            '" style="border-color:' + g.color + '"><span class="fe">' + f.emoji + '</span><span class="fn">' +
+            f.nameTh + '</span></button>';
+        }).join('') +
+        '</div>' +
+        '<div class="actions">' +
+        '<button type="button" class="btn btn-accent" id="btnClearPlate">ล้างจาน</button>' +
+        '<button type="button" class="btn btn-primary" id="btnNewPlate">สุ่มโจทย์ใหม่</button>' +
+        '</div>';
+      el.querySelectorAll('[data-fid]').forEach((b) => {
+        b.onclick = () => {
+          const f = foodById(b.dataset.fid);
+          if (!f) return;
+          if (Object.values(platePicks).includes(f.id)) return;
+          platePicks[f.groupId] = f.id;
+          renderPlate();
+        };
+      });
+      document.getElementById('btnClearPlate').onclick = () => { platePicks = {}; renderPlate(); };
+      document.getElementById('btnNewPlate').onclick = resetPlate;
+    }
+
+    function nextQuiz() {
+      const f = FOODS[(Math.random() * FOODS.length) | 0];
+      const wrong = shuffle(GROUPS.filter((g) => g.id !== f.groupId)).slice(0, 3);
+      const opts = shuffle([groupById(f.groupId)].concat(wrong));
+      quizQ = { food: f, opts, answerId: f.groupId };
+      quizAnswered = false;
+      renderQuiz();
+    }
+
+    function renderQuiz() {
+      const el = document.getElementById('p-quiz');
+      if (!quizQ) return;
+      const f = quizQ.food;
+      el.innerHTML =
+        '<div class="q-box">' +
+        '<div style="font-size:3rem">' + f.emoji + '</div>' +
+        '<p class="q-text">' + f.nameTh + ' อยู่ในหมู่ใด?</p>' +
+        '<div class="opts">' +
+        quizQ.opts.map((g) =>
+          '<button type="button" class="opt" data-gid="' + g.id + '">' + g.emoji + ' ' + g.nameTh + '</button>'
+        ).join('') +
+        '</div>' +
+        '<p class="fb" id="quizFb"></p>' +
+        '<div class="actions"><button type="button" class="btn btn-primary" id="btnNextQ">ข้อถัดไป</button></div>' +
+        '</div>';
+      el.querySelectorAll('.opt').forEach((b) => {
+        b.onclick = () => {
+          if (quizAnswered) return;
+          quizAnswered = true;
+          const gid = +b.dataset.gid;
+          const ok = gid === quizQ.answerId;
+          el.querySelectorAll('.opt').forEach((o) => {
+            const id = +o.dataset.gid;
+            if (id === quizQ.answerId) o.classList.add('ok');
+            else if (id === gid) o.classList.add('no');
+          });
+          const g = groupById(quizQ.answerId);
+          document.getElementById('quizFb').className = 'fb ' + (ok ? 'ok' : 'no');
+          document.getElementById('quizFb').textContent = ok
+            ? '✅ ถูกต้อง! ' + f.nameTh + ' อยู่หมู่' + g.nameTh
+            : '❌ คำตอบคือ ' + g.emoji + ' ' + g.nameTh + ' — ' + g.role;
+        };
+      });
+      document.getElementById('btnNextQ').onclick = nextQuiz;
+    }
+
+    function renderTeacher() {
+      const el = document.getElementById('p-teacher');
+      el.innerHTML = TEACHER_MEALS.map((m) =>
+        '<div class="meal-card"><h3>' + m.title + '</h3><div class="meal-row">' +
+        m.items.map((it) => {
+          const f = foodById(it.foodId);
+          const g = groupById(f.groupId);
+          return '<span class="meal-item" style="border-color:' + g.color + '" title="' + it.why + '">' +
+            f.emoji + ' ' + f.nameTh + '<br><small style="color:' + g.color + '">' + g.shortName + '</small></span>';
+        }).join('') +
+        '</div><p style="margin-top:10px;font-weight:700;color:#9a3412">💡 ' + m.tip + '</p></div>'
+      ).join('');
+    }
+
+    document.getElementById('modeSeg').onclick = (e) => {
+      const b = e.target.closest('button[data-mode]');
+      if (b) setMode(b.dataset.mode);
+    };
+    document.getElementById('btnFs').onclick = () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    };
+
+    setMode('learn');
+  </script>
+</body>
+</html>

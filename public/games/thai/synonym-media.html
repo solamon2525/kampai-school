@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ไวพจน์ / คำพ้องความหมาย — สื่อการสอน — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --deep: #1e40af; --line: #93c5fd; --muted: #64748b; --ok: #16a34a; --bad: #dc2626; --cream: #eff6ff; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(160deg, #dbeafe, #bfdbfe); min-height: 100%; padding: 12px; color: #0f172a; }
+    .shell { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+    header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #1e3a8a, #2563eb); color: #fff; }
+    header h1 { font-size: 1.1rem; font-weight: 800; flex: 1; min-width: 140px; }
+    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn:active { transform: scale(.97); }
+    .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
+    .btn-primary { background: var(--deep); color: #fff; }
+    .btn-accent { background: #fbbf24; color: #78350f; }
+    .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 16px; background: var(--cream); border-bottom: 1px solid var(--line); align-items: center; }
+    .seg { display: inline-flex; flex-wrap: wrap; border-radius: 12px; overflow: hidden; border: 2px solid #60a5fa; }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 12px; cursor: pointer; font-size: .82rem; }
+    .seg button.on { background: var(--deep); color: #fff; }
+    .hint { font-size: .85rem; color: #1e40af; font-weight: 600; flex: 1; min-width: 120px; }
+    .stage { flex: 1; padding: 16px; overflow: auto; }
+    .panel { display: none; flex-direction: column; gap: 14px; max-width: 960px; margin: 0 auto; }
+    .panel.on { display: flex; }
+    .grp-list { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .grp-btn { font-family: inherit; font-weight: 800; border: 2px solid var(--line); background: #fff; color: var(--deep); border-radius: 999px; padding: 8px 14px; cursor: pointer; }
+    .grp-btn.on { background: var(--deep); color: #fff; border-color: var(--deep); }
+    .word-grid { display: grid; gap: 10px; }
+    @media (min-width: 700px) { .word-grid { grid-template-columns: repeat(3, 1fr); } }
+    .w-card { border: 2px solid var(--line); border-radius: 14px; padding: 12px; background: #fff; cursor: pointer; text-align: left; font-family: inherit; }
+    .w-card.on { border-color: var(--deep); background: var(--cream); }
+    .w-card .w { font-size: 1.25rem; font-weight: 800; color: var(--deep); }
+    .w-card .r { font-size: .8rem; font-weight: 700; color: var(--muted); }
+    .w-card .reg { display: inline-block; margin-top: 6px; font-size: .7rem; font-weight: 800; background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 999px; }
+    .detail { background: var(--cream); border: 2px solid var(--line); border-radius: 16px; padding: 14px; }
+    .detail h3 { color: var(--deep); font-weight: 800; margin-bottom: 6px; }
+    .detail p { font-weight: 600; line-height: 1.5; margin-bottom: 4px; }
+    .tip { background: #fff; border: 2px dashed var(--line); border-radius: 12px; padding: 10px; font-weight: 700; color: #1e40af; }
+    .flash { max-width: 420px; margin: 0 auto; width: 100%; perspective: 800px; }
+    .flash-inner { min-height: 220px; border-radius: 20px; border: 3px solid var(--line); background: linear-gradient(160deg, #eff6ff, #fff); padding: 24px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; box-shadow: 0 8px 24px rgba(30,64,175,.12); }
+    .flash-inner .big { font-size: 2.2rem; font-weight: 800; color: var(--deep); }
+    .flash-inner .sub { font-weight: 700; color: #334155; line-height: 1.45; }
+    .q-box { text-align: center; max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+    .q-text { font-weight: 800; font-size: 1.15rem; color: var(--deep); }
+    .opts { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 420px; }
+    .opt { font-family: inherit; font-weight: 700; padding: 12px; border: 2px solid var(--line); border-radius: 12px; background: #fff; cursor: pointer; text-align: left; }
+    .opt.ok { background: #dcfce7; border-color: #86efac; }
+    .opt.no { background: #fee2e2; border-color: #fca5a5; }
+    .match-layout { display: grid; gap: 14px; }
+    @media (min-width: 800px) { .match-layout { grid-template-columns: 1fr 1fr; } }
+    .boxes { display: flex; flex-direction: column; gap: 10px; }
+    .box { border: 2px dashed var(--line); border-radius: 14px; padding: 10px; min-height: 72px; background: var(--cream); }
+    .box.on { border-color: var(--deep); border-style: solid; }
+    .box h4 { font-size: .9rem; font-weight: 800; color: var(--deep); margin-bottom: 6px; }
+    .box .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { background: #fff; border: 2px solid var(--line); border-radius: 999px; padding: 4px 10px; font-weight: 800; font-size: .8rem; }
+    .chip.ok { border-color: #86efac; background: #dcfce7; }
+    .chip.no { border-color: #fca5a5; background: #fee2e2; }
+    .pool { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-content: flex-start; }
+    .pool .f-btn { font-family: inherit; border: 2px solid var(--line); background: #fff; border-radius: 12px; padding: 10px 12px; cursor: pointer; font-weight: 800; color: var(--deep); }
+    .pool .f-btn.sel { box-shadow: 0 0 0 3px var(--deep); }
+    .pool .f-btn.used { opacity: .35; pointer-events: none; }
+    .fb { text-align: center; font-weight: 800; min-height: 24px; }
+    .fb.ok { color: var(--ok); }
+    .fb.no { color: var(--bad); }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .footer { padding: 10px 16px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
+    .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
+      <h1>📚 ไวพจน์ / คำพ้องความหมาย</h1>
+      <span class="badge">ป.4–6 · ภาษาไทย</span>
+    </header>
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
+        <button type="button" data-mode="flash">🃏 แฟลชการ์ด</button>
+        <button type="button" data-mode="pick">❓ เลือกไวพจน์</button>
+        <button type="button" data-mode="match">🔗 จับคู่กลุ่ม</button>
+      </span>
+      <p class="hint" id="hintText">เลือกกลุ่ม → แตะคำเพื่อดูโทนการใช้และตัวอย่าง</p>
+      <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
+    </div>
+    <div class="stage">
+      <div class="panel on" id="p-learn"></div>
+      <div class="panel" id="p-flash"></div>
+      <div class="panel" id="p-pick"></div>
+      <div class="panel" id="p-match"></div>
+    </div>
+    <footer class="footer">ตัวชี้วัด <strong>ท 1.1 ป.4/2</strong> · คู่เกม <a href="/play/waipot">ไวพจน์</a> · ฝึกคลังเพิ่ม <a href="/play/thai-vocab-hub">thai-vocab-hub</a></footer>
+  </div>
+  <script>
+    const MEDIA_SLUG = 'synonym-media';
+    if (window.KAMPAI) KAMPAI.setSlug(MEDIA_SLUG);
+
+    const GROUPS = [
+      {
+        id: 'syn-sun', theme: 'ดวงอาทิตย์', emoji: '☀️', grade: 'ป.4', indicator_code: 'ท 1.1 ป.4/2',
+        tip: 'ตะวันใช้พูดทั่วไป สุริยา/ทินกรพบในกวีและวรรณคดี',
+        quizWrong: ['จันทรา', 'ดาว', 'สายลม'],
+        words: [
+          { word: 'ตะวัน', reading: 'ตะ-วัน', register: 'พูด', nuance: 'คำทั่วไปในชีวิตประจำวัน', example: 'ตะวันขึ้นแล้ว น้องไปโรงเรียนทัน' },
+          { word: 'สุริยา', reading: 'สุ-ริ-ยา', register: 'กวี', nuance: 'โบราณ สง่างาม ใช้ในกลอน/โคลง', example: 'สุริยาทอแสงสีทองยามเช้า' },
+          { word: 'ทินกร', reading: 'ทิน-กอน', register: 'กวี', nuance: 'วรรณคดี หมายถึงผู้ให้วัน', example: 'ทินกรลับขอบฟ้าแล้วยามเย็น' },
+        ],
+      },
+      {
+        id: 'syn-moon', theme: 'ดวงจันทร์', emoji: '🌙', grade: 'ป.4', indicator_code: 'ท 1.1 ป.4/2',
+        tip: 'เดือนใช้พูดได้ ศศิ/แขมักอยู่ในกลอน',
+        quizWrong: ['ตะวัน', 'ดาวหาง', 'แร่'],
+        words: [
+          { word: 'เดือน', reading: 'เดือน', register: 'พูด', nuance: 'คำพูดทั่วไป', example: 'คืนนี้เดือนเต็มดวงสวยจัง' },
+          { word: 'ศศิ', reading: 'สะ-สิ', register: 'กวี', nuance: 'กวีนิพนธ์ สง่างาม', example: 'ศศิส่องทางให้คนเดินกลางคืน' },
+          { word: 'แข', reading: 'แข', register: 'กวี', nuance: 'โบราณ สั้น ใช้ในกลอนสั้น', example: 'แสงแขส่องลานบ้านเงียบสงบ' },
+        ],
+      },
+      {
+        id: 'syn-house', theme: 'บ้าน', emoji: '🏠', grade: 'ป.4', indicator_code: 'ท 1.1 ป.4/2',
+        tip: 'บ้านคุ้นเคย ที่อยู่อาศัยเป็นทางการ สำนักโทนวรรณคดี/สำนักสงฆ์',
+        quizWrong: ['ถนน', 'สะพาน', 'ตลาด'],
+        words: [
+          { word: 'บ้าน', reading: 'บ้าน', register: 'พูด', nuance: 'คำพื้นฐานที่ใช้ทุกวัน', example: 'หนูอยากกลับบ้านเร็ว ๆ' },
+          { word: 'ที่อยู่อาศัย', reading: 'ที่-อยู่-อา-สัย', register: 'เขียน', nuance: 'ทางการ ในเอกสาร/รายงาน', example: 'กรุณากรอกที่อยู่อาศัยให้ชัดเจน' },
+          { word: 'สำนัก', reading: 'สำ-นัก', register: 'กวี', nuance: 'ถิ่นพำนักโบราณหรือสำนักสงฆ์', example: 'พระธุดงค์พักค้างคืนในสำนักป่า' },
+        ],
+      },
+      {
+        id: 'syn-child', theme: 'เด็ก', emoji: '🧒', grade: 'ป.4', indicator_code: 'ท 1.1 ป.4/2',
+        tip: 'หนูน้อยฟังนุ่มนวล กุมารโทนเขียน/วรรณคดี',
+        quizWrong: ['ผู้ใหญ่', 'ปู่', 'ทหาร'],
+        words: [
+          { word: 'เด็ก', reading: 'เด็ก', register: 'พูด', nuance: 'คำทั่วไป', example: 'เด็ก ๆ เล่นที่สนาม' },
+          { word: 'หนูน้อย', reading: 'หนู-น้อย', register: 'พูด', nuance: 'น่ารัก เอ็นดู', example: 'หนูน้อยยิ้มใสเมื่อได้ของขวัญ' },
+          { word: 'กุมาร', reading: 'กุ-มาน', register: 'เขียน', nuance: 'เขียนเป็นทางการ/วรรณกรรม', example: 'กุมารน้อยนั่งอ่านหนังสือเงียบ ๆ' },
+        ],
+      },
+      {
+        id: 'syn-good', theme: 'ดี', emoji: '✨', grade: 'ป.4', indicator_code: 'ท 1.1 ป.4/2',
+        tip: 'เยี่ยมชมเชยแรง ประเสริฐยกย่องสูง',
+        quizWrong: ['เลว', 'แย่', 'ชั่ว'],
+        words: [
+          { word: 'ดี', reading: 'ดี', register: 'พูด', nuance: 'คำพื้นฐาน', example: 'งานกลุ่มของเราดีมาก' },
+          { word: 'เยี่ยม', reading: 'เยี่ยม', register: 'พูด', nuance: 'ชมแรงกว่าคำว่าดี', example: 'คะแนนสอบครั้งนี้เยี่ยมเลย' },
+          { word: 'ประเสริฐ', reading: 'ประ-เสิด', register: 'เขียน', nuance: 'ยกย่องสูง เป็นทางการ', example: 'ความกตัญญูเป็นคุณธรรมอันประเสริฐ' },
+        ],
+      },
+      {
+        id: 'syn-big', theme: 'ใหญ่', emoji: '🐘', grade: 'ป.5', indicator_code: 'ท 1.1 ป.4/2',
+        tip: 'มหาเป็นคำนำหน้า/เขียน กว้างใหญ่อธิบายขนาดและขอบเขต',
+        quizWrong: ['จิ๋ว', 'น้อย', 'แคบ'],
+        words: [
+          { word: 'ใหญ่', reading: 'ใหญ่', register: 'พูด', nuance: 'ขนาดทั่วไป', example: 'กล่องใบนี้ใหญ่เกินไป' },
+          { word: 'มหา', reading: 'มะ-หา', register: 'เขียน', nuance: 'นำหน้าคำอื่น โทนสูง', example: 'งานนี้เป็นมหกรรมใหญ่ของโรงเรียน' },
+          { word: 'กว้างใหญ่', reading: 'กว้าง-ใหญ่', register: 'เขียน', nuance: 'เน้นทั้งกว้างและใหญ่', example: 'ทุ่งนากว้างใหญ่สุดสายตา' },
+        ],
+      },
+      {
+        id: 'syn-small', theme: 'เล็ก', emoji: '🐜', grade: 'ป.4', indicator_code: 'ท 1.1 ป.4/2',
+        tip: 'น้อยเน้นปริมาณ จิ๋วเน้นขนาดน่ารัก',
+        quizWrong: ['มโหฬาร', 'มหา', 'ยักษ์'],
+        words: [
+          { word: 'เล็ก', reading: 'เล็ก', register: 'พูด', nuance: 'ขนาดพื้นฐาน', example: 'ตัวอักษรเล็กเกินไป อ่านยาก' },
+          { word: 'น้อย', reading: 'น้อย', register: 'พูด', nuance: 'ปริมาณหรืออายุน้อย', example: 'ใส่น้ำตาลน้อย ๆ พอ' },
+          { word: 'จิ๋ว', reading: 'จิ๋ว', register: 'พูด', nuance: 'เล็กมาก มักน่ารัก', example: 'น้องมีรถของเล่นคันจิ๋ว' },
+        ],
+      },
+      {
+        id: 'syn-fast', theme: 'เร็ว', emoji: '⚡', grade: 'ป.4', indicator_code: 'ท 1.1 ป.4/2',
+        tip: 'ไวคล้ายเร็ว ฉับพลันเน้นทันทีทันใด',
+        quizWrong: ['ช้า', 'เนิบนาบ', 'เชื่องช้า'],
+        words: [
+          { word: 'เร็ว', reading: 'เร็ว', register: 'พูด', nuance: 'ความเร็วทั่วไป', example: 'วิ่งเร็วเข้า จะทันรถเมล์' },
+          { word: 'ไว', reading: 'ไว', register: 'พูด', nuance: 'คล่อง ฉับไวดุจเร็ว', example: 'น้องตอบคำถามได้ไวมาก' },
+          { word: 'ฉับพลัน', reading: 'ฉับ-พัน', register: 'เขียน', nuance: 'เกิดขึ้นทันที ทางการกว่า', example: 'ฝนตกฉับพลันระหว่างพักเที่ยง' },
+        ],
+      },
+      {
+        id: 'syn-slow', theme: 'ช้า', emoji: '🐢', grade: 'ป.5', indicator_code: 'ท 1.1 ป.4/2',
+        tip: 'เชื่องช้า/เนิบนาบให้ภาพชัดกว่าคำว่าช้า',
+        quizWrong: ['ฉับพลัน', 'ไว', 'ว่องไว'],
+        words: [
+          { word: 'ช้า', reading: 'ช้า', register: 'พูด', nuance: 'คำทั่วไป', example: 'วันนี้รถติดเลยมาช้า' },
+          { word: 'เชื่องช้า', reading: 'เชื่อง-ช้า', register: 'เขียน', nuance: 'ช้าแบบสงบ นุ่มนวล', example: 'เต่าเดินเชื่องช้าข้ามถนน' },
+          { word: 'เนิบนาบ', reading: 'เนิบ-นาบ', register: 'เขียน', nuance: 'ช้าขาดความเร่งรีบ', example: 'ทำงานเนิบนาบจนส่งช้า' },
+        ],
+      },
+      {
+        id: 'syn-happy', theme: 'สุข', emoji: '😊', grade: 'ป.4', indicator_code: 'ท 1.1 ป.4/2',
+        tip: 'ยินดีเป็นทางการ เบิกบานให้ภาพใบหน้าแจ่มใส',
+        quizWrong: ['โศก', 'ทุกข์', 'เสียใจ'],
+        words: [
+          { word: 'สุข', reading: 'สุข', register: 'พูด', nuance: 'ความสุขทั่วไป', example: 'อยู่ด้วยกันแล้วรู้สึกสุข' },
+          { word: 'ยินดี', reading: 'ยิน-ดี', register: 'เขียน', nuance: 'แสดงความยินดีอย่างสุภาพ', example: 'ยินดีด้วยนะที่สอบผ่าน' },
+          { word: 'เบิกบาน', reading: 'เบิก-บาน', register: 'เขียน', nuance: 'แจ่มใส มีชีวิตชีวา', example: 'ใบหน้าเธอเบิกบานเมื่อเจอเพื่อน' },
+        ],
+      },
+      {
+        id: 'syn-sad', theme: 'เศร้า', emoji: '😢', grade: 'ป.4', indicator_code: 'ท 1.1 ป.4/2',
+        tip: 'โศกโทนเขียน/กวี สูงกว่าเสียใจ',
+        quizWrong: ['ยินดี', 'ร่าเริง', 'เบิกบาน'],
+        words: [
+          { word: 'เศร้า', reading: 'เศร้า', register: 'พูด', nuance: 'ความรู้สึกพื้นฐาน', example: 'เมื่อฝนตกหนักฉันรู้สึกเศร้า' },
+          { word: 'เสียใจ', reading: 'เสีย-ใจ', register: 'พูด', nuance: 'เสียดายหรือรู้สึกไม่ดี', example: 'เสียใจที่ทำให้เพื่อนผิดหวัง' },
+          { word: 'โศก', reading: 'โศก', register: 'เขียน', nuance: 'โทนวรรณกรรม ลึกซึ้ง', example: 'บทกวีนี้เต็มไปด้วยความโศก' },
+        ],
+      },
+      {
+        id: 'syn-see', theme: 'ดู', emoji: '👀', grade: 'ป.4', indicator_code: 'ท 1.1 ป.4/2',
+        tip: 'มองทั่วไป เพ่งตั้งใจดูละเอียด',
+        quizWrong: ['ฟัง', 'ดม', 'ชิม'],
+        words: [
+          { word: 'ดู', reading: 'ดู', register: 'พูด', nuance: 'การใช้สายตาทั่วไป', example: 'มาดูรูปนี้ด้วยกัน' },
+          { word: 'มอง', reading: 'มอง', register: 'พูด', nuance: 'ส่งสายตาไปที่สิ่งใดสิ่งหนึ่ง', example: 'มองออกไปนอกหน้าต่าง' },
+          { word: 'เพ่ง', reading: 'เพ่ง', register: 'เขียน', nuance: 'จ้องละเอียด ตั้งใจมาก', example: 'เพ่งดูตัวอักษรเล็กบนจอ' },
+        ],
+      },
+      {
+        id: 'syn-say', theme: 'พูด', emoji: '🗣️', grade: 'ป.4', indicator_code: 'ท 1.1 ป.4/2',
+        tip: 'กล่าวทางการ เอ่ยมักใช้กับคำเบา ๆ / เริ่มพูด',
+        quizWrong: ['วิ่ง', 'เขียน', 'วาด'],
+        words: [
+          { word: 'พูด', reading: 'พุด', register: 'พูด', nuance: 'คำทั่วไป', example: 'พูดดัง ๆ ให้เพื่อนได้ยิน' },
+          { word: 'กล่าว', reading: 'กล่าว', register: 'เขียน', nuance: 'ทางการ พิธีการ', example: 'ผู้อำนวยการกล่าวเปิดงาน' },
+          { word: 'เอ่ย', reading: 'เอ่ย', register: 'เขียน', nuance: 'พูดเบา เริ่มกล่าว', example: 'เธอเอ่ยชื่อเพื่อนเบา ๆ' },
+        ],
+      },
+      {
+        id: 'syn-walk', theme: 'เดิน', emoji: '🚶', grade: 'ป.5', indicator_code: 'ท 1.1 ป.4/2',
+        tip: 'ก้าวเน้นทีละก้าว ย่างพบในกวี',
+        quizWrong: ['บิน', 'ว่ายน้ำ', 'กลิ้ง'],
+        words: [
+          { word: 'เดิน', reading: 'เนิน', register: 'พูด', nuance: 'เคลื่อนที่ด้วยเท้าทั่วไป', example: 'เดินไปโรงเรียนทุกเช้า' },
+          { word: 'ก้าว', reading: 'ก้าว', register: 'พูด', nuance: 'เน้นการยกเท้าทีละก้าว', example: 'ก้าวให้มั่นคง อย่ารีบ' },
+          { word: 'ย่าง', reading: 'ย่าง', register: 'กวี', nuance: 'โทนกวี/โบราณ', example: 'ย่างเท้าเข้าสู่วิหารอันสงบ' },
+        ],
+      },
+      {
+        id: 'syn-eat', theme: 'กิน', emoji: '🍚', grade: 'ป.4', indicator_code: 'ท 1.1 ป.4/2',
+        tip: 'รับประทานสุภาพ เสวยสำหรับพระราชสำนัก',
+        quizWrong: ['ดื่มด่ำ', 'นอน', 'วิ่ง'],
+        words: [
+          { word: 'กิน', reading: 'กิน', register: 'พูด', nuance: 'คำพื้นฐาน', example: 'มากินข้าวด้วยกัน' },
+          { word: 'รับประทาน', reading: 'รับ-ประ-ทาน', register: 'เขียน', nuance: 'สุภาพ ใช้ในโรงเรียน/งานเขียน', example: 'โปรดรับประทานอาหารให้ครบหมู่' },
+          { word: 'เสวย', reading: 'สะ-เวย', register: 'ราชา', nuance: 'ราชาศัพท์สำหรับเจ้านาย', example: 'ในเรื่องเล่า พระองค์เสวยผลไม้' },
+        ],
+      },
+      {
+        id: 'syn-water', theme: 'น้ำ', emoji: '💧', grade: 'ป.5', indicator_code: 'ท 1.1 ป.4/2',
+        tip: 'วารี/สายชลโทนกวี สวยงาม',
+        quizWrong: ['ไฟ', 'ดิน', 'ลมกรด'],
+        words: [
+          { word: 'น้ำ', reading: 'น้ำ', register: 'พูด', nuance: 'คำทั่วไป', example: 'ดื่มน้ำให้เพียงพอทุกวัน' },
+          { word: 'วารี', reading: 'วา-รี', register: 'กวี', nuance: 'กวีนิพนธ์ สง่างาม', example: 'วารีใสสะท้อนเงาต้นไม้' },
+          { word: 'สายชล', reading: 'สาย-ชน', register: 'กวี', nuance: 'สายน้ำในกลอน/โคลง', example: 'สายชลไหลเย็นกลางหุบเขา' },
+        ],
+      },
+      {
+        id: 'syn-tree', theme: 'ต้นไม้', emoji: '🌳', grade: 'ป.5', indicator_code: 'ท 1.1 ป.4/2',
+        tip: 'พฤกษาเป็นทางการ พนาไพรหมายถึงป่ารวมต้นไม้',
+        quizWrong: ['ก้อนหิน', 'แม่น้ำ', 'บ้าน'],
+        words: [
+          { word: 'ต้นไม้', reading: 'ต้น-ไม้', register: 'พูด', nuance: 'คำพื้นฐาน', example: 'รดน้ำต้นไม้หน้าบ้าน' },
+          { word: 'พฤกษา', reading: 'พรึก-ษา', register: 'เขียน', nuance: 'ทางการ/วิชาการ', example: 'พื้นที่นี้มีพฤกษาหลากชนิด' },
+          { word: 'พนาไพร', reading: 'พะ-นา-ไพ', register: 'กวี', nuance: 'ป่าทึบในวรรณคดี', example: 'นักเดินทางหลงเข้าพนาไพร' },
+        ],
+      },
+      {
+        id: 'syn-teacher', theme: 'ครู', emoji: '👩‍🏫', grade: 'ป.4', indicator_code: 'ท 1.1 ป.4/2',
+        tip: 'อาจารย์โทนสถาบัน ครูบาพบในท้องถิ่นภาคเหนือ',
+        quizWrong: ['นักเรียน', 'พ่อค้า', 'หมอ'],
+        words: [
+          { word: 'ครู', reading: 'ครู', register: 'พูด', nuance: 'คำเรียกทั่วไป', example: 'ครูอธิบายโจทย์ให้ฟัง' },
+          { word: 'อาจารย์', reading: 'อา-จาน', register: 'เขียน', nuance: 'ทางการ/มหาวิทยาลัย', example: 'อาจารย์มอบหมายการบ้านสัปดาห์นี้' },
+          { word: 'ครูบา', reading: 'ครู-บา', register: 'พูด', nuance: 'ท้องถิ่นภาคเหนือ เคารพ', example: 'เด็ก ๆ เรียกครูบาด้วยความรัก' },
+        ],
+      },
+      {
+        id: 'syn-friend', theme: 'เพื่อน', emoji: '🤝', grade: 'ป.5', indicator_code: 'ท 1.1 ป.4/2',
+        tip: 'สหายเป็นทางการ มิตาโทนกวี',
+        quizWrong: ['ศัตรู', 'คนแปลกหน้า', 'เจ้านาย'],
+        words: [
+          { word: 'เพื่อน', reading: 'เพื่อน', register: 'พูด', nuance: 'คำทั่วไป', example: 'เพื่อนช่วยทำการบ้านด้วยกัน' },
+          { word: 'สหาย', reading: 'สะ-หาย', register: 'เขียน', nuance: 'เป็นทางการหรือคู่คิด', example: 'สหายร่วมอุดมการณ์ทำงานเคียงบ่า' },
+          { word: 'มิตา', reading: 'มิ-ตา', register: 'กวี', nuance: 'กวีนิพนธ์ เพื่อนสนิท', example: 'มิตาคู่ใจร่วมทางในกลอน' },
+        ],
+      },
+      {
+        id: 'syn-brave', theme: 'กล้า', emoji: '🦁', grade: 'ป.5', indicator_code: 'ท 1.1 ป.4/2',
+        tip: 'หาญ/องอาจยกความกล้าให้สง่างามขึ้น',
+        quizWrong: ['ขี้กลัว', 'ขลาด', 'อ่อนแอ'],
+        words: [
+          { word: 'กล้า', reading: 'กล้า', register: 'พูด', nuance: 'ไม่กลัว พื้นฐาน', example: 'กล้าถามเมื่อไม่เข้าใจ' },
+          { word: 'หาญ', reading: 'หาญ', register: 'เขียน', nuance: 'กล้าอย่างสง่า', example: 'นักผจญภัยหาญฝ่าพายุ' },
+          { word: 'องอาจ', reading: 'อง-อาจ', register: 'เขียน', nuance: 'กล้าและภูมิใจในท่าทาง', example: 'เธอยืนองอาจต่อหน้าผู้ชม' },
+        ],
+      },
+      {
+        id: 'syn-smart', theme: 'ฉลาด', emoji: '🧠', grade: 'ป.5', indicator_code: 'ท 1.1 ป.4/2',
+        tip: 'หลักแหลมเน้นคมคิด ปราดเปรื่องโทนสูง',
+        quizWrong: ['โง่', 'งุ่มง่าม', 'สับสน'],
+        words: [
+          { word: 'ฉลาด', reading: 'ฉะ-ลาด', register: 'พูด', nuance: 'คำทั่วไป', example: 'แมวตัวนี้ฉลาดหาของกินเอง' },
+          { word: 'หลักแหลม', reading: 'หลัก-แหลม', register: 'เขียน', nuance: 'คิดคม มีเหตุผล', example: 'คำตอบหลักแหลมทำให้ครูพยักหน้า' },
+          { word: 'ปราดเปรื่อง', reading: 'ปราด-เปรื่อง', register: 'เขียน', nuance: 'เก่งและรู้มาก ยกย่อง', example: 'นักเรียนปราดเปรื่องด้านคณิต' },
+        ],
+      },
+      {
+        id: 'syn-beautiful', theme: 'สวย', emoji: '🌸', grade: 'ป.4', indicator_code: 'ท 1.1 ป.4/2',
+        tip: 'งามโทนคลาสสิก เลิศยกย่องสูง',
+        quizWrong: ['น่าเกลียด', 'สกปรก', 'มืด'],
+        words: [
+          { word: 'สวย', reading: 'สวย', register: 'พูด', nuance: 'คำพูดทั่วไป', example: 'ชุดนี้สวยมาก' },
+          { word: 'งาม', reading: 'งาม', register: 'เขียน', nuance: 'คลาสสิก กวีก็ใช้ได้', example: 'ดอกไม้บานงามรับลม' },
+          { word: 'เลิศ', reading: 'เลิด', register: 'เขียน', nuance: 'ยอดเยี่ยม เหนือชั้น', example: 'งานศิลปะชิ้นนี้งามเลิศ' },
+        ],
+      },
+      {
+        id: 'syn-help', theme: 'ช่วย', emoji: '🆘', grade: 'ป.5', indicator_code: 'ท 1.1 ป.4/2',
+        tip: 'สนับสนุนเสริมกำลัง อุปการะให้ความช่วยเหลืออย่างเป็นธุระ',
+        quizWrong: ['ขัดขวาง', 'ทำร้าย', 'เพิกเฉย'],
+        words: [
+          { word: 'ช่วย', reading: 'ช่วย', register: 'พูด', nuance: 'คำพื้นฐาน', example: 'ช่วยถือของให้หน่อยได้ไหม' },
+          { word: 'สนับสนุน', reading: 'สัม-บัป-สะ-หนุน', register: 'เขียน', nuance: 'หนุนหลัง โครงการ/ความคิด', example: 'โรงเรียนสนับสนุนโครงการจิตอาสา' },
+          { word: 'อุปการะ', reading: 'อุ-บะ-กา-ระ', register: 'เขียน', nuance: 'ช่วยเหลือด้วยน้ำใจ/ทรัพย์', example: 'ผู้มีจิตศรัทธาอุปการะทุนการศึกษา' },
+        ],
+      },
+      {
+        id: 'syn-end', theme: 'จบ', emoji: '🏁', grade: 'ป.5', indicator_code: 'ท 1.1 ป.4/2',
+        tip: 'สิ้นสุดทางการ อวสานโทนนาฏกรรม/วรรณกรรม',
+        quizWrong: ['เริ่มต้น', 'เกิด', 'ดำเนิน'],
+        words: [
+          { word: 'จบ', reading: 'จบ', register: 'พูด', nuance: 'คำทั่วไป', example: 'เรื่องนี้จบแล้ว' },
+          { word: 'สิ้นสุด', reading: 'สิ้น-สุด', register: 'เขียน', nuance: 'ทางการ ไม่ต่อแล้ว', example: 'โครงการสิ้นสุดในเดือนมีนาคม' },
+          { word: 'อวสาน', reading: 'อะ-วะ-สาน', register: 'เขียน', nuance: 'จุดจบแบบวรรณกรรม', example: 'เรื่องจบลงด้วยอวสานที่น่าเศร้า' },
+        ],
+      },
+    ];
+
+    function groupById(id) { return GROUPS.find((g) => g.id === id); }
+    function shuffle(a) {
+      a = a.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = (Math.random() * (i + 1)) | 0;
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+    function speak(t) {
+      if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.speak) KAMPAI.sound.speak(t, 'th-TH');
+      else if (window.speechSynthesis) {
+        const u = new SpeechSynthesisUtterance(t);
+        u.lang = 'th-TH';
+        speechSynthesis.speak(u);
+      }
+    }
+
+    let mode = 'learn', selGroup = 'syn-sun', selWordIdx = 0;
+    let flashIdx = 0, flashBack = false;
+    let pickQ = null, pickAnswered = false;
+    let matchThemes = [], matchWords = [], matchPlaces = {}, matchSelWord = null, matchChecked = false;
+
+    const hints = {
+      learn: 'เลือกกลุ่ม → แตะคำเพื่อดูโทนการใช้และตัวอย่าง',
+      flash: 'แตะการ์ดเพื่อพลิกหน้า/หลัง · หน้า=คำ หลัง=กลุ่ม+คำคู่',
+      pick: 'เลือกคำที่พ้องความหมายกับคำที่กำหนด',
+      match: 'แตะคำแล้วแตะกล่องธีม — หรือแตะกล่องก่อนแล้วเลือกคำ',
+    };
+
+    function setMode(m) {
+      mode = m;
+      document.querySelectorAll('#modeSeg button').forEach((b) => b.classList.toggle('on', b.dataset.mode === m));
+      document.querySelectorAll('.panel').forEach((p) => p.classList.remove('on'));
+      document.getElementById('p-' + m).classList.add('on');
+      document.getElementById('hintText').textContent = hints[m];
+      if (m === 'learn') renderLearn();
+      if (m === 'flash') { flashBack = false; renderFlash(); }
+      if (m === 'pick') { if (!pickQ) nextPick(); else renderPick(); }
+      if (m === 'match') { if (!matchThemes.length) resetMatch(); else renderMatch(); }
+    }
+
+    function renderLearn() {
+      const el = document.getElementById('p-learn');
+      const g = groupById(selGroup);
+      const w = g.words[selWordIdx] || g.words[0];
+      el.innerHTML =
+        '<div class="grp-list">' +
+        GROUPS.map((x) =>
+          '<button type="button" class="grp-btn' + (x.id === selGroup ? ' on' : '') + '" data-gid="' + x.id + '">' +
+          x.emoji + ' ' + x.theme + '</button>'
+        ).join('') +
+        '</div>' +
+        '<div class="word-grid">' +
+        g.words.map((word, i) =>
+          '<button type="button" class="w-card' + (i === selWordIdx ? ' on' : '') + '" data-wi="' + i + '">' +
+          '<div class="w">' + word.word + '</div><div class="r">อ่าน: ' + word.reading + '</div>' +
+          '<span class="reg">' + word.register + '</span></button>'
+        ).join('') +
+        '</div>' +
+        '<div class="detail">' +
+        '<h3>' + g.emoji + ' ' + w.word + ' · กลุ่ม“' + g.theme + '”</h3>' +
+        '<p><strong>อ่าน:</strong> ' + w.reading + ' · <strong>ระดับภาษา:</strong> ' + w.register + '</p>' +
+        '<p><strong>โทนใช้:</strong> ' + w.nuance + '</p>' +
+        '<p><strong>ตัวอย่าง:</strong> “' + w.example + '”</p>' +
+        '<div class="actions" style="justify-content:flex-start;margin-top:8px">' +
+        '<button type="button" class="btn btn-ghost" id="btnSpeakW">🔊 อ่านคำ</button>' +
+        '<button type="button" class="btn btn-ghost" id="btnSpeakEx">🔊 อ่านตัวอย่าง</button></div>' +
+        '</div>' +
+        '<div class="tip">💡 ' + g.tip + '</div>';
+      el.querySelectorAll('[data-gid]').forEach((b) => {
+        b.onclick = () => { selGroup = b.dataset.gid; selWordIdx = 0; renderLearn(); };
+      });
+      el.querySelectorAll('[data-wi]').forEach((b) => {
+        b.onclick = () => { selWordIdx = +b.dataset.wi; renderLearn(); };
+      });
+      document.getElementById('btnSpeakW').onclick = () => speak(w.word);
+      document.getElementById('btnSpeakEx').onclick = () => speak(w.example);
+    }
+
+    function renderFlash() {
+      const el = document.getElementById('p-flash');
+      const g = GROUPS[flashIdx % GROUPS.length];
+      const w = g.words[0];
+      const others = g.words.map((x) => x.word).join(' · ');
+      el.innerHTML =
+        '<div class="flash"><div class="flash-inner" id="flashCard">' +
+        (flashBack
+          ? '<div class="sub">กลุ่ม' + g.emoji + ' <strong>' + g.theme + '</strong></div>' +
+            '<div class="big" style="font-size:1.4rem">' + others + '</div>' +
+            '<div class="sub">' + g.tip + '</div><small style="font-weight:700;color:#64748b">แตะเพื่อกลับหน้า</small>'
+          : '<div class="big">' + w.word + '</div>' +
+            '<div class="sub">อ่าน: ' + w.reading + ' · ' + w.register + '</div>' +
+            '<small style="font-weight:700;color:#64748b">แตะเพื่อพลิกหลัง</small>') +
+        '</div></div>' +
+        '<div class="actions">' +
+        '<button type="button" class="btn btn-ghost" id="btnPrevF">← ก่อนหน้า</button>' +
+        '<button type="button" class="btn btn-primary" id="btnNextF">ถัดไป →</button>' +
+        '<button type="button" class="btn btn-accent" id="btnSpeakF">🔊</button></div>' +
+        '<p style="text-align:center;font-weight:700;color:var(--muted)">' + ((flashIdx % GROUPS.length) + 1) + ' / ' + GROUPS.length + '</p>';
+      document.getElementById('flashCard').onclick = () => { flashBack = !flashBack; renderFlash(); };
+      document.getElementById('btnPrevF').onclick = () => {
+        flashIdx = (flashIdx - 1 + GROUPS.length) % GROUPS.length;
+        flashBack = false;
+        renderFlash();
+      };
+      document.getElementById('btnNextF').onclick = () => {
+        flashIdx = (flashIdx + 1) % GROUPS.length;
+        flashBack = false;
+        renderFlash();
+      };
+      document.getElementById('btnSpeakF').onclick = () => speak(flashBack ? g.theme : w.word);
+    }
+
+    function nextPick() {
+      const g = GROUPS[(Math.random() * GROUPS.length) | 0];
+      const target = g.words[(Math.random() * g.words.length) | 0];
+      const correct = g.words.find((w) => w.word !== target.word) || g.words[0];
+      const wrongPool = g.quizWrong.slice();
+      while (wrongPool.length < 3) {
+        const og = GROUPS[(Math.random() * GROUPS.length) | 0];
+        if (og.id === g.id) continue;
+        const ow = og.words[0].word;
+        if (!wrongPool.includes(ow) && ow !== correct.word) wrongPool.push(ow);
+      }
+      const opts = shuffle([correct.word].concat(wrongPool.slice(0, 3)));
+      pickQ = {
+        prompt: 'คำไหนพ้องความหมายกับ “‘ + target.word + '”?',
+        group: g,
+        target,
+        answer: correct.word,
+        opts,
+        explain: 'กลุ่ม“' + g.theme + '”: ' + g.words.map((w) => w.word).join(' · ') + ' — ' + g.tip,
+      };
+      pickAnswered = false;
+      renderPick();
+    }
+
+    function renderPick() {
+      const el = document.getElementById('p-pick');
+      if (!pickQ) return;
+      el.innerHTML =
+        '<div class="q-box">' +
+        '<div style="font-size:2.5rem">' + pickQ.group.emoji + '</div>' +
+        '<p class="q-text">' + pickQ.prompt + '</p>' +
+        '<p style="font-weight:700;color:#64748b">ระดับชั้น ' + pickQ.group.grade + '</p>' +
+        '<div class="opts">' +
+        pickQ.opts.map((o) => '<button type="button" class="opt" data-v="' + o + '">' + o + '</button>').join('') +
+        '</div>' +
+        '<p class="fb" id="pickFb"></p>' +
+        '<div class="actions"><button type="button" class="btn btn-primary" id="btnNextP">ข้อถัดไป</button></div>' +
+        '</div>';
+      el.querySelectorAll('.opt').forEach((b) => {
+        b.onclick = () => {
+          if (pickAnswered) return;
+          pickAnswered = true;
+          const v = b.dataset.v;
+          const ok = v === pickQ.answer;
+          el.querySelectorAll('.opt').forEach((o) => {
+            if (o.dataset.v === pickQ.answer) o.classList.add('ok');
+            else if (o === b) o.classList.add('no');
+          });
+          document.getElementById('pickFb').className = 'fb ' + (ok ? 'ok' : 'no');
+          document.getElementById('pickFb').textContent = (ok ? '✅ ถูกต้อง! ' : '❌ คำตอบคือ “' + pickQ.answer + '” — ') + pickQ.explain;
+        };
+      });
+      document.getElementById('btnNextP').onclick = nextPick;
+    }
+
+    function resetMatch() {
+      matchThemes = shuffle(GROUPS).slice(0, 3);
+      matchWords = shuffle(matchThemes.flatMap((g) =>
+        g.words.map((w) => ({ word: w.word, groupId: g.id }))
+      ));
+      matchPlaces = {};
+      matchThemes.forEach((g) => { matchPlaces[g.id] = []; });
+      matchSelWord = null;
+      matchChecked = false;
+      renderMatch();
+    }
+
+    function renderMatch() {
+      const el = document.getElementById('p-match');
+      const used = new Set(Object.values(matchPlaces).flat());
+      const allPlaced = matchWords.every((w) => used.has(w.word));
+      el.innerHTML =
+        '<div class="match-layout">' +
+        '<div class="boxes">' +
+        matchThemes.map((g) =>
+          '<button type="button" class="box' + (matchSelWord ? ' on' : '') + '" data-box="' + g.id + '" style="text-align:left;width:100%;cursor:pointer;font-family:inherit">' +
+          '<h4>' + g.emoji + ' ' + g.theme + '</h4>' +
+          '<div class="chips">' +
+          (matchPlaces[g.id] || []).map((word) => {
+            let cls = 'chip';
+            if (matchChecked) {
+              const item = matchWords.find((x) => x.word === word);
+              cls += item && item.groupId === g.id ? ' ok' : ' no';
+            }
+            return '<span class="' + cls + '">' + word + '</span>';
+          }).join('') +
+          '</div></button>'
+        ).join('') +
+        '</div>' +
+        '<div>' +
+        '<p style="font-weight:800;color:var(--deep);margin-bottom:8px;text-align:center">แตะคำ แล้วแตะกล่องธีม</p>' +
+        '<div class="pool">' +
+        matchWords.map((w) =>
+          '<button type="button" class="f-btn' + (used.has(w.word) ? ' used' : '') +
+          (matchSelWord === w.word ? ' sel' : '') + '" data-word="' + w.word + '">' + w.word + '</button>'
+        ).join('') +
+        '</div></div></div>' +
+        '<p class="fb" id="matchFb">' + (allPlaced && !matchChecked ? 'วางครบแล้ว — กดตรวจคำตอบ' : '') + '</p>' +
+        '<div class="actions">' +
+        '<button type="button" class="btn btn-accent" id="btnCheckM"' + (allPlaced ? '' : ' disabled') + '>ตรวจคำตอบ</button>' +
+        '<button type="button" class="btn btn-primary" id="btnNewM">สุ่มชุดใหม่</button></div>';
+      el.querySelectorAll('[data-word]').forEach((b) => {
+        b.onclick = () => {
+          if (used.has(b.dataset.word) || matchChecked) return;
+          matchSelWord = matchSelWord === b.dataset.word ? null : b.dataset.word;
+          renderMatch();
+        };
+      });
+      el.querySelectorAll('[data-box]').forEach((b) => {
+        b.onclick = () => {
+          if (!matchSelWord || matchChecked) return;
+          const gid = b.dataset.box;
+          Object.keys(matchPlaces).forEach((k) => {
+            matchPlaces[k] = matchPlaces[k].filter((w) => w !== matchSelWord);
+          });
+          matchPlaces[gid].push(matchSelWord);
+          matchSelWord = null;
+          renderMatch();
+        };
+      });
+      document.getElementById('btnNewM').onclick = resetMatch;
+      const chk = document.getElementById('btnCheckM');
+      chk.onclick = () => {
+        if (!allPlaced) return;
+        matchChecked = true;
+        let ok = 0, total = matchWords.length;
+        matchWords.forEach((w) => {
+          const box = Object.keys(matchPlaces).find((k) => matchPlaces[k].includes(w.word));
+          if (box === w.groupId) ok++;
+        });
+        renderMatch();
+        const fb = document.getElementById('matchFb');
+        fb.className = 'fb ' + (ok === total ? 'ok' : 'no');
+        fb.textContent = ok === total
+          ? '✅ จับคู่ถูกทั้ง ' + total + ' คำ!'
+          : 'ได้ ' + ok + '/' + total + ' — สีเขียวถูก สีแดงลองใหม่';
+      };
+    }
+
+    document.getElementById('modeSeg').onclick = (e) => {
+      const b = e.target.closest('button[data-mode]');
+      if (b) setMode(b.dataset.mode);
+    };
+    document.getElementById('btnFs').onclick = () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    };
+
+    setMode('learn');
+  </script>
+</body>
+</html>
