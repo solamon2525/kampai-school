@@ -276,8 +276,8 @@ const versionHistory = [
         date: 'ล่าสุด',
         badge: 'bg-sky-600',
         items: [
-            '**GameDemoPreview** สลับปก ↔ วิดีโอเดโมแบบวนซ้ำ (เดิมโชว์ปก ~2 วิ แล้วเล่นวิดีโอค้าง)',
-            'หลังบ้าน GamesTab → ตั้งค่า **โชว์ปกกี่วิ / โชว์วิดีโอกี่วิ** (`game_preview_cover_seconds` · `game_preview_video_seconds`) — ค่าเริ่มต้นปก 2 วิ / วิดีโอ 5 วิ · ตั้งวิดีโอ = 0 เพื่อเล่นค้างแบบเดิม',
+            '**GameDemoPreview** สลับปก ↔ วิดีโอเดโมแบบวนซ้ำ (ปก → วิดีโอ → ปก)',
+            'หลังบ้าน GamesTab → ตั้งค่า **โชว์ปกกี่วิ / โชว์วิดีโอกี่วิ** (`game_preview_cover_seconds` · `game_preview_video_seconds`) และ **ปกหลังวิดีโอรอบแรกแบบสุ่ม** (`game_preview_cover_round2_min_seconds`–`game_preview_cover_round2_max_seconds`) — ค่าเริ่มต้น 2 วิ / วิดีโอ 5 วิ / ปกสุ่ม 3–5 วิ',
             'ใช้กับหน้ารวมเกม (`EduHubItemCard`) + โซนเกมแนะนำหน้าแรก + FeaturedGameDialog',
         ],
     },

@@ -33,6 +33,8 @@ export function FeaturedGamesDisplaySettings() {
     const [fadeStagger, setFadeStagger] = useState('80');
     const [coverSec, setCoverSec] = useState('2');
     const [videoSec, setVideoSec] = useState('5');
+    const [coverRound2MinSec, setCoverRound2MinSec] = useState('3');
+    const [coverRound2MaxSec, setCoverRound2MaxSec] = useState('5');
 
     useEffect(() => {
         setRows(settings.featured_games_rows || '1');
@@ -42,6 +44,8 @@ export function FeaturedGamesDisplaySettings() {
         setFadeStagger(settings.featured_games_fade_stagger || '80');
         setCoverSec(settings.game_preview_cover_seconds || '2');
         setVideoSec(settings.game_preview_video_seconds || '5');
+        setCoverRound2MinSec(settings.game_preview_cover_round2_min_seconds || '3');
+        setCoverRound2MaxSec(settings.game_preview_cover_round2_max_seconds || '5');
     }, [settings]);
 
     const save = async () => {
@@ -55,6 +59,8 @@ export function FeaturedGamesDisplaySettings() {
                 { key: 'featured_games_fade_stagger', value: fadeStagger },
                 { key: 'game_preview_cover_seconds', value: coverSec },
                 { key: 'game_preview_video_seconds', value: videoSec },
+                { key: 'game_preview_cover_round2_min_seconds', value: coverRound2MinSec },
+                { key: 'game_preview_cover_round2_max_seconds', value: coverRound2MaxSec },
             ];
             const { error } = await supabase
                 .from('school_settings')
@@ -179,7 +185,34 @@ export function FeaturedGamesDisplaySettings() {
                                     <span className="text-[10px] text-muted-foreground">
                                         {videoSec === '0'
                                             ? 'พฤติกรรมเดิม: เข้าจอแล้วเล่นวิดีโอลูปค้าง'
-                                            : `วงจร ≈ ปก ${coverSec}วิ → วิดีโอ ${videoSec}วิ → วนซ้ำ`}
+                                            : `วงจร ≈ ปก ${coverSec}วิ → วิดีโอ ${videoSec}วิ → ปกสุ่มถัดไป`}
+                                    </span>
+                                </label>
+
+                                <label className="space-y-1 sm:col-span-2">
+                                    <span className="text-xs font-medium text-foreground">ปก “รอบถัดไป” (หลังวิดีโอรอบแรก) — สุ่มช่วง</span>
+                                    <div className="flex gap-3">
+                                        <select
+                                            className={cn(SELECT_CLASS, 'w-1/2')}
+                                            value={coverRound2MinSec}
+                                            onChange={(e) => setCoverRound2MinSec(e.target.value)}
+                                        >
+                                            {[0, 1, 2, 3, 4, 5, 6, 8, 10].map((n) => (
+                                                <option key={n} value={String(n)}>{n} วิ</option>
+                                            ))}
+                                        </select>
+                                        <select
+                                            className={cn(SELECT_CLASS, 'w-1/2')}
+                                            value={coverRound2MaxSec}
+                                            onChange={(e) => setCoverRound2MaxSec(e.target.value)}
+                                        >
+                                            {[0, 1, 2, 3, 4, 5, 6, 8, 10].map((n) => (
+                                                <option key={n} value={String(n)}>{n} วิ</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <span className="text-[10px] text-muted-foreground">
+                                        ตัวอย่าง: สุ่มระหว่าง {coverRound2MinSec}–{coverRound2MaxSec} วิ
                                     </span>
                                 </label>
                             </div>

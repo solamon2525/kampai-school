@@ -469,7 +469,7 @@ const CompactThumb = ({ item }: { item: EduHubItem }) => {
 };
 
 const ItemThumbnail = ({ item }: { item: EduHubItem }) => {
-    const { coverMs, videoMs } = useGamePreviewTiming();
+    const { coverMs, videoMs, coverRound2MinMs, coverRound2MaxMs } = useGamePreviewTiming();
     if (item.thumbnail_url) {
         // กริดวิดีโอ: มีรูปปก + คลิปเดโม → สลับปก ↔ วิดีโอวนซ้ำ (จังหวะจากหลังบ้าน)
         if (item.preview_video_url) {
@@ -480,6 +480,8 @@ const ItemThumbnail = ({ item }: { item: EduHubItem }) => {
                     title={item.title}
                     coverMs={coverMs}
                     videoMs={videoMs}
+                    coverRound2MinMs={coverRound2MinMs}
+                    coverRound2MaxMs={coverRound2MaxMs}
                 />
             );
         }

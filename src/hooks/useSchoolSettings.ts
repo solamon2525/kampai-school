@@ -128,6 +128,8 @@ export interface SchoolSettings {
     // พรีวิวการ์ดเกม (ปก ↔ วิดีโอเดโม) — ใช้ทุก grid ที่มี preview_video_url
     game_preview_cover_seconds: string;     // วินาทีโชว์ปกก่อน/ระหว่างสลับ (default 2)
     game_preview_video_seconds: string;     // วินาทีโชว์วิดีโอก่อนกลับปก · 0 = เล่นวิดีโอค้างไม่สลับ (default 5)
+    game_preview_cover_round2_min_seconds: string; // วินาทีปกหลังวิดีโอรอบแรก (default 3)
+    game_preview_cover_round2_max_seconds: string; // วินาทีปกหลังวิดีโอรอบแรก (default 5)
 }
 
 const defaultSettings: SchoolSettings = {
@@ -232,9 +234,11 @@ const defaultSettings: SchoolSettings = {
     featured_games_fade_duration: '400',
     featured_games_fade_stagger: '80',
 
-    // พรีวิวการ์ดเกม: ปก 2 วิ → วิดีโอ 5 วิ → กลับปก วนซ้ำ
+    // พรีวิวการ์ดเกม: ปก 2 วิ → วิดีโอ 5 วิ → กลับปก (สุ่มช่วง 3–5 วิ) วนซ้ำ
     game_preview_cover_seconds: '2',
     game_preview_video_seconds: '5',
+    game_preview_cover_round2_min_seconds: '3',
+    game_preview_cover_round2_max_seconds: '5',
 };
 
 const CACHE_KEY = 'school_settings_cache';

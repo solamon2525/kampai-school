@@ -118,7 +118,12 @@ const ContactFormBlock = () => {
 
 export const useHomeMainBlocks = () => {
   const { settings } = useSchoolSettings();
-  const { coverMs: previewCoverMs, videoMs: previewVideoMs } = useGamePreviewTiming();
+  const {
+    coverMs: previewCoverMs,
+    videoMs: previewVideoMs,
+    coverRound2MinMs: previewRound2MinMs,
+    coverRound2MaxMs: previewRound2MaxMs,
+  } = useGamePreviewTiming();
   const [news, setNews] = useState<NewsItem[]>([]);
   const [slides, setSlides] = useState<{ url: string; title: string; fit: 'cover' | 'contain' }[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -1057,6 +1062,8 @@ export const useHomeMainBlocks = () => {
           title={game.title}
           coverMs={previewCoverMs}
           videoMs={previewVideoMs}
+          coverRound2MinMs={previewRound2MinMs}
+          coverRound2MaxMs={previewRound2MaxMs}
         />
       ) : game.thumbnail_url ? (
         <GameCoverThumb

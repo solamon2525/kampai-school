@@ -16,6 +16,12 @@ interface Props {
      * หลังบ้าน: school_settings.game_preview_video_seconds
      */
     videoMs?: number;
+    /**
+     * หลังจากวิดีโอครั้งแรกจบแล้ว ปกจะถูกสุ่มช่วงนี้ (ms)
+     * ถ้าไม่ส่งค่าจะสุ่มเท่ากับ coverMs เดิม (ไม่มี random)
+     */
+    coverRound2MinMs?: number;
+    coverRound2MaxMs?: number;
     /** @deprecated ใช้ coverMs แทน — คงไว้เพื่อไม่พัง caller เดิม */
     delayMs?: number;
 }
@@ -32,9 +38,11 @@ export const GameDemoPreview = ({
     title,
     coverMs,
     videoMs = 0,
+    coverRound2MinMs,
+    coverRound2MaxMs,
     delayMs,
 }: Props) => {
-    const coverDelay = coverMs ?? delayMs ?? 2000;
+    const coverDelayFixed = coverMs ?? delayMs ?? 2000;
     const videoHold = Math.max(0, videoMs);
 
     const containerRef = useRef<HTMLDivElement>(null);
@@ -72,6 +80,7 @@ export const GameDemoPreview = ({
         let coverTimer: ReturnType<typeof setTimeout> | undefined;
         let videoTimer: ReturnType<typeof setTimeout> | undefined;
         let cancelled = false;
+        let hasPlayedFirstVideo = false;
 
         const clearTimers = () => {
             if (coverTimer) { clearTimeout(coverTimer); coverTimer = undefined; }
@@ -110,11 +119,21 @@ export const GameDemoPreview = ({
             }
         };
 
+        const randomNextCoverDelayMs = () => {
+            const minMs = coverRound2MinMs ?? coverDelayFixed;
+            const maxMs = coverRound2MaxMs ?? coverRound2MinMs ?? coverDelayFixed;
+            const minSec = Math.max(0, Math.round(minMs / 1000));
+            const maxSec = Math.max(minSec, Math.round(maxMs / 1000));
+            const sec = minSec + Math.floor(Math.random() * (maxSec - minSec + 1));
+            return sec * 1000;
+        };
+
         const onPlaying = () => {
             if (cancelled) return;
             setPlaying(true);
             // โหมดสลับ: ถือวิดีโอ videoHold แล้วกลับปก → วนซ้ำ
             if (videoHold > 0) {
+                hasPlayedFirstVideo = true;
                 if (videoTimer) clearTimeout(videoTimer);
                 videoTimer = setTimeout(() => {
                     if (cancelled) return;
@@ -122,7 +141,7 @@ export const GameDemoPreview = ({
                     try { v.currentTime = 0; } catch { /* ignore */ }
                     coverTimer = setTimeout(() => {
                         if (!cancelled) playOnce();
-                    }, coverDelay);
+                    }, hasPlayedFirstVideo ? randomNextCoverDelayMs() : coverDelayFixed);
                 }, videoHold);
             }
         };
@@ -135,7 +154,7 @@ export const GameDemoPreview = ({
             try { v.currentTime = 0; } catch { /* ignore */ }
             coverTimer = setTimeout(() => {
                 if (!cancelled) playOnce();
-            }, coverDelay);
+            }, hasPlayedFirstVideo ? randomNextCoverDelayMs() : coverDelayFixed);
         };
 
         v.addEventListener('playing', onPlaying);
@@ -144,7 +163,7 @@ export const GameDemoPreview = ({
         if (inView) {
             coverTimer = setTimeout(() => {
                 if (!cancelled) playOnce();
-            }, coverDelay);
+            }, coverDelayFixed);
         } else {
             clearTimers();
             unload();
@@ -158,7 +177,7 @@ export const GameDemoPreview = ({
             if (!inView) unload();
             else hideVideo();
         };
-    }, [video, coverDelay, videoHold, inView]);
+    }, [video, coverDelayFixed, videoHold, inView, coverRound2MinMs, coverRound2MaxMs]);
 
     return (
         <div ref={containerRef} className="aspect-video w-full overflow-hidden bg-muted relative">

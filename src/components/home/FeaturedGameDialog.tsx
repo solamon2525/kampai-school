@@ -31,7 +31,7 @@ export const FeaturedGameDialog = ({
     onOpenChange: (open: boolean) => void;
 }) => {
     const navigate = useNavigate();
-    const { coverMs, videoMs } = useGamePreviewTiming();
+    const { coverMs, videoMs, coverRound2MinMs, coverRound2MaxMs } = useGamePreviewTiming();
 
     const { data: leaders } = useQuery({
         queryKey: ['game-leaderboard-card', game?.game_slug],
@@ -71,6 +71,8 @@ export const FeaturedGameDialog = ({
                             title={game.title}
                             coverMs={coverMs}
                             videoMs={videoMs}
+                            coverRound2MinMs={coverRound2MinMs}
+                            coverRound2MaxMs={coverRound2MaxMs}
                         />
                     ) : game.thumbnail_url ? (
                         <GameCoverThumb src={game.thumbnail_url} alt={game.title} />
