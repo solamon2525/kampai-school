@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>กระดูก กล้ามเนื้อ ข้อ — สื่อการสอน — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --deep: #0e7490; --line: #a5f3fc; --muted: #64748b; --ok: #16a34a; --bad: #dc2626; --cream: #ecfeff; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(160deg, #cffafe, #e0f2fe); min-height: 100%; padding: 12px; color: #0f172a; }
+    .shell { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+    header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #155e75, #0891b2); color: #fff; }
+    header h1 { font-size: 1.1rem; font-weight: 800; flex: 1; min-width: 140px; }
+    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn:active { transform: scale(.97); }
+    .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
+    .btn-primary { background: var(--deep); color: #fff; }
+    .btn-accent { background: #fbbf24; color: #78350f; }
+    .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 16px; background: var(--cream); border-bottom: 1px solid var(--line); align-items: center; }
+    .seg { display: inline-flex; flex-wrap: wrap; border-radius: 12px; overflow: hidden; border: 2px solid #22d3ee; }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 12px; cursor: pointer; font-size: .82rem; }
+    .seg button.on { background: var(--deep); color: #fff; }
+    .hint { font-size: .85rem; color: #155e75; font-weight: 600; flex: 1; min-width: 120px; }
+    .stage { flex: 1; padding: 16px; overflow: auto; }
+    .panel { display: none; flex-direction: column; gap: 14px; max-width: 980px; margin: 0 auto; }
+    .panel.on { display: flex; }
+    .learn-layout { display: grid; gap: 14px; }
+    @media (min-width: 860px) { .learn-layout { grid-template-columns: 1.05fr 1fr; } }
+    .diagram-wrap { background: linear-gradient(180deg, #ecfeff, #bae6fd); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .diagram { width: 100%; max-width: 280px; aspect-ratio: 3/5; position: relative; background: #fff; border-radius: 18px; border: 2px solid var(--line); overflow: hidden; }
+    .body-svg { width: 100%; height: 100%; display: block; }
+    .hs { position: absolute; transform: translate(-50%, -50%); width: 36px; height: 36px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 2px 8px rgba(15,23,42,.25); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 800; z-index: 2; }
+    .hs.bone { background: #fbbf24; }
+    .hs.muscle { background: #f87171; }
+    .hs.joint { background: #60a5fa; }
+    .hs.on { outline: 3px solid #0891b2; outline-offset: 2px; transform: translate(-50%, -50%) scale(1.12); }
+    .hs.target { animation: pulse 1s infinite; outline: 3px dashed #f59e0b; }
+    @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.5)} 50%{box-shadow:0 0 0 8px rgba(245,158,11,0)} }
+    .legend { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; font-size: .78rem; font-weight: 800; }
+    .legend span { display: inline-flex; align-items: center; gap: 4px; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+    .detail { background: #fff; border: 2px solid var(--line); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 8px; min-height: 200px; }
+    .detail h3 { color: var(--deep); font-weight: 800; font-size: 1.25rem; }
+    .kind-tag { align-self: flex-start; font-size: .75rem; font-weight: 800; padding: 3px 10px; border-radius: 999px; color: #fff; }
+    .kind-tag.bone { background: #d97706; }
+    .kind-tag.muscle { background: #dc2626; }
+    .kind-tag.joint { background: #2563eb; }
+    .detail p { font-weight: 600; line-height: 1.5; }
+    .facts { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+    .facts li { font-weight: 600; font-size: .9rem; background: var(--cream); border-radius: 8px; padding: 6px 10px; }
+    .tip { background: #fffbeb; border: 2px dashed #fcd34d; border-radius: 12px; padding: 10px; font-weight: 700; color: #92400e; }
+    .match-layout { display: grid; gap: 12px; }
+    @media (min-width: 800px) { .match-layout { grid-template-columns: 1fr 1fr; } }
+    .boxes { display: flex; flex-direction: column; gap: 10px; }
+    .box { border: 2px dashed var(--line); border-radius: 14px; padding: 10px; min-height: 80px; background: var(--cream); }
+    .box.on { border-color: var(--deep); border-style: solid; }
+    .box h4 { font-size: .9rem; font-weight: 800; color: var(--deep); margin-bottom: 6px; }
+    .box .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { background: #fff; border: 2px solid var(--line); border-radius: 999px; padding: 4px 10px; font-weight: 800; font-size: .8rem; }
+    .chip.ok { border-color: #86efac; background: #dcfce7; }
+    .chip.no { border-color: #fca5a5; background: #fee2e2; }
+    .pool { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-content: flex-start; }
+    .pool .f-btn { font-family: inherit; border: 2px solid var(--line); background: #fff; border-radius: 12px; padding: 10px 12px; cursor: pointer; font-weight: 800; color: var(--deep); }
+    .pool .f-btn.sel { box-shadow: 0 0 0 3px var(--deep); }
+    .pool .f-btn.used { opacity: .35; pointer-events: none; }
+    .care-grid { display: grid; gap: 10px; }
+    @media (min-width: 700px) { .care-grid { grid-template-columns: 1fr 1fr; } }
+    .care-card { font-family: inherit; text-align: left; border: 2px solid var(--line); border-radius: 14px; padding: 12px; background: #fff; cursor: pointer; }
+    .care-card .lab { font-weight: 800; color: var(--deep); margin-bottom: 4px; }
+    .care-card .why { font-weight: 600; font-size: .85rem; color: var(--muted); display: none; line-height: 1.45; }
+    .care-card.ok { background: #dcfce7; border-color: #86efac; }
+    .care-card.no { background: #fee2e2; border-color: #fca5a5; }
+    .care-card.ok .why, .care-card.no .why { display: block; color: #334155; margin-top: 6px; }
+    .q-box { text-align: center; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+    .q-text { font-weight: 800; font-size: 1.15rem; color: var(--deep); }
+    .fb { text-align: center; font-weight: 800; min-height: 24px; }
+    .fb.ok { color: var(--ok); }
+    .fb.no { color: var(--bad); }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .footer { padding: 10px 16px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
+    .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
+      <h1>🦴 กระดูก · กล้ามเนื้อ · ข้อ</h1>
+      <span class="badge">ป.4–5 · สุขศึกษา</span>
+    </header>
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
+        <button type="button" data-mode="sort">📦 แยกประเภท</button>
+        <button type="button" data-mode="care">💚 ดูแลร่างกาย</button>
+        <button type="button" data-mode="guess">🎯 ทายตำแหน่ง</button>
+      </span>
+      <p class="hint" id="hintText">แตะจุดบนแผนภาพเพื่อดูชื่อ หน้าที่ และเคล็ดดูแล</p>
+      <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
+    </div>
+    <div class="stage">
+      <div class="panel on" id="p-learn"></div>
+      <div class="panel" id="p-sort"></div>
+      <div class="panel" id="p-care"></div>
+      <div class="panel" id="p-guess"></div>
+    </div>
+    <footer class="footer">ตัวชี้วัด <strong>พ 1.1 ป.4/2</strong> · <strong>พ 1.1 ป.4/3</strong> · ระบบร่างกายอื่น <a href="/play/digestive-ar">ระบบย่อย AR</a></footer>
+  </div>
+  <script>
+    const MEDIA_SLUG = 'bone-muscle-media';
+    if (window.KAMPAI) KAMPAI.setSlug(MEDIA_SLUG);
+
+    const KIND_TH = { bone: 'กระดูก', muscle: 'กล้ามเนื้อ', joint: 'ข้อ' };
+
+    const PARTS = [
+      { id: 'skull', kind: 'bone', nameTh: 'กะโหลกศีรษะ', emoji: '💀', functionTh: 'คุ้มครองสมองและอวัยวะในศีรษะ', careTip: 'สวมหมวกนิรภัยเมื่อขี่จักรยานหรือเล่นกีฬาที่เสี่ยงชนหัว', hotspot: { x: 50, y: 8 }, facts: ['กระดูกหลายชิ้นเชื่อมแน่น', 'มีโพรงจมูกและเบ้าตา', 'คุ้มครองอวัยวะสำคัญ'] },
+      { id: 'spine', kind: 'bone', nameTh: 'กระดูกสันหลัง', emoji: '🦴', functionTh: 'ค้ำลำตัวและปกป้องไขสันหลัง', careTip: 'นั่งหลังตรง พักยืดหลังทุก 30–45 นาที', hotspot: { x: 50, y: 38 }, facts: ['ประกอบด้วยกระดูกปล้องเรียงกัน', 'ช่วยให้หลังงอได้', 'รองรับน้ำหนักร่างกาย'] },
+      { id: 'ribs', kind: 'bone', nameTh: 'ซี่โครง', emoji: '🫁', functionTh: 'ป้องกันหัวใจและปอด', careTip: 'หายใจเข้าลึก ๆ และอย่าบีบหน้าท้องแน่นเกินไปนาน ๆ', hotspot: { x: 50, y: 28 }, facts: ['โค้งรอบทรวงอก', 'เชื่อมกับกระดูกอกและสันหลัง', 'เคลื่อนตามการหายใจ'] },
+      { id: 'humerus', kind: 'bone', nameTh: 'กระดูกต้นแขน', emoji: '💪', functionTh: 'เป็นแกนแขนส่วนบน ช่วยยกและหมุนแขน', careTip: 'ยกของหนักด้วยท่าถูกต้อง อย่ากระชากแขน', hotspot: { x: 28, y: 32 }, facts: ['กระดูกยาวของแขนบน', 'เชื่อมไหล่กับข้อศอก', 'กล้ามเนื้อเกาะรอบ'] },
+      { id: 'femur', kind: 'bone', nameTh: 'กระดูกโคนขา', emoji: '🦵', functionTh: 'รับน้ำหนักตัวและช่วยเดิน', careTip: 'อบอุ่นกล้ามเนื้อก่อนวิ่ง/กระโดด ป้องกันบาดเจ็บ', hotspot: { x: 42, y: 62 }, facts: ['กระดูกยาวที่แข็งแรงที่สุด', 'เชื่อมข้อสะโพกกับเข่า', 'มีไขกระดูกสร้างเม็ดเลือด'] },
+      { id: 'biceps', kind: 'muscle', nameTh: 'กล้ามเนื้อต้นแขน', emoji: '💪', functionTh: 'งอแขนและยกของขึ้น', careTip: 'ออกกำลังแขนสม่ำเสมอ และยืดหลังออกแรง', hotspot: { x: 22, y: 36 }, facts: ['หดตัวเมื่องอข้อศอก', 'ทำงานคู่กับกล้ามเนื้อหลังแขน', 'ต้องการโปรตีนและพักฟื้น'] },
+      { id: 'abs', kind: 'muscle', nameTh: 'กล้ามเนื้อหน้าท้อง', emoji: '🏋️', functionTh: 'ช่วยทรงตัว รองรับอวัยวะในท้อง', careTip: 'ฝึกแกนกลางด้วยท่าซิทอัพ/แพลงก์อย่างปลอดภัย', hotspot: { x: 50, y: 44 }, facts: ['ช่วยหายใจและไอ', 'รองรับหลังส่วนล่าง', 'ทำงานเมื่อยกของ'] },
+      { id: 'quad', kind: 'muscle', nameTh: 'กล้ามเนื้อต้นขา', emoji: '🦵', functionTh: 'เหยียดเข่า ช่วยยืน เดิน วิ่ง', careTip: 'วอร์มขาและยืดต้นขาก่อนวิ่ง', hotspot: { x: 58, y: 58 }, facts: ['กลุ่มกล้ามเนื้อใหญ่ด้านหน้าขา', 'ใช้แรงมากตอนขึ้นบันได', 'แข็งแรงช่วยปกป้องข้อเข่า'] },
+      { id: 'calf', kind: 'muscle', nameTh: 'กล้ามเนื้อน่อง', emoji: '🦶', functionTh: 'ยกส้นเท้า ช่วยวิ่งและกระโดด', careTip: 'ยืดน่องหลังออกกำลัง ลดตะคริว', hotspot: { x: 48, y: 82 }, facts: ['อยู่หลังขาท่อนล่าง', 'สำคัญตอนถีบเท้า', 'มักเมื่อยเมื่อยืนนาน'] },
+      { id: 'shoulder', kind: 'joint', nameTh: 'ข้อไหล่', emoji: '🔄', functionTh: 'หมุนและยกแขนได้กว้าง', careTip: 'อย่ายกของหนักเหนือหัวโดยไม่วอร์ม', hotspot: { x: 35, y: 22 }, facts: ['ข้อที่เคลื่อนไหวได้มาก', 'ง่ายต่อการเคล็ดถ้าใช้ผิดท่า', 'มีเอ็นและถุงน้ำช่วย'] },
+      { id: 'elbow', kind: 'joint', nameTh: 'ข้อศอก', emoji: '➡️', functionTh: 'งอและเหยียดแขน', careTip: 'อย่าดันข้อศอกสุดแรงหรือกระแทกโต๊ะบ่อย', hotspot: { x: 18, y: 42 }, facts: ['เชื่อมกระดูกแขนสามชิ้น', 'เคลื่อนแบบบานพับเป็นหลัก', 'มีเส้นประสาทสำคัญผ่านใกล้'] },
+      { id: 'knee', kind: 'joint', nameTh: 'ข้อเข่า', emoji: '🦵', functionTh: 'งอ–เหยียดขา รับน้ำหนักตอนเดิน', careTip: 'อย่ากระโดดสูงซ้ำโดยไม่พัก และนั่งไขว่ห้างนานเกินไป', hotspot: { x: 45, y: 70 }, facts: ['ข้อใหญ่รับแรงมาก', 'มีกระดูกอ่อนและเอ็นไขว้', 'บาดเจ็บได้ง่ายถ้าวอร์มไม่พอ'] },
+    ];
+
+    const HABITS = [
+      { id: 'h1', label: 'ดื่มนม/กินอาหารแคลเซียม', good: true, why: 'แคลเซียมช่วยสร้างและรักษาความแข็งแรงของกระดูก' },
+      { id: 'h2', label: 'ออกกำลังกายอย่างสม่ำเสมอ', good: true, why: 'กล้ามเนื้อและกระดูกแข็งแรงเมื่อได้ใช้แรงอย่างเหมาะสม' },
+      { id: 'h3', label: 'ยืดเหยียดก่อน–หลังออกกำลัง', good: true, why: 'ลดการบาดเจ็บของกล้ามเนื้อและข้อ' },
+      { id: 'h4', label: 'นั่งหลังตรง ไม่โก่งหลัง', good: true, why: 'ลดการกดกระดูกสันหลังและปวดหลังเรื้อรัง' },
+      { id: 'h5', label: 'พักเมื่อรู้สึกเจ็บหรือล้า', good: true, why: 'ร่างกายต้องการเวลาฟื้นตัว อย่าฝืนต่อ' },
+      { id: 'h6', label: 'นั่งงอหลังนาน ๆ หน้าจอ', good: false, why: 'ท่าก้มหลังนานทำให้กล้ามเนื้อและกระดูกสันหลังเครียด' },
+      { id: 'h7', label: 'ยกของหนักผิดท่า (โก่งหลัง)', good: false, why: 'แรงตกที่หลังส่วนล่าง เสี่ยงเคล็ดหรือบาดเจ็บ' },
+      { id: 'h8', label: 'ไม่วอร์มก่อนวิ่ง/กระโดด', good: false, why: 'กล้ามเนื้อและข้อยังไม่พร้อม บาดเจ็บง่าย' },
+      { id: 'h9', label: 'กระโดดสูงซ้ำโดยไม่พัก', good: false, why: 'ข้อเข่าและน่องรับแรงสะสมเกิน เสี่ยงอักเสบ' },
+    ];
+
+    function shuffle(a) {
+      a = a.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = (Math.random() * (i + 1)) | 0;
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+    function speak(t) {
+      if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.speak) KAMPAI.sound.speak(t, 'th-TH');
+      else if (window.speechSynthesis) {
+        const u = new SpeechSynthesisUtterance(t);
+        u.lang = 'th-TH';
+        speechSynthesis.speak(u);
+      }
+    }
+    function partById(id) { return PARTS.find((p) => p.id === id); }
+
+    let mode = 'learn', selId = 'skull';
+    let sortSel = null, sortPlaced = {}, sortChecked = false;
+    let careDone = {};
+    let guessTarget = null, guessFb = '';
+
+    const hints = {
+      learn: 'แตะจุดบนแผนภาพเพื่อดูชื่อ หน้าที่ และเคล็ดดูแล',
+      sort: 'แตะส่วนร่างกาย แล้วแตะกล่อง กระดูก / กล้ามเนื้อ / ข้อ',
+      care: 'แตะพฤติกรรมแล้วดูว่าดีหรือไม่ดี พร้อมเหตุผล',
+      guess: 'อ่านคำถาม แล้วแตะจุดบนแผนภาพให้ถูกตำแหน่ง',
+    };
+
+    function setMode(m) {
+      mode = m;
+      document.querySelectorAll('#modeSeg button').forEach((b) => b.classList.toggle('on', b.dataset.mode === m));
+      document.querySelectorAll('.panel').forEach((p) => p.classList.remove('on'));
+      document.getElementById('p-' + m).classList.add('on');
+      document.getElementById('hintText').textContent = hints[m];
+      if (m === 'learn') renderLearn();
+      if (m === 'sort') { if (!Object.keys(sortPlaced).length) resetSort(); else renderSort(); }
+      if (m === 'care') renderCare();
+      if (m === 'guess') { if (!guessTarget) nextGuess(); else renderGuess(); }
+    }
+
+    function bodyOutline() {
+      return '<svg class="body-svg" viewBox="0 0 200 340" aria-hidden="true">' +
+        '<ellipse cx="100" cy="38" rx="28" ry="32" fill="#fecdd3"/>' +
+        '<rect x="72" y="68" width="56" height="90" rx="24" fill="#fda4af"/>' +
+        '<rect x="28" y="78" width="44" height="18" rx="9" fill="#fb7185"/>' +
+        '<rect x="128" y="78" width="44" height="18" rx="9" fill="#fb7185"/>' +
+        '<rect x="22" y="92" width="18" height="70" rx="9" fill="#fda4af"/>' +
+        '<rect x="160" y="92" width="18" height="70" rx="9" fill="#fda4af"/>' +
+        '<rect x="78" y="150" width="20" height="100" rx="10" fill="#fb7185"/>' +
+        '<rect x="102" y="150" width="20" height="100" rx="10" fill="#fb7185"/>' +
+        '<ellipse cx="88" cy="260" rx="14" ry="10" fill="#f9a8d4"/>' +
+        '<ellipse cx="112" cy="260" rx="14" ry="10" fill="#f9a8d4"/>' +
+        '</svg>';
+    }
+
+    function renderHotspots(containerId, onPick, highlightId, targetId) {
+      const wrap = document.getElementById(containerId);
+      wrap.innerHTML = bodyOutline() + PARTS.map((p) => {
+        let cls = 'hs ' + p.kind;
+        if (highlightId === p.id) cls += ' on';
+        if (targetId === p.id) cls += ' target';
+        return '<button type="button" class="' + cls + '" data-id="' + p.id + '" style="left:' + p.hotspot.x + '%;top:' + p.hotspot.y + '%" title="' + p.nameTh + '">' + p.emoji + '</button>';
+      }).join('');
+      wrap.querySelectorAll('.hs').forEach((btn) => {
+        btn.onclick = function () { onPick(btn.dataset.id); };
+      });
+    }
+
+    function detailHtml(p) {
+      if (!p) return '<p style="color:var(--muted);font-weight:700;text-align:center;margin:auto 0">แตะจุดบนแผนภาพเพื่ออ่านรายละเอียด</p>';
+      return '<span class="kind-tag ' + p.kind + '">' + KIND_TH[p.kind] + '</span>' +
+        '<h3>' + p.emoji + ' ' + p.nameTh + '</h3>' +
+        '<p><strong>หน้าที่:</strong> ' + p.functionTh + '</p>' +
+        '<ul class="facts">' + p.facts.map((f) => '<li>• ' + f + '</li>').join('') + '</ul>' +
+        '<p class="tip">💡 ดูแล: ' + p.careTip + '</p>' +
+        '<button type="button" class="btn btn-ghost" id="btnSpeak" style="align-self:flex-start">🔊 อ่านชื่อ</button>';
+    }
+
+    function onLearnPick(id) {
+      selId = id;
+      renderLearn();
+      const part = partById(id);
+      speak(part.nameTh);
+    }
+
+    function renderLearn() {
+      const el = document.getElementById('p-learn');
+      const p = partById(selId);
+      el.innerHTML =
+        '<div class="learn-layout">' +
+        '<div class="diagram-wrap"><div class="diagram" id="learnDiagram"></div>' +
+        '<div class="legend"><span><i class="dot" style="background:#fbbf24"></i>กระดูก</span>' +
+        '<span><i class="dot" style="background:#f87171"></i>กล้ามเนื้อ</span>' +
+        '<span><i class="dot" style="background:#60a5fa"></i>ข้อ</span></div></div>' +
+        '<div class="detail" id="learnDetail">' + detailHtml(p) + '</div></div>';
+      renderHotspots('learnDiagram', onLearnPick, selId, null);
+      const sp = document.getElementById('btnSpeak');
+      if (sp && p) sp.onclick = function () { speak(p.nameTh + ' ' + p.functionTh); };
+    }
+
+    function resetSort() {
+      sortSel = null;
+      sortPlaced = {};
+      sortChecked = false;
+      renderSort();
+    }
+
+    function renderSort() {
+      const el = document.getElementById('p-sort');
+      const kinds = ['bone', 'muscle', 'joint'];
+      const remaining = PARTS.filter((p) => !sortPlaced[p.id]);
+      el.innerHTML =
+        '<div class="match-layout">' +
+        '<div class="boxes">' + kinds.map((k) => {
+          const items = PARTS.filter((p) => sortPlaced[p.id] === k);
+          return '<div class="box' + (sortSel && !sortChecked ? ' on' : '') + '" data-k="' + k + '"><h4>' +
+            (k === 'bone' ? '🦴 กระดูก' : k === 'muscle' ? '💪 กล้ามเนื้อ' : '🔄 ข้อ') +
+            '</h4><div class="chips">' + items.map((p) => {
+              let cls = 'chip';
+              if (sortChecked) cls += p.kind === k ? ' ok' : ' no';
+              return '<span class="' + cls + '">' + p.emoji + ' ' + p.nameTh + '</span>';
+            }).join('') + '</div></div>';
+        }).join('') + '</div>' +
+        '<div><div class="pool">' + remaining.map((p) =>
+          '<button type="button" class="f-btn' + (sortSel === p.id ? ' sel' : '') + '" data-id="' + p.id + '">' + p.emoji + ' ' + p.nameTh + '</button>'
+        ).join('') + '</div>' +
+        '<p class="fb" id="sortFb"></p>' +
+        '<div class="actions"><button type="button" class="btn btn-primary" id="btnSortCheck">ตรวจคำตอบ</button>' +
+        '<button type="button" class="btn btn-ghost" id="btnSortReset">🔄 เริ่มใหม่</button></div></div></div>';
+
+      el.querySelectorAll('.pool .f-btn').forEach((b) => {
+        b.onclick = function () { sortSel = b.dataset.id; sortChecked = false; renderSort(); };
+      });
+      el.querySelectorAll('.box').forEach((box) => {
+        box.onclick = function () {
+          if (!sortSel || sortChecked) return;
+          sortPlaced[sortSel] = box.dataset.k;
+          sortSel = null;
+          renderSort();
+        };
+      });
+      document.getElementById('btnSortReset').onclick = resetSort;
+      document.getElementById('btnSortCheck').onclick = function () {
+        if (Object.keys(sortPlaced).length < PARTS.length) {
+          document.getElementById('sortFb').className = 'fb no';
+          document.getElementById('sortFb').textContent = 'จัดให้ครบทุกชิ้นก่อนนะ';
+          return;
+        }
+        sortChecked = true;
+        let ok = 0;
+        PARTS.forEach((p) => { if (sortPlaced[p.id] === p.kind) ok++; });
+        renderSort();
+        const fb = document.getElementById('sortFb');
+        fb.className = 'fb ' + (ok === PARTS.length ? 'ok' : 'no');
+        fb.textContent = ok === PARTS.length ? '✅ ถูกต้องทั้งหมด!' : 'ถูก ' + ok + '/' + PARTS.length + ' — ดูสีเขียว/แดงแล้วลองใหม่';
+      };
+    }
+
+    function renderCare() {
+      const el = document.getElementById('p-care');
+      el.innerHTML =
+        '<p style="text-align:center;font-weight:800;color:var(--deep)">แตะแต่ละข้อ แล้วดูว่าพฤติกรรมนี้ดีหรือไม่ดี</p>' +
+        '<div class="care-grid">' + HABITS.map((h) => {
+          const done = careDone[h.id];
+          let cls = 'care-card';
+          if (done) cls += h.good ? ' ok' : ' no';
+          return '<button type="button" class="' + cls + '" data-id="' + h.id + '"><div class="lab">' +
+            (done ? (h.good ? '✅ ' : '❌ ') : '❓ ') + h.label + '</div>' +
+            '<div class="why">' + h.why + '</div></button>';
+        }).join('') + '</div>' +
+        '<div class="actions"><button type="button" class="btn btn-ghost" id="btnCareReset">🔄 เคลียร์คำตอบ</button></div>';
+      el.querySelectorAll('.care-card').forEach((b) => {
+        b.onclick = function () {
+          careDone[b.dataset.id] = true;
+          const h = HABITS.find((x) => x.id === b.dataset.id);
+          speak(h.good ? 'ดีครับ ' + h.why : 'ไม่ดีครับ ' + h.why);
+          renderCare();
+        };
+      });
+      document.getElementById('btnCareReset').onclick = function () { careDone = {}; renderCare(); };
+    }
+
+    function nextGuess() {
+      guessTarget = PARTS[(Math.random() * PARTS.length) | 0];
+      guessFb = '';
+      renderGuess();
+    }
+
+    function renderGuess() {
+      const el = document.getElementById('p-guess');
+      el.innerHTML =
+        '<div class="q-box">' +
+        '<p class="q-text">🎯 "' + guessTarget.nameTh + '" อยู่ตรงไหน?</p>' +
+        '<p style="font-weight:700;color:var(--muted)">แตะจุดบนแผนภาพ</p>' +
+        '<div class="diagram-wrap" style="width:100%;max-width:320px"><div class="diagram" id="guessDiagram"></div></div>' +
+        '<p class="fb' + (guessFb ? (guessFb.indexOf('✅') === 0 ? ' ok' : ' no') : '') + '" id="guessFb">' + guessFb + '</p>' +
+        '<div class="actions"><button type="button" class="btn btn-primary" id="btnGuessNext">คำถามถัดไป</button></div></div>';
+      renderHotspots('guessDiagram', function (id) {
+        const p = partById(id);
+        if (id === guessTarget.id) {
+          guessFb = '✅ ถูกต้อง! ' + p.nameTh + ' เป็น' + KIND_TH[p.kind];
+          speak('ถูกต้อง ' + p.nameTh);
+        } else {
+          guessFb = '❌ นั่นคือ ' + p.nameTh + ' — ลองใหม่';
+          speak('ยังไม่ใช่');
+        }
+        renderGuess();
+      }, null, null);
+      document.getElementById('btnGuessNext').onclick = nextGuess;
+    }
+
+    document.getElementById('modeSeg').onclick = function (e) {
+      const b = e.target.closest('button[data-mode]');
+      if (b) setMode(b.dataset.mode);
+    };
+    document.getElementById('btnFs').onclick = function () {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(function () {});
+      else document.exitFullscreen();
+    };
+
+    setMode('learn');
+  </script>
+</body>
+</html>

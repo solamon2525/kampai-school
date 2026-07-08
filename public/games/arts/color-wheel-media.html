@@ -351,7 +351,7 @@
         const sc = MOOD_SCENES[(Math.random() * MOOD_SCENES.length) | 0];
         const ans = sc.recommendedTone === 'warm' ? 'วรรณะอุ่น' : 'วรรณะเย็น';
         quizQ = {
-          q: 'ฉาก “‘ + sc.title + '” เหมาะกับวรรณะใด?',
+          q: 'ฉาก「' + sc.title + '」เหมาะกับวรรณะใด?',
           opts: shuffle(['วรรณะอุ่น', 'วรรณะเย็น', 'ไม่ใช้สี', 'สีขาวอย่างเดียว']),
           answer: ans,
           explain: sc.why,

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ส่วนของพืชดอก — สื่อการสอน — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --deep: #166534; --line: #86efac; --muted: #64748b; --ok: #16a34a; --bad: #dc2626; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(160deg, #dcfce7, #bbf7d0); min-height: 100%; padding: 12px; color: #0f172a; }
+    .shell { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+    header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #14532d, #16a34a); color: #fff; }
+    header h1 { font-size: 1.1rem; font-weight: 800; flex: 1; min-width: 140px; }
+    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn:active { transform: scale(.97); }
+    .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
+    .btn-primary { background: var(--deep); color: #fff; }
+    .btn-accent { background: #fbbf24; color: #78350f; }
+    .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 16px; background: #f0fdf4; border-bottom: 1px solid var(--line); align-items: center; }
+    .seg { display: inline-flex; flex-wrap: wrap; border-radius: 12px; overflow: hidden; border: 2px solid #4ade80; }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 12px; cursor: pointer; font-size: .82rem; }
+    .seg button.on { background: var(--deep); color: #fff; }
+    .hint { font-size: .85rem; color: #166534; font-weight: 600; flex: 1; min-width: 140px; }
+    .stage { flex: 1; padding: 16px; overflow: auto; }
+    .panel { display: none; flex-direction: column; gap: 14px; max-width: 900px; margin: 0 auto; }
+    .panel.on { display: flex; }
+    .diagram-row { display: grid; gap: 14px; }
+    @media (min-width: 760px) { .diagram-row { grid-template-columns: 1fr 1fr; } }
+    .plant-svg { width: 100%; max-width: 380px; margin: 0 auto; background: linear-gradient(180deg, #ecfdf5, #d1fae5); border-radius: 16px; border: 2px solid var(--line); }
+    .hotspot { cursor: pointer; }
+    .hotspot.on .hs { stroke: #fbbf24; stroke-width: 3; filter: drop-shadow(0 0 5px #fbbf24); }
+    .detail { background: #f0fdf4; border: 2px solid var(--line); border-radius: 16px; padding: 16px; min-height: 180px; }
+    .detail h2 { font-size: 1.4rem; font-weight: 800; color: var(--deep); margin-bottom: 8px; }
+    .detail p { font-weight: 600; line-height: 1.5; color: #14532d; margin-bottom: 8px; }
+    .tip { background: #fff; border: 2px dashed #86efac; border-radius: 12px; padding: 10px; font-size: .92rem; color: var(--muted); font-weight: 600; }
+    .examples { font-size: .9rem; font-weight: 700; color: #166534; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+    .chip { font-family: inherit; font-weight: 800; border: 2px solid #86efac; background: #fff; color: var(--deep); border-radius: 999px; padding: 6px 12px; cursor: pointer; font-size: .85rem; }
+    .chip.on { background: var(--deep); color: #fff; }
+    .prompt { text-align: center; font-weight: 800; color: var(--deep); background: #ecfdf5; border: 2px dashed #86efac; border-radius: 14px; padding: 14px; font-size: 1.1rem; line-height: 1.45; }
+    .pool { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    @media (min-width: 520px) { .pool { grid-template-columns: repeat(3, 1fr); } }
+    .card { font-family: inherit; border: 2px solid #86efac; border-radius: 14px; background: #fff; padding: 12px 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 88px; }
+    .card .emo { font-size: 2rem; }
+    .card .lab { font-size: .85rem; font-weight: 800; color: #14532d; text-align: center; }
+    .card.done { opacity: .4; pointer-events: none; background: #dcfce7; }
+    .card.bad { animation: shake .35s; background: #fee2e2; border-color: #fca5a5; }
+    .card.ok { background: #dcfce7; border-color: #4ade80; }
+    .choices { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    @media (min-width: 520px) { .choices { grid-template-columns: repeat(3, 1fr); } }
+    .choice { font-family: inherit; font-weight: 800; border: 2px solid #86efac; border-radius: 14px; background: #fff; padding: 14px; cursor: pointer; color: var(--deep); font-size: 1rem; }
+    .choice.ok { background: #dcfce7; border-color: #16a34a; }
+    .choice.bad { background: #fee2e2; border-color: #fca5a5; }
+    .track { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; align-items: center; }
+    .slot { min-width: 72px; height: 78px; border-radius: 12px; border: 2px dashed #86efac; background: #ecfdf5; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; padding: 4px; }
+    .slot.filled { border-style: solid; border-color: #4ade80; background: #dcfce7; }
+    .slot .sn { position: absolute; top: -8px; left: -4px; width: 18px; height: 18px; border-radius: 50%; background: var(--deep); color: #fde047; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+    .arr { color: #ca8a04; font-size: 1.2rem; font-weight: 800; }
+    .fb { text-align: center; font-weight: 800; min-height: 24px; }
+    .fb.ok { color: var(--ok); }
+    .fb.no { color: var(--bad); }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .footer { padding: 10px 16px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
+    .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
+      <h1>🌱 ส่วนของพืชดอก</h1>
+      <span class="badge">ป.4 · วิทยาศาสตร์</span>
+    </header>
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="diagram" class="on">📖 แผนภาพ</button>
+        <button type="button" data-mode="match">🔗 จับคู่หน้าที่</button>
+        <button type="button" data-mode="edible">🍽️ กินส่วนไหน</button>
+        <button type="button" data-mode="grow">🌱 เรียงเติบโต</button>
+      </span>
+      <p class="hint" id="hintText">แตะส่วนพืชบนแผนภาพเพื่อดูหน้าที่</p>
+      <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
+    </div>
+    <div class="stage">
+      <div class="panel on" id="panel-diagram">
+        <div class="diagram-row">
+          <svg class="plant-svg" viewBox="0 0 280 400" aria-label="แผนภาพพืชดอก">
+            <ellipse cx="140" cy="380" rx="90" ry="18" fill="#a3e635" opacity=".5"/>
+            <!-- root -->
+            <g class="hotspot" data-id="root" id="hs-root">
+              <path class="hs" d="M140 300 Q120 340 100 370 M140 300 Q140 350 140 375 M140 300 Q160 340 180 370 M125 320 Q110 350 95 365 M155 320 Q170 350 185 365" fill="none" stroke="#a16207" stroke-width="8" stroke-linecap="round"/>
+              <text x="50" y="355" font-size="13" font-weight="800" fill="#854d0e">ราก</text>
+            </g>
+            <!-- stem -->
+            <g class="hotspot" data-id="stem" id="hs-stem">
+              <rect class="hs" x="128" y="160" width="24" height="145" rx="10" fill="#22c55e" stroke="#15803d" stroke-width="2"/>
+              <text x="168" y="240" font-size="13" font-weight="800" fill="#14532d">ลำต้น</text>
+            </g>
+            <!-- leaf -->
+            <g class="hotspot" data-id="leaf" id="hs-leaf">
+              <ellipse class="hs" cx="85" cy="210" rx="48" ry="22" fill="#4ade80" stroke="#16a34a" stroke-width="2" transform="rotate(-25 85 210)"/>
+              <ellipse class="hs" cx="200" cy="230" rx="42" ry="18" fill="#86efac" stroke="#16a34a" stroke-width="2" transform="rotate(30 200 230)"/>
+              <text x="30" y="195" font-size="13" font-weight="800" fill="#14532d">ใบ</text>
+            </g>
+            <!-- flower -->
+            <g class="hotspot" data-id="flower" id="hs-flower">
+              <circle class="hs" cx="140" cy="95" r="18" fill="#fbbf24"/>
+              <circle cx="140" cy="70" r="16" fill="#f472b6"/>
+              <circle cx="118" cy="85" r="16" fill="#fb7185"/>
+              <circle cx="162" cy="85" r="16" fill="#fb7185"/>
+              <circle cx="125" cy="110" r="14" fill="#f9a8d4"/>
+              <circle cx="155" cy="110" r="14" fill="#f9a8d4"/>
+              <circle cx="140" cy="95" r="10" fill="#fde047"/>
+              <text x="175" y="70" font-size="13" font-weight="800" fill="#9d174d">ดอก</text>
+            </g>
+            <!-- fruit -->
+            <g class="hotspot" data-id="fruit" id="hs-fruit">
+              <ellipse class="hs" cx="70" cy="145" rx="22" ry="18" fill="#ef4444" stroke="#b91c1c" stroke-width="2"/>
+              <path d="M70 127 Q75 118 80 122" fill="none" stroke="#16a34a" stroke-width="3"/>
+              <text x="20" y="130" font-size="13" font-weight="800" fill="#991b1b">ผล</text>
+            </g>
+            <!-- seed -->
+            <g class="hotspot" data-id="seed" id="hs-seed">
+              <ellipse class="hs" cx="210" cy="155" rx="14" ry="10" fill="#78350f" stroke="#451a03" stroke-width="2"/>
+              <ellipse cx="228" cy="160" rx="10" ry="7" fill="#92400e"/>
+              <text x="225" y="145" font-size="13" font-weight="800" fill="#78350f">เมล็ด</text>
+            </g>
+          </svg>
+          <div>
+            <div class="chips" id="partChips"></div>
+            <div class="detail" id="partDetail" style="margin-top:12px">
+              <p style="color:var(--muted);font-weight:600;text-align:center;margin:auto 0;padding:24px 8px">แตะส่วนพืชบนแผนภาพหรือป้ายด้านล่าง</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-match">
+        <p class="prompt" id="matchPrompt">หน้าที่ข้อนี้ตรงกับส่วนใด?</p>
+        <div class="choices" id="matchChoices"></div>
+        <p class="fb" id="matchFb"></p>
+        <div class="actions">
+          <button type="button" class="btn btn-accent" id="btnMatchReveal">ดูเฉลย</button>
+          <button type="button" class="btn btn-primary" id="btnMatchNext">ข้อถัดไป</button>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-edible">
+        <p class="prompt" id="ediblePrompt">เรา<u>กินส่วนใด</u>ของพืชนี้เป็นหลัก?</p>
+        <div class="choices" id="edibleChoices"></div>
+        <p class="fb" id="edibleFb"></p>
+        <div class="actions">
+          <button type="button" class="btn btn-accent" id="btnEdibleReveal">ดูเฉลย</button>
+          <button type="button" class="btn btn-primary" id="btnEdibleNext">ตัวอย่างถัดไป</button>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-grow">
+        <p class="prompt">เรียงลำดับการเติบโตของพืชดอก<br><small style="font-weight:700;color:#64748b">เมล็ด → ต้นอ่อน → ต้นโต → ดอก → ผล</small></p>
+        <div class="track" id="growTrack"></div>
+        <p class="fb" id="growFb"></p>
+        <div class="pool" id="growPool"></div>
+        <div class="actions">
+          <button type="button" class="btn btn-accent" id="btnGrowReveal">ดูเฉลย</button>
+          <button type="button" class="btn btn-primary" id="btnGrowReset">เริ่มใหม่</button>
+        </div>
+      </div>
+    </div>
+    <footer class="footer">ตัวชี้วัด <strong>ว 1.2 ป.4/1</strong> · คู่เกม <a href="/play/veggie-garden">สวนผักพอเพียง</a></footer>
+  </div>
+  <script>
+    const MEDIA_SLUG = 'plant-parts-media';
+    if (window.KAMPAI) KAMPAI.setSlug(MEDIA_SLUG);
+
+    const PARTS = [
+      { id: 'root', nameTh: 'ราก', emoji: '🪴', functionTh: 'ดูดน้ำและแร่ธาตุจากดิน และยึดลำต้นไว้กับพื้น', funFact: 'รากบางชนิดสะสมอาหาร เช่น แครอท หัวผักกาด', hotspot: { x: 50, y: 88 }, examples: ['แครอท', 'มันสำปะหลัง', 'หัวไชเท้า'] },
+      { id: 'stem', nameTh: 'ลำต้น', emoji: '🎋', functionTh: 'ค้ำใบและดอก และลำเลียงน้ำอาหารระหว่างรากกับใบ', funFact: 'ลำต้นใต้ดินบางชนิดก็เป็นอาหาร เช่น มันฝรั่ง', hotspot: { x: 50, y: 55 }, examples: ['อ้อย', 'หน่อไม้', 'มันฝรั่ง'] },
+      { id: 'leaf', nameTh: 'ใบ', emoji: '🍃', functionTh: 'สังเคราะห์แสง — ใช้แสงอาทิตย์ทำอาหารให้พืช', funFact: 'ใบเขียวมีคลอโรฟิลล์ช่วยจับแสง', hotspot: { x: 28, y: 48 }, examples: ['กะหล่ำปลี', 'ผักบุ้ง', 'ผักกาด'] },
+      { id: 'flower', nameTh: 'ดอก', emoji: '🌸', functionTh: 'ส่วนสืบพันธุ์ — ดึงแมลงผสมเกสรเพื่อสร้างเมล็ด', funFact: 'สีและกลิ่นดอกช่วยดึงแมลงผสมเกสร', hotspot: { x: 50, y: 22 }, examples: ['กุหลาบ', 'ดอกหอม', 'ดอกแค'] },
+      { id: 'fruit', nameTh: 'ผล', emoji: '🍎', functionTh: 'หุ้มและปกป้องเมล็ด ช่วยแพร่กระจายเมล็ด', funFact: 'ผลหลายชนิดเป็นอาหารของคนและสัตว์', hotspot: { x: 22, y: 36 }, examples: ['มะม่วง', 'แตงกวา', 'มะเขือเทศ'] },
+      { id: 'seed', nameTh: 'เมล็ด', emoji: '🫘', functionTh: 'เติบโตเป็นต้นใหม่เมื่อได้ความชื้นและอุณหภูมิเหมาะสม', funFact: 'เมล็ดบรรจุอาหารสำรองให้ต้นอ่อน', hotspot: { x: 78, y: 40 }, examples: ['ข้าวโพด', 'ถั่ว', 'เมล็ดทานตะวัน'] },
+    ];
+
+    const EXAMPLES = [
+      { id: 'carrot', nameTh: 'แครอท', emoji: '🥕', ediblePart: 'root', tip: 'ส่วนที่กินคือรากสะสมอาหารสีส้ม' },
+      { id: 'cassava', nameTh: 'มันสำปะหลัง', emoji: '🟤', ediblePart: 'root', tip: 'หัวใต้ดินเป็นรากสะสมแป้ง — ต้องต้มให้สุก' },
+      { id: 'sugarcane', nameTh: 'อ้อย', emoji: '🎋', ediblePart: 'stem', tip: 'เคี้ยวลำต้นเพื่อได้น้ำหวาน' },
+      { id: 'morningglory', nameTh: 'ผักบุ้ง', emoji: '🥬', ediblePart: 'leaf', tip: 'กินใบและยอดอ่อน รวมลำต้นอ่อนได้' },
+      { id: 'cabbage', nameTh: 'กะหล่ำปลี', emoji: '🥬', ediblePart: 'leaf', tip: 'ใบซ้อนกันแน่นเป็นหัว — กินใบ' },
+      { id: 'rose', nameTh: 'กุหลาบ', emoji: '🌹', ediblePart: 'flower', tip: 'ส่วนเด่นคือดอก (กินไม่ใช่หลัก แต่เป็นส่วนดอกชัด)' },
+      { id: 'mango', nameTh: 'มะม่วง', emoji: '🥭', ediblePart: 'fruit', tip: 'ผลหุ้มเมล็ดด้านใน — กินเนื้อผล' },
+      { id: 'corn', nameTh: 'ข้าวโพด', emoji: '🌽', ediblePart: 'seed', tip: 'เม็ดข้าวโพดคือเมล็ดที่เรากิน' },
+      { id: 'pea', nameTh: 'ถั่วลันเตา', emoji: '🫛', ediblePart: 'fruit', tip: 'ฝักคือผล เมล็ดด้านในกินได้ทั้งคู่ — นับเป็นผล/เมล็ด' },
+      { id: 'shallot', nameTh: 'หอมแดง', emoji: '🧅', ediblePart: 'stem', tip: 'หัวหอมที่กินคือลำต้นสะสมอาหารใต้ดิน ไม่ใช่ราก' },
+      { id: 'potato', nameTh: 'มันฝรั่ง', emoji: '🥔', ediblePart: 'stem', tip: 'หัวมันฝรั่งเป็นลำต้นใต้ดิน (ไหล) ไม่ใช่ราก' },
+      { id: 'cucumber', nameTh: 'แตงกวา', emoji: '🥒', ediblePart: 'fruit', tip: 'ผลสดมีเมล็ดด้านใน — กินทั้งผล' },
+      { id: 'tomato', nameTh: 'มะเขือเทศ', emoji: '🍅', ediblePart: 'fruit', tip: 'มะเขือเทศเป็นผลแม้หลายคนคิดว่าเป็นผัก' },
+      { id: 'radish', nameTh: 'หัวไชเท้า', emoji: '🤍', ediblePart: 'root', tip: 'รากสะสมอาหารสีขาว กินเป็นผักดองหรือต้ม' },
+    ];
+
+    const GROW = [
+      { id: 'g1', name: 'เมล็ด', emoji: '🫘' },
+      { id: 'g2', name: 'ต้นอ่อน', emoji: '🌱' },
+      { id: 'g3', name: 'ต้นโต', emoji: '🌿' },
+      { id: 'g4', name: 'ดอก', emoji: '🌸' },
+      { id: 'g5', name: 'ผล', emoji: '🍎' },
+    ];
+
+    const HINTS = {
+      diagram: 'แตะส่วนพืชบนแผนภาพเพื่อดูหน้าที่',
+      match: 'อ่านหน้าที่แล้วเลือกส่วนพืชที่ตรงกัน — ไม่มีคะแนน',
+      edible: 'ดูตัวอย่างอาหาร แล้วเลือกส่วนที่เรากินเป็นหลัก',
+      grow: 'เรียงเมล็ด → ต้นอ่อน → ต้นโต → ดอก → ผล',
+    };
+
+    function shuffle(a) {
+      a = a.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = (Math.random() * (i + 1)) | 0;
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+    function speak(t) {
+      if (window.KAMPAI?.sound?.speak) KAMPAI.sound.speak(t, 'th-TH');
+    }
+    function ding(ok) {
+      if (window.KAMPAI?.sound) ok ? KAMPAI.sound.correct() : KAMPAI.sound.wrong();
+    }
+
+    let mode = 'diagram', selectedPart = null;
+    let matchQ = null, edibleQ = null, growNext = 1;
+
+    function setMode(m) {
+      mode = m;
+      document.querySelectorAll('#modeSeg button').forEach((b) => b.classList.toggle('on', b.dataset.mode === m));
+      document.querySelectorAll('.panel').forEach((p) => p.classList.toggle('on', p.id === 'panel-' + m));
+      document.getElementById('hintText').textContent = HINTS[m];
+      if (m === 'match') newMatch();
+      if (m === 'edible') newEdible();
+      if (m === 'grow') resetGrow();
+    }
+
+    document.getElementById('modeSeg').onclick = (e) => {
+      const b = e.target.closest('button[data-mode]');
+      if (b) setMode(b.dataset.mode);
+    };
+    document.getElementById('btnFs').onclick = () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    };
+
+    function selectPart(id) {
+      selectedPart = id;
+      document.querySelectorAll('.hotspot').forEach((g) => g.classList.toggle('on', g.dataset.id === id));
+      document.querySelectorAll('#partChips .chip').forEach((c) => c.classList.toggle('on', c.dataset.id === id));
+      const p = PARTS.find((x) => x.id === id);
+      const el = document.getElementById('partDetail');
+      el.innerHTML = `
+        <div style="font-size:2.2rem">${p.emoji}</div>
+        <h2>${p.nameTh}</h2>
+        <p><strong>หน้าที่:</strong> ${p.functionTh}</p>
+        <p class="examples">ตัวอย่าง: ${p.examples.join(' · ')}</p>
+        <p class="tip">💡 ${p.funFact}</p>
+        <button type="button" class="btn btn-ghost" style="align-self:flex-start;margin-top:6px" id="btnSpeakPart">🔊 อ่าน</button>
+      `;
+      document.getElementById('btnSpeakPart').onclick = () => speak(p.nameTh + '. ' + p.functionTh);
+      speak(p.nameTh);
+    }
+
+    function renderChips() {
+      const el = document.getElementById('partChips');
+      el.innerHTML = '';
+      PARTS.forEach((p) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'chip';
+        b.dataset.id = p.id;
+        b.textContent = p.emoji + ' ' + p.nameTh;
+        b.onclick = () => selectPart(p.id);
+        el.appendChild(b);
+      });
+    }
+
+    document.querySelectorAll('.hotspot').forEach((g) => {
+      g.onclick = () => selectPart(g.dataset.id);
+    });
+
+    /* ---- match ---- */
+    function newMatch() {
+      matchQ = PARTS[(Math.random() * PARTS.length) | 0];
+      document.getElementById('matchPrompt').innerHTML = `หน้าที่ข้อนี้ตรงกับส่วนใด?<br><span style="font-size:1.05rem;color:#14532d">${matchQ.functionTh}</span>`;
+      document.getElementById('matchFb').textContent = '';
+      document.getElementById('matchFb').className = 'fb';
+      const opts = shuffle(PARTS).slice(0, 6);
+      if (!opts.find((o) => o.id === matchQ.id)) opts[0] = matchQ;
+      const box = document.getElementById('matchChoices');
+      box.innerHTML = '';
+      shuffle(opts).forEach((p) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'choice';
+        b.textContent = p.emoji + ' ' + p.nameTh;
+        b.onclick = () => {
+          if (b.dataset.locked) return;
+          if (p.id === matchQ.id) {
+            b.classList.add('ok');
+            document.getElementById('matchFb').className = 'fb ok';
+            document.getElementById('matchFb').textContent = 'ถูกต้อง! ' + matchQ.funFact;
+            ding(true);
+            box.querySelectorAll('.choice').forEach((c) => { c.dataset.locked = '1'; });
+          } else {
+            b.classList.add('bad');
+            setTimeout(() => b.classList.remove('bad'), 400);
+            document.getElementById('matchFb').className = 'fb no';
+            document.getElementById('matchFb').textContent = 'ยังไม่ถูก — ลองคิดจากหน้าที่อีกครั้ง';
+            ding(false);
+          }
+        };
+        box.appendChild(b);
+      });
+    }
+    document.getElementById('btnMatchNext').onclick = () => newMatch();
+    document.getElementById('btnMatchReveal').onclick = () => {
+      document.getElementById('matchFb').className = 'fb ok';
+      document.getElementById('matchFb').textContent = 'เฉลย: ' + matchQ.emoji + ' ' + matchQ.nameTh;
+    };
+
+    /* ---- edible ---- */
+    function newEdible() {
+      edibleQ = EXAMPLES[(Math.random() * EXAMPLES.length) | 0];
+      document.getElementById('ediblePrompt').innerHTML =
+        `เรา<u>กินส่วนใด</u>ของพืชนี้เป็นหลัก?<br><span style="font-size:2rem">${edibleQ.emoji}</span> <strong>${edibleQ.nameTh}</strong>`;
+      document.getElementById('edibleFb').textContent = '';
+      document.getElementById('edibleFb').className = 'fb';
+      const box = document.getElementById('edibleChoices');
+      box.innerHTML = '';
+      shuffle(PARTS).forEach((p) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'choice';
+        b.textContent = p.emoji + ' ' + p.nameTh;
+        b.onclick = () => {
+          if (b.dataset.locked) return;
+          if (p.id === edibleQ.ediblePart) {
+            b.classList.add('ok');
+            document.getElementById('edibleFb').className = 'fb ok';
+            document.getElementById('edibleFb').textContent = 'ถูกต้อง! ' + edibleQ.tip;
+            ding(true);
+            box.querySelectorAll('.choice').forEach((c) => { c.dataset.locked = '1'; });
+          } else {
+            b.classList.add('bad');
+            setTimeout(() => b.classList.remove('bad'), 400);
+            document.getElementById('edibleFb').className = 'fb no';
+            document.getElementById('edibleFb').textContent = 'ยังไม่ถูก — นึกถึงส่วนที่กินเป็นหลัก';
+            ding(false);
+          }
+        };
+        box.appendChild(b);
+      });
+    }
+    document.getElementById('btnEdibleNext').onclick = () => newEdible();
+    document.getElementById('btnEdibleReveal').onclick = () => {
+      const p = PARTS.find((x) => x.id === edibleQ.ediblePart);
+      document.getElementById('edibleFb').className = 'fb ok';
+      document.getElementById('edibleFb').textContent = 'เฉลย: ' + p.emoji + ' ' + p.nameTh + ' — ' + edibleQ.tip;
+    };
+
+    /* ---- grow ---- */
+    function resetGrow() {
+      growNext = 1;
+      document.getElementById('growFb').textContent = '';
+      document.getElementById('growFb').className = 'fb';
+      const track = document.getElementById('growTrack');
+      track.innerHTML = '';
+      GROW.forEach((g, i) => {
+        const slot = document.createElement('div');
+        slot.className = 'slot';
+        slot.id = 'grow-slot-' + (i + 1);
+        slot.innerHTML = `<span class="sn">${i + 1}</span>`;
+        track.appendChild(slot);
+        if (i < GROW.length - 1) {
+          const ar = document.createElement('div');
+          ar.className = 'arr';
+          ar.textContent = '➜';
+          track.appendChild(ar);
+        }
+      });
+      const pool = document.getElementById('growPool');
+      pool.innerHTML = '';
+      shuffle(GROW.map((g, i) => ({ ...g, ord: i + 1 }))).forEach((g) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'card';
+        b.innerHTML = `<span class="emo">${g.emoji}</span><span class="lab">${g.name}</span>`;
+        b.onclick = () => {
+          if (b.classList.contains('done')) return;
+          if (g.ord !== growNext) {
+            b.classList.add('bad');
+            setTimeout(() => b.classList.remove('bad'), 350);
+            document.getElementById('growFb').className = 'fb no';
+            document.getElementById('growFb').textContent = 'ยังไม่ถูก — ลองลำดับถัดไป';
+            ding(false);
+            return;
+          }
+          b.classList.add('done');
+          const slot = document.getElementById('grow-slot-' + g.ord);
+          slot.classList.add('filled');
+          slot.innerHTML = `<span class="sn">${g.ord}</span><span style="font-size:1.4rem">${g.emoji}</span><small style="font-weight:800;font-size:.7rem">${g.name}</small>`;
+          growNext++;
+          if (growNext > GROW.length) {
+            document.getElementById('growFb').className = 'fb ok';
+            document.getElementById('growFb').textContent = 'ถูกต้อง! จากเมล็ดจนถึงผลครบวงจร';
+            ding(true);
+          } else {
+            document.getElementById('growFb').textContent = '';
+            document.getElementById('growFb').className = 'fb';
+          }
+        };
+        pool.appendChild(b);
+      });
+    }
+    document.getElementById('btnGrowReset').onclick = () => resetGrow();
+    document.getElementById('btnGrowReveal').onclick = () => {
+      document.getElementById('growFb').className = 'fb ok';
+      document.getElementById('growFb').textContent = 'เฉลย: ' + GROW.map((g) => g.emoji + g.name).join(' → ');
+    };
+
+    renderChips();
+  </script>
+</body>
+</html>

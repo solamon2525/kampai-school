@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ดวงจันทร์ 8 ข้าง — สื่อการสอน — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --deep: #312e81; --line: #a5b4fc; --muted: #64748b; --ok: #16a34a; --bad: #dc2626; --sky: #1e1b4b; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(160deg, #1e1b4b, #312e81 40%, #6366f1); min-height: 100%; padding: 12px; color: #0f172a; }
+    .shell { max-width: 1100px; margin: 0 auto; background: #f8fafc; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.35); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+    header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #1e1b4b, #4c1d95); color: #fff; }
+    header h1 { font-size: 1.1rem; font-weight: 800; flex: 1; min-width: 140px; }
+    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn:active { transform: scale(.97); }
+    .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
+    .btn-primary { background: var(--deep); color: #fff; }
+    .btn-accent { background: #fbbf24; color: #78350f; }
+    .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 16px; background: #eef2ff; border-bottom: 1px solid var(--line); align-items: center; }
+    .seg { display: inline-flex; flex-wrap: wrap; border-radius: 12px; overflow: hidden; border: 2px solid #818cf8; }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 11px; cursor: pointer; font-size: .8rem; }
+    .seg button.on { background: var(--deep); color: #fff; }
+    .hint { font-size: .85rem; color: #3730a3; font-weight: 600; flex: 1; min-width: 140px; }
+    .stage { flex: 1; padding: 16px; overflow: auto; }
+    .panel { display: none; flex-direction: column; gap: 14px; max-width: 920px; margin: 0 auto; }
+    .panel.on { display: flex; }
+    .orbit-box { background: radial-gradient(ellipse at center, #312e81, #0f172a); border-radius: 16px; padding: 12px; border: 2px solid #6366f1; }
+    .orbit-svg { width: 100%; max-width: 520px; margin: 0 auto; display: block; }
+    .detail { background: #eef2ff; border: 2px solid var(--line); border-radius: 16px; padding: 16px; }
+    .detail h2 { font-size: 1.3rem; font-weight: 800; color: var(--deep); margin-bottom: 6px; }
+    .detail p { font-weight: 600; line-height: 1.5; color: #312e81; margin-bottom: 6px; }
+    .tip { background: #fff; border: 2px dashed #a5b4fc; border-radius: 12px; padding: 10px; font-size: .9rem; color: var(--muted); font-weight: 600; }
+    .note { text-align: center; font-weight: 700; color: #4338ca; background: #e0e7ff; border-radius: 12px; padding: 10px; font-size: .92rem; }
+    .timeline { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    @media (max-width: 640px) { .timeline { grid-template-columns: repeat(2, 1fr); } }
+    .tl-card { font-family: inherit; border: 2px solid #c7d2fe; background: #fff; border-radius: 14px; padding: 10px 6px; cursor: pointer; text-align: center; }
+    .tl-card.on { border-color: #4c1d95; background: #e0e7ff; box-shadow: 0 0 0 2px #818cf8; }
+    .tl-card .moon { width: 48px; height: 48px; margin: 0 auto 6px; }
+    .tl-card .nm { font-size: .78rem; font-weight: 800; color: var(--deep); line-height: 1.25; }
+    .tl-card .ord { font-size: .7rem; font-weight: 700; color: var(--muted); }
+    .prompt { text-align: center; font-weight: 800; color: var(--deep); background: #eef2ff; border: 2px dashed #a5b4fc; border-radius: 14px; padding: 14px; font-size: 1.05rem; line-height: 1.45; }
+    .pool { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    @media (min-width: 560px) { .pool { grid-template-columns: repeat(4, 1fr); } }
+    .card { font-family: inherit; border: 2px solid #c7d2fe; border-radius: 14px; background: #fff; padding: 10px 6px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 100px; }
+    .card .lab { font-size: .78rem; font-weight: 800; color: #312e81; text-align: center; line-height: 1.25; }
+    .card.done { opacity: .4; pointer-events: none; background: #dcfce7; }
+    .card.bad { animation: shake .35s; background: #fee2e2; border-color: #fca5a5; }
+    .track { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; align-items: center; }
+    .slot { width: 56px; height: 64px; border-radius: 10px; border: 2px dashed #a5b4fc; background: #eef2ff; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+    .slot.filled { border-style: solid; border-color: #86efac; background: #dcfce7; }
+    .slot .sn { position: absolute; top: -8px; left: -4px; width: 16px; height: 16px; border-radius: 50%; background: var(--deep); color: #fde047; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+    .arr { color: #818cf8; font-weight: 800; }
+    .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (min-width: 560px) { .choices { grid-template-columns: repeat(4, 1fr); } }
+    .choice { font-family: inherit; font-weight: 800; border: 2px solid #c7d2fe; border-radius: 14px; background: #fff; padding: 12px 8px; cursor: pointer; color: var(--deep); font-size: .9rem; text-align: center; }
+    .choice.ok { background: #dcfce7; border-color: #16a34a; }
+    .choice.bad { background: #fee2e2; border-color: #fca5a5; }
+    .guess-moon { width: 120px; height: 120px; margin: 0 auto; display: block; }
+    .fb { text-align: center; font-weight: 800; min-height: 24px; }
+    .fb.ok { color: var(--ok); }
+    .fb.no { color: var(--bad); }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .footer { padding: 10px 16px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
+    .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
+      <h1>🌙 ดวงจันทร์ 8 ข้าง</h1>
+      <span class="badge">ป.4 · วิทยาศาสตร์</span>
+    </header>
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="orbit" class="on">🪐 วงโคจร</button>
+        <button type="button" data-mode="timeline">📅 ไทม์ไลน์</button>
+        <button type="button" data-mode="order">✏️ เรียงลำดับ</button>
+        <button type="button" data-mode="guess">🔍 ทายข้าง</button>
+        <button type="button" data-mode="predict">🔮 พยากรณ์</button>
+      </span>
+      <p class="hint" id="hintText">โลก–จันทร์–ดวงอาทิตย์ หมุนช้า — เราเห็นส่วนที่โดนแสง</p>
+      <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
+    </div>
+    <div class="stage">
+      <div class="panel on" id="panel-orbit">
+        <p class="note">☀️ จันทร์ไม่มีแสงเอง — เราเห็นส่วนที่โดนแสงอาทิตย์สะท้อน</p>
+        <div class="orbit-box">
+          <svg class="orbit-svg" viewBox="0 0 400 300" id="orbitSvg">
+            <defs>
+              <radialGradient id="sunG"><stop offset="0%" stop-color="#fef08a"/><stop offset="100%" stop-color="#f59e0b"/></radialGradient>
+            </defs>
+            <circle cx="60" cy="150" r="28" fill="url(#sunG)"/>
+            <text x="60" y="195" text-anchor="middle" fill="#fde68a" font-size="12" font-weight="800">ดวงอาทิตย์</text>
+            <ellipse cx="240" cy="150" rx="130" ry="70" fill="none" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="6 4" opacity=".7"/>
+            <circle cx="240" cy="150" r="22" fill="#3b82f6"/>
+            <circle cx="248" cy="144" r="5" fill="#86efac" opacity=".6"/>
+            <text x="240" y="185" text-anchor="middle" fill="#bfdbfe" font-size="12" font-weight="800">โลก</text>
+            <g id="moonOrb">
+              <circle id="moonDisk" cx="370" cy="150" r="14" fill="#e2e8f0"/>
+            </g>
+            <text x="200" y="28" text-anchor="middle" fill="#c7d2fe" font-size="13" font-weight="700" id="orbitLabel">ข้าง: —</text>
+          </svg>
+        </div>
+        <div class="actions">
+          <button type="button" class="btn btn-accent" id="btnOrbitPause">⏸ หยุด/เล่น</button>
+          <button type="button" class="btn btn-primary" id="btnOrbitPrev">← ข้างก่อน</button>
+          <button type="button" class="btn btn-primary" id="btnOrbitNext">ข้างถัดไป →</button>
+        </div>
+        <div class="detail" id="orbitDetail"></div>
+      </div>
+
+      <div class="panel" id="panel-timeline">
+        <p class="prompt">แตะแต่ละข้างเพื่อดูรายละเอียด · TTS ชื่อข้าง</p>
+        <div class="timeline" id="timeline"></div>
+        <div class="detail" id="tlDetail"><p style="color:var(--muted);text-align:center">เลือกข้างบนไทม์ไลน์</p></div>
+      </div>
+
+      <div class="panel" id="panel-order">
+        <p class="prompt">เรียงการ์ด 8 ใบจากจันทร์ใหม่ → เสี้ยวข้างแรม</p>
+        <div class="track" id="orderTrack"></div>
+        <p class="fb" id="orderFb"></p>
+        <div class="pool" id="orderPool"></div>
+        <div class="actions">
+          <button type="button" class="btn btn-accent" id="btnOrderReveal">ดูเฉลย</button>
+          <button type="button" class="btn btn-primary" id="btnOrderReset">เริ่มใหม่</button>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-guess">
+        <p class="prompt">มองเงาบนดวงจันทร์ — เลือกชื่อข้างที่ถูกต้อง</p>
+        <svg class="guess-moon" viewBox="0 0 100 100" id="guessSvg"></svg>
+        <div class="choices" id="guessChoices"></div>
+        <p class="fb" id="guessFb"></p>
+        <div class="actions">
+          <button type="button" class="btn btn-accent" id="btnGuessReveal">ดูเฉลย</button>
+          <button type="button" class="btn btn-primary" id="btnGuessNext">ข้อถัดไป</button>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-predict">
+        <p class="prompt" id="predictPrompt">ถัดจากข้างนี้คือข้างใด?</p>
+        <div id="predictFrom" style="text-align:center"></div>
+        <div class="choices" id="predictChoices"></div>
+        <p class="fb" id="predictFb"></p>
+        <div class="actions">
+          <button type="button" class="btn btn-accent" id="btnPredictReveal">ดูเฉลย</button>
+          <button type="button" class="btn btn-primary" id="btnPredictNext">ข้อถัดไป</button>
+        </div>
+      </div>
+    </div>
+    <footer class="footer">ตัวชี้วัด <strong>ว 3.1 ป.4/1</strong> · <strong>ว 3.1 ป.4/2</strong></footer>
+  </div>
+  <script>
+    const MEDIA_SLUG = 'moon-phases-media';
+    if (window.KAMPAI) KAMPAI.setSlug(MEDIA_SLUG);
+
+    const PHASES = [
+      { id: 'new', order: 1, nameTh: 'จันทร์ใหม่', nameShort: 'ใหม่', emoji: '🌑', litFraction: 0, waxing: null, dayApprox: '~วันที่ 1 ของจันทรคติ', tip: 'เกือบไม่เห็นจันทร์ เพราะด้านสว่างหันออกจากโลก', observeHint: 'ท้องฟ้ามืด — มองเห็นดาวได้ชัด หาจันทร์ยาก' },
+      { id: 'wax-cres', order: 2, nameTh: 'พระจันทร์เสี้ยวข้างขึ้น', nameShort: 'เสี้ยวขึ้น', emoji: '🌒', litFraction: 0.25, waxing: true, dayApprox: '~วันที่ 3–5', tip: 'แสงค่อยเพิ่มทางขวา (ซีกโลกเหนือ) — เริ่มข้างขึ้น', observeHint: 'หลังพระอาทิตย์ตก มองทิศตะวันตกจะเห็นเสี้ยวบาง' },
+      { id: 'first-q', order: 3, nameTh: 'จันทร์ครึ่งซีกข้างขึ้น', nameShort: 'ครึ่งขึ้น', emoji: '🌓', litFraction: 0.5, waxing: true, dayApprox: '~วันที่ 7–8', tip: 'สว่างครึ่งซีก — ครึ่งทางไปเต็มดวง', observeHint: 'ตอนเย็นเห็นครึ่งดวงสูงบนท้องฟ้า' },
+      { id: 'wax-gib', order: 4, nameTh: 'จันทร์เกือบบรรจบข้างขึ้น', nameShort: 'เกือบเต็มขึ้น', emoji: '🌔', litFraction: 0.75, waxing: true, dayApprox: '~วันที่ 10–13', tip: 'เกือบกลม ยังมีเงาเล็กน้อยทางซ้าย', observeHint: 'สว่างมาก ดูตั้งแต่เย็นถึงดึก' },
+      { id: 'full', order: 5, nameTh: 'จันทร์เต็มดวง', nameShort: 'เต็มดวง', emoji: '🌕', litFraction: 1, waxing: null, dayApprox: '~วันที่ 15', tip: 'ด้านสว่างหันเข้าหาโลกทั้งดวง — สว่างที่สุด', observeHint: 'ขึ้นทางตะวันออกตอนเย็น โผล่ทั้งคืน' },
+      { id: 'wan-gib', order: 6, nameTh: 'จันทร์เกือบบรรจบข้างแรม', nameShort: 'เกือบเต็มแรม', emoji: '🌖', litFraction: 0.75, waxing: false, dayApprox: '~วันที่ 17–20', tip: 'เริ่มข้างแรม — แสงค่อยลดจากด้านขวา', observeHint: 'ขึ้นช้ากว่าเต็มดวง มักเห็นตอนค่ำดึก–เช้า' },
+      { id: 'last-q', order: 7, nameTh: 'จันทร์ครึ่งซีกข้างแรม', nameShort: 'ครึ่งแรม', emoji: '🌗', litFraction: 0.5, waxing: false, dayApprox: '~วันที่ 22–23', tip: 'ครึ่งซีกอีกด้าน — กำลังมุ่งสู่จันทร์ใหม่', observeHint: 'เห็นชัดตอนเช้ามืดถึงเช้า' },
+      { id: 'wan-cres', order: 8, nameTh: 'พระจันทร์เสี้ยวข้างแรม', nameShort: 'เสี้ยวแรม', emoji: '🌘', litFraction: 0.25, waxing: false, dayApprox: '~วันที่ 25–28', tip: 'เสี้ยวบางก่อนกลับเป็นจันทร์ใหม่', observeHint: 'ก่อนรุ่งอรุณ มองทิศตะวันออกจะเห็นเสี้ยวบาง' },
+    ];
+
+    const HINTS = {
+      orbit: 'โลก–จันทร์–ดวงอาทิตย์ หมุนช้า — เราเห็นส่วนที่โดนแสง',
+      timeline: 'แตะทีละข้างบนไทม์ไลน์ · อ่าน tip + วิธีสังเกต',
+      order: 'เรียง 8 ข้างจากใหม่ → เสี้ยวแรม — ไม่มีคะแนน',
+      guess: 'ดูรูปเงาแล้วเลือกชื่อข้าง',
+      predict: 'ถัดจากข้างที่โชว์คือข้างใด? (ว 3.1 ป.4/2)',
+    };
+
+    function shuffle(a) {
+      a = a.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = (Math.random() * (i + 1)) | 0;
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+    function speak(t) {
+      if (window.KAMPAI?.sound?.speak) KAMPAI.sound.speak(t, 'th-TH');
+    }
+    function ding(ok) {
+      if (window.KAMPAI?.sound) ok ? KAMPAI.sound.correct() : KAMPAI.sound.wrong();
+    }
+
+    /** SVG moon: lit from the right when waxing-ish, left when waning — N hemisphere school map */
+    function moonSvgMarkup(phase, size) {
+      const r = 40;
+      const lit = phase.litFraction;
+      let shade = '';
+      if (lit <= 0.01) {
+        shade = `<circle cx="50" cy="50" r="${r}" fill="#1e293b"/>`;
+      } else if (lit >= 0.99) {
+        shade = `<circle cx="50" cy="50" r="${r}" fill="#f1f5f9"/>`;
+      } else {
+        const waxing = phase.waxing === true || (phase.waxing === null && lit > 0.5);
+        // Use ellipse overlay for crescent/gibbous
+        const dark = '#1e293b';
+        const bright = '#f1f5f9';
+        if (lit === 0.5) {
+          if (waxing) {
+            shade = `<circle cx="50" cy="50" r="${r}" fill="${dark}"/><path d="M50 10 A40 40 0 0 1 50 90 Z" fill="${bright}"/>`;
+          } else {
+            shade = `<circle cx="50" cy="50" r="${r}" fill="${dark}"/><path d="M50 10 A40 40 0 0 0 50 90 Z" fill="${bright}"/>`;
+          }
+        } else if (lit < 0.5) {
+          // crescent
+          const off = 20 + (0.5 - lit) * 40;
+          if (waxing) {
+            shade = `<circle cx="50" cy="50" r="${r}" fill="${dark}"/><circle cx="50" cy="50" r="${r}" fill="${bright}"/><circle cx="${50 - off}" cy="50" r="${r}" fill="${dark}"/>`;
+          } else {
+            shade = `<circle cx="50" cy="50" r="${r}" fill="${dark}"/><circle cx="50" cy="50" r="${r}" fill="${bright}"/><circle cx="${50 + off}" cy="50" r="${r}" fill="${dark}"/>`;
+          }
+        } else {
+          // gibbous
+          const off = 12 + (lit - 0.5) * 28;
+          if (waxing) {
+            shade = `<circle cx="50" cy="50" r="${r}" fill="${bright}"/><circle cx="${50 - off}" cy="50" r="${r}" fill="${dark}"/>`;
+          } else {
+            shade = `<circle cx="50" cy="50" r="${r}" fill="${bright}"/><circle cx="${50 + off}" cy="50" r="${r}" fill="${dark}"/>`;
+          }
+        }
+      }
+      return `<svg viewBox="0 0 100 100" width="${size || 48}" height="${size || 48}" aria-hidden="true"><circle cx="50" cy="50" r="42" fill="#0f172a"/>${shade}<circle cx="50" cy="50" r="40" fill="none" stroke="#94a3b8" stroke-width="1.5"/></svg>`;
+    }
+
+    function waxLabel(p) {
+      if (p.waxing === true) return 'ข้างขึ้น';
+      if (p.waxing === false) return 'ข้างแรม';
+      return p.litFraction === 0 ? 'ใหม่' : 'เต็มดวง';
+    }
+
+    function detailHtml(p) {
+      return `
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div>${moonSvgMarkup(p, 64)}</div>
+          <div>
+            <h2>${p.emoji} ${p.nameTh}</h2>
+            <p><strong>ลำดับ:</strong> ${p.order}/8 · ${waxLabel(p)} · lit ${Math.round(p.litFraction * 100)}%</p>
+            <p><strong>ช่วง:</strong> ${p.dayApprox}</p>
+            <p class="tip">💡 ${p.tip}</p>
+            <p class="tip">🔭 ${p.observeHint}</p>
+          </div>
+        </div>`;
+    }
+
+    let mode = 'orbit', orbitIdx = 0, orbitPlaying = true, orderNext = 1;
+    let guessQ = null, predictQ = null, angle = 0;
+
+    function setMode(m) {
+      mode = m;
+      document.querySelectorAll('#modeSeg button').forEach((b) => b.classList.toggle('on', b.dataset.mode === m));
+      document.querySelectorAll('.panel').forEach((p) => p.classList.toggle('on', p.id === 'panel-' + m));
+      document.getElementById('hintText').textContent = HINTS[m];
+      if (m === 'order') resetOrder();
+      if (m === 'guess') newGuess();
+      if (m === 'predict') newPredict();
+      if (m === 'timeline') renderTimeline();
+    }
+
+    document.getElementById('modeSeg').onclick = (e) => {
+      const b = e.target.closest('button[data-mode]');
+      if (b) setMode(b.dataset.mode);
+    };
+    document.getElementById('btnFs').onclick = () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    };
+
+    /* ---- orbit ---- */
+    function phaseFromAngle(a) {
+      // a 0 = new (opposite sun-ish for simple model: moon at far right from sun on left)
+      const n = ((a % 360) + 360) % 360;
+      const idx = Math.round(n / 45) % 8;
+      return idx;
+    }
+    function placeMoon() {
+      const cx = 240, cy = 150, rx = 130, ry = 70;
+      const rad = (angle * Math.PI) / 180;
+      const x = cx + rx * Math.cos(rad);
+      const y = cy + ry * Math.sin(rad);
+      const g = document.getElementById('moonOrb');
+      g.innerHTML = '';
+      const fo = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+      fo.setAttribute('x', x - 16);
+      fo.setAttribute('y', y - 16);
+      fo.setAttribute('width', 32);
+      fo.setAttribute('height', 32);
+      // foreignObject unreliable — use circle + clip approx
+      const idx = phaseFromAngle(angle);
+      orbitIdx = idx;
+      const p = PHASES[idx];
+      const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      c.setAttribute('cx', x);
+      c.setAttribute('cy', y);
+      c.setAttribute('r', 14);
+      c.setAttribute('fill', p.litFraction < 0.15 ? '#1e293b' : (p.litFraction > 0.85 ? '#f1f5f9' : '#94a3b8'));
+      c.setAttribute('stroke', '#fbbf24');
+      c.setAttribute('stroke-width', '2');
+      g.appendChild(c);
+      document.getElementById('orbitLabel').textContent = 'ข้าง: ' + p.nameTh;
+      document.getElementById('orbitDetail').innerHTML = detailHtml(p);
+    }
+    function showOrbitPhase(i) {
+      orbitIdx = ((i % 8) + 8) % 8;
+      angle = orbitIdx * 45;
+      placeMoon();
+      speak(PHASES[orbitIdx].nameTh);
+    }
+    document.getElementById('btnOrbitPause').onclick = () => { orbitPlaying = !orbitPlaying; };
+    document.getElementById('btnOrbitPrev').onclick = () => { orbitPlaying = false; showOrbitPhase(orbitIdx - 1); };
+    document.getElementById('btnOrbitNext').onclick = () => { orbitPlaying = false; showOrbitPhase(orbitIdx + 1); };
+
+    let last = performance.now();
+    function tick(now) {
+      if (orbitPlaying && mode === 'orbit') {
+        const dt = (now - last) / 1000;
+        angle = (angle + dt * 18) % 360; // slow
+        placeMoon();
+      }
+      last = now;
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+    placeMoon();
+
+    /* ---- timeline ---- */
+    function renderTimeline() {
+      const el = document.getElementById('timeline');
+      el.innerHTML = '';
+      PHASES.forEach((p, i) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'tl-card' + (i === orbitIdx ? ' on' : '');
+        b.innerHTML = `<div class="moon">${moonSvgMarkup(p, 48)}</div><div class="ord">${p.order}</div><div class="nm">${p.nameShort}</div>`;
+        b.onclick = () => {
+          orbitIdx = i;
+          document.querySelectorAll('.tl-card').forEach((c, j) => c.classList.toggle('on', j === i));
+          document.getElementById('tlDetail').innerHTML = detailHtml(p);
+          speak(p.nameTh);
+        };
+        el.appendChild(b);
+      });
+      document.getElementById('tlDetail').innerHTML = detailHtml(PHASES[orbitIdx]);
+    }
+
+    /* ---- order ---- */
+    function resetOrder() {
+      orderNext = 1;
+      document.getElementById('orderFb').textContent = '';
+      document.getElementById('orderFb').className = 'fb';
+      const track = document.getElementById('orderTrack');
+      track.innerHTML = '';
+      for (let i = 1; i <= 8; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'slot';
+        slot.id = 'os-' + i;
+        slot.innerHTML = `<span class="sn">${i}</span>`;
+        track.appendChild(slot);
+        if (i < 8) {
+          const ar = document.createElement('div');
+          ar.className = 'arr';
+          ar.textContent = '·';
+          track.appendChild(ar);
+        }
+      }
+      const pool = document.getElementById('orderPool');
+      pool.innerHTML = '';
+      shuffle(PHASES).forEach((p) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'card';
+        b.innerHTML = `<div>${moonSvgMarkup(p, 40)}</div><span class="lab">${p.nameShort}</span>`;
+        b.onclick = () => {
+          if (b.classList.contains('done')) return;
+          if (p.order !== orderNext) {
+            b.classList.add('bad');
+            setTimeout(() => b.classList.remove('bad'), 350);
+            document.getElementById('orderFb').className = 'fb no';
+            document.getElementById('orderFb').textContent = 'ยังไม่ถูก';
+            ding(false);
+            return;
+          }
+          b.classList.add('done');
+          const slot = document.getElementById('os-' + p.order);
+          slot.classList.add('filled');
+          slot.innerHTML = `<span class="sn">${p.order}</span><div style="transform:scale(.7)">${moonSvgMarkup(p, 36)}</div>`;
+          orderNext++;
+          if (orderNext > 8) {
+            document.getElementById('orderFb').className = 'fb ok';
+            document.getElementById('orderFb').textContent = 'ถูกต้อง! ครบวงจร 8 ข้าง';
+            ding(true);
+          }
+        };
+        pool.appendChild(b);
+      });
+    }
+    document.getElementById('btnOrderReset').onclick = () => resetOrder();
+    document.getElementById('btnOrderReveal').onclick = () => {
+      document.getElementById('orderFb').className = 'fb ok';
+      document.getElementById('orderFb').textContent = 'เฉลย: ' + PHASES.map((p) => p.nameShort).join(' → ');
+    };
+
+    /* ---- guess ---- */
+    function newGuess() {
+      guessQ = PHASES[(Math.random() * PHASES.length) | 0];
+      document.getElementById('guessSvg').innerHTML = moonSvgMarkup(guessQ, 120).replace(/<\/?svg[^>]*>/g, '');
+      // rebuild properly
+      const wrap = document.getElementById('guessSvg');
+      wrap.outerHTML = moonSvgMarkup(guessQ, 120).replace('<svg', '<svg class="guess-moon" id="guessSvg"');
+      document.getElementById('guessFb').textContent = '';
+      document.getElementById('guessFb').className = 'fb';
+      const opts = shuffle(PHASES).slice(0, 4);
+      if (!opts.find((o) => o.id === guessQ.id)) opts[0] = guessQ;
+      const box = document.getElementById('guessChoices');
+      box.innerHTML = '';
+      shuffle(opts).forEach((p) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'choice';
+        b.textContent = p.nameTh;
+        b.onclick = () => {
+          if (b.dataset.locked) return;
+          if (p.id === guessQ.id) {
+            b.classList.add('ok');
+            document.getElementById('guessFb').className = 'fb ok';
+            document.getElementById('guessFb').textContent = 'ถูกต้อง! ' + guessQ.tip;
+            ding(true);
+            box.querySelectorAll('.choice').forEach((c) => { c.dataset.locked = '1'; });
+          } else {
+            b.classList.add('bad');
+            setTimeout(() => b.classList.remove('bad'), 400);
+            document.getElementById('guessFb').className = 'fb no';
+            document.getElementById('guessFb').textContent = 'ยังไม่ถูก';
+            ding(false);
+          }
+        };
+        box.appendChild(b);
+      });
+    }
+    document.getElementById('btnGuessNext').onclick = () => newGuess();
+    document.getElementById('btnGuessReveal').onclick = () => {
+      document.getElementById('guessFb').className = 'fb ok';
+      document.getElementById('guessFb').textContent = 'เฉลย: ' + guessQ.nameTh;
+    };
+
+    /* ---- predict ---- */
+    function newPredict() {
+      const i = (Math.random() * 8) | 0;
+      predictQ = PHASES[i];
+      const next = PHASES[(i + 1) % 8];
+      predictQ._next = next;
+      document.getElementById('predictPrompt').textContent = 'ถัดจากข้างนี้คือข้างใด?';
+      document.getElementById('predictFrom').innerHTML =
+        `<div style="display:inline-block;text-align:center">${moonSvgMarkup(predictQ, 72)}<div style="font-weight:800;color:var(--deep);margin-top:6px">${predictQ.nameTh}</div></div>`;
+      document.getElementById('predictFb').textContent = '';
+      document.getElementById('predictFb').className = 'fb';
+      const opts = shuffle(PHASES.filter((p) => p.id !== predictQ.id)).slice(0, 3);
+      opts.push(next);
+      const box = document.getElementById('predictChoices');
+      box.innerHTML = '';
+      shuffle(opts).forEach((p) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'choice';
+        b.textContent = p.nameTh;
+        b.onclick = () => {
+          if (b.dataset.locked) return;
+          if (p.id === next.id) {
+            b.classList.add('ok');
+            document.getElementById('predictFb').className = 'fb ok';
+            document.getElementById('predictFb').textContent = 'ถูกต้อง! ลำดับถัดไปคือ ' + next.nameTh;
+            ding(true);
+            box.querySelectorAll('.choice').forEach((c) => { c.dataset.locked = '1'; });
+          } else {
+            b.classList.add('bad');
+            setTimeout(() => b.classList.remove('bad'), 400);
+            document.getElementById('predictFb').className = 'fb no';
+            document.getElementById('predictFb').textContent = 'ยังไม่ถูก — นึกวงจร 8 ข้าง';
+            ding(false);
+          }
+        };
+        box.appendChild(b);
+      });
+    }
+    document.getElementById('btnPredictNext').onclick = () => newPredict();
+    document.getElementById('btnPredictReveal').onclick = () => {
+      document.getElementById('predictFb').className = 'fb ok';
+      document.getElementById('predictFb').textContent = 'เฉลย: ' + predictQ._next.nameTh;
+    };
+
+    renderTimeline();
+  </script>
+</body>
+</html>

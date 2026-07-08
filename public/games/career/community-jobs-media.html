@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>อาชีพในชุมชน — สื่อการสอน — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --deep: #b45309; --line: #fcd34d; --muted: #64748b; --ok: #16a34a; --bad: #dc2626; --cream: #fffbeb; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(160deg, #fef3c7, #fde68a); min-height: 100%; padding: 12px; color: #0f172a; }
+    .shell { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+    header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #92400e, #d97706); color: #fff; }
+    header h1 { font-size: 1.1rem; font-weight: 800; flex: 1; min-width: 140px; }
+    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn:active { transform: scale(.97); }
+    .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
+    .btn-primary { background: var(--deep); color: #fff; }
+    .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 16px; background: var(--cream); border-bottom: 1px solid var(--line); align-items: center; }
+    .seg { display: inline-flex; flex-wrap: wrap; border-radius: 12px; overflow: hidden; border: 2px solid #fbbf24; }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 10px; cursor: pointer; font-size: .78rem; }
+    .seg button.on { background: var(--deep); color: #fff; }
+    .hint { font-size: .85rem; color: #92400e; font-weight: 600; flex: 1; min-width: 120px; }
+    .stage { flex: 1; padding: 16px; overflow: auto; }
+    .panel { display: none; flex-direction: column; gap: 14px; max-width: 980px; margin: 0 auto; }
+    .panel.on { display: flex; }
+    .card-grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+    .j-card { perspective: 800px; min-height: 150px; cursor: pointer; border: none; background: transparent; font-family: inherit; padding: 0; }
+    .j-inner { position: relative; width: 100%; height: 100%; min-height: 150px; transition: transform .4s; transform-style: preserve-3d; }
+    .j-card.flipped .j-inner { transform: rotateY(180deg); }
+    .j-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 14px; border: 2px solid var(--line); padding: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: #fff; }
+    .j-back { transform: rotateY(180deg); background: var(--cream); text-align: left; align-items: flex-start; justify-content: flex-start; overflow: auto; }
+    .j-face .e { font-size: 2.2rem; }
+    .j-face .n { font-weight: 800; color: var(--deep); font-size: .95rem; text-align: center; }
+    .j-face .s { font-size: .72rem; font-weight: 700; color: var(--muted); }
+    .j-back p { font-size: .78rem; font-weight: 600; line-height: 1.4; margin-bottom: 4px; }
+    .match-layout { display: grid; gap: 12px; }
+    @media (min-width: 800px) { .match-layout { grid-template-columns: 1fr 1fr; } }
+    .boxes { display: flex; flex-direction: column; gap: 8px; max-height: 420px; overflow: auto; }
+    .box { border: 2px dashed var(--line); border-radius: 12px; padding: 8px; min-height: 56px; background: var(--cream); }
+    .box.on { border-color: var(--deep); border-style: solid; }
+    .box h4 { font-size: .82rem; font-weight: 800; color: var(--deep); margin-bottom: 4px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 4px; }
+    .chip { background: #fff; border: 2px solid var(--line); border-radius: 999px; padding: 3px 8px; font-weight: 800; font-size: .72rem; }
+    .chip.ok { border-color: #86efac; background: #dcfce7; }
+    .chip.no { border-color: #fca5a5; background: #fee2e2; }
+    .pool { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .pool .f-btn { font-family: inherit; border: 2px solid var(--line); background: #fff; border-radius: 12px; padding: 8px 10px; cursor: pointer; font-weight: 800; color: var(--deep); font-size: .85rem; }
+    .pool .f-btn.sel { box-shadow: 0 0 0 3px var(--deep); }
+    .pool .f-btn.used { opacity: .35; pointer-events: none; }
+    .q-box { text-align: center; max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+    .q-text { font-weight: 800; font-size: 1.1rem; color: var(--deep); line-height: 1.45; }
+    .opts { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 440px; }
+    .opt { font-family: inherit; font-weight: 700; padding: 12px; border: 2px solid var(--line); border-radius: 12px; background: #fff; cursor: pointer; text-align: left; line-height: 1.4; }
+    .opt.ok { background: #dcfce7; border-color: #86efac; }
+    .opt.no { background: #fee2e2; border-color: #fca5a5; }
+    .explore { display: grid; gap: 12px; }
+    @media (min-width: 700px) { .explore { grid-template-columns: 1fr 1fr; } }
+    .int-q { background: var(--cream); border: 2px solid var(--line); border-radius: 14px; padding: 14px; }
+    .int-q h3 { color: var(--deep); font-weight: 800; margin-bottom: 8px; }
+    .int-opts { display: flex; flex-wrap: wrap; gap: 6px; }
+    .int-opts button { font-family: inherit; font-weight: 700; border: 2px solid var(--line); background: #fff; border-radius: 999px; padding: 6px 12px; cursor: pointer; font-size: .85rem; }
+    .int-opts button.on { background: var(--deep); color: #fff; border-color: var(--deep); }
+    .suggest { background: #fff; border: 2px dashed var(--line); border-radius: 14px; padding: 14px; min-height: 120px; }
+    .suggest h3 { color: var(--deep); font-weight: 800; margin-bottom: 8px; }
+    .fb { text-align: center; font-weight: 800; min-height: 24px; }
+    .fb.ok { color: var(--ok); }
+    .fb.no { color: var(--bad); }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .footer { padding: 10px 16px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
+    .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
+      <h1>🏘️ อาชีพในชุมชน</h1>
+      <span class="badge">ป.1–4 · การงานอาชีพ</span>
+    </header>
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="cards" class="on">🃏 การ์ดอาชีพ</button>
+        <button type="button" data-mode="sector">📦 จัดกลุ่มภาค</button>
+        <button type="button" data-mode="who">🔗 ใครทำอะไร</button>
+        <button type="button" data-mode="matter">💚 สำคัญต่อชุมชน</button>
+        <button type="button" data-mode="self">🧭 สำรวจตัวเอง</button>
+      </span>
+      <p class="hint" id="hintText">แตะการ์ดเพื่อพลิกดูหน้าที่และเครื่องมือ</p>
+      <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
+    </div>
+    <div class="stage">
+      <div class="panel on" id="p-cards"></div>
+      <div class="panel" id="p-sector"></div>
+      <div class="panel" id="p-who"></div>
+      <div class="panel" id="p-matter"></div>
+      <div class="panel" id="p-self"></div>
+    </div>
+    <footer class="footer">ตัวชี้วัด <strong>ง 2.1 ป.4/1</strong> · คู่เกม <a href="/play/veggie-garden">สวนผักชุมชน</a></footer>
+  </div>
+  <script>
+    const MEDIA_SLUG = 'community-jobs-media';
+    if (window.KAMPAI) KAMPAI.setSlug(MEDIA_SLUG);
+
+    const SECTORS = ['เกษตร', 'บริการ', 'ค้าขาย', 'ช่าง', 'สาธารณสุข', 'การศึกษา', 'ความปลอดภัย'];
+
+    const JOBS = [
+      { id: 'farmer', nameTh: 'ชาวนา', emoji: '🌾', sector: 'เกษตร', place: 'นาข้าว', duty: 'ปลูก ดูแล และเก็บเกี่ยวข้าว', tools: ['จอบ', 'รถไถ', 'เคียว'], skill: 'ขยัน อดทน รู้จักฤดูกาล', whyMatters: 'ผลิตอาหารหลักของชุมชน', grade: 'ป.1' },
+      { id: 'gardener', nameTh: 'ชาวสวน', emoji: '🍊', sector: 'เกษตร', place: 'สวนผลไม้/ผัก', duty: 'ปลูกดูแลพืชผล รดน้ำเก็บเกี่ยว', tools: ['บัวรดน้ำ', 'กรรไกรตัดกิ่ง', 'ปุ๋ย'], skill: 'สังเกตพืช รักธรรมชาติ', whyMatters: 'ให้ผลไม้ ผักสดแก่ชุมชน', grade: 'ป.2' },
+      { id: 'livestock', nameTh: 'คนเลี้ยงสัตว์', emoji: '🐄', sector: 'เกษตร', place: 'ฟาร์ม/คอกสัตว์', duty: 'ให้อาหาร ทำความสะอาด ดูแลสุขภาพสัตว์', tools: ['ถังอาหาร', 'ยาสัตว์', 'ที่กวาด'], skill: 'เมตตา รับผิดชอบ', whyMatters: 'ให้เนื้อ นม ไข่แก่ชุมชน', grade: 'ป.2' },
+      { id: 'fisher', nameTh: 'คนประมง', emoji: '🎣', sector: 'เกษตร', place: 'แม่น้ำ บ่อปลา ทะเล', duty: 'จับปลาและสัตว์น้ำอย่างรับผิดชอบ', tools: ['เบ็ด', 'อวน', 'เรือ'], skill: 'รอบคอบ รู้จักแหล่งน้ำ', whyMatters: 'ให้โปรตีนจากปลาแก่ชุมชน', grade: 'ป.3' },
+      { id: 'driver', nameTh: 'คนขับรถรับจ้าง', emoji: '🛵', sector: 'บริการ', place: 'ถนนในชุมชน', duty: 'พาผู้โดยสารหรือส่งของ', tools: ['รถ', 'หมวกกันน็อก', 'โทรศัพท์'], skill: 'ขับปลอดภัย สุภาพ', whyMatters: 'ช่วยคนเดินทางและส่งของ', grade: 'ป.3' },
+      { id: 'shopstaff', nameTh: 'พนักงานร้านค้า', emoji: '🛒', sector: 'บริการ', place: 'ร้านค้าสะดวกซื้อ', duty: 'จัดเรียงของ เก็บเงิน บริการลูกค้า', tools: ['เครื่องคิดเงิน', 'ตะกร้า', 'ป้ายราคา'], skill: 'ยิ้มแย้ม คิดเลขเร็ว', whyMatters: 'คนในชุมชนได้ของใช้สะดวก', grade: 'ป.2' },
+      { id: 'barber', nameTh: 'ช่างตัดผม', emoji: '💈', sector: 'บริการ', place: 'ร้านตัดผม', duty: 'ตัดแต่งทรงผมให้ลูกค้า', tools: ['กรรไกร', 'หวี', 'เก้าอี้'], skill: 'มือนิ่ง มีใจบริการ', whyMatters: 'ช่วยให้คนดูสะอาด สุภาพ', grade: 'ป.3' },
+      { id: 'market', nameTh: 'พ่อค้าตลาด', emoji: '🥬', sector: 'ค้าขาย', place: 'ตลาดสด', duty: 'ขายผัก เนื้อ ของสด', tools: ['ตาชั่ง', 'มีด', 'แผงขาย'], skill: 'ซื่อสัตย์ คำนวณราคา', whyMatters: 'กระจายอาหารสดในชุมชน', grade: 'ป.2' },
+      { id: 'grocer', nameTh: 'แม่ค้าขายของชำ', emoji: '🏪', sector: 'ค้าขาย', place: 'ร้านขายของชำ', duty: 'ขายของใช้ประจำวัน', tools: ['ชั้นวาง', 'สมุดบัญชี', 'ถุง'], skill: 'จำของ ใจดี', whyMatters: 'ใกล้บ้าน ซื้อของจุกจิกได้สะดวก', grade: 'ป.1' },
+      { id: 'carpenter', nameTh: 'ช่างไม้', emoji: '🪚', sector: 'ช่าง', place: 'โรงงานไม้/บ้านลูกค้า', duty: 'ทำและซ่อมเฟอร์นิเจอร์ ประตู หน้าต่าง', tools: ['เลื่อย', 'ค้อน', 'สิ่ว'], skill: 'วัดแม่น มั่นใจความปลอดภัย', whyMatters: 'สร้างและซ่อมที่อยู่อาศัย', grade: 'ป.4' },
+      { id: 'mechanic', nameTh: 'ช่างซ่อมรถ', emoji: '🔧', sector: 'ช่าง', place: 'อู่ซ่อมรถ', duty: 'ตรวจและซ่อมรถจักรยานยนต์/รถยนต์', tools: ['ประแจ', 'จารบี', 'แม่แรง'], skill: 'แก้ปัญหา ละเอียด', whyMatters: 'รถใช้งานได้ คนไปทำงาน/โรงเรียนได้', grade: 'ป.4' },
+      { id: 'electrician', nameTh: 'ช่างไฟ', emoji: '💡', sector: 'ช่าง', place: 'บ้าน โรงเรียน ร้านค้า', duty: 'เดินสายไฟ ซ่อมระบบไฟฟ้า', tools: ['ไขควง', 'คีม', 'มัลติมิเตอร์'], skill: 'ระมัดระวัง รู้กฎความปลอดภัย', whyMatters: 'ไฟฟ้าใช้ได้อย่างปลอดภัย', grade: 'ป.4' },
+      { id: 'doctor', nameTh: 'หมอ', emoji: '🩺', sector: 'สาธารณสุข', place: 'โรงพยาบาล/คลินิก', duty: 'ตรวจโรค รักษา และให้คำแนะนำสุขภาพ', tools: ['หูฟัง', 'ยา', 'แฟ้มคนไข้'], skill: 'ความรู้ เมตตา ใจเย็น', whyMatters: 'ช่วยรักษาชีวิตและสุขภาพชุมชน', grade: 'ป.3' },
+      { id: 'nurse', nameTh: 'พยาบาล', emoji: '💉', sector: 'สาธารณสุข', place: 'โรงพยาบาล', duty: 'ดูแลผู้ป่วย ตามแผนการรักษา', tools: ['เข็มฉีดยา', 'เครื่องวัดความดัน', 'สมุดบันทึก'], skill: 'อดทน ใจดี ละเอียด', whyMatters: 'ดูแลผู้ป่วยใกล้ชิดตลอดเวลา', grade: 'ป.3' },
+      { id: 'vhv', nameTh: 'อสม.', emoji: '🩹', sector: 'สาธารณสุข', place: 'หมู่บ้าน/ชุมชน', duty: 'เยี่ยมบ้าน รณรงค์สุขภาพ พาคนไปพบหมอ', tools: ['กระเป๋าปฐมพยาบาล', 'สมุดเยี่ยมบ้าน'], skill: 'สื่อสารดี รู้จักเพื่อนบ้าน', whyMatters: 'เชื่อมโรงพยาบาลกับชาวบ้าน', grade: 'ป.4' },
+      { id: 'teacher', nameTh: 'ครู', emoji: '👩‍🏫', sector: 'การศึกษา', place: 'โรงเรียน', duty: 'สอนวิชา ดูแลและแนะนำนักเรียน', tools: ['หนังสือ', 'กระดาน', 'สื่อการสอน'], skill: 'ใจเย็น อธิบายเก่ง', whyMatters: 'พัฒนาความรู้และนิสัยเด็กในชุมชน', grade: 'ป.1' },
+      { id: 'police', nameTh: 'ตำรวจ', emoji: '👮', sector: 'ความปลอดภัย', place: 'สถานีตำรวจ/ชุมชน', duty: 'รักษาความสงบ จับผู้กระทำผิด ช่วยเหลือประชาชน', tools: ['วิทยุสื่อสาร', 'สมุดบันทึก'], skill: 'กล้าหาญ ยุติธรรม', whyMatters: 'ชุมชนอยู่ได้อย่างปลอดภัย', grade: 'ป.3' },
+      { id: 'volunteer', nameTh: 'อาสาสมัครป้องกันภัย', emoji: '🚒', sector: 'ความปลอดภัย', place: 'หมู่บ้านเมื่อเกิดเหตุ', duty: 'ช่วยดับเพลิง น้ำท่วม เหตุฉุกเฉิน', tools: ['ถังดับเพลิง', 'ไฟฉาย', 'วิทยุ'], skill: 'รวดเร็ว ทำงานเป็นทีม', whyMatters: 'ช่วยเหลือเร็วเมื่อมีภัย', grade: 'ป.4' },
+    ];
+
+    const MATTER_SCENES = [
+      { q: 'ถ้าไม่มีครูในชุมชน จะเกิดอะไรขึ้น?', ok: 'เด็กเรียนรู้ได้น้อย และขาดผู้แนะนำ', wrong: ['ผักขายดีขึ้นทันที', 'ไฟฟ้าจะตัดเอง'], why: 'ครูช่วยถ่ายทอดความรู้และอบรมนิสัย' },
+      { q: 'ถ้าไม่มีชาวนา/ชาวสวน นานเข้าจะเป็นอย่างไร?', ok: 'อาหารสดในชุมชนอาจขาดแคลนหรือแพงขึ้น', wrong: ['ตัดผมไม่ได้', 'ซ่อมรถง่ายขึ้น'], why: 'เกษตรกรผลิตอาหารหลักให้ชุมชน' },
+      { q: 'ถ้าไม่มีหมอและพยาบาล จะเสี่ยงอย่างไร?', ok: 'ผู้ป่วยรักษาช้า โรคอาจลุกลาม', wrong: ['ตลาดปิดถาวร', 'ครูสอนไม่ได้'], why: 'สาธารณสุขรักษาชีวิตและสุขภาพ' },
+      { q: 'ถ้าไม่มีช่างไฟในชุมชน?', ok: 'ไฟฟ้าชำรุดอาจเป็นอันตรายและใช้งานไม่ได้', wrong: ['นาข้าวแห้งทันที', 'นักเรียนไม่มีสมุด'], why: 'ช่างไฟช่วยให้ไฟฟ้าใช้ได้อย่างปลอดภัย' },
+      { q: 'ถ้าไม่มีตำรวจ/อาสา?', ok: 'ความสงบและช่วยเหลือฉุกเฉินลดลง', wrong: ['ผลไม้หวานขึ้น', 'ตลาดมีของเยอะ'], why: 'อาชีพความปลอดภัยคุ้มครองชุมชน' },
+    ];
+
+    const INTERESTS = [
+      { id: 'nature', label: '🌱 ชอบปลูกต้นไม้/สัตว์', sectors: ['เกษตร'] },
+      { id: 'help', label: '🤝 ชอบช่วยเหลือคน', sectors: ['สาธารณสุข', 'ความปลอดภัย', 'บริการ'] },
+      { id: 'fix', label: '🔧 ชอบซ่อมแซมของ', sectors: ['ช่าง'] },
+      { id: 'sell', label: '💬 ชอบคุยขายของ', sectors: ['ค้าขาย', 'บริการ'] },
+      { id: 'teach', label: '📖 ชอบสอนเพื่อน', sectors: ['การศึกษา'] },
+      { id: 'protect', label: '🛡️ ชอบปกป้องความถูกต้อง', sectors: ['ความปลอดภัย'] },
+    ];
+
+    function shuffle(a) {
+      a = a.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = (Math.random() * (i + 1)) | 0;
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+    function speak(t) {
+      if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.speak) KAMPAI.sound.speak(t, 'th-TH');
+      else if (window.speechSynthesis) {
+        const u = new SpeechSynthesisUtterance(t);
+        u.lang = 'th-TH';
+        speechSynthesis.speak(u);
+      }
+    }
+    function jobById(id) { return JOBS.find((j) => j.id === id); }
+
+    let mode = 'cards', flipped = {};
+    let secSel = null, secPlaced = {}, secChecked = false;
+    let whoQ = null, whoAnswered = false;
+    let matterQ = null, matterAnswered = false;
+    let selfPick = null;
+
+    const hints = {
+      cards: 'แตะการ์ดเพื่อพลิกดูหน้าที่ สถานที่ และเครื่องมือ',
+      sector: 'แตะอาชีพ แล้วแตะกล่องภาคที่ถูกต้อง',
+      who: 'จับคู่: อาชีพนี้ทำงานที่ไหน / ใช้เครื่องมืออะไร',
+      matter: 'อ่านสถานการณ์ แล้วเลือกผลกระทบต่อชุมชน',
+      self: 'เลือกสิ่งที่ชอบ — ดูอาชีพใกล้เคียง (ไม่มีการตัดสินถูกผิด)',
+    };
+
+    function setMode(m) {
+      mode = m;
+      document.querySelectorAll('#modeSeg button').forEach((b) => b.classList.toggle('on', b.dataset.mode === m));
+      document.querySelectorAll('.panel').forEach((p) => p.classList.remove('on'));
+      document.getElementById('p-' + m).classList.add('on');
+      document.getElementById('hintText').textContent = hints[m];
+      if (m === 'cards') renderCards();
+      if (m === 'sector') { if (!Object.keys(secPlaced).length) resetSector(); else renderSector(); }
+      if (m === 'who') { if (!whoQ) nextWho(); else renderWho(); }
+      if (m === 'matter') { if (!matterQ) nextMatter(); else renderMatter(); }
+      if (m === 'self') renderSelf();
+    }
+
+    function renderCards() {
+      const el = document.getElementById('p-cards');
+      el.innerHTML = '<div class="card-grid">' + JOBS.map((j) =>
+        '<button type="button" class="j-card' + (flipped[j.id] ? ' flipped' : '') + '" data-id="' + j.id + '">' +
+        '<div class="j-inner"><div class="j-face j-front"><div class="e">' + j.emoji + '</div>' +
+        '<div class="n">' + j.nameTh + '</div><div class="s">' + j.sector + ' · ' + j.grade + '</div></div>' +
+        '<div class="j-face j-back"><p><strong>ที่ทำงาน:</strong> ' + j.place + '</p>' +
+        '<p><strong>ทำอะไร:</strong> ' + j.duty + '</p>' +
+        '<p><strong>เครื่องมือ:</strong> ' + j.tools.join(', ') + '</p>' +
+        '<p><strong>คุณสมบัติ:</strong> ' + j.skill + '</p></div></div></button>'
+      ).join('') + '</div>';
+      el.querySelectorAll('.j-card').forEach((b) => {
+        b.onclick = function () {
+          flipped[b.dataset.id] = !flipped[b.dataset.id];
+          const j = jobById(b.dataset.id);
+          if (flipped[b.dataset.id]) speak(j.nameTh + ' ' + j.duty);
+          renderCards();
+        };
+      });
+    }
+
+    function resetSector() {
+      secSel = null; secPlaced = {}; secChecked = false; renderSector();
+    }
+
+    function renderSector() {
+      const el = document.getElementById('p-sector');
+      const remaining = JOBS.filter((j) => !secPlaced[j.id]);
+      el.innerHTML =
+        '<div class="match-layout"><div class="boxes">' + SECTORS.map((s) => {
+          const items = JOBS.filter((j) => secPlaced[j.id] === s);
+          return '<div class="box" data-s="' + s + '"><h4>' + s + '</h4><div class="chips">' +
+            items.map((j) => {
+              let cls = 'chip';
+              if (secChecked) cls += j.sector === s ? ' ok' : ' no';
+              return '<span class="' + cls + '">' + j.emoji + ' ' + j.nameTh + '</span>';
+            }).join('') + '</div></div>';
+        }).join('') + '</div><div><div class="pool">' + remaining.map((j) =>
+          '<button type="button" class="f-btn' + (secSel === j.id ? ' sel' : '') + '" data-id="' + j.id + '">' + j.emoji + ' ' + j.nameTh + '</button>'
+        ).join('') + '</div><p class="fb" id="secFb"></p>' +
+        '<div class="actions"><button type="button" class="btn btn-primary" id="btnSecCheck">ตรวจคำตอบ</button>' +
+        '<button type="button" class="btn btn-ghost" id="btnSecReset">🔄 เริ่มใหม่</button></div></div></div>';
+      el.querySelectorAll('.pool .f-btn').forEach((b) => {
+        b.onclick = function () { secSel = b.dataset.id; secChecked = false; renderSector(); };
+      });
+      el.querySelectorAll('.box').forEach((box) => {
+        box.onclick = function () {
+          if (!secSel || secChecked) return;
+          secPlaced[secSel] = box.dataset.s;
+          secSel = null;
+          renderSector();
+        };
+      });
+      document.getElementById('btnSecReset').onclick = resetSector;
+      document.getElementById('btnSecCheck').onclick = function () {
+        if (Object.keys(secPlaced).length < JOBS.length) {
+          document.getElementById('secFb').className = 'fb no';
+          document.getElementById('secFb').textContent = 'จัดให้ครบทุกอาชีพก่อน';
+          return;
+        }
+        secChecked = true;
+        let ok = 0;
+        JOBS.forEach((j) => { if (secPlaced[j.id] === j.sector) ok++; });
+        renderSector();
+        const fb = document.getElementById('secFb');
+        fb.className = 'fb ' + (ok === JOBS.length ? 'ok' : 'no');
+        fb.textContent = ok === JOBS.length ? '✅ จัดกลุ่มถูกต้องทั้งหมด!' : 'ถูก ' + ok + '/' + JOBS.length;
+      };
+    }
+
+    function nextWho() {
+      const j = JOBS[(Math.random() * JOBS.length) | 0];
+      const askPlace = Math.random() < 0.5;
+      let opts;
+      if (askPlace) {
+        const wrong = shuffle(JOBS.filter((x) => x.id !== j.id).map((x) => x.place)).slice(0, 3);
+        opts = shuffle([j.place].concat(wrong));
+        whoQ = { text: j.emoji + ' ' + j.nameTh + ' ทำงานที่ไหน?', answer: j.place, opts: opts, explain: j.nameTh + ' ทำงานที่ ' + j.place };
+      } else {
+        const ans = j.tools[0];
+        const wrong = shuffle(JOBS.filter((x) => x.id !== j.id).map((x) => x.tools[0])).slice(0, 3);
+        opts = shuffle([ans].concat(wrong));
+        whoQ = { text: j.emoji + ' ' + j.nameTh + ' ใช้เครื่องมือใดเป็นหลัก?', answer: ans, opts: opts, explain: j.nameTh + ' ใช้เช่น ' + j.tools.join(', ') };
+      }
+      whoAnswered = false;
+      renderWho();
+    }
+
+    function renderWho() {
+      const el = document.getElementById('p-who');
+      el.innerHTML =
+        '<div class="q-box"><p class="q-text">' + whoQ.text + '</p><div class="opts">' +
+        whoQ.opts.map((o) => '<button type="button" class="opt" data-o="' + o + '">' + o + '</button>').join('') +
+        '</div><p class="fb" id="whoFb"></p>' +
+        '<div class="actions"><button type="button" class="btn btn-primary" id="btnWhoNext">ข้อถัดไป</button></div></div>';
+      el.querySelectorAll('.opt').forEach((b) => {
+        b.onclick = function () {
+          if (whoAnswered) return;
+          whoAnswered = true;
+          const ok = b.dataset.o === whoQ.answer;
+          el.querySelectorAll('.opt').forEach((x) => {
+            if (x.dataset.o === whoQ.answer) x.classList.add('ok');
+            else if (x === b) x.classList.add('no');
+          });
+          const fb = document.getElementById('whoFb');
+          fb.className = 'fb ' + (ok ? 'ok' : 'no');
+          fb.textContent = (ok ? '✅ ' : '❌ ') + whoQ.explain;
+          speak(ok ? 'ถูกต้อง' : whoQ.explain);
+        };
+      });
+      document.getElementById('btnWhoNext').onclick = nextWho;
+    }
+
+    function nextMatter() {
+      matterQ = MATTER_SCENES[(Math.random() * MATTER_SCENES.length) | 0];
+      matterAnswered = false;
+      renderMatter();
+    }
+
+    function renderMatter() {
+      const el = document.getElementById('p-matter');
+      const opts = shuffle([matterQ.ok].concat(matterQ.wrong));
+      el.innerHTML =
+        '<div class="q-box"><p class="q-text">' + matterQ.q + '</p><div class="opts">' +
+        opts.map((o) => '<button type="button" class="opt" data-o="' + o.replace(/"/g, '&quot;') + '">' + o + '</button>').join('') +
+        '</div><p class="fb" id="matFb"></p>' +
+        '<div class="actions"><button type="button" class="btn btn-primary" id="btnMatNext">สถานการณ์ถัดไป</button></div></div>';
+      el.querySelectorAll('.opt').forEach((b) => {
+        b.onclick = function () {
+          if (matterAnswered) return;
+          matterAnswered = true;
+          const ok = b.dataset.o === matterQ.ok;
+          el.querySelectorAll('.opt').forEach((x) => {
+            if (x.dataset.o === matterQ.ok) x.classList.add('ok');
+            else if (x === b) x.classList.add('no');
+          });
+          const fb = document.getElementById('matFb');
+          fb.className = 'fb ' + (ok ? 'ok' : 'no');
+          fb.textContent = (ok ? '✅ ' : '❌ ') + matterQ.why;
+        };
+      });
+      document.getElementById('btnMatNext').onclick = nextMatter;
+    }
+
+    function renderSelf() {
+      const el = document.getElementById('p-self');
+      let suggestHtml = '<p style="font-weight:600;color:var(--muted)">เลือกสิ่งที่ชอบทางซ้าย</p>';
+      if (selfPick) {
+        const int = INTERESTS.find((i) => i.id === selfPick);
+        const matched = JOBS.filter((j) => int.sectors.indexOf(j.sector) >= 0);
+        suggestHtml = '<h3>อาชีพที่อาจใกล้เคียงกับคุณ</h3><div class="chips" style="gap:8px">' +
+          matched.map((j) => '<span class="chip">' + j.emoji + ' ' + j.nameTh + ' (' + j.sector + ')</span>').join('') +
+          '</div><p style="margin-top:10px;font-weight:600;line-height:1.45">💡 ไม่มีคำตอบถูกผิด — สำรวจความสนใจแล้วค่อยเรียนรู้ทักษะทีละน้อย</p>';
+      }
+      el.innerHTML =
+        '<div class="explore"><div class="int-q"><h3>คุณชอบทำอะไร?</h3><div class="int-opts">' +
+        INTERESTS.map((i) => '<button type="button" class="' + (selfPick === i.id ? 'on' : '') + '" data-id="' + i.id + '">' + i.label + '</button>').join('') +
+        '</div></div><div class="suggest">' + suggestHtml + '</div></div>';
+      el.querySelectorAll('.int-opts button').forEach((b) => {
+        b.onclick = function () { selfPick = b.dataset.id; speak('ลองดูอาชีพเหล่านี้'); renderSelf(); };
+      });
+    }
+
+    document.getElementById('modeSeg').onclick = function (e) {
+      const b = e.target.closest('button[data-mode]');
+      if (b) setMode(b.dataset.mode);
+    };
+    document.getElementById('btnFs').onclick = function () {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(function () {});
+      else document.exitFullscreen();
+    };
+
+    setMode('cards');
+  </script>
+</body>
+</html>

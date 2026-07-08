@@ -407,10 +407,10 @@
         ).join('') +
         '</div>' +
         '<div class="detail">' +
-        '<h3>' + g.emoji + ' ' + w.word + ' · กลุ่ม“' + g.theme + '”</h3>' +
+        '<h3>' + g.emoji + ' ' + w.word + ' · กลุ่ม「' + g.theme + '」</h3>' +
         '<p><strong>อ่าน:</strong> ' + w.reading + ' · <strong>ระดับภาษา:</strong> ' + w.register + '</p>' +
         '<p><strong>โทนใช้:</strong> ' + w.nuance + '</p>' +
-        '<p><strong>ตัวอย่าง:</strong> “' + w.example + '”</p>' +
+        '<p><strong>ตัวอย่าง:</strong> 「' + w.example + '」</p>' +
         '<div class="actions" style="justify-content:flex-start;margin-top:8px">' +
         '<button type="button" class="btn btn-ghost" id="btnSpeakW">🔊 อ่านคำ</button>' +
         '<button type="button" class="btn btn-ghost" id="btnSpeakEx">🔊 อ่านตัวอย่าง</button></div>' +
@@ -473,12 +473,12 @@
       }
       const opts = shuffle([correct.word].concat(wrongPool.slice(0, 3)));
       pickQ = {
-        prompt: 'คำไหนพ้องความหมายกับ “‘ + target.word + '”?',
+        prompt: 'คำไหนพ้องความหมายกับ「' + target.word + '」?',
         group: g,
         target,
         answer: correct.word,
         opts,
-        explain: 'กลุ่ม“' + g.theme + '”: ' + g.words.map((w) => w.word).join(' · ') + ' — ' + g.tip,
+        explain: 'กลุ่ม「' + g.theme + '」: ' + g.words.map((w) => w.word).join(' · ') + ' — ' + g.tip,
       };
       pickAnswered = false;
       renderPick();
@@ -509,7 +509,7 @@
             else if (o === b) o.classList.add('no');
           });
           document.getElementById('pickFb').className = 'fb ' + (ok ? 'ok' : 'no');
-          document.getElementById('pickFb').textContent = (ok ? '✅ ถูกต้อง! ' : '❌ คำตอบคือ “' + pickQ.answer + '” — ') + pickQ.explain;
+          document.getElementById('pickFb').textContent = (ok ? '✅ ถูกต้อง! ' : '❌ คำตอบคือ「' + pickQ.answer + '」— ') + pickQ.explain;
         };
       });
       document.getElementById('btnNextP').onclick = nextPick;

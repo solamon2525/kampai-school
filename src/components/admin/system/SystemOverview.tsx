@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.161.9 (พรีวิววิดีโอการ์ดเกม — สลับปกวนซ้ำ)',
+        version: 'v1.162.0 (Batch X — สื่อเต็มมิติ 10 ชิ้น)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            '**Batch X1–X3** สื่อ interactive 10 ชิ้น (`category_key=media` · ไม่เก็บคะแนน): อาหาร 5 หมู่ · วงล้อสีวรรณะ · ไวพจน์ · ส่วนพืช · ดวงจันทร์ 8 ข้าง · พื้นที่สี่เหลี่ยม · กระดูก/กล้ามเนื้อ/ข้อ · อาชีพชุมชน · เศรษฐกิจพอเพียง · พจนานุกรมดิจิทัล',
+            'migration **380–381** seed + indicator map + game_docs · ปก 📚 1280×720 ทั้งชุด',
+            'คู่เกม: plate-builder · color-wheel · waipot · veggie-garden · mini-farm-island',
+        ],
+    },
+    {
+        version: 'v1.161.9 (พรีวิววิดีโอการ์ดเกม — สลับปกวนซ้ำ)',
+        date: '',
         badge: 'bg-sky-600',
         items: [
             '**GameDemoPreview** สลับปก ↔ วิดีโอเดโมแบบวนซ้ำ (ปก → วิดีโอ → ปก)',

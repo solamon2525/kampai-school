@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>พื้นที่สี่เหลี่ยมมุมฉาก — สื่อการสอน — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --deep: #0369a1; --line: #7dd3fc; --muted: #64748b; --ok: #16a34a; --bad: #dc2626; --cream: #fffbeb; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(160deg, #e0f2fe, #fef3c7); min-height: 100%; padding: 12px; color: #0f172a; }
+    .shell { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+    header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #0c4a6e, #0284c7); color: #fff; }
+    header h1 { font-size: 1.05rem; font-weight: 800; flex: 1; min-width: 140px; }
+    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn:active { transform: scale(.97); }
+    .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
+    .btn-primary { background: var(--deep); color: #fff; }
+    .btn-accent { background: #fbbf24; color: #78350f; }
+    .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 16px; background: #f0f9ff; border-bottom: 1px solid var(--line); align-items: center; }
+    .seg { display: inline-flex; flex-wrap: wrap; border-radius: 12px; overflow: hidden; border: 2px solid #38bdf8; }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 11px; cursor: pointer; font-size: .8rem; }
+    .seg button.on { background: var(--deep); color: #fff; }
+    .hint { font-size: .85rem; color: #0369a1; font-weight: 600; flex: 1; min-width: 140px; }
+    .stage { flex: 1; padding: 16px; overflow: auto; }
+    .panel { display: none; flex-direction: column; gap: 14px; max-width: 900px; margin: 0 auto; }
+    .panel.on { display: flex; }
+    .formula-bar { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+    .formula { background: var(--cream); border: 2px solid #fcd34d; border-radius: 14px; padding: 10px 16px; font-weight: 800; color: #92400e; font-size: 1.05rem; }
+    .formula.blue { background: #e0f2fe; border-color: #7dd3fc; color: #0c4a6e; }
+    .grid-wrap { overflow: auto; display: flex; justify-content: center; padding: 8px; background: #f0f9ff; border-radius: 16px; border: 2px solid var(--line); }
+    .grid { display: grid; gap: 2px; background: #0284c7; padding: 2px; border-radius: 8px; }
+    .cell { width: 36px; height: 36px; background: #fef9c3; border-radius: 2px; }
+    .cell.hi { background: #38bdf8; }
+    @media (min-width: 700px) { .cell { width: 44px; height: 44px; } }
+    .controls { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; align-items: center; }
+    .ctrl { display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--deep); }
+    .ctrl input[type=range] { width: 120px; }
+    .ctrl input[type=number] { width: 64px; font-family: inherit; font-weight: 800; font-size: 1.1rem; padding: 6px; border: 2px solid var(--line); border-radius: 10px; text-align: center; }
+    .result { text-align: center; font-size: 1.2rem; font-weight: 800; color: #0c4a6e; background: #e0f2fe; border-radius: 14px; padding: 12px; }
+    .prompt { text-align: center; font-weight: 800; color: var(--deep); background: #e0f2fe; border: 2px dashed #7dd3fc; border-radius: 14px; padding: 14px; font-size: 1.05rem; line-height: 1.45; }
+    .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 480px; margin: 0 auto; }
+    .choice { font-family: inherit; font-weight: 800; border: 2px solid #7dd3fc; border-radius: 14px; background: #fff; padding: 14px; cursor: pointer; color: var(--deep); font-size: 1.1rem; }
+    .choice.ok { background: #dcfce7; border-color: #16a34a; }
+    .choice.bad { background: #fee2e2; border-color: #fca5a5; }
+    .answer-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; }
+    .answer-row input { width: 100px; font-family: inherit; font-weight: 800; font-size: 1.3rem; padding: 10px; border: 2px solid var(--line); border-radius: 12px; text-align: center; }
+    .fb { text-align: center; font-weight: 800; min-height: 24px; }
+    .fb.ok { color: var(--ok); }
+    .fb.no { color: var(--bad); }
+    .steps { background: var(--cream); border-radius: 14px; padding: 12px; font-weight: 600; color: #78350f; line-height: 1.55; display: none; }
+    .steps.on { display: block; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .tag { display: inline-block; background: #0c4a6e; color: #fde68a; font-size: .75rem; font-weight: 800; padding: 3px 10px; border-radius: 999px; margin-bottom: 6px; }
+    .footer { padding: 10px 16px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
+    .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+    .shake { animation: shake .35s; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
+      <h1>🟦 พื้นที่สี่เหลี่ยมมุมฉาก</h1>
+      <span class="badge">ป.4 · คณิตศาสตร์</span>
+    </header>
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="learn" class="on">📖 เรียนรู้กริด</button>
+        <button type="button" data-mode="count">🔢 นับช่อง</button>
+        <button type="button" data-mode="formula">✖️ สูตร</button>
+        <button type="button" data-mode="story">📝 โจทย์เรื่อง</button>
+        <button type="button" data-mode="vs">⚖️ พื้นที่ vs เส้นรอบรูป</button>
+      </span>
+      <p class="hint" id="hintText">ลากปรับกว้าง×ยาว แล้วนับช่อง — พื้นที่ = ก × ย</p>
+      <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
+    </div>
+    <div class="stage">
+      <div class="formula-bar">
+        <div class="formula blue">พื้นที่ = กว้าง × ยาว</div>
+        <div class="formula">เส้นรอบรูป = 2 × (กว้าง + ยาว)</div>
+      </div>
+
+      <div class="panel on" id="panel-learn">
+        <div class="controls">
+          <label class="ctrl">กว้าง <input type="range" id="wRange" min="1" max="10" value="4" /> <span id="wVal">4</span></label>
+          <label class="ctrl">ยาว <input type="range" id="hRange" min="1" max="10" value="3" /> <span id="hVal">3</span></label>
+        </div>
+        <div class="grid-wrap"><div class="grid" id="learnGrid"></div></div>
+        <p class="result" id="learnResult">พื้นที่ = 4 × 3 = <strong>12</strong> ช่อง · เส้นรอบรูป = 2×(4+3) = <strong>14</strong></p>
+        <p style="text-align:center;font-weight:600;color:var(--muted)">แต่ละช่องสีครีม = 1 หน่วยพื้นที่ · โปรเจคเตอร์เห็นชัด</p>
+      </div>
+
+      <div class="panel" id="panel-count">
+        <p class="prompt" id="countPrompt">นับช่องทั้งหมด — พื้นที่เท่าไร?</p>
+        <div class="grid-wrap"><div class="grid" id="countGrid"></div></div>
+        <div class="answer-row">
+          <input type="number" id="countAns" placeholder="?" min="0" />
+          <button type="button" class="btn btn-primary" id="btnCountCheck">ตรวจ</button>
+        </div>
+        <p class="fb" id="countFb"></p>
+        <div class="steps" id="countSteps"></div>
+        <div class="actions">
+          <button type="button" class="btn btn-accent" id="btnCountReveal">ดูเฉลยทีละขั้น</button>
+          <button type="button" class="btn btn-primary" id="btnCountNext">สุ่มใหม่</button>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-formula">
+        <p class="prompt">ใส่ค่า กว้าง และ ยาว แล้วคำนวณพื้นที่</p>
+        <div class="controls">
+          <label class="ctrl">กว้าง <input type="number" id="fW" min="1" max="20" value="5" /></label>
+          <label class="ctrl">ยาว <input type="number" id="fH" min="1" max="20" value="4" /></label>
+        </div>
+        <div class="answer-row">
+          <span style="font-weight:800;color:var(--deep)">พื้นที่ =</span>
+          <input type="number" id="fAns" placeholder="?" />
+          <button type="button" class="btn btn-primary" id="btnFCheck">ตรวจ</button>
+        </div>
+        <p class="fb" id="fFb"></p>
+        <p class="result" id="fPreview">ตัวอย่างกริดด้านล่าง</p>
+        <div class="grid-wrap"><div class="grid" id="fGrid"></div></div>
+        <div class="actions">
+          <button type="button" class="btn btn-accent" id="btnFReveal">ดูเฉลย</button>
+          <button type="button" class="btn btn-primary" id="btnFRand">สุ่ม ก×ย</button>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-story">
+        <p class="prompt" id="storyPrompt">อ่านโจทย์แล้วเลือกคำตอบ</p>
+        <div class="grid-wrap" id="storyGridWrap" style="display:none"><div class="grid" id="storyGrid"></div></div>
+        <div class="choices" id="storyChoices"></div>
+        <p class="fb" id="storyFb"></p>
+        <div class="actions">
+          <button type="button" class="btn btn-accent" id="btnStoryReveal">ดูเฉลย</button>
+          <button type="button" class="btn btn-primary" id="btnStoryNext">ข้อถัดไป</button>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-vs">
+        <p class="prompt" id="vsPrompt">คำถามนี้ถาม <u>พื้นที่</u> หรือ <u>เส้นรอบรูป</u>?</p>
+        <div class="grid-wrap"><div class="grid" id="vsGrid"></div></div>
+        <div class="choices" id="vsChoices"></div>
+        <p class="fb" id="vsFb"></p>
+        <div class="actions">
+          <button type="button" class="btn btn-accent" id="btnVsReveal">ดูเฉลย</button>
+          <button type="button" class="btn btn-primary" id="btnVsNext">ข้อถัดไป</button>
+        </div>
+      </div>
+    </div>
+    <footer class="footer">ตัวชี้วัด <strong>ค 2.1 ป.4/3</strong> · คู่เกม <a href="/play/mini-farm-island">เกาะฟาร์มจิ๋ว</a></footer>
+  </div>
+  <script>
+    const MEDIA_SLUG = 'rect-area-media';
+    if (window.KAMPAI) KAMPAI.setSlug(MEDIA_SLUG);
+
+    /** ≥20 GridProblem */
+    const PROBLEMS = [
+      { id: 'g1', width: 2, height: 3, unit: 'ช่อง', context: 'กริดเล็ก', showFormula: true, distractors: [5, 6, 10] },
+      { id: 'g2', width: 3, height: 3, unit: 'ช่อง', context: 'กริดจัตุรัส', showFormula: true, distractors: [6, 9, 12] },
+      { id: 'g3', width: 3, height: 4, unit: 'ช่อง', context: 'กริด', showFormula: true, distractors: [7, 12, 14] },
+      { id: 'g4', width: 4, height: 5, unit: 'ช่อง', context: 'กริด', showFormula: true, distractors: [9, 18, 20] },
+      { id: 'g5', width: 5, height: 5, unit: 'ช่อง', context: 'กริดจัตุรัส', showFormula: true, distractors: [10, 20, 25] },
+      { id: 'g6', width: 2, height: 8, unit: 'ช่อง', context: 'กริดยาว', showFormula: true, distractors: [10, 16, 18] },
+      { id: 'g7', width: 6, height: 3, unit: 'ช่อง', context: 'กริด', showFormula: true, distractors: [9, 18, 36] },
+      { id: 'g8', width: 7, height: 2, unit: 'ช่อง', context: 'กริด', showFormula: true, distractors: [9, 14, 18] },
+      { id: 'g9', width: 4, height: 4, unit: 'ช่อง', context: 'กริด', showFormula: true, distractors: [8, 12, 16] },
+      { id: 'g10', width: 5, height: 3, unit: 'ช่อง', context: 'กระเบื้อง', showFormula: true, distractors: [8, 15, 16] },
+      { id: 's1', width: 4, height: 6, unit: 'ม.', context: 'สวนผัก', showFormula: true, distractors: [10, 20, 24], story: 'สวนผักกว้าง 4 ม. ยาว 6 ม. พื้นที่เท่าไร?' },
+      { id: 's2', width: 5, height: 3, unit: 'ม.', context: 'พื้นกระเบื้อง', showFormula: true, distractors: [8, 15, 16], story: 'พื้นกระเบื้องกว้าง 5 ม. ยาว 3 ม. พื้นที่เท่าไร?' },
+      { id: 's3', width: 2, height: 7, unit: 'ม.', context: 'ผ้าหน้าโต๊ะ', showFormula: true, distractors: [9, 14, 18], story: 'ผ้าหน้าโต๊ะกว้าง 2 ม. ยาว 7 ม. พื้นที่เท่าไร?' },
+      { id: 's4', width: 8, height: 4, unit: 'ม.', context: 'สนามเด็กเล่น', showFormula: true, distractors: [12, 24, 32], story: 'สนามสี่เหลี่ยมกว้าง 8 ม. ยาว 4 ม. พื้นที่เท่าไร?' },
+      { id: 's5', width: 6, height: 6, unit: 'ม.', context: 'ห้องเรียน', showFormula: true, distractors: [12, 24, 36], story: 'ห้องเรียนเป็นสี่เหลี่ยมจัตุรัสด้านละ 6 ม. พื้นที่เท่าไร?' },
+      { id: 's6', width: 3, height: 9, unit: 'ซม.', context: 'สติกเกอร์', showFormula: true, distractors: [12, 24, 27], story: 'สติกเกอร์กว้าง 3 ซม. ยาว 9 ซม. พื้นที่เท่าไร?' },
+      { id: 's7', width: 10, height: 2, unit: 'ม.', context: 'ทางเดิน', showFormula: true, distractors: [12, 20, 24], story: 'ทางเดินกว้าง 2 ม. ยาว 10 ม. พื้นที่เท่าไร?' },
+      { id: 's8', width: 7, height: 5, unit: 'ม.', context: 'ลานกิจกรรม', showFormula: true, distractors: [12, 24, 35], story: 'ลานกิจกรรมกว้าง 7 ม. ยาว 5 ม. พื้นที่เท่าไร?' },
+      { id: 'p1', width: 4, height: 3, unit: 'ม.', context: 'กับดักเส้นรอบรูป', showFormula: true, distractors: [12, 14, 7], story: 'กรอบรูปกว้าง 4 ม. ยาว 3 ม. อยากรู้ความยาวขอบรอบกรอบ ควรหาอะไร?', ask: 'perim', perim: 14, area: 12 },
+      { id: 'p2', width: 5, height: 2, unit: 'ม.', context: 'กับดักเส้นรอบรูป', showFormula: true, distractors: [10, 14, 7], story: 'รั้วล้อมแปลงกว้าง 5 ม. ยาว 2 ม. ความยาวรั้วทั้งหมดคือ?', ask: 'perim', perim: 14, area: 10 },
+      { id: 'p3', width: 6, height: 4, unit: 'ม.', context: 'สวน', showFormula: true, distractors: [20, 24, 10], story: 'ปูหญ้าในสวนกว้าง 6 ม. ยาว 4 ม. ต้องใช้หญ้ากี่ตารางเมตร?', ask: 'area', perim: 20, area: 24 },
+      { id: 'p4', width: 3, height: 3, unit: 'ม.', context: 'กับดัก', showFormula: true, distractors: [9, 12, 6], story: 'ติดขอบเทปกาวรอบกระดานด้านละ 3 ม. ใช้เทปยาวเท่าไร?', ask: 'perim', perim: 12, area: 9 },
+    ];
+
+    const HINTS = {
+      learn: 'ลากปรับกว้าง×ยาว แล้วนับช่อง — พื้นที่ = ก × ย',
+      count: 'นับช่องบนกริด แล้วกรอกพื้นที่ — ไม่มีคะแนน',
+      formula: 'ใส่ ก และ ย → คำนวณพื้นที่ = ก×ย',
+      story: 'อ่านโจทย์สั้น เลือกคำตอบที่ถูก',
+      vs: 'แยกมโนทัศน์: พื้นที่ (ภายใน) vs เส้นรอบรูป (ขอบนอก)',
+    };
+
+    function shuffle(a) {
+      a = a.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = (Math.random() * (i + 1)) | 0;
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+    function area(w, h) { return w * h; }
+    function peri(w, h) { return 2 * (w + h); }
+    function ding(ok) {
+      if (window.KAMPAI?.sound) ok ? KAMPAI.sound.correct() : KAMPAI.sound.wrong();
+    }
+
+    function renderGrid(el, w, h, highlight) {
+      el.style.gridTemplateColumns = `repeat(${w}, 1fr)`;
+      el.innerHTML = '';
+      for (let r = 0; r < h; r++) {
+        for (let c = 0; c < w; c++) {
+          const d = document.createElement('div');
+          d.className = 'cell' + (highlight ? ' hi' : '');
+          el.appendChild(d);
+        }
+      }
+    }
+
+    let mode = 'learn', countP = null, storyP = null, vsP = null;
+
+    function setMode(m) {
+      mode = m;
+      document.querySelectorAll('#modeSeg button').forEach((b) => b.classList.toggle('on', b.dataset.mode === m));
+      document.querySelectorAll('.panel').forEach((p) => p.classList.toggle('on', p.id === 'panel-' + m));
+      document.getElementById('hintText').textContent = HINTS[m];
+      if (m === 'count') newCount();
+      if (m === 'formula') updateF();
+      if (m === 'story') newStory();
+      if (m === 'vs') newVs();
+    }
+
+    document.getElementById('modeSeg').onclick = (e) => {
+      const b = e.target.closest('button[data-mode]');
+      if (b) setMode(b.dataset.mode);
+    };
+    document.getElementById('btnFs').onclick = () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    };
+
+    /* ---- learn ---- */
+    function updateLearn() {
+      const w = +document.getElementById('wRange').value;
+      const h = +document.getElementById('hRange').value;
+      document.getElementById('wVal').textContent = w;
+      document.getElementById('hVal').textContent = h;
+      renderGrid(document.getElementById('learnGrid'), w, h, true);
+      document.getElementById('learnResult').innerHTML =
+        `พื้นที่ = ${w} × ${h} = <strong>${area(w, h)}</strong> ช่อง · เส้นรอบรูป = 2×(${w}+${h}) = <strong>${peri(w, h)}</strong>`;
+    }
+    document.getElementById('wRange').oninput = updateLearn;
+    document.getElementById('hRange').oninput = updateLearn;
+    updateLearn();
+
+    /* ---- count ---- */
+    function newCount() {
+      const pool = PROBLEMS.filter((p) => p.unit === 'ช่อง' && p.width <= 8 && p.height <= 8);
+      countP = pool[(Math.random() * pool.length) | 0];
+      document.getElementById('countPrompt').textContent = `นับช่องทั้งหมด (${countP.width}×${countP.height}) — พื้นที่เท่าไร?`;
+      renderGrid(document.getElementById('countGrid'), countP.width, countP.height, false);
+      document.getElementById('countAns').value = '';
+      document.getElementById('countFb').textContent = '';
+      document.getElementById('countFb').className = 'fb';
+      const st = document.getElementById('countSteps');
+      st.className = 'steps';
+      st.textContent = '';
+    }
+    document.getElementById('btnCountCheck').onclick = () => {
+      const v = +document.getElementById('countAns').value;
+      const ans = area(countP.width, countP.height);
+      if (v === ans) {
+        document.getElementById('countFb').className = 'fb ok';
+        document.getElementById('countFb').textContent = 'ถูกต้อง! พื้นที่ = ' + ans + ' ช่อง';
+        ding(true);
+      } else {
+        document.getElementById('countFb').className = 'fb no';
+        document.getElementById('countFb').textContent = 'ยังไม่ถูก — ลองนับแถวละ ' + countP.width + ' ช่อง × ' + countP.height + ' แถว';
+        ding(false);
+      }
+    };
+    document.getElementById('btnCountReveal').onclick = () => {
+      const w = countP.width, h = countP.height;
+      const st = document.getElementById('countSteps');
+      st.className = 'steps on';
+      st.innerHTML = `ขั้น 1: นับแนวกว้าง = ${w} ช่อง<br>ขั้น 2: นับแนวยาว = ${h} แถว<br>ขั้น 3: พื้นที่ = ${w} × ${h} = <strong>${area(w, h)}</strong> ช่อง<br><small>(อย่าสับสนกับเส้นรอบรูป = ${peri(w, h)})</small>`;
+      renderGrid(document.getElementById('countGrid'), w, h, true);
+    };
+    document.getElementById('btnCountNext').onclick = () => newCount();
+
+    /* ---- formula ---- */
+    function updateF() {
+      let w = +document.getElementById('fW').value || 1;
+      let h = +document.getElementById('fH').value || 1;
+      w = Math.min(12, Math.max(1, w));
+      h = Math.min(12, Math.max(1, h));
+      document.getElementById('fPreview').textContent = `ตัวอย่างกริด ${w}×${h} (ถ้าวาดได้)`;
+      renderGrid(document.getElementById('fGrid'), w, h, true);
+    }
+    document.getElementById('fW').oninput = updateF;
+    document.getElementById('fH').oninput = updateF;
+    document.getElementById('btnFCheck').onclick = () => {
+      const w = +document.getElementById('fW').value;
+      const h = +document.getElementById('fH').value;
+      const v = +document.getElementById('fAns').value;
+      if (v === area(w, h)) {
+        document.getElementById('fFb').className = 'fb ok';
+        document.getElementById('fFb').textContent = `ถูกต้อง! ${w}×${h}=${area(w, h)} · เส้นรอบรูป=${peri(w, h)}`;
+        ding(true);
+      } else {
+        document.getElementById('fFb').className = 'fb no';
+        document.getElementById('fFb').textContent = 'ยังไม่ถูก — พื้นที่ = กว้าง × ยาว';
+        ding(false);
+      }
+    };
+    document.getElementById('btnFReveal').onclick = () => {
+      const w = +document.getElementById('fW').value;
+      const h = +document.getElementById('fH').value;
+      document.getElementById('fFb').className = 'fb ok';
+      document.getElementById('fFb').textContent = `เฉลย: พื้นที่ ${area(w, h)} · เส้นรอบรูป ${peri(w, h)}`;
+      document.getElementById('fAns').value = area(w, h);
+    };
+    document.getElementById('btnFRand').onclick = () => {
+      document.getElementById('fW').value = 2 + ((Math.random() * 8) | 0);
+      document.getElementById('fH').value = 2 + ((Math.random() * 8) | 0);
+      document.getElementById('fAns').value = '';
+      document.getElementById('fFb').textContent = '';
+      updateF();
+    };
+    updateF();
+
+    /* ---- story ---- */
+    function newStory() {
+      const pool = PROBLEMS.filter((p) => p.story && p.ask !== 'perim');
+      // include some perimeter traps as "what is area" only for story area mode
+      const areaOnes = PROBLEMS.filter((p) => p.story && (!p.ask || p.ask === 'area'));
+      storyP = areaOnes[(Math.random() * areaOnes.length) | 0];
+      const a = area(storyP.width, storyP.height);
+      document.getElementById('storyPrompt').innerHTML =
+        `<span class="tag">${storyP.context}</span><br>${storyP.story}<br><small style="font-weight:700;color:#64748b">หน่วย: ตาราง${storyP.unit === 'ช่อง' ? 'ช่อง' : storyP.unit.replace('.', '')}</small>`;
+      if (storyP.unit === 'ช่อง' || (storyP.width <= 8 && storyP.height <= 6)) {
+        document.getElementById('storyGridWrap').style.display = 'flex';
+        renderGrid(document.getElementById('storyGrid'), storyP.width, storyP.height, false);
+      } else {
+        document.getElementById('storyGridWrap').style.display = 'none';
+      }
+      document.getElementById('storyFb').textContent = '';
+      document.getElementById('storyFb').className = 'fb';
+      const opts = new Set([a, ...(storyP.distractors || [])]);
+      // ensure perimeter trap distractor often appears
+      opts.add(peri(storyP.width, storyP.height));
+      const box = document.getElementById('storyChoices');
+      box.innerHTML = '';
+      shuffle([...opts]).slice(0, 4).forEach((n) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'choice';
+        b.textContent = n + (storyP.unit === 'ช่อง' ? ' ช่อง' : ' ตร.' + storyP.unit.replace('.', ''));
+        b.onclick = () => {
+          if (b.dataset.locked) return;
+          if (n === a) {
+            b.classList.add('ok');
+            document.getElementById('storyFb').className = 'fb ok';
+            document.getElementById('storyFb').textContent = `ถูกต้อง! พื้นที่ = ${storyP.width}×${storyP.height}=${a}`;
+            ding(true);
+            box.querySelectorAll('.choice').forEach((c) => { c.dataset.locked = '1'; });
+          } else {
+            b.classList.add('bad');
+            setTimeout(() => b.classList.remove('bad'), 400);
+            const trap = n === peri(storyP.width, storyP.height);
+            document.getElementById('storyFb').className = 'fb no';
+            document.getElementById('storyFb').textContent = trap
+              ? 'นั่นคือเส้นรอบรูป ไม่ใช่พื้นที่!'
+              : 'ยังไม่ถูก — ใช้สูตร ก×ย';
+            ding(false);
+          }
+        };
+        box.appendChild(b);
+      });
+    }
+    document.getElementById('btnStoryNext').onclick = () => newStory();
+    document.getElementById('btnStoryReveal').onclick = () => {
+      const a = area(storyP.width, storyP.height);
+      document.getElementById('storyFb').className = 'fb ok';
+      document.getElementById('storyFb').textContent = `เฉลย: ${storyP.width}×${storyP.height}=${a} (เส้นรอบรูป=${peri(storyP.width, storyP.height)})`;
+    };
+
+    /* ---- vs area/perimeter ---- */
+    function newVs() {
+      const pool = PROBLEMS.filter((p) => p.width <= 8 && p.height <= 8);
+      const base = pool[(Math.random() * pool.length) | 0];
+      const askArea = Math.random() < 0.5;
+      vsP = {
+        ...base,
+        askArea,
+        area: area(base.width, base.height),
+        peri: peri(base.width, base.height),
+      };
+      const q = askArea
+        ? `สี่เหลี่ยมกว้าง ${base.width} ${base.unit} ยาว ${base.height} ${base.unit} — <strong>พื้นที่</strong>เท่าไร?`
+        : `สี่เหลี่ยมกว้าง ${base.width} ${base.unit} ยาว ${base.height} ${base.unit} — <strong>เส้นรอบรูป</strong>เท่าไร?`;
+      document.getElementById('vsPrompt').innerHTML = q;
+      renderGrid(document.getElementById('vsGrid'), base.width, base.height, false);
+      document.getElementById('vsFb').textContent = '';
+      document.getElementById('vsFb').className = 'fb';
+      const correct = askArea ? vsP.area : vsP.peri;
+      const wrong = askArea ? vsP.peri : vsP.area;
+      const opts = shuffle([correct, wrong, base.width + base.height, correct + 2].filter((v, i, a) => a.indexOf(v) === i)).slice(0, 4);
+      if (!opts.includes(correct)) opts[0] = correct;
+      const box = document.getElementById('vsChoices');
+      box.innerHTML = '';
+      shuffle(opts).forEach((n) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'choice';
+        b.textContent = String(n);
+        b.onclick = () => {
+          if (b.dataset.locked) return;
+          if (n === correct) {
+            b.classList.add('ok');
+            document.getElementById('vsFb').className = 'fb ok';
+            document.getElementById('vsFb').textContent = askArea
+              ? `ถูกต้อง! พื้นที่=${vsP.area} (ก×ย) — เส้นรอบรูป=${vsP.peri}`
+              : `ถูกต้อง! เส้นรอบรูป=${vsP.peri} = 2(${base.width}+${base.height}) — พื้นที่=${vsP.area}`;
+            ding(true);
+            box.querySelectorAll('.choice').forEach((c) => { c.dataset.locked = '1'; });
+          } else {
+            b.classList.add('bad');
+            setTimeout(() => b.classList.remove('bad'), 400);
+            document.getElementById('vsFb').className = 'fb no';
+            document.getElementById('vsFb').textContent = n === wrong
+              ? (askArea ? 'นั่นเส้นรอบรูป — คำถามถามพื้นที่!' : 'นั่นพื้นที่ — คำถามถามเส้นรอบรูป!')
+              : 'ยังไม่ถูก';
+            ding(false);
+          }
+        };
+        box.appendChild(b);
+      });
+    }
+    document.getElementById('btnVsNext').onclick = () => newVs();
+    document.getElementById('btnVsReveal').onclick = () => {
+      document.getElementById('vsFb').className = 'fb ok';
+      document.getElementById('vsFb').textContent = vsP.askArea
+        ? `เฉลยพื้นที่: ${vsP.area} (เส้นรอบรูป=${vsP.peri})`
+        : `เฉลยเส้นรอบรูป: ${vsP.peri} (พื้นที่=${vsP.area})`;
+    };
+  </script>
+</body>
+</html>

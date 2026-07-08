@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>เศรษฐกิจพอเพียง — สื่อการสอน — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --deep: #166534; --line: #86efac; --muted: #64748b; --ok: #16a34a; --bad: #dc2626; --cream: #f0fdf4; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(160deg, #dcfce7, #bbf7d0); min-height: 100%; padding: 12px; color: #0f172a; }
+    .shell { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+    header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #14532d, #16a34a); color: #fff; }
+    header h1 { font-size: 1.1rem; font-weight: 800; flex: 1; min-width: 140px; }
+    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn:active { transform: scale(.97); }
+    .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
+    .btn-primary { background: var(--deep); color: #fff; }
+    .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 16px; background: var(--cream); border-bottom: 1px solid var(--line); align-items: center; }
+    .seg { display: inline-flex; flex-wrap: wrap; border-radius: 12px; overflow: hidden; border: 2px solid #4ade80; }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 12px; cursor: pointer; font-size: .82rem; }
+    .seg button.on { background: var(--deep); color: #fff; }
+    .hint { font-size: .85rem; color: #166534; font-weight: 600; flex: 1; min-width: 120px; }
+    .stage { flex: 1; padding: 16px; overflow: auto; }
+    .panel { display: none; flex-direction: column; gap: 14px; max-width: 960px; margin: 0 auto; }
+    .panel.on { display: flex; }
+    .rings { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; align-items: center; margin-bottom: 8px; }
+    .ring { width: 140px; height: 140px; border-radius: 50%; border: 5px solid; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; background: #fff; padding: 10px; transition: transform .15s; }
+    .ring:hover { transform: scale(1.04); }
+    .ring.on { box-shadow: 0 0 0 4px #166534; }
+    .ring .e { font-size: 1.8rem; }
+    .ring .t { font-weight: 800; font-size: .85rem; color: var(--deep); }
+    .conds { display: grid; gap: 10px; }
+    @media (min-width: 600px) { .conds { grid-template-columns: 1fr 1fr; } }
+    .cond-card, .pillar-card { border: 2px solid var(--line); border-radius: 14px; padding: 14px; background: var(--cream); }
+    .cond-card h3, .pillar-card h3 { color: var(--deep); font-weight: 800; margin-bottom: 6px; }
+    .cond-card p, .pillar-card p { font-weight: 600; line-height: 1.5; }
+    .match-layout { display: grid; gap: 12px; }
+    @media (min-width: 750px) { .match-layout { grid-template-columns: 1fr 1fr; } }
+    .pool { display: flex; flex-direction: column; gap: 8px; }
+    .pool .f-btn { font-family: inherit; border: 2px solid var(--line); background: #fff; border-radius: 12px; padding: 12px; cursor: pointer; font-weight: 700; color: #14532d; text-align: left; line-height: 1.4; }
+    .pool .f-btn.sel { box-shadow: 0 0 0 3px var(--deep); }
+    .pool .f-btn.used { opacity: .35; pointer-events: none; }
+    .boxes { display: flex; flex-direction: column; gap: 8px; }
+    .box { border: 2px dashed var(--line); border-radius: 12px; padding: 10px; min-height: 64px; background: var(--cream); }
+    .box h4 { font-size: .9rem; font-weight: 800; color: var(--deep); margin-bottom: 4px; }
+    .chip { background: #fff; border: 2px solid var(--line); border-radius: 10px; padding: 6px 10px; font-weight: 700; font-size: .8rem; display: inline-block; margin: 2px; }
+    .chip.ok { border-color: #86efac; background: #dcfce7; }
+    .chip.no { border-color: #fca5a5; background: #fee2e2; }
+    .q-box { text-align: center; max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+    .q-text { font-weight: 800; font-size: 1.1rem; color: var(--deep); line-height: 1.5; }
+    .opts { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+    .opt { font-family: inherit; font-weight: 700; padding: 12px; border: 2px solid var(--line); border-radius: 12px; background: #fff; cursor: pointer; text-align: left; line-height: 1.4; }
+    .opt.ok { background: #dcfce7; border-color: #86efac; }
+    .opt.no { background: #fee2e2; border-color: #fca5a5; }
+    .plan { display: flex; flex-direction: column; gap: 12px; max-width: 520px; margin: 0 auto; width: 100%; }
+    .plan label { font-weight: 800; color: var(--deep); font-size: .9rem; }
+    .plan select, .plan textarea, .plan input { font-family: inherit; font-weight: 600; width: 100%; border: 2px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: 1rem; }
+    .plan textarea { min-height: 80px; resize: vertical; }
+    .saved { background: var(--cream); border: 2px dashed var(--line); border-radius: 12px; padding: 12px; font-weight: 600; line-height: 1.5; }
+    .fb { text-align: center; font-weight: 800; min-height: 24px; }
+    .fb.ok { color: var(--ok); }
+    .fb.no { color: var(--bad); }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .footer { padding: 10px 16px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
+      <h1>🌿 เศรษฐกิจพอเพียง</h1>
+      <span class="badge">ป.4–6 · สังคมศึกษา</span>
+    </header>
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
+        <button type="button" data-mode="match">🔗 จับคู่</button>
+        <button type="button" data-mode="scene">🎭 สถานการณ์</button>
+        <button type="button" data-mode="plan">📝 แผนของฉัน</button>
+      </span>
+      <p class="hint" id="hintText">แตะห่วง 3 ห่วงและเงื่อนไข 2 ข้อเพื่ออ่านความหมาย</p>
+      <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
+    </div>
+    <div class="stage">
+      <div class="panel on" id="p-learn"></div>
+      <div class="panel" id="p-match"></div>
+      <div class="panel" id="p-scene"></div>
+      <div class="panel" id="p-plan"></div>
+    </div>
+    <footer class="footer">ตัวชี้วัด <strong>ส 3.1 ป.4/3</strong> · หลักปรัชญาของเศรษฐกิจพอเพียง</footer>
+  </div>
+  <script>
+    const MEDIA_SLUG = 'sufficiency-media';
+    if (window.KAMPAI) KAMPAI.setSlug(MEDIA_SLUG);
+    const LS_KEY = 'kampai-sufficiency-plan';
+
+    const PILLARS = [
+      { id: 'moderation', nameTh: 'ความพอประมาณ', emoji: '⚖️', color: '#22c55e', meaning: 'ใช้จ่ายและทำสิ่งต่าง ๆ พอดี ไม่ฟุ่มเฟือยและไม่ขาดแคลนเกินไป', kidExample: 'ได้เงินค่าขนมแล้วแบ่ง: กินบ้าง ออมบ้าง ไม่ซื้อของหมดในวันเดียว' },
+      { id: 'reasonableness', nameTh: 'มีเหตุผล', emoji: '🧠', color: '#3b82f6', meaning: 'ตัดสินใจโดยคิดเหตุผล ผลกระทบต่อตัวเอง ครอบครัว และสิ่งแวดล้อม', kidExample: 'อยากได้ของเล่นแพง → เปรียบเทียบราคา คิดว่าจำเป็นจริงไหม' },
+      { id: 'immunity', nameTh: 'มีภูมิคุ้มกัน', emoji: '🛡️', color: '#f59e0b', meaning: 'พร้อมรับความเปลี่ยนแปลง มีสำรอง เช่น ออมเงิน เรียนรู้ทักษะใหม่', kidExample: 'เก็บออมไว้เวลาของเสียหรือมีเหตุฉุกเฉิน จะได้ไม่เดือดร้อน' },
+    ];
+
+    const CONDITIONS = [
+      { id: 'knowledge', nameTh: 'เงื่อนไขความรู้', emoji: '📚', meaning: 'ใช้ความรู้ถูกต้อง เช่น เรียนรู้ก่อนตัดสินใจ อ่านข้อมูล เปรียบเทียบทางเลือก' },
+      { id: 'virtue', nameTh: 'เงื่อนไขคุณธรรม', emoji: '💚', meaning: 'ซื่อสัตย์ ขยัน อดทน แบ่งปัน — ทำสิ่งที่ถูกต้องไม่เอาเปรียบผู้อื่น' },
+    ];
+
+    const MATCH_ITEMS = [
+      { id: 'm1', text: 'ไม่ซื้อของเกินจำเป็น แบ่งออมและใช้พอดี', target: 'moderation' },
+      { id: 'm2', text: 'คิดผลกระทบก่อนเลือก เช่น น้ำไฟแพงไหม', target: 'reasonableness' },
+      { id: 'm3', text: 'มีเงินออมหรือแผนสำรองเมื่อเกิดเหตุฉุกเฉิน', target: 'immunity' },
+      { id: 'm4', text: 'เรียนรู้และหาข้อมูลก่อนตัดสินใจ', target: 'knowledge' },
+      { id: 'm5', text: 'ซื่อสัตย์ ขยัน แบ่งปัน ไม่โกง', target: 'virtue' },
+    ];
+
+    const SCENARIOS = [
+      { id: 's1', situation: 'ได้เงินค่าขนม 50 บาท มีของเล่นที่อยากได้ราคา 45 บาท', choices: [
+        { text: 'ซื้อหมดเลย ไม่เก็บเหลือ', ok: false, why: 'ใช้หมดทันที = ไม่พอประมาณและขาดภูมิคุ้มกัน' },
+        { text: 'แบ่งออมส่วนหนึ่ง ซื้อของชิ้นเล็กหรือรอสะสม', ok: true, pillar: 'moderation', why: 'พอประมาณ + มีสำรอง = ภูมิคุ้มกัน' },
+        { text: 'ยืมเงินเพื่อนมาซื้อเพิ่ม', ok: false, why: 'สร้างภาระ ไม่มีเหตุผลที่ดี' },
+      ]},
+      { id: 's2', situation: 'อยากได้รองเท้าผ้าใบยี่ห้อดังที่แพงมาก ทั้งที่มีคู่ใช้ได้อยู่', choices: [
+        { text: 'ขอให้พ่อแม่ซื้อทันทีเพราะเพื่อนมี', ok: false, why: 'ตามคนอื่นโดยไม่คิดเหตุผล' },
+        { text: 'เปรียบเทียบราคา คิดว่าจำเป็นไหม คุยกับผู้ใหญ่', ok: true, pillar: 'reasonableness', why: 'มีเหตุผล ใช้ความรู้ประกอบการตัดสินใจ' },
+        { text: 'ร้องไห้จนกว่าจะได้', ok: false, why: 'ไม่ฝึกอดทนและคุณธรรม' },
+      ]},
+      { id: 's3', situation: 'แม่แนะนำให้เก็บเงินทุกสัปดาห์ในกระปุก', choices: [
+        { text: 'เก็บสม่ำเสมอแม้ได้น้อย', ok: true, pillar: 'immunity', why: 'การออมสร้างภูมิคุ้มกันทางเศรษฐกิจ' },
+        { text: 'ไม่เก็บ เพราะได้น้อยอยู่แล้ว', ok: false, why: 'พลาดโอกาสฝึกนิสัยออม' },
+        { text: 'เก็บแล้วใช้หมดทุกคืน', ok: false, why: 'ไม่ได้เป็นภูมิคุ้มกันจริง' },
+      ]},
+      { id: 's4', situation: 'เพื่อนขอให้ช่วยเก็บขยะในห้องเรียนหลังเลิกเรียน', choices: [
+        { text: 'ช่วยทำความสะอาดด้วยความเต็มใจ', ok: true, pillar: 'virtue', why: 'คุณธรรม: ขยัน แบ่งปัน รับผิดชอบส่วนรวม' },
+        { text: 'แอบหนีไปเล่น', ok: false, why: 'ไม่รับผิดชอบ' },
+        { text: 'ช่วยแล้วทิ้งขยะใต้โต๊ะแทน', ok: false, why: 'ทำไม่ถูกต้อง' },
+      ]},
+      { id: 's5', situation: 'เปิดแอร์และไฟทั้งห้องทั้งที่ไม่ได้อยู่', choices: [
+        { text: 'ปิดเมื่อไม่ใช้ เพื่อประหยัด', ok: true, pillar: 'moderation', why: 'ใช้ทรัพยากรพอประมาณ มีเหตุผลด้านค่าใช้จ่าย' },
+        { text: 'เปิดทิ้งไว้เพราะลืมบ่อย', ok: false, why: 'ฟุ่มเฟือย' },
+        { text: 'เปิดทุกห้องพร้อมกันให้เท่', ok: false, why: 'เกินความจำเป็น' },
+      ]},
+      { id: 's6', situation: 'มีขนมชิ้นเดียว เพื่อนข้าง ๆ ไม่มี', choices: [
+        { text: 'แบ่งครึ่งให้เพื่อน', ok: true, pillar: 'virtue', why: 'คุณธรรม: แบ่งปันและมีน้ำใจ' },
+        { text: 'กินคนเดียวแล้วเย้ยเพื่อน', ok: false, why: 'ขาดน้ำใจ' },
+        { text: 'ขายให้เพื่อนราคาแพง', ok: false, why: 'เอาเปรียบเพื่อน' },
+      ]},
+      { id: 's7', situation: 'ครอบครัวอยากปลูกผักสวนครัวหลังบ้าน', choices: [
+        { text: 'ช่วยปลูก เรียนรู้และได้ผักกินเอง', ok: true, pillar: 'immunity', why: 'พึ่งพาตนเองได้บางส่วน + เพิ่มความรู้' },
+        { text: 'ไม่สนใจ เพราะซื้อตลาดได้', ok: false, why: 'พลาดทักษะพึ่งตนเอง' },
+        { text: 'ซื้อผักอย่างเดียวไม่เรียนอะไร', ok: false, why: 'ไม่ได้สร้างความรู้หรือภูมิคุ้มกัน' },
+      ]},
+      { id: 's8', situation: 'จะซื้อของออนไลน์ราคาถูก แต่ไม่รู้ร้านเชื่อถือได้ไหม', choices: [
+        { text: 'ถามผู้ใหญ่และอ่านรีวิวจริงก่อนซื้อ', ok: true, pillar: 'knowledge', why: 'ใช้เงื่อนไขความรู้ก่อนตัดสินใจ' },
+        { text: 'กดซื้อทันทีเพราะลด 90%', ok: false, why: 'เสี่ยงถูกหลอก ไม่มีเหตุผลรอบคอบ' },
+        { text: 'ให้เพื่อนกดแทนโดยไม่ดู', ok: false, why: 'ขาดการตรวจสอบ' },
+      ]},
+      { id: 's9', situation: 'เพื่อนขอยืมเงินค่าขนมแล้วบอกว่าจะคืน พรุ่งนี้ แต่เคยไม่คืนมาก่อน', choices: [
+        { text: 'ปฏิเสธอย่างสุภาพ หรือให้แต่จำนวนที่เสียได้', ok: true, pillar: 'reasonableness', why: 'คิดเหตุผลจากประสบการณ์ มีภูมิคุ้มกัน' },
+        { text: 'ให้ทั้งหมดทั้งที่ต้องใช้เอง', ok: false, why: 'ไม่พอประมาณต่อตัวเอง' },
+        { text: 'โกหกว่าไม่มีทั้งที่มี', ok: false, why: 'ขาดความซื่อสัตย์ในคำพูด' },
+      ]},
+      { id: 's10', situation: 'กินขนมเสร็จ อยู่ใกล้ถังขยะ', choices: [
+        { text: 'ทิ้งขยะลงถัง และแยกถ้าทำได้', ok: true, pillar: 'virtue', why: 'คุณธรรมและความรับผิดชอบต่อส่วนรวม' },
+        { text: 'โยนลงพื้น เพราะเหนื่อย', ok: false, why: 'ทำลายสิ่งแวดล้อม' },
+        { text: 'ซ่อนใต้โต๊ะ', ok: false, why: 'ไม่ซื่อสัตย์และสกปรก' },
+      ]},
+      { id: 's11', situation: 'สอบได้คะแนนดี ได้รางวัลเป็นเงิน', choices: [
+        { text: 'แบ่งออม แบ่งใช้พอดี อาจแบ่งปันครอบครัว', ok: true, pillar: 'moderation', why: 'พอประมาณ มีคุณธรรมและภูมิคุ้มกัน' },
+        { text: 'ซื้อขนมมากจนท้องเสีย', ok: false, why: 'เกินพอดี' },
+        { text: 'ใช้หมดในวันเดียวโชว์เพื่อน', ok: false, why: 'ฟุ่มเฟือยเพื่ออวด' },
+      ]},
+    ];
+
+    function shuffle(a) {
+      a = a.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = (Math.random() * (i + 1)) | 0;
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+    function speak(t) {
+      if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.speak) KAMPAI.sound.speak(t, 'th-TH');
+      else if (window.speechSynthesis) {
+        const u = new SpeechSynthesisUtterance(t);
+        u.lang = 'th-TH';
+        speechSynthesis.speak(u);
+      }
+    }
+    function pillarById(id) { return PILLARS.find((p) => p.id === id) || CONDITIONS.find((c) => c.id === id); }
+    function labelOf(id) {
+      const p = PILLARS.find((x) => x.id === id);
+      if (p) return p.emoji + ' ' + p.nameTh;
+      const c = CONDITIONS.find((x) => x.id === id);
+      return c ? c.emoji + ' ' + c.nameTh : id;
+    }
+
+    let mode = 'learn', selPillar = 'moderation';
+    let matchSel = null, matchPlaced = {}, matchChecked = false;
+    let scene = null, sceneDone = false;
+    let planArea = 'เงินออม', planText = '', planSaved = null;
+
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      if (raw) planSaved = JSON.parse(raw);
+    } catch (e) {}
+
+    const hints = {
+      learn: 'แตะห่วง 3 ห่วงและอ่านเงื่อนไขความรู้–คุณธรรม',
+      match: 'แตะคำอธิบาย แล้วแตะห่วง/เงื่อนไขที่ตรงกัน',
+      scene: 'เลือกทางเลือกที่มีเหตุผลตามหลักพอเพียง',
+      plan: 'วางแผนสัปดาห์นี้แล้วบันทึกไว้ในเครื่องนี้',
+    };
+
+    function setMode(m) {
+      mode = m;
+      document.querySelectorAll('#modeSeg button').forEach((b) => b.classList.toggle('on', b.dataset.mode === m));
+      document.querySelectorAll('.panel').forEach((p) => p.classList.remove('on'));
+      document.getElementById('p-' + m).classList.add('on');
+      document.getElementById('hintText').textContent = hints[m];
+      if (m === 'learn') renderLearn();
+      if (m === 'match') { if (!Object.keys(matchPlaced).length) resetMatch(); else renderMatch(); }
+      if (m === 'scene') { if (!scene) nextScene(); else renderScene(); }
+      if (m === 'plan') renderPlan();
+    }
+
+    function renderLearn() {
+      const el = document.getElementById('p-learn');
+      const p = PILLARS.find((x) => x.id === selPillar) || PILLARS[0];
+      el.innerHTML =
+        '<div class="rings">' + PILLARS.map((x) =>
+          '<button type="button" class="ring' + (selPillar === x.id ? ' on' : '') + '" data-id="' + x.id + '" style="border-color:' + x.color + '">' +
+          '<div class="e">' + x.emoji + '</div><div class="t">' + x.nameTh + '</div></button>'
+        ).join('') + '</div>' +
+        '<div class="pillar-card"><h3>' + p.emoji + ' ' + p.nameTh + '</h3>' +
+        '<p>' + p.meaning + '</p><p style="margin-top:8px">👧 ตัวอย่างเด็ก: ' + p.kidExample + '</p>' +
+        '<button type="button" class="btn btn-ghost" id="btnSpeakP" style="margin-top:10px">🔊 อ่าน</button></div>' +
+        '<div class="conds">' + CONDITIONS.map((c) =>
+          '<div class="cond-card"><h3>' + c.emoji + ' ' + c.nameTh + '</h3><p>' + c.meaning + '</p></div>'
+        ).join('') + '</div>' +
+        '<p style="text-align:center;font-weight:700;color:var(--muted);font-size:.9rem">📌 3 ห่วงตั้งอยู่บน 2 เงื่อนไข: ความรู้ และคุณธรรม</p>';
+      el.querySelectorAll('.ring').forEach((b) => {
+        b.onclick = function () {
+          selPillar = b.dataset.id;
+          speak(PILLARS.find((x) => x.id === selPillar).nameTh);
+          renderLearn();
+        };
+      });
+      document.getElementById('btnSpeakP').onclick = function () { speak(p.nameTh + ' ' + p.meaning); };
+    }
+
+    function resetMatch() {
+      matchSel = null; matchPlaced = {}; matchChecked = false; renderMatch();
+    }
+
+    function renderMatch() {
+      const el = document.getElementById('p-match');
+      const targets = ['moderation', 'reasonableness', 'immunity', 'knowledge', 'virtue'];
+      const rem = MATCH_ITEMS.filter((m) => !matchPlaced[m.id]);
+      el.innerHTML =
+        '<div class="match-layout"><div class="boxes">' + targets.map((t) => {
+          const items = MATCH_ITEMS.filter((m) => matchPlaced[m.id] === t);
+          return '<div class="box" data-t="' + t + '"><h4>' + labelOf(t) + '</h4>' +
+            items.map((m) => {
+              let cls = 'chip';
+              if (matchChecked) cls += m.target === t ? ' ok' : ' no';
+              return '<span class="' + cls + '">' + m.text + '</span>';
+            }).join('') + '</div>';
+        }).join('') + '</div><div class="pool">' + rem.map((m) =>
+          '<button type="button" class="f-btn' + (matchSel === m.id ? ' sel' : '') + '" data-id="' + m.id + '">' + m.text + '</button>'
+        ).join('') + '<p class="fb" id="matchFb"></p>' +
+        '<div class="actions"><button type="button" class="btn btn-primary" id="btnMatchCheck">ตรวจ</button>' +
+        '<button type="button" class="btn btn-ghost" id="btnMatchReset">🔄</button></div></div></div>';
+      el.querySelectorAll('.pool .f-btn').forEach((b) => {
+        b.onclick = function () { matchSel = b.dataset.id; matchChecked = false; renderMatch(); };
+      });
+      el.querySelectorAll('.box').forEach((box) => {
+        box.onclick = function () {
+          if (!matchSel || matchChecked) return;
+          matchPlaced[matchSel] = box.dataset.t;
+          matchSel = null;
+          renderMatch();
+        };
+      });
+      document.getElementById('btnMatchReset').onclick = resetMatch;
+      document.getElementById('btnMatchCheck').onclick = function () {
+        if (Object.keys(matchPlaced).length < MATCH_ITEMS.length) {
+          document.getElementById('matchFb').className = 'fb no';
+          document.getElementById('matchFb').textContent = 'จับคู่ให้ครบก่อน';
+          return;
+        }
+        matchChecked = true;
+        let ok = 0;
+        MATCH_ITEMS.forEach((m) => { if (matchPlaced[m.id] === m.target) ok++; });
+        renderMatch();
+        const fb = document.getElementById('matchFb');
+        fb.className = 'fb ' + (ok === MATCH_ITEMS.length ? 'ok' : 'no');
+        fb.textContent = ok === MATCH_ITEMS.length ? '✅ ถูกต้องทั้งหมด!' : 'ถูก ' + ok + '/' + MATCH_ITEMS.length;
+      };
+    }
+
+    function nextScene() {
+      scene = SCENARIOS[(Math.random() * SCENARIOS.length) | 0];
+      sceneDone = false;
+      renderScene();
+    }
+
+    function renderScene() {
+      const el = document.getElementById('p-scene');
+      const choices = shuffle(scene.choices);
+      el.innerHTML =
+        '<div class="q-box"><p class="q-text">🎭 ' + scene.situation + '</p><div class="opts">' +
+        choices.map((c, i) => '<button type="button" class="opt" data-i="' + i + '">' + c.text + '</button>').join('') +
+        '</div><p class="fb" id="scFb"></p>' +
+        '<div class="actions"><button type="button" class="btn btn-primary" id="btnScNext">สถานการณ์ถัดไป</button></div></div>';
+      const btns = el.querySelectorAll('.opt');
+      btns.forEach((b, i) => {
+        b.onclick = function () {
+          if (sceneDone) return;
+          sceneDone = true;
+          const choice = choices[i];
+          btns.forEach((x, j) => {
+            if (choices[j].ok) x.classList.add('ok');
+            else if (x === b) x.classList.add('no');
+          });
+          const fb = document.getElementById('scFb');
+          let extra = '';
+          if (choice.ok && choice.pillar) {
+            const p = PILLARS.find((x) => x.id === choice.pillar) || CONDITIONS.find((x) => x.id === choice.pillar);
+            if (p) extra = ' · ตรงกับ「' + p.nameTh + '」';
+          }
+          fb.className = 'fb ' + (choice.ok ? 'ok' : 'no');
+          fb.textContent = (choice.ok ? '✅ ' : '❌ ') + choice.why + extra;
+          speak(choice.ok ? 'เลือกได้ดี' : choice.why);
+        };
+      });
+      document.getElementById('btnScNext').onclick = nextScene;
+    }
+
+    function renderPlan() {
+      const el = document.getElementById('p-plan');
+      const areas = ['เงินออม', 'ใช้น้ำไฟ', 'แบ่งปัน', 'เรียนเพิ่ม', 'กินพอดี', 'ช่วยงานบ้าน'];
+      let savedHtml = planSaved
+        ? '<div class="saved"><strong>แผนที่บันทึกไว้:</strong><br>ด้าน: ' + planSaved.area + '<br>' + planSaved.text +
+          '<br><small style="color:var(--muted)">บันทึกเมื่อ ' + (planSaved.at || '') + '</small></div>'
+        : '<div class="saved" style="color:var(--muted)">ยังไม่มีแผนที่บันทึก</div>';
+      el.innerHTML =
+        '<div class="plan">' +
+        '<label>สัปดาห์นี้ฉันจะพอเพียงด้าน…</label>' +
+        '<select id="planArea">' + areas.map((a) => '<option' + (planArea === a ? ' selected' : '') + '>' + a + '</option>').join('') + '</select>' +
+        '<label>แผนของฉัน (เขียนสั้น ๆ)</label>' +
+        '<textarea id="planText" placeholder="เช่น เก็บเงินวันละ 5 บาท ใส่กระปุก">' + (planText || (planSaved && planSaved.text) || '') + '</textarea>' +
+        '<div class="actions"><button type="button" class="btn btn-primary" id="btnSavePlan">💾 บันทึกในเครื่องนี้</button>' +
+        '<button type="button" class="btn btn-ghost" id="btnClearPlan">ลบที่บันทึก</button></div>' +
+        savedHtml +
+        '<p style="font-size:.8rem;color:var(--muted);text-align:center">ข้อมูลเก็บใน localStorage ของเบราว์เซอร์นี้เท่านั้น ไม่ส่งขึ้นเซิร์ฟเวอร์</p></div>';
+      document.getElementById('planArea').onchange = function (e) { planArea = e.target.value; };
+      document.getElementById('planText').oninput = function (e) { planText = e.target.value; };
+      document.getElementById('btnSavePlan').onclick = function () {
+        planArea = document.getElementById('planArea').value;
+        planText = document.getElementById('planText').value.trim();
+        if (!planText) { alert('เขียนแผนสั้น ๆ ก่อนนะ'); return; }
+        planSaved = { area: planArea, text: planText, at: new Date().toLocaleString('th-TH') };
+        try { localStorage.setItem(LS_KEY, JSON.stringify(planSaved)); } catch (e) {}
+        speak('บันทึกแผนแล้ว');
+        renderPlan();
+      };
+      document.getElementById('btnClearPlan').onclick = function () {
+        planSaved = null; planText = '';
+        try { localStorage.removeItem(LS_KEY); } catch (e) {}
+        renderPlan();
+      };
+    }
+
+    document.getElementById('modeSeg').onclick = function (e) {
+      const b = e.target.closest('button[data-mode]');
+      if (b) setMode(b.dataset.mode);
+    };
+    document.getElementById('btnFs').onclick = function () {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(function () {});
+      else document.exitFullscreen();
+    };
+
+    setMode('learn');
+  </script>
+</body>
+</html>
