@@ -164,19 +164,25 @@ const EducationalHubTeacher = () => {
     }, [allItems, filter]);
 
     const sortNonGameItems = (arr: EduHubItem[]) => {
+        const pinned = arr
+            .filter((i) => i.library_pinned)
+            .sort((a, b) => (a.library_pin_order ?? 0) - (b.library_pin_order ?? 0));
+        const unpinned = arr.filter((i) => !i.library_pinned);
+
+        let sortedUnpinned = [...unpinned];
         if (sort === 'newest') {
-            return [...arr].sort((a, b) => (b.created_at > a.created_at ? 1 : -1));
+            sortedUnpinned.sort((a, b) => (b.created_at > a.created_at ? 1 : -1));
+        } else if (sort === 'popular') {
+            sortedUnpinned.sort((a, b) => b.view_count - a.view_count);
+        } else if (sort === 'alpha') {
+            sortedUnpinned.sort((a, b) => a.title.localeCompare(b.title, 'th'));
+        } else {
+            sortedUnpinned.sort((a, b) => {
+                if (a.sort_order !== b.sort_order) return a.sort_order - b.sort_order;
+                return b.created_at.localeCompare(a.created_at);
+            });
         }
-        if (sort === 'popular') {
-            return [...arr].sort((a, b) => b.view_count - a.view_count);
-        }
-        if (sort === 'alpha') {
-            return [...arr].sort((a, b) => a.title.localeCompare(b.title, 'th'));
-        }
-        return [...arr].sort((a, b) => {
-            if (a.sort_order !== b.sort_order) return a.sort_order - b.sort_order;
-            return b.created_at.localeCompare(a.created_at);
-        });
+        return [...pinned, ...sortedUnpinned];
     };
 
     const itemsByCategory = useMemo(() => {

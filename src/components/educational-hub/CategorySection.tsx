@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import * as Icons from 'lucide-react';
-import { Inbox, GripVertical, Loader2 } from 'lucide-react';
 import {
     DndContext,
     PointerSensor,
@@ -9,6 +8,7 @@ import {
     closestCenter,
     type DragEndEvent,
 } from '@dnd-kit/core';
+import { Inbox, GripVertical, Loader2, Pin } from 'lucide-react';
 import {
     SortableContext,
     arrayMove,
@@ -82,15 +82,24 @@ export const CategorySection = ({
     const queryClient = useQueryClient();
     const itemIds = useMemo(() => items.map((it) => it.id), [items]);
     const { data: indicatorMap } = useGameCardIndicators(itemIds);
-    const [orderedItems, setOrderedItems] = useState(items);
+
+    const pinned = useMemo(() => items.filter((i) => i.library_pinned).sort((a, b) => (a.library_pin_order ?? 0) - (b.library_pin_order ?? 0)), [items]);
+    const unpinned = useMemo(() => items.filter((i) => !i.library_pinned), [items]);
+
+    const [orderedItems, setOrderedItems] = useState(unpinned);
+    const [orderedPinned, setOrderedPinned] = useState(pinned);
+    const [pinningId, setPinningId] = useState<string | null>(null);
     const [savingOrder, setSavingOrder] = useState(false);
 
     // Re-sync when parent items change (add/delete/external edit)
-    if (
-        items.length !== orderedItems.length ||
-        items.some((it, i) => it.id !== orderedItems[i]?.id || it.updated_at !== orderedItems[i]?.updated_at)
-    ) {
-        setOrderedItems(items);
+    const currentUnpinnedKey = unpinned.map(i => `${i.id}-${i.updated_at}`).join(',');
+    const orderedUnpinnedKey = orderedItems.map(i => `${i.id}-${i.updated_at}`).join(',');
+    const currentPinnedKey = pinned.map(i => `${i.id}-${i.updated_at}`).join(',');
+    const orderedPinnedKey = orderedPinned.map(i => `${i.id}-${i.updated_at}`).join(',');
+
+    if (currentUnpinnedKey !== orderedUnpinnedKey || currentPinnedKey !== orderedPinnedKey) {
+        setOrderedItems(unpinned);
+        setOrderedPinned(pinned);
     }
 
     // Sortable for the SECTION itself (controlled by parent DndContext in
@@ -132,7 +141,7 @@ export const CategorySection = ({
         const { error } = await educationalHubService.bulkUpdateSortOrder(updates);
         setSavingOrder(false);
         if (error) {
-            setOrderedItems(items);
+            setOrderedItems(unpinned);
             toast({ title: 'จัดลำดับล้มเหลว', description: error.message, variant: 'destructive' });
             return;
         }
@@ -141,30 +150,79 @@ export const CategorySection = ({
         toast({ title: 'บันทึกลำดับใหม่' });
     };
 
+    const handlePinnedDragEnd = async (e: DragEndEvent) => {
+        const { active, over } = e;
+        if (!over || active.id === over.id) return;
+        const oldIdx = orderedPinned.findIndex((it) => it.id === active.id);
+        const newIdx = orderedPinned.findIndex((it) => it.id === over.id);
+        if (oldIdx < 0 || newIdx < 0) return;
+
+        const next = arrayMove(orderedPinned, oldIdx, newIdx);
+        setOrderedPinned(next);
+
+        const updates = next.map((it, i) => ({ id: it.id, library_pin_order: (i + 1) * 10 }));
+        setSavingOrder(true);
+        const { error } = await educationalHubService.bulkUpdateLibraryPinOrder(updates);
+        setSavingOrder(false);
+        if (error) {
+            setOrderedPinned(pinned);
+            toast({ title: 'จัดลำดับล้มเหลว', description: error.message, variant: 'destructive' });
+            return;
+        }
+        await queryClient.invalidateQueries({ queryKey: ['edu-hub', 'items'] });
+        toast({ title: 'บันทึกลำดับสื่อปักหมุดแล้ว' });
+    };
+
+    const handleToggleLibraryPin = async (item: EduHubItem) => {
+        const nextPinned = !item.library_pinned;
+        setPinningId(item.id);
+        const { error } = await educationalHubService.toggleLibraryPin(
+            item.id,
+            nextPinned,
+            orderedPinned,
+        );
+        setPinningId(null);
+        if (error) {
+            toast({ title: 'อัปเดตไม่สำเร็จ', description: error.message, variant: 'destructive' });
+            return;
+        }
+        await queryClient.invalidateQueries({ queryKey: ['edu-hub', 'items'] });
+        toast({
+            title: nextPinned ? 'ปักหมุดคลังแล้ว' : 'ปลดหมุดคลังแล้ว',
+            description: `"${item.title}" — มีผลทุกเครื่อง`,
+        });
+    };
+
+    const renderCard = (item: EduHubItem, dragEditable: boolean) => (
+        <EduHubItemCard
+            key={item.id}
+            item={item}
+            viewMode={viewMode}
+            isFavorite={isFavorite?.(item.id) ?? false}
+            onToggleFavorite={onToggleFavorite ? () => onToggleFavorite(item.id) : undefined}
+            editable={dragEditable}
+            libraryPinned={!!item.library_pinned}
+            showLibraryPinControl={editable}
+            onToggleLibraryPin={editable ? () => handleToggleLibraryPin(item) : undefined}
+            libraryPinLoading={pinningId === item.id}
+            linkedIndicators={indicatorMap?.get(item.id)}
+        />
+    );
+
     const sectionClasses = cn(
         'scroll-mt-24 space-y-4',
         sectionSortable.isDragging && 'opacity-50',
     );
 
-    const itemsGrid = (
+    const pinnedGrid = (
         <div className={cn(GRID_CLASS[viewMode], 'relative')}>
-            {savingOrder && (
-                <div className="absolute top-0 right-0 z-10 inline-flex items-center gap-1 text-[10px] text-muted-foreground bg-background/80 px-2 py-1 rounded">
-                    <Loader2 className="h-3 w-3 animate-spin" />
-                    บันทึกลำดับ...
-                </div>
-            )}
-            {orderedItems.map((item) => (
-                <EduHubItemCard
-                    key={item.id}
-                    item={item}
-                    viewMode={viewMode}
-                    isFavorite={isFavorite?.(item.id) ?? false}
-                    onToggleFavorite={onToggleFavorite ? () => onToggleFavorite(item.id) : undefined}
-                    editable={editable && !!category}
-                    linkedIndicators={indicatorMap?.get(item.id)}
-                />
-            ))}
+            {orderedPinned.map((item) => renderCard(item, editable))}
+        </div>
+    );
+
+    const unpinnedGrid = (
+        <div className={cn(GRID_CLASS[viewMode], 'relative')}>
+            {orderedItems.map((item) => renderCard(item, editable))}
         </div>
     );
 
@@ -199,24 +257,87 @@ export const CategorySection = ({
                         )}
                     </div>
                     <span className="text-xs text-muted-foreground font-medium">
-                        {orderedItems.length} รายการ
+                        {items.length} รายการ
                     </span>
                 </header>
             )}
 
-            {orderedItems.length === 0 ? (
+            {editable && category && (
+                <p className="text-[11px] text-muted-foreground rounded-md border border-border bg-muted/30 px-3 py-2 leading-relaxed">
+                    <Pin className="inline h-3 w-3 mr-1 text-primary animate-pulse" />
+                    กด <strong>📌</strong> บนการ์ดเพื่อปักหมุด — ลากเรียงเฉพาะสื่อที่ปักไว้ — มีผล<strong>ทุกเครื่อง</strong>
+                </p>
+            )}
+
+            {items.length === 0 ? (
                 <div className="rounded-lg border border-dashed border-border bg-muted/20 py-10 px-4 flex flex-col items-center gap-2 text-muted-foreground">
                     <Inbox className="h-8 w-8 opacity-40" />
                     <p className="text-sm">ยังไม่มีในหมวดนี้</p>
                 </div>
-            ) : editable && category ? (
-                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleItemDragEnd}>
-                    <SortableContext items={orderedItems.map((it) => it.id)} strategy={rectSortingStrategy}>
-                        {itemsGrid}
-                    </SortableContext>
-                </DndContext>
             ) : (
-                itemsGrid
+                <div className="space-y-6">
+                    {(orderedPinned.length > 0 || editable) && category && (
+                        <div className="space-y-3">
+                            {editable && (
+                                <h3 className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                                    <Pin className="h-3.5 w-3.5 text-primary" />
+                                    สื่อการสอนปักหมุด
+                                    {orderedPinned.length > 0 && (
+                                        <span className="font-normal text-muted-foreground">
+                                            ({orderedPinned.length})
+                                        </span>
+                                    )}
+                                </h3>
+                            )}
+                            {orderedPinned.length === 0 && editable ? (
+                                <p className="text-xs text-muted-foreground italic">ยังไม่มีสื่อปักหมุด</p>
+                            ) : editable ? (
+                                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handlePinnedDragEnd}>
+                                    <SortableContext items={orderedPinned.map((it) => it.id)} strategy={rectSortingStrategy}>
+                                        <div className="relative">
+                                            {savingOrder && (
+                                                <div className="absolute top-0 right-0 z-10 inline-flex items-center gap-1 text-[10px] text-muted-foreground bg-background/80 px-2 py-1 rounded">
+                                                    <Loader2 className="h-3 w-3 animate-spin" />
+                                                    บันทึกลำดับ...
+                                                </div>
+                                            )}
+                                            {pinnedGrid}
+                                        </div>
+                                    </SortableContext>
+                                </DndContext>
+                            ) : (
+                                pinnedGrid
+                            )}
+                        </div>
+                    )}
+
+                    {orderedItems.length > 0 && (
+                        <div className="space-y-3">
+                            {editable && orderedPinned.length > 0 && (
+                                <h3 className="text-xs font-semibold text-muted-foreground">
+                                    สื่อการสอนทั่วไป ({orderedItems.length})
+                                </h3>
+                            )}
+                            {editable && category ? (
+                                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleItemDragEnd}>
+                                    <SortableContext items={orderedItems.map((it) => it.id)} strategy={rectSortingStrategy}>
+                                        <div className="relative">
+                                            {savingOrder && (
+                                                <div className="absolute top-0 right-0 z-10 inline-flex items-center gap-1 text-[10px] text-muted-foreground bg-background/80 px-2 py-1 rounded">
+                                                    <Loader2 className="h-3 w-3 animate-spin" />
+                                                    บันทึกลำดับ...
+                                                </div>
+                                            )}
+                                            {unpinnedGrid}
+                                        </div>
+                                    </SortableContext>
+                                </DndContext>
+                            ) : (
+                                unpinnedGrid
+                            )}
+                        </div>
+                    )}
+                </div>
             )}
         </section>
     );
