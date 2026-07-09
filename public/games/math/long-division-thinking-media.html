@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>สื่อการสอนการหารยาว — วิธีคิดทีละขั้น</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: linear-gradient(145deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+      color: #0f172a;
+    }
+    .shell {
+      width: 100%;
+      max-width: 1200px;
+      background: rgba(255,255,255,0.98);
+      border-radius: 1.75rem;
+      box-shadow: 0 24px 48px rgba(3, 105, 161, 0.15);
+      border: 1px solid rgba(255,255,255,0.8);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 90vh;
+    }
+    @media (min-width: 768px) { .shell { flex-direction: row; min-height: 85vh; } }
+    
+    .sidebar {
+      background: linear-gradient(180deg, #0369a1, #0284c7);
+      color: #fff;
+      padding: 24px;
+      width: 100%;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    @media (min-width: 768px) { .sidebar { width: 320px; } }
+    
+    .sidebar h2 { font-size: 1.35rem; font-weight: 800; margin-bottom: 2px; }
+    .btn-back {
+      background: rgba(255,255,255,0.15);
+      color: #e0f2fe;
+      border: 1px solid rgba(255,255,255,0.25);
+    }
+    .btn-back:hover { background: rgba(255,255,255,0.25); }
+    
+    .field-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #bae6fd;
+      margin-bottom: 4px;
+      display: block;
+    }
+    
+    .input-field {
+      width: 100%;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(186,230,253,0.4);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #fff;
+      text-align: center;
+      outline: none;
+    }
+    .input-field:focus {
+      border-color: #38bdf8;
+      background: rgba(255,255,255,0.18);
+    }
+    
+    .select-field {
+      width: 100%;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(186,230,253,0.4);
+      border-radius: 12px;
+      padding: 10px;
+      color: #fff;
+      font-family: inherit;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+    }
+    .select-field option {
+      color: #0f172a;
+      background: #fff;
+    }
+    
+    .btn {
+      font-family: inherit;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 14px;
+      cursor: pointer;
+      font-size: 1rem;
+      width: 100%;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn-random { background: #d97706; color: #fff; }
+    .btn-random:hover { background: #b45309; }
+    .btn-primary { background: #0284c7; color: #fff; }
+    .btn-primary:hover { background: #0369a1; }
+    .btn-ghost { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+    .btn-ghost:hover { background: rgba(255,255,255,0.2); }
+    
+    .hint { font-size: 0.8rem; color: #e0f2fe; line-height: 1.45; }
+    
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      background: #f8fafc;
+    }
+    
+    .content {
+      flex: 1;
+      padding: 24px;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .intro-banner {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 16px;
+      padding: 14px 20px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #0369a1;
+      line-height: 1.5;
+    }
+    
+    .workspace {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+    @media (min-width: 992px) {
+      .workspace { grid-template-columns: 1.2fr 1fr; }
+    }
+    
+    .board-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 420px;
+      overflow: auto;
+    }
+    
+    /* Grid System for Long Division */
+    .math-grid {
+      display: grid;
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: bold;
+      font-size: 2.2rem;
+      color: #1e293b;
+      row-gap: 4px;
+      user-select: none;
+      position: relative;
+    }
+    
+    .math-row {
+      display: flex;
+      position: relative;
+      height: 48px;
+    }
+    
+    .math-cell {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+    
+    /* Highlights */
+    .cell-highlight-divisor { background-color: #fef08a; color: #713f12; }   /* Yellow */
+    .cell-highlight-dividend { background-color: #bfdbfe; color: #1e3a8a; }  /* Blue */
+    .cell-highlight-active { background-color: #fed7aa; color: #7c2d12; }    /* Orange */
+    .cell-highlight-quotient { background-color: #bbf7d0; color: #14532d; }  /* Green */
+    .cell-highlight-remainder { background-color: #fbcfe8; color: #831843; } /* Pink */
+    
+    /* Line styles */
+    .cell-line-below {
+      border-bottom: 3px solid #334155;
+    }
+    .cell-line-double-below {
+      border-bottom: 6px double #0284c7;
+    }
+    
+    .bracket-cell {
+      font-family: 'Sarabun', sans-serif;
+      color: #0284c7;
+      font-size: 2.5rem;
+      font-weight: 300;
+      position: relative;
+    }
+    
+    .division-bar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      border-top: 4px solid #0284c7;
+    }
+    
+    /* Explain panel */
+    .explain-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    
+    .explain-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #f1f5f9;
+      padding-bottom: 10px;
+    }
+    .explain-title { font-weight: 800; font-size: 1.1rem; color: #0369a1; }
+    .step-counter { font-size: 0.85rem; font-weight: 700; color: #64748b; }
+    
+    .step-detail-box {
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 16px;
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border-left: 4px solid #0284c7;
+    }
+    
+    .step-desc { font-size: 1.05rem; font-weight: 600; line-height: 1.6; color: #334155; }
+    .step-sub { font-size: 0.88rem; color: #64748b; margin-top: 6px; }
+    
+    .ctrl-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    
+    .btn-step {
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+    }
+    .btn-step:hover:not(:disabled) { background: #e2e8f0; }
+    .btn-step:disabled { opacity: 0.4; cursor: not-allowed; }
+    
+    .btn-play { background: #0284c7; color: #fff; }
+    .btn-play:hover { background: #0369a1; }
+    
+    .footer {
+      padding: 14px 24px;
+      font-size: 0.85rem;
+      color: #475569;
+      border-top: 1px solid #e2e8f0;
+      background: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer a { color: #0284c7; font-weight: 700; text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+    
+    .highlight-span {
+      background-color: #fef08a;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 800;
+    }
+    .highlight-blue {
+      background-color: #bfdbfe;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 800;
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
+      <h2>🧠 สอนวิธีหารยาว</h2>
+      <p class="hint">เลือกโจทย์แนะนำ หรือระบุตัวเลขเอง เพื่อแสดงวิธีหารยาวทีละสเตปอย่างละเอียด</p>
+      
+      <div>
+        <label class="field-label">รูปแบบโจทย์แนะนำ</label>
+        <select class="select-field" id="presetSelect">
+          <option value="2x1">สุ่ม 2 หลัก ÷ 1 หลัก</option>
+          <option value="3x1" selected>สุ่ม 3 หลัก ÷ 1 หลัก</option>
+          <option value="4x1">สุ่ม 4 หลัก ÷ 1 หลัก</option>
+          <option value="3x2">สุ่ม 3 หลัก ÷ 2 หลัก</option>
+          <option value="4x2">สุ่ม 4 หลัก ÷ 2 หลัก</option>
+        </select>
+      </div>
+
+      <button type="button" class="btn btn-random" id="btnRandom">🎲 สุ่มโจทย์ใหม่</button>
+      
+      <div>
+        <label class="field-label" for="dividend">ตัวตั้ง (10-9999)</label>
+        <input id="dividend" class="input-field" type="number" min="10" max="9999" value="475" />
+      </div>
+      <div>
+        <label class="field-label" for="divisor">ตัวหาร (2-99)</label>
+        <input id="divisor" class="input-field" type="number" min="2" max="99" value="3" />
+      </div>
+      
+      <button type="button" class="btn btn-primary" id="btnReveal">✅ เริ่มแสดงวิธีหาร</button>
+      <button type="button" class="btn btn-ghost" id="btnSpeak">🔊 ฟังคำอธิบาย</button>
+    </aside>
+
+    <main class="main">
+      <div class="content">
+        <div class="intro-banner">
+          💡 <strong>เรียนรู้การหารยาวทีละขั้น:</strong> ฝึกทักษะการหารยาวด้วยการนำตัวหารไปหารหลักซ้ายสุดของตัวตั้ง เขียนผลหาร ดึงหลักถัดไปลงมา ลบหาเศษ และทำต่อไปทีละหลักจนจบ
+        </div>
+        
+        <div class="workspace">
+          <!-- Math Chalkboard Card -->
+          <div class="board-card">
+            <div class="math-grid" id="mathGrid">
+              <!-- Rendered Dynamically -->
+            </div>
+          </div>
+          
+          <!-- Controller and Explanations -->
+          <div class="explain-card">
+            <div class="explain-header">
+              <span class="explain-title">📝 อธิบายขั้นตอน</span>
+              <span class="step-counter" id="stepCounter">ขั้นตอนที่ 0/0</span>
+            </div>
+            
+            <div class="step-detail-box">
+              <p class="step-desc" id="stepDesc">กรอกโจทย์แล้วกด "เริ่มแสดงวิธีหาร"</p>
+              <p class="step-sub" id="stepSub"></p>
+            </div>
+            
+            <div class="ctrl-row">
+              <button type="button" class="btn btn-step" id="btnPrev" disabled>← ย้อนกลับ</button>
+              <button type="button" class="btn btn-step" id="btnNext" disabled>ถัดไป →</button>
+            </div>
+            <button type="button" class="btn btn-play" id="btnPlay" disabled>▶ เล่นอัตโนมัติ</button>
+          </div>
+        </div>
+      </div>
+      
+      <footer class="footer">
+        <span>ตัวชี้วัด ป.4: ค 1.1 ป.4/9 · ค 1.1 ป.4/10 · ค 1.1 ป.4/11</span>
+        <span>คู่เกมหาร <a href="/games/math/math-han.html">math-han</a></span>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      const GAME_SLUG = 'long-division-thinking-media';
+      if (window.KAMPAI) {
+        try { window.KAMPAI.setSlug(GAME_SLUG); } catch (e) {}
+      }
+
+      var inputDividend = document.getElementById('dividend');
+      var inputDivisor = document.getElementById('divisor');
+      var presetSelect = document.getElementById('presetSelect');
+      var mathGrid = document.getElementById('mathGrid');
+      var stepCounter = document.getElementById('stepCounter');
+      var stepDesc = document.getElementById('stepDesc');
+      var stepSub = document.getElementById('stepSub');
+      
+      var btnReveal = document.getElementById('btnReveal');
+      var btnSpeak = document.getElementById('btnSpeak');
+      var btnRandom = document.getElementById('btnRandom');
+      var btnPrev = document.getElementById('btnPrev');
+      var btnNext = document.getElementById('btnNext');
+      var btnPlay = document.getElementById('btnPlay');
+      
+      var traceSteps = [];
+      var currentStepIndex = 0;
+      var playInterval = null;
+
+      function getRandomInRange(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+      
+      function randomize() {
+        var preset = presetSelect.value;
+        var dividendVal, divisorVal;
+        
+        if (preset === '2x1') {
+          dividendVal = getRandomInRange(10, 99);
+          divisorVal = getRandomInRange(2, 9);
+        } else if (preset === '3x1') {
+          dividendVal = getRandomInRange(100, 999);
+          divisorVal = getRandomInRange(2, 9);
+        } else if (preset === '4x1') {
+          dividendVal = getRandomInRange(1000, 9999);
+          divisorVal = getRandomInRange(2, 9);
+        } else if (preset === '3x2') {
+          dividendVal = getRandomInRange(100, 999);
+          divisorVal = getRandomInRange(10, 99);
+        } else if (preset === '4x2') {
+          dividendVal = getRandomInRange(1000, 9999);
+          divisorVal = getRandomInRange(10, 99);
+        }
+        
+        inputDividend.value = String(dividendVal);
+        inputDivisor.value = String(divisorVal);
+        generateTrace();
+      }
+
+      // Generate trace of step-by-step long division
+      function generateTrace() {
+        if (playInterval) {
+          clearInterval(playInterval);
+          playInterval = null;
+          btnPlay.textContent = '▶ เล่นอัตโนมัติ';
+        }
+
+        var dividendVal = parseInt(inputDividend.value, 10);
+        var divisorVal = parseInt(inputDivisor.value, 10);
+        
+        if (isNaN(dividendVal) || dividendVal < 10 || dividendVal > 9999 || isNaN(divisorVal) || divisorVal < 2 || divisorVal > 99) {
+          alert('กรุณากรอกตัวตั้ง 10–9999 และตัวหาร 2–99');
+          return;
+        }
+
+        var dividendStr = String(dividendVal);
+        var divisorStr = String(divisorVal);
+        
+        var dividendDigits = dividendStr.split('').map(Number);
+        var N = dividendDigits.length;
+        var D = divisorStr.length;
+        var W = D + 1 + N; // Width of the grid
+        var finalQuotient = Math.floor(dividendVal / divisorVal);
+        var finalRemainder = dividendVal % divisorVal;
+
+        traceSteps = [];
+        
+        // Initial static cells
+        var staticCells = [];
+        // Divisor
+        for (var c = 0; c < D; c++) {
+          staticCells.push({ r: 1, c: c, val: divisorStr[c], class: 'cell-highlight-divisor' });
+        }
+        // Bracket )
+        staticCells.push({ r: 1, c: D, val: ')', class: 'bracket-cell' });
+        // Dividend
+        for (var c = 0; c < N; c++) {
+          staticCells.push({ r: 1, c: D + 1 + c, val: String(dividendDigits[c]), class: 'cell-highlight-dividend' });
+        }
+
+        // Add 1st step: Initial state
+        traceSteps.push({
+          type: 'init',
+          desc: 'ตั้งโจทย์การหารยาว: <span class="highlight-span">' + dividendVal + ' ÷ ' + divisorVal + '</span>',
+          sub: 'เรียงตัวหารด้านซ้าย ตัวตั้งด้านในเครื่องหมายหารยาว เพื่อคำนวณทีละหลักจากซ้ายไปขวา',
+          speech: 'ตั้งโจทย์ ' + dividendVal + ' หารด้วย ' + divisorVal,
+          cells: JSON.parse(JSON.stringify(staticCells)),
+          lines: [{ r: 0, fromC: D + 1, toC: W - 1 }] // horizontal line above dividend
+        });
+
+        var currentNumber = 0;
+        var tempRem = 0;
+        var hasStartedDivision = false;
+        var activeCells = JSON.parse(JSON.stringify(staticCells));
+        var linesList = [{ r: 0, fromC: D + 1, toC: W - 1 }];
+
+        for (var i = 0; i < N; i++) {
+          var digit = dividendDigits[i];
+          var prevNumber = currentNumber;
+          currentNumber = tempRem * 10 + digit;
+          
+          var colIdx = D + 1 + i;
+          
+          // Step A: Focus / Bring Down
+          var descText = '';
+          var subText = '';
+          var speechText = '';
+          
+          if (i === 0) {
+            descText = 'พิจารณาหลักแรกทางซ้าย คือ เลข <span class="highlight-span">' + digit + '</span>';
+            subText = 'นำตัวหาร ' + divisorVal + ' ไปหาร ' + digit;
+            speechText = 'พิจารณาหลักแรกคือเลข ' + digit;
+          } else {
+            // Draw arrow or visual highlight of the bring down digit
+            activeCells.push({ r: 2 * i + 1, c: colIdx, val: String(digit), class: 'cell-highlight-active' });
+            
+            descText = 'ดึงเลข <span class="highlight-span">' + digit + '</span> ในหลักถัดไปลงมาเขียนคู่กับเศษ';
+            subText = 'ทำให้ได้จำนวนใหม่ที่ต้องหารคือ ' + currentNumber;
+            speechText = 'ดึงเลข ' + digit + ' ลงมารวมกับเศษเป็น ' + currentNumber;
+          }
+
+          traceSteps.push({
+            type: 'focus_digit',
+            desc: descText,
+            sub: subText,
+            speech: speechText,
+            cells: JSON.parse(JSON.stringify(activeCells)),
+            lines: JSON.parse(JSON.stringify(linesList))
+          });
+
+          // Check if we should divide or slide
+          if (currentNumber < divisorVal && i < N - 1 && !hasStartedDivision) {
+            // Slide / Skip step
+            traceSteps.push({
+              type: 'slide_digit',
+              desc: 'เนื่องจาก <span class="highlight-span">' + currentNumber + '</span> น้อยกว่าตัวหาร <span class="highlight-blue">' + divisorVal + '</span> จึงหารได้ 0 ครั้ง',
+              sub: 'เราจะเลื่อนไปพิจารณาหลักถัดไปทางขวาโดยดึงตัวเลขถัดลงมา',
+              speech: 'เนื่องจาก ' + currentNumber + ' น้อยกว่าตัวหาร ' + divisorVal + ' จึงยังหารไม่ได้ ให้เลื่อนไปดูหลักถัดไป',
+              cells: JSON.parse(JSON.stringify(activeCells)),
+              lines: JSON.parse(JSON.stringify(linesList))
+            });
+            tempRem = currentNumber;
+            continue;
+          }
+
+          hasStartedDivision = true;
+          
+          // Perform division
+          var q = Math.floor(currentNumber / divisorVal);
+          var sub = q * divisorVal;
+          var diff = currentNumber - sub;
+
+          // Step B: Write Quotient
+          activeCells.push({ r: 0, c: colIdx, val: String(q), class: 'cell-highlight-quotient' });
+          traceSteps.push({
+            type: 'quotient',
+            desc: 'นำ <span class="highlight-blue">' + divisorVal + '</span> ไปหาร <span class="highlight-span">' + currentNumber + '</span> ได้ <span class="highlight-span">' + q + '</span> ครั้ง',
+            sub: 'เขียนเลข ' + q + ' ไว้บนเส้นในหลักที่ตรงกัน',
+            speech: 'นำตัวหาร ' + divisorVal + ' ไปหาร ' + currentNumber + ' ได้ ' + q + ' ครั้ง เขียนเลข ' + q + ' ข้างบน',
+            cells: JSON.parse(JSON.stringify(activeCells)),
+            lines: JSON.parse(JSON.stringify(linesList))
+          });
+
+          // Step C: Write Subtrahend
+          var subStr = String(sub);
+          var subStartC = colIdx - subStr.length + 1;
+          for (var s = 0; s < subStr.length; s++) {
+            activeCells.push({ r: 2 * i + 2, c: subStartC + s, val: subStr[s], class: 'cell-highlight-active cell-line-below' });
+          }
+          // Add line under subtrahend
+          linesList.push({ r: 2 * i + 2, fromC: subStartC, toC: colIdx });
+          
+          traceSteps.push({
+            type: 'subtrahend',
+            desc: 'นำผลคูณคือ <span class="highlight-span">' + q + ' × ' + divisorVal + ' = ' + sub + '</span> มาเขียนไว้ด้านล่าง',
+            sub: 'เพื่อใช้ลบหักออกจาก ' + currentNumber,
+            speech: 'นำ ' + q + ' คูณ ' + divisorVal + ' ได้ ' + sub + ' เขียนไว้ข้างล่าง',
+            cells: JSON.parse(JSON.stringify(activeCells)),
+            lines: JSON.parse(JSON.stringify(linesList))
+          });
+
+          // Step D: Subtract and Remainder
+          var diffStr = String(diff);
+          var diffStartC = colIdx - diffStr.length + 1;
+          for (var d = 0; d < diffStr.length; d++) {
+            activeCells.push({ r: 2 * i + 3, c: diffStartC + d, val: diffStr[d], class: 'cell-highlight-remainder' });
+          }
+          
+          traceSteps.push({
+            type: 'difference',
+            desc: 'ลบกัน: <span class="highlight-span">' + currentNumber + ' - ' + sub + ' = ' + diff + '</span>',
+            sub: 'เศษที่เหลือจากการหารในรอบนี้คือ ' + diff,
+            speech: 'ลบกันเหลือเศษ ' + diff,
+            cells: JSON.parse(JSON.stringify(activeCells)),
+            lines: JSON.parse(JSON.stringify(linesList))
+          });
+
+          tempRem = diff;
+          currentNumber = diff;
+        }
+
+        // Draw double line below remainder at the end
+        var lastRemRow = 2 * N + 1;
+        // Find remainder cells in activeCells and update their class or add double line border
+        for (var idx = 0; idx < activeCells.length; idx++) {
+          if (activeCells[idx].r === lastRemRow) {
+            activeCells[idx].class += ' cell-line-double-below';
+          }
+        }
+
+        // Final Answer step
+        traceSteps.push({
+          type: 'done',
+          desc: 'คำนวณสำเร็จ! ผลหารคือ <span class="highlight-span">' + finalQuotient + '</span> เศษคือ <span class="highlight-span">' + finalRemainder + '</span>',
+          sub: 'สรุปคำตอบ: ' + dividendVal + ' ÷ ' + divisorVal + ' = ' + finalQuotient + ' เศษ ' + finalRemainder,
+          speech: 'คำนวณเสร็จสิ้น ผลหารคือ ' + finalQuotient + ' เศษคือ ' + finalRemainder,
+          cells: JSON.parse(JSON.stringify(activeCells)),
+          lines: JSON.parse(JSON.stringify(linesList))
+        });
+
+        currentStepIndex = 0;
+        renderStep(currentStepIndex);
+      }
+
+      function renderStep(idx) {
+        if (idx < 0 || idx >= traceSteps.length) return;
+        
+        var step = traceSteps[idx];
+        var cells = step.cells;
+        var lines = step.lines;
+        
+        var dividendVal = parseInt(inputDividend.value, 10);
+        var divisorVal = parseInt(inputDivisor.value, 10);
+        var dividendStr = String(dividendVal);
+        var divisorStr = String(divisorVal);
+        var N = dividendStr.length;
+        var D = divisorStr.length;
+        var W = D + 1 + N;
+        var H = 2 * N + 2;
+
+        mathGrid.innerHTML = '';
+        mathGrid.style.gridTemplateColumns = 'repeat(' + W + ', 44px)';
+        mathGrid.style.gridTemplateRows = 'repeat(' + H + ', 48px)';
+
+        // Render cells
+        cells.forEach(function (c) {
+          var cellDiv = document.createElement('div');
+          cellDiv.className = 'math-cell ' + (c.class || '');
+          cellDiv.style.gridRow = c.r + 1;
+          cellDiv.style.gridColumn = c.c + 1;
+          cellDiv.textContent = c.val;
+          mathGrid.appendChild(cellDiv);
+        });
+
+        // Render division bar and lines
+        lines.forEach(function (l) {
+          var barDiv = document.createElement('div');
+          barDiv.className = 'division-bar';
+          barDiv.style.gridRow = l.r + 1;
+          barDiv.style.gridColumnStart = l.fromC + 1;
+          barDiv.style.gridColumnEnd = l.toC + 2;
+          mathGrid.appendChild(barDiv);
+        });
+
+        // Update Explanatory Panel
+        stepCounter.textContent = 'ขั้นตอนที่ ' + (idx + 1) + '/' + traceSteps.length;
+        stepDesc.innerHTML = step.desc;
+        stepSub.textContent = step.sub || '';
+        
+        // Update Buttons
+        btnPrev.disabled = idx === 0;
+        btnNext.disabled = idx === traceSteps.length - 1;
+        btnPlay.disabled = idx === traceSteps.length - 1;
+        
+        window._lastSpeech = step.speech;
+      }
+
+      // TTS audio triggers
+      function speak() {
+        if (!window._lastSpeech || !window.KAMPAI || !KAMPAI.sound || !KAMPAI.sound.speak) return;
+        KAMPAI.sound.speak(window._lastSpeech, 'th-TH');
+      }
+
+      // Autoplayer
+      function togglePlay() {
+        if (playInterval) {
+          clearInterval(playInterval);
+          playInterval = null;
+          btnPlay.textContent = '▶ เล่นอัตโนมัติ';
+          btnPlay.style.background = '#0284c7';
+        } else {
+          btnPlay.textContent = '⏹ หยุดเล่น';
+          btnPlay.style.background = '#dc2626';
+          playInterval = setInterval(function () {
+            if (currentStepIndex < traceSteps.length - 1) {
+              currentStepIndex++;
+              renderStep(currentStepIndex);
+              speak();
+            } else {
+              clearInterval(playInterval);
+              playInterval = null;
+              btnPlay.textContent = '▶ เล่นอัตโนมัติ';
+              btnPlay.style.background = '#0284c7';
+            }
+          }, 3500);
+        }
+      }
+
+      // Event Bindings
+      btnReveal.onclick = function () {
+        generateTrace();
+      };
+      
+      btnPrev.onclick = function () {
+        if (currentStepIndex > 0) {
+          currentStepIndex--;
+          renderStep(currentStepIndex);
+        }
+      };
+      
+      btnNext.onclick = function () {
+        if (currentStepIndex < traceSteps.length - 1) {
+          currentStepIndex++;
+          renderStep(currentStepIndex);
+        }
+      };
+      
+      btnPlay.onclick = togglePlay;
+      btnSpeak.onclick = speak;
+      btnRandom.onclick = randomize;
+
+      document.getElementById('btnBack').onclick = function () {
+        if (window.KAMPAI && KAMPAI.goHome) KAMPAI.goHome();
+        else history.back();
+      };
+
+      // Inputs change resets
+      inputDividend.addEventListener('input', function() {
+        if (playInterval) clearInterval(playInterval);
+      });
+      inputDivisor.addEventListener('input', function() {
+        if (playInterval) clearInterval(playInterval);
+      });
+
+      // Initial run
+      generateTrace();
+    })();
+  </script>
+</body>
+</html>
