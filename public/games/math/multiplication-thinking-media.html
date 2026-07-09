@@ -387,9 +387,10 @@
 
   <script>
     (function () {
+      const GAME_SLUG = 'multiplication-thinking-media';
       var MEDIA_SLUG = 'multiplication-thinking-media';
       if (window.KAMPAI) {
-        try { window.KAMPAI.setSlug(MEDIA_SLUG); } catch (e) {}
+        try { window.KAMPAI.setSlug(GAME_SLUG); } catch (e) {}
       }
 
       var inputMultiplicand = document.getElementById('multiplicand');
