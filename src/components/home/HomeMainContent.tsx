@@ -37,19 +37,19 @@ const ArBadge = () => (
     title="เกมนี้ใช้กล้องหรือ AR ในการเล่น"
     style={{
       position: 'absolute', top: 0, left: 0,
-      width: 110, height: 110, overflow: 'hidden',
+      width: 76, height: 76, overflow: 'hidden',
       zIndex: 10, pointerEvents: 'none',
     }}
   >
     <div style={{
       position: 'absolute', top: -2, left: -2,
       width: 0, height: 0, borderStyle: 'solid',
-      borderWidth: '106px 106px 0 0',
+      borderWidth: '72px 72px 0 0',
       borderColor: 'rgba(220,38,38,0.95) transparent transparent transparent',
       filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.5))',
     }} />
     <span style={{
-      position: 'absolute', top: 13, left: 4,
+      position: 'absolute', top: 8, left: 2,
       color: '#fff', fontWeight: 900, fontSize: 22,
       letterSpacing: '0.06em', lineHeight: 1,
       transform: 'rotate(-45deg)', transformOrigin: 'center center',

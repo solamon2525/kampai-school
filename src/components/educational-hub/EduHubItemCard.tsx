@@ -394,8 +394,8 @@ const ArBadge = () => (
             position: 'absolute',
             top: 0,
             left: 0,
-            width: 120,
-            height: 120,
+            width: 82,
+            height: 82,
             overflow: 'hidden',
             zIndex: 10,
             pointerEvents: 'none',
@@ -409,7 +409,7 @@ const ArBadge = () => (
                 width: 0,
                 height: 0,
                 borderStyle: 'solid',
-                borderWidth: '116px 116px 0 0',
+                borderWidth: '78px 78px 0 0',
                 borderColor: 'rgba(220,38,38,0.95) transparent transparent transparent',
                 filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.5))',
             }}
@@ -417,8 +417,8 @@ const ArBadge = () => (
         <span
             style={{
                 position: 'absolute',
-                top: 14,
-                left: 5,
+                top: 9,
+                left: 3,
                 color: '#ffffff',
                 fontWeight: 900,
                 fontSize: 24,
