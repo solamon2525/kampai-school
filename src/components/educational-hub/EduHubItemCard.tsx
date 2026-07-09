@@ -394,14 +394,13 @@ const ArBadge = () => (
             position: 'absolute',
             top: 0,
             left: 0,
-            width: 80,
-            height: 80,
+            width: 120,
+            height: 120,
             overflow: 'hidden',
             zIndex: 10,
             pointerEvents: 'none',
         }}
     >
-        {/* Triangle ribbon cut at top-left corner */}
         <div
             style={{
                 position: 'absolute',
@@ -410,25 +409,24 @@ const ArBadge = () => (
                 width: 0,
                 height: 0,
                 borderStyle: 'solid',
-                borderWidth: '76px 76px 0 0',
+                borderWidth: '116px 116px 0 0',
                 borderColor: 'rgba(220,38,38,0.95) transparent transparent transparent',
-                filter: 'drop-shadow(2px 2px 3px rgba(0,0,0,0.45))',
+                filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.5))',
             }}
         />
-        {/* AR text */}
         <span
             style={{
                 position: 'absolute',
-                top: 8,
-                left: 3,
+                top: 14,
+                left: 5,
                 color: '#ffffff',
                 fontWeight: 900,
-                fontSize: 13,
+                fontSize: 24,
                 letterSpacing: '0.06em',
                 lineHeight: 1,
                 transform: 'rotate(-45deg)',
                 transformOrigin: 'center center',
-                textShadow: '0 1px 3px rgba(0,0,0,0.6)',
+                textShadow: '0 2px 4px rgba(0,0,0,0.7)',
                 userSelect: 'none',
             }}
         >
