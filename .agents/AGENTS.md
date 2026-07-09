@@ -126,15 +126,15 @@ Follow these standards strictly when developing, refactoring, or integrating edu
    - จัดตำแหน่งชื่อเกมให้อยู่กึ่งกลางหรือส่วนบนที่สมดุล ไม่บดบังรายละเอียดสำคัญของตัวละครหลักหรือองค์ประกอบเกม
 
 5. **สเปคทางเทคนิคและสัดส่วนภาพ (Technical Specification):**
-   - **ปรับภาพให้พอดีกับขนาด 16:9 (1280×720 pixels):** เนื่องจากระบบสร้างภาพของ AI มักจะส่งออกภาพขนาด 1024×1024 (1:1) เสมอ ดังนั้น **หลังจากรันคำสั่งสร้างภาพแล้ว คุณต้องเรียกใช้สคริปต์ย่อ/ขยายและครอบภาพ (High-Quality Crop/Resize) ให้ได้ขนาด 1280×720 pixels ทันที** ก่อนจะนำไปจัดเก็บที่โฟลเดอร์เกม เพื่อให้ภาพปกแสดงผลได้เต็มช่อง aspect-video อย่างสมบูรณ์ ไม่มีขอบดำ
+   - **ปรับภาพให้พอดีกับขนาด 16:9 (1280×720 pixels):** เนื่องจากระบบสร้างภาพของ AI มักจะส่งออกภาพขนาด 1024×1024 (1:1) เสมอ ดังนั้น **หลังจากรันคำสั่งสร้างภาพแล้ว คุณต้องเรียกใช้สคริปต์ย่อ/ขยายและครอบภาพ (High-Quality Crop/Resize) ให้ได้ขนาด 1280×720 pixels ทันที** โดยใช้สคริปต์ `node scripts/make-cover.mjs <input> <output>` เพื่อให้ได้ภาพแบบเต็มขอบทุกด้าน (Full-bleed, fit: 'cover') ไม่มีพื้นที่ว่าง และไม่มีการซ้อนขอบเบลอ
    - **การจัดวางองค์ประกอบให้เห็นครบถ้วน (Fit to Scale & Full Visibility):** การจัดองค์ประกอบภาพปกจะต้องปรับขนาดแบบรักษาอัตราส่วน (Fit to scale) เพื่อไม่ให้ภาพบิดเบี้ยว และต้องออกแบบในลักษณะ Safe Zone โดยให้ตัวละครหลัก ชื่อภาษาอังกฤษ/ไทย และ HUD ของเกมอยู่ถัดเข้ามาจากขอบ เพื่อรับประกันว่าจะไม่มีส่วนสำคัญใดๆ ถูกตัดขาด (Crop-off) และจะสามารถมองเห็นทุกส่วนของภาพได้อย่างครบถ้วนสมบูรณ์เมื่อแสดงผลบนระบบพอร์ทัล
-   - **กฎการจัด safe zone สำหรับ AI Prompt (AI Prompt Safe Zone Rule)**: ในการเขียน prompt ให้กับ AI ทุกครั้ง ต้องระบุคำสั่งบังคับว่า "ตัวละครหลัก ข้อความพาดหัว และองค์ประกอบที่สื่อถึงเกมทั้งหมด จะต้องอยู่กึ่งกลางภาพภายในพื้นที่ Safe Zone 60% ของภาพ (centered within 60% safe zone) และปล่อยขอบด้านบนและด้านล่าง (อย่างน้อย 20%) เป็นเพียงพื้นหลังเปล่าๆ" เพื่อป้องกันขอบภาพโดนตัดขาดเมื่อย่อ/ครอบสัดส่วนรูปเป็น 16:9 (1280x720)
+   - **กฎการจัด safe zone สำหรับ AI Prompt (AI Prompt Safe Zone Rule)**: ในการเขียน prompt ให้กับ AI ทุกครั้ง ต้องระบุคำสั่งบังคับว่า "ตัวละครหลัก ข้อความพาดหัว และองค์ประกอบที่สื่อถึงเกมทั้งหมด จะต้องอยู่กึ่งกลางภาพภายในพื้นที่ Safe Zone 60% ของภาพ (centered within 60% safe zone) และปล่อยขอบด้านบนและด้านล่าง (อย่างน้อย 20%) เป็นเพียงพื้นหลังเปล่าๆ เช่น ท้องฟ้า หรือป่าไม้ธรรมชาติ" เพื่อป้องกันขอบภาพโดนตัดขาดเมื่อย่อ/ครอบสัดส่วนรูปเป็น 16:9 (1280x720)
    - **ชื่อไฟล์ภาพปก:** ต้องเซฟในชื่อ `cover.png` หรือ `{slug}-cover.png` ให้อยู่ในโฟลเดอร์เกมเดียวกับหน้าหลักของเกม
 
 
-6. **ตัวอย่าง Prompt สำเร็จรูปสำหรับสั่ง AI (Gemini Prompt Template):**
-   - *ตัวอย่างสำหรับเกมเทคโนโลยี/วิทยาการคำนวณ:*
-
+6. **ตัวอย่าง Prompt สำเร็จรูปสำหรับสั่ง AI (AI Prompt Template):**
+   - *ตัวอย่างมาตรฐาน (จากเกม นินจาตัดคำนาม word-ninja-noun):*
+     > Game cover art for "[ชื่อเกมอังกฤษ]" (Thai: [ชื่อเกมไทย]). A cute chibi anime [ตัวละครหลัก] character [ลักษณะท่าทาง/Action เช่น slicing through glowing Thai vocabulary words and bubble letters with colorful bubble slash effects]. Vibrant, playful, and fun gamification theme with star icons and coins. Includes bold centered text reading "[ชื่อเกมอังกฤษ]" and "[ชื่อเกมไทย]" in cute bubble style. Important characters, all text labels, and UI must be centered within the 60% safe zone of the image. The top and bottom 20% areas must only contain background [ฉากหลัง เช่น sky and bamboo forest], no text or heads, to allow 16:9 cropping.
 
 ---
 
