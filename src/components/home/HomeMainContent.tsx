@@ -23,6 +23,41 @@ import ResearchPlaySection from '@/components/home/sections/ResearchPlaySection'
 import { GameDemoPreview } from '@/components/educational-hub/GameDemoPreview';
 import { GameCoverThumb } from '@/components/educational-hub/GameCoverThumb';
 
+// ─── AR game slugs (เกมที่ใช้กล้อง/AR) ─────────────────────────────────────
+const AR_GAME_SLUGS = new Set([
+  'ar-zone-quiz', 'english-ar-quiz', 'hands-up-quiz', 'jump-even-odd',
+  'energy-rocket', 'catch-numbers', 'digestive-ar', 'math-move-quiz',
+  'balloon-burst', 'multiply-burst', 'ar-calibration', 'math-hand-raising',
+  'fraction-garden-ar', 'fraction-adventure',
+]);
+
+const ArBadge = () => (
+  <div
+    aria-label="ใช้กล้อง AR"
+    title="เกมนี้ใช้กล้องหรือ AR ในการเล่น"
+    style={{
+      position: 'absolute', top: 0, left: 0,
+      width: 56, height: 56, overflow: 'hidden',
+      zIndex: 10, pointerEvents: 'none',
+    }}
+  >
+    <div style={{
+      position: 'absolute', top: -2, left: -2,
+      width: 0, height: 0, borderStyle: 'solid',
+      borderWidth: '52px 52px 0 0',
+      borderColor: 'rgba(6,182,212,0.92) transparent transparent transparent',
+      filter: 'drop-shadow(1px 1px 2px rgba(0,0,0,0.35))',
+    }} />
+    <span style={{
+      position: 'absolute', top: 5, left: 2,
+      color: '#fff', fontWeight: 800, fontSize: 10,
+      letterSpacing: '0.04em', lineHeight: 1,
+      transform: 'rotate(-45deg)', transformOrigin: 'center center',
+      textShadow: '0 1px 2px rgba(0,0,0,0.5)', userSelect: 'none',
+    }}>AR</span>
+  </div>
+);
+
 interface NewsItem {
   id: string;
   title: string;
@@ -1044,6 +1079,8 @@ export const useHomeMainBlocks = () => {
     visible: { opacity: 1, y: 0, transition: { duration: fgFadeDur } },
   };
 
+  const isArGame = (game: EduHubItem) => !!game.game_slug && AR_GAME_SLUGS.has(game.game_slug);
+
   const renderGameCard = (game: EduHubItem, keyPrefix = '') => (
     <motion.button
       key={`${keyPrefix}${game.id}`}
@@ -1055,27 +1092,30 @@ export const useHomeMainBlocks = () => {
         fgMode === 'grid' ? 'w-full' : 'flex-shrink-0 w-44 sm:w-52 snap-start'
       )}
     >
-      {game.thumbnail_url && game.preview_video_url ? (
-        <GameDemoPreview
-          cover={game.thumbnail_url}
-          video={game.preview_video_url}
-          title={game.title}
-          coverMs={previewCoverMs}
-          videoMs={previewVideoMs}
-          coverRound2MinMs={previewRound2MinMs}
-          coverRound2MaxMs={previewRound2MaxMs}
-        />
-      ) : game.thumbnail_url ? (
-        <GameCoverThumb
-          src={game.thumbnail_url}
-          alt={game.title}
-          className="rounded-lg border border-border"
-        />
-      ) : (
-        <div className="aspect-video bg-muted rounded-lg overflow-hidden border border-border flex items-center justify-center">
-          <span className="text-2xl">🎮</span>
-        </div>
-      )}
+      <div className="relative">
+        {game.thumbnail_url && game.preview_video_url ? (
+          <GameDemoPreview
+            cover={game.thumbnail_url}
+            video={game.preview_video_url}
+            title={game.title}
+            coverMs={previewCoverMs}
+            videoMs={previewVideoMs}
+            coverRound2MinMs={previewRound2MinMs}
+            coverRound2MaxMs={previewRound2MaxMs}
+          />
+        ) : game.thumbnail_url ? (
+          <GameCoverThumb
+            src={game.thumbnail_url}
+            alt={game.title}
+            className="rounded-lg border border-border"
+          />
+        ) : (
+          <div className="aspect-video bg-muted rounded-lg overflow-hidden border border-border flex items-center justify-center">
+            <span className="text-2xl">🎮</span>
+          </div>
+        )}
+        {isArGame(game) && <ArBadge />}
+      </div>
       <h4 className="text-xs font-semibold mt-2 line-clamp-2 group-hover:text-primary transition-colors">{game.title}</h4>
       {game.subject && <p className="text-[10px] text-muted-foreground mt-0.5">{game.subject}</p>}
     </motion.button>
