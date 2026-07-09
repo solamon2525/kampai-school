@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>สื่อการสอนการคูณ — วิธีคิดทีละขั้น</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: linear-gradient(145deg, #ecfdf5 0%, #f0fdf4 50%, #d1fae5 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+      color: #0f172a;
+    }
+    .shell {
+      width: 100%;
+      max-width: 1200px;
+      background: rgba(255,255,255,0.98);
+      border-radius: 1.75rem;
+      box-shadow: 0 24px 48px rgba(6, 78, 59, 0.15);
+      border: 1px solid rgba(255,255,255,0.8);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 90vh;
+    }
+    @media (min-width: 768px) { .shell { flex-direction: row; min-height: 85vh; } }
+    
+    .sidebar {
+      background: linear-gradient(180deg, #064e3b, #047857);
+      color: #fff;
+      padding: 24px;
+      width: 100%;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    @media (min-width: 768px) { .sidebar { width: 320px; } }
+    
+    .sidebar h2 { font-size: 1.35rem; font-weight: 800; margin-bottom: 2px; }
+    .btn-back {
+      background: rgba(255,255,255,0.15);
+      color: #ecfdf5;
+      border: 1px solid rgba(255,255,255,0.25);
+    }
+    .btn-back:hover { background: rgba(255,255,255,0.25); }
+    
+    .field-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #a7f3d0;
+      margin-bottom: 4px;
+      display: block;
+    }
+    
+    .input-field {
+      width: 100%;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(167,243,208,0.4);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #fff;
+      text-align: center;
+      outline: none;
+    }
+    .input-field:focus {
+      border-color: #34d399;
+      background: rgba(255,255,255,0.18);
+    }
+    
+    .select-field {
+      width: 100%;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(167,243,208,0.4);
+      border-radius: 12px;
+      padding: 10px;
+      color: #fff;
+      font-family: inherit;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+    }
+    .select-field option {
+      color: #0f172a;
+      background: #fff;
+    }
+    
+    .btn {
+      font-family: inherit;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 14px;
+      cursor: pointer;
+      font-size: 1rem;
+      width: 100%;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn-random { background: #d97706; color: #fff; }
+    .btn-random:hover { background: #b45309; }
+    .btn-primary { background: #10b981; color: #fff; }
+    .btn-primary:hover { background: #059669; }
+    .btn-ghost { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+    .btn-ghost:hover { background: rgba(255,255,255,0.2); }
+    
+    .hint { font-size: 0.8rem; color: #d1fae5; line-height: 1.45; }
+    
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      background: #f9fafb;
+    }
+    
+    .content {
+      flex: 1;
+      padding: 24px;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .intro-banner {
+      background: #f0fdf4;
+      border: 1px solid #a7f3d0;
+      border-radius: 16px;
+      padding: 14px 20px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #065f46;
+      line-height: 1.5;
+    }
+    
+    .workspace {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+    @media (min-width: 992px) {
+      .workspace { grid-template-columns: 1.2fr 1fr; }
+    }
+    
+    .board-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 380px;
+    }
+    
+    /* Grid System for Vertical Multiplication */
+    .math-grid {
+      display: grid;
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: bold;
+      font-size: 2.2rem;
+      color: #1e293b;
+      row-gap: 4px;
+      user-select: none;
+    }
+    
+    .math-row {
+      display: flex;
+      justify-content: flex-end;
+      position: relative;
+    }
+    
+    .math-cell {
+      width: 48px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+    
+    /* Colors for highlights */
+    .cell-highlight-multiplicand { background-color: #bfdbfe; color: #1e3a8a; } /* Blue */
+    .cell-highlight-multiplier { background-color: #fef08a; color: #713f12; }   /* Yellow */
+    .cell-highlight-carry { background-color: #fbcfe8; color: #831843; font-size: 1.3rem; } /* Pink Carry */
+    .cell-highlight-result { background-color: #bbf7d0; color: #14532d; }     /* Green */
+    .cell-zero-placeholder { color: #cbd5e1; } /* Playholder Zero */
+    
+    .carry-row {
+      font-size: 1.25rem;
+      color: #db2777;
+      height: 28px;
+    }
+    .carry-cell {
+      width: 48px;
+      height: 28px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      font-weight: 700;
+    }
+    
+    .line-single {
+      border-bottom: 3px solid #475569;
+      width: 100%;
+      margin-top: 2px;
+    }
+    .line-double {
+      border-bottom: 6px double #059669;
+      width: 100%;
+      margin-top: 2px;
+    }
+    
+    .op-sign {
+      position: absolute;
+      left: 10px;
+      color: #d97706;
+      font-family: 'Sarabun', sans-serif;
+    }
+    
+    /* Interactive Controller */
+    .explain-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    
+    .explain-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #f1f5f9;
+      padding-bottom: 10px;
+    }
+    .explain-title { font-weight: 800; font-size: 1.1rem; color: #065f46; }
+    .step-counter { font-size: 0.85rem; font-weight: 700; color: #64748b; }
+    
+    .step-detail-box {
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 16px;
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border-left: 4px solid #10b981;
+    }
+    
+    .step-desc { font-size: 1.05rem; font-weight: 600; line-height: 1.6; color: #334155; }
+    .step-sub { font-size: 0.88rem; color: #64748b; margin-top: 6px; }
+    
+    .ctrl-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    
+    .btn-step {
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+    }
+    .btn-step:hover:not(:disabled) { background: #e2e8f0; }
+    .btn-step:disabled { opacity: 0.4; cursor: not-allowed; }
+    
+    .btn-play { background: #059669; color: #fff; }
+    .btn-play:hover { background: #047857; }
+    
+    .footer {
+      padding: 14px 24px;
+      font-size: 0.85rem;
+      color: #475569;
+      border-top: 1px solid #e2e8f0;
+      background: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer a { color: #047857; font-weight: 700; text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+    
+    .highlight-span {
+      background-color: #fef08a;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 800;
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
+      <h2>🧠 สอนวิธีตั้งคูณ</h2>
+      <p class="hint">เลือก Preset หรือกำหนดตัวเลขเอง แล้วกดปุ่มแสดงการตั้งคูณทีละขั้นตอน</p>
+      
+      <div>
+        <label class="field-label">รูปแบบโจทย์แนะนำ</label>
+        <select class="select-field" id="presetSelect">
+          <option value="2x1">สุ่ม 2 หลัก × 1 หลัก</option>
+          <option value="2x2" selected>สุ่ม 2 หลัก × 2 หลัก</option>
+          <option value="3x2">สุ่ม 3 หลัก × 2 หลัก</option>
+          <option value="3x3">สุ่ม 3 หลัก × 3 หลัก</option>
+          <option value="4x2">สุ่ม 4 หลัก × 2 หลัก</option>
+          <option value="4x3">สุ่ม 4 หลัก × 3 หลัก</option>
+        </select>
+      </div>
+
+      <button type="button" class="btn btn-random" id="btnRandom">🎲 สุ่มโจทย์ใหม่</button>
+      
+      <div>
+        <label class="field-label" for="multiplicand">ตัวตั้ง (2-4 หลัก)</label>
+        <input id="multiplicand" class="input-field" type="number" min="10" max="9999" value="45" />
+      </div>
+      <div>
+        <label class="field-label" for="multiplier">ตัวคูณ (2-4 หลัก)</label>
+        <input id="multiplier" class="input-field" type="number" min="2" max="9999" value="23" />
+      </div>
+      
+      <button type="button" class="btn btn-primary" id="btnReveal">✅ เริ่มแสดงวิธีคูณ</button>
+      <button type="button" class="btn btn-ghost" id="btnSpeak">🔊 ฟังคำอธิบาย</button>
+    </aside>
+
+    <main class="main">
+      <div class="content">
+        <div class="intro-banner">
+          💡 <strong>เรียนรู้การคูณแนวตั้งทีละสเตป:</strong> เรียนรู้วิธีการนำแต่ละหลักของตัวคูณไปคูณกับตัวตั้ง การใส่ตัวทด และการบวกผลคูณย่อยเข้าด้วยกันเพื่อหาผลลัพธ์สุดท้าย
+        </div>
+        
+        <div class="workspace">
+          <!-- Left side: The Vertical Math Board -->
+          <div class="board-card">
+            <div class="math-grid" id="mathGrid">
+              <!-- Rendered Dynamically -->
+            </div>
+          </div>
+          
+          <!-- Right side: Explanation and Interactive controls -->
+          <div class="explain-card">
+            <div class="explain-header">
+              <span class="explain-title">📝 อธิบายขั้นตอน</span>
+              <span class="step-counter" id="stepCounter">ขั้นตอนที่ 0/0</span>
+            </div>
+            
+            <div class="step-detail-box">
+              <p class="step-desc" id="stepDesc">กรอกตัวเลขแล้วกดปุ่ม "เริ่มแสดงวิธีคูณ"</p>
+              <p class="step-sub" id="stepSub"></p>
+            </div>
+            
+            <div class="ctrl-row">
+              <button type="button" class="btn btn-step" id="btnPrev" disabled>← ย้อนกลับ</button>
+              <button type="button" class="btn btn-step" id="btnNext" disabled>ถัดไป →</button>
+            </div>
+            <button type="button" class="btn btn-play" id="btnPlay" disabled>▶ เล่นอัตโนมัติ</button>
+          </div>
+        </div>
+      </div>
+      
+      <footer class="footer">
+        <span>ตัวชี้วัด ป.4: ค 1.1 ป.4/9 · ค 1.1 ป.4/10 · ค 1.1 ป.4/11</span>
+        <span>คู่เกมคูณ <a href="/games/math/multiply-burst/index.html">multiply-burst</a></span>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      var MEDIA_SLUG = 'multiplication-thinking-media';
+      if (window.KAMPAI) {
+        try { window.KAMPAI.setSlug(MEDIA_SLUG); } catch (e) {}
+      }
+
+      var inputMultiplicand = document.getElementById('multiplicand');
+      var inputMultiplier = document.getElementById('multiplier');
+      var presetSelect = document.getElementById('presetSelect');
+      var mathGrid = document.getElementById('mathGrid');
+      var stepCounter = document.getElementById('stepCounter');
+      var stepDesc = document.getElementById('stepDesc');
+      var stepSub = document.getElementById('stepSub');
+      
+      var btnReveal = document.getElementById('btnReveal');
+      var btnSpeak = document.getElementById('btnSpeak');
+      var btnRandom = document.getElementById('btnRandom');
+      var btnPrev = document.getElementById('btnPrev');
+      var btnNext = document.getElementById('btnNext');
+      var btnPlay = document.getElementById('btnPlay');
+      
+      var traceSteps = [];
+      var currentStepIndex = 0;
+      var playInterval = null;
+
+      // Handle Preset Selection
+      function getRandomInRange(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+      
+      function randomize() {
+        var preset = presetSelect.value;
+        var multiplicandVal, multiplierVal;
+        
+        if (preset === '2x1') {
+          multiplicandVal = getRandomInRange(10, 99);
+          multiplierVal = getRandomInRange(2, 9);
+        } else if (preset === '2x2') {
+          multiplicandVal = getRandomInRange(10, 99);
+          multiplierVal = getRandomInRange(10, 99);
+        } else if (preset === '3x2') {
+          multiplicandVal = getRandomInRange(100, 999);
+          multiplierVal = getRandomInRange(10, 99);
+        } else if (preset === '3x3') {
+          multiplicandVal = getRandomInRange(100, 999);
+          multiplierVal = getRandomInRange(100, 999);
+        } else if (preset === '4x2') {
+          multiplicandVal = getRandomInRange(1000, 9999);
+          multiplierVal = getRandomInRange(10, 99);
+        } else if (preset === '4x3') {
+          multiplicandVal = getRandomInRange(1000, 9999);
+          multiplierVal = getRandomInRange(100, 999);
+        }
+        
+        inputMultiplicand.value = String(multiplicandVal);
+        inputMultiplier.value = String(multiplierVal);
+        generateTrace();
+      }
+
+      // Generate trace of step-by-step vertical multiplication
+      function generateTrace() {
+        if (playInterval) {
+          clearInterval(playInterval);
+          playInterval = null;
+          btnPlay.textContent = '▶ เล่นอัตโนมัติ';
+        }
+
+        var m1 = parseInt(inputMultiplicand.value, 10);
+        var m2 = parseInt(inputMultiplier.value, 10);
+        
+        if (isNaN(m1) || m1 < 10 || m1 > 9999 || isNaN(m2) || m2 < 2 || m2 > 9999) {
+          alert('กรุณากรอกตัวตั้ง 10–9999 และตัวคูณ 2–9999');
+          return;
+        }
+
+        var multiplicandStr = String(m1);
+        var multiplierStr = String(m2);
+        
+        var multiplicandDigits = multiplicandStr.split('').map(Number);
+        var multiplierDigits = multiplierStr.split('').map(Number);
+        
+        var finalResult = m1 * m2;
+        var finalResultStr = String(finalResult);
+        var gridWidth = Math.max(finalResultStr.length, multiplicandDigits.length, multiplierDigits.length + 1) + 2;
+
+        traceSteps = [];
+        
+        // 1. Initial State
+        traceSteps.push({
+          type: 'init',
+          desc: 'ตั้งโจทย์การคูณแนวตั้ง: <span class="highlight-span">' + m1 + ' × ' + m2 + '</span>',
+          sub: 'เรียงหลักเลขหน่วย สิบ ร้อย พัน ให้ตรงกันตามลำดับหลัก',
+          speech: 'ตั้งโจทย์ ' + m1 + ' คูณด้วย ' + m2,
+          state: {
+            multiplicand: multiplicandDigits,
+            multiplier: multiplierDigits,
+            carries: Array(gridWidth).fill(null),
+            partialProducts: [],
+            showFinal: false,
+            highlightMultiplicand: null,
+            highlightMultiplier: null,
+            highlightCarryCol: null,
+            highlightResultRow: null,
+            highlightResultCol: null
+          }
+        });
+
+        // 2. Loop through each digit of multiplier from right to left (ones, tens, hundreds...)
+        var partialProducts = [];
+        var numMultiplierDigits = multiplierDigits.length;
+
+        for (var j = 0; j < numMultiplierDigits; j++) {
+          var multiplierIdx = numMultiplierDigits - 1 - j; // index in array
+          var mulDigit = multiplierDigits[multiplierIdx];
+          var placeValueName = j === 0 ? 'หลักหน่วย' : j === 1 ? 'หลักสิบ' : j === 2 ? 'หลักร้อย' : 'หลักพัน';
+          var actualValue = mulDigit * Math.pow(10, j);
+
+          // Add partial product placeholder array filled with nulls initially
+          var currentPartialDigits = Array(gridWidth).fill(null);
+          // Zero placeholders for shifting
+          for (var z = 0; z < j; z++) {
+            currentPartialDigits[gridWidth - 1 - z] = 0;
+          }
+          
+          partialProducts.push(currentPartialDigits);
+          var activeRowIdx = partialProducts.length - 1;
+
+          // Introduce multiplying by this digit
+          traceSteps.push({
+            type: 'start_multiplier_digit',
+            desc: 'ขั้นตอนต่อไป: นำหลักคูณที่ตัว <span class="highlight-span">' + mulDigit + '</span> ใน ' + placeValueName + ' (มีค่าเป็น ' + actualValue + ') ไปคูณตัวตั้งทีละหลัก',
+            sub: 'เริ่มคูณหลักหน่วยของตัวตั้งขึ้นไป',
+            speech: 'นำตัวคูณหลักคือ ' + mulDigit + ' ไปคูณกับตัวตั้งทีละหลัก',
+            state: {
+              multiplicand: multiplicandDigits,
+              multiplier: multiplierDigits,
+              carries: Array(gridWidth).fill(null),
+              partialProducts: JSON.parse(JSON.stringify(partialProducts)),
+              showFinal: false,
+              highlightMultiplicand: null,
+              highlightMultiplier: multiplierIdx,
+              highlightCarryCol: null,
+              highlightResultRow: activeRowIdx,
+              highlightResultCol: null
+            }
+          });
+
+          var carry = 0;
+          var carriesForThisDigit = Array(gridWidth).fill(null);
+
+          // Multiply digit by digit of multiplicand from right to left
+          for (var i = 0; i < multiplicandDigits.length; i++) {
+            var multiplicandIdx = multiplicandDigits.length - 1 - i;
+            var multDigit = multiplicandDigits[multiplicandIdx];
+            var prod = (multDigit * mulDigit) + carry;
+            var newDigit = prod % 10;
+            var nextCarry = Math.floor(prod / 10);
+            
+            // Col index in grid width
+            var colIdx = gridWidth - 1 - j - i;
+            
+            // Set partial product digit
+            partialProducts[activeRowIdx][colIdx] = newDigit;
+            
+            var stepDescText = 'คูณหลัก ' + (i === 0 ? 'หน่วย' : i === 1 ? 'สิบ' : i === 2 ? 'ร้อย' : 'พัน') + ': <span class="highlight-span">' + multDigit + ' × ' + mulDigit + ' = ' + (multDigit * mulDigit) + '</span>';
+            var stepSubText = '';
+            var speechText = multDigit + ' คูณ ' + mulDigit + ' ได้ ' + (multDigit * mulDigit);
+            
+            if (carry > 0) {
+              stepDescText += ' บวกตัวทด ' + carry + ' รวมเป็น ' + prod;
+              speechText += ' บวกตัวทด ' + carry + ' รวมเป็น ' + prod;
+            }
+            
+            stepDescText += ' -> เขียนเลข <span class="highlight-span">' + newDigit + '</span>';
+            speechText += ' เขียน ' + newDigit;
+            
+            if (nextCarry > 0) {
+              // Position carry in carry row (one column to the left)
+              carriesForThisDigit[colIdx - 1] = nextCarry;
+              stepDescText += ' และนำไปทดหลักสิบ/ถัดไป <span class="highlight-span">' + nextCarry + '</span>';
+              speechText += ' ทด ' + nextCarry;
+            }
+            
+            traceSteps.push({
+              type: 'multiply_step',
+              desc: stepDescText,
+              sub: 'ผลลัพธ์ย่อยในหลักนี้คือ ' + newDigit,
+              speech: speechText,
+              state: {
+                multiplicand: multiplicandDigits,
+                multiplier: multiplierDigits,
+                carries: JSON.parse(JSON.stringify(carriesForThisDigit)),
+                partialProducts: JSON.parse(JSON.stringify(partialProducts)),
+                showFinal: false,
+                highlightMultiplicand: multiplicandIdx,
+                highlightMultiplier: multiplierIdx,
+                highlightCarryCol: nextCarry > 0 ? colIdx - 1 : null,
+                highlightResultRow: activeRowIdx,
+                highlightResultCol: colIdx
+              }
+            });
+            
+            carry = nextCarry;
+          }
+
+          // If final carry remains
+          if (carry > 0) {
+            var finalColIdx = gridWidth - 1 - j - multiplicandDigits.length;
+            partialProducts[activeRowIdx][finalColIdx] = carry;
+            
+            traceSteps.push({
+              type: 'final_carry',
+              desc: 'ดึงตัวทดหลักสุดท้ายที่เหลือ <span class="highlight-span">' + carry + '</span> ลงมาเขียนด้านหน้าสุด',
+              sub: 'เสร็จสิ้นการคูณผลคูณย่อยของหลักนี้',
+              speech: 'ดึงตัวทดสุดท้าย ' + carry + ' ลงมาเขียนข้างหน้า',
+              state: {
+                multiplicand: multiplicandDigits,
+                multiplier: multiplierDigits,
+                carries: JSON.parse(JSON.stringify(carriesForThisDigit)),
+                partialProducts: JSON.parse(JSON.stringify(partialProducts)),
+                showFinal: false,
+                highlightMultiplicand: null,
+                highlightMultiplier: null,
+                highlightCarryCol: null,
+                highlightResultRow: activeRowIdx,
+                highlightResultCol: finalColIdx
+              }
+            });
+          }
+        }
+
+        // 3. Summing the partial products (Only if multiplier is 2 digits or more)
+        if (numMultiplierDigits > 1) {
+          traceSteps.push({
+            type: 'start_sum',
+            desc: 'ขั้นต่อไป: นำผลคูณย่อยทั้ง <span class="highlight-span">' + numMultiplierDigits + ' แถว</span> มาบวกกันตามแนวตั้ง',
+            sub: 'บวกเลขแต่ละหลักจากขวาไปซ้าย',
+            speech: 'นำผลคูณย่อยแต่ละแถวมารวมกันจากหลักหน่วยไปหลักซ้ายมือ',
+            state: {
+              multiplicand: multiplicandDigits,
+              multiplier: multiplierDigits,
+              carries: Array(gridWidth).fill(null),
+              partialProducts: JSON.parse(JSON.stringify(partialProducts)),
+              showFinal: false,
+              highlightMultiplicand: null,
+              highlightMultiplier: null,
+              highlightCarryCol: null,
+              highlightResultRow: null,
+              highlightResultCol: null
+            }
+          });
+        }
+
+        // Final Answer State
+        traceSteps.push({
+          type: 'done',
+          desc: 'การคำนวณสำเร็จ! ผลลัพธ์สุดท้ายคือ <span class="highlight-span">' + finalResult.toLocaleString('th-TH') + '</span>',
+          sub: 'สรุปคำตอบ: ' + m1 + ' × ' + m2 + ' = ' + finalResult,
+          speech: 'ผลคูณสรุปสุดท้ายได้เป็น ' + finalResult,
+          state: {
+            multiplicand: multiplicandDigits,
+            multiplier: multiplierDigits,
+            carries: Array(gridWidth).fill(null),
+            partialProducts: JSON.parse(JSON.stringify(partialProducts)),
+            showFinal: true,
+            highlightMultiplicand: null,
+            highlightMultiplier: null,
+            highlightCarryCol: null,
+            highlightResultRow: null,
+            highlightResultCol: null
+          }
+        });
+
+        currentStepIndex = 0;
+        renderStep(currentStepIndex);
+      }
+
+      // Render math grid based on current trace step
+      function renderStep(idx) {
+        if (idx < 0 || idx >= traceSteps.length) return;
+        
+        var step = traceSteps[idx];
+        var state = step.state;
+        
+        var m1 = state.multiplicand;
+        var m2 = state.multiplier;
+        var carries = state.carries;
+        var partials = state.partialProducts;
+        
+        var finalResult = parseInt(inputMultiplicand.value,10) * parseInt(inputMultiplier.value,10);
+        var finalResultStr = String(finalResult);
+        var gridWidth = Math.max(finalResultStr.length, m1.length, m2.length + 1) + 2;
+
+        mathGrid.innerHTML = '';
+        
+        // --- 1. Carries row ---
+        var carryRowDiv = document.createElement('div');
+        carryRowDiv.className = 'math-row carry-row';
+        for (var c = 0; c < gridWidth; c++) {
+          var cell = document.createElement('div');
+          cell.className = 'carry-cell';
+          if (carries[c] !== null) {
+            cell.textContent = String(carries[c]);
+            if (state.highlightCarryCol === c) {
+              cell.classList.add('cell-highlight-carry');
+            }
+          }
+          carryRowDiv.appendChild(cell);
+        }
+        mathGrid.appendChild(carryRowDiv);
+
+        // --- 2. Multiplicand row ---
+        var m1RowDiv = document.createElement('div');
+        m1RowDiv.className = 'math-row';
+        var m1StartIdx = gridWidth - m1.length;
+        for (var col = 0; col < gridWidth; col++) {
+          var cell = document.createElement('div');
+          cell.className = 'math-cell';
+          if (col >= m1StartIdx) {
+            var digitIdx = col - m1StartIdx;
+            cell.textContent = String(m1[digitIdx]);
+            if (state.highlightMultiplicand === digitIdx) {
+              cell.classList.add('cell-highlight-multiplicand');
+            }
+          }
+          m1RowDiv.appendChild(cell);
+        }
+        mathGrid.appendChild(m1RowDiv);
+
+        // --- 3. Multiplier row ---
+        var m2RowDiv = document.createElement('div');
+        m2RowDiv.className = 'math-row';
+        var m2StartIdx = gridWidth - m2.length;
+        for (var col = 0; col < gridWidth; col++) {
+          var cell = document.createElement('div');
+          cell.className = 'math-cell';
+          if (col === m2StartIdx - 1) {
+            cell.className = 'math-cell op-sign';
+            cell.textContent = '×';
+          } else if (col >= m2StartIdx) {
+            var digitIdx = col - m2StartIdx;
+            cell.textContent = String(m2[digitIdx]);
+            if (state.highlightMultiplier === digitIdx) {
+              cell.classList.add('cell-highlight-multiplier');
+            }
+          }
+          m2RowDiv.appendChild(cell);
+        }
+        mathGrid.appendChild(m2RowDiv);
+        
+        // Single Line Divider
+        var line1 = document.createElement('div');
+        line1.className = 'line-single';
+        mathGrid.appendChild(line1);
+
+        // --- 4. Partial products ---
+        for (var p = 0; p < partials.length; p++) {
+          var pRowDiv = document.createElement('div');
+          pRowDiv.className = 'math-row';
+          for (var col = 0; col < gridWidth; col++) {
+            var cell = document.createElement('div');
+            cell.className = 'math-cell';
+            if (partials[p][col] !== null) {
+              cell.textContent = String(partials[p][col]);
+              
+              // Color highlight zero shifted cells differently
+              var isTrailingZero = (col >= gridWidth - p) && (partials[p][col] === 0);
+              if (isTrailingZero) {
+                cell.classList.add('cell-zero-placeholder');
+              }
+              
+              if (state.highlightResultRow === p && state.highlightResultCol === col) {
+                cell.classList.add('cell-highlight-result');
+              }
+            }
+            pRowDiv.appendChild(cell);
+          }
+          mathGrid.appendChild(pRowDiv);
+        }
+
+        // --- 5. Final Answer Sum ---
+        if (state.showFinal) {
+          // Divider line before final sum
+          if (partials.length > 1) {
+            var lineSum = document.createElement('div');
+            lineSum.className = 'line-single';
+            mathGrid.appendChild(lineSum);
+          }
+          
+          var finalRowDiv = document.createElement('div');
+          finalRowDiv.className = 'math-row';
+          var ansStartIdx = gridWidth - finalResultStr.length;
+          for (var col = 0; col < gridWidth; col++) {
+            var cell = document.createElement('div');
+            cell.className = 'math-cell cell-highlight-result';
+            if (col >= ansStartIdx) {
+              cell.textContent = finalResultStr[col - ansStartIdx];
+            } else {
+              cell.className = 'math-cell';
+            }
+            finalRowDiv.appendChild(cell);
+          }
+          mathGrid.appendChild(finalRowDiv);
+          
+          // Double line under answer
+          var line2 = document.createElement('div');
+          line2.className = 'line-double';
+          mathGrid.appendChild(line2);
+        }
+
+        // Update Explanatory text UI
+        stepCounter.textContent = 'ขั้นตอนที่ ' + (idx + 1) + '/' + traceSteps.length;
+        stepDesc.innerHTML = step.desc;
+        stepSub.textContent = step.sub || '';
+        
+        // Update Buttons state
+        btnPrev.disabled = idx === 0;
+        btnNext.disabled = idx === traceSteps.length - 1;
+        btnPlay.disabled = idx === traceSteps.length - 1;
+        
+        window._lastSpeech = step.speech;
+      }
+
+      // TTS Explanations
+      function speak() {
+        if (!window._lastSpeech || !window.KAMPAI || !KAMPAI.sound || !KAMPAI.sound.speak) return;
+        KAMPAI.sound.speak(window._lastSpeech, 'th-TH');
+      }
+
+      // Auto Player
+      function togglePlay() {
+        if (playInterval) {
+          clearInterval(playInterval);
+          playInterval = null;
+          btnPlay.textContent = '▶ เล่นอัตโนมัติ';
+          btnPlay.classList.remove('bg-red-600');
+        } else {
+          btnPlay.textContent = '⏹ หยุดเล่น';
+          btnPlay.classList.add('bg-red-600');
+          playInterval = setInterval(function () {
+            if (currentStepIndex < traceSteps.length - 1) {
+              currentStepIndex++;
+              renderStep(currentStepIndex);
+              speak();
+            } else {
+              clearInterval(playInterval);
+              playInterval = null;
+              btnPlay.textContent = '▶ เล่นอัตโนมัติ';
+              btnPlay.classList.remove('bg-red-600');
+            }
+          }, 3500);
+        }
+      }
+
+      // Bind Event Listeners
+      btnReveal.onclick = function () {
+        generateTrace();
+      };
+      
+      btnPrev.onclick = function () {
+        if (currentStepIndex > 0) {
+          currentStepIndex--;
+          renderStep(currentStepIndex);
+        }
+      };
+      
+      btnNext.onclick = function () {
+        if (currentStepIndex < traceSteps.length - 1) {
+          currentStepIndex++;
+          renderStep(currentStepIndex);
+        }
+      };
+      
+      btnPlay.onclick = togglePlay;
+      btnSpeak.onclick = speak;
+      btnRandom.onclick = randomize;
+
+      document.getElementById('btnBack').onclick = function () {
+        if (window.KAMPAI && KAMPAI.goHome) KAMPAI.goHome();
+        else history.back();
+      };
+
+      // Inputs event sync
+      inputMultiplicand.addEventListener('input', function() {
+        if (playInterval) clearInterval(playInterval);
+      });
+      inputMultiplier.addEventListener('input', function() {
+        if (playInterval) clearInterval(playInterval);
+      });
+
+      // Initial Seed
+      generateTrace();
+    })();
+  </script>
+</body>
+</html>
